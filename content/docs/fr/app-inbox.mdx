@@ -1,0 +1,143 @@
+---
+title: "Boîte de réception Customermates : fils et réponses"
+description: "La boîte de réception réunit e-mail, LinkedIn, WhatsApp, Instagram et Telegram : lire, répondre, trier, partager et relier aux enregistrements."
+---
+
+## Qu’est-ce que la boîte de réception ? [#what-is-the-inbox]
+
+La [Boîte de réception](app:inbox) est la messagerie unifiée de Customermates Cloud : conversations e-mail, LinkedIn, WhatsApp, Instagram et Telegram dans une seule liste, l’activité la plus récente en premier. Cliquez sur une conversation pour la lire à côté de la liste ; sur les écrans étroits, la liste et la conversation s’affichent tour à tour. Depuis une conversation, vous répondez sur son canal d’origine, définissez son état, déplacez un e-mail vers un autre dossier, la partagez avec votre équipe et associez ses participants à des enregistrements. Vous connectez les comptes eux-mêmes sur [Canaux](app:settings/channels), voir [Guide de l’application, Profil](/docs/app-profile).
+
+## Qui peut utiliser la boîte de réception, et pourquoi est-elle verrouillée sur Starter ou absente de la version auto-hébergée ? [#who-can-use-the-inbox]
+
+Les quatre conditions doivent être réunies :
+
+- **Customermates Cloud.** Les installations auto-hébergées n’ont pas de boîte de réception : l’entrée de la barre latérale est masquée et l’ouvrir mène au tableau de bord.
+- **Une formule avec messagerie :** Pro, Business, Max, Enterprise ou un essai. Avec Starter, la boîte de réception reste dans la barre latérale mais affiche **Passez à une formule supérieure pour débloquer la messagerie**, et **Passer à une formule supérieure** ouvre [Facturation](app:settings/billing).
+- **Un abonnement utilisable :** statut **Actif** ou essai non terminé. Tant que le statut est **En retard de paiement** ou **Résilié**, la boîte de réception est verrouillée de la même façon.
+- **Votre rôle :** **Messages de la boîte de réception** avec **Accès en lecture** réglé sur **Tous**. Avec **Aucun**, l’entrée de la barre latérale est masquée et ouvrir la boîte de réception mène au tableau de bord. Le rôle **Administrateur** y a toujours accès.
+
+Tant que la formule ou l’abonnement verrouille la boîte de réception, l’avis de mise à niveau reste visible et les actualisations en arrière-plan des conversations et du nombre de messages non lus s’arrêtent. Quand l’accès revient, rouvrir la boîte de réception recharge les conversations. Les conversations privées gardent leurs réglages de visibilité tout du long.
+
+## Ai-je besoin d’un canal connecté ? [#do-i-need-a-connected-channel]
+
+Pas pour ouvrir la boîte de réception : sans canal à vous, vous voyez quand même ce que vos collègues partagent. Pour envoyer et recevoir sur vos propres comptes, il en faut un. Une boîte de réception vide affiche **Rien ici pour le moment** ; les membres avec **Créer** sur **Messages de la boîte de réception** voient dessous un bouton **Canaux** (quand Mate est disponible, des suggestions de départ s’affichent à la place). Ajoutez un compte e-mail, LinkedIn, WhatsApp, Instagram ou Telegram avec [Connecter un canal](app:settings/channels?focus=connect), voir [Comment connecter un canal ?](/docs/app-profile#how-do-i-connect-a-channel). Canaux par membre : Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] ; un essai compte comme Pro.
+
+## Quelles conversations vois-je, et un administrateur peut-il lire mes conversations privées ? [#which-conversations-do-i-see]
+
+La liste combine les canaux que vous avez connectés, les canaux qu’un collègue a partagés avec tout l’espace de travail, et les conversations isolées qu’un collègue a partagées depuis un canal privé. Les conversations privées d’un collègue n’apparaissent jamais, quel que soit votre rôle, **Administrateur** compris.
+
+Pour les comptes e-mail, seuls les dossiers activés dans l’onglet **Dossiers** du compte sur [Canaux](app:settings/channels) apparaissent. Par défaut, tous les dossiers sont activés sauf la corbeille, les indésirables ou le spam, les brouillons et le dossier de tous les messages ; si du courrier d’une archive manque, vérifiez son interrupteur. Une conversation sans aucun message n’apparaît que tant qu’elle contient un brouillon enregistré.
+
+## De quelles autorisations la boîte de réception a-t-elle besoin ? [#which-permissions-does-the-inbox-need]
+
+Les rôles se modifient sur [Rôles](app:settings/roles). La boîte de réception utilise la ligne **Messages de la boîte de réception** : **Créer**, **Modifier**, **Supprimer**, et **Accès en lecture** **Aucun** ou **Tous**.
+
+| Pour faire ceci | Le rôle doit avoir |
+| --- | --- |
+| Voir la boîte de réception et lire les conversations | **Messages de la boîte de réception** : **Accès en lecture** **Tous** |
+| Répondre, enregistrer ou envoyer des brouillons, démarrer une conversation depuis un contact | **Messages de la boîte de réception** : **Créer** |
+| Abandonner un brouillon | **Messages de la boîte de réception** : **Supprimer** |
+| Changer l’état, déplacer un e-mail, **Actualiser**, **Resynchroniser la conversation**, charger d’anciens messages, partager une conversation | **Messages de la boîte de réception** : **Modifier** |
+| Associer l’adresse d’un participant à un enregistrement, ou créer un enregistrement à partir d’elle | Accès en lecture et en modification à cet enregistrement ; accès en création pour un nouvel enregistrement |
+| Lier un enregistrement à cette seule conversation | **Messages de la boîte de réception** : **Modifier**, plus accès en lecture et en modification à l’enregistrement |
+| Ajouter un champ Coordonnées à une liste | **Modèle de données** |
+
+Sans **Créer**, la zone de réponse est masquée. Sans **Modifier**, l’action de déplacement est masquée, l’état est une puce en lecture seule, et ouvrir une conversation non lue la laisse **Non lue**. Partager une conversation isolée exige aussi que vous possédiez son canal.
+
+## Comment rechercher, filtrer ou actualiser la boîte de réception ? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+La barre du haut de la [Boîte de réception](app:inbox) contient :
+
+- **Filtres** recherche et filtre : saisissez du texte et choisissez l’entrée **contient** pour trouver des conversations par objet, texte des messages, nom de la conversation, et noms ou adresses des participants (F l’ouvre). Il propose aussi **État**, **Fiches liées**, **Participants** (**pas entièrement lié** trouve les conversations avec quelqu’un qui n’a aucun enregistrement correspondant que vous pouvez lire), **Fournisseur**, **Canal**, **Dossier de messagerie**, **Brouillon** (**en a au moins un** trouve les conversations avec un brouillon enregistré), **Dernier message** (**Envoyé** ou **Reçu**), **Date du dernier message** et **Dernière activité**.
+- **Actualiser** récupère immédiatement les nouveaux messages (**Boîte de réception actualisée.**) et signale les canaux qui ont atteint une limite de débit, doivent être reconnectés ou n’ont pas pu être actualisés. Exige **Modifier**.
+- **Canaux** ouvre [Canaux](app:settings/channels), avec un nombre quand des canaux demandent de l’attention. Exige **Créer**.
+
+**Dossier de messagerie** regroupe les dossiers sous leur compte, de sorte que des dossiers de même nom restent distincts ; **parmi** trouve les conversations avec un message visible dans l’un des dossiers sélectionnés, **hors de** les exclut. **Dernier message** et **Date du dernier message** utilisent le dernier vrai message envoyé ou reçu ; les brouillons, les messages supprimés et les événements système ne comptent pas. Pour le courrier d’il y a trois à sept jours, ajoutez deux conditions **Date du dernier message** : **Plus ancien que…** 3 jours et **7 jours**. **Dernière activité** inclut les brouillons enregistrés. Tous les filtres respectent le partage des comptes et les dossiers activés.
+
+La rangée de vues commence par **Toutes les discussions**, suivie de vos vues enregistrées personnelles ; cliquez sur **Toutes les discussions** pour quitter une vue. La liste affiche 25 conversations par page (5, 10, 25 ou 100). L’entrée de la barre latérale indique combien des conversations que vous pouvez voir sont **Non lues**.
+
+## Comment ouvrir une conversation précise ? [#how-do-i-open-a-specific-conversation]
+
+Cliquez sur sa ligne. L’adresse du navigateur pointe alors vers cette conversation : vous pouvez l’ajouter à vos favoris ou l’envoyer à un collègue qui peut la voir ; une adresse que vous ne pouvez pas ouvrir vous ramène à la boîte de réception. Pour trouver les conversations d’un enregistrement, choisissez-le dans le filtre **Fiches liées** : la correspondance utilise les coordonnées de l’enregistrement et vérifie toujours votre accès à chaque conversation. Mate n’ouvre pas une conversation précise pour vous : il ouvre la boîte de réception et nomme la conversation.
+
+Avec **Modifier** sur **Messages de la boîte de réception**, faire défiler jusqu’en haut d’une conversation récupère les anciens messages auprès du fournisseur, une fois par conversation jusqu’à ce que vous rechargiez la page. **Resynchroniser la conversation** dans l’en-tête récupère de nouveau toute la conversation.
+
+## Que contient l’en-tête de la conversation ? [#what-is-in-the-conversation-header]
+
+À côté du nom de la conversation, de gauche à droite :
+
+| Commande | Ce qu’elle fait |
+| --- | --- |
+| **Déplacer la conversation vers un dossier…** (IMAP et Outlook) | Classe la conversation dans un autre dossier ; exige **Modifier** |
+| **Resynchroniser la conversation** | Récupère de nouveau la conversation ; exige **Modifier** |
+| Puce **Conversation privée** ou **Conversation partagée** | Ouvre **Paramètres de la conversation** |
+| **Certains participants n’ont aucune fiche liée que vous pouvez consulter** | Ouvre **Paramètres de la conversation** ; affiché quand vous pouvez créer ou modifier des enregistrements dans une liste avec un champ Coordonnées |
+| Puce d’état | **Non lue**, **Ouverte**, **Fermée** ou **Spam** |
+
+Sur les écrans étroits, les puces n’affichent que des icônes.
+
+Les messages entrants sont à gauche, les sortants à droite. L’en-tête compact d’un e-mail montre l’expéditeur, l’heure et le premier destinataire ; **Détails** (aussi sous **Actions de l’e-mail**) affiche **De**, **À**, **Cc** et **Cci**. Cci n’est visible que sur le courrier sortant, pour le propriétaire du compte et les collègues ayant accès à tout le compte ; partager une conversation isolée ne le révèle jamais. Cliquez sur une adresse pour la copier. Un bouton de dossier sous les destinataires indique où cet e-mail est classé. Les e-mails rédigés dans Customermates et les e-mails en texte brut utilisent les couleurs et la police de l’application et suivent votre thème clair ou sombre. Le HTML reçu qui apporte son propre mode sombre s’affiche dans votre thème ; les autres HTML reçus gardent la mise en page et les couleurs de l’expéditeur sur fond clair. Les images distantes ne se chargent qu’après **Charger les images distantes**.
+
+## Que signifient les états des conversations ? [#what-do-the-thread-states-mean]
+
+| État | Signification |
+| --- | --- |
+| **Non lue** | Nouvelle, ou un nouveau message est arrivé |
+| **Ouverte** | Lue, demande encore de l’attention |
+| **Fermée** | Terminée |
+| **Spam** | Marquée comme spam |
+
+Ouvrir une conversation non lue la passe à **Ouverte** (uniquement avec **Modifier**). L’état est partagé par toutes les personnes qui voient la conversation. Un nouveau message entrant la remet à **Non lue**, même depuis **Fermée** ou **Spam**. **Spam** n’est qu’une étiquette : elle ne masque pas la conversation, ne bloque pas l’expéditeur et ne signale rien au fournisseur ; utilisez le filtre **État** pour la garder hors de vue. Définir un état n’envoie jamais rien.
+
+## Comment déplacer un e-mail vers un autre dossier ? [#how-do-i-move-an-email-to-another-folder]
+
+Dans les conversations IMAP et Outlook, cliquez sur le bouton de dossier d’un e-mail et choisissez une destination sous **Déplacer cet e-mail vers…** pour déplacer cet e-mail seul, ou utilisez **Déplacer la conversation vers un dossier…** dans l’en-tête pour classer toute la conversation. Les messages sont aussi déplacés dans la vraie boîte aux lettres. Envoyés et Brouillons ne sont jamais des destinations, et les messages qui s’y trouvent restent en place. Les conversations Gmail, les membres sans **Modifier** et les collègues qui voient une conversation partagée depuis un canal privé peuvent lire les noms de dossiers mais n’ont aucune option de déplacement ; seul le propriétaire du canal les classe.
+
+Vous pouvez continuer à travailler pendant le déplacement. Les messages déplacés vers un dossier désactivé dans l’onglet **Dossiers** du compte disparaissent de la conversation ; quand plus rien de visible ne reste, la confirmation indique qu’elle n’apparaît plus dans votre boîte de réception. Si le fournisseur applique une limite de débit en cours de route, un message l’indique et vous pouvez déplacer le reste plus tard.
+
+## Comment partager une seule conversation ? [#how-do-i-share-a-single-conversation]
+
+Cliquez sur **Conversation privée** ou **Conversation partagée** dans l’en-tête pour ouvrir **Paramètres de la conversation**. L’interrupteur **Partager avec l’équipe** partage uniquement cette conversation avec toutes les personnes dont le rôle peut lire la boîte de réception (**Partagée vers le CRM**) ; le désactiver affiche **La conversation est désormais privée**. Seul le propriétaire du canal peut l’utiliser, avec une formule avec messagerie et **Modifier**. Les collègues peuvent alors lire la conversation, changer son état et la resynchroniser, mais pas la déplacer, et vous seul pouvez répondre tant que le canal lui-même est privé.
+
+Pour partager toutes les conversations d’un canal, activez **Visibilité** dans l’onglet **Détails** du canal sur [Canaux](app:settings/channels) (Business, Max ou Enterprise). L’interrupteur par conversation reste alors activé et verrouillé.
+
+## Comment lier des participants et des enregistrements ? [#how-do-i-link-a-participant]
+
+Les messages sont associés aux enregistrements par leurs coordonnées : un enregistrement dont le champ Coordonnées contient une adresse e-mail, un numéro de téléphone ou un profil affiche chaque conversation avec cette adresse. Un numéro de téléphone correspond aussi aux discussions WhatsApp du même numéro. Ouvrez **Paramètres de la conversation**. Sous **Personnes**, chaque participant affiche sous forme de puces les enregistrements que vous pouvez voir et qui correspondent à son adresse. **Lier** ouvre une recherche qui ajoute l’adresse aux coordonnées d’un enregistrement de n’importe quelle liste ayant un champ Coordonnées ; le **✕** d’une puce ne retire que cette correspondance. Une adresse peut appartenir à plusieurs enregistrements, par exemple un contact et une organisation, et toutes les autres conversations avec la même adresse suivent. Les champs de texte ordinaires ne servent jamais à la correspondance.
+
+Sous **Fiches de la conversation**, le sélecteur du champ (**Lier une fiche**) rattache uniquement cette conversation à un enregistrement, par exemple une affaire dans une liste sans champ Coordonnées ; les autres conversations avec le participant restent séparées. Lier n’accorde jamais l’accès aux messages privés ni aux enregistrements restreints.
+
+## Comment répondre à une conversation ? [#how-do-i-reply-to-a-conversation]
+
+Cliquez sur **Écrivez une réponse...** (e-mail) ou **Écrivez un message...** (chat) sous la conversation. Les réponses par e-mail affichent **Objet** et **À**, remplis à partir de la conversation ; **Cc/Cci** ajoute ces champs, et toute combinaison fonctionne tant qu’il y a un destinataire valide. Vous rédigez l’e-mail dans un éditeur Markdown, et votre signature, si elle est activée, est ajoutée à l’envoi. Les destinataires en Cci ne sont jamais repris dans une réponse. Les réponses par chat sont en texte brut. Utilisez **Joindre des fichiers** et **Insérer un émoji** selon les besoins, puis **Envoyer** ou Cmd/Ctrl+Enter ; **Plus d’options d’envoi** contient **Enregistrer comme brouillon**.
+
+Si l’envoi échoue, **Réessayer** n’apparaît que lorsqu’une nouvelle tentative peut aider (limite de débit, panne temporaire). Quand le fournisseur rejette un message, modifiez-le d’abord ; après un délai dépassé, vérifiez la conversation, car le message est peut-être déjà parti. Un canal qui doit être reconnecté est signalé avant tout envoi, et seul son propriétaire peut le reconnecter. Les réponses partent du canal propre à la conversation : vous ne pouvez donc répondre que sur des canaux que vous possédez ou qui sont partagés avec l’espace de travail.
+
+## Comment démarrer une nouvelle conversation ou écrire un nouvel e-mail à un contact ? [#how-do-i-start-a-new-conversation]
+
+La boîte de réception n’a pas de bouton pour une nouvelle conversation. Ouvrez la fiche de la personne, par exemple dans votre liste de contacts, et cliquez sur l’icône **Nouveau message** à côté d’une adresse e-mail ou d’un identifiant dans ses coordonnées. Quand plusieurs de vos canaux peuvent envoyer, choisissez-en un sous **De** ; pour LinkedIn avec Sales Navigator ou Recruiter, **Envoyer en tant que** propose **Classic**, **Sales Navigator InMail** ou **Recruiter InMail**. Après **Envoyer**, le message part en arrière-plan (**Envoi du message**, puis **Message envoyé.**). Cela exige Customermates Cloud et **Créer** sur **Messages de la boîte de réception**.
+
+## Comment fonctionnent les brouillons et les pièces jointes ? [#how-do-drafts-and-attachments-work]
+
+**Enregistrer comme brouillon** conserve un message sans l’envoyer ; pendant que vous modifiez un brouillon enregistré, il affiche **Mettre à jour le brouillon**. Un brouillon de réponse reste dans sa conversation avec **Envoyer le brouillon**, **Modifier** et **Abandonner**. Un brouillon pour une nouvelle conversation apparaît dans la liste comme sa propre conversation (« Brouillon enregistré. Vous le trouverez dans la boîte de réception. »), y compris quand vous avez déjà un brouillon pour les mêmes personnes ; le filtre **Brouillon** avec **en a au moins un** les liste tous. Une conversation contient un seul brouillon. Un nouvel InMail LinkedIn ne peut pas être enregistré comme brouillon. Abandonner est irréversible. L’application, l’API REST et MCP partagent les mêmes brouillons.
+
+Chaque version de brouillon enregistrée n’est envoyée qu’une seule fois. Si le brouillon a changé après son ouverture, par exemple dans un autre onglet, par Mate ou par un agent, **Envoyer** conserve votre texte et propose **Charger la dernière version** ou **Envoyer la mienne**. Si l’envoi n’a pas pu être confirmé, le brouillon n’est pas renvoyé : vérifiez d’abord la conversation, pour un e-mail aussi votre dossier Envoyés, puis modifiez et mettez à jour le brouillon pour l’envoyer malgré tout. Pour un e-mail, dès que la copie envoyée de cet envoi antérieur arrive depuis votre messagerie, le brouillon compte comme envoyé et quitte la boîte de réception ; il n’est alors plus renvoyé, pas même après une modification.
+
+Pour cela, chaque brouillon envoyé laisse un enregistrement d’envoi : ses identifiants, son état et des empreintes du contenu envoyé, jamais le contenu lui-même. Pour un e-mail, les empreintes couvrent À, Cc, l’objet, le texte et les noms des pièces jointes, et pour l’envoi exact aussi Cci et le contenu des pièces jointes ; pour un chat, elles couvrent le texte et les pièces jointes. L’enregistrement est supprimé 30 jours après sa dernière modification une fois son brouillon disparu. Tant que le brouillon existe encore, par exemple après un envoi qui n’a pas pu être confirmé, l’enregistrement reste, de sorte que le brouillon ne peut pas partir deux fois. Déconnecter le canal supprime ses enregistrements.
+
+**Joindre des fichiers** ajoute jusqu’à 20 fichiers par message, 15 Mo au total. Les brouillons ne peuvent pas conserver de pièces jointes (« Supprimez les pièces jointes avant d’enregistrer ce brouillon. »). Dans les messages reçus, les médias pris en charge s’ouvrent en ligne, les autres fichiers se téléchargent, et les éléments non pris en charge affichent **Non pris en charge**.
+
+## Comment définir une signature d’e-mail ? [#how-do-i-set-an-email-signature]
+
+La signature appartient à chaque compte e-mail que vous possédez : sur [Canaux](app:settings/channels), ouvrez le compte Gmail, Outlook ou IMAP et utilisez son onglet **E-mail**. Réglez la police, la taille et le style des liens, activez **Ajouter une signature**, choisissez une mise en page avec ou sans logo et rédigez le texte en Markdown. Tant qu’elle est activée, elle est ajoutée sous chaque e-mail envoyé depuis ce compte, depuis la boîte de réception, l’API REST ou MCP : ne la collez donc pas dans le message ; l’éditeur en affiche un aperçu. Tous les champs : [Apparence des e-mails et signature](/docs/app-profile#email-appearance-and-signature).
+
+## Pour les agents [#tips-for-agents]
+
+Privilégiez les outils [MCP](/docs/mcp) plutôt que de cliquer : `get_messaging_threads` lit les conversations, `update_messaging_thread` définit l’état (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` classe un e-mail (REST `POST /api/v1/messaging/threads/{id}/move` ; échoue pour une conversation partagée depuis le canal privé de quelqu’un d’autre), `send_email` et `send_chat_message` démarrent des conversations, et `save_message_draft` (REST `POST /api/v1/messaging/drafts`) en prépare une pour relecture ; envoyez ou abandonnez un brouillon avec son identifiant de message et son `draftRevision` actuel. `resolve_record_identifiers` trouve les enregistrements qui correspondent à une adresse, `manage_conversation_records` lit et modifie les enregistrements liés à une conversation, et `mutate_crm_record` modifie les coordonnées d’un enregistrement.
+
+**Changement incompatible :** l’envoi de brouillons enregistrés via l’API REST a changé. `POST /api/v1/messaging/send-email` répond `200`, et `POST /api/v1/messaging/threads/{id}/messages` et `POST /api/v1/messaging/start-chat` répondent `201`, dès que le message envoyé est enregistré, y compris quand l’appel répète un envoi antérieur de la même révision de brouillon ; une telle répétition porte `repeated: true` et n’envoie rien. Ils répondent `202` avec un accusé de réception uniquement tant que le message envoyé n’est pas encore enregistré. Un `draftRevision` périmé ou des destinataires modifiés donnent une réponse `409` avec le customCode `draftChanged` ou `draftRecipientsChanged` au lieu de `404`, et `DELETE /api/v1/messaging/drafts/{id}` avec un `draftRevision` périmé donne une réponse `409` avec le customCode `draftChanged` au lieu de `404`. `POST /api/v1/messaging/drafts`, comme `save_message_draft` avec `connectedAccountId`, crée une nouvelle conversation à chaque appel ; mettez à jour un brouillon enregistré via sa conversation avec `POST /api/v1/messaging/threads/{id}/drafts` ou `threadId`.
+
+## Voir aussi [#related]
+
+- [Guide de l’application, Profil](/docs/app-profile) : connectez les comptes qui alimentent la boîte de réception.
+- [Limites de débit](/docs/messaging-rate-limits) : les budgets par fournisseur pour les lectures et les envois.

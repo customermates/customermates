@@ -1,0 +1,258 @@
+---
+title: "ChatGPT pour la vente : prompts, CRM et données clients"
+description: "ChatGPT pour la vente : prompts par étape d’affaire, résumés de notes d’appel, quelle formule pour les données clients et comment le relier à votre CRM."
+
+relatedHrefs:
+  - /blog/ai-in-sales
+  - /docs/connect-custom-connector
+  - /blog/sales-follow-up-email
+  - /blog/claude-crm
+
+hero:
+  title: "ChatGPT pour la vente : ce qu’il fait bien, les prompts et la connexion au CRM"
+  description: "Où ChatGPT fait gagner du temps dans un processus de vente, des prompts à enregistrer par étape d’affaire, comment transformer des notes d’appel en fiche CRM, quelle formule convient aux données clients et ce qu’il faut pour que ChatGPT mette à jour votre CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-05-07
+  updated: 2026-10-08
+  tags:
+    - ChatGPT pour la vente
+    - IA commerciale
+    - Prompts de vente
+    - Notes d’appel
+    - CRM
+---
+
+# ChatGPT pour la vente : prompts, notes d’appel et connexion au CRM
+
+ChatGPT est efficace pour le travail d’écriture et de réflexion autour d’une vente : recherche sur un compte, premiers brouillons d’e-mails, questions de découverte, réponses aux objections et transformation de notes d’appel désordonnées en résumé propre. Il ne vaut que par les faits que vous lui donnez et, seul, il ne tient pas votre pipeline, ne se souvient pas de ce qu’un collègue a promis à un client et n’envoie rien. Les équipes en tirent le meilleur parti avec des prompts enregistrés dans un Projet, une formule professionnelle pour tout ce qui contient des données clients et, si ChatGPT doit aussi mettre à jour des fiches, un CRM relié par MCP.
+
+Ce guide présente des prompts par étape d’affaire, un flux de travail pour les notes d’appel, les règles de données selon la formule ChatGPT et ce qu’OpenAI exige actuellement pour que ChatGPT puisse écrire dans un CRM. Customermates publie ce guide et apparaît dans une section signalée vers la fin.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Réponse courte">Utilisez ChatGPT pour la recherche, les brouillons et les résumés. Gardez la décision, le bouton d’envoi et la source de vérité entre les mains des personnes et du CRM.</SummaryItem>
+  <SummaryItem label="Configuration">Mettez une fois votre offre, votre client idéal et votre ton dans un Projet ou un GPT personnalisé, pour que chaque prompt parte de ce contexte. OpenAI indique que les Projets sont disponibles sur toutes les formules individuelles, y compris Free.</SummaryItem>
+  <SummaryItem label="Données clients">Sur les formules individuelles, désactivez « Improve the model for everyone ». Avec Business et Enterprise, OpenAI n’entraîne pas ses modèles sur les données d’entreprise par défaut et propose un DPA.</SummaryItem>
+  <SummaryItem label="Écritures dans le CRM">Les applications MCP complètes avec actions d’écriture sont en bêta pour ChatGPT Business, Enterprise et Edu, sur le web uniquement. Pro peut connecter des serveurs MCP en lecture.</SummaryItem>
+  <SummaryItem label="Transparence">Customermates publie ce guide. Les informations sur OpenAI ont été vérifiées le 8 octobre 2026 sur les pages d’OpenAI.</SummaryItem>
+</ArticleSummary>
+
+## Ce que ChatGPT apporte à la vente, et ses limites
+
+| Tâche | Ce que ChatGPT fait bien | À surveiller |
+| --- | --- | --- |
+| Recherche sur un compte avant un appel | Structure en une page ce que vous collez ou ce que la recherche web trouve | Détails faux ou périmés sur les personnes. Vérifiez vous-même les noms, les fonctions et les dates |
+| Premier e-mail ou message LinkedIn | Un premier brouillon précis en quelques secondes si vous donnez un vrai déclencheur | Avec seulement un nom et une URL, il écrit un e-mail générique qui sonne personnel |
+| Questions de découverte | Des questions ouvertes adaptées à la fonction et au secteur | Des questions que vous ne poseriez jamais avec vos mots |
+| Réponses aux objections | Plusieurs angles sur une même objection, à partir de vos propres arguments | Des preuves inventées. Demandez-lui de n’utiliser que les cas que vous fournissez |
+| Notes d’appel vers une fiche CRM | Résumé, décisions et prochaines étapes dans un format fixe | Des responsables ou des dates devinés. Demandez-lui d’écrire « non indiqué » à la place |
+| Revue de pipeline | Des tendances dans une liste d’affaires que vous collez ou connectez | Il ne voit que les champs que vous lui donnez, pas la relation |
+| Envoi et relances | Pas du tout, seul | L’envoi et les cadences demandent votre boîte de réception ou un outil de prospection dédié |
+
+La règle qui en découle : ChatGPT prépare, vous décidez et vous envoyez. Un fait erroné dans une note interne coûte une minute. Un fait erroné dans un e-mail à un acheteur peut coûter l’affaire.
+
+## À configurer une fois : un Projet pour la vente
+
+Avant les prompts, donnez à ChatGPT le contexte qu’il vous demanderait sinon à chaque fois. Dans un Projet ou un GPT personnalisé, ajoutez :
+
+- votre offre en cinq phrases, avec les prix si vous les annoncez ;
+- votre client idéal : secteur, taille, fonction de l’acheteur, problème qui déclenche un achat ;
+- deux ou trois courtes histoires de clients que vous avez le droit de mentionner ;
+- les objections que vous entendez le plus souvent et vos réponses ;
+- des règles de ton, par exemple : « Phrases courtes. Pas de “J’espère que vous allez bien”. Une question par e-mail. »
+
+La page tarifs d’OpenAI indique que les Projets sont disponibles sur toutes les formules individuelles, y compris Free, et que les GPT personnalisés font partie des fonctions de Plus. Gardez un Projet pour la prospection sortante et un pour le travail sur les comptes : un Projet qui contient tout donne des réponses plus vagues.
+
+## Des prompts par étape d’affaire
+
+Remplacez les crochets par des faits réels. Plus la saisie est précise, moins le résultat ressemble à un modèle.
+
+**Fiche de recherche avant un premier appel**
+
+```
+J’ai un premier appel avec [nom], [fonction] chez [entreprise], [taille], [secteur].
+Voici ce que j’ai trouvé : [collez la section « À propos » de LinkedIn, la page de l’entreprise, les actualités récentes].
+Donnez-moi : 3 problèmes probables que notre offre résout, 3 questions ouvertes
+pour les 10 premières minutes et l’histoire client de ce Projet qui convient le mieux.
+Signalez comme hypothèse tout ce que vous devinez.
+```
+
+**Premier e-mail**
+
+```
+Rédigez un premier e-mail à [nom] chez [entreprise]. Déclencheur : [nouvelle embauche, levée de fonds, publication, événement].
+Ce qui compte pour cette personne : [collez]. Notre pertinence en une ligne : [ligne].
+90 mots au maximum, langage simple, une question précise à la fin.
+Pas de compliments, pas de « petit appel rapide », pas d’affirmations sur des résultats que je ne vous ai pas donnés.
+```
+
+**Réponse à une objection**
+
+```
+Le prospect a écrit : « [mots exacts] ».
+Notre réponse habituelle : [collez]. Faits que nous pouvons utiliser : [collez].
+Donnez-moi trois réponses de moins de 80 mots : une qui demande ce qui se cache derrière l’objection,
+une qui y répond directement, une qui propose une première étape plus petite.
+N’utilisez que les faits ci-dessus.
+```
+
+**Relance après un rendez-vous**
+
+```
+Voici mes notes du rendez-vous d’aujourd’hui avec [nom] chez [entreprise] : [collez].
+Rédigez une relance de moins de 150 mots : un remerciement en une ligne, rappel des deux ou trois
+points convenus, prochaines étapes avec responsable et date tels qu’indiqués dans les notes,
+et terminez par le prochain rendez-vous. Si un responsable ou une date manque, écrivez [manquant].
+```
+
+**Revue de pipeline**
+
+```
+Voici mes affaires ouvertes avec étape, valeur, date de dernière activité et prochaine étape : [collez].
+Listez les affaires sans activité depuis plus de 14 jours, les affaires sans prochaine étape,
+et pour chacune une seule question à laquelle je dois répondre avant la revue de lundi.
+N’estimez pas de probabilités de signature.
+```
+
+Le [guide de l’e-mail de relance commerciale](/blog/sales-follow-up-email) propose d’autres structures de relance si c’est l’étape où vos affaires s’enlisent.
+
+## Des notes d’appel à la fiche CRM
+
+Résumer des notes d’appel est l’usage quotidien le plus courant, et c’est là qu’un format de sortie fixe est payant. Collez une transcription ou vos propres notes et demandez des champs qui correspondent à votre CRM :
+
+```
+Résumez ces notes d’appel pour le CRM. Renvoyez exactement ces champs :
+- Résumé : 3 phrases (contexte, ce qui a été décidé, la suite)
+- Points de blocage : liste à puces
+- Décideurs mentionnés : noms et fonctions
+- Prochaines étapes : action, responsable, date
+- Étape suggérée : l’une de [Prospection, Qualification, Démo, Proposition, Négociation]
+Si une information n’est pas dans les notes, écrivez « non indiqué ». N’ajoutez aucun fait.
+
+Notes :
+[collez]
+```
+
+**Avant :** « Appel avec Hanna Roth, Roth Steuerberatung. 6 personnes, liste clients dans Excel, devient brouillonne. Veut WhatsApp et e-mail avec les clients au même endroit. Doit en parler à son associé la semaine prochaine. Envoyer la proposition d’ici mardi. »
+
+**Après :**
+
+> - Résumé : Hanna Roth (Roth Steuerberatung, 6 personnes) remplace une liste clients sous Excel et veut les conversations par e-mail et WhatsApp à côté des fiches clients. Elle en discutera avec son associé la semaine prochaine. Nous envoyons une proposition d’ici mardi.
+> - Points de blocage : liste Excel difficile à tenir à jour ; conversations clients dispersées entre plusieurs canaux.
+> - Décideurs mentionnés : Hanna Roth ; son associé (nom non indiqué).
+> - Prochaines étapes : envoyer la proposition, nous, mardi ; discussion interne, Hanna Roth, semaine prochaine.
+> - Étape suggérée : Proposition.
+
+Trois habitudes rendent les résumés fiables. Identifiez les interlocuteurs dans les transcriptions (« Commercial : », « Client : »), car l’attribution des actions en dépend. Mettez les chiffres et les dates sur leur propre ligne dans vos notes. Et relisez le résultat avant de le coller dans la fiche, car un modèle comble les trous quand on ne lui dit pas le contraire.
+
+Si un outil de réunion enregistre déjà vos appels, son propre résumé est en général générique. Collez sa transcription dans le prompt ci-dessus pour obtenir les champs qu’utilise votre CRM.
+
+## Données clients : quelle formule ChatGPT choisir
+
+La plupart des prompts de vente contiennent des données personnelles : des noms, des fonctions, ce qu’une personne a dit pendant un appel. Ce qu’il en advient dépend de la formule.
+
+| Type de formule | Entraînement sur vos conversations | Que faire |
+| --- | --- | --- |
+| Free, Go, Plus, Pro (individuelles) | Contrôlé par le réglage « Improve the model for everyone » | Désactivez-le dans Settings, Data controls, avant de coller des informations sur vos clients |
+| Business, Enterprise | OpenAI n’entraîne pas ses modèles sur les données d’entreprise par défaut, y compris les données consultées via des applications | Signez l’avenant de traitement des données (DPA) d’OpenAI ; les administrateurs définissent la conservation |
+
+OpenAI propose le DPA pour ChatGPT Business, ChatGPT Enterprise et l’API. Ses conditions grand public pour l’Europe comprennent un avenant distinct pour un usage professionnel : utiliser ChatGPT à titre commercial est donc permis ; la question, pour une entreprise, est de savoir quelles conditions s’appliquent et quelles données vous y mettez.
+
+Au regard du RGPD, cela donne une courte liste de contrôle pour une équipe commerciale :
+
+- Utilisez une formule professionnelle avec un DPA signé pour tout ce qui contient des données clients.
+- Collez la conversation, pas la fiche client entière. Laissez de côté les numéros de téléphone et les adresses dont la tâche n’a pas besoin.
+- Dites à votre équipe quelles formules et quels Projets sont autorisés, et lesquels ne le sont pas.
+- Mentionnez le traitement par IA dans votre politique de confidentialité si vous traitez ainsi les données de prospects.
+
+Il s’agit d’une liste de contrôle de travail, pas d’un conseil juridique. Votre délégué à la protection des données décide des détails.
+
+## ChatGPT seul ou un outil de vente dédié ?
+
+| Votre situation | Ce qui convient |
+| --- | --- |
+| Une personne, une poignée d’affaires actives, des notes dans un document | ChatGPT avec un Projet suffit. Copiez les résultats là où vous gardez vos affaires |
+| Une équipe qui partage des clients et doit savoir qui a dit quoi | Un CRM comme source de vérité, avec ChatGPT ou un autre client IA qui y est connecté |
+| Prospection sortante en volume avec des cadences en plusieurs étapes | Un outil de prospection avec des séquences et des contrôles de délivrabilité. ChatGPT rédige, il n’envoie pas de cadences |
+| Appels enregistrés et transcrits automatiquement | Un enregistreur de réunions plus le prompt de notes d’appel ci-dessus, ou une automatisation qui fait les deux |
+
+ChatGPT ne remplace pas un système qui conserve l’historique des affaires. Sa mémoire appartient à un seul utilisateur, et un historique de conversation n’est pas quelque chose qu’un collègue peut reprendre quand vous êtes en vacances.
+
+## Relier ChatGPT à un CRM
+
+Il existe trois façons, de la plus simple à la plus directe.
+
+1. **Copier-coller.** Fonctionne sur toutes les formules. C’est lent, mais rien ne change dans le CRM tant que vous ne le modifiez pas.
+2. **Un outil d’automatisation.** n8n, Zapier ou Make envoient une transcription ou une nouvelle fiche à l’API d’OpenAI et réécrivent le résultat. Vous payez séparément l’outil d’automatisation et l’API, et vous maintenez le workflow. Le [guide n8n pour débutants](/blog/n8n-for-beginners-build-your-first-workflow) en montre les bases.
+3. **Une application MCP.** ChatGPT appelle directement les outils du CRM : rechercher des contacts, mettre à jour une affaire, ajouter une note.
+
+Pour la troisième voie, le centre d’aide d’OpenAI (consulté le 8 octobre 2026) indique :
+
+- La prise en charge complète de MCP, y compris les actions d’écriture, est déployée en bêta pour ChatGPT Business, Enterprise et Edu.
+- Elle fonctionne uniquement sur ChatGPT web, pas sur mobile.
+- Avec Business, seuls les administrateurs et les propriétaires peuvent activer le mode développeur et créer une application, sous **Workspace settings › Apps › Create**. Les administrateurs Enterprise peuvent l’accorder à certains membres.
+- Les utilisateurs Pro peuvent connecter des serveurs MCP avec des droits de lecture et de récupération en mode développeur, sans actions d’écriture.
+- ChatGPT peut demander une confirmation avant les actions d’écriture, selon les droits de l’application et l’action.
+
+Une petite équipe qui veut que ChatGPT mette à jour le CRM a donc besoin de ChatGPT Business, et d’un administrateur qui ajoute l’application une fois. Les règles de connecteur de Claude diffèrent ; le [guide Claude et CRM](/blog/claude-crm) les présente.
+
+Deux risques comptent une fois que cela fonctionne. Une IA connectée agit avec les droits de la personne qui l’a connectée. Et si votre CRM peut envoyer des e-mails ou des messages, un appel d’envoi envoie. Demandez des brouillons et envoyez-les vous-même.
+
+## Où se situe Customermates
+
+*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes au contact des clients, comme les consultants et les agences. Il fonctionne avec ChatGPT de deux façons.
+
+**Votre ChatGPT, via MCP.** Le point d’accès MCP est inclus dans toutes les formules et dans le cœur auto-hébergé. Dans ChatGPT, vous ajoutez une application avec l’URL de votre adresse Customermates suivie de `/api/v1/mcp`, choisissez OAuth, vous connectez et cliquez sur **Approuver** sur l’écran de consentement. Le [guide du connecteur](/docs/connect-custom-connector) détaille les étapes et une solution de repli avec clé API. ChatGPT dispose alors de [[derived.mcp.tools.total]] outils, dont des outils pour les contacts, les organisations, les affaires, les prestations, les tâches et vos propres listes, leurs notes et leurs champs. Le modèle tourne sur votre formule ChatGPT : cela ne consomme donc aucun crédit IA de Customermates. Customermates n’interrompt pas un appel d’outil pour demander une confirmation ; réglez donc les droits de l’application dans ChatGPT et demandez des brouillons plutôt que des envois.
+
+Des prompts pour tester la connexion. Customermates n’a pas d’étapes prédéfinies : ils supposent donc une liste d’affaires dont le champ Étape comporte une option Proposition ; remplacez-les par vos propres noms d’étapes et de listes :
+
+1. « Listez mes affaires ouvertes à l’étape Proposition avec l’organisation, la valeur et les utilisateurs assignés. » (lecture)
+2. « Ajoutez ce résumé d’appel aux notes de l’affaire Roth Steuerberatung et passez Étape à Proposition : [collez]. » (mise à jour)
+3. « Créez une tâche qui m’est assignée pour envoyer la proposition, liée à l’affaire Roth Steuerberatung. » (création et liaison)
+
+**Mate, dans Customermates Cloud.** Si votre équipe n’a pas de formule ChatGPT Business, Mate est l’assistant intégré à Customermates Cloud. Il utilise les crédits IA hébergés mensuels par utilisateur actif inclus dans chaque formule (voir les [tarifs](/pricing)), prépare des résumés et des brouillons de réponse, et exécute des Routines : des instructions enregistrées, selon un planning ou sur des événements de fiche. Un exemple de routine, avec le planning **Chaque semaine**, le lundi à 08:00 :
+
+```
+Listez mes affaires ouvertes aux étapes Proposition et Négociation. Pour chacune, donnez
+l’organisation, la valeur, la dernière note en une ligne et la prochaine étape.
+Signalez les affaires sans prochaine étape. N’envoyez aucun message et ne modifiez aucune fiche.
+```
+
+Une routine s’exécute au nom de son propriétaire et peut envoyer des messages si ses instructions le demandent : la dernière phrase compte donc. Les limites d’exécution figurent sur la [page des routines](/docs/app-routines). Avec Pro et au-dessus, la [boîte de réception unifiée](/features/unified-inbox) place les conversations e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté des fiches, où Mate ou votre ChatGPT connecté peut lire un fil et enregistrer un brouillon de réponse.
+
+**Ce que cela coûte.** Cinq personnes sur Pro paient [[commercial.price.pro.monthly.seats.5]] par mois, facturés mensuellement, ce qui inclut la boîte de réception et les crédits hébergés de Mate. Si vous connectez ChatGPT à la place, ajoutez les sièges ChatGPT Business de la page tarifs d’OpenAI. Starter à [[commercial.price.starter.monthly]] par utilisateur couvre les fiches et MCP, sans la boîte de réception.
+
+**Ce n’est pas adapté** si vous avez besoin de séquences d’e-mails, d’un composeur téléphonique ou d’une application mobile native. Un outil de prospection couvre les séquences ; ChatGPT peut quand même en rédiger les brouillons.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="ChatGPT peut-il vendre tout seul ?">
+Non. Il peut faire des recherches, rédiger, résumer et suggérer, mais il ne tient ni votre pipeline ni une relation. Dans une conversation simple, il n’envoie rien. Connecté à des outils, il peut agir, et c’est exactement pourquoi une personne doit valider ce qui part chez un acheteur.
+</FaqItem>
+
+<FaqItem question="ChatGPT peut-il résumer des appels commerciaux ?">
+Oui, à partir d’une transcription ou de vos notes. Donnez-lui un format fixe avec résumé, décisions, prochaines étapes avec responsable et date, et demandez-lui d’écrire « non indiqué » pour tout ce qui manque. Relisez le résultat avant qu’il n’entre dans le CRM.
+</FaqItem>
+
+<FaqItem question="A-t-on le droit d’utiliser ChatGPT dans un cadre professionnel ?">
+Oui. Les conditions d’OpenAI pour les particuliers comprennent un avenant pour l’usage commercial et professionnel, et ChatGPT Business, Enterprise et l’API relèvent des conditions professionnelles d’OpenAI. Pour les données clients, utilisez une formule professionnelle et signez l’avenant de traitement des données (DPA) d’OpenAI.
+</FaqItem>
+
+<FaqItem question="Comment relier ChatGPT à mon CRM ?">
+Par une application MCP, un outil d’automatisation comme n8n ou par copier-coller. Les applications MCP avec actions d’écriture demandent actuellement ChatGPT Business, Enterprise ou Edu, sur le web, et un administrateur qui crée l’application. Votre CRM doit proposer un serveur MCP ; l’adresse de Customermates se termine par /api/v1/mcp.
+</FaqItem>
+
+<FaqItem question="Dois-je utiliser ChatGPT pour la prospection sortante ou prendre un outil de vente dédié ?">
+Utilisez ChatGPT pour écrire de meilleurs premiers messages à partir de vraies recherches. Si vous envoyez plus de quelques dizaines d’e-mails par semaine avec des étapes de relance, il vous faut un outil conçu pour l’envoi, avec des séquences et des contrôles de délivrabilité. De nombreuses équipes utilisent les deux.
+</FaqItem>
+
+<FaqItem question="Quel est le meilleur outil d’IA pour la vente ?">
+Cela dépend de la tâche. Un assistant généraliste comme ChatGPT ou Claude convient à la recherche et à la rédaction. Un enregistreur de réunions convient aux transcriptions. Un CRM avec un assistant IA ou une connexion MCP convient pour garder les fiches à jour. Commencez par la tâche qui coûte le plus de temps à votre équipe.
+</FaqItem>
+</Faq>
+
+Informations sur OpenAI vérifiées le 8 octobre 2026 sur [Developer mode and MCP apps in ChatGPT](https://help.openai.com/en/articles/12584461), [Connected apps in ChatGPT](https://help.openai.com/en/articles/11487775-connectors-in-chatgpt), [Data controls FAQ](https://help.openai.com/en/articles/7730893-data-controls-faq), [Enterprise privacy](https://openai.com/enterprise-privacy/), [ChatGPT pricing](https://chatgpt.com/pricing/) et les [EU Terms of Use](https://openai.com/policies/eu-terms-of-use/).

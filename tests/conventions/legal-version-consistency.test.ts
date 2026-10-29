@@ -11,6 +11,7 @@ import { REPO_ROOT } from "./walk";
 const SUBPROCESSOR_VERSION_HEADER = {
   de: /^_Stand: (\d{4}-\d{2}-\d{2})_$/m,
   en: /^_Last updated: (\d{4}-\d{2}-\d{2})_$/m,
+  fr: /^_Dernière mise à jour\u00a0: (\d{4}-\d{2}-\d{2})_$/m,
 } satisfies Record<ContentLocale, RegExp>;
 
 function legal(locale: ContentLocale, slug: string): string {
@@ -50,13 +51,21 @@ describe("legal document versions", () => {
       privacy,
       `${locale}/privacy must say that only a change to what the Allow covers voids it, because AD_ATTRIBUTION_NOTICE_VERSION is bumped deliberately rather than on every edit`,
     ).toMatch(
-      locale === "en"
-        ? /If we change what your Allow covers, your earlier decision is treated as if it had not been given/i
-        : /Ändern wir den Umfang Ihrer Einwilligung, gilt Ihre frühere Entscheidung als nicht erteilt/i,
+      {
+        en: /If we change what your Allow covers, your earlier decision is treated as if it had not been given/i,
+        de: /Ändern wir den Umfang Ihrer Einwilligung, gilt Ihre frühere Entscheidung als nicht erteilt/i,
+        fr: /Si nous modifions l’étendue de votre consentement, votre décision antérieure est réputée non donnée/i,
+      }[locale],
     );
     expect(
       privacy,
       `${locale}/privacy must say that a factual correction leaves the decision in place`,
-    ).toMatch(locale === "en" ? /leaves your decision in place/i : /lässt Ihre Entscheidung bestehen/i);
+    ).toMatch(
+      {
+        en: /leaves your decision in place/i,
+        de: /lässt Ihre Entscheidung bestehen/i,
+        fr: /laisse votre décision en vigueur/i,
+      }[locale],
+    );
   });
 });

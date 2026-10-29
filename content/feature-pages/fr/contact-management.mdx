@@ -1,137 +1,158 @@
 ---
-title: "Logiciel de gestion client : contacts et suivi client"
-description: "Reliez vos clients, leurs contacts et leurs opportunités aux échanges pris en charge. Adaptez les fiches à votre équipe et explorez un espace de travail d’exemple."
+title: "Logiciel de gestion de contacts et de la relation client"
+description: "Logiciel de gestion de contacts et de clients pour petites équipes : clients, contacts, opportunités et échanges. Dès [[commercial.price.starter.monthly]] par utilisateur et par mois."
 featureName: "Gestion des contacts"
 
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-records
+  - /features/pipeline
+  - /features/simple-crm
+
 hero:
-  title: "Gestion des contacts et des clients, avec leur contexte"
-  description: "Un fichier client partagé où chaque entreprise garde ses interlocuteurs, ses opportunités et les conversations prises en charge. Ce n’est pas un carnet d’adresses de téléphone : il n’y a ni synchronisation des contacts du mobile, ni étiquettes."
+  title: "Gestion des contacts et des clients, avec toute la relation en contexte"
+  description: "Pour les petites équipes qui suivent des clients, pas seulement des numéros de téléphone. Customermates relie chaque client à ses interlocuteurs, à ses opportunités, à ses tâches et, avec Pro et au-dessus sur le cloud, aux échanges pris en charge. Vous façonnez vous-même les listes et les champs. Il n’y a pas d’étiquettes, et un import ne peut pas être annulé."
   buttonLeftText: "Commencer l’essai gratuit"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/client-management/dashboard
-  hint: "Sans carte bancaire. [[commercial.trial.days]] jours d’essai sur Customermates Cloud."
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
   action: "Rassemblez votre fichier client pendant l’essai"
-  description: "Enregistrez votre liste au format Excel (.xlsx), associez les colonnes aux champs et vérifiez avec votre équipe si vous retrouvez plus vite le contexte de chaque client. Facturation mensuelle par utilisateur, en euros."
+  description: "Enregistrez votre tableur au format Excel, associez les colonnes à vos champs et vérifiez en [[commercial.trial.days]] jours si votre équipe retrouve plus vite les clients et leur contexte."
   buttonLeftText: "Commencer l’essai gratuit"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/client-management/dashboard
-  hint: "Sans carte bancaire. [[commercial.trial.days]] jours d’essai sur Customermates Cloud."
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 ---
 
-Un tableur suffit tant qu’une seule personne suit les clients. Dès que plusieurs collègues parlent aux mêmes entreprises, il manque le contexte : qui est l’interlocuteur, quelle opportunité est en cours, quel a été le dernier échange. Customermates est un **logiciel de gestion client** pour les petites équipes B2B : chaque client reste relié à ses contacts, à ses opportunités et aux conversations qui le concernent, dans des fiches que vous configurez.
-
-Si vous cherchez une application pour ranger les contacts de votre téléphone, ce n’est pas le bon outil. Customermates ne synchronise pas le carnet d’adresses du mobile et n’a pas d’application mobile native. Il sert au suivi client d’une équipe.
+Un logiciel de gestion de contacts garde chaque personne et chaque entreprise avec qui vous travaillez dans un même lieu partagé, avec ce qui se passe avec elles. Un logiciel de gestion client va un cran plus loin : il répond à qui est le client, à qui vous parlez chez lui, à ce qui est en cours et à ce qui se passe ensuite. Customermates couvre les deux pour les petites équipes au contact des clients. C’est un CRM open source et IA native, conçu en Allemagne.
 
 <ArticleSummary title="En bref">
-  <SummaryItem label="Ce que vous gérez">
-    Clients, contacts, opportunités et tâches, reliés entre eux, avec des
-    champs adaptés à votre activité.
-  </SummaryItem>
-  <SummaryItem label="Contexte">
-    Notes sur chaque fiche et, sur Customermates Cloud à partir de Pro, les
-    conversations des contacts associés.
-  </SummaryItem>
-  <SummaryItem label="Import">
-    Classeur Excel (.xlsx) ou export JSON d’une liste. Un import ne peut pas
-    être annulé.
-  </SummaryItem>
-  <SummaryItem label="Non inclus">
-    Pas d’étiquettes, pas de
-    synchronisation planifiée ni d’enrichissement automatique.
-  </SummaryItem>
+  <SummaryItem label="Toutes les offres">Listes configurables pour les clients, les contacts et les opportunités, champs typés, relations, filtres, vues enregistrées personnelles, tableau, board ou calendrier, rôles, import et export Excel, REST, webhooks et MCP. Auto-hébergement compris.</SummaryItem>
+  <SummaryItem label="Pro et au-dessus, cloud uniquement">Les conversations par e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté des personnes concernées.</SummaryItem>
+  <SummaryItem label="Non inclus">Pas d’étiquettes (utilisez un champ à choix multiple), pas d’annulation d’import, pas de synchronisation du carnet d’adresses, pas de fonction de fusion, pas de rappels.</SummaryItem>
 </ArticleSummary>
 
-## L’espace de travail d’exemple pour la gestion client
+## Découvrir un exemple d’espace de travail
 
-L’espace de travail [« client-management »](https://demo.customermates.com/fr/w/client-management/dashboard) contient des données d’exemple, pas de vrais clients. L’interface est en français, les fiches d’exemple sont en anglais.
+L'[espace de travail de gestion client](https://demo.customermates.com/fr/w/client-management/dashboard) est un exemple avec des données d’exemple, pas un compte client. L’interface est en français, les fiches d’exemple sont en anglais. Il comprend cinq listes : Clients, Contacts, Contracts, Opportunities et Tasks. Chaque client porte un statut de relation (New relationship, Active discussion, Customer, Dormant), un responsable de compte et un champ date configuré pour la prochaine action. Chaque contrat correspond à un service sur un site, avec un forfait mensuel et une date de révision, et un champ calculé additionne la valeur annuelle du client à partir de ses contrats. Les contrats portent l’adresse du site et l’accord signé en PDF, le tableau de bord place les sites sur une carte et liste les révisions à venir dans les 30 prochains jours, et une vue calendrier montre les dates de révision par mois.
 
-Il comprend les listes Clients, Contacts, Contracts, Opportunities et Tasks. Chaque client porte un statut de relation (New relationship, Active discussion, Customer, Dormant) et un responsable de compte ; chaque contrat correspond à un service sur un site, avec un forfait mensuel et une date de révision, et un champ calculé en déduit la valeur annuelle du client. En ouvrant une fiche client, vous voyez les personnes liées, ses contrats, les opportunités en cours, les conversations prises en charge et un champ date configuré pour la prochaine action. Les contrats portent l’adresse du site et le contrat signé en PDF, le tableau de bord place les sites sur une carte et liste les révisions des 30 prochains jours, et une vue calendrier montre les dates de révision par mois. C’est cette vue que l’on cherche dans un fichier client : tout ce qui concerne une entreprise, sans passer d’un outil à l’autre.
+Ouvrez un client et vous voyez ses personnes, ses contrats, ses opportunités ouvertes, ses tâches et les conversations prises en charge des personnes qui lui sont liées, sur une seule fiche. Rien n’y est copié dans un second silo de données : le contact de la fiche client est le même contact que vous recherchez, filtrez ou mettez à jour.
 
-Ces listes sont un exemple et votre espace de travail ne les contient pas au départ. Un nouvel espace commence sans listes. Sur Customermates Cloud, la configuration IA construit les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de votre description, une seule fois à l’inscription et dans la limite de crédits prévue. Vous pouvez la passer avec « Commencer avec un espace de travail vide » et créer vos listes dans **Configurer**.
+Votre propre espace de travail ne commence pas avec ces listes. Un nouvel espace de travail commence sans listes. Sur Customermates Cloud, la configuration IA de l’espace de travail construit les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de votre description. Elle s’exécute une fois pendant la prise en main, dans la limite de crédits de configuration, et vous pouvez la passer avec **Commencer avec un espace de travail vide**. Sinon, les personnes qui ont les droits de configuration créent les listes et les champs dans **Configurer**. En auto-hébergement, c’est la seule voie.
 
 ## Des fiches clients structurées
 
-Chaque liste a ses propres champs : texte, texte enrichi, nombre, montant, oui ou non, date, date et heure, période, période avec heures, choix unique, choix multiple, adresse web, membre, adresse, fichier et téléphone, e-mail et réseaux sociaux. Les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées ; un champ Adresse ouvre l’adresse dans une carte, et un champ Fichier garde jusqu’à 20 documents, comme un contrat ou un devis. Les relations relient un contact à son entreprise ou une opportunité à son client, et des champs calculés font les totaux. Pour classer vos clients par secteur ou par source, utilisez un champ à choix multiple : il n’existe pas d’étiquettes séparées.
+Une fiche client contient les champs que vous décidez d’y mettre. Les types de champs sont Texte, Texte enrichi, Nombre, Montant, Oui ou non, Date, Date et heure, Période, Période avec heures, Choix unique, Choix multiple, Adresse web, Membre, Adresse, Fichier et Téléphone, e-mail et réseaux sociaux. Les champs calculés ajoutent des valeurs issues d’autres champs ou d’enregistrements liés.
 
-Chaque liste s’affiche en tableau ou en board. Les vues enregistrées gardent vos filtres, votre tri et vos colonnes. Elles sont personnelles : chaque collègue enregistre les siennes. Les filtres combinent plusieurs champs avec « et », pas avec « ou ».
+Le champ **Coordonnées** contient les numéros de téléphone, les adresses e-mail et les identités LinkedIn, Instagram et Telegram qui associent les messages à une personne. Un numéro y figurant peut être appelé et correspond aussi aux discussions WhatsApp du même numéro. Une même adresse peut appartenir à plusieurs fiches, par exemple un contact et un client.
+
+Un champ **Adresse** contient une adresse postale : Customermates la vérifie par rapport au format d’adresse de son pays, suggère la ville et la région à partir du code postal et ouvre l’adresse dans une carte au clic. Un champ **Fichier** garde des documents comme des contrats ou des devis, jusqu’à 20 fichiers par champ, et le texte de ces fichiers est trouvé par la recherche.
+
+Les notes se trouvent sur chaque fiche. La recherche globale (Cmd/Ctrl+K) trouve les enregistrements par leur nom et leurs coordonnées ; les autres champs s’atteignent par les filtres.
+
+## Des enregistrements liés plutôt qu’une liste à plat
+
+Les relations connectent les listes. Un contact peut appartenir à plusieurs clients, une opportunité renvoie à son client et à ses personnes, et une tâche renvoie à ce qu’elle concerne. Si votre équipe parle de comptes plutôt que de clients, renommez la liste pour tout l’espace de travail dans **Configurer**.
+
+Là où un tableur garde une ligne par personne et répète le nom de l’entreprise, Customermates garde l’entreprise une seule fois et y relie les personnes. Ouvrez le client et ses personnes y sont listées ; ouvrez une personne et ses clients sont à un clic.
+
+## Mettre en place la gestion client en cinq étapes
+
+<Steps>
+  <Step title="Créer ou vérifier les listes">Laissez la configuration IA de l’espace de travail les construire sur Customermates Cloud, ou créez Clients, Contacts et Opportunités dans **Configurer** avec des relations entre elles.</Step>
+  <Step title="Ajouter les champs sur lesquels vous triez">Par exemple **Relation** (choix unique), **Rôle** sur les contacts (Décideur, Quotidien, Comptabilité) et **Prochaine action** (date).</Step>
+  <Step title="Importer votre liste">Importez d’abord les clients, puis les contacts, afin que la colonne de l’entreprise se relie. Détails plus bas.</Step>
+  <Step title="Enregistrer des vues personnelles">« Mes clients actifs », « Prochaine action cette semaine » ou « Sans client » pour faire le ménage après l’import. Les vues enregistrées sont personnelles : chaque collègue enregistre les siennes.</Step>
+  <Step title="Décider qui voit quoi">Dans l’éditeur de rôles, réglez l’accès en lecture par liste sur **Tous**, **Assignés** ou **Aucun**, plus les droits de création, de modification et de suppression. Les autorisations s’appliquent à des listes entières, pas à des champs isolés.</Step>
+</Steps>
+
+## Des prochaines actions configurables
+
+Customermates n’a ni rappels intégrés ni logique d’échéance. Vous ajoutez un champ date comme **Prochaine action** aux clients ou aux opportunités et enregistrez une vue filtrée sur les dates dépassées. Sur Customermates Cloud, une [routine](/docs/app-routines) peut lister ces enregistrements chaque lundi matin. Les vues en board groupées par statut de relation montrent d’un coup d'œil qui est nouveau, actif ou dormant.
+
+## Quitter Excel ou Google Sheets
+
+Beaucoup d’équipes arrivent avec un tableur. Le déplacer est faisable, mais pas automatique :
+
+- **Format.** Une liste s’importe depuis un classeur Excel (.xlsx) via un assistant : choisissez la feuille, associez les colonnes, vérifiez l’aperçu, importez. Pour Google Sheets, il n’y a pas d’accès direct : téléchargez la feuille au format .xlsx, et enregistrez en .xlsx dans Excel un téléchargement d’Outlook ou de Google Contacts. Un export JSON de la même liste peut aussi être réimporté.
+- **Ordre.** Importez les clients avant les contacts pour que la colonne de l’entreprise se relie aux fiches existantes. Associez les colonnes d’e-mail, de téléphone et de messagerie au champ **Coordonnées**.
+- **Pas d’annulation.** Un import ne peut pas être annulé. Nettoyez d’abord les doublons, car il n’existe pas de fonction de fusion ensuite. Testez avec un petit fichier.
+- **Pas de pièces jointes.** Les fichiers qui accompagnent votre tableur, comme des contrats ou des PDF, ne font pas partie de l’import. Téléversez ensuite ceux dont vous avez besoin dans un champ Fichier de la fiche.
+- **Corrections en masse.** Exportez la liste, modifiez-la dans Excel et réimportez-la en **Fiches existantes**.
+- **Pas de synchronisation continue.** Après l’import, votre tableur et Customermates sont des listes distinctes.
+
+Le [guide des enregistrements](/docs/app-records#how-do-i-import-or-export-records) documente les limites et les options.
 
 ## Les échanges à côté de la relation
 
-Sur Customermates Cloud, la boîte de réception unifiée réunit l’e-mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram et Telegram. Un participant est associé à un contact quand son adresse e-mail, son numéro ou son identité LinkedIn figure dans le champ Coordonnées de la fiche. Le lien d’une conversation avec un client ou une opportunité se fait explicitement, par vous ou par l’assistant Mate.
+Sur Customermates Cloud, Pro et au-dessus connectent Gmail, Outlook, IMAP, LinkedIn (y compris les conversations Sales Navigator et Recruiter prises en charge), WhatsApp, Instagram et Telegram via la [boîte de réception unifiée](/features/unified-inbox). Un participant est associé à un contact par l’identité figurant dans son champ Coordonnées. Quand une adresse inconnue écrit, vous reliez ce participant à un contact existant ou nouveau. Une conversation n’est rattachée à une opportunité ou à un client que lorsque vous ou un agent le faites explicitement ; rien n’est classé automatiquement sur une affaire.
 
-| Offre | Messagerie connectée |
-|---|---|
-| Starter et auto-hébergement | Aucun compte connecté |
-| Pro | Vos propres comptes, plus les fils partagés un par un |
-| Business, Max, Enterprise | Partage d’un compte entier |
+Les limites de l’offre s’appliquent. Starter et l’auto-hébergement n’ont aucun compte de messagerie connecté. Pro couvre vos propres comptes, avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus, plus les fils partagés un par un. Le partage d’un compte entier avec l’équipe demande Business, Max ou Enterprise.
 
-Mate, l’assistant IA, n’existe que sur Customermates Cloud et consomme les crédits inclus dans votre offre. Il crée, modifie et envoie dès que vous le lui demandez ; seules les suppressions, les imports, les changements d’accès et les modifications destructives du modèle de données attendent votre validation. Un brouillon attend que vous le modifiiez ou l’envoyiez. Sur toutes les offres, y compris en auto-hébergement, vous pouvez lire et mettre à jour les fiches autorisées depuis votre propre client IA via MCP.
+## L’IA sur vos fiches clients : Mate et MCP
 
-## Mettre en place votre suivi client
+Sur Customermates Cloud, Mate, l’assistant hébergé, travaille sur les enregistrements en langage courant dans la limite des crédits IA de votre offre :
 
-<Steps>
-  <Step title="Créer ou générer les listes">
-    Sur Customermates Cloud, décrivez votre activité à l’inscription. Sinon,
-    créez vos listes Clients et Contacts dans Configurer.
-  </Step>
-  <Step title="Ajouter les champs utiles">
-    Statut de la relation en choix unique, secteur en choix multiple,
-    prochaine action en champ date.
-  </Step>
-  <Step title="Importer votre fichier client">
-    Enregistrez votre tableur au format .xlsx, puis choisissez « Ajouter
-    depuis un fichier » sur la liste. Importez les entreprises avant les
-    contacts.
-  </Step>
-  <Step title="Relier contacts et opportunités">
-    Rattachez chaque contact à son entreprise et ouvrez les opportunités en
-    cours, que vous suivrez sur le [pipeline commercial](/features/pipeline).
-  </Step>
-  <Step title="Enregistrer votre vue de suivi">
-    Filtrez les clients actifs, triez par date de prochaine action et
-    enregistrez la vue.
-  </Step>
-</Steps>
+```text
+Create contacts for everyone in this email signature and link them to the client Hartmann Consulting. Check first whether any of them already exist.
+```
 
-<AcquisitionCallout title="Avant d’importer" variant="boundary">
-  L’import accepte un classeur Excel (.xlsx) ou l’export JSON d’une même
-  liste. Enregistrez d’abord un fichier CSV au format .xlsx. Un import ne peut
-  pas être annulé : vérifiez les doublons avant. Une fiche supprimée reste 30
-  jours dans la corbeille, c’est la seule façon de revenir en arrière. Il n’y
-  a ni synchronisation planifiée avec un autre outil, ni export complet du
-  compte en une fois : l’export se fait liste par liste.
+Mate voit ce que vous avez le droit de voir. Il crée et modifie des enregistrements et envoie des messages dès que vous le lui demandez ; les suppressions, les imports et les changements d’accès attendent chaque fois votre approbation. Mate n’est pas disponible en auto-hébergement.
+
+Sur toutes les offres, auto-hébergement compris, votre propre client IA, comme Claude ou ChatGPT, peut lire et mettre à jour les enregistrements auxquels vous avez accès via [MCP](/docs/mcp), facturé par votre fournisseur d’IA.
+
+## Où se trouvent les données
+
+Sur Customermates Cloud, la base de données fonctionne dans la région AWS de Francfort. Les prestataires de services, y compris des entreprises américaines, figurent sur la [page des sous-traitants](/subprocessors), et un [accord de traitement des données](/dpa) est disponible. L’hébergement dans l’UE n’est pas une certification, et Customermates n’en détient aucune. Pour garder les données sur vos propres serveurs, exploitez le cœur AGPL [auto-hébergé](/features/self-hosted), sans la boîte de réception et sans Mate.
+
+## Ce que ce logiciel ne fait pas
+
+<AcquisitionCallout title="Les limites qui comptent pour votre décision" variant="boundary">
+  Pas d’étiquettes : utilisez un champ à choix multiple. Les pièces jointes des messages restent dans leur conversation ; les fichiers que vous voulez sur la fiche vont dans un champ Fichier. Import uniquement depuis les formats documentés, sans annulation. Pas de fonction de fusion, pas de synchronisation du carnet d’adresses, pas de rappels ni d’alertes d’échéance, pas de newsletters, d’envoi en masse, de séquences ni d’enrichissement de données, pas d’application mobile native.
 </AcquisitionCallout>
 
-Le guide des fiches, de l’import et de l’export est dans la [documentation sur les enregistrements](/docs/app-records) (en anglais).
+## Logiciel de gestion de contacts ou carnet d’adresses du téléphone ?
 
-## Tarifs
+| Votre situation | À regarder |
+|---|---|
+| Une personne qui a besoin de noms et de numéros sur un téléphone | Le carnet d’adresses de votre téléphone, d’Outlook ou de votre compte Google |
+| Un tableur partagé qui convient encore à deux personnes | Gardez-le jusqu’à ce que les liens, l’historique ou les droits d’accès deviennent le problème |
+| Une petite équipe qui partage clients, opportunités et conversations | Un CRM comme Customermates |
 
-La facturation est mensuelle, par utilisateur, en euros : Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]] et Max [[commercial.price.max.monthly]] par utilisateur et par mois. La gestion des contacts, l’import, l’API REST et MCP sont inclus dès Starter. Le détail des offres est sur la [page des tarifs](/pricing). Pour une petite structure, voyez aussi le [CRM pour les PME](/for/smb).
+Customermates ne se synchronise pas avec les carnets d’adresses du téléphone ou d’Outlook. C’est l’endroit où une équipe gère ses relations clients, pas un remplaçant de l’application Contacts de votre téléphone. Pour voir d’autres options côte à côte, lisez le [comparatif des logiciels de base de données clients](/blog/client-database-software).
+
+## Ce que cela coûte
+
+La facturation est mensuelle par utilisateur, jamais par contact. Starter coûte [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]] et Business [[commercial.price.business.monthly]] par utilisateur et par mois. La boîte de réception commence avec Pro, le partage de compte entier avec Business. L’auto-hébergement du cœur AGPL n’a pas de frais de licence. Voir les [tarifs](/pricing).
 
 ## Questions fréquentes
 
 <Faq>
-<FaqItem question="Puis-je ajouter des étiquettes à mes clients ?">
-Il n’y a pas d’étiquettes. Un champ à choix multiple, par exemple « Secteur » ou « Source », remplit le même rôle et se filtre comme les autres champs.
+<FaqItem question="Quelle est la différence entre la gestion des contacts et la gestion client ?">
+La gestion des contacts stocke les personnes, les entreprises et leurs détails. La gestion client ajoute ce que vous en faites : opportunités, prochaines actions, tâches et conversations. Dans Customermates, les deux se trouvent dans des listes liées d’un même espace de travail.
 </FaqItem>
 
-<FaqItem question="Puis-je joindre des fichiers à une fiche client ?">
-Oui. Ajoutez à la liste un champ de type Fichier : il garde jusqu’à 20 fichiers, et la recherche trouve le texte qu’ils contiennent. Les pièces jointes des messages restent dans leur conversation.
+<FaqItem question="Puis-je utiliser des étiquettes pour les contacts ?">
+Non. Ajoutez plutôt un champ à choix multiple, par exemple **Segment** avec les valeurs que vous auriez utilisées comme étiquettes. Vous pouvez filtrer et grouper dessus.
 </FaqItem>
 
-<FaqItem question="Quels formats puis-je importer ?">
-Un classeur Excel (.xlsx), ou l’export JSON d’une même liste. Un CSV doit d’abord être enregistré en .xlsx. Un import ne peut pas être annulé.
+<FaqItem question="Puis-je joindre des fichiers à un client ou à un contact ?">
+Oui. Ajoutez un champ Fichier à la liste ; il garde jusqu’à 20 fichiers, et la recherche trouve le texte qu’ils contiennent. Les pièces jointes des messages pris en charge restent dans leur conversation.
 </FaqItem>
 
-<FaqItem question="Customermates synchronise-t-il les contacts de mon téléphone ?">
-Non. Il n’y a pas d’application mobile native ni de synchronisation du carnet d’adresses. Customermates est un fichier client partagé par l’équipe, utilisé dans le navigateur.
+<FaqItem question="Puis-je importer depuis Excel, Google Sheets ou Outlook ?">
+Oui, sous forme de classeur Excel (.xlsx). Pour Google Sheets, il n’y a pas d’accès direct : téléchargez donc la feuille ou vos contacts au format .xlsx d’abord, importez les clients avant les contacts, et testez avec un petit fichier : un import ne peut pas être annulé.
 </FaqItem>
 
-<FaqItem question="Les conversations sont-elles enregistrées automatiquement sur le client ?">
-Sur Customermates Cloud à partir de Pro, une conversation s’affiche chez le contact dont l’adresse, le numéro ou le profil correspond. Son rattachement à un client ou à une opportunité se fait explicitement.
+<FaqItem question="Un nouvel espace de travail est-il livré avec des listes Clients et Contacts ?">
+Non. Un nouvel espace de travail commence sans listes. Sur Customermates Cloud, la configuration IA de l’espace de travail peut les construire pendant la prise en main ; sinon, vous les créez dans Configurer. Les listes de l’espace de travail d’exemple montrent une configuration possible.
+</FaqItem>
+
+<FaqItem question="Combien de contacts puis-je gérer ?">
+Les offres ne fixent aucune limite de contacts. Un export couvre jusqu’à 5 000 enregistrements de la vue en cours.
 </FaqItem>
 </Faq>

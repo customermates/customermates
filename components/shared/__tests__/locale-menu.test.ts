@@ -27,14 +27,16 @@ describe("LocaleMenu", () => {
     expect(markup("cloud")).toContain('src="https://flagcdn.com/de.svg"');
   });
 
-  it("offers a partial marketing locale only on the pages it publishes", () => {
+  it("offers French on every content page and never an app-only locale", () => {
     route.pathname = "/pricing";
     expect(markup("cloud")).toContain('hrefLang="fr"');
 
     route.pathname = "/blog";
     const blog = markup("cloud");
-    expect(blog).not.toContain('hrefLang="fr"');
+    expect(blog).toContain('hrefLang="fr"');
     expect(blog).toContain('hrefLang="de"');
+    expect(blog).not.toContain('hrefLang="it"');
+    expect(blog).not.toContain('hrefLang="es"');
     route.pathname = "/pricing";
   });
 });

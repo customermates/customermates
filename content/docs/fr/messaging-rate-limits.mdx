@@ -1,0 +1,68 @@
+---
+title: Limites de débit de la messagerie
+description: Pourquoi les canaux connectés ont des limites de débit, les limites de lecture et d’envoi par fournisseur, et ce qui se passe quand l’une est atteinte.
+---
+
+Les canaux connectés (LinkedIn, WhatsApp, e-mail, etc.) communiquent avec leur fournisseur via Unipile. Chaque fournisseur impose ses propres limites de requêtes, et les dépasser peut entraîner le ralentissement ou la suspension du compte. Customermates applique donc un budget de requêtes prudent par canal et se met en pause avant qu’un fournisseur ne réagisse. Une synchronisation en pause est un comportement normal : elle maintient le compte dans les limites du fournisseur et reprend d’elle-même.
+
+## Comment fonctionnent les limites ? [#how-do-the-limits-work]
+
+Les limites sont configurées dans le tableau de bord Unipile et appliquées par Unipile. Elles s’appliquent **par compte connecté**, à trois niveaux en même temps :
+
+- **Par point d’accès :** un plafond pour chaque opération prise séparément (lister les conversations, lire les messages) sur une minute et une journée glissantes. Ce sont les limites de lecture ci-dessous.
+- **Par méthode sensible :** un plafond plus strict pour les opérations plus risquées (consultation de profils, envoi d’un message ou d’une demande de connexion). Ce sont les limites sensibles ci-dessous.
+- **Par compte :** un plafond global sur l’ensemble des appels du compte.
+
+Quand une fenêtre est pleine, les appels suivants sont refusés jusqu’à son renouvellement.
+
+## Quelles sont les limites de lecture par fournisseur ? [#what-are-the-read-limits-per-provider]
+
+Les lectures synchronisent l’historique. Elles sont fixées plus haut que les écritures, car lire déclenche rarement un blocage côté fournisseur.
+
+| Fournisseur | Lectures / minute | Lectures / jour |
+| --- | --- | --- |
+| LinkedIn | 20 | 300 |
+| WhatsApp | 30 | 510 |
+| Instagram | 50 | 510 |
+| Telegram | 50 | aucune |
+| Gmail / Google | 100 | aucune |
+| Outlook | 100 | aucune |
+| IMAP | 100 | aucune |
+
+LinkedIn reste le plus prudent, car sa détection des activités automatisées est la plus stricte. Certaines valeurs suivent les plafonds du fournisseur lui-même : les canaux sociaux plafonnent la limite de lecture par minute à 50, les canaux e-mail à 100, et la limite quotidienne évolue par paliers de 30 (une cible de 500 est donc appliquée comme 510). Telegram et les fournisseurs d’e-mail n’ont pas de limite de lecture quotidienne distincte.
+
+## Quelles sont les limites d’envoi et de consultation de profils ? [#what-are-the-limits-for-sending-and-profile-lookups]
+
+La consultation de profils (que les fournisseurs considèrent comme sensible au scraping) et chaque action d’envoi restent prudentes, quel que soit le budget de lecture.
+
+| Fournisseur | Action | Limite |
+| --- | --- | --- |
+| LinkedIn | Obtenir le profil d’une entreprise | 1 / seconde |
+| LinkedIn | Obtenir le profil d’un utilisateur | 1 / seconde |
+| LinkedIn | Envoyer une demande de connexion | 50 / jour, 1 / 10 secondes |
+| WhatsApp | Démarrer une conversation | 3 / minute, 30 / jour |
+| Telegram | Démarrer une conversation | 3 / minute, 30 / jour |
+| Instagram | Démarrer une conversation | 3 / minute, 30 / jour |
+| Gmail / Google | Envoyer un e-mail | 300 / jour |
+| Outlook | Envoyer un e-mail | 300 / jour |
+| IMAP | Envoyer un e-mail | 300 / jour |
+
+Les opérations sans ligne ici, comme l’envoi d’un message LinkedIn ou d’un InMail et les recherches dans LinkedIn Sales Navigator, relèvent toujours des plafonds par point d’accès et par compte, et renvoient le même message de limite de débit quand une fenêtre est pleine.
+
+## Que se passe-t-il quand une limite est atteinte ? [#what-happens-when-a-limit-is-reached]
+
+Les appels suivants pour ce compte sont refusés jusqu’au renouvellement de la fenêtre, et l’action vous indique combien de temps attendre. L’envoi d’un message ou le démarrage d’une conversation affiche :
+
+> Ce canal a atteint sa limite pour le moment. Vous pouvez réessayer dans 2 minutes. Plus d’informations sur `https://customermates.com/docs/messaging-rate-limits`.
+
+Les autres actions le formulent autrement :
+
+- **Resynchroniser la conversation**, le chargement des messages plus anciens en haut d’une conversation et les médias d’un message : « Ce canal a atteint sa limite de débit. Vous pouvez réessayer dans 2 minutes. » avec **En savoir plus**.
+- **Actualiser** dans la [boîte de réception](app:inbox) : « Certains canaux ont atteint leur limite de débit. Réessayez dans quelques minutes. »
+- Déplacer un e-mail vers un autre dossier : « Classement dans `{folder}` interrompu car le fournisseur limite le débit. » avec le temps d’attente pour le reste.
+
+Le temps d’attente provient de la valeur `Retry-After` de la réponse de limitation que renvoie Unipile ; sans elle, le message indique « plus tard » au lieu d’un temps d’attente. Customermates ne relance pas l’action à votre place : réessayez une fois la fenêtre écoulée. Rien n’est perdu entre-temps. Via l’API REST et MCP, l’appel échoue avec le même message : l’API REST répond avec le statut HTTP 429 et un en-tête `Retry-After` de 30 secondes, et MCP renvoie un échec de type `rate_limit` dont l’entrée dans `_meta.failure` porte `customCode: "unipileRateLimit"`.
+
+## L’import de l’historique reprend-il tout seul ? [#does-the-history-import-resume-by-itself]
+
+Oui. Importer tout l’historique des messages peut demander environ une requête par conversation. Si une limite est atteinte en cours d’import, l’importeur en arrière-plan **se met en pause et reprend automatiquement** dès que la fenêtre se libère ; une attente de plus de dix minutes reporte l’import à un passage ultérieur. Avec **Modifier** sur **Messages de la boîte de réception**, le défilement jusqu’en haut d’une conversation ou **Resynchroniser la conversation** récupère les messages plus anciens auprès du fournisseur, et les deux comptent dans les mêmes limites. Les nouvelles activités arrivent en temps réel par webhooks.

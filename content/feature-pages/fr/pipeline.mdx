@@ -1,135 +1,154 @@
 ---
-title: "Pipeline commercial : suivez vos opportunités par étape"
-description: "Visualisez vos opportunités par étape, avec leur valeur, leur probabilité et le contexte client. Configurez votre pipeline et explorez un espace de travail commercial d’exemple."
+title: "Logiciel de pipeline commercial : board et valeur par étape"
+description: "Pipeline commercial pour petites équipes : opportunités par étape avec probabilité, valeur et valeur pondérée, et contexte client à portée de main."
 featureName: "Pipeline commercial"
 
+relatedHrefs:
+  - /features/sales
+  - /features/reporting
+  - /features/workflow-automation
+  - /blog/sales-pipeline
+
 hero:
-  title: "Un pipeline commercial relié aux échanges clients"
-  description: "Un board de vos opportunités par étape, avec la valeur, la probabilité de l’étape et la valeur pondérée de chaque colonne, à un clic du client et de ses conversations. La valeur pondérée est une pondération de votre pipeline, pas une prévision de chiffre d’affaires."
+  title: "Un logiciel de pipeline commercial pour les petites équipes fondées sur la relation"
+  description: "Voyez chaque opportunité par étape, avec la probabilité de l’étape, la valeur et la valeur pondérée, et ouvrez le client concerné en un clic. Vous configurez les étapes vous-même. La valeur pondérée est votre valeur multipliée par votre probabilité, pas une prévision, et les vues enregistrées restent personnelles."
   buttonLeftText: "Commencer l’essai gratuit"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/sales-pipeline/dashboard
-  hint: "Sans carte bancaire. [[commercial.trial.days]] jours d’essai sur Customermates Cloud."
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
   action: "Mettez vos opportunités ouvertes sur un board"
-  description: "Définissez vos étapes et leurs probabilités, importez vos opportunités depuis un classeur Excel et vérifiez avec votre équipe si le suivi commercial devient plus clair. Facturation mensuelle par utilisateur, en euros."
+  description: "Configurez vos étapes et leurs probabilités, importez vos opportunités depuis un classeur Excel et vérifiez en [[commercial.trial.days]] jours si votre équipe tient le board à jour. Les offres démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
   buttonLeftText: "Commencer l’essai gratuit"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/sales-pipeline/dashboard
-  hint: "Sans carte bancaire. [[commercial.trial.days]] jours d’essai sur Customermates Cloud."
+  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 ---
 
-Un **pipeline commercial** répond à trois questions : quelles opportunités sont ouvertes, à quelle étape elles en sont et ce qu’elles représentent. La méthode compte, mais elle ne tient que si l’outil reste à jour et si le contexte du client est à portée de main. Dans Customermates, le pipeline est une liste d’opportunités affichée en board, et chaque carte mène au client, à ses contacts et aux échanges qui y ont été rattachés.
+Un logiciel de pipeline commercial met vos opportunités ouvertes sur un board, une colonne par étape : vous voyez ce qui est en jeu, ce que cela vaut et quelle affaire a besoin de la prochaine étape. Customermates est un logiciel de CRM pour les petites équipes commerciales dont les affaires dépendent des conversations : cabinets de conseil, agences, entreprises de services et fondateurs qui vendent eux-mêmes. Il est open source, IA native et conçu en Allemagne.
 
 <ArticleSummary title="En bref">
-  <SummaryItem label="Ce que vous voyez">
-    Un board par étape, avec le nombre d’opportunités, la valeur et la valeur
-    pondérée de chaque colonne.
-  </SummaryItem>
-  <SummaryItem label="Offres">
-    Board, étapes, probabilités, vues enregistrées et tableaux de bord sont
-    inclus dès Starter, et en auto-hébergement.
-  </SummaryItem>
-  <SummaryItem label="Messagerie et IA">
-    Boîte de réception à partir de Pro et assistant Mate, uniquement sur
-    Customermates Cloud.
-  </SummaryItem>
-  <SummaryItem label="Non inclus">
-    Pas de prévision des ventes, d’analyse de conversion, de vitesse du
-    pipeline, de scoring des leads ni de vues d’équipe partagées.
-  </SummaryItem>
+  <SummaryItem label="Toutes les offres">Board d’opportunités groupé par étape, probabilités d’étape, valeur et valeur pondérée par colonne, vues enregistrées personnelles, widgets de tableau de bord, import et export Excel, REST, webhooks et MCP. Auto-hébergement compris.</SummaryItem>
+  <SummaryItem label="Cloud uniquement">Mate, l’assistant hébergé, et les routines dans la limite des crédits IA de votre offre. La boîte de réception unifiée à partir de Pro.</SummaryItem>
+  <SummaryItem label="Non inclus">Pas de prévision prédictive, pas d’analyse de vitesse du pipeline ni de conversion par étape, pas de mise en évidence des affaires en sommeil, pas de vues partagées ou d’équipe, pas de droits au niveau du champ.</SummaryItem>
 </ArticleSummary>
 
-## Le board dans l’espace de travail d’exemple
+## Découvrir un exemple d’espace de travail
 
-L’espace de travail [« sales-pipeline »](https://demo.customermates.com/fr/w/sales-pipeline/dashboard) contient une équipe commerciale fictive et ses données d’exemple. L’interface est en français, les fiches d’exemple sont en anglais.
+L'[espace de travail de pipeline commercial](https://demo.customermates.com/fr/w/sales-pipeline/dashboard) est un exemple avec des données d’exemple, pas un compte client. L’interface est en français, les fiches d’exemple sont en anglais. Il comprend cinq listes : Accounts, Contacts, Opportunities, Products et Tasks. Les opportunités passent par New, Qualified, Discovery, Proposal sent, Negotiation, Won et Lost, et trois commerciaux en sont responsables.
 
-Ses listes sont Accounts, Contacts, Opportunities, Products et Tasks. La valeur d’une opportunité vient de ses lignes : des produits de la liste Products, quantité fois prix unitaire. Le board des opportunités suit les étapes New, Qualified, Discovery, Proposal sent, Negotiation, Won et Lost. En haut de chaque colonne, vous lisez le nombre d’opportunités, leur valeur totale et leur valeur pondérée. Faites glisser une carte vers une autre colonne et l’étape change. Ouvrez une opportunité : vous retrouvez le compte, les contacts liés, ses lignes de produits, les conversations rattachées et la prochaine action notée dans un champ date. Les devis sont joints à l’opportunité en PDF, dans un champ Fichier.
+Le board affiche chaque étape avec sa probabilité. L’en-tête de chaque colonne additionne la valeur et la valeur pondérée de ses opportunités. La valeur d’une opportunité vient de ses lignes : des produits de la liste Products, quantité fois prix unitaire. Ouvrez une carte et vous êtes sur l’opportunité, avec son compte, ses contacts, ses lignes, ses tâches et la prochaine étape qui y est notée. Les devis sont joints à l’opportunité en PDF, dans un champ Fichier.
 
-Le tableau de bord montre les clôtures prévues du mois dans un widget **Vue du mois**, un calendrier qui additionne la valeur par jour, et place les comptes sur une carte d’après leur adresse. Une vue calendrier des opportunités affiche les dates de clôture prévues par mois, et la page Calendrier y ajoute les visites sur site de la liste des tâches.
+Le tableau de bord montre les clôtures prévues du mois dans un widget **Vue du mois**, un calendrier qui additionne la valeur par jour, de sorte que vous voyez quelles semaines portent le plus de valeur, et place les comptes sur une carte d’après leur adresse. Une vue calendrier des opportunités affiche les dates de clôture prévues par mois, et la page Calendrier y ajoute les visites sur site de la liste des tâches.
 
-## Comment se calcule la valeur pondérée
+Votre propre espace de travail ne commence pas avec ces listes ni ces étapes. Un nouvel espace de travail commence sans listes. Sur Customermates Cloud, la configuration IA de l’espace de travail construit les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de votre description. Elle s’exécute une fois pendant la prise en main, dans la limite de crédits de configuration, et vous pouvez la passer avec **Commencer avec un espace de travail vide**. Sinon, les personnes qui ont les droits de configuration créent la liste des opportunités et son champ d’étape dans **Configurer**. En auto-hébergement, c’est la seule voie.
 
-Chaque étape porte une probabilité, que vous réglez dans **Configurer** avec le champ « Probabilité % ». La valeur pondérée d’une opportunité est sa valeur multipliée par la probabilité de son étape. Exemple de calcul, avec des probabilités choisies pour l’illustration :
+## Comment fonctionne le board
 
-| Opportunité | Étape | Probabilité | Valeur | Valeur pondérée |
-|---|---|---|---|---|
-| Refonte du site | Qualified | 20 % | 5 000 € | 1 000 € |
-| Atelier de marque | Proposal sent | 60 % | 8 000 € | 4 800 € |
-| Accompagnement annuel | Negotiation | 80 % | 12 000 € | 9 600 € |
-| **Pipeline** | | | **25 000 €** | **15 400 €** |
+**Les étapes sont un champ qui vous appartient.** Une étape est une option de choix unique, et chaque option porte une probabilité de gain de 0 à 100 pour cent. Renommez, réordonnez, ajoutez ou retirez des étapes dans **Configurer** ; un aperçu montre l’effet sur les calculs et les widgets avant que vous enregistriez. Renommer une étape la conserve sur chaque enregistrement.
 
-<AcquisitionCallout title="Une pondération, pas une prévision" variant="boundary">
-  La valeur pondérée reprend vos propres probabilités. Elle aide à comparer
-  les colonnes du board et à préparer une revue commerciale, mais ce n’est
-  pas une prévision de chiffre d’affaires. Customermates ne calcule ni taux de
-  conversion, ni durée par étape, ni vitesse du pipeline.
-</AcquisitionCallout>
+**Le board.** Dans **Apparence**, choisissez **Board** groupé par étape. Faites glisser une carte vers une autre colonne et son étape change. Les cartes affichent les champs que vous choisissez, comme la valeur, le compte, les utilisateurs assignés ou une date de prochaine étape.
 
-## Le suivi commercial au quotidien
+**Les en-têtes de colonne font le calcul.** Chaque en-tête affiche le nombre et les sommes que vous choisissez, comme la valeur et la valeur pondérée. La valeur pondérée est la valeur de l’opportunité multipliée par la probabilité de son étape. Trois exemples d’opportunités :
+
+| Opportunité | Étape (probabilité) | Valeur | Pondérée |
+|---|---|---|---|
+| Refonte du site | Qualified (20 %) | 5 000 | 1 000 |
+| Atelier de marque | Proposal sent (60 %) | 8 000 | 4 800 |
+| Accompagnement annuel | Negotiation (80 %) | 12 000 | 9 600 |
+| **Pipeline ouvert** | | **25 000** | **15 400** |
+
+Ce total pondère vos propres chiffres. Il ne prédit ni le chiffre d’affaires ni les dates de clôture. Les probabilités ci-dessus sont des exemples, pas des valeurs par défaut.
+
+**La valeur.** Une opportunité porte une valeur monétaire. Quand vous vendez à partir d’un catalogue de services ou de produits, les lignes peuvent s’additionner pour former la valeur : quantité fois prix unitaire par ligne.
+
+**La vue tableau.** Passez à **Tableau** et gardez le regroupement : les étapes deviennent des groupes de lignes avec leurs propres nombres et sommes, et vous pouvez trier par valeur ou par valeur pondérée.
+
+## Du board à la prochaine étape
 
 <Steps>
-  <Step title="Voir les opportunités par étape">
-    Ouvrez la liste des opportunités en board, groupée par étape, et repérez
-    les colonnes qui se remplissent.
-  </Step>
-  <Step title="Examiner une opportunité">
-    Ouvrez la carte pour retrouver le client, ses contacts, les notes et les
-    conversations qui y ont été rattachées.
-  </Step>
-  <Step title="Noter la prochaine action">
-    Inscrivez la prochaine étape et sa date dans des champs que vous avez
-    ajoutés. Les tâches n’ont pas d’échéance ni de rappel intégrés.
-  </Step>
-  <Step title="Ajuster étapes et champs">
-    Renommez les étapes, réglez leurs probabilités et ajoutez les champs dont
-    votre équipe a besoin, comme le motif de perte.
-  </Step>
-  <Step title="Préparer la revue">
-    Enregistrez une vue des opportunités ouvertes et ajoutez au tableau de bord
-    un graphique de la valeur pondérée par étape.
-  </Step>
+  <Step title="Voir les opportunités par étape">Ouvrez la vue board de vos opportunités et parcourez les totaux des colonnes.</Step>
+  <Step title="Examiner une affaire">Ouvrez une carte pour voir le compte, les contacts, les tâches et les notes qui lui sont liés.</Step>
+  <Step title="Noter la prochaine action">Renseignez un champ date comme **Prochaine étape** et ajoutez une tâche. Customermates n’a pas de rappels intégrés : une vue enregistrée filtrée sur les dates dépassées remplit ce rôle.</Step>
+  <Step title="Adapter les champs et les étapes">Ajoutez les champs sur lesquels vous triez, comme **Clôture prévue** (date) ou **Motif de perte** (choix unique), et ajustez les probabilités quand votre expérience change.</Step>
+  <Step title="Laisser l’IA aider là où c’est permis">Demandez à Mate sur le cloud, ou à votre propre client IA via MCP, de mettre à jour une étape ou de lister les affaires sans prochaine étape.</Step>
 </Steps>
 
-## Mettre en place votre pipeline
+## Le contexte client à côté de l’affaire
 
-Un nouvel espace de travail commence sans listes ni étapes prêtes à l’emploi. Sur Customermates Cloud, la configuration IA crée les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de la description de votre activité. Elle s’exécute une fois, à l’inscription, dans la limite de crédits prévue, et vous pouvez la passer avec « Commencer avec un espace de travail vide ». Sinon, une personne qui a le droit de configurer crée la liste des opportunités et son champ d’étapes dans **Configurer**, puis importe les opportunités ouvertes depuis un classeur Excel (.xlsx). Importez d’abord les comptes et les contacts pour que les opportunités puissent s’y relier. Un import ne peut pas être annulé.
+Une opportunité est reliée à son compte et à ses contacts : les personnes et l’historique sont à un clic. Sur Customermates Cloud, Pro et au-dessus ajoutent la [boîte de réception unifiée](/features/unified-inbox) pour Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram et Telegram. Un participant est associé à un contact par l’identité figurant dans son champ Coordonnées. Une conversation n’est rattachée à une opportunité ou à un compte que lorsque vous ou un agent le faites explicitement ; rien n’est classé automatiquement sur une affaire.
 
-Les vues enregistrées sont personnelles : chaque membre de l’équipe enregistre la sienne. Il n’y a pas de droits d’accès par champ, mais des rôles par liste et par action.
+Limites de la boîte de réception selon l’offre : Starter et l’auto-hébergement n’ont aucun compte de messagerie connecté. Pro couvre vos propres comptes, avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus, plus les fils partagés un par un. Le partage d’un compte entier avec l’équipe demande Business, Max ou Enterprise.
 
-## Les échanges clients et l’IA
+## Garder le pipeline à jour
 
-Sur Customermates Cloud, la boîte de réception unifiée réunit l’e-mail (Gmail, Outlook, IMAP), LinkedIn, WhatsApp, Instagram et Telegram. Starter et l’auto-hébergement n’ont pas de comptes de messagerie connectés. Avec Pro, chacun connecte ses propres comptes et partage des fils un par un. Le partage d’un compte entier demande Business, Max ou Enterprise. Une conversation s’affiche chez le contact correspondant. Son rattachement à une opportunité se fait explicitement, par vous ou par l’assistant.
+**Une vue des affaires en sommeil.** Filtrez les opportunités sur **Mis à jour le** plus ancien que 14 jours et sur une étape autre que Won ou Lost, puis enregistrez la vue. Toute modification compte comme une mise à jour, pas seulement un changement d’étape.
 
-Mate, l’assistant IA de Customermates Cloud, peut passer en revue les opportunités ouvertes et proposer des mises à jour, dans la limite des crédits de votre offre. Il crée, modifie et envoie dès que vous le lui demandez ; seules les suppressions, les imports, les changements d’accès et les modifications destructives du modèle de données attendent votre validation. Un brouillon attend que vous le modifiiez ou l’envoyiez. Via MCP, votre propre client IA lit et met à jour les opportunités auxquelles vous avez accès, sur toutes les offres. Pour le détail des fiches clients, voyez la [gestion des contacts et des clients](/features/contact-management).
+**Une routine hebdomadaire (cloud uniquement).** Une [routine](/docs/app-routines) exécute Mate selon un planning ou quand un enregistrement change ; elle appartient à un utilisateur, voit ce que cet utilisateur voit, et consomme les crédits IA de son propriétaire :
 
-## Tarifs
+```text
+Find opportunities in Proposal sent or Negotiation that were not updated in the last 14 days. For each one, create a task "Check in: [name]", link it to the opportunity and assign it to its owner. Do not send any messages.
+```
 
-La facturation est mensuelle, par utilisateur, en euros : Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]] et Max [[commercial.price.max.monthly]] par utilisateur et par mois. Le pipeline est inclus dès Starter. Le détail est sur la [page des tarifs](/pricing).
+Mate crée et modifie des enregistrements et envoie des messages dès qu’on le lui demande : précisez donc dans la consigne ce qu’il ne doit pas faire. Les suppressions, les imports et les changements d’accès attendent une approbation, et une routine sans surveillance les refuse. Mate n’est pas disponible en auto-hébergement.
+
+**Votre propre client IA via MCP.** Sur toutes les offres, auto-hébergement compris, Claude, ChatGPT ou un autre client [MCP](/docs/mcp) peut lire les opportunités et mettre à jour les étapes et les champs que votre rôle autorise, facturé par votre fournisseur d’IA. Un changement d’étape, quelle qu’en soit la source, déclenche un webhook `record.updated` qu’un workflow n8n distinct peut récupérer.
+
+## Travailler en équipe
+
+Toute personne dont le rôle lit toutes les opportunités voit les mêmes affaires ; avec l’accès en lecture **Assignés**, une personne ne voit que les siennes. Trois limites comptent pour les équipes :
+
+- Les vues enregistrées et les tableaux de bord sont personnels. Il n’y a pas de vues partagées ou d’équipe : chaque collègue enregistre donc son propre board.
+- Les autorisations s’appliquent à des listes entières. Il n’y a pas de droits au niveau du champ : une personne qui peut lire les opportunités voit donc tous leurs champs.
+- Le partage d’une boîte de réception entière commence avec Business. Avec Pro, les collègues partagent des fils isolés.
+
+## Limites
+
+<AcquisitionCallout title="Ce que le pipeline ne fait pas" variant="boundary">
+  La valeur pondérée est votre valeur multipliée par vos probabilités. Il n’y a ni prévision prédictive, ni rapport sur le temps passé par étape, la conversion entre étapes ou la vitesse du pipeline, ni mise en évidence automatique des affaires en sommeil. Pas de vues partagées ou d’équipe, pas de droits au niveau du champ et pas d’application mobile native.
+</AcquisitionCallout>
+
+Pour une mesure comme le taux de réussite par personne, Mate sur le cloud peut la calculer à partir de vos enregistrements, ou vous exportez la liste sous forme de classeur Excel. Les options de graphiques figurent sur la page [reporting](/features/reporting).
+
+## Gérer plusieurs pipelines
+
+Il n’existe pas d’objet pipeline distinct. Un second pipeline est un second champ à choix unique, par exemple **Étape de renouvellement**, avec sa propre vue en board. La valeur pondérée vient du champ d’étape avec probabilités : un second board affiche donc des nombres et des totaux, mais pas de chiffres pondérés.
+
+## Quel type d’outil convient
+
+| Votre situation | À regarder |
+|---|---|
+| Une équipe de prospection sortante à fort volume qui a besoin de prévisions et d’alertes sur les affaires en sommeil | Un CRM commercial conçu pour cela, comme Pipedrive |
+| Une petite équipe dont les affaires avancent dans des conversations par e-mail, LinkedIn et WhatsApp | Customermates |
+| Une personne avec une poignée d’affaires | Un tableur peut encore suffire |
+
+## Ce que cela coûte
+
+La facturation est mensuelle par utilisateur. Starter coûte [[commercial.price.starter.monthly]] et couvre le board, les étapes, la valeur pondérée et les tableaux de bord. Pro coûte [[commercial.price.pro.monthly]] et ajoute la boîte de réception. Business coûte [[commercial.price.business.monthly]] et ajoute le partage d’une boîte de réception entière. L’auto-hébergement du cœur open source n’a pas de frais de licence ; vous payez votre propre serveur. Voir les [tarifs](/pricing).
 
 ## Questions fréquentes
 
 <Faq>
-<FaqItem question="La valeur pondérée est-elle une prévision des ventes ?">
-Non. C’est la valeur de chaque opportunité multipliée par la probabilité que vous avez fixée pour son étape. Customermates ne fait pas de prévision, d’analyse de conversion ni de calcul de vitesse du pipeline.
+<FaqItem question="Un nouvel espace de travail est-il livré avec des étapes de pipeline ?">
+Non. Un nouvel espace de travail commence sans listes. Sur Customermates Cloud, la configuration IA de l’espace de travail construit une liste d’opportunités avec des étapes à partir de votre description pendant la prise en main. Sinon, vous créez la liste et son champ d’étape dans Configurer.
 </FaqItem>
 
-<FaqItem question="Puis-je définir mes propres étapes ?">
-Oui. Les étapes sont les options d’un champ que vous configurez : vous les renommez, les réordonnez et réglez la probabilité de chacune dans Configurer.
+<FaqItem question="Customermates prévoit-il le chiffre d’affaires ?">
+Non. La valeur pondérée multiplie la valeur de chaque opportunité par la probabilité que vous avez fixée pour son étape. C’est de l’arithmétique sur vos propres chiffres, pas une prédiction, et il n’y a pas d’analyse de vitesse ni de conversion.
 </FaqItem>
 
-<FaqItem question="Les e-mails sont-ils rattachés automatiquement à l’opportunité ?">
-Non. Sur Customermates Cloud à partir de Pro, une conversation s’affiche chez le contact correspondant. Le lien avec l’opportunité se fait explicitement, par vous ou par l’assistant.
+<FaqItem question="Toute mon équipe peut-elle travailler à partir du même board ?">
+Toute personne ayant l’accès en lecture à toutes les opportunités voit les mêmes affaires. Les vues enregistrées sont personnelles : chaque collègue enregistre donc sa propre vue de board. Il n’y a pas de droits au niveau du champ.
 </FaqItem>
 
-<FaqItem question="Mon équipe peut-elle partager une même vue du pipeline ?">
-Non. Les vues enregistrées sont personnelles. Chaque membre applique les mêmes filtres et enregistre sa propre vue.
+<FaqItem question="Puis-je avoir plusieurs pipelines ?">
+Oui, sous forme de champs à choix unique distincts, chacun avec sa propre vue en board.
 </FaqItem>
 
-<FaqItem question="Le pipeline envoie-t-il des relances automatiques ?">
-Non. Il n’y a ni séquences, ni relances automatiques, ni rappels intégrés. Sur Customermates Cloud, une routine peut demander à Mate de passer en revue les opportunités et d’enregistrer des brouillons de relance, que vous relisez avant l’envoi.
+<FaqItem question="Les e-mails sont-ils rattachés automatiquement à l’affaire ?">
+Non. Avec Pro et au-dessus sur le cloud, les conversations sont associées aux contacts par leurs coordonnées. Relier une conversation à une opportunité est une étape explicite de votre part ou de celle d’un agent.
 </FaqItem>
 </Faq>

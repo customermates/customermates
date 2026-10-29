@@ -18,7 +18,7 @@ vi.mock("@/core/fumadocs/route-source-map", () => {
 
 import * as route from "../sitemap";
 
-import { PARTIAL_MARKETING_LOCALES } from "@/i18n/locale-registry";
+import { REGISTERED_LOCALES, isContentLocale } from "@/i18n/locale-registry";
 
 describe("sitemap.xml", () => {
   it("renders per request, so a self-hosted image lists its runtime BASE_URL", () => {
@@ -31,10 +31,12 @@ describe("sitemap.xml", () => {
     expect(urls.filter((url) => !url.startsWith("https://crm.example.com/"))).toEqual([]);
   });
 
-  it("keeps the noindex partial marketing locales out of the sitemap and its alternates", () => {
+  it("keeps every locale without full content out of the sitemap and its alternates", () => {
     const entries = route.default();
+    const locales = REGISTERED_LOCALES.filter((locale) => !isContentLocale(locale));
 
-    for (const locale of PARTIAL_MARKETING_LOCALES) {
+    expect(locales.length).toBeGreaterThan(0);
+    for (const locale of locales) {
       const prefix = `https://crm.example.com/${locale}`;
       expect(entries.filter((entry) => entry.url === prefix || entry.url.startsWith(`${prefix}/`))).toEqual([]);
       for (const entry of entries) expect(entry.alternates?.languages?.[locale], entry.url).toBeUndefined();

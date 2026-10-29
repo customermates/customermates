@@ -1,4 +1,4 @@
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { AssetLocale } from "@/i18n/locale-registry";
 
 import type { HomepageCaptureName } from "./homepage-captures";
 
@@ -17,7 +17,7 @@ type CaptureEvidence = {
   clipped: boolean;
   route: string;
   scenario: string;
-  sha256: Record<ContentLocale, { dark: string; light: string }>;
+  sha256: Record<AssetLocale, { dark: string; light: string }>;
   viewport: { height: number; width: number };
 };
 

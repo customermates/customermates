@@ -58,15 +58,16 @@ describe("for hub solution groups", () => {
     expect(workflow.items.every((item) => item.href.startsWith("/features/"))).toBe(true);
   });
 
-  it("offers a partial marketing locale only the solutions it publishes", () => {
+  it("offers French, a full content locale, the same solutions as English", () => {
+    const [enTeam, enWorkflow] = forHubSolutionGroups("en", TITLES);
     const [team, workflow] = forHubSolutionGroups("fr", TITLES);
 
-    expect(team.items.map((item) => item.href)).toEqual(["/for/smb", "/for/agencies"]);
-    expect(workflow.items.map((item) => item.href)).toEqual(["/features/contact-management", "/features/pipeline"]);
+    expect(team.items.map((item) => item.href)).toEqual(enTeam.items.map((item) => item.href));
+    expect(workflow.items.map((item) => item.href)).toEqual(enWorkflow.items.map((item) => item.href));
     expect(team.items[0].name).toBe("fr:smb");
   });
 
-  it("paginates a partial locale over its own pages instead of the default locale's", async () => {
+  it("paginates French over its own pages instead of the default locale's", async () => {
     await expect(renderForHub("fr", 1)).resolves.toBeTruthy();
   });
 });

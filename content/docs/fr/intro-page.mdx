@@ -1,0 +1,62 @@
+---
+title: "Documentation du CRM Customermates"
+description: "CRM open source avec un point d’accès MCP natif : les clients IA lisent et écrivent directement dans votre CRM. Commencez ici."
+demo:
+  src: https://demo.customermates.com/fr/w/small-business/dashboard?agentChat=closed
+  title: Démo Customermates
+---
+
+Customermates est un CRM open source avec un point d’accès MCP natif. Claude, ChatGPT, Cursor et tout autre client qui parle le Model Context Protocol lisent et écrivent directement dans votre CRM, sans copier-coller.
+
+## Choisir votre client et démarrer [#pick-your-client-and-start]
+
+| Votre IA | Configuration complète sur une page |
+| --- | --- |
+| Claude et ChatGPT (connecteur personnalisé) | [Se connecter avec un connecteur personnalisé](/docs/connect-custom-connector) |
+| Claude Code | [Connecter Claude Code](/docs/connect-cli#claude-code) |
+| Cursor | [Connecter Cursor](/docs/connect-cli#cursor) |
+| Tout client MCP | [Présentation de MCP](/docs/mcp) |
+
+Chaque page couvre les étapes de connexion et vos premières commandes, et le serveur présente le CRM à votre client dès la connexion. Pour une démonstration pas à pas avec un webhook et une première interaction avec l’IA, voir le [Démarrage rapide](/docs/quickstart).
+
+## Ce qu’est Customermates [#what-customermates-is]
+
+Un CRM avec des listes, des champs, des relations et des calculs configurables, des vues en tableau et en board, et des tableaux de bord. Sur Customermates Cloud, une configuration IA conçoit vos listes, votre pipeline, votre tableau de bord et votre base de connaissances à partir de quelques questions sur votre activité ; vous pouvez tout modifier et ajouter vos propres listes. Et aussi :
+
+- **Point d’accès MCP natif** sur `/api/v1/mcp` : un client MCP découvre et appelle les opérations du CRM sans module d’extension.
+- **Open source** sous AGPLv3 ; les composants entreprise relèvent d’une licence commerciale distincte. Auto-hébergez ou utilisez le cloud géré.
+- **Cloud géré** avec sa base de données dans la région AWS de Francfort, un [DPA](/dpa), et chaque sous-traitant, fournisseurs américains compris, listé sur la [page des sous-traitants](/subprocessors).
+- **Webhooks** avec des charges utiles signées en option, des nouvelles tentatives et un journal des envois.
+- **Spécification OpenAPI 3.1** de toute l’interface REST sur `/api/v1/openapi`.
+- **Mate**, l’assistant IA intégré à l’application sur Customermates Cloud : pas de client IA externe ni de configuration, il utilise les crédits inclus dans votre formule. Voir [Assistant](/docs/app-assistant).
+- **Routines** qui exécutent Mate selon un calendrier ou lorsqu’un enregistrement change, sur Customermates Cloud. Voir [Routines](/docs/app-routines).
+- **Boîte de réception** pour l’e-mail et les comptes LinkedIn, WhatsApp, Instagram et Telegram connectés, sur Customermates Cloud. Voir [Boîte de réception](/docs/app-inbox).
+- **Rôles** qui décident, liste par liste, qui peut lire tous les enregistrements, seulement ceux qui lui sont assignés ou aucun, et qui peut les créer, les modifier ou les supprimer. Voir [Entreprise](/docs/app-company).
+
+## Quatre façons dont Customermates se connecte à votre stack [#four-ways-customermates-connects-to-your-stack]
+
+| Je veux | Utiliser |
+| --- | --- |
+| Qu’un client MCP mette à jour le CRM au fil d’une conversation | [MCP](/docs/mcp) |
+| Construire une intégration sur mesure en code | [OpenAPI](/docs/openapi) |
+| Réagir aux changements du CRM dans Slack, un outil de séquences, la BI ou votre entrepôt de données | [Webhooks](/docs/webhooks) |
+| Composer des workflows visuellement sans code | [n8n](/docs/n8n) |
+
+MCP, OpenAPI et n8n s’authentifient avec une clé d’API ; les clients MCP comme Claude et ChatGPT peuvent aussi se connecter en OAuth sans clé. Voir [Clés API](/docs/api-keys). Les webhooks fonctionnent dans l’autre sens : Customermates envoie chaque livraison à votre URL et, si le webhook a un secret, la signe, de sorte que votre récepteur vérifie cette signature ou un en-tête personnalisé que vous définissez sur le webhook.
+
+## Approche de conception [#design-approach]
+
+Customermates traite le client IA comme un utilisateur à part entière. Les outils portent des noms à l’impératif, les erreurs disent quoi faire, les relations changent de façon incrémentale, et la surface MCP reste petite (un seul point d’accès, tous les outils activés par défaut) pour que les petits modèles s’y repèrent de façon fiable.
+
+## Comment la documentation est organisée [#how-the-docs-are-organized]
+
+- **Premiers pas** : [Démarrage rapide](/docs/quickstart), [Concepts](/docs/concepts).
+- **Connecter votre IA** : [Connecteur personnalisé](/docs/connect-custom-connector), [CLI et éditeurs](/docs/connect-cli), [Limites de débit](/docs/messaging-rate-limits).
+- **Guide de l’application** : [Assistant](/docs/app-assistant), [Tableau de bord](/docs/app-dashboard), [Boîte de réception](/docs/app-inbox), [Enregistrements](/docs/app-records), [Routines](/docs/app-routines), [Profil](/docs/app-profile), [Recherche globale](/docs/app-search), l'[Assistant de configuration](/docs/app-onboarding), [Entreprise](/docs/app-company), [Clés API](/docs/api-keys) et [Syntaxe des filtres](/docs/filter-syntax). Les emplacements de l’application sont des liens : dans l’application, ils ouvrent la page et mettent en évidence le contrôle qu’ils nomment.
+- **Intégrations** : [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
+- **Auto-hébergement** : [Démarrer et administrer](/docs/self-hosting), [Architecture et sécurité](/docs/architecture-security).
+- **Référence** : [Catalogue des outils MCP](/docs/mcp#tool-catalog), [Syntaxe des filtres](/docs/filter-syntax), [Clés API](/docs/api-keys).
+
+## Essayer [#try-it]
+
+La démo intégrée à cette page est une instance en direct en lecture seule avec des données d’exemple. Vous pouvez la parcourir et y chercher ; créer, modifier ou supprimer des enregistrements et interroger Mate affichent un avis indiquant que l’action n’est pas disponible en mode démo. [Démarrez un essai gratuit](/auth/signup) pour travailler avec vos propres données.

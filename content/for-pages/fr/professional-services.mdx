@@ -1,0 +1,245 @@
+---
+title: "CRM pour services professionnels | Clients et pipeline"
+description: "Contacts, organisations, affaires, services et tâches de relance réunis dans un CRM de relations et de pipeline : valeurs pondérées, REST, webhooks, MCP."
+industryName: Services professionnels
+
+acquisition:
+  locale: fr
+  slug: professional-services
+  clusterId: professional-services
+  role: hub
+  primaryIntent: CRM de relations et de pipeline pour les services professionnels
+  metadata:
+    title: "CRM pour services professionnels | Clients et pipeline"
+    description: "Contacts, organisations, affaires, services et tâches de relance réunis dans un CRM de relations et de pipeline : valeurs pondérées, REST, webhooks, MCP."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:mcp-tools
+    excludedClaims:
+      - claim:no-psa
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Réunir relations clients et pipeline au même endroit
+    description: Commencez par les contacts, les organisations et les affaires, puis adaptez les étapes et les champs à votre processus de développement commercial.
+    buttonLeftText: Démarrer l’essai Pro
+    buttonLeftHref: /auth/signup
+    buttonRightText: Explorer l’espace de travail
+    buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
+    hint: "Gardez la réalisation, les propositions, le temps et la facturation dans les systèmes spécialisés que vous utilisez déjà."
+  relatedHrefs:
+    - /for/agencies
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/agentic-crm
+  visual:
+    id: acquisition.professional-services.fr
+    locale: fr
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Un CRM de relations et de pipeline pour les services professionnels"
+      body: "Gardez le contexte client, les opportunités, les services et les tâches de relance reliés. Customermates soutient le développement commercial, tandis que la réalisation des projets, les propositions, la facturation et le suivi du temps restent dans des systèmes spécialisés."
+      checksum: fnv1a-55ed041a
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Le contexte client et les valeurs d’affaires pondérées rendent le pipeline de développement commercial plus lisible."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Les étapes et les valeurs pondérées des affaires gardent le pipeline de développement commercial lisible."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: fr
+      text: Pipeline d’affaires
+    semanticLabels:
+      - locale: fr
+        text: Contexte client
+      - locale: fr
+        text: Valeur pondérée
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: professional-services-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: Un CRM de relations et de pipeline pour les services professionnels
+  description: Gardez le contexte client, les opportunités, les services et les tâches de relance reliés. Customermates soutient le développement commercial, tandis que la réalisation des projets, les propositions, la facturation et le suivi du temps restent dans des systèmes spécialisés.
+  buttonLeftText: Démarrer l’essai Pro
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explorer l’espace de travail
+  buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
+  hint: "Sans carte bancaire • Essai Pro de [[commercial.trial.days]] jours"
+  showOpenSourceBadge: false
+
+cta:
+  action: Réunir relations clients et pipeline au même endroit
+  description: Commencez par les contacts, les organisations et les affaires, puis adaptez les étapes et les champs à votre processus de développement commercial.
+  buttonLeftText: Démarrer l’essai Pro
+  buttonLeftHref: /auth/signup
+  buttonRightText: Explorer l’espace de travail
+  buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
+  hint: "Gardez la réalisation, les propositions, le temps et la facturation dans les systèmes spécialisés que vous utilisez déjà."
+---
+
+Customermates est un **CRM pour services professionnels** destiné aux équipes qui vendent leur expertise par la relation et par des opportunités à étapes. Il relie l’organisation cliente, ses interlocuteurs, l’opportunité, les services en discussion, la valeur pondérée et la prochaine tâche dans un seul espace de travail de développement commercial.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Idéal pour">
+    Les cabinets de conseil et autres sociétés fondées sur la relation qui ont
+    besoin d’un pipeline clair de clients et d’opportunités.
+  </SummaryItem>
+  <SummaryItem label="Mission principale">
+    Garder reliés les interlocuteurs, les affaires, les services et les
+    prochaines actions, au lieu de les éparpiller entre notes personnelles et
+    tableurs.
+  </SummaryItem>
+  <SummaryItem label="Capacités principales">
+    Étapes d’affaires configurables, valeurs pondérées déterministes, lignes de
+    détail et tâches liées aux enregistrements.
+  </SummaryItem>
+  <SummaryItem label="Limite du système">
+    Customermates porte le contexte de relation et de vente. La réalisation, les
+    propositions, le temps et la facturation restent dans des systèmes
+    spécialisés.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Capacités d’un CRM pour services professionnels">
+  <ProofItem label="Relations">Contacts et organisations</ProofItem>
+  <ProofItem label="Pipeline">Étapes configurables et board Kanban</ProofItem>
+  <ProofItem label="Valeur">Totaux pondérés selon l’étape</ProofItem>
+  <ProofItem label="Périmètre">Services et tâches liées</ProofItem>
+  <ProofItem label="Extensions">REST, webhooks et MCP</ProofItem>
+</ProofRail>
+
+## Suivre une opportunité de la relation à la prochaine action
+
+Imaginez un cabinet de conseil en discussion avec une organisation cliente à propos d’une mission en plusieurs volets. Le groupe d’achat comprend un sponsor exécutif, un interlocuteur au quotidien et un responsable des achats. Dans Customermates, ces personnes restent reliées à la même organisation pendant que l’opportunité avance dans les étapes qui correspondent au processus de vente du cabinet.
+
+L’équipe peut rattacher les services, les quantités et les montants actuellement en discussion, puis garder la prochaine relance sous forme de tâche sur l’enregistrement concerné. Ouvrir l’affaire révèle le contexte commercial, sans prétendre que le CRM est aussi l’espace de réalisation.
+
+<Steps>
+  <Step title="Construire le contexte client">
+    Créez l’organisation, ajoutez les personnes concernées et conservez les
+    relations qui comptent pour l’opportunité.
+  </Step>
+  <Step title="Façonner l’opportunité">
+    Ouvrez une affaire, attribuez un responsable et faites-la avancer dans les
+    étapes que votre équipe définit.
+  </Step>
+  <Step title="Représenter le périmètre commercial">
+    Ajoutez à l’affaire des lignes avec les services, les quantités et les
+    montants concernés.
+  </Step>
+  <Step title="Garder la prochaine action visible">
+    Rattachez une tâche au contact, à l’organisation, à l’affaire ou au service
+    pour que la relance reste avec son contexte.
+  </Step>
+  <Step title="Passer le relais en connaissance de cause">
+    Quand le travail est gagné, transmettez le périmètre signé aux systèmes de
+    projet, de temps et de finance chargés de la réalisation.
+  </Step>
+</Steps>
+
+## Ce que couvre ce CRM
+
+| Besoin de développement commercial | Customermates porte                                             | Le système spécialisé porte                              |
+| ---------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------- |
+| Contexte client et interlocuteurs  | Contacts, organisations, relations, notes et activité           | Documents et dossiers                                    |
+| Pipeline d’opportunités            | Affaires, étapes configurables et vues Kanban                   | Propositions, SOW et contrats                            |
+| Valeur commerciale                 | Montants des services, probabilités d’étape et totaux pondérés  | Prévisions prédictives et planification financière       |
+| Relance                            | Tâches liées aux enregistrements et aux utilisateurs du CRM     | Planification, plans de projet, temps et taux d’occupation |
+
+<AcquisitionCallout
+  title="Une frontière du CRM qui évite les données de réalisation en double"
+  variant="boundary"
+>
+  Gardez la relation, l’opportunité et la prochaine action dans Customermates.
+  Gardez l’exécution des projets, la capacité, les saisies de temps et les
+  factures dans les outils qui détiennent déjà ces enregistrements. Reliez-les
+  par l'[API REST et les webhooks](/features/api) ou par un [workflow
+  n8n](/features/workflow-automation) exploité séparément quand un passage de
+  relais contrôlé est utile.
+</AcquisitionCallout>
+
+## Comment fonctionnent les valeurs de pipeline pondérées
+
+Les étapes d’affaires peuvent porter des probabilités. Customermates multiplie la valeur de l’affaire par la probabilité d’étape configurée et additionne ces valeurs déterministes en totaux de pipeline pondérés. Le calcul reste transparent. Ce n’est ni une prévision prédictive du chiffre d’affaires, ni de l’enrichissement, ni un score de conclusion automatisé.
+
+Utilisez la valeur pondérée comme aide à la revue : examinez l’affaire sous-jacente, confirmez que l’étape reflète toujours la réalité et mettez l’enregistrement à jour quand la situation commerciale change.
+
+## Où ce CRM pour services professionnels trouve sa place
+
+Le modèle commun s’applique aux cabinets de conseil, aux [agences](/for/agencies), aux cabinets comptables et aux cabinets d’avocats, chaque activité pouvant choisir ses propres étapes, champs et langue.
+
+<AcquisitionCallout title="Choisissez Customermates quand" variant="fit">
+  Votre cabinet a besoin d’un système de référence pour les relations et le
+  pipeline, vend par un processus en plusieurs étapes et dispose déjà d’outils
+  spécialisés de réalisation et de finance. Choisissez plutôt une plateforme PSA
+  ou de gestion de projet quand la planification des ressources, le taux
+  d’occupation, le temps facturable et la facturation doivent tous vivre dans le
+  même produit.
+</AcquisitionCallout>
+
+## Cloud, auto-hébergement et accès à l’IA
+
+Les enregistrements essentiels de relations et de pipeline sont disponibles dans le cloud géré et dans [Customermates auto-hébergé](/features/self-hosted). L’auto-hébergement inclut l’ensemble de fonctionnalités Starter et peut exposer les enregistrements pris en charge à un client IA externe via [MCP](/docs/mcp).
+
+La [boîte de réception unifiée](/features/unified-inbox) est une fonctionnalité du cloud géré à partir de Pro. Elle réunit dans une seule liste les conversations des canaux pris en charge et associe les participants aux contacts par adresse e-mail, numéro de téléphone ou profil. Une conversation n’est liée à une affaire ou à une organisation que si une personne ou Mate la lie. Pro couvre les comptes de chaque personne et les fils partagés un par un ; partager un compte entier demande Business, Max ou Enterprise. Mate, l’assistant IA hébergé, est lui aussi réservé au cloud. Vous choisissez vous-même le client MCP externe et le fournisseur de modèle d’IA ; leurs propres conditions régissent la façon dont ils traitent les données.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Customermates est-il une plateforme PSA ?">
+Non. C’est un CRM de relations et de pipeline. Il ne fournit ni réalisation de projet native, ni planification de capacité, ni gestion du taux d’occupation, ni suivi du temps, ni facturation.
+</FaqItem>
+
+<FaqItem question="Peut-il créer des propositions ou des factures ?">
+  Non. Customermates n’a aucun workflow de documents pour les propositions, les
+  SOW, les devis ou les factures. Vous pouvez garder dans le CRM le contexte de
+  l’opportunité, des interlocuteurs, des services et des relances, et connecter
+  un système spécialisé via REST, les webhooks ou un workflow externe.
+</FaqItem>
+
+<FaqItem question="Comment la valeur des services est-elle représentée ?">
+  Les services sont ajoutés à une affaire sous forme de lignes avec des quantités et des montants. Les étapes d’affaires peuvent
+  porter des probabilités, que Customermates utilise pour calculer des valeurs
+  d’affaires pondérées déterministes et des totaux de pipeline.
+</FaqItem>
+
+<FaqItem question="Les tâches peuvent-elles remplacer la gestion de projet ou le suivi du temps ?">
+  Non. Les tâches peuvent être liées aux enregistrements du CRM et à des
+  utilisateurs, mais elles ne constituent pas un système de réalisation de
+  projet, de planification ou de saisie du temps.
+</FaqItem>
+
+<FaqItem question="La boîte de réception unifiée est-elle disponible en auto-hébergement ?">
+Non. La boîte de réception unifiée et la vue de calendrier connecté sont des fonctionnalités du cloud géré à partir de Pro. L’auto-hébergement inclut l’ensemble de fonctionnalités Starter et peut connecter des clients IA externes via MCP.
+</FaqItem>
+</Faq>

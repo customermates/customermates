@@ -1,0 +1,99 @@
+---
+title: "Syntaxe des filtres pour les requêtes d’enregistrements CRM"
+description: "Filtres typés sur les champs et les relations pour le modèle d’enregistrements configurable, avec des exemples pour MCP et REST."
+---
+
+Les listes CRM, les vues enregistrées, les widgets, les requêtes REST et l’outil MCP `query_crm_records` utilisent le même modèle de requête d’enregistrements. Découvrez le type avec `discover_record_types` et lisez ses ID stables de champs et de relations avec `get_record_model`. Chaque liste utilise la même forme de requête, qu’elle ait été créée par la configuration IA de l’espace de travail ou par une personne. Les outils de messagerie ont des filtres distincts.
+
+## Où les filtres s’appliquent-ils ? [#where-do-filters-apply]
+
+Une requête d’enregistrements identifie un seul `typeId`. Son `filters` teste les champs de ce type ; `relationships` teste les enregistrements liés ; `relatedFilters` suit un chemin de relation déclaré. Les règles de chaque tableau sont combinées avec ET. `search` trouve du texte dans tous les champs consultables et lisibles. Le backend applique les permissions de l’espace de travail et des enregistrements à chaque requête et à chaque chemin lié.
+
+## Comment filtrer une liste dans l’application ? [#how-do-i-filter-a-list-in-the-app]
+
+Ouvrez la liste, par exemple votre liste d’affaires, et cliquez sur **Filtres** dans sa barre d’outils. Choisissez un champ sous **Filtrer par** ou saisissez son nom dans **Ajouter un filtre…** ; les listes liées, comme une liste d’organisations, y figurent aussi. Choisissez la condition, puis les valeurs, et la liste se met à jour aussitôt. Les filtres actifs apparaissent sous forme de pastilles en haut ; retirez-en un avec son ×, ou retirez-les tous avec **Effacer**. **Demander à Mate** dans la même fenêtre transforme une description écrite avec vos propres mots en filtres. Chaque liste fonctionne de la même façon, et une vue enregistrée montre les mêmes enregistrements au lieu de les copier.
+
+## À quoi ressemble une règle de filtre, et puis-je combiner des règles avec OU ? [#what-does-a-filter-rule-look-like]
+
+Chaque filtre de champ a un `fieldId` stable, un `operator`, une `value` scalaire typée (ou `null`) et, facultativement, `values` pour les opérateurs d’ensemble ou de plage. Par exemple :
+
+```json
+{
+  "typeId": "00000000-0000-4000-8000-000000000001",
+  "filters": [
+    {
+      "fieldId": "00000000-0000-4000-8000-000000000002",
+      "operator": "contains",
+      "value": { "kind": "text", "value": "Acme" }
+    }
+  ]
+}
+```
+
+Utilisez `in` pour retrouver n’importe laquelle de plusieurs valeurs d’un même champ. Pour exprimer OU entre des champs différents, lancez des requêtes distinctes ou utilisez une requête d’enregistrements liés appropriée ; le tableau de filtres ordinaire est combiné avec ET. Une requête accepte jusqu’à 50 règles de champ et 500 caractères de `search`.
+
+## Quels opérateurs existent ? [#which-operators-exist]
+
+Le contrat de requête d’enregistrements prend en charge 16 opérateurs de champ. Le type et le comportement d’un champ déterminent ceux qui sont valides ; le backend rejette les combinaisons incompatibles.
+
+| Opérateurs | Signification |
+|---|---|
+| `eq`, `ne` | Égal ou différent d’une valeur typée |
+| `contains`, `startsWith` | Correspondance de texte insensible à la casse ; `contains` teste aussi si une date se situe dans une plage |
+| `gt`, `gte`, `lt`, `lte` | Comparaison ordonnée sur les nombres et les dates pris en charge |
+| `in`, `notIn` | Appartenance à `values`, au plus 100 valeurs typées |
+| `all` | Champs à choix multiple uniquement : l’enregistrement contient chaque option de `values` |
+| `between` | Intervalle de dates inclusif fourni sous forme de deux valeurs |
+| `inLastDays`, `notInLastDays` | Fenêtre relative avec un nombre entier positif de jours ; `notInLastDays` correspond aux valeurs strictement antérieures à cette fenêtre |
+| `empty`, `notEmpty` | Valeur absente ou présente ; `value` vaut `null` |
+
+`eq` sur du texte est exact ; `contains` et `startsWith` ignorent la casse. Les comparaisons de montants exigent une devise identique. Les valeurs manquantes, nulles, restreintes et en erreur de calcul sont distinctes ; un résultat restreint ne peut pas servir à déduire des entrées masquées par le filtrage ou le tri.
+
+### Quels opérateurs de date existent, par exemple pour les 7 derniers jours ? [#which-date-operators-exist]
+
+Les champs date et date-heure prennent en charge les comparaisons ordonnées appropriées et `between`. Les dates système utilisent `system:createdAt` et `system:updatedAt` comme ID de champ. `inLastDays` et `notInLastDays` prennent un scalaire décimal sans devise, comme `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` inclut les valeurs à partir de minuit UTC, N jours avant l’horloge de la requête ; `notInLastDays` (**Plus ancien que…** dans l’application) correspond aux valeurs strictement antérieures à ce seuil, si bien que `notInLastDays` 3 plus `inLastDays` 7 trouve les valeurs d’il y a trois à sept jours. Les fenêtres relatives utilisent l’horloge de la requête ; les calculs enregistrés ne changent pas silencieusement avec le temps.
+
+### Quels opérateurs fonctionnent sur les champs texte ? [#which-operators-work-on-text-fields]
+
+Les champs texte et URL prennent en charge les opérateurs de texte adaptés à leur type de valeur. Les numéros de téléphone et les adresses e-mail se trouvent dans le champ de coordonnées d’une liste (type de valeur `channels`, **Téléphone, e-mail et réseaux sociaux** dans l’application), qui prend en charge `contains`, `startsWith`, `empty` et `notEmpty` sur ses identifiants mais ne peut être ni trié ni regroupé ; la recherche de la liste le parcourt aussi : chercher un numéro ou une adresse retrouve donc son enregistrement. Un champ qui stocke plusieurs valeurs est recherché élément par élément. Les termes de recherche traitent les signes pourcentage et les tirets bas comme des caractères littéraux, pas comme des jokers SQL.
+
+### Quels opérateurs de relation existent, par exemple pour trouver les contacts sans organisation ? [#which-relationship-operators-exist]
+
+Les filtres de relation sont distincts des filtres de champ. Indiquez `relationId`, `direction` (`outgoing` ou `incoming`), `operator` (`any` ou `none`) et `recordIds`. Mettez `recordIds` à `null` pour tout enregistrement lié accessible, ou à des ID explicites pour tester des enregistrements précis. Un filtre `none` avec `recordIds: null` trouve les enregistrements sans lien accessible de cette relation. La définition de la relation fournit les types des extrémités et la cardinalité.
+
+### Comment filtrer par un champ personnalisé, et quels opérateurs fonctionnent dessus ? [#which-operators-work-on-custom-columns]
+
+Utilisez l’ID du champ issu de `get_record_model`, jamais son libellé modifiable. Un champ de saisie, de formule, de recherche ou de cumul peut être filtré quand son type de valeur prend en charge l’opérateur et que le lecteur peut accéder à la valeur. Les filtres de sélection utilisent des ID d’option stables. Un champ à choix multiple accepte `in` (a l’une des options), `all` (les a toutes), `notIn` (n’en a aucune, y compris les enregistrements sans valeur), `empty` et `notEmpty` ; il ne peut pas être trié. La même règle s’applique aux champs de chaque liste.
+
+## Quels noms de champs puis-je utiliser ? [#which-field-names-can-i-use]
+
+Utilisez les ID de champ stables issus de `get_record_model`. Les clés système `system:createdAt`, `system:updatedAt` et `system:assignedTo` sont disponibles là où elles sont prises en charge. Les relations utilisent leurs ID de définition dans `relationships` plutôt que des noms comme `organizationIds`. Un champ, un type ou une relation renommé garde son ID : les vues enregistrées et les requêtes IA restent donc valides.
+
+Les listes de la boîte de réception exposent aussi `connectedAccountId`, `emailFolder` propre à chaque compte, `lastMessageDirection`, `lastMessageSentAt` et `lastMessageAt`. Appelez d’abord `get_messaging_threads` sans filtres (ou `manage_data_views` avec `action: "config"`, la surface Inbox et `section: "filters"`), puis copiez exactement le `filterableFields.options[].value` d’un compte ou d’un dossier. `emailFolder` accepte `in` et `notIn` ; chaque référence de dossier inclut son compte. Les options de dossier fournissent `groupKey` (identité du compte) et `groupLabel` (intitulé), ce qui permet de séparer les groupes même quand deux comptes ont le même nom affiché. `lastMessageDirection` accepte `inbound`/`outbound` avec `in`/`notIn` et ignore les brouillons, les messages masqués ou supprimés et les événements système. `lastMessageSentAt` applique des filtres de date à ce même dernier message réel. Combinez `notInLastDays` avec la valeur 3 et `inLastDays` avec la valeur 7 sur ce champ pour des messages datant de trois à sept jours ; ils peuvent être combinés avec des filtres de compte, de dossier et de direction. `lastMessageAt` filtre la dernière activité et inclut l’activité des brouillons. Voir [Filtres de la boîte de réception](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
+
+## Exemples [#examples]
+
+Contacts liés à une organisation précise :
+
+```json
+{
+  "relationships": [{
+    "relationId": "00000000-0000-4000-8000-000000000003",
+    "direction": "outgoing",
+    "operator": "any",
+    "recordIds": ["00000000-0000-4000-8000-000000000004"]
+  }]
+}
+```
+
+Les enregistrements sans lien accessible par cette relation utilisent `"operator":"none"` et `"recordIds":null`. Pour un champ date antérieur à juillet 2024, utilisez une valeur `date` typée avec `lt`. Pour un champ de sélection, utilisez `in` et ses ID d’option dans `values`. Combinez-les dans la même requête pour exiger les deux conditions.
+
+## Dois-je utiliser searchTerm (recherche en texte libre) ou un filtre ? [#free-text-search-or-a-filter]
+
+Utilisez `search` quand n’importe quel champ texte consultable et lisible peut contenir l’expression. La requête d’enregistrements actuelle appelle cette propriété `search` ; les anciennes API d’entités l’appelaient `searchTerm`. Utilisez `filters` quand le champ exact ou la comparaison compte. La recherche et les filtres sont combinés avec ET. Les coordonnées ne peuvent participer à la recherche que pour un type doté de la capacité protégée d’identité de personne et avec l’accès applicable du lecteur.
+
+## Suite [#next]
+
+- [Concepts de base](/docs/concepts) : champs et relations configurés.
+- [Catalogue d’outils MCP](/docs/mcp#tool-catalog) : `query_crm_records` et découverte du schéma.
+- [Enregistrements CRM](/docs/app-records) : filtres de liste et vues enregistrées.

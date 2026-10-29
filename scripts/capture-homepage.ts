@@ -8,7 +8,7 @@ import { isLoopbackBaseUrl } from "./lib/capture-solutions-options";
 
 import { DEMO_DEFAULT_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
 import { findSolution } from "@/core/solutions/solution-catalog";
-import { CONTENT_LOCALES, type ContentLocale } from "@/i18n/locale-registry";
+import { ASSET_LOCALES, type AssetLocale } from "@/i18n/locale-registry";
 
 // Homepage product stills from the seeded local demo instance (APP_MODE=demo, prisma db seed), in both themes and
 // every content locale. Section stills are clipped to the bounding box of real UI elements (a panel, whole message
@@ -34,8 +34,8 @@ const PHONE: CaptureViewport = { deviceScaleFactor: 2, height: 844, width: 390 }
 type Shot = {
   clip?: (page: Page) => Promise<Locator[]>;
   name: string;
-  prepare?: (page: Page, locale: ContentLocale) => Promise<void>;
-  route: (locale: ContentLocale) => string;
+  prepare?: (page: Page, locale: AssetLocale) => Promise<void>;
+  route: (locale: AssetLocale) => string;
   viewport: CaptureViewport;
   // space added around the clip elements; 0 when they carry their own padding
   gutter?: number;
@@ -45,8 +45,8 @@ type Shot = {
   fitWidth?: (page: Page) => Promise<number>;
 };
 
-const route = (path: string) => (locale: ContentLocale) => `/${locale}/w/${SOLUTION.workspaceSlugs[locale]}/${path}`;
-const records = (list: "contacts" | "deals") => (locale: ContentLocale) =>
+const route = (path: string) => (locale: AssetLocale) => `/${locale}/w/${SOLUTION.workspaceSlugs[locale]}/${path}`;
+const records = (list: "contacts" | "deals") => (locale: AssetLocale) =>
   route(`records/${DEMO_DEFAULT_RECORD_TYPE_IDS[locale][list]}`)(locale);
 
 async function closeAgentPanel(page: Page): Promise<void> {
@@ -119,7 +119,7 @@ async function openPipelineView(page: Page): Promise<void> {
 
 // the data model graph zoomed to the deals list and its line items (their sub-list group), as on the homepage stage;
 // the wheel pans this graph, so it centres the group with the wheel and zooms with the graph's own zoom-in control
-const zoomToDealGraph = (locale: ContentLocale) => async (page: Page) => {
+const zoomToDealGraph = (locale: AssetLocale) => async (page: Page) => {
   const group = page.locator(`.react-flow__node[data-id="sublists:${DEMO_DEFAULT_RECORD_TYPE_IDS[locale].deals}"]`);
   const pane = await page.locator(".react-flow").first().boundingBox();
   if (!pane) throw new Error(`${page.url()}: the graph is not visible`);
@@ -303,7 +303,7 @@ async function main(): Promise<void> {
 
   try {
     for (const shot of SHOTS.filter((item) => only.length === 0 || only.includes(item.name)))
-      for (const locale of CONTENT_LOCALES)
+      for (const locale of ASSET_LOCALES)
         for (const theme of ["light", "dark"] as const) {
           const key = `${theme}/${shot.name}-${locale}`;
           await withRetries(key, async () => {

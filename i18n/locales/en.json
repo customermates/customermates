@@ -3242,6 +3242,7 @@
     "navigation": "Audit Log",
     "values": {
       "action": {
+        "adConversionUpload": "Ad conversion upload to Google Ads",
         "auditRead": "Operator audit read",
         "candidateRead": "Operator candidate read",
         "companyRead": "Workspace read",
@@ -3295,6 +3296,16 @@
       "googleAds": "Google Ads CSV",
       "label": "Advertising conversions",
       "rowCount": "{count} reportable conversions",
+      "upload": "Send to Google Ads",
+      "uploadAmbiguous": "Google's answer for {count} conversions was unclear. They will not be sent again automatically; check the upload in Google Ads first.",
+      "uploadAuthorizationFailed": "Google did not accept the upload credentials. Nothing was sent.",
+      "uploadDisabled": "The Google Ads upload is turned off on this instance. Nothing was sent.",
+      "uploadIncomplete": "The Google Ads upload is missing configuration: {names}. Nothing was sent.",
+      "uploadNothing": "No conversion is waiting to be sent. Already sent: {count}",
+      "uploadRejected": "Google rejected {count} conversions. They can be sent again once the cause is fixed.",
+      "uploadSubmitted": "Google received {count} conversions for processing. Check the import in Google Ads later.",
+      "uploadUnavailable": "Google could not be reached for the upload. Nothing was sent; try again later.",
+      "uploadValidated": "Validation only: Google checked {count} conversions and imported none.",
       "withoutColumnCount": "Google conversions left out of this file: {count}. Their click carried a gbraid or wbraid identifier, which Google's upload template has no column for."
     },
     "growth": {

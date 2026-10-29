@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { SOLUTION_CAPTURE_BUDGET_BYTES } from "@/core/solutions/solution-captures";
-import { SOLUTION_CATALOG, findSolution } from "@/core/solutions/solution-catalog";
+import { SOLUTION_CATALOG, findSolution, solutionDataLocales } from "@/core/solutions/solution-catalog";
 import {
   SOLUTION_STAGE_IMAGE_SIZE,
   type SolutionStageCaptureEntry,
@@ -53,9 +53,9 @@ describe("solution product stage", () => {
     }
   });
 
-  it("captures every tab but the dashboard per public locale and theme", () => {
+  it("captures every tab but the dashboard per asset locale of the public locales and theme", () => {
     const plan = solutionStagePlan(routes, catalog);
-    expect(plan).toHaveLength(3 * consultants.publicLocales.length * 2);
+    expect(plan).toHaveLength(3 * solutionDataLocales(consultants).length * 2);
     expect(plan.some((item) => item.tab === "dashboard")).toBe(false);
     expect(plan.find((item) => item.key === "consultants:engagements:de:dark")?.src).toBe(
       solutionStageCaptureSrc("consultants", "engagements", "de", "dark"),

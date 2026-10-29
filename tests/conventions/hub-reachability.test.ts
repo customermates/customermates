@@ -531,7 +531,7 @@ describe("hub pagination and rendered reachability", () => {
         `${hubPath} static params`,
       ).toEqual(hubPageStaticParams(pageCount));
       expect(
-        hubModule.generateStaticParams({ params: { locale: "fr" } }),
+        hubModule.generateStaticParams({ params: { locale: "it" } }),
         `${hubPath} app-only locale`,
       ).toEqual([]);
       await expect(

@@ -6,7 +6,7 @@ import { AiClientLogo } from "@/components/ai-connection/ai-client-logo";
 import { cn } from "@/core/utils/cn";
 import type { MarketingLocale } from "@/i18n/locale-registry";
 
-import { contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { assetLocaleFor, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 import {
   VISUAL_AGENT_PROVIDER_FIXTURES,
@@ -268,7 +268,9 @@ export function NativeRecordIdentity({
 
   return (
     <span className="flex min-w-0 flex-col items-start gap-2" data-native-record={record}>
-      <span className="text-xs leading-snug font-medium">{fixture.localizedName[contentLocaleOrDefault(locale)]}</span>
+      <span className="text-xs leading-snug font-medium">
+        {fixture.localizedName[assetLocaleFor(contentLocaleOrDefault(locale))]}
+      </span>
 
       <span className="flex flex-wrap items-center gap-2">
         {statusLabel ? <span className="text-[10px] text-muted-foreground">{statusLabel}</span> : null}

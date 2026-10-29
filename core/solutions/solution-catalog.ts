@@ -1,15 +1,16 @@
 import {
-  CONTENT_LOCALES,
-  type ContentLocale,
+  ASSET_LOCALES,
+  type AssetLocale,
   DEFAULT_LOCALE,
   type MarketingLocale,
-  isContentLocale,
+  assetLocaleFor,
+  isLocaleCode,
   marketingLocalesForPath,
 } from "@/i18n/locale-registry";
 
-export const SOLUTION_DATA_LOCALES: readonly ContentLocale[] = CONTENT_LOCALES;
+export const SOLUTION_DATA_LOCALES: readonly AssetLocale[] = ASSET_LOCALES;
 
-export type SolutionDataLocale = ContentLocale;
+export type SolutionDataLocale = AssetLocale;
 
 export type SolutionGroup = "team" | "workflow";
 
@@ -235,7 +236,11 @@ export const DEMO_DEFAULT_SOLUTION_ID: SolutionId = "smb";
 export const PROFESSIONAL_SERVICES_SOLUTION_ID: SolutionId = "smb";
 
 export function solutionDataLocaleForUiLocale(uiLocale: string): SolutionDataLocale {
-  return isContentLocale(uiLocale) ? uiLocale : DEFAULT_LOCALE;
+  return assetLocaleFor(isLocaleCode(uiLocale) ? uiLocale : DEFAULT_LOCALE);
+}
+
+export function solutionDataLocales(solution: SolutionCatalogEntry): SolutionDataLocale[] {
+  return [...new Set(solution.publicLocales.map(solutionDataLocaleForUiLocale))];
 }
 
 export function findSolution(id: SolutionId): SolutionCatalogEntry {

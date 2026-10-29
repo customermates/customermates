@@ -1,0 +1,54 @@
+---
+title: "Démarrage rapide du CRM Customermates en quelques minutes"
+heading: "Configurez votre espace de travail Customermates"
+description: "Du compte à un premier enregistrement mis à jour par un agent en quelques minutes : connectez Claude ou ChatGPT, ou utilisez une clé API pour CLI et éditeurs."
+---
+
+Créez un compte, connectez un client IA et commencez à poser vos questions. Claude et ChatGPT se connectent avec un connecteur personnalisé et n’ont pas besoin de clé API ; les clients en ligne de commande et les éditeurs utilisent une clé API.
+
+## Comment m’inscrire, et combien de temps dure l’essai gratuit ? [#how-do-i-sign-up-and-how-long-is-the-free-trial]
+
+[Inscrivez-vous](/auth/signup) sans carte bancaire. Les [[commercial.trial.days]] premiers jours sont un essai gratuit de la formule Pro.
+
+Pour conserver l’accès après l’essai, choisissez une formule sous [Facturation](app:settings/billing?focus=plan-picker) dans les Paramètres avant la fin de l’essai ; voir [ce qui se passe à la fin de l’essai](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) et [les formules disponibles](/docs/app-company#which-plans-are-there). Choisir une formule demande **Modifier** sur la ligne **Entreprise** de votre rôle. Le rôle **Administrateur**, que reçoit la personne qui crée l’espace de travail, l’a. Une instance [auto-hébergée](/docs/self-hosting) n’a ni essai ni formule.
+
+## Comment connecter Claude ou ChatGPT ? [#how-do-i-connect-claude-or-chatgpt]
+
+Ajoutez un connecteur personnalisé :
+
+- **Claude** (web, bureau, mobile) : **Settings → Connectors → Add custom connector**.
+- **ChatGPT** : **Settings → Connectors → Add connector → Custom connector (MCP)**, avec **Authentication** réglé sur OAuth.
+
+Collez l’URL MCP de votre espace de travail, que Customermates affiche avec un bouton de copie dans l’étape d’accueil **Connecter votre IA** et sous [Clés API](app:settings/api-keys), connectez-vous et cliquez sur **Approuver** sur l’écran de consentement. L’adresse à laquelle vous ouvrez Customermates, suivie de `/api/v1/mcp`, fonctionne aussi et demande l’espace de travail sur l’écran de consentement. Étapes complètes : [Se connecter avec un connecteur personnalisé](/docs/connect-custom-connector#the-url).
+
+À la connexion, le serveur présente au client ses outils et votre espace de travail. Dans les clients qui prennent en charge les prompts MCP, comme Claude, le prompt intégré `get-started` ajoute un démarrage personnalisé : votre nom, votre rôle et un premier résumé de votre espace de travail.
+
+## Comment connecter une ligne de commande ou un éditeur ? [#how-do-i-connect-a-cli-or-editor]
+
+Ouvrez [Clés API](app:settings/api-keys), cliquez sur [Ajouter](app:settings/api-keys?focus=generate) et choisissez **Clé API standard**, ou choisissez votre client sous **Connexions rapides** pour obtenir la clé avec son extrait de configuration. Copiez la clé maintenant : elle n’est affichée qu’une fois. Créer une clé demande **Créer** sur la ligne **API et webhooks** de votre rôle ; le rôle **Administrateur** l’a. Détails : [Clés API](/docs/api-keys). Suivez ensuite les étapes de votre client :
+
+- [Claude Code](/docs/connect-cli#claude-code) : une commande de terminal
+- [Cursor](/docs/connect-cli#cursor) : interface des réglages, deux clics
+- [Codex](/docs/connect-cli#codex) : un bloc TOML dans `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli) : un bloc de réglages
+
+## Que tester en premier ? [#what-should-i-try-first]
+
+- *« Réglez le statut de l’affaire Acme sur Gagnée et ajoutez une note indiquant que le contrat a été signé aujourd’hui. »*
+- *« Affichez les dix derniers contacts que j’ai créés. Y en a-t-il sans adresse e-mail ? »*
+- *« Créez un contact pour Jane Doe chez Initech, reliez-le à l’organisation Initech et ouvrez une affaire pour 12 heures de conseil. »*
+
+L’agent indique ce qu’il a fait et ce qui a changé. Les étapes d’affaires et les autres champs diffèrent selon l’espace de travail ; l’agent lit les vôtres avant d’écrire.
+
+## Comment tester un webhook ? [#how-do-i-test-a-webhook]
+
+Facultatif, pour prévenir d’autres outils quand le CRM change : ouvrez [Webhooks](app:settings/webhooks) et cliquez sur [Ajouter](app:settings/webhooks?focus=add). Réglez **URL** sur un point d’accès jetable de [webhook.site](https://webhook.site), sélectionnez **Enregistrement créé** et **Enregistrement mis à jour** sous **Évènements**, choisissez les listes à surveiller et cliquez sur **Enregistrer**. Ajouter un webhook demande **Créer** sur la ligne **API et webhooks**, comme pour les clés API.
+
+Créez ou modifiez maintenant un enregistrement dans l’une de ces listes. En quelques secondes, la livraison arrive sur webhook.site avec la charge complète et apparaît sous [Livraisons](app:settings/webhook-deliveries). Plus de détails dans [Webhooks](/docs/webhooks).
+
+## Suite [#next]
+
+- [Concepts de base](/docs/concepts) : enregistrements, champs et relations en un coup d’œil.
+- [Catalogue d’outils MCP](/docs/mcp#tool-catalog) : chaque outil que votre IA peut appeler via le Model Context Protocol (MCP).
+
+Pour les agents : lisez les listes et les champs de l’espace de travail avec `discover_record_types` et `get_record_model` avant de proposer ou d’écrire des modifications.

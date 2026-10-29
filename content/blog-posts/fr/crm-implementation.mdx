@@ -1,0 +1,236 @@
+---
+title: "Mise en place d’un CRM : étapes, checklist et calendrier"
+description: "Mise en place d’un CRM pour petites équipes : six étapes avec livrables et responsables, calendrier sur quatre semaines, checklist, intérêt d’un consultant."
+
+relatedHrefs:
+  - /blog/crm-strategy
+  - /blog/how-to-choose-crm
+  - /blog/crm-training
+  - /docs/app-records
+
+hero:
+  title: "Mise en place d’un CRM : un plan en six étapes pour les petites équipes"
+  description: "Ce qu’il faut décider, dans quel ordre et qui pilote chaque étape, de la première liste de questions au bilan deux semaines après le lancement. Avec une checklist, un calendrier sur quatre semaines et une réponse honnête à la question du consultant."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-02-04
+  updated: 2026-10-08
+  tags:
+    - Mise en place d’un CRM
+    - Checklist de mise en place d’un CRM
+    - Conseil en CRM
+---
+
+# Mise en place d’un CRM : un plan en six étapes pour les petites équipes
+
+La mise en place d’un CRM, c’est le travail entre l’achat du CRM et le jour où votre équipe l’ouvre avant toute autre chose. Pour une équipe d’une vingtaine de personnes au plus avec un CRM en libre-service, prévoyez quatre semaines : une semaine pour convenir de ce à quoi le CRM doit répondre et de la façon dont les affaires avancent, une pour modéliser et importer les données, une pour connecter les canaux et former, et deux semaines d’usage quotidien avec un responsable désigné qui corrige ce qui cloche. Les réglages du logiciel prennent quelques heures. Les accords à trouver et le nettoyage des données prennent le reste.
+
+Customermates publie ce guide, et l’exemple détaillé vers la fin utilise Customermates. Le plan lui-même fonctionne avec n’importe quel CRM.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Calendrier">Environ quatre semaines pour 2 à 20 personnes avec un CRM en libre-service. Les déploiements plus grands, avec des intégrations ERP et plusieurs services, prennent des mois.</SummaryItem>
+  <SummaryItem label="Où passe le temps">À s’accorder sur les définitions d’étapes et à nettoyer les données. La configuration est la partie courte.</SummaryItem>
+  <SummaryItem label="Ordre d’import">Ce que vous vendez, puis les organisations, puis les contacts, puis les affaires, pour que chaque lien ait quelque chose vers quoi pointer.</SummaryItem>
+  <SummaryItem label="Consultant">Utile pour une grande suite, beaucoup d’utilisateurs, des données réglementées ou une intégration ERP. En général pas pour une petite équipe avec un seul processus de vente.</SummaryItem>
+  <SummaryItem label="Allemagne">Si vous avez un comité d’entreprise, associez-le avant le déploiement : un CRM peut relever de la cogestion en tant que système capable de surveiller les performances.</SummaryItem>
+</ArticleSummary>
+
+Pour l’exemple Customermates, comparez le [workflow CRM pour petites entreprises](/for/smb) avec le [workflow CRM pour agences](/for/agencies) avant de choisir vos listes et vos responsables. Intégrez au test de déploiement les tâches quotidiennes sur navigateur et sur mobile issues de l’[évaluation d’une application CRM](/blog/crm-app).
+
+## Le plan en six étapes
+
+Chaque étape se termine par quelque chose que vous pouvez montrer. Si une étape ne produit aucun livrable écrit, elle n’a pas encore eu lieu.
+
+| Étape | Livrable | Responsable | Durée habituelle, 5 à 15 personnes |
+|---|---|---|---|
+| 1. Définir ce à quoi le CRM doit répondre | Une liste de 5 à 10 questions, chacune avec le champ ou la vue qui y répond | Le responsable des ventes, avec le fondateur | 2 à 3 heures |
+| 2. Modéliser les enregistrements et le pipeline | Types d’enregistrements, liste d’étapes avec règles d’entrée, 5 à 10 champs personnalisés | Le responsable du CRM | Une demi-journée de travail |
+| 3. Nettoyer et importer les données | Un classeur nettoyé par type d’enregistrement, importé dans l’ordre | Le responsable du CRM et un coup de main | 2 à 4 jours de travail |
+| 4. Connecter les canaux et les intégrations | Messageries et autres canaux connectés, deux intégrations actives au maximum | Le responsable du CRM | 1 à 2 heures par canal et par intégration |
+| 5. Rôles, formation, lancement | Rôles attribués, une session de 60 à 90 minutes sur de vraies affaires, une date de lancement | Le responsable du CRM | 1 jour de travail |
+| 6. Bilan après deux semaines | Une courte liste de champs à supprimer, d’étapes à renommer, de vues à ajouter | Le responsable du CRM avec l’équipe | 1 heure |
+
+Ce sont des chiffres de planification pour un CRM en libre-service, pas des mesures. Un projet CRM avec plusieurs services, une connexion ERP ou des dizaines de milliers d’enregistrements en désordre demande sa propre estimation.
+
+### Étape 1 : définir ce à quoi le CRM doit répondre
+
+Oubliez la liste de souhaits de fonctions. Écrivez les questions auxquelles vous voulez des réponses le lundi matin, puis nommez le champ ou la vue qui répond à chacune :
+
+- Quelles affaires ouvertes n’ont aucune prochaine étape convenue ? Un champ date « Prochaine étape » et une vue filtrée sur les dates vides ou passées.
+- Qu’y a-t-il dans le pipeline ce trimestre, et combien cela vaut-il avec des étapes pondérées ? Un champ d’étape avec une probabilité par étape.
+- D’où venaient nos 20 derniers clients ? Un champ Choix unique « Source ».
+- Qui a parlé en dernier à ce client, et sur quel canal ? La chronologie d’activité, ou une boîte de réception connectée.
+
+Tout ce qui ne répond à aucune de vos questions reste en dehors de la première version. Cette seule règle évite l’essentiel des dérives de périmètre qui font couler les projets CRM. Si vous n’avez pas encore choisi de système, utilisez la même liste pour comparer les candidats ; le [guide pour choisir un CRM](/blog/how-to-choose-crm) la transforme en grille d’évaluation.
+
+### Étape 2 : modéliser les enregistrements et le pipeline
+
+Décidez ce qu’est une affaire dans votre activité. Pour une agence, ce peut être un projet, pour un recruteur un placement, pour un cabinet de conseil une mission. Écrivez ensuite les étapes, chacune avec une règle d’entrée, pour que deux personnes placent la même affaire dans la même colonne :
+
+| Étape | On y entre quand | Probabilité d’exemple |
+|---|---|---|
+| Qualification | Premier appel fixé, budget et besoin pas encore confirmés | 10 % |
+| Démo ou atelier | Une réunion avec le décideur a eu lieu | 25 % |
+| Proposition | Une proposition écrite a été envoyée | 50 % |
+| Négociation | Le client a demandé des changements de périmètre, de prix ou de conditions | 70 % |
+| Gagnée | Signée | 100 % |
+| Perdue | Refusée, ou sans réponse après la dernière relance convenue | 0 % |
+
+Cinq à sept étapes suffisent. Les probabilités sont votre propre estimation par étape ; elles transforment la valeur des affaires en pipeline pondéré, pas en prédiction. Ajoutez tôt un champ Choix unique « Motif de perte », car c’est le champ que l’on regrette de ne pas avoir après six mois.
+
+### Étape 3 : nettoyer et importer les données
+
+La plupart des équipes partent de tableurs, d’un ancien export de CRM et de quelques messageries. Nettoyez avant d’importer, jamais après :
+
+1. Exportez tout dans un classeur par type d’enregistrement.
+2. Supprimez les enregistrements que personne n’a touchés depuis trois ans, sauf s’il s’agit de clients.
+3. Fusionnez les doublons. Triez par adresse e-mail et par nom d’entreprise ; la plupart des doublons se trouvent côte à côte.
+4. Uniformisez les valeurs : une seule orthographe par pays, un seul format par numéro de téléphone, une seule valeur par option de liste déroulante.
+5. Importez dans l’ordre des dépendances : ce que vous vendez, puis les organisations, puis les contacts, puis les affaires. Une ligne d’affaire qui nomme une organisation peut alors lui être reliée.
+6. Importez d’abord dix lignes, vérifiez-les dans le CRM, puis importez le reste.
+
+Si vos données vivent encore dans une feuille de calcul, le [modèle de CRM Excel](/blog/excel-crm-template) présente une mise en page qui s’importe sans ressaisie.
+
+### Étape 4 : connecter les canaux et les intégrations
+
+Connectez les messageries et les comptes de messagerie instantanée où les conversations clients ont déjà lieu, pour que le CRM les affiche sans que personne ne recopie du texte. Limitez les intégrations à deux au lancement, en général l’e-mail et un système dont vous ne pouvez pas vous passer, comme la comptabilité ou un outil de formulaires. Chaque intégration supplémentaire est un petit projet distinct, après le bilan de deux semaines.
+
+Pour les équipes de l’UE, la protection des données relève de cette étape. Un CRM cloud traite des données personnelles pour votre compte, et l’[article 28, paragraphe 3, du RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj) exige un contrat avec le sous-traitant qui fixe l’objet, la durée, la nature et la finalité du traitement. Signez l’accord de traitement des données de l’éditeur avant d’importer de vraies données clients.
+
+### Étape 5 : rôles, formation, lancement
+
+Donnez à chaque personne un rôle qui correspond à ce qu’elle doit voir. Une configuration courante pour une petite équipe : les fondateurs et le responsable du CRM voient tout, tous les autres voient tous les clients mais seulement les affaires qui leur sont assignées. Restez simple au lancement ; des autorisations trop strictes produisent surtout des messages « je ne le trouve pas ».
+
+Formez sur vos propres affaires, pas sur une démo. Une session de 60 à 90 minutes suffit quand chacun fait avancer ses cinq affaires ouvertes dans les étapes pendant la session. Choisissez une date de lancement à partir de laquelle l’ancien tableur passe en lecture seule. Sans cette date, deux systèmes tournent en parallèle et le CRM perd. Le [guide de formation au CRM](/blog/crm-training) propose un déroulé de session.
+
+En Allemagne, vérifiez un point avant le lancement : selon le [§ 87 (1) n° 6 BetrVG](https://www.gesetze-im-internet.de/betrvg/__87.html), le comité d’entreprise a son mot à dire sur l’introduction de systèmes techniques destinés à surveiller le comportement ou les performances des salariés. Les historiques d’activité et les vues de pipeline par personne peuvent entrer dans ce cadre. Si vous avez un comité d’entreprise, associez-le dès l’étape 1.
+
+### Étape 6 : bilan après deux semaines
+
+Regardez ce que les gens ont réellement renseigné. Supprimez les champs restés vides, renommez les étapes que les gens ont continué à confondre et ajoutez les deux ou trois vues demandées. Décidez ensuite de la prochaine intégration. Ce bilan est l’étape que la plupart des équipes sautent, et c’est là qu’un CRM est ajusté à la façon dont l’équipe travaille.
+
+## Checklist de mise en place d’un CRM
+
+**Avant la configuration**
+- Un responsable du CRM désigné, avec du temps réservé pendant quatre semaines
+- 5 à 10 questions auxquelles le CRM doit répondre, chacune associée à un champ ou à une vue
+- Liste d’étapes avec une règle d’entrée par étape, plus un champ Motif de perte
+- Comité d’entreprise associé, si vous en avez un
+- Accord de traitement des données signé avec l’éditeur
+
+**Données**
+- Un classeur par type d’enregistrement, doublons fusionnés, valeurs uniformisées
+- Import test de dix lignes vérifié à la main
+- Import complet dans l’ordre : offres, organisations, contacts, affaires
+
+**Lancement**
+- Messageries et canaux connectés pour toutes les personnes qui parlent aux clients
+- Deux intégrations actives au maximum
+- Rôles attribués et testés avec un compte non administrateur
+- Une session de formation sur de vraies affaires
+- Ancien tableur passé en lecture seule le jour du lancement
+
+**Après deux semaines**
+- Champs vides supprimés, étapes confuses renommées
+- Vues manquantes ajoutées
+- Prochaine intégration choisie, ou reportée en connaissance de cause
+
+## Faut-il un consultant CRM ?
+
+Un consultant CRM planifie, configure, migre et forme à votre place. Sur une grande suite, c’est souvent de l’argent bien dépensé. Dans une petite équipe avec un CRM en libre-service, cela revient surtout à acheter les six étapes ci-dessus, réalisées par quelqu’un qui ne connaît pas vos clients.
+
+| Faites appel à un consultant ou à un partenaire si | Faites-le vous-même si |
+|---|---|
+| Vous déployez une grande suite avec de nombreux modules | Vous utilisez un CRM en libre-service avec des objets standard |
+| Plus d’environ 50 utilisateurs répartis dans plusieurs services | Moins d’environ 20 utilisateurs avec un seul processus de vente |
+| Une intégration ERP, téléphonie ou entrepôt de données est prévue | L’e-mail plus une ou deux intégrations suffisent |
+| Des données réglementées structurent l’architecture | Les obligations RGPD habituelles s’appliquent |
+| Personne en interne ne peut piloter le projet pendant un mois | Une personne peut y consacrer quelques heures par jour |
+
+Certains éditeurs intègrent l’accompagnement dans le prix. La page de tarifs de HubSpot indique des frais d’intégration uniques obligatoires de 1 500 $ pour Sales Hub Professional et de 3 500 $ pour Enterprise, en plus de l’abonnement. HubSpot et Salesforce tiennent chacun un annuaire de partenaires : le [HubSpot Solutions Directory](https://ecosystem.hubspot.com/marketplace/solutions), où les partenaires obtiennent des niveaux selon les résultats de leurs clients et peuvent détenir une accréditation d’implémentation CRM, et les [consultants AppExchange](https://appexchange.salesforce.com/consulting) pour Salesforce.
+
+Il n’existe pas de référence publique fiable pour les tarifs horaires ou journaliers des consultants : demandez deux propositions et comparez ce qu’elles livrent. Une bonne proposition nomme un livrable écrit pour chaque phase : un document d’exigences et des définitions d’étapes après la planification, un système de test configuré et un plan de migration après la construction, et des utilisateurs formés plus un document de passation après le lancement. Méfiez-vous de ces schémas :
+
+- Du temps passé pur, sans plafond, surtout pour la phase de planification.
+- Une recommandation de système avant que quiconque ait parlé aux personnes qui vendent.
+- « Nous affinerons les exigences pendant la construction. »
+- Aucune migration de données dans le périmètre, qui revient plus tard sous forme de demande de modification.
+- Aucun plan de passation, si bien que l’équipe ne peut pas modifier un champ sans appeler le partenaire.
+- Une relation de revendeur non déclarée avec l’éditeur du CRM. Posez la question directement.
+
+Si vous hésitez, réalisez en interne les deux premières étapes de ce plan avant de demander des propositions. Soit vous découvrez que vous pouvez aller au bout seul, soit vous obtenez un cahier des charges bien plus précis.
+
+## Pourquoi les mises en place s’enlisent
+
+Le schéma est constant : le problème est rarement le logiciel.
+
+- **Trop de choses à la fois.** Automatisation marketing, service desk et synchronisation ERP, le tout dans la première phase. Commencez uniquement par les ventes et les conversations clients.
+- **Pas de responsable.** Le projet est confié à « tout le monde », si bien que les définitions d’étapes ne sont jamais écrites et que personne ne corrige les premiers irritants.
+- **Des données sales importées telles quelles.** Dès le premier jour, les gens trouvent trois versions du même client et retournent à leur tableur.
+- **Mettre à jour le CRM est un travail en plus.** Si les gens doivent recopier à la main des e-mails et des messages, les saisies s’arrêtent après quelques semaines. Connectez plutôt les conversations.
+
+## Exemple concret : mettre en place Customermates dans un cabinet de conseil de six personnes
+
+Voici le plan appliqué à Customermates, un CRM open source et IA native conçu en Allemagne, pour un cabinet de conseil de six personnes qui parlent toutes aux clients par e-mail et sur LinkedIn. Chaque étape ci-dessous correspond au produit actuel ; les détails figurent dans la [documentation des enregistrements](/docs/app-records) et dans la [documentation des paramètres de l’entreprise](/docs/app-company).
+
+<Steps>
+  <Step title="Inscrivez-vous et suivez l’assistant d’accueil">
+    L’assistant comporte quatre étapes : Votre profil (la seule obligatoire), Base de connaissances, Inviter votre équipe et Connecter votre IA. Les personnes invitées rejoignent l’espace avec le statut « En attente d’approbation » jusqu’à ce qu’un administrateur leur attribue un rôle et les active dans Paramètres › Membres.
+  </Step>
+  <Step title="Nommez les listes et le pipeline">
+    Dans Configurer, ouvrez une liste et modifiez son Nom et son Nom au pluriel sous Général pour renommer Affaires en Projets, par exemple. Les étapes ne sont pas prédéfinies : dans Configurer pour les affaires, ajoutez un champ Choix unique Étape avec les options de votre tableau d’étapes (dans le cloud, la configuration IA peut le créer) et saisissez une Probabilité % par étape pour obtenir un pipeline pondéré.
+  </Step>
+  <Step title="Ajoutez les champs de l’étape 1">
+    Ajoutez des champs personnalisés : « Prochaine étape » comme date sur les affaires, « Source » et « Motif de perte » comme Choix unique. Customermates n’a pas de tags sur les enregistrements ; les champs Choix unique remplissent cette fonction et servent au regroupement sur le board.
+  </Step>
+  <Step title="Importez une liste à la fois">
+    Utilisez Plus d’actions › Ajouter depuis un fichier sur chaque liste. Il lit les classeurs .xlsx, pas le CSV, et permet d’associer les colonnes aux champs ; une colonne ID de la fiche met à jour les enregistrements existants au lieu de créer des doublons. Importez les services, puis les organisations, les contacts et les affaires. Les limites de lignes et de taille de fichier figurent dans la documentation des enregistrements.
+  </Step>
+  <Step title="Définissez les rôles">
+    Gardez le rôle Administrateur intégré pour les deux associés. Créez un rôle personnalisé pour les consultants : accès en lecture Tous sur les contacts et les organisations, Créer, Modifier et Supprimer avec accès en lecture Assignés sur les affaires, pour que chacun voie et modifie uniquement les affaires qui lui sont assignées.
+  </Step>
+  <Step title="Connectez les boîtes de réception et enregistrez des vues">
+    Avec Pro, chacun connecte un compte dans la boîte de réception unifiée, en général sa messagerie, pour que les conversations clients se trouvent à côté du contact. Connecter aussi LinkedIn représente un deuxième compte par personne, ce qui exige Business. Chacun enregistre sa propre vue, par exemple « Mes affaires ouvertes, prochaine étape vide ou passée ». Les vues enregistrées sont personnelles, cela se fait donc une fois par personne pendant la formation.
+  </Step>
+</Steps>
+
+Sur Customermates Cloud, une routine peut reprendre la question du lundi de l’étape 1. Les routines lancent Mate, l’assistant intégré à l’application, selon un planning et utilisent des crédits IA hébergés. Voici un exemple de consigne pour une routine hebdomadaire chaque lundi à 8:00 : « Liste mes affaires ouvertes dont la prochaine étape est vide ou passée, avec le dernier message de chaque contact. N’envoie rien et ne modifie aucun enregistrement. » Une routine s’exécute au nom de son propriétaire et peut envoyer des messages sans demander, une consigne qui doit seulement rendre compte doit donc le préciser, comme celle-ci. Voir la [documentation des routines](/docs/app-routines) pour les déclencheurs et les limites.
+
+**Ce que cela coûte.** Pour six personnes sur Pro, qui inclut la [boîte de réception unifiée](/features/unified-inbox) avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur et [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur, l’abonnement est de [[commercial.price.pro.monthly.seats.6]] par mois, facturés au mois. Si chaque consultant veut à la fois sa messagerie et LinkedIn dans la boîte de réception, Business inclut [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur et coûte [[commercial.price.business.monthly.seats.6]] par mois pour six personnes. Starter coûte [[commercial.price.starter.monthly.seats.6]] par mois pour six personnes mais n’a pas de boîte de réception. Starter, Pro et Business incluent des crédits IA hébergés mensuels par utilisateur actif ; les montants figurent sur la [page des tarifs](/pricing). Un essai de [[commercial.trial.days]] jours suffit pour réaliser les étapes 1 à 3 sur vos données réelles.
+
+<AcquisitionCallout title="Quand Customermates ne convient pas" variant="boundary">
+  Customermates n’a ni échéances ni rappels sur les tâches (un champ date personnalisé et une vue filtrée couvrent les relances), ni séquences d’e-mails, ni application mobile, ni vues d’équipe partagées, ni autorisations au niveau des champs. L’import et l’export passent par des classeurs XLSX ou du JSON, une liste à la fois. L’édition auto-hébergée est le cœur open source avec REST, webhooks et MCP, mais sans la boîte de réception, Mate ni les routines. Si vous avez besoin d’automatisation marketing, de téléphonie ou d’une suite de niveau ERP, regardez une plus grande plateforme et prévoyez un budget pour un partenaire.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Qu’est-ce que la mise en place d’un CRM ?">
+La mise en place d’un CRM est le processus qui amène un CRM à l’usage quotidien : définir ce à quoi il doit répondre, modéliser les enregistrements et les étapes du pipeline, nettoyer et importer les données, connecter l’e-mail et les autres canaux, définir les rôles, former l’équipe et faire le bilan de la configuration après le lancement. Le choix du système vient en général juste avant.
+</FaqItem>
+
+<FaqItem question="Combien de temps faut-il pour mettre en place un CRM ?">
+Pour une petite équipe avec un CRM en libre-service, environ quatre semaines, dont deux d’usage réel avec des corrections. Le propre guide de Salesforce indique que les petites entreprises peuvent n’avoir besoin que de quelques semaines, tandis que les grandes entreprises avec des intégrations complexes peuvent en avoir besoin de plusieurs mois. Le nettoyage des données détermine le calendrier plus que la configuration.
+</FaqItem>
+
+<FaqItem question="Que doit contenir un plan de mise en place d’un CRM ?">
+Pour chaque étape, un livrable, un responsable et une date : les questions auxquelles le CRM doit répondre, la liste d’étapes avec leurs règles d’entrée, la liste des champs, l’ordre d’import, les canaux et intégrations connectés, les rôles, la session de formation, la date de lancement à laquelle l’ancien système passe en lecture seule, et une date de bilan deux semaines plus tard. Le tableau en six étapes ci-dessus est un point de départ utilisable.
+</FaqItem>
+
+<FaqItem question="Quelles sont les phases de la mise en place d’un CRM ?">
+Les guides la découpent différemment : Salesforce énumère neuf étapes, Pipedrive cinq, les consultants utilisent souvent planifier, construire et exploiter. Le contenu est le même : exigences, configuration, migration des données, formation et lancement, puis bilan. L’essentiel est que chaque phase se termine par un livrable écrit.
+</FaqItem>
+
+<FaqItem question="Combien coûte la mise en place d’un CRM ?">
+L’abonnement est la partie visible. Le temps interne de nettoyage, de configuration et de formation est en général plus important pour les petites équipes. Certains éditeurs ajoutent des frais d’intégration obligatoires, par exemple 1 500 $ pour HubSpot Sales Hub Professional. Un projet piloté par un consultant ajoute des tarifs journaliers. Le [guide du coût d’un CRM](/blog/crm-cost) détaille le calcul complet.
+</FaqItem>
+
+<FaqItem question="Un CRM est-il difficile à prendre en main ?">
+Les bases d’un CRM moderne s’apprennent en une heure : trouver un contact, faire avancer une affaire, consigner une note. Ce qui prend plus de temps, c’est de s’accorder sur la façon dont votre équipe l’utilise, et c’est pourquoi les définitions d’étapes et une session de formation sur de vraies affaires comptent plus que l’outil.
+</FaqItem>
+</Faq>
+
+Informations tierces vérifiées le 8 octobre 2026 auprès de [HubSpot Sales Hub pricing](https://www.hubspot.com/pricing/sales), du [HubSpot Solutions Directory](https://ecosystem.hubspot.com/marketplace/solutions), du [guide de mise en place d’un CRM de Salesforce](https://www.salesforce.com/crm/crm-implementation/), des [consultants AppExchange](https://appexchange.salesforce.com/consulting), du [guide CRM-Einführung de Pipedrive](https://www.pipedrive.com/de/blog/crm-einfuehrung), du [RGPD sur EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj) et du [§ 87 BetrVG](https://www.gesetze-im-internet.de/betrvg/__87.html).

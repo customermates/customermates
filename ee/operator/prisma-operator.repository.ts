@@ -28,6 +28,7 @@ import {
 
 import { normalizeOperatorEmail } from "./operator-access.service";
 import type { OperatorRefusal, OperatorRepo } from "./operator.repo";
+import type { AdConversionUploadAudit, AdConversionUploadAuditRepo } from "./ad-conversion-upload-audit.repo";
 import {
   OPERATOR_AUDIT_ACTION,
   type AgentCreditAdjustmentDto,
@@ -202,7 +203,7 @@ function toUsageTotals(input: {
   };
 }
 
-export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
+export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo, AdConversionUploadAuditRepo {
   constructor(
     private readonly agentRepo: AgentUsageRepo,
     private readonly owners: OperatorWriteOwners,
@@ -1348,5 +1349,23 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
     `;
 
     return rows.map((row) => row.tag);
+  }
+
+  @BypassTenantGuard
+  async recordAdConversionUploadUnscoped(audit: AdConversionUploadAudit): Promise<void> {
+    await this.createAudit({
+      action: OPERATOR_AUDIT_ACTION.adConversionUpload,
+      metadata: {
+        mode: audit.mode,
+        status: audit.status,
+        eligibleCount: audit.eligibleCount,
+        alreadyReportedCount: audit.alreadyReportedCount,
+        batches: audit.batches.map((batch) => ({
+          batchId: batch.batchId,
+          rowCount: batch.rowCount,
+          result: batch.result,
+        })),
+      },
+    });
   }
 }

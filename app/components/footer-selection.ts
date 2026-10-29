@@ -5,10 +5,10 @@ export const FOOTER_PREFERRED_SLUGS = {
   "feature-pages": [
     "self-hosted",
     "unified-inbox",
+    "open-source-crm",
     "cloud-crm",
     "contact-management",
     "workflow-automation",
-    "pipeline",
   ],
   "for-pages": ["professional-services", "agencies", "consultants", "recruiting", "startups", "freelancers"],
 } as const;

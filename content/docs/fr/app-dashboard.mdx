@@ -1,0 +1,114 @@
+---
+title: "Widgets du tableau de bord et chronologie des activités"
+heading: "Configurez le tableau de bord de votre CRM"
+description: "L’écran d’accueil : widgets graphiques, chronologie, calendrier et carte sur vos données CRM, vues du tableau de bord, éditeur de widgets, raccourcis clavier."
+---
+
+## Que montre le tableau de bord, et puis-je partager des widgets avec mon équipe ? [#what-does-the-dashboard-show]
+
+Le [Tableau de bord](app:dashboard) est l’écran sur lequel vous arrivez après la connexion. Il affiche des widgets sur vos données CRM : pipelines, nombre de tâches, activité récente, selon ce que vous configurez. Chaque widget vous appartient. Vos collègues ne le voient qu’après que vous avez activé **Partager comme modèle** dans son éditeur, et ils partent alors de ce modèle pour créer leur propre copie. Ajouter des widgets ne demande aucune autorisation de rôle, mais un graphique ne compte que les enregistrements que votre rôle peut lire : la copie d’un collègue peut donc afficher d’autres chiffres. [Ajouter un widget](app:dashboard?focus=add-widget) n’apparaît que si votre rôle peut lire au moins une liste. Dans un espace de travail sans listes, le tableau de bord l’indique et propose **Créer une liste** aux personnes qui gèrent le modèle de données.
+
+## Puis-je avoir plusieurs tableaux de bord ? [#dashboard-views]
+
+Oui. Les puces de vue au-dessus des widgets basculent vers vos propres tableaux de bord nommés, par exemple un par équipe ou par objectif ; sans sélection, vous voyez le tableau de bord principal, et un nouveau clic sur la vue sélectionnée y ramène. **Nouvelle vue** en ajoute une, et V ouvre le sélecteur de vues, comme sur une liste. Chaque vue garde ses propres widgets et leur disposition, un nouveau widget arrive dans la vue que vous consultez, et un lien vers une vue ouvre pour vous ce tableau de bord. Les vues et leurs widgets sont personnels : un collègue qui ouvre votre lien voit donc son propre tableau de bord. Supprimer une vue la place dans la [corbeille](/docs/app-trash) avec ses widgets, et la confirmation les nomme ; **Annuler** ou **Restaurer** ramène les deux.
+
+## Quels types de widgets existent, et quels graphiques peuvent-ils afficher ? [#which-widget-types-exist]
+
+Cliquez sur [Ajouter un widget](app:dashboard?focus=add-widget) pour ouvrir **Choisir un widget**. **Partir de zéro** vient en premier, avec une carte par style de graphique (**Nombre**, **Diagramme en barres**, **Barres horizontales**, **Aire dans le temps**, **Tableau classé**, **Anneau**, **Entonnoir** et **Radar**) plus **Chronologie des activités**, **À venir**, **Vue du mois** et **Carte** ; une carte ouvre l’éditeur avec ce style déjà choisi, et vous choisissez les données. **Partir d’un modèle** liste les widgets partagés par vos collègues. Pour qu’un widget soit construit pour vous, décrivez-le avec **Demander à Mate** dans l’éditeur de widgets.
+
+- Un graphique agrège une liste : nombre, somme, moyenne, minimum ou maximum d’un champ numérique. Regroupez par un champ, par enregistrement, par **Attribué à** (un enregistrement avec deux personnes assignées compte pour les deux) ou via une relation, par exemple la valeur des affaires par étape ou les montants des lignes par service. Chaque enregistrement source compte une fois par groupe : une affaire liée à deux organisations compte donc entièrement pour les deux. Pour tracer une série temporelle, regroupez par un champ date, **Créé le** ou **Mis à jour le** et choisissez un **Intervalle de temps** (jour, semaine commençant le lundi, mois, trimestre ou année). Les heures sont regroupées selon le fuseau horaire du navigateur qui a enregistré le widget ; les valeurs de date seule ne se décalent jamais, et les enregistrements sans date sont comptés sous le graphique.
+- **Chronologie des activités** est un fil des changements, des messages et de l’activité des canaux, du plus récent au plus ancien. Ses filtres appartiennent à ce widget : plusieurs chronologies peuvent donc afficher des choses différentes sans s’influencer ni influencer la vue Activités d’un enregistrement.
+- **À venir** liste les enregistrements d’une liste selon un champ date ou date-heure pour les prochains jours (14 par défaut, jusqu’à 90), avec une section **En retard** pour les dates passées et une colonne de montant facultative. Excluez les enregistrements terminés, par exemple les tâches faites, pour que seuls les enregistrements ouverts comptent comme en retard.
+- **Vue du mois** colore chaque jour d’un mois selon le nombre d’enregistrements qui y tombent ou la somme d’un champ nombre ou montant. Les flèches changent de mois, et un jour ouvre la liste de ses enregistrements.
+- **Carte** place les enregistrements d’une liste à la position stockée avec un champ adresse et regroupe les enregistrements proches en grappes numérotées. Un champ à choix unique colore les repères avec les couleurs de ses options, comme sur les graphiques, un champ nombre ou montant en détermine la taille, et un repère ouvre une fiche avec le nom, l’adresse, un champ de détail facultatif et **Ouvrir l’enregistrement**. Une grappe prend la couleur de plus de la moitié de ses enregistrements ; sans cette majorité, c’est un anneau sans couleur, que la légende nomme **Mixte**.
+
+Sous **Apparence**, un graphique peut être un diagramme en barres vertical ou horizontal (avec ou sans étiquettes), un anneau ou un radar, ou l’un de ceux-ci :
+
+| Style | Affiche | Nécessite |
+| --- | --- | --- |
+| **Nombre** | Une valeur globale | **Aucun regroupement** |
+| **Aire dans le temps** | Une valeur par période ; les périodes vides valent zéro pour les comptes et les sommes, et sont un vide dans les autres cas | Un intervalle de temps |
+| **Tableau classé** | Les groupes par valeur avec leur part du total, les dix premiers plus le reste | Un regroupement |
+| **Entonnoir** | Chaque option dans l’ordre avec la conversion d’une étape à l’autre ; une étape de probabilité 0, comme Perdue, est listée en dessous | Un champ à choix unique comme une étape |
+
+Un style qui ne convient pas au regroupement est désactivé, avec une indication. Les valeurs calculées exigent l’accès à leurs données d’entrée.
+
+### Que peut afficher une chronologie des activités, événements de calendrier compris ? [#what-can-an-activity-timeline-show]
+
+Une chronologie affiche les mêmes entrées que [Activité](app:settings/activity) : modifications d’enregistrements avec leurs valeurs précédente et actuelle, modifications d’administration et de configuration, messages, activité des canaux comme les invitations LinkedIn acceptées, et rendez-vous issus de l’agenda d’un compte Gmail ou Outlook connecté (la disposition calendrier d’une liste et les widgets calendrier affichent les enregistrements selon leurs champs date, pas les rendez-vous). Filtrez-la par **Type d’activité**, **Fournisseur**, **Canal**, **Conversation** ou **Enregistrements liés**, et limitez-la à des types d’enregistrements ou à des enregistrements, ou à une date **À partir de** et **Jusqu’au**. Les enregistrements liés utilisent **Inclut l’un de**, **Exclut tous**, **A un enregistrement lié** et **N’a aucun enregistrement lié**. Des filtres différents doivent tous correspondre ; plusieurs valeurs dans un même filtre correspondent dès que l’une convient.
+
+**Charger les plus anciens** affiche la page suivante. Une ligne peut lier un enregistrement principal et jusqu’à trois enregistrements associés, et un message peut ouvrir son fil dans la boîte de réception. Les lignes sans enregistrement restent visibles sans lien.
+
+### Comment les widgets calendrier gèrent-ils les dates et les fuseaux horaires ? [#calendar-widgets]
+
+Un champ date seule est un jour calendaire et ne se décale jamais. Un champ date-heure est placé sur le jour où il tombe dans le fuseau horaire du widget, qui est celui du navigateur qui a créé le widget ; « aujourd’hui » et **En retard** suivent le même fuseau horaire. Le champ date peut aussi être une plage de dates ou de dates-heures : l’enregistrement apparaît le jour où sa plage commence et compte comme en retard une fois sa plage terminée. **À venir** affiche jusqu’à 100 enregistrements et jusqu’à 20 enregistrements en retard avec leur total. **Vue du mois** compte ou additionne tous les enregistrements du mois, et un jour liste jusqu’à 100 de ses enregistrements. Les deux utilisent les mêmes filtres, le même accès aux enregistrements et les mêmes autorisations de champ que les graphiques : la copie d’un modèle partagé chez un collègue n’affiche donc que ce que ce collègue peut lire.
+
+### D’où vient la carte, et quels enregistrements en sont absents ? [#map-widget]
+
+La carte affiche les frontières des pays, les régions et les villes de [Natural Earth](https://www.naturalearthdata.com/) (domaine public). Ces fichiers de carte sont livrés avec Customermates et servis par votre propre serveur Customermates : ouvrir une carte n’envoie donc aucune requête à un service externe de cartes, de tuiles, de polices ou de géocodage, et un serveur auto-hébergé affiche les cartes sans accès à internet. Les fichiers de carte ne se chargent que lorsqu’un widget carte est à l’écran.
+
+Un enregistrement apparaît là où son champ adresse stocke une position : le centre de la zone du code postal une fois que le répertoire des codes postaux connaît le code, ou le bâtiment après une recherche d’adresse sur un serveur auto-hébergé avec Photon (voir [Comment saisir une adresse ?](/docs/app-records#how-do-i-enter-an-address)). Les enregistrements sans adresse, sans position stockée, ou dont vous n’avez pas le droit de lire l’adresse sont comptés dans l’indication sous la carte. Une carte affiche au plus 2 000 enregistrements ; réduisez les filtres si le widget indique qu’il n’en affiche qu’une partie. Zoomez avec les boutons, le clavier (+ et -, flèches pour se déplacer, 0 pour réinitialiser) ou la molette de la souris en maintenant Cmd/Ctrl ; une fois la carte sélectionnée, la molette zoome sans la touche. Sur un écran tactile, un doigt fait défiler la page et deux doigts déplacent et zooment la carte. Sélectionnez une grappe pour zoomer dessus.
+
+### Qui voit quoi dans une chronologie ? [#who-sees-what-in-a-timeline]
+
+| Accès | Contenu visible |
+| --- | --- |
+| Journal d’activité seul | Modifications autorisées |
+| Messages de la boîte de réception seuls, avec une formule incluant la messagerie | Messages, activité des canaux et rendez-vous autorisés |
+| Les deux | Une chronologie fusionnée |
+| Aucun des deux | Un avis indiquant qu’aucune activité n’est disponible |
+
+Les deux autorisations sont les lignes **Journal d’activité** et **Messages de la boîte de réception** du rôle du membre dans [Rôles](app:settings/roles), chacune avec **Accès en lecture** **Tous**. Les messages, l’activité des canaux et les rendez-vous exigent aussi Customermates Cloud et une formule avec messagerie (Pro et au-delà) ; les modifications restent visibles sans elle. Une valeur de filtre supprimée ou devenue inaccessible cesse de correspondre et s’affiche comme **Filtre non disponible** sur la puce et **Sélection indisponible** dans le sélecteur, pour que vous puissiez la retirer.
+
+## Comment créer ou modifier un widget graphique ou chronologie dans l’éditeur de widgets ? [#how-does-the-widget-editor-work]
+
+Choisissez un style de graphique, **Chronologie des activités**, **À venir**, **Vue du mois**, **Carte** ou un modèle dans **Choisir un widget** ; tous ouvrent le même éditeur. Donnez un nom au widget, puis basculez entre **Données** et **Apparence**. **Données** contient la source et ce qu’il faut compter ; les filtres et le regroupement sont des sections repliables à l’intérieur, et une fois que vous regroupez, **Filtres des groupes** limite les enregistrements qui apparaissent comme groupes. Les deux sections de filtres affichent la même palette de filtres avec recherche que dans une liste, et les champs liés apparaissent sous la forme **Liste › Champ**. **Apparence** contient le style de graphique, les couleurs, la légende, **Afficher l’indicateur et les filtres** et **Partager comme modèle**. L’**Aperçu en direct** au-dessus des réglages montre le widget avec des données réelles et se met à jour au fil de vos changements ; sélectionnez **Taille sur le tableau de bord** pour le voir dans les proportions qu’il prend sur le tableau de bord. Cliquez sur **Enregistrer** dans le pied de page.
+
+Cliquez sur un graphique ou sur l’une de ses barres pour ouvrir son panneau de données : le graphique reste en haut et les enregistrements concernés apparaissent en dessous, avec les filtres et la pagination habituels des listes. Sélectionner un autre groupe change les enregistrements. **Ouvrir dans la liste** ouvre la vue d’ensemble habituelle avec la même sélection et d’éventuels filtres supplémentaires ; il interroge l’ensemble des données correspondantes plutôt qu’un échantillon d’identifiants d’enregistrements. Cliquer sur une ligne ouvre son enregistrement. Pour modifier un widget, utilisez le crayon affiché au survol ou au focus clavier, ou choisissez **Modifier** dans son menu local (également disponible par clic droit). Cliquer sur une puce de filtre ouvre l’éditeur sur ce filtre. **Réinitialiser** rétablit les valeurs enregistrées dès que vous avez modifié quelque chose, et l’icône de corbeille dans l’en-tête de l’éditeur place le widget dans la [corbeille](/docs/app-trash) après confirmation. Un nouveau widget prend la première place libre. Faites glisser un widget pour le déplacer et faites glisser un bord ou un coin pour le redimensionner (le déplacement est désactivé sur les appareils tactiles) ; la disposition n’est enregistrée que pour vous. Les hauteurs s’alignent sur des lignes de 54 px ; les widgets graphique et **Nombre** font au moins deux lignes de haut, une **Chronologie des activités** au moins six lignes de haut et deux colonnes de large, un widget calendrier au moins cinq lignes de haut et deux colonnes de large, et une **Carte** au moins cinq lignes de haut et trois colonnes de large.
+
+## Quelles commandes la barre latérale offre-t-elle ? [#which-controls-does-the-sidebar-add]
+
+La barre latérale contient votre travail et se présente de la même façon sur chaque écran. En haut se trouvent **Rechercher** (Cmd/Ctrl+K, voir [Recherche globale](/docs/app-search)), **Demander à Mate** (Cmd/Ctrl+J, voir [l’assistant](/docs/app-assistant)) et **Ajouter** (C). Viennent ensuite **Aperçu** avec le [Tableau de bord](app:dashboard), la [Base de connaissances](app:wiki), le [Calendrier](app:calendar), la [Boîte de réception](app:inbox) et les [Routines](app:routines), puis **Données** avec vos listes, puis vos sections personnelles. Les entrées que votre rôle ne peut pas ouvrir sont masquées. **Boîte de réception** compte les conversations non lues.
+
+La barre latérale est la vôtre : faites glisser une entrée pour la réordonner ou la déplacer vers une autre section, ou utilisez son menu **…** pour **Monter**, **Descendre**, **Déplacer vers la section** (y compris **Nouvelle section**) et **Masquer de la barre latérale**. Cliquez sur le titre d’une section pour la replier ; son menu **…** (ou un clic droit) propose **Monter** et **Descendre**, et pour les sections que vous avez créées aussi **Renommer** et **Supprimer la section**. Supprimer une section remet ses entrées à leur emplacement par défaut ; les entrées masquées restent masquées. **Personnaliser la barre latérale** dans le menu personnel ouvre une boîte de dialogue avec un interrupteur par entrée pour l’afficher ou la masquer, **Nouvelle section** et, dès que vous avez changé quelque chose, **Rétablir par défaut**, qui après confirmation restaure la disposition standard. Personne d’autre ne voit vos changements.
+
+Le nom de l’espace de travail en haut ouvre le menu de l’espace de travail : les espaces de travail auxquels vous appartenez, pour passer de l’un à l’autre, **Créer un espace de travail**, **Inviter des membres** (si vous pouvez inviter), [Membres](app:settings/members), **Paramètres**, [Facturation](app:settings/billing) avec une puce pour votre formule et son statut, et, pour les opérateurs de Customermates, **Console opérateur**. Votre avatar ouvre le menu personnel : [Profil et préférences](app:settings/profile), **Thème** (Système, Clair ou Sombre), **Langue**, **Raccourcis clavier**, **Documentation**, **Envoyer un avis**, **Personnaliser la barre latérale** et **Se déconnecter**. **Paramètres** et G puis S ouvrent Profil et préférences, et la barre latérale passe à la navigation des paramètres avec Compte ([Profil et préférences](app:settings/profile), [Espaces de travail](app:settings/workspaces), [Canaux](app:settings/channels), [Clés API](app:settings/api-keys)) et Espace de travail ([Général](app:settings/general), [Membres](app:settings/members), [Rôles](app:settings/roles), [Facturation](app:settings/billing), [Activité](app:settings/activity), [Webhooks](app:settings/webhooks)) ; **Retour** en haut ramène à la page d’où vous venez. **Personnaliser la barre latérale** n’est pas proposé tant que la navigation des paramètres est affichée. Tant que vous n’avez pas confirmé votre adresse, votre avatar et l’entrée Profil et préférences affichent **Adresse e-mail non vérifiée**.
+
+## Quels raccourcis clavier existent ? [#keyboard-shortcuts]
+
+Appuyez sur ? ou choisissez **Raccourcis clavier** dans le menu personnel pour voir tous les raccourcis avec les touches de votre ordinateur (⌘ sur Mac, Ctrl ailleurs), regroupés et consultables. Les raccourcis Cmd/Ctrl et Esc fonctionnent partout, même pendant la saisie. Les touches seules et les séquences G ne fonctionnent que lorsqu’aucun champ de texte n’a le focus et qu’aucun menu ni dialogue n’est ouvert.
+
+| Groupe | Touches | Ce que cela fait |
+| --- | --- | --- |
+| Général | Cmd/Ctrl+K ou / | Rechercher ; saisissez une question et appuyez sur Tab pour la poser à Mate à la place |
+| Général | Cmd/Ctrl+J | Demander à Mate (ouvre ou ferme l’assistant) |
+| Général | ? | Afficher les raccourcis clavier |
+| Général | Cmd/Ctrl+\ | Afficher ou masquer la barre latérale |
+| Navigation | G puis D, I, K, R, C | Tableau de bord, Boîte de réception, Base de connaissances, Routines, Configurer |
+| Navigation | G puis S | Paramètres |
+| Navigation | G puis W | Changer d’espace de travail, si vous appartenez à plusieurs |
+| Créer | C | Ajouter un enregistrement ou une liste |
+| Listes et vues | G puis 1 à 9 | Listes selon leur position dans votre barre latérale ; les listes masquées sont ignorées |
+| Listes et vues | V | Changer de vue dans une liste ou sur le tableau de bord |
+| Listes et vues | F | Ouvrir la recherche et les filtres d’une liste |
+| Formulaires | Cmd/Ctrl+Enter | Enregistrer le formulaire ouvert |
+| Formulaires | Esc | Fermer la boîte de dialogue ou le panneau du dessus |
+
+Après G, vous disposez d’environ une seconde pour la deuxième touche ; une indication montre que l’application attend. Les raccourcis des pages que votre rôle ne peut pas ouvrir sont omis. La recherche liste les mêmes commandes avec leurs touches : **Demander à Mate** en premier, les vues de la liste où vous êtes, les pages, **Ajouter** et, avec plus d’un espace de travail, **Changer d’espace de travail…**. Si vous utilisez la saisie vocale ou appuyez sur des touches par erreur, désactivez **Raccourcis à une touche** en bas de la boîte de dialogue des raccourcis ; les raccourcis Cmd/Ctrl continuent de fonctionner. Ce réglage est personnel et vous suit sur tous vos appareils.
+
+## Que se passe-t-il à la première utilisation ? [#what-happens-on-first-run]
+
+Les nouveaux comptes passent par l’[assistant de configuration](/docs/app-onboarding) avant de voir le tableau de bord : votre profil, la base de connaissances, les invitations d’équipe et la connexion d’un client IA. Le propriétaire peut ignorer l’import du site web, les invitations et la connexion IA ; les membres invités ne voient que leur profil.
+
+## Pour les agents [#tips-for-agents]
+
+Créez et modifiez les widgets avec `manage_widgets` plutôt qu’en pilotant l’éditeur ; il prend en charge les mêmes options que l’application. Lisez un widget avant de le mettre à jour, car un objet `measure` ou `displayOptions` fourni remplace l’objet entier, et transmettez le `expectedRevision` actuel, une `idempotencyKey` et, pour les mises à jour, `expectedVersion`. Une série temporelle définit `groupBy.dateInterval` et un `groupBy.timeZone` IANA ; les chronologies utilisent `activityQuery`, les widgets calendrier `calendarQuery` (`layout` `upcoming` ou `month`, le champ date, un `timeZone` IANA) et les cartes `mapQuery` (le champ adresse plus des champs facultatifs de couleur, de taille et de détail). `get` lit un widget calendrier pour une autre `window` d’au plus 42 jours, comme un mois ou un jour. Le type de widget ne peut pas changer. Un `layout` facultatif place un widget dans le même appel : `x` et `w` comptent des colonnes de la grille de 12 colonnes, `y` et `h` comptent des lignes de 54 px. Les widgets graphique et Nombre exigent un `h` d’au moins 2, une chronologie des activités un `w` d’au moins 2 et un `h` d’au moins 6, un calendrier un `w` d’au moins 2 et un `h` d’au moins 5, une carte un `w` d’au moins 3 et un `h` d’au moins 5, et les positions qui se chevauchent sont refusées. Les lignes vides entre widgets sont autorisées ; le tableau de bord y remonte les widgets. `get_calendars` lit les événements de calendrier. Les schémas exacts figurent dans le [catalogue MCP](/docs/mcp#tool-catalog).
+
+## Quels points de terminaison REST gèrent les widgets ? [#widget-rest-endpoints]
+
+Via REST, `POST /api/v1/widgets/list` renvoie tous les widgets de vos vues du tableau de bord avec leur `viewId` et leur disposition, `POST /api/v1/widgets/save` en crée ou en met à jour un, `POST /api/v1/widgets/layout` en déplace et redimensionne plusieurs à la fois, et `POST /api/v1/widgets/delete` en place un dans la corbeille. Pour créer une chronologie, un calendrier ou une carte avec `widgets/save`, envoyez `kind: "activityTimeline"`, `"calendar"` ou `"map"` ; sans `kind`, un nouveau widget est un graphique, une mise à jour peut omettre les réglages qui restent inchangés, et un `kind` différent lors d’une mise à jour est refusé avec `widgetKindImmutable`. `POST /api/v1/widgets/read` renvoie un widget avec ses résultats actuels ; pour un widget calendrier, il accepte aussi une `window` avec `from` et `to`. Les vues du tableau de bord sont des vues enregistrées de la surface `dashboard` sous `/api/v1/data-views/`.
+
+## Voir aussi [#related]
+
+- [Démarrage rapide](/docs/quickstart)
+- [Guide de l’application, Enregistrements](/docs/app-records)

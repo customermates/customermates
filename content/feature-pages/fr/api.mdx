@@ -1,0 +1,153 @@
+---
+title: "CRM avec API : REST, webhooks, MCP et OpenAPI"
+description: "API REST avec spécification OpenAPI 3.1, écritures en masse, webhooks signés et MCP sur toutes les formules de Customermates, auto-hébergement compris."
+featureName: API du CRM
+
+relatedHrefs:
+  - /docs/api-keys
+  - /docs/webhooks
+  - /features/integrations
+  - /features/workflow-automation
+
+hero:
+  title: Un CRM avec une API REST, des webhooks et MCP sur toutes les formules
+  description: Lisez et écrivez les contacts, les organisations, les affaires, les services, les tâches et vos propres listes via une API REST documentée, réagissez aux changements avec des webhooks et laissez votre propre client IA travailler dans le CRM via MCP. Les trois sont inclus dans chaque formule Cloud et dans l’édition open source auto-hébergée.
+  buttonLeftText: Commencer gratuitement
+  buttonLeftHref: /auth/signup
+  buttonRightText: Voir la démo en direct
+  buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
+  hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
+
+cta:
+  action: Faites votre premier appel d’API aujourd’hui
+  description: Créez une clé API pendant l’essai, lisez la spécification OpenAPI et envoyez une requête de recherche sur votre propre espace de travail.
+  buttonLeftText: Commencer gratuitement
+  buttonLeftHref: /auth/signup
+  buttonRightText: Voir la démo en direct
+  buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
+  hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
+---
+
+Customermates est un CRM avec une API REST ouverte sur toutes les formules, à partir de Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois, et dans l’édition auto-hébergée gratuite. Vous vous authentifiez avec une clé API dans l’en-tête `x-api-key`, le schéma complet est un document OpenAPI 3.1 à `/api/v1/openapi`, et [[derived.webhooks.events.total]] évènements webhook préviennent vos systèmes quand quelque chose change. Il n’y a ni formule développeur distincte ni option API payante.
+
+Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients. L’API intéresse deux types de lecteurs : un développeur qui veut synchroniser le CRM avec un autre système, et une équipe qui veut qu’un client IA comme Claude ou ChatGPT mette à jour des enregistrements. Le premier utilise REST et les webhooks. Le second utilise le point d’accès MCP, qui repose sur les mêmes permissions.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Surfaces">REST sous `/api/v1`, une spécification OpenAPI 3.1, [[derived.webhooks.events.total]] évènements webhook et [[derived.mcp.tools.total]] outils MCP.</SummaryItem>
+  <SummaryItem label="Formules">REST, webhooks et MCP sur toutes les formules Cloud et en auto-hébergement. Les points d’accès de la boîte de réception demandent un compte connecté, ce qui commence avec Pro dans Customermates Cloud.</SummaryItem>
+  <SummaryItem label="Authentification">Une clé API par client, envoyée dans `x-api-key`. Une clé a exactement les permissions du rôle de son propriétaire.</SummaryItem>
+  <SummaryItem label="Limites">Les écritures en masse prennent jusqu’à 100 enregistrements par requête. Pas de OU entre les règles de filtre, pas de portées par clé.</SummaryItem>
+</ArticleSummary>
+
+## Ce que couvre l’API REST
+
+L’API REST fonctionne sur chaque liste du CRM. Un nouvel espace de travail démarre sans listes : vous créez les listes dont vous avez besoin (contacts, organisations, affaires ou les vôtres) dans Configurer, via l’API ou MCP, ou vous laissez la configuration IA les construire dans le cloud. Chaque route d’enregistrement est un `POST` vers une action nommée avec un corps JSON : le même code fonctionne donc pour des affaires, des contacts ou une liste ajoutée la semaine dernière.
+
+| Objectif | Méthode et chemin |
+|---|---|
+| Trouver vos listes et leur `typeId` | `POST /api/v1/model/discover` |
+| Lire les champs, les relations, les identifiants d’options et la révision du schéma | `POST /api/v1/model/read` |
+| Filtrer, trier et paginer une liste | `POST /api/v1/records/query` |
+| Rechercher par texte dans les listes | `POST /api/v1/records/search` |
+| Lire un enregistrement | `POST /api/v1/records/read` |
+| Créer, modifier, supprimer, lier ou délier | `POST /api/v1/records/mutate` |
+| Modifier ou supprimer jusqu’à 100 enregistrements | `POST /api/v1/records/mutate` avec `updateMany` ou `deleteMany` |
+| Exporter une liste, ou importer jusqu’à 100 enregistrements | `POST /api/v1/records/export` ou `POST /api/v1/records/import` |
+| Téléverser un fichier dans un champ Fichier | `POST /api/v1/files/uploads`, puis `POST /api/v1/records/mutate` |
+| Additionner ou compter un champ, comme la valeur du pipeline | `POST /api/v1/reports/query` |
+
+Un enregistrement est adressé par une référence, `{ "typeId": "...", "recordId": "..." }`, pas par son URL. L’URL de base est l’adresse à laquelle vous ouvrez Customermates, dans le cloud comme sur votre propre serveur. D’autres routes couvrent les utilisateurs (`/api/v1/users/me`, `/api/v1/users/search`), les webhooks et la boîte de réception : fils, brouillons, envoi d’e-mails et de messages de chat, activités et calendriers en lecture seule.
+
+Quelques détails font gagner du temps dès le premier jour :
+
+- **Les champs ont des identifiants stables.** `/model/read` renvoie le `fieldId` de chaque champ, les identifiants d’options d’un champ à choix unique comme l’**Étape** des affaires, et la `revision` du schéma. Les identifiants restent les mêmes quand quelqu’un renomme une liste ou un champ. Les valeurs sont typées, par exemple `{ "kind": "text", "value": "Acme" }`.
+- **Les requêtes utilisent un corps JSON.** `/records/query` prend `typeId`, `filters`, `sort`, `page` et `pageSize` (jusqu’à 500). Les filtres utilisent la [syntaxe des filtres](/docs/filter-syntax) partagée avec l’application et MCP.
+- **Les écritures sont protégées.** Une mutation porte `expectedRevision` (la révision du schéma), une `idempotencyKey` et la `mutation` elle-même ; les modifications et suppressions portent aussi l’`expectedVersion` de l’enregistrement. Renvoyer la même requête avec la même clé ne l’applique pas deux fois.
+- **Les liens sont une action à part.** `link` et `unlink` prennent un `relationId`, une référence d’enregistrement `source` et une référence `target`. Une modification ne supprime jamais les liens que vous n’avez pas mentionnés.
+- **Les écritures en masse prennent jusqu’à 100 enregistrements.** `updateMany` applique une modification à jusqu’à 100 enregistrements de façon atomique et `deleteMany` en place jusqu’à 100 dans la Corbeille : vous découpez donc un nettoyage de 2 000 contacts en 20 requêtes.
+
+## Webhooks : laissez le CRM vous appeler
+
+Un webhook envoie un `POST` JSON à votre URL quand un évènement auquel il est abonné se produit. Les administrateurs, et les membres dont le rôle a **Accès en lecture** **Tous** et **Créer** sur **API et webhooks**, en ajoutent un sous **Paramètres → Webhooks** : URL, évènements, la liste sous **Enregistrements de** avec des filtres facultatifs, un secret facultatif, des en-têtes personnalisés facultatifs et un modèle de corps facultatif. La [référence des webhooks](/docs/webhooks) liste chaque évènement et chaque charge utile.
+
+- **Évènements :** [[derived.webhooks.events.records]] évènements d’enregistrement (`record.created`, `record.updated`, `record.deleted` quand un enregistrement passe dans la Corbeille, `record.restored` et `record.deletedPermanently`) pour toute liste de votre choix, y compris les vôtres, plus [[derived.webhooks.events.messaging]] évènements de boîte de réception et de calendrier.
+- **Modifications incluses :** une charge utile `record.updated` porte la référence de l’enregistrement et liste chaque champ modifié avec sa valeur `before` et sa valeur `after`. Une écriture qui ne change rien n’envoie aucun évènement.
+- **Signatures :** avec un secret défini, chaque livraison est signée en HMAC-SHA256 sur le corps brut.
+- **Nouvelles tentatives :** un délai dépassé, une erreur réseau, une réponse 5xx, 408, 425 ou 429 est rejoué automatiquement, jusqu’à 10 tentatives au total. Les autres réponses 4xx ne sont pas rejouées, car une répétition échouerait de la même façon. Chaque livraison a un délai d’attente de 5 secondes.
+- **Journal des livraisons :** **Paramètres → Livraisons** montre le code d’état et le message de réponse de chaque livraison, avec un bouton de renvoi.
+- **Modèles de corps :** un modèle remplace l’enveloppe standard : un outil de chat ou un point d’accès d’automatisation qui attend son propre format JSON peut donc recevoir les livraisons sans intermédiaire.
+
+Les livraisons ne sont pas strictement ordonnées. Deux modifications du même contact à quelques millisecondes d’écart peuvent arriver dans l’ordre inverse : dédoublonnez donc par l’`id` de l’évènement, indexez votre gestionnaire sur `typeId` et `recordId`, et utilisez le `timestamp` de la charge utile et la version de l’enregistrement.
+
+## Comment faire votre premier appel d’API
+
+<Steps>
+  <Step title="Créez une clé">Ouvrez **Paramètres → Clés API**, cliquez sur **Ajouter**, choisissez **Clé API standard**, donnez-lui un nom comme `ERP sync, production` et copiez la clé. Elle n’est affichée qu’une fois. Le [guide des clés API](/docs/api-keys) couvre l’expiration et la rotation.</Step>
+  <Step title="Lisez le schéma">Récupérez `/api/v1/openapi` à l’adresse de votre espace de travail et importez-le dans Postman, Insomnia ou un générateur de clients. Envoyez ensuite `POST /api/v1/model/discover` avec `{"search":"deal"}` pour obtenir le `typeId` de vos affaires, et `POST /api/v1/model/read` avec `{"typeIds":["<deal-type-id>"]}` pour voir ses champs, les options d’étape et la `revision` du schéma.</Step>
+  <Step title="Interrogez">Envoyez `POST /api/v1/records/query` avec l’en-tête `x-api-key` et un corps comme `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}` pour lister les affaires modifiées la semaine dernière.</Step>
+  <Step title="Écrivez">Faites passer une affaire à une autre étape avec `POST /api/v1/records/mutate` et `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. Si votre utilisateur peut le faire dans l’application, la clé peut le faire via l’API.</Step>
+  <Step title="Abonnez-vous">Ajoutez un webhook pour **Enregistrement mis à jour** sur la liste Affaires avec un secret, pointez-le vers votre point d’accès et vérifiez la première livraison sous **Livraisons**.</Step>
+</Steps>
+
+Une clé erronée, expirée ou supprimée reçoit HTTP `401`. Une clé dont le propriétaire a été réglé sur **Inactif** reçoit `403`.
+
+## Clés API et permissions
+
+Les clés appartiennent à l’utilisateur qui les a créées et agissent avec le rôle actuel de cet utilisateur. Il n’y a ni utilisateurs API distincts ni portées par clé : une clé ne peut donc pas être limitée à la lecture seule. Si une intégration ne doit lire que les affaires, créez sa clé sous un membre dont le rôle ne permet que cela. Dans Customermates Cloud, ce membre est une licence payante comme les autres.
+
+Créer des clés demande **Accès en lecture** **Tous** et **Créer** sur la ligne **API et webhooks** d’un rôle. Un nouveau rôle personnalisé démarre sans cette permission : par défaut, seuls les administrateurs créent des clés. La même permission ouvre aussi chaque webhook de l’espace de travail, ce qu’il vaut mieux savoir avant de la distribuer. Pour arrêter toutes les clés de quelqu’un qui part, réglez le membre sur **Inactif**. Retirer **Accès en lecture** **Tous** sur **API et webhooks** à son rôle arrête aussi ses clés.
+
+## MCP : l’API pour les clients IA
+
+Le point d’accès MCP à `/api/v1/mcp` donne à un client IA externe [[derived.mcp.tools.total]] outils sur les mêmes enregistrements, la même boîte de réception et les mêmes webhooks. Claude et ChatGPT se connectent via OAuth comme connecteur personnalisé ; Claude Code, Codex, Cursor et Gemini utilisent une clé API. Le client, son modèle et son abonnement restent les vôtres. La recherche sémantique peut tout de même compter dans l’usage de Mate dans Customermates Cloud. Le [guide MCP](/docs/mcp) liste chaque outil.
+
+Mate, l’assistant intégré à Customermates Cloud, est une fonctionnalité distincte. Il s’exécute avec des crédits IA hébergés et n’a besoin d’aucune clé API. Les installations auto-hébergées ont MCP mais pas Mate.
+
+## Ce que l’API ne fait pas
+
+- **Pas de PUT ni de PATCH sur les enregistrements.** Chaque modification d’enregistrement est un `POST` vers `/api/v1/records/mutate`.
+- **Pas de OU entre les règles de filtre.** Les règles de filtre se combinent avec ET. Pour un OU, lancez deux requêtes ou utilisez l’opérateur `in` sur un champ.
+- **Pas de quota de requêtes publié.** Un espace de travail très sollicité répond `429` avec un en-tête `Retry-After`. Découpez les tâches en masse en lots de 100.
+- **Le format CSV n’est pas pris en charge, et il n’existe pas d’export de tout le compte.** L’application importe et exporte en XLSX et en JSON, une liste à la fois. Tout ce qui est plus grand passe par votre propre script d’API.
+- **Ni boîte de réception ni Mate en auto-hébergement.** Les routes d’enregistrements REST, les webhooks et MCP y fonctionnent ; les routes de messagerie demandent Customermates Cloud avec Pro ou supérieur.
+
+Aucune période de rétrocompatibilité n’est promise au-delà du chemin `/api/v1` : considérez donc le document OpenAPI actuel comme le contrat et testez par rapport à lui.
+
+## Comment les autres CRM mesurent l’accès à l’API
+
+Customermates publie cette page. Les chiffres ci-dessous viennent de la documentation de chaque éditeur, vérifiée le 8 octobre 2026 ; ils changent, suivez donc les liens avant de planifier quoi que ce soit.
+
+| CRM | API sur la formule gratuite ou d’entrée | Comment l’usage est limité |
+|---|---|---|
+| [HubSpot](https://developers.hubspot.com/docs/developer-tooling/platform/usage-guidelines) | Oui | Applications privées sur Free et Starter : 100 requêtes par 10 secondes et 250 000 par jour et par compte ; davantage sur Professional et Enterprise |
+| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Chaque formule inclut un jeton d’API | [Budget quotidien de jetons](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting) : 30 000 jetons de base multipliés par un coefficient de formule multiplié par le nombre de licences |
+| [Zoho CRM](https://www.zoho.com/crm/developer/docs/api/v8/api-limits.html) | Oui, édition Free incluse | Crédits par 24 heures : 5 000 sur Free, davantage par utilisateur sur les éditions payantes |
+| [EspoCRM](https://docs.espocrm.com/development/api/) | Oui, y compris l’[édition auto-hébergée gratuite](https://www.espocrm.com/) | Clé API, HMAC ou authentification basique via des utilisateurs API dédiés dont les rôles définissent ce qu’ils peuvent faire |
+| Customermates | Chaque formule et l’auto-hébergement | Pas de quota publié ; les routes en masse prennent 100 enregistrements par requête |
+
+Choisissez HubSpot ou Zoho CRM si vous voulez une formule hébergée gratuite avec accès à l’API et que votre intégration tient dans leurs limites d’appels publiées. Choisissez Pipedrive si un budget quotidien qui croît avec la formule et le nombre de licences convient à votre volume. Choisissez EspoCRM si vous voulez un CRM open source auto-hébergé avec des utilisateurs API distincts et leurs propres rôles. Customermates convient à une petite équipe qui veut l’API d’enregistrements, les webhooks et un point d’accès MCP pour les clients IA au prix du CRM lui-même, avec un noyau AGPL qu’elle peut auto-héberger. Il ne convient pas si vous avez besoin de portées par clé ou, dans Customermates Cloud, d’un utilisateur API qui ne prenne pas une licence payante.
+
+## Ce que cela coûte
+
+L’accès à l’API n’a aucun supplément. Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois et obtient REST, les webhooks et MCP. La même équipe sur Pro paie [[commercial.price.pro.monthly.seats.3]] et ajoute la [boîte de réception unifiée](/features/unified-inbox) et ses routes de messagerie. L’auto-hébergement de l’édition open source ne coûte aucun frais de licence ; vous exploitez le serveur. La facturation est mensuelle, voir les [tarifs](/pricing). Si vous construisez des flux dans n8n, n8n est un produit distinct avec ses propres formules ; le [guide n8n](/docs/n8n) montre la configuration de la requête HTTP.
+
+<Faq>
+<FaqItem question="Qu’est-ce qu’une API dans un CRM ?">
+C’est la voie programmatique vers les données du CRM. Un autre programme envoie des requêtes HTTP pour lire, créer, modifier ou supprimer des contacts, des affaires et d’autres enregistrements, au lieu qu’une personne clique dans les écrans. Les webhooks vont dans l’autre sens : le CRM appelle votre programme quand les données changent.
+</FaqItem>
+<FaqItem question="Quel CRM a la meilleure API ?">
+Il n’y a pas de réponse unique. Vérifiez quatre choses par rapport à votre projet : si l’API est dans la formule que vous achèterez réellement, comment les appels sont mesurés, si les webhooks incluent ce qui a changé, et s’il existe une spécification lisible par machine. Pour une petite équipe, une API sur la formule d’entrée avec un document OpenAPI et des webhooks signés compte souvent plus que la taille du catalogue de points d’accès.
+</FaqItem>
+<FaqItem question="Quel est le meilleur CRM gratuit avec intégration d’API ?">
+HubSpot et Zoho CRM ont tous deux des formules hébergées gratuites avec un accès à l’API mesuré, et EspoCRM propose une édition auto-hébergée gratuite avec une API REST. L’édition auto-hébergée de Customermates est un logiciel open source gratuit et inclut l’API REST, les webhooks et MCP, mais pas de boîte de réception ni de Mate, et vous exploitez vous-même le serveur. Voir [l’auto-hébergement](/features/self-hosted).
+</FaqItem>
+<FaqItem question="Puis-je limiter une clé API à la lecture seule ?">
+Non. Une clé a exactement les permissions de l’utilisateur qui la possède. Créez la clé sous un membre avec un rôle restreint si une intégration ne doit que lire.
+</FaqItem>
+<FaqItem question="L’API inclut-elle la boîte de réception ?">
+Oui, dans Customermates Cloud avec Pro ou supérieur, où les utilisateurs connectent e-mail, LinkedIn, WhatsApp, Instagram ou Telegram. Les routes couvrent les fils, les brouillons, l’envoi d’e-mails et de messages de chat, et les activités. Chaque requête envoie un message ; il n’y a pas d’envoi en masse.
+</FaqItem>
+<FaqItem question="Ai-je besoin de n8n ou de Zapier pour utiliser l’API ?">
+Non. N’importe quel langage capable d’envoyer des requêtes HTTPS convient. n8n est facultatif et s’exécute séparément ; la [vue d’ensemble des intégrations](/features/integrations) compare REST, les webhooks, MCP et n8n.
+</FaqItem>
+</Faq>

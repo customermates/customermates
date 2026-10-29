@@ -1,0 +1,326 @@
+---
+title: "Webhooks : signatures, nouvelles tentatives, évènements"
+heading: "Recevoir les évènements du CRM par webhooks"
+description: S’abonner aux évènements du CRM, vérifier les signatures, examiner les livraisons échouées et lire le catalogue complet des évènements au même endroit.
+---
+
+Customermates envoie un POST JSON à votre point d’accès chaque fois que les données auxquelles vous êtes abonné changent. Vous choisissez les évènements et l’URL. Avec un secret, chaque livraison est signée en HMAC-SHA256 sur le corps brut de la requête. Les livraisons échouées sont retentées automatiquement et peuvent être renvoyées à la main. Le catalogue des évènements se trouve à la fin de cette page.
+
+## À quoi servent les webhooks ? [#what-are-webhooks-for]
+
+Les webhooks permettent à d’autres systèmes de réagir aux changements du CRM sans interrogation périodique, par exemple pour envoyer de nouveaux contacts vers un outil de séquences d’e-mails, ouvrir un ticket de support quand une affaire change d’état, lancer un workflow de finance quand une affaire se conclut, ou synchroniser les enregistrements dans un entrepôt de données quasiment en temps réel.
+
+## Comment créer un webhook ? [#how-do-i-create-a-webhook]
+
+Ouvrez [Webhooks](app:settings/webhooks), cliquez sur [Ajouter](app:settings/webhooks?focus=add), remplissez la boîte de dialogue **Webhook**, saisissez l'**URL** et cliquez sur **Enregistrer**.
+
+| Champ | Ce qu’il fait |
+| --- | --- |
+| **URL** | Obligatoire. Un point d’accès HTTP ou HTTPS avec un hôte valide et sans nom d’utilisateur ni mot de passe reçoit un `POST` pour chaque évènement auquel vous êtes abonné. Une URL sans schéma est enregistrée avec `https://` devant. Les noms d’hôte et les chemins internationaux sont enregistrés sous leur forme d’URL ASCII. Les autres schémas d’URL, comme `mailto:` et `tel:`, sont refusés. |
+| **Description** | Facultatif, jusqu’à 500 caractères. Affichée dans la liste. |
+| **Évènements** | Obligatoire. Un ou plusieurs évènements du [catalogue](#which-events-exist). |
+| **Secret** | Facultatif, de 1 à 256 caractères. Signe chaque livraison (voir [Comment vérifier la signature ?](#how-do-i-verify-the-signature)). |
+| **En-têtes personnalisés** | Facultatif. Un `Name: value` par ligne (voir [En-têtes personnalisés et modèles de corps](#custom-headers-and-body-templates)). |
+| **Modèle de corps** | Document JSON facultatif qui remplace l’enveloppe standard. |
+| **Activé** | Activé par défaut. Un webhook désactivé ne reçoit rien et garde sa configuration : vous pouvez donc le mettre en pause sans le supprimer. |
+
+Pour modifier un webhook, cliquez sur sa ligne, modifiez puis cliquez sur **Enregistrer**. Pour le retirer, cliquez sur **Supprimer** en haut de la boîte de dialogue et confirmez ; ses livraisons passées restent sur la page [Livraisons](app:settings/webhook-deliveries). Pour voir les livraisons d’un webhook, choisissez **Afficher les livraisons** dans le menu **Plus d’actions** de la ligne : [Livraisons](app:settings/webhook-deliveries) s’ouvre filtrée sur l’URL de ce webhook, et vous pouvez retirer le filtre comme n’importe quel autre. La liste affiche **URL**, **Description**, **Évènements**, **Statut** (**Activé** ou **Désactivé**), **Créé le** et **Mis à jour le**. Dans [Filtrer](app:settings/webhooks?focus=filter), la recherche porte sur l’URL et les filtres couvrent les dates de création et de mise à jour.
+
+Utilisez un point d’accès HTTPS. Le `http://` simple n’est accepté pour un hôte quelconque que tant que le webhook n’a pas d’en-têtes personnalisés. Avec des en-têtes personnalisés, l’URL doit utiliser `https://`, ou `http://` sur `localhost`, `127.0.0.1` ou `::1`, car les en-têtes transportent généralement un identifiant. Cela est vérifié à l’enregistrement, puis de nouveau avant chaque livraison.
+
+Par MCP, utilisez `manage_webhooks` avec `action: "create"`, plus `url`, `events[]` et, facultativement, `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Via REST, `POST /api/v1/webhooks` en crée un avec les mêmes champs et `GET /api/v1/webhooks` les liste ; `GET`, `PATCH` et `DELETE /api/v1/webhooks/{id}` lisent, mettent à jour et suppriment un webhook, et une mise à jour ne modifie que les champs que vous envoyez. Un identifiant qui n’existe pas ou appartient à un autre espace de travail répond 404 avec l’erreur structurée `not_found`.
+
+## Quels enregistrements déclenchent un webhook, et quels droits une livraison utilise-t-elle ? [#record-event-sources]
+
+Quand vous choisissez un évènement d’enregistrement, la boîte de dialogue affiche la source des enregistrements : choisissez la liste sous **Enregistrements de** (ou **Tous les types accessibles**), puis, facultativement, **Champs modifiés**, **Rechercher des enregistrements** et **Filtres d’enregistrement** sur les champs et les relations. Les livraisons utilisent les droits d’accès aux enregistrements du **Membre dont les droits sont utilisés**, par défaut le membre qui crée le webhook ; seul un administrateur peut choisir un autre membre. Les anciens webhooks migrés peuvent conserver plusieurs sources, affichées sous forme de pastilles.
+
+Par MCP, les abonnements aux enregistrements dans `manage_webhooks` demandent aussi `expectedSchemaRevision`, tiré de `get_record_model`. `recordTrigger` contient une requête avec des identifiants stables de types et de champs et des `changedFieldIds` facultatifs ; `null` sélectionne tous les types accessibles. `recordOwnerUserId` définit facultativement le membre dont les droits sont utilisés pour la livraison. Lors d’une mise à jour, omettez ces paramètres pour les conserver ; changer le déclencheur ou le membre exige la révision de schéma actuelle. Un webhook qui suit plusieurs listes utilise `recordSources` au lieu de `recordTrigger` : jusqu’à 50 sources, chacune avec sa propre `query`, ses `changedFieldIds` et ses `events` ; les deux ne peuvent pas être combinés, et `null` efface les sources. L’API REST accepte les mêmes paramètres.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
+  "secret": "use-a-random-string-from-a-password-manager",
+  "enabled": true
+}
+```
+
+## Qui peut voir et modifier les webhooks ? [#who-can-see-and-change-webhooks]
+
+L’accès vient de la ligne **API et webhooks** d’un rôle dans [Rôles](app:settings/roles).
+
+| Réglage du rôle sur **API et webhooks** | Ce que peuvent faire les membres ayant ce rôle |
+| --- | --- |
+| **Accès en lecture** **Aucun** (la valeur par défaut d’un nouveau rôle) | Les webhooks sont masqués ; ouvrir directement la page mène au Tableau de bord. |
+| **Accès en lecture** **Tous**, aucune case cochée | Ouvrir Webhooks et ses livraisons, ouvrir chaque webhook en lecture seule et ouvrir les **Détails de l’évènement** de chaque livraison. Un **Secret** enregistré et chaque valeur d'**En-têtes personnalisés** apparaissent sous la forme `********` ; les noms d’en-têtes restent visibles. |
+| **Accès en lecture** **Tous** plus **Créer** | Ajouter des webhooks et renvoyer des livraisons. |
+| **Accès en lecture** **Tous** plus **Modifier** | Modifier des webhooks et voir les valeurs enregistrées de **Secret** et d'**En-têtes personnalisés**. |
+| **Accès en lecture** **Tous** plus **Supprimer** | Supprimer des webhooks. |
+
+La même ligne contrôle aussi les [Clés API](app:settings/api-keys) : un rôle qui peut créer ou supprimer ses propres clés API peut donc aussi créer ou supprimer tous les webhooks de l’espace de travail. Le rôle **Administrateur** peut tout faire. Les webhooks n’ont aucune restriction d’offre : ils fonctionnent sur chaque offre Cloud et en auto-hébergement. Les mêmes droits s’appliquent à `manage_webhooks` par MCP et dans Mate, où supprimer un webhook ou renvoyer une livraison demande d’abord votre validation.
+
+## À quoi ressemble la charge utile ? [#what-does-the-payload-look-like]
+
+Chaque livraison est un `POST` avec `Content-Type: application/json` et la même enveloppe :
+
+```json
+{
+  "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<who-triggered-it>",
+  "data": {
+    /* event-specific */
+  }
+}
+```
+
+`id` identifie l’évènement : un renvoi et chaque nouvelle tentative portent le même `id`, utilisez-le donc pour dédoublonner. `actorId` est l’utilisateur à l’origine de l’écriture, y compris un utilisateur agissant via une clé API ou une routine exécutée par son propriétaire. Les évènements de messagerie viennent d’une activité entrante du fournisseur : leur `actorId` est donc `null`.
+
+Pour les évènements d’enregistrement, `data.record` contient la référence de l’enregistrement (`typeId` et `recordId`, sans ambiguïté même après un renommage) et les changements, `data.cause` ce qui a provoqué l’écriture, et `data.causeId` est partagé par tous les évènements d’une même écriture.
+
+Exemple, `record.updated` pour un contact, sans les champs sans rapport :
+
+```json
+{
+  "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<actor-user-id>",
+  "data": {
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<first-name-field-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
+    }
+  }
+}
+```
+
+Un vrai changement d’enregistrement porte aussi des attributions, des identités, des changements de liens et des enregistrements associés. Les entrées de champs incluent des métadonnées d’affichage et peuvent indiquer `missing`, `restricted` ou `error` à la place d’une valeur. Trouvez la liste avec `POST /api/v1/model/discover` et résolvez ses identifiants de champs stables avec `POST /api/v1/model/read`, ou utilisez l’outil MCP `get_record_model`.
+
+## Champs modifiés dans `data.record.fields` [#the-changes-object]
+
+`data.record.fields` liste les champs modifiés avec leurs valeurs `before` et `after` ; `data.record.links`, `data.record.assignments` et `data.record.identities` décrivent les autres connexions modifiées. `data.record.beforeVersion` et `data.record.afterVersion` identifient les versions de l’enregistrement. Un champ manquant ou restreint n’est pas la même chose que zéro.
+
+Les mises à jour qui ne changent rien ne produisent aucun évènement `record.updated`. Les changements du modèle de données peuvent recalculer des valeurs enregistrées sur de nombreux enregistrements ; ces recalculs de configuration restent dans l’historique de l’enregistrement mais ne produisent pas de livraisons de webhook par enregistrement et ne déclenchent pas de routines sur évènement. Une modification ultérieure d’un enregistrement par un utilisateur ou par l’API produit son évènement habituel. La charge utile est expurgée selon l’accès actuel du propriétaire du webhook aux enregistrements et aux champs calculés au moment de la livraison.
+
+## En-têtes personnalisés et modèles de corps [#custom-headers-and-body-templates]
+
+Deux paramètres facultatifs couvrent les destinataires qui n’acceptent pas la livraison standard. Un webhook qui n’en définit aucun envoie l'[enveloppe standard](#what-does-the-payload-look-like).
+
+Les **en-têtes personnalisés** sont envoyés avec chaque livraison, pour les points d’accès dotés de leur propre authentification. Saisissez-les un par ligne sous la forme `Name: value` (une ligne sans deux-points est ignorée, un champ vide supprime tous les en-têtes), ou passez un objet `headers` par MCP et par l’API. Sept noms sont réservés et refusés : `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding`, `X-Webhook-Signature` et `X-Customermates-Delivery-Id`. Les noms doivent être des jetons HTTP valides, les valeurs du texte Latin-1 sans saut de ligne. Un webhook peut porter jusqu’à 20 en-têtes, des noms jusqu’à 128 caractères, des valeurs jusqu’à 2 048 caractères, 8 192 caractères au total. Un webhook avec des en-têtes doit utiliser HTTPS ; le HTTP simple n’est accepté que pour `localhost`, `127.0.0.1` et `::1`.
+
+L’API REST et MCP ne renvoient jamais les valeurs des en-têtes ni le secret ; elles indiquent `headerNames` et `hasSecret`. La boîte de dialogue n’affiche les valeurs qu’au rôle **Administrateur** et aux rôles ayant **Modifier** sur **API et webhooks**, avec le secret masqué jusqu’à ce que vous cliquiez sur l’icône en forme d'œil. Une mise à jour par l’API ou MCP qui omet `headers` conserve les valeurs enregistrées ; `null` les efface.
+
+**Un modèle de corps** remplace l’enveloppe standard pour les points d’accès qui attendent une forme fixe. Écrivez un document JSON avec des espaces réservés :
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Les espaces réservés sont `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` et tout chemin sous `{{data}}`, comme `{{data.record.ref.recordId}}` pour un évènement d’enregistrement ou `{{data.entityId}}` pour un évènement de messagerie. Un espace réservé doit se trouver dans une chaîne JSON ; `{"count": {{data.count}}}` est refusé. Une valeur objet est insérée sous forme de chaîne JSON, un chemin manquant sous forme de chaîne vide. Les valeurs substituées sont échappées : le contenu d’un enregistrement ne peut donc pas modifier la structure du document.
+
+Le modèle peut compter jusqu’à 8 192 caractères, doit produire un objet JSON et est vérifié à l’enregistrement. Une livraison dont le modèle ne peut pas être rendu, ou dont le corps rendu dépasse 131 072 caractères, est enregistrée comme échouée sans être envoyée et n’est pas retentée. La signature est calculée sur le corps réellement envoyé : vérifiez-la donc par rapport au corps rendu.
+
+**Retirer un secret ou un modèle.** La boîte de dialogue refuse d’enregistrer **Secret** ou **Modèle de corps** vide une fois définis. Mettez le webhook à jour via `manage_webhooks` ou `PATCH /api/v1/webhooks/{id}` avec `secret: null` ou `bodyTemplate: null`, ou supprimez-le et recréez-le.
+
+Les livraisons sont enregistrées avec la charge utile de l’évènement, pas le corps rendu : les **Détails de l’évènement** montrent donc l’évènement déclenché plutôt que les octets exacts envoyés.
+
+## Comment envoyer vers Slack, Discord ou n8n ? [#how-do-i-send-to-slack-discord-or-n8n]
+
+Chaque recette donne l’URL, les en-têtes personnalisés et le modèle de corps à saisir après [Ajouter](app:settings/webhooks?focus=add) dans Webhooks. Définissez un secret dans tous les cas ; un destinataire qui ne peut pas le vérifier ignore l’en-tête.
+
+### Routines Claude Code [#claude-code-routines]
+
+Lancez une routine Claude Code quand un enregistrement change. Créez d’abord la routine sur [claude.ai/code/routines](https://claude.ai/code/routines).
+
+<Steps>
+  <Step title="Ajouter un déclencheur d’API">
+    Ouvrez la routine, cliquez sur **Add another trigger**, choisissez **API**, puis **Generate token**. Copiez l’URL et
+    le jeton ; le jeton n’est affiché qu’une fois et ne peut pas être récupéré ensuite.
+  </Step>
+  <Step title="Créer le webhook">Collez l’URL, sélectionnez vos évènements et ajoutez les en-têtes et le modèle ci-dessous.</Step>
+  <Step title="Référencer la charge utile dans la consigne de la routine">
+    Le texte arrive enveloppé dans un bloc `routine-fire-payload` que la routine traite comme une donnée non fiable. La
+    consigne de la routine elle-même doit s’y référer, par exemple « agis sur l’évènement décrit dans le bloc
+    routine-fire-payload », sinon le texte est ignoré.
+  </Step>
+</Steps>
+
+L’URL est `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, et l’identifiant de la routine est préfixé `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Le point d’accès ne lit que `text` : le modèle est donc obligatoire ; sans lui, la routine démarre sans contexte. Chaque livraison, et chaque nouvelle tentative, lance une exécution distincte sur votre quota de routines : abonnez-vous donc à aussi peu d’évènements que le travail l’exige.
+
+### Slack [#slack]
+
+Publiez dans un canal avec un incoming webhook depuis **Slack → Apps → Incoming Webhooks**. L’URL porte l’authentification : aucun en-tête personnalisé n’est nécessaire.
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### Discord [#discord]
+
+Utilisez l’URL du webhook depuis **Channel → Edit Channel → Integrations → Webhooks**. Même forme, clé différente :
+
+```json
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### n8n [#n8n]
+
+Un nœud Webhook de n8n accepte l’enveloppe standard : laissez donc les deux paramètres vides, sauf si le nœud utilise l’authentification par en-tête. Dans ce cas, ajoutez l’en-tête attendu et laissez le modèle vide :
+
+```
+X-N8N-Header-Auth: <value>
+```
+
+Voir [n8n](/docs/n8n) pour le modèle complet.
+
+### Autre destinataire [#anything-else]
+
+Un destinataire qui n’a besoin ni de sa propre authentification ni d’un corps fixe n’a besoin d’aucun des deux paramètres. Laissez les deux vides et [vérifiez la signature](#how-do-i-verify-the-signature).
+
+## Comment vérifier la signature ? [#how-do-i-verify-the-signature]
+
+Si le webhook a un **Secret**, chaque requête inclut :
+
+```
+X-Webhook-Signature: <hex>
+```
+
+`<hex>` est `HMAC-SHA256(secret, rawRequestBody)`, en hexadécimal minuscule, sans préfixe. Recalculez-le de votre côté et comparez en temps constant.
+
+Exemple Node.js :
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Comment fonctionnent les nouvelles tentatives et les livraisons échouées ? [#how-do-retries-and-failed-deliveries-work]
+
+Une livraison échoue quand le statut HTTP est hors de la plage 2xx, que la requête expire (après 5 secondes) ou qu’aucune réponse n’arrive. Customermates retente automatiquement les expirations, les erreurs réseau, les réponses 5xx et 408, 425 et 429, jusqu’à 10 tentatives au total. La première nouvelle tentative suit 10 secondes après la tentative échouée et chaque pause double (20 secondes, 40 secondes et ainsi de suite, plafonnée à une heure) : la dernière tentative a donc lieu environ 1 h 30 après la première ; ensuite, la livraison reste **Échec**, et vous pouvez la [renvoyer](#how-do-i-resend-a-delivery) à la main. Les autres réponses 4xx, comme 400, 401, 403, 404 et 422, ne sont pas retentées, car une répétition échouerait de la même façon. Une livraison échoue aussi avant tout envoi de requête, avec le code de statut 422, quand des en-têtes iraient vers une adresse qui ne les autorise pas ou que le modèle de corps ne peut pas être rendu.
+
+Les nouvelles tentatives s’exécutent dans la même livraison, elles n’ajoutent donc aucun enregistrement : chaque enregistrement montre le dernier résultat et peut afficher **Échec** tant que des nouvelles tentatives sont en attente, puis passer à **Livré** quand l’une réussit.
+
+## Où voir les livraisons passées ? [#where-do-i-see-past-deliveries]
+
+Chaque livraison est enregistrée sur la page [Livraisons](app:settings/webhook-deliveries), la plus récente en premier, avec **URL**, **Évènement**, **Élément** (l’enregistrement concerné), **Statut**, **Code de statut** et **Créé le**. Dans [Filtrer](app:settings/webhook-deliveries?focus=filter), la recherche porte sur l’évènement et l’URL, et les filtres couvrent l’évènement, l’URL et la date de création. Par MCP, utilisez `manage_webhooks` avec `action: "list_deliveries"` ; via REST, `GET /api/v1/webhooks/deliveries` liste les livraisons de tous les webhooks et `GET /api/v1/webhooks/{id}/deliveries` celles d’un seul webhook, la plus récente en premier. Les enregistrements de livraison sont conservés tant que l’espace de travail existe.
+
+Cliquez sur une ligne pour ouvrir les **Détails de l’évènement** : le statut (**En attente**, **Envoi en cours**, **Livré** ou **Échec**), **URL**, **Évènement**, **Élément**, **Créé le**, **Code de statut**, **Message de réponse** et la **Charge utile de l’évènement**. La charge utile d’un évènement de messagerie est affichée telle qu’elle a été envoyée. La charge utile d’un évènement d’enregistrement est relue avec votre accès actuel : les valeurs que vous ne pouvez pas lire apparaissent comme restreintes, et la charge utile reste vide si vous ne pouvez pas lire l’enregistrement.
+
+## Comment renvoyer une livraison ? [#how-do-i-resend-a-delivery]
+
+Pour renvoyer, cliquez sur **Renvoyer** en haut des **Détails de l’évènement**. Le bouton apparaît quand la livraison est **Livré** ou **Échec**, pour les rôles ayant **Créer** sur **API et webhooks** ; par MCP, utilisez `manage_webhooks` avec `action: "resend_delivery"` et l’identifiant de la livraison, et via REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. Un renvoi crée un nouvel enregistrement de livraison avec l’URL, le secret, les en-têtes et le modèle actuels du webhook ; l’original reste inchangé. Un évènement de messagerie est renvoyé à partir de son évènement enregistré. Un évènement d’enregistrement est relu avec l’accès actuel du propriétaire du webhook, seul ce propriétaire ou un administrateur peut le renvoyer, et le renvoi est refusé si les sources d’enregistrements du webhook ont changé depuis la livraison d’origine. Le webhook doit toujours exister, être activé et être abonné à l’évènement ; les livraisons d’évènements spécifiques à un type retirés ne peuvent pas être renvoyées. Les pages Webhooks et Livraisons affichent un tel évènement avec **(ancien)**, par exemple **Contact créé (ancien)**.
+
+## Les livraisons sont-elles ordonnées, et arrivent-elles dans le bon ordre ? [#are-deliveries-ordered]
+
+Non. Deux évènements `record.updated` à quelques millisecondes d’intervalle peuvent arriver dans le désordre. Utilisez le `timestamp` et la version de l’enregistrement pour rétablir l’ordre, ou traitez les livraisons comme des messages idempotents identifiés par `typeId`, `recordId` et l’identifiant de l’évènement.
+
+## Pourquoi le texte enrichi est-il du JSON Tiptap dans les charges utiles ? [#formatted-text-is-json-not-markdown]
+
+La valeur d’un champ Texte enrichi dans les charges utiles est une valeur `richText` dont le `documentJson` est du JSON Tiptap, la structure que stocke l’éditeur. Passez-la dans un sérialiseur compatible Tiptap pour obtenir du markdown. Les routes REST des enregistrements renvoient le même `documentJson`. Les outils MCP d’enregistrements renvoient plutôt le texte enrichi en Markdown, marqué comme contenu non fiable ; voir [MCP](/docs/mcp#how-the-tool-surface-is-shaped).
+
+## Que contiennent les charges utiles de suppression ? [#what-do-delete-payloads-contain]
+
+`record.deleted` se déclenche quand un enregistrement est placé dans la corbeille. `data.record` contient la `ref` qualifiée, les valeurs d’avant autorisées et les relations qu’il laisse ; `afterVersion` est nul. Les filtres de source s’appliquent immédiatement avant le placement, et l’accès actuel du propriétaire est de nouveau vérifié avant la livraison. `record.restored` se déclenche quand il revient de la corbeille et contient les valeurs d’après comme `record.created`.
+
+`record.deletedPermanently` se déclenche quand un enregistrement est supprimé définitivement, à la main ou 30 jours après son placement dans la corbeille. Son `data.record` ne contient que la `ref` : les valeurs sont effacées, et les évènements antérieurs de l’enregistrement perdent eux aussi leurs valeurs de champs, tout en conservant qui l’a modifié et quand. Il atteint chaque webhook de la liste de l’enregistrement qui l’a sélectionné et dont le propriétaire peut lire cette liste, sans filtres de source.
+
+## Comment déboguer une livraison ? [#how-do-i-debug-a-delivery]
+
+- Trouvez la livraison sous [Livraisons](app:settings/webhook-deliveries) et ouvrez-la pour voir les **Détails de l’évènement**.
+- Utilisez [webhook.site](https://webhook.site) comme destinataire jetable pendant les tests.
+- `manage_webhooks` avec `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` et `GET /api/v1/webhooks/{id}/deliveries` acceptent `searchTerm` sur l’URL et le nom de l’évènement.
+- Customermates ne stocke que le code de statut HTTP et le texte de statut renvoyés par votre destinataire (par exemple `404` et `Not Found`), affichés comme **Code de statut** et **Message de réponse** dans les **Détails de l’évènement**. Le corps de la réponse n’est pas stocké : journalisez-le donc côté destinataire. Sans réponse, **Code de statut** affiche un tiret (la colonne de la liste reste vide) et **Message de réponse** nomme la cause, comme l’expiration.
+
+## Quels évènements existent ? [#which-events-exist]
+
+Un webhook peut s’abonner à [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de messagerie. Pour un webhook CRM, sélectionnez **Enregistrement créé**, **Enregistrement mis à jour**, **Enregistrement placé dans la corbeille**, **Enregistrement restauré** ou **Enregistrement supprimé définitivement** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) et définissez sa [source d’enregistrements](#record-event-sources) ; cela couvre aussi les listes que vous avez créées vous-même. Tous utilisent l'[enveloppe standard](#what-does-the-payload-look-like). Les routines peuvent être déclenchées par les mêmes évènements, sauf **Enregistrement supprimé définitivement** (`record.deletedPermanently`), **E-mail supprimé** (`messaging.email.deleted`) et **Conversation supprimée** (`messaging.chat.deleted`) ; **Message supprimé** (`messaging.message.deleted`) déclenche bien des routines. Voir [Routines](/docs/app-routines#how-do-event-triggers-work).
+
+### Évènements d’enregistrement [#record-events]
+
+| Évènement | Quand il se déclenche | `data` |
+| --- | --- | --- |
+| `record.created` | Un enregistrement d’un type de source configuré est créé | le changement d’enregistrement avec ses valeurs d’après |
+| `record.updated` | Un champ, une attribution, une identité ou un lien change sur un type de source configuré | le changement d’enregistrement avec les valeurs d’avant et d’après |
+| `record.deleted` | Un enregistrement d’un type de source configuré est placé dans la corbeille | le changement d’enregistrement avec ses valeurs d’avant |
+| `record.restored` | Un enregistrement d’un type de source configuré est restauré depuis la corbeille | le changement d’enregistrement avec ses valeurs d’après |
+| `record.deletedPermanently` | Un enregistrement de la liste est supprimé définitivement | la `ref` seule ; les valeurs sont effacées |
+
+Quinze identifiants spécifiques à un type sont retirés. Ils ne subsistent que pour que les anciens webhooks et enregistrements de livraison restent lisibles : on ne peut pas les sélectionner pour un webhook ou une routine, et rien ne les émet. Remplacez-les par un évènement générique et une source d’enregistrements.
+
+| Évènement ancien | Signification historique | `payload` ancien |
+| --- | --- | --- |
+| `contact.created` | Un contact est créé via l’interface, l’API, MCP ou un import | contact complet |
+| `contact.updated` | Un champ quelconque du contact change | `contact`, `changes` |
+| `contact.deleted` | Un contact est supprimé | contact complet |
+| `organization.created` | Une organisation est créée | organisation complète |
+| `organization.updated` | Un champ quelconque de l’organisation change | `organization`, `changes` |
+| `organization.deleted` | Une organisation est supprimée | organisation complète |
+| `deal.created` | Une affaire est créée | affaire complète |
+| `deal.updated` | Un champ quelconque de l’affaire change | `deal`, `changes` |
+| `deal.deleted` | Une affaire est supprimée | affaire complète |
+| `service.created` | Un service est créé | service complet |
+| `service.updated` | Un champ quelconque du service change | `service`, `changes` |
+| `service.deleted` | Un service est supprimé | service complet |
+| `task.created` | Une tâche est créée | tâche complète |
+| `task.updated` | Un champ quelconque de la tâche change | `task`, `changes` |
+| `task.deleted` | Une tâche est supprimée | tâche complète |
+
+### Évènements de messagerie [#messaging-events]
+
+Les évènements de messagerie se déclenchent sur l’activité entrante du fournisseur sur les comptes connectés. **Évènements** les propose dans tous les espaces de travail, mais ils ne se déclenchent que là où des [Canaux](app:settings/channels) sont connectés, ce qui demande Cloud et une offre incluant la messagerie. `actorId` est `null`. `data` référence les enregistrements du fournisseur par identifiant (`entityId` pour le message, le fil, l’agenda, l’évènement d’agenda ou la relation concernés, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` et similaires) au lieu d’intégrer des enregistrements du CRM. Un évènement de messagerie n’est conservé que tant qu’un webhook ou une routine sur évènement y est abonné.
+
+| Évènement | Quand il se déclenche |
+| --- | --- |
+| `messaging.message.received` | Un message de chat ou un e-mail est ingéré |
+| `messaging.message.updated` | Un message ingéré est mis à jour |
+| `messaging.message.deleted` | Un message ingéré est supprimé |
+| `messaging.message.reaction` | Une réaction est ajoutée à un message |
+| `messaging.email.received` | Un e-mail est ingéré |
+| `messaging.email.deleted` | Un e-mail ingéré est supprimé |
+| `messaging.chat.updated` | Un fil de chat est mis à jour |
+| `messaging.chat.deleted` | Un fil de chat est supprimé |
+| `messaging.calendar.changed` | Un calendrier connecté change |
+| `messaging.calendar_event.changed` | Un évènement de calendrier change |
+| `messaging.relation.created` | Une nouvelle relation du fournisseur est créée |
+
+## Suite [#next]
+
+- [Catalogue d’outils MCP](/docs/mcp#tool-catalog) : gestion des webhooks par programmation.
+- [Référence de l’API](/docs/openapi) : les points d’accès REST des webhooks et chaque charge utile d’évènement.
+- [Intégration n8n](/docs/n8n) : intégrer les webhooks à des workflows visuels.

@@ -1,4 +1,4 @@
-import type { AdConversionExportRow, GetAdConversionExportRepo } from "./get/get-ad-conversion-export.interactor";
+import type { AdConversionExportRow, GetAdConversionExportRepo } from "./get/get-ad-conversion-export.repo";
 import type { AdIdentifierKind } from "@/features/acquisition/ad-provider-registry";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -15,6 +15,7 @@ export class PrismaAdConversionExportRepo extends TenantRepository implements Ge
         identifierKind: true,
         identifierValue: true,
         clickedAt: true,
+        consentedAt: true,
         consentNoticeVersion: true,
         company: { select: { conversionEvents: { select: { type: true, occurredAt: true } } } },
       },
@@ -27,6 +28,7 @@ export class PrismaAdConversionExportRepo extends TenantRepository implements Ge
         identifierKind: attribution.identifierKind as AdIdentifierKind,
         identifierValue: attribution.identifierValue,
         clickedAt: attribution.clickedAt,
+        consentedAt: attribution.consentedAt,
         consentNoticeVersion: attribution.consentNoticeVersion,
         conversionType: conversion.type,
         conversionAt: conversion.occurredAt,

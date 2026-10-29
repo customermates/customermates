@@ -16,6 +16,7 @@ import { REPO_ROOT } from "./walk";
 const APPROVED_PAIRS = [
   ["feature-pages", "cloud-crm"],
   ["feature-pages", "linkedin-integration"],
+  ["feature-pages", "open-source-crm"],
   ["feature-pages", "self-hosted"],
   ["feature-pages", "unified-inbox"],
   ["for-pages", "agencies"],
@@ -24,7 +25,7 @@ const APPROVED_PAIRS = [
   ["blog-posts", "open-source-crm"],
 ] as const;
 
-const PRODUCT_DEMO_PROOF_SLUGS = new Set(["cloud-crm", "linkedin-integration"]);
+const PRODUCT_DEMO_PROOF_SLUGS = new Set(["cloud-crm", "linkedin-integration", "open-source-crm"]);
 
 type Frontmatter = {
   acquisition?: unknown;
@@ -76,7 +77,7 @@ function readPage(path: string): { body: string; data: Frontmatter } {
 }
 
 describe("approved acquisition page contract", () => {
-  it("binds all eight approved bilingual page pairs to rendered page inputs", () => {
+  it("binds all nine approved pages in every content locale to rendered page inputs", () => {
     const problems: string[] = [];
     let count = 0;
 
@@ -154,7 +155,8 @@ describe("approved acquisition page contract", () => {
             `${path}: related links must be owned by the route ending`,
           );
 
-        const productDemoProof = PRODUCT_DEMO_PROOF_SLUGS.has(slug);
+        const productDemoProof =
+          collection === "feature-pages" && PRODUCT_DEMO_PROOF_SLUGS.has(slug);
         if (productDemoProof && contract.visual.kind !== "none")
           problems.push(
             `${path}: early product-demo proof must not add a hero illustration`,
@@ -191,7 +193,8 @@ describe("approved acquisition page contract", () => {
       }
     }
 
-    expect(count).toBe(16);
+    expect(APPROVED_PAIRS).toHaveLength(9);
+    expect(count).toBe(APPROVED_PAIRS.length * CONTENT_LOCALES.length);
     expect(problems).toEqual([]);
   });
 
@@ -459,39 +462,27 @@ describe("approved acquisition page contract", () => {
         const { data } = readPage(contentFile(collection, locale, slug));
         return acquisitionPageSchema.parse(data.acquisition);
       });
-      const [en, de] = pages;
-      for (const key of ["clusterId", "role"] as const) {
-        if (en[key] !== de[key])
-          problems.push(
-            `${collection}/${basename(slug)}: ${key} differs by locale`,
-          );
-      }
-      if (JSON.stringify(en.proof) !== JSON.stringify(de.proof)) {
-        problems.push(
-          `${collection}/${basename(slug)}: proof boundary differs by locale`,
-        );
-      }
-      if (
-        JSON.stringify(en.structuredData) !== JSON.stringify(de.structuredData)
-      ) {
-        problems.push(
-          `${collection}/${basename(slug)}: structured data differs by locale`,
-        );
-      }
-      if (JSON.stringify(en.relatedHrefs) !== JSON.stringify(de.relatedHrefs)) {
-        problems.push(
-          `${collection}/${basename(slug)}: related graph differs by locale`,
-        );
-      }
-      if (
-        ctaDestination(en.cta.buttonLeftHref) !==
-          ctaDestination(de.cta.buttonLeftHref) ||
-        ctaDestination(en.cta.buttonRightHref) !==
-          ctaDestination(de.cta.buttonRightHref)
-      ) {
-        problems.push(
-          `${collection}/${basename(slug)}: CTA destinations differ by locale`,
-        );
+      const [en, ...translations] = pages;
+      for (const [index, translation] of translations.entries()) {
+        const page = `${collection}/${CONTENT_LOCALES[index + 1]}/${basename(slug)}`;
+        for (const key of ["clusterId", "role"] as const) {
+          if (en[key] !== translation[key]) problems.push(`${page}: ${key} differs by locale`);
+        }
+        if (JSON.stringify(en.proof) !== JSON.stringify(translation.proof)) {
+          problems.push(`${page}: proof boundary differs by locale`);
+        }
+        if (JSON.stringify(en.structuredData) !== JSON.stringify(translation.structuredData)) {
+          problems.push(`${page}: structured data differs by locale`);
+        }
+        if (JSON.stringify(en.relatedHrefs) !== JSON.stringify(translation.relatedHrefs)) {
+          problems.push(`${page}: related graph differs by locale`);
+        }
+        if (
+          ctaDestination(en.cta.buttonLeftHref) !== ctaDestination(translation.cta.buttonLeftHref) ||
+          ctaDestination(en.cta.buttonRightHref) !== ctaDestination(translation.cta.buttonRightHref)
+        ) {
+          problems.push(`${page}: CTA destinations differ by locale`);
+        }
       }
     }
 

@@ -1,4 +1,4 @@
-import type { ContentLocale } from "@/i18n/locale-registry";
+import { type LocaleCode, assetLocaleFor } from "@/i18n/locale-registry";
 
 import { getImageProps } from "next/image";
 
@@ -10,7 +10,7 @@ type Props = {
   alt: string;
   className?: string;
   eager?: boolean;
-  locale: ContentLocale;
+  locale: LocaleCode;
   mobileName?: HomepageCaptureName;
   mobileSizes?: string;
   name: HomepageCaptureName;
@@ -26,12 +26,13 @@ export function HomepageCaptureImage({
   alt,
   className,
   eager,
-  locale,
+  locale: pageLocale,
   mobileName,
   mobileSizes = "90vw",
   name,
   sizes,
 }: Props) {
+  const locale = assetLocaleFor(pageLocale);
   const capture = HOMEPAGE_CAPTURES[name][locale];
   const mobileCapture = mobileName ? HOMEPAGE_CAPTURES[mobileName][locale] : undefined;
   const loading = eager ? "eager" : "lazy";

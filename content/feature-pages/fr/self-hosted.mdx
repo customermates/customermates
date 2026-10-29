@@ -1,0 +1,256 @@
+---
+title: "CRM auto-hébergé avec Docker et PostgreSQL"
+description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Noyau AGPL, MCP, REST et webhooks inclus."
+featureName: CRM auto-hébergé
+
+acquisition:
+  locale: fr
+  slug: self-hosted
+  clusterId: open-source-self-hosted
+  role: hub
+  primaryIntent: Déploiement d’un CRM auto-hébergé
+  metadata:
+    title: "CRM auto-hébergé avec Docker et PostgreSQL"
+    description: "Exécutez l’application CRM Customermates et PostgreSQL sur votre infrastructure avec Docker Compose. Noyau AGPL, MCP, REST et webhooks inclus."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: Prêt à évaluer l’auto-hébergement ?
+    description: Examinez les prérequis de déploiement et les limites du produit avant d’installer le CRM sur votre infrastructure.
+    buttonLeftText: Lire le guide d’installation
+    buttonLeftHref: /docs/self-hosting
+    buttonRightText: Voir le code source
+    buttonRightHref: https://github.com/customermates/customermates
+    hint: "L’exploitant gère l’infrastructure, les mises à jour, les sauvegardes et les fournisseurs connectés."
+  relatedHrefs:
+    - /docs/self-hosting
+    - /blog/open-source-crm
+    - /features/open-source-crm
+    - /features/unified-inbox
+  visual:
+    id: acquisition.self-hosted.fr
+    locale: fr
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM auto-hébergé avec Docker et PostgreSQL"
+      body: "Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez. L’édition auto-hébergée inclut le CRM de base et MCP, mais pas la boîte de réception hébergée ni Mate."
+      checksum: fnv1a-f6d76666
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "L’application et PostgreSQL s’exécutent ensemble sur une infrastructure que vous contrôlez."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "L’application et PostgreSQL s’exécutent ensemble sur une infrastructure que vous contrôlez."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:mcp-tools
+    focalLabel:
+      locale: fr
+      text: Application
+    semanticLabels:
+      - locale: fr
+        text: PostgreSQL
+      - locale: fr
+        text: Client MCP
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: postgresql
+        form: context-card
+      - id: mcp-client
+        form: agent-cue
+        agentProvider: claude
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: CRM auto-hébergé avec Docker et PostgreSQL
+  description: Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez. L’édition auto-hébergée inclut le CRM de base et MCP, mais pas la boîte de réception hébergée ni Mate.
+  buttonLeftText: Lire le guide d’installation
+  buttonLeftHref: /docs/self-hosting
+  buttonRightText: Voir le code source
+  buttonRightHref: https://github.com/customermates/customermates
+  hint: "Noyau AGPL • Docker Compose • PostgreSQL 16"
+
+cta:
+  action: Prêt à évaluer l’auto-hébergement ?
+  description: Examinez les prérequis de déploiement et les limites du produit avant d’installer le CRM sur votre infrastructure.
+  buttonLeftText: Lire le guide d’installation
+  buttonLeftHref: /docs/self-hosting
+  buttonRightText: Voir le code source
+  buttonRightHref: https://github.com/customermates/customermates
+  hint: "L’exploitant gère l’infrastructure, les mises à jour, les sauvegardes et les fournisseurs connectés."
+---
+
+Customermates est un **CRM auto-hébergé** que vous pouvez exécuter sous forme de deux services Docker Compose : l’application et PostgreSQL 16. Il convient quand votre équipe veut exploiter elle-même l’infrastructure de son CRM et utiliser un noyau open source. Ce n’est pas l’édition auto-hébergée de toutes les fonctionnalités de Customermates Cloud.
+
+Un CRM auto-hébergé s’exécute sur des serveurs que vous contrôlez plutôt que dans le cloud de l’éditeur : vous décidez où vivent l’application et la base de données, et vous prenez en charge les mises à jour, les sauvegardes et la sécurité. Savoir si le code est open source est une autre question, celle des droits de licence, traitée dans le [guide du CRM open source](/blog/open-source-crm). Cette page traite du côté opérationnel pour Customermates.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Tourne sur votre infrastructure">
+    L’application Customermates et PostgreSQL 16 s’exécutent comme deux
+    services dans le déploiement Docker Compose suivi.
+  </SummaryItem>
+  <SummaryItem label="Surface produit incluse">
+    Enregistrements CRM de base, champs personnalisés et vues, REST, webhooks et
+    MCP avec le jeu de fonctionnalités Starter.
+  </SummaryItem>
+  <SummaryItem label="Vous exploitez">
+    L’accès réseau, le TLS, les mises à jour, les sauvegardes, les tests de
+    restauration, la supervision et chaque fournisseur externe configuré.
+  </SummaryItem>
+  <SummaryItem label="Limite réservée au cloud">
+    La messagerie connectée, la boîte de réception unifiée, le calendrier
+    connecté, Mate hébergé et les crédits IA hébergés restent hors de
+    l’auto-hébergement.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Faits vérifiés sur le CRM auto-hébergé">
+  <ProofItem label="Déploiement">Docker Compose</ProofItem>
+  <ProofItem label="Base de données">PostgreSQL 16</ProofItem>
+  <ProofItem label="Noyau du CRM">Listes configurables, créées dans Configurer</ProofItem>
+  <ProofItem label="Interfaces">REST, webhooks et MCP</ProofItem>
+  <ProofItem label="Droits">Socle Starter</ProofItem>
+</ProofRail>
+
+## Qu’est-ce qui tourne dans votre infrastructure ?
+
+Le déploiement suivi contient :
+
+- l’image de l’application Customermates ;
+- une base de données PostgreSQL 16 ;
+- les enregistrements de base pour les contacts, les organisations, les affaires, les services et les tâches, plus les listes que vous ajoutez ; et
+- REST, les webhooks et l’[accès MCP pour les clients IA externes](/docs/mcp).
+
+Le fichier Compose n’inclut ni n8n, ni modèle d’IA, ni fournisseur d’envoi d’e-mails, ni service de travail distinct. Les e-mails d’authentification demandent toujours le service d’envoi externe configuré. Si vous connectez un fournisseur, vous exploitez cette intégration séparément et devez examiner les données qu’il reçoit.
+
+<AcquisitionCallout
+  title="Le périmètre du déploiement est plus étroit que le périmètre complet du système"
+  variant="proof"
+>
+  L’application et la base de données peuvent tourner sur votre infrastructure
+  pendant que SMTP, OAuth, la supervision, les outils de workflow et l’IA
+  externe restent des services distincts dès que vous les configurez.
+  Cartographiez ces fournisseurs avant de choisir le modèle de déploiement.
+</AcquisitionCallout>
+
+## Ce qui est inclus et ce qui est exclu
+
+| Capacité                                           | Customermates auto-hébergé |
+| -------------------------------------------------- | ------------------------- |
+| Contacts, organisations, affaires, services et tâches | Inclus                 |
+| Champs personnalisés, vues tableau et Kanban       | Inclus                    |
+| API REST, webhooks et MCP                          | Inclus                    |
+| Socle de droits                                    | Starter                   |
+| Assistant Mate hébergé et crédits IA hébergés      | Non inclus                |
+| Boîte de réception unifiée et comptes de messagerie connectés | Non inclus     |
+| Vue calendrier connecté en lecture seule           | Non inclus                |
+| Comptes connectés partagés                         | Non inclus                |
+
+La [boîte de réception unifiée du CRM](/features/unified-inbox) est une fonctionnalité du cloud géré à partir de Pro. L’auto-hébergement reste centré sur le noyau open source du CRM et les clients MCP externes.
+
+## Limites entre code open source et code commercial
+
+Le matériel propriétaire hors de `ee/` est sous licence AGPL-3.0-only. Dans `ee/`, le matériel est sous licence commerciale, à l’exception des images, polices, CSS et JavaScript côté client identifiés comme AGPL Client Material à la section 6 de `ee/LICENSE.md`. Examinez les deux licences avant de modifier, redistribuer ou exploiter le logiciel pour votre cas d’usage.
+
+Cette distinction compte quand on compare des [CRM open source](/blog/open-source-crm) : un dépôt public ne dit pas à lui seul quel code vous pouvez utiliser sous quelles conditions. Si vous comparez d’autres projets auto-hébergeables, les comparatifs [EspoCRM](/compare/espocrm-alternative) et [Twenty](/compare/twenty-alternative) montrent en quoi leurs limites de déploiement et de licence diffèrent.
+
+## Quel contrôle l’auto-hébergement apporte-t-il ?
+
+Vous choisissez où s’exécutent l’application et PostgreSQL et comment vous configurez l’accès réseau, les sauvegardes, la conservation et les mises à jour. C’est un vrai contrôle de l’infrastructure, mais pas une garantie automatique de conformité, de sécurité ou d’isolement réseau.
+
+Les services connectés restent des périmètres de traitement distincts. Les fournisseurs OAuth, SMTP, la supervision, les outils de workflow et les fournisseurs d’IA externes reçoivent ce que votre configuration leur envoie. Une installation auto-hébergée n’envoie aucune donnée à Sentry sauf si vous configurez un DSN Sentry, mais ce comportement par défaut étroit n’est pas une promesse générale d’absence de télémétrie.
+
+## Auto-hébergement ou cloud géré ?
+
+| Choisissez l’auto-hébergement quand…        | Choisissez le cloud géré quand…                                 |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| votre équipe sait exploiter Docker et PostgreSQL | vous voulez que Customermates exploite l’application et la base de données |
+| le périmètre fonctionnel Starter convient   | vous avez besoin de la boîte de réception unifiée ou de la vue calendrier connecté |
+| vous voulez que des clients IA externes utilisent MCP | vous voulez les droits des formules cloud et des comptes connectés gérés |
+| vous assumerez les mises à jour, les sauvegardes et la reprise | vous préférez un abonnement avec exploitation gérée |
+
+Si vous voulez essayer Customermates avant d’exploiter votre propre serveur, la page [CRM open source dans le cloud ou auto-hébergé](/features/open-source-crm) présente les deux voies côte à côte, avec l’essai cloud gratuit comme démarrage le plus rapide.
+
+Les enregistrements passent d’une installation à l’autre, ou depuis un autre CRM, sous forme de classeurs XLSX, un type d’enregistrement à la fois et dans les limites de lignes, ou via l’API REST, qui peut aussi téléverser des fichiers dans les champs Fichier. Un import XLSX ne transporte aucune pièce jointe et il n’existe pas de transfert complet du compte : prévoyez donc un déménagement plus important comme un projet de migration que vous validez.
+
+## Comment évaluer le déploiement
+
+<Steps>
+  <Step title="Examinez le déploiement exact">
+    Lisez le [guide d’auto-hébergement](/docs/self-hosting) et examinez le
+    fichier Compose actuel dans le dépôt.
+  </Step>
+  <Step title="Vérifiez la limite de l’édition">
+    Confirmez que le jeu de fonctionnalités Starter couvre les enregistrements,
+    les vues et les interfaces dont votre workflow a besoin.
+  </Step>
+  <Step title="Cartographiez les services externes">
+    Listez chaque fournisseur SMTP, OAuth, de supervision, de workflow ou d’IA
+    que vous prévoyez de configurer et les données que chacun reçoit.
+  </Step>
+  <Step title="Concevez l’exploitation">
+    Définissez les sauvegardes, la restauration testée, les mises à niveau, le
+    TLS, la supervision et le contrôle d’accès de votre environnement.
+  </Step>
+  <Step title="Testez sans données clients">
+    Exécutez le workflow complet dans un environnement hors production avant que
+    le système traite de vrais enregistrements.
+  </Step>
+</Steps>
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Customermates est-il entièrement open source ?">
+Le matériel propriétaire hors de `ee/` est sous AGPL-3.0-only. Dans `ee/`, le matériel client identifié à la section 6 de `ee/LICENSE.md` est aussi sous AGPL-3.0-only ; le reste du matériel propriétaire relève de la licence commerciale. Examinez les deux fichiers de licence pour la limite exacte.
+</FaqItem>
+
+<FaqItem question="L’auto-hébergement inclut-il la boîte de réception unifiée ?">
+  Non. Les déploiements auto-hébergés utilisent le jeu de fonctionnalités
+  Starter, qui n’a ni comptes de messagerie, ni boîte de réception unifiée, ni
+  comptes partagés, ni vue calendrier connecté. Ces capacités relèvent des
+  formules du cloud géré à partir de Pro.
+</FaqItem>
+
+<FaqItem question="Puis-je utiliser l’IA avec le CRM auto-hébergé ?">
+  Oui, via [MCP](/docs/mcp) et un client et un fournisseur d’IA externes que
+  vous choisissez et financez, par exemple Claude comme décrit dans le [guide du
+  CRM Claude](/blog/claude-crm). L’assistant Mate, réservé au cloud, et les
+  crédits IA hébergés ne font pas partie de l’auto-hébergement.
+</FaqItem>
+
+<FaqItem question="L’auto-hébergement rend-il le CRM conforme au RGPD ?">
+  Aucun modèle de déploiement ne crée la conformité à lui seul.
+  L’auto-hébergement vous laisse choisir l’emplacement de l’application et de la
+  base de données, mais votre organisation reste responsable de la
+  configuration, des fournisseurs, des contrats, des contrôles de sécurité, de
+  la conservation et de l’évaluation juridique.
+</FaqItem>
+
+<FaqItem question="Que contient la pile Docker Compose officielle ?">
+Elle contient l’application Customermates et PostgreSQL 16. n8n, les modèles d’IA, SMTP, les fournisseurs d’identité et les services de supervision sont distincts quand vous choisissez de les connecter.
+</FaqItem>
+</Faq>

@@ -14,7 +14,7 @@ import {
   APP_LOCALES,
   CONTENT_LOCALES,
   DEFAULT_LOCALE,
-  isContentLocale,
+  assetLocaleFor,
   isMarketingPathPublished,
 } from "@/i18n/locale-registry";
 
@@ -28,7 +28,9 @@ describe("solution catalog", () => {
   });
 
   it("enters the demo in the default solution's workspace of the interface's data locale", () => {
-    expect(findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[DEFAULT_LOCALE]).toBe(DEMO_DEFAULT_WORKSPACE_SLUG);
+    expect(findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[assetLocaleFor(DEFAULT_LOCALE)]).toBe(
+      DEMO_DEFAULT_WORKSPACE_SLUG,
+    );
     for (const uiLocale of APP_LOCALES) {
       expect(demoDefaultWorkspaceSlug(uiLocale)).toBe(
         findSolution(DEMO_DEFAULT_SOLUTION_ID).workspaceSlugs[solutionDataLocaleForUiLocale(uiLocale)],
@@ -54,8 +56,7 @@ describe("solution catalog", () => {
   });
 
   it("uses the UI locale's own data when it ships content, otherwise the default data", () => {
-    for (const locale of APP_LOCALES)
-      expect(solutionDataLocaleForUiLocale(locale)).toBe(isContentLocale(locale) ? locale : DEFAULT_LOCALE);
+    for (const locale of APP_LOCALES) expect(solutionDataLocaleForUiLocale(locale)).toBe(assetLocaleFor(locale));
     expect(solutionDataLocaleForUiLocale("xx")).toBe(DEFAULT_LOCALE);
   });
 

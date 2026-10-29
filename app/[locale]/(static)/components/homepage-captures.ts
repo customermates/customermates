@@ -1,4 +1,4 @@
-import type { ContentLocale } from "@/i18n/locale-registry";
+import type { AssetLocale } from "@/i18n/locale-registry";
 
 type CaptureSize = { height: number; width: number };
 
@@ -67,11 +67,11 @@ export const HOMEPAGE_CAPTURES = {
     de: { height: 1688, width: 780 },
     en: { height: 1688, width: 780 },
   },
-} as const satisfies Record<string, Record<ContentLocale, CaptureSize>>;
+} as const satisfies Record<string, Record<AssetLocale, CaptureSize>>;
 
 export type HomepageCaptureName = keyof typeof HOMEPAGE_CAPTURES;
 export type HomepageCaptureTheme = "dark" | "light";
 
-export function homepageCaptureSrc(name: HomepageCaptureName, locale: ContentLocale, theme: HomepageCaptureTheme) {
+export function homepageCaptureSrc(name: HomepageCaptureName, locale: AssetLocale, theme: HomepageCaptureTheme) {
   return `/captures/${theme}/${name}-${locale}.png`;
 }

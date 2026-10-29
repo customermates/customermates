@@ -8,7 +8,9 @@ import {
   getGetOperatorUsersInteractor,
   getGetOperatorWorkspacesInteractor,
   getGetOperatorWorkspaceTagsInteractor,
+  getUploadAdConversionsInteractor,
 } from "@/core/di";
+import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getOperatorUsersAction(params?: GetQueryParams) {
@@ -25,6 +27,10 @@ export async function getOperatorAuditAction(params?: GetQueryParams) {
 
 export async function getAdConversionExportAction() {
   return unwrapValidated(getGetAdConversionExportInteractor().invoke());
+}
+
+export async function uploadAdConversionsAction() {
+  return serializeResult(getUploadAdConversionsInteractor().invoke());
 }
 
 export async function getOperatorWorkspaceTagsAction() {

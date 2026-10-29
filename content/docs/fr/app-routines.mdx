@@ -1,0 +1,100 @@
+---
+title: "Routines : exécutions planifiées ou sur évènement"
+description: "Les routines exécutent Mate selon un planning ou quand un enregistrement change : allocation du propriétaire, limites, statuts d’exécution et approbations."
+---
+
+Une routine est une consigne enregistrée plus un déclencheur. Quand le déclencheur se produit, Customermates ouvre une nouvelle conversation avec l’assistant, envoie votre consigne et laisse Mate travailler seul. Les routines n’existent que sur Customermates Cloud, car elles utilisent l’allocation Mate mensuelle du propriétaire.
+
+Qui voit les routines dépend de la ligne **Routines** du rôle de chacun dans [Rôles](app:settings/roles) : l'**Accès en lecture** **Tous** affiche toutes les routines de l’espace de travail, **Assignés** uniquement les siennes, et **Aucun** masque [Routines](app:routines). La création exige **Créer**, la modification des siennes exige **Modifier**. Toutes les personnes qui voient une routine voient les résumés de ses exécutions ; la transcription complète reste chez la personne sous l’identité de laquelle l’exécution a eu lieu.
+
+## Comment créer une routine ou une automatisation ? [#how-do-i-create-a-routine]
+
+Ouvrez [Routines](app:routines) et cliquez sur [Ajouter](app:routines?focus=add). Saisissez un **Nom** et des **Consignes**, choisissez un déclencheur et cliquez sur **Enregistrer**. La routine est enregistrée **Active**, sauf si vous la passez d’abord **En pause**. Vous pouvez aussi demander à Mate d’en créer une ; Mate l’enregistre en pause, sauf si vous demandez qu’elle soit active. Retrouvez les routines existantes en cherchant ou en filtrant dans [Filtres](app:routines?focus=filter), et passez du tableau au board sous [Apparence](app:routines?focus=display-options).
+
+## De quoi une routine est-elle faite ? [#what-is-a-routine-made-of]
+
+- **Nom** : obligatoire, 120 caractères au maximum.
+- **Consignes** : ce que Mate reçoit à chaque exécution, 5 000 caractères au maximum. Rédigez-les comme vous le demanderiez dans le chat.
+- **Déclencheur** : **Selon un planning**, ou **Quand quelque chose change** pour un ou plusieurs évènements, par exemple une affaire mise à jour.
+
+Le créateur devient le propriétaire. Seul le propriétaire peut modifier les consignes ou le déclencheur, faire passer la routine de **Active** à **En pause** et inversement, ou utiliser **Tester le déclencheur**, car chaque exécution utilise l’identité, l’accès et l’allocation Mate du propriétaire. Les autres voient la routine en lecture seule.
+
+Les membres ayant le rôle **Administrateur** peuvent suspendre (**Suspendre la routine**) ou supprimer la routine de n’importe qui, mais ne peuvent pas modifier, tester ni exécuter celle d’un autre. La suppression exige **Administrateur** même pour votre propre routine, place la routine dans la [Corbeille](/docs/app-trash), où elle cesse de s’exécuter jusqu’à sa restauration, et est refusée tant qu’une exécution est en cours (**Attendez la fin de l’exécution active avant de supprimer cette routine.**). La supprimer définitivement depuis la Corbeille supprime aussi son historique d’exécutions. Quand un propriétaire passe à **Inactif** dans [Membres](app:settings/members), ses routines se mettent aussitôt en pause, les exécutions en attente ou en cours se terminent comme **Bloquée**, et les routines restent en pause et en lecture seule jusqu’à ce qu’un administrateur les supprime ou que le propriétaire redevienne actif et les réactive.
+
+## Combien de routines ma formule inclut-elle ? [#how-many-routines-does-my-plan-include]
+
+Chaque utilisateur a sa propre allocation : Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] et Business, Max et Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Mettre une routine en pause ne libère pas d’emplacement ; la déplacer dans la [Corbeille](/docs/app-trash) libère son emplacement aussitôt. À la limite, une nouvelle routine est refusée avec une invitation à passer à une formule supérieure sous [Facturation](app:settings/billing), et la restauration d’une routine depuis la Corbeille la laisse là avec la mention que son propriétaire dispose déjà de toutes les routines incluses dans sa formule ; déplacez d’abord une autre routine du propriétaire dans la Corbeille. Via REST et MCP, le résultat de la restauration la liste sous `blocked` avec le motif `routineLimitReached` et le `limit` de la formule. La limite n’est vérifiée qu’à la création ou à la restauration d’une routine : les routines au-delà de la limite d’une formule inférieure sont donc conservées après un passage à une formule plus basse. L’allocation sur laquelle puisent les exécutions est décrite sous [Formules et usage de Mate](/docs/app-assistant#plans-and-credits).
+
+## Quelles sont les limites, comme les exécutions par heure et l’usage par exécution ? [#what-are-the-limits]
+
+| Limite | Valeur | À la limite |
+| --- | --- | --- |
+| Exécutions par routine et par heure | 4 | Un évènement correspondant est abandonné sans entrée d’exécution ; une exécution planifiée due ou une exécution **Tester le déclencheur** est enregistrée comme **Ignorée** |
+| Usage par exécution | 10 % d’une allocation Starter, dans toutes les formules | L’exécution s’arrête et est enregistrée comme **Partielle** |
+| Exécutions échouées consécutives | 3 | La routine se met elle-même en pause et affiche le motif ; le propriétaire la réactive après avoir corrigé la cause |
+| Intervalle de planification le plus court | 15 minutes | Une planification plus fréquente est refusée à l’enregistrement |
+| Historique des exécutions | 90 jours | Les exécutions plus anciennes sont supprimées |
+| Anti-rebond des évènements | 300 secondes par défaut, de 0 à 86 400, réglable uniquement via Mate, MCP ou l’API REST | Les autres évènements correspondants survenant dans la fenêtre suivant le début d’une exécution sont ignorés |
+
+Les exécutions ignorées ne comptent pas dans le plafond horaire.
+
+Chaque exécution de routine démarre avec les outils CRM de base et charge d’autres jeux d’outils quand c’est nécessaire. Cela évite que des descriptions d’outils sans rapport encombrent le contexte du modèle. Si le contexte dépasse encore le budget du fournisseur après compression, l’exécution s’arrête et son historique indique le motif de la limite de contexte.
+
+## Planifications : comment exécuter une routine chaque matin ou chaque lundi ? [#how-do-schedules-work]
+
+Dans [Routines](app:routines), ouvrez une routine ou cliquez sur [Ajouter](app:routines?focus=add), puis sous **Répétition** choisissez **Toutes les 15 minutes**, **Toutes les 30 minutes**, **Toutes les heures**, **Chaque jour**, **Chaque semaine** ou **Chaque mois**, plus le jour de la semaine, le jour du mois (1 à 28) ou l’heure par pas de cinq minutes quand c’est nécessaire. Par défaut, la routine s’exécute chaque jour à 9 h 00. Pour les fréquences prédéfinies d’une heure et plus, la planification est détaillée en dessous, suivie de **Les heures sont affichées en** et du fuseau horaire, qui vient du navigateur dans lequel la routine a été créée (UTC s’il est inconnu).
+
+Une planification qui ne correspond à aucune fréquence prédéfinie, par exemple les jours ouvrés uniquement, et un autre fuseau horaire ne peuvent être réglés que via Mate, un client MCP ou l’API REST ; la boîte de dialogue affiche alors **Cette routine utilise une planification personnalisée** avec **Utiliser une fréquence prédéfinie**. Le planificateur vérifie toutes les cinq minutes : une exécution peut donc démarrer avec quelques minutes de retard, et une exécution encore en attente après deux minutes est relancée.
+
+## Comment fonctionnent les déclencheurs d’évènements, par exemple pour exécuter une routine quand une affaire change ? [#how-do-event-triggers-work]
+
+Sous **Évènements**, choisissez un ou plusieurs évènements : tous les évènements d’enregistrement et de messagerie auxquels un [webhook](/docs/webhooks#which-events-exist) peut s’abonner, sauf « Enregistrement supprimé définitivement », « E-mail supprimé » et « Conversation supprimée ». Les modifications faites dans l’application, dans un chat avec Mate, via l’API ou via MCP déclenchent des routines ; celles que fait une exécution de routine n’en déclenchent jamais, de sorte que les routines ne peuvent ni s’enchaîner ni boucler.
+
+Deux commandes facultatives évitent qu’une routine consomme l’allocation pour des cas qui ne vous intéressent pas :
+
+- **Champs modifiés** (évènements de modification uniquement) : la routine ne s’exécute que si l’un de ces champs a réellement changé. Ce réglage est masqué quand aucun évènement de modification n’est sélectionné.
+- **Filtres d’enregistrement** : seuls les enregistrements correspondants comptent. Les créations et les modifications sont comparées au résultat enregistré, les suppressions à l’enregistrement complet juste avant son retrait, relations comprises.
+
+Laissez les deux vides pour exécuter la routine à chaque évènement correspondant. Un évènement ne lance une exécution que pour un enregistrement ou une conversation que le propriétaire peut voir : avec l’accès en lecture **Assignés**, les enregistrements des autres ne la déclenchent donc jamais. Un évènement est aussi ignoré, sans entrée d’exécution, quand une exécution de cette routine est déjà en attente ou en cours, dans la fenêtre d’anti-rebond, ou au-delà du plafond horaire. Au démarrage de l’exécution, l’accès du propriétaire et les filtres sont vérifiés de nouveau.
+
+Mate est informé de ce qui s’est passé avant vos consignes : l’évènement, le type d’enregistrement et son ID, les champs modifiés pour une modification, et le fil pour un évènement de boîte de réception. Il peut lire l’enregistrement à partir de là, mais ne reçoit pas les valeurs précédentes.
+
+## Que signifient les exécutions et leurs statuts ? [#what-do-the-runs-and-their-statuses-mean]
+
+Ouvrez une routine pour voir ses **Exécutions**, de la plus récente à la plus ancienne : à côté de la configuration sur un écran large, ou derrière le sélecteur **Détails** et **Exécutions** sur un écran étroit. Cliquez sur une exécution pour ouvrir **Détails de l’exécution** : **Exécutée en tant que** avec le nom du propriétaire, la part de l’allocation Mate mensuelle du propriétaire utilisée (coût exact du fournisseur, affiché en pourcentage), le déclencheur (**Enregistrement**, **Champs modifiés**, **Conversation**) et, si elle s’est arrêtée tôt, le motif. Quand l’exécution a proposé des modifications de la base de connaissances, elle indique combien et propose **Examiner**. Seule la personne sous l’identité de laquelle elle s’est exécutée peut ouvrir la transcription complète, et une fois l’exécution terminée elle peut répondre en dessous pour poursuivre la conversation avec Mate, ce qui utilise son allocation.
+
+| Statut | Signification |
+| --- | --- |
+| **En file d’attente** | Attend le planificateur |
+| **En cours** | Mate travaille |
+| **Réussie** | L’exécution a mené sa consigne à terme |
+| **Partielle** | Arrêtée tôt, par exemple au plafond par exécution ou quand une règle a refusé une action |
+| **Échouée** | Terminée par une erreur ou sans résultat exploitable |
+| **Ignorée** | En file d’attente mais pas démarrée : la routine était en pause, le plafond horaire était atteint, l’enregistrement ne correspondait plus aux filtres ni à l’accès du propriétaire, le déclencheur avait changé, l’exécution a été arrêtée, ou l’assistant était occupé par une autre exécution |
+| **Bloquée** | Mate n’a pas pu démarrer parce que Customermates avait suspendu le travail de l’IA, que l’allocation du propriétaire était épuisée ou que le propriétaire était inactif, ou qu’un autre contrôle d’admission a échoué. L’exécution comporte un motif `error` comme `platformPaused` ou `agentLimitReached`. Les administrateurs de l’espace de travail ne peuvent pas lever une suspension décidée par Customermates. Un administrateur de l’espace de travail peut par ailleurs suspendre une routine ; ce motif est `adminPaused`. |
+
+Une exécution qui s’arrête à sa limite par exécution de 10 % d’une allocation Starter le dit dans son résumé et dans **Détails de l’exécution** ; cette limite est distincte de l’allocation mensuelle du propriétaire. L’exécution s’arrête avant un tour de modèle quand l’usage déjà comptabilisé plus le maximum que ce tour peut coûter, réservé comme décrit sous [comment une demande est facturée](/docs/app-assistant#credits), dépasserait cette limite.
+
+**Tester le déclencheur** lance immédiatement une vraie exécution. Il est disponible pour le propriétaire d’une routine planifiée active sans modifications non enregistrées, utilise l’allocation Mate et peut modifier des données. Les exécutions de test manuelles ont `triggerKind: schedule`, le type de la routine qu’elles testent. Un test est refusé avant la mise en file d’une exécution quand le travail de l’IA est suspendu, que le propriétaire est inactif ou que son allocation est épuisée. Les routines sur évènement ont besoin d’un vrai évènement correspondant : la commande est donc désactivée pour elles.
+
+## Ce qu’une routine peut faire sans approbation [#what-a-routine-may-do-without-approval]
+
+Une exécution sans surveillance peut faire tout ce que Mate fait sans approbation dans un chat, sauf que les modifications de la base de connaissances deviennent des [propositions](#knowledge-base-proposals) : lire l’espace de travail ; créer ou modifier des enregistrements et des liens entre enregistrements ; enregistrer et supprimer des brouillons ; envoyer des e-mails et des messages de chat ; trier la boîte de réception ; modifier les champs, les widgets, les webhooks et les paramètres de l’espace de travail autres que les noms de liste ; générer des liens de connexion de canaux ; créer, modifier, suspendre et exécuter des routines ; et, sur un compte connecté, envoyer des demandes de connexion et modifier les listes Sales Navigator.
+
+Toute action qui demande une approbation dans un chat est refusée, car personne n’est là pour répondre : supprimer des enregistrements, des champs, des widgets, des webhooks ou des routines, renommer des listes, inviter des membres, modifier le rôle ou le statut d’un membre, renvoyer des envois de webhook et envoyer des demandes d’assistance. L’exécution consigne le refus ; la liste complète figure sur la [page de l’assistant](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Les actions d’interface comme la mise en évidence sont indisponibles, car aucun navigateur n’est rattaché.
+
+Quand le propriétaire peut lire la [base de connaissances](/docs/mcp#shared-workspace-wiki) et qu’elle contient des pages, chaque exécution démarre avec un court catalogue de ses pages ; la routine cherche et lit les pages pertinentes et applique leurs faits, mais une instruction figurant dans une page ne peut ni lancer un autre travail ni élargir les autorisations de la routine. Gardez-y les faits, le ton et les processus communs plutôt que de les répéter dans chaque routine. Proposer la modification d’une page exige **Créer** ou **Modifier** sur la base de connaissances du propriétaire.
+
+Une exécution peut chercher sur le web public, 2 recherches payantes au maximum par exécution, comme décrit sous [Mate peut-il chercher sur le web ?](/docs/app-assistant#web-search). Une exécution peut consulter ou modifier des données, jamais les deux : une fois qu’une recherche a renvoyé des résultats, toute écriture est refusée, et une fois qu’une écriture a réussi, la recherche web est retirée. La lecture de la base de connaissances et des données du CRM reste disponible. Les recherches comptent dans le plafond par exécution.
+
+### Propositions de la base de connaissances [#knowledge-base-proposals]
+
+Quand une exécution crée, modifie ou supprime une page de la base de connaissances, rien ne change encore : l’exécution enregistre une proposition, et Mate la signale comme en attente de validation plutôt que faite. Un manager l’examine sous **Propositions** dans la base de connaissances, la compare à la page actuelle, puis l’approuve ou la rejette ; voir [Examiner les propositions de Mate](/docs/mcp#review-proposals). L’entrée de l’exécution dans la liste des exécutions et ses **Détails de l’exécution** indiquent combien de modifications elle a proposées, et **Détails de l’exécution** renvoie vers la validation.
+
+## Comment Mate gère-t-il les routines ? [#how-does-mate-manage-routines]
+
+Dans un chat, Mate peut lister les routines, lire l’historique des exécutions, créer, modifier et suspendre des routines et lancer une exécution tout de suite, sans demander d’abord. Il peut aussi régler ce que la boîte de dialogue ne permet pas : une planification personnalisée comme les jours ouvrés à 9 h 00, le fuseau horaire et l’anti-rebond des évènements. La suppression d’une routine demande votre approbation et, comme dans l’application, exige le rôle **Administrateur**.
+
+## Pour les agents [#tips-for-agents]
+
+Utilisez `manage_routines`. Une planification personnalisée est une expression cron à cinq champs, par exemple `0 9 * * 1-5`. Les statuts d’exécution reviennent sous la forme `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` et `blocked`. L’action `pause` exige le rôle **Administrateur** même sur votre propre routine ; un propriétaire qui ne l’a pas suspend en mettant à jour avec `enabled: false`. Les noms d’évènements sont les noms d’évènements de webhook, sans `record.deletedPermanently`, `messaging.email.deleted` et `messaging.chat.deleted`. Les filtres d’enregistrement vont dans `recordTrigger.query.filters` ; une routine qui suit plusieurs listes utilise plutôt `recordSources`, jusqu’à 50 sources, chacune avec ses propres `query`, `changedFieldIds` et `events`, et ne peut pas le combiner avec `recordTrigger`. L’ancien réglage `triggerFilters` n’existe plus. Via REST, les routines se trouvent sous `/api/v1/routines/` : `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` et `delete`. Chaque opération sur une routine prend son `id`, et `runs` répond `404` pour une routine qui n’existe pas ou appartient à un autre espace de travail.

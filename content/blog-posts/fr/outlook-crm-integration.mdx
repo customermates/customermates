@@ -1,0 +1,165 @@
+---
+title: "Intégration CRM Outlook : complément, synchro ou boîte CRM"
+description: "Comment un CRM se connecte à Outlook : complément, synchronisation serveur ou courrier Outlook dans le CRM. Ce que proposent HubSpot, Dynamics 365, Pipedrive."
+
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/gmail-crm-integration
+
+hero:
+  title: "Intégration CRM Outlook : les trois façons de connecter un CRM à Outlook, et celle qui convient à votre équipe"
+  description: "Ce que fait un complément Outlook et ce que fait la synchronisation côté serveur, ce que proposent HubSpot, Microsoft Dynamics 365, Salesforce et Pipedrive pour Outlook, pourquoi le nouvel Outlook pour Windows compte, et comment tester une intégration avant de la déployer."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2025-12-18
+  updated: 2026-10-08
+  tags:
+    - Intégration Outlook CRM
+    - CRM Microsoft 365
+    - Comparatif de CRM
+---
+
+# Connecter Outlook à un CRM : complément, synchronisation serveur ou boîte de réception du CRM
+
+Une intégration Outlook CRM remplit l’une de deux missions, et les bonnes remplissent les deux. Elle affiche les enregistrements du CRM à côté de l’e-mail que vous lisez dans Outlook, et elle copie les e-mails et les réunions de votre boîte Microsoft 365 sur le bon contact et la bonne affaire. La première mission revient à un complément Outlook (add-in). La seconde s’exécute sur les serveurs du CRM, que Outlook soit ouvert ou non.
+
+La vraie question est donc de savoir où votre équipe veut travailler. Si les gens vivent dans Outlook toute la journée, choisissez un CRM avec un complément solide et une synchronisation côté serveur. S’ils préfèrent répondre à leurs e-mails depuis le CRM, à côté de l’affaire et des autres canaux, choisissez un CRM qui intègre la boîte aux lettres. Une vérification technique concerne tout le monde : le nouvel Outlook pour Windows n’exécute que des compléments web, de sorte que les anciens modules COM ou VSTO cessent d’y fonctionner.
+
+Customermates publie ce guide. Customermates, un CRM IA native, adopte la troisième approche : il n’a pas de complément Outlook et fait entrer le courrier Outlook dans sa propre boîte de réception. Les informations sur les éditeurs ci-dessous ont été vérifiées le 8 octobre 2026 sur les pages des éditeurs, liées à la fin.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Complément">Un panneau dans Outlook pour retrouver des enregistrements, consigner un e-mail ou créer un contact. Utile quand l’équipe ne quitte jamais Outlook.</SummaryItem>
+  <SummaryItem label="Synchronisation côté serveur">Les e-mails et les réunions arrivent dans le CRM en arrière-plan. C’est ce qui garde les enregistrements complets quand personne ne clique sur « consigner ».</SummaryItem>
+  <SummaryItem label="Boîte aux lettres dans le CRM">Vous lisez et vous répondez au courrier Outlook dans le CRM. Aucun complément à installer ni à maintenir, mais vous changez d’endroit de travail.</SummaryItem>
+  <SummaryItem label="Nouvel Outlook">Microsoft ne prend pas en charge les compléments COM ou VSTO dans le nouvel Outlook pour Windows. Demandez à chaque éditeur si son complément est un complément web.</SummaryItem>
+  <SummaryItem label="Contacts et calendrier">La synchronisation bidirectionnelle des contacts et du calendrier varie davantage d’un CRM à l’autre que la consignation des e-mails. Vérifiez-les un par un.</SummaryItem>
+</ArticleSummary>
+
+## Les trois types d’intégration
+
+| Type | Ce qu’il fait | Où vous travaillez | À vérifier avant d’acheter |
+|---|---|---|---|
+| Complément dans Outlook | Affiche le contact, les affaires et l’historique correspondants à côté d’un e-mail ; consigne cet e-mail ou cette réunion sur un enregistrement d’un clic | Outlook | Fonctionne dans vos clients Outlook (Windows classique et nouveau, Mac, web, mobile) ; fonctionne avec les boîtes aux lettres partagées si vous en utilisez |
+| Synchronisation côté serveur | Relie la boîte aux lettres au CRM via Exchange ou Microsoft 365 et copie le courrier envoyé et reçu, et souvent les réunions, sur les enregistrements correspondants | Outlook, le CRM se remplissant tout seul | Quels dossiers se synchronisent, à quelle vitesse, ce qui arrive au courrier privé, si les contacts et le calendrier se synchronisent dans les deux sens |
+| Boîte aux lettres dans le CRM | Importe la boîte aux lettres dans la boîte de réception du CRM, où vous lisez, répondez et classez le courrier à côté de l’enregistrement | Le CRM | Si vous pouvez encore utiliser Outlook en parallèle, si les réponses partent de votre vraie adresse, ce qui arrive au calendrier |
+
+La plupart des CRM du tableau suivant combinent les deux premiers : un complément pour retrouver les informations et une synchronisation côté serveur pour la complétude. Le troisième type convient aux équipes dont les conversations clients sont réparties entre l’e-mail et des canaux de discussion, car le CRM les montre alors toutes dans une seule liste.
+
+## Ce que proposent les CRM courants pour Outlook
+
+| CRM | Dans Outlook | Synchronisation vers le CRM | À savoir |
+|---|---|---|---|
+| HubSpot | Complément HubSpot Sales Office 365 pour suivre et consigner les e-mails et utiliser les outils commerciaux de HubSpot dans la boîte de réception | Votre boîte de réception doit être connectée à HubSpot pour utiliser le complément | HubSpot indique le complément pour tous les produits et toutes les offres. Son article d’aide cite Outlook pour Windows classique et nouveau, Outlook pour Mac classique et nouveau, et Outlook sur le web |
+| Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook sur ordinateur, web et mobile : relie des e-mails, des réunions et des rendez-vous à un compte, à une opportunité ou à une demande | La synchronisation côté serveur s’exécute en arrière-plan environ toutes les 15 minutes ; les contacts peuvent se synchroniser entre Exchange et Dynamics 365 | Non pris en charge sur les boîtes aux lettres partagées Microsoft 365. Sales Professional est affiché à 65 $ par utilisateur et par mois, facturé annuellement |
+| Salesforce | L’intégration Outlook, un panneau latéral dans Outlook | Einstein Activity Capture pour la synchronisation des e-mails et des événements | Salesforce for Outlook, l’ancien produit de bureau, est en cours de retrait ; Salesforce recommande à la place l’intégration Outlook et Einstein Activity Capture |
+| Pipedrive | Pipedrive for Outlook, une application de la Marketplace développée par Baymats AB, pour ordinateur et web ; essai gratuit de 7 jours, puis abonnement payant | Synchronisation des e-mails à partir de Growth, avec Office 365 / Outlook, Exchange (EWS) et IMAP ; relie les conversations à des affaires, à des prospects ou à des projets | La synchronisation des e-mails propose aussi le suivi des ouvertures. Le complément est un produit tiers avec son propre abonnement |
+| Customermates | Aucun complément | Boîte aux lettres Outlook dans la boîte de réception du CRM à partir de Pro dans Customermates Cloud ; calendrier en lecture seule | Pas de synchronisation des contacts Outlook ni d’écriture dans le calendrier. Détails dans les sections suivantes |
+
+Les prix changent ; le prix de Dynamics 365 a été vérifié le 8 octobre 2026 sur la [page des tarifs de Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
+
+## La vérification du nouvel Outlook pour Windows
+
+La documentation destinée aux développeurs de Microsoft est explicite : les compléments VSTO et COM ne sont pas pris en charge dans le nouvel Outlook sur Windows, et les éditeurs doivent migrer vers un complément web Outlook. Outlook classique sur Windows continue de les exécuter. Lorsqu’un utilisateur passe au nouveau client, Outlook installe des équivalents web des compléments COM existants lorsqu’ils existent.
+
+Deux détails de la même page comptent pour les acheteurs de CRM. Microsoft cite les « services de CRM et de suivi » comme un scénario pris en charge pour les compléments web. Il cite le « service de synchronisation de données », la synchronisation bidirectionnelle des éléments de messagerie, comme seulement partiellement pris en charge. Et le nouveau client exige pour l’instant un compte professionnel ou scolaire Microsoft 365 sur Exchange Online ; les comptes Exchange sur site, hybrides et souverains ne sont pas encore pris en charge.
+
+En pratique : si votre équipe passe au nouvel Outlook, demandez à chaque éditeur si son complément est un complément web, et testez-le dans le nouveau client avant de migrer. La synchronisation côté serveur et la boîte aux lettres dans le CRM ne dépendent pas du tout du client Outlook.
+
+## Quelle approche convient
+
+| Votre situation | À rechercher |
+|---|---|
+| L’équipe travaille dans Outlook toute la journée et ne veut pas d’une seconde fenêtre | Un complément qui fonctionne dans tous vos clients Outlook, plus une synchronisation côté serveur |
+| Vous êtes sur Microsoft 365 avec un administrateur informatique, Teams et Dataverse | Dynamics 365 Sales ; c’est le CRM de Microsoft et son App for Outlook repose sur la synchronisation côté serveur |
+| Il faut que les contacts Outlook et ceux du CRM restent identiques | Un CRM avec synchronisation bidirectionnelle des contacts, testée d’abord avec votre carnet d’adresses |
+| La plupart des conversations clients se font par e-mail, plus LinkedIn ou WhatsApp | Un CRM qui importe la boîte aux lettres dans une boîte de réception partagée avec ces canaux |
+| Une boîte d’équipe comme sales@ doit être visible par plusieurs personnes | Vérifiez explicitement la prise en charge des boîtes aux lettres partagées ; la Dynamics 365 App for Outlook, par exemple, ne prend pas en charge les boîtes aux lettres partagées Microsoft 365 |
+| Vous passez au nouvel Outlook pour Windows | Des compléments web uniquement, ou une approche qui n’a pas besoin de complément |
+
+## Comment fonctionne Outlook dans Customermates
+
+Customermates emprunte la troisième voie. À partir de Pro dans Customermates Cloud, un compte Outlook connecté alimente la [boîte de réception unifiée](/features/unified-inbox), à côté de LinkedIn, WhatsApp, Instagram et Telegram. Vous continuez à utiliser Outlook quand vous le souhaitez ; le courrier que vous y envoyez arrive quand même dans le fil du CRM. La [page de l’intégration Outlook](/features/outlook-integration) liste précisément ce qui se synchronise.
+
+<Steps>
+  <Step title="Connecter le compte">Ouvrez **Paramètres › Canaux**, cliquez sur **Connecter un canal** et choisissez **Outlook**. Vous vous connectez sur une page de connexion sécurisée, et l’historique de la boîte aux lettres s’importe en arrière-plan. La carte indique si l’e-mail, le calendrier ou les deux sont connectés.</Step>
+  <Step title="Choisir les dossiers">L’onglet **Dossiers** du compte comporte un interrupteur par dossier. Par défaut, tous les dossiers sont activés, sauf la corbeille, les courriers indésirables ou le spam, les brouillons et le dossier de tout le courrier. Désactivez les dossiers contenant du courrier privé.</Step>
+  <Step title="Lier les personnes à des contacts">Dans une conversation, ouvrez les **Paramètres de la conversation** et cliquez sur **Lier** à côté d’un participant, ou créez le contact à partir de là. L’adresse est ajoutée au contact, de sorte que chaque conversation avec cette adresse apparaît dans la chronologie de ce contact.</Step>
+  <Step title="Définir la signature">Dans l’onglet **E-mail** du compte, activez **Ajouter une signature**. Elle est ajoutée à chaque e-mail envoyé depuis ce compte, que ce soit depuis la boîte de réception, l’API REST ou MCP.</Step>
+  <Step title="Décider de ce que l’équipe voit">Un nouveau compte est privé. Avec Pro, vous partagez des conversations une par une ; avec Business, vous pouvez partager le compte entier, par exemple une boîte sales@, avec toutes les personnes dont le rôle peut lire la boîte de réception.</Step>
+</Steps>
+
+Ce qui se synchronise ensuite, et ce qui ne se synchronise pas :
+
+| Objet Outlook | Dans Customermates |
+|---|---|
+| E-mails envoyés et reçus | Oui, depuis les dossiers que vous avez activés. Les réponses partent du compte Outlook lui-même |
+| Déplacer un e-mail dans un dossier | Oui, pour les comptes Outlook et IMAP, le déplacement se fait aussi dans la vraie boîte aux lettres |
+| Événements du calendrier | En lecture seule. Les réunions apparaissent dans la chronologie d’activité ; Customermates ne crée, ne modifie ni ne réserve d’événements |
+| Contacts Outlook (carnet d’adresses) | Non synchronisés, dans aucun sens. Les contacts sont créés en liant un participant ou dans le CRM |
+| Tâches Outlook | Non synchronisées |
+
+Le [guide de la boîte de réception](/docs/app-inbox) détaille les droits, les brouillons et les filtres.
+
+### Confier la suite à Mate ou à votre propre client IA
+
+Dans Customermates Cloud, Mate peut résumer un fil ou rédiger une réponse, et il utilise des crédits d’IA hébergée. Une routine exécute une instruction enregistrée lorsque quelque chose se produit. Pour le courrier Outlook, créez une routine avec le déclencheur **Quand quelque chose change**, choisissez l’événement **E-mail reçu** et rédigez des instructions comme celles-ci :
+
+> Lorsqu’un e-mail arrive d’un contact qui a une affaire ouverte qui m’est attribuée, lisez le fil et l’affaire. Enregistrez dans le fil un brouillon de réponse qui répond à la question en suspens. N’envoyez rien. Si l’e-mail demande une réunion, dites-le dans le brouillon au lieu de proposer des horaires.
+
+La phrase « n’envoie rien » compte. Une routine s’exécute en tant que son propriétaire, avec les canaux de celui-ci, et Mate envoie un e-mail sans redemander lorsqu’une instruction lui dit d’envoyer. La page [Routines](/docs/app-routines) liste les limites actuelles. Si vous préférez votre propre client IA, comme Claude ou ChatGPT, il peut lire des fils et enregistrer des brouillons via MCP et utilise votre propre fournisseur d’IA au lieu des crédits hébergés.
+
+### Ce que cela coûte
+
+Une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]] par mois. Chaque utilisateur dispose de [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté, ce qui suffit pour une boîte aux lettres Outlook par personne. Partager une boîte d’équipe entière demande Business, soit [[commercial.price.business.monthly.seats.5]] par mois pour les mêmes cinq personnes, avec [[commercial.entitlement.business.includedAccountsPerUser]] comptes par utilisateur. Starter, à [[commercial.price.starter.monthly]] par utilisateur, n’a ni boîte de réception ni connexion Outlook. Consultez les [tarifs](/pricing) pour les crédits d’IA hébergée mensuels par utilisateur actif.
+
+<AcquisitionCallout title="Là où Customermates ne convient pas" variant="boundary">
+Il n’y a pas de complément Outlook : les informations du CRM se consultent donc dans Customermates, pas dans un panneau latéral d’Outlook. Les contacts et les tâches Outlook ne se synchronisent pas, et les événements du calendrier sont en lecture seule. Customermates n’a ni séquences d’e-mails ni e-mailing en masse. Une installation auto-hébergée n’a ni boîte de réception ni connexion Outlook ; elle propose REST, les webhooks et MCP. Si votre équipe doit rester dans Outlook, ou a besoin d’une synchronisation bidirectionnelle des contacts avec le carnet d’adresses Exchange, choisissez un CRM doté d’un complément web et d’une synchronisation côté serveur, parmi ceux du tableau ci-dessus.
+</AcquisitionCallout>
+
+## Tester toute intégration Outlook avant de la déployer
+
+1. Envoyez un e-mail depuis Outlook à un contact connu. Il doit apparaître sur ce contact dans le délai de synchronisation annoncé par l’éditeur.
+2. Répondez depuis un téléphone. La réponse doit rejoindre le même fil, sans créer de nouveau contact.
+3. Écrivez à quelqu’un qui n’est pas dans le CRM. Vérifiez si le CRM crée un contact de lui-même, vous le demande ou ignore le message, et lequel de ces comportements vous voulez.
+4. Placez un e-mail privé dans un dossier que vous avez exclu. Il ne doit pas apparaître dans le CRM.
+5. Créez une réunion dans Outlook avec un client. Vérifiez où elle apparaît et si la modifier dans le CRM change Outlook.
+6. Ouvrez le complément, s’il y en a un, dans chaque client Outlook que votre équipe utilise, y compris le nouvel Outlook pour Windows.
+
+## Peut-on utiliser Outlook comme CRM ?
+
+Pour une poignée de clients, en partie. Outlook a des contacts, des catégories, des tâches et un calendrier, et un dossier par client mène étonnamment loin. Ce qui lui manque, c’est une affaire avec une étape et une valeur, une liste des affaires ouvertes par personne, et un historique qu’un collègue peut lire quand vous êtes absent. Le CRM de Microsoft est Dynamics 365 Sales, qui s’acquiert par une licence distincte de Microsoft 365. Dès que vous suivez plus que quelques affaires à la fois, un CRM connecté à Outlook demande moins de travail que des dossiers et des catégories.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Comment intégrer un CRM à Outlook ?">
+La plupart des CRM proposent deux parties. Connectez d’abord votre boîte aux lettres dans les paramètres du CRM pour que les e-mails se synchronisent sur le serveur. Installez ensuite le complément du CRM depuis la boutique de compléments d’Outlook, ou laissez votre administrateur Microsoft 365 le déployer pour tout le monde. Dans Customermates, il n’y a pas de complément : vous connectez le compte Outlook sous **Paramètres › Canaux** avec Pro ou supérieure, et le courrier apparaît dans la boîte de réception du CRM.
+</FaqItem>
+
+<FaqItem question="Outlook est-il un CRM, et Microsoft 365 en inclut-il un ?">
+Non. Outlook est un client de messagerie et de calendrier avec des contacts et des tâches, mais sans affaires, étapes ni pipeline. Le CRM de Microsoft est Dynamics 365 Sales, un abonnement distinct ; Microsoft affiche Sales Professional à 65 $ par utilisateur et par mois, facturé annuellement.
+</FaqItem>
+
+<FaqItem question="Les compléments CRM fonctionnent-ils dans le nouvel Outlook pour Windows ?">
+Seuls les compléments web fonctionnent. Microsoft indique que les compléments COM et VSTO ne sont pas pris en charge dans le nouvel Outlook sur Windows, alors qu’Outlook classique continue de les exécuter. Pour l’instant, le nouveau client exige aussi un compte professionnel ou scolaire Microsoft 365 sur Exchange Online.
+</FaqItem>
+
+<FaqItem question="Salesforce for Outlook est-il abandonné ?">
+Oui. Salesforce retire Salesforce for Outlook, son ancien produit de bureau, et recommande l’intégration Outlook (un panneau latéral dans Outlook) et Einstein Activity Capture pour la synchronisation des e-mails et des événements. Consultez les notes de version de Salesforce pour connaître la date qui s’applique à votre organisation.
+</FaqItem>
+
+<FaqItem question="HubSpot s’intègre-t-il à Outlook, et est-ce gratuit ?">
+Oui. Le complément HubSpot Sales Office 365 suit et consigne les e-mails et apporte les outils commerciaux de HubSpot dans Outlook. HubSpot l’indique comme disponible avec tous les produits et toutes les offres, et son article d’aide ne mentionne aucun frais distinct pour le complément. Votre boîte de réception doit d’abord être connectée à HubSpot.
+</FaqItem>
+
+<FaqItem question="Les contacts du CRM peuvent-ils se synchroniser avec les contacts Outlook ?">
+Certains CRM le font. Dynamics 365 synchronise par exemple les contacts entre Exchange et l’application. Pas Customermates : il associe les conversations aux contacts par adresse e-mail, et vous liez ou créez les contacts dans le CRM.
+</FaqItem>
+</Faq>
+
+Informations sur les éditeurs vérifiées le 8 octobre 2026 auprès de : [guide du complément Office 365 de HubSpot](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in), de Microsoft, avec l'[aperçu de Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), les [prérequis de App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/support-info-deployment), les [tarifs de Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) et les [compléments dans le nouvel Outlook sur Windows](https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/one-outlook), de Salesforce avec son [guide de préparation au retrait](https://help.salesforce.com/s/articleView?id=sales.outlookcrm_sfo_move_retire_prepare.htm&language=en_US&type=5), et de Pipedrive avec son [article sur la synchronisation des e-mails](https://support.pipedrive.com/en/article/email-sync) et la [fiche Pipedrive for Outlook](https://www.pipedrive.com/en/marketplace/app/pipedrive-for-outlook/594c78d1bdbacfbc).

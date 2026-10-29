@@ -3242,6 +3242,7 @@
     "navigation": "Registro de auditoría",
     "values": {
       "action": {
+        "adConversionUpload": "Carga de conversiones publicitarias a Google Ads",
         "auditRead": "Auditoría de operador leída",
         "candidateRead": "Candidato de operador leído",
         "companyRead": "Espacio de trabajo leído",
@@ -3295,6 +3296,16 @@
       "googleAds": "CSV de Google Ads",
       "label": "Conversiones publicitarias",
       "rowCount": "{count} conversiones notificables",
+      "upload": "Enviar a Google Ads",
+      "uploadAmbiguous": "La respuesta de Google para {count} conversiones no fue clara. No se volverán a enviar automáticamente; revisa primero la carga en Google Ads.",
+      "uploadAuthorizationFailed": "Google no aceptó las credenciales de carga. No se envió nada.",
+      "uploadDisabled": "La carga a Google Ads está desactivada en esta instancia. No se envió nada.",
+      "uploadIncomplete": "A la carga a Google Ads le falta configuración: {names}. No se envió nada.",
+      "uploadNothing": "Ninguna conversión espera ser enviada. Ya enviadas: {count}",
+      "uploadRejected": "Google rechazó {count} conversiones. Se pueden volver a enviar cuando se corrija la causa.",
+      "uploadSubmitted": "Google recibió {count} conversiones para procesarlas. Revisa la importación más tarde en Google Ads.",
+      "uploadUnavailable": "No se pudo contactar con Google para la carga. No se envió nada; inténtalo más tarde.",
+      "uploadValidated": "Solo validación: Google revisó {count} conversiones y no importó ninguna.",
       "withoutColumnCount": "Conversiones de Google excluidas de este archivo: {count}. Su clic llevaba un identificador gbraid o wbraid, para el que la plantilla de carga de Google no tiene columna."
     },
     "growth": {

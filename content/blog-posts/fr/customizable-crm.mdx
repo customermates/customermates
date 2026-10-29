@@ -1,0 +1,175 @@
+---
+title: "CRM personnalisable : en adapter un ou créer le vôtre ?"
+description: "Ce qu’un CRM personnalisable permet de changer, où les éditeurs placent les objets personnalisés et quand créer son propre CRM se justifie. Avec un exemple."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
+
+hero:
+  title: "CRM personnalisable : ce que vous pouvez changer, et quand créer le vôtre"
+  description: "La plupart des petites équipes ont besoin d’un CRM dont elles peuvent remodeler les champs, les étapes et les vues, pas d’un CRM écrit de zéro. Voici comment distinguer les deux, où les éditeurs placent la limite, et à quoi ressemble une configuration concrète."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-04-27
+  updated: 2026-10-28
+  tags:
+    - CRM personnalisable
+    - CRM sur mesure
+    - Champs personnalisés
+    - CRM open source
+---
+
+# CRM personnalisable : ce que vous pouvez changer, et quand créer le vôtre
+
+Un CRM personnalisable est un CRM prêt à l’emploi dans lequel vous modifiez vous-même le modèle de données, le pipeline et les vues, sans écrire de code. Pour la plupart des petites équipes, cela suffit : des champs personnalisés, vos propres étapes d’affaires et des vues enregistrées couvrent la façon dont travaille réellement un cabinet de conseil, une agence ou une entreprise de services. Créer votre propre CRM n’est rentable que si vous avez besoin de types d’enregistrements qu’aucun produit n’offre, et les options réalistes sont alors un CRM avec objets personnalisés ou une base de données no-code, plutôt que du code écrit de zéro.
+
+La question décisive est étroite. Avez-vous besoin de nouveaux types d’enregistrements, ou de nouveaux champs sur les types habituels ? Le reste de cette page vous aide à y répondre avant de payer une offre.
+
+Customermates publie cet article et fait partie des produits qu’il décrit.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Personnalisable ou sur mesure">Personnalisable signifie que vous configurez un produit fini. Sur mesure signifie que vous construisez et maintenez le système vous-même, avec du code ou une plateforme no-code.</SummaryItem>
+  <SummaryItem label="Où se situe la limite">Les champs personnalisés sont la norme. Les objets personnalisés (nouveaux types d’enregistrements) sont l’endroit où les éditeurs se distinguent selon l’offre : HubSpot exige un abonnement Enterprise, Zoho CRM inclut des modules personnalisés dans chaque édition payante, avec une limite par édition.</SummaryItem>
+  <SummaryItem label="Customermates">Démarre sans listes : vous créez les vôtres, avec un renommage libre, 16 types de champs, des relations, des champs calculés, vos propres étapes avec pondérations, des vues enregistrées personnelles, REST, des webhooks et MCP.</SummaryItem>
+  <SummaryItem label="Créer le vôtre">À envisager quand vos enregistrements ne correspondent pas à des contacts, des entreprises et des affaires. Sinon, vous prenez en charge l’authentification, les droits, la synchronisation des e-mails et l’import pour un gain minime.</SummaryItem>
+</ArticleSummary>
+
+Commencez par le parcours client : le [CRM pour petite entreprise](/for/smb) et le [CRM pour agences](/for/agencies) montrent deux façons différentes d’organiser le travail. Si un assistant doit utiliser ces enregistrements, vérifiez les droits dans le [guide du CRM IA](/blog/ai-crm) ; utilisez la [comparaison des CRM](/compare) quand la modification nécessaire dépasse le périmètre d’un produit.
+
+## Ce que couvre « personnalisable », couche par couche
+
+Les éditeurs emploient ce mot pour des profondeurs très différentes. Découpez-le en couches et testez chacune pendant un essai :
+
+| Couche | Ce que cela signifie | Comment la tester pendant un essai |
+|---|---|---|
+| Champs personnalisés | De nouveaux champs sur les enregistrements existants : une date, un montant, une liste déroulante | Ajoutez les cinq champs que vous renseigneriez vraiment. Vérifiez que les filtres et le tri fonctionnent dessus. |
+| Pipeline et étapes | Vos propres noms d’étapes, plusieurs pipelines, des probabilités par étape | Reconstruisez vos étapes de vente actuelles. Regardez si une étape est un champ système fixe ou quelque chose que vous définissez. |
+| Nommage | Appeler les affaires « Projets » ou les contacts « Clients » | Renommez et vérifiez que le nouveau libellé apparaît dans les listes, les formulaires et les exports. |
+| Vues | Filtres, tris, regroupements enregistrés, board ou tableau | Enregistrez trois vues. Vérifiez si vos collègues peuvent les voir ou si vous seul le pouvez. |
+| Objets personnalisés | De nouveaux types d’enregistrements avec leurs propres champs et relations, comme « Bien » ou « Contrat » | Demandez quelle offre les inclut et combien. C’est la montée en gamme la plus courante. |
+| Automatisation et accès | Déclencheurs sur des changements de champs, API, webhooks, rôles | Déclenchez un webhook sur un champ modifié. Lisez et écrivez un enregistrement via l’API. |
+
+Deux couches décident de la plupart des achats : les champs personnalisés et les objets personnalisés. Les types de champs comptent plus que leur nombre. Une liste déroulante garde les données cohérentes ; le texte libre dérive dès que plusieurs personnes y écrivent.
+
+## Où les éditeurs placent les objets personnalisés
+
+Les objets personnalisés constituent la ligne de partage la plus nette entre les offres. Voici les déclarations des éditeurs eux-mêmes :
+
+| Produit | Objets personnalisés | Source |
+|---|---|---|
+| HubSpot | Disponibles avec les abonnements Enterprise (Sales Hub, Marketing Hub, Service Hub et autres hubs Enterprise) | [Base de connaissances HubSpot](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Modules personnalisés dans chaque édition payante : 10 en Standard, 25 en Professional, 200 en Enterprise, 500 en Ultimate ; aucun en Free | [Comparatif des éditions de Zoho CRM](https://www.zoho.com/crm/complete-feature-list.html) |
+| Attio | Free jusqu’à 3, Plus jusqu’à 5, Pro jusqu’à 12, Enterprise illimité | [Tarifs d’Attio](https://attio.com/pricing) |
+| Twenty | Illimités avec Pro, Organization et Enterprise ; le cœur open source peut être auto-hébergé | [Tarifs de Twenty](https://twenty.com/pricing) |
+| EspoCRM | Entity Manager crée des entités, des champs et des relations personnalisés ; open source | [Fonctions d’EspoCRM](https://www.espocrm.com/features/) |
+| Pipedrive | La page d’aide citée couvre les champs personnalisés sur les leads, les affaires, les personnes, les organisations, les produits et les projets ; le nombre de champs dépend de l’offre | [Support Pipedrive](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | Vos propres listes avec champs, relations et champs calculés ; un nouvel espace de travail démarre sans listes | [Modèle de données de Customermates](/docs/concepts) |
+
+Informations sur les éditeurs vérifiées le 8 octobre 2026 sur les pages officielles liées, Zoho CRM de nouveau le 28 octobre 2026. Les offres changent : confirmez le niveau dont vous avez besoin sur le site de l’éditeur avant d’acheter.
+
+Si vous avez besoin d’un enregistrement « Bien » lié à plusieurs propriétaires et locataires, ou d’un enregistrement « Contrat » avec son propre cycle de vie, choisissez un produit qui inclut les objets personnalisés dans l’offre que vous pouvez vous permettre. Si votre activité, ce sont des personnes, des entreprises, des opportunités et les services que vous vendez, les objets personnalisés sont généralement une montée en gamme dont vous n’avez pas besoin.
+
+## Adapter un produit, utiliser un outil no-code ou créer le vôtre
+
+| Choix | Quand | Ce que vous prenez en charge |
+|---|---|---|
+| Un CRM personnalisable | Votre travail, ce sont des personnes, des entreprises, des affaires et du suivi, plus des champs propres à votre métier | Composer avec le modèle d’enregistrements de l’éditeur et les limites de ses offres |
+| Un CRM avec objets personnalisés | Vous avez besoin d’un ou deux types d’enregistrements supplémentaires avec des relations, comme des biens ou des contrats | Une offre supérieure chez la plupart des éditeurs ; plus de configuration et plus à garder en ordre |
+| Une base de données no-code (Airtable, Knack, Caspio et similaires) | Votre modèle de données est vraiment inhabituel et change souvent | Vous concevez et maintenez tout : droits, capture des e-mails, import, les vues que votre équipe utilise |
+| Du code partant de zéro | Le CRM est votre produit, ou il doit être profondément intégré à votre propre logiciel | Authentification, rôles, synchronisation des e-mails et de l’agenda, recherche, historique d’audit, import et export, sauvegardes, mises à jour de sécurité, aussi longtemps qu’il tourne |
+
+Personne ne peut vous donner un prix fixe honnête pour un CRM sur mesure sans cahier des charges. Le coût que l’on sous-estime n’est pas la première version : ce sont les années de maintenance, car chaque fonction qu’un CRM en location propose devient votre arriéré. Avant de commander un développement, notez les types d’enregistrements que votre outil actuel ne peut pas représenter. Si la liste est vide, il vous faut un CRM mieux configuré, pas un nouveau.
+
+Une voie intermédiaire est apparue : partir d’un CRM doté d’une API complète et laisser un client IA faire le travail sur mesure par-dessus. Avec un CRM open source qui expose REST, des webhooks et un serveur MCP, un petit script ou un client IA peut couvrir le seul flux de travail qui vous est propre, pendant que l’éditeur maintient tout le reste.
+
+## Une configuration détaillée dans Customermates
+
+Voici comment un cabinet de conseil de cinq personnes façonnerait Customermates selon son processus. Chaque étape est de la configuration, sans code.
+
+<Steps>
+  <Step title="Renommer les listes">
+    Dans **Configurer**, ouvrez une liste et modifiez **Nom** et **Nom au pluriel** sous **Général** : les Contacts deviennent **Clients**, les Affaires deviennent **Projets**, les Services deviennent **Forfaits**. Tous les noms sont possibles, et les enregistrements, les liens, les vues et les références d’API restent connectés ; voir la [documentation des paramètres de l’espace de travail](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+  </Step>
+  <Step title="Définir le champ d’étape">
+    Les étapes ne sont pas prédéfinies. Dans Configurer pour les Affaires, ajoutez un champ à choix unique **Étape** (dans le cloud, la configuration IA peut le créer) avec des options qui correspondent à vos étapes de vente, par exemple Demande, Appel de cadrage, Proposition envoyée, Signée, Perdue. Réglez **Probabilité %** sur chaque option, et chaque affaire reçoit une valeur pondérée à partir de ces pourcentages fixes ; un widget graphique du **Tableau de bord** qui additionne la **Valeur pondérée** par étape affiche le total pondéré du pipeline.
+  </Step>
+  <Step title="Ajouter des champs personnalisés là où ils éclairent une décision">
+    Sur les Projets : **Type de mission** (Choix unique : mission récurrente, périmètre fixe, atelier), **Taux journalier** (Montant), **Renouvellement du contrat** (Date). Sur les Clients : **Source** (Choix unique) et **Adresse du bureau** (Adresse) ; les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées. Seize types de champs et des champs calculés sont disponibles, listés dans la [documentation du modèle de données](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Enregistrer les vues dont chacun se sert">
+    Un board des Projets regroupés par Étape, un tableau des missions récurrentes trié par **Renouvellement du contrat**, et une liste de Clients regroupés par **Source**. Les vues enregistrées sont personnelles : chaque collègue règle les mêmes filtres et enregistre sa propre vue.
+  </Step>
+  <Step title="Importer les données existantes">
+    Exportez chaque feuille de votre ancien outil sous forme de classeur Excel et importez une liste à la fois, d’abord les Clients, puis les Projets, en associant les colonnes à vos nouveaux champs personnalisés. La [documentation des enregistrements](/docs/app-records#how-do-i-import-or-export-records) donne les limites de fichiers.
+  </Step>
+  <Step title="Automatiser une étape (Customermates Cloud)">
+    Une routine sur l’événement **Enregistrement mis à jour** pour les Projets, qui surveille uniquement le champ **Étape** et filtre sur Proposition envoyée : « Rédige une courte relance au contact principal du client en faisant référence à la proposition. Enregistre-la comme brouillon, ne l’envoie pas. » Les routines font travailler Mate, utilisent des crédits IA hébergés et s’exécutent au nom de leur propriétaire. Sans la ligne « ne l’envoie pas », une routine peut envoyer le message elle-même. Voir les [routines](/docs/app-routines).
+  </Step>
+</Steps>
+
+Les conversations connectées par e-mail, LinkedIn et WhatsApp apparaissent à côté de ces enregistrements dans la [boîte de réception unifiée](/features/unified-inbox) à partir de Pro. Starter n’a pas de boîte de réception. Si vous travaillez avec Claude, ChatGPT ou un autre client IA, il lit et écrit les mêmes enregistrements, y compris vos champs personnalisés, via [MCP](/docs/mcp) avec [[derived.mcp.tools.total]] outils.
+
+## Ce que Customermates ne vous laisse pas personnaliser
+
+Ces limites comptent si vous comparez des CRM personnalisables :
+
+- **Les droits s’arrêtent à la liste.** Les rôles contrôlent la création, la lecture, la modification et la suppression par liste, y compris « uniquement les enregistrements qui me sont assignés ». Il n’y a pas de droits au niveau du champ.
+- **Les vues enregistrées sont personnelles.** Il n’y a pas de vues d’équipe partagées.
+- **Pas d’étiquettes.** Utilisez plutôt un champ à choix unique, qui garde aussi les valeurs cohérentes.
+- **Les tâches n’ont pas d’échéance intégrée.** Ajoutez un champ Date et triez dessus ; rien ne vous alerte quand cette date passe.
+- **L’import et l’export se font liste par liste**, sous forme de classeurs Excel ou de JSON, jusqu’à 5 000 enregistrements par export. Il n’y a pas d’export de tout le compte.
+
+Pour l’auto-hébergement, le cœur open source comprend les enregistrements, les champs personnalisés, les vues, les rôles, REST, les [webhooks](/docs/webhooks) et MCP. La boîte de réception, Mate et les routines sont réservés au cloud. Les détails figurent sur la [page de l’auto-hébergement](/features/self-hosted).
+
+## Ce que cela coûte à exploiter
+
+Customermates est facturé par utilisateur et par mois, au mois uniquement. Pour le cabinet de conseil de cinq personnes ci-dessus :
+
+| Offre | Cinq utilisateurs par mois | Ce que la configuration ci-dessus utilise |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Champs personnalisés, étapes, vues, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Tout ce qui précède, plus la boîte de réception unifiée avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur et [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur |
+
+Une année sur Pro pour cinq personnes revient à [[commercial.price.pro.monthly.seats.5.months.12]]. Chaque offre inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate ; voir les [tarifs](/pricing). L’auto-hébergement n’a pas de frais de licence pour le cœur open source ; vous payez votre propre serveur et le temps pour l’exploiter.
+
+## Garder un CRM personnalisé utilisable
+
+La personnalisation échoue plus souvent par trop de champs que par trop peu. Trois règles aident :
+
+1. N’ajoutez un champ que si quelqu’un filtre, trie ou décide à partir de lui. Les champs « qui pourraient servir » restent vides.
+2. Préférez un choix unique au texte libre pour tout ce que vous regrouperez plus tard.
+3. Chaque trimestre, supprimez les champs que personne n’a renseignés. Dans Customermates, un champ supprimé reste 30 jours dans la Corbeille, puis perd définitivement ses valeurs : exportez donc d’abord en cas de doute.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Quelle est la différence entre un CRM personnalisable et un CRM sur mesure ?">
+Un CRM personnalisable est un produit fini que vous adaptez avec des champs, des étapes, des vues et de l’automatisation, et que l’éditeur maintient. Un CRM sur mesure est un logiciel construit pour vous, avec du code ou une plateforme no-code, et c’est vous qui le maintenez. Le personnalisable est plus rapide et moins cher pour la plupart des petites équipes ; le sur mesure ne se justifie que si aucun produit ne peut représenter vos enregistrements.
+</FaqItem>
+
+<FaqItem question="Puis-je créer mon propre CRM ?">
+Oui. Une base de données no-code comme Airtable, Knack ou Caspio peut vous donner rapidement une première version fonctionnelle si votre processus est clair. En coder un de zéro est un long projet, car vous construisez aussi la connexion, les rôles, la synchronisation des e-mails, la recherche, l’import et les sauvegardes. Si vos enregistrements sont des personnes, des entreprises et des affaires, configurer un CRM existant vous mène plus loin pour moins cher.
+</FaqItem>
+
+<FaqItem question="Combien coûte un CRM sur mesure ?">
+Cela dépend du cahier des charges : méfiez-vous donc de tout chiffre fixe. Comptez la maintenance, pas seulement la première version : mises à jour de sécurité, hébergement, sauvegardes et chaque fonction que vous auriez sinon obtenue d’un éditeur. À titre de comparaison, cinq utilisateurs sur Customermates Pro coûtent [[commercial.price.pro.monthly.seats.5]] par mois, soit [[commercial.price.pro.monthly.seats.5.months.12]] sur douze mois, et les autres éditeurs publient leurs prix sur leurs pages de tarifs.
+</FaqItem>
+
+<FaqItem question="Puis-je créer un CRM dans Excel ?">
+Pour une personne et quelques centaines de contacts, oui. Cela ne tient plus quand plusieurs personnes modifient en même temps, quand il faut des liens entre clients et projets, ou quand les conversations doivent se trouver à côté de l’enregistrement. Notre [guide du modèle de CRM Excel](/blog/excel-crm-template) présente une structure utilisable et le moment de passer à autre chose. Customermates importe des classeurs Excel, une liste à la fois.
+</FaqItem>
+
+<FaqItem question="Quel CRM offre le modèle de données le plus souple pour les objets personnalisés ?">
+Parmi les produits vérifiés ici, Twenty inclut des objets personnalisés illimités dans ses offres Pro, Organization et Enterprise, Attio en autorise jusqu’à 12 avec Pro et un nombre illimité avec Enterprise, EspoCRM crée des entités personnalisées dans son Entity Manager, HubSpot réserve les objets personnalisés aux niveaux Enterprise, et Zoho CRM autorise de 10 à 500 modules personnalisés selon l’édition payante. Dans Customermates, vous ajoutez vos propres listes avec champs et relations dans Configurer.
+</FaqItem>
+
+<FaqItem question="Puis-je garder les données de mon CRM sur mon propre serveur ?">
+Oui, avec un CRM auto-hébergeable. Customermates, Twenty et EspoCRM peuvent tous fonctionner sur votre propre infrastructure. Avec Customermates, la version auto-hébergée fonctionne avec Docker Compose et comprend les champs personnalisés, les vues, REST, les webhooks et MCP, mais pas la boîte de réception, Mate ni les routines. Voir le [guide du CRM open source](/blog/open-source-crm) pour les compromis.
+</FaqItem>
+</Faq>

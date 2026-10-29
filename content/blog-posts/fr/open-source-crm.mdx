@@ -1,0 +1,301 @@
+---
+title: "CRM open source : comparer les options auto-hébergées"
+description: "Comparez les CRM open source par licence, déploiement, exploitation, périmètre et intégrations. Voyez la limite exacte de Customermates auto-hébergé."
+
+acquisition:
+  locale: fr
+  slug: open-source-crm
+  clusterId: open-source-self-hosted
+  role: support
+  primaryIntent: Comparatif de CRM open source
+  metadata:
+    title: "CRM open source : comparer les options auto-hébergées"
+    description: "Comparez les CRM open source par licence, déploiement, exploitation, périmètre et intégrations. Voyez la limite exacte de Customermates auto-hébergé."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: Évaluer Customermates comme CRM open source
+    description: Essayez le CRM cloud géré ou examinez l’édition auto-hébergée avec son cœur AGPL, Docker et PostgreSQL. L’auto-hébergement offre les fonctions de Starter et n’inclut ni la boîte de réception hébergée ni Mate.
+    buttonLeftText: Essayer le cloud géré
+    buttonLeftHref: /auth/signup
+    buttonRightText: Voir l’auto-hébergement
+    buttonRightHref: /features/self-hosted
+    hint: "Gratuit pendant [[commercial.trial.days]] jours • Auto-hébergement : fonctions de Starter, sans boîte de réception hébergée ni Mate"
+  relatedHrefs:
+    - /features/open-source-crm
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /compare/twenty-alternative
+  visual:
+    id: acquisition.open-source-crm.fr
+    locale: fr
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM open source : comparez ce que vous pouvez réellement exploiter"
+      body: "Une comparaison utile part de la licence, des limites de l’édition, du déploiement, de l’effort d’exploitation et du périmètre du produit, plutôt que d’un tableau de fonctions copié sur les pages des éditeurs."
+      checksum: fnv1a-00d0fa6d
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "L’application auto-hébergée et PostgreSQL forment un seul périmètre de déploiement que vous pouvez exploiter."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "L’application auto-hébergée et PostgreSQL forment un seul périmètre de déploiement que vous pouvez exploiter."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:agpl-community-core
+    focalLabel:
+      locale: fr
+      text: App auto-hébergée
+    semanticLabels:
+      - locale: fr
+        text: Cœur AGPL
+      - locale: fr
+        text: PostgreSQL
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: source-code
+        form: context-card
+      - id: postgresql
+        form: context-card
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - Article
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "CRM open source : comparez ce que vous pouvez réellement exploiter"
+  description: Une comparaison utile part de la licence, des limites de l’édition, du déploiement, de l’effort d’exploitation et du périmètre du produit, plutôt que d’un tableau de fonctions copié sur les pages des éditeurs.
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-03-01
+  updated: 2026-10-16
+  tags:
+    - Open source
+    - CRM
+    - Auto-hébergement
+    - Docker
+---
+
+# CRM open source : comparer les options auto-hébergées
+
+Le meilleur **CRM open source** est celui dont la licence, la voie d’auto-hébergement, l’effort d’exploitation et le périmètre CRM correspondent à votre équipe. « Source available », « open core » et « open source » ne sont pas interchangeables, et une longue liste de fonctions dit peu de ce que vous pouvez légalement exploiter ou réellement maintenir.
+
+Ce guide s’appuie sur un cadre d’évaluation durable plutôt que sur un classement de projets d’après des prix, des nombres d’étoiles ou des affirmations de fonctions non sourcées qui changent. Transparence : Customermates publie cette comparaison et fait partie des produits discutés ci-dessous.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Commencer par">
+    La licence et la limite d’édition du code exact que vous comptez exploiter,
+    pas l’étiquette du dépôt.
+  </SummaryItem>
+  <SummaryItem label="Vérifier ensuite">
+    Une voie de déploiement maintenue, le modèle CRM, les interfaces, la voie de
+    migration et le travail d’exploitation que votre équipe prendra en charge.
+  </SummaryItem>
+  <SummaryItem label="Considérer comme inconnu">
+    Toute fonction absente de la documentation officielle actuelle ou d’un
+    flux de travail que vous avez testé vous-même.
+  </SummaryItem>
+  <SummaryItem label="Transparence">
+    Customermates publie ce guide. Ses propres affirmations sont séparées de la
+    carte des sources des autres projets.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Dimensions de comparaison des CRM open source">
+  <ProofItem label="Licence">Droits et obligations</ProofItem>
+  <ProofItem label="Édition">Limite entre open source et commercial</ProofItem>
+  <ProofItem label="Déploiement">Voie d’exécution maintenue</ProofItem>
+  <ProofItem label="Exploitation">Sauvegardes, mises à jour et restauration</ProofItem>
+  <ProofItem label="Adéquation au besoin">Fiches, workflows et interfaces</ProofItem>
+</ProofRail>
+
+## Partir de la licence, pas de la page d’accueil
+
+Avant de comparer les fonctions, identifiez :
+
+- la licence attachée au code serveur et client exact dont vous avez besoin ;
+- les répertoires ou modules soumis à une licence commerciale distincte ;
+- les obligations déclenchées par la modification du logiciel ou sa mise à disposition sur un réseau ;
+- les restrictions de marque, distinctes de la licence du logiciel ; et
+- si le dépôt est l’édition complète exécutable ou seulement une partie de celle-ci.
+
+Un dépôt public n’accorde pas automatiquement des droits open source sur chaque fichier. Lisez les fichiers de licence de la version que vous comptez déployer et consultez un juriste quand les obligations comptent pour votre organisation.
+
+## Sept critères pour comparer les logiciels CRM open source
+
+| Critère | Ce qu’il faut vérifier |
+| --- | --- |
+| Limite de licence | Quel code est open source, lequel est commercial, et quelles obligations s’appliquent ? |
+| Déploiement | Existe-t-il une voie maintenue et documentée pour l’édition exacte dont vous avez besoin ? |
+| Exploitation | Qui prend en charge les mises à jour, les sauvegardes, la restauration, la supervision, TLS et la réponse aux incidents ? |
+| Modèle CRM | Couvre-t-il les contacts, organisations, opportunités, prestations et tâches que vous utilisez vraiment ? |
+| Interfaces | REST, webhooks ou interfaces d’agents sont-ils disponibles pour votre flux de travail ? |
+| Écart entre éditions | Quelles fonctions cloud ou entreprise disparaissent en auto-hébergement ? |
+| Migration | Existe-t-il une vraie voie d’import/export, ou faut-il en concevoir une via les API ou la base de données ? |
+
+Considérez une fonction non mesurée ou non documentée comme inconnue, pas comme incluse.
+
+## Une présélection sans faux classement
+
+Les recherches sur les CRM open source font remonter des projets de périmètres très différents. Customermates, SuiteCRM, EspoCRM et Twenty sont de bons points de départ pour une présélection fondée sur le code source. Odoo Community et CiviCRM peuvent être pertinents quand une suite de gestion plus large ou un contexte d’adhésion fait partie du besoin. Vérifiez la licence officielle actuelle, la limite d’édition, la documentation de déploiement et l’état de maintenance avant de décider. Comparaisons côte à côte : [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) et [Twenty](/compare/twenty-alternative).
+
+Pour le détail côte à côte de deux d’entre eux, voir les comparatifs [alternative à EspoCRM](/compare/espocrm-alternative) et [alternative à Twenty](/compare/twenty-alternative), qui listent licence, pile technique, tarifs, canaux et prise en charge de MCP d’après les pages officielles de chaque projet.
+
+Leur périmètre visé diffère. Certains se concentrent sur le CRM, d’autres s’intègrent à une suite de gestion plus large, et d’autres sont façonnés autour de flux associatifs ou d’adhésion. Un « numéro un » universel est donc moins utile qu’une présélection notée selon vos propres exigences.
+
+### Carte des sources officielles vérifiée le 28 août 2026
+
+| Projet | Éléments officiels actuels à examiner | Ce que cette source établit |
+| --- | --- | --- |
+| Customermates | [Licence AGPL du cœur](https://github.com/customermates/customermates/blob/main/LICENSE), [limite entre licence commerciale et matériel client AGPL](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) et [déploiement Compose](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | Les licences exactes du dépôt et le déploiement suivi : application plus PostgreSQL |
+| SuiteCRM | [Licence AGPL](https://docs.suitecrm.com/admin/licensing/) et [guide d’installation](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | La documentation indique AGPLv3 et présente une voie d’installation maintenue pour les administrateurs |
+| EspoCRM | [Dépôt et licence](https://github.com/espocrm/espocrm) et [installation Docker](https://docs.espocrm.com/administration/docker/installation/) | Une licence de code source publique et une voie de déploiement Docker officielle |
+| Twenty | [Licence](https://github.com/twentyhq/twenty/blob/main/LICENSE) et [guide Docker Compose](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Une licence de code source publique et une voie d’auto-hébergement Docker Compose officielle |
+
+Ce tableau est une carte des sources, pas un classement de produits ni une affirmation que les projets ont des éditions équivalentes. Ouvrez chaque licence et chaque source de déploiement dans la version que vous évaluez.
+
+<AcquisitionCallout
+  title="Un dépôt public est une preuve, pas toute la réponse"
+  variant="boundary"
+>
+  Confirmez la licence de chaque répertoire nécessaire, l’édition exacte
+  exécutable et les dépendances d’exploitation. L’accès au code source ne
+  prouve pas à lui seul que chaque fichier est open source ni que chaque
+  fonction cloud peut être auto-hébergée.
+</AcquisitionCallout>
+
+## Où se situe Customermates
+
+Customermates est un CRM open core pour les relations clients et les pipelines, conçu en Allemagne. Le matériel propre à l’éditeur en dehors de `ee/` est sous AGPL-3.0-only. Dans `ee/`, le matériel est sous licence commerciale, à l’exception du matériel client identifié comme AGPL-3.0-only dans la section 6 de `ee/LICENSE.md`.
+
+Le déploiement officiel du [CRM auto-hébergé](/features/self-hosted) contient l’application et PostgreSQL 16. L’édition auto-hébergée offre les fonctions de Starter.
+
+| Fonction de Customermates en auto-hébergement | Statut |
+| --- | --- |
+| Contacts, organisations, affaires, prestations et tâches | Inclus |
+| Champs personnalisés, vues tableau et Kanban | Inclus |
+| REST, webhooks et MCP | Inclus |
+| Clients IA externes via MCP | Inclus ; vous fournissez le client et le fournisseur |
+| Boîte de réception unifiée et comptes de messagerie | Non inclus |
+| Assistant Mate réservé au cloud et crédits hébergés | Non inclus |
+| Vue calendrier connectée en lecture seule | Non incluse |
+| Import et export de fiches en classeurs XLSX | Inclus, une liste à la fois |
+
+Customermates convient donc si vous voulez un CRM ciblé, un déploiement Docker/PostgreSQL et une interface MCP ouverte. Il ne convient pas si l’auto-hébergement doit inclure la boîte de réception du cloud géré, ou si vous avez besoin d’une suite PSA, de facturation ou de suivi du temps.
+
+Pour essayer Customermates vous-même, dans le cloud géré avec un essai gratuit ou en auto-hébergement avec Docker, consultez la page produit [CRM open source : cloud ou auto-hébergé](/features/open-source-crm).
+
+<ProductDemo hostedBoundary path="/dashboard" />
+
+## Open source et auto-hébergé ne sont pas la même chose
+
+Les deux termes sont souvent recherchés ensemble mais répondent à des questions différentes. **Open source** concerne les droits : ce que la licence vous permet d’inspecter, de modifier et de redistribuer. **Auto-hébergé** concerne l’exploitation : à qui appartiennent les serveurs qui font tourner l’application et la base de données. Un projet peut être open source et pourtant servir surtout comme service cloud, et un produit auto-hébergé peut être propriétaire. Ce guide traite des questions de licence et de présélection ; la page [CRM auto-hébergé](/features/self-hosted) traite du déploiement de Customermates lui-même, et le [guide du CRM agentique](/blog/agentic-crm) explique comment les clients IA travaillent avec lui via MCP.
+
+## L’auto-hébergement change qui exploite le système
+
+L’open source vous donne les permissions définies par la licence ; l’auto-hébergement vous donne la responsabilité de l’infrastructure. Ni l’un ni l’autre n’est une promesse automatique de sécurité, de conformité, de portabilité ou de faible coût.
+
+Votre équipe doit décider qui prendra en charge :
+
+- les mises à jour de l’application et de la base de données ;
+- les sauvegardes et la restauration testée ;
+- les contrôles réseau, TLS et les secrets ;
+- la supervision et la réponse aux incidents ;
+- la planification de la capacité et de la disponibilité ; et
+- chaque fournisseur connecté et son flux de données.
+
+Si vous voulez des détails de déploiement propres à Customermates, utilisez le [guide d’auto-hébergement](/docs/self-hosting). Ne copiez pas en production un guide Docker générique tiré d’un article comparatif.
+
+## Cloud ou CRM auto-hébergé
+
+Choisissez le cloud géré quand vous voulez que l’éditeur exploite l’application et que les fonctions réservées au cloud sont essentielles. Choisissez l’auto-hébergement quand la licence, la limite des fonctions de Starter et la responsabilité d’exploitation conviennent à votre équipe.
+
+Pour Customermates, la distinction est explicite : le CRM de base, REST, les webhooks et MCP peuvent être auto-hébergés ; la boîte de réception unifiée, la vue calendrier connectée, la fonction Mate hébergée et les crédits hébergés ne le peuvent pas.
+
+## Une liste de contrôle d’évaluation pratique
+
+<Steps>
+  <Step title="Définir le besoin">
+    Notez les fiches, les vues, les intégrations et les contraintes de
+    déploiement que le CRM doit prendre en charge.
+  </Step>
+  <Step title="Examiner la limite juridique">
+    Lisez la licence exacte et la limite d’édition de chaque finaliste et de
+    chaque version.
+  </Step>
+  <Step title="Suivre la voie officielle">
+    Suivez le guide de déploiement maintenu dans un environnement isolé.
+  </Step>
+  <Step title="Tester l’exploitation">
+    Vérifiez l’authentification, les permissions, les sauvegardes, la
+    restauration et les mises à jour au lieu de les déduire du discours
+    commercial.
+  </Step>
+  <Step title="Chiffrer le système entier">
+    Estimez ensemble l’infrastructure, les services externes et le temps de
+    l’exploitant.
+  </Step>
+  <Step title="Planifier la migration à part">
+    Concevez et validez une procédure de migration si le produit n’a pas de
+    flux d’import ou d’export dédié.
+  </Step>
+</Steps>
+
+[Voir la limite exacte de l’auto-hébergement de Customermates](/features/self-hosted) ou [inspecter le dépôt](https://github.com/customermates/customermates) avant de l’ajouter à votre présélection.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Que signifie CRM open source ?">
+Cela signifie que le code du CRM est proposé sous une licence open source qui accorde des droits définis d’utilisation, d’inspection, de modification et de redistribution, dans les limites de cette licence. Vérifiez les fichiers et l’édition exacts : un dépôt peut aussi contenir du code sous une licence distincte.
+</FaqItem>
+
+<FaqItem question="Un CRM open source est-il toujours gratuit à exploiter ?">
+  Non. Une licence peut ne pas facturer d’abonnement logiciel, mais
+  l’infrastructure, les sauvegardes, les mises à jour, la supervision, le travail
+  de sécurité et les fournisseurs externes coûtent toujours de l’argent et du
+  temps d’exploitation.
+</FaqItem>
+
+<FaqItem question="L’open source garantit-il la maîtrise des données ou la conformité au RGPD ?">
+  Non. L’auto-hébergement peut vous donner la maîtrise de l’application et de
+  l’emplacement de la base de données, mais la conformité et les flux de données
+  dépendent de la configuration, des fournisseurs connectés, des contrats, des
+  politiques et de l’exploitation.
+</FaqItem>
+
+<FaqItem question="Tout le code de Customermates est-il sous AGPL-3.0 ?">
+  Non. Le matériel propre à l’éditeur en dehors de `ee/` est sous AGPL-3.0-only.
+  Dans `ee/`, le matériel client identifié dans la section 6 de `ee/LICENSE.md`
+  est aussi sous AGPL-3.0-only ; le reste du matériel propre à l’éditeur utilise
+  la licence commerciale. Consultez les deux fichiers de licence pour la limite exacte.
+</FaqItem>
+
+<FaqItem question="Puis-je importer ou exporter des fiches CRM dans Customermates auto-hébergé ?">
+Oui. Les fiches entrent et sortent sous forme de classeurs XLSX, une liste à la fois, dans la limite des droits de lecture de l’utilisateur et de la vue en cours, avec des limites de lignes dans les deux sens. Le CSV n’est pas accepté : enregistrez d’abord les fichiers CSV en `.xlsx`. Pour tout le reste, comme les pièces jointes ou le transfert complet d’un compte, concevez une migration via l’API REST.
+</FaqItem>
+</Faq>

@@ -230,6 +230,7 @@ model Company {
   oauthAccessTokens           OauthAccessToken[]
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
+  adConversionUploads         AdConversionUpload[]
   inviteTokens                InviteToken[]
   widgets                     Widget[]
   userRoles                   UserRole[]
@@ -1962,6 +1963,40 @@ model ConversionEvent {
 enum ConversionEventType {
   signup
   paid
+}
+
+model AdConversionUpload {
+  id             String                   @id @default(uuid())
+  companyId      String
+  company        Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  batchId        String
+  provider       String                   @db.VarChar(32)
+  destination    String                   @db.VarChar(64)
+  conversionType ConversionEventType
+  orderId        String                   @db.VarChar(64)
+  mode           AdConversionUploadMode
+  status         AdConversionUploadStatus
+  httpStatus     Int?
+  errorStatus    String?                  @db.VarChar(64)
+  requestId      String?                  @db.VarChar(128)
+  attemptedAt    DateTime
+  settledAt      DateTime?
+
+  @@index([companyId])
+  @@index([batchId])
+  @@index([provider, mode, status])
+}
+
+enum AdConversionUploadMode {
+  validate
+  ingest
+}
+
+enum AdConversionUploadStatus {
+  sending
+  submitted
+  rejected
+  ambiguous
 }
 
 enum TrashKind {

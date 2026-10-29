@@ -6,6 +6,7 @@ vi.mock("../route-source-map", () => {
     ["pricing|de", { data: { description: "Pläne und Preise", title: "Preise" } }],
     ["pricing|fr", { data: { description: "Formules et tarifs", title: "Tarifs" } }],
     ["imprint|fr", { data: { description: "Mentions", title: "Mentions" } }],
+    ["pricing|it", { data: { description: "Piani e prezzi", title: "Prezzi" } }],
     ["auth/signup|en", { data: { description: "Create an account", title: "Sign up" } }],
     ["docs/openapi/contacts|en", { data: { description: "Contacts API", title: "Contacts" } }],
     ["best-crm|en", { data: { description: "", title: "Best CRM" } }],
@@ -51,6 +52,7 @@ describe("generateMetadataFromMeta", () => {
         languages: {
           de: `${BASE_URL}/de/pricing`,
           en: `${BASE_URL}/en/pricing`,
+          fr: `${BASE_URL}/fr/pricing`,
           "x-default": `${BASE_URL}/en/pricing`,
         },
       },
@@ -120,6 +122,7 @@ describe("generateMetadataFromMeta", () => {
       languages: {
         de: `${BASE_URL}/de/pricing?page=2`,
         en: `${BASE_URL}/en/pricing?page=2`,
+        fr: `${BASE_URL}/fr/pricing?page=2`,
         "x-default": `${BASE_URL}/en/pricing?page=2`,
       },
     });
@@ -177,11 +180,11 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("uses default-locale metadata for a noindex app route in a routing-only locale", () => {
-    const metadata = generateMetadataFromMeta({ locale: "fr", route: "/auth/signup" });
+    const metadata = generateMetadataFromMeta({ locale: "it", route: "/auth/signup" });
 
     expect(metadata.title).toBe("Sign up | Customermates");
     expect(metadata.description).toBe("Create an account");
-    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/fr/auth/signup` });
+    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/it/auth/signup` });
     expect(metadata.robots).toEqual({ follow: true, index: false });
   });
 
@@ -198,24 +201,31 @@ describe("generateMetadataFromMeta", () => {
   it("does not fall back to English for noindex content in an application-only locale", () => {
     expect(() =>
       generateMetadataFromMeta({
-        locale: "fr",
+        locale: "it",
         params: { slug: "contacts" },
         route: "/docs/openapi/:slug",
       }),
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
-  it("gives a published partial-locale page a self canonical and points it only at the indexable locales", () => {
+  it("gives a French page a self canonical and reciprocal alternates like any content locale", () => {
     const metadata = generateMetadataFromMeta({ locale: "fr", route: "/pricing" });
     expect(metadata.alternates?.canonical).toBe(`${BASE_URL}/fr/pricing`);
     expect(metadata.alternates?.languages).toEqual({
       de: `${BASE_URL}/de/pricing`,
       en: `${BASE_URL}/en/pricing`,
+      fr: `${BASE_URL}/fr/pricing`,
       "x-default": `${BASE_URL}/en/pricing`,
     });
+    expect(generateMetadataFromMeta({ locale: "fr", route: "/imprint" }).alternates?.canonical).toBe(
+      `${BASE_URL}/fr/imprint`,
+    );
   });
 
-  it("never lists or serves a partial-locale page outside its scope, even when a file exists", () => {
-    expect(() => generateMetadataFromMeta({ locale: "fr", route: "/imprint" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+  it("never lists or serves an app-only locale page, even when a file exists", () => {
+    expect(() => generateMetadataFromMeta({ locale: "it", route: "/pricing" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+    expect(generateMetadataFromMeta({ locale: "en", route: "/pricing" }).alternates?.languages).not.toHaveProperty(
+      "it",
+    );
   });
 });

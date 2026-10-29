@@ -53,9 +53,12 @@ function facts(src: string) {
 }
 
 describe("solution capture plan", () => {
-  it("covers every solution in each of its public locales and both themes", () => {
+  it("covers every solution in each asset locale of its public locales and both themes", () => {
     const plan = solutionCapturePlan();
-    const expected = SOLUTION_CATALOG.reduce((sum, entry) => sum + entry.publicLocales.length, 0);
+    const expected = SOLUTION_CATALOG.reduce(
+      (sum, entry) => sum + new Set(entry.publicLocales.map(solutionDataLocaleForUiLocale)).size,
+      0,
+    );
     expect(plan).toHaveLength(expected * SOLUTION_CAPTURE_THEMES.length);
     expect(new Set(plan.map((item) => item.key)).size).toBe(plan.length);
   });

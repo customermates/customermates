@@ -1,0 +1,116 @@
+---
+title: "Sécurité CRM : isolation des locataires, journal d’activité"
+description: "Architecture de Customermates, isolation des données par espace de travail, clés API et OAuth MCP, contenu du journal d’activité et signalement d’une faille."
+---
+
+Chaque entreprise est un locataire isolé dans une base PostgreSQL partagée. Chaque enregistrement appartient à une entreprise, les clés API et les connexions OAuth agissent au nom de l’utilisateur qui les a créées ou autorisées, et les agents IA ne voient que ce que cet utilisateur peut voir. Une même connexion peut appartenir à plusieurs espaces de travail, et chaque session, clé API et connexion OAuth agit dans un seul d’entre eux ; voir [Espaces de travail](/docs/app-workspaces).
+
+## Quelle est la pile technique ? [#what-is-the-stack]
+
+- **Next.js 16** (App Router, Turbopack) : application web, API REST et point d’accès MCP.
+- **PostgreSQL** : stockage principal. JSONB contient les options et formats des champs, les notes, les réglages des vues et des widgets, les en-têtes des webhooks, les charges utiles des livraisons de webhooks et les entrées d’audit.
+- **Prisma** : ORM et migrations.
+- **better-auth** : sessions, connexion Google et Microsoft, clés API, OAuth MCP.
+- **mcp-handler** : point d’accès du Model Context Protocol.
+- **Workflow** : tâches en arrière-plan comme les livraisons de webhooks ; sur une instance auto-hébergée, sa file d’attente se trouve dans la même base PostgreSQL.
+- **TypeScript** de bout en bout, validé par Zod à chaque frontière.
+
+## Comment l’architecture multi-tenant isole-t-elle chaque locataire ? [#how-does-multi-tenancy-keep-each-tenant-isolated]
+
+Toutes les entreprises partagent une base de données, et chaque enregistrement porte l’identifiant de son entreprise. L’isolation est appliquée sur trois niveaux :
+
+1. **Interactors** : chaque opération métier s’exécute au nom de l’utilisateur connecté et filtre sur l’entreprise de cet utilisateur.
+2. **Query guard** : une extension Prisma lève une erreur quand une requête sur une table d’espace de travail n’a pas l’identifiant de l’entreprise courante dans son filtre ou en nomme une autre, et quand une nouvelle ligne porte l’identifiant d’une autre entreprise. Seules les tables d’authentification en sont exemptées (identités de connexion, comptes de connexion, sessions, jetons de vérification, clés API, ainsi que les clients, jetons et consentements OAuth MCP), et quelques opérations système explicitement marquées contournent la garde.
+3. **`@TenantInteractor`** : détermine l’utilisateur actif, refuse les membres inactifs, vérifie la permission du rôle et ouvre le contexte de locataire que lit le query guard.
+
+Une instance auto-hébergée peut contenir plusieurs espaces de travail côte à côte avec la même isolation. La lecture entre locataires n’est pas possible par la surface publique. Sur le cloud géré, une console opérateur de l’éditeur peut lire entre locataires pour le support ; elle est limitée à un compte opérateur autorisé, refuse de se charger hors du mode cloud et consigne chaque lecture et chaque écriture dans un journal interne distinct. Un déploiement auto-hébergé n’a pas une telle console. L’assistant hébergé Mate s’exécute dans le même périmètre : il ne peut lire et modifier que ce que peut l’utilisateur qui le sollicite.
+
+## Comment les clients s’authentifient-ils ? [#how-do-clients-authenticate]
+
+Trois façons, qui aboutissent toutes au même contexte d’utilisateur et d’entreprise :
+
+- **Cookie de session** (navigateur) : signé, http-only, `Secure` sous HTTPS. Les personnes se connectent avec e-mail et mot de passe, ou avec Google ou Microsoft quand l’instance a configuré ces fournisseurs. Un nouveau compte peut être utilisé pendant 24 heures avant que son adresse e-mail doive être confirmée. Chaque requête vérifie la session dans la base de données : après une déconnexion ou une session révoquée, le cookie cesse donc de fonctionner immédiatement, et un statut **Inactif** bloque aussitôt l’espace de travail dans lequel il est défini. La session conserve aussi l’espace de travail dans lequel vous êtes passé, de sorte qu’un autre navigateur peut travailler dans un espace de travail différent.
+- **Clé API** : jeton de 64 caractères composé de lettres ASCII (`a-z`, `A-Z`), émis par le plugin de clés API de better-auth, stocké uniquement sous forme de hachage, lié à un utilisateur et à l’espace de travail dans lequel il a été créé, avec une expiration facultative. Envoyé dans l’en-tête `x-api-key`. Voir [Clés API](/docs/api-keys).
+- **OAuth 2.1** (MCP) : les clients MCP distants s’autorisent via better-auth avec PKCE et envoient un jeton Bearer au lieu d’une clé API. Les jetons d’accès durent une heure, les jetons d’actualisation trente jours. Une connexion est liée à l’espace de travail choisi sur l’écran de consentement, tout comme les jetons qu’elle renouvelle.
+
+## Customermates prend-il en charge le SSO ou SAML ? [#does-customermates-support-sso-or-saml]
+
+Non. L’authentification unique d’entreprise avec votre propre fournisseur d’identité via SAML ou OIDC n’est pas implémentée, ni dans le cloud ni en auto-hébergement. Les membres se connectent avec e-mail et mot de passe, ou avec un compte Google ou Microsoft quand l’instance a configuré ces fournisseurs ; sur une instance auto-hébergée, vous les configurez vous-même, voir [Auto-hébergement](/docs/self-hosting). Pour mettre fin à l’accès d’un membre, ouvrez-le dans [Membres](app:settings/members) et réglez **Statut** sur **Inactif**.
+
+## Comment l’autorisation est-elle décidée ? [#how-is-authorization-decided]
+
+Un rôle dans [Rôles](app:settings/roles) accorde **Créer**, **Modifier**, **Supprimer** et **Accès en lecture** **Tous**, **Assignés** ou **Aucun** séparément pour chaque liste, y compris les listes que vous avez créées. Modifier et supprimer demandent à la fois la permission d’action et l’accès à l’enregistrement. Les permissions de l’espace de travail utilisent les mêmes colonnes, avec un tiret là où une action ne s’applique pas. **Modifier** sur **Modèle de données** est distinct de l’accès aux enregistrements et de l’administration des rôles : un gestionnaire du modèle ne peut pas étendre les droits sans **Modifier** sur **Utilisateurs et rôles**. Le rôle intégré **Administrateur** a toutes les permissions. Les écritures d’enregistrements et de configuration revérifient les permissions et les révisions dans la transaction de l’espace de travail. Les clés API héritent des permissions actuelles de leur propriétaire ; il n’y a pas de limitation par clé.
+
+## Comment arrêter les clés API d’un ancien membre ? [#how-do-i-stop-the-api-keys-of-a-former-member]
+
+La permission **API et webhooks** contrôle les pages [Clés API](app:settings/api-keys), [Webhooks](app:settings/webhooks) et [Livraisons](app:settings/webhook-deliveries) ainsi que les opérations de clés et de webhooks qui en dépendent. Les connexions MCP et les appels REST, avec une clé ou un jeton OAuth, demandent aussi son **Accès en lecture** **Tous** ; l’utilisation connectée de l’application web, non. Chaque appel est vérifié par rapport aux permissions du propriétaire sur les enregistrements qu’il touche. Retirer **API et webhooks** à un rôle masque donc les clés de ses membres et les arrête pour MCP et REST à la fois.
+
+Pour arrêter les clés d’un membre, ouvrez le membre dans [Membres](app:settings/members), réglez **Statut** sur **Inactif** et cliquez sur **Enregistrer**. Cela demande **Modifier** et **Accès en lecture** **Tous** sur **Utilisateurs et rôles** ; vous ne pouvez pas vous désactiver vous-même, et le dernier membre actif ayant le rôle **Administrateur** ne peut pas être désactivé. Tout appel avec les clés d’un membre inactif qui lit ou modifie des données de l’espace de travail est refusé. Personne ne peut lister ni supprimer les clés d’un autre membre.
+
+## Comment fonctionne l’accès externe par IA ? [#how-does-external-ai-access-work]
+
+Les requêtes MCP suivent le même chemin d’authentification et d’autorisation :
+
+- L’agent appelle `<BASE_URL>/api/v1/mcp` avec une clé API ou un jeton OAuth Bearer.
+- Le serveur détermine l’utilisateur et l’entreprise à partir des identifiants.
+- Chaque appel d’outil s’exécute dans un contexte propre au locataire.
+- Les erreurs de validation renvoient des messages structurés avec des conseils de correction et ne divulguent pas les détails internes du schéma. Les erreurs inattendues ne renvoient qu’un message générique.
+
+La surface MCP ajoute des garde-fous sur les entrées :
+
+- Une écriture modifie un enregistrement ou une relation typés, ou jusqu’à 100 enregistrements nommés à la fois via `updateMany` (un correctif partagé) et `deleteMany`, chacun appliqué de façon atomique. Chaque référence contient à la fois un identifiant de type et un identifiant d’enregistrement ; link et unlink nomment la définition de la relation. Les champs omis restent inchangés, tandis que `null` efface explicitement un champ facultatif. Les champs calculés ne peuvent pas être écrits directement.
+- Le backend vérifie le type, l’espace de travail, les permissions sur l’enregistrement, la version et la révision de configuration pendant la transaction d’écriture. Une référence à un autre type ou à un autre espace de travail ne peut pas détourner une mise à jour.
+- La suppression, y compris `deleteMany`, nomme chaque enregistrement par sa référence et sa version actuelle ; il n’existe pas de raccourci de suppression par filtre. Une empreinte facultative de l’aperçu d’impact fait échouer la suppression si ses effets en cascade ont changé depuis l’aperçu.
+
+Voir le [catalogue d’outils MCP](/docs/mcp#tool-catalog) pour la liste complète.
+
+## Comment les données sont-elles protégées au repos et en transit, comment les mots de passe sont-ils stockés, et où les données sont-elles hébergées ? [#how-is-data-protected-at-rest-and-in-transit]
+
+- Le chiffrement au repos de Postgres dépend de votre fournisseur. Sur le cloud géré, les données se trouvent dans une région de l’UE et sont chiffrées au repos au niveau du disque.
+- Les mots de passe et les clés API ne sont stockés que sous forme de hachage.
+- HTTPS partout sur le cloud géré. En auto-hébergement, vous fournissez le TLS ; voir [l’auto-hébergement](/docs/self-hosting) pour l’exemple avec Caddy. Les cookies de connexion sont marqués Secure quand le `BASE_URL` de l’instance utilise `https://`.
+- Les secrets des webhooks et les valeurs des en-têtes personnalisés sont stockés de façon récupérable, car les requêtes sortantes en ont besoin ; voir [Comment les secrets et les destinations des webhooks sont-ils sécurisés ?](#how-are-webhook-secrets-and-destinations-secured).
+
+## Les journaux ou les rapports d’erreurs contiennent-ils des secrets ? [#do-logs-or-error-reports-contain-secrets]
+
+L’application écrit des journaux en clair sur sa sortie standard. Les valeurs d’environnement, comme les secrets de `.env`, ne sont pas écrites dans les journaux, mais aucun filtre ne masque les secrets dans les lignes de journal. Quand un service de rapport d’erreurs est configuré, comme sur le cloud géré, les évènements sont envoyés sans les cookies, les en-têtes ni les corps des requêtes. Les erreurs inattendues dans les outils MCP et de l’assistant n’atteignent le client, et le rapport d’erreurs, que sous la forme d’un message générique tel que « L’opération n’a pas pu être menée à terme ».
+
+L’image auto-hébergée publiée ne définit aucune adresse de rapport d’erreurs et désactive la télémétrie de Next.js et de Prisma. Sur une instance auto-hébergée, les erreurs que l’application écrit sur sa sortie n’apparaissent que dans `docker compose logs app` ; les erreurs qu’elle ne fait que signaler à un service de rapport d’erreurs ne sont enregistrées nulle part. Un e-mail que le fournisseur a rejeté ou auquel il n’a pas répondu à temps est consigné avec son objet, le domaine du destinataire et la raison du fournisseur, jamais avec l’adresse complète.
+
+## Comment les secrets et les destinations des webhooks sont-ils sécurisés ? [#how-are-webhook-secrets-and-destinations-secured]
+
+- Les secrets des webhooks et les valeurs des en-têtes personnalisés sont stockés dans Postgres sans hachage, car ils doivent être récupérables pour signer et envoyer les requêtes sortantes. L’API REST et MCP ne les renvoient jamais, le journal d’activité les masque, et un webhook ouvert ne les montre qu’au rôle **Administrateur** et aux rôles avec **Modifier** sur **API et webhooks** ; un rôle avec seulement **Accès en lecture** **Tous** voit `********` à leur place. Pour les conserver ailleurs, auto-hébergez avec votre propre gestionnaire de secrets.
+- Une URL de webhook peut utiliser `http://` simple pour n’importe quel hôte tant que le webhook n’a pas d’en-têtes personnalisés. Un webhook avec des en-têtes personnalisés doit utiliser `https://`, sauf pour `localhost`, `127.0.0.1` et `::1` ; cela est vérifié à l’enregistrement du webhook, puis de nouveau avant chaque livraison.
+- Les URL de webhooks ne sont pas limitées aux adresses publiques : le serveur envoie des requêtes à tout hôte qu’il peut atteindre, y compris des services internes de son réseau. En auto-hébergement, restreignez le réseau sortant du conteneur de l’application si des services internes doivent rester inaccessibles, et ne donnez **Créer** et **Modifier** sur **API et webhooks** qu’à des rôles de confiance.
+
+Vous gérez les webhooks dans [Webhooks](app:settings/webhooks) ; voir [Webhooks](/docs/webhooks).
+
+## Que consigne le journal d’activité ? [#what-does-the-audit-log-record]
+
+[Activité](app:settings/activity) est le journal d’activité de l’espace de travail. Chaque modification y est écrite avec son auteur, son type, l’élément concerné et sa charge utile, dans la même transaction que la modification elle-même. Les modifications d’enregistrements portent les valeurs précédentes et actuelles champ par champ ; les mises à jour des rôles, des webhooks, des routines et des comptes connectés portent une différence champ par champ, et les créations, les suppressions et les enregistrements de membres portent un instantané. Les modifications de configuration du modèle de données et de l’accès aux enregistrements par rôle sont conservées avec la révision de configuration qu’elles ont produite. Les inscriptions d’utilisateurs, les exports d’enregistrements et les documents juridiques acceptés sont également consignés. L’auteur est conservé même après la suppression de l’utilisateur, et les modifications automatisées sont consignées comme système ou comme le propriétaire de la routine. Une écriture qui échoue ne laisse aucune entrée. Le journal d’activité est inclus dans toutes les formules cloud ainsi que dans l’édition auto-hébergée.
+
+## Que ne contient pas le journal d’activité ? [#what-is-not-in-the-audit-log]
+
+Les évènements de messagerie ne font pas partie du journal d’activité ; ils ne sont conservés que comme entrées de livraison tant qu’un webhook ou une routine d’évènement s’y abonne. Les évènements d’authentification comme les connexions, le cycle de vie des clés API, les changements d’abonnement, les vues enregistrées, les widgets, les conversations avec l’agent et les actions de l’opérateur de l’éditeur ne sont pas non plus consignés. Les secrets des webhooks et les valeurs des en-têtes sont masqués dans les entrées de webhooks. Une entrée écrite par un processus automatisé, comme la suppression d’un compte connecté à la fin d’un essai, nomme l’utilisateur concerné plutôt que quelqu’un qui l’aurait effectuée.
+
+## Qui peut lire le journal d’activité, et où ? [#who-can-read-the-audit-log-and-where]
+
+Ouvrez [Activité](app:settings/activity) ; voir [Activité](/docs/app-company#activity-tab). L’accès demande **Accès en lecture** **Tous** sur la ligne **Journal d’activité** de votre rôle, qui n’offre ni **Créer**, ni **Modifier**, ni **Supprimer** ; le rôle **Administrateur** l’a toujours. La page montre les modifications d’enregistrements, les évènements d’administration et système et les modifications de configuration, et peut être filtrée par type. Les modifications d’enregistrements suivent l’accès aux enregistrements du lecteur. La même permission affiche le journal d’activité dans la vue **Activités** d’un enregistrement.
+
+## Combien de temps les entrées du journal d’activité sont-elles conservées, et puis-je les exporter ? [#how-long-are-audit-entries-kept-and-can-i-export-them]
+
+Les entrées ne sont pas supprimées automatiquement ; elles sont conservées tant que l’espace de travail existe. [Activité](app:settings/activity) n’a pas d’action d’export. La chronologie d’activité, son point d’accès REST et son outil MCP renvoient les mêmes entrées sous la même permission.
+
+## Où signaler une vulnérabilité ? [#where-do-i-report-a-vulnerability]
+
+Écrivez à `mail@customermates.com`. Nous visons un accusé de réception sous un jour ouvré. Il n’y a pas de programme de prime aux bogues.
+
+## Pour les agents [#for-agents]
+
+Les écritures d’enregistrements via MCP passent par `mutate_crm_record`, les opérations sur les webhooks par `manage_webhooks`, et les entrées d’audit se lisent avec `get_activities`.
+
+## Suite [#next]
+
+- [Auto-hébergement](/docs/self-hosting) : exploiter Customermates vous-même.
+- [Clés API](/docs/api-keys) : règles d’hygiène des clés.
+- [MCP](/docs/mcp) : comment la surface IA est conçue.

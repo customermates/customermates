@@ -31,11 +31,17 @@ describe("agent interface tool names in the assistant documentation", () => {
     const onlyMate = {
       en: `plus four interface tools, \`${LOAD_TOOLSET_TOOL_NAME}\` and \`${ANALYZE_RECORDS_TOOL_NAME}\`, which only Mate has.`,
       de: `dafür mit vier Oberflächen-Tools, \`${LOAD_TOOLSET_TOOL_NAME}\` und \`${ANALYZE_RECORDS_TOOL_NAME}\`, die nur Mate hat.`,
+      fr: `plus quatre outils d’interface, \`${LOAD_TOOLSET_TOOL_NAME}\` et \`${ANALYZE_RECORDS_TOOL_NAME}\`, que seul Mate possède.`,
     }[locale];
-    const reads = { en: "It runs up to ten reads", de: "Es führt bis zu zehn Lesezugriffe" }[locale];
+    const reads = {
+      en: "It runs up to ten reads",
+      de: "Es führt bis zu zehn Lesezugriffe",
+      fr: "Il exécute jusqu’à dix lectures",
+    }[locale];
     const limits = {
       en: `up to ${ANALYSIS_MAX_ROWS.toLocaleString("en")} rows and ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB across all reads together`,
       de: `insgesamt bis zu ${ANALYSIS_MAX_ROWS.toLocaleString("de")} Zeilen und ${ANALYSIS_MAX_BYTES / 1024 / 1024} MB über alle Lesezugriffe`,
+      fr: `jusqu’à ${ANALYSIS_MAX_ROWS.toLocaleString("fr").replace(/\u202f/g, "\u00a0")} lignes et ${ANALYSIS_MAX_BYTES / 1024 / 1024}\u00a0Mo pour toutes les lectures ensemble`,
     }[locale];
     expect(ANALYSIS_MAX_READS).toBe(10);
     expect(source).toContain(onlyMate);

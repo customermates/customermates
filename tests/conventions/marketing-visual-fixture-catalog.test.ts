@@ -31,7 +31,7 @@ import {
   NativeAutomationProviderIdentity,
   NativeRecordIdentity,
 } from "@/components/marketing/visuals/native-visual-primitives";
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { ASSET_LOCALES } from "@/i18n/locale-registry";
 import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
 import { DEMO_PHOTO_PEOPLE, SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
@@ -212,9 +212,9 @@ describe("marketing visual fixture catalog", () => {
     expect(focal).not.toHaveProperty("organization");
   });
 
-  it("names every demo deal in each content locale, keeping the seeded English name", () => {
+  it("names every demo deal in each asset locale, keeping the seeded English name", () => {
     for (const [id, record] of Object.entries(VISUAL_RECORD_FIXTURES)) {
-      expect(Object.keys(record.localizedName).sort(), id).toEqual([...CONTENT_LOCALES].sort());
+      expect(Object.keys(record.localizedName).sort(), id).toEqual([...ASSET_LOCALES].sort());
       expect(record.localizedName.en, id).toBe(record.name);
       expect(record.localizedName.de, id).not.toBe(record.name);
     }

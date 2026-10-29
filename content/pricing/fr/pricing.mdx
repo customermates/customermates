@@ -1,29 +1,31 @@
 ---
-title: "Tarifs de Customermates"
-titleAccent: "simples et transparents."
-description: "Tarifs mensuels par utilisateur, à partir de [[commercial.price.starter.monthly]]. CRM, API REST, webhooks et MCP dans chaque formule, boîte de réception à partir de Pro."
+title: "Tarifs du CRM open source et IA native"
+titleAccent: "simples, honnêtes, européens."
+description: "Tarifs mensuels par utilisateur du CRM open source, à partir de [[commercial.price.starter.monthly]]. CRM, REST, webhooks et MCP dans chaque formule, boîte de réception cloud dès Pro."
 
 pricing:
   ariaLabelSlider: "Nombre d’utilisateurs"
   customPrice: "Sur mesure"
   users: "Utilisateurs"
-  footnote: "Un compte connecté est une boîte e-mail, un profil LinkedIn, WhatsApp, Instagram ou Telegram relié, qui appartient à un seul utilisateur. Le nombre de comptes connectés dépend de la formule (voir ci-dessous)."
+  footnote: "Un compte connecté est une boîte e-mail, un profil LinkedIn, WhatsApp, Instagram ou Telegram relié, qui appartient à un seul utilisateur. Starter n’inclut aucun compte connecté. Avec Pro, vous partagez des fils un par un ; le partage d’un compte entier avec l’équipe commence avec Business. Les prix sont par utilisateur, facturés au mois en euros."
   totalSuffixSingular: "/mois au total pour {count} utilisateur"
   totalSuffixPlural: "/mois au total pour {count} utilisateurs"
   pricingCards:
   - plan: starter
     title: Starter
-    description: "CRM et MCP, sans boîte de réception"
+    description: "CRM de base et MCP"
     buttonText: "Démarrer l’essai gratuit"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - "Listes configurables : contacts, organisations, affaires, services, tâches ou toute autre liste"
+      - "Contacts, organisations, affaires, services et tâches"
       - "Accès MCP : connectez un client IA externe comme Claude, ChatGPT ou Gemini"
       - "API REST, webhooks et interfaces pour votre propre n8n"
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur : Mate travaille selon un planning ou quand un enregistrement change"
       - "Usage Mate : 1x par utilisateur actif, l’allocation de base (utilisable quand Mate est activé)"
+      - "Ni boîte de réception ni comptes de messagerie connectés"
+      - "Auto-hébergement : les fonctions de Starter sans Mate, routines ni configuration par IA"
   - plan: pro
     title: Pro
     description: "CRM et boîte de réception unifiée. Inclut votre essai gratuit de [[commercial.trial.days]] jours."
@@ -34,10 +36,10 @@ pricing:
     buttonVariant: bordered
     features:
       - "Tout Starter"
-      - "Boîte de réception unifiée : e-mail, LinkedIn, WhatsApp, Instagram, Telegram"
+      - "Boîte de réception unifiée pour vos propres comptes : e-mail, LinkedIn, WhatsApp, Instagram, Telegram"
       - "[[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus"
-      - "Vos propres comptes, plus les fils que vous partagez un par un"
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - "Partage de fils individuels avec vos collègues"
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur : Mate travaille selon un planning ou quand un enregistrement change"
       - "Accès au calendrier en lecture seule et LinkedIn Sales Navigator"
       - "Usage Mate : 3x Starter par utilisateur actif (utilisable quand Mate est activé)"
   - plan: business
@@ -55,8 +57,7 @@ pricing:
       - "Tout Pro"
       - "[[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur inclus"
       - "Routines par utilisateur : [[commercial.entitlement.business.includedRoutinesPerUser]] (usage raisonnable)"
-      - "Comptes partagés : la boîte de réception d’un compte entier visible par l’équipe"
-      - "Une chronologie commune à l’équipe sur tous les canaux"
+      - "Partage de compte entier : partagez un compte connecté avec l’équipe"
       - "Support prioritaire"
       - "Usage Mate : 10x Starter par utilisateur actif, le plus d’usage par euro (utilisable quand Mate est activé)"
   - plan: max
@@ -76,14 +77,14 @@ pricing:
     title: Enterprise
     description: "Périmètre et support sur mesure"
     buttonText: "Contacter l’équipe commerciale"
-    buttonHref: mailto:sales@customermates.com?subject=Demande%20formule%20Enterprise
+    buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
       - "Tout Business"
       - "Processus d’agent personnalisé ou de données de prospection sous contrat (non intégrés au produit)"
       - "Mise en place réalisée pour vous"
-      - "Comptes connectés par utilisateur : [[commercial.entitlement.enterprise.includedAccountsPerUser]] (usage raisonnable). SSO et marque blanche ne sont pas développés et demandent un travail sous contrat"
+      - "Comptes connectés par utilisateur : [[commercial.entitlement.enterprise.includedAccountsPerUser]] (usage raisonnable) ; SSO et marque blanche ne sont pas développés et demandent un travail sous contrat"
       - "Support dédié et conditions sur mesure"
       - "Usage Mate : sur mesure, fixé par contrat par utilisateur actif et par mois (utilisable quand Mate est activé)"
 
@@ -112,7 +113,7 @@ comparison:
     enterprise:
       name: Enterprise
       button: "Nous contacter"
-      buttonHref: mailto:sales@customermates.com?subject=Demande%20formule%20Enterprise
+      buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
   sections:
   - title: "Prix et utilisateurs"
     rows:
@@ -126,8 +127,14 @@ comparison:
         catalogFact: messaging
       - label: "Comptes connectés par utilisateur"
         catalogFact: includedAccountsPerUser
-      - label: "Comptes partagés"
+      - label: "Partage de compte entier"
         catalogFact: sharedAccounts
+      - label: "Partage de fils individuels"
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
       - label: "Accès au calendrier en lecture seule"
         starter: false
         pro: true
@@ -146,10 +153,12 @@ comparison:
         business: true
         max: true
         enterprise: true
-  - title: "CRM"
+  - title: "CRM de base"
     rows:
       - label: "Routines par utilisateur"
         catalogFact: includedRoutinesPerUser
+      - label: "Stockage de fichiers par utilisateur, partagé dans l’espace de travail"
+        catalogFact: fileStoragePerActiveUser
       - label: "Contacts, organisations, affaires, services et tâches"
         starter: true
         pro: true
@@ -229,33 +238,39 @@ faq:
   title: "Questions fréquentes"
   faqs:
   - id: pricing-faq-1
-    title: "Pourquoi Customermates est-il si abordable ?"
+    title: "Pourquoi votre CRM est-il si abordable ?"
     content: "Nous fonctionnons sans investisseurs et gardons volontairement nos coûts bas. Cela nous permet de proposer des prix bas à nos clients."
   - id: pricing-faq-2
-    title: "Comment la facturation mensuelle fonctionne-t-elle ?"
-    content: "Vous payez chaque mois, par utilisateur actif, en euros. Quand vous ajoutez ou retirez des utilisateurs, la différence est calculée au prorata sur votre prochaine facture. Un passage à une formule supérieure s’applique immédiatement, avec un montant au prorata pour le reste de la période. Un passage à une formule inférieure s’applique aussi immédiatement, et la part non utilisée est créditée."
+    title: "Comment votre CRM reste-t-il fiable sur la durée ?"
+    content: "Nous grandissons de manière organique et investissons directement dans le produit et le support. Le produit est ainsi maintenu sur le long terme."
   - id: pricing-faq-3
-    title: "Comment fonctionne l’essai gratuit ?"
-    content: "Le premier espace de travail que vous créez sur Customermates Cloud inclut un essai gratuit de [[commercial.trial.days]] jours, sans carte bancaire. Vous choisissez ensuite une formule, et vous pouvez résilier à tout moment."
+    title: "Pourquoi un CRM spécialisé ?"
+    content: "Les grandes suites CRM regroupent marketing, service et vente et font payer des modules que beaucoup de petites équipes n’utilisent jamais. Customermates se concentre sur les enregistrements clients que vous configurez, la boîte de réception unifiée et l’accès IA via MCP. Vous payez pour cela et vous étendez le reste, si besoin, avec l’API REST, les webhooks ou votre propre instance n8n."
   - id: pricing-faq-4
-    title: "Qu’est-ce qu’un compte connecté ?"
-    content: "Un compte connecté est une boîte e-mail, un profil LinkedIn, WhatsApp, Instagram ou Telegram relié, qui appartient à un seul utilisateur. Starter n’inclut aucun compte connecté. Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, Business [[commercial.entitlement.business.includedAccountsPerUser]] par utilisateur, Max [[commercial.entitlement.max.includedAccountsPerUser]] par utilisateur, et Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] dans le cadre d’un usage raisonnable. Avec Pro, vous partagez des fils un par un. Le partage d’un compte entier avec l’équipe demande Business, Max ou Enterprise."
+    title: "Comment configurer un nouvel espace de travail ?"
+    content: "Un nouvel espace de travail démarre sans listes. Sur Customermates Cloud, la configuration par IA construit les listes, les étapes, un tableau de bord et des pages de base de connaissances à partir de votre description, une seule fois lors de la prise en main et dans la limite d’un plafond de crédits ; vous pouvez la passer pour démarrer avec un espace de travail vide. Sinon, les personnes ayant les droits de configuration créent les listes et les champs dans Configurer et importent des enregistrements depuis un classeur Excel."
   - id: pricing-faq-5
-    title: "Comment fonctionne l’usage Mate ?"
-    content: "Chaque formule Cloud inclut Mate et une allocation mensuelle d’usage Mate par utilisateur actif, exprimée en multiple de l’allocation Starter : Starter 1x, Pro 3x, Business 10x, Max 20x, et Enterprise selon le contrat. Business offre le plus d’usage par euro. L’usage ne compte que lorsque Mate est activé dans l’environnement hébergé. Il suit le coût réel chez le fournisseur, y compris les appels au modèle et la recherche sémantique côté serveur : une question simple en consomme peu, une demande en plusieurs étapes davantage. Dans l’application, le compteur Mate affiche en pourcentage la part de l’allocation mensuelle déjà utilisée. Les allocations payantes se renouvellent chaque mois et l’usage non consommé n’est pas reporté. Chaque utilisateur actif en période d’essai dispose de l’allocation Pro de 3x. Les allocations des membres actifs forment la réserve commune de l’espace de travail, et chaque membre a aussi sa propre part. Un nouvel utilisateur payant reçoit une allocation exactement au prorata de la période restante. Un passage à une formule supérieure augmente l’allocation immédiatement, un passage à une formule inférieure la réduit immédiatement. Les clients MCP externes utilisent votre propre fournisseur d’IA pour les appels au modèle. La recherche sémantique côté serveur peut compter dans l’usage Mate, y compris via MCP. Mate n’existe que sur le Cloud. Il n’y a ni recharge ni dépassement facturé automatiquement."
+    title: "Qu’est-ce qui n’est inclus dans aucune formule ?"
+    content: "Customermates n’inclut ni séquences ni envois en masse, ni devis ni facturation, ni téléphonie ni SMS, ni formulaires web, ni applications mobiles natives, ni vues d’équipe partagées (les vues enregistrées sont personnelles). La boîte de réception fonctionne via des intégrations de fournisseurs prises en charge, pas via l’API officielle WhatsApp Business ni LinkedIn CRM Sync. SSO et marque blanche ne sont pas développés et ne sont disponibles que comme travail Enterprise sous contrat."
   - id: pricing-faq-6
-    title: "Que comprend l’auto-hébergement ?"
-    content: "Le cœur AGPL et PostgreSQL peuvent être auto-hébergés sans abonnement, toujours avec les fonctionnalités de Starter. La boîte de réception unifiée, Mate, les routines et la configuration par IA restent des fonctions de Customermates Cloud. MCP fonctionne aussi en auto-hébergement avec votre propre client IA. L’hébergement, les mises à jour et les sauvegardes sont alors à votre charge."
+    title: "Qu’est-ce qu’un compte connecté ?"
+    content: "Un compte connecté est une boîte e-mail, un profil LinkedIn, WhatsApp, Instagram ou Telegram relié, qui appartient à un seul utilisateur. Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, Business [[commercial.entitlement.business.includedAccountsPerUser]] par utilisateur, Max [[commercial.entitlement.max.includedAccountsPerUser]] par utilisateur, et Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]] dans le cadre d’un usage raisonnable. Si vous avez besoin de plus de [[commercial.entitlement.max.includedAccountsPerUser]] comptes par utilisateur, Enterprise est la bonne formule. Starter et les instances auto-hébergées n’ont aucun compte connecté. Avec Pro, chacun travaille dans ses propres comptes et peut partager des fils un par un ; le partage d’un compte connecté entier avec l’équipe demande Business, Max ou Enterprise."
   - id: pricing-faq-7
-    title: "Un même identifiant peut-il utiliser plusieurs espaces de travail ?"
-    content: "Oui. Un identifiant peut appartenir à plusieurs espaces de travail entièrement séparés, par exemple un pour la vente et un pour la comptabilité, et passer de l’un à l’autre. Chaque espace de travail a sa propre formule, son propre abonnement et ses propres factures, et les utilisateurs sont comptés par espace de travail : une personne active dans deux espaces de travail compte comme utilisateur payant dans les deux. Le premier espace de travail que vous créez inclut l’essai gratuit de [[commercial.trial.days]] jours, chaque espace de travail supplémentaire commence par le choix d’une formule. Une instance auto-hébergée gère autant d’espaces de travail que nécessaire, sans facturation."
+    title: "Comment fonctionne la facturation mensuelle ?"
+    content: "Vous payez par utilisateur actif. Quand vous ajoutez ou retirez des utilisateurs, la différence est calculée au prorata sur votre prochaine facture. Un passage à une formule supérieure s’applique immédiatement, avec un montant au prorata pour le reste de la période de facturation. Un passage à une formule inférieure s’applique aussi immédiatement, et la part non utilisée est créditée."
   - id: pricing-faq-8
-    title: "Quelles solutions sont décrites en français ?"
-    content: "Les pages en français couvrent les PME, les agences, la gestion des contacts et des clients, et le pipeline commercial. La documentation et les conditions juridiques sont disponibles en anglais."
+    title: "Comment fonctionne l’usage Mate ?"
+    content: "Chaque formule Cloud inclut Mate et une allocation mensuelle d’usage Mate par utilisateur actif, exprimée en multiple de l’allocation Starter : Starter 1x, Pro 3x, Business 10x, Max 20x, et Enterprise selon le contrat. Business offre le plus d’usage par euro. L’usage ne compte que lorsque Mate est activé dans l’environnement hébergé : le traitement IA hébergé dans Customermates y est alors imputé. Il suit le coût réel chez le fournisseur, y compris les appels au modèle et la recherche sémantique côté serveur : une question simple en consomme peu, une demande en plusieurs étapes davantage. Dans l’application, le compteur Mate affiche en pourcentage la part de l’allocation mensuelle déjà utilisée. Les allocations payantes se renouvellent chaque mois et l’usage non consommé n’est pas reporté. Chaque utilisateur actif en période d’essai dispose de l’allocation Pro de 3x. Les allocations des membres actifs forment la réserve commune de l’espace de travail, et chaque membre a aussi sa propre part. Un nouvel utilisateur payant reçoit une allocation exactement au prorata de la période de facturation restante. Un passage à une formule supérieure augmente l’allocation immédiatement, un passage à une formule inférieure la réduit immédiatement. Les clients MCP externes utilisent votre propre fournisseur d’IA pour les appels au modèle. La recherche sémantique côté serveur peut compter dans l’usage Mate, y compris via MCP. Mate n’existe que sur le Cloud. Il n’y a ni recharge ni dépassement facturé automatiquement."
+  - id: pricing-faq-9
+    title: "Un même identifiant peut-il utiliser plusieurs espaces de travail ?"
+    content: "Oui. Un identifiant peut appartenir à plusieurs espaces de travail entièrement séparés, par exemple un pour la vente et un pour la comptabilité, et passer de l’un à l’autre. Chaque espace de travail a sa propre formule, son propre abonnement et ses propres factures, et les utilisateurs sont comptés par espace de travail : une personne active dans deux espaces de travail compte comme utilisateur payant dans les deux. Le premier espace de travail que vous créez inclut l’essai gratuit de [[commercial.trial.days]] jours ; chaque espace de travail supplémentaire commence par le choix d’une formule. Une instance auto-hébergée gère autant d’espaces de travail que nécessaire, sans facturation."
+  - id: pricing-faq-10
+    title: "Que comprend l’auto-hébergement ?"
+    content: "Une instance auto-hébergée a toujours les fonctions de Starter : CRM de base, MCP, API REST, webhooks et interfaces n8n, sans facturation. La boîte de réception unifiée, Mate, les routines et la configuration par IA ne fonctionnent que sur Customermates Cloud. MCP avec votre propre client IA fonctionne sur une instance auto-hébergée, et ce client utilise votre propre fournisseur d’IA."
 
 cta:
   action: "Prêt à commencer ?"
-  description: "Ouvrez l’espace de travail d’exemple d’une petite entreprise, avec l’interface en français et des données d’exemple en anglais, ou démarrez votre essai sur Customermates Cloud."
+  description: "Découvrez l’espace de travail d’exemple d’une petite entreprise avec des données d’exemple, ou démarrez votre propre essai sur Customermates Cloud avec les fonctions Pro."
   buttonLeftText: "Commencer gratuitement"
   buttonLeftHref: /auth/signup
   buttonRightText: "Explorer l’espace de travail"

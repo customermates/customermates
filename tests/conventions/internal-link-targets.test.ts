@@ -564,7 +564,7 @@ describe("internal link targets", () => {
     );
   });
 
-  it("resolves partial-locale links inside their scope or through the default-locale fallback", () => {
+  it("resolves French links as a full content locale and refuses app-only locale prefixes", () => {
     const targetsByLocale = new Map(
       MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
     );
@@ -573,9 +573,12 @@ describe("internal link targets", () => {
 
     expect(resolves("/fr/pricing", DEFAULT_LOCALE)).toBe(true);
     expect(resolves("/fr/features/pipeline", DEFAULT_LOCALE)).toBe(true);
-    expect(resolves("/fr/blog", DEFAULT_LOCALE)).toBe(false);
-    expect(resolves("/fr/for/consultants", DEFAULT_LOCALE)).toBe(false);
-    expect(resolves("/fr/contact", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/fr/blog", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/fr/for/consultants", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/fr/contact", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/fr/for/not-a-page", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/it/pricing", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/it/blog", DEFAULT_LOCALE)).toBe(false);
     expect(resolves("/for/agencies", "fr")).toBe(true);
     expect(resolves("/docs/app-records", "fr")).toBe(true);
     expect(resolves("/for/consultants", "fr")).toBe(true);
