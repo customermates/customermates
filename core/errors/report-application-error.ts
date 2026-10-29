@@ -1,6 +1,7 @@
 import type { ExternalToast } from "sonner";
 
 import { captureError } from "./client-reporter";
+import { isReportableError } from "./reportable-error";
 import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "./workspace-changed-notice";
 
 export { notifyWorkspaceChanged, registerWorkspaceChangedHandler } from "./workspace-changed-notice";
@@ -25,7 +26,7 @@ export function registerApplicationErrorHandler(handler: ApplicationErrorHandler
 export function reportApplicationError(error: unknown, options?: ExternalToast): void {
   if (notifyIfWorkspaceChanged(error) || hasWorkspaceChanged()) return;
 
-  if (!isDemoEnvironment()) captureError(error);
+  if (!isDemoEnvironment() && isReportableError(error)) captureError(error);
 
   activeHandler?.(error, ...(options ? [options] : []));
 }
