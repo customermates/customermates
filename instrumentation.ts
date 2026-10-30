@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/nextjs";
 import { isExpectedError } from "@/core/errors/app-errors";
 import { env } from "@/env";
 import { scrubAdIdentifiersFromEvent } from "@/core/errors/scrub-ad-identifiers";
+import { scrubPrismaArgumentsFromEvent } from "@/core/errors/scrub-prisma-arguments";
 
 export async function register() {
   if (env.NEXT_PUBLIC_SENTRY_DSN && (env.NEXT_RUNTIME === "nodejs" || env.NEXT_RUNTIME === "edge")) {
@@ -18,7 +19,7 @@ export async function register() {
           return null;
         }
 
-        return scrubAdIdentifiersFromEvent(event);
+        return scrubPrismaArgumentsFromEvent(scrubAdIdentifiersFromEvent(event));
       },
     } satisfies Sentry.NodeOptions);
   }
