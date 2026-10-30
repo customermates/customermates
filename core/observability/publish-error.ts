@@ -1,35 +1,28 @@
 import "server-only";
 
-import { start } from "workflow/api";
+import { createHash } from "node:crypto";
 
-import { notifyApplicationError } from "@/workflows/notify-application-error";
 import { logRuntimeEvent } from "@/core/utils/audit-log";
 
-import { claimErrorNotification } from "./error-notification-claim";
 import type { ErrorReport } from "./error-report";
 
-export async function publishServerError(report: ErrorReport, notify = true): Promise<void> {
-  logRuntimeEvent(report);
-  if (!notify || report.level !== "error" || !process.env.ERROR_REPORTING_NOTIFICATION_EMAIL) return;
-  const fingerprint = claimErrorNotification(report);
-  if (!fingerprint) return;
+function normalizedMessage(message: string): string {
+  return message
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, "<id>")
+    .replace(/\b[0-9a-f]*\d[0-9a-f]*\b/gi, "#")
+    .slice(0, 300);
+}
 
-  try {
-    const run = await start(notifyApplicationError, [{ ...report, fingerprint }]);
-    logRuntimeEvent({
-      level: "info",
-      kind: "error-notification-enqueued",
-      id: report.id,
-      buildId: report.buildId,
-      runId: run.runId,
-    });
-  } catch (error) {
-    logRuntimeEvent({
-      level: "warning",
-      kind: "error-notification-enqueue-failed",
-      id: report.id,
-      buildId: report.buildId,
-    });
-    throw error;
-  }
+export function errorFingerprint(report: Pick<ErrorReport, "source" | "name" | "message" | "frames">): string {
+  const frame = report.frames.findLast((candidate) => !candidate.file.includes("node_modules")) ?? report.frames.at(-1);
+  return createHash("sha256")
+    .update(
+      JSON.stringify([report.source, report.name, normalizedMessage(report.message), frame?.file, frame?.function]),
+    )
+    .digest("hex")
+    .slice(0, 32);
+}
+
+export function publishServerError(report: ErrorReport): void {
+  logRuntimeEvent({ ...report, fingerprint: errorFingerprint(report) });
 }

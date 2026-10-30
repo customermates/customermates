@@ -1,7 +1,5 @@
 import type { CaptureContext } from "./capture-context";
 
-export const ERROR_NOTIFICATION_FAILURE_PREFIX = "[application-error-notification]";
-
 export type ErrorReport = {
   kind: "application-error";
   id: string;
@@ -19,7 +17,6 @@ export type ErrorReport = {
   tags?: Record<string, string>;
   causes?: { name: string; message: string; frames: ErrorReport["frames"] }[];
   frames: { file: string; function?: string; line?: number; column?: number }[];
-  fingerprint?: string;
 };
 
 const identifier = /^[a-zA-Z0-9_-]{1,128}$/;
@@ -113,7 +110,6 @@ export function errorReport(
   context: CaptureContext = {},
 ): ErrorReport | null {
   const exception = exceptionDetails(error);
-  if (exception.message.startsWith(ERROR_NOTIFICATION_FAILURE_PREFIX)) return null;
   const buildId = safeIdentifier(process.env.NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID);
   if (!buildId) return null;
   const workflow = context.contexts?.workflow;
@@ -131,7 +127,6 @@ export function errorReport(
     if (!cause || seen.has(cause)) break;
     seen.add(cause);
     const detail = exceptionDetails(cause);
-    if (detail.message.startsWith(ERROR_NOTIFICATION_FAILURE_PREFIX)) return null;
     causes.push({ ...detail, frames: detail.frames.slice(-3) });
   }
 

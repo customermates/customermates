@@ -41,13 +41,10 @@ function request(body: unknown = report, origin = "https://preview.example.com")
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
   state.session.mockReset().mockResolvedValue({
-    authenticated: true,
-    context: {
-      user: { id: "trusted-user" },
-      tags: { companyId: "trusted-company" },
-    },
+    user: { id: "trusted-user" },
+    tags: { companyId: "trusted-company" },
   });
-  state.publish.mockReset().mockResolvedValue(undefined);
+  state.publish.mockReset();
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -60,17 +57,14 @@ describe("browser error intake", () => {
     expect(state.publish).not.toHaveBeenCalled();
   });
 
-  it("rejects cross-origin submissions and logs anonymous errors without notifications", async () => {
+  it("rejects cross-origin submissions and logs anonymous errors without a tenant", async () => {
     const { POST } = await import("../route");
     expect((await POST(request(report, "https://attacker.example.com"))).status).toBe(403);
-    state.session.mockResolvedValue({ authenticated: false, context: {} });
+    state.session.mockResolvedValue({});
     for (let index = 0; index < 20; index++)
       expect((await POST(request({ ...report, id: `forged-${index}` }))).status).toBe(202);
     expect(state.publish).toHaveBeenCalledTimes(20);
-    for (const [report, notify] of state.publish.mock.calls) {
-      expect(report.tenant).toBeUndefined();
-      expect(notify).toBe(false);
-    }
+    for (const [report] of state.publish.mock.calls) expect(report.tenant).toBeUndefined();
   });
 
   it("accepts the verified public host when Next uses an internal request URL", async () => {
@@ -112,7 +106,6 @@ describe("browser error intake", () => {
         release: "a".repeat(40),
         tags: { operation: "contacts.refresh", detail: "token=[redacted]" },
       }),
-      true,
     );
     expect(Math.abs(state.publish.mock.calls[0][0].timestamp - Date.now() / 1000)).toBeLessThan(60);
     expect(state.publish.mock.calls[0][0]).not.toHaveProperty("extra");
@@ -166,12 +159,5 @@ describe("browser error intake", () => {
     ).toBe(202);
     expect(state.publish.mock.lastCall?.[0].path).toBe("/en/[redacted email]");
     expect(JSON.stringify(state.publish.mock.calls)).not.toMatch(/synthetic-secret|credential|query-secret|person/);
-  });
-
-  it("returns retryable status without recapturing enqueue failure", async () => {
-    const { POST } = await import("../route");
-    state.publish.mockRejectedValue(new Error("unavailable"));
-    expect((await POST(request())).status).toBe(503);
-    expect(state.publish).toHaveBeenCalledOnce();
   });
 });

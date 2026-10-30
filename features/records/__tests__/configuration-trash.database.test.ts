@@ -28,7 +28,6 @@ vi.mock("@/core/observability/server", () => ({
     return "captured";
   },
   captureMessage: () => "captured",
-  flush: () => Promise.resolve(true),
   setTag: () => undefined,
   setUser: () => undefined,
   withScope: (callback: (scope: Record<string, () => void>) => unknown) =>

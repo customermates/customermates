@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { resolveRequestOrigin } from "@/core/config/environment";
 import { env } from "@/env";
-import { usesVercelErrorReporting } from "@/core/errors/reporting-provider";
+import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 import { safeErrorPath, safeIdentifier, scrubErrorText } from "@/core/observability/error-report";
 import { publishServerError } from "@/core/observability/publish-error";
 import { requestErrorContext } from "@/core/observability/request-context";
@@ -58,7 +58,7 @@ function scrubFrame(frame: z.infer<typeof frameSchema>) {
 const admissions = new Map<string, { until: number; count: number }>();
 
 export async function POST(request: Request): Promise<Response> {
-  if (!usesVercelErrorReporting()) return new Response(null, { status: 404 });
+  if (!errorReportingEnabled()) return new Response(null, { status: 404 });
   const origin = request.headers.get("origin");
   const host = request.headers.get("host") ?? new URL(request.url).host;
   if (
@@ -105,35 +105,28 @@ export async function POST(request: Request): Promise<Response> {
   const parsed = reportSchema.safeParse(payload);
   if (!parsed.success) return new Response(null, { status: 400 });
   const report = parsed.data;
-  const { authenticated, context } = await requestErrorContext(request.headers, safeErrorPath(report.path));
-  try {
-    await publishServerError(
-      {
-        ...report,
-        timestamp: Date.now() / 1000,
-        name: scrubErrorText(report.name, 100),
-        message: scrubErrorText(report.message),
-        path: safeErrorPath(report.path),
-        tags: report.tags
-          ? Object.fromEntries(Object.entries(report.tags).map(([key, value]) => [key, scrubErrorText(value, 200)]))
-          : undefined,
-        tenant: context.user
-          ? {
-              userId: safeIdentifier(context.user.id),
-              companyId: safeIdentifier(context.tags?.companyId),
-            }
-          : undefined,
-        frames: report.frames.map(scrubFrame),
-        causes: report.causes?.map((cause) => ({
-          name: scrubErrorText(cause.name, 100),
-          message: scrubErrorText(cause.message),
-          frames: cause.frames.map(scrubFrame),
-        })),
-      },
-      authenticated,
-    );
-  } catch {
-    return new Response(null, { status: 503 });
-  }
+  const context = await requestErrorContext(request.headers, safeErrorPath(report.path));
+  publishServerError({
+    ...report,
+    timestamp: Date.now() / 1000,
+    name: scrubErrorText(report.name, 100),
+    message: scrubErrorText(report.message),
+    path: safeErrorPath(report.path),
+    tags: report.tags
+      ? Object.fromEntries(Object.entries(report.tags).map(([key, value]) => [key, scrubErrorText(value, 200)]))
+      : undefined,
+    tenant: context.user
+      ? {
+          userId: safeIdentifier(context.user.id),
+          companyId: safeIdentifier(context.tags?.companyId),
+        }
+      : undefined,
+    frames: report.frames.map(scrubFrame),
+    causes: report.causes?.map((cause) => ({
+      name: scrubErrorText(cause.name, 100),
+      message: scrubErrorText(cause.message),
+      frames: cause.frames.map(scrubFrame),
+    })),
+  });
   return new Response(null, { status: 202 });
 }

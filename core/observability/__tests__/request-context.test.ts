@@ -31,10 +31,7 @@ describe("error identity from an interactive request", () => {
     },
     { cookie: "app.session_token=fake", "x-api-key": "external-key" },
   ])("does not authenticate a non-interactive request: %j", async (headers) => {
-    expect(await requestErrorContext(new Headers(headers))).toEqual({
-      authenticated: false,
-      context: {},
-    });
+    expect(await requestErrorContext(new Headers(headers))).toEqual({});
     expect(state.session).not.toHaveBeenCalled();
     expect(state.user).not.toHaveBeenCalled();
   });
@@ -44,11 +41,8 @@ describe("error identity from an interactive request", () => {
     async (name) => {
       const headers = new Headers({ cookie: `${name}=fixture` });
       expect(await requestErrorContext(headers)).toEqual({
-        authenticated: true,
-        context: {
-          user: { id: "tenant-user" },
-          tags: { companyId: "company" },
-        },
+        user: { id: "tenant-user" },
+        tags: { companyId: "company" },
       });
       expect(state.session).toHaveBeenCalledWith({
         headers,
@@ -58,20 +52,14 @@ describe("error identity from an interactive request", () => {
     },
   );
 
-  it("keeps an unscoped authenticated error report when the tenant cannot be verified", async () => {
+  it("leaves the report unscoped when the tenant cannot be verified", async () => {
     state.user.mockResolvedValue(null);
-    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({
-      authenticated: true,
-      context: {},
-    });
+    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({});
   });
 
-  it("preserves authenticated reporting if the optional tenant lookup fails", async () => {
+  it("leaves the report unscoped if the optional tenant lookup fails", async () => {
     state.user.mockRejectedValue(new Error("database unavailable"));
-    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({
-      authenticated: true,
-      context: {},
-    });
+    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({});
   });
 
   it("resolves the reported workspace through the membership service instead of the last-used workspace", async () => {
@@ -84,18 +72,12 @@ describe("error identity from an interactive request", () => {
 
   it("does not attach an inactive workspace member to the report", async () => {
     state.user.mockResolvedValue({ id: "inactive-user", companyId: "company", status: "inactive" });
-    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({
-      authenticated: true,
-      context: {},
-    });
+    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({});
   });
 
-  it("does not invent identity or notify for an invalid session", async () => {
+  it("does not invent identity for an invalid session", async () => {
     state.session.mockResolvedValue(null);
-    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({
-      authenticated: false,
-      context: {},
-    });
+    expect(await requestErrorContext(new Headers({ cookie: "app.session_token=fixture" }))).toEqual({});
     expect(state.user).not.toHaveBeenCalled();
   });
 });

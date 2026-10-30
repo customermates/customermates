@@ -88,7 +88,6 @@ describe("agent e2e flags and environment", () => {
       WORKFLOW_LOCAL_BASE_URL: "http://localhost:4000",
       BASE_URL: "http://localhost:4000",
       NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
-      ERROR_REPORTING_NOTIFICATION_EMAIL: "",
     });
     expect(launch.HOSTED_AI_PROVIDER_WORK_PAUSED).toBe("true");
   });

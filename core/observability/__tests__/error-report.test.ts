@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ERROR_NOTIFICATION_FAILURE_PREFIX, errorFrames, errorReport, scrubErrorText } from "../error-report";
+import { errorFrames, errorReport, scrubErrorText } from "../error-report";
 import { errorReportingEnabled } from "@/core/errors/reporting-provider";
 
 afterEach(() => {
@@ -78,12 +78,10 @@ describe("native error normalization", () => {
     expect(errorReport(error, "browser", context)?.tenant).toBeUndefined();
   });
 
-  it("bounds cyclic causes and excludes reporting failures even when wrapped", () => {
+  it("bounds cyclic causes", () => {
     vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "build-1");
     const error = new Error("failed");
     error.cause = error;
     expect(errorReport(error, "server")?.causes).toBeUndefined();
-    const failure = new Error(`${ERROR_NOTIFICATION_FAILURE_PREFIX} delivery failed`);
-    expect(errorReport(new Error("wrapped", { cause: failure }), "server")).toBeNull();
   });
 });

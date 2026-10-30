@@ -1,5 +1,3 @@
-import * as ErrorReporter from "@/core/observability/server";
-
 import type { WorkflowTenant } from "./workflow-tenant";
 
 import { env } from "@/env";
@@ -31,6 +29,7 @@ export async function reportFailure(
   if (failure.expected) return;
 
   try {
+    const ErrorReporter = await import("@/core/observability/server");
     ErrorReporter.withScope((scope) => {
       scope.setContext("workflow", { workflowName });
       if (tenant) {
@@ -39,7 +38,6 @@ export async function reportFailure(
       }
       ErrorReporter.captureException(error);
     });
-    await ErrorReporter.flush(2000);
   } catch (reportingError) {
     console.error(`[workflow:${workflowName}] failed to report failure to the error reporter`, reportingError);
   }
@@ -54,6 +52,7 @@ export async function reportWarning(workflowName: string, message: string, tenan
   }
 
   try {
+    const ErrorReporter = await import("@/core/observability/server");
     ErrorReporter.withScope((scope) => {
       scope.setContext("workflow", { workflowName });
       scope.setLevel("warning");
@@ -63,7 +62,6 @@ export async function reportWarning(workflowName: string, message: string, tenan
       }
       ErrorReporter.captureMessage(message);
     });
-    await ErrorReporter.flush(2000);
   } catch (reportingError) {
     console.error(`[workflow:${workflowName}] failed to report warning to the error reporter`, reportingError);
   }

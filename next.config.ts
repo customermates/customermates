@@ -163,8 +163,6 @@ export default async function configure(phase: string, context: { defaultConfig:
           ? "local-development"
           : readFileSync(".next/BUILD_ID", "utf8").trim();
     if (!/^[a-zA-Z0-9_-]{1,128}$/.test(buildId)) throw new Error("Invalid error reporting build ID");
-    if (process.env.ERROR_REPORTING_NOTIFICATION_EMAIL && (!env.RESEND_API_KEY || !env.RESEND_OPERATOR_EMAIL))
-      throw new Error("Vercel error reporting requires notification email configuration");
     const release = process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.ERROR_REPORTING_RELEASE ?? "";
     if (release && !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(release))
       throw new Error("Invalid error reporting release commit");

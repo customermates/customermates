@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ install: vi.fn() }));
 vi.mock("@/env", () => ({ env: { NODE_ENV: "production" } }));
-vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), flush: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("@/core/observability/process-errors", () => ({ installProcessErrorHandlers: state.install }));
 
 beforeEach(() => {

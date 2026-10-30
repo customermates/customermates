@@ -83,7 +83,6 @@ export function e2eEnvironment(mode, { baseUrl, databaseUrl, secret }) {
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
     HOSTED_AI_PROVIDER_WORK_PAUSED: "true",
     NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "vercel",
-    ERROR_REPORTING_NOTIFICATION_EMAIL: "errors@customermates.test",
     WEBHOOK_ALLOW_PRIVATE_DESTINATIONS: "true",
     AI_GATEWAY_API_KEY: "",
     NEXT_TELEMETRY_DISABLED: "1",

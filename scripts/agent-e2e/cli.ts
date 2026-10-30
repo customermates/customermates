@@ -138,7 +138,6 @@ export async function runAgentE2e(flags: AgentE2eFlags, launchEnvironment: Envir
       await runBuild({
         ...launchEnvironment,
         NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
-        ERROR_REPORTING_NOTIFICATION_EMAIL: "",
       });
     }
     await rm(environment.workflowDataDir, { recursive: true, force: true });

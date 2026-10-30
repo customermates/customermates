@@ -16,7 +16,6 @@ function exercise(
     const { installProcessErrorHandlers } = await import(${JSON.stringify(moduleUrl)});
     const reporter = {
       captureException(error) { process.stdout.write('captured:' + error.message + '\\n'); },
-      async flush() { await new Promise(r => setTimeout(r, 40)); process.stdout.write('flushed\\n'); return true; }
     };
     const dispose = installProcessErrorHandlers(reporter, ${exitOnFatal});
     installProcessErrorHandlers(reporter);
@@ -35,12 +34,12 @@ function exercise(
 
 describe("native process error boundaries", () => {
   it.each(["uncaughtException", "unhandledRejection"] as const)(
-    "flushes %s once and preserves the default fatal exit",
+    "reports %s once and preserves the default fatal exit",
     (event) => {
       const result = exercise(event);
       expect(result.error).toBeUndefined();
       expect(result.status).toBe(1);
-      expect(result.stdout).toBe("captured:fixture\nflushed\n");
+      expect(result.stdout).toBe("captured:fixture\n");
     },
   );
 
@@ -65,7 +64,7 @@ describe("native process error boundaries", () => {
   it.each(["AbortError", "AI_NoOutputGeneratedError"])("retains the fatal exit policy for ignored %s", (name) => {
     const result = exercise("unhandledRejection", false, "throw", name);
     expect(result.status).toBe(1);
-    expect(result.stdout).toBe("flushed\n");
+    expect(result.stdout).toBe("");
   });
 
   it.each(["uncaughtException", "unhandledRejection"] as const)(

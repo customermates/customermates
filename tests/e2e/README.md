@@ -41,7 +41,7 @@ yarn db:provision
 cp .env.cloud.template .env
 ```
 
-Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true`, `NEXT_PUBLIC_ERROR_REPORTING_PROVIDER=off` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear `ERROR_REPORTING_NOTIFICATION_EMAIL` and `AI_GATEWAY_API_KEY` (a non-empty gateway key changes the offline classifier tests). The verification runner enables error reporting only against its local fake notification provider. Do not copy an existing workstation `.env` or use hosted/demo/production databases.
+Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true`, `NEXT_PUBLIC_ERROR_REPORTING_PROVIDER=off` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear `AI_GATEWAY_API_KEY` (a non-empty gateway key changes the offline classifier tests). The verification runner enables error reporting, which only writes runtime log lines. Do not copy an existing workstation `.env` or use hosted/demo/production databases.
 
 ```sh
 yarn install --frozen-lockfile

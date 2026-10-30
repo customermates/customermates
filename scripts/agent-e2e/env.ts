@@ -83,7 +83,6 @@ export function serverEnvironment(args: {
     BASE_URL: args.appUrl,
     APP_MODE: "cloud",
     NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
-    ERROR_REPORTING_NOTIFICATION_EMAIL: "",
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: "true",
     HOSTED_AI_PROVIDER_WORK_PAUSED: "false",
     HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS: args.monthlySpendCapMicrocents.toString(),

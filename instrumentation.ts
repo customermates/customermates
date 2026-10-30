@@ -27,7 +27,7 @@ export async function register() {
 export const onRequestError: Instrumentation.onRequestError = async (error, request) => {
   if (!errorReportingEnabled() || request.path.startsWith("/api/observability/errors")) return;
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
-  const { captureException, flush } = await import("@/core/observability/server");
+  const { captureException } = await import("@/core/observability/server");
   const { currentErrorContext } = await import("@/core/observability/error-context");
   const headers = new Headers();
   for (const [key, value] of Object.entries(request.headers))
@@ -35,7 +35,6 @@ export const onRequestError: Instrumentation.onRequestError = async (error, requ
   const parent = currentErrorContext(error);
   const context = parent.user?.id
     ? parent
-    : (await (await import("@/core/observability/request-context")).requestErrorContext(headers, request.path)).context;
+    : await (await import("@/core/observability/request-context")).requestErrorContext(headers, request.path);
   captureException(error, { ...context, path: request.path });
-  await flush(2000);
 };
