@@ -175,6 +175,32 @@ describe("social profile identifier routing", () => {
     },
   );
 
+  it("maps a LinkedIn product missing on the account to a product error without an error report", async () => {
+    stubFetch(
+      {
+        object: "Error",
+        status: 403,
+        type: "api/insufficient_permissions",
+        title: "Insufficient permissions",
+        detail: "The LinkedIn product required for this action is not enabled for this account.",
+      },
+      403,
+    );
+
+    const result = await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.linkedinProductUnavailable });
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+  });
+
+  it("keeps reporting an API permission refusal that is not about a LinkedIn product", async () => {
+    stubFetch({ object: "Error", status: 403, type: "api/insufficient_permissions", detail: "Forbidden." }, 403);
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+  });
+
   it("maps an invalid company id to a normal invalid request without Sentry noise", async () => {
     stubFetch({ type: "api/invalid_parameters", detail: "Invalid Company ID." }, 400);
 

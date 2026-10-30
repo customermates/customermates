@@ -172,6 +172,7 @@ export function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
 
   if (err.status === 0) return CustomErrorCode.unipileRequestTimeout;
   if (err.status === 429) return CustomErrorCode.unipileRateLimit;
+  if (isUnipileLinkedinProductMissing(err)) return CustomErrorCode.linkedinProductUnavailable;
   if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
   if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
   if (type.startsWith("provider/"))
@@ -197,6 +198,14 @@ export function isUnipileProviderUnprocessable(err: unknown): err is UnipileRequ
   if (!(err instanceof UnipileRequestError) || err.status !== 422) return false;
 
   return (err.errorType ?? "").endsWith("/unprocessable_entity");
+}
+
+function isUnipileLinkedinProductMissing(err: UnipileRequestError): boolean {
+  return (
+    err.status === 403 &&
+    err.errorType === "api/insufficient_permissions" &&
+    /LinkedIn product required/i.test(unipileBodyField(err.bodyText, "detail") ?? "")
+  );
 }
 
 export function isUnipileSourceForbidden(err: unknown): err is UnipileRequestError {
@@ -418,9 +427,10 @@ export class MessagingService {
         tags: unipileDiagnostics(source),
       });
     } else if (
-      UNIPILE_BAD_IMPL_TYPES.has(type) ||
-      UNIPILE_PERMANENT_TYPES.has(type) ||
-      unipileErrorCode(source) === CustomErrorCode.unipileUnknown
+      !isUnipileLinkedinProductMissing(source) &&
+      (UNIPILE_BAD_IMPL_TYPES.has(type) ||
+        UNIPILE_PERMANENT_TYPES.has(type) ||
+        unipileErrorCode(source) === CustomErrorCode.unipileUnknown)
     )
       ErrorReporter.captureException(source, { tags: unipileDiagnostics(source) });
     else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
