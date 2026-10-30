@@ -45,7 +45,6 @@ export class ProcessDueEventsInteractor {
     } finally {
       endEventDrain(input.companyId, drain);
     }
-    // A busy workspace leaves its due events to a later wake or the record-deliveries sweep, never a hot loop.
     const continued =
       !busy &&
       (drain.rescan ||

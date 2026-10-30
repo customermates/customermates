@@ -43,7 +43,6 @@ export class ProcessEventInteractor {
       );
     } catch (error) {
       if (!attempt.event) {
-        // Another transaction (for example a bulk import) held the company lock: the event stays due, untouched.
         if (!isBusyDatabaseError(error)) throw error;
         Sentry.captureException(error, {
           level: "warning",
