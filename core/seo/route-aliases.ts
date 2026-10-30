@@ -14,6 +14,8 @@ const RETIRED_ROUTE_ALIASES = {
   "/blog/crm-benefits": "/blog/what-is-crm",
   "/blog/crm-best-practices": "/blog/crm-strategy",
   "/blog/crm-consulting": "/blog/crm-implementation",
+  "/blog/crm-implementation-guide": "/blog/crm-implementation",
+  "/blog/crm-introduction": "/blog/what-is-crm",
   "/blog/crm-roi": "/blog/crm-cost",
   "/blog/crm-software": "/blog/what-is-crm",
   "/blog/customer-communication-management": "/blog/customer-interaction-management",
@@ -84,12 +86,14 @@ const RETIRED_ROUTE_ALIASES = {
   "/compare/pipedrive": "/compare/pipedrive-alternative",
   "/compare/salesflare": "/compare/salesflare-alternative",
   "/compare/salesforce": "/compare/salesforce-alternative",
+  "/compare/salesforce-pricing": "/blog/salesforce-pricing",
   "/compare/salesmate": "/compare/salesmate-alternative",
   "/compare/vtiger": "/compare/vtiger-alternative",
   "/compare/weclapp": "/compare/weclapp-alternative",
   "/compare/zoho-crm": "/compare/zoho-crm-alternative",
 
   "/docs/account-settings": "/docs/app-profile",
+  "/docs/company-settings": "/docs/app-company",
   "/docs/comparison": "/compare",
   "/docs/feature-guide-custom-columns": "/docs/app-records",
   "/docs/feature-guide-dashboard-widgets": "/docs/app-dashboard",
@@ -118,6 +122,8 @@ const RETIRED_ROUTE_ALIASES = {
   "/docs/self-host-vs-cloud": "/docs/self-hosting",
   "/docs/setup-ai-assistant": "/docs/connect-custom-connector",
   "/docs/webhook-events": "/docs/webhooks",
+
+  "/mcp": "/docs/mcp",
 } as const satisfies Record<string, string>;
 
 const DUPLICATE_ROUTE_ALIASES = {
