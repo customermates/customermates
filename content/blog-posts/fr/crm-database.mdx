@@ -103,7 +103,7 @@ C’est le problème de conception le plus courant, et il y a quatre réponses h
 1. **Cela décrit un enregistrement existant.** Une date de fin de contrat, un segment de client, une URL LinkedIn. Ajoutez un champ personnalisé typé à ce type d’enregistrement.
 2. **C’est quelque chose que vous vendez.** Mettez-le dans le catalogue de produits ou de services et liez-le aux affaires, afin que la valeur de l’affaire découle de son contenu.
 3. **C’est du texte que vous lisez mais ne filtrez jamais.** Notes de réunion, contexte, préférences. Utilisez le champ de notes.
-4. **Cela a son propre cycle de vie et ses propres relations.** Biens immobiliers, véhicules, candidats, événements. C’est un objet personnalisé. HubSpot les propose sur Enterprise, Salesforce sur sa plateforme, et les bases no-code comme Airtable sont construites autour d’eux. Dans Customermates, vous l’ajoutez comme votre propre liste dans Configurer, avec ses propres champs et relations.
+4. **Cela a son propre cycle de vie et ses propres relations.** Biens immobiliers, véhicules, candidats, évènements. C’est un objet personnalisé. HubSpot les propose sur Enterprise, Salesforce sur sa plateforme, et les bases no-code comme Airtable sont construites autour d’eux. Dans Customermates, vous l’ajoutez comme votre propre liste dans Configurer, avec ses propres champs et relations.
 
 ## Exemple chiffré : une base de données CRM pour un cabinet de conseil de quatre personnes
 
@@ -120,7 +120,7 @@ Voici la même conception dans Customermates, mise en place comme le produit fon
 | Clients | Fonction | Texte |
 | Clients | Profil LinkedIn | Adresse web |
 | Projets | Période de mission | Période |
-| Projets | Source (Recommandation, Entrant, Événement) | Choix unique |
+| Projets | Source (Recommandation, Entrant, Évènement) | Choix unique |
 
 **Relations.** Un client peut être lié à plusieurs organisations, et un projet à plusieurs clients, organisations et utilisateurs assignés. La valeur d’un projet est la somme de ses lignes, chacune étant le prix d’un service multiplié par sa quantité : « Atelier stratégique » à un prix et « Suivi mensuel » multiplié par six s’additionnent tout seuls.
 
@@ -134,7 +134,7 @@ Voici la même conception dans Customermates, mise en place comme le produit fon
 
 **Coût.** Quatre personnes sur Starter paient [[commercial.price.starter.monthly.seats.4]] par mois. Sur Pro, qui ajoute la [boîte de réception unifiée](/features/unified-inbox) pour que le compte d’e-mail, LinkedIn ou WhatsApp connecté de chaque utilisateur affiche ses conversations à côté du client, c’est [[commercial.price.pro.monthly.seats.4]] par mois. La facturation est mensuelle, et l’essai dure [[commercial.trial.days]] jours. L’auto-hébergement du cœur open source n’a pas de frais de licence, mais ni boîte de réception ni Mate.
 
-**Une routine pour la qualité des données (Customermates Cloud).** Mate, l’assistant de Customermates Cloud, utilise des crédits IA hébergés. Une routine exécute des instructions enregistrées selon un calendrier ou sur un événement d’enregistrement, au nom de la personne qui en est propriétaire ; Pro comprend [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur. Une routine hebdomadaire pourrait porter cette instruction :
+**Une routine pour la qualité des données (Customermates Cloud).** Mate, l’assistant de Customermates Cloud, utilise des crédits IA hébergés. Une routine exécute des instructions enregistrées selon un calendrier ou sur un évènement d’enregistrement, au nom de la personne qui en est propriétaire ; Pro comprend [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur. Une routine hebdomadaire pourrait porter cette instruction :
 
 > Chaque lundi, listez les clients créés ces 7 derniers jours qui n’ont aucune organisation liée ou aucune adresse e-mail, et listez les organisations sans valeur de Segment. Donnez les listes dans le résumé de l’exécution. Ne modifiez aucun enregistrement et n’envoyez aucun message.
 
@@ -158,7 +158,7 @@ Un classeur exporté peut être modifié puis réimporté comme **Fiches existan
 
 Dans l’UE, une base de données CRM de personnes constitue des données personnelles au sens du [RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Trois principes de l’article 5 se traduisent directement en conception de base de données : ne garder que des données « limitées à ce qui est nécessaire » (moins de champs), les garder exactes (la routine de nettoyage) et limiter la durée de leur conservation (la suppression trimestrielle). L’article 17 donne aux personnes le droit d’obtenir l’effacement de leurs données : vous devez donc pouvoir retrouver et supprimer complètement une personne. L’article 28 exige un contrat avec tout prestataire qui stocke les données pour vous.
 
-Pour Customermates Cloud, l'[accord de traitement des données](/dpa) est public, la base de données de l’application est configurée dans la région AWS de Francfort, et les [sous-traitants](/subprocessors), fournisseurs américains compris, sont listés. Customermates ne détient aucune certification de conformité. Si vous avez besoin des données sur votre propre serveur, [auto-hébergez le cœur open source](/features/self-hosted).
+Pour Customermates Cloud, l’[accord de traitement des données](/dpa) est public, la base de données de l’application est configurée dans la région AWS de Francfort, et les [sous-traitants](/subprocessors), fournisseurs américains compris, sont listés. Customermates ne détient aucune certification de conformité. Si vous avez besoin des données sur votre propre serveur, [auto-hébergez le cœur open source](/features/self-hosted).
 
 ## Quand Customermates n’est pas la bonne base de données
 

@@ -1,0 +1,196 @@
+---
+title: "What Is an MCP Server? Tools, Local vs Remote, Security"
+description: "What an MCP server is and what it gives Claude, ChatGPT or Cursor: tools, resources, prompts, local vs remote, MCP vs API, risks and a real CRM example."
+
+hero:
+  title: "What Is an MCP Server? A Plain Explanation With a Real Example"
+  description: "An MCP server is the piece that lets an AI client such as Claude, ChatGPT or Cursor read and change data in another system. This guide explains what a server exposes, where it runs, how it differs from an API, which clients use it, the security risks with a checklist, and one real business MCP server end to end."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-10-30
+  tags:
+    - MCP
+    - Model Context Protocol
+    - AI Agents
+    - CRM
+
+relatedHrefs:
+  - /docs/mcp
+  - /docs/connect-custom-connector
+  - /blog/hubspot-mcp
+  - /features/open-source-crm
+---
+
+# What Is an MCP Server? A Plain Explanation With a Real Example
+
+What is an MCP server? It is a program that offers an AI application a set of tools, data and prompt templates through the Model Context Protocol (MCP), an open standard, so that Claude, ChatGPT, Cursor or another MCP client can look things up and take actions in a system it otherwise could not reach. The server sits in front of that system, a file folder, a database or a CRM, and decides what the AI may see and do there.
+
+Anthropic introduced MCP on 25 November 2024 as an open standard for connecting AI assistants to the systems where data lives. Since then the major AI clients have added support, and many software vendors run their own servers. This guide explains the parts in plain terms and then walks through one real server for business data: the MCP server built into Customermates, the open-source CRM that publishes this article.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="In one sentence">
+    An MCP server is a program that gives AI clients tools to call, resources
+    to read and prompts to start from, in one standard format.
+  </SummaryItem>
+  <SummaryItem label="Where it runs">
+    Local servers run on your own machine and talk to one client. Remote
+    servers run as web services and serve many clients over HTTP.
+  </SummaryItem>
+  <SummaryItem label="Versus an API">
+    The API is for code that already knows which endpoint it needs. An MCP
+    server describes its actions so an AI can discover and call them itself.
+  </SummaryItem>
+  <SummaryItem label="Main risk">
+    A connected AI acts with your permissions. Trust the source, give it the
+    narrowest access that works, and keep approvals on for writes.
+  </SummaryItem>
+</ArticleSummary>
+
+## How does MCP work: host, client and server?
+
+The [MCP architecture overview](https://modelcontextprotocol.io/docs/learn/architecture) names three participants:
+
+- **Host:** the AI application you work in, such as Claude Desktop, ChatGPT, Cursor or VS Code.
+- **Client:** a component inside the host that keeps one connection to one server. A host that connects to five servers runs five clients.
+- **Server:** the program that provides the context and actions, for example a filesystem server or a CRM's MCP endpoint.
+
+Under the hood, client and server exchange JSON-RPC 2.0 messages. The client asks the server what it offers, the AI model picks a tool when your request needs one, the host sends the call, and the server returns the result, which goes back into the conversation. You type "find the last email from Acme", and the model decides which tool answers that.
+
+## What does an MCP server expose? Tools, resources and prompts
+
+The [MCP specification](https://modelcontextprotocol.io/specification/latest) defines three things a server can offer:
+
+| Primitive | What it is | Who uses it | Example |
+| --- | --- | --- | --- |
+| Tools | Functions the AI model can call to act or look something up | The model decides when to call one | Search records, create a task, send an email |
+| Resources | Data the client can read as context | The user or the application picks them | A file's contents, a database schema, a page catalog |
+| Prompts | Prepared message templates for a recurring job | The user starts them, often from a menu | "Summarize this workspace", "Review this pull request" |
+
+Every primitive is discoverable: the client calls `tools/list`, `resources/list` or `prompts/list` and gets names, descriptions and, for tools, a JSON Schema of the inputs. That is why an MCP client needs no hand-written integration code for each server. Most servers lead with tools; resources and prompts are optional, and not every client shows them.
+
+## Is an MCP server a real server? Local vs remote
+
+Yes and no. "Server" describes the role in the protocol, not a machine in a data center. The MCP documentation calls a server "local" when the host starts it as a process on your computer and talks to it over standard input and output (stdio), and "remote" when it runs as a web service that clients reach over Streamable HTTP.
+
+| | Local MCP server | Remote MCP server |
+| --- | --- | --- |
+| Where it runs | On your computer, started by the AI application | On the vendor's or your own web server |
+| Transport | stdio (standard input and output) | Streamable HTTP |
+| Clients per server | Usually one | Many |
+| How you add it | A command in the client's configuration file, for example `npx` or `uvx` plus a package | A URL, then sign-in with OAuth or an API key |
+| Sign-in | Often none, or a key in an environment variable | OAuth or an API key per user |
+| Updates | You update the package | The operator updates the server for everyone |
+| Typical use | Files, local databases, developer tools on your machine | SaaS data such as CRM, tickets, documents |
+| Works in browser and mobile clients | No, those clients cannot start local processes | Yes, if the client supports remote servers |
+| Main risk | Runs code on your machine with your rights | Acts in your account with your permissions |
+| Examples | The reference filesystem server | Sentry's hosted server, HubSpot's server at mcp.hubspot.com, the Customermates endpoint |
+
+For business data, remote servers have become the norm: nothing to install, one place to update, and sign-in per user. Claude's custom connectors, for example, are remote MCP servers, while local servers are configured separately in Claude Desktop.
+
+## MCP server vs API: what changes?
+
+An MCP server does not replace an API. In most cases it sits on top of one: each tool calls the same application logic or REST endpoint that a developer would call.
+
+| Question | REST API | MCP server |
+| --- | --- | --- |
+| Who calls it | Code a developer wrote for a known task | An AI model, through any MCP client |
+| How actions are found | Documentation, read by a person | `tools/list` at runtime, with descriptions and input schemas |
+| Integration effort | One integration per app and per client | One server, usable from every MCP client |
+| Output | Data for a program | Text and structured content for a model's conversation |
+| Permissions | The API key or token | The same credentials; the server should enforce the same rules |
+
+Use the API when you know the exact operation, for example a nightly sync. Use MCP when a person asks an AI for help and the AI should pick the right steps itself. Customermates offers both side by side: the [REST API with an OpenAPI spec](/features/api) for code, and the MCP endpoint for AI clients, both with the same permissions.
+
+## Does ChatGPT use MCP? And Claude, Cursor and Gemini?
+
+Yes. Checked on 30 October 2026:
+
+- **Claude:** custom connectors are remote MCP servers. Anthropic's help center lists them for Free (one connector), Pro, Max, Team and Enterprise plans, on claude.ai, Claude Desktop and the mobile apps. Claude Desktop can also run local servers from its configuration file, and Claude Code connects to both.
+- **ChatGPT:** ChatGPT connects to custom remote MCP servers over HTTPS. OpenAI's developer documentation describes adding one as a custom MCP server; which plans may add them, and the name of the feature, has changed several times, so check the current OpenAI page for your plan. OpenAI's API also accepts remote MCP servers as a tool and asks for approval before data is shared with one by default.
+- **Cursor, VS Code, Gemini CLI, Codex:** all act as MCP hosts. The MCP documentation itself uses VS Code as its example host.
+
+A server that follows the specification works with all of them, though clients differ in what they support. Some show only tools and ignore resources and prompts, and they handle approvals differently.
+
+## Do you need an MCP server?
+
+Most people never build one. You connect the servers that your software vendors already run, the same way you install an app. You need a server of your own only when an internal system or a niche tool has none and you want an AI client to work with it.
+
+Before you connect a vendor's server, check three things: whether it is the vendor's official server or a community project, what it can write or delete, and which plan it needs on both sides. Our guides to the [HubSpot MCP server](/blog/hubspot-mcp) and [Salesforce MCP](/blog/salesforce-mcp) show how different two official servers can be, and the [Claude CRM guide](/blog/claude-crm) compares the connectors of several CRMs.
+
+## A real business MCP server, end to end
+
+Most explanations stop at a weather tool. Here is what a production server for customer data looks like, using Customermates as the example. All details below come from the public [MCP reference](/docs/mcp).
+
+**The endpoint.** Customermates runs a remote server at `/api/v1/mcp` on the address you use for the app, plus a workspace-specific URL with the same tools locked to that workspace. It speaks Streamable HTTP. The endpoint is part of every Cloud plan and of self-hosted installations; when you self-host the open-source edition, it is still a remote server, just on your own infrastructure.
+
+**Connecting.** In Claude and ChatGPT you add the URL as a custom connector, sign in and approve ([custom connector setup](/docs/connect-custom-connector)). Claude Code, Codex, Cursor and Gemini CLI connect with an API key in the `x-api-key` header ([CLI setup](/docs/connect-cli)). Either way, the client acts as exactly one user in exactly one workspace, and connecting needs read access to API & Webhooks in that user's role.
+
+**What it exposes.** All three primitives:
+
+- **Tools:** up to [[derived.mcp.tools.total]] tools for records, the data model, saved views, the Knowledge Base, dashboards, routines, webhooks, admin tasks, messaging and social posts. The messaging, calendar and social tools work on Pro and higher in Customermates Cloud. A URL parameter, `?toolsets=`, narrows the list to the groups a client needs.
+- **Resources:** a Knowledge Base catalog that clients with resource support can list and read.
+- **Prompts:** a `get-started` prompt that summarizes the workspace for a first session.
+
+**A typical request.** You ask: "Find Acme and add a task to send them the revised offer." The client first calls `get_workspace_context` to learn the user, roles and company guidance, then `search_crm_records` to find Acme, `get_record_model` to see the fields of the Tasks list, and finally `mutate_crm_record` to create the task and link it to Acme. Each call runs with your permissions; a list you cannot edit in the app cannot be edited through MCP either.
+
+**Guardrails, and what they are not.** The catalog marks which tools are read-only and which can delete data. Deletes move records to Trash for 30 days, and `preview_crm_deletion` shows the effect first. Customer-written text such as notes and emails comes back between untrusted-content markers, so the model can treat it as data rather than instructions. The server also tells clients to confirm with the user before deleting or sending. That last point is guidance to the client, not a gate inside the server: once an authorized client calls a tool, it runs. Set approvals in your client accordingly.
+
+**Who pays for the AI.** An external client such as Claude or ChatGPT uses your own AI subscription. The CRM does not run the model.
+
+Customermates is the wrong choice if you only want to connect an AI to the CRM you already use; then use that CRM's own server. It fits when you are choosing a CRM and want the MCP server, the data and the [open-source code](/features/open-source-crm) in one product.
+
+## What are the security risks of MCP servers?
+
+The specification states that tools represent arbitrary code execution and that tool descriptions should be treated as untrusted unless they come from a trusted server. The [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), Anthropic and OpenAI name these risks:
+
+- **Prompt injection.** A malicious server, or malicious text inside your own data, can carry hidden instructions that steer the model, for example to send data somewhere else.
+- **Too much access.** A token with broad scopes, or a user with admin rights, gives the AI everything that account can do.
+- **Local code execution.** A local server is a program on your machine. A tampered package or a harmful start command in a configuration file runs with your rights.
+- **Changing tools.** The operator can change what a tool does after you approved it.
+- **Token misuse.** Servers that accept or forward tokens not issued for them break the security boundary; the authorization specification forbids this "token passthrough".
+- **Data leaving your control.** Whatever the AI client reads is processed by that client's AI provider, under that provider's terms.
+
+## Security checklist before you connect a server
+
+1. **Use official servers from vendors you trust.** For community servers, read the code or the package before running it.
+2. **Connect as a user with only the rights the job needs.** The AI inherits them; an API key often carries all of the user's permissions.
+3. **Start with reads.** Allow writes once the reads behave, and keep deletes and sending behind a confirmation in the client.
+4. **Narrow the tool list** where the server allows it, and switch off tools a task does not need.
+5. **Approve "always" only for read-only tools.** Review every write call, at least at the start.
+6. **For local servers, read the exact start command** and prefer a sandbox or container.
+7. **Review OAuth consent screens** and deny scopes that look unnecessary.
+8. **Check where data goes.** For customer data in the EU, check the AI provider's processing terms and your records of processing before connecting.
+9. **Revoke what you no longer use.** Delete old API keys and disconnect connectors you stopped using.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="What is an MCP server in simple terms?">
+It is an adapter between an AI assistant and another system. The server tells the AI which actions and data it offers, the AI asks for what it needs, and the server carries out the request with your permissions.
+</FaqItem>
+
+<FaqItem question="What is the difference between an MCP client and an MCP server?">
+The client lives inside the AI application, for example Claude or Cursor, and holds the connection. The server is the program on the other end that offers tools, resources and prompts. One application can run many clients, one per connected server.
+</FaqItem>
+
+<FaqItem question="Is MCP only for Claude?">
+No. Anthropic started MCP as an open standard, and ChatGPT, Cursor, VS Code, Gemini CLI, Codex and many other applications act as MCP clients today. A server built to the specification works with any of them, within each client's feature support.
+</FaqItem>
+
+<FaqItem question="Do I need to code to use an MCP server?">
+No. Remote servers are added with a URL and a sign-in. Local servers need a line in a configuration file, which is a little more technical. You only write code to build a server of your own.
+</FaqItem>
+
+<FaqItem question="Can an MCP server delete my data?">
+If it offers a delete tool and your account may delete, yes. Check which tools a server offers, connect with the narrowest permissions that work, and keep confirmations on for destructive calls in your client. Some servers, such as HubSpot's, document no delete; Customermates offers deletes that move records to Trash for 30 days.
+</FaqItem>
+
+<FaqItem question="Are MCP servers free?">
+The protocol is free and open. Whether a particular server costs money depends on its vendor and plan; your AI client's subscription is a separate cost.
+</FaqItem>
+</Faq>
+
+Sources: checked on 30 October 2026 against the [MCP specification](https://modelcontextprotocol.io/specification/latest), the [MCP architecture overview](https://modelcontextprotocol.io/docs/learn/architecture), the [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), [Anthropic's MCP announcement](https://www.anthropic.com/news/model-context-protocol), [Anthropic's guide to custom connectors with remote MCP](https://support.claude.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp), [OpenAI's guide to connecting an MCP server in ChatGPT](https://developers.openai.com/apps-sdk/deploy/connect-chatgpt) and [OpenAI's MCP servers guide for the API](https://developers.openai.com/api/docs/guides/tools-connectors-mcp).

@@ -434,7 +434,7 @@
         "workspace": {
           "configure": {
             "done": "Espacio de trabajo actualizado",
-            "error": "No se pudo actualizar su espacio de trabajo",
+            "error": "No se pudo actualizar tu espacio de trabajo",
             "running": "Actualizando el espacio de trabajo"
           },
           "inspect": {
@@ -444,12 +444,12 @@
           },
           "read": {
             "done": "Espacio de trabajo revisado",
-            "error": "No se pudo comprobar su espacio de trabajo",
+            "error": "No se pudo comprobar tu espacio de trabajo",
             "running": "Revisando el espacio de trabajo"
           }
         }
       },
-      "yourRecords": "sus registros"
+      "yourRecords": "tus registros"
     },
     "approval": {
       "approve": "Aprobado",
@@ -492,9 +492,9 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "El Asistente alojado no está disponible temporalmente. El historial sigue estando accesible.",
-        "credits_exhausted": "Ha agotado el uso de Mate de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; su historial sigue disponible.",
+        "credits_exhausted": "Has agotado el uso de Mate de este mes. Las nuevas solicitudes se reanudarán el {resetAt}; tu historial sigue disponible.",
         "self_hosted": "El Asistente alojado solo está disponible en la nube. Los espacios de trabajo autoalojados pueden seguir utilizando clientes MCP externos con su propio proveedor de IA.",
-        "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Su historial sigue disponible."
+        "subscription_unavailable": "Para realizar nuevas solicitudes al Asistente alojado se necesita una suscripción cloud vigente. Tu historial sigue disponible."
       },
       "contact": "Contactar con nosotros",
       "plan": "Plan {plan}",
@@ -507,7 +507,7 @@
     "errors": {
       "approvalFailed": "No se pudo enviar la aprobación.",
       "limitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
-      "sendFailed": "Mate no ha podido procesar su mensaje.",
+      "sendFailed": "Mate no ha podido procesar tu mensaje.",
       "stopFailed": "No se pudo detener a Mate. Se está reconectando para que puedas intentarlo de nuevo.",
       "turnFailed": "Se ha producido un error en Mate."
     },
@@ -520,11 +520,11 @@
     },
     "greeting": {
       "headline": "Hola, soy Mate",
-      "subtitle": "Pregúnteme lo que quiera sobre su espacio de trabajo o dígame qué hacer y me encargo.",
+      "subtitle": "Pregúntame lo que quieras sobre tu espacio de trabajo o dime qué hacer y me encargo.",
       "support": "Si algo no sale bien, puedo enviar por correo electrónico a nuestro equipo la conversación reciente, y le responderán por correo electrónico."
     },
     "openSavedView": "Abrir vista guardada",
-    "placeholder": "Pregunte a su CRM…",
+    "placeholder": "Pregunta a tu CRM…",
     "reviewProposal": "Revisar y guardar vista",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
@@ -775,12 +775,12 @@
       "downloadTable": "Descargar tabla",
       "editQueued": "Editar el mensaje en cola",
       "externalLinkTitle": "¿Abrir enlace externo?",
-      "externalLinkWarning": "Este enlace lleva a un sitio web fuera de Customermates. Compruebe la dirección antes de abrirlo.",
+      "externalLinkWarning": "Este enlace lleva a un sitio web fuera de Customermates. Comprueba la dirección antes de abrirlo.",
       "finalizing": "Finalizando y guardando los cambios…",
       "history": "Historial de chats",
       "imageNotAvailable": "Imagen no disponible",
       "linkCopied": "Enlace copiado",
-      "loadChatFailed": "No se pudo cargar el chat. Vuelva a seleccionarlo para reintentar.",
+      "loadChatFailed": "No se pudo cargar el chat. Vuelve a seleccionarlo para reintentar.",
       "loadingChat": "Cargando el chat…",
       "loadingOlderMessages": "Cargando mensajes anteriores",
       "loadMoreChats": "Cargar más chats",
@@ -788,12 +788,12 @@
       "moreActions": "Más acciones para {name}",
       "newChat": "Nuevo chat",
       "noChats": "Aún no hay chats",
-      "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
+      "noChatsBody": "Inicia un chat para volver más tarde a tus preguntas y al trabajo completado.",
       "openLink": "Abrir enlace",
       "preparingAction": "Preparando la siguiente acción…",
       "queued": "A continuación",
       "reconnecting": "Reconectando con Mate…",
-      "refreshHistoryFailed": "No se ha podido actualizar el historial de chats. Sus chats existentes siguen visibles.",
+      "refreshHistoryFailed": "No se ha podido actualizar el historial de chats. Tus chats existentes siguen visibles.",
       "removeQueued": "Quitar el mensaje en cola",
       "responseComplete": "Respuesta completada",
       "restore": "Restaurar",
@@ -1161,7 +1161,7 @@
       "invalidCredentials": "Correo o contraseña no válidos.",
       "invalidEmail": "Introduce una dirección de correo válida.",
       "invalidFilterField": "Campo de filtro no encontrado o no accesible. Campos disponibles: {validValues}.",
-      "invalidFilterOperator": "El operador '{operator}' no está permitido en el campo '{field}'. Operadores permitidos: {validValues}.",
+      "invalidFilterOperator": "El operador «{operator}» no está permitido en el campo «{field}». Operadores permitidos: {validValues}.",
       "invalidFilterValue": "Valor de filtro no válido. El valor debe corresponder al tipo del campo y al operador (por ejemplo un número para gt/lt, una fecha ISO para los campos de fecha, o un id para in/notIn).",
       "invalidGroupingField": "Este campo no puede agrupar la vista. Los campos de selección múltiple y los campos sin valores fijos no pueden agrupar una lista. Campos agrupables: {validValues}.",
       "invalidJsonBody": "El cuerpo de la solicitud no es JSON válido.",
@@ -1313,7 +1313,7 @@
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
       "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
-      "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueva otra página.",
+      "wikiPagePinned": "La guía operativa permanece en primer lugar. Mueve otra página.",
       "wikiPageUpdateEmpty": "Indica al menos un campo para actualizar la página.",
       "wikiProcedureNeedsSteps": "Un procedimiento necesita pasos numerados.",
       "wikiProposalNotFound": "Esta propuesta ya no existe.",
@@ -1774,7 +1774,7 @@
     "accountLimitReached": "Has alcanzado el límite de cuentas conectadas de este plan. Contáctanos sobre el plan Enterprise para tener cuentas ilimitadas.",
     "agentChatDisabled": "El asistente no está disponible temporalmente.",
     "agentChatRequiresCloud": "El asistente está disponible en Customermates Cloud.",
-    "agentChatRequiresPlan": "El asistente no está disponible con su plan actual.",
+    "agentChatRequiresPlan": "El asistente no está disponible con tu plan actual.",
     "alreadyExistsToastDescription": "Esta cuenta ya está conectada por un miembro de tu espacio de trabajo. Pídele que la comparta con el espacio de trabajo para evitar mensajes duplicados en la bandeja de entrada.",
     "alreadyExistsToastTitle": "Cuenta ya conectada",
     "channels": {
@@ -3913,7 +3913,7 @@
         "detailLayout": "Diseños personales de registros todavía usan {subject}.",
         "existingValues": "Algunos valores existentes de {subject} no encajan con el cambio.",
         "existingValuesDetail": "{count, plural, one {# registro tiene un valor} other {# registros tienen valores}} en {subject} que no encajan con el cambio, por ejemplo {examples}. Corrígelos o vacíalos primero.",
-        "readAll": "{subject} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
+        "readAll": "{subject} todavía contiene registros que no puedes ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
         "recordNameField": "{subject} es el nombre de los registros, así que debe seguir siendo un campo de texto de un solo valor. Elige primero otro nombre de los registros en General.",
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
         "savedViewColumn": "La vista guardada {view} todavía usa {column}.",
@@ -4217,7 +4217,7 @@
     "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
     "pluralName": "Nombre en plural",
     "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
-    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puede ver.",
+    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puedes ver.",
     "priceModes": {
       "live": "Precio actual",
       "saved": "Precio guardado"

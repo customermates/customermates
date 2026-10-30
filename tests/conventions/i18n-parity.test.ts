@@ -263,6 +263,16 @@ describe("i18n parity", () => {
     expect(offenders, `application copy contains em dashes:\n${offenders.join("\n")}`).toEqual([]);
   });
 
+  it("never wraps an ICU argument in apostrophes, which ICU reads as an escape", () => {
+    const offenders: string[] = [];
+    for (const locale of ROUTING_LOCALES) {
+      for (const [key, value] of loadLocaleLeaves(locale)) {
+        if (/'\{[^}]*\}/.test(value)) offenders.push(`${locale}:${key}`);
+      }
+    }
+    expect(offenders, `apostrophe-quoted ICU arguments print literally:\n${offenders.join("\n")}`).toEqual([]);
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has every default-locale leaf key in every routing locale", () => {
     const problems: string[] = [];
     for (const locale of otherRoutingLocales) {

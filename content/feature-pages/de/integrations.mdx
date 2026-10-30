@@ -71,7 +71,7 @@ Zustellungen kommen nicht streng geordnet an. Behandeln Sie sie als idempotente 
 
 ## REST-API
 
-Die API ist unter `/api/v1` versioniert, wird per Header `x-api-key` authentifiziert und durch ein OpenAPI-Dokument beschrieben. Dieselben Aktions-Endpunkte bedienen jede Liste, die Ihr Arbeitsbereich anlegt, und adressieren einen Datensatz über `typeId` und `recordId`: `POST /api/v1/records/query` und `/records/search` lesen, `POST /api/v1/records/mutate` legt an, ändert, löscht, verknüpft und löst Verknüpfungen, und seine Aktionen `updateMany` und `deleteMany` ändern bis zu 100 Datensätze pro Anfrage. `POST /api/v1/model/read` liefert Ihre Felder und deren Options-IDs. Das brauchen Sie, weil die Deal-**Phase** ein konfigurierbares Einzelauswahl-Feld ist und kein fester Wert.
+Die API ist unter `/api/v1` versioniert, wird per Header `x-api-key` authentifiziert und durch ein OpenAPI-Dokument beschrieben. Dieselben Aktions-Endpunkte bedienen jede Liste, die Ihr Workspace anlegt, und adressieren einen Datensatz über `typeId` und `recordId`: `POST /api/v1/records/query` und `/records/search` lesen, `POST /api/v1/records/mutate` legt an, ändert, löscht, verknüpft und löst Verknüpfungen, und seine Aktionen `updateMany` und `deleteMany` ändern bis zu 100 Datensätze pro Anfrage. `POST /api/v1/model/read` liefert Ihre Felder und deren Options-IDs. Das brauchen Sie, weil die Deal-**Phase** ein konfigurierbares Einzelauswahl-Feld ist und kein fester Wert.
 
 Ein API-Key erbt die Rechte des Nutzers, der ihn angelegt hat. Eine Einschränkung pro Key gibt es nicht. Legen Sie Keys deshalb mit einem Nutzer an, dessen Rolle zur Integration passt. Mehr dazu auf der [Seite zur API](/features/api).
 

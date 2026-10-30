@@ -5,7 +5,7 @@ description: "Claude lit et met à jour les fiches CRM via MCP. Quels CRM propos
 relatedHrefs:
   - /docs/connect-custom-connector
   - /blog/hubspot-mcp
-  - /blog/salesforce-mcp
+  - /blog/what-is-an-mcp-server
   - /blog/ai-crm
 
 hero:
@@ -28,7 +28,7 @@ blogPost:
 
 # Claude CRM : connecteurs, configuration et validations
 
-Claude n’a pas de CRM à lui, mais il peut travailler dans le vôtre. Grâce à un connecteur basé sur le Model Context Protocol (MCP), Claude trouve, crée et met à jour des fiches dans le CRM, avec les droits de la personne qui l’a connecté. HubSpot, Pipedrive, Zoho CRM, Capsule et Customermates proposent aujourd’hui une telle connexion ; Salesforce pilote son propre plugin Claude. Ce qui les distingue : la formule requise de chaque côté, la possibilité pour Claude de supprimer, et l’endroit où vous décidez quelles actions Claude peut effectuer sans demander.
+Claude n’a pas de CRM à lui, mais il peut travailler dans le vôtre. Grâce à un connecteur basé sur le [Model Context Protocol (MCP)](/blog/what-is-an-mcp-server), Claude trouve, crée et met à jour des fiches dans le CRM, avec les droits de la personne qui l’a connecté. HubSpot, Pipedrive, Zoho CRM, Capsule et Customermates proposent aujourd’hui une telle connexion ; Salesforce pilote son propre plugin Claude. Ce qui les distingue : la formule requise de chaque côté, la possibilité pour Claude de supprimer, et l’endroit où vous décidez quelles actions Claude peut effectuer sans demander.
 
 Vous trouverez ci-dessous un tableau comparatif des éditeurs avec leurs sources, la configuration dans Claude et Claude Code, les réglages de droits qui comptent et le coût pour une petite équipe. Customermates publie ce guide et y figure comme une option parmi d’autres, dans une section signalée.
 
@@ -151,7 +151,7 @@ Quatre prompts pour tester la configuration. Customermates n’a pas d’étapes
 3. « Créez un contact pour Sarah Lee, reliez-la à l’organisation [organisation] et à son affaire, et créez une tâche qui m’est assignée pour envoyer le projet de contrat. » (création et liaison)
 4. « Trouvez mon dernier fil d’e-mails avec Sarah Lee, résumez-le en deux lignes et enregistrez une réponse comme brouillon. Ne l’envoyez pas. » (Pro, boîte de réception)
 
-Si vous préférez ne pas utiliser votre propre client IA, Mate est l’assistant intégré à Customermates Cloud. Il utilise les crédits IA hébergés mensuels par utilisateur actif inclus dans la formule, prépare des résumés et des brouillons de réponse, et exécute des Routines : des instructions enregistrées, selon un planning ou sur des événements de fiche. Dans Customermates Cloud, la base de données de production principale est configurée dans la région AWS de Francfort. C’est un réglage choisi et non une garantie de résidence des données, et les sous-traitants sont listés publiquement.
+Si vous préférez ne pas utiliser votre propre client IA, Mate est l’assistant intégré à Customermates Cloud. Il utilise les crédits IA hébergés mensuels par utilisateur actif inclus dans la formule, prépare des résumés et des brouillons de réponse, et exécute des Routines : des instructions enregistrées, selon un planning ou sur des évènements de fiche. Dans Customermates Cloud, la base de données de production principale est configurée dans la région AWS de Francfort. C’est un réglage choisi et non une garantie de résidence des données, et les sous-traitants sont listés publiquement.
 
 Customermates n’est pas le bon choix si vous avez besoin d’un composeur téléphonique, de séquences d’e-mails ou d’une application mobile native, ou si votre équipe utilise HubSpot ou Salesforce et en est satisfaite. Dans ce cas, utilisez le connecteur de l’éditeur, indiqué dans le tableau ci-dessus.
 

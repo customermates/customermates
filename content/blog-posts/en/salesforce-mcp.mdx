@@ -20,7 +20,7 @@ blogPost:
 
 relatedHrefs:
   - /blog/hubspot-mcp
-  - /blog/claude-crm
+  - /blog/what-is-an-mcp-server
   - /docs/mcp
   - /compare/salesforce-alternative
 ---
@@ -29,7 +29,7 @@ relatedHrefs:
 
 Yes, Salesforce has its own MCP servers, and when people say "Salesforce MCP" they usually mean **Salesforce Hosted MCP Servers**: endpoints run by Salesforce that let Claude, ChatGPT, Cursor or another MCP client read and change records in your org under each user's own permissions. They have been generally available since 29 April 2026 for Enterprise Edition orgs and above. An administrator has to switch them on, and Salesforce says they are intended for customers with Flex Credits.
 
-Developers usually mean something else: the open-source Salesforce DX MCP server, which runs on their own machine. MuleSoft and Heroku have MCP offerings of their own. This guide separates the four, shows the setup and the billing rules as Salesforce documents them on 8 October 2026, and compares the approach with a CRM whose MCP server ships with the product. Disclosure: Customermates, the second CRM discussed here, publishes this guide.
+Developers usually mean something else: the open-source Salesforce DX MCP server, which runs on their own machine as a [local MCP server](/blog/what-is-an-mcp-server). MuleSoft and Heroku have MCP offerings of their own. This guide separates the four, shows the setup and the billing rules as Salesforce documents them on 8 October 2026, and compares the approach with a CRM whose MCP server ships with the product. Disclosure: Customermates, the second CRM discussed here, publishes this guide.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="For CRM data">

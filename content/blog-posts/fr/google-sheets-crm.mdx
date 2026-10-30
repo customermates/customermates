@@ -43,7 +43,7 @@ Customermates publie ce guide et est le CRM de l’exemple de migration à la fi
 
 1. **Une seule ligne d’en-tête, une ligne par enregistrement.** Pas de cellules fusionnées, pas de lignes vides, pas de sous-totaux entre les enregistrements.
 2. **Transformez chaque onglet de données en tableau.** Sélectionnez la plage et choisissez Format › Convertir en tableau. Le [guide des tableaux](https://support.google.com/docs/answer/14239833) de Google permet de définir un type par colonne : Menu déroulant, Date, Devise, Chip de personne et d’autres. Une colonne Date signale alors « mardi prochain » par un avertissement, ce qui compte dès que des formules comparent des dates.
-3. **Faites de chaque valeur fixe une liste déroulante.** Insérer › Menu déroulant, ou Données › Validation des données avec « Menu déroulant (à partir d’une plage) » pointant vers l’onglet Lists. D’après l'[aide sur les listes déroulantes](https://support.google.com/docs/answer/186103) de Google, les saisies non valides sont refusées par défaut. Gardez ce réglage : « Proposal » et « proposal sent » sont deux étapes pour n’importe quelle formule.
+3. **Faites de chaque valeur fixe une liste déroulante.** Insérer › Menu déroulant, ou Données › Validation des données avec « Menu déroulant (à partir d’une plage) » pointant vers l’onglet Lists. D’après l’[aide sur les listes déroulantes](https://support.google.com/docs/answer/186103) de Google, les saisies non valides sont refusées par défaut. Gardez ce réglage : « Proposal » et « proposal sent » sont deux étapes pour n’importe quelle formule.
 4. **Reliez par le nom.** L’entreprise d’un contact est le nom exact de l’entreprise, le contact d’une affaire est le nom complet de la personne. Les noms se lisent, et les imports de CRM, Customermates compris, associent les liens par le nom.
 
 Les noms d’onglets (Lists, Contacts, Deals, Activities, Dashboard) et les valeurs d’étape (Won, Lost et les autres) restent en anglais dans tout ce guide, car les formules et le script ci-dessous les citent tels quels. Ces formules utilisent les noms de fonctions anglais et la virgule comme séparateur, comme dans une feuille réglée sur des paramètres régionaux anglophones (Fichier › Paramètres) ; avec des paramètres régionaux français, remplacez les virgules par des points-virgules.
@@ -56,7 +56,7 @@ Les noms d’onglets (Lists, Contacts, Deals, Activities, Dashboard) et les vale
 | --- | --- |
 | A : Étape, B : Probabilité | Prospecting 10 %, Qualification 20 %, Demo 40 %, Proposal 60 %, Negotiation 80 %, Won 100 %, Lost 0 % |
 | D : Type de contact | Prospect, Client, Partenaire, Ancien client |
-| E : Source | Recommandation, Site web, LinkedIn, Événement, Formulaire web |
+| E : Source | Recommandation, Site web, LinkedIn, Évènement, Formulaire web |
 | F : Type d’activité | Appel, E-mail, Réunion, LinkedIn, WhatsApp |
 | G : Équipe | Nom complet de toutes les personnes qui gèrent des enregistrements |
 
@@ -120,9 +120,9 @@ Placez chacune dans son propre bloc du Dashboard et laissez de la place en desso
 
 ## Ce que Google ajoute autour de la feuille
 
-**Capture de leads avec Google Forms.** Reliez un formulaire à la feuille de calcul sous Réponses › Sélectionner la destination des réponses, et l'[aide de Forms](https://support.google.com/docs/answer/2917686) de Google indique que chaque nouvelle réponse est ajoutée automatiquement. Laissez l’onglet des réponses tel quel et copiez à la main les leads qualifiés dans Contacts. Modifier ou réordonner ses colonnes est le moyen le plus rapide de casser le lien avec le formulaire.
+**Capture de leads avec Google Forms.** Reliez un formulaire à la feuille de calcul sous Réponses › Sélectionner la destination des réponses, et l’[aide de Forms](https://support.google.com/docs/answer/2917686) de Google indique que chaque nouvelle réponse est ajoutée automatiquement. Laissez l’onglet des réponses tel quel et copiez à la main les leads qualifiés dans Contacts. Modifier ou réordonner ses colonnes est le moyen le plus rapide de casser le lien avec le formulaire.
 
-**Alertes de modification.** Outils › Paramètres de notification › Modifier les notifications envoie un e-mail quand quelqu’un modifie le fichier, immédiatement ou sous forme de résumé quotidien. Selon l'[aide sur les notifications](https://support.google.com/docs/answer/91588) de Google, cela ne couvre que les modifications des autres. Cela vous dit qu’Anna a modifié Deals. Cela ne vous dit pas qu’une date de prochaine étape est dépassée.
+**Alertes de modification.** Outils › Paramètres de notification › Modifier les notifications envoie un e-mail quand quelqu’un modifie le fichier, immédiatement ou sous forme de résumé quotidien. Selon l’[aide sur les notifications](https://support.google.com/docs/answer/91588) de Google, cela ne couvre que les modifications des autres. Cela vous dit qu’Anna a modifié Deals. Cela ne vous dit pas qu’une date de prochaine étape est dépassée.
 
 **Un e-mail du matin avec Apps Script.** Pour cela, ouvrez Extensions › Apps Script et collez :
 
@@ -140,15 +140,15 @@ function mailPastNextSteps() {
 }
 ```
 
-Ajoutez ensuite un déclencheur (icône d’horloge › Ajouter un déclencheur), source de l’événement « Selon le temps », type « Minuteur quotidien », entre 7 h et 8 h. La colonne J correspond à l’indice 9, car le tableau commence à 0. Les [quotas d’Apps Script](https://developers.google.com/apps-script/guides/services/quotas) de Google plafonnent un compte Gmail gratuit à 100 destinataires d’e-mails et 90 minutes d’exécution de déclencheurs par jour ; les comptes Workspace obtiennent 1 500 destinataires et 6 heures. Un e-mail par jour reste très en dessous des deux.
+Ajoutez ensuite un déclencheur (icône d’horloge › Ajouter un déclencheur), source de l’évènement « Selon le temps », type « Minuteur quotidien », entre 7 h et 8 h. La colonne J correspond à l’indice 9, car le tableau commence à 0. Les [quotas d’Apps Script](https://developers.google.com/apps-script/guides/services/quotas) de Google plafonnent un compte Gmail gratuit à 100 destinataires d’e-mails et 90 minutes d’exécution de déclencheurs par jour ; les comptes Workspace obtiennent 1 500 destinataires et 6 heures. Un e-mail par jour reste très en dessous des deux.
 
-**Des vues filtrées plutôt que des filtres.** Un filtre normal change l’affichage pour tous ceux qui ont accès. Données › Créer une vue filtrée enregistre un filtre qui ne change que votre propre affichage, comme l’explique l'[aide sur les filtres](https://support.google.com/docs/answer/3540681) de Google. Donnez à chaque personne une vue filtrée « Mes affaires ouvertes » sur Responsable et Étape.
+**Des vues filtrées plutôt que des filtres.** Un filtre normal change l’affichage pour tous ceux qui ont accès. Données › Créer une vue filtrée enregistre un filtre qui ne change que votre propre affichage, comme l’explique l’[aide sur les filtres](https://support.google.com/docs/answer/3540681) de Google. Donnez à chaque personne une vue filtrée « Mes affaires ouvertes » sur Responsable et Étape.
 
 ## Où un CRM sur Google Sheets cesse de fonctionner
 
 La taille est rarement le problème. Google autorise jusqu’à 20 millions de cellules par feuille de calcul dans ses [limites de fichiers Drive](https://support.google.com/drive/answer/37603), bien plus que ce qu’une petite équipe remplit. Ces limites apparaissent en premier :
 
-- **Tout le monde voit tout.** Le partage fonctionne par fichier. Les plages protégées empêchent les modifications, mais l'[aide sur la protection](https://support.google.com/docs/answer/1218656) de Google dit clairement que les personnes peuvent toujours copier et exporter une feuille protégée, et que la protection « ne doit pas être utilisée comme mesure de sécurité ». Un indépendant que vous ajoutez pour mettre à jour deux affaires peut lire toute la liste de clients.
+- **Tout le monde voit tout.** Le partage fonctionne par fichier. Les plages protégées empêchent les modifications, mais l’[aide sur la protection](https://support.google.com/docs/answer/1218656) de Google dit clairement que les personnes peuvent toujours copier et exporter une feuille protégée, et que la protection « ne doit pas être utilisée comme mesure de sécurité ». Un indépendant que vous ajoutez pour mettre à jour deux affaires peut lire toute la liste de clients.
 - **Les liens sont du texte.** Si vous renommez une entreprise, tous les contacts et affaires qui utilisaient l’ancien nom ne pointent plus vers rien tant que vous n’avez pas lancé Rechercher et remplacer.
 - **Les conversations restent ailleurs.** Les fils Gmail, les messages LinkedIn et les discussions WhatsApp n’arrivent dans la feuille que si quelqu’un les résume dans Activities.
 - **Les données personnelles se multiplient.** Chaque téléchargement, chaque copie et chaque « créer une copie pour moi » est un lieu de plus où se trouvent les données d’une personne. Quand quelqu’un fait valoir ses droits au titre du [RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj) pour consulter ses données (article 15) ou les faire effacer (article 17), vous devez toutes les retrouver.

@@ -54,10 +54,10 @@ Pour un cabinet de conseil, une agence ou un fondateur qui reçoit 10 à 50 nouv
 ## Comment les leads arrivent dans Customermates
 
 - **À la main.** **Ajouter** sur la liste des contacts, quelques champs, c’est fait.
-- **Depuis une conversation (Pro et au-delà).** Quand une adresse inconnue écrit à votre boîte de réception connectée, ouvrez **Paramètres de la conversation**, cliquez sur **Lier** à côté de la personne et choisissez **Créer « … »**. Chaque message ultérieur de cette adresse s’affiche sur le nouveau contact. Voir la [boîte de réception unifiée](/features/unified-inbox).
+- **Depuis une conversation (Pro et au-delà).** Quand une adresse inconnue écrit à votre boîte de réception connectée, ouvrez **Paramètres de la conversation**, cliquez sur **Lier** à côté de la personne et choisissez **Créer « … »**. Chaque message ultérieur de cette adresse s’affiche sur le nouveau contact. Voir la [boîte de réception unifiée](/features/unified-inbox).
 - **Depuis un tableur.** Enregistrez votre liste en classeur .xlsx et utilisez **Plus d’actions › Ajouter depuis un fichier**. Importez d’abord les organisations, puis les contacts. Une liste de leads achetée à une agence externe de génération de leads, ou construite par elle, s’importe de la même façon.
 - **Depuis un formulaire de site web que vous utilisez déjà.** Votre outil de formulaire ou un [workflow n8n](/features/workflow-automation) distinct appelle l’API REST et crée le contact avec sa valeur de source. Customermates n’a pas de générateur de formulaires propre.
-- **Depuis votre client IA.** Claude, ChatGPT ou un autre client MCP peut créer des contacts à partir d’une signature d’e-mail ou d’une liste d’événement collée, avec [[derived.mcp.tools.total]] outils disponibles.
+- **Depuis votre client IA.** Claude, ChatGPT ou un autre client MCP peut créer des contacts à partir d’une signature d’e-mail ou d’une liste d’évènement collée, avec [[derived.mcp.tools.total]] outils disponibles.
 
 ## Mise en place : un cabinet de trois personnes
 
@@ -65,7 +65,7 @@ Un nouvel espace de travail démarre sans listes ni champs. Créez une liste de 
 
 <Steps>
   <Step title="Nommez les leads comme des leads">Dans **Configurer**, ouvrez Contacts et renommez la liste **Leads** sous **Général** si votre équipe parle ainsi. Le changement s’applique à tout l’espace de travail.</Step>
-  <Step title="Ajoutez deux champs sur les contacts">**Source** (Choix unique : Recommandation, Site web, LinkedIn, Événement, Partenaire) et **Adéquation** (Choix unique : Forte, Incertaine, Faible). Gardez peu d’options pour que les filtres restent utiles.</Step>
+  <Step title="Ajoutez deux champs sur les contacts">**Source** (Choix unique : Recommandation, Site web, LinkedIn, Évènement, Partenaire) et **Adéquation** (Choix unique : Forte, Incertaine, Faible). Gardez peu d’options pour que les filtres restent utiles.</Step>
   <Step title="Enregistrez deux vues personnelles">« Nouveaux et non assignés » : **Pipeline commercial** est Nouveau et **Attribué à** est vide. « Mes leads ouverts » : **Attribué à** est vous et **Pipeline commercial** est Contact, Qualifié ou En cours, trié par **Mis à jour le**, du plus ancien au plus récent.</Step>
   <Step title="Travaillez sur le board">Passez « Mes leads ouverts » en board, regroupé par **Pipeline commercial**, et faites glisser une carte quand la conversation avance.</Step>
   <Step title="Ouvrez une affaire quand cela devient sérieux">Dès qu’un lead demande une proposition, créez une affaire, liez le contact et son organisation, et ajoutez une ligne pour chaque service que vous vendriez. La valeur de l’affaire est la somme de ses lignes, chacune étant un service multiplié par une quantité.</Step>
@@ -81,13 +81,13 @@ Donnez un poids à chaque étape d’affaire, par exemple 10, 20, 40, 60 et 80 p
 
 Sur le tableau de bord, un widget graphique sur les contacts regroupés par **Source** montre combien de leads chaque canal a apportés. Le même graphique sur les affaires, avec un champ Source sur les affaires et en additionnant **Valeur**, montre quels canaux rapportent de l’argent. Un graphique **Entonnoir** montre les enregistrements actuels par étape avec la conversion d’une étape à l’autre ; la conversion dans le temps n’est pas suivie : exportez donc la liste vers Excel si vous la voulez.
 
-Pour suivre les leads dans d’autres systèmes au fil des changements, des webhooks se déclenchent sur `record.created` et `record.updated` pour les listes Contacts et Affaires, parmi [[derived.webhooks.events.total]] événements. Un message Slack sur un nouveau lead passe par n8n ou votre propre point de terminaison ; il n’y a pas d’intégration Slack native. Chaque modification d’un lead se retrouve dans son historique, que peuvent voir les rôles disposant de l’accès en lecture au **Journal d’audit**.
+Pour suivre les leads dans d’autres systèmes au fil des changements, des webhooks se déclenchent sur `record.created` et `record.updated` pour les listes Contacts et Affaires, parmi [[derived.webhooks.events.total]] évènements. Un message Slack sur un nouveau lead passe par n8n ou votre propre point de terminaison ; il n’y a pas d’intégration Slack native. Chaque modification d’un lead se retrouve dans son historique, que peuvent voir les rôles disposant de l’accès en lecture au **Journal d’audit**.
 
 ## Mate et les routines sur les nouveaux leads (Customermates Cloud)
 
 Dans Customermates Cloud, Mate, l’assistant hébergé, utilise des crédits IA hébergés et travaille sur les leads en langage courant : « Montrez tous les leads avec Source LinkedIn et Pipeline commercial Contact, mis à jour pour la dernière fois il y a plus de deux semaines, et rédigez une courte relance dans la conversation de chaque lead. N’envoyez rien. »
 
-Une [routine](/docs/app-routines) exécute une consigne enregistrée de façon autonome. Réglez le déclencheur sur **Quand quelque chose change** avec l’événement **Enregistrement créé** pour Contacts, et donnez-lui une consigne comme :
+Une [routine](/docs/app-routines) exécute une consigne enregistrée de façon autonome. Réglez le déclencheur sur **Quand quelque chose change** avec l’évènement **Enregistrement créé** pour Contacts, et donnez-lui une consigne comme :
 
 ```text
 Un nouveau lead vient d’être créé. Lire le contact et toute conversation liée. Si Source est vide et que la conversation montre d’où vient la personne, renseigner Source. Régler Adéquation sur Incertaine si le champ est vide. Rédiger une réponse dans la conversation mais ne pas l’envoyer. Ne pas modifier Attribué à.
@@ -101,7 +101,7 @@ En auto-hébergement, il n’y a pas de Mate. Votre propre client IA fait le mê
 
 - Pas de scoring des leads ni d’enrichissement de données. Un champ Adéquation contient ce que décide votre équipe.
 - Pas de formulaires web ni de widgets de chat intégrés.
-- Pas de règles d’assignation automatique. Une routine peut suivre votre règle écrite (« assigner à Jana les leads venant d’Événement »), mais c’est une consigne, pas un moteur de répartition.
+- Pas de règles d’assignation automatique. Une routine peut suivre votre règle écrite (« assigner à Jana les leads venant d’Évènement »), mais c’est une consigne, pas un moteur de répartition.
 - Pas de séquences d’e-mails, de campagnes d’envois échelonnés ni d’envois en masse. Les relances sont des messages isolés.
 - Pas de rappels ni d’échéances sur les tâches. Mettez une date dans un champ personnalisé et filtrez dessus.
 - Pas d’application mobile. L’application web fonctionne sur les écrans étroits.
