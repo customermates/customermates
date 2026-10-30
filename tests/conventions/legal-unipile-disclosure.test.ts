@@ -26,7 +26,6 @@ const EXTERNAL_IMAGE_HOSTS = [
   "b.sf-syn.com",
   "twelve.tools",
   "wired.business",
-  "startupfa.me",
   "open-launch.com",
 ] as const;
 
