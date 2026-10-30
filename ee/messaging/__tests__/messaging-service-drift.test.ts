@@ -123,6 +123,53 @@ describe("social profile identifier routing", () => {
     },
   );
 
+  it("requests the experience section for a LinkedIn person so current positions are returned", async () => {
+    stubFetch({ object: "UserProfile", id: "ACoAAResult", display_name: "Ada Lovelace" });
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "ada", provider: "linkedin" });
+
+    expect(firstRequestUrl().searchParams.getAll("with_sections")).toEqual(["linkedin_experience"]);
+  });
+
+  it("requests no LinkedIn sections for an Instagram profile", async () => {
+    stubFetch({ object: "UserProfile", id: "17841400000000000", display_name: "Ada" });
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "ada", provider: "instagram" });
+
+    expect(firstRequestUrl().searchParams.has("with_sections")).toBe(false);
+  });
+
+  it("keeps the v2 top-level profile fields when parsing a person profile", async () => {
+    stubFetch({
+      object: "UserProfile",
+      id: "ACoAAResult",
+      display_name: "Ada Lovelace",
+      description: "Engineer at Analytical Engines",
+      location: "London, United Kingdom",
+      followers_count: 42,
+      specifics: {
+        network_distance: "SECOND_DEGREE",
+        experience: [{ company: { id: "1", name: "Analytical Engines" }, job_title: "Engineer" }],
+      },
+    });
+
+    const result = await new MessagingService().getSocialProfile({
+      accountId: "acc_1",
+      identifier: "ada",
+      provider: "linkedin",
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        description: "Engineer at Analytical Engines",
+        location: "London, United Kingdom",
+        followers_count: 42,
+        specifics: { experience: [{ company: { name: "Analytical Engines" }, job_title: "Engineer" }] },
+      },
+    });
+  });
+
   it("uses the dedicated LinkedIn company route and normalizes its response", async () => {
     stubFetch({
       object: "CompanyProfile",

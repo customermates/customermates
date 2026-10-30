@@ -107,6 +107,7 @@ const SocialProfileSpecificsSchema = z.looseObject({
           })
           .nullish(),
         job_title: z.string().nullish(),
+        title: z.string().nullish(),
         ended_on: z.string().nullish(),
       }),
     )
@@ -154,7 +155,12 @@ export const SocialProfileSchema = z.looseObject({
   last_name: z.string().nullish(),
   profile_url: z.string().nullish(),
   public_picture_url: z.string().nullish(),
-  description: z.string().nullish(),
+  description: z.string().nullish().describe("LinkedIn headline or profile description"),
+  location: z.string().nullish(),
+  followers_count: z.number().nullish(),
+  relations_count: z.number().nullish(),
+  shared_relations_count: z.number().nullish(),
+  is_premium: z.boolean().nullish(),
   specifics: SocialProfileSpecificsSchema.nullish(),
 });
 export type SocialProfile = z.infer<typeof SocialProfileSchema>;
