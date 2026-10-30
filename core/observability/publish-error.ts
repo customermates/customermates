@@ -24,5 +24,5 @@ export function errorFingerprint(report: Pick<ErrorReport, "source" | "name" | "
 }
 
 export function publishServerError(report: ErrorReport): void {
-  logRuntimeEvent({ ...report, fingerprint: errorFingerprint(report) });
+  logRuntimeEvent({ fingerprint: errorFingerprint(report), ...report });
 }

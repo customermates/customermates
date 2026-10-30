@@ -41,7 +41,7 @@ describe("errorFingerprint", () => {
 });
 
 describe("publishServerError", () => {
-  it("writes one structured log line with the fingerprint", () => {
+  it("writes one structured log line that leads with the fingerprint", () => {
     const lines: string[] = [];
     vi.spyOn(console, "info").mockImplementation((line) => lines.push(String(line)));
     publishServerError(report());
