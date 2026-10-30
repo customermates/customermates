@@ -32,7 +32,7 @@ describe("native browser reporting", () => {
     expect(report.frames).toEqual([{ file: "https://app.test/script.js", column: 0 }]);
   });
 
-  it("does not report transport drops, deployment skew, Next.js control flow or crawler runtimes", async () => {
+  it("does not report transport drops, deployment skew, server errors, Next.js control flow or crawler runtimes", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
     vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "browser-fixture");
@@ -50,11 +50,8 @@ describe("native browser reporting", () => {
     const deno = new TypeError("Cannot read properties of undefined (reading 'getReader')");
     deno.stack = `${deno.message}\n    at eventLoopTick (ext:core/01_core.js:178:7)`;
     reporter.captureException(deno);
-    expect(await reporter.flush()).toBe(true);
-    expect(fetch).not.toHaveBeenCalled();
-
     reporter.captureException(Object.assign(new Error("render"), { digest: "1234567" }));
     expect(await reporter.flush()).toBe(true);
-    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch).not.toHaveBeenCalled();
   });
 });

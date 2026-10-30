@@ -2495,12 +2495,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Los errores del navegador se capturan con su pila y ruta. Las alertas por correo al operador son opcionales.",
+      "description": "Los errores del navegador se capturan con su pila y ruta.",
       "title": "Lado del cliente",
       "triggerClientError": "Lanzar un error de cliente no capturado"
     },
     "serverSideError": {
-      "description": "Los errores del servidor se registran con su pila original, ruta y contexto del espacio de trabajo autenticado.",
+      "description": "Los errores del servidor se registran con su pila, ruta y contexto del espacio de trabajo autenticado.",
       "title": "Server action",
       "triggerServerError": "Lanzar un error de server action"
     },

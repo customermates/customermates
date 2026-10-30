@@ -2495,12 +2495,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Uncaught browser errors are captured with their stack and route. Operator email alerts are optional.",
+      "description": "Uncaught browser errors are captured with their stack and route.",
       "title": "Client-Side",
       "triggerClientError": "Throw uncaught client error"
     },
     "serverSideError": {
-      "description": "Server errors are captured with their original stack, route and authenticated workspace context.",
+      "description": "Server errors are captured with their stack, route and authenticated workspace context.",
       "title": "Server Action",
       "triggerServerError": "Throw server action error"
     },

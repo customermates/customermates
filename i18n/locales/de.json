@@ -2495,12 +2495,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Nicht abgefangene Browserfehler werden mit Stack und Route erfasst. E-Mail-Benachrichtigungen für Betreiber sind optional.",
+      "description": "Nicht abgefangene Browserfehler werden mit Stack und Route erfasst.",
       "title": "Client-seitig",
       "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
-      "description": "Serverfehler werden mit ursprünglichem Stack, Route und authentifiziertem Workspace-Kontext erfasst.",
+      "description": "Serverfehler werden mit Stack, Route und authentifiziertem Workspace-Kontext erfasst.",
       "title": "Server-Action",
       "triggerServerError": "Server-Action-Fehler werfen"
     },

@@ -2495,12 +2495,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Les erreurs du navigateur sont capturées avec leur pile et leur route. Les alertes par e-mail à l’opérateur sont facultatives.",
+      "description": "Les erreurs du navigateur sont capturées avec leur pile et leur route.",
       "title": "Côté client",
       "triggerClientError": "Déclencher une erreur client non interceptée"
     },
     "serverSideError": {
-      "description": "Les erreurs serveur sont enregistrées avec leur pile originale, leur route et le contexte de l’espace de travail authentifié.",
+      "description": "Les erreurs serveur sont enregistrées avec leur pile, leur route et le contexte de l’espace de travail authentifié.",
       "title": "Action serveur",
       "triggerServerError": "Déclencher une erreur d’action serveur"
     },

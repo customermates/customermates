@@ -2495,12 +2495,12 @@
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Gli errori del browser vengono acquisiti con stack e percorso. Gli avvisi e-mail all’operatore sono facoltativi.",
+      "description": "Gli errori del browser vengono acquisiti con stack e percorso.",
       "title": "Lato client",
       "triggerClientError": "Genera un errore client non gestito"
     },
     "serverSideError": {
-      "description": "Gli errori del server vengono registrati con stack originale, percorso e contesto dello spazio di lavoro autenticato.",
+      "description": "Gli errori del server vengono registrati con stack, percorso e contesto dello spazio di lavoro autenticato.",
       "title": "Server action",
       "triggerServerError": "Genera un errore di server action"
     },

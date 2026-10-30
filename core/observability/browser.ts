@@ -23,7 +23,7 @@ export async function publishBrowserError(report: ErrorReport): Promise<void> {
 }
 
 export function captureException(error: unknown, context: CaptureContext = {}): void {
-  if (!errorReportingEnabled() || !isReportableError(error)) return;
+  if (!errorReportingEnabled() || !isReportableError(error) || errorDigest(error)) return;
   if (process.env.NODE_ENV !== "production") return;
   if (error && typeof error === "object") {
     if (reported.has(error)) return;
@@ -32,7 +32,6 @@ export function captureException(error: unknown, context: CaptureContext = {}): 
   const report = errorReport(error, "browser", {
     ...context,
     path: typeof window !== "undefined" ? window.location.pathname : undefined,
-    digest: errorDigest(error) ?? undefined,
   });
   if (report) void queue.send(report).catch(() => undefined);
 }

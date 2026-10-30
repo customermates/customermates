@@ -91,6 +91,7 @@ const nextConfig: NextConfig = {
     webpackMemoryOptimizations: true,
     globalNotFound: true,
     serverSourceMaps: false,
+    serverMinification: false,
     turbopackSourceMaps: false,
     serverActions: {
       bodySizeLimit: "25mb",
