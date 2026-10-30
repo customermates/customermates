@@ -97,7 +97,7 @@ Les manuels distinguent le CRM opérationnel, analytique et collaboratif, et cer
 
 ## Exemples d’entreprises réelles, tels que les éditeurs les rapportent
 
-La plupart des exemples d'« entreprises réelles » utilisant un CRM sur Internet proviennent d’études de cas d’éditeurs. Considérez les chiffres ci-dessous comme ce que l’éditeur rapporte à propos de son propre client, pas comme des résultats indépendants.
+La plupart des exemples d’« entreprises réelles » utilisant un CRM sur Internet proviennent d’études de cas d’éditeurs. Considérez les chiffres ci-dessous comme ce que l’éditeur rapporte à propos de son propre client, pas comme des résultats indépendants.
 
 - **Siemens.** Salesforce écrit que Siemens a placé 18 000 commerciaux, revendeurs et partenaires sur un seul CRM, en unifiant les données de sept unités commerciales avec Sales Cloud ([exemples de CRM de Salesforce](https://www.salesforce.com/crm/examples/)).
 - **FedEx.** Selon la même page de Salesforce, FedEx utilise Marketing Cloud pour envoyer des e-mails de réactivation personnalisés et pour repérer les devis qui ne sont pas suivis d’un envoi, et Salesforce rapporte une amélioration de 13 % de l’activation des clients.
@@ -117,7 +117,7 @@ Voici les modèles d’enregistrements qui fonctionnent pour des activités cour
 | Immobilier | Acheteurs et vendeurs comme contacts, biens ou mandats comme affaires | Demande, Visite, Offre, Signature chez le notaire, Conclue | Deux parties par affaire, travail très téléphonique | Partielle ; il n’y a pas de téléphonie, les appels sont donc consignés à la main |
 | Service de support | Clients, historique des conversations | Ouvert, En attente, Résolu | Files de tickets et SLA | Faible ; utilisez plutôt un outil de support client |
 | Fidélisation en boutique en ligne | Clients, commandes | Aucune ; les données d’achat pilotent tout | Intégration à la boutique et e-mails de campagne | Faible ; utilisez un CRM intégré à votre boutique ou à votre plateforme d’e-mailing |
-| Association ou club | Membres, événements | Candidature, Approuvé, Renouvellement dû, Expiré | Listes de membres, renouvellements | Utilisable pour de petites listes ; pas d’envoi de campagnes |
+| Association ou club | Membres, évènements | Candidature, Approuvé, Renouvellement dû, Expiré | Listes de membres, renouvellements | Utilisable pour de petites listes ; pas d’envoi de campagnes |
 
 Deux règles valent pour toutes les lignes. Modélisez ce que vous vendez comme l’affaire, même si vous l’appelez mandat, poste ou mission. Et gardez la liste des étapes assez courte pour que chacun s’accorde sur la position d’une affaire.
 
@@ -127,8 +127,8 @@ Voici un exemple poussé jusqu’aux colonnes. Il utilise les vraies listes et l
 
 <Steps>
   <Step title="Configurer les listes">Les clients vont dans **Organisations**, les personnes dans **Contacts**, et chaque mission que vous cherchez à décrocher dans **Affaires**. Vos offres standard vont dans **Services**, avec un prix chacune (par exemple « Atelier de stratégie » et « Mission mensuelle »), et la valeur d’une affaire découle de ses lignes, chacune étant un service et une quantité.</Step>
-  <Step title="Renommer les étapes des affaires">L'**Étape** d’une affaire est un champ à choix unique. Remplacez les valeurs par défaut par Demande, Appel de découverte, Proposition envoyée, Gagnée et Perdue. Chaque option porte une probabilité, si bien que chaque affaire reçoit une valeur pondérée à côté de sa valeur.</Step>
-  <Step title="Ajouter trois champs personnalisés">Sur les affaires : « Type de mission » (Choix unique : Projet, Mission récurrente, Atelier), « Source du lead » (Choix unique : Recommandation, LinkedIn, Site web, Événement) et « Début prévu » (Date). Customermates n’a pas d’étiquettes ; les champs à choix unique jouent ce rôle et peuvent être filtrés et regroupés.</Step>
+  <Step title="Renommer les étapes des affaires">L’**Étape** d’une affaire est un champ à choix unique. Remplacez les valeurs par défaut par Demande, Appel de découverte, Proposition envoyée, Gagnée et Perdue. Chaque option porte une probabilité, si bien que chaque affaire reçoit une valeur pondérée à côté de sa valeur.</Step>
+  <Step title="Ajouter trois champs personnalisés">Sur les affaires : « Type de mission » (Choix unique : Projet, Mission récurrente, Atelier), « Source du lead » (Choix unique : Recommandation, LinkedIn, Site web, Évènement) et « Début prévu » (Date). Customermates n’a pas d’étiquettes ; les champs à choix unique jouent ce rôle et peuvent être filtrés et regroupés.</Step>
   <Step title="Enregistrer une vue personnelle">Sur **Affaires**, filtrez Étape = Proposition envoyée et utilisateurs assignés = vous, triez par date de mise à jour et enregistrez la vue avec **Nouvelle vue** sous le nom « Mes propositions ouvertes ». Les vues enregistrées sont personnelles : chaque collègue règle les mêmes filtres et enregistre sa propre vue.</Step>
   <Step title="Importer les clients existants">Exportez votre liste de clients dans un classeur Excel (.xlsx) et importez d’abord les organisations, puis les contacts, une liste à la fois. Voir [enregistrements, import et vues](/docs/app-records) pour la correspondance des colonnes.</Step>
   <Step title="Connecter la boîte de réception (Pro ou supérieur)">Chaque consultant connecte sa messagerie ou son compte LinkedIn dans la [boîte de réception unifiée](/features/unified-inbox). Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur et Business [[commercial.entitlement.business.includedAccountsPerUser]] : un consultant qui veut l’e-mail, LinkedIn et WhatsApp côte à côte a donc besoin de Business. Starter n’a pas de boîte de réception.</Step>

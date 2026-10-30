@@ -1,6 +1,6 @@
 ---
 title: "Automatisation des workflows CRM : routines, webhooks, n8n"
-description: "Automatisez le CRM : routines IA planifiées ou sur événement, webhooks, REST et n8n pour les règles fixes. Formules, limites et deux exemples concrets."
+description: "Automatisez le CRM : routines IA planifiées ou sur évènement, webhooks, REST et n8n pour les règles fixes. Formules, limites et deux exemples concrets."
 featureName: Automatisation des workflows
 
 relatedHrefs:
@@ -52,12 +52,12 @@ Customermates propose deux façons de construire cela. Les **routines** de Custo
 
 Notre règle empirique : si une étape doit se comporter à l’identique à chaque fois, comme créer les mêmes tâches pour chaque affaire gagnée, utilisez un webhook et n8n. Une routine est une exécution d’IA qui lit, décide et écrit : son résultat varie donc un peu et chaque exécution consomme des crédits. Utilisez-la là où la lecture est l’essentiel.
 
-## Routines : travail IA planifié et déclenché par événement
+## Routines : travail IA planifié et déclenché par évènement
 
 Les routines n’existent que dans Customermates Cloud. Une routine se compose d’un nom, d’une consigne de 5 000 caractères au plus et d’un déclencheur. Quand le déclencheur se produit, Mate démarre une nouvelle conversation avec cette consigne et travaille seul, en tant que propriétaire de la routine : il voit ce que voit le propriétaire et dépense ses crédits. Les changements faits par une routine ne déclenchent jamais d’autres routines, elles ne peuvent donc pas boucler. Le [guide des routines](/docs/app-routines) couvre chaque option.
 
 - **Selon un planning :** toutes les 15 ou 30 minutes, toutes les heures, chaque jour, chaque semaine ou chaque mois. Mate peut aussi définir un planning cron personnalisé, par exemple en semaine à 09:00.
-- **Quand quelque chose change :** n’importe quel événement d’enregistrement sur n’importe quelle liste, des contacts, organisations, affaires, services et tâches à vos propres listes, plus les événements de la boîte de réception à l’exception des e-mails et conversations supprimés et des suppressions définitives. **Champs modifiés** restreint un déclencheur de mise à jour à des champs comme l’**Étape** de l’affaire, et **Filtres d’enregistrement** à des enregistrements comme les affaires qui vous sont assignées.
+- **Quand quelque chose change :** n’importe quel évènement d’enregistrement sur n’importe quelle liste, des contacts, organisations, affaires, services et tâches à vos propres listes, plus les évènements de la boîte de réception à l’exception des e-mails et conversations supprimés et des suppressions définitives. **Champs modifiés** restreint un déclencheur de mise à jour à des champs comme l’**Étape** de l’affaire, et **Filtres d’enregistrement** à des enregistrements comme les affaires qui vous sont assignées.
 
 | Limite | Valeur actuelle |
 |---|---|
@@ -91,7 +91,7 @@ Cela exige la [boîte de réception unifiée](/features/unified-inbox), qui comm
 
 <Steps>
   <Step title="Connectez une messagerie">Connectez Gmail, Outlook ou IMAP sous **Paramètres › Canaux**.</Step>
-  <Step title="Ajoutez la routine">Choisissez **Quand quelque chose change** et l’événement **E-mail reçu**. Pour WhatsApp ou LinkedIn, choisissez **Message reçu**.</Step>
+  <Step title="Ajoutez la routine">Choisissez **Quand quelque chose change** et l’évènement **E-mail reçu**. Pour WhatsApp ou LinkedIn, choisissez **Message reçu**.</Step>
   <Step title="Collez la consigne">Utilisez le texte ci-dessous et enregistrez.</Step>
   <Step title="Relisez les brouillons">Dans la boîte de réception, réglez le filtre **Brouillon** sur **en a au moins un**. Modifiez un brouillon et cliquez sur **Envoyer le brouillon**, ou abandonnez-le.</Step>
 </Steps>
@@ -104,11 +104,11 @@ Utilisation des crédits : chaque exécution qui démarre consomme des crédits
 
 ### Changements d’étape : routine ou n8n
 
-Une routine sur **Enregistrement mis à jour** pour Affaires, avec **Champs modifiés** réglé sur **Étape** et un filtre d’enregistrement sur Gagnée, peut créer des tâches d’intégration, les assigner aux mêmes personnes que l’affaire et les lier à l’affaire. Dans n8n, le même travail ne coûte aucun crédit et ne varie jamais : le webhook délivre un événement `record.updated` avec la valeur `before` et `after` de chaque champ modifié, un nœud IF vérifie la nouvelle étape et un nœud HTTP Request crée les tâches. Choisissez la routine quand les tâches dépendent de ce qui a été convenu dans les e-mails, et n8n quand elles sont toujours les mêmes.
+Une routine sur **Enregistrement mis à jour** pour Affaires, avec **Champs modifiés** réglé sur **Étape** et un filtre d’enregistrement sur Gagnée, peut créer des tâches d’intégration, les assigner aux mêmes personnes que l’affaire et les lier à l’affaire. Dans n8n, le même travail ne coûte aucun crédit et ne varie jamais : le webhook délivre un évènement `record.updated` avec la valeur `before` et `after` de chaque champ modifié, un nœud IF vérifie la nouvelle étape et un nœud HTTP Request crée les tâches. Choisissez la routine quand les tâches dépendent de ce qui a été convenu dans les e-mails, et n8n quand elles sont toujours les mêmes.
 
 ## Webhooks, REST et n8n : des règles dans toutes les formules
 
-Customermates envoie un POST JSON pour chacun des [[derived.webhooks.events.total]] types d’événement : [[derived.webhooks.events.records]] événements d’enregistrement et [[derived.webhooks.events.messaging]] événements de boîte de réception. Les événements d’enregistrement couvrent chaque liste, les vôtres comprises. L’**Étape** d’une affaire est un champ à choix unique configurable : un changement d’étape arrive donc comme `record.updated` pour la liste Affaires, avec les valeurs `before` et `after` du champ. Les livraisons sont signées en HMAC-SHA256 quand vous définissez un secret, retentées automatiquement en cas de délai dépassé ou d’erreur serveur, jusqu’à 10 tentatives au total, et consignées sous **Livraisons**. La [référence des webhooks](/docs/webhooks) liste chaque charge utile.
+Customermates envoie un POST JSON pour chacun des [[derived.webhooks.events.total]] types d’évènement : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de boîte de réception. Les évènements d’enregistrement couvrent chaque liste, les vôtres comprises. L’**Étape** d’une affaire est un champ à choix unique configurable : un changement d’étape arrive donc comme `record.updated` pour la liste Affaires, avec les valeurs `before` et `after` du champ. Les livraisons sont signées en HMAC-SHA256 quand vous définissez un secret, retentées automatiquement en cas de délai dépassé ou d’erreur serveur, jusqu’à 10 tentatives au total, et consignées sous **Livraisons**. La [référence des webhooks](/docs/webhooks) liste chaque charge utile.
 
 Il n’y a pas d’intégration Slack native, mais un webhook peut publier dans un canal Slack ou Discord sans n8n, en utilisant l’URL du webhook entrant du canal et un modèle de corps.
 
@@ -118,7 +118,7 @@ L’[API REST](/features/api) sous `/api/v1` couvre chaque liste que vous créez
 
 <Steps>
   <Step title="Créez le déclencheur dans n8n">Ajoutez un nœud Webhook et copiez son URL.</Step>
-  <Step title="Abonnez-vous dans Customermates">Sous **Paramètres › Webhooks**, cliquez sur **Ajouter**, collez l’URL, choisissez les événements, choisissez la liste sous **Enregistrements de** et définissez un **Secret**.</Step>
+  <Step title="Abonnez-vous dans Customermates">Sous **Paramètres › Webhooks**, cliquez sur **Ajouter**, collez l’URL, choisissez les évènements, choisissez la liste sous **Enregistrements de** et définissez un **Secret**.</Step>
   <Step title="Réécrivez via REST">Créez une clé API sous **Paramètres › Clés API** et stockez-la dans n8n comme identifiant Header Auth avec le nom d’en-tête `x-api-key`.</Step>
   <Step title="Activez le workflow dans n8n">Le planning, les attentes, les journaux et les limites d’exécution relèvent de n8n. Customermates garde les enregistrements.</Step>
 </Steps>
@@ -127,7 +127,7 @@ Le nœud communautaire [customermates/n8n-nodes-crm](https://github.com/customer
 
 ## Ce qui se met à jour tout seul, et ce qui demande encore une personne
 
-- **Sans IA :** chaque modification arrive dans l’historique d’activité de l’enregistrement et atteint chaque webhook abonné à cet événement, et les valeurs pondérées du pipeline suivent vos poids d’étape. Avec Pro et au-delà, dès que vous liez une adresse e-mail ou un identifiant à un contact, chaque conversation avec elle apparaît dans la chronologie de ce contact.
+- **Sans IA :** chaque modification arrive dans l’historique d’activité de l’enregistrement et atteint chaque webhook abonné à cet évènement, et les valeurs pondérées du pipeline suivent vos poids d’étape. Avec Pro et au-delà, dès que vous liez une adresse e-mail ou un identifiant à un contact, chaque conversation avec elle apparaît dans la chronologie de ce contact.
 - **Avec l’IA, à votre demande :** collez des notes d’appel dans Mate et demandez-lui de mettre à jour l’affaire, d’ajouter les notes et de créer des tâches de suivi. Votre propre client IA peut faire de même via MCP avec toutes les formules, auto-hébergement compris, facturé par votre fournisseur d’IA.
 - **Avec l’IA, sans surveillance :** les routines, comme ci-dessus.
 
@@ -140,7 +140,7 @@ Notre conseil : laissez une routine proposer un changement d’étape dans une 
 - Pas d’échéances de tâches, de rappels ni de centre de notifications. Stockez une date dans un champ date personnalisé sur l’affaire et laissez la routine du lundi lister les affaires dont la date est dépassée, comme dans les [relances](/features/follow-up).
 - Pas de scoring des leads, d’enrichissement de données ni de formulaires web. Envoyez les saisies de formulaire via REST ou n8n.
 - Pas de routines, de Mate ni de boîte de réception dans [Customermates auto-hébergé](/features/self-hosted). Les webhooks, REST et MCP y fonctionnent.
-- Aucune garantie qu’une routine s’exécute : le plafond horaire, l’anti-rebond ou un propriétaire sans crédits peuvent faire sauter une exécution. Les étapes qui doivent s’exécuter pour chaque événement relèvent d’un webhook, où les livraisons échouées sont retentées et peuvent être renvoyées.
+- Aucune garantie qu’une routine s’exécute : le plafond horaire, l’anti-rebond ou un propriétaire sans crédits peuvent faire sauter une exécution. Les étapes qui doivent s’exécuter pour chaque évènement relèvent d’un webhook, où les livraisons échouées sont retentées et peuvent être renvoyées.
 
 <AcquisitionCallout title="Si vous voulez le générateur dans le CRM" variant="fit">
   Si votre équipe veut construire des workflows avec branches dans le CRM sans exploiter n8n, regardez les CRM dotés d’un éditeur de workflows natif. HubSpot Sales Hub indique jusqu’à 50 workflows avec des déclencheurs et des actions restreints avec Starter, et jusqu’à 300 workflows entièrement personnalisables avec Professional. Pipedrive inclut l’automatisation des workflows à partir de Growth, avec des conditions if/else. Customermates publie cette page ; les informations sur les éditeurs ont été vérifiées le 8 octobre 2026 sur la [page de tarification de Sales Hub de HubSpot](https://www.hubspot.com/pricing/sales) et dans le [centre d’aide de Pipedrive](https://support.pipedrive.com/en/article/workflow-automation).
@@ -164,7 +164,7 @@ Non. Il n’y a ni générateur par glisser-déposer ni règles à branches dans
 </FaqItem>
 
 <FaqItem question="Un CRM peut-il se mettre à jour automatiquement ?">
-En partie. L’historique d’activité, les événements de webhook et les valeurs pondérées du pipeline se mettent à jour d’eux-mêmes, et avec Pro et au-delà une adresse e-mail liée amène les conversations ultérieures dans la chronologie du contact. Écrire des notes ou modifier des affaires d’après ce qui a été dit demande de l’IA : Mate à votre demande, une routine sur un déclencheur, ou votre propre client IA via MCP.
+En partie. L’historique d’activité, les évènements de webhook et les valeurs pondérées du pipeline se mettent à jour d’eux-mêmes, et avec Pro et au-delà une adresse e-mail liée amène les conversations ultérieures dans la chronologie du contact. Écrire des notes ou modifier des affaires d’après ce qui a été dit demande de l’IA : Mate à votre demande, une routine sur un déclencheur, ou votre propre client IA via MCP.
 </FaqItem>
 
 <FaqItem question="Quelle différence entre l’automatisation des workflows CRM et l’automatisation marketing ?">

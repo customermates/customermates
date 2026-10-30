@@ -243,7 +243,7 @@ describe("homepage visual-system adoption", () => {
     expect(englishHomepage).toContain("  title: and your AI,");
     expect(englishHomepage).toContain("  titleAccent: in one workspace.");
     expect(germanHomepage).toContain("  title: und Ihre KI,");
-    expect(germanHomepage).toContain("  titleAccent: in einem Arbeitsbereich.");
+    expect(germanHomepage).toContain("  titleAccent: in einem Workspace.");
     expect(hero).toContain("bg-linear-to-b from-foreground to-foreground/65 bg-clip-text");
     for (const mdx of [englishHomepage, germanHomepage]) {
       const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));

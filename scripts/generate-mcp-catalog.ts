@@ -63,14 +63,15 @@ function renderToolEntry(tool: McpTool, summary: string, summaries: CatalogSumma
   const requiredLabel = summaries.$requiredLabel ?? "Required";
   const optionalLabel = summaries.$optionalLabel ?? "Optional";
   const noArgumentsLabel = summaries.$noArgumentsLabel ?? "No arguments";
+  const colon = summaries.$labelColon ?? ":";
   const { required, optional } = toolArguments(tool);
   const code = (names: string[]) => names.map((name) => `\`${name}\``).join(", ");
   const argumentLine =
     required.length === 0 && optional.length === 0
       ? `${noArgumentsLabel}.`
       : [
-          required.length ? `${requiredLabel}: ${code(required)}.` : "",
-          optional.length ? `${optionalLabel}: ${code(optional)}.` : "",
+          required.length ? `${requiredLabel}${colon} ${code(required)}.` : "",
+          optional.length ? `${optionalLabel}${colon} ${code(optional)}.` : "",
         ]
           .filter(Boolean)
           .join(" ");
@@ -89,10 +90,11 @@ function renderFlagOverview(summaries: CatalogSummaries): string {
       .filter(predicate)
       .map((tool) => `\`${tool.name}\``)
       .join(", ");
+  const colon = summaries.$labelColon ?? ":";
   return [
-    `**${summaries.$readOnlyLabel ?? "Read-only"}:** ${names((tool) => tool.annotations?.readOnlyHint === true)}`,
+    `**${summaries.$readOnlyLabel ?? "Read-only"}${colon}** ${names((tool) => tool.annotations?.readOnlyHint === true)}`,
     "",
-    `**${summaries.$destructiveLabel ?? "IRREVERSIBLE"}:** ${names((tool) => tool.annotations?.destructiveHint === true)}`,
+    `**${summaries.$destructiveLabel ?? "IRREVERSIBLE"}${colon}** ${names((tool) => tool.annotations?.destructiveHint === true)}`,
   ].join("\n");
 }
 

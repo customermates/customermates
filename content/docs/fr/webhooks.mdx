@@ -12,7 +12,7 @@ Les webhooks permettent à d’autres systèmes de réagir aux changements du CR
 
 ## Comment créer un webhook ? [#how-do-i-create-a-webhook]
 
-Ouvrez [Webhooks](app:settings/webhooks), cliquez sur [Ajouter](app:settings/webhooks?focus=add), remplissez la boîte de dialogue **Webhook**, saisissez l'**URL** et cliquez sur **Enregistrer**.
+Ouvrez [Webhooks](app:settings/webhooks), cliquez sur [Ajouter](app:settings/webhooks?focus=add), remplissez la boîte de dialogue **Webhook**, saisissez l’**URL** et cliquez sur **Enregistrer**.
 
 | Champ | Ce qu’il fait |
 | --- | --- |
@@ -57,9 +57,9 @@ L’accès vient de la ligne **API et webhooks** d’un rôle dans [Rôles](app:
 | Réglage du rôle sur **API et webhooks** | Ce que peuvent faire les membres ayant ce rôle |
 | --- | --- |
 | **Accès en lecture** **Aucun** (la valeur par défaut d’un nouveau rôle) | Les webhooks sont masqués ; ouvrir directement la page mène au Tableau de bord. |
-| **Accès en lecture** **Tous**, aucune case cochée | Ouvrir Webhooks et ses livraisons, ouvrir chaque webhook en lecture seule et ouvrir les **Détails de l’évènement** de chaque livraison. Un **Secret** enregistré et chaque valeur d'**En-têtes personnalisés** apparaissent sous la forme `********` ; les noms d’en-têtes restent visibles. |
+| **Accès en lecture** **Tous**, aucune case cochée | Ouvrir Webhooks et ses livraisons, ouvrir chaque webhook en lecture seule et ouvrir les **Détails de l’évènement** de chaque livraison. Un **Secret** enregistré et chaque valeur d’**En-têtes personnalisés** apparaissent sous la forme `********` ; les noms d’en-têtes restent visibles. |
 | **Accès en lecture** **Tous** plus **Créer** | Ajouter des webhooks et renvoyer des livraisons. |
-| **Accès en lecture** **Tous** plus **Modifier** | Modifier des webhooks et voir les valeurs enregistrées de **Secret** et d'**En-têtes personnalisés**. |
+| **Accès en lecture** **Tous** plus **Modifier** | Modifier des webhooks et voir les valeurs enregistrées de **Secret** et d’**En-têtes personnalisés**. |
 | **Accès en lecture** **Tous** plus **Supprimer** | Supprimer des webhooks. |
 
 La même ligne contrôle aussi les [Clés API](app:settings/api-keys) : un rôle qui peut créer ou supprimer ses propres clés API peut donc aussi créer ou supprimer tous les webhooks de l’espace de travail. Le rôle **Administrateur** peut tout faire. Les webhooks n’ont aucune restriction d’offre : ils fonctionnent sur chaque offre Cloud et en auto-hébergement. Les mêmes droits s’appliquent à `manage_webhooks` par MCP et dans Mate, où supprimer un webhook ou renvoyer une livraison demande d’abord votre validation.
@@ -124,7 +124,7 @@ Les mises à jour qui ne changent rien ne produisent aucun évènement `record.u
 
 ## En-têtes personnalisés et modèles de corps [#custom-headers-and-body-templates]
 
-Deux paramètres facultatifs couvrent les destinataires qui n’acceptent pas la livraison standard. Un webhook qui n’en définit aucun envoie l'[enveloppe standard](#what-does-the-payload-look-like).
+Deux paramètres facultatifs couvrent les destinataires qui n’acceptent pas la livraison standard. Un webhook qui n’en définit aucun envoie l’[enveloppe standard](#what-does-the-payload-look-like).
 
 Les **en-têtes personnalisés** sont envoyés avec chaque livraison, pour les points d’accès dotés de leur propre authentification. Saisissez-les un par ligne sous la forme `Name: value` (une ligne sans deux-points est ignorée, un champ vide supprime tous les en-têtes), ou passez un objet `headers` par MCP et par l’API. Sept noms sont réservés et refusés : `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding`, `X-Webhook-Signature` et `X-Customermates-Delivery-Id`. Les noms doivent être des jetons HTTP valides, les valeurs du texte Latin-1 sans saut de ligne. Un webhook peut porter jusqu’à 20 en-têtes, des noms jusqu’à 128 caractères, des valeurs jusqu’à 2 048 caractères, 8 192 caractères au total. Un webhook avec des en-têtes doit utiliser HTTPS ; le HTTP simple n’est accepté que pour `localhost`, `127.0.0.1` et `::1`.
 
@@ -269,7 +269,7 @@ La valeur d’un champ Texte enrichi dans les charges utiles est une valeur `ric
 
 ## Quels évènements existent ? [#which-events-exist]
 
-Un webhook peut s’abonner à [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de messagerie. Pour un webhook CRM, sélectionnez **Enregistrement créé**, **Enregistrement mis à jour**, **Enregistrement placé dans la corbeille**, **Enregistrement restauré** ou **Enregistrement supprimé définitivement** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) et définissez sa [source d’enregistrements](#record-event-sources) ; cela couvre aussi les listes que vous avez créées vous-même. Tous utilisent l'[enveloppe standard](#what-does-the-payload-look-like). Les routines peuvent être déclenchées par les mêmes évènements, sauf **Enregistrement supprimé définitivement** (`record.deletedPermanently`), **E-mail supprimé** (`messaging.email.deleted`) et **Conversation supprimée** (`messaging.chat.deleted`) ; **Message supprimé** (`messaging.message.deleted`) déclenche bien des routines. Voir [Routines](/docs/app-routines#how-do-event-triggers-work).
+Un webhook peut s’abonner à [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de messagerie. Pour un webhook CRM, sélectionnez **Enregistrement créé**, **Enregistrement mis à jour**, **Enregistrement placé dans la corbeille**, **Enregistrement restauré** ou **Enregistrement supprimé définitivement** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) et définissez sa [source d’enregistrements](#record-event-sources) ; cela couvre aussi les listes que vous avez créées vous-même. Tous utilisent l’[enveloppe standard](#what-does-the-payload-look-like). Les routines peuvent être déclenchées par les mêmes évènements, sauf **Enregistrement supprimé définitivement** (`record.deletedPermanently`), **E-mail supprimé** (`messaging.email.deleted`) et **Conversation supprimée** (`messaging.chat.deleted`) ; **Message supprimé** (`messaging.message.deleted`) déclenche bien des routines. Voir [Routines](/docs/app-routines#how-do-event-triggers-work).
 
 ### Évènements d’enregistrement [#record-events]
 

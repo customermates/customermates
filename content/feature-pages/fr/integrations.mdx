@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: Des intégrations CRM par des interfaces ouvertes, pas par une place de marché
-  description: Customermates se connecte aux autres logiciels grâce à une API REST documentée, [[derived.webhooks.events.total]] événements de webhook, un point de terminaison MCP pour les clients IA comme Claude et ChatGPT, et un nœud communautaire pour n8n. Tout fonctionne avec toutes les formules et sur les installations auto-hébergées. L’e-mail, LinkedIn, WhatsApp, Instagram et Telegram se connectent nativement via la boîte de réception unifiée à partir de Pro.
+  description: Customermates se connecte aux autres logiciels grâce à une API REST documentée, [[derived.webhooks.events.total]] évènements de webhook, un point de terminaison MCP pour les clients IA comme Claude et ChatGPT, et un nœud communautaire pour n8n. Tout fonctionne avec toutes les formules et sur les installations auto-hébergées. L’e-mail, LinkedIn, WhatsApp, Instagram et Telegram se connectent nativement via la boîte de réception unifiée à partir de Pro.
   buttonLeftText: Commencer l’essai gratuit
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Connectez votre premier outil
-  description: Créez une clé API ou un webhook pendant l’essai et envoyez un vrai événement CRM au système qui en a besoin.
+  description: Créez une clé API ou un webhook pendant l’essai et envoyez un vrai évènement CRM au système qui en a besoin.
   buttonLeftText: Commencer l’essai gratuit
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
@@ -36,13 +36,13 @@ Ce choix a un coût qu’il faut connaître d’emblée. Il n’y a pas de catal
 
 | Connexion | Sens | À quoi elle sert | Formule |
 |---|---|---|---|
-| Webhooks | Du CRM vers votre système | Envoie un événement quand un enregistrement de n’importe quelle liste est créé, mis à jour, placé dans la corbeille, restauré ou supprimé définitivement, ou quand un message arrive dans la boîte de réception | Toutes les formules, auto-hébergement compris |
+| Webhooks | Du CRM vers votre système | Envoie un évènement quand un enregistrement de n’importe quelle liste est créé, mis à jour, placé dans la corbeille, restauré ou supprimé définitivement, ou quand un message arrive dans la boîte de réception | Toutes les formules, auto-hébergement compris |
 | API REST | De votre système vers le CRM | Créer, lire, rechercher, mettre à jour et supprimer des enregistrements depuis du code ou un outil d’automatisation | Toutes les formules, auto-hébergement compris |
 | MCP | Du client IA vers le CRM | Laisser Claude, ChatGPT, Cursor, Codex ou Gemini CLI lire et écrire des enregistrements en conversation | Toutes les formules, auto-hébergement compris |
 | Nœud communautaire n8n | Dans les deux sens | Nœuds Customermates dédiés dans une instance n8n exploitée séparément | Toutes les formules ; n8n est facturé par n8n |
 | Boîte de réception unifiée | Des canaux vers le CRM | Conversations Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram et Telegram à côté de l’enregistrement, plus agendas Google et Microsoft en lecture seule | Customermates Cloud, Pro ou supérieure |
 
-Webhooks, REST et MCP sont inclus dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La [boîte de réception unifiée](/features/unified-inbox) commence avec Pro à [[commercial.price.pro.monthly]] par utilisateur et par mois et inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur ; Business en inclut [[commercial.entitlement.business.includedAccountsPerUser]] par utilisateur ainsi que les comptes partagés. Les installations auto-hébergées disposent de REST, des webhooks et de MCP mais pas de boîte de réception : les événements de messagerie n’y sont donc jamais déclenchés.
+Webhooks, REST et MCP sont inclus dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La [boîte de réception unifiée](/features/unified-inbox) commence avec Pro à [[commercial.price.pro.monthly]] par utilisateur et par mois et inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur ; Business en inclut [[commercial.entitlement.business.includedAccountsPerUser]] par utilisateur ainsi que les comptes partagés. Les installations auto-hébergées disposent de REST, des webhooks et de MCP mais pas de boîte de réception : les évènements de messagerie n’y sont donc jamais déclenchés.
 
 ## Quelle voie pour quelle tâche
 
@@ -51,13 +51,13 @@ Webhooks, REST et MCP sont inclus dès Starter à [[commercial.price.starter.mon
 | Publier un message dans un canal Slack quand une affaire est créée | Un webhook avec un modèle de corps, envoyé à un webhook entrant Slack | Aucun outil d’automatisation nécessaire |
 | Transmettre les affaires gagnées à votre logiciel de comptabilité | n8n, Make ou Zapier sur un webhook `record.updated` pour la liste Affaires | Ces outils vérifient la valeur de l’étape et appellent l’API de l’outil de comptabilité |
 | Créer des contacts à partir du formulaire de votre site | L’outil de formulaire ou n8n appelle `POST /api/v1/records/mutate` | Customermates n’a pas de formulaire intégrable propre |
-| Répliquer les enregistrements dans un entrepôt de données | Les webhooks, dédupliqués par l’`id` de l’événement | Quasi temps réel, sans interrogation périodique |
+| Répliquer les enregistrements dans un entrepôt de données | Les webhooks, dédupliqués par l’`id` de l’évènement | Quasi temps réel, sans interrogation périodique |
 | Demander à une IA de mettre à jour cinq affaires après un appel | MCP depuis Claude, ChatGPT ou un autre client | Le client découvre les outils et fait les appels |
 | Importer un tableur de clients existants | Import XLSX, une liste à la fois | Plus rapide qu’un script d’API pour un transfert ponctuel |
 
 ## Webhooks
 
-Créez un webhook sous **Paramètres → Webhooks → Ajouter**, collez l’URL de réception, choisissez des événements et la liste sous **Enregistrements de**. Vous pouvez choisir parmi [[derived.webhooks.events.total]] événements : [[derived.webhooks.events.records]] événements d’enregistrement (créé, mis à jour, placé dans la corbeille, restauré et supprimé définitivement, pour n’importe quelle liste de votre choix, y compris les vôtres) et [[derived.webhooks.events.messaging]] événements de messagerie, comme un message ou un e-mail reçu et un événement d’agenda modifié.
+Créez un webhook sous **Paramètres → Webhooks → Ajouter**, collez l’URL de réception, choisissez des évènements et la liste sous **Enregistrements de**. Vous pouvez choisir parmi [[derived.webhooks.events.total]] évènements : [[derived.webhooks.events.records]] évènements d’enregistrement (créé, mis à jour, placé dans la corbeille, restauré et supprimé définitivement, pour n’importe quelle liste de votre choix, y compris les vôtres) et [[derived.webhooks.events.messaging]] évènements de messagerie, comme un message ou un e-mail reçu et un évènement d’agenda modifié.
 
 Les détails qui comptent quand vous construisez dessus :
 
@@ -65,9 +65,9 @@ Les détails qui comptent quand vous construisez dessus :
 - **Nouvelles tentatives.** Les délais dépassés, les erreurs réseau, les réponses 5xx et 408, 425 et 429 sont retentés automatiquement, jusqu’à 10 tentatives au total. Les autres réponses 4xx ne le sont pas.
 - **Journal des livraisons.** **Paramètres → Livraisons** affiche chaque livraison avec son code de statut et sa charge utile, et vous pouvez en renvoyer une depuis là.
 - **En-têtes personnalisés et modèles de corps.** Les en-têtes permettent de vous authentifier auprès du destinataire. Un modèle de corps remplace l’enveloppe JSON standard par la forme qu’attend le destinataire, avec des variables comme `{{event}}` et `{{data.record.ref.recordId}}`.
-- **Changements uniquement.** Un événement `record.updated` liste chaque champ modifié avec sa valeur `before` et `after`, et une écriture qui ne change rien n’envoie aucun événement.
+- **Changements uniquement.** Un évènement `record.updated` liste chaque champ modifié avec sa valeur `before` et `after`, et une écriture qui ne change rien n’envoie aucun évènement.
 
-Les livraisons ne sont pas strictement ordonnées : traitez-les donc comme des messages idempotents identifiés par l’`id` de l’événement et ordonnez-les par le `timestamp` de la charge utile et la version de l’enregistrement. Le catalogue complet et la forme des charges utiles figurent dans la [documentation des webhooks](/docs/webhooks).
+Les livraisons ne sont pas strictement ordonnées : traitez-les donc comme des messages idempotents identifiés par l’`id` de l’évènement et ordonnez-les par le `timestamp` de la charge utile et la version de l’enregistrement. Le catalogue complet et la forme des charges utiles figurent dans la [documentation des webhooks](/docs/webhooks).
 
 ## API REST
 
@@ -130,11 +130,11 @@ Des connexions qui transfèrent des données ou des déclencheurs entre un CRM e
 </FaqItem>
 
 <FaqItem question="Customermates a-t-il une API ouverte et des webhooks ?">
-Oui, avec toutes les formules et dans les installations auto-hébergées. L’API REST est documentée avec OpenAPI et utilise un en-tête `x-api-key`. Les webhooks couvrent [[derived.webhooks.events.total]] événements, avec signatures HMAC, nouvelles tentatives automatiques et journal des livraisons.
+Oui, avec toutes les formules et dans les installations auto-hébergées. L’API REST est documentée avec OpenAPI et utilise un en-tête `x-api-key`. Les webhooks couvrent [[derived.webhooks.events.total]] évènements, avec signatures HMAC, nouvelles tentatives automatiques et journal des livraisons.
 </FaqItem>
 
 <FaqItem question="Existe-t-il une intégration Slack native ?">
-Non. Envoyez les événements du CRM vers Slack avec un webhook et un modèle de corps pointant vers un webhook entrant Slack, ou construisez le flux dans n8n. Créer des enregistrements du CRM depuis Slack passe aussi par n8n et l’API REST.
+Non. Envoyez les évènements du CRM vers Slack avec un webhook et un modèle de corps pointant vers un webhook entrant Slack, ou construisez le flux dans n8n. Créer des enregistrements du CRM depuis Slack passe aussi par n8n et l’API REST.
 </FaqItem>
 
 <FaqItem question="n8n est-il inclus dans l’abonnement ?">

@@ -1,5 +1,6 @@
 {
   "$destructiveLabel": "Peut supprimer des données",
+  "$labelColon": " :",
   "$noArgumentsLabel": "Aucun argument",
   "$optionalLabel": "Facultatif",
   "$readOnlyLabel": "Lecture seule",

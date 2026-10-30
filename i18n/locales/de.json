@@ -35,7 +35,7 @@
     "descriptionGeneric": "Sie sind über eine Anzeige zu uns gekommen. Dürfen wir diesen Besuch speichern, ihn mit Ihrem Konto verknüpfen, falls Sie sich registrieren, und der Werbeplattform mitteilen, dass die Anzeige zu einer Registrierung oder einem kostenpflichtigen Abonnement geführt hat? Die Plattform erhält dabei nur die Klickkennung zurück, die sie selbst in den Link gesetzt hat, nie Ihren Namen, Ihre E-Mail-Adresse oder etwas anderes, das Sie uns geben. Beide Auswahlmöglichkeiten speichern ein kleines Cookie; Sie können Ihre Entscheidung jederzeit unter „Datenschutzauswahl“ ändern.",
     "necessaryOnly": "Nein, danke",
     "privacyLink": "Datenschutzdetails",
-    "title": "Hilf uns zu verstehen, was funktioniert"
+    "title": "Helfen Sie uns zu verstehen, was funktioniert"
   },
   "ActivityDetail": {
     "eventAt": "{event} am {date}",
@@ -112,7 +112,7 @@
           "delete": "Bereit, ein Dashboard-Widget in den Papierkorb zu verschieben"
         },
         "workspace": {
-          "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
+          "configure": "Bereit, das Datenmodell des Workspace zu ändern"
         }
       },
       "cancelled": "Gestoppt",
@@ -600,7 +600,7 @@
             },
             "setup": {
               "label": "Workspace einrichten",
-              "prompt": "Konfiguriere meinen Arbeitsbereich anhand meiner Wissensdatenbank und der vorhandenen CRM-Fakten. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
+              "prompt": "Konfiguriere meinen Workspace anhand meiner Wissensdatenbank und der vorhandenen CRM-Fakten. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             },
             "tour": {
               "label": "Plattform kennenlernen",
@@ -634,7 +634,7 @@
             },
             "default-setup": {
               "label": "Hilf mir bei der Einrichtung",
-              "prompt": "Konfiguriere mein CRM anhand meiner Wissensdatenbank und der vorhandenen Fakten im Arbeitsbereich. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
+              "prompt": "Konfiguriere mein CRM anhand meiner Wissensdatenbank und der vorhandenen Fakten im Workspace. Richte nützliche Felder, Ansichten und Einstellungen ein, ohne Beispieldatensätze anzulegen. Mache aus öffentlichen Fallstudien oder Testimonials keine Kontakte, Organisationen oder Deals und erfinde keine Preise, Budgets oder aktuellen Deal-Phasen. Frage nur nach fehlenden Entscheidungen."
             }
           }
         },
@@ -686,11 +686,11 @@
           "empty": {
             "first-routine": {
               "label": "Meine erste Routine erstellen",
-              "prompt": "Nutze meine Wissensdatenbank und meinen Arbeitsbereich, um eine nützliche erste Routine vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
+              "prompt": "Nutze meine Wissensdatenbank und meinen Workspace, um eine nützliche erste Routine vorzuschlagen. Frage nur bei unklarem Auslöser oder Ablauf nach und erstelle sie dann."
             },
             "routine-ideas": {
               "label": "Nützliche Routinen vorschlagen",
-              "prompt": "Prüfe meinen Arbeitsbereich und schlage drei nützliche Routinen für wiederkehrende Aufgaben vor. Erstelle noch nichts."
+              "prompt": "Prüfe meinen Workspace und schlage drei nützliche Routinen für wiederkehrende Aufgaben vor. Erstelle noch nichts."
             },
             "routines-tour": {
               "label": "Routinen kennenlernen",
@@ -702,7 +702,7 @@
           "data": {
             "create-wiki-page": {
               "label": "Wissensdatenbank-Seite erstellen",
-              "prompt": "Erstelle eine nützliche Seite aus überprüftem Wissen im Arbeitsbereich oder zu einer klaren Lücke. Vermeide Duplikate und frage nur nach fehlenden Fakten."
+              "prompt": "Erstelle eine nützliche Seite aus überprüftem Wissen im Workspace oder zu einer klaren Lücke. Vermeide Duplikate und frage nur nach fehlenden Fakten."
             },
             "wiki-gaps": {
               "label": "Wissenslücken finden",
@@ -720,7 +720,7 @@
             },
             "wiki-structure": {
               "label": "Wissensdatenbank-Struktur vorschlagen",
-              "prompt": "Prüfe meine Wissensdatenbank und meinen Arbeitsbereich, erkenne fehlendes Unternehmenswissen und erstelle nützliche Seiten ohne Duplikate. Frage nur bei Bedarf nach einer Website."
+              "prompt": "Prüfe meine Wissensdatenbank und meinen Workspace, erkenne fehlendes Unternehmenswissen und erstelle nützliche Seiten ohne Duplikate. Frage nur bei Bedarf nach einer Website."
             },
             "wiki-tour": {
               "label": "Wissensdatenbank kennenlernen",
@@ -1121,7 +1121,7 @@
       "calendarSubscriptionNotFound": "Dieses Kalenderabonnement gibt es nicht mehr.",
       "channelAlreadyLinked": "Diese Telefonnummer, E-Mail-Adresse oder dieses Profil ist bereits mit einem anderen Datensatz verknüpft.",
       "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
-      "connectedAccountEmailChangeRequired": "Übergeben Sie eine Signatur, E-Mail-Einstellungen oder beides.",
+      "connectedAccountEmailChangeRequired": "Übergib eine Signatur, E-Mail-Einstellungen oder beides.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "customFieldInvalidDate": "Der Datumswert ist ungültig. Muss im ISO 8601 Datumsformat sein (z.B. 2024-01-15) oder im ISO 8601 Datums-/Zeitformat (z.B. 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
@@ -1185,7 +1185,7 @@
       "operatorCreditNonzero": "Gib eine Credit-Korrektur größer oder kleiner als null ein.",
       "operatorCreditPeriodInvalid": "Der Korrekturzeitraum muss nach seinem Beginn enden.",
       "operatorCreditPrecision": "Verwende höchstens eine Nachkommastelle für die Credit-Korrektur.",
-      "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Arbeitsbereich in einer Testphase belassen, die nie abläuft.",
+      "operatorTrialEndRequired": "Ein Testende kann nicht entfernt, sondern nur verschoben werden. Ein Löschen würde den Workspace in einer Testphase belassen, die nie abläuft.",
       "operatorUnavailable": "Die gewünschte Korrektur ist für die aktuelle Kontokonfiguration nicht verfügbar.",
       "passwordInvalid": "Das Passwort muss zwischen 8 und 128 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen enthalten.",
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
@@ -1210,7 +1210,7 @@
       "recordFileUploadTargetRequired": "Sende diese Datei an die Upload-URL, die du beim Start des Uploads erhalten hast.",
       "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
-      "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; senden Sie neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",
+      "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; sende neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",
       "recordMeasureDateIntervalInvalid": "Zeitintervalle brauchen ein Datums-, Datums- und Uhrzeit-, Erstellt- oder Geändert-Feld zum Gruppieren, und eine Zeitzone braucht ein Zeitintervall.",
       "recordMemberInactive": "Dieses Mitglied ist inaktiv oder gehört nicht zu diesem Workspace. Wähle ein aktives Mitglied.",
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
@@ -1289,9 +1289,9 @@
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "userStatusRequired": "Dieses Mitglied wartet auf Freigabe. Wähle zusammen mit der Änderung aktiv oder inaktiv.",
       "webhookBodyTemplateInvalid": "Die Body-Vorlage muss ein gültiges JSON-Objekt ergeben.",
-      "webhookDeliveryInProgress": "Diese Zustellung wird noch gesendet. Senden Sie sie erneut, sobald sie erfolgreich war oder fehlgeschlagen ist.",
+      "webhookDeliveryInProgress": "Diese Zustellung wird noch gesendet. Sende sie erneut, sobald sie erfolgreich war oder fehlgeschlagen ist.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
-      "webhookDisabled": "Dieser Webhook ist ausgeschaltet oder abonniert dieses Ereignis nicht mehr. Schalten Sie ihn ein oder abonnieren Sie das Ereignis und senden Sie dann erneut.",
+      "webhookDisabled": "Dieser Webhook ist ausgeschaltet oder abonniert dieses Ereignis nicht mehr. Schalte ihn ein oder abonniere das Ereignis und sende dann erneut.",
       "webhookEndpointInvalid": "Gib eine HTTP- oder HTTPS-Webhook-URL mit gültigem Host und ohne Benutzername oder Passwort ein.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
       "webhookHeaderNameInvalid": "Header-Namen dürfen nur Buchstaben, Ziffern und HTTP-Token-Zeichen enthalten.",
@@ -3009,7 +3009,7 @@
       "linkedinCrm": "LinkedIn-CRM",
       "mcp": "MCP",
       "n8n": "n8n-Automatisierung",
-      "openExampleWorkspace": "Diesen Beispiel-Arbeitsbereich öffnen",
+      "openExampleWorkspace": "Diesen Beispiel-Workspace öffnen",
       "openSourceCrm": "Open-Source-CRM",
       "pipeline": "Vertriebspipeline",
       "primaryNavigation": "Hauptnavigation",
@@ -4543,7 +4543,7 @@
     "runStarting": "Dieser Lauf wird gestartet. Das Protokoll erscheint in Kürze.",
     "testTrigger": "Auslöser testen",
     "testTriggerEnableFirst": "Aktiviere diese Routine, bevor du sie testest.",
-    "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Arbeitsbereich aus.",
+    "testTriggerEventUnavailable": "Ereignis-Auslöser benötigen echte Ereignisdaten. Löse zum Testen dieser Routine ein passendes Ereignis im Workspace aus.",
     "testTriggerSaveFirst": "Speichere deine Änderungen, bevor du diese Routine testest.",
     "testTriggerStarted": "Testlauf gestartet.",
     "testTriggerWarning": "Führe diese Routine jetzt aus. Das verbraucht deine KI-Guthaben und kann die in den Anweisungen genannten Aktionen ausführen.",
@@ -4717,12 +4717,12 @@
     "title": "Customermates-Konto erstellen"
   },
   "SolutionStage": {
-    "alt": "{area} im Beispiel-Arbeitsbereich, mit Beispieldaten",
+    "alt": "{area} im Beispiel-Workspace, mit Beispieldaten",
     "captions": {
       "calendar": "Termine aus Ihren Datensätzen in einem Kalender",
       "clientOverview": "Alle Kunden mit Status und Verantwortlichen auf einen Blick",
       "clients": "Alle Kunden mit den Projekten für sie",
-      "dashboard": "Widgets aus den eigenen Listen und Feldern des Arbeitsbereichs",
+      "dashboard": "Widgets aus den eigenen Listen und Feldern des Workspace",
       "engagements": "Alle laufenden Mandate auf einem Board",
       "inbox": "Konversationen neben den passenden Datensätzen, in der Cloud ab Pro",
       "pipeline": "Wert und Phase auf jeder Karte",

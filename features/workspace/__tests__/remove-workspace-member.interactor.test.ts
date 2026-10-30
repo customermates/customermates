@@ -190,7 +190,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
 
     expect(await removeAs()).toMatchObject({ ok: true });
 
-    expect(sentMail().subject).toBe("Vous ne faites plus partie de « Espace de travail »");
+    expect(sentMail().subject).toBe("Vous ne faites plus partie de «\u00a0Espace de travail\u00a0»");
   });
 
   it("e-mails a member without a display language in English", async () => {

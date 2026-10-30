@@ -46,10 +46,10 @@ export const GLOBAL_ERROR_COPY = {
       "Vuelve a intentarlo. Si el problema continúa, contacta con la persona que administra esta instancia de Customermates.",
   },
   fr: {
-    backLabel: "Retour à l'accueil",
-    body: "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d'aide immédiatement, n'hésitez pas à contacter notre assistance.",
+    backLabel: "Retour à l’accueil",
+    body: "Rassurez-vous, nous avons été automatiquement informés de ce problème et nous nous en occupons déjà. Si vous avez besoin d’aide immédiatement, n’hésitez pas à contacter notre assistance.",
     retryLabel: "Réessayer",
-    subtitle: "Oups ! Une erreur est survenue",
+    subtitle: "Oups\u00a0! Une erreur est survenue",
     title: "Voilà qui est gênant",
     unreportedBody:
       "Veuillez réessayer. Si le problème persiste, contactez la personne qui gère cette instance de Customermates.",

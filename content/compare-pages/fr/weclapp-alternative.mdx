@@ -82,8 +82,8 @@ comparison:
         source: Chaque offre
         competitor: À partir d’ERP Dienstleistung
       - name: Webhooks
-        source: "[[derived.webhooks.events.total]] types d’événements, chaque offre"
-        competitor: Événements de création, de mise à jour et de suppression par entité
+        source: "[[derived.webhooks.events.total]] types d’évènements, chaque offre"
+        competitor: Évènements de création, de mise à jour et de suppression par entité
   - title: Licence, hébergement et sécurité
     features:
       - name: Licence open source
@@ -195,7 +195,7 @@ Customermates est un CRM open source et IA native conçu en Allemagne pour les c
 
 La configuration habituelle après avoir quitté un ERP : Customermates jusqu’à l’affaire gagnée, votre outil de comptabilité pour tout ce qui suit. Il y a deux façons de passer le relais.
 
-**Avec des webhooks, sur toute offre.** Customermates envoie un événement `record.updated` pour la liste Affaires quand une affaire change, son étape comprise. Un workflow dans votre propre instance n8n, exploitée séparément, vérifie l’étape Gagnée et appelle votre outil de comptabilité. Lexware Office, par exemple, a une API REST publique avec des points d’accès pour les contacts et les factures. La [documentation des webhooks](/docs/webhooks) liste tous les événements.
+**Avec des webhooks, sur toute offre.** Customermates envoie un évènement `record.updated` pour la liste Affaires quand une affaire change, son étape comprise. Un workflow dans votre propre instance n8n, exploitée séparément, vérifie l’étape Gagnée et appelle votre outil de comptabilité. Lexware Office, par exemple, a une API REST publique avec des points d’accès pour les contacts et les factures. La [documentation des webhooks](/docs/webhooks) liste tous les évènements.
 
 **Avec une routine, dans Customermates Cloud.** Une routine exécute une instruction enregistrée quand un enregistrement change, utilise des crédits d’IA hébergée et s’exécute en tant que son propriétaire. Sous Évènements, choisissez Affaire mise à jour, ajoutez le champ d’étape sous Champs modifiés, définissez un filtre d’enregistrement sur Gagnée et enregistrez une instruction comme celle-ci :
 
@@ -258,4 +258,4 @@ Non. Customermates n’a ni devis ni factures : votre outil de comptabilité ga
 </FaqItem>
 </Faq>
 
-Informations sur les concurrents vérifiées le 8 octobre 2026 auprès de weclapp : [page de tarifs](https://www.weclapp.com/de/preise/), [page CRM](https://www.weclapp.com/de/crm-software/), [page de faits](https://www.weclapp.com/de/facts/), [page de sécurité](https://www.weclapp.com/de/sicherheit/zertifizierung/), [mentions légales](https://www.weclapp.com/de/impressum/), articles de support sur [weclappON](https://doc.weclapp.com/knowledgebase/weclapp-cloud-vs-weclappon/), les [webhooks](https://doc.weclapp.com/knowledgebase/wie-binde-ich-webhooks-in-weclapp-ein/) et l'[export de données](https://doc.weclapp.com/knowledgebase/wie-kann-ich-meine-daten-exportieren/), ainsi que les pages d'[Odoo](https://www.odoo.com/de_DE/pricing), de [Xentral](https://xentral.com/de/preise), de [Pipedrive](https://www.pipedrive.com/de/pricing) et l'[API Lexware](https://developers.lexware.io/docs/).
+Informations sur les concurrents vérifiées le 8 octobre 2026 auprès de weclapp : [page de tarifs](https://www.weclapp.com/de/preise/), [page CRM](https://www.weclapp.com/de/crm-software/), [page de faits](https://www.weclapp.com/de/facts/), [page de sécurité](https://www.weclapp.com/de/sicherheit/zertifizierung/), [mentions légales](https://www.weclapp.com/de/impressum/), articles de support sur [weclappON](https://doc.weclapp.com/knowledgebase/weclapp-cloud-vs-weclappon/), les [webhooks](https://doc.weclapp.com/knowledgebase/wie-binde-ich-webhooks-in-weclapp-ein/) et l’[export de données](https://doc.weclapp.com/knowledgebase/wie-kann-ich-meine-daten-exportieren/), ainsi que les pages d’[Odoo](https://www.odoo.com/de_DE/pricing), de [Xentral](https://xentral.com/de/preise), de [Pipedrive](https://www.pipedrive.com/de/pricing) et l’[API Lexware](https://developers.lexware.io/docs/).
