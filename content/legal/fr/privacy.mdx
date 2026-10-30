@@ -7,7 +7,7 @@ description: "Informations sur la manière dont Customermates traite et protège
 
 _Traduction fournie à titre indicatif ; seule la version allemande fait foi._
 
-_Version 2026-10-19_
+_Version 2026-10-28_
 
 ## Champ d’application de la présente politique de confidentialité
 
@@ -93,17 +93,13 @@ Vous trouverez de plus amples informations sur la protection des données chez R
 
 Nous avons conclu un contrat de sous-traitance (accord de traitement des données, DPA) pour l’utilisation du service mentionné ci-dessus. Ce contrat couvre les données des destinataires, les contenus des messages et les métadonnées de remise que Resend traite pour notre compte, selon nos instructions et dans le respect du RGPD.
 
-### Sentry
+### Diagnostic des erreurs
 
-Pour la supervision des erreurs et des performances dans tous les domaines de notre application (navigateur, serveur et workers d’arrière-plan), nous utilisons le service Sentry, proposé par Functional Software, Inc. (exerçant sous le nom de Sentry), 45 Fremont Street, 8th Floor, San Francisco, CA 94105, États-Unis. Au sein de l’Union européenne, Sentry est représenté par Sentry Software Netherlands B.V., Schiphol Boulevard 359, 1118 BJ, Amsterdam Schiphol, Pays-Bas. Sentry traite pour notre compte des adresses IP, des identifiants d’utilisateur (le cas échéant), des identifiants de session, des stack traces, des breadcrumbs, des URL de requêtes ainsi que d’autres métadonnées d’évènements issues des erreurs détectées dans nos environnements d’exécution de navigateur, de serveur et de worker, aux fins de la supervision des erreurs et du diagnostic.
+Pour diagnostiquer les erreurs inattendues de l’application, Customermates consigne un rapport de diagnostic limité dans les journaux d’exécution de Vercel. Un rapport peut contenir le type et le message d’erreur, des positions dans la pile d’appels, un identifiant d’erreur de rendu, le chemin de la route sans paramètres de requête, des identifiants de build et d’évènement ainsi que, lorsqu’ils sont vérifiés, des identifiants internes d’utilisateur et d’espace de travail. Nous masquons les identifiants d’accès courants et les adresses e-mail figurant dans les textes d’erreur et les chemins avant la publication du rapport. Le rapport ne joint ni en-têtes de requête, ni cookies, ni corps de requête, ni historique de navigation (breadcrumbs), ni enregistrements de session.
 
-Nous exploitons Sentry dans la région européenne (Francfort-sur-le-Main). Les données relatives aux évènements d’erreur détectés sont stockées au sein de l’Union européenne. Les données de compte, d’authentification, d’intégration, de journal d’audit et de support sont toutefois stockées par Sentry sur une infrastructure aux États-Unis, quelle que soit la région choisie. Le traitement repose sur l’art. 6, par. 1, point f), du RGPD (intérêt légitime à un fonctionnement fiable et à la réaction aux incidents de sécurité) ainsi que, dans la mesure où cela est nécessaire à l’exécution de nos prestations contractuelles, sur l’art. 6, par. 1, point b), du RGPD. Sentry traite les données d’évènements d’erreur et autres données de service pour notre compte dans le cadre d’un contrat au sens de l’art. 28 du RGPD ; pour ses propres données de compte, de profil, d’appareil, d’utilisation et de support, Sentry agit, selon sa politique de confidentialité, en tant que responsable du traitement à part entière.
+Les erreurs provenant de sessions de navigateur authentifiées, de requêtes serveur et de workflows d’arrière-plan peuvent en outre déclencher, via Vercel Workflow et Resend, une notification à l’intention de notre propre équipe. Cette notification contient le contexte de diagnostic limité nécessaire à l’analyse de l’erreur. Les rapports anonymes du navigateur sont consignés sans notification par e-mail.
 
-Pour le transfert de données à caractère personnel vers les États-Unis, Sentry est certifié au titre du EU-US Data Privacy Framework (DPF). Les détails et l’entrée du participant sont disponibles à l’adresse : https://www.dataprivacyframework.gov/list. À titre complémentaire, la Schedule 3 de l’accord de traitement des données de Sentry prévoit les clauses contractuelles types de l’UE au titre de l’art. 46 du RGPD comme mécanisme de repli : elles s’appliquent si le Data Privacy Framework est déclaré invalide ou n’est pas applicable au transfert. Vous trouverez de plus amples informations sur la protection des données chez Sentry à l’adresse : https://sentry.io/privacy/. La liste des sous-traitants ultérieurs employés par Sentry est disponible à l’adresse : https://sentry.io/legal/subprocessors/. L’accord de traitement des données est consultable à l’adresse : https://sentry.io/legal/dpa/.
-
-### Sous-traitance du traitement
-
-Nous avons conclu un contrat de sous-traitance (accord de traitement des données, DPA) pour l’utilisation du service mentionné ci-dessus. Ce contrat couvre les données d’évènements d’erreur et autres données de service que Sentry traite pour notre compte, selon nos instructions et dans le respect du RGPD.
+La finalité est un fonctionnement fiable et la réaction aux incidents. La base juridique est l’art. 6, par. 1, point f), du RGPD ainsi que, dans la mesure où cela est nécessaire à l’exécution de nos prestations contractuelles, l’art. 6, par. 1, point b), du RGPD. Vercel et Resend traitent les rapports de diagnostic, les artefacts de code de l’application et le contenu des notifications concernés dans le cadre des relations de sous-traitance décrites ci-dessus. Customermates n’envoie plus de nouveaux évènements d’erreur à Sentry. Les évènements déjà collectés restent soumis à la conservation existante du compte Sentry jusqu’à leur suppression ; Sentry reste mentionné dans notre liste des sous-traitants ultérieurs pour ce traitement historique.
 
 ## 3. Informations générales et informations obligatoires
 
