@@ -130,12 +130,26 @@ function hasSessionCookie(req: NextRequest): boolean {
   return (req.headers.get("cookie") ?? "").includes("app.session_token=");
 }
 
-// A cross-site iframe cannot store the SameSite=Lax session cookie the demo sign-in sets, so the
-// redirect below arrives unauthenticated again and again. The marker bounds that to one attempt.
+// A client that keeps no cookies (a crawler, a link checker, a cross-site iframe that drops the
+// SameSite=Lax session cookie) comes back from the demo sign-in redirect unauthenticated again and
+// again. Every automatic sign-in redirect therefore carries the second it was issued. A request that
+// returns with a recent marker and still has no session is not signed in again, so the chain ends.
+// An older marker can only come from a copied link, so that visit signs in like a fresh one.
 const DEMO_SIGN_IN_ATTEMPT_PARAM = "cm_demo_auth";
+const DEMO_SIGN_IN_ATTEMPT_WINDOW_MS = 2 * 60_000;
 
 function isEmbeddedRequest(req: NextRequest): boolean {
   return req.headers.get("sec-fetch-dest") === "iframe";
+}
+
+function demoSignInAttemptMarker(): string {
+  return String(Math.floor(Date.now() / 1000));
+}
+
+function followsRecentDemoSignIn(req: NextRequest): boolean {
+  const issuedAtSeconds = Number(req.nextUrl.searchParams.get(DEMO_SIGN_IN_ATTEMPT_PARAM));
+  if (!Number.isSafeInteger(issuedAtSeconds) || issuedAtSeconds <= 0) return false;
+  return Math.abs(Date.now() - issuedAtSeconds * 1000) <= DEMO_SIGN_IN_ATTEMPT_WINDOW_MS;
 }
 
 function appendSetCookieHeaders(response: NextResponse, authResponse: Response): void {
@@ -267,9 +281,8 @@ async function routePageRequest(
   // crawler hit wrote an AuthSession row per request.
   if (env.APP_MODE === "demo" && (!isContentPage(req) || isLocaleRootPage)) {
     const isNonDemoUser = isAuthenticated && session?.user?.email !== SYNTHETIC_SEED_USER.email;
-    const exhaustedEmbeddedAttempt = isEmbeddedRequest(req) && req.nextUrl.searchParams.has(DEMO_SIGN_IN_ATTEMPT_PARAM);
 
-    if ((isNonDemoUser || !isAuthenticated) && !exhaustedEmbeddedAttempt) {
+    if ((isNonDemoUser || !isAuthenticated) && !followsRecentDemoSignIn(req)) {
       const signOutResponse = isNonDemoUser ? await auth.api.signOut({ headers: req.headers, asResponse: true }) : null;
       const signInResponse = await auth.api.signInEmail({
         headers: req.headers,
@@ -286,12 +299,26 @@ async function routePageRequest(
       // Authentication changes the request's cookie state. Redirect once so the
       // protected route is rendered from a fresh request with the new session.
       const target = req.nextUrl.clone();
-      if (isEmbeddedRequest(req)) target.searchParams.set(DEMO_SIGN_IN_ATTEMPT_PARAM, "1");
+      target.searchParams.set(DEMO_SIGN_IN_ATTEMPT_PARAM, demoSignInAttemptMarker());
 
       const response = NextResponse.redirect(target);
       if (signOutResponse) appendSetCookieHeaders(response, signOutResponse);
       appendSetCookieHeaders(response, signInResponse);
       return response;
+    }
+
+    // The session stuck, so the marker has done its job: end on the clean URL, which is the one a
+    // visitor copies and shares. An iframe keeps its URL hidden and skips this extra hop.
+    const keptDemoSession = isAuthenticated && !isNonDemoUser;
+    if (
+      keptDemoSession &&
+      !isLocaleRootPage &&
+      !isEmbeddedRequest(req) &&
+      req.nextUrl.searchParams.has(DEMO_SIGN_IN_ATTEMPT_PARAM)
+    ) {
+      const cleanTarget = req.nextUrl.clone();
+      cleanTarget.searchParams.delete(DEMO_SIGN_IN_ATTEMPT_PARAM);
+      return NextResponse.redirect(cleanTarget);
     }
   }
 
@@ -299,6 +326,7 @@ async function routePageRequest(
     const appLocale = preferredAppLocale(req) ?? (isAppLocale(currentLocale) ? currentLocale : DEFAULT_LOCALE);
     const target = new URL(buildLocalePath(appLocale, "/dashboard"), base);
     target.search = req.nextUrl.search;
+    target.searchParams.delete(DEMO_SIGN_IN_ATTEMPT_PARAM);
     return NextResponse.redirect(target);
   }
 
@@ -338,6 +366,10 @@ async function routePageRequest(
     const signInPath = buildLocalePath(currentLocale, "/auth/signin");
     const signInUrl = new URL(signInPath, base);
     signInUrl.searchParams.set("callbackURL", new URL(req.nextUrl.pathname + req.nextUrl.search, base).toString());
+    // A demo visitor whose cookie did not stick must not be signed in again on the sign-in page itself.
+    const demoSignInAttempt = req.nextUrl.searchParams.get(DEMO_SIGN_IN_ATTEMPT_PARAM);
+    if (env.APP_MODE === "demo" && demoSignInAttempt)
+      signInUrl.searchParams.set(DEMO_SIGN_IN_ATTEMPT_PARAM, demoSignInAttempt);
 
     return NextResponse.redirect(signInUrl);
   }
