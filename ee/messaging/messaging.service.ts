@@ -1,4 +1,3 @@
-import type { MessagingProvider } from "@/generated/prisma";
 import type { CreateAuthLinkData } from "@unipile/sdk";
 import type { UnipileAccount, UnipileAttachment } from "./unipile.schema";
 import type {
@@ -40,6 +39,8 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { MessagingProvider } from "@/generated/prisma";
+
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
 import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
@@ -67,6 +68,7 @@ const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
 const OUTBOUND_SEND_TIMEOUT_MS = 90_000;
 const UNIPILE_TIMEOUT_HEADER = "x-customermates-timeout-ms";
+const LINKEDIN_PROFILE_SECTIONS = ["linkedin_experience"] as const;
 
 type MessageFile = { filename: string; content_type: string; content: string };
 
@@ -688,7 +690,7 @@ export class MessagingService {
           displayName: displayName || null,
           profileUrl: profile.profile_url ?? null,
           pictureUrl: profile.public_picture_url ?? null,
-          headline: profile.specifics?.headline ?? null,
+          headline: profile.specifics?.headline ?? profile.description ?? null,
         },
       };
     } catch (err) {
@@ -1186,6 +1188,7 @@ export class MessagingService {
     accountId: string;
     identifier: string;
     profileType?: "person" | "company";
+    provider?: MessagingProvider;
   }): Promise<MessagingSendResult<SocialProfile>> {
     try {
       const data =
@@ -1199,7 +1202,13 @@ export class MessagingService {
             )
           : SocialProfileSchema.parse(
               await requestData(
-                this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
+                this.sdk.users.getUserProfile({
+                  path: { account_id: input.accountId, user_id: input.identifier },
+                  query:
+                    input.provider === MessagingProvider.linkedin
+                      ? { with_sections: [...LINKEDIN_PROFILE_SECTIONS] }
+                      : undefined,
+                }),
               ),
             );
 
