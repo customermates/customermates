@@ -13,15 +13,15 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("instrumentation process ownership", () => {
-  it("leaves fatal process handling to Vercel's shared runtime", async () => {
+  it("reports process errors on Vercel but leaves the fatal exit to its shared runtime", async () => {
     vi.stubEnv("VERCEL", "1");
     await (await import("../instrumentation")).register();
-    expect(state.install).not.toHaveBeenCalled();
+    expect(state.install).toHaveBeenCalledWith(expect.anything(), false);
   });
 
   it("keeps fatal error reporting for the standalone Node process", async () => {
     vi.stubEnv("VERCEL", "");
     await (await import("../instrumentation")).register();
-    expect(state.install).toHaveBeenCalledOnce();
+    expect(state.install).toHaveBeenCalledWith(expect.anything(), true);
   });
 });

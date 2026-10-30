@@ -3,7 +3,7 @@ import type * as ServerReporter from "./server";
 type Reporter = Pick<typeof ServerReporter, "captureException" | "flush">;
 const state = globalThis as typeof globalThis & { __customermatesProcessErrors?: () => void };
 
-export function installProcessErrorHandlers(reporter: Reporter): () => void {
+export function installProcessErrorHandlers(reporter: Reporter, exitOnFatal = true): () => void {
   if (state.__customermatesProcessErrors) return state.__customermatesProcessErrors;
   let exiting = false;
   const exitAfterFlush = () => {
@@ -27,14 +27,14 @@ export function installProcessErrorHandlers(reporter: Reporter): () => void {
   };
   const uncaught = (error: Error) => {
     capture(error, "uncaughtException");
-    if (process.listenerCount("uncaughtException") === 1) exitAfterFlush();
+    if (exitOnFatal && process.listenerCount("uncaughtException") === 1) exitAfterFlush();
   };
   const rejection = (error: unknown) => {
     const name = error && typeof error === "object" && "name" in error ? error.name : undefined;
     if (name !== "AbortError" && name !== "AI_NoOutputGeneratedError") capture(error, "unhandledRejection");
     const options = `${process.env.NODE_OPTIONS ?? ""} ${process.execArgv.join(" ")}`;
     const mode = [...options.matchAll(/--unhandled-rejections(?:=|\s+)([\w-]+)/g)].at(-1)?.[1] ?? "throw";
-    if (process.listenerCount("unhandledRejection") === 1) {
+    if (exitOnFatal && process.listenerCount("unhandledRejection") === 1) {
       if (["throw", "strict"].includes(mode)) exitAfterFlush();
       else if (mode === "warn-with-error-code") process.exitCode = 1;
     }

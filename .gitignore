@@ -63,8 +63,6 @@ content/api/**/*.mdx
 
 .mcp.json
 
-# Sentry Config File
-.env.sentry-build-plugin
 /.swc
 
 # workflow runtime hook state

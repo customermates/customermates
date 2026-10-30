@@ -69,7 +69,8 @@ export async function POST(request: Request): Promise<Response> {
     return new Response(null, { status: 403 });
   if (!request.headers.get("content-type")?.startsWith("application/json")) return new Response(null, { status: 415 });
 
-  const address = request.headers.get("x-real-ip") ?? "unknown";
+  const address =
+    request.headers.get("x-real-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const now = Date.now();
   for (const [key, admission] of admissions) if (admission.until <= now) admissions.delete(key);
   const admission = admissions.get(address) ?? {
@@ -109,6 +110,7 @@ export async function POST(request: Request): Promise<Response> {
     await publishServerError(
       {
         ...report,
+        timestamp: Date.now() / 1000,
         name: scrubErrorText(report.name, 100),
         message: scrubErrorText(report.message),
         path: safeErrorPath(report.path),

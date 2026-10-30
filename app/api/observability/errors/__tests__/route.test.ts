@@ -88,13 +88,14 @@ describe("browser error intake", () => {
     expect((await POST(incoming)).status).toBe(202);
   });
 
-  it("uses authenticated context, scrubs input and preserves the reported event time", async () => {
+  it("uses authenticated context, scrubs input and stamps the server receive time", async () => {
     const { POST } = await import("../route");
     expect(
       (
         await POST(
           request({
             ...report,
+            timestamp: Date.now() / 1000 - 3 * 86400,
             release: "a".repeat(40),
             tags: { operation: "contacts.refresh", detail: "token=private" },
             tenant: { userId: "forged" },
@@ -113,7 +114,7 @@ describe("browser error intake", () => {
       }),
       true,
     );
-    expect(state.publish.mock.calls[0][0].timestamp).toBe(report.timestamp);
+    expect(Math.abs(state.publish.mock.calls[0][0].timestamp - Date.now() / 1000)).toBeLessThan(60);
     expect(state.publish.mock.calls[0][0]).not.toHaveProperty("extra");
   });
 

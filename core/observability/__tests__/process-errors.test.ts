@@ -4,7 +4,13 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-function exercise(event: "uncaughtException" | "unhandledRejection", peer = false, mode = "throw", name = "Error") {
+function exercise(
+  event: "uncaughtException" | "unhandledRejection",
+  peer = false,
+  mode = "throw",
+  name = "Error",
+  exitOnFatal = true,
+) {
   const moduleUrl = pathToFileURL(resolve("core/observability/process-errors.ts")).href;
   const script = `
     const { installProcessErrorHandlers } = await import(${JSON.stringify(moduleUrl)});
@@ -12,7 +18,7 @@ function exercise(event: "uncaughtException" | "unhandledRejection", peer = fals
       captureException(error) { process.stdout.write('captured:' + error.message + '\\n'); },
       async flush() { await new Promise(r => setTimeout(r, 40)); process.stdout.write('flushed\\n'); return true; }
     };
-    const dispose = installProcessErrorHandlers(reporter);
+    const dispose = installProcessErrorHandlers(reporter, ${exitOnFatal});
     installProcessErrorHandlers(reporter);
     if (${peer}) process.on(${JSON.stringify(event)}, () => process.stdout.write('peer\\n'));
     setTimeout(() => { dispose(); process.stdout.write('continued\\n'); }, 100);
@@ -61,6 +67,15 @@ describe("native process error boundaries", () => {
     expect(result.status).toBe(1);
     expect(result.stdout).toBe("flushed\n");
   });
+
+  it.each(["uncaughtException", "unhandledRejection"] as const)(
+    "reports %s without exiting when a shared runtime owns the process",
+    (event) => {
+      const result = exercise(event, false, "throw", "Error", false);
+      expect(result.status).toBe(0);
+      expect(result.stdout).toBe("captured:fixture\ncontinued\n");
+    },
+  );
 
   it("still reports unrelated rejection names", () => {
     const result = exercise("unhandledRejection", true, "throw", "AI_ProviderError");
