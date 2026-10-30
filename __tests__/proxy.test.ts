@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest as NextRequestValue, NextResponse } from "next/server";
 
 type SessionResult = {
@@ -60,6 +60,13 @@ import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
 const SESSION_TOKEN_COOKIE = "app.session_token=synthetic-token; Path=/; HttpOnly; SameSite=Lax";
 const SESSION_DATA_COOKIE = "app.session_data=synthetic-cache; Path=/; HttpOnly; SameSite=Lax";
 const CLEARED_SESSION_COOKIE = "app.session_token=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax";
+const NOW = Date.UTC(2026, 9, 30, 12, 0, 0);
+const MARKER = String(NOW / 1000);
+const STALE_MARKER = String(NOW / 1000 - 10 * 60);
+const DEMO_SESSION: SessionResult = {
+  session: { expiresAt: new Date(NOW + 60 * 60_000) },
+  user: { email: SYNTHETIC_SEED_USER.email },
+};
 
 function request(pathname: string, cookie?: string, origin = "http://localhost:4000"): NextRequest {
   return new NextRequestValue(`${origin}${pathname}`, {
@@ -89,6 +96,7 @@ function setCookieHeaders(response: Response): string[] {
 describe("automatic demo authentication proxy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
     mockEnv.APP_MODE = "demo";
     mockEnv.AUTH_ALLOWED_HOSTS = [
       "localhost:4000",
@@ -100,6 +108,10 @@ describe("automatic demo authentication proxy", () => {
     mocks.isPublicPage.mockReturnValue(false);
     mocks.isContentPage.mockReturnValue(false);
     mocks.isProtectedPage.mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("round-trips an unauthenticated visitor through a same-URL redirect carrying every auth cookie", async () => {
@@ -119,7 +131,9 @@ describe("automatic demo authentication proxy", () => {
       asResponse: true,
     });
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=closed");
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/en/dashboard?agentChat=closed&cm_demo_auth=${MARKER}`,
+    );
     expect(setCookieHeaders(response)).toEqual([SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]);
     expect(mocks.intlMiddleware).not.toHaveBeenCalled();
     expect(mocks.isPublicPage).not.toHaveBeenCalled();
@@ -192,7 +206,7 @@ describe("automatic demo authentication proxy", () => {
     });
     expect(mocks.signInEmail).toHaveBeenCalledOnce();
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:4000/en/inbox");
+    expect(response.headers.get("location")).toBe(`http://localhost:4000/en/inbox?cm_demo_auth=${MARKER}`);
     expect(setCookieHeaders(response)).toEqual([
       CLEARED_SESSION_COOKIE,
       SESSION_TOKEN_COOKIE,
@@ -208,27 +222,120 @@ describe("automatic demo authentication proxy", () => {
     const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open"));
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=open&cm_demo_auth=1");
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/en/dashboard?agentChat=open&cm_demo_auth=${MARKER}`,
+    );
   });
 
   it("stops signing in when an embedded frame comes back unauthenticated a second time", async () => {
-    // A cross-site iframe drops the SameSite=Lax cookie, so without this bound the demo redirected
-    // to itself until the browser gave up with ERR_TOO_MANY_REDIRECTS.
-    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
-
-    const response = await proxy(embeddedRequest("/en/dashboard?agentChat=open&cm_demo_auth=1"));
+    const response = await proxy(embeddedRequest(`/en/dashboard?agentChat=open&cm_demo_auth=${MARKER}`));
 
     expect(mocks.signInEmail).not.toHaveBeenCalled();
     expect(response.headers.get("location")).toContain("/auth/signin");
   });
 
-  it("keeps signing a direct visitor in on every attempt, because their cookies do stick", async () => {
-    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+  it("renders an embedded frame whose cookie stuck without another hop to drop the marker", async () => {
+    mocks.getSession.mockResolvedValue(DEMO_SESSION);
 
-    const response = await proxy(request("/en/dashboard?cm_demo_auth=1"));
+    const response = await proxy(
+      embeddedRequest(`/en/dashboard?agentChat=open&cm_demo_auth=${MARKER}`, "app.session_token=synthetic-token"),
+    );
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(response.headers.get("location")).toBeNull();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+  });
+
+  it.each(["/en/dashboard", "/en/w/small-business/dashboard", "/en"])(
+    "ends the chain of a client that keeps no cookies on %s after one sign-in",
+    async (startPath) => {
+      mocks.isContentPage.mockImplementation((req) => req.nextUrl.pathname === "/en");
+      mocks.isPublicPage.mockImplementation((req) => req.nextUrl.pathname.includes("/auth/"));
+      mocks.isProtectedPage.mockImplementation((req) => !req.nextUrl.pathname.includes("/auth/"));
+      mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+      let url = `http://localhost:4000${startPath}`;
+      let redirects = 0;
+      for (; redirects < 10; redirects += 1) {
+        const location = (await proxy(new NextRequestValue(url))).headers.get("location");
+        if (!location) break;
+        url = location;
+      }
+
+      expect(redirects).toBeLessThanOrEqual(2);
+      expect(mocks.signInEmail).toHaveBeenCalledOnce();
+      expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+    },
+  );
+
+  it("sends a browser that kept the cookie once more to the same URL without the marker", async () => {
+    mocks.getSession.mockResolvedValue(DEMO_SESSION);
+
+    const response = await proxy(
+      request(`/en/w/small-business/dashboard?agentChat=closed&cm_demo_auth=${MARKER}`, "app.session_token=t"),
+    );
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:4000/en/w/small-business/dashboard?agentChat=closed",
+    );
+  });
+
+  it("walks a browser that keeps cookies from the bare URL to the rendered page on a clean URL", async () => {
+    mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+    mocks.getSession.mockResolvedValue(DEMO_SESSION);
+
+    const first = await proxy(request("/en/w/small-business/dashboard"));
+    const second = await proxy(
+      new NextRequestValue(first.headers.get("location") ?? "", {
+        headers: { cookie: "app.session_token=synthetic-token" },
+      }),
+    );
+    const finalUrl = second.headers.get("location") ?? "";
+    const third = await proxy(
+      new NextRequestValue(finalUrl, { headers: { cookie: "app.session_token=synthetic-token" } }),
+    );
 
     expect(mocks.signInEmail).toHaveBeenCalledOnce();
-    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?cm_demo_auth=1");
+    expect(finalUrl).toBe("http://localhost:4000/en/w/small-business/dashboard");
+    expect(third.headers.get("location")).toBeNull();
+    expect(mocks.intlMiddleware).toHaveBeenCalledOnce();
+  });
+
+  it("drops the marker when the signed-in demo root moves on to the dashboard", async () => {
+    mocks.isContentPage.mockReturnValue(true);
+    mocks.getSession.mockResolvedValue(DEMO_SESSION);
+
+    const response = await proxy(request(`/en?agentChat=closed&cm_demo_auth=${MARKER}`, "app.session_token=t"));
+
+    expect(response.headers.get("location")).toBe("http://localhost:4000/en/dashboard?agentChat=closed");
+  });
+
+  it.each(["1", STALE_MARKER])(
+    "signs a fresh browser in from a shared link whose marker %s is not from a recent redirect",
+    async (marker) => {
+      mocks.signInEmail.mockResolvedValue(responseWithCookies(200, [SESSION_TOKEN_COOKIE, SESSION_DATA_COOKIE]));
+
+      const response = await proxy(request(`/en/w/small-business/dashboard?cm_demo_auth=${marker}`));
+
+      expect(mocks.signInEmail).toHaveBeenCalledOnce();
+      expect(response.headers.get("location")).toBe(
+        `http://localhost:4000/en/w/small-business/dashboard?cm_demo_auth=${MARKER}`,
+      );
+    },
+  );
+
+  it("keeps the marker on the sign-in page so a cookie-less client is not signed in there again", async () => {
+    const response = await proxy(request(`/en/dashboard?cm_demo_auth=${MARKER}`));
+
+    expect(mocks.signInEmail).not.toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      `http://localhost:4000/en/auth/signin?callbackURL=${encodeURIComponent(
+        `http://localhost:4000/en/dashboard?cm_demo_auth=${MARKER}`,
+      )}&cm_demo_auth=${MARKER}`,
+    );
   });
 
   it("serves a public marketing page on the demo host without minting a session", async () => {
