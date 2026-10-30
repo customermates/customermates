@@ -7,10 +7,11 @@ import type { EventAdmission } from "./event-admission";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
 const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).strict();
 type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
-type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" };
+type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" | "busy" };
 
 const ADMISSION_RACED = new Error("Another worker settled the event during its admission");
 
@@ -41,7 +42,15 @@ export class ProcessEventInteractor {
         { companyId: input.companyId, timeout: 30000 },
       );
     } catch (error) {
-      if (!attempt.event) throw error;
+      if (!attempt.event) {
+        // Another transaction (for example a bulk import) held the company lock: the event stays due, untouched.
+        if (!isBusyDatabaseError(error)) throw error;
+        Sentry.captureException(error, {
+          level: "warning",
+          tags: { companyId: input.companyId, eventId: input.eventId, outcome: "company_busy" },
+        });
+        return { status: "busy" };
+      }
       const event = attempt.event;
       const abandon = event.attempts + 1 >= EVENT_ADMISSION_MAX_ATTEMPTS;
       if (error !== ADMISSION_RACED) {
