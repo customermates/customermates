@@ -10,16 +10,12 @@ import type { ErrorReport } from "./error-report";
 
 export async function publishServerError(report: ErrorReport, notify = true): Promise<void> {
   logRuntimeEvent(report);
-  const channels = {
-    email: Boolean(process.env.ERROR_REPORTING_NOTIFICATION_EMAIL),
-    webhook: Boolean(process.env.ERROR_REPORTING_WEBHOOK_URL),
-  };
-  if (!notify || report.level !== "error" || (!channels.email && !channels.webhook)) return;
+  if (!notify || report.level !== "error" || !process.env.ERROR_REPORTING_NOTIFICATION_EMAIL) return;
   const fingerprint = claimErrorNotification(report);
   if (!fingerprint) return;
 
   try {
-    const run = await start(notifyApplicationError, [{ ...report, fingerprint }, channels]);
+    const run = await start(notifyApplicationError, [{ ...report, fingerprint }]);
     logRuntimeEvent({
       level: "info",
       kind: "error-notification-enqueued",

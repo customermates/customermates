@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createHmac } from "node:crypto";
-
-import { FatalError, RetryableError } from "workflow";
+import { RetryableError } from "workflow";
 
 import type { ErrorReport } from "@/core/observability/error-report";
 
@@ -140,42 +138,5 @@ describe("application error notification", () => {
     const denied = await verifyPreviewErrorDelivery("local-email").catch((error: unknown) => error);
     expect(RetryableError.is(denied)).toBe(false);
     expect(state.get).toHaveBeenCalledTimes(2);
-  });
-});
-
-describe("application error webhook", () => {
-  const fingerprinted = { ...report, fingerprint: "f".repeat(32) };
-
-  beforeEach(() => {
-    vi.stubEnv("ERROR_REPORTING_WEBHOOK_URL", "https://hooks.example.com/errors");
-    vi.stubEnv("ERROR_REPORTING_WEBHOOK_SECRET", "webhook-secret");
-  });
-  afterEach(() => vi.unstubAllGlobals());
-
-  it("posts the report with an HMAC-SHA256 signature of the exact body, without redirects", async () => {
-    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }));
-    vi.stubGlobal("fetch", fetch);
-    const { notifyApplicationError } = await import("../notify-application-error");
-    await expect(notifyApplicationError(fingerprinted, { email: false, webhook: true })).resolves.toBeNull();
-    const [target, init] = fetch.mock.calls[0] as [URL, RequestInit & { headers: Record<string, string> }];
-    expect(String(target)).toBe("https://hooks.example.com/errors");
-    expect(init.redirect).toBe("error");
-    const expected = createHmac("sha256", "webhook-secret").update(String(init.body)).digest("hex");
-    expect(init.headers["x-customermates-signature"]).toBe(`sha256=${expected}`);
-    expect(JSON.parse(String(init.body))).toMatchObject({ fingerprint: "f".repeat(32), report: { id: report.id } });
-    expect(state.send).not.toHaveBeenCalled();
-  });
-
-  it("retries outages and stops on a rejected or non-HTTPS target", async () => {
-    const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 503 }));
-    vi.stubGlobal("fetch", fetch);
-    const { deliverErrorWebhook } = await import("../notify-application-error");
-    await expect(deliverErrorWebhook(fingerprinted)).rejects.toBeInstanceOf(RetryableError);
-    fetch.mockResolvedValue(new Response(null, { status: 401 }));
-    await expect(deliverErrorWebhook(fingerprinted)).rejects.toBeInstanceOf(FatalError);
-    vi.stubEnv("ERROR_REPORTING_WEBHOOK_URL", "http://hooks.example.com/errors");
-    fetch.mockClear();
-    await expect(deliverErrorWebhook(fingerprinted)).rejects.toBeInstanceOf(FatalError);
-    expect(fetch).not.toHaveBeenCalled();
   });
 });

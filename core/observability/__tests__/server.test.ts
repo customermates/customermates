@@ -34,6 +34,5 @@ describe("native server severity", () => {
     expect(reports.map((report) => report.level)).toEqual(["info", "warning", "error"]);
     expect(state.start).toHaveBeenCalledOnce();
     expect(state.start.mock.calls[0][1][0].message).toBe("error fixture");
-    expect(state.start.mock.calls[0][1][1]).toEqual({ email: true, webhook: false });
   });
 });
