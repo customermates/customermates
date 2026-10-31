@@ -1203,38 +1203,39 @@ enum SubscriptionPlan {
 }
 
 model ConnectedAccount {
-  id                 String                  @id @default(uuid())
+  id                 String                       @id @default(uuid())
   companyId          String
-  company            Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company            Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   userId             String
-  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  unipileAccountId   String                  @unique
+  user               User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unipileAccountId   String                       @unique
   provider           MessagingProvider
-  status             ConnectedAccountStatus  @default(connecting)
-  hasMessaging       Boolean                 @default(false)
-  hasCalendar        Boolean                 @default(false)
+  status             ConnectedAccountStatus       @default(connecting)
+  hasMessaging       Boolean                      @default(false)
+  hasCalendar        Boolean                      @default(false)
   emailAddress       String?
   displayName        String?
-  sentFolderIds      String[]                @default([])
-  folders            Json                    @default("[]")
-  selectedFolderIds  String[]                @default([])
+  sentFolderIds      String[]                     @default([])
+  folders            Json                         @default("[]")
+  selectedFolderIds  String[]                     @default([])
   foldersSyncedAt    DateTime?
-  linkedinProducts   String[]                @default([])
+  linkedinProducts   String[]                     @default([])
   signature          String?
   signatureFields    Json?
-  shared             Boolean                 @default(false)
-  syncing            Boolean                 @default(false)
+  shared             Boolean                      @default(false)
+  syncing            Boolean                      @default(false)
   ownerAvatarUrl     String?
   lastSyncedAt       DateTime?
   backfillClaimedAt  DateTime?
   backfillClaimToken String?
-  createdAt          DateTime                @default(now())
-  updatedAt          DateTime                @updatedAt
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
   threads            MessagingThread[]
   messages           MessagingMessage[]
   calendars          Calendar[]
   calendarEvents     CalendarEvent[]
   inboundEvents      MessagingInboundEvent[]
+  folderPassMessages MessagingFolderPassMessage[]
   accountActivities  AccountActivity[]
   draftSends         MessagingDraftSend[]
 
@@ -1485,6 +1486,18 @@ model CalendarEvent {
 enum CalendarEventStatus {
   confirmed
   cancelled
+}
+
+model MessagingFolderPassMessage {
+  companyId          String
+  connectedAccountId String
+  connectedAccount   ConnectedAccount @relation(fields: [connectedAccountId], references: [id], onDelete: Cascade)
+  folderId           String
+  unipileMessageId   String
+  createdAt          DateTime         @default(now())
+
+  @@id([connectedAccountId, folderId, unipileMessageId])
+  @@index([companyId])
 }
 
 model MessagingInboundEvent {
