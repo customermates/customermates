@@ -230,14 +230,12 @@ describe("widget series helpers", () => {
       },
     ];
 
-    // 23:30 UTC on 31 Oct is already 1 Nov in Berlin (CET, UTC+1 after the change).
     const lateEvening = new Date("2026-10-31T23:30:00.000Z");
     expect(measureTimeWindow(build(lastDays), lateEvening)).toEqual({ first: "2026-10-28", last: "2026-10-31" });
     expect(measureTimeWindow(build(lastDays, "Europe/Berlin"), lateEvening)).toEqual({
       first: "2026-10-28",
       last: "2026-11-01",
     });
-    // 22:30 UTC on 24 Oct is 00:30 on 25 Oct in Berlin (still CEST, UTC+2); 22:30 UTC on 25 Oct is 23:30 CET.
     expect(measureTimeWindow(build(lastDays, "Europe/Berlin"), new Date("2026-10-24T22:30:00.000Z"))).toEqual({
       first: "2026-10-21",
       last: "2026-10-25",

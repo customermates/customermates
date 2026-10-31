@@ -1,6 +1,7 @@
 import type { RecordMeasure, RecordMeasureDateInterval } from "@/features/records/record-measure.schema";
 
 import { RECORD_MEASURE_MAX_GROUP_LIMIT } from "@/features/records/record-measure.schema";
+import { zonedDate } from "@/features/record-calendar/zoned-time";
 
 export const RANKED_TABLE_ROW_LIMIT = 10;
 
@@ -25,20 +26,8 @@ export function bucketStartOf(date: string, interval: RecordMeasureDateInterval)
   return start.toISOString().slice(0, 10);
 }
 
-function zonedDate(instant: Date, timeZone: string): string {
-  const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" })
-    .formatToParts(instant)
-    .reduce<Record<string, string>>((all, part) => ({ ...all, [part.type]: part.value }), {});
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
-
 export type TimeSeriesWindow = { first: string; last: string };
 
-/**
- * The bucket range a date-interval measure filters its own grouped field to, so the chart axis covers the whole
- * window instead of only the periods with records. Date endpoints are calendar dates; dateTime endpoints and today
- * fall in groupBy.timeZone. Returns null without a start (inLastDays, between, gte or gt) on the grouped field.
- */
 export function measureTimeWindow(measure: RecordMeasure, now = new Date()): TimeSeriesWindow | null {
   const groupBy = measure.groupBy;
   if (!groupBy?.dateInterval || !groupBy.fieldId) return null;
@@ -51,7 +40,7 @@ export function measureTimeWindow(measure: RecordMeasure, now = new Date()): Tim
     value?.kind === "date"
       ? String(value.value).slice(0, 10)
       : value?.kind === "dateTime"
-        ? zonedDate(new Date(String(value.value)), timeZone)
+        ? zonedDate(String(value.value), timeZone)
         : null;
   const starts: string[] = [];
   const ends: string[] = [];
