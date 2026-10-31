@@ -26,6 +26,28 @@ describe("native error normalization", () => {
     expect(message).not.toContain("a@b.co");
   });
 
+  it("reduces prisma invocation errors to model, operation and argument names", () => {
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "build-1");
+    const prismaMessage = [
+      "",
+      "Invalid `prisma.messagingThread.upsert()` invocation:",
+      "",
+      "{",
+      '  create: { name: "Synthetic Contact", lastMessagePreview: "synthetic preview", lastMessageAt: new Date("Invalid Date") }',
+      "}",
+      "",
+      "Invalid value for argument `lastMessageAt`: Provided Date object is invalid. Expected Date.",
+    ].join("\n");
+    const report = errorReport(
+      Object.assign(new Error(prismaMessage), { name: "PrismaClientValidationError" }),
+      "server",
+    );
+
+    expect(report?.message).toBe("Invalid prisma.messagingThread.upsert() invocation: arguments lastMessageAt");
+    expect(JSON.stringify(report)).not.toContain("Synthetic Contact");
+    expect(JSON.stringify(report)).not.toContain("synthetic preview");
+  });
+
   it("reports from an HTTP browser where randomUUID is unavailable", () => {
     vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_BUILD_ID", "build-1");
     vi.stubGlobal("crypto", { getRandomValues: (bytes: Uint8Array) => bytes.fill(1) });

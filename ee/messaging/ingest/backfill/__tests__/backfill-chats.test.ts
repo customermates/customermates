@@ -160,6 +160,73 @@ describe("BackfillChatsInteractor (list-only page)", () => {
     expect(messagingService.listChatMessages).not.toHaveBeenCalled();
   });
 
+  describe("provider timestamps JS Date cannot parse", () => {
+    function rejectInvalidDates(ingest: ReturnType<typeof build>["ingest"]) {
+      ingest.upsertChatThreadUnscoped.mockImplementation((args: { lastMessageAt?: Date }) =>
+        args.lastMessageAt && Number.isNaN(args.lastMessageAt.getTime())
+          ? Promise.reject(new Error("Invalid value for argument `lastMessageAt`: Provided Date object is invalid."))
+          : Promise.resolve({ id: "thread-row-1" }),
+      );
+    }
+
+    it.each([
+      ["epoch seconds", "1761853952", new Date("2025-10-30T19:52:32.000Z")],
+      ["epoch milliseconds", "1761853952000", new Date("2025-10-30T19:52:32.000Z")],
+    ])("reads %s as the last message time", async (_label, timestamp, expected) => {
+      const { interactor, ingest, repo, messagingService } = build({
+        chats: [{ ...groupChat, last_message_timestamp: timestamp }],
+      });
+      rejectInvalidDates(ingest);
+
+      await interactor.invoke(accountWide as any);
+
+      expect(ingest.upsertChatThreadUnscoped.mock.calls[0][0].lastMessageAt).toEqual(expected);
+      expect(repo.recordUnusableItemUnscoped).not.toHaveBeenCalled();
+      expect(messagingService.listChatMessages).toHaveBeenCalledTimes(1);
+    });
+
+    it("treats a chat with an epoch timestamp no newer than its stored messages as current", async () => {
+      const { interactor, ingest, messagingService } = build({
+        chats: [{ ...groupChat, last_message_timestamp: "1761853952" }],
+      });
+      ingest.findThreadLatestMessageAtUnscoped.mockResolvedValue(new Date("2025-10-30T19:52:32.000Z"));
+
+      await interactor.invoke(accountWide as any);
+
+      expect(ingest.upsertChatThreadUnscoped).toHaveBeenCalledTimes(1);
+      expect(messagingService.listChatMessages).not.toHaveBeenCalled();
+    });
+
+    it("falls back to updated_at when last_message_timestamp is not a date", async () => {
+      const { interactor, ingest, repo, messagingService } = build({
+        chats: [{ ...groupChat, last_message_timestamp: "not a date", updated_at: "2025-06-02T00:00:00.000Z" }],
+      });
+      rejectInvalidDates(ingest);
+
+      await interactor.invoke(accountWide as any);
+
+      expect(ingest.upsertChatThreadUnscoped.mock.calls[0][0].lastMessageAt).toEqual(
+        new Date("2025-06-02T00:00:00.000Z"),
+      );
+      expect(repo.recordUnusableItemUnscoped).not.toHaveBeenCalled();
+      expect(messagingService.listChatMessages).toHaveBeenCalledTimes(1);
+    });
+
+    it("still syncs the chat and its messages without a last message time when no timestamp parses", async () => {
+      const { interactor, ingest, repo, messagingService } = build({
+        chats: [{ ...groupChat, last_message_timestamp: "not a date", updated_at: "also not a date" }],
+      });
+      rejectInvalidDates(ingest);
+      ingest.findThreadLatestMessageAtUnscoped.mockResolvedValue(new Date("2025-06-01T00:00:00.000Z"));
+
+      await interactor.invoke(accountWide as any);
+
+      expect(ingest.upsertChatThreadUnscoped.mock.calls[0][0].lastMessageAt).toBeUndefined();
+      expect(repo.recordUnusableItemUnscoped).not.toHaveBeenCalled();
+      expect(messagingService.listChatMessages).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("lists a LinkedIn inbox source via listInboxChats, honoring the incoming cursor", async () => {
     const { interactor, messagingService } = build({ chats: [groupChat] });
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   MOCK_ENV_MODULE,
@@ -55,14 +55,40 @@ function cursorPaginationError() {
 }
 
 function build(listFolderEmails: ReturnType<typeof vi.fn>) {
+  const folderIdsByMessage = new Map<string, string[]>([["stale", [FOLDER]]]);
+  const passSeen = new Set<string>();
   const ingest = {
     upsertChatThreadUnscoped: vi.fn().mockResolvedValue({ id: "thread-1" }),
-    ingestMessageUnscoped: vi.fn().mockResolvedValue(undefined),
-    reconcileFolderMembershipUnscoped: vi.fn().mockResolvedValue(undefined),
+    ingestMessageUnscoped: vi.fn().mockImplementation(({ message }) => {
+      const current = folderIdsByMessage.get(message.unipileMessageId) ?? [];
+      folderIdsByMessage.set(message.unipileMessageId, [...new Set([...current, ...message.folderIds])]);
+      return Promise.resolve({});
+    }),
+    reconcileFolderMembershipUnscoped: vi.fn().mockImplementation(({ folderId, seenUnipileMessageIds }) => {
+      const seen = new Set(seenUnipileMessageIds);
+      for (const [id, folderIds] of folderIdsByMessage) {
+        if (!seen.has(id)) {
+          folderIdsByMessage.set(
+            id,
+            folderIds.filter((entry) => entry !== folderId),
+          );
+        }
+      }
+      return Promise.resolve(0);
+    }),
   };
   const repo = {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
+    clearEmailFolderPassUnscoped: vi.fn().mockImplementation(() => {
+      passSeen.clear();
+      return Promise.resolve();
+    }),
+    recordEmailFolderPassSeenUnscoped: vi.fn().mockImplementation(({ unipileMessageIds }) => {
+      for (const id of unipileMessageIds) passSeen.add(id);
+      return Promise.resolve();
+    }),
+    listEmailFolderPassSeenUnscoped: vi.fn().mockImplementation(() => Promise.resolve([...passSeen])),
   };
   const interactor = new BackfillEmailsInteractor(
     repo as never,
@@ -73,13 +99,31 @@ function build(listFolderEmails: ReturnType<typeof vi.fn>) {
     }),
   );
 
-  return { interactor, ingest };
+  return { interactor, ingest, folderIdsByMessage };
 }
 
-const invoke = (interactor: BackfillEmailsInteractor) =>
-  interactor.invoke({ connectedAccountId: CONNECTED_ACCOUNT_ID, source: FOLDER, cursor: null } as never);
+const invoke = (interactor: BackfillEmailsInteractor, cursor: string | null = null) =>
+  interactor.invoke({ connectedAccountId: CONNECTED_ACCOUNT_ID, source: FOLDER, cursor } as never);
 
-beforeEach(() => vi.clearAllMocks());
+async function drainFolder(interactor: BackfillEmailsInteractor) {
+  let cursor: string | null = null;
+  let steps = 0;
+  for (;;) {
+    const result = await invoke(interactor, cursor);
+    steps += 1;
+    if (result.done) return { result, steps };
+    cursor = result.nextCursor;
+  }
+}
+
+let clock = Date.now();
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.spyOn(Date, "now").mockImplementation(() => (clock += 1000));
+});
+
+afterEach(() => vi.restoreAllMocks());
 
 describe("folder reconciliation after a backfill page walk", () => {
   it("reconciles when the walk genuinely reached the end of the folder", async () => {
@@ -90,6 +134,26 @@ describe("folder reconciliation after a backfill page walk", () => {
 
     expect(result.complete).toBe(true);
     expect(ingest.reconcileFolderMembershipUnscoped).toHaveBeenCalledOnce();
+  });
+
+  it("drops a stale placement when the folder walk spans several steps", async () => {
+    const pageCount = 201;
+    const listFolderEmails = vi.fn().mockImplementation((query: { cursor?: string }) => {
+      const index = Number(query.cursor ?? 0);
+      return Promise.resolve({
+        data: [email(index)],
+        next_cursor: index + 1 < pageCount ? String(index + 1) : null,
+      });
+    });
+    const { interactor, folderIdsByMessage } = build(listFolderEmails);
+
+    const { result, steps } = await drainFolder(interactor);
+
+    expect(steps).toBeGreaterThan(1);
+    expect(result.complete).toBe(true);
+    expect(folderIdsByMessage.get("stale")).toEqual([]);
+    expect(folderIdsByMessage.get("mail-0")).toEqual([FOLDER]);
+    expect(folderIdsByMessage.get(`mail-${pageCount - 1}`)).toEqual([FOLDER]);
   });
 
   it("does not reconcile when the walk stopped on a cursor-pagination rejection", async () => {

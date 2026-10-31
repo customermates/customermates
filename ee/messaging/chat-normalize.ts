@@ -64,6 +64,18 @@ export function isExcludedChatId(chatId: string | null | undefined): boolean {
   return chatId != null && EXCLUDED_CHAT_SUFFIXES.some((suffix) => chatId.endsWith(suffix));
 }
 
+const EPOCH_SECONDS_LIMIT = 1e11;
+
+export function parseUnipileTimestamp(value: string | null | undefined): Date | null {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  const epoch = /^\d+$/.test(trimmed) ? Number(trimmed) : null;
+  const date = epoch === null ? new Date(trimmed) : new Date(epoch < EPOCH_SECONDS_LIMIT ? epoch * 1000 : epoch);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function inferWhatsappGroupType(chatId: string, provider: MessagingProvider): IngestMessage["threadType"] {
   return provider === MessagingProvider.whatsapp && chatId.endsWith(WHATSAPP_GROUP_SUFFIX) ? "group" : undefined;
 }
@@ -72,8 +84,8 @@ export function normalizeChatMessage(raw: UnipileMessage, provider: MessagingPro
   if (!raw.id || !raw.chat_id) return null;
   if (isExcludedChatId(raw.chat_id)) return null;
 
-  const sentAt = new Date(raw.timestamp);
-  if (Number.isNaN(sentAt.getTime())) return null;
+  const sentAt = parseUnipileTimestamp(raw.timestamp);
+  if (!sentAt) return null;
 
   const isOutbound = raw.is_sender === true;
   const sender = mapUnipileUser(raw.sender, { isSelf: isOutbound });

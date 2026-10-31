@@ -1,6 +1,8 @@
 import type { ConnectedAccount, ConnectedAccountStatus } from "@/generated/prisma";
 import type { EmailFolder } from "../../email-folders";
 
+export type EmailFolderPass = { companyId: string; connectedAccountId: string; folderId: string };
+
 export abstract class BackfillConnectedAccountRepo {
   abstract recordUnusableItemUnscoped(args: {
     companyId: string;
@@ -25,4 +27,7 @@ export abstract class BackfillConnectedAccountRepo {
     linkedinProducts?: string[];
   }): Promise<ConnectedAccount | null>;
   abstract markAccountHasCalendarUnscoped(unipileAccountId: string): Promise<void>;
+  abstract clearEmailFolderPassUnscoped(args: EmailFolderPass): Promise<void>;
+  abstract recordEmailFolderPassSeenUnscoped(args: EmailFolderPass & { unipileMessageIds: string[] }): Promise<void>;
+  abstract listEmailFolderPassSeenUnscoped(args: EmailFolderPass): Promise<string[]>;
 }
