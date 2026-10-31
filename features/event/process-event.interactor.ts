@@ -7,10 +7,11 @@ import type { EventAdmission } from "./event-admission";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
 const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).strict();
 type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
-type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" };
+type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" | "busy" };
 
 export const EVENT_ADMISSION_TIMEOUT_MS = 30_000;
 const ADMISSION_RACED = new Error("Another worker settled the event during its admission");
@@ -20,6 +21,7 @@ export class ProcessEventInteractor {
   constructor(
     private readonly outbox: EventOutboxRepo,
     private readonly admission: EventAdmission,
+    private readonly companyLockWait = EVENT_ADMISSION_TIMEOUT_MS,
   ) {}
 
   @Enforce(ProcessEventSchema)
@@ -42,11 +44,18 @@ export class ProcessEventInteractor {
         {
           companyId: input.companyId,
           timeout: EVENT_ADMISSION_TIMEOUT_MS,
-          companyLockWait: EVENT_ADMISSION_TIMEOUT_MS,
+          companyLockWait: this.companyLockWait,
         },
       );
     } catch (error) {
-      if (!attempt.event) throw error;
+      if (!attempt.event) {
+        if (!isBusyDatabaseError(error)) throw error;
+        ErrorReporter.captureException(error, {
+          level: "warning",
+          tags: { companyId: input.companyId, eventId: input.eventId, outcome: "company_busy" },
+        });
+        return { status: "busy" };
+      }
       const event = attempt.event;
       const abandon = event.attempts + 1 >= EVENT_ADMISSION_MAX_ATTEMPTS;
       if (error !== ADMISSION_RACED) {

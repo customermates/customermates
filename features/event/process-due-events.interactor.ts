@@ -25,6 +25,7 @@ export class ProcessDueEventsInteractor {
     const startedAt = Date.now();
     const withinBudget = () => Date.now() - startedAt < DRAIN_BUDGET_MS;
     let processed = 0;
+    let busy = false;
     try {
       do {
         drain.rescan = false;
@@ -34,16 +35,20 @@ export class ProcessDueEventsInteractor {
             drain.rescan = true;
             break;
           }
-          await this.process.invoke({ companyId: input.companyId, eventId });
+          if ((await this.process.invoke({ companyId: input.companyId, eventId })).status === "busy") {
+            busy = true;
+            break;
+          }
           processed += 1;
         }
-      } while (drain.rescan && processed < BATCH_SIZE && withinBudget());
+      } while (!busy && drain.rescan && processed < BATCH_SIZE && withinBudget());
     } finally {
       endEventDrain(input.companyId, drain);
     }
     const continued =
-      drain.rescan ||
-      (processed === BATCH_SIZE && (await this.outbox.dueEventsUnscoped(input.companyId, new Date(), 1)).length > 0);
+      !busy &&
+      (drain.rescan ||
+        (processed === BATCH_SIZE && (await this.outbox.dueEventsUnscoped(input.companyId, new Date(), 1)).length > 0));
     if (continued) await this.background.dispatch("process-events", { companyId: input.companyId });
     return { processed, continued };
   }
