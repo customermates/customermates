@@ -2564,17 +2564,18 @@ export class PrismaMessagingRepo
 
   @BypassTenantGuard
   async reconcileFolderMembershipUnscoped(args: RepoArgs<MessagingIngestRepo, "reconcileFolderMembershipUnscoped">) {
-    const stale = await this.prisma.messagingMessage.findMany({
+    const seen = new Set(args.seenUnipileMessageIds);
+    const placed = await this.prisma.messagingMessage.findMany({
       where: {
         companyId: args.companyId,
         connectedAccountId: args.connectedAccountId,
         folderIds: { has: args.folderId },
         sentAt: { gte: args.since },
         isDraft: false,
-        ...(args.seenUnipileMessageIds.length > 0 ? { unipileMessageId: { notIn: args.seenUnipileMessageIds } } : {}),
       },
-      select: { id: true, folderIds: true },
+      select: { id: true, unipileMessageId: true, folderIds: true },
     });
+    const stale = placed.filter((row) => !seen.has(row.unipileMessageId));
 
     for (const row of stale) {
       const folderIds = row.folderIds.filter((id) => id !== args.folderId);

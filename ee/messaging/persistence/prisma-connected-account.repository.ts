@@ -265,6 +265,42 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
+  async clearEmailFolderPassUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "clearEmailFolderPassUnscoped">) {
+    await this.prisma.messagingFolderPassMessage.deleteMany({
+      where: { companyId: args.companyId, connectedAccountId: args.connectedAccountId, folderId: args.folderId },
+    });
+  }
+
+  @BypassTenantGuard
+  async recordEmailFolderPassSeenUnscoped(
+    args: RepoArgs<BackfillConnectedAccountRepo, "recordEmailFolderPassSeenUnscoped">,
+  ) {
+    if (args.unipileMessageIds.length === 0) return;
+
+    await this.prisma.messagingFolderPassMessage.createMany({
+      data: args.unipileMessageIds.map((unipileMessageId) => ({
+        companyId: args.companyId,
+        connectedAccountId: args.connectedAccountId,
+        folderId: args.folderId,
+        unipileMessageId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  @BypassTenantGuard
+  async listEmailFolderPassSeenUnscoped(
+    args: RepoArgs<BackfillConnectedAccountRepo, "listEmailFolderPassSeenUnscoped">,
+  ) {
+    const rows = await this.prisma.messagingFolderPassMessage.findMany({
+      where: { companyId: args.companyId, connectedAccountId: args.connectedAccountId, folderId: args.folderId },
+      select: { unipileMessageId: true },
+    });
+
+    return rows.map((row) => row.unipileMessageId);
+  }
+
+  @BypassTenantGuard
   async findAccountByUnipileIdUnscoped(unipileAccountId: string) {
     const row = await this.prisma.connectedAccount.findUnique({
       where: { unipileAccountId },

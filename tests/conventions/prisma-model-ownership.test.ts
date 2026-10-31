@@ -60,6 +60,7 @@ const OWNERS: Record<string, string> = {
   HostedAiPlatformWorkspaceUsage: "ee/agent-chat/prisma-agent-chat.repository.ts",
   InviteToken: "features/company/prisma-company.repository.ts",
   MessagingDraftSend: "ee/messaging/persistence/prisma-messaging.repository.ts",
+  MessagingFolderPassMessage: "ee/messaging/persistence/prisma-connected-account.repository.ts",
   MessagingInboundEvent: "ee/messaging/persistence/prisma-unipile-webhook.repository.ts",
   MessagingMessage: "ee/messaging/persistence/prisma-messaging.repository.ts",
   MessagingThread: "ee/messaging/persistence/prisma-messaging.repository.ts",

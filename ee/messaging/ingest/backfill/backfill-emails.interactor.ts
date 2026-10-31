@@ -16,7 +16,14 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { buildEmailMessage } from "../../unipile.mappers";
 import { UnipileEmailSchema } from "../../unipile.schema";
 
-import { BACKFILL_EMAIL_TIMEOUT_MS, backfillSince, paginateStep, UNIPILE_EMAIL_MAX_LIMIT } from "./paginate";
+import {
+  BACKFILL_EMAIL_PAGE_BUDGET,
+  BACKFILL_EMAIL_STEP_BUDGET_MS,
+  BACKFILL_EMAIL_TIMEOUT_MS,
+  backfillSince,
+  paginateStep,
+  UNIPILE_EMAIL_MAX_LIMIT,
+} from "./paginate";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 import { synchronizeInboundAvatar, type ProviderAvatars } from "../inbound-avatar";
 
@@ -45,10 +52,18 @@ export class BackfillEmailsInteractor {
     const since = backfillSince();
     const after = since.toISOString();
     const seenIds = new Set<string>();
+    const folderPass =
+      source === ACCOUNT_WIDE_SOURCE
+        ? null
+        : { companyId: account.companyId, connectedAccountId: account.id, folderId: source };
+
+    if (folderPass && cursor === null) await this.repo.clearEmailFolderPassUnscoped(folderPass);
 
     const result = await paginateStep({
       startCursor: cursor,
       limit: UNIPILE_EMAIL_MAX_LIMIT,
+      maxPages: BACKFILL_EMAIL_PAGE_BUDGET,
+      timeBudgetMs: BACKFILL_EMAIL_STEP_BUDGET_MS,
       fetchPage: (query) =>
         source === ACCOUNT_WIDE_SOURCE
           ? this.messagingService.listEmails({
@@ -74,15 +89,23 @@ export class BackfillEmailsInteractor {
       },
     });
 
-    if (result.done && result.complete && cursor === null && source !== ACCOUNT_WIDE_SOURCE) {
+    if (!folderPass) return result;
+
+    if (!result.done) {
+      await this.repo.recordEmailFolderPassSeenUnscoped({ ...folderPass, unipileMessageIds: [...seenIds] });
+      return result;
+    }
+
+    if (result.complete) {
+      const earlierIds = cursor === null ? [] : await this.repo.listEmailFolderPassSeenUnscoped(folderPass);
       await this.ingest.reconcileFolderMembershipUnscoped({
-        companyId: account.companyId,
-        connectedAccountId: account.id,
-        folderId: source,
+        ...folderPass,
         since,
-        seenUnipileMessageIds: [...seenIds],
+        seenUnipileMessageIds: [...earlierIds, ...seenIds],
       });
     }
+
+    if (cursor !== null) await this.repo.clearEmailFolderPassUnscoped(folderPass);
 
     return result;
   }
