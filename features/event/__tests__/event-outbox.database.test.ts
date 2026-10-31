@@ -14,6 +14,7 @@ const { DomainEvent } = await import("../domain-events");
 const { EventService } = await import("../event.service");
 const { PrismaEventLogRepo } = await import("../prisma-event-log.repository");
 const { ProcessEventInteractor } = await import("../process-event.interactor");
+const { ProcessDueEventsInteractor } = await import("../process-due-events.interactor");
 const { EVENT_ADMISSION_MAX_ATTEMPTS } = await import("../event-outbox.repo");
 const { EventAdmissionGroup } = await import("../event-admission-group");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
@@ -193,4 +194,68 @@ describeDatabase("event outbox for messaging events", () => {
     expect(await process.invoke({ companyId, eventId: exhausted.id })).toEqual({ status: "abandoned" });
     expect(admit).not.toHaveBeenCalled();
   });
+
+  it("leaves due events in place without failing the drain while another transaction holds the company lock", async () => {
+    const companyId = await workspace([DomainEvent.MESSAGING_MESSAGE_RECEIVED]);
+    const event = await runWithoutTenant(() =>
+      prisma.eventLog.create({
+        data: {
+          companyId,
+          subjectKind: "messaging",
+          subjectId: randomUUID(),
+          kind: DomainEvent.MESSAGING_MESSAGE_RECEIVED,
+          payload: MESSAGE,
+        },
+      }),
+    );
+    const admit = vi.fn().mockResolvedValue(undefined);
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
+    const drain = new ProcessDueEventsInteractor(
+      outbox,
+      new ProcessEventInteractor(outbox, { admit }, 500),
+      background,
+    );
+    let release!: () => void;
+    let locked!: () => void;
+    const acquired = new Promise<void>((resolve) => (locked = resolve));
+    const holder = runWithoutTenant(() =>
+      prisma.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+          locked();
+          await new Promise<void>((resolve) => (release = resolve));
+        },
+        { timeout: 30_000 },
+      ),
+    );
+    await Promise.race([acquired, holder]);
+
+    try {
+      expect(await drain.invoke({ companyId })).toEqual({ processed: 0, continued: false });
+    } finally {
+      release();
+      await holder;
+    }
+
+    expect(admit).not.toHaveBeenCalled();
+    expect(background.dispatch).not.toHaveBeenCalled();
+    expect(sentry.captureException).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        level: "warning",
+        tags: expect.objectContaining({ companyId, eventId: event.id, outcome: "company_busy" }),
+      }),
+    );
+    expect(sentry.captureException).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ level: "error", tags: expect.objectContaining({ companyId }) }),
+    );
+    expect(
+      await runWithoutTenant(() => prisma.eventLog.findFirstOrThrow({ where: { companyId, id: event.id } })),
+    ).toMatchObject({ attempts: 0, deliveredAt: null, lastFailureCode: null });
+
+    expect(await drain.invoke({ companyId })).toEqual({ processed: 1, continued: false });
+    expect(admit).toHaveBeenCalledOnce();
+  }, 30_000);
 });
