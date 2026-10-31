@@ -78,6 +78,12 @@ const nextConfig: NextConfig = {
     ],
     "/api/agent/files/*/complete": recordFileParserTrees,
     "/api/v1/files/*/preview": recordFileParserTrees,
+    // The OG image route reads its fonts and logo from process.cwd(), which webpack does not trace.
+    "/og/*": [
+      "./node_modules/@fontsource/inter/files/inter-latin-400-normal.woff",
+      "./node_modules/@fontsource/inter/files/inter-latin-700-normal.woff",
+      "./public/images/light/customermates-square.svg",
+    ],
   },
 
   images: {
