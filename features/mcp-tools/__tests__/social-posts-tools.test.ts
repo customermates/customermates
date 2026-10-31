@@ -266,6 +266,41 @@ describe("get_social_profile", () => {
     expect(mcpToolResultText(result)).not.toContain("123456");
   });
 
+  it("maps the Unipile v2 person profile shape to headline, location, counts and current positions", async () => {
+    spies.getSocialProfile.mockResolvedValue({
+      ok: true as const,
+      data: {
+        object: "UserProfile",
+        id: "u3",
+        display_name: "Ada Lovelace",
+        description: "Chief Engineer at Analytical Engines",
+        location: "London, United Kingdom",
+        followers_count: 1200,
+        relations_count: 500,
+        specifics: {
+          network_distance: "SECOND_DEGREE",
+          experience: [
+            { company: { name: "Analytical Engines", id: "ae-1" }, job_title: "Chief Engineer" },
+            { company: { name: "Past Inc", id: "past-1" }, job_title: "Analyst", ended_on: "1980-01-01" },
+          ],
+        },
+      },
+    });
+
+    const text = mcpToolResultText(await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "ada" }));
+
+    expect(text).toMatch(/headline: "?<<<UNTRUSTED_RECORD_TEXT>>>/);
+    expect(text).toContain("Chief Engineer at Analytical Engines");
+    expect(text.match(/Chief Engineer at Analytical Engines/g)).toHaveLength(1);
+    expect(text).not.toContain("description:");
+    expect(text).toContain("London, United Kingdom");
+    expect(text).toContain("followers_count: 1200");
+    expect(text).toContain("relations_count: 500");
+    expect(text).toContain("current_positions");
+    expect(text).toContain("ae-1");
+    expect(text).not.toContain("past-1");
+  });
+
   it("returns the explicit lookup route separately from the provider-reported type", async () => {
     spies.getSocialProfile.mockResolvedValue({
       ok: true as const,
@@ -544,10 +579,21 @@ describe("third-party social text", () => {
     expect(firstItem(result)).toMatchObject({ text: marked });
   });
 
-  it("marks profile descriptions", async () => {
+  it("marks a profile description that serves as the headline", async () => {
     spies.getSocialProfile.mockResolvedValue({ ok: true as const, data: { id: "person-1", description: injected } });
     const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "person-1" });
+    expect(structured(result)).toMatchObject({ headline: marked });
+    expect(structured(result)).not.toHaveProperty("description");
+  });
+
+  it("marks profile headlines and descriptions", async () => {
+    spies.getSocialProfile.mockResolvedValue({
+      ok: true as const,
+      data: { id: "person-1", description: injected, specifics: { headline: injected.toUpperCase() } },
+    });
+    const result = await runProfile({ connectedAccountId: ACCOUNT_ID, identifier: "person-1" });
     expect(structured(result)).toMatchObject({ description: marked });
+    expect(String(structured(result)?.headline)).toMatch(/^<<<UNTRUSTED_RECORD_TEXT>>>/);
   });
 
   it("marks connection-request messages", async () => {

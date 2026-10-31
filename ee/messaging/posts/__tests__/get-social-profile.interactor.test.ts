@@ -71,6 +71,7 @@ describe("company social profile provider guard", () => {
       accountId: "acc_1",
       identifier: "1035",
       profileType: "company",
+      provider: "linkedin",
     });
   });
 
