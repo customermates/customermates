@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { MessagingProvider } from "@/generated/prisma";
 
-import { normalizeChatMessage } from "../chat-normalize";
+import { normalizeChatMessage, parseUnipileTimestamp } from "../chat-normalize";
 import { UnipileMessageSchema } from "../unipile.schema";
 
 function v2Message(over: Record<string, unknown> = {}) {
@@ -44,5 +44,25 @@ describe("normalizeChatMessage", () => {
     const msg = normalizeChatMessage(v2Message(), MessagingProvider.linkedin);
 
     expect(msg?.subject).toBeNull();
+  });
+});
+
+describe("parseUnipileTimestamp", () => {
+  it.each([
+    ["an ISO string", "2025-10-30T19:52:32.000Z"],
+    ["epoch seconds", "1761853952"],
+    ["epoch milliseconds", "1761853952000"],
+  ])("reads %s", (_label, value) => {
+    expect(parseUnipileTimestamp(value)).toEqual(new Date("2025-10-30T19:52:32.000Z"));
+  });
+
+  it.each([null, undefined, "", "not a date"])("returns null for %j", (value) => {
+    expect(parseUnipileTimestamp(value)).toBeNull();
+  });
+
+  it("keeps a chat message whose timestamp is epoch seconds", () => {
+    const msg = normalizeChatMessage(v2Message({ timestamp: "1761853952" }), MessagingProvider.telegram);
+
+    expect(msg?.sentAt).toEqual(new Date("2025-10-30T19:52:32.000Z"));
   });
 });
