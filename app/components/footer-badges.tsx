@@ -94,6 +94,14 @@ const LISTING_BADGES: ListingBadge[] = [
     width: 270,
     height: 20,
   },
+  {
+    name: "1000-tools",
+    platform: "1000 Tools",
+    href: "https://1000tools.best/projects/customermates?utm_source=badge",
+    src: "/images/brand/1000-tools-badge.svg",
+    width: 150,
+    height: 44,
+  },
 ];
 
 const MARQUEE_GAP_REM = 2.5;

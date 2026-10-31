@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="44" viewBox="0 0 150 44" role="img" aria-label="Featured on 1000 Tools">
+  <title>Featured on 1000 Tools</title>
+  <rect x="0.5" y="0.5" width="149" height="43" rx="8" fill="#0a0b09" stroke="#52525b"/>
+  <g font-family="ui-sans-serif,system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif" fill="#ffffff">
+    <text x="75" y="17" text-anchor="middle" font-size="9" font-weight="600" letter-spacing="1.2" fill-opacity=".62">FEATURED ON</text>
+    <text x="75" y="34" text-anchor="middle" font-size="16" font-weight="700">1000 Tools</text>
+  </g>
+</svg>
