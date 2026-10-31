@@ -1350,7 +1350,7 @@ describeDatabase("configuration trash", () => {
     ).toEqual([0, 0]);
   }, 300_000);
 
-  it("drives a background system purge to completion as a system record operation", async () => {
+  it("drives a background system purge to completion as a system record operation and waits out a held company lock", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;
     const fieldId = f.id("deal.notes");
@@ -1428,12 +1428,23 @@ describeDatabase("configuration trash", () => {
       for (let poll = 0; poll < 100 && (await waiting()) === 0; poll++)
         await new Promise((resolve) => setTimeout(resolve, 100));
       expect(await waiting()).toBe(1);
+      expect(await firstStep).toEqual({ done: false });
       expect(await operationState()).toEqual(before);
+      expect(
+        (
+          await runWithoutTenant(() =>
+            prisma.recordOperation.findUniqueOrThrow({
+              where: { companyId_id: { companyId, id: operationId } },
+              select: { leaseUntil: true },
+            }),
+          )
+        ).leaseUntil?.getTime(),
+      ).toBeGreaterThan(Date.now());
     } finally {
       await holder.query("ROLLBACK");
       await holder.end();
     }
-    let done = (await firstStep).done;
+    let done = false;
     for (let step = 0; step < 300 && !done; step++) done = (await advance.invoke({ companyId, operationId })).done;
     expect(done).toBe(true);
     expect(
