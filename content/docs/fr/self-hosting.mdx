@@ -210,7 +210,7 @@ docker compose ps
 docker compose exec app sh
 ```
 
-L’application écrit ses journaux sur la sortie du conteneur. Les tâches en arrière-plan comme les livraisons de webhooks s’exécutent dans le conteneur de l’application via une file d’attente adossée à PostgreSQL dans la même base de données ; il n’y a pas de service de travail distinct. L’image publiée désactive la télémétrie de Next.js et de Prisma et ne définit aucune adresse de rapport d’erreurs. Les erreurs que l’application écrit sur sa sortie n’apparaissent que dans ces journaux ; les erreurs qu’elle ne fait que signaler à un service de rapport d’erreurs ne sont enregistrées nulle part. Chaque e-mail que Resend a rejeté ou auquel il n’a pas répondu à temps est consigné sous la forme `[EmailService] Email not sent` avec la raison donnée par Resend.
+L’application écrit ses journaux sur la sortie du conteneur. Les tâches en arrière-plan comme les livraisons de webhooks s’exécutent dans le conteneur de l’application via une file d’attente adossée à PostgreSQL dans la même base de données ; il n’y a pas de service de travail distinct. L’image publiée désactive la télémétrie de Next.js et de Prisma. Les erreurs n’apparaissent que dans ces journaux. Chaque e-mail que Resend a rejeté ou auquel il n’a pas répondu à temps est consigné sous la forme `[EmailService] Email not sent` avec la raison donnée par Resend.
 
 ## Où sont stockés les fichiers en auto-hébergement ? [#file-storage]
 

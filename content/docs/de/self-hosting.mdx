@@ -210,7 +210,7 @@ docker compose ps
 docker compose exec app sh
 ```
 
-Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Telemetrie von Next.js und Prisma ab und setzt keine Adresse für Fehlerberichte. Fehler, die die App in ihre Ausgabe schreibt, erscheinen nur in diesen Logs; Fehler, die die App nur an einen Dienst für Fehlerberichte meldet, werden nirgends festgehalten. Jede E-Mail, die Resend abgelehnt oder nicht rechtzeitig beantwortet hat, steht als `[EmailService] Email not sent` mit dem Grund von Resend im Log.
+Die App schreibt ihre Logs in die Container-Ausgabe. Hintergrund-Jobs wie Webhook-Zustellungen laufen im App-Container über eine PostgreSQL-gestützte Warteschlange in derselben Datenbank; einen separaten Worker-Dienst gibt es nicht. Das veröffentlichte Image schaltet die Telemetrie von Next.js und Prisma ab. Fehler erscheinen nur in diesen Logs. Jede E-Mail, die Resend abgelehnt oder nicht rechtzeitig beantwortet hat, steht als `[EmailService] Email not sent` mit dem Grund von Resend im Log.
 
 ## Wo werden Dateien beim Self-Hosting gespeichert? [#file-storage]
 
