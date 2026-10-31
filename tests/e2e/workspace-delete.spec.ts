@@ -13,7 +13,7 @@ import {
   addMembership,
   createNamedLogin,
   organizationList,
-  recordSentryRequests,
+  recordErrorReports,
   recordToasts,
   recordUnreadCountPolls,
 } from "./workspace-membership";
@@ -184,7 +184,7 @@ test("a member's open page of a deleted workspace shows the workspace-changed di
     await setActiveWorkspace(database, workspace, second.companyId);
     const member = await signInLogin(browser, database, rita, testInfo);
     const toasts = await recordToasts(member.page);
-    const sentry = recordSentryRequests(member.page);
+    const sentry = recordErrorReports(member.page);
     try {
       await member.page.goto(appPath(second.slug, "/dashboard"));
       await openSidebar(member.page);
@@ -246,7 +246,7 @@ test("deleting the login's only workspace blocks its other tab, stops its polls 
   const otherErrors = collectPageErrors(other);
   const failures = recordServerFailures(other);
   const unreadPolls = recordUnreadCountPolls(other);
-  const sentry = recordSentryRequests(other);
+  const sentry = recordErrorReports(other);
   const toasts = await recordToasts(other);
 
   await other.goto(appPath(workspace.slug, "/settings/members"));

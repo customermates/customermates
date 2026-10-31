@@ -130,6 +130,8 @@ seededTest.describe("one login in two tabs on two seeded workspaces", () => {
 
         await tabA.reload();
         await expectCurrentWorkspace(tabA, northwind);
+        await tabB.keyboard.press("Escape");
+        await expect(tabB.locator('[data-sidebar="sidebar"][data-mobile="true"]')).toHaveCount(0);
         await addOrganization(tabB, fromConsultantsTab);
         expect(await organizationsNamed(database, fromConsultantsTab)).toEqual([
           expect.objectContaining({ companyId: GERMAN_CONSULTANTS_COMPANY_ID }),
@@ -226,7 +228,11 @@ test("after an admin changes the slug the old URL is not found and the new one o
   await page.goto(appPath(workspace.slug, "/settings/general"));
   const slug = page.locator("#settings-general-slug");
   await expect(slug).toHaveValue(workspace.slug);
-  await slug.fill(renamed);
+  const unsavedChanges = page.locator("[data-slot='unsaved-changes-bar']");
+  await expect(async () => {
+    await slug.fill(renamed);
+    await expect(unsavedChanges).toBeVisible({ timeout: 2_000 });
+  }).toPass();
   await page.locator("#settings-general-save").click();
   await expect(page).toHaveURL(appUrlPattern(renamed, "/settings/general$"));
   await expect(page.locator("#settings-general-slug")).toHaveValue(renamed);
@@ -235,6 +241,7 @@ test("after an admin changes the slug the old URL is not found and the new one o
   ]);
   expect(stored.rows[0]?.slug).toBe(renamed);
 
+  await page.waitForLoadState("networkidle");
   const old = await page.goto(appPath(workspace.slug, "/dashboard"));
   expect(old?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: NOT_FOUND, exact: true })).toBeVisible();
@@ -258,6 +265,7 @@ test("the generic dashboard entry opens the workspace used last", async ({ page,
 
   await page.goto(appPath(workspace.slug, "/settings/profile"));
   await expect.poll(async () => (await activeWorkspaceOf(database, workspace)).lastUsed).toBe(workspace.companyId);
+  await page.waitForLoadState("networkidle");
   await page.goto("/en/dashboard");
   await expect(page).toHaveURL(appUrlPattern(workspace.slug, "/dashboard$"));
   await expectCurrentWorkspace(page, "Browser workspace");

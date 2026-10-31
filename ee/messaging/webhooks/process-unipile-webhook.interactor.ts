@@ -2,14 +2,19 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { WEBHOOK_REPROCESS_MAX_ATTEMPTS, type WebhookEventRepo } from "./webhook-event.repo";
 import type { UnipileWebhookEnvelope } from "../unipile.schema";
 
 import { UnipileWebhookEnvelopeSchema } from "../unipile.schema";
 import { DeferredWebhookError, UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
-import { isUnipileDisconnectedAccount, isUnipileProviderUnprocessable, isUnipileTimeout } from "../messaging.service";
+import {
+  isUnipileDisconnectedAccount,
+  isUnipileProviderUnprocessable,
+  isUnipileTimeout,
+  isUnipileTransientError,
+} from "../messaging.service";
 import { UnipileRequestError } from "../unipile-request-error";
 
 export type UnipileWebhookHandlerMap = Partial<
@@ -20,10 +25,7 @@ const Schema = z.object({ id: z.uuid() });
 type ProcessUnipileWebhookPayload = z.infer<typeof Schema>;
 
 function isRetryableUnipileWebhookError(err: unknown): boolean {
-  return (
-    err instanceof UnipileRequestError &&
-    (err.status === 429 || (err.status === 500 && err.errorType === "api/internal_error"))
-  );
+  return err instanceof UnipileRequestError && (err.status === 429 || isUnipileTransientError(err));
 }
 
 @SystemInteractor
@@ -41,7 +43,7 @@ export class ProcessUnipileWebhookInteractor {
     const parsed = UnipileWebhookEnvelopeSchema.safeParse(row.payload);
 
     if (!parsed.success) {
-      Sentry.captureException(parsed.error, { tags: { webhookEventId: id } });
+      ErrorReporter.captureException(parsed.error, { tags: { webhookEventId: id } });
       await this.events.markWebhookEventFailedUnscoped({ id, error: parsed.error.message, terminal: true });
 
       return;
@@ -50,7 +52,7 @@ export class ProcessUnipileWebhookInteractor {
     const envelope = parsed.data;
     const handler = this.handlers[envelope.type];
     if (!handler) {
-      Sentry.captureMessage(`Unipile v2 webhook: unhandled event type "${envelope.type}"`, {
+      ErrorReporter.captureMessage(`Unipile v2 webhook: unhandled event type "${envelope.type}"`, {
         tags: { webhookEventId: id, eventType: envelope.type },
       });
       await this.events.markWebhookEventFailedUnscoped({
@@ -95,7 +97,7 @@ export class ProcessUnipileWebhookInteractor {
         return;
       }
 
-      Sentry.captureException(err, { tags: { webhookEventId: id, eventType: envelope.type } });
+      ErrorReporter.captureException(err, { tags: { webhookEventId: id, eventType: envelope.type } });
       await this.events.markWebhookEventFailedUnscoped({
         id,
         error: err instanceof Error ? err.message : String(err),
@@ -112,7 +114,7 @@ export class ProcessUnipileWebhookInteractor {
     });
     if (result.attemptCount !== WEBHOOK_REPROCESS_MAX_ATTEMPTS) return;
 
-    Sentry.captureException(args.err, {
+    ErrorReporter.captureException(args.err, {
       tags: {
         eventType: args.eventType,
         webhookEventId: args.id,

@@ -81,14 +81,19 @@ async function loginEmailOf(database: Database, authUserId: string) {
 }
 
 async function expectBilling(page: Page, slug: string, plan: string, status: string, seats: number) {
-  await page.goto(appPath(slug, "/settings/billing"));
-  await expect(page).toHaveURL(appUrlPattern(slug, "/settings/billing$"));
+  const expectedUrl = appUrlPattern(slug, "/settings/billing$");
+  if (!expectedUrl.test(page.url())) await page.goto(appPath(slug, "/settings/billing"));
+  await expect(page).toHaveURL(expectedUrl);
+  const sidebar = page.locator('[data-sidebar="sidebar"][data-mobile="true"]');
+  if (await sidebar.isVisible()) await page.keyboard.press("Escape");
+  await expect(sidebar).toHaveCount(0);
   const planField = page.getByRole("textbox", { name: englishMessages.Subscription.plan, exact: true });
   await expect(planField).toContainText(plan);
   await expect(planField).toContainText(status);
   await expect(page.getByRole("textbox", { name: englishMessages.Subscription.quantity, exact: true })).toHaveText(
     String(seats),
   );
+  await page.waitForLoadState("networkidle");
 }
 
 async function workspaceNamed(database: Database, name: string) {

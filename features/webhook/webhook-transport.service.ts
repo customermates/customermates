@@ -1,6 +1,12 @@
 import { renderWebhookBody } from "./webhook-body-template";
 import { allowsCredentialedHeaders } from "./webhook-headers";
 import { isWebhookEndpointUrl } from "./webhook.schema";
+import {
+  WEBHOOK_DESTINATION_NOT_ALLOWED_MESSAGE,
+  allowsPrivateWebhookDestinations,
+  resolveWebhookDestination,
+} from "./webhook-destination";
+import { sendPinnedWebhookRequest } from "./webhook-transport";
 
 export type WebhookTransportResult = { success: boolean; statusCode: number | null; responseMessage: string };
 export const WEBHOOK_PREFLIGHT_FAILURE_STATUS = 422;
@@ -29,6 +35,13 @@ export class WebhookTransport {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS);
     try {
+      const url = new URL(input.url);
+      const destination = await abortable(
+        resolveWebhookDestination(url, allowsPrivateWebhookDestinations()),
+        controller.signal,
+      );
+      if (!destination) return invalid(WEBHOOK_DESTINATION_NOT_ALLOWED_MESSAGE);
+
       let signature: string | null = null;
       if (input.secret) {
         const encoder = new TextEncoder();
@@ -43,11 +56,13 @@ export class WebhookTransport {
           .map((byte) => byte.toString(16).padStart(2, "0"))
           .join("");
       }
-      const response = await fetch(input.url, {
-        method: "POST",
-        redirect: "manual",
+      const response = await sendPinnedWebhookRequest({
+        url,
+        destination,
         signal: controller.signal,
         headers: {
+          Accept: "*/*",
+          "User-Agent": "node",
           ...input.headers,
           "Content-Type": "application/json",
           "X-Customermates-Delivery-Id": input.deliveryId,
@@ -55,8 +70,14 @@ export class WebhookTransport {
         },
         body,
       });
-      await response.body?.cancel();
-      return { success: response.ok, statusCode: response.status, responseMessage: `HTTP ${response.status}` };
+      return {
+        success: response.statusCode >= 200 && response.statusCode < 300,
+        statusCode: response.statusCode,
+        responseMessage:
+          response.statusCode >= 300 && response.statusCode < 400
+            ? "Redirect not followed"
+            : `HTTP ${response.statusCode}`,
+      };
     } catch {
       return {
         success: false,
@@ -67,4 +88,13 @@ export class WebhookTransport {
       clearTimeout(timeout);
     }
   }
+}
+
+function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new DOMException("The operation was aborted", "AbortError"));
+    if (signal.aborted) return onAbort();
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
+  });
 }

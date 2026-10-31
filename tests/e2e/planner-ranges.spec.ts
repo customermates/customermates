@@ -10,6 +10,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { postOk, readModel } from "./api";
 import { companyPath } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
+import { expectHydrated } from "./workspace-switching";
 
 test("calendar ranges span weeks and months, keep midnight exclusive, reveal full titles and move by the dragged distance", async ({
   page,
@@ -116,14 +117,16 @@ test("calendar ranges span weeks and months, keep midnight exclusive, reveal ful
   if (isMobile) {
     await expect(calendar.locator('[data-calendar-mode="agenda"]')).toBeVisible();
     await entry.click();
-    await expect(page.getByRole("dialog", { name: "Organization", exact: true })).toContainText(title);
+    const record = page.getByRole("dialog", { name: "Organization", exact: true });
+    await expect(record.getByRole("textbox", { name: "Name", exact: true })).toHaveValue(title);
   } else {
+    await expectHydrated(entry);
     await entry.hover();
     await expect(page.getByRole("tooltip")).toContainText(title);
     await page.mouse.move(0, 0);
-    await entry.focus();
     await page.keyboard.press("Tab");
-    await page.keyboard.press("Shift+Tab");
+    await entry.focus();
+    await expect(entry).toBeFocused();
     await expect(page.getByRole("tooltip")).toContainText(title);
     await page.getByRole("tab", { name: "Week", exact: true }).click();
     const midnight = calendar.locator(`[data-planner-schedule-entry="${timedId}"]`);

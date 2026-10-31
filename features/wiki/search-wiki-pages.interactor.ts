@@ -7,7 +7,7 @@ import type { QueryVector, RelevanceFloor } from "@/core/retrieval/retrieval-pip
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto, WikiPageSearchData, WikiPageSearchResult, WikiSearchResult } from "./wiki.schema";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource } from "@/generated/prisma";
 
@@ -220,7 +220,7 @@ export class SearchWikiPagesInteractor extends AuthenticatedInteractor<WikiPageS
     try {
       return await this.repo.syncStaleSectionsUnlessBusy();
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "wiki-section-search-sync", companyId: this.companyId } });
+      ErrorReporter.captureException(error, { tags: { kind: "wiki-section-search-sync", companyId: this.companyId } });
       return { synced: 0, remaining: true };
     }
   }

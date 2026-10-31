@@ -13,9 +13,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => ({ ...createMockDiModule(() => mockUser) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { BackfillCalendarsInteractor } from "../backfill-calendars.interactor";
 import { UNIPILE_CALENDAR_EVENT_MAX_LIMIT } from "../paginate";
@@ -95,7 +95,7 @@ describe("calendar event backfill against an endpoint that cannot paginate", () 
 
     await invoke(interactor);
 
-    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+    expect(ErrorReporter.captureMessage).toHaveBeenCalledWith(
       expect.stringContaining("stopped before the end"),
       expect.objectContaining({ level: "warning" }),
     );
@@ -107,6 +107,6 @@ describe("calendar event backfill against an endpoint that cannot paginate", () 
 
     await invoke(interactor);
 
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
   });
 });

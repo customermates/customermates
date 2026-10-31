@@ -12,7 +12,7 @@ import type { DraftSendGate } from "./draft-send-gate";
 import type { StartChatInteractor } from "./start-chat.interactor";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { randomUUID } from "node:crypto";
 
 import { Resource, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
@@ -246,14 +246,14 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
         if (claim) await this.draftSends.record(claim, recorded);
       }
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
+      ErrorReporter.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
       if (claim) await this.draftSends.settle({ claim, state: "sent", unipileMessageId });
     }
     if (draft) {
       try {
         await this.repo.restoreDraftSummaryIfPresent({ messageId: draft.id });
       } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "draft-summary-refresh-failure" } });
+        ErrorReporter.captureException(err, { tags: { kind: "draft-summary-refresh-failure" } });
       }
     }
 

@@ -51,7 +51,6 @@ function recordActorSelect(companyId: string) {
   return {
     id: true,
     status: true,
-    country: true,
     role: {
       select: {
         id: true,
@@ -63,7 +62,7 @@ function recordActorSelect(companyId: string) {
         },
       },
     },
-  } as const;
+  } as const satisfies Prisma.UserSelect;
 }
 
 export class PrismaUserRepo
@@ -204,7 +203,6 @@ export class PrismaUserRepo
       firstName: true,
       lastName: true,
       companyId: true,
-      country: true,
       roleId: true,
       status: true,
       displayLanguage: true,
@@ -235,7 +233,7 @@ export class PrismaUserRepo
           },
         },
       },
-    } as const;
+    } as const satisfies Prisma.UserSelect;
   }
 
   private get userSelect() {

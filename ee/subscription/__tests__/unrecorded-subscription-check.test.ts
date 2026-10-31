@@ -12,7 +12,7 @@ vi.mock("@/env", () => ({
     LEMONSQUEEZY_VARIANT_ID_MAX: "2004",
   },
 }));
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 const { UnrecordedSubscriptionCheck } = await import("../unrecorded-subscription-check");
 

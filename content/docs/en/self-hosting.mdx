@@ -69,6 +69,7 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 - `APP_PORT`: the host port the app is published on, `4000` by default.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: email delivery; `RESEND_API_KEY` must not be empty. See [How do I set up email with Resend?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: optional; set `true` to block webhook requests to private, loopback and link-local addresses. Private destinations are allowed by default so webhooks can reach services on your network. Accepts only `true` or `false`.
 - `CRON_SECRET`: optional, commented out in the template; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL`: optional, commented out in the template; adds address search from a Photon service you run yourself, see [How are addresses checked, and how do I add address search?](#address-lookup).

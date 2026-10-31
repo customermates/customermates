@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { getTransactionClient, transactionStorage } from "./transaction-context";
 import { tenantStorage } from "./tenant-context";
@@ -24,6 +24,7 @@ export async function runInTransaction<T>(
     maxWait?: number;
     readOnly?: boolean;
     companyLockWait?: number;
+    lockCompany?: false;
   },
 ): Promise<T> {
   const client = getTransactionClient<AppPrismaClient>() ?? prisma;
@@ -52,7 +53,7 @@ export async function runInTransaction<T>(
       const store = tenantStorage.getStore();
       const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
       if (options?.readOnly) await tx.$executeRaw`SET TRANSACTION READ ONLY`;
-      const locksCompany = !options?.readOnly && Boolean(companyId);
+      const locksCompany = !options?.readOnly && options?.lockCompany !== false && Boolean(companyId);
       await tx.$executeRaw`SELECT set_config('lock_timeout', ${locksCompany ? companyLockWait : lockTimeout}, true)`;
       if (locksCompany) {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
@@ -86,7 +87,7 @@ export async function runInTransaction<T>(
     await Promise.all(
       afterCommit.map((commitFn) =>
         commitFn().catch((err: unknown) => {
-          Sentry.captureException(err, {
+          ErrorReporter.captureException(err, {
             tags: { kind: "afterCommit-failure" },
           });
         }),

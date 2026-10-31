@@ -19,8 +19,29 @@ env:
   NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      profile: ${{ steps.plan.outputs.profile }}
+      static: ${{ steps.plan.outputs.static }}
+      unit: ${{ steps.plan.outputs.unit }}
+      postgres: ${{ steps.plan.outputs.postgres }}
+      marketing: ${{ steps.plan.outputs.marketing }}
+      pages: ${{ steps.plan.outputs.pages }}
+      build: ${{ steps.plan.outputs.build }}
+      e2e: ${{ steps.plan.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - id: plan
+        uses: ./.github/actions/ci-plan
+
   self-hosted-postgres-16:
     name: self-hosted-postgres-16
+    needs: plan
+    if: needs.plan.outputs.postgres == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -54,6 +75,8 @@ jobs:
 
   static:
     name: static
+    needs: plan
+    if: needs.plan.outputs.static == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -63,10 +86,11 @@ jobs:
       - uses: ./.github/actions/setup
       - run: yarn openapi:generate
       - run: yarn raw-docs:generate
+      - run: yarn mcp:generate-card
       - name: Verify generated files are committed
         run: |
           if ! git diff --quiet; then
-            echo "::error::Generated files are out of date. Run 'yarn openapi:generate' and commit the result."
+            echo "::error::Generated files are out of date. Run 'yarn openapi:generate && yarn raw-docs:generate && yarn mcp:generate-card' and commit the result."
             git diff --stat
             exit 1
           fi
@@ -86,8 +110,36 @@ jobs:
       - name: Audit the message catalogs across locales
         run: yarn i18n:audit
 
+  marketing:
+    name: marketing conventions and unit tests
+    needs: plan
+    if: needs.plan.outputs.marketing == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/unused
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - name: Check all conventions and public-page unit tests without PostgreSQL
+        run: |
+          files=$(node .github/scripts/ci-plan.mjs --marketing-tests)
+          node scripts/verify/vitest.mjs --files "$files" --no-database --shards 2 --max-workers 2 --retry 1 --run-id ci-marketing
+      - name: Keep the verification reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: marketing-unit-tests
+          path: .runs/verify/ci-marketing/
+          retention-days: 7
+          if-no-files-found: ignore
+
   vitest:
     name: vitest (${{ matrix.shard }}/4)
+    needs: plan
+    if: needs.plan.outputs.unit == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -124,16 +176,22 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  browser:
+    uses: ./.github/workflows/e2e.yml
+
   ci:
     name: ci
     if: always()
-    needs: [static, vitest, self-hosted-postgres-16]
+    needs: [plan, static, vitest, self-hosted-postgres-16, marketing, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Require every test job to pass
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Require every selected test, build and browser job to pass
         env:
+          PLAN: ${{ toJSON(needs.plan.outputs) }}
           RESULTS: ${{ toJSON(needs) }}
-        run: |
-          echo "$RESULTS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
-          echo "$RESULTS" | jq -e 'all(.[]; .result == "success")' > /dev/null
+        run: node .github/scripts/ci-plan.mjs --check-jobs tests

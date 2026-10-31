@@ -205,9 +205,11 @@ async function expectWikiPage(page: Page, slug: string, pageId: string, text: st
 }
 
 async function expectWikiPageUnavailable(page: Page, slug: string, pageId: string, text: string) {
+  await page.waitForLoadState("networkidle");
   await page.goto(appPath(slug, `/wiki?page=${pageId}`));
   await expect(page.getByText(englishMessages.Wiki.unavailableTitle, { exact: true })).toBeVisible();
   await expect(page.getByText(text, { exact: false })).toHaveCount(0);
+  await page.waitForLoadState("networkidle");
 }
 
 test("one person is invited, signs in, pays for a second workspace, keeps every workspace apart, asks to join, withdraws, is approved, removed with an e-mail, leaves and is invited again", async ({

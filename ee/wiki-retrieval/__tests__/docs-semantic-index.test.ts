@@ -21,7 +21,7 @@ vi.mock("@/features/mcp-tools/docs-corpus", () => ({
   }),
 }));
 
-vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("../wiki-embedding.service", async (importOriginal) => ({
   ...(await importOriginal<typeof WikiEmbeddingServiceModule>()),
   isWikiSemanticSearchAvailable: () => state.available,

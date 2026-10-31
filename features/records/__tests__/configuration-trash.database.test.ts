@@ -22,13 +22,12 @@ vi.mock("@/env", () => ({
   },
 }));
 const sentry = vi.hoisted(() => ({ captured: [] as unknown[] }));
-vi.mock("@sentry/nextjs", () => ({
+vi.mock("@/core/observability/server", () => ({
   captureException: (error: unknown) => {
     sentry.captured.push(error);
     return "captured";
   },
   captureMessage: () => "captured",
-  flush: () => Promise.resolve(true),
   setTag: () => undefined,
   setUser: () => undefined,
   withScope: (callback: (scope: Record<string, () => void>) => unknown) =>

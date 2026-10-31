@@ -11,7 +11,7 @@ const calls = vi.hoisted(() => ({
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/features/mcp-tools/mcp-workspace-slug", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   mcpWorkspaceSlug: () => Promise.resolve("acme"),

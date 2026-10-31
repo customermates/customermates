@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 import { createMcpHandler } from "mcp-handler";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
 import { mcpToolsForToolsets } from "@/features/mcp-tools/toolsets";
+import { MCP_GET_STARTED_PROMPT_INFO, MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
 import { env } from "@/env";
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
@@ -66,7 +67,7 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
             ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
           };
         } catch (error) {
-          Sentry.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
+          ErrorReporter.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
           return {
             ...createTextContent(`Error: ${UNEXPECTED_FAILURE_MESSAGE}`, true),
             _meta: { failure: UNEXPECTED_FAILURE },
@@ -83,10 +84,10 @@ function registerPrompts(server: McpServer, tools: McpTool[]) {
   const names = new Set(tools.map((tool) => tool.name));
   if (!names.has("get_workspace_context") || !names.has("discover_record_types")) return;
   server.registerPrompt(
-    "get-started",
+    MCP_GET_STARTED_PROMPT_INFO.name,
     {
-      title: "Get started",
-      description: "Personalized CRM kickoff: read the workspace and Knowledge Base, then ask what to focus on",
+      title: MCP_GET_STARTED_PROMPT_INFO.title,
+      description: MCP_GET_STARTED_PROMPT_INFO.description,
     },
     () => ({
       messages: [
@@ -296,7 +297,7 @@ export function createMcpRoute(
         registerPrompts(server, tools);
         registerFeatures?.(server, tools);
       },
-      { serverInfo: { name: "Customermates", version: "1.0.0" }, instructions },
+      { serverInfo: MCP_SERVER_INFO, instructions },
       { streamableHttpEndpoint: endpoint },
     );
   }

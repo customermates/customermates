@@ -3,6 +3,7 @@ import type { Locator, Page } from "@playwright/test";
 import { appPath } from "./app-paths";
 import { DEMO_COMPANY_ID, DEMO_DASHBOARDS, DEMO_MEMBERS, DEMO_SLUG, expect, test } from "./demo-seed";
 import { e2eAppMode } from "./workspace-switching";
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
 
 type SeededWidget = {
   id: string;
@@ -150,6 +151,7 @@ for (const dashboard of DEMO_DASHBOARDS) {
           continue;
         }
         await expect(entry, `${widget.name} lists activities`).toBeVisible();
+        expectBlockedEmailScripts(page);
         await entry.click();
         const detail = page.getByRole("dialog").last();
         await expect(detail).toBeVisible();

@@ -4,7 +4,7 @@ import type { EntitlementService, EntitlementDenialCode } from "@/ee/subscriptio
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { getTranslations } from "next-intl/server";
 
 import { Resource, SubscriptionPlan } from "@/generated/prisma";
@@ -79,7 +79,7 @@ export class CreateAuthLinkInteractor extends UserAccessor {
     } catch (err) {
       if (!(err instanceof UnipileRequestError)) throw err;
 
-      Sentry.captureException(err, { tags: { kind: "unipile-auth-link" } });
+      ErrorReporter.captureException(err, { tags: { kind: "unipile-auth-link" } });
       return fail(unipileErrorCode(err), [], { retryAfter: await retryAfterPhrase(err.retryAfterSeconds) });
     }
 

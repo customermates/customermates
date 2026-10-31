@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { EventLog } from "@/generated/prisma";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import type { EventOutboxRepo } from "./event-outbox.repo";
 import { EVENT_ADMISSION_ABANDONED, EVENT_ADMISSION_MAX_ATTEMPTS } from "./event-outbox.repo";
 import type { EventAdmission } from "./event-admission";
@@ -12,6 +12,7 @@ const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).
 type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
 type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" };
 
+export const EVENT_ADMISSION_TIMEOUT_MS = 30_000;
 const ADMISSION_RACED = new Error("Another worker settled the event during its admission");
 
 @SystemInteractor
@@ -38,14 +39,18 @@ export class ProcessEventInteractor {
           if (!(await this.outbox.markDeliveredUnscoped(event, now))) throw ADMISSION_RACED;
           return { status: "delivered" } as const;
         },
-        { companyId: input.companyId, timeout: 30000 },
+        {
+          companyId: input.companyId,
+          timeout: EVENT_ADMISSION_TIMEOUT_MS,
+          companyLockWait: EVENT_ADMISSION_TIMEOUT_MS,
+        },
       );
     } catch (error) {
       if (!attempt.event) throw error;
       const event = attempt.event;
       const abandon = event.attempts + 1 >= EVENT_ADMISSION_MAX_ATTEMPTS;
       if (error !== ADMISSION_RACED) {
-        Sentry.captureException(error, {
+        ErrorReporter.captureException(error, {
           level: abandon ? "error" : "warning",
           tags: {
             companyId: event.companyId,

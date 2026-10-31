@@ -13,7 +13,6 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
-import * as Sentry from "@sentry/nextjs";
 
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
@@ -126,9 +125,6 @@ export function NavigationSwitch({
   }, [navigationGuard, router]);
 
   useLayoutEffect(() => {
-    Sentry.setUser(identifiedUser ? { id: identifiedUser.id } : null);
-    Sentry.setTag("companyId", identifiedUser?.companyId);
-
     userStore.setUser(identifiedUser);
     rootStore.recordWorkspaceStore.setNavigation(accountAllowed ? recordNavigation : null);
     rootStore.sidebarLayoutStore.setLayout(accountAllowed ? sidebarLayout : null);

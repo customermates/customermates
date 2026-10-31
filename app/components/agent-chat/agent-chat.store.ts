@@ -2023,6 +2023,7 @@ export class AgentChatStore extends BaseStore {
       if (
         (error as Error)?.name === "AbortError" ||
         (error as Error)?.name === "AgentStreamInactivityError" ||
+        (error as Error)?.name === "AgentFetchDeadlineError" ||
         reconnectFailureReported
       )
         return;

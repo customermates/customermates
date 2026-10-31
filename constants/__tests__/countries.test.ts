@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CountryCode } from "@/generated/prisma";
 
 import { COUNTRY_CODES, countryOptionsForLocale } from "../countries";
 import { APP_LOCALES, formattingTagFor, type AppLocale } from "@/i18n/locale-registry";
@@ -15,6 +16,10 @@ const REPRESENTATIVE_NAMES = {
 } satisfies Record<AppLocale, Record<RepresentativeCountry, string>>;
 
 describe("countryOptionsForLocale", () => {
+  it("keeps the browser country list aligned with the retained database enum", () => {
+    expect([...COUNTRY_CODES].sort()).toEqual(Object.values(CountryCode).sort());
+  });
+
   it.each(APP_LOCALES)("uses localized representative region names for %s", (locale) => {
     const options = new Map(countryOptionsForLocale(locale).map((country) => [country.key, country.label]));
 

@@ -4,6 +4,7 @@ import { ALL_VIEW_KEY } from "../../core/data-view/data-view-keys";
 import { appPath } from "./app-paths";
 import { DEMO_COMPANY_ID, DEMO_SLUG, DEMO_CONTENT, DEMO_LISTS, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 import { openSidebar } from "./sidebar";
+import { expectHydrated } from "./workspace-switching";
 
 type SeededView = {
   id: string;
@@ -110,6 +111,7 @@ test("the All view of every list shows records for the admin", async ({ page, da
     await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);
     const records = page.locator("[data-row-id], [data-item-id]");
     await expect(records.first(), `${list.pluralLabel} All shows records`).toBeVisible();
+    await expectHydrated(records.first());
     expect(await records.count(), `${list.pluralLabel} All shows more than 0 rows`).toBeGreaterThan(0);
   }
   expect(errors).toEqual([]);

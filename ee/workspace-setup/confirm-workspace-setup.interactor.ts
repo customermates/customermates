@@ -7,7 +7,7 @@ import type { GetCompanyRepo } from "@/features/company/get-company.repo";
 import type { RenameWorkspaceInteractor } from "@/features/workspace/rename-workspace.interactor";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -74,7 +74,7 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
       throw error;
     }
     await this.nameUnnamedWorkspace(confirmed.setup.answers).catch((error: unknown) =>
-      Sentry.captureException(error, { tags: { kind: "workspace-setup-name" } }),
+      ErrorReporter.captureException(error, { tags: { kind: "workspace-setup-name" } }),
     );
     return { ok: true, data: { setupId: data.setupId } };
   }

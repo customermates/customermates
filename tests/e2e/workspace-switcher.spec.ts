@@ -10,6 +10,7 @@ import { appPath, appUrlPattern } from "./app-paths";
 import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { openSidebar } from "./sidebar";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 import { addBrowserWorkspace } from "./workspace";
 import {
   activeWorkspaceOf,
@@ -88,8 +89,16 @@ test("the command palette switches to another workspace", async ({ page, databas
   await openSidebar(page);
   await page.locator("#nav-search").click();
   const dialog = page.getByRole("dialog");
+  const searchIds = serverActionIds("app/[locale]/(protected)/w/[workspace]/search/actions.ts", "commandSearchAction");
+  const searched = page.waitForResponse((response) => invokesServerAction(response.request(), searchIds));
   await page.locator("#global-search-input input").fill("Switch workspace");
-  await dialog.getByRole("option").filter({ hasText: "Switch workspace…" }).click();
+  await searched;
+  // The debounced search inserts a loading row above the options; let it settle before a pointer click.
+  await expect(dialog.getByText(englishMessages.GlobalSearch.loading, { exact: true })).toBeHidden();
+  await expect(dialog.locator("[cmdk-group-heading]").first()).toHaveText("Best match");
+  const switchAction = dialog.getByRole("option").filter({ hasText: "Switch workspace…" });
+  await expect(switchAction).toHaveAttribute("aria-selected", "true");
+  await switchAction.click();
   const workspaces = dialog.getByRole("option");
   await expect(workspaces).toHaveText([/Bergmann Steuern/]);
   await workspaces.first().click();

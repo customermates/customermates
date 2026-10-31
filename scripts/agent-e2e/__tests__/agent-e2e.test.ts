@@ -19,7 +19,7 @@ const ENVIRONMENT = {
   DIRECT_URL: LOCAL,
   AI_GATEWAY_API_KEY: "gateway-key",
   BETTER_AUTH_SECRET: "secret",
-  NEXT_PUBLIC_SENTRY_DSN: "",
+  NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
 };
 
 const row = (costMicrocents: number): CaseRow => ({
@@ -37,7 +37,9 @@ describe("agent e2e flags and environment", () => {
   it("defaults to a 0.30 USD cap on port 4000 with a fresh build", () => {
     expect(parseAgentE2eFlags([])).toEqual({ capUsd: DEFAULT_CAP_USD, port: 4000, build: true, cases: null });
     expect(DEFAULT_CAP_USD).toBe(0.3);
-    expect(parseAgentE2eFlags(["--cap", "0.1", "--port", "4123", "--skip-build", "--cases", "german,docs-link"])).toEqual({
+    expect(
+      parseAgentE2eFlags(["--cap", "0.1", "--port", "4123", "--skip-build", "--cases", "german,docs-link"]),
+    ).toEqual({
       capUsd: 0.1,
       port: 4123,
       build: false,
@@ -52,7 +54,7 @@ describe("agent e2e flags and environment", () => {
     },
   );
 
-  it("requires the gateway key from the credential store, a local database and no Sentry DSN", () => {
+  it("requires the gateway key from the credential store, a local database and disabled error reporting", () => {
     const flags = parseAgentE2eFlags([]);
     expect(requireAgentE2eEnvironment(flags, ENVIRONMENT, "/repo")).toEqual({
       appUrl: "http://localhost:4000",
@@ -60,9 +62,9 @@ describe("agent e2e flags and environment", () => {
       workflowDataDir: "/repo/.next/agent-e2e-workflow-data",
     });
     expect(() => requireAgentE2eEnvironment(flags, { ...ENVIRONMENT, AI_GATEWAY_API_KEY: "XXX" })).toThrow(/cm-env/);
-    expect(() => requireAgentE2eEnvironment(flags, { ...ENVIRONMENT, NEXT_PUBLIC_SENTRY_DSN: "https://dsn" })).toThrow(
-      /SENTRY/,
-    );
+    expect(() =>
+      requireAgentE2eEnvironment(flags, { ...ENVIRONMENT, NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "vercel" }),
+    ).toThrow(/ERROR_REPORTING_PROVIDER/);
     expect(() =>
       requireAgentE2eEnvironment(flags, { ...ENVIRONMENT, DATABASE_URL: "postgresql://u:p@db.example.com/app" }),
     ).toThrow(/loopback/);
@@ -85,6 +87,7 @@ describe("agent e2e flags and environment", () => {
       WORKFLOW_LOCAL_DATA_DIR: "/repo/.next/agent-e2e-workflow-data",
       WORKFLOW_LOCAL_BASE_URL: "http://localhost:4000",
       BASE_URL: "http://localhost:4000",
+      NEXT_PUBLIC_ERROR_REPORTING_PROVIDER: "off",
     });
     expect(launch.HOSTED_AI_PROVIDER_WORK_PAUSED).toBe("true");
   });

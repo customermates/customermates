@@ -9,7 +9,7 @@ const state = vi.hoisted(() => ({
   ledgerReads: vi.fn<() => Promise<BillingUsageLedger>>(),
 }));
 
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud", BASE_URL: "http://localhost:4105" } }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => `localized:${key}` }),

@@ -50,6 +50,7 @@ test("the setup offers the website and the questions as two cards, with starting
   page,
   database,
   workspace,
+  isMobile,
 }, testInfo) => {
   const errors = collectPageErrors(page);
   await openSetupOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Choice Studio"));
@@ -66,8 +67,12 @@ test("the setup offers the website and the questions as two cards, with starting
   const [websiteBox, questionsBox, emptyBox] = await Promise.all(
     [website, questions, empty].map((target) => target.boundingBox()),
   );
-  expect(websiteBox && questionsBox && Math.abs(websiteBox.y - questionsBox.y) < 1).toBe(true);
-  expect(websiteBox && emptyBox && emptyBox.y > websiteBox.y + websiteBox.height).toBe(true);
+  if (!websiteBox || !questionsBox || !emptyBox) throw new Error("The setup choices must be visible");
+  if (isMobile) {
+    expect(questionsBox.y).toBeGreaterThan(websiteBox.y + websiteBox.height);
+    expect(Math.abs(websiteBox.x - questionsBox.x)).toBeLessThan(1);
+  } else expect(Math.abs(websiteBox.y - questionsBox.y)).toBeLessThan(1);
+  expect(emptyBox.y).toBeGreaterThan(Math.max(websiteBox.y + websiteBox.height, questionsBox.y + questionsBox.height));
   await page.screenshot({ path: testInfo.outputPath("setup-start.png"), fullPage: true });
 
   await clickHydrated(website);

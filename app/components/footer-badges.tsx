@@ -2,10 +2,12 @@
 
 import { useTranslations } from "next-intl";
 
+import { cn } from "@/core/utils/cn";
+
 type Badge = {
   name: string;
   platform: string;
-  kind: "featured" | "reviews";
+  kind: "featured" | "reviews" | "listed";
   href: string;
   light: string;
   dark: string;
@@ -74,6 +76,16 @@ const BADGES: Badge[] = [
     width: 200,
     height: 50,
   },
+  {
+    name: "open-source-alternatives",
+    platform: "Open Source Alternatives",
+    kind: "listed",
+    href: "https://www.opensourcealternatives.to",
+    light: "https://www.opensourcealternatives.to/badge-osa.svg",
+    dark: "https://www.opensourcealternatives.to/badge-osa.svg",
+    width: 270,
+    height: 20,
+  },
 ];
 
 type ListingBadge = {
@@ -139,7 +151,7 @@ function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={label}
-        className="h-8 w-auto dark:hidden"
+        className={cn("w-auto dark:hidden", badge.kind === "listed" ? "h-5" : "h-8")}
         height={badge.height}
         loading="lazy"
         src={badge.light}
@@ -149,7 +161,7 @@ function BadgeLink({ badge, label, ariaHidden }: BadgeLinkProps) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         alt={label}
-        className="h-8 w-auto not-dark:hidden"
+        className={cn("w-auto not-dark:hidden", badge.kind === "listed" ? "h-5" : "h-8")}
         height={badge.height}
         loading="lazy"
         src={badge.dark}
@@ -175,7 +187,9 @@ export function FooterBadges() {
                 const label =
                   badge.kind === "reviews"
                     ? t("Footer.reviewsOnPlatform", { platform: badge.platform })
-                    : t("Footer.featuredOnPlatform", { platform: badge.platform });
+                    : badge.kind === "listed"
+                      ? t("Footer.listedOnPlatform", { platform: badge.platform })
+                      : t("Footer.featuredOnPlatform", { platform: badge.platform });
 
                 return (
                   <BadgeLink

@@ -387,7 +387,6 @@ export const config = {
       /*
        * Exclude paths:
        * - og (Open Graph image route)
-       * - monitoring (Sentry tunnel route, must bypass i18n so the SDK can POST to /monitoring directly)
        * - .well-known (Vercel Workflow SDK + OAuth discovery routes, must bypass auth/i18n)
        * - file content (the matchers below retain workspace forwarding for session-only requests)
        * - _next/static, _next/image (Next.js internal)
@@ -398,7 +397,7 @@ export const config = {
        * Prefetch requests also pass through so their workspace header is derived from the URL.
        */
       source:
-        "/((?!og(?:/|$)|monitoring(?:/|$)|\\.well-known(?:/|$)|api/(?:w/[^/]+/)?v1/files/[^/]+/content/?$|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
+        "/((?!og(?:/|$)|\\.well-known(?:/|$)|api/(?:w/[^/]+/)?v1/files/[^/]+/content/?$|_next/static|_next/image|_vercel|favicon\\.ico|sitemap\\.xml|robots\\.txt|(?!api/).*\\.[a-z0-9]+$).*)",
     },
     {
       source: "/api/v1/files/:id/content",

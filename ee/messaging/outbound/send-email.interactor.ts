@@ -11,7 +11,7 @@ import type { DraftThreadTarget } from "../draft-thread";
 import type { DraftSendGate } from "./draft-send-gate";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource, MessagingMessageDirection, MessagingMessageOrigin } from "@/generated/prisma";
 
@@ -342,7 +342,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         });
         if (sent.ok) attachmentsMeta = toAttachmentsMeta(sent.data);
       } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "sent-attachments-unreadable" } });
+        ErrorReporter.captureException(err, { tags: { kind: "sent-attachments-unreadable" } });
       }
     }
 
@@ -405,7 +405,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         });
         if (claim) await this.draftSends.record(claim, recorded);
       } catch (err) {
-        Sentry.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
+        ErrorReporter.captureException(err, { tags: { kind: "sent-message-not-recorded" } });
       }
     }
     if (draft) await this.restoreDraftSummary(draft.id);
@@ -443,7 +443,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     try {
       await this.repo.restoreDraftSummaryIfPresent({ messageId });
     } catch (err) {
-      Sentry.captureException(err, { tags: { kind: "draft-summary-refresh-failure" } });
+      ErrorReporter.captureException(err, { tags: { kind: "draft-summary-refresh-failure" } });
     }
   }
 
@@ -476,7 +476,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         message,
       });
     } catch (err) {
-      if (!isUnipileResourceNotFound(err) && !isUnipileTimeout(err)) Sentry.captureException(err);
+      if (!isUnipileResourceNotFound(err) && !isUnipileTimeout(err)) ErrorReporter.captureException(err);
       return null;
     }
   }

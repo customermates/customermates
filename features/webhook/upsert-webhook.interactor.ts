@@ -15,6 +15,7 @@ import { Resource } from "@/generated/prisma";
 
 import { WebhookEventSchema, WebhookDtoSchema, WebhookEndpointSchema, isWebhookEndpointUrl } from "./webhook.schema";
 import { WebhookHeadersSchema, allowsCredentialedHeaders } from "./webhook-headers";
+import { allowsPrivateWebhookDestinations, isWebhookUrlHostBlocked } from "./webhook-destination";
 import { calculateWebhookChanges, toWebhookEventPayload } from "./webhook-event-payload";
 import { WEBHOOK_BODY_TEMPLATE_MAX_CHARS, isRenderableWebhookBodyTemplate } from "./webhook-body-template";
 
@@ -154,6 +155,14 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
 
   private async precheck(data: UpsertWebhookData, ctx: zType.RefinementCtx) {
     if (data.id) await this.validator.invoke([{ ids: data.id, path: ["id"] }], ctx);
+
+    if (data.url && isWebhookUrlHostBlocked(data.url, allowsPrivateWebhookDestinations())) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["url"],
+        params: { error: CustomErrorCode.webhookDestinationNotAllowed },
+      });
+    }
 
     const existing = data.id ? await this.repo.getWebhookById(data.id) : null;
     const url = data.url ?? existing?.url;

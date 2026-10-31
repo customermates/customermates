@@ -3,7 +3,7 @@ import type { DeleteOperatorWorkspaceData, DeleteOperatorWorkspaceResultDto } fr
 import type { Validated } from "@/core/validation/validation.utils";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { failConflict, failNotFound, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { OperatorInteractor } from "@/core/decorators/operator-interactor.decorator";
@@ -33,7 +33,7 @@ export class DeleteOperatorWorkspaceInteractor {
     try {
       await this.background.dispatch("purge-company-files", { companyId: data.companyId });
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "workspace-delete-files", companyId: data.companyId } });
+      ErrorReporter.captureException(error, { tags: { kind: "workspace-delete-files", companyId: data.companyId } });
     }
     return { ok: true, data: result };
   }

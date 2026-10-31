@@ -97,6 +97,47 @@ describe("email.new mapper-null handling", () => {
   });
 });
 
+describe("email.new.bounce payload shapes", () => {
+  it("records a bounce without an email object as unmappable instead of failing validation", async () => {
+    const ingest = { ingestMessageUnscoped: vi.fn() };
+    const interactor = new ProcessEmailNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
+
+    const call = interactor.invoke({ type: "email.new.bounce", account_id: "acc_uni-1", payload: {} } as any);
+
+    await expect(call).rejects.toSatisfy(isUnmappable);
+    expect(ingest.ingestMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("still fails a new email that does not match the provider schema", async () => {
+    const ingest = { ingestMessageUnscoped: vi.fn() };
+    const interactor = new ProcessEmailNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
+
+    const call = interactor.invoke({ type: "email.new", account_id: "acc_uni-1", payload: {} } as any);
+
+    await expect(call).rejects.not.toSatisfy(isUnmappable);
+    expect(ingest.ingestMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("reads a flat email payload on a bounce", async () => {
+    const ingest = { ingestMessageUnscoped: vi.fn() };
+    const interactor = new ProcessEmailNewWebhookInteractor(ingest as any, accountRepo() as any, {} as any, () => ({
+      synchronize: () => Promise.resolve(),
+    }));
+
+    const call = interactor.invoke({
+      type: "email.new.bounce",
+      account_id: "acc_uni-1",
+      payload: { id: "", message_id: "", thread_id: "", subject: "", body: "", date: "2026-07-08T10:00:00.000Z" },
+    } as any);
+
+    await expect(call).rejects.toMatchObject({ unipileMessageId: null });
+  });
+});
+
 describe("calendar.event.upsert mapper-null handling", () => {
   it("throws an unmappable error carrying the event id when the event has no start", async () => {
     const calendarRepo = { findOrCreateCalendarByUnipileIdUnscoped: vi.fn(), upsertCalendarEventUnscoped: vi.fn() };

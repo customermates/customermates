@@ -56,6 +56,8 @@ import {
   WikiSynthesisPlanSchema,
 } from "./wiki-synthesis.schema";
 
+const WIKI_SYNTHESIS_REPAIR_INSTRUCTION =
+  "Your previous answer was rejected. Return a corrected complete answer that fixes these problems:";
 const PAGE_SOURCE_BUDGET_CHARACTERS = 120_000;
 const INVENTORY_ENTRY_MAX_CHARACTERS = 2_000;
 const WIKI_SYNTHESIS_MAX_REPAIRS = 2;
@@ -261,25 +263,33 @@ export class WikiWebsiteSynthesisService extends UserAccessor {
 
   private async generate<T>(crawl: WikiCrawlRecord, schema: z.ZodType<T>, system: string, prompt: string) {
     const model = AGENT_MODELS.wikiSynthesis;
+    let lastFailure: string | undefined;
+    let rejection: string | undefined;
     for (let attempt = 0; attempt < 2; attempt += 1) {
+      const attemptPrompt = rejection ? `${prompt}\n${WIKI_SYNTHESIS_REPAIR_INSTRUCTION} ${rejection}` : prompt;
       const result = await this.metered(
         crawl,
-        structuredCallWorstCaseMicrocents(model, system, prompt),
+        structuredCallWorstCaseMicrocents(model, system, attemptPrompt),
         model.modelId,
         async () => {
-          const { output, charge, failure } = await generateStructuredObject({
+          const call = await generateStructuredObject({
             label: "Website import",
             model,
             schema,
             system,
-            prompt,
+            prompt: attemptPrompt,
           });
-          if (failure) this.warnings.push(failure);
-          return { value: output, charge };
+          if (call.failure) {
+            lastFailure = call.rejection ? `${call.failure} ${call.rejection}` : call.failure;
+            rejection = call.rejection;
+          }
+          return { value: call.output, charge: call.charge };
         },
       );
-      if (!result.ok || result.value !== null) return result;
+      if (!result.ok) return result;
+      if (result.value !== null) return result;
     }
+    if (lastFailure) this.warnings.push(lastFailure);
     return { ok: true as const, value: null };
   }
 

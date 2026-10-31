@@ -4,7 +4,7 @@ import type { DataManagerCredentials } from "./data-manager-config";
 import type { DataManagerIngestBody } from "./data-manager-request";
 import type { DataManagerAccessTokenOutcome, DataManagerIngestOutcome } from "./data-manager-transport";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { DATA_MANAGER_INGEST_URL, DATA_MANAGER_SCOPE, DATA_MANAGER_TOKEN_URL } from "./data-manager-request";
 import { DataManagerTransport } from "./data-manager-transport";
@@ -58,13 +58,13 @@ export class GoogleDataManagerTransport extends DataManagerTransport {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MILLISECONDS),
       });
     } catch (error) {
-      Sentry.captureException(error, { level: "warning", tags: { kind: "ad-conversion-upload-token" } });
+      ErrorReporter.captureException(error, { level: "warning", tags: { kind: "ad-conversion-upload-token" } });
       return { ok: false, reason: "unavailable" };
     }
 
     if (TOKEN_REFUSALS.has(response.status)) return { ok: false, reason: "authorizationFailed" };
     if (!response.ok) {
-      Sentry.captureMessage("Google token endpoint unavailable for the ad conversion upload", {
+      ErrorReporter.captureMessage("Google token endpoint unavailable for the ad conversion upload", {
         level: "warning",
         tags: { kind: "ad-conversion-upload-token", httpStatus: String(response.status) },
       });
@@ -89,7 +89,7 @@ export class GoogleDataManagerTransport extends DataManagerTransport {
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MILLISECONDS),
       });
     } catch (error) {
-      Sentry.captureException(error, { level: "warning", tags: { kind: "ad-conversion-upload-ingest" } });
+      ErrorReporter.captureException(error, { level: "warning", tags: { kind: "ad-conversion-upload-ingest" } });
       return { result: "ambiguous", httpStatus: null };
     }
 

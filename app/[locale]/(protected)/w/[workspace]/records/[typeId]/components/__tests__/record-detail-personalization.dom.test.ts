@@ -26,7 +26,7 @@ vi.mock("@/core/utils/background-task.service", () => ({}));
 const rootHolder = vi.hoisted(() => ({ current: undefined as unknown }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => rootHolder.current }));
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
-vi.mock("@/core/errors/sentry-client", () => ({ captureError: mocks.report }));
+vi.mock("@/core/errors/client-reporter", () => ({ captureError: mocks.report }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/app/components/agent-chat/record-ai-action", () => ({
   RecordAiAction: () => createElement("button", { type: "button" }, "Ask AI"),

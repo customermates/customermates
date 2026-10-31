@@ -202,6 +202,7 @@ export enum CustomErrorCode {
   webhookHeadersTooLarge = "webhookHeadersTooLarge",
   webhookBodyTemplateInvalid = "webhookBodyTemplateInvalid",
   webhookHeadersRequireHttps = "webhookHeadersRequireHttps",
+  webhookDestinationNotAllowed = "webhookDestinationNotAllowed",
   webhookEndpointInvalid = "webhookEndpointInvalid",
   webhookUrlTooLong = "webhookUrlTooLong",
   messageContentRequired = "messageContentRequired",

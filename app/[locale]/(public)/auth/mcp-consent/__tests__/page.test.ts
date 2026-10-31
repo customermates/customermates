@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
-vi.mock("@sentry/nextjs", () => ({}));
+vi.mock("@/core/observability/server", () => ({}));
 vi.mock("@/core/di", () => ({
   getAuthService: () => ({ getMcpConsentPrompt: mocks.getMcpConsentPrompt }),
   getListMcpConsentWorkspacesInteractor: () => ({ invoke: mocks.listMcpConsentWorkspaces }),

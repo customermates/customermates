@@ -21,8 +21,8 @@ env:
 # Each platform builds natively (arm64 on GitHub's arm64 runner instead of QEMU emulation, which took about two hours)
 # and pushes by digest; the merge job publishes one multi-platform tag set from both digests.
 concurrency:
-  group: docker-publish-${{ github.ref }}
-  cancel-in-progress: false
+  group: docker-publish-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:

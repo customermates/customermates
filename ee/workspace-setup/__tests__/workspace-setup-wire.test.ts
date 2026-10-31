@@ -181,6 +181,11 @@ describe("model-facing setup schemas", () => {
     expect(over.map(([name]) => name)).toEqual([]);
   });
 
+  it("reads a sample column the model omitted as empty instead of rejecting the records", () => {
+    const parsed = sampleRecordsWireSchema(["r0", "r4", "r5"]).safeParse({ records: [{ r0: "Acme" }] });
+    expect(parsed.success && parsed.data.records).toEqual([{ r0: "Acme", r4: "", r5: "" }]);
+  });
+
   it("keeps the model part flat, so no nested object can come back as JSON text", () => {
     for (const schema of [PlanModelWireSchema, PlanViewsWireSchema, PlanKnowledgeWireSchema])
       for (const field of Object.values(schema.shape)) expect(field.def.type).not.toBe("object");

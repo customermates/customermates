@@ -1,9 +1,10 @@
 "use client";
 
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
+import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock.core";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/core/utils/cn";
+import { highlighting } from "@/core/fumadocs/highlighting";
 
 type Props = {
   title: string;
@@ -21,7 +22,7 @@ export function CodeBlockAccordion({ title, code, lang = "json", className }: Pr
         </AccordionTrigger>
 
         <AccordionContent className="pt-4 **:[[role=region]]:max-h-none!">
-          <DynamicCodeBlock code={code} lang={lang} />
+          <DynamicCodeBlock code={code} lang={lang} options={{ config: highlighting }} />
         </AccordionContent>
       </AccordionItem>
     </Accordion>

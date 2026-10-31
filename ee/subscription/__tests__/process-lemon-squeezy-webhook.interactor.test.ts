@@ -9,9 +9,9 @@ vi.mock("@/env", () => ({
     RESEND_OPERATOR_EMAIL: "operator@example.invalid",
   },
 }));
-vi.mock("@sentry/nextjs", () => ({ captureMessage: vi.fn(), captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureMessage: vi.fn(), captureException: vi.fn() }));
 
-const Sentry = await import("@sentry/nextjs");
+const ErrorReporter = await import("@/core/observability/server");
 const { ProcessLemonSqueezyWebhookInteractor } = await import("../process-lemon-squeezy-webhook.interactor");
 const { signCheckoutWorkspace } = await import("../checkout-workspace-signature");
 const { UNSIGNED_CHECKOUT_CLAIMS_END } = await import("../unsigned-checkout-claims");
@@ -200,7 +200,7 @@ describe("a signed workspace claim", () => {
     expect(result).toBe("ignored");
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
     expect(mails()).toEqual([
       {
         to: "operator@example.invalid",
@@ -364,7 +364,10 @@ describe("a second subscription for a workspace with a live one", () => {
       tags: expect.objectContaining({ reason: "replaced", subscriptionId: "sub-new" }),
       extra: { companyId: "company-1", otherSubscriptionId: "sub-old" },
     });
-    const reported = [...vi.mocked(Sentry.captureMessage).mock.calls, ...vi.mocked(Sentry.captureException).mock.calls];
+    const reported = [
+      ...vi.mocked(ErrorReporter.captureMessage).mock.calls,
+      ...vi.mocked(ErrorReporter.captureException).mock.calls,
+    ];
     expect(reported).toContainEqual([expect.anything(), context]);
   });
 
@@ -576,7 +579,7 @@ describe("an event for a workspace that no longer exists", () => {
       expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
       expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
       expect(mails()).toEqual([]);
-      expect(Sentry.captureMessage).toHaveBeenCalledExactlyOnceWith(
+      expect(ErrorReporter.captureMessage).toHaveBeenCalledExactlyOnceWith(
         "Lemon Squeezy event for a missing workspace acknowledged without changes",
         { level: "info", tags: { eventName, subscriptionId: "sub-1", companyId: "deleted-company" } },
       );
@@ -593,7 +596,7 @@ describe("an event for a workspace that no longer exists", () => {
 
     expect(result).toBe("ignored");
     expect(mails()).toEqual([]);
-    expect(Sentry.captureMessage).toHaveBeenCalledOnce();
+    expect(ErrorReporter.captureMessage).toHaveBeenCalledOnce();
   });
 });
 
@@ -605,7 +608,7 @@ describe("a successful payment", () => {
 
     expect(subscriptionService.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
     expect(mails()).toEqual([
       {
         to: "operator@example.invalid",
@@ -644,7 +647,7 @@ describe("a successful payment", () => {
     expect(subscriptionService.syncSubscription).not.toHaveBeenCalled();
     expect(deleteAccountsForPlan.invoke).not.toHaveBeenCalled();
     expect(mails()).toEqual([]);
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
   });
 });
 

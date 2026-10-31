@@ -8,8 +8,8 @@ vi.mock("@/env", () => ({
   },
 }));
 vi.mock("@/core/decorators/operator-interactor.decorator", () => ({ OperatorInteractor: () => undefined }));
-const sentry = vi.hoisted(() => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
-vi.mock("@sentry/nextjs", () => sentry);
+const errorReporter = vi.hoisted(() => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => errorReporter);
 
 import type { AdConversionExportRow } from "../get/get-ad-conversion-export.repo";
 import type { DataManagerUploadSettings } from "../data-manager/data-manager-config";
@@ -118,8 +118,8 @@ function jsonResponse(status: number, body: unknown): Response {
 }
 
 beforeEach(() => {
-  sentry.captureException.mockClear();
-  sentry.captureMessage.mockClear();
+  errorReporter.captureException.mockClear();
+  errorReporter.captureMessage.mockClear();
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
   testEnv.value = { ...READY_ENV };
@@ -316,11 +316,11 @@ describe("Google Data Manager transport", () => {
     await expect(unreachable.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
     await expect(timedOut.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
     await expect(failing.accessToken(SETTINGS.credentials)).resolves.toEqual({ ok: false, reason: "unavailable" });
-    expect(sentry.captureException).toHaveBeenCalledTimes(2);
-    expect(sentry.captureMessage).toHaveBeenCalledTimes(1);
-    expect(JSON.stringify([sentry.captureException.mock.calls, sentry.captureMessage.mock.calls])).not.toMatch(
-      /client-secret|refresh-token/u,
-    );
+    expect(errorReporter.captureException).toHaveBeenCalledTimes(2);
+    expect(errorReporter.captureMessage).toHaveBeenCalledTimes(1);
+    expect(
+      JSON.stringify([errorReporter.captureException.mock.calls, errorReporter.captureMessage.mock.calls]),
+    ).not.toMatch(/client-secret|refresh-token/u);
   });
 
   it.each([

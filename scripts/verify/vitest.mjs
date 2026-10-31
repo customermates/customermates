@@ -58,8 +58,9 @@ function durations() {
 if (options.generate) {
   const generators = [
     ["node_modules/.bin/fumadocs-mdx", ["core/fumadocs/source.config.ts"]],
-    ["node_modules/.bin/tsx", ["scripts/generate-openapi.ts"]],
+    ["node_modules/.bin/tsx", ["--import", "./scripts/lib/register-server-only-shim.mjs", "scripts/generate-openapi.ts"]],
     ["node_modules/.bin/tsx", ["scripts/generate-raw-docs-manifest.ts"]],
+    ["node_modules/.bin/tsx", ["--import", "./scripts/lib/register-server-only-shim.mjs", "scripts/generate-mcp-server-card.ts"]],
   ];
   for (const [command, args] of generators) {
     const result = await run(command, args, { env: cleanEnvironment({ APP_MODE: "self-hosted" }), log: resolve(directory, "generate.log") });

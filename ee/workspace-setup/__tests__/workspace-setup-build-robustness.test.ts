@@ -5,7 +5,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 
 vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, APP_MODE: "cloud" } }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));

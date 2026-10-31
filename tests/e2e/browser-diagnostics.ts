@@ -2,11 +2,12 @@ import type { BrowserContext, ConsoleMessage, Page, Request, Response, TestInfo 
 
 import {
   chunkLoadErrorChunk,
+  chunkPathname,
   isAbortedLoadReport,
   isAbortedPageLoad,
   isAppConsoleError,
   isBenignPageError,
-  webkitCancelledChunk,
+  cancelledChunk,
 } from "./browser-noise";
 
 /** `document` marks a failed load of a document a frame navigated to, as opposed to a fetch, script or image. */
@@ -161,7 +162,7 @@ export class BrowserDiagnostics {
   private readonly cancelledChunks = new Map<Page, Set<string>>();
   private readonly settledChunks = new Map<Page, { chunks: Set<string>; at: number }>();
   private readonly abortedLoads = new Set<Page>();
-  private readonly abortedRscLoads = new Map<Page, Map<string, number>>();
+  private readonly abortedResourceLoads = new Map<Page, Map<string, number>>();
   private readonly navigations = new Map<Page, { requested: Set<string>; loadedAt?: number }>();
   private readonly sinceLoad = new Map<Page, BrowserDiagnostic[]>();
   private readonly generations = new Map<Page, number>();
@@ -173,6 +174,7 @@ export class BrowserDiagnostics {
   private readonly settledRequests = new WeakMap<Request, { failed: boolean }>();
   private readonly answeredErrors = new Map<string, Request[]>();
   private readonly consoleErrors = new Map<string, BrowserDiagnostic[]>();
+  private readonly pendingConsole = new Set<Promise<void>>();
 
   watch(context: BrowserContext) {
     if (byContext.get(context) === this) return this;
@@ -190,7 +192,14 @@ export class BrowserDiagnostics {
         source: message.location().url,
         page: message.page(),
       };
-      if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
+      if (diagnostic.text === "Error" && message.args()[0]) {
+        const pending = message.args()[0]
+          .evaluate((value) => value instanceof Error ? String(value) : null)
+          .catch(() => null)
+          .then((detail) => this.record({ ...diagnostic, text: detail ?? diagnostic.text }));
+        this.pendingConsole.add(pending);
+        void pending.finally(() => this.pendingConsole.delete(pending));
+      } else if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
       else this.record(diagnostic);
     });
     context.on("request", (request: Request) => this.noteRequest(request));
@@ -228,6 +237,7 @@ export class BrowserDiagnostics {
   }
 
   async verify(testInfo: TestInfo) {
+    await Promise.all(this.pendingConsole);
     for (const request of [...this.pendingErrors.keys()]) this.confirmHttpError(request);
     const expected = this.rules.flatMap(({ events }) => events);
     if (this.unexpected.length > 0 || expected.length > 0)
@@ -279,8 +289,8 @@ export class BrowserDiagnostics {
       return;
     }
     this.requestGenerations.set(request, this.generations.get(page) ?? 0);
-    const { pathname } = new URL(request.url());
-    if (pathname.startsWith("/_next/static/chunks/")) this.navigations.get(page)?.requested.add(pathname);
+    const chunk = chunkPathname(request.url());
+    if (chunk) this.navigations.get(page)?.requested.add(chunk);
   }
 
   /**
@@ -380,7 +390,7 @@ export class BrowserDiagnostics {
   }
 
   private noteCancelledChunk(request: Request) {
-    const chunk = webkitCancelledChunk(request);
+    const chunk = cancelledChunk(request);
     const page = chunk ? requestPage(request) : null;
     if (!chunk || !page) return;
     this.cancelledChunks.set(page, (this.cancelledChunks.get(page) ?? new Set()).add(chunk));
@@ -393,25 +403,24 @@ export class BrowserDiagnostics {
     const generation = this.requestGenerations.get(request);
     if (
       generation !== undefined &&
-      request.resourceType() === "fetch" &&
-      request.method() === "GET" &&
-      request.headers().rsc === "1"
+      (request.resourceType() === "font" ||
+        (request.resourceType() === "fetch" && request.method() === "GET" && request.headers().rsc === "1"))
     ) {
-      const loads = this.abortedRscLoads.get(page) ?? new Map<string, number>();
+      const loads = this.abortedResourceLoads.get(page) ?? new Map<string, number>();
       loads.set(request.url(), generation);
-      this.abortedRscLoads.set(page, loads);
+      this.abortedResourceLoads.set(page, loads);
     }
   }
 
   /** A load the browser cancelled for a document navigation is reported before the next page loads; forget it then. */
   private dropAbortedLoadReports(page: Page) {
     if (!this.abortedLoads.delete(page)) return;
-    const cancelledRscUrls = new Set<string>();
-    for (const [url, generation] of this.abortedRscLoads.get(page) ?? [])
-      if ((this.generations.get(page) ?? 0) > generation) cancelledRscUrls.add(url);
-    this.abortedRscLoads.delete(page);
+    const cancelledUrls = new Set<string>();
+    for (const [url, generation] of this.abortedResourceLoads.get(page) ?? [])
+      if ((this.generations.get(page) ?? 0) > generation) cancelledUrls.add(url);
+    this.abortedResourceLoads.delete(page);
     const reports = new Set(
-      (this.sinceLoad.get(page) ?? []).filter((diagnostic) => isAbortedLoadReport(diagnostic, cancelledRscUrls)),
+      (this.sinceLoad.get(page) ?? []).filter((diagnostic) => isAbortedLoadReport(diagnostic, cancelledUrls)),
     );
     if (reports.size > 0) this.forget(reports);
   }

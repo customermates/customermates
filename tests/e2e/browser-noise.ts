@@ -5,41 +5,57 @@ const WEBKIT_CANCELLED_PAGE_FETCH =
   /^(?:Fetch API cannot load https?:)?\/{1,2}(?:127\.0\.0\.1|localhost):\d+\/(?:de|en|es|fr|it)(?:\/[^\s?]*)?(?:\?\S*)? due to access control checks\.$/;
 
 const WEBKIT_CANCELLED_LOAD = "Load request cancelled";
-const CHUNK_PATH = /^\/_next\/static\/chunks\/[\w-]+\.js$/;
+const CHUNK_PATH = /^\/_next\/static\/chunks\/(?:[^/?#]+\/)*[\w.-]+\.js$/;
 const CHUNK_LOAD_ERROR = /^ChunkLoadError: Failed to load chunk (\/_next\/static\/chunks\/[\w-]+\.js) from module \d+$/;
+const WEBPACK_CHUNK_LOAD_ERROR = /^(?:ChunkLoadError: )?Loading chunk \d+ failed\.\n\((?:error|missing|timeout): (https?:\/\/[^\s]+)\)$/;
 
-export function webkitCancelledChunk(request: Pick<Request, "url" | "failure">): string | undefined {
-  if (request.failure()?.errorText !== WEBKIT_CANCELLED_LOAD) return undefined;
-  const { pathname } = new URL(request.url());
-  return CHUNK_PATH.test(pathname) ? pathname : undefined;
+export function chunkPathname(input: string): string | undefined {
+  try {
+    const pathname = decodeURI(new URL(input).pathname);
+    return CHUNK_PATH.test(pathname) ? pathname : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function cancelledChunk(request: Pick<Request, "url" | "failure">): string | undefined {
+  if (![WEBKIT_CANCELLED_LOAD, "NS_BINDING_ABORTED"].includes(request.failure()?.errorText ?? "")) return undefined;
+  return chunkPathname(request.url());
 }
 
 const ABORTED_PAGE_LOAD = new Set(["Load request cancelled", "NS_BINDING_ABORTED"]);
 const ABORTED_LOAD_REPORT = /^(?:TypeError: Load failed|JSHandle@object)$/;
 const ABORTED_RSC_REPORT = /^Failed to fetch RSC payload for (\S+)\. Falling back to browser navigation\. TypeError: Load failed$/;
+const ABORTED_FONT_REPORT = /^\[JavaScript Error: "downloadable font: download failed \(.*\): status=2152398850 source: (https?:\/\/[^\s"]+)"\]$/;
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
 
 /** WebKit and Firefox cancel the page's own fetches and chunk scripts, a route refresh too, on a navigation. */
 export function isAbortedPageLoad(request: Pick<Request, "url" | "failure" | "resourceType">): boolean {
   if (!ABORTED_PAGE_LOAD.has(request.failure()?.errorText ?? "")) return false;
-  if (!["fetch", "xhr", "script"].includes(request.resourceType())) return false;
+  if (!["fetch", "xhr", "script", "font"].includes(request.resourceType())) return false;
   return LOOPBACK_HOSTS.has(new URL(request.url()).hostname);
 }
 
 /** React logs such a cancelled load from the framework chunk, as WebKit's TypeError or Firefox's bare error object. */
 export function isAbortedLoadReport(
   diagnostic: { kind: string; text: string; source: string },
-  cancelledRscUrls?: ReadonlySet<string>,
+  cancelledUrls?: ReadonlySet<string>,
 ): boolean {
   if (diagnostic.kind !== "console") return false;
   try {
+    const font = ABORTED_FONT_REPORT.exec(diagnostic.text)?.[1];
+    if (font) {
+      const reported = loopbackPageUrl(font);
+      return reported !== null && /^\/_next\/static\/media\/[\w.-]+\.woff2$/.test(reported.pathname)
+        && cancelledUrls?.has(reported.href) === true;
+    }
     const source = new URL(diagnostic.source);
     if (!CHUNK_PATH.test(source.pathname)) return false;
     if (ABORTED_LOAD_REPORT.test(diagnostic.text)) return true;
     const reportedUrl = ABORTED_RSC_REPORT.exec(diagnostic.text)?.[1];
     const reported = reportedUrl ? loopbackPageUrl(reportedUrl) : null;
     if (!reported || source.origin !== reported.origin) return false;
-    return [...(cancelledRscUrls ?? [])].some((url) => loopbackPageUrl(url)?.href === reported.href);
+    return [...(cancelledUrls ?? [])].some((url) => loopbackPageUrl(url)?.href === reported.href);
   } catch {
     return false;
   }
@@ -53,7 +69,16 @@ function loopbackPageUrl(input: string) {
 }
 
 export function chunkLoadErrorChunk(message: string): string | undefined {
-  return CHUNK_LOAD_ERROR.exec(message)?.[1];
+  const turbopack = CHUNK_LOAD_ERROR.exec(message)?.[1];
+  if (turbopack) return turbopack;
+  const target = WEBPACK_CHUNK_LOAD_ERROR.exec(message)?.[1];
+  if (!target) return undefined;
+  try {
+    const url = new URL(target);
+    return LOOPBACK_HOSTS.has(url.hostname) ? chunkPathname(target) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export function isAppConsoleError(message: Pick<ConsoleMessage, "type" | "text">): boolean {

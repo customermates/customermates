@@ -5462,6 +5462,7 @@ describe("AgentChatStore", () => {
     expect(store.items).toContainEqual(
       expect.objectContaining({ kind: "assistant", text: "Recovered after reconnecting again." }),
     );
+    expect(reportApplicationErrorMock).not.toHaveBeenCalled();
     expect(store.isWorking).toBe(false);
     fetchMock.mockRestore();
   });

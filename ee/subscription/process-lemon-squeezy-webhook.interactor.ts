@@ -4,7 +4,7 @@ import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/del
 import type { EmailService } from "@/features/email/email.service";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import BillingWebhookAlert from "@/components/emails/billing-webhook-alert";
 import {
@@ -119,7 +119,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
       return "ignored" as const;
     }
 
-    Sentry.captureMessage("Lemon Squeezy event for a missing workspace acknowledged without changes", {
+    ErrorReporter.captureMessage("Lemon Squeezy event for a missing workspace acknowledged without changes", {
       level: "info",
       tags: { eventName: event.eventName, subscriptionId: event.subscriptionId, companyId: claim.companyId },
     });
@@ -177,9 +177,10 @@ export class ProcessLemonSqueezyWebhookInteractor {
       extra: { companyId: workspace?.companyId ?? null, otherSubscriptionId },
     };
     try {
-      if (!(await this.alert(...args))) Sentry.captureMessage("Billing webhook alert could not be sent", context);
+      if (!(await this.alert(...args)))
+        ErrorReporter.captureMessage("Billing webhook alert could not be sent", context);
     } catch (error) {
-      Sentry.captureException(error, context);
+      ErrorReporter.captureException(error, context);
     }
   }
 

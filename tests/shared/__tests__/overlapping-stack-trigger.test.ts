@@ -109,10 +109,11 @@ describe("OverlappingStack menu trigger", () => {
 
     await act(async () => {
       menu?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
-      await new Promise((resolve) => setTimeout(resolve, 20));
     });
-    expect(document.querySelector('[role="menu"]')).toBeNull();
-    expect(document.activeElement).toBe(button);
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="menu"]')).toBeNull();
+      expect(document.activeElement).toBe(button);
+    });
   });
 });
 

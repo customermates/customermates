@@ -5,7 +5,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource } from "@/generated/prisma";
 
@@ -64,7 +64,7 @@ export class ReconnectConnectedAccountInteractor extends UserAccessor {
     } catch (err) {
       if (!(err instanceof UnipileRequestError)) throw err;
 
-      Sentry.captureException(err, { tags: { kind: "unipile-auth-link" } });
+      ErrorReporter.captureException(err, { tags: { kind: "unipile-auth-link" } });
       return fail(unipileErrorCode(err), [], { retryAfter: await retryAfterPhrase(err.retryAfterSeconds) });
     }
 

@@ -513,8 +513,7 @@ export class RecordWriteService {
       if (!recordChannelsEnabled(model, ref.typeId))
         reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
 
-      const region = policy.actor?.country;
-      const aliases = inputs.filter((input) => !normalizedIdentity(input, region));
+      const aliases = inputs.filter((input) => !normalizedIdentity(input));
       const known = aliases.length
         ? await this.records.getIdentityChannelsCompanyWide(
             aliases.flatMap((input) =>
@@ -527,7 +526,7 @@ export class RecordWriteService {
         : [];
       const normalized: RecordIdentityInput[] = [];
       for (const [index, input] of inputs.entries()) {
-        const row = normalizedIdentityAssociation(input, known, region);
+        const row = normalizedIdentityAssociation(input, known);
         if (!row) reject(CustomErrorCode.invalidChannelValue, "validation", ["identities", index, "value"]);
         normalized.push(row);
       }

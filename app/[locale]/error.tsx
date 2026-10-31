@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 
+import { captureError } from "@/core/errors/client-reporter";
 import { ErrorPageView } from "@/components/shared/error-page-view";
 import { isWorkspaceChangedError } from "@/core/errors/workspace-changed";
 import { notifyWorkspaceChanged } from "@/core/errors/report-application-error";
@@ -17,6 +18,7 @@ export default function ErrorPage({ error, reset }: Props) {
 
   useEffect(() => {
     if (isWorkspaceChangedError(error)) notifyWorkspaceChanged();
+    else captureError(error);
   }, [error]);
 
   if (isWorkspaceChangedError(error)) return null;
