@@ -5,6 +5,8 @@ export const BACKFILL_MESSAGE_PAGE_BUDGET = 4;
 export const UNIPILE_CALENDAR_EVENT_MAX_LIMIT = 100;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
+export const BACKFILL_EMAIL_PAGE_BUDGET = 10;
+export const BACKFILL_EMAIL_STEP_BUDGET_MS = 3 * 60_000;
 const PAGE_SAFETY = 200;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -39,6 +41,7 @@ export async function paginateStep(opts: {
   startCursor: string | null;
   limit: number;
   maxPages?: number;
+  timeBudgetMs?: number;
   fetchPage: FetchPage;
   handleItem: (item: unknown) => Promise<void>;
 }): Promise<PageResult> {
@@ -47,8 +50,11 @@ export async function paginateStep(opts: {
   let cursor = position.cursor;
   let offset = position.offset;
   let mode = position.mode;
+  const startedAt = Date.now();
 
   for (let page = 0; page < pageBudget; page++) {
+    if (page > 0 && opts.timeBudgetMs !== undefined && Date.now() - startedAt >= opts.timeBudgetMs) break;
+
     await paceUnipileRequest();
 
     let result;
