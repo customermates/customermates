@@ -1,5 +1,7 @@
 import type { CaptureContext } from "./capture-context";
 
+import { scrubPrismaArgumentsFromMessage } from "@/core/errors/scrub-prisma-arguments";
+
 export type ErrorReport = {
   kind: "application-error";
   id: string;
@@ -39,7 +41,7 @@ function redactSecretPath(path: string): string {
 }
 
 export function scrubErrorText(value: unknown, maxLength = 2000): string {
-  return String(value ?? "")
+  return scrubPrismaArgumentsFromMessage(String(value ?? ""))
     .slice(0, maxLength)
     .replace(/https?:\/\/[^\s)\]}]+/gi, (url) => {
       try {
