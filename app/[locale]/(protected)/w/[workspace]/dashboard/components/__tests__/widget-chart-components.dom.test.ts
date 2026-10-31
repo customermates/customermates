@@ -110,7 +110,7 @@ describe("time series and funnel charts", () => {
     expect(ticks).toEqual(["Jan 26", "Feb 26", "Mar 26"]);
   });
 
-  it("keeps the smoothed area between its lowest and highest data points", async () => {
+  it("draws the area as straight segments through its data points without overshoot", async () => {
     const values = [8, 0, 0, 9, 1, 0, 12, 0];
     await act(async () => {
       root.render(
@@ -129,7 +129,8 @@ describe("time series and funnel charts", () => {
       );
     const curve = ys(".recharts-area-curve");
     const baseline = Math.max(...ys(".recharts-area-area"));
-    expect(curve.length).toBeGreaterThan(values.length);
+    expect(curve).toHaveLength(values.length);
+    expect(container.querySelector(".recharts-area-curve")?.getAttribute("d")).not.toContain("C");
     expect(Math.max(...curve)).toBeLessThanOrEqual(baseline + 0.01);
     expect(Math.min(...curve)).toBeGreaterThan(0);
   });

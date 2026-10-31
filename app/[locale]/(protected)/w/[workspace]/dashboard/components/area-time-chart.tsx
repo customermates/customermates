@@ -97,7 +97,7 @@ export const AreaTimeChart = observer(
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            type="monotone"
+            type="linear"
           />
         </AreaChart>
       </DashboardChartContainer>

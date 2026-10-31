@@ -33,6 +33,7 @@ import {
   isoWeek,
   fillTimeSeries,
   funnelConversions,
+  measureTimeWindow,
   orderByOptionPosition,
   orderFunnelSteps,
   rankByValue,
@@ -87,13 +88,15 @@ export function RecordWidgetChart({
       { currency, fractionDigits: derivedFractionDigits(decimalPlaces, currency) },
       valueFormat.decimal,
     );
-  const bucketYears = new Set(
-    (data?.groups ?? []).flatMap((group) =>
+  const timeWindow = measureTimeWindow(measure);
+  const bucketYears = new Set([
+    ...(data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"
         ? [String(group.label.value.value).slice(0, 4)]
         : [],
     ),
-  );
+    ...(timeWindow ? [timeWindow.first.slice(0, 4), timeWindow.last.slice(0, 4)] : []),
+  ]);
   const formatBucket = (start: string, short: boolean): string => {
     const date = new Date(`${start}T00:00:00.000Z`);
     const year = date.getUTCFullYear();
@@ -321,7 +324,7 @@ export function RecordWidgetChart({
     if (missingCount > 0) notes.push(t("RecordWidgets.withoutDate", { count: missingCount }));
     if (unplaced) notes.push(t("RecordWidgets.unplacedGroups"));
     fallback = dated.some(({ item }) => item.result.state === "restricted" || item.result.state === "error");
-    seriesPoints = fillTimeSeries(dated, interval).map(({ start, item }) => {
+    seriesPoints = fillTimeSeries(dated, interval, undefined, timeWindow).map(({ start, item }) => {
       if (item) return point(item, { missing: item.value === null });
       const empty: ChartRow = {
         label: formatBucket(start, false),
