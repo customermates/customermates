@@ -27,6 +27,7 @@ export type ChangeValueDescriptor =
   | { kind: "members"; members: ActivityMemberDto[] }
   | { kind: "records"; records: ChangeLinkedRecord[] }
   | { kind: "richText"; markdown: string }
+  | { kind: "image"; url: string; label: string }
   | { kind: "structured"; value: unknown };
 
 export type ChangeValueLabels = {
@@ -182,8 +183,11 @@ export function recordValueDescriptor(
   typeId: string,
   members: readonly ActivityMemberDto[],
   formerMember: string,
+  image = false,
 ): ChangeValueDescriptor {
   if (!side || side.value.state === "missing") return EMPTY;
+  if (image && side.value.state === "value" && side.value.value.kind === "text")
+    return { kind: "image", url: side.value.value.value, label: side.label };
   if (side.value.state === "value" && side.value.value.kind === "member")
     return { kind: "members", members: [memberOrFormer(side.value.value.value, members, formerMember)] };
   if (side.value.state === "value" && side.value.value.kind === "file") {

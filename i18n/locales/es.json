@@ -4328,7 +4328,11 @@
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
     "summaryField": "Campo del resumen",
-    "systemActor": "Sistema",
+    "systemActors": {
+      "messaging": "Sincronización de mensajes",
+      "other": "Sistema",
+      "trash": "Limpieza de la papelera"
+    },
     "triggerField": "Cuando cambie este campo",
     "triggerValue": "A este valor",
     "typeHints": {

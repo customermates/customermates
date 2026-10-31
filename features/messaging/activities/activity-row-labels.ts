@@ -1,3 +1,5 @@
+import type { SystemActorProcess } from "@/ee/messaging/activities/activities.schema";
+
 const INLINE_FIELD_LIMIT = 3;
 
 type MessageSubtitleModel =
@@ -64,6 +66,14 @@ export function resolveActorName(
   email: string,
 ): string {
   return `${firstName ?? ""} ${lastName ?? ""}`.trim() || email;
+}
+
+export function actorDisplayName(
+  actor: { firstName: string; lastName: string; email: string; system?: SystemActorProcess },
+  systemLabel: (process: SystemActorProcess) => string,
+): string {
+  if (actor.system) return systemLabel(actor.system);
+  return resolveActorName(actor.firstName, actor.lastName, actor.email) || systemLabel("other");
 }
 
 export function buildCalendarSubtitle(parts: Array<string | null | undefined>): string {

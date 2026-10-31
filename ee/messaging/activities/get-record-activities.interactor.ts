@@ -30,6 +30,7 @@ import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { activitySubject, isSystemActivityAuditEvent, systemActivityChanges } from "./system-audit-events";
 import { configurationActivity } from "./configuration-activity";
+import { linkChanges } from "./link-changes";
 import { CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 
 const sameRef = (left: RecordRef, right: RecordRef) => left.typeId === right.typeId && left.recordId === right.recordId;
@@ -170,7 +171,32 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             }),
           );
         }
-        const allRefs = [...new Map([...references.values()].flat().map((ref) => [recordKey(ref), ref])).values()];
+        const recordChanges = [];
+        for (const event of events.filter((event) => event.subjectKind === "record")) {
+          const parsed = RecordEventPayloadSchema.safeParse(event.payload);
+          if (!parsed.success) continue;
+          const changes = await this.history.redact(parsed.data, model, policy, "history", trashed);
+          if (
+            !changes ||
+            !["record.created", "record.updated", "record.deleted", "record.restored"].includes(event.kind)
+          )
+            continue;
+          if (
+            event.kind === "record.updated" &&
+            !changes.fields.length &&
+            !changes.links.length &&
+            !changes.assignments &&
+            !changes.identities
+          )
+            continue;
+          recordChanges.push({ event, changes });
+        }
+        const linkedRefs = recordChanges.flatMap(({ changes }) =>
+          changes.links.flatMap((link) => [link.source, link.target]),
+        );
+        const allRefs = [
+          ...new Map([...[...references.values()].flat(), ...linkedRefs].map((ref) => [recordKey(ref), ref])).values(),
+        ];
         const labels = new Map<string, ActivityRecordRefDto>();
         for (let offset = 0; offset < allRefs.length; offset += 100) {
           for (const row of await this.records.searchRecords(
@@ -187,6 +213,8 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             });
           }
         }
+        for (const { changes } of recordChanges)
+          changes.related = linkChanges(changes, model, (ref) => labels.get(recordKey(ref))?.label);
         const context = (kind: string, id: string): ActivityRecordContextDto => {
           const refs = [
             ...new Map(
@@ -210,18 +238,6 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             ...configurationActivity(revision.change, revision.models, configurations.roleNames),
             records: context("configuration", String(revision.revision)),
           });
-        }
-        const recordChanges = [];
-        for (const event of events.filter((event) => event.subjectKind === "record")) {
-          const parsed = RecordEventPayloadSchema.safeParse(event.payload);
-          if (!parsed.success) continue;
-          const changes = await this.history.redact(parsed.data, model, policy, "history", trashed);
-          if (
-            !changes ||
-            !["record.created", "record.updated", "record.deleted", "record.restored"].includes(event.kind)
-          )
-            continue;
-          recordChanges.push({ event, changes });
         }
         const memberIds = (changes: NonNullable<RecordHistoryChanges>) => [
           ...(changes.assignments ? [...changes.assignments.before, ...changes.assignments.after] : []),

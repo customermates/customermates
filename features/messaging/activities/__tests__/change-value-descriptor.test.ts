@@ -168,6 +168,19 @@ describe("record value descriptors", () => {
     ).toMatchObject({ kind: "field", field: { valueType: "currency" } });
   });
 
+  it("renders the avatar picture field as an image and other links as text", () => {
+    const picture = side("url", { state: "value", value: { kind: "text", value: "https://example.test/ada.jpg" } });
+    expect(recordValueDescriptor(picture, "t", [], "Member", true)).toEqual({
+      kind: "image",
+      url: "https://example.test/ada.jpg",
+      label: "Field",
+    });
+    expect(recordValueDescriptor(picture, "t", [], "Member")).toMatchObject({ kind: "field" });
+    expect(recordValueDescriptor(side("url", { state: "missing" }), "t", [], "Member", true)).toEqual({
+      kind: "empty",
+    });
+  });
+
   it("renders a member value as an avatar chip and a missing value as empty", () => {
     expect(
       recordValueDescriptor(

@@ -4328,7 +4328,11 @@
     "summaryAggregation": "Berechnung",
     "summaryApprovalRequired": "Diese Zusammenfassung ist freigegeben. Änderungen an den Berechnungseingaben erfordern die Freigabe eines Administrators.",
     "summaryField": "Feld für die Übersicht",
-    "systemActor": "System",
+    "systemActors": {
+      "messaging": "Nachrichten-Synchronisierung",
+      "other": "System",
+      "trash": "Papierkorb-Bereinigung"
+    },
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
     "typeHints": {

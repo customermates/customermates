@@ -18,7 +18,14 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { participantAvatar, isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 
 import { messagePreview } from "../message-preview";
-import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
+import {
+  auditCategory,
+  IdentityAvatar,
+  ProviderAvatar,
+  TimelineRow,
+  TypeBadge,
+  useSystemActorLabel,
+} from "./activities-row";
 import { activityEntryKey } from "./activity-entry-key";
 import { calendarEventTitle } from "./activity-labels";
 import { subjectLabel } from "./change-value-descriptor";
@@ -26,7 +33,7 @@ import {
   buildCalendarSubtitle,
   buildMessageSubtitle,
   formatFieldList,
-  resolveActorName,
+  actorDisplayName,
   resolveMessagePreview,
   resolveMessageSenderName,
   resolveMessageTitle,
@@ -42,6 +49,7 @@ type Props = {
 
 export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
+  const systemActorLabel = useSystemActorLabel();
   const columnLabel = useCanonicalColumnLabel();
   const { timelineDetailModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -204,11 +212,12 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
           if (entry.kind === "record") {
             const changes = entry.changes;
             const category = auditCategory(entry.event);
-            const actorName =
-              resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
-              t("RecordModel.systemActor");
+            const actorName = actorDisplayName(entry.actor, systemActorLabel);
             const fields = formatFieldList(
-              (changes?.fields ?? []).map((field) => field.after?.label ?? field.before?.label ?? "").filter(Boolean),
+              [
+                ...(changes?.fields ?? []).map((field) => field.after?.label ?? field.before?.label ?? ""),
+                ...(changes?.related ?? []).map((relation) => relation.label),
+              ].filter(Boolean),
             );
             return (
               <TimelineRow
@@ -218,6 +227,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                     badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
                     name={[entry.actor.firstName, entry.actor.lastName]}
                     src={entry.actor.avatarUrl}
+                    system={entry.actor.system}
                   />
                 }
                 isFirst={index === 0}
@@ -231,9 +241,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
             );
           }
 
-          const actorName =
-            resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
-            t("RecordModel.systemActor");
+          const actorName = actorDisplayName(entry.actor, systemActorLabel);
           const isRecordSnapshot =
             entry.kind === "audit" && !entry.event.endsWith(".created") && entry.changes.some((c) => "snapshot" in c);
           const fields = isRecordSnapshot
@@ -259,6 +267,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                   badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
                   name={[entry.actor.firstName, entry.actor.lastName]}
                   src={entry.actor.avatarUrl}
+                  system={entry.actor.system}
                 />
               }
               isFirst={index === 0}

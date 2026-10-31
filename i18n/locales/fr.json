@@ -4328,7 +4328,11 @@
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",
-    "systemActor": "Système",
+    "systemActors": {
+      "messaging": "Synchronisation des messages",
+      "other": "Système",
+      "trash": "Nettoyage de la corbeille"
+    },
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
     "typeHints": {

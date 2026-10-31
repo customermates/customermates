@@ -3,9 +3,10 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import type { MessagingProvider } from "@/generated/prisma";
-import type { ActivityRecordContextDto } from "@/ee/messaging/activities/activities.schema";
+import type { ActivityRecordContextDto, SystemActorProcess } from "@/ee/messaging/activities/activities.schema";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Bot, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Avatar } from "@/components/ui/avatar";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -40,20 +41,38 @@ export function TypeBadge({ icon: IconCmp, tone, label }: { icon: LucideIcon; to
   );
 }
 
+const SYSTEM_ACTOR_ICONS: Record<SystemActorProcess, LucideIcon> = {
+  messaging: RefreshCw,
+  trash: Trash2,
+  other: Bot,
+};
+
 export function IdentityAvatar({
   name,
   src,
   badge,
   size = "lg",
+  system,
 }: {
   name: string | [string | null | undefined, string | null | undefined];
   src?: string | null;
   badge?: ReactNode;
   size?: "lg" | "xl";
+  system?: SystemActorProcess;
 }) {
+  const SystemIcon = system ? SYSTEM_ACTOR_ICONS[system] : null;
   return (
     <div className="relative">
-      <Avatar className="bg-background" name={name} size={size} src={src} />
+      {SystemIcon ? (
+        <Avatar
+          className="bg-background"
+          data-system-actor={system}
+          fallback={<SystemIcon aria-hidden className={size === "xl" ? "size-7" : "size-4"} />}
+          size={size}
+        />
+      ) : (
+        <Avatar className="bg-background" name={name} size={size} src={src} />
+      )}
 
       {badge}
     </div>
@@ -201,4 +220,14 @@ export function TimelineRow({
       </button>
     </li>
   );
+}
+
+export function useSystemActorLabel(): (process: SystemActorProcess) => string {
+  const t = useTranslations();
+  const labels: Record<SystemActorProcess, string> = {
+    messaging: t("RecordModel.systemActors.messaging"),
+    trash: t("RecordModel.systemActors.trash"),
+    other: t("RecordModel.systemActors.other"),
+  };
+  return (process) => labels[process];
 }

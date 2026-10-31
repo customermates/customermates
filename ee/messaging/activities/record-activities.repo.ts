@@ -1,3 +1,4 @@
+import type { SystemActorProcess } from "./activities.schema";
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import type { EventLog } from "@/generated/prisma";
@@ -7,7 +8,13 @@ import type { RecordActivitiesInput } from "./record-activities.schema";
 import type { ActivityKind, ActivityMemberDto, ActivityThreadRef, ActivityCalendarEvent } from "./activities.schema";
 import type { RecordActivityIndexRow } from "./record-activity-query";
 
-export type RecordActivityActor = { firstName: string; lastName: string; email: string; avatarUrl: string | null };
+export type RecordActivityActor = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarUrl: string | null;
+  system?: SystemActorProcess;
+};
 type RecordActivityMessage = { message: MessagingMessage; thread: ActivityThreadRef; senderIsMine: boolean };
 export interface RecordActivitiesRepo {
   index(

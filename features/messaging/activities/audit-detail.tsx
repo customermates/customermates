@@ -12,7 +12,8 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
+import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge, useSystemActorLabel } from "./activities-row";
+import { actorDisplayName } from "./activity-row-labels";
 import { auditValueDescriptor, subjectDescriptor } from "./change-value-descriptor";
 import {
   auditChangeKind,
@@ -30,6 +31,7 @@ type Props = {
 
 export const AuditDetail = observer(({ entry }: Props) => {
   const t = useTranslations();
+  const systemActorLabel = useSystemActorLabel();
   const columnLabel = useCanonicalColumnLabel();
   const intlStore = useHydratedIntlStore();
   const labels = useChangeValueLabels();
@@ -45,8 +47,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
     <ChangeValue value={auditValueDescriptor(key, value, labels, { isWikiEvent })} />
   );
 
-  const authorName =
-    `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
+  const authorName = actorDisplayName(entry.actor, systemActorLabel);
   const kind = auditChangeKind(entry.event);
   const removal = kind === "removed";
   const changes = entry.changes.map((change) => ({
@@ -108,6 +109,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
             name={[entry.actor.firstName, entry.actor.lastName]}
             size="xl"
             src={entry.actor.avatarUrl}
+            system={entry.actor.system}
           />
         }
         records={entry.records}

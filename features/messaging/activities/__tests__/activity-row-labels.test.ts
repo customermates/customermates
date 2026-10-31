@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  actorDisplayName,
   buildCalendarSubtitle,
   buildMessageSubtitle,
   formatFieldList,
@@ -148,5 +149,19 @@ describe("buildCalendarSubtitle", () => {
   it("skips absent parts rather than leaving empty separators", () => {
     expect(buildCalendarSubtitle(["09:00 – 10:00", null, undefined, "Cancelled"])).toBe("09:00 – 10:00 · Cancelled");
     expect(buildCalendarSubtitle(["09:00 – 10:00", ""])).toBe("09:00 – 10:00");
+  });
+});
+
+describe("actorDisplayName", () => {
+  const systemLabel = (process: string) => `system:${process}`;
+
+  it("names a person, then the process that made an automatic change", () => {
+    expect(actorDisplayName({ firstName: "Ada", lastName: "Lovelace", email: "ada@example.test" }, systemLabel)).toBe(
+      "Ada Lovelace",
+    );
+    expect(actorDisplayName({ firstName: "", lastName: "", email: "", system: "messaging" }, systemLabel)).toBe(
+      "system:messaging",
+    );
+    expect(actorDisplayName({ firstName: "", lastName: "", email: "" }, systemLabel)).toBe("system:other");
   });
 });

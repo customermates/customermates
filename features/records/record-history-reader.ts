@@ -68,16 +68,29 @@ export class RecordHistoryReader {
         ...(readable && value.files ? { files: value.files } : {}),
       };
     };
+    const imageFieldId = model.capabilities
+      .find((capability) => capability.kind === "avatar" && capability.typeId === payload.ref.typeId)
+      ?.fields.find((field) => field.role === "image")?.fieldId;
     return {
       ref: payload.ref,
       schemaRevision: payload.schemaRevision,
       beforeVersion: payload.beforeVersion,
       afterVersion: payload.afterVersion,
-      fields: payload.fields.map((field) => ({
-        fieldId: field.fieldId,
-        before: read(field.before),
-        after: read(field.after),
-      })),
+      fields: payload.fields
+        .map((field) => ({
+          fieldId: field.fieldId,
+          ...(field.fieldId === imageFieldId ? { image: true } : {}),
+          before: read(field.before),
+          after: read(field.after),
+          stored: field,
+        }))
+        .filter(
+          ({ stored, before, after }) =>
+            mode === "delivery" ||
+            valueChanged(stored.before, stored.after) ||
+            JSON.stringify(before?.value) !== JSON.stringify(after?.value),
+        )
+        .map(({ stored: _stored, ...field }) => field),
       assignments: payload.assignments,
       identities: payload.identities,
       links: payload.links.filter((link) => [link.source, link.target].every((ref) => accessible.has(recordKey(ref)))),
@@ -87,3 +100,11 @@ export class RecordHistoryReader {
 }
 
 export type RecordHistoryChanges = z.infer<typeof RecordHistoryChangesSchema> | null;
+
+function valueChanged(before: RecordHistoryValue | null, after: RecordHistoryValue | null): boolean {
+  if (!before || !after) return true;
+  return (
+    JSON.stringify(before.value) !== JSON.stringify(after.value) ||
+    JSON.stringify(before.files ?? []) !== JSON.stringify(after.files ?? [])
+  );
+}
