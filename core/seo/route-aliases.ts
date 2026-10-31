@@ -68,7 +68,6 @@ const RETIRED_ROUTE_ALIASES = {
   "/for/solopreneurs": "/for/freelancers",
   "/for/therapists": "/for",
   "/for/travel-agents": "/for",
-  "/blog/page/3": "/blog/page/2",
   "/features/all/page/2": "/features/all",
   "/for/page/2": "/for",
   "/compare/monday-vs-hubspot": "/compare/hubspot-vs-monday",
