@@ -16,6 +16,11 @@ vi.mock("../wiki-embedding-model", () => ({
   embedWikiTexts: provider.embed,
 }));
 
+vi.mock("@/ee/agent-chat/agent-availability", () => ({ isAgentChatAvailable: () => true }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
+
+import * as ErrorReporter from "@/core/observability/server";
+
 import { WikiEmbeddingService } from "../wiki-embedding.service";
 
 const grant = { purpose: "wikiRetrieval", companyId: "company", userId: "user" } as AgentRetrievalGrant;
@@ -79,5 +84,30 @@ describe("Wiki embedding charging", () => {
       payer: "platform",
     });
     expect(provider.embed.mock.calls.at(-1)?.[2]).toEqual({ maxRetries: 0, onCharge: expect.any(Function) });
+  });
+});
+
+describe("Wiki embedding authorization", () => {
+  it.each([
+    [
+      "a busy database",
+      Object.assign(new Error("lock timeout"), { code: "P2010", cause: { code: "55P03" } }),
+      "warning",
+    ],
+    ["an ended transaction", Object.assign(new Error("expired transaction"), { code: "P2028" }), "warning"],
+    ["an unexpected failure", new Error("unexpected"), undefined],
+  ])("falls back without a grant on %s and reports it at the matching level", async (_label, error, level) => {
+    vi.mocked(ErrorReporter.captureException).mockClear();
+    const service = new WikiEmbeddingService({
+      prepareRetrieval: vi.fn(() => Promise.reject(error)),
+      prepareWorkspaceIndexing: vi.fn(() => Promise.reject(error)),
+    } as unknown as AgentUsageService);
+
+    await expect(service.authorizeQuery({ id: "user", companyId: "company" })).resolves.toBeNull();
+    await expect(service.authorizeIndexing("company")).resolves.toBeNull();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls).toEqual([
+      [error, level ? { level } : {}],
+      [error, level ? { level } : {}],
+    ]);
   });
 });
