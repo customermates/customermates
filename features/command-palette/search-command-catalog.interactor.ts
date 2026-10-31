@@ -15,7 +15,7 @@ import type {
 
 import { createHash } from "node:crypto";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { WIKI_EMBEDDING_MODEL } from "@/ee/wiki-retrieval/wiki-embedding-model";
@@ -141,7 +141,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
         },
       };
     } catch (error) {
-      Sentry.captureException(error, {
+      ErrorReporter.captureException(error, {
         tags: { kind: "command-search-semantic", companyId: this.companyId, scope: input.scope ?? "all" },
         user: { id: this.userId },
       });

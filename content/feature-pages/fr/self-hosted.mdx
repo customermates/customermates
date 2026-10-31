@@ -181,7 +181,7 @@ Cette distinction compte quand on compare des [CRM open source](/blog/open-sourc
 
 Vous choisissez où s’exécutent l’application et PostgreSQL et comment vous configurez l’accès réseau, les sauvegardes, la conservation et les mises à jour. C’est un vrai contrôle de l’infrastructure, mais pas une garantie automatique de conformité, de sécurité ou d’isolement réseau.
 
-Les services connectés restent des périmètres de traitement distincts. Les fournisseurs OAuth, SMTP, la supervision, les outils de workflow et les fournisseurs d’IA externes reçoivent ce que votre configuration leur envoie. Une installation auto-hébergée n’envoie aucune donnée à Sentry sauf si vous configurez un DSN Sentry, mais ce comportement par défaut étroit n’est pas une promesse générale d’absence de télémétrie.
+Les services connectés restent des périmètres de traitement distincts. Les fournisseurs OAuth, SMTP, la supervision, les outils de workflow et les fournisseurs d’IA externes reçoivent ce que votre configuration leur envoie. Les diagnostics d’erreurs restent sur votre serveur ; les notifications à l’opérateur utilisent le destinataire et le fournisseur d’e-mail que vous configurez. Ce n’est pas une promesse générale d’absence de télémétrie.
 
 ## Auto-hébergement ou cloud géré ?
 

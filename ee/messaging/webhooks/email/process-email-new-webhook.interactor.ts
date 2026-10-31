@@ -19,7 +19,7 @@ import { UnmappableWebhookPayloadError } from "@/core/errors/app-errors";
 const Schema = z.object({
   type: z.enum(["email.new", "email.new.bounce"]),
   account_id: z.string(),
-  payload: z.looseObject({ email: UnipileEmailSchema }),
+  payload: z.looseObject({ email: z.unknown().optional() }),
 });
 type Payload = z.infer<typeof Schema>;
 
@@ -34,15 +34,22 @@ export class ProcessEmailNewWebhookInteractor {
 
   @Enforce(Schema)
   async invoke(envelope: Payload): Promise<void> {
+    const parsedEmail = UnipileEmailSchema.safeParse(envelope.payload.email ?? envelope.payload);
+    if (!parsedEmail.success) {
+      if (envelope.type === "email.new.bounce") throw new UnmappableWebhookPayloadError(null);
+      throw parsedEmail.error;
+    }
+    const email = parsedEmail.data;
+
     const account = await this.accountRepo.findAccountByUnipileIdUnscoped(envelope.account_id);
     if (!account || account.status === ConnectedAccountStatus.deleted) return;
 
-    const message = buildEmailMessage(envelope.payload.email, {
+    const message = buildEmailMessage(email, {
       provider: account.provider,
       emailAddress: account.emailAddress,
       sentFolderIds: account.sentFolderIds,
     });
-    if (!message) throw new UnmappableWebhookPayloadError(envelope.payload.email.id || null);
+    if (!message) throw new UnmappableWebhookPayloadError(email.id || null);
 
     const result = await this.ingest.ingestMessageUnscoped({
       companyId: account.companyId,
@@ -60,7 +67,7 @@ export class ProcessEmailNewWebhookInteractor {
         payload: {
           connectedAccountId: account.id,
           provider: account.provider,
-          providerMessageId: envelope.payload.email.id,
+          providerMessageId: email.id,
           threadId: result.message.messagingThreadId,
         },
       },

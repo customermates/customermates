@@ -17,7 +17,6 @@ const CALLER: AddressLookupCaller = {
   companyId: "00000000-0000-4000-8000-0000000000c1",
   userId: "00000000-0000-4000-8000-0000000000a1",
   locale: "de",
-  country: "de",
 };
 
 function match(parts: Partial<RecordAddressParts>, name: string | null = null): AddressLookupMatch {
@@ -60,18 +59,18 @@ describe("address lookup service", () => {
     }
   });
 
-  it("signs every candidate for the caller's workspace and lists the caller's country first", async () => {
+  it("signs every candidate for the caller's workspace and preserves the provider's relevance order", async () => {
     const { instance, search } = service([{ ok: true, matches: [VIENNA, MANNHEIM] }]);
     const outcome = await instance.lookup(CALLER, { query: "Hauptstraße 5", limit: 5 });
     if (outcome.status !== "ok") throw new Error(outcome.status);
     expect(search).toHaveBeenCalledWith({ query: "Hauptstraße 5", limit: 5, locale: "de", countryCode: null });
     expect(outcome.attribution).toBe("© OpenStreetMap contributors");
     expect(outcome.candidates.map((candidate) => [candidate.name, candidate.address.city])).toEqual([
-      ["Café", "Mannheim"],
       [null, "Wien"],
+      ["Café", "Mannheim"],
     ]);
     const [first] = outcome.candidates;
-    expect(decodeAddressCandidate(first.candidateToken, CALLER.companyId, SIGNING, NOW)).toEqual(MANNHEIM.address);
+    expect(decodeAddressCandidate(first.candidateToken, CALLER.companyId, SIGNING, NOW)).toEqual(VIENNA.address);
     expect(
       decodeAddressCandidate(first.candidateToken, "00000000-0000-4000-8000-0000000000c2", SIGNING, NOW),
     ).toBeNull();

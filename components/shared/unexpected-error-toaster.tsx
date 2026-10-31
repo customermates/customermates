@@ -8,6 +8,7 @@ import { AppLink } from "@/components/shared/app-link";
 import { registerApplicationErrorHandler, isDemoEnvironment } from "@/core/errors/report-application-error";
 import { hasWorkspaceChanged, notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { isClientTransportError } from "@/core/errors/client-transport-error";
+import { isDeploymentSkewError } from "@/core/errors/deployment-skew";
 
 function containsString(error: unknown, searchString: string): boolean {
   if (typeof error === "string") return error.includes(searchString);
@@ -32,6 +33,14 @@ function useApplicationErrorHandler(): (error: unknown, options?: ExternalToast)
   return useCallback(
     (error: unknown, options?: ExternalToast) => {
       if (isNoise(error) || notifyIfWorkspaceChanged(error) || hasWorkspaceChanged()) return;
+      if (isDeploymentSkewError(error)) {
+        toast.info(t("ErrorCard.newVersion"), {
+          id: "deployment-skew",
+          duration: Infinity,
+          action: { label: t("ErrorCard.reload"), onClick: () => window.location.reload() },
+        });
+        return;
+      }
       if (isClientTransportError(error)) {
         toast.warning(t("ErrorCard.transportInterrupted"), ...(options ? [options] : []));
         return;

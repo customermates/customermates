@@ -5,7 +5,7 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 const interactors = vi.hoisted(() => ({ manage: vi.fn() }));
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
-vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn() }));
 vi.mock("@/features/mcp-tools/mcp-workspace-slug", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   mcpWorkspaceSlug: () => Promise.resolve("acme"),

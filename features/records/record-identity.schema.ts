@@ -5,7 +5,7 @@ export const RecordIdentityInputSchema = z
     provider: z
       .enum(["google", "outlook", "mail", "linkedin", "whatsapp", "instagram", "telegram", "phone"])
       .describe(
-        "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send E.164 or a national number of the acting user's country; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send.",
+        "mail is an email address, stored in lowercase; google and outlook mark an address synced from Gmail or Outlook, and one address is one identity whichever you send. phone is a plain phone number: send an international number with + or 00 and its country calling code; it is stored in E.164 and matches WhatsApp chats from the same number. whatsapp marks a number synced from WhatsApp. One number is one identity whichever of the two you send.",
       ),
     value: z.string().trim().min(1).max(2000),
     messagingId: z.string().trim().min(1).max(2000).nullable().optional(),

@@ -8,7 +8,7 @@ import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 import type { UnrecordedSubscriptionCheck } from "@/ee/subscription/unrecorded-subscription-check";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { z } from "zod";
 import { Status } from "@/generated/prisma";
 
@@ -128,7 +128,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     try {
       await this.disconnectChannels();
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "workspace-delete-channel", companyId } });
+      ErrorReporter.captureException(error, { tags: { kind: "workspace-delete-channel", companyId } });
       return failUnavailable(CustomErrorCode.workspaceDeleteChannelsFailed);
     }
 
@@ -217,7 +217,7 @@ export class DeleteWorkspaceInteractor extends AuthenticatedInteractor<DeleteWor
     try {
       await this.background.dispatch("purge-company-files", { companyId: this.companyId });
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "workspace-delete-files", companyId: this.companyId } });
+      ErrorReporter.captureException(error, { tags: { kind: "workspace-delete-files", companyId: this.companyId } });
     }
   }
 

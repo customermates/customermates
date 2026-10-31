@@ -22,7 +22,7 @@ describe("type checking heap", () => {
   });
 
   it("type checks the production build with the same heap", () => {
-    expect(scripts.build).toMatch(/NODE_OPTIONS="\$\{NODE_OPTIONS:-\} --max-old-space-size=\d+" next build$/);
+    expect(scripts.build).toMatch(/NODE_OPTIONS="\$\{NODE_OPTIONS:-\} --max-old-space-size=\d+" next build --webpack$/);
     expect(heapOf(scripts.build)).toBe(TYPE_CHECK_HEAP_MB);
   });
 

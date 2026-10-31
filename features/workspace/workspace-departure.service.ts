@@ -8,7 +8,7 @@ import type { DeleteAccountForBillingService } from "@/ee/messaging/connect/dele
 import type { LeaveWorkspaceChannelsRepo } from "./leave-workspace-channels.repo";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { Status, SubscriptionPlan } from "@/generated/prisma";
 
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -63,7 +63,7 @@ export class WorkspaceDepartureService {
       try {
         await this.channelRemoval.deleteForBillingOrThrow(accountId, "ownerInactive");
       } catch (error) {
-        Sentry.captureException(error, { tags: { kind: "workspace-departure-channel" } });
+        ErrorReporter.captureException(error, { tags: { kind: "workspace-departure-channel" } });
       }
     }
   }

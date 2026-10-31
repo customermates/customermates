@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { ProcessAccountReconnectWebhookInteractor } from "../process-account-reconnect-webhook.interactor";
 import { DomainEvent } from "@/features/event/domain-events";

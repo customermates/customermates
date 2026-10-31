@@ -3,7 +3,7 @@ import type { ProcessLemonSqueezyWebhookRepo } from "./process-lemon-squeezy-web
 import type { LemonSqueezySubscription, SubscriptionService } from "./subscription.service";
 
 import React from "react";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import BillingWebhookAlert from "@/components/emails/billing-webhook-alert";
 import { BILLING_WEBHOOK_ALERT_COPY } from "@/components/emails/billing-webhook-alert-copy";
@@ -54,7 +54,7 @@ export class UnrecordedSubscriptionCheck {
     try {
       unrecorded = await this.findUnrecorded(workspace, emails);
     } catch (error) {
-      Sentry.captureException(error, {
+      ErrorReporter.captureException(error, {
         level: "warning",
         tags: { kind: "workspace-delete-billing-verification", companyId: workspace.companyId },
       });
@@ -115,9 +115,10 @@ export class UnrecordedSubscriptionCheck {
           locale: DEFAULT_LOCALE,
         }),
       });
-      if (!sent) Sentry.captureMessage("Workspace deletion alert could not be sent", { level: "error", ...context });
+      if (!sent)
+        ErrorReporter.captureMessage("Workspace deletion alert could not be sent", { level: "error", ...context });
     } catch (error) {
-      Sentry.captureException(error, context);
+      ErrorReporter.captureException(error, context);
     }
   }
 }

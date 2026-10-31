@@ -290,7 +290,7 @@ test("picks a verified address from the suggestions while typing", async ({ page
     const row = page.getByRole("row").filter({ hasText: "Ada Lovelace" });
     const space = row.locator("[data-inline-edit-space]").filter({ hasText: MANNHEIM });
     await space.hover();
-    await space.getByRole("button", { name: "Edit Address", exact: true }).click();
+    await space.getByRole("button", { name: "Edit Address", exact: true }).press("Enter");
     const editor = page.getByRole("dialog", { name: "Address", exact: true });
     const inlineAddress = await openAddress(page, editor);
     await expect(inlineAddress.locator('[data-address-status="verified"]')).toBeVisible();
@@ -386,6 +386,7 @@ test("enters addresses by hand when no address service is configured", async ({ 
   });
   await expect(address.locator("[data-address-status]")).toHaveCount(0);
   await expect(address.getByRole("button", { name: "Check address", exact: true })).toHaveCount(0);
+  await expect(address.locator('[data-address-issue="countryMissing"]')).toBeVisible();
   await applyAddress(page);
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();

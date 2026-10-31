@@ -30,7 +30,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
 }));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn(), setTag: vi.fn(), setUser: vi.fn() }));
-vi.mock("@sentry/nextjs", () => sentry);
+vi.mock("@/core/observability/server", () => sentry);
 
 import type { AgentModelEntry } from "@/ee/agent-chat/model-catalog";
 import type { AgentTurnWorkflowPayload } from "@/workflows/agent-turn";

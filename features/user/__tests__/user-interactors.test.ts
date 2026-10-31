@@ -423,7 +423,6 @@ describe("RegisterUserInteractor", () => {
       email: "jane@example.com",
       firstName: "Jane",
       lastName: "Doe",
-      country: "de" as const,
       avatarUrl: null,
       agreeToTerms: true,
     };

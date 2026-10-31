@@ -12,14 +12,18 @@ vi.mock("@/core/fumadocs/docs-code-block", async () => {
 });
 
 import { McpInstallSnippet } from "../mcp-install-snippet";
+import type { McpTool } from "@/features/docs/mcp-install-snippet";
 
 describe("McpInstallSnippet", () => {
-  it("ships the install snippet already highlighted, so the figure does not change after hydration", async () => {
-    const html = renderToStaticMarkup((await McpInstallSnippet({ tool: "codex" })) as ReactElement);
+  it.each<McpTool>(["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"])(
+    "ships the %s install snippet already highlighted",
+    async (tool) => {
+      const html = renderToStaticMarkup((await McpInstallSnippet({ tool })) as ReactElement);
 
-    expect(html).toContain("data-docs-code-block");
-    expect(html).toContain("--shiki-light");
-    expect(html).toContain("--shiki-dark");
-    expect(html).toContain("https://customermates.example/api/v1/mcp");
-  });
+      expect(html).toContain("data-docs-code-block");
+      expect(html).toContain("--shiki-light");
+      expect(html).toContain("--shiki-dark");
+      expect(html).toContain("https://customermates.example/api/v1/mcp");
+    },
+  );
 });

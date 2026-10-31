@@ -35,7 +35,7 @@ import {
 import { createClient, createConfig } from "@unipile/sdk/dist/client";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -172,6 +172,7 @@ export function unipileErrorCode(err: UnipileRequestError): CustomErrorCode {
 
   if (err.status === 0) return CustomErrorCode.unipileRequestTimeout;
   if (err.status === 429) return CustomErrorCode.unipileRateLimit;
+  if (isUnipileLinkedinProductMissing(err)) return CustomErrorCode.linkedinProductUnavailable;
   if (type.endsWith("/resource_not_found")) return CustomErrorCode.unipileResourceNotFound;
   if (UNIPILE_ERROR_CODES[type]) return UNIPILE_ERROR_CODES[type];
   if (type.startsWith("provider/"))
@@ -185,6 +186,10 @@ export function getRetryAfterSeconds(err: unknown): number | null {
   return err instanceof UnipileRequestError ? err.retryAfterSeconds : null;
 }
 
+export function isUnipileTransientError(err: unknown): err is UnipileRequestError {
+  return err instanceof UnipileRequestError && (err.status === 0 || (err.status >= 500 && err.status !== 501));
+}
+
 export function isUnipileTimeout(err: unknown): err is UnipileRequestError {
   return err instanceof UnipileRequestError && err.status === 0;
 }
@@ -193,6 +198,14 @@ export function isUnipileProviderUnprocessable(err: unknown): err is UnipileRequ
   if (!(err instanceof UnipileRequestError) || err.status !== 422) return false;
 
   return (err.errorType ?? "").endsWith("/unprocessable_entity");
+}
+
+function isUnipileLinkedinProductMissing(err: UnipileRequestError): boolean {
+  return (
+    err.status === 403 &&
+    err.errorType === "api/insufficient_permissions" &&
+    /LinkedIn product required/i.test(unipileBodyField(err.bodyText, "detail") ?? "")
+  );
 }
 
 export function isUnipileSourceForbidden(err: unknown): err is UnipileRequestError {
@@ -390,35 +403,43 @@ export class MessagingService {
 
   private mapSendError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
     if (!(source instanceof z.ZodError)) {
-      const mapped = this.mapError(source);
+      const mapped = this.mapError(source, true);
       return mapped.error === CustomErrorCode.unipileServiceUnavailable ||
         mapped.error === CustomErrorCode.unipileProviderError
         ? { ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown }
         : mapped;
     }
 
-    Sentry.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
+    ErrorReporter.captureException(source, { tags: { kind: "unipile-send-response-unreadable" } });
     return { ok: false, error: CustomErrorCode.unipileSendUnconfirmed };
   }
 
-  private mapError(source: unknown): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
+  private mapError(
+    source: unknown,
+    sending = false,
+  ): { ok: false; error: CustomErrorCode; retryAfterSeconds?: number } {
     if (!(source instanceof UnipileRequestError)) throw source;
 
     const type = source.errorType ?? "";
     if (source.status === 429 && type.startsWith("provider/")) {
-      Sentry.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
+      ErrorReporter.captureMessage("Unipile provider rate limit reached; the dashboard limit may be too high", {
         level: "warning",
         tags: unipileDiagnostics(source),
       });
     } else if (
-      UNIPILE_BAD_IMPL_TYPES.has(type) ||
-      UNIPILE_PERMANENT_TYPES.has(type) ||
-      unipileErrorCode(source) === CustomErrorCode.unipileUnknown ||
-      (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type))
+      !isUnipileLinkedinProductMissing(source) &&
+      (UNIPILE_BAD_IMPL_TYPES.has(type) ||
+        UNIPILE_PERMANENT_TYPES.has(type) ||
+        unipileErrorCode(source) === CustomErrorCode.unipileUnknown)
     )
-      Sentry.captureException(source, { tags: unipileDiagnostics(source) });
-    else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
-      Sentry.captureMessage("Unipile provider rejected a request", {
+      ErrorReporter.captureException(source, { tags: unipileDiagnostics(source) });
+    else if (source.status >= 500 && !UNIPILE_TRANSIENT_5XX_TYPES.has(type)) {
+      ErrorReporter.captureException(source, {
+        ...(sending || !isUnipileTransientError(source) ? {} : { level: "warning" as const }),
+        tags: unipileDiagnostics(source),
+      });
+    } else if (unipileErrorCode(source) === CustomErrorCode.unipileProviderRejected) {
+      ErrorReporter.captureMessage("Unipile provider rejected a request", {
         level: "warning",
         tags: unipileDiagnostics(source),
       });

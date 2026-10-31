@@ -16,7 +16,7 @@ vi.mock("../../actions", () => ({
   updateWidgetLayoutsAction,
 }));
 
-vi.mock("@sentry/nextjs", () => ({ captureException }));
+vi.mock("@/core/observability/browser", () => ({ captureException }));
 
 vi.mock("@/app/actions", () => ({
   bulkDeleteEntitiesAction: vi.fn(),
@@ -82,7 +82,7 @@ function layoutResult(layouts: UpdateWidgetLayoutsData["layouts"], version = 2) 
 describe("WidgetsStore refresh compatibility", () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "https://public@example.invalid/1");
+    vi.stubEnv("NEXT_PUBLIC_ERROR_REPORTING_PROVIDER", "vercel");
   });
 
   afterEach(() => {

@@ -158,6 +158,7 @@ export async function signInLogin(browser: Browser, database: Client, login: Bro
     page,
     errors: collectPageErrors(page),
     close: async () => {
+      if (!page.isClosed()) await page.unrouteAll({ behavior: "wait" });
       await context.close();
       await database.query('DELETE FROM "AuthSession" WHERE id=$1', [sessionId]);
     },

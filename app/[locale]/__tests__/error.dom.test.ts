@@ -8,7 +8,7 @@ const harness = vi.hoisted(() => ({ captureError: vi.fn(), notifyWorkspaceChange
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/errors/report-application-error", () => ({ notifyWorkspaceChanged: harness.notifyWorkspaceChanged }));
-vi.mock("@/core/errors/sentry-client", () => ({ captureError: harness.captureError }));
+vi.mock("@/core/errors/client-reporter", () => ({ captureError: harness.captureError }));
 vi.mock("@/components/shared/error-page-view", () => ({
   ErrorPageView: ({ subtitle, body }: { subtitle: string; body: string }) =>
     createElement("main", null, subtitle, body),

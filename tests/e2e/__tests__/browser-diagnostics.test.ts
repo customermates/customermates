@@ -46,19 +46,20 @@ function fakeBrowser() {
     state,
     context,
     page,
-    console: (text: string, source = "") =>
+    console: (text: string, source = "", error?: Error) =>
       contextEvents.emit("console", {
         type: () => "error",
         text: () => text,
         location: () => ({ url: source }),
         page: () => page,
+        args: () => error ? [{ evaluate: async (read: (error: Error) => unknown) => read(error) }] : [],
       }),
     pageError: (message: string) =>
       contextEvents.emit("weberror", { error: () => new Error(message), page: () => page }),
-    cancelledChunk: (url: string) =>
+    cancelledChunk: (url: string, errorText = "Load request cancelled") =>
       contextEvents.emit("requestfailed", {
         url: () => url,
-        failure: () => ({ errorText: "Load request cancelled" }),
+        failure: () => ({ errorText }),
         resourceType: () => "script",
         frame: () => ({ page: () => page }),
       }),
@@ -115,6 +116,64 @@ const NOT_FOUND = "Failed to load resource: the server responded with a status o
 const BASE = "http://127.0.0.1:4464";
 
 describe("browser diagnostics", () => {
+  it("withdraws a font abort only after the page that requested it has navigated away", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const font = `${BASE}/_next/static/media/font.woff2`;
+    const report = `[JavaScript Error: "downloadable font: download failed (font-family: "mono"): status=2152398850 source: ${font}"]`;
+    browser.navigation(`${BASE}/en/records`);
+    browser.abortedLoad(font, "NS_BINDING_ABORTED", "font");
+    browser.console(report);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
+    browser.abortedLoad(font, "NS_BINDING_ABORTED", "font");
+    browser.console(report);
+    browser.navigation(`${BASE}/en/configure`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report]);
+  });
+
+  it("recovers Firefox's logged Error details and withdraws only an exactly matched cancelled chunk", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const path = "/_next/static/chunks/app/[locale]/(protected)/w/[workspace]/layout-aabbcc.js";
+    const report = Object.assign(new Error(`Loading chunk 9492 failed.\n(error: ${BASE}${path})`), { name: "ChunkLoadError" });
+    browser.navigation(`${BASE}/en/calendar`);
+    browser.requested(`${BASE}${path.replaceAll("[", "%5B").replaceAll("]", "%5D")}`);
+    browser.cancelledChunk(`${BASE}${path}`, "NS_BINDING_ABORTED");
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, report);
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, new Error("Real rendering failure"));
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`);
+    browser.loaded();
+    await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow("Real rendering failure");
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual(["Error", "Error: Real rendering failure"]);
+  });
+
+  it("retains a Firefox Error when its remote object is unavailable after navigation", async () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const unreadable = new Proxy(new Error("Unavailable"), { get() { throw new Error("Execution context was destroyed"); } });
+    browser.console("Error", `${BASE}/_next/static/chunks/runtime.js`, unreadable);
+    await expect(diagnostics.verify(fakeTestInfo("passed"))).rejects.toThrow("console: Error");
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual(["Error"]);
+  });
+
+  it("withdraws only the Webpack chunk Firefox cancelled, preserving a real failed chunk", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const cancelled = "/_next/static/chunks/6370.aabbcc.js";
+    const failed = "/_next/static/chunks/6371.ddeeff.js";
+    const report = (path: string) => `Loading chunk 6370 failed.\n(error: ${BASE}${path})`;
+    browser.navigation(`${BASE}/en/dashboard`);
+    browser.requested(`${BASE}${cancelled}`);
+    browser.requested(`${BASE}${failed}`);
+    browser.cancelledChunk(`${BASE}${cancelled}`, "NS_BINDING_ABORTED");
+    browser.console(report(cancelled), `${BASE}/_next/static/chunks/runtime.js`);
+    browser.console(report(failed), `${BASE}/_next/static/chunks/runtime.js`);
+    browser.loaded();
+    expect(diagnostics.unexpected.map(({ text }) => text)).toEqual([report(failed)]);
+  });
+
   it("reports each load of the app answered with an HTTP error once, from the response, on every browser", () => {
     const browser = fakeBrowser();
     const diagnostics = new BrowserDiagnostics().watch(browser.context);

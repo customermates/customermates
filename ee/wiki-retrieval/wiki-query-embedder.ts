@@ -3,9 +3,11 @@ import type { QueryVector } from "@/core/retrieval/retrieval-pipeline";
 import type { WikiQueryEmbedder } from "@/features/wiki/wiki-query-embedder";
 import type { WikiEmbeddingService } from "./wiki-embedding.service";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { UserAccessor } from "@/core/base/user-accessor";
+
+import { isTransientGatewayError } from "@/ee/agent-chat/transient-gateway-error";
 
 import { WIKI_EMBEDDING_VERSION } from "./wiki-embedding-model";
 
@@ -69,7 +71,7 @@ export class WikiSemanticQueryEmbedder extends UserAccessor implements WikiQuery
           return vector;
         })
         .catch((error: unknown) => {
-          Sentry.captureException(error);
+          ErrorReporter.captureException(error, isTransientGatewayError(error) ? { level: "warning" } : {});
           return null;
         })
         .finally(() => pendingVectors.delete(key));

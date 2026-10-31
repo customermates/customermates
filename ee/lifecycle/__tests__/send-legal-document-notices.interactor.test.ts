@@ -417,8 +417,8 @@ describe("SendLegalDocumentNoticesInteractor", () => {
     expect(props.documents.map((document) => document.version)).toEqual([
       "1. September 2026",
       "16. Oktober 2026",
-      "19. Oktober 2026",
-      "19. Oktober 2026",
+      "28. Oktober 2026",
+      "28. Oktober 2026",
     ]);
   });
 
@@ -520,12 +520,14 @@ describe("SendLegalDocumentNoticesInteractor", () => {
   });
 
   it("suppresses historical information for later users but sends conservatively on the release day", async () => {
+    const releaseDayEnd = new Date(`${currentLegalDocumentVersions().privacy}T23:59:59.000Z`);
+    const followingDayStart = new Date(releaseDayEnd.getTime() + 1000);
     recipients = [
       recipient("later-member", false, {
-        createdAt: new Date("2026-10-20T00:00:00.000Z"),
+        createdAt: followingDayStart,
       }),
       recipient("same-day-member", false, {
-        createdAt: new Date("2026-10-19T23:59:59.000Z"),
+        createdAt: releaseDayEnd,
       }),
     ];
 

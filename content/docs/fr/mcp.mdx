@@ -34,6 +34,8 @@ Une requête sans identifiants valides reçoit un HTTP `401` avec un en-tête `W
 
 Le point d’accès et les clés API sont disponibles dans toutes les formules et sur les instances auto-hébergées. Seuls les outils de messagerie, d’agenda et de réseaux sociaux exigent une formule avec messagerie (Pro ou supérieure, cloud uniquement) ; voir [Messagerie](/docs/mcp#messaging).
 
+Les annuaires peuvent découvrir le serveur sans connexion au CRM à l’adresse `<BASE_URL>/.well-known/mcp/server-card.json`. Ce fichier public et généré contient l’identité du serveur, les exigences d’authentification, les définitions des outils et les métadonnées des prompts. Il ne contient aucun enregistrement d’espace de travail, aucun identifiant ni aucun résultat d’outil. Les outils exigent toujours l’authentification et les autorisations décrites ci-dessus. Une inscription dans un annuaire ne donne pas accès à votre CRM. Les mainteneurs régénèrent le fichier avec `yarn mcp:generate-card` après avoir modifié des définitions d’outils ; le développement, les builds et la CI le régénèrent automatiquement.
+
 ## Connecter un client [#connect-a-client]
 
 Pour connecter un client avec une clé API, commencez par [Clés API](app:settings/api-keys). Les clients OAuth peuvent utiliser les guides ci-dessous sans créer de clé.

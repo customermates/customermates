@@ -3,7 +3,7 @@ import type { RecordFileIndexScheduler } from "@/features/record-file-index/reco
 import type { WikiEmbeddingService } from "@/ee/wiki-retrieval/wiki-embedding.service";
 import type { RecordFileSemanticIndexRepo } from "./record-file-semantic-index.repo";
 
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 
@@ -28,7 +28,7 @@ export class RecordFileSemanticIndexScheduler extends UserAccessor implements Re
       lastSchedule.set(this.companyId, now);
       await this.background.dispatch("index-record-files", { companyId: this.companyId });
     } catch (error) {
-      Sentry.captureException(error);
+      ErrorReporter.captureException(error);
     }
   }
 }

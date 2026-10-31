@@ -10,6 +10,7 @@ import {
 import { applyPaletteSearch, clearPaletteSearch } from "./filter-palette";
 import { presetId } from "../../features/records/crm-preset";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { expectHydrated } from "./workspace-switching";
 
 async function post(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 120000 });
@@ -255,8 +256,11 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
     });
   }
   await page.reload();
-  for (const name of names)
-    await recordItem(page, name).getByRole("checkbox").check();
+  for (const name of names) {
+    const checkbox = recordItem(page, name).getByRole("checkbox");
+    await expectHydrated(checkbox);
+    await checkbox.check();
+  }
   await page
     .locator("[data-record-mass-actions]")
     .getByRole("button", { name: "Edit", exact: true })

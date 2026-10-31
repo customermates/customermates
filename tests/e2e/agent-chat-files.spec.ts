@@ -107,7 +107,9 @@ test("gives Mate files by button, drop and paste, sends them with the message an
     page,
   });
   const sent = page.waitForResponse(
-    (response) => /^\/api(?:\/w\/[^/]+)?\/agent\/messages$/u.test(new URL(response.url()).pathname) && response.request().method() === "POST",
+    (response) =>
+      /^\/api(?:\/w\/[^/]+)?\/agent\/messages$/u.test(new URL(response.url()).pathname) &&
+      response.request().method() === "POST",
   );
   await page.locator("#agent-composer").focus();
   await page.keyboard.type("Attach the offer to Example organization and create a contact from the card");

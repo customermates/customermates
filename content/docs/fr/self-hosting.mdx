@@ -69,6 +69,7 @@ Inscrivez-vous, choisissez **Créer un nouvel espace de travail** et terminez l�
 - `APP_PORT` : le port de l’hôte sur lequel l’application est publiée, `4000` par défaut.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL` : envoi d’e-mails ; `RESEND_API_KEY` ne doit pas être vide. Voir [Comment configurer l’e-mail avec Resend, et puis-je utiliser SMTP ?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE` : laissez-le à `self-hosted` ; le fichier Compose définit cette valeur pour l’application elle-même.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS` : facultatif ; définissez `true` pour bloquer les requêtes de webhook vers les adresses privées, de bouclage et lien-local. Les destinations privées sont autorisées par défaut afin que les webhooks puissent atteindre les services de votre réseau. N’accepte que `true` ou `false`.
 - `CRON_SECRET` : facultatif, commenté dans le modèle ; le secret des appels de maintenance planifiés, voir [Quelles tâches planifiées dois-je exécuter ?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET` : facultatifs, commentés dans le modèle, voir [Les utilisateurs peuvent-ils se connecter avec Google ou Microsoft ?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL` : facultatif, commenté dans le modèle ; ajoute la recherche d’adresse depuis un service Photon que vous exploitez vous-même, voir [Comment les adresses sont-elles vérifiées, et comment ajouter la recherche d’adresse ?](#address-lookup).

@@ -579,7 +579,9 @@ export function sampleRecordsWireSchema(columns: readonly string[]) {
   return z.object({
     records: z.array(
       z.object(
-        Object.fromEntries(columns.map((column) => [column, z.string().describe("An empty string leaves it empty.")])),
+        Object.fromEntries(
+          columns.map((column) => [column, z.string().default("").describe("An empty string leaves it empty.")]),
+        ),
       ),
     ),
   });

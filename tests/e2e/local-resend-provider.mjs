@@ -43,10 +43,18 @@ async function sendEmail(request, providerDirectory) {
     !to.every((address) => typeof address === "string" && ADDRESS.test(address)) ||
     typeof body.subject !== "string" ||
     !body.subject ||
-    typeof body.html !== "string" ||
-    !body.html
+    !((typeof body.html === "string" && body.html) || (typeof body.text === "string" && body.text))
   )
     return reply(422, { statusCode: 422, name: "validation_error", message: "Invalid local e-mail" });
+  const idempotencyKey = request.headers.get("idempotency-key");
+  const previous = idempotencyKey && readLocalEmails(providerDirectory).find((email) => email.idempotencyKey === idempotencyKey);
+  if (previous) {
+    if (previous.subject !== body.subject || previous.text !== (body.text ?? null) || previous.html !== (body.html ?? ""))
+      return reply(409, { statusCode: 409, name: "invalid_idempotent_request", message: "Idempotency key reused" });
+    const path = join(mailDirectory(providerDirectory), `${previous.id}.json`);
+    writeFileSync(path, JSON.stringify({ ...previous, attempts: previous.attempts + 1 }, null, 2));
+    return reply(200, { id: previous.id });
+  }
   const id = randomUUID();
   const email = {
     id,
@@ -54,8 +62,10 @@ async function sendEmail(request, providerDirectory) {
     from: body.from,
     to,
     subject: body.subject,
-    html: body.html,
+    html: body.html ?? "",
     text: typeof body.text === "string" ? body.text : null,
+    idempotencyKey,
+    attempts: 1,
   };
   const path = join(mailDirectory(providerDirectory), `${id}.json`);
   const temporary = `${path}.${randomUUID()}.tmp`;

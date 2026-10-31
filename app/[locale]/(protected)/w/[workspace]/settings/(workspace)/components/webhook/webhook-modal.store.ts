@@ -13,7 +13,7 @@ import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
+import { parseWebhookHeaderLines } from "@/features/webhook/webhook-header-lines";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { omit } from "lodash";
 import { actionData } from "@/core/utils/action-data";

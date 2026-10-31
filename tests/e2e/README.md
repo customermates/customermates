@@ -41,7 +41,7 @@ yarn db:provision
 cp .env.cloud.template .env
 ```
 
-Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear the placeholders `NEXT_PUBLIC_SENTRY_DSN` and `AI_GATEWAY_API_KEY` (a non-empty gateway key changes the offline classifier tests). Do not copy an existing workstation `.env` or use hosted/demo/production databases.
+Set `DATABASE_URL` and `DIRECT_URL` in the new ignored `.env` to this worktree provisioner's loopback URLs. Generate a new local `BETTER_AUTH_SECRET`. Set `APP_MODE=cloud`, `HOSTED_AI_OPERATOR_CONTROLS_ENABLED=true`, `HOSTED_AI_PROVIDER_WORK_PAUSED=true`, `NEXT_PUBLIC_ERROR_REPORTING_PROVIDER=off` and `NEXT_TELEMETRY_DISABLED=1`. Leave real provider/model credentials absent, and clear `AI_GATEWAY_API_KEY` (a non-empty gateway key changes the offline classifier tests). The verification runner enables error reporting, which only writes runtime log lines. Do not copy an existing workstation `.env` or use hosted/demo/production databases.
 
 ```sh
 yarn install --frozen-lockfile
@@ -107,6 +107,23 @@ The manual steps below remain the reference. For everyday verification use the s
 | `yarn test:e2e:baseline compare <outcomes.json>` | prints only new failures, flaky tests and baseline entries that now pass |
 | `yarn test:migrations` | fresh database on PostgreSQL 17 and 16 (migrate, seed twice, status, schema diff) and an upgrade from `origin/main` |
 | `yarn verify:live` | real draft sends between the two Unipile test inboxes only; [the guard](live/live-egress-guard.mjs) refuses any other recipient, account, host or provider write |
+
+## Change-based CI
+
+The [CI planner](../../.github/scripts/ci-plan.mjs) selects verification from the complete PR diff against its merge base, or the complete `before..after` diff of a push to main. It includes deleted paths and both sides of renames. It uses local Git history rather than a truncated changed-files API response.
+
+| Changes | Verification |
+| --- | --- |
+| Isolated marketing/SEO inputs: MDX content, static public routes, marketing components, the explicit public metadata helpers and marketing images | Generated artifacts, full types/lint/locale audit, all convention tests and public-page unit tests, one self-hosted production build, and the real rendered hub/sitemap crawl |
+| Repository Markdown guides only | Selector tests and the required result gates; no application build or database |
+| Shared/application code, routing/proxy, translations, dependencies, schema, CI itself, mixed changes or an unknown path | Full static checks, four database-backed Vitest shards, PostgreSQL 16 compatibility, both production builds, rendered pages, and the existing application browser matrix |
+| Nightly or manual browser verification | The full application browser suite on all five targets by default; manual runs can still select targets |
+
+The allowlist is deliberately narrow: for example, changing `app/[locale]/layout.tsx`, `core/seo/route-aliases.ts`, `i18n/locales/en.json` or `public/v1/openapi.json` selects the full suite. An empty/unavailable diff also selects full coverage. A final SEO-only commit on an application PR never reduces its checks.
+
+Production builds are shared between browser shards and the page crawler; the crawler no longer compiles the app a third time. Application PRs retain cloud/self-hosted Chromium and Firefox smoke; full main/nightly runs retain all five targets. The required `ci` check waits for both unit/static verification and the browser/page workflow, and rejects failures, cancellation, failed planning and unexpected skips. Workflows still start for every PR, so [path filtering cannot leave the required check pending](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
+
+The planner records its selection in the workflow summary. Check its scope and failure behavior with `node --test .github/scripts/ci-plan.test.mjs`. Docker PR builds still run for image/dependency changes and now cancel obsolete PR builds; main/tag image publication and Vercel deployment behavior are retained. SEO changes still need a deployable production build.
 
 ## Application and database gates
 

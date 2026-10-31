@@ -13,13 +13,14 @@ vi.mock("@/env", () => ({ env: { ...MOCK_ENV_MODULE.env, UNIPILE_API_KEY: "test-
 vi.mock("@/core/di", () => ({ ...createMockDiModule(() => mockUser) }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@sentry/node", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
+vi.mock("@/core/observability/server", () => ({ captureException: vi.fn(), captureMessage: vi.fn() }));
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { MessagingService } from "../messaging.service";
+import { MessagingService, isUnipileTransientError } from "../messaging.service";
+import { UnipileRequestError } from "../unipile-request-error";
 import { ProcessAccountReconnectWebhookInteractor } from "../webhooks/account/process-account-reconnect-webhook.interactor";
 import { PrepareBackfillInteractor, ACCOUNT_WIDE_SOURCE } from "../ingest/backfill/prepare-backfill.interactor";
 
@@ -60,7 +61,7 @@ describe("MessagingService boundary validation", () => {
     const call = new MessagingService().getAccount("acc_1");
 
     await expect(call).rejects.toBeInstanceOf(z.ZodError);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("reports an accepted send it cannot read as unconfirmed rather than failed", async () => {
@@ -170,9 +171,35 @@ describe("social profile identifier routing", () => {
       const result = await service[method]({ accountId: "acc_1", identifier: "not-a-provider-id" });
 
       expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-      expect(Sentry.captureException).not.toHaveBeenCalled();
+      expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     },
   );
+
+  it("maps a LinkedIn product missing on the account to a product error without an error report", async () => {
+    stubFetch(
+      {
+        object: "Error",
+        status: 403,
+        type: "api/insufficient_permissions",
+        title: "Insufficient permissions",
+        detail: "The LinkedIn product required for this action is not enabled for this account.",
+      },
+      403,
+    );
+
+    const result = await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(result).toEqual({ ok: false, error: CustomErrorCode.linkedinProductUnavailable });
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+  });
+
+  it("keeps reporting an API permission refusal that is not about a LinkedIn product", async () => {
+    stubFetch({ object: "Error", status: 403, type: "api/insufficient_permissions", detail: "Forbidden." }, 403);
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "someone" });
+
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+  });
 
   it("maps an invalid company id to a normal invalid request without Sentry noise", async () => {
     stubFetch({ type: "api/invalid_parameters", detail: "Invalid Company ID." }, 400);
@@ -184,7 +211,7 @@ describe("social profile identifier routing", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps unrelated api/invalid_parameters failures visible in Sentry", async () => {
@@ -196,12 +223,37 @@ describe("social profile identifier routing", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ unipileDetail: "with_sections has an invalid value." }),
       }),
     );
+  });
+});
+
+describe("provider outages", () => {
+  it("records a transient IMAP outage as a warning, not an application error", async () => {
+    stubFetch(
+      { object: "Error", status: 503, type: "provider/service_unavailable", title: "IMAP connection unavailable" },
+      503,
+    );
+
+    const result = await new MessagingService().moveEmail({ accountId: "acc_1", emailId: "e_1", folderId: "f_1" });
+
+    expect(result).toMatchObject({ ok: false, error: CustomErrorCode.unipileProviderError });
+    expect(ErrorReporter.captureException).toHaveBeenCalledExactlyOnceWith(
+      expect.any(Error),
+      expect.objectContaining({ level: "warning" }),
+    );
+  });
+
+  it("classifies timeouts and 5xx outages as transient, but not 501 or client errors", () => {
+    expect(isUnipileTransientError(new UnipileRequestError(0, null, "{}"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(502, null, "Bad Gateway"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(500, "provider/internal_error", "{}"))).toBe(true);
+    expect(isUnipileTransientError(new UnipileRequestError(501, "api/not_implemented", "{}"))).toBe(false);
+    expect(isUnipileTransientError(new UnipileRequestError(401, "api/invalid_credentials", "{}"))).toBe(false);
   });
 });
 
@@ -217,7 +269,7 @@ describe("social post pagination", () => {
     });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps a positive offset for providers that support offset pagination", async () => {
@@ -234,7 +286,7 @@ describe("social post pagination", () => {
     const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me", offset: 20 });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileInvalidRequest });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("captures the same provider response when no offset selected the wrong mode", async () => {
@@ -243,7 +295,7 @@ describe("social post pagination", () => {
     const result = await new MessagingService().listUserPosts({ accountId: "acc_1", userId: "me" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileUnknown });
-    expect(Sentry.captureException).toHaveBeenCalledWith(
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
         tags: expect.objectContaining({ unipileDetail: "This feature uses cursor for pagination." }),
@@ -384,7 +436,7 @@ describe("startChat routing and 5xx capture", () => {
     const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown });
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(Error), {
       tags: {
         unipileStatus: "500",
         unipileErrorType: "api/internal_error",
@@ -401,8 +453,8 @@ describe("startChat routing and 5xx capture", () => {
     const result = await new MessagingService().startChat({ accountId: "acc_1", usersIds: ["u1"], text: "hi" });
 
     expect(result).toEqual({ ok: false, error: CustomErrorCode.unipileSendOutcomeUnknown });
-    expect(Sentry.captureException).not.toHaveBeenCalled();
-    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureMessage).not.toHaveBeenCalled();
   });
 });
 
@@ -439,7 +491,7 @@ describe("getAccount consumer drift policies", () => {
     expect(backgroundTaskService.dispatch).toHaveBeenCalledWith("backfill-connected-account", {
       connectedAccountId: account.id,
     });
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
       tags: { unipileAccountId: "acc_uni-1" },
     });
   });
@@ -475,7 +527,7 @@ describe("getAccount consumer drift policies", () => {
 
     expect(plan).toEqual({ status: "ready", kind: "chat", sources: [ACCOUNT_WIDE_SOURCE], hasCalendar: false });
     expect(repo.updateAccountUnscoped).not.toHaveBeenCalled();
-    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
+    expect(ErrorReporter.captureException).toHaveBeenCalledWith(expect.any(z.ZodError), {
       tags: { unipileAccountId: account.unipileAccountId },
     });
   });
@@ -537,8 +589,8 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileFeatureUnavailable);
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
-    expect(vi.mocked(Sentry.captureException).mock.calls[0][1]).toMatchObject({
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls[0][1]).toMatchObject({
       tags: {
         unipileStatus: "501",
         unipileErrorType: "api/not_implemented",
@@ -558,8 +610,8 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileFeatureUnavailable);
-    expect(Sentry.captureException).toHaveBeenCalledOnce();
-    expect(vi.mocked(Sentry.captureException).mock.calls[0][1]).toMatchObject({
+    expect(ErrorReporter.captureException).toHaveBeenCalledOnce();
+    expect(vi.mocked(ErrorReporter.captureException).mock.calls[0][1]).toMatchObject({
       tags: { unipileErrorType: "api/inactive_subscription", unipileRequestId: "req-9xy", unipileDetail: "none" },
     });
   });
@@ -579,7 +631,7 @@ describe("Unipile failure diagnostics reach Sentry", () => {
 
     await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
-    const context = vi.mocked(Sentry.captureException).mock.calls[0][1] as { tags: Record<string, string> };
+    const context = vi.mocked(ErrorReporter.captureException).mock.calls[0][1] as { tags: Record<string, string> };
     const tags = context.tags;
     expect(tags.unipileDetail).toBe("Delivery to [redacted] failed permanently.");
     expect(tags.unipileDetail).not.toContain("@");
@@ -592,7 +644,7 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     const result = await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileServiceUnavailable);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 
   it("keeps an expected not-found quiet", async () => {
@@ -601,7 +653,7 @@ describe("Unipile failure diagnostics reach Sentry", () => {
     const result = await new MessagingService().getPost({ accountId: "acc_1", postId: "p1" });
 
     if (!result.ok) expect(result.error).toBe(CustomErrorCode.unipileResourceNotFound);
-    expect(Sentry.captureException).not.toHaveBeenCalled();
+    expect(ErrorReporter.captureException).not.toHaveBeenCalled();
   });
 });
 

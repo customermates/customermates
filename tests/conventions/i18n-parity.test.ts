@@ -28,7 +28,6 @@ const PRODUCT_NAMES = [
   "Next.js",
   "OAuth",
   "Outlook",
-  "Sentry",
   "Telegram",
   "WhatsApp",
 ];

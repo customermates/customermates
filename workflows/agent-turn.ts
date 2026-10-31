@@ -771,16 +771,12 @@ async function reportResolvedProviderError(
   finishReason: string,
   error: unknown,
   attempt: number,
+  final: boolean,
 ): Promise<void> {
-  await reportFailure(
-    WORKFLOW_NAME,
-    toWorkflowFailure(
-      new Error(
-        `The provider resolved a round with finishReason "${finishReason}" (attempt ${attempt} of ${AGENT_RESOLVED_PROVIDER_ERROR_RETRIES + 1}): ${safeProviderErrorText(error)}`,
-      ),
-    ),
-    { companyId: payload.companyId, userId: payload.userId },
-  );
+  const message = `The provider resolved a round with finishReason "${finishReason}" (attempt ${attempt} of ${AGENT_RESOLVED_PROVIDER_ERROR_RETRIES + 1}): ${safeProviderErrorText(error)}`;
+  const tenant = { companyId: payload.companyId, userId: payload.userId };
+  if (final) await reportFailure(WORKFLOW_NAME, toWorkflowFailure(new Error(message)), tenant);
+  else await reportWarning(WORKFLOW_NAME, message, tenant);
 }
 
 function safeProviderErrorText(error: unknown): string {
@@ -1998,7 +1994,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           });
         if (!failedStepRanProviderTool && resolvedProviderErrorRetries < AGENT_RESOLVED_PROVIDER_ERROR_RETRIES) {
           resolvedProviderErrorRetries += 1;
-          await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries);
+          await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries, false);
           providerStop = null;
           messages = nextAgentSegmentMessages({
             messages: result.messages,
@@ -2007,7 +2003,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           });
           continue;
         }
-        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1);
+        await reportResolvedProviderError(payload, finishReason, resolvedError, resolvedProviderErrorRetries + 1, true);
         providerStop = "provider_error";
       }
 
@@ -2247,7 +2243,9 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       await publishAssistantText(text);
     }
     transcript.finishTextSegment();
-    if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
+    if (roundFailure && agentTurnFailureMessageKind(roundFailure.message) === "contextLimit")
+      await reportWarning(WORKFLOW_NAME, roundFailure.message ?? "Agent context limit reached.", payload.tenant);
+    else if (roundFailure) await reportFailure(WORKFLOW_NAME, roundFailure, payload.tenant);
     if (providerFailure) await reportFailure(WORKFLOW_NAME, providerFailure, payload.tenant);
 
     const stopReason: AgentTurnStopReason | null = cancelled

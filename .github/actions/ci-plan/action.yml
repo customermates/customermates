@@ -1,0 +1,45 @@
+name: Plan verification from changed paths
+description: Select isolated marketing/docs checks; default to full coverage for shared code or an unavailable diff.
+outputs:
+  profile:
+    value: ${{ steps.plan.outputs.profile }}
+    description: full, marketing, or docs
+  static:
+    value: ${{ steps.plan.outputs.static }}
+    description: Run static application checks
+  unit:
+    value: ${{ steps.plan.outputs.unit }}
+    description: Run all database-backed unit shards
+  postgres:
+    value: ${{ steps.plan.outputs.postgres }}
+    description: Verify PostgreSQL 16 compatibility
+  marketing:
+    value: ${{ steps.plan.outputs.marketing }}
+    description: Run conventions and public-page unit tests without a database
+  pages:
+    value: ${{ steps.plan.outputs.pages }}
+    description: Crawl rendered public pages
+  build:
+    value: ${{ steps.plan.outputs.build }}
+    description: Prepare production builds
+  e2e:
+    value: ${{ steps.plan.outputs.e2e }}
+    description: Run the application browser matrix
+  modes:
+    value: ${{ steps.plan.outputs.modes }}
+    description: JSON build mode matrix
+  shards:
+    value: ${{ steps.plan.outputs.shards }}
+    description: JSON browser shard matrix
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: 24
+    - name: Verify the selector and failure gates
+      shell: bash
+      run: node --test .github/scripts/ci-plan.test.mjs
+    - id: plan
+      shell: bash
+      run: node .github/scripts/ci-plan.mjs

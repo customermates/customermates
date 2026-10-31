@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import {
   getDeactivateTrialUsersAndSendNoticeInteractor,
@@ -41,7 +41,7 @@ function concurrentSteps(): LifecycleStep[] {
         getSyncStaleWikiSectionsInteractor()
           .invoke()
           .catch((error: unknown) => {
-            Sentry.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
+            ErrorReporter.captureException(error, { tags: { kind: "wiki-section-cron-sync" } });
           }),
     ],
   ];

@@ -3,7 +3,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 import { getTranslations } from "next-intl/server";
 
 import { Resource } from "@/generated/prisma";
@@ -159,7 +159,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
           folderIds: moved.data.folderIds,
         });
       } catch (err) {
-        Sentry.captureException(err, {
+        ErrorReporter.captureException(err, {
           tags: {
             unipileAccountId: thread.unipileAccountId,
             companyId: thread.companyId,
@@ -170,7 +170,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
       }
 
       if (!applied && !localError) {
-        Sentry.captureMessage("Email moved at the provider but not locally; the webhook will reconcile it", {
+        ErrorReporter.captureMessage("Email moved at the provider but not locally; the webhook will reconcile it", {
           level: "warning",
           tags: { connectedAccountId: thread.connectedAccountId },
         });

@@ -7,7 +7,7 @@ import { localE2eEnvironment } from "./local-environment";
 import { DEMO_COMPANY_ID, DEMO_CONTENT, DEMO_MEMBERS, demoId, expect, test } from "./demo-seed";
 
 test("adds an optional choice field to the seeded team workspace model through REST and MCP", async ({
-  page,
+  request,
   database,
   errors,
 }) => {
@@ -49,10 +49,6 @@ test("adds an optional choice field to the seeded team workspace model through R
       },
     ],
   };
-  const preview = await page.request.post(`${baseUrl}/api/v1/model/preview`, { data: change });
-  expect(preview.ok(), await preview.text()).toBe(true);
-  expect(await preview.json()).toMatchObject({ valid: true, execution: "synchronous", affectedRecords: 0 });
-
   const owner = await database.query<{ id: string }>(
     'SELECT a.id FROM "AuthUser" a JOIN "User" u ON u.email=a.email WHERE u.id=$1 AND u."companyId"=$2',
     [DEMO_MEMBERS.maxBergmann.userId, DEMO_COMPANY_ID],
@@ -62,16 +58,20 @@ test("adds an optional choice field to the seeded team workspace model through R
     { authUserId: owner.rows[0].id, companyId: DEMO_COMPANY_ID },
     "Demo model field verification",
   );
+  const headers = { "x-api-key": credential.key };
+  const preview = await request.post(`${baseUrl}/api/v1/model/preview`, { data: change, headers });
+  expect(preview.ok(), await preview.text()).toBe(true);
+  expect(await preview.json()).toMatchObject({ valid: true, execution: "synchronous", affectedRecords: 0 });
   const client = new Client({ name: "demo-model-field-verification", version: "1.0.0" });
   const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
-    requestInit: { headers: { "x-api-key": credential.key } },
+    requestInit: { headers },
   });
   try {
     await client.connect(transport);
     const applied = await client.callTool({ name: "configure_record_model", arguments: { action: "apply", change } });
     expect(applied.isError).not.toBe(true);
     expect(applied.structuredContent).toMatchObject({ action: "apply", result: { status: "completed" } });
-    const replay = await page.request.post(`${baseUrl}/api/v1/model/apply`, { data: change });
+    const replay = await request.post(`${baseUrl}/api/v1/model/apply`, { data: change, headers });
     expect(replay.ok(), await replay.text()).toBe(true);
     expect(await replay.json()).toMatchObject({ status: "completed" });
     const fields = await database.query<{ label: string }>(

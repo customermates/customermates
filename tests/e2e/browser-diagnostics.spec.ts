@@ -77,6 +77,7 @@ test("an injected server error fails the test on every browser", async ({ page, 
   // The page is signed in, so a public page such as the sign-in would redirect away; the dashboard stays put.
   await page.goto(appPath(slug, "/dashboard"));
   await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
+  await page.waitForLoadState("networkidle");
   const status = await page.evaluate(async () => {
     const answer = await fetch("/api/v1/diagnostics-probe-error", { method: "POST", body: "{}" });
     return answer.status;

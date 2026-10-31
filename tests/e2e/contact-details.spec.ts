@@ -65,9 +65,11 @@ test("keeps an email address, a phone number and a social profile in contact det
   await drawer.getByRole("textbox", { name: "First name", exact: false }).fill("Ada");
   await drawer.getByRole("textbox", { name: "Last name", exact: false }).fill("Details");
   const add = drawer.getByRole("combobox", { name: "Add phone, email or profile", exact: true });
+  await add.fill("0621 123456");
+  await expect(page.getByRole("option", { name: 'Add "0621 123456" as Phone', exact: true })).toHaveCount(0);
   for (const [value, provider, group] of [
     ["Ada@Example.test", "Email", "email"],
-    ["0621 123456", "Phone", "phone"],
+    ["+49 621 123456", "Phone", "phone"],
     ["https://www.linkedin.com/in/ada-details", "LinkedIn", "social"],
   ] as const) {
     await add.fill(value);

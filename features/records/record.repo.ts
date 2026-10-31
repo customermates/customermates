@@ -99,7 +99,6 @@ export type StoredRecord = CrmRecord & {
 export type RecordActor = {
   id: string;
   status: string;
-  country?: string;
   role: {
     id: string;
     companyId: string;

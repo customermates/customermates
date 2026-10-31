@@ -186,8 +186,10 @@ test("the widget builder creates a map widget and an upcoming calendar widget", 
       const card = page.locator(`[data-widget-kind="${starter === "#widget-kind-map" ? "map" : "calendar"}"]`, {
         has: page.getByRole("heading", { name, exact: true }),
       });
-      await card.scrollIntoViewIfNeeded();
-      await expect(card).toBeVisible();
+      await expect(async () => {
+        await card.scrollIntoViewIfNeeded();
+        await expect(card).toBeVisible();
+      }).toPass({ timeout: 15000 });
     }
     const { rows } = await database.query<{ kind: string; timeZone: string | null }>(
       `SELECT kind::text AS kind, "calendarQuery"->>'timeZone' AS "timeZone" FROM "Widget"

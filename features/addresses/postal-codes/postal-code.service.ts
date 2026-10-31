@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 import type { AddressFormatSource } from "../address-country-format";
 import type { PostalCodePlace } from "../address-check";
@@ -95,7 +95,7 @@ export class PostalCodeService {
       try {
         if (await this.repo.claim(countryCode, this.version, state, this.now())) await this.dispatch(countryCode);
       } catch (error) {
-        Sentry.captureException(error, { tags: { kind: "postal-code-load-dispatch", countryCode } });
+        ErrorReporter.captureException(error, { tags: { kind: "postal-code-load-dispatch", countryCode } });
       } finally {
         this.cache.forget(countryCode);
         this.cache.claimSchedule(countryCode);

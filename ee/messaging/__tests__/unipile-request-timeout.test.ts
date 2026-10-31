@@ -1,7 +1,6 @@
 import type { AddressInfo } from "node:net";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-import { AsyncLocalStorage } from "node:async_hooks";
 import { createServer } from "node:http";
 import { setFlagsFromString } from "node:v8";
 import { runInNewContext } from "node:vm";
@@ -11,6 +10,11 @@ import { createClient, createConfig } from "@unipile/sdk/dist/client";
 import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+
+await vi.hoisted(async () => {
+  const { AsyncLocalStorage } = await import("node:async_hooks");
+  Object.assign(globalThis, { AsyncLocalStorage });
+});
 
 import { fetchWithTimeout, requestedTimeoutMs } from "../messaging.service";
 
@@ -62,7 +66,6 @@ let nextFetch: typeof fetch;
 let inRequestScope: <T>(run: () => Promise<T>) => Promise<T>;
 
 beforeAll(async () => {
-  Object.assign(globalThis, { AsyncLocalStorage });
   const { createPatchedFetcher } = await import("next/dist/server/lib/patch-fetch");
   const { workAsyncStorage } = await import("next/dist/server/app-render/work-async-storage.external");
   const { workUnitAsyncStorage } = await import("next/dist/server/app-render/work-unit-async-storage.external");

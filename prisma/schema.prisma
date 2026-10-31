@@ -177,7 +177,6 @@ model User {
   displayLanguage                 Locale                    @default(system)
   formattingLocale                Locale                    @default(system)
   theme                           Theme                     @default(system)
-  country                         CountryCode               @default(de)
   avatarUrl                       String?
   agreeToTerms                    Boolean                   @default(false)
   lastActiveAt                    DateTime?

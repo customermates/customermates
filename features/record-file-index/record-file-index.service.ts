@@ -2,7 +2,7 @@ import type { FileStorageDriver } from "@/core/storage/file-storage-driver";
 import type { RecordFileExtraction, RecordFileIndexCandidate, RecordFileIndexRepo } from "./record-file-index.repo";
 import type { RecordFileSemanticIndexer } from "./record-file-semantic-indexer";
 
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 import { readCappedStream } from "@/core/storage/read-capped-stream";
 
 import { recordFileChunks } from "./record-file-chunks";
@@ -72,7 +72,7 @@ export class RecordFileIndexService {
     try {
       return await this.extraction(file);
     } catch (error) {
-      Sentry.captureException(error, { tags: { kind: "record-file-index", fileId: file.id } });
+      ErrorReporter.captureException(error, { tags: { kind: "record-file-index", fileId: file.id } });
       return attempts < RECORD_FILE_INDEX_MAX_ATTEMPTS ? null : { status: "failed" };
     }
   }

@@ -78,7 +78,7 @@ async function stage(name, command, args, extra = {}) {
 const staticLane = async () => {
   if (!options.static) return;
   await Promise.all([
-    stage("generated files", "bash", ["-c", "yarn -s openapi:generate >/dev/null && yarn -s raw-docs:generate >/dev/null && git diff --exit-code --stat -- public generated content"], { env: { APP_MODE: "self-hosted" } }),
+    stage("generated files", "bash", ["-c", "yarn -s openapi:generate >/dev/null && yarn -s raw-docs:generate >/dev/null && yarn -s mcp:generate-card >/dev/null && git diff --exit-code --stat -- public generated content"], { env: { APP_MODE: "self-hosted" } }),
     stage("typecheck", "yarn", ["-s", "typecheck"]),
     stage("lint", "yarn", ["-s", "lint", "--cache", "--cache-location", ".runs/verify/.eslintcache", "--cache-strategy", "content"], { env: { NODE_OPTIONS: "--max-old-space-size=8192" } }),
     stage("i18n audit", "yarn", ["-s", "i18n:audit"], { env: { APP_MODE: "self-hosted" } }),

@@ -5,7 +5,7 @@ import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import * as Sentry from "@sentry/node";
+import * as ErrorReporter from "@/core/observability/server";
 
 import { Resource, MessagingThreadType } from "@/generated/prisma";
 
@@ -20,7 +20,7 @@ import { mapParticipantRecord, normalizeChatMessage } from "../chat-normalize";
 import { buildEmailMessage } from "../unipile.mappers";
 import { UnipileMessageSchema, UnipileEmailSchema } from "../unipile.schema";
 import { isEmailProvider } from "../provider";
-import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
+import { isUnipileRateLimit, isUnipileTransientError, getRetryAfterSeconds } from "../messaging.service";
 import { retryAfterPhrase } from "../retry-after.server";
 import type { ResyncThread, ResyncThreadRepo } from "./resync-thread.repo";
 import { synchronizeInboundAvatar, type ProviderAvatars } from "../ingest/inbound-avatar";
@@ -68,7 +68,8 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       const rateLimited = isUnipileRateLimit(err);
 
       if (!rateLimited) {
-        Sentry.captureException(err, {
+        ErrorReporter.captureException(err, {
+          level: isUnipileTransientError(err) ? "warning" : "error",
           tags: {
             unipileAccountId: thread.unipileAccountId,
             companyId: thread.companyId,
@@ -109,7 +110,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         },
       });
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: thread.unipileAccountId,
           companyId: thread.companyId,
@@ -239,7 +240,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
       return true;
     } catch (err) {
-      Sentry.captureException(err, {
+      ErrorReporter.captureException(err, {
         tags: {
           unipileAccountId: thread.unipileAccountId,
           companyId: thread.companyId,

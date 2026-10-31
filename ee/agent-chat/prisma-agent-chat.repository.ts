@@ -17,6 +17,7 @@ import {
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 
@@ -2813,30 +2814,31 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     now: Date;
   }): Promise<void> {
     const { grant, charge, now } = args;
-    await this.withCompanyTransaction(grant.companyId, async () => {
-      const held = await this.prisma.agentUsageEvent.deleteMany({
-        where: {
-          id: args.reservationId,
-          companyId: grant.companyId,
-          userId: grant.userId,
-          purpose: grant.purpose,
-          state: "reserved",
-          reservedMicrocents: args.reservedMicrocents,
-        },
-      });
-      if (held.count !== 1) throw new Error("Retrieval credit reservation could not be settled.");
-      if (!charge) return;
-      if (args.payer === "platform") {
-        await this.accruePlatformUsageUnscoped({
-          purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE,
-          charge,
-          now,
+    await runInTransaction(
+      async () => {
+        const held = await this.prisma.agentUsageEvent.deleteMany({
+          where: {
+            id: args.reservationId,
+            companyId: grant.companyId,
+            userId: grant.userId,
+            purpose: grant.purpose,
+            state: "reserved",
+            reservedMicrocents: args.reservedMicrocents,
+          },
         });
-        return;
-      }
+        if (held.count !== 1) throw new Error("Retrieval credit reservation could not be settled.");
+        if (!charge) return;
+        if (args.payer === "platform") {
+          await this.accruePlatformUsageUnscoped({
+            purpose: AGENT_RETRIEVAL_PLATFORM_PURPOSE,
+            charge,
+            now,
+          });
+          return;
+        }
 
-      const chargedMicrocents = Math.min(charge.costMicrocents, args.reservedMicrocents);
-      await this.prisma.$executeRaw`
+        const chargedMicrocents = Math.min(charge.costMicrocents, args.reservedMicrocents);
+        await this.prisma.$executeRaw`
         INSERT INTO "AgentUsageEvent" (
           "id", "companyId", "userId", "state", "model", "inputTokens", "costMicrocents", "costSource",
           "reservedMicrocents", "chargedMicrocents", "planSnapshot",
@@ -2863,7 +2865,9 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
           END,
           "settledAt" = EXCLUDED."settledAt"
       `;
-    });
+      },
+      { companyId: grant.companyId, lockCompany: false },
+    );
   }
 
   @BypassTenantGuard

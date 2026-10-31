@@ -1291,6 +1291,7 @@
       "webhookBodyTemplateInvalid": "Die Body-Vorlage muss ein gültiges JSON-Objekt ergeben.",
       "webhookDeliveryInProgress": "Diese Zustellung wird noch gesendet. Sende sie erneut, sobald sie erfolgreich war oder fehlgeschlagen ist.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
+      "webhookDestinationNotAllowed": "Dieses Ziel ist nicht erlaubt. Verwende eine öffentliche Adresse.",
       "webhookDisabled": "Dieser Webhook ist ausgeschaltet oder abonniert dieses Ereignis nicht mehr. Schalte ihn ein oder abonniere das Ereignis und sende dann erneut.",
       "webhookEndpointInvalid": "Gib eine HTTP- oder HTTPS-Webhook-URL mit gültigem Host und ohne Benutzername oder Passwort ein.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
@@ -2477,35 +2478,37 @@
     }
   },
   "ErrorCard": {
-    "contactSupport": "Keine Sorge, wir wurden automatisch über dieses Problem benachrichtigt und kümmern uns bereits darum. Wenn du sofortige Hilfe benötigst, kannst du dich gerne an unser Support-Team wenden.",
+    "contactSupport": "Bitte versuche es erneut. Wenn das Problem bleibt, wende dich an den Support.",
     "ctaLabel": "Zurück zur Startseite",
     "demoModeError": "Speichern, Löschen und Ändern von Daten ist im Demo-Modus nicht verfügbar. <link>Jetzt kostenlos starten</link>, um auf alle Funktionen zuzugreifen.",
     "invalidInviteLink": "Der Einladungslink, den du verwendet hast, ist ungültig oder wurde möglicherweise manipuliert. Kontaktiere deinen Administrator, um einen neuen, gültigen Einladungslink zu erhalten und deine Registrierung fortzusetzen.",
     "invalidOnboardingIntent": "Dieser Onboarding-Link ist ungültig. Kehre zum Onboarding zurück oder öffne den ursprünglichen Einladungslink erneut.",
     "inviteLinkExpired": "Der Einladungslink, den du verwendet hast, ist abgelaufen und kann nicht mehr verwendet werden. Kontaktiere deinen Administrator und bitte ihn, einen neuen Einladungslink für dich zu erstellen, damit du deine Kontoeinrichtung abschließen kannst.",
+    "newVersion": "Eine neue Version von Customermates ist verfügbar. Lade die Seite neu und versuche es dann erneut.",
     "onboardingSessionExpired": "Diese Onboarding-Sitzung ist abgelaufen. Öffne den ursprünglichen Einladungslink erneut oder wähle noch einmal aus, wie du starten möchtest.",
+    "reload": "Neu laden",
     "retry": "Erneut versuchen",
     "subtitle": "Ups! Etwas ist schiefgelaufen",
     "title": "Das ist jetzt peinlich",
     "transportInterrupted": "Die Verbindung wurde unterbrochen. Die Änderung wurde möglicherweise bereits übernommen. Prüfe den aktuellen Stand, bevor du es erneut versuchst.",
-    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Aber keine Sorge, wir wurden benachrichtigt und kümmern uns darum!"
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
   },
   "ErrorTestPage": {
     "clientSideErrors": {
-      "description": "Nicht abgefangene Ausnahmen im Browser-Code. Im Dev-Modus fängt das Next.js-Error-Overlay sie ab; in Produktion landen sie via globalem Handler des Browser-SDK in Sentry und im UnexpectedErrorToaster.",
+      "description": "Nicht abgefangene Browserfehler werden mit Stack und Route erfasst.",
       "title": "Client-seitig",
       "triggerClientError": "Unbehandelten Client-Fehler werfen"
     },
     "serverSideError": {
-      "description": "Server-Action wirft einen Fehler → wird von onRequestError in instrumentation.ts abgefangen → an Sentry gemeldet.",
+      "description": "Serverfehler werden mit Stack, Route und authentifiziertem Workspace-Kontext erfasst.",
       "title": "Server-Action",
       "triggerServerError": "Server-Action-Fehler werfen"
     },
     "subtitle": "Absichtlich Dinge kaputt machen, für die Wissenschaft!",
     "title": "Fehlertest",
     "workflowError": {
-      "description": "Stößt einen Hintergrund-Workflow an, der in einem Step einen Fehler wirft. Der catch des Workflows → reportFailure → Sentry. Im Dev-Modus erfolgt die Ausgabe stattdessen in der Server-Konsole.",
-      "dispatched": "Workflow ausgelöst. Der Fehler wird an Sentry gemeldet (im Dev-Modus an die Server-Konsole).",
+      "description": "Startet einen Hintergrund-Workflow, der in einem Schritt einen Fehler auslöst. Der Fehler wird in Produktion erfasst und in der Entwicklung protokolliert.",
+      "dispatched": "Workflow gestartet. Der Fehler wird von der Fehlererfassung oder im Entwicklungsserver-Log erfasst.",
       "title": "Workflow (Hintergrundjob)",
       "triggerWorkflowError": "Fehlerhaften Workflow auslösen"
     }
@@ -2550,6 +2553,7 @@
     "helpAndFeedback": "Hilfe",
     "imprint": "Impressum",
     "legal": "Hilfe & Rechtliches",
+    "listedOnPlatform": "Bekannt von {platform}",
     "privacy": "Datenschutz",
     "privacyChoices": "Datenschutzauswahl",
     "product": "Produkt",

@@ -19,7 +19,7 @@ import { RecordJournal } from "./record-journal";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { recordRequestHash } from "./record-request-hash";
 import type { RecordIdentityInput } from "./record-identity.schema";
-import * as Sentry from "@sentry/nextjs";
+import * as ErrorReporter from "@/core/observability/server";
 
 @TenantInteractor()
 export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecordInput, RecordOperationResult> {
@@ -98,7 +98,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
       (input.mutation.action === "create" || input.mutation.action === "update") && input.mutation.identities;
     if (result.ok && result.data.status === "completed" && identities && identities.length && this.identitiesSaved) {
       await this.identitiesSaved(this.companyId, identities).catch((error: unknown) => {
-        Sentry.captureException(error, { tags: { kind: "known-avatar", companyId: this.companyId } });
+        ErrorReporter.captureException(error, { tags: { kind: "known-avatar", companyId: this.companyId } });
       });
     }
     if (

@@ -158,6 +158,13 @@ describeDatabase("registration against a real database", () => {
     expect(await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: user.id } }))).not.toHaveProperty(
       "country",
     );
+    const repo = new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo());
+    const membership = await repo.findMembershipUnscoped(email, companyId);
+    expect(membership).toMatchObject({ id: user.id, companyId });
+    expect(membership).not.toHaveProperty("country");
+    const actor = await repo.findRecordActorUnscoped(companyId, user.id);
+    expect(actor).toMatchObject({ id: user.id, status: "active", role: { companyId } });
+    expect(actor).not.toHaveProperty("country");
   });
 
   it("stores one attribution row per provider transactionally and deletes them at each provider's expiry", async () => {

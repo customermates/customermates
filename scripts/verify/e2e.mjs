@@ -78,11 +78,14 @@ function specFiles() {
     .sort();
 }
 
+const scheduledDurations = durations();
+const scheduledSpecs = specFiles();
+
 /** The files of one shard, or null for Playwright's own --shard when the caller filters specs or no timings exist. */
 function shardFiles(target, shard) {
-  const known = durations()[target] ?? durations()["cloud-chromium"];
+  const known = scheduledDurations[target] ?? scheduledDurations["cloud-chromium"];
   if (playwrightArgs.length > 0 || !known) return null;
-  return assignShards(specFiles(), shardsPerTarget, known)[shard - 1].map((file) => `tests/e2e/${file}`);
+  return assignShards(scheduledSpecs, shardsPerTarget, known)[shard - 1].map((file) => `tests/e2e/${file}`);
 }
 
 function log(message) {
@@ -117,7 +120,7 @@ async function runOffloaded() {
       `export CRM_VERIFY_ENV_TEMPLATE_B64=${readFileSync(resolve(REPO_ROOT, ".env.cloud.template")).toString("base64")}`,
       'stamp="$(sha256sum yarn.lock | cut -c1-16)"',
       'if [ ! -f node_modules/.verify-lock ] || [ "$(cat node_modules/.verify-lock)" != "$stamp" ]; then DATABASE_URL=postgresql://localhost/unused yarn install --frozen-lockfile --prefer-offline >/dev/null && echo "$stamp" > node_modules/.verify-lock; fi',
-      `node scripts/verify/e2e.mjs --remote --targets ${offloaded.join(",")} --run-id ${remoteRunId} --retries ${options.retries} --workers ${options.workers}${options.shards ? ` --shards ${options.shards}` : ""}${options.rebuild ? " --rebuild" : ""} ${playwrightArgs.length ? `-- ${playwrightArgs.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")}` : ""}`,
+      `node scripts/verify/e2e.mjs --remote --targets ${offloaded.join(",")} --run-id ${remoteRunId} --retries ${options.retries} --workers ${options.workers}${options.parallel ? ` --parallel ${parallel}` : ""}${options.shards ? ` --shards ${options.shards}` : ""}${options.rebuild ? " --rebuild" : ""} ${playwrightArgs.length ? `-- ${playwrightArgs.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")}` : ""}`,
     ].join("\n"),
   ];
   const result = await run("workspace", args, { log: resolve(directory, "offload.log"), echo: true, prefix: "  [ws-test] " });

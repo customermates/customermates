@@ -8,9 +8,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const captureException = vi.hoisted(() => vi.fn());
 const warning = vi.hoisted(() => vi.fn());
+const info = vi.hoisted(() => vi.fn());
 
-vi.mock("@sentry/nextjs", () => ({ captureException }));
-vi.mock("sonner", () => ({ toast: { error: vi.fn(), warning } }));
+vi.mock("@/core/observability/browser", () => ({ captureException }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), warning, info } }));
 vi.mock("next-intl", () => ({
   useTranslations: () =>
     Object.assign((key: string) => key, {
@@ -100,6 +101,26 @@ describe("UnexpectedErrorToaster demo warning", () => {
     const options = { action: { label: "Retry", onClick: vi.fn() } };
     reportApplicationError(new TypeError("Failed to fetch"), options);
     expect(warning).toHaveBeenCalledExactlyOnceWith("ErrorCard.transportInterrupted", options);
+    expect(captureException).not.toHaveBeenCalled();
+  });
+
+  it("offers a reload instead of an error when the deployment changed, without reloading", () => {
+    container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    act(() => root?.render(createElement(UnexpectedErrorToaster)));
+    const reload = vi.fn();
+    Object.defineProperty(window, "location", { configurable: true, value: { ...originalLocation, reload } });
+    reportApplicationError(
+      Object.assign(new Error('Server Action "40b4" was not found on the server.'), {
+        name: "UnrecognizedActionError",
+      }),
+    );
+    expect(info).toHaveBeenCalledOnce();
+    expect(info.mock.calls[0]?.[0]).toBe("ErrorCard.newVersion");
+    expect(reload).not.toHaveBeenCalled();
+    (info.mock.calls[0]?.[1] as { action: { onClick: () => void } }).action.onClick();
+    expect(reload).toHaveBeenCalledOnce();
     expect(captureException).not.toHaveBeenCalled();
   });
 });

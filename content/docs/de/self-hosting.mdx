@@ -69,6 +69,7 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `APP_PORT`: der Host-Port, unter dem die App veröffentlicht wird, standardmäßig `4000`.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: E-Mail-Versand; `RESEND_API_KEY` darf nicht leer sein. Siehe [Wie richte ich E-Mail mit Resend ein?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: optional; `true` sperrt Webhook-Anfragen an private, Loopback- und Link-Local-Adressen. Standardmäßig sind private Ziele erlaubt, damit Webhooks Dienste im eigenen Netzwerk erreichen. Akzeptiert nur `true` oder `false`.
 - `CRON_SECRET`: optional und in der Vorlage auskommentiert; das Secret für die geplanten Wartungsaufrufe, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL`: optional und in der Vorlage auskommentiert; schaltet die Adresssuche über einen selbst betriebenen Photon-Dienst ein, siehe [Wie werden Adressen geprüft, und wie schalte ich die Adresssuche ein?](#address-lookup).
