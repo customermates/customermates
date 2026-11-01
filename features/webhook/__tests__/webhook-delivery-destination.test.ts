@@ -18,6 +18,7 @@ const state = vi.hoisted(() => ({
   lookup: vi.fn(),
   fakeHttp: null as null | ((options: RequestOptions) => void),
   fakeHttps: null as null | ((options: RequestOptions) => void),
+  fakeResponse: { statusCode: 200, statusMessage: "OK", headers: {} as Record<string, string> },
 }));
 
 vi.mock("@/env", () => ({ env: state.env }));
@@ -29,8 +30,7 @@ function fakeRequest(capture: (options: RequestOptions) => void) {
     const request = new EventEmitter() as EventEmitter & { end: (body: string) => void };
     request.end = () => {
       const response = Object.assign(new EventEmitter(), {
-        statusCode: 200,
-        statusMessage: "OK",
+        ...state.fakeResponse,
         resume: () => undefined,
         destroy: () => undefined,
       });
@@ -127,6 +127,7 @@ beforeEach(() => {
   state.env.WEBHOOK_BLOCK_PRIVATE_DESTINATIONS = false;
   state.fakeHttp = null;
   state.fakeHttps = null;
+  state.fakeResponse = { statusCode: 200, statusMessage: "OK", headers: {} };
   state.lookup.mockReset();
 });
 
@@ -157,6 +158,24 @@ describe("webhook delivery destinations in cloud mode", () => {
       expect(state.fakeHttp).not.toHaveBeenCalled();
     },
   );
+
+  it.each([
+    { address: "127.0.0.1", family: 4 },
+    { address: "10.0.0.5", family: 4 },
+    { address: "169.254.169.254", family: 4 },
+    { address: "::1", family: 6 },
+    { address: "fd00::1", family: 6 },
+    { address: "64:ff9b::7f00:1", family: 6 },
+  ])("refuses a hostname that resolves to the private or loopback address $address", async (record) => {
+    state.lookup.mockResolvedValueOnce([record]);
+    state.fakeHttp = vi.fn();
+
+    const outcome = await deliver(`http://internal.example.com:${port}/hook`);
+
+    expect(outcome).toEqual({ success: false, statusCode: 422, responseMessage: "Destination not allowed" });
+    expect(state.fakeHttp).not.toHaveBeenCalled();
+    expect(received).toHaveLength(0);
+  });
 
   it("refuses a hostname whose records mix public and private addresses", async () => {
     state.lookup.mockResolvedValueOnce([
@@ -261,6 +280,24 @@ describe("webhook delivery destinations in cloud mode", () => {
 
     expect(outcome.success).toBe(true);
     expect(received).toEqual([{ url: "/pinned", host: `hooks.customermates.test:${port}`, userAgent: "node" }]);
+  });
+
+  it("refuses a public endpoint that redirects to a loopback address", async () => {
+    state.lookup.mockResolvedValueOnce([{ address: "93.184.216.34", family: 4 }]);
+    state.fakeResponse = {
+      statusCode: 302,
+      statusMessage: "Found",
+      headers: { location: `http://127.0.0.1:${port}/landing` },
+    };
+    const captured: RequestOptions[] = [];
+    state.fakeHttp = (options) => captured.push(options);
+
+    const outcome = await deliver("http://redirector.example.com/hook");
+
+    expect(outcome).toEqual({ success: false, statusCode: 302, responseMessage: "Redirect not followed" });
+    expect(captured).toHaveLength(1);
+    expect(state.lookup).toHaveBeenCalledTimes(1);
+    expect(received).toHaveLength(0);
   });
 
   it("does not follow a redirect, even to an allowed address", async () => {
