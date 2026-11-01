@@ -64,6 +64,7 @@ export class GetSocialProfileInteractor extends AuthenticatedInteractor<GetSocia
       accountId: account.unipileAccountId,
       identifier: data.identifier,
       profileType: data.profileType,
+      provider: account.provider,
     });
     if (!res.ok) return fail(res.error, [], { retryAfter: await retryAfterPhrase(res.retryAfterSeconds) });
 

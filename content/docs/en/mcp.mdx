@@ -534,7 +534,7 @@ Engagement on a post: kind=comments (default) lists comments, kind=reactions lis
 
 #### `get_social_profile`
 
-A person or company profile. For a person, use `profileType=person` with `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, a LinkedIn Classic public profile slug, or an Instagram username. For a LinkedIn company, use `profileType=company` with `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id`, or `get_social_profile.current_positions[].company_id`. Reuse `get_social_profile.id` with the same `profileType`.
+A person or company profile. For a person, use `profileType=person` with `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, a LinkedIn Classic public profile slug, or an Instagram username. For a LinkedIn company, use `profileType=company` with `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id`, or `get_social_profile.current_positions[].company_id`. Reuse `get_social_profile.id` with the same `profileType`. With `identifier=me` and `profileType=company` it lists the company pages the account administers (`items[].id`, `name`, `messaging_enabled`); such an id is the `postAs` of `publish_social_post` and the `commentAs` of `comment_on_social_post`.
 
 **Read-only.** Required: `connectedAccountId`, `identifier`. Optional: `profileType`.
 
@@ -546,9 +546,15 @@ Required: `action`, `connectedAccountId`. Optional: `identifier`, `message`, `in
 
 #### `publish_social_post`
 
-Publishes a real post from a connected LinkedIn or Instagram account, optionally with files from a record's file field (several images form a carousel, otherwise one video or document, together at most 25 MB) and a first comment posted right after. `visibility=relations_only` limits a LinkedIn post to the account's connections. Returns the post `id` (usable as `get_social_posts` `postId`), `share_url`, `created_at` and `comment_id`; when the first comment fails, the post stays published and `comment_error` names the reason. With an `idempotencyKey`, repeating the identical call returns the first result with `repeated: true`.
+Publishes a real post from a connected LinkedIn or Instagram account, optionally with files from a record's file field (several images form a carousel, otherwise one video or document, together at most 25 MB) and a first comment posted right after. `visibility=relations_only` limits a LinkedIn post to the account's connections. Returns the post `id` (usable as `get_social_posts` `postId`), `share_url`, `created_at` and `comment_id`; when the first comment fails, the post stays published and `comment_error` names the reason. With an `idempotencyKey`, repeating the identical call returns the first result with `repeated: true`. On LinkedIn, `postAs` publishes as a company page the account administers (the first comment is posted as the page too), and `quotedPostId` reposts that post: empty text is a plain repost, text makes it a quote repost.
 
-Required: `connectedAccountId`, `text`. Optional: `fileIds`, `visibility`, `firstComment`, `idempotencyKey`.
+Required: `connectedAccountId`, `text`. Optional: `fileIds`, `visibility`, `firstComment`, `postAs`, `quotedPostId`, `idempotencyKey`.
+
+#### `comment_on_social_post`
+
+Posts a real comment on a LinkedIn or Instagram post from a connected account, or with `replyToCommentId` a reply to a comment on that post. On LinkedIn, `commentAs` comments as a company page the account administers. Returns the comment `id`. With an `idempotencyKey`, repeating the identical call returns the first result with `repeated: true`.
+
+Required: `connectedAccountId`, `postId`, `text`. Optional: `replyToCommentId`, `commentAs`, `idempotencyKey`.
 
 #### `linkedin_search_sales_leads`
 

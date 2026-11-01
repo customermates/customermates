@@ -114,6 +114,8 @@ const AGENT_CONSEQUENCE_ACTIONS = [
   "social.accept",
   "social.cancel",
   "social.publish",
+  "social.repost",
+  "social.comment",
   "salesList.save",
   "external.manage",
 ] as const;
@@ -498,7 +500,13 @@ function describeAgentToolAction(
   }
   if (toolName === "publish_social_post") {
     return descriptor("generic", undefined, "sensitive", [], {
-      action: "social.publish",
+      action: details.quotedPostId ? "social.repost" : "social.publish",
+      preview: safeText(details.text, 240),
+    });
+  }
+  if (toolName === "comment_on_social_post") {
+    return descriptor("generic", undefined, "sensitive", [], {
+      action: "social.comment",
       preview: safeText(details.text, 240),
     });
   }
@@ -713,6 +721,10 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
         : t("AgentChat.activity.consequence.socialCancel");
     case "social.publish":
       return compact([t("AgentChat.activity.consequence.socialPublish"), preview]);
+    case "social.repost":
+      return compact([t("AgentChat.activity.consequence.socialRepost"), preview]);
+    case "social.comment":
+      return compact([t("AgentChat.activity.consequence.socialComment"), preview]);
     case "salesList.save":
       return consequence.target && consequence.state
         ? t("AgentChat.activity.consequence.salesListSaveTarget", {

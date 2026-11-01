@@ -1,4 +1,3 @@
-import type { MessagingProvider } from "@/generated/prisma";
 import type { CreateAuthLinkData } from "@unipile/sdk";
 import type { UnipileAccount, UnipileAttachment } from "./unipile.schema";
 import type {
@@ -7,6 +6,7 @@ import type {
   SocialCommentList,
   SocialReactionList,
   SocialProfile,
+  LinkedinCompanyPageList,
   RelationRequestList,
   RelationRequestResult,
 } from "./posts/social-posts.schema";
@@ -39,6 +39,8 @@ import * as ErrorReporter from "@/core/observability/server";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
+import { MessagingProvider } from "@/generated/prisma";
+
 import { env } from "@/env";
 import { isEmailProvider } from "./provider";
 import { UnipileAccountSchema, UnipileAttachmentSchema, UnipileUserSchema } from "./unipile.schema";
@@ -49,6 +51,7 @@ import {
   SocialReactionListSchema,
   SocialProfileSchema,
   LinkedinCompanyProfileSchema,
+  LinkedinCompanyPageListSchema,
   RelationRequestListSchema,
   RelationRequestResultSchema,
 } from "./posts/social-posts.schema";
@@ -65,6 +68,7 @@ const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
 const OUTBOUND_SEND_TIMEOUT_MS = 90_000;
 const UNIPILE_TIMEOUT_HEADER = "x-customermates-timeout-ms";
+const LINKEDIN_PROFILE_SECTIONS = ["linkedin_experience"] as const;
 
 type MessageFile = { filename: string; content_type: string; content: string };
 
@@ -686,7 +690,7 @@ export class MessagingService {
           displayName: displayName || null,
           profileUrl: profile.profile_url ?? null,
           pictureUrl: profile.public_picture_url ?? null,
-          headline: profile.specifics?.headline ?? null,
+          headline: profile.specifics?.headline ?? profile.description ?? null,
         },
       };
     } catch (err) {
@@ -1038,6 +1042,8 @@ export class MessagingService {
     text: string;
     attachments?: MessageFile[];
     canRead?: "anyone" | "relations_only";
+    postAs?: string;
+    quotedPostId?: string;
   }): Promise<MessagingSendResult<SocialPost>> {
     try {
       const raw = await requestData(
@@ -1047,6 +1053,8 @@ export class MessagingService {
             text: input.text,
             ...(input.attachments ? { attachments: input.attachments } : {}),
             ...(input.canRead ? { can_read: input.canRead } : {}),
+            ...(input.postAs ? { post_as: input.postAs } : {}),
+            ...(input.quotedPostId ? { quoted_post_id: input.quotedPostId } : {}),
           },
           headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
           ...multipartOptions(input.attachments),
@@ -1063,14 +1071,24 @@ export class MessagingService {
     accountId: string;
     postId: string;
     text: string;
+    replyToCommentId?: string;
+    commentAs?: string;
   }): Promise<MessagingSendResult<{ id: string }>> {
     try {
+      const body = { text: input.text, ...(input.commentAs ? { comment_as: input.commentAs } : {}) };
+      const headers = { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) };
       const raw = await requestData(
-        this.sdk.posts.addPostComment({
-          path: { account_id: input.accountId, post_id: input.postId },
-          body: { text: input.text },
-          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-        }),
+        input.replyToCommentId
+          ? this.sdk.posts.replyToComment({
+              path: { account_id: input.accountId, post_id: input.postId, comment_id: input.replyToCommentId },
+              body,
+              headers,
+            })
+          : this.sdk.posts.addPostComment({
+              path: { account_id: input.accountId, post_id: input.postId },
+              body,
+              headers,
+            }),
       );
       const data = z.looseObject({ id: z.string().min(1) }).parse(raw);
 
@@ -1154,10 +1172,23 @@ export class MessagingService {
     }
   }
 
+  async listManagedCompanyPages(input: { accountId: string }): Promise<MessagingSendResult<LinkedinCompanyPageList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.getManagedCompanyPages({ path: { account_id: input.accountId } }),
+      );
+
+      return { ok: true, data: LinkedinCompanyPageListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
   async getSocialProfile(input: {
     accountId: string;
     identifier: string;
     profileType?: "person" | "company";
+    provider?: MessagingProvider;
   }): Promise<MessagingSendResult<SocialProfile>> {
     try {
       const data =
@@ -1171,7 +1202,13 @@ export class MessagingService {
             )
           : SocialProfileSchema.parse(
               await requestData(
-                this.sdk.users.getUserProfile({ path: { account_id: input.accountId, user_id: input.identifier } }),
+                this.sdk.users.getUserProfile({
+                  path: { account_id: input.accountId, user_id: input.identifier },
+                  query:
+                    input.provider === MessagingProvider.linkedin
+                      ? { with_sections: [...LINKEDIN_PROFILE_SECTIONS] }
+                      : undefined,
+                }),
               ),
             );
 

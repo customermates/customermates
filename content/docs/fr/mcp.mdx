@@ -534,7 +534,7 @@ Engagement sur une publication : kind=comments (par défaut) liste les commenta
 
 #### `get_social_profile`
 
-Un profil de personne ou d’entreprise. Pour une personne, utiliser `profileType=person` avec `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, un slug de profil public LinkedIn Classic ou un nom d’utilisateur Instagram. Pour une entreprise LinkedIn, utiliser `profileType=company` avec `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` ou `get_social_profile.current_positions[].company_id`. Réutiliser `get_social_profile.id` avec le même `profileType`.
+Un profil de personne ou d’entreprise. Pour une personne, utiliser `profileType=person` avec `me`, `get_messaging_threads.items[].participants[].identifier`, `get_messaging_threads.thread.participants[].identifier`, `get_social_posts.items[].author.id`, `get_social_posts.author.id`, `get_social_post_engagement.items[].author.id`, `get_social_post_engagement.items[].sender.id`, `manage_social_relations.items[].user.id`, un slug de profil public LinkedIn Classic ou un nom d’utilisateur Instagram. Pour une entreprise LinkedIn, utiliser `profileType=company` avec `linkedin_search_sales_companies.items[].id`, `linkedin_search_sales_leads.items[].current_positions[].company_id`, `linkedin_manage_sales_lists.items[].current_positions[].company_id` ou `get_social_profile.current_positions[].company_id`. Réutiliser `get_social_profile.id` avec le même `profileType`. Avec `identifier=me` et `profileType=company`, il liste les pages entreprise que le compte administre (`items[].id`, `name`, `messaging_enabled`) ; un tel identifiant est le `postAs` de `publish_social_post` et le `commentAs` de `comment_on_social_post`.
 
 **Lecture seule.** Obligatoire : `connectedAccountId`, `identifier`. Facultatif : `profileType`.
 
@@ -546,9 +546,15 @@ Obligatoire : `action`, `connectedAccountId`. Facultatif : `identifier`, `mess
 
 #### `publish_social_post`
 
-Publie une vraie publication depuis un compte LinkedIn ou Instagram connecté, éventuellement avec des fichiers d’un champ Fichier d’un enregistrement (plusieurs images forment un carrousel, sinon une seule vidéo ou un seul document, 25 Mo au plus au total) et un premier commentaire publié juste après. `visibility=relations_only` limite une publication LinkedIn aux relations du compte. Renvoie l’`id` de la publication (utilisable comme `postId` de `get_social_posts`), `share_url`, `created_at` et `comment_id` ; quand le premier commentaire échoue, la publication reste en ligne et `comment_error` en indique la raison. Avec une `idempotencyKey`, répéter l’appel identique renvoie le premier résultat avec `repeated: true`.
+Publie une vraie publication depuis un compte LinkedIn ou Instagram connecté, éventuellement avec des fichiers d’un champ Fichier d’un enregistrement (plusieurs images forment un carrousel, sinon une seule vidéo ou un seul document, 25 Mo au plus au total) et un premier commentaire publié juste après. `visibility=relations_only` limite une publication LinkedIn aux relations du compte. Renvoie l’`id` de la publication (utilisable comme `postId` de `get_social_posts`), `share_url`, `created_at` et `comment_id` ; quand le premier commentaire échoue, la publication reste en ligne et `comment_error` en indique la raison. Avec une `idempotencyKey`, répéter l’appel identique renvoie le premier résultat avec `repeated: true`. Sur LinkedIn, `postAs` publie au nom d’une page entreprise que le compte administre (le premier commentaire aussi), et `quotedPostId` republie cette publication : sans texte, c’est un simple repost, avec texte, un repost avec commentaire.
 
-Obligatoire : `connectedAccountId`, `text`. Facultatif : `fileIds`, `visibility`, `firstComment`, `idempotencyKey`.
+Obligatoire : `connectedAccountId`, `text`. Facultatif : `fileIds`, `visibility`, `firstComment`, `postAs`, `quotedPostId`, `idempotencyKey`.
+
+#### `comment_on_social_post`
+
+Publie un vrai commentaire sous une publication LinkedIn ou Instagram depuis un compte connecté, ou avec `replyToCommentId` une réponse à un commentaire de cette publication. Sur LinkedIn, `commentAs` commente au nom d’une page entreprise que le compte administre. Renvoie l’`id` du commentaire. Avec une `idempotencyKey`, répéter l’appel identique renvoie le premier résultat avec `repeated: true`.
+
+Obligatoire : `connectedAccountId`, `postId`, `text`. Facultatif : `replyToCommentId`, `commentAs`, `idempotencyKey`.
 
 #### `linkedin_search_sales_leads`
 

@@ -124,6 +124,53 @@ describe("social profile identifier routing", () => {
     },
   );
 
+  it("requests the experience section for a LinkedIn person so current positions are returned", async () => {
+    stubFetch({ object: "UserProfile", id: "ACoAAResult", display_name: "Ada Lovelace" });
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "ada", provider: "linkedin" });
+
+    expect(firstRequestUrl().searchParams.getAll("with_sections")).toEqual(["linkedin_experience"]);
+  });
+
+  it("requests no LinkedIn sections for an Instagram profile", async () => {
+    stubFetch({ object: "UserProfile", id: "17841400000000000", display_name: "Ada" });
+
+    await new MessagingService().getSocialProfile({ accountId: "acc_1", identifier: "ada", provider: "instagram" });
+
+    expect(firstRequestUrl().searchParams.has("with_sections")).toBe(false);
+  });
+
+  it("keeps the v2 top-level profile fields when parsing a person profile", async () => {
+    stubFetch({
+      object: "UserProfile",
+      id: "ACoAAResult",
+      display_name: "Ada Lovelace",
+      description: "Engineer at Analytical Engines",
+      location: "London, United Kingdom",
+      followers_count: 42,
+      specifics: {
+        network_distance: "SECOND_DEGREE",
+        experience: [{ company: { id: "1", name: "Analytical Engines" }, job_title: "Engineer" }],
+      },
+    });
+
+    const result = await new MessagingService().getSocialProfile({
+      accountId: "acc_1",
+      identifier: "ada",
+      provider: "linkedin",
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      data: {
+        description: "Engineer at Analytical Engines",
+        location: "London, United Kingdom",
+        followers_count: 42,
+        specifics: { experience: [{ company: { name: "Analytical Engines" }, job_title: "Engineer" }] },
+      },
+    });
+  });
+
   it("uses the dedicated LinkedIn company route and normalizes its response", async () => {
     stubFetch({
       object: "CompanyProfile",
@@ -754,5 +801,45 @@ describe("createPost and addPostComment", () => {
     const { url, body } = sent();
     expect(url.pathname).toBe("/v2/acc_1/posts/post_1/comments");
     expect(JSON.parse(body)).toEqual({ text: "Link" });
+  });
+
+  it("sends a company page and quoted post with the publish", async () => {
+    stubFetch({ object: "Post", id: "post_2" }, 201);
+
+    await new MessagingService().createPost({
+      accountId: "acc_1",
+      text: "",
+      postAs: "company_1",
+      quotedPostId: "post_1",
+    });
+
+    expect(JSON.parse(sent().body)).toEqual({ text: "", post_as: "company_1", quoted_post_id: "post_1" });
+  });
+
+  it("replies to a comment as a company page", async () => {
+    stubFetch({ object: "Comment", id: "comment_2" }, 201);
+
+    const result = await new MessagingService().addPostComment({
+      accountId: "acc_1",
+      postId: "post_1",
+      text: "Thanks",
+      replyToCommentId: "comment_1",
+      commentAs: "company_1",
+    });
+
+    expect(result).toEqual({ ok: true, data: { id: "comment_2" } });
+    const { url, init, body } = sent();
+    expect(url.pathname).toBe("/v2/acc_1/posts/post_1/comments/comment_1");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(body)).toEqual({ text: "Thanks", comment_as: "company_1" });
+  });
+
+  it("lists the company pages the account administers", async () => {
+    stubFetch({ data: [{ object: "CompanyPage", id: "company_1", mailbox_id: "mb_1", name: "Acme" }] });
+
+    const result = await new MessagingService().listManagedCompanyPages({ accountId: "acc_1" });
+
+    expect(result.ok && result.data.data.map((page) => page.id)).toEqual(["company_1"]);
+    expect(sent().url.pathname).toBe("/v2/acc_1/linkedin/company/pages");
   });
 });

@@ -350,6 +350,8 @@ import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-rel
 import { CancelRelationRequestInteractor } from "@/ee/messaging/posts/cancel-relation-request.interactor";
 import { CreateRelationRequestInteractor } from "@/ee/messaging/posts/create-relation-request.interactor";
 import { PublishSocialPostInteractor } from "@/ee/messaging/posts/publish-social-post.interactor";
+import { CommentOnSocialPostInteractor } from "@/ee/messaging/posts/comment-on-social-post.interactor";
+import { ListManagedCompanyPagesInteractor } from "@/ee/messaging/posts/list-managed-company-pages.interactor";
 import { GetSocialPostInteractor } from "@/ee/messaging/posts/get-social-post.interactor";
 import { GetSocialProfileInteractor } from "@/ee/messaging/posts/get-social-profile.interactor";
 import { ListRelationRequestsInteractor } from "@/ee/messaging/posts/list-relation-requests.interactor";
@@ -1916,6 +1918,9 @@ export const getListSocialPostReactionsInteractor = () =>
 export const getGetSocialProfileInteractor = () =>
   new GetSocialProfileInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
+export const getListManagedCompanyPagesInteractor = () =>
+  new ListManagedCompanyPagesInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
+
 export const getLinkedinListSalesListsInteractor = () =>
   new LinkedinListSalesListsInteractor(getConnectedAccountRepo(), getMessagingService(), getEntitlementService());
 
@@ -1954,6 +1959,14 @@ export const getPublishSocialPostInteractor = () =>
     getRecordRepo(),
     getRecordFileAccessService(),
     getFileStorageDriver,
+  );
+
+export const getCommentOnSocialPostInteractor = () =>
+  new CommentOnSocialPostInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+    getRecordRepo(),
   );
 
 export const getAcceptRelationRequestInteractor = () =>

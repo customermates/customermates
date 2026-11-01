@@ -107,6 +107,7 @@ const SocialProfileSpecificsSchema = z.looseObject({
           })
           .nullish(),
         job_title: z.string().nullish(),
+        title: z.string().nullish(),
         ended_on: z.string().nullish(),
       }),
     )
@@ -137,6 +138,18 @@ export const LinkedinCompanyProfileSchema = z.looseObject({
   industry: z.array(z.string()).nullish(),
   website: z.string().nullish(),
 });
+export const LinkedinCompanyPageListSchema = z.looseObject({
+  data: z.array(
+    z.looseObject({
+      object: z.literal("CompanyPage").nullish(),
+      id: z.string().describe("Provider company page ID. Pass it as postAs or commentAs to act as this page"),
+      name: z.string().nullish(),
+      messaging_enabled: z.boolean().nullish(),
+    }),
+  ),
+});
+export type LinkedinCompanyPageList = z.infer<typeof LinkedinCompanyPageListSchema>;
+
 export const SocialProfileSchema = z.looseObject({
   object: z.enum(["User", "UserProfile", "CompanyProfile"]).nullish(),
   id: z
@@ -154,7 +167,12 @@ export const SocialProfileSchema = z.looseObject({
   last_name: z.string().nullish(),
   profile_url: z.string().nullish(),
   public_picture_url: z.string().nullish(),
-  description: z.string().nullish(),
+  description: z.string().nullish().describe("LinkedIn headline or profile description"),
+  location: z.string().nullish(),
+  followers_count: z.number().nullish(),
+  relations_count: z.number().nullish(),
+  shared_relations_count: z.number().nullish(),
+  is_premium: z.boolean().nullish(),
   specifics: SocialProfileSpecificsSchema.nullish(),
 });
 export type SocialProfile = z.infer<typeof SocialProfileSchema>;
