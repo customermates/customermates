@@ -147,6 +147,7 @@ export const RecordHistoryChangesSchema = RecordEventPayloadSchema.pick({
   fields: z.array(
     z.object({
       fieldId: z.uuid(),
+      image: z.boolean().optional().describe("True when the field holds the record's avatar picture"),
       before: RecordHistoryDisplayValueSchema.nullable(),
       after: RecordHistoryDisplayValueSchema.nullable(),
     }),

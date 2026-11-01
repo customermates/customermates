@@ -17,8 +17,9 @@ import { createRecordStagingRepo } from "./record-staging.repository";
 import { decodeRecordValue } from "./record-storage";
 import { validateRecordModel } from "./record-model-validation";
 import { recordChannelsTypeIds, recordProviderAvatarEnabled } from "./record-channels";
+import { MESSAGING_SYSTEM_ACTOR } from "./record-system-actor";
 
-const ACTOR = "system:messaging";
+const ACTOR = MESSAGING_SYSTEM_ACTOR;
 const KIND = "provider-avatar";
 const LIMIT = 1000000;
 const BATCH = 50;

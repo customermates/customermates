@@ -5,8 +5,8 @@ import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.sche
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory } from "./activities-row";
-import { resolveActorName } from "./activity-row-labels";
+import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory, useSystemActorLabel } from "./activities-row";
+import { actorDisplayName } from "./activity-row-labels";
 import { auditChangeKind, ChangeRow, ChangeValue, FieldChangeRow } from "./change-value";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { membersDescriptor, recordsDescriptor, recordValueDescriptor } from "./change-value-descriptor";
@@ -28,14 +28,18 @@ type Entry = Omit<Extract<ActivityEntryDto, { kind: "record" }>, "event" | "kind
 
 export function RecordAuditDetail({ entry }: { entry: Entry }) {
   const t = useTranslations();
+  const systemActorLabel = useSystemActorLabel();
   const intl = useHydratedIntlStore();
   const category = auditCategory(entry.event);
   const kind = auditChangeKind(entry.event);
   const identities = entry.changes.identities;
+  const unlistedLinks =
+    entry.changes.links.length -
+    entry.changes.related.reduce((count, relation) => count + relation.before.length + relation.after.length, 0);
   const typeId = entry.changes.ref.typeId;
   const formerMember = t("RecordModel.member");
-  const field = (side: FieldSide) => (
-    <ChangeValue value={recordValueDescriptor(side, typeId, entry.members, formerMember)} />
+  const field = (side: FieldSide, image?: boolean) => (
+    <ChangeValue value={recordValueDescriptor(side, typeId, entry.members, formerMember, image)} />
   );
   const identityChips = (side: NonNullable<typeof identities>["before"]) => (
     <ChangeValue
@@ -62,14 +66,12 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
             name={[entry.actor.firstName, entry.actor.lastName]}
             size="xl"
             src={entry.actor.avatarUrl}
+            system={entry.actor.system}
           />
         }
         records={entry.records}
         subtitle={`${eventLabel(t, entry.event)} · ${intl.formatNumericalShortDateTime(entry.at)}`}
-        title={
-          resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
-          t("RecordModel.systemActor")
-        }
+        title={actorDisplayName(entry.actor, systemActorLabel)}
       />
 
       <AppCardBody className="flex flex-col gap-4">
@@ -96,10 +98,10 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
           return (
             <FieldChangeRow
               key={change.fieldId}
-              current={richText ? document(current) : field(change.after)}
+              current={richText ? document(current) : field(change.after, change.image)}
               kind={kind}
               label={label}
-              previous={richText ? document(previous) : field(change.before)}
+              previous={richText ? document(previous) : field(change.before, change.image)}
             />
           );
         })}
@@ -126,8 +128,8 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
           />
         )}
 
-        {entry.changes.links.length > 0 && (
-          <p className="text-sm">{t("RecordModel.relationshipChange", { count: entry.changes.links.length })}</p>
+        {unlistedLinks > 0 && (
+          <p className="text-sm">{t("RecordModel.relationshipChange", { count: unlistedLinks })}</p>
         )}
 
         {entry.changes.related.map((relation) => (

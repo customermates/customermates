@@ -151,6 +151,16 @@ describe("Wiki query embedding cache", () => {
       "warning",
     ],
     [
+      "a busy database while reserving the spend",
+      Object.assign(new Error("Raw query failed. Code: `55P03`."), { code: "P2010", cause: { code: "55P03" } }),
+      "warning",
+    ],
+    [
+      "a spend reservation that outlived its transaction",
+      Object.assign(new Error("A query cannot be executed on an expired transaction."), { code: "P2028" }),
+      "warning",
+    ],
+    [
       "a rejected gateway key",
       Object.assign(new Error("bad key"), { name: "GatewayAuthenticationError", statusCode: 401 }),
       undefined,

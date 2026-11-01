@@ -9,7 +9,7 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
-import { isTransactionEndedError } from "@/core/errors/prisma-client-error";
+import { isBusyDatabaseError, isTransactionEndedError } from "@/core/errors/prisma-client-error";
 import { RecordModelSchema, RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
@@ -407,12 +407,28 @@ export class RecordOperationService extends UserAccessor {
         { timeout: 60000, companyId: this.systemCompanyId },
       );
     } catch (error) {
+      if (isBusyDatabaseError(error)) return this.holdLease(operationId);
       if (isTransactionEndedError(error) && (await this.shrinkPage(operationId))) return { done: false };
       const cause = failureUnwindCause(error);
       if (!cause) throw error;
       await this.fail(operationId, cause.code);
       return { done: true };
     }
+  }
+
+  private async holdLease(operationId: string): Promise<{ done: boolean }> {
+    await runInTransaction(
+      async () => {
+        const operation = await this.records.getOperation(operationId);
+        if (!operation || operation.userId !== this.operator.userId) return;
+        if (["completed", "cancelled", "failed"].includes(operation.state)) return;
+        await this.records.updateOperation(operationId, { leaseUntil: new Date(Date.now() + 60000) });
+      },
+      { companyId: this.systemCompanyId, lockCompany: false },
+    ).catch((error: unknown) => {
+      if (!isBusyDatabaseError(error)) throw error;
+    });
+    return { done: false };
   }
 
   private shrinkPage(operationId: string): Promise<boolean> {

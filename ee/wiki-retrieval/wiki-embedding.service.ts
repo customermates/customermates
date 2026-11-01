@@ -8,6 +8,8 @@ import type { WikiEmbeddingKind } from "./wiki-embedding-model";
 
 import * as ErrorReporter from "@/core/observability/server";
 
+import { isBusyDatabaseError, isTransactionEndedError } from "@/core/errors/prisma-client-error";
+
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { env } from "@/env";
 
@@ -20,6 +22,10 @@ import {
 import { reserveWikiIndexSpend } from "./wiki-index-spend";
 
 type WikiEmbeddingPayer = { id: string; companyId: string };
+
+function busyDatabaseLevel(error: unknown): { level?: "warning" } {
+  return isBusyDatabaseError(error) || isTransactionEndedError(error) ? { level: "warning" } : {};
+}
 
 export function isWikiSemanticSearchAvailable() {
   return isAgentChatAvailable() && env.APP_MODE !== "demo";
@@ -59,7 +65,7 @@ export class WikiEmbeddingService {
     try {
       return await this.usage.prepareRetrieval(payer.id);
     } catch (error) {
-      ErrorReporter.captureException(error);
+      ErrorReporter.captureException(error, busyDatabaseLevel(error));
       return null;
     }
   }
@@ -72,7 +78,7 @@ export class WikiEmbeddingService {
     try {
       return await this.usage.prepareWorkspaceIndexing(companyId, purpose);
     } catch (error) {
-      ErrorReporter.captureException(error);
+      ErrorReporter.captureException(error, busyDatabaseLevel(error));
       return null;
     }
   }

@@ -15,7 +15,13 @@ import { ConnectedAccountStatus, MessagingProvider } from "@/generated/prisma";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
 
-import { isExcludedChatId, mapParticipantRecord, mapUnipileUser, normalizeChatMessage } from "../../chat-normalize";
+import {
+  isExcludedChatId,
+  mapParticipantRecord,
+  mapUnipileUser,
+  normalizeChatMessage,
+  parseUnipileTimestamp,
+} from "../../chat-normalize";
 import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
@@ -106,7 +112,7 @@ export class BackfillChatsInteractor {
 
     const type: MessagingThreadType = chat.is_group ? "group" : chat.is_channel ? "channel" : "single";
     const participants = await this.resolveParticipants(account, chat, { allowFetch: !current });
-    const lastActivity = chat.last_message_timestamp ?? chat.updated_at ?? null;
+    const lastActivity = parseUnipileTimestamp(chat.last_message_timestamp) ?? parseUnipileTimestamp(chat.updated_at);
     const lastMessageText = chat.last_message?.text?.trim() || null;
 
     try {
@@ -120,7 +126,7 @@ export class BackfillChatsInteractor {
         name: chat.name ?? null,
         subject: chat.description ?? null,
         participants,
-        lastMessageAt: lastMessageText && lastActivity ? new Date(lastActivity) : undefined,
+        lastMessageAt: lastMessageText && lastActivity ? lastActivity : undefined,
         lastMessagePreview: lastMessageText ?? undefined,
         lastMessageIsSender: lastMessageText ? (chat.last_message?.is_sender ?? null) : undefined,
       });
@@ -149,7 +155,8 @@ export class BackfillChatsInteractor {
   }
 
   private async isThreadCurrent(connectedAccountId: string, chat: UnipileChat): Promise<boolean> {
-    if (!chat.last_message_timestamp) return false;
+    const lastMessageAt = parseUnipileTimestamp(chat.last_message_timestamp);
+    if (!lastMessageAt) return false;
 
     const latestMessageAt = await this.ingest.findThreadLatestMessageAtUnscoped({
       connectedAccountId,
@@ -157,7 +164,7 @@ export class BackfillChatsInteractor {
     });
     if (latestMessageAt === null) return false;
 
-    return latestMessageAt >= new Date(chat.last_message_timestamp);
+    return latestMessageAt >= lastMessageAt;
   }
 
   private async pullAndIngestMessages(account: ConnectedAccount, chatId: string): Promise<void> {

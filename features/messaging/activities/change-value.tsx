@@ -3,13 +3,14 @@
 import type { ChangeValueDescriptor, ChangeValueLabels } from "./change-value-descriptor";
 import type { AppLocale } from "@/i18n/locale-registry";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ImageOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { RecordValue } from "@/components/records/record-value";
+import { Avatar } from "@/components/ui/avatar";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
@@ -129,6 +130,19 @@ export function ChangeValue({ value }: { value: ChangeValueDescriptor }) {
       return <EmptyValue />;
     case "field":
       return <RecordValue wrap field={value.field} result={value.result} />;
+    case "image":
+      return (
+        <a
+          aria-label={value.label}
+          className="inline-flex w-fit"
+          data-change-image=""
+          href={value.url}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Avatar fallback={<ImageOff aria-hidden className="size-6" />} size="xl" src={value.url} />
+        </a>
+      );
     case "choices":
       if (value.choices.length === 1 && !value.choices[0].provider)
         return <AppChip variant={value.choices[0].color ?? "secondary"}>{value.choices[0].label}</AppChip>;

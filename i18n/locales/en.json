@@ -4328,7 +4328,11 @@
     "summaryAggregation": "Calculation",
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",
-    "systemActor": "System",
+    "systemActors": {
+      "messaging": "Messaging sync",
+      "other": "System",
+      "trash": "Trash cleanup"
+    },
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
     "typeHints": {

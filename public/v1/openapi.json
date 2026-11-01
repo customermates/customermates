@@ -3695,6 +3695,15 @@
                                   },
                                   "email": {
                                     "type": "string"
+                                  },
+                                  "system": {
+                                    "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                    "type": "string",
+                                    "enum": [
+                                      "messaging",
+                                      "trash",
+                                      "other"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -4124,6 +4133,10 @@
                                           "type": "string",
                                           "format": "uuid",
                                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        "image": {
+                                          "description": "True when the field holds the record's avatar picture",
+                                          "type": "boolean"
                                         },
                                         "before": {
                                           "anyOf": [
@@ -6160,6 +6173,15 @@
                                   },
                                   "email": {
                                     "type": "string"
+                                  },
+                                  "system": {
+                                    "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                    "type": "string",
+                                    "enum": [
+                                      "messaging",
+                                      "trash",
+                                      "other"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -6478,6 +6500,15 @@
                                   },
                                   "email": {
                                     "type": "string"
+                                  },
+                                  "system": {
+                                    "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                    "type": "string",
+                                    "enum": [
+                                      "messaging",
+                                      "trash",
+                                      "other"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -19019,6 +19050,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -19448,6 +19488,10 @@
                                                       "type": "string",
                                                       "format": "uuid",
                                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                    },
+                                                    "image": {
+                                                      "description": "True when the field holds the record's avatar picture",
+                                                      "type": "boolean"
                                                     },
                                                     "before": {
                                                       "anyOf": [
@@ -21484,6 +21528,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -21802,6 +21855,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -32858,6 +32920,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -33287,6 +33358,10 @@
                                                       "type": "string",
                                                       "format": "uuid",
                                                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                    },
+                                                    "image": {
+                                                      "description": "True when the field holds the record's avatar picture",
+                                                      "type": "boolean"
                                                     },
                                                     "before": {
                                                       "anyOf": [
@@ -35323,6 +35398,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -35641,6 +35725,15 @@
                                               },
                                               "email": {
                                                 "type": "string"
+                                              },
+                                              "system": {
+                                                "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                "type": "string",
+                                                "enum": [
+                                                  "messaging",
+                                                  "trash",
+                                                  "other"
+                                                ]
                                               }
                                             },
                                             "required": [
@@ -82652,6 +82745,15 @@
                                                     },
                                                     "email": {
                                                       "type": "string"
+                                                    },
+                                                    "system": {
+                                                      "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "messaging",
+                                                        "trash",
+                                                        "other"
+                                                      ]
                                                     }
                                                   },
                                                   "required": [
@@ -83081,6 +83183,10 @@
                                                             "type": "string",
                                                             "format": "uuid",
                                                             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                                          },
+                                                          "image": {
+                                                            "description": "True when the field holds the record's avatar picture",
+                                                            "type": "boolean"
                                                           },
                                                           "before": {
                                                             "anyOf": [
@@ -85117,6 +85223,15 @@
                                                     },
                                                     "email": {
                                                       "type": "string"
+                                                    },
+                                                    "system": {
+                                                      "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "messaging",
+                                                        "trash",
+                                                        "other"
+                                                      ]
                                                     }
                                                   },
                                                   "required": [
@@ -85435,6 +85550,15 @@
                                                     },
                                                     "email": {
                                                       "type": "string"
+                                                    },
+                                                    "system": {
+                                                      "description": "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "messaging",
+                                                        "trash",
+                                                        "other"
+                                                      ]
                                                     }
                                                   },
                                                   "required": [
@@ -128080,6 +128204,10 @@
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 },
+                                "image": {
+                                  "description": "True when the field holds the record's avatar picture",
+                                  "type": "boolean"
+                                },
                                 "before": {
                                   "anyOf": [
                                     {
@@ -129532,6 +129660,10 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "image": {
+                                  "description": "True when the field holds the record's avatar picture",
+                                  "type": "boolean"
                                 },
                                 "before": {
                                   "anyOf": [
@@ -130986,6 +131118,10 @@
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 },
+                                "image": {
+                                  "description": "True when the field holds the record's avatar picture",
+                                  "type": "boolean"
+                                },
                                 "before": {
                                   "anyOf": [
                                     {
@@ -132439,6 +132575,10 @@
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 },
+                                "image": {
+                                  "description": "True when the field holds the record's avatar picture",
+                                  "type": "boolean"
+                                },
                                 "before": {
                                   "anyOf": [
                                     {
@@ -133891,6 +134031,10 @@
                                   "type": "string",
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "image": {
+                                  "description": "True when the field holds the record's avatar picture",
+                                  "type": "boolean"
                                 },
                                 "before": {
                                   "anyOf": [

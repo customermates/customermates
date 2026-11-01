@@ -73,9 +73,9 @@ Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog)
 
 ## Enthalten Logs oder Fehlerberichte Secrets? [#do-logs-or-error-reports-contain-secrets]
 
-Die Anwendung schreibt einfache Logs in ihre Standardausgabe. Umgebungswerte wie die Secrets aus `.env` werden nicht geloggt, einen Filter, der Secrets in Logzeilen maskiert, gibt es aber nicht. Ist ein Dienst für Fehlerberichte eingerichtet, wie in der gehosteten Cloud, werden Ereignisse ohne Cookies, Header und Bodys der Anfrage gesendet. Unerwartete Fehler in MCP- und Assistenten-Tools erreichen den Client und den Fehlerbericht nur als allgemeine Meldung wie „The operation could not be completed“.
+Die Anwendung schreibt einfache Logs in ihre Standardausgabe. Umgebungswerte wie die Secrets aus `.env` werden nicht geloggt, einen Filter, der Secrets in Logzeilen maskiert, gibt es aber nicht. Fehlerberichte landen in derselben Ausgabe und enthalten nie Cookies, Header oder Bodys der Anfrage. Unerwartete Fehler in MCP- und Assistenten-Tools erreichen den Client nur als allgemeine Meldung wie „The operation could not be completed“.
 
-Das veröffentlichte Self-Hosted-Image schaltet die Telemetrie von Next.js und Prisma ab. Auf einer Self-Hosted-Instanz erscheinen die Fehler der App, auch ihre strukturierten `application-error`-Berichte, nur in `docker compose logs app`. Eine E-Mail, die der Anbieter abgelehnt oder nicht rechtzeitig beantwortet hat, wird mit Betreff, Domain des Empfängers und dem Grund des Anbieters geloggt, nie mit der vollständigen Adresse.
+Das veröffentlichte Self-Hosted-Image schaltet die Telemetrie von Next.js und Prisma ab. Auf einer Self-Hosted-Instanz erscheinen die Fehler der App nur in `docker compose logs app`. Eine E-Mail, die der Anbieter abgelehnt oder nicht rechtzeitig beantwortet hat, wird mit Betreff, Domain des Empfängers und dem Grund des Anbieters geloggt, nie mit der vollständigen Adresse.
 
 ## Wie sind Webhook-Secrets und Webhook-Ziele abgesichert? [#how-are-webhook-secrets-and-destinations-secured]
 

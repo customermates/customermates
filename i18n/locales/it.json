@@ -4328,7 +4328,11 @@
     "summaryAggregation": "Calcolo",
     "summaryApprovalRequired": "Questo riepilogo è pubblicato. Un amministratore deve approvare le modifiche ai dati usati nel calcolo.",
     "summaryField": "Campo del riepilogo",
-    "systemActor": "Sistema",
+    "systemActors": {
+      "messaging": "Sincronizzazione messaggi",
+      "other": "Sistema",
+      "trash": "Pulizia del cestino"
+    },
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
     "typeHints": {

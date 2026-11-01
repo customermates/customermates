@@ -18,6 +18,7 @@ import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
 import { canViewAccountMessages, limitMessageFolderIds, redactMessageBcc } from "../messaging-access";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
+import { systemActorProcess } from "./system-actor-process";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
 import { RecordModelSchema } from "@/features/records/record-model.schema";
 import { historicalRecordModel, historicalRevisionChange } from "@/features/records/historical-record-model";
@@ -54,8 +55,13 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
       select: { id: true, firstName: true, lastName: true, email: true, avatarUrl: true },
     });
     const byId = new Map(actors.map(({ id, ...actor }) => [id, actor]));
-    const system: RecordActivityActor = { firstName: "", lastName: "", email: "", avatarUrl: null };
-    return (id: string | null) => (id ? byId.get(id) : undefined) ?? system;
+    const blank: RecordActivityActor = { firstName: "", lastName: "", email: "", avatarUrl: null };
+    return (id: string | null): RecordActivityActor => {
+      const user = id ? byId.get(id) : undefined;
+      if (user) return user;
+      if (!id || id.startsWith("system:")) return { ...blank, system: systemActorProcess(id) };
+      return blank;
+    };
   }
 
   async eventsCompanyWide(ids: string[]) {

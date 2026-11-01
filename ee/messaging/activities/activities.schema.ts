@@ -37,11 +37,20 @@ const CalendarEventDtoSchema = CalendarEventSchema.pick({
 });
 export type ActivityCalendarEvent = z.infer<typeof CalendarEventDtoSchema>;
 
+export const SYSTEM_ACTOR_PROCESSES = ["messaging", "trash", "other"] as const;
+export type SystemActorProcess = (typeof SYSTEM_ACTOR_PROCESSES)[number];
+
 const ActorSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   avatarUrl: z.string().nullable(),
   email: z.string(),
+  system: z
+    .enum(SYSTEM_ACTOR_PROCESSES)
+    .optional()
+    .describe(
+      "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
+    ),
 });
 
 const ActivityMemberSchema = z.object({
