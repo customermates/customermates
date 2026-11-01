@@ -285,6 +285,14 @@ describe("record widget display types", () => {
         ["Oct 30", 0],
         ["Oct 31", 0],
       ]);
+      render({
+        displayOptions: { displayType: DisplayType.areaChart, showWholePeriod: false },
+        measure: windowed,
+        data: result({ count: 3, result: plain("3") }, [group(day("2026-10-28"), plain("3"), 3)]),
+      });
+      expect((chartMocks.calls[0].data as Array<{ axisLabel: string }>).map(({ axisLabel }) => axisLabel)).toEqual([
+        "Oct 28",
+      ]);
     } finally {
       vi.useRealTimers();
     }

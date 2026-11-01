@@ -40554,6 +40554,14 @@
               "showLegend": {
                 "type": "boolean"
               },
+              "smoothLine": {
+                "description": "areaChart only: true draws a smoothed curve; otherwise straight lines join the periods.",
+                "type": "boolean"
+              },
+              "showWholePeriod": {
+                "description": "areaChart only: unless false, the axis covers every period of a time filter on the grouped date field (inLastDays, between, gte or gt) up to today or the filter end, with empty periods as zero. false shows only the span between the first and last period with records.",
+                "type": "boolean"
+              },
               "showFilters": {
                 "type": "boolean"
               }

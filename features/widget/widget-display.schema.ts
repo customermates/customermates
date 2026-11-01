@@ -58,6 +58,16 @@ export const WidgetDisplayOptionsSchema = z.object({
       "accent draws a chart in shades of its first bar colour and a doughnut in a small matched set of colours around it; option colours of a grouping field then show only with useGroupColors true. Without it, groups of a choice field keep their option colours unless useGroupColors is false. New widgets get accent.",
     ),
   showLegend: z.boolean().optional(),
+  smoothLine: z
+    .boolean()
+    .optional()
+    .describe("areaChart only: true draws a smoothed curve; otherwise straight lines join the periods."),
+  showWholePeriod: z
+    .boolean()
+    .optional()
+    .describe(
+      "areaChart only: unless false, the axis covers every period of a time filter on the grouped date field (inLastDays, between, gte or gt) up to today or the filter end, with empty periods as zero. false shows only the span between the first and last period with records.",
+    ),
   showFilters: z.boolean().optional(),
 });
 

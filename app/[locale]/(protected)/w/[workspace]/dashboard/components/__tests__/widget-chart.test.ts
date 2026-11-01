@@ -305,6 +305,14 @@ describe("WidgetChart", () => {
     ]);
   });
 
+  it("passes the smooth line choice to the area chart and keeps straight lines by default", () => {
+    expect(renderChart(DisplayType.areaChart).props.smoothLine).toBe(false);
+    const smooth = renderChart(DisplayType.areaChart, {
+      displayOptions: { displayType: DisplayType.areaChart, barColors: [ChartColor.primary1], smoothLine: true },
+    });
+    expect(smooth.props.smoothLine).toBe(true);
+  });
+
   it("passes the legend choice only to the doughnut chart", () => {
     const doughnut = renderChart(DisplayType.doughnutChart);
     const vertical = renderChart(DisplayType.verticalBarChart);

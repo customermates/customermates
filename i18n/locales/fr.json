@@ -1552,6 +1552,8 @@
         "reverseXAxis": "Inverser l’axe X",
         "reverseYAxis": "Inverser l’axe Y",
         "showLegend": "Afficher la légende",
+        "showWholePeriod": "Afficher toute la période",
+        "smoothLine": "Lisser la ligne",
         "useGroupColors": "Utiliser les couleurs des options"
       },
       "email": "E-mail",

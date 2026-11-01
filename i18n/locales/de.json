@@ -1552,6 +1552,8 @@
         "reverseXAxis": "X-Achse umkehren",
         "reverseYAxis": "Y-Achse umkehren",
         "showLegend": "Legende anzeigen",
+        "showWholePeriod": "Ganzen Zeitraum zeigen",
+        "smoothLine": "Linie glätten",
         "useGroupColors": "Optionsfarben verwenden"
       },
       "email": "E-Mail",

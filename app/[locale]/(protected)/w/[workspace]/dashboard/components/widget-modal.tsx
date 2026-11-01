@@ -327,6 +327,14 @@ export const WidgetModal = observer(() => {
           <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
         )}
 
+        {displayType === DisplayType.areaChart && (
+          <>
+            <FormSwitch id="displayOptions.showWholePeriod" label={t("Common.inputs.displayOptions.showWholePeriod")} />
+
+            <FormSwitch id="displayOptions.smoothLine" label={t("Common.inputs.displayOptions.smoothLine")} />
+          </>
+        )}
+
         {supportsAxes && (
           <>
             <FormSwitch id="displayOptions.reverseXAxis" label={t("Common.inputs.displayOptions.reverseXAxis")} />

@@ -23,10 +23,20 @@ type Props = {
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
   allowDecimals?: boolean;
+  smoothLine?: boolean;
 };
 
 export const AreaTimeChart = observer(
-  ({ currency, chartData, colors, strokeColors, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
+  ({
+    currency,
+    chartData,
+    colors,
+    strokeColors,
+    reverseXAxis,
+    reverseYAxis,
+    allowDecimals = true,
+    smoothLine = false,
+  }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
     const gradientId = `area-fill-${useId().replace(/[^a-zA-Z0-9-]/g, "")}`;
@@ -97,7 +107,7 @@ export const AreaTimeChart = observer(
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            type="linear"
+            type={smoothLine ? "monotone" : "linear"}
           />
         </AreaChart>
       </DashboardChartContainer>

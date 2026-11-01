@@ -92,6 +92,8 @@ function chartDisplayDefaults(): NonNullable<RecordWidgetForm["displayOptions"]>
     useGroupColors: false,
     palette: "accent",
     showLegend: true,
+    smoothLine: false,
+    showWholePeriod: true,
     showFilters: true,
   };
 }

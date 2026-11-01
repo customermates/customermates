@@ -88,7 +88,7 @@ export function RecordWidgetChart({
       { currency, fractionDigits: derivedFractionDigits(decimalPlaces, currency) },
       valueFormat.decimal,
     );
-  const timeWindow = measureTimeWindow(measure);
+  const timeWindow = displayOptions.showWholePeriod === false ? null : measureTimeWindow(measure);
   const bucketYears = new Set([
     ...(data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"
