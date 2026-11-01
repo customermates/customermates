@@ -214,14 +214,16 @@ export const WidgetModal = observer(() => {
   }
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
+    const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    const numberColor = displayType === DisplayType.number;
     const singleColor = [
       DisplayType.number,
       DisplayType.areaChart,
       DisplayType.radarChart,
       DisplayType.rankedTable,
-    ].includes(form.displayOptions?.displayType ?? DisplayType.verticalBarChart);
+    ].includes(displayType);
     if (groupColorsApply() && widgetUsesGroupColors(form.displayOptions)) return null;
-    const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
+    const colors = Object.entries(chartColors).filter(([key]) => !numberColor || key.endsWith("1"));
 
     return (
       <div className="space-y-1.5">
@@ -262,10 +264,12 @@ export const WidgetModal = observer(() => {
             className="w-(--radix-dropdown-menu-trigger-width)"
           >
             {colors.map(([key, color], index) => {
-              const selected = singleColor
-                ? getChartTextColors()[form.displayOptions?.barColors?.[0] ?? ChartColor.primary1] ===
-                  getChartTextColors()[key as ChartColor]
-                : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+              const firstColor = form.displayOptions?.barColors?.[0] ?? ChartColor.primary1;
+              const selected = numberColor
+                ? getChartTextColors()[firstColor] === getChartTextColors()[key as ChartColor]
+                : singleColor
+                  ? firstColor === (key as ChartColor)
+                  : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
               const label = t("Dashboard.widgetEditor.appearance.colorOption", { number: index + 1 });
               return (
                 <DropdownMenuCheckboxItem
@@ -346,7 +350,9 @@ export const WidgetModal = observer(() => {
           <>
             <FormSwitch id="displayOptions.reverseXAxis" label={t("Common.inputs.displayOptions.reverseXAxis")} />
 
-            <FormSwitch id="displayOptions.reverseYAxis" label={t("Common.inputs.displayOptions.reverseYAxis")} />
+            {displayType !== DisplayType.areaChart && (
+              <FormSwitch id="displayOptions.reverseYAxis" label={t("Common.inputs.displayOptions.reverseYAxis")} />
+            )}
           </>
         )}
       </div>

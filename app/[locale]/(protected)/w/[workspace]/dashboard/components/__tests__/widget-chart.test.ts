@@ -127,7 +127,7 @@ describe("WidgetChart", () => {
     expect(call.props).toMatchObject({
       currency: "EUR",
       reverseXAxis: true,
-      reverseYAxis: true,
+      reverseYAxis: displayType !== DisplayType.areaChart,
     });
   });
 

@@ -161,6 +161,7 @@ export const WidgetChart = observer(
           <AreaTimeChart
             {...commonProps}
             colors={configuredBarColors.map((color) => chartColors[color])}
+            reverseYAxis={false}
             smoothLine={displayOptions?.smoothLine === true}
             strokeColors={configuredBarColors.map((color) => chartStrokeColors[color])}
           />
