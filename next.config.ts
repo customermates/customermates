@@ -90,6 +90,9 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  // CI's typecheck job gates every merge, so Vercel does not repeat the type check inside next build.
+  typescript: { ignoreBuildErrors: process.env.VERCEL === "1" },
+
   experimental: {
     ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
     cpus: 2,

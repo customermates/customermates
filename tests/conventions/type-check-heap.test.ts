@@ -11,7 +11,9 @@ const HEADROOM_SHARE = 0.8;
 const scripts: Record<string, string> = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf8")).scripts;
 
 function heapOf(command: string) {
-  const sizes = [...command.matchAll(/--max-old-space-size=(\d+)/g)].map(([, size]) => Number(size));
+  const sizes = [...command.matchAll(/--max-old-space-size=(?:\$\{NEXT_BUILD_HEAP_MB:-)?(\d+)/g)].map(([, size]) =>
+    Number(size),
+  );
   return sizes.at(-1);
 }
 
@@ -22,8 +24,18 @@ describe("type checking heap", () => {
   });
 
   it("type checks the production build with the same heap", () => {
-    expect(scripts.build).toMatch(/NODE_OPTIONS="\$\{NODE_OPTIONS:-\} --max-old-space-size=\d+" next build --webpack$/);
+    expect(scripts.build).toMatch(
+      /NODE_OPTIONS="\$\{NODE_OPTIONS:-\} --max-old-space-size=\$\{NEXT_BUILD_HEAP_MB:-\d+\}" next build --webpack$/,
+    );
     expect(heapOf(scripts.build)).toBe(TYPE_CHECK_HEAP_MB);
+  });
+
+  it("lowers the build heap only on Vercel, where next build skips the type check", () => {
+    const config = readFileSync(join(REPO_ROOT, "next.config.ts"), "utf8");
+    const vercelBuild = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
+
+    expect(config).toContain('typescript: { ignoreBuildErrors: process.env.VERCEL === "1" }');
+    expect(vercelBuild).toMatch(/^export NEXT_BUILD_HEAP_MB="\$\{NEXT_BUILD_HEAP_MB:-\d+\}"$/m);
   });
 
   it("offers a cold headroom check that fails before type checking outgrows the explicit heap", () => {
