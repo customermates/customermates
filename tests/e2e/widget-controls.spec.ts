@@ -44,7 +44,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.getByRole("option", { name: "Each record", exact: true }).click();
   await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).check();
-  await dialog.getByRole("switch", { name: "Show metric and filters", exact: true }).uncheck();
+  await dialog.getByRole("switch", { name: "Show overall total", exact: true }).uncheck();
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();

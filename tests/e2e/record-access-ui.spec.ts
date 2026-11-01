@@ -3645,7 +3645,7 @@ test("copies another member's widget template into an independent owned widget w
       }),
     ).not.toBeChecked();
     await copiedDialog
-      .getByRole("switch", { name: "Show metric and filters", exact: true })
+      .getByRole("switch", { name: "Show overall total", exact: true })
       .uncheck();
     await expect(copiedDialog.locator("svg.recharts-surface")).toBeVisible();
     await expect(

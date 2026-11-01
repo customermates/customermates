@@ -2002,7 +2002,7 @@
         "colorOption": "Color {number}",
         "colors": "Colores",
         "showFilters": "Mostrar el número de actividades y los filtros",
-        "showMetricAndFilters": "Mostrar la métrica y los filtros",
+        "showOverall": "Mostrar el total",
         "showSourceAndFilters": "Mostrar el origen y los filtros"
       },
       "danger": {

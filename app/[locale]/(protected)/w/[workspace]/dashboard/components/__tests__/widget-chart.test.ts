@@ -313,6 +313,15 @@ describe("WidgetChart", () => {
     expect(smooth.props.smoothLine).toBe(true);
   });
 
+  it("draws a radar in its configured color even when option colors are on", () => {
+    const radar = renderChart(DisplayType.radarChart);
+    expect(radar.props.colors).toEqual(["fill-danger2", "fill-secondary1"]);
+    expect((radar.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "fill-danger2",
+      "fill-secondary1",
+    ]);
+  });
+
   it("passes the legend choice only to the doughnut chart", () => {
     const doughnut = renderChart(DisplayType.doughnutChart);
     const vertical = renderChart(DisplayType.verticalBarChart);

@@ -102,12 +102,12 @@ export const WidgetChart = observer(
     const t = useTranslations();
     const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
     const accent = displayOptions?.palette === "accent";
-    const useGroupColors = widgetUsesGroupColors(displayOptions);
+    const displayType = displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    const useGroupColors = displayType !== DisplayType.radarChart && widgetUsesGroupColors(displayOptions);
     const chipColor = (color: ChipColor) => (accent ? CHIP_TO_CHART_COLOR[color] : chipChartColor(color));
     const chartColors = getChartColors();
     const chartTextColors = getChartTextColors();
     const chartStrokeColors = getChartStrokeColors();
-    const displayType = displayOptions?.displayType ?? DisplayType.verticalBarChart;
     const singleColor = configuredBarColors.length === 1 && !(useGroupColors && data.some((item) => item.optionColor));
     const shades =
       shadeByRank && singleColor && RANK_SHADED_TYPES.has(displayType)
