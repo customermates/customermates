@@ -248,7 +248,7 @@ export const WidgetModal = observer(() => {
                     key={key}
                     className="inline-flex size-4 rounded-full"
                     style={{
-                      backgroundColor: chartColors[key as keyof typeof chartColors],
+                      backgroundColor: chartColors[key],
                     }}
                   />
                 ))}
