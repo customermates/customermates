@@ -9,7 +9,7 @@ export const TEST_INBOX_HASHES = new Set([
   "827f7e75e26d52a03ac3e4cbbf186bab818eb4e46c8e7b75a249db3f2b6333bf",
 ]);
 /** The fixture accounts of the Unipile development application that own those inboxes. */
-export const TEST_ACCOUNT_IDS = new Set(["acc_01m42y7hj1ecva9pb0sycgqq51", "acc_01m42y800decva9pbdfk85p4kv"]);
+export const TEST_ACCOUNT_IDS = new Set(["acc_01m42y7hj1ecva9pb0sycgqq51", "acc_01m6b96qwsfesbrjkgd8xxmzjy"]);
 export const UNIPILE_HOST = "api.unipile.com";
 export const LOOPBACK = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
 

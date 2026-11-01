@@ -106,7 +106,7 @@ The manual steps below remain the reference. For everyday verification use the s
 | `yarn test:e2e:matrix --targets all --offload self-hosted-chromium` | the Playwright matrix: one production build per mode reused across browsers and runs, parallel shards with their own server and database, one retry (reported as flaky) and a comparison with [known-failures.json](known-failures.json) |
 | `yarn test:e2e:baseline compare <outcomes.json>` | prints only new failures, flaky tests and baseline entries that now pass |
 | `yarn test:migrations` | fresh database on PostgreSQL 17 and 16 (migrate, seed twice, status, schema diff) and an upgrade from `origin/main` |
-| `yarn verify:live` | real draft sends between the two Unipile test inboxes only; [the guard](live/live-egress-guard.mjs) refuses any other recipient, account, host or provider write |
+| `yarn verify:live` | real draft sends between the two Unipile test inboxes only, then a read-only email backfill of the receiver inbox (initial sync on, so Unipile lists its whole history); [the guard](live/live-egress-guard.mjs) refuses any other recipient, account, host or provider write |
 
 ## Change-based CI
 
