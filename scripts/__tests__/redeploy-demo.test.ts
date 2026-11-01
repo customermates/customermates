@@ -69,7 +69,7 @@ else cp ${JSON.stringify(current)} "$output"; printf '%s' ${JSON.stringify(curre
 }
 
 describe("demo redeploy", () => {
-  it("rebuilds the deployment behind the demo domain in the demo environment", () => {
+  it("builds the current main commit into the demo environment", () => {
     const result = run();
     expect(result.status).toBe(0);
     expect(result.calls[0]).toBe("GET https://api.vercel.com/v13/deployments/demo.customermates.com?teamId=team_test ");
@@ -78,13 +78,14 @@ describe("demo redeploy", () => {
     expect(JSON.parse(body.join(" "))).toMatchObject({
       name: "customermates",
       project: "prj_test",
-      deploymentId: "dpl_current",
       customEnvironmentSlugOrId: "demo",
+      gitSource: { type: "github", org: "customermates", repo: "customermates", ref: "main" },
     });
+    expect(JSON.parse(body.join(" "))).not.toHaveProperty("deploymentId");
     expect(result.stdout).toContain("as dpl_new");
   });
 
-  it("redeploys nothing when the demo domain points at another project or an unfinished deployment", () => {
+  it("deploys nothing when the demo domain points at another project or an unfinished deployment", () => {
     for (const options of [{ project: "prj_other" }, { readyState: "BUILDING" }, { currentStatus: "404" }]) {
       const result = run(options);
       expect(result.status).toBe(1);

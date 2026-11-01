@@ -47,7 +47,7 @@ Please make sure to go through the [documentation](https://customermates.com/doc
 
 ### Preview deployments
 
-Vercel builds a preview only for SEO daily branches (`feat/seo-daily-*`) and for pull requests with the `preview` label; every other push skips the build. Add the label when someone has to review the change in a browser: the preview starts right away and is rebuilt on every later push while the label stays. Remove the label once that review is done. A maintainer can also start one for any branch with the **Preview deployment** workflow.
+Vercel builds a preview only for SEO daily branches (`feat/seo-daily-*`) and for pull requests with the `preview` label; every other push skips the build. Add the label when someone has to review the change in a browser: the preview starts right away and is rebuilt on every later push while the label stays. Remove the label once that review is done. A maintainer can also start one for any branch with the **Preview deployment** workflow. Merges to `main` build production only; the demo is rebuilt from `main` every night by the **Demo reseed** workflow, which can also be run by hand.
 
 ## Branch Policy
 

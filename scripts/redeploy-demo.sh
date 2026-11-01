@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# Rebuilds the deployment behind the demo domain. Its build resets the demo database and seeds it again
-# (scripts/vercel-build.sh), so the demo's dated records start from the current week every day, not only after a
-# push to main. Vercel runs vercel.json crons for Production deployments only, so the schedule lives in GitHub
+# Builds the current main commit into the Demo environment. Its build resets the demo database and seeds it again
+# (scripts/vercel-build.sh), so the demo's dated records start from the current week every day. Merges to main no
+# longer build the demo: the Demo environment's branch matcher names a branch nobody pushes, so this nightly or manual
+# run is its only build. Vercel runs vercel.json crons for Production deployments only, so the schedule lives in GitHub
 # Actions (.github/workflows/demo-reseed.yml).
 
 set -euo pipefail
@@ -13,6 +14,7 @@ set -euo pipefail
 
 demo_host="${DEMO_HOST:-demo.customermates.com}"
 demo_environment="${DEMO_ENVIRONMENT:-demo}"
+demo_branch="${DEMO_BRANCH:-main}"
 
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-demo-redeploy.XXXXXX")"
 trap 'rm -rf "$temporary_directory"' EXIT
@@ -32,19 +34,20 @@ fi
 
 if ! jq -e --arg project "$VERCEL_PROJECT_ID" '.project.id == $project and .readyState == "READY"' \
   "$temporary_directory/current.json" >/dev/null; then
-  echo "The deployment behind $demo_host is not a ready deployment of this project; nothing was redeployed." >&2
+  echo "The deployment behind $demo_host is not a ready deployment of this project; nothing was deployed." >&2
   exit 1
 fi
 
-deployment_id="$(jq -r '.id' "$temporary_directory/current.json")"
 project_name="$(jq -r '.name' "$temporary_directory/current.json")"
 
 jq -cn \
   --arg name "$project_name" \
   --arg project "$VERCEL_PROJECT_ID" \
-  --arg deployment "$deployment_id" \
   --arg environment "$demo_environment" \
-  '{name: $name, project: $project, deploymentId: $deployment, customEnvironmentSlugOrId: $environment, meta: {action: "redeploy", trigger: "demo-reseed"}}' \
+  --arg ref "$demo_branch" \
+  '{name: $name, project: $project, customEnvironmentSlugOrId: $environment,
+    gitSource: {type: "github", org: "customermates", repo: "customermates", ref: $ref},
+    meta: {action: "redeploy", trigger: "demo-reseed"}}' \
   >"$temporary_directory/request.json"
 
 redeploy_status="$(curl --silent --show-error --max-time 60 \
@@ -56,9 +59,9 @@ redeploy_status="$(curl --silent --show-error --max-time 60 \
   --write-out '%{http_code}' \
   "https://api.vercel.com/v13/deployments?teamId=${encoded_team}&forceNew=1")"
 if [[ "$redeploy_status" != "200" ]]; then
-  echo "Vercel returned HTTP $redeploy_status while redeploying $deployment_id." >&2
+  echo "Vercel returned HTTP $redeploy_status while building $demo_branch for $demo_host." >&2
   jq -r '.error.message // empty' "$temporary_directory/redeploy.json" >&2 || true
   exit 1
 fi
 
-echo "Redeploying $deployment_id for $demo_host as $(jq -r '.id' "$temporary_directory/redeploy.json")."
+echo "Building $demo_branch for $demo_host as $(jq -r '.id' "$temporary_directory/redeploy.json")."
