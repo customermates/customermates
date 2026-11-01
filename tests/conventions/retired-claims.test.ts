@@ -60,11 +60,19 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
   {
     id: "unsupported-data-transfer-formats",
     pattern:
-      /\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
+      /\b(?:TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
     permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
-    why: "Records transfer as XLSX workbooks or schema-aware JSON bundles; CSV, TSV, ODS, XML, and Google Sheets are unsupported",
+    why: "Records transfer as XLSX workbooks, CSV imports or schema-aware JSON bundles; TSV, ODS, XML, and Google Sheets are unsupported",
     authority:
-      "app/api/v1/records/export/route.ts, features/data-transfer/export/export-record-workbook.interactor.ts, features/data-transfer/export/record-workbook.ts, features/data-transfer/export/export-records.interactor.ts, features/data-transfer/import/import-records.interactor.ts",
+      "app/api/v1/records/export/route.ts, features/data-transfer/export/export-record-workbook.interactor.ts, features/data-transfer/export/record-workbook.ts, features/data-transfer/export/export-records.interactor.ts, features/data-transfer/import/import-records.interactor.ts, features/data-transfer/import/xlsx/xlsx-workbook.ts",
+  },
+  {
+    id: "csv-export",
+    pattern:
+      /\bCSV[ -]?(?:export\w*|Export\w*|download\w*|Download\w*)\b|\b(?:export\w*|download\w*|exportier\w*|herunterlad\w*)\s+(?:[\p{L}\d-]+\s+){0,3}(?:as|to|into|als|in)\s+(?:an?\s+|eine?\s+)?CSV\b|\b(?:als|in)\s+(?:eine?\s+)?CSV(?:[- ]Datei)?\s+(?:exportier\w*|herunterlad\w*)/iu,
+    permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
+    why: "Lists export as XLSX workbooks or JSON bundles; CSV is an import format only",
+    authority: "app/api/v1/records/export/route.ts, features/data-transfer/export/export-records.interactor.ts",
   },
   {
     id: "whole-account-data-export",
@@ -566,11 +574,11 @@ describe("retired claims stay retired", () => {
 
   it("catches a data transfer claim for a format other than xlsx", () => {
     for (const claim of [
-      "Import your contacts from a CSV file.",
       "One click CSV export for every list.",
+      "Export every list as a CSV file.",
       "Export to Google Sheets whenever you like.",
-      "Kontakte per CSV-Import anlegen.",
-      "Laden Sie eine CSV hoch, um Datensätze zu importieren.",
+      "Import your contacts from an ODS file.",
+      "Daten als CSV exportieren.",
     ]) {
       expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(1);
     }
@@ -578,7 +586,7 @@ describe("retired claims stay retired", () => {
 
   it("scans prose that opens with import or export, while still ignoring module statements", () => {
     expect(
-      findViolationsInSource("content/features/en/example.mdx", "Import your contacts from a CSV file."),
+      findViolationsInSource("content/features/en/example.mdx", "Import your contacts from an ODS file."),
     ).toHaveLength(1);
     expect(
       findViolationsInSource("content/features/en/example.mdx", "Export every list to CSV in one click."),
@@ -596,7 +604,10 @@ describe("retired claims stay retired", () => {
       "Import your contacts from an Excel workbook.",
       "Export every list as an XLSX file.",
       "Records export to XLSX rather than CSV.",
-      "There is no CSV import; use an Excel workbook.",
+      "There is no CSV export; use an Excel workbook.",
+      "Import your contacts from a CSV file.",
+      "Kontakte per CSV-Import anlegen.",
+      "Choose an Excel workbook (.xlsx), a CSV file or a Customermates JSON export for this list.",
       "Datensätze werden als XLSX-Datei exportiert.",
     ]) {
       expect(findViolationsInSource("content/features/en/example.mdx", claim), claim).toHaveLength(0);

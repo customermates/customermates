@@ -107,7 +107,6 @@ function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
   }
 }
 
-/** Reads an .xlsx workbook or a CSV file (any delimiter and encoding Excel writes) into the import wizard's sheets. */
 export async function readSpreadsheetWorkbook(name: string, buffer: ArrayBuffer): Promise<WorkbookResult> {
   if (buffer.byteLength > XLSX_MAX_FILE_BYTES) return { ok: false, problem: "tooLarge" };
   const bytes = new Uint8Array(buffer);
