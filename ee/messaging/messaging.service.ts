@@ -7,6 +7,7 @@ import type {
   SocialCommentList,
   SocialReactionList,
   SocialProfile,
+  LinkedinCompanyPageList,
   RelationRequestList,
   RelationRequestResult,
 } from "./posts/social-posts.schema";
@@ -49,6 +50,7 @@ import {
   SocialReactionListSchema,
   SocialProfileSchema,
   LinkedinCompanyProfileSchema,
+  LinkedinCompanyPageListSchema,
   RelationRequestListSchema,
   RelationRequestResultSchema,
 } from "./posts/social-posts.schema";
@@ -1038,6 +1040,8 @@ export class MessagingService {
     text: string;
     attachments?: MessageFile[];
     canRead?: "anyone" | "relations_only";
+    postAs?: string;
+    quotedPostId?: string;
   }): Promise<MessagingSendResult<SocialPost>> {
     try {
       const raw = await requestData(
@@ -1047,6 +1051,8 @@ export class MessagingService {
             text: input.text,
             ...(input.attachments ? { attachments: input.attachments } : {}),
             ...(input.canRead ? { can_read: input.canRead } : {}),
+            ...(input.postAs ? { post_as: input.postAs } : {}),
+            ...(input.quotedPostId ? { quoted_post_id: input.quotedPostId } : {}),
           },
           headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
           ...multipartOptions(input.attachments),
@@ -1063,14 +1069,24 @@ export class MessagingService {
     accountId: string;
     postId: string;
     text: string;
+    replyToCommentId?: string;
+    commentAs?: string;
   }): Promise<MessagingSendResult<{ id: string }>> {
     try {
+      const body = { text: input.text, ...(input.commentAs ? { comment_as: input.commentAs } : {}) };
+      const headers = { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) };
       const raw = await requestData(
-        this.sdk.posts.addPostComment({
-          path: { account_id: input.accountId, post_id: input.postId },
-          body: { text: input.text },
-          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-        }),
+        input.replyToCommentId
+          ? this.sdk.posts.replyToComment({
+              path: { account_id: input.accountId, post_id: input.postId, comment_id: input.replyToCommentId },
+              body,
+              headers,
+            })
+          : this.sdk.posts.addPostComment({
+              path: { account_id: input.accountId, post_id: input.postId },
+              body,
+              headers,
+            }),
       );
       const data = z.looseObject({ id: z.string().min(1) }).parse(raw);
 
@@ -1149,6 +1165,18 @@ export class MessagingService {
       );
 
       return { ok: true, data: SocialReactionListSchema.parse(raw) };
+    } catch (err) {
+      return this.mapError(err);
+    }
+  }
+
+  async listManagedCompanyPages(input: { accountId: string }): Promise<MessagingSendResult<LinkedinCompanyPageList>> {
+    try {
+      const raw = await requestData(
+        this.sdk.linkedin.getManagedCompanyPages({ path: { account_id: input.accountId } }),
+      );
+
+      return { ok: true, data: LinkedinCompanyPageListSchema.parse(raw) };
     } catch (err) {
       return this.mapError(err);
     }

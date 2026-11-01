@@ -87,6 +87,7 @@ export enum CustomErrorCode {
   salesNavigatorRequiresLinkedin = "salesNavigatorRequiresLinkedin",
   linkedinInboxUnavailable = "linkedinInboxUnavailable",
   socialActionRequiresSocialAccount = "socialActionRequiresSocialAccount",
+  socialCompanyPageNotManaged = "socialCompanyPageNotManaged",
   salesNavigatorNotAvailable = "salesNavigatorNotAvailable",
   invalidUrl = "invalidUrl",
   emailLinkColourInvalid = "emailLinkColourInvalid",

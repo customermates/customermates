@@ -58,6 +58,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
 [
+  "comment_on_social_post",
   "configure_record_model",
   "import_crm_records",
   "manage_calendar",

@@ -137,6 +137,18 @@ export const LinkedinCompanyProfileSchema = z.looseObject({
   industry: z.array(z.string()).nullish(),
   website: z.string().nullish(),
 });
+export const LinkedinCompanyPageListSchema = z.looseObject({
+  data: z.array(
+    z.looseObject({
+      object: z.literal("CompanyPage").nullish(),
+      id: z.string().describe("Provider company page ID. Pass it as postAs or commentAs to act as this page"),
+      name: z.string().nullish(),
+      messaging_enabled: z.boolean().nullish(),
+    }),
+  ),
+});
+export type LinkedinCompanyPageList = z.infer<typeof LinkedinCompanyPageListSchema>;
+
 export const SocialProfileSchema = z.looseObject({
   object: z.enum(["User", "UserProfile", "CompanyProfile"]).nullish(),
   id: z

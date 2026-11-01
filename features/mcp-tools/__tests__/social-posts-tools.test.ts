@@ -21,6 +21,8 @@ const spies = vi.hoisted(() => ({
   acceptRelationRequest: vi.fn(),
   cancelRelationRequest: vi.fn(),
   publishSocialPost: vi.fn(),
+  commentOnSocialPost: vi.fn(),
+  listManagedCompanyPages: vi.fn(),
 }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -38,6 +40,8 @@ vi.mock("@/core/di", () => ({
   getAcceptRelationRequestInteractor: () => ({ invoke: spies.acceptRelationRequest }),
   getCancelRelationRequestInteractor: () => ({ invoke: spies.cancelRelationRequest }),
   getPublishSocialPostInteractor: () => ({ invoke: spies.publishSocialPost }),
+  getCommentOnSocialPostInteractor: () => ({ invoke: spies.commentOnSocialPost }),
+  getListManagedCompanyPagesInteractor: () => ({ invoke: spies.listManagedCompanyPages }),
 }));
 
 import {
@@ -46,6 +50,7 @@ import {
   getSocialProfileTool,
   manageSocialRelationsTool,
   publishSocialPostTool,
+  commentOnSocialPostTool,
 } from "../social-posts.mcp-tools";
 import {
   UNTRUSTED_RECORD_TEXT_CLOSE,
@@ -246,6 +251,27 @@ describe("get_social_post_engagement routing", () => {
 });
 
 describe("get_social_profile", () => {
+  it("lists the administered company pages for identifier me with profileType company", async () => {
+    spies.listManagedCompanyPages.mockResolvedValue({
+      ok: true as const,
+      data: { data: [{ object: "CompanyPage", id: "company_1", name: "Acme", messaging_enabled: true }] },
+    });
+
+    const result = await getSocialProfileTool.execute(
+      getSocialProfileTool.inputSchema.parse({
+        connectedAccountId: ACCOUNT_ID,
+        identifier: "me",
+        profileType: "company",
+      }),
+    );
+
+    expect(spies.listManagedCompanyPages).toHaveBeenCalledWith({ connectedAccountId: ACCOUNT_ID });
+    expect(spies.getSocialProfile).not.toHaveBeenCalled();
+    const structured = (result as { structuredContent: Record<string, unknown> }).structuredContent;
+    expect(structured).toEqual({ items: [{ id: "company_1", name: "Acme", messaging_enabled: true }] });
+    expect(getSocialProfileTool.outputSchema.safeParse(structured).success).toBe(true);
+  });
+
   it("returns profile fields on the happy path", async () => {
     spies.getSocialProfile.mockResolvedValue({
       ok: true as const,
@@ -464,6 +490,70 @@ describe("publish_social_post routing", () => {
 
     expect(mcpToolResultText(result)).toMatch(/text/);
     expect(spies.publishSocialPost).not.toHaveBeenCalled();
+  });
+
+  it("accepts a plain repost as a company page without text", async () => {
+    spies.publishSocialPost.mockResolvedValue({ ok: true as const, data: { ...published, comment_id: null } });
+
+    await runPublish({ connectedAccountId: ACCOUNT_ID, text: "", postAs: "company_1", quotedPostId: "post_0" });
+
+    expect(spies.publishSocialPost).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      text: "",
+      postAs: "company_1",
+      quotedPostId: "post_0",
+    });
+  });
+});
+
+describe("comment_on_social_post routing", () => {
+  const runComment = (args: Record<string, unknown>) =>
+    commentOnSocialPostTool.execute(commentOnSocialPostTool.inputSchema.parse(args));
+
+  it("is an open-world write that never claims to be read-only or idempotent", () => {
+    expect(commentOnSocialPostTool.annotations).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    });
+    expect(commentOnSocialPostTool.description).toContain("SIDE EFFECT");
+  });
+
+  it("passes the approved reply to the interactor and returns the comment id", async () => {
+    spies.commentOnSocialPost.mockResolvedValue({ ok: true as const, data: { id: "comment_2", repeated: false } });
+
+    const result = await runComment({
+      connectedAccountId: ACCOUNT_ID,
+      postId: "post_1",
+      text: "Thanks!",
+      replyToCommentId: "comment_1",
+      commentAs: "company_1",
+      idempotencyKey: "00000000-0000-4000-8000-000000000003",
+    });
+
+    expect(spies.commentOnSocialPost).toHaveBeenCalledWith({
+      connectedAccountId: ACCOUNT_ID,
+      postId: "post_1",
+      text: "Thanks!",
+      replyToCommentId: "comment_1",
+      commentAs: "company_1",
+      idempotencyKey: "00000000-0000-4000-8000-000000000003",
+    });
+    const structured = (result as { structuredContent: Record<string, unknown> }).structuredContent;
+    expect(structured).toEqual({ id: "comment_2", repeated: false });
+    expect(commentOnSocialPostTool.outputSchema.safeParse(structured).success).toBe(true);
+  });
+
+  it("refuses an empty comment before execution", async () => {
+    const result = await commentOnSocialPostTool.execute({
+      connectedAccountId: ACCOUNT_ID,
+      postId: "post_1",
+      text: " ",
+    });
+
+    expect(mcpToolResultText(result)).toMatch(/text/);
+    expect(spies.commentOnSocialPost).not.toHaveBeenCalled();
   });
 });
 

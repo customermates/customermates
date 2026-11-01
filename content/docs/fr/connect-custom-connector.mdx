@@ -119,7 +119,7 @@ Customermates n’interrompt jamais un appel d’outil pour demander une confirm
 
 - Les lectures (`get_*`, `list_*`, `search_*`) portent l’indicateur de lecture seule, vous pouvez donc les autoriser sans risque.
 - Les outils qui peuvent supprimer portent l’indicateur destructif et indiquent `IRREVERSIBLE`.
-- Les outils qui ne font que créer, modifier ou envoyer ne portent aucun des deux indicateurs ; les outils fusionnés avec une action de suppression, comme `manage_webhooks`, portent l’indicateur destructif, tout comme `manage_team`, dont `remove_member` révoque l’accès d’un membre. Parmi les outils sans indicateur figurent `send_email`, `send_chat_message`, `request_support`, `manage_social_relations` et `publish_social_post`, qui atteignent de vraies personnes, et `move_email_thread`, qui déplace du courrier dans la vraie messagerie.
+- Les outils qui ne font que créer, modifier ou envoyer ne portent aucun des deux indicateurs ; les outils fusionnés avec une action de suppression, comme `manage_webhooks`, portent l’indicateur destructif, tout comme `manage_team`, dont `remove_member` révoque l’accès d’un membre. Parmi les outils sans indicateur figurent `send_email`, `send_chat_message`, `request_support`, `manage_social_relations`, `publish_social_post` et `comment_on_social_post`, qui atteignent de vraies personnes, et `move_email_thread`, qui déplace du courrier dans la vraie messagerie.
 
 Laissez sur *Ask* tout outil qui n’est pas en lecture seule. La liste complète figure dans le [catalogue d’outils MCP](/docs/mcp#tool-catalog).
 
