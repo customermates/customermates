@@ -51,6 +51,7 @@ import {
   getSocialProfileTool,
   manageSocialRelationsTool,
   publishSocialPostTool,
+  commentOnSocialPostTool,
 } from "@/features/mcp-tools/social-posts.mcp-tools";
 import {
   getSalesSearchParametersTool,
@@ -110,6 +111,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     getSocialProfileTool,
     manageSocialRelationsTool,
     publishSocialPostTool,
+    commentOnSocialPostTool,
     searchSalesLeadsTool,
     searchSalesCompaniesTool,
     getSalesSearchParametersTool,

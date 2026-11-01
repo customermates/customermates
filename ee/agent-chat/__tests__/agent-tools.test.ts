@@ -382,6 +382,7 @@ describe("agent tools", () => {
       "connect_messaging_account",
       "manage_social_relations",
       "publish_social_post",
+      "comment_on_social_post",
       "linkedin_manage_sales_lists",
     ])
       expect(hasNonTransactionalEffect(name), name).toBe(true);

@@ -23,6 +23,7 @@ import { recordRequestHash } from "@/features/records/record-request-hash";
 import { accountNeedsReconnect } from "../account-health";
 import { isSocialProvider } from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
+import { requireManagedCompanyPage } from "./list-managed-company-pages.interactor";
 
 export const SOCIAL_POST_ATTACHMENTS_MAX_BYTES = 25 * 1024 * 1024;
 
@@ -33,10 +34,12 @@ export const PublishSocialPostSchema = z
     fileIds: z.array(z.uuid()).min(1).max(10).optional(),
     visibility: z.enum(["anyone", "relations_only"]).optional(),
     firstComment: z.string().trim().min(1).max(1250).optional(),
+    postAs: z.string().min(1).optional(),
+    quotedPostId: z.string().min(1).optional(),
     idempotencyKey: z.uuid().optional(),
   })
   .superRefine((d, ctx) => {
-    if (!d.text.trim() && !d.fileIds?.length) {
+    if (!d.text.trim() && !d.fileIds?.length && !d.quotedPostId) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.messageContentRequired },
@@ -84,6 +87,10 @@ export class PublishSocialPostInteractor extends AuthenticatedInteractor<
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);
     if (data.visibility && account.provider !== MessagingProvider.linkedin)
       return fail(CustomErrorCode.linkedinProductRequiresLinkedin, ["visibility"]);
+    if (data.postAs && account.provider !== MessagingProvider.linkedin)
+      return fail(CustomErrorCode.linkedinProductRequiresLinkedin, ["postAs"]);
+    if (data.quotedPostId && account.provider !== MessagingProvider.linkedin)
+      return fail(CustomErrorCode.linkedinProductRequiresLinkedin, ["quotedPostId"]);
 
     const { idempotencyKey, ...request } = data;
     const hash = recordRequestHash({ kind: "social-post", request });
@@ -94,6 +101,16 @@ export class PublishSocialPostInteractor extends AuthenticatedInteractor<
           ? { ok: true as const, data: { ...PublishSocialPostResultSchema.parse(receipt.result), repeated: true } }
           : fail(CustomErrorCode.recordIdempotencyConflict, ["idempotencyKey"]);
       }
+    }
+
+    if (data.postAs) {
+      const page = await requireManagedCompanyPage(
+        this.messagingService,
+        account.unipileAccountId,
+        data.postAs,
+        "postAs",
+      );
+      if (!page.ok) return page;
     }
 
     const attachments = [];
@@ -120,6 +137,8 @@ export class PublishSocialPostInteractor extends AuthenticatedInteractor<
       text: data.text,
       attachments: attachments.length ? attachments : undefined,
       canRead: data.visibility,
+      postAs: data.postAs,
+      quotedPostId: data.quotedPostId,
     });
     if (!post.ok) return fail(post.error, [], { retryAfter: await retryAfterPhrase(post.retryAfterSeconds) });
 
@@ -128,6 +147,7 @@ export class PublishSocialPostInteractor extends AuthenticatedInteractor<
           accountId: account.unipileAccountId,
           postId: post.data.id,
           text: data.firstComment,
+          commentAs: data.postAs,
         })
       : null;
 

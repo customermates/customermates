@@ -341,6 +341,16 @@ describe("agent experience contract", () => {
         connectedAccountId: "provider-account-123",
         text: "We shipped it.",
       }),
+      describeInternalTool("publish_social_post", {
+        connectedAccountId: "provider-account-123",
+        text: "",
+        quotedPostId: "provider-post-123",
+      }),
+      describeInternalTool("comment_on_social_post", {
+        connectedAccountId: "provider-account-123",
+        postId: "provider-post-123",
+        text: "Congratulations!",
+      }),
     ];
     const expected = {
       en: [
@@ -349,6 +359,8 @@ describe("agent experience contract", () => {
         "Withdraw or decline the connection request involving Linus Torvalds",
         "Add Margaret Hamilton to Sales Navigator list Priority Leads",
         "Publish a post from the connected account · Preview: We shipped it.",
+        "Repost a post from the connected account",
+        "Comment on a post from the connected account · Preview: Congratulations!",
       ],
       de: [
         "Kontaktanfrage an Ada Lovelace senden · Vorschau: Let's connect.",
@@ -356,6 +368,8 @@ describe("agent experience contract", () => {
         "Kontaktanfrage mit Linus Torvalds zurückziehen oder ablehnen",
         "Margaret Hamilton zur Sales-Navigator-Liste Priority Leads hinzufügen",
         "Einen Post über das verbundene Konto veröffentlichen · Vorschau: We shipped it.",
+        "Einen Post über das verbundene Konto erneut teilen",
+        "Einen Post über das verbundene Konto kommentieren · Vorschau: Congratulations!",
       ],
       es: [
         "Enviar una solicitud de conexión a Ada Lovelace · Vista previa: Let's connect.",
@@ -363,6 +377,8 @@ describe("agent experience contract", () => {
         "Retirar o rechazar la solicitud de conexión relacionada con Linus Torvalds",
         "Añadir Margaret Hamilton a la lista Priority Leads de Sales Navigator",
         "Publicar una publicación desde la cuenta conectada · Vista previa: We shipped it.",
+        "Volver a compartir una publicación desde la cuenta conectada",
+        "Comentar una publicación desde la cuenta conectada · Vista previa: Congratulations!",
       ],
       fr: [
         "Envoyer une demande de connexion à Ada Lovelace · Aperçu: Let's connect.",
@@ -370,6 +386,8 @@ describe("agent experience contract", () => {
         "Retirer ou refuser la demande de connexion concernant Linus Torvalds",
         "Ajouter Margaret Hamilton à la liste Sales Navigator Priority Leads",
         "Publier un post depuis le compte connecté · Aperçu: We shipped it.",
+        "Republier un post depuis le compte connecté",
+        "Commenter un post depuis le compte connecté · Aperçu: Congratulations!",
       ],
       it: [
         "Inviare una richiesta di collegamento a Ada Lovelace · Anteprima: Let's connect.",
@@ -377,6 +395,8 @@ describe("agent experience contract", () => {
         "Ritirare o rifiutare la richiesta di collegamento relativa a Linus Torvalds",
         "Aggiungere Margaret Hamilton all'elenco Sales Navigator Priority Leads",
         "Pubblicare un post dall'account collegato · Anteprima: We shipped it.",
+        "Ricondividere un post dall'account collegato",
+        "Commentare un post dall'account collegato · Anteprima: Congratulations!",
       ],
     } as const;
 

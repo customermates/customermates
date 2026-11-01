@@ -38,6 +38,9 @@ function make(provider = "linkedin", status = "ok") {
   const messagingService = {
     createPost: vi.fn().mockResolvedValue({ ok: true, data: POST }),
     addPostComment: vi.fn().mockResolvedValue({ ok: true, data: { id: "comment_1" } }),
+    listManagedCompanyPages: vi
+      .fn()
+      .mockResolvedValue({ ok: true, data: { data: [{ id: "company_1", name: "Acme" }] } }),
   };
   const entitlements = { require: vi.fn().mockResolvedValue(null) };
   const records = {
@@ -172,6 +175,50 @@ describe("publish_social_post", () => {
     expect(result.ok && result.data.comment_id).toBe("comment_1");
   });
 
+  it("publishes as an administered company page and comments as that page", async () => {
+    const { interactor, messagingService } = make();
+
+    const result = await interactor.invoke({
+      connectedAccountId: ACCOUNT_ID,
+      text: "Hello",
+      postAs: "company_1",
+      firstComment: "Link",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(messagingService.listManagedCompanyPages).toHaveBeenCalledWith({ accountId: "acc_1" });
+    expect(messagingService.createPost.mock.calls[0][0]).toMatchObject({ postAs: "company_1" });
+    expect(messagingService.addPostComment.mock.calls[0][0]).toMatchObject({ commentAs: "company_1" });
+  });
+
+  it("refuses a company page the account does not administer without publishing", async () => {
+    const { interactor, messagingService } = make();
+
+    const result = await interactor.invoke({
+      connectedAccountId: ACCOUNT_ID,
+      text: "Hello",
+      postAs: "company_2",
+    });
+
+    expect(result.ok).toBe(false);
+    expect(errorCode(result)).toBe(CustomErrorCode.socialCompanyPageNotManaged);
+    expect(messagingService.createPost).not.toHaveBeenCalled();
+  });
+
+  it("reposts without text when quotedPostId is set", async () => {
+    const { interactor, messagingService } = make();
+
+    const result = await interactor.invoke({
+      connectedAccountId: ACCOUNT_ID,
+      text: "",
+      quotedPostId: "post_0",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(messagingService.createPost.mock.calls[0][0]).toMatchObject({ text: "", quotedPostId: "post_0" });
+    expect(messagingService.listManagedCompanyPages).not.toHaveBeenCalled();
+  });
+
   it("keeps the published post and names the reason when the first comment fails", async () => {
     const { interactor, messagingService, records } = make();
     messagingService.addPostComment.mockResolvedValue({
@@ -243,6 +290,20 @@ describe("publish_social_post", () => {
       "instagram",
       "ok",
       { visibility: "relations_only" },
+      CustomErrorCode.linkedinProductRequiresLinkedin,
+    ],
+    [
+      "a company page on Instagram",
+      "instagram",
+      "ok",
+      { postAs: "company_1" },
+      CustomErrorCode.linkedinProductRequiresLinkedin,
+    ],
+    [
+      "a repost on Instagram",
+      "instagram",
+      "ok",
+      { quotedPostId: "post_0" },
       CustomErrorCode.linkedinProductRequiresLinkedin,
     ],
   ] as const)("refuses %s without publishing", async (_, provider, status, extra, code) => {

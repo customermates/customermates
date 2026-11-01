@@ -138189,6 +138189,7 @@
                         "salesNavigatorRequiresLinkedin",
                         "linkedinInboxUnavailable",
                         "socialActionRequiresSocialAccount",
+                        "socialCompanyPageNotManaged",
                         "salesNavigatorNotAvailable",
                         "invalidUrl",
                         "emailLinkColourInvalid",

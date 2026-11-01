@@ -46,6 +46,7 @@ const CLOUD_ONLY_TOOLS = [
   "get_social_profile",
   "manage_social_relations",
   "publish_social_post",
+  "comment_on_social_post",
   "linkedin_search_sales_leads",
   "linkedin_search_sales_companies",
   "linkedin_get_sales_search_parameters",
