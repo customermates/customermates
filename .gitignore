@@ -62,6 +62,7 @@ generated/
 content/api/**/*.mdx
 
 .mcp.json
+!/plugins/cursor/.mcp.json
 
 /.swc
 

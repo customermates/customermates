@@ -1,0 +1,15 @@
+{
+  "name": "customermates",
+  "displayName": "Customermates",
+  "version": "1.0.0",
+  "description": "Connect Cursor to the Customermates CRM through its MCP endpoint: read and write contacts, organizations, deals and tasks, and search your company knowledge base.",
+  "author": {
+    "name": "Customermates",
+    "url": "https://customermates.com"
+  },
+  "homepage": "https://customermates.com/docs/mcp",
+  "repository": "https://github.com/customermates/customermates",
+  "license": "MIT",
+  "keywords": ["crm", "mcp", "customermates", "sales", "contacts", "deals", "knowledge-base"],
+  "logo": "assets/logo.svg"
+}
