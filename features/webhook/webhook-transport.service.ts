@@ -1,3 +1,5 @@
+import { abortable } from "@/core/network/pinned-request";
+
 import { renderWebhookBody } from "./webhook-body-template";
 import { allowsCredentialedHeaders } from "./webhook-headers";
 import { isWebhookEndpointUrl } from "./webhook.schema";
@@ -88,13 +90,4 @@ export class WebhookTransport {
       clearTimeout(timeout);
     }
   }
-}
-
-function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const onAbort = () => reject(new DOMException("The operation was aborted", "AbortError"));
-    if (signal.aborted) return onAbort();
-    signal.addEventListener("abort", onAbort, { once: true });
-    promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
-  });
 }
