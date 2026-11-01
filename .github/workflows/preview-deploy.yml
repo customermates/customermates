@@ -1,0 +1,48 @@
+name: Preview deployment
+
+# Vercel builds a preview only for SEO daily branches and for pull requests with the `preview` label
+# (scripts/vercel-ignore-build.mjs). A push after the label is set builds on its own; this workflow starts the build
+# when the label is added to a pull request whose last push was skipped, or on demand for any branch.
+# pull_request_target runs this file from main and never checks out the pull request, so the token only reaches the
+# Vercel API. Fork pull requests are never deployed.
+on:
+  pull_request_target:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to build a Vercel preview for
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-preview:
+    if: >-
+      github.repository == 'customermates/customermates' &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.label.name == 'preview' && github.event.pull_request.head.repo.full_name == github.repository)
+      )
+    runs-on: ubuntu-latest
+    concurrency:
+      group: preview-deploy-${{ github.event.pull_request.head.ref || inputs.branch }}
+      cancel-in-progress: false
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Start the preview build
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref || inputs.branch }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: bash scripts/deploy-preview.sh
