@@ -59,6 +59,6 @@ if [[ "$shallow" != "false" ]]; then
 fi
 # next.config.ts skips the type check on Vercel (CI's typecheck job gates every merge). Without it the build is as fast
 # with a 4 GiB heap as with 6 GiB and peaks about 1.2 GiB lower (measured on 4 cores and 8 GB), which leaves headroom
-# on an 8 GB build machine. CI and Docker builds still type-check inside next build and keep the 6 GiB default.
+# on an 8 GB build machine. CI's browser build skips the type check too but keeps the 6 GiB default on its 16 GB runner.
 export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-4096}"
 yarn build

@@ -30,11 +30,19 @@ describe("type checking heap", () => {
     expect(heapOf(scripts.build)).toBe(TYPE_CHECK_HEAP_MB);
   });
 
-  it("lowers the build heap only on Vercel, where next build skips the type check", () => {
+  it("skips next build's type check only on Vercel and in CI's browser build, and lowers the heap only on Vercel", () => {
     const config = readFileSync(join(REPO_ROOT, "next.config.ts"), "utf8");
     const vercelBuild = readFileSync(join(REPO_ROOT, "scripts", "vercel-build.sh"), "utf8");
+    const e2e = readFileSync(join(REPO_ROOT, ".github", "workflows", "e2e.yml"), "utf8");
+    const tests = readFileSync(join(REPO_ROOT, ".github", "workflows", "test.yml"), "utf8");
 
-    expect(config).toContain('typescript: { ignoreBuildErrors: process.env.VERCEL === "1" }');
+    expect(config).toContain(
+      'typescript: { ignoreBuildErrors: process.env.VERCEL === "1" || process.env.NEXT_SKIP_TYPECHECK === "1" }',
+    );
+    expect(e2e.match(/NEXT_SKIP_TYPECHECK: "1"/g)).toHaveLength(1);
+    expect(e2e).toMatch(/APP_MODE: \$\{\{ matrix\.mode \}\}\n(?:\s+#.*\n)*\s+NEXT_SKIP_TYPECHECK: "1"/);
+    // The type check the build skips still runs in the static job, which the plan selects whenever it builds.
+    expect(tests).toContain("- run: yarn typecheck");
     expect(vercelBuild).toMatch(/^export NEXT_BUILD_HEAP_MB="\$\{NEXT_BUILD_HEAP_MB:-\d+\}"$/m);
   });
 
