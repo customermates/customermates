@@ -1552,6 +1552,8 @@
         "reverseXAxis": "X-Achse umkehren",
         "reverseYAxis": "Y-Achse umkehren",
         "showLegend": "Legende anzeigen",
+        "showWholePeriod": "Ganzen Zeitraum zeigen",
+        "smoothLine": "Linie glätten",
         "useGroupColors": "Optionsfarben verwenden"
       },
       "email": "E-Mail",
@@ -2000,7 +2002,7 @@
         "colorOption": "Farbe {number}",
         "colors": "Farben",
         "showFilters": "Aktivitätsanzahl und Filter anzeigen",
-        "showMetricAndFilters": "Kennzahl und Filter anzeigen",
+        "showOverall": "Gesamtwert anzeigen",
         "showSourceAndFilters": "Quelle und Filter anzeigen"
       },
       "danger": {

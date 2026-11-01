@@ -1,6 +1,7 @@
-import type { RecordMeasureDateInterval } from "@/features/records/record-measure.schema";
+import type { RecordMeasure, RecordMeasureDateInterval } from "@/features/records/record-measure.schema";
 
 import { RECORD_MEASURE_MAX_GROUP_LIMIT } from "@/features/records/record-measure.schema";
+import { zonedDate } from "@/features/record-calendar/zoned-time";
 
 export const RANKED_TABLE_ROW_LIMIT = 10;
 
@@ -15,18 +16,72 @@ export function shiftBucketStart(start: string, interval: RecordMeasureDateInter
   return date.toISOString().slice(0, 10);
 }
 
+export function bucketStartOf(date: string, interval: RecordMeasureDateInterval): string {
+  const [year, month, day] = date.slice(0, 10).split("-").map(Number);
+  const start = new Date(Date.UTC(year, month - 1, day));
+  if (interval === "week") start.setUTCDate(day - ((start.getUTCDay() + 6) % 7));
+  else if (interval === "month") start.setUTCDate(1);
+  else if (interval === "quarter") start.setUTCMonth(Math.floor((month - 1) / 3) * 3, 1);
+  else if (interval === "year") start.setUTCMonth(0, 1);
+  return start.toISOString().slice(0, 10);
+}
+
+export type TimeSeriesWindow = { first: string; last: string };
+
+export function measureTimeWindow(measure: RecordMeasure, now = new Date()): TimeSeriesWindow | null {
+  const groupBy = measure.groupBy;
+  if (!groupBy?.dateInterval || !groupBy.fieldId) return null;
+  const timeZone = groupBy.timeZone ?? "UTC";
+  const filters = [
+    ...(groupBy.path.length === 0 ? measure.source.filters : []),
+    ...(groupBy.filter?.filters ?? []),
+  ].filter((filter) => filter.fieldId === groupBy.fieldId);
+  const pointDate = (value: RecordMeasure["source"]["filters"][number]["value"] | undefined) =>
+    value?.kind === "date"
+      ? String(value.value).slice(0, 10)
+      : value?.kind === "dateTime"
+        ? zonedDate(String(value.value), timeZone)
+        : null;
+  const starts: string[] = [];
+  const ends: string[] = [];
+  for (const filter of filters) {
+    if (filter.operator === "inLastDays" && filter.value?.kind === "decimal") {
+      const cutoff = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - Number(filter.value.value)),
+      );
+      starts.push(cutoff.toISOString().slice(0, 10));
+    } else if (filter.operator === "between") {
+      const [from, until] = (filter.values ?? []).map(pointDate);
+      if (from) starts.push(from);
+      if (until) ends.push(until);
+    } else if (filter.operator === "gte" || filter.operator === "gt") {
+      const from = pointDate(filter.value);
+      if (from) starts.push(from);
+    } else if (filter.operator === "lte" || filter.operator === "lt") {
+      const until = pointDate(filter.value);
+      if (until) ends.push(until);
+    }
+  }
+  const latestStart = starts.sort().at(-1);
+  if (!latestStart) return null;
+  const first = bucketStartOf(latestStart, groupBy.dateInterval);
+  const last = bucketStartOf(ends.sort()[0] ?? zonedDate(now, timeZone), groupBy.dateInterval);
+  return first <= last ? { first, last } : null;
+}
+
 export function fillTimeSeries<T>(
   entries: Array<{ start: string; item: T }>,
   interval: RecordMeasureDateInterval,
   limit = RECORD_MEASURE_MAX_GROUP_LIMIT,
+  window: TimeSeriesWindow | null = null,
 ): Array<{ start: string; item: T | null }> {
   const sorted = [...entries].sort((left, right) => (left.start < right.start ? -1 : left.start > right.start ? 1 : 0));
-  const first = sorted[0];
-  const last = sorted.at(-1);
-  if (!first || !last) return [];
+  const first = [sorted[0]?.start, window?.first].filter(Boolean).sort()[0];
+  const last = [sorted.at(-1)?.start, window?.last].filter(Boolean).sort().at(-1);
+  if (!sorted.length || !first || !last) return [];
   const byStart = new Map(sorted.map((entry) => [entry.start, entry.item]));
   const filled: Array<{ start: string; item: T | null }> = [];
-  for (let start = first.start; start <= last.start; start = shiftBucketStart(start, interval)) {
+  for (let start = first; start <= last; start = shiftBucketStart(start, interval)) {
     if (filled.length >= limit) return sorted;
     filled.push({ start, item: byStart.get(start) ?? null });
   }

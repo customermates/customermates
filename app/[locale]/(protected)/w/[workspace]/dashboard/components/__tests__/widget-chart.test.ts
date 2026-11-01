@@ -127,7 +127,7 @@ describe("WidgetChart", () => {
     expect(call.props).toMatchObject({
       currency: "EUR",
       reverseXAxis: true,
-      reverseYAxis: true,
+      reverseYAxis: displayType !== DisplayType.areaChart,
     });
   });
 
@@ -301,6 +301,23 @@ describe("WidgetChart", () => {
     });
     expect((optionColors.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
       "fill-success1",
+      "fill-secondary1",
+    ]);
+  });
+
+  it("passes the smooth line choice to the area chart and keeps straight lines by default", () => {
+    expect(renderChart(DisplayType.areaChart).props.smoothLine).toBe(false);
+    const smooth = renderChart(DisplayType.areaChart, {
+      displayOptions: { displayType: DisplayType.areaChart, barColors: [ChartColor.primary1], smoothLine: true },
+    });
+    expect(smooth.props.smoothLine).toBe(true);
+  });
+
+  it("draws a radar in its configured color even when option colors are on", () => {
+    const radar = renderChart(DisplayType.radarChart);
+    expect(radar.props.colors).toEqual(["fill-danger2", "fill-secondary1"]);
+    expect((radar.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "fill-danger2",
       "fill-secondary1",
     ]);
   });

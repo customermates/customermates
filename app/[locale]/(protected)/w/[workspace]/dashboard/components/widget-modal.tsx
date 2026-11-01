@@ -207,14 +207,23 @@ export const WidgetModal = observer(() => {
     return (
       Boolean(form.measure.groupBy?.fieldId) &&
       !form.measure.groupBy?.dateInterval &&
-      ![DisplayType.number, DisplayType.areaChart, DisplayType.rankedTable].includes(displayType)
+      ![DisplayType.number, DisplayType.areaChart, DisplayType.rankedTable, DisplayType.radarChart].includes(
+        displayType,
+      )
     );
   }
   function renderColorPicker() {
     if (form.kind !== WidgetKind.chart) return null;
-    const singleColor = form.displayOptions?.displayType === DisplayType.number;
+    const displayType = form.displayOptions?.displayType ?? DisplayType.verticalBarChart;
+    const numberColor = displayType === DisplayType.number;
+    const singleColor = [
+      DisplayType.number,
+      DisplayType.areaChart,
+      DisplayType.radarChart,
+      DisplayType.rankedTable,
+    ].includes(displayType);
     if (groupColorsApply() && widgetUsesGroupColors(form.displayOptions)) return null;
-    const colors = Object.entries(chartColors).filter(([key]) => !singleColor || key.endsWith("1"));
+    const colors = Object.entries(chartColors).filter(([key]) => !numberColor || key.endsWith("1"));
 
     return (
       <div className="space-y-1.5">
@@ -239,7 +248,7 @@ export const WidgetModal = observer(() => {
                     key={key}
                     className="inline-flex size-4 rounded-full"
                     style={{
-                      backgroundColor: chartColors[key as keyof typeof chartColors],
+                      backgroundColor: chartColors[key],
                     }}
                   />
                 ))}
@@ -255,10 +264,12 @@ export const WidgetModal = observer(() => {
             className="w-(--radix-dropdown-menu-trigger-width)"
           >
             {colors.map(([key, color], index) => {
-              const selected = singleColor
-                ? getChartTextColors()[form.displayOptions?.barColors?.[0] ?? ChartColor.primary1] ===
-                  getChartTextColors()[key as ChartColor]
-                : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
+              const firstColor = form.displayOptions?.barColors?.[0] ?? ChartColor.primary1;
+              const selected = numberColor
+                ? getChartTextColors()[firstColor] === getChartTextColors()[key as ChartColor]
+                : singleColor
+                  ? firstColor === (key as ChartColor)
+                  : (form.displayOptions?.barColors ?? []).includes(key as ChartColor);
               const label = t("Dashboard.widgetEditor.appearance.colorOption", { number: index + 1 });
               return (
                 <DropdownMenuCheckboxItem
@@ -327,11 +338,21 @@ export const WidgetModal = observer(() => {
           <FormSwitch id="displayOptions.showLegend" label={t("Common.inputs.displayOptions.showLegend")} />
         )}
 
+        {displayType === DisplayType.areaChart && (
+          <>
+            <FormSwitch id="displayOptions.showWholePeriod" label={t("Common.inputs.displayOptions.showWholePeriod")} />
+
+            <FormSwitch id="displayOptions.smoothLine" label={t("Common.inputs.displayOptions.smoothLine")} />
+          </>
+        )}
+
         {supportsAxes && (
           <>
             <FormSwitch id="displayOptions.reverseXAxis" label={t("Common.inputs.displayOptions.reverseXAxis")} />
 
-            <FormSwitch id="displayOptions.reverseYAxis" label={t("Common.inputs.displayOptions.reverseYAxis")} />
+            {displayType !== DisplayType.areaChart && (
+              <FormSwitch id="displayOptions.reverseYAxis" label={t("Common.inputs.displayOptions.reverseYAxis")} />
+            )}
           </>
         )}
       </div>
@@ -343,16 +364,18 @@ export const WidgetModal = observer(() => {
       <div className="flex min-w-0 flex-col gap-6">
         {renderChartAppearance(model)}
 
-        <FormSwitch
-          id="displayOptions.showFilters"
-          label={
-            form.kind === WidgetKind.chart
-              ? t("Dashboard.widgetEditor.appearance.showMetricAndFilters")
-              : form.kind === WidgetKind.activityTimeline
-                ? t("Dashboard.widgetEditor.appearance.showFilters")
-                : t("Dashboard.widgetEditor.appearance.showSourceAndFilters")
-          }
-        />
+        {(form.kind !== WidgetKind.chart || form.displayOptions?.displayType !== DisplayType.number) && (
+          <FormSwitch
+            id="displayOptions.showFilters"
+            label={
+              form.kind === WidgetKind.chart
+                ? t("Dashboard.widgetEditor.appearance.showOverall")
+                : form.kind === WidgetKind.activityTimeline
+                  ? t("Dashboard.widgetEditor.appearance.showFilters")
+                  : t("Dashboard.widgetEditor.appearance.showSourceAndFilters")
+            }
+          />
+        )}
 
         <FormSwitch id="isTemplate" label={t("Dashboard.widgetEditor.sharing.template")} />
       </div>

@@ -248,6 +248,56 @@ describe("record widget display types", () => {
     ]);
   });
 
+  it("spans the filtered time window so charts with the same window line up", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-31T10:00:00.000Z"));
+    try {
+      const windowed = {
+        ...measure({ path: [], fieldId: CLOSE, dateInterval: "day", timeZone: "Europe/Berlin" }, "count"),
+        source: {
+          typeId: DEAL,
+          relationships: [],
+          filters: [
+            {
+              fieldId: CLOSE,
+              operator: "inLastDays",
+              value: { kind: "decimal", value: "6", currency: null },
+            },
+          ],
+        },
+      } as RecordWidgetChartProps["measure"];
+      render({
+        displayOptions: { displayType: DisplayType.areaChart },
+        measure: windowed,
+        data: result({ count: 3, result: plain("3") }, [group(day("2026-10-28"), plain("3"), 3)]),
+      });
+      expect(
+        (chartMocks.calls[0].data as Array<{ axisLabel: string; value: number }>).map(({ axisLabel, value }) => [
+          axisLabel,
+          value,
+        ]),
+      ).toEqual([
+        ["Oct 25", 0],
+        ["Oct 26", 0],
+        ["Oct 27", 0],
+        ["Oct 28", 3],
+        ["Oct 29", 0],
+        ["Oct 30", 0],
+        ["Oct 31", 0],
+      ]);
+      render({
+        displayOptions: { displayType: DisplayType.areaChart, showWholePeriod: false },
+        measure: windowed,
+        data: result({ count: 3, result: plain("3") }, [group(day("2026-10-28"), plain("3"), 3)]),
+      });
+      expect((chartMocks.calls[0].data as Array<{ axisLabel: string }>).map(({ axisLabel }) => axisLabel)).toEqual([
+        "Oct 28",
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("falls back to the list when a time series is not grouped by interval or holds restricted periods", () => {
     const view = render({
       displayOptions: { displayType: DisplayType.areaChart },

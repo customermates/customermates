@@ -1552,6 +1552,8 @@
         "reverseXAxis": "Reverse X-axis",
         "reverseYAxis": "Reverse Y-axis",
         "showLegend": "Show legend",
+        "showWholePeriod": "Show whole time period",
+        "smoothLine": "Smooth line",
         "useGroupColors": "Use option colors"
       },
       "email": "Email",
@@ -2000,7 +2002,7 @@
         "colorOption": "Color {number}",
         "colors": "Colors",
         "showFilters": "Show activity count and filters",
-        "showMetricAndFilters": "Show metric and filters",
+        "showOverall": "Show overall total",
         "showSourceAndFilters": "Show source and filters"
       },
       "danger": {

@@ -44,7 +44,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.getByRole("option", { name: "Each record", exact: true }).click();
   await dialog.getByRole("tab", { name: "Appearance", exact: true }).click();
   await dialog.getByRole("switch", { name: "Share as a template", exact: true }).check();
-  await dialog.getByRole("switch", { name: "Show metric and filters", exact: true }).uncheck();
+  await dialog.getByRole("switch", { name: "Show overall total", exact: true }).uncheck();
   await expect(dialog.locator("svg.recharts-surface")).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
@@ -73,7 +73,8 @@ test("persists every chart style, appearance, a copied template, resizing and de
         await dialog.getByRole("switch", { name: "Show legend", exact: true }).uncheck();
       if (![DisplayType.doughnutChart, DisplayType.radarChart].includes(displayType)) {
         await dialog.getByRole("switch", { name: "Reverse X-axis", exact: true }).check();
-        await dialog.getByRole("switch", { name: "Reverse Y-axis", exact: true }).check();
+        if (displayType !== DisplayType.areaChart)
+          await dialog.getByRole("switch", { name: "Reverse Y-axis", exact: true }).check();
       }
       await dialog.getByRole("button", { name: "Colors", exact: true }).click();
       const secondColor = page.getByRole("menuitemcheckbox", { name: "Color 2", exact: true });

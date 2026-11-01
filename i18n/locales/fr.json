@@ -1552,6 +1552,8 @@
         "reverseXAxis": "Inverser l’axe X",
         "reverseYAxis": "Inverser l’axe Y",
         "showLegend": "Afficher la légende",
+        "showWholePeriod": "Afficher toute la période",
+        "smoothLine": "Lisser la ligne",
         "useGroupColors": "Utiliser les couleurs des options"
       },
       "email": "E-mail",
@@ -2000,7 +2002,7 @@
         "colorOption": "Couleur {number}",
         "colors": "Couleurs",
         "showFilters": "Afficher le nombre d’activités et les filtres",
-        "showMetricAndFilters": "Afficher l’indicateur et les filtres",
+        "showOverall": "Afficher le total",
         "showSourceAndFilters": "Afficher la source et les filtres"
       },
       "danger": {
