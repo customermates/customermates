@@ -2143,7 +2143,7 @@
       "duplicate": "Un'altra colonna compila già questo campo.",
       "failed": "{count, plural, one {# riga non riuscita} other {# righe non riuscite}}",
       "fields": "Campi",
-      "fileHint": "Scegli una cartella di lavoro Excel (.xlsx) o un'esportazione JSON di Customermates per questo elenco.",
+      "fileHint": "Scegli una cartella di lavoro Excel (.xlsx), un file CSV o un'esportazione JSON di Customermates per questo elenco.",
       "importing": "{processed} di {total} righe elaborate",
       "importProgress": "Righe elaborate",
       "issues": {
@@ -2183,6 +2183,7 @@
       "previewHint": "{count, plural, =0 {Le prime {rows} righe non hanno problemi.} one {# delle prime {rows} righe ha un problema.} other {# delle prime {rows} righe hanno problemi.}} Le righe con problemi non vengono importate.",
       "problems": {
         "empty": "La cartella di lavoro non ha fogli con riga di intestazione e dati.",
+        "legacyWorkbook": "Le cartelle di lavoro Excel 97-2004 (.xls) non possono essere lette. In Excel scegli File > Salva con nome, seleziona Cartella di lavoro di Excel (.xlsx) o CSV UTF-8 e scegli il nuovo file.",
         "tooLarge": "La cartella di lavoro supera i 10 MB.",
         "tooManyRows": "Un foglio può contenere al massimo 5000 righe.",
         "unreadable": "Impossibile leggere questa cartella di lavoro."

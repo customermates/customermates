@@ -2143,7 +2143,7 @@
       "duplicate": "Eine andere Spalte füllt dieses Feld bereits.",
       "failed": "{count, plural, one {# Zeile fehlgeschlagen} other {# Zeilen fehlgeschlagen}}",
       "fields": "Felder",
-      "fileHint": "Wähle eine Excel-Arbeitsmappe (.xlsx) oder einen Customermates-JSON-Export für diese Liste.",
+      "fileHint": "Wähle eine Excel-Arbeitsmappe (.xlsx), eine CSV-Datei oder einen Customermates-JSON-Export für diese Liste.",
       "importing": "{processed} von {total} Zeilen verarbeitet",
       "importProgress": "Verarbeitete Zeilen",
       "issues": {
@@ -2183,6 +2183,7 @@
       "previewHint": "{count, plural, =0 {Die ersten {rows} Zeilen haben keine Probleme.} one {# der ersten {rows} Zeilen hat ein Problem.} other {# der ersten {rows} Zeilen haben Probleme.}} Zeilen mit Problemen werden nicht importiert.",
       "problems": {
         "empty": "Die Arbeitsmappe hat kein Tabellenblatt mit Kopfzeile und Daten.",
+        "legacyWorkbook": "Excel-97-2004-Arbeitsmappen (.xls) können nicht gelesen werden. Wähle in Excel Datei > Speichern unter, dann Excel-Arbeitsmappe (.xlsx) oder CSV UTF-8, und wähle die neue Datei.",
         "tooLarge": "Die Arbeitsmappe ist größer als 10 MB.",
         "tooManyRows": "Ein Tabellenblatt darf höchstens 5000 Zeilen enthalten.",
         "unreadable": "Diese Arbeitsmappe konnte nicht gelesen werden."

@@ -2143,7 +2143,7 @@
       "duplicate": "Une autre colonne remplit déjà ce champ.",
       "failed": "{count, plural, one {# ligne en échec} other {# lignes en échec}}",
       "fields": "Champs",
-      "fileHint": "Choisissez un classeur Excel (.xlsx) ou un export JSON Customermates pour cette liste.",
+      "fileHint": "Choisissez un classeur Excel (.xlsx), un fichier CSV ou un export JSON Customermates pour cette liste.",
       "importing": "{processed} lignes traitées sur {total}",
       "importProgress": "Lignes traitées",
       "issues": {
@@ -2183,6 +2183,7 @@
       "previewHint": "{count, plural, =0 {Les {rows} premières lignes ne posent aucun problème.} one {# des {rows} premières lignes pose un problème.} other {# des {rows} premières lignes posent problème.}} Les lignes en erreur ne sont pas importées.",
       "problems": {
         "empty": "Le classeur n’a aucune feuille avec une ligne d’en-tête et des données.",
+        "legacyWorkbook": "Les classeurs Excel 97-2004 (.xls) ne peuvent pas être lus. Dans Excel, choisissez Fichier > Enregistrer sous, sélectionnez Classeur Excel (.xlsx) ou CSV UTF-8, puis choisissez le nouveau fichier.",
         "tooLarge": "Le classeur dépasse 10 Mo.",
         "tooManyRows": "Une feuille peut contenir au plus 5000 lignes.",
         "unreadable": "Ce classeur n’a pas pu être lu."

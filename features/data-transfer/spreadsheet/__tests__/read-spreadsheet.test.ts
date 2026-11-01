@@ -111,6 +111,18 @@ describe("readSpreadsheet CSV", () => {
     expect(table.rows[0].cells).toEqual(["Grüße „Test“", "5 €"]);
   });
 
+  it("reads Mac Roman, the encoding of a plain CSV from Excel for Mac", async () => {
+    const macRoman: Record<string, number> = { ü: 0x9f, ö: 0x9a, ä: 0x8a, ß: 0xa7, Ö: 0x85 };
+    const bytes = Uint8Array.from(
+      [..."Name;Ort\nJürgen Müller;Köln\nÖlaf Strauß;Bärstadt\n"].map((c) => macRoman[c] ?? c.charCodeAt(0)),
+    );
+    const { table } = await readOk(bytes);
+    expect(table.rows.map((row) => row.cells)).toEqual([
+      ["Jürgen Müller", "Köln"],
+      ["Ölaf Strauß", "Bärstadt"],
+    ]);
+  });
+
   it("reads tab separated UTF-16 exports and honours a sep directive", async () => {
     expect((await readOk(utf16le("A\tB\n1\t2\n"))).table.rows[0].cells).toEqual(["1", "2"]);
     const directed = await readOk(utf8("sep=|\nA|B\nx,y|z\n"));

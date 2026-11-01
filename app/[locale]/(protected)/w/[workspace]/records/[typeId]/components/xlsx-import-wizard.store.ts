@@ -24,7 +24,7 @@ import {
   XLSX_SKIP_KEY,
 } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import { parseXlsxRows, planXlsxImport, runXlsxImport } from "@/features/data-transfer/import/xlsx/xlsx-import-plan";
-import { readXlsxWorkbook } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
+import { readSpreadsheetWorkbook } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
 
 export type XlsxWizardStep = "file" | "mapping" | "preview" | "mode" | "result";
 
@@ -220,7 +220,7 @@ export class XlsxImportWizardStore {
       this.fileName = name;
       this.loading = true;
     });
-    const result = await readXlsxWorkbook(await buffer).catch(() => ({
+    const result = await readSpreadsheetWorkbook(name, await buffer).catch(() => ({
       ok: false as const,
       problem: "unreadable" as const,
     }));

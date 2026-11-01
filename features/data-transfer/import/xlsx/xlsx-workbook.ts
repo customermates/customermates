@@ -1,3 +1,6 @@
+import { readCsvRows } from "@/features/data-transfer/spreadsheet/spreadsheet-csv";
+import { isLegacyWorkbook, isZipArchive } from "@/features/data-transfer/spreadsheet/spreadsheet-signature";
+
 export type XlsxCell = string | number | boolean | Date | null;
 
 export type XlsxRow = { sheetRow: number; cells: XlsxCell[] };
@@ -6,7 +9,7 @@ type XlsxSheet = { name: string; headers: string[]; rows: XlsxRow[] };
 
 export type XlsxWorkbook = { sheets: XlsxSheet[] };
 
-export type XlsxFileProblem = "tooLarge" | "tooManyRows" | "empty" | "unreadable";
+export type XlsxFileProblem = "tooLarge" | "tooManyRows" | "empty" | "unreadable" | "legacyWorkbook";
 
 const XLSX_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
@@ -47,8 +50,8 @@ export function xlsxCellText(cell: XlsxCell): string {
   return String(cell).trim();
 }
 
-export function isXlsxFileName(name: string): boolean {
-  return /\.xlsx$/i.test(name.trim());
+export function isSpreadsheetFileName(name: string): boolean {
+  return /\.(xlsx|xls|csv)$/i.test(name.trim());
 }
 
 type ReadableSheet = {
@@ -84,9 +87,36 @@ function readSheet(sheet: ReadableSheet): XlsxSheet {
   };
 }
 
-export async function readXlsxWorkbook(
-  buffer: ArrayBuffer,
-): Promise<{ ok: true; workbook: XlsxWorkbook } | { ok: false; problem: XlsxFileProblem }> {
+type WorkbookResult = { ok: true; workbook: XlsxWorkbook } | { ok: false; problem: XlsxFileProblem };
+
+function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
+  const csv = readCsvRows(bytes, XLSX_MAX_ROWS + 1);
+  if (!csv) return { ok: false, problem: "unreadable" };
+  const sheet: ReadableSheet = {
+    name: name.trim().replace(/\.[^.]+$/, "") || "Sheet",
+    rowCount: csv.rows.length,
+    getRow: (index) => ({ values: [undefined, ...(csv.rows[index - 1]?.cells ?? []).map((cell) => cell || null)] }),
+  };
+  try {
+    const read = readSheet(sheet);
+    return read.headers.some(Boolean) && read.rows.length > 0
+      ? { ok: true, workbook: { sheets: [read] } }
+      : { ok: false, problem: "empty" };
+  } catch {
+    return { ok: false, problem: "tooManyRows" };
+  }
+}
+
+/** Reads an .xlsx workbook or a CSV file (any delimiter and encoding Excel writes) into the import wizard's sheets. */
+export async function readSpreadsheetWorkbook(name: string, buffer: ArrayBuffer): Promise<WorkbookResult> {
+  if (buffer.byteLength > XLSX_MAX_FILE_BYTES) return { ok: false, problem: "tooLarge" };
+  const bytes = new Uint8Array(buffer);
+  if (isLegacyWorkbook(bytes) || /\.xls$/i.test(name.trim())) return { ok: false, problem: "legacyWorkbook" };
+  if (isZipArchive(bytes)) return readXlsxWorkbook(buffer);
+  return readCsvWorkbook(bytes, name);
+}
+
+export async function readXlsxWorkbook(buffer: ArrayBuffer): Promise<WorkbookResult> {
   if (buffer.byteLength > XLSX_MAX_FILE_BYTES) return { ok: false, problem: "tooLarge" };
   const ExcelJS = await import("exceljs");
   const workbook = new ExcelJS.Workbook();

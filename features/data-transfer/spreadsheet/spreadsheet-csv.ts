@@ -2,6 +2,19 @@ const DELIMITER_CANDIDATES = [",", ";", "\t", "|"] as const;
 const SNIFF_RECORDS = 50;
 const SNIFF_CHARACTERS = 64 * 1024;
 
+// An accented Latin-1 letter inside a word, as umlauts and accents sit in "Müller" or "Straße".
+const ACCENTED_LETTER_IN_WORD = /(?<=\p{L})[\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF](?=\p{L})/gu;
+
+// Excel for Windows saves plain CSV as Windows-1252, Excel for Mac as Mac Roman. Only the right decoding turns the
+// umlauts into accented letters inside words: Mac Roman "ü" reads as "Ÿ" in Windows-1252, and Windows-1252 "ü"
+// as "¸" in Mac Roman. A tie keeps Windows-1252.
+function decodeLegacyText(bytes: Uint8Array): string {
+  const windows = new TextDecoder("windows-1252").decode(bytes);
+  const mac = new TextDecoder("macintosh").decode(bytes);
+  const letters = (text: string) => text.match(ACCENTED_LETTER_IN_WORD)?.length ?? 0;
+  return letters(mac) > letters(windows) ? mac : windows;
+}
+
 function decodeSpreadsheetText(bytes: Uint8Array): string | null {
   let text: string;
   if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf)
@@ -12,7 +25,7 @@ function decodeSpreadsheetText(bytes: Uint8Array): string | null {
     try {
       text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
     } catch {
-      text = new TextDecoder("windows-1252").decode(bytes);
+      text = decodeLegacyText(bytes);
     }
   }
   if (text.includes("\u0000")) return null;

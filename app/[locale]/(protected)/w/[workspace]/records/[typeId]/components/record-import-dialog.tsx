@@ -16,7 +16,7 @@ import {
   RECORD_IMPORT_LINK_LIMIT,
   RecordExportSchema,
 } from "@/features/data-transfer/record-transfer.schema";
-import { isXlsxFileName } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
+import { isSpreadsheetFileName } from "@/features/data-transfer/import/xlsx/xlsx-workbook";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
@@ -33,7 +33,8 @@ import { xlsxImportPorts } from "./xlsx-import-ports";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
-const ACCEPTED_FILES = ".json,.xlsx,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const ACCEPTED_FILES =
+  ".json,.xlsx,.xls,.csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv";
 
 export const RecordImportDialog = observer(function RecordImportDialog({
   open,
@@ -130,7 +131,7 @@ export const RecordImportDialog = observer(function RecordImportDialog({
     setFileName(file.name);
     setError("");
     key.current = crypto.randomUUID();
-    if (wizard && isXlsxFileName(file.name)) {
+    if (wizard && isSpreadsheetFileName(file.name)) {
       setFormat("xlsx");
       await wizard.load(file.name, file.arrayBuffer());
       return;

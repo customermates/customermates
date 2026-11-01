@@ -3,7 +3,8 @@ import type { SpreadsheetReadResult } from "./spreadsheet.schema";
 import { SPREADSHEET_MAX_FILE_BYTES, SPREADSHEET_MAX_ROWS, SPREADSHEET_MAX_UNPACKED_BYTES } from "./spreadsheet.schema";
 import { buildSpreadsheetTable } from "./spreadsheet-table";
 import { readCsvRows } from "./spreadsheet-csv";
-import { hasMacros, inspectZip, isLegacyWorkbook, isZipArchive, readXlsxRows } from "./spreadsheet-xlsx";
+import { hasMacros, inspectZip, readXlsxRows } from "./spreadsheet-xlsx";
+import { isLegacyWorkbook, isZipArchive } from "./spreadsheet-signature";
 
 const MACRO_EXTENSIONS = /\.(xlsm|xltm|xlam|xlsb)$/i;
 const LEGACY_EXTENSIONS = /\.(xls|ods|numbers)$/i;

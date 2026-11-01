@@ -118,6 +118,8 @@ export function useXlsxImportText() {
         return t("DataTransfer.xlsxImport.problems.empty");
       case "unreadable":
         return t("DataTransfer.xlsxImport.problems.unreadable");
+      case "legacyWorkbook":
+        return t("DataTransfer.xlsxImport.problems.legacyWorkbook");
     }
   };
 

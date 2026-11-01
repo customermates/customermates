@@ -2143,7 +2143,7 @@
       "duplicate": "Another column already fills this field.",
       "failed": "{count, plural, one {# row failed} other {# rows failed}}",
       "fields": "Fields",
-      "fileHint": "Choose an Excel workbook (.xlsx) or a Customermates JSON export for this list.",
+      "fileHint": "Choose an Excel workbook (.xlsx), a CSV file or a Customermates JSON export for this list.",
       "importing": "{processed} of {total} rows processed",
       "importProgress": "Rows processed",
       "issues": {
@@ -2183,6 +2183,7 @@
       "previewHint": "{count, plural, =0 {The first {rows} rows have no problems.} one {# of the first {rows} rows has a problem.} other {# of the first {rows} rows have problems.}} Rows with problems are not imported.",
       "problems": {
         "empty": "The workbook has no sheet with a header row and data.",
+        "legacyWorkbook": "Excel 97-2004 workbooks (.xls) can't be read. In Excel, choose File > Save As, pick Excel Workbook (.xlsx) or CSV UTF-8, and choose the new file.",
         "tooLarge": "The workbook is larger than 10 MB.",
         "tooManyRows": "A sheet can hold at most 5000 rows.",
         "unreadable": "That workbook could not be read."
