@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "customermates": {
+      "url": "https://customermates.com/api/v1/mcp"
+    }
+  }
+}
