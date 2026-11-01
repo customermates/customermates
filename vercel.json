@@ -40,5 +40,6 @@
       "source": "/.well-known/microsoft-identity-association.json"
     }
   ],
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
   "regions": ["fra1"]
 }

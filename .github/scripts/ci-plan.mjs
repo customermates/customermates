@@ -42,8 +42,10 @@ export function createPlan({ files = null, eventName, requestedTargets = "all", 
     targets = [...new Set(requestedTargets.split(",").map((target) => target.trim()))];
     assert(targets.length && targets.every((target) => TARGETS.includes(target)), "Invalid requested browser target");
   }
+  // Eight shards per target keep a pull request's slowest Chromium shard near eight minutes. Runners are free for this
+  // public repository and the plan allows far more parallel jobs than a full run's forty.
   const shards = targets.flatMap((target) => {
-    const count = /webkit|mobile/.test(target) ? 8 : 6;
+    const count = 8;
     return Array.from({ length: count }, (_, index) => ({
       target,
       shards: count,

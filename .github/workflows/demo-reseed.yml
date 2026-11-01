@@ -1,7 +1,8 @@
 name: Demo reseed
 
 # The demo's dated records (next steps, upcoming meetings, the month heat grid) follow the week of the last seed.
-# Redeploying the demo every night rebuilds it, which resets and seeds its database again.
+# Building main into the demo every night resets and seeds its database again. Merges to main do not build the demo,
+# so this run (nightly, or by hand after a change the demo should show) is its only build.
 on:
   schedule:
     - cron: "40 3 * * *"
@@ -26,7 +27,7 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.event.repository.default_branch }}
-      - name: Redeploy the demo
+      - name: Build main into the demo
         env:
           DEMO_HOST: ${{ vars.DEMO_HOST }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}

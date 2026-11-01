@@ -90,6 +90,11 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  // CI's static job type-checks every pull request and push to main, so the production builds on Vercel and in CI's
+  // browser workflow (NEXT_SKIP_TYPECHECK=1) do not repeat it inside next build. There it took about 2.5 minutes and
+  // could run out of the build heap. Docker and local builds still type-check.
+  typescript: { ignoreBuildErrors: process.env.VERCEL === "1" || process.env.NEXT_SKIP_TYPECHECK === "1" },
+
   experimental: {
     ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
     cpus: 2,
@@ -118,6 +123,8 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   enablePrerenderSourceMaps: false,
 
+  // Webpack's persistent cache was measured on 4 cores (2026-11-01): a warm build was 76 s faster, a cold one 33 s slower,
+  // and it peaked at 12 GB with a 3.2 GB cache to store. The memory cache keeps the build inside an 8 GB machine.
   webpack(config, { dev }) {
     if (!dev) config.cache = { type: "memory" };
     return config;

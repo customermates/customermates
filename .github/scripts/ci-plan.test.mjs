@@ -61,8 +61,16 @@ test("shared code, dependencies, CI, generated APIs and unknown paths always req
     });
     assert.equal(plan.profile, "full", path);
     assert.equal(plan.unit, true, path);
-    assert.equal(plan.shards.length, 13, path);
+    assert.equal(plan.shards.length, 17, path);
   }
+});
+
+test("every plan that builds the app also type-checks it, because the CI build skips next build's type check", () => {
+  for (const eventName of ["pull_request", "push", "schedule", "workflow_dispatch"])
+    for (const files of [["README.md"], ["content/blog/en/seo.mdx"], ["features/example.ts"], null]) {
+      const plan = createPlan({ eventName, files });
+      if (plan.build) assert.equal(plan.static, true, `${eventName} ${files}`);
+    }
 });
 
 test("full PRs retain both Chromium targets and Firefox smoke; main and nightly retain all five targets", () => {
@@ -75,7 +83,7 @@ test("full PRs retain both Chromium targets and Firefox smoke; main and nightly 
   for (const eventName of ["push", "schedule", "workflow_dispatch"]) {
     const plan = createPlan({ eventName, files: ["features/example.ts"] });
     assert.equal(new Set(plan.shards.map((shard) => shard.target)).size, 5);
-    assert.equal(plan.shards.length, 34);
+    assert.equal(plan.shards.length, 40);
   }
 });
 

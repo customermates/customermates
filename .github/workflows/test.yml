@@ -109,6 +109,8 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=8192
       - name: Audit the message catalogs across locales
         run: yarn i18n:audit
+      - name: Test the CI plan
+        run: yarn test:ci-plan
 
   marketing:
     name: marketing conventions and unit tests
