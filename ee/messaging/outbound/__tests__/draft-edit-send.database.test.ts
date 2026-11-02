@@ -10,6 +10,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { MessagingProvider } from "@/generated/prisma";
 
 import { PermissionService } from "@/core/base/permission.service";
+import { DatabaseFileStorageDriver } from "@/core/storage/database-file-storage.driver";
+import { PrismaFileContentRepo } from "@/core/storage/prisma-file-content.repository";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -17,10 +19,18 @@ import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { createTestRecordRepo } from "@/tests/helpers/record-repository";
+import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
+import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
+import { RecordAccessPolicy } from "@/features/records/record-access";
+import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
+import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaConnectedAccountRepo } from "../../persistence/prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../../persistence/prisma-unipile-webhook.repository";
 import { SaveDraftInteractor, type SaveDraftData } from "../save-draft.interactor";
 import { DraftSendGate } from "../draft-send-gate";
+import { DiscardDraftInteractor } from "../discard-draft.interactor";
+import { EmailFileAttachments } from "../email-file-attachments";
 import { SendEmailInteractor, type SendEmailData } from "../send-email.interactor";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -66,9 +76,23 @@ describeDatabase("sending an email draft after editing it", () => {
       new PrismaUnipileWebhookRepo(),
       new PrismaBillingUsageRepo(),
     );
+  const emailFiles = () => {
+    const records = createTestRecordRepo();
+    const files = new PrismaRecordFileRepo();
+    const policy = new RecordAccessPolicy(
+      new PrismaUserRepo(new PermissionService(), new PrismaBillingUsageRepo()),
+      records,
+    );
+    return new EmailFileAttachments(
+      createTestMessagingRepo(),
+      new RecordFileAccessService(records, policy, files),
+      () => new DatabaseFileStorageDriver(new PrismaFileContentRepo(), "http://127.0.0.1:4000"),
+      files,
+    );
+  };
   const save = (data: SaveDraftData) =>
     runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke(
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), emailFiles()).invoke(
         data,
       ),
     );
@@ -81,7 +105,7 @@ describeDatabase("sending an email draft after editing it", () => {
         provider as unknown as MessagingService,
         mockEntitlementService(),
         new DraftSendGate(repo),
-        {} as never,
+        emailFiles(),
       ).invoke(data);
     });
   const saved = async (data: SaveDraftData) => {
@@ -97,6 +121,32 @@ describeDatabase("sending an email draft after editing it", () => {
       )
     ).rows[0] ?? null;
   const nextMillisecond = () => new Promise((resolve) => setTimeout(resolve, 5));
+  const pendingPdf = async () => {
+    const id = randomUUID();
+    const key = `draft-pdf-${id}`;
+    const bytes = Buffer.from(`%PDF-${id}`);
+    await client.query(
+      'INSERT INTO "RecordFile" (id,"companyId","storageDriver","storageKey",name,"mimeType",size,"uploadedById","createdAt") VALUES ($1,$2,\'database\',$3,\'invoice.pdf\',\'application/pdf\',$4,$5,CURRENT_TIMESTAMP - INTERVAL \'2 days\')',
+      [id, companyId, key, bytes.length, ownerId],
+    );
+    await client.query('INSERT INTO "RecordFileContent" ("fileKey",part,"companyId",data) VALUES ($1,0,$2,$3)', [
+      key,
+      companyId,
+      bytes,
+    ]);
+    return { id, bytes };
+  };
+  const boundDraft = async (fileId: string) =>
+    (await client.query('SELECT "draftMessageId" FROM "RecordFile" WHERE id=$1', [fileId])).rows[0]?.draftMessageId;
+  const expiredFileIds = () =>
+    runWithTenant(tenant, async () => {
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const files = await new PrismaRecordFileRepo().findExpiredFiles(
+        { pendingBefore: yesterday, chatBefore: yesterday, detachedBefore: yesterday },
+        100,
+      );
+      return files.map((file) => file.id);
+    });
 
   beforeAll(async () => {
     await client.connect();
@@ -114,6 +164,167 @@ describeDatabase("sending an email draft after editing it", () => {
   afterAll(async () => {
     await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyId]);
     await client.end();
+  });
+
+  it("keeps old uploads alive with their draft, rejects an outdated attachment revision and releases discarded files", async () => {
+    const first = await pendingPdf();
+    const second = await pendingPdf();
+    const recipient = address("attachment-revision");
+    const draft = await saved({
+      connectedAccountId: accountId,
+      recipients: [recipient],
+      subject: "Attachment revision",
+      body: "The invoice is attached",
+      fileIds: [first.id],
+    });
+    expect(await boundDraft(first.id)).toBe(draft.id);
+    expect(await expiredFileIds()).not.toContain(first.id);
+    expect(await expiredFileIds()).toContain(second.id);
+
+    const revised = await saved({ threadId: draft.threadId, body: "The invoice is attached", fileIds: [second.id] });
+    expect(revised.revision).not.toBe(draft.revision);
+    expect(await boundDraft(first.id)).toBeNull();
+    expect(await boundDraft(second.id)).toBe(draft.id);
+    const retained = await saved({ threadId: draft.threadId, body: "Please review the invoice" });
+    const metadata = await client.query('SELECT "attachmentsMeta" FROM "MessagingMessage" WHERE id=$1', [draft.id]);
+    expect(metadata.rows[0].attachmentsMeta).toEqual([expect.objectContaining({ fileId: second.id })]);
+
+    const provider = providerStub();
+    const stale = await send(
+      {
+        connectedAccountId: accountId,
+        to: [{ identifier: recipient }],
+        subject: "Attachment revision",
+        body: "The invoice is attached",
+        draftMessageId: draft.id,
+        draftRevision: draft.revision,
+      },
+      provider,
+    );
+    expect(failureParams(stale)?.error).toBe(CustomErrorCode.draftChanged);
+    expect(provider.sendEmail).not.toHaveBeenCalled();
+
+    const discarded = await runWithTenant(tenant, () =>
+      new DiscardDraftInteractor(createTestMessagingRepo(), mockEntitlementService()).invoke({
+        messageId: draft.id,
+        draftRevision: retained.revision,
+      }),
+    );
+    expect(discarded.ok).toBe(true);
+    expect(await expiredFileIds()).toEqual(expect.arrayContaining([first.id, second.id]));
+  });
+
+  it("rolls back a new draft when its pending file already belongs to another draft", async () => {
+    const file = await pendingPdf();
+    const draft = await saved({
+      connectedAccountId: accountId,
+      recipients: [address("original")],
+      subject: "Original file owner",
+      body: "Review the invoice",
+      fileIds: [file.id],
+    });
+    const subject = `Rolled back ${randomUUID()}`;
+    const result = await save({
+      connectedAccountId: accountId,
+      recipients: [address("second")],
+      subject,
+      body: "Reuse the same pending upload",
+      fileIds: [file.id],
+    });
+
+    expect(failureParams(result)?.error).toBe(CustomErrorCode.recordFileNotFound);
+    expect(await boundDraft(file.id)).toBe(draft.id);
+    expect((await client.query('SELECT id FROM "MessagingMessage" WHERE subject=$1', [subject])).rows).toEqual([]);
+  });
+
+  it("sends stored PDF bytes from the draft once and allows cleanup after sending", async () => {
+    const file = await pendingPdf();
+    const recipient = address("pdf-recipient");
+    const draft = await saved({
+      connectedAccountId: accountId,
+      recipients: [recipient],
+      subject: "Saved PDF",
+      body: "Review the invoice",
+      fileIds: [file.id],
+    });
+    await client.query('UPDATE "RecordFile" SET "uploadedById"=NULL WHERE id=$1', [file.id]);
+    const provider = providerStub();
+    const input = {
+      connectedAccountId: accountId,
+      to: [{ identifier: recipient }],
+      subject: "Saved PDF",
+      body: "Review the invoice",
+      draftMessageId: draft.id,
+      draftRevision: draft.revision,
+    };
+
+    expect((await send(input, provider)).ok).toBe(true);
+    expect((await send(input, provider)).ok).toBe(true);
+    expect(provider.sendEmail).toHaveBeenCalledOnce();
+    expect(provider.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [
+          { filename: "invoice.pdf", content_type: "application/pdf", content: file.bytes.toString("base64") },
+        ],
+      }),
+    );
+    expect(await expiredFileIds()).toContain(file.id);
+  });
+
+  it("requires saving a new revision after a pending PDF's bytes change", async () => {
+    const file = await pendingPdf();
+    const recipient = address("changed-pdf");
+    const draft = await saved({
+      connectedAccountId: accountId,
+      recipients: [recipient],
+      subject: "Changed PDF",
+      body: "Review the invoice",
+      fileIds: [file.id],
+    });
+    const changed = new Uint8Array(file.bytes);
+    changed[5] ^= 1;
+    const upload = await runWithTenant(tenant, () =>
+      new UploadRecordFileContentInteractor(
+        new PrismaRecordFileRepo(),
+        () => new DatabaseFileStorageDriver(new PrismaFileContentRepo(), "http://127.0.0.1:4000"),
+      ).invoke({
+        fileId: file.id,
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(changed);
+            controller.close();
+          },
+        }),
+      }),
+    );
+    expect(upload.ok).toBe(true);
+    const provider = providerStub();
+    const input = {
+      connectedAccountId: accountId,
+      to: [{ identifier: recipient }],
+      subject: "Changed PDF",
+      body: "Review the invoice",
+      draftMessageId: draft.id,
+      draftRevision: draft.revision,
+    };
+
+    const refused = await send(input, provider);
+    expect(failureParams(refused)?.error).toBe(CustomErrorCode.draftChanged);
+    expect(provider.sendEmail).not.toHaveBeenCalled();
+    const revised = await saved({ threadId: draft.threadId, body: input.body, fileIds: [file.id] });
+    expect(revised.revision).not.toBe(draft.revision);
+    expect((await send({ ...input, draftRevision: revised.revision }, provider)).ok).toBe(true);
+    expect(provider.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [
+          {
+            filename: "invoice.pdf",
+            content_type: "application/pdf",
+            content: Buffer.from(changed).toString("base64"),
+          },
+        ],
+      }),
+    );
   });
 
   it("sends a saved Cc-only draft after the composer added a Bcc recipient", async () => {

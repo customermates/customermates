@@ -233,7 +233,11 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     const fileIds = data.fileIds ?? draft?.fileIds ?? [];
     let attachments = data.attachments;
     if (fileIds.length) {
-      const loaded = await this.files.load(fileIds, draft ? { draftMessageId: draft.id } : null);
+      const loaded = await this.files.load(
+        fileIds,
+        draft ? { draftMessageId: draft.id } : null,
+        draft?.attachmentsMeta,
+      );
       if (!loaded.ok) return loaded;
       attachments = [...(data.attachments ?? []), ...loaded.data];
     }

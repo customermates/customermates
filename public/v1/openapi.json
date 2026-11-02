@@ -7490,6 +7490,16 @@
                                             }
                                           ]
                                         },
+                                        "sha256": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
                                         "linkUrl": {
                                           "anyOf": [
                                             {
@@ -22871,6 +22881,16 @@
                                                         }
                                                       ]
                                                     },
+                                                    "sha256": {
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string"
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
+                                                    },
                                                     "linkUrl": {
                                                       "anyOf": [
                                                         {
@@ -36750,6 +36770,16 @@
                                                       ]
                                                     },
                                                     "fileId": {
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string"
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
+                                                    },
+                                                    "sha256": {
                                                       "anyOf": [
                                                         {
                                                           "type": "string"
@@ -86602,6 +86632,16 @@
                                                               }
                                                             ]
                                                           },
+                                                          "sha256": {
+                                                            "anyOf": [
+                                                              {
+                                                                "type": "string"
+                                                              },
+                                                              {
+                                                                "type": "null"
+                                                              }
+                                                            ]
+                                                          },
                                                           "linkUrl": {
                                                             "anyOf": [
                                                               {
@@ -114888,6 +114928,16 @@
                               }
                             ]
                           },
+                          "sha256": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -118574,6 +118624,16 @@
                               }
                             ]
                           },
+                          "sha256": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -119932,6 +119992,16 @@
                               }
                             ]
                           },
+                          "sha256": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -120943,6 +121013,16 @@
                             ]
                           },
                           "fileId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "sha256": {
                             "anyOf": [
                               {
                                 "type": "string"
@@ -146649,6 +146729,16 @@
                         ]
                       },
                       "fileId": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "sha256": {
                         "anyOf": [
                           {
                             "type": "string"

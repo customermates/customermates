@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { compareWithBaseline, mergeOutcomes, testOutcomes, updateBaseline } from "../lib/e2e-results.mjs";
 import { assignShards } from "../lib/vitest-results.mjs";
-import { inboxHash, isTestInbox, unipileDecision } from "../../../tests/e2e/live/live-allowlist.mjs";
+import { inboxHash, isTestInbox, TEST_INBOX_HASHES, unipileDecision } from "../../../tests/e2e/live/live-allowlist.mjs";
 
 const report = {
   suites: [
@@ -100,5 +100,61 @@ describe("live-check egress guard", () => {
     const chat = new URL("https://api.unipile.com/v2/acc_01m42y7hj1ecva9pb0sycgqq51/chats");
     expect(await unipileDecision("POST", chat, chat.href, { body: "{}" })).toMatchObject({ status: 403 });
     expect(await unipileDecision("GET", remove, remove.href, {})).toBeNull();
+  });
+});
+
+describe("live-check multipart sends", () => {
+  const fixture = "multipart-fixture@example.test";
+  const account = "acc_01m42y7hj1ecva9pb0sycgqq51";
+  const url = new URL(`https://api.unipile.com/v2/${account}/emails/send`);
+
+  beforeAll(() => TEST_INBOX_HASHES.add(inboxHash(fixture)));
+  afterAll(() => TEST_INBOX_HASHES.delete(inboxHash(fixture)));
+
+  function formWithRecipient() {
+    const form = new FormData();
+    form.append("account_id", account);
+    form.append("to[0][email]", fixture);
+    form.append("attachments", new Blob(["%PDF"], { type: "application/pdf" }), "invoice.pdf");
+    return form;
+  }
+
+  it("accepts the test inbox in FormData and SDK Request bodies without consuming the request", async () => {
+    const form = formWithRecipient();
+    expect(await unipileDecision("POST", url, url.href, { body: form })).toBeNull();
+    const request = new Request(url, { method: "POST", body: form });
+    expect(await unipileDecision("POST", url, request)).toBeNull();
+    expect(request.bodyUsed).toBe(false);
+    expect((await request.formData()).get("to[0][email]")).toBe(fixture);
+  });
+
+  it.each(["buffer", "view"])("accepts multipart %s bodies produced by fetchWithTimeout", async (shape) => {
+    const request = new Request(url, { method: "POST", body: formWithRecipient() });
+    const bytes = await request.arrayBuffer();
+    const body = shape === "buffer" ? bytes : new Uint8Array(bytes);
+    expect(await unipileDecision("POST", url, url.href, { headers: request.headers, body })).toBeNull();
+  });
+
+  it.each(["to", "cc", "bcc"])("refuses a non-test %s recipient in a raw multipart body", async (field) => {
+    const form = formWithRecipient();
+    form.append(`${field}[1][email]`, "outsider@example.invalid");
+    const request = new Request(url, { method: "POST", body: form });
+    expect(
+      await unipileDecision("POST", url, url.href, { headers: request.headers, body: await request.arrayBuffer() }),
+    ).toMatchObject({ status: 422, reason: "a recipient is not a designated test inbox" });
+  });
+
+  it("refuses malformed multipart data and non-fixture sending accounts", async () => {
+    expect(
+      await unipileDecision("POST", url, url.href, {
+        headers: { "content-type": "multipart/form-data; boundary=missing" },
+        body: new TextEncoder().encode("invalid multipart"),
+      }),
+    ).toMatchObject({ status: 422 });
+    const outsider = new URL("https://api.unipile.com/v2/acc_other/emails/send");
+    expect(await unipileDecision("POST", outsider, outsider.href, { body: formWithRecipient() })).toMatchObject({
+      status: 422,
+      reason: "the sending account is not a fixture account",
+    });
   });
 });

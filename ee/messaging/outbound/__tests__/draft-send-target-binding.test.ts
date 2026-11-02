@@ -1204,9 +1204,7 @@ describe("draft file attachments", () => {
     const result = await emailInteractor(repo, service, files).invoke(coldEmailInput);
 
     expect(result.ok).toBe(true);
-    expect(files.load).toHaveBeenCalledWith([FILE_ID], {
-      draftMessageId: EMAIL_DRAFT_ID,
-    });
+    expect(files.load).toHaveBeenCalledWith([FILE_ID], { draftMessageId: EMAIL_DRAFT_ID }, undefined);
     expect(service.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ attachments: [pdf] }));
   });
 
@@ -1224,9 +1222,7 @@ describe("draft file attachments", () => {
       fileIds: [OTHER_FILE_ID],
     });
 
-    expect(files.load).toHaveBeenCalledWith([OTHER_FILE_ID], {
-      draftMessageId: EMAIL_DRAFT_ID,
-    });
+    expect(files.load).toHaveBeenCalledWith([OTHER_FILE_ID], { draftMessageId: EMAIL_DRAFT_ID }, undefined);
   });
 
   it("does not send when a draft file cannot be read", async () => {
@@ -1263,7 +1259,7 @@ describe("draft file attachments", () => {
       fileIds: [FILE_ID],
     });
 
-    expect(files.load).toHaveBeenCalledWith([FILE_ID], null);
+    expect(files.load).toHaveBeenCalledWith([FILE_ID], null, undefined);
     expect(service.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ attachments: [pdf] }));
   });
 

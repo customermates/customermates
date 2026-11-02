@@ -29,6 +29,9 @@ function addresses(list) {
 async function formBody(input, init) {
   if (init?.body instanceof FormData) return init.body;
   if (input instanceof Request && /multipart\/form-data/i.test(input.headers.get("content-type") ?? "")) return input.clone().formData();
+  const contentType = init?.headers ? new Headers(init.headers).get("content-type") ?? "" : "";
+  if (/multipart\/form-data/i.test(contentType) && (init.body instanceof ArrayBuffer || ArrayBuffer.isView(init.body)))
+    return new Response(init.body, { headers: { "content-type": contentType } }).formData();
   return null;
 }
 

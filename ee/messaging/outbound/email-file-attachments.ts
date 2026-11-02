@@ -6,8 +6,9 @@ import type { AttachmentMeta } from "../messaging.schema";
 import type { DraftFileRepo, EmailFile, EmailFileScope } from "./draft-file.repo";
 
 import { getLocale } from "next-intl/server";
+import { createHash } from "node:crypto";
 
-import { fail } from "@/core/validation/interactor-failure-server";
+import { fail, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { readCappedStream } from "@/core/storage/read-capped-stream";
 import { fileSizeLabel } from "@/core/utils/format-bytes";
@@ -39,39 +40,67 @@ export class EmailFileAttachments {
   ): Validated<{ attachmentsMeta: AttachmentMeta[]; bindFileIds: string[] }> {
     const files = await this.resolve(fileIds, scope);
     if (!files.ok) return files;
+    const attachmentsMeta: AttachmentMeta[] = [];
+    for (const file of files.data) {
+      const read = await this.read(file);
+      if (!read.ok) return read;
+      attachmentsMeta.push({
+        id: file.id,
+        fileId: file.id,
+        name: file.name,
+        fileName: file.name,
+        type: "file",
+        mime: file.mimeType,
+        size: file.size,
+        sha256: createHash("sha256").update(read.data).digest("hex"),
+      });
+    }
     return {
       ok: true as const,
       data: {
-        attachmentsMeta: files.data.map((file) => ({
-          id: file.id,
-          fileId: file.id,
-          name: file.name,
-          fileName: file.name,
-          type: "file",
-          mime: file.mimeType,
-          size: file.size,
-        })),
+        attachmentsMeta,
         bindFileIds: files.data.filter((file) => file.status === "pending").map((file) => file.id),
       },
     };
   }
 
-  async load(fileIds: readonly string[], scope: EmailFileScope): Validated<FileAttachment[]> {
+  async load(
+    fileIds: readonly string[],
+    scope: EmailFileScope,
+    expected: readonly AttachmentMeta[] = [],
+  ): Validated<FileAttachment[]> {
     const files = await this.resolve(fileIds, scope);
     if (!files.ok) return files;
     const attachments: FileAttachment[] = [];
     for (const file of files.data) {
-      const stored = await this.drivers(file.storageDriver).read(file.storageKey);
-      if (!stored) return fail(CustomErrorCode.recordFileNotFound, ["fileIds"]);
-      const bytes = await readCappedStream(stored.stream, EMAIL_FILE_ATTACHMENTS_MAX_BYTES);
-      if (!bytes.ok) return this.tooLarge();
+      const read = await this.read(file);
+      if (!read.ok) return read;
+      const snapshot = expected.find((attachment) => attachment.fileId === file.id);
+      if (
+        snapshot?.sha256 &&
+        (snapshot.sha256 !== createHash("sha256").update(read.data).digest("hex") ||
+          snapshot.fileName !== file.name ||
+          snapshot.mime !== file.mimeType ||
+          snapshot.size !== file.size)
+      )
+        return failConflict(CustomErrorCode.draftChanged, ["draftRevision"]);
       attachments.push({
         filename: file.name,
         content_type: file.mimeType,
-        content: Buffer.from(bytes.bytes).toString("base64"),
+        content: Buffer.from(read.data).toString("base64"),
       });
     }
     return { ok: true as const, data: attachments };
+  }
+
+  private async read(file: EmailFile): Validated<Uint8Array> {
+    const stored = await this.drivers(file.storageDriver).read(file.storageKey);
+    if (!stored) return fail(CustomErrorCode.recordFileNotFound, ["fileIds"]);
+    const bytes = await readCappedStream(stored.stream, EMAIL_FILE_ATTACHMENTS_MAX_BYTES);
+    if (!bytes.ok) return this.tooLarge();
+    if (bytes.bytes.byteLength !== file.size)
+      return fail(CustomErrorCode.recordFileUploadIncomplete, ["fileIds"], { size: file.size });
+    return { ok: true as const, data: bytes.bytes };
   }
 
   async file(fileId: string, scope: EmailFileScope): Validated<EmailFile> {

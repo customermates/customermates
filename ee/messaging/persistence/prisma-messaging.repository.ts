@@ -1208,6 +1208,7 @@ export class PrismaMessagingRepo
 
     return draft
       ? {
+          attachmentsMeta: Array.isArray(draft.attachmentsMeta) ? (draft.attachmentsMeta as AttachmentMeta[]) : [],
           fileIds: draftFileIds(
             Array.isArray(draft.attachmentsMeta) ? (draft.attachmentsMeta as Pick<AttachmentMeta, "fileId">[]) : [],
           ),

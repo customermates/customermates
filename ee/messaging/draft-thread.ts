@@ -1,4 +1,5 @@
 import type { MessagingProvider } from "@/generated/prisma";
+import type { AttachmentMeta } from "./messaging.schema";
 
 import { z } from "zod";
 
@@ -14,6 +15,7 @@ export type DraftThreadTarget = {
   ccIdentifiers?: string[];
   bccIdentifiers?: string[];
   fileIds?: string[];
+  attachmentsMeta?: AttachmentMeta[];
   updatedAt: Date;
 };
 

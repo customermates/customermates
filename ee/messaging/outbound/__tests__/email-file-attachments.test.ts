@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { createHash } from "node:crypto";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
@@ -37,7 +38,9 @@ function streamOf(text: string) {
 function setup() {
   const repo = { findDraftFiles: vi.fn().mockResolvedValue([]) };
   const access = { readableFile: vi.fn() };
-  const driver = { read: vi.fn() };
+  const driver = {
+    read: vi.fn().mockImplementation(() => Promise.resolve({ stream: streamOf("%PDF"), size: 4, contentType: null })),
+  };
   const binding = { bindDraftFiles: vi.fn() };
   const service = new EmailFileAttachments(repo, access, () => driver as never, binding);
   return { service, repo, access, driver };
@@ -64,6 +67,7 @@ describe("EmailFileAttachments", () => {
         fileId: BOUND_ID,
         mime: "application/pdf",
         type: "file",
+        sha256: createHash("sha256").update("%PDF").digest("hex"),
       }),
     ]);
   });
@@ -133,6 +137,32 @@ describe("EmailFileAttachments", () => {
     const result = await service.load([BOUND_ID], { draftMessageId: "draft" });
 
     expect(errorCode(result)).toBe(CustomErrorCode.recordFileNotFound);
+  });
+
+  it("refuses overwritten bytes or renamed attachments until the draft is saved again", async () => {
+    const { service, repo, driver } = setup();
+    repo.findDraftFiles.mockResolvedValue([file(BOUND_ID)]);
+    const described = await service.describe([BOUND_ID], { draftMessageId: "draft" });
+    if (!described.ok) throw new Error("Expected a saved attachment fingerprint");
+
+    expect((await service.load([BOUND_ID], { draftMessageId: "draft" }, described.data.attachmentsMeta)).ok).toBe(true);
+    driver.read.mockImplementation(() => Promise.resolve({ stream: streamOf("%NEW"), size: 4, contentType: null }));
+    const overwritten = await service.load([BOUND_ID], { draftMessageId: "draft" }, described.data.attachmentsMeta);
+    expect(errorCode(overwritten)).toBe(CustomErrorCode.draftChanged);
+
+    driver.read.mockImplementation(() => Promise.resolve({ stream: streamOf("%PDF"), size: 4, contentType: null }));
+    repo.findDraftFiles.mockResolvedValue([file(BOUND_ID, { name: "renamed.pdf" })]);
+    const renamed = await service.load([BOUND_ID], { draftMessageId: "draft" }, described.data.attachmentsMeta);
+    expect(errorCode(renamed)).toBe(CustomErrorCode.draftChanged);
+  });
+
+  it("refuses saving an attachment whose upload has not finished", async () => {
+    const { service, repo } = setup();
+    repo.findDraftFiles.mockResolvedValue([file(BOUND_ID, { size: 5 })]);
+
+    const result = await service.describe([BOUND_ID], { draftMessageId: "draft" });
+
+    expect(errorCode(result)).toBe(CustomErrorCode.recordFileUploadIncomplete);
   });
 
   it("reads file ids from draft attachment metadata", () => {

@@ -214,7 +214,7 @@ test("sends a PDF draft prepared over MCP with the file intact", async ({ page, 
     await mcp.call("configure_record_model", { action: "preview", change });
     await mcp.call("configure_record_model", { action: "apply", change });
     const field = await database.query(
-      'SELECT id FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND "typeId"=$2 AND "valueType"=\'file\' AND label=$3',
+      'SELECT id FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND "typeId"=$2 AND "valueType"=\'file\' AND definition->>\'label\'=$3',
       [workspace.companyId, typeId, label],
     );
     const fieldId = String(field.rows[0]?.id ?? "");
