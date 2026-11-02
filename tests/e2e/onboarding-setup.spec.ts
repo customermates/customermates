@@ -147,7 +147,13 @@ test("the questions take a contact list as Excel 97-2003 (.xls), Excel or CSV", 
     .click();
   const input = page.locator("#setup-spreadsheet");
   expect((await input.getAttribute("accept"))?.split(",")).toEqual(expect.arrayContaining([".csv", ".xlsx", ".xls"]));
-  for (const file of ["legacy-biff8.xls", "libreoffice.xlsx", "semicolon-macroman.csv"]) {
+  for (const file of [
+    "legacy-biff8.xls",
+    "libreoffice.xlsx",
+    "semicolon-macroman.csv",
+    "namespace-contacts-default.xlsx",
+    "namespace-contacts-prefixed.xlsx",
+  ]) {
     await input.setInputFiles({
       name: file,
       mimeType: "application/vnd.ms-excel",

@@ -199,6 +199,27 @@ describe("readSpreadsheet CSV", () => {
 });
 
 describe("readSpreadsheet XLSX", () => {
+  it.each(["contacts", "blank-rows", "multiple-sheets", "unicode"])(
+    "reads identical %s tables with default and prefixed XML namespaces",
+    async (scenario) => {
+      const read = (namespace: string, sheetName?: string) => {
+        const fileName = `namespace-${scenario}-${namespace}.xlsx`;
+        return readOk(new Uint8Array(readFileSync(`tests/fixtures/spreadsheet-import/${fileName}`)), {
+          fileName,
+          sheetName,
+        });
+      };
+      const original = await read("default");
+      expect(await read("prefixed")).toEqual(original);
+      expect(original.table.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Firma"]);
+      if (scenario === "multiple-sheets") {
+        const types = await read("prefixed", "Types");
+        expect(types).toEqual(await read("default", "Types"));
+        expect(types.table.rows[0].cells).toEqual(["x:literal & <tag>", 12.5, "2026-01-02", true, 25]);
+      }
+    },
+  );
+
   it("reads typed cells and uses cached formula results only", async () => {
     const bytes = await workbookBytes((workbook) => {
       const sheet = workbook.addWorksheet("Contacts");

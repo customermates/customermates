@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 
 import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
@@ -64,6 +65,66 @@ describe("xlsx workbook reading", () => {
   });
 
   const fixture = (file: string) => new Uint8Array(readFileSync(`tests/fixtures/spreadsheet-import/${file}`)).buffer;
+
+  it.each(["contacts", "blank-rows", "multiple-sheets", "unicode"])(
+    "reads prefixed %s XML with the separately packaged browser reader",
+    async (scenario) => {
+      const require = createRequire(import.meta.url);
+      const { browser } = require("exceljs/package.json") as { browser: string };
+      const BrowserExcelJS = require(`exceljs/${browser}`) as typeof ExcelJS;
+      const workbook = new BrowserExcelJS.Workbook();
+      await workbook.xlsx.load(fixture(`namespace-${scenario}-prefixed.xlsx`));
+      expect(workbook.worksheets[0].name).toBe("Kontakte");
+      expect(workbook.worksheets[0].getCell("A2").value).toBe(
+        scenario === "blank-rows" ? null : scenario === "unicode" ? "李 🧑🏽‍💻" : "Jürgen",
+      );
+      expect(workbook.worksheets[0].getCell(scenario === "blank-rows" ? "B5" : "B2").value).toBe(
+        scenario === "unicode" ? "山田 e\u0301" : scenario === "blank-rows" ? "Strauß" : "Müller",
+      );
+    },
+  );
+
+  it.each(["contacts", "blank-rows", "multiple-sheets", "unicode"])(
+    "reads identical %s workbooks with default and prefixed XML namespaces",
+    async (scenario) => {
+      const read = (namespace: string) => {
+        const name = `namespace-${scenario}-${namespace}.xlsx`;
+        return readSpreadsheetWorkbook(name, fixture(name));
+      };
+      const original = await read("default");
+      const prefixed = await read("prefixed");
+      expect(original.ok).toBe(true);
+      expect(prefixed).toEqual(original);
+      if (!prefixed.ok) return;
+      const [sheet] = prefixed.workbook.sheets;
+      expect(sheet.name).toBe("Kontakte");
+      expect(sheet.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Firma"]);
+      expect(sheet.rows.map((row) => row.cells.slice(0, 2))).toEqual(
+        scenario === "unicode"
+          ? [["李 🧑🏽‍💻", "山田 e\u0301"]]
+          : [
+              ["Jürgen", "Müller"],
+              ["Ölaf", "Strauß"],
+            ],
+      );
+      expect(sheet.rows.map((row) => row.sheetRow)).toEqual(
+        scenario === "blank-rows" ? [3, 5] : scenario === "unicode" ? [2] : [2, 3],
+      );
+      if (scenario === "multiple-sheets") {
+        expect(prefixed.workbook.sheets[1]).toEqual({
+          name: "Types",
+          headers: ["Name", "Amount", "Since", "Active", "Double"],
+          rows: [
+            {
+              sheetRow: 2,
+              cells: ["x:literal & <tag>", 12.5, new Date("2026-01-02T00:00:00Z"), true, 25],
+            },
+          ],
+        });
+      }
+    },
+  );
+
   const contacts = [
     ["Jürgen", "Müller", "juergen.mueller@example.test", "+49 170 1111111", "Bäckerei Größl", "Grüße aus Köln"],
     ["Ölaf", "Strauß", "oelaf@example.test", "+49 170 2222222", "Äpfel & Söhne", "Straße 5, München"],
