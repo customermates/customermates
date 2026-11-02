@@ -1,0 +1,50 @@
+---
+title: "Recettes de routines pour petites agences"
+description: "Quatre prompts pour Mate ou une routine. Chacun fait le travail sur les enregistrements et laisse tout message client en brouillon, à vous d’envoyer."
+---
+
+Chaque recette suit le même schéma : un déclencheur, le travail que l’agent fait sur les enregistrements, et une chose que vous approuvez. Rien ne part vers un client avant que vous cliquiez sur **Envoyer**. Les routines tournent sur Customermates Cloud ; les déclencheurs, les limites et ce qu’une exécution peut faire sont décrits dans [Routines](/docs/app-routines).
+
+## 1. Après l’appel client [#after-the-client-call]
+
+**Où :** dans un chat avec Mate (Cmd/Ctrl+J), juste après l’appel. Collez vos notes ou joignez-en une photo.
+
+```
+Ajoute mes notes d’appel (texte ou photo) au deal correspondant, définis la prochaine étape et rédige l’e-mail de suivi au contact. Enregistre-le comme brouillon. Ne l’envoie pas.
+```
+
+**Vous approuvez :** le brouillon de suivi dans votre [Boîte de réception](app:inbox).
+
+## 2. Une réponse LinkedIn arrive [#a-linkedin-reply-comes-in]
+
+**Où :** [Routines](app:routines) > [Ajouter](app:routines?focus=add) > **Quand quelque chose change** > l’évènement **Message reçu** (`messaging.message.received`). Votre compte LinkedIn doit être connecté dans [Canaux](app:settings/channels).
+
+```
+Si ce message est arrivé sur LinkedIn : ajoute ce que la personne a dit comme note sur son contact, définis la prochaine étape et enregistre une courte réponse comme brouillon dans la conversation. N’envoie jamais.
+```
+
+**Vous approuvez :** le brouillon de réponse dans la conversation LinkedIn.
+
+## 3. Un client commande sur WhatsApp [#a-client-orders-on-whatsapp]
+
+**Où :** [Routines](app:routines) > [Ajouter](app:routines?focus=add) > **Quand quelque chose change** > l’évènement **Message reçu** (`messaging.message.received`), avec WhatsApp connecté. Votre espace de travail a besoin d’une liste pour les projets ou les commandes.
+
+```
+Si ce message WhatsApp demande un nouveau travail : crée un projet lié au client avec ce qu’il demande et pour quand il en a besoin, et enregistre une réponse comme brouillon. N’envoie jamais.
+```
+
+**Vous approuvez :** le nouveau projet et le brouillon de réponse.
+
+## 4. Lundi 08:00 [#monday-0800]
+
+**Où :** [Routines](app:routines) > [Ajouter](app:routines?focus=add) > **Selon un planning** > **Chaque semaine**, lundi, 08:00.
+
+```
+Résume mon pipeline ouvert : total, pondéré, plus gros deal. Liste les deals sans réponse depuis 14 jours et enregistre un court brouillon de relance pour chacun. Envoie-moi le résumé par e-mail.
+```
+
+**Vous approuvez :** chaque brouillon de relance ; le résumé n’est envoyé qu’à vous.
+
+## Pourquoi des brouillons [#why-drafts]
+
+Les routines peuvent envoyer des messages sans demander (voir [Ce qu’une routine peut faire sans approbation](/docs/app-routines#what-a-routine-may-do-without-approval)). Les prompts ci-dessus disent « N’envoie jamais » exprès, pour que chaque message à un client vous attende.

@@ -2374,6 +2374,7 @@
     "n8n": "N8N",
     "openapi": "OpenAPI 3.1.0",
     "quickstart": "Quickstart",
+    "routineRecipes": "Routine recipes",
     "selfHosting": "Self-Hosting",
     "webhooks": "Webhooks"
   },
