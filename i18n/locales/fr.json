@@ -2143,7 +2143,7 @@
       "duplicate": "Une autre colonne remplit déjà ce champ.",
       "failed": "{count, plural, one {# ligne en échec} other {# lignes en échec}}",
       "fields": "Champs",
-      "fileHint": "Choisissez un classeur Excel (.xlsx) ou un export JSON Customermates pour cette liste.",
+      "fileHint": "Choisissez un classeur Excel (.xlsx), un fichier CSV ou un export JSON Customermates pour cette liste.",
       "importing": "{processed} lignes traitées sur {total}",
       "importProgress": "Lignes traitées",
       "issues": {

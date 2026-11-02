@@ -60,7 +60,7 @@ export type SpreadsheetReadFailureCode = z.infer<typeof SpreadsheetReadFailureCo
 export type SpreadsheetReadResult =
   | {
       ok: true;
-      format: "csv" | "xlsx";
+      format: "csv" | "xlsx" | "xls";
       sheetNames: string[];
       table: SpreadsheetTable;
       formulaCellsWithoutValue: number;

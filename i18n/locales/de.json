@@ -2143,7 +2143,7 @@
       "duplicate": "Eine andere Spalte füllt dieses Feld bereits.",
       "failed": "{count, plural, one {# Zeile fehlgeschlagen} other {# Zeilen fehlgeschlagen}}",
       "fields": "Felder",
-      "fileHint": "Wähle eine Excel-Arbeitsmappe (.xlsx) oder einen Customermates-JSON-Export für diese Liste.",
+      "fileHint": "Wähle eine Excel-Arbeitsmappe (.xlsx), eine CSV-Datei oder einen Customermates-JSON-Export für diese Liste.",
       "importing": "{processed} von {total} Zeilen verarbeitet",
       "importProgress": "Verarbeitete Zeilen",
       "issues": {

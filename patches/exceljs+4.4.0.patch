@@ -1,0 +1,118 @@
+diff --git a/node_modules/exceljs/lib/utils/parse-sax.js b/node_modules/exceljs/lib/utils/parse-sax.js
+--- a/node_modules/exceljs/lib/utils/parse-sax.js
++++ b/node_modules/exceljs/lib/utils/parse-sax.js
+@@ -1,3 +1,25 @@
+ const {SaxesParser} = require('saxes');
+ const {PassThrough} = require('readable-stream');
+ const {bufferToString} = require('./browser-buffer-decode');
++
++// Xforms expect default SpreadsheetML/package names and the canonical r: prefix.
++// Resolve by namespace URI so valid files can choose their own XML prefixes.
++const defaultNamespaces = new Set([
++  'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
++  'http://schemas.openxmlformats.org/package/2006/relationships',
++  'http://schemas.openxmlformats.org/package/2006/content-types',
++]);
++const relationshipsNamespace = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
++
++function normalizeNode(node) {
++  const attributes = Object.create(null);
++  for (const attribute of Object.values(node.attributes)) {
++    const name = attribute.uri === relationshipsNamespace ? `r:${attribute.local}` : attribute.name;
++    attributes[name] = attribute.value;
++  }
++  return {
++    ...node,
++    name: defaultNamespaces.has(node.uri) ? node.local : node.name,
++    attributes,
++  };
++}
+@@ -8,15 +30,15 @@
+   if (iterable.pipe && !iterable[Symbol.asyncIterator]) {
+     iterable = iterable.pipe(new PassThrough());
+   }
+-  const saxesParser = new SaxesParser();
++  const saxesParser = new SaxesParser({xmlns: true});
+   let error;
+   saxesParser.on('error', err => {
+     error = err;
+   });
+   let events = [];
+-  saxesParser.on('opentag', value => events.push({eventType: 'opentag', value}));
++  saxesParser.on('opentag', value => events.push({eventType: 'opentag', value: normalizeNode(value)}));
+   saxesParser.on('text', value => events.push({eventType: 'text', value}));
+-  saxesParser.on('closetag', value => events.push({eventType: 'closetag', value}));
++  saxesParser.on('closetag', value => events.push({eventType: 'closetag', value: normalizeNode(value)}));
+   for await (const chunk of iterable) {
+     saxesParser.write(bufferToString(chunk));
+     // saxesParser.write and saxesParser.on() are synchronous,
+diff --git a/node_modules/exceljs/dist/exceljs.js b/node_modules/exceljs/dist/exceljs.js
+--- a/node_modules/exceljs/dist/exceljs.js
++++ b/node_modules/exceljs/dist/exceljs.js
+@@ -4630,13 +4630,35 @@
+ const {
+   bufferToString
+ } = require('./browser-buffer-decode');
++// Xforms expect default SpreadsheetML/package names and the canonical r: prefix.
++// Resolve by namespace URI so valid files can choose their own XML prefixes.
++const defaultNamespaces = new Set([
++  'http://schemas.openxmlformats.org/spreadsheetml/2006/main',
++  'http://schemas.openxmlformats.org/package/2006/relationships',
++  'http://schemas.openxmlformats.org/package/2006/content-types',
++]);
++const relationshipsNamespace = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
++
++function normalizeNode(node) {
++  const attributes = Object.create(null);
++  for (const attribute of Object.values(node.attributes)) {
++    const name = attribute.uri === relationshipsNamespace ? `r:${attribute.local}` : attribute.name;
++    attributes[name] = attribute.value;
++  }
++  return {
++    ...node,
++    name: defaultNamespaces.has(node.uri) ? node.local : node.name,
++    attributes,
++  };
++}
++
+ module.exports = async function* (iterable) {
+   // TODO: Remove once node v8 is deprecated
+   // Detect and upgrade old streams
+   if (iterable.pipe && !iterable[Symbol.asyncIterator]) {
+     iterable = iterable.pipe(new PassThrough());
+   }
+-  const saxesParser = new SaxesParser();
++  const saxesParser = new SaxesParser({xmlns: true});
+   let error;
+   saxesParser.on('error', err => {
+     error = err;
+@@ -4644,7 +4666,7 @@
+   let events = [];
+   saxesParser.on('opentag', value => events.push({
+     eventType: 'opentag',
+-    value
++    value: normalizeNode(value)
+   }));
+   saxesParser.on('text', value => events.push({
+     eventType: 'text',
+@@ -4652,7 +4674,7 @@
+   }));
+   saxesParser.on('closetag', value => events.push({
+     eventType: 'closetag',
+-    value
++    value: normalizeNode(value)
+   }));
+   for await (const chunk of iterable) {
+     saxesParser.write(bufferToString(chunk));
+diff --git a/node_modules/exceljs/package.json b/node_modules/exceljs/package.json
+--- a/node_modules/exceljs/package.json
++++ b/node_modules/exceljs/package.json
+@@ -16,7 +16,7 @@
+     "node": ">=8.3.0"
+   },
+   "main": "./excel.js",
+-  "browser": "./dist/exceljs.min.js",
++  "browser": "./dist/exceljs.js",
+   "types": "./index.d.ts",
+   "files": [
+     "dist",

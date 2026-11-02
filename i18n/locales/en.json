@@ -2143,7 +2143,7 @@
       "duplicate": "Another column already fills this field.",
       "failed": "{count, plural, one {# row failed} other {# rows failed}}",
       "fields": "Fields",
-      "fileHint": "Choose an Excel workbook (.xlsx) or a Customermates JSON export for this list.",
+      "fileHint": "Choose an Excel workbook (.xlsx), a CSV file or a Customermates JSON export for this list.",
       "importing": "{processed} of {total} rows processed",
       "importProgress": "Rows processed",
       "issues": {

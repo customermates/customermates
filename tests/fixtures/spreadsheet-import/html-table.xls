@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 24.2.7.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	
+	<style type="text/css">
+		body,div,table,thead,tbody,tfoot,tr,th,td,p { font-family:"Liberation Sans"; font-size:x-small }
+		a.comment-indicator:hover + comment { background:#ffd; position:absolute; display:block; border:1px solid black; padding:0.5em;  } 
+		a.comment-indicator { background:red; display:inline-block; border:1px solid black; width:0.5em; height:0.5em;  } 
+		comment { display:none;  } 
+	</style>
+	
+</head>
+
+<body>
+<table cellspacing="0" border="0">
+	<colgroup width="65"></colgroup>
+	<colgroup width="75"></colgroup>
+	<colgroup width="193"></colgroup>
+	<colgroup width="115"></colgroup>
+	<colgroup width="101"></colgroup>
+	<colgroup width="126"></colgroup>
+	<tr>
+		<td height="17" align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Vorname&quot;}">Vorname</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Nachname&quot;}">Nachname</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;E-Mail&quot;}">E-Mail</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Telefon&quot;}">Telefon</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Firma&quot;}">Firma</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Notiz&quot;}">Notiz</td>
+	</tr>
+	<tr>
+		<td height="17" align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Jürgen&quot;}">Jürgen</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Müller&quot;}">Müller</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;juergen.mueller@example.test&quot;}">juergen.mueller@example.test</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;+49 170 1111111&quot;}">+49 170 1111111</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Bäckerei Größl&quot;}">Bäckerei Größl</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Grüße aus Köln&quot;}">Grüße aus Köln</td>
+	</tr>
+	<tr>
+		<td height="17" align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Ölaf&quot;}">Ölaf</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Strauß&quot;}">Strauß</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;oelaf@example.test&quot;}">oelaf@example.test</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;+49 170 2222222&quot;}">+49 170 2222222</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Äpfel &amp; Söhne&quot;}">Äpfel &amp; Söhne</td>
+		<td align="left" data-sheets-value="{ &quot;1&quot;: 2, &quot;2&quot;: &quot;Straße 5, München&quot;}">Straße 5, München</td>
+	</tr>
+</table>
+<!-- ************************************************************************** -->
+</body>
+
+</html>

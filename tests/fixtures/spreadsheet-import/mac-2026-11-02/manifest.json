@@ -1,0 +1,280 @@
+[
+  {
+    "id": "C01",
+    "file": "c01-contacts.xlsx",
+    "category": "XLSX",
+    "expected": "2 contacts imported with exact names and email",
+    "expectedRows": 2,
+    "provenance": "Generated using @oai/artifact-tool; not an Excel/Numbers export",
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "bytes": 3709,
+    "sha256": "d1ab2a28f57c136b54f8b2ee343e32ac0b5a26b943ca504ce055a07915210bb6"
+  },
+  {
+    "id": "C10",
+    "file": "c10-blank-rows.xlsx",
+    "category": "XLSX blank rows",
+    "expected": "2 nonempty data rows imported; blank rows ignored",
+    "expectedRows": 2,
+    "provenance": "Generated using @oai/artifact-tool",
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "importtest-c10-juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "importtest-c10-oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "bytes": 3761,
+    "sha256": "53c73181aec3b5691e07394bb8db6f156604cd398df3d760adcd77815e1b8e5e"
+  },
+  {
+    "id": "C11",
+    "file": "c11-multiple-sheets.xlsx",
+    "category": "XLSX sheet selection",
+    "expected": "Choose Kontakte, import only its 2 contacts",
+    "expectedRows": 2,
+    "provenance": "Generated using @oai/artifact-tool",
+    "sheet": "Kontakte",
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "importtest-c11-juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "importtest-c11-oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "bytes": 4631,
+    "sha256": "17257d00bf183dc7367975a84cba5acb0aceef6a6cc2454b51036ceb01de0afa"
+  },
+  {
+    "id": "C12",
+    "file": "c12-unicode.xlsx",
+    "category": "XLSX extended Unicode",
+    "expected": "2 contacts; exact accents, CJK and emoji retained",
+    "expectedRows": 2,
+    "provenance": "Generated using @oai/artifact-tool",
+    "data": [
+      [
+        "Zoë 李",
+        "Dvořák 😀",
+        "importtest-c12-zoe@example.test",
+        "Grüße aus 東京"
+      ],
+      [
+        "Łukasz",
+        "García–O’Neill",
+        "importtest-c12-lukasz@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Zoë 李",
+        "Dvořák 😀"
+      ],
+      [
+        "Łukasz",
+        "García–O’Neill"
+      ]
+    ],
+    "bytes": 3765,
+    "sha256": "d7740b26fb59a5dad4e45adc2a1e2b04eb943a60a0b44f73e56b5d3ab5f0fcad"
+  },
+  {
+    "id": "C24",
+    "file": "c24-contacts-default-namespace.xlsx",
+    "category": "XLSX with default namespace",
+    "expected": "2 contacts imported with exact names and email",
+    "expectedRows": 2,
+    "provenance": "Artifact-tool authored cells, then standard-library ZIP/XML namespace normalization; semantically identical cells verified with read-only openpyxl",
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "bytes": 3673,
+    "sha256": "136fd101c7ec1b3810977fa0e597e909b3e06abee37bceb69286b7b37b6cc8d0",
+    "sourceCase": "C01"
+  },
+  {
+    "id": "C25",
+    "file": "c25-blank-rows-default-namespace.xlsx",
+    "category": "XLSX blank rows with default namespace",
+    "expected": "2 nonempty data rows imported; blank rows ignored",
+    "expectedRows": 2,
+    "provenance": "Artifact-tool authored cells, then standard-library ZIP/XML namespace normalization; semantically identical cells verified with read-only openpyxl",
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "importtest-c10-juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "importtest-c10-oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "bytes": 3719,
+    "sha256": "fb95bb1ca2bfae956b38cae4da2e5f31265ebbc508dfa1993bd78ff32e3efb7c",
+    "sourceCase": "C10"
+  },
+  {
+    "id": "C26",
+    "file": "c26-multiple-sheets-default-namespace.xlsx",
+    "category": "XLSX sheet selection with default namespace",
+    "expected": "Choose Kontakte, import only its 2 contacts",
+    "expectedRows": 2,
+    "provenance": "Artifact-tool authored cells, then standard-library ZIP/XML namespace normalization; semantically identical cells verified with read-only openpyxl",
+    "sheet": "Kontakte",
+    "data": [
+      [
+        "Jürgen",
+        "Müller",
+        "importtest-c11-juergen@example.test",
+        "Bäckerei Größl"
+      ],
+      [
+        "Ölaf",
+        "Strauß",
+        "importtest-c11-oelaf@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Jürgen",
+        "Müller"
+      ],
+      [
+        "Ölaf",
+        "Strauß"
+      ]
+    ],
+    "bytes": 4575,
+    "sha256": "1e0abc263112d3d4b7b05637bb8640e3f877ef51af210c117a5cf3de5ab252ad",
+    "sourceCase": "C11"
+  },
+  {
+    "id": "C27",
+    "file": "c27-unicode-default-namespace.xlsx",
+    "category": "XLSX extended Unicode with default namespace",
+    "expected": "2 contacts; exact accents, CJK and emoji retained",
+    "expectedRows": 2,
+    "provenance": "Artifact-tool authored cells, then standard-library ZIP/XML namespace normalization; semantically identical cells verified with read-only openpyxl",
+    "data": [
+      [
+        "Zoë 李",
+        "Dvořák 😀",
+        "importtest-c12-zoe@example.test",
+        "Grüße aus 東京"
+      ],
+      [
+        "Łukasz",
+        "García–O’Neill",
+        "importtest-c12-lukasz@example.test",
+        "Äpfel & Söhne"
+      ]
+    ],
+    "names": [
+      [
+        "Zoë 李",
+        "Dvořák 😀"
+      ],
+      [
+        "Łukasz",
+        "García–O’Neill"
+      ]
+    ],
+    "bytes": 3727,
+    "sha256": "49f1ec78c6b9500e3e47c69aa2f80c572d230206d54cc8798486f3c896e44016",
+    "sourceCase": "C12"
+  }
+]

@@ -18,7 +18,8 @@ import {
   SPREADSHEET_MAX_ROWS,
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 
-const SPREADSHEET_ACCEPT = ".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const SPREADSHEET_ACCEPT =
+  ".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel";
 
 const MAX_MEGABYTES = SPREADSHEET_MAX_FILE_BYTES / (1024 * 1024);
 

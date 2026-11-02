@@ -2143,7 +2143,7 @@
       "duplicate": "Otra columna ya rellena este campo.",
       "failed": "{count, plural, one {# fila con error} other {# filas con error}}",
       "fields": "Campos",
-      "fileHint": "Elige un libro de Excel (.xlsx) o una exportación JSON de Customermates para esta lista.",
+      "fileHint": "Elige un libro de Excel (.xlsx), un archivo CSV o una exportación JSON de Customermates para esta lista.",
       "importing": "{processed} de {total} filas procesadas",
       "importProgress": "Filas procesadas",
       "issues": {

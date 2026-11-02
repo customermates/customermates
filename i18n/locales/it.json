@@ -2143,7 +2143,7 @@
       "duplicate": "Un'altra colonna compila già questo campo.",
       "failed": "{count, plural, one {# riga non riuscita} other {# righe non riuscite}}",
       "fields": "Campi",
-      "fileHint": "Scegli una cartella di lavoro Excel (.xlsx) o un'esportazione JSON di Customermates per questo elenco.",
+      "fileHint": "Scegli una cartella di lavoro Excel (.xlsx), un file CSV o un'esportazione JSON di Customermates per questo elenco.",
       "importing": "{processed} di {total} righe elaborate",
       "importProgress": "Righe elaborate",
       "issues": {
