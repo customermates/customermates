@@ -115,17 +115,25 @@ function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
 
 async function readLegacyWorkbook(bytes: Uint8Array): Promise<WorkbookResult> {
   const XLSX = await import("xlsx");
-  let book: import("xlsx").WorkBook;
-  try {
-    book = XLSX.read(bytes, { type: "array", cellDates: true, dense: true });
-  } catch {
-    return { ok: false, problem: "unreadable" };
-  }
+  const book = (() => {
+    try {
+      return XLSX.read(bytes, { type: "array", cellDates: true, dense: true });
+    } catch {
+      return null;
+    }
+  })();
+  if (!book) return { ok: false, problem: "unreadable" };
   return collectSheets(
     book.SheetNames.map((name) =>
       rowsSheet(
         name,
-        XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[name], { header: 1, raw: true, defval: null, blankrows: true, UTC: true }),
+        XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[name], {
+          header: 1,
+          raw: true,
+          defval: null,
+          blankrows: true,
+          UTC: true,
+        }),
       ),
     ),
   );

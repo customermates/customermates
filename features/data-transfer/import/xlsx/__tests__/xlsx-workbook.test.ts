@@ -127,8 +127,7 @@ describe("xlsx workbook reading", () => {
       { sheetRow: 4, cells: ["Borealis", null, 7, false] },
     ]);
     expect(await readSpreadsheetWorkbook("renamed.xlsx", fixture("legacy-biff8.xls"))).toMatchObject({ ok: true });
-    expect(await readSpreadsheetWorkbook("broken.xls", new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 1, 2]).buffer)).toMatchObject({
-      ok: false,
-    });
+    const broken = new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 1, 2]).buffer;
+    expect(await readSpreadsheetWorkbook("broken.xls", broken)).toMatchObject({ ok: false });
   });
 });
