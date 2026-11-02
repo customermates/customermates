@@ -1,23 +1,23 @@
 ---
-title: "Agentische KI: Definition, Funktionsweise, Beispiele"
-description: "Agentische KI verfolgt ein Ziel, plant Schritte und handelt über Werkzeuge. Unterschied zu generativer KI, Beispiele, Risiken und ein sicherer Einstieg."
+title: "KI-Agenten und Agentic AI: Definition und Beispiele"
+description: "KI-Agenten und agentische KI (Agentic AI) erklärt: Definition, Beispiele nach Unternehmensbereich, Unterschied zu Chatbot und Workflow, Risiken, CRM-Praxis."
 
 relatedHrefs:
   - /blog/agentic-crm
-  - /blog/claude-crm
-  - /docs/mcp
+  - /blog/ai-sales-agent
+  - /blog/what-is-an-mcp-server
   - /docs/app-routines
 
 hero:
-  title: "Agentische KI: Definition, Funktionsweise und Beispiele aus der Praxis"
-  description: Agentische KI bekommt ein Ziel statt eines Prompts, plant selbst, nutzt Werkzeuge und prüft ihre Ergebnisse. Was das praktisch bedeutet, wo es schon funktioniert und wie Sie die Kontrolle behalten.
+  title: "KI-Agenten und Agentic AI: Definition, Beispiele und wie sie funktionieren"
+  description: KI-Agenten bekommen ein Ziel statt eines Prompts, planen selbst, nutzen Werkzeuge und prüfen ihre Ergebnisse. Beispiele nach Unternehmensbereich, der Unterschied zu Chatbot, Assistent und Workflow und wie Sie die Kontrolle behalten.
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-04-23
-  updated: 2026-10-08
+  updated: 2026-11-02
   tags:
     - agentische-ki
     - ki-agenten
@@ -25,27 +25,28 @@ blogPost:
     - CRM
 ---
 
-# Agentische KI: Definition, Funktionsweise und Beispiele aus der Praxis
+# KI-Agenten und Agentic AI: Definition, Beispiele und wie sie funktionieren
 
-**Agentische KI** (englisch Agentic AI) ist KI, der man ein Ziel gibt statt einer einzelnen Frage. Sie zerlegt das Ziel in Schritte, ruft Werkzeuge wie eine Suchmaschine, eine API oder ein CRM auf, prüft das Ergebnis und entscheidet, was als Nächstes passiert. Am Ende steht keine Antwort, sondern eine Veränderung in einem System: eine bearbeitete Datei, ein aktualisierter Datensatz, eine gesendete Nachricht.
+**KI-Agenten**, im Zusammenhang auch **Agentic AI** oder agentische KI genannt, sind KI-Systeme, denen man ein Ziel gibt statt einer einzelnen Frage: Sie planen die Schritte, rufen Werkzeuge wie ein CRM, eine Suche oder eine API auf, prüfen das Ergebnis und handeln, mit begrenzter Aufsicht. Typische Beispiele für KI-Agenten sind ein Coding-Agent, der einen Pull Request anlegt, ein Support-Agent, der ein Ticket beantwortet oder weiterreicht, und ein CRM-Agent, der die Antwort auf einen Deal vorbereitet, jeweils mit einem Punkt, an dem ein Mensch freigibt.
 
 Der Begriff kommt von „Agent“, also jemandem, der im Auftrag eines anderen handelt. IBM definiert agentische KI als KI-System, das ein bestimmtes Ziel mit begrenzter Aufsicht erreichen kann ([IBM](https://www.ibm.com/think/topics/agentic-ai)). Entscheidend sind die Wörter *Ziel* und *begrenzt*: Ein Mensch gibt das Ziel vor, und ein Mensch legt fest, wie viel das System ohne Rückfrage tun darf.
 
-Offenlegung: Diesen Ratgeber veröffentlicht Customermates, ein Open-Source-CRM. Das Praxisbeispiel nutzt Customermates; Definitionen, Muster und Risiken gelten für jeden KI-Agenten.
+Offenlegung: Diesen Ratgeber veröffentlicht Customermates, ein Open-Source-CRM. Ein Abschnitt beschreibt, was unser Produkt kann und was nicht; Definitionen, Beispiele und Risiken gelten für jeden KI-Agenten.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Definition">
     KI, die ein Ziel verfolgt, indem sie plant, Werkzeuge aufruft und handelt,
     mit begrenzter menschlicher Aufsicht.
   </SummaryItem>
-  <SummaryItem label="Unterschied zu generativer KI">
-    Generative KI liefert Inhalte, mit denen Sie weiterarbeiten. Agentische KI
-    nutzt ein generatives Modell zum Entscheiden und handelt dann selbst.
+  <SummaryItem label="Chatbot, Assistent, Workflow, Agent">
+    Ein Chatbot folgt einem Skript, ein Assistent antwortet und Sie
+    entscheiden, ein Workflow folgt einem Ablauf, den Sie festgelegt haben, ein
+    Agent wählt seine Schritte selbst.
   </SummaryItem>
-  <SummaryItem label="Workflow oder Agent">
-    Ein fester Ablauf mit KI-Schritten ist ein Workflow, ein Agent wählt seine
-    Schritte selbst. Für die meisten Aufgaben im Unternehmen reicht ein
-    Workflow.
+  <SummaryItem label="Beispiele">
+    Antwortentwürfe im Vertrieb, Support-Triage, Störungsmanagement und
+    Rechnungsprüfung, jeweils mit Werkzeugen, Freigabepunkt und Risiko (Tabelle
+    unten).
   </SummaryItem>
   <SummaryItem label="Hauptrisiko">
     Zu viel Handlungsspielraum: zu viele Werkzeuge, zu weite Berechtigungen
@@ -57,19 +58,9 @@ Offenlegung: Diesen Ratgeber veröffentlicht Customermates, ein Open-Source-CRM.
   </SummaryItem>
 </ArticleSummary>
 
-## Wie agentische KI funktioniert
+## Was sind KI-Agenten? Die Definition von Agentic AI
 
-Jedes agentische System durchläuft eine Variante derselben Schleife:
-
-1. **Ziel.** Ein Mensch, ein Zeitplan oder ein Ereignis gibt dem Agenten ein Ziel, etwa „eine Antwort auf diese E-Mail vorbereiten“ oder „den fehlschlagenden Test beheben“.
-2. **Planen.** Ein Sprachmodell zerlegt das Ziel in Schritte und wählt den ersten.
-3. **Handeln.** Der Agent ruft ein Werkzeug auf: eine Suche, eine Datenbankabfrage, einen API-Aufruf, eine Dateiänderung.
-4. **Beobachten.** Er liest das Ergebnis und gleicht es mit dem Ziel ab.
-5. **Weitermachen oder aufhören.** Er geht zum nächsten Schritt, fragt einen Menschen oder endet, wenn das Ziel erreicht ist oder ein Limit greift.
-
-IBM zerlegt denselben Zyklus feiner, von Wahrnehmung und Schlussfolgern über die Ausführung bis zu Lernen und Orchestrierung. Wie weit ein Agent reicht, bestimmen seine Werkzeuge: Ein Modell ohne Zugriff auf Werkzeuge kann eine Aktion beschreiben, aber nicht ausführen. Deshalb steht das [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), laut seinen Betreibern ein offener Standard zur Verbindung von KI-Anwendungen mit externen Systemen, im Zentrum vieler Agentensysteme.
-
-### Wie sich die gängigen Definitionen unterscheiden
+Agentische KI heißt: KI, die auf ein Ziel hin handelt, statt nur zu antworten. Das Modell ist dieselbe Art Sprachmodell wie hinter einem Chatbot, aber es ist mit Werkzeugen verbunden und darf den nächsten Schritt selbst wählen. Google Cloud beschreibt den Unterschied so: Herkömmliche KI reagiert vor allem auf Befehle oder analysiert Daten, agentische KI kann sich Ziele setzen, planen und Aufgaben mit minimalem menschlichem Eingreifen ausführen.
 
 Die maßgeblichen Quellen definieren agentische KI mit leicht unterschiedlichen Worten. An den Unterschieden sieht man, worauf es jedem ankommt.
 
@@ -77,15 +68,41 @@ Die maßgeblichen Quellen definieren agentische KI mit leicht unterschiedlichen 
 |---|---|---|
 | [IBM](https://www.ibm.com/think/topics/agentic-ai) | Ein KI-System, das ein bestimmtes Ziel mit begrenzter Aufsicht erreichen kann | Ziel und verbleibende Aufsicht |
 | [AWS](https://aws.amazon.com/what-is/agentic-ai/) | Ein autonomes KI-System, das unabhängig handeln kann, um vorab festgelegte Ziele zu erreichen | Unabhängigkeit von Schritt-für-Schritt-Anweisungen |
+| [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) | KI, die sich Ziele setzen, planen und Aufgaben mit minimalem menschlichem Eingreifen ausführen kann | Planen und Ausführen, nicht nur Antworten |
 | [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), nach einer Studie von John Horton und Koautoren | Autonome Softwaresysteme, die in digitalen Umgebungen wahrnehmen, schlussfolgern und handeln, um Ziele im Auftrag von Menschen zu erreichen | Handeln im Auftrag einer Person |
 | [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Ein System, das autonom handelt, mehrstufige Probleme durchdenkt und sein Vorgehen in Echtzeit anpasst, um ein Geschäftsziel mit minimaler Aufsicht zu erreichen | Geschäftsziele und Anpassung während der Ausführung |
 | [Anthropic](https://www.anthropic.com/research/building-effective-agents) | Agenten sind Systeme, in denen Sprachmodelle ihr Vorgehen und ihre Werkzeugnutzung selbst steuern | Wer den Weg bestimmt: das Modell oder der Code |
 
-Gemeinsam ist allen ein Ziel, Werkzeuge und ein gewisser Spielraum beim Weg dorthin. Uneinig sind sie sich darüber, wie groß dieser Spielraum sein soll.
+Gemeinsam ist allen ein Ziel, Werkzeuge und ein gewisser Spielraum beim Weg dorthin. Uneinig sind sie sich darüber, wie groß dieser Spielraum sein soll; der Artikel von MIT Sloan weist selbst darauf hin, dass es keine allgemein vereinbarte Definition gibt.
 
-## Agentische KI und generative KI: der Unterschied
+## Was ist der Unterschied zwischen einem KI-Modell und einem KI-Agenten?
 
-Generative KI erzeugt Inhalte: Text, Bilder, Code, eine Zusammenfassung. Sie lesen das Ergebnis und entscheiden, was damit geschieht. Agentische KI enthält meist ein generatives Modell, nutzt dessen Ausgabe aber, um eine Aktion zu wählen und sie auszuführen. Das Beispiel von IBM: Generative KI nennt Ihnen die beste Zeit für eine Besteigung des Mount Everest, ein agentisches System bucht zusätzlich Flüge und Hotel.
+Ein KI-Modell, etwa ein Sprachmodell, nimmt eine Eingabe entgegen und liefert eine Ausgabe. Ein KI-Agent ist das Modell plus Ziel, Werkzeuge, Berechtigungen und eine Schleife, in der es selbst den nächsten Schritt wählt. Dazwischen liegen Begriffe, die oft für dasselbe Produkt verwendet werden, aber unterschiedlich viel Kontrolle beschreiben. Google Cloud trennt Bots, Assistenten und Agenten: Bots sind am wenigsten autonom und folgen in der Regel vorprogrammierten Regeln, Assistenten reagieren auf Anfragen und können Aktionen empfehlen, die Entscheidung trifft aber der Nutzer, Agenten sind am autonomsten und können selbstständig entscheiden, um ein Ziel zu erreichen. Anthropic ergänzt den vierten Begriff: Ein Workflow ist ein System, in dem Sprachmodelle und Werkzeuge über vorab festgelegte Codepfade gesteuert werden, beim Agenten steuert das Modell den Ablauf selbst.
+
+| Typ | Wer entscheidet den nächsten Schritt | Werkzeuge | Beispiel | Wo es scheitert |
+|---|---|---|---|---|
+| Chatbot (Bot) | Ein Skript oder feste Regeln | Keine oder eine einfache Abfrage | FAQ-Fenster auf einer Website | Alles außerhalb des Skripts |
+| KI-Assistent | Sie: Er antwortet und empfiehlt, Sie handeln | Optional | ChatGPT in einem normalen Chat | Die Antwort bleibt Text, bis Sie handeln |
+| Workflow-Automatisierung | Der Ablauf, den Sie festgelegt haben, gegebenenfalls mit KI-Schritten | APIs, Webhooks | „Wechselt ein Deal auf Gewonnen, wird eine Onboarding-Aufgabe angelegt“ | Eingaben, die der Ablauf nicht vorsieht |
+| KI-Agent | Das Modell, innerhalb der Werkzeuge und Grenzen, die Sie setzen | Notwendig | Ein Coding-Agent, der einen fehlschlagenden Test behebt und einen Pull Request anlegt | Eine falsche Aktion, ausufernde Kosten, eine eingeschleuste Anweisung |
+
+**Ist ChatGPT eine agentische KI?** Im normalen Chat arbeitet es als Assistent: Es antwortet, und Sie handeln. Agentisch arbeitet es, wenn es über Werkzeuge für Sie handeln darf, etwa im Agentenmodus von ChatGPT, oder wenn es über MCP mit Unternehmenssoftware verbunden ist und dort Daten lesen und, je nach ChatGPT-Tarif, auch ändern kann. Entscheidend ist die Einrichtung, nicht der Produktname.
+
+## Wie funktioniert ein KI-Agent?
+
+Ein agentisches KI-System besteht aus einem Sprachmodell und vier Dingen drumherum: einem Ziel, Werkzeugen, die es aufrufen darf, den Berechtigungen dieser Werkzeuge und einer Schleife mit Abbruchregel. Jedes solche System durchläuft eine Variante desselben Zyklus:
+
+1. **Ziel.** Ein Mensch, ein Zeitplan oder ein Ereignis gibt dem Agenten ein Ziel, etwa „eine Antwort auf diese E-Mail vorbereiten“ oder „den fehlschlagenden Test beheben“.
+2. **Planen.** Ein Sprachmodell zerlegt das Ziel in Schritte und wählt den ersten.
+3. **Handeln.** Der Agent ruft ein Werkzeug auf: eine Suche, eine Datenbankabfrage, einen API-Aufruf, eine Dateiänderung.
+4. **Beobachten.** Er liest das Ergebnis und gleicht es mit dem Ziel ab.
+5. **Weitermachen oder aufhören.** Er geht zum nächsten Schritt, fragt einen Menschen oder endet, wenn das Ziel erreicht ist oder ein Limit greift.
+
+IBM beschreibt denselben Zyklus in sieben Stufen: Wahrnehmung, Schlussfolgern, Zielsetzung, Entscheidungsfindung, Ausführung, Lernen und Anpassung sowie Orchestrierung. Wie weit ein Agent reicht, bestimmen seine Werkzeuge: Ein Modell ohne Zugriff auf Werkzeuge kann eine Aktion beschreiben, aber nicht ausführen. Deshalb steht das [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), laut seinen Betreibern ein offener Standard zur Verbindung von KI-Anwendungen mit externen Systemen, im Zentrum vieler Agentensysteme. Wie ein MCP-Server funktioniert und was Sie vor der Anbindung prüfen sollten, erklärt der Ratgeber zum [MCP-Server](/blog/what-is-an-mcp-server).
+
+### Agentische KI und generative KI: der Unterschied
+
+Generative KI erzeugt Inhalte: Text, Bilder, Code, eine Zusammenfassung. Sie lesen das Ergebnis und entscheiden, was damit geschieht. Agentische KI nutzt ein Sprachmodell als eine Art „Gehirn“, wie Google Cloud es nennt, das über Werkzeuge Aktionen ausführt. Googles eigenes Beispiel: Generative KI kann Marketingmaterial erstellen, agentische KI kann es anschließend ausspielen, die Wirkung verfolgen und die Strategie anhand der Ergebnisse anpassen.
 
 | | Generative KI | Agentische KI |
 |---|---|---|
@@ -98,11 +115,42 @@ Generative KI erzeugt Inhalte: Text, Bilder, Code, eine Zusammenfassung. Sie les
 
 Die letzten beiden Zeilen machen den praktischen Unterschied aus. Eine Halluzination im Entwurf kostet Sie eine Korrektur. Dieselbe Halluzination in einem Agenten wird zum geänderten Datensatz oder zur versendeten E-Mail. Agenten brauchen deshalb Berechtigungen und Freigaberegeln, die ein Textgenerator nie gebraucht hat.
 
-## Agentische Workflows und KI-Agenten
+## Was sind Beispiele für KI-Agenten (AI-Agenten) im Unternehmen?
 
-Der Engineering-Leitfaden von Anthropic trennt **Workflows**, also Systeme, in denen Sprachmodelle und Werkzeuge über vorab festgelegte Codepfade gesteuert werden, von **Agenten**, bei denen das Modell den Ablauf und die Werkzeugwahl selbst bestimmt. Beides zählt zu den agentischen Systemen. Die Empfehlung ist deutlich: die einfachste Lösung wählen, die funktioniert, was auch heißen kann, gar kein agentisches System zu bauen. Echte Agenten lohnen sich bei offenen Problemen, deren Schrittzahl sich nicht vorhersagen lässt. Ich sehe das genauso. Vieles, was im Unternehmen „KI-Agent“ heißt, ist als Workflow mit ein oder zwei KI-Schritten besser gebaut.
+Beispiele lesen Sie am besten nach der Aufgabe, nicht nach der Marke: Was tut der Agent, welche Werkzeuge braucht er, wo muss ein Mensch freigeben, und was kann schiefgehen? Die Tabelle deckt vier Unternehmensbereiche ab. Die Zeilen sind Muster, keine Produkte.
 
-Der Leitfaden nennt fünf Workflow-Muster:
+### Beispiele für agentische KI nach Unternehmensbereich
+
+| Bereich | Beispielaufgabe | Was der Agent tut | Welche Werkzeuge er braucht | Wo ein Mensch freigibt | Hauptrisiko |
+|---|---|---|---|---|---|
+| Vertrieb | Antwortvorbereitung zu einem offenen Deal | Liest die neue E-Mail, den Deal und seine Notizen, ergänzt die offene Frage in den Notizen, speichert einen Antwortentwurf | CRM lesen und schreiben, Zugriff auf den E-Mail-Verlauf | Der Entwurf, bevor er gesendet wird | Ein falscher Fakt im Entwurf oder eine Antwort an die falsche Person |
+| Vertrieb | Firmenrecherche vor einem Gespräch | Durchsucht Web und CRM, schreibt ein einseitiges Briefing mit Quellen | Websuche, CRM lesen | Das Briefing wird vor dem Gespräch gelesen | Veraltete oder erfundene Angaben, die ins CRM wandern |
+| Support | Ticket beantworten oder eskalieren | Liest das Ticket, durchsucht die Wissensdatenbank, antwortet, wenn die Antwort dokumentiert ist, und reicht andernfalls den Fall mit Zusammenfassung an einen Menschen weiter | Suche in der Wissensdatenbank, Ticketsystem, Lesezugriff auf Kundendaten | Erstattungen, Kontoänderungen und jeder Fall, den die Wissensdatenbank nicht abdeckt | Eine selbstsicher falsche Antwort oder ein Versprechen, das niemand freigegeben hat |
+| Betrieb | Erste Reaktion auf eine IT-Störung | Liest Alarme und Logs, schlägt einen Rollback vor oder führt ihn aus, schreibt den Störungsbericht, benachrichtigt die Bereitschaft | Monitoring und Logs, Deployment-Werkzeuge, Chat | Änderungen am Produktivsystem und Rollbacks | Eine schwer umkehrbare Aktion aufgrund eines falsch gelesenen Alarms |
+| Finanzen | Prüfung von Rechnungen und Buchungen | Gleicht eingehende Rechnungen mit Bestellungen und Kontoumsätzen ab, schlägt Zuordnungen vor, markiert Ausnahmen | Buchhaltungssystem oder Export (lesen), Dateien lesen | Jede Buchung und jede Zahlung | Eine falsche Buchung, eine doppelte Zahlung, Ausnahmen, die niemand prüft |
+
+Hersteller beschreiben dieselben Aufgaben. Die Erläuterung von Salesforce führt einen Service-Agenten vor, der den Garantiestatus prüft, die Wissensdatenbank durchsucht, ein Rücksendeetikett verschickt und das CRM aktualisiert, sowie einen Agenten für die Kundengesundheit, der eine Schulungs-E-Mail sendet und dem Kundenbetreuer einen Folgetermin anlegt. [AWS](https://aws.amazon.com/what-is/agentic-ai/) nennt Kundenservice-Automatisierung, automatisierte Reaktion auf Störungen, Schichtplanung und Lieferkettenüberwachung. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) ergänzt Finanzdienstleistungen (Betrugserkennung, Risikobewertung) und Softwareentwicklung. [Anthropic](https://www.anthropic.com/research/building-effective-agents) bezeichnet den Kundensupport als natürlichen Anwendungsfall, weil Support-Gespräche einem Gesprächsfluss folgen und zugleich Zugriff auf externe Informationen und Aktionen erfordern.
+
+Lesen Sie die letzten beiden Spalten der Tabelle zuerst. Je leichter sich eine Aktion rückgängig machen lässt, desto weniger Freigabe braucht sie; Zahlungen, Erstattungen, Rollbacks und alles, was an einen Kunden geht, sollten immer ein Mensch prüfen.
+
+### Produkte, die Hersteller als Agenten bezeichnen
+
+Die folgenden Produkte bezeichnen ihre eigenen Hersteller als Agenten. Die mittleren Spalten folgen der jeweiligen Herstellerdokumentation.
+
+| Produkt | Was er bekommt | Was er tut | Sinnvoller Prüfpunkt |
+|---|---|---|---|
+| [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | Eine Programmieraufgabe in einem Repository | Liest den Code, bearbeitet Dateien, führt Befehle aus, stellt Änderungen bereit, schreibt Commit-Nachrichten, legt Branches und Pull Requests an | Der Diff oder Pull Request |
+| [GitHub Copilot in der Cloud](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github) | Eine Aufgabe in einem Repository | Recherchiert im Repository, plant Änderungen und setzt sie im Hintergrund um, bearbeitet Dateien und führt Tests und Linter in einer Cloud-Entwicklungsumgebung aus | Die vorgeschlagenen Änderungen, bevor ein Pull Request entsteht |
+| [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Ein Support-Ticket | Prüft den Garantiestatus, durchsucht die Wissensdatenbank, verschickt ein Rücksendeetikett und aktualisiert das CRM | Salesforce nennt klare Regeln und Grenzen, regelmäßige Überwachung und menschliche Aufsicht als zentral |
+| Customermates-Routine (Customermates Cloud) | Eine neue E-Mail zu einem Deal | Fasst sie in den Deal-Notizen zusammen und speichert einen Antwortentwurf | Der Entwurf, bevor ein Mensch ihn sendet |
+
+Mehr zu Funktionen, Kosten und Einführung dieses Produkts steht im Ratgeber zu [Salesforce Agentforce](/blog/agentforce).
+
+## Welche Arten von KI-Agenten gibt es?
+
+Häufig wird nach „den vier Arten“ agentischer KI gefragt. Die hier geprüften Quellen definieren nicht genau vier. Der [Agenten-Leitfaden](https://cloud.google.com/discover/what-are-ai-agents) von Google Cloud sortiert Agenten auf zwei Wegen: nach Interaktion (interaktive Partner, die eine Nutzeranfrage beantworten, und Hintergrundagenten, die in der Regel von Ereignissen gesteuert werden) und nach Anzahl (ein einzelner Agent oder ein Multi-Agenten-System). AWS unterteilt Multi-Agenten-Systeme weiter in horizontale, deren Agenten nebeneinander arbeiten, und vertikale, die hierarchisch angeordnet sind. Kreuzt man Interaktion und Anzahl, ergeben sich vier Kombinationen; dieses Raster ist meine Lesart, kein Standard.
+
+Ein zweiter Weg ist die Frage, wer den Ablauf steuert. Der Engineering-Leitfaden von Anthropic trennt **Workflows** von **Agenten** und nennt fünf Workflow-Muster. Die Empfehlung ist deutlich: die einfachste Lösung wählen, die funktioniert, was auch heißen kann, gar kein agentisches System zu bauen. Echte Agenten lohnen sich bei offenen Problemen, deren Schrittzahl sich nicht vorhersagen lässt. Ich sehe das genauso. Vieles, was im Unternehmen „KI-Agent“ heißt, ist als Workflow mit ein oder zwei KI-Schritten besser gebaut.
 
 | Muster | Was es tut | Beispiel aus dem Vertrieb |
 |---|---|---|
@@ -112,25 +160,33 @@ Der Leitfaden nennt fünf Workflow-Muster:
 | Orchestrator und Worker | Ein Modell teilt die Aufgabe auf und delegiert die Teile | Ein leitender Agent verteilt die Recherche zu mehreren Firmenkunden an Unteragenten |
 | Evaluator und Optimierer | Ein Modell entwirft, ein zweites bewertet, bis der Entwurf passt | Antwortentwurf, der gegen Ihren Tonalitäts-Leitfaden überarbeitet wird |
 
-**Agentische KI und KI-Agenten.** IBM beschreibt agentische KI als System, das aus KI-Agenten besteht: „agentische KI“ meint also das Ganze, „KI-Agenten“ die Bausteine darin. Arbeiten mehrere Agenten zusammen, übernimmt jeder eine Teilaufgabe, und ein Orchestrierungsschritt koordiniert sie.
+**Agentic AI und KI-Agenten.** Google Cloud nennt KI-Agenten die Bausteine agentischer KI: Ein Agent konzentriert sich auf eine bestimmte Aufgabe, agentische KI koordiniert mehrere Agenten für einen komplexen Ablauf. Im Alltag werden beide Begriffe meist gleichbedeutend verwendet.
 
-## Beispiele für agentische KI
+## Wer baut KI-Agenten?
 
-Die folgenden Produkte bezeichnen ihre eigenen Hersteller als Agenten. Die mittleren Spalten folgen der jeweiligen Herstellerdokumentation.
+Drei Gruppen, und oft arbeiten sie zusammen:
 
-| Produkt | Was er bekommt | Was er tut | Sinnvoller Prüfpunkt |
-|---|---|---|---|
-| [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | Eine Programmieraufgabe in einem Repository | Liest den Code, bearbeitet Dateien, führt Befehle aus und kann Commits und Pull Requests anlegen | Der Diff oder Pull Request |
-| [GitHub Copilot Cloud Agent](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github) | Ein Issue oder eine Aufgabe | Recherchiert im Repository, plant und setzt Änderungen in einer kurzlebigen Cloud-Umgebung um, führt Tests und Linter aus, legt einen Branch an und überträgt ihn | Der Branch, bevor er übernommen wird |
-| [ChatGPT Agent](https://openai.com/index/introducing-chatgpt-agent/) (OpenAI) | Eine mehrstufige Aufgabe im Web | Surft und handelt auf Websites | Laut OpenAI fragt er vor folgenreichen Aktionen wie Käufen um Erlaubnis |
-| [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Ein Support-Ticket | Bearbeitet das Ticket von Anfang bis Ende, einschließlich Statusänderung des Falls | Salesforce nennt Überwachung und menschliche Aufsicht als zentral |
-| Customermates-Routine (Customermates Cloud) | Eine neue E-Mail zu einem Deal | Fasst sie in den Deal-Notizen zusammen und speichert einen Antwortentwurf | Der Entwurf, bevor ein Mensch ihn sendet |
+- **Modell- und Plattformanbieter liefern die Bausteine.** Anthropic beschreibt für Claude Code ein Agent SDK, mit dem man eigene Agenten bauen kann, mit voller Kontrolle über Orchestrierung, Werkzeugzugriff und Berechtigungen. Google Cloud nennt unter anderem vorgefertigte Agenten und eine Plattform aus Agenten- und Entwicklerwerkzeugen, um eigene Agenten zu bauen.
+- **Softwarehersteller bauen Agenten in ihre Produkte.** Beispiele sind Salesforce mit Agentforce, GitHub mit Copilot und Anthropic mit Claude Code. Im CRM gehört dazu Mate, der Assistent in Customermates Cloud (siehe unten).
+- **Eigene Teams oder Dienstleister bauen Agenten für einen bestimmten Prozess**, auf diesen Bausteinen oder über den offenen MCP-Standard, der Modelle mit Ihren Systemen verbindet.
 
-Jenseits von Software und Vertrieb nennt [AWS](https://aws.amazon.com/what-is/agentic-ai/) Einsatzfelder wie Schichtplanung, Lieferketten- und Bestandsmanagement, Reaktion auf IT-Störungen und Kundenservice.
+Bevor Sie selbst bauen, gilt der Rat aus dem vorigen Abschnitt: Prüfen Sie, ob ein Workflow mit ein oder zwei KI-Schritten reicht.
 
-## Praxisbeispiel: ein eng begrenzter Agent im CRM
+## Wie arbeiten KI-Agenten im CRM? Das kann Customermates heute
 
-Die Arbeit im CRM eignet sich gut für einen ersten Agenten. Sie wiederholt sich täglich, der Kontext liegt an einem Ort, und die meisten Änderungen lassen sich korrigieren. So sieht eine konkrete Einrichtung in Customermates aus, gebaut als Routine: eine gespeicherte Anweisung plus Auslöser, ausgeführt von Mate, dem Assistenten in Customermates Cloud, der gehostete KI-Credits verbraucht.
+Dieser Abschnitt beschreibt unser eigenes Produkt, lesen Sie ihn also als Herstellerinformation. Customermates bietet drei Wege, auf denen eine KI mit CRM-Datensätzen arbeitet. Sie unterscheiden sich darin, wer die Arbeit startet und wer freigibt.
+
+| Weg | Wer startet ihn | Was er kann | Freigabe | Wer das Modell bezahlt |
+|---|---|---|---|---|
+| **Mate**, der Assistent in Customermates Cloud | Sie, im Chat-Panel | Legt Datensätze an und ändert sie, speichert Entwürfe, sendet E-Mails und Chat-Nachrichten, wenn Sie darum bitten, sortiert den Posteingang | Löschungen, Importe, Rechteänderungen, das Teilen eines Kontos und weitere aufgelistete Aktionen fragen jedes Mal nach | Gehostete KI-Credits Ihres Tarifs |
+| **Routine** (Cloud) | Ein Zeitplan oder ein Ereignis wie „E-Mail empfangen“ | Lässt Mate unbeaufsichtigt nach einer gespeicherten Anweisung arbeiten, als ihr Eigentümer | Aktionen, die im Chat eine Freigabe brauchen, werden abgelehnt | Die Credits des Eigentümers |
+| **Externer KI-Client über [MCP](/docs/mcp)** | Sie, in Claude, ChatGPT, Claude Code, Codex, Cursor oder Gemini CLI | Liest und schreibt Datensätze mit den Rechten des verbundenen Nutzers | Der Server bittet Clients nur, vor dem Löschen oder Senden nachzufragen; ob das passiert, entscheidet der Client | Ihr eigener KI-Anbieter |
+
+Jeder Cloud-Tarif enthält die Mate-Berechtigung, ob der Assistent tatsächlich verfügbar ist, hängt aber von der gehosteten Umgebung ab. Die vollständige Liste der freigabepflichtigen Aktionen steht in der [Dokumentation zu Mate](/docs/app-assistant). Das Senden steht bewusst nicht darauf: Eine E-Mail oder Chat-Nachricht geht in dem Moment raus, in dem Mate sie sendet. Bitten Sie deshalb um einen Entwurf, wenn Sie den Wortlaut zuerst prüfen möchten. Die Anleitungen für [Claude](/blog/claude-crm) und [ChatGPT](/blog/chatgpt-for-sales) behandeln den MCP-Weg, und der Ratgeber zum [agentischen CRM](/blog/agentic-crm) stellt Mate und MCP nebeneinander.
+
+### Praxisbeispiel: ein eng begrenzter Agent im CRM
+
+Die Arbeit im CRM eignet sich gut für einen ersten Agenten. Sie wiederholt sich täglich, der Kontext liegt an einem Ort, und die meisten Änderungen lassen sich korrigieren. So sieht eine konkrete Einrichtung aus, gebaut als Routine: eine gespeicherte Anweisung plus Auslöser, ausgeführt von Mate mit gehosteten KI-Credits.
 
 **Voraussetzungen.** Customermates Cloud ab Pro, denn der Auslöser ist ein Ereignis im Posteingang, und den [einheitlichen Posteingang](/features/unified-inbox) gibt es ab Pro. Dazu ein verbundenes E-Mail-Konto (Gmail, Outlook oder IMAP).
 
@@ -175,13 +231,20 @@ Warum die Anweisung so formuliert ist:
 - **Sie handelt mit Ihren Rechten.** Eine Routine läuft als ihr Eigentümer, mit dessen Zugriffsrechten, verbundenen Kanälen und Credits. Eine E-Mail, die der Eigentümer nicht sehen darf, startet keinen Lauf.
 - **Keine Endlosschleifen.** Änderungen aus einem Routinen-Lauf lösen nie Routinen aus.
 - **Recherche und Schreiben sind getrennt.** Ein Lauf kann im Web suchen oder Daten ändern, nicht beides: Sobald eine Websuche Ergebnisse geliefert hat, wird jede Änderung in diesem Lauf abgelehnt. Text von einer Website kann so im selben Lauf keinen Datensatz verändern.
-- **Die Kosten sind gedeckelt.** Jeder Lauf hat eine Credit-Obergrenze, jede Routine ein stündliches Limit. Die aktuellen Werte stehen in der [Dokumentation zu Routinen](/docs/app-routines), die vollständige Liste der freigabepflichtigen Aktionen in der [Dokumentation zu Mate](/docs/app-assistant).
+- **Die Kosten sind gedeckelt.** Jeder Lauf hat eine Credit-Obergrenze, jede Routine ein stündliches Limit. Die aktuellen Werte stehen in der [Dokumentation zu Routinen](/docs/app-routines).
 
 **Was das kostet.** Ein Team mit drei Personen zahlt im Pro-Tarif [[commercial.price.pro.monthly.seats.3]] pro Monat, also [[commercial.price.pro.monthly]] pro Nutzer. Jeder Pro-Nutzer kann [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen anlegen, und jeder aktive Nutzer erhält monatlich gehostete KI-Credits; Details unter [Preise](/pricing). Eine Routine verbraucht die Credits ihres Eigentümers.
 
-**Alternativ mit Ihrem eigenen KI-Client.** Claude, ChatGPT und andere Clients arbeiten über [MCP](/docs/mcp) mit denselben Datensätzen, gestartet im Client statt durch ein Ereignis im Posteingang; die Modellnutzung bezahlen Sie dann direkt bei Ihrem KI-Anbieter. MCP funktioniert auch bei einer selbst gehosteten Installation, die allerdings weder Posteingang noch Mate hat. Zwei Grenzen sind für das Agenten-Design wichtig: Ein API-Schlüssel hat dieselben Rechte wie der Nutzer, der ihn erstellt hat, ohne Einschränkung pro Schlüssel. Und der Server bittet Clients nur, vor dem Löschen oder Senden nachzufragen; ob das passiert, entscheidet der Client. Der Ratgeber zum [agentischen CRM](/blog/agentic-crm) vergleicht beide Wege.
+### Wann Customermates die falsche Wahl ist
 
-## Risiken und die Kontrollen, die wirken
+- **Sie wollen einen Agenten, der selbstständig akquiriert und versendet.** Customermates hat keine Sequenzen, Drip-Kampagnen oder Massenansprache. Routinen haben keine Empfängerlisten oder Versandschritte, und die Ansprache läuft zuerst als Entwurf und pro Nachricht. Was spezialisierte Outreach-Agenten leisten und wie Sie einen testen, steht im Ratgeber zum [KI Sales Agent](/blog/ai-sales-agent).
+- **Sie hosten selbst.** Eine selbst gehostete Installation hat weder Mate noch Routinen. MCP funktioniert dort, mit Ihrem eigenen KI-Client und Anbieter.
+- **Sie brauchen eingeschränkte Schlüssel.** Ein API-Schlüssel hat dieselben Rechte wie der Nutzer, der ihn erstellt hat, ohne Einschränkung pro Schlüssel. Geben Sie diesem Nutzer deshalb eine Rolle, die genau die Aufgabe abdeckt.
+- **Sie brauchen bei MCP eine vom Server erzwungene Bestätigung.** Der Server bittet Clients, vor dem Löschen oder Senden nachzufragen, aber das ist eine Empfehlung, die der Client ignorieren kann. Die Freigaben von Mate dagegen erzwingt der Server.
+
+Wenn Sie ein KI-fähiges CRM auswählen, listet der Ratgeber zum [KI-CRM](/blog/ai-crm), was Sie vergleichen sollten.
+
+## Welche Risiken haben KI-Agenten, und welche Kontrollen wirken?
 
 OWASP führt „Excessive Agency“, also übermäßigen Handlungsspielraum, in seinen [Top 10 für LLM-Anwendungen](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025). Gemeint ist die Schwachstelle, durch die schädliche Aktionen aus unerwarteten, mehrdeutigen oder manipulierten Modellausgaben entstehen. Auslöser kann eine Halluzination sein, eine Prompt Injection in Inhalten, die der Agent liest, oder ein kompromittiertes Werkzeug. OWASP nennt drei Ursachen, und für jede gibt es eine direkte Gegenmaßnahme:
 
@@ -191,11 +254,11 @@ OWASP führt „Excessive Agency“, also übermäßigen Handlungsspielraum, in 
 | Zu weite Berechtigungen | Er läuft mit Administratorrechten | Ihn als Nutzer laufen lassen, dessen Rolle genau die Aufgabe abdeckt |
 | Zu viel Autonomie | Er sendet, zahlt oder löscht, ohne dass jemand prüft | Freigabe für folgenreiche Aktionen verlangen oder nur Entwürfe erzeugen |
 
-Zwei weitere Probleme zeigen sich in der Praxis. Fehler pflanzen sich fort: Liest der erste Schritt eine E-Mail falsch, baut jeder spätere Schritt darauf auf. Und die Kosten wachsen mit jedem Schritt, deshalb gibt es Limits pro Lauf.
+OWASP empfiehlt für die dritte Zeile eine Kontrolle durch den Menschen, der folgenreiche Aktionen freigibt, bevor sie ausgeführt werden. Anthropic sagt dasselbe für Coding-Agenten: Automatisierte Tests prüfen die Funktion, aber die menschliche Prüfung bleibt entscheidend, damit Lösungen zu den übergeordneten Anforderungen des Systems passen.
 
-Gartner geht davon aus, dass bis Ende 2027 über 40 % der Projekte mit agentischer KI eingestellt werden, wegen steigender Kosten, unklarem Geschäftsnutzen oder unzureichender Risikokontrollen. In derselben Mitteilung vom 25. Juni 2025 warnt Gartner vor „Agent Washing“, dem Umetikettieren von Assistenten, Chatbots und RPA-Werkzeugen zu Agenten, und schätzt, dass nur etwa 130 der Tausenden Anbieter, die agentische KI versprechen, tatsächlich welche liefern ([Gartner](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027)). Ein schneller Test für jedes Produkt, das als Agent verkauft wird: Welche Werkzeuge darf es aufrufen, mit wessen Rechten, und was tut es ohne Rückfrage?
+Zwei weitere Probleme zeigen sich in der Praxis. Fehler pflanzen sich fort: Liest der erste Schritt eine E-Mail falsch, baut jeder spätere Schritt darauf auf. Und die Kosten wachsen mit jedem Schritt, deshalb gibt es Limits pro Lauf. Ein schneller Test für jedes Produkt, das als Agent verkauft wird: Welche Werkzeuge darf es aufrufen, mit wessen Rechten, und was tut es ohne Rückfrage?
 
-## So geben Sie einem Agenten seine erste Aufgabe
+## Wie geben Sie einem KI-Agenten seine erste Aufgabe?
 
 <Steps>
   <Step title="Eine Aufgabe mit klarem Ende wählen">
@@ -219,11 +282,11 @@ Gartner geht davon aus, dass bis Ende 2027 über 40 % der Projekte mit agentisch
   </Step>
 </Steps>
 
-## Wann agentische KI das falsche Werkzeug ist
+## Wann sind KI-Agenten das falsche Werkzeug?
 
 Wenn sich die Schritte nie ändern, ist eine feste Regel günstiger und berechenbarer als ein Agent. Eine Regel wie „Wechselt ein Deal auf Gewonnen, wird eine Onboarding-Aufgabe angelegt“ braucht einen Webhook und eine [Workflow-Automatisierung](/features/workflow-automation), kein Sprachmodell. Agenten lohnen sich dort, wo die Eingabe variiert: frei formulierte E-Mails, unstrukturierte Notizen, Fragen, die mehrere Abfragen brauchen. Fehl am Platz sind sie, wo sich eine falsche Aktion nicht rückgängig machen lässt und niemand sie rechtzeitig prüfen kann, etwa bei Zahlungen.
 
-## Agentische KI und DSGVO
+## Agentic AI und DSGVO
 
 Agenten lesen personenbezogene Daten: Namen, E-Mail-Adressen, Gesprächsinhalte. Nach der DSGVO ist ein Anbieter, der diese Daten in Ihrem Auftrag verarbeitet, Auftragsverarbeiter, Sie brauchen mit ihm einen Auftragsverarbeitungsvertrag (AVV), und die KI-Anbieter, auf die er zurückgreift, sind seine Unterauftragsverarbeiter. Für Mate in Customermates Cloud stehen die Modellanbieter in der [Liste der Unterauftragsverarbeiter](/subprocessors). Wenn Sie den Anbieter selbst wählen möchten, verbinden Sie Ihren eigenen KI-Client über MCP oder hosten den Open-Source-Kern selbst, sodass die CRM-Daten auf Ihren eigenen Servern bleiben.
 
@@ -234,25 +297,33 @@ Agenten lesen personenbezogene Daten: Namen, E-Mail-Adressen, Gesprächsinhalte.
 KI, der Sie ein Ziel geben statt einer Frage. Sie plant die Schritte, nutzt Werkzeuge wie Suche, APIs oder Unternehmenssoftware, um sie auszuführen, prüft die Ergebnisse und hört auf, wenn das Ziel erreicht ist oder sie einen Menschen braucht.
 </FaqItem>
 
-<FaqItem question="Was ist ein KI-Agent?">
-Ein KI-Agent ist ein Programm, das mit einem Sprachmodell Entscheidungen trifft und über Werkzeuge selbst Aktionen ausführt, etwa einen Datensatz ändert oder eine Datei bearbeitet. IBM beschreibt agentische KI als System, das aus KI-Agenten besteht: das Ganze und seine Bausteine. Im Alltag werden beide Begriffe meist gleichbedeutend verwendet.
+<FaqItem question="Was ist der Unterschied zwischen einem KI-Modell und einem KI-Agenten?">
+Ein KI-Modell liefert zu einer Eingabe eine Ausgabe. Ein KI-Agent ist ein Modell mit Ziel, Werkzeugen, Berechtigungen und einer Schleife, in der es selbst den nächsten Schritt wählt und Aktionen ausführt, etwa einen Datensatz ändert oder eine Datei bearbeitet.
+</FaqItem>
+
+<FaqItem question="Was sind Beispiele für AI-Agenten?">
+Coding-Agenten wie Claude Code und Copilot in der Cloud von GitHub, Service-Agenten wie Salesforce Agentforce und Routinen im CRM, die eingehende E-Mails am Deal zusammenfassen und einen Antwortentwurf vorbereiten. Nach Bereich sortiert: Antwortvorbereitung im Vertrieb, Ticket-Triage im Support, erste Reaktion auf IT-Störungen im Betrieb, Rechnungsprüfung in den Finanzen.
+</FaqItem>
+
+<FaqItem question="Wer baut KI-Agenten?">
+Modell- und Plattformanbieter liefern Bausteine, etwa ein Agent SDK, Softwarehersteller bauen Agenten in ihre Produkte, und eigene Teams oder Dienstleister bauen Agenten für einen bestimmten Prozess. Bevor Sie selbst bauen, prüfen Sie, ob ein Workflow mit ein oder zwei KI-Schritten reicht.
 </FaqItem>
 
 <FaqItem question="Was ist der Unterschied zwischen generativer KI und Agentic AI?">
-Generative KI erzeugt Inhalte aus einem Prompt, und Sie entscheiden, was damit geschieht. Agentic AI, also agentische KI, verfolgt ein Ziel und führt die Aktionen selbst aus, meist mit einem generativen Modell, das den nächsten Schritt wählt. KI ist der Oberbegriff: Generative und agentische KI sind zwei Formen davon.
+Generative KI erzeugt Inhalte aus einem Prompt, und Sie entscheiden, was damit geschieht. Agentic AI, also agentische KI, verfolgt ein Ziel und führt die Aktionen selbst aus, meist mit einem generativen Modell, das den nächsten Schritt wählt.
 </FaqItem>
 
 <FaqItem question="Ist ChatGPT eine agentische KI?">
-Im normalen Chat ist ChatGPT generative KI: Es antwortet, und Sie handeln. Agentisch arbeitet es, wenn es über Werkzeuge selbst handeln darf, etwa im Agentenmodus von OpenAI, der auf Websites surft und handelt und laut OpenAI vor folgenreichen Aktionen wie Käufen um Erlaubnis fragt. Über MCP mit Unternehmenssoftware verbunden, kann es auch dort Daten lesen und ändern.
+Im normalen Chat ist ChatGPT generative KI, die als Assistent arbeitet: Es antwortet, und Sie handeln. Agentisch arbeitet es, wenn es über Werkzeuge selbst handeln darf, etwa im Agentenmodus, oder wenn es über MCP mit Unternehmenssoftware verbunden ist und dort Daten lesen und, je nach Tarif, ändern kann.
 </FaqItem>
 
-<FaqItem question="Welche Beispiele gibt es für agentische KI?">
-Coding-Agenten wie Claude Code und der Cloud Agent von GitHub Copilot, der ChatGPT Agent von OpenAI für Aufgaben im Web, Service-Agenten wie Salesforce Agentforce und Routinen im CRM, die eingehende E-Mails am Deal zusammenfassen und einen Antwortentwurf vorbereiten.
+<FaqItem question="Welche Arten von KI-Agenten gibt es?">
+Eine Standardliste mit vier Arten gibt es nicht. Üblich ist die Einteilung nach Interaktion (interaktiv oder im Hintergrund), nach Anzahl (einzelner Agent oder Multi-Agenten-System) und danach, wer den Ablauf steuert (Workflow oder Agent). Interaktion und Anzahl zusammen ergeben vier Kombinationen.
 </FaqItem>
 
 <FaqItem question="Ist agentische KI nur ein Schlagwort?">
-Teilweise. Gartner warnt vor „Agent Washing“ und schätzt, dass nur etwa 130 der Tausenden Anbieter, die agentische KI versprechen, tatsächlich welche liefern. Echte Agenten gibt es trotzdem, vor allem in der Softwareentwicklung und bei klar umrissenen Büroaufgaben. Fragen Sie bei jedem Produkt, welche Werkzeuge es aufrufen darf, mit wessen Rechten und was es ohne Rückfrage tut.
+Der Begriff wird nicht einheitlich verwendet; MIT Sloan weist darauf hin, dass es keine allgemein vereinbarte Definition gibt. Echte Agenten gibt es trotzdem, vor allem in der Softwareentwicklung und bei klar umrissenen Büroaufgaben. Fragen Sie bei jedem Produkt, welche Werkzeuge es aufrufen darf, mit wessen Rechten und was es ohne Rückfrage tut.
 </FaqItem>
 </Faq>
 
-Definitionen, Produktbeschreibungen und Zahlen Dritter geprüft am 8. Oktober 2026 anhand von [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), der [MCP-Dokumentation](https://modelcontextprotocol.io/docs/getting-started/intro), der [Claude-Code-Dokumentation](https://code.claude.com/docs/en/overview), [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github), [OpenAI](https://openai.com/index/introducing-chatgpt-agent/) und [Gartner](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027).
+Definitionen, Produktbeschreibungen und Zitate Dritter geprüft am 2. November 2026 anhand von [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentische KI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (KI-Agenten)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), der [MCP-Dokumentation](https://modelcontextprotocol.io/docs/getting-started/intro), der [Claude-Code-Dokumentation](https://code.claude.com/docs/en/overview) und [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).
