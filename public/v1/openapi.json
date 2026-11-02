@@ -7480,6 +7480,16 @@
                                             }
                                           ]
                                         },
+                                        "fileId": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
                                         "linkUrl": {
                                           "anyOf": [
                                             {
@@ -22851,6 +22861,16 @@
                                                         }
                                                       ]
                                                     },
+                                                    "fileId": {
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string"
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
+                                                    },
                                                     "linkUrl": {
                                                       "anyOf": [
                                                         {
@@ -36723,6 +36743,16 @@
                                                       "anyOf": [
                                                         {
                                                           "type": "boolean"
+                                                        },
+                                                        {
+                                                          "type": "null"
+                                                        }
+                                                      ]
+                                                    },
+                                                    "fileId": {
+                                                      "anyOf": [
+                                                        {
+                                                          "type": "string"
                                                         },
                                                         {
                                                           "type": "null"
@@ -86562,6 +86592,16 @@
                                                               }
                                                             ]
                                                           },
+                                                          "fileId": {
+                                                            "anyOf": [
+                                                              {
+                                                                "type": "string"
+                                                              },
+                                                              {
+                                                                "type": "null"
+                                                              }
+                                                            ]
+                                                          },
                                                           "linkUrl": {
                                                             "anyOf": [
                                                               {
@@ -114838,6 +114878,16 @@
                               }
                             ]
                           },
+                          "fileId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -118514,6 +118564,16 @@
                               }
                             ]
                           },
+                          "fileId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -119081,6 +119141,16 @@
                       "type": "string",
                       "format": "email",
                       "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "fileIds": {
+                    "description": "Email drafts only: files to attach, from a file value, a record's files list or an upload without recordId. Replaces the draft's attachments; omit to keep them, [] removes them",
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   }
                 },
@@ -119852,6 +119922,16 @@
                               }
                             ]
                           },
+                          "fileId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
                           "linkUrl": {
                             "anyOf": [
                               {
@@ -120079,6 +120159,16 @@
                       "type": "string",
                       "format": "email",
                       "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "fileIds": {
+                    "description": "Email drafts only: files to attach, from a file value, a record's files list or an upload without recordId. Replaces the draft's attachments; omit to keep them, [] removes them",
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     }
                   }
                 },
@@ -120846,6 +120936,16 @@
                             "anyOf": [
                               {
                                 "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "fileId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
                               },
                               {
                                 "type": "null"
@@ -137854,6 +137954,16 @@
               ]
             }
           },
+          "fileIds": {
+            "description": "Files to attach from the CRM file store: a file value, a record's files list or an upload without recordId. Omit when sending a saved draft to send the draft's own files",
+            "maxItems": 20,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
           "draftMessageId": {
             "description": "Saved draft to send. Each draft revision is sent at most once: repeating the call returns the first result",
             "type": "string",
@@ -138551,6 +138661,7 @@
                         "draftToRecipientsLocked",
                         "draftMessageNotFound",
                         "draftChanged",
+                        "draftFilesEmailOnly",
                         "draftRecipientsChanged",
                         "draftTargetMismatch",
                         "draftSendInProgress",
@@ -146531,6 +146642,16 @@
                         "anyOf": [
                           {
                             "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "fileId": {
+                        "anyOf": [
+                          {
+                            "type": "string"
                           },
                           {
                             "type": "null"

@@ -1133,6 +1133,7 @@
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftAlreadySent": "This draft was already sent.",
       "draftChanged": "This draft changed after you opened it.",
+      "draftFilesEmailOnly": "Only email drafts can hold attachments.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "draftRecipientsChanged": "These recipients don't match the saved draft. A new message keeps its To recipients, and Bcc recipients can't move to To or Cc.",
       "draftSendInProgress": "This draft is already being sent. Check the conversation in a moment.",

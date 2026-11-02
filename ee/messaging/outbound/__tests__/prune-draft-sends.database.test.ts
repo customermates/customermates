@@ -105,13 +105,14 @@ describeDatabase("pruning draft send records", () => {
         provider as unknown as MessagingService,
         mockEntitlementService(),
         new DraftSendGate(repo),
+        {} as never,
       ).invoke(data),
     );
 
   const newEmail = async (label: string): Promise<DraftEmail> => {
     const recipient = `${label}-${randomUUID()}@example.invalid`;
     const saved = await runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke({
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke({
         connectedAccountId: accountId,
         recipients: [recipient],
         subject: `${label} subject`,

@@ -141,6 +141,7 @@ async function send(
     service as never,
     mockEntitlementService(),
     new DraftSendGate(repo as never),
+    {} as never,
   );
 
   await interactor.invoke({

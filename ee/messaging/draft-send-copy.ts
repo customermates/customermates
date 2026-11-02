@@ -64,6 +64,7 @@ export function emailSendContentHash(content: {
   subject: string;
   body: string;
   attachments?: readonly SentAttachment[];
+  fileIds?: readonly string[];
 }): string {
   return recordRequestHash([
     "email",
@@ -73,6 +74,7 @@ export function emailSendContentHash(content: {
     content.subject,
     content.body,
     attachmentDigests(content.attachments),
+    ...(content.fileIds?.length ? [[...new Set(content.fileIds)].sort()] : []),
   ]);
 }
 

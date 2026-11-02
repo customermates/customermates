@@ -470,13 +470,13 @@ Required: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `conn
 
 Delivers immediately. Send or reply from a connected email account; sending a saved draft requires both draftMessageId and draftRevision, and threadId may be the draft's own conversation. Each draft revision is sent at most once: repeating the call returns the first result with `repeated: true`, and a draft that changed or whose earlier send could not be confirmed is refused without sending. The account's enabled signature is appended automatically, so never write a sign-off into the body.
 
-Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
+Required: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `fileIds`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
 Prepare a message for review: the draft shows up in the inbox and the user sends it. With `threadId` it drafts a reply or updates that conversation's one draft; with `connectedAccountId` plus `recipients` every call prepares another brand-new conversation that exists only as a draft. Returns the message id, opaque revision token and thread id. The signature is appended when the draft is sent, so never write a sign-off into the body.
 
-Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
+Required: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`, `fileIds`.
 
 #### `discard_message_draft`
 

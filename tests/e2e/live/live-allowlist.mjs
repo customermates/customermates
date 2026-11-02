@@ -26,6 +26,22 @@ function addresses(list) {
   return list.map((item) => String(typeof item === "string" ? item : (item?.identifier ?? item?.email ?? "")));
 }
 
+async function formBody(input, init) {
+  if (init?.body instanceof FormData) return init.body;
+  if (input instanceof Request && /multipart\/form-data/i.test(input.headers.get("content-type") ?? "")) return input.clone().formData();
+  return null;
+}
+
+/** The recipients and account of a multipart send (an email with attachments), in the shape of a JSON send body. */
+function formSend(form) {
+  const body = { account_id: form.get("account_id") ?? undefined, to: [], cc: [], bcc: [] };
+  for (const [key, value] of form.entries()) {
+    const match = /^(to|cc|bcc)\[\d+\](?:\[(email|identifier)\])?$/.exec(key);
+    if (match && typeof value === "string") body[match[1]].push(value);
+  }
+  return body;
+}
+
 async function bodyText(input, init) {
   if (input instanceof Request) return input.clone().text();
   if (typeof init?.body === "string") return init.body;
@@ -39,10 +55,11 @@ export async function unipileDecision(method, url, input, init) {
   if (method === "GET" || method === "HEAD") return null;
   const send = /^\/v2\/([^/]+)\/emails\/send$/.exec(url.pathname) ?? /^\/api\/v1\/emails$/.test(url.pathname);
   if (method !== "POST" || !send) return { status: 403, reason: `${method} ${url.pathname.replace(/acc_[a-z0-9]+/gi, "{account}")} is not allowed` };
-  const text = await bodyText(input, init).catch(() => null);
-  let body = null;
+  const form = await formBody(input, init).catch(() => null);
+  const text = form ? null : await bodyText(input, init).catch(() => null);
+  let body = form ? formSend(form) : null;
   try {
-    body = text ? JSON.parse(text) : null;
+    if (!form) body = text ? JSON.parse(text) : null;
   } catch {
     body = null;
   }

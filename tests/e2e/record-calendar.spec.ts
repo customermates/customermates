@@ -129,3 +129,37 @@ test("a calendar view switches between month, week and agenda and opens a record
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+/** What the browser does when the user switches to another tab and back: the page turns hidden, then visible. */
+async function returnToTab(page: Page) {
+  const refreshed = page.waitForResponse((response) => response.request().headers()["rsc"] === "1");
+  await page.evaluate(() => {
+    for (const state of ["hidden", "visible"]) {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+      document.dispatchEvent(new Event("visibilitychange"));
+    }
+  });
+  await refreshed;
+}
+
+async function shownEntries(page: Page) {
+  const ids = await page.locator("[data-calendar-entry]").evaluateAll((entries) =>
+    entries.map((entry) => entry.getAttribute("data-calendar-entry") ?? ""),
+  );
+  return [...new Set(ids)].sort();
+}
+
+test("a calendar view keeps its entries after the user returns from another tab", async ({ page, errors }, testInfo) => {
+  test.skip(testInfo.project.name === "mobile", "Phones show the agenda");
+  await openCalendar(page);
+  await expect(page.locator("[data-calendar-entry]").first()).toBeVisible();
+  const before = await shownEntries(page);
+
+  for (let visit = 0; visit < 3; visit += 1) {
+    await returnToTab(page);
+    await expect.poll(() => shownEntries(page), { timeout: 15000 }).toEqual(before);
+    await page.waitForTimeout(1000);
+    expect(await shownEntries(page)).toEqual(before);
+  }
+  expect(errors).toEqual([]);
+});

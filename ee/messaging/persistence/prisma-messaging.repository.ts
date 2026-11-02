@@ -21,6 +21,8 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { RecordIdentityReference } from "@/features/records/record-identity-reference.schema";
 import type { FindThreadsByIdsRepo } from "../find-threads-by-ids.repo";
 import type { GetMessageAttachmentMetaRepo } from "../inbox/get-message-attachment.repo";
+import type { DraftFileRepo } from "../outbound/draft-file.repo";
+import { draftFileIds } from "../outbound/email-file-attachments";
 import type { GetMessagingThreadRepo } from "../inbox/get-messaging-thread.repo";
 import type { GetMessagingThreadsRepo } from "@/ee/messaging/inbox/get-messaging-threads.repo";
 import type { GetUnreadThreadCountRepo } from "../inbox/get-unread-thread-count.repo";
@@ -135,7 +137,8 @@ export class PrismaMessagingRepo
     PruneDraftSendsRepo,
     SearchChannelCandidatesRepo,
     GetMessageAttachmentMetaRepo,
-    FindThreadsByIdsRepo
+    FindThreadsByIdsRepo,
+    DraftFileRepo
 {
   constructor(
     private readonly inboxRecords: Pick<RecordRepo, "getModel">,
@@ -1033,6 +1036,7 @@ export class PrismaMessagingRepo
       cc: MessagingAttendee[];
       bcc: MessagingAttendee[];
     };
+    attachmentsMeta?: AttachmentMeta[];
   }) {
     return this.withCompanyTransaction(this.companyId, async () => {
       const thread = await this.prisma.messagingThread.findFirstOrThrow({
@@ -1056,6 +1060,7 @@ export class PrismaMessagingRepo
         bodyHtml: args.bodyHtml ?? null,
         isDraft: true,
         sentAt: now,
+        ...(args.attachmentsMeta ? { attachmentsMeta: args.attachmentsMeta as unknown as Prisma.InputJsonValue } : {}),
       } satisfies Prisma.MessagingMessageUpdateInput;
       const existingDrafts = await this.prisma.messagingMessage.findMany({
         where: {
@@ -1140,6 +1145,40 @@ export class PrismaMessagingRepo
     });
   }
 
+  async findDraftFiles(args: RepoArgs<DraftFileRepo, "findDraftFiles">) {
+    const drafts = await this.prisma.messagingMessage.findMany({
+      where: {
+        companyId: this.companyId,
+        isDraft: true,
+        ...("draftMessageId" in args.scope
+          ? { id: args.scope.draftMessageId }
+          : { messagingThreadId: args.scope.threadId }),
+        thread: threadAccessWhere(this.companyId, this.userId),
+      },
+      select: { id: true },
+    });
+    if (!drafts.length || !args.fileIds.length) return [];
+    const rows = await this.prisma.recordFile.findMany({
+      where: {
+        companyId: this.companyId,
+        id: { in: args.fileIds },
+        status: "pending",
+        draftMessageId: { in: drafts.map((draft) => draft.id) },
+      },
+      select: {
+        id: true,
+        name: true,
+        mimeType: true,
+        size: true,
+        status: true,
+        fieldId: true,
+        storageDriver: true,
+        storageKey: true,
+      },
+    });
+    return rows.map((row) => ({ ...row, size: Number(row.size) }));
+  }
+
   async findDraftById(args: { messageId: string }) {
     const draft = await this.prisma.messagingMessage.findFirst({
       where: {
@@ -1154,6 +1193,7 @@ export class PrismaMessagingRepo
         connectedAccountId: true,
         updatedAt: true,
         recipients: true,
+        attachmentsMeta: true,
         thread: {
           select: {
             unipileThreadId: true,
@@ -1168,6 +1208,9 @@ export class PrismaMessagingRepo
 
     return draft
       ? {
+          fileIds: draftFileIds(
+            Array.isArray(draft.attachmentsMeta) ? (draft.attachmentsMeta as Pick<AttachmentMeta, "fileId">[]) : [],
+          ),
           id: draft.id,
           messagingThreadId: draft.messagingThreadId,
           connectedAccountId: draft.connectedAccountId,
@@ -2016,6 +2059,7 @@ export class PrismaMessagingRepo
       select: {
         unipileMessageId: true,
         provider: true,
+        isDraft: true,
         attachmentsMeta: true,
         connectedAccount: { select: { unipileAccountId: true } },
         thread: { select: { unipileThreadId: true } },
@@ -2028,11 +2072,14 @@ export class PrismaMessagingRepo
           mime?: string | null;
           fileName?: string | null;
           size?: number | null;
+          fileId?: string | null;
         }>)
       : [];
     const att = list.find((a) => a.id === args.attachmentId);
 
     return {
+      isDraft: row.isDraft,
+      fileId: att?.fileId ?? null,
       unipileAccountId: row.connectedAccount.unipileAccountId,
       unipileThreadId: row.thread.unipileThreadId,
       unipileMessageId: row.unipileMessageId,

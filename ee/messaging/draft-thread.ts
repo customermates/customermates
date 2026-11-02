@@ -13,6 +13,7 @@ export type DraftThreadTarget = {
   recipientIdentifiers: string[];
   ccIdentifiers?: string[];
   bccIdentifiers?: string[];
+  fileIds?: string[];
   updatedAt: Date;
 };
 

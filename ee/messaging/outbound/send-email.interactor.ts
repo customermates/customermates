@@ -38,6 +38,8 @@ import { EMPTY_ATTENDEE, buildEmailMessage, toAttachmentsMeta } from "../unipile
 import { UnipileEmailSchema } from "../unipile.schema";
 import { SentMessageResultSchema, toSentMessageResult, type SentMessageResult } from "./sent-message.schema";
 import type { SendEmailRepo } from "./send-email.repo";
+import type { EmailFileAttachments } from "./email-file-attachments";
+import { EMAIL_FILE_ATTACHMENTS_MAX_COUNT } from "./email-file-attachments";
 
 const DUPLICATE_OUTBOUND_WINDOW_MS = 60_000;
 const ADOPT_EMAIL_TIMEOUT_MS = 5_000;
@@ -70,6 +72,13 @@ export const SendEmailSchema = z
         "How to interpret body. Account appearance is applied to plain text and Markdown; explicit HTML remains caller-controlled. Omit for backwards-compatible automatic detection",
       ),
     attachments: z.array(SendAttachmentSchema).max(20).optional(),
+    fileIds: z
+      .array(z.uuid())
+      .max(EMAIL_FILE_ATTACHMENTS_MAX_COUNT)
+      .optional()
+      .describe(
+        "Files to attach from the CRM file store: a file value, a record's files list or an upload without recordId. Omit when sending a saved draft to send the draft's own files",
+      ),
     draftMessageId: z
       .uuid()
       .optional()
@@ -109,7 +118,7 @@ export const SendEmailSchema = z
         path: ["subject"],
       });
     }
-    if (!d.body.trim() && !d.attachments?.length) {
+    if (!d.body.trim() && !d.attachments?.length && !d.fileIds?.length) {
       ctx.addIssue({
         code: "custom",
         params: { error: CustomErrorCode.messageContentRequired },
@@ -138,6 +147,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
     private draftSends: DraftSendGate,
+    private files: Pick<EmailFileAttachments, "load">,
   ) {
     super();
   }
@@ -160,6 +170,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
           subject: data.subject,
           body: data.body,
           attachments: data.attachments,
+          fileIds: data.fileIds,
         })
       : "";
 
@@ -219,6 +230,14 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
       if (conflict) return this.draftSends.refuseBinding(conflict);
     }
 
+    const fileIds = data.fileIds ?? draft?.fileIds ?? [];
+    let attachments = data.attachments;
+    if (fileIds.length) {
+      const loaded = await this.files.load(fileIds, draft ? { draftMessageId: draft.id } : null);
+      if (!loaded.ok) return loaded;
+      attachments = [...(data.attachments ?? []), ...loaded.data];
+    }
+
     const email = resolveStoredEmailSettings(account.signature, account.signatureFields);
     const { plainText: outgoingBody, html: outgoingHtml } = composeEmailBodies(
       data.body,
@@ -240,7 +259,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
           subject: data.subject,
           html: outgoingHtml,
           plainText: outgoingBody,
-          attachments: data.attachments,
+          attachments,
         }),
       });
       if ("replay" in gate)
@@ -285,7 +304,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
         body: outgoingHtml,
         plainText: outgoingBody,
         inReplyTo,
-        attachments: data.attachments,
+        attachments,
       });
     } catch (err) {
       if (claim) await this.draftSends.settle({ claim, state: "unknown" });
@@ -334,7 +353,7 @@ export class SendEmailInteractor extends AuthenticatedInteractor<SendEmailData, 
 
     const sentEmailId = accepted.unipileMessageId;
     let attachmentsMeta: AttachmentMeta[] = [];
-    if (data.attachments?.length) {
+    if (attachments?.length) {
       try {
         const sent = await this.messagingService.getEmailAttachments({
           accountId: account.unipileAccountId,

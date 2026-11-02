@@ -88,7 +88,9 @@ describeDatabase("sending a saved draft revision at most once", () => {
     );
   const save = async (data: SaveDraftData) => {
     const result = await runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke(
+        data,
+      ),
     );
     if (!result.ok || !result.data.draftRevision) throw new Error("draft was not saved");
     return { id: result.data.id, threadId: result.data.messagingThreadId, revision: result.data.draftRevision };
@@ -105,6 +107,7 @@ describeDatabase("sending a saved draft revision at most once", () => {
         provider as unknown as MessagingService,
         mockEntitlementService(),
         new DraftSendGate(repo),
+        {} as never,
       ).invoke(data),
     );
   const sendChat = (data: SendChatMessageData, provider: ReturnType<typeof chatProvider>) =>
@@ -339,7 +342,7 @@ describeDatabase("sending a saved draft revision at most once", () => {
     const sending = sendEmail(input, provider);
     await vi.waitFor(() => expect(provider.sendEmail).toHaveBeenCalledOnce());
     const resave = await runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke({
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke({
         threadId: draft.threadId,
         subject: "in-flight subject",
         body: "edited while sending",

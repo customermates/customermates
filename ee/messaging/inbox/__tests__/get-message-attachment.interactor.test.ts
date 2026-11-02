@@ -28,8 +28,16 @@ import { GET } from "@/app/api/messaging/attachments/[messageId]/[attachmentId]/
 function build() {
   const repo = { findAttachmentForMessageOrThrow: vi.fn() };
   const messagingService = { downloadAttachment: vi.fn() };
-  const interactor = new GetMessageAttachmentInteractor(repo, messagingService as never, mockEntitlementService());
-  return { interactor, repo, messagingService };
+  const files = { file: vi.fn() };
+  const driver = { read: vi.fn() };
+  const interactor = new GetMessageAttachmentInteractor(
+    repo,
+    messagingService as never,
+    mockEntitlementService(),
+    files,
+    () => driver as never,
+  );
+  return { interactor, repo, messagingService, files, driver };
 }
 
 beforeEach(() => {
@@ -63,5 +71,70 @@ describe("GetMessageAttachmentInteractor", () => {
       issues: [{ path: ["messageId"], message: "Invalid UUID" }],
     });
     expect(repo.findAttachmentForMessageOrThrow).not.toHaveBeenCalled();
+  });
+});
+
+describe("GetMessageAttachmentInteractor draft files", () => {
+  const MESSAGE_ID = "00000000-0000-4000-8000-000000000031";
+  const FILE_ID = "00000000-0000-4000-8000-000000000032";
+
+  it("streams a draft's CRM file from storage instead of the provider", async () => {
+    const { interactor, repo, messagingService, files, driver } = build();
+    const stream = new ReadableStream<Uint8Array>();
+    repo.findAttachmentForMessageOrThrow.mockResolvedValue({
+      isDraft: true,
+      fileId: FILE_ID,
+    });
+    files.file.mockResolvedValue({
+      ok: true,
+      data: {
+        id: FILE_ID,
+        name: "RE26110101.pdf",
+        mimeType: "application/pdf",
+        storageDriver: "database",
+        storageKey: "k",
+      },
+    });
+    driver.read.mockResolvedValue({
+      stream,
+      size: 5,
+      contentType: "application/pdf",
+    });
+
+    const result = await interactor.invoke({
+      messageId: MESSAGE_ID,
+      attachmentId: FILE_ID,
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        body: stream,
+        contentType: "application/pdf",
+        fileName: "RE26110101.pdf",
+      },
+    });
+    expect(files.file).toHaveBeenCalledWith(FILE_ID, {
+      draftMessageId: MESSAGE_ID,
+    });
+    expect(messagingService.downloadAttachment).not.toHaveBeenCalled();
+  });
+
+  it("returns the access failure when the draft file is not readable", async () => {
+    const { interactor, repo, files, driver } = build();
+    const denied = { ok: false, error: { issues: [] } };
+    repo.findAttachmentForMessageOrThrow.mockResolvedValue({
+      isDraft: true,
+      fileId: FILE_ID,
+    });
+    files.file.mockResolvedValue(denied);
+
+    const result = await interactor.invoke({
+      messageId: MESSAGE_ID,
+      attachmentId: FILE_ID,
+    });
+
+    expect(result).toBe(denied);
+    expect(driver.read).not.toHaveBeenCalled();
   });
 });

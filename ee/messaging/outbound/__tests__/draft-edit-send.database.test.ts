@@ -68,7 +68,9 @@ describeDatabase("sending an email draft after editing it", () => {
     );
   const save = (data: SaveDraftData) =>
     runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke(
+        data,
+      ),
     );
   const send = (data: SendEmailData, provider: ReturnType<typeof providerStub>) =>
     runWithTenant(tenant, () => {
@@ -79,6 +81,7 @@ describeDatabase("sending an email draft after editing it", () => {
         provider as unknown as MessagingService,
         mockEntitlementService(),
         new DraftSendGate(repo),
+        {} as never,
       ).invoke(data);
     });
   const saved = async (data: SaveDraftData) => {

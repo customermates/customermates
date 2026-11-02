@@ -65,13 +65,24 @@ type PendingDelivery = {
   refused?: boolean;
 };
 
+type DraftFile = MessagingMessageDto["attachmentsMeta"][number];
+
 type ComposedSnapshot = {
   body: string;
   subject: string;
   cc: string[];
   bcc: string[];
   recipients: string[];
+  draftFiles?: DraftFile[];
 };
+
+function draftFilesOf(message: MessagingMessageDto): DraftFile[] {
+  return isEmailProvider(message.provider) ? message.attachmentsMeta.filter((attachment) => attachment.fileId) : [];
+}
+
+function fileIdsOf(files: readonly DraftFile[]): string[] {
+  return files.flatMap((file) => (file.fileId ? [file.fileId] : []));
+}
 
 const DRAFT_REFUSALS = new Set<string>([
   CustomErrorCode.draftChanged,
@@ -100,6 +111,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   draftConflict = false;
   attachments: File[] = [];
   draftAttachments: File[] = [];
+  draftFiles: DraftFile[] = [];
   pendingAttachments: Record<string, File[]> = {};
   newThreadTarget: NewThreadTarget | null = null;
   sourceContextKey: string | null = null;
@@ -135,6 +147,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       draftConflict: observable,
       attachments: observable,
       draftAttachments: observable,
+      draftFiles: observable.ref,
       pendingAttachments: observable,
       newThreadTarget: observable,
       sourceContextKey: observable,
@@ -149,6 +162,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       toggleCcBcc: action,
       addAttachments: action,
       removeAttachment: action,
+      removeDraftFile: action,
       initialize: action,
       initializeNewThread: action,
       discardNewThread: action,
@@ -222,6 +236,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
+    this.draftFiles = [];
     this.showCcBcc = false;
     this.onInitOrRefresh({
       provider: null,
@@ -258,6 +273,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
   removeAttachment = (index: number) => {
     if (this.isLoading) return;
     this.attachments = this.attachments.filter((_, i) => i !== index);
+  };
+
+  removeDraftFile = (fileId: string) => {
+    if (this.isLoading) return;
+    this.draftFiles = this.draftFiles.filter((file) => file.fileId !== fileId);
   };
 
   private validateEmails(requireRecipients = false): boolean {
@@ -351,6 +371,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
+    this.draftFiles = [];
     this.newThreadTarget = null;
     this.sourceContextKey = null;
     this.sourceActorId = null;
@@ -397,6 +418,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.dismissRefusal();
     this.attachments = [];
     this.draftAttachments = [];
+    this.draftFiles = [];
     this.detachedNewThread = false;
     this.sourceActorId = this.rootStore.userStore?.user?.id ?? null;
     this.onNewThreadDone = () => {
@@ -697,6 +719,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.form.cc = args.snapshot.cc;
     this.form.bcc = args.snapshot.bcc;
     this.attachments = args.files;
+    this.draftFiles = keepBinding ? (args.snapshot.draftFiles ?? []) : [];
     this.editingDraftId = keepBinding ? args.editing.id : null;
     this.editingDraftRevision = keepBinding ? args.editing.revision : null;
     this.draftConflict = args.code === CustomErrorCode.draftChanged;
@@ -787,13 +810,16 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       bcc: [...this.form.bcc],
       subject: this.form.subject,
       recipients: [...this.form.recipients],
+      draftFiles: [...this.draftFiles],
     };
+    if (isEmail && snapshot.draftFiles?.length) message.attachmentsMeta = [...snapshot.draftFiles];
     runInAction(() => {
       this.form.body = "";
       this.form.cc = [];
       this.form.bcc = [];
       this.attachments = [];
       this.draftAttachments = [];
+      this.draftFiles = [];
       this.editingDraftId = null;
       this.editingDraftRevision = null;
       this.draftConflict = false;
@@ -818,6 +844,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
               body: snapshot.body,
               bodyFormat: "markdown",
               attachments,
+              ...(editing ? { fileIds: fileIdsOf(snapshot.draftFiles ?? []) } : {}),
               ...draftBinding,
             })
           : sendChatMessageAction({ threadId, text: snapshot.body, attachments, ...draftBinding }),
@@ -850,9 +877,11 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       linkedinProduct: this.form.linkedinProduct,
       inmailSignature: this.form.inmailSignature,
       files: [...this.attachments],
+      draftFiles: [...this.draftFiles],
     };
     const message = this.buildOptimisticMessage({ isDraft: false, id: this.editingDraftId ?? undefined });
     message.messagingThreadId = target.draftThreadId ?? "";
+    if (snapshot.isEmail && snapshot.draftFiles.length) message.attachmentsMeta = [...snapshot.draftFiles];
     runInAction(() => {
       this.form.body = "";
       this.form.subject = "";
@@ -862,6 +891,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.form.inmailSignature = "";
       this.attachments = [];
       this.draftAttachments = [];
+      this.draftFiles = [];
       this.editingDraftId = null;
       this.editingDraftRevision = null;
       this.draftConflict = false;
@@ -902,6 +932,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
               body: snapshot.body,
               bodyFormat: "markdown",
               attachments,
+              ...(editing ? { fileIds: fileIdsOf(snapshot.draftFiles) } : {}),
               ...draftBinding,
             })
           : startChatAction({
@@ -1026,6 +1057,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       cc: [...this.form.cc],
       bcc: [...this.form.bcc],
       isEmail: this.isEmail,
+      fileIds: fileIdsOf(this.draftFiles),
     };
 
     this.setIsLoading(true);
@@ -1037,6 +1069,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         body: snapshot.body,
         cc: snapshot.isEmail && snapshot.cc.length ? snapshot.cc : undefined,
         bcc: snapshot.isEmail && snapshot.bcc.length ? snapshot.bcc : undefined,
+        fileIds: snapshot.isEmail ? snapshot.fileIds : undefined,
       });
 
       const activeContext =
@@ -1059,7 +1092,8 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.form.body === snapshot.body &&
         sameValues(this.form.recipients, snapshot.recipients) &&
         sameValues(this.form.cc, snapshot.cc) &&
-        sameValues(this.form.bcc, snapshot.bcc);
+        sameValues(this.form.bcc, snapshot.bcc) &&
+        sameValues(fileIdsOf(this.draftFiles), snapshot.fileIds);
       runInAction(() => {
         this.draftConflict = false;
         if (!draftUnchanged) {
@@ -1079,6 +1113,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
         this.form.bcc = [];
         this.draftAttachments = [...this.attachments];
         this.attachments = [];
+        this.draftFiles = [];
         this.editingDraftId = null;
         this.editingDraftRevision = null;
         this.onInitOrRefresh(this.form);
@@ -1109,6 +1144,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     runInAction(() => {
       this.fillFromMessage(draft);
       this.attachments = [...this.draftAttachments];
+      this.draftFiles = draftFilesOf(draft);
       this.editingDraftId = draft.id;
       this.editingDraftRevision = draft.draftRevision;
       this.draftConflict = false;
@@ -1125,6 +1161,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     runInAction(() => {
       detail.removeMessageById(messageId);
       this.draftAttachments = [];
+      this.draftFiles = [];
       if (this.editingDraftId === messageId) {
         this.editingDraftId = null;
         this.editingDraftRevision = null;

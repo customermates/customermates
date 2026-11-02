@@ -95,7 +95,9 @@ describeDatabase("settling an unknown draft send from its synced sent copy", () 
     );
   const save = async (data: SaveDraftData) => {
     const result = await runWithTenant(tenant, () =>
-      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService()).invoke(data),
+      new SaveDraftInteractor(createTestMessagingRepo(), accounts(), mockEntitlementService(), {} as never).invoke(
+        data,
+      ),
     );
     if (!result.ok || !result.data.draftRevision) throw new Error("draft was not saved");
     return { id: result.data.id, threadId: result.data.messagingThreadId, revision: result.data.draftRevision };
@@ -109,6 +111,7 @@ describeDatabase("settling an unknown draft send from its synced sent copy", () 
         provider as unknown as MessagingService,
         mockEntitlementService(),
         new DraftSendGate(repo),
+        {} as never,
       ).invoke(data);
     });
 

@@ -470,13 +470,13 @@ Obligatoire : `text`. Facultatif : `threadId`, `draftMessageId`, `draftRevisio
 
 Livre immédiatement. Envoyer ou répondre depuis un compte e-mail connecté ; l’envoi d’un brouillon enregistré exige à la fois draftMessageId et draftRevision, et threadId peut être la conversation du brouillon lui-même. Chaque révision de brouillon n’est envoyée qu’une fois au plus : répéter l’appel renvoie le premier résultat avec `repeated: true`, et un brouillon modifié ou dont l’envoi précédent n’a pas pu être confirmé est refusé sans envoi. La signature activée du compte est ajoutée automatiquement : n’écrivez donc jamais de formule de politesse dans le corps.
 
-Obligatoire : `to`, `subject`, `body`. Facultatif : `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
+Obligatoire : `to`, `subject`, `body`. Facultatif : `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `fileIds`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
 Préparer un message pour relecture : le brouillon apparaît dans la boîte de réception et l’utilisateur l’envoie. Avec `threadId`, il rédige une réponse ou met à jour l’unique brouillon de cette conversation ; avec `connectedAccountId` plus `recipients`, chaque appel prépare une nouvelle conversation qui n’existe que sous forme de brouillon. Renvoie l’id du message, le jeton de révision opaque et l’id du fil. La signature est ajoutée à l’envoi du brouillon : n’écrivez donc jamais de formule de politesse dans le corps.
 
-Obligatoire : `body`. Facultatif : `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
+Obligatoire : `body`. Facultatif : `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`, `fileIds`.
 
 #### `discard_message_draft`
 

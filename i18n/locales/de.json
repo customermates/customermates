@@ -1133,6 +1133,7 @@
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftAlreadySent": "Dieser Entwurf wurde bereits gesendet.",
       "draftChanged": "Dieser Entwurf wurde geändert, nachdem du ihn geöffnet hast.",
+      "draftFilesEmailOnly": "Nur E-Mail-Entwürfe können Anhänge enthalten.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
       "draftRecipientsChanged": "Diese Empfänger passen nicht zum gespeicherten Entwurf. Eine neue Nachricht behält ihre An-Empfänger, und Bcc-Empfänger lassen sich nicht nach An oder Cc verschieben.",
       "draftSendInProgress": "Dieser Entwurf wird gerade gesendet. Prüfe die Unterhaltung gleich noch einmal.",

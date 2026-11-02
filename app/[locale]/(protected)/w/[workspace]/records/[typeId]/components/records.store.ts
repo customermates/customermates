@@ -1,5 +1,5 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
-import { action, comparer, computed, makeObservable, observable } from "mobx";
+import { action, comparer, computed, makeObservable, observable, runInAction } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -659,7 +659,10 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   };
   override setItems(args: GetResult<RecordRow>): void {
     super.setItems(args);
-    for (const row of args.items) if (this.selectedIds.has(row.id)) this.selectionRows.set(row.id, row);
+    runInAction(() => {
+      if (!args.grouping?.partial) this.calendarRange = args.calendarRange ?? null;
+      for (const row of args.items) if (this.selectedIds.has(row.id)) this.selectionRows.set(row.id, row);
+    });
   }
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
     this.calendarRange = result.calendarRange ?? null;

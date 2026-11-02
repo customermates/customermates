@@ -74,6 +74,7 @@ function makeEmailInteractor(repo: any, service: any) {
     service,
     mockEntitlementService(),
     new DraftSendGate(repo),
+    {} as never,
   );
 }
 
