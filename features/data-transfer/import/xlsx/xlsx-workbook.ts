@@ -9,7 +9,7 @@ type XlsxSheet = { name: string; headers: string[]; rows: XlsxRow[] };
 
 export type XlsxWorkbook = { sheets: XlsxSheet[] };
 
-export type XlsxFileProblem = "tooLarge" | "tooManyRows" | "empty" | "unreadable" | "legacyWorkbook";
+export type XlsxFileProblem = "tooLarge" | "tooManyRows" | "empty" | "unreadable";
 
 const XLSX_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
@@ -89,29 +89,53 @@ function readSheet(sheet: ReadableSheet): XlsxSheet {
 
 type WorkbookResult = { ok: true; workbook: XlsxWorkbook } | { ok: false; problem: XlsxFileProblem };
 
+function collectSheets(readable: ReadableSheet[]): WorkbookResult {
+  const sheets: XlsxSheet[] = [];
+  for (const sheet of readable) {
+    try {
+      const read = readSheet(sheet);
+      if (read.headers.some(Boolean) && read.rows.length > 0) sheets.push(read);
+    } catch {
+      return { ok: false, problem: "tooManyRows" };
+    }
+  }
+  return sheets.length ? { ok: true, workbook: { sheets } } : { ok: false, problem: "empty" };
+}
+
+function rowsSheet(name: string, rows: unknown[][]): ReadableSheet {
+  return { name, rowCount: rows.length, getRow: (index) => ({ values: [undefined, ...(rows[index - 1] ?? [])] }) };
+}
+
 function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
   const csv = readCsvRows(bytes, XLSX_MAX_ROWS + 1);
   if (!csv) return { ok: false, problem: "unreadable" };
-  const sheet: ReadableSheet = {
-    name: name.trim().replace(/\.[^.]+$/, "") || "Sheet",
-    rowCount: csv.rows.length,
-    getRow: (index) => ({ values: [undefined, ...(csv.rows[index - 1]?.cells ?? []).map((cell) => cell || null)] }),
-  };
+  const rows = csv.rows.map((row) => row.cells.map((cell) => cell || null));
+  return collectSheets([rowsSheet(name.trim().replace(/\.[^.]+$/, "") || "Sheet", rows)]);
+}
+
+async function readLegacyWorkbook(bytes: Uint8Array): Promise<WorkbookResult> {
+  const XLSX = await import("xlsx");
+  let book: import("xlsx").WorkBook;
   try {
-    const read = readSheet(sheet);
-    return read.headers.some(Boolean) && read.rows.length > 0
-      ? { ok: true, workbook: { sheets: [read] } }
-      : { ok: false, problem: "empty" };
+    book = XLSX.read(bytes, { type: "array", cellDates: true, dense: true });
   } catch {
-    return { ok: false, problem: "tooManyRows" };
+    return { ok: false, problem: "unreadable" };
   }
+  return collectSheets(
+    book.SheetNames.map((name) =>
+      rowsSheet(
+        name,
+        XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[name], { header: 1, raw: true, defval: null, blankrows: true, UTC: true }),
+      ),
+    ),
+  );
 }
 
 export async function readSpreadsheetWorkbook(name: string, buffer: ArrayBuffer): Promise<WorkbookResult> {
   if (buffer.byteLength > XLSX_MAX_FILE_BYTES) return { ok: false, problem: "tooLarge" };
   const bytes = new Uint8Array(buffer);
-  if (isLegacyWorkbook(bytes) || /\.xls$/i.test(name.trim())) return { ok: false, problem: "legacyWorkbook" };
   if (isZipArchive(bytes)) return readXlsxWorkbook(buffer);
+  if (isLegacyWorkbook(bytes) || /\.xls$/i.test(name.trim())) return readLegacyWorkbook(bytes);
   return readCsvWorkbook(bytes, name);
 }
 
@@ -124,14 +148,5 @@ export async function readXlsxWorkbook(buffer: ArrayBuffer): Promise<WorkbookRes
   } catch {
     return { ok: false, problem: "unreadable" };
   }
-  const sheets: XlsxSheet[] = [];
-  for (const sheet of workbook.worksheets) {
-    try {
-      const read = readSheet(sheet);
-      if (read.headers.some(Boolean) && read.rows.length > 0) sheets.push(read);
-    } catch {
-      return { ok: false, problem: "tooManyRows" };
-    }
-  }
-  return sheets.length ? { ok: true, workbook: { sheets } } : { ok: false, problem: "empty" };
+  return collectSheets(workbook.worksheets);
 }

@@ -2183,7 +2183,6 @@
       "previewHint": "{count, plural, =0 {Las primeras {rows} filas no tienen problemas.} one {# de las primeras {rows} filas tiene un problema.} other {# de las primeras {rows} filas tienen problemas.}} Las filas con problemas no se importan.",
       "problems": {
         "empty": "El libro no tiene ninguna hoja con fila de encabezado y datos.",
-        "legacyWorkbook": "Los libros de Excel 97-2004 (.xls) no se pueden leer. En Excel, elige Archivo > Guardar como, selecciona Libro de Excel (.xlsx) o CSV UTF-8 y elige el archivo nuevo.",
         "tooLarge": "El libro supera los 10 MB.",
         "tooManyRows": "Una hoja puede tener como máximo 5000 filas.",
         "unreadable": "No se pudo leer ese libro."

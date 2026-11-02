@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
 
 import { isSpreadsheetFileName, readSpreadsheetWorkbook, readXlsxWorkbook, xlsxCellValue } from "../xlsx-workbook";
@@ -77,6 +78,7 @@ describe("xlsx workbook reading", () => {
     "semicolon-macroman.csv",
     "semicolon-cp1252.csv",
     "libreoffice.xlsx",
+    "legacy-biff8.xls",
   ])("reads the German contacts of %s", async (file) => {
     const result = await readSpreadsheetWorkbook(file, fixture(file));
     expect(result.ok).toBe(true);
@@ -87,7 +89,7 @@ describe("xlsx workbook reading", () => {
     expect(sheet.rows.map((row) => row.sheetRow)).toEqual([2, 3]);
   });
 
-  it("names a CSV sheet after its file and rejects empty or legacy files", async () => {
+  it("names a CSV sheet after its file and rejects an empty one", async () => {
     const csv = new TextEncoder().encode("Name;Notes\nAtlas;\n").buffer;
     const result = await readSpreadsheetWorkbook("Leads.csv", csv);
     expect(result.ok && result.workbook.sheets[0]).toMatchObject({ name: "Leads", rows: [{ cells: ["Atlas", null] }] });
@@ -95,13 +97,38 @@ describe("xlsx workbook reading", () => {
       ok: false,
       problem: "empty",
     });
-    expect(await readSpreadsheetWorkbook("contacts.xls", fixture("legacy-biff8.xls"))).toEqual({
+  });
+
+  it("reads every sheet of an Excel 97-2003 workbook with its dates, numbers and booleans", async () => {
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      book,
+      XLSX.utils.aoa_to_sheet(
+        [
+          ["Name", "Start", "Budget", "Active"],
+          ["Atlas", new Date(Date.UTC(2026, 0, 2)), 1200.5, true],
+          [],
+          ["Borealis", null, 7, false],
+        ],
+        { cellDates: true, UTC: true },
+      ),
+      "Projects",
+    );
+    XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([]), "Empty");
+    const bytes = XLSX.write(book, { bookType: "biff8", type: "array" }) as ArrayBuffer;
+    const result = await readSpreadsheetWorkbook("projects.XLS", bytes);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.workbook.sheets.map((sheet) => sheet.name)).toEqual(["Projects"]);
+    const [projects] = result.workbook.sheets;
+    expect(projects.headers).toEqual(["Name", "Start", "Budget", "Active"]);
+    expect(projects.rows).toEqual([
+      { sheetRow: 2, cells: ["Atlas", new Date(Date.UTC(2026, 0, 2)), 1200.5, true] },
+      { sheetRow: 4, cells: ["Borealis", null, 7, false] },
+    ]);
+    expect(await readSpreadsheetWorkbook("renamed.xlsx", fixture("legacy-biff8.xls"))).toMatchObject({ ok: true });
+    expect(await readSpreadsheetWorkbook("broken.xls", new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 1, 2]).buffer)).toMatchObject({
       ok: false,
-      problem: "legacyWorkbook",
-    });
-    expect(await readSpreadsheetWorkbook("renamed.xlsx", fixture("legacy-biff8.xls"))).toEqual({
-      ok: false,
-      problem: "legacyWorkbook",
     });
   });
 });

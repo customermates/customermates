@@ -7,7 +7,7 @@ import { presetId } from "../../features/records/crm-preset";
 const FIXTURES = "tests/fixtures/spreadsheet-import";
 
 // Each file holds the same two German contacts, saved the way Excel for Mac, Excel for Windows and LibreOffice
-// write them. mimeType is what browsers send for the file: Safari and Chrome on macOS send text/csv for CSV,
+// write them; legacy-biff8.xls is an Excel 97-2003 workbook saved by LibreOffice. mimeType is what browsers send for the file: Safari and Chrome on macOS send text/csv for CSV,
 // browsers on Windows with Excel installed send application/vnd.ms-excel, and some send nothing.
 const IMPORTABLE = [
   { file: "comma-utf8.csv", mimeType: "text/csv", sheet: "comma-utf8" },
@@ -22,6 +22,7 @@ const IMPORTABLE = [
     mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     sheet: "contacts",
   },
+  { file: "legacy-biff8.xls", mimeType: "application/vnd.ms-excel", sheet: "contacts" },
 ];
 
 async function openImport(page: import("@playwright/test").Page, companyId: string) {
@@ -74,12 +75,35 @@ for (const { file, mimeType, sheet } of IMPORTABLE) {
   });
 }
 
-test("explains how to convert a legacy Excel 97-2004 workbook", async ({ page, companyId }) => {
+test("imports the contacts sheet of a workbook saved by Microsoft Excel", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
   const dialog = await openImport(page, companyId);
   await dialog.locator('input[type="file"]').setInputFiles({
-    name: "legacy-biff8.xls",
-    mimeType: "application/vnd.ms-excel",
-    buffer: readFileSync(`${FIXTURES}/legacy-biff8.xls`),
+    name: "crm-template-de.xlsx",
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    buffer: readFileSync("public/templates/crm-template-de.xlsx"),
   });
-  await expect(dialog).toContainText("Excel 97-2004 workbooks (.xls) can't be read.");
+  await expect(dialog).toContainText("Step 1 of 5");
+  await dialog.locator("#xlsx-import-sheet").click();
+  await page.getByRole("option", { name: "Kontakte", exact: true }).click();
+  await expect(dialog).toContainText("Kontakte: 2 rows and 4 columns.");
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+
+  await expect(dialog).toContainText("Step 2 of 5");
+  for (const [column, field] of [
+    [0, "Skip column"],
+    [1, "First name"],
+    [2, "Skip column"],
+  ] as const) {
+    await dialog.locator(`#xlsx-import-target-${column}`).click();
+    await page.getByRole("option", { name: field, exact: true }).click();
+  }
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(dialog).toContainText("Step 3 of 5");
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(dialog).toContainText("Step 4 of 5");
+  await dialog.getByRole("button", { name: "Import records", exact: true }).click();
+  await expect(dialog.getByTestId("xlsx-import-summary")).toContainText("2 records created", { timeout: 60000 });
+  expect(errors).toEqual([]);
 });
