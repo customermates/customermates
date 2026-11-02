@@ -166,7 +166,7 @@ test("imports a CSV file with the most rows a list import takes", async ({ page,
   await dialog.locator('input[type="file"]').setInputFiles({
     name: "bulk.csv",
     mimeType: "text/csv",
-    buffer: Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(csv)]),
+    buffer: Buffer.from(`\uFEFF${csv}`),
   });
   await expect(dialog).toContainText("bulk: 5,000 rows and 2 columns.");
   await dialog.getByRole("button", { name: "Next", exact: true }).click();
