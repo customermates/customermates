@@ -1,6 +1,6 @@
 ---
-title: "Cloud-Based CRM Software With an Open-Source Core"
-description: "Run contacts, organizations, deals, services and tasks in a managed cloud CRM with REST, webhooks and MCP. The open-source core can also be self-hosted."
+title: "Cloud CRM Software: What It Is and How to Choose"
+description: "What cloud CRM software is, how it differs from on-premises and self-hosted CRM, a checklist for choosing one, and where Customermates fits or does not."
 featureName: Cloud CRM
 
 acquisition:
@@ -8,10 +8,10 @@ acquisition:
   slug: cloud-crm
   clusterId: open-source-self-hosted
   role: support
-  primaryIntent: Cloud-based CRM software for flexible sales workflows
+  primaryIntent: Cloud CRM software explained, cloud versus self-hosted, selection checklist
   metadata:
-    title: "Cloud-Based CRM Software With an Open-Source Core"
-    description: "Run contacts, organizations, deals, services and tasks in a managed cloud CRM with REST, webhooks and MCP. The open-source core can also be self-hosted."
+    title: "Cloud CRM Software: What It Is and How to Choose"
+    description: "What cloud CRM software is, how it differs from on-premises and self-hosted CRM, a checklist for choosing one, and where Customermates fits or does not."
   proof:
     factReferences:
       - product:core-crm-records
@@ -38,17 +38,17 @@ acquisition:
     hint: "No credit card required. Self-hosting is evaluated separately and uses the Starter feature set."
   relatedHrefs:
     - /features/self-hosted
-    - /features/pipeline
-    - /features/unified-inbox
-    - /docs/mcp
+    - /blog/open-source-crm
+    - /blog/crm-cost
+    - /blog/best-crm-software
   visual:
     id: acquisition.cloud-crm.en
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Cloud CRM for flexible sales workflows"
-      body: "Work with contacts, organizations, deals, services and tasks in a managed browser-based CRM, with configurable views, REST, webhooks and MCP. Evaluate the self-hosted core separately when you need to operate the stack."
-      checksum: fnv1a-ab625bfa
+      headline: "Cloud CRM software with an open-source core you can self-host"
+      body: "Customermates Cloud is a managed, browser-based CRM for contacts, organizations, deals, services and tasks, with REST, webhooks and MCP. The open-source core can also be self-hosted with Docker. Compare both and learn how to choose cloud CRM software."
+      checksum: fnv1a-a9d73e6f
     kind: none
     reason: "The early disclosed dashboard demo supplies direct product proof; an additional hero illustration is unnecessary."
     selection: explicit
@@ -59,8 +59,8 @@ acquisition:
     faqFromRenderedContent: true
 
 hero:
-  title: Cloud CRM for flexible sales workflows
-  description: Work with contacts, organizations, deals, services and tasks in a managed browser-based CRM, with configurable views, REST, webhooks and MCP. Evaluate the self-hosted core separately when you need to operate the stack.
+  title: Cloud CRM software with an open-source core you can self-host
+  description: Customermates Cloud is a managed, browser-based CRM for contacts, organizations, deals, services and tasks, with REST, webhooks and MCP. The open-source core can also be self-hosted with Docker. Compare both and learn how to choose cloud CRM software.
   buttonLeftText: Start the Pro trial
   buttonLeftHref: /auth/signup
   buttonRightText: Compare plans
@@ -77,24 +77,26 @@ cta:
   hint: "No credit card required. Self-hosting is evaluated separately and uses the Starter feature set."
 ---
 
-**Cloud-based CRM software** is a customer-relationship system that the provider operates as a managed online service and that a team accesses through a browser. Customermates Cloud manages the application and database service while your team configures users, permissions, records, pipelines and connected providers.
+**Cloud CRM software** is customer-relationship software that the vendor hosts and runs, so your team uses it in a browser and installs, patches and backs up nothing itself. It is also called cloud-based CRM or hosted CRM. Customermates is one: a managed cloud CRM whose primary database is configured in Frankfurt, built on an open-source core that you can also self-host with Docker.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Managed responsibility">
-    Customermates operates the managed application and database service; your
-    team owns workspace configuration, access and the data it enters.
+  <SummaryItem label="What it is">
+    The vendor operates the servers, updates and backups. You sign in through a
+    browser and pay a subscription, usually per user and month.
   </SummaryItem>
-  <SummaryItem label="Core product surface">
-    Contacts, organizations, deals, services and tasks with custom fields,
-    tables, cards, kanban views, dashboards and activity history.
+  <SummaryItem label="Cloud or self-hosted">
+    Cloud removes the operating work and gives up some control. Self-hosting
+    keeps servers and data in your hands and adds the operating work.
   </SummaryItem>
-  <SummaryItem label="Interfaces">
-    REST, webhooks and MCP support controlled integration and external
-    automation without turning every provider into a native product feature.
+  <SummaryItem label="Customermates">
+    Managed cloud on monthly per-user plans, or the open-source core on your own
+    servers with the Starter feature set: no inbox, no connected calendar, no
+    hosted Mate.
   </SummaryItem>
-  <SummaryItem label="Important boundary">
-    The open-source core can be self-hosted separately under Starter
-    entitlements; managed-cloud inbox, calendar and plan features do not follow.
+  <SummaryItem label="Before you buy">
+    Check data location and the data processing agreement, export formats, the
+    API, the price per user and the availability commitment, then test an
+    export with real records.
   </SummaryItem>
 </ArticleSummary>
 
@@ -106,33 +108,78 @@ cta:
   <ProofItem label="Deployment">Managed cloud or self-hosted core</ProofItem>
 </ProofRail>
 
-## What Customermates Cloud actually includes
+## What is cloud CRM software?
 
-The managed product brings contacts, organizations, deals, services and tasks into one workspace. Teams can define typed custom fields, work in table, card and kanban views, inspect activity history and configure deal stages with probabilities. Dashboards show current operational values, including total and weighted deal or pipeline values.
+Cloud CRM software keeps your contacts, companies, deals and conversations on servers that the vendor runs. You open it in a browser, the vendor ships updates to every customer, and you pay a subscription, usually per user and month. Older names such as web-based CRM or CRM on demand describe the same idea.
 
-REST, webhooks and MCP are available for supported integrations and externally operated workflows. These interfaces do not imply that every accounting, marketing, data or automation provider is built into Customermates.
+"Cloud" describes where and by whom the software is run. "SaaS" (software as a service) describes how it is supplied and billed. The two overlap so often that vendors use them interchangeably, but they are not definitions of the same thing.
 
-| Area             | Current product surface                                                |
-| ---------------- | ---------------------------------------------------------------------- |
-| Customer records | Contacts and organizations with relationships and custom fields        |
-| Sales work       | Deals, configurable stages, probabilities and weighted values          |
-| Delivery context | Services and tasks linked to supported CRM records                     |
-| Views            | Table, card and kanban where supported by the record type              |
-| Interfaces       | REST, OpenAPI, webhooks and MCP                                        |
-| Communication    | Unified inbox and read-only connected calendar on entitled cloud plans |
+**What you gain**
 
-## Managed cloud or self-hosting?
+- No servers and no installation: the vendor runs the application, the database, backups and updates.
+- Access from any browser, and a new colleague needs only an account.
+- Seats follow the team: monthly plans let you add or remove users.
 
-Customermates offers a managed service and a separately operated open-source core. They share the core CRM, but they are not feature-identical editions.
+**What you give up or must check**
 
-| Decision                             | Managed cloud                                   | Self-hosted core                            |
-| ------------------------------------ | ----------------------------------------------- | ------------------------------------------- |
-| Application and database operation   | Customermates                                   | Customer or chosen operator                 |
-| CRM records and views                | According to the cloud plan                     | Starter feature set                |
-| Unified inbox and connected calendar | Included on entitled plans                      | Not included                                |
-| AI access                            | Plan-entitled Mate capability (when enabled) plus external MCP | External MCP only              |
-| Connected providers                  | Configured in the managed product               | Selected and operated by the customer       |
-| Cost model                           | Monthly per user                                | Infrastructure, providers and operator time |
+- You depend on the vendor's operation, roadmap and pricing.
+- Your data sits with the vendor and its subprocessors. Where, and under which contract, is yours to check.
+- Leaving works only if the export does.
+
+## Cloud vs on-premises vs self-hosted CRM: what is the difference?
+
+Three setups get mixed up. A cloud (SaaS) CRM is run by the vendor. An on-premises CRM is licensed software that runs on servers you own or rent and that your IT team operates. A self-hosted CRM is software, often open source, that you install and run yourself on a server of your choice, including a rented one.
+
+| Question                 | Cloud CRM (SaaS)                                  | On-premises CRM                                          | Self-hosted CRM                                                      |
+| ------------------------ | ------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| Who runs the servers?    | The vendor                                        | Your IT team, on hardware you own or rent                | You, or a hosting provider you choose                                |
+| Updates and patches      | The vendor rolls them out                         | You schedule, test and apply them                        | You pull and apply new versions                                      |
+| Where is the data?       | The vendor's regions and subprocessors            | On your premises                                         | On the server you choose                                             |
+| Cost model               | Subscription, usually per user                    | Licence or maintenance fee plus hardware and staff       | Often no licence fee for open-source software, plus infrastructure and operator time |
+| Control                  | What the vendor lets you configure                | Full control of servers and database                     | Full control of servers and database; features depend on the edition |
+| Exit and export          | Depends on the vendor's export tools and contract | Direct database access                                   | Direct database access plus the product's export                     |
+| Typical fit              | Teams without IT capacity that want to start fast | Organisations with internal hosting rules and IT staff   | Teams that must or want to control where data lives and can operate it |
+
+Open source is a licence, not a hosting model: an open-source CRM can be offered as a cloud service or run by you. The guide to [open-source CRM options](/blog/open-source-crm) compares the self-hostable ones, and [self-hosted CRM with Docker and PostgreSQL](/features/self-hosted) shows the Customermates side.
+
+A fair rule of thumb: choose a cloud CRM unless a concrete requirement points elsewhere, such as an internal hosting policy or a team that already operates its own servers.
+
+## What are the four types of CRM, and where does cloud fit?
+
+CRM types describe the job, not the hosting. The four usually named are operational (daily sales, marketing and service work), analytical (reports and segments), collaborative (one common customer history across people and channels) and strategic (customer-centred planning). Any of them can be delivered as cloud CRM software, on-premises or self-hosted. The guide to [CRM systems and their types](/blog/crm-systems) explains each with examples; if the term is new, start with [what CRM means](/blog/what-is-crm).
+
+## How do I choose cloud-based CRM software?
+
+Judge a cloud-based CRM on these points and test the last one with real data before you commit.
+
+| Check                  | Ask the vendor                                                                                                   | Why it matters                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Data location and DPA  | Where is the primary database, which subprocessors touch the data, and is a data processing agreement part of the contract? | A region setting is not a residency guarantee. The contract is what binds.      |
+| Export and exit        | Which formats (CSV, JSON, Excel), how many records per export, and what happens to your data after cancellation? | You can only leave a CRM that lets your data leave. |
+| API and integrations   | Is there a documented REST API, are there webhooks, and how do automation tools connect?                         | Decides whether the CRM can feed your other systems without a vendor project.          |
+| Price per user         | What does the plan with the features you need cost per user and month, how is it billed, and what changes at the next tier? | The entry price is rarely the price of the plan you need. [CRM cost](/blog/crm-cost) has a worked example. |
+| Availability           | Does the contract state an availability figure, how is it measured and what is excluded?                         | A marketing claim is not a contract term.                                              |
+| Access control         | Roles per list, an activity log, and single sign-on if you need it                                               | Decides who may see and change which records.                                          |
+| Real-data test         | Import about 50 of your records, build your pipeline, then export them again                                     | Shows fit and exit in an afternoon instead of in a year.                               |
+
+For a dated side-by-side of ten tools with licence, hosting, free tier and price, see the [CRM software comparison](/blog/best-crm-software).
+
+## Where does Customermates fit? (our product)
+
+*Disclosure: Customermates publishes this page.* Customermates is an open-source, AI-native CRM made in Germany. It comes in two forms that share the core CRM but are not feature-identical: Customermates Cloud, which Customermates operates, and the open-source core, which you run yourself with Docker Compose and PostgreSQL.
+
+### Cloud or self-hosted Customermates?
+
+| Decision                             | Customermates Cloud                                                   | Self-hosted core                                      |
+| ------------------------------------ | --------------------------------------------------------------------- | ----------------------------------------------------- |
+| Application and database operation   | Customermates                                                         | You or the operator you choose                        |
+| Updates                              | Customermates                                                         | You: back up, pull the new image, restart; pin an image tag to choose the day |
+| Data location                        | Primary production database configured in AWS Frankfurt (`eu-central-1`) | Wherever you run it                                |
+| CRM records and views                | According to the cloud plan                                           | Starter feature set                                   |
+| Unified inbox and connected calendar | Included on entitled plans                                            | Not included                                          |
+| AI access                            | Plan-entitled Mate capability (when enabled) plus external MCP        | External MCP only                                     |
+| Cost model                           | Monthly per user, in euros                                            | Infrastructure, providers and operator time; no seats or subscription |
+| Export                               | Excel or JSON per list in the app; CSV or JSON of your data on written request | Excel or JSON per list in the app; the data sits in your own PostgreSQL database |
 
 Choose the managed cloud when you want Customermates to operate the application and database and when your workflow needs cloud plan entitlements. Evaluate [self-hosting](/features/self-hosted) when operating Docker, PostgreSQL, updates, backups and connected providers is an intentional requirement rather than a generic preference.
 
@@ -145,7 +192,50 @@ Choose the managed cloud when you want Customermates to operate the application 
   Compare the exact workflow, not only the infrastructure label.
 </AcquisitionCallout>
 
-## How a team starts with Customermates Cloud
+### What Customermates Cloud includes
+
+The managed product brings contacts, organizations, deals, services and tasks into one workspace. Teams define typed custom fields, work in table, card and kanban views, inspect activity history and configure deal stages with probabilities. Dashboards show current operational values, including total and weighted deal or pipeline values. REST, webhooks and MCP serve supported integrations and externally operated workflows; they do not mean every accounting, marketing or data provider is built in.
+
+### Data location, DPA and subprocessors
+
+The primary production database is configured in AWS Frankfurt (`eu-central-1`). This is a selected product setting, not a contractual promise that every service or transfer remains in that region. Application hosting, monitoring, connected-account transport and any provider you select have their own locations and transfer paths.
+
+The [Data Processing Agreement](/dpa) documents measures including TLS in transit, encryption for the production database and backups at rest, role-based access, account-level segregation, monitoring and restoration procedures. It does not claim a security or compliance certification. The current [subprocessor list](/subprocessors) records the providers, purposes, known locations and transfer bases used by the managed service.
+
+<AcquisitionCallout
+  title="Region is one part of the processing map"
+  variant="proof"
+>
+  Review application hosting, the managed database, connected providers and any
+  external automation or AI service together. A database region alone is not a
+  data-residency guarantee or a compliance conclusion.
+</AcquisitionCallout>
+
+### Export and exit
+
+Each list exports as an Excel workbook or as JSON from **More actions**, up to 5,000 records per export, and a list imports again from its JSON export or from an Excel workbook through a column-mapping wizard; the [records guide](/docs/app-records#how-do-i-import-or-export-records) has the limits. Over the REST API an export pages through the list, up to 500 records per page.
+
+There is no whole-account export, no transfer of file attachments, no scheduled sync and no undo for an import, so plan a larger move from or to another CRM as a migration project with explicit mapping, validation and deduplication, extended through REST or MCP where needed. Under section 5 of the [Terms](/terms) you can also ask in text form, during the contract or within 30 days after it ends, for the data Customermates holds for you in CSV or JSON, free of charge and within 30 days.
+
+### Plans and connected-account allowances
+
+| Plan       | Monthly price per user                | Connected messaging accounts                    | Whole-account sharing |
+| ---------- | ------------------------------------- | ----------------------------------------------- | --------------------- |
+| Starter    | [[commercial.price.starter.monthly]]  | None                                            | No                    |
+| Pro        | [[commercial.price.pro.monthly]]      | [[commercial.entitlement.pro.includedAccountsPerUser]] per user      | No                    |
+| Business   | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] per user | Yes                   |
+| Max        | [[commercial.price.max.monthly]]      | [[commercial.entitlement.max.includedAccountsPerUser]] per user      | Yes                   |
+| Enterprise | Custom                                | Unlimited under fair-use terms                  | Yes                   |
+
+Billing is monthly per user, in euros, and there is no yearly price. The [[commercial.trial.days]]-day trial starts on Pro. LinkedIn, email, calendar, AI, automation and other external-provider subscriptions remain separate where required. The [pricing page](/pricing) has the details.
+
+### AI and automation
+
+Every managed-cloud plan includes a Mate entitlement and a plan-specific monthly hosted-AI credit allowance per active user. Whether Mate is live depends on the hosted environment's current configuration. When enabled, Mate works inside the CRM, uses the current user's permissions and applies separate confirmation controls to sensitive actions.
+
+External AI clients can use the [Customermates MCP server](/docs/mcp) with a model provider and subscription you choose, on every plan and in self-hosted installations. They use your provider rather than hosted credits. For automation, teams can call REST, receive webhooks, use MCP or connect a separately operated workflow tool such as n8n. Customermates includes neither the n8n runtime nor its third-party connectors.
+
+### How a team evaluates Customermates Cloud
 
 <Steps>
   <Step title="Create a small workspace">
@@ -164,70 +254,41 @@ Choose the managed cloud when you want Customermates to operate the application 
     Add an entitled messaging account, webhook, REST integration or MCP client
     only after its data and permission boundary is understood.
   </Step>
-  <Step title="Review the operating choice">
-    Decide whether the managed service fits, or whether the Starter boundary and
-    operating work of self-hosting are preferable.
+  <Step title="Export, then decide">
+    Export a list as Excel or JSON and import it back. Then decide whether the
+    managed service fits, or whether the Starter boundary and operating work of
+    self-hosting are preferable.
   </Step>
 </Steps>
 
-## Database region, security and provider boundaries
+## Where is Customermates the wrong choice?
 
-The primary production database is configured in AWS Frankfurt (`eu-central-1`). This is a selected product setting, not a contractual promise that every service or transfer remains in that region. Application hosting, monitoring, connected-account transport and any provider selected by a customer have their own locations and transfer paths.
+Customermates is deliberately narrow. Choose another product, or add one next to it, when you need:
 
-The [Data Processing Agreement](/dpa) documents measures including TLS in transit, encryption for the production database and backups at rest, role-based access, account-level segregation, monitoring and restoration procedures. It does not claim a security or compliance certification. The current [subprocessor list](/subprocessors) records the providers, purposes, known locations and transfer bases used by the managed service.
-
-<AcquisitionCallout
-  title="Region is one part of the processing map"
-  variant="proof"
->
-  Review application hosting, the managed database, connected providers and any
-  external automation or AI service together. A database region alone is not a
-  data-residency guarantee or a compliance conclusion.
-</AcquisitionCallout>
-
-## AI and automation without false promises
-
-Every managed-cloud plan includes a Mate entitlement and a plan-specific monthly hosted-AI credit allowance per active user. Whether Mate is live depends on the hosted environment's current configuration. When enabled, Mate works inside the CRM, uses the current user's permissions and applies separate confirmation controls to sensitive actions.
-
-External AI clients can use the [Customermates MCP server](/docs/mcp) with a model provider and subscription selected by the customer. They use the customer's provider rather than Customermates hosted-AI credits. When Mate is enabled, the two paths share supported CRM tools and permission checks, but not their client, billing or confirmation path.
-
-For automation, teams can call REST, receive webhooks, use MCP or connect a separately operated workflow tool such as n8n. Customermates does not include the n8n runtime, its third-party connectors or their provider contracts.
-
-## Migration and reporting boundaries
-
-Records can be imported and exported as XLSX workbooks, one record type at a time, scoped to your permissions and the current view and within row limits. CSV, a whole-account export, attachments and undo are not part of that path, so plan a larger move from another CRM as a migration project with explicit mapping, validation and deduplication, extended through REST or MCP where needed.
-
-Dashboards, activity history, stage probabilities and weighted deal or pipeline values help a team inspect the current workspace. They are not predictive close or revenue forecasts, lead scores, conversion analytics or pipeline-velocity analysis.
-
-## Plans and connected-account allowances
-
-| Plan       | Monthly price per user                | Connected messaging accounts   | Whole-account sharing |
-| ---------- | ------------------------------------- | ------------------------------ | --------------------- |
-| Starter    | [[commercial.price.starter.monthly]]  | None                           | No                    |
-| Pro        | [[commercial.price.pro.monthly]]      | One per user                   | No                    |
-| Business   | [[commercial.price.business.monthly]] | Three per user                 | Yes                   |
-| Enterprise | Custom                                | Unlimited under fair-use terms | Yes                   |
-
-The [[commercial.trial.days]]-day trial starts on Pro. LinkedIn, email, calendar, AI, automation and other external-provider subscriptions remain separate where required.
-
-## Who Customermates Cloud fits
+- **No native mobile app.** Customermates is used in the browser, so choose another product if you need an app for your phone.
+- **Single sign-on.** SAML or OIDC sign-in with your own identity provider is not implemented, in the cloud or self-hosted.
+- **A certification.** The Data Processing Agreement documents measures, but Customermates holds and claims no security or compliance certification. EU-region hosting is a hosting fact, not a certification.
+- **Quotes, invoicing, telephony, SMS or embeddable web forms.** None of these exist. REST, webhooks or n8n can connect dedicated tools.
+- **Email sequences or mass outreach.** Outreach is draft-first and per message.
+- **Predictive forecasting, lead scoring or conversion analytics.** Dashboards, activity history, stage probabilities and weighted deal or pipeline values describe the current workspace. They are not forecasts.
+- **A complete ERP, accounting, inventory, helpdesk or call-centre suite, or a turnkey migration.** Those need different products or a deliberately designed integration.
 
 Customermates Cloud fits teams that want a managed, browser-based CRM for flexible records and pipelines, prefer explicit interfaces over a closed integration promise, and value a separately self-hostable open-source core.
-
-It is not a fit when the requirement is a complete ERP, accounting, inventory, invoicing, helpdesk, call-center, predictive-analytics or turnkey migration suite. Those workflows require different products or a deliberately designed integration.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is cloud-based CRM software?">
-  It is CRM operated as a managed online service and accessed through a browser.
+<FaqItem question="What is a cloud CRM?">
+  A CRM operated as a managed online service and accessed through a browser.
   “Cloud” describes deployment; “SaaS” describes how software is supplied and
   billed. They often overlap, but they are not definitions of the same thing.
 </FaqItem>
 
-<FaqItem question="What does Customermates operate in the managed cloud?">
-  Customermates operates the application and database service. Customers still
-  configure users, permissions, records, workflows and connected providers.
+<FaqItem question="What are the top 3 CRM platforms?">
+  There is no official top 3: rankings differ by source, year, company size and
+  what is counted. The [CRM software comparison](/blog/best-crm-software) puts
+  ten tools side by side by licence, hosting, free tier and price, checked on
+  1 November 2026, and sorts them by use case instead of rank.
 </FaqItem>
 
 <FaqItem question="Where is Customermates Cloud data stored?">
@@ -244,10 +305,18 @@ It is not a fit when the requirement is a complete ERP, accounting, inventory, i
 </FaqItem>
 
 <FaqItem question="Does Customermates include data import or migration?">
-  There is XLSX import and export per record type, limited to your
-  permissions, the current view and a maximum row count. There is no CSV, no
-  whole-account export and no migration wizard. Plan larger moves with mapping,
+  Each list exports as an Excel workbook or as JSON, and imports from an Excel
+  workbook or from a JSON export of the same list, within your permissions, the
+  current view and a maximum record count. There is no whole-account export, no
+  transfer of attachments and no migration wizard. Plan larger moves with mapping,
   validation and deduplication, using REST or MCP where needed.
+</FaqItem>
+
+<FaqItem question="How much does Customermates Cloud cost?">
+  Starter is [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]],
+  Business [[commercial.price.business.monthly]] and Max [[commercial.price.max.monthly]]
+  per user and month, billed monthly in euros. Enterprise is priced individually.
+  The [[commercial.trial.days]]-day trial starts on Pro.
 </FaqItem>
 
 <FaqItem question="What analytics does Customermates provide?">
@@ -264,7 +333,7 @@ It is not a fit when the requirement is a complete ERP, accounting, inventory, i
 </FaqItem>
 
 <FaqItem question="Which plan includes the unified inbox?">
-  Pro, Business and Enterprise in the managed cloud. Starter and self-hosted
+  Pro, Business, Max and Enterprise in the managed cloud. Starter and self-hosted
   deployments do not include connected messaging accounts.
 </FaqItem>
 </Faq>
