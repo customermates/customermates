@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
+
 import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
 
 import { readSpreadsheet } from "../read-spreadsheet";
@@ -111,6 +114,38 @@ describe("readSpreadsheet CSV", () => {
     expect(table.rows[0].cells).toEqual(["Grüße „Test“", "5 €"]);
   });
 
+  it("reads an Excel 97-2003 workbook with its dates and picks a sheet by name", async () => {
+    const legacy = new Uint8Array(readFileSync("tests/fixtures/spreadsheet-import/legacy-biff8.xls"));
+    const result = await readOk(legacy, { fileName: "contacts.xls" });
+    expect(result.format).toBe("xls");
+    expect(result.table.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Telefon", "Firma", "Notiz"]);
+    expect(result.table.rows.map((row) => row.cells.slice(0, 2))).toEqual([
+      ["Jürgen", "Müller"],
+      ["Ölaf", "Strauß"],
+    ]);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, XLSX.utils.aoa_to_sheet([["Only"], ["x"]]), "First");
+    XLSX.utils.book_append_sheet(
+      book,
+      XLSX.utils.aoa_to_sheet(
+        [
+          ["Name", "Start"],
+          ["Atlas", new Date(Date.UTC(2026, 0, 2))],
+        ],
+        { cellDates: true, UTC: true },
+      ),
+      "Projects",
+    );
+    const bytes = new Uint8Array(XLSX.write(book, { bookType: "biff8", type: "array" }) as ArrayBuffer);
+    const projects = await readOk(bytes, { fileName: "projects.xls", sheetName: "Projects" });
+    expect(projects.sheetNames).toEqual(["First", "Projects"]);
+    expect(projects.table.rows[0].cells).toEqual(["Atlas", "2026-01-02"]);
+    expect(await readSpreadsheet(bytes, { fileName: "projects.xls", sheetName: "Missing" })).toEqual({
+      ok: false,
+      code: "sheetNotFound",
+    });
+  });
+
   it("reads Mac Roman, the encoding of a plain CSV from Excel for Mac", async () => {
     const macRoman: Record<string, number> = { ü: 0x9f, ö: 0x9a, ä: 0x8a, ß: 0xa7, Ö: 0x85 };
     const bytes = Uint8Array.from(
@@ -212,6 +247,10 @@ describe("readSpreadsheet XLSX", () => {
       code: "macroWorkbook",
     });
     expect(await readSpreadsheet(new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1]))).toEqual({
+      ok: false,
+      code: "unreadableFile",
+    });
+    expect(await readSpreadsheet(utf8("Name\nx\n"), { fileName: "book.ods" })).toEqual({
       ok: false,
       code: "unsupportedFormat",
     });

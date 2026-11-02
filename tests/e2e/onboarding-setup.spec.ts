@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
@@ -132,6 +133,30 @@ test("the questions mark missing answers, suggest steps that reorder by dragging
   await moveWithKeyboard(page, handles.nth(0), "ArrowDown");
   await expect.poll(() => entries(page)).toEqual([first, second, ...rest]);
   await page.screenshot({ path: testInfo.outputPath("setup-questions.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test("the questions take a contact list as Excel 97-2003 (.xls), Excel or CSV", async ({ page, database, workspace }) => {
+  const errors = collectPageErrors(page);
+  await openSetupOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Upload Studio"));
+  await clickHydrated(page.getByRole("button", { name: new RegExp(`^${setup.start.questions.title}`) }));
+  const existingData = question(page, "existingData");
+  await existingData.scrollIntoViewIfNeeded();
+  await existingData
+    .getByRole("radio", { name: setup.options.existingData.spreadsheet, exact: true })
+    .click();
+  const input = page.locator("#setup-spreadsheet");
+  expect((await input.getAttribute("accept"))?.split(",")).toEqual(expect.arrayContaining([".csv", ".xlsx", ".xls"]));
+  for (const file of ["legacy-biff8.xls", "libreoffice.xlsx", "semicolon-macroman.csv"]) {
+    await input.setInputFiles({
+      name: file,
+      mimeType: "application/vnd.ms-excel",
+      buffer: readFileSync(`tests/fixtures/spreadsheet-import/${file}`),
+    });
+    await expect(page.getByText(file, { exact: true })).toBeVisible();
+    await expect(page.getByText(setup.interview.uploadReady, { exact: true })).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: file })).toHaveCount(0);
+  }
   expect(errors).toEqual([]);
 });
 

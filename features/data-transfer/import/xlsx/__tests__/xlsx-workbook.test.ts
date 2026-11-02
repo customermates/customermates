@@ -79,6 +79,9 @@ describe("xlsx workbook reading", () => {
     "semicolon-cp1252.csv",
     "libreoffice.xlsx",
     "legacy-biff8.xls",
+    "excel95-biff5.xls",
+    "xml-2003.xls",
+    "html-table.xls",
   ])("reads the German contacts of %s", async (file) => {
     const result = await readSpreadsheetWorkbook(file, fixture(file));
     expect(result.ok).toBe(true);
@@ -87,6 +90,26 @@ describe("xlsx workbook reading", () => {
     expect(sheet.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Telefon", "Firma", "Notiz"]);
     expect(sheet.rows.map((row) => row.cells)).toEqual(contacts);
     expect(sheet.rows.map((row) => row.sheetRow)).toEqual([2, 3]);
+  });
+
+  it("reads a workbook saved by Excel 95", async () => {
+    const result = await readSpreadsheetWorkbook("excel95-genuine.xls", fixture("excel95-genuine.xls"));
+    expect(result.ok && result.workbook.sheets.map((sheet) => sheet.name)).toEqual(["Feuil1"]);
+    expect(result.ok && result.workbook.sheets[0].rows[1].cells.slice(1, 3)).toEqual([1, 1]);
+  });
+
+  it("reads a workbook saved by Excel 16 for Mac", async () => {
+    const result = await readSpreadsheetWorkbook("excel-mac-16.xlsx", fixture("excel-mac-16.xlsx"));
+    expect(result.ok && result.workbook.sheets).toEqual([
+      {
+        name: "File",
+        headers: ["Title", "Country", "Position"],
+        rows: [
+          { sheetRow: 2, cells: ["Title1", "USA", "QA"] },
+          { sheetRow: 3, cells: ["Title2", "Europe", "Development"] },
+        ],
+      },
+    ]);
   });
 
   it("names a CSV sheet after its file and rejects an empty one", async () => {
@@ -128,6 +151,6 @@ describe("xlsx workbook reading", () => {
     ]);
     expect(await readSpreadsheetWorkbook("renamed.xlsx", fixture("legacy-biff8.xls"))).toMatchObject({ ok: true });
     const broken = new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 1, 2]).buffer;
-    expect(await readSpreadsheetWorkbook("broken.xls", broken)).toMatchObject({ ok: false });
+    expect(await readSpreadsheetWorkbook("broken.xls", broken)).toEqual({ ok: false, problem: "unreadable" });
   });
 });

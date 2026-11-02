@@ -23,7 +23,7 @@ export function hasMacros(inventory: ZipInventory): boolean {
   return inventory.entries.some((name) => /(^|\/)vbaProject\.bin$/i.test(name) || /(^|\/)vbaData\.xml$/i.test(name));
 }
 
-function dateCell(value: Date): SpreadsheetCell {
+export function dateCell(value: Date): SpreadsheetCell {
   const time = value.getTime();
   if (Number.isNaN(time)) return null;
   const iso = value.toISOString();

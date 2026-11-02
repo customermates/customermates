@@ -79,18 +79,20 @@ describe("SetupSpreadsheetUpload", () => {
     expect(fileInput().accept.split(",")).toEqual([
       ".csv",
       ".xlsx",
+      ".xls",
       "text/csv",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
     ]);
   });
 
   it("names a refused replacement and says the setup keeps the earlier file", async () => {
     render({ fileName: "clients.csv" });
 
-    await choose("contacts.xls", { accepted: false, failure: "unsupportedFormat" });
+    await choose("contacts.ods", { accepted: false, failure: "unsupportedFormat" });
 
     expect(alertText()).toBe(
-      "WorkspaceSetup.interview.uploadRejected contacts.xls WorkspaceSetup.interview.uploadFailures.unsupportedFormat" +
+      "WorkspaceSetup.interview.uploadRejected contacts.ods WorkspaceSetup.interview.uploadFailures.unsupportedFormat" +
         " WorkspaceSetup.interview.uploadKept clients.csv",
     );
     expect(container.textContent).toContain("clients.csv");

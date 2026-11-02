@@ -1094,7 +1094,7 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     const replanned = await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
     if (!replanned.ok) throw new Error(JSON.stringify(replanned.error));
     expect(await draftPlan(ws, setupId)).toBe("planned");
-    expect(await upload("contacts.xls")).toMatchObject({ ok: true, data: { accepted: false } });
+    expect(await upload("contacts.ods")).toMatchObject({ ok: true, data: { accepted: false } });
     expect((await status(ws)).status).toBe("planned");
     expect(await upload("contacts.csv")).toMatchObject({ ok: true, data: { accepted: true } });
     expect((await status(ws)).status).toBe("interview");

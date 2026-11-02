@@ -114,29 +114,10 @@ function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
 }
 
 async function readLegacyWorkbook(bytes: Uint8Array): Promise<WorkbookResult> {
-  const XLSX = await import("xlsx");
-  const book = (() => {
-    try {
-      return XLSX.read(bytes, { type: "array", cellDates: true, dense: true });
-    } catch {
-      return null;
-    }
-  })();
+  const { readXlsBook } = await import("@/features/data-transfer/spreadsheet/spreadsheet-xls-book");
+  const book = readXlsBook(bytes);
   if (!book) return { ok: false, problem: "unreadable" };
-  return collectSheets(
-    book.SheetNames.map((name) =>
-      rowsSheet(
-        name,
-        XLSX.utils.sheet_to_json<unknown[]>(book.Sheets[name], {
-          header: 1,
-          raw: true,
-          defval: null,
-          blankrows: true,
-          UTC: true,
-        }),
-      ),
-    ),
-  );
+  return collectSheets(book.sheetNames.map((name) => rowsSheet(name, book.rows(name))));
 }
 
 export async function readSpreadsheetWorkbook(name: string, buffer: ArrayBuffer): Promise<WorkbookResult> {
