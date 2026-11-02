@@ -107,8 +107,9 @@ function rowsSheet(name: string, rows: unknown[][]): ReadableSheet {
 }
 
 function readCsvWorkbook(bytes: Uint8Array, name: string): WorkbookResult {
-  const csv = readCsvRows(bytes, XLSX_MAX_ROWS + 1);
+  const csv = readCsvRows(bytes, XLSX_MAX_ROWS * 10);
   if (!csv) return { ok: false, problem: "unreadable" };
+  if (csv.truncated) return { ok: false, problem: "tooManyRows" };
   const rows = csv.rows.map((row) => row.cells.map((cell) => cell || null));
   return collectSheets([rowsSheet(name.trim().replace(/\.[^.]+$/, "") || "Sheet", rows)]);
 }

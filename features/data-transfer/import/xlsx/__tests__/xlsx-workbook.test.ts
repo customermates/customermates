@@ -112,6 +112,18 @@ describe("xlsx workbook reading", () => {
     ]);
   });
 
+  it("takes a CSV file up to the row limit, with blank lines, and refuses one row more", async () => {
+    const csv = (rows: number, blankLines = 0) => {
+      const blanks = Array.from({ length: blankLines }, () => "");
+      const values = Array.from({ length: rows }, (_, index) => `Row ${index}`);
+      return new TextEncoder().encode(["Name", ...blanks, ...values].join("\n")).buffer;
+    };
+    const full = await readSpreadsheetWorkbook("full.csv", csv(5000, 100));
+    expect(full.ok && full.workbook.sheets[0].rows.length).toBe(5000);
+    expect(await readSpreadsheetWorkbook("over.csv", csv(5001))).toEqual({ ok: false, problem: "tooManyRows" });
+    expect(await readSpreadsheetWorkbook("far-over.csv", csv(60000))).toEqual({ ok: false, problem: "tooManyRows" });
+  });
+
   it("names a CSV sheet after its file and rejects an empty one", async () => {
     const csv = new TextEncoder().encode("Name;Notes\nAtlas;\n").buffer;
     const result = await readSpreadsheetWorkbook("Leads.csv", csv);
