@@ -1,0 +1,202 @@
+---
+title: "Was ist ein Lead? Lead vs. Prospect einfach erklärt"
+description: "Was ist ein Lead? Definition, Unterschied zu Prospect und Opportunity, die Phasen vom Kontakt bis zum Kunden und wie Sie sie im CRM nachverfolgen."
+
+relatedHrefs:
+  - /blog/client-qualification
+  - /blog/sales-pipeline
+  - /features/lead-management
+  - /blog/customer-acquisition
+
+hero:
+  title: "Was ist ein Lead? Lead vs. Prospect, Definition und Phasen im Vertrieb"
+  description: "Eine klare Antwort auf die Frage, was ein Lead ist und wie er sich von einem Prospect unterscheidet, mit einer durchgängigen Definition von Kontakt bis Kunde samt Kriterium, Zuständigkeit und nächstem Schritt je Phase, Hinweisen zur Rechtslage und einem Beispiel für die Nachverfolgung im CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Lead
+    - Prospect
+    - Vertriebsprozess
+---
+
+# Was ist ein Lead? Lead vs. Prospect, Definition und Phasen im Vertrieb
+
+Was ist ein Lead? Ein Lead ist eine Person oder ein Unternehmen, das Interesse an Ihrem Angebot gezeigt hat oder als möglicher Kunde erkannt wurde, bei dem aber noch niemand geprüft hat, ob es wirklich passt. Ein Prospect ist ein Lead, der diese Prüfung bestanden hat und aktiv vom Vertrieb bearbeitet wird: Das ist der Kern von Lead vs. Prospect.
+
+Beide Begriffe werden im Alltag oft vermischt, und in zwei Vertriebsteams kann dasselbe Wort etwas anderes bedeuten. Dieser Leitfaden gibt eine durchgängige Definition für Kontakt, Lead, MQL, Prospect, Opportunity und Kunde, mit Kriterium, Zuständigkeit und nächstem Schritt für jede Phase. Customermates, das Open-Source-CRM hinter diesem Artikel, hat kein Lead-Scoring und keine Datenanreicherung; der letzte Abschnitt zeigt deshalb die Phasen als Feld, Board und Aufgaben, die Sie selbst einrichten.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Lead">Hat Interesse gezeigt oder wurde erkannt, und niemand hat die Eignung bisher geprüft.</SummaryItem>
+  <SummaryItem label="Prospect">Ein Lead, der Ihre Prüfung bestanden hat: Er passt zur Zielgruppe, hat einen Bedarf, und der Vertrieb hat die Eckdaten bestätigt.</SummaryItem>
+  <SummaryItem label="Opportunity">Eine konkrete mögliche Verkaufschance mit Umfang, Wert und erwartetem Entscheidungstermin.</SummaryItem>
+  <SummaryItem label="Die eine Regel">Eine Definition je Phase, mit einem Kriterium, das eine zweite Person im CRM nachprüfen kann.</SummaryItem>
+  <SummaryItem label="Recht">Werbeanrufe und Werbe-E-Mails an Leads regelt § 7 UWG. Im B2B reicht am Telefon eine mutmaßliche Einwilligung, per E-Mail braucht es eine ausdrückliche.</SummaryItem>
+  <SummaryItem label="In Customermates">Ein Einzelauswahlfeld am Kontakt, ein Board nach Phase und Aufgaben für die nächsten Schritte. Kein Scoring, keine Anreicherung.</SummaryItem>
+</ArticleSummary>
+
+## Was ist ein Lead, und was ist ein Prospect?
+
+Ein **Lead** ist ein potenzieller Kunde, der sich gemeldet hat oder den Sie erkannt haben, etwa durch eine Anfrage, eine Antwort auf Ihre Nachricht, den Wunsch nach einer Demo oder eine Empfehlung, und den noch niemand bewertet hat. Salesforce beschreibt einen Lead ähnlich: als potenziellen Verkaufskontakt, Person oder Unternehmen, das Interesse an einem Produkt oder einer Dienstleistung geäußert hat.
+
+Ein **Prospect** ist ein möglicher künftiger Kunde, im Vertrieb mit einer Prüfung obendrauf: Er gehört zu der Art von Kunden, die Sie bedienen, hat ein Problem, das Sie lösen können, und ist erreichbar. „Prospecting“ bezeichnet die Tätigkeit, solche Personen zu finden und anzusprechen.
+
+| | Lead | Prospect |
+| --- | --- | --- |
+| Was es ist | Ein Kontakt mit gezeigtem Interesse oder ein erkannter möglicher Kunde | Ein Lead, der Ihre Qualifizierung bestanden hat |
+| Was Sie wissen | Name, Erreichbarkeit, meist Quelle und Anliegen | Bedarf, Entscheider, Budgetrahmen und Zeitpunkt, oder die Gründe, warum etwas fehlt |
+| Wer ihn bearbeitet | Wer zuerst antwortet | Wer verkauft |
+| Ziel | Antworten und klären, ob es passt | Ein Angebot mit klarem Umfang vereinbaren |
+| Wenn es nicht klappt | Mit Grund aussortieren oder mit Datum zurückstellen | Mit Datum zurückstellen oder verlieren |
+
+Die beiden Begriffe sind im Deutschen schwer zu trennen, weil „Interessent“ beide meint. Sie sparen sich Missverständnisse, wenn Ihr Team Lead und Prospect so unterscheidet wie in der Tabelle.
+
+## Wie heißt „Lead“ auf Deutsch?
+
+Am nächsten kommt „Interessent“ oder „potenzieller Kunde“; im Vertrieb ist auch „Kontakt mit Kaufinteresse“ üblich. Die meisten deutschen Teams behalten das englische Wort, weil es in CRM-Systemen und Stellenanzeigen ohnehin so heißt. Prospect übersetzen Sie am besten mit „qualifizierter Interessent“, Opportunity mit „Verkaufschance“.
+
+## Was ist der Unterschied zwischen Lead und Opportunity?
+
+Ein Lead ist eine Person oder ein Unternehmen. Eine Opportunity ist eine konkrete mögliche Verkaufschance: Es gibt etwas zu verkaufen, einen Wert und einen erwarteten Entscheidungstermin. Ein Kunde kann über die Jahre mehrere Opportunities haben, und viele Leads erzeugen nie eine.
+
+Die Reihenfolge zeigt die Lead-Konvertierung in Salesforce. Laut dem [Trailhead-Modul zu Leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) erzeugt die Konvertierung aus dem Lead-Datensatz ein Geschäftskonto, einen Kontakt und eine Opportunity (englisch). Der Lead steht also immer am Anfang. Welche Phasen eine Opportunity danach durchläuft, beschreibt der Leitfaden zur [Sales Pipeline](/blog/sales-pipeline).
+
+## Kontakt, Lead, Prospect, Opportunity, Kunde: die Phasen im Überblick
+
+Das ist eine Definition zum Übernehmen. Jede Phase hat einen Test, den eine zweite Person im CRM durchführen kann, genau eine zuständige Rolle und einen klaren nächsten Schritt.
+
+| Phase | Bedeutung | Eintritt, wenn | Zuständig | Nächster Schritt |
+| --- | --- | --- | --- | --- |
+| Kontakt | Person oder Unternehmen, das Sie kennen und das passen könnte. Noch kein Interesse erkennbar. | Name, Erreichbarkeit und erfasste Quelle | Wer sie gefunden hat | Eignung gegen die Zielgruppe prüfen, dann ansprechen oder streichen |
+| Lead | Kontakt, der Interesse gezeigt oder geantwortet hat | Anfrage, Antwort, Empfehlung, Demo-Wunsch oder Gespräch auf einer Messe | Marketing oder wer zuerst antwortet | Antworten, dann qualifizieren |
+| MQL (optional) | Lead, den das Marketing nach vereinbarten Regeln für den Vertrieb reif hält | Passt zur Zielgruppe und hat eine vereinbarte Handlung ausgeführt, etwa nach Preisen gefragt | Marketing | An den Vertrieb übergeben, der ihn annimmt oder mit Grund zurückgibt |
+| Prospect (entspricht dem SQL) | Qualifizierter potenzieller Kunde | Die Antworten zur Qualifizierung liegen vor, und das Urteil lautet ja | Wer verkauft | Nächstes Gespräch vereinbaren, auf ein Angebot mit klarem Umfang hinarbeiten |
+| Opportunity | Konkrete mögliche Verkaufschance | Ein Deal mit Wert, Phase und erwartetem Entscheidungstermin existiert | Wer verkauft | Den Deal durch die Pipeline-Phasen führen |
+| Kunde | Person oder Unternehmen mit mindestens einem gewonnenen Deal | Der erste Deal ist gewonnen | Kundenbetreuung, im kleinen Team wer verkauft | Einführen, nachfragen, die nächste Opportunity suchen |
+
+Außerhalb der Tabelle gibt es zwei Ausgänge: **Aussortiert**, immer mit einem Grund aus einer festen Liste, und **Zurückgestellt**, mit einem Datum für die nächste Prüfung. Ein Team aus drei Personen ohne Marketingabteilung kann die MQL-Zeile streichen, weil jede Anfrage direkt bei der Person landet, die verkauft.
+
+Die Kriterien hinter „Antworten zur Qualifizierung liegen vor“ (Bedarf, Entscheider, Budgetrahmen, Zeitpunkt) stehen im Leitfaden zur [Leadqualifizierung mit BANT, CHAMP und MEDDIC](/blog/client-qualification). Wie die Phasen zu dem passen, was der Käufer erlebt, zeigt der Artikel zur [Customer Journey](/blog/customer-journey).
+
+## Warum definiert jedes Unternehmen Lead und Prospect anders?
+
+Weil die Begriffe aus Werkzeugen und Teams stammen, nicht aus einer Norm. Geprüft am 2. November 2026 anhand der in der Tabelle verlinkten Quellen (alle auf Englisch):
+
+| Quelle | Lead | Prospect | Opportunity |
+| --- | --- | --- | --- |
+| [HubSpot, Lebenszyklusphasen](https://knowledge.hubspot.com/records/use-lifecycle-stages) | Kontakt oder Unternehmen, das auf Ihrer Website oder durch eine andere Interaktion konvertiert hat | Keine eigene Phase; am nächsten kommt der Sales Qualified Lead, vom Vertrieb als potenzieller Kunde qualifiziert | Kontakt oder Unternehmen, das mit einem Deal verknüpft ist |
+| [Salesforce Trailhead](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) | Potenzieller Verkaufskontakt, der Interesse geäußert hat | Kommt innerhalb der Lead-Definition vor | Entsteht bei der Konvertierung eines Leads |
+| [Superhuman Prospecting, Glossar](https://superhumanprospecting.com/glossary/prospect/) | Wird zum Prospect, sobald er zum idealen Kundenprofil passt und die vereinbarten Kriterien erfüllt | Potenzieller Kunde, der zum idealen Kundenprofil passt | Ein Prospect mit klar erkennbarem Deal samt Umfang und Wert |
+
+Eine zweite Trennlinie verläuft zwischen Outbound und Inbound. Manche Outbound-Teams nennen ein recherchiertes Ziel schon Prospect, bevor es ein Wort gesagt hat, und reservieren „Lead“ für Personen, die geantwortet haben; Inbound-Teams verwenden „Lead“ meist für das erste Interessensignal und „Prospect“ für die qualifizierte Phase. Beides ist gebräuchlich. Fragen Sie deshalb bei Kolleginnen, Kollegen und Anbietern nach, was gemeint ist, bevor Sie Zahlen vergleichen.
+
+Entscheidend ist, dass Ihr Team eine Definition nutzt. Vier Gewohnheiten helfen:
+
+- **Ein Satz je Phase**, aufgeschrieben, wo das Team ihn findet.
+- **Ein Eintrittskriterium als Feldwert**, nicht als Gefühl: „Prospect heißt: Bedarf, Entscheider und Zeitpunkt sind ausgefüllt, und das Urteil lautet ja.“
+- **Eine zuständige Rolle je Phase**, damit kein Datensatz „allen“ gehört.
+- **Ein Grund bei jedem Ausscheiden**, aus einer festen Liste, damit Sie zählen können, woran Leads scheitern.
+
+## Woher bekomme ich Leads, und was heißt Leads generieren?
+
+Leads generieren bedeutet, Maßnahmen zu ergreifen, durch die Interessenten sich melden oder ihre Kontaktdaten hinterlassen, und sie danach zu bearbeiten. Woher Leads kommen, hängt von Ihrem Angebot ab. Die häufigsten Quellen für kleine B2B-Teams:
+
+| Quelle | Wie der Lead entsteht | Worauf Sie achten |
+| --- | --- | --- |
+| Empfehlungen | Eine Kundin oder ein Partner stellt Sie vor | Die Quelle am Kontakt festhalten, sie ist meist die beste |
+| Anfragen über Website oder E-Mail | Jemand schreibt Ihnen, ohne dass Sie angefragt haben | Schnell antworten; ein Formular-Tool oder ein n8n-Workflow kann Kontakte anlegen, Customermates hat keine eigenen Formulare |
+| LinkedIn | Antworten auf Nachrichten oder Beiträge | Nur Personen ansprechen, für die Ihr Angebot einen erkennbaren Bezug hat |
+| Messen und Veranstaltungen | Gespräche vor Ort | Die Kontaktdaten am selben Tag erfassen |
+| Telefon und E-Mail an eine recherchierte Liste | Sie sprechen Unternehmen an, die noch nichts von Ihnen wissen | Rechtliche Grenzen beachten, siehe unten |
+| Gekaufte Adresslisten | Ein Anbieter liefert Namen | Prüfen, ob die Einwilligung gerade für Ihre Werbung und Ihren Kanal vorliegt |
+
+Wie Sie aus einer solchen Quelle eine kurze, recherchierte Liste machen, zeigen die Leitfäden zu [Kaltakquise](/blog/cold-calling) und [Kundenakquise](/blog/customer-acquisition). Eine Liste von 30 gut gewählten Namen ist mehr wert als 300 aus einem Verzeichnis, weil jede Ansprache einen Grund braucht.
+
+## Sind Leads legal?
+
+Der Begriff ja, die Ansprache nicht immer. Ein Lead ist zunächst nur ein Interessent; rechtlich zählt, wie Sie ihn ansprechen und woher seine Daten stammen. Geprüft am 2. November 2026 anhand von [§ 7 UWG](https://www.gesetze-im-internet.de/uwg_2004/__7.html) und [§ 7a UWG](https://www.gesetze-im-internet.de/uwg_2004/__7a.html). Das ist keine Rechtsberatung; prüfen Sie Ihren Einzelfall.
+
+| Kanal | Was § 7 UWG verlangt |
+| --- | --- |
+| Werbeanruf bei Verbrauchern | Vorherige ausdrückliche Einwilligung (§ 7 Abs. 2 Nr. 1). Sie ist zu dokumentieren und fünf Jahre aufzubewahren (§ 7a) |
+| Werbeanruf bei Unternehmen | Zumindest mutmaßliche Einwilligung des angerufenen Marktteilnehmers (§ 7 Abs. 2 Nr. 1) |
+| Werbung per E-Mail oder anderer elektronischer Post | Vorherige ausdrückliche Einwilligung des Adressaten (§ 7 Abs. 2 Nr. 2), auch im B2B |
+| E-Mail an Bestandskunden | Ausnahme in § 7 Abs. 3: Adresse beim Verkauf erhalten, Werbung nur für eigene ähnliche Waren oder Dienstleistungen, kein Widerspruch, und bei Erhebung und jeder Verwendung ein klarer Hinweis auf das Widerspruchsrecht |
+
+Außerdem verlangt § 7 Abs. 2 Nr. 3 bei Werbenachrichten, dass der Absender erkennbar ist und eine gültige Adresse für den Widerspruch besteht. Für personenbezogene Daten gilt zusätzlich die Datenschutz-Grundverordnung; dazu gibt dieser Artikel keine Einzelheiten. Was „mutmaßliche Einwilligung“ im B2B konkret heißt und wie Sie Telefonakquise sauber vorbereiten, steht im Leitfaden zur [Kaltakquise](/blog/cold-calling).
+
+## Wie verfolgen Sie Lead und Prospect in Customermates?
+
+Customermates ist unser Produkt. Es hat keinen eigenen Lead- oder Prospect-Datensatz und keine automatische Umwandlung: Eine Person bleibt von der ersten Nachricht bis zum abgeschlossenen Deal ein Kontakt, und die Phase ist ein Feld, das Sie, Mate oder Ihr KI-Client ändern. Eine Opportunity ist ein Deal, der mit diesem Kontakt verknüpft ist.
+
+<Steps>
+  <Step title="Feld „Lebenszyklus“ am Kontakt anlegen">Öffnen Sie unter **Konfigurieren** die Kontakte, wählen Sie **Hinzufügen**, dann **Feld**, und legen Sie ein Feld vom Typ **Einzelauswahl** „Lebenszyklus“ an mit den Optionen Kontakt, Lead, Prospect, Kunde und Aussortiert. Ergänzen Sie ein zweites Einzelauswahlfeld „Quelle“ (Empfehlung, Website, LinkedIn, Messe, Outbound). Ein neuer Workspace startet ohne Listen; in Customermates Cloud kann die KI-Einrichtung die Kontaktliste für Sie anlegen.</Step>
+  <Step title="Die Liste auf das Board stellen">Wählen Sie unter **Darstellung** das **Board** und gruppieren Sie nach „Lebenszyklus“. Jede Phase wird eine Spalte; ziehen Sie eine Karte weiter, wenn sich die Phase ändert. Speichern Sie die Einstellung als Ansicht, etwa „Personen nach Phase“. Gespeicherte Ansichten sind persönlich, jede Kollegin legt ihre eigene an. Boards, Gruppierung und Ansichten beschreibt die [Anleitung zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Jedem Lead und Prospect einen nächsten Schritt geben">Eine Aufgabenliste bringt weder Fälligkeitsdatum noch Status mit. Legen Sie deshalb ein Feld vom Typ **Datum** „Fällig am“ und ein **Einzelauswahl**-Feld „Status“ (Offen, Erledigt) an und verknüpfen Sie jede Aufgabe mit ihrem Kontakt. Speichern Sie eine Ansicht der Aufgaben mit Status Offen, sortiert nach „Fällig am“, oder öffnen Sie sie als Kalender. Customermates hat keine Erinnerungen: Die Ansicht ist der Ort, an dem Sie jeden Morgen nachsehen. Mehr zu diesem Muster auf den Seiten zur [Aufgabenverwaltung](/features/task-management) und zum [Nachfassen](/features/follow-up).</Step>
+  <Step title="Einen Deal anlegen, wenn der Prospect Umfang und Wert hat">Legen Sie einen Deal an, verknüpfen Sie Kontakt und Organisation, und lassen Sie Phase und gewichteten Wert so arbeiten, wie die Seite zur [Pipeline](/features/pipeline) es beschreibt. Ist der Deal gewonnen, setzen Sie den Lebenszyklus des Kontakts auf Kunde.</Step>
+  <Step title="Die Phasen zählen">Fügen Sie dem Dashboard ein Balkendiagramm hinzu, das Kontakte nach „Lebenszyklus“ zählt. Es zeigt, wo die Personen jetzt stehen; die Konversion im Zeitverlauf erfasst es nicht.</Step>
+</Steps>
+
+So bewegt sich eine Person durch die Einrichtung:
+
+| Tag | Was passiert | Lebenszyklus | In Customermates |
+| --- | --- | --- | --- |
+| 1 | Sie finden Laura Weber, Inhaberin von Weber Haustechnik, in der Mitgliederliste eines Verbands | Kontakt | Kontakt angelegt, Quelle Outbound, Aufgabe „Eignung prüfen“ fällig an Tag 3 |
+| 3 | Sie passt zur Zielgruppe, Sie schicken eine kurze Nachricht | Kontakt | Aufgabe erledigt, neue Aufgabe „Nachfassen“ fällig an Tag 8 |
+| 6 | Sie antwortet und fragt nach Preisen | Lead | Lebenszyklus auf Lead, Aufgabe „Qualifizierungsgespräch“ fällig an Tag 7 |
+| 7 | Im Gespräch: Bedarf bestätigt, sie entscheidet, Budgetrahmen passt, Projekt im ersten Quartal | Prospect | Qualifizierungsfelder ausgefüllt, Lebenszyklus auf Prospect, Aufgabe „Angebot senden“ fällig an Tag 9 |
+| 9 | Sie senden ein Angebot mit klarem Umfang | Prospect | Deal angelegt, mit ihr und dem Unternehmen verknüpft: Das ist die Opportunity |
+| 21 | Sie unterschreibt | Kunde | Deal gewonnen, Lebenszyklus auf Kunde |
+
+Die Qualifizierungsfelder (Bedarf, Entscheider, Budget, Zeitpunkt) sind dieselben Einzelauswahlfelder wie im [Leitfaden zur Leadqualifizierung](/blog/client-qualification); das Modell von der Kontaktseite aus zeigt die Seite zum [Lead Management](/features/lead-management).
+
+In Customermates Cloud kann Mate, der gehostete Assistent, mit gehosteten KI-Credits die wöchentliche Durchsicht aus einem Satz übernehmen:
+
+> Zeig mir alle Kontakte mit Lebenszyklus Lead, die ich vor mehr als 14 Tagen angelegt habe und die keine offene Aufgabe haben. Ändere noch nichts.
+
+Mit Ihrem eigenen KI-Client wie Claude oder ChatGPT erreichen Sie dieselben Datensätze über den [MCP-Server](/blog/what-is-an-mcp-server), abgerechnet über Ihren KI-Anbieter. Eine selbst gehostete Installation hat kein Mate; Felder, Board, Aufgaben und MCP funktionieren gleich.
+
+<AcquisitionCallout title="Was Customermates hier nicht übernimmt" variant="boundary">
+  Kein Lead-Scoring, keine Datenanreicherung und keine Lead-Datenbank: Customermates findet keine Prospects und bewertet sie nicht für Sie. Keine Webformulare zur Lead-Erfassung (ein Formular-Tool, das Sie schon nutzen, kann Kontakte über die REST-API oder einen n8n-Workflow anlegen), keine automatische MQL-Übergabe und keine automatischen Phasenwechsel, keine E-Mail-Sequenzen und keine Erinnerungen. Wenn Sie jeden Monat Hunderte Web-Leads bearbeiten und Scores, Formulare und Verteilregeln brauchen, passt eine Marketing-Automation-Plattform oder eine größere CRM-Suite besser. Customermates passt zu einem kleinen Team, dessen Leads als Gespräche eintreffen und das Phase, nächsten Schritt und Verlauf an einem Datensatz sehen will.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Was ist ein Lead im Vertrieb?">
+Ein Lead ist eine Person oder ein Unternehmen, das Interesse an Ihrem Angebot gezeigt hat oder als möglicher Kunde erkannt wurde und dessen Eignung noch niemand geprüft hat. Er ist der Startpunkt einer Geschäftsbeziehung, noch kein Käufer.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Lead und Prospect?">
+Ein Lead hat Interesse gezeigt oder wurde erkannt, ist aber ungeprüft. Ein Prospect ist ein Lead, der Ihre Qualifizierung bestanden hat: Er passt zur Zielgruppe, hat einen Bedarf und kann kaufen. Der Lead ist ein erstes Signal, der Prospect die Entscheidung, Vertriebsaufwand zu investieren.
+</FaqItem>
+
+<FaqItem question="Was ist ein Prospect?">
+Ein möglicher künftiger Kunde, meist einer, der zu Ihrer Zielgruppe passt und qualifiziert wurde. Prospecting heißt, solche Personen oder Unternehmen zu finden und anzusprechen.
+</FaqItem>
+
+<FaqItem question="Ist ein Prospect dasselbe wie eine Opportunity?">
+Nein. Ein Prospect ist eine Person oder ein Unternehmen. Eine Opportunity ist eine konkrete Verkaufschance mit Umfang, Wert und erwartetem Entscheidungstermin. Ein Prospect kann noch keine oder über die Zeit mehrere Opportunities haben.
+</FaqItem>
+
+<FaqItem question="Was kommt zuerst, Lead oder Prospect?">
+In den Modellen von HubSpot und Salesforce kommt der Lead zuerst und danach die Opportunity. Wo „Prospect“ eine qualifizierte Phase benennt, steht sie dazwischen. Manche Outbound-Teams drehen die Wörter um und nennen ein recherchiertes Ziel schon vor der ersten Antwort Prospect. Legen Sie eine Reihenfolge fest und schreiben Sie sie auf.
+</FaqItem>
+
+<FaqItem question="Wie wird aus einem Lead ein Prospect?">
+Durch Qualifizierung. Stellen Sie die Fragen hinter Ihren Kriterien (Bedarf, Entscheider, Budgetrahmen, Zeitpunkt), halten Sie die Antworten in Feldern fest und entscheiden Sie. Fällt das Urteil positiv aus, wird der Lead zum Prospect. Sonst sortieren Sie ihn mit Grund aus oder stellen ihn mit Datum zurück.
+</FaqItem>
+
+<FaqItem question="Darf ich Leads kaufen und anrufen?">
+Das hängt von der Einwilligung ab, nicht vom Kauf. Werbeanrufe an Unternehmen brauchen zumindest eine mutmaßliche Einwilligung, Werbe-E-Mails eine ausdrückliche (§ 7 UWG). Prüfen Sie bei einer gekauften Liste, ob die Einwilligung gerade für Ihre Werbung und den Kanal vorliegt. Eine Rechtsberatung ersetzt das nicht.
+</FaqItem>
+
+<FaqItem question="Kann Customermates Leads bewerten oder Prospects finden?">
+Nein. Customermates hat kein Lead-Scoring, keine Datenanreicherung und keine Lead-Datenbank. Es verwaltet die Kontakte, Phasen, Aufgaben, Gespräche und Deals, die Sie eintragen, und Mate oder Ihr KI-Client helfen bei der Durchsicht.
+</FaqItem>
+</Faq>
+
+Begriffsdefinitionen und rechtliche Angaben geprüft am 2. November 2026 anhand von [§ 7 UWG](https://www.gesetze-im-internet.de/uwg_2004/__7.html), [§ 7a UWG](https://www.gesetze-im-internet.de/uwg_2004/__7a.html), der [HubSpot-Dokumentation zu Lebenszyklusphasen](https://knowledge.hubspot.com/records/use-lifecycle-stages), des [Salesforce-Trailhead-Moduls zu Leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) und des [Superhuman-Prospecting-Glossars](https://superhumanprospecting.com/glossary/prospect/).

@@ -1,0 +1,209 @@
+---
+title: "Qu’est-ce qu’un prospect ? Prospect vs lead expliqué"
+description: "Qu’est-ce qu’un prospect ? Définition, différence avec un lead et une opportunité, étapes du contact au client et suivi de chaque étape dans un CRM."
+
+relatedHrefs:
+  - /blog/client-qualification
+  - /blog/sales-pipeline
+  - /features/lead-management
+  - /blog/customer-acquisition
+
+hero:
+  title: "Qu’est-ce qu’un prospect ? Prospect vs lead, définition et étapes"
+  description: "Une réponse claire à la question du prospect et du lead, un jeu de définitions cohérent du contact au client avec le critère d’entrée, le responsable et la prochaine action de chaque étape, la façon de constituer une liste de prospects et un exemple de suivi dans un CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Prospect
+    - Lead
+    - Processus de vente
+---
+
+# Qu’est-ce qu’un prospect ? Prospect vs lead, définition et étapes
+
+Qu’est-ce qu’un prospect ? C’est une personne ou une entreprise susceptible de devenir cliente et qui ne l’est pas encore ; le Larousse parle de « toute personne ou firme, cliente potentielle d’une entreprise ». Dans le vocabulaire commercial, la différence entre prospect et lead tient en une question : quelqu’un a-t-il déjà vérifié ce contact par rapport à vos critères ? Le lead a montré de l’intérêt sans avoir été évalué ; le prospect est le lead qui a passé cette évaluation.
+
+Les deux mots sont souvent employés l’un pour l’autre, et deux équipes commerciales peuvent y mettre des sens différents. Ce guide propose un jeu de définitions cohérent pour le contact, le lead, le MQL, le prospect, l’opportunité et le client, avec le critère d’entrée, le responsable et la prochaine action de chaque étape. Customermates, le CRM open source qui publie ce guide, n’a ni scoring de leads ni enrichissement de données ; la dernière partie montre donc les étapes sous forme de champ, de board et de tâches que vous configurez vous-même.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Lead">A montré de l’intérêt ou a été repéré, et personne n’a encore vérifié l’adéquation.</SummaryItem>
+  <SummaryItem label="Prospect">Un lead qui a passé votre contrôle : il correspond à votre cible, a un besoin, et les points essentiels sont confirmés par la vente.</SummaryItem>
+  <SummaryItem label="Opportunité">Une affaire potentielle précise, avec un périmètre, une valeur et une date de décision attendue.</SummaryItem>
+  <SummaryItem label="La règle">Une définition par étape, avec un critère d’entrée qu’une autre personne peut vérifier dans le CRM.</SummaryItem>
+  <SummaryItem label="Dans Customermates">Un champ à choix unique sur le contact, un board par étape et des tâches pour les prochaines actions. Ni scoring ni enrichissement.</SummaryItem>
+</ArticleSummary>
+
+## Qu’est-ce qu’un prospect, et qu’est-ce qu’un lead ?
+
+Un **prospect** est un client potentiel. C’est le sens que donne le [Larousse](https://www.larousse.fr/dictionnaires/francais/prospect/64470), et le mot anglais a le même sens marketing dans le [Cambridge Dictionary](https://dictionary.cambridge.org/dictionary/english/prospect) : un futur client possible. En vente, on y ajoute un contrôle : la personne ou l’entreprise correspond au type de clients que vous servez et a un problème que vous savez résoudre.
+
+Un **lead** vient avant. C’est une personne ou une entreprise qui a montré de l’intérêt pour ce que vous vendez, par exemple en envoyant une demande, en répondant à votre message, en demandant une démonstration ou en arrivant par recommandation, et que personne n’a encore évaluée. Salesforce décrit le lead de la même façon : un prospect potentiel, personne ou entreprise, qui a exprimé de l’intérêt pour un produit ou un service.
+
+Quelques précisions de vocabulaire. En français courant, « prospect » désigne souvent tout client potentiel, qualifié ou non ; dans ce guide, nous le réservons au contact qui a passé le contrôle, pour que les mots distinguent deux situations. On parle aussi de prospect froid, tiède ou chaud : ces mots décrivent la température de l’intérêt, pas une étape de votre cycle. Certaines équipes appellent « suspect » un contact repéré mais pas encore approché. Et la prospection est l’activité qui consiste à chercher ces personnes et à les aborder.
+
+| | Lead | Prospect |
+| --- | --- | --- |
+| Ce que c’est | Un contact qui a montré de l’intérêt ou qui a été repéré | Un lead qui a passé votre qualification |
+| Ce que vous savez | Un nom, un moyen de le joindre, en général la source et la demande | Besoin, décideur, budget approximatif et échéance, ou les raisons pour lesquelles une information manque |
+| Qui le traite | La première personne qui répond | La personne qui vend |
+| Objectif | Répondre et vérifier l’adéquation | Convenir d’une proposition au périmètre clair |
+| En cas d’échec | Disqualifier avec un motif, ou mettre en attente avec une date | Mettre en attente avec une date, ou perdre |
+
+## Quelle différence entre un lead et une opportunité ?
+
+Un lead est une personne ou une entreprise. Une opportunité est une affaire potentielle précise : il y a quelque chose à vendre, une valeur et une date de décision attendue. Un client peut avoir plusieurs opportunités au fil des années, et beaucoup de leads n’en produisent jamais.
+
+La conversion d’un lead dans Salesforce montre l’ordre. D’après son [module Trailhead sur les leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) (en anglais), convertir un lead crée, à partir de la fiche du lead, un compte entreprise, un contact et une opportunité. Le lead est donc toujours le point de départ. Les étapes que l’opportunité traverse ensuite sont décrites dans le guide du [pipeline commercial](/blog/sales-pipeline).
+
+## Contact, lead, prospect, opportunité, client : quelles sont les étapes ?
+
+Voici un jeu de définitions à reprendre. Chaque étape a un test qu’une autre personne peut exécuter dans votre CRM, un seul responsable et une prochaine action évidente.
+
+| Étape | Ce que cela signifie | Elle commence quand | Responsable | Prochaine action |
+| --- | --- | --- | --- | --- |
+| Contact | Personne ou entreprise que vous connaissez et qui pourrait convenir. Aucun signe d’intérêt pour l’instant. | Un nom, un moyen de la joindre et une source notée | Qui l’a trouvée | Vérifier l’adéquation avec la cible, puis la contacter ou l’écarter |
+| Lead | Contact qui a montré de l’intérêt ou répondu | Une demande, une réponse, une recommandation, une demande de démo ou une conversation lors d’un salon | Le marketing, ou la première personne qui répond | Répondre, puis qualifier |
+| MQL (facultatif) | Lead que le marketing juge prêt pour la vente, selon des règles convenues | Il correspond à la cible et a fait une action convenue, comme demander les tarifs | Le marketing | Transmettre à la vente, qui l’accepte ou le renvoie avec un motif |
+| Prospect (même point de contrôle que le SQL) | Client potentiel qualifié | Les réponses de qualification sont là et le verdict est oui | La personne qui vend | Fixer le prochain échange et viser une proposition au périmètre clair |
+| Opportunité | Affaire potentielle précise | Une affaire existe avec une valeur, une étape et une date de décision attendue | La personne qui vend | Faire avancer l’affaire dans les étapes du pipeline |
+| Client | Personne ou entreprise avec au moins une affaire gagnée | La première affaire est gagnée | La gestion de compte, ou la personne qui vend dans une petite équipe | Accompagner le démarrage, prendre des nouvelles, chercher la prochaine opportunité |
+
+Deux sorties restent hors du tableau : **Disqualifié**, toujours avec un motif choisi dans une liste fixe, et **En attente**, avec une date de réexamen. Une équipe de trois personnes sans service marketing peut supprimer la ligne MQL, puisque chaque demande arrive directement chez la personne qui vend.
+
+Les critères derrière « les réponses de qualification sont là » (besoin, décideur, budget, échéance) sont détaillés dans le guide de la [qualification des leads avec BANT, CHAMP et MEDDIC](/blog/client-qualification). Pour relier ces étapes à ce que vit l’acheteur, voyez l’article sur le [parcours client](/blog/customer-journey).
+
+## Pourquoi chaque entreprise définit-elle ces termes différemment ?
+
+Parce que les mots viennent des outils et des équipes, pas d’une norme. Vérifié le 2 novembre 2026 sur les sources liées dans le tableau (toutes en anglais) :
+
+| Source | Lead | Prospect | Opportunité |
+| --- | --- | --- | --- |
+| [HubSpot, étapes du cycle de vie](https://knowledge.hubspot.com/records/use-lifecycle-stages) | Contact ou entreprise qui a converti sur votre site ou par une autre interaction | Pas d’étape propre ; la plus proche est le lead qualifié par la vente (SQL), jugé client potentiel | Contact ou entreprise associé à une affaire |
+| [Salesforce Trailhead](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) | Un prospect potentiel qui a exprimé de l’intérêt | Employé dans la définition même du lead | Créée lors de la conversion d’un lead |
+| [Glossaire Superhuman Prospecting](https://superhumanprospecting.com/glossary/prospect/) | Devient un prospect quand il correspond au profil client idéal et remplit les critères convenus | Client potentiel qui correspond au profil client idéal | Un prospect avec une affaire clairement identifiée, avec périmètre et valeur |
+
+Une seconde ligne de partage sépare la prospection sortante de l’entrante. Certaines équipes sortantes appellent prospect une cible étudiée avant qu’elle ait dit un mot et réservent « lead » à ceux qui ont répondu ; les équipes entrantes emploient en général « lead » pour le premier signe d’intérêt et « prospect » pour l’étape qualifiée. Les deux usages existent : demandez ce que veut dire un collègue ou un éditeur avant de comparer des chiffres.
+
+L’essentiel est que votre équipe n’utilise qu’un jeu de définitions. Quatre habitudes y aident :
+
+- **Une phrase par étape**, écrite là où l’équipe la trouve.
+- **Un critère d’entrée qui est une valeur de champ**, pas une impression : « Prospect signifie que Besoin, Décideur et Échéance sont remplis et que le verdict est oui. »
+- **Un responsable par étape**, pour qu’aucune fiche n’appartienne à « tout le monde ».
+- **Un motif à chaque sortie**, choisi dans une liste fixe, pour pouvoir compter pourquoi les leads échouent.
+
+## Comment qualifier un prospect ?
+
+Utilisez quatre tests et ne parlez de prospect que lorsqu’un lead les passe tous :
+
+1. **Adéquation.** Il correspond à votre cible : le type d’entreprise, la taille, la région et la fonction que vous visez.
+2. **Besoin.** Il y a un problème que vous savez résoudre, formulé par la personne elle-même et pas seulement supposé.
+3. **Capacité d’achat.** Vous savez qui décide et le budget approximatif est réaliste.
+4. **Échéance.** Il existe une raison d’agir sur une période qui vous convient, ou une date de réexamen.
+
+Tout ce qui échoue à un test reste lead, passe En attente avec une date, ou est disqualifié avec un motif. Gardez ces tests au même endroit et appliquez-les dans le même ordre à chaque fois. Le guide de qualification cité plus haut donne les questions qui permettent de les remplir.
+
+## Comment constituer une liste de prospects ?
+
+Une liste de prospects est une liste courte et étudiée d’entreprises et de personnes qui correspondent à votre cible. Trente noms bien choisis valent mieux que trois cents pris dans un annuaire, parce que chaque prise de contact a besoin d’une raison.
+
+1. **Écrivez le profil cible.** Trois à cinq critères : secteur, taille, région, fonction visée et un déclencheur comme un recrutement ou un nouveau site.
+2. **Choisissez les sources.** Recommandations de clients, entreprises qui ressemblent à vos meilleurs clients, recherches LinkedIn, salons, associations professionnelles, annuaires et vos anciennes demandes.
+3. **Gardez des colonnes fixes.** Les mêmes pour toutes les personnes qui modifient la liste (voir le tableau ci-dessous).
+4. **Qualifiez avant d’investir du temps.** Les noms non vérifiés restent des contacts. Seuls ceux qui passent vos tests deviennent des prospects.
+5. **Vérifiez les règles de contact.** Elles diffèrent selon le pays et selon qu’il s’agit de particuliers ou d’entreprises. Le guide de la [prospection téléphonique](/blog/cold-calling) détaille les règles d’appel pour les États-Unis, le Royaume-Uni, l’Allemagne et la France, et celui de la [prospection commerciale](/blog/customer-acquisition) couvre les règles pour l’e-mail.
+
+Colonnes proposées pour l’étape 3 :
+
+| Colonne | Pourquoi elle compte |
+| --- | --- |
+| Entreprise, personne et fonction | Nommez la personne visée, pas seulement le service |
+| Source | On ne juge pas un canal dont on n’a pas noté l’origine |
+| Raison de la prise de contact | Le déclencheur, qui devient votre accroche |
+| Étape | Contact tant que personne n’a répondu ni été qualifié |
+| Prochaine action et date | Ce qui se passe ensuite, et quand |
+
+## Peut-on contacter un prospect B2B sans son accord ?
+
+Souvent oui, à des conditions précises. Vérifié le 2 novembre 2026 sur les fiches de la [CNIL sur la prospection par téléphone](https://www.cnil.fr/fr/prospection-commerciale-par-telephone-hors-automate-dappel-quelles-sont-les-regles) et de la [CNIL sur la prospection par courrier électronique](https://www.cnil.fr/fr/la-prospection-commerciale-par-courrier-electronique-sms-mms-et-automate-dappel). Ce résumé n’est pas un conseil juridique.
+
+- **Entre professionnels**, la prospection peut reposer sur l’intérêt légitime lorsque la sollicitation est en rapport avec la profession de la personne démarchée. La personne doit avoir été informée que son numéro ou son adresse peut servir à la prospection et pouvoir s’y opposer simplement.
+- **Vers les particuliers**, la CNIL indique qu’un appel de prospection exige le consentement préalable, sauf cas particuliers comme un contrat en cours.
+
+Comment traiter une opposition et préparer une campagne d’appels, le guide de la [prospection téléphonique](/blog/cold-calling) l’explique.
+
+## Comment suivre ces étapes dans Customermates ?
+
+Customermates est notre produit. Il n’a ni fiche lead ou prospect distincte ni conversion automatique : une personne reste une même fiche contact du premier message à l’affaire signée, et l’étape est un champ que vous, Mate ou votre client IA modifiez. Une opportunité est une affaire liée à ce contact.
+
+<Steps>
+  <Step title="Ajoutez un champ Cycle de vie aux contacts">Dans **Configurer**, ouvrez Contacts, choisissez **Ajouter**, puis **Champ**, et créez un champ **Choix unique** « Cycle de vie » avec les options Contact, Lead, Prospect, Client et Disqualifié. Ajoutez un second champ à choix unique « Source » (Recommandation, Site web, LinkedIn, Évènement, Prospection sortante). Un nouvel espace de travail démarre sans listes ; sur Customermates Cloud, la configuration IA peut créer la liste de contacts pour vous.</Step>
+  <Step title="Passez la liste en board">Dans **Apparence**, choisissez **Board** et regroupez par « Cycle de vie ». Chaque étape devient une colonne ; faites glisser une carte quand l’étape change. Enregistrez la configuration comme vue, par exemple « Personnes par étape ». Les vues enregistrées sont personnelles : chaque collègue enregistre les siennes. Le [guide des enregistrements](/docs/app-records) décrit les boards, le regroupement et les vues.</Step>
+  <Step title="Donnez une prochaine action à chaque lead et prospect">Une liste de tâches n’a ni échéance ni statut en standard. Ajoutez un champ **Date** « Échéance » et un champ **Choix unique** « Statut » (Ouverte, Terminée), et liez chaque tâche à son contact. Enregistrez une vue des tâches avec Statut Ouverte, triée par « Échéance », ou affichez-la en calendrier. Customermates n’a pas de rappels : la vue est l’endroit où vous regardez chaque matin. Plus sur ce principe dans les pages sur la [gestion des tâches](/features/task-management) et le [suivi des relances](/features/follow-up).</Step>
+  <Step title="Ouvrez une affaire quand le prospect a un périmètre et une valeur">Créez une affaire, liez le contact et l’organisation, et laissez l’étape et la valeur pondérée fonctionner comme le décrit la page sur le [pipeline](/features/pipeline). Quand l’affaire est gagnée, passez le cycle de vie du contact à Client.</Step>
+  <Step title="Comptez les étapes">Ajoutez au tableau de bord un widget en diagramme en barres qui compte les contacts par « Cycle de vie ». Il montre où en sont les personnes aujourd’hui ; il ne suit pas la conversion dans le temps.</Step>
+</Steps>
+
+Voici le parcours d’une personne dans cette configuration :
+
+| Jour | Ce qui se passe | Cycle de vie | Dans Customermates |
+| --- | --- | --- | --- |
+| 1 | Vous repérez Laura Weber, gérante de Weber Haustechnik, dans l’annuaire des membres d’une association | Contact | Contact créé, Source Prospection sortante, tâche « Vérifier l’adéquation » pour le jour 3 |
+| 3 | Elle correspond à votre cible, vous lui envoyez un court message | Contact | Tâche terminée, nouvelle tâche « Relancer » pour le jour 8 |
+| 6 | Elle répond et demande les tarifs | Lead | Cycle de vie passé à Lead, tâche « Appel de qualification » pour le jour 7 |
+| 7 | À l’appel : besoin confirmé, elle décide, le budget convient, projet au premier trimestre | Prospect | Champs de qualification remplis, cycle de vie passé à Prospect, tâche « Envoyer la proposition » pour le jour 9 |
+| 9 | Vous envoyez une proposition au périmètre défini | Prospect | Affaire créée, liée à elle et à l’entreprise : c’est l’opportunité |
+| 21 | Elle signe | Client | Affaire gagnée, cycle de vie passé à Client |
+
+Les champs de qualification (besoin, décideur, budget, échéance) sont les mêmes champs à choix unique que dans le [guide de qualification des leads](/blog/client-qualification) ; la page sur la [gestion des leads](/features/lead-management) montre le modèle côté contact.
+
+Sur Customermates Cloud, Mate, l’assistant hébergé, utilise des crédits d’IA hébergée et peut faire la revue hebdomadaire à partir d’une phrase :
+
+> Montre-moi tous les contacts au cycle de vie Lead que j’ai créés il y a plus de 14 jours et qui n’ont aucune tâche ouverte. Ne modifie rien pour l’instant.
+
+Avec votre propre client IA, comme Claude ou ChatGPT, le [serveur MCP](/blog/what-is-an-mcp-server) donne accès aux mêmes fiches, facturé par votre fournisseur d’IA. Une installation auto-hébergée n’a pas de Mate ; les champs, le board, les tâches et MCP fonctionnent de la même façon.
+
+<AcquisitionCallout title="Ce que Customermates ne fait pas ici" variant="boundary">
+  Pas de scoring de leads, pas d’enrichissement de données ni de base de leads : Customermates ne trouve pas de prospects et ne les note pas à votre place. Pas de formulaires web pour capter des leads (un outil de formulaires que vous utilisez déjà peut créer des contacts via l’API REST ou un workflow n8n), pas de transmission MQL automatique ni de changement d’étape automatique, pas de séquences d’e-mails et pas de rappels. Si vous traitez des centaines de leads web par mois et avez besoin de scores, de formulaires et de règles de répartition, une plateforme d’automatisation marketing ou une suite CRM plus large convient mieux. Customermates convient à une petite équipe dont les leads arrivent sous forme de conversations et qui veut voir l’étape, la prochaine action et l’historique sur une seule fiche.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Quelle est la différence entre un prospect et un lead ?">
+Un lead a montré de l’intérêt ou a été repéré, mais n’est pas vérifié. Un prospect est un lead qui a passé votre qualification : il correspond à la cible, a un besoin et peut acheter. Le lead est un premier signal ; le prospect est la décision d’investir du temps de vente.
+</FaqItem>
+
+<FaqItem question="Quelle est la définition d’un prospect en vente ?">
+Un client potentiel, en général un contact qui correspond à votre cible et a été qualifié. La prospection est l’activité qui consiste à trouver et à aborder ces personnes ou ces entreprises.
+</FaqItem>
+
+<FaqItem question="Comment dire prospect en anglais ?">
+Le mot « prospect » existe en anglais avec le même sens commercial. On dit aussi « potential customer » ou « potential client ». Selon les équipes anglophones, « lead » désigne un contact non qualifié et « prospect » un contact qualifié, ou l’inverse.
+</FaqItem>
+
+<FaqItem question="Quel est le synonyme de prospect ?">
+Client potentiel, futur client possible ou cible commerciale. Selon le niveau d’intérêt, on parle de prospect froid, tiède ou chaud, mais ces mots ne remplacent pas une étape de cycle de vie définie dans votre CRM.
+</FaqItem>
+
+<FaqItem question="Un prospect est-il la même chose qu’une opportunité ?">
+Non. Un prospect est une personne ou une entreprise. Une opportunité est une affaire potentielle précise, avec un périmètre, une valeur et une date de décision attendue. Un prospect peut ne pas avoir encore d’opportunité, ou en avoir plusieurs au fil du temps.
+</FaqItem>
+
+<FaqItem question="Qu’est-ce qui vient en premier, le lead ou le prospect ?">
+Dans les modèles de HubSpot et de Salesforce, le lead vient en premier, puis l’opportunité. Là où « prospect » désigne une étape qualifiée, il se place entre les deux. Certaines équipes sortantes inversent les mots et appellent prospect une cible étudiée avant toute réponse. Choisissez un ordre et écrivez-le.
+</FaqItem>
+
+<FaqItem question="Comment transformer un lead en prospect ?">
+En le qualifiant. Posez les questions derrière vos critères (besoin, décideur, budget, échéance), notez les réponses dans des champs et décidez. Si le verdict est positif, le lead devient prospect. Sinon, disqualifiez-le avec un motif ou mettez-le en attente avec une date.
+</FaqItem>
+
+<FaqItem question="Customermates peut-il noter les leads ou trouver des prospects ?">
+Non. Customermates n’a ni scoring de leads, ni enrichissement de données, ni base de leads. Il garde les contacts, les étapes, les tâches, les conversations et les affaires que vous saisissez, et Mate ou votre client IA aident à les passer en revue.
+</FaqItem>
+</Faq>
+
+Définitions et informations juridiques vérifiées le 2 novembre 2026 sur le [Larousse](https://www.larousse.fr/dictionnaires/francais/prospect/64470), le [Cambridge Dictionary](https://dictionary.cambridge.org/dictionary/english/prospect), la [documentation HubSpot sur les étapes du cycle de vie](https://knowledge.hubspot.com/records/use-lifecycle-stages), le [module Salesforce Trailhead sur les leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning), le [glossaire Superhuman Prospecting](https://superhumanprospecting.com/glossary/prospect/) et les fiches de la [CNIL sur la prospection par téléphone](https://www.cnil.fr/fr/prospection-commerciale-par-telephone-hors-automate-dappel-quelles-sont-les-regles) et [par courrier électronique](https://www.cnil.fr/fr/la-prospection-commerciale-par-courrier-electronique-sms-mms-et-automate-dappel).
