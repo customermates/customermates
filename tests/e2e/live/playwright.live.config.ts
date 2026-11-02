@@ -1,10 +1,10 @@
-import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "@playwright/test";
 
 import base from "../../../playwright.config";
 
-const evidenceDirectory = resolve(__dirname, "../../../.runs/e2e", process.env.CRM_E2E_RUN_ID!);
+const evidenceDirectory = fileURLToPath(new URL(`../../../.runs/e2e/${process.env.CRM_E2E_RUN_ID}/`, import.meta.url));
 
 // Live provider checks: real Unipile sends between the two designated test inboxes only. Started by
 // scripts/verify/live-checks.mjs, never by the ordinary suite (its files end in .live.ts, not .spec.ts). No retries:
