@@ -5,6 +5,7 @@ Copyright (c) 2026-present Benjamin Wagner, doing business as Customermates.
 This repository uses an open-core licensing model. First-party material is licensed according to its source path:
 
 - Files outside `ee/` are licensed under the GNU Affero General Public License version 3 only ("AGPL-3.0-only"), reproduced in `LICENSE`.
+- The folder `plugins/cursor/` is the one folder outside `ee/` licensed under the MIT License in `plugins/cursor/LICENSE`; all other files outside `ee/` stay licensed under AGPL-3.0-only.
 - Files in `ee/` are licensed under the Customermates Commercial License in `ee/LICENSE.md`, except to the extent that `ee/LICENSE.md` expressly identifies material licensed under AGPL-3.0-only.
 - Third-party components remain subject to the licenses supplied by their respective copyright holders.
 - Compiled and object-code artifacts remain subject to the license or licenses applicable to the source from which they are generated.
