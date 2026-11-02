@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { MessagingProvider } from "@/generated/prisma";
 
-import { emailSendCopyHashes, syncedEmailCopyHash } from "../draft-send-copy";
+import { emailSendContentHash, emailSendCopyHashes, syncedEmailCopyHash } from "../draft-send-copy";
 import { buildEmailMessage } from "../unipile.mappers";
 import { UnipileEmailSchema } from "../unipile.schema";
 
@@ -43,6 +43,14 @@ function syncedCopy(over: Record<string, unknown> = {}) {
 }
 
 describe("draft send copy matching", () => {
+  it("distinguishes keeping a draft's files from explicitly removing them in a repeated send", () => {
+    const input = { to: [RECIPIENT], subject: "Invoice", body: "Please review" };
+    expect(emailSendContentHash(input)).not.toBe(emailSendContentHash({ ...input, fileIds: [] }));
+    expect(emailSendContentHash({ ...input, fileIds: ["file-1"] })).not.toBe(
+      emailSendContentHash({ ...input, fileIds: [] }),
+    );
+  });
+
   it("recognises the synced sent copy of an email despite markup, case and line breaks", () => {
     expect(emailSendCopyHashes(sent)).toContain(syncedCopy());
   });

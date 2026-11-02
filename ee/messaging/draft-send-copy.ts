@@ -74,7 +74,7 @@ export function emailSendContentHash(content: {
     content.subject,
     content.body,
     attachmentDigests(content.attachments),
-    ...(content.fileIds?.length ? [[...new Set(content.fileIds)].sort()] : []),
+    ...(content.fileIds !== undefined ? [[...new Set(content.fileIds)].sort()] : []),
   ]);
 }
 
