@@ -16,7 +16,18 @@ const protectedPages = filesUnder(protectedRoot)
   .map((path) => path.slice(protectedRoot.length + 1))
   .filter((path) => !path.startsWith("w/[workspace]/test/"))
   .sort();
-const protectedLoaders = protectedPages.map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
+// An entry page that only resolves where to go and redirects renders nothing a loader could stand in
+// for. Its loader would commit a 200 with a "Loading page" shell before redirect() runs, so the redirect
+// reaches the browser as a client navigation or a meta refresh instead of a 307: a visitor whose
+// JavaScript is slow, blocked or failing stays on that shell. The public demo lands on /dashboard.
+const redirectOnlyPages = [
+  "dashboard/page.tsx",
+  "open/[area]/[preset]/page.tsx",
+  "open/[area]/[preset]/[recordId]/page.tsx",
+] as const;
+const protectedLoaders = protectedPages
+  .filter((page) => !(redirectOnlyPages as readonly string[]).includes(page))
+  .map((page) => join(protectedRoot, dirname(page), "loading.tsx"));
 
 const collectionViews = [
   "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/records-page-view.tsx",
@@ -66,6 +77,15 @@ describe("page-state ownership", () => {
       expect(source, path).toMatch(/PageState|EntityDetailRouteLoading/);
       expect(source, path).toMatch(/Skeleton|EntityDetailRouteLoading/);
       expect(source, path).not.toMatch(/\bfixed\b|\binset-0\b|z-\d+/);
+    }
+  });
+
+  it("lets redirect-only entry pages answer with a real redirect", () => {
+    for (const page of redirectOnlyPages) {
+      const source = read(join(protectedRoot, page));
+      expect(source, page).toMatch(/\bredirect\(/);
+      expect(source, page).not.toMatch(/return\s*\(?\s*</);
+      expect(existsSync(resolve(root, protectedRoot, dirname(page), "loading.tsx")), `${page}:loading`).toBe(false);
     }
   });
 
