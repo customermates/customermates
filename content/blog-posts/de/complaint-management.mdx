@@ -1,0 +1,185 @@
+---
+title: "Beschwerdemanagement: Prozess, Schritte und Umsetzung im CRM"
+description: "Beschwerdemanagement erklärt: 7 Prozessschritte, Tabelle für Zuständigkeit und Eskalation, Beschwerde vs. Reklamation und CRM-Umsetzung mit Grenzen."
+
+relatedHrefs:
+  - /blog/customer-interaction-management
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/customer-journey
+
+hero:
+  title: "Beschwerdemanagement: Prozess, Zuständigkeiten und wie Sie Kundenbeschwerden im CRM verfolgen"
+  description: "Wie Sie Kundenbeschwerden so bearbeiten, dass keine verloren geht: die sieben Schritte vom Eingang bis zur Auswertung, wer was verantwortet und wann eskaliert wird, wie sich eine Beschwerde von einer Reklamation unterscheidet, und ein Beispiel, wie ein kleines Team Beschwerden in Customermates erfasst, samt Grenzen."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Beschwerdemanagement
+    - Kundenservice
+    - Kundenerlebnis
+---
+
+# Beschwerdemanagement: Prozess, Zuständigkeiten und wie Sie Kundenbeschwerden im CRM verfolgen
+
+Beschwerdemanagement ist der geregelte Umgang mit Kundenbeschwerden: Jede Beschwerde wird aufgenommen, bestätigt, geklärt, gelöst und nachverfolgt, und aus allen Fällen zusammen lernt das Unternehmen, was es ändern muss. Ein kleines Team kann das in einem CRM wie Customermates abbilden, indem es Beschwerden in einer eigenen Liste am Kunden führt; Customermates ist aber kein Helpdesk und kein System für regulierte Beschwerdeverfahren.
+
+Dieser Leitfaden erklärt, was man im Beschwerdemanagement macht, wie sich Beschwerde und Reklamation unterscheiden, wie Sie Kundenbeschwerden mit einer Tabelle für Einstufung, Zuständigkeit und Eskalation sortieren, welche sieben Schritte der Prozess hat, zehn Regeln für die Antwort und ein Beispiel für die Erfassung in Customermates, mit den Grenzen direkt daneben.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Definition">Ein festgelegter Weg, Kundenbeschwerden anzunehmen, zu erfassen, zu lösen und auszuwerten, mit genau einer zuständigen Person pro Fall.</SummaryItem>
+  <SummaryItem label="Prozess">Annehmen, erfassen, bestätigen, prüfen, lösen, nachfassen, auswerten. Fünfstufige Modelle fassen einzelne Schritte zusammen.</SummaryItem>
+  <SummaryItem label="Beschwerde oder Reklamation">Eine Beschwerde äußert Unzufriedenheit. Eine Reklamation zeigt einen Mangel an und verlangt Nacherfüllung; dann können die gesetzlichen Gewährleistungsregeln greifen.</SummaryItem>
+  <SummaryItem label="Einstufung">Jede Beschwerde bekommt Art, Dringlichkeit, eine zuständige Person, eine selbst festgelegte Antwortzeit und einen Eskalationsweg.</SummaryItem>
+  <SummaryItem label="In Customermates">Eine Liste „Beschwerden“ am Kunden, ein Status-Board, Aufgaben mit Zieldatum und die Konversationen am Kundendatensatz.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Kein Helpdesk, keine Ticket-SLA-Steuerung, kein Kundenportal, keine Telefonie, keine ISO-10002-Zertifizierung.</SummaryItem>
+</ArticleSummary>
+
+## Was macht man im Beschwerdemanagement?
+
+Im Beschwerdemanagement kümmert man sich um alles zwischen dem Moment, in dem ein Kunde sagt, dass etwas schiefgelaufen ist, und dem Moment, in dem die Ursache behoben ist: Beschwerden über jeden Kanal annehmen, an einer Stelle erfassen, beantworten, die Ursache klären, den Fall lösen, beim Kunden nachfragen und aus den Fällen lernen, damit der nächste Kunde nicht auf dasselbe Problem trifft. Zwei Aufgaben laufen nebeneinander. Die eine löst den Einzelfall. Die andere wertet alle Fälle zusammen aus.
+
+Ein Beschwerdemanagementsystem ist alles, was diesen Ablauf zusammenhält: eine gemeinsame Tabelle, eine Liste im CRM, ein Helpdesk mit Ticket-Warteschlangen oder in regulierten Branchen eine spezialisierte Software mit Nachweisen. Entscheidend ist, dass jede Beschwerde einen Datensatz, eine zuständige Person, einen Status und einen Abschluss hat. Vom Kundenservice unterscheidet sich das Beschwerdemanagement so: Der Service beantwortet Fragen und Anliegen, das Beschwerdemanagement ist der festgelegte Weg für geäußerte Unzufriedenheit.
+
+Als Synonym für Beschwerdemanagement steht oft „Reklamationsmanagement“. Genau genommen ist die Reklamation ein Sonderfall der Beschwerde, wie der nächste Abschnitt zeigt. Verwandte Begriffe sind Beschwerdebearbeitung und Reklamationsbearbeitung.
+
+Eine Norm gibt es auch: [ISO 10002:2018](https://www.iso.org/standard/71580.html) enthält Leitlinien für den Umgang mit Beschwerden in Organisationen jeder Größe, gedacht als ein Prozess innerhalb eines Qualitätsmanagementsystems. Dieser Leitfaden stützt sich nicht darauf und erhebt keinen Anspruch auf Konformität.
+
+## Was ist der Unterschied zwischen Beschwerde und Reklamation?
+
+Im Alltag werden beide Wörter oft gleich verwendet. Der Unterschied zählt, sobald der Kunde einen Mangel behoben haben möchte, denn eine Reklamation kann rechtliche Folgen und Fristen haben, eine Beschwerde in der Regel nicht.
+
+| | Beschwerde | Reklamation |
+| --- | --- | --- |
+| Was der Kunde sagt | „Ich bin damit unzufrieden.“ | „Das ist mangelhaft, bitte beheben Sie das.“ |
+| Was der Kunde möchte | Eine Antwort, eine Erklärung, eine Entschuldigung, eine Änderung | Eine bestimmte Abhilfe: Nacherfüllung, Minderung, Rücktritt, Erstattung |
+| Rechtliche Seite | Meist keine | Die gesetzlichen Gewährleistungsregeln können greifen |
+| Was Sie erfassen | Datum, Kanal, Worte des Kunden, Ergebnis | Dasselbe, dazu Lieferdatum, Datum der Anzeige, Bestell- oder Rechnungsnummer und die verlangte Abhilfe |
+
+Das Gesetz kennt vor allem den Mangel. Ist eine gekaufte Sache mangelhaft, kann der Käufer nach [§ 437 BGB](https://www.gesetze-im-internet.de/bgb/__437.html) unter den Voraussetzungen der folgenden Vorschriften Nacherfüllung verlangen, vom Vertrag zurücktreten oder den Kaufpreis mindern und Schadensersatz verlangen. Die Gewährleistungsansprüche verjähren nach [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) im Regelfall in zwei Jahren; bei Bauwerken und in einigen anderen Fällen gelten andere Fristen. Ist der Kauf für beide Seiten ein Handelsgeschäft, muss der Käufer die Ware nach [§ 377 HGB](https://www.gesetze-im-internet.de/hgb/__377.html) unverzüglich untersuchen und Mängel unverzüglich anzeigen. Das gilt je nach Land, Vertrag und Kundengruppe (Verbraucher oder Unternehmen) unterschiedlich und ist keine Rechtsberatung.
+
+Wer „Reklamationsmanagement“ sucht, meint meist diesen Teil: Mängelanzeigen von Kunden erfassen, prüfen und den vereinbarten Weg abwickeln. Für Ihren Prozess heißt das praktisch: Führen Sie beides in derselben Liste mit einem Feld „Art“, behandeln Sie Reklamationen aber als zeitkritisch und halten Sie jedes Datum fest, denn Fristen können daran hängen.
+
+## Wie ordnen Sie Kundenbeschwerden ein und legen Zuständigkeiten fest?
+
+Die Einstufung sortiert Beschwerden nach Art und Dringlichkeit, damit die richtige Person in der richtigen Geschwindigkeit antwortet. Legen Sie die Tabelle einmal an, teilen Sie sie im Team und ändern Sie sie, wenn echte Fälle zeigen, wo sie nicht stimmt. Jede Beschwerde braucht genau eine zuständige Person, auch wenn mehrere mithelfen.
+
+| Art der Beschwerde | Dringlichkeit | Zuständig | Erste Antwort (legen Sie selbst fest) | Eskalation | Abschlusskriterium |
+| --- | --- | --- | --- | --- | --- |
+| Mangel oder Reklamation | Hoch | Kundenbetreuung, mit der Person, die die Leistung erbracht hat | Beispiel: am selben Werktag | An die Geschäftsführung, wenn die zweite Nachbesserung scheitert oder der Kunde Kündigung oder rechtliche Schritte erwähnt | Der Kunde bestätigt die Lösung, oder die vereinbarte Abhilfe ist geliefert |
+| Verspätete oder ausgebliebene Lieferung | Normal, hoch, wenn ein Termin des Kunden daran hängt | Projekt- oder Lieferverantwortliche | Beispiel: am selben Werktag | An die Kundenbetreuung, wenn auch der neue Termin verpasst wird | Neuer Termin gehalten und der Kunde schriftlich informiert |
+| Rechnungs- oder Abrechnungsfehler | Normal | Wer die Rechnungen stellt | Beispiel: ein Werktag | An die Geschäftsführung, wenn der Betrag nach Prüfung weiter strittig ist | Korrigierte Rechnung oder Gutschrift versendet und bestätigt |
+| Kommunikation oder Auftreten (späte Antworten, Ton, Übergabe) | Normal | Teamleitung der betroffenen Person | Beispiel: ein Werktag | An die Geschäftsführung, wenn es sich wiederholt | Gespräch geführt, Kunde beantwortet, internes Feedback gegeben |
+| Recht, Sicherheit, Datenschutz oder Öffentlichkeit (Anwalt, Bewertungsportal, Presse) | Kritisch | Geschäftsführung direkt | Beispiel: sofort | Die Geschäftsführung entscheidet über externen Rat, etwa Anwalt oder Datenschutzbeauftragte | Entscheidung der Geschäftsführung ist dokumentiert und dem Kunden mitgeteilt |
+
+Lesen Sie die Dringlichkeit als Ausgangspunkt: Kritisch ist ein Risiko für Sicherheit, ein rechtliches oder datenschutzrechtliches Thema oder ein gefährdeter Schlüsselkunde. Hoch heißt, der Kunde kann nicht arbeiten oder ein zugesagter Termin wird verpasst. Normal ist ein Problem mit Umgehungslösung. Niedrig ist ein Hinweis oder ein kleiner Ärger.
+
+Die Antwortzeiten in der Tabelle sind Beispiele für ein kleines B2B-Team, kein Standard und keine gesetzliche Vorgabe. Die erste Antwortzeit legen Sie selbst fest: Wählen Sie Ziele, die Sie halten können, schreiben Sie sie auf und prüfen Sie sie an den echten Daten. In regulierten Branchen wie Finanzdienstleistungen und Gesundheitswesen können eigene Vorgaben und Fristen für den Umgang mit Beschwerden gelten; prüfen Sie diese für Ihre Branche.
+
+## Welche Schritte gibt es im Beschwerdemanagement?
+
+Sieben Schritte decken den ganzen Weg ab, von der ersten Nachricht bis zur Erkenntnis. Kürzere und längere Modelle beschreiben denselben Weg mit weniger oder mehr Kästchen. Das ist der Beschwerdemanagement Prozess, den Sie im CRM abbilden.
+
+<Steps>
+  <Step title="Annehmen">Nehmen Sie Beschwerden über jeden Kanal an, den Sie nutzen: E-Mail, LinkedIn, Telefon, eine Bemerkung beim Kunden vor Ort. Sagen Sie, wohin Kunden sie senden sollen. Halten Sie Kanal sowie das echte Datum und die Uhrzeit des Eingangs fest.</Step>
+  <Step title="Erfassen">Legen Sie vor der Antwort einen Datensatz pro Beschwerde an, verknüpft mit dem Kunden. Erfassen Sie die Worte des Kunden, Art, Dringlichkeit, was der Kunde möchte, und eine Bestell-, Projekt- oder Rechnungsnummer.</Step>
+  <Step title="Bestätigen">Teilen Sie dem Kunden mit, dass die Beschwerde angekommen ist, wer sie bearbeitet und wann er wieder von Ihnen hört. Tun Sie das innerhalb der ersten Antwortzeit aus Ihrer Tabelle, auch wenn Sie noch keine Lösung haben.</Step>
+  <Step title="Prüfen">Klären Sie, was passiert ist. Fragen Sie die Beteiligten, prüfen Sie Auftrag, Lieferung oder Rechnung und schreiben Sie die Ursache auf. Lassen Sie Schuldzuweisungen aus der ersten Antwort heraus.</Step>
+  <Step title="Lösen">Bieten Sie eine Lösung an: Nachbesserung, Ersatz, Korrektur, Gutschrift oder eine klare Erklärung, warum sich nichts ändert. Entscheiden Sie im Rahmen Ihrer Befugnis oder eskalieren Sie entlang der Tabelle, und teilen Sie dem Kunden Entscheidung und Begründung mit.</Step>
+  <Step title="Nachfassen">Prüfen Sie, ob die Lösung funktioniert hat und der Kunde zufrieden ist. Schließen Sie die Beschwerde erst, wenn das Abschlusskriterium erfüllt ist, und halten Sie Abschlussdatum und Ergebnis fest. Der Leitfaden zur [Follow-up-E-Mail im Vertrieb](/blog/sales-follow-up-email) enthält eine Vorlage für das Nachfassen nach dem Kauf und einen Zeitplan; dieselben Gewohnheiten helfen beim Nachfragen nach einer Lösung.</Step>
+  <Step title="Auswerten">Werten Sie Beschwerden regelmäßig nach Art und Ursache aus und beheben Sie die Ursache: eine Vorlage, eine Checkliste, einen Lieferanten, einen Produktfehler. Beschwerden sind außerdem Touchpoints in der Phase Kundenbindung der [Customer Journey](/blog/customer-journey) und zeigen, wo sie schwierig wird.</Step>
+</Steps>
+
+## Was sind die 10 goldenen Regeln einer Reklamation?
+
+Eine amtliche Liste goldener Regeln gibt es nicht. Diese zehn sind praktische Regeln, die in kleinen Teams tragen:
+
+1. Antworten Sie schnell, auch wenn die Antwort „wir prüfen das“ lautet.
+2. Lesen Sie die ganze Beschwerde, bevor Sie antworten.
+3. Streiten Sie nicht, und geben Sie weder dem Kunden noch einem Kollegen die Schuld.
+4. Nehmen Sie das Erleben des Kunden ernst, und entschuldigen Sie sich, wo der Fehler bei Ihnen liegt.
+5. Versprechen Sie nur, was Sie halten können, und nennen Sie ein Datum.
+6. Nennen Sie in der Antwort genau eine zuständige Person.
+7. Erfassen Sie jede Beschwerde, auch Telefonate und Gespräche vor Ort.
+8. Beheben Sie die Ursache, nicht nur das Symptom.
+9. Fragen Sie nach der Lösung beim Kunden nach.
+10. Zählen und überprüfen Sie Beschwerden, damit dieselbe nicht wiederkommt.
+
+## Wie verfolgt ein kleines Team Beschwerden in Customermates?
+
+Dieser Abschnitt handelt von unserem eigenen Produkt, Customermates, einem Open-Source-CRM aus Deutschland. Es hat kein Beschwerdemodul. Es hat konfigurierbare Listen, Beziehungen, eine Board-Ansicht, Aufgaben und einen Unified Inbox, und ein kleines Team kann sie kombinieren. Die folgende Einrichtung ist eine Beispielanleitung für ein Team von wenigen Personen, kein Kundenfall. Listen, Beziehungen, Board und Aufgaben funktionieren in jedem Tarif, auch selbst gehostet. Konversationen aus dem Posteingang brauchen Customermates Cloud ab dem Pro-Tarif.
+
+Die Liste nutzt diese Felder. Namen und Optionen können Sie ändern; sie spiegeln die Einstufungstabelle.
+
+| Feld | Typ | Was es enthält |
+| --- | --- | --- |
+| Name | Text (Datensatzname) | Eine Zeile, zum Beispiel „Falscher Betrag auf der Märzrechnung“ |
+| Kunde | Beziehung zu Kontakten, optional Organisationen | Wer sich beschwert hat; die Beschwerde erscheint am Kundendatensatz |
+| Status | Einzelauswahl | Neu, Bestätigt, In Prüfung, Wartet auf Kunde, Gelöst, Abgeschlossen |
+| Art | Einzelauswahl | Mangel oder Reklamation, Lieferung, Abrechnung, Kommunikation, Recht oder Sicherheit |
+| Dringlichkeit | Einzelauswahl | Kritisch, Hoch, Normal, Niedrig |
+| Zuständig | Mitglied | Die eine verantwortliche Person |
+| Eingegangen am | Datum | Das echte Datum, an dem die Beschwerde ankam |
+| Antworten bis | Datum | Die erste Antwortzeit für diese Beschwerde, von Hand eingetragen |
+| Details | Formatierter Text | Worte des Kunden, Ursache und Lösung |
+| Abgeschlossen am | Datum | Der Tag, an dem das Abschlusskriterium erfüllt war |
+
+<Steps>
+  <Step title="Liste anlegen">Legen Sie unter **Konfigurieren** eine Liste „Beschwerden“ mit den obigen Feldern an. Das Datenmodell zu ändern ist ein eigenes Recht, fragen Sie also jemanden, der es hat. Sollen nur einige Kolleginnen und Kollegen Beschwerden lesen, beschränken Sie die Liste über [Rollen](/docs/app-company#roles-tab); Rechte gelten pro Liste, nicht pro Feld.</Step>
+  <Step title="Mit dem Kunden verknüpfen">Legen Sie eine **Beziehung** zwischen Beschwerden und Kontakten an (ein Kontakt, mehrere Beschwerden) und, wenn Sie mit Unternehmen arbeiten, Organisationen. Beide Datensätze zeigen die Verknüpfung, sodass der Kundendatensatz seine Beschwerden auflistet. [Wie Beziehungen Datensätze verknüpfen](/docs/concepts#how-do-relationships-link-records) erklärt die Optionen.</Step>
+  <Step title="Konversationen einbinden">Pflegen Sie E-Mail-Adresse, Telefonnummer und Profile des Kunden in den **Kontaktdaten** des Kontakts, damit seine Konversationen aus dem [Unified Inbox](/features/unified-inbox) am Kontakt erscheinen. Schalten Sie im Drawer der Beziehung die Nachrichten für die Seite Beschwerden ein (etwa **Nachrichten anzeigen in Beschwerden**), damit auch die **Aktivitäten** der Beschwerde sie zeigen. Um eine bestimmte Konversation anzuhängen, öffnen Sie die **Konversationseinstellungen** und wählen die Beschwerde unter **Datensätze dieser Unterhaltung**; andere Konversationen mit derselben Person bleiben getrennt. Konversationen im eigenen Postfach einer Kollegin oder eines Kollegen bleiben privat, bis der Thread mit dem Team geteilt wird, und das Teilen eines ganzen verbundenen Kontos erfordert den Business-Tarif oder höher. Die [Anleitung zum Posteingang](/docs/app-inbox#how-do-i-link-a-participant) erklärt die Details.</Step>
+  <Step title="Das Status-Board nutzen">Wählen Sie unter **Darstellung** **Board**. Die Karten sind nach Status gruppiert, und Sie ziehen eine Beschwerde in die nächste Spalte, wenn sie weiterrückt. Die [Anleitung zu Datensätzen](/docs/app-records#how-do-i-switch-between-table-and-board-view) behandelt Board und Sortierung. In der Tabelle sortieren Sie nach „Antworten bis“, um zu sehen, was zuerst fällig ist.</Step>
+  <Step title="Aufgaben mit Zieldatum anlegen">Jeder Prüf- oder Reparaturschritt wird eine Aufgabe. Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie deshalb in der Aufgabenliste ein Feld vom Typ **Datum** an, etwa „Zieldatum“, wie es die [Anleitung zur Aufgabenverwaltung](/features/task-management) beschreibt, sowie eine Beziehung zwischen Aufgaben und Beschwerden. Weisen Sie jede Aufgabe einer Person im Team zu.</Step>
+  <Step title="Auswerten und lernen">Speichern Sie eine persönliche Ansicht „Meine offenen Beschwerden“ (Ansichten sind persönlich, jede Person speichert ihre eigene) und fügen Sie dem Dashboard ein Diagramm hinzu, das Beschwerden nach Art zählt, für Ihre regelmäßige Auswertung. In Customermates Cloud können Mate oder Ihr eigener KI-Client über MCP eine Beschwerde samt Konversationen zusammenfassen und eine Antwort als Entwurf vorbereiten, die Sie vor dem Versand prüfen.</Step>
+</Steps>
+
+<AcquisitionCallout title="Was diese Einrichtung nicht leistet" variant="boundary">
+  Customermates ist kein Helpdesk und kein System für regulierte Beschwerdeverfahren. Es hat keine Ticket-SLA-Steuerung: „Antworten bis“ ist ein Datum, das Sie eintragen, und nichts eskaliert, erinnert oder benachrichtigt, wenn es verstreicht. Es gibt kein Kundenportal und kein Webformular, über das Kunden Beschwerden einreichen, keine Telefonie (Anrufe tragen Sie von Hand ein), keine automatischen Erstattungen oder Gutschriften und keine unveränderlichen Nachweise: Das Aktivitätsprotokoll hält Änderungen an Datensätzen fest, ist aber kein vollständiger, unveränderlicher oder unabhängig aufbewahrter Prüfpfad. Es gibt keine ISO-10002-Zertifizierung und keine andere Compliance-Zertifizierung. Für regulierte Branchen wie Finanzdienstleistungen und Gesundheitswesen brauchen Sie ein spezialisiertes System.
+</AcquisitionCallout>
+
+Customermates ist die falsche Wahl, wenn Sie täglich viele Tickets über Telefon und Chat bearbeiten, SLA-Timer und automatische Eskalation brauchen, Kunden ihren Fall in einem Portal verfolgen sollen oder Sie in einer regulierten Branche arbeiten. Es passt, wenn Beschwerden selten und persönlich sind, bestimmten Kunden zugeordnet werden und die Antwortenden ohnehin im CRM arbeiten. Wie sich das in ein größeres Setup einfügt, steht im Leitfaden zum [Kundeninteraktionsmanagement](/blog/customer-interaction-management).
+
+## FAQ
+
+<Faq>
+<FaqItem question="Was ist ein Beschwerdemanagementsystem?">
+Ein Beschwerdemanagementsystem ist das Werkzeug samt Routine, das den Beschwerdeprozess zusammenhält: ein Datensatz je Beschwerde, eine zuständige Person, ein Status, Fristen, die Konversation mit dem Kunden und ein Abschluss. Das kann eine Tabelle sein, eine Liste im CRM, ein Helpdesk oder in regulierten Branchen eine spezialisierte Software mit Nachweisen.
+</FaqItem>
+
+<FaqItem question="Welche 5 Schritte gibt es im Beschwerdemanagement?">
+Fünfstufige Modelle nennen meist: Beschwerde annehmen, bestätigen, klären, lösen und auswerten. Die sieben Schritte in diesem Leitfaden gliedern denselben Weg feiner: Annehmen und Erfassen kommen vor der Bestätigung, Prüfen vor der Lösung, und das Nachfassen beim Kunden ist ein eigener Schritt. Eine verbindliche Anzahl gibt es nicht.
+</FaqItem>
+
+<FaqItem question="Welche 8 Prozessschritte gibt es im Beschwerdemanagement?">
+Achtstufige Modelle teilen den Weg noch feiner auf, etwa in Eingang, Erfassung, Bestätigung, Einstufung, Prüfung, Lösung, Nachfassen und Auswertung. Die Einstufung nach Art und Dringlichkeit ist in diesem Leitfaden Teil der Erfassung. Wichtig ist, dass jede Beschwerde alle Stationen durchläuft.
+</FaqItem>
+
+<FaqItem question="Was ist ein Synonym für Beschwerdemanagement?">
+Häufig steht Reklamationsmanagement als Synonym. Es meint genauer den Umgang mit Mängelanzeigen. Gebräuchlich sind auch Beschwerdebearbeitung und Reklamationsbearbeitung. Wer neben Beschwerden auch Lob und Anregungen auswertet, spricht oft von Feedbackmanagement.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Beschwerde und Reklamation?">
+Eine Beschwerde äußert Unzufriedenheit. Eine Reklamation zeigt einen Mangel an und verlangt eine Abhilfe wie Nacherfüllung oder Minderung; dann können die gesetzlichen Gewährleistungsregeln greifen. Erfassen Sie beides, und halten Sie bei einer Reklamation die Daten fest.
+</FaqItem>
+
+<FaqItem question="Wie schnell sollte man auf eine Beschwerde antworten?">
+Die erste Antwortzeit legen Sie je Art der Beschwerde selbst fest, schreiben sie in Ihre Einstufungstabelle und prüfen sie an echten Daten. In regulierten Branchen und je nach Vertrag können eigene Fristen hinzukommen.
+</FaqItem>
+
+<FaqItem question="Gibt es eine Norm für das Beschwerdemanagement?">
+ISO 10002:2018 enthält Leitlinien für den Umgang mit Beschwerden in Organisationen und ist als ein Prozess innerhalb eines Qualitätsmanagementsystems gedacht. Customermates ist danach nicht zertifiziert, und dieser Leitfaden erhebt keinen Anspruch auf Konformität.
+</FaqItem>
+
+<FaqItem question="Kann Customermates einen Helpdesk für Beschwerden ersetzen?">
+Nicht bei hohem Aufkommen und nicht in regulierten Branchen. Customermates hat keine Ticket-SLA-Steuerung, kein Kundenportal und keine Telefonie. Für ein kleines Team mit wenigen persönlichen Beschwerden pro Woche kann es eine Liste „Beschwerden“ am Kunden, ein Status-Board, Aufgaben und die Konversationen bündeln.
+</FaqItem>
+
+<FaqItem question="Erinnert Customermates an überfällige Antworten?">
+Nein. „Antworten bis“ ist ein gewöhnliches Datumsfeld, und Customermates hat weder Erinnerungen noch Benachrichtigungen. Sortieren Sie die Liste nach diesem Datum und öffnen Sie sie als festen Teil Ihrer täglichen Routine.
+</FaqItem>
+</Faq>
+
+Externe Quellen geprüft am 2. November 2026: [ISO 10002:2018](https://www.iso.org/standard/71580.html) (Ausgabe 3, 2023 bestätigt), [§ 437 BGB](https://www.gesetze-im-internet.de/bgb/__437.html), [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) und [§ 377 HGB](https://www.gesetze-im-internet.de/hgb/__377.html). Die Gesetze sind nur zusammengefasst wiedergegeben und keine Rechtsberatung.
