@@ -1,9 +1,12 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
+
+import macFixtures from "@/tests/fixtures/spreadsheet-import/mac-2026-11-02/manifest.json";
 
 import { isSpreadsheetFileName, readSpreadsheetWorkbook, readXlsxWorkbook, xlsxCellValue } from "../xlsx-workbook";
 
@@ -65,6 +68,27 @@ describe("xlsx workbook reading", () => {
   });
 
   const fixture = (file: string) => new Uint8Array(readFileSync(`tests/fixtures/spreadsheet-import/${file}`)).buffer;
+
+  it.each(macFixtures)("reads exact Mac regression $id ($file) in Node and the browser reader", async (entry) => {
+    const bytes = fixture(`mac-2026-11-02/files/${entry.file}`);
+    expect(createHash("sha256").update(new Uint8Array(bytes)).digest("hex")).toBe(entry.sha256);
+    const result = await readSpreadsheetWorkbook(entry.file, bytes);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const sheet = result.workbook.sheets.find((candidate) => candidate.name === "Kontakte");
+    expect(sheet?.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Firma"]);
+    expect(sheet?.rows.map((row) => row.cells)).toEqual(entry.data);
+    const sourceRows = entry.id === "C10" || entry.id === "C25" ? [2, 4] : [2, 3];
+    expect(sheet?.rows.map((row) => row.sheetRow)).toEqual(sourceRows);
+
+    const require = createRequire(import.meta.url);
+    const { browser } = require("exceljs/package.json") as { browser: string };
+    const BrowserExcelJS = require(`exceljs/${browser}`) as typeof ExcelJS;
+    const workbook = new BrowserExcelJS.Workbook();
+    await workbook.xlsx.load(bytes);
+    const contacts = workbook.getWorksheet("Kontakte");
+    expect(sourceRows.map((row) => (contacts?.getRow(row).values as unknown[]).slice(1))).toEqual(entry.data);
+  });
 
   it.each(["contacts", "blank-rows", "multiple-sheets", "unicode"])(
     "reads prefixed %s XML with the separately packaged browser reader",

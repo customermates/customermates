@@ -7,6 +7,7 @@ import { companyPath } from "./app-paths";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
+import macFixtures from "../fixtures/spreadsheet-import/mac-2026-11-02/manifest.json" with { type: "json" };
 
 const FIXTURES = "tests/fixtures/spreadsheet-import";
 
@@ -82,66 +83,95 @@ for (const { file, mimeType, sheet } of IMPORTABLE) {
   });
 }
 
+type NamespaceContactFixture = {
+  file: string;
+  path?: string;
+  names: string[];
+  emails: string[];
+  otherSheet?: { name: string; columns: number };
+};
+
+async function importNamespaceContacts(
+  page: import("@playwright/test").Page,
+  companyId: string,
+  { file, path, names, emails, otherSheet }: NamespaceContactFixture,
+) {
+  const errors = collectPageErrors(page);
+  const dialog = await openImport(page, companyId);
+  await dialog.locator('input[type="file"]').setInputFiles({
+    name: file,
+    mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    buffer: readFileSync(`${FIXTURES}/${path ?? file}`),
+  });
+  if (otherSheet) {
+    await dialog.locator("#xlsx-import-sheet").click();
+    await page.getByRole("option", { name: otherSheet.name, exact: true }).click();
+    await expect(dialog).toContainText(
+      `${otherSheet.name}: 1 row and ${otherSheet.columns} ${otherSheet.columns === 1 ? "column" : "columns"}.`,
+    );
+    await dialog.locator("#xlsx-import-sheet").click();
+    await page.getByRole("option", { name: "Kontakte", exact: true }).click();
+  }
+  await expect(dialog).toContainText(`Kontakte: ${names.length} ${names.length === 1 ? "row" : "rows"} and 4 columns.`);
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+  for (const [column, field] of [
+    [0, "First name"],
+    [1, "Last name"],
+    [2, "Contact details"],
+    [3, "Skip column"],
+  ] as const) {
+    await dialog.locator(`#xlsx-import-target-${column}`).click();
+    await page.getByRole("option", { name: field, exact: true }).click();
+  }
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(dialog).toContainText(names[0].split(" ")[0]);
+  await dialog.getByRole("button", { name: "Next", exact: true }).click();
+  await dialog.getByRole("button", { name: "Import records", exact: true }).click();
+  await expect(dialog.getByTestId("xlsx-import-summary")).toContainText(
+    `${names.length} ${names.length === 1 ? "record" : "records"} created`,
+    { timeout: 60000 },
+  );
+  await dialog.locator("#xlsx-import-save").click();
+  await expect(dialog).not.toBeVisible();
+  await page.reload();
+  for (let index = 0; index < names.length; index += 1) {
+    await openRecordDetails(page, names[index]);
+    const contact = page.getByRole("dialog", { name: "Contact", exact: true });
+    await expect(contact).toContainText(names[index]);
+    await expect(
+      contact.locator('[data-record-channel-group="email"]').getByRole("link", { name: emails[index] }),
+    ).toHaveAttribute("href", `mailto:${emails[index]}`);
+    await contact.getByRole("button", { name: "Close", exact: true }).click();
+  }
+  expect(errors).toEqual([]);
+}
+
 for (const scenario of ["contacts", "blank-rows", "multiple-sheets", "unicode"]) {
   for (const namespace of ["default", "prefixed"]) {
     const file = `namespace-${scenario}-${namespace}.xlsx`;
     test(`imports contacts with XML namespaces from ${file}`, async ({ page, companyId }) => {
       test.setTimeout(180000);
-      const errors = collectPageErrors(page);
-      const names = scenario === "unicode" ? ["李 🧑🏽‍💻 山田 e\u0301"] : ["Jürgen Müller", "Ölaf Strauß"];
-      const emails = scenario === "unicode" ? ["unicode@example.test"] : ["juergen@example.test", "oelaf@example.test"];
-      const dialog = await openImport(page, companyId);
-      await dialog.locator('input[type="file"]').setInputFiles({
-        name: file,
-        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        buffer: readFileSync(`${FIXTURES}/${file}`),
+      await importNamespaceContacts(page, companyId, {
+        file,
+        names: scenario === "unicode" ? ["李 🧑🏽‍💻 山田 e\u0301"] : ["Jürgen Müller", "Ölaf Strauß"],
+        emails: scenario === "unicode" ? ["unicode@example.test"] : ["juergen@example.test", "oelaf@example.test"],
+        otherSheet: scenario === "multiple-sheets" ? { name: "Types", columns: 5 } : undefined,
       });
-      await expect(dialog).toContainText(
-        `Kontakte: ${names.length} ${names.length === 1 ? "row" : "rows"} and 4 columns.`,
-      );
-      if (scenario === "multiple-sheets") {
-        await dialog.locator("#xlsx-import-sheet").click();
-        await page.getByRole("option", { name: "Types", exact: true }).click();
-        await expect(dialog).toContainText("Types: 1 row and 5 columns.");
-        await dialog.locator("#xlsx-import-sheet").click();
-        await page.getByRole("option", { name: "Kontakte", exact: true }).click();
-      }
-      await dialog.getByRole("button", { name: "Next", exact: true }).click();
-      for (const [column, field] of [
-        [0, "First name"],
-        [1, "Last name"],
-        [2, "Contact details"],
-        [3, "Skip column"],
-      ] as const) {
-        await dialog.locator(`#xlsx-import-target-${column}`).click();
-        await page.getByRole("option", { name: field, exact: true }).click();
-      }
-      await dialog.getByRole("button", { name: "Next", exact: true }).click();
-      await expect(dialog).toContainText(scenario === "unicode" ? "李 🧑🏽‍💻" : "Jürgen");
-      await dialog.getByRole("button", { name: "Next", exact: true }).click();
-      await dialog.getByRole("button", { name: "Import records", exact: true }).click();
-      await expect(dialog.getByTestId("xlsx-import-summary")).toContainText(
-        `${names.length} ${names.length === 1 ? "record" : "records"} created`,
-        { timeout: 60000 },
-      );
-      await dialog.locator("#xlsx-import-save").click();
-      await expect(dialog).not.toBeVisible();
-      await page.reload();
-      for (let index = 0; index < names.length; index += 1) {
-        await openRecordDetails(page, names[index]);
-        const contact = page.getByRole("dialog", {
-          name: "Contact",
-          exact: true,
-        });
-        await expect(contact).toContainText(names[index]);
-        await expect(
-          contact.locator('[data-record-channel-group="email"]').getByRole("link", { name: emails[index] }),
-        ).toHaveAttribute("href", `mailto:${emails[index]}`);
-        await contact.getByRole("button", { name: "Close", exact: true }).click();
-      }
-      expect(errors).toEqual([]);
     });
   }
+}
+
+for (const entry of macFixtures) {
+  test(`imports exact Mac regression ${entry.id} (${entry.file})`, async ({ page, companyId }) => {
+    test.setTimeout(180000);
+    await importNamespaceContacts(page, companyId, {
+      file: entry.file,
+      path: `mac-2026-11-02/files/${entry.file}`,
+      names: entry.names.map((parts) => parts.join(" ")),
+      emails: entry.data.map((row) => row[2]),
+      otherSheet: entry.id === "C11" || entry.id === "C26" ? { name: "Andere Daten", columns: 1 } : undefined,
+    });
+  });
 }
 
 test("imports the contacts sheet of a workbook saved by Microsoft Excel", async ({ page, companyId }) => {

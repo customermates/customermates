@@ -4,6 +4,8 @@ import ExcelJS from "exceljs";
 import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
 
+import macFixtures from "@/tests/fixtures/spreadsheet-import/mac-2026-11-02/manifest.json";
+
 import { readSpreadsheet } from "../read-spreadsheet";
 import {
   SPREADSHEET_MAX_CELL_LENGTH,
@@ -199,6 +201,22 @@ describe("readSpreadsheet CSV", () => {
 });
 
 describe("readSpreadsheet XLSX", () => {
+  it.each(macFixtures)("reads every contact cell from exact Mac regression $id ($file)", async (entry) => {
+    const bytes = new Uint8Array(readFileSync(`tests/fixtures/spreadsheet-import/mac-2026-11-02/files/${entry.file}`));
+    const result = await readOk(bytes, { fileName: entry.file, sheetName: "Kontakte" });
+    expect(result.table.headers).toEqual(["Vorname", "Nachname", "E-Mail", "Firma"]);
+    expect(result.table.rows.map((row) => row.cells)).toEqual(entry.data);
+    expect(result.table.rows.map((row) => row.rowNumber)).toEqual(
+      entry.id === "C10" || entry.id === "C25" ? [2, 4] : [2, 3],
+    );
+    if (entry.id === "C11" || entry.id === "C26") {
+      expect(result.sheetNames).toEqual(["Andere Daten", "Kontakte", "Leer"]);
+      const other = await readOk(bytes, { fileName: entry.file, sheetName: "Andere Daten" });
+      expect(other.table.headers).toEqual(["Ignore"]);
+      expect(other.table.rows[0].cells).toEqual(["Ignored"]);
+    }
+  });
+
   it.each(["contacts", "blank-rows", "multiple-sheets", "unicode"])(
     "reads identical %s tables with default and prefixed XML namespaces",
     async (scenario) => {

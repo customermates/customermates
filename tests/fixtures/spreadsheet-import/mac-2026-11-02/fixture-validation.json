@@ -1,0 +1,160 @@
+{
+  "allFixtureHashesMatchManifest": true,
+  "prefixedXlsx": [
+    {
+      "case": "C01",
+      "zipIntegrity": "PASS",
+      "allXmlPartsParse": true,
+      "xmlParts": 8,
+      "readOnlyOpenpyxlValues": {
+        "Kontakte": [
+          [
+            "Vorname",
+            "Nachname",
+            "E-Mail",
+            "Firma"
+          ],
+          [
+            "Jürgen",
+            "Müller",
+            "juergen@example.test",
+            "Bäckerei Größl"
+          ],
+          [
+            "Ölaf",
+            "Strauß",
+            "oelaf@example.test",
+            "Äpfel & Söhne"
+          ]
+        ]
+      }
+    },
+    {
+      "case": "C10",
+      "zipIntegrity": "PASS",
+      "allXmlPartsParse": true,
+      "xmlParts": 8,
+      "readOnlyOpenpyxlValues": {
+        "Kontakte": [
+          [
+            "Vorname",
+            "Nachname",
+            "E-Mail",
+            "Firma"
+          ],
+          [
+            "Jürgen",
+            "Müller",
+            "importtest-c10-juergen@example.test",
+            "Bäckerei Größl"
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Ölaf",
+            "Strauß",
+            "importtest-c10-oelaf@example.test",
+            "Äpfel & Söhne"
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ]
+        ]
+      }
+    },
+    {
+      "case": "C11",
+      "zipIntegrity": "PASS",
+      "allXmlPartsParse": true,
+      "xmlParts": 10,
+      "readOnlyOpenpyxlValues": {
+        "Andere Daten": [
+          [
+            "Ignore"
+          ],
+          [
+            "Ignored"
+          ]
+        ],
+        "Kontakte": [
+          [
+            "Vorname",
+            "Nachname",
+            "E-Mail",
+            "Firma"
+          ],
+          [
+            "Jürgen",
+            "Müller",
+            "importtest-c11-juergen@example.test",
+            "Bäckerei Größl"
+          ],
+          [
+            "Ölaf",
+            "Strauß",
+            "importtest-c11-oelaf@example.test",
+            "Äpfel & Söhne"
+          ]
+        ],
+        "Leer": []
+      }
+    },
+    {
+      "case": "C12",
+      "zipIntegrity": "PASS",
+      "allXmlPartsParse": true,
+      "xmlParts": 8,
+      "readOnlyOpenpyxlValues": {
+        "Kontakte": [
+          [
+            "Vorname",
+            "Nachname",
+            "E-Mail",
+            "Firma"
+          ],
+          [
+            "Zoë 李",
+            "Dvořák 😀",
+            "importtest-c12-zoe@example.test",
+            "Grüße aus 東京"
+          ],
+          [
+            "Łukasz",
+            "García–O’Neill",
+            "importtest-c12-lukasz@example.test",
+            "Äpfel & Söhne"
+          ]
+        ]
+      }
+    }
+  ],
+  "namespacePairs": [
+    {
+      "original": "C01",
+      "normalized": "C24",
+      "sameSheetNamesAndEveryCellValue": true
+    },
+    {
+      "original": "C10",
+      "normalized": "C25",
+      "sameSheetNamesAndEveryCellValue": true
+    },
+    {
+      "original": "C11",
+      "normalized": "C26",
+      "sameSheetNamesAndEveryCellValue": true
+    },
+    {
+      "original": "C12",
+      "normalized": "C27",
+      "sameSheetNamesAndEveryCellValue": true
+    }
+  ]
+}
