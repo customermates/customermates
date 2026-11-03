@@ -833,9 +833,22 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-import-or-export-records",
       query: "Wie läuft der Import ab?",
       facts: [
-        "Öffnen Sie **Weitere Aktionen** in der Toolbar der Liste, zum Beispiel bei Ihrer Kontaktliste",
-        "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
-        "Mit einer Excel-Arbeitsmappe startet ein Assistent",
+        "Mit einer Excel-Arbeitsmappe oder einer CSV-Datei startet ein Assistent",
+        "Spalten zuordnen, Vorschau prüfen, **Neue Datensätze** oder **Vorhandene Datensätze** wählen, importieren",
+        "Eine Tabelle darf bis zu 10 MB groß sein und jedes Tabellenblatt bis zu 5.000 Datenzeilen haben",
+        "REST- und MCP-Importe sind keine Datei-Uploads",
+      ],
+    },
+    {
+      locale: "de" as const,
+      slug: "app-records",
+      anchor: "how-do-i-import-or-export-records",
+      query: "Wie importiere ich einen JSON-Export derselben Liste und welche Grenzen gelten?",
+      facts: [
+        "**Aus Datei hinzufügen** öffnet **Datensätze importieren**: **Datei wählen**",
+        "Bei einem JSON-Export **Mit exportierten IDs erstellen** oder **Übereinstimmende IDs aktualisieren** wählen",
+        "JSON-Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
+        "Dafür brauchen Sie die Erstellen-Berechtigung",
       ],
     },
     {
