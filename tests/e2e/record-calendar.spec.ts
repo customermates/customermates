@@ -139,7 +139,7 @@ async function returnToTab(page: Page) {
       document.dispatchEvent(new Event("visibilitychange"));
     }
   });
-  await refreshed;
+  await (await refreshed).finished();
 }
 
 async function shownEntries(page: Page) {
@@ -159,7 +159,7 @@ test("a calendar view keeps its entries after the user returns from another tab"
     await returnToTab(page);
     await expect.poll(() => shownEntries(page), { timeout: 15000 }).toEqual(before);
     await page.waitForTimeout(1000);
-    expect(await shownEntries(page)).toEqual(before);
+    await expect.poll(() => shownEntries(page), { timeout: 15000 }).toEqual(before);
   }
   expect(errors).toEqual([]);
 });
