@@ -132,14 +132,16 @@ test("a calendar view switches between month, week and agenda and opens a record
 
 /** What the browser does when the user switches to another tab and back: the page turns hidden, then visible. */
 async function returnToTab(page: Page) {
-  const refreshed = page.waitForResponse((response) => response.request().headers()["rsc"] === "1");
+  const refreshed = page.waitForResponse((response) =>
+    response.request().headers()["rsc"] === "1" && new URL(response.url()).pathname === new URL(page.url()).pathname,
+  );
   await page.evaluate(() => {
     for (const state of ["hidden", "visible"]) {
       Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
       document.dispatchEvent(new Event("visibilitychange"));
     }
   });
-  await (await refreshed).finished();
+  await refreshed;
 }
 
 async function shownEntries(page: Page) {
