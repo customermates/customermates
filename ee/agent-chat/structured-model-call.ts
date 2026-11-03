@@ -51,6 +51,15 @@ function rejectedBeforeGeneration(error: unknown): boolean {
   return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
 }
 
+function schemaCompilationRejected(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "statusCode" in error &&
+    error.statusCode === 400 &&
+    /compiled grammar is too large|schema is too complex for compilation/i.test(error.message)
+  );
+}
+
 const PROVIDER_WIDE_REJECTIONS = new Set([
   "GatewayAuthenticationError",
   "GatewayForbiddenError",
@@ -184,6 +193,10 @@ export function readUnconstrainedOutput<T>(
   if (!NoObjectGeneratedError.isInstance(error)) return null;
   if (error.finishReason === "length")
     return { rejection: "The answer was cut off at the output limit; keep it shorter." };
+  try {
+    const parsed = schema.safeParse(JSON.parse(error.text ?? ""));
+    if (parsed.success) return { output: parsed.data };
+  } catch {}
   const decoded = error.text ? parsedText(error.text, salvageArrays) : undefined;
   if (decoded === undefined) {
     const issues = causeIssues(error.cause);
@@ -200,8 +213,18 @@ export function readUnconstrainedOutput<T>(
   };
 }
 
-export function structuredCallWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
-  return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
+function schemaPrompt(system: string, schema: z.ZodType): string {
+  return `${system}\n\nReturn only a JSON value matching this JSON Schema, without Markdown fences or commentary:\n${JSON.stringify(z.toJSONSchema(schema, { io: "input" }))}`;
+}
+
+export function structuredCallWorstCaseMicrocents(
+  model: AgentModelEntry,
+  system: string,
+  prompt: string,
+  fallbackSchema?: z.ZodType,
+): number {
+  const longestSystem = fallbackSchema ? schemaPrompt(system, fallbackSchema) : system;
+  return estimatedCharge(model, promptTokens(longestSystem, prompt), model.maxOutputTokens).costMicrocents;
 }
 
 export async function generateStructuredObject<T>(args: {
@@ -212,6 +235,7 @@ export async function generateStructuredObject<T>(args: {
   prompt: string;
   timeoutMs?: number;
   salvageArrays?: boolean;
+  retrySchemaCompilation?: boolean;
 }): Promise<{
   output: T | null;
   charge: AgentRetrievalCharge | null;
@@ -219,19 +243,43 @@ export async function generateStructuredObject<T>(args: {
   failureScope?: WikiSynthesisFailureScope;
   rejection?: string;
 }> {
-  const inputTokens = promptTokens(args.system, args.prompt);
+  let inputTokens = promptTokens(args.system, args.prompt);
   try {
-    const result = await generateText({
+    const options = {
       model: args.model.modelId,
       system: args.system,
       prompt: args.prompt,
-      output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
       reasoning: STRUCTURED_OUTPUT_REASONING,
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(args.timeoutMs ?? args.model.timeoutMs ?? TIMEOUT_MS),
       providerOptions: getStructuredCallProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
-    });
+    } as const;
+    let result: { usage: { inputTokens?: number; outputTokens?: number }; providerMetadata?: unknown };
+    let output: T;
+    try {
+      const constrained = await generateText({ ...options, output: Output.object({ schema: args.schema }) });
+      result = constrained;
+      output = constrained.output;
+    } catch (error) {
+      if (!args.retrySchemaCompilation || !schemaCompilationRejected(error)) throw error;
+      // The provider rejected the grammar before generation. Keep the same model, routing and timeout,
+      // and validate its JSON locally instead of resending the grammar it cannot compile.
+      const system = schemaPrompt(args.system, args.schema);
+      inputTokens = promptTokens(system, args.prompt);
+      const unconstrained = await generateText({ ...options, system });
+      const invalid = new NoObjectGeneratedError({
+        message: "The answer did not match the required structure.",
+        text: unconstrained.text,
+        response: unconstrained.response,
+        usage: unconstrained.usage,
+        finishReason: unconstrained.finishReason,
+      });
+      const decoded = readUnconstrainedOutput(invalid, args.schema, args.salvageArrays);
+      if (!decoded || !("output" in decoded)) throw invalid;
+      result = unconstrained;
+      output = decoded.output;
+    }
     const usage = result.usage;
     const reading = readAgentProviderCharge(result.providerMetadata, args.model.servingProvider);
     const charge: AgentRetrievalCharge =
@@ -247,7 +295,7 @@ export async function generateStructuredObject<T>(args: {
             costMicrocents: reading.outcome === "measured" ? reading.charge.costMicrocents : 0,
             costSource: "measured",
           };
-    return { output: result.output, charge };
+    return { output, charge };
   } catch (error) {
     const failure = callFailure(args.label, args.model.modelId, error);
     const scope = failureScope(error);
