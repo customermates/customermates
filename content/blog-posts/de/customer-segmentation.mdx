@@ -1,0 +1,240 @@
+---
+title: "Kundensegmentierung: Kriterien, Beispiele, ABC-Analyse"
+description: "Kundensegmentierung im B2B: Kriterien mit Beispielen, ABC-Analyse nach Umsatz, RFM und die Einrichtung mit Feldern, Ansichten und Diagrammen im CRM."
+
+relatedHrefs:
+  - /features/reporting
+  - /features/contact-management
+  - /blog/customer-acquisition
+  - /blog/customer-journey
+
+hero:
+  title: "Kundensegmentierung im B2B: Kriterien, Beispiele und Umsetzung im CRM"
+  description: "Was Kundensegmentierung und ein Kundensegment sind, welche Kriterien es im B2B gibt, wie Sie Kunden nach Umsatz (ABC-Analyse) oder Kaufverhalten (RFM) einteilen und wie ein kleines Team die Segmente mit Feldern, gespeicherten Ansichten, Board und Dashboard-Diagrammen im CRM umsetzt."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-03
+  tags:
+    - Kundensegmentierung
+    - B2B-Vertrieb
+    - Vertriebsprozess
+---
+
+# Kundensegmentierung im B2B: Kriterien, Beispiele und Umsetzung im CRM
+
+Kundensegmentierung bedeutet, Ihre Kunden in wenige Gruppen einzuteilen, die ein Merkmal teilen, das verändert, wie Sie sie ansprechen, betreuen oder bepreisen: Branche, Unternehmensgröße, Region, Kaufverhalten oder Umsatz. Klassisch unterscheidet man geografische, demografische, psychografische und verhaltensorientierte Kriterien. Im B2B tragen Firmenmerkmale und der Kundenwert die Hauptlast, und ein kleines Team setzt die Segmentierung mit wenigen Feldern, gespeicherten Ansichten und einem Board im CRM um.
+
+Dieser Leitfaden erklärt, was ein Kundensegment ist und wie sich Kundensegmentierung von Zielgruppensegmentierung und Marktsegmentierung unterscheidet, zeigt die Kriterien als B2B-Tabelle mit Datenquelle und Konsequenz je Segment, rechnet die ABC-Analyse nach Umsatz an einem Beispiel durch, erklärt die RFM-Analyse für Kunden mit Folgeaufträgen und endet mit der Einrichtung in Customermates, dem Open-Source-CRM hinter diesem Artikel. Customermates segmentiert nicht automatisch, hat kein Lead-Scoring und verschickt keine E-Mail-Kampagnen. Der letzte Abschnitt sagt deshalb, was Sie von Hand erledigen und wann ein Marketing-Automation-Tool besser passt.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Definition">Kundensegmentierung teilt Kunden in Gruppen mit ähnlichen Merkmalen ein, damit jede Gruppe die passende Behandlung bekommt. Ein Kundensegment ist eine solche Gruppe.</SummaryItem>
+  <SummaryItem label="Kriterien im B2B">Firmenmerkmale (Branche, Größe), Region, Verhalten (Bestellungen, Kontakte) sowie Bedarf und Wert. Für Verbraucher nennen Lehrbücher stattdessen psychografische Merkmale.</SummaryItem>
+  <SummaryItem label="Zwei Methoden für kleine Teams">Die ABC-Analyse reiht Kunden nach Umsatz. Die RFM-Analyse bewertet Aktualität, Häufigkeit und Umsatz bei Kunden, die immer wieder bestellen.</SummaryItem>
+  <SummaryItem label="Wie viele Segmente">Drei bis fünf, jedes mit einer Maßnahme, die Sie benennen können. Ein Segment ohne Maßnahme ist nur ein Etikett.</SummaryItem>
+  <SummaryItem label="In Customermates">Einzelauswahlfelder, Filter und gespeicherte Ansichten, ein Board und Dashboard-Diagramme nach Segment, mit Werten, die Sie selbst setzen. Keine automatischen Segmente, kein Scoring, keine Kampagnen.</SummaryItem>
+</ArticleSummary>
+
+## Was bedeutet Kundensegmentierung, und was ist ein Kundensegment?
+
+Bei der Kundensegmentierung teilen Sie Ihre Kunden anhand gemeinsamer Merkmale, Bedürfnisse oder ihres Werts für Ihr Unternehmen in Gruppen ein. Ein **Kundensegment** ist eine dieser Gruppen, zum Beispiel „Fertigungsbetriebe mit 50 bis 250 Beschäftigten“ oder „Kunden, die in den letzten 90 Tagen bestellt haben“. Das **Segmentierungsmodell** besteht aus den Kriterien und der Regel, die jeden Kunden genau einem Segment zuordnet.
+
+Drei Begriffe liegen nah beieinander:
+
+- **Marktsegmentierung** teilt den ganzen Markt in Gruppen, um Zielmärkte auszuwählen, auch Unternehmen, die Sie noch nicht kennen. Nach [Wikipedia](https://de.wikipedia.org/wiki/Marktsegmentierung) heißen Marktsegmente, die sich auf die Kunden beziehen, Kundensegmentierung.
+- **Kundensegmentierung** arbeitet mit den Kunden und Kontakten, die Sie kennen und im CRM finden.
+- **Zielgruppensegmentierung** zerlegt die Gruppe, die Sie mit Marketing erreichen wollen, in Teilgruppen für Botschaften und Kampagnen. Die Zielgruppe kann auch Menschen umfassen, die noch nie gekauft haben. In kleinen B2B-Teams fallen beide oft zusammen: Das Kundensegment, von dem Sie mehr wollen, wird zur Zielgruppe.
+
+Ein Modell kann aus wenigen schriftlichen Regeln bestehen, wie in diesem Leitfaden, oder aus einer Clusteranalyse, die Kunden nach vielen Merkmalen gleichzeitig gruppiert. Die Clusteranalyse braucht Analysewerkzeuge und viele Daten, mehr als ein Team mit einigen hundert Kunden in der Regel braucht.
+
+Ein Segment lohnt sich, wenn es vier Prüfungen besteht (eine Checkliste von mir, keine Norm):
+
+- **Erkennbar:** Ein Feld im CRM sagt, zu welchem Segment ein Kunde gehört.
+- **Verschieden:** Sie würden etwas anders machen, etwa ein anderes Angebot, einen anderen Kontaktrhythmus oder einen anderen Preis.
+- **Groß genug:** Genug Kunden oder Umsatz, damit sich die andere Behandlung lohnt.
+- **Stabil:** Kunden wechseln nicht jede Woche das Segment, eine Überprüfung pro Quartal reicht.
+
+Wenn Sie für ein Segment keine Maßnahme nennen können, streichen Sie es oder fassen Sie es mit einem Nachbarn zusammen.
+
+## Warum macht man eine Kunden- und Marktsegmentierung?
+
+Kunden unterscheiden sich in Umsatz, Bedarf und Betreuungsaufwand, und ein kleines Team hat nicht für alle gleich viel Zeit. Segmentierung bringt vier Vorteile:
+
+- **Aufwand dorthin lenken, wo Umsatz entsteht.** Wer die wichtigsten Kunden kennt, kann sie gezielt betreuen, statt jeden gleich zu behandeln.
+- **Angebot und Ansprache anpassen.** Ein Fertigungsbetrieb und eine Arztpraxis brauchen andere Beispiele, Referenzen und Argumente.
+- **Risiken sichtbar machen.** Hängt ein Drittel des Umsatzes an einem Kunden, oder schlafen viele frühere Kunden, zeigt das erst die Aufteilung.
+- **Neukundengewinnung schärfen.** Das Profil Ihrer besten Segmente ist das Zielprofil für die Suche nach neuen Kunden.
+
+## Welche Kundensegmente gibt es? Die vier Kriterien im B2B
+
+Lehrbücher nennen für Verbrauchermärkte vier Gruppen von Kriterien: geografisch, demografisch, psychografisch und verhaltensorientiert (so führt es auch [Wikipedia zur Marktsegmentierung](https://de.wikipedia.org/wiki/Marktsegmentierung) auf). Für den B2B-Bereich nennt dieselbe Seite Betriebsgröße, Branche und Standort. Nach dem [englischen Wikipedia-Artikel zur Marktsegmentierung](https://en.wikipedia.org/wiki/Market_segmentation) (auf Englisch) sind geografische und firmografische Merkmale im B2B am weitesten verbreitet, also Unternehmensgröße, Branche oder Standort. Lebensstil und Persönlichkeit lassen sich bei einem Unternehmen kaum erkennen. Die Tabelle nimmt deshalb Bedarf und Wert als viertes Kriterium; Lehrbücher ordnen das dem Verhalten zu, als Nutzen- oder Bedarfssegmentierung.
+
+| Kriterium | Beispielwerte im B2B | Woher die Daten kommen | Was Sie je Segment anders machen |
+| --- | --- | --- | --- |
+| Firmografisch (das B2B-Gegenstück zu demografisch) | Branche, Unternehmensgröße, Rechtsform, Jahre am Markt | Eigene Recherche, Website des Unternehmens, erstes Gespräch | Andere Referenzen und Wortwahl je Branche; ein Standardangebot für kleine Firmen und ein Telefonat für große |
+| Geografisch | Land, Region, Stadt, Zeitzone | Rechnungs- oder Lieferadresse | Sprache und Währung des Angebots, welche Messen Sie besuchen, wen Sie besuchen und wen Sie anrufen |
+| Verhaltensorientiert | Datum der letzten Bestellung, Bestellungen pro Jahr, gekaufte Produkte, wie der Kunde auf Sie aufmerksam wurde | Ihre Rechnungen und Aufträge, die Deals und Gespräche im CRM | Ein Nachfassen nach der ersten Bestellung, ein Rückgewinnungsanruf, wenn Bestellungen ausbleiben, ein Zusatzangebot für häufige Besteller |
+| Bedarf und Wert | Das Problem, wofür der Kunde Sie beauftragt, Jahresumsatz, Marge, Wachstumspotenzial | Gespräche, Ihre Notizen, Umsatz je Kunde | Mit welchem Angebot Sie vorangehen und wie viel Betreuungszeit der Kunde bekommt |
+
+Beginnen Sie mit einem oder zwei Kriterien. Eine Tabelle mit fünf Kriterien und zwölf Segmenten wirkt gründlich und wird ignoriert. Den meisten kleinen Teams reicht eine firmografische Aufteilung für die Frage, wer der Kunde ist, plus Wert oder Verhalten für die Frage, wie er sich verhält und was er einbringt.
+
+Externe Angaben in diesem Abschnitt geprüft am 3. November 2026 (Quellen am Ende).
+
+## Welche Beispiele gibt es für Kundensegmente?
+
+Drei erfundene Unternehmen zeigen, wie sich die Kriterien kombinieren. Es sind Illustrationen, keine Richtwerte.
+
+| Unternehmen | Kriterium | Beispielsegmente | Was sich ändert |
+| --- | --- | --- | --- |
+| Systemhaus mit 60 Kunden | Firmografisch, dann Wert | Fertigungsbetriebe ab 100 Beschäftigten, Arztpraxen, alle übrigen; je Gruppe die fünf größten Kunden | Referenz und Ansprechpartner in der Ansprache unterscheiden sich je Branche; die größten Kunden bekommen einen festen Ansprechpartner und ein Jahresgespräch |
+| Großhandel für Reinigungsbedarf | Verhalten (RFM) | Stammkunden, Einmalbesteller, abwandernde Kunden, verlorene Kunden | Stammkunden bekommen einmal im Quartal einen Anruf, Einmalbesteller ein Nachfassen zur zweiten Bestellung, abwandernde Kunden einen persönlichen Anruf |
+| Werbeagentur mit Projektkunden | Wert (ABC) | Schlüsselkunden, Kernkunden, Kleinkunden | Schlüsselkunden bekommen Kapazität zuerst zugesagt, Kleinkunden ein Standardpaket |
+
+Verbrauchernahe Anbieter wie Onlineshops segmentieren nach Alter, Wohnort oder Kaufhistorie. Ein B2B-Team segmentiert Unternehmen, und die Personen dort erben das Segment ihres Unternehmens.
+
+Ein praxistauglicher Satz aus fünf Segmenten für ein kleines B2B-Team mit Wiederkäufen mischt Wert und Verhalten (mein Vorschlag, kein Branchenstandard):
+
+1. **Schlafend:** keine Bestellung in den letzten 12 Monaten.
+2. **Neu:** erste Bestellung vor weniger als 12 Monaten. Sie liegen beim Umsatz nur deshalb unten, weil sie neu sind.
+3. **Schlüsselkunden:** ABC-Klasse A, die Kunden, die den größten Teil Ihres Umsatzes bringen.
+4. **Kernkunden:** ABC-Klasse B.
+5. **Kleinkunden:** ABC-Klasse C.
+
+Jeder Kunde gehört zu genau einem Segment. Schreiben Sie die Regeln deshalb in dieser Reihenfolge auf: erst Schlafend, dann Neu, dann A, B und C nach Umsatz. Ohne Reihenfolge landet ein neuer Schlüsselkunde in zwei Segmenten.
+
+## Wie funktioniert die ABC-Analyse nach Umsatz?
+
+Die ABC-Analyse ist ein verbreiteter Weg, Kunden nach Wert einzuteilen, und für ein Team ohne Analyseabteilung leicht umzusetzen. Sie reihen die Kunden nach Umsatz und schneiden die Liste in drei Klassen: A für die wenigen Kunden mit dem größten Teil des Umsatzes, B für die Mitte, C für den langen Schwanz. Die Lehrbuchannahme ist das Pareto-Prinzip: Etwa 20 Prozent der Kunden bringen 80 Prozent des Umsatzes. Verstehen Sie das als Faustregel. Die [Wikipedia zur ABC-Analyse](https://de.wikipedia.org/wiki/ABC-Analyse) nennt diesen Fall idealtypisch, schreibt, dass die Ergebnisse des Pareto-Ansatzes in der Realität selten erreicht werden, und hält fest, dass jedes Unternehmen die Prozentzahlen selbst festlegt. Die Klassengrenzen bestimmen also Sie. Als Maßstab dienen Umsatz oder, wenn Sie ihn kennen, der Deckungsbeitrag.
+
+1. **Listen Sie alle Kunden mit ihrem Umsatz** für einen festen Zeitraum auf, meist die letzten 12 Monate.
+2. **Sortieren Sie absteigend** und ergänzen Sie den Anteil jedes Kunden am Gesamtumsatz.
+3. **Addieren Sie die Anteile** von oben, sodass jede Zeile den kumulierten Anteil zeigt.
+4. **Ziehen Sie zwei Linien**, wo der kumulierte Anteil Ihre Grenzen überschreitet, zum Beispiel bei 70 und 90 Prozent. Kunden über der ersten Linie sind A, zwischen den Linien B, darunter C.
+
+So sieht das Ergebnis für zehn erfundene Kunden aus (Umsatz in Tausend Euro in 12 Monaten, insgesamt 500):
+
+| Kunde | Umsatz | Anteil am Gesamtumsatz | Kumulierter Anteil | Klasse |
+| --- | --- | --- | --- | --- |
+| 1 | 180 | 36 Prozent | 36 Prozent | A |
+| 2 | 110 | 22 Prozent | 58 Prozent | A |
+| 3 | 60 | 12 Prozent | 70 Prozent | A |
+| 4 | 40 | 8 Prozent | 78 Prozent | B |
+| 5 | 30 | 6 Prozent | 84 Prozent | B |
+| 6 | 25 | 5 Prozent | 89 Prozent | B |
+| 7 | 20 | 4 Prozent | 93 Prozent | C |
+| 8 | 15 | 3 Prozent | 96 Prozent | C |
+| 9 | 12 | 2,4 Prozent | 98,4 Prozent | C |
+| 10 | 8 | 1,6 Prozent | 100 Prozent | C |
+
+| Klasse | Kunden | Anteil der Kunden | Anteil am Umsatz | Was Sie anders machen |
+| --- | --- | --- | --- | --- |
+| A | 3 | 30 Prozent | 70 Prozent | Ein benannter Verantwortlicher, ein Anruf pro Quartal, Frühwarnung bei Veränderungen |
+| B | 3 | 30 Prozent | 19 Prozent | Regelmäßiger Kontakt, einmal im Jahr die Frage, was Sie noch für den Kunden tun können |
+| C | 4 | 40 Prozent | 11 Prozent | Ein Standardangebot, wenig Handarbeit, ein Vermerk, wenn einer zu wachsen beginnt |
+
+Echte Listen sehen selten nach 20 und 80 aus. Im Beispiel bringen die drei größten Kunden, 30 Prozent der Liste, 70 Prozent des Umsatzes, und das ist normal. Die Tabelle zeigt außerdem ein Risiko, das Sie benennen sollten: Kunde 1 allein macht 36 Prozent des Umsatzes aus.
+
+Die ABC-Analyse nach Umsatz hat Grenzen. Umsatz ist kein Gewinn: Ein großer Kunde, der zehnmal so viel Betreuung braucht, kann weniger einbringen als ein kleinerer. Neue Kunden stehen unten, weil sie gerade erst angefangen haben, deshalb nimmt der Satz aus fünf Segmenten sie vorher heraus. Und die Methode reiht die Vergangenheit, nicht das Potenzial: Ergänzen Sie für Kunden, die Sie ausbauen wollen, eine kurze Notiz zum Wachstumspotenzial.
+
+Wenn Sie wissen, welche Segmente den Umsatz bringen, zeigt der Leitfaden zur [Kundenakquise](/blog/customer-acquisition), wie Sie berechnen, was ein Neukunde je Kanal kostet, damit Sie gezielt nach weiteren Kunden wie Ihrer A-Klasse suchen.
+
+## Wie funktioniert die RFM-Analyse, und wann passt sie?
+
+Die RFM-Analyse bewertet jeden Kunden mit drei Fragen: **Recency** (wann war die letzte Bestellung), **Frequency** (wie oft bestellt der Kunde) und **Monetary Value** (wie viel gibt er aus). Die [Wikipedia zur RFM-Analyse](https://de.wikipedia.org/wiki/RFM-Analyse) beschreibt sie als Marketinginstrument zur Kundenbewertung: Jeder Faktor erhält Punkte, und die Summe zeigt den Wert des Kunden für das Unternehmen.
+
+Für ein kleines Team genügen drei Stufen je Frage. Die Grenzen in der Tabelle sind Beispiele; legen Sie Ihre danach fest, wie oft Ihre Kunden tatsächlich bestellen.
+
+| Wert | Recency (Tage seit der letzten Bestellung) | Frequency (Bestellungen in 12 Monaten) | Monetary (Umsatz in 12 Monaten) |
+| --- | --- | --- | --- |
+| 3 | Bis 90 Tage | 6 oder mehr | Oberes Drittel Ihrer Kunden |
+| 2 | 91 bis 365 Tage | 2 bis 5 | Mittleres Drittel |
+| 1 | Über 365 Tage | 0 oder 1 | Unteres Drittel |
+
+Aus den Werten bilden Sie mit einfachen Regeln vier Segmente, in dieser Reihenfolge geprüft:
+
+- **Verloren:** Recency 1. Seit einem Jahr nichts; entscheiden Sie einmal, ob Sie den Kunden zurückgewinnen oder gehen lassen.
+- **Abwandernd:** Recency 2 und Frequency 2 oder 3. Sie haben regelmäßig bestellt und sind still geworden; rufen Sie zuerst hier an.
+- **Einmalbesteller:** Frequency 1 und Recency 2 oder 3. Sie haben im letzten Jahr einmal bestellt; sorgen Sie dafür, dass die zweite Bestellung kommt.
+- **Stammkunden:** Recency 3 und Frequency 2 oder 3. Halten Sie sie zufrieden und fragen Sie nach Empfehlungen.
+
+Jede Kombination der Werte landet in genau einem der vier Segmente.
+
+Sortieren Sie innerhalb jedes Segments nach dem Monetary-Wert, damit Sie die wertvollsten Kunden zuerst anrufen.
+
+Die RFM-Analyse passt zu Unternehmen, deren Kunden wieder bestellen: Großhandel, Verbrauchsmaterial, Verlängerungen, laufende Betreuung. Sie passt nicht zu einem Unternehmen, das alle paar Jahre ein großes Projekt verkauft, denn die Häufigkeit ist dort fast überall 1. Nehmen Sie dann die ABC-Analyse nach Umsatz und eine Notiz zu Bedarf und Potenzial.
+
+## Wie segmentieren Sie Ihre Kunden in fünf Schritten?
+
+1. **Schreiben Sie das Ziel in einem Satz auf.** Zum Beispiel: „entscheiden, wer einmal im Quartal einen Anruf bekommt“. Das Ziel sagt Ihnen, welches Kriterium passt.
+2. **Wählen Sie ein oder zwei Kriterien** aus der Tabelle oben und legen Sie drei bis fünf Segmente mit je einer schriftlichen Regel fest.
+3. **Legen Sie die Daten in Feldern ab.** Ein Segment, das Sie nicht aus einem Feld ablesen können, lässt sich nicht filtern, nicht auswerten und von Kolleginnen nicht prüfen.
+4. **Ordnen Sie jeden Kunden zu und prüfen Sie zehn davon von Hand.** Widersprechen Sie bei drei von zehn dem Ergebnis, braucht die Regel Arbeit.
+5. **Geben Sie jedem Segment eine Maßnahme und eine verantwortliche Person und legen Sie einen Prüftermin fest.** Für die meisten kleinen Teams genügt eine Prüfung pro Quartal.
+
+Segmente schärfen auch den Rest Ihres Vertriebs. Das Zielprofil, mit dem Sie einen Lead qualifizieren (siehe [Lead vs. Prospect](/blog/prospect-vs-lead)), ist ein aufgeschriebenes Segment: die Kunden, von denen Sie mehr wollen. Und eine [Customer-Journey-Map](/blog/customer-journey) funktioniert am besten für ein Segment nach dem anderen, denn die Touchpoints einer Agentur mit zehn Beschäftigten und eines Fertigers mit 300 unterscheiden sich.
+
+## Darf ich Kundendaten segmentieren? Hinweis zur DSGVO
+
+Sobald ein Segment an Daten benannter Personen hängt, etwa Ansprechpartner oder Einzelunternehmer, verarbeiten Sie personenbezogene Daten. Eine mögliche Grundlage ist Art. 6 Abs. 1 Buchstabe f der DSGVO, die Verarbeitung zur Wahrung berechtigter Interessen des Verantwortlichen oder eines Dritten, sofern nicht die Interessen oder Grundrechte der betroffenen Person überwiegen ([Art. 6 DSGVO bei dejure.org](https://dejure.org/gesetze/DSGVO/6.html)). Ob die interne Auswertung Ihrer Kunden nach Umsatz, Branche oder Bestellverhalten darunter fällt, ist eine Abwägung für Ihren Fall, die Sie selbst treffen und sinnvollerweise festhalten. Dieser Leitfaden ist keine Rechtsberatung.
+
+Zwei praktische Hinweise: Tragen Sie in ein Segmentfeld nur ein, was Sie für die Betreuung brauchen, keine privaten Merkmale. Und prüfen Sie getrennt, ob Sie jemanden werblich ansprechen dürfen: Für E-Mail-Werbung gelten eigene Regeln, die der Leitfaden zur [Kundenakquise im B2B](/blog/customer-acquisition) zusammenfasst. Geprüft am 3. November 2026.
+
+## Wie richten Sie die Kundensegmentierung in Customermates ein?
+
+Customermates ist unser Produkt, ein Open-Source-CRM. Es hält Ihre Kunden, die Menschen dort und ihre Deals an denselben Datensätzen fest (und in Tarifen mit dem Unified Inbox auch ihre Nachrichten), und Felder, Filter, gespeicherte Ansichten, Board und Dashboard-Diagramme reichen aus, um die Segmente oben zu führen. Es ordnet Segmente nicht selbst zu: Sie setzen den Wert nach der Regel, die Sie aufgeschrieben haben.
+
+<Steps>
+  <Step title="Segmentfelder an den Organisationen anlegen">Öffnen Sie unter **Konfigurieren** die Liste mit Ihren Kundenfirmen, meist Organisationen, wählen Sie **Hinzufügen**, dann **Feld**, und legen Sie ein Feld vom Typ **Einzelauswahl** „Segment“ mit Ihren Optionen an (zum Beispiel Schlüsselkunde, Kernkunde, Kleinkunde, Neu, Schlafend). Ergänzen Sie „Branche“ und „Größe“ (1 bis 10, 11 bis 50, 51 bis 250, über 250 Beschäftigte) ebenfalls als **Einzelauswahl**, damit Diagramme danach gruppieren können. Für RFM oder ABC kommen ein Feld vom Typ **Geldbetrag** „Umsatz 12 Monate“ und ein **Datum**-Feld „Letzte Bestellung“ dazu. Datensatz-Tags gibt es nicht; ein **Mehrfachauswahl**-Feld ist das Gegenstück, wenn eine Firma zu mehreren Gruppen gehört. Ein neuer Workspace startet ohne Listen; in Customermates Cloud kann die KI-Einrichtung sie für Sie anlegen.</Step>
+  <Step title="Felder füllen">Klicken Sie in der Tabelle auf einen Wert, um ihn direkt zu ändern. Liegen Ihre Kunden in einer Tabellenkalkulation, ergänzen Sie eine Spalte „Segment“ und holen die Datei mit **Aus Datei hinzufügen** (Excel oder CSV) herein: Der Assistent ordnet Spalten zu und lässt Sie neue oder vorhandene Datensätze wählen. Ein berechnetes Feld kann den Deal-Wert addieren, der mit einer Organisation verknüpft ist, wenn Sie den Umsatz berechnen lassen möchten; prüfen Sie in der Vorschau, dass es das zählt, was Sie als Umsatz verstehen. Felder, Import und Ansichten beschreibt die [Anleitung zu Datensätzen](/docs/app-records).</Step>
+  <Step title="Pro Segment eine Ansicht speichern">Öffnen Sie **Filter**, wählen Sie Segment ist Schlüsselkunde, sortieren Sie nach „Umsatz 12 Monate“ oder „Letzte Bestellung“ und speichern Sie mit **Als Ansicht speichern**. Filter werden mit UND verknüpft, „Schlüsselkunde und Branche Fertigung“ funktioniert also; für „Schlüsselkunde oder Kernkunde“ wählen Sie beide Werte im selben Segment-Filter. Bei den Kontakten zeigt das Filtermenü auch die Felder verknüpfter Listen, Sie können Personen also nach dem Segment ihrer Organisation filtern. Gespeicherte Ansichten sind persönlich: Jede Kollegin legt ihre eigenen an, und ein geteilter Link öffnet sich als ungespeicherte Änderung, die sie speichern kann.</Step>
+  <Step title="Das Board nach Segment öffnen">Wählen Sie unter **Darstellung** das **Board** und gruppieren Sie nach „Segment“. Jedes Segment wird eine Spalte, und das Ziehen einer Karte verschiebt die Firma in ein anderes Segment. Ein Board gruppiert nach einem Auswahlfeld der eigenen Liste; lassen Sie „Segment“ daher an den Organisationen und öffnen Sie das Board dort.</Step>
+  <Step title="Die Segmente im Dashboard auswerten">Fügen Sie Diagramm-Widgets hinzu: einen Ring, der Organisationen nach „Segment“ zählt, ein Balkendiagramm der Organisationen nach „Branche“ und ein Diagramm mit Deals als Quelle, das den Deal-Wert nach dem Segment der Organisation summiert. Ein Deal, der mit zwei Organisationen verknüpft ist, zählt in beiden Gruppen voll. Widgets sind persönlich, und mit **Als Vorlage freigeben** starten Kolleginnen ihre eigene Kopie. Die Seite zum [Reporting](/features/reporting) listet die Diagrammstile, die [Dashboard-Anleitung](/docs/app-dashboard) den Widget-Editor.</Step>
+</Steps>
+
+Die Diagramme zeigen, wo jedes Segment heute steht. Sie verfolgen nicht, wie Kunden im Zeitverlauf zwischen Segmenten wechseln. Menschen und ihre Deals bleiben an denselben [Kontakt- und Organisationsdatensätzen](/features/contact-management), das Segment ist also überall sichtbar, wo Sie arbeiten.
+
+In Customermates Cloud kann der Assistent Mate mit gehosteten KI-Credits die Datenqualität prüfen:
+
+> Zeig mir alle Organisationen ohne Segment, mit ihrem Umsatz 12 Monate, den höchsten zuerst. Ändere nichts.
+
+Wenn Sie lieber Claude, ChatGPT oder einen anderen KI-Client nutzen, gibt ihm der [MCP-Server](/blog/what-is-an-mcp-server) Zugriff auf dieselben Datensätze, mit Ihrem eigenen KI-Anbieter.
+
+<AcquisitionCallout title="Was Customermates bei der Kundensegmentierung nicht übernimmt" variant="boundary">
+  Keine automatische Segmentierung oder Clusteranalyse: Segmente sind Werte, die Sie von Hand, per Import oder über die API setzen. Kein Lead-Scoring und keine Datenanreicherung, Customermates bewertet Kunden also nicht und ergänzt auch Branche und Größe nicht für Sie. Keine E-Mail-Kampagnen, Sequenzen oder Massenansprache: Die Ansprache läuft Nachricht für Nachricht als Entwurf. Ansichten sind persönlich, es gibt keine gemeinsamen Team-Ansichten, und Filter werden nur mit UND verknüpft. Wenn Sie Segmente brauchen, die sich aus Website- oder Produktverhalten selbst aktualisieren, segmentierte E-Mail-Kampagnen oder eine Clusteranalyse über Tausende Verbraucherkunden, passt eine Marketing-Automation-Plattform oder ein Analysewerkzeug besser. Customermates passt zu einem kleinen B2B-Team mit einigen hundert Kunden, wenigen Segmenten und Notizen, Deals und Kontakten am selben Datensatz.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Was ist Kundensegmentierung einfach erklärt?">
+Sie teilen Ihre Kunden in Gruppen ein, die etwas Nützliches gemeinsam haben, etwa Branche, Größe, Region, Kaufverhalten oder Umsatz, damit jede Gruppe das Angebot, den Kontaktrhythmus und die Aufmerksamkeit bekommt, die zu ihr passt. Ein Kundensegment ist eine dieser Gruppen.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Kundensegmentierung und Zielgruppensegmentierung?">
+Die Kundensegmentierung arbeitet mit den Kunden und Kontakten, die Sie kennen und im CRM finden. Die Zielgruppensegmentierung zerlegt die Gruppe, die Sie mit Marketing erreichen wollen, in Teilgruppen für Botschaften und Kampagnen, auch wenn sie noch nie gekauft hat. In kleinen B2B-Teams fallen beide oft zusammen.
+</FaqItem>
+
+<FaqItem question="Welche Kriterien eignen sich für die Kundensegmentierung im B2B?">
+Firmenmerkmale wie Branche und Unternehmensgröße, die Region, das Verhalten (letzte Bestellung, Bestellhäufigkeit) sowie Bedarf und Wert (Umsatz, Marge, Potenzial). Starten Sie mit ein oder zwei Kriterien, deren Daten Sie schon haben.
+</FaqItem>
+
+<FaqItem question="Wie viele Kundensegmente sind sinnvoll?">
+Drei bis fünf. Jedes Segment braucht eine Maßnahme und eine verantwortliche Person, und ein Team aus wenigen Personen kann nicht zwölf verschiedene Behandlungen führen. Fassen Sie Segmente zusammen, die Sie gleich behandeln würden.
+</FaqItem>
+
+<FaqItem question="Was ist besser, ABC-Analyse oder RFM-Analyse?">
+Das hängt vom Geschäft ab. Die ABC-Analyse nach Umsatz passt fast immer und zeigt, welche Kunden das meiste Gewicht haben. Die RFM-Analyse passt nur, wenn Kunden wiederholt bestellen, denn sie braucht Daten zu Aktualität und Häufigkeit. Viele Teams beginnen mit ABC und ergänzen RFM später.
+</FaqItem>
+
+<FaqItem question="Darf ich Kundendaten segmentieren?">
+Segmente, die an Daten von Ansprechpartnern oder Einzelunternehmern hängen, verarbeiten personenbezogene Daten. Eine mögliche Grundlage ist das berechtigte Interesse nach Art. 6 Abs. 1 Buchstabe f DSGVO; ob es Ihren Fall trägt, ist eine Abwägung, die Sie selbst treffen. Das ist keine Rechtsberatung. Werbliche Ansprache prüfen Sie getrennt.
+</FaqItem>
+
+<FaqItem question="Kann Customermates Kunden automatisch segmentieren?">
+Nein. Customermates hat keine automatische Segmentierung, kein Lead-Scoring, keine Datenanreicherung und keine E-Mail-Kampagnen. Sie setzen ein Segmentfeld von Hand, per Import oder über die API, und Filter, gespeicherte Ansichten, Board und Dashboard-Diagramme arbeiten damit.
+</FaqItem>
+</Faq>
+
+Externe Angaben geprüft am 3. November 2026 anhand der Wikipedia-Artikel zu [Marktsegmentierung](https://de.wikipedia.org/wiki/Marktsegmentierung), [ABC-Analyse](https://de.wikipedia.org/wiki/ABC-Analyse) und [RFM-Analyse](https://de.wikipedia.org/wiki/RFM-Analyse), des englischen Wikipedia-Artikels zur [Market segmentation](https://en.wikipedia.org/wiki/Market_segmentation) und von [Art. 6 DSGVO bei dejure.org](https://dejure.org/gesetze/DSGVO/6.html). Das beschriebene Verhalten von Customermates stammt aus der Produktdokumentation zu [Datensätzen und Ansichten](/docs/app-records), [Filtern](/docs/filter-syntax) und [Dashboards](/docs/app-dashboard).

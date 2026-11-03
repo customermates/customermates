@@ -1,0 +1,221 @@
+---
+title: "Customer Segmentation: Types, Examples and Setup"
+description: "Customer segmentation explained: the four types with B2B examples, ABC analysis by revenue, RFM and a worked setup with fields, views and charts in a CRM."
+
+relatedHrefs:
+  - /features/reporting
+  - /features/contact-management
+  - /blog/customer-acquisition
+  - /blog/customer-journey
+
+hero:
+  title: "Customer Segmentation: Types, Examples and How to Set It Up in a CRM"
+  description: "What customer segmentation and a customer segment are, the four types of segmentation with B2B examples, how to group customers by revenue (ABC) or buying behavior (RFM), and a setup with fields, saved views, a board and dashboard charts for a small B2B team."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-03
+  tags:
+    - Customer Segmentation
+    - B2B Sales
+    - Sales Process
+---
+
+# Customer Segmentation: Types, Examples and How to Set It Up in a CRM
+
+Customer segmentation means sorting your customers into a few groups that share a trait which changes how you sell to them, serve them or price for them: industry, company size, region, buying behavior or the revenue they bring. The four types most guides name are demographic, geographic, psychographic and behavioral; in B2B, company traits and customer value do most of the work, and a small team can run the whole thing with a few fields, saved views and a board in a CRM.
+
+This guide defines a customer segment, shows the four types as a B2B table with the data source and the action for each, walks through the two methods small teams use most (ABC analysis by revenue, and RFM for repeat orders) and ends with a setup in Customermates, the open-source CRM that publishes it. Customermates has no automatic segmentation, no lead scoring and no email campaigns, so the last section says what you do by hand and when a marketing automation tool fits better.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Definition">Customer segmentation is dividing customers into groups that share characteristics, so each group gets the treatment that fits it. A customer segment is one such group.</SummaryItem>
+  <SummaryItem label="Four types">Demographic (in B2B: firmographic), geographic, behavioral, and needs or value. Consumer textbooks list psychographic where this guide lists needs.</SummaryItem>
+  <SummaryItem label="Two methods for small teams">ABC analysis ranks customers by revenue. RFM scores recency, frequency and spend for customers who order again and again.</SummaryItem>
+  <SummaryItem label="How many segments">Three to five, each with an action you can name. A segment without an action is only a label.</SummaryItem>
+  <SummaryItem label="In Customermates">Single choice fields, filters and saved views, a board and dashboard charts by segment, with values you set yourself. No automatic segments, no scoring, no campaigns.</SummaryItem>
+</ArticleSummary>
+
+## What is customer segmentation, and what is a customer segment?
+
+Bain & Company defines customer segmentation as "the subdivision of a market into discrete customer groups that share similar characteristics". A **customer segment** is one of those groups, for example "manufacturers with 50 to 250 employees" or "customers who ordered in the last 90 days". A **customer segmentation model** is the set of criteria plus the rule that puts each customer into exactly one segment.
+
+Two neighbors of the term are worth separating. Market segmentation divides the whole market, including people who have never heard of you; customer segmentation works on the customers and contacts you know, the ones in your CRM. And a model can be a handful of written rules, which is what this guide shows, or statistical clustering that groups customers by many variables at once. Clustering needs analysis tools and a lot of data, which is usually more than a team with a few hundred customers needs.
+
+A segment is worth keeping when it passes four tests (a checklist of mine, not a standard):
+
+- **Identifiable:** a field in your CRM tells you which segment a customer belongs to.
+- **Different:** you would do something different for it, such as another offer, another contact rhythm or another price.
+- **Big enough:** enough customers or revenue that the different treatment pays back.
+- **Stable:** customers do not change segment every week, so a review once a quarter is enough.
+
+If you cannot name the action for a segment, drop it or merge it into a neighbor.
+
+## What are the four types of customer segmentation?
+
+The usual answer lists four bases for consumer markets: geographic, demographic, psychographic and behavioral. For B2B, [Wikipedia's article on market segmentation](https://en.wikipedia.org/wiki/Market_segmentation) notes that the most widely used bases are geographics and firmographics, meaning features such as company size, industry sector or location. Lifestyle and personality (psychographics) are rarely visible for a company, so the table uses needs and value as the fourth basis. Textbooks file that under behavioral, as benefit or needs-based segmentation.
+
+| Basis | Example values in B2B | Where the data comes from | What you do differently per segment |
+| --- | --- | --- | --- |
+| Firmographic (the B2B version of demographic) | Industry, company size, legal form, years in business | Your own research, the company website, the first conversation | Different references and wording per industry; a self-serve offer for small companies and a call for large ones |
+| Geographic | Country, region, city, time zone | The billing or delivery address | Language and currency of your offer, which events you attend, who visits and who calls |
+| Behavioral | Date of the last order, orders per year, products bought, how the customer found you | Your invoices and orders, the deals and conversations in the CRM | A check-in after the first order, a win-back call when orders stop, an upsell for frequent buyers |
+| Needs and value | The problem they hire you for, revenue per year, margin, growth potential | Discovery calls, your notes, revenue per customer | Which offer you lead with and how much account time the customer gets |
+
+Start with one or two bases. A table with five bases and twelve segments looks thorough and gets ignored. Most small teams do well with a firmographic split for who the customer is, plus value or behavior for how they act and what they bring.
+
+Third-party facts in this section checked on 3 November 2026 (see the sources at the end).
+
+## What is a customer segment example?
+
+Three made-up businesses show how the bases combine. They are illustrations, not benchmarks.
+
+| Business | Basis | Example segments | What changes |
+| --- | --- | --- | --- |
+| IT service company with 60 clients | Firmographic, then value | Manufacturers over 100 staff, medical practices, everyone else; within each, the five largest clients | Case study and contact role in outreach differ per industry; the largest clients get a named contact and a yearly review |
+| Wholesaler of cleaning supplies | Behavioral (RFM) | Regulars, one-time buyers, at risk, lapsed | Regulars get a call once a quarter, one-time buyers a check-in about a second order, at-risk customers a personal call |
+| Design agency with project clients | Value (ABC) | Key accounts, core, small | Key accounts get early access to capacity, small clients get a standard package |
+
+Consumer businesses such as webshops segment by age, location or purchase history. A B2B team segments companies, and the people who work there inherit the segment of their company.
+
+## What are the five customer segments?
+
+There is no standard list of five. The number and the names follow from the criteria you choose, so a guide that lists five segments shows one model, not a rule. For a small B2B team with repeat business, one workable set of five mixes value and behavior (my suggestion, not an industry standard):
+
+1. **Dormant:** no order in the last 12 months.
+2. **New:** first order less than 12 months ago. They rank low on revenue only because they are new.
+3. **Key accounts:** ABC class A, the customers who bring most of your revenue.
+4. **Core:** ABC class B.
+5. **Small:** ABC class C.
+
+Every customer sits in exactly one segment, so write the rules in order: Dormant first, then New, then A, B and C by revenue. Without an order of precedence, a new key account ends up in two segments.
+
+## How does ABC analysis by revenue work?
+
+ABC analysis is a common way to segment a customer base by value, and it is easy to run without an analytics team. You rank customers by revenue and cut the list into three classes: A for the few customers that bring most of the revenue, B for the middle, C for the long tail. The textbook framing is the Pareto principle, roughly 80 percent of the result from 20 percent of the causes, which in sales means a fifth of the customers bringing four fifths of the revenue. Treat that as a rule of thumb. [Wikipedia's article on the Pareto principle](https://en.wikipedia.org/wiki/Pareto_principle) calls the 80:20 split a convenient rule of thumb and not an immutable law, and [its article on ABC analysis](https://en.wikipedia.org/wiki/ABC_analysis) notes that there are no fixed thresholds for the classes. You set the cut-offs.
+
+1. **List every customer with its revenue** for a fixed period, usually the last 12 months.
+2. **Sort from highest to lowest** and add each customer's share of total revenue.
+3. **Add up the shares** from the top, so each row shows the cumulative share.
+4. **Draw two lines** where the cumulative share passes your cut-offs, for example 70 and 90 percent. Customers above the first line are A, between the lines B, below the second C.
+
+Here is the result for ten made-up customers (revenue in thousands over 12 months, 500 in total):
+
+| Customer | Revenue | Share of total | Cumulative share | Class |
+| --- | --- | --- | --- | --- |
+| 1 | 180 | 36 percent | 36 percent | A |
+| 2 | 110 | 22 percent | 58 percent | A |
+| 3 | 60 | 12 percent | 70 percent | A |
+| 4 | 40 | 8 percent | 78 percent | B |
+| 5 | 30 | 6 percent | 84 percent | B |
+| 6 | 25 | 5 percent | 89 percent | B |
+| 7 | 20 | 4 percent | 93 percent | C |
+| 8 | 15 | 3 percent | 96 percent | C |
+| 9 | 12 | 2.4 percent | 98.4 percent | C |
+| 10 | 8 | 1.6 percent | 100 percent | C |
+
+| Class | Customers | Share of customers | Share of revenue | What you do differently |
+| --- | --- | --- | --- | --- |
+| A | 3 | 30 percent | 70 percent | A named owner, a call every quarter, early warning when something changes |
+| B | 3 | 30 percent | 19 percent | Regular contact, one question per year about what else you could do for them |
+| C | 4 | 40 percent | 11 percent | A standard offer, little manual effort, a note when one starts to grow |
+
+Real lists rarely look like 20 and 80. In this example the top three customers, 30 percent of the list, bring 70 percent of the revenue, and that is normal. The table also shows a risk worth naming: customer 1 alone is 36 percent of the revenue.
+
+ABC by revenue has limits. Revenue is not profit: a large customer who needs ten times the support may earn you less than a smaller one, so use contribution margin where you know it. New customers rank low because they have only just started, which is why the five-segment set above takes them out first. And the method ranks the past, not the potential, so add a short note on growth potential for the customers you want to grow.
+
+Once you know which segments bring the revenue, the [customer acquisition guide](/blog/customer-acquisition) shows how to calculate what each channel costs per new customer, so you can look for more customers like your A class.
+
+## How does RFM segmentation work, and when does it fit?
+
+RFM scores each customer on three questions: **recency** (how long ago was the last order), **frequency** (how often do they order) and **monetary value** (how much do they spend). [Wikipedia's article on RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29) describes it as a method for analyzing customer value and segmenting customers, widely used in catalog and direct marketing, and notes that it needs no specialized statistical software.
+
+For a small team, three bands per question are enough. The cut-offs below are examples; set yours from how often your customers really order.
+
+| Score | Recency (days since last order) | Frequency (orders in 12 months) | Monetary (revenue in 12 months) |
+| --- | --- | --- | --- |
+| 3 | Up to 90 days | 6 or more | Top third of your customers |
+| 2 | 91 to 365 days | 2 to 5 | Middle third |
+| 1 | Over 365 days | 0 or 1 | Bottom third |
+
+Turn the scores into four segments with simple rules, checked in this order:
+
+- **Lapsed:** recency 1. Nothing for a year; decide once whether to win them back or let them go.
+- **At risk:** recency 2 and frequency 2 or 3. They used to order regularly and have gone quiet; call them first.
+- **One-time buyers:** frequency 1 and recency 2 or 3. They ordered once in the past year; make sure the second order happens.
+- **Regulars:** recency 3 and frequency 2 or 3. Keep them happy and ask for referrals.
+
+Every combination of scores lands in exactly one of the four.
+
+Inside each segment, sort by the monetary score so you call the most valuable customers first.
+
+RFM fits businesses where customers order again: wholesale, consumables, renewals, retainers. It does not fit a business that sells one large project every few years, because frequency is 1 for almost everyone. There, use ABC by revenue and a note on needs and potential instead.
+
+## How do you segment customers in five steps?
+
+1. **Write the goal in one sentence.** For example: "decide who gets a quarterly call". A goal tells you which basis to use.
+2. **Choose one or two bases** from the table above and list three to five segments with a written rule for each.
+3. **Put the data in fields.** A segment you cannot read from a field cannot be filtered, charted or checked by a colleague.
+4. **Assign every customer and check ten of them by hand.** If you disagree with the result for three of the ten, the rule needs work.
+5. **Attach one action and one owner to each segment, and set a review date.** A quarterly review is enough for most small teams.
+
+Segments also sharpen the rest of your sales work. The target profile you use to qualify a lead (see [prospect vs lead](/blog/prospect-vs-lead)) is a segment written down: the customers you want more of. And a [customer journey](/blog/customer-journey) map works best for one segment at a time, because the touchpoints of a ten-person agency and of a 300-person manufacturer differ.
+
+## How do you set up customer segmentation in Customermates?
+
+Customermates is our product, an open-source CRM. It keeps your customers, the people who work there and their deals on the same records (and, on plans with the unified inbox, their messages), and its fields, filters, saved views, board and dashboard charts are enough to run the segments above. It does not assign segments by itself: you set the value, using the rule you wrote down.
+
+<Steps>
+  <Step title="Add the segment fields to Organizations">In **Configure**, open the list that holds your customer companies, usually Organizations, choose **Add**, then **Field**, and create a **Single choice** field "Segment" with your options (for example Key account, Core, Small, New, Dormant). Add "Industry" and "Size" (1 to 10, 11 to 50, 51 to 250, over 250 employees) as **Single choice** fields too, so charts can group by them. For RFM or ABC add a **Money** field "Revenue 12 months" and a **Date** field "Last order". There are no record tags; a **Multiple choice** field is the equivalent when a company belongs to several groups. A new workspace starts without lists; on Customermates Cloud, AI setup can create them for you.</Step>
+  <Step title="Fill the fields">Click a value in the table to change it in place. If your customers live in a spreadsheet, add a Segment column and bring the file in with **Add from file** (Excel or CSV): the wizard maps columns and lets you choose new or existing records. A calculated field can total the deal value linked to an organization if you want revenue computed; check its preview shows what you count as revenue. The [records guide](/docs/app-records) documents fields, import and views.</Step>
+  <Step title="Save a view per segment">Open **Filters**, choose Segment is Key account, sort by Revenue 12 months or Last order, and use **Save as view**. Filters combine with AND, so "Key account and Industry Manufacturing" works; for "Key account or Core", select both values in the same Segment filter. On Contacts, the filter menu also lists the fields of linked lists, so you can filter people by the Segment of their organization. Saved views are personal: each colleague saves their own, and a shared link opens as unsaved changes that they can save.</Step>
+  <Step title="Open the board by segment">In **Appearance**, choose **Board** and group by Segment. Each segment becomes a column, and dragging a card moves the company to another segment. A board groups by a choice field of its own list, so keep Segment on Organizations and open the board there.</Step>
+  <Step title="Chart the segments on the dashboard">Add chart widgets: a doughnut that counts Organizations by Segment, a bar chart of Organizations by Industry, and a chart with Deals as the source that sums deal value grouped by the Segment of the organization. A deal linked to two organizations counts fully in both groups. Widgets are personal, and **Share as a template** lets colleagues start their own copy. The [reporting feature page](/features/reporting) lists the chart styles, and the [dashboard guide](/docs/app-dashboard) the widget editor.</Step>
+</Steps>
+
+Charts show where each segment stands today. They do not track how customers move between segments over time. People and their deals stay on the same [contact and organization records](/features/contact-management), so the segment is visible wherever you work.
+
+On Customermates Cloud, the Mate assistant can check your data quality with hosted AI credits:
+
+> Show me every organization that has no Segment, with its Revenue 12 months, highest first. Do not change anything.
+
+If you prefer Claude, ChatGPT or another AI client, the [MCP server](/blog/what-is-an-mcp-server) gives it access to the same records with your own AI provider.
+
+<AcquisitionCallout title="What Customermates does not do for customer segmentation" variant="boundary">
+  No automatic segmentation or clustering: segments are values you set by hand, by import or through the API. No lead scoring and no data enrichment, so it does not rate customers or fill in industry and size for you. No email campaigns, sequences or mass outreach: outreach is one drafted message at a time. Views are personal, there are no shared team views, and filters combine with AND only. If you need segments that update themselves from website or product behavior, segmented email campaigns, or statistical clustering over thousands of consumer customers, use a marketing automation platform or an analytics tool. Customermates fits a small B2B team with a few hundred customers, a handful of segments and notes, deals and contacts on the same record.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="What is customer segmentation in simple terms?">
+Sorting your customers into groups that share something useful, such as industry, size, region, buying behavior or revenue, so that each group gets the offer, contact rhythm and attention that suits it. A customer segment is one of those groups.
+</FaqItem>
+
+<FaqItem question="What are the four types of customer segmentation?">
+Demographic, geographic, psychographic and behavioral is the usual consumer list. In B2B, demographic becomes firmographic (industry, company size, location), and psychographic is often replaced by needs and value, because a company's lifestyle is rarely visible. Pick one or two to start.
+</FaqItem>
+
+<FaqItem question="What is a customer segment example?">
+"Manufacturers with 50 to 250 employees", "customers who ordered in the last 90 days" and "the three customers that bring 70 percent of revenue" are all segments. Each one is defined by a rule you can check in a field, and each one gets a different action.
+</FaqItem>
+
+<FaqItem question="What are the five customer segments?">
+There is no standard five. A workable set for a small B2B team is Dormant, New, Key accounts, Core and Small, with written rules checked in that order. The number of segments should follow your criteria and the actions you can take, not a template.
+</FaqItem>
+
+<FaqItem question="What is a customer segmentation model?">
+The criteria you segment by plus the rule that assigns each customer to one segment, for example "ABC class by revenue in the last 12 months" or RFM bands. Models range from a few written rules to statistical clustering; small teams usually need only the rules.
+</FaqItem>
+
+<FaqItem question="How many customer segments should a small business have?">
+Three to five. Every segment needs an action and an owner, and a team of a few people cannot run twelve different treatments. Merge segments you would treat the same way.
+</FaqItem>
+
+<FaqItem question="Can Customermates segment customers automatically?">
+No. Customermates has no automatic segmentation, no lead scoring or data enrichment and no email campaigns. You set a Segment field by hand, by import or through the API, and the filters, saved views, board and dashboard charts work from it.
+</FaqItem>
+</Faq>
+
+Third-party facts checked on 3 November 2026 against [Bain & Company's management tools page on customer segmentation](https://www.bain.com/insights/management-tools-customer-segmentation/), the Wikipedia articles on [market segmentation](https://en.wikipedia.org/wiki/Market_segmentation), the [Pareto principle](https://en.wikipedia.org/wiki/Pareto_principle), [ABC analysis](https://en.wikipedia.org/wiki/ABC_analysis) and [RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29). The Customermates behavior described comes from the product documentation on [records and views](/docs/app-records), [filters](/docs/filter-syntax) and [dashboards](/docs/app-dashboard).
