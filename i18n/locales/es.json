@@ -1133,6 +1133,7 @@
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftAlreadySent": "Este borrador ya se envió.",
       "draftChanged": "Este borrador cambió después de que lo abrieras.",
+      "draftFilesEmailOnly": "Solo los borradores de correo pueden contener archivos adjuntos.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "draftRecipientsChanged": "Estos destinatarios no coinciden con el borrador guardado. Un mensaje nuevo mantiene sus destinatarios en Para, y los destinatarios en Cco no pueden pasar a Para o Cc.",
       "draftSendInProgress": "Este borrador ya se está enviando. Revisa la conversación en un momento.",

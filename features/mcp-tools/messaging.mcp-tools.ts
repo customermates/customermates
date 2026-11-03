@@ -316,6 +316,7 @@ export const getMessagingThreadsTool = {
                 name: attachment.fileName ?? attachment.name,
                 type: attachment.type,
                 mime: attachment.mime,
+                ...(attachment.fileId ? { fileId: attachment.fileId } : {}),
               })),
               sentAt: message.sentAt,
               editedAt: message.editedAt,
@@ -569,6 +570,7 @@ export const sendEmailTool = {
     "Requires to, subject, body and threadId (reply, takes precedence; a draft-only conversation sends its draft) or connectedAccountId (new email). " +
     "to uses {identifier} objects; cc/bcc use email strings. At least one recipient across these groups; to: [] allows Cc-only or Bcc-only email. Never promote Bcc into To/Cc. " +
     "Saved drafts require draftMessageId and draftRevision from save_message_draft or get_messaging_threads; each revision is sent at most once and repeating the call returns the first result with repeated true. " +
+    "A saved draft sends with its own files; fileIds attaches CRM files to a new email. " +
     "A refused draft (changed, recipients differ, still sending, outcome unknown, or another version already sent) was not sent by that call; after an unknown outcome check the conversation and Sent folder, never resend blindly. " +
     "The enabled account signature and appearance apply automatically; never add a sign-off/signature to body. Duplicate reply bodies within a minute are rejected. " +
     "Use connectedAccountId from get_workspace_context.connectedAccounts[].id (status ok); threadId from get_messaging_threads.items[].id.",
@@ -599,6 +601,7 @@ export const saveMessageDraftTool = {
     "Prepare a message for inbox review without sending. Use threadId for a reply or to update a saved draft conversation; connectedAccountId plus recipients always creates a new draft conversation, even for recipients that already have one. " +
     "recipients are email addresses or one chat handle. Email-only subject/cc/bcc are supported; recipients: [] allows Cc-only or Bcc-only email with at least one cc/bcc address. Explicit recipients also sets reply To. " +
     "Saving on a threadId replaces that thread's one draft. The enabled signature is appended at send time; never add a sign-off/signature to body. " +
+    "Email drafts can carry files through fileIds (file values, a record's files list, or manage_record_files upload without recordId); omitting fileIds keeps the draft's files, [] removes them, and changed files are a new revision. " +
     "Use get_messaging_threads with the draft filter to find drafts. Returns draftMessageId, draftRevision and threadId for later send/discard. " +
     "Never use send_email/send_chat_message when asked to draft; they send immediately.",
   annotations: {

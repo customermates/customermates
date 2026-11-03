@@ -835,7 +835,7 @@ describe("authoritative action and condition excerpts", () => {
       facts: [
         "Öffnen Sie **Weitere Aktionen** in der Toolbar der Liste, zum Beispiel bei Ihrer Kontaktliste",
         "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
-        "Mit einer Excel-Arbeitsmappe startet ein Assistent",
+        "Mit einer Excel-Arbeitsmappe oder einer CSV-Datei startet ein Assistent",
       ],
     },
     {

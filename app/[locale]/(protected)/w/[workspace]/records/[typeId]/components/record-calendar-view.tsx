@@ -635,8 +635,9 @@ export const RecordCalendarView = observer(function RecordCalendarView({
   }, [store, wide]);
 
   useEffect(() => {
-    if (!windowKey || rangeMatches || refreshing) return;
-    if (heal.current.key !== windowKey) heal.current = { key: windowKey, attempts: 0 };
+    if (!windowKey || refreshing) return;
+    if (heal.current.key !== windowKey || rangeMatches) heal.current = { key: windowKey, attempts: 0 };
+    if (rangeMatches) return;
     if (heal.current.attempts >= 2) return;
     heal.current.attempts += 1;
     void store.refreshQuery().catch(() => undefined);

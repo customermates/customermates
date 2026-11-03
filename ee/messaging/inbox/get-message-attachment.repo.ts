@@ -9,5 +9,7 @@ export abstract class GetMessageAttachmentMetaRepo {
     mime: string | null;
     fileName: string | null;
     size: number | null;
+    isDraft: boolean;
+    fileId: string | null;
   }>;
 }

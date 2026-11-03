@@ -83,6 +83,8 @@ export const AttachmentMetaSchema = z.object({
   gif: z.boolean().nullish(),
   durationSeconds: z.number().nonnegative().nullish(),
   unavailable: z.boolean().nullish(),
+  fileId: z.string().nullish(),
+  sha256: z.string().nullish(),
 });
 export type AttachmentMeta = z.infer<typeof AttachmentMetaSchema>;
 

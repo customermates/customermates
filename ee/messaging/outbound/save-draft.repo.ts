@@ -1,4 +1,4 @@
-import type { MessagingAttendee, MessagingMessage, MessagingThread } from "../messaging.schema";
+import type { AttachmentMeta, MessagingAttendee, MessagingMessage, MessagingThread } from "../messaging.schema";
 import type { MessagingProvider } from "@/generated/prisma";
 
 type DraftContent = {
@@ -13,6 +13,7 @@ type DraftContent = {
     cc: MessagingAttendee[];
     bcc: MessagingAttendee[];
   };
+  attachmentsMeta?: AttachmentMeta[];
 };
 
 export abstract class SaveDraftRepo {

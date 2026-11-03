@@ -2219,6 +2219,7 @@ model RecordFile {
   fieldId          String?
   recordId         String?
   conversationId   String?
+  draftMessageId   String?
   storageDriver    String
   storageKey       String                     @unique
   name             String
@@ -2248,6 +2249,7 @@ model RecordFile {
   @@index([companyId, fieldId])
   @@index([companyId, sha256])
   @@index([companyId, conversationId])
+  @@index([companyId, draftMessageId])
 }
 
 model RecordFileContent {

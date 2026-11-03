@@ -172,6 +172,10 @@ test("a consented Google click reaches the signup and the first payment once, an
         { provider: "google_ads", identifierKind: "gclid", identifierValue: gclid },
       ]);
       expect(await conversionTypes(database, companyId)).toEqual(["signup"]);
+      await expect.poll(async () => {
+        const cookie = await attributionCookie(visitor.context);
+        return cookie ? verifiedCookiePayload(cookie).clicks : null;
+      }).toEqual([]);
       const cleared = verifiedCookiePayload((await attributionCookie(visitor.context)) as Cookie);
       expect(cleared.consent.advertising).toBe(true);
       expect(cleared.clicks).toEqual([]);

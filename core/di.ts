@@ -345,6 +345,7 @@ import { SaveNewThreadDraftInteractor } from "@/ee/messaging/outbound/save-new-t
 import { SaveReplyDraftInteractor } from "@/ee/messaging/outbound/save-reply-draft.interactor";
 import { SendChatMessageInteractor } from "@/ee/messaging/outbound/send-chat-message.interactor";
 import { SendEmailInteractor } from "@/ee/messaging/outbound/send-email.interactor";
+import { EmailFileAttachments } from "@/ee/messaging/outbound/email-file-attachments";
 import { StartChatInteractor } from "@/ee/messaging/outbound/start-chat.interactor";
 import { AcceptRelationRequestInteractor } from "@/ee/messaging/posts/accept-relation-request.interactor";
 import { CancelRelationRequestInteractor } from "@/ee/messaging/posts/cancel-relation-request.interactor";
@@ -1813,6 +1814,9 @@ export const getSendChatMessageInteractor = () =>
     getDraftSendGate(),
   );
 
+const getEmailFileAttachments = () =>
+  new EmailFileAttachments(getMessagingRepo(), getRecordFileAccessService(), getFileStorageDriver, getRecordFileRepo());
+
 export const getSendEmailInteractor = () =>
   new SendEmailInteractor(
     getMessagingRepo(),
@@ -1820,13 +1824,19 @@ export const getSendEmailInteractor = () =>
     getMessagingService(),
     getEntitlementService(),
     getDraftSendGate(),
+    getEmailFileAttachments(),
   );
 
 export const getSetConnectedAccountSignatureInteractor = () =>
   new SetConnectedAccountSignatureInteractor(getConnectedAccountRepo(), getEntitlementService());
 
 export const getSaveDraftInteractor = () =>
-  new SaveDraftInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEntitlementService());
+  new SaveDraftInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getEntitlementService(),
+    getEmailFileAttachments(),
+  );
 
 export const getSaveNewThreadDraftInteractor = () => new SaveNewThreadDraftInteractor(getSaveDraftInteractor());
 
@@ -1890,7 +1900,13 @@ export const getGetMessagingFilterOptionsInteractor = () =>
   new GetMessagingFilterOptionsInteractor(getConnectedAccountRepo(), getEntitlementService());
 
 export const getGetMessageAttachmentInteractor = () =>
-  new GetMessageAttachmentInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
+  new GetMessageAttachmentInteractor(
+    getMessagingRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+    getEmailFileAttachments(),
+    getFileStorageDriver,
+  );
 
 export const getGetUnreadThreadCountInteractor = () =>
   new GetUnreadThreadCountInteractor(getMessagingRepo(), getEntitlementService());

@@ -1133,6 +1133,7 @@
       "demoMode": "Cette action n’est pas disponible en mode démo. Connectez-vous pour accéder à toutes les fonctionnalités.",
       "draftAlreadySent": "Ce brouillon a déjà été envoyé.",
       "draftChanged": "Ce brouillon a été modifié après son ouverture.",
+      "draftFilesEmailOnly": "Seuls les brouillons d'e-mail peuvent contenir des pièces jointes.",
       "draftMessageNotFound": "Ce brouillon est introuvable. Il a peut-être déjà été envoyé ou supprimé.",
       "draftRecipientsChanged": "Ces destinataires ne correspondent pas au brouillon enregistré. Un nouveau message conserve ses destinataires À, et les destinataires Cci ne peuvent pas passer en À ou Cc.",
       "draftSendInProgress": "Ce brouillon est déjà en cours d’envoi. Vérifiez la conversation dans un instant.",

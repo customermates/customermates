@@ -1,6 +1,6 @@
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
-import type { MessagingAttendee, MessagingThread } from "../messaging.schema";
+import type { AttachmentMeta, MessagingAttendee, MessagingThread } from "../messaging.schema";
 import type { MessagingMessageDto } from "../inbox/inbox.schema";
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
@@ -23,6 +23,9 @@ import { draftThreadRecipientSetsMatch, normalizeDraftThreadRecipients } from ".
 import { MessagingMessageDtoSchema, toMessagingMessageDto } from "../inbox/inbox.schema";
 import { EMPTY_ATTENDEE } from "../unipile.mappers";
 import type { SaveDraftRepo } from "./save-draft.repo";
+import type { EmailFileAttachments } from "./email-file-attachments";
+import { EMAIL_FILE_ATTACHMENTS_MAX_COUNT, draftFileIds } from "./email-file-attachments";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 const DraftRecipientsSchema = z.array(z.string().min(1)).max(100).describe("Recipients to preserve with the draft");
 
@@ -42,6 +45,13 @@ const BaseSaveDraftSchema = z.object({
   body: z.string().min(1).max(100_000).describe("Email drafts use Markdown; chat drafts use plain text"),
   cc: z.array(z.email()).max(100).optional(),
   bcc: z.array(z.email()).max(100).optional(),
+  fileIds: z
+    .array(z.uuid())
+    .max(EMAIL_FILE_ATTACHMENTS_MAX_COUNT)
+    .optional()
+    .describe(
+      "Email drafts only: files to attach, from a file value, a record's files list or an upload without recordId. Replaces the draft's attachments; omit to keep them, [] removes them",
+    ),
 });
 
 export const SaveReplyDraftBodySchema = BaseSaveDraftSchema.omit({
@@ -103,6 +113,7 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
     private repo: SaveDraftRepo,
     private accountRepo: FindUsableAccountRepo,
     private entitlements: EntitlementService,
+    private files: Pick<EmailFileAttachments, "describe" | "bind">,
   ) {
     super();
   }
@@ -125,6 +136,14 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
       resolved.recipients.length + (data.cc?.length ?? 0) + (data.bcc?.length ?? 0) === 0
     )
       return fail(CustomErrorCode.emailRecipientsRequired, ["recipients"]);
+
+    if (!isEmail && data.fileIds?.length) return fail(CustomErrorCode.draftFilesEmailOnly, ["fileIds"]);
+    let files: { attachmentsMeta: AttachmentMeta[]; bindFileIds: string[] } | undefined;
+    if (isEmail && data.fileIds) {
+      const described = await this.files.describe(data.fileIds, thread ? { threadId: thread.id } : null);
+      if (!described.ok) return described;
+      files = described.data;
+    }
 
     const account = resolved.thread
       ? (resolved.account ?? (await this.accountRepo.findUsableAccountByIdOrThrow(resolved.thread.connectedAccountId)))
@@ -161,12 +180,25 @@ export class SaveDraftInteractor extends AuthenticatedInteractor<SaveDraftData, 
         cc: isEmail ? (data.cc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
         bcc: isEmail ? (data.bcc ?? []).map((email) => draftRecipient(email.toLowerCase())) : [],
       },
+      attachmentsMeta: files?.attachmentsMeta,
     };
 
-    const draft = await (
-      thread
-        ? this.repo.upsertThreadDraftOrThrow({ ...content, threadId: thread.id })
-        : this.repo.createConversationDraftOrThrow(content)
+    const draft = await runInTransaction(
+      async () => {
+        const saved = thread
+          ? await this.repo.upsertThreadDraftOrThrow({ ...content, threadId: thread.id })
+          : await this.repo.createConversationDraftOrThrow(content);
+        if (files) {
+          await this.files.bind({
+            draftMessageId: saved.id,
+            threadId: saved.messagingThreadId,
+            keepFileIds: draftFileIds(files.attachmentsMeta),
+            bindFileIds: files.bindFileIds,
+          });
+        }
+        return saved;
+      },
+      { companyId: this.companyId },
     ).catch(unwoundFailure);
     if (isInteractorFailure(draft)) return draft;
 

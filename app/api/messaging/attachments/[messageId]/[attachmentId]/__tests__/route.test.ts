@@ -29,6 +29,8 @@ vi.mock("@/core/di", async () => {
     } as never,
     { downloadAttachment: provider.download } as never,
     { require: () => Promise.resolve(null) } as never,
+    {} as never,
+    {} as never,
   );
   return { getGetMessageAttachmentInteractor: () => interactor };
 });

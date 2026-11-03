@@ -470,13 +470,13 @@ Pflicht: `text`. Optional: `threadId`, `draftMessageId`, `draftRevision`, `conne
 
 Stellt sofort zu. Senden oder antworten von einem verbundenen E-Mail-Konto; für einen gespeicherten Draft sind draftMessageId und draftRevision erforderlich, und threadId darf die eigene Unterhaltung des Drafts sein. Jede Draft-Revision wird höchstens einmal gesendet: Ein wiederholter Aufruf liefert das erste Ergebnis mit `repeated: true`, und ein geänderter Draft oder einer, dessen früheres Senden nicht bestätigt werden konnte, wird ohne Senden abgelehnt. Die aktivierte Signatur des Kontos wird automatisch angehängt, schreiben Sie daher keine Grußformel in den Text.
 
-Pflicht: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `draftMessageId`, `draftRevision`.
+Pflicht: `to`, `subject`, `body`. Optional: `threadId`, `connectedAccountId`, `cc`, `bcc`, `bodyFormat`, `attachments`, `fileIds`, `draftMessageId`, `draftRevision`.
 
 #### `save_message_draft`
 
 Nachricht zur Durchsicht vorbereiten: Der Draft erscheint in der Inbox, und Sie senden ihn selbst. Mit `threadId` entsteht eine Antwort, oder der Draft dieser Unterhaltung wird aktualisiert; mit `connectedAccountId` plus `recipients` entsteht bei jedem Aufruf eine neue Unterhaltung, die zunächst nur als Draft existiert. Gibt Message-ID, undurchsichtiges Revision-Token und Thread-ID zurück. Die Signatur wird beim Senden des Drafts angehängt, schreiben Sie daher keine Grußformel in den Text.
 
-Pflicht: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`.
+Pflicht: `body`. Optional: `threadId`, `connectedAccountId`, `recipients`, `subject`, `cc`, `bcc`, `fileIds`.
 
 #### `discard_message_draft`
 

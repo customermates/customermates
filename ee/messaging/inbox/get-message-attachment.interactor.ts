@@ -1,6 +1,8 @@
 import type { MessagingService } from "../messaging.service";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
+import type { FileStorageDrivers } from "@/core/storage/file-storage-driver";
+import type { EmailFileAttachments } from "../outbound/email-file-attachments";
 
 import { z } from "zod";
 
@@ -42,6 +44,8 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
     private repo: GetMessageAttachmentMetaRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private files: Pick<EmailFileAttachments, "file">,
+    private drivers: FileStorageDrivers,
   ) {
     super();
   }
@@ -52,6 +56,7 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
     if (denied) return denied;
 
     const meta = await this.repo.findAttachmentForMessageOrThrow(data);
+    if (meta.isDraft && meta.fileId) return this.draftFile(meta.fileId, data.messageId);
 
     let download: Awaited<ReturnType<MessagingService["downloadAttachment"]>>;
     try {
@@ -72,7 +77,26 @@ export class GetMessageAttachmentInteractor extends AuthenticatedInteractor<
 
     return {
       ok: true as const,
-      data: { body, contentType: contentType ?? meta.mime ?? "application/octet-stream", fileName: meta.fileName },
+      data: {
+        body,
+        contentType: contentType ?? meta.mime ?? "application/octet-stream",
+        fileName: meta.fileName,
+      },
+    };
+  }
+
+  private async draftFile(fileId: string, draftMessageId: string): Validated<MessageAttachment> {
+    const file = await this.files.file(fileId, { draftMessageId });
+    if (!file.ok) return file;
+    const stored = await this.drivers(file.data.storageDriver).read(file.data.storageKey);
+    if (!stored) return failNotFound(CustomErrorCode.recordFileNotFound, ["attachmentId"]);
+    return {
+      ok: true as const,
+      data: {
+        body: stored.stream,
+        contentType: file.data.mimeType,
+        fileName: file.data.name,
+      },
     };
   }
 

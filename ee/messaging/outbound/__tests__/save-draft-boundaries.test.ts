@@ -43,6 +43,7 @@ function harness() {
     },
     { findUsableAccountByIdOrThrow: vi.fn() },
     mockEntitlementService(),
+    {} as never,
   );
   const outcome = {
     ok: false as const,
@@ -151,6 +152,7 @@ describe("draft interactor entry boundaries", () => {
       },
       { findUsableAccountByIdOrThrow: vi.fn() },
       mockEntitlementService(),
+      {} as never,
     );
     const result = await core.invoke({ threadId: THREAD_ID, recipients: [], cc: [], bcc: [], body: "Draft" });
     expect(result.ok).toBe(false);

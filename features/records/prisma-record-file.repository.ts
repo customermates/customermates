@@ -4,6 +4,7 @@ import type { PendingRecordFile, RecordFileDetails, RecordFileUploadRepo } from 
 import type { ExpiredRecordFile, RecordFileCleanupRepo, RecordFileExpiry } from "./record-file-cleanup.repo";
 import type { RecordFilePurgeRepo } from "./record-file-purge.repo";
 import type { RecordChatFileRepo, RecordFileTextExcerpt } from "./record-chat-file.repo";
+import type { RecordDraftFileRepo } from "./record-draft-file.repo";
 import type {
   RecordFileExtraction,
   RecordFileIndexCandidate,
@@ -15,7 +16,11 @@ import type {
   UnembeddedRecordFileChunk,
 } from "@/ee/record-file-index/record-file-semantic-index.repo";
 
+import type { RepoArgs } from "@/core/utils/types";
+
 import { Prisma } from "@/generated/prisma";
+import { unwindFailure } from "@/core/validation/failure-unwind";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { sectionEmbeddingAvailableSql } from "@/core/retrieval/section-search-sql";
@@ -49,8 +54,12 @@ const STORED_FILE_SELECT = {
 } satisfies Prisma.RecordFileSelect;
 
 function expiredFiles({ pendingBefore, chatBefore, detachedBefore }: RecordFileExpiry): Prisma.Sql {
-  return Prisma.sql`((f.status = 'pending' AND f."conversationId" IS NULL AND f."createdAt" < ${pendingBefore})
-    OR (f.status = 'pending' AND f."conversationId" IS NOT NULL AND f."createdAt" < ${chatBefore})
+  return Prisma.sql`((f.status = 'pending' AND f."draftMessageId" IS NULL AND f."conversationId" IS NULL AND f."createdAt" < ${pendingBefore})
+    OR (f.status = 'pending' AND f."draftMessageId" IS NULL AND f."conversationId" IS NOT NULL AND f."createdAt" < ${chatBefore})
+    OR (f.status = 'pending' AND f."draftMessageId" IS NOT NULL AND f."createdAt" < ${pendingBefore} AND NOT EXISTS (
+      SELECT 1 FROM "MessagingMessage" AS m
+      WHERE m.id = f."draftMessageId" AND m."companyId" = f."companyId" AND m."isDraft"
+    ))
     OR (f.status = 'detached' AND f."detachedAt" < ${detachedBefore}))`;
 }
 
@@ -78,7 +87,8 @@ export class PrismaRecordFileRepo
     RecordFilePurgeRepo,
     RecordFileIndexRepo,
     RecordFileSemanticIndexRepo,
-    RecordChatFileRepo
+    RecordChatFileRepo,
+    RecordDraftFileRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -473,9 +483,47 @@ export class PrismaRecordFileRepo
     return result.count;
   }
 
+  async bindDraftFiles({
+    draftMessageId,
+    threadId,
+    keepFileIds,
+    bindFileIds,
+  }: RepoArgs<RecordDraftFileRepo, "bindDraftFiles">): Promise<void> {
+    await this.prisma.recordFile.updateMany({
+      where: { companyId: this.companyId, draftMessageId, id: { notIn: keepFileIds } },
+      data: { draftMessageId: null },
+    });
+    const ids = [...new Set(bindFileIds)];
+    if (!ids.length) return;
+    const threadDrafts = await this.prisma.messagingMessage.findMany({
+      where: { companyId: this.companyId, messagingThreadId: threadId, isDraft: true },
+      select: { id: true },
+    });
+    const bound = await this.prisma.recordFile.updateMany({
+      where: {
+        companyId: this.companyId,
+        id: { in: ids },
+        status: "pending",
+        OR: [
+          { draftMessageId: { in: [draftMessageId, ...threadDrafts.map((draft) => draft.id)] } },
+          { draftMessageId: null, uploadedById: this.userId },
+        ],
+      },
+      data: { draftMessageId },
+    });
+    if (bound.count !== ids.length) throw unwindFailure(CustomErrorCode.recordFileNotFound, "not_found", ["fileIds"]);
+  }
+
   async expireConversationChatFiles(conversationId: string): Promise<number> {
     const result = await this.prisma.recordFile.updateMany({
-      where: { companyId: this.companyId, conversationId, typeId: null, fieldId: null, status: "pending" },
+      where: {
+        companyId: this.companyId,
+        conversationId,
+        draftMessageId: null,
+        typeId: null,
+        fieldId: null,
+        status: "pending",
+      },
       data: { status: "detached", detachedAt: RECORD_FILE_PURGED_AT },
     });
     return result.count;

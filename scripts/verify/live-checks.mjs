@@ -7,10 +7,11 @@
  * and that guard, loaded into the server, refuses every other recipient, account, host and provider write.
  *
  *   yarn verify:live            # fetches the three secrets through `workspace secret run --only ...`
+ *   yarn verify:live --grep 'PDF draft' --no-backfill   # only the attachment journey, without read-only backfill
  *
  * Secrets are read from the environment only, never printed or written; logs contain markers, counts and statuses.
  */
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -27,7 +28,7 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
 }
 
 const SECRETS = ["UNIPILE_API_KEY", "UNIPILE_TEST_SENDER_EMAIL", "UNIPILE_TEST_RECEIVER_EMAIL", "UNIPILE_TEST_MAIL_PASSWORD"];
-const options = parseArguments(process.argv.slice(2), { runId: "", rebuild: false, grep: "", preflight: false });
+const options = parseArguments(process.argv.slice(2), { runId: "", rebuild: false, grep: "", preflight: false, backfill: true });
 
 if (SECRETS.some((name) => !process.env[name])) {
   if (process.env.CRM_LIVE_SECRETS_LOADED) {
@@ -48,6 +49,10 @@ if (!isTestInbox(process.env.UNIPILE_TEST_SENDER_EMAIL) || !isTestInbox(process.
 
 const startedAt = Date.now();
 const runId = options.runId || `live-${new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14)}`;
+const runKey = createHash("sha256").update(runId).digest("hex").slice(0, 8);
+const templateName = `crm_e2e_live_template_${runKey}`;
+const databaseName = `crm_e2e_live_${runKey}`;
+const backfillName = `crm_e2e_live_backfill_${runKey}`;
 const directory = resolve(REPO_ROOT, ".runs/verify", runId);
 mkdirSync(directory, { recursive: true });
 const log = (message) => console.log(`[live ${formatDuration(seconds(startedAt))}] ${message}`);
@@ -65,7 +70,7 @@ log("both fixture accounts are reachable and both addresses are the designated t
 if (options.preflight) process.exit(0);
 
 const cluster = await ensureCluster(17);
-const templateUrl = await recreateDatabase(cluster, "crm_e2e_live_template");
+const templateUrl = await recreateDatabase(cluster, templateName);
 const digest = await sourceDigest();
 const { copy, database, build } = await withCopyLock("cloud", digest, async () => {
   const synced = await syncAppCopy("cloud", { digest, databaseUrl: templateUrl, log: resolve(directory, "build.log") });
@@ -81,7 +86,7 @@ if (!database.ok || build.code !== 0) {
 }
 log(`cloud build ${build.reused ? "reused" : `done in ${formatDuration(build.seconds)}`}, database ready`);
 
-const url = await recreateDatabase(cluster, "crm_e2e_live", "crm_e2e_live_template");
+const url = await recreateDatabase(cluster, databaseName, templateName);
 const ledger = resolve(directory, "sends.jsonl");
 const port = 4000 + Math.floor(Math.random() * 900) + 600;
 const env = cleanEnvironment({
@@ -97,36 +102,41 @@ const result = await run(
   ["node_modules/.bin/playwright", "test", "--config", "tests/e2e/live/playwright.live.config.ts", ...(options.grep ? ["--grep", options.grep] : [])],
   { cwd: copy.directory, env, log: resolve(directory, "playwright.log") },
 );
-await recreateDatabase(cluster, "crm_e2e_live").catch(() => undefined);
+await recreateDatabase(cluster, databaseName).catch(() => undefined);
 
-// Read-only email backfill of the receiver test inbox, run in Vitest against its own migrated database.
-const backfillUrl = await recreateDatabase(cluster, "crm_e2e_live_backfill", "crm_e2e_live_template");
-const backfillReport = resolve(directory, "backfill.json");
-const backfill = await run(
-  "node",
-  ["node_modules/.bin/vitest", "run", "--config", "tests/e2e/live/vitest.live.config.ts", "--reporter=json", `--outputFile=${backfillReport}`],
-  {
-    cwd: copy.directory,
-    env: {
-      ...env,
-      DATABASE_URL: backfillUrl,
-      DIRECT_URL: backfillUrl,
-      RUN_DATABASE_TESTS: "true",
-      NODE_OPTIONS: `--import ${resolve(copy.directory, "tests/e2e/live/live-egress-guard.mjs")}`,
+async function runBackfill() {
+  if (!options.backfill) return { code: 0, outcomes: [] };
+  // Read-only email backfill of the receiver test inbox, run in Vitest against its own migrated database.
+  const backfillUrl = await recreateDatabase(cluster, backfillName, templateName);
+  const backfillReport = resolve(directory, "backfill.json");
+  const result = await run(
+    "node",
+    ["node_modules/.bin/vitest", "run", "--config", "tests/e2e/live/vitest.live.config.ts", "--reporter=json", `--outputFile=${backfillReport}`],
+    {
+      cwd: copy.directory,
+      env: {
+        ...env,
+        DATABASE_URL: backfillUrl,
+        DIRECT_URL: backfillUrl,
+        RUN_DATABASE_TESTS: "true",
+        NODE_OPTIONS: `--import ${resolve(copy.directory, "tests/e2e/live/live-egress-guard.mjs")}`,
+      },
+      log: resolve(directory, "backfill.log"),
     },
-    log: resolve(directory, "backfill.log"),
-  },
-);
-await recreateDatabase(cluster, "crm_e2e_live_backfill").catch(() => undefined);
-const backfillOutcomes = existsSync(backfillReport)
-  ? JSON.parse(readFileSync(backfillReport, "utf8")).testResults.flatMap((file) =>
-      file.assertionResults.map((test) => ({ id: test.title, status: test.status, duration: test.duration ?? 0, error: test.failureMessages?.[0]?.split("\n")[0] })),
-    )
-  : [];
+  );
+  await recreateDatabase(cluster, backfillName).catch(() => undefined);
+  const outcomes = existsSync(backfillReport)
+    ? JSON.parse(readFileSync(backfillReport, "utf8")).testResults.flatMap((file) =>
+        file.assertionResults.map((test) => ({ id: test.title, status: test.status, duration: test.duration ?? 0, error: test.failureMessages?.[0]?.split("\n")[0] })),
+      )
+    : [];
+  return { code: result.code, outcomes };
+}
+const backfill = await runBackfill();
 
-// The live config sits in tests/e2e/live, and Playwright resolves the base config's report paths from there.
-const reportFile = resolve(copy.directory, "tests/e2e/live/.runs/e2e", runId, "results.json");
-const outcomes = [...(existsSync(reportFile) ? testOutcomes(JSON.parse(readFileSync(reportFile, "utf8"))) : []), ...backfillOutcomes];
+const reportFile = resolve(copy.directory, ".runs/e2e", runId, "results.json");
+const playwrightOutcomes = existsSync(reportFile) ? testOutcomes(JSON.parse(readFileSync(reportFile, "utf8"))) : [];
+const outcomes = [...playwrightOutcomes, ...backfill.outcomes];
 const entries = existsSync(ledger) ? readFileSync(ledger, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line)) : [];
 console.log(`\nLive checks (${runId})`);
 console.log(table(outcomes.map((outcome) => ({ check: outcome.id.split(" › ").pop(), result: outcome.status, time: formatDuration(outcome.duration / 1000), error: outcome.error ?? "" })), ["check", "result", "time", "error"]));
@@ -134,4 +144,4 @@ console.log(
   `Provider sends forwarded: ${entries.filter((entry) => entry.forwarded).length}; refused by the guard: ${entries.filter((entry) => entry.blocked).length} (${[...new Set(entries.filter((entry) => entry.blocked).map((entry) => `${entry.blocked}: ${entry.reason ?? entry.host ?? ""}`))].join("; ") || "none"})`,
 );
 console.log(`Total ${formatDuration(seconds(startedAt))}. Logs: ${relative(REPO_ROOT, directory)}/`);
-process.exit(result.code === 0 && backfill.code === 0 && backfillOutcomes.length > 0 && outcomes.length > 0 && outcomes.every((outcome) => outcome.status === "passed") ? 0 : 1);
+process.exit(result.code === 0 && playwrightOutcomes.length > 0 && backfill.code === 0 && (!options.backfill || backfill.outcomes.length > 0) && outcomes.every((outcome) => outcome.status === "passed") ? 0 : 1);

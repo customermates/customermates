@@ -156,7 +156,7 @@ function emailRepo(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function emailInteractor(repo: any, service: any) {
+function emailInteractor(repo: any, service: any, files: any = {}) {
   return new SendEmailInteractor(
     repo,
     {
@@ -165,6 +165,7 @@ function emailInteractor(repo: any, service: any) {
     service,
     mockEntitlementService(),
     new DraftSendGate(repo),
+    files,
   );
 }
 
@@ -936,13 +937,14 @@ function saveDraftRepo(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function saveDraftInteractor(repo: any) {
+function saveDraftInteractor(repo: any, files: any = {}, account: unknown = emailAccount) {
   return new SaveDraftInteractor(
     repo,
     {
-      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount),
+      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account),
     } as never,
     mockEntitlementService(),
+    files,
   );
 }
 
@@ -965,8 +967,15 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
 
   it("checks the sending account once when saving a new conversation draft", async () => {
     const repo = saveDraftRepo();
-    const accountRepo = { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount) };
-    const interactor = new SaveDraftInteractor(repo as never, accountRepo as never, mockEntitlementService());
+    const accountRepo = {
+      findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(emailAccount),
+    };
+    const interactor = new SaveDraftInteractor(
+      repo as never,
+      accountRepo as never,
+      mockEntitlementService(),
+      {} as never,
+    );
 
     const result = await interactor.invoke({
       connectedAccountId: EMAIL_ACCOUNT_ID,
@@ -997,6 +1006,7 @@ describe("SaveDraftInteractor cold-draft target binding", () => {
       repo as never,
       { findUsableAccountByIdOrThrow: vi.fn().mockRejectedValue(new Error("not found")) } as never,
       mockEntitlementService(),
+      {} as never,
     );
 
     await expect(interactor.invoke({ threadId: chatThread.id, body: "teammate overwrite" })).rejects.toThrow();
@@ -1159,5 +1169,166 @@ describe("draft-thread target normalization", () => {
         ["https://www.linkedin.com/in/recipient-handle/"],
       ),
     ).toBe(true);
+  });
+});
+
+describe("draft file attachments", () => {
+  const FILE_ID = "00000000-0000-4000-8000-000000000021";
+  const OTHER_FILE_ID = "00000000-0000-4000-8000-000000000022";
+  const pdf = {
+    filename: "RE26110101.pdf",
+    content_type: "application/pdf",
+    content: "JVBERi0=",
+  };
+  const fileMeta = {
+    id: FILE_ID,
+    fileId: FILE_ID,
+    name: "RE26110101.pdf",
+    fileName: "RE26110101.pdf",
+    type: "file",
+    mime: "application/pdf",
+    size: 5,
+  };
+
+  beforeEach(() => vi.clearAllMocks());
+
+  it("sends a saved draft with its own files when the caller passes no fileIds", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({ ...emailDraft, fileIds: [FILE_ID] }),
+    });
+    const service = emailService();
+    const files = {
+      load: vi.fn().mockResolvedValue({ ok: true, data: [pdf] }),
+    };
+
+    const result = await emailInteractor(repo, service, files).invoke(coldEmailInput);
+
+    expect(result.ok).toBe(true);
+    expect(files.load).toHaveBeenCalledWith([FILE_ID], { draftMessageId: EMAIL_DRAFT_ID }, undefined);
+    expect(service.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ attachments: [pdf] }));
+  });
+
+  it("sends the caller's fileIds instead of the draft's files", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({ ...emailDraft, fileIds: [FILE_ID] }),
+    });
+    const service = emailService();
+    const files = {
+      load: vi.fn().mockResolvedValue({ ok: true, data: [pdf] }),
+    };
+
+    await emailInteractor(repo, service, files).invoke({
+      ...coldEmailInput,
+      fileIds: [OTHER_FILE_ID],
+    });
+
+    expect(files.load).toHaveBeenCalledWith([OTHER_FILE_ID], { draftMessageId: EMAIL_DRAFT_ID }, undefined);
+  });
+
+  it("does not send when a draft file cannot be read", async () => {
+    const repo = emailRepo({
+      findDraftById: vi.fn().mockResolvedValue({ ...emailDraft, fileIds: [FILE_ID] }),
+    });
+    const service = emailService();
+    const missing = {
+      ok: false,
+      error: {
+        issues: [{ path: ["fileIds"], params: { error: "recordFileNotFound" } }],
+      },
+    };
+    const files = { load: vi.fn().mockResolvedValue(missing) };
+
+    const result = await emailInteractor(repo, service, files).invoke(coldEmailInput);
+
+    expect(result).toBe(missing);
+    expect(service.sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("attaches CRM files to a new email without a draft", async () => {
+    const repo = emailRepo();
+    const service = emailService();
+    const files = {
+      load: vi.fn().mockResolvedValue({ ok: true, data: [pdf] }),
+    };
+
+    await emailInteractor(repo, service, files).invoke({
+      connectedAccountId: EMAIL_ACCOUNT_ID,
+      to: [{ identifier: EMAIL_RECIPIENT }],
+      subject: "Invoice",
+      body: "",
+      fileIds: [FILE_ID],
+    });
+
+    expect(files.load).toHaveBeenCalledWith([FILE_ID], null, undefined);
+    expect(service.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ attachments: [pdf] }));
+  });
+
+  it("stores described files with the draft and binds uploads to it", async () => {
+    const repo = saveDraftRepo();
+    const described = { attachmentsMeta: [fileMeta], bindFileIds: [FILE_ID] };
+    const files = { describe: vi.fn().mockResolvedValue({ ok: true, data: described }), bind: vi.fn() };
+
+    const result = await saveDraftInteractor(repo, files).invoke({
+      threadId: EMAIL_DRAFT_THREAD_ID,
+      recipients: [EMAIL_RECIPIENT],
+      subject: "Invoice",
+      body: "Please find the invoice attached.",
+      fileIds: [FILE_ID],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(files.describe).toHaveBeenCalledWith([FILE_ID], {
+      threadId: EMAIL_DRAFT_THREAD_ID,
+    });
+    expect(repo.upsertThreadDraftOrThrow).toHaveBeenCalledWith(
+      expect.objectContaining({ attachmentsMeta: [fileMeta] }),
+    );
+    expect(files.bind).toHaveBeenCalledWith({
+      draftMessageId: "00000000-0000-4000-8000-000000000007",
+      threadId: "00000000-0000-4000-8000-000000000008",
+      keepFileIds: [FILE_ID],
+      bindFileIds: [FILE_ID],
+    });
+  });
+
+  it("keeps the draft's files when fileIds is omitted", async () => {
+    const repo = saveDraftRepo();
+    const files = { describe: vi.fn(), bind: vi.fn() };
+
+    await saveDraftInteractor(repo, files).invoke({
+      threadId: EMAIL_DRAFT_THREAD_ID,
+      recipients: [EMAIL_RECIPIENT],
+      subject: "Invoice",
+      body: "Updated text",
+    });
+
+    expect(files.describe).not.toHaveBeenCalled();
+    expect(files.bind).not.toHaveBeenCalled();
+    expect(repo.upsertThreadDraftOrThrow).toHaveBeenCalledWith(expect.objectContaining({ attachmentsMeta: undefined }));
+  });
+
+  it("refuses files on chat drafts", async () => {
+    const repo = saveDraftRepo();
+    const files = { describe: vi.fn() };
+
+    const result: any = await saveDraftInteractor(repo, files, chatAccount).invoke({
+      connectedAccountId: CHAT_ACCOUNT_ID,
+      recipients: [WHATSAPP_NUMBER],
+      body: "Hello",
+      fileIds: [FILE_ID],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.error.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          params: expect.objectContaining({
+            error: CustomErrorCode.draftFilesEmailOnly,
+          }),
+        }),
+      ]),
+    );
+    expect(files.describe).not.toHaveBeenCalled();
+    expect(repo.createConversationDraftOrThrow).not.toHaveBeenCalled();
   });
 });

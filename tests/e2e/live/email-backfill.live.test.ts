@@ -10,11 +10,12 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { isTestInbox, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
 
 // Read-only email backfill against the receiver test inbox through the Unipile development application, on a local
-// database. One page per step forces every folder larger than one page through a multi-step folder pass, the case
-// whose reconciliation used to be skipped. scripts/verify/live-checks.mjs runs it with the egress guard loaded.
+// database. Short pages and one page per step exercise a multi-step folder pass even with a small fixture inbox,
+// the case whose reconciliation used to be skipped. scripts/verify/live-checks.mjs loads the egress guard.
 vi.mock("@/ee/messaging/ingest/backfill/paginate", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/ee/messaging/ingest/backfill/paginate")>()),
   BACKFILL_EMAIL_PAGE_BUDGET: 1,
+  UNIPILE_EMAIL_MAX_LIMIT: 2,
 }));
 
 const RECEIVER_ACCOUNT = "acc_01m6b96qwsfesbrjkgd8xxmzjy";
@@ -55,7 +56,8 @@ describeLive("email backfill against the receiver test inbox", () => {
     steps = {};
     for (const source of plan.sources) {
       let cursor: string | null = null;
-      for (let step = 1; step <= 50; step++) {
+      const seenCursors = new Set<string>();
+      for (let step = 1; ; step++) {
         const page = await di.getBackfillEmailsInteractor().invoke({ connectedAccountId: accountId, source, cursor });
         steps[source] = step;
         cursor = page.nextCursor;
@@ -63,6 +65,8 @@ describeLive("email backfill against the receiver test inbox", () => {
           expect(page.complete, `folder ${source} completed`).toBe(true);
           break;
         }
+        if (!cursor || seenCursors.has(cursor)) throw new Error(`Folder ${source} did not advance its backfill cursor`);
+        seenCursors.add(cursor);
       }
     }
     await di.getReleaseBackfillClaimInteractor().invoke({ connectedAccountId: accountId, token: token!, complete: true });

@@ -212,6 +212,7 @@ export enum CustomErrorCode {
   draftToRecipientsLocked = "draftToRecipientsLocked",
   draftMessageNotFound = "draftMessageNotFound",
   draftChanged = "draftChanged",
+  draftFilesEmailOnly = "draftFilesEmailOnly",
   draftRecipientsChanged = "draftRecipientsChanged",
   draftTargetMismatch = "draftTargetMismatch",
   draftSendInProgress = "draftSendInProgress",

@@ -98,6 +98,7 @@ function makeInteractor(repo: any, service: any) {
     service,
     mockEntitlementService(),
     new DraftSendGate(repo),
+    {} as never,
   );
 }
 
@@ -172,6 +173,7 @@ describe("SendEmailInteractor new-thread adoption", () => {
       service as never,
       mockEntitlementService(),
       new DraftSendGate(repo),
+      {} as never,
     );
 
     const result: any = await interactor.invoke(input);

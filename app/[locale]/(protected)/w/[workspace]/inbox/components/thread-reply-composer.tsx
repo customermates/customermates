@@ -35,6 +35,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { usePathname, useRouter } from "@/i18n/navigation";
 
 import { ComposerSignature } from "./composer-signature";
+import { ComposerDraftFiles } from "./composer-draft-files";
 import { DraftConflictBar } from "./draft-conflict-bar";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { defaultEmailSettings } from "@/ee/messaging/email-settings";
@@ -216,8 +217,17 @@ export const ThreadReplyComposer = observer(
     )
       return null;
 
-    const { isLoading, isEmail, isLinkedin, isNewThread, showCcBcc, editingDraftId, draftConflict, attachments } =
-      threadComposeStore;
+    const {
+      isLoading,
+      isEmail,
+      isLinkedin,
+      isNewThread,
+      showCcBcc,
+      editingDraftId,
+      draftConflict,
+      attachments,
+      draftFiles,
+    } = threadComposeStore;
     const signatureAccountId = isNewThread
       ? (threadComposeStore.newThreadTarget?.connectedAccountId ?? null)
       : (rootStore.messagingThreadDetailStore.thread?.connectedAccountId ?? null);
@@ -477,6 +487,14 @@ export const ThreadReplyComposer = observer(
               );
             })}
           </div>
+        )}
+
+        {editingDraftId && draftFiles.length > 0 && (
+          <ComposerDraftFiles
+            draftMessageId={editingDraftId}
+            files={draftFiles}
+            onRemove={threadComposeStore.removeDraftFile}
+          />
         )}
 
         <ComposerSignature connectedAccountId={signatureAccountId} />
