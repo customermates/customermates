@@ -467,7 +467,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsRetrievalEvalItem[] = [
     query: "Where does our customer data physically live, and is it scrambled when stored?",
     slug: "architecture-security",
     anchors: ["architecture-security#how-is-data-protected-at-rest-and-in-transit"],
-    alternatives: [],
+    alternatives: ["architecture-security#where-are-customer-data-and-credentials-stored"],
   },
   {
     id: "de-en-06",
