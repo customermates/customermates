@@ -12,6 +12,7 @@ import { MockLanguageModelV4 } from "ai/test";
 
 import { getStructuredCallProviderOptions } from "@/ee/agent-chat/agent-provider-options";
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
+import { PlanViewsWireSchema } from "@/ee/workspace-setup/workspace-setup-wire";
 
 import {
   STRUCTURED_OUTPUT_MAX_UNION_TYPES,
@@ -47,6 +48,99 @@ function call() {
 
 beforeEach(() => {
   provider.generate.mockReset();
+});
+
+describe("workspace setup schema compilation recovery", () => {
+  const views = { listDefaults: [], sampleLists: [], widgets: [], calendarSources: [], importMapping: null };
+  const schemaError = () =>
+    new ai.APICallError({
+      message: "The compiled grammar is too large, which would cause performance issues.",
+      url: "https://gateway.invalid",
+      requestBodyValues: {},
+      statusCode: 400,
+    });
+  const setupCall = () =>
+    generateStructuredObject({
+      label: "Workspace setup plan: views and dashboard",
+      model: AGENT_MODELS.setupPlanning,
+      schema: PlanViewsWireSchema,
+      system: "system",
+      prompt: "prompt",
+      retrySchemaCompilation: true,
+    });
+  const textResult = (text: string, finishReason = "stop") => ({
+    text,
+    usage: { inputTokens: 500, outputTokens: 50, totalTokens: 550 },
+    response: { id: "r", timestamp: new Date(), modelId: AGENT_MODELS.setupPlanning.modelId },
+    finishReason,
+  });
+
+  it("recovers the real views schema's grammar rejection and validates the replacement JSON locally", async () => {
+    provider.generate.mockRejectedValueOnce(schemaError()).mockResolvedValueOnce(textResult(JSON.stringify(views)));
+    expect(await setupCall()).toMatchObject({ output: views, charge: { inputTokens: 500 } });
+    expect(provider.generate).toHaveBeenCalledTimes(2);
+    const [constrained, recovered] = provider.generate.mock.calls.map(([request]) => request);
+    expect(recovered).not.toHaveProperty("output");
+    expect(recovered.system).toContain(JSON.stringify(z.toJSONSchema(PlanViewsWireSchema, { io: "input" })));
+    expect(recovered).toMatchObject({
+      model: constrained.model,
+      prompt: constrained.prompt,
+      maxOutputTokens: constrained.maxOutputTokens,
+      reasoning: constrained.reasoning,
+      maxRetries: 0,
+      providerOptions: constrained.providerOptions,
+    });
+    expect(recovered.abortSignal).toBe(constrained.abortSignal);
+  });
+
+  it.each(["not JSON", JSON.stringify({ widgets: "not an array" })])(
+    "rejects an unusable replacement instead of admitting it into setup: %s",
+    async (text) => {
+      provider.generate.mockRejectedValueOnce(schemaError()).mockResolvedValueOnce(textResult(text));
+      expect(await setupCall()).toMatchObject({ output: null, failureScope: "request", rejection: expect.any(String) });
+      expect(provider.generate).toHaveBeenCalledTimes(2);
+    },
+  );
+
+  it("rejects a truncated replacement even when its prefix happens to be valid JSON", async () => {
+    provider.generate
+      .mockRejectedValueOnce(schemaError())
+      .mockResolvedValueOnce(textResult(JSON.stringify(views), "length"));
+    expect(await setupCall()).toMatchObject({ output: null, rejection: expect.stringContaining("cut off") });
+  });
+
+  it("keeps a schema's JSON-string fields instead of decoding already valid expression text", async () => {
+    const value = { expression: JSON.stringify({ kind: "literal", value: 1 }) };
+    provider.generate.mockRejectedValueOnce(schemaError()).mockResolvedValueOnce(textResult(JSON.stringify(value)));
+    expect(
+      await generateStructuredObject({
+        label: "Workspace setup expression",
+        model: AGENT_MODELS.setupPlanning,
+        schema: z.object({ expression: z.string() }),
+        system: "system",
+        prompt: "prompt",
+        retrySchemaCompilation: true,
+      }),
+    ).toMatchObject({ output: value });
+  });
+
+  it.each([failure(400), failure(401), failure(429), failure(503)])(
+    "does not retry other gateway failures without constrained output",
+    async (error) => {
+      provider.generate.mockRejectedValueOnce(error);
+      expect((await setupCall()).output).toBeNull();
+      expect(provider.generate).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("requires a caller to reserve for and opt into schema compilation recovery", async () => {
+    provider.generate.mockRejectedValueOnce(schemaError());
+    expect((await call()).output).toBeNull();
+    expect(provider.generate).toHaveBeenCalledTimes(1);
+    expect(
+      structuredCallWorstCaseMicrocents(AGENT_MODELS.setupPlanning, "system", "prompt", PlanViewsWireSchema),
+    ).toBeGreaterThan(structuredCallWorstCaseMicrocents(AGENT_MODELS.setupPlanning, "system", "prompt"));
+  });
 });
 
 describe("generateStructuredObject", () => {
