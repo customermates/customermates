@@ -108,7 +108,7 @@ Mate, l’assistant intégré à Customermates Cloud, est une fonctionnalité di
 - **Pas de PUT ni de PATCH sur les enregistrements.** Chaque modification d’enregistrement est un `POST` vers `/api/v1/records/mutate`.
 - **Pas de OU entre les règles de filtre.** Les règles de filtre se combinent avec ET. Pour un OU, lancez deux requêtes ou utilisez l’opérateur `in` sur un champ.
 - **Pas de quota de requêtes publié.** Un espace de travail très sollicité répond `429` avec un en-tête `Retry-After`. Découpez les tâches en masse en lots de 100.
-- **Le format CSV n’est pas pris en charge, et il n’existe pas d’export de tout le compte.** L’application importe et exporte en XLSX et en JSON, une liste à la fois. Tout ce qui est plus grand passe par votre propre script d’API.
+- **L’export CSV n’est pas pris en charge, et il n’existe pas d’export de tout le compte.** L’application importe des fichiers Excel, CSV et JSON et exporte en XLSX et en JSON, une liste à la fois. Tout ce qui est plus grand passe par votre propre script d’API.
 - **Ni boîte de réception ni Mate en auto-hébergement.** Les routes d’enregistrements REST, les webhooks et MCP y fonctionnent ; les routes de messagerie demandent Customermates Cloud avec Pro ou supérieur.
 
 Aucune période de rétrocompatibilité n’est promise au-delà du chemin `/api/v1` : considérez donc le document OpenAPI actuel comme le contrat et testez par rapport à lui.

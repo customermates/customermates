@@ -108,7 +108,7 @@ Mate, der Assistent in Customermates Cloud, ist eine eigene Funktion. Er nutzt g
 - **Kein PUT oder PATCH auf Datensätzen.** Jede Änderung ist ein `POST` an `/api/v1/records/mutate`.
 - **Kein ODER zwischen Filterregeln.** Filterregeln werden mit UND verknüpft. Für ODER führen Sie zwei Abfragen aus oder nutzen den Operator `in` auf einem Feld.
 - **Keine veröffentlichte Anfragequote.** Ein ausgelasteter Workspace antwortet mit `429` und einem `Retry-After`-Header. Teilen Sie Bulk-Jobs in Stapel zu 100 auf.
-- **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert und exportiert XLSX und JSON, jeweils eine Liste. Größere Mengen laufen über Ihr eigenes API-Skript.
+- **Kein CSV-Export-Endpunkt und kein Export des gesamten Kontos.** Die App importiert Excel-, CSV- und JSON-Dateien und exportiert XLSX und JSON, jeweils eine Liste. Größere Mengen laufen über Ihr eigenes API-Skript.
 - **Keine Inbox und kein Mate beim Self-Hosting.** REST-Routen für Datensätze, Webhooks und MCP funktionieren dort, die Messaging-Routen brauchen Customermates Cloud ab Pro.
 
 Über den Pfad `/api/v1` hinaus wird keine feste Kompatibilitätsfrist zugesagt. Behandeln Sie das aktuelle OpenAPI-Dokument als Vertrag und testen Sie dagegen.

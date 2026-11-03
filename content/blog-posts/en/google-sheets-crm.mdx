@@ -165,7 +165,7 @@ A simple rule of thumb: once two people edit the same deals every week and one f
 
 ## Moving a Google Sheets CRM into Customermates
 
-Customermates imports Excel workbooks (.xlsx), one list at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets and no CSV import. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
+Customermates imports Excel workbooks (.xlsx) and CSV files, one list at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
 
 <Steps>
   <Step title="Clean the tabs">Use Data › Data cleanup › Remove duplicates on Contacts and Deals, and fix any value that a dropdown flags. Every stage and type should be exactly one of the Lists values.</Step>
@@ -223,7 +223,7 @@ A spreadsheet holds up to 20 million cells, according to Google's [file limits](
 </FaqItem>
 
 <FaqItem question="Can I connect a Google Sheets list to a CRM?">
-Some CRMs ship a Sheets add-on; the Workspace Marketplace lists Copper CRM for Google Sheets, for example. Customermates does not: it imports and exports .xlsx files, one list at a time, with no live sync. You can export a list, edit it in Sheets, download it as .xlsx and import it again as **Existing records**; its Record ID column updates the existing records instead of creating duplicates.
+Some CRMs ship a Sheets add-on; the Workspace Marketplace lists Copper CRM for Google Sheets, for example. Customermates does not: it imports Excel and CSV files and exports .xlsx files, one list at a time, with no live sync. You can export a list, edit it in Sheets, download it as .xlsx and import it again as **Existing records**; its Record ID column updates the existing records instead of creating duplicates.
 </FaqItem>
 
 <FaqItem question="Can you create a CRM in Excel instead?">

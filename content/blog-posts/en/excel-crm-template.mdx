@@ -196,7 +196,7 @@ If two of these are true, I would move. One alone is usually fixable inside the 
 
 ## Moving the template into Customermates
 
-Customermates imports Excel workbooks (.xlsx), one list at a time. CSV files are not accepted, so save them as .xlsx first. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules. Here is where the template's columns land:
+Customermates imports Excel workbooks (.xlsx or .xls) and CSV files, one list at a time. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules. Here is where the template's columns land:
 
 | Template column | Customermates field |
 | --- | --- |
@@ -264,7 +264,7 @@ A worksheet holds 1,048,576 rows according to Microsoft's [Excel specifications]
 </FaqItem>
 
 <FaqItem question="Can a CRM stay in sync with my Excel file?">
-Not Customermates. Import and export are file transfers, one list at a time, with no live sync and no CSV. A round trip works: export a list to .xlsx (up to 5,000 records), edit it in Excel and import it again as **Existing records**, and its Record ID column updates those records instead of creating duplicates.
+Not Customermates. Import and export are file transfers, one list at a time, with no live sync and no CSV export. A round trip works: export a list to .xlsx (up to 5,000 records), edit it in Excel and import it again as **Existing records**, and its Record ID column updates those records instead of creating duplicates.
 </FaqItem>
 
 <FaqItem question="What should a sales tracking spreadsheet for reps include?">

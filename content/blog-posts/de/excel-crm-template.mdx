@@ -174,7 +174,7 @@ Wer nach „CRM xls" sucht, meint meist einfach eine Excel-Datei. Der Unterschie
 | --- | --- | --- |
 | .xlsx | Mehrere Blätter, Tabellen, Dropdowns, Formeln; laut Microsoft bis 1.048.576 Zeilen pro Blatt | Nehmen Sie dieses Format |
 | .xls | Format von Excel 97 bis 2003 mit nur 65.536 Zeilen und 256 Spalten; was darüber hinausgeht, geht beim Speichern verloren | Einmal mit „Speichern unter" als .xlsx sichern |
-| .csv | Reiner Text, ein Blatt, keine Formeln und keine Formatierung | Als Arbeitsdatei ungeeignet; Customermates nimmt das Format nicht an |
+| .csv | Reiner Text, ein Blatt, keine Formeln und keine Formatierung | Als Arbeitsdatei ungeeignet; Customermates importiert das Format aber |
 
 ## Excel, Google Tabellen oder ein CRM?
 
@@ -206,7 +206,7 @@ Treffen zwei Punkte zu, würde ich wechseln. Ein einzelner Punkt lässt sich mei
 
 ## Von der Excel-Vorlage zu Customermates
 
-Customermates importiert Excel-Arbeitsmappen (.xlsx), eine Liste nach der anderen. CSV-Dateien nimmt der Import nicht an, speichern Sie diese vorher als .xlsx. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). So landen die Spalten der Vorlage:
+Customermates importiert Excel-Arbeitsmappen (.xlsx oder .xls) und CSV-Dateien, eine Liste nach der anderen. Die vollständigen Regeln stehen in der [Dokumentation zu Import und Export](/docs/app-records#how-do-i-import-or-export-records). So landen die Spalten der Vorlage:
 
 | Spalte der Vorlage | Feld in Customermates |
 | --- | --- |
@@ -278,7 +278,7 @@ Ein Blatt fasst laut Microsofts [Spezifikationen](https://support.microsoft.com/
 </FaqItem>
 
 <FaqItem question="Bleibt ein CRM mit meiner Excel-Datei synchron?">
-Customermates nicht. Import und Export sind Dateiübertragungen, eine Liste nach der anderen, ohne laufende Synchronisation und ohne CSV. Der Weg hin und zurück funktioniert: Liste als .xlsx exportieren (höchstens 5.000 Datensätze), in Excel bearbeiten, als **Vorhandene Datensätze** wieder importieren, und die Spalte **Datensatz-ID** aktualisiert diese Datensätze, statt Dubletten anzulegen.
+Customermates nicht. Import und Export sind Dateiübertragungen, eine Liste nach der anderen, ohne laufende Synchronisation und ohne CSV-Export. Der Weg hin und zurück funktioniert: Liste als .xlsx exportieren (höchstens 5.000 Datensätze), in Excel bearbeiten, als **Vorhandene Datensätze** wieder importieren, und die Spalte **Datensatz-ID** aktualisiert diese Datensätze, statt Dubletten anzulegen.
 </FaqItem>
 
 <FaqItem question="Was gehört in eine Vertriebs-Tabelle pro Person?">
