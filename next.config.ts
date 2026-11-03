@@ -148,7 +148,10 @@ const nextConfig: NextConfig = {
     return Promise.resolve([
       {
         source: "/:path((?!api/v1/files/[^/]+/content$).*)",
-        headers: [{ key: "Content-Security-Policy", value: frameAncestorsPolicy(env.APP_MODE) }],
+        headers: [
+          { key: "Content-Security-Policy", value: frameAncestorsPolicy(env.APP_MODE) },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
       },
       {
         source: "/maps/v1/:path*",

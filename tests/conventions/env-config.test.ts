@@ -192,6 +192,15 @@ describe("environment configuration", () => {
     }
   });
 
+  it("tells browsers not to sniff content types on every route", () => {
+    const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
+    const fileHeaders = readFileSync(new URL("../../features/record-files/record-file-response.ts", import.meta.url), "utf8");
+    const pageRule = config.slice(config.indexOf('source: "/:path((?!api/v1/files/[^/]+/content$).*)"'));
+    const pageHeaders = pageRule.slice(0, pageRule.indexOf("},\n      {"));
+    expect(pageHeaders).toContain('{ key: "X-Content-Type-Options", value: "nosniff" }');
+    expect(fileHeaders).toContain('"x-content-type-options": "nosniff"');
+  });
+
   it("leaves record file content its own policy so inline images stay sandboxed and PDFs keep the viewer", () => {
     const config = readFileSync(new URL("../../next.config.ts", import.meta.url), "utf8");
     const headers = readFileSync(new URL("../../features/record-files/record-file-response.ts", import.meta.url), "utf8");
