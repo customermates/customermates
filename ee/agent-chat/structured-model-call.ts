@@ -263,8 +263,6 @@ export async function generateStructuredObject<T>(args: {
       output = constrained.output;
     } catch (error) {
       if (!args.retrySchemaCompilation || !schemaCompilationRejected(error)) throw error;
-      // The provider rejected the grammar before generation. Keep the same model, routing and timeout,
-      // and validate its JSON locally instead of resending the grammar it cannot compile.
       const system = schemaPrompt(args.system, args.schema);
       inputTokens = promptTokens(system, args.prompt);
       const unconstrained = await generateText({ ...options, system });
