@@ -23,6 +23,7 @@ test("sends the removed fixed-entity routes to the pages of their type", async (
     const response = await page.goto(`/en/${path}`);
     expect(response?.status(), path).toBe(200);
     await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${presetId(companyId, preset)}$`));
+    await expect(page.locator("#records-add")).toBeVisible();
   }
   expect(errors).toEqual([]);
 });

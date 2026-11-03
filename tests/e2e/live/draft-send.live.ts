@@ -225,6 +225,8 @@ test("sends a PDF draft prepared over MCP with the file intact", async ({ page, 
   await page.goto(`/en/inbox?threadId=${draft.threadId}`);
   const attachment = page.locator("a[href*='/messaging/attachments/']", { hasText: fileName });
   await expect(attachment).toBeVisible({ timeout: 60000 });
+  await page.reload();
+  await expect(attachment).toBeVisible({ timeout: 60000 });
   const preview = await page.request.get(String(await attachment.getAttribute("href")));
   expect(preview.status(), "downloading the draft attachment").toBe(200);
   expect(Buffer.from(await preview.body()).toString("latin1"), "the inbox serves the stored PDF bytes").toBe(pdf);

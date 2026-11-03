@@ -22,6 +22,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { createTestRecordRepo } from "@/tests/helpers/record-repository";
 import { RecordFileAccessService } from "@/features/record-files/record-file-access.service";
 import { UploadRecordFileContentInteractor } from "@/features/record-files/upload-record-file-content.interactor";
+import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import { PrismaRecordFileRepo } from "@/features/records/prisma-record-file.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
@@ -134,7 +135,7 @@ describeDatabase("sending an email draft after editing it", () => {
       companyId,
       bytes,
     ]);
-    return { id, bytes };
+    return { id, key, bytes };
   };
   const boundDraft = async (fileId: string) =>
     (await client.query('SELECT "draftMessageId" FROM "RecordFile" WHERE id=$1', [fileId])).rows[0]?.draftMessageId;
@@ -247,6 +248,22 @@ describeDatabase("sending an email draft after editing it", () => {
       body: "Review the invoice",
       fileIds: [file.id],
     });
+    const purge = new PurgeCompanyRecordFilesInteractor(
+      () => new PrismaRecordFileRepo(companyId),
+      () => () => new DatabaseFileStorageDriver(new PrismaFileContentRepo(companyId), "http://127.0.0.1:4000"),
+    );
+    const cleanup = () => purge.invoke({ companyId, now: new Date().toISOString(), detachOrphans: false });
+    const storedParts = async () =>
+      (
+        await client.query('SELECT data FROM "RecordFileContent" WHERE "companyId"=$1 AND "fileKey"=$2', [
+          companyId,
+          file.key,
+        ])
+      ).rows;
+
+    await cleanup();
+    expect(await boundDraft(file.id)).toBe(draft.id);
+    expect(await storedParts()).toEqual([{ data: file.bytes }]);
     await client.query('UPDATE "RecordFile" SET "uploadedById"=NULL WHERE id=$1', [file.id]);
     const provider = providerStub();
     const input = {
@@ -269,6 +286,11 @@ describeDatabase("sending an email draft after editing it", () => {
       }),
     );
     expect(await expiredFileIds()).toContain(file.id);
+    await cleanup();
+    expect(
+      (await client.query('SELECT id FROM "RecordFile" WHERE "companyId"=$1 AND id=$2', [companyId, file.id])).rows,
+    ).toEqual([]);
+    expect(await storedParts()).toEqual([]);
   });
 
   it("requires saving a new revision after a pending PDF's bytes change", async () => {
