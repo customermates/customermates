@@ -1,16 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const cookieStore = vi.hoisted(() => ({ get: vi.fn(), set: vi.fn() }));
+const environment = vi.hoisted(() => ({
+  APP_MODE: "cloud",
+  BETTER_AUTH_SECRET: "test-secret",
+  NODE_ENV: "test",
+  BASE_URL: "http://localhost:4000",
+}));
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn().mockResolvedValue(cookieStore),
 }));
 vi.mock("@/env", () => ({
-  env: {
-    APP_MODE: "cloud",
-    BETTER_AUTH_SECRET: "test-secret",
-    NODE_ENV: "test",
-  },
+  env: environment,
 }));
 
 import { decodePublicAdAttributionCookie, encodePublicAdAttributionCookie } from "../ad-attribution-cookie-codec";
@@ -54,6 +56,8 @@ const cookie: PublicAdAttributionCookie = {
 describe("signed ad attribution cookie", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    environment.NODE_ENV = "test";
+    environment.BASE_URL = "http://localhost:4000";
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-08-31T10:00:01.000Z"));
   });
@@ -100,6 +104,22 @@ describe("signed ad attribution cookie", () => {
         expiresAt: new Date("2026-09-30T10:00:00.000Z"),
       },
     ]);
+  });
+
+  it.each([
+    ["http://127.0.0.1:4000", false],
+    ["https://customermates.example", true],
+  ])("matches the session cookie transport in a production build on %s", async (baseUrl, secure) => {
+    environment.NODE_ENV = "production";
+    environment.BASE_URL = baseUrl;
+
+    await expect(writePublicAdAttributionCookie(cookie)).resolves.toBe(true);
+
+    expect(cookieStore.set).toHaveBeenCalledWith(
+      PUBLIC_AD_ATTRIBUTION_COOKIE_NAME,
+      expect.any(String),
+      expect.objectContaining({ secure }),
+    );
   });
 
   it("drops a provider whose own retention has lapsed while keeping the others", async () => {

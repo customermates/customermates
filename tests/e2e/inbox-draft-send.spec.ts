@@ -5,6 +5,8 @@ import { createHmac, randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 import { assertPublishedResponse } from "../helpers/openapi-validator";
+import { pdfFixture } from "../helpers/record-file-fixtures";
+import { presetId } from "../../features/records/crm-preset";
 import { pagePath } from "./app-paths";
 import { postOk } from "./api";
 import { expectBlockedEmailScripts } from "./browser-diagnostics";
@@ -291,5 +293,70 @@ test("lets the user load the agent's latest version or send their own after the 
   await expect
     .poll(async () => (await database.query('SELECT 1 FROM "MessagingMessage" WHERE id=$1', [draft.id])).rowCount)
     .toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test("keeps a draft's PDF while editing and removes it as a new revision before sending", async ({ page, database, workspace }) => {
+  const errors = collectPageErrors(page);
+  expectBlockedEmailScripts(page);
+  const accountId = await connectSender(database, workspace);
+  const typeId = presetId(workspace.companyId, "organization");
+  const fieldId = randomUUID();
+  const model = await postOk(page, "/api/v1/model/read", {});
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [{ operation: "putField", field: {
+      id: fieldId, typeId, label: "Invoices", valueType: "file", required: false, multiple: true,
+      behavior: { kind: "input" }, options: [], position: 99,
+    } }],
+  });
+  const pdf = Buffer.from(pdfFixture([["Invoice to review before sending"]]));
+  const upload = await postOk(page, "/api/v1/files/uploads", {
+    typeId, fieldId, name: "invoice.pdf", mimeType: "application/pdf", size: pdf.byteLength,
+  });
+  const uploaded = await page.request.put(upload.upload.url, { headers: upload.upload.headers, data: pdf });
+  expect(uploaded.status(), await uploaded.text()).toBe(200);
+  const subject = `Draft attachment removal ${randomUUID()}`;
+  const draft: SavedDraft = await postOk(page, "/api/v1/messaging/drafts", {
+    connectedAccountId: accountId, recipients: [RECIPIENT], subject,
+    body: "Draft prepared by an agent", fileIds: [upload.fileId],
+  });
+  const stored = async () => (await database.query(
+    'SELECT "attachmentsMeta", "bodyText", "updatedAt" FROM "MessagingMessage" WHERE id=$1', [draft.id],
+  )).rows[0];
+  const edit = async () => {
+    await openDraftConversation(page, draft);
+    await page.getByRole("region", { name: "Conversation", exact: true }).getByRole("button", { name: "Edit", exact: true }).click();
+  };
+  const update = async () => {
+    await page.getByRole("button", { name: "More send options", exact: true }).click();
+    await page.getByRole("menuitem", { name: "Update draft", exact: true }).click();
+  };
+
+  await edit();
+  await expect(page.getByRole("button", { name: /invoice\.pdf/ })).toBeVisible();
+  await page.getByRole("textbox", { name: "Write a reply...", exact: true }).fill("Owner reviewed this invoice");
+  await update();
+  await expect.poll(async () => (await stored()).bodyText).toBe("Owner reviewed this invoice");
+  expect((await stored()).attachmentsMeta).toEqual([expect.objectContaining({ fileId: upload.fileId })]);
+  const beforeRemoval = new Date((await stored()).updatedAt).toISOString();
+
+  await edit();
+  await page.getByRole("button", { name: "Remove attachment", exact: true }).click();
+  await expect(page.getByRole("button", { name: /invoice\.pdf/ })).toHaveCount(0);
+  await update();
+  await expect.poll(async () => (await stored()).attachmentsMeta).toEqual([]);
+  expect(new Date((await stored()).updatedAt).toISOString()).not.toBe(beforeRemoval);
+  expect((await database.query('SELECT "draftMessageId" FROM "RecordFile" WHERE id=$1', [upload.fileId])).rows)
+    .toEqual([{ draftMessageId: null }]);
+  const stale = await sendAgain(page, { ...draft, draftRevision: beforeRemoval }, subject, { connectedAccountId: accountId });
+  expect(stale.status(), await stale.text()).toBe(409);
+  expect(acceptedSends(subject)).toBe(0);
+
+  const actions = await openDraftConversation(page, draft);
+  await actions.getByRole("button", { name: "Send draft", exact: true }).click();
+  await expect(page.getByText(/^Message sent\./)).toBeVisible();
+  expect(acceptedSends(subject)).toBe(1);
   expect(errors).toEqual([]);
 });

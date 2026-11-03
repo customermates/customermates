@@ -50,6 +50,14 @@ const DRAFT_ID = "00000000-0000-4000-8000-000000000004";
 const DRAFT_THREAD_ID = "00000000-0000-4000-8000-000000000005";
 const RECIPIENT = "recipient@example.com";
 const DRAFT_REVISION = "2026-09-04T10:00:00.000Z";
+const DRAFT_FILE = {
+  id: "00000000-0000-4000-8000-000000000007",
+  fileId: "00000000-0000-4000-8000-000000000007",
+  name: "invoice.pdf",
+  fileName: "invoice.pdf",
+  mime: "application/pdf",
+  size: 128,
+};
 
 function attendee(identifier: string) {
   return {
@@ -1794,7 +1802,11 @@ describe("ThreadComposeStore draft refusals", () => {
   });
 
   it("forgets the vanished draft conversation of a new email so the next send starts a new one", async () => {
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+      attachmentsMeta: [DRAFT_FILE],
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -1812,6 +1824,7 @@ describe("ThreadComposeStore draft refusals", () => {
 
     expect(store.form.body).toBe("Edited new email");
     expect(store.editingDraftId).toBeNull();
+    expect(store.draftFiles).toEqual([]);
     expect(store.draftConflict).toBe(false);
     expect(store.newThreadTarget).toMatchObject({ connectedAccountId: ACCOUNT_ID, draftThreadId: undefined });
     expect(toast.error).toHaveBeenCalledWith("Common.errors.draftMessageNotFound", expect.anything());
@@ -1819,7 +1832,11 @@ describe("ThreadComposeStore draft refusals", () => {
   });
 
   it("forgets a new email's draft conversation that vanished before Update draft and keeps the text", async () => {
-    const draft = message({ provider: MessagingProvider.google, messagingThreadId: DRAFT_THREAD_ID });
+    const draft = message({
+      provider: MessagingProvider.google,
+      messagingThreadId: DRAFT_THREAD_ID,
+      attachmentsMeta: [DRAFT_FILE],
+    });
     const { store } = makeHarness([draft]);
     store.initializeNewThread({
       provider: MessagingProvider.google,
@@ -1836,6 +1853,7 @@ describe("ThreadComposeStore draft refusals", () => {
     expect(actions.saveDraftAction).toHaveBeenCalledWith(expect.objectContaining({ threadId: DRAFT_THREAD_ID }));
     expect(store.form.body).toBe("Edited new email");
     expect(store.editingDraftId).toBeNull();
+    expect(store.draftFiles).toEqual([]);
     expect(store.newThreadTarget).toMatchObject({ connectedAccountId: ACCOUNT_ID, draftThreadId: undefined });
     expect(toast.error).toHaveBeenCalledWith("Common.errors.draftMessageNotFound", expect.anything());
   });
@@ -1883,13 +1901,14 @@ describe("ThreadComposeStore draft refusals", () => {
     pending.resolve(refusal("draftChanged"));
     await sending;
     const [kept] = store.getPendingMessages(THREAD_ID);
-    store.onChange("body", "");
+    store.loadDraft(message({ provider: MessagingProvider.google, attachmentsMeta: [DRAFT_FILE] }));
 
     expect(store.canEditRefused(kept.id)).toBe(true);
     store.editRefused(kept.id);
 
     expect(store.form.body).toBe("My edited reply");
     expect(store.editingDraftId).toBeNull();
+    expect(store.draftFiles).toEqual([]);
     expect(store.getPendingMessages(THREAD_ID)).toEqual([]);
     expect(store.getDeliveryStatus(kept.id)).toBeUndefined();
     expect(detail.removeMessageById).toHaveBeenCalledWith(kept.id);

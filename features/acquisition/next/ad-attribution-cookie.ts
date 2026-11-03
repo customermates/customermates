@@ -51,7 +51,7 @@ export class NextAdAttributionCookieRepo extends AdAttributionCookieRepo {
       maxAge: remainingSeconds,
       path: "/",
       sameSite: "lax",
-      secure: env.NODE_ENV === "production",
+      secure: new URL(env.BASE_URL).protocol === "https:",
     });
     return true;
   }

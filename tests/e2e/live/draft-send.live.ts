@@ -10,6 +10,7 @@ import { Client as McpClient } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { mintApiKey } from "../api-key";
+import { pdfFixture } from "../../helpers/record-file-fixtures";
 import { expect, test } from "../fixtures";
 import { localE2eEnvironment } from "../local-environment";
 import { isTestInbox, TEST_ACCOUNT_IDS } from "./live-allowlist.mjs";
@@ -79,25 +80,7 @@ function receivedAttachments(marker: string) {
 
 /** A small valid one-page PDF that carries the marker, so its bytes are unique to this run. */
 function markerPdf(marker: string) {
-  const text = `BT /F1 18 Tf 72 720 Td (${marker}) Tj ET`;
-  const objects = [
-    "<< /Type /Catalog /Pages 2 0 R >>",
-    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
-    `<< /Length ${text.length} >>\nstream\n${text}\nendstream`,
-    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-  ];
-  let pdf = "%PDF-1.4\n";
-  const offsets = objects.map((object, index) => {
-    const offset = pdf.length;
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-    return offset;
-  });
-  const xref = pdf.length;
-  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-  for (const offset of offsets) pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
-  return pdf;
+  return Buffer.from(pdfFixture([[marker]])).toString("latin1");
 }
 
 async function workspaceMcp(database: Client, workspace: { authUserId: string; companyId: string }) {

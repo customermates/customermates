@@ -741,6 +741,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
       this.draftConflict = false;
       this.editingDraftId = null;
       this.editingDraftRevision = null;
+      this.draftFiles = [];
       if (this.newThreadTarget?.draftThreadId)
         this.newThreadTarget = { ...this.newThreadTarget, draftThreadId: undefined };
     });
@@ -781,6 +782,7 @@ export class ThreadComposeStore extends BaseFormStore<ThreadComposeForm> {
     this.attachments = [...kept.files];
     this.editingDraftId = null;
     this.editingDraftRevision = null;
+    this.draftFiles = [];
     this.draftConflict = false;
     this.pendingDeliveries.delete(messageId);
     this.clearPending(messageId);
