@@ -100,8 +100,12 @@ beforeEach(() => {
   reactRoot = createRoot(container);
 });
 
-afterEach(() => {
-  act(() => reactRoot.unmount());
+afterEach(async () => {
+  await act(async () => {
+    reactRoot.unmount();
+    // Tiptap destroys the editor on the next timer tick, while the DOM still exists.
+    await new Promise((resolve) => setTimeout(resolve, 1));
+  });
   container.remove();
   testContext.rootStore = null;
 });
