@@ -7,7 +7,7 @@ Customermates ist ein Open-Source-CRM, nativ für KI gebaut, und Ihre KI bedient
 
 Das ist der empfohlene Weg für **Claude** (Web, Desktop und Mobile) und **ChatGPT**. Auf einem CLI oder Editor (Claude Code, Codex, Cursor, Gemini CLI) nutzen Sie stattdessen [die API-Key-Methode](/docs/connect-cli).
 
-> Custom Connectors sind ein bezahltes Feature: Claude (Pro, Max, Team, Enterprise) und ChatGPT (Plus, Pro, Business, Enterprise). Free-Tiers können keine MCP-Server hinzufügen.
+> Claude bietet Custom Connectors in jedem Plan an (Free, Pro, Max, Ultra, Team, Enterprise); im Free-Plan ist ein Custom Connector möglich (Anthropic-Hilfe, geprüft am 3. November 2026). In ChatGPT sind sie ein bezahltes Feature (Plus, Pro, Business, Enterprise).
 
 ## Welche URL füge ich ein? [#the-url]
 
@@ -133,7 +133,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | Die URL eines Workspace antwortet mit HTTP `403` und `error: workspace_mismatch` (Key im Header) | Der API-Key gehört zu einem anderen Workspace | Nutzen Sie die URL des Workspace, zu dem der Key gehört, oder legen Sie in diesem Workspace einen Key an |
 | Der Connector listet keine Tools, und der Server antwortet mit HTTP `401` (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
 | Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:settings/members) wieder auf **Aktiv** |
-| Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
+| Kein "Add custom connector"-Eintrag | Free-Plan | ChatGPT braucht einen bezahlten Plan; Claude Free erlaubt einen Custom Connector, entfernen Sie also zuerst einen anderen. Siehe [die CLI-Methode](/docs/connect-cli) |
 | Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |
 | "Tool not found" | Connector-Cache veraltet | Connector entfernen und neu hinzufügen |
 | Server lehnt Verknüpfung ab | Die Beziehungs-ID oder ein Endpunkt fehlt oder ist nicht zugänglich | Den Agenten bitten, `get_record_model` zu lesen und dann `mutate_crm_record` mit `link` oder `unlink` zu verwenden |
@@ -142,7 +142,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 
 ## Im Free-Plan oder in einem CLI? [#on-a-free-plan-or-in-a-cli]
 
-Custom Connectors brauchen einen bezahlten Plan, und CLI- und Editor-Clients nutzen den Connector-Flow gar nicht. Beide authentifizieren sich stattdessen mit einem API-Key: siehe [CLI & Editoren](/docs/connect-cli). Claude Desktop im Free-Plan kann den [Konfigurationsdatei-Fallback](/docs/connect-cli#claude-desktop-config-file) nutzen.
+ChatGPT braucht für Custom Connectors einen bezahlten Plan (Claude Free erlaubt einen), und CLI- und Editor-Clients nutzen den Connector-Flow gar nicht. Beide authentifizieren sich stattdessen mit einem API-Key: siehe [CLI & Editoren](/docs/connect-cli). Claude Desktop im Free-Plan kann den [Konfigurationsdatei-Fallback](/docs/connect-cli#claude-desktop-config-file) nutzen.
 
 ## Weiter [#next]
 

@@ -7,7 +7,7 @@ Customermates est un CRM open source et IA native que votre IA pilote directemen
 
 C’est la voie recommandée pour **Claude** (web, bureau et mobile) et **ChatGPT**. Sur une ligne de commande ou un éditeur (Claude Code, Codex, Cursor, Gemini CLI), utilisez plutôt [la méthode par clé API](/docs/connect-cli).
 
-> Les connecteurs personnalisés sont une fonction payante : Claude (Pro, Max, Team, Enterprise) et ChatGPT (Plus, Pro, Business, Enterprise). Les formules gratuites ne peuvent pas ajouter de serveurs MCP.
+> Claude propose les connecteurs personnalisés dans toutes ses formules (Free, Pro, Max, Ultra, Team, Enterprise) ; la formule Free en autorise un (aide Anthropic, vérifiée le 3 novembre 2026). Dans ChatGPT, c’est une fonction payante (Plus, Pro, Business, Enterprise).
 
 ## Quelle URL dois-je coller ? [#the-url]
 
@@ -133,7 +133,7 @@ Laissez sur *Ask* tout outil qui n’est pas en lecture seule. La liste complèt
 | L’URL d’un espace de travail répond HTTP `403` avec `error: workspace_mismatch` (clé en en-tête) | La clé API appartient à un autre espace de travail | Utilisez l’URL de l’espace de travail de la clé, ou créez une clé dans cet espace de travail |
 | Le connecteur ne liste aucun outil et le serveur répond HTTP `401` (ChatGPT avec un en-tête) | La valeur de `x-api-key` est erronée, tronquée, expirée ou supprimée | Créez une nouvelle clé sous [Clés API](app:settings/api-keys) et collez les 64 caractères en entier |
 | Chaque appel qui lit ou modifie des données de l’espace de travail indique « Your user account is inactive. Contact a workspace administrator. » | Votre utilisateur Customermates a été réglé sur **Inactif** | Un membre ayant **Modifier** sur **Utilisateurs et rôles** vous remet sur **Actif** sous [Membres](app:settings/members) |
-| Pas d’option « Add custom connector » | Formule gratuite | Les connecteurs personnalisés demandent une formule Claude ou ChatGPT payante. Voir [la méthode CLI](/docs/connect-cli) |
+| Pas d’option « Add custom connector » | Formule gratuite | ChatGPT demande une formule payante ; Claude Free autorise un connecteur personnalisé, supprimez donc d’abord l’autre. Voir [la méthode CLI](/docs/connect-cli) |
 | Approuvé mais rien ne se connecte | Vous avez approuvé depuis un autre compte | Connectez-vous au bon compte Customermates, puis réessayez |
 | « Tool not found » | Cache du connecteur périmé | Supprimez le connecteur et ajoutez-le de nouveau |
 | Le serveur rejette la mise à jour d’une relation | L’ID ou le point d’accès de la relation est manquant ou inaccessible | Demandez à l’agent de lire `get_record_model`, puis d’utiliser `mutate_crm_record` avec `link` ou `unlink` |
@@ -142,7 +142,7 @@ Laissez sur *Ask* tout outil qui n’est pas en lecture seule. La liste complèt
 
 ## Sur une formule gratuite ou en ligne de commande ? [#on-a-free-plan-or-in-a-cli]
 
-Les connecteurs personnalisés demandent une formule payante, et les clients en ligne de commande et les éditeurs n’utilisent pas du tout le flux du connecteur. Les deux s’authentifient plutôt avec une clé API : voir [CLI et éditeurs](/docs/connect-cli). Claude Desktop sur une formule gratuite peut utiliser la [solution de repli par fichier de configuration](/docs/connect-cli#claude-desktop-config-file).
+ChatGPT demande une formule payante pour les connecteurs personnalisés (Claude Free en autorise un), et les clients en ligne de commande et les éditeurs n’utilisent pas du tout le flux du connecteur. Les deux s’authentifient plutôt avec une clé API : voir [CLI et éditeurs](/docs/connect-cli). Claude Desktop sur une formule gratuite peut utiliser la [solution de repli par fichier de configuration](/docs/connect-cli#claude-desktop-config-file).
 
 ## Suite [#next]
 
