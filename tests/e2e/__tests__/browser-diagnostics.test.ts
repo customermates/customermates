@@ -26,16 +26,22 @@ function fakeBrowser() {
     isClosed: () => state.closed,
   } as unknown as Page;
   const context = { on: contextEvents.on, pages: () => [page] } as unknown as BrowserContext;
-  const request = (url: string, isDocument = false) => ({
+  const request = (url: string, isDocument = false, resourceType = isDocument ? "document" : "fetch") => ({
     url: () => url,
     isNavigationRequest: () => isDocument,
     redirectedFrom: () => null,
     frame: () => mainFrame,
     failure: () => ({ errorText: "net::ERR_ABORTED" }),
-    resourceType: () => (isDocument ? "document" : "fetch"),
+    resourceType: () => resourceType,
   });
-  const respond = (sent: ReturnType<typeof request>, status: number, statusText = "") =>
+  const respond = (
+    sent: ReturnType<typeof request>,
+    status: number,
+    statusText = "",
+    headers: Record<string, string> = {},
+  ) =>
     contextEvents.emit("response", {
+      headers: () => headers,
       url: sent.url,
       status: () => status,
       statusText: () => statusText,
@@ -95,8 +101,8 @@ function fakeBrowser() {
       contextEvents.emit("requestfinished", sent);
     },
     /** A request the page sends, answered with `respond` and completed with `finish` or `fail`. */
-    send: (url: string, isDocument = false) => {
-      const sent = request(url, isDocument);
+    send: (url: string, isDocument = false, resourceType?: string) => {
+      const sent = request(url, isDocument, resourceType);
       contextEvents.emit("request", sent);
       return sent;
     },
@@ -261,6 +267,38 @@ describe("browser diagnostics", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("keeps a missing script or stylesheet that nosniff made the browser refuse, without its refusal message", () => {
+    const browser = fakeBrowser();
+    const diagnostics = new BrowserDiagnostics().watch(browser.context);
+    const nosniff = { "content-type": "text/plain; charset=utf-8", "x-content-type-options": "nosniff" };
+    const script = `${BASE}/_next/static/chunks/missing.js`;
+    const style = `${BASE}/_next/static/css/missing.css`;
+    const wrongType = `${BASE}/_next/static/chunks/served-as-text.js`;
+    // Firefox logs no copy of the 404 and reports the refused script as failed.
+    const firefox = browser.send(script, false, "script");
+    browser.respond(firefox, 404, "Not Found", nosniff);
+    browser.fail(firefox);
+    browser.console(
+      `[JavaScript Error: "The resource from “${script}” was blocked due to MIME type (“text/plain”) mismatch (X-Content-Type-Options: nosniff)."]`,
+    );
+    // Chromium reports the request as failed and then logs its refusal of the stylesheet.
+    const chromium = browser.send(style, false, "stylesheet");
+    browser.respond(chromium, 404, "Not Found", nosniff);
+    browser.fail(chromium);
+    browser.console(
+      `Refused to apply style from '${style}' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.`,
+    );
+    // A script the server answered with the wrong type is a defect of its own, so its refusal stays.
+    const refusal = `Refused to execute ${wrongType} as script because "X-Content-Type-Options: nosniff" was given and its Content-Type is not a script MIME type.`;
+    browser.console(refusal);
+    // A fetch that fails after its error response was abandoned, nosniff or not.
+    const fetch = browser.send(`${BASE}/api/v1/records/aborted`);
+    browser.respond(fetch, 500, "", nosniff);
+    browser.fail(fetch);
+
+    expect(diagnostics.unexpected.map(({ source, text }) => source || text)).toEqual([script, style, refusal]);
   });
 
   it("reports a console copy only for a failure without a response, each failure once in either order", async () => {
