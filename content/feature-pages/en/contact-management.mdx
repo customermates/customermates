@@ -78,7 +78,7 @@ Customermates has no built-in reminders or due-date logic. You add a date field 
 
 Many teams arrive with a spreadsheet. Moving it is practical, but not automatic:
 
-- **Format.** A list imports from an Excel workbook (.xlsx) through a wizard: pick the sheet, map the columns, check the preview, import. Google Sheets files are not imported directly: download the sheet as .xlsx, and save an Outlook or Google Contacts download as .xlsx in Excel. A JSON export of the same list can also be imported again.
+- **Format.** A list imports from an Excel workbook (.xlsx or .xls) or a CSV file through a wizard: pick the sheet, map the columns, check the preview, import. Google Sheets files are not imported directly: download the sheet as .xlsx or .csv. An Outlook or Google Contacts download can be imported as it is. A JSON export of the same list can also be imported again.
 - **Order.** Import clients before contacts so the company column links to existing records. Map email, phone and messaging columns to the **Contact details** field.
 - **No undo.** An import cannot be rolled back. Clean duplicates first, because there is no merge function afterwards. Test with a small file.
 - **No attachments.** Files that sit next to your spreadsheet, such as contracts or PDFs, are not part of the import. Upload the ones you need to a File field on the record afterwards.
@@ -137,7 +137,7 @@ Contact management stores people, companies and their details. Client management
 </FaqItem>
 
 <FaqItem question="Can I use tags for contacts?">
-No. Add a multiple-choice field instead, for example **Segment** with the values you would have used as tags. You can filter and group by it.
+No. Add a multiple-choice field instead, for example **Segment** with the values you would have used as tags. You can filter and group by it. The guide to [customer segmentation](/blog/customer-segmentation) shows how to choose segments and set up views and charts for them.
 </FaqItem>
 
 <FaqItem question="Can I attach files to a client or contact?">
@@ -145,7 +145,7 @@ Yes. Add a File field to the list; it holds up to 20 files, and search finds the
 </FaqItem>
 
 <FaqItem question="Can I import from Excel, Google Sheets or Outlook?">
-Yes, as an Excel workbook (.xlsx). Google Sheets files are not imported directly, so download the sheet or your contacts as .xlsx first, import clients before contacts, and test with a small file: an import cannot be undone.
+Yes, as an Excel workbook (.xlsx) or a CSV file. Google Sheets files are not imported directly, so download the sheet or your contacts as .xlsx or .csv first, import clients before contacts, and test with a small file: an import cannot be undone.
 </FaqItem>
 
 <FaqItem question="Does a new workspace come with Clients and Contacts lists?">

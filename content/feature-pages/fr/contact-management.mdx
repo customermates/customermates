@@ -78,7 +78,7 @@ Customermates n’a ni rappels intégrés ni logique d’échéance. Vous ajoute
 
 Beaucoup d’équipes arrivent avec un tableur. Le déplacer est faisable, mais pas automatique :
 
-- **Format.** Une liste s’importe depuis un classeur Excel (.xlsx) via un assistant : choisissez la feuille, associez les colonnes, vérifiez l’aperçu, importez. Pour Google Sheets, il n’y a pas d’accès direct : téléchargez la feuille au format .xlsx, et enregistrez en .xlsx dans Excel un téléchargement d’Outlook ou de Google Contacts. Un export JSON de la même liste peut aussi être réimporté.
+- **Format.** Une liste s’importe depuis un classeur Excel (.xlsx ou .xls) ou un fichier CSV via un assistant : choisissez la feuille, associez les colonnes, vérifiez l’aperçu, importez. Pour Google Sheets, il n’y a pas d’accès direct : téléchargez la feuille au format .xlsx ou .csv. Un téléchargement d’Outlook ou de Google Contacts peut être importé tel quel. Un export JSON de la même liste peut aussi être réimporté.
 - **Ordre.** Importez les clients avant les contacts pour que la colonne de l’entreprise se relie aux fiches existantes. Associez les colonnes d’e-mail, de téléphone et de messagerie au champ **Coordonnées**.
 - **Pas d’annulation.** Un import ne peut pas être annulé. Nettoyez d’abord les doublons, car il n’existe pas de fonction de fusion ensuite. Testez avec un petit fichier.
 - **Pas de pièces jointes.** Les fichiers qui accompagnent votre tableur, comme des contrats ou des PDF, ne font pas partie de l’import. Téléversez ensuite ceux dont vous avez besoin dans un champ Fichier de la fiche.
@@ -137,7 +137,7 @@ La gestion des contacts stocke les personnes, les entreprises et leurs détails.
 </FaqItem>
 
 <FaqItem question="Puis-je utiliser des étiquettes pour les contacts ?">
-Non. Ajoutez plutôt un champ à choix multiple, par exemple **Segment** avec les valeurs que vous auriez utilisées comme étiquettes. Vous pouvez filtrer et grouper dessus.
+Non. Ajoutez plutôt un champ à choix multiple, par exemple **Segment** avec les valeurs que vous auriez utilisées comme étiquettes. Vous pouvez filtrer et grouper dessus. Le guide de la [segmentation client](/blog/customer-segmentation) montre comment choisir des segments et leur associer des vues et des graphiques.
 </FaqItem>
 
 <FaqItem question="Puis-je joindre des fichiers à un client ou à un contact ?">
@@ -145,7 +145,7 @@ Oui. Ajoutez un champ Fichier à la liste ; il garde jusqu’à 20 fichiers, et
 </FaqItem>
 
 <FaqItem question="Puis-je importer depuis Excel, Google Sheets ou Outlook ?">
-Oui, sous forme de classeur Excel (.xlsx). Pour Google Sheets, il n’y a pas d’accès direct : téléchargez donc la feuille ou vos contacts au format .xlsx d’abord, importez les clients avant les contacts, et testez avec un petit fichier : un import ne peut pas être annulé.
+Oui, sous forme de classeur Excel (.xlsx) ou de fichier CSV. Pour Google Sheets, il n’y a pas d’accès direct : téléchargez donc la feuille ou vos contacts au format .xlsx ou .csv d’abord, importez les clients avant les contacts, et testez avec un petit fichier : un import ne peut pas être annulé.
 </FaqItem>
 
 <FaqItem question="Un nouvel espace de travail est-il livré avec des listes Clients et Contacts ?">

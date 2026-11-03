@@ -54,7 +54,7 @@ comparison:
         source: Pipeline pondéré à partir des probabilités d’étape
         competitor: Rapports de prévision à partir de Growth
       - name: Import et export
-        source: XLSX ou JSON, une liste à la fois
+        source: Import depuis XLSX, XLS, CSV ou JSON, export en XLSX ou JSON, une liste à la fois
         competitor: Excel ou CSV
   - title: Conversations et IA
     features:
@@ -225,7 +225,7 @@ Chaque associé possède une routine. Elle s’exécute en tant que cet associé
 <Steps>
   <Step title="Exporter depuis Pipedrive">Ouvrez « Outils et applications » › « Exporter les données » et téléchargez les organisations, les personnes, les affaires et les produits sous forme de fichiers Excel, un type d’élément à la fois. Les notes et les activités sont des exports distincts. Seuls les administrateurs globaux et les utilisateurs disposant du droit d’export peuvent le faire.</Step>
   <Step title="Préparer l’espace de travail">Configurez le champ Étape comme dans l’exemple ci-dessus, créez des champs à choix unique pour vos étiquettes et ajoutez des champs personnalisés pour tout le reste que vous gardez. Seize types de champs sont disponibles, dont montant, date, adresse web et adresse ; les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées.</Step>
-  <Step title="Importer une liste à la fois">Sous Plus d’actions › Ajouter depuis un fichier, importez d’abord les organisations, puis les contacts, puis les services et les affaires. Un classeur contient jusqu’à 10 000 lignes et 10 Mo, et les fichiers CSV ne sont pas acceptés : utilisez donc l’export Excel de Pipedrive et découpez les gros fichiers. Les colonnes de liens retrouvent les enregistrements par leur nom, de sorte que la colonne organisation d’une affaire retrouve l’organisation importée auparavant. Les nouveaux contacts exigent un prénom et un nom. Associez les colonnes e-mail et téléphone au champ Coordonnées du contact ; les coordonnées ne sont ajoutées qu’aux nouveaux contacts.</Step>
+  <Step title="Importer une liste à la fois">Sous Plus d’actions › Ajouter depuis un fichier, importez d’abord les organisations, puis les contacts, puis les services et les affaires. Un fichier peut peser jusqu’à 10 Mo et une feuille compter jusqu’à 5 000 lignes : découpez donc les gros fichiers ; les deux formats d’export de Pipedrive, Excel et CSV, s’importent tels quels. Les colonnes de liens retrouvent les enregistrements par leur nom, de sorte que la colonne organisation d’une affaire retrouve l’organisation importée auparavant. Les nouveaux contacts exigent un prénom et un nom. Associez les colonnes e-mail et téléphone au champ Coordonnées du contact ; les coordonnées ne sont ajoutées qu’aux nouveaux contacts.</Step>
   <Step title="Reprendre les notes et les activités ouvertes">Chaque enregistrement a un champ de notes. Associez une colonne de notes pendant l’import, ou laissez un client IA via MCP ajouter les notes exportées aux enregistrements correspondants. Les activités ouvertes peuvent arriver sous forme de tâches, avec un champ date personnalisé pour la date.</Step>
   <Step title="Connecter les canaux, puis résilier Pipedrive">Avec Pro ou pendant l’essai, connectez une boîte aux lettres, LinkedIn ou WhatsApp sous Paramètres › Canaux. Ne résiliez Pipedrive qu’après vérification des enregistrements importés par votre équipe. La [documentation des enregistrements](/docs/app-records) explique chaque étape de l’assistant d’import.</Step>
 </Steps>

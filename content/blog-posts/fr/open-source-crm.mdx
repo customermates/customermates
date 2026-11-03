@@ -203,7 +203,7 @@ Le déploiement officiel du [CRM auto-hébergé](/features/self-hosted) contient
 | Boîte de réception unifiée et comptes de messagerie | Non inclus |
 | Assistant Mate réservé au cloud et crédits hébergés | Non inclus |
 | Vue calendrier connectée en lecture seule | Non incluse |
-| Import et export de fiches en classeurs XLSX | Inclus, une liste à la fois |
+| Import de fiches depuis Excel ou CSV, export en XLSX | Inclus, une liste à la fois |
 
 Customermates convient donc si vous voulez un CRM ciblé, un déploiement Docker/PostgreSQL et une interface MCP ouverte. Il ne convient pas si l’auto-hébergement doit inclure la boîte de réception du cloud géré, ou si vous avez besoin d’une suite PSA, de facturation ou de suivi du temps.
 
@@ -296,6 +296,6 @@ Cela signifie que le code du CRM est proposé sous une licence open source qui a
 </FaqItem>
 
 <FaqItem question="Puis-je importer ou exporter des fiches CRM dans Customermates auto-hébergé ?">
-Oui. Les fiches entrent et sortent sous forme de classeurs XLSX, une liste à la fois, dans la limite des droits de lecture de l’utilisateur et de la vue en cours, avec des limites de lignes dans les deux sens. Le CSV n’est pas accepté : enregistrez d’abord les fichiers CSV en `.xlsx`. Pour tout le reste, comme les pièces jointes ou le transfert complet d’un compte, concevez une migration via l’API REST.
+Oui. Les fiches entrent sous forme de classeurs Excel ou de fichiers CSV et sortent en classeurs XLSX, une liste à la fois, dans la limite des droits de lecture de l’utilisateur et de la vue en cours, avec des limites de lignes dans les deux sens. Pour tout le reste, comme les pièces jointes ou le transfert complet d’un compte, concevez une migration via l’API REST.
 </FaqItem>
 </Faq>

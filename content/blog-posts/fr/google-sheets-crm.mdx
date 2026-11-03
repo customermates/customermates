@@ -167,7 +167,7 @@ Une règle simple : dès que deux personnes modifient les mêmes affaires chaqu
 
 ## Migrer un CRM Google Sheets vers Customermates
 
-Customermates importe des classeurs Excel (.xlsx), une liste à la fois : une feuille Google passe donc d’abord par un téléchargement. Il n’y a pas de synchronisation en direct avec Google Sheets ni d’import CSV. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles, et le [guide du modèle Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associe chaque colonne de cette structure à un champ.
+Customermates importe des classeurs Excel (.xlsx) et des fichiers CSV, une liste à la fois : une feuille Google passe donc d’abord par un téléchargement. Il n’y a pas de synchronisation en direct avec Google Sheets. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles, et le [guide du modèle Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associe chaque colonne de cette structure à un champ.
 
 <Steps>
   <Step title="Nettoyer les onglets">Utilisez Données › Nettoyage des données › Supprimer les doublons sur Contacts et Deals, et corrigez toute valeur qu’une liste déroulante signale. Chaque étape et chaque type doit correspondre exactement à l’une des valeurs de Lists.</Step>
@@ -225,7 +225,7 @@ Une feuille de calcul contient jusqu’à 20 millions de cellules, selon les [li
 </FaqItem>
 
 <FaqItem question="Puis-je connecter une liste Google Sheets à un CRM ?">
-Certains CRM proposent un module complémentaire pour Sheets ; la Place de marché Workspace liste par exemple Copper CRM for Google Sheets. Pas Customermates : il importe et exporte des fichiers .xlsx, une liste à la fois, sans synchronisation en direct. Vous pouvez exporter une liste, la modifier dans Sheets, la télécharger en .xlsx et la réimporter en **Fiches existantes** ; sa colonne ID de la fiche met à jour les enregistrements existants au lieu de créer des doublons.
+Certains CRM proposent un module complémentaire pour Sheets ; la Place de marché Workspace liste par exemple Copper CRM for Google Sheets. Pas Customermates : il importe des fichiers Excel et CSV et exporte des fichiers .xlsx, une liste à la fois, sans synchronisation en direct. Vous pouvez exporter une liste, la modifier dans Sheets, la télécharger en .xlsx et la réimporter en **Fiches existantes** ; sa colonne ID de la fiche met à jour les enregistrements existants au lieu de créer des doublons.
 </FaqItem>
 
 <FaqItem question="Peut-on plutôt créer un CRM dans Excel ?">
