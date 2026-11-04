@@ -12,17 +12,18 @@ const Page = z.object({ id: z.uuid(), markdown: z.string() });
 
 test.use({ viewport: { width: 1600, height: 1000 } });
 
-// Puts the caret after a block's last character; ProseMirror reads the native selection on selectionchange.
+// Native keyboard selection keeps ProseMirror's editor state and the browser caret in sync.
 async function caretToEnd(block: Locator) {
   await block.click();
-  await block.evaluate((element) => {
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    let last: Text | null = null;
-    while (walker.nextNode()) last = walker.currentNode as Text;
-    if (last) getSelection()?.collapse(last, last.length);
-  });
-  await expect.poll(() => block.evaluate((element) => element.contains(getSelection()?.anchorNode ?? null))).toBe(true);
-  await block.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
+  await block.page().keyboard.press("End");
+  await expect.poll(() => block.evaluate((element) => {
+    const selection = getSelection();
+    if (!selection?.isCollapsed || !selection.anchorNode || !element.contains(selection.anchorNode)) return false;
+    const remaining = document.createRange();
+    remaining.selectNodeContents(element);
+    remaining.setStart(selection.anchorNode, selection.anchorOffset);
+    return remaining.toString() === "";
+  })).toBe(true);
 }
 
 test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced Markdown", async ({
