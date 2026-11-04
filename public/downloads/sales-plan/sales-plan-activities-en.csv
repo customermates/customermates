@@ -1,0 +1,11 @@
+﻿Section,Item,Owner,Planned value,Unit,Assumption or calculation,Review date,Actual value,Next action
+Period,Fictional planning inputs; not actual results; recalculate after editing; no live formulas,,,,,,,
+Actions,Account research and contact bundle,Sam,60,hours,120 × 0.5,2027-04-03,,
+Actions,Qualified meeting including preparation and notes,Alex,45,hours,30 × 1.5,2027-04-03,,
+Actions,Proposal preparation,Alex,48,hours,12 × 4,2027-04-03,,
+Actions,Proposal follow-up bundle,Jo,24,hours,12 × 2,2027-04-03,,
+Actions,Weekly team review,Alex / Sam / Jo,18,hours,12 × 1.5,2027-04-03,,
+Selling,Planned selling workload,Alex,195,hours,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Selling,Alex,Alex,99,hours,99 / 120,2027-04-03,,
+Selling,Sam,Sam,66,hours,66 / 96,2027-04-03,,
+Selling,Jo,Jo,30,hours,30 / 48,2027-04-03,,

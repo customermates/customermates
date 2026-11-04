@@ -1,0 +1,11 @@
+﻿Bereich,Position,Verantwortlich,Planwert,Einheit,Annahme oder Rechnung,Prüftermin,Istwert,Nächste Handlung
+Zeitraum,Fiktive Planungsannahmen; keine Ist-Ergebnisse; nach Änderungen neu rechnen; keine automatischen Formeln,,,,,,,
+Maßnahmen,Recherche und Ansprache je Unternehmen,Sam,60,Stunden,120 × 0.5,2027-04-03,,
+Maßnahmen,Qualifiziertes Gespräch samt Vorbereitung und Notizen,Alex,45,Stunden,30 × 1.5,2027-04-03,,
+Maßnahmen,Angebotserstellung,Alex,48,Stunden,12 × 4,2027-04-03,,
+Maßnahmen,Paket zur Angebotsnachverfolgung,Jo,24,Stunden,12 × 2,2027-04-03,,
+Maßnahmen,Wöchentliche Teambesprechung,Alex / Sam / Jo,18,Stunden,12 × 1.5,2027-04-03,,
+Vertrieb,Geplanter Vertriebsaufwand,Alex,195,Stunden,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Vertrieb,Alex,Alex,99,Stunden,99 / 120,2027-04-03,,
+Vertrieb,Sam,Sam,66,Stunden,66 / 96,2027-04-03,,
+Vertrieb,Jo,Jo,30,Stunden,30 / 48,2027-04-03,,

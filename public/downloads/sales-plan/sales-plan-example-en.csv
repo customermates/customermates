@@ -1,0 +1,34 @@
+﻿Section,Item,Owner,Planned value,Unit,Assumption or calculation,Review date,Actual value,Next action
+Period,Fictional planning inputs; not actual results; recalculate after editing; no live formulas,,,,,,,
+Period,2027-01-04 / 2027-04-03,Alex,90,calendar days,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Assumptions,Target customer and offer,Alex,Operations improvement project for small service businesses,text,,2027-02-02,,Record actual; confirm next action
+Assumptions,Contract target,Alex,36000,EUR,6 × 6000,2027-02-02,,Record actual; confirm next action
+Assumptions,Contract value per project,Alex,6000,EUR,,2027-02-02,,Record actual; confirm next action
+Assumptions,Required wins,Alex,6,contracts,36000 ÷ 6000,2027-02-02,,Record actual; confirm next action
+Assumptions,Proposal win rate,Alex,50,percent,,2027-02-02,,Record actual; confirm next action
+Assumptions,Meeting-to-proposal rate,Alex,40,percent,,2027-02-02,,Record actual; confirm next action
+Assumptions,Account-to-meeting rate,Alex,25,percent,,2027-02-02,,Record actual; confirm next action
+Assumptions,Required proposals,Alex,12,proposals,6 ÷ 0.50,2027-02-02,,Record actual; confirm next action
+Assumptions,Required meetings,Alex,30,meetings,12 ÷ 0.40,2027-02-02,,Record actual; confirm next action
+Assumptions,Required accounts,Alex,120,companies,30 ÷ 0.25,2027-02-02,,Record actual; confirm next action
+Assumptions,Proposal decision allowance,Alex,30,calendar days,,2027-02-02,,Record actual; confirm next action
+Assumptions,Incremental cash budget,Alex,0,EUR,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,companies,Sam,60,companies,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,qualified meetings,Alex,20,qualified meetings,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,proposals,Alex,8,proposals,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,contracts,Alex,0,contracts,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,New signed contracts excluding tax,Alex,0,EUR,,2027-02-02,,Record actual; confirm next action
+Cumulative milestones,companies,Sam,100,companies,,2027-03-04,,Record actual; confirm next action
+Cumulative milestones,qualified meetings,Alex,27,qualified meetings,,2027-03-04,,Record actual; confirm next action
+Cumulative milestones,proposals,Alex,12,proposals,,2027-03-04,,Record actual; confirm next action
+Cumulative milestones,contracts,Alex,4,contracts,,2027-03-04,,Record actual; confirm next action
+Cumulative milestones,New signed contracts excluding tax,Alex,24000,EUR,,2027-03-04,,Record actual; confirm next action
+Cumulative milestones,companies,Sam,120,companies,,2027-04-03,,Record actual; confirm next action
+Cumulative milestones,qualified meetings,Alex,30,qualified meetings,,2027-04-03,,Record actual; confirm next action
+Cumulative milestones,proposals,Alex,12,proposals,,2027-04-03,,Record actual; confirm next action
+Cumulative milestones,contracts,Alex,6,contracts,,2027-04-03,,Record actual; confirm next action
+Cumulative milestones,New signed contracts excluding tax,Alex,36000,EUR,,2027-04-03,,Record actual; confirm next action
+Actions,companies,Sam,,,Record actual; confirm next action,2027-01-08,,
+Actions,qualified meetings,Alex,,,Record actual; confirm next action,2027-01-15,,
+Actions,proposals,Alex,,,Record actual; confirm next action,2027-03-04,,
+Actions,Delivery,Jo,,,Record actual; confirm next action,2027-04-03,,
