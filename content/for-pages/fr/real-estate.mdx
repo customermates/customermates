@@ -92,7 +92,7 @@ L’étape de l’affaire est un champ à choix unique, et chaque option peut po
 | Conclu | Conclu | Conclu | 100 % |
 | Perdu | Perdu | Perdu | 0 % |
 
-Sur le [board du pipeline](/features/pipeline), chaque affaire est une carte que vous faites glisser d’une étape à l’autre. Les valeurs pondérées viennent de vos propres probabilités multipliées par la valeur de l’affaire, et la valeur de l’affaire est la somme de ses lignes : pour suivre les commissions, le champ Commission prévue est donc en général plus simple. Dans les deux cas, c’est de l’arithmétique, pas une prévision.
+Sur le [board du pipeline](/features/pipeline), chaque affaire est une carte que vous déplacez entre les étapes. Configurez sa valeur comme un montant saisi, par exemple la commission attendue, ou comme la somme calculée de lignes liées. Un champ de valeur pondérée facultatif multiplie ce montant par la probabilité de l’étape divisée par 100. Une estimation de commission n’est ni une évaluation immobilière ni une prédiction de signature. Le [guide des calculs sur les enregistrements](/docs/concepts#how-does-a-weighted-pipeline-work) explique la configuration.
 
 ### Des vues enregistrées pour le point du matin
 
@@ -108,7 +108,7 @@ Les vues enregistrées sont personnelles : chaque collègue définit donc les m
 
 Customermates ne fait pas correspondre automatiquement les acheteurs aux biens, et il n’existe pas de base de biens pour cela. Ce qui fonctionne, c’est un filtre. Quand une maison de trois chambres à Riverside arrive à 480 000 $, filtrez les contacts par Rôle Acheteur, Secteur recherché Riverside, Chambres 3 ou 4, et Budget max d’au moins 480 000. Les champs montant prennent en charge les filtres « supérieur à » et « inférieur à », et les champs à choix unique prennent en charge « fait partie de » ([référence des filtres](/docs/filter-syntax)). Liez les acheteurs que vous appelez à l’affaire du mandat pour voir plus tard qui en a entendu parler.
 
-Dans Customermates Cloud, une [routine](/docs/app-routines) peut faire la recherche pour vous. Choisissez **Quand quelque chose change**, l’évènement **Affaire mise à jour**, le champ modifié Étape, et les filtres d’enregistrement Côté = Mandat de vente et Étape = Actif. Avec des instructions comme celles-ci :
+Dans Customermates Cloud, une [routine](/docs/app-routines) peut faire la recherche pour vous. Choisissez **Quand quelque chose change**, l’évènement **Enregistrement mis à jour**, le champ modifié Étape, et les filtres d’enregistrement Côté = Mandat de vente et Étape = Actif. Avec des instructions comme celles-ci :
 
 ```text
 Ce mandat vient de passer en vente. Trouvez les contacts dont le Rôle est Acheteur, dont le
@@ -137,11 +137,7 @@ Terminez par une liste : nom, canal, ce qu’elle a demandé, brouillon enregist
 ```
 
 <AcquisitionCallout title="Dites à Mate de rédiger, pas d’envoyer" variant="boundary">
-  Mate et les routines peuvent envoyer des e-mails et des messages WhatsApp
-  sans demander d’abord quand on leur dit d’envoyer. Une routine s’exécute au
-  nom de son propriétaire, avec les canaux de ce propriétaire : écrivez donc
-  « n’envoyez pas » dans les instructions. Filtrez ensuite la boîte de réception
-  par Brouillon, relisez chaque brouillon et envoyez-le vous-même.
+  Demandez à Mate d’enregistrer des brouillons et de lister ses sources. Vérifiez chaque brouillon dans sa conversation avant l’envoi. Une routine s’exécute comme son propriétaire, avec ses droits et ses comptes connectés. Limitez donc ses instructions et ses autorisations à cette préparation. Le [guide des autorisations et approbations des routines](/docs/app-routines) explique les contrôles.
 </AcquisitionCallout>
 
 Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur et Pro en inclut [[commercial.entitlement.pro.includedRoutinesPerUser]]. Si vous préférez votre propre client IA, connectez Claude, ChatGPT ou un autre client via [MCP](/docs/mcp) ; cela fonctionne sur toutes les formules et sur les installations auto-hébergées, l’usage du modèle étant facturé par votre fournisseur d’IA.
@@ -161,7 +157,7 @@ Customermates n’est pas un logiciel de gestion locative. Il n’a ni encaissem
 - Pas de campagnes automatisées, de séquences d’e-mails ni d’envois en masse. Les actualités du marché partent de votre outil de newsletter.
 - Pas de SMS, d’appels ni de composeur, et pas d’application mobile.
 - Pas de réservation de visites ni d’écriture dans le calendrier. Avec Pro, vous voyez votre calendrier en lecture seule à côté du CRM.
-- Pas d’échéances de tâches ni de notifications de rappel. Un champ date plus une vue enregistrée, ou une routine, fait ce travail.
+- Pas de champ d’échéance de tâche intégré ni de notification de rappel. Ajoutez un champ de date et affichez-le dans un calendrier, une vue enregistrée ou une routine.
 
 Si l’un de ces points est la raison de votre recherche, regardez un outil conçu pour cela. Customermates publie cette page ; les informations sur les éditeurs ont été vérifiées le 8 octobre 2026 sur le site de chaque éditeur.
 

@@ -90,7 +90,7 @@ The deal stage is a single choice field, and each option can carry a win probabi
 | Closed | Closed | Closed | 100% |
 | Lost | Lost | Lost | 0% |
 
-On the [pipeline board](/features/pipeline) each deal is a card you drag between stages. Weighted values come from your own probabilities times the deal value, and the deal value is the sum of its line items, so for commission tracking the Expected commission field is usually simpler. Either way it is arithmetic, not a forecast.
+On the [pipeline board](/features/pipeline), each deal is a card you drag between stages. Configure the deal value as an entered money amount, such as the expected commission, or as a calculated total of linked line items. An optional weighted-value field multiplies that value by the stage probability divided by 100. A commission estimate is not a property valuation or a prediction that the sale will close. The [record calculations guide](/docs/concepts#how-does-a-weighted-pipeline-work) explains the setup.
 
 ### Saved views for the morning check
 
@@ -118,7 +118,7 @@ any messages.
 
 ### Inquiries and conversations in one inbox (Pro and above)
 
-In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with WhatsApp, LinkedIn, Instagram and Telegram. You reply on the original channel. If a portal forwards inquiries to your mailbox, they arrive here with your other mail. Link a sender to a contact once, and every later conversation with that address appears on their timeline.
+In Customermates Cloud on Pro and higher, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with WhatsApp, LinkedIn, Instagram and Telegram. You reply on the original channel. If a portal forwards inquiries to your mailbox, they arrive here with your other mail. Link a sender to a contact once, and every later conversation with that address appears on their timeline.
 
 Two details decide the plan. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so an agent who wants both a mailbox and WhatsApp in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]]. And your conversations stay private: colleagues, admins included, see a thread only after you share it. Sharing a whole account, such as an office inquiry mailbox, needs Business. SMS and phone calls are not channels.
 
@@ -135,10 +135,7 @@ list: name, channel, what they asked, draft saved yes or no.
 ```
 
 <AcquisitionCallout title="Tell Mate to draft, not send" variant="boundary">
-  Mate and routines can send email and WhatsApp messages without asking first
-  when told to send. A routine runs as its owner, with that owner's channels,
-  so say "do not send" in the instructions. Then filter the inbox by Draft,
-  read each draft and send it yourself.
+  Ask Mate to save drafts and list the sources it used. Review each draft in its conversation before sending. A routine runs as its owner, with that user’s access and connected accounts, so keep its instructions and permissions limited to this preparation task. The [routine permissions and approval guide](/docs/app-routines) explains the controls.
 </AcquisitionCallout>
 
 Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]]. If you prefer your own AI client, connect Claude, ChatGPT or another client through [MCP](/docs/mcp); it works on every plan and on self-hosted installations, with model use billed by your AI provider.
@@ -158,7 +155,7 @@ Customermates is not property management software. It has no rent collection, te
 - No drip campaigns, email sequences or bulk email. Market updates go out from your newsletter tool.
 - No texting, calling or dialer, and no mobile app.
 - No showing booking or calendar write. On Pro you can see your calendar read-only next to the CRM.
-- No task due dates or reminder notifications. A date field plus a saved view, or a routine, does that work.
+- No built-in task due-date field or reminder notifications. Add a date field and show it in a calendar, saved view or routine.
 
 If one of these is the reason you are shopping, look at a tool built for it. Customermates publishes this page; vendor details were checked on 8 October 2026 on each vendor's own website.
 
