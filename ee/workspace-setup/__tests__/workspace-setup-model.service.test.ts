@@ -66,6 +66,7 @@ describe("workspace setup model calls", () => {
       capMicrocents: WORKSPACE_SETUP_BUDGETS.plan.capMicrocents,
     });
     expect(model.generate.mock.calls[0][0].model).toBe(AGENT_MODELS.setupPlanning);
+    expect(model.generate.mock.calls[0][0].retrySchemaCompilation).toBe(true);
     expect(usage.settlePlatformRetrieval).toHaveBeenCalledWith({ reservationId: "hold", charge });
   });
 

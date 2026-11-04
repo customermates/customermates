@@ -37,7 +37,7 @@ export class WorkspaceSetupModelService extends UserAccessor {
 
   async generate<T>(call: SetupModelCall<T>): Promise<SetupModelOutcome<T>> {
     const model: AgentModelEntry = AGENT_MODELS[call.purpose];
-    const worstCaseMicrocents = structuredCallWorstCaseMicrocents(model, call.system, call.prompt);
+    const worstCaseMicrocents = structuredCallWorstCaseMicrocents(model, call.system, call.prompt, call.schema);
     const reserved = await this.usage.reserveWorkspacePlatform({
       companyId: this.companyId,
       purpose: this.budget.purpose,
@@ -62,6 +62,7 @@ export class WorkspaceSetupModelService extends UserAccessor {
         system: call.system,
         prompt: call.prompt,
         salvageArrays: call.salvageArrays,
+        retrySchemaCompilation: true,
       });
       charge = result.charge;
       if (result.failure) this.warnings.push([result.failure, result.rejection].filter(Boolean).join(" "));

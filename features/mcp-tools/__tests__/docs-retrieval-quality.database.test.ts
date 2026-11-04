@@ -296,7 +296,7 @@ describeDatabase("documentation retrieval quality on the benchmark docs question
   it.each([
     ["en", "how do I connect a channel", "app-profile#how-do-i-connect-a-channel"],
     ["en", "connect whatsapp", "app-profile#how-do-i-connect-a-channel"],
-    ["en", "connected accounts", "app-company#what-happens-to-connected-accounts-when-the-plan-changes"],
+    ["en", "connected accounts", "architecture-security#where-are-customer-data-and-credentials-stored"],
     ["en", "how long is the OAuth token valid", "connect-custom-connector#it-syncs-and-stays-connected"],
     ["en", "how long is the refresh token valid", "connect-custom-connector#it-syncs-and-stays-connected"],
   ] as const)(

@@ -116,6 +116,38 @@ export function isHttpErrorReport(diagnostic: Pick<BrowserDiagnostic, "kind" | "
   return diagnostic.kind === "console" && HTTP_ERROR_REPORT.test(diagnostic.text) && isLoopbackHttp(diagnostic.source);
 }
 
+const NOSNIFF_REFUSALS = [
+  /^Refused to (?:execute script|apply style) from '([^']+)' because its MIME type/,
+  /^Refused to execute (\S+) as \w+ because "X-Content-Type-Options: nosniff" was given/,
+  /The resource from “([^”]+)” was blocked due to MIME type .*\(X-Content-Type-Options: nosniff\)/,
+];
+
+/**
+ * The URL of a script or stylesheet the browser refused to run because the response said nosniff and carried another
+ * content type: Chromium, WebKit and Firefox each phrase it differently.
+ */
+export function nosniffRefusedUrl(text: string): string | null {
+  for (const pattern of NOSNIFF_REFUSALS) {
+    const url = pattern.exec(text)?.[1];
+    if (url) return url;
+  }
+  return null;
+}
+
+/**
+ * With nosniff, the browser refuses an error page sent for a script or stylesheet and then reports the request as
+ * failed, as it would an aborted one. The server did answer with the error, so that failure must not hide it.
+ */
+export function isNosniffRefusedLoad(
+  resourceType: string,
+  headers: Record<string, string> | undefined,
+): boolean {
+  if (resourceType !== "script" && resourceType !== "stylesheet") return false;
+  if (headers?.["x-content-type-options"]?.toLowerCase() !== "nosniff") return false;
+  const contentType = headers["content-type"]?.toLowerCase() ?? "";
+  return resourceType === "script" ? !/javascript|ecmascript/.test(contentType) : !contentType.startsWith("text/css");
+}
+
 function httpErrorKey(status: number | string, url: string) {
   return `${status} ${url}`;
 }
@@ -172,6 +204,8 @@ export class BrowserDiagnostics {
     { diagnostic: BrowserDiagnostic; timer: ReturnType<typeof setTimeout> }
   >();
   private readonly settledRequests = new WeakMap<Request, { failed: boolean }>();
+  private readonly refusedErrors = new WeakSet<Request>();
+  private readonly refusedErrorUrls = new Set<string>();
   private readonly answeredErrors = new Map<string, Request[]>();
   private readonly consoleErrors = new Map<string, BrowserDiagnostic[]>();
   private readonly pendingConsole = new Set<Promise<void>>();
@@ -200,6 +234,7 @@ export class BrowserDiagnostics {
         this.pendingConsole.add(pending);
         void pending.finally(() => this.pendingConsole.delete(pending));
       } else if (isHttpErrorReport(diagnostic)) this.noteHttpErrorReport(diagnostic);
+      else if (this.refusedErrorUrls.has(nosniffRefusedUrl(diagnostic.text) ?? "")) return;
       else this.record(diagnostic);
     });
     context.on("request", (request: Request) => this.noteRequest(request));
@@ -317,6 +352,10 @@ export class BrowserDiagnostics {
     const diagnostic = httpErrorDiagnostic(response);
     if (!diagnostic) return;
     const request = response.request();
+    if (isNosniffRefusedLoad(request.resourceType?.() ?? "", response.headers?.())) {
+      this.refusedErrors.add(request);
+      this.refusedErrorUrls.add(response.url());
+    }
     const key = httpErrorKey(response.status(), response.url());
     const copy = this.consoleErrors.get(key)?.shift();
     if (!copy) this.answeredErrors.set(key, [...(this.answeredErrors.get(key) ?? []), request]);
@@ -339,7 +378,7 @@ export class BrowserDiagnostics {
       this.settledRequests.set(request, { failed });
       return;
     }
-    if (failed) this.dropHttpError(request);
+    if (failed && !this.refusedErrors.has(request)) this.dropHttpError(request);
     else this.confirmHttpError(request);
   }
 
