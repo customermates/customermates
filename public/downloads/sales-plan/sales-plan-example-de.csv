@@ -1,0 +1,34 @@
+﻿Bereich,Position,Verantwortlich,Planwert,Einheit,Annahme oder Rechnung,Prüftermin,Istwert,Nächste Handlung
+Zeitraum,Fiktive Planungsannahmen; keine Ist-Ergebnisse; nach Änderungen neu rechnen; keine automatischen Formeln,,,,,,,
+Zeitraum,2027-01-04 / 2027-04-03,Alex,90,Kalendertage,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Annahmen,Zielkunde und Angebot,Alex,Projekt zur Verbesserung betrieblicher Abläufe für kleine Dienstleister,Text,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Auftragsziel,Alex,36000,EUR,6 × 6000,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Auftragswert je Projekt,Alex,6000,EUR,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Benötigte Aufträge,Alex,6,Aufträge,36000 ÷ 6000,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Abschlussquote Angebote,Alex,50,Prozent,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Quote Gespräch zu Angebot,Alex,40,Prozent,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Quote Unternehmen zu Gespräch,Alex,25,Prozent,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Benötigte Angebote,Alex,12,Angebote,6 ÷ 0.50,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Benötigte Gespräche,Alex,30,Gespräche,12 ÷ 0.40,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Benötigte Unternehmen,Alex,120,Unternehmen,30 ÷ 0.25,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Zeit bis Angebotsentscheidung,Alex,30,Kalendertage,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Annahmen,Zusätzlicher Geldaufwand,Alex,0,EUR,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Unternehmen,Sam,60,Unternehmen,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,qualifizierte Gespräche,Alex,20,qualifizierte Gespräche,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Angebote,Alex,8,Angebote,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Aufträge,Alex,0,Aufträge,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Neuer Netto-Auftragseingang,Alex,0,EUR,,2027-02-02,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Unternehmen,Sam,100,Unternehmen,,2027-03-04,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,qualifizierte Gespräche,Alex,27,qualifizierte Gespräche,,2027-03-04,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Angebote,Alex,12,Angebote,,2027-03-04,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Aufträge,Alex,4,Aufträge,,2027-03-04,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Neuer Netto-Auftragseingang,Alex,24000,EUR,,2027-03-04,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Unternehmen,Sam,120,Unternehmen,,2027-04-03,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,qualifizierte Gespräche,Alex,30,qualifizierte Gespräche,,2027-04-03,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Angebote,Alex,12,Angebote,,2027-04-03,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Aufträge,Alex,6,Aufträge,,2027-04-03,,Istwert erfassen; nächste Handlung bestätigen
+Kumulierte Meilensteine,Neuer Netto-Auftragseingang,Alex,36000,EUR,,2027-04-03,,Istwert erfassen; nächste Handlung bestätigen
+Maßnahmen,Unternehmen,Sam,,,Istwert erfassen; nächste Handlung bestätigen,2027-01-08,,
+Maßnahmen,qualifizierte Gespräche,Alex,,,Istwert erfassen; nächste Handlung bestätigen,2027-01-15,,
+Maßnahmen,Angebote,Alex,,,Istwert erfassen; nächste Handlung bestätigen,2027-03-04,,
+Maßnahmen,Kundenleistung,Jo,,,Istwert erfassen; nächste Handlung bestätigen,2027-04-03,,

@@ -1,0 +1,34 @@
+﻿Rubrique,Élément,Responsable,Valeur prévue,Unité,Hypothèse ou calcul,Date de bilan,Valeur réelle,Prochaine action
+Période,Hypothèses fictives ; aucun résultat réel ; recalculer après modification ; sans formules automatiques,,,,,,,
+Période,2027-01-04 / 2027-04-03,Alex,90,jours calendaires,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Hypothèses,Cible et offre,Alex,Projet d’amélioration des opérations pour petites entreprises de services,texte,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Objectif de contrats signés,Alex,36000,EUR,6 × 6000,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Valeur d’un projet,Alex,6000,EUR,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Contrats nécessaires,Alex,6,contrats,36000 ÷ 6000,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Taux proposition vers contrat,Alex,50,pour cent,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Taux rendez-vous vers proposition,Alex,40,pour cent,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Taux entreprise vers rendez-vous,Alex,25,pour cent,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Propositions nécessaires,Alex,12,propositions,6 ÷ 0.50,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Rendez-vous nécessaires,Alex,30,rendez-vous,12 ÷ 0.40,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Entreprises nécessaires,Alex,120,entreprises,30 ÷ 0.25,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Délai de décision après proposition,Alex,30,jours calendaires,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Hypothèses,Dépenses supplémentaires,Alex,0,EUR,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,entreprises,Sam,60,entreprises,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,rendez-vous qualifiés,Alex,20,rendez-vous qualifiés,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,propositions,Alex,8,propositions,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,contrats,Alex,0,contrats,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,Nouveaux contrats signés HT,Alex,0,EUR,,2027-02-02,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,entreprises,Sam,100,entreprises,,2027-03-04,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,rendez-vous qualifiés,Alex,27,rendez-vous qualifiés,,2027-03-04,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,propositions,Alex,12,propositions,,2027-03-04,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,contrats,Alex,4,contrats,,2027-03-04,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,Nouveaux contrats signés HT,Alex,24000,EUR,,2027-03-04,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,entreprises,Sam,120,entreprises,,2027-04-03,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,rendez-vous qualifiés,Alex,30,rendez-vous qualifiés,,2027-04-03,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,propositions,Alex,12,propositions,,2027-04-03,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,contrats,Alex,6,contrats,,2027-04-03,,Saisir le réel ; confirmer la prochaine action
+Jalons cumulés,Nouveaux contrats signés HT,Alex,36000,EUR,,2027-04-03,,Saisir le réel ; confirmer la prochaine action
+Actions,entreprises,Sam,,,Saisir le réel ; confirmer la prochaine action,2027-01-08,,
+Actions,rendez-vous qualifiés,Alex,,,Saisir le réel ; confirmer la prochaine action,2027-01-15,,
+Actions,propositions,Alex,,,Saisir le réel ; confirmer la prochaine action,2027-03-04,,
+Actions,Prestations,Jo,,,Saisir le réel ; confirmer la prochaine action,2027-04-03,,

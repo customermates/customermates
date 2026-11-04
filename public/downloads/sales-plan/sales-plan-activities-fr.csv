@@ -1,0 +1,11 @@
+﻿Rubrique,Élément,Responsable,Valeur prévue,Unité,Hypothèse ou calcul,Date de bilan,Valeur réelle,Prochaine action
+Période,Hypothèses fictives ; aucun résultat réel ; recalculer après modification ; sans formules automatiques,,,,,,,
+Actions,Recherche et prise de contact par entreprise,Sam,60,heures,120 × 0.5,2027-04-03,,
+Actions,Rendez-vous qualifié avec préparation et notes,Alex,45,heures,30 × 1.5,2027-04-03,,
+Actions,Préparation de proposition,Alex,48,heures,12 × 4,2027-04-03,,
+Actions,Ensemble des relances par proposition,Jo,24,heures,12 × 2,2027-04-03,,
+Actions,Point d’équipe hebdomadaire,Alex / Sam / Jo,18,heures,12 × 1.5,2027-04-03,,
+Vente,Travail commercial prévu,Alex,195,heures,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Vente,Alex,Alex,99,heures,99 / 120,2027-04-03,,
+Vente,Sam,Sam,66,heures,66 / 96,2027-04-03,,
+Vente,Jo,Jo,30,heures,30 / 48,2027-04-03,,

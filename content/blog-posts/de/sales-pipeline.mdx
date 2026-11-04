@@ -3,10 +3,10 @@ title: "Sales Pipeline: Phasen, Aufbau und Pflege im Vertrieb"
 description: "Die Sales Pipeline zeigt jeden offenen Deal mit Phase, Wert und nächstem Schritt. Phasen mit Kriterien, Aufbau in 7 Schritten, Kennzahlen und CRM-Einrichtung."
 
 relatedHrefs:
+  - /blog/sales-plan-template
   - /features/pipeline
   - /blog/crm-for-sales
   - /blog/client-qualification
-  - /blog/customer-acquisition
 
 hero:
   title: "Sales Pipeline: Phasen festlegen, Pipeline aufbauen und ehrlich halten"
@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-24
-  updated: 2026-10-08
+  updated: 2026-11-04
   tags:
     - Sales Pipeline
     - Pipeline Management
@@ -35,6 +35,8 @@ Schwierig ist nicht der Aufbau, sondern die Pflege. Eine Pipeline voller Deals, 
   <SummaryItem label="Pflege">Eine wöchentliche Besprechung von 30 Minuten für späte Phasen und alles, was sich seit zwei Wochen nicht bewegt hat.</SummaryItem>
 </ArticleSummary>
 
+
+Leiten Sie aus Ihrem Ziel konkrete Kundenaktionen, Verantwortliche und Prüftermine ab: Die [ausgefüllte Vertriebsplanung-Vorlage für 90 Tage](/blog/sales-plan-template) enthält eine Kapazitätsprüfung für das Team.
 ## Pipeline, Funnel und Vertriebsprozess
 
 Die drei Begriffe werden oft durcheinander verwendet. Der Unterschied zählt erst, wenn Sie entscheiden, was Sie messen.
@@ -126,7 +128,7 @@ Dieser Abschnitt beschreibt unser eigenes Produkt. Customermates ist ein Open-So
 
 **Phasen.** Phasen sind nicht voreingestellt: Sie legen an Ihrer Liste Deals ein Feld **Phase** an, zum Beispiel mit den sieben Phasen aus der Tabelle: Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren, gewichtet mit 10, 20, 40, 60, 80, 100 und 0 Prozent. In der Cloud kann die KI-Einrichtung es aus Ihrer Beschreibung erstellen. Die Phase ist ein Feld vom Typ Einzelauswahl, Sie können Phasen also selbst umbenennen, ergänzen oder entfernen. Die Wahrscheinlichkeiten setzen Sie als **Wahrscheinlichkeit %** an jeder Option, wenn Sie das Feld **Phase** in Konfigurieren für Deals öffnen; eine Vorschau zeigt die Auswirkung vor dem Speichern. Für Gesamt- und gewichtete Pipeline legen Sie auf dem Dashboard ein Diagramm-Widget an, das **Wert** oder **Gewichteter Wert** nach Phase summiert. Wie die Gewichtung funktioniert, steht in den [Grundbegriffen](/docs/concepts).
 
-**Deal-Wert.** Der Wert eines Deals ist die Summe seiner Positionen: Jede Position ist der Preis eines Services mal Menge in diesem Deal. Die Marketing-Betreuung aus dem Beispiel ist eine Position mit dem Service „Monatspauschale“ und der Menge 6. Der gewichtete Wert ist dieser Betrag mal die Wahrscheinlichkeit der Phase.
+**Deal-Wert.** Wählen Sie das Modell, das zu Ihrem Geschäft passt. Der Deal-Wert kann ein eingegebener Geldbetrag oder eine berechnete Summe verknüpfter Positionen sein. Bei Positionen ergibt sich der Betrag aus Menge mal effektivem Einzelpreis; die Deal-Summe addiert diese Beträge. Aktuelle Preise folgen späteren Preisänderungen, gespeicherte Preise behalten den erfassten Betrag. Die Betreuung im Beispiel könnte eine Position mit der Menge 6 sein. Der gewichtete Wert ist eine optionale Berechnung: Deal-Wert mal Phasenwahrscheinlichkeit geteilt durch 100. Die [Anleitung zu Berechnungen und Preisen](/docs/concepts#how-does-a-weighted-pipeline-work) erklärt fehlende Eingaben, Währungen und Zugriffsrechte.
 
 **Das Board.** Stellen Sie die Deal-Liste unter **Darstellung** auf **Board** und gruppieren Sie nach Phase. Fügen Sie der Gruppierung Übersichten hinzu, etwa die Summe von **Wert** und **Gewichteter Wert**, um die Summen jeder Spalte zu sehen. Ziehen Sie eine Karte in eine andere Spalte, ändert sich ihre Phase. Die [Pipeline-Seite](/features/pipeline) zeigt das Board, die [Anleitung zu Datensätzen](/docs/app-records) alle Ansichten und Gruppierungen.
 
@@ -143,16 +145,16 @@ Gespeicherte Ansichten sind persönlich und lassen sich nicht teilen. Jede Perso
 
 > Meine Deals in den Phasen Angebot und Verhandlung auflisten, die seit 14 Tagen nicht aktualisiert wurden. Für jeden Deal die Notizen und, falls vorhanden, das letzte Gespräch mit dem verknüpften Kontakt zusammenfassen und einen nächsten Schritt vorschlagen. Keine Nachricht senden und keinen Deal ändern.
 
-Der letzte Satz ist wichtig. Mate verschickt Nachrichten, wenn eine Anweisung das verlangt, und eine Routine läuft mit den verbundenen Kanälen ihres Eigentümers. Eine Anweisung, die nur vorbereiten soll, muss das ausdrücklich sagen. Zeitpläne und Grenzen beschreibt die [Anleitung zu Routinen](/docs/app-routines).
+Begrenzen Sie die Routine auf die Vorbereitung: Ein Entwurf ist ein anderer Auftrag als das Senden. Die Routine läuft als ihr Eigentümer und folgt dessen Zugriffsrechten und den verfügbaren Freigabekontrollen. Prüfen Sie den vorgeschlagenen nächsten Schritt am tatsächlichen Gespräch, bevor Sie handeln. Zeitpläne, Berechtigungen und Grenzen beschreibt die [Anleitung zu Routinen](/docs/app-routines).
 
 **Alternativ Ihr eigener KI-Client.** Arbeiten Sie mit Claude, ChatGPT oder einem anderen MCP-Client, kann dieser Deals über den [MCP-Server](/docs/mcp) lesen und ändern, mit Ihrem eigenen KI-Anbieter und ohne gehostete Credits. Das funktioniert auch bei einer selbst gehosteten Installation, die weder Posteingang noch Mate hat.
 
 **Was es kostet.** Pipeline, Board, gewichtete Werte und gespeicherte Ansichten sind in jedem Tarif enthalten. Für drei Personen kostet Starter [[commercial.price.starter.monthly.seats.3]] im Monat, Pro mit Posteingang [[commercial.price.pro.monthly.seats.3]] im Monat. Abgerechnet wird monatlich; jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, Details stehen auf der [Preisseite](/pricing).
 
-**Umzug aus einer Tabelle.** Importieren Sie zuerst Organisationen und Kontakte, dann Services, dann Deals, jeweils als eigene Excel-Arbeitsmappe (XLSX). Der Import-Assistent ordnet verknüpfte Datensätze über den Namen zu, sodass die Deal-Zeilen auf bereits importierte Organisationen und Services verweisen können.
+**Umzug aus einer Tabelle.** Legen Sie zuerst die Listen und Felder an. Importieren Sie verknüpfte Datensätze vor den Datensätzen, die darauf verweisen, etwa Organisationen und Kontakte vor Deals. Der Datei-Assistent unterstützt XLSX, XLS und CSV mit Vorschau und Zuordnung vor dem Import. Prüfen Sie anschließend einige Verknüpfungen; die [Anleitung zum Datensatzimport](/docs/app-records) erklärt den Ablauf.
 
 <AcquisitionCallout title="Wann Customermates nicht zu Ihrer Pipeline passt" variant="boundary">
-Ein einziges Phasenfeld bestimmt die gewichteten Werte für den ganzen Workspace. Sie können ein zweites Einzelauswahl-Feld für einen anderen Prozess anlegen und ein Board danach gruppieren. Wenn Sie aber mehrere getrennte Pipelines mit eigenen gewichteten Summen führen, ist ein CRM mit mehreren Pipelines die bessere Wahl: Der Starter-Tarif von HubSpot enthält zusätzlich zur Standard-Pipeline 15 benutzerdefinierte Pipelines, und Pipedrive beschreibt in seiner Hilfe, wie Sie mehrere Pipelines einrichten. Customermates sagt nicht voraus, welche Deals abschließen; der gewichtete Wert ist Phasenwahrscheinlichkeit mal Deal-Wert, nicht mehr. Aufgaben haben keine Fälligkeitsdaten und keine Erinnerungen, und es gibt keine mobile App. Prognosekategorien und Pflichtfelder pro Phase gibt es in Customermates nicht; wenn Sie diese brauchen, prüfen Sie sie bei anderen Anbietern in der Demo. HubSpot etwa beschreibt bedingte Phaseneigenschaften, die beim Wechsel in eine Phase bestimmte Felder abfragen; welcher Tarif sie enthält, sollten Sie dort prüfen.
+Das Phasenfeld, seine Wahrscheinlichkeiten und die Berechnung des gewichteten Werts gehören zu den Listen und Feldern, die Sie konfigurieren. Getrennte Prozesse lassen sich mit eigenen Listen oder Feldern abbilden; prüfen Sie dabei, welche Berechnung und welches Widget sie verwenden. Customermates sagt nicht voraus, welche Deals abschließen. Phasengewichtung ist Rechnung, keine Prognose. Ergänzen Sie Aufgaben um eigene Datums- und Statusfelder und zeigen Sie die Termine im Kalender an. Eingebaute Erinnerungsbenachrichtigungen und eine native mobile App gibt es nicht. Sequenzen, Telefonie und prädiktive Prognosen brauchen andere Werkzeuge. Die [Anleitung zur Aufgabenverwaltung](/features/task-management) erklärt das konfigurierbare Modell.
 </AcquisitionCallout>
 
 ## Häufige Fragen

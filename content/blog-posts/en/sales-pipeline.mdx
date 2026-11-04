@@ -3,10 +3,10 @@ title: "Sales Pipeline: Stages, Setup and Weekly Review"
 description: "A sales pipeline shows every open deal by stage, value and next step. Stage exit criteria, a build checklist, coverage math and a CRM setup you can copy."
 
 relatedHrefs:
+  - /blog/sales-plan-template
   - /features/pipeline
   - /blog/crm-for-sales
   - /blog/client-qualification
-  - /blog/customer-acquisition
 
 hero:
   title: "Sales Pipeline: How to Define the Stages, Build It From Scratch and Keep It Honest"
@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-01-24
-  updated: 2026-10-08
+  updated: 2026-11-04
   tags:
     - Sales Pipeline
     - Pipeline Management
@@ -35,6 +35,8 @@ The hard part is keeping it true. A pipeline full of deals nobody has touched in
   <SummaryItem label="Upkeep">A 30-minute weekly review of late-stage deals and anything that has not moved in two weeks.</SummaryItem>
 </ArticleSummary>
 
+
+Turn your target into account actions, owners and review dates with the [filled 90-day sales plan template](/blog/sales-plan-template). Its capacity worksheet checks whether the planned work fits the team.
 ## Pipeline, funnel and sales process
 
 People use the three words loosely. The distinction matters only when you decide what to measure.
@@ -110,7 +112,7 @@ You do not need a dashboard of twenty metrics. Five cover almost every decision 
 
 **Stage conversion** is where problems show up first. If most of your demos lead to proposals but few proposals reach negotiation, the offer is the problem, not the lead source.
 
-## The weekly pipeline review
+## Sales pipeline management: the weekly review
 
 Thirty minutes, with everyone who owns deals. Go through it in this order:
 
@@ -126,7 +128,7 @@ This section describes our own product. Customermates is an open-source [sales C
 
 **Stages.** Stages are not preset: you add a **Stage** field to your deals list, for example with the seven stages from the table above: Prospecting, Qualification, Demo, Proposal, Negotiation, Won and Lost, weighted 10, 20, 40, 60, 80, 100 and 0 percent. In the cloud, AI setup can create it from your description. The stage is a Single choice field, so you rename, add or remove stages yourself. The probabilities are set as **Probability %** on each option when you open the **Stage** field in Configure for Deals, and a preview shows the effect before you save. For total and weighted pipeline figures, add a chart widget on the Dashboard that sums **Value** or **Weighted value**, grouped by stage. How the calculation works is in the [core concepts](/docs/concepts).
 
-**Deal value.** A deal's value is the sum of its line items: each line is a service's price times its quantity on that deal. The retainer in the example above is one line item, the service "Monthly retainer", with a quantity of 6. Weighted value is that total times the stage probability.
+**Deal value.** Choose the model your business needs. A deal value can be an entered money field or a calculated total of linked line items. In a line-item setup, each amount is quantity times the effective unit price; the deal total sums those amounts. Live prices follow later price changes, while saved prices keep the captured amount. The retainer in the example could be one line with a quantity of 6. Weighted value is an optional calculation: deal value times the stage probability divided by 100. The [calculated-field and pricing guide](/docs/concepts#how-does-a-weighted-pipeline-work) covers missing inputs, currencies and access.
 
 **The board.** Switch the deals list to **Board** under **Appearance** and group it by Stage. Add summaries to the grouping, such as the sum of **Value** and **Weighted value**, to see each column's totals. Dragging a card to another column changes its stage. The [pipeline feature page](/features/pipeline) shows the board, and the [records guide](/docs/app-records) lists every layout and grouping option.
 
@@ -143,16 +145,16 @@ Saved views are personal and cannot be shared, so each person on the team create
 
 > List my deals in Proposal or Negotiation that have not been updated in 14 days. For each, summarize the notes and, if there is one, the latest conversation with the linked contact, and suggest one next step. Do not send any message and do not change any deal.
 
-The last sentence matters. Mate sends messages when an instruction tells it to, and a routine runs with its owner's connected channels, so an instruction meant to prepare a review must say it only drafts. The [routines guide](/docs/app-routines) covers schedules and limits.
+Keep the routine focused on preparation: asking it to draft is different from asking it to send. It runs as its owner and follows that user’s access and the available approval controls. Review the proposed next step against the actual conversation before acting. The [routines guide](/docs/app-routines) covers schedules, permissions and limits.
 
 **Your own AI client instead.** If you work in Claude, ChatGPT or another MCP client, it can read and update deals through the [MCP server](/docs/mcp) with your own provider and no hosted credits. This also works on a self-hosted installation, which has no inbox and no Mate.
 
 **What it costs.** Pipeline, board, weighted values and saved views are in every plan. For three people, Starter is [[commercial.price.starter.monthly.seats.3]] per month and Pro, which adds the inbox, is [[commercial.price.pro.monthly.seats.3]] per month. Billing is monthly, and each paid plan includes monthly hosted AI credits per active user; the [pricing page](/pricing) has the details.
 
-**Moving in from a spreadsheet.** Import organizations and contacts first, then services, then deals, each as its own Excel workbook (XLSX). The import wizard matches linked records by name, so the deal rows can point at the organizations and services you already imported.
+**Moving in from a spreadsheet.** Create the lists and fields first. Import related records before the records that link to them, for example organizations and contacts before deals. The file wizard accepts XLSX, XLS and CSV, with preview and mapping before import. Check a small sample of relationships after import; the [record import guide](/docs/app-records) explains the supported flow.
 
 <AcquisitionCallout title="Where Customermates is the wrong pick for your pipeline" variant="boundary">
-One stage field drives weighted values for the whole workspace. You can add a second Single choice field for a different process and group a board by it, but if you run several separate pipelines with their own weighted totals, look at a CRM with multiple pipelines: HubSpot's Starter plan includes 15 custom pipelines in addition to the default one, and Pipedrive documents how to set up multiple pipelines. Customermates does not predict which deals will close; weighted value is stage probability times deal value and nothing more. Tasks have no due dates or reminders, and there is no mobile app. Customermates has no forecast categories and no required fields per stage; if you need them, check them in another vendor's demo. HubSpot, for example, documents conditional stage properties that ask for set fields when a deal moves into a stage; check which plan includes them.
+The stage field, its probabilities and a weighted-value calculation belong to the list and fields you configure. You can model separate processes with separate lists or fields; check which calculation and widget each one feeds. Customermates does not predict which deals will close. Stage weighting is arithmetic, not a forecast. Add your own next-step date and status fields to tasks, then show those dates in the calendar; there is no built-in reminder notification or native mobile app. Sales sequences, telephony and predictive forecasting need other tools. The [task setup guide](/features/task-management) explains the configurable task model.
 </AcquisitionCallout>
 
 ## FAQ

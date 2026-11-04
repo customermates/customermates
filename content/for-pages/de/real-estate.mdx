@@ -1,5 +1,5 @@
 ---
-title: "Immobilien-CRM für Makler: Interessenten und Eigentümer"
+title: "CRM für Immobilienmakler: Kontakte und Aufträge"
 description: "CRM für Immobilienmakler und kleine Maklerbüros: Suchprofile, Aufträge, Besichtigungen und Empfehlungen, dazu E-Mail und WhatsApp direkt am Kontakt."
 industryName: "Immobilien"
 
@@ -10,7 +10,7 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: "Das Immobilien-CRM für Makler, deren Geschäft aus Beziehungen entsteht"
+  title: "CRM für Immobilienmakler, deren Geschäft aus Beziehungen entsteht"
   description: "Suchkunden mit ihren Suchprofilen, Eigentümer mit ihren Aufträgen, frühere Kunden und Tippgeber an einem Ort. Ab Pro liegen E-Mail- und WhatsApp-Gespräche direkt am Kontakt, und in Customermates Cloud kann der Assistent Mate passende Suchkunden finden und Antwortentwürfe vorbereiten, die Sie prüfen und selbst senden. Objektdaten, Portale und Exposés bleiben in der Maklersoftware, die dafür gebaut ist."
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
@@ -28,7 +28,7 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Ein Immobilien-CRM soll Ihnen sagen, welcher Suchkunde zu welchem Objekt passt, in welcher Phase jeder Auftrag steht und welchen früheren Kunden Sie seit einem Jahr nicht angerufen haben. Customermates übernimmt genau diesen Teil für Einzelmakler, kleine Teams und Maklerbüros, deren Geschäft aus Beziehungen kommt: Suchkunden mit Suchprofil, Eigentümer mit ihren Aufträgen, Tippgeber und Bestandskunden, dazu ab dem Tarif Pro die Gespräche per E-Mail und WhatsApp. Es ist ein Open-Source-KI-CRM aus Deutschland. Eine vollständige Maklersoftware ist es nicht: Es gibt keine Objektdatenbank, keine Exposés und keine Schnittstelle zu ImmoScout24 oder anderen Portalen. Der Abschnitt zu den Grenzen nennt Software, die das kann.
+Ein CRM für Immobilienmakler soll Ihnen sagen, welcher Suchkunde zu welchem Objekt passt, in welcher Phase jeder Auftrag steht und welchen früheren Kunden Sie seit einem Jahr nicht angerufen haben. Customermates übernimmt genau diesen Teil für Einzelmakler, kleine Teams und Maklerbüros, deren Geschäft aus Beziehungen kommt: Suchkunden mit Suchprofil, Eigentümer mit ihren Aufträgen, Tippgeber und Bestandskunden, dazu ab dem Tarif Pro die Gespräche per E-Mail und WhatsApp. Es ist ein Open-Source-KI-CRM aus Deutschland. Eine vollständige Maklersoftware ist es nicht: Es gibt keine Objektdatenbank, keine Exposés und keine Schnittstelle zu ImmoScout24 oder anderen Portalen. Der Abschnitt zu den Grenzen nennt Software, die das kann.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -90,7 +90,7 @@ Die Phase eines Deals ist ein Feld mit Einzelauswahl, und jede Option kann eine 
 | Abgeschlossen | Übergabe erfolgt | Übergabe erfolgt | 100 % |
 | Verloren | Verloren | Verloren | 0 % |
 
-Auf dem [Pipeline-Board](/features/pipeline) ist jeder Deal eine Karte, die Sie zwischen den Phasen verschieben. Gewichtete Werte ergeben sich aus Ihren Wahrscheinlichkeiten mal dem Deal-Wert, und der Deal-Wert ist die Summe seiner Positionen. Für die Provision ist das Feld „Erwartete Provision" meist einfacher. In beiden Fällen ist das Rechnung, keine Vorhersage.
+Auf dem [Pipeline-Board](/features/pipeline) ist jeder Deal eine Karte, die Sie zwischen den Phasen verschieben. Konfigurieren Sie den Deal-Wert als eingegebenen Geldbetrag, etwa die erwartete Provision, oder als berechnete Summe verknüpfter Positionen. Ein optionales Feld für den gewichteten Wert multipliziert diesen Betrag mit der Phasenwahrscheinlichkeit geteilt durch 100. Eine Provisionsschätzung ist weder eine Immobilienbewertung noch eine Vorhersage des Abschlusses. Die [Anleitung zu Datensatzberechnungen](/docs/concepts#how-does-a-weighted-pipeline-work) erklärt die Einrichtung.
 
 ### Gespeicherte Ansichten für den Morgen
 
@@ -106,7 +106,7 @@ Gespeicherte Ansichten sind persönlich, deshalb legt jede Person mit denselben 
 
 Customermates gleicht Suchprofile nicht automatisch mit Objekten ab, und es gibt keine Objektdatenbank, gegen die es abgleichen könnte. Was funktioniert, ist ein Filter. Kommt eine 3-Zimmer-Wohnung im Nordend für 480.000 € herein, filtern Sie Kontakte nach Rolle Suchkunde, Suchgebiet Nordend, Zimmer 3 oder 4 und Budget bis mindestens 480.000. Felder vom Typ Geldbetrag lassen sich mit größer und kleiner filtern, Einzelauswahl-Felder mit „ist eines von" ([Filterreferenz](/docs/filter-syntax)). Verknüpfen Sie die Suchkunden, die Sie anrufen, mit dem Objekt-Deal, dann sehen Sie später, wer das Angebot schon kennt.
 
-In Customermates Cloud übernimmt eine [Routine](/docs/app-routines) diese Suche. Wählen Sie **Wenn sich etwas ändert**, das Ereignis **Deal aktualisiert**, unter **Geänderte Felder** die Phase und als **Datensatzfilter** Art = Verkauf und Phase = Vermarktung. Die **Anweisungen** könnten so lauten:
+In Customermates Cloud übernimmt eine [Routine](/docs/app-routines) diese Suche. Wählen Sie **Wenn sich etwas ändert**, das Ereignis **Datensatz aktualisiert**, unter **Geänderte Felder** die Phase und als **Datensatzfilter** Art = Verkauf und Phase = Vermarktung. Die **Anweisungen** könnten so lauten:
 
 ```text
 Dieses Objekt ist gerade in die Vermarktung gegangen. Suche Kontakte mit
@@ -118,7 +118,7 @@ Deal und diesen Kontakten, zugewiesen an mich. Sende keine Nachrichten.
 
 ### Anfragen und Gespräche in einem Posteingang (ab Pro)
 
-In Customermates Cloud mit Pro, Business und Enterprise bringt der [einheitliche Posteingang](/features/unified-inbox) E-Mail aus Gmail, Outlook oder IMAP mit WhatsApp, LinkedIn, Instagram und Telegram zusammen. Sie antworten auf dem ursprünglichen Kanal. Leitet ein Portal Anfragen an Ihr Postfach weiter, landen sie hier zusammen mit Ihrer übrigen Post. Verknüpfen Sie einen Absender einmal mit einem Kontakt, erscheint jedes spätere Gespräch mit dieser Adresse in seiner Historie.
+In Customermates Cloud ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) E-Mail aus Gmail, Outlook oder IMAP mit WhatsApp, LinkedIn, Instagram und Telegram zusammen. Sie antworten auf dem ursprünglichen Kanal. Leitet ein Portal Anfragen an Ihr Postfach weiter, landen sie hier zusammen mit Ihrer übrigen Post. Verknüpfen Sie einen Absender einmal mit einem Kontakt, erscheint jedes spätere Gespräch mit dieser Adresse in seiner Historie.
 
 Zwei Punkte entscheiden über den Tarif. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer. Wer Postfach und WhatsApp im Posteingang haben will, braucht Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten. Und Ihre Gespräche bleiben privat: Kollegen, Administratoren eingeschlossen, sehen eine Konversation erst, wenn Sie sie teilen. Ein ganzes Konto zu teilen, etwa das Anfragepostfach des Büros, setzt Business voraus. SMS und Telefonate sind keine Kanäle.
 
@@ -136,11 +136,7 @@ Entwurf gespeichert ja oder nein.
 ```
 
 <AcquisitionCallout title="Entwürfe verlangen, nicht senden" variant="boundary">
-  Mate und Routinen können E-Mails und WhatsApp-Nachrichten ohne Rückfrage
-  senden, wenn sie dazu angewiesen werden. Eine Routine läuft als ihr
-  Besitzer und mit dessen Kanälen, also schreiben Sie „Sende nichts" in die
-  Anweisungen. Filtern Sie den Posteingang dann nach Entwurf, lesen Sie jeden
-  Entwurf und senden Sie ihn selbst.
+  Bitten Sie Mate, Entwürfe zu speichern und die verwendeten Quellen aufzulisten. Prüfen Sie jeden Entwurf im Gespräch, bevor Sie ihn senden. Eine Routine läuft als ihr Eigentümer mit dessen Zugriff und verbundenen Konten. Begrenzen Sie Anweisungen und Berechtigungen deshalb auf diese Vorbereitung. Die [Anleitung zu Berechtigungen und Freigaben für Routinen](/docs/app-routines) erklärt die Kontrollen.
 </AcquisitionCallout>
 
 Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]]. Wenn Sie lieber Ihren eigenen KI-Client nutzen, verbinden Sie Claude, ChatGPT oder einen anderen Client über [MCP](/docs/mcp). Das funktioniert in jedem Tarif und auch selbst gehostet; die Modellnutzung rechnet Ihr KI-Anbieter ab.
@@ -160,7 +156,7 @@ Customermates ist keine Hausverwaltungssoftware. Es gibt keine Mietbuchhaltung, 
 - Keine Serienmails, keine automatischen Nachfassketten und kein Newsletter. Marktberichte verschicken Sie mit Ihrem Newsletter-Werkzeug.
 - Keine SMS, keine Telefonie und keine Mobile-App.
 - Keine Terminbuchung für Besichtigungen und kein Schreiben in den Kalender. Ab Pro sehen Sie Ihren Kalender schreibgeschützt neben dem CRM.
-- Keine Fälligkeiten und keine Erinnerungen an Aufgaben. Diese Arbeit übernehmen ein Datumsfeld mit gespeicherter Ansicht oder eine Routine.
+- Kein eingebautes Fälligkeitsfeld an Aufgaben und keine Erinnerungsbenachrichtigungen. Ergänzen Sie ein Datumsfeld und zeigen Sie es im Kalender, in einer gespeicherten Ansicht oder einer Routine an.
 
 Ist einer dieser Punkte der Grund für Ihre Suche, schauen Sie sich Software an, die dafür gebaut ist. Customermates veröffentlicht diese Seite; die Anbieterangaben wurden am 8. Oktober 2026 auf den Websites der Anbieter geprüft.
 
