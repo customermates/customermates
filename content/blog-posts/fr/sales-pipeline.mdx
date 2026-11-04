@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Retour au blog
   by: par Benjamin Wagner
   date: 2026-01-24
-  updated: 2026-10-08
+  updated: 2026-11-04
   tags:
     - Pipeline commercial
     - Gestion du pipeline
@@ -126,7 +126,7 @@ Cette section décrit notre propre produit. Customermates est un [CRM commercial
 
 **Étapes.** Les étapes ne sont pas prédéfinies : vous ajoutez un champ **Étape** à votre liste d’affaires, par exemple avec les sept étapes du tableau ci-dessus : Prospection, Qualification, Démo, Proposition, Négociation, Gagnée et Perdue, pondérées à 10, 20, 40, 60, 80, 100 et 0 pour cent. Dans le cloud, la configuration IA peut le créer à partir de votre description. L’étape est un champ Choix unique, vous renommez, ajoutez ou supprimez donc les étapes vous-même. Les probabilités se définissent dans **Probabilité %** sur chaque option quand vous ouvrez le champ **Étape** dans Configurer pour les affaires, et un aperçu montre l’effet avant d’enregistrer. Pour obtenir les totaux du pipeline, bruts et pondérés, ajoutez au tableau de bord un widget graphique qui additionne la **Valeur** ou la **Valeur pondérée**, regroupées par étape. Le fonctionnement du calcul est expliqué dans les [concepts clés](/docs/concepts).
 
-**Valeur de l’affaire.** La valeur d’une affaire est la somme de ses lignes : chaque ligne est le prix d’un service multiplié par sa quantité sur cette affaire. Le contrat de suivi de l’exemple ci-dessus est une seule ligne, le service « Contrat de suivi mensuel », avec une quantité de 6. La valeur pondérée est ce total multiplié par la probabilité de l’étape.
+**Valeur de l’affaire.** Choisissez le modèle adapté à votre activité. La valeur peut être un montant saisi ou une somme calculée de lignes liées. Dans une configuration avec lignes, chaque montant correspond à la quantité multipliée par le prix unitaire effectif, puis le total additionne ces montants. Les prix actualisés suivent les changements ultérieurs du tarif, les prix enregistrés conservent le montant capturé. Le contrat de suivi de l’exemple pourrait être une ligne de quantité 6. La valeur pondérée est un calcul facultatif : valeur de l’affaire multipliée par la probabilité de l’étape, divisée par 100. Le [guide des calculs et des prix](/docs/concepts#how-does-a-weighted-pipeline-work) explique les données manquantes, les devises et les droits d’accès.
 
 **Le board.** Passez la liste des affaires en **Board** sous **Apparence** et regroupez-la par Étape. Ajoutez des synthèses au regroupement, comme la somme de la **Valeur** et de la **Valeur pondérée**, pour voir les totaux de chaque colonne. Faire glisser une carte vers une autre colonne change son étape. La [page de la fonctionnalité pipeline](/features/pipeline) montre le board, et le [guide des enregistrements](/docs/app-records) liste toutes les options de disposition et de regroupement.
 
@@ -143,16 +143,16 @@ Les vues enregistrées sont personnelles et ne peuvent pas être partagées : c
 
 > Listez mes affaires en Proposition ou en Négociation qui n’ont pas été mises à jour depuis 14 jours. Pour chacune, résumez les notes et, s’il y en a une, la dernière conversation avec le contact lié, et proposez une prochaine action. N’envoyez aucun message et ne modifiez aucune affaire.
 
-La dernière phrase compte. Mate envoie des messages quand une consigne le lui demande, et une routine s’exécute avec les canaux connectés de son propriétaire : une consigne destinée à préparer une revue doit donc préciser qu’elle se contente de rédiger. Le [guide des routines](/docs/app-routines) traite des plannings et des limites.
+Limitez la routine à la préparation : demander un brouillon est différent de demander un envoi. Elle s’exécute comme son propriétaire et suit ses droits d’accès et les contrôles d’approbation disponibles. Comparez la prochaine action proposée avec la conversation réelle avant d’agir. Le [guide des routines](/docs/app-routines) explique les horaires, les autorisations et les limites.
 
 **Votre propre client IA à la place.** Si vous travaillez dans Claude, ChatGPT ou un autre client MCP, il peut lire et mettre à jour des affaires via le [serveur MCP](/docs/mcp) avec votre propre fournisseur et sans crédits hébergés. Cela fonctionne aussi sur une installation auto-hébergée, qui n’a ni boîte de réception ni Mate.
 
 **Ce que cela coûte.** Le pipeline, le board, les valeurs pondérées et les vues enregistrées sont dans toutes les formules. Pour trois personnes, Starter coûte [[commercial.price.starter.monthly.seats.3]] par mois et Pro, qui ajoute la boîte de réception, [[commercial.price.pro.monthly.seats.3]] par mois. La facturation est mensuelle, et chaque formule payante inclut des crédits IA hébergés mensuels par utilisateur actif ; la [page des tarifs](/pricing) donne les détails.
 
-**Passer d’un tableur à Customermates.** Importez d’abord les organisations et les contacts, puis les services, puis les affaires, chacun dans son propre classeur Excel (XLSX). L’assistant d’import associe les enregistrements liés par leur nom : les lignes d’affaires peuvent donc pointer vers les organisations et les services déjà importés.
+**Passer d’un tableur à Customermates.** Créez d’abord les listes et les champs. Importez les enregistrements liés avant ceux qui les référencent, par exemple les organisations et les contacts avant les affaires. L’assistant accepte XLSX, XLS et CSV, avec aperçu et correspondance des champs avant import. Vérifiez ensuite quelques relations ; le [guide d’import des enregistrements](/docs/app-records) explique le parcours.
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon choix pour votre pipeline" variant="boundary">
-Un seul champ d’étape pilote les valeurs pondérées de tout l’espace de travail. Vous pouvez ajouter un second champ Choix unique pour un autre processus et regrouper un board par ce champ, mais si vous gérez plusieurs pipelines distincts avec leurs propres totaux pondérés, regardez un CRM avec plusieurs pipelines : la formule Starter de HubSpot inclut 15 pipelines personnalisés en plus de celui par défaut, et Pipedrive documente la création de plusieurs pipelines. Customermates ne prédit pas quelles affaires se concluront ; la valeur pondérée est la probabilité de l’étape multipliée par la valeur de l’affaire, et rien de plus. Les tâches n’ont ni échéance ni rappel, et il n’y a pas d’application mobile. Customermates n’a ni catégories de prévision ni champs obligatoires par étape ; si vous en avez besoin, vérifiez-les dans la démo d’un autre éditeur. HubSpot, par exemple, documente des propriétés d’étape conditionnelles qui demandent des champs précis quand une affaire entre dans une étape ; vérifiez quelle formule les inclut.
+Le champ d’étape, ses probabilités et le calcul de valeur pondérée appartiennent aux listes et aux champs que vous configurez. Vous pouvez modéliser des processus distincts avec leurs propres listes ou champs ; vérifiez le calcul et le widget alimentés par chacun. Customermates ne prédit pas les affaires qui se concluront. La pondération est un calcul, pas une prévision. Ajoutez aux tâches vos propres champs de date et de statut, puis affichez ces dates dans le calendrier. Il n’y a ni notification de rappel intégrée ni application mobile native. Les séquences, la téléphonie et les prévisions prédictives nécessitent d’autres outils. Le [guide de gestion des tâches](/features/task-management) explique le modèle configurable.
 </AcquisitionCallout>
 
 ## FAQ
