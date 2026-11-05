@@ -7,6 +7,8 @@ import { resolveCalendarFields } from "@/features/record-calendar/record-calenda
 import { recordColumns } from "./record-columns";
 import { parseRelationshipColumnKey } from "./record-column.schema";
 
+const LINKED_PREVIEW_LIMIT = 10;
+
 export function recordListProjection(
   typeId: string,
   model: RecordModelView,
@@ -39,10 +41,10 @@ export function recordListProjection(
       .map((field) => field.id),
     includeRelationships: visible.flatMap((column) => {
       const selection = column.kind === "relationship" ? parseRelationshipColumnKey(column.id) : null;
-      return selection ? [{ ...selection, limit: 10 }] : [];
+      return selection ? [{ ...selection, limit: LINKED_PREVIEW_LIMIT }] : [];
     }),
     includePaths: visible.flatMap((column) =>
-      column.kind === "relationshipPath" ? [{ pathId: column.definition.id, limit: 10 }] : [],
+      column.kind === "relationshipPath" ? [{ pathId: column.definition.id, limit: LINKED_PREVIEW_LIMIT }] : [],
     ),
     includeIdentities: visible.some((column) => column.kind === "field" && column.field.valueType === "channels"),
   };

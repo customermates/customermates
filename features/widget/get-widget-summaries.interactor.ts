@@ -3,6 +3,7 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import { WidgetKind } from "@/generated/prisma";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { selectActiveViewKey } from "@/core/base/base-get.interactor";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
@@ -19,7 +20,7 @@ const WidgetSummariesSchema = z.object({
     z.object({
       id: z.uuid(),
       name: z.string(),
-      kind: z.enum(["chart", "activityTimeline", "calendar", "map"]),
+      kind: z.enum(WidgetKind),
       version: z.number().int(),
       viewId: z.string().nullable(),
       layout: WidgetLayoutSchema.nullable(),

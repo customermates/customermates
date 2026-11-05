@@ -696,13 +696,13 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     });
     return this.items.every(
       (row) =>
-        required.fields?.every((id) => row.fields.some((field) => field.fieldId === id)) &&
-        required.includeRelationships?.every((selection) =>
+        required.fields.every((id) => row.fields.some((field) => field.fieldId === id)) &&
+        required.includeRelationships.every((selection) =>
           row.relationships.some(
             (summary) => summary.relationId === selection.relationId && summary.direction === selection.direction,
           ),
         ) &&
-        required.includePaths?.every((selection) =>
+        required.includePaths.every((selection) =>
           row.relationshipPaths?.some((summary) => summary.pathId === selection.pathId),
         ) &&
         (!required.includeIdentities || row.identities !== undefined),
@@ -713,7 +713,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
-    const columns = params && "viewMode" in params ? this.projectionColumns : undefined;
+    const resolvesSavedView = !params || !("viewMode" in params);
+    const columns = resolvesSavedView ? undefined : this.projectionColumns;
     const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params, columns));
     this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;

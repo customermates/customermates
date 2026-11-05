@@ -1249,9 +1249,7 @@ export class PrismaRecordRepo
     if (ids.length > 1000) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     const records = await this.getRecordsCompanyWide(
       ids.map((recordId) => ({ typeId: query.typeId, recordId })),
-      {
-        fieldIds: query.fields,
-      },
+      { fieldIds: query.fields },
     );
     const visibleFields = await this.visibleFields(
       records.map((record) => ({ typeId: record.typeId, recordId: record.id })),
