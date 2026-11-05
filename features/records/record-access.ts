@@ -7,6 +7,7 @@ import type { ReadScope } from "@/core/base/permission.service";
 
 import { roleCanRead, rolePermits, roleReadScope } from "@/core/base/permission.service";
 import { UserAccessor } from "@/core/base/user-accessor";
+import { readOnceInTransaction } from "@/core/decorators/read-once-in-transaction";
 
 export class RecordAccessPolicy extends UserAccessor {
   constructor(
@@ -16,7 +17,11 @@ export class RecordAccessPolicy extends UserAccessor {
     super();
   }
 
-  async load() {
+  load() {
+    return readOnceInTransaction(`record-access:${this.companyId}:${this.userId}`, () => this.loadUncached());
+  }
+
+  private async loadUncached() {
     const [actor, grants, model] = await Promise.all([
       this.actors.getCurrentRecordActorCompanyWide(),
       this.records.getGrants(),

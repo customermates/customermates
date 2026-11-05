@@ -78,6 +78,8 @@ test("moves a board card with the keyboard and restores relationship and date gr
     .toBe(id("deal.stage.qualified"));
   await expect(page.locator(`[data-group-key="value:${id("deal.stage.qualified")}"]`).locator(card)).toBeVisible();
   await expect(card).toBeFocused();
+  await expect.poll(() => pending.size).toBe(0);
+  await card.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();
   await page.getByRole("option", { name: "Organizations", exact: true }).click();

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { WidgetKind } from "@/generated/prisma";
 import {
   getSaveWidgetInteractor,
-  getGetWidgetsInteractor,
+  getGetWidgetSummariesInteractor,
   getGetRecordWidgetInteractor,
   getDeleteWidgetInteractor,
 } from "@/core/di";
@@ -110,7 +110,7 @@ export const manageWidgetsTool = {
         .strict()
         .safeParse(params);
       if (!valid.success) return mcpValidationFailure(valid.error);
-      const result = await getGetWidgetsInteractor().invoke({ allViews: true });
+      const result = await getGetWidgetSummariesInteractor().invoke({ allViews: true });
       const widgets = result.data.items;
       const grids = new Map<string | null, ReturnType<typeof occupiedGrid>>();
       for (const viewId of new Set(widgets.map((widget) => widget.viewId)))

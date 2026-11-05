@@ -15,6 +15,7 @@ import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
+import { recordListProjection } from "@/features/records/record-list-projection";
 import { withFormulaReferences } from "@/features/records/formula-references";
 import { recordSummaryFields } from "@/features/records/record-grouping";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
@@ -79,6 +80,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       recordPictureFieldId: computed,
       differsFromDefaultLayout: computed,
       recordColumns: computed,
+      projectionColumns: computed,
+      hasRequiredData: computed,
       columnHeaders: computed({ equals: comparer.structural }),
       firstNumberColumnId: computed,
       formulaModel: computed,
@@ -663,6 +666,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       if (!args.grouping?.partial) this.calendarRange = args.calendarRange ?? null;
       for (const row of args.items) if (this.selectedIds.has(row.id)) this.selectionRows.set(row.id, row);
     });
+    queueMicrotask(() => {
+      if (this.dataRequest.status === "ready" && !this.hasRequiredData) void this.refreshQuery().catch(() => undefined);
+    });
   }
   protected onRefreshAccepted(result: GetResult<RecordRow>) {
     this.calendarRange = result.calendarRange ?? null;
@@ -676,9 +682,39 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.setBulkState(false, null);
     }
   }
+  get projectionColumns(): string[] {
+    return this.recordColumns.filter((column) => !this.hiddenColumns.includes(column.id)).map((column) => column.id);
+  }
+  get hasRequiredData(): boolean {
+    if (this.presentation.query.fields === undefined && this.presentation.query.includeRelationships === undefined)
+      return true;
+    const required = recordListProjection(this.presentation.typeId, this.presentation.model, {
+      hiddenColumns: this.hiddenColumns,
+      viewMode: this.viewMode,
+      grouping: this.grouping,
+      calendar: this.calendar,
+    });
+    return this.items.every(
+      (row) =>
+        required.fields?.every((id) => row.fields.some((field) => field.fieldId === id)) &&
+        required.includeRelationships?.every((selection) =>
+          row.relationships.some(
+            (summary) => summary.relationId === selection.relationId && summary.direction === selection.direction,
+          ),
+        ) &&
+        required.includePaths?.every((selection) =>
+          row.relationshipPaths?.some((summary) => summary.pathId === selection.pathId),
+        ) &&
+        (!required.includeIdentities || row.identities !== undefined),
+    );
+  }
+  protected override get appearanceRequiresQuery() {
+    return !this.hasRequiredData;
+  }
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
-    const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params));
+    const columns = params && "viewMode" in params ? this.projectionColumns : undefined;
+    const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params, columns));
     this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }

@@ -13,6 +13,7 @@ type ResolveDataViewPageStateInput = {
   total?: number;
   explicitlyUnpaginated: boolean;
   isGrouped?: boolean;
+  hasRequiredData?: boolean;
 };
 
 export function resolveDataViewPageState({
@@ -22,9 +23,10 @@ export function resolveDataViewPageState({
   total,
   explicitlyUnpaginated,
   isGrouped,
+  hasRequiredData = true,
 }: ResolveDataViewPageStateInput): DataViewPageState {
-  if (request.status === "refresh-error" && itemCount === 0) return "error";
-  if (request.status === "uninitialized" || request.status === "refreshing") return "loading";
+  if (request.status === "refresh-error" && (itemCount === 0 || !hasRequiredData)) return "error";
+  if (request.status === "uninitialized" || request.status === "refreshing" || !hasRequiredData) return "loading";
   if (itemCount > 0) return "content";
   if (isGrouped && (total ?? 0) > 0) return "content";
   if (hasActiveQuery) return "filtered-empty";

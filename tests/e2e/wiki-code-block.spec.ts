@@ -14,16 +14,20 @@ test.use({ viewport: { width: 1600, height: 1000 } });
 
 // Native keyboard selection keeps ProseMirror's editor state and the browser caret in sync.
 async function caretToEnd(block: Locator) {
-  await block.click();
-  await block.page().keyboard.press("End");
-  await expect.poll(() => block.evaluate((element) => {
-    const selection = getSelection();
-    if (!selection?.isCollapsed || !selection.anchorNode || !element.contains(selection.anchorNode)) return false;
-    const remaining = document.createRange();
-    remaining.selectNodeContents(element);
-    remaining.setStart(selection.anchorNode, selection.anchorOffset);
-    return remaining.toString() === "";
-  })).toBe(true);
+  await expect(async () => {
+    await block.click();
+    await block.page().keyboard.press("End");
+    expect(
+      await block.evaluate((element) => {
+        const selection = getSelection();
+        if (!selection?.isCollapsed || !selection.anchorNode || !element.contains(selection.anchorNode)) return false;
+        const remaining = document.createRange();
+        remaining.selectNodeContents(element);
+        remaining.setStart(selection.anchorNode, selection.anchorOffset);
+        return remaining.toString() === "";
+      }),
+    ).toBe(true);
+  }).toPass({ timeout: 15000 });
 }
 
 test("edits fenced code blocks in a Knowledge Base page and keeps them as fenced Markdown", async ({
