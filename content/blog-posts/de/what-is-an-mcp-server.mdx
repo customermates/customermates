@@ -20,7 +20,7 @@ blogPost:
 relatedHrefs:
   - /docs/mcp
   - /docs/connect-custom-connector
-  - /blog/hubspot-mcp
+  - /blog/mcp-vs-api
   - /features/open-source-crm
 ---
 
@@ -29,6 +29,10 @@ relatedHrefs:
 Ein MCP-Server ist ein Programm, das einer KI-Anwendung über das Model Context Protocol (MCP), einen offenen Standard, Werkzeuge, Daten und Prompt-Vorlagen anbietet. So können Claude, ChatGPT, Cursor oder ein anderer MCP-Client in einem System nachschlagen und handeln, an das sie sonst nicht herankämen. Der Server steht vor diesem System, etwa einem Ordner, einer Datenbank oder einem CRM, und legt fest, was die KI dort sehen und tun darf.
 
 Anthropic hat MCP am 25. November 2024 als offenen Standard vorgestellt, um KI-Assistenten mit den Systemen zu verbinden, in denen Daten liegen. Seitdem unterstützen die großen KI-Clients das Protokoll, und viele Softwareanbieter betreiben eigene Server. Dieser Leitfaden erklärt die Bausteine verständlich und zeigt dann einen echten Server für Geschäftsdaten: den MCP-Server von Customermates, dem Open-Source-CRM, das diesen Artikel veröffentlicht.
+
+Für eine feste Integration und einen KI-Client zeigt der [Vergleich MCP vs API am selben Kundendatensatz](/blog/mcp-vs-api), wie sich die Wahl auswirkt. Die Werkzeugerkennung verändert, wie der Client einen Aufruf findet. Anmeldung und Berechtigungen gelten weiterhin.
+
+Für einen n8n-Ablauf unterscheidet der [Vergleich der n8n-MCP-Verbindungen mit versionsgebundenem Beispiel](/blog/n8n-mcp) zwei Richtungen: n8n greift auf einen Server mit Kundendaten zu, oder ein KI-Client greift auf n8n zu. Entscheiden Sie sich für eine Richtung, bevor Sie Zugangsdaten konfigurieren.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="In einem Satz">

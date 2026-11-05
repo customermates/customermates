@@ -20,7 +20,7 @@ blogPost:
 relatedHrefs:
   - /docs/mcp
   - /docs/connect-custom-connector
-  - /blog/hubspot-mcp
+  - /blog/mcp-vs-api
   - /features/open-source-crm
 ---
 
@@ -29,6 +29,10 @@ relatedHrefs:
 What is an MCP server? It is a program that offers an AI application a set of tools, data and prompt templates through the Model Context Protocol (MCP), an open standard, so that Claude, ChatGPT, Cursor or another MCP client can look things up and take actions in a system it otherwise could not reach. The server sits in front of that system, a file folder, a database or a CRM, and decides what the AI may see and do there.
 
 Anthropic introduced MCP on 25 November 2024 as an open standard for connecting AI assistants to the systems where data lives. Since then the major AI clients have added support, and many software vendors run their own servers. This guide explains the parts in plain terms and then walks through one real server for business data: the MCP server built into Customermates, the open-source CRM that publishes this article.
+
+For a fixed integration and an AI client, compare [MCP versus API on the same customer-record task](/blog/mcp-vs-api). Tool discovery changes how the client finds an operation; authentication and permissions still apply.
+
+For an n8n workflow, the [n8n MCP route comparison and version-pinned example](/blog/n8n-mcp) distinguish connecting n8n to a customer-data server from exposing n8n itself to an AI client. Choose the direction before configuring credentials.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="In one sentence">

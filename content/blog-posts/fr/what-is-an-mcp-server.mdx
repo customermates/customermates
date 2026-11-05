@@ -20,7 +20,7 @@ blogPost:
 relatedHrefs:
   - /docs/mcp
   - /docs/connect-custom-connector
-  - /blog/hubspot-mcp
+  - /blog/mcp-vs-api
   - /features/open-source-crm
 ---
 
@@ -29,6 +29,10 @@ relatedHrefs:
 Un serveur MCP est un programme qui met à la disposition d’une application d’IA des outils, des données et des modèles de prompts via le Model Context Protocol (MCP), un standard ouvert. Claude, ChatGPT, Cursor ou un autre client MCP peuvent ainsi consulter un système et y agir alors qu’ils n’y auraient pas accès autrement. Le serveur se place devant ce système, un dossier, une base de données ou un CRM, et décide de ce que l’IA peut y voir et y faire.
 
 Anthropic a présenté MCP le 25 novembre 2024 comme un standard ouvert pour relier les assistants d’IA aux systèmes où se trouvent les données. Depuis, les grands clients d’IA l’ont adopté et de nombreux éditeurs exploitent leur propre serveur. Ce guide explique les éléments simplement, puis détaille un vrai serveur pour données métier : le serveur MCP intégré à Customermates, le CRM open source qui publie cet article.
+
+Pour choisir entre une intégration fixe et un client d’IA, consultez le [comparatif MCP vs API sur une même fiche client](/blog/mcp-vs-api). La découverte des outils change la manière de trouver une opération. L’authentification et les permissions restent applicables.
+
+Pour un workflow n8n, le [comparatif des connexions n8n MCP avec un exemple versionné](/blog/n8n-mcp) distingue deux sens : n8n accède à un serveur de données clients, ou un client IA accède à n8n. Choisissez le sens avant de configurer les identifiants.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="En une phrase">
