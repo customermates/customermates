@@ -36,6 +36,7 @@ export type ViewMetaDraft = {
 
 export type ViewCommands = {
   copyLink: (view: DataViewChipDto) => void;
+  share?: (view: DataViewChipDto) => void;
   duplicate: (view: DataViewChipDto) => void;
   edit: (view: DataViewChipDto) => void;
   move: (view: DataViewChipDto, offset: -1 | 1) => void;

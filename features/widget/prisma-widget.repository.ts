@@ -142,6 +142,23 @@ export class PrismaWidgetRepo
     return rows.map((row) => this.storedWidget(row));
   }
 
+  async getSharedViewWidgets(viewId: string) {
+    const { id: userId, companyId, role } = this.user;
+    const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
+    if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
+    const rows = await this.prisma.widget.findMany({
+      where: {
+        companyId,
+        viewId,
+        view: { is: { companyId, deletedAt: null, userId: { not: userId }, OR: shared } },
+        ...LIVE_WIDGET,
+      },
+      select: this.dtoSelect,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return rows.map((row) => this.storedWidget(row));
+  }
+
   @Transaction
   async trashWidget(id: string) {
     const { id: userId, companyId } = this.user;

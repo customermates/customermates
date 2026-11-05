@@ -423,6 +423,9 @@ import { SearchRecordsInteractor } from "@/features/records/search-records.inter
 import { DeleteDataViewInteractor } from "@/features/data-view/delete-data-view.interactor";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 import { SelectDataViewInteractor } from "@/features/data-view/select-data-view.interactor";
+import { ShareDataViewInteractor } from "@/features/data-view/share-data-view.interactor";
+import { HideSharedDataViewInteractor } from "@/features/data-view/hide-shared-data-view.interactor";
+import { GetDataViewShareOptionsInteractor } from "@/features/data-view/get-data-view-share-options.interactor";
 import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import { GetP13nInteractor } from "@/features/p13n/get-p13n.interactor";
 import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
@@ -2019,6 +2022,12 @@ export const getSaveDataViewStateInteractor = () =>
 export const getSelectDataViewInteractor = () =>
   new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
+export const getShareDataViewInteractor = () => new ShareDataViewInteractor(getDataViewRepo(), getRecordViewPolicy());
+
+export const getHideSharedDataViewInteractor = () => new HideSharedDataViewInteractor(getDataViewRepo(), getP13nRepo());
+
+export const getGetDataViewShareOptionsInteractor = () => new GetDataViewShareOptionsInteractor(getDataViewRepo());
+
 export const getResetDataViewStateInteractor = () =>
   new ResetDataViewStateInteractor(getDataViewRepo(), getRecordViewPolicy());
 
@@ -2404,6 +2413,7 @@ export const getManageDataViewsInteractor = () =>
     getEntitlementService(),
     getRecordViewPolicy(),
     getResetDataViewStateInteractor(),
+    getShareDataViewInteractor(),
   );
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";

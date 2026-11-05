@@ -29,7 +29,7 @@ export class SelectDataViewInteractor extends AuthenticatedInteractor<SelectData
     if (invalid) return fail(invalid);
 
     if (viewKey !== ALL_VIEW_KEY) {
-      const view = await this.views.findOwnedOrNull(viewKey);
+      const view = await this.views.findReadableOrNull(viewKey);
       if (!view || view.surfaceKey !== surfaceKey) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
     }
 

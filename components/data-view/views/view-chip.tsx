@@ -27,6 +27,8 @@ type Props = {
   isActive: boolean;
   isModified?: boolean;
   label: string;
+  icon?: ReactNode;
+  shared?: "mine" | "others";
   modifiedLabel?: string;
   preview: ReactNode;
   tabIndex: 0 | -1;
@@ -43,6 +45,8 @@ export function ViewChip({
   isActive,
   isModified = false,
   label,
+  icon,
+  shared,
   modifiedLabel,
   preview,
   tabIndex,
@@ -62,12 +66,15 @@ export function ViewChip({
             data-focus-target={focusKey}
             data-view-chip=""
             data-view-modified={isModified ? "" : undefined}
+            data-view-shared={shared}
             href={href}
             id={id}
             tabIndex={tabIndex}
             onClick={onSelect}
             onKeyDown={onKeyDown}
           >
+            {icon}
+
             <span className="truncate">{label}</span>
 
             {isModified && (

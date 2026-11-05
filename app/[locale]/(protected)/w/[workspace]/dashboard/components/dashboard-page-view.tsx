@@ -70,7 +70,8 @@ function layoutGeometry(layout: Layout) {
 const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore, recordWorkspaceStore } = useRootStore();
   const { items, layouts } = widgetsStore;
-  const canAddWidget = widgetModalStore.availableKinds.length > 0;
+  const readOnlyView = widgetsStore.isActiveViewShared;
+  const canAddWidget = widgetModalStore.availableKinds.length > 0 && !readOnlyView;
   const navigation = recordWorkspaceStore.navigation;
   const needsFirstList = navigation?.canManageSchema === true && !navigation.hasLists;
   const router = useRouter();
@@ -83,7 +84,10 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   const inspectWidget = useCallback(
     (id: string, group: RecordContributionGroup | null = null, label: string | null = null) => {
       const widget = widgetsStore.items.find((item) => item.id === id);
-      if (!widget || !isRecordWidget(widget)) return runUserAction(() => openWidgetEditor(widgetModalStore, id));
+      if (!widget || !isRecordWidget(widget)) {
+        if (widgetsStore.isActiveViewShared) return;
+        return runUserAction(() => openWidgetEditor(widgetModalStore, id));
+      }
       openData({
         kind: "measure",
         widget,
@@ -188,7 +192,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   useFocusTarget(
     WIDGET_FOCUS_KINDS,
     (target) => {
-      runUserAction(() => openWidgetEditor(widgetModalStore, target.id));
+      if (!widgetsStore.isActiveViewShared) runUserAction(() => openWidgetEditor(widgetModalStore, target.id));
       return true;
     },
     pageState === "content",
@@ -269,7 +273,6 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
     case "content":
       body = (
         <ResponsiveGridLayout
-          isResizable
           breakpoints={GRID_BREAKPOINTS}
           className={
             touchInput
@@ -280,7 +283,8 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           compactType="vertical"
           containerPadding={[0, 0]}
           draggableCancel={WIDGET_INTERACTIVE_SELECTOR}
-          isDraggable={!touchInput}
+          isDraggable={!touchInput && !readOnlyView}
+          isResizable={!readOnlyView}
           layouts={layouts}
           margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
@@ -288,7 +292,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           onDragStart={handleLayoutStart}
           onDragStop={handleLayoutEdit}
           onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) => {
-            if (!layoutEdited.current) return;
+            if (!layoutEdited.current || readOnlyView) return;
             layoutEdited.current = false;
             widgetsStore.onLayoutChange(layout, nextLayouts);
           }}
@@ -302,6 +306,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
               onPointerDown={(event) => handlePointerDown(widget.id, event)}
             >
               <WidgetCard
+                readOnly={readOnlyView}
                 widget={widget}
                 onInspect={
                   isRecordWidget(widget) ? (group, label) => inspectWidget(widget.id, group, label) : undefined

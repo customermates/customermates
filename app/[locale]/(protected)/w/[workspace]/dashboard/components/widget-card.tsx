@@ -34,6 +34,7 @@ type Props = {
   widget: WidgetDto;
   onInspect?: (group: RecordContributionGroup | null, label: string | null) => void;
   onInspectDay?: CalendarDaySelect;
+  readOnly?: boolean;
 };
 
 export async function readCalendarWindow(id: string, window: CalendarWidgetWindow) {
@@ -44,7 +45,7 @@ export async function readCalendarWindow(id: string, window: CalendarWidgetWindo
   return { data: result.data.data, fields: result.data.fields };
 }
 
-export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) => {
+export const WidgetCard = observer(({ widget, onInspect, onInspectDay, readOnly = false }: Props) => {
   const t = useTranslations();
   const { widgetModalStore, recordWorkspaceStore } = useRootStore();
   const listLabels = (typeId: string) => recordWorkspaceStore.navigation?.types.find((type) => type.id === typeId);
@@ -89,11 +90,13 @@ export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) 
         </DropdownMenuItem>
       )}
 
-      <DropdownMenuItem onSelect={edit}>
-        <Pencil aria-hidden className="size-4" />
+      {!readOnly && (
+        <DropdownMenuItem onSelect={edit}>
+          <Pencil aria-hidden className="size-4" />
 
-        {t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
-      </DropdownMenuItem>
+          {t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
+        </DropdownMenuItem>
+      )}
     </>
   );
   return (
@@ -108,20 +111,22 @@ export const WidgetCard = observer(({ widget, onInspect, onInspectDay }: Props) 
           className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
           data-slot="widget-card-open"
           type="button"
-          onClick={() => (onInspect ? onInspect(null, null) : edit())}
+          onClick={() => (onInspect ? onInspect(null, null) : readOnly ? undefined : edit())}
         />
 
         {card}
 
-        <div className="absolute top-2 right-2 z-30" {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}>
-          <IconButton
-            className={cn("size-7", ITEM_REVEAL_CLASS)}
-            icon={Pencil}
-            iconClassName="size-3.5"
-            label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
-            onClick={edit}
-          />
-        </div>
+        {!readOnly && (
+          <div className="absolute top-2 right-2 z-30" {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}>
+            <IconButton
+              className={cn("size-7", ITEM_REVEAL_CLASS)}
+              icon={Pencil}
+              iconClassName="size-3.5"
+              label={t("Dashboard.widgetEditor.editTitle", { name: widget.name })}
+              onClick={edit}
+            />
+          </div>
+        )}
       </div>
     </ItemActions>
   );

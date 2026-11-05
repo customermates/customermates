@@ -29633,8 +29633,8 @@
     },
     {
       "name": "manage_data_views",
-      "title": "Manage personal saved views",
-      "description": "Manage personal saved views on supported workspace pages; operator-console views are excluded. Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. Record lists offer the layouts config lists in viewModes: table, card (a board grouped by a single choice) and calendar when the list has a date field; a calendar view sets viewMode calendar and calendar {dateFieldId, endDateFieldId, colorFieldId, mode} with fields from config appearance. Clear filters with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Read the view and ask the person before correcting a near-match. Deletion moves it to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
+      "title": "Manage saved views",
+      "description": "Manage saved views on supported workspace pages; operator-console views are excluded. Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. Record lists offer the layouts config lists in viewModes: table, card (a board grouped by a single choice) and calendar when the list has a date field; a calendar view sets viewMode calendar and calendar {dateFieldId, endDateFieldId, colorFieldId, mode} with fields from config appearance. Clear filters with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. Views are private until shared: share with visibility workspace or roles (with roleIds) lets teammates open the view read-only, and each of them sees only the records and fields their own role allows; private stops sharing. List marks views others shared with you with sharedBy; you can select them but not update, delete or share them. Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Read the view and ask the person before correcting a near-match. Deletion moves it to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -29652,9 +29652,10 @@
               "update",
               "select",
               "delete",
-              "reset"
+              "reset",
+              "share"
             ],
-            "description": "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change personal views; reset removes personal overrides for the given fields."
+            "description": "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change your own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of your views."
           },
           "surfaceKey": {
             "description": "Required for every action except surfaces. Operator-console surfaces are intentionally unavailable.",
@@ -29680,7 +29681,7 @@
             ]
           },
           "viewKey": {
-            "description": "list: optional exact view whose state is needed. Required for update/select/delete. __all__ cannot be renamed or deleted.",
+            "description": "list: optional exact view whose state is needed. Required for update/select/delete/share. __all__ cannot be renamed, deleted or shared.",
             "anyOf": [
               {
                 "type": "string",
@@ -29747,6 +29748,26 @@
                 "hiddenColumns",
                 "calendar"
               ]
+            }
+          },
+          "visibility": {
+            "description": "share only: private (only you), workspace (every member) or roles (members with one of roleIds).",
+            "type": "string",
+            "enum": [
+              "private",
+              "workspace",
+              "roles"
+            ]
+          },
+          "roleIds": {
+            "description": "share with visibility roles only: role ids from manage_roles.",
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           "state": {
@@ -30210,7 +30231,8 @@
               "update",
               "select",
               "delete",
-              "reset"
+              "reset",
+              "share"
             ]
           },
           "surfaceKey": {
@@ -31748,6 +31770,20 @@
             "type": "string",
             "format": "uuid",
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "private",
+              "workspace",
+              "roles"
+            ]
+          },
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [

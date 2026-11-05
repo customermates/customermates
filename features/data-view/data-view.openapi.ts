@@ -9,6 +9,7 @@ import {
   ManageDataViewsResultSchema,
   ReadDataViewRequestSchema,
   SelectDataViewRequestSchema,
+  ShareDataViewRequestSchema,
   UpdateDataViewRequestSchema,
 } from "./manage-data-views.schema";
 import { ResetDataViewStateSchema } from "./reset-data-view-state.schema";
@@ -17,7 +18,7 @@ const TAG = "data-views";
 const VIEW_ID = "6f1c2d3e-4b5a-4c6d-8e7f-1a2b3c4d5e6f";
 const RECORD_SURFACE = "records:0b8c7d6e-5f4a-4b3c-9d2e-1f0a9b8c7d6e";
 const ACCESS =
-  "read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.";
+  "read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.";
 const SURFACES =
   "Surfaces are the record lists (`records:<typeId>`), the Members, Roles, Webhooks, Webhook deliveries, Inbox, Activity and Routines lists, record activity timelines and the dashboard (`dashboard`); operator-console surfaces are not available. Timeline views accept only filters and sortDescriptor.";
 
@@ -130,5 +131,14 @@ export const dataViewApiPaths = {
     DeleteDataViewRequestSchema,
     { surfaceKey: "dashboard", viewKey: VIEW_ID },
     "action delete, surfaceKey, viewKey, deleted true and trashBatchId.",
+  ),
+  ...operation(
+    "/v1/data-views/share",
+    "shareDataView",
+    "Share a saved view",
+    "Sets who else in the workspace sees one of the caller's views: private (only the caller), workspace (every member) or roles (members with one of roleIds). Teammates open a shared view read-only, as a chip next to their own views, and each of them sees only the records and fields their own role allows. Making the view private stops sharing at once.",
+    ShareDataViewRequestSchema,
+    { surfaceKey: RECORD_SURFACE, viewKey: VIEW_ID, visibility: "workspace" },
+    "action share, surfaceKey, viewKey, name, visibility, roleIds and link.",
   ),
 };

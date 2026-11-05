@@ -14,6 +14,7 @@ import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import {
   DataViewPageSizeSchema,
   DataViewStateWireSchema,
+  DataViewVisibilitySchema,
   ViewKeySchema,
 } from "@/core/data-view/data-view-state.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -93,6 +94,17 @@ export const DeleteDataViewRequestSchema = z
   .object({ ...surface, viewKey: z.uuid(), name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional() })
   .strict();
 
+export const ShareDataViewRequestSchema = z
+  .object({
+    ...surface,
+    viewKey: z.uuid(),
+    visibility: DataViewVisibilitySchema.describe(
+      "private: only you. workspace: every member of this workspace. roles: only members with one of roleIds (list roles with manage_roles). Teammates see the view read-only and only the records and fields their own role allows.",
+    ),
+    roleIds: z.array(z.uuid()).min(1).max(50).optional().describe("Required for visibility roles; ignored otherwise."),
+  })
+  .strict();
+
 export const ManageDataViewsSchema = z.discriminatedUnion("action", [
   DataViewSurfacesRequestSchema.extend({ action: z.literal("surfaces") }),
   DataViewConfigRequestSchema.extend({ action: z.literal("config") }),
@@ -103,6 +115,7 @@ export const ManageDataViewsSchema = z.discriminatedUnion("action", [
   ResetDataViewStateSchema.extend({ action: z.literal("reset") }),
   SelectDataViewRequestSchema.extend({ action: z.literal("select") }),
   DeleteDataViewRequestSchema.extend({ action: z.literal("delete") }),
+  ShareDataViewRequestSchema.extend({ action: z.literal("share") }),
 ]);
 export type ManageDataViewsData = Data<typeof ManageDataViewsSchema>;
 
@@ -120,7 +133,7 @@ const ResultItemSchema = z.looseObject({
 
 export const ManageDataViewsResultSchema = z
   .looseObject({
-    action: z.enum(["surfaces", "config", "list", "read", "create", "update", "select", "delete", "reset"]),
+    action: z.enum(["surfaces", "config", "list", "read", "create", "update", "select", "delete", "reset", "share"]),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional(),
     label: z.string().optional(),
     path: z.string().nullable().optional(),
@@ -146,6 +159,8 @@ export const ManageDataViewsResultSchema = z
     deleted: z.boolean().optional(),
     proposed: z.literal(true).optional(),
     trashBatchId: z.uuid().optional(),
+    visibility: DataViewVisibilitySchema.optional(),
+    roleIds: z.array(z.string()).optional(),
   })
   .superRefine((result, ctx) => {
     const requireField = (field: "surfaceKey" | "viewKey" | "link") => {
@@ -163,7 +178,7 @@ export const ManageDataViewsResultSchema = z
         ctx.addIssue({ code: "custom", path: ["state"], message: "state is required for a proposal" });
       return;
     }
-    if (["create", "update", "select", "reset"].includes(result.action)) {
+    if (["create", "update", "select", "reset", "share"].includes(result.action)) {
       requireField("surfaceKey");
       requireField("viewKey");
       requireField("link");

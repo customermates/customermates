@@ -410,7 +410,7 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 
 Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Record lists with a date field also offer the calendar layout: viewMode calendar with the date, optional end date and color fields and the month, week or agenda mode. Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view requires its exact current name and ID; a mismatch returns a specific error, while an unknown ID returns not found. Deletion moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
-**Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
+**Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `visibility`, `roleIds`, `state`.
 
 #### `manage_record_detail_layout`
 

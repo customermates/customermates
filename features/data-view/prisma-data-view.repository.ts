@@ -1,4 +1,9 @@
-import type { DataViewChipDto, DataViewDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type {
+  DataViewChipDto,
+  DataViewDto,
+  DataViewState,
+  DataViewVisibility,
+} from "@/core/data-view/data-view-state.schema";
 import type { DataViewStateRepo, SurfaceViewState } from "@/core/data-view/data-view-state.repo";
 import type { StoredViewRow } from "./data-view-row-mapping";
 import { Prisma } from "@/generated/prisma";
@@ -73,6 +78,26 @@ const VIEW_SELECT = {
   pageSize: true,
 } satisfies Prisma.DataViewSelect;
 
+const SHARED_VIEW_POSITION_OFFSET = 100_000;
+
+const SURFACE_VIEW_SELECT = {
+  ...VIEW_SELECT,
+  userId: true,
+  visibility: true,
+  roleShares: { select: { roleId: true }, orderBy: { roleId: "asc" } },
+  user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+} satisfies Prisma.DataViewSelect;
+
+type SurfaceViewRow = Prisma.DataViewGetPayload<{ select: typeof SURFACE_VIEW_SELECT }>;
+
+type ShareOwnedDataViewArgs = {
+  id: string;
+  visibility: DataViewVisibility;
+  roleIds: string[];
+};
+
+export type ShareableRole = { id: string; name: string };
+
 const PERSONALIZATION_SELECT = {
   viewStateKeys: true,
   activeViewKey: true,
@@ -95,6 +120,20 @@ function toChip(row: StoredViewRow): DataViewChipDto {
     name: row.name,
     position: row.position,
     state: readStoredState(row),
+  };
+}
+
+function toSurfaceChip(row: SurfaceViewRow, userId: string, sharedIndex: number): DataViewChipDto {
+  const chip = toChip(row as StoredViewRow);
+  if (row.userId === userId)
+    return { ...chip, visibility: row.visibility, roleIds: row.roleShares.map((share) => share.roleId) };
+
+  const name = [row.user.firstName, row.user.lastName].filter(Boolean).join(" ").trim();
+  return {
+    ...chip,
+    position: SHARED_VIEW_POSITION_OFFSET + sharedIndex,
+    visibility: row.visibility,
+    sharedBy: { id: row.user.id, name, avatarUrl: row.user.avatarUrl ?? null },
   };
 }
 
@@ -171,15 +210,25 @@ export class PrismaDataViewRepo
     return true;
   }
 
+  private readableWhere(): Prisma.DataViewWhereInput {
+    const { id: userId, role } = this.user;
+    const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
+    if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
+
+    return {
+      OR: [{ userId }, { userId: { not: userId }, hiddenBy: { none: { userId } }, OR: shared }],
+    };
+  }
+
   async loadSurfaceState(surfaceKey: string): Promise<SurfaceViewState> {
     return runAsViewOwner(async () => {
       const { companyId, id: userId } = this.user;
 
       const [views, personalization] = await Promise.all([
         this.prisma.dataView.findMany({
-          where: { companyId, surfaceKey, userId, deletedAt: null },
+          where: { companyId, surfaceKey, deletedAt: null, ...this.readableWhere() },
           orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-          select: VIEW_SELECT,
+          select: SURFACE_VIEW_SELECT,
         }),
         this.prisma.p13n.findUnique({
           where: {
@@ -192,9 +241,109 @@ export class PrismaDataViewRepo
 
       return {
         activeViewKey: personalization?.activeViewKey ?? null,
-        views: views.map((row) => toChip(row as StoredViewRow)),
+        views: this.surfaceChips(views, userId),
         allState: personalization ? readStoredPersonalizationState(personalization) : {},
       };
+    });
+  }
+
+  private surfaceChips(rows: SurfaceViewRow[], userId: string): DataViewChipDto[] {
+    const shared = rows
+      .filter((row) => row.userId !== userId)
+      .sort((left, right) =>
+        left.name === right.name ? (left.id < right.id ? -1 : 1) : left.name < right.name ? -1 : 1,
+      );
+    const sharedIndex = new Map(shared.map((row, index) => [row.id, index]));
+
+    return rows.map((row) => toSurfaceChip(row, userId, sharedIndex.get(row.id) ?? 0));
+  }
+
+  async findReadableOrNull(id: string): Promise<DataViewDto | null> {
+    return runAsViewOwner(async () => {
+      const { companyId } = this.user;
+
+      const row = await this.prisma.dataView.findFirst({
+        where: { id, companyId, deletedAt: null, ...this.readableWhere() },
+        select: VIEW_SELECT,
+      });
+
+      return row ? toDto(row as StoredViewRow) : null;
+    });
+  }
+
+  async findSharedWithMeOrNull(id: string): Promise<DataViewDto | null> {
+    return runAsViewOwner(async () => {
+      const { companyId, id: userId } = this.user;
+      const role = this.user.role;
+      const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
+      if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
+
+      const row = await this.prisma.dataView.findFirst({
+        where: { id, companyId, deletedAt: null, userId: { not: userId }, OR: shared },
+        select: VIEW_SELECT,
+      });
+
+      return row ? toDto(row as StoredViewRow) : null;
+    });
+  }
+
+  async listShareableRoles(): Promise<ShareableRole[]> {
+    return runAsViewOwner(async () => {
+      const rows = await this.prisma.userRole.findMany({
+        where: { companyId: this.user.companyId },
+        orderBy: [{ isSystemRole: "desc" }, { name: "asc" }],
+        select: { id: true, name: true },
+      });
+
+      return rows;
+    });
+  }
+
+  async shareOwned({ id, visibility, roleIds }: ShareOwnedDataViewArgs): Promise<DataViewChipDto | null> {
+    return runAsViewOwner(async () => {
+      const { companyId, id: userId } = this.user;
+
+      const affected = await this.prisma.dataView.updateMany({
+        where: { id, companyId, userId, deletedAt: null },
+        data: { visibility },
+      });
+      if (affected.count === 0) return null;
+
+      await this.prisma.dataViewRoleShare.deleteMany({ where: { viewId: id, companyId } });
+      if (visibility === "roles" && roleIds.length > 0) {
+        await this.prisma.dataViewRoleShare.createMany({
+          data: roleIds.map((roleId) => ({ viewId: id, roleId, companyId })),
+          skipDuplicates: true,
+        });
+      }
+
+      const row = await this.prisma.dataView.findFirst({
+        where: { id, companyId, userId, deletedAt: null },
+        select: SURFACE_VIEW_SELECT,
+      });
+
+      return row ? toSurfaceChip(row, userId, 0) : null;
+    });
+  }
+
+  async countCompanyRoles(roleIds: string[]): Promise<number> {
+    if (roleIds.length === 0) return 0;
+    return this.prisma.userRole.count({ where: { companyId: this.companyId, id: { in: roleIds } } });
+  }
+
+  async setSharedHidden(id: string, hidden: boolean): Promise<void> {
+    return runAsViewOwner(async () => {
+      const { companyId, id: userId } = this.user;
+
+      if (!hidden) {
+        await this.prisma.dataViewHidden.deleteMany({ where: { viewId: id, userId, companyId } });
+        return;
+      }
+
+      await this.prisma.dataViewHidden.createMany({
+        data: [{ viewId: id, userId, companyId }],
+        skipDuplicates: true,
+      });
     });
   }
 

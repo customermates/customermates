@@ -52,6 +52,8 @@ const OWNERS: Record<string, string> = {
   ConversionEvent: "features/company/prisma-company.repository.ts",
   CrmRecord: "features/records/prisma-record.repository.ts",
   DataView: "features/data-view/prisma-data-view.repository.ts",
+  DataViewHidden: "features/data-view/prisma-data-view.repository.ts",
+  DataViewRoleShare: "features/data-view/prisma-data-view.repository.ts",
   DocsSection: "features/mcp-tools/prisma-docs-section.repository.ts",
   EventLog: "features/event/prisma-event-log.repository.ts",
   HostedAiPlatformReservation: "ee/agent-chat/prisma-agent-chat.repository.ts",
