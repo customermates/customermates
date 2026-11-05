@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-03-23
-  updated: 2026-10-30
+  updated: 2026-11-05
   tags:
     - CRM Examples
     - CRM Software
@@ -34,7 +34,7 @@ This guide starts with seven workflows by team size and CRM type, then names the
 <ArticleSummary title="At a glance">
   <SummaryItem label="Workflow examples">Solo consultant, agency, B2B sales team, recruiting agency, property agent, support desk and a 500-seat enterprise. Each uses the same records (people, companies, deals, history) in a different rhythm.</SummaryItem>
   <SummaryItem label="Software examples">Salesforce, HubSpot, Microsoft Dynamics 365, Zoho CRM and Pipedrive appear in almost every list. SuiteCRM and Customermates are open-source examples.</SummaryItem>
-  <SummaryItem label="Is Excel a CRM?">No. A workbook can hold a contact list, but it logs no emails, reminds nobody and breaks when several people edit it.</SummaryItem>
+  <SummaryItem label="Is Excel a CRM?">Yes, as a manual CRM. Microsoft 365 supports co-authoring; formulas can flag dates and configured automation can send reminders. A connected inbox and customer history are separate capabilities.</SummaryItem>
   <SummaryItem label="Cost">Free plans for 2 to 3 users exist. Paid list prices ran from €14 to $550 per user per month in October 2026, depending on vendor and tier.</SummaryItem>
 </ArticleSummary>
 
@@ -59,6 +59,8 @@ Anna runs a one-person consulting business. Every inquiry, whether it arrives by
 ### Agency of six: shared client history
 
 At a six-person design agency, the account lead goes on holiday in the middle of a pitch. Because the client's emails, the call notes and the proposal sit on the client's record, a colleague reads the thread and replies the same day. This is the collaborative side of CRM: [the history belongs to the company](/blog/customer-interaction-management), not to one person's mailbox. The agency also records which services each client has bought, so the next proposal starts from real numbers.
+
+The agency can extend this workflow after delivery: record the next value review and renewal date, then use the [customer retention guide](/blog/crm-strategy) to measure whether clients stay.
 
 ### B2B sales team of twenty: stages and a forecast
 
@@ -113,19 +115,22 @@ Which of these is the best CRM example depends on the workflow: the solo consult
 
 ## Is Excel a CRM?
 
-No. Excel is a spreadsheet: it can hold a contact list and a simple deal sheet, and many small teams start there. It is not a CRM because it does not log the emails you send, does not remind anyone of a next step, and does not keep one history per customer when several people edit the same file. Two people sorting the same sheet at once, or a colleague saving a copy on their laptop, is usually the moment a team moves on.
+Excel can serve as a manual CRM: one row per contact or deal, with an owner, notes and a next-step date. It is a spreadsheet rather than dedicated CRM software. Microsoft 365 supports [real-time co-authoring in Excel](https://support.microsoft.com/en-us/excel/co-author-a-workbook), so collaboration is not a reason by itself to rule it out.
 
-| Need | Excel or Google Sheets | CRM |
+The distinction is what you must configure and maintain. A workbook does not provide a connected inbox and customer conversation history by default. Formulas can flag overdue dates; sending a reminder needs an automation workflow, such as Microsoft's [Office Scripts and Power Automate example](https://learn.microsoft.com/en-us/office/dev/scripts/tutorials/excel-power-automate-returns). Check access and licensing for those tools before relying on them. Microsoft documentation checked on 5 November 2026.
+
+| Need | Excel workbook | Dedicated CRM |
 | --- | --- | --- |
-| Contact list with company and phone | Yes | Yes |
-| Deal list with value and stage | Yes, by hand | Yes, with board and weighted totals |
-| Email and message history per customer | No | Yes, if the CRM connects your mailbox |
-| Reminder when a deal goes quiet | No, unless you build formulas | Yes, through views, tasks or automation |
-| Several people editing safely | Limited | Yes, with roles and an activity log |
+| Contacts and deals | Rows you maintain | Records with configurable fields and relationships |
+| Customer email history | Notes, links or a configured integration | Connected inbox and record history where the product and plan support it |
+| Overdue follow-up | Formula flags; configured automation for notifications | Date views, tasks or routines, depending on the product |
+| Several people editing | Co-authoring with supported Microsoft 365 setup | Shared records with the product's access rules |
 
-A good test: if you have fewer than about 50 active contacts and work alone, a workbook is fine. [The Excel CRM template guide](/blog/excel-crm-template) gives you a ready layout and shows when to switch.
+Choose by the work, not a universal contact-count threshold. A workbook can be enough when someone reliably maintains it. Consider a CRM when finding the last conversation, covering a colleague or checking overdue next steps takes too much manual work. [The Excel CRM template guide](/blog/excel-crm-template) gives you a starting layout.
 
 ## What CRM tools cost: dated price ranges
+
+These are historical October 2026 price snapshots, not a current quote. Check the linked vendor pricing pages for your country and billing term before buying.
 
 List prices per user per month, before tax, in the currency the vendor's page showed. Most mid and top tiers are billed annually; compare the tier that contains everything you need, not the cheapest one.
 
@@ -138,16 +143,16 @@ List prices per user per month, before tax, in the currency the vendor's page sh
 | Microsoft Dynamics 365 Sales | None | Sales Professional $65 | Sales Enterprise $105 | Sales Premium $150 | 8 Oct 2026 |
 | Customermates | None, [[commercial.trial.days]]-day trial | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Billed monthly |
 
-So in October 2026, a paid CRM cost between €14 and $65 per user per month at entry level, $23 to $105 in the middle tiers and up to $550 at the top. HubSpot also charges a one-time onboarding fee on Professional and Enterprise. Setup time, data migration and training often cost more than the first year of licences; [the CRM cost guide](/blog/crm-cost) works through a three-year example.
+So in October 2026, a paid CRM cost between €14 and $65 per user per month at entry level, $23 to $105 in the middle tiers and up to $550 at the top. HubSpot also charges a one-time onboarding fee on Professional and Enterprise. Budget separately for setup time, data migration and training; [the CRM cost guide](/blog/crm-cost) works through a three-year example.
 
 ## A worked setup: a four-person consultancy in Customermates
 
-Here is the agency-style workflow taken all the way down to the columns. It uses the real lists and labels of Customermates; you can rebuild it in any CRM that has custom fields and saved filters.
+Here is the agency-style workflow taken all the way down to the columns. It uses illustrative list names in Customermates, where lists are configurable; you can rebuild it in any CRM that has custom fields and saved filters.
 
 <Steps>
-  <Step title="Set up the lists">Clients go in **Organizations**, people in **Contacts**, and each engagement you are trying to win in **Deals**. Your standard offers go in **Services** with a price each (for example "Strategy workshop" and "Monthly retainer"), and a deal's value follows from its line items, each a service and a quantity.</Step>
-  <Step title="Rename the deal stages">The deal **Stage** is a Single choice field. Replace the defaults with Inquiry, Discovery call, Proposal sent, Won and Lost. Each option carries a probability, so every deal gets a weighted value next to its value.</Step>
-  <Step title="Add three custom fields">On deals: "Engagement type" (Single choice: Project, Retainer, Workshop), "Lead source" (Single choice: Referral, LinkedIn, Website, Event) and "Expected start" (Date). Customermates has no tags; Single choice fields do that job and can be filtered and grouped.</Step>
+  <Step title="Set up the lists">Clients go in **Organizations**, people in **Contacts**, and each engagement you are trying to win in **Deals**. Your standard offers go in **Services** with a price each (for example "Strategy workshop" and "Monthly retainer"). Configure line items so quantity times unit price gives each line amount and their sum gives deal value. Without offerings, a deal can instead hold a manual money value.</Step>
+  <Step title="Rename the deal stages">The deal **Stage** is a Single choice field. Replace the defaults with Inquiry, Discovery call, Proposal sent, Won and Lost. Configure a probability per option and a weighted-value calculation if you need pipeline weighting.</Step>
+  <Step title="Add three custom fields">On deals: "Engagement type" (Single choice: Project, Retainer, Workshop), "Lead source" (Single choice: Referral, LinkedIn, Website, Event) and "Expected start" (Date). Use Single choice for one category or Multiple choice for several labels; both are configurable fields.</Step>
   <Step title="Save a personal view">On **Deals**, filter Stage = Proposal sent and assigned users = you, sort by updated date and save it with **New view** as "My open proposals". Saved views are personal, so each colleague sets the same filters and saves their own.</Step>
   <Step title="Import existing clients">Export your client list to an Excel workbook (.xlsx) and import organizations first, then contacts, one list at a time. See [records, import and views](/docs/app-records) for the column matching.</Step>
   <Step title="Connect the inbox (Pro or higher)">Each consultant connects their mailbox or LinkedIn account in the [unified inbox](/features/unified-inbox). Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]], so a consultant who wants email, LinkedIn and WhatsApp side by side needs Business. Starter has no inbox.</Step>
@@ -157,7 +162,7 @@ Here is the agency-style workflow taken all the way down to the columns. It uses
 
 > List my deals in stage "Proposal sent" whose last update is older than ten days. For each one, write a short follow-up email in the existing thread with the main contact and save it as a draft. Do not send anything.
 
-The last sentence matters. A routine runs as its owner and may send messages without asking, so an instruction that should only draft has to say so. Limits and run statuses are on the [routines documentation](/docs/app-routines). If you prefer your own AI client, Claude, ChatGPT and other MCP clients can read and update the same records through the Customermates MCP server, using your AI provider instead of hosted credits.
+The last sentence matters. A routine runs as its owner and may send messages without asking, so an instruction that should only draft has to say so. Actions that require approval in Mate chat are declined in an unattended routine; Knowledge Base changes become proposals for review. Create it paused while reviewing its configuration. Try the draft-only instruction in a normal Mate chat on fictional records first. To test the scheduled routine itself, enable it and use **Test trigger**, which performs a real run. Check the drafts and pause it again if needed. Limits and run statuses are on the [routines documentation](/docs/app-routines). If you prefer your own AI client, Claude, ChatGPT and other MCP clients can read and update the same records through the Customermates MCP server, using your own AI provider for model calls; search by meaning can still count toward Mate usage.
 
 Four consultants on Pro cost [[commercial.price.pro.monthly.seats.4]] per month ([[commercial.price.pro.monthly]] per user), which includes the inbox and monthly hosted AI credits per active user. Without the inbox, Starter costs [[commercial.price.starter.monthly.seats.4]] per month. The full feature list is on [all features](/features/all).
 
@@ -176,6 +181,10 @@ If most of your work sits in those areas, look for a CRM suite whose edition inc
 ## Frequently asked questions
 
 <Faq>
+<FaqItem question="What is an example of CRM experience?">
+CRM experience means work you actually performed: maintaining contact records, updating deal stages, recording the next step and reviewing overdue proposals. For a sample exercise, create three fictional deals, give each an owner and next-step date, then explain which needs attention and why. Label this as practice rather than claiming customer results you did not achieve.
+</FaqItem>
+
 <FaqItem question="What is a CRM and what are examples?">
 A CRM (customer relationship management) system stores your contacts, companies, deals and conversations in one place, so everyone sees the same history and the next step. Examples of CRM software are Salesforce Sales Cloud, HubSpot, Microsoft Dynamics 365 Sales, Zoho CRM, Pipedrive, SuiteCRM and Customermates. Examples of CRM in use are a consultant's Monday proposal review, an agency's shared client history and a sales team's weekly forecast.
 </FaqItem>
@@ -184,8 +193,8 @@ A CRM (customer relationship management) system stores your contacts, companies,
 There is no neutral public count of users across all vendors. Salesforce, HubSpot, Microsoft Dynamics 365, Zoho CRM and Pipedrive are the five names that appear in nearly every comparison. Popularity says little about fit: a three-person consultancy and a 500-seat sales floor need different tools.
 </FaqItem>
 
-<FaqItem question="Is Excel a CRM software?">
-No. Excel is a spreadsheet, so it can hold a contact list and a simple deal sheet, but it does not log emails, remind anyone of a next step or keep one history per customer when several people edit it. Many small teams start there anyway; [the Excel CRM template guide](/blog/excel-crm-template) shows how far a workbook goes.
+<FaqItem question="Is Excel CRM software?">
+Excel can serve as a manual CRM, though it is spreadsheet software rather than dedicated CRM software. Microsoft 365 supports co-authoring; formulas can flag dates and configured automation can send reminders. A connected inbox and customer history are separate capabilities. See the [Excel CRM template](/blog/excel-crm-template) for a manual setup.
 </FaqItem>
 
 <FaqItem question="How much does a CRM system cost?">
