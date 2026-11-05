@@ -38682,7 +38682,8 @@
               "delete",
               "get",
               "list"
-            ]
+            ],
+            "description": "create: name, expectedRevision, idempotencyKey; update: id, expectedVersion, expectedRevision, idempotencyKey; get: ids; delete: id. list requires no other fields. Create also requires the chosen kind's configuration."
           },
           "kind": {
             "description": "Widget kind on create: chart (default), activityTimeline, calendar or map. A saved widget keeps its kind.",
@@ -38715,19 +38716,19 @@
             "maxLength": 255
           },
           "expectedRevision": {
-            "description": "Widget writes require the discovered configuration revision.",
+            "description": "Required for create and update: the configuration revision returned by get_record_model.",
             "type": "integer",
             "minimum": 0,
             "maximum": 9007199254740991
           },
           "expectedVersion": {
-            "description": "Widget updates require the saved widget version.",
+            "description": "Required for update: the saved widget version returned by get or list. Omit on create.",
             "type": "integer",
             "exclusiveMinimum": 0,
             "maximum": 9007199254740991
           },
           "idempotencyKey": {
-            "description": "Widget writes require a stable retry key. Use a new key for a different change.",
+            "description": "Required for create and update: a stable retry key. Reuse it for the same request; use a new key for a different change.",
             "type": "string",
             "minLength": 8,
             "maxLength": 200
