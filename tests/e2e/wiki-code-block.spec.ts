@@ -1,4 +1,5 @@
 import type { Locator, Request } from "@playwright/test";
+import type { TiptapEditorHTMLElement } from "@tiptap/core";
 
 import { z } from "zod";
 
@@ -12,7 +13,7 @@ const Page = z.object({ id: z.uuid(), markdown: z.string() });
 
 test.use({ viewport: { width: 1600, height: 1000 } });
 
-// Native keyboard selection keeps ProseMirror's editor state and the browser caret in sync.
+// Wait for native selection changes to reach the editor before sending another key.
 async function caretToEnd(block: Locator) {
   await expect(async () => {
     await block.click();
@@ -21,6 +22,12 @@ async function caretToEnd(block: Locator) {
       await block.evaluate((element) => {
         const selection = getSelection();
         if (!selection?.isCollapsed || !selection.anchorNode || !element.contains(selection.anchorNode)) return false;
+        const editor = element.closest<TiptapEditorHTMLElement>(".tiptap")?.editor;
+        if (
+          !editor?.state.selection.empty ||
+          editor.state.selection.from !== editor.view.posAtDOM(selection.anchorNode, selection.anchorOffset)
+        )
+          return false;
         const remaining = document.createRange();
         remaining.selectNodeContents(element);
         remaining.setStart(selection.anchorNode, selection.anchorOffset);
