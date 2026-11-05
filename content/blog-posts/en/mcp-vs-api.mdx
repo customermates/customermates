@@ -1,0 +1,235 @@
+---
+title: "MCP vs API: Compare the Same CRM Task"
+description: "MCP vs API explained with a dated REST and MCP customer lookup and task example. Compare discovery, permissions, approvals and integration choices."
+
+hero:
+  title: "MCP vs API: Which Connection Fits Your CRM Task?"
+  description: "Choose a connection from the job you need to finish, with a local paired test, a refused write and explicit limits."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-05
+  tags:
+    - MCP
+    - API
+    - REST
+    - CRM
+
+relatedHrefs:
+  - /features/api
+  - /docs/mcp
+  - /blog/agentic-crm
+  - /blog/n8n-for-beginners-build-your-first-workflow
+---
+
+# MCP vs API: Which Connection Fits Your CRM Task?
+
+MCP vs API is a choice about how a client finds and calls an operation: REST gives application code endpoints, while MCP gives an AI application discoverable tools with input schemas. Customermates offers both for the same customer data, with application permissions applying to the connected user on either path.
+
+Use REST for a known integration whose steps you control in code. Consider MCP when an assistant needs to select among tools while helping a person. Neither protocol guarantees a faster, safer or automatically approved result.
+
+## What is the difference between MCP and a REST API?
+
+API means application programming interface. REST is an architectural style used for web APIs; it is not a synonym for every API. An endpoint is a particular address an application exposes. A microservice is a way to divide an application into services, and can expose APIs of its own.
+
+MCP, the Model Context Protocol, standardizes exchanges between a host application, its client component and a server. A server can wrap a REST API, call other APIs or invoke application logic directly. In Customermates, the record REST routes and MCP tools invoke shared application interactors. The example below therefore compares two entry points to the same CRM logic.
+
+| Decision | REST API | MCP |
+| --- | --- | --- |
+| Find an operation | Developer uses documentation or an OpenAPI contract | Client discovers named tools and their input schemas |
+| Choose the next step | Integration code defines the workflow | Host can let a model choose; a script can also call tools explicitly |
+| Describe a call | HTTP method, endpoint and request body | Tool name and arguments within the MCP exchange |
+| Read the result | HTTP status and application response | Protocol response plus tool result; inspect tool errors too |
+| Retry a write | Follow the application's idempotency contract | Follow the tool's application idempotency contract |
+| Enforce access | Application checks the authenticated user's rights | Application checks the connected user's rights |
+| Request human approval | Integration must implement its policy | Host or application must implement its policy |
+| Best starting point | Stable sync or a fixed business workflow | Assistant choosing among available operations |
+
+HTTP supplies method and status semantics, as specified in [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html). A JSON body sent with POST does not by itself provide safe retries. MCP also needs an application contract for duplicate prevention. It does not replace HTTP with a security or performance guarantee.
+
+## How does tool discovery differ from schema discovery?
+
+The [MCP tools specification](https://modelcontextprotocol.io/specification/latest/server/tools) defines `tools/list` for discovering tool names and input schemas, and `tools/call` for invoking a tool. That tells a client how to call a generic record query. It does not reveal which customer-defined list or field is the right one for your workspace.
+
+Customermates separates those questions. `discover_record_types` identifies accessible lists; `get_record_model` supplies their fields, types, relationships and configuration revision. Do not turn a visible label such as “Tasks” into an invented identifier. The [Customermates REST API overview](/features/api) explains the endpoint contract; the [MCP reference](/docs/mcp) describes the tool contract.
+
+The local test recorded `initialize`, `tools/list` and explicit tool calls. No language model selected the tools. The first JSON block is the recorded discovery request; the second shows the SDK arguments for reading the workspace model:
+
+```json
+{
+  "method": "tools/list",
+  "jsonrpc": "2.0",
+  "id": 1
+}
+```
+
+```json
+{
+  "name": "get_record_model",
+  "arguments": {}
+}
+```
+
+The model response identified Organization and Task, with schema revision `1`. Organization's primary field was `88302b3f-1203-8ef1-8eb2-1cdf738145c4`. Task's required Name field was `0de76b04-786e-8931-8b21-64596e06b4c1`, with `valueType: text`. Its Notes field was optional `richText`. The task-to-organization relationship was `5cde6409-ab72-8707-8039-3c9cdf5868c5`. These are fixture IDs, not reusable IDs for your account. Both write paths used schema information obtained through MCP; separate REST schema discovery was not executed.
+
+## What did the same customer lookup return through both interfaces?
+
+**Local test boundary:** executed on 5 November 2026, from `05:32:59.558Z` to `05:33:10.374Z`, against a new disposable PostgreSQL 17.8 database and its own loopback application. The authorized pair used the same temporary API key, synthetic Administrator and workspace. A separate synthetic read-only user tested refusal. No production credentials, external sends or model-provider calls were used; the test transport blocked outbound connections and both keys were revoked afterward.
+
+Before launch, 3,797 application, schema, permission, fixture and dependency-contract files matched reviewed source head `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`; the cloud build stamp was `2912f7e6882ebccb`. Runtime: Node `24.18.0`, Next.js `16.3.2`, MCP TypeScript SDK `1.24.0`, and `mcp-handler` `1.0.4`. The captured initialize request proposed MCP `2025-06-18`; the server accepted that revision and identified itself as Customermates `1.1.0`. That is the observed negotiation, not a claim to test the latest specification or every client.
+
+The REST request was `POST /api/v1/records/query`. The MCP call was `query_crm_records`. Both used exactly this argument object:
+
+```json
+{
+  "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+  "fields": [
+    "88302b3f-1203-8ef1-8eb2-1cdf738145c4"
+  ],
+  "search": "Example organization",
+  "page": 1,
+  "pageSize": 25
+}
+```
+
+Both responses contained this record reference, shown with the version fields only:
+
+```json
+{
+  "records": [
+    {
+      "ref": {
+        "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+        "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+      },
+      "version": 1,
+      "schemaRevision": 1
+    }
+  ]
+}
+```
+
+Both paths returned exactly one matching organization. The script compared the complete structured query results and found them equal for this request. That does not establish equivalence for every query, field type or access policy.
+
+## How did each interface create an internal task?
+
+The script created two separate tasks with equivalent purpose, one per interface, linked to the same fictional organization. It did not create the same task twice across protocols. The names and idempotency keys deliberately differ.
+
+**Recorded REST body**, sent to `POST /api/v1/records/mutate`:
+
+```json
+{
+  "expectedRevision": 1,
+  "idempotencyKey": "1f4ca96e-7947-40fa-8e41-c28981fccc02",
+  "mutation": {
+    "action": "create",
+    "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+    "fields": [
+      {
+        "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+        "value": {
+          "kind": "text",
+          "value": "Fictional proof: review customer handover via REST"
+        }
+      }
+    ],
+    "links": [
+      {
+        "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+        "direction": "outgoing",
+        "record": {
+          "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+          "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Recorded MCP tool call**, shown at the SDK argument level rather than as a complete wire message:
+
+```json
+{
+  "name": "mutate_crm_record",
+  "arguments": {
+    "expectedRevision": 1,
+    "idempotencyKey": "8d280d0a-f886-4e1c-b286-5ef6e1063fc1",
+    "mutation": {
+      "action": "create",
+      "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+      "fields": [
+        {
+          "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+          "value": {
+            "kind": "text",
+            "value": "Fictional proof: review customer handover via MCP"
+          }
+        }
+      ],
+      "links": [
+        {
+          "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+          "direction": "outgoing",
+          "record": {
+            "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+            "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+The authorized REST requests returned HTTP `200`; the authorized MCP tool calls recorded `isError: false`. Selected response fields and the new task IDs:
+
+| REST | MCP |
+| --- | --- |
+| `status: completed`, `schemaRevision: 1` | `result.status: completed`, `result.schemaRevision: 1` |
+| `d0f7b186-1cd9-44c9-88e3-b40877115c5f` | `421321b2-202b-4ee2-a6b9-023d4bf5c8d3` |
+
+Each full result also referenced the linked organization. Repeating each interface's identical request with its original idempotency key returned the identical result. The script read **both** tasks through `POST /api/v1/records/read` and `read_crm_record`, requesting the outgoing relationship with `limit: 5`. Each pair of complete readbacks matched, with task version `1` and the organization link. The final fixture contained exactly two tasks, so neither replay created another task.
+
+The limits matter: one matching customer, page `1` with `pageSize: 25`, two created tasks and one identical replay per task. The five-related-record limit was a request setting, not a measured platform maximum. This was no load test, latency benchmark, model reasoning evaluation or cross-client interoperability test.
+
+## Where do permissions and human approvals actually apply?
+
+Authentication establishes who is calling; application permissions determine what that user may read or change. Both Customermates entry points apply the connected user's permissions. The second fixture user had API access and read access to Organization and Task, with no record update permission. Its REST identity request and MCP customer query succeeded, establishing that the test reached an authenticated, readable workspace.
+
+That user then attempted to change the REST-created task's Name, once through REST and once through MCP, with the current schema revision and task version. REST returned HTTP `403`, `error.kind: authorization`, `customCode: permissionDenied`. The MCP exchange returned HTTP `200`, but its tool result contained `isError: true` with `_meta.failure.kind: authorization` and the same custom code. After **each** refusal, the Administrator reread the task through both interfaces: the complete record, Name, version `1` and organization link were unchanged. This proves those two refused updates for this role and fixture; it is not a security audit of every permission.
+
+Approval is a different question. Customermates tells external MCP clients to obtain confirmation before sending, deleting or reaching outside the workspace. Those instructions guide the client. The external MCP server does not pause an authorized call to obtain approval itself.
+
+Hosted Mate has its own server-enforced approval policy. Routines have their own execution and approval controls; do not infer those controls from an external MCP session. Managed-cloud Mate availability also depends on eligible plans, available credits and global controls. The [agentic CRM guide](/blog/agentic-crm) explains these boundaries.
+
+## When should you keep REST, use MCP or combine them?
+
+Keep REST when your job is “run these exact steps whenever a known event happens.” A fixed synchronization usually benefits from explicit mappings, retries and failure handling in code. OpenAPI can provide machine-readable API schemas too; discoverability is not exclusive to MCP.
+
+Choose MCP when the useful next operation depends on a person's question and the host supports the tools you need. You still need trusted servers, scoped access, result validation and an approval policy. MCP is more than JSON formatting, but it is not an API gateway that automatically supplies all those controls. See the [official MCP architecture](https://modelcontextprotocol.io/docs/learn/architecture) for the host, client and server roles.
+
+You can combine the two: a webhook reports an event, a deterministic workflow fetches data through REST, and an assistant uses MCP to investigate an exception. Webhooks are event notifications, not another name for a tool call. n8n can orchestrate integrations, but the local test above ran a script, not n8n. The [n8n workflow introduction](/blog/n8n-for-beginners-build-your-first-workflow) is a separate starting point.
+
+Self-hosted Customermates supplies the Starter CRM core with REST and MCP for external clients. It does not include hosted Mate or the cloud inbox. Choose another approach if you need only an adapter for your existing CRM, or if your fixed integration gains nothing from an AI host. Cloud pricing and trial terms are separate from protocol choice; compare them on the [current pricing page](/pricing).
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Does MCP replace REST APIs?">
+No. An MCP server can wrap a REST API or share application logic with it. REST remains useful for controlled integrations with predefined steps.
+</FaqItem>
+<FaqItem question="Is MCP just JSON or a REST API?">
+MCP defines protocol messages and discovery conventions, not just a JSON shape. It can run over HTTP, but a named MCP tool call is not the same contract as calling a REST endpoint.
+</FaqItem>
+<FaqItem question="Does MCP make customer data automatically safe?">
+No. Access checks, token handling, untrusted data and client approvals still matter. Our local fixture includes authorized operations and two refused updates for one read-only role; it does not establish security superiority.
+</FaqItem>
+<FaqItem question="Was an AI model needed for the paired test?">
+No. A script explicitly called the REST endpoints and MCP tools. The receipt does not measure a model's ability to discover, choose or safely execute those operations.
+</FaqItem>
+</Faq>
+
+Third-party protocol facts checked on 5 November 2026 against the official MCP architecture, MCP tools specification and RFC 9110 linked above. The local product execution and protocol negotiation above were recorded on 5 November 2026.

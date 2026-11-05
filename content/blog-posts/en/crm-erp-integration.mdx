@@ -32,6 +32,10 @@ Most small teams should start with one one-way flow: a won deal creates the cust
 
 Customermates, an AI-native CRM, publishes this guide. Customermates is a CRM only, with no ERP functions and no native ERP connector; the section on it below shows how it connects through its REST API and webhooks. ERP vendor details were checked on 8 October 2026 on the vendors' own pages, linked at the end.
 
+For a fixed integration and an AI client, compare [MCP versus API on the same customer-record task](/blog/mcp-vs-api). Tool discovery changes how the client finds an operation; authentication and permissions still apply.
+
+For an n8n workflow, the [n8n MCP route comparison and version-pinned example](/blog/n8n-mcp) distinguish connecting n8n to a customer-data server from exposing n8n itself to an AI client. Choose the direction before configuring credentials.
+
 <ArticleSummary title="At a glance">
   <SummaryItem label="What moves">Identifiers and a few statuses per business event. Not every field, and not in both directions by default.</SummaryItem>
   <SummaryItem label="Methods">Native connector, automation platform (iPaaS or n8n), direct API integration, or middleware. Or one suite whose ERP includes a CRM app.</SummaryItem>

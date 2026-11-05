@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-02-07
-  updated: 2026-10-08
+  updated: 2026-11-05
   tags:
     - CRM Strategie
     - Kundenmanagement
@@ -82,13 +82,31 @@ Wöchentlich: offene Deals ohne künftigen nächsten Schritt und Kunden mit Stat
   </Step>
 </Steps>
 
+## Kopierbare CRM-Strategie auf einer Seite
+
+Kopieren Sie diese Tabelle in ein gemeinsames Dokument und füllen Sie die mittlere Spalte aus. Rechts steht ein erfundenes Beispiel für die Beratung mit sechs Personen, kein versprochenes Ergebnis. Bewahren Sie den Ausgangsstand auf, damit beim Review dieselbe Definition gilt.
+
+| Entscheidung | Ihre Antwort | Ausgefülltes Beispiel |
+| --- | --- | --- |
+| Ziel und Ausgangswert | Kennzahl, heutige Anzahl, Ziel, Prüftermin: ___ | Heute haben 12 von 20 offenen Deals eine zuständige Person und einen nächsten Schritt mit Datum: 60 %. Ziel nach vier Wochen: mindestens 90 %. |
+| Zielkunden | Wer passt und wer nicht: ___ | B2B-Teams mit einem vereinbarten Beratungsbedarf und einer entscheidungsbefugten Person; fachfremde Anfragen ablehnen. |
+| Lebenszyklus und Eintrittsregel | Phasen, Nachweis, Schritte nach dem Abschluss: ___ | Angebot bedeutet: Umfang und Preis verschickt; Gewonnen: Vereinbarung unterschrieben. Danach Kick-off, Projektphase, Ergebnisgespräch und gegebenenfalls Verlängerung. |
+| Mindestdaten | Für die Entscheidung nötige Felder: ___ | Offener Deal: Zuständigkeit, Phase, nächster Schritt und Datum. Wiederkehrender Kunde: Vertragsende, vereinbartes Ergebnis, Betreuung. |
+| Zuständigkeit und Übergabe | Wer handelt, wer vertritt, was wird übergeben: ___ | Die zuständige Person aktualisiert nach jedem Austausch den nächsten Schritt; die Projektleitung übernimmt Ziele und Zusagen beim Kick-off. |
+| Kanäle und Grenzen | Wo liegt der Verlauf, wer sieht ihn, was wird geprüft: ___ | Relevante Kundengespräche mit dem CRM teilen; Nachfassmails nur als Entwurf vorbereiten und vor dem Versand persönlich prüfen. |
+| Review und Entscheidung | Verantwortliche Person, Nachweis, Regel zum Beibehalten oder Ändern: ___ | Gründer prüft montags. Nach vier Wochen bei mindestens 90 % den Ablauf beibehalten; sonst fehlende Zuständigkeiten oder Termine klären, bevor Automatisierung dazukommt. |
+
+**So prüfen Sie das Ziel.** Zählen Sie alle offenen Deals zum gleichen wöchentlichen Stichtag. Teilen Sie die Zahl mit Zuständigkeit und nächstem Schritt samt Datum durch alle offenen Deals; weisen Sie überfällige Schritte separat aus. Ohne offene Deals lautet das Ergebnis „nicht anwendbar“, nicht 100 %. Das Ziel ist beispielhaft. Legen Sie Ihr eigenes erst nach der Ausgangsmessung fest und verfolgen Sie gewonnene und verlorene Deals getrennt, damit bloßes Schließen schlechte Nachverfolgung nicht verdeckt.
+
+Vergleichen Sie für die Kundenbindung die im selben Zeitraum zur Verlängerung anstehenden Kunden und nennen Sie die Gruppengröße. Ein beispielhafter Ausgangswert von 9 Verlängerungen bei 10 anstehenden Verträgen ergibt 90 %. Er belegt keine Wirkung des Ablaufs. Der Leitfaden zur Kundenbindung (siehe Kohortenbeispiel unten) erklärt die Berechnung mit Kundengruppen und welche Neukunden dabei nicht mitzählen. Sie brauchen dafür keinen Download.
+
 ## Praxisbeispiel: eine Beratung mit sechs Personen in Customermates
 
 Das folgende Setup ist ein Beispiel, kein Kundenfall. Eine Beratung mit vier Beraterinnen und Beratern und zwei Personen im Projektteam will zweierlei: weniger Angebote, auf die keine Antwort mehr kommt, und keine Vertragsverlängerung, die überraschend auf dem Tisch liegt.
 
-**Deal-Phasen.** Phasen sind nicht voreingestellt. Das Team legt an seiner Liste Deals ein Feld **Phase** (Typ Einzelauswahl) an, mit den Optionen Akquise, Qualifizierung, Erstgespräch, Angebot, Verhandlung, Gewonnen und Verloren, und trägt in Konfigurieren für Deals für jede Option eine Abschlusswahrscheinlichkeit als **Wahrscheinlichkeit %** ein. Jeder Deal zeigt dann einen gewichteten Wert: Deal-Wert mal Gewicht der Phase. Der Deal-Wert ist die Summe seiner Positionen, jeweils Service mal Menge, deshalb legt das Team seine Standardangebote als Services an. Das ist eine feste Rechenregel aus den eingetragenen Prozentwerten, keine Prognose. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
+**Deal-Phasen.** Listen und Felder sind konfigurierbar, keine feste Vertriebsvorlage. Legen Sie für das Beispiel eine Deal-Liste an oder passen Sie Ihre vorhandene an, mit einem Feld **Phase** vom Typ Einzelauswahl: Akquise, Qualifizierung, Erstgespräch, Angebot, Verhandlung, Gewonnen und Verloren. Richten Sie die benötigten Wahrscheinlichkeiten und die Berechnung des gewichteten Werts ein. Ein so berechneter Wert ist Deal-Wert mal Phasenwahrscheinlichkeit, keine Prognose. Bei Angeboten mit Positionen ergibt Menge mal Einzelpreis den Positionswert; die Positionen können zum Deal-Wert summiert werden. Ohne Angebote kann der Deal einen manuell erfassten Geldbetrag tragen. Berechnungen lassen sich nach einer Vorschau ändern. Siehe [Datensätze und Phasenkonfiguration](/docs/app-records) sowie [Beziehungen und Berechnungen](/docs/concepts).
 
-**Eigene Felder.** Customermates kennt 16 Feldtypen, darunter Datum, Geldbetrag und Einzelauswahl. Das Team legt an:
+**Eigene Felder.** Customermates unterstützt unter anderem Datum, Geldbetrag, Einzelauswahl und Mehrfachauswahl. Das Team legt an:
 
 | Liste | Feld | Typ | Wozu |
 | --- | --- | --- | --- |
@@ -110,16 +128,16 @@ Ein [Dashboard-Diagramm](/features/reporting) zeigt den gewichteten Deal-Wert na
 
 **Gespräche.** Der Pro-Tarif enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Person im [einheitlichen Posteingang](/features/unified-inbox). Zu den Kanälen gehören E-Mail (Gmail, Outlook, IMAP), LinkedIn und WhatsApp. Die Gesprächspartner werden mit Kontakten verknüpft. Eine Konversation bleibt privat, bis die Person, über deren Konto sie läuft, sie in den **Konversationseinstellungen** für das Team freigibt. Die Beraterinnen und Berater teilen ihre Kundenkonversationen, damit das Projektteam vor dem Kick-off nachlesen kann, was im Vertrieb besprochen wurde. Starter enthält keinen Posteingang.
 
-**Zwei Routinen (Customermates Cloud).** Routinen lassen Mate, den gehosteten Assistenten, eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz ausführen. Sie verbrauchen gehostete KI-Credits aus dem Monatskontingent der Person, der die Routine gehört.
+**Zwei Routinen (Customermates Cloud).** Routinen lassen Mate, den gehosteten Assistenten, eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz ausführen. Sie verbrauchen das monatliche Mate-Kontingent der Person, der die Routine gehört.
 
 - Wöchentlich, montags früh: *„Listen Sie meine offenen Deals auf, deren Datum ‚Nächster Schritt am‘ überschritten oder leer ist. Fassen Sie zu jedem das letzte Gespräch in einem Satz zusammen und erstellen Sie einen Antwortentwurf. Senden Sie nichts, legen Sie nur Entwürfe an.“* Der letzte Satz ist wichtig: Mate versendet Nachrichten, wenn die Anweisung es verlangt. Eine Routine, die nur entwerfen soll, muss das ausdrücklich sagen.
 - Bei einer Änderung: Auslöser **Wenn sich etwas ändert**, Ereignis **Datensatz aktualisiert** für Deals, geändertes Feld Phase, Datensatzfilter Phase ist Gewonnen. Anweisung: *„Legen Sie eine Aufgabe ‚Kick-off‘ an, verknüpft mit diesem Deal und seinen Kontakten, zugewiesen an die zugewiesenen Personen des Deals, und ergänzen Sie eine Übergabe-Zusammenfassung in den Notizen des Deals.“*
 
-Eine Routine läuft als ihre Eigentümerin oder ihr Eigentümer und sieht nur, was diese Person sehen darf. Grenzen und Auslöser sind unter [Routinen](/docs/app-routines) dokumentiert.
+Legen Sie die Routinen für die Konfigurationsprüfung pausiert an. Probieren Sie ihre Anweisungen zuerst in einem normalen Mate-Chat an erfundenen Datensätzen aus. Für einen zeitgesteuerten Test aktivieren Sie die Routine und verwenden **Auslöser testen**, was einen echten Lauf ausführt. Ereignisroutinen haben diesen Test nicht: Aktivieren Sie die Routine und ändern Sie danach einen erfundenen Beispiel-Deal passend zum Auslöser. Prüfen Sie das Ergebnis und pausieren Sie die Routine bei Bedarf wieder. Eine Routine nutzt die Zugriffsrechte und das monatliche Mate-Kontingent ihrer Eigentümerin oder ihres Eigentümers. E-Mails und Chatnachrichten brauchen keine Mate-Freigabe beim Versand; verlangen Sie ausdrücklich Entwürfe, wenn eine Person sie prüfen soll. Aktionen, die im Chat eine Freigabe brauchen, werden in unbeaufsichtigten Läufen abgelehnt; Änderungen an der Wissensdatenbank werden zu Vorschlägen zur Prüfung. Änderungen durch eine Routine lösen keine weiteren Routinen aus. Siehe [Auslöser und Grenzen von Routinen](/docs/app-routines) und [Freigaberegeln von Mate](/docs/app-assistant). Produktdokumentation am 5. November 2026 geprüft.
 
 ## Kundenbindung und Customer Success gehören in den Plan
 
-Bestehende Kunden zu halten ist meist günstiger, als neue zu gewinnen. Amy Gallo schrieb 2014 in der Harvard Business Review, dass ein Neukunde fünf- bis 25-mal mehr kostet als das Halten eines bestehenden Kunden, und verwies auf Forschung von Frederick Reichheld (Bain & Company), nach der 5 % mehr Kundenbindung den Gewinn um 25 % bis 95 % steigern ([HBR](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers)). Das genaue Verhältnis hängt von Ihrem Geschäft ab. Die Richtung erklärt, warum der Lebenszyklus aus Schritt 3 nicht bei Gewonnen endet.
+Kundenbindung gehört in die Strategie, weil nach einem Abschluss Projektarbeit, Ergebnisgespräch und gegebenenfalls die Verlängerungsentscheidung folgen. Messen Sie Ihre eigenen Kundengruppen und Betreuungskosten, bevor Sie Zeit auf Kunden verteilen.
 
 In einem kleinen Team ist Customer Success Management keine Abteilung. Es ist eine Abfolge, die die zuständige Person durchläuft:
 
@@ -142,7 +160,41 @@ Die Kennzahlen für das Review:
 | Abschlussquote | Gewonnene Deals geteilt durch gewonnene plus verlorene Deals der Periode | Quartalsweise |
 | Pipeline-Pflege | Anteil offener Deals mit einem nächsten Schritt in der Zukunft | Wöchentlich |
 
-Die ersten fünf messen Ergebnisse. Die letzte misst, ob man den CRM-Daten trauen kann. Sinkt sie, werden alle anderen Zahlen zur Fiktion.
+Die ersten fünf messen Ergebnisse. Die letzte misst, ob man den CRM-Daten trauen kann. Sinkt sie, sollten Sie fehlende Daten prüfen, bevor Sie Ergebnisse interpretieren.
+
+## Wie berechnen Sie die Kundenbindungsrate?
+
+Die direkte Rechnung lautet: **gehaltene Kunden aus dem Anfangsbestand ÷ Kunden im Anfangsbestand × 100**. [IBM nennt für die Kundenbindungsrate](https://www.ibm.com/think/topics/customer-retention) auch die Kurzform **(Endbestand − Neukunden) ÷ Anfangsbestand × 100**. Geprüft am 5. November 2026.
+
+Die Kurzform setzt voraus, dass Sie nur die Neukunden abziehen, die im Endbestand enthalten sind, und zurückgekehrte Altkunden einheitlich behandeln. Wenn einzelne Kundendatensätze vorliegen, verfolgen Sie den Anfangsbestand direkt.
+
+**Fiktives Rechenbeispiel, keine Customermates-Kundendaten:** Eine Agentur zählt Unternehmen mit einem laufenden bezahlten Betreuungsauftrag am 1. Juli und am 30. September 2026. Annahmen: Jedes Unternehmen zählt einmal, alle acht Neukunden bleiben bis Quartalsende aktiv, kein früherer Kunde kehrt zurück und alle benötigten Daten liegen vor.
+
+| Bewegung im Quartal | Kunden |
+| --- | ---: |
+| Aktive Kunden am 1. Juli | 40 |
+| Davon am 30. September weiterhin aktiv | 34 |
+| Kunden aus dem Anfangsbestand ohne laufenden Auftrag am Ende | 6 |
+| Neue, am Quartalsende noch aktive Kunden | 8 |
+| Aktive Kunden am 30. September insgesamt | 42 |
+
+Die Kundenbindungsrate beträgt **34 ÷ 40 × 100 = 85 %**. Mit der Kurzform: **(42 − 8) ÷ 40 × 100 = 85 %**. Die Abwanderungsrate des Anfangsbestands liegt bei **6 ÷ 40 × 100 = 15 %**. Obwohl der Bestand um zwei Kunden wächst, enden sechs bisherige Beziehungen.
+
+Das ist eine Kundenquote, keine Umsatzquote. Ein großer und ein kleiner Kunde zählen jeweils einmal. Prüfen Sie den Umsatz derselben Anfangsgruppe getrennt anhand Ihrer Abrechnungsdaten.
+
+### Was zeigt eine Kohortenanalyse zusätzlich?
+
+Eine Kohorte fasst hier Kunden nach dem Zeitpunkt ihres ersten Kaufs zusammen. Wir teilen den fiktiven Anfangsbestand auf und betrachten für beide Gruppen denselben Endtermin.
+
+| Erstkauf der Kunden im Anfangsbestand | Anfangsbestand | Am 30. September gehalten | Quote |
+| --- | ---: | ---: | ---: |
+| Vor April 2026 | 24 | 22 | 91,7 % |
+| April bis Juni 2026 | 16 | 12 | 75 % |
+| Zusammen | 40 | 34 | 85 % |
+
+Bei den jüngeren Kunden gingen vier von sechzehn verloren. Das ist ein Anlass, deren Übergaben und Abschlussgründe zu prüfen. Es beweist nicht, dass das Onboarding die Ursache war. Bilden Sie auch nicht den einfachen Mittelwert der beiden Quoten: Die Gruppen sind unterschiedlich groß.
+
+Bei Projektgeschäft kann eine Wiederkaufsquote aussagekräftiger sein: Wie viele Erstkunden erteilen innerhalb von 180 Tagen einen zweiten Auftrag? Teilen Sie diese Zahl nur durch Erstkunden, deren vollständige 180 Tage bereits beobachtbar sind. Die Frist ist eine Beispielannahme und muss zum Geschäft passen. Noch nicht abgeschlossene Beobachtungszeiträume und fehlende Daten gehören separat ausgewiesen.
 
 ## Best Practices, die eine CRM-Strategie lebendig halten
 

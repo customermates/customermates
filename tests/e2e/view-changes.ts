@@ -10,6 +10,13 @@ export async function saveViewChanges(page: Page) {
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();
   await expect(modified).toHaveCount(0);
+  // The save response can precede the menu exit and its focus restoration.
+  // Finish that handoff before the caller opens another view overlay.
+  await expect(
+    page.locator(
+      '[data-slot="dropdown-menu-content"][aria-labelledby="global-data-views-menu"]',
+    ),
+  ).toHaveCount(0);
 }
 
 export async function submitViewEditor(page: Page, name?: string, scope: Scope = page): Promise<string> {

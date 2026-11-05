@@ -1,0 +1,206 @@
+---
+title: "n8n MCP: Routes and a Tested CRM Workflow"
+description: "Choose the right n8n MCP route, then follow a dated n8n 2.45.5 customer lookup and duplicate-safe internal task example with explicit test limits."
+
+hero:
+  title: "n8n MCP: Choose a Route and Test One CRM Task"
+  description: "Choose the right n8n MCP route, then follow a dated n8n 2.45.5 customer lookup and duplicate-safe internal task example with explicit test limits."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-05
+  tags:
+    - n8n
+    - MCP
+    - CRM
+
+relatedHrefs:
+  - /blog/n8n-for-beginners-build-your-first-workflow
+  - /features/api
+  - /docs/mcp
+  - /blog/mcp-vs-api
+---
+
+# n8n MCP: Choose a Route and Test One CRM Task
+
+n8n MCP can mean an AI client calling n8n or an n8n workflow calling another application's tools. For a Customermates customer lookup and internal task, the second direction fits: the tested example below uses n8n's standalone MCP Client, without a model.
+
+MCP is the connection protocol; n8n is the workflow application. Start with the direction of the call, then choose the node or server. The [n8n beginner workflow guide](/blog/n8n-for-beginners-build-your-first-workflow) covers the visual editor; this guide covers the MCP choice and one dated, executed route.
+
+## Which n8n MCP route matches your job?
+
+The table separates the maintainer from the person whose credentials authorize work. A familiar product name is not enough to identify a connection.
+
+| Route and direction | Maintainer | Acting identity and authentication | Version boundary |
+| --- | --- | --- | --- |
+| Instance-level MCP: external client → n8n | n8n | n8n user via OAuth or MCP access token | Workflow building from 2.13.0; settings layout from 2.33.0 |
+| MCP Server Trigger: external client → one workflow's tools | n8n | Configured bearer/header credential, or n8n User Auth | User Auth needs node v2+; user output needs v2.1+ |
+| MCP Client Tool: n8n AI Agent → external MCP server | n8n | External service's credential | Agent sub-node; not the node tested below |
+| Standalone MCP Client: ordinary workflow → external MCP server | n8n | External service's credential | Executed here: n8n 2.45.5, node typeVersion 1.1 |
+| Community `czlonkowski/n8n-mcp`: coding client → separate MCP service | Independent project maintainers | Deployment-specific; n8n API access when configured | Pin that project's release separately |
+
+[Official instance-level MCP documentation](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/) distinguishes instance access from a workflow's Server Trigger. Enabling MCP does not expose every workflow. Visibility follows user access and MCP exposure settings. Its [tools reference](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/mcp-server-tools-reference/) includes creating and editing workflows and data tables. Describing today's official server as execute-only is incomplete.
+
+The [MCP Server Trigger reference](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/) describes a server entry point. The [MCP Client Tool reference](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) describes an agent's external tools. The [standalone MCP Client reference](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcpclient/) covers explicit calls in a normal workflow.
+
+The independent [n8n-mcp repository](https://github.com/czlonkowski/n8n-mcp) provides workflow-building assistance. It is a separate project, not the name of every native MCP feature. You do not need to install it for the standalone client recipe below.
+
+## What exactly ran, and on which versions?
+
+**Executed on 28 October 2026, 23:10:03 to 23:10:15 UTC:** a manual workflow on n8n **2.45.5**, using `@n8n/n8n-nodes-langchain.mcpClient` **typeVersion 1.1**. The image was pinned to this digest:
+
+```text
+docker.n8n.io/n8nio/n8n@sha256:9f6d0a5987ab5a297c4b0b38fbf1a22285dd1364551478e93f03d506908fa74c
+```
+
+The Customermates source was `86212781f845d0ccdc1dfa3ddd78fa38fa2b8912`. All records were fictional in an isolated local database. A loopback-only relay supplied a disposable API key in memory to `/api/v1/mcp`. No external account, model call or message send was involved.
+
+This is a recipe for that exact tested route and syntax, reviewed on 5 November 2026. It is not a new n8n execution on that date. The relay's authentication setup, fixed fixture IDs and schema revision are specific to the test. OAuth, n8n Cloud, schedules, Server Trigger and AI Agent tool selection were not tested.
+
+## How do you assemble the five-call manual workflow?
+
+Create a Manual Trigger followed by five **standalone MCP Client** nodes connected through their normal outputs. Keep the workflow unpublished while validating an internal task in a disposable workspace. The diagram shows the executed sequence, including the deliberate duplicate request:
+
+```text
+Manual Trigger
+  → get_workspace_context
+  → get_record_model
+  → query_crm_records
+  → mutate_crm_record
+  → mutate_crm_record (identical payload and key)
+```
+
+In the retained workflow, each client node used the following parameter shape. This is the historical local relay address, not a public endpoint or an unauthenticated CRM configuration:
+
+```json
+{
+  "serverTransport": "httpStreamable",
+  "endpointUrl": "http://127.0.0.1:4053/mcp",
+  "authentication": "none",
+  "tool": {
+    "__rl": true,
+    "value": "get_workspace_context",
+    "mode": "id"
+  },
+  "inputMode": "json",
+  "jsonInput": {},
+  "options": {
+    "timeout": 60000,
+    "convertToBinary": false
+  }
+}
+```
+
+For each subsequent node, replace `tool.value` and `jsonInput` according to the steps below; retain Streamable HTTP, JSON input and the 60-second timeout. The fixed sequence does not dynamically map discovery results into later nodes.
+
+1. **Confirm the workspace.** Call `get_workspace_context` with `{}`. Check the returned user and workspace before allowing a write.
+2. **Read the schema.** Call `get_record_model` with `{}`. The test harness had resolved the Task and Organization types, primary fields and outgoing relationship before constructing the workflow. The recorded mutation used configuration revision `2`.
+3. **Find the customer.** Call `query_crm_records` with the recorded JSON below. In your own workspace, resolve its IDs afresh and check the result before selecting a customer. The fixture's known record reference was fixed in the next node; this was not an automatic entity-matching test.
+
+```json
+{
+  "typeId": "51d5e8d2-9468-8718-852d-aad6d1964282",
+  "fields": [
+    "b8b511f4-5de8-81ce-887f-880d80b0062c"
+  ],
+  "search": "Example organization",
+  "page": 1,
+  "pageSize": 25
+}
+```
+
+4. **Create the internal task.** Call `mutate_crm_record` with this exact recorded payload. Every UUID is a fixture identifier, including the assigned user. The relationship links the task to the fictional organization; it does not send anything to that organization.
+
+```json
+{
+  "expectedRevision": 2,
+  "idempotencyKey": "seo-run340-n8n-mcp-manual-next-task-v1",
+  "mutation": {
+    "action": "create",
+    "typeId": "0d70aff9-0fa9-8ce2-8e75-8bdddf0fdfd1",
+    "assignedUserIds": [
+      "eed148ca-b816-4db2-acac-186ca6f03043"
+    ],
+    "fields": [
+      {
+        "fieldId": "02960cb0-8976-81b2-82ce-6194a5bc90e3",
+        "value": {
+          "kind": "text",
+          "value": "Fictional n8n manual proof: check the handover field list"
+        }
+      }
+    ],
+    "links": [
+      {
+        "relationId": "2f82adb2-ca57-8190-85ae-230cde69ff06",
+        "direction": "outgoing",
+        "record": {
+          "typeId": "51d5e8d2-9468-8718-852d-aad6d1964282",
+          "recordId": "16d88ab1-a440-4e42-b698-99a284940191"
+        }
+      }
+    ]
+  }
+}
+```
+
+5. **Repeat the identical request.** The final node used the same `mutate_crm_record` arguments, byte-for-byte equivalent JSON and the same idempotency key. A retry for the same business event must retain both payload and key. A changed event or payload needs a new key.
+
+The original test imported workflow ID `seoRun340McpProof` and executed it by ID inside the pinned runtime:
+
+```bash
+n8n import:workflow --input /proof/workflow.json
+n8n execute --id seoRun340McpProof --rawOutput
+```
+
+These commands assume the retained workflow and relay already exist. An earlier `execute --file` attempt returned exit code zero without executing the workflow. The test rejected it because no tool calls had occurred. An exit code or an importable JSON file alone is not evidence of a working connection.
+
+## What result should you verify before adapting it?
+
+The corrected run recorded five actual n8n-originated tool calls: three reads and two identical mutations. Both import and execution exited successfully. Afterward, a separate SDK readback verified task `8f3bd9eb-0696-4505-9c09-e12620648cc1` at version `1`, with the assigned owner and customer relationship intact. The harness also replayed the mutation through the SDK. Readback was outside the five-node workflow.
+
+| Check | Recorded outcome |
+| --- | --- |
+| Real MCP traffic from n8n | Five tool calls |
+| Assigned internal task | Owner read back |
+| Customer relationship | Link read back |
+| Repeated mutation key | Same record, still version 1 |
+| External actions | No sends or model calls |
+
+A separate **5 November 2026** product test at source `111f8a2e33f39975955e8f49d3f7c898fbbd3d05` exercised REST and MCP reads, writes, idempotent replay and a permission refusal. Its MCP client was SDK **1.24.0**, not n8n. It supports those current product observations; it does not update the dated n8n compatibility result.
+
+## How do credentials and production setup differ?
+
+For a direct Customermates connection, use `<BASE_URL>/api/v1/mcp` and an n8n Header Auth credential whose header name is `x-api-key`. Store the key in credentials, never in exported workflow JSON. The [Customermates API-key guide](/docs/api-keys) explains workspace binding and inherited user permissions. Direct Header Auth is documented configuration; the retained n8n run used the relay instead.
+
+Consult the [Customermates MCP contract](/docs/mcp) for current tools and schemas. Replace fixture IDs and revision with values from your workspace, add a check that the customer match is unambiguous, and read back the resulting task. Inspect tool errors as well as workflow status. Do not turn a failed write into a new idempotency key without understanding the outcome.
+
+An external MCP client acts as its connected user. Instructions to ask before sending or deleting are client guidance, not a server-enforced approval gate. Implement your own review boundary for consequential actions. Mate's approval policy is separate; this workflow neither invokes Mate nor proves an approval process.
+
+If your task is a fixed CRM sync, the [Customermates n8n integration guide](/docs/n8n) may be simpler: the separate `@customermates/n8n-nodes-crm` community node v2 uses the generic record API. Its v1 workflows target removed endpoints. REST and webhooks are also options; compare the contracts in [MCP vs API](/blog/mcp-vs-api).
+
+Self-hosted Customermates supplies the Starter CRM core, REST and external MCP access. Hosted Mate and the cloud inbox are not included. Customermates does not include an n8n runtime or subscription, free hosted n8n, or outgoing sequences. If you only need to connect an existing CRM, Customermates is not a required intermediary.
+
+## Frequently asked questions
+
+<Faq>
+<FaqItem question="Is n8n-mcp the same as n8n's native MCP server?">
+No. The named community repository is independently maintained. Native instance-level MCP and the built-in nodes belong to n8n; check the exact package and direction before installing anything.
+</FaqItem>
+<FaqItem question="When do I use MCP Client Tool rather than MCP Server Trigger?">
+Use Client Tool when an n8n AI Agent should call external tools. Use Server Trigger when an external client should call tools exposed by your workflow. For fixed calls without a model, use the standalone MCP Client.
+</FaqItem>
+<FaqItem question="Can one n8n workflow be both a client and a server?">
+The roles can coexist in a design, but they remain separate connections with separate credentials. The executed example here tested only the outbound standalone client path.
+</FaqItem>
+<FaqItem question="Does MCP automatically require approval before every action?">
+No. A protocol connection does not establish your approval policy. Keep permissions, duplicate prevention and human review as explicit parts of the workflow.
+</FaqItem>
+<FaqItem question="Do I need MCP if the Customermates node covers my task?">
+No. A community node or HTTP Request workflow can be enough for known operations. Choose MCP when its tool interface serves your actual task.
+</FaqItem>
+</Faq>
+
+Third-party documentation checked on 5 November 2026 at the official n8n references and community repository linked above. The executed n8n example remains dated 28 October 2026.

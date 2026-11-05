@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Retour au blog
   by: par Benjamin Wagner
   date: 2026-02-07
-  updated: 2026-10-08
+  updated: 2026-11-05
   tags:
     - Stratégie CRM
     - Gestion de la relation client
@@ -82,13 +82,31 @@ Chaque semaine : les affaires ouvertes sans prochaine étape à venir et les co
   </Step>
 </Steps>
 
+## Fiche de stratégie CRM à copier sur une page
+
+Copiez ce tableau dans un document partagé et remplissez la colonne centrale. La colonne de droite est un exemple inventé pour le cabinet de six personnes, pas un résultat promis. Conservez le relevé initial pour reprendre la même définition lors de la revue.
+
+| Décision | Votre réponse | Exemple rempli |
+| --- | --- | --- |
+| Objectif et référence | Indicateur, nombre actuel, cible, date de revue : ___ | Aujourd’hui, 12 affaires ouvertes sur 20 ont un responsable et une prochaine étape datée : 60 %. Cible après quatre semaines : au moins 90 %. |
+| Clients visés | Qui correspond, qui écarter : ___ | Équipes B2B avec un besoin de conseil défini et un décideur identifié ; refuser les demandes hors du domaine de compétence. |
+| Cycle de vie et règle d’entrée | Étapes, preuve requise, suite après la vente : ___ | Proposition signifie périmètre et prix envoyés ; Gagnée signifie accord signé. Puis lancement, réalisation, revue de résultats et renouvellement si pertinent. |
+| Données minimales | Champs utiles à la décision : ___ | Affaire ouverte : responsable, étape, prochaine action et date. Client récurrent : fin de contrat, résultat convenu, responsable du compte. |
+| Responsabilité et passation | Qui agit, qui remplace, quoi transmettre : ___ | Le responsable actualise la prochaine étape après chaque échange ; le responsable de réalisation reprend les objectifs et engagements au lancement. |
+| Canaux et limites | Où lire l’historique, qui y accède, quoi faire vérifier : ___ | Partager les fils clients utiles avec le CRM ; préparer uniquement des brouillons de relance, vérifiés par une personne avant l’envoi. |
+| Revue et décision | Responsable, preuve, règle pour garder ou changer : ___ | Le fondateur vérifie chaque lundi. À quatre semaines, garder le processus si au moins 90 % respectent la règle ; sinon résoudre les absences de responsable ou de date avant d’automatiser. |
+
+**Effectuez la revue.** Comptez toutes les affaires ouvertes au même moment chaque semaine. Divisez le nombre de celles qui ont à la fois un responsable et une prochaine étape datée par le total ; signalez séparément les étapes en retard. S’il n’y a aucune affaire ouverte, indiquez « sans objet » plutôt que 100 %. La cible est illustrative. Fixez la vôtre après le relevé initial et suivez séparément les affaires gagnées ou perdues, pour qu’une simple clôture ne masque pas un mauvais suivi.
+
+Pour la fidélisation, comparez les clients dont le renouvellement était attendu sur la même période et indiquez la taille de ce groupe. Un exemple de référence avec 9 renouvellements sur 10 contrats concernés donne 90 %, sans prouver que le processus a causé ce résultat. Le guide de fidélisation client (voir le calcul de cohorte ci-dessous) détaille le calcul par cohorte et les nouveaux clients à exclure. Aucun téléchargement n’est nécessaire pour utiliser cette fiche.
+
 ## Exemple concret : un cabinet de conseil de six personnes dans Customermates
 
 Ce qui suit est une configuration illustrative, pas un cas client. Un cabinet de conseil avec quatre consultants et deux personnes à la réalisation veut deux choses : moins de propositions qui restent sans réponse, et aucun renouvellement qui arrive par surprise.
 
-**Phases des affaires.** Les étapes ne sont pas prédéfinies. L’équipe ajoute à sa liste d’affaires un champ **Étape** (un champ Choix unique) avec les options Prospection, Qualification, Appel de découverte, Proposition, Négociation, Gagnée et Perdue, et saisit une probabilité de gain par option dans **Probabilité %** sous Configurer pour les affaires. Chaque affaire affiche alors une valeur pondérée : la valeur de l’affaire multipliée par le poids de l’étape. La valeur d’une affaire est la somme de ses lignes, chacune étant un service multiplié par une quantité ; l’équipe ajoute donc ses offres standard comme services. C’est un calcul fixe à partir des pourcentages que vous saisissez, pas une prédiction. Les détails sont dans [la documentation des enregistrements](/docs/app-records).
+**Phases des affaires.** Les listes et champs sont configurables, sans modèle commercial imposé. Pour cet exemple, créez ou adaptez une liste d’affaires avec un champ **Étape** à choix unique : Prospection, Qualification, Appel de découverte, Proposition, Négociation, Gagnée et Perdue. Configurez les probabilités et le calcul de valeur pondérée dont vous avez besoin. Cette valeur correspond au montant de l’affaire multiplié par la probabilité de l’étape, pas à une prédiction. Avec des offres et des lignes, quantité multipliée par prix unitaire donne le montant de ligne ; les lignes peuvent s’additionner en valeur d’affaire. Sans offres, une affaire peut porter un montant saisi manuellement. Les calculs sont modifiables après un aperçu. Consultez [les enregistrements et la configuration des étapes](/docs/app-records) et [les relations et calculs](/docs/concepts).
 
-**Champs personnalisés.** Customermates compte 16 types de champs, dont Date, Montant et Choix unique. L’équipe ajoute :
+**Champs personnalisés.** Customermates propose notamment les champs Date, Montant, Choix unique et Choix multiple. L’équipe ajoute :
 
 | Liste | Champ | Type | Pourquoi |
 | --- | --- | --- | --- |
@@ -110,16 +128,16 @@ Un [graphique du tableau de bord](/features/reporting) montre la valeur pondér�
 
 **Conversations.** La formule Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur dans la [boîte de réception unifiée](/features/unified-inbox), et les canaux comprennent l’e-mail (Gmail, Outlook, IMAP), LinkedIn et WhatsApp. Les participants sont reliés aux contacts. Une conversation reste privée pour la personne dont le compte l’a reçue jusqu’à ce que celle-ci la partage avec l’équipe sous **Paramètres de la conversation** ; les consultants partagent les fils clients pour que l’équipe de réalisation puisse lire l’historique commercial avant le lancement. Starter n’a pas de boîte de réception.
 
-**Deux routines (Customermates Cloud).** Les routines lancent Mate, l’assistant hébergé, avec une consigne enregistrée, selon un planning ou quand un enregistrement change. Elles utilisent les crédits IA hébergés de l’allocation mensuelle du propriétaire.
+**Deux routines (Customermates Cloud).** Les routines lancent Mate, l’assistant hébergé, avec une consigne enregistrée, selon un planning ou quand un enregistrement change. Elles utilisent l’allocation mensuelle de Mate de leur propriétaire.
 
 - Chaque semaine, tous les lundis matin : *« Listez mes affaires ouvertes dont la date de Prochaine étape le est passée ou vide. Pour chacune, résumez la dernière conversation en une phrase et rédigez un brouillon de réponse de relance. N’envoyez rien ; laissez seulement des brouillons. »* La dernière phrase compte : Mate peut envoyer des messages quand on le lui demande, une routine qui ne doit que rédiger doit donc le préciser.
-- Sur un changement : déclencheur **Quand quelque chose change**, évènement **Enregistrement mis à jour** pour les affaires, champ modifié Étape, filtre d’enregistrement Étape est Gagnée. Consigne : *« Crée une tâche “Lancement” liée à cette affaire et à ses contacts, assignée aux utilisateurs assignés de l’affaire, et ajoute un résumé de passation aux notes de l’affaire. »*
+- Sur un changement : déclencheur **Quand quelque chose change**, évènement **Enregistrement mis à jour** pour les affaires, champ modifié Étape, filtre d’enregistrement Étape est Gagnée. Consigne : *« Créez une tâche “Lancement” liée à cette affaire et à ses contacts, assignée aux utilisateurs assignés de l’affaire, et ajoutez un résumé de passation aux notes de l’affaire. »*
 
-Une routine s’exécute au nom de son propriétaire et ne voit que ce que cette personne peut voir. Les limites et les déclencheurs sont documentés sous [Routines](/docs/app-routines).
+Créez les routines en pause pour examiner leur configuration. Essayez d’abord leurs consignes dans un chat Mate normal, sur des fiches fictives. Pour un test planifié, activez la routine puis utilisez **Tester le déclencheur**, qui effectue une véritable exécution. Les routines événementielles n’ont pas ce test : activez la routine, puis modifiez une affaire fictive selon le déclencheur prévu. Vérifiez le résultat et remettez la routine en pause si nécessaire. Une routine utilise les droits d’accès et l’allocation mensuelle de Mate de son propriétaire. L’envoi d’un e-mail ou d’un message de chat ne demande pas d’approbation dans Mate ; exigez explicitement des brouillons lorsqu’une personne doit les vérifier. Les actions qui demandent une approbation dans le chat sont refusées dans les exécutions sans supervision ; les modifications de la base de connaissances deviennent des propositions à examiner. Les changements faits par une routine ne déclenchent pas d’autres routines. Consultez [les déclencheurs et limites des routines](/docs/app-routines) et [les règles d’approbation de Mate](/docs/app-assistant). Documentation produit vérifiée le 5 novembre 2026.
 
 ## La fidélisation et la réussite client font partie du plan
 
-Garder des clients coûte en général moins cher que d’en gagner de nouveaux. Dans un article de la Harvard Business Review de 2014, Amy Gallo écrivait qu’acquérir un nouveau client coûte de cinq à 25 fois plus cher que d’en fidéliser un, et citait une étude de Bain & Company de Frederick Reichheld selon laquelle une hausse de 5 % de la fidélisation augmente les bénéfices de 25 % à 95 % ([HBR](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers)). Le ratio exact dépend de votre activité. C’est la tendance qui explique pourquoi le cycle de vie de l’étape 3 ne s’arrête pas à Gagnée.
+La fidélisation fait partie de la stratégie : une affaire signée demande encore une réalisation, une revue des résultats et, si nécessaire, une décision de renouvellement. Mesurez vos propres cohortes et coûts de suivi avant de répartir le temps consacré aux comptes.
 
 Pour une petite équipe, la gestion de la réussite client n’est pas un service. C’est une suite d’étapes que mène le responsable du compte :
 
@@ -142,7 +160,41 @@ Les chiffres à revoir :
 | Taux de gain | Affaires gagnées divisées par les affaires gagnées plus perdues pendant la période | Trimestrielle |
 | Hygiène du pipeline | Part des affaires ouvertes dont la date de prochaine étape est dans le futur | Hebdomadaire |
 
-Les cinq premiers mesurent des résultats. Le dernier mesure si les données du CRM sont fiables, et s’il baisse, les autres chiffres deviennent de la fiction.
+Les cinq premiers mesurent des résultats. Le dernier mesure si les données du CRM sont fiables, et une baisse invite à vérifier les données manquantes avant d’interpréter les résultats.
+
+## Comment calculer le taux de rétention client ?
+
+La mesure directe est **clients conservés parmi ceux du début ÷ clients présents au début × 100**. [IBM présente aussi la formule de rétention](https://www.ibm.com/think/topics/customer-retention) **(clients en fin de période − nouveaux clients) ÷ clients en début de période × 100**. Source en anglais, vérifiée le 5 novembre 2026.
+
+Cette formule raccourcie suppose de soustraire les nouveaux clients encore présents dans le total final et de traiter les retours d’anciens clients de façon cohérente. Si vous disposez des fiches individuelles, suivez directement le groupe initial.
+
+**Exemple fictif, sans données de clients Customermates :** une agence compte les entreprises ayant une prestation payante en cours au 1er juillet et au 30 septembre 2026. Hypothèses : une entreprise compte une fois, les huit nouveaux clients sont toujours présents à la fin, aucun ancien client ne revient et toutes les données nécessaires sont disponibles.
+
+| Mouvement du trimestre | Clients |
+| --- | ---: |
+| Clients actifs au 1er juillet | 40 |
+| Clients de ce groupe encore actifs au 30 septembre | 34 |
+| Clients du groupe initial sans prestation en cours à la fin | 6 |
+| Nouveaux clients encore actifs à la fin | 8 |
+| Total des clients actifs au 30 septembre | 42 |
+
+Le taux de rétention est **34 ÷ 40 × 100 = 85 %**. La formule raccourcie donne **(42 − 8) ÷ 40 × 100 = 85 %**. Le taux d’attrition du groupe initial est **6 ÷ 40 × 100 = 15 %**. Le portefeuille gagne deux clients au total, mais six relations initiales se terminent.
+
+Ce calcul compte des clients, pas du chiffre d’affaires. Le départ d’un grand compte pèse autant que celui d’un petit client dans cette mesure. Examinez séparément le chiffre d’affaires du même groupe initial à partir de vos données de facturation.
+
+### Que révèle une analyse par cohorte ?
+
+Une cohorte regroupe ici les clients selon la date de leur premier achat. Partageons le groupe initial fictif en deux, en gardant la même date de fin d’observation.
+
+| Premier achat des clients du groupe initial | Clients au début | Conservés au 30 septembre | Rétention |
+| --- | ---: | ---: | ---: |
+| Avant avril 2026 | 24 | 22 | 91,7 % |
+| D’avril à juin 2026 | 16 | 12 | 75 % |
+| Ensemble | 40 | 34 | 85 % |
+
+Quatre des seize clients les plus récents sont partis. Il est utile de relire leurs bilans et leurs motifs de départ pour chercher un problème d’accompagnement initial. L’écart ne prouve pas que cet accompagnement est la cause. Ne faites pas non plus la moyenne simple des deux taux : les groupes n’ont pas la même taille.
+
+Pour des missions ponctuelles, mesurez éventuellement le réachat : premiers clients ayant passé une deuxième commande sous 180 jours, divisés par les premiers clients dont les 180 jours sont entièrement observables. Ce délai est une hypothèse d’exemple, à adapter au cycle d’achat. Isolez les clients trop récents et les données manquantes au lieu de les compter comme perdus.
 
 ## Les pratiques qui font vivre une stratégie CRM
 

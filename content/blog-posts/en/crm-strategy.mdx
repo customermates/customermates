@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-02-07
-  updated: 2026-10-08
+  updated: 2026-11-05
   tags:
     - CRM Strategy
     - Customer Management
@@ -31,7 +31,7 @@ A CRM strategy is a short written plan that settles which customers you want to 
 
 The software comes after those decisions. A CRM can store a stage, a date and an owner; it cannot decide for you what "qualified" means or when a renewal conversation starts.
 
-Customermates publishes this guide, and the worked example below is set up in Customermates. The seven decisions work in any CRM.
+Customermates publishes this guide, and the worked example below is set up in Customermates. The seven decisions form a CRM strategy framework you can use in any CRM.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Definition">A plan for how your team wins, serves and keeps customers, and how the CRM records each step. Strategy first, configuration second.</SummaryItem>
@@ -82,13 +82,31 @@ Weekly: open deals without a future next step, and accounts rated red. Quarterly
   </Step>
 </Steps>
 
+## Copyable one-page CRM strategy worksheet
+
+Copy this table into a shared document and fill in the middle column. The right column is an invented example for the six-person consultancy, not a promised result. Keep the baseline snapshot so you can compare the same definition at review time.
+
+| Decision | Your team's answer | Filled example |
+| --- | --- | --- |
+| Goal and baseline | Metric, current count, target, review date: ___ | Today 12 of 20 open deals have a named owner and dated next step: 60%. Target at least 90% in four weeks. |
+| Target customers | Who qualifies, and who does not: ___ | B2B teams buying a consulting project with an agreed problem and decision-maker; decline inquiries outside the team's expertise. |
+| Lifecycle and entry rule | Stages, evidence required, post-sale steps: ___ | Proposal means scope and price sent; Won means agreement signed. After Won: kickoff, delivery, value review, renewal where relevant. |
+| Minimum data | Fields required for the decision: ___ | Open deal: owner, stage, next step and date. Recurring client: contract end date, agreed outcome, account owner. |
+| Ownership and handover | Who acts, who covers absence, what is handed over: ___ | Deal owner updates the next step after each interaction; delivery owner accepts the goals and commitments at kickoff. |
+| Channels and boundaries | Where history lives, who may see it, what needs review: ___ | Share relevant client threads with the CRM; prepare follow-up drafts only, with a person reviewing before sending. |
+| Review and decision | Reviewer, evidence, keep/change rule: ___ | Founder reviews every Monday. At week four, keep the workflow if at least 90% meet the rule; otherwise identify missing owners or dates before adding automation. |
+
+**Run the review.** Count all open deals at the same weekly cutoff. Divide those with both an owner and a dated next step by all open deals; report overdue steps separately. If there are no open deals, report “not applicable” rather than 100%. The target is illustrative. Pick your own after measuring the baseline, and track won/lost outcomes separately so closing records cannot disguise poor follow-up.
+
+For retention, compare clients eligible to renew over the same period and state the cohort size. An illustrative baseline of 9 renewals from 10 eligible clients is 90%, not evidence that a workflow caused better retention. The worked cohort calculation below shows which new customers to exclude. No download is needed to use this worksheet.
+
 ## Worked example: a six-person consultancy in Customermates
 
 The following is an illustrative setup, not a customer case. A consultancy with four consultants and two people in delivery wants two things: fewer proposals that go quiet, and no renewal that arrives as a surprise.
 
-**Deal phases.** Stages are not preset. The team adds a **Stage** field (a Single choice field) to its deals list with the options Prospecting, Qualification, Discovery call, Proposal, Negotiation, Won and Lost, and enters a win probability per option as **Probability %** in Configure for Deals. Each deal then shows a weighted value: deal value times the stage weight. A deal's value is the sum of its line items, each a service times quantity, so the team adds its standard offers as services. That is a fixed calculation from the percentages you enter, not a prediction. Details are in [the records documentation](/docs/app-records).
+**Deal phases.** Lists and fields are configurable, not a fixed sales template. For this example, create or adapt a deals list with a **Stage** Single choice field: Prospecting, Qualification, Discovery call, Proposal, Negotiation, Won and Lost. Configure the probabilities and weighted-value calculation you need. A configured weighted value is deal value multiplied by the chosen stage probability, not a prediction. With offerings and line items, quantity times unit price produces a line amount and the lines can sum to deal value; without offerings, a deal can hold a manual money value. Calculations can be changed after a preview. See [records and stage configuration](/docs/app-records) and [relationships and calculations](/docs/concepts).
 
-**Custom fields.** Customermates has 16 field types, among them Date, Money and Single choice. The team adds:
+**Custom fields.** Customermates supports Date, Money, Single choice and Multiple choice fields, among others. The team adds:
 
 | List | Field | Type | Why |
 | --- | --- | --- | --- |
@@ -110,16 +128,16 @@ A [dashboard chart](/features/reporting) shows weighted deal value grouped by St
 
 **Conversations.** The Pro plan includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user in the [unified inbox](/features/unified-inbox), and channels include email (Gmail, Outlook, IMAP), LinkedIn and WhatsApp. Participants are linked to contacts. A conversation stays private to the person whose account it came through until that person shares it with the team under **Thread settings**; the consultants share client threads so the delivery team can read the sales history before kickoff. Starter has no inbox.
 
-**Two routines (Customermates Cloud).** Routines run Mate, the hosted assistant, with a saved instruction on a schedule or when a record changes. They use hosted AI credits from the owner's monthly allowance.
+**Two routines (Customermates Cloud).** Routines run Mate, the hosted assistant, with a saved instruction on a schedule or when a record changes. They use the owner's monthly Mate allowance.
 
 - Weekly, every Monday morning: *"List my open deals whose Next step on date has passed or is empty. For each, summarize the last conversation in one sentence and draft a follow-up reply. Do not send anything; leave drafts only."* The last sentence matters: Mate can send messages when asked, so a routine that should only draft has to say so.
 - On a change: trigger **When something changes**, event **Record updated** for Deals, changed field Stage, record filter Stage is Won. Instruction: *"Create a task 'Kickoff' linked to this deal and its contacts, assigned to the deal's assigned users, and add a handover summary to the deal notes."*
 
-A routine runs as its owner and sees only what that person can see. Limits and triggers are documented under [Routines](/docs/app-routines).
+Create the routines paused while reviewing their configuration. Try their instructions in a normal Mate chat on fictional records first. For a scheduled test, enable the routine and use **Test trigger**, which performs a real run. Event routines have no Test trigger: enable the routine, then make a matching change on a fictional sample deal. Inspect the results and pause the routine again if needed. A routine runs with its owner's access and monthly Mate allowance. Sending an email or chat message does not require Mate approval; ask explicitly for drafts when a person must review them. Actions that require approval in chat are declined in unattended runs, while Knowledge Base changes become review proposals. Changes made by a routine do not trigger other routines. See [routine triggers and limits](/docs/app-routines) and [Mate's approval policy](/docs/app-assistant). Product documentation checked on 5 November 2026.
 
 ## Retention and customer success belong in the plan
 
-Keeping clients is usually cheaper than winning new ones. In a 2014 Harvard Business Review article, Amy Gallo wrote that acquiring a new customer is five to 25 times more expensive than retaining one, and cited Bain & Company research by Frederick Reichheld that a 5% rise in retention raises profits by 25% to 95% ([HBR](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers)). The exact ratio depends on your business. The direction is why the lifecycle in step 3 does not end at Won.
+Retention belongs in the strategy because a signed deal still needs delivery, a value review and, where relevant, a renewal decision. Measure your own client cohorts and delivery costs before deciding where to invest account time.
 
 For a small team, customer success management is not a department. It is a series of steps the account owner runs:
 
@@ -142,7 +160,41 @@ The numbers to review:
 | Win rate | Won deals divided by won plus lost deals in the period | Quarterly |
 | Pipeline hygiene | Share of open deals with a next step date in the future | Weekly |
 
-The first five measure results. The last one measures whether the CRM data can be trusted, and if it drops, the other numbers become fiction.
+The first five measure results. The last one measures whether the CRM data can be trusted, and a decline is a reason to check missing data before interpreting results.
+
+## How do you calculate customer retention rate correctly?
+
+Use **retained clients from the opening group ÷ clients in that opening group × 100**. [IBM's retention overview](https://www.ibm.com/think/topics/customer-retention) also presents the familiar formula **(clients at the end − new clients) ÷ clients at the start × 100**. Checked on 5 November 2026.
+
+The shortcut works only when “new” means new clients still included in the closing count, and returning former clients are handled consistently. With client-level records, follow the opening group directly to avoid mixing new business into retention.
+
+**Synthetic worked example, not Customermates customer data:** a fictional agency measures organizations with an active paid service engagement on 1 July and 30 September 2026. Assume each organization counts once, eight new clients all remain at quarter end, no former clients reactivate and no records are missing.
+
+| Quarter movement | Clients |
+| --- | ---: |
+| Active clients at 1 July | 40 |
+| Opening clients still active at 30 September | 34 |
+| Opening clients no longer active | 6 |
+| New clients acquired and still active | 8 |
+| Total active clients at 30 September | 42 |
+
+Retention is **34 ÷ 40 × 100 = 85%**. The shortcut gives **(42 − 8) ÷ 40 × 100 = 85%**. Loss from the opening group is **6 ÷ 40 × 100 = 15%**. The total grew by two clients, but six original relationships ended.
+
+This counts clients, not revenue. A large client and a small client each count once. Examine revenue from the same opening group separately using your billing records; do not infer it from this percentage.
+
+### How does a cohort calculation reveal more?
+
+Split that opening group by when each client first bought. Keep the dates fixed and calculate each group's result separately.
+
+| First-purchase cohort within the opening group | Opening clients | Retained at 30 September | Retention |
+| --- | ---: | ---: | ---: |
+| Before April 2026 | 24 | 22 | 91.7% |
+| April to June 2026 | 16 | 12 | 75% |
+| Combined | 40 | 34 | 85% |
+
+These synthetic figures suggest reviewing the four departures among newer clients for onboarding problems. They do not prove onboarding caused the difference. Check the actual reasons and service mix. Do not average 91.7% and 75%: the cohorts have different sizes.
+
+For project businesses, a second measure may be more useful: first-time buyers who place a second order within 180 days, divided by first-time buyers with a full 180-day observation window. That window is an example assumption, not a standard. Exclude recent buyers whose window has not finished, and report missing evidence separately.
 
 ## Practices that keep a CRM strategy alive
 

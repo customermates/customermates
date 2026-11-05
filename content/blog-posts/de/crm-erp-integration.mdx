@@ -32,6 +32,10 @@ Für kleine Teams ist ein einzelner Datenfluss in eine Richtung der richtige Anf
 
 Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM. Customermates ist ausschließlich ein CRM, ohne ERP-Funktionen und ohne fertigen ERP-Connector; der Abschnitt dazu unten zeigt die Anbindung über REST-API und Webhooks. Die Angaben zu den ERP-Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft, die Links stehen am Ende.
 
+Für eine feste Integration und einen KI-Client zeigt der [Vergleich MCP vs API am selben Kundendatensatz](/blog/mcp-vs-api), wie sich die Wahl auswirkt. Die Werkzeugerkennung verändert, wie der Client einen Aufruf findet. Anmeldung und Berechtigungen gelten weiterhin.
+
+Für einen n8n-Ablauf unterscheidet der [Vergleich der n8n-MCP-Verbindungen mit versionsgebundenem Beispiel](/blog/n8n-mcp) zwei Richtungen: n8n greift auf einen Server mit Kundendaten zu, oder ein KI-Client greift auf n8n zu. Entscheiden Sie sich für eine Richtung, bevor Sie Zugangsdaten konfigurieren.
+
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Was fließt">Nummern und wenige Status pro Geschäftsereignis. Nicht jedes Feld und nicht von vornherein in beide Richtungen.</SummaryItem>
   <SummaryItem label="Wege">Fertiger Connector, Automatisierungsplattform (iPaaS oder n8n), direkte API-Anbindung oder Middleware. Oder eine Komplettlösung, deren ERP ein CRM-Modul mitbringt.</SummaryItem>
