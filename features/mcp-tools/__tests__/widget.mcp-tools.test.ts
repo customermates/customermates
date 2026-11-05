@@ -4,7 +4,7 @@ import type * as RecordWidgetModule from "@/features/widget/record-widget.schema
 import type * as RecordCalendarWidgetModule from "@/features/widget/record-calendar-widget.schema";
 import type * as RecordMapWidgetModule from "@/features/widget/record-map-widget.schema";
 import type * as SaveWidgetModule from "@/features/widget/save-widget.interactor";
-import type { ZodType } from "zod";
+import { z, type ZodType } from "zod";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
@@ -341,7 +341,15 @@ describe("manage_widgets create", () => {
       "Validation error:",
     );
     expect(
-      await run({ action: "update", id: WIDGET_ID, name: "Renamed", window: { from: "2026-10-01", to: "2026-10-02" } }),
+      await run({
+        action: "update",
+        id: WIDGET_ID,
+        name: "Renamed",
+        expectedRevision: 3,
+        expectedVersion: 1,
+        idempotencyKey: "rename-window-test",
+        window: { from: "2026-10-01", to: "2026-10-02" },
+      }),
     ).toContain("window");
   });
 
@@ -412,6 +420,50 @@ describe("manage_widgets create", () => {
 });
 
 describe("manage_widgets update", () => {
+  it.each([
+    {
+      action: "create",
+      name: "Deals",
+      measure: chartCreate.measure,
+      displayOptions: chartCreate.displayOptions,
+    },
+    { action: "update", id: WIDGET_ID, expectedVersion: 1, name: "Renamed" },
+  ])("rejects missing $action guards with read guidance before looking up or saving a widget", async (input) => {
+    spies.getWidgetById.mockResolvedValue({ ok: true, data: chartWidget() });
+
+    const parsed = manageWidgetsTool.inputSchema.safeParse(input);
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error("Expected missing write guards to be rejected");
+    expect(parsed.error.issues.map((issue) => issue.path)).toEqual([["expectedRevision"], ["idempotencyKey"]]);
+
+    const result = await run(input);
+    expect(result).toContain("expectedRevision is required for create and update");
+    expect(result).toContain("get_record_model");
+    expect(result).toContain("idempotencyKey is required for create and update");
+    expect(spies.getWidgetById).not.toHaveBeenCalled();
+    expect(spies.upsertRecordWidget).not.toHaveBeenCalled();
+    expect(spies.upsertRecordActivityWidget).not.toHaveBeenCalled();
+    expect(spies.upsertRecordCalendarWidget).not.toHaveBeenCalled();
+    expect(spies.upsertRecordMapWidget).not.toHaveBeenCalled();
+  });
+
+  it("requires the saved version on update before looking up the widget", async () => {
+    spies.getWidgetById.mockResolvedValue({ ok: true, data: chartWidget() });
+
+    const result = await run({
+      action: "update",
+      id: WIDGET_ID,
+      name: "Renamed",
+      expectedRevision: 3,
+      idempotencyKey: "update-retry-key",
+    });
+
+    expect(result).toContain("expectedVersion is required for update");
+    expect(result).toContain("get or list");
+    expect(spies.getWidgetById).not.toHaveBeenCalled();
+    expect(spies.upsertRecordWidget).not.toHaveBeenCalled();
+  });
+
   it("forwards only the changed chart fields and the caller's concurrency preconditions to the stored kind", async () => {
     const stored = chartWidget();
     spies.getWidgetById.mockResolvedValue({ ok: true, data: stored });
@@ -599,6 +651,25 @@ describe("manage_widgets read and delete", () => {
 });
 
 describe("manage_widgets description", () => {
+  it("advertises action-dependent guards while leaving list, get and delete free of write guards", () => {
+    const schema = z.toJSONSchema(manageWidgetsTool.inputSchema, {
+      io: "input",
+    });
+    expect(schema.required).toEqual(["action"]);
+    expect(schema.properties?.action).toMatchObject({
+      description: expect.stringContaining("update: id, expectedVersion, expectedRevision, idempotencyKey"),
+    });
+    expect(schema.properties?.expectedRevision).toMatchObject({
+      description: expect.stringContaining("get_record_model"),
+    });
+    expect(schema.properties?.expectedVersion).toMatchObject({ description: expect.stringContaining("get or list") });
+    expect(schema.properties?.idempotencyKey).toMatchObject({
+      description: expect.stringContaining("create and update"),
+    });
+    for (const input of [{ action: "list" }, { action: "get", ids: [WIDGET_ID] }, { action: "delete", id: WIDGET_ID }])
+      expect(manageWidgetsTool.inputSchema.safeParse(input).success).toBe(true);
+  });
+
   it("keeps widgets for widget requests and sends data questions to the record query tools", () => {
     expect(manageWidgetsTool.description).toContain(
       "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead.",

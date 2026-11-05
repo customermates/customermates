@@ -24,7 +24,11 @@ import {
 
 const ManageWidgetsSchema = z
   .object({
-    action: z.enum(["create", "update", "delete", "get", "list"]),
+    action: z
+      .enum(["create", "update", "delete", "get", "list"])
+      .describe(
+        "create: name, expectedRevision, idempotencyKey; update: id, expectedVersion, expectedRevision, idempotencyKey; get: ids; delete: id. list requires no other fields. Create also requires the chosen kind's configuration.",
+      ),
     kind: z
       .enum(WidgetKind)
       .optional()
@@ -39,19 +43,21 @@ const ManageWidgetsSchema = z
       .int()
       .nonnegative()
       .optional()
-      .describe("Widget writes require the discovered configuration revision."),
+      .describe("Required for create and update: the configuration revision returned by get_record_model."),
     expectedVersion: z
       .number()
       .int()
       .positive()
       .optional()
-      .describe("Widget updates require the saved widget version."),
+      .describe("Required for update: the saved widget version returned by get or list. Omit on create."),
     idempotencyKey: z
       .string()
       .min(8)
       .max(200)
       .optional()
-      .describe("Widget writes require a stable retry key. Use a new key for a different change."),
+      .describe(
+        "Required for create and update: a stable retry key. Reuse it for the same request; use a new key for a different change.",
+      ),
     measure: RecordMeasureSchema.optional().describe(
       "Count or aggregate records at source.typeId. Field and relationship references are stable IDs. Group paths and assignee groups use full attribution; the separate overall total counts each source record once. groupBy.dateInterval buckets a date grouping into calendar periods for time series.",
     ),
@@ -82,7 +88,33 @@ const ManageWidgetsSchema = z
         "Dashboard view (manage_data_views surfaceKey dashboard) that holds the widget, or null for the main dashboard. Omit it to use the caller's current dashboard view on create or to keep the widget's view on update.",
       ),
   })
-  .strict();
+  .strict()
+  .superRefine((params, ctx) => {
+    if (params.action !== "create" && params.action !== "update") return;
+    if (params.expectedRevision === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["expectedRevision"],
+        message:
+          "expectedRevision is required for create and update; read the configuration revision from get_record_model.",
+      });
+    }
+    if (params.idempotencyKey === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["idempotencyKey"],
+        message:
+          "idempotencyKey is required for create and update; choose a stable key for this request and reuse it only for the same request.",
+      });
+    }
+    if (params.action === "update" && params.expectedVersion === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["expectedVersion"],
+        message: "expectedVersion is required for update; read the saved widget version with get or list.",
+      });
+    }
+  });
 
 export const manageWidgetsTool = {
   name: "manage_widgets",
