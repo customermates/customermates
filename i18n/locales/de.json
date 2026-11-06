@@ -2290,13 +2290,13 @@
         "chip": "Öffentlicher Link aktiv",
         "copied": "Kopiert",
         "copy": "Kopieren",
-        "description": "Jede Person mit dem Link sieht die Diagramme dieses Dashboards, ohne sich anzumelden.",
+        "description": "Jede Person mit dem Link sieht die Diagramme dieses Dashboards und die Datensätze dahinter, ohne sich anzumelden.",
         "expiresLabel": "Letzter Tag, an dem der Link funktioniert",
         "expiryCleared": "Enddatum entfernt",
         "expirySet": "Enddatum gespeichert",
         "linkLabel": "Öffentlicher Link",
         "noExpiry": "Kein Enddatum",
-        "onlyCharts": "Zeigt nur Diagramme und Zahlen, berechnet mit deinem Zugriff",
+        "onlyCharts": "Zeigt die Diagramme und per Klick die Datensätze dahinter, nur lesend und mit deinem Zugriff",
         "opened": "{count, plural, =0 {Noch nicht geöffnet} one {Einmal geöffnet} other {# Mal geöffnet}}",
         "permissionDenied": "Deine Rolle darf keine Dashboards veröffentlichen. Frag eine Administratorin oder einen Administrator.",
         "published": "Öffentlicher Link erstellt",
@@ -3637,12 +3637,7 @@
     "unavailableTitle": "Link nicht verfügbar",
     "upsell": {
       "badge": "Erstellt mit Customermates",
-      "body": "Customermates hält deine Kontakte, Deals und Gespräche in einem CRM zusammen, mit Dashboards, die dein Team, deine Kunden und Investoren live verfolgen können.",
-      "eyebrow": "Erstellt mit Customermates",
-      "headerCta": "Customermates kostenlos testen",
-      "primary": "Kostenlos testen",
-      "secondary": "So funktioniert's",
-      "title": "Erstelle Live-Dashboards wie dieses aus deinen eigenen Daten"
+      "badgeHover": "· Erstelle dein eigenes Dashboard, kostenlos"
     }
   },
   "RecordActivityWidgets": {

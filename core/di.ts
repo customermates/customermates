@@ -2603,6 +2603,8 @@ export const getReadCalendarSubscriptionInteractor = () =>
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 import { ReadPublicLinkInteractor } from "@/features/public-link/read-public-link.interactor";
+import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
+import { PublicLinkAccess } from "@/features/public-link/public-link-access";
 import { PublicLinkRateLimiter } from "@/features/public-link/public-link-rate-limiter";
 import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
 import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
@@ -2616,18 +2618,32 @@ export const getManagePublicLinkInteractor = () =>
     authSecret: env.BETTER_AUTH_SECRET,
   });
 
-let readPublicLinkInteractor: ReadPublicLinkInteractor | undefined;
-export const getReadPublicLinkInteractor = () =>
-  (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
-    getPublicLinkRepo(),
+let publicLinkAccess: PublicLinkAccess | undefined;
+const getPublicLinkAccess = () =>
+  (publicLinkAccess ??= new PublicLinkAccess(
     getPublicLinkRepo(),
     new PublicLinkTenant(getUserService()),
     { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
     new PublicLinkRateLimiter(120, 60_000),
     new PublicLinkRateLimiter(60, 60_000),
     { authSecret: env.BETTER_AUTH_SECRET },
-    { invoke: () => getGetRecordNavigationInteractor().invoke() },
   ));
+
+let readPublicLinkInteractor: ReadPublicLinkInteractor | undefined;
+export const getReadPublicLinkInteractor = () =>
+  (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
+    getPublicLinkAccess(),
+    getPublicLinkRepo(),
+    {},
+    {
+      invoke: () => getGetRecordNavigationInteractor().invoke(),
+    },
+  ));
+
+export const getReadPublicWidgetRecordsInteractor = () =>
+  new ReadPublicWidgetRecordsInteractor(getPublicLinkAccess(), {
+    invoke: (input) => getGetRecordPresentationInteractor().invoke(input),
+  });
 
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
 export const getSetPublicLinksAllowedInteractor = () => new SetPublicLinksAllowedInteractor(getCompanyRepo());

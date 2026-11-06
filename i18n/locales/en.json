@@ -2290,13 +2290,13 @@
         "chip": "Public link on",
         "copied": "Copied",
         "copy": "Copy",
-        "description": "Anyone with the link can view this dashboard's charts, without signing in.",
+        "description": "Anyone with the link can view this dashboard's charts and the records behind them, without signing in.",
         "expiresLabel": "Last day the link opens",
         "expiryCleared": "End date removed",
         "expirySet": "End date saved",
         "linkLabel": "Public link",
         "noExpiry": "No end date",
-        "onlyCharts": "Shows the charts and numbers only, calculated with your access",
+        "onlyCharts": "Shows the charts and, on click, the records behind them, read-only and with your access",
         "opened": "{count, plural, =0 {Not opened yet} one {Opened once} other {Opened # times}}",
         "permissionDenied": "Your role may not publish dashboards. Ask an administrator.",
         "published": "Public link created",
@@ -3637,12 +3637,7 @@
     "unavailableTitle": "Link not available",
     "upsell": {
       "badge": "Made with Customermates",
-      "body": "Customermates keeps your contacts, deals and conversations in one CRM, with dashboards your team, clients and investors can follow live.",
-      "eyebrow": "Made with Customermates",
-      "headerCta": "Try Customermates free",
-      "primary": "Start your free trial",
-      "secondary": "See how it works",
-      "title": "Build live dashboards like this from your own data"
+      "badgeHover": "· Create your own dashboard, free"
     }
   },
   "RecordActivityWidgets": {

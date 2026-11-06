@@ -2,19 +2,27 @@
 
 import type { CSSProperties } from "react";
 import type { PublicDashboard } from "@/features/public-link/public-link.schema";
+import type { PublicWidgetSelection } from "./public-widget-drawer";
 
 import Image from "next/image";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
-import { Button } from "@/components/ui/button";
+import { ErrorPageView } from "@/components/shared/error-page-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
-import { ErrorPageView } from "@/components/shared/error-page-view";
 import { WIDGET_GRID_MARGIN, WIDGET_GRID_ROW_HEIGHT } from "@/features/widget/widget-grid";
 import { RecordWidgetChart } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-widget-chart";
+import {
+  isInteractiveTarget,
+  isWidgetOpeningClick,
+} from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-interaction";
+
+import { PublicWidgetDrawer } from "./public-widget-drawer";
 
 const HOME_URL = "https://customermates.com";
+const UTM = "utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link";
 
 function placement(widget: PublicDashboard["widgets"][number], index: number): CSSProperties {
   const large = widget.layout?.lg;
@@ -27,75 +35,50 @@ function placement(widget: PublicDashboard["widgets"][number], index: number): C
   } as CSSProperties;
 }
 
-const SIGNUP_QUERY = "utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link";
-
 function Logo({ className }: { className: string }) {
   return (
     <>
       <Image
         alt=""
         className={cn(className, "dark:hidden")}
-        height={24}
+        height={16}
         src="/images/light/customermates-square.svg"
-        width={24}
+        width={16}
       />
 
       <Image
         alt=""
         className={cn(className, "hidden dark:block")}
-        height={24}
+        height={16}
         src="/images/dark/customermates-square.svg"
-        width={24}
+        width={16}
       />
     </>
   );
 }
 
-export function PublicDashboardView({ dashboard }: { dashboard: PublicDashboard }) {
+export function PublicDashboardView({ dashboard, token }: { dashboard: PublicDashboard; token: string }) {
   const t = useTranslations();
   const { appMode } = useRootStore();
   const upsell = appMode === "cloud";
-  const signup = `/auth/signup?${SIGNUP_QUERY}&utm_content=`;
+  const [selection, setSelection] = useState<PublicWidgetSelection | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const pointer = useRef<{ x: number; y: number; interactive: boolean } | null>(null);
+  const inspect = (
+    index: number,
+    group: PublicWidgetSelection["group"],
+    label: string | null,
+    opener: HTMLElement | null,
+  ) => {
+    const widget = dashboard.widgets[index];
+    if (!widget || widget.status !== "ready") return;
+    setSelection({ widget: index, widgetName: widget.name, group, label, opener });
+    setDrawerOpen(true);
+  };
 
   return (
     <div className="min-h-full w-full bg-background" id="public-dashboard">
-      <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-3 px-4 md:px-8">
-          <a
-            aria-label={t("PublicLink.toHome")}
-            className="flex min-w-0 items-center gap-2 text-sm font-semibold"
-            href={upsell ? `${HOME_URL}/?${SIGNUP_QUERY}&utm_content=header` : HOME_URL}
-            id="public-dashboard-logo"
-            rel="noopener"
-          >
-            <Logo className="size-6 shrink-0 rounded-md" />
-
-            <Image
-              alt=""
-              className="h-4 w-auto dark:hidden"
-              height={23}
-              src="/images/light/customermates.svg"
-              width={229}
-            />
-
-            <Image
-              alt=""
-              className="hidden h-4 w-auto dark:block"
-              height={23}
-              src="/images/dark/customermates.svg"
-              width={229}
-            />
-          </a>
-
-          {upsell ? (
-            <Button asChild id="public-dashboard-cta-header" size="sm">
-              <a href={`${signup}header`}>{t("PublicLink.upsell.headerCta")}</a>
-            </Button>
-          ) : null}
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-5 px-4 py-6 md:px-8 md:py-8">
+      <main className="mx-auto flex w-full max-w-[1600px] flex-col gap-5 px-4 py-6 md:px-8 md:py-10">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="text-2xl font-semibold tracking-tight" id="public-dashboard-title">
@@ -132,18 +115,59 @@ export function PublicDashboardView({ dashboard }: { dashboard: PublicDashboard 
                 data-public-widget=""
                 style={placement(widget, index)}
               >
-                <AppCard className="h-full overflow-visible">
-                  <RecordWidgetChart
-                    data={widget.data}
-                    decimalPlaces={widget.decimalPlaces}
-                    displayOptions={widget.displayOptions}
-                    groupOptions={widget.groupOptions}
-                    listLabels={widget.listLabels}
-                    measure={widget.measure}
-                    name={widget.name}
-                    status={widget.status}
+                <div
+                  className="relative h-full cursor-pointer"
+                  onPointerDown={(event) => {
+                    pointer.current =
+                      event.button === 0
+                        ? { x: event.clientX, y: event.clientY, interactive: isInteractiveTarget(event.target) }
+                        : null;
+                  }}
+                  onPointerUp={(event) => {
+                    const start = pointer.current;
+                    pointer.current = null;
+                    if (
+                      start &&
+                      isWidgetOpeningClick({
+                        startX: start.x,
+                        startY: start.y,
+                        endX: event.clientX,
+                        endY: event.clientY,
+                        startedOnInteractive: start.interactive,
+                      })
+                    )
+                      inspect(index, null, null, event.currentTarget.querySelector("button"));
+                  }}
+                >
+                  <button
+                    aria-label={t("RecordWidgets.dataTitle", { name: widget.name })}
+                    className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+                    data-public-widget-open=""
+                    type="button"
+                    onClick={(event) => inspect(index, null, null, event.currentTarget)}
                   />
-                </AppCard>
+
+                  <AppCard className="h-full overflow-visible">
+                    <RecordWidgetChart
+                      data={widget.data}
+                      decimalPlaces={widget.decimalPlaces}
+                      displayOptions={widget.displayOptions}
+                      groupOptions={widget.groupOptions}
+                      listLabels={widget.listLabels}
+                      measure={widget.measure}
+                      name={widget.name}
+                      status={widget.status}
+                      onInspectGroup={(group, label) =>
+                        inspect(
+                          index,
+                          group,
+                          label,
+                          document.activeElement instanceof HTMLElement ? document.activeElement : null,
+                        )
+                      }
+                    />
+                  </AppCard>
+                </div>
               </div>
             ))}
           </div>
@@ -155,69 +179,46 @@ export function PublicDashboardView({ dashboard }: { dashboard: PublicDashboard 
           </p>
         ) : null}
 
-        {upsell ? (
-          <section
-            aria-labelledby="public-dashboard-upsell-title"
-            className="mt-4 overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-6 md:p-8"
-            id="public-dashboard-upsell"
-          >
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="flex max-w-2xl flex-col gap-2">
-                <span className="flex items-center gap-2 text-xs font-medium text-primary-soft-foreground">
-                  <Logo className="size-5 rounded" />
-
-                  {t("PublicLink.upsell.eyebrow")}
-                </span>
-
-                <h2 className="text-xl font-semibold tracking-tight md:text-2xl" id="public-dashboard-upsell-title">
-                  {t("PublicLink.upsell.title")}
-                </h2>
-
-                <p className="text-sm text-muted-foreground md:text-base">{t("PublicLink.upsell.body")}</p>
-              </div>
-
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Button asChild id="public-dashboard-cta" size="lg">
-                  <a href={`${signup}banner`}>{t("PublicLink.upsell.primary")}</a>
-                </Button>
-
-                <Button asChild id="public-dashboard-learn-more" size="lg" variant="secondary">
-                  <a href={`${HOME_URL}/?${SIGNUP_QUERY}&utm_content=banner`} rel="noopener">
-                    {t("PublicLink.upsell.secondary")}
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+          <span>{t("PublicLink.readOnly")}</span>
+
           <a
             className="hover:text-foreground"
-            href={upsell ? `${HOME_URL}/?${SIGNUP_QUERY}&utm_content=footer` : HOME_URL}
+            href={upsell ? `${HOME_URL}/?${UTM}&utm_content=footer` : HOME_URL}
             id="public-dashboard-branding"
             rel="noopener"
           >
             {t("PublicLink.branding")}
           </a>
-
-          <span>{t("PublicLink.readOnly")}</span>
         </footer>
 
         {upsell ? (
           <div className="pointer-events-none sticky bottom-4 z-30 flex justify-end">
             <a
-              className="pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/95 px-3 py-1.5 text-xs font-medium shadow-lg backdrop-blur transition-colors hover:border-primary/50"
-              href={`${signup}badge`}
+              className="group pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
+              href={`/auth/signup?${UTM}&utm_content=badge`}
               id="public-dashboard-badge"
             >
               <Logo className="size-4 rounded" />
 
-              {t("PublicLink.upsell.badge")}
+              <span>{t("PublicLink.upsell.badge")}</span>
+
+              <span className="hidden text-primary-soft-foreground group-hover:inline group-focus-visible:inline">
+                {t("PublicLink.upsell.badgeHover")}
+              </span>
             </a>
           </div>
         ) : null}
       </main>
+
+      {selection ? (
+        <PublicWidgetDrawer
+          open={drawerOpen}
+          selection={selection}
+          token={token}
+          onClose={() => setDrawerOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

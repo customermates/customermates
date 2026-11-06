@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { managePublicLinkAction } from "@/app/actions";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { FormIsoDatePicker } from "@/components/forms/form-iso-date-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +25,11 @@ export function PublicLinkSection({ viewId, onChanged }: Props) {
   const [status, setStatus] = useState<PublicLinkStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { appMode } = useRootStore();
+  const demo = appMode === "demo";
 
   useEffect(() => {
+    if (demo) return;
     let active = true;
     managePublicLinkAction({ action: "read", viewId })
       .then((result) => {
@@ -37,7 +41,7 @@ export function PublicLinkSection({ viewId, onChanged }: Props) {
     return () => {
       active = false;
     };
-  }, [viewId]);
+  }, [demo, viewId]);
 
   const apply = (request: Parameters<typeof managePublicLinkAction>[0], message: string) =>
     runUserAction(async () => {
@@ -57,7 +61,7 @@ export function PublicLinkSection({ viewId, onChanged }: Props) {
       }
     });
 
-  if (!status) return null;
+  if (demo || !status) return null;
   const link = status.link;
   const blocked = !status.allowed && !link;
 

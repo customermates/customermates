@@ -676,9 +676,13 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.setBulkState(false, null);
     }
   }
+  protected loadPresentation(params?: GetQueryParams): Promise<RecordPresentationResult> {
+    return actionData(getRecordPresentationAction(this.presentation.typeId, params));
+  }
+
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
-    const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params));
+    const presentation = await this.loadPresentation(params);
     this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }

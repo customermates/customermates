@@ -32,6 +32,8 @@ const { ReadPublicLinkInteractor } = await import("../read-public-link.interacto
 const { PrismaPublicLinkRepo } = await import("../prisma-public-link.repository");
 const { PublicLinkRateLimiter } = await import("../public-link-rate-limiter");
 const { PublicLinkTenant } = await import("../public-link-tenant");
+const { PublicLinkAccess } = await import("../public-link-access");
+const { ReadPublicWidgetRecordsInteractor } = await import("../read-public-widget-records.interactor");
 const { publicLinkToken } = await import("../public-link-token");
 
 const routes = {
@@ -54,17 +56,32 @@ async function workspace() {
   return created;
 }
 
-function reader(options: { now?: Date; perLink?: number } = {}) {
-  return new ReadPublicLinkInteractor(
-    new PrismaPublicLinkRepo(),
+function access(options: { now?: Date; perLink?: number; secret?: string } = {}) {
+  return new PublicLinkAccess(
     new PrismaPublicLinkRepo(),
     new PublicLinkTenant(di.getUserService()),
     { invoke: (data) => di.getGetWidgetsInteractor().invoke(data) },
     new PublicLinkRateLimiter(options.perLink ?? 1000, 60_000),
     new PublicLinkRateLimiter(1000, 60_000),
-    { authSecret: SECRET, cacheMs: 0, ...(options.now ? { now: () => options.now as Date } : {}) },
-    { invoke: () => di.getGetRecordNavigationInteractor().invoke() },
+    { authSecret: options.secret ?? SECRET, ...(options.now ? { now: () => options.now as Date } : {}) },
   );
+}
+
+function reader(options: { now?: Date; perLink?: number; secret?: string } = {}) {
+  return new ReadPublicLinkInteractor(
+    access(options),
+    new PrismaPublicLinkRepo(),
+    { cacheMs: 0 },
+    {
+      invoke: () => di.getGetRecordNavigationInteractor().invoke(),
+    },
+  );
+}
+
+function records(options: { now?: Date; perLink?: number } = {}) {
+  return new ReadPublicWidgetRecordsInteractor(access(options), {
+    invoke: (input) => di.getGetRecordPresentationInteractor().invoke(input),
+  });
 }
 
 const tokenOf = (url: string) => url.slice(url.lastIndexOf("/") + 1);
@@ -144,6 +161,35 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     ])
       expect(serialized).not.toContain(secret);
 
+    const all = await records().invoke({ token, widget: 0, group: null, label: null });
+    expect(all.status).toBe("available");
+    if (all.status !== "available") throw new Error("records not available");
+    expect(all.presentation.result.items).toHaveLength(2);
+    expect(all.presentation.permittedActions).toEqual([]);
+    expect(all.presentation.canManageSchema).toBe(false);
+    const stageChart = open.dashboard.widgets[1];
+    const filled = stageChart?.data?.groups.find((group) => (group.count ?? 0) > 0);
+    if (!filled) throw new Error("no filled stage group");
+    const inGroup = await records().invoke({
+      token,
+      widget: 1,
+      group: { record: filled.record, label: filled.label },
+      label: "stage",
+    });
+    expect(inGroup.status === "available" && inGroup.presentation.result.items.length).toBe(filled.count);
+    for (const forged of [
+      { widget: 1, group: { record: null, label: { state: "value", value: { kind: "text", value: "Forged" } } } },
+      { widget: 7, group: null },
+      { widget: -1, group: null },
+    ]) {
+      expect(
+        (await records().invoke({ token, label: null, ...(forged as { widget: number; group: null }) })).status,
+      ).toBe("unavailable");
+    }
+    expect(
+      (await records().invoke({ token: `${token.slice(0, 63)}x`, widget: 0, group: null, label: null })).status,
+    ).toBe("unavailable");
+
     const counted = await runWithoutTenant(() =>
       prisma.publicViewLink.findFirstOrThrow({ where: { viewId: adminBoard, revokedAt: null } }),
     );
@@ -174,6 +220,10 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(memberLink.status, JSON.stringify(memberLink.body)).toBe(200);
     const memberToken = tokenOf(memberLink.body.publicLink.url as string);
     expect(total(await reader().invoke({ token: memberToken }))).toBe(1);
+    const memberRows = await records().invoke({ token: memberToken, widget: 0, group: null, label: null });
+    expect(
+      memberRows.status === "available" && memberRows.presentation.result.items.map((row) => row.ref.recordId),
+    ).toEqual([assigned.recordId]);
 
     expect((await publish(w, w.admin, adminBoard, { expiresAt: "2001-01-01" })).status).toBe(400);
     const withEnd = await publish(w, w.admin, adminBoard, { expiresAt: "2099-12-31" });
@@ -183,15 +233,7 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
 
     const tampered = `${token.slice(0, 63)}${token.endsWith("0") ? "1" : "0"}`;
     expect((await reader().invoke({ token: tampered })).status).toBe("unavailable");
-    const foreignSigned = new ReadPublicLinkInteractor(
-      new PrismaPublicLinkRepo(),
-      new PrismaPublicLinkRepo(),
-      new PublicLinkTenant(di.getUserService()),
-      { invoke: (data) => di.getGetWidgetsInteractor().invoke(data) },
-      new PublicLinkRateLimiter(),
-      new PublicLinkRateLimiter(),
-      { authSecret: "another-installation-secret-0123456789", cacheMs: 0 },
-    );
+    const foreignSigned = reader({ secret: "another-installation-secret-0123456789" });
     expect((await foreignSigned.invoke({ token })).status).toBe("unavailable");
 
     const limited = reader({ perLink: 2 });
@@ -231,6 +273,7 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     });
     expect(revoked).toMatchObject({ status: 200, body: { action: "publish", publicLink: null } });
     expect((await reader().invoke({ token })).status).toBe("unavailable");
+    expect((await records().invoke({ token, widget: 0, group: null, label: null })).status).toBe("unavailable");
     const again = await publish(w, w.admin, adminBoard);
     const newToken = tokenOf(again.body.publicLink.url as string);
     expect(newToken).not.toBe(token);

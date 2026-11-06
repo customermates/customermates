@@ -2290,13 +2290,13 @@
         "chip": "Link pubblico attivo",
         "copied": "Copiato",
         "copy": "Copia",
-        "description": "Chiunque abbia il link vede i grafici di questa dashboard senza accedere.",
+        "description": "Chiunque abbia il link vede i grafici di questa dashboard e i record che li compongono, senza accedere.",
         "expiresLabel": "Ultimo giorno in cui il link funziona",
         "expiryCleared": "Data di fine rimossa",
         "expirySet": "Data di fine salvata",
         "linkLabel": "Link pubblico",
         "noExpiry": "Nessuna data di fine",
-        "onlyCharts": "Mostra solo grafici e numeri, calcolati con il tuo accesso",
+        "onlyCharts": "Mostra i grafici e, con un clic, i record che li compongono, in sola lettura e con il tuo accesso",
         "opened": "{count, plural, =0 {Non ancora aperto} one {Aperto una volta} other {Aperto # volte}}",
         "permissionDenied": "Il tuo ruolo non può pubblicare dashboard. Chiedi a un amministratore.",
         "published": "Link pubblico creato",
@@ -3637,12 +3637,7 @@
     "unavailableTitle": "Link non disponibile",
     "upsell": {
       "badge": "Creata con Customermates",
-      "body": "Customermates riunisce contatti, trattative e conversazioni in un unico CRM, con dashboard che il tuo team, i clienti e gli investitori seguono in tempo reale.",
-      "eyebrow": "Creata con Customermates",
-      "headerCta": "Prova Customermates gratis",
-      "primary": "Inizia la prova gratuita",
-      "secondary": "Scopri come funziona",
-      "title": "Crea dashboard in tempo reale come questa dai tuoi dati"
+      "badgeHover": "· Crea la tua dashboard, gratis"
     }
   },
   "RecordActivityWidgets": {

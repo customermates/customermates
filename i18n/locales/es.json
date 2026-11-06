@@ -2290,13 +2290,13 @@
         "chip": "Enlace público activo",
         "copied": "Copiado",
         "copy": "Copiar",
-        "description": "Cualquiera con el enlace ve los gráficos de este panel sin iniciar sesión.",
+        "description": "Cualquiera con el enlace ve los gráficos de este panel y los registros que hay detrás, sin iniciar sesión.",
         "expiresLabel": "Último día en que funciona el enlace",
         "expiryCleared": "Fecha de fin eliminada",
         "expirySet": "Fecha de fin guardada",
         "linkLabel": "Enlace público",
         "noExpiry": "Sin fecha de fin",
-        "onlyCharts": "Muestra solo gráficos y cifras, calculados con tu acceso",
+        "onlyCharts": "Muestra los gráficos y, al hacer clic, los registros que hay detrás, solo lectura y con tu acceso",
         "opened": "{count, plural, =0 {Aún no abierto} one {Abierto una vez} other {Abierto # veces}}",
         "permissionDenied": "Tu rol no puede publicar paneles. Pídeselo a un administrador.",
         "published": "Enlace público creado",
@@ -3637,12 +3637,7 @@
     "unavailableTitle": "Enlace no disponible",
     "upsell": {
       "badge": "Hecho con Customermates",
-      "body": "Customermates reúne tus contactos, oportunidades y conversaciones en un solo CRM, con paneles que tu equipo, tus clientes y tus inversores siguen en directo.",
-      "eyebrow": "Hecho con Customermates",
-      "headerCta": "Prueba Customermates gratis",
-      "primary": "Empieza tu prueba gratuita",
-      "secondary": "Mira cómo funciona",
-      "title": "Crea paneles en directo como este con tus propios datos"
+      "badgeHover": "· Crea tu propio panel, gratis"
     }
   },
   "RecordActivityWidgets": {

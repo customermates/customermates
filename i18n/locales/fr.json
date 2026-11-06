@@ -2290,13 +2290,13 @@
         "chip": "Lien public actif",
         "copied": "Copié",
         "copy": "Copier",
-        "description": "Toute personne disposant du lien voit les graphiques de ce tableau de bord, sans se connecter.",
+        "description": "Toute personne disposant du lien voit les graphiques de ce tableau de bord et les enregistrements qui les composent, sans se connecter.",
         "expiresLabel": "Dernier jour où le lien fonctionne",
         "expiryCleared": "Date de fin supprimée",
         "expirySet": "Date de fin enregistrée",
         "linkLabel": "Lien public",
         "noExpiry": "Sans date de fin",
-        "onlyCharts": "Affiche uniquement les graphiques et les chiffres, calculés avec vos accès",
+        "onlyCharts": "Affiche les graphiques et, au clic, les enregistrements qui les composent, en lecture seule et avec vos accès",
         "opened": "{count, plural, =0 {Pas encore ouvert} one {Ouvert une fois} other {Ouvert # fois}}",
         "permissionDenied": "Votre rôle ne permet pas de publier des tableaux de bord. Demandez à un administrateur.",
         "published": "Lien public créé",
@@ -3637,12 +3637,7 @@
     "unavailableTitle": "Lien indisponible",
     "upsell": {
       "badge": "Créé avec Customermates",
-      "body": "Customermates réunit vos contacts, affaires et conversations dans un seul CRM, avec des tableaux de bord que votre équipe, vos clients et vos investisseurs suivent en direct.",
-      "eyebrow": "Créé avec Customermates",
-      "headerCta": "Essayer Customermates gratuitement",
-      "primary": "Commencer l'essai gratuit",
-      "secondary": "Voir comment ça marche",
-      "title": "Créez des tableaux de bord en direct comme celui-ci à partir de vos propres données"
+      "badgeHover": "· Créez votre propre tableau de bord, gratuitement"
     }
   },
   "RecordActivityWidgets": {

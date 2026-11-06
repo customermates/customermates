@@ -1,6 +1,11 @@
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
+import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 
 import { z } from "zod";
+
+import { SortDescriptorSchema } from "@/core/base/base-get.schema";
+import { DATA_VIEW_PAGE_SIZES } from "@/core/data-view/data-view-state.schema";
+import { RecordContributionGroupSchema } from "@/features/records/record-contribution.schema";
 
 export const PUBLIC_LINK_TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
 
@@ -50,6 +55,28 @@ export type PublicDashboard = {
   hiddenWidgetCount: number;
 };
 
+export const PublicWidgetRecordsSchema = z
+  .object({
+    token: z.string().regex(PUBLIC_LINK_TOKEN_PATTERN),
+    widget: z.number().int().min(0).max(199),
+    group: RecordContributionGroupSchema.nullable(),
+    label: z.string().max(500).nullable(),
+    page: z.number().int().min(1).max(10_000).default(1),
+    pageSize: z
+      .number()
+      .int()
+      .refine((size) => DATA_VIEW_PAGE_SIZES.some((allowed) => allowed === size))
+      .optional(),
+    sortDescriptor: SortDescriptorSchema.optional(),
+  })
+  .strict();
+export type PublicWidgetRecordsInput = z.input<typeof PublicWidgetRecordsSchema>;
+
+export type PublicWidgetRecordsResult =
+  | { status: "available"; presentation: RecordPresentationResult }
+  | { status: "unavailable" }
+  | { status: "rateLimited"; retryAfterSeconds: number };
+
 export type PublicDashboardResult =
   | { status: "available"; dashboard: PublicDashboard }
   | { status: "unavailable" }
@@ -89,8 +116,6 @@ export function publicChartWidget(
           }
         : measure.groupBy,
     } as RecordWidgetDto["measure"],
-    data: widget.data
-      ? { ...widget.data, groups: widget.data.groups.map((group) => ({ ...group, record: null })) }
-      : null,
+    data: widget.data,
   };
 }
