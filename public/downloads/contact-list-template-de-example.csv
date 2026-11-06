@@ -1,0 +1,3 @@
+﻿Kontakt-ID,Name,Unternehmen,E-Mail,Telefon,Verantwortlich,Beziehung,Letzter Kontakt,Nächster Schritt,Termin nächster Schritt,Quelle,Prüfdatum
+K001,Alex Beispiel,Beispielstudio,alex@example.com,,Sam,Interessent,2026-11-05,Angefragte Übersicht senden,2026-11-06,Anfrage 2026-11-05,2026-12-04
+K002,Robin Muster,Musterwerkstatt,robin@example.org,,Jo,Kunde,2026-11-04,Lieferdetails bestätigen,2026-11-09,Kundenanfrage 2026-11-04,2026-12-04

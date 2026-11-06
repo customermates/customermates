@@ -1,0 +1,103 @@
+---
+title: "Fichier client Excel : modèle CSV gratuit"
+description: "Téléchargez un fichier client vierge et un exemple CSV gratuit. Importez les colonnes dans Excel et organisez les prochaines actions de votre équipe."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/google-sheets-crm
+  - /features/contact-management
+  - /docs/app-records
+
+hero:
+  title: "Fichier client Excel : modèle CSV et exemple rempli"
+  description: "Téléchargez un fichier client vierge et un exemple CSV gratuit. Importez les colonnes dans Excel et organisez les prochaines actions de votre équipe."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-06
+  updated: 2026-11-06
+  tags:
+    - Gestion client
+    - Modèles
+---
+
+# Fichier client Excel : modèle CSV et exemple rempli
+
+Ce fichier client Excel vous aide à réunir les coordonnées utiles et la prochaine action de chaque contact, avec un responsable clairement désigné. Téléchargez le modèle CSV vierge ou son exemple rempli, puis importez-le dans votre tableur ; Customermates peut prendre le relais lorsque le suivi des relations dépasse ce qu’un fichier partagé permet de tenir à jour.
+
+## Quel fichier client télécharger ?
+
+- [Modèle de fichier client vierge en CSV](/downloads/contact-list-template-fr-blank.csv) : les en-têtes seuls, pour saisir vos propres contacts.
+- [Exemple de fichier client rempli en CSV](/downloads/contact-list-template-fr-example.csv) : deux contacts fictifs et leurs prochaines actions.
+
+Ces créations originales sont gratuites, sans inscription. Les fichiers utilisent UTF-8 avec un indicateur d’ordre des octets et la virgule comme séparateur. Ils ne contiennent ni mise en forme, ni formules, ni listes déroulantes, ni rappels. Il ne s’agit pas de classeurs XLSX. Pour une structure plus large avec des opportunités commerciales, consultez le [guide du modèle CRM Excel](/blog/excel-crm-template).
+
+## Quelles informations mettre dans un fichier client ?
+
+Prévoyez une ligne par personne. Deux interlocuteurs d’une même entreprise ont chacun leur ID ; ne rassemblez pas plusieurs adresses e-mail dans une cellule.
+
+| Colonne | Règle de saisie |
+| --- | --- |
+| ID contact | Référence stable, comme C001, conservée si le nom change. |
+| Nom, Entreprise | Identité de la personne et contexte professionnel. |
+| E-mail, Téléphone | Seulement les moyens de contact nécessaires ; une cellule vide convient. |
+| Responsable | Une personne chargée de la prochaine action. |
+| Relation | Vocabulaire commun, par exemple Prospect ou Client. |
+| Dernier contact | Date réelle de l’échange, pas date de modification du fichier. |
+| Prochaine action, Date prochaine action | Engagement concret et échéance réelle ; laisser vide sans action ouverte. |
+| Source | Origine des coordonnées, sans valeur de preuve de consentement commercial. |
+| Date de vérification | Date choisie pour vérifier l’exactitude et l’utilité des données, pas délai légal d’effacement. |
+
+L’exemple laisse les numéros de téléphone vides volontairement. N’ajoutez une adresse postale, une date d’anniversaire ou une note personnelle que si votre activité en a besoin. Une liste exploitable vaut mieux qu’un profil rempli de renseignements inutiles.
+
+## Comment ouvrir le CSV dans Excel sans abîmer les données ?
+
+Dans Excel, utilisez Données > À partir d’un fichier texte/CSV, puis sélectionnez UTF-8 et le séparateur virgule. Vérifiez l’aperçu avant de charger les lignes. Importez ID contact, E-mail et Téléphone comme du texte pour conserver les zéros initiaux et les numéros internationaux. Les dates suivent le format AAAA-MM-JJ : vérifiez leur interprétation avant de filtrer. Le [guide Microsoft sur l’importation CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files) décrit les méthodes et le choix du séparateur.
+
+Dans Google Sheets, importez le fichier dans une nouvelle feuille et contrôlez le séparateur ainsi que la conversion automatique. Si tout apparaît dans une colonne, choisissez explicitement la virgule. Vérifiez les accents et comparez deux lignes avec le fichier d’origine. Supprimez les contacts fictifs avant d’ajouter de vraies personnes. N’activez pas de formules provenant de valeurs importées inconnues.
+
+Ajoutez ensuite vos filtres, couleurs et réglages d’impression. Conservez cette version au format classeur Excel ou dans une feuille Google native : un CSV ne conserve pas la présentation d’un classeur. Contrôlez aussi les exports ultérieurs, car les paramètres régionaux peuvent modifier le séparateur.
+
+## Comment organiser les prochaines actions à deux ?
+
+Prenons une petite équipe fictive au 6 novembre 2026. Sam répond à la demande de présentation d’Alex. Jo prépare une confirmation de livraison pour Robin. Les dates correspondent aux engagements de ce scénario, sans étaler artificiellement le travail.
+
+1. Chaque matin, filtrez Date prochaine action pour voir aujourd’hui et les dates antérieures. Sam trouve C001, vérifie la demande et envoie la présentation après relecture.
+2. Sam inscrit 2026-11-06 dans Dernier contact. Sans nouvel engagement, Sam vide l’action terminée et sa date. Une relance supplémentaire doit avoir une raison explicite.
+3. Jo conserve C002 au 2026-11-09, date convenue pour confirmer les détails de livraison dans cet exemple. Une échéance future ne signifie pas que le travail est terminé.
+4. Avant de passer la main, recherchez les actions ouvertes sans responsable ou sans date. Examinez les doublons d’e-mail avant toute fusion : une boîte partagée peut correspondre à plusieurs personnes.
+
+Gardez un fichier de référence accessible seulement aux personnes qui en ont besoin. La colonne de date ne déclenche aucune notification : la revue quotidienne reste manuelle. La [gestion des contacts dans Customermates](/features/contact-management) devient pertinente lorsque les responsabilités et l’historique des échanges sont difficiles à suivre.
+
+## Comment limiter les données et protéger le fichier ?
+
+Pour les traitements soumis au RGPD, la Commission européenne présente la limitation des finalités, la minimisation, l’exactitude et la limitation de conservation dans ses [principes de protection des données](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Définissez la finalité et la base juridique appropriée avant d’utiliser des données personnelles. Télécharger un modèle ne fournit ni consentement ni autorisation de prospecter.
+
+Limitez les coordonnées au besoin professionnel, restreignez le partage et vérifiez les fiches anciennes. Retirez les données devenues inutiles en tenant compte des obligations de conservation applicables. Évitez les commentaires privés ou sensibles dans les notes libres. La date de vérification invite à prendre une décision ; elle ne fixe pas une durée légale universelle. Ne rendez pas le fichier rempli accessible par un lien public.
+
+## Quand passer du tableur à Customermates ?
+
+Le tableur suffit tant que sa mise à jour et la revue quotidienne restent fiables. Un CRM peut devenir utile quand les responsables changent, que les interlocuteurs se multiplient ou que l’historique se disperse. Customermates accepte les fichiers CSV, XLSX, XLS et JSON dans le parcours d’importation d’une liste. Consultez la [documentation sur les fiches et l’importation](/docs/app-records) pour préparer la correspondance des colonnes et examiner l’aperçu.
+
+Choisissez ou créez la liste de destination avant l’importation. Les noms de responsables et d’entreprises du CSV sont du texte, pas des liens automatiques vers des membres ou des organisations. Configurez les champs de date et de choix nécessaires : ce sont des champs ordinaires, pas des échéances ou statuts de tâche intégrés. Importez deux lignes, puis vérifiez les fiches enregistrées avant de poursuivre. L’importation ne crée pas de synchronisation avec le tableur.
+
+## Questions fréquentes
+
+<Faq>
+<FaqItem question="Ce fichier client Excel est-il gratuit ?">
+Oui. Les deux CSV sont gratuits et accessibles sans inscription. Importez-les dans Excel et ajoutez votre mise en forme ; aucun classeur XLSX ni formule n’est fourni.
+</FaqItem>
+<FaqItem question="Puis-je imprimer le modèle ou l’utiliser dans Word ?">
+Après importation dans un tableur, choisissez les colonnes utiles et définissez la zone d’impression. Le téléchargement n’est ni un document Word ni un PDF prêt à imprimer.
+</FaqItem>
+<FaqItem question="La date de prochaine action crée-t-elle un rappel ?">
+Non. Elle sert au filtre de votre revue quotidienne. Le CSV n’envoie aucun message et ne crée aucun rappel.
+</FaqItem>
+<FaqItem question="Une adresse e-mail enregistrée autorise-t-elle la prospection ?">
+Non. La source décrit l’origine de la donnée, pas une permission de prospecter. Vérifiez séparément les règles applicables à votre prise de contact.
+</FaqItem>
+</Faq>
+
+Conseils externes vérifiés le 6 novembre 2026. Les exemples sont fictifs et ne contiennent aucune donnée client.
