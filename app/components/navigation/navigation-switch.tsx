@@ -147,7 +147,8 @@ export function NavigationSwitch({
   ]);
 
   let shell: React.ReactNode;
-  if (shellMode === "public") {
+  if (shellMode === "bare") shell = <div className="flex h-dvh min-h-0 flex-col overflow-y-auto">{children}</div>;
+  else if (shellMode === "public") {
     shell = (
       <PublicScrollport
         accountState={currentAccountState}

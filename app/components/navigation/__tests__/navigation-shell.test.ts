@@ -3,6 +3,18 @@ import { describe, expect, it } from "vitest";
 import { resolveNavigationShell } from "../navigation-shell";
 
 describe("resolveNavigationShell", () => {
+  it.each([
+    ["unauthenticated", false],
+    ["allowed", true],
+    ["inactive", true],
+  ] as const)("shows a public link without any navigation for a %s visitor", (accountState, isRegistered) => {
+    expect(resolveNavigationShell({ accountState, pathname: `/p/${"a".repeat(64)}`, isRegistered })).toBe("bare");
+  });
+
+  it("keeps a page whose path only begins like a public link on its usual shell", () => {
+    expect(resolveNavigationShell({ accountState: "allowed", pathname: "/pricing", isRegistered: true })).toBe("app");
+  });
+
   it("uses the normal app shell for an allowed registered operator", () => {
     expect(
       resolveNavigationShell({
