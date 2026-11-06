@@ -6,6 +6,7 @@ type TransactionStore = {
   client: AppPrismaClient;
   afterCommit: (() => Promise<void>)[];
   eventWakeups: Set<string>;
+  reads?: Map<string, Promise<unknown>>;
 };
 
 export const transactionStorage = new AsyncLocalStorage<TransactionStore>();

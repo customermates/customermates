@@ -1,4 +1,3 @@
-import { recordChannelsField } from "./record-channels";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
@@ -37,9 +36,10 @@ import {
   recordLinkIcons,
   recordLinkLabels,
 } from "./record-presentation";
-import { recordColumns } from "./record-columns";
+import { recordListProjection } from "./record-list-projection";
+import { MAX_RECORD_QUERY_FIELDS } from "./record-query-base.schema";
 import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
-import { parseRelationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
+import { RecordColumnKeySchema, relationshipPathColumnKey } from "./record-column.schema";
 import { recordFilterPaths, resolveRecordPath } from "./record-relationship-path";
 import { liveRecordFilters } from "./record-view-state";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
@@ -54,9 +54,13 @@ import type { RecordQueryResult } from "./record-query-result.schema";
 import { RECORD_CONTRIBUTION_FILTER } from "./record-contribution-link";
 
 const GetRecordPresentationSchema = z
-  .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}), transient: z.boolean().optional() })
+  .object({
+    typeId: z.uuid(),
+    params: GetQueryParamsSchema.default({}),
+    transient: z.boolean().optional(),
+    columns: z.array(RecordColumnKeySchema).optional(),
+  })
   .strict();
-const LINKED_PREVIEW_LIMIT = 10;
 export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;
@@ -161,31 +165,10 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           relationships,
           filterPaths,
         );
-        const avatarFieldId = model.capabilities
-          .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
-          ?.fields.find((field) => field.role === "image")?.fieldId;
-        if (avatarFieldId && fields.some((field) => field.id === avatarFieldId))
-          query.fields = [...new Set([...(query.fields ?? fields.map((field) => field.id)), avatarFieldId])];
-
-        const selections = recordColumns(type.id, { ...model, relationships })
-          .filter((column) => column.kind === "relationship" && !state.hiddenColumns.includes(column.id))
-          .flatMap((column) => {
-            const selection = parseRelationshipColumnKey(column.id);
-            return selection ? [{ ...selection, limit: LINKED_PREVIEW_LIMIT }] : [];
-          });
-        const pathSelections = recordColumns(type.id, {
-          ...model,
-          relationships,
-        }).flatMap((column) =>
-          column.kind === "relationshipPath" && !state.hiddenColumns.includes(column.id)
-            ? [{ pathId: column.definition.id, limit: LINKED_PREVIEW_LIMIT }]
-            : [],
-        );
-        if (selections.length + pathSelections.length > 32) return fail(CustomErrorCode.recordCalculationBudget);
-        query.includeRelationships = selections;
-        query.includePaths = pathSelections;
-        const channels = recordChannelsField(model, type.id);
-        query.includeIdentities = channels?.archived === false && !state.hiddenColumns.includes(channels.id);
+        Object.assign(query, recordListProjection(type.id, { ...model, relationships }, state, input.columns));
+        if (query.fields && query.fields.length > MAX_RECORD_QUERY_FIELDS) query.fields = undefined;
+        if ((query.includeRelationships?.length ?? 0) + (query.includePaths?.length ?? 0) > 32)
+          return fail(CustomErrorCode.recordCalculationBudget);
         const { summaries, ...queryGrouping } = state.grouping ?? { field: "" };
         const groupSummaries = liveGroupSummaries(type.id, summaries, fields);
         query.grouping = state.grouping ? queryGrouping : undefined;

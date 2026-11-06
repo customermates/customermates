@@ -76,7 +76,7 @@ vi.mock("@/core/di", async () => {
     getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
     getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
     getGetRecordWidgetInteractor: () => ({ invoke: spies.getRecordWidget }),
-    getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
+    getGetWidgetSummariesInteractor: () => ({ invoke: spies.getWidgets }),
   };
 });
 

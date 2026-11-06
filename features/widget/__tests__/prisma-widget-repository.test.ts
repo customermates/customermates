@@ -11,6 +11,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PrismaWidgetRepo } from "../prisma-widget.repository";
 import { LIVE_WIDGET } from "../live-widget";
 import { WidgetDtoReader } from "../widget-dto-reader";
+import { GetWidgetSummariesInteractor } from "../get-widget-summaries.interactor";
+import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 
 const user = createMockUser();
 const mocks = vi.hoisted(() => ({
@@ -86,6 +88,46 @@ describe("generic widget repository", () => {
         status: "unavailable",
       }),
     );
+  });
+  it.each([
+    { input: undefined, viewId: null, activeViewKey: "__all__" },
+    {
+      input: { viewId: "00000000-0000-4000-8000-0000000000a1" },
+      viewId: "00000000-0000-4000-8000-0000000000a1",
+      activeViewKey: "00000000-0000-4000-8000-0000000000a1",
+    },
+    { input: { viewId: "deleted" }, viewId: null, activeViewKey: "__all__" },
+    { input: { allViews: true }, viewId: undefined, activeViewKey: "__all__" },
+  ])("reads only widget summaries for $input, without evaluating results", async ({ input, viewId, activeViewKey }) => {
+    const stored = row({ viewId });
+    mocks.findMany.mockResolvedValue([{ ...stored, viewId: viewId ?? null }]);
+    const views = {
+      loadSurfaceState: () =>
+        Promise.resolve({
+          views: [{ id: "00000000-0000-4000-8000-0000000000a1" }],
+          activeViewKey: "__all__",
+        }),
+    } as unknown as DataViewStateRepo;
+    const result = await scoped((repo) => new GetWidgetSummariesInteractor(repo, views).invoke(input));
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        activeViewKey,
+        items: [{ id: stored.id, kind: "chart", name: "Pipeline", version: 2, layout: null, viewId: viewId ?? null }],
+      },
+    });
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          companyId: user.companyId,
+          userId: user.id,
+          ...(viewId === undefined ? {} : { viewId }),
+          ...LIVE_WIDGET,
+        },
+      }),
+    );
+    expect(mocks.chart).not.toHaveBeenCalled();
+    expect(mocks.activity).not.toHaveBeenCalled();
   });
   it("returns stored chart definitions for the reader without calculating them", async () => {
     const stored = row();

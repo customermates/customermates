@@ -7,7 +7,7 @@ import type { RootStore } from "@/core/stores/root.store";
 
 import { action, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 
-import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
+import { getWidgetSummariesAction, refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
 import {
@@ -308,7 +308,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
 
   async widgetNamesOfView(viewId: string): Promise<string[]> {
     if (this.activeViewKey === viewId) return this.items.map((widget) => widget.name);
-    const dashboard = await actionData(refreshWidgetsAction(viewId));
+    const dashboard = await actionData(getWidgetSummariesAction(viewId));
     return dashboard.activeViewKey === viewId ? dashboard.items.map((widget) => widget.name) : [];
   }
 

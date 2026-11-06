@@ -305,6 +305,7 @@ import { DeleteWidgetInteractor } from "@/features/widget/delete-widget.interact
 import { GetCompanyWidgetsInteractor } from "@/features/widget/get-company-widgets.interactor";
 import { GetWidgetByIdInteractor } from "@/features/widget/get-widget-by-id.interactor";
 import { GetWidgetsInteractor } from "@/features/widget/get-widgets.interactor";
+import { GetWidgetSummariesInteractor } from "@/features/widget/get-widget-summaries.interactor";
 import { UpdateWidgetLayoutsInteractor } from "@/features/widget/update-widget-layouts.interactor";
 // Messaging interactors
 import { CountChannelsNeedingActionInteractor } from "@/ee/messaging/connect/count-channels-needing-action.interactor";
@@ -1443,6 +1444,8 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 export const getGetWidgetsInteractor = () =>
   new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo(), getWidgetDtoReader());
+export const getGetWidgetSummariesInteractor = () =>
+  new GetWidgetSummariesInteractor(getWidgetRepo(), getDataViewStateRepo());
 
 export const getDeleteWidgetInteractor = () =>
   new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator(), getTrashRepo());

@@ -2,6 +2,7 @@ import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { appPath, appUrlPattern } from "./app-paths";
 import { collectPageErrors, expect, test } from "./fixtures";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
+import { openSidebar } from "./sidebar";
 import {
   pendingRequestCount,
   inviteToken,
@@ -74,6 +75,7 @@ test("a person withdraws a pending request from the waiting screen and the admin
       });
 
       await admin.page.goto(appPath(inviter.slug, "/dashboard"));
+      await openSidebar(admin.page);
       await expect(workspaceMenu(admin.page)).not.toHaveAttribute("aria-label", /waiting for approval/);
       expect(admin.errors).toEqual([]);
     } finally {
