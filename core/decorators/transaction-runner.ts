@@ -66,6 +66,7 @@ export async function runInTransaction<T>(
           client: tx,
           afterCommit: [],
           eventWakeups: new Set(),
+          reads: options?.readOnly ? new Map() : undefined,
         },
         async () => {
           const callResult = await fn();

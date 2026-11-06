@@ -14,6 +14,7 @@ import {
   type RecordSearchRow,
 } from "./record-search-query";
 import { recordInvariant } from "./record-invariant";
+import { readOnceInTransaction } from "@/core/decorators/read-once-in-transaction";
 import { readStoredState, readStoredPersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { deletionReference, targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
 import type { ConfigurationTarget } from "./configuration.schema";
@@ -35,6 +36,7 @@ import type {
   StoredDependencyWrite,
   StoredValueWrite,
   TrashReadOptions,
+  RecordRowsReadOptions,
 } from "./record.repo";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 import { rankBetween, recordManualOrderKey } from "./record-rank";
@@ -729,7 +731,11 @@ export class PrismaRecordRepo
     });
   }
 
-  async getModel(): Promise<RecordModel> {
+  getModel(): Promise<RecordModel> {
+    return readOnceInTransaction(`record-model:${this.companyId}`, () => this.loadModel());
+  }
+
+  private async loadModel(): Promise<RecordModel> {
     const state = await this.getState();
     if (!state || state.revision === 0) {
       return RecordModelSchema.parse({
@@ -1107,7 +1113,7 @@ export class PrismaRecordRepo
       .$queryRaw`SELECT 1 FROM "CrmRecord" WHERE "companyId" = ${this.companyId} AND "typeId" = ${ref.typeId} AND id = ${ref.recordId} FOR UPDATE`;
   }
 
-  async getRecordsCompanyWide(refs: RecordRef[], options: TrashReadOptions = {}) {
+  async getRecordsCompanyWide(refs: RecordRef[], options: RecordRowsReadOptions = {}) {
     if (!refs.length) return [];
     return this.prisma.crmRecord.findMany({
       relationLoadStrategy: "query",
@@ -1116,7 +1122,10 @@ export class PrismaRecordRepo
         ...(options.includeTrash ? {} : { deletedAt: null }),
         OR: refs.map((ref) => ({ typeId: ref.typeId, id: ref.recordId })),
       },
-      include: { values: true, assignments: { select: this.assignmentSelect } },
+      include: {
+        values: options.fieldIds === undefined ? true : { where: { fieldId: { in: options.fieldIds } } },
+        assignments: { select: this.assignmentSelect },
+      },
     });
   }
 
@@ -1204,13 +1213,17 @@ export class PrismaRecordRepo
       this.prisma.$queryRaw<Array<{ id: string }>>(sql.ids),
       this.prisma.$queryRaw<Array<{ count: number }>>(sql.count),
     ]);
-    const records = await this.getRecordsCompanyWide(ids.map((row) => ({ typeId: query.typeId, recordId: row.id })));
+    const records = await this.getRecordsCompanyWide(
+      ids.map((row) => ({ typeId: query.typeId, recordId: row.id })),
+      { fieldIds: query.fields },
+    );
     const positions = new Map(ids.map((row, index) => [row.id, index]));
     records.sort((left, right) => recordInvariant(positions.get(left.id)) - recordInvariant(positions.get(right.id)));
     const visibleFields = await this.visibleFields(
       records.map((record) => ({ typeId: record.typeId, recordId: record.id })),
       model,
       access,
+      query.fields,
     );
     return { records, total: count[0]?.count ?? 0, visibleFields };
   }
@@ -1234,11 +1247,15 @@ export class PrismaRecordRepo
     if (!groups.length) throw unwindFailure(CustomErrorCode.recordValueInvalid);
     const ids = [...new Set(groups.flatMap((group) => group.itemIds))];
     if (ids.length > 1000) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
-    const records = await this.getRecordsCompanyWide(ids.map((recordId) => ({ typeId: query.typeId, recordId })));
+    const records = await this.getRecordsCompanyWide(
+      ids.map((recordId) => ({ typeId: query.typeId, recordId })),
+      { fieldIds: query.fields },
+    );
     const visibleFields = await this.visibleFields(
       records.map((record) => ({ typeId: record.typeId, recordId: record.id })),
       model,
       access,
+      query.fields,
     );
     const total = rows[0]?.total ?? 0;
     const grouping = RecordGroupingResultSchema.parse({
@@ -1267,11 +1284,14 @@ export class PrismaRecordRepo
     refs: RecordRef[],
     model: RecordModel,
     access: RecordAccessMap,
+    fieldIds?: string[],
   ): Promise<Map<string, Set<string>>> {
     const result = new Map(refs.map((ref) => [ref.recordId, new Set<string>()]));
     if (!refs.length) return result;
     const typeId = refs[0].typeId;
-    const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
+    const fields = model.fields.filter(
+      (field) => field.typeId === typeId && !field.archived && (fieldIds === undefined || fieldIds.includes(field.id)),
+    );
     if (!fields.length) return result;
     const projections = fields.map(
       (field, index) =>

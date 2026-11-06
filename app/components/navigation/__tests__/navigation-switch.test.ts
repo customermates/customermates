@@ -1,4 +1,4 @@
-import { act, type ReactNode } from "react";
+import { act, Suspense, use, useState, type ReactNode } from "react";
 import { observable, runInAction } from "mobx";
 import { jsx } from "react/jsx-runtime";
 import { createRoot, type Root } from "react-dom/client";
@@ -330,6 +330,59 @@ describe("NavigationSwitch account-state refresh", () => {
     document.dispatchEvent(new Event("visibilitychange"));
     await settle();
     expect(state.refresh).toHaveBeenCalledOnce();
+  });
+
+  it("coalesces visibility events until the route transition completes, then permits a fresh read", async () => {
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    let release: () => void = () => undefined;
+    const pending = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let blocked = true;
+    let update: () => void = () => undefined;
+    function Route() {
+      const [version, setVersion] = useState(0);
+      update = () => setVersion((current) => current + 1);
+      if (version > 0 && blocked) use(pending);
+      return `route ${version}`;
+    }
+    state.refresh.mockImplementation(() => update());
+    try {
+      act(() =>
+        root.render(
+          jsx(Suspense, {
+            fallback: "loading",
+            children: jsx(NavigationSwitch, { ...allowedProps(), children: jsx(Route, {}) }),
+          }),
+        ),
+      );
+      await act(async () => {
+        document.dispatchEvent(new Event("visibilitychange"));
+        document.dispatchEvent(new Event("visibilitychange"));
+        await settle();
+      });
+      expect(state.refresh).toHaveBeenCalledOnce();
+      await act(async () => {
+        document.dispatchEvent(new Event("visibilitychange"));
+        await settle();
+      });
+      expect(state.refresh).toHaveBeenCalledOnce();
+      expect(container.textContent).toContain("route 0");
+      await act(async () => {
+        blocked = false;
+        release();
+        await pending;
+      });
+      expect(container.textContent).toContain("route 1");
+      await act(async () => {
+        document.dispatchEvent(new Event("visibilitychange"));
+        await settle();
+      });
+      expect(state.refresh).toHaveBeenCalledTimes(2);
+      expect(container.textContent).toContain("route 2");
+    } finally {
+      state.refresh.mockReset();
+    }
   });
 
   it.each(["dirty", "saving"] as const)(

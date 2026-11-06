@@ -99,8 +99,8 @@ export async function discoverRecordTypesAction(typeIds?: string[]) {
 export async function getRecordNavigationAction() {
   return serializeTypedResult(getGetRecordNavigationInteractor().invoke());
 }
-export async function getRecordPresentationAction(typeId: string, params: GetQueryParams = {}) {
-  return serializeTypedResult(getGetRecordPresentationInteractor().invoke({ typeId, params }));
+export async function getRecordPresentationAction(typeId: string, params: GetQueryParams = {}, columns?: string[]) {
+  return serializeTypedResult(getGetRecordPresentationInteractor().invoke({ typeId, params, columns }));
 }
 export async function getRecordModelAction(typeIds?: string[]) {
   return serializeTypedResult(getGetRecordModelInteractor().invoke({ typeIds }));

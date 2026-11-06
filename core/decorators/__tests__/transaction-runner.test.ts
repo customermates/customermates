@@ -14,6 +14,7 @@ vi.mock("@/prisma/db", () => ({ prisma: { $transaction: db.transaction } }));
 
 const { runInTransaction } = await import("../transaction-runner");
 const { transactionStorage } = await import("../transaction-context");
+const { readOnceInTransaction } = await import("../read-once-in-transaction");
 
 describe("runInTransaction", () => {
   beforeEach(() => {
@@ -87,5 +88,61 @@ describe("runInTransaction", () => {
     db.tx.$executeRaw.mockClear();
     await runInTransaction(() => Promise.resolve("unlocked"), { companyId: "company-1", lockCompany: false });
     expect(lockCalls()).toHaveLength(0);
+  });
+
+  it("shares concurrent reads, including nested readers, only within one read-only transaction", async () => {
+    const load = vi.fn(() => Promise.resolve({ revision: 1 }));
+    const read = () => readOnceInTransaction("model:workspace-a", load);
+    const values = await runInTransaction(() => Promise.all([read(), runInTransaction(read)]), { readOnly: true });
+    expect(values[0]).toBe(values[1]);
+    expect(load).toHaveBeenCalledOnce();
+    await runInTransaction(read, { readOnly: true });
+    await read();
+    await read();
+    expect(load).toHaveBeenCalledTimes(4);
+  });
+
+  it("keeps workspace and actor reads separate, including simultaneous transactions", async () => {
+    const load = vi.fn(() => Promise.resolve({}));
+    const read = (key: string) => readOnceInTransaction(key, load);
+    const scopes = await Promise.all(
+      [1, 2].map(() =>
+        runInTransaction(() => Promise.all([read("policy:a:alice"), read("policy:a:bob"), read("policy:b:alice")]), {
+          readOnly: true,
+        }),
+      ),
+    );
+    expect(load).toHaveBeenCalledTimes(6);
+    expect(new Set(scopes.flat()).size).toBe(6);
+  });
+
+  it("keeps reads fresh during writes, even when a nested reader requests read-only mode", async () => {
+    let revision = 1;
+    const read = () => readOnceInTransaction("model:a", () => Promise.resolve(revision));
+    await runInTransaction(async () => {
+      expect(await read()).toBe(1);
+      revision = 2;
+      expect(await runInTransaction(read, { readOnly: true })).toBe(2);
+    });
+  });
+
+  it("evicts failed reads and discards all shared reads after rollback", async () => {
+    const error = new Error("read failed");
+    const load = vi.fn().mockRejectedValueOnce(error).mockResolvedValue({ revision: 2 });
+    const read = () => readOnceInTransaction("model:a", load);
+    await expect(
+      runInTransaction(
+        async () => {
+          await expect(Promise.all([read(), read()])).rejects.toBe(error);
+          expect(load).toHaveBeenCalledOnce();
+          await read();
+          expect(load).toHaveBeenCalledTimes(2);
+          throw error;
+        },
+        { readOnly: true },
+      ),
+    ).rejects.toBe(error);
+    await runInTransaction(read, { readOnly: true });
+    expect(load).toHaveBeenCalledTimes(3);
   });
 });

@@ -4,6 +4,27 @@ import { ViewMode } from "@/core/base/base-query-builder";
 
 import { resolveDataViewPageState, resolveDataViewView } from "../data-view-state";
 
+it("does not render unloaded values as empty cells and permits retry after a failed projection read", () => {
+  const input = {
+    request: { status: "ready" as const },
+    itemCount: 1,
+    hasActiveQuery: false,
+    explicitlyUnpaginated: false,
+    hasRequiredData: false,
+  };
+  expect(resolveDataViewPageState(input)).toBe("loading");
+  expect(
+    resolveDataViewPageState({ ...input, request: { status: "refresh-error", error: new Error("offline") } }),
+  ).toBe("error");
+  expect(
+    resolveDataViewPageState({
+      ...input,
+      hasRequiredData: true,
+      request: { status: "refresh-error", error: new Error("offline") },
+    }),
+  ).toBe("content");
+});
+
 const READY = {
   explicitlyUnpaginated: false,
   hasActiveQuery: false,
