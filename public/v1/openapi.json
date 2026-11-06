@@ -1468,7 +1468,8 @@
                                     "activityLog",
                                     "inboxMessages",
                                     "wiki",
-                                    "routines"
+                                    "routines",
+                                    "publicLinks"
                                   ]
                                 },
                                 "action": {
@@ -1837,7 +1838,8 @@
                                       "activityLog",
                                       "inboxMessages",
                                       "wiki",
-                                      "routines"
+                                      "routines",
+                                      "publicLinks"
                                     ]
                                   },
                                   "action": {
@@ -2060,7 +2062,7 @@
                     "maxLength": 500
                   },
                   "permissions": {
-                    "maxItems": 8,
+                    "maxItems": 9,
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -2075,7 +2077,8 @@
                             "activityLog",
                             "inboxMessages",
                             "wiki",
-                            "routines"
+                            "routines",
+                            "publicLinks"
                           ]
                         },
                         "actions": {
@@ -2219,7 +2222,8 @@
                                   "activityLog",
                                   "inboxMessages",
                                   "wiki",
-                                  "routines"
+                                  "routines",
+                                  "publicLinks"
                                 ]
                               },
                               "action": {
@@ -6306,7 +6310,8 @@
                                               "webhook",
                                               "routine",
                                               "connected_account",
-                                              "wiki_page"
+                                              "wiki_page",
+                                              "public_link"
                                             ]
                                           },
                                           "id": {
@@ -21697,7 +21702,8 @@
                                                           "webhook",
                                                           "routine",
                                                           "connected_account",
-                                                          "wiki_page"
+                                                          "wiki_page",
+                                                          "public_link"
                                                         ]
                                                       },
                                                       "id": {
@@ -35595,7 +35601,8 @@
                                                           "webhook",
                                                           "routine",
                                                           "connected_account",
-                                                          "wiki_page"
+                                                          "wiki_page",
+                                                          "public_link"
                                                         ]
                                                       },
                                                       "id": {
@@ -62521,7 +62528,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -64076,6 +64084,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -64274,7 +64333,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -65829,6 +65889,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -66016,7 +66127,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -67571,6 +67683,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -67756,7 +67919,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -69311,6 +69475,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -69936,7 +70151,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -71491,6 +71707,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -72126,7 +72393,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -73681,6 +73949,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -73866,7 +74185,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -75421,6 +75741,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -75613,7 +75984,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -77168,6 +77540,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -77350,7 +77773,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -78905,6 +79329,57 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -79104,7 +79579,8 @@
                         "select",
                         "delete",
                         "reset",
-                        "share"
+                        "share",
+                        "publish"
                       ]
                     },
                     "surfaceKey": {
@@ -80659,6 +81135,1844 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "action"
+                  ],
+                  "additionalProperties": {},
+                  "description": "surfaces, config and list return total before paged items; mutations return their action, surfaceKey, viewKey and resulting state/link or selected/deleted flag. In the app, create and update return proposed: true with the proposed state; the person saves or resets it."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/data-views/publish": {
+      "post": {
+        "operationId": "publishDataView",
+        "summary": "Publish a dashboard view by public link",
+        "description": "Creates or revokes the public link of one of the caller's dashboard views. Anyone with the link sees that view's charts and numbers live, read-only and without signing in, calculated with the caller's access; lists, calendars, maps and activity widgets, record references and filters are never published. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.",
+        "tags": [
+          "data-views"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "surfaceKey": "dashboard",
+                "viewKey": "6f1c2d3e-4b5a-4c6d-8e7f-1a2b3c4d5e6f",
+                "public": true,
+                "expiresAt": "2026-12-31"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "surfaceKey": {
+                    "type": "string",
+                    "const": "dashboard",
+                    "description": "Only dashboard views can have a public link."
+                  },
+                  "viewKey": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "public": {
+                    "type": "boolean",
+                    "description": "true creates a public link anyone can open without signing in, or keeps the existing one and sets its end date; false revokes it at once."
+                  },
+                  "expiresAt": {
+                    "description": "Optional last day (YYYY-MM-DD) the link opens; omit or null for no end date.",
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "date",
+                        "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "surfaceKey",
+                  "viewKey",
+                  "public"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "action publish, surfaceKey, viewKey, name, link and publicLink (url, expiresAt, openCount, lastOpenedAt, createdAt) or null after revoking.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "surfaces",
+                        "config",
+                        "list",
+                        "read",
+                        "create",
+                        "update",
+                        "select",
+                        "delete",
+                        "reset",
+                        "share",
+                        "publish"
+                      ]
+                    },
+                    "surfaceKey": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "users-card-store",
+                            "roles-card-store",
+                            "webhooks-card-store",
+                            "webhook-deliveries-card-store",
+                            "messaging-threads-card-store",
+                            "entity-timeline",
+                            "activity",
+                            "routines-card-store",
+                            "dashboard"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "pattern": "^records:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                        }
+                      ]
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "section": {
+                      "type": "string",
+                      "enum": [
+                        "overview",
+                        "filters",
+                        "sorting",
+                        "grouping",
+                        "appearance"
+                      ]
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "surfaceKey": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "users-card-store",
+                                  "roles-card-store",
+                                  "webhooks-card-store",
+                                  "webhook-deliveries-card-store",
+                                  "messaging-threads-card-store",
+                                  "entity-timeline",
+                                  "activity",
+                                  "routines-card-store",
+                                  "dashboard"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "pattern": "^records:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "position": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "state": {
+                            "type": "object",
+                            "properties": {
+                              "filters": {
+                                "type": "array",
+                                "items": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "operator": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "equals",
+                                              "title": "equals"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "notEquals",
+                                              "title": "notEquals"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "contains",
+                                              "title": "contains"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "startsWith",
+                                              "title": "startsWith"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "gt",
+                                              "title": "gt"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "gte",
+                                              "title": "gte"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "lt",
+                                              "title": "lt"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "lte",
+                                              "title": "lte"
+                                            }
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "operator",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Single value filter"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "operator": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "in",
+                                              "title": "in"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "notIn",
+                                              "title": "notIn"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "between",
+                                              "title": "between"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "hasAnyOf",
+                                              "title": "hasAnyOf"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "hasAllOf",
+                                              "title": "hasAllOf"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "hasNoneOf",
+                                              "title": "hasNoneOf"
+                                            }
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "operator",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Multi value filter"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "operator": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "isNull",
+                                              "title": "isNull"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "isNotNull",
+                                              "title": "isNotNull"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "hasUnset",
+                                              "title": "hasUnset"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "allSet",
+                                              "title": "allSet"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "operator"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Standalone filter"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "operator": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "hasNone",
+                                              "title": "hasNone"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "hasSome",
+                                              "title": "hasSome"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "operator"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Relationship existence filter"
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "operator": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "const": "inLastDays",
+                                              "title": "inLastDays"
+                                            },
+                                            {
+                                              "type": "string",
+                                              "const": "notInLastDays",
+                                              "title": "notInLastDays"
+                                            }
+                                          ]
+                                        },
+                                        "value": {
+                                          "type": "integer",
+                                          "exclusiveMinimum": 0,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": [
+                                        "field",
+                                        "operator",
+                                        "value"
+                                      ],
+                                      "additionalProperties": false,
+                                      "title": "Relative window filter"
+                                    }
+                                  ],
+                                  "type": "object"
+                                }
+                              },
+                              "searchTerm": {
+                                "type": "string",
+                                "maxLength": 200
+                              },
+                              "sortDescriptor": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "field": {
+                                        "type": "string"
+                                      },
+                                      "direction": {
+                                        "type": "string",
+                                        "enum": [
+                                          "asc",
+                                          "desc"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "field",
+                                      "direction"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "pageSize": {
+                                "anyOf": [
+                                  {
+                                    "type": "number",
+                                    "const": 5
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 10
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 25
+                                  },
+                                  {
+                                    "type": "number",
+                                    "const": 100
+                                  }
+                                ]
+                              },
+                              "viewMode": {
+                                "type": "string",
+                                "enum": [
+                                  "table",
+                                  "card",
+                                  "calendar"
+                                ]
+                              },
+                              "grouping": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "field": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 200
+                                      },
+                                      "bucket": {
+                                        "type": "string",
+                                        "enum": [
+                                          "day",
+                                          "week",
+                                          "month"
+                                        ]
+                                      },
+                                      "hidden": {
+                                        "description": "Group keys the board hides (value:<optionId> or __empty__); Appearance lists them to show again.",
+                                        "maxItems": 50,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1,
+                                          "maxLength": 256
+                                        }
+                                      },
+                                      "hideEmpty": {
+                                        "description": "The board hides columns without records.",
+                                        "type": "boolean"
+                                      },
+                                      "summaries": {
+                                        "description": "Totals shown on each table group and board column: a number or currency field of the list with sum, average, min or max. Each pair at most once.",
+                                        "maxItems": 8,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "object",
+                                          "properties": {
+                                            "fieldId": {
+                                              "type": "string",
+                                              "format": "uuid",
+                                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                            },
+                                            "aggregation": {
+                                              "type": "string",
+                                              "enum": [
+                                                "sum",
+                                                "average",
+                                                "min",
+                                                "max"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "fieldId",
+                                            "aggregation"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "field"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "columnOrder": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "columnWidths": {
+                                "type": "object",
+                                "propertyNames": {
+                                  "type": "string"
+                                },
+                                "additionalProperties": {
+                                  "type": "number"
+                                }
+                              },
+                              "hiddenColumns": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "calendar": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "dateFieldId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                        "description": "Field that places each record on the calendar: a date, date-time, date range or date-time range field of the list."
+                                      },
+                                      "endDateFieldId": {
+                                        "description": "Optional field of the same date or date-time type that ends each record's span; not used with a range field.",
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "colorFieldId": {
+                                        "description": "Optional single-choice field whose option colors color the records.",
+                                        "anyOf": [
+                                          {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "mode": {
+                                        "description": "month (default) and agenda show a month, week shows Monday to Sunday.",
+                                        "type": "string",
+                                        "enum": [
+                                          "month",
+                                          "week",
+                                          "agenda"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "dateFieldId"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "field": {
+                            "type": "string"
+                          },
+                          "operators": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "additionalProperties": {}
+                      }
+                    },
+                    "totals": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "supportsSearch": {
+                      "type": "boolean"
+                    },
+                    "viewModes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "table",
+                          "card",
+                          "calendar"
+                        ]
+                      }
+                    },
+                    "writableStateFields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "activeViewKey": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "allState": {
+                      "type": "object",
+                      "properties": {
+                        "filters": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "equals",
+                                        "title": "equals"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notEquals",
+                                        "title": "notEquals"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "contains",
+                                        "title": "contains"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "startsWith",
+                                        "title": "startsWith"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "gt",
+                                        "title": "gt"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "gte",
+                                        "title": "gte"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "lt",
+                                        "title": "lt"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "lte",
+                                        "title": "lte"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Single value filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "in",
+                                        "title": "in"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notIn",
+                                        "title": "notIn"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "between",
+                                        "title": "between"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasAnyOf",
+                                        "title": "hasAnyOf"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasAllOf",
+                                        "title": "hasAllOf"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasNoneOf",
+                                        "title": "hasNoneOf"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Multi value filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "isNull",
+                                        "title": "isNull"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "isNotNull",
+                                        "title": "isNotNull"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasUnset",
+                                        "title": "hasUnset"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "allSet",
+                                        "title": "allSet"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Standalone filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "hasNone",
+                                        "title": "hasNone"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasSome",
+                                        "title": "hasSome"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Relationship existence filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "inLastDays",
+                                        "title": "inLastDays"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notInLastDays",
+                                        "title": "notInLastDays"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Relative window filter"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "searchTerm": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "sortDescriptor": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string"
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "asc",
+                                    "desc"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "field",
+                                "direction"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "pageSize": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 5
+                            },
+                            {
+                              "type": "number",
+                              "const": 10
+                            },
+                            {
+                              "type": "number",
+                              "const": 25
+                            },
+                            {
+                              "type": "number",
+                              "const": 100
+                            }
+                          ]
+                        },
+                        "viewMode": {
+                          "type": "string",
+                          "enum": [
+                            "table",
+                            "card",
+                            "calendar"
+                          ]
+                        },
+                        "grouping": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "bucket": {
+                                  "type": "string",
+                                  "enum": [
+                                    "day",
+                                    "week",
+                                    "month"
+                                  ]
+                                },
+                                "hidden": {
+                                  "description": "Group keys the board hides (value:<optionId> or __empty__); Appearance lists them to show again.",
+                                  "maxItems": 50,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 256
+                                  }
+                                },
+                                "hideEmpty": {
+                                  "description": "The board hides columns without records.",
+                                  "type": "boolean"
+                                },
+                                "summaries": {
+                                  "description": "Totals shown on each table group and board column: a number or currency field of the list with sum, average, min or max. Each pair at most once.",
+                                  "maxItems": 8,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "fieldId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "aggregation": {
+                                        "type": "string",
+                                        "enum": [
+                                          "sum",
+                                          "average",
+                                          "min",
+                                          "max"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fieldId",
+                                      "aggregation"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "columnOrder": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "columnWidths": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        },
+                        "hiddenColumns": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "calendar": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "dateFieldId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                  "description": "Field that places each record on the calendar: a date, date-time, date range or date-time range field of the list."
+                                },
+                                "endDateFieldId": {
+                                  "description": "Optional field of the same date or date-time type that ends each record's span; not used with a range field.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "colorFieldId": {
+                                  "description": "Optional single-choice field whose option colors color the records.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "mode": {
+                                  "description": "month (default) and agenda show a month, week shows Monday to Sunday.",
+                                  "type": "string",
+                                  "enum": [
+                                    "month",
+                                    "week",
+                                    "agenda"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "dateFieldId"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "viewKey": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "const": "__all__"
+                        },
+                        {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        }
+                      ]
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "state": {
+                      "type": "object",
+                      "properties": {
+                        "filters": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "equals",
+                                        "title": "equals"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notEquals",
+                                        "title": "notEquals"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "contains",
+                                        "title": "contains"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "startsWith",
+                                        "title": "startsWith"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "gt",
+                                        "title": "gt"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "gte",
+                                        "title": "gte"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "lt",
+                                        "title": "lt"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "lte",
+                                        "title": "lte"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Single value filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "in",
+                                        "title": "in"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notIn",
+                                        "title": "notIn"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "between",
+                                        "title": "between"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasAnyOf",
+                                        "title": "hasAnyOf"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasAllOf",
+                                        "title": "hasAllOf"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasNoneOf",
+                                        "title": "hasNoneOf"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Multi value filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "isNull",
+                                        "title": "isNull"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "isNotNull",
+                                        "title": "isNotNull"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasUnset",
+                                        "title": "hasUnset"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "allSet",
+                                        "title": "allSet"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Standalone filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "hasNone",
+                                        "title": "hasNone"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "hasSome",
+                                        "title": "hasSome"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Relationship existence filter"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "field": {
+                                    "type": "string"
+                                  },
+                                  "operator": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string",
+                                        "const": "inLastDays",
+                                        "title": "inLastDays"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "notInLastDays",
+                                        "title": "notInLastDays"
+                                      }
+                                    ]
+                                  },
+                                  "value": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "field",
+                                  "operator",
+                                  "value"
+                                ],
+                                "additionalProperties": false,
+                                "title": "Relative window filter"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "searchTerm": {
+                          "type": "string",
+                          "maxLength": 200
+                        },
+                        "sortDescriptor": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string"
+                                },
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "asc",
+                                    "desc"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "field",
+                                "direction"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "pageSize": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 5
+                            },
+                            {
+                              "type": "number",
+                              "const": 10
+                            },
+                            {
+                              "type": "number",
+                              "const": 25
+                            },
+                            {
+                              "type": "number",
+                              "const": 100
+                            }
+                          ]
+                        },
+                        "viewMode": {
+                          "type": "string",
+                          "enum": [
+                            "table",
+                            "card",
+                            "calendar"
+                          ]
+                        },
+                        "grouping": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "field": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "bucket": {
+                                  "type": "string",
+                                  "enum": [
+                                    "day",
+                                    "week",
+                                    "month"
+                                  ]
+                                },
+                                "hidden": {
+                                  "description": "Group keys the board hides (value:<optionId> or __empty__); Appearance lists them to show again.",
+                                  "maxItems": 50,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 256
+                                  }
+                                },
+                                "hideEmpty": {
+                                  "description": "The board hides columns without records.",
+                                  "type": "boolean"
+                                },
+                                "summaries": {
+                                  "description": "Totals shown on each table group and board column: a number or currency field of the list with sum, average, min or max. Each pair at most once.",
+                                  "maxItems": 8,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "fieldId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "aggregation": {
+                                        "type": "string",
+                                        "enum": [
+                                          "sum",
+                                          "average",
+                                          "min",
+                                          "max"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fieldId",
+                                      "aggregation"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                }
+                              },
+                              "required": [
+                                "field"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "columnOrder": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "columnWidths": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {
+                            "type": "number"
+                          }
+                        },
+                        "hiddenColumns": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "calendar": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "dateFieldId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                                  "description": "Field that places each record on the calendar: a date, date-time, date range or date-time range field of the list."
+                                },
+                                "endDateFieldId": {
+                                  "description": "Optional field of the same date or date-time type that ends each record's span; not used with a range field.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "colorFieldId": {
+                                  "description": "Optional single-choice field whose option colors color the records.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "mode": {
+                                  "description": "month (default) and agenda show a month, week shows Monday to Sunday.",
+                                  "type": "string",
+                                  "enum": [
+                                    "month",
+                                    "week",
+                                    "agenda"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "dateFieldId"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "link": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "deleted": {
+                      "type": "boolean"
+                    },
+                    "proposed": {
+                      "type": "boolean",
+                      "const": true
+                    },
+                    "trashBatchId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "visibility": {
+                      "type": "string",
+                      "enum": [
+                        "private",
+                        "workspace",
+                        "roles"
+                      ]
+                    },
+                    "roleIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "publicLink": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "expiresAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "openCount": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "lastOpenedAt": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "expiresAt",
+                            "openCount",
+                            "lastOpenedAt",
+                            "createdAt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
                     }
                   },
                   "required": [
@@ -87337,7 +89651,8 @@
                                                                 "webhook",
                                                                 "routine",
                                                                 "connected_account",
-                                                                "wiki_page"
+                                                                "wiki_page",
+                                                                "public_link"
                                                               ]
                                                             },
                                                             "id": {
@@ -140496,6 +142811,7 @@
                         "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
                         "dataViewUpdateEmpty",
+                        "publicLinkExpiryInPast",
                         "emailNotVerified",
                         "invalidCredentials",
                         "invalidCallbackUrl",

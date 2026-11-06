@@ -61,7 +61,14 @@ const ActivityMemberSchema = z.object({
 });
 export type ActivityMemberDto = z.infer<typeof ActivityMemberSchema>;
 
-export const NAMED_ACTIVITY_SUBJECT_KINDS = ["role", "webhook", "routine", "connected_account", "wiki_page"] as const;
+export const NAMED_ACTIVITY_SUBJECT_KINDS = [
+  "role",
+  "webhook",
+  "routine",
+  "connected_account",
+  "wiki_page",
+  "public_link",
+] as const;
 
 const ActivitySubjectSchema = z.union([
   z.object({ kind: z.literal("user"), member: ActivityMemberSchema }),

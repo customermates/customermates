@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
+      "publicLinkExpiryInPast": "The end date must be today or later.",
       "recordAddressCandidateInvalid": "This address suggestion is no longer valid. Look up the address again.",
       "recordAddressCountryInvalid": "In {field}, {country} is not a country code.",
       "recordAddressPostalCodeInvalid": "In {field}, {postalCode} is not a postal code of the chosen country. Postal codes there look like {example}.",
@@ -1386,6 +1387,10 @@
         "relation": {
           "created": "Relation Created"
         }
+      },
+      "public_link": {
+        "created": "Public Link Created",
+        "revoked": "Public Link Revoked"
       },
       "record": {
         "created": "Record created",
@@ -2281,6 +2286,24 @@
       "ownShared": "Shared",
       "private": "Only me",
       "privateDescription": "Private. Nobody else sees this view.",
+      "public": {
+        "chip": "Public link on",
+        "copied": "Copied",
+        "copy": "Copy",
+        "description": "Anyone with the link can view this dashboard's charts, without signing in.",
+        "expiresLabel": "Last day the link opens",
+        "expiryCleared": "End date removed",
+        "expirySet": "End date saved",
+        "linkLabel": "Public link",
+        "noExpiry": "No end date",
+        "onlyCharts": "Shows the charts and numbers only, calculated with your access",
+        "opened": "{count, plural, =0 {Not opened yet} one {Opened once} other {Opened # times}}",
+        "permissionDenied": "Your role may not publish dashboards. Ask an administrator.",
+        "published": "Public link created",
+        "revoked": "Public link turned off",
+        "title": "Public link",
+        "workspaceDisabled": "Public links are turned off for this workspace in Settings, General."
+      },
       "roles": "Selected roles",
       "rolesDescription": "Only members with these roles see it.",
       "rolesLabel": "Roles",
@@ -3595,6 +3618,23 @@
   "ProfileSections": {
     "apiKeysDescription": "Long-lived API keys for programmatic access."
   },
+  "PublicLink": {
+    "branding": "Shared with Customermates",
+    "byline": "Shared by {workspace} · live · read-only",
+    "bylineWithoutWorkspace": "Live · read-only",
+    "empty": "This dashboard has no charts yet.",
+    "expires": "Link works until {date}",
+    "hiddenWidgets": "{count, plural, one {# widget is not shown on public links} other {# widgets are not shown on public links}}",
+    "live": "Updated live",
+    "pageTitle": "Shared dashboard",
+    "rateLimitedBody": "This link was opened very often in a short time. Try again in a minute.",
+    "rateLimitedSubtitle": "Please wait a moment",
+    "rateLimitedTitle": "Too many requests",
+    "toHome": "Go to customermates.com",
+    "unavailableBody": "The link may have been turned off, expired or mistyped. Ask the person who shared it for a new one.",
+    "unavailableSubtitle": "This dashboard cannot be opened",
+    "unavailableTitle": "Link not available"
+  },
   "RecordActivityWidgets": {
     "after": "From",
     "allRecords": "Leave records empty to include every accessible record of this type.",
@@ -4506,6 +4546,7 @@
       "company": "Company",
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
+      "publicLinks": "Public dashboard links",
       "routines": "Routines",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
@@ -5289,6 +5330,14 @@
     "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {No public link is active} one {# public link is active} other {# public links are active}}",
+      "allowed": "Public links allowed",
+      "blocked": "Public links turned off",
+      "description": "Members whose role may publish can share a dashboard view by a link anyone can open without signing in. Turning this off stops every public link at once.",
+      "offCount": "{count, plural, =0 {No public links} one {# link is paused until you allow public links again} other {# links are paused until you allow public links again}}",
+      "title": "Allow public links"
+    },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
     "slugDescription": "Links to this workspace use {path}. Use lowercase letters, numbers and hyphens. Old links stop working when you change it.",
     "slugLabel": "Workspace URL",

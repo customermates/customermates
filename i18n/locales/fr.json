@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
+      "publicLinkExpiryInPast": "La date de fin doit être aujourd'hui ou plus tard.",
       "recordAddressCandidateInvalid": "Cette suggestion d’adresse n’est plus valide. Recherchez à nouveau l’adresse.",
       "recordAddressCountryInvalid": "Dans {field}, {country} n’est pas un code de pays.",
       "recordAddressPostalCodeInvalid": "Dans {field}, {postalCode} n’est pas un code postal du pays choisi. Les codes postaux y ressemblent à {example}.",
@@ -1386,6 +1387,10 @@
         "relation": {
           "created": "Relation créée"
         }
+      },
+      "public_link": {
+        "created": "Lien public créé",
+        "revoked": "Lien public désactivé"
       },
       "record": {
         "created": "Enregistrement créé",
@@ -2281,6 +2286,24 @@
       "ownShared": "Partagée",
       "private": "Moi uniquement",
       "privateDescription": "Privée. Personne d’autre ne voit cette vue.",
+      "public": {
+        "chip": "Lien public actif",
+        "copied": "Copié",
+        "copy": "Copier",
+        "description": "Toute personne disposant du lien voit les graphiques de ce tableau de bord, sans se connecter.",
+        "expiresLabel": "Dernier jour où le lien fonctionne",
+        "expiryCleared": "Date de fin supprimée",
+        "expirySet": "Date de fin enregistrée",
+        "linkLabel": "Lien public",
+        "noExpiry": "Sans date de fin",
+        "onlyCharts": "Affiche uniquement les graphiques et les chiffres, calculés avec vos accès",
+        "opened": "{count, plural, =0 {Pas encore ouvert} one {Ouvert une fois} other {Ouvert # fois}}",
+        "permissionDenied": "Votre rôle ne permet pas de publier des tableaux de bord. Demandez à un administrateur.",
+        "published": "Lien public créé",
+        "revoked": "Lien public désactivé",
+        "title": "Lien public",
+        "workspaceDisabled": "Les liens publics sont désactivés pour cet espace de travail dans Paramètres, Général."
+      },
       "roles": "Rôles sélectionnés",
       "rolesDescription": "Seuls les membres ayant ces rôles la voient.",
       "rolesLabel": "Rôles",
@@ -3595,6 +3618,23 @@
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
   },
+  "PublicLink": {
+    "branding": "Partagé avec Customermates",
+    "byline": "Partagé par {workspace} · en direct · lecture seule",
+    "bylineWithoutWorkspace": "En direct · lecture seule",
+    "empty": "Ce tableau de bord n'a pas encore de graphiques.",
+    "expires": "Lien valable jusqu'au {date}",
+    "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
+    "live": "Mis à jour en direct",
+    "pageTitle": "Tableau de bord partagé",
+    "rateLimitedBody": "Ce lien a été ouvert très souvent en peu de temps. Réessayez dans une minute.",
+    "rateLimitedSubtitle": "Veuillez patienter un instant",
+    "rateLimitedTitle": "Trop de requêtes",
+    "toHome": "Aller sur customermates.com",
+    "unavailableBody": "Le lien a peut-être été désactivé, a expiré ou est mal saisi. Demandez-en un nouveau à la personne qui l'a partagé.",
+    "unavailableSubtitle": "Ce tableau de bord ne peut pas être ouvert",
+    "unavailableTitle": "Lien indisponible"
+  },
   "RecordActivityWidgets": {
     "after": "À partir de",
     "allRecords": "Sans sélection, tous les enregistrements accessibles de ce type sont inclus.",
@@ -4506,6 +4546,7 @@
       "company": "Entreprise",
       "dataModel": "Modèle de données",
       "inboxMessages": "Messages de la boîte de réception",
+      "publicLinks": "Liens publics de tableaux de bord",
       "routines": "Routines",
       "users": "Utilisateurs et rôles",
       "wiki": "Base de connaissances de l’espace de travail"
@@ -5289,6 +5330,14 @@
     "nameDescription": "Tous les membres voient ce nom dans le menu de l’espace de travail.",
     "nameLabel": "Nom de l’espace de travail",
     "noPlan": "Aucune offre",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Aucun lien public actif} one {# lien public actif} other {# liens publics actifs}}",
+      "allowed": "Liens publics autorisés",
+      "blocked": "Liens publics désactivés",
+      "description": "Les membres dont le rôle permet de publier peuvent partager une vue de tableau de bord par un lien que chacun peut ouvrir sans se connecter. Désactiver cette option arrête immédiatement tous les liens publics.",
+      "offCount": "{count, plural, =0 {Aucun lien public} one {# lien est en pause jusqu'à ce que vous autorisiez de nouveau les liens publics} other {# liens sont en pause jusqu'à ce que vous autorisiez de nouveau les liens publics}}",
+      "title": "Autoriser les liens publics"
+    },
     "renameReadOnly": "Seuls les membres autorisés à gérer l’espace de travail peuvent modifier son nom.",
     "slugDescription": "Les liens vers cet espace de travail utilisent {path}. Utilisez des lettres minuscules, des chiffres et des tirets. Les anciens liens ne fonctionnent plus après une modification.",
     "slugLabel": "URL de l’espace de travail",

@@ -102,6 +102,7 @@ function storedView(overrides: Record<string, unknown> = {}) {
     userId: mockUser.id,
     visibility: "private",
     roleShares: [],
+    publicLinks: [],
     user: { id: mockUser.id, firstName: "Max", lastName: "Bergmann", avatarUrl: null },
     ...overrides,
   };

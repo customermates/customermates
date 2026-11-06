@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
+      "publicLinkExpiryInPast": "La data di fine deve essere oggi o successiva.",
       "recordAddressCandidateInvalid": "Questo suggerimento di indirizzo non è più valido. Cerca di nuovo l'indirizzo.",
       "recordAddressCountryInvalid": "In {field}, {country} non è un codice paese.",
       "recordAddressPostalCodeInvalid": "In {field}, {postalCode} non è un codice postale del paese scelto. Lì i codici postali sono così: {example}.",
@@ -1386,6 +1387,10 @@
         "relation": {
           "created": "Relazione creata"
         }
+      },
+      "public_link": {
+        "created": "Link pubblico creato",
+        "revoked": "Link pubblico disattivato"
       },
       "record": {
         "created": "Record creato",
@@ -2281,6 +2286,24 @@
       "ownShared": "Condivisa",
       "private": "Solo io",
       "privateDescription": "Privata. Nessun altro vede questa vista.",
+      "public": {
+        "chip": "Link pubblico attivo",
+        "copied": "Copiato",
+        "copy": "Copia",
+        "description": "Chiunque abbia il link vede i grafici di questa dashboard senza accedere.",
+        "expiresLabel": "Ultimo giorno in cui il link funziona",
+        "expiryCleared": "Data di fine rimossa",
+        "expirySet": "Data di fine salvata",
+        "linkLabel": "Link pubblico",
+        "noExpiry": "Nessuna data di fine",
+        "onlyCharts": "Mostra solo grafici e numeri, calcolati con il tuo accesso",
+        "opened": "{count, plural, =0 {Non ancora aperto} one {Aperto una volta} other {Aperto # volte}}",
+        "permissionDenied": "Il tuo ruolo non può pubblicare dashboard. Chiedi a un amministratore.",
+        "published": "Link pubblico creato",
+        "revoked": "Link pubblico disattivato",
+        "title": "Link pubblico",
+        "workspaceDisabled": "I link pubblici sono disattivati per questo spazio di lavoro in Impostazioni, Generale."
+      },
       "roles": "Ruoli selezionati",
       "rolesDescription": "La vedono solo i membri con questi ruoli.",
       "rolesLabel": "Ruoli",
@@ -3595,6 +3618,23 @@
   "ProfileSections": {
     "apiKeysDescription": "Chiavi API di lunga durata per l'accesso programmatico."
   },
+  "PublicLink": {
+    "branding": "Condivisa con Customermates",
+    "byline": "Condivisa da {workspace} · in tempo reale · sola lettura",
+    "bylineWithoutWorkspace": "In tempo reale · sola lettura",
+    "empty": "Questa dashboard non ha ancora grafici.",
+    "expires": "Il link funziona fino al {date}",
+    "hiddenWidgets": "{count, plural, one {# widget non è mostrato nei link pubblici} other {# widget non sono mostrati nei link pubblici}}",
+    "live": "Aggiornata in tempo reale",
+    "pageTitle": "Dashboard condivisa",
+    "rateLimitedBody": "Questo link è stato aperto molto spesso in poco tempo. Riprova tra un minuto.",
+    "rateLimitedSubtitle": "Attendi un momento",
+    "rateLimitedTitle": "Troppe richieste",
+    "toHome": "Vai a customermates.com",
+    "unavailableBody": "Il link potrebbe essere stato disattivato, essere scaduto o contenere un errore. Chiedine uno nuovo a chi l'ha condiviso.",
+    "unavailableSubtitle": "Questa dashboard non può essere aperta",
+    "unavailableTitle": "Link non disponibile"
+  },
   "RecordActivityWidgets": {
     "after": "Da",
     "allRecords": "Senza selezione vengono inclusi tutti i record accessibili di questo tipo.",
@@ -4506,6 +4546,7 @@
       "company": "Azienda",
       "dataModel": "Modello dati",
       "inboxMessages": "Messaggi della posta in arrivo",
+      "publicLinks": "Link pubblici delle dashboard",
       "routines": "Routine",
       "users": "Utenti e ruoli",
       "wiki": "Base di conoscenza dello spazio di lavoro"
@@ -5289,6 +5330,14 @@
     "nameDescription": "Tutti i membri vedono questo nome nel menu dello spazio di lavoro.",
     "nameLabel": "Nome dello spazio di lavoro",
     "noPlan": "Nessun piano",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Nessun link pubblico attivo} one {# link pubblico attivo} other {# link pubblici attivi}}",
+      "allowed": "Link pubblici consentiti",
+      "blocked": "Link pubblici disattivati",
+      "description": "I membri il cui ruolo può pubblicare possono condividere una vista della dashboard con un link che chiunque apre senza accedere. Disattivandolo si fermano subito tutti i link pubblici.",
+      "offCount": "{count, plural, =0 {Nessun link pubblico} one {# link è in pausa finché non consenti di nuovo i link pubblici} other {# link sono in pausa finché non consenti di nuovo i link pubblici}}",
+      "title": "Consenti link pubblici"
+    },
     "renameReadOnly": "Solo i membri che possono gestire lo spazio di lavoro possono cambiarne il nome.",
     "slugDescription": "I link a questo spazio di lavoro usano {path}. Usa lettere minuscole, numeri e trattini. I vecchi link smettono di funzionare se la modifichi.",
     "slugLabel": "URL dello spazio di lavoro",

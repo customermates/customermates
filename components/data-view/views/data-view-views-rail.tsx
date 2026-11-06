@@ -5,7 +5,7 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
-import { ChevronDownIcon, Sparkles, Users } from "lucide-react";
+import { ChevronDownIcon, Globe, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -340,6 +340,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               icon={
                 chip.view.sharedBy ? (
                   ownerAvatar(chip.view, "-ms-1 size-4 shrink-0")
+                ) : chip.view.isPublic ? (
+                  <Globe aria-hidden className="size-3 shrink-0" data-view-public="" />
                 ) : chip.view.visibility && chip.view.visibility !== "private" ? (
                   <Users aria-hidden className="size-3 shrink-0" />
                 ) : undefined
@@ -360,11 +362,17 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
                     <span className="block text-[11px] text-muted-foreground">{sharedScope(chip.view)}</span>
                   </>
-                ) : chip.view.visibility && chip.view.visibility !== "private" ? (
+                ) : chip.view.isPublic || (chip.view.visibility && chip.view.visibility !== "private") ? (
                   <>
                     {previewFor(chip.view.name, chip.isActive)}
 
-                    <span className="block text-[11px] text-muted-foreground">{t("DataView.share.ownShared")}</span>
+                    {chip.view.visibility && chip.view.visibility !== "private" ? (
+                      <span className="block text-[11px] text-muted-foreground">{t("DataView.share.ownShared")}</span>
+                    ) : null}
+
+                    {chip.view.isPublic ? (
+                      <span className="block text-[11px] text-muted-foreground">{t("DataView.share.public.chip")}</span>
+                    ) : null}
                   </>
                 ) : (
                   previewFor(chip.view.name, chip.isActive)

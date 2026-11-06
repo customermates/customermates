@@ -86,6 +86,7 @@ const SURFACE_VIEW_SELECT = {
   visibility: true,
   roleShares: { select: { roleId: true }, orderBy: { roleId: "asc" } },
   user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+  publicLinks: { where: { revokedAt: null }, select: { createdById: true, expiresAt: true } },
 } satisfies Prisma.DataViewSelect;
 
 type SurfaceViewRow = Prisma.DataViewGetPayload<{ select: typeof SURFACE_VIEW_SELECT }>;
@@ -125,8 +126,18 @@ function toChip(row: StoredViewRow): DataViewChipDto {
 
 function toSurfaceChip(row: SurfaceViewRow, userId: string, sharedIndex: number): DataViewChipDto {
   const chip = toChip(row as StoredViewRow);
-  if (row.userId === userId)
-    return { ...chip, visibility: row.visibility, roleIds: row.roleShares.map((share) => share.roleId) };
+  if (row.userId === userId) {
+    const now = Date.now();
+    const isPublic = row.publicLinks.some(
+      (link) => link.createdById === userId && (!link.expiresAt || link.expiresAt.getTime() > now),
+    );
+    return {
+      ...chip,
+      visibility: row.visibility,
+      roleIds: row.roleShares.map((share) => share.roleId),
+      ...(isPublic ? { isPublic } : {}),
+    };
+  }
 
   const name = [row.user.firstName, row.user.lastName].filter(Boolean).join(" ").trim();
   return {

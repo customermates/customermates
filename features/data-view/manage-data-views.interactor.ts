@@ -19,6 +19,7 @@ import type {
 import type { ResetDataViewStateInteractor } from "./reset-data-view-state.interactor";
 import type { SaveDataViewStateInteractor } from "./save-data-view-state.interactor";
 import type { SelectDataViewInteractor } from "./select-data-view.interactor";
+import type { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
 
 import equal from "fast-deep-equal/es6";
@@ -101,6 +102,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     private recordViews?: RecordViewPolicy,
     private reset?: ResetDataViewStateInteractor,
     private share?: ShareDataViewInteractor,
+    private publicLinks?: ManagePublicLinkInteractor,
   ) {
     super();
   }
@@ -357,6 +359,27 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           name: owned.name,
           visibility: result.data.visibility,
           roleIds: result.data.roleIds ?? [],
+          link: this.link(descriptor.path, owned.id),
+        },
+      };
+    }
+
+    if (data.action === "publish") {
+      if (!this.publicLinks || !owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+      const result = await this.publicLinks.invoke(
+        data.public
+          ? { action: "publish", viewId: owned.id, expiresAt: data.expiresAt ?? null }
+          : { action: "revoke", viewId: owned.id },
+      );
+      if (!result.ok) return result;
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: owned.id,
+          name: owned.name,
+          publicLink: result.data.link,
           link: this.link(descriptor.path, owned.id),
         },
       };

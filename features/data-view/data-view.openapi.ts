@@ -10,6 +10,7 @@ import {
   ReadDataViewRequestSchema,
   SelectDataViewRequestSchema,
   ShareDataViewRequestSchema,
+  PublishDataViewRequestSchema,
   UpdateDataViewRequestSchema,
 } from "./manage-data-views.schema";
 import { ResetDataViewStateSchema } from "./reset-data-view-state.schema";
@@ -140,5 +141,14 @@ export const dataViewApiPaths = {
     ShareDataViewRequestSchema,
     { surfaceKey: RECORD_SURFACE, viewKey: VIEW_ID, visibility: "workspace" },
     "action share, surfaceKey, viewKey, name, visibility, roleIds and link.",
+  ),
+  ...operation(
+    "/v1/data-views/publish",
+    "publishDataView",
+    "Publish a dashboard view by public link",
+    "Creates or revokes the public link of one of the caller's dashboard views. Anyone with the link sees that view's charts and numbers live, read-only and without signing in, calculated with the caller's access; lists, calendars, maps and activity widgets, record references and filters are never published. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.",
+    PublishDataViewRequestSchema,
+    { surfaceKey: "dashboard", viewKey: VIEW_ID, public: true, expiresAt: "2026-12-31" },
+    "action publish, surfaceKey, viewKey, name, link and publicLink (url, expiresAt, openCount, lastOpenedAt, createdAt) or null after revoking.",
   ),
 };

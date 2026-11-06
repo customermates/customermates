@@ -378,7 +378,8 @@ describe("RoleModalStore unified system permissions", () => {
     expect(permissions).toContainEqual({ resource: "company", actions: ["update"] });
     expect(permissions).toContainEqual({ resource: "activityLog", actions: ["readAll"] });
     expect(permissions).toContainEqual({ resource: "users", actions: ["readOwn"] });
-    expect(permissions).toHaveLength(8);
+    expect(permissions).toContainEqual({ resource: "publicLinks", actions: [] });
+    expect(permissions).toHaveLength(9);
   });
 });
 

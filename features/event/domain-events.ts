@@ -45,6 +45,8 @@ export enum DomainEvent {
   LEGAL_NOTICE_SENT = "legal.notice_sent",
   LEGAL_DOCUMENTS_ACCEPTED = "legal.documents_accepted",
   RECORDS_EXPORTED = "records.exported",
+  PUBLIC_LINK_CREATED = "public_link.created",
+  PUBLIC_LINK_REVOKED = "public_link.revoked",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -358,5 +360,17 @@ export type DomainEventMap = {
       truncated: boolean;
       scope: "selection" | "view";
     };
+  };
+  [DomainEvent.PUBLIC_LINK_CREATED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: { name: string; viewId: string; expiresAt: string | null };
+  };
+  [DomainEvent.PUBLIC_LINK_REVOKED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: { name: string; viewId: string };
   };
 };

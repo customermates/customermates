@@ -197,6 +197,7 @@ model User {
   p13n                            P13n[]
   dataViews                       DataView[]
   hiddenDataViews                 DataViewHidden[]
+  publicViewLinks                 PublicViewLink[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
@@ -225,6 +226,7 @@ model Company {
   createdAt                   DateTime                         @default(now())
   updatedAt                   DateTime                         @updatedAt
   tags                        String[]                         @default([])
+  allowPublicLinks            Boolean                          @default(true)
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -239,6 +241,7 @@ model Company {
   dataViews                   DataView[]
   dataViewRoleShares          DataViewRoleShare[]
   hiddenDataViews             DataViewHidden[]
+  publicViewLinks             PublicViewLink[]
   webhooks                    Webhook[]
   webhookDeliveries           WebhookDelivery[]
   connectedAccounts           ConnectedAccount[]
@@ -692,6 +695,7 @@ model DataView {
   widgets          Widget[]
   roleShares       DataViewRoleShare[]
   hiddenBy         DataViewHidden[]
+  publicLinks      PublicViewLink[]
 
   @@index([companyId])
   @@index([userId])
@@ -731,6 +735,24 @@ model DataViewHidden {
   @@id([viewId, userId])
   @@index([companyId])
   @@index([userId])
+}
+
+model PublicViewLink {
+  id           String    @id @default(uuid())
+  companyId    String
+  viewId       String
+  createdById  String
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  openCount    Int       @default(0)
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  view         DataView  @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  createdBy    User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([companyId, viewId])
+  @@index([createdById])
 }
 
 model InviteToken {
@@ -980,6 +1002,7 @@ enum Resource {
   inboxMessages
   wiki
   routines
+  publicLinks
 }
 
 enum MessagingThreadState {

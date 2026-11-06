@@ -1,3 +1,4 @@
+import type { PublicLinkSettingsRepo } from "@/features/public-link/public-link-settings.repo";
 import type { WorkspaceSetup } from "@/features/user/register/register-user-company.repo";
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
@@ -49,6 +50,7 @@ export class PrismaCompanyRepo
   implements
     GetCompanyRepo,
     RenameWorkspaceRepo,
+    PublicLinkSettingsRepo,
     UpdateWorkspaceSlugRepo,
     GetOrCreateInviteTokenRepo,
     InviteTokenRepo,
@@ -86,6 +88,29 @@ export class PrismaCompanyRepo
     await this.prisma.company.update({
       where: { id: companyId },
       data: { name },
+    });
+  }
+
+  async publicLinksAllowedForCompany() {
+    const company = await this.prisma.company.findUnique({
+      where: { id: this.user.companyId },
+      select: { allowPublicLinks: true },
+    });
+    return company?.allowPublicLinks === true;
+  }
+
+  async setPublicLinksAllowed(allowed: boolean) {
+    await this.prisma.company.update({ where: { id: this.user.companyId }, data: { allowPublicLinks: allowed } });
+  }
+
+  countActivePublicLinks() {
+    return this.prisma.publicViewLink.count({
+      where: {
+        companyId: this.user.companyId,
+        revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        view: { deletedAt: null },
+      },
     });
   }
 

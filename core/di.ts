@@ -2414,6 +2414,7 @@ export const getManageDataViewsInteractor = () =>
     getRecordViewPolicy(),
     getResetDataViewStateInteractor(),
     getShareDataViewInteractor(),
+    getManagePublicLinkInteractor(),
   );
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
@@ -2598,3 +2599,34 @@ export const getReadCalendarSubscriptionInteractor = () =>
     new CalendarSubscriptionTenant(getCalendarSubscriptionRepo(), getUserService()),
     getExportPlannerInteractor(),
   );
+
+import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
+import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
+import { ReadPublicLinkInteractor } from "@/features/public-link/read-public-link.interactor";
+import { PublicLinkRateLimiter } from "@/features/public-link/public-link-rate-limiter";
+import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
+import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
+import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-public-links-allowed.interactor";
+
+const getPublicLinkRepo = () => new PrismaPublicLinkRepo();
+
+export const getManagePublicLinkInteractor = () =>
+  new ManagePublicLinkInteractor(getPublicLinkRepo(), getEventService(), {
+    baseUrl: env.BASE_URL,
+    authSecret: env.BETTER_AUTH_SECRET,
+  });
+
+let readPublicLinkInteractor: ReadPublicLinkInteractor | undefined;
+export const getReadPublicLinkInteractor = () =>
+  (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
+    getPublicLinkRepo(),
+    getPublicLinkRepo(),
+    new PublicLinkTenant(getUserService()),
+    { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
+    new PublicLinkRateLimiter(120, 60_000),
+    new PublicLinkRateLimiter(60, 60_000),
+    { authSecret: env.BETTER_AUTH_SECRET },
+  ));
+
+export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
+export const getSetPublicLinksAllowedInteractor = () => new SetPublicLinksAllowedInteractor(getCompanyRepo());

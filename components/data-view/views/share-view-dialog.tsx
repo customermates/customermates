@@ -23,6 +23,8 @@ import { reportApplicationError, runUserAction } from "@/core/errors/report-appl
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { cn } from "@/core/utils/cn";
 
+import { PublicLinkSection } from "./public-link-section";
+
 type Role = { id: string; name: string };
 
 type Props = {
@@ -228,6 +230,8 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
               {visibility === "private" ? t("DataView.share.linkPrivate") : t("DataView.share.linkShared")}
             </p>
           </div>
+
+          {kind === "dashboard" && view ? <PublicLinkSection viewId={view.id} onChanged={onShared} /> : null}
         </AppCardBody>
 
         <FormFooterActions

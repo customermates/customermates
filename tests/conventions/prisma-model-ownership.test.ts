@@ -74,6 +74,7 @@ const OWNERS: Record<string, string> = {
   P13n: "features/p13n/prisma-p13n.repository.ts",
   PostalCode: "features/addresses/postal-codes/prisma-postal-code.repository.ts",
   PostalCodeCountry: "features/addresses/postal-codes/prisma-postal-code.repository.ts",
+  PublicViewLink: "features/public-link/prisma-public-link.repository.ts",
   RecordAssignment: "features/records/prisma-record.repository.ts",
   RecordEventMatch: "features/records/prisma-record.repository.ts",
   RecordEventSubscription: "features/records/prisma-record-event-subscription.repository.ts",
