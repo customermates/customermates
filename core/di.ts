@@ -2626,6 +2626,7 @@ export const getReadPublicLinkInteractor = () =>
     new PublicLinkRateLimiter(120, 60_000),
     new PublicLinkRateLimiter(60, 60_000),
     { authSecret: env.BETTER_AUTH_SECRET },
+    { invoke: () => getGetRecordNavigationInteractor().invoke() },
   ));
 
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());

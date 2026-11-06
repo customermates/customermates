@@ -63,6 +63,7 @@ function reader(options: { now?: Date; perLink?: number } = {}) {
     new PublicLinkRateLimiter(options.perLink ?? 1000, 60_000),
     new PublicLinkRateLimiter(1000, 60_000),
     { authSecret: SECRET, cacheMs: 0, ...(options.now ? { now: () => options.now as Date } : {}) },
+    { invoke: () => di.getGetRecordNavigationInteractor().invoke() },
   );
 }
 
@@ -127,6 +128,8 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     if (open.status !== "available") throw new Error("not available");
     expect(open.dashboard).toMatchObject({ name: "Investor board", expiresAt: null, hiddenWidgetCount: 0 });
     expect(open.dashboard.widgets.map((widget) => widget.name)).toEqual(["Deals", "Deals by stage"]);
+    expect(open.dashboard.widgets[0]?.listLabels).toMatchObject({ pluralLabel: expect.any(String) });
+    expect(open.dashboard.widgets[0]?.listLabels?.pluralLabel).not.toBe("");
     expect(total(open)).toBe(2);
     const serialized = JSON.stringify(open.dashboard);
     for (const secret of [

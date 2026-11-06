@@ -3620,8 +3620,8 @@
   },
   "PublicLink": {
     "branding": "Partagé avec Customermates",
-    "byline": "Partagé par {workspace} · en direct · lecture seule",
-    "bylineWithoutWorkspace": "En direct · lecture seule",
+    "byline": "Partagé par {workspace}",
+    "bylineWithoutWorkspace": "Tableau de bord partagé",
     "empty": "Ce tableau de bord n'a pas encore de graphiques.",
     "expires": "Lien valable jusqu'au {date}",
     "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
@@ -3630,10 +3630,20 @@
     "rateLimitedBody": "Ce lien a été ouvert très souvent en peu de temps. Réessayez dans une minute.",
     "rateLimitedSubtitle": "Veuillez patienter un instant",
     "rateLimitedTitle": "Trop de requêtes",
+    "readOnly": "Lecture seule",
     "toHome": "Aller sur customermates.com",
     "unavailableBody": "Le lien a peut-être été désactivé, a expiré ou est mal saisi. Demandez-en un nouveau à la personne qui l'a partagé.",
     "unavailableSubtitle": "Ce tableau de bord ne peut pas être ouvert",
-    "unavailableTitle": "Lien indisponible"
+    "unavailableTitle": "Lien indisponible",
+    "upsell": {
+      "badge": "Créé avec Customermates",
+      "body": "Customermates réunit vos contacts, affaires et conversations dans un seul CRM, avec des tableaux de bord que votre équipe, vos clients et vos investisseurs suivent en direct.",
+      "eyebrow": "Créé avec Customermates",
+      "headerCta": "Essayer Customermates gratuitement",
+      "primary": "Commencer l'essai gratuit",
+      "secondary": "Voir comment ça marche",
+      "title": "Créez des tableaux de bord en direct comme celui-ci à partir de vos propres données"
+    }
   },
   "RecordActivityWidgets": {
     "after": "À partir de",

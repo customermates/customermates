@@ -3620,8 +3620,8 @@
   },
   "PublicLink": {
     "branding": "Condivisa con Customermates",
-    "byline": "Condivisa da {workspace} · in tempo reale · sola lettura",
-    "bylineWithoutWorkspace": "In tempo reale · sola lettura",
+    "byline": "Condivisa da {workspace}",
+    "bylineWithoutWorkspace": "Dashboard condivisa",
     "empty": "Questa dashboard non ha ancora grafici.",
     "expires": "Il link funziona fino al {date}",
     "hiddenWidgets": "{count, plural, one {# widget non è mostrato nei link pubblici} other {# widget non sono mostrati nei link pubblici}}",
@@ -3630,10 +3630,20 @@
     "rateLimitedBody": "Questo link è stato aperto molto spesso in poco tempo. Riprova tra un minuto.",
     "rateLimitedSubtitle": "Attendi un momento",
     "rateLimitedTitle": "Troppe richieste",
+    "readOnly": "Sola lettura",
     "toHome": "Vai a customermates.com",
     "unavailableBody": "Il link potrebbe essere stato disattivato, essere scaduto o contenere un errore. Chiedine uno nuovo a chi l'ha condiviso.",
     "unavailableSubtitle": "Questa dashboard non può essere aperta",
-    "unavailableTitle": "Link non disponibile"
+    "unavailableTitle": "Link non disponibile",
+    "upsell": {
+      "badge": "Creata con Customermates",
+      "body": "Customermates riunisce contatti, trattative e conversazioni in un unico CRM, con dashboard che il tuo team, i clienti e gli investitori seguono in tempo reale.",
+      "eyebrow": "Creata con Customermates",
+      "headerCta": "Prova Customermates gratis",
+      "primary": "Inizia la prova gratuita",
+      "secondary": "Scopri come funziona",
+      "title": "Crea dashboard in tempo reale come questa dai tuoi dati"
+    }
   },
   "RecordActivityWidgets": {
     "after": "Da",

@@ -18,6 +18,12 @@ type WidgetReader = {
   invoke(data: { viewId: string }): Promise<{ ok: true; data: { items: WidgetDto[]; activeViewKey: string } }>;
 };
 
+type ListLabels = {
+  invoke(): Promise<
+    { ok: true; data: { types: Array<{ id: string; label: string; pluralLabel: string }> } } | { ok: false }
+  >;
+};
+
 type Settings = { authSecret: string | undefined; cacheMs?: number; now?: () => Date };
 
 const UNAVAILABLE = { status: "unavailable" } as const;
@@ -34,6 +40,7 @@ export class ReadPublicLinkInteractor {
     private perLink: PublicLinkRateLimiter,
     private perVisitor: PublicLinkRateLimiter,
     private settings: Settings,
+    private lists?: ListLabels,
   ) {}
 
   async invoke({ token, visitor }: { token: string; visitor?: string | null }): Promise<PublicDashboardResult> {
@@ -77,11 +84,20 @@ export class ReadPublicLinkInteractor {
         const result = await this.widgets.invoke({ viewId: link.viewId });
         if (result.data.activeViewKey !== link.viewId) return UNAVAILABLE;
         const charts = result.data.items.filter((widget): widget is RecordWidgetDto => widget.kind === "chart");
+        const navigation = this.lists ? await this.lists.invoke() : null;
+        const labels = new Map(
+          (navigation?.ok ? navigation.data.types : []).map((type) => [
+            type.id,
+            { label: type.label, pluralLabel: type.pluralLabel },
+          ]),
+        );
         const dashboard: PublicDashboard = {
           name: link.view.name,
           workspaceName: link.company.name,
           expiresAt: link.expiresAt ? link.expiresAt.toISOString().slice(0, 10) : null,
-          widgets: charts.map(publicChartWidget),
+          widgets: charts.map((widget, index) =>
+            publicChartWidget(widget, index, labels.get(widget.measure.source.typeId)),
+          ),
           hiddenWidgetCount: result.data.items.length - charts.length,
         };
         this.cache.set(link.id, { until: now.getTime() + (this.settings.cacheMs ?? 60_000), dashboard });

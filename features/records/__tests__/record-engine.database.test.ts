@@ -5247,6 +5247,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       "company:readOwn",
       "dataModel:readAll",
       "dataModel:readOwn",
+      "publicLinks:readAll",
+      "publicLinks:readOwn",
       "users:update",
     ]);
   });

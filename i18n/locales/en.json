@@ -3620,8 +3620,8 @@
   },
   "PublicLink": {
     "branding": "Shared with Customermates",
-    "byline": "Shared by {workspace} · live · read-only",
-    "bylineWithoutWorkspace": "Live · read-only",
+    "byline": "Shared by {workspace}",
+    "bylineWithoutWorkspace": "Shared dashboard",
     "empty": "This dashboard has no charts yet.",
     "expires": "Link works until {date}",
     "hiddenWidgets": "{count, plural, one {# widget is not shown on public links} other {# widgets are not shown on public links}}",
@@ -3630,10 +3630,20 @@
     "rateLimitedBody": "This link was opened very often in a short time. Try again in a minute.",
     "rateLimitedSubtitle": "Please wait a moment",
     "rateLimitedTitle": "Too many requests",
+    "readOnly": "Read-only",
     "toHome": "Go to customermates.com",
     "unavailableBody": "The link may have been turned off, expired or mistyped. Ask the person who shared it for a new one.",
     "unavailableSubtitle": "This dashboard cannot be opened",
-    "unavailableTitle": "Link not available"
+    "unavailableTitle": "Link not available",
+    "upsell": {
+      "badge": "Made with Customermates",
+      "body": "Customermates keeps your contacts, deals and conversations in one CRM, with dashboards your team, clients and investors can follow live.",
+      "eyebrow": "Made with Customermates",
+      "headerCta": "Try Customermates free",
+      "primary": "Start your free trial",
+      "secondary": "See how it works",
+      "title": "Build live dashboards like this from your own data"
+    }
   },
   "RecordActivityWidgets": {
     "after": "From",

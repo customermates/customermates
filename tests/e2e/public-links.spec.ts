@@ -69,6 +69,14 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await expect(outsider.page.locator("#global-data-views")).toHaveCount(0);
     await expect(outsider.page.locator("#dashboard-add-widget")).toHaveCount(0);
     await expect(outsider.page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
+    if (process.env.APP_MODE === "self-hosted") {
+      await expect(outsider.page.locator("#public-dashboard-cta")).toHaveCount(0);
+      await expect(outsider.page.locator("#public-dashboard-badge")).toHaveCount(0);
+    } else {
+      await expect(outsider.page.locator("#public-dashboard-upsell")).toContainText(publicPage.upsell.title);
+      for (const id of ["#public-dashboard-cta", "#public-dashboard-cta-header", "#public-dashboard-badge"])
+        await expect(outsider.page.locator(id)).toHaveAttribute("href", /^\/auth\/signup\?utm_source=public_dashboard&/u);
+    }
 
     await outsider.page.goto(`${path.slice(0, -1)}${path.endsWith("0") ? "1" : "0"}`);
     await expect(outsider.page.getByText(publicPage.unavailableTitle, { exact: true })).toBeVisible();

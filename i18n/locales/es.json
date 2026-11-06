@@ -3620,8 +3620,8 @@
   },
   "PublicLink": {
     "branding": "Compartido con Customermates",
-    "byline": "Compartido por {workspace} · en directo · solo lectura",
-    "bylineWithoutWorkspace": "En directo · solo lectura",
+    "byline": "Compartido por {workspace}",
+    "bylineWithoutWorkspace": "Panel compartido",
     "empty": "Este panel aún no tiene gráficos.",
     "expires": "El enlace funciona hasta el {date}",
     "hiddenWidgets": "{count, plural, one {# widget no se muestra en los enlaces públicos} other {# widgets no se muestran en los enlaces públicos}}",
@@ -3630,10 +3630,20 @@
     "rateLimitedBody": "Este enlace se abrió muchas veces en poco tiempo. Inténtalo de nuevo en un minuto.",
     "rateLimitedSubtitle": "Espera un momento",
     "rateLimitedTitle": "Demasiadas solicitudes",
+    "readOnly": "Solo lectura",
     "toHome": "Ir a customermates.com",
     "unavailableBody": "Puede que el enlace se haya desactivado, haya caducado o esté mal escrito. Pide uno nuevo a quien lo compartió.",
     "unavailableSubtitle": "Este panel no se puede abrir",
-    "unavailableTitle": "Enlace no disponible"
+    "unavailableTitle": "Enlace no disponible",
+    "upsell": {
+      "badge": "Hecho con Customermates",
+      "body": "Customermates reúne tus contactos, oportunidades y conversaciones en un solo CRM, con paneles que tu equipo, tus clientes y tus inversores siguen en directo.",
+      "eyebrow": "Hecho con Customermates",
+      "headerCta": "Prueba Customermates gratis",
+      "primary": "Empieza tu prueba gratuita",
+      "secondary": "Mira cómo funciona",
+      "title": "Crea paneles en directo como este con tus propios datos"
+    }
   },
   "RecordActivityWidgets": {
     "after": "Desde",

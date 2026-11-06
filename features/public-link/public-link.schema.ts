@@ -40,7 +40,7 @@ export type PublicLinkStatus = z.infer<typeof PublicLinkStatusSchema>;
 export type PublicChartWidget = Pick<
   RecordWidgetDto,
   "id" | "name" | "data" | "groupOptions" | "displayOptions" | "measure" | "status" | "decimalPlaces" | "layout"
->;
+> & { listLabels: { label: string; pluralLabel: string } | null };
 
 export type PublicDashboard = {
   name: string;
@@ -55,13 +55,18 @@ export type PublicDashboardResult =
   | { status: "unavailable" }
   | { status: "rateLimited"; retryAfterSeconds: number };
 
-export function publicChartWidget(widget: RecordWidgetDto, index: number): PublicChartWidget {
+export function publicChartWidget(
+  widget: RecordWidgetDto,
+  index: number,
+  listLabels: PublicChartWidget["listLabels"] = null,
+): PublicChartWidget {
   const { measure } = widget;
   const dateField = measure.groupBy?.dateInterval ? measure.groupBy.fieldId : null;
   const dateWindow = <T extends { fieldId: string }>(filters: readonly T[] | undefined) =>
     dateField ? (filters ?? []).filter((filter) => filter.fieldId === dateField) : [];
   return {
     id: `widget-${index + 1}`,
+    listLabels,
     name: widget.name,
     status: widget.status,
     decimalPlaces: widget.decimalPlaces ?? null,
