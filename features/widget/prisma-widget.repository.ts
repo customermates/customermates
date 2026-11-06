@@ -146,13 +146,13 @@ export class PrismaWidgetRepo
     const { id: userId, companyId, role } = this.user;
     const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
     if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
+    const view = await this.prisma.dataView.findFirst({
+      where: { id: viewId, companyId, deletedAt: null, userId: { not: userId }, OR: shared },
+      select: { userId: true },
+    });
+    if (!view) return [];
     const rows = await this.prisma.widget.findMany({
-      where: {
-        companyId,
-        viewId,
-        view: { is: { companyId, deletedAt: null, userId: { not: userId }, OR: shared } },
-        ...LIVE_WIDGET,
-      },
+      where: { companyId, viewId, userId: view.userId, ...LIVE_WIDGET },
       select: this.dtoSelect,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });

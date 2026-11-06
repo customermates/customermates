@@ -501,15 +501,17 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         {t("DataView.views.applied", { name: activeName })}
       </span>
 
-      <ShareViewDialog
-        kind={surfaceKind}
-        link={shareTarget?.link ?? ""}
-        view={shareTarget?.view ?? null}
-        onOpenChange={(next) => {
-          if (!next) setShareTarget(null);
-        }}
-        onShared={() => store.refresh()}
-      />
+      {shareTarget && (
+        <ShareViewDialog
+          kind={surfaceKind}
+          link={shareTarget.link}
+          view={shareTarget.view}
+          onOpenChange={(next) => {
+            if (!next) setShareTarget(null);
+          }}
+          onShared={() => store.refresh()}
+        />
+      )}
     </nav>
   );
 });

@@ -180,4 +180,63 @@ describeDatabase("shared data views on PostgreSQL", () => {
     expect(await visibleIds(asSales)).toEqual([]);
     expect(await asSales(() => views().findReadableOrNull(viewId))).toBeNull();
   });
+
+  it("follows role changes, role deletion and removed members", async () => {
+    const extraRoleId = randomUUID();
+    const leaverId = randomUUID();
+    await client.query(
+      'INSERT INTO "UserRole" ("id", "name", "companyId", "updatedAt") VALUES ($1, $2, $3, CURRENT_TIMESTAMP)',
+      [extraRoleId, "Partners", companyId],
+    );
+    await client.query(
+      'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "updatedAt") VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)',
+      [leaverId, `lea-${leaverId}@example.invalid`, "Lea", "Neumann", companyId, extraRoleId],
+    );
+    const sharedId = (
+      await asOwner(() => views().createView({ surfaceKey: SURFACE, name: "Partners", position: 1, state: {} }))
+    ).id;
+    expect(
+      (await asOwner(() => share().invoke({ id: sharedId, visibility: "roles", roleIds: [extraRoleId] }))).ok,
+    ).toBe(true);
+
+    const asLeaver = as(tenant(leaverId, companyId, extraRoleId, "Partners"));
+    const asMovedSupport = as(tenant(supportId, companyId, extraRoleId, "Partners"));
+    expect(await visibleIds(asLeaver)).toEqual([sharedId]);
+    expect(await visibleIds(asSupport)).toEqual([]);
+    expect(await visibleIds(asMovedSupport)).toEqual([sharedId]);
+
+    const hide = new HideSharedDataViewInteractor(views(), new PrismaP13nRepo());
+    expect((await asLeaver(() => hide.invoke({ id: sharedId, hidden: true }))).ok).toBe(true);
+    await client.query('DELETE FROM "User" WHERE "id" = $1', [leaverId]);
+    expect((await client.query('SELECT 1 FROM "DataViewHidden" WHERE "userId" = $1', [leaverId])).rowCount).toBe(0);
+
+    await client.query('DELETE FROM "UserRole" WHERE "id" = $1', [extraRoleId]);
+    expect((await client.query('SELECT 1 FROM "DataViewRoleShare" WHERE "viewId" = $1', [sharedId])).rowCount).toBe(0);
+    expect(await visibleIds(asMovedSupport)).toEqual([]);
+    expect(await visibleIds(asOwner)).toEqual([sharedId]);
+  });
+
+  it("never lets another workspace select, hide or reshare a shared view, even with a matching role id", async () => {
+    const crossId = (
+      await asOwner(() => views().createView({ surfaceKey: SURFACE, name: "Cross", position: 2, state: {} }))
+    ).id;
+    await asOwner(() => share().invoke({ id: crossId, visibility: "workspace", roleIds: [] }));
+    const asForeignWithOurRole = as(tenant(outsiderId, otherCompanyId, salesRoleId, "Sales"));
+    const select = new SelectDataViewInteractor(views(), new PrismaP13nRepo());
+    const hide = new HideSharedDataViewInteractor(views(), new PrismaP13nRepo());
+
+    for (const asForeign of [asOutsider, asForeignWithOurRole]) {
+      expect(await visibleIds(asForeign)).toEqual([]);
+      expect(await asForeign(() => views().findReadableOrNull(crossId))).toBeNull();
+      expect(await asForeign(() => views().findSharedWithMeOrNull(crossId))).toBeNull();
+      expect((await asForeign(() => select.invoke({ surfaceKey: SURFACE, viewKey: crossId }))).ok).toBe(false);
+      expect((await asForeign(() => hide.invoke({ id: crossId, hidden: true }))).ok).toBe(false);
+      expect((await asForeign(() => share().invoke({ id: crossId, visibility: "private", roleIds: [] }))).ok).toBe(
+        false,
+      );
+      expect((await asForeign(() => views().listShareableRoles())).map(({ id }) => id)).toEqual([foreignRoleId]);
+    }
+    expect((await client.query('SELECT 1 FROM "DataViewHidden" WHERE "viewId" = $1', [crossId])).rowCount).toBe(0);
+    expect(await visibleIds(asSupport)).toContain(crossId);
+  });
 });
