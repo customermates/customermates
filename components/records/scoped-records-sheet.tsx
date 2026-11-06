@@ -55,7 +55,7 @@ export const ScopedRecordsTable = observer(function ScopedRecordsTable({
     [onOpen],
   );
   const openRelated = useCallback((ref: RecordRef) => onOpen?.(ref), [onOpen]);
-  const columns = useRecordTableColumns(store, openRelated, onOpen ? { openRecord } : {});
+  const columns = useRecordTableColumns(store, openRelated, onOpen ? { openRecord } : { linkRecords: false });
   const renderCard = useRecordCardRenderer(store, openRelated);
   const name = (record: RecordRow) =>
     recordDisplayName(

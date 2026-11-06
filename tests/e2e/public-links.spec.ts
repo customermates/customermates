@@ -1,21 +1,37 @@
 import type { Page } from "@playwright/test";
 
+import { randomUUID } from "node:crypto";
+
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { expect, test, collectPageErrors } from "./fixtures";
 import { companyPath } from "./app-paths";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
-import { anonymous, createView, openShareDialog, rail, saveRole, teammate } from "./view-sharing-helpers";
+import { postOk } from "./api";
+import { anonymous, createView, openShareDialog, rail, readModel, saveRole, teammate } from "./view-sharing-helpers";
 
 const publicLink = englishMessages.DataView.share.public;
 const publicPage = englishMessages.PublicLink;
 const settings = englishMessages.Workspaces.publicLinks;
 
-async function addNumberWidget(page: Page, name: string) {
-  const dialog = page.getByRole("dialog");
-  await page.locator("#dashboard-add-widget").click();
-  await dialog.locator("#widget-starter-number").click();
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
-  await dialog.locator("#widget-modal-save").click();
+async function addNumberWidget(page: Page, name: string, viewId: string) {
+  const model = await readModel(page);
+  const type = model.types.find((candidate) => /organi[sz]ation|compan/iu.test(candidate.pluralLabel));
+  if (!type) throw new Error("The workspace has no organization list");
+  await postOk(page, "/api/v1/widgets/save", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    name,
+    measure: {
+      source: { typeId: type.id, filters: [], relationships: [] },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: null,
+    },
+    displayOptions: { displayType: "number" },
+    isTemplate: false,
+    viewId,
+  });
+  await page.reload();
   await expect(page.getByRole("heading", { name, exact: true })).toBeVisible();
 }
 
@@ -52,8 +68,8 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
   try {
     const dashboardPath = companyPath(companyId, "/dashboard");
     await page.goto(dashboardPath);
-    await createView(page, "Investor board");
-    await addNumberWidget(page, "Pipeline count");
+    const boardId = await createView(page, "Investor board");
+    await addNumberWidget(page, "Pipeline count", boardId);
 
     const url = await setPublicLink(page, true);
     if (!url) throw new Error("No public link was shown");
@@ -97,6 +113,7 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await expect(drawer.locator("#public-widget-drawer-summary")).toContainText(
       Number.isNaN(shownCount) ? "contributing record" : `${shownCount} contributing record`,
     );
+    await expect(drawer.locator("tbody tr, [data-row-id]").first()).toBeVisible();
     await expect(drawer.locator('a[href*="/records/"]')).toHaveCount(0);
     await expect(drawer.getByRole("button", { name: /edit/iu })).toHaveCount(0);
     await expect(async () => {

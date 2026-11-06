@@ -48,9 +48,11 @@ export function useRecordTableColumns(
   {
     markCalculated = false,
     openRecord,
+    linkRecords = true,
   }: {
     markCalculated?: boolean;
     openRecord?: (record: RecordRow) => void;
+    linkRecords?: boolean;
   } = {},
 ) {
   const t = useTranslations();
@@ -117,7 +119,7 @@ export function useRecordTableColumns(
                 linkLabels={store.presentation.linkLabels}
                 record={row.original}
                 onMore={
-                  column.kind === "relationship" || column.kind === "relationshipPath"
+                  linkRecords && (column.kind === "relationship" || column.kind === "relationshipPath")
                     ? (trigger) =>
                         openLinkedRecords(
                           root,
@@ -166,7 +168,7 @@ export function useRecordTableColumns(
             }
             if (column.kind !== "field") return renderCell(false);
             const opener =
-              column.id === store.type?.primaryFieldId
+              linkRecords && column.id === store.type?.primaryFieldId
                 ? recordOpener(row.original, () =>
                     openRecord ? openRecord(row.original) : openRelated(row.original.ref),
                   )
@@ -198,7 +200,18 @@ export function useRecordTableColumns(
         };
       }),
     ],
-    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, untitledHeader, root],
+    [
+      columnHeaders,
+      openRelated,
+      openRecord,
+      linkRecords,
+      avatarFieldId,
+      store,
+      markCalculated,
+      t,
+      untitledHeader,
+      root,
+    ],
   );
 }
 
