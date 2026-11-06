@@ -98,7 +98,7 @@ async function teammate(browser: Browser, database: Client, companyId: string, r
     userId,
     errors,
     close: async () => {
-      await page.screenshot({ path: testInfo.outputPath("teammate-final.png"), animations: "disabled" });
+      await page.screenshot({ path: testInfo.outputPath(`teammate-${userId}.png`), animations: "disabled" });
       await context.close();
       await database.query('DELETE FROM "AuthUser" WHERE id=$1 AND "companyId"=$2', [authUserId, companyId]);
     },
@@ -170,7 +170,14 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     permissions: [{ resource: "company", actions: [] }],
     recordGrants: [{ typeId: type.id, actions: ["readOwn"] as UpsertRoleData["recordGrants"][number]["actions"] }],
   });
+  const others = await saveRole(page, {
+    name: "Other project readers",
+    description: "Read assigned projects only, not chosen for the view",
+    permissions: [{ resource: "company", actions: [] }],
+    recordGrants: [{ typeId: type.id, actions: ["readOwn"] as UpsertRoleData["recordGrants"][number]["actions"] }],
+  });
   const member = await teammate(browser, database, companyId, readers.role.id, testInfo);
+  const outsider = await teammate(browser, database, companyId, others.role.id, testInfo);
   try {
     const primary = recordInvariant(type.primaryFieldId);
     await createRecord(page, {
@@ -219,6 +226,10 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     await expect(member.page.getByText("Assigned rollout", { exact: true })).toBeVisible();
     await expect(member.page.getByText("Owner-only budget", { exact: true })).toHaveCount(0);
 
+    await outsider.page.goto(new URL(link).pathname + new URL(link).search);
+    await expect(rail(outsider.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+    await expect(rail(outsider.page).getByRole("link", { name: "Delivery board", exact: true })).toHaveCount(0);
+
     const memberMenu = await openViewMenu(member.page);
     await expect(memberMenu.getByText(share.sharedBy.replace("{name}", OWNER_NAME), { exact: true })).toBeVisible();
     await expect(memberMenu.getByRole("menuitem", { name: views.editTitle })).toHaveCount(0);
@@ -245,8 +256,20 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     await expect(rail(member.page).getByRole("link", { name: "Delivery board Q4", exact: true })).toHaveCount(0);
     await database.query('DELETE FROM "DataViewHidden" WHERE "viewId"=$1', [viewId]);
 
+    const everyoneDialog = await openShareDialog(page);
+    await expect(everyoneDialog.locator("#share-scope-roles")).toBeChecked();
+    await everyoneDialog.locator("#share-scope-workspace").check();
+    await everyoneDialog.locator("#share-view-save").click();
+    await expect(page.getByText(share.savedWorkspace, { exact: true })).toBeVisible();
+    await outsider.page.goto(new URL(link).pathname + new URL(link).search);
+    const outsiderChip = rail(outsider.page).getByRole("link", { name: "Delivery board Q4", exact: true });
+    await expect(outsiderChip).toHaveAttribute("aria-current", "page");
+    await expect(outsiderChip).toHaveAttribute("data-view-shared", "others");
+    await expect(outsider.page.getByText("Assigned rollout", { exact: true })).toHaveCount(0);
+    await expect(outsider.page.getByText("Owner-only budget", { exact: true })).toHaveCount(0);
+
     const privateDialog = await openShareDialog(page);
-    await expect(privateDialog.locator("#share-scope-roles")).toBeChecked();
+    await expect(privateDialog.locator("#share-scope-workspace")).toBeChecked();
     await privateDialog.locator("#share-scope-private").check();
     await privateDialog.locator("#share-view-save").click();
     await expect(page.getByText(share.savedPrivate, { exact: true })).toBeVisible();
@@ -254,15 +277,19 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     await expect(rail(member.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
     await expect(rail(member.page).getByRole("link", { name: "Delivery board Q4", exact: true })).toHaveCount(0);
     await expect(member.page.getByText("Owner-only budget", { exact: true })).toHaveCount(0);
+    await outsider.page.reload();
+    await expect(rail(outsider.page).getByRole("link", { name: "Delivery board Q4", exact: true })).toHaveCount(0);
 
     expect(errors).toEqual([]);
     expect(member.errors).toEqual([]);
+    expect(outsider.errors).toEqual([]);
   } finally {
     await member.close();
+    await outsider.close();
   }
 });
 
-test("shares a dashboard view with everyone, read-only for teammates", async ({
+test("shares a dashboard view with one role, then everyone, read-only for teammates", async ({
   page,
   browser,
   database,
@@ -271,10 +298,17 @@ test("shares a dashboard view with everyone, read-only for teammates", async ({
   test.setTimeout(300000);
   const errors = collectPageErrors(page);
   const roles = await database.query(
-    'SELECT id FROM "UserRole" WHERE "companyId"=$1 AND "isSystemRole"=true ORDER BY name LIMIT 1',
+    'SELECT id, name FROM "UserRole" WHERE "companyId"=$1 AND "isSystemRole"=true ORDER BY name LIMIT 1',
     [companyId],
   );
+  const guests = await saveRole(page, {
+    name: "Dashboard guests",
+    description: "Not chosen for the dashboard view",
+    permissions: [{ resource: "company", actions: [] }],
+    recordGrants: [],
+  });
   const member = await teammate(browser, database, companyId, roles.rows[0].id, testInfo);
+  const outsider = await teammate(browser, database, companyId, guests.role.id, testInfo);
   try {
     const dashboardPath = companyPath(companyId, "/dashboard");
     await page.goto(dashboardPath);
@@ -288,9 +322,14 @@ test("shares a dashboard view with everyone, read-only for teammates", async ({
 
     const shareDialog = await openShareDialog(page);
     await expect(shareDialog.getByText(share.descriptionDashboard, { exact: true })).toBeVisible();
-    await shareDialog.locator("#share-scope-workspace").check();
+    await shareDialog.locator("#share-scope-roles").check();
+    await shareDialog.getByRole("button", { name: roles.rows[0].name, exact: true }).click();
     await shareDialog.locator("#share-view-save").click();
-    await expect(page.getByText(share.savedWorkspace, { exact: true })).toBeVisible();
+    await expect(page.getByText(share.savedRoles, { exact: true })).toBeVisible();
+    await outsider.page.goto(`${dashboardPath}?view=${viewId}`);
+    await expect(rail(outsider.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+    await expect(rail(outsider.page).getByRole("link", { name: "Team board", exact: true })).toHaveCount(0);
+    await expect(outsider.page.getByRole("heading", { name: "Shared number", exact: true })).toHaveCount(0);
 
     await member.page.goto(dashboardPath);
     const chip = rail(member.page).getByRole("link", { name: "Team board", exact: true });
@@ -306,6 +345,17 @@ test("shares a dashboard view with everyone, read-only for teammates", async ({
       }),
     ).toHaveCount(0);
 
+    const everyoneDialog = await openShareDialog(page);
+    await everyoneDialog.locator("#share-scope-workspace").check();
+    await everyoneDialog.locator("#share-view-save").click();
+    await expect(page.getByText(share.savedWorkspace, { exact: true })).toBeVisible();
+    await outsider.page.goto(`${dashboardPath}?view=${viewId}`);
+    const outsiderChip = rail(outsider.page).getByRole("link", { name: "Team board", exact: true });
+    await expect(outsiderChip).toHaveAttribute("aria-current", "page");
+    await expect(outsiderChip).toHaveAttribute("data-view-shared", "others");
+    await expect(outsider.page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
+    await expect(outsider.page.locator("#dashboard-add-widget")).toHaveCount(0);
+
     const privateDialog = await openShareDialog(page);
     await privateDialog.locator("#share-scope-private").check();
     await privateDialog.locator("#share-view-save").click();
@@ -314,10 +364,14 @@ test("shares a dashboard view with everyone, read-only for teammates", async ({
     await expect(rail(member.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
     await expect(rail(member.page).getByRole("link", { name: "Team board", exact: true })).toHaveCount(0);
     await expect(member.page.getByRole("heading", { name: "Shared number", exact: true })).toHaveCount(0);
+    await outsider.page.reload();
+    await expect(rail(outsider.page).getByRole("link", { name: "Team board", exact: true })).toHaveCount(0);
 
     expect(errors).toEqual([]);
     expect(member.errors).toEqual([]);
+    expect(outsider.errors).toEqual([]);
   } finally {
     await member.close();
+    await outsider.close();
   }
 });

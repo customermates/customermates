@@ -121,4 +121,57 @@ describe("saved-view MCP HTTP transport", () => {
     });
     expect(called.data?.result?.isError).not.toBe(true);
   });
+
+  it("carries a share with selected roles through the public transport and refuses an unknown visibility", async () => {
+    const initialized = await rpc({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: { name: "data-view-transport-test", version: "1" },
+      },
+    });
+    const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
+    if (sessionId) await rpc({ jsonrpc: "2.0", method: "notifications/initialized" }, sessionId);
+    const viewKey = "20000000-0000-4000-8000-000000000001";
+    const roleId = "30000000-0000-4000-8000-000000000001";
+    const share = {
+      action: "share" as const,
+      surfaceKey: "dashboard",
+      viewKey,
+      visibility: "roles",
+      roleIds: [roleId],
+    };
+    interactors.manage.mockResolvedValue({
+      ok: true,
+      data: { ...share, name: "Team board", link: `/dashboard?view=${viewKey}` },
+    });
+
+    const called = await rpc(
+      { jsonrpc: "2.0", id: 2, method: "tools/call", params: { name: "manage_data_views", arguments: share } },
+      sessionId,
+    );
+    expect(interactors.manage).toHaveBeenCalledExactlyOnceWith(share);
+    expect(called.data?.result?.structuredContent).toMatchObject({
+      action: "share",
+      visibility: "roles",
+      roleIds: [roleId],
+      link: `http://localhost:4105/w/acme/dashboard?view=${viewKey}`,
+    });
+
+    interactors.manage.mockClear();
+    const invalid = await rpc(
+      {
+        jsonrpc: "2.0",
+        id: 3,
+        method: "tools/call",
+        params: { name: "manage_data_views", arguments: { ...share, visibility: "public" } },
+      },
+      sessionId,
+    );
+    expect(interactors.manage).not.toHaveBeenCalled();
+    expect(JSON.stringify(invalid.data)).toMatch(/isError"?:true|error/);
+  });
 });
