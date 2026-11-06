@@ -48,6 +48,7 @@ function ownedView(overrides: Partial<DataViewDto> = {}): DataViewDto {
 function upsertDoubles(owned: DataViewDto | null) {
   const repo = {
     findOwnedOrNull: vi.fn().mockResolvedValue(owned),
+    findReadableOrNull: vi.fn().mockResolvedValue(owned),
     nextPosition: vi.fn().mockResolvedValue(3),
     createView: vi.fn((args: Record<string, unknown>) =>
       Promise.resolve({ ...ownedView(), ...args, id: MISSING_VIEW_ID }),

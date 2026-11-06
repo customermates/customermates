@@ -2011,7 +2011,7 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 export const getRecordViewPolicy = () => new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy());
 
 export const getUpsertDataViewInteractor = () =>
-  new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
+  new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy(), getWidgetRepo());
 
 export const getDeleteDataViewInteractor = () =>
   new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo(), getTrashRepo(), getRecordViewPolicy());

@@ -22,6 +22,7 @@ import type {
   RecordWidgetQueryKind,
 } from "./record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
+import type { CopyViewWidgetsRepo } from "./copy-view-widgets.repo";
 import type { SavedRecordActivityWidgetInput } from "./record-activity-widget.schema";
 import type { SavedRecordCalendarWidgetInput } from "./record-calendar-widget.schema";
 import type { SavedRecordMapWidgetInput } from "./record-map-widget.schema";
@@ -83,6 +84,7 @@ export class PrismaWidgetRepo
     FindWidgetsByIdsRepo,
     RecordWidgetConfigurationRepo,
     ViewWidgetPurgeRepo,
+    CopyViewWidgetsRepo,
     FindOwnedWidgetKindRepo,
     RecordWidgetStoreRepo
 {
@@ -157,6 +159,54 @@ export class PrismaWidgetRepo
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
     return rows.map((row) => this.storedWidget(row));
+  }
+
+  @Transaction
+  async copyViewWidgets(sourceViewId: string, targetViewId: string) {
+    const { id: userId, companyId } = this.user;
+    const [source, target] = await Promise.all([
+      this.prisma.dataView.findFirst({
+        where: { id: sourceViewId, companyId, deletedAt: null },
+        select: { userId: true },
+      }),
+      this.prisma.dataView.findFirst({
+        where: { id: targetViewId, companyId, userId, deletedAt: null },
+        select: { id: true },
+      }),
+    ]);
+    if (!source || !target) return 0;
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, viewId: sourceViewId, userId: source.userId, ...LIVE_WIDGET },
+      select: {
+        name: true,
+        kind: true,
+        measure: true,
+        activityQuery: true,
+        calendarQuery: true,
+        mapQuery: true,
+        displayOptions: true,
+        layout: true,
+      },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    if (rows.length === 0) return 0;
+    const json = (value: Prisma.JsonValue) => (value === null ? Prisma.DbNull : (value as Prisma.InputJsonValue));
+    await this.prisma.widget.createMany({
+      data: rows.map((row) => ({
+        companyId,
+        userId,
+        viewId: targetViewId,
+        name: row.name,
+        kind: row.kind,
+        measure: json(row.measure),
+        activityQuery: json(row.activityQuery),
+        calendarQuery: json(row.calendarQuery),
+        mapQuery: json(row.mapQuery),
+        displayOptions: json(row.displayOptions),
+        layout: json(row.layout),
+      })),
+    });
+    return rows.length;
   }
 
   @Transaction

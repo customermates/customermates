@@ -897,3 +897,102 @@ describeDatabase("widgets on a shared dashboard view on PostgreSQL", () => {
     expect(after.data.items).toEqual([]);
   });
 });
+
+describeDatabase("duplicating a dashboard view on PostgreSQL", () => {
+  it("copies the board's widgets into the new view, owned by whoever duplicates it", async () => {
+    const { SURFACE } = await import("@/core/data-view/data-view-keys");
+    const { UpsertDataViewInteractor } = await import("@/features/data-view/upsert-data-view.interactor");
+    const { ShareDataViewInteractor } = await import("@/features/data-view/share-data-view.interactor");
+    const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository");
+    const f = await fixture();
+    const views = createTestDataViewRepo();
+    const upsert = new UpsertDataViewInteractor(views, new PrismaP13nRepo(), undefined, new PrismaWidgetRepo());
+    await f.grant(["readOwn"]);
+    const own = await f.createDeal(
+      "Mine",
+      [[f.fields.address, address("Hafenstraße 1", "20457", "Hamburg")]],
+      [f.member.id],
+    );
+    const other = await f.createDeal("Theirs", [[f.fields.address, address("Lindenstraße 2", "10969", "Berlin")]]);
+    await f.locate(own, 53.5413, 9.9911);
+    await f.locate(other, 52.505, 13.395);
+
+    const board = await f.run(() =>
+      views.createView({ surfaceKey: SURFACE.dashboard, name: "Team board", position: 0, state: {} }),
+    );
+    const saved = await f.run(async () =>
+      f.saveMap.invoke({
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+        name: "Locations",
+        mapQuery: f.mapQuery(),
+        displayOptions: { showFilters: false },
+        viewId: board.id,
+        kind: "map",
+      }),
+    );
+    if (!saved.ok) throw new Error(JSON.stringify(saved));
+    const widgetsOf = (viewId: string) =>
+      runWithoutTenant(() =>
+        prisma.widget.findMany({
+          where: { viewId, deletedAt: null },
+          select: {
+            id: true,
+            userId: true,
+            name: true,
+            kind: true,
+            mapQuery: true,
+            displayOptions: true,
+            layout: true,
+          },
+        }),
+      );
+    const original = await widgetsOf(board.id);
+    const duplicate = (
+      copyOf: string,
+      as = f.admin,
+      surfaceKey: `records:${string}` | typeof SURFACE.dashboard = SURFACE.dashboard,
+    ) => f.run(() => upsert.invoke({ surfaceKey, name: "Copy", state: {}, copyOf }), as);
+
+    const ownCopy = await duplicate(board.id);
+    if (!ownCopy.ok) throw new Error(JSON.stringify(ownCopy));
+    const ownCopied = await widgetsOf(ownCopy.data.id);
+    expect(ownCopied).toEqual([{ ...original[0], id: expect.any(String) }]);
+    expect(ownCopied[0]?.id).not.toBe(original[0]?.id);
+
+    const refused = await duplicate(board.id, f.member);
+    expect(refused).toMatchObject({ ok: false });
+    expect(JSON.stringify(refused)).toContain("dataViewNotFound");
+
+    await f.run(() =>
+      new ShareDataViewInteractor(views).invoke({ id: board.id, visibility: "workspace", roleIds: [] }),
+    );
+    const memberCopy = await duplicate(board.id, f.member);
+    if (!memberCopy.ok) throw new Error(JSON.stringify(memberCopy));
+    const memberCopied = await widgetsOf(memberCopy.data.id);
+    expect(memberCopied).toEqual([{ ...original[0], id: expect.any(String), userId: f.member.id }]);
+    const read = await f.run(() => f.readWidget.invoke({ id: memberCopied[0]?.id ?? "" }), f.member);
+    expect(read.ok && read.data.kind === "map" && names(read.data.data?.points ?? [])).toEqual(["Mine"]);
+    expect(await widgetsOf(board.id)).toEqual(original);
+
+    const edited = await f.run(
+      async () =>
+        f.saveMap.invoke({
+          id: memberCopied[0]?.id,
+          expectedVersion: 1,
+          expectedRevision: await f.revision(),
+          idempotencyKey: randomUUID(),
+          name: "My locations",
+          mapQuery: f.mapQuery(),
+          displayOptions: { showFilters: false },
+          kind: "map",
+        }),
+      f.member,
+    );
+    expect(edited.ok, JSON.stringify(edited)).toBe(true);
+    expect((await widgetsOf(board.id))[0]?.name).toBe("Locations");
+
+    expect((await duplicate(board.id, f.member, `records:${f.deal}`)).ok).toBe(false);
+    expect((await duplicate(randomUUID(), f.member)).ok).toBe(false);
+  });
+});

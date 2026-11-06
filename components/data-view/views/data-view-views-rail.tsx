@@ -51,7 +51,6 @@ type Props<E extends HasId> = {
   actions?: ReactNode;
   allLabel?: string;
   countLabel?: (count: number) => string;
-  allowDuplicate?: boolean;
   deleteNotice?: (view: DataViewChipDto) => Promise<ViewDeleteNotice>;
   joinsTopBar?: boolean;
   detailParam?: string;
@@ -74,7 +73,6 @@ const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   actions,
   allLabel,
-  allowDuplicate = true,
   countLabel,
   deleteNotice,
   joinsTopBar = false,
@@ -223,15 +221,13 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       <DropdownMenuSeparator />
 
-      {allowDuplicate && (
-        <DropdownMenuItem
-          onSelect={() => {
-            pendingOverlay.current = () => commands.duplicate(view);
-          }}
-        >
-          {t("DataView.views.duplicate")}
-        </DropdownMenuItem>
-      )}
+      <DropdownMenuItem
+        onSelect={() => {
+          pendingOverlay.current = () => commands.duplicate(view);
+        }}
+      >
+        {t("DataView.views.duplicate")}
+      </DropdownMenuItem>
 
       <DropdownMenuItem onSelect={() => commands.copyLink(view)}>{t("DataView.views.copyLink")}</DropdownMenuItem>
 
@@ -261,7 +257,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     const items = viewMenuItems({
       index: ownChips.findIndex((chip) => chip.view.id === view.id),
       total: ownChips.length,
-    }).filter((item) => allowDuplicate || item.id !== "duplicate");
+    });
     return <ViewMenuItems commands={menuCommands} items={items} view={view} />;
   };
 

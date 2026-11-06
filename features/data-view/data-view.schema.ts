@@ -23,6 +23,7 @@ const CreateDataViewSchema = z
     name: DataViewNameSchema,
     position: DataViewPositionSchema.optional(),
     state: DataViewStateSchema,
+    copyOf: z.uuid().optional(),
   })
   .strict();
 

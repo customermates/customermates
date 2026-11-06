@@ -352,7 +352,6 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
       <DataViewViewsRail
         joinsTopBar
         allLabel={t("Dashboard.mainView")}
-        allowDuplicate={false}
         deleteNotice={async (view) => {
           const widgets = await widgetsStore.widgetNamesOfView(view.id);
           return {

@@ -87,6 +87,7 @@ export async function duplicateView<E extends HasId>(
       name: args.name,
       state: toJS(source.state),
       surfaceKey: surfaceKeyOf(store),
+      ...(source.id === ALL_VIEW_KEY ? {} : { copyOf: source.id }),
     }),
   );
   if (!copy) return null;

@@ -289,7 +289,7 @@ test("shares a list view with one role live, keeps each teammate's own record ac
   }
 });
 
-test("shares a dashboard view with one role, then everyone, read-only for teammates", async ({
+test("shares a dashboard view with one role, then everyone, read-only for teammates who can duplicate it with its widgets", async ({
   page,
   browser,
   database,
@@ -319,6 +319,23 @@ test("shares a dashboard view with one role, then everyone, read-only for teamma
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Shared number");
     await dialog.locator("#widget-modal-save").click();
     await expect(page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
+
+    const ownDuplicate = await openViewMenu(page);
+    await ownDuplicate.getByRole("menuitem", { name: views.duplicate, exact: true }).click();
+    await page.getByPlaceholder(views.namePlaceholder).fill("Team board backup");
+    await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+    await expect(rail(page).getByRole("link", { name: "Team board backup", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(new URL(page.url()).searchParams.get("view")).not.toBe(viewId);
+    await expect(page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
+    await expect(page.locator("#dashboard-add-widget")).toBeVisible();
+    await page.goto(`${dashboardPath}?view=${viewId}`);
+    await expect(rail(page).getByRole("link", { name: "Team board", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
 
     const shareDialog = await openShareDialog(page);
     await expect(shareDialog.getByText(share.descriptionDashboard, { exact: true })).toBeVisible();
@@ -356,6 +373,29 @@ test("shares a dashboard view with one role, then everyone, read-only for teamma
     await expect(outsider.page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
     await expect(outsider.page.locator("#dashboard-add-widget")).toHaveCount(0);
 
+    const duplicateMenu = await openViewMenu(outsider.page);
+    await duplicateMenu.getByRole("menuitem", { name: views.duplicate, exact: true }).click();
+    const copyName = outsider.page.getByPlaceholder(views.namePlaceholder);
+    await expect(copyName).toHaveValue(views.duplicateName.replace("{name}", "Team board"));
+    await copyName.fill("My team board");
+    await outsider.page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+    const copyChip = rail(outsider.page).getByRole("link", { name: "My team board", exact: true });
+    await expect(copyChip).toHaveAttribute("aria-current", "page");
+    await expect(copyChip).not.toHaveAttribute("data-view-shared", /.+/);
+    const copyId = new URL(outsider.page.url()).searchParams.get("view");
+    expect(copyId).not.toBe(viewId);
+    await expect(outsider.page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
+    await expect(
+      outsider.page.getByRole("button", {
+        name: englishMessages.Dashboard.widgetEditor.editTitle.replace("{name}", "Shared number"),
+      }),
+    ).toBeVisible();
+    const copies = await database.query(
+      'SELECT w."userId" FROM "Widget" w WHERE w."viewId"=$1 AND w."deletedAt" IS NULL',
+      [copyId],
+    );
+    expect(copies.rows).toEqual([{ userId: outsider.userId }]);
+
     const privateDialog = await openShareDialog(page);
     await privateDialog.locator("#share-scope-private").check();
     await privateDialog.locator("#share-view-save").click();
@@ -364,8 +404,13 @@ test("shares a dashboard view with one role, then everyone, read-only for teamma
     await expect(rail(member.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
     await expect(rail(member.page).getByRole("link", { name: "Team board", exact: true })).toHaveCount(0);
     await expect(member.page.getByRole("heading", { name: "Shared number", exact: true })).toHaveCount(0);
-    await outsider.page.reload();
+    await outsider.page.goto(`${dashboardPath}?view=${copyId}`);
     await expect(rail(outsider.page).getByRole("link", { name: "Team board", exact: true })).toHaveCount(0);
+    await expect(rail(outsider.page).getByRole("link", { name: "My team board", exact: true })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    await expect(outsider.page.getByRole("heading", { name: "Shared number", exact: true })).toBeVisible();
 
     expect(errors).toEqual([]);
     expect(member.errors).toEqual([]);
