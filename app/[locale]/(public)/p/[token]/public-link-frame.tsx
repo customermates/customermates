@@ -75,7 +75,12 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
 
         {children}
 
-        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+        <footer
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground",
+            upsell && "pb-12",
+          )}
+        >
           <span>{t("PublicLink.readOnly")}</span>
 
           <a

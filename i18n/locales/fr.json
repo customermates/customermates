@@ -2273,8 +2273,6 @@
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
     "share": {
-      "copied": "Copié",
-      "copyLink": "Copier le lien",
       "descriptionDashboard": "Votre équipe voit les mêmes widgets et la même disposition. Chaque chiffre est calculé avec ses propres accès : personne ne voit les fiches que son rôle masque.",
       "descriptionList": "Votre équipe voit vos filtres, colonnes et disposition. Chacun ne voit que les fiches et champs que son rôle autorise.",
       "hidden": "Masquée de vos onglets",
@@ -2288,8 +2286,6 @@
       "privateDescription": "Privée. Personne d’autre ne voit cette vue.",
       "public": {
         "chip": "Lien public actif",
-        "copied": "Copié",
-        "copy": "Copier",
         "createdCopied": "Lien public créé et copié",
         "description": "Public, sans connexion : toute personne disposant du lien voit les graphiques et les enregistrements qui les composent. Tous les membres de cet espace de travail la voient aussi.",
         "expiresLabel": "Dernier jour où le lien fonctionne",

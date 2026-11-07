@@ -2273,8 +2273,6 @@
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
     "share": {
-      "copied": "Kopiert",
-      "copyLink": "Link kopieren",
       "descriptionDashboard": "Teammitglieder sehen dieselben Widgets und dasselbe Layout. Jede Zahl wird mit ihrem eigenen Zugriff berechnet, sodass niemand Datensätze sieht, die seine Rolle verbirgt.",
       "descriptionList": "Teammitglieder sehen deine Filter, Spalten und dein Layout. Jede Person sieht nur die Datensätze und Felder, die ihre Rolle erlaubt.",
       "hidden": "Aus deinen Tabs ausgeblendet",
@@ -2288,8 +2286,6 @@
       "privateDescription": "Privat. Niemand sonst sieht diese Ansicht.",
       "public": {
         "chip": "Öffentlicher Link aktiv",
-        "copied": "Kopiert",
-        "copy": "Kopieren",
         "createdCopied": "Öffentlicher Link erstellt und kopiert",
         "description": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen die Diagramme und die Datensätze dahinter. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
         "expiresLabel": "Letzter Tag, an dem der Link funktioniert",

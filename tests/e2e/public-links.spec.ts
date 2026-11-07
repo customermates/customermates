@@ -51,7 +51,7 @@ async function setPublicLink(page: Page, on: boolean) {
   await expect(
     page.getByText(new RegExp(`^(${publicLink.createdCopied}|${publicLink.published})$`, "u")).first(),
   ).toBeVisible();
-  const url = await dialog.locator("#share-view-public-link").inputValue();
+  const url = (await dialog.locator("#share-view-public-link").getAttribute("data-value")) ?? "";
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   return url;
@@ -154,7 +154,7 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await expect(outsider.page.getByText("Pipeline count", { exact: true })).toHaveCount(0);
 
     const dialog = await openShareDialog(page);
-    await expect(dialog.locator("#share-view-public-link")).toHaveValue(url);
+    await expect(dialog.locator("#share-view-public-link")).toHaveAttribute("data-value", url);
     await expect(dialog.locator("#share-view-public-meta")).not.toContainText("Not opened yet");
     await page.keyboard.press("Escape");
 
@@ -185,7 +185,7 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await member.page.goto(dashboardPath);
     await createView(member.page, "Guest board");
     const memberDialog = await openShareDialog(member.page);
-    await expect(memberDialog.locator("#share-view-public-blocked")).toHaveText(publicLink.permissionDenied);
+    await expect(memberDialog.getByText(publicLink.permissionDenied, { exact: true })).toBeVisible();
     await expect(memberDialog.locator("#share-scope-public")).toBeDisabled();
 
     expect(errors).toEqual([]);

@@ -4,7 +4,7 @@ import type { DataViewChipDto, DataViewVisibility } from "@/core/data-view/data-
 import type { PublicLinkStatus } from "@/features/public-link/public-link.schema";
 import type { LucideIcon } from "lucide-react";
 
-import { Building2, Check, Copy, Globe, UserRound, Users } from "lucide-react";
+import { Building2, Globe, UserRound, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -14,15 +14,14 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { SelectableCard } from "@/components/forms/selectable-card";
 import { AppModal } from "@/components/modal";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { copyToClipboard } from "@/core/utils/clipboard";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { cn } from "@/core/utils/cn";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PublicLinkOption } from "./public-link-option";
@@ -59,7 +58,6 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [roleIds, setRoleIds] = useState<string[]>([]);
   const [roles, setRoles] = useState<Role[] | null>(null);
-  const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [openedFor, setOpenedFor] = useState<string | null>(null);
 
@@ -67,7 +65,6 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     setOpenedFor(view?.id ?? null);
     setVisibility(view?.isPublic ? "public" : (view?.visibility ?? "private"));
     setRoleIds(view?.roleIds ?? []);
-    setCopied(false);
     setPublicStatus(null);
     setExpiresAt(null);
   }
@@ -126,11 +123,12 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     roles: t("DataView.share.savedRoles"),
   };
 
-  const initialVisibility: Scope = publicLink ? "public" : (view?.visibility ?? "private");
+  const initiallyPublic = publicStatus ? publicLink !== null : view?.isPublic === true;
+  const initialVisibility: Scope = initiallyPublic ? "public" : (view?.visibility ?? "private");
   const changed =
     visibility !== initialVisibility ||
     (visibility === "roles" && !sameRoles(roleIds, view?.roleIds ?? [])) ||
-    (visibility === "public" && (publicLink?.expiresAt ?? null) !== expiresAt);
+    (visibility === "public" && publicStatus !== null && (publicLink?.expiresAt ?? null) !== expiresAt);
   const valid = (visibility !== "roles" || roleIds.length > 0) && (visibility !== "public" || !publicBlocked);
 
   const toggleRole = (roleId: string) =>
@@ -230,103 +228,59 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
               const Icon = SCOPE_ICONS[scope];
               const disabled = scope === "public" && publicBlocked;
               return (
-                <div
+                <SelectableCard
                   key={scope}
-                  className={cn(
-                    "flex items-start gap-3 rounded-md border border-border p-3",
-                    visibility === scope && "border-primary/50 bg-primary/10",
-                    disabled && "opacity-70",
-                  )}
-                >
-                  <RadioGroupItem className="mt-0.5" disabled={disabled} id={`share-scope-${scope}`} value={scope} />
-
-                  <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    <Label className="flex cursor-pointer items-center gap-2" htmlFor={`share-scope-${scope}`}>
-                      <Icon aria-hidden className="size-3.5 text-muted-foreground" />
-
-                      {scopeText[scope].title}
-                    </Label>
-
-                    <span className="text-xs text-muted-foreground">{scopeText[scope].description}</span>
-
-                    {disabled ? (
-                      <span className="text-xs text-muted-foreground" id="share-view-public-blocked">
-                        {publicStatus?.reason === "workspaceDisabled"
-                          ? t("DataView.share.public.workspaceDisabled")
-                          : t("DataView.share.public.permissionDenied")}
-                      </span>
-                    ) : null}
-
-                    {scope === "public" && visibility === "public" ? (
-                      <PublicLinkOption
-                        expiresAt={expiresAt}
-                        kind={kind}
-                        link={publicLink}
-                        onExpiresAtChange={setExpiresAt}
-                      />
-                    ) : null}
-
-                    {scope === "roles" && visibility === "roles" && (
-                      <div
-                        aria-label={t("DataView.share.rolesLabel")}
-                        className="mt-1 flex flex-wrap gap-1.5"
-                        role="group"
-                      >
-                        {(roles ?? []).map((role) => {
-                          const selected = roleIds.includes(role.id);
-                          return (
-                            <button
-                              key={role.id}
-                              aria-pressed={selected}
-                              className={cn(
-                                "inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-xs",
-                                selected
-                                  ? "border-primary/40 bg-primary/20 text-primary-soft-foreground"
-                                  : "border-border text-muted-foreground hover:bg-accent",
-                              )}
-                              type="button"
-                              onClick={() => toggleRole(role.id)}
-                            >
-                              {selected && <Check aria-hidden className="size-3" />}
-
-                              {role.name}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                  description={
+                    disabled
+                      ? publicStatus?.reason === "workspaceDisabled"
+                        ? t("DataView.share.public.workspaceDisabled")
+                        : t("DataView.share.public.permissionDenied")
+                      : scopeText[scope].description
+                  }
+                  disabled={disabled}
+                  id={`share-scope-${scope}`}
+                  label={scopeText[scope].title}
+                  leading={<Icon aria-hidden className="size-3.5 text-muted-foreground" />}
+                  selectionMode="single"
+                  value={scope}
+                />
               );
             })}
           </RadioGroup>
 
-          <div className={cn("flex flex-col gap-1.5", visibility === "public" && "hidden")}>
-            <Label htmlFor="share-view-link">{t("DataView.share.link")}</Label>
-
-            <div className="flex gap-2">
-              <Input readOnly className="font-mono text-xs" id="share-view-link" value={link} />
-
-              <Button
-                id="share-view-copy"
-                type="button"
-                variant="secondary"
-                onClick={() =>
-                  runUserAction(async () => {
-                    if (await copyToClipboard(link)) setCopied(true);
-                  })
-                }
-              >
-                {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
-
-                {copied ? t("DataView.share.copied") : t("DataView.share.copyLink")}
-              </Button>
+          {visibility === "roles" ? (
+            <div
+              aria-label={t("DataView.share.rolesLabel")}
+              className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+              id="share-view-roles"
+              role="group"
+            >
+              {(roles ?? []).map((role) => (
+                <SelectableCard
+                  key={role.id}
+                  checked={roleIds.includes(role.id)}
+                  id={`share-role-${role.id}`}
+                  label={role.name}
+                  selectionMode="multiple"
+                  onCheckedChange={() => toggleRole(role.id)}
+                />
+              ))}
             </div>
+          ) : null}
 
-            <p className="text-xs text-muted-foreground">
-              {visibility === "private" ? t("DataView.share.linkPrivate") : t("DataView.share.linkShared")}
-            </p>
-          </div>
+          {visibility === "public" ? (
+            <PublicLinkOption expiresAt={expiresAt} kind={kind} link={publicLink} onExpiresAtChange={setExpiresAt} />
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <Label>{t("DataView.share.link")}</Label>
+
+              <CopyableCode copyId="share-view-copy" id="share-view-link" value={link} />
+
+              <p className="text-xs text-muted-foreground">
+                {visibility === "private" ? t("DataView.share.linkPrivate") : t("DataView.share.linkShared")}
+              </p>
+            </div>
+          )}
         </AppCardBody>
 
         <FormFooterActions

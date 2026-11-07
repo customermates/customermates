@@ -2273,8 +2273,6 @@
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "share": {
-      "copied": "Copied",
-      "copyLink": "Copy link",
       "descriptionDashboard": "Teammates see the same widgets and layout. Every number is calculated with their own access, so nobody sees records their role hides.",
       "descriptionList": "Teammates see your filters, columns and layout. Each person only sees the records and fields their own role allows.",
       "hidden": "Hidden from your tabs",
@@ -2288,8 +2286,6 @@
       "privateDescription": "Private. Nobody else sees this view.",
       "public": {
         "chip": "Public link on",
-        "copied": "Copied",
-        "copy": "Copy",
         "createdCopied": "Public link created and copied",
         "description": "Public, no sign-in: anyone with the link sees the charts and the records behind them. Everyone in this workspace sees it too.",
         "expiresLabel": "Last day the link opens",

@@ -2273,8 +2273,6 @@
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "share": {
-      "copied": "Copiado",
-      "copyLink": "Copiar enlace",
       "descriptionDashboard": "Tu equipo ve los mismos widgets y la misma disposición. Cada cifra se calcula con su propio acceso, así que nadie ve registros que su rol oculta.",
       "descriptionList": "Tu equipo ve tus filtros, columnas y disposición. Cada persona solo ve los registros y campos que su rol permite.",
       "hidden": "Oculta en tus pestañas",
@@ -2288,8 +2286,6 @@
       "privateDescription": "Privada. Nadie más ve esta vista.",
       "public": {
         "chip": "Enlace público activo",
-        "copied": "Copiado",
-        "copy": "Copiar",
         "createdCopied": "Enlace público creado y copiado",
         "description": "Público, sin iniciar sesión: cualquiera con el enlace ve los gráficos y los registros que hay detrás. Todos en este espacio de trabajo también la ven.",
         "expiresLabel": "Último día en que funciona el enlace",

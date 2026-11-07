@@ -96,8 +96,8 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     await expect(dialog.locator("#share-scope-private")).toBeChecked();
     await dialog.locator("#share-scope-roles").check();
     await expect(dialog.locator("#share-view-save")).toBeDisabled();
-    await dialog.getByRole("button", { name: "Assigned project readers", exact: true }).click();
-    const link = await dialog.locator("#share-view-link").inputValue();
+    await dialog.getByRole("checkbox", { name: "Assigned project readers", exact: true }).click();
+    const link = (await dialog.locator("#share-view-link").getAttribute("data-value")) ?? "";
     expect(new URL(link).pathname).toBe(listPath);
     expect(new URL(link).searchParams.get("view")).toBe(viewId);
     expect(new URL(link).searchParams.has("viewShare")).toBe(false);
@@ -233,7 +233,7 @@ test("shares a dashboard view with one role, then everyone, read-only for teamma
     const shareDialog = await openShareDialog(page);
     await expect(shareDialog.getByText(share.descriptionDashboard, { exact: true })).toBeVisible();
     await shareDialog.locator("#share-scope-roles").check();
-    await shareDialog.getByRole("button", { name: roles.rows[0].name, exact: true }).click();
+    await shareDialog.getByRole("checkbox", { name: roles.rows[0].name, exact: true }).click();
     await shareDialog.locator("#share-view-save").click();
     await expect(page.getByText(share.savedRoles, { exact: true })).toBeVisible();
     await outsider.page.goto(`${dashboardPath}?view=${viewId}`);

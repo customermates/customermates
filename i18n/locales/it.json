@@ -2273,8 +2273,6 @@
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
     "share": {
-      "copied": "Copiato",
-      "copyLink": "Copia link",
       "descriptionDashboard": "Il team vede gli stessi widget e lo stesso layout. Ogni numero è calcolato con il proprio accesso, quindi nessuno vede record che il suo ruolo nasconde.",
       "descriptionList": "Il team vede i tuoi filtri, colonne e layout. Ognuno vede solo i record e i campi consentiti dal proprio ruolo.",
       "hidden": "Nascosta dalle tue schede",
@@ -2288,8 +2286,6 @@
       "privateDescription": "Privata. Nessun altro vede questa vista.",
       "public": {
         "chip": "Link pubblico attivo",
-        "copied": "Copiato",
-        "copy": "Copia",
         "createdCopied": "Link pubblico creato e copiato",
         "description": "Pubblico, senza accesso: chiunque abbia il link vede i grafici e i record che li compongono. La vedono anche tutti in questo spazio di lavoro.",
         "expiresLabel": "Ultimo giorno in cui il link funziona",

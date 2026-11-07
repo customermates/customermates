@@ -13,9 +13,11 @@ import { runUserAction } from "@/core/errors/report-application-error";
 type Props = {
   value: string;
   className?: string;
+  id?: string;
+  copyId?: string;
 };
 
-export function CopyableCode({ value, className }: Props) {
+export function CopyableCode({ value, className, id, copyId }: Props) {
   const t = useTranslations();
   const copy = useCopyToClipboard();
   const [copied, setCopied] = useState(false);
@@ -28,7 +30,7 @@ export function CopyableCode({ value, className }: Props) {
   }
 
   return (
-    <div className={cn("relative rounded-md border bg-background", className)}>
+    <div className={cn("relative rounded-md border bg-background", className)} data-value={value} id={id}>
       <pre className="overflow-x-hidden break-all whitespace-pre-wrap px-3 py-2 pr-11 text-sm font-mono text-foreground">
         <code>{value}</code>
       </pre>
@@ -36,6 +38,7 @@ export function CopyableCode({ value, className }: Props) {
       <Button
         aria-label={t("Common.actions.copy")}
         className="absolute right-1 top-1"
+        id={copyId}
         size="icon-sm"
         type="button"
         variant="ghost"
