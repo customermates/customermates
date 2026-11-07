@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
+      "publicLinkExpiryInPast": "La fecha de fin debe ser hoy o posterior.",
       "recordAddressCandidateInvalid": "Esta sugerencia de dirección ya no es válida. Busca la dirección de nuevo.",
       "recordAddressCountryInvalid": "En {field}, {country} no es un código de país.",
       "recordAddressPostalCodeInvalid": "En {field}, {postalCode} no es un código postal del país elegido. Allí los códigos postales son así: {example}.",
@@ -1386,6 +1387,10 @@
         "relation": {
           "created": "Relación creada"
         }
+      },
+      "public_link": {
+        "created": "Enlace público creado",
+        "revoked": "Enlace público desactivado"
       },
       "record": {
         "created": "Registro creado",
@@ -2267,6 +2272,51 @@
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
+    "share": {
+      "descriptionDashboard": "Tu equipo ve los mismos widgets y la misma disposición. Cada cifra se calcula con su propio acceso, así que nadie ve registros que su rol oculta.",
+      "descriptionList": "Tu equipo ve tus filtros, columnas y disposición. Cada persona solo ve los registros y campos que su rol permite.",
+      "hidden": "Oculta en tus pestañas",
+      "hide": "Ocultar de mis pestañas",
+      "link": "Enlace",
+      "linkPrivate": "Solo tú puedes abrir este enlace hasta que compartas la vista.",
+      "linkShared": "Quienes pueden ver esta vista la abren con este enlace. Los demás verán que no está compartida con ellos.",
+      "menuItem": "Compartir…",
+      "ownShared": "Compartida",
+      "private": "Solo yo",
+      "privateDescription": "Privada. Nadie más ve esta vista.",
+      "public": {
+        "chip": "Enlace público activo",
+        "createdCopied": "Enlace público creado y copiado",
+        "description": "Público, sin iniciar sesión: cualquiera con el enlace ve los gráficos y los registros que hay detrás. Todos en este espacio de trabajo también la ven.",
+        "expiresLabel": "Último día en que funciona el enlace",
+        "expiryCleared": "Fecha de fin eliminada",
+        "expirySet": "Fecha de fin guardada",
+        "linkLabel": "Enlace público",
+        "noExpiry": "Sin fecha de fin",
+        "onlyCharts": "Muestra los gráficos y, al hacer clic, los registros que hay detrás, solo lectura y con tu acceso",
+        "onlyColumns": "Muestra solo las columnas visibles, solo lectura y con tu acceso",
+        "opened": "{count, plural, =0 {Aún no abierto} one {Abierto una vez} other {Abierto # veces}}",
+        "option": "Cualquiera con el enlace",
+        "optionDescriptionList": "Público, sin iniciar sesión: cualquiera con el enlace ve esta tabla con sus columnas visibles. Todos en este espacio de trabajo también la ven.",
+        "permissionDenied": "Tu rol no puede publicar vistas con un enlace público. Pídeselo a un administrador.",
+        "published": "Enlace público creado",
+        "revoked": "Enlace público desactivado",
+        "saveToCreate": "Guarda para crear el enlace.",
+        "workspaceDisabled": "Los enlaces públicos están desactivados para este espacio de trabajo en Ajustes, General."
+      },
+      "roles": "Roles seleccionados",
+      "rolesDescription": "Solo la ven los miembros con estos roles.",
+      "rolesLabel": "Roles",
+      "savedPrivate": "La vista vuelve a ser privada",
+      "savedRoles": "Compartida con los roles seleccionados",
+      "savedWorkspace": "Compartida con todo este espacio de trabajo",
+      "sharedBy": "Compartida por {name}",
+      "title": "Compartir «{name}»",
+      "withEveryone": "Con todos · solo {name} puede editarla",
+      "withRoles": "Con roles seleccionados · solo {name} puede editarla",
+      "workspace": "Todo este espacio de trabajo",
+      "workspaceDescription": "Todos los miembros la ven junto a sus propias vistas."
+    },
     "summaries": "Resúmenes",
     "views": {
       "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
@@ -3521,7 +3571,6 @@
     "addSource": "Añadir fuente de fechas",
     "calendarSync": "Exportar y suscribirse",
     "connectCalendar": "Conectar calendario",
-    "copyLink": "Copiar enlace",
     "createSubscription": "Crear URL de suscripción",
     "download": "Descargar .ics",
     "endDate": "Fecha de fin",
@@ -3567,6 +3616,32 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
+  },
+  "PublicLink": {
+    "branding": "Compartido con Customermates",
+    "byline": "Compartido por {workspace}",
+    "bylineListWithoutWorkspace": "Lista compartida",
+    "bylineWithoutWorkspace": "Panel compartido",
+    "empty": "Este panel aún no tiene gráficos.",
+    "emptyList": "Ningún registro coincide con esta vista.",
+    "expires": "El enlace funciona hasta el {date}",
+    "hiddenWidgets": "{count, plural, one {# widget no se muestra en los enlaces públicos} other {# widgets no se muestran en los enlaces públicos}}",
+    "listCount": "{count, plural, =0 {Ningún registro} one {# registro} other {# registros}}",
+    "live": "Actualizado en directo",
+    "pageTitle": "Página pública",
+    "rateLimitedBody": "Este enlace se abrió muchas veces en poco tiempo. Inténtalo de nuevo en un minuto.",
+    "rateLimitedSubtitle": "Espera un momento",
+    "rateLimitedTitle": "Demasiadas solicitudes",
+    "readOnly": "Solo lectura",
+    "toHome": "Ir a customermates.com",
+    "unavailableBody": "Puede que el enlace se haya desactivado, haya caducado o esté mal escrito. Pide uno nuevo a quien lo compartió.",
+    "unavailableSubtitle": "Esta página no se puede abrir",
+    "unavailableTitle": "Enlace no disponible",
+    "upsell": {
+      "badge": "Hecho con Customermates",
+      "badgeHover": "· Crea tu propio panel, gratis",
+      "badgeHoverList": "· Crea tu propio CRM, gratis"
+    }
   },
   "RecordActivityWidgets": {
     "after": "Desde",
@@ -4479,6 +4554,7 @@
       "company": "Empresa",
       "dataModel": "Modelo de datos",
       "inboxMessages": "Mensajes de la bandeja de entrada",
+      "publicLinks": "Enlaces públicos",
       "routines": "Rutinas",
       "users": "Usuarios y roles",
       "wiki": "Base de conocimientos del espacio de trabajo"
@@ -5262,6 +5338,14 @@
     "nameDescription": "Todos los miembros ven este nombre en el menú del espacio de trabajo.",
     "nameLabel": "Nombre del espacio de trabajo",
     "noPlan": "Sin plan",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Ningún enlace público activo} one {# enlace público activo} other {# enlaces públicos activos}}",
+      "allowed": "Enlaces públicos permitidos",
+      "blocked": "Enlaces públicos desactivados",
+      "description": "Los miembros cuyo rol puede publicar pueden compartir una vista de panel o de lista con un enlace que cualquiera abre sin iniciar sesión. Desactivarlo detiene todos los enlaces públicos al instante.",
+      "offCount": "{count, plural, =0 {Sin enlaces públicos} one {# enlace está en pausa hasta que vuelvas a permitir los enlaces públicos} other {# enlaces están en pausa hasta que vuelvas a permitir los enlaces públicos}}",
+      "title": "Permitir enlaces públicos"
+    },
     "renameReadOnly": "Solo los miembros que pueden gestionar el espacio de trabajo pueden cambiar su nombre.",
     "slugDescription": "Los enlaces a este espacio de trabajo usan {path}. Usa letras minúsculas, números y guiones. Los enlaces antiguos dejan de funcionar si la cambias.",
     "slugLabel": "URL del espacio de trabajo",

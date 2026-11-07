@@ -78,6 +78,7 @@ export enum CustomErrorCode {
   dataViewNameMismatch = "dataViewNameMismatch",
   dataViewAllNameImmutable = "dataViewAllNameImmutable",
   dataViewUpdateEmpty = "dataViewUpdateEmpty",
+  publicLinkExpiryInPast = "publicLinkExpiryInPast",
   emailNotVerified = "emailNotVerified",
   invalidCredentials = "invalidCredentials",
   invalidCallbackUrl = "invalidCallbackUrl",

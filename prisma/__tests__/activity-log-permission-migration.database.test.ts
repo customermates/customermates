@@ -124,7 +124,17 @@ describeDatabase("activity log permission migration", { timeout: 240000 }, () =>
       (await rows<{ value: string }>(client, 'SELECT unnest(enum_range(NULL::"Resource"))::text AS value')).map(
         ({ value }) => value,
       ),
-    ).toEqual(["dataModel", "users", "company", "api", "activityLog", "inboxMessages", "wiki", "routines"]);
+    ).toEqual([
+      "dataModel",
+      "users",
+      "company",
+      "api",
+      "activityLog",
+      "inboxMessages",
+      "wiki",
+      "routines",
+      "publicLinks",
+    ]);
     expect(
       await rows(
         client,

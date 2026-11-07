@@ -40,6 +40,7 @@ export function sharedViewOf<E extends HasId>(
   view: DataViewChipDto,
 ): SharedView | undefined {
   if (!store.sharesViewState || !store.p13nId || view.id === ALL_VIEW_KEY) return undefined;
+  if (view.sharedBy || (view.visibility && view.visibility !== "private")) return undefined;
   return { name: view.name, surfaceKey: surfaceKeyOf(store), state: toJS(view.state) };
 }
 
@@ -86,6 +87,7 @@ export async function duplicateView<E extends HasId>(
       name: args.name,
       state: toJS(source.state),
       surfaceKey: surfaceKeyOf(store),
+      ...(source.id === ALL_VIEW_KEY ? {} : { copyOf: source.id }),
     }),
   );
   if (!copy) return null;
@@ -117,7 +119,7 @@ export async function moveView<E extends HasId>(
   view: DataViewChipDto,
   offset: -1 | 1,
 ): Promise<boolean> {
-  const ordered = sortViewsByPosition(store.views);
+  const ordered = sortViewsByPosition(store.views.filter((candidate) => !candidate.sharedBy));
   const neighbour = ordered[ordered.findIndex((candidate) => candidate.id === view.id) + offset];
   if (!neighbour) return false;
 

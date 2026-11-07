@@ -4,7 +4,7 @@ import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 
 type RailChip = { view: DataViewChipDto; isActive: boolean };
 
-export type ViewMenuItemId = "copyLink" | "delete" | "duplicate" | "edit" | "moveLeft" | "moveRight";
+export type ViewMenuItemId = "copyLink" | "share" | "delete" | "duplicate" | "edit" | "moveLeft" | "moveRight";
 
 export type ViewMenuItem = {
   id: ViewMenuItemId;
@@ -42,6 +42,7 @@ export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
     actionItem("duplicate"),
     actionItem("moveLeft", { isDisabled: ctx.index <= 0 }),
     actionItem("moveRight", { isDisabled: ctx.index >= ctx.total - 1 }),
+    actionItem("share"),
     actionItem("copyLink"),
     actionItem("delete", { isDestructive: true }),
   ];

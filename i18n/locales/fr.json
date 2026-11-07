@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Les mots de passe doivent correspondre.",
       "permissionDenied": "Cette action n’est pas disponible avec vos autorisations actuelles.",
       "privacyAcknowledgementRequired": "Veuillez confirmer que vous avez lu la politique de confidentialité.",
+      "publicLinkExpiryInPast": "La date de fin doit être aujourd'hui ou plus tard.",
       "recordAddressCandidateInvalid": "Cette suggestion d’adresse n’est plus valide. Recherchez à nouveau l’adresse.",
       "recordAddressCountryInvalid": "Dans {field}, {country} n’est pas un code de pays.",
       "recordAddressPostalCodeInvalid": "Dans {field}, {postalCode} n’est pas un code postal du pays choisi. Les codes postaux y ressemblent à {example}.",
@@ -1386,6 +1387,10 @@
         "relation": {
           "created": "Relation créée"
         }
+      },
+      "public_link": {
+        "created": "Lien public créé",
+        "revoked": "Lien public désactivé"
       },
       "record": {
         "created": "Enregistrement créé",
@@ -2267,6 +2272,51 @@
     "selectAllRows": "Sélectionner toutes les lignes",
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
+    "share": {
+      "descriptionDashboard": "Votre équipe voit les mêmes widgets et la même disposition. Chaque chiffre est calculé avec ses propres accès : personne ne voit les fiches que son rôle masque.",
+      "descriptionList": "Votre équipe voit vos filtres, colonnes et disposition. Chacun ne voit que les fiches et champs que son rôle autorise.",
+      "hidden": "Masquée de vos onglets",
+      "hide": "Masquer de mes onglets",
+      "link": "Lien",
+      "linkPrivate": "Vous seul pouvez ouvrir ce lien tant que la vue n’est pas partagée.",
+      "linkShared": "Les membres qui peuvent voir cette vue l’ouvrent avec ce lien. Les autres voient qu’elle n’est pas partagée avec eux.",
+      "menuItem": "Partager…",
+      "ownShared": "Partagée",
+      "private": "Moi uniquement",
+      "privateDescription": "Privée. Personne d’autre ne voit cette vue.",
+      "public": {
+        "chip": "Lien public actif",
+        "createdCopied": "Lien public créé et copié",
+        "description": "Public, sans connexion : toute personne disposant du lien voit les graphiques et les enregistrements qui les composent. Tous les membres de cet espace de travail la voient aussi.",
+        "expiresLabel": "Dernier jour où le lien fonctionne",
+        "expiryCleared": "Date de fin supprimée",
+        "expirySet": "Date de fin enregistrée",
+        "linkLabel": "Lien public",
+        "noExpiry": "Sans date de fin",
+        "onlyCharts": "Affiche les graphiques et, au clic, les enregistrements qui les composent, en lecture seule et avec vos accès",
+        "onlyColumns": "Affiche uniquement les colonnes visibles, en lecture seule et avec vos accès",
+        "opened": "{count, plural, =0 {Pas encore ouvert} one {Ouvert une fois} other {Ouvert # fois}}",
+        "option": "Toute personne disposant du lien",
+        "optionDescriptionList": "Public, sans connexion : toute personne disposant du lien voit ce tableau avec ses colonnes visibles. Tous les membres de cet espace de travail la voient aussi.",
+        "permissionDenied": "Votre rôle ne permet pas de publier des vues par lien public. Demandez à un administrateur.",
+        "published": "Lien public créé",
+        "revoked": "Lien public désactivé",
+        "saveToCreate": "Enregistrez pour créer le lien.",
+        "workspaceDisabled": "Les liens publics sont désactivés pour cet espace de travail dans Paramètres, Général."
+      },
+      "roles": "Rôles sélectionnés",
+      "rolesDescription": "Seuls les membres ayant ces rôles la voient.",
+      "rolesLabel": "Rôles",
+      "savedPrivate": "La vue est de nouveau privée",
+      "savedRoles": "Partagée avec les rôles sélectionnés",
+      "savedWorkspace": "Partagée avec tout l’espace de travail",
+      "sharedBy": "Partagée par {name}",
+      "title": "Partager « {name} »",
+      "withEveryone": "Avec tout le monde · seul·e {name} peut la modifier",
+      "withRoles": "Avec des rôles sélectionnés · seul·e {name} peut la modifier",
+      "workspace": "Tout l’espace de travail",
+      "workspaceDescription": "Tous les membres la voient à côté de leurs propres vues."
+    },
     "summaries": "Synthèses",
     "views": {
       "activityCount": "{count, plural, one {# activité} other {# activités}}",
@@ -3521,7 +3571,6 @@
     "addSource": "Ajouter une source de dates",
     "calendarSync": "Exporter et s’abonner",
     "connectCalendar": "Connecter un calendrier",
-    "copyLink": "Copier le lien",
     "createSubscription": "Créer l’URL d’abonnement",
     "download": "Télécharger .ics",
     "endDate": "Date de fin",
@@ -3567,6 +3616,32 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Clés API de longue durée pour un accès programmatique."
+  },
+  "PublicLink": {
+    "branding": "Partagé avec Customermates",
+    "byline": "Partagé par {workspace}",
+    "bylineListWithoutWorkspace": "Liste partagée",
+    "bylineWithoutWorkspace": "Tableau de bord partagé",
+    "empty": "Ce tableau de bord n'a pas encore de graphiques.",
+    "emptyList": "Aucun enregistrement ne correspond à cette vue.",
+    "expires": "Lien valable jusqu'au {date}",
+    "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
+    "listCount": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
+    "live": "Mis à jour en direct",
+    "pageTitle": "Page publique",
+    "rateLimitedBody": "Ce lien a été ouvert très souvent en peu de temps. Réessayez dans une minute.",
+    "rateLimitedSubtitle": "Veuillez patienter un instant",
+    "rateLimitedTitle": "Trop de requêtes",
+    "readOnly": "Lecture seule",
+    "toHome": "Aller sur customermates.com",
+    "unavailableBody": "Le lien a peut-être été désactivé, a expiré ou est mal saisi. Demandez-en un nouveau à la personne qui l'a partagé.",
+    "unavailableSubtitle": "Cette page ne peut pas être ouverte",
+    "unavailableTitle": "Lien indisponible",
+    "upsell": {
+      "badge": "Créé avec Customermates",
+      "badgeHover": "· Créez votre propre tableau de bord, gratuitement",
+      "badgeHoverList": "· Créez votre propre CRM, gratuitement"
+    }
   },
   "RecordActivityWidgets": {
     "after": "À partir de",
@@ -4479,6 +4554,7 @@
       "company": "Entreprise",
       "dataModel": "Modèle de données",
       "inboxMessages": "Messages de la boîte de réception",
+      "publicLinks": "Liens publics",
       "routines": "Routines",
       "users": "Utilisateurs et rôles",
       "wiki": "Base de connaissances de l’espace de travail"
@@ -5262,6 +5338,14 @@
     "nameDescription": "Tous les membres voient ce nom dans le menu de l’espace de travail.",
     "nameLabel": "Nom de l’espace de travail",
     "noPlan": "Aucune offre",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Aucun lien public actif} one {# lien public actif} other {# liens publics actifs}}",
+      "allowed": "Liens publics autorisés",
+      "blocked": "Liens publics désactivés",
+      "description": "Les membres dont le rôle permet de publier peuvent partager une vue de tableau de bord ou de liste par un lien que chacun peut ouvrir sans se connecter. Désactiver cette option arrête immédiatement tous les liens publics.",
+      "offCount": "{count, plural, =0 {Aucun lien public} one {# lien est en pause jusqu'à ce que vous autorisiez de nouveau les liens publics} other {# liens sont en pause jusqu'à ce que vous autorisiez de nouveau les liens publics}}",
+      "title": "Autoriser les liens publics"
+    },
     "renameReadOnly": "Seuls les membres autorisés à gérer l’espace de travail peuvent modifier son nom.",
     "slugDescription": "Les liens vers cet espace de travail utilisent {path}. Utilisez des lettres minuscules, des chiffres et des tirets. Les anciens liens ne fonctionnent plus après une modification.",
     "slugLabel": "URL de l’espace de travail",

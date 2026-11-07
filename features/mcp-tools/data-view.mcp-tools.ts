@@ -4,7 +4,7 @@ import type { McpTool } from "./mcp-tool";
 import { z } from "zod";
 
 import { getManageDataViewsInteractor } from "@/core/di";
-import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
+import { DATA_VIEW_STATE_FIELDS, DataViewVisibilitySchema } from "@/core/data-view/data-view-state.schema";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
@@ -44,15 +44,15 @@ function withoutRenderedMessage(issue: $ZodIssue): $ZodRawIssue {
 const ManageDataViewsToolSchema = z
   .object({
     action: z
-      .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset"])
+      .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset", "share", "publish"])
       .describe(
-        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change personal views; reset removes personal overrides for the given fields.",
+        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change your own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of your views; publish creates or revokes the public link of one of your dashboard or list views.",
       ),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional().describe(
       "Required for every action except surfaces. Operator-console surfaces are intentionally unavailable.",
     ),
     viewKey: ViewKeySchema.optional().describe(
-      "list: optional exact view whose state is needed. Required for update/select/delete. __all__ cannot be renamed or deleted.",
+      "list: optional exact view whose state is needed. Required for update/select/delete/share/publish. __all__ cannot be renamed, deleted, shared or published.",
     ),
     section: DataViewConfigSectionSchema.optional().describe(
       "config only. Defaults to overview; use filters, sorting, grouping or appearance for paged field metadata.",
@@ -81,6 +81,26 @@ const ManageDataViewsToolSchema = z
       .describe(
         "reset only: remove personal overrides for these keys; the list then shows every field in its configured order as an ungrouped, unsorted table. Only dynamic record surfaces support reset.",
       ),
+    visibility: DataViewVisibilitySchema.optional().describe(
+      "share only: private (only you), workspace (every member) or roles (members with one of roleIds).",
+    ),
+    roleIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(50)
+      .optional()
+      .describe("share with visibility roles only: role ids from manage_roles."),
+    public: z
+      .boolean()
+      .optional()
+      .describe(
+        "publish only (surfaceKey dashboard or records:<typeId>): true creates a public link, false revokes it at once.",
+      ),
+    expiresAt: z.iso
+      .date()
+      .nullable()
+      .optional()
+      .describe("publish with public true only: optional last day (YYYY-MM-DD) the link opens."),
     state: AgentDataViewStateSchema.optional().describe(
       "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops. Arrays replace. Never copy old conversation/full state.",
     ),
@@ -101,14 +121,16 @@ const ManageDataViewsToolSchema = z
 
 export const manageDataViewsTool = {
   name: "manage_data_views",
-  title: "Manage personal saved views",
+  title: "Manage saved views",
   description:
-    "Manage personal saved views on supported workspace pages; operator-console views are excluded. " +
+    "Manage saved views on supported workspace pages; operator-console views are excluded. " +
     "Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. " +
     "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. " +
     "Record lists offer the layouts config lists in viewModes: table, card (a board grouped by a single choice) and calendar when the list has a date field; a calendar view sets viewMode calendar and calendar {dateFieldId, endDateFieldId, colorFieldId, mode} with fields from config appearance. " +
     "Clear filters with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
     "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
+    "Views are private until shared: share with visibility workspace or roles (with roleIds) lets teammates open the view read-only, and each of them sees only the records and fields their own role allows; private stops sharing. List marks views others shared with you with sharedBy; you can select them but not update, delete or share them. " +
+    "Publish (dashboard or list views you own) creates a public link anyone can open without signing in, live, read-only and calculated with your access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the visible columns, saved filters and sorting. It needs the publicLinks permission and public links allowed in the workspace; only publish when the person explicitly asks, and give them the returned publicLink.url. public false revokes the link at once. " +
     "Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Read the view and ask the person before correcting a near-match. Deletion moves it to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
   annotations: {
     readOnlyHint: false,

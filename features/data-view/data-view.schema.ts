@@ -3,7 +3,12 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-import { DataViewStateSchema, DataViewStateWireSchema, ViewKeySchema } from "@/core/data-view/data-view-state.schema";
+import {
+  DataViewStateSchema,
+  DataViewStateWireSchema,
+  DataViewVisibilitySchema,
+  ViewKeySchema,
+} from "@/core/data-view/data-view-state.schema";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -18,6 +23,7 @@ const CreateDataViewSchema = z
     name: DataViewNameSchema,
     position: DataViewPositionSchema.optional(),
     state: DataViewStateSchema,
+    copyOf: z.uuid().optional(),
   })
   .strict();
 
@@ -80,3 +86,29 @@ export type SelectDataViewResult = Data<typeof SelectDataViewResultSchema>;
 
 export const DeleteDataViewResultSchema = z.object({ id: z.string(), trashBatchId: z.uuid() });
 export type DeleteDataViewResult = Data<typeof DeleteDataViewResultSchema>;
+
+export const DATA_VIEW_SHARE_ROLE_LIMIT = 50;
+
+export const ShareDataViewSchema = z
+  .object({
+    id: z.uuid(),
+    visibility: DataViewVisibilitySchema,
+    roleIds: z.array(z.uuid()).max(DATA_VIEW_SHARE_ROLE_LIMIT).default([]),
+  })
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.visibility !== "roles" || data.roleIds.length > 0) return;
+    ctx.addIssue({ code: "custom", path: ["roleIds"], params: { error: CustomErrorCode.roleNotFound } });
+  });
+export type ShareDataViewData = Data<typeof ShareDataViewSchema>;
+
+export const HideSharedDataViewSchema = z.object({ id: z.uuid(), hidden: z.boolean() }).strict();
+export type HideSharedDataViewData = Data<typeof HideSharedDataViewSchema>;
+
+export const HideSharedDataViewResultSchema = z.object({ id: z.string(), hidden: z.boolean() });
+export type HideSharedDataViewResult = Data<typeof HideSharedDataViewResultSchema>;
+
+export const DataViewShareOptionsSchema = z.object({
+  roles: z.array(z.object({ id: z.string(), name: z.string() })),
+});
+export type DataViewShareOptions = Data<typeof DataViewShareOptionsSchema>;

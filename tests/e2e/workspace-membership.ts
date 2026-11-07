@@ -116,8 +116,8 @@ export async function readInvitationLink(page: Page) {
   await clickHydrated(page.locator("#settings-members-add"));
   const dialog = page.getByRole("dialog");
   const link = dialog.locator("#invite-modal-link");
-  await expect(link).toHaveValue(/\/invitation\/[^/]+$/);
-  const value = await link.inputValue();
+  await expect(link).toHaveAttribute("data-value", /\/invitation\/[^/]+$/);
+  const value = (await link.getAttribute("data-value")) ?? "";
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   return value;

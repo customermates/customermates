@@ -30,6 +30,8 @@ const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.LEGAL_NOTICE_SENT,
   DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
   DomainEvent.RECORDS_EXPORTED,
+  DomainEvent.PUBLIC_LINK_CREATED,
+  DomainEvent.PUBLIC_LINK_REVOKED,
 ] as const;
 
 const WIKI_ACTIVITY_AUDIT_EVENTS = WIKI_PAGE_AUDIT_EVENTS;
@@ -60,6 +62,7 @@ const NamedSchema = z.object({ name: z.string() }).transform((subject) => subjec
 const SUBJECT_LABELS: Record<(typeof NAMED_ACTIVITY_SUBJECT_KINDS)[number], z.ZodType<string>> = {
   role: NamedSchema,
   routine: NamedSchema,
+  public_link: NamedSchema,
   webhook: z.object({ url: z.string() }).transform((webhook) => webhook.url),
   wiki_page: z.object({ title: z.string() }).transform((page) => page.title),
   connected_account: z

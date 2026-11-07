@@ -130,6 +130,7 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
     return createElement("div", { "data-view-menu": "" }, children);
   },
   DropdownMenuSeparator: () => createElement("hr"),
+  DropdownMenuLabel: ({ children, ...props }: { children: ReactNode }) => createElement("div", props, children),
   DropdownMenuItem: ({
     children,
     disabled,
@@ -831,10 +832,39 @@ describe("data view rail interaction", () => {
       "DataView.views.duplicate",
       "DataView.views.moveLeft",
       "DataView.views.moveRight",
+      "DataView.share.menuItem",
       "DataView.views.copyLink",
       "DataView.views.delete",
     ]);
     expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
+  });
+
+  it("gives a teammate only Ask AI, Duplicate, Copy link and Hide on a view shared with them, after their own views", () => {
+    const shared = view({
+      id: "v-s",
+      name: "Team pipeline",
+      position: 100000,
+      visibility: "workspace",
+      sharedBy: { id: "u-owner", name: "Clara Neumann", avatarUrl: null },
+    });
+    const mine = { ...OPEN, visibility: "workspace" as const, roleIds: [] };
+    const host = render(store({ views: [ADA, mine, CLOSING, shared], activeViewKey: "v-s" }));
+
+    expect(menuLabels(host)).toEqual([
+      "DataView.views.askAi",
+      "DataView.views.duplicate",
+      "DataView.views.copyLink",
+      "DataView.share.hide",
+    ]);
+    expect(host.querySelector("[data-shared-owner]")?.textContent).toContain("DataView.share.sharedBy");
+    expect(chips(host).map((chip) => chip.getAttribute("data-view-shared"))).toEqual([
+      null,
+      null,
+      "mine",
+      null,
+      "others",
+    ]);
+    expect(chips(host).at(-1)?.textContent).toContain("Team pipeline");
   });
 
   it("marks only the active chip as modified and offers Save and Reset changes after Ask AI", () => {

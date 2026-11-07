@@ -57,12 +57,12 @@ export async function resolveDashboardView(
 ): Promise<{ ok: true; viewId: string | null } | { ok: false }> {
   if (requested === undefined && current !== undefined) return { ok: true, viewId: current };
   const surface = await views.loadSurfaceState(SURFACE.dashboard);
-  const readable = new Set(surface.views.map((view) => view.id));
+  const owned = new Set(surface.views.filter((view) => view.sharedBy === undefined).map((view) => view.id));
   if (requested === undefined) {
     const active = surface.activeViewKey;
-    return { ok: true, viewId: active && readable.has(active) ? active : null };
+    return { ok: true, viewId: active && owned.has(active) ? active : null };
   }
-  return requested === null || readable.has(requested) ? { ok: true, viewId: requested } : { ok: false };
+  return requested === null || owned.has(requested) ? { ok: true, viewId: requested } : { ok: false };
 }
 
 export function desktopPlacement(layout: WidgetLayout | null | undefined) {

@@ -21,6 +21,8 @@ export function ViewMenuItems({ commands, items, view }: Props) {
     switch (id) {
       case "copyLink":
         return t("DataView.views.copyLink");
+      case "share":
+        return t("DataView.share.menuItem");
       case "delete":
         return t("DataView.views.delete");
       case "duplicate":
@@ -38,6 +40,8 @@ export function ViewMenuItems({ commands, items, view }: Props) {
     switch (id) {
       case "copyLink":
         return commands.copyLink(view);
+      case "share":
+        return commands.share?.(view);
       case "delete":
         return commands.remove(view);
       case "duplicate":

@@ -48,6 +48,7 @@ function ownedView(overrides: Partial<DataViewDto> = {}): DataViewDto {
 function upsertDoubles(owned: DataViewDto | null) {
   const repo = {
     findOwnedOrNull: vi.fn().mockResolvedValue(owned),
+    findReadableOrNull: vi.fn().mockResolvedValue(owned),
     nextPosition: vi.fn().mockResolvedValue(3),
     createView: vi.fn((args: Record<string, unknown>) =>
       Promise.resolve({ ...ownedView(), ...args, id: MISSING_VIEW_ID }),
@@ -130,7 +131,7 @@ describe("data view ownership", () => {
     ["missing", null],
     ["wrong surface", ownedView({ surfaceKey: OPERATOR_SURFACE })],
   ] as const)("refuses selecting a %s view without changing personalization", async (_label, found) => {
-    const repo = { findOwnedOrNull: vi.fn().mockResolvedValue(found) };
+    const repo = { findReadableOrNull: vi.fn().mockResolvedValue(found) };
     const personalization = { upsertP13n: vi.fn().mockResolvedValue(undefined) };
 
     const result = await runWithTenant(mockUser, () =>
@@ -142,22 +143,22 @@ describe("data view ownership", () => {
     expect(personalization.upsertP13n).not.toHaveBeenCalled();
   });
 
-  it("selects only an owned view on the requested surface and lets All bypass the view lookup", async () => {
-    const repo = { findOwnedOrNull: vi.fn().mockResolvedValue(ownedView()) };
+  it("selects only a readable view on the requested surface and lets All bypass the view lookup", async () => {
+    const repo = { findReadableOrNull: vi.fn().mockResolvedValue(ownedView()) };
     const personalization = { upsertP13n: vi.fn().mockResolvedValue(undefined) };
     const interactor = new SelectDataViewInteractor(repo, personalization);
 
     await expect(
       runWithTenant(mockUser, () => interactor.invoke({ surfaceKey: SURFACE, viewKey: OWN_VIEW_ID })),
     ).resolves.toEqual({ ok: true, data: { activeViewKey: OWN_VIEW_ID } });
-    expect(repo.findOwnedOrNull).toHaveBeenCalledWith(OWN_VIEW_ID);
+    expect(repo.findReadableOrNull).toHaveBeenCalledWith(OWN_VIEW_ID);
     expect(personalization.upsertP13n).toHaveBeenCalledWith({ p13nId: SURFACE, activeViewKey: OWN_VIEW_ID });
 
-    repo.findOwnedOrNull.mockClear();
+    repo.findReadableOrNull.mockClear();
     await expect(
       runWithTenant(mockUser, () => interactor.invoke({ surfaceKey: SURFACE, viewKey: "__all__" })),
     ).resolves.toEqual({ ok: true, data: { activeViewKey: "__all__" } });
-    expect(repo.findOwnedOrNull).not.toHaveBeenCalled();
+    expect(repo.findReadableOrNull).not.toHaveBeenCalled();
   });
 
   it("clears the deleted view only when it is still the persisted active selection", async () => {
@@ -261,7 +262,7 @@ describe("data view ownership", () => {
     expect(stored.repo.updateOwned).not.toHaveBeenCalled();
   });
 
-  it("rejects a visibility key on the wire now that every view is personal", async () => {
+  it("rejects a visibility key on the upsert wire because sharing has its own command", async () => {
     const { interactor, repo } = upsertDoubles(null);
 
     const result = await runWithTenant(mockUser, () =>

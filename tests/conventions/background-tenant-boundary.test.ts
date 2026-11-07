@@ -35,6 +35,7 @@ const BACKGROUND_TENANT_CALLER_PREFIX = "workflows/";
 
 const TOKEN_VERIFIED_STORED_USER_ENTRYPOINTS = [
   "features/planner/calendar-subscription-tenant.ts",
+  "features/public-link/public-link-tenant.ts",
   "features/record-files/record-file-grant-tenant.ts",
 ];
 

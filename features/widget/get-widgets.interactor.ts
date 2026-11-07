@@ -56,9 +56,12 @@ export class GetWidgetsInteractor extends AuthenticatedInteractor<GetWidgetsData
     const activeViewKey = selectActiveViewKey(data?.viewId, surface.activeViewKey, readable);
     const items = await runInTransaction(
       async () => {
-        const stored = await this.repo.getWidgets(
-          data?.allViews ? undefined : activeViewKey === ALL_VIEW_KEY ? null : activeViewKey,
-        );
+        const sharedView = !data?.allViews && readable.get(activeViewKey)?.sharedBy !== undefined;
+        const stored = sharedView
+          ? await this.repo.getSharedViewWidgets(activeViewKey)
+          : await this.repo.getWidgets(
+              data?.allViews ? undefined : activeViewKey === ALL_VIEW_KEY ? null : activeViewKey,
+            );
         return Promise.all(stored.map((widget) => this.widgets.read(widget)));
       },
       { readOnly: true, timeout: 30000 },

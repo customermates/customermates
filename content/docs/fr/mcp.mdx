@@ -410,7 +410,7 @@ Membres de l’équipe avec id, name, email, roleId et status. Quand le rôle de
 
 Découvrir, inspecter, créer, mettre à jour, sélectionner, réinitialiser et supprimer des vues enregistrées personnelles. Découvrir d’abord la surfaceKey ; les surfaces génériques d’enregistrements utilisent des ID de type stables. Les mises à jour ne modifient que les paramètres fournis ; un regroupement peut porter jusqu’à 8 synthèses (somme, moyenne, min ou max d’un champ nombre ou montant). Les listes d’enregistrements avec un champ de date proposent aussi la disposition calendrier : viewMode calendar avec la date, la date de fin facultative et les champs de couleur, et le mode mois, semaine ou agenda. La réinitialisation supprime vos personnalisations : la liste affiche tous les champs dans leur ordre configuré sous forme de tableau non regroupé, sans modifier les enregistrements. La suppression d’une vue exige son nom et son ID actuels exacts ; une discordance renvoie une erreur précise, alors qu’un ID inconnu renvoie introuvable. La suppression la déplace vers la Corbeille (une vue de tableau de bord emporte ses widgets), jamais ses enregistrements. Les listes de configurations et de vues sont paginées et consultables.
 
-**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
+**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `visibility`, `roleIds`, `public`, `expiresAt`, `state`.
 
 #### `manage_record_detail_layout`
 

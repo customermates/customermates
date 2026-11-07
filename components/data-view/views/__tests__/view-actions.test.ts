@@ -184,13 +184,13 @@ describe("view actions send plain objects to the server", () => {
     expect(payload.state).toEqual(snapshot);
   });
 
-  it("strips the observable wrapper from the state when duplicating a view", async () => {
+  it("strips the observable wrapper from the state and names the source when duplicating a view", async () => {
     const store = observableStore();
 
     await duplicateView(store, store.views[0], { name: "Ada copy" });
 
     const payload = sentPayload();
     expect(isObservable(payload.state)).toBe(false);
-    expect(payload).toEqual({ name: "Ada copy", state: VIEW.state, surfaceKey: "deals-card-store" });
+    expect(payload).toEqual({ name: "Ada copy", state: VIEW.state, surfaceKey: "deals-card-store", copyOf: VIEW.id });
   });
 });

@@ -9,7 +9,7 @@ import type {
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { CalendarViewConfig } from "@/core/data-view/calendar-view-config.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { DataViewChipDto, DataViewSharedBy, DataViewState } from "@/core/data-view/data-view-state.schema";
 import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
@@ -460,15 +460,25 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.isFilterModified || this.isAppearanceModified;
   }
 
+  get activeViewSharedBy(): DataViewSharedBy | undefined {
+    return this.views.find((view) => view.id === this.activeViewKey)?.sharedBy;
+  }
+
+  get isActiveViewShared(): boolean {
+    return this.activeViewSharedBy !== undefined;
+  }
+
   get canSaveViewChanges(): boolean {
-    if (!this.isViewModified) return false;
+    if (!this.isViewModified || this.isActiveViewShared) return false;
     if (this.proposal) return !this.proposal.isNew || Boolean(this.proposal.name);
 
     return true;
   }
 
   get canSaveAsView(): boolean {
-    if (!this.isReady || !this.canSaveQuery || this.activeViewKey !== ALL_VIEW_KEY) return false;
+    if (!this.isReady || !this.canSaveQuery) return false;
+    if (this.isActiveViewShared) return this.isFilterModified || this.hasSessionSearch;
+    if (this.activeViewKey !== ALL_VIEW_KEY) return false;
     if (this.proposal) return this.proposal.isNew && !this.proposal.name;
 
     return this.isFilterModified || this.hasSessionSearch;
@@ -1746,7 +1756,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private writeViewState = ({ includeQuery = false }: { includeQuery?: boolean } = {}): Promise<void> => {
-    if (!this.canPersistViewState()) {
+    if (!this.canPersistViewState() || this.isActiveViewShared) {
       this.discardPendingViewState();
       return Promise.resolve();
     }

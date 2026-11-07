@@ -35,24 +35,27 @@ import {
   useRecordTableColumns,
 } from "@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/record-table-columns";
 
-const ScopedRecordsTable = observer(function ScopedRecordsTable({
+export const ScopedRecordsTable = observer(function ScopedRecordsTable({
   store,
   emptyTitle,
   onOpen,
 }: {
   store: RecordExplorationStore;
   emptyTitle: string;
-  onOpen: (ref: RecordRef, opener?: HTMLElement | null) => void;
+  onOpen?: (ref: RecordRef, opener?: HTMLElement | null) => void;
 }) {
   const t = useTranslations();
   const root = useRootStore();
-  useEffect(() => root.recordWorkspaceStore.subscribe(() => store.refresh()), [root, store]);
+  useEffect(
+    () => (onOpen ? root.recordWorkspaceStore.subscribe(() => store.refresh()) : undefined),
+    [onOpen, root, store],
+  );
   const openRecord = useCallback(
-    (record: RecordRow, opener?: HTMLElement | null) => onOpen(record.ref, opener),
+    (record: RecordRow, opener?: HTMLElement | null) => onOpen?.(record.ref, opener),
     [onOpen],
   );
-  const openRelated = useCallback((ref: RecordRef) => onOpen(ref), [onOpen]);
-  const columns = useRecordTableColumns(store, openRelated, { openRecord });
+  const openRelated = useCallback((ref: RecordRef) => onOpen?.(ref), [onOpen]);
+  const columns = useRecordTableColumns(store, openRelated, onOpen ? { openRecord } : { linkRecords: false });
   const renderCard = useRecordCardRenderer(store, openRelated);
   const name = (record: RecordRow) =>
     recordDisplayName(
@@ -82,11 +85,11 @@ const ScopedRecordsTable = observer(function ScopedRecordsTable({
           <DataViewContent
             columns={columns}
             renderCard={renderCard}
-            rowHref={(record) => `/records/${record.ref.typeId}/${record.ref.recordId}`}
+            rowHref={onOpen ? (record) => `/records/${record.ref.typeId}/${record.ref.recordId}` : undefined}
             rowLabel={name}
             store={store}
             view="table"
-            onRowClick={openRecord}
+            onRowClick={onOpen ? openRecord : undefined}
           />
         )}
       </div>

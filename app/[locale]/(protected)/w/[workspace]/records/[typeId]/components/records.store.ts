@@ -711,11 +711,14 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   protected override get appearanceRequiresQuery() {
     return !this.hasRequiredData;
   }
+  protected loadPresentation(params?: GetQueryParams, columns?: string[]): Promise<RecordPresentationResult> {
+    return actionData(getRecordPresentationAction(this.presentation.typeId, params, columns));
+  }
   protected async refreshAction(params?: GetQueryParams) {
     const bulkRefreshGeneration = this.bulkRefreshGeneration;
     const resolvesSavedView = !params || !("viewMode" in params);
     const columns = resolvesSavedView ? undefined : this.projectionColumns;
-    const presentation = await actionData(getRecordPresentationAction(this.presentation.typeId, params, columns));
+    const presentation = await this.loadPresentation(params, columns);
     this.loaded.set(presentation.result, { presentation, bulkRefreshGeneration });
     return presentation.result;
   }

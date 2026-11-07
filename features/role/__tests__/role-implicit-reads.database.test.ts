@@ -37,7 +37,14 @@ async function workspace() {
   return w;
 }
 
-const IMPLICIT_ROWS = ["company:readAll", "company:readOwn", "dataModel:readAll", "dataModel:readOwn"];
+const IMPLICIT_ROWS = [
+  "company:readAll",
+  "company:readOwn",
+  "dataModel:readAll",
+  "dataModel:readOwn",
+  "publicLinks:readAll",
+  "publicLinks:readOwn",
+];
 
 async function storedRows(roleId: string) {
   const rows = await runWithoutTenant(() =>

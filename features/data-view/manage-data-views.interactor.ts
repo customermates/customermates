@@ -1,3 +1,4 @@
+import type { ShareDataViewInteractor } from "./share-data-view.interactor";
 import { isCalendarDateField } from "@/features/record-calendar/record-calendar-query";
 import type { SortableField } from "@/core/base/base-query-builder";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
@@ -18,6 +19,7 @@ import type {
 import type { ResetDataViewStateInteractor } from "./reset-data-view-state.interactor";
 import type { SaveDataViewStateInteractor } from "./save-data-view-state.interactor";
 import type { SelectDataViewInteractor } from "./select-data-view.interactor";
+import type { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 import type { UpsertDataViewInteractor } from "./upsert-data-view.interactor";
 
 import equal from "fast-deep-equal/es6";
@@ -99,6 +101,8 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     private entitlements: EntitlementService,
     private recordViews?: RecordViewPolicy,
     private reset?: ResetDataViewStateInteractor,
+    private share?: ShareDataViewInteractor,
+    private publicLinks?: ManagePublicLinkInteractor,
   ) {
     super();
   }
@@ -274,10 +278,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         };
       }
       const listing: { page?: number; pageSize?: number; query?: string } = data.action === "list" ? data : {};
-      const candidates = surfaceState.views.map(({ id, name, position }) => ({
+      const candidates = surfaceState.views.map(({ id, name, position, visibility, sharedBy }) => ({
         id,
         name,
         position,
+        ...(visibility ? { visibility } : {}),
+        ...(sharedBy ? { sharedBy: sharedBy.name } : {}),
       }));
       const result = paged(
         candidates.filter((item) => matchesQuery(item, listing.query, ["id", "name"])),
@@ -331,8 +337,53 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       };
     }
 
-    const owned = surfaceState.views.find((view) => view.id === data.viewKey);
-    if (data.viewKey !== ALL_VIEW_KEY && !owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+    const readable = surfaceState.views.find((view) => view.id === data.viewKey);
+    const owned = readable && !readable.sharedBy ? readable : undefined;
+    if (data.viewKey !== ALL_VIEW_KEY && !(data.action === "select" ? readable : owned))
+      return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+
+    if (data.action === "share") {
+      if (!this.share || !owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+      const result = await this.share.invoke({
+        id: owned.id,
+        visibility: data.visibility,
+        roleIds: data.roleIds ?? [],
+      });
+      if (!result.ok) return result;
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: owned.id,
+          name: owned.name,
+          visibility: result.data.visibility,
+          roleIds: result.data.roleIds ?? [],
+          link: this.link(descriptor.path, owned.id),
+        },
+      };
+    }
+
+    if (data.action === "publish") {
+      if (!this.publicLinks || !owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+      const result = await this.publicLinks.invoke(
+        data.public
+          ? { action: "publish", viewId: owned.id, expiresAt: data.expiresAt ?? null }
+          : { action: "revoke", viewId: owned.id },
+      );
+      if (!result.ok) return result;
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: owned.id,
+          name: owned.name,
+          publicLink: result.data.link,
+          link: this.link(descriptor.path, owned.id),
+        },
+      };
+    }
 
     if (data.action === "reset") {
       if (!this.reset) return failAuthorization(CustomErrorCode.permissionDenied);

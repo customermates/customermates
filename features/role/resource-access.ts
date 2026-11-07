@@ -19,6 +19,7 @@ export const RESOURCE_ACCESS = {
   [Resource.activityLog]: { manage: [], read: READ_ALL_OR_NONE },
   [Resource.inboxMessages]: { manage: ALL_MANAGE, read: READ_ALL_OR_NONE },
   [Resource.routines]: { manage: ALL_MANAGE, read: READ_SCOPED },
+  [Resource.publicLinks]: { manage: [Action.create], read: [] },
 } as const satisfies Record<Resource, ResourceAccess>;
 
 export const IMPLICIT_READ_ACTIONS = [Action.readOwn, Action.readAll] as const;

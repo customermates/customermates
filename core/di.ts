@@ -424,6 +424,9 @@ import { SearchRecordsInteractor } from "@/features/records/search-records.inter
 import { DeleteDataViewInteractor } from "@/features/data-view/delete-data-view.interactor";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 import { SelectDataViewInteractor } from "@/features/data-view/select-data-view.interactor";
+import { ShareDataViewInteractor } from "@/features/data-view/share-data-view.interactor";
+import { HideSharedDataViewInteractor } from "@/features/data-view/hide-shared-data-view.interactor";
+import { GetDataViewShareOptionsInteractor } from "@/features/data-view/get-data-view-share-options.interactor";
 import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import { GetP13nInteractor } from "@/features/p13n/get-p13n.interactor";
 import { UpsertP13nInteractor } from "@/features/p13n/upsert-p13n.interactor";
@@ -2011,7 +2014,7 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 export const getRecordViewPolicy = () => new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy());
 
 export const getUpsertDataViewInteractor = () =>
-  new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
+  new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy(), getWidgetRepo());
 
 export const getDeleteDataViewInteractor = () =>
   new DeleteDataViewInteractor(getDataViewRepo(), getP13nRepo(), getTrashRepo(), getRecordViewPolicy());
@@ -2021,6 +2024,12 @@ export const getSaveDataViewStateInteractor = () =>
 
 export const getSelectDataViewInteractor = () =>
   new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
+
+export const getShareDataViewInteractor = () => new ShareDataViewInteractor(getDataViewRepo(), getRecordViewPolicy());
+
+export const getHideSharedDataViewInteractor = () => new HideSharedDataViewInteractor(getDataViewRepo(), getP13nRepo());
+
+export const getGetDataViewShareOptionsInteractor = () => new GetDataViewShareOptionsInteractor(getDataViewRepo());
 
 export const getResetDataViewStateInteractor = () =>
   new ResetDataViewStateInteractor(getDataViewRepo(), getRecordViewPolicy());
@@ -2407,6 +2416,8 @@ export const getManageDataViewsInteractor = () =>
     getEntitlementService(),
     getRecordViewPolicy(),
     getResetDataViewStateInteractor(),
+    getShareDataViewInteractor(),
+    getManagePublicLinkInteractor(),
   );
 import { MutateThreadRecordsInteractor } from "@/ee/messaging/thread-records/thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "@/ee/messaging/thread-records/read-thread-records.interactor";
@@ -2591,3 +2602,59 @@ export const getReadCalendarSubscriptionInteractor = () =>
     new CalendarSubscriptionTenant(getCalendarSubscriptionRepo(), getUserService()),
     getExportPlannerInteractor(),
   );
+
+import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
+import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
+import { ReadPublicLinkInteractor } from "@/features/public-link/read-public-link.interactor";
+import type { RecordPresentationReader } from "@/features/public-link/public-list-reader";
+import { ReadPublicListRecordsInteractor } from "@/features/public-link/read-public-list-records.interactor";
+import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
+import { PublicLinkAccess } from "@/features/public-link/public-link-access";
+import { PublicLinkRateLimiter } from "@/features/public-link/public-link-rate-limiter";
+import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
+import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
+import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-public-links-allowed.interactor";
+
+const getPublicLinkRepo = () => new PrismaPublicLinkRepo();
+
+export const getManagePublicLinkInteractor = () =>
+  new ManagePublicLinkInteractor(getPublicLinkRepo(), getEventService(), {
+    baseUrl: env.BASE_URL,
+    authSecret: env.BETTER_AUTH_SECRET,
+  });
+
+let publicLinkAccess: PublicLinkAccess | undefined;
+const getPublicLinkAccess = () =>
+  (publicLinkAccess ??= new PublicLinkAccess(
+    getPublicLinkRepo(),
+    new PublicLinkTenant(getUserService()),
+    { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
+    new PublicLinkRateLimiter(120, 60_000),
+    new PublicLinkRateLimiter(60, 60_000),
+    { authSecret: env.BETTER_AUTH_SECRET },
+  ));
+
+let readPublicLinkInteractor: ReadPublicLinkInteractor | undefined;
+export const getReadPublicLinkInteractor = () =>
+  (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
+    getPublicLinkAccess(),
+    getPublicLinkRepo(),
+    {},
+    {
+      invoke: () => getGetRecordNavigationInteractor().invoke(),
+    },
+    publicRecordReader,
+  ));
+
+const publicRecordReader: RecordPresentationReader = {
+  invoke: (input) => getGetRecordPresentationInteractor().invoke(input),
+};
+
+export const getReadPublicWidgetRecordsInteractor = () =>
+  new ReadPublicWidgetRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
+
+export const getReadPublicListRecordsInteractor = () =>
+  new ReadPublicListRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
+
+export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
+export const getSetPublicLinksAllowedInteractor = () => new SetPublicLinksAllowedInteractor(getCompanyRepo());
