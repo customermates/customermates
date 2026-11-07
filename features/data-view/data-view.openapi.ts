@@ -145,8 +145,8 @@ export const dataViewApiPaths = {
   ...operation(
     "/v1/data-views/publish",
     "publishDataView",
-    "Publish a dashboard view by public link",
-    "Creates or revokes the public link of one of the caller's dashboard views. Anyone with the link sees that view's charts and numbers live, read-only and without signing in, calculated with the caller's access, and can open the records behind a chart read-only; lists, calendars, maps and activity widgets are never published. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.",
+    "Publish a dashboard or list view by public link",
+    "Creates or revokes the public link of one of the caller's dashboard or list views. Anyone with the link sees it live, read-only and without signing in, calculated with the caller's access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the view's visible columns, its saved filters and sorting, and paging. Records never open and no hidden column leaves the server. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.",
     PublishDataViewRequestSchema,
     { surfaceKey: "dashboard", viewKey: VIEW_ID, public: true, expiresAt: "2026-12-31" },
     "action publish, surfaceKey, viewKey, name, link and publicLink (url, expiresAt, openCount, lastOpenedAt, createdAt) or null after revoking.",

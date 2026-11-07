@@ -81285,8 +81285,8 @@
     "/v1/data-views/publish": {
       "post": {
         "operationId": "publishDataView",
-        "summary": "Publish a dashboard view by public link",
-        "description": "Creates or revokes the public link of one of the caller's dashboard views. Anyone with the link sees that view's charts and numbers live, read-only and without signing in, calculated with the caller's access; lists, calendars, maps and activity widgets, record references and filters are never published. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.",
+        "summary": "Publish a dashboard or list view by public link",
+        "description": "Creates or revokes the public link of one of the caller's dashboard or list views. Anyone with the link sees it live, read-only and without signing in, calculated with the caller's access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the view's visible columns, its saved filters and sorting, and paging. Records never open and no hidden column leaves the server. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.",
         "tags": [
           "data-views"
         ],
@@ -81309,9 +81309,17 @@
                 "type": "object",
                 "properties": {
                   "surfaceKey": {
-                    "type": "string",
-                    "const": "dashboard",
-                    "description": "Only dashboard views can have a public link."
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "const": "dashboard"
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^records:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                      }
+                    ],
+                    "description": "dashboard or a list (records:<typeId>). Other pages cannot have a public link."
                   },
                   "viewKey": {
                     "type": "string",

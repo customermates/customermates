@@ -2603,6 +2603,8 @@ export const getReadCalendarSubscriptionInteractor = () =>
 import { PrismaPublicLinkRepo } from "@/features/public-link/prisma-public-link.repository";
 import { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 import { ReadPublicLinkInteractor } from "@/features/public-link/read-public-link.interactor";
+import type { RecordPresentationReader } from "@/features/public-link/public-list-reader";
+import { ReadPublicListRecordsInteractor } from "@/features/public-link/read-public-list-records.interactor";
 import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
 import { PublicLinkAccess } from "@/features/public-link/public-link-access";
 import { PublicLinkRateLimiter } from "@/features/public-link/public-link-rate-limiter";
@@ -2638,12 +2640,18 @@ export const getReadPublicLinkInteractor = () =>
     {
       invoke: () => getGetRecordNavigationInteractor().invoke(),
     },
+    publicRecordReader,
   ));
 
+const publicRecordReader: RecordPresentationReader = {
+  invoke: (input) => getGetRecordPresentationInteractor().invoke(input),
+};
+
 export const getReadPublicWidgetRecordsInteractor = () =>
-  new ReadPublicWidgetRecordsInteractor(getPublicLinkAccess(), {
-    invoke: (input) => getGetRecordPresentationInteractor().invoke(input),
-  });
+  new ReadPublicWidgetRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
+
+export const getReadPublicListRecordsInteractor = () =>
+  new ReadPublicListRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
 
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
 export const getSetPublicLinksAllowedInteractor = () => new SetPublicLinksAllowedInteractor(getCompanyRepo());

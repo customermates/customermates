@@ -37,7 +37,7 @@ export class ManagePublicLinkInteractor extends AuthenticatedInteractor<ManagePu
 
   @Write({ input: ManagePublicLinkSchema, output: PublicLinkStatusSchema })
   async invoke(data: ManagePublicLinkData): Validated<PublicLinkStatus> {
-    const name = await this.repo.findOwnedDashboardViewName(data.viewId);
+    const name = await this.repo.findOwnedPublishableViewName(data.viewId);
     if (name === null) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewId"]);
 
     const workspaceAllows = await this.repo.publicLinksAllowed();

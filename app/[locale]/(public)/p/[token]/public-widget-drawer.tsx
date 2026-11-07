@@ -1,6 +1,7 @@
 "use client";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { PublicChartWidget } from "@/features/public-link/public-link.schema";
 import type { RecordContributionGroup } from "@/features/records/record-contribution.schema";
 
 import { useEffect, useMemo, useState } from "react";
@@ -14,21 +15,36 @@ import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { cn } from "@/core/utils/cn";
+import { DisplayType } from "@/features/widget/widget-display.schema";
+import { RecordWidgetChart } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-widget-chart";
 
 import { readPublicWidgetRecordsAction } from "./actions";
 import { PublicRecordExplorationStore } from "./public-record-exploration.store";
 
 export type PublicWidgetSelection = {
   widget: number;
-  widgetName: string;
+  chart: PublicChartWidget;
   group: RecordContributionGroup | null;
   label: string | null;
   opener: HTMLElement | null;
 };
 
-type Props = { token: string; selection: PublicWidgetSelection; open: boolean; onClose: () => void };
+type Props = {
+  token: string;
+  selection: PublicWidgetSelection;
+  open: boolean;
+  onClose: () => void;
+  onSelect: (group: RecordContributionGroup | null, label: string | null) => void;
+};
 
-export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({ token, selection, open, onClose }: Props) {
+export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
+  token,
+  selection,
+  open,
+  onClose,
+  onSelect,
+}: Props) {
   const t = useTranslations();
   const root = useRootStore();
   const [store, setStore] = useState<PublicRecordExplorationStore | null>(null);
@@ -75,7 +91,8 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({ token, 
     };
   }, [request, root]);
 
-  const title = selection.label ?? selection.widgetName;
+  const { chart } = selection;
+  const title = chart.name;
   const count = store
     ? t("RecordWidgets.contributingCount", { count: store.pagination?.total ?? store.items.length })
     : null;
@@ -94,9 +111,33 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({ token, 
         <AppModalTitle className="w-full truncate text-lg font-semibold">{title}</AppModalTitle>
 
         <p className="w-full truncate text-sm text-muted-foreground" id="public-widget-drawer-summary">
-          {[selection.widgetName, count].filter(Boolean).join(" · ")}
+          {[selection.label, count].filter(Boolean).join(" · ")}
         </p>
       </AppCardHeader>
+
+      {chart.displayOptions.displayType === DisplayType.number ? null : (
+        <div
+          className={cn(
+            "flex shrink-0 flex-col px-6 pb-4",
+            chart.displayOptions.displayType === DisplayType.rankedTable ? "max-h-64" : "h-56",
+          )}
+          data-widget-detail-chart=""
+          id="public-widget-drawer-chart"
+        >
+          <RecordWidgetChart
+            embedded
+            data={chart.data}
+            decimalPlaces={chart.decimalPlaces}
+            displayOptions={chart.displayOptions}
+            groupOptions={chart.groupOptions}
+            listLabels={chart.listLabels}
+            measure={chart.measure}
+            name={chart.name}
+            status={chart.status}
+            onInspectGroup={onSelect}
+          />
+        </div>
+      )}
 
       {failure ? (
         <PageState

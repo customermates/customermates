@@ -8,6 +8,7 @@ import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { CalendarViewConfigSchema } from "@/core/data-view/calendar-view-config.schema";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manageable-surfaces";
+import { RecordSurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewPath } from "@/core/data-view/data-view-paths";
 import { stripWorkspacePrefix } from "@/core/navigation/workspace-paths";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
@@ -107,7 +108,9 @@ export const ShareDataViewRequestSchema = z
 
 export const PublishDataViewRequestSchema = z
   .object({
-    surfaceKey: z.literal("dashboard").describe("Only dashboard views can have a public link."),
+    surfaceKey: z
+      .union([z.literal("dashboard"), RecordSurfaceKeySchema])
+      .describe("dashboard or a list (records:<typeId>). Other pages cannot have a public link."),
     viewKey: z.uuid(),
     public: z
       .boolean()

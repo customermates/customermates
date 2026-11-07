@@ -8,6 +8,7 @@ import { PermissionService } from "@/core/base/permission.service";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Action, Resource } from "@/generated/prisma";
 
+import { isPublishableSurface } from "./public-link-surface";
 import { publicLinkIdFromToken } from "./public-link-token";
 
 export type WidgetReader = {
@@ -60,7 +61,7 @@ export class PublicLinkAccess {
       !link.company.allowPublicLinks ||
       link.company.deletingAt ||
       link.view.deletedAt ||
-      link.view.surfaceKey !== SURFACE.dashboard ||
+      !isPublishableSurface(link.view.surfaceKey) ||
       link.view.userId !== link.createdById
     )
       return PUBLIC_LINK_UNAVAILABLE;
@@ -78,6 +79,7 @@ export class PublicLinkAccess {
   }
 
   async charts(link: PublicLinkLookup): Promise<{ charts: RecordWidgetDto[]; hidden: number } | null> {
+    if (link.view.surfaceKey !== SURFACE.dashboard) return null;
     const result = await this.widgets.invoke({ viewId: link.viewId });
     if (result.data.activeViewKey !== link.viewId) return null;
     const charts = result.data.items.filter((widget): widget is RecordWidgetDto => widget.kind === "chart");

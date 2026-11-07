@@ -6,6 +6,8 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 
+import { isPublishableSurface } from "./public-link-surface";
+
 const LINK_SELECT = {
   id: true,
   viewId: true,
@@ -17,18 +19,18 @@ const LINK_SELECT = {
 } as const;
 
 export class PrismaPublicLinkRepo extends TenantRepository implements PublicLinkRepo, PublicLinkLookupRepo {
-  async findOwnedDashboardViewName(viewId: string) {
+  async findOwnedPublishableViewName(viewId: string) {
     const view = await this.prisma.dataView.findFirst({
       where: {
         id: viewId,
         companyId: this.companyId,
         userId: this.userId,
-        surfaceKey: SURFACE.dashboard,
+        OR: [{ surfaceKey: SURFACE.dashboard }, { surfaceKey: { startsWith: "records:" } }],
         deletedAt: null,
       },
-      select: { name: true },
+      select: { name: true, surfaceKey: true },
     });
-    return view?.name ?? null;
+    return view && isPublishableSurface(view.surfaceKey) ? view.name : null;
   }
 
   findActiveLink(viewId: string): Promise<StoredPublicLink | null> {

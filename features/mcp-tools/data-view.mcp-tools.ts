@@ -46,7 +46,7 @@ const ManageDataViewsToolSchema = z
     action: z
       .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset", "share", "publish"])
       .describe(
-        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change your own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of your views; publish creates or revokes the public link of one of your dashboard views.",
+        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change your own views; reset removes personal overrides for the given fields; share sets who else in the workspace sees one of your views; publish creates or revokes the public link of one of your dashboard or list views.",
       ),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional().describe(
       "Required for every action except surfaces. Operator-console surfaces are intentionally unavailable.",
@@ -93,7 +93,9 @@ const ManageDataViewsToolSchema = z
     public: z
       .boolean()
       .optional()
-      .describe("publish only (surfaceKey dashboard): true creates a public link, false revokes it at once."),
+      .describe(
+        "publish only (surfaceKey dashboard or records:<typeId>): true creates a public link, false revokes it at once.",
+      ),
     expiresAt: z.iso
       .date()
       .nullable()
@@ -128,7 +130,7 @@ export const manageDataViewsTool = {
     "Clear filters with [], search with an empty string, and sort/grouping/calendar with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
     "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
     "Views are private until shared: share with visibility workspace or roles (with roleIds) lets teammates open the view read-only, and each of them sees only the records and fields their own role allows; private stops sharing. List marks views others shared with you with sharedBy; you can select them but not update, delete or share them. " +
-    "Publish (dashboard views you own) creates a public link anyone can open without signing in: it shows that view's charts and numbers live, read-only, calculated with your access, and lets visitors open the records behind a chart read-only; lists, calendars, maps and activity widgets are left out. It needs the publicLinks permission and public links allowed in the workspace; only publish when the person explicitly asks, and give them the returned publicLink.url. public false revokes the link at once. " +
+    "Publish (dashboard or list views you own) creates a public link anyone can open without signing in, live, read-only and calculated with your access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the visible columns, saved filters and sorting. It needs the publicLinks permission and public links allowed in the workspace; only publish when the person explicitly asks, and give them the returned publicLink.url. public false revokes the link at once. " +
     "Deleting a view requires its exact current name and viewKey; a mismatched name returns a name-mismatch error without changing anything. Read the view and ask the person before correcting a near-match. Deletion moves it to Trash (a dashboard view takes its widgets along), where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
   annotations: {
     readOnlyHint: false,

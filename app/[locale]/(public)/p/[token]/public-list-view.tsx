@@ -1,0 +1,53 @@
+"use client";
+
+import type { GetQueryParams } from "@/core/base/base-get.schema";
+import type { PublicList } from "@/features/public-link/public-link.schema";
+
+import { useState } from "react";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+
+import { AppCard } from "@/components/card/app-card";
+import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
+import { useRootStore } from "@/core/stores/root-store.provider";
+
+import { readPublicListRecordsAction } from "./actions";
+import { PublicLinkFrame } from "./public-link-frame";
+import { PublicRecordExplorationStore } from "./public-record-exploration.store";
+
+const PublicListTable = observer(function PublicListTable({ list, token }: { list: PublicList; token: string }) {
+  const t = useTranslations();
+  const root = useRootStore();
+  const [store] = useState(
+    () =>
+      new PublicRecordExplorationStore(root, list.presentation, async (params?: GetQueryParams) => {
+        const pageSize = params?.pageSize ?? params?.pagination?.pageSize;
+        const result = await readPublicListRecordsAction({
+          token,
+          page: params?.page ?? params?.pagination?.page ?? 1,
+          ...(pageSize ? { pageSize } : {}),
+          ...(params?.sortDescriptor ? { sortDescriptor: params.sortDescriptor } : {}),
+        });
+        if (result.status !== "available") throw new Error(`Public list ${result.status}`);
+        return result.presentation;
+      }),
+  );
+
+  return (
+    <AppCard className="flex h-[min(78dvh,960px)] min-h-96 flex-col overflow-hidden pt-0" id="public-list">
+      <p className="px-6 py-3 text-sm text-muted-foreground" id="public-list-summary">
+        {t("PublicLink.listCount", { count: store.pagination?.total ?? store.items.length })}
+      </p>
+
+      <ScopedRecordsTable emptyTitle={t("PublicLink.emptyList")} store={store} />
+    </AppCard>
+  );
+});
+
+export function PublicListView({ list, token }: { list: PublicList; token: string }) {
+  return (
+    <PublicLinkFrame expiresAt={list.expiresAt} kind="list" name={list.name} workspaceName={list.workspaceName}>
+      <PublicListTable list={list} token={token} />
+    </PublicLinkFrame>
+  );
+}

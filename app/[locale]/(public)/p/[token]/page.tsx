@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 import { getTranslations } from "next-intl/server";
 
-import { PublicDashboardView, PublicLinkUnavailable } from "./public-dashboard-view";
+import { PublicDashboardView } from "./public-dashboard-view";
+import { PublicLinkUnavailable } from "./public-link-frame";
+import { PublicListView } from "./public-list-view";
 import { visitorKey } from "./visitor-key";
 
 import { getReadPublicLinkInteractor } from "@/core/di";
@@ -22,9 +24,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("PublicLink.pageTitle"), robots: ROBOTS, referrer: "no-referrer" };
 }
 
-export default async function PublicDashboardPage({ params }: Props) {
+export default async function PublicLinkPage({ params }: Props) {
   const { token } = await params;
   const result = await read(token);
-  if (result.status === "available") return <PublicDashboardView dashboard={result.dashboard} token={token} />;
+  if (result.status === "available") {
+    return "list" in result ? (
+      <PublicListView list={result.list} token={token} />
+    ) : (
+      <PublicDashboardView dashboard={result.dashboard} token={token} />
+    );
+  }
   return <PublicLinkUnavailable rateLimited={result.status === "rateLimited"} />;
 }

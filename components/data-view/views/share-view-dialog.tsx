@@ -1,14 +1,15 @@
 "use client";
 
 import type { DataViewChipDto, DataViewVisibility } from "@/core/data-view/data-view-state.schema";
+import type { PublicLinkStatus } from "@/features/public-link/public-link.schema";
 import type { LucideIcon } from "lucide-react";
 
-import { Check, Copy, Globe, UserRound, Users } from "lucide-react";
+import { Building2, Check, Copy, Globe, UserRound, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { getDataViewShareOptionsAction, shareDataViewAction } from "@/app/actions";
+import { getDataViewShareOptionsAction, managePublicLinkAction, shareDataViewAction } from "@/app/actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -22,8 +23,9 @@ import { copyToClipboard } from "@/core/utils/clipboard";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { cn } from "@/core/utils/cn";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { PublicLinkSection } from "./public-link-section";
+import { PublicLinkOption } from "./public-link-option";
 
 type Role = { id: string; name: string };
 
@@ -35,13 +37,14 @@ type Props = {
   onShared: () => Promise<void>;
 };
 
-const SCOPE_ICONS: Record<DataViewVisibility, LucideIcon> = {
-  private: UserRound,
-  workspace: Globe,
-  roles: Users,
-};
+type Scope = DataViewVisibility | "public";
 
-const SCOPES: DataViewVisibility[] = ["private", "workspace", "roles"];
+const SCOPE_ICONS: Record<Scope, LucideIcon> = {
+  private: UserRound,
+  workspace: Building2,
+  roles: Users,
+  public: Globe,
+};
 
 function sameRoles(left: readonly string[], right: readonly string[]) {
   return left.length === right.length && left.every((id) => right.includes(id));
@@ -49,7 +52,11 @@ function sameRoles(left: readonly string[], right: readonly string[]) {
 
 export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Props) {
   const t = useTranslations();
-  const [visibility, setVisibility] = useState<DataViewVisibility>("private");
+  const { appMode } = useRootStore();
+  const publishable = appMode !== "demo";
+  const [visibility, setVisibility] = useState<Scope>("private");
+  const [publicStatus, setPublicStatus] = useState<PublicLinkStatus | null>(null);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [roleIds, setRoleIds] = useState<string[]>([]);
   const [roles, setRoles] = useState<Role[] | null>(null);
   const [copied, setCopied] = useState(false);
@@ -58,10 +65,30 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
 
   if ((view?.id ?? null) !== openedFor) {
     setOpenedFor(view?.id ?? null);
-    setVisibility(view?.visibility ?? "private");
+    setVisibility(view?.isPublic ? "public" : (view?.visibility ?? "private"));
     setRoleIds(view?.roleIds ?? []);
     setCopied(false);
+    setPublicStatus(null);
+    setExpiresAt(null);
   }
+
+  const viewId = view?.id ?? null;
+  useEffect(() => {
+    if (!viewId || !publishable) return;
+    let active = true;
+    managePublicLinkAction({ action: "read", viewId })
+      .then((result) => {
+        if (!active) return;
+        if (!result.ok) return toastZodErrorTree(result.error);
+        setPublicStatus(result.data);
+        setExpiresAt(result.data.link?.expiresAt ?? null);
+        if (result.data.link) setVisibility("public");
+      })
+      .catch(reportApplicationError);
+    return () => {
+      active = false;
+    };
+  }, [publishable, viewId]);
 
   useEffect(() => {
     if (!view || roles !== null) return;
@@ -78,10 +105,20 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     };
   }, [roles, view]);
 
-  const scopeText: Record<DataViewVisibility, { title: string; description: string }> = {
+  const publicLink = publicStatus?.link ?? null;
+  const publicBlocked = publicStatus !== null && !publicStatus.allowed && !publicLink;
+  const scopes: Scope[] = publicStatus
+    ? ["private", "workspace", "roles", "public"]
+    : ["private", "workspace", "roles"];
+  const scopeText: Record<Scope, { title: string; description: string }> = {
     private: { title: t("DataView.share.private"), description: t("DataView.share.privateDescription") },
     workspace: { title: t("DataView.share.workspace"), description: t("DataView.share.workspaceDescription") },
     roles: { title: t("DataView.share.roles"), description: t("DataView.share.rolesDescription") },
+    public: {
+      title: t("DataView.share.public.option"),
+      description:
+        kind === "list" ? t("DataView.share.public.optionDescriptionList") : t("DataView.share.public.description"),
+    },
   };
   const savedText: Record<DataViewVisibility, string> = {
     private: t("DataView.share.savedPrivate"),
@@ -89,31 +126,76 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     roles: t("DataView.share.savedRoles"),
   };
 
-  const initialVisibility = view?.visibility ?? "private";
+  const initialVisibility: Scope = publicLink ? "public" : (view?.visibility ?? "private");
   const changed =
-    visibility !== initialVisibility || (visibility === "roles" && !sameRoles(roleIds, view?.roleIds ?? []));
-  const valid = visibility !== "roles" || roleIds.length > 0;
+    visibility !== initialVisibility ||
+    (visibility === "roles" && !sameRoles(roleIds, view?.roleIds ?? [])) ||
+    (visibility === "public" && (publicLink?.expiresAt ?? null) !== expiresAt);
+  const valid = (visibility !== "roles" || roleIds.length > 0) && (visibility !== "public" || !publicBlocked);
 
   const toggleRole = (roleId: string) =>
     setRoleIds((current) =>
       current.includes(roleId) ? current.filter((entry) => entry !== roleId) : [...current, roleId],
     );
 
+  const share = async (target: DataViewVisibility) => {
+    if (!view) return false;
+    if (target === view.visibility && (target !== "roles" || sameRoles(roleIds, view.roleIds ?? []))) return true;
+    const result = await shareDataViewAction({
+      id: view.id,
+      visibility: target,
+      roleIds: target === "roles" ? roleIds : [],
+    });
+    if (!result.ok) toastZodErrorTree(result.error);
+    return result.ok;
+  };
+
+  const publish = async () => {
+    if (!view) return null;
+    const result = await managePublicLinkAction({ action: "publish", viewId: view.id, expiresAt });
+    if (!result.ok) {
+      toastZodErrorTree(result.error);
+      return null;
+    }
+    setPublicStatus(result.data);
+    setExpiresAt(result.data.link?.expiresAt ?? null);
+    return result.data.link;
+  };
+
   const save = async () => {
     if (!view || saving || !valid) return;
     setSaving(true);
     try {
-      const result = await shareDataViewAction({
-        id: view.id,
-        visibility,
-        roleIds: visibility === "roles" ? roleIds : [],
-      });
-      if (!result.ok) {
-        toastZodErrorTree(result.error);
+      if (visibility === "public") {
+        const created = publicLink === null;
+        if (!(await share("workspace"))) return;
+        const published = await publish();
+        if (!published) return;
+        await onShared();
+        if (!created) {
+          toast.success(expiresAt ? t("DataView.share.public.expirySet") : t("DataView.share.public.expiryCleared"));
+          onOpenChange(false);
+          return;
+        }
+        toast.success(
+          (await copyToClipboard(published.url).catch(() => false))
+            ? t("DataView.share.public.createdCopied")
+            : t("DataView.share.public.published"),
+        );
         return;
       }
+      if (publicLink) {
+        const revoked = await managePublicLinkAction({ action: "revoke", viewId: view.id });
+        if (!revoked.ok) {
+          toastZodErrorTree(revoked.error);
+          return;
+        }
+      }
+      if (!(await share(visibility))) return;
       await onShared();
-      toast.success(savedText[visibility]);
+      toast.success(
+        publicLink ? `${t("DataView.share.public.revoked")} · ${savedText[visibility]}` : savedText[visibility],
+      );
       onOpenChange(false);
     } finally {
       setSaving(false);
@@ -143,22 +225,20 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
         </AppCardHeader>
 
         <AppCardBody className="flex flex-col gap-4">
-          <RadioGroup
-            className="gap-2"
-            value={visibility}
-            onValueChange={(value) => setVisibility(value as DataViewVisibility)}
-          >
-            {SCOPES.map((scope) => {
+          <RadioGroup className="gap-2" value={visibility} onValueChange={(value) => setVisibility(value as Scope)}>
+            {scopes.map((scope) => {
               const Icon = SCOPE_ICONS[scope];
+              const disabled = scope === "public" && publicBlocked;
               return (
                 <div
                   key={scope}
                   className={cn(
                     "flex items-start gap-3 rounded-md border border-border p-3",
                     visibility === scope && "border-primary/50 bg-primary/10",
+                    disabled && "opacity-70",
                   )}
                 >
-                  <RadioGroupItem className="mt-0.5" id={`share-scope-${scope}`} value={scope} />
+                  <RadioGroupItem className="mt-0.5" disabled={disabled} id={`share-scope-${scope}`} value={scope} />
 
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <Label className="flex cursor-pointer items-center gap-2" htmlFor={`share-scope-${scope}`}>
@@ -168,6 +248,23 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
                     </Label>
 
                     <span className="text-xs text-muted-foreground">{scopeText[scope].description}</span>
+
+                    {disabled ? (
+                      <span className="text-xs text-muted-foreground" id="share-view-public-blocked">
+                        {publicStatus?.reason === "workspaceDisabled"
+                          ? t("DataView.share.public.workspaceDisabled")
+                          : t("DataView.share.public.permissionDenied")}
+                      </span>
+                    ) : null}
+
+                    {scope === "public" && visibility === "public" ? (
+                      <PublicLinkOption
+                        expiresAt={expiresAt}
+                        kind={kind}
+                        link={publicLink}
+                        onExpiresAtChange={setExpiresAt}
+                      />
+                    ) : null}
 
                     {scope === "roles" && visibility === "roles" && (
                       <div
@@ -204,7 +301,7 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
             })}
           </RadioGroup>
 
-          <div className="flex flex-col gap-1.5">
+          <div className={cn("flex flex-col gap-1.5", visibility === "public" && "hidden")}>
             <Label htmlFor="share-view-link">{t("DataView.share.link")}</Label>
 
             <div className="flex gap-2">
@@ -230,8 +327,6 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
               {visibility === "private" ? t("DataView.share.linkPrivate") : t("DataView.share.linkShared")}
             </p>
           </div>
-
-          {kind === "dashboard" && view ? <PublicLinkSection viewId={view.id} onChanged={onShared} /> : null}
         </AppCardBody>
 
         <FormFooterActions

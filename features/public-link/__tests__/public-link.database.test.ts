@@ -34,6 +34,7 @@ const { PublicLinkRateLimiter } = await import("../public-link-rate-limiter");
 const { PublicLinkTenant } = await import("../public-link-tenant");
 const { PublicLinkAccess } = await import("../public-link-access");
 const { ReadPublicWidgetRecordsInteractor } = await import("../read-public-widget-records.interactor");
+const { ReadPublicListRecordsInteractor } = await import("../read-public-list-records.interactor");
 const { publicLinkToken } = await import("../public-link-token");
 
 const routes = {
@@ -75,13 +76,21 @@ function reader(options: { now?: Date; perLink?: number; secret?: string } = {})
     {
       invoke: () => di.getGetRecordNavigationInteractor().invoke(),
     },
+    presentation,
   );
 }
 
+const presentation = {
+  invoke: (input: Parameters<ReturnType<typeof di.getGetRecordPresentationInteractor>["invoke"]>[0]) =>
+    di.getGetRecordPresentationInteractor().invoke(input),
+};
+
 function records(options: { now?: Date; perLink?: number } = {}) {
-  return new ReadPublicWidgetRecordsInteractor(access(options), {
-    invoke: (input) => di.getGetRecordPresentationInteractor().invoke(input),
-  });
+  return new ReadPublicWidgetRecordsInteractor(access(options), presentation);
+}
+
+function listRecords(options: { now?: Date; perLink?: number } = {}) {
+  return new ReadPublicListRecordsInteractor(access(options), presentation);
 }
 
 const tokenOf = (url: string) => url.slice(url.lastIndexOf("/") + 1);
@@ -117,7 +126,9 @@ const publish = (w: RestRouteWorkspace, user: TenantUser, viewKey: string, extra
   postAs(w, user, routes.publish, { surfaceKey: "dashboard", viewKey, public: true, ...extra });
 
 const total = (result: Awaited<ReturnType<ReturnType<typeof reader>["invoke"]>>) =>
-  result.status === "available" ? result.dashboard.widgets[0]?.data?.total.count : result.status;
+  result.status === "available" && "dashboard" in result
+    ? result.dashboard.widgets[0]?.data?.total.count
+    : result.status;
 
 describeDatabase("public dashboard links on PostgreSQL", () => {
   it("publishes a dashboard view by link, shows only charts calculated with the creator's access and stops on every revoking condition", async () => {
@@ -142,7 +153,7 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
 
     const open = await reader().invoke({ token, visitor: "visitor-a" });
     expect(open.status).toBe("available");
-    if (open.status !== "available") throw new Error("not available");
+    if (open.status !== "available" || !("dashboard" in open)) throw new Error("not available");
     expect(open.dashboard).toMatchObject({ name: "Investor board", expiresAt: null, hiddenWidgetCount: 0 });
     expect(open.dashboard.widgets.map((widget) => widget.name)).toEqual(["Deals", "Deals by stage"]);
     expect(open.dashboard.widgets[0]?.listLabels).toMatchObject({ pluralLabel: expect.any(String) });
@@ -302,5 +313,123 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
       "public_link.created",
     ]);
     expect(publicLinkToken(counted.id, SECRET)).toBe(token);
+  }, 300_000);
+
+  it("publishes a list view by link with only its visible columns, its saved search and the creator's access", async () => {
+    const w = await workspace();
+    await w.grant("deal", ["readOwn", "create"]);
+    const assigned = await w.create("deal", "deal.name", "Budget for Pia", w.member);
+    const north = await w.create("deal", "deal.name", "Owner budget north");
+    const south = await w.create("deal", "deal.name", "Owner budget south");
+    await w.create("deal", "deal.name", "Unrelated renewal");
+    const surfaceKey = `records:${w.id("deal")}`;
+    const stage = w.id("deal.stage");
+    const created = await postAs(w, w.admin, routes.createView, {
+      surfaceKey,
+      name: "Budget deals",
+      state: { searchTerm: "budget", hiddenColumns: [stage, "system:assignedTo"] },
+    });
+    expect(created.status, JSON.stringify(created.body)).toBe(200);
+    const viewKey = created.body.viewKey as string;
+
+    const published = await postAs(w, w.admin, routes.publish, { surfaceKey, viewKey, public: true });
+    expect(published.status, JSON.stringify(published.body)).toBe(200);
+    const token = tokenOf(published.body.publicLink.url as string);
+
+    const open = await reader().invoke({ token, visitor: "visitor-list" });
+    if (open.status !== "available" || !("list" in open)) throw new Error("list not available");
+    expect(open.list).toMatchObject({ name: "Budget deals", expiresAt: null });
+    const page = open.list.presentation;
+    expect(page.result.items.map((row) => row.ref.recordId).sort()).toEqual(
+      [assigned.recordId, north.recordId, south.recordId].sort(),
+    );
+    expect(page.result.pagination?.total).toBe(3);
+    expect(page.model.fields.map((field) => field.id)).not.toContain(stage);
+    for (const row of page.result.items) {
+      expect(row.fields.map((field) => field.fieldId)).not.toContain(stage);
+      expect(row.assignedUserIds).toEqual([]);
+      expect(row.assignedUsers).toEqual([]);
+    }
+    expect(page).toMatchObject({ permittedActions: [], canManageSchema: false });
+    expect(page.result).toMatchObject({ views: [], filters: [], searchTerm: "", filterableFields: [] });
+    const serialized = JSON.stringify(open.list);
+    for (const secret of [w.admin.id, w.member.id, viewKey, "Unrelated renewal"])
+      expect(serialized).not.toContain(secret);
+
+    const newestFirst = await listRecords().invoke({
+      token,
+      sortDescriptor: { field: "system:createdAt", direction: "desc" },
+    });
+    expect(
+      newestFirst.status === "available" && newestFirst.presentation.result.items.map((row) => row.ref.recordId),
+    ).toEqual([south.recordId, north.recordId, assigned.recordId]);
+    const paged = await listRecords().invoke({
+      token,
+      page: 2,
+      pageSize: 5,
+      sortDescriptor: { field: "system:createdAt", direction: "asc" },
+    });
+    expect(paged.status === "available" && paged.presentation.result.items).toEqual([]);
+    const hiddenSort = await listRecords().invoke({ token, sortDescriptor: { field: stage, direction: "asc" } });
+    expect(hiddenSort.status).toBe("available");
+    expect(hiddenSort.status === "available" && hiddenSort.presentation.result.sortDescriptor?.field).not.toBe(stage);
+    expect(hiddenSort.status === "available" && JSON.stringify(hiddenSort.presentation)).not.toContain(stage);
+    expect((await listRecords().invoke({ token, pageSize: 7 })).status).toBe("unavailable");
+
+    expect((await records().invoke({ token, widget: 0, group: null, label: null })).status).toBe("unavailable");
+    const adminBoard = await board(w, w.admin, "Board");
+    const boardLink = await publish(w, w.admin, adminBoard);
+    expect((await listRecords().invoke({ token: tokenOf(boardLink.body.publicLink.url as string) })).status).toBe(
+      "unavailable",
+    );
+
+    const usersView = await postAs(w, w.admin, routes.createView, {
+      surfaceKey: "users-card-store",
+      name: "People",
+      state: {},
+    });
+    if (usersView.status === 200) {
+      expect(
+        (
+          await postAs(w, w.admin, routes.publish, {
+            surfaceKey: "users-card-store",
+            viewKey: usersView.body.viewKey,
+            public: true,
+          })
+        ).status,
+      ).toBe(400);
+    }
+
+    await runWithoutTenant(() =>
+      prisma.rolePermission.create({
+        data: { roleId: w.member.roleId as string, companyId: w.companyId, resource: "publicLinks", action: "create" },
+      }),
+    );
+    const publisher = createMockUser({
+      ...w.member,
+      role: {
+        ...(w.member.role as NonNullable<TenantUser["role"]>),
+        permissions: [{ resource: "publicLinks", action: "create" }],
+      },
+    } as never);
+    const memberView = await postAs(w, publisher, routes.createView, { surfaceKey, name: "My deals", state: {} });
+    expect(memberView.status, JSON.stringify(memberView.body)).toBe(200);
+    expect((await postAs(w, w.member, routes.publish, { surfaceKey, viewKey, public: true })).status).toBe(404);
+    const memberLink = await postAs(w, publisher, routes.publish, {
+      surfaceKey,
+      viewKey: memberView.body.viewKey,
+      public: true,
+    });
+    expect(memberLink.status, JSON.stringify(memberLink.body)).toBe(200);
+    const memberOpen = await reader().invoke({ token: tokenOf(memberLink.body.publicLink.url as string) });
+    expect(
+      memberOpen.status === "available" &&
+        "list" in memberOpen &&
+        memberOpen.list.presentation.result.items.map((row) => row.ref.recordId),
+    ).toEqual([assigned.recordId]);
+
+    await postAs(w, w.admin, routes.publish, { surfaceKey, viewKey, public: false });
+    expect((await reader().invoke({ token })).status).toBe("unavailable");
+    expect((await listRecords().invoke({ token })).status).toBe("unavailable");
   }, 300_000);
 });

@@ -293,3 +293,37 @@ test("names the widgets of a view that is not shown and renames it from its chip
     .toEqual([{ name: "Site Bremen" }]);
   expect(errors).toEqual([]);
 });
+
+test("remembers the selected dashboard view when coming back from another page", async ({ page, isMobile }) => {
+  test.skip(isMobile, "The phone layout opens pages from the menu sheet, covered by the navigation tests");
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const rail = page.locator("#global-data-views");
+  const sidebarLink = (path: string) => page.locator(`[data-sidebar="sidebar"] a[href$="${path}"]`).first();
+  const selected = () => rail.locator('[data-view-chip][aria-current="page"]');
+  await page.goto(pagePath(page, "/dashboard"));
+  await expect(rail).toBeVisible();
+
+  await rail.getByRole("button", { name: englishMessages.DataView.views.createTitle, exact: true }).click();
+  await page.getByPlaceholder(englishMessages.DataView.views.namePlaceholder).fill("Remembered board");
+  await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+  await expect(selected()).toHaveText("Remembered board");
+
+  for (const [chip, expected] of [
+    [null, "Remembered board"],
+    ["main", null],
+  ] as const) {
+    if (chip === "main") await rail.locator("[data-view-chip]").first().click();
+    const name = expected ?? ((await rail.locator("[data-view-chip]").first().textContent()) ?? "").trim();
+    await expect(selected()).toHaveText(name);
+    await page.locator('[data-sidebar="sidebar"] a[href*="/records/"]').first().click();
+    await expect(page).toHaveURL(/\/records\//u);
+    await sidebarLink("/dashboard").click();
+    await expect(page).toHaveURL(/\/dashboard/u);
+    await expect(selected()).toHaveText(name);
+    await page.goto(pagePath(page, "/dashboard"));
+    await expect(selected()).toHaveText(name);
+  }
+  expect(errors).toEqual([]);
+});
+

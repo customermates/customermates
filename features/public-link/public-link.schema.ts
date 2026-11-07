@@ -9,6 +9,12 @@ import { RecordContributionGroupSchema } from "@/features/records/record-contrib
 
 export const PUBLIC_LINK_TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
 
+const PageSizeSchema = z
+  .number()
+  .int()
+  .refine((size) => DATA_VIEW_PAGE_SIZES.some((allowed) => allowed === size))
+  .optional();
+
 export const ManagePublicLinkSchema = z
   .discriminatedUnion("action", [
     z.object({ action: z.literal("read"), viewId: z.uuid() }).strict(),
@@ -21,7 +27,7 @@ export const ManagePublicLinkSchema = z
       .strict(),
     z.object({ action: z.literal("revoke"), viewId: z.uuid() }).strict(),
   ])
-  .describe("Read, create or revoke the public link of a dashboard view you own.");
+  .describe("Read, create or revoke the public link of a dashboard or list view you own.");
 export type ManagePublicLinkData = z.infer<typeof ManagePublicLinkSchema>;
 
 export const PublicLinkStatusSchema = z
@@ -62,15 +68,28 @@ export const PublicWidgetRecordsSchema = z
     group: RecordContributionGroupSchema.nullable(),
     label: z.string().max(500).nullable(),
     page: z.number().int().min(1).max(10_000).default(1),
-    pageSize: z
-      .number()
-      .int()
-      .refine((size) => DATA_VIEW_PAGE_SIZES.some((allowed) => allowed === size))
-      .optional(),
+    pageSize: PageSizeSchema,
     sortDescriptor: SortDescriptorSchema.optional(),
   })
   .strict();
 export type PublicWidgetRecordsInput = z.input<typeof PublicWidgetRecordsSchema>;
+
+export type PublicList = {
+  name: string;
+  workspaceName: string | null;
+  expiresAt: string | null;
+  presentation: RecordPresentationResult;
+};
+
+export const PublicListRecordsSchema = z
+  .object({
+    token: z.string().regex(PUBLIC_LINK_TOKEN_PATTERN),
+    page: z.number().int().min(1).max(10_000).default(1),
+    pageSize: PageSizeSchema,
+    sortDescriptor: SortDescriptorSchema.optional(),
+  })
+  .strict();
+export type PublicListRecordsInput = z.input<typeof PublicListRecordsSchema>;
 
 export type PublicWidgetRecordsResult =
   | { status: "available"; presentation: RecordPresentationResult }
@@ -79,6 +98,7 @@ export type PublicWidgetRecordsResult =
 
 export type PublicDashboardResult =
   | { status: "available"; dashboard: PublicDashboard }
+  | { status: "available"; list: PublicList }
   | { status: "unavailable" }
   | { status: "rateLimited"; retryAfterSeconds: number };
 

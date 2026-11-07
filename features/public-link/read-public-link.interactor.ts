@@ -1,12 +1,15 @@
 import type { PublicLinkAccess } from "./public-link-access";
 import type { PublicLinkRepo } from "./public-link.repo";
 import type { PublicDashboard, PublicDashboardResult } from "./public-link.schema";
+import type { RecordPresentationReader } from "./public-list-reader";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 
 import { PUBLIC_LINK_UNAVAILABLE } from "./public-link-access";
 import { publicChartWidget } from "./public-link.schema";
+import { publicListPage } from "./public-list-reader";
 
 type ListLabels = {
   invoke(): Promise<
@@ -24,11 +27,28 @@ export class ReadPublicLinkInteractor {
     private links: PublicLinkRepo,
     private settings: { cacheMs?: number } = {},
     private lists?: ListLabels,
+    private presentation?: RecordPresentationReader,
   ) {}
 
   invoke({ token, visitor }: { token: string; visitor?: string | null }): Promise<PublicDashboardResult> {
     return this.access.open(token, visitor, async (link): Promise<PublicDashboardResult> => {
       await this.links.recordOpen(link.id);
+      const typeId = recordSurfaceTypeId(link.view.surfaceKey);
+      if (typeId) {
+        const presentation = this.presentation
+          ? await publicListPage(this.presentation, typeId, link.viewId, { page: 1 })
+          : null;
+        if (!presentation) return PUBLIC_LINK_UNAVAILABLE;
+        return {
+          status: "available",
+          list: {
+            name: link.view.name,
+            workspaceName: link.company.name,
+            expiresAt: link.expiresAt ? link.expiresAt.toISOString().slice(0, 10) : null,
+            presentation,
+          },
+        };
+      }
       const now = this.access.now().getTime();
       const cached = this.cache.get(link.id);
       if (cached && cached.until > now) return { status: "available", dashboard: cached.dashboard };

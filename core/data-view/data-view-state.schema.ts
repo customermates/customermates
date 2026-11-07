@@ -81,7 +81,7 @@ export const DataViewChipDtoSchema = z.object({
   visibility: DataViewVisibilitySchema.optional(),
   roleIds: z.array(z.string()).optional(),
   sharedBy: DataViewSharedBySchema.optional(),
-  isPublic: z.boolean().optional().describe("The caller's own dashboard view has an active public link."),
+  isPublic: z.boolean().optional().describe("The caller's own dashboard or list view has an active public link."),
 });
 export type DataViewChipDto = Data<typeof DataViewChipDtoSchema>;
 
