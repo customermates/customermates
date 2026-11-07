@@ -35,6 +35,7 @@ test("gives each money field its own currency, with no company settings page", a
     const response = await page.goto("/en/company/settings");
     expect(response?.status()).toBe(200);
     await expect(page).toHaveURL(companyUrlPattern(companyId, "/configure$"));
+    await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
   });
 
   await page.goto(pagePath(page, `/records/${id("deal")}`));

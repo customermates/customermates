@@ -1162,11 +1162,15 @@ test("retains readable list content after a failed refresh and retries the empty
   let retainedFault = true;
   let emptyFault = true;
   let matchingReads = 0;
+  const presentationAction = serverActionIds(
+    "app/[locale]/(protected)/w/[workspace]/records/actions.ts",
+    "getRecordPresentationAction",
+  );
   await page.route("**/*", async (route) => {
     const args = nextArguments(route.request());
     if (
-      args?.length === 2 &&
-      args[0] === service.typeId &&
+      invokesServerAction(route.request(), presentationAction) &&
+      args?.[0] === service.typeId &&
       typeof args[1] === "object" &&
       args[1] !== null &&
       "searchTerm" in args[1]
@@ -1285,6 +1289,10 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   let bulkFaultsRemaining = 0;
   let modelFault = false;
   let acceptedNavigationReads = 0;
+  const presentationAction = serverActionIds(
+    "app/[locale]/(protected)/w/[workspace]/records/actions.ts",
+    "getRecordPresentationAction",
+  );
   const navigationAction = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "getRecordNavigationAction");
   const modelAction = serverActionIds("app/[locale]/(protected)/w/[workspace]/records/actions.ts", "getRecordModelAction");
   await page.route("**/*", async (route) => {
@@ -1317,7 +1325,11 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
     ) {
       editorFault = false;
       await evidence.failResponse(route, "accepted record refresh");
-    } else if (bulkFaultsRemaining > 0 && args?.length === 2 && args[0] === service.typeId) {
+    } else if (
+      bulkFaultsRemaining > 0 &&
+      invokesServerAction(route.request(), presentationAction) &&
+      args?.[0] === service.typeId
+    ) {
       bulkFaultsRemaining -= 1;
       await evidence.failResponse(
         route,

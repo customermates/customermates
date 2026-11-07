@@ -70,11 +70,13 @@ const RecordRelatedFilterSchema = z
   })
   .strict();
 
+export const MAX_RECORD_QUERY_FIELDS = 100;
+
 export const RecordQueryBaseSchema = z
   .object({
     typeId: z.uuid(),
     locale: z.enum([...FORMATTING_LOCALES] as [FormattingLocale, ...FormattingLocale[]]).optional(),
-    fields: z.array(z.uuid()).max(100).optional(),
+    fields: z.array(z.uuid()).max(MAX_RECORD_QUERY_FIELDS).optional(),
     includeRelationships: z.array(RecordRelationshipSelectionSchema).max(32).optional(),
     includePaths: z.array(RecordPathSelectionSchema).max(32).optional(),
     includeIdentities: z

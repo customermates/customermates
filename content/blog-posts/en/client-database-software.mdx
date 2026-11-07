@@ -6,7 +6,7 @@ relatedHrefs:
   - /features/contact-management
   - /blog/crm-database
   - /blog/free-crm
-  - /blog/crm-for-small-business
+  - /blog/digital-rolodex
 
 hero:
   title: "Client database software: which kind fits your team"
@@ -17,7 +17,7 @@ blogPost:
   backToBlog: Back to blog
   by: by Benjamin Wagner
   date: 2026-04-28
-  updated: 2026-10-08
+  updated: 2026-11-06
   tags:
     - Client Database
     - CRM Software
@@ -38,6 +38,10 @@ Below you'll find the four kinds of software that show up for this search, what 
   <SummaryItem label="Customermates">An open-source CRM in which Contacts can be renamed Clients. Cloud from [[commercial.price.starter.monthly]] per user per month; the unified inbox starts on Pro.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this guide. The other tools are described by fit, not ranked.</SummaryItem>
 </ArticleSummary>
+
+Use the [contact list template](/blog/contact-list-template) for a small, shared directory with a named owner and next step, before you decide whether to move it into a CRM.
+
+Client database management also needs an operating owner: decide who corrects duplicates, checks access and removes information that is no longer needed. Buying software does not assign that responsibility for you.
 
 ## Four kinds of software sold as a client database
 
@@ -106,7 +110,7 @@ Customermates is an open-source, AI-native CRM built in Germany for small client
 <Steps>
   <Step title="Name the records the way you talk">In Configure, open a list and change its **Name** and **Plural name** under **General**: rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. Any name works, and it applies to the whole workspace.</Step>
   <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Billing address" as an Address field. Phone numbers and email addresses go into the Contact details field, which the Clients list has from the start.</Step>
-  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and email and phone columns can be matched to the client's Contact details field. The importer does not accept CSV, so save those files as .xlsx first. One workbook currently takes up to 5,000 rows.</Step>
+  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and email and phone columns can be matched to the client's Contact details field. CSV files work too (comma, semicolon, tab or pipe as delimiter). One workbook currently takes up to 5,000 rows.</Step>
   <Step title="Save three views">On Companies, "Retainer clients" filters Segment to Retainer. On Clients, "Untouched for 90 days" filters Updated at with Older than… 90 days. "Clients without a company" filters for clients with no linked company. Saved views are personal, so each colleague sets the same filters and saves their own view.</Step>
   <Step title="Connect conversations (Pro)">On Pro, each user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, such as Gmail, Outlook, LinkedIn or WhatsApp, and the [unified inbox](/features/unified-inbox) shows those threads next to the client. Starter has no inbox.</Step>
 </Steps>

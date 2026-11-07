@@ -5,13 +5,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RootStore } from "@/core/stores/root.store";
 import { DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
 
-const { refreshWidgetsAction, updateWidgetLayoutsAction, captureException } = vi.hoisted(() => ({
-  refreshWidgetsAction: vi.fn(),
-  updateWidgetLayoutsAction: vi.fn(),
-  captureException: vi.fn(),
-}));
+const { getWidgetSummariesAction, refreshWidgetsAction, updateWidgetLayoutsAction, captureException } = vi.hoisted(
+  () => ({
+    getWidgetSummariesAction: vi.fn(),
+    refreshWidgetsAction: vi.fn(),
+    updateWidgetLayoutsAction: vi.fn(),
+    captureException: vi.fn(),
+  }),
+);
 
 vi.mock("../../actions", () => ({
+  getWidgetSummariesAction,
   refreshWidgetsAction,
   updateWidgetLayoutsAction,
 }));
@@ -601,12 +605,12 @@ describe("WidgetsStore widgets of a view", () => {
     const widgets = store();
 
     expect(await widgets.widgetNamesOfView("__all__")).toEqual([FIRST_ID]);
-    expect(refreshWidgetsAction).not.toHaveBeenCalled();
+    expect(getWidgetSummariesAction).not.toHaveBeenCalled();
   });
 
   it("reads the widgets of another view and leaves the shown dashboard unchanged", async () => {
     const widgets = store();
-    refreshWidgetsAction.mockResolvedValueOnce({
+    getWidgetSummariesAction.mockResolvedValueOnce({
       ok: true,
       data: {
         items: [
@@ -618,14 +622,14 @@ describe("WidgetsStore widgets of a view", () => {
     });
 
     expect(await widgets.widgetNamesOfView(VIEW_ID)).toEqual(["Berlin starter", "Berlin via API"]);
-    expect(refreshWidgetsAction).toHaveBeenCalledExactlyOnceWith(VIEW_ID);
+    expect(getWidgetSummariesAction).toHaveBeenCalledExactlyOnceWith(VIEW_ID);
     expect(widgets.items.map(({ id }) => id)).toEqual([FIRST_ID]);
     expect(widgets.activeViewKey).toBe("__all__");
   });
 
   it("names no widgets when the view can no longer be read", async () => {
     const widgets = store();
-    refreshWidgetsAction.mockResolvedValueOnce({
+    getWidgetSummariesAction.mockResolvedValueOnce({
       ok: true,
       data: {
         items: [{ ...widget(SECOND_ID, 0, 0), viewId: OTHER_VIEW_ID, name: "Other view widget" }],
