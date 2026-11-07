@@ -3639,8 +3639,7 @@
     "unavailableTitle": "Lien indisponible",
     "upsell": {
       "badge": "Créé avec Customermates",
-      "badgeHover": "· Créez votre propre tableau de bord, gratuitement",
-      "badgeHoverList": "· Créez votre propre CRM, gratuitement"
+      "badgeHover": "— essayez-le"
     }
   },
   "RecordActivityWidgets": {

@@ -87,7 +87,7 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
               <span>{t("PublicLink.upsell.badge")}</span>
 
               <span className="hidden text-primary-soft-foreground group-hover:inline group-focus-visible:inline">
-                {kind === "list" ? t("PublicLink.upsell.badgeHoverList") : t("PublicLink.upsell.badgeHover")}
+                {t("PublicLink.upsell.badgeHover")}
               </span>
             </a>
           </div>
