@@ -204,6 +204,7 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
 
   return (
     <AppModal
+      focusContentOnOpen
       description={
         kind === "dashboard" ? t("DataView.share.descriptionDashboard") : t("DataView.share.descriptionList")
       }
