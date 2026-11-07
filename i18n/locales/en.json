@@ -3618,7 +3618,6 @@
     "apiKeysDescription": "Long-lived API keys for programmatic access."
   },
   "PublicLink": {
-    "branding": "Shared with Customermates",
     "byline": "Shared by {workspace}",
     "bylineListWithoutWorkspace": "Shared list",
     "bylineWithoutWorkspace": "Shared dashboard",
@@ -3633,6 +3632,7 @@
     "rateLimitedSubtitle": "Please wait a moment",
     "rateLimitedTitle": "Too many requests",
     "readOnly": "Read-only",
+    "searchLabel": "Text in the visible columns",
     "toHome": "Go to customermates.com",
     "unavailableBody": "The link may have been turned off, expired or mistyped. Ask the person who shared it for a new one.",
     "unavailableSubtitle": "This page cannot be opened",

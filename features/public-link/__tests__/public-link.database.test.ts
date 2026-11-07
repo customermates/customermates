@@ -351,7 +351,7 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
       expect(row.assignedUsers).toEqual([]);
     }
     expect(page).toMatchObject({ permittedActions: [], canManageSchema: false });
-    expect(page.result).toMatchObject({ views: [], filters: [], searchTerm: "", filterableFields: [] });
+    expect(page.result).toMatchObject({ views: [], filters: [], searchTerm: "" });
     const serialized = JSON.stringify(open.list);
     for (const secret of [w.admin.id, w.member.id, viewKey, "Unrelated renewal"])
       expect(serialized).not.toContain(secret);
@@ -375,6 +375,25 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(hiddenSort.status === "available" && hiddenSort.presentation.result.sortDescriptor?.field).not.toBe(stage);
     expect(hiddenSort.status === "available" && JSON.stringify(hiddenSort.presentation)).not.toContain(stage);
     expect((await listRecords().invoke({ token, pageSize: 7 })).status).toBe("unavailable");
+
+    const savedSearchRows = await listRecords().invoke({ token, searchTerm: "north" });
+    expect(savedSearchRows).toMatchObject({ status: "available", searchable: false });
+    expect(savedSearchRows.status === "available" && savedSearchRows.presentation.result.items).toHaveLength(3);
+    const nameFilter = await listRecords().invoke({
+      token,
+      filters: [{ field: w.id("deal.name"), operator: "contains", value: "north" }],
+    });
+    expect(
+      nameFilter.status === "available" && nameFilter.presentation.result.items.map((row) => row.ref.recordId),
+    ).toEqual([north.recordId]);
+    expect(nameFilter.status === "available" && nameFilter.presentation.result.filters).toHaveLength(1);
+    expect((await listRecords().invoke({ token, filters: [{ field: stage, operator: "isNotNull" }] })).status).toBe(
+      "unavailable",
+    );
+    expect(
+      (await listRecords().invoke({ token, filters: [{ field: "system:assignedTo", operator: "isNotNull" }] })).status,
+    ).toBe("unavailable");
+    expect(page.result.filterableFields?.map((entry) => entry.field)).not.toContain(stage);
 
     expect((await records().invoke({ token, widget: 0, group: null, label: null })).status).toBe("unavailable");
     const adminBoard = await board(w, w.admin, "Board");
@@ -431,5 +450,54 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     await postAs(w, w.admin, routes.publish, { surfaceKey, viewKey, public: false });
     expect((await reader().invoke({ token })).status).toBe("unavailable");
     expect((await listRecords().invoke({ token })).status).toBe("unavailable");
+  }, 300_000);
+
+  it("limits visitor search and filters on a public list to the columns the view shows", async () => {
+    const w = await workspace();
+    const contact = w.id("contact");
+    const avatar = w.id("contact.avatarUrl");
+    for (const [first, url] of [
+      ["Pia", "https://img.example/zebra.png"],
+      ["Zebulon", "https://img.example/plain.png"],
+    ]) {
+      const result = await w.as(w.admin, async () =>
+        di.getMutateRecordInteractor().invoke({
+          expectedRevision: await w.revision(),
+          idempotencyKey: randomUUID(),
+          mutation: {
+            action: "create",
+            typeId: contact,
+            fields: [
+              { fieldId: w.id("contact.firstName"), value: { kind: "text", value: first } },
+              { fieldId: avatar, value: { kind: "text", value: url } },
+            ],
+          },
+        }),
+      );
+      expect(result.ok, JSON.stringify(result)).toBe(true);
+    }
+    const surfaceKey = `records:${contact}`;
+    const created = await postAs(w, w.admin, routes.createView, { surfaceKey, name: "People", state: {} });
+    expect(created.status, JSON.stringify(created.body)).toBe(200);
+    const published = await postAs(w, w.admin, routes.publish, {
+      surfaceKey,
+      viewKey: created.body.viewKey,
+      public: true,
+    });
+    const token = tokenOf(published.body.publicLink.url as string);
+
+    const open = await reader().invoke({ token });
+    if (open.status !== "available" || !("list" in open)) throw new Error("list not available");
+    expect(open.list.searchable).toBe(true);
+    expect(open.list.presentation.result.filterableFields?.map((entry) => entry.field)).not.toContain(avatar);
+    const names = (result: Awaited<ReturnType<ReturnType<typeof listRecords>["invoke"]>>) =>
+      result.status === "available" ? result.presentation.result.items.length : result.status;
+    expect(names(await listRecords().invoke({ token, searchTerm: "zebra" }))).toBe(0);
+    expect(names(await listRecords().invoke({ token, searchTerm: "zebulon" }))).toBe(1);
+    expect(names(await listRecords().invoke({ token, searchTerm: "Pia" }))).toBe(1);
+    expect(
+      (await listRecords().invoke({ token, filters: [{ field: avatar, operator: "contains", value: "zebra" }] }))
+        .status,
+    ).toBe("unavailable");
   }, 300_000);
 });

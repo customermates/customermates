@@ -59,6 +59,7 @@ const GetRecordPresentationSchema = z
     params: GetQueryParamsSchema.default({}),
     transient: z.boolean().optional(),
     columns: z.array(RecordColumnKeySchema).optional(),
+    searchFields: z.array(z.uuid()).max(100).optional(),
   })
   .strict();
 export type RecordPresentationResult = {
@@ -166,6 +167,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           filterPaths,
         );
         Object.assign(query, recordListProjection(type.id, { ...model, relationships }, state, input.columns));
+        if (input.searchFields) query.searchFields = input.searchFields;
         if (query.fields && query.fields.length > MAX_RECORD_QUERY_FIELDS) query.fields = undefined;
         if ((query.includeRelationships?.length ?? 0) + (query.includePaths?.length ?? 0) > 32)
           return fail(CustomErrorCode.recordCalculationBudget);

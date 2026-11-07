@@ -41,7 +41,7 @@ export class ReadPublicWidgetRecordsInteractor {
         title: chart.name,
         groupLabel: input.label,
       });
-      const presentation = await readPublicRecords(
+      const records = await readPublicRecords(
         this.presentation,
         chart.measure.source.typeId,
         { filters: [filter], searchTerm: "", viewId: ALL_VIEW_KEY },
@@ -49,10 +49,12 @@ export class ReadPublicWidgetRecordsInteractor {
           page: input.page,
           pageSize: input.pageSize ?? DEFAULT_DATA_VIEW_PAGE_SIZE,
           sortDescriptor: input.sortDescriptor,
+          filters: input.filters,
+          searchTerm: input.searchTerm,
         },
         ALL_VIEW_KEY,
       );
-      return presentation ? { status: "available", presentation } : PUBLIC_LINK_UNAVAILABLE;
+      return records ? { status: "available", ...records } : PUBLIC_LINK_UNAVAILABLE;
     });
   }
 }

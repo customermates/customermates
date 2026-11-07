@@ -8,6 +8,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
+import { DataViewDisplayOptions } from "@/components/data-view/header/display-options";
+import { FilterPopover } from "@/components/data-view/header/filter-popover";
 import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
@@ -27,6 +29,8 @@ const PublicListTable = observer(function PublicListTable({ list, token }: { lis
           page: params?.page ?? params?.pagination?.page ?? 1,
           ...(pageSize ? { pageSize } : {}),
           ...(params?.sortDescriptor ? { sortDescriptor: params.sortDescriptor } : {}),
+          ...(params?.filters?.length ? { filters: params.filters } : {}),
+          ...(params?.searchTerm ? { searchTerm: params.searchTerm } : {}),
         });
         if (result.status !== "available") throw new Error(`Public list ${result.status}`);
         return result.presentation;
@@ -35,9 +39,28 @@ const PublicListTable = observer(function PublicListTable({ list, token }: { lis
 
   return (
     <AppCard className="flex h-[min(78dvh,960px)] min-h-96 flex-col overflow-hidden pt-0" id="public-list">
-      <p className="px-6 py-3 text-sm text-muted-foreground" id="public-list-summary">
-        {t("PublicLink.listCount", { count: store.pagination?.total ?? store.items.length })}
-      </p>
+      <div className="flex items-center justify-between gap-2 px-6 py-2">
+        <p className="min-w-0 truncate text-sm text-muted-foreground" id="public-list-summary">
+          {t("PublicLink.listCount", { count: store.pagination?.total ?? store.items.length })}
+        </p>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <FilterPopover
+            compact
+            id="public-list-filter"
+            searchLabel={list.searchable ? t("PublicLink.searchLabel") : undefined}
+            store={store}
+          />
+
+          <DataViewDisplayOptions
+            compact
+            active={store.hasLayoutChanges}
+            anchorScope="public-list"
+            id="public-list-display-options"
+            store={store}
+          />
+        </div>
+      </div>
 
       <ScopedRecordsTable emptyTitle={t("PublicLink.emptyList")} store={store} />
     </AppCard>

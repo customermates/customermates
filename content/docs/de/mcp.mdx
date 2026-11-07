@@ -208,7 +208,7 @@ Felder, stabile Options-IDs, Beziehungen, Systembindungen und Konfigurationsrevi
 
 Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer. Ein Filter nennt fieldId und operator. Operatoren mit einem Wert nutzen value mit einem typisierten Skalar; in, notIn, all und between nutzen values mit typisierten Skalaren und value: null. Mehrfachauswahlfilter nutzen je Option einen Skalar `{kind: "select", value: optionId}`, nicht selectList. Bei ungültigen Filtern nennt die Fehlermeldung Index und Feld. fields akzeptiert aktive Feld-IDs aus dem aktuellen Datenmodell; bei unbekannten oder noch nicht veröffentlichten IDs nennt die Fehlermeldung die ID.
 
-**Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
+**Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `searchFields`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 

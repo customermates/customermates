@@ -27,12 +27,14 @@ export class ReadPublicListRecordsInteractor {
     return this.access.open(input.token, visitor, async (link): Promise<PublicWidgetRecordsResult> => {
       const typeId = recordSurfaceTypeId(link.view.surfaceKey);
       if (!typeId) return PUBLIC_LINK_UNAVAILABLE;
-      const presentation = await publicListPage(this.presentation, typeId, link.viewId, {
+      const records = await publicListPage(this.presentation, typeId, link.viewId, {
         page: input.page,
         pageSize: input.pageSize,
         sortDescriptor: input.sortDescriptor,
+        filters: input.filters,
+        searchTerm: input.searchTerm,
       });
-      return presentation ? { status: "available", presentation } : PUBLIC_LINK_UNAVAILABLE;
+      return records ? { status: "available", ...records } : PUBLIC_LINK_UNAVAILABLE;
     });
   }
 }

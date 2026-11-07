@@ -69,29 +69,11 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground" id="public-link-live">
             <span aria-hidden className="size-1.5 rounded-full bg-success" />
 
-            {expiresAt ? t("PublicLink.expires", { date: expiresAt }) : t("PublicLink.live")}
+            {`${t("PublicLink.readOnly")} · ${expiresAt ? t("PublicLink.expires", { date: expiresAt }) : t("PublicLink.live")}`}
           </span>
         </div>
 
         {children}
-
-        <footer
-          className={cn(
-            "flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground",
-            upsell && "pb-12",
-          )}
-        >
-          <span>{t("PublicLink.readOnly")}</span>
-
-          <a
-            className="hover:text-foreground"
-            href={upsell ? `${HOME_URL}/?${UTM}&utm_content=footer` : HOME_URL}
-            id="public-link-branding"
-            rel="noopener"
-          >
-            {t("PublicLink.branding")}
-          </a>
-        </footer>
 
         {upsell ? (
           <div className="pointer-events-none sticky bottom-4 z-30 flex justify-end">

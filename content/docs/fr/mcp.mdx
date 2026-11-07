@@ -208,7 +208,7 @@ Lire les champs, les ID stables des options de sélection, les relations, les ca
 
 Filtrer, trier et paginer dans PostgreSQL les enregistrements d’un type configuré. Lire d’abord son schéma. Les résultats distinguent les valeurs, les entrées manquantes, les calculs restreints et les erreurs ; les décimaux sont des chaînes. Utiliser query_crm_measure pour les totaux sur toutes les correspondances. Un filtre nomme un fieldId et un operator. Les opérateurs à valeur unique utilisent value avec un scalaire typé ; in, notIn, all et between utilisent values avec des scalaires typés et value: null. Les filtres de choix multiple utilisent un scalaire `{kind: "select", value: optionId}` par option, pas selectList. Les erreurs de filtre invalide nomment l’index et le champ. fields accepte les ID de champ actifs du modèle d’enregistrement actuel ; un ID inconnu ou non publié est nommé dans l’erreur.
 
-**Lecture seule.** Obligatoire : `typeId`. Facultatif : `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
+**Lecture seule.** Obligatoire : `typeId`. Facultatif : `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `searchFields`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 

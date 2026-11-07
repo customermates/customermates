@@ -208,7 +208,7 @@ Read fields, stable select-option IDs, relationships, capabilities and configura
 
 Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches. A filter names fieldId and operator. Single-value operators use value with one typed scalar; in, notIn, all and between use values with typed scalars and value: null. Multiple choice filters use one `{kind: "select", value: optionId}` scalar per option, not selectList. Invalid-filter errors name the index and field. fields accepts live field IDs from the current record model; an unknown or unpublished ID is named in the error.
 
-**Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
+**Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `searchFields`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 

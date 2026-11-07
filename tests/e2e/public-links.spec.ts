@@ -7,6 +7,7 @@ import { expect, test, collectPageErrors } from "./fixtures";
 import { companyPath } from "./app-paths";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import { postOk } from "./api";
+import { applyPaletteSearch, clearPaletteSearch, openFilterPalette } from "./filter-palette";
 import { anonymous, createView, openShareDialog, rail, readModel, saveRole, teammate } from "./view-sharing-helpers";
 
 const publicLink = englishMessages.DataView.share.public;
@@ -90,26 +91,19 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await outsider.page.goto(path);
     await expect(outsider.page.locator("#public-link-title")).toHaveText("Investor board");
     await expect(outsider.page.getByRole("heading", { name: "Pipeline count", exact: true })).toBeVisible();
-    await expect(outsider.page.locator("#public-link-branding")).toHaveText(publicPage.branding);
+    await expect(outsider.page.locator("#public-link-live")).toContainText(publicPage.readOnly);
+    await expect(outsider.page.locator("footer")).toHaveCount(0);
     await expect(outsider.page.locator("#global-data-views")).toHaveCount(0);
     await expect(outsider.page.locator("#dashboard-add-widget")).toHaveCount(0);
     await expect(outsider.page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
     if (process.env.APP_MODE === "self-hosted") {
       await expect(outsider.page.locator("#public-link-badge")).toHaveCount(0);
-      await expect(outsider.page.locator("#public-link-branding")).toHaveAttribute(
-        "href",
-        "https://customermates.com",
-      );
     } else {
       await expect(outsider.page.locator("#public-link-badge")).toHaveAttribute(
         "href",
         "/auth/signup?utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link&utm_content=badge",
       );
       await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
-      await expect(outsider.page.locator("#public-link-branding")).toHaveAttribute(
-        "href",
-        /utm_source=public_dashboard.*utm_content=footer/u,
-      );
     }
     await expect(outsider.page.locator("header")).toHaveCount(0);
 
@@ -261,6 +255,19 @@ test("publishes a list view by public link with only its visible columns, read-o
       await expect(table.getByRole("columnheader", { name: hidden.label, exact: true })).toHaveCount(0);
     }
     await expect(table.locator('a[href*="/records/"]')).toHaveCount(0);
+    await applyPaletteSearch(outsider.page, "public-list-filter", "Public list deal", publicPage.searchLabel);
+    await expect(table.locator("#public-list-summary")).toHaveText("1 record");
+    await expect(table.getByText("Public list deal", { exact: true }).first()).toBeVisible();
+    await clearPaletteSearch(outsider.page, "public-list-filter");
+    await expect(table.locator("#public-list-summary")).not.toHaveText("1 record");
+    await openFilterPalette(outsider.page, "public-list-filter");
+    await expect(outsider.page.locator(`[data-palette-field="${hidden.id}"]`)).toHaveCount(0);
+    await expect(outsider.page.locator(`[data-palette-field="${primary.id}"]`)).toHaveCount(1);
+    await outsider.page.keyboard.press("Escape");
+    await outsider.page.locator("#public-list-display-options").click();
+    await expect(outsider.page.getByRole("checkbox", { name: primary.label, exact: true })).toBeVisible();
+    await expect(outsider.page.getByRole("checkbox", { name: hidden.label, exact: true })).toHaveCount(0);
+    await outsider.page.keyboard.press("Escape");
     await expect(outsider.page.locator("#global-data-views")).toHaveCount(0);
     await expect(outsider.page.locator("header")).toHaveCount(0);
     if (process.env.APP_MODE === "self-hosted") await expect(outsider.page.locator("#public-link-badge")).toHaveCount(0);

@@ -10,6 +10,8 @@ import { useTranslations } from "next-intl";
 
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
+import { DataViewDisplayOptions } from "@/components/data-view/header/display-options";
+import { FilterPopover } from "@/components/data-view/header/filter-popover";
 import { PageState } from "@/components/page-state/page-state";
 import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,6 +50,7 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
   const t = useTranslations();
   const root = useRootStore();
   const [store, setStore] = useState<PublicRecordExplorationStore | null>(null);
+  const [searchable, setSearchable] = useState(false);
   const [failure, setFailure] = useState<"unavailable" | "rateLimited" | null>(null);
 
   const request = useMemo(
@@ -62,6 +65,8 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
           ? { pageSize: params?.pageSize ?? params?.pagination?.pageSize }
           : {}),
         ...(params?.sortDescriptor ? { sortDescriptor: params.sortDescriptor } : {}),
+        ...(params?.filters?.length ? { filters: params.filters } : {}),
+        ...(params?.searchTerm ? { searchTerm: params.searchTerm } : {}),
       }),
     [token, selection],
   );
@@ -78,8 +83,10 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
     request()
       .then((result) => {
         if (!active) return;
-        if (result.status === "available") setStore(new PublicRecordExplorationStore(root, result.presentation, load));
-        else setFailure(result.status);
+        if (result.status === "available") {
+          setStore(new PublicRecordExplorationStore(root, result.presentation, load));
+          setSearchable(result.searchable);
+        } else setFailure(result.status);
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -102,6 +109,31 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
       sheet
       titleInContent
       bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
+      controls={
+        store
+          ? {
+              slots: 2,
+              node: (
+                <>
+                  <FilterPopover
+                    compact
+                    id="public-widget-drawer-filter"
+                    searchLabel={searchable ? t("PublicLink.searchLabel") : undefined}
+                    store={store}
+                  />
+
+                  <DataViewDisplayOptions
+                    compact
+                    active={store.hasLayoutChanges}
+                    anchorScope="public-widget-drawer"
+                    id="public-widget-drawer-display-options"
+                    store={store}
+                  />
+                </>
+              ),
+            }
+          : undefined
+      }
       focusReturnTarget={selection.opener}
       open={open}
       title={title}

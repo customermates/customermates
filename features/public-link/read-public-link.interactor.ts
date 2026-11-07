@@ -35,17 +35,18 @@ export class ReadPublicLinkInteractor {
       await this.links.recordOpen(link.id);
       const typeId = recordSurfaceTypeId(link.view.surfaceKey);
       if (typeId) {
-        const presentation = this.presentation
+        const records = this.presentation
           ? await publicListPage(this.presentation, typeId, link.viewId, { page: 1 })
           : null;
-        if (!presentation) return PUBLIC_LINK_UNAVAILABLE;
+        if (!records) return PUBLIC_LINK_UNAVAILABLE;
         return {
           status: "available",
           list: {
             name: link.view.name,
             workspaceName: link.company.name,
             expiresAt: link.expiresAt ? link.expiresAt.toISOString().slice(0, 10) : null,
-            presentation,
+            presentation: records.presentation,
+            searchable: records.searchable,
           },
         };
       }

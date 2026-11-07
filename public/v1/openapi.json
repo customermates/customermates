@@ -48679,6 +48679,16 @@
                     "type": "string",
                     "maxLength": 500
                   },
+                  "searchFields": {
+                    "description": "Limit search to these fields of the list (text, URL, address, formatted text, files, contact details). Omitted searches all of them.",
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
                   "filters": {
                     "default": [],
                     "maxItems": 50,
@@ -140358,6 +140368,16 @@
             "type": "string",
             "maxLength": 500
           },
+          "searchFields": {
+            "description": "Limit search to these fields of the list (text, URL, address, formatted text, files, contact details). Omitted searches all of them.",
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
           "filters": {
             "default": [],
             "maxItems": 50,
@@ -152197,6 +152217,16 @@
           "search": {
             "type": "string",
             "maxLength": 500
+          },
+          "searchFields": {
+            "description": "Limit search to these fields of the list (text, URL, address, formatted text, files, contact details). Omitted searches all of them.",
+            "maxItems": 100,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
           },
           "filters": {
             "default": [],

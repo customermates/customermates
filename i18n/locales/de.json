@@ -3618,7 +3618,6 @@
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
   },
   "PublicLink": {
-    "branding": "Geteilt mit Customermates",
     "byline": "Geteilt von {workspace}",
     "bylineListWithoutWorkspace": "Geteilte Liste",
     "bylineWithoutWorkspace": "Geteiltes Dashboard",
@@ -3633,6 +3632,7 @@
     "rateLimitedSubtitle": "Bitte warte einen Moment",
     "rateLimitedTitle": "Zu viele Aufrufe",
     "readOnly": "Nur lesen",
+    "searchLabel": "Text in den sichtbaren Spalten",
     "toHome": "Zu customermates.com",
     "unavailableBody": "Der Link wurde vielleicht deaktiviert, ist abgelaufen oder falsch eingegeben. Bitte die Person, die ihn geteilt hat, um einen neuen.",
     "unavailableSubtitle": "Diese Seite lässt sich nicht öffnen",

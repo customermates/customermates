@@ -1,6 +1,6 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { z } from "zod";
-import { recordChannelsEnabled } from "./record-channels";
+import { recordChannelsEnabled, recordChannelsField } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
@@ -227,7 +227,10 @@ export function compileRecordQuery(
   ];
   let searchSource = Prisma.empty;
   if (query.search) {
-    const searchable = [...fields.values()].filter((field) => ["text", "url", "address"].includes(field.valueType));
+    const inSearch = (field: { id: string }) => !query.searchFields || query.searchFields.includes(field.id);
+    const searchable = [...fields.values()].filter(
+      (field) => ["text", "url", "address"].includes(field.valueType) && inSearch(field),
+    );
     const search = `%${query.search.replace(/[\\%_]/g, "\\$&")}%`;
     const matches: Prisma.Sql[] = [];
     const searchRecord = Prisma.sql`search_record`;
@@ -268,7 +271,7 @@ export function compileRecordQuery(
       matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
         WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
     }
-    const fileFields = [...fields.values()].filter((field) => field.valueType === "file");
+    const fileFields = [...fields.values()].filter((field) => field.valueType === "file" && inSearch(field));
     if (fileFields.length) {
       const permitted = fileFields.map(
         (field) =>
@@ -291,7 +294,7 @@ export function compileRecordQuery(
             AND ${listed} AND (${Prisma.join(permitted, " OR ")})`);
       }
     }
-    const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
+    const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText" && inSearch(field));
     if (richTextFields.length) {
       const permitted = richTextFields.map(
         (field) =>
@@ -305,7 +308,8 @@ export function compileRecordQuery(
           AND EXISTS (SELECT 1 FROM ${RICH_TEXT_NODES} WHERE node.text #>> '{}' ILIKE ${search})
           AND (${Prisma.join(permitted, " OR ")})`);
     }
-    if (recordChannelsEnabled(model, query.typeId)) {
+    const channels = recordChannelsField(model, query.typeId);
+    if (recordChannelsEnabled(model, query.typeId) && channels && inSearch(channels)) {
       matches.push(Prisma.sql`SELECT association."recordId" AS id FROM "RecordIdentityLink" association
         JOIN "RecordIdentity" identity ON identity."companyId" = ${companyId} AND identity.id = association."identityId"
         WHERE association."companyId" = ${companyId} AND association."typeId" = ${query.typeId}

@@ -1,4 +1,4 @@
-import type { SortDescriptor } from "@/core/base/base-get.schema";
+import type { FilterableField, Filter, SortDescriptor } from "@/core/base/base-get.schema";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 
@@ -8,6 +8,10 @@ import { recordChannelsField } from "@/features/records/record-channels";
 import { recordColumns } from "@/features/records/record-columns";
 
 const HIDDEN_TIMESTAMP = new Date(0).toISOString();
+const UNFILTERABLE_VALUE_TYPES = new Set(["member", "file", "channels", "richText"]);
+const SEARCHABLE_VALUE_TYPES = new Set(["text", "url", "address"]);
+
+export type PublicVisitorQuery = { filters: Filter[]; searchTerm: string };
 
 type Visible = {
   fieldIds: Set<string>;
@@ -15,6 +19,8 @@ type Visible = {
   paths: Set<string>;
   columns: Set<string>;
   sortable: Set<string>;
+  searchFieldIds: string[];
+  filterable: FilterableField[];
 };
 
 function visibleColumns(data: RecordPresentationResult): Visible {
@@ -42,7 +48,25 @@ function visibleColumns(data: RecordPresentationResult): Visible {
     paths: new Set(columns.flatMap((column) => (column.kind === "relationshipPath" ? [column.definition.id] : []))),
     columns: new Set(columns.map((column) => column.id)),
     sortable: new Set(columns.filter((column) => column.sortable).map((column) => column.id)),
+    searchFieldIds: columns.flatMap((column) =>
+      column.kind === "field" && SEARCHABLE_VALUE_TYPES.has(column.field.valueType) ? [column.id] : [],
+    ),
+    filterable: (data.result.filterableFields ?? []).filter((entry) => {
+      const column = columns.find((candidate) => candidate.id === entry.field);
+      if (!column) return false;
+      if (column.kind === "system") return column.id !== "system:assignedTo";
+      return column.kind === "field" && !UNFILTERABLE_VALUE_TYPES.has(column.field.valueType);
+    }),
   };
+}
+
+export function publicScope(data: RecordPresentationResult) {
+  const visible = visibleColumns(data);
+  return { searchFieldIds: visible.searchFieldIds, filterable: visible.filterable };
+}
+
+export function publicFilterAllowed(filter: Filter, filterable: FilterableField[]): boolean {
+  return filterable.some((entry) => entry.field === filter.field && entry.operators.includes(filter.operator));
 }
 
 function publicRow(row: RecordRow, visible: Visible, channelsVisible: boolean): RecordRow {
@@ -83,7 +107,10 @@ export function publicSortable(data: RecordPresentationResult, sort: SortDescrip
   return !sort || visibleColumns(data).sortable.has(sort.field);
 }
 
-export function publicRecordPresentation(data: RecordPresentationResult): RecordPresentationResult {
+export function publicRecordPresentation(
+  data: RecordPresentationResult,
+  visitor: PublicVisitorQuery = { filters: [], searchTerm: "" },
+): RecordPresentationResult {
   const visible = visibleColumns(data);
   const channels = recordChannelsField(data.model, data.typeId);
   const channelsVisible = channels ? visible.fieldIds.has(channels.id) : false;
@@ -130,12 +157,12 @@ export function publicRecordPresentation(data: RecordPresentationResult): Record
     result: {
       p13nId: result.p13nId,
       items: result.items.map((row) => publicRow(row, visible, channelsVisible)),
-      filters: [],
-      searchTerm: "",
+      filters: visitor.filters,
+      searchTerm: visitor.searchTerm,
       sortDescriptor:
         result.sortDescriptor && visible.sortable.has(result.sortDescriptor.field) ? result.sortDescriptor : undefined,
       pagination: result.pagination,
-      filterableFields: [],
+      filterableFields: visible.filterable,
       columnOrder: result.columnOrder?.filter((id) => visible.columns.has(id)),
       columnWidths: result.columnWidths,
       hiddenColumns: result.hiddenColumns?.filter((id) => id.startsWith("system:")),

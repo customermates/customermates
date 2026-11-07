@@ -3618,7 +3618,6 @@
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
   },
   "PublicLink": {
-    "branding": "Compartido con Customermates",
     "byline": "Compartido por {workspace}",
     "bylineListWithoutWorkspace": "Lista compartida",
     "bylineWithoutWorkspace": "Panel compartido",
@@ -3633,6 +3632,7 @@
     "rateLimitedSubtitle": "Espera un momento",
     "rateLimitedTitle": "Demasiadas solicitudes",
     "readOnly": "Solo lectura",
+    "searchLabel": "Texto de las columnas visibles",
     "toHome": "Ir a customermates.com",
     "unavailableBody": "Puede que el enlace se haya desactivado, haya caducado o esté mal escrito. Pide uno nuevo a quien lo compartió.",
     "unavailableSubtitle": "Esta página no se puede abrir",
