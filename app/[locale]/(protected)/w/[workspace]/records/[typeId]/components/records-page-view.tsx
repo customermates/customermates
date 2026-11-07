@@ -192,6 +192,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     isGrouped: store.isGrouped,
     itemCount: store.items.length,
     request: store.dataRequest,
+    hasRequiredData: store.hasRequiredData,
     total: store.pagination?.total,
   });
   const recordName = useCallback((record: RecordRow) => recordRowName(store, record, t), [store, t]);

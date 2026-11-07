@@ -1,0 +1,3 @@
+﻿ID contact,Nom,Entreprise,E-mail,Téléphone,Responsable,Relation,Dernier contact,Prochaine action,Date prochaine action,Source,Date de vérification
+C001,Alex Exemple,Atelier Exemple,alex@example.com,,Sam,Prospect,2026-11-05,Envoyer la présentation demandée,2026-11-06,Demande du 2026-11-05,2026-12-04
+C002,Robin Modèle,Studio Modèle,robin@example.org,,Jo,Client,2026-11-04,Confirmer les détails de livraison,2026-11-09,Demande client du 2026-11-04,2026-12-04

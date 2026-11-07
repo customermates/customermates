@@ -178,9 +178,13 @@ test("calendar drags resize a range from either edge and move a timed entry in 1
   expect((await saved).ok()).toBe(true);
   await expect.poll(() => planner.range(visit, visitField)).toEqual({ start: `${today}T10:15`, end: `${today}T11:15` });
 
+  await expect(block).toHaveAttribute("aria-label", /10:15.*11:15/);
+  await expect(block).not.toHaveClass(/(?:^|\s)shadow-md(?:\s|$)/);
+  await block.evaluate((element) => element.scrollIntoView({ block: "center", inline: "nearest" }));
   await block.hover();
   saved = updateSaved(page);
   await dragBy(page, block.locator('[data-calendar-resize="end"]'), 0, HOUR_HEIGHT / 2);
+  await expect(page.locator("[data-calendar-drag-preview]")).toContainText("11:45");
   await page.mouse.up();
   expect((await saved).ok()).toBe(true);
   await expect.poll(() => planner.range(visit, visitField)).toEqual({ start: `${today}T10:15`, end: `${today}T11:45` });

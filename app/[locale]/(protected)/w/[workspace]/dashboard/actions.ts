@@ -19,6 +19,7 @@ import {
   getGetCompanyWidgetsInteractor,
   getGetWidgetByIdInteractor,
   getGetWidgetsInteractor,
+  getGetWidgetSummariesInteractor,
   getPreviewRecordWidgetInteractor,
   getUpdateUserDetailsInteractor,
   getUpdateWidgetLayoutsInteractor,
@@ -50,6 +51,10 @@ export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
 
 export async function refreshWidgetsAction(viewId?: string) {
   return serializeTypedResult(getGetWidgetsInteractor().invoke({ viewId }));
+}
+
+export async function getWidgetSummariesAction(viewId?: string) {
+  return serializeTypedResult(getGetWidgetSummariesInteractor().invoke({ viewId }));
 }
 
 export async function updatePreferencesAction(data: UpdateUserDetailsData) {

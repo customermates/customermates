@@ -18,7 +18,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { DataViewChipDtoSchema, DataViewStateWireSchema } from "@/core/data-view/data-view-state.schema";
 
-const GetWidgetsSchema = z
+export const GetWidgetsSchema = z
   .object({
     viewId: z.string().optional(),
     allViews: z.boolean().optional(),

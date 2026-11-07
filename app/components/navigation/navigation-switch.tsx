@@ -12,7 +12,7 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, useRef, useTransition } from "react";
 
 import { TopBarActionsProvider } from "../topbar-actions-context";
 
@@ -103,6 +103,12 @@ export function NavigationSwitch({
   const accountAllowed = currentAccountState === "allowed";
   const protectedEnhancementsAllowed = accountAllowed && shellMode === "app";
   const identifiedUser = accountAllowed ? appUser : null;
+  const [refreshPending, startRefresh] = useTransition();
+  const refreshInFlight = useRef(false);
+
+  useEffect(() => {
+    refreshInFlight.current = refreshPending;
+  }, [refreshPending]);
 
   useEffect(() => {
     if (currentAccountState !== accountState) router.refresh();
@@ -113,7 +119,9 @@ export function NavigationSwitch({
     const handleVisibilityChange = () => {
       if (document.visibilityState !== "visible") return;
       navigationGuard.requestRouteRefreshWhenSafe(() => {
-        if (active && document.visibilityState === "visible") router.refresh();
+        if (!active || document.visibilityState !== "visible" || refreshInFlight.current) return;
+        refreshInFlight.current = true;
+        startRefresh(() => router.refresh());
       });
     };
 
@@ -122,7 +130,7 @@ export function NavigationSwitch({
       active = false;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [navigationGuard, router]);
+  }, [navigationGuard, router, startRefresh]);
 
   useLayoutEffect(() => {
     userStore.setUser(identifiedUser);

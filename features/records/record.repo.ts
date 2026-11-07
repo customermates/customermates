@@ -91,6 +91,7 @@ export type RecordTrashItem = {
 export type RecordTrashItemInput = Omit<RecordTrashItem, "deletedAt" | "expiresAt" | "payload">;
 type TrashedRecordLink = { id: string; relationId: string; source: RecordRef; target: RecordRef };
 export type TrashReadOptions = { includeTrash?: boolean };
+export type RecordRowsReadOptions = TrashReadOptions & { fieldIds?: string[] };
 
 export type StoredRecord = CrmRecord & {
   values: RecordValue[];
@@ -201,7 +202,7 @@ export interface RecordRepo {
   setGrants(typeId: string, grants: Array<{ roleId: string; actions: Action[] }>): Promise<void>;
   getRecordCompanyWide(ref: RecordRef, options?: TrashReadOptions): Promise<StoredRecord | null>;
   lockRecord(ref: RecordRef): Promise<void>;
-  getRecordsCompanyWide(refs: RecordRef[], options?: TrashReadOptions): Promise<StoredRecord[]>;
+  getRecordsCompanyWide(refs: RecordRef[], options?: RecordRowsReadOptions): Promise<StoredRecord[]>;
   getEmbeddedChildrenCompanyWide(
     typeId: string,
     parentRelationId: string,
