@@ -275,7 +275,7 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
             <div className="flex flex-col gap-1.5">
               <Label>{t("DataView.share.link")}</Label>
 
-              <CopyableCode copyId="share-view-copy" id="share-view-link" value={link} />
+              <CopyableCode anchorId="share-view-copy" id="share-view-link" value={link} />
 
               <p className="text-xs text-muted-foreground">
                 {visibility === "private" ? t("DataView.share.linkPrivate") : t("DataView.share.linkShared")}
