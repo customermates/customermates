@@ -67,7 +67,7 @@ export type PublicDashboard = {
 export const PublicWidgetRecordsSchema = z
   .object({
     token: z.string().regex(PUBLIC_LINK_TOKEN_PATTERN),
-    widget: z.number().int().min(0).max(199),
+    widget: z.string().regex(/^[0-9a-f]{16}$/u),
     group: RecordContributionGroupSchema.nullable(),
     label: z.string().max(500).nullable(),
     page: z.number().int().min(1).max(10_000).default(1),
@@ -112,7 +112,7 @@ export type PublicDashboardResult =
 
 export function publicChartWidget(
   widget: RecordWidgetDto,
-  index: number,
+  key: string,
   listLabels: PublicChartWidget["listLabels"] = null,
 ): PublicChartWidget {
   const { measure } = widget;
@@ -120,7 +120,7 @@ export function publicChartWidget(
   const dateWindow = <T extends { fieldId: string }>(filters: readonly T[] | undefined) =>
     dateField ? (filters ?? []).filter((filter) => filter.fieldId === dateField) : [];
   return {
-    id: `widget-${index + 1}`,
+    id: key,
     listLabels,
     name: widget.name,
     status: widget.status,

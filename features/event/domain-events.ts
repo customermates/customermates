@@ -47,6 +47,8 @@ export enum DomainEvent {
   RECORDS_EXPORTED = "records.exported",
   PUBLIC_LINK_CREATED = "public_link.created",
   PUBLIC_LINK_REVOKED = "public_link.revoked",
+  PUBLIC_LINKS_ALLOWED = "public_link.allowed",
+  PUBLIC_LINKS_BLOCKED = "public_link.blocked",
 }
 
 type ConnectedAccountAuditPayload = {
@@ -372,5 +374,17 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: { name: string; viewId: string };
+  };
+  [DomainEvent.PUBLIC_LINKS_ALLOWED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: { activeLinkCount: number };
+  };
+  [DomainEvent.PUBLIC_LINKS_BLOCKED]: {
+    userId: string;
+    companyId: string;
+    entityId: string;
+    payload: { activeLinkCount: number };
   };
 };

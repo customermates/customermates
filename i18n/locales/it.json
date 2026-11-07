@@ -1389,6 +1389,8 @@
         }
       },
       "public_link": {
+        "allowed": "Link pubblici consentiti",
+        "blocked": "Link pubblici disattivati",
         "created": "Link pubblico creato",
         "revoked": "Link pubblico disattivato"
       },
@@ -2288,7 +2290,7 @@
         "chip": "Link pubblico attivo",
         "createdCopied": "Link pubblico creato e copiato",
         "description": "Pubblico, senza accesso: chiunque abbia il link vede i grafici e i record che li compongono. La vedono anche tutti in questo spazio di lavoro.",
-        "expiresLabel": "Ultimo giorno in cui il link funziona",
+        "expiresLabel": "Ultimo giorno in cui il link funziona (UTC)",
         "expiryCleared": "Data di fine rimossa",
         "expirySet": "Data di fine salvata",
         "linkLabel": "Link pubblico",
@@ -3623,7 +3625,7 @@
     "bylineWithoutWorkspace": "Dashboard condivisa",
     "empty": "Questa dashboard non ha ancora grafici.",
     "emptyList": "Nessun record corrisponde a questa vista.",
-    "expires": "Il link funziona fino al {date}",
+    "expires": "Il link funziona fino alla fine del {date} (UTC)",
     "hiddenWidgets": "{count, plural, one {# widget non è mostrato nei link pubblici} other {# widget non sono mostrati nei link pubblici}}",
     "listCount": "{count, plural, =0 {Nessun record} one {# record} other {# record}}",
     "live": "Aggiornata in tempo reale",

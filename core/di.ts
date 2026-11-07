@@ -2025,7 +2025,8 @@ export const getSaveDataViewStateInteractor = () =>
 export const getSelectDataViewInteractor = () =>
   new SelectDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
-export const getShareDataViewInteractor = () => new ShareDataViewInteractor(getDataViewRepo(), getRecordViewPolicy());
+export const getShareDataViewInteractor = () =>
+  new ShareDataViewInteractor(getDataViewRepo(), getRecordViewPolicy(), getManagePublicLinkInteractor());
 
 export const getHideSharedDataViewInteractor = () => new HideSharedDataViewInteractor(getDataViewRepo(), getP13nRepo());
 
@@ -2639,7 +2640,6 @@ export const getReadPublicLinkInteractor = () =>
   (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
     getPublicLinkAccess(),
     getPublicLinkRepo(),
-    {},
     {
       invoke: () => getGetRecordNavigationInteractor().invoke(),
     },
@@ -2657,4 +2657,5 @@ export const getReadPublicListRecordsInteractor = () =>
   new ReadPublicListRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
 
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
-export const getSetPublicLinksAllowedInteractor = () => new SetPublicLinksAllowedInteractor(getCompanyRepo());
+export const getSetPublicLinksAllowedInteractor = () =>
+  new SetPublicLinksAllowedInteractor(getCompanyRepo(), getEventService());

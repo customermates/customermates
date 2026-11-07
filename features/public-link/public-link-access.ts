@@ -4,6 +4,8 @@ import type { PublicLinkLookup, PublicLinkLookupRepo } from "./public-link-looku
 import type { PublicLinkRateLimiter } from "./public-link-rate-limiter";
 import type { PublicLinkTenant } from "./public-link-tenant";
 
+import { createHash } from "node:crypto";
+
 import { PermissionService } from "@/core/base/permission.service";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { Action, Resource } from "@/generated/prisma";
@@ -19,9 +21,17 @@ export type PublicLinkBlocked = { status: "unavailable" } | { status: "rateLimit
 
 export const PUBLIC_LINK_UNAVAILABLE = { status: "unavailable" } as const;
 
-type Settings = { authSecret: string | undefined; now?: () => Date };
+type Settings = { authSecret: string | undefined; now?: () => Date; chartCacheMs?: number };
+
+export type PublicCharts = { charts: Array<{ key: string; widget: RecordWidgetDto }>; hidden: number };
+
+export function publicWidgetKey(linkId: string, widgetId: string): string {
+  return createHash("sha256").update(`public-widget:${linkId}:${widgetId}`).digest("hex").slice(0, 16);
+}
 
 export class PublicLinkAccess {
+  private readonly chartCache = new Map<string, { until: number; charts: PublicCharts }>();
+
   constructor(
     private lookup: PublicLinkLookupRepo,
     private tenant: PublicLinkTenant,
@@ -78,11 +88,23 @@ export class PublicLinkAccess {
     );
   }
 
-  async charts(link: PublicLinkLookup): Promise<{ charts: RecordWidgetDto[]; hidden: number } | null> {
+  async charts(link: PublicLinkLookup): Promise<PublicCharts | null> {
     if (link.view.surfaceKey !== SURFACE.dashboard) return null;
+    const now = this.now().getTime();
+    const cached = this.chartCache.get(link.id);
+    if (cached && cached.until > now) return cached.charts;
     const result = await this.widgets.invoke({ viewId: link.viewId });
     if (result.data.activeViewKey !== link.viewId) return null;
     const charts = result.data.items.filter((widget): widget is RecordWidgetDto => widget.kind === "chart");
-    return { charts, hidden: result.data.items.length - charts.length };
+    const loaded = {
+      charts: charts.map((widget) => ({ key: publicWidgetKey(link.id, widget.id), widget })),
+      hidden: result.data.items.length - charts.length,
+    };
+    const ttl = this.settings.chartCacheMs ?? 60_000;
+    if (ttl > 0) {
+      this.chartCache.set(link.id, { until: now + ttl, charts: loaded });
+      if (this.chartCache.size > 1_000) this.chartCache.delete(this.chartCache.keys().next().value as string);
+    }
+    return loaded;
   }
 }

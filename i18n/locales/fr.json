@@ -1389,6 +1389,8 @@
         }
       },
       "public_link": {
+        "allowed": "Liens publics autorisés",
+        "blocked": "Liens publics désactivés",
         "created": "Lien public créé",
         "revoked": "Lien public désactivé"
       },
@@ -2288,7 +2290,7 @@
         "chip": "Lien public actif",
         "createdCopied": "Lien public créé et copié",
         "description": "Public, sans connexion : toute personne disposant du lien voit les graphiques et les enregistrements qui les composent. Tous les membres de cet espace de travail la voient aussi.",
-        "expiresLabel": "Dernier jour où le lien fonctionne",
+        "expiresLabel": "Dernier jour où le lien fonctionne (UTC)",
         "expiryCleared": "Date de fin supprimée",
         "expirySet": "Date de fin enregistrée",
         "linkLabel": "Lien public",
@@ -3623,7 +3625,7 @@
     "bylineWithoutWorkspace": "Tableau de bord partagé",
     "empty": "Ce tableau de bord n'a pas encore de graphiques.",
     "emptyList": "Aucun enregistrement ne correspond à cette vue.",
-    "expires": "Lien valable jusqu'au {date}",
+    "expires": "Le lien fonctionne jusqu’à la fin du {date} (UTC)",
     "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
     "listCount": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
     "live": "Mis à jour en direct",

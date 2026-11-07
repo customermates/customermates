@@ -19,11 +19,13 @@ export type RecordPresentationReader = {
     typeId: string;
     params: GetQueryParams;
     searchFields?: string[];
+    columns?: string[];
   }): Validated<RecordPresentationResult>;
 };
 
 export type PublicRecordsPage = {
   page: number;
+  onlyColumns?: readonly string[];
   pageSize?: number;
   sortDescriptor?: SortDescriptor;
   filters?: Filter[];
@@ -55,20 +57,23 @@ export async function readPublicRecords(
         ...(sortDescriptor ? { sortDescriptor } : {}),
       },
       ...(searchFields ? { searchFields } : {}),
+      ...(request.onlyColumns ? { columns: [...request.onlyColumns] } : {}),
     });
     return result.ok && result.data.result.activeViewKey === expectedViewKey ? result.data : null;
   };
   const base = await load({});
   if (!base) return null;
-  const scope = publicScope(base);
+  const scope = publicScope(base, request.onlyColumns);
   const savedSearch = base.result.searchTerm?.trim() ?? "";
   const visitorFilters = request.filters ?? [];
   const visitorSearch = savedSearch ? "" : (request.searchTerm?.trim() ?? "");
   if (!visitorFilters.every((filter) => publicFilterAllowed(filter, scope.filterable))) return null;
-  const sortDescriptor = publicSortable(base, request.sortDescriptor) ? request.sortDescriptor : undefined;
+  const sortDescriptor = publicSortable(base, request.sortDescriptor, request.onlyColumns)
+    ? request.sortDescriptor
+    : undefined;
   const searchable = !savedSearch && scope.searchFieldIds.length > 0;
   if (!visitorFilters.length && !visitorSearch && !sortDescriptor)
-    return { presentation: publicRecordPresentation(base), searchable };
+    return { presentation: publicRecordPresentation(base, undefined, request.onlyColumns), searchable };
   const narrowed = await load({
     filters: [...(base.result.filters ?? []), ...visitorFilters],
     searchTerm: visitorSearch || savedSearch,
@@ -77,7 +82,11 @@ export async function readPublicRecords(
   });
   if (!narrowed) return null;
   return {
-    presentation: publicRecordPresentation(narrowed, { filters: visitorFilters, searchTerm: visitorSearch }),
+    presentation: publicRecordPresentation(
+      narrowed,
+      { filters: visitorFilters, searchTerm: visitorSearch },
+      request.onlyColumns,
+    ),
     searchable,
   };
 }

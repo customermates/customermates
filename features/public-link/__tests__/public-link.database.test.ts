@@ -41,6 +41,7 @@ const routes = {
   createView: await restRoute("/v1/data-views/create"),
   removeView: await restRoute("/v1/data-views/delete"),
   publish: await restRoute("/v1/data-views/publish"),
+  share: await restRoute("/v1/data-views/share"),
   saveWidget: await restRoute("/v1/widgets/save"),
 };
 
@@ -64,7 +65,11 @@ function access(options: { now?: Date; perLink?: number; secret?: string } = {})
     { invoke: (data) => di.getGetWidgetsInteractor().invoke(data) },
     new PublicLinkRateLimiter(options.perLink ?? 1000, 60_000),
     new PublicLinkRateLimiter(1000, 60_000),
-    { authSecret: options.secret ?? SECRET, ...(options.now ? { now: () => options.now as Date } : {}) },
+    {
+      authSecret: options.secret ?? SECRET,
+      chartCacheMs: 0,
+      ...(options.now ? { now: () => options.now as Date } : {}),
+    },
   );
 }
 
@@ -72,7 +77,6 @@ function reader(options: { now?: Date; perLink?: number; secret?: string } = {})
   return new ReadPublicLinkInteractor(
     access(options),
     new PrismaPublicLinkRepo(),
-    { cacheMs: 0 },
     {
       invoke: () => di.getGetRecordNavigationInteractor().invoke(),
     },
@@ -159,6 +163,8 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(open.dashboard.widgets[0]?.listLabels).toMatchObject({ pluralLabel: expect.any(String) });
     expect(open.dashboard.widgets[0]?.listLabels?.pluralLabel).not.toBe("");
     expect(total(open)).toBe(2);
+    const [countKey, stageKey] = open.dashboard.widgets.map((widget) => widget.id);
+    expect(countKey).toMatch(/^[0-9a-f]{16}$/u);
     const serialized = JSON.stringify(open.dashboard);
     for (const secret of [
       w.companyId,
@@ -172,10 +178,11 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     ])
       expect(serialized).not.toContain(secret);
 
-    const all = await records().invoke({ token, widget: 0, group: null, label: null });
+    const all = await records().invoke({ token, widget: countKey ?? "", group: null, label: null });
     expect(all.status).toBe("available");
     if (all.status !== "available") throw new Error("records not available");
     expect(all.presentation.result.items).toHaveLength(2);
+    expect(all.presentation.model.fields.map((field) => field.id)).toEqual([w.id("deal.name")]);
     expect(all.presentation.permittedActions).toEqual([]);
     expect(all.presentation.canManageSchema).toBe(false);
     const stageChart = open.dashboard.widgets[1];
@@ -183,22 +190,29 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     if (!filled) throw new Error("no filled stage group");
     const inGroup = await records().invoke({
       token,
-      widget: 1,
+      widget: stageKey ?? "",
       group: { record: filled.record, label: filled.label },
       label: "stage",
     });
     expect(inGroup.status === "available" && inGroup.presentation.result.items.length).toBe(filled.count);
+    expect(inGroup.status === "available" && inGroup.presentation.model.fields.map((field) => field.id).sort()).toEqual(
+      [w.id("deal.name"), w.id("deal.stage")].sort(),
+    );
     for (const forged of [
-      { widget: 1, group: { record: null, label: { state: "value", value: { kind: "text", value: "Forged" } } } },
-      { widget: 7, group: null },
-      { widget: -1, group: null },
+      {
+        widget: stageKey ?? "",
+        group: { record: null, label: { state: "value", value: { kind: "text", value: "Forged" } } },
+      },
+      { widget: "ffffffffffffffff", group: null },
+      { widget: "not-a-key", group: null },
     ]) {
       expect(
-        (await records().invoke({ token, label: null, ...(forged as { widget: number; group: null }) })).status,
+        (await records().invoke({ token, label: null, ...(forged as { widget: string; group: null }) })).status,
       ).toBe("unavailable");
     }
     expect(
-      (await records().invoke({ token: `${token.slice(0, 63)}x`, widget: 0, group: null, label: null })).status,
+      (await records().invoke({ token: `${token.slice(0, 63)}x`, widget: countKey ?? "", group: null, label: null }))
+        .status,
     ).toBe("unavailable");
 
     const counted = await runWithoutTenant(() =>
@@ -230,8 +244,16 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     const memberLink = await publish(w, publisher, memberBoard);
     expect(memberLink.status, JSON.stringify(memberLink.body)).toBe(200);
     const memberToken = tokenOf(memberLink.body.publicLink.url as string);
-    expect(total(await reader().invoke({ token: memberToken }))).toBe(1);
-    const memberRows = await records().invoke({ token: memberToken, widget: 0, group: null, label: null });
+    const memberOpen = await reader().invoke({ token: memberToken });
+    expect(total(memberOpen)).toBe(1);
+    const memberKey =
+      memberOpen.status === "available" && "dashboard" in memberOpen ? memberOpen.dashboard.widgets[0]?.id : "";
+    const memberRows = await records().invoke({
+      token: memberToken,
+      widget: memberKey ?? "",
+      group: null,
+      label: null,
+    });
     expect(
       memberRows.status === "available" && memberRows.presentation.result.items.map((row) => row.ref.recordId),
     ).toEqual([assigned.recordId]);
@@ -284,7 +306,9 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     });
     expect(revoked).toMatchObject({ status: 200, body: { action: "publish", publicLink: null } });
     expect((await reader().invoke({ token })).status).toBe("unavailable");
-    expect((await records().invoke({ token, widget: 0, group: null, label: null })).status).toBe("unavailable");
+    expect((await records().invoke({ token, widget: countKey ?? "", group: null, label: null })).status).toBe(
+      "unavailable",
+    );
     const again = await publish(w, w.admin, adminBoard);
     const newToken = tokenOf(again.body.publicLink.url as string);
     expect(newToken).not.toBe(token);
@@ -309,6 +333,8 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(events.map(({ kind }) => kind)).toEqual([
       "public_link.created",
       "public_link.created",
+      "public_link.blocked",
+      "public_link.allowed",
       "public_link.revoked",
       "public_link.created",
     ]);
@@ -395,7 +421,9 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     ).toBe("unavailable");
     expect(page.result.filterableFields?.map((entry) => entry.field)).not.toContain(stage);
 
-    expect((await records().invoke({ token, widget: 0, group: null, label: null })).status).toBe("unavailable");
+    expect((await records().invoke({ token, widget: "0000000000000000", group: null, label: null })).status).toBe(
+      "unavailable",
+    );
     const adminBoard = await board(w, w.admin, "Board");
     const boardLink = await publish(w, w.admin, adminBoard);
     expect((await listRecords().invoke({ token: tokenOf(boardLink.body.publicLink.url as string) })).status).toBe(
@@ -447,7 +475,8 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
         memberOpen.list.presentation.result.items.map((row) => row.ref.recordId),
     ).toEqual([assigned.recordId]);
 
-    await postAs(w, w.admin, routes.publish, { surfaceKey, viewKey, public: false });
+    const madePrivate = await postAs(w, w.admin, routes.share, { surfaceKey, viewKey, visibility: "private" });
+    expect(madePrivate.status, JSON.stringify(madePrivate.body)).toBe(200);
     expect((await reader().invoke({ token })).status).toBe("unavailable");
     expect((await listRecords().invoke({ token })).status).toBe("unavailable");
   }, 300_000);

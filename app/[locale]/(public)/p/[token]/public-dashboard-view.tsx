@@ -42,7 +42,7 @@ export function PublicDashboardView({ dashboard, token }: { dashboard: PublicDas
   ) => {
     const widget = dashboard.widgets[index];
     if (!widget || widget.status !== "ready") return;
-    setSelection({ widget: index, chart: widget, group, label, opener });
+    setSelection({ widget: widget.id, chart: widget, group, label, opener });
     setDrawerOpen(true);
   };
 

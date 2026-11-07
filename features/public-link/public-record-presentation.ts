@@ -21,13 +21,18 @@ type Visible = {
   sortable: Set<string>;
   searchFieldIds: string[];
   filterable: FilterableField[];
+  linkedTypes: Set<string>;
 };
 
-function visibleColumns(data: RecordPresentationResult): Visible {
+const SYSTEM_COLUMNS = ["system:assignedTo", "system:createdAt", "system:updatedAt"];
+
+export type PublicColumns = readonly string[] | undefined;
+
+function visibleColumns(data: RecordPresentationResult, only?: PublicColumns): Visible {
   const hidden = new Set(data.result.hiddenColumns ?? []);
   const primaryFieldId = data.model.types.find((type) => type.id === data.typeId)?.primaryFieldId;
   const columns = recordColumns(data.typeId, data.model).filter(
-    (column) => !hidden.has(column.id) || column.id === primaryFieldId,
+    (column) => (only ? only.includes(column.id) : !hidden.has(column.id)) || column.id === primaryFieldId,
   );
   const shownFieldIds = new Set(columns.flatMap((column) => (column.kind === "field" ? [column.id] : [])));
   const avatarFieldIds = data.model.capabilities
@@ -48,6 +53,14 @@ function visibleColumns(data: RecordPresentationResult): Visible {
     paths: new Set(columns.flatMap((column) => (column.kind === "relationshipPath" ? [column.definition.id] : []))),
     columns: new Set(columns.map((column) => column.id)),
     sortable: new Set(columns.filter((column) => column.sortable).map((column) => column.id)),
+    linkedTypes: new Set([
+      data.typeId,
+      ...columns.flatMap((column) => {
+        if (column.kind === "relationshipPath") return [column.targetTypeId];
+        if (column.kind !== "relationship") return [];
+        return [column.direction === "outgoing" ? column.relation.targetTypeId : column.relation.sourceTypeId];
+      }),
+    ]),
     searchFieldIds: columns.flatMap((column) =>
       column.kind === "field" && SEARCHABLE_VALUE_TYPES.has(column.field.valueType) ? [column.id] : [],
     ),
@@ -60,8 +73,8 @@ function visibleColumns(data: RecordPresentationResult): Visible {
   };
 }
 
-export function publicScope(data: RecordPresentationResult) {
-  const visible = visibleColumns(data);
+export function publicScope(data: RecordPresentationResult, only?: PublicColumns) {
+  const visible = visibleColumns(data, only);
   return { searchFieldIds: visible.searchFieldIds, filterable: visible.filterable };
 }
 
@@ -103,15 +116,24 @@ function publicRow(row: RecordRow, visible: Visible, channelsVisible: boolean): 
   };
 }
 
-export function publicSortable(data: RecordPresentationResult, sort: SortDescriptor | undefined): boolean {
-  return !sort || visibleColumns(data).sortable.has(sort.field);
+function pickTypes<T extends Record<string, unknown>>(map: T, types: Set<string>): T {
+  return Object.fromEntries(Object.entries(map).filter(([typeId]) => types.has(typeId))) as T;
+}
+
+export function publicSortable(
+  data: RecordPresentationResult,
+  sort: SortDescriptor | undefined,
+  only?: PublicColumns,
+): boolean {
+  return !sort || visibleColumns(data, only).sortable.has(sort.field);
 }
 
 export function publicRecordPresentation(
   data: RecordPresentationResult,
   visitor: PublicVisitorQuery = { filters: [], searchTerm: "" },
+  only?: PublicColumns,
 ): RecordPresentationResult {
-  const visible = visibleColumns(data);
+  const visible = visibleColumns(data, only);
   const channels = recordChannelsField(data.model, data.typeId);
   const channelsVisible = channels ? visible.fieldIds.has(channels.id) : false;
   const pathRelations = new Set(
@@ -130,6 +152,7 @@ export function publicRecordPresentation(
       ...data.model,
       types: data.model.types.map((type) => ({
         ...type,
+        description: "",
         relationshipPaths: type.relationshipPaths?.filter((path) => visible.paths.has(path.id)),
       })),
       fields: data.model.fields
@@ -146,6 +169,9 @@ export function publicRecordPresentation(
       ),
       accessPresets: [],
     },
+    linkColors: pickTypes(data.linkColors, visible.linkedTypes),
+    linkIcons: pickTypes(data.linkIcons, visible.linkedTypes),
+    linkLabels: pickTypes(data.linkLabels, visible.linkedTypes),
     query: {
       typeId: data.query.typeId,
       filters: [],
@@ -164,8 +190,10 @@ export function publicRecordPresentation(
       pagination: result.pagination,
       filterableFields: visible.filterable,
       columnOrder: result.columnOrder?.filter((id) => visible.columns.has(id)),
-      columnWidths: result.columnWidths,
-      hiddenColumns: result.hiddenColumns?.filter((id) => id.startsWith("system:")),
+      columnWidths: Object.fromEntries(
+        Object.entries(result.columnWidths ?? {}).filter(([id]) => visible.columns.has(id)),
+      ),
+      hiddenColumns: SYSTEM_COLUMNS.filter((id) => !visible.columns.has(id)),
       viewMode: ViewMode.table,
       groupableFields: [],
       views: [],

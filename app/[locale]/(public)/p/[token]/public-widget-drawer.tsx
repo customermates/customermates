@@ -25,7 +25,7 @@ import { readPublicWidgetRecordsAction } from "./actions";
 import { PublicRecordExplorationStore } from "./public-record-exploration.store";
 
 export type PublicWidgetSelection = {
-  widget: number;
+  widget: string;
   chart: PublicChartWidget;
   group: RecordContributionGroup | null;
   label: string | null;

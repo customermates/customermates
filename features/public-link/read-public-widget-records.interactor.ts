@@ -1,3 +1,4 @@
+import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { PublicLinkAccess } from "./public-link-access";
 import type { RecordPresentationReader } from "./public-list-reader";
 import type { PublicWidgetRecordsInput, PublicWidgetRecordsResult } from "./public-link.schema";
@@ -13,6 +14,11 @@ import { recordContributionFilter } from "@/features/records/record-contribution
 import { PUBLIC_LINK_UNAVAILABLE } from "./public-link-access";
 import { readPublicRecords } from "./public-list-reader";
 import { PublicWidgetRecordsSchema } from "./public-link.schema";
+
+function chartColumns(measure: RecordWidgetDto["measure"]): string[] {
+  const grouped = measure.groupBy && measure.groupBy.path.length === 0 ? measure.groupBy.fieldId : null;
+  return [grouped, measure.valueFieldId].filter((id): id is string => Boolean(id));
+}
 
 @AllowInDemoMode
 @SystemInteractor
@@ -30,7 +36,7 @@ export class ReadPublicWidgetRecordsInteractor {
 
     return this.access.open(input.token, visitor, async (link): Promise<PublicWidgetRecordsResult> => {
       const loaded = await this.access.charts(link);
-      const chart = loaded?.charts[input.widget];
+      const chart = loaded?.charts.find((entry) => entry.key === input.widget)?.widget;
       if (!chart || chart.status !== "ready" || !chart.data) return PUBLIC_LINK_UNAVAILABLE;
       const groups = chart.data.groups.map(({ record, label }) => ({ record, label }));
       if (input.group && !groups.some((group) => equal(group, input.group))) return PUBLIC_LINK_UNAVAILABLE;
@@ -51,6 +57,7 @@ export class ReadPublicWidgetRecordsInteractor {
           sortDescriptor: input.sortDescriptor,
           filters: input.filters,
           searchTerm: input.searchTerm,
+          onlyColumns: chartColumns(chart.measure),
         },
         ALL_VIEW_KEY,
       );
