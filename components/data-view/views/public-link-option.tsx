@@ -24,7 +24,7 @@ export function PublicLinkOption({ kind, link, expiresAt, onExpiresAtChange }: P
         <div className="flex flex-col gap-1.5">
           <Label>{t("DataView.share.public.linkLabel")}</Label>
 
-          <CopyableCode copyId="share-view-public-copy" id="share-view-public-link" value={link.url} />
+          <CopyableCode anchorId="share-view-public-copy" id="share-view-public-link" value={link.url} />
         </div>
       ) : (
         <p className="text-xs text-muted-foreground" id="share-view-public-pending">
