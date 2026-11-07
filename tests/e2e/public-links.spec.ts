@@ -255,11 +255,14 @@ test("publishes a list view by public link with only its visible columns, read-o
       await expect(table.getByRole("columnheader", { name: hidden.label, exact: true })).toHaveCount(0);
     }
     await expect(table.locator('a[href*="/records/"]')).toHaveCount(0);
+    const unfiltered = (await table.locator("#public-list-summary").textContent()) ?? "";
+    await applyPaletteSearch(outsider.page, "public-list-filter", "zz-no-such-deal", publicPage.searchLabel);
+    await expect(table.locator("#public-list-summary")).toHaveText("No records");
+    await clearPaletteSearch(outsider.page, "public-list-filter");
+    await expect(table.locator("#public-list-summary")).toHaveText(unfiltered);
     await applyPaletteSearch(outsider.page, "public-list-filter", "Public list deal", publicPage.searchLabel);
-    await expect(table.locator("#public-list-summary")).toHaveText("1 record");
     await expect(table.getByText("Public list deal", { exact: true }).first()).toBeVisible();
     await clearPaletteSearch(outsider.page, "public-list-filter");
-    await expect(table.locator("#public-list-summary")).not.toHaveText("1 record");
     await openFilterPalette(outsider.page, "public-list-filter");
     await expect(outsider.page.locator(`[data-palette-field="${hidden.id}"]`)).toHaveCount(0);
     await expect(outsider.page.locator(`[data-palette-field="${primary.id}"]`)).toHaveCount(1);
