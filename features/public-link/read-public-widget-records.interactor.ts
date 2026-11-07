@@ -1,7 +1,7 @@
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { PublicLinkAccess } from "./public-link-access";
 import type { RecordPresentationReader } from "./public-list-reader";
-import type { PublicWidgetRecordsInput, PublicWidgetRecordsResult } from "./public-link.schema";
+import type { PublicWidgetRecordsInput, PublicRecordsResult } from "./public-link.schema";
 
 import equal from "fast-deep-equal";
 
@@ -28,13 +28,13 @@ export class ReadPublicWidgetRecordsInteractor {
     private presentation: RecordPresentationReader,
   ) {}
 
-  async invoke(raw: PublicWidgetRecordsInput & { visitor?: string | null }): Promise<PublicWidgetRecordsResult> {
+  async invoke(raw: PublicWidgetRecordsInput & { visitor?: string | null }): Promise<PublicRecordsResult> {
     const { visitor, ...rest } = raw;
     const parsed = PublicWidgetRecordsSchema.safeParse(rest);
     if (!parsed.success) return PUBLIC_LINK_UNAVAILABLE;
     const input = parsed.data;
 
-    return this.access.open(input.token, visitor, async (link): Promise<PublicWidgetRecordsResult> => {
+    return this.access.open(input.token, visitor, async (link): Promise<PublicRecordsResult> => {
       const loaded = await this.access.charts(link);
       const chart = loaded?.charts.find((entry) => entry.key === input.widget)?.widget;
       if (!chart || chart.status !== "ready" || !chart.data) return PUBLIC_LINK_UNAVAILABLE;

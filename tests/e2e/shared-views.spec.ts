@@ -11,6 +11,7 @@ import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { createView, openShareDialog, openViewMenu, rail, readModel, saveRole, teammate } from "./view-sharing-helpers";
 import { companyPath } from "./app-paths";
+import { applyPaletteSearch, clearPaletteSearch } from "./filter-palette";
 
 const share = englishMessages.DataView.share;
 const views = englishMessages.DataView.views;
@@ -118,6 +119,12 @@ test("shares a list view with one role live, keeps each teammate's own record ac
     await expect(sharedChip).toHaveAttribute("data-view-shared", "others");
     await expect(member.page.getByText("Assigned rollout", { exact: true })).toBeVisible();
     await expect(member.page.getByText("Owner-only budget", { exact: true })).toHaveCount(0);
+    await expect(member.page.locator("#records-add")).toHaveCount(0);
+    await expect(member.page.locator("#records-filter")).toBeEnabled();
+    await applyPaletteSearch(member.page, "records-filter", "zz-no-such-rollout");
+    await expect(member.page.getByText("Assigned rollout", { exact: true })).toHaveCount(0);
+    await clearPaletteSearch(member.page, "records-filter");
+    await expect(member.page.getByText("Assigned rollout", { exact: true })).toBeVisible();
 
     await outsider.page.goto(new URL(link).pathname + new URL(link).search);
     await expect(rail(outsider.page).locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");

@@ -53,7 +53,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     activeViewKey: ALL_VIEW_KEY,
     supportsSelection: true,
     hasSelection: false,
-    isDisabled: false,
+    canManage: true,
     isReady: true,
     p13nId: "deals-card-store",
     pagination: { page: 1, pageSize: 25, total: 42 },
@@ -386,7 +386,7 @@ describe("data view rail", () => {
 
   it("gives a read only user the same rail as a manager", () => {
     const managed = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
-    const readOnly = render(store({ activeViewKey: "v-a", isDisabled: true, views: THREE_VIEWS }));
+    const readOnly = render(store({ activeViewKey: "v-a", canManage: false, views: THREE_VIEWS }));
 
     expect(readOnly).toBe(managed);
   });

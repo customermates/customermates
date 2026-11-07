@@ -32,7 +32,6 @@ export function CopyableCode({ value, className, id, anchorId, disabled = false 
 
   return (
     <div
-      aria-busy={disabled || undefined}
       className={cn("relative rounded-md border bg-background", disabled && "text-muted-foreground", className)}
       data-value={disabled ? undefined : value}
       id={id}

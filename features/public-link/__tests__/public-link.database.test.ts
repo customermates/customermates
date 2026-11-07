@@ -30,7 +30,7 @@ const { createMockUser } = await import("@/tests/helpers/mock-user");
 const di = await import("@/core/di");
 const { ReadPublicLinkInteractor } = await import("../read-public-link.interactor");
 const { PrismaPublicLinkRepo } = await import("../prisma-public-link.repository");
-const { PublicLinkRateLimiter } = await import("../public-link-rate-limiter");
+const { TokenBucketRateLimiter } = await import("@/core/network/token-bucket-rate-limiter");
 const { PublicLinkTenant } = await import("../public-link-tenant");
 const { PublicLinkAccess } = await import("../public-link-access");
 const { ReadPublicWidgetRecordsInteractor } = await import("../read-public-widget-records.interactor");
@@ -63,8 +63,8 @@ function access(options: { now?: Date; perLink?: number; secret?: string } = {})
     new PrismaPublicLinkRepo(),
     new PublicLinkTenant(di.getUserService()),
     { invoke: (data) => di.getGetWidgetsInteractor().invoke(data) },
-    new PublicLinkRateLimiter(options.perLink ?? 1000, 60_000),
-    new PublicLinkRateLimiter(1000, 60_000),
+    new TokenBucketRateLimiter(options.perLink ?? 1000, 60_000),
+    new TokenBucketRateLimiter(1000, 60_000),
     {
       authSecret: options.secret ?? SECRET,
       chartCacheMs: 0,
@@ -341,6 +341,44 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(publicLinkToken(counted.id, SECRET)).toBe(token);
   }, 300_000);
 
+  it("shares a view with the whole workspace when it is published, and leaves it untouched when publishing is refused", async () => {
+    const w = await workspace();
+    await w.grant("deal", ["readOwn"]);
+    const sharing = (viewId: string) =>
+      runWithoutTenant(async () => ({
+        visibility: (await prisma.dataView.findUniqueOrThrow({ where: { id: viewId } })).visibility,
+        roles: await prisma.dataViewRoleShare.count({ where: { viewId } }),
+      }));
+
+    const privateBoard = await board(w, w.admin, "Private board");
+    expect(await sharing(privateBoard)).toEqual({ visibility: "private", roles: 0 });
+    expect((await publish(w, w.admin, privateBoard)).status).toBe(200);
+    expect(await sharing(privateBoard)).toEqual({ visibility: "workspace", roles: 0 });
+
+    const roleBoard = await board(w, w.admin, "Role board");
+    const shared = await postAs(w, w.admin, routes.share, {
+      surfaceKey: "dashboard",
+      viewKey: roleBoard,
+      visibility: "roles",
+      roleIds: [w.member.roleId],
+    });
+    expect(shared.status, JSON.stringify(shared.body)).toBe(200);
+    expect(await sharing(roleBoard)).toEqual({ visibility: "roles", roles: 1 });
+    expect((await publish(w, w.admin, roleBoard, { expiresAt: "2001-01-01" })).status).toBe(400);
+    expect(await sharing(roleBoard)).toEqual({ visibility: "roles", roles: 1 });
+    expect((await publish(w, w.admin, roleBoard)).status).toBe(200);
+    expect(await sharing(roleBoard)).toEqual({ visibility: "workspace", roles: 0 });
+
+    const memberBoard = await board(w, w.member, "Member board");
+    expect((await publish(w, w.member, memberBoard)).status).toBe(403);
+    expect(await sharing(memberBoard)).toEqual({ visibility: "private", roles: 0 });
+
+    await w.as(w.admin, () => di.getSetPublicLinksAllowedInteractor().invoke({ allowPublicLinks: false }));
+    const blockedBoard = await board(w, w.admin, "Blocked board");
+    expect((await publish(w, w.admin, blockedBoard)).status).toBe(403);
+    expect(await sharing(blockedBoard)).toEqual({ visibility: "private", roles: 0 });
+  }, 300_000);
+
   it("publishes a list view by link with only its visible columns, its saved search and the creator's access", async () => {
     const w = await workspace();
     await w.grant("deal", ["readOwn", "create"]);
@@ -400,7 +438,7 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect(hiddenSort.status).toBe("available");
     expect(hiddenSort.status === "available" && hiddenSort.presentation.result.sortDescriptor?.field).not.toBe(stage);
     expect(hiddenSort.status === "available" && JSON.stringify(hiddenSort.presentation)).not.toContain(stage);
-    expect((await listRecords().invoke({ token, pageSize: 7 })).status).toBe("unavailable");
+    expect((await listRecords().invoke({ token, pageSize: 7 as never })).status).toBe("unavailable");
 
     const savedSearchRows = await listRecords().invoke({ token, searchTerm: "north" });
     expect(savedSearchRows).toMatchObject({ status: "available", searchable: false });

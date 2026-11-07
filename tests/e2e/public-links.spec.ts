@@ -273,8 +273,20 @@ test("publishes a list view by public link with only its visible columns, read-o
     await outsider.page.keyboard.press("Escape");
     await expect(outsider.page.locator("#global-data-views")).toHaveCount(0);
     await expect(outsider.page.locator("header")).toHaveCount(0);
-    if (process.env.APP_MODE === "self-hosted") await expect(outsider.page.locator("#public-link-badge")).toHaveCount(0);
-    else await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
+    if (process.env.APP_MODE === "self-hosted") {
+      await expect(outsider.page.locator("#public-link-badge")).toHaveCount(0);
+      await expect(outsider.page.locator("#public-list-export")).toHaveCount(0);
+    } else {
+      await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
+      await outsider.page.locator("#public-list-export").click();
+      await expect(outsider.page.getByText(publicPage.export.body, { exact: true })).toBeVisible();
+      await expect(outsider.page.locator("#public-list-export-signup")).toHaveAttribute(
+        "href",
+        "/auth/signup?utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link&utm_content=export",
+      );
+      await outsider.page.keyboard.press("Escape");
+      await expect(outsider.page.getByText(publicPage.export.body, { exact: true })).toHaveCount(0);
+    }
 
     await setPublicLink(page, false);
     await outsider.page.goto(path);

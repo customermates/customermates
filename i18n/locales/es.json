@@ -2289,7 +2289,6 @@
       "public": {
         "chip": "Enlace público activo",
         "createdCopied": "Enlace público creado y copiado",
-        "description": "Público, sin iniciar sesión: cualquiera con el enlace ve los gráficos y los registros que hay detrás. Todos en este espacio de trabajo también la ven.",
         "expiresLabel": "Último día en que funciona el enlace (UTC)",
         "expiryCleared": "Fecha de fin eliminada",
         "expirySet": "Fecha de fin guardada",
@@ -2299,6 +2298,7 @@
         "onlyColumns": "Muestra solo las columnas visibles, solo lectura y con tu acceso",
         "opened": "{count, plural, =0 {Aún no abierto} one {Abierto una vez} other {Abierto # veces}}",
         "option": "Cualquiera con el enlace",
+        "optionDescriptionDashboard": "Público, sin iniciar sesión: cualquiera con el enlace ve los gráficos y los registros que hay detrás. Todos en este espacio de trabajo también la ven.",
         "optionDescriptionList": "Público, sin iniciar sesión: cualquiera con el enlace ve esta tabla con sus columnas visibles. Todos en este espacio de trabajo también la ven.",
         "permissionDenied": "Tu rol no puede publicar vistas con un enlace público. Pídeselo a un administrador.",
         "published": "Enlace público creado",
@@ -3626,6 +3626,12 @@
     "empty": "Este panel aún no tiene gráficos.",
     "emptyList": "Ningún registro coincide con esta vista.",
     "expires": "El enlace funciona hasta el final del {date} (UTC)",
+    "export": {
+      "body": "Para exportar a Excel o JSON necesitas un espacio de trabajo de Customermates. Empieza una prueba para crear listas como esta y exportarlas.",
+      "cta": "Empezar la prueba",
+      "label": "Exportar",
+      "title": "Exportar esta lista"
+    },
     "hiddenWidgets": "{count, plural, one {# widget no se muestra en los enlaces públicos} other {# widgets no se muestran en los enlaces públicos}}",
     "listCount": "{count, plural, =0 {Ningún registro} one {# registro} other {# registros}}",
     "live": "Actualizado en directo",

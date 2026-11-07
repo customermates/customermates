@@ -9,7 +9,7 @@ export type StoredPublicLink = {
 };
 
 export abstract class PublicLinkRepo {
-  abstract findOwnedPublishableViewName(viewId: string): Promise<string | null>;
+  abstract findOwnedPublishableView(viewId: string): Promise<{ name: string; surfaceKey: string } | null>;
   abstract findActiveLink(viewId: string): Promise<StoredPublicLink | null>;
   abstract createLink(viewId: string, expiresAt: Date | null): Promise<StoredPublicLink>;
   abstract setExpiry(linkId: string, expiresAt: Date | null): Promise<StoredPublicLink>;

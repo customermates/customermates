@@ -47,7 +47,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   if (!store.isReady) return null;
 
   const canExport = Boolean(onExport) && store.canExport;
-  const canImport = Boolean(onImport) && store.canExport && !store.isDisabled;
+  const canImport = Boolean(onImport) && store.canExport && store.canCreate;
   const hasMenu = canExport || canImport || Boolean(menuItems);
 
   return (
@@ -105,7 +105,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         </TopBarMenuButton>
       )}
 
-      {onAdd && !store.isDisabled && (
+      {onAdd && store.canCreate && (
         <TopBarPrimaryButton
           anchorId={anchorScope ? `${anchorScope}-add` : undefined}
           label={addLabel ?? t("Common.actions.add")}

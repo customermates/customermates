@@ -64106,7 +64106,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -65911,7 +65913,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -67705,7 +67709,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -69497,7 +69503,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -71729,7 +71737,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -73971,7 +73981,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -75763,7 +75775,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -77562,7 +77576,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -79351,7 +79367,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -81157,7 +81175,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"
@@ -81296,7 +81316,7 @@
       "post": {
         "operationId": "publishDataView",
         "summary": "Publish a dashboard or list view by public link",
-        "description": "Creates or revokes the public link of one of the caller's dashboard or list views. Anyone with the link sees it live, read-only and without signing in, calculated with the caller's access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the view's visible columns, its saved filters and sorting, and paging. Records never open and no hidden column leaves the server. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.",
+        "description": "Creates or revokes the public link of one of the caller's dashboard or list views. Anyone with the link sees it live, read-only and without signing in, calculated with the caller's access: a dashboard shows its charts and numbers and opens the records behind a chart (calendar, map and activity widgets are left out); a list shows its table with only the view's visible columns, its saved filters and sorting, and paging. Records never open and no hidden column leaves the server. Publishing also shares the view with the whole workspace. Publishing a view that already has a link keeps that link and only changes its end date; public false revokes it at once, as does sharing the view privately or with roles, and publishing afterwards creates a new link. Requires the publicLinks create permission and public links allowed in the workspace settings.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on activityLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are private until shared: list also returns views teammates shared with the caller (marked with sharedBy), which can be selected but only their owner can change, delete or share.",
         "tags": [
           "data-views"
         ],
@@ -82952,7 +82972,9 @@
                             "expiresAt": {
                               "anyOf": [
                                 {
-                                  "type": "string"
+                                  "type": "string",
+                                  "format": "date",
+                                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
                                 },
                                 {
                                   "type": "null"

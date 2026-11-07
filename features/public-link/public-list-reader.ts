@@ -2,8 +2,10 @@ import type { Filter, GetQueryParams, SortDescriptor } from "@/core/base/base-ge
 import type { Validated } from "@/core/validation/validation.utils";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 
+import type { DataViewPageSizeSchema } from "@/core/data-view/data-view-state.schema";
+import type { z } from "zod";
+
 import { ViewMode } from "@/core/base/base-query-builder";
-import type { DATA_VIEW_PAGE_SIZES } from "@/core/data-view/data-view-state.schema";
 
 import {
   publicFilterAllowed,
@@ -11,8 +13,6 @@ import {
   publicScope,
   publicSortable,
 } from "./public-record-presentation";
-
-type DataViewPageSize = (typeof DATA_VIEW_PAGE_SIZES)[number];
 
 export type RecordPresentationReader = {
   invoke(input: {
@@ -26,7 +26,7 @@ export type RecordPresentationReader = {
 export type PublicRecordsPage = {
   page: number;
   onlyColumns?: readonly string[];
-  pageSize?: number;
+  pageSize?: z.infer<typeof DataViewPageSizeSchema>;
   sortDescriptor?: SortDescriptor;
   filters?: Filter[];
   searchTerm?: string;
@@ -53,7 +53,7 @@ export async function readPublicRecords(
         viewMode: ViewMode.table,
         grouping: null,
         page: request.page,
-        ...(request.pageSize ? { pageSize: request.pageSize as DataViewPageSize } : {}),
+        ...(request.pageSize ? { pageSize: request.pageSize } : {}),
         ...(sortDescriptor ? { sortDescriptor } : {}),
       },
       ...(searchFields ? { searchFields } : {}),

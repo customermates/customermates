@@ -9,8 +9,9 @@ import { ErrorPageView } from "@/components/shared/error-page-view";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
+import { publicSignupHref } from "./public-signup";
+
 const HOME_URL = "https://customermates.com";
-const UTM = "utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link";
 
 type Props = {
   kind: "dashboard" | "list";
@@ -79,7 +80,7 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
           <div className="pointer-events-none sticky bottom-4 z-30 flex justify-end">
             <a
               className="group pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
-              href={`/auth/signup?${UTM}&utm_content=badge`}
+              href={publicSignupHref("badge")}
               id="public-link-badge"
             >
               <Logo className="size-4 rounded" />

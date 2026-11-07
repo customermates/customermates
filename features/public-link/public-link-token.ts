@@ -2,7 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { hmacSha256Hex } from "@/core/utils/hmac";
 
-const TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
+import { PUBLIC_LINK_TOKEN_PATTERN } from "./public-link.schema";
+
 const ID_LENGTH = 32;
 
 function signingSecret(authSecret: string | undefined): string {
@@ -24,11 +25,15 @@ export function publicLinkToken(linkId: string, authSecret: string | undefined):
 }
 
 export function publicLinkIdFromToken(token: string, authSecret: string | undefined): string | null {
-  if (!TOKEN_PATTERN.test(token)) return null;
+  if (!PUBLIC_LINK_TOKEN_PATTERN.test(token)) return null;
   const linkId = linkIdOf(token.slice(0, ID_LENGTH));
   const expected = Buffer.from(signature(linkId, authSecret), "utf8");
   const given = Buffer.from(token.slice(ID_LENGTH), "utf8");
   return given.length === expected.length && timingSafeEqual(new Uint8Array(given), new Uint8Array(expected))
     ? linkId
     : null;
+}
+
+export function publicLinkUrl(baseUrl: string, linkId: string, authSecret: string | undefined): string {
+  return `${baseUrl.replace(/\/$/u, "")}/p/${publicLinkToken(linkId, authSecret)}`;
 }

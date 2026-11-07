@@ -366,7 +366,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       sortableColumnIds: computed,
       canManage: computed,
       canExport: computed,
-      isDisabled: computed,
+      canCreate: computed,
       hasSelection: computed,
       selectedCount: computed,
       selectedVisibleCount: computed,
@@ -630,10 +630,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return this.rootStore.userStore.canAccess(this.resource);
   }
 
-  get isDisabled(): boolean {
-    if (!this.resource) return false;
-
-    return !this.canManage;
+  get canCreate(): boolean {
+    return this.canManage;
   }
 
   get hasSelection(): boolean {

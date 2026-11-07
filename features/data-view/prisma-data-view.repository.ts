@@ -13,6 +13,9 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { runAsViewOwner } from "@/core/data-view/view-owner-context";
+import { activePublicLinkWhere } from "@/features/public-link/active-public-link";
+
+import { sharedWithViewerWhere } from "./shared-view-where";
 import {
   readStoredPersonalizationState,
   readStoredState,
@@ -20,6 +23,7 @@ import {
   writeStoredState,
 } from "./data-view-row-mapping";
 import type { RecordViewConfigurationRepo } from "./record-view-configuration.repo";
+import type { ShareableRole } from "./get-data-view-share-options.repo";
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
 import type { SurfaceStateResetRepo } from "@/features/p13n/surface-state-reset.repo";
 
@@ -80,24 +84,24 @@ const VIEW_SELECT = {
 
 const SHARED_VIEW_POSITION_OFFSET = 100_000;
 
-const SURFACE_VIEW_SELECT = {
-  ...VIEW_SELECT,
-  userId: true,
-  visibility: true,
-  roleShares: { select: { roleId: true }, orderBy: { roleId: "asc" } },
-  user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
-  publicLinks: { where: { revokedAt: null }, select: { createdById: true, expiresAt: true } },
-} satisfies Prisma.DataViewSelect;
+function surfaceViewSelect() {
+  return {
+    ...VIEW_SELECT,
+    userId: true,
+    visibility: true,
+    roleShares: { select: { roleId: true }, orderBy: { roleId: "asc" } },
+    user: { select: { id: true, firstName: true, lastName: true, avatarUrl: true } },
+    publicLinks: { where: activePublicLinkWhere(), select: { createdById: true } },
+  } satisfies Prisma.DataViewSelect;
+}
 
-type SurfaceViewRow = Prisma.DataViewGetPayload<{ select: typeof SURFACE_VIEW_SELECT }>;
+type SurfaceViewRow = Prisma.DataViewGetPayload<{ select: ReturnType<typeof surfaceViewSelect> }>;
 
 type ShareOwnedDataViewArgs = {
   id: string;
   visibility: DataViewVisibility;
   roleIds: string[];
 };
-
-export type ShareableRole = { id: string; name: string };
 
 const PERSONALIZATION_SELECT = {
   viewStateKeys: true,
@@ -127,10 +131,7 @@ function toChip(row: StoredViewRow): DataViewChipDto {
 function toSurfaceChip(row: SurfaceViewRow, userId: string, sharedIndex: number): DataViewChipDto {
   const chip = toChip(row as StoredViewRow);
   if (row.userId === userId) {
-    const now = Date.now();
-    const isPublic = row.publicLinks.some(
-      (link) => link.createdById === userId && (!link.expiresAt || link.expiresAt.getTime() > now),
-    );
+    const isPublic = row.publicLinks.some((link) => link.createdById === userId);
     return {
       ...chip,
       visibility: row.visibility,
@@ -222,13 +223,8 @@ export class PrismaDataViewRepo
   }
 
   private readableWhere(): Prisma.DataViewWhereInput {
-    const { id: userId, role } = this.user;
-    const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
-    if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
-
-    return {
-      OR: [{ userId }, { userId: { not: userId }, hiddenBy: { none: { userId } }, OR: shared }],
-    };
+    const userId = this.user.id;
+    return { OR: [{ userId }, { hiddenBy: { none: { userId } }, ...sharedWithViewerWhere(this.user) }] };
   }
 
   async loadSurfaceState(surfaceKey: string): Promise<SurfaceViewState> {
@@ -239,7 +235,7 @@ export class PrismaDataViewRepo
         this.prisma.dataView.findMany({
           where: { companyId, surfaceKey, deletedAt: null, ...this.readableWhere() },
           orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-          select: SURFACE_VIEW_SELECT,
+          select: surfaceViewSelect(),
         }),
         this.prisma.p13n.findUnique({
           where: {
@@ -284,13 +280,8 @@ export class PrismaDataViewRepo
 
   async findSharedWithMeOrNull(id: string): Promise<DataViewDto | null> {
     return runAsViewOwner(async () => {
-      const { companyId, id: userId } = this.user;
-      const role = this.user.role;
-      const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
-      if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
-
       const row = await this.prisma.dataView.findFirst({
-        where: { id, companyId, deletedAt: null, userId: { not: userId }, OR: shared },
+        where: { id, companyId: this.user.companyId, deletedAt: null, ...sharedWithViewerWhere(this.user) },
         select: VIEW_SELECT,
       });
 
@@ -330,7 +321,7 @@ export class PrismaDataViewRepo
 
       const row = await this.prisma.dataView.findFirst({
         where: { id, companyId, userId, deletedAt: null },
-        select: SURFACE_VIEW_SELECT,
+        select: surfaceViewSelect(),
       });
 
       return row ? toSurfaceChip(row, userId, 0) : null;

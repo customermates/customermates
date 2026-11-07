@@ -15,6 +15,7 @@ import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } f
 import type { SavedWidgetLayout } from "./update-widget-layouts.interactor";
 import type { WidgetPlacementRow } from "./widget-placement";
 import { listWidgetPlacements } from "./widget-placement";
+import { sharedWithViewerWhere } from "@/features/data-view/shared-view-where";
 import { WidgetLayoutSchema } from "./widget-display.schema";
 import type {
   RecordWidgetConfigurationRepo,
@@ -145,11 +146,9 @@ export class PrismaWidgetRepo
   }
 
   async getSharedViewWidgets(viewId: string) {
-    const { id: userId, companyId, role } = this.user;
-    const shared: Prisma.DataViewWhereInput[] = [{ visibility: "workspace" }];
-    if (role?.id) shared.push({ visibility: "roles", roleShares: { some: { roleId: role.id } } });
+    const { companyId } = this.user;
     const view = await this.prisma.dataView.findFirst({
-      where: { id: viewId, companyId, deletedAt: null, userId: { not: userId }, OR: shared },
+      where: { id: viewId, companyId, deletedAt: null, ...sharedWithViewerWhere(this.user) },
       select: { userId: true },
     });
     if (!view) return [];

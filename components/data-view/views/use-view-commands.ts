@@ -20,6 +20,7 @@ import {
   createViewFromCurrent,
   deleteView,
   duplicateView,
+  hideSharedView,
   moveView,
   selectView,
   sharedViewOf,
@@ -39,6 +40,7 @@ export type ViewCommands = {
   share?: (view: DataViewChipDto) => void;
   duplicate: (view: DataViewChipDto) => void;
   edit: (view: DataViewChipDto) => void;
+  hide: (view: DataViewChipDto) => void;
   move: (view: DataViewChipDto, offset: -1 | 1) => void;
   remove: (view: DataViewChipDto) => void;
   select: (viewKey: string) => void;
@@ -87,6 +89,11 @@ export function useViewCommands<E extends HasId>(args: {
       }),
 
     edit: (view) => openMeta({ mode: "edit", name: view.name, viewId: view.id }),
+
+    hide: (view) =>
+      runUserAction(async () => {
+        if (await hideSharedView(store, view)) toast.success(t("DataView.share.hidden"));
+      }),
 
     move: (view, offset) => runUserAction(() => moveView(store, view, offset)),
 

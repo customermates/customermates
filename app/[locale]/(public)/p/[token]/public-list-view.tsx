@@ -14,24 +14,19 @@ import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { readPublicListRecordsAction } from "./actions";
+import { PublicExportAction } from "./public-export-action";
 import { PublicLinkFrame } from "./public-link-frame";
 import { PublicRecordExplorationStore } from "./public-record-exploration.store";
+import { publicRecordsQuery } from "./public-records-query";
 
 const PublicListTable = observer(function PublicListTable({ list, token }: { list: PublicList; token: string }) {
   const t = useTranslations();
   const root = useRootStore();
+  const upsell = root.appMode === "cloud";
   const [store] = useState(
     () =>
       new PublicRecordExplorationStore(root, list.presentation, async (params?: GetQueryParams) => {
-        const pageSize = params?.pageSize ?? params?.pagination?.pageSize;
-        const result = await readPublicListRecordsAction({
-          token,
-          page: params?.page ?? params?.pagination?.page ?? 1,
-          ...(pageSize ? { pageSize } : {}),
-          ...(params?.sortDescriptor ? { sortDescriptor: params.sortDescriptor } : {}),
-          ...(params?.filters?.length ? { filters: params.filters } : {}),
-          ...(params?.searchTerm ? { searchTerm: params.searchTerm } : {}),
-        });
+        const result = await readPublicListRecordsAction({ token, ...publicRecordsQuery(params) });
         if (result.status !== "available") throw new Error(`Public list ${result.status}`);
         return result.presentation;
       }),
@@ -59,6 +54,8 @@ const PublicListTable = observer(function PublicListTable({ list, token }: { lis
             id="public-list-display-options"
             store={store}
           />
+
+          {upsell ? <PublicExportAction id="public-list-export" /> : null}
         </div>
       </div>
 

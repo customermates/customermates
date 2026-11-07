@@ -4,7 +4,7 @@ import type { RecordPresentationResult } from "@/features/records/get-record-pre
 import { z } from "zod";
 
 import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
-import { DATA_VIEW_PAGE_SIZES } from "@/core/data-view/data-view-state.schema";
+import { DataViewPageSizeSchema } from "@/core/data-view/data-view-state.schema";
 import { RecordContributionGroupSchema } from "@/features/records/record-contribution.schema";
 
 export const PUBLIC_LINK_TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
@@ -12,11 +12,7 @@ export const PUBLIC_LINK_TOKEN_PATTERN = /^[0-9a-f]{64}$/u;
 const VisitorFiltersSchema = z.array(FilterSchema).max(20).optional();
 const VisitorSearchSchema = z.string().max(200).optional();
 
-const PageSizeSchema = z
-  .number()
-  .int()
-  .refine((size) => DATA_VIEW_PAGE_SIZES.some((allowed) => allowed === size))
-  .optional();
+const PageSizeSchema = DataViewPageSizeSchema.optional();
 
 export const ManagePublicLinkSchema = z
   .discriminatedUnion("action", [
@@ -99,12 +95,12 @@ export const PublicListRecordsSchema = z
   .strict();
 export type PublicListRecordsInput = z.input<typeof PublicListRecordsSchema>;
 
-export type PublicWidgetRecordsResult =
+export type PublicRecordsResult =
   | { status: "available"; presentation: RecordPresentationResult; searchable: boolean }
   | { status: "unavailable" }
   | { status: "rateLimited"; retryAfterSeconds: number };
 
-export type PublicDashboardResult =
+export type PublicLinkResult =
   | { status: "available"; dashboard: PublicDashboard }
   | { status: "available"; list: PublicList }
   | { status: "unavailable" }

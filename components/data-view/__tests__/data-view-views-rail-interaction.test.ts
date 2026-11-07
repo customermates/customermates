@@ -192,7 +192,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     grouping: null,
     hasSelection: false,
     hiddenColumns: [],
-    isDisabled: false,
+    canManage: true,
     isReady: true,
     p13nId: "records:10000000-0000-4000-8000-000000000103",
     viewTypeLabel: "Deals",

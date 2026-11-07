@@ -8,21 +8,20 @@ import { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AppCardHeader } from "@/components/card/app-card-header";
-import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
-import { DataViewDisplayOptions } from "@/components/data-view/header/display-options";
-import { FilterPopover } from "@/components/data-view/header/filter-popover";
-import { PageState } from "@/components/page-state/page-state";
-import { ScopedRecordsTable } from "@/components/records/scoped-records-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ScopedRecordsSheetFrame } from "@/components/records/scoped-records-sheet";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget-display.schema";
 import { RecordWidgetChart } from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/record-widget-chart";
+import {
+  LEAD_FRAME_CLASS,
+  LEAD_HEIGHT_CLASS,
+} from "@/app/[locale]/(protected)/w/[workspace]/dashboard/components/widget-data-drawer";
 
 import { readPublicWidgetRecordsAction } from "./actions";
 import { PublicRecordExplorationStore } from "./public-record-exploration.store";
+import { publicRecordsQuery } from "./public-records-query";
 
 export type PublicWidgetSelection = {
   widget: string;
@@ -52,6 +51,7 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
   const [store, setStore] = useState<PublicRecordExplorationStore | null>(null);
   const [searchable, setSearchable] = useState(false);
   const [failure, setFailure] = useState<"unavailable" | "rateLimited" | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   const request = useMemo(
     () => (params?: GetQueryParams) =>
@@ -60,13 +60,7 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
         widget: selection.widget,
         group: selection.group,
         label: selection.label,
-        page: params?.page ?? params?.pagination?.page ?? 1,
-        ...((params?.pageSize ?? params?.pagination?.pageSize)
-          ? { pageSize: params?.pageSize ?? params?.pagination?.pageSize }
-          : {}),
-        ...(params?.sortDescriptor ? { sortDescriptor: params.sortDescriptor } : {}),
-        ...(params?.filters?.length ? { filters: params.filters } : {}),
-        ...(params?.searchTerm ? { searchTerm: params.searchTerm } : {}),
+        ...publicRecordsQuery(params),
       }),
     [token, selection],
   );
@@ -96,95 +90,54 @@ export const PublicWidgetDrawer = observer(function PublicWidgetDrawer({
     return () => {
       active = false;
     };
-  }, [request, root]);
+  }, [request, root, attempt]);
 
   const { chart } = selection;
-  const title = chart.name;
   const count = store
     ? t("RecordWidgets.contributingCount", { count: store.pagination?.total ?? store.items.length })
     : null;
 
   return (
-    <AppModal
-      sheet
-      titleInContent
-      bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
-      controls={
-        store
+    <ScopedRecordsSheetFrame
+      emptyTitle={t("Diagrams.noData")}
+      error={
+        failure
           ? {
-              slots: 2,
-              node: (
-                <>
-                  <FilterPopover
-                    compact
-                    id="public-widget-drawer-filter"
-                    searchLabel={searchable ? t("PublicLink.searchLabel") : undefined}
-                    store={store}
-                  />
-
-                  <DataViewDisplayOptions
-                    compact
-                    active={store.hasLayoutChanges}
-                    anchorScope="public-widget-drawer"
-                    id="public-widget-drawer-display-options"
-                    store={store}
-                  />
-                </>
-              ),
+              title: failure === "rateLimited" ? t("PublicLink.rateLimitedTitle") : t("PublicLink.unavailableTitle"),
+              retry: () => setAttempt((value) => value + 1),
             }
-          : undefined
+          : null
       }
-      focusReturnTarget={selection.opener}
+      idPrefix="public-widget-drawer"
+      lead={
+        chart.displayOptions.displayType === DisplayType.number ? null : (
+          <div
+            className={cn(LEAD_FRAME_CLASS, LEAD_HEIGHT_CLASS[chart.displayOptions.displayType] ?? "h-56")}
+            data-widget-detail-chart=""
+            id="public-widget-drawer-chart"
+          >
+            <RecordWidgetChart
+              embedded
+              data={chart.data}
+              decimalPlaces={chart.decimalPlaces}
+              displayOptions={chart.displayOptions}
+              groupOptions={chart.groupOptions}
+              listLabels={chart.listLabels}
+              measure={chart.measure}
+              name={chart.name}
+              status={chart.status}
+              onInspectGroup={onSelect}
+            />
+          </div>
+        )
+      }
       open={open}
-      title={title}
+      opener={selection.opener}
+      searchLabel={searchable ? t("PublicLink.searchLabel") : undefined}
+      store={store}
+      summary={[selection.label, count].filter(Boolean).join(" · ")}
+      title={chart.name}
       onClose={onClose}
-    >
-      <AppCardHeader className="flex-col items-start gap-1 pb-4">
-        <AppModalTitle className="w-full truncate text-lg font-semibold">{title}</AppModalTitle>
-
-        <p className="w-full truncate text-sm text-muted-foreground" id="public-widget-drawer-summary">
-          {[selection.label, count].filter(Boolean).join(" · ")}
-        </p>
-      </AppCardHeader>
-
-      {chart.displayOptions.displayType === DisplayType.number ? null : (
-        <div
-          className={cn(
-            "flex shrink-0 flex-col px-6 pb-4",
-            chart.displayOptions.displayType === DisplayType.rankedTable ? "max-h-64" : "h-56",
-          )}
-          data-widget-detail-chart=""
-          id="public-widget-drawer-chart"
-        >
-          <RecordWidgetChart
-            embedded
-            data={chart.data}
-            decimalPlaces={chart.decimalPlaces}
-            displayOptions={chart.displayOptions}
-            groupOptions={chart.groupOptions}
-            listLabels={chart.listLabels}
-            measure={chart.measure}
-            name={chart.name}
-            status={chart.status}
-            onInspectGroup={onSelect}
-          />
-        </div>
-      )}
-
-      {failure ? (
-        <PageState
-          state="error"
-          title={failure === "rateLimited" ? t("PublicLink.rateLimitedTitle") : t("PublicLink.unavailableTitle")}
-        />
-      ) : store ? (
-        <ScopedRecordsTable emptyTitle={t("Diagrams.noData")} store={store} />
-      ) : (
-        <div aria-label={t("Loading.text")} className="space-y-3 px-6 py-3" role="status">
-          <Skeleton className="h-9" />
-
-          <Skeleton className="h-48" />
-        </div>
-      )}
-    </AppModal>
+    />
   );
 });

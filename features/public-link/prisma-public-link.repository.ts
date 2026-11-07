@@ -1,11 +1,11 @@
 import type { PublicLinkLookup, PublicLinkLookupRepo } from "./public-link-lookup.repo";
 import type { PublicLinkRepo, StoredPublicLink } from "./public-link.repo";
 
-import { SURFACE } from "@/core/data-view/data-view-keys";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 
+import { activePublicLinkWhere } from "./active-public-link";
 import { isPublishableSurface } from "./public-link-surface";
 
 const LINK_SELECT = {
@@ -19,23 +19,17 @@ const LINK_SELECT = {
 } as const;
 
 export class PrismaPublicLinkRepo extends TenantRepository implements PublicLinkRepo, PublicLinkLookupRepo {
-  async findOwnedPublishableViewName(viewId: string) {
+  async findOwnedPublishableView(viewId: string) {
     const view = await this.prisma.dataView.findFirst({
-      where: {
-        id: viewId,
-        companyId: this.companyId,
-        userId: this.userId,
-        OR: [{ surfaceKey: SURFACE.dashboard }, { surfaceKey: { startsWith: "records:" } }],
-        deletedAt: null,
-      },
+      where: { id: viewId, companyId: this.companyId, userId: this.userId, deletedAt: null },
       select: { name: true, surfaceKey: true },
     });
-    return view && isPublishableSurface(view.surfaceKey) ? view.name : null;
+    return view && isPublishableSurface(view.surfaceKey) ? view : null;
   }
 
   findActiveLink(viewId: string): Promise<StoredPublicLink | null> {
     return this.prisma.publicViewLink.findFirst({
-      where: { companyId: this.companyId, viewId, createdById: this.userId, revokedAt: null },
+      where: { companyId: this.companyId, viewId, createdById: this.userId, ...activePublicLinkWhere() },
       select: LINK_SELECT,
       orderBy: { createdAt: "desc" },
     });

@@ -24,6 +24,7 @@ import type { WorkspaceDeletionRepo } from "@/features/workspace/workspace-delet
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 import type { WorkspaceSlugRepo } from "@/features/workspace/workspace-slug.repo";
 
+import { activePublicLinkWhere } from "@/features/public-link/active-public-link";
 import { ConversionEventType, SubscriptionStatus, type Prisma, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
@@ -105,12 +106,7 @@ export class PrismaCompanyRepo
 
   countActivePublicLinks() {
     return this.prisma.publicViewLink.count({
-      where: {
-        companyId: this.user.companyId,
-        revokedAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        view: { deletedAt: null },
-      },
+      where: { companyId: this.user.companyId, ...activePublicLinkWhere(), view: { deletedAt: null } },
     });
   }
 

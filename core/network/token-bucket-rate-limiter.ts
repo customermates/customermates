@@ -1,18 +1,18 @@
 type Bucket = { tokens: number; refilledAt: number };
 
-export type PublicLinkAdmission = { allowed: true } | { allowed: false; retryAfterSeconds: number };
+export type RateLimitAdmission = { allowed: true } | { allowed: false; retryAfterSeconds: number };
 
-export class PublicLinkRateLimiter {
+export class TokenBucketRateLimiter {
   private readonly buckets = new Map<string, Bucket>();
 
   constructor(
-    private readonly capacity = 60,
-    private readonly windowMs = 60_000,
+    private readonly capacity: number,
+    private readonly windowMs: number,
     private readonly maxKeys = 10_000,
     private readonly now: () => number = () => Date.now(),
   ) {}
 
-  admit(key: string): PublicLinkAdmission {
+  admit(key: string): RateLimitAdmission {
     const now = this.now();
     const refillPerMs = this.capacity / this.windowMs;
     const current = this.buckets.get(key);

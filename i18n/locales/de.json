@@ -2289,7 +2289,6 @@
       "public": {
         "chip": "Öffentlicher Link aktiv",
         "createdCopied": "Öffentlicher Link erstellt und kopiert",
-        "description": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen die Diagramme und die Datensätze dahinter. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
         "expiresLabel": "Letzter Tag, an dem der Link funktioniert (UTC)",
         "expiryCleared": "Enddatum entfernt",
         "expirySet": "Enddatum gespeichert",
@@ -2299,6 +2298,7 @@
         "onlyColumns": "Zeigt nur die sichtbaren Spalten, nur lesend und mit deinem Zugriff",
         "opened": "{count, plural, =0 {Noch nicht geöffnet} one {Einmal geöffnet} other {# Mal geöffnet}}",
         "option": "Alle mit dem Link",
+        "optionDescriptionDashboard": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen die Diagramme und die Datensätze dahinter. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
         "optionDescriptionList": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen diese Tabelle mit ihren sichtbaren Spalten. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
         "permissionDenied": "Deine Rolle darf keine Ansichten per öffentlichem Link veröffentlichen. Frag eine Administratorin oder einen Administrator.",
         "published": "Öffentlicher Link erstellt",
@@ -3626,6 +3626,12 @@
     "empty": "Dieses Dashboard hat noch keine Diagramme.",
     "emptyList": "Keine Datensätze passen zu dieser Ansicht.",
     "expires": "Link funktioniert bis zum Ende des {date} (UTC)",
+    "export": {
+      "body": "Für den Export nach Excel oder JSON brauchst du einen Customermates-Workspace. Starte eine Testphase, um eigene Listen wie diese anzulegen und zu exportieren.",
+      "cta": "Testphase starten",
+      "label": "Exportieren",
+      "title": "Diese Liste exportieren"
+    },
     "hiddenWidgets": "{count, plural, one {# Widget wird über öffentliche Links nicht angezeigt} other {# Widgets werden über öffentliche Links nicht angezeigt}}",
     "listCount": "{count, plural, =0 {Keine Datensätze} one {# Datensatz} other {# Datensätze}}",
     "live": "Live aktualisiert",

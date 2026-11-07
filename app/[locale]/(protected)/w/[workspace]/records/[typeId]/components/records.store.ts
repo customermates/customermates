@@ -653,8 +653,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.presentation.permittedActions.includes("readAll") || this.presentation.permittedActions.includes("readOwn")
     );
   }
-  get isDisabled() {
-    return !this.presentation?.permittedActions.includes("create");
+  override get canCreate() {
+    return this.presentation?.permittedActions.includes("create") ?? false;
   }
   setPresentation = (presentation: RecordPresentationResult) => {
     if (presentation === this.presentation || presentation.model.revision < this.presentation.model.revision) return;

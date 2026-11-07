@@ -1,7 +1,7 @@
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { WidgetDto } from "@/features/widget/widget.schema";
 import type { PublicLinkLookup, PublicLinkLookupRepo } from "./public-link-lookup.repo";
-import type { PublicLinkRateLimiter } from "./public-link-rate-limiter";
+import type { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import type { PublicLinkTenant } from "./public-link-tenant";
 
 import { createHash } from "node:crypto";
@@ -36,8 +36,8 @@ export class PublicLinkAccess {
     private lookup: PublicLinkLookupRepo,
     private tenant: PublicLinkTenant,
     private widgets: WidgetReader,
-    private perLink: PublicLinkRateLimiter,
-    private perVisitor: PublicLinkRateLimiter,
+    private perLink: TokenBucketRateLimiter,
+    private perVisitor: TokenBucketRateLimiter,
     private settings: Settings,
   ) {}
 

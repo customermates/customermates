@@ -19,7 +19,7 @@ export class SetPublicLinksAllowedInteractor extends AuthenticatedInteractor<
 > {
   constructor(
     private readonly repo: PublicLinkSettingsRepo,
-    private readonly events?: EventService,
+    private readonly events: EventService,
   ) {
     super();
   }
@@ -28,7 +28,7 @@ export class SetPublicLinksAllowedInteractor extends AuthenticatedInteractor<
   async invoke({ allowPublicLinks }: SetPublicLinksAllowedData): Validated<PublicLinkSettings> {
     await this.repo.setPublicLinksAllowed(allowPublicLinks);
     const activeLinkCount = await this.repo.countActivePublicLinks();
-    await this.events?.publish(allowPublicLinks ? DomainEvent.PUBLIC_LINKS_ALLOWED : DomainEvent.PUBLIC_LINKS_BLOCKED, {
+    await this.events.publish(allowPublicLinks ? DomainEvent.PUBLIC_LINKS_ALLOWED : DomainEvent.PUBLIC_LINKS_BLOCKED, {
       entityId: this.user.companyId,
       payload: { activeLinkCount },
     });

@@ -21,6 +21,10 @@ import {
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 
+import { PublicLinkStatusSchema } from "@/features/public-link/public-link.schema";
+
+import { DATA_VIEW_SHARE_ROLE_LIMIT } from "./data-view.schema";
+
 export const AgentDataViewStateSchema = z
   .object({
     filters: z.array(FilterSchema).max(50).optional(),
@@ -102,7 +106,12 @@ export const ShareDataViewRequestSchema = z
     visibility: DataViewVisibilitySchema.describe(
       "private: only you. workspace: every member of this workspace. roles: only members with one of roleIds (list roles with manage_roles). Teammates see the view read-only and only the records and fields their own role allows.",
     ),
-    roleIds: z.array(z.uuid()).min(1).max(50).optional().describe("Required for visibility roles; ignored otherwise."),
+    roleIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(DATA_VIEW_SHARE_ROLE_LIMIT)
+      .optional()
+      .describe("Required for visibility roles; ignored otherwise."),
   })
   .strict();
 
@@ -194,16 +203,7 @@ export const ManageDataViewsResultSchema = z
     trashBatchId: z.uuid().optional(),
     visibility: DataViewVisibilitySchema.optional(),
     roleIds: z.array(z.string()).optional(),
-    publicLink: z
-      .object({
-        url: z.string(),
-        expiresAt: z.string().nullable(),
-        openCount: z.number().int(),
-        lastOpenedAt: z.string().nullable(),
-        createdAt: z.string(),
-      })
-      .nullable()
-      .optional(),
+    publicLink: PublicLinkStatusSchema.shape.link.optional(),
   })
   .superRefine((result, ctx) => {
     const requireField = (field: "surfaceKey" | "viewKey" | "link") => {

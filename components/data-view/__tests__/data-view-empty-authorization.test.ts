@@ -13,6 +13,7 @@ type Item = HasId;
 
 function store(canManage: boolean): BaseDataViewStore<Item> {
   return {
+    canCreate: canManage,
     canManage,
     entityType: undefined,
     setQueryOptions: vi.fn(),

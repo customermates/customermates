@@ -6,7 +6,7 @@ import type { SharedView } from "@/core/data-view/shared-view-link";
 
 import { toJS } from "mobx";
 
-import { deleteDataViewAction, upsertDataViewAction } from "@/app/actions";
+import { deleteDataViewAction, hideSharedDataViewAction, upsertDataViewAction } from "@/app/actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { SHARED_VIEW_PARAM, encodeSharedView } from "@/core/data-view/shared-view-link";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -144,12 +144,28 @@ export async function deleteView<E extends HasId>(
   }
 
   store.forgetQueryDraft(view.id);
-
-  if (isActive && store.activeViewKey === view.id) {
-    store.applyView(ALL_VIEW_KEY);
-    if (store.viewPathname && store.viewSyncToUrl && window.location.pathname === store.viewPathname)
-      window.history.replaceState(null, "", viewHref(store.viewPathname, ALL_VIEW_KEY, surfaceKeyOf(store)));
-  } else await store.refresh();
+  await leaveView(store, isActive && store.activeViewKey === view.id);
 
   return { trashBatchId: result.data.trashBatchId };
+}
+
+export async function hideSharedView<E extends HasId>(store: BaseDataViewStore<E>, view: DataViewChipDto) {
+  const isActive = store.activeViewKey === view.id;
+  if (isActive) store.discardPendingViewState();
+
+  const result = await hideSharedDataViewAction({ id: view.id, hidden: true });
+  if (!result.ok) {
+    toastZodErrorTree(result.error);
+    return false;
+  }
+
+  await leaveView(store, isActive && store.activeViewKey === view.id);
+  return true;
+}
+
+async function leaveView<E extends HasId>(store: BaseDataViewStore<E>, wasActive: boolean) {
+  if (!wasActive) return store.refresh();
+  store.applyView(ALL_VIEW_KEY);
+  if (store.viewPathname && store.viewSyncToUrl && window.location.pathname === store.viewPathname)
+    window.history.replaceState(null, "", viewHref(store.viewPathname, ALL_VIEW_KEY, surfaceKeyOf(store)));
 }

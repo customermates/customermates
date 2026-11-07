@@ -177,9 +177,7 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
   const listHref =
     filter && recordListHref(typeId, [filter, ...(current?.filters ?? [])], { searchTerm: current?.searchTerm });
   return (
-    <AppModal
-      sheet
-      titleInContent
+    <ScopedRecordsSheetFrame
       actions={[
         ...actions,
         ...(listHref
@@ -195,26 +193,77 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
             ]
           : []),
       ]}
+      emptyTitle={emptyTitle}
+      error={error ? { title: t("ErrorCard.title"), retry: () => setAttempt((value) => value + 1) } : null}
+      fallback={fallback}
+      idPrefix={idPrefix}
+      lead={lead}
+      open={isOpen}
+      opener={opener}
+      searchLabel={t("Common.filters.searchFields.records")}
+      store={current}
+      summary={summary(current)}
+      title={title}
+      onClose={onClose}
+      onOpen={open}
+    />
+  );
+});
+
+type ScopedRecordsSheetFrameProps = {
+  open: boolean;
+  title: string;
+  summary: ReactNode;
+  store: RecordExplorationStore | null;
+  error: { title: string; retry?: () => void } | null;
+  emptyTitle: string;
+  idPrefix: string;
+  searchLabel?: string;
+  opener: HTMLElement | null;
+  fallback?: HTMLElement | null;
+  lead?: ReactNode;
+  actions?: AppModalActionProps[];
+  onOpen?: (ref: RecordRef, opener?: HTMLElement | null) => void;
+  onClose: () => void;
+};
+
+export const ScopedRecordsSheetFrame = observer(function ScopedRecordsSheetFrame({
+  open,
+  title,
+  summary,
+  store,
+  error,
+  emptyTitle,
+  idPrefix,
+  searchLabel,
+  opener,
+  fallback,
+  lead,
+  actions = [],
+  onOpen,
+  onClose,
+}: ScopedRecordsSheetFrameProps) {
+  const t = useTranslations();
+  return (
+    <AppModal
+      sheet
+      titleInContent
+      actions={actions}
       bodyClassName="flex min-h-0 flex-col overflow-hidden p-0"
       controls={
-        current
+        store
           ? {
               slots: 2,
               node: (
                 <>
-                  <FilterPopover
-                    compact
-                    id={`${idPrefix}-filter`}
-                    searchLabel={t("Common.filters.searchFields.records")}
-                    store={current}
-                  />
+                  <FilterPopover compact id={`${idPrefix}-filter`} searchLabel={searchLabel} store={store} />
 
                   <DataViewDisplayOptions
                     compact
-                    active={current.hasLayoutChanges}
+                    active={store.hasLayoutChanges}
                     anchorScope={idPrefix}
                     id={`${idPrefix}-display-options`}
-                    store={current}
+                    store={store}
                   />
                 </>
               ),
@@ -223,15 +272,19 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
       }
       focusReturnFallback={fallback}
       focusReturnTarget={opener}
-      open={isOpen}
+      open={open}
       title={title}
       onClose={onClose}
     >
       <AppCardHeader className="flex-col items-start gap-1 pb-4">
         <AppModalTitle className="w-full truncate text-lg font-semibold">{title}</AppModalTitle>
 
-        <p className="w-full truncate text-sm text-muted-foreground" data-linked-records-summary="">
-          {summary(current)}
+        <p
+          className="w-full truncate text-sm text-muted-foreground"
+          data-linked-records-summary=""
+          id={`${idPrefix}-summary`}
+        >
+          {summary}
         </p>
       </AppCardHeader>
 
@@ -240,15 +293,17 @@ export const ScopedRecordsSheet = observer(function ScopedRecordsSheet({
       {error ? (
         <PageState
           action={
-            <Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
-              {t("ErrorCard.retry")}
-            </Button>
+            error.retry ? (
+              <Button variant="secondary" onClick={error.retry}>
+                {t("ErrorCard.retry")}
+              </Button>
+            ) : undefined
           }
           state="error"
-          title={t("ErrorCard.title")}
+          title={error.title}
         />
-      ) : current ? (
-        <ScopedRecordsTable emptyTitle={emptyTitle} store={current} onOpen={open} />
+      ) : store ? (
+        <ScopedRecordsTable emptyTitle={emptyTitle} store={store} onOpen={onOpen} />
       ) : (
         <div aria-label={t("Loading.text")} className="space-y-3 px-6 py-3" role="status">
           <Skeleton className="h-9" />

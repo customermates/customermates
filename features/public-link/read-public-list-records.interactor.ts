@@ -1,6 +1,6 @@
 import type { PublicLinkAccess } from "./public-link-access";
 import type { RecordPresentationReader } from "./public-list-reader";
-import type { PublicListRecordsInput, PublicWidgetRecordsResult } from "./public-link.schema";
+import type { PublicListRecordsInput, PublicRecordsResult } from "./public-link.schema";
 
 import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -18,13 +18,13 @@ export class ReadPublicListRecordsInteractor {
     private presentation: RecordPresentationReader,
   ) {}
 
-  async invoke(raw: PublicListRecordsInput & { visitor?: string | null }): Promise<PublicWidgetRecordsResult> {
+  async invoke(raw: PublicListRecordsInput & { visitor?: string | null }): Promise<PublicRecordsResult> {
     const { visitor, ...rest } = raw;
     const parsed = PublicListRecordsSchema.safeParse(rest);
     if (!parsed.success) return PUBLIC_LINK_UNAVAILABLE;
     const input = parsed.data;
 
-    return this.access.open(input.token, visitor, async (link): Promise<PublicWidgetRecordsResult> => {
+    return this.access.open(input.token, visitor, async (link): Promise<PublicRecordsResult> => {
       const typeId = recordSurfaceTypeId(link.view.surfaceKey);
       if (!typeId) return PUBLIC_LINK_UNAVAILABLE;
       const records = await publicListPage(this.presentation, typeId, link.viewId, {

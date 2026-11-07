@@ -2289,7 +2289,6 @@
       "public": {
         "chip": "Lien public actif",
         "createdCopied": "Lien public créé et copié",
-        "description": "Public, sans connexion : toute personne disposant du lien voit les graphiques et les enregistrements qui les composent. Tous les membres de cet espace de travail la voient aussi.",
         "expiresLabel": "Dernier jour où le lien fonctionne (UTC)",
         "expiryCleared": "Date de fin supprimée",
         "expirySet": "Date de fin enregistrée",
@@ -2299,6 +2298,7 @@
         "onlyColumns": "Affiche uniquement les colonnes visibles, en lecture seule et avec vos accès",
         "opened": "{count, plural, =0 {Pas encore ouvert} one {Ouvert une fois} other {Ouvert # fois}}",
         "option": "Toute personne disposant du lien",
+        "optionDescriptionDashboard": "Public, sans connexion : toute personne disposant du lien voit les graphiques et les enregistrements qui les composent. Tous les membres de cet espace de travail la voient aussi.",
         "optionDescriptionList": "Public, sans connexion : toute personne disposant du lien voit ce tableau avec ses colonnes visibles. Tous les membres de cet espace de travail la voient aussi.",
         "permissionDenied": "Votre rôle ne permet pas de publier des vues par lien public. Demandez à un administrateur.",
         "published": "Lien public créé",
@@ -3626,6 +3626,12 @@
     "empty": "Ce tableau de bord n'a pas encore de graphiques.",
     "emptyList": "Aucun enregistrement ne correspond à cette vue.",
     "expires": "Le lien fonctionne jusqu’à la fin du {date} (UTC)",
+    "export": {
+      "body": "L’export vers Excel ou JSON nécessite un espace de travail Customermates. Commencez un essai pour créer des listes comme celle-ci et les exporter.",
+      "cta": "Commencer l’essai",
+      "label": "Exporter",
+      "title": "Exporter cette liste"
+    },
     "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
     "listCount": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",
     "live": "Mis à jour en direct",

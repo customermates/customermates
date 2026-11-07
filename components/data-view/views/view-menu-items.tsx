@@ -29,6 +29,8 @@ export function ViewMenuItems({ commands, items, view }: Props) {
         return t("DataView.views.duplicate");
       case "edit":
         return t("DataView.views.editTitle");
+      case "hide":
+        return t("DataView.share.hide");
       case "moveLeft":
         return t("DataView.views.moveLeft");
       case "moveRight":
@@ -48,6 +50,8 @@ export function ViewMenuItems({ commands, items, view }: Props) {
         return commands.duplicate(view);
       case "edit":
         return commands.edit(view);
+      case "hide":
+        return commands.hide(view);
       case "moveLeft":
         return commands.move(view, -1);
       case "moveRight":

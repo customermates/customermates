@@ -2611,7 +2611,7 @@ import type { RecordPresentationReader } from "@/features/public-link/public-lis
 import { ReadPublicListRecordsInteractor } from "@/features/public-link/read-public-list-records.interactor";
 import { ReadPublicWidgetRecordsInteractor } from "@/features/public-link/read-public-widget-records.interactor";
 import { PublicLinkAccess } from "@/features/public-link/public-link-access";
-import { PublicLinkRateLimiter } from "@/features/public-link/public-link-rate-limiter";
+import { TokenBucketRateLimiter } from "@/core/network/token-bucket-rate-limiter";
 import { PublicLinkTenant } from "@/features/public-link/public-link-tenant";
 import { GetPublicLinkSettingsInteractor } from "@/features/public-link/get-public-link-settings.interactor";
 import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-public-links-allowed.interactor";
@@ -2619,42 +2619,37 @@ import { SetPublicLinksAllowedInteractor } from "@/features/public-link/set-publ
 const getPublicLinkRepo = () => new PrismaPublicLinkRepo();
 
 export const getManagePublicLinkInteractor = () =>
-  new ManagePublicLinkInteractor(getPublicLinkRepo(), getEventService(), {
+  new ManagePublicLinkInteractor(getPublicLinkRepo(), getDataViewRepo(), getRecordViewPolicy(), getEventService(), {
     baseUrl: env.BASE_URL,
     authSecret: env.BETTER_AUTH_SECRET,
   });
 
-let publicLinkAccess: PublicLinkAccess | undefined;
-const getPublicLinkAccess = () =>
-  (publicLinkAccess ??= new PublicLinkAccess(
-    getPublicLinkRepo(),
-    new PublicLinkTenant(getUserService()),
-    { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
-    new PublicLinkRateLimiter(120, 60_000),
-    new PublicLinkRateLimiter(60, 60_000),
-    { authSecret: env.BETTER_AUTH_SECRET },
-  ));
-
-let readPublicLinkInteractor: ReadPublicLinkInteractor | undefined;
-export const getReadPublicLinkInteractor = () =>
-  (readPublicLinkInteractor ??= new ReadPublicLinkInteractor(
-    getPublicLinkAccess(),
-    getPublicLinkRepo(),
-    {
-      invoke: () => getGetRecordNavigationInteractor().invoke(),
-    },
-    publicRecordReader,
-  ));
+const publicLinkAccess = new PublicLinkAccess(
+  getPublicLinkRepo(),
+  new PublicLinkTenant(getUserService()),
+  { invoke: (data) => getGetWidgetsInteractor().invoke(data) },
+  new TokenBucketRateLimiter(120, 60_000),
+  new TokenBucketRateLimiter(60, 60_000),
+  { authSecret: env.BETTER_AUTH_SECRET },
+);
 
 const publicRecordReader: RecordPresentationReader = {
   invoke: (input) => getGetRecordPresentationInteractor().invoke(input),
 };
 
+export const getReadPublicLinkInteractor = () =>
+  new ReadPublicLinkInteractor(
+    publicLinkAccess,
+    getPublicLinkRepo(),
+    { invoke: () => getGetRecordNavigationInteractor().invoke() },
+    publicRecordReader,
+  );
+
 export const getReadPublicWidgetRecordsInteractor = () =>
-  new ReadPublicWidgetRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
+  new ReadPublicWidgetRecordsInteractor(publicLinkAccess, publicRecordReader);
 
 export const getReadPublicListRecordsInteractor = () =>
-  new ReadPublicListRecordsInteractor(getPublicLinkAccess(), publicRecordReader);
+  new ReadPublicListRecordsInteractor(publicLinkAccess, publicRecordReader);
 
 export const getGetPublicLinkSettingsInteractor = () => new GetPublicLinkSettingsInteractor(getCompanyRepo());
 export const getSetPublicLinksAllowedInteractor = () =>

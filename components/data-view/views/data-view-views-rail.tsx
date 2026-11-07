@@ -6,14 +6,12 @@ import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
 import { ChevronDownIcon, Globe, Sparkles, Users } from "lucide-react";
-import { toast } from "sonner";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
 
-import { hideSharedDataViewAction } from "@/app/actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +30,6 @@ import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
@@ -40,7 +37,15 @@ import { allViewLabel } from "./all-view-label";
 import { FilterSummary } from "./filter-summary";
 import { ViewMenuItems } from "./view-menu-items";
 import { ViewMetaOverlay } from "./view-meta-overlay";
-import { allViewMenuItems, orderChips, sortViewsByPosition, suggestedViewName, viewMenuItems } from "./view-rail-model";
+import {
+  allViewMenuItems,
+  isSharedByMe,
+  orderChips,
+  sharedViewMenuItems,
+  sortViewsByPosition,
+  suggestedViewName,
+  viewMenuItems,
+} from "./view-rail-model";
 import { surfaceKeyOf, viewHref, viewLink } from "./view-actions";
 import { ShareViewDialog } from "./share-view-dialog";
 import { useRovingFocus } from "./use-roving-focus";
@@ -86,7 +91,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const searchParams = useSearchParams();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [shareTarget, setShareTarget] = useState<{ view: DataViewChipDto; link: string } | null>(null);
+  const [shareTarget, setShareTarget] = useState<{ viewId: string; link: string } | null>(null);
   const pendingOverlay = useRef<(() => void) | null>(null);
   const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const summaryParts = useRef(new Map<number, string>());
@@ -185,7 +190,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const menuCommands: ViewCommands = {
     ...commands,
     share: (view) => {
-      pendingOverlay.current = () => setShareTarget({ view, link: linkFor(view) });
+      pendingOverlay.current = () => setShareTarget({ viewId: view.id, link: linkFor(view) });
     },
     duplicate: (view) => {
       pendingOverlay.current = () => commands.duplicate(view);
@@ -221,33 +226,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
       <DropdownMenuSeparator />
 
-      <DropdownMenuItem
-        onSelect={() => {
-          pendingOverlay.current = () => commands.duplicate(view);
-        }}
-      >
-        {t("DataView.views.duplicate")}
-      </DropdownMenuItem>
-
-      <DropdownMenuItem onSelect={() => commands.copyLink(view)}>{t("DataView.views.copyLink")}</DropdownMenuItem>
-
-      <DropdownMenuItem
-        id="global-data-views-hide-shared"
-        onSelect={() =>
-          runUserAction(async () => {
-            const result = await hideSharedDataViewAction({ id: view.id, hidden: true });
-            if (!result.ok) {
-              toastZodErrorTree(result.error);
-              return;
-            }
-            if (store.activeViewKey === view.id) store.applyView(ALL_VIEW_KEY);
-            await store.refresh();
-            toast.success(t("DataView.share.hidden"));
-          })
-        }
-      >
-        {t("DataView.share.hide")}
-      </DropdownMenuItem>
+      <ViewMenuItems commands={menuCommands} items={sharedViewMenuItems()} view={view} />
     </>
   );
   const chipMenu = (view: DataViewChipDto) => {
@@ -342,7 +321,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   ownerAvatar(chip.view, "-ms-1 size-4 shrink-0")
                 ) : chip.view.isPublic ? (
                   <Globe aria-hidden className="size-3 shrink-0" data-view-public="" />
-                ) : chip.view.visibility && chip.view.visibility !== "private" ? (
+                ) : isSharedByMe(chip.view) ? (
                   <Users aria-hidden className="size-3 shrink-0" />
                 ) : undefined
               }
@@ -362,11 +341,11 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
                     <span className="block text-[11px] text-muted-foreground">{sharedScope(chip.view)}</span>
                   </>
-                ) : chip.view.isPublic || (chip.view.visibility && chip.view.visibility !== "private") ? (
+                ) : chip.view.isPublic || isSharedByMe(chip.view) ? (
                   <>
                     {previewFor(chip.view.name, chip.isActive)}
 
-                    {chip.view.visibility && chip.view.visibility !== "private" ? (
+                    {isSharedByMe(chip.view) ? (
                       <span className="block text-[11px] text-muted-foreground">{t("DataView.share.ownShared")}</span>
                     ) : null}
 
@@ -378,13 +357,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   previewFor(chip.view.name, chip.isActive)
                 )
               }
-              shared={
-                chip.view.sharedBy
-                  ? "others"
-                  : chip.view.visibility && chip.view.visibility !== "private"
-                    ? "mine"
-                    : undefined
-              }
+              shared={chip.view.sharedBy ? "others" : isSharedByMe(chip.view) ? "mine" : undefined}
               tabIndex={tabIndexAt(index + 1)}
               onKeyDown={onKeyDownAt(index + 1)}
               onMenuCloseAutoFocus={openPendingOverlay}
@@ -509,7 +482,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         <ShareViewDialog
           kind={surfaceKind}
           link={shareTarget.link}
-          view={shareTarget.view}
+          view={store.views.find((view) => view.id === shareTarget.viewId) ?? null}
           onOpenChange={(next) => {
             if (!next) setShareTarget(null);
           }}

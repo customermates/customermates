@@ -2,6 +2,7 @@
 
 import type { DataViewChipDto, DataViewVisibility } from "@/core/data-view/data-view-state.schema";
 import type { PublicLinkStatus } from "@/features/public-link/public-link.schema";
+import type { ShareableRole } from "@/features/data-view/get-data-view-share-options.repo";
 import type { LucideIcon } from "lucide-react";
 
 import { Building2, Globe, UserRound, Users } from "lucide-react";
@@ -15,7 +16,7 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { SelectableCard } from "@/components/forms/selectable-card";
-import { AppModal } from "@/components/modal";
+import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { Label } from "@/components/ui/label";
 import { RadioGroup } from "@/components/ui/radio-group";
@@ -25,8 +26,6 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { PublicLinkOption } from "./public-link-option";
-
-type Role = { id: string; name: string };
 
 type Props = {
   kind: "dashboard" | "list";
@@ -57,7 +56,7 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
   const [publicStatus, setPublicStatus] = useState<PublicLinkStatus | null>(null);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [roleIds, setRoleIds] = useState<string[]>([]);
-  const [roles, setRoles] = useState<Role[] | null>(null);
+  const [roles, setRoles] = useState<ShareableRole[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [openedFor, setOpenedFor] = useState<string | null>(null);
 
@@ -114,7 +113,9 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     public: {
       title: t("DataView.share.public.option"),
       description:
-        kind === "list" ? t("DataView.share.public.optionDescriptionList") : t("DataView.share.public.description"),
+        kind === "list"
+          ? t("DataView.share.public.optionDescriptionList")
+          : t("DataView.share.public.optionDescriptionDashboard"),
     },
   };
   const savedText: Record<DataViewVisibility, string> = {
@@ -138,7 +139,6 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
 
   const share = async (target: DataViewVisibility) => {
     if (!view) return false;
-    if (target === view.visibility && (target !== "roles" || sameRoles(roleIds, view.roleIds ?? []))) return true;
     const result = await shareDataViewAction({
       id: view.id,
       visibility: target,
@@ -166,7 +166,6 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
     try {
       if (visibility === "public") {
         const created = publicLink === null;
-        if (!(await share("workspace"))) return;
         const published = await publish();
         if (!published) return;
         await onShared();
@@ -203,19 +202,11 @@ export function ShareViewDialog({ kind, link, view, onOpenChange, onShared }: Pr
   const title = t("DataView.share.title", { name: view?.name ?? "" });
 
   return (
-    <AppModal
-      focusContentOnOpen
-      description={
-        kind === "dashboard" ? t("DataView.share.descriptionDashboard") : t("DataView.share.descriptionList")
-      }
-      open={view !== null}
-      title={title}
-      onClose={() => onOpenChange(false)}
-    >
+    <AppModal focusContentOnOpen titleInContent open={view !== null} title={title} onClose={() => onOpenChange(false)}>
       <AppCard id="share-view-dialog">
         <AppCardHeader>
           <div className="flex min-w-0 flex-col gap-1.5">
-            <h2 className="text-lg font-semibold">{title}</h2>
+            <AppModalTitle className="text-lg font-semibold">{title}</AppModalTitle>
 
             <p className="text-sm text-muted-foreground">
               {kind === "dashboard" ? t("DataView.share.descriptionDashboard") : t("DataView.share.descriptionList")}

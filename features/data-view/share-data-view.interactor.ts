@@ -3,8 +3,7 @@ import type { DataViewPolicy } from "./data-view-policy";
 import type { ShareDataViewData } from "./data-view.schema";
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { Validated } from "@/core/validation/validation.utils";
-
-type PublicLinkRevoker = { invoke(data: { action: "revoke"; viewId: string }): Validated<unknown> };
+import type { ManagePublicLinkInteractor } from "@/features/public-link/manage-public-link.interactor";
 
 import { validateDataViewAccess } from "./data-view-policy";
 import { ShareDataViewSchema } from "./data-view.schema";
@@ -22,7 +21,7 @@ export class ShareDataViewInteractor extends AuthenticatedInteractor<ShareDataVi
   constructor(
     private repo: ShareDataViewRepo,
     private policy?: DataViewPolicy,
-    private publicLinks?: PublicLinkRevoker,
+    private publicLinks?: ManagePublicLinkInteractor,
   ) {
     super();
   }

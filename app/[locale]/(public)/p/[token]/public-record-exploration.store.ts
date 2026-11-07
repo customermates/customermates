@@ -13,10 +13,6 @@ export class PublicRecordExplorationStore extends RecordExplorationStore {
     super(root, presentation, []);
   }
 
-  override get isDisabled(): boolean {
-    return false;
-  }
-
   protected override loadPresentation(params?: GetQueryParams): Promise<RecordPresentationResult> {
     return this.load(params);
   }

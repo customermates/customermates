@@ -50,7 +50,7 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
   const Icon = descriptor?.icon ?? Inbox;
   const singularLabel = labels?.singular ?? "";
   const pluralLabel = labels?.plural ?? "";
-  const canCreate = Boolean(onAdd) && store.canManage;
+  const canCreate = Boolean(onAdd) && store.canCreate;
 
   if (reason === "filtered") {
     return (
