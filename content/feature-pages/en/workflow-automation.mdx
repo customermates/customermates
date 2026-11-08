@@ -1,6 +1,6 @@
 ---
-title: "CRM Workflow Automation: Routines, Webhooks, n8n"
-description: "Automate CRM work with AI routines on a schedule or record event, and with webhooks, REST and n8n for fixed rules. Plans, limits and two worked setups."
+title: "CRM Workflow Automation: Routines, Webhooks, n8n, MCP"
+description: "Automate CRM workflows with AI routines, webhooks, n8n or MCP. Four worked examples with steps, plan limits and what Customermates does not automate."
 featureName: Workflow Automation
 
 relatedHrefs:
@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: CRM workflow automation with AI routines and open webhooks
-  description: Routines in Customermates Cloud run a saved instruction through Mate on a schedule or when a record changes, using hosted AI credits. Webhooks, the REST API and MCP connect every plan, including self-hosted installs, with n8n or any automation tool you run.
+  description: Routines in Customermates Cloud run a saved instruction through Mate on a schedule or when a record changes, using hosted AI credits. Webhooks, the REST API, n8n and MCP connect every plan, self-hosted installs included, to the automation tool or AI client you run.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Read the routines guide
@@ -20,7 +20,7 @@ hero:
 
 cta:
   action: Automate one recurring job this week
-  description: Set up the Monday pipeline check during the trial, then connect n8n for the rules that must fire the same way every time.
+  description: Build the follow-up reminder routine during the trial, then connect n8n for the rules that must fire the same way every time.
   buttonLeftText: Start for free
   buttonLeftHref: /auth/signup
   buttonRightText: Connect n8n
@@ -28,31 +28,45 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-CRM workflow automation means a recurring CRM step happens without anyone having to remember it. A deal moves to Won and the onboarding tasks exist. A client emails and a reply draft is waiting.
+CRM workflow automation means a recurring CRM step happens without anyone having to remember it: a deal is won and the onboarding tasks exist, a client emails and a reply draft is waiting. In Customermates you build it with **routines** (Mate, the hosted assistant, runs a saved instruction on a schedule or when a record changes, Cloud only), with **webhooks, the REST API and n8n** for rules that must behave the same every time, or with your own AI client over **MCP**.
 
-Customermates gives you two ways to build that. **Routines** in Customermates Cloud run a saved instruction through Mate, the hosted assistant, on a schedule or when a record changes, using hosted AI credits. **Webhooks, the REST API and MCP** connect the CRM to n8n or any other automation tool, on every plan and when self-hosting. There is no visual workflow builder with branches inside the CRM; that part lives in n8n, a separate product.
+The boundary is easy to state. Customermates automates work on single records. It has no email sequences, drip campaigns or mass outreach, no lead scoring, no web forms and no visual workflow builder with branches inside the CRM; that part lives in n8n, a separate product. If "CRM automation" means marketing automation to you, the next section shows where the line runs.
 
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Two engines">Routines for work that needs reading and judgment. Webhooks plus n8n or your own code for fixed rules.</SummaryItem>
+  <SummaryItem label="Three routes">Routines for work that needs reading and judgment. Webhooks plus n8n or your own code for fixed rules. Your own AI client over MCP for record updates you ask for.</SummaryItem>
   <SummaryItem label="Plans">Routines on every Cloud plan: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business. Webhooks, REST and MCP on every plan, self-hosted included.</SummaryItem>
   <SummaryItem label="Cost">A routine run uses its owner's monthly hosted AI credits and stops at 10 credits. n8n bills its own plans.</SummaryItem>
-  <SummaryItem label="Not included">No visual builder or branching inside the CRM, no email sequences and no task reminders.</SummaryItem>
+  <SummaryItem label="Not included">No visual builder or branching inside the CRM, no email sequences, no task reminders, no lead scoring.</SummaryItem>
 </ArticleSummary>
 
-## Which job goes where
+## What is CRM automation, and which kind does Customermates cover?
+
+CRM automation covers two different jobs. **Record workflows** act on one deal, contact or conversation when something happens; this is usually what CRM workflow management refers to. **Marketing automation** sends timed messages to lists of contacts. Customermates is built for the first.
+
+| Kind of automation | Typical examples | In Customermates |
+|---|---|---|
+| Record workflows | Create tasks when a deal is won, post to a team channel when a deal is created, list deals nobody touched | Yes: routines, webhooks, REST, n8n and MCP |
+| AI work on records | Update a deal from call notes, draft a reply to a client | Yes: Mate in chat, routines (Cloud), your own AI client over MCP |
+| Marketing automation | Email sequences, drip campaigns, mass outreach, lead scoring, web forms | No. Use a separate tool and bring its results in through REST or n8n |
+
+A reply draft is one message in one conversation, not a sequence. If you need the third row, keep a dedicated tool for it and use Customermates as the system of record behind it.
+
+## Which CRM workflows suit a routine, a webhook or an AI client?
 
 | Job | Use | Plan |
 |---|---|---|
-| Monday list of deals nobody touched for 14 days | Routine on a schedule | Any Cloud plan |
+| Follow-up reminder: a task for every deal whose next-contact date has passed | Routine on a schedule | Any Cloud plan |
 | Reply draft when a client emails | Routine on **Email Received** | Cloud, Pro and higher |
 | Onboarding tasks when a deal is won | Routine on **Record updated** for Deals, or a webhook into n8n | Routine: Cloud. Webhook: every plan |
-| Message in a team chat when a deal is created | Webhook with a body template, no n8n needed | Every plan |
+| Message in a team chat when a deal is created | Webhook into n8n, or a webhook with a body template | Every plan |
 | Flow with branches, waits and other apps | n8n on webhooks and REST | Every plan, plus n8n |
 | Update a deal from pasted call notes | Mate chat, or your own AI client over MCP | Mate: Cloud. MCP: every plan |
 
 Our rule of thumb: if a step must behave identically every time, such as creating the same tasks for every won deal, use a webhook and n8n. A routine is an AI run that reads, decides and writes, so its output varies a little and every run costs credits. Use it where the reading is the point.
 
-## Routines: scheduled and event-driven AI work
+Stage changes show both routes. A routine on **Record updated** for Deals, with **Changed fields** set to **Stage** and a record filter for Won, can create onboarding tasks, assign them to the same people as the deal and link them to the deal. In n8n the same job costs no credits and never varies: the webhook delivers a `record.updated` event with the `before` and `after` value of each changed field, an IF node checks the new stage, and an HTTP Request node creates the tasks. Choose the routine when the tasks depend on what was agreed in the emails, and n8n when they are always the same.
+
+## How do routines automate CRM work on a schedule or record event?
 
 Routines exist in Customermates Cloud only. A routine is a name, an instruction of up to 5,000 characters and a trigger. When the trigger fires, Mate starts a new conversation with that instruction and works on its own, as the routine's owner: it sees what the owner sees and spends the owner's credits. Changes a routine makes never trigger other routines, so they cannot loop. The [routines guide](/docs/app-routines) covers every option.
 
@@ -70,22 +84,27 @@ Routines exist in Customermates Cloud only. A routine is a name, an instruction 
 
 An unattended run may create and update records, append notes, create tasks and save drafts without asking. It may also send emails and chat messages. Everything that asks for approval in a chat is refused, because nobody is there to approve it: deletions, renaming lists, team invitations, webhook resends and support requests. If you want drafts and nothing else, write it into the instruction.
 
-### Setup 1: Monday pipeline check (any Cloud plan)
+## How do I build a follow-up reminder routine?
+
+Customermates sends no reminder notifications and tasks have no due date, so here a reminder is a task that a routine creates from a date you keep yourself. The routine runs every morning, finds deals whose date has passed and puts one task per deal in the task list. This needs a **Date** field such as "Next contact" on Deals; the [follow-up guide](/features/follow-up) shows how to add it and how to save the matching views.
 
 <Steps>
-  <Step title="Add the routine">Open **Routines**, click **Add** and name it "Monday pipeline check".</Step>
-  <Step title="Set the trigger">Choose **On a schedule**, then **Repeats**: **Every week**, Monday, 08:00.</Step>
+  <Step title="Add the date field">In **Configure**, add a field of type **Date** called "Next contact" to **Deals**, and set it on the deals you want to follow up.</Step>
+  <Step title="Add the routine">Open **Routines**, click **Add** and name it "Follow-up reminders".</Step>
+  <Step title="Set the trigger">Choose **On a schedule**, then **Repeats**: **Every day**, 08:00. For weekdays only, ask Mate to set a custom schedule.</Step>
   <Step title="Paste the instruction">Use the text below with your own stage names, and save.</Step>
-  <Step title="Test it once">Click **Test trigger**. **Run details** shows Mate's answer, the records it read and the credits it used.</Step>
+  <Step title="Test it once">Click **Test trigger**. It is a real run and creates real tasks, so check the task list afterwards. **Run details** shows who the run acted as and the share of the monthly allowance it used; the owner can also open the full transcript.</Step>
 </Steps>
 
 ```text
-List every deal that is not in Won or Lost and has not been updated in the last 14 days. Group them by assigned user. For each deal write one line: name, stage, value and the gist of its notes. End with the five deals I should call first this week, with one sentence each on why. Do not change any records.
+Find every deal that is not in Won or Lost and whose Next contact date is today or earlier. For each one, create a task named "Follow up: <deal name>, <Next contact date>", link it to the deal, assign it to the deal's assigned users and put the deal's latest note in the task notes. If a task with that exact name already exists, skip the deal. Do not send anything and do not change any deal. End with one line per deal: name, stage, date.
 ```
 
-Credit use: a weekly schedule runs four or five times a month and each run stops at 10 credits, so this routine uses at most 50 credits a month. One credit is one US cent of measured provider cost. Teammates who can see the routine see each run's status, summary and credit use; only the owner opens the full answer.
+The date in the task name stops the routine from creating the same task twice. Once the person moves the Next contact date, the next due date gets its own task.
 
-### Setup 2: reply draft when a client emails (Pro and higher)
+Credit use: a daily schedule is 30 or 31 runs a month and each run stops at 10 credits, so the ceiling is about 300 credits a month. Check your plan's monthly allowance on the [pricing page](/pricing) before running it daily; a weekly schedule has a ceiling of 50. One credit is one US cent of measured provider cost. Nothing pings anyone: the tasks wait in the task list. If you need a push message in your team chat when a date passes, run that check from n8n's schedule trigger against the REST API.
+
+## How do I draft replies when a client emails?
 
 This needs the [unified inbox](/features/unified-inbox), which starts on Pro.
 
@@ -102,61 +121,86 @@ Read the email thread from this event. If it is a newsletter, an automated notic
 
 Credit use: every run that starts uses credits, including runs where Mate decides there is nothing to do. With four runs an hour at no more than 10 credits each, the ceiling is 40 credits an hour. Because of the debounce, a second email within five minutes of a run starting gets no run of its own, an email that arrives while a run is still going is skipped too, and after four runs in an hour, further emails that hour are dropped. You can ask Mate to shorten the debounce, down to zero, but the cap of four runs an hour stays. Treat the drafts as help with most emails, not a promise for every one.
 
-### Stage changes: routine or n8n
+## How do I send a new deal to n8n, Slack or another tool?
 
-A routine on **Record updated** for Deals, with **Changed fields** set to **Stage** and a record filter for Won, can create onboarding tasks, assign them to the same people as the deal and link them to the deal. In n8n the same job costs no credits and never varies: the webhook delivers a `record.updated` event with the `before` and `after` value of each changed field, an IF node checks the new stage, and an HTTP Request node creates the tasks. Choose the routine when the tasks depend on what was agreed in the emails, and n8n when they are always the same.
-
-## Webhooks, REST and n8n: rules on every plan
-
-Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Record events cover every list, your own included. Deal **Stage** is a configurable single choice field, so a stage change arrives as `record.updated` for the Deals list, with the field's `before` and `after` values. Deliveries are signed with HMAC-SHA256 when you set a secret, retried automatically on timeouts and server errors, up to 10 attempts in total, and logged under **Deliveries**. The [webhook reference](/docs/webhooks) lists every payload.
-
-There is no native Slack integration, but a webhook can post to a Slack or Discord channel without n8n, using the channel's incoming webhook URL and a body template.
-
-The [REST API](/features/api) under `/api/v1` covers every list you create, and `updateMany`, `deleteMany` and import take up to 100 records per request. The MCP server gives AI clients such as Claude or ChatGPT [[derived.mcp.tools.total]] tools on the same data.
-
-[n8n](https://n8n.io/) has a visual builder and lets you write JavaScript or Python in any step. You can self-host its Community Edition under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), which permits use only for your own internal business purposes or for non-commercial or personal use, or subscribe to n8n Cloud, [priced by monthly workflow executions](https://n8n.io/pricing/).
+Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Record events cover every list, your own included, on every plan. Deal **Stage** is a configurable single choice field, so a stage change arrives as `record.updated` for the Deals list, and a new deal as `record.created`. The [webhook reference](/docs/webhooks) lists every payload.
 
 <Steps>
-  <Step title="Create the trigger in n8n">Add a Webhook node and copy its URL.</Step>
-  <Step title="Subscribe in Customermates">Under **Settings › Webhooks**, click **Add**, paste the URL, pick the events, choose the list under **Records from** and set a **Secret**.</Step>
-  <Step title="Write back through REST">Create an API key under **Settings › API keys** and store it in n8n as a Header Auth credential with the header name `x-api-key`.</Step>
-  <Step title="Activate the workflow in n8n">Scheduling, waits, logs and execution limits belong to n8n. Customermates keeps the records.</Step>
+  <Step title="Add the trigger in n8n">Add a Webhook node and copy its URL. With the community node, version 2 or later, a Customermates Trigger node creates the subscription for you when the workflow is activated, and you can skip the next step.</Step>
+  <Step title="Subscribe in Customermates">Under **Settings › Webhooks**, click **Add**, paste the URL, pick **Record created**, choose **Deals** under **Records from** and set a **Secret**.</Step>
+  <Step title="Verify and deduplicate">Check the `X-Webhook-Signature` header, an HMAC-SHA256 of the raw body. Deliveries can arrive out of order or twice, so deduplicate on the event `id`.</Step>
+  <Step title="Read the deal">Create an API key under **Settings › API keys** and store it in n8n as a Header Auth credential named `x-api-key`. An HTTP Request node then calls `POST /api/v1/records/read` with the `typeId` and `recordId` from `data.record.ref`.</Step>
+  <Step title="Post to the channel">Use n8n's Slack node, or an HTTP Request node to the channel's incoming webhook URL, with the deal's name, value and owner. Customermates has no native Slack integration, so n8n is the route.</Step>
+  <Step title="Activate the workflow">Waits, schedules, logs and execution limits belong to n8n. Customermates keeps the records and the delivery log.</Step>
 </Steps>
 
-The community node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) offers dedicated CRM nodes if you prefer them to HTTP Request nodes; it has its own release schedule, so check that it supports the current record API first. The [n8n guide](/docs/n8n) has the endpoints and common mistakes.
+To create the first task as well, add an HTTP Request node that calls `POST /api/v1/records/mutate` and links the new task to the deal. Reuse the same idempotency key when you retry the identical payload. The [n8n guide](/docs/n8n) has the endpoints and common mistakes, and the [n8n tutorial](/blog/n8n-for-beginners-build-your-first-workflow) walks through a first webhook workflow.
 
-## What updates itself, and what still needs a person
+If you only need the chat message, skip n8n: a webhook can post straight to a Slack or Discord incoming webhook URL with a body template such as `{ "text": "{{event}} for {{data.record.ref.recordId}}" }`. That sends the event name and record ID; composing a message from record values is easier in n8n.
+
+Deliveries are retried automatically on timeouts and server errors, up to 10 attempts in total, and logged under **Deliveries**, where a failed one can be resent. The [REST API](/features/api) under `/api/v1` covers every list you create, and `updateMany`, `deleteMany` and import take up to 100 records per request.
+
+## How can an AI client update CRM records over MCP?
+
+The MCP server gives AI clients such as Claude or ChatGPT [[derived.mcp.tools.total]] tools on the same data, on every plan and when self-hosting. Your own AI provider bills the model use. This is the route for updates you ask for in plain language, such as writing up a call.
+
+<Steps>
+  <Step title="Connect the client">Claude and ChatGPT connect through a custom connector with OAuth, so there is no key to manage. CLI and editor clients use an API key from **Settings › API keys**. Setup per client is in the [MCP reference](/docs/mcp).</Step>
+  <Step title="Narrow the tools">Optionally append `?toolsets=records` to the endpoint URL so the client sees only the record tools plus `search` and `fetch`.</Step>
+  <Step title="Ask for the update">Tell the client what happened, for example the prompt below. It looks up the list and field IDs, finds the deal, reads its current version and writes the change with `mutate_crm_record`.</Step>
+  <Step title="Check the result">Open the deal's activity history. Changes over MCP count like changes in the app: a subscribed webhook receives a `record.updated` event, and event routines can trigger on it.</Step>
+</Steps>
+
+```text
+Find the deal "Acme renewal". Append these call notes to its notes: the client wants a revised quote with two seats fewer. Set Next contact to 14 days from today and create a task "Send revised quote" linked to the deal. Show me what you changed.
+```
+
+Appending to a notes field never overwrites what is there, and it does not conflict with a colleague's newer edit. In Customermates Cloud, Mate does the same from a chat, and its policy asks for your approval before gated actions such as deleting records; sending an email or chat message is not gated, so ask for a draft when the wording needs review.
+
+External MCP calls work differently. The server checks authorization and validation but does not ask for confirmation; the advice to confirm before deleting or sending goes to the client. An API key carries the permissions of the user who created it, with no per-key scoping. Create it under a user whose role fits the job, and check how your client handles approvals before you grant write access.
+
+## Is there an open-source CRM with a workflow builder?
+
+Customermates is open source and has no workflow builder inside the CRM. [n8n](https://n8n.io/) fills that role. Its features that matter here are a visual builder, JavaScript or Python in any step and ready-made nodes for apps such as Slack, and it connects to Customermates through webhooks and the REST API. You can self-host its Community Edition under the [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), which permits use only for your own internal business purposes or for non-commercial or personal use, or subscribe to n8n Cloud, [priced by monthly workflow executions](https://n8n.io/pricing/). Customermates includes no n8n runtime or subscription.
+
+The community node [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) offers dedicated CRM nodes if you prefer them to HTTP Request nodes. Use version 2 or later: version 1.x targets endpoints the API no longer has, so its workflows fail until you update them.
+
+<AcquisitionCallout title="If you want the builder inside the CRM" variant="fit">
+  If your team wants to build branching workflows inside the CRM without running n8n, look at CRMs with a native workflow editor. HubSpot Sales Hub lists up to 50 workflows with restricted triggers and actions on Starter, and up to 300 fully customizable workflows on Professional. Pipedrive includes workflow automation on Growth and higher plans, with if/else conditions. Customermates publishes this page; the vendor details were checked on 8 November 2026 on [HubSpot's Sales Hub pricing page](https://www.hubspot.com/pricing/sales) and in [Pipedrive's help center](https://support.pipedrive.com/en/article/workflow-automation).
+</AcquisitionCallout>
+
+## What updates itself, and what still needs a person?
 
 - **Without AI:** every change lands in the record's activity history and reaches every webhook subscribed to that event, and weighted pipeline values follow your stage weights. On Pro and higher, once you link an email address or handle to a contact, every conversation with it appears on that contact's timeline.
-- **With AI, when you ask:** paste call notes into Mate and ask it to update the deal, append the notes and create follow-up tasks. Your own AI client can do the same through MCP on every plan, self-hosted included, billed by your AI provider.
+- **With AI, when you ask:** paste call notes into Mate, or into your own AI client over MCP, and ask it to update the deal, append the notes and create follow-up tasks.
 - **With AI, unattended:** routines, as above.
 
 Our advice: let a routine propose a stage move in a note and let the person assigned to the deal make it. Stages drive the weighted pipeline, and a wrong move made by an unattended run is easy to miss.
 
-## What Customermates does not automate
+## What does Customermates not automate?
 
 - No visual workflow builder, branching or waits inside the CRM. Use n8n or a similar tool.
 - No email sequences, drip campaigns or mass email. A reply draft is one message in one conversation.
-- No task due dates, reminders or notification centre. Store a date in a custom date field on the deal and let the Monday routine list deals whose date has passed, as in [follow-ups](/features/follow-up).
+- No task due dates, reminders or notification centre. A custom date field on the deal plus the follow-up routine above gives you a list to work from, as in [follow-ups](/features/follow-up).
 - No lead scoring, data enrichment or web forms. Send form entries in through REST or n8n.
 - No routines, Mate or inbox in [self-hosted Customermates](/features/self-hosted). Webhooks, REST and MCP work there.
 - No guarantee a routine runs: the hourly cap, the debounce or an owner without credits can skip a run. Steps that must run for every event belong on a webhook, where failed deliveries are retried and can be re-sent.
 
-<AcquisitionCallout title="If you want the builder inside the CRM" variant="fit">
-  If your team wants to build branching workflows inside the CRM without running n8n, look at CRMs with a native workflow editor. HubSpot Sales Hub lists up to 50 workflows with restricted triggers and actions on Starter, and up to 300 fully customizable workflows on Professional. Pipedrive includes workflow automation on Growth and higher plans, with if/else conditions. Customermates publishes this page; the vendor details were checked on 8 October 2026 on [HubSpot's Sales Hub pricing page](https://www.hubspot.com/pricing/sales) and in [Pipedrive's help center](https://support.pipedrive.com/en/article/workflow-automation).
-</AcquisitionCallout>
+## What does it cost for a small team?
 
-## What it costs for a small team
-
-Three people on Starter pay [[commercial.price.starter.monthly.seats.3]] a month. Each has [[commercial.entitlement.starter.includedRoutinesPerUser]] routine, enough for the Monday check, plus webhooks, REST and MCP. Starter has no inbox, so reply drafts need Pro.
+Three people on Starter pay [[commercial.price.starter.monthly.seats.3]] a month. Each has [[commercial.entitlement.starter.includedRoutinesPerUser]] routine, enough for the follow-up reminders, plus webhooks, REST and MCP. Starter has no inbox, so reply drafts need Pro.
 
 Five people on Pro pay [[commercial.price.pro.monthly.seats.5]] a month. Each has [[commercial.entitlement.pro.includedRoutinesPerUser]] routines and [[commercial.entitlement.pro.includedAccountsPerUser]] connected inbox account. Runs draw on the owner's hosted AI credits; the monthly allowance per active user is on the [pricing page](/pricing). n8n comes on top: a small server for the Community Edition, or an n8n Cloud plan.
 
 ## Frequently asked questions
 
 <Faq>
+<FaqItem question="What is CRM workflow automation?">
+It is a CRM step that runs by itself when something happens or on a schedule: creating onboarding tasks for a won deal, posting to a team channel when a deal is created, drafting a reply when a client writes, or listing deals whose follow-up date has passed. In Customermates, fixed steps run on webhooks and n8n, steps that need reading run as routines in Customermates Cloud, and updates you ask for run through Mate or your own AI client over MCP.
+</FaqItem>
+
 <FaqItem question="What are examples of CRM workflow automation?">
-Creating the same onboarding tasks for every won deal, posting to a team channel when a deal is created, drafting a reply when a client writes, and a weekly list of stalled deals. Fixed steps like the first two suit webhooks and n8n. Steps that need reading, like the last two, suit routines in Customermates Cloud.
+Four are set up step by step above: a follow-up reminder routine, a reply draft when a client emails, a new deal sent to n8n and Slack, and a call write-up that updates a deal over MCP. Fixed steps like the third suit webhooks and n8n. Steps that need reading, like the first two, suit routines in Customermates Cloud.
 </FaqItem>
 
 <FaqItem question="Does Customermates have a visual workflow builder?">
@@ -169,6 +213,10 @@ Partly. Activity history, webhook events and weighted pipeline values update on 
 
 <FaqItem question="What is the difference between CRM workflow automation and marketing automation?">
 Marketing automation sends campaigns to lists of contacts on a timetable. CRM workflow automation acts on single records, such as one deal or one conversation. Customermates has no email sequences, drip campaigns or mass email, so keep a marketing tool if you need those.
+</FaqItem>
+
+<FaqItem question="What happens to deals when follow-ups after meetings are forgotten?">
+They stay in their stage until someone stumbles on them, and they keep counting in the weighted pipeline. Customermates does not nudge anyone: there are no task due dates and no notifications. What helps is a custom Date field "Next contact" on the deal plus the follow-up routine above, which creates a task for every deal whose date has passed.
 </FaqItem>
 
 <FaqItem question="Do routines work when self-hosting?">
