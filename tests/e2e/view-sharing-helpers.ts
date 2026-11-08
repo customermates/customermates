@@ -12,6 +12,7 @@ import { BrowserDiagnostics } from "./browser-diagnostics";
 import { expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { companySlug, rememberWorkspaceSlug } from "./app-paths";
+import { openViewsMenu, openViewsMenuItem } from "./views-menu";
 
 const share = englishMessages.DataView.share;
 const views = englishMessages.DataView.views;
@@ -134,13 +135,11 @@ export async function createView(page: Page, name: string) {
 }
 
 export async function openViewMenu(page: Page) {
-  await page.locator("#global-data-views-menu").click();
-  return page.getByRole("menu");
+  return openViewsMenu(page);
 }
 
 export async function openShareDialog(page: Page) {
-  const menu = await openViewMenu(page);
-  await menu.getByRole("menuitem", { name: share.menuItem, exact: true }).click();
+  await openViewsMenuItem(page, share.menuItem);
   const dialog = page.locator("#share-view-dialog");
   await expect(dialog).toBeVisible();
   return dialog;

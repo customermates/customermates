@@ -11,6 +11,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { companyPath, pagePath } from "./app-paths";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { secondUser } from "./second-user";
+import { openViewsMenuItem } from "./views-menu";
 
 type ViewRow = {
   id: string;
@@ -44,8 +45,7 @@ async function copyViewLink(page: Page, typeId: string, viewId: string) {
   });
   await page.goto(pagePath(page, `/records/${typeId}?view=${viewId}`));
   await expect(page.locator(`[data-focus-target="view:${viewId}"]`)).toHaveAttribute("aria-current", "page");
-  await page.locator("#global-data-views-menu").click();
-  await page.getByRole("menuitem", { name: englishMessages.DataView.views.copyLink, exact: true }).click();
+  await openViewsMenuItem(page, englishMessages.DataView.views.copyLink);
   await expect(page.locator("[data-sonner-toast]")).toContainText(englishMessages.DataView.views.linkCopied);
   const link = await page.evaluate(() => (window as unknown as { copiedViewLink?: string }).copiedViewLink);
   expect(link).toBeTruthy();
