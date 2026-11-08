@@ -3,6 +3,7 @@ import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import { z } from "zod";
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import * as ErrorReporter from "@/core/observability/server";
 
@@ -366,17 +367,15 @@ export async function deleteApiKeysForIdentities(identityIds: string[]): Promise
   });
 }
 
-async function revokeOauthTokens(userId: string): Promise<number> {
-  const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
-  return tokens.count;
+async function revokeOauthTokens(userId: string): Promise<void> {
+  await prisma.oauthAccessToken.deleteMany({ where: { userId } });
 }
 
+const ChangedPasswordResultSchema = z.object({ user: z.object({ id: z.string() }) });
+
 function changedPasswordUserId(returned: unknown): string | null {
-  if (!returned || typeof returned !== "object" || !("user" in returned)) return null;
-  const user = (returned as { user?: unknown }).user;
-  if (!user || typeof user !== "object" || !("id" in user)) return null;
-  const id = (user as { id?: unknown }).id;
-  return typeof id === "string" ? id : null;
+  const result = ChangedPasswordResultSchema.safeParse(returned);
+  return result.success ? result.data.user.id : null;
 }
 
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
