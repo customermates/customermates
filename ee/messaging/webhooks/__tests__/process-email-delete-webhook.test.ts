@@ -171,10 +171,11 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     });
     events.countRecentEmailDeletesUnscoped.mockResolvedValueOnce(50).mockResolvedValueOnce(1);
 
-    const run = interactor.invoke(envelope).catch((err: unknown) => err);
+    const run = interactor.invoke({ ...envelope, receivedAt: new Date() }).catch((err: unknown) => err);
     await vi.runAllTimersAsync();
     await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
 
+    expect(events.countRecentEmailDeletesUnscoped).toHaveBeenCalled();
     expect(messagingService.listEmails).not.toHaveBeenCalled();
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
     expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
@@ -372,5 +373,32 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
       expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
     );
     expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("searches instead of deferring again when a deferred delete is retried during a continuing burst", async () => {
+    const { interactor, ingest, events } = build({
+      recentDeletes: 50,
+      listEmails: () => Promise.resolve({ data: [{ ...relocatedEmail, id: "NEW_ID_INBOX", folders: ["F_INBOX"] }] }),
+    });
+
+    await interactor.invoke({ ...envelope, receivedAt: new Date(Date.now() - 6 * 60_000) });
+
+    expect(events.countRecentEmailDeletesUnscoped).not.toHaveBeenCalled();
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("deletes a retried burst row without an rfc822 message id, like outside a burst", async () => {
+    const { interactor, ingest, eventService } = build({
+      existing: { ...existingRow, providerMessageId: null },
+      recentDeletes: 50,
+    });
+
+    await interactor.invoke({ ...envelope, receivedAt: new Date(Date.now() - 6 * 60_000) });
+
+    expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
+    expect(eventService.publish).toHaveBeenCalledTimes(1);
   });
 });

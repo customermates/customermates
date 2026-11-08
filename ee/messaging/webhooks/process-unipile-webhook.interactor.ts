@@ -18,7 +18,7 @@ import {
 import { UnipileRequestError } from "../unipile-request-error";
 
 export type UnipileWebhookHandlerMap = Partial<
-  Record<string, { invoke(envelope: UnipileWebhookEnvelope): Promise<void> }>
+  Record<string, { invoke(envelope: UnipileWebhookEnvelope & { receivedAt?: Date }): Promise<void> }>
 >;
 
 const Schema = z.object({ id: z.uuid() });
@@ -65,7 +65,7 @@ export class ProcessUnipileWebhookInteractor {
     }
 
     try {
-      await handler.invoke(envelope);
+      await handler.invoke({ ...envelope, receivedAt: row.receivedAt });
       await this.events.markWebhookEventProcessedUnscoped(id);
     } catch (err) {
       if (err instanceof UnmappableWebhookPayloadError) {
