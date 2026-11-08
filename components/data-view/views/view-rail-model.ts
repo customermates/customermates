@@ -49,7 +49,7 @@ export function viewMenuItems(ctx: ViewMenuContext): ViewMenuItem[] {
 }
 
 export function allViewMenuItems(): ViewMenuItem[] {
-  return [actionItem("copyLink")];
+  return [actionItem("duplicate"), actionItem("copyLink")];
 }
 
 export function sharedViewMenuItems(): ViewMenuItem[] {

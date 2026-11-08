@@ -896,10 +896,10 @@ describe("data view rail interaction", () => {
     expect(menuLabels(host)).not.toContain("Common.actions.save");
   });
 
-  it("offers Ask AI and the All tab's Copy link while All is clean", () => {
+  it("offers Ask AI and the All tab's Duplicate and Copy link while All is clean", () => {
     const host = render(store());
 
-    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "DataView.views.copyLink"]);
+    expect(menuLabels(host)).toEqual(["DataView.views.askAi", "DataView.views.duplicate", "DataView.views.copyLink"]);
     expect(host.querySelector("#global-data-views-menu")?.hasAttribute("data-view-modified")).toBe(false);
     expect(host.querySelector("[data-view-menu] hr")).toBeNull();
   });
@@ -918,6 +918,7 @@ describe("data view rail interaction", () => {
       "DataView.views.askAi",
       "Common.actions.save",
       "DataView.views.resetChanges",
+      "DataView.views.duplicate",
       "DataView.views.copyLink",
     ]);
     expect(host.querySelector("[data-view-menu] hr")).not.toBeNull();
@@ -934,7 +935,7 @@ describe("data view rail interaction", () => {
     const host = render(store());
 
     expect(host.querySelector("#global-data-views-menu")).not.toBeNull();
-    expect(menuLabels(host)).toEqual(["DataView.views.copyLink"]);
+    expect(menuLabels(host)).toEqual(["DataView.views.duplicate", "DataView.views.copyLink"]);
     expect(host.querySelector("#global-data-views-new")).not.toBeNull();
     expect(chips(host)).toHaveLength(4);
   });
@@ -961,6 +962,7 @@ describe("data view rail interaction", () => {
       "DataView.views.askAi",
       "DataView.views.saveAsView",
       "DataView.views.resetChanges",
+      "DataView.views.duplicate",
       "DataView.views.copyLink",
     ]);
     expect(host.querySelector("#global-data-views-all")?.hasAttribute("data-view-modified")).toBe(true);

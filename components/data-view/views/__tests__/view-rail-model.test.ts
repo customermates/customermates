@@ -96,7 +96,7 @@ describe("view rail model", () => {
   });
 
   it("offers only Copy link for the All tab, which cannot be edited, moved, duplicated or deleted", () => {
-    expect(allViewMenuItems().map((item) => item.id)).toEqual(["copyLink"]);
+    expect(allViewMenuItems().map((item) => item.id)).toEqual(["duplicate", "copyLink"]);
   });
 
   it("names a view after its filters, capped at the view name limit on a part boundary", () => {

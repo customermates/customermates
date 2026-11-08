@@ -23,7 +23,8 @@ const CreateDataViewSchema = z
     name: DataViewNameSchema,
     position: DataViewPositionSchema.optional(),
     state: DataViewStateSchema,
-    copyOf: z.uuid().optional(),
+    // A saved view's id, or the built-in All view (on the dashboard: the main dashboard and its widgets).
+    copyOf: z.union([z.uuid(), z.literal(ALL_VIEW_KEY)]).optional(),
   })
   .strict();
 
