@@ -665,6 +665,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         const target = await this.prisma.user.findFirst({
           where: { id: data.userId, companyId },
           select: {
+            email: true,
             status: true,
             leftAt: true,
             role: { select: { isSystemRole: true } },
@@ -679,7 +680,8 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!target) return "notFound";
 
-        if (actor.userId === data.userId && data.status !== Status.active) return "conflict";
+        // Every membership of the operator is their own, not only the one the actor resolved to.
+        if (actor.email === normalizeOperatorEmail(target.email) && data.status !== Status.active) return "conflict";
         if (target.leftAt && data.status !== Status.inactive) return "conflict";
 
         const statusChanged = target.status !== data.status;
@@ -1141,6 +1143,13 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           },
         });
         if (!company) return "notFound";
+        // An operator cannot delete any workspace they are an active member of, not only the one the actor resolved to.
+        if (
+          company.users.some(
+            (member) => member.status === Status.active && normalizeOperatorEmail(member.email) === actor.email,
+          )
+        )
+          return "conflict";
 
         const owner = (await resolveWorkspaceOwners(this.prisma, [company.id])).get(company.id);
         const confirmationLabel = workspaceLabelFor(company, owner?.email ?? null);

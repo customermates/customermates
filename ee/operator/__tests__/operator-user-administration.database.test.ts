@@ -51,14 +51,33 @@ const now = new Date("2026-08-28T12:00:00.000Z");
 const periodStart = new Date("2026-08-01T08:00:00.000Z");
 const periodEnd = new Date("2026-09-01T08:00:00.000Z");
 
-function operatorActor(userId = `operator-${randomUUID()}`): OperatorActor {
+function operatorActor(userId = `operator-${randomUUID()}`, email = `${randomUUID()}@example.invalid`): OperatorActor {
   actorIds.push(userId);
   return {
     authUserId: `auth-${randomUUID()}`,
     userId,
     companyId: `company-${randomUUID()}`,
-    email: `${randomUUID()}@example.invalid`,
+    email,
   };
+}
+
+// A further membership of an existing person: same e-mail, no second auth identity.
+async function addMembership(companyId: string, email: string) {
+  const userId = randomUUID();
+  await runWithoutTenant(() =>
+    prisma.user.create({
+      data: {
+        id: userId,
+        companyId,
+        email,
+        firstName: "Operator",
+        lastName: "Membership",
+        status: "active",
+        agentCreditActivatedAt: periodStart,
+      },
+    }),
+  );
+  return userId;
 }
 
 async function createCompany(
@@ -267,7 +286,7 @@ describeDatabase("operator user administration against a real database", { timeo
     });
     const repo = createTestOperatorRepo();
     await expect(
-      runWithOperator(operatorActor(target.userId), () =>
+      runWithOperator(operatorActor(target.userId, target.email), () =>
         repo.updateUserStatusUnscoped(
           {
             userId: target.userId,
@@ -1123,6 +1142,38 @@ describeDatabase("operator user administration against a real database", { timeo
       });
       expect(foreign.companyId).toBe(companyB);
       expect(foreign.deltaMicrocents).toBe(99_000_000n);
+    });
+  });
+  describe("an operator's other memberships", () => {
+    it("refuses to lock out a membership of the operator that the actor did not resolve to", async () => {
+      const email = `multi-${randomUUID()}@example.invalid`;
+      const busiest = await createUser({ companyId: await createCompany(), email });
+      const other = await addMembership(await createCompany(), email);
+      const repo = createTestOperatorRepo();
+
+      await expect(
+        runWithOperator(operatorActor(busiest.userId, email), () =>
+          repo.updateUserStatusUnscoped({ userId: other, status: "inactive", reason: "Own other membership" }, now),
+        ),
+      ).resolves.toBe("conflict");
+    });
+
+    it("refuses to delete a workspace the operator is a member of through another membership", async () => {
+      const email = `multi-${randomUUID()}@example.invalid`;
+      const busiest = await createUser({ companyId: await createCompany(), email });
+      const companyId = await createCompany();
+      await createUser({ companyId, email: `owner-${randomUUID()}@example.invalid` });
+      await addMembership(companyId, email);
+      const label = `Shared-${randomUUID()}`;
+      await runWithoutTenant(() => prisma.company.update({ where: { id: companyId }, data: { name: label } }));
+      const repo = createTestOperatorRepo();
+
+      await expect(
+        runWithOperator(operatorActor(busiest.userId, email), () =>
+          repo.deleteWorkspaceUnscoped({ companyId, confirmWorkspaceLabel: label, reason: "Own workspace" }),
+        ),
+      ).resolves.toBe("conflict");
+      expect(await runWithoutTenant(() => prisma.company.count({ where: { id: companyId } }))).toBe(1);
     });
   });
 });
