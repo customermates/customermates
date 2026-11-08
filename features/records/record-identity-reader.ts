@@ -6,6 +6,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { channelClass } from "@/ee/messaging/provider";
 import { identityLookupValue } from "@/ee/messaging/identity-lookup";
 import { recordKey } from "./record-calculation.service";
+import { linkedinProfileKey } from "./record-identity";
 import type { RecordSearchRow } from "./record-search-query";
 import type { RecordModel } from "./record-model.schema";
 import { recordChannelsTypeIds } from "./record-channels";
@@ -93,10 +94,16 @@ export class RecordIdentityReader {
             channelClass: channelClass(input.provider),
             value: identityLookupValue(input.provider, input.value) ?? "",
           }));
+          const lookupKeys = batch.map((input, index) => {
+            const canonical = keys[index].channelClass === "linkedin" ? linkedinProfileKey(input.value) : null;
+            return canonical && canonical !== keys[index].value
+              ? [keys[index], { channelClass: keys[index].channelClass, value: canonical }]
+              : [keys[index]];
+          });
           const owners: Awaited<ReturnType<RecordRepo["getIdentityOwnersCompanyWide"]>> = [];
           const truncated = new Set<string>();
           const counts = new Map<string, number>();
-          for (const owner of await this.records.getIdentityOwnersCompanyWide(keys, [...bound], {
+          for (const owner of await this.records.getIdentityOwnersCompanyWide(lookupKeys.flat(), [...bound], {
             access,
             ...(options.complete ? {} : { limitPerKey: IDENTITY_MATCH_DISPLAY_LIMIT }),
           })) {
@@ -128,11 +135,20 @@ export class RecordIdentityReader {
             byKey.set(key, records);
           }
           batch.forEach((identifier, index) => {
-            const key = JSON.stringify([keys[index].channelClass, keys[index].value]);
-            const records = [...(byKey.get(key) ?? [])].sort((left, right) =>
+            const matchKeys = lookupKeys[index].map((lookup) => JSON.stringify([lookup.channelClass, lookup.value]));
+            const found = new Map(
+              matchKeys
+                .flatMap((matchKey) => byKey.get(matchKey) ?? [])
+                .map((record) => [recordKey(record.ref), record]),
+            );
+            const records = [...found.values()].sort((left, right) =>
               recordKey(left.ref) < recordKey(right.ref) ? -1 : recordKey(left.ref) > recordKey(right.ref) ? 1 : 0,
             );
-            matches.push({ ...identifier, records, ...(truncated.has(key) ? { moreRecords: true as const } : {}) });
+            matches.push({
+              ...identifier,
+              records,
+              ...(matchKeys.some((matchKey) => truncated.has(matchKey)) ? { moreRecords: true as const } : {}),
+            });
           });
         }
         return { revision: model.revision, matches };

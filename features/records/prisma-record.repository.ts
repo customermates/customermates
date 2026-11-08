@@ -91,6 +91,8 @@ import type {
   PhoneIdentityValue,
   RecordPhoneIdentityRepo,
 } from "./record-phone-identity.repo";
+import type { LinkedinIdentityRepair, RecordLinkedinIdentityRepo } from "./record-linkedin-identity.repo";
+import type { LinkedinIdentityPlan, LinkedinIdentityRow } from "./linkedin-identity-consolidation";
 
 const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
@@ -109,7 +111,12 @@ function uniqueRefs(refs: RecordRef[]): RecordRef[] {
 
 export class PrismaRecordRepo
   extends TenantRepository
-  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo, RecordPhoneIdentityRepo
+  implements
+    RecordRepo,
+    ProviderAvatarRecordRepo,
+    RecordOperationQueueRepo,
+    RecordPhoneIdentityRepo,
+    RecordLinkedinIdentityRepo
 {
   private resolvedOwners?: RecordRepoOwners;
 
@@ -376,20 +383,26 @@ export class PrismaRecordRepo
         },
       });
     }
-    const existing = new Set(known.map((row) => row.id));
+    const existing = new Map(known.map((row) => [row.id, row]));
     for (const { aliases, ...row } of rows) {
-      if (!existing.has(row.id)) {
+      const previous = existing.get(row.id);
+      const keys = identityKeys({ ...row, aliases }).map((value) => ({
+        companyId: this.companyId,
+        identityId: row.id,
+        channelClass: row.channelClass,
+        value,
+      }));
+      if (!previous) {
         await this.prisma.recordIdentity.create({
           data: { ...row, companyId: this.companyId },
         });
-        await this.prisma.recordIdentityKey.createMany({
-          data: identityKeys({ ...row, aliases }).map((value) => ({
-            companyId: this.companyId,
-            identityId: row.id,
-            channelClass: row.channelClass,
-            value,
-          })),
+        await this.prisma.recordIdentityKey.createMany({ data: keys });
+      } else if (previous.updatedAt !== row.updatedAt) {
+        await this.prisma.recordIdentity.update({
+          where: { companyId: this.companyId, companyId_id: { companyId: this.companyId, id: row.id } },
+          data: { messagingId: row.messagingId, profileUrl: row.profileUrl },
         });
+        await this.prisma.recordIdentityKey.createMany({ data: keys, skipDuplicates: true });
       }
     }
     if (ids.length) {
@@ -457,6 +470,20 @@ export class PrismaRecordRepo
       });
       if (owner?.identityId !== identityId) throw unwindFailure(CustomErrorCode.channelAlreadyLinked, "conflict");
     }
+    const aliases = identityKeys({ ...row, ...data }).filter(
+      (value) => value !== row.value && value !== row.messagingId && value !== data.messagingId,
+    );
+    if (aliases.length) {
+      await this.prisma.recordIdentityKey.createMany({
+        data: aliases.map((value) => ({
+          companyId: this.companyId,
+          channelClass: row.channelClass,
+          value,
+          identityId,
+        })),
+        skipDuplicates: true,
+      });
+    }
     await this.prisma.recordIdentity.update({
       where: {
         companyId: this.companyId,
@@ -492,6 +519,77 @@ export class PrismaRecordRepo
       select: { activeOperationId: true },
     });
     return Boolean(state?.activeOperationId);
+  }
+
+  async findLinkedinIdentitiesCompanyWide(): Promise<LinkedinIdentityRow[]> {
+    const rows = await this.prisma.recordIdentity.findMany({
+      where: { companyId: this.companyId, channelClass: "linkedin" },
+      orderBy: { id: "asc" },
+      include: {
+        keys: { where: { companyId: this.companyId }, select: { value: true }, orderBy: { value: "asc" } },
+        records: {
+          where: { companyId: this.companyId },
+          select: { typeId: true, recordId: true },
+          orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
+        },
+      },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      value: row.value,
+      messagingId: row.messagingId,
+      displayName: row.displayName,
+      profileUrl: row.profileUrl,
+      createdAt: row.createdAt.toISOString(),
+      keys: row.keys.map((key) => key.value),
+      records: row.records,
+    }));
+  }
+
+  async consolidateLinkedinIdentitiesCompanyWide(
+    plan: Pick<LinkedinIdentityPlan, "merges" | "backfills">,
+  ): Promise<LinkedinIdentityRepair> {
+    const companyId = this.companyId;
+    const repair: LinkedinIdentityRepair = { merged: 0, removed: 0, keysAdded: 0 };
+    const addKeys = async (identityId: string, keys: string[]) => {
+      if (!keys.length) return;
+      const added = await this.prisma.recordIdentityKey.createMany({
+        data: keys.map((value) => ({ companyId, channelClass: "linkedin", value, identityId })),
+        skipDuplicates: true,
+      });
+      repair.keysAdded += added.count;
+    };
+    for (const merge of plan.merges) {
+      const links = await this.prisma.recordIdentityLink.findMany({
+        where: { companyId, identityId: { in: merge.mergedIds } },
+        select: { typeId: true, recordId: true, createdAt: true },
+      });
+      await this.prisma.recordIdentityLink.createMany({
+        data: links.map((link) => ({ ...link, companyId, identityId: merge.survivorId })),
+        skipDuplicates: true,
+      });
+      await this.prisma.recordIdentityKey.updateMany({
+        where: { companyId, channelClass: "linkedin", identityId: { in: merge.mergedIds } },
+        data: { identityId: merge.survivorId },
+      });
+      await this.prisma.recordIdentity.update({
+        where: { companyId, companyId_id: { companyId, id: merge.survivorId } },
+        data: {
+          value: merge.value,
+          messagingId: merge.messagingId,
+          displayName: merge.displayName,
+          profileUrl: merge.profileUrl,
+        },
+      });
+      const removed = await this.prisma.recordIdentity.deleteMany({
+        where: { companyId, channelClass: "linkedin", id: { in: merge.mergedIds } },
+      });
+      await addKeys(merge.survivorId, merge.keys);
+      repair.merged += 1;
+      repair.removed += removed.count;
+    }
+    for (const backfill of plan.backfills) await addKeys(backfill.identityId, backfill.keys);
+    return repair;
   }
 
   async renamePhoneIdentitiesCompanyWide(renames: PhoneIdentityRename[]): Promise<PhoneIdentityRepair> {
@@ -2591,6 +2689,15 @@ export class PrismaRecordRepo
       FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') AS item(data)
       JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'
       WHERE ${stage("identity")} ON CONFLICT ("companyId", id) DO NOTHING
+    `);
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "RecordIdentity" identity SET
+        "messagingId" = COALESCE(identity."messagingId", item.data->>'messagingId'),
+        "profileUrl" = COALESCE(identity."profileUrl", item.data->>'profileUrl')
+      FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') item(data)
+      WHERE ${stage("identity")} AND identity."companyId" = ${companyId} AND identity.id = item.data->>'id'
+        AND identity."channelClass" = 'linkedin'
+        AND (identity."messagingId" IS NULL OR identity."profileUrl" IS NULL)
     `);
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordIdentityKey" ("companyId", "channelClass", value, "identityId")
