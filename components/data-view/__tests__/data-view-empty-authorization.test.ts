@@ -11,11 +11,12 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
 type Item = HasId;
 
-function store(canManage: boolean): BaseDataViewStore<Item> {
+function store(canManage: boolean, canCreate = canManage, recordLabels?: object): BaseDataViewStore<Item> {
   return {
-    canCreate: canManage,
+    canCreate,
     canManage,
     entityType: undefined,
+    recordLabels,
     setQueryOptions: vi.fn(),
   } as unknown as BaseDataViewStore<Item>;
 }
@@ -48,6 +49,22 @@ describe("DataViewEmpty authorization", () => {
 
     expect(html).not.toContain("data-page-state-action");
     expect(html).not.toContain("Add record");
+    expect(html).not.toContain("<button");
+  });
+
+  it("tells a member who can edit but not create that adding is not allowed, without an action", () => {
+    const html = renderToStaticMarkup(
+      createElement(DataViewEmpty<Item>, {
+        background: createElement("div"),
+        reason: "true-empty",
+        store: store(true, false, { singular: "project", plural: "projects" }),
+        onAdd: vi.fn(),
+      }),
+    );
+
+    expect(html).toContain("Common.emptyState.readOnlyTitle");
+    expect(html).toContain("Common.emptyState.readOnlyBody");
+    expect(html).not.toContain("Common.emptyState.body");
     expect(html).not.toContain("<button");
   });
 });

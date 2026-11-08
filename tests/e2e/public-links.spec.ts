@@ -302,13 +302,24 @@ test("publishes a list view by public link with only its visible columns, read-o
     } else {
       await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
       await outsider.page.locator("#public-list-export").click();
-      await expect(outsider.page.getByText(publicPage.export.body, { exact: true })).toBeVisible();
+      const exportBody = outsider.page.locator("#public-list-export-body");
+      await expect(exportBody).toHaveText(
+        /^Create a Customermates workspace to download (this record|these \d+ records) as Excel or JSON\.$/u,
+      );
+      await expect(outsider.page.locator("#public-list-export-benefits li")).toHaveText([
+        publicPage.export.benefits.export,
+        publicPage.export.benefits.build,
+        publicPage.export.benefits.share,
+      ]);
+      const bodyBox = await exportBody.boundingBox();
+      const titleBox = await outsider.page.getByText(publicPage.export.title, { exact: true }).boundingBox();
+      expect(bodyBox && titleBox && Math.abs(bodyBox.x - titleBox.x)).toBeLessThanOrEqual(1);
       await expect(outsider.page.locator("#public-list-export-signup")).toHaveAttribute(
         "href",
         "/auth/signup?utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link&utm_content=export",
       );
       await outsider.page.keyboard.press("Escape");
-      await expect(outsider.page.getByText(publicPage.export.body, { exact: true })).toHaveCount(0);
+      await expect(exportBody).toHaveCount(0);
     }
 
     await setPublicLink(page, false);

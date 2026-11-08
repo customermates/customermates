@@ -3627,10 +3627,15 @@
     "emptyList": "Aucun enregistrement ne correspond à cette vue.",
     "expires": "Le lien fonctionne jusqu’à la fin du {date} (UTC)",
     "export": {
-      "body": "L’export vers Excel ou JSON nécessite un espace de travail Customermates. Commencez un essai pour créer des listes comme celle-ci et les exporter.",
+      "benefits": {
+        "build": "Créer vos propres listes et tableaux de bord",
+        "export": "Exporter n’importe quelle liste en Excel ou JSON",
+        "share": "Les partager par lien, comme celle-ci"
+      },
+      "body": "Créez un espace de travail Customermates pour télécharger {count, plural, =0 {des listes comme celle-ci} one {cet enregistrement} other {ces # enregistrements}} en Excel ou JSON.",
       "cta": "Commencer l’essai",
       "label": "Exporter",
-      "title": "Exporter cette liste"
+      "title": "Télécharger cette liste"
     },
     "hiddenWidgets": "{count, plural, one {# widget n'est pas affiché sur les liens publics} other {# widgets ne sont pas affichés sur les liens publics}}",
     "listCount": "{count, plural, =0 {Aucun enregistrement} one {# enregistrement} other {# enregistrements}}",

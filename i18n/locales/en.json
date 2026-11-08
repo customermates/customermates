@@ -3627,10 +3627,15 @@
     "emptyList": "No records match this view.",
     "expires": "Link works until the end of {date} (UTC)",
     "export": {
-      "body": "Exporting to Excel or JSON needs a Customermates workspace. Start a trial to build lists like this one and export them.",
+      "benefits": {
+        "build": "Build your own lists and dashboards",
+        "export": "Export any list to Excel or JSON",
+        "share": "Share them with a link like this one"
+      },
+      "body": "Create a Customermates workspace to download {count, plural, =0 {lists like this one} one {this record} other {these # records}} as Excel or JSON.",
       "cta": "Start trial",
       "label": "Export",
-      "title": "Export this list"
+      "title": "Download this list"
     },
     "hiddenWidgets": "{count, plural, one {# widget is not shown on public links} other {# widgets are not shown on public links}}",
     "listCount": "{count, plural, =0 {No records} one {# record} other {# records}}",

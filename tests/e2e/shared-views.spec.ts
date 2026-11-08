@@ -320,3 +320,85 @@ test("shares a dashboard view with one role, then everyone, read-only for teamma
     await outsider.close();
   }
 });
+
+test("offers adding and importing on an empty list only to members who may create, not to editors or readers", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(300000);
+  const errors = collectPageErrors(page);
+  let model = await readModel(page);
+  await postOk(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "createType",
+        reference: "$fieldTrials",
+        label: "Field trial",
+        pluralLabel: "Field trials",
+        description: "Empty list permission fixture",
+        icon: "folder",
+        embedded: false,
+        accessPresetId: null,
+      },
+    ],
+  });
+  model = await readModel(page);
+  const type = model.types.find((candidate) => candidate.pluralLabel === "Field trials");
+  if (!type) throw new Error("The synthetic Field trials type is missing");
+  const role = (name: string, actions: string[]) =>
+    saveRole(page, {
+      name,
+      description: `${name} fixture`,
+      permissions: [{ resource: "company", actions: [] }],
+      recordGrants: [{ typeId: type.id, actions: actions as UpsertRoleData["recordGrants"][number]["actions"] }],
+    });
+  const creators = await role("Field trial creators", ["readOwn", "create"]);
+  const editors = await role("Field trial editors", ["readOwn", "update"]);
+  const readers = await role("Field trial readers", ["readOwn"]);
+  const creator = await teammate(browser, database, companyId, creators.role.id, testInfo);
+  const editor = await teammate(browser, database, companyId, editors.role.id, testInfo);
+  const reader = await teammate(browser, database, companyId, readers.role.id, testInfo);
+  const listPath = companyPath(companyId, `/records/${type.id}`);
+  const importLabel = englishMessages.DataTransfer.import.action;
+
+  async function importOffered(member: Page) {
+    await member.locator("#records-more").click();
+    const menu = member.getByRole("menu");
+    await expect(menu.getByRole("menuitem").first()).toBeVisible();
+    const offered = (await menu.getByRole("menuitem", { name: importLabel }).count()) > 0;
+    await member.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+    return offered;
+  }
+
+  try {
+    await creator.page.goto(listPath);
+    await expect(creator.page.getByText(/^No field trials yet$/i)).toBeVisible();
+    await expect(creator.page.getByRole("button", { name: /^Add your first /i })).toBeVisible();
+    await expect(creator.page.locator("#records-add")).toBeVisible();
+    expect(await importOffered(creator.page)).toBe(true);
+
+    for (const member of [editor, reader]) {
+      await member.page.goto(listPath);
+      await expect(member.page.getByText(/You do not have permission to add/i)).toBeVisible();
+      await expect(member.page.getByText(/Get started by adding/i)).toHaveCount(0);
+      await expect(member.page.getByRole("button", { name: /^Add your first /i })).toHaveCount(0);
+      await expect(member.page.locator("#records-add")).toHaveCount(0);
+      await expect(member.page.locator("#records-filter")).toBeEnabled();
+      expect(await importOffered(member.page)).toBe(false);
+    }
+
+    expect(errors).toEqual([]);
+    expect(creator.errors).toEqual([]);
+    expect(editor.errors).toEqual([]);
+    expect(reader.errors).toEqual([]);
+  } finally {
+    await creator.close();
+    await editor.close();
+    await reader.close();
+  }
+});

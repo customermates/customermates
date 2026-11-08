@@ -72,13 +72,13 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
     );
   }
 
-  const title = !store.canManage
+  const title = !store.canCreate
     ? labels
       ? t("Common.emptyState.readOnlyTitle", { plural: pluralLabel })
       : (descriptor?.title ?? t("Common.emptyState.genericTitle"))
     : (descriptor?.title ??
       (labels ? t("Common.emptyState.title", { plural: pluralLabel }) : t("Common.emptyState.genericTitle")));
-  const description = !store.canManage
+  const description = !store.canCreate
     ? labels
       ? t("Common.emptyState.readOnlyBody", { plural: pluralLabel })
       : descriptor?.body

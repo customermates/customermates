@@ -32,11 +32,13 @@ const PublicListTable = observer(function PublicListTable({ list, token }: { lis
       }),
   );
 
+  const count = store.pagination?.total ?? store.items.length;
+
   return (
     <AppCard className="flex h-[min(78dvh,960px)] min-h-96 flex-col overflow-hidden pt-0" id="public-list">
       <div className="flex items-center justify-between gap-2 px-6 py-2">
         <p className="min-w-0 truncate text-sm text-muted-foreground" id="public-list-summary">
-          {t("PublicLink.listCount", { count: store.pagination?.total ?? store.items.length })}
+          {t("PublicLink.listCount", { count })}
         </p>
 
         <div className="flex shrink-0 items-center gap-1">
@@ -55,7 +57,7 @@ const PublicListTable = observer(function PublicListTable({ list, token }: { lis
             store={store}
           />
 
-          {upsell ? <PublicExportAction id="public-list-export" /> : null}
+          {upsell ? <PublicExportAction count={count} id="public-list-export" /> : null}
         </div>
       </div>
 
