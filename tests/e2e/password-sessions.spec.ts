@@ -9,8 +9,12 @@ import { collectPageErrors, expect, test } from "./fixtures";
 import { localE2eEnvironment } from "./local-environment";
 import { clickHydrated, expectHydrated } from "./workspace-switching";
 
+function strongPassword() {
+  return `${randomBytes(12).toString("hex")}Aa1!`;
+}
+
 async function seedPassword(database: import("pg").Client, authUserId: string) {
-  const password = randomBytes(18).toString("base64url");
+  const password = strongPassword();
   await database.query(
     'INSERT INTO "AuthAccount" (id,"accountId","providerId","userId",password,"updatedAt") VALUES ($1,$2,\'credential\',$2,$3,NOW())',
     [randomUUID(), authUserId, await hashPassword(password)],
@@ -55,7 +59,7 @@ test("changing the password signs every other browser out and keeps the current 
     await expectSignedIn(page, workspace.companyId);
     await expectSignedIn(other, workspace.companyId);
 
-    const newPassword = randomBytes(18).toString("base64url");
+    const newPassword = strongPassword();
     const response = await page.request.post("/api/auth/change-password", {
       headers: { origin: localE2eEnvironment().baseUrl },
       data: { currentPassword: password, newPassword, revokeOtherSessions: false },
@@ -89,7 +93,7 @@ test("resetting the password signs every browser out", async ({ page, browser, d
     const reset = await resetContext.newPage();
     await reset.goto(`/en/auth/reset-password?token=${token}`);
     await expectHydrated(reset.locator("#password"));
-    const newPassword = randomBytes(18).toString("base64url");
+    const newPassword = strongPassword();
     await reset.locator("#password").fill(newPassword);
     await reset.locator("#confirmPassword").fill(newPassword);
     await clickHydrated(reset.getByRole("button", { name: englishMessages.Common.actions.reset, exact: true }));
