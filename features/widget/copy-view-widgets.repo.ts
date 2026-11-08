@@ -1,3 +1,4 @@
 export abstract class CopyViewWidgetsRepo {
-  abstract copyViewWidgets(sourceViewId: string, targetViewId: string): Promise<number>;
+  /** sourceViewId null copies the caller's main dashboard. */
+  abstract copyViewWidgets(sourceViewId: string | null, targetViewId: string): Promise<number>;
 }

@@ -196,6 +196,36 @@ describe("data view ownership", () => {
     expect(personalization.upsertP13n).toHaveBeenCalledWith({ p13nId: SURFACE, activeViewKey: MISSING_VIEW_ID });
   });
 
+  it("duplicates the main dashboard into a new view together with its widgets", async () => {
+    const { repo, personalization } = upsertDoubles(null);
+    const widgets = { copyViewWidgets: vi.fn().mockResolvedValue(2) };
+    const interactor = new UpsertDataViewInteractor(repo, personalization, undefined, widgets);
+
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ surfaceKey: "dashboard", name: "Main copy", state: {}, copyOf: "__all__" }),
+    );
+
+    expect(result.ok && result.data.id).toBe(MISSING_VIEW_ID);
+    expect(repo.findReadableOrNull).not.toHaveBeenCalled();
+    expect(widgets.copyViewWidgets).toHaveBeenCalledExactlyOnceWith(null, MISSING_VIEW_ID);
+  });
+
+  it("duplicates a list's All view from the settings it is sent, with no widget copy", async () => {
+    const { repo, personalization } = upsertDoubles(null);
+    const widgets = { copyViewWidgets: vi.fn() };
+    const interactor = new UpsertDataViewInteractor(repo, personalization, undefined, widgets);
+
+    const result = await runWithTenant(mockUser, () =>
+      interactor.invoke({ surfaceKey: SURFACE, name: "All copy", state: { pageSize: 100 }, copyOf: "__all__" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(repo.createView).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "All copy", state: { pageSize: 100 } }),
+    );
+    expect(widgets.copyViewWidgets).not.toHaveBeenCalled();
+  });
+
   it("renames and moves an owned view without touching the remembered tab", async () => {
     const { interactor, repo, personalization } = upsertDoubles(ownedView());
 

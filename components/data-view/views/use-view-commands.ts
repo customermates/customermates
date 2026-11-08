@@ -7,6 +7,7 @@ import type { ViewMetaMode } from "./view-meta-overlay";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { copyToClipboard } from "@/core/utils/clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
@@ -62,6 +63,7 @@ export function useViewCommands<E extends HasId>(args: {
   const { showConfirmation, showTrashConfirmation } = useDeleteConfirmation();
 
   function viewById(viewId: string | undefined): DataViewChipDto | undefined {
+    if (viewId === ALL_VIEW_KEY) return { id: ALL_VIEW_KEY, name: "", position: -1, state: store.allViewState };
     return store.views.find((candidate) => candidate.id === viewId);
   }
 

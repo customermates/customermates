@@ -161,13 +161,15 @@ export class PrismaWidgetRepo
   }
 
   @Transaction
-  async copyViewWidgets(sourceViewId: string, targetViewId: string) {
+  async copyViewWidgets(sourceViewId: string | null, targetViewId: string) {
     const { id: userId, companyId } = this.user;
     const [source, target] = await Promise.all([
-      this.prisma.dataView.findFirst({
-        where: { id: sourceViewId, companyId, deletedAt: null },
-        select: { userId: true },
-      }),
+      sourceViewId === null
+        ? Promise.resolve({ userId })
+        : this.prisma.dataView.findFirst({
+            where: { id: sourceViewId, companyId, deletedAt: null },
+            select: { userId: true },
+          }),
       this.prisma.dataView.findFirst({
         where: { id: targetViewId, companyId, userId, deletedAt: null },
         select: { id: true },

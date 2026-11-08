@@ -82,16 +82,18 @@ export async function duplicateView<E extends HasId>(
   source: DataViewChipDto,
   args: { name: string },
 ): Promise<DataViewChipDto | null> {
+  const isAll = source.id === ALL_VIEW_KEY;
+  // The open All view copies what is on screen, including an unsaved search or filter.
+  const state =
+    isAll && store.activeViewKey === ALL_VIEW_KEY
+      ? { ...store.viewStateSnapshot({ includeQuery: true }), searchTerm: store.searchTerm ?? "" }
+      : toJS(isAll ? store.allViewState : source.state);
   const copy = unwrap(
-    await upsertDataViewAction({
-      name: args.name,
-      state: toJS(source.state),
-      surfaceKey: surfaceKeyOf(store),
-      ...(source.id === ALL_VIEW_KEY ? {} : { copyOf: source.id }),
-    }),
+    await upsertDataViewAction({ name: args.name, state, surfaceKey: surfaceKeyOf(store), copyOf: source.id }),
   );
   if (!copy) return null;
 
+  if (isAll && store.activeViewKey === ALL_VIEW_KEY) store.forgetQueryDraft(ALL_VIEW_KEY);
   await store.refresh();
   return copy;
 }

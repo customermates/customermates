@@ -193,4 +193,55 @@ describe("view actions send plain objects to the server", () => {
     expect(isObservable(payload.state)).toBe(false);
     expect(payload).toEqual({ name: "Ada copy", state: VIEW.state, surfaceKey: "deals-card-store", copyOf: VIEW.id });
   });
+
+  const plainStore = (extra: Record<string, unknown>) => ({
+    p13nId: "deals-card-store",
+    refresh: () => Promise.resolve(),
+    views: [VIEW],
+    ...extra,
+  });
+
+  const ALL_VIEW: DataViewChipDto = { id: ALL_VIEW_KEY, name: "All deals", position: -1, state: {} };
+
+  it("duplicates the open All view with what is on screen, including an unsaved search", async () => {
+    const snapshot = { filters: [], pageSize: 50 };
+    const store = plainStore({
+      activeViewKey: ALL_VIEW_KEY,
+      allViewState: { pageSize: 25 },
+      searchTerm: "acme",
+      viewStateSnapshot: vi.fn(() => snapshot),
+      forgetQueryDraft: vi.fn(),
+    }) as unknown as BaseDataViewStore<Item> & Record<string, ReturnType<typeof vi.fn>>;
+
+    await duplicateView(store, ALL_VIEW, { name: "All deals copy" });
+
+    expect(store.viewStateSnapshot).toHaveBeenCalledExactlyOnceWith({ includeQuery: true });
+    expect(sentPayload()).toEqual({
+      name: "All deals copy",
+      state: { ...snapshot, searchTerm: "acme" },
+      surfaceKey: "deals-card-store",
+      copyOf: ALL_VIEW_KEY,
+    });
+    expect(store.forgetQueryDraft).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
+  });
+
+  it("duplicates the All view from its saved settings while another view is open", async () => {
+    const store = plainStore({
+      activeViewKey: VIEW.id,
+      allViewState: { pageSize: 25, hiddenColumns: ["phone"] },
+      viewStateSnapshot: vi.fn(),
+      forgetQueryDraft: vi.fn(),
+    }) as unknown as BaseDataViewStore<Item> & Record<string, ReturnType<typeof vi.fn>>;
+
+    await duplicateView(store, ALL_VIEW, { name: "All deals copy" });
+
+    expect(store.viewStateSnapshot).not.toHaveBeenCalled();
+    expect(sentPayload()).toEqual({
+      name: "All deals copy",
+      state: { pageSize: 25, hiddenColumns: ["phone"] },
+      surfaceKey: "deals-card-store",
+      copyOf: ALL_VIEW_KEY,
+    });
+    expect(store.forgetQueryDraft).not.toHaveBeenCalled();
+  });
 });
