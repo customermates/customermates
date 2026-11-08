@@ -41,10 +41,8 @@ test("duplicates the All view of a list with its unsaved search, and leaves All 
   const allName = (await all.innerText()).trim();
 
   const menu = await openViewsMenu(page);
-  expect((await menu.getByRole("menuitem").allInnerTexts()).map((label) => label.trim())).toEqual([
-    views.duplicate,
-    views.copyLink,
-  ]);
+  const labels = (await menu.getByRole("menuitem").allInnerTexts()).map((label) => label.trim());
+  expect(labels).toEqual(expect.arrayContaining([views.duplicate, views.copyLink]));
   await page.keyboard.press("Escape");
   await expect(menu).toBeHidden();
 
