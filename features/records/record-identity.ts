@@ -18,11 +18,6 @@ export function isLinkedinMemberId(value: string): boolean {
   return LINKEDIN_MEMBER_ID.test(value);
 }
 
-/**
- * One LinkedIn profile is reachable by its provider member id (ACoAA…) and by its public
- * username. The canonical key keeps a member id as it is and folds a username to NFC lower
- * case, so a username, a profile URL and a percent-encoded URL of the same profile agree.
- */
 export function linkedinProfileKey(raw: string | null | undefined): string | null {
   const handle = raw ? normalizeChannelValue("linkedin", raw) : null;
   if (!handle) return null;
@@ -47,7 +42,6 @@ function canonicalKeys(identifier: IdentityKeySource): string[] {
   });
 }
 
-/** Every key the identity answers to: its stored values plus, for LinkedIn, the canonical profile keys. */
 export function identityKeys(identifier: IdentityKeySource): string[] {
   return [...new Set([...storedKeys(identifier), ...canonicalKeys(identifier)])];
 }
@@ -125,10 +119,6 @@ function withCanonicalAliases(identity: RecordIdentity): RecordIdentity {
   return keys.length > storedKeys(identity).length ? { ...identity, aliases: keys } : identity;
 }
 
-/**
- * A LinkedIn identity matched through another alias learns the input's member id, username
- * and profile URL, unless another identity already holds that key. Its display data stays.
- */
 function mergedLinkedinIdentity(row: RecordIdentity, input: RecordIdentityInput, others: RecordIdentity[]) {
   if (row.channelClass !== "linkedin") return row;
   const held = new Set(others.filter((other) => other.id !== row.id).flatMap(storedKeys));
@@ -149,11 +139,6 @@ function mergedLinkedinIdentity(row: RecordIdentity, input: RecordIdentityInput,
   };
 }
 
-/**
- * Maps channel inputs to existing or new identities. An input first matches identities by
- * stored keys; only when none matches does it fall back to canonical profile keys, so two
- * identities that already exist for one LinkedIn profile still save without a conflict.
- */
 export function identityAssociations(inputs: RecordIdentityInput[], known: RecordIdentity[]): RecordIdentity[] {
   const candidates = [...known];
   const result = new Map<string, RecordIdentity>();

@@ -72,11 +72,6 @@ function readback(plan: LinkedinIdentityPlan, rows: LinkedinIdentityRow[], exclu
   };
 }
 
-/**
- * One-time, idempotent consolidation of one workspace's duplicate LinkedIn identities. A dry run
- * only plans. An apply hands the full affected rows to `backup` first (the transaction aborts if
- * it throws), applies the plan, reads every changed identity back and rolls back on any problem.
- */
 @SystemInteractor
 export class ConsolidateLinkedinIdentitiesInteractor {
   constructor(private identities: (companyId: string) => RecordLinkedinIdentityRepo) {}

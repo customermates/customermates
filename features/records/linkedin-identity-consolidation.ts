@@ -37,7 +37,6 @@ export type LinkedinIdentityPlan = {
 
 const refKey = (ref: LinkedinIdentityRef) => `${ref.typeId}:${ref.recordId}`;
 
-/** Every key a stored LinkedIn identity answers to, including its canonical profile keys. */
 function rowKeys(row: LinkedinIdentityRow): string[] {
   return identityKeys({ provider: "linkedin", ...row, aliases: row.keys });
 }
@@ -63,8 +62,10 @@ function groups(rows: LinkedinIdentityRow[]): LinkedinIdentityRow[][] {
   return [...grouped.values()];
 }
 
+const compareText = (left: string, right: string) => (left < right ? -1 : left > right ? 1 : 0);
+
 function byAge(left: LinkedinIdentityRow, right: LinkedinIdentityRow): number {
-  return left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id);
+  return compareText(left.createdAt, right.createdAt) || compareText(left.id, right.id);
 }
 
 function merge(group: LinkedinIdentityRow[]): LinkedinIdentityMerge {
@@ -87,12 +88,6 @@ function merge(group: LinkedinIdentityRow[]): LinkedinIdentityMerge {
   };
 }
 
-/**
- * Plans the one-time consolidation of LinkedIn identities that are one profile under two keys
- * (member id and username). Identities join when any stored or canonical key overlaps. A group
- * is merged only when it carries at most one member id and every identity is linked to the same
- * records; otherwise it is reported and left alone. Single identities only gain missing keys.
- */
 export function planLinkedinIdentityConsolidation(
   rows: LinkedinIdentityRow[],
   options: { excludeRecordIds?: ReadonlySet<string> } = {},

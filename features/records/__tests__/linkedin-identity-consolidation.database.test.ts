@@ -84,7 +84,6 @@ async function workspace() {
           })
         ).id,
     );
-  /** Stores an identity the way earlier releases did: keys are only its value and messaging id. */
   const identity = (input: Seed) =>
     runWithoutTenant(async () => {
       const id = randomUUID();
@@ -252,7 +251,6 @@ describeDatabase("LinkedIn member id and username stored as two identities", () 
       expect(byId.get(exception.id)).toEqual(exception);
     expect(after.filter((identity) => identity.records.includes(francesca))).toHaveLength(1);
 
-    // Message history: synced threads carry the member id, imports the username; both reach the person.
     expect(await w.owners(FRANCESCA)).toEqual([francesca]);
     expect(await w.owners("francesca-pollard-004a12126")).toEqual([francesca]);
     expect(await w.owners("dan-mccormick-2458688")).toEqual([single]);
