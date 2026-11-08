@@ -36,7 +36,7 @@ export function PublicExportAction({ id }: { id: string }) {
       }
       onOpenChange={setOpen}
     >
-      <p className="text-sm text-muted-foreground">{t("PublicLink.export.body")}</p>
+      <p className="px-3 text-sm text-muted-foreground">{t("PublicLink.export.body")}</p>
     </ResponsiveOverlay>
   );
 }
