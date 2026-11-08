@@ -3,6 +3,7 @@
 import type { WorkspaceLeaveRefusal } from "@/features/workspace/member-removal-refusal";
 import type { WorkspaceDeleteRefusal } from "@/features/workspace/workspace-deletion-refusal";
 import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
+import type { PublicLinkSettings } from "@/features/public-link/public-link-settings.schema";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -30,13 +31,16 @@ import { WORKSPACE_PATH_SEGMENT } from "@/core/navigation/workspace-paths";
 import { WORKSPACE_NAME_MAX_LENGTH } from "@/features/workspace/workspace.schema";
 import { WORKSPACE_SLUG_MAX_LENGTH } from "@/features/workspace/workspace-slug";
 
+import { PublicLinksSetting } from "./public-links-setting";
+
 type Props = {
   deleteRefusal: WorkspaceDeleteRefusal | null;
   leaveRefusal: WorkspaceLeaveRefusal | null;
+  publicLinks?: PublicLinkSettings | null;
   workspace: WorkspaceSummary;
 };
 
-const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, workspace }: Props) => {
+const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, publicLinks, workspace }: Props) => {
   const t = useTranslations();
   const { appMode, workspaceGeneralStore: store } = useRootStore();
   const [confirmingLeave, setConfirmingLeave] = useState(false);
@@ -112,6 +116,8 @@ const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, wor
           />
 
           <UnsavedChangesBar anchorScope="settings-general" editable={editable} placement="sticky" store={store} />
+
+          {publicLinks && !demo ? <PublicLinksSetting editable={editable} initial={publicLinks} /> : null}
 
           {demo ? null : (
             <section aria-labelledby="settings-general-danger-zone" className="flex flex-col gap-3">

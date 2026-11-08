@@ -1,6 +1,7 @@
 "use server";
 
-import { getResolveUserOptionsInteractor } from "@/core/di";
+import { getResolveUserOptionsInteractor, getSetPublicLinksAllowedInteractor } from "@/core/di";
+import type { SetPublicLinksAllowedData } from "@/features/public-link/public-link-settings.schema";
 import type { ResolveUserOptionsInput } from "@/features/user/get/resolve-user-options.interactor";
 import type { AdminUpdateUserDetailsData } from "@/features/user/upsert/admin-update-user-details.interactor";
 import type { GetUserByIdData } from "@/features/user/get/get-user-by-id.interactor";
@@ -188,4 +189,8 @@ export async function resendWebhookDeliveryAction(data: ResendWebhookDeliveryDat
 
 export async function resolveUserOptionsAction(input: ResolveUserOptionsInput) {
   return serializeTypedResult(getResolveUserOptionsInteractor().invoke(input));
+}
+
+export async function setPublicLinksAllowedAction(data: SetPublicLinksAllowedData) {
+  return serializeResult(getSetPublicLinksAllowedInteractor().invoke(data));
 }

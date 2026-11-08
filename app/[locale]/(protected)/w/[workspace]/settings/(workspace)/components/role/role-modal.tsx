@@ -50,6 +50,7 @@ const SYSTEM_RESOURCE_ORDER = [
   Resource.activityLog,
   Resource.inboxMessages,
   Resource.routines,
+  Resource.publicLinks,
 ];
 const CLOUD_RESOURCES = new Set<Resource>([Resource.inboxMessages, Resource.routines]);
 

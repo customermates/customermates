@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Passwörter müssen übereinstimmen.",
       "permissionDenied": "Diese Aktion ist mit deinen aktuellen Berechtigungen nicht verfügbar.",
       "privacyAcknowledgementRequired": "Bitte bestätigen Sie, dass Sie die Datenschutzerklärung gelesen haben.",
+      "publicLinkExpiryInPast": "Das Enddatum muss heute oder später sein.",
       "recordAddressCandidateInvalid": "Dieser Adressvorschlag ist nicht mehr gültig. Suche die Adresse erneut.",
       "recordAddressCountryInvalid": "In {field} ist {country} kein Ländercode.",
       "recordAddressPostalCodeInvalid": "In {field} ist {postalCode} keine Postleitzahl des gewählten Landes. Postleitzahlen sehen dort so aus: {example}.",
@@ -1386,6 +1387,12 @@
         "relation": {
           "created": "Kontaktanfrage angenommen"
         }
+      },
+      "public_link": {
+        "allowed": "Öffentliche Links erlaubt",
+        "blocked": "Öffentliche Links ausgeschaltet",
+        "created": "Öffentlicher Link erstellt",
+        "revoked": "Öffentlicher Link deaktiviert"
       },
       "record": {
         "created": "Datensatz erstellt",
@@ -2267,6 +2274,51 @@
     "selectAllRows": "Alle Zeilen auswählen",
     "selectGroup": "Gruppe {group} auswählen",
     "selectRow": "Zeile {id} auswählen",
+    "share": {
+      "descriptionDashboard": "Teammitglieder sehen dieselben Widgets und dasselbe Layout. Jede Zahl wird mit ihrem eigenen Zugriff berechnet, sodass niemand Datensätze sieht, die seine Rolle verbirgt.",
+      "descriptionList": "Teammitglieder sehen deine Filter, Spalten und dein Layout. Jede Person sieht nur die Datensätze und Felder, die ihre Rolle erlaubt.",
+      "hidden": "Aus deinen Tabs ausgeblendet",
+      "hide": "Aus meinen Tabs ausblenden",
+      "link": "Link",
+      "linkPrivate": "Nur du kannst diesen Link öffnen, bis du die Ansicht teilst.",
+      "linkShared": "Teammitglieder, die diese Ansicht sehen dürfen, öffnen sie mit diesem Link. Andere sehen, dass sie nicht mit ihnen geteilt ist.",
+      "menuItem": "Teilen…",
+      "ownShared": "Geteilt",
+      "private": "Nur ich",
+      "privateDescription": "Privat. Niemand sonst sieht diese Ansicht.",
+      "public": {
+        "chip": "Öffentlicher Link aktiv",
+        "createdCopied": "Öffentlicher Link erstellt und kopiert",
+        "expiresLabel": "Letzter Tag, an dem der Link funktioniert (UTC)",
+        "expiryCleared": "Enddatum entfernt",
+        "expirySet": "Enddatum gespeichert",
+        "linkLabel": "Öffentlicher Link",
+        "noExpiry": "Kein Enddatum",
+        "onlyCharts": "Zeigt die Diagramme und per Klick die Datensätze dahinter, nur lesend und mit deinem Zugriff",
+        "onlyColumns": "Zeigt nur die sichtbaren Spalten, nur lesend und mit deinem Zugriff",
+        "opened": "{count, plural, =0 {Noch nicht geöffnet} one {Einmal geöffnet} other {# Mal geöffnet}}",
+        "option": "Alle mit dem Link",
+        "optionDescriptionDashboard": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen die Diagramme und die Datensätze dahinter. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
+        "optionDescriptionList": "Öffentlich, ohne Anmeldung: Alle mit dem Link sehen diese Tabelle mit ihren sichtbaren Spalten. Alle in diesem Arbeitsbereich sehen die Ansicht ebenfalls.",
+        "permissionDenied": "Deine Rolle darf keine Ansichten per öffentlichem Link veröffentlichen. Frag eine Administratorin oder einen Administrator.",
+        "published": "Öffentlicher Link erstellt",
+        "revoked": "Öffentlicher Link deaktiviert",
+        "saveToCreate": "Speichere, um den Link zu erstellen.",
+        "workspaceDisabled": "Öffentliche Links sind für diesen Workspace unter Einstellungen, Allgemein ausgeschaltet."
+      },
+      "roles": "Ausgewählte Rollen",
+      "rolesDescription": "Nur Mitglieder mit diesen Rollen sehen sie.",
+      "rolesLabel": "Rollen",
+      "savedPrivate": "Die Ansicht ist wieder privat",
+      "savedRoles": "Mit den ausgewählten Rollen geteilt",
+      "savedWorkspace": "Mit allen in diesem Workspace geteilt",
+      "sharedBy": "Geteilt von {name}",
+      "title": "„{name}“ teilen",
+      "withEveryone": "Mit allen · nur {name} kann sie ändern",
+      "withRoles": "Mit ausgewählten Rollen · nur {name} kann sie ändern",
+      "workspace": "Alle in diesem Workspace",
+      "workspaceDescription": "Alle Mitglieder sehen sie neben ihren eigenen Ansichten."
+    },
     "summaries": "Übersichten",
     "views": {
       "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
@@ -3521,7 +3573,6 @@
     "addSource": "Datumsquelle hinzufügen",
     "calendarSync": "Exportieren & abonnieren",
     "connectCalendar": "Kalender verbinden",
-    "copyLink": "Abonnement-Link kopieren",
     "createSubscription": "Abonnement-URL erstellen",
     "download": ".ics herunterladen",
     "endDate": "Enddatum",
@@ -3567,6 +3618,42 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Langlebige API-Schlüssel für den programmatischen Zugriff."
+  },
+  "PublicLink": {
+    "byline": "Geteilt von {workspace}",
+    "bylineListWithoutWorkspace": "Geteilte Liste",
+    "bylineWithoutWorkspace": "Geteiltes Dashboard",
+    "empty": "Dieses Dashboard hat noch keine Diagramme.",
+    "emptyList": "Keine Datensätze passen zu dieser Ansicht.",
+    "expires": "Link funktioniert bis zum Ende des {date} (UTC)",
+    "export": {
+      "benefits": {
+        "build": "Eigene Listen und Dashboards anlegen",
+        "export": "Jede Liste nach Excel oder JSON exportieren",
+        "share": "Per Link teilen, so wie diese Liste"
+      },
+      "body": "Leg einen Customermates-Workspace an, um {count, plural, =0 {Listen wie diese} one {diesen Datensatz} other {diese # Datensätze}} als Excel oder JSON herunterzuladen.",
+      "cta": "Testphase starten",
+      "label": "Exportieren",
+      "title": "Diese Liste herunterladen"
+    },
+    "hiddenWidgets": "{count, plural, one {# Widget wird über öffentliche Links nicht angezeigt} other {# Widgets werden über öffentliche Links nicht angezeigt}}",
+    "listCount": "{count, plural, =0 {Keine Datensätze} one {# Datensatz} other {# Datensätze}}",
+    "live": "Live aktualisiert",
+    "pageTitle": "Öffentliche Seite",
+    "rateLimitedBody": "Dieser Link wurde in kurzer Zeit sehr oft geöffnet. Versuch es in einer Minute noch einmal.",
+    "rateLimitedSubtitle": "Bitte warte einen Moment",
+    "rateLimitedTitle": "Zu viele Aufrufe",
+    "readOnly": "Nur lesen",
+    "searchLabel": "Text in den sichtbaren Spalten",
+    "toHome": "Zu customermates.com",
+    "unavailableBody": "Der Link wurde vielleicht deaktiviert, ist abgelaufen oder falsch eingegeben. Bitte die Person, die ihn geteilt hat, um einen neuen.",
+    "unavailableSubtitle": "Diese Seite lässt sich nicht öffnen",
+    "unavailableTitle": "Link nicht verfügbar",
+    "upsell": {
+      "badge": "Erstellt mit Customermates",
+      "badgeHover": "· Jetzt testen"
+    }
   },
   "RecordActivityWidgets": {
     "after": "Von",
@@ -4479,6 +4566,7 @@
       "company": "Unternehmen",
       "dataModel": "Datenmodell",
       "inboxMessages": "Inbox-Nachrichten",
+      "publicLinks": "Öffentliche Links",
       "routines": "Routinen",
       "users": "Benutzer & Rollen",
       "wiki": "Wissensdatenbank"
@@ -5262,6 +5350,14 @@
     "nameDescription": "Alle Mitglieder sehen diesen Namen im Workspace-Menü.",
     "nameLabel": "Workspace-Name",
     "noPlan": "Kein Tarif",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Kein öffentlicher Link aktiv} one {# öffentlicher Link aktiv} other {# öffentliche Links aktiv}}",
+      "allowed": "Öffentliche Links erlaubt",
+      "blocked": "Öffentliche Links ausgeschaltet",
+      "description": "Mitglieder, deren Rolle veröffentlichen darf, können eine Dashboard- oder Listenansicht über einen Link teilen, den jede Person ohne Anmeldung öffnen kann. Ausschalten stoppt sofort alle öffentlichen Links.",
+      "offCount": "{count, plural, =0 {Keine öffentlichen Links} one {# Link ist pausiert, bis du öffentliche Links wieder erlaubst} other {# Links sind pausiert, bis du öffentliche Links wieder erlaubst}}",
+      "title": "Öffentliche Links erlauben"
+    },
     "renameReadOnly": "Nur Mitglieder, die den Workspace verwalten dürfen, können den Namen ändern.",
     "slugDescription": "Links zu diesem Workspace verwenden {path}. Verwende Kleinbuchstaben, Ziffern und Bindestriche. Alte Links funktionieren nach einer Änderung nicht mehr.",
     "slugLabel": "Workspace-URL",

@@ -196,6 +196,8 @@ model User {
   widgets                         Widget[]
   p13n                            P13n[]
   dataViews                       DataView[]
+  hiddenDataViews                 DataViewHidden[]
+  publicViewLinks                 PublicViewLink[]
   connectedAccounts               ConnectedAccount[]
   agentConversations              AgentConversation[]
   agentRunLeases                  AgentRunLease[]
@@ -224,6 +226,7 @@ model Company {
   createdAt                   DateTime                         @default(now())
   updatedAt                   DateTime                         @updatedAt
   tags                        String[]                         @default([])
+  allowPublicLinks            Boolean                          @default(true)
   users                       User[]
   apiKeys                     Apikey[]
   oauthAccessTokens           OauthAccessToken[]
@@ -236,6 +239,9 @@ model Company {
   rolePermissions             RolePermission[]
   p13n                        P13n[]
   dataViews                   DataView[]
+  dataViewRoleShares          DataViewRoleShare[]
+  hiddenDataViews             DataViewHidden[]
+  publicViewLinks             PublicViewLink[]
   webhooks                    Webhook[]
   webhookDeliveries           WebhookDelivery[]
   connectedAccounts           ConnectedAccount[]
@@ -663,12 +669,12 @@ model P13n {
 }
 
 model DataView {
-  id               String    @id @default(uuid())
+  id               String              @id @default(uuid())
   companyId        String
   userId           String
   surfaceKey       String
   name             String
-  position         Int       @default(0)
+  position         Int                 @default(0)
   filters          Json?
   searchTerm       String?
   sortDescriptor   Json?
@@ -680,16 +686,73 @@ model DataView {
   hiddenColumns    Json?
   calendar         Json?
   pageSize         Int?
+  visibility       DataViewVisibility  @default(private)
   deletedAt        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  user             User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   widgets          Widget[]
+  roleShares       DataViewRoleShare[]
+  hiddenBy         DataViewHidden[]
+  publicLinks      PublicViewLink[]
 
   @@index([companyId])
   @@index([userId])
   @@index([companyId, surfaceKey, userId])
+  @@index([companyId, surfaceKey, visibility])
+}
+
+enum DataViewVisibility {
+  private
+  workspace
+  roles
+}
+
+model DataViewRoleShare {
+  viewId    String
+  roleId    String
+  companyId String
+  createdAt DateTime @default(now())
+  view      DataView @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  role      UserRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([viewId, roleId])
+  @@index([companyId])
+  @@index([roleId])
+}
+
+model DataViewHidden {
+  viewId    String
+  userId    String
+  companyId String
+  createdAt DateTime @default(now())
+  view      DataView @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([viewId, userId])
+  @@index([companyId])
+  @@index([userId])
+}
+
+model PublicViewLink {
+  id           String    @id @default(uuid())
+  companyId    String
+  viewId       String
+  createdById  String
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  openCount    Int       @default(0)
+  lastOpenedAt DateTime?
+  createdAt    DateTime  @default(now())
+  company      Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  view         DataView  @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  createdBy    User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([companyId, viewId])
+  @@index([createdById])
 }
 
 model InviteToken {
@@ -738,17 +801,18 @@ model Widget {
 }
 
 model UserRole {
-  id               String            @id @default(uuid())
+  id               String              @id @default(uuid())
   name             String
   description      String?
-  isSystemRole     Boolean           @default(false)
+  isSystemRole     Boolean             @default(false)
   companyId        String
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  company          Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users            User[]
   permissions      RolePermission[]
   recordTypeGrants RecordTypeGrant[]
+  dataViewShares   DataViewRoleShare[]
 
   @@unique([companyId, id])
   @@unique([name, companyId])
@@ -938,6 +1002,7 @@ enum Resource {
   inboxMessages
   wiki
   routines
+  publicLinks
 }
 
 enum MessagingThreadState {

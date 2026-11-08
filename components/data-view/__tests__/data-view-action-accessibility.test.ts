@@ -36,7 +36,7 @@ function store(): BaseDataViewStore<Item> {
     columnsDefinition: [{ uid: "name" }],
     entityType: undefined,
     hiddenColumns: [],
-    isDisabled: false,
+    canCreate: true,
     isItemSelectable: () => true,
     isReady: true,
     items: [{ id: "routine-1", name: "Daily summary" }],

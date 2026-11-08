@@ -2,7 +2,11 @@ import type { AccountState } from "@/features/auth/account-state";
 
 import { isRestrictedAccountState } from "@/features/auth/account-state";
 
-type NavigationShell = "public" | "restricted" | "app";
+type NavigationShell = "bare" | "public" | "restricted" | "app";
+
+export function isPublicLinkPathname(pathname: string): boolean {
+  return pathname.startsWith("/p/");
+}
 
 export function resolveNavigationShell({
   accountState,
@@ -13,6 +17,7 @@ export function resolveNavigationShell({
   pathname: string;
   isRegistered: boolean;
 }): NavigationShell {
+  if (isPublicLinkPathname(pathname)) return "bare";
   if (isRegistered && isRestrictedAccountState(accountState)) return "restricted";
   if (!isRegistered) return "public";
   if (accountState === "unauthenticated" || accountState === "unregistered") return "public";

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { CalculatedValueSchema, RecordRefSchema } from "./record-model.schema";
 import { RecordMeasureSchema } from "./record-measure.schema";
 
-const RecordContributionGroupSchema = z
+export const RecordContributionGroupSchema = z
   .object({
     record: RecordRefSchema.nullable(),
     label: CalculatedValueSchema.refine(

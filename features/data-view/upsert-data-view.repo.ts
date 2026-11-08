@@ -2,6 +2,7 @@ import type { DataViewDto, DataViewState } from "@/core/data-view/data-view-stat
 
 export abstract class UpsertDataViewRepo {
   abstract findOwnedOrNull(id: string): Promise<DataViewDto | null>;
+  abstract findReadableOrNull(id: string): Promise<DataViewDto | null>;
   abstract nextPosition(surfaceKey: string): Promise<number>;
   abstract createView(args: {
     surfaceKey: string;

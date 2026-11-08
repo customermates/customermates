@@ -99,6 +99,11 @@ function storedView(overrides: Record<string, unknown> = {}) {
     columnWidths: null,
     hiddenColumns: null,
     pageSize: null,
+    userId: mockUser.id,
+    visibility: "private",
+    roleShares: [],
+    publicLinks: [],
+    user: { id: mockUser.id, firstName: "Max", lastName: "Bergmann", avatarUrl: null },
     ...overrides,
   };
 }
@@ -149,10 +154,31 @@ describe("PrismaDataViewRepo scoping", () => {
     expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
   });
 
-  it("loads the surface from the caller's own views and the caller's own personalization row", async () => {
+  it("loads the caller's own views plus live views shared with the workspace or the caller's role", async () => {
     await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
-    expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
+    expect(dataViewFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          companyId: mockUser.companyId,
+          surfaceKey: SURFACE,
+          deletedAt: null,
+          OR: [
+            { userId: mockUser.id },
+            {
+              userId: { not: mockUser.id },
+              hiddenBy: { none: { userId: mockUser.id } },
+              OR: [
+                { visibility: "workspace" },
+                ...(mockUser.role?.id
+                  ? [{ visibility: "roles", roleShares: { some: { roleId: mockUser.role.id } } }]
+                  : []),
+              ],
+            },
+          ],
+        },
+      }),
+    );
     expect(p13nFindUnique).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
@@ -163,7 +189,7 @@ describe("PrismaDataViewRepo scoping", () => {
     );
   });
 
-  it("selects no owner join, because a view is only ever shown to the user who made it", async () => {
+  it("lists only the caller's own views, without the owner join the surface needs", async () => {
     await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).listDataViews(SURFACE));
 
     expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("user");
@@ -415,5 +441,33 @@ describe("PrismaDataViewRepo stored state", () => {
 
     expect(unsupported.allState).not.toHaveProperty("pageSize");
     expect(supported.allState.pageSize).toBe(10);
+  });
+});
+
+describe("PrismaDataViewRepo shared views", () => {
+  it("marks a teammate's view as shared by its owner and places it after the caller's own views", async () => {
+    dataViewFindMany.mockResolvedValue([
+      storedView({ id: A_VIEW_ID, position: 4, visibility: "workspace", roleShares: [] }),
+      storedView({
+        id: "7b1d2c11-5d4e-4f60-8a91-2b3c4d5e6f70",
+        name: "Pipeline Q4",
+        position: 0,
+        userId: "teammate",
+        visibility: "roles",
+        user: { id: "teammate", firstName: "Clara", lastName: "Neumann", avatarUrl: "/clara.png" },
+      }),
+    ]);
+
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
+
+    expect(surface.views[0]).toMatchObject({ id: A_VIEW_ID, position: 4, visibility: "workspace", roleIds: [] });
+    expect(surface.views[0]).not.toHaveProperty("sharedBy");
+    expect(surface.views[1]).toMatchObject({
+      name: "Pipeline Q4",
+      visibility: "roles",
+      sharedBy: { id: "teammate", name: "Clara Neumann", avatarUrl: "/clara.png" },
+    });
+    expect(surface.views[1].position).toBeGreaterThan(surface.views[0].position);
+    expect(surface.views[1]).not.toHaveProperty("roleIds");
   });
 });

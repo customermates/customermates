@@ -6,7 +6,7 @@ import type { TypedActionResult } from "@/core/utils/action-result";
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Copy, Download, Link, Trash2 } from "lucide-react";
+import { Download, Link, Trash2 } from "lucide-react";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -15,15 +15,13 @@ import { useRecordValueFormat } from "@/components/records/record-value";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { SectionRows } from "@/components/ui/section-rows";
-import { IconButton } from "@/components/ui/icon-button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CopyableCode } from "@/components/shared/copyable-code";
 import { actionData } from "@/core/utils/action-data";
 import { runUserAction, reportApplicationError } from "@/core/errors/report-application-error";
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 import { CALENDAR_SUBSCRIPTION_LIMIT } from "@/features/planner/calendar-subscription.schema";
 import { calendarSubscriptionsAction, exportPlannerAction } from "../actions";
@@ -48,7 +46,6 @@ export function PlannerSubscriptionsModal({
   onClose: () => void;
 }) {
   const t = useTranslations();
-  const copy = useCopyToClipboard();
   const format = useRecordValueFormat();
   const [includePersonalEvents, setIncludePersonalEvents] = useState(false);
   const [state, setState] = useState<SubscriptionList | null>(null);
@@ -149,22 +146,9 @@ export function PlannerSubscriptionsModal({
 
             {state?.created && (
               <div className="space-y-2 rounded-md border p-3">
-                <Label htmlFor="planner-subscription-url">{t("Planner.privateUrl")}</Label>
+                <Label>{t("Planner.privateUrl")}</Label>
 
-                <div className="flex gap-2">
-                  <Input
-                    readOnly
-                    id="planner-subscription-url"
-                    value={state.created.url}
-                    onFocus={(event) => event.currentTarget.select()}
-                  />
-
-                  <IconButton
-                    icon={Copy}
-                    label={t("Planner.copyLink")}
-                    onClick={() => runUserAction(() => copy(state.created?.url ?? ""))}
-                  />
-                </div>
+                <CopyableCode id="planner-subscription-url" value={state.created.url} />
 
                 <p className="text-xs text-muted-foreground">{t("Planner.privateUrlDescription")}</p>
               </div>

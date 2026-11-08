@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
+      "publicLinkExpiryInPast": "La data di fine deve essere oggi o successiva.",
       "recordAddressCandidateInvalid": "Questo suggerimento di indirizzo non è più valido. Cerca di nuovo l'indirizzo.",
       "recordAddressCountryInvalid": "In {field}, {country} non è un codice paese.",
       "recordAddressPostalCodeInvalid": "In {field}, {postalCode} non è un codice postale del paese scelto. Lì i codici postali sono così: {example}.",
@@ -1386,6 +1387,12 @@
         "relation": {
           "created": "Relazione creata"
         }
+      },
+      "public_link": {
+        "allowed": "Link pubblici consentiti",
+        "blocked": "Link pubblici disattivati",
+        "created": "Link pubblico creato",
+        "revoked": "Link pubblico disattivato"
       },
       "record": {
         "created": "Record creato",
@@ -2267,6 +2274,51 @@
     "selectAllRows": "Seleziona tutte le righe",
     "selectGroup": "Seleziona il gruppo {group}",
     "selectRow": "Seleziona la riga {id}",
+    "share": {
+      "descriptionDashboard": "Il team vede gli stessi widget e lo stesso layout. Ogni numero è calcolato con il proprio accesso, quindi nessuno vede record che il suo ruolo nasconde.",
+      "descriptionList": "Il team vede i tuoi filtri, colonne e layout. Ognuno vede solo i record e i campi consentiti dal proprio ruolo.",
+      "hidden": "Nascosta dalle tue schede",
+      "hide": "Nascondi dalle mie schede",
+      "link": "Link",
+      "linkPrivate": "Solo tu puoi aprire questo link finché non condividi la vista.",
+      "linkShared": "Chi può vedere questa vista la apre con questo link. Gli altri vedono che non è condivisa con loro.",
+      "menuItem": "Condividi…",
+      "ownShared": "Condivisa",
+      "private": "Solo io",
+      "privateDescription": "Privata. Nessun altro vede questa vista.",
+      "public": {
+        "chip": "Link pubblico attivo",
+        "createdCopied": "Link pubblico creato e copiato",
+        "expiresLabel": "Ultimo giorno in cui il link funziona (UTC)",
+        "expiryCleared": "Data di fine rimossa",
+        "expirySet": "Data di fine salvata",
+        "linkLabel": "Link pubblico",
+        "noExpiry": "Nessuna data di fine",
+        "onlyCharts": "Mostra i grafici e, con un clic, i record che li compongono, in sola lettura e con il tuo accesso",
+        "onlyColumns": "Mostra solo le colonne visibili, in sola lettura e con il tuo accesso",
+        "opened": "{count, plural, =0 {Non ancora aperto} one {Aperto una volta} other {Aperto # volte}}",
+        "option": "Chiunque abbia il link",
+        "optionDescriptionDashboard": "Pubblico, senza accesso: chiunque abbia il link vede i grafici e i record che li compongono. La vedono anche tutti in questo spazio di lavoro.",
+        "optionDescriptionList": "Pubblico, senza accesso: chiunque abbia il link vede questa tabella con le colonne visibili. La vedono anche tutti in questo spazio di lavoro.",
+        "permissionDenied": "Il tuo ruolo non può pubblicare viste con un link pubblico. Chiedi a un amministratore.",
+        "published": "Link pubblico creato",
+        "revoked": "Link pubblico disattivato",
+        "saveToCreate": "Salva per creare il link.",
+        "workspaceDisabled": "I link pubblici sono disattivati per questo spazio di lavoro in Impostazioni, Generale."
+      },
+      "roles": "Ruoli selezionati",
+      "rolesDescription": "La vedono solo i membri con questi ruoli.",
+      "rolesLabel": "Ruoli",
+      "savedPrivate": "La vista è di nuovo privata",
+      "savedRoles": "Condivisa con i ruoli selezionati",
+      "savedWorkspace": "Condivisa con tutto lo spazio di lavoro",
+      "sharedBy": "Condivisa da {name}",
+      "title": "Condividi «{name}»",
+      "withEveryone": "Con tutti · solo {name} può modificarla",
+      "withRoles": "Con ruoli selezionati · solo {name} può modificarla",
+      "workspace": "Tutto lo spazio di lavoro",
+      "workspaceDescription": "Tutti i membri la vedono accanto alle proprie viste."
+    },
     "summaries": "Riepiloghi",
     "views": {
       "activityCount": "{count, plural, one {# attività} other {# attività}}",
@@ -3521,7 +3573,6 @@
     "addSource": "Aggiungi fonte delle date",
     "calendarSync": "Esporta e abbonati",
     "connectCalendar": "Collega calendario",
-    "copyLink": "Copia link",
     "createSubscription": "Crea URL di abbonamento",
     "download": "Scarica .ics",
     "endDate": "Data di fine",
@@ -3567,6 +3618,42 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Chiavi API di lunga durata per l'accesso programmatico."
+  },
+  "PublicLink": {
+    "byline": "Condivisa da {workspace}",
+    "bylineListWithoutWorkspace": "Elenco condiviso",
+    "bylineWithoutWorkspace": "Dashboard condivisa",
+    "empty": "Questa dashboard non ha ancora grafici.",
+    "emptyList": "Nessun record corrisponde a questa vista.",
+    "expires": "Il link funziona fino alla fine del {date} (UTC)",
+    "export": {
+      "benefits": {
+        "build": "Crea liste e dashboard tutte tue",
+        "export": "Esporta qualsiasi lista in Excel o JSON",
+        "share": "Condividile con un link come questo"
+      },
+      "body": "Crea un'area di lavoro Customermates per scaricare {count, plural, =0 {liste come questa} one {questo record} other {questi # record}} in Excel o JSON.",
+      "cta": "Inizia la prova",
+      "label": "Esporta",
+      "title": "Scarica questa lista"
+    },
+    "hiddenWidgets": "{count, plural, one {# widget non è mostrato nei link pubblici} other {# widget non sono mostrati nei link pubblici}}",
+    "listCount": "{count, plural, =0 {Nessun record} one {# record} other {# record}}",
+    "live": "Aggiornata in tempo reale",
+    "pageTitle": "Pagina pubblica",
+    "rateLimitedBody": "Questo link è stato aperto molto spesso in poco tempo. Riprova tra un minuto.",
+    "rateLimitedSubtitle": "Attendi un momento",
+    "rateLimitedTitle": "Troppe richieste",
+    "readOnly": "Sola lettura",
+    "searchLabel": "Testo nelle colonne visibili",
+    "toHome": "Vai a customermates.com",
+    "unavailableBody": "Il link potrebbe essere stato disattivato, essere scaduto o contenere un errore. Chiedine uno nuovo a chi l'ha condiviso.",
+    "unavailableSubtitle": "Questa pagina non può essere aperta",
+    "unavailableTitle": "Link non disponibile",
+    "upsell": {
+      "badge": "Creata con Customermates",
+      "badgeHover": "· Provalo"
+    }
   },
   "RecordActivityWidgets": {
     "after": "Da",
@@ -4479,6 +4566,7 @@
       "company": "Azienda",
       "dataModel": "Modello dati",
       "inboxMessages": "Messaggi della posta in arrivo",
+      "publicLinks": "Link pubblici",
       "routines": "Routine",
       "users": "Utenti e ruoli",
       "wiki": "Base di conoscenza dello spazio di lavoro"
@@ -5262,6 +5350,14 @@
     "nameDescription": "Tutti i membri vedono questo nome nel menu dello spazio di lavoro.",
     "nameLabel": "Nome dello spazio di lavoro",
     "noPlan": "Nessun piano",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {Nessun link pubblico attivo} one {# link pubblico attivo} other {# link pubblici attivi}}",
+      "allowed": "Link pubblici consentiti",
+      "blocked": "Link pubblici disattivati",
+      "description": "I membri il cui ruolo può pubblicare possono condividere una vista della dashboard o di un elenco con un link che chiunque apre senza accedere. Disattivandolo si fermano subito tutti i link pubblici.",
+      "offCount": "{count, plural, =0 {Nessun link pubblico} one {# link è in pausa finché non consenti di nuovo i link pubblici} other {# link sono in pausa finché non consenti di nuovo i link pubblici}}",
+      "title": "Consenti link pubblici"
+    },
     "renameReadOnly": "Solo i membri che possono gestire lo spazio di lavoro possono cambiarne il nome.",
     "slugDescription": "I link a questo spazio di lavoro usano {path}. Usa lettere minuscole, numeri e trattini. I vecchi link smettono di funzionare se la modifichi.",
     "slugLabel": "URL dello spazio di lavoro",

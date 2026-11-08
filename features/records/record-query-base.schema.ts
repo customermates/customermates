@@ -86,6 +86,13 @@ export const RecordQueryBaseSchema = z
         "Include registered identifiers for returned records of a list with a contact details (channels) field.",
       ),
     search: z.string().trim().max(500).optional(),
+    searchFields: z
+      .array(z.uuid())
+      .max(MAX_RECORD_QUERY_FIELDS)
+      .optional()
+      .describe(
+        "Limit search to these fields of the list (text, URL, address, formatted text, files, contact details). Omitted searches all of them.",
+      ),
     filters: z.array(RecordFilterSchema).max(50).default([]),
     relatedFilters: z.array(RecordRelatedFilterSchema).max(16).optional(),
     relationships: z.array(RecordRelationshipFilterSchema).max(50).default([]),

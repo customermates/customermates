@@ -208,7 +208,7 @@ Lire les champs, les ID stables des options de sélection, les relations, les ca
 
 Filtrer, trier et paginer dans PostgreSQL les enregistrements d’un type configuré. Lire d’abord son schéma. Les résultats distinguent les valeurs, les entrées manquantes, les calculs restreints et les erreurs ; les décimaux sont des chaînes. Utiliser query_crm_measure pour les totaux sur toutes les correspondances. Un filtre nomme un fieldId et un operator. Les opérateurs à valeur unique utilisent value avec un scalaire typé ; in, notIn, all et between utilisent values avec des scalaires typés et value: null. Les filtres de choix multiple utilisent un scalaire `{kind: "select", value: optionId}` par option, pas selectList. Les erreurs de filtre invalide nomment l’index et le champ. fields accepte les ID de champ actifs du modèle d’enregistrement actuel ; un ID inconnu ou non publié est nommé dans l’erreur.
 
-**Lecture seule.** Obligatoire : `typeId`. Facultatif : `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
+**Lecture seule.** Obligatoire : `typeId`. Facultatif : `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `searchFields`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
 #### `search_crm_records`
 
@@ -410,7 +410,7 @@ Membres de l’équipe avec id, name, email, roleId et status. Quand le rôle de
 
 Découvrir, inspecter, créer, mettre à jour, sélectionner, réinitialiser et supprimer des vues enregistrées personnelles. Découvrir d’abord la surfaceKey ; les surfaces génériques d’enregistrements utilisent des ID de type stables. Les mises à jour ne modifient que les paramètres fournis ; un regroupement peut porter jusqu’à 8 synthèses (somme, moyenne, min ou max d’un champ nombre ou montant). Les listes d’enregistrements avec un champ de date proposent aussi la disposition calendrier : viewMode calendar avec la date, la date de fin facultative et les champs de couleur, et le mode mois, semaine ou agenda. La réinitialisation supprime vos personnalisations : la liste affiche tous les champs dans leur ordre configuré sous forme de tableau non regroupé, sans modifier les enregistrements. La suppression d’une vue exige son nom et son ID actuels exacts ; une discordance renvoie une erreur précise, alors qu’un ID inconnu renvoie introuvable. La suppression la déplace vers la Corbeille (une vue de tableau de bord emporte ses widgets), jamais ses enregistrements. Les listes de configurations et de vues sont paginées et consultables.
 
-**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
+**Peut supprimer des données.** Obligatoire : `action`. Facultatif : `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `visibility`, `roleIds`, `public`, `expiresAt`, `state`.
 
 #### `manage_record_detail_layout`
 

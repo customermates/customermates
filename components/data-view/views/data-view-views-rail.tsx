@@ -5,25 +5,27 @@ import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store"
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { ViewMetaDraft } from "./use-view-commands";
 
-import { ChevronDownIcon, Sparkles } from "lucide-react";
+import { ChevronDownIcon, Globe, Sparkles, Users } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
@@ -35,8 +37,17 @@ import { allViewLabel } from "./all-view-label";
 import { FilterSummary } from "./filter-summary";
 import { ViewMenuItems } from "./view-menu-items";
 import { ViewMetaOverlay } from "./view-meta-overlay";
-import { allViewMenuItems, orderChips, sortViewsByPosition, suggestedViewName, viewMenuItems } from "./view-rail-model";
-import { surfaceKeyOf, viewHref } from "./view-actions";
+import {
+  allViewMenuItems,
+  isSharedByMe,
+  orderChips,
+  sharedViewMenuItems,
+  sortViewsByPosition,
+  suggestedViewName,
+  viewMenuItems,
+} from "./view-rail-model";
+import { surfaceKeyOf, viewHref, viewLink } from "./view-actions";
+import { ShareViewDialog } from "./share-view-dialog";
 import { useRovingFocus } from "./use-roving-focus";
 import { type ViewCommands, type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
@@ -45,7 +56,6 @@ type Props<E extends HasId> = {
   actions?: ReactNode;
   allLabel?: string;
   countLabel?: (count: number) => string;
-  allowDuplicate?: boolean;
   deleteNotice?: (view: DataViewChipDto) => Promise<ViewDeleteNotice>;
   joinsTopBar?: boolean;
   detailParam?: string;
@@ -68,7 +78,6 @@ const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
   actions,
   allLabel,
-  allowDuplicate = true,
   countLabel,
   deleteNotice,
   joinsTopBar = false,
@@ -82,6 +91,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const searchParams = useSearchParams();
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [shareTarget, setShareTarget] = useState<{ viewId: string; link: string } | null>(null);
   const pendingOverlay = useRef<(() => void) | null>(null);
   const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const summaryParts = useRef(new Map<number, string>());
@@ -144,6 +154,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   }, []);
 
   const chips = orderChips(store.views, store.activeViewKey);
+  const ownChips = chips.filter((chip) => !chip.view.sharedBy);
+  const surfaceKind = store.p13nId === SURFACE.dashboard ? "dashboard" : "list";
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
   const isAllActive = store.activeViewKey === ALL_VIEW_KEY && !proposedName;
   const tabbableIndex = isAllActive ? 0 : chips.findIndex((chip) => chip.isActive) + 1;
@@ -173,8 +185,13 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     pendingOverlay.current = null;
     open();
   };
+  const linkFor = (view: DataViewChipDto) =>
+    viewLink(store.viewPathname ?? pathname, view.id, store.viewPathname ? surfaceKeyOf(store) : undefined);
   const menuCommands: ViewCommands = {
     ...commands,
+    share: (view) => {
+      pendingOverlay.current = () => setShareTarget({ viewId: view.id, link: linkFor(view) });
+    },
     duplicate: (view) => {
       pendingOverlay.current = () => commands.duplicate(view);
     },
@@ -182,13 +199,44 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       pendingOverlay.current = () => commands.edit(view);
     },
   };
+  const ownerAvatar = (view: DataViewChipDto, className: string) => (
+    <Avatar aria-hidden className={className}>
+      {view.sharedBy?.avatarUrl && <AvatarImage alt="" src={view.sharedBy.avatarUrl} />}
+
+      <AvatarFallback className="text-[8px]">{view.sharedBy?.name.slice(0, 1)}</AvatarFallback>
+    </Avatar>
+  );
+  const sharedScope = (view: DataViewChipDto) => {
+    const name = view.sharedBy?.name.split(" ")[0] ?? "";
+    return view.visibility === "roles"
+      ? t("DataView.share.withRoles", { name })
+      : t("DataView.share.withEveryone", { name });
+  };
+  const sharedMenu = (view: DataViewChipDto) => (
+    <>
+      <DropdownMenuLabel className="flex items-center gap-2 font-normal" data-shared-owner="">
+        {ownerAvatar(view, "size-5 shrink-0")}
+
+        <span className="flex min-w-0 flex-col">
+          <span className="text-xs">{t("DataView.share.sharedBy", { name: view.sharedBy?.name ?? "" })}</span>
+
+          <span className="text-[11px] text-muted-foreground">{sharedScope(view)}</span>
+        </span>
+      </DropdownMenuLabel>
+
+      <DropdownMenuSeparator />
+
+      <ViewMenuItems commands={menuCommands} items={sharedViewMenuItems()} view={view} />
+    </>
+  );
   const chipMenu = (view: DataViewChipDto) => {
     if (view.id === ALL_VIEW_KEY)
       return <ViewMenuItems commands={menuCommands} items={allViewMenuItems()} view={view} />;
+    if (view.sharedBy) return sharedMenu(view);
     const items = viewMenuItems({
-      index: chips.findIndex((chip) => chip.view.id === view.id),
-      total: chips.length,
-    }).filter((item) => allowDuplicate || item.id !== "duplicate");
+      index: ownChips.findIndex((chip) => chip.view.id === view.id),
+      total: ownChips.length,
+    });
     return <ViewMenuItems commands={menuCommands} items={items} view={view} />;
   };
 
@@ -268,12 +316,48 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 chip.view.id,
                 store.viewPathname ? surfaceKeyOf(store) : undefined,
               )}
+              icon={
+                chip.view.sharedBy ? (
+                  ownerAvatar(chip.view, "-ms-1 size-4 shrink-0")
+                ) : chip.view.isPublic ? (
+                  <Globe aria-hidden className="size-3 shrink-0" data-view-public="" />
+                ) : isSharedByMe(chip.view) ? (
+                  <Users aria-hidden className="size-3 shrink-0" />
+                ) : undefined
+              }
               isActive={chip.isActive && !proposedName}
               isModified={chip.isActive && !proposedName && store.isViewModified}
               label={chip.view.name}
               menu={chipMenu(chip.view)}
               modifiedLabel={t("DataView.views.modified")}
-              preview={previewFor(chip.view.name, chip.isActive)}
+              preview={
+                chip.view.sharedBy ? (
+                  <>
+                    {previewFor(chip.view.name, chip.isActive)}
+
+                    <span className="block text-[11px] text-muted-foreground">
+                      {t("DataView.share.sharedBy", { name: chip.view.sharedBy.name })}
+                    </span>
+
+                    <span className="block text-[11px] text-muted-foreground">{sharedScope(chip.view)}</span>
+                  </>
+                ) : chip.view.isPublic || isSharedByMe(chip.view) ? (
+                  <>
+                    {previewFor(chip.view.name, chip.isActive)}
+
+                    {isSharedByMe(chip.view) ? (
+                      <span className="block text-[11px] text-muted-foreground">{t("DataView.share.ownShared")}</span>
+                    ) : null}
+
+                    {chip.view.isPublic ? (
+                      <span className="block text-[11px] text-muted-foreground">{t("DataView.share.public.chip")}</span>
+                    ) : null}
+                  </>
+                ) : (
+                  previewFor(chip.view.name, chip.isActive)
+                )
+              }
+              shared={chip.view.sharedBy ? "others" : isSharedByMe(chip.view) ? "mine" : undefined}
               tabIndex={tabIndexAt(index + 1)}
               onKeyDown={onKeyDownAt(index + 1)}
               onMenuCloseAutoFocus={openPendingOverlay}
@@ -393,6 +477,18 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       <span aria-live="polite" className="sr-only">
         {t("DataView.views.applied", { name: activeName })}
       </span>
+
+      {shareTarget && (
+        <ShareViewDialog
+          kind={surfaceKind}
+          link={shareTarget.link}
+          view={store.views.find((view) => view.id === shareTarget.viewId) ?? null}
+          onOpenChange={(next) => {
+            if (!next) setShareTarget(null);
+          }}
+          onShared={() => store.refresh()}
+        />
+      )}
     </nav>
   );
 });

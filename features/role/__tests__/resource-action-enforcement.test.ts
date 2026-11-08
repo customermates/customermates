@@ -138,6 +138,10 @@ describe("system resource actions", () => {
     const applicable = Object.entries(RESOURCE_ACCESS).flatMap(([resource, access]) =>
       access.manage.map((action) => `${resource}:${action}`),
     );
-    expect(applicable.filter((key) => !guarded.has(key))).toEqual(["users:delete", "dataModel:update"]);
+    expect(applicable.filter((key) => !guarded.has(key))).toEqual([
+      "users:delete",
+      "dataModel:update",
+      "publicLinks:create",
+    ]);
   });
 });

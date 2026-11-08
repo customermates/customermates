@@ -43,11 +43,9 @@ export type WidgetDataSelection =
       opener: HTMLElement | null;
     };
 
-const LEAD_HEIGHT_CLASS: Partial<Record<DisplayType, string>> = {
-  [DisplayType.rankedTable]: "max-h-64",
-};
+export const LEAD_HEIGHT_CLASS: Partial<Record<DisplayType, string>> = { [DisplayType.rankedTable]: "max-h-64" };
 
-const LEAD_FRAME_CLASS = "flex shrink-0 flex-col px-6 pb-4";
+export const LEAD_FRAME_CLASS = "flex shrink-0 flex-col px-6 pb-4";
 
 export function WidgetDataDrawer({
   open,

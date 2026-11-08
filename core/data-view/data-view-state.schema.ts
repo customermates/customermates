@@ -61,11 +61,27 @@ export const DATA_VIEW_STATE_FIELDS = [
   "calendar",
 ] as const satisfies readonly (keyof DataViewState)[];
 
+export const DATA_VIEW_VISIBILITIES = ["private", "workspace", "roles"] as const;
+
+export const DataViewVisibilitySchema = z.enum(DATA_VIEW_VISIBILITIES);
+export type DataViewVisibility = Data<typeof DataViewVisibilitySchema>;
+
+export const DataViewSharedBySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  avatarUrl: z.string().nullable(),
+});
+export type DataViewSharedBy = Data<typeof DataViewSharedBySchema>;
+
 export const DataViewChipDtoSchema = z.object({
   id: z.string(),
   name: z.string(),
   position: z.number().int(),
   state: DataViewStateSchema,
+  visibility: DataViewVisibilitySchema.optional(),
+  roleIds: z.array(z.string()).optional(),
+  sharedBy: DataViewSharedBySchema.optional(),
+  isPublic: z.boolean().optional().describe("The caller's own dashboard or list view has an active public link."),
 });
 export type DataViewChipDto = Data<typeof DataViewChipDtoSchema>;
 

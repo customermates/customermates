@@ -67,10 +67,18 @@ describe("view rail model", () => {
     expect(orderChips([], ALL_VIEW_KEY)).toEqual([]);
   });
 
-  it("offers the same six actions on every view, in a fixed order", () => {
+  it("offers the same seven actions on every own view, in a fixed order", () => {
     const items = viewMenuItems({ index: 1, total: 3 });
 
-    expect(items.map((item) => item.id)).toEqual(["edit", "duplicate", "moveLeft", "moveRight", "copyLink", "delete"]);
+    expect(items.map((item) => item.id)).toEqual([
+      "edit",
+      "duplicate",
+      "moveLeft",
+      "moveRight",
+      "share",
+      "copyLink",
+      "delete",
+    ]);
     expect(items.filter((item) => item.isDestructive).map((item) => item.id)).toEqual(["delete"]);
     expect(items.every((item) => !item.isDisabled)).toBe(true);
   });

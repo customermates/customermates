@@ -4,6 +4,7 @@ import { validateDataViewAccess } from "./data-view-policy";
 import type { DataViewDto } from "@/core/data-view/data-view-state.schema";
 import type { ActiveViewKeyRepo } from "./active-view-key.repo";
 import type { UpsertDataViewData } from "./data-view.schema";
+import type { CopyViewWidgetsRepo } from "@/features/widget/copy-view-widgets.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -14,6 +15,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { DataViewDtoSchema } from "@/core/data-view/data-view-state.schema";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { SURFACE } from "@/core/data-view/data-view-keys";
 import { UpsertDataViewSchema } from "./data-view.schema";
 
 type UpdateDataViewData = Extract<UpsertDataViewData, { id: string }>;
@@ -25,6 +27,7 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
     private repo: UpsertDataViewRepo,
     private personalization: ActiveViewKeyRepo,
     private policy?: DataViewPolicy,
+    private widgets?: CopyViewWidgetsRepo,
   ) {
     super();
   }
@@ -57,6 +60,8 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
   }
 
   private async createNew(data: CreateDataViewData) {
+    const source = data.copyOf ? await this.repo.findReadableOrNull(data.copyOf) : null;
+    if (data.copyOf && source?.surfaceKey !== data.surfaceKey) return null;
     const position = data.position ?? (await this.repo.nextPosition(data.surfaceKey));
 
     const created = await this.repo.createView({
@@ -65,6 +70,7 @@ export class UpsertDataViewInteractor extends AuthenticatedInteractor<UpsertData
       position,
       state: data.state,
     });
+    if (source && data.surfaceKey === SURFACE.dashboard) await this.widgets?.copyViewWidgets(source.id, created.id);
 
     await this.personalization.upsertP13n({
       p13nId: data.surfaceKey,

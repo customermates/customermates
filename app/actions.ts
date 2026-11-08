@@ -2,15 +2,22 @@
 
 import type {
   DeleteDataViewData,
+  HideSharedDataViewData,
+  ShareDataViewData,
   SaveDataViewStateData,
   SelectDataViewData,
   UpsertDataViewData,
 } from "@/features/data-view/data-view.schema";
 import type { GetP13nData } from "@/features/p13n/get-p13n.interactor";
 import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
+import type { ManagePublicLinkData } from "@/features/public-link/public-link.schema";
 
 import {
   getDeleteDataViewInteractor,
+  getGetDataViewShareOptionsInteractor,
+  getHideSharedDataViewInteractor,
+  getManagePublicLinkInteractor,
+  getShareDataViewInteractor,
   getGetP13nInteractor,
   getSaveDataViewStateInteractor,
   getSelectDataViewInteractor,
@@ -41,4 +48,20 @@ export async function saveDataViewStateAction(data: SaveDataViewStateData) {
 
 export async function selectDataViewAction(data: SelectDataViewData) {
   return serializeResult(getSelectDataViewInteractor().invoke(data));
+}
+
+export async function shareDataViewAction(data: ShareDataViewData) {
+  return serializeResult(getShareDataViewInteractor().invoke(data));
+}
+
+export async function managePublicLinkAction(data: ManagePublicLinkData) {
+  return serializeResult(getManagePublicLinkInteractor().invoke(data));
+}
+
+export async function hideSharedDataViewAction(data: HideSharedDataViewData) {
+  return serializeResult(getHideSharedDataViewInteractor().invoke(data));
+}
+
+export async function getDataViewShareOptionsAction() {
+  return serializeResult(getGetDataViewShareOptionsInteractor().invoke());
 }

@@ -1194,6 +1194,7 @@
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
+      "publicLinkExpiryInPast": "The end date must be today or later.",
       "recordAddressCandidateInvalid": "This address suggestion is no longer valid. Look up the address again.",
       "recordAddressCountryInvalid": "In {field}, {country} is not a country code.",
       "recordAddressPostalCodeInvalid": "In {field}, {postalCode} is not a postal code of the chosen country. Postal codes there look like {example}.",
@@ -1386,6 +1387,12 @@
         "relation": {
           "created": "Relation Created"
         }
+      },
+      "public_link": {
+        "allowed": "Public Links Allowed",
+        "blocked": "Public Links Turned Off",
+        "created": "Public Link Created",
+        "revoked": "Public Link Revoked"
       },
       "record": {
         "created": "Record created",
@@ -2267,6 +2274,51 @@
     "selectAllRows": "Select all rows",
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
+    "share": {
+      "descriptionDashboard": "Teammates see the same widgets and layout. Every number is calculated with their own access, so nobody sees records their role hides.",
+      "descriptionList": "Teammates see your filters, columns and layout. Each person only sees the records and fields their own role allows.",
+      "hidden": "Hidden from your tabs",
+      "hide": "Hide from my tabs",
+      "link": "Link",
+      "linkPrivate": "Only you can open this link until you share the view.",
+      "linkShared": "Teammates who can see this view open it with this link. Others see that it isn't shared with them.",
+      "menuItem": "Share…",
+      "ownShared": "Shared",
+      "private": "Only me",
+      "privateDescription": "Private. Nobody else sees this view.",
+      "public": {
+        "chip": "Public link on",
+        "createdCopied": "Public link created and copied",
+        "expiresLabel": "Last day the link opens (UTC)",
+        "expiryCleared": "End date removed",
+        "expirySet": "End date saved",
+        "linkLabel": "Public link",
+        "noExpiry": "No end date",
+        "onlyCharts": "Shows the charts and, on click, the records behind them, read-only and with your access",
+        "onlyColumns": "Shows only the visible columns, read-only and with your access",
+        "opened": "{count, plural, =0 {Not opened yet} one {Opened once} other {Opened # times}}",
+        "option": "Anyone with the link",
+        "optionDescriptionDashboard": "Public, no sign-in: anyone with the link sees the charts and the records behind them. Everyone in this workspace sees it too.",
+        "optionDescriptionList": "Public, no sign-in: anyone with the link sees this table with its visible columns. Everyone in this workspace sees it too.",
+        "permissionDenied": "Your role may not publish views by public link. Ask an administrator.",
+        "published": "Public link created",
+        "revoked": "Public link turned off",
+        "saveToCreate": "Save to create the link.",
+        "workspaceDisabled": "Public links are turned off for this workspace in Settings, General."
+      },
+      "roles": "Selected roles",
+      "rolesDescription": "Only members with these roles see it.",
+      "rolesLabel": "Roles",
+      "savedPrivate": "The view is private again",
+      "savedRoles": "Shared with the selected roles",
+      "savedWorkspace": "Shared with everyone in this workspace",
+      "sharedBy": "Shared by {name}",
+      "title": "Share “{name}”",
+      "withEveryone": "With everyone · only {name} can edit it",
+      "withRoles": "With selected roles · only {name} can edit it",
+      "workspace": "Everyone in this workspace",
+      "workspaceDescription": "All members see it next to their own views."
+    },
     "summaries": "Summaries",
     "views": {
       "activityCount": "{count, plural, one {# activity} other {# activities}}",
@@ -3521,7 +3573,6 @@
     "addSource": "Add date source",
     "calendarSync": "Export & subscribe",
     "connectCalendar": "Connect a calendar",
-    "copyLink": "Copy subscription link",
     "createSubscription": "Create subscription URL",
     "download": "Download .ics",
     "endDate": "End date",
@@ -3567,6 +3618,42 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Long-lived API keys for programmatic access."
+  },
+  "PublicLink": {
+    "byline": "Shared by {workspace}",
+    "bylineListWithoutWorkspace": "Shared list",
+    "bylineWithoutWorkspace": "Shared dashboard",
+    "empty": "This dashboard has no charts yet.",
+    "emptyList": "No records match this view.",
+    "expires": "Link works until the end of {date} (UTC)",
+    "export": {
+      "benefits": {
+        "build": "Build your own lists and dashboards",
+        "export": "Export any list to Excel or JSON",
+        "share": "Share them with a link like this one"
+      },
+      "body": "Create a Customermates workspace to download {count, plural, =0 {lists like this one} one {this record} other {these # records}} as Excel or JSON.",
+      "cta": "Start trial",
+      "label": "Export",
+      "title": "Download this list"
+    },
+    "hiddenWidgets": "{count, plural, one {# widget is not shown on public links} other {# widgets are not shown on public links}}",
+    "listCount": "{count, plural, =0 {No records} one {# record} other {# records}}",
+    "live": "Updated live",
+    "pageTitle": "Public page",
+    "rateLimitedBody": "This link was opened very often in a short time. Try again in a minute.",
+    "rateLimitedSubtitle": "Please wait a moment",
+    "rateLimitedTitle": "Too many requests",
+    "readOnly": "Read-only",
+    "searchLabel": "Text in the visible columns",
+    "toHome": "Go to customermates.com",
+    "unavailableBody": "The link may have been turned off, expired or mistyped. Ask the person who shared it for a new one.",
+    "unavailableSubtitle": "This page cannot be opened",
+    "unavailableTitle": "Link not available",
+    "upsell": {
+      "badge": "Made with Customermates",
+      "badgeHover": "· Try it"
+    }
   },
   "RecordActivityWidgets": {
     "after": "From",
@@ -4479,6 +4566,7 @@
       "company": "Company",
       "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
+      "publicLinks": "Public links",
       "routines": "Routines",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
@@ -5262,6 +5350,14 @@
     "nameDescription": "Everyone in this workspace sees this name in the workspace menu.",
     "nameLabel": "Workspace name",
     "noPlan": "No plan",
+    "publicLinks": {
+      "activeCount": "{count, plural, =0 {No public link is active} one {# public link is active} other {# public links are active}}",
+      "allowed": "Public links allowed",
+      "blocked": "Public links turned off",
+      "description": "Members whose role may publish can share a dashboard or list view by a link anyone can open without signing in. Turning this off stops every public link at once.",
+      "offCount": "{count, plural, =0 {No public links} one {# link is paused until you allow public links again} other {# links are paused until you allow public links again}}",
+      "title": "Allow public links"
+    },
     "renameReadOnly": "Only members who can manage the workspace can change its name.",
     "slugDescription": "Links to this workspace use {path}. Use lowercase letters, numbers and hyphens. Old links stop working when you change it.",
     "slugLabel": "Workspace URL",

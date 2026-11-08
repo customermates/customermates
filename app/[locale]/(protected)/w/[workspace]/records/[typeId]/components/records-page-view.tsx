@@ -228,7 +228,9 @@ const RecordsPageViewContent = observer(function RecordsPageView({
             title: t("RecordModel.empty", {
               type: store.type?.pluralLabel ?? t("RecordModel.records"),
             }),
-            body: t("RecordModel.emptyDescription"),
+            body: store.canCreate
+              ? t("RecordModel.emptyDescription")
+              : t("Common.emptyState.readOnlyBody", { plural: store.type?.pluralLabel ?? t("RecordModel.records") }),
           }}
           reason="true-empty"
           store={store}

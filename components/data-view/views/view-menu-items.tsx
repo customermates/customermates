@@ -21,12 +21,16 @@ export function ViewMenuItems({ commands, items, view }: Props) {
     switch (id) {
       case "copyLink":
         return t("DataView.views.copyLink");
+      case "share":
+        return t("DataView.share.menuItem");
       case "delete":
         return t("DataView.views.delete");
       case "duplicate":
         return t("DataView.views.duplicate");
       case "edit":
         return t("DataView.views.editTitle");
+      case "hide":
+        return t("DataView.share.hide");
       case "moveLeft":
         return t("DataView.views.moveLeft");
       case "moveRight":
@@ -38,12 +42,16 @@ export function ViewMenuItems({ commands, items, view }: Props) {
     switch (id) {
       case "copyLink":
         return commands.copyLink(view);
+      case "share":
+        return commands.share?.(view);
       case "delete":
         return commands.remove(view);
       case "duplicate":
         return commands.duplicate(view);
       case "edit":
         return commands.edit(view);
+      case "hide":
+        return commands.hide(view);
       case "moveLeft":
         return commands.move(view, -1);
       case "moveRight":

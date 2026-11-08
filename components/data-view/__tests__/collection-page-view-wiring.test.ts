@@ -143,6 +143,7 @@ type Result = {
 function store(items: Array<Record<string, unknown>>, canManage = true) {
   return {
     canExport: true,
+    canCreate: canManage,
     canManage,
     customColumns: [],
     dataRequest: { status: "ready" as const },
@@ -151,7 +152,6 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     groupableFields: [],
     grouping: null,
     groupingResult: undefined,
-    isDisabled: !canManage,
     isGrouped: false,
     isReady: true,
     items,

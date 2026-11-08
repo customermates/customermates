@@ -192,7 +192,8 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
     if (e2eAppMode() !== "self-hosted")
       await sync.getByRole("checkbox", { name: /Also include selected connected events/u }).check();
     await sync.getByRole("button", { name: "Create subscription URL", exact: true }).click();
-    const url = await sync.getByRole("textbox", { name: "Private subscription URL" }).inputValue();
+    await expect(sync.locator("#planner-subscription-url")).toHaveAttribute("data-value", /\/subscriptions\//u);
+    const url = (await sync.locator("#planner-subscription-url").getAttribute("data-value")) ?? "";
     subscriptionUrl = url;
     const response = await page.request.get(url, { timeout: 90000 });
     expect(response.status()).toBe(200);
@@ -245,7 +246,7 @@ test("combined calendar adds two lists, toggles sources, opens records, exports 
       ]);
     }
     await sync.getByRole("button", { name: "Revoke subscription", exact: true }).first().click();
-    await expect(sync.getByRole("textbox", { name: "Private subscription URL" })).toHaveCount(0);
+    await expect(sync.locator("#planner-subscription-url")).toHaveCount(0);
     expect((await page.request.get(url, { timeout: 90000 })).status()).toBe(410);
     expect(errors).toEqual([]);
   } finally {

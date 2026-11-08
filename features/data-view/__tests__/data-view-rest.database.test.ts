@@ -30,6 +30,7 @@ const routes = {
   select: await restRoute("/v1/data-views/select"),
   reset: await restRoute("/v1/data-views/reset"),
   remove: await restRoute("/v1/data-views/delete"),
+  share: await restRoute("/v1/data-views/share"),
 };
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -178,5 +179,103 @@ describeDatabase("saved view REST routes on PostgreSQL", () => {
       status: 200,
       body: { items: [{ id: viewKey, name: "Private" }] },
     });
+  }, 180_000);
+
+  it("shares a view with everyone or selected roles and keeps it read-only for teammates and other workspaces", async () => {
+    const w = await workspace();
+    const other = await workspace();
+    const { prisma } = await import("@/prisma/db");
+    const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+    const { createMockUser } = await import("@/tests/helpers/mock-user");
+    const { adminRole, otherRole, outsider } = await runWithoutTenant(async () => {
+      const admin = await prisma.user.findUniqueOrThrow({ where: { id: w.admin.id }, select: { roleId: true } });
+      const role = await prisma.userRole.create({ data: { companyId: w.admin.companyId, name: "Partners" } });
+      const user = await prisma.user.create({
+        data: {
+          companyId: w.admin.companyId,
+          roleId: role.id,
+          firstName: "Pia",
+          lastName: "Partner",
+          email: `${randomUUID()}@example.test`,
+          status: "active",
+        },
+      });
+      return { adminRole: admin.roleId, otherRole: role, outsider: user };
+    });
+    const partner = createMockUser({ ...outsider, role: { ...otherRole, permissions: [] } });
+    const memberRole = w.member.roleId as string;
+    const owner = (route: keyof typeof routes, body: unknown) => postAs(w, w.admin, routes[route], body);
+    const listFor = async (tenant: typeof w, user: typeof w.member) =>
+      (await postAs(tenant, user, routes.list, { surfaceKey: "dashboard" })).body.items as Array<{
+        id: string;
+        sharedBy?: string;
+        visibility?: string;
+      }>;
+
+    const created = await owner("create", { surfaceKey: "dashboard", name: "Team board", state: {} });
+    const viewKey = created.body.viewKey as string;
+    expect(await listFor(w, w.member)).toEqual([]);
+
+    const everyone = await owner("share", { surfaceKey: "dashboard", viewKey, visibility: "workspace" });
+    expect(everyone).toMatchObject({
+      status: 200,
+      body: { action: "share", viewKey, visibility: "workspace", roleIds: [], link: expect.stringContaining(viewKey) },
+    });
+    for (const user of [w.member, partner]) {
+      expect(await listFor(w, user)).toEqual([
+        expect.objectContaining({ id: viewKey, visibility: "workspace", sharedBy: expect.any(String) }),
+      ]);
+    }
+    expect(await listFor(other, other.admin)).toEqual([]);
+
+    expect(await postAs(w, w.member, routes.select, { surfaceKey: "dashboard", viewKey })).toMatchObject({
+      status: 200,
+      body: { selected: true },
+    });
+    for (const [route, body] of [
+      [routes.update, { surfaceKey: "dashboard", viewKey, name: "Taken" }],
+      [routes.remove, { surfaceKey: "dashboard", viewKey, name: "Team board" }],
+      [routes.share, { surfaceKey: "dashboard", viewKey, visibility: "private" }],
+    ] as const) {
+      expect((await postAs(w, w.member, route, body)).status).toBe(404);
+      expect((await postAs(other, other.admin, route, body)).status).toBe(404);
+    }
+    expect((await postAs(other, other.admin, routes.select, { surfaceKey: "dashboard", viewKey })).status).toBe(404);
+
+    const roles = await owner("share", {
+      surfaceKey: "dashboard",
+      viewKey,
+      visibility: "roles",
+      roleIds: [memberRole],
+    });
+    expect(roles).toMatchObject({ status: 200, body: { visibility: "roles", roleIds: [memberRole] } });
+    expect((await listFor(w, w.member)).map(({ id }) => id)).toEqual([viewKey]);
+    expect(await listFor(w, partner)).toEqual([]);
+
+    const both = await owner("share", {
+      surfaceKey: "dashboard",
+      viewKey,
+      visibility: "roles",
+      roleIds: [memberRole, otherRole.id, adminRole],
+    });
+    expect(both.status).toBe(200);
+    expect((await listFor(w, partner)).map(({ id }) => id)).toEqual([viewKey]);
+
+    expect((await owner("share", { surfaceKey: "dashboard", viewKey, visibility: "roles", roleIds: [] })).status).toBe(
+      400,
+    );
+    const foreignRole = other.admin.roleId as string;
+    const foreign = await owner("share", {
+      surfaceKey: "dashboard",
+      viewKey,
+      visibility: "roles",
+      roleIds: [foreignRole],
+    });
+    expect(foreign.status).toBe(404);
+    expect((await listFor(w, partner)).map(({ id }) => id)).toEqual([viewKey]);
+
+    expect((await owner("share", { surfaceKey: "dashboard", viewKey, visibility: "private" })).status).toBe(200);
+    for (const user of [w.member, partner]) expect(await listFor(w, user)).toEqual([]);
+    expect((await postAs(w, w.member, routes.select, { surfaceKey: "dashboard", viewKey })).status).toBe(404);
   }, 180_000);
 });
