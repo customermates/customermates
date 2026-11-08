@@ -67,6 +67,8 @@ const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : 
 
 const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
 
+const CHANGE_PASSWORD_PATH = "/change-password";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
@@ -83,6 +85,9 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      // A password change always ends every other session; better-auth only does so when the client asks.
+      if (ctx.path === CHANGE_PASSWORD_PATH) return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
+
       const apiKeyAction = apiKeyRouteAction(ctx.path);
       if (apiKeyAction) {
         if (ctx.request) throw new APIError("NOT_FOUND", { code: "NOT_FOUND", message: "Not found" });
@@ -122,6 +127,12 @@ export const auth = betterAuth({
       });
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === CHANGE_PASSWORD_PATH) {
+        const userId = changedPasswordUserId(ctx.context.returned);
+        if (userId) await revokeOauthTokens(userId);
+        return;
+      }
+
       if (ctx.path === MCP_AUTHORIZE_PATH) {
         const resourceCompanyId = mcpWorkspaceIdFromResource(ctx.query?.resource, env.BASE_URL);
         const consentCode = consentCodeFromAuthorizeRedirect(
@@ -263,8 +274,12 @@ export const auth = betterAuth({
     autoSignIn: true,
     minPasswordLength: PASSWORD_MIN_LENGTH,
     maxPasswordLength: PASSWORD_MAX_LENGTH,
+    revokeSessionsOnPasswordReset: true,
     onPasswordReset: async ({ user }) => {
-      if (user.emailVerified) return;
+      if (user.emailVerified) {
+        await revokeOauthTokens(user.id);
+        return;
+      }
 
       await revokeUnprovenAccess(user.id, { removeAccounts: false });
     },
@@ -350,6 +365,22 @@ export async function deleteApiKeysForIdentities(identityIds: string[]): Promise
   await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: { in: identityIds } },
   });
+}
+
+// Password change and reset end MCP OAuth grants as well as sessions: a stolen session could have minted them,
+// and their refresh tokens outlive the session. API keys stay, since the owner created them on purpose for
+// integrations and revokes them one by one in settings.
+async function revokeOauthTokens(userId: string): Promise<number> {
+  const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
+  return tokens.count;
+}
+
+function changedPasswordUserId(returned: unknown): string | null {
+  if (!returned || typeof returned !== "object" || !("user" in returned)) return null;
+  const user = (returned as { user?: unknown }).user;
+  if (!user || typeof user !== "object" || !("id" in user)) return null;
+  const id = (user as { id?: unknown }).id;
+  return typeof id === "string" ? id : null;
 }
 
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
