@@ -177,6 +177,29 @@ test("publishes a dashboard view by public link for outsiders, read-only, and st
     await expect(outsider.page.getByRole("heading", { name: "Pipeline count", exact: true })).toBeVisible();
 
     await member.page.goto(dashboardPath);
+    await expect(rail(member.page).getByRole("link", { name: "Investor board", exact: true })).toHaveAttribute(
+      "data-view-shared",
+      "others",
+    );
+
+    await page.goto(dashboardPath);
+    await setPublicLink(page, false);
+    const sameDialog = await openShareDialog(page);
+    await sameDialog.locator("#share-scope-public").click();
+    await sameDialog.locator("#share-view-save").click();
+    await expect(sameDialog.locator("#share-view-public-link")).toHaveAttribute("data-value", /\/p\/[0-9a-f]{64}$/u);
+    await sameDialog.locator("#share-scope-private").click();
+    await sameDialog.locator("#share-view-save").click();
+    await expect(sameDialog).toHaveCount(0);
+    const madePrivate = await database.query(
+      'SELECT v.visibility::text AS visibility, (SELECT count(*)::int FROM "PublicViewLink" l WHERE l."viewId"=v.id AND l."revokedAt" IS NULL) AS active FROM "DataView" v WHERE v.id=$1',
+      [boardId],
+    );
+    expect(madePrivate.rows).toEqual([{ visibility: "private", active: 0 }]);
+    await member.page.reload();
+    await expect(rail(member.page).getByRole("link", { name: "Investor board", exact: true })).toHaveCount(0);
+
+    await member.page.goto(dashboardPath);
     await createView(member.page, "Guest board");
     const memberDialog = await openShareDialog(member.page);
     await expect(memberDialog.getByText(publicLink.permissionDenied, { exact: true })).toBeVisible();

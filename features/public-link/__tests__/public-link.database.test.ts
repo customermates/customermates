@@ -373,6 +373,26 @@ describeDatabase("public dashboard links on PostgreSQL", () => {
     expect((await publish(w, w.member, memberBoard)).status).toBe(403);
     expect(await sharing(memberBoard)).toEqual({ visibility: "private", roles: 0 });
 
+    const expiring = await publish(w, w.admin, privateBoard, { expiresAt: "2099-12-31" });
+    const expiredToken = tokenOf(expiring.body.publicLink.url as string);
+    await runWithoutTenant(() =>
+      prisma.publicViewLink.updateMany({
+        where: { viewId: privateBoard, revokedAt: null },
+        data: { expiresAt: new Date("2001-01-01T23:59:59.999Z") },
+      }),
+    );
+    expect(
+      await w.as(w.admin, () => di.getManagePublicLinkInteractor().invoke({ action: "read", viewId: privateBoard })),
+    ).toMatchObject({ ok: true, data: { link: null } });
+    const replaced = await publish(w, w.admin, privateBoard);
+    expect(replaced.status, JSON.stringify(replaced.body)).toBe(200);
+    expect(tokenOf(replaced.body.publicLink.url as string)).not.toBe(expiredToken);
+    expect(replaced.body.publicLink.expiresAt).toBeNull();
+    expect((await reader().invoke({ token: expiredToken })).status).toBe("unavailable");
+    expect((await reader().invoke({ token: tokenOf(replaced.body.publicLink.url as string) })).status).toBe(
+      "available",
+    );
+
     await w.as(w.admin, () => di.getSetPublicLinksAllowedInteractor().invoke({ allowPublicLinks: false }));
     const blockedBoard = await board(w, w.admin, "Blocked board");
     expect((await publish(w, w.admin, blockedBoard)).status).toBe(403);
