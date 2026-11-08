@@ -53,7 +53,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   const actorA = actor(operatorIdA, companyIdA);
   const actorB = actor(operatorIdB, companyIdB);
 
-  // The membership of the workspace the operator has open; by default the one the actor resolved to.
   let openMembership: (() => string) | null = null;
 
   const views = () => createTestDataViewRepo();
@@ -274,7 +273,6 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
       expect(created.ok).toBe(true);
       if (!created.ok) return;
 
-      // actorA still resolves to the busier membership in companyIdA, as the operator access repo would.
       const seen = await runWithOperator(actorA, () => views().loadSurfaceState(SURFACE.operatorWorkspaces));
 
       expect(seen.views.map((view) => view.id)).toEqual([created.data.id]);
