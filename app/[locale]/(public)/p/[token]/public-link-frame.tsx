@@ -77,9 +77,9 @@ export function PublicLinkFrame({ kind, name, workspaceName, expiresAt, children
         {children}
 
         {upsell ? (
-          <div className="pointer-events-none sticky bottom-4 z-30 flex justify-end">
+          <div className="flex justify-end">
             <a
-              className="group pointer-events-auto flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
+              className="group flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:text-foreground"
               href={publicSignupHref("badge")}
               id="public-link-badge"
             >

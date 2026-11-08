@@ -301,6 +301,11 @@ test("publishes a list view by public link with only its visible columns, read-o
       await expect(outsider.page.locator("#public-list-export")).toHaveCount(0);
     } else {
       await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
+      await expect(async () => {
+        const badgeBox = await outsider.page.locator("#public-link-badge").boundingBox();
+        const listBox = await table.boundingBox();
+        expect(badgeBox && listBox && badgeBox.y - (listBox.y + listBox.height)).toBeGreaterThanOrEqual(0);
+      }).toPass();
       await outsider.page.locator("#public-list-export").click();
       const exportBody = outsider.page.locator("#public-list-export-body");
       await expect(exportBody).toHaveText(
@@ -311,9 +316,11 @@ test("publishes a list view by public link with only its visible columns, read-o
         publicPage.export.benefits.build,
         publicPage.export.benefits.share,
       ]);
-      const bodyBox = await exportBody.boundingBox();
-      const titleBox = await outsider.page.getByText(publicPage.export.title, { exact: true }).boundingBox();
-      expect(bodyBox && titleBox && Math.abs(bodyBox.x - titleBox.x)).toBeLessThanOrEqual(1);
+      await expect(async () => {
+        const bodyBox = await exportBody.boundingBox();
+        const titleBox = await outsider.page.getByText(publicPage.export.title, { exact: true }).boundingBox();
+        expect(bodyBox && titleBox && Math.abs(bodyBox.x - titleBox.x)).toBeLessThanOrEqual(1);
+      }).toPass();
       await expect(outsider.page.locator("#public-list-export-signup")).toHaveAttribute(
         "href",
         "/auth/signup?utm_source=public_dashboard&utm_medium=referral&utm_campaign=public_link&utm_content=export",

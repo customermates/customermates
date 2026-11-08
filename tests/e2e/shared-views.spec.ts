@@ -377,15 +377,17 @@ test("offers adding and importing on an empty list only to members who may creat
 
   try {
     await creator.page.goto(listPath);
-    await expect(creator.page.getByText(/^No field trials yet$/i)).toBeVisible();
+    await expect(creator.page.getByText(englishMessages.RecordModel.emptyDescription, { exact: true })).toBeVisible();
     await expect(creator.page.getByRole("button", { name: /^Add your first /i })).toBeVisible();
     await expect(creator.page.locator("#records-add")).toBeVisible();
     expect(await importOffered(creator.page)).toBe(true);
 
     for (const member of [editor, reader]) {
       await member.page.goto(listPath);
-      await expect(member.page.getByText(/You do not have permission to add/i)).toBeVisible();
-      await expect(member.page.getByText(/Get started by adding/i)).toHaveCount(0);
+      await expect(
+        member.page.getByText("You do not have permission to add Field trials.", { exact: true }),
+      ).toBeVisible();
+      await expect(member.page.getByText(englishMessages.RecordModel.emptyDescription, { exact: true })).toHaveCount(0);
       await expect(member.page.getByRole("button", { name: /^Add your first /i })).toHaveCount(0);
       await expect(member.page.locator("#records-add")).toHaveCount(0);
       await expect(member.page.locator("#records-filter")).toBeEnabled();
