@@ -255,7 +255,7 @@ describeDatabase("unverified account access against the database", { timeout: 12
     expect((await snapshot(seeded.id)).providers).toEqual(["credential", "microsoft"]);
   });
 
-  it("leaves a verified account untouched apart from its password when it is reset", async () => {
+  it("ends every session and MCP token of a verified account when its password is reset, but keeps its API keys", async () => {
     const seeded = await seedUser({ emailVerified: true });
 
     await resetPassword(seeded.id);
@@ -264,9 +264,9 @@ describeDatabase("unverified account access against the database", { timeout: 12
     expect(after.providers).toEqual(["credential", "microsoft"]);
     expect(after.password).not.toBe("hashed-password");
     expect(after).toMatchObject({
-      sessionIds: [seeded.sessionId],
+      sessionIds: [],
       apiKeys: 1,
-      tokens: 1,
+      tokens: 0,
       consents: 1,
       emailVerified: true,
     });
