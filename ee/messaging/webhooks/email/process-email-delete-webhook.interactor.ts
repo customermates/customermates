@@ -27,10 +27,12 @@ const Schema = z.object({
     email: z.looseObject({ id: z.string() }),
     folder_id: z.string().nullish(),
   }),
+  receivedAt: z.date().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
 const BURST_WINDOW_MS = 60_000;
+const RETRY_MIN_AGE_MS = 60_000;
 const BURST_LIMIT = 10;
 const SEARCH_WINDOW_MS = 1_000;
 const RELOCATION_GRACE_MS = 8_000;
@@ -76,7 +78,8 @@ export class ProcessEmailDeleteWebhookInteractor {
     });
     if (!existing) return;
 
-    const burst = await this.isDeleteBurst(account);
+    const isRetry = envelope.receivedAt !== undefined && Date.now() - envelope.receivedAt.getTime() > RETRY_MIN_AGE_MS;
+    const burst = !isRetry && (await this.isDeleteBurst(account));
     if (burst) {
       await this.waitForRelocation();
 
