@@ -13,7 +13,9 @@ import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 
-import { runWithOperator } from "@/core/decorators/operator-context";
+import { getOperatorActor, runWithOperator } from "@/core/decorators/operator-context";
+import { UserService } from "@/features/user/user.service";
+import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -51,6 +53,9 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
   const actorA = actor(operatorIdA, companyIdA);
   const actorB = actor(operatorIdB, companyIdB);
 
+  // The membership of the workspace the operator has open; by default the one the actor resolved to.
+  let openMembership: (() => string) | null = null;
+
   const views = () => createTestDataViewRepo();
   const saveAllTab = (userId: string, companyId: string, state: DataViewState) =>
     runWithTenant(createMockUser({ id: userId, companyId }), () =>
@@ -83,6 +88,9 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
 
   beforeAll(async () => {
     await import("@/core/di");
+    vi.spyOn(UserService.prototype, "getActiveUserOrThrow").mockImplementation(function (this: UserService) {
+      return this.getActiveUserByIdOrThrow(openMembership ? openMembership() : getOperatorActor().userId);
+    });
     await client.connect();
     await client.query(
       'INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP), ($2, CURRENT_TIMESTAMP)',
@@ -242,5 +250,40 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
     expect(seenByB.ok).toBe(true);
     if (!seenByB.ok) return;
     expect(seenByB.data.grouping).toBeUndefined();
+  });
+  it("shows an operator the view they just created in the open workspace, even when another membership is busier", async () => {
+    const companyIdOpen = randomUUID();
+    const membershipOpen = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [companyIdOpen]);
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Ada', 'Operator', $3, 'active', CURRENT_TIMESTAMP)`,
+      [membershipOpen, actorA.email, companyIdOpen],
+    );
+    openMembership = () => membershipOpen;
+
+    try {
+      const openUser = createMockUser({ id: membershipOpen, companyId: companyIdOpen, email: actorA.email });
+      const created = await runWithTenant(openUser, () =>
+        new UpsertDataViewInteractor(views(), new PrismaP13nRepo()).invoke({
+          surfaceKey: SURFACE.operatorWorkspaces,
+          name: "Expired trials",
+          state: { pageSize: 25 },
+        }),
+      );
+      expect(created.ok).toBe(true);
+      if (!created.ok) return;
+
+      // actorA still resolves to the busier membership in companyIdA, as the operator access repo would.
+      const seen = await runWithOperator(actorA, () => views().loadSurfaceState(SURFACE.operatorWorkspaces));
+
+      expect(seen.views.map((view) => view.id)).toEqual([created.data.id]);
+    } finally {
+      openMembership = null;
+      await client.query('DELETE FROM "DataView" WHERE "companyId" = $1', [companyIdOpen]);
+      await client.query('DELETE FROM "P13n" WHERE "companyId" = $1', [companyIdOpen]);
+      await client.query('DELETE FROM "User" WHERE "companyId" = $1', [companyIdOpen]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [companyIdOpen]);
+    }
   });
 });
