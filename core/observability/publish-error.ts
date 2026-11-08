@@ -9,6 +9,7 @@ import type { ErrorReport } from "./error-report";
 function normalizedMessage(message: string): string {
   return message
     .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, "<id>")
+    .replace(/"req_id":"[^"]*"/g, '"req_id":"<request>"')
     .replace(/\b[0-9a-f]*\d[0-9a-f]*\b/gi, "#")
     .slice(0, 300);
 }
