@@ -83,7 +83,6 @@ export async function duplicateView<E extends HasId>(
   args: { name: string },
 ): Promise<DataViewChipDto | null> {
   const isAll = source.id === ALL_VIEW_KEY;
-  // The open All view copies what is on screen, including an unsaved search or filter.
   const state =
     isAll && store.activeViewKey === ALL_VIEW_KEY
       ? { ...store.viewStateSnapshot({ includeQuery: true }), searchTerm: store.searchTerm ?? "" }

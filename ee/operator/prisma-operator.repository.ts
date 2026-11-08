@@ -680,7 +680,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         });
         if (!target) return "notFound";
 
-        // Every membership of the operator is their own, not only the one the actor resolved to.
         if (actor.email === normalizeOperatorEmail(target.email) && data.status !== Status.active) return "conflict";
         if (target.leftAt && data.status !== Status.inactive) return "conflict";
 
@@ -1143,7 +1142,6 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           },
         });
         if (!company) return "notFound";
-        // An operator cannot delete any workspace they are an active member of, not only the one the actor resolved to.
         if (
           company.users.some(
             (member) => member.status === Status.active && normalizeOperatorEmail(member.email) === actor.email,

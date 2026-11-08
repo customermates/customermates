@@ -61,7 +61,6 @@ function operatorActor(userId = `operator-${randomUUID()}`, email = `${randomUUI
   };
 }
 
-// A further membership of an existing person: same e-mail, no second auth identity.
 async function addMembership(companyId: string, email: string) {
   const userId = randomUUID();
   await runWithoutTenant(() =>

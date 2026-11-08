@@ -85,7 +85,6 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      // A password change always ends every other session; better-auth only does so when the client asks.
       if (ctx.path === CHANGE_PASSWORD_PATH) return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
 
       const apiKeyAction = apiKeyRouteAction(ctx.path);
@@ -367,9 +366,6 @@ export async function deleteApiKeysForIdentities(identityIds: string[]): Promise
   });
 }
 
-// Password change and reset end MCP OAuth grants as well as sessions: a stolen session could have minted them,
-// and their refresh tokens outlive the session. API keys stay, since the owner created them on purpose for
-// integrations and revokes them one by one in settings.
 async function revokeOauthTokens(userId: string): Promise<number> {
   const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
   return tokens.count;
