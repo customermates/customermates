@@ -16,10 +16,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 
 import { isFileableEmailProvider } from "../provider";
+import { buildEmailMessage } from "../unipile.mappers";
+import { UnipileEmailSchema } from "../unipile.schema";
 import { isEmailMoveTarget, isMovableEmailFolder } from "../email-folders";
 import { retryAfterPhrase } from "../retry-after.server";
 import type { MoveEmailThreadAccountRepo } from "./move-email-thread-account.repo";
-import type { MoveEmailThreadRepo } from "./move-email-thread.repo";
+import type { MoveEmailThreadRepo, MoveThread } from "./move-email-thread.repo";
 
 export const MoveEmailThreadSchema = z.object({
   threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
@@ -169,12 +171,7 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
         localError = true;
       }
 
-      if (!applied && !localError) {
-        ErrorReporter.captureMessage("Email moved at the provider but not locally; the webhook will reconcile it", {
-          level: "warning",
-          tags: { connectedAccountId: thread.connectedAccountId },
-        });
-      }
+      if (!applied && !localError) await this.reimportMovedEmail(thread, moved.data.id);
       movedCount += 1;
     }
     const t = stoppedReason ? await getTranslations() : null;
@@ -199,5 +196,35 @@ export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmail
         hiddenFromInbox: movedCount > 0 && !context.selectedFolderIds.includes(target.id),
       },
     };
+  }
+
+  private async reimportMovedEmail(thread: MoveThread, unipileMessageId: string) {
+    try {
+      const email = UnipileEmailSchema.parse(
+        await this.messagingService.getEmail({ accountId: thread.unipileAccountId, emailId: unipileMessageId }),
+      );
+      const message = buildEmailMessage(email, {
+        provider: thread.provider,
+        emailAddress: thread.emailAddress,
+        sentFolderIds: thread.sentFolderIds,
+      });
+      if (!message) throw new Error("Moved email cannot be mapped");
+      await this.repo.ingestMessageUnscoped({
+        companyId: thread.companyId,
+        connectedAccountId: thread.connectedAccountId,
+        message,
+        backfill: true,
+      });
+    } catch (err) {
+      ErrorReporter.captureException(err, {
+        level: "warning",
+        tags: {
+          kind: "moved-email-reimport",
+          unipileAccountId: thread.unipileAccountId,
+          companyId: thread.companyId,
+          connectedAccountId: thread.connectedAccountId,
+        },
+      });
+    }
   }
 }
