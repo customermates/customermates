@@ -142950,6 +142950,7 @@
                         "roleAssignedCannotDelete",
                         "roleNameTaken",
                         "roleSelfEditForbidden",
+                        "roleExceedsOwnPermissions",
                         "roleSystemImmutable",
                         "roleAccessPresetInUse",
                         "routineAdminRequired",

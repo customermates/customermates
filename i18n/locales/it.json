@@ -1239,6 +1239,7 @@
       "recordWritePaused": "Il modello dati è in fase di aggiornamento. La bozza viene conservata; riprova al termine.",
       "roleAccessPresetInUse": "Questo ruolo è usato da un modello di accesso. Aggiorna il modello prima di eliminare il ruolo.",
       "roleAssignedCannotDelete": "Un ruolo assegnato agli utenti non può essere eliminato.",
+      "roleExceedsOwnPermissions": "Puoi concedere, assegnare o gestire solo i permessi e gli accessi ai record del tuo ruolo. Solo un amministratore può assegnare il ruolo di amministratore.",
       "roleNameTaken": "Esiste già un ruolo con questo nome.",
       "roleNotFound": "ID ruolo non trovato o non accessibile.",
       "roleSelfEditForbidden": "Non puoi modificare i permessi del ruolo che ti è assegnato.",

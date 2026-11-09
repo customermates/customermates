@@ -6,6 +6,7 @@ import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
+import type { RecordAccessPolicy } from "@/features/records/record-access";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
@@ -18,6 +19,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { roleExceedsCaller } from "@/features/role/role-ceiling";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -45,6 +47,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     private subscriptionRepo: AdminUpdateUserSubscriptionRepo,
     private countUsersRepo: CountActiveUsersRepo,
     private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
+    private access: RecordAccessPolicy,
   ) {
     super();
   }
@@ -90,6 +93,15 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       !(await this.roleRepo.hasAnotherActiveSystemRoleUser(targetUserId))
     )
       return fail(CustomErrorCode.roleSystemRequired, ["roleId"]);
+
+    const policy = await this.access.load();
+    if (!policy.isAdmin) {
+      for (const id of new Set([roleId, targetUser.roleId])) {
+        const checked = id ? await this.roleRepo.findRoleById(id) : null;
+        if (id && (!checked || roleExceedsCaller(policy, checked)))
+          return failAuthorization(CustomErrorCode.roleExceedsOwnPermissions, ["roleId"]);
+      }
+    }
 
     await this.userRepo.adminUpdateDetailsOrThrow({
       userId: targetUserId,
