@@ -30,7 +30,7 @@ An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who 
 
 A workspace's URL accepts only credentials of that workspace. An OAuth token of another workspace gets HTTP `401` with `error="invalid_token"` in the `WWW-Authenticate` header, whose `resource_metadata` points at `/.well-known/oauth-protected-resource/api/v1/mcp/w/<WORKSPACE_ID>`, so the client authorizes again for this workspace. The token request may name the URL in `resource`; a `resource` of another workspace than the approved one gets `400` with `error: invalid_target`. An API key of another workspace gets `403` with `error: workspace_mismatch`. Every other check stays the same as at `<BASE_URL>/api/v1/mcp`.
 
-A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. A key or token of a Cloud workspace that is still waiting for its first plan gets `403` with `error: plan_required`. The in-app assistant does not need it.
+A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys & connectors page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. A key or token of a Cloud workspace that is still waiting for its first plan gets `403` with `error: plan_required`. The in-app assistant does not need it.
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
@@ -38,11 +38,11 @@ Directories can discover the server without a CRM connection at `<BASE_URL>/.wel
 
 ## Connect a client
 
-To connect a client with an API key, start at [API keys](app:settings/api-keys). OAuth clients can use the guides below without creating a key.
+To connect a client with an API key, start at [API keys & connectors](app:settings/api-keys). OAuth clients can use the guides below without creating a key.
 
 <Steps>
 <Step title="Create an API key">
-Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor or Gemini, or **Standard API key** (**Name**, optional **Expires in**) for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
+Open [API keys & connectors](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor or Gemini, or **Standard API key** (**Name**, optional **Expires in**) for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
 </Step>
 <Step title="Point the client at the endpoint">
 Give the client `POST <BASE_URL>/api/v1/mcp` with the `x-api-key` header, or connect through OAuth where the client supports it. The guides in the table below carry the exact configuration.
@@ -80,7 +80,7 @@ Choose **New page**, enter a title and write in the visual editor, which uses th
 
 To link another page, use the editor's link control or **Copy page link** in **Page actions**. These are ordinary Markdown links, and renaming a page keeps its address; no separate index or linking metadata is needed.
 
-Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Activity](app:settings/activity); seeing their Knowledge Base content needs both **Activity log** access and Knowledge Base read access. The activity log is not a restore feature.
+Permissions follow the **Knowledge Base** row of your role: read access lets you view pages, **Create**, **Edit** and **Delete** let you create, edit and reorder, or delete pages, and each includes read access. If someone else changes a page before you save, your stale save is refused and your edits stay visible so you can reconcile them. **Delete page** moves a page to [Trash](/docs/app-trash), where it can be restored for 30 days. Changes appear on [Audit log](app:settings/activity); seeing their Knowledge Base content needs both **Activity log** access and Knowledge Base read access. The activity log is not a restore feature.
 
 ### Operating Guide, procedures, and knowledge [#page-types]
 
@@ -716,7 +716,7 @@ Read, create or edit roles with system permissions and access to any configured 
 **Can delete data.** Required: `action`. Optional: `roleId`, `typeIds`, `role`, `deletion`.
 {/* /mcp-catalog */}
 
-No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change or a removal made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys](app:settings/api-keys).
+No tool reads the subscription, plan, seats or billing, or changes the plan, and none creates or deletes API keys; `get_workspace_context` returns no plan or trial data either. Roles are managed with `manage_roles` or under [Roles](app:settings/roles). Billed seats follow the number of **Active** members, so a status change or a removal made with `manage_team` changes the seat count just as in the app ([how seats are counted](/docs/app-company#how-are-seats-counted-and-billed)). Manage the subscription under [Billing](app:settings/billing) (cloud only) and keys under [API keys & connectors](app:settings/api-keys).
 
 ### Support
 
@@ -788,7 +788,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 
 <Faq>
 <FaqItem question="How do I authenticate against the MCP endpoint?">
-Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys](app:settings/api-keys) with [Add](app:settings/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can. Keys and OAuth tokens need **Read access** **All** on **API & Webhooks**; without it, MCP and the REST API answer `403`, also for a refreshed token.
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys & connectors](app:settings/api-keys) with [Add](app:settings/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can. Keys and OAuth tokens need **Read access** **All** on **API & Webhooks**; without it, MCP and the REST API answer `403`, also for a refreshed token.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may work if it supports MCP over streamable HTTP and the required authentication; verify its compatibility and instruction handling before use.

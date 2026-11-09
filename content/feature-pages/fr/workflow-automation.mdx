@@ -89,7 +89,7 @@ Une exécution sans surveillance peut créer et mettre à jour des enregistremen
 Customermates n’envoie aucune notification et les tâches n’ont pas d’échéance. Un rappel est donc ici une tâche qu’une routine crée à partir d’une date que vous tenez vous-même. La routine s’exécute chaque matin, trouve les affaires dont la date est dépassée et place une tâche par affaire dans la liste des tâches. Il vous faut pour cela un champ **Date** comme « Prochain contact » sur les Affaires ; le [guide de la relance](/features/follow-up) montre comment l’ajouter et enregistrer les vues correspondantes.
 
 <Steps>
-  <Step title="Ajoutez le champ date">Dans **Configurer**, ajoutez à **Affaires** un champ de type **Date** nommé « Prochain contact » et renseignez-le sur les affaires que vous voulez relancer.</Step>
+  <Step title="Ajoutez le champ date">Dans **Modèle de données**, ajoutez à **Affaires** un champ de type **Date** nommé « Prochain contact » et renseignez-le sur les affaires que vous voulez relancer.</Step>
   <Step title="Ajoutez la routine">Ouvrez **Routines**, cliquez sur **Ajouter** et nommez-la « Relances ».</Step>
   <Step title="Définissez le déclencheur">Choisissez **Selon un planning**, puis **Répétition** : **Chaque jour**, 08:00. Seulement en semaine ? Demandez à Mate de définir un planning personnalisé.</Step>
   <Step title="Collez la consigne">Utilisez le texte ci-dessous avec les noms de vos propres étapes, et enregistrez.</Step>
@@ -109,7 +109,7 @@ Utilisation des crédits : un planning quotidien représente 30 ou 31 exécutio
 Cela exige la [boîte de réception unifiée](/features/unified-inbox), qui commence avec Pro.
 
 <Steps>
-  <Step title="Connectez une messagerie">Connectez Gmail, Outlook ou IMAP sous **Paramètres › Canaux**.</Step>
+  <Step title="Connectez une messagerie">Connectez Gmail, Outlook ou IMAP sous **Paramètres › Canaux et agendas**.</Step>
   <Step title="Ajoutez la routine">Choisissez **Quand quelque chose change** et l’évènement **E-mail reçu**. Pour WhatsApp ou LinkedIn, choisissez **Message reçu**.</Step>
   <Step title="Collez la consigne">Utilisez le texte ci-dessous et enregistrez.</Step>
   <Step title="Relisez les brouillons">Dans la boîte de réception, réglez le filtre **Brouillon** sur **en a au moins un**. Modifiez un brouillon et cliquez sur **Envoyer le brouillon**, ou abandonnez-le.</Step>
@@ -129,7 +129,7 @@ Customermates envoie un POST JSON pour chacun des [[derived.webhooks.events.tota
   <Step title="Ajoutez le déclencheur dans n8n">Ajoutez un nœud Webhook et copiez son URL. Avec le nœud communautaire, en version 2 ou ultérieure, un nœud Customermates Trigger crée l’abonnement pour vous à l’activation du workflow ; vous pouvez alors sauter l’étape suivante.</Step>
   <Step title="Abonnez-vous dans Customermates">Sous **Paramètres › Webhooks**, cliquez sur **Ajouter**, collez l’URL, choisissez **Enregistrement créé**, la liste **Affaires** sous **Enregistrements de** et définissez un **Secret**.</Step>
   <Step title="Vérifiez et dédupliquez">Contrôlez l’en-tête `X-Webhook-Signature`, une signature HMAC-SHA256 du corps brut de la requête. Les livraisons peuvent arriver dans le désordre ou en double : dédupliquez donc sur l’`id` de l’évènement.</Step>
-  <Step title="Lisez l’affaire">Créez une clé API sous **Paramètres › Clés API** et stockez-la dans n8n comme identifiant Header Auth nommé `x-api-key`. Un nœud HTTP Request appelle ensuite `POST /api/v1/records/read` avec le `typeId` et le `recordId` de `data.record.ref`.</Step>
+  <Step title="Lisez l’affaire">Créez une clé API sous **Paramètres › Clés API et connecteurs** et stockez-la dans n8n comme identifiant Header Auth nommé `x-api-key`. Un nœud HTTP Request appelle ensuite `POST /api/v1/records/read` avec le `typeId` et le `recordId` de `data.record.ref`.</Step>
   <Step title="Publiez dans le canal">Utilisez le nœud Slack de n8n, ou un nœud HTTP Request vers l’URL du webhook entrant du canal, avec le nom, la valeur et le propriétaire de l’affaire. Customermates n’a pas d’intégration Slack native ; pour publier dans Slack, passez par n8n.</Step>
   <Step title="Activez le workflow">Les attentes, les plannings, les journaux et les limites d’exécution relèvent de n8n. Customermates garde les enregistrements et le journal des livraisons.</Step>
 </Steps>
@@ -138,14 +138,14 @@ Pour créer aussi la première tâche, ajoutez un nœud HTTP Request qui appelle
 
 Si vous n’avez besoin que du message dans le chat, sautez n8n : un webhook peut publier directement vers l’URL de webhook entrant de Slack ou de Discord, avec un modèle de corps comme `{ "text": "{{event}} for {{data.record.ref.recordId}}" }`. Cela envoie le nom de l’évènement et l’ID de l’enregistrement ; composer un message à partir des valeurs de l’enregistrement est plus simple dans n8n.
 
-Les livraisons sont retentées automatiquement en cas de délai dépassé ou d’erreur serveur, jusqu’à 10 tentatives au total, et consignées sous **Livraisons**, où une livraison échouée peut être renvoyée. L’[API REST](/features/api) sous `/api/v1` couvre chaque liste que vous créez, et `updateMany`, `deleteMany` et l’import prennent jusqu’à 100 enregistrements par requête.
+Les livraisons sont retentées automatiquement en cas de délai dépassé ou d’erreur serveur, jusqu’à 10 tentatives au total, et consignées sous **Journal des webhooks**, où une livraison échouée peut être renvoyée. L’[API REST](/features/api) sous `/api/v1` couvre chaque liste que vous créez, et `updateMany`, `deleteMany` et l’import prennent jusqu’à 100 enregistrements par requête.
 
 ## Comment un client IA peut-il mettre à jour des enregistrements via MCP ?
 
 Le serveur MCP donne aux clients IA comme Claude ou ChatGPT [[derived.mcp.tools.total]] outils sur les mêmes données, avec toutes les formules et en auto-hébergement. Votre propre fournisseur d’IA facture l’usage du modèle. C’est la voie pour les mises à jour que vous demandez en langage courant, par exemple le compte rendu d’un appel.
 
 <Steps>
-  <Step title="Connectez le client">Claude et ChatGPT se connectent par un connecteur personnalisé avec OAuth, sans clé à gérer. Les clients en ligne de commande et les éditeurs utilisent une clé API de **Paramètres › Clés API**. La configuration par client figure dans la [référence MCP](/docs/mcp).</Step>
+  <Step title="Connectez le client">Claude et ChatGPT se connectent par un connecteur personnalisé avec OAuth, sans clé à gérer. Les clients en ligne de commande et les éditeurs utilisent une clé API de **Paramètres › Clés API et connecteurs**. La configuration par client figure dans la [référence MCP](/docs/mcp).</Step>
   <Step title="Restreignez les outils">Ajoutez si vous le souhaitez `?toolsets=records` à l’URL du point de terminaison : le client ne voit alors que les outils d’enregistrements, plus `search` et `fetch`.</Step>
   <Step title="Demandez la mise à jour">Dites au client ce qui s’est passé, par exemple avec la requête ci-dessous. Il retrouve les identifiants de la liste et des champs, trouve l’affaire, lit sa version actuelle et écrit la modification avec `mutate_crm_record`.</Step>
   <Step title="Vérifiez le résultat">Ouvrez l’historique d’activité de l’affaire. Les changements faits via MCP comptent comme ceux faits dans l’application : un webhook abonné reçoit un évènement `record.updated` et des routines sur évènement peuvent s’y déclencher.</Step>

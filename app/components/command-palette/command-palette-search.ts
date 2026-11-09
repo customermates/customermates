@@ -145,7 +145,6 @@ function editDistance(a: string, b: string, limit: number): number {
   return rows[a.length][b.length];
 }
 
-/** A word typed with one slip (two in long words), or a compound word that contains a known word. */
 function tolerantWordMatch(query: string, candidate: string): boolean {
   if (query.length >= TYPO_MIN_LENGTH && candidate.length >= TYPO_MIN_LENGTH) {
     const limit = query.length >= 8 ? 2 : 1;

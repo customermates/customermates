@@ -141,7 +141,7 @@ export const listWorkspaceWebhookDeliveriesOperation: ZodOpenApiOperationObject 
   operationId: "listWorkspaceWebhookDeliveries",
   summary: "List deliveries across all webhooks",
   description:
-    "Lists the deliveries of every webhook in the workspace newest first, as the Deliveries page shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
+    "Lists the deliveries of every webhook in the workspace newest first, as the Webhook log page in Settings shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
   tags: ["webhooks"],
   security: [{ apiKeyAuth: [] }],
   requestParams: { query: ListQueryParamsSchema },

@@ -1,6 +1,7 @@
 "use client";
 
 import { IN_PLACE_EDITOR_CLASS } from "@/components/records/inline-edit-classes";
+import { useInlineEditHint } from "@/components/records/use-inline-edit-hint";
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type {
   RecordFieldView,
@@ -382,10 +383,13 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
   field: RecordFieldView;
   onDone: (activateNext?: () => void) => void;
 }) {
+  const t = useTranslations();
   const inputId = useId();
   const container = useRef<HTMLDivElement>(null);
   const activateNext = useRef<(() => void) | undefined>(undefined);
   const store = useFieldValueStore(records, record, field, () => onDone(activateNext.current));
+  const multilineText = field.valueType === "text" && field.id !== records.type?.primaryFieldId;
+  const showHint = useInlineEditHint(multilineText);
   useEffect(() => {
     const input = container.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
       'input:not([type="hidden"]), textarea',
@@ -422,7 +426,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
         } else if (
           event.key === "Enter" &&
           !event.nativeEvent.isComposing &&
-          !(event.shiftKey && event.target instanceof HTMLTextAreaElement)
+          !(event.shiftKey && event.target instanceof HTMLTextAreaElement && multilineText)
         ) {
           event.preventDefault();
           event.stopPropagation();
@@ -445,8 +449,14 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           inputId={inputId}
           label={null}
           members={record.memberUsers}
-          multilineText={field.valueType === "text" && field.id !== records.type?.primaryFieldId}
+          multilineText={multilineText || field.valueType === "url"}
         />
+
+        {showHint && (
+          <p aria-hidden className="mt-1 px-2 text-[11px] text-muted-foreground" data-inline-edit-hint="">
+            {t("RecordModel.inlineEditHint")}
+          </p>
+        )}
       </AppFormProvider>
     </div>
   );

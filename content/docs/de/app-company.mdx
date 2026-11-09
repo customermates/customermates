@@ -7,7 +7,7 @@ Die Workspace-Einstellungen umfassen alles, was den ganzen Workspace betrifft un
 
 ## Wo finde ich die Workspace-Einstellungen? [#what-lives-on-the-company-screen]
 
-Klicken Sie oben in der Seitenleiste auf den Namen des Workspace, um das Workspace-Menü zu öffnen, und wählen Sie **Einstellungen**, oder drücken Sie G, dann S. Die Einstellungen öffnen sich auf [Profil & Einstellungen](app:settings/profile), und die Seitenleiste wechselt zur Einstellungsnavigation: Ihre eigenen Seiten unter **Konto**, die Workspace-Seiten unter **Workspace**: [Allgemein](app:settings/general), [Mitglieder](app:settings/members), [Rollen](app:settings/roles), [Abrechnung](app:settings/billing) (nur Cloud), [Aktivität](app:settings/activity) und [Webhooks](app:settings/webhooks). **Zurück** oben in der Navigation führt zur Seite zurück, von der Sie kamen.
+Klicken Sie oben in der Seitenleiste auf den Namen des Workspace, um das Workspace-Menü zu öffnen, und wählen Sie **Einstellungen**, oder drücken Sie G, dann S. Die Einstellungen öffnen sich auf [Profil & Einstellungen](app:settings/profile), und die Seitenleiste wechselt zur Einstellungsnavigation: Ihre eigenen Seiten unter **Konto**, die Workspace-Seiten unter **Workspace**: [Allgemein](app:settings/general), [Mitglieder](app:settings/members), [Rollen](app:settings/roles), [Abrechnung](app:settings/billing) (nur Cloud), [Audit-Log](app:settings/activity) und [Webhooks](app:settings/webhooks). **Zurück** oben in der Navigation führt zur Seite zurück, von der Sie kamen.
 
 Das Workspace-Menü listet die Workspaces, zu denen Sie gehören, um zwischen ihnen zu wechseln, und bietet **Workspace erstellen** ([Workspaces](/docs/app-workspaces)). Außerdem enthält es **Mitglieder einladen** (erfordert **Benutzer & Rollen** **Erstellen**), **Mitglieder**, **Einstellungen**, **Abrechnung** mit dem Tarif-Chip (nur Cloud) und, nur für Customermates-Operatoren, **Operator-Konsole**.
 
@@ -17,7 +17,7 @@ Ihre Rolle bestimmt, was Sie sehen. Eine Seite, die Ihre Rolle nicht lesen darf,
 |---|---|
 | Mitglieder, Rollen | **Benutzer & Rollen** mit Leserecht **Alle** (**Zugewiesen** zeigt Mitglieder nur mit Ihrer eigenen Zeile) |
 | Abrechnung | Jedes Mitglied; die Abrechnungs-Controls erfordern **Unternehmen** **Bearbeiten** |
-| Aktivität | **Aktivitätsprotokoll** mit Leserecht **Alle** |
+| Audit-Log | **Aktivitätsprotokoll** mit Leserecht **Alle** |
 | Webhooks | **API & Webhooks** mit Leserecht **Alle** |
 
 Ändern sich in der Cloud die AGB oder der AVV, sehen Mitglieder **Rechtsdokumente aktualisiert** mit **AGB und AVV prüfen** und dem Datum, bis zu dem zugestimmt werden muss. Zustimmen kann nur ein Mitglied mit der Rolle **Admin**, indem es das Kontrollkästchen setzt und **Akzeptieren und fortfahren** klickt; alle anderen sehen, dass ein Unternehmensadministrator bis zu diesem Datum zustimmen muss. Stimmt niemand rechtzeitig zu, öffnet jede Seite diesen Bildschirm, bis ein Admin zustimmt.
@@ -46,7 +46,7 @@ Klicken Sie in [Mitglieder](app:settings/members) auf die Zeile des Mitglieds, u
 - Ihre Änderungen hier gelten für das Mitglied nur in diesem Workspace; was Mitglieder selbst unter Profil & Einstellungen ändern, gilt in jedem Workspace, zu dem sie gehören. Mitglieder können einen Workspace auch selbst verlassen, siehe [Wie verlasse ich einen Workspace?](/docs/app-workspaces#how-do-i-leave-a-workspace).
 - Der Workspace behält immer mindestens ein **Aktives** Mitglied mit der Rolle **Admin**; ein Speichern, das das letzte entfernen würde, schlägt mit "Mindestens ein Nutzer muss Systemadministrator sein." fehl.
 
-Jedes Speichern wird in [Aktivität](app:settings/activity) festgehalten.
+Jedes Speichern wird im [Audit-Log](app:settings/activity) festgehalten.
 
 ## Rollen [#roles-tab]
 
@@ -69,7 +69,7 @@ Jede Zeile hat die Kontrollkästchen **Erstellen**, **Bearbeiten** und **Lösche
 | **Unternehmen** | Nur **Bearbeiten**: nutzt die Abrechnung unter [Abrechnung](app:settings/billing). |
 | **Datenmodell** | Nur **Bearbeiten**: konfiguriert Listen, Felder, Verknüpfungen und Berechnungen, ohne Datensatzzugriff oder Rollenverwaltung. |
 | **Wissensdatenbank** | **Erstellen**, **Bearbeiten** (und Verschieben), **Löschen** von Seiten; jedes davon erzwingt **Alle**. |
-| **Aktivitätsprotokoll** | Nur Lesen: [Aktivität](app:settings/activity) und der Änderungsverlauf an Datensätzen. |
+| **Aktivitätsprotokoll** | Nur Lesen: [Audit-Log](app:settings/activity) und der Änderungsverlauf an Datensätzen. |
 | **Inbox-Nachrichten** (Cloud) | **Erstellen** verbindet Konten und sendet, entwirft und beginnt Unterhaltungen; **Bearbeiten** ändert Konten, Threads, Unterhaltungsstatus und Datensatzverknüpfungen; **Löschen** trennt Konten und verwirft Entwürfe. Zusätzlich durch den Plan begrenzt. |
 | **Routinen** (Cloud) | **Erstellen**, **Bearbeiten** (und jetzt ausführen oder testen), **Löschen**; eine Routine löschen oder die eines anderen pausieren erfordert zusätzlich die Rolle **Admin**. **Alle** oder **Zugewiesen** (eigene Routinen). |
 | **Öffentliche Links** | **Erstellen**: eigene Dashboard- und Listenansichten per öffentlichem Link veröffentlichen ([Dashboard](/docs/app-dashboard#public-links)). |
@@ -84,7 +84,7 @@ Jeder Workspace startet mit einer eingebauten Rolle, **Admin**, die die Person e
 
 - Ihre eigene Rolle können Sie nicht bearbeiten: Ihr Editor zeigt "Diese Rolle ist dir zugewiesen und kann nicht bearbeitet werden. Bitte einen anderen Administrator, sie zu ändern."
 - **Löschen** erscheint nur bei einer benutzerdefinierten Rolle, die kein Mitglied hat, inaktive eingeschlossen. Verschieben Sie zuerst alle auf eine andere Rolle und entfernen Sie die Rolle aus Zugriffsvorlagen.
-- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden in [Aktivität](app:settings/activity) festgehalten.
+- Änderungen gelten für jedes Mitglied mit der Rolle beim nächsten Seitenaufruf oder API-Aufruf und werden im [Audit-Log](app:settings/activity) festgehalten.
 
 ## Abrechnung [#subscription-tab]
 
@@ -165,7 +165,7 @@ Ein bezahlter Workspace, der 3 Tage lang **Unbezahlt** oder **Abgelaufen** bleib
 
 ### Was passiert mit verbundenen Konten bei einem Tarifwechsel? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle](app:settings/channels). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
+Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle & Kalender](app:settings/channels). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
 
 ### Was ist bei Enterprise anders? [#how-does-an-enterprise-workspace-differ]
 
@@ -173,11 +173,11 @@ Enterprise wird mit Customermates eingerichtet und per Rechnung abgerechnet. Abr
 
 ### Wohin führen die Upgrade-Buttons? [#where-do-upgrade-buttons-lead]
 
-Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:settings/channels) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Nutzungshinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:settings/billing), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
+Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle & Kalender](app:settings/channels) **Upgrade nötig, um Messaging freizuschalten** mit **Tarif upgraden**. Am Kontenlimit sehen Pro-Nutzer **Upgrade, um mehr Konten zu verbinden** mit **Tarife ansehen**, ebenso der Nutzungshinweis des gehosteten Assistenten. Alle öffnen [Abrechnung](app:settings/billing), wo nur Rollen mit **Unternehmen** **Bearbeiten** handeln können.
 
-## Aktivität: Wo finde ich das Audit-Log und den Änderungsverlauf? [#activity-tab]
+## Audit-Log: Wo finde ich den Änderungsverlauf? [#activity-tab]
 
-[Aktivität](app:settings/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
+[Audit-Log](app:settings/activity) ist das Ereignisprotokoll des Workspace: wer welchen Datensatz, welche Einstellung oder Konfiguration wann geändert hat, das Neueste zuerst. Jeder Eintrag zeigt den vorherigen und den aktuellen Wert direkt; dieselben Einträge erscheinen in der Ansicht **Aktivitäten** eines Datensatzes, etwa eines Kontakts, im Aktivitäts-Widget des Dashboards und in Mate. Filtern Sie nach Art:
 
 - **Datensatzänderungen**: Anlegen, Ändern und Löschen von Datensätzen mit Feldwerten.
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
@@ -193,19 +193,19 @@ Klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add) oder zum Bearbeit
 
 ### Wo sehe ich die Zustellungen der Webhooks? [#deliveries-tab]
 
-[Zustellungen](app:settings/webhook-deliveries), in der Einstellungsnavigation direkt unter **Webhooks**, listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, **Wird gesendet**, **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Der Payload eines Datensatzereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) erzeugt eine neue Zustellung mit der aktuellen URL, dem aktuellen Secret, den Headern und der Body-Vorlage des Webhooks. Ein Datensatzereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen, und nur dieser Eigentümer oder ein Administrator kann es erneut senden; Details stehen unter [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
+[Webhook-Protokoll](app:settings/webhook-deliveries), in der Einstellungsnavigation direkt unter **Webhooks**, listet eine Zeile je Zustellung, die neueste zuerst, mit **URL**, **Ereignis**, **Element**, **Status**, **Status-Code** und **Erstellt am**. Ein Klick auf eine Zeile öffnet **Ereignis-Details**: Status (**Ausstehend**, **Wird gesendet**, **Zugestellt** oder **Fehlgeschlagen**), Status-Code, Antwort-Nachricht und Payload. Der Payload eines Datensatzereignisses wird mit Ihren aktuellen Rechten neu gelesen: Werte, die Sie nicht lesen dürfen, erscheinen als eingeschränkt, und ohne Zugriff auf den Datensatz bleibt der Payload leer. **Erneut senden** (bei zugestellten oder fehlgeschlagenen Zustellungen, **API & Webhooks** **Erstellen**) erzeugt eine neue Zustellung mit der aktuellen URL, dem aktuellen Secret, den Headern und der Body-Vorlage des Webhooks. Ein Datensatzereignis wird mit den aktuellen Rechten des Webhook-Eigentümers neu gelesen, und nur dieser Eigentümer oder ein Administrator kann es erneut senden; Details stehen unter [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
 
 ## Wo wird die Währung festgelegt? [#where-is-the-currency-set]
 
-Es gibt keine Workspace-Währung: Jedes Geldfeld hat seine eigene. Öffnen Sie [Konfigurieren](app:configure), dann die Liste und das Geldfeld, und wählen Sie **Währung**. Die KI-Einrichtung legt Geldfelder in der Währung an, die Sie in ihren Fragen wählen; ein Geldfeld, das Sie selbst hinzufügen, startet in EUR. Eine Änderung der Feldwährung rechnet gespeicherte Beträge nicht um, und Summen über verschiedene Währungen zeigen einen Währungskonflikt statt einer Summe. Felder konfigurieren erfordert **Datenmodell** **Bearbeiten**.
+Es gibt keine Workspace-Währung: Jedes Geldfeld hat seine eigene. Öffnen Sie [Datenmodell](app:configure), dann die Liste und das Geldfeld, und wählen Sie **Währung**. Die KI-Einrichtung legt Geldfelder in der Währung an, die Sie in ihren Fragen wählen; ein Geldfeld, das Sie selbst hinzufügen, startet in EUR. Eine Änderung der Feldwährung rechnet gespeicherte Beträge nicht um, und Summen über verschiedene Währungen zeigen einen Währungskonflikt statt einer Summe. Felder konfigurieren erfordert **Datenmodell** **Bearbeiten**.
 
 ### Wie funktionieren Phasenwahrscheinlichkeiten und Summen? [#how-do-stage-probabilities-and-totals-work]
 
-Öffnen Sie unter [Konfigurieren](app:configure) Ihre Deal-Liste, dann ihr Feld für die Phase, und setzen Sie **Wahrscheinlichkeit %** an jeder Option; die KI-Einrichtung trägt sie aus der Abschlusschance jeder Phase ein. Ein Feld für den gewichteten Wert multipliziert den Deal-Wert mit der Phasenwahrscheinlichkeit und teilt durch 100; null Prozent ergeben null, ohne Wahrscheinlichkeit bleibt er leer. Änderungen zeigen eine Vorschau der Abhängigkeiten und berechnen betroffene Datensätze neu. Für Pipeline-Summen legen Sie auf dem [Dashboard](app:dashboard) ein Diagramm-Widget an, das den Deal-Wert oder den gewichteten Wert summiert, auf Wunsch nach Phase gruppiert. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+Öffnen Sie unter [Datenmodell](app:configure) Ihre Deal-Liste, dann ihr Feld für die Phase, und setzen Sie **Wahrscheinlichkeit %** an jeder Option; die KI-Einrichtung trägt sie aus der Abschlusschance jeder Phase ein. Ein Feld für den gewichteten Wert multipliziert den Deal-Wert mit der Phasenwahrscheinlichkeit und teilt durch 100; null Prozent ergeben null, ohne Wahrscheinlichkeit bleibt er leer. Änderungen zeigen eine Vorschau der Abhängigkeiten und berechnen betroffene Datensätze neu. Für Pipeline-Summen legen Sie auf dem [Dashboard](app:dashboard) ein Diagramm-Widget an, das den Deal-Wert oder den gewichteten Wert summiert, auf Wunsch nach Phase gruppiert. Siehe [gewichtete Pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### Wie benenne ich eine Liste wie Deals um? [#how-do-i-rename-record-types-in-the-data-model]
 
-Öffnen Sie die Liste in [Konfigurieren](app:configure), ändern Sie **Name** und **Pluralname** unter **Allgemein** und klicken Sie **Speichern**. Jede Liste lässt sich umbenennen; Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise bleiben verbunden. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung und Akzenten. Eine gelöschte Liste wandert in den **Papierkorb**, wo Sie sie 30 Tage lang **Wiederherstellen** oder **Endgültig löschen** können.
+Öffnen Sie die Liste im [Datenmodell](app:configure), ändern Sie **Name** und **Pluralname** unter **Allgemein** und klicken Sie **Speichern**. Jede Liste lässt sich umbenennen; Datensätze, Verknüpfungen, Ansichten, Widgets und API-Verweise bleiben verbunden. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung und Akzenten. Eine gelöschte Liste wandert in den **Papierkorb**, wo Sie sie 30 Tage lang **Wiederherstellen** oder **Endgültig löschen** können.
 
 ## Für Agents [#tips-for-agents]
 

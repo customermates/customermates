@@ -207,7 +207,7 @@ Prenons une agence web de trois personnes. La fondatrice trouve de nouveaux clie
 |---|---|
 | Leads | Contacts, avec un champ à choix unique « Cycle de vie » réglé sur Lead |
 | Contacts | Contacts, avec « Cycle de vie » réglé sur Client |
-| Comptes | Organisations, renommées « Comptes » dans Configurer |
+| Comptes | Organisations, renommées « Comptes » dans Modèle de données |
 | Affaires et étapes | Affaires avec le champ Étape et une probabilité de gain par étape |
 | Produits | Services, renommés « Produits », ajoutés aux affaires comme lignes avec une quantité |
 | Tâches, réunions et appels | Tâches, plus un champ date personnalisé si vous voulez une date, car les tâches n’ont pas d’échéance intégrée |
@@ -216,7 +216,7 @@ Prenons une agence web de trois personnes. La fondatrice trouve de nouveaux clie
 | Étiquettes | Un champ à choix unique, car les enregistrements n’ont pas d’étiquettes |
 | Règles de workflow | Routines dans Customermates Cloud, ou webhooks vers votre propre n8n |
 
-La fondatrice modifie les options du champ Étape en Brief reçu, Proposition envoyée, Négociation, Gagnée et Perdue, et leur donne dans Configurer pour Affaires des probabilités de gain de 20 %, 50 %, 75 %, 100 % et 0 %. Elle enregistre un board de toutes les affaires ouvertes regroupées par Étape. Chaque responsable de comptes enregistre un tableau de ses propres affaires regroupées par organisation ; une vue enregistrée reste privée tant qu’elle n’est pas partagée, donc chacun construit les siennes.
+La fondatrice modifie les options du champ Étape en Brief reçu, Proposition envoyée, Négociation, Gagnée et Perdue, et leur donne dans Modèle de données pour Affaires des probabilités de gain de 20 %, 50 %, 75 %, 100 % et 0 %. Elle enregistre un board de toutes les affaires ouvertes regroupées par Étape. Chaque responsable de comptes enregistre un tableau de ses propres affaires regroupées par organisation ; une vue enregistrée reste privée tant qu’elle n’est pas partagée, donc chacun construit les siennes.
 
 Chaque personne connecte un compte, LinkedIn pour la fondatrice et Gmail pour les deux autres : Pro convient donc, à [[commercial.price.pro.monthly.seats.3]] par mois pour l’équipe. Si la fondatrice veut aussi WhatsApp à côté de LinkedIn, l’espace de travail passe à Business à [[commercial.price.business.monthly.seats.3]].
 
@@ -228,9 +228,9 @@ La règle de workflow Zoho devient une routine dont la fondatrice est propriéta
 
 <Steps>
   <Step title="Exporter chaque module en fichier Excel">Dans Zoho CRM, ouvrez Setup › Data Administration › Export, choisissez un module et sélectionnez XLSX. Les pages d’aide de Zoho fixent la limite à 50 000 enregistrements par export XLSX et gardent le lien de téléchargement sept jours. Exportez Accounts, Contacts, Leads, Products et Deals ; les notes sont un choix distinct dans la liste des modules. Une sauvegarde complète des données sous Setup › Data Administration › Data Backup est un ZIP de fichiers CSV avec les pièces jointes. Customermates ne peut pas importer ce ZIP : gardez-le comme archive.</Step>
-  <Step title="Préparer l’espace de travail">Invitez d’abord vos coéquipiers, afin que les propriétaires d’affaires puissent être associés à des utilisateurs. Dans Configurer, renommez les listes et définissez les probabilités d’étape sur le champ Étape des Affaires. Créez des champs personnalisés pour les champs Zoho que vous gardez, comme la source du lead, le secteur et le Cycle de vie.</Step>
+  <Step title="Préparer l’espace de travail">Invitez d’abord vos coéquipiers, afin que les propriétaires d’affaires puissent être associés à des utilisateurs. Dans Modèle de données, renommez les listes et définissez les probabilités d’étape sur le champ Étape des Affaires. Créez des champs personnalisés pour les champs Zoho que vous gardez, comme la source du lead, le secteur et le Cycle de vie.</Step>
   <Step title="Importer une liste à la fois">Sur chaque liste, ouvrez Plus d’actions, puis Ajouter depuis un fichier : d’abord les organisations, puis les contacts et les leads, puis les services, puis les affaires. Les colonnes de lien rapprochent les enregistrements par nom : l’Account Name d’un contact retrouve donc l’organisation importée avant, et une colonne de propriétaire correspond aux utilisateurs assignés. Associez les adresses e-mail et les numéros de téléphone au champ Coordonnées du contact. Les limites de taille figurent dans la [documentation des enregistrements](/docs/app-records).</Step>
-  <Step title="Connecter les canaux et l’IA">Sur Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp sous Paramètres › Canaux. L’historique d’e-mails de Zoho ne se transfère pas ; la boîte de réception montre les conversations des comptes que vous connectez. Mettez ensuite en place des routines, ou connectez votre propre client IA par MCP.</Step>
+  <Step title="Connecter les canaux et l’IA">Sur Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp sous Paramètres › Canaux et agendas. L’historique d’e-mails de Zoho ne se transfère pas ; la boîte de réception montre les conversations des comptes que vous connectez. Mettez ensuite en place des routines, ou connectez votre propre client IA par MCP.</Step>
   <Step title="Remplacer chaque règle de workflow">Listez vos règles de workflow Zoho et décidez pour chacune : une routine, un webhook vers votre propre n8n, ou rien. Les règles qui ne font que créer des tâches ou mettre à jour un champ tiennent souvent en une seule routine.</Step>
 </Steps>
 

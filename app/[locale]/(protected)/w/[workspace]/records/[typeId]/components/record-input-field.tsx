@@ -229,6 +229,7 @@ export const RecordInputField = observer(function RecordInputField({
       typeof value === "string" && value.trim() ? (
         <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
       ) : undefined;
+    if (multilineText) return <FormTextarea {...shared} ariaLabel={field.label} endContent={endContent} rows={1} />;
     if (collapsibleText)
       return <FormTextarea {...shared} collapsible ariaLabel={field.label} endContent={endContent} />;
     return <FormInput {...shared} className="pr-14" endContent={endContent} />;

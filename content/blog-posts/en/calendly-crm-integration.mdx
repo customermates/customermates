@@ -100,10 +100,10 @@ This works on every Customermates plan and on a self-hosted installation. You ne
 
 <Steps>
 <Step title="Create an API key">
-In Customermates, open **Settings › API keys**, click **Add** and choose **Standard API key**. The key acts with your permissions. In n8n, store it as a Header Auth credential with the header name `x-api-key`. See [API keys](/docs/api-keys).
+In Customermates, open **Settings › API keys & connectors**, click **Add** and choose **Standard API key**. The key acts with your permissions. In n8n, store it as a Header Auth credential with the header name `x-api-key`. See [API keys](/docs/api-keys).
 </Step>
 <Step title="Prepare the deal fields">
-Open Deals in **Configure** and add a "Call booked" and a "Cancelled" option to the **Stage** field, which is a **Single choice** field. Add a **Date and time** field "Meeting", a **Single choice** field "Lead source" with one option per event type, and a **Text** field "Calendly booking". `POST /api/v1/model/discover` finds the type IDs of Contacts and Deals, and `POST /api/v1/model/read` returns the schema revision and the field, option and relationship IDs the API expects. These IDs stay valid when someone renames a list or field.
+Open Deals in **Data model** and add a "Call booked" and a "Cancelled" option to the **Stage** field, which is a **Single choice** field. Add a **Date and time** field "Meeting", a **Single choice** field "Lead source" with one option per event type, and a **Text** field "Calendly booking". `POST /api/v1/model/discover` finds the type IDs of Contacts and Deals, and `POST /api/v1/model/read` returns the schema revision and the field, option and relationship IDs the API expects. These IDs stay valid when someone renames a list or field.
 </Step>
 <Step title="Receive the booking">
 Add n8n's Calendly Trigger with "Event created" and "Event canceled". Alternatively, use a Webhook node and subscribe its URL through Calendly's API.
@@ -123,7 +123,7 @@ Customermates does not block a second contact with the same address, because one
 
 ### Route 2: the calendar, on Pro and higher in Customermates Cloud
 
-If Calendly is set to send **Calendar Invitations**, the host's Google or Outlook calendar creates the event and adds the invitee as a guest. Connect that same account in Customermates under **Settings › Channels** with **Connect channel**, and the meeting arrives without any workflow tool. Calendar events appear in an [activity timeline](/docs/app-dashboard), and on the record of a contact whose email matches a guest. Customermates only reads the calendar. It never books or changes meetings.
+If Calendly is set to send **Calendar Invitations**, the host's Google or Outlook calendar creates the event and adds the invitee as a guest. Connect that same account in Customermates under **Settings › Channels & calendars** with **Connect channel**, and the meeting arrives without any workflow tool. Calendar events appear in an [activity timeline](/docs/app-dashboard), and on the record of a contact whose email matches a guest. Customermates only reads the calendar. It never books or changes meetings.
 
 To turn bookings into records, a routine can sweep the calendar. Routines run in Customermates Cloud only and use hosted AI credits from the owner's monthly allowance. Choose **On a schedule**, set **Repeats** to **Every hour**, and give it instructions like these:
 

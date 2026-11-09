@@ -94,10 +94,10 @@ Voici comment un cabinet de conseil de cinq personnes façonnerait Customermates
 
 <Steps>
   <Step title="Renommer les listes">
-    Dans **Configurer**, ouvrez une liste et modifiez **Nom** et **Nom au pluriel** sous **Général** : les Contacts deviennent **Clients**, les Affaires deviennent **Projets**, les Services deviennent **Forfaits**. Tous les noms sont possibles, et les enregistrements, les liens, les vues et les références d’API restent connectés ; voir la [documentation des paramètres de l’espace de travail](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+    Dans **Modèle de données**, ouvrez une liste et modifiez **Nom** et **Nom au pluriel** sous **Général** : les Contacts deviennent **Clients**, les Affaires deviennent **Projets**, les Services deviennent **Forfaits**. Tous les noms sont possibles, et les enregistrements, les liens, les vues et les références d’API restent connectés ; voir la [documentation des paramètres de l’espace de travail](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
   </Step>
   <Step title="Définir le champ d’étape">
-    Les étapes ne sont pas prédéfinies. Dans Configurer pour les Affaires, ajoutez un champ à choix unique **Étape** (dans le cloud, la configuration IA peut le créer) avec des options qui correspondent à vos étapes de vente, par exemple Demande, Appel de cadrage, Proposition envoyée, Signée, Perdue. Réglez **Probabilité %** sur chaque option, et chaque affaire reçoit une valeur pondérée à partir de ces pourcentages fixes ; un widget graphique du **Tableau de bord** qui additionne la **Valeur pondérée** par étape affiche le total pondéré du pipeline.
+    Les étapes ne sont pas prédéfinies. Dans Modèle de données pour les Affaires, ajoutez un champ à choix unique **Étape** (dans le cloud, la configuration IA peut le créer) avec des options qui correspondent à vos étapes de vente, par exemple Demande, Appel de cadrage, Proposition envoyée, Signée, Perdue. Réglez **Probabilité %** sur chaque option, et chaque affaire reçoit une valeur pondérée à partir de ces pourcentages fixes ; un widget graphique du **Tableau de bord** qui additionne la **Valeur pondérée** par étape affiche le total pondéré du pipeline.
   </Step>
   <Step title="Ajouter des champs personnalisés là où ils éclairent une décision">
     Sur les Projets : **Type de mission** (Choix unique : mission récurrente, périmètre fixe, atelier), **Taux journalier** (Montant), **Renouvellement du contrat** (Date). Sur les Clients : **Source** (Choix unique) et **Adresse du bureau** (Adresse) ; les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées. Seize types de champs et des champs calculés sont disponibles, listés dans la [documentation du modèle de données](/docs/concepts#what-are-custom-columns).
@@ -165,7 +165,7 @@ Pour une personne et quelques centaines de contacts, oui. Cela ne tient plus qua
 </FaqItem>
 
 <FaqItem question="Quel CRM offre le modèle de données le plus souple pour les objets personnalisés ?">
-Parmi les produits vérifiés ici, Twenty inclut des objets personnalisés illimités dans ses offres Pro, Organization et Enterprise, Attio en autorise jusqu’à 12 avec Pro et un nombre illimité avec Enterprise, EspoCRM crée des entités personnalisées dans son Entity Manager, HubSpot réserve les objets personnalisés aux niveaux Enterprise, et Zoho CRM autorise de 10 à 500 modules personnalisés selon l’édition payante. Dans Customermates, vous ajoutez vos propres listes avec champs et relations dans Configurer.
+Parmi les produits vérifiés ici, Twenty inclut des objets personnalisés illimités dans ses offres Pro, Organization et Enterprise, Attio en autorise jusqu’à 12 avec Pro et un nombre illimité avec Enterprise, EspoCRM crée des entités personnalisées dans son Entity Manager, HubSpot réserve les objets personnalisés aux niveaux Enterprise, et Zoho CRM autorise de 10 à 500 modules personnalisés selon l’édition payante. Dans Customermates, vous ajoutez vos propres listes avec champs et relations dans Modèle de données.
 </FaqItem>
 
 <FaqItem question="Puis-je garder les données de mon CRM sur mon propre serveur ?">

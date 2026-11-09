@@ -94,10 +94,10 @@ So würde eine Beratung mit fünf Personen Customermates an ihren Ablauf anpasse
 
 <Steps>
   <Step title="Listen umbenennen">
-    Öffnen Sie in **Konfigurieren** eine Liste und ändern Sie **Name** und **Pluralname** unter **Allgemein**: Kontakte werden zu **Kunden**, Deals zu **Projekte**, Services zu **Pakete**. Jeder Name ist möglich, Datensätze, Verknüpfungen, Ansichten und API-Verweise bleiben verbunden, siehe [Anleitung zu den Workspace-Einstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+    Öffnen Sie im **Datenmodell** eine Liste und ändern Sie **Name** und **Pluralname** unter **Allgemein**: Kontakte werden zu **Kunden**, Deals zu **Projekte**, Services zu **Pakete**. Jeder Name ist möglich, Datensätze, Verknüpfungen, Ansichten und API-Verweise bleiben verbunden, siehe [Anleitung zu den Workspace-Einstellungen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
   </Step>
   <Step title="Das Phasenfeld festlegen">
-    Phasen sind nicht voreingestellt. Legen Sie in Konfigurieren für Deals ein Einzelauswahl-Feld **Phase** an (in der Cloud kann die KI-Einrichtung es erstellen), mit Optionen für Ihre Schritte, etwa Anfrage, Klärungsgespräch, Angebot verschickt, Beauftragt, Verloren. Setzen Sie an jeder Option **Wahrscheinlichkeit %**, dann erhält jeder Deal einen gewichteten Wert aus diesen festen Prozentsätzen; ein Diagramm-Widget auf dem Dashboard, das **Gewichteter Wert** nach Phase summiert, zeigt die gewichtete Pipeline.
+    Phasen sind nicht voreingestellt. Legen Sie im Datenmodell für Deals ein Einzelauswahl-Feld **Phase** an (in der Cloud kann die KI-Einrichtung es erstellen), mit Optionen für Ihre Schritte, etwa Anfrage, Klärungsgespräch, Angebot verschickt, Beauftragt, Verloren. Setzen Sie an jeder Option **Wahrscheinlichkeit %**, dann erhält jeder Deal einen gewichteten Wert aus diesen festen Prozentsätzen; ein Diagramm-Widget auf dem Dashboard, das **Gewichteter Wert** nach Phase summiert, zeigt die gewichtete Pipeline.
   </Step>
   <Step title="Eigene Felder dort anlegen, wo sie eine Entscheidung tragen">
     An Projekten: **Auftragsart** (Einzelauswahl: Retainer, Festpreis, Workshop), **Tagessatz** (Geldbetrag), **Vertragsverlängerung** (Datum). An Kunden: **Quelle** (Einzelauswahl) und **Büroadresse** (Adresse); Telefonnummern und E-Mail-Adressen gehören in das Feld Kontaktdaten. Sechzehn Feldtypen und berechnete Felder stehen zur Wahl, aufgelistet in der [Dokumentation zum Datenmodell](/docs/concepts#what-are-custom-columns).
@@ -165,7 +165,7 @@ Für eine Person und einige hundert Kontakte ja. Es stößt an Grenzen, sobald m
 </FaqItem>
 
 <FaqItem question="Welche CRM-Lösungen bieten die flexibelsten Anpassungsmöglichkeiten?">
-Bei eigenen Objekten bietet Twenty laut Preisseite unbegrenzt viele in Pro, Organization und Enterprise, Attio bis zu 12 in Pro und unbegrenzt in Enterprise, EspoCRM legt eigene Entitäten im Entity Manager an, HubSpot reserviert sie für Enterprise-Tarife, Zoho CRM erlaubt je nach bezahlter Edition 10 bis 500 benutzerdefinierte Module. In Customermates legen Sie in Konfigurieren eigene Listen mit Feldern und Beziehungen an.
+Bei eigenen Objekten bietet Twenty laut Preisseite unbegrenzt viele in Pro, Organization und Enterprise, Attio bis zu 12 in Pro und unbegrenzt in Enterprise, EspoCRM legt eigene Entitäten im Entity Manager an, HubSpot reserviert sie für Enterprise-Tarife, Zoho CRM erlaubt je nach bezahlter Edition 10 bis 500 benutzerdefinierte Module. In Customermates legen Sie im Datenmodell eigene Listen mit Feldern und Beziehungen an.
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Daten auf dem eigenen Server speichern?">

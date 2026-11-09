@@ -5,8 +5,8 @@ import type { PaletteTranslator } from "../palette-entries";
 
 import messages from "@/i18n/locales/en.json";
 import { Action, Resource } from "@/generated/prisma";
-import { CONNECT_INTENT_AI_CLIENTS, readConnectIntent } from "@/components/keyboard/connect-intent";
-import { staticEntries } from "../palette-entries";
+import { CONNECT_INTENT_AI_CLIENTS, connectedChannels, readConnectIntent } from "@/components/keyboard/connect-intent";
+import { markConnectedEntries, staticEntries } from "../palette-entries";
 import { rankCandidates } from "../command-palette-search";
 
 const t: PaletteTranslator = (key) => {
@@ -101,5 +101,21 @@ describe("forgiving search", () => {
     expect(top("data model")?.key).toBe("cmd:page.configure");
     expect(top("audit log")?.key).toBe("cmd:settings.activity");
     expect(top("deliveries")?.key).toBe("cmd:settings.webhook-deliveries");
+  });
+});
+
+describe("connected channels", () => {
+  it("marks only the channels the person connected themselves, LinkedIn by product", () => {
+    const connected = connectedChannels([
+      { provider: "google", isOwner: true },
+      { provider: "linkedin", isOwner: true, linkedinProducts: ["classic", "sales_navigator"] },
+      { provider: "telegram", isOwner: false },
+    ]);
+    expect([...connected].sort()).toEqual(["google", "linkedin", "linkedin_sales_navigator"]);
+    const entries = markConnectedEntries(staticEntries(t, everything), connected, "Connected");
+    const subtitle = (key: string) => entries.find((entry) => entry.key === key)?.subtitle;
+    expect(subtitle("cmd:setting.channels.google")).toBe("Channels & calendars · Connected");
+    expect(subtitle("cmd:setting.channels.linkedinRecruiter")).toBe("Channels & calendars");
+    expect(subtitle("cmd:setting.channels.telegram")).toBe("Channels & calendars");
   });
 });

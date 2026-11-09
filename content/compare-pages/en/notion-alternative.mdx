@@ -154,7 +154,7 @@ The rows do not buy the same things:
 
 Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
 
-**The pipeline is a field, not a formula project.** Stages are not preset: you add a Stage single choice field to your deals list and set a probability per option in Configure (in the cloud, AI setup can create it), for example Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. A deal's value is the sum of its line items, each a service's price times quantity, and Customermates multiplies it by the stage probability for a weighted value per deal, which a Dashboard chart can sum into a [pipeline total](/features/pipeline). That is arithmetic on your numbers, not a prediction.
+**The pipeline is a field, not a formula project.** Stages are not preset: you add a Stage single choice field to your deals list and set a probability per option in Data model (in the cloud, AI setup can create it), for example Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. A deal's value is the sum of its line items, each a service's price times quantity, and Customermates multiplies it by the stage probability for a weighted value per deal, which a Dashboard chart can sum into a [pipeline total](/features/pipeline). That is arithmetic on your numbers, not a prediction.
 
 **Conversations sit next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. Link a participant to a contact once, and every conversation with that address or handle shows on the contact's timeline.
 
@@ -195,7 +195,7 @@ Each consultant saves a board of their own deals grouped by stage, and the found
 <Steps>
   <Step title="Export each database">In Notion, open the database's ••• menu, choose Export and pick Markdown & CSV. A full-page database comes out as one table file plus a Markdown file for every page.</Step>
   <Step title="Prepare the file">Customermates reads CSV files, so there is nothing to convert. Split names into first and last name, because new contacts need both.</Step>
-  <Step title="Prepare the workspace">Rename lists in Configure, adjust the Stage options and probabilities, and add the fields from the table above.</Step>
+  <Step title="Prepare the workspace">Rename lists in Data model, adjust the Stage options and probabilities, and add the fields from the table above.</Step>
   <Step title="Import one list at a time">Under More actions, choose Add from file: organizations first, then contacts, services and deals. Link columns match records by name, ignoring case. Map email addresses and phone numbers to the contact's Contact details field. The [records guide](/docs/app-records) lists the file limits.</Step>
   <Step title="Bring over notes and views">Meeting notes are in the Markdown files, not the table. Paste the ones you need into each record's notes, or have an AI client write them over MCP. Then rebuild your views and share the ones the whole team uses.</Step>
 </Steps>

@@ -74,6 +74,30 @@ test("a widget on a dashboard view someone else shared opens its records without
     await expect(member.page.getByRole("button", { name: editWidget("Board number") })).toHaveCount(0);
     await expect(member.page.locator("#edit-widget")).toHaveCount(0);
     await member.page.screenshot({ path: testInfo.outputPath("shared-widget-drawer.png"), animations: "disabled" });
+    await member.page.keyboard.press("Escape");
+
+    const widgetId = (
+      await database.query<{ id: string }>(
+        'SELECT id FROM "Widget" WHERE "viewId"=$1 AND name=$2 AND "deletedAt" IS NULL',
+        [viewId, "Board number"],
+      )
+    ).rows[0].id;
+    await member.page.goto(`${dashboardPath}?view=${viewId}&focus=${encodeURIComponent(`widget:${widgetId}`)}`);
+    await expect(member.page.getByRole("heading", { name: "Board number", exact: true })).toBeVisible();
+    await expect(member.page.locator("#widget-modal-save")).toHaveCount(0);
+
+    const notice = member.page.locator("[data-shared-view-notice]");
+    await expect(notice).toBeVisible();
+    await expect(notice).toContainText(englishMessages.DataView.share.duplicateToEdit);
+    await notice.locator("#global-data-views-duplicate-to-edit").click();
+    const copyName = member.page.getByPlaceholder(englishMessages.DataView.views.namePlaceholder);
+    await expect(copyName).toHaveValue(englishMessages.DataView.views.duplicateName.replace("{name}", "Shared board"));
+    await copyName.fill("My board");
+    await member.page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+    const copy = rail(member.page).getByRole("link", { name: "My board", exact: true });
+    await expect(copy).toHaveAttribute("aria-current", "page");
+    await expect(notice).toHaveCount(0);
+    await expect(member.page.locator("#dashboard-add-widget")).toBeVisible();
 
     expect(errors).toEqual([]);
     expect(member.errors).toEqual([]);
@@ -149,4 +173,22 @@ test("the search finds every channel and AI client connection and starts it on i
   const request = await started;
   expect(request.postData()).toContain("google");
   await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/channels$"));
+});
+
+test("the calendar's date sources offer connecting Google or Microsoft calendars in place", async ({
+  page,
+  companyId,
+}) => {
+  test.skip(e2eAppMode() !== "cloud", "Connected calendars are part of the cloud service");
+  test.setTimeout(120000);
+  await page.goto(companyPath(companyId, "/calendar"));
+  await page.locator("#planner-sources").click();
+  const connectCalendar = page.locator("#planner-connect-calendar");
+  await expect(connectCalendar).toBeVisible();
+  await expect(connectCalendar).toHaveText(englishMessages.Planner.connectCalendar);
+  await connectCalendar.click();
+  await expect(page.getByRole("menuitem")).toHaveText([
+    englishMessages.Common.providers.google,
+    englishMessages.Common.providers.outlook,
+  ]);
 });

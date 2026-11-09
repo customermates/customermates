@@ -1830,6 +1830,7 @@
     "checkpointToastTitle": "Verifica non riuscita",
     "connectAccount": "Collega un canale",
     "connectedAt": "Collegato",
+    "connectedNote": "Collegato",
     "connectedToastDescription": "La tua cronologia viene importata in background. Può richiedere qualche minuto, puoi continuare a lavorare.",
     "connectedToastTitle": "Canale collegato",
     "description": "Collega i canali da cui attinge la tua posta in arrivo, come e-mail, WhatsApp e LinkedIn. I canali sono privati per impostazione predefinita e possono essere condivisi con il tuo spazio di lavoro. Collegandone uno, ci autorizzi a trattarne i messaggi, i contatti e il calendario per tuo conto. Consulta la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>, i nostri <subprocessorsLink>sub-responsabili</subprocessorsLink> e i nostri <termsOfServiceLink>Termini</termsOfServiceLink>.",
@@ -2306,6 +2307,8 @@
     "share": {
       "descriptionDashboard": "Il team vede gli stessi widget e lo stesso layout. Ogni numero è calcolato con il proprio accesso, quindi nessuno vede record che il suo ruolo nasconde.",
       "descriptionList": "Il team vede i tuoi filtri, colonne e layout. Ognuno vede solo i record e i campi consentiti dal proprio ruolo.",
+      "duplicateToEdit": "Duplica per modificare",
+      "duplicateToEditLabel": "Duplica {name} per modificare la tua copia",
       "hidden": "Nascosta dalle tue schede",
       "hide": "Nascondi dalle mie schede",
       "link": "Link",
@@ -2335,6 +2338,7 @@
         "saveToCreate": "Salva per creare il link.",
         "workspaceDisabled": "I link pubblici sono disattivati per questo spazio di lavoro in Impostazioni, Generale."
       },
+      "readOnly": "Condivisa da {name} · sola lettura",
       "roles": "Ruoli selezionati",
       "rolesDescription": "La vedono solo i membri con questi ruoli.",
       "rolesLabel": "Ruoli",
@@ -2904,7 +2908,7 @@
       "add": "Aggiungi un record o un elenco",
       "askMate": "Chiedi a Mate",
       "close": "Chiudi la finestra o il pannello in primo piano",
-      "goConfigure": "Configura",
+      "goConfigure": "Modello dati",
       "goDashboard": "Dashboard",
       "goInbox": "Posta in arrivo",
       "goKnowledgeBase": "Base di conoscenza",
@@ -4269,6 +4273,7 @@
     },
     "iconSearch": "Cerca icone",
     "identityChannels": "Recapiti",
+    "inlineEditHint": "Invio salva · Maiusc+Invio aggiunge una riga",
     "invalidConfiguration": "Questa modifica deve essere verificata prima di applicarla.",
     "lineFields": {
       "amount": "Importo",

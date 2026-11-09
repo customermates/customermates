@@ -910,7 +910,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
   [
-    "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
+    "components/channels/connect-channel-menu.tsx :: t :: option.labelKey",
     1,
   ],
   [

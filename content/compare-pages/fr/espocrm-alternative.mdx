@@ -189,7 +189,7 @@ Customermates est un CRM open source et IA native pour les petites équipes en c
 
 ## Migrer depuis EspoCRM
 
-La plupart des données commerciales d’EspoCRM ont une place directe. Dans Configurer, vous pouvez renommer les organisations en « Comptes » et les affaires en « Opportunités », pour que votre équipe garde son vocabulaire.
+La plupart des données commerciales d’EspoCRM ont une place directe. Dans Modèle de données, vous pouvez renommer les organisations en « Comptes » et les affaires en « Opportunités », pour que votre équipe garde son vocabulaire.
 
 | Dans EspoCRM | Dans Customermates |
 |---|---|
@@ -201,11 +201,11 @@ La plupart des données commerciales d’EspoCRM ont une place directe. Dans Con
 | Entités personnalisées | Vos propres listes, avec champs et relations |
 | Campagnes, e-mailing de masse, portail | Aucun équivalent ; gardez un outil dédié |
 
-Les étapes se correspondent presque une à une. Dans Customermates, les étapes ne sont pas prédéfinies : ajoutez à votre liste d’affaires dans Configurer un champ Choix unique Étape (dans le cloud, la configuration IA peut le créer), avec une option par étape EspoCRM, et copiez vos probabilités EspoCRM dans la **Probabilité %** de chaque option. La valeur pondérée multiplie alors la valeur de chaque affaire par la probabilité de son étape. C’est un calcul sur vos propres chiffres, qui ne prédit rien.
+Les étapes se correspondent presque une à une. Dans Customermates, les étapes ne sont pas prédéfinies : ajoutez à votre liste d’affaires dans Modèle de données un champ Choix unique Étape (dans le cloud, la configuration IA peut le créer), avec une option par étape EspoCRM, et copiez vos probabilités EspoCRM dans la **Probabilité %** de chaque option. La valeur pondérée multiplie alors la valeur de chaque affaire par la probabilité de son étape. C’est un calcul sur vos propres chiffres, qui ne prédit rien.
 
 <Steps>
   <Step title="Exportez depuis EspoCRM">Exportez chaque liste que vous voulez garder vers un fichier Excel : comptes, contacts, leads et opportunités.</Step>
-  <Step title="Préparez l’espace de travail">Renommez les listes dans Configurer, créez des champs personnalisés pour les attributs que vous conservez et définissez les probabilités d’étape.</Step>
+  <Step title="Préparez l’espace de travail">Renommez les listes dans Modèle de données, créez des champs personnalisés pour les attributs que vous conservez et définissez les probabilités d’étape.</Step>
   <Step title="Importez une liste à la fois">Importez d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de lien associent les enregistrements par nom : la colonne de compte d’un contact retrouve donc l’organisation importée avant. Customermates importe des fichiers XLSX, XLS et CSV ; la [documentation des enregistrements](/docs/app-records) liste les limites.</Step>
   <Step title="Reconstruisez les listes en vues">Transformez chaque filtre de liste EspoCRM en vue enregistrée. Les vues restent privées tant que vous ne les partagez pas ; partagez celles que toute l’équipe utilise.</Step>
   <Step title="Connectez les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp, puis configurez des routines pour Mate ou connectez votre propre client IA via MCP.</Step>

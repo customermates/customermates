@@ -1830,6 +1830,7 @@
     "checkpointToastTitle": "Error de verificación",
     "connectAccount": "Conectar un canal",
     "connectedAt": "Conectada",
+    "connectedNote": "Conectado",
     "connectedToastDescription": "Tu historial se está importando en segundo plano. Puede tardar unos minutos, puedes seguir trabajando.",
     "connectedToastTitle": "Canal conectado",
     "description": "Conecta los canales de los que se nutre tu bandeja de entrada, como el correo, WhatsApp y LinkedIn. Los canales son privados de forma predeterminada y pueden compartirse con tu espacio de trabajo. Al conectar uno, nos autorizas a tratar sus mensajes, contactos y calendario en tu nombre. Consulta nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>, nuestros <subprocessorsLink>subencargados</subprocessorsLink> y nuestros <termsOfServiceLink>Términos</termsOfServiceLink>.",
@@ -2306,6 +2307,8 @@
     "share": {
       "descriptionDashboard": "Tu equipo ve los mismos widgets y la misma disposición. Cada cifra se calcula con su propio acceso, así que nadie ve registros que su rol oculta.",
       "descriptionList": "Tu equipo ve tus filtros, columnas y disposición. Cada persona solo ve los registros y campos que su rol permite.",
+      "duplicateToEdit": "Duplicar para editar",
+      "duplicateToEditLabel": "Duplicar {name} para editar tu propia copia",
       "hidden": "Oculta en tus pestañas",
       "hide": "Ocultar de mis pestañas",
       "link": "Enlace",
@@ -2335,6 +2338,7 @@
         "saveToCreate": "Guarda para crear el enlace.",
         "workspaceDisabled": "Los enlaces públicos están desactivados para este espacio de trabajo en Ajustes, General."
       },
+      "readOnly": "Compartida por {name} · solo lectura",
       "roles": "Roles seleccionados",
       "rolesDescription": "Solo la ven los miembros con estos roles.",
       "rolesLabel": "Roles",
@@ -2904,7 +2908,7 @@
       "add": "Añadir un registro o una lista",
       "askMate": "Preguntar a Mate",
       "close": "Cerrar el diálogo o panel superior",
-      "goConfigure": "Configurar",
+      "goConfigure": "Modelo de datos",
       "goDashboard": "Panel",
       "goInbox": "Bandeja de entrada",
       "goKnowledgeBase": "Base de conocimientos",
@@ -4269,6 +4273,7 @@
     },
     "iconSearch": "Buscar iconos",
     "identityChannels": "Datos de contacto",
+    "inlineEditHint": "Intro guarda · Mayús+Intro añade una línea",
     "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
     "lineFields": {
       "amount": "Importe",

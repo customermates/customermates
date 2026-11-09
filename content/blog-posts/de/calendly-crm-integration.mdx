@@ -100,10 +100,10 @@ Das funktioniert in jedem Customermates-Tarif und auch bei Self-Hosting. Sie bra
 
 <Steps>
 <Step title="API-Key anlegen">
-Öffnen Sie in Customermates **Einstellungen › API-Schlüssel**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key arbeitet mit Ihren Berechtigungen. Hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`. Details unter [API-Keys](/docs/api-keys).
+Öffnen Sie in Customermates **Einstellungen › API-Schlüssel & Konnektoren**, klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der Key arbeitet mit Ihren Berechtigungen. Hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Header-Namen `x-api-key`. Details unter [API-Keys](/docs/api-keys).
 </Step>
 <Step title="Deal-Felder vorbereiten">
-Öffnen Sie Deals in **Konfigurieren** und ergänzen Sie im Feld **Phase**, einem Feld vom Typ **Einzelauswahl**, die Optionen „Termin gebucht“ und „Storniert“. Legen Sie ein Feld vom Typ **Datum und Uhrzeit** namens „Termin“ an, ein **Einzelauswahl**-Feld „Lead-Quelle“ mit einer Option je Ereignistyp und ein **Text**-Feld „Calendly-Buchung“. `POST /api/v1/model/discover` findet die Typ-IDs von Kontakten und Deals, und `POST /api/v1/model/read` liefert die Schema-Revision sowie die Feld-, Options- und Beziehungs-IDs, die die API erwartet. Diese IDs bleiben gültig, wenn jemand eine Liste oder ein Feld umbenennt.
+Öffnen Sie Deals im **Datenmodell** und ergänzen Sie im Feld **Phase**, einem Feld vom Typ **Einzelauswahl**, die Optionen „Termin gebucht“ und „Storniert“. Legen Sie ein Feld vom Typ **Datum und Uhrzeit** namens „Termin“ an, ein **Einzelauswahl**-Feld „Lead-Quelle“ mit einer Option je Ereignistyp und ein **Text**-Feld „Calendly-Buchung“. `POST /api/v1/model/discover` findet die Typ-IDs von Kontakten und Deals, und `POST /api/v1/model/read` liefert die Schema-Revision sowie die Feld-, Options- und Beziehungs-IDs, die die API erwartet. Diese IDs bleiben gültig, wenn jemand eine Liste oder ein Feld umbenennt.
 </Step>
 <Step title="Buchung empfangen">
 Fügen Sie in n8n den Calendly-Trigger mit „Event created“ und „Event canceled“ hinzu. Alternativ verwenden Sie einen Webhook-Node und abonnieren dessen URL über die Calendly-API.
@@ -123,7 +123,7 @@ Customermates verhindert keinen zweiten Kontakt mit derselben Adresse, denn eine
 
 ### Weg 2: der Kalender, ab Pro in Customermates Cloud
 
-Ist Calendly so eingestellt, dass Einladungen als „Calendar Invitations“ verschickt werden, legt der Google- oder Outlook-Kalender des Gastgebers den Termin an und trägt den Gast als Teilnehmer ein. Verbinden Sie dasselbe Konto in Customermates unter **Einstellungen › Kanäle** mit **Kanal verbinden**, dann kommt der Termin ohne Workflow-Tool an. Kalendertermine erscheinen in einer [Aktivitäts-Zeitleiste](/docs/app-dashboard) und am Datensatz eines Kontakts, dessen E-Mail-Adresse zu einem Teilnehmer passt. Customermates liest den Kalender nur. Termine bucht oder ändert es nicht.
+Ist Calendly so eingestellt, dass Einladungen als „Calendar Invitations“ verschickt werden, legt der Google- oder Outlook-Kalender des Gastgebers den Termin an und trägt den Gast als Teilnehmer ein. Verbinden Sie dasselbe Konto in Customermates unter **Einstellungen › Kanäle & Kalender** mit **Kanal verbinden**, dann kommt der Termin ohne Workflow-Tool an. Kalendertermine erscheinen in einer [Aktivitäts-Zeitleiste](/docs/app-dashboard) und am Datensatz eines Kontakts, dessen E-Mail-Adresse zu einem Teilnehmer passt. Customermates liest den Kalender nur. Termine bucht oder ändert es nicht.
 
 Damit aus Buchungen Datensätze werden, kann eine Routine den Kalender regelmäßig durchgehen. Routinen laufen nur in Customermates Cloud und verbrauchen gehostete KI-Credits aus dem monatlichen Kontingent ihres Eigentümers. Wählen Sie **Nach Zeitplan**, stellen Sie **Wiederholung** auf **Stündlich** und geben Sie Anweisungen wie diese:
 

@@ -7,7 +7,7 @@ Les clés API authentifient les clients Model Context Protocol (MCP) et REST aup
 
 ## Comment créer une clé API ? [#how-do-i-create-an-api-key]
 
-Ouvrez [Clés API](app:settings/api-keys) dans les paramètres et cliquez sur [Ajouter](app:settings/api-keys?focus=generate). La boîte de dialogue **Ajouter une clé API** propose deux voies :
+Ouvrez [Clés API et connecteurs](app:settings/api-keys) dans les paramètres et cliquez sur [Ajouter](app:settings/api-keys?focus=generate). La boîte de dialogue **Ajouter une clé API** propose deux voies :
 
 - **Clé API standard** : saisissez un **Nom** qui indique où la clé est utilisée, par exemple `Claude Desktop, personal laptop` (255 caractères au maximum), choisissez éventuellement une date sous **Expire dans**, puis cliquez sur **Enregistrer**. La clé n’est affichée qu’une seule fois sous **Clé API créée** ; copiez-la avant de fermer la boîte de dialogue.
 - **Connexions rapides** : choisissez **Claude**, **ChatGPT & Codex**, **Cursor** ou **Gemini**, puis la configuration qui correspond à votre usage. Pour une configuration locale (**Claude Code ou Desktop**, puis **Claude Code** ou **Claude Desktop** ; **Codex CLI ou IDE** ; Cursor ou Gemini), cliquez sur **Créer une clé API** : la boîte de dialogue crée la clé et affiche l’extrait de configuration de ce client avec la clé déjà renseignée. **Compte Claude** et **Application ChatGPT** se connectent par OAuth à la place et ne créent aucune clé. Cliquez sur **Terminé** quand vous avez fini.
@@ -18,20 +18,20 @@ Les clés appartiennent à l’utilisateur qui les a créées et héritent de se
 
 ## Qui peut créer et voir les clés API ? [#who-can-create-and-see-api-keys]
 
-La page des clés API suit la ligne **API et webhooks** de votre rôle, que définit un membre disposant de **Modifier** sur **Utilisateurs et rôles** sous [Rôles](app:settings/roles) :
+La page Clés API et connecteurs suit la ligne **API et webhooks** de votre rôle, que définit un membre disposant de **Modifier** sur **Utilisateurs et rôles** sous [Rôles](app:settings/roles) :
 
 - **Accès en lecture** **Tous** affiche les clés API dans les paramètres et liste vos propres clés. Avec **Aucun**, l’entrée est masquée et la page ne peut pas être ouverte.
 - **Créer** ajoute le bouton **Ajouter**, et **Supprimer** permet de supprimer des clés. Sans eux, vous voyez les clés que vous avez déjà mais ne pouvez en créer ni en supprimer.
 
 Un nouveau rôle démarre sans case cochée et avec **Accès en lecture** **Aucun** : par défaut, seuls les membres ayant le rôle intégré **Administrateur** peuvent donc créer des clés API. La même ligne ouvre aussi les [Webhooks](app:settings/webhooks) et leurs livraisons : l’accorder pour les clés API permet donc aussi au membre de voir tous les webhooks de l’espace de travail et, avec **Créer**, **Modifier** ou **Supprimer**, de les modifier.
 
-Chacun ne voit que ses propres clés, et seulement celles de l’espace de travail courant ; changez d’espace de travail pour voir ou supprimer une clé d’un autre. Personne, pas même le rôle **Administrateur**, ne peut lister ni supprimer les clés d’un autre membre. Aucun outil d’assistant ni MCP ne crée, ne liste ni ne supprime de clés API ; elles ne se gèrent que sur la page des clés API, et l’assistant hébergé peut tout au plus l’ouvrir pour vous.
+Chacun ne voit que ses propres clés, et seulement celles de l’espace de travail courant ; changez d’espace de travail pour voir ou supprimer une clé d’un autre. Personne, pas même le rôle **Administrateur**, ne peut lister ni supprimer les clés d’un autre membre. Aucun outil d’assistant ni MCP ne crée, ne liste ni ne supprime de clés API ; elles ne se gèrent que sur la page Clés API et connecteurs, et l’assistant hébergé peut tout au plus l’ouvrir pour vous.
 
 Le connecteur personnalisé pour Claude et ChatGPT se connecte par OAuth et n’a pas besoin de clé API. Comme toute connexion MCP, il exige **Accès en lecture** **Tous** sur **API et webhooks** ([point d’accès MCP](/docs/mcp#the-endpoint)). Voir [Se connecter avec un connecteur personnalisé](/docs/connect-custom-connector).
 
 ## De quelle permission chaque action sur les clés API a-t-elle besoin ? [#which-permission-does-each-api-key-action-need]
 
-Chaque manière de gérer les clés vérifie la ligne **API et webhooks** de votre rôle : créer une clé exige **Créer**, en modifier une **Modifier**, en supprimer une **Supprimer**, et lire ou lister vos clés **Accès en lecture** **Tous**. Un membre dont le **Statut** est **Inactif** ne peut pas gérer de clés. Les clés ne se gèrent que sur la page des clés API ; les points d’accès sous-jacents `/api/auth/api-key/` répondent `404` aux requêtes directes, si bien que chaque clé appartient à l’espace de travail dans lequel elle a été créée. Ces contrôles ne couvrent que la gestion des clés ; ce qu’un appel effectué avec une clé peut faire dépend du rôle de son propriétaire, voir [Quelles permissions a une clé](#what-permissions-does-a-key-have).
+Chaque manière de gérer les clés vérifie la ligne **API et webhooks** de votre rôle : créer une clé exige **Créer**, en modifier une **Modifier**, en supprimer une **Supprimer**, et lire ou lister vos clés **Accès en lecture** **Tous**. Un membre dont le **Statut** est **Inactif** ne peut pas gérer de clés. Les clés ne se gèrent que sur la page Clés API et connecteurs ; les points d’accès sous-jacents `/api/auth/api-key/` répondent `404` aux requêtes directes, si bien que chaque clé appartient à l’espace de travail dans lequel elle a été créée. Ces contrôles ne couvrent que la gestion des clés ; ce qu’un appel effectué avec une clé peut faire dépend du rôle de son propriétaire, voir [Quelles permissions a une clé](#what-permissions-does-a-key-have).
 
 ## Comment utiliser une clé, et dans quel en-tête la placer ? [#how-do-i-use-a-key]
 
@@ -85,7 +85,7 @@ Une **Clé API standard** n’expire que si vous choisissez une date sous **Expi
 
 ## Comment révoquer, supprimer ou renouveler une clé ? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-Sur [Clés API](app:settings/api-keys), cliquez sur la carte de la clé et choisissez **Supprimer** ; après votre confirmation, la clé cesse immédiatement de fonctionner. La suppression exige **Supprimer** sur **API et webhooks**. Il n’existe pas d’action distincte de renouvellement ou de révocation : pour renouveler, créez une nouvelle clé, mettez à jour tous les clients qui utilisaient l’ancienne, puis supprimez l’ancienne clé.
+Sur [Clés API et connecteurs](app:settings/api-keys), cliquez sur la carte de la clé et choisissez **Supprimer** ; après votre confirmation, la clé cesse immédiatement de fonctionner. La suppression exige **Supprimer** sur **API et webhooks**. Il n’existe pas d’action distincte de renouvellement ou de révocation : pour renouveler, créez une nouvelle clé, mettez à jour tous les clients qui utilisaient l’ancienne, puis supprimez l’ancienne clé.
 
 Renouvelez la clé quand un appareil qui la détenait est perdu ou compromis, quand un collègue ayant accès s’en va ou quand vous soupçonnez une fuite. Une clé par client vous permet de supprimer un client sans casser les autres ; le journal d’activité nomme toujours l’utilisateur, pas la clé. Gardez les clés dans une variable d’environnement ou un gestionnaire de mots de passe, jamais dans un fichier de configuration que vous versionnez.
 

@@ -41,7 +41,7 @@ Customermates est un CRM open source et IA native, développé en Allemagne pour
 
 ## Ce que couvre l’API REST
 
-L’API REST fonctionne sur chaque liste du CRM. Un nouvel espace de travail démarre sans listes : vous créez les listes dont vous avez besoin (contacts, organisations, affaires ou les vôtres) dans Configurer, via l’API ou MCP, ou vous laissez la configuration IA les construire dans le cloud. Chaque route d’enregistrement est un `POST` vers une action nommée avec un corps JSON : le même code fonctionne donc pour des affaires, des contacts ou une liste ajoutée la semaine dernière.
+L’API REST fonctionne sur chaque liste du CRM. Un nouvel espace de travail démarre sans listes : vous créez les listes dont vous avez besoin (contacts, organisations, affaires ou les vôtres) dans Modèle de données, via l’API ou MCP, ou vous laissez la configuration IA les construire dans le cloud. Chaque route d’enregistrement est un `POST` vers une action nommée avec un corps JSON : le même code fonctionne donc pour des affaires, des contacts ou une liste ajoutée la semaine dernière.
 
 | Objectif | Méthode et chemin |
 |---|---|
@@ -74,7 +74,7 @@ Un webhook envoie un `POST` JSON à votre URL quand un évènement auquel il est
 - **Modifications incluses :** une charge utile `record.updated` porte la référence de l’enregistrement et liste chaque champ modifié avec sa valeur `before` et sa valeur `after`. Une écriture qui ne change rien n’envoie aucun évènement.
 - **Signatures :** avec un secret défini, chaque livraison est signée en HMAC-SHA256 sur le corps brut.
 - **Nouvelles tentatives :** un délai dépassé, une erreur réseau, une réponse 5xx, 408, 425 ou 429 est rejoué automatiquement, jusqu’à 10 tentatives au total. Les autres réponses 4xx ne sont pas rejouées, car une répétition échouerait de la même façon. Chaque livraison a un délai d’attente de 5 secondes.
-- **Journal des livraisons :** **Paramètres → Livraisons** montre le code d’état et le message de réponse de chaque livraison, avec un bouton de renvoi.
+- **Journal des livraisons :** **Paramètres → Journal des webhooks** montre le code d’état et le message de réponse de chaque livraison, avec un bouton de renvoi.
 - **Modèles de corps :** un modèle remplace l’enveloppe standard : un outil de chat ou un point d’accès d’automatisation qui attend son propre format JSON peut donc recevoir les livraisons sans intermédiaire.
 
 Les livraisons ne sont pas strictement ordonnées. Deux modifications du même contact à quelques millisecondes d’écart peuvent arriver dans l’ordre inverse : dédoublonnez donc par l’`id` de l’évènement, indexez votre gestionnaire sur `typeId` et `recordId`, et utilisez le `timestamp` de la charge utile et la version de l’enregistrement.
@@ -82,11 +82,11 @@ Les livraisons ne sont pas strictement ordonnées. Deux modifications du même c
 ## Comment faire votre premier appel d’API
 
 <Steps>
-  <Step title="Créez une clé">Ouvrez **Paramètres → Clés API**, cliquez sur **Ajouter**, choisissez **Clé API standard**, donnez-lui un nom comme `ERP sync, production` et copiez la clé. Elle n’est affichée qu’une fois. Le [guide des clés API](/docs/api-keys) couvre l’expiration et la rotation.</Step>
+  <Step title="Créez une clé">Ouvrez **Paramètres → Clés API et connecteurs**, cliquez sur **Ajouter**, choisissez **Clé API standard**, donnez-lui un nom comme `ERP sync, production` et copiez la clé. Elle n’est affichée qu’une fois. Le [guide des clés API](/docs/api-keys) couvre l’expiration et la rotation.</Step>
   <Step title="Lisez le schéma">Récupérez `/api/v1/openapi` à l’adresse de votre espace de travail et importez-le dans Postman, Insomnia ou un générateur de clients. Envoyez ensuite `POST /api/v1/model/discover` avec `{"search":"deal"}` pour obtenir le `typeId` de vos affaires, et `POST /api/v1/model/read` avec `{"typeIds":["<deal-type-id>"]}` pour voir ses champs, les options d’étape et la `revision` du schéma.</Step>
   <Step title="Interrogez">Envoyez `POST /api/v1/records/query` avec l’en-tête `x-api-key` et un corps comme `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}` pour lister les affaires modifiées la semaine dernière.</Step>
   <Step title="Écrivez">Faites passer une affaire à une autre étape avec `POST /api/v1/records/mutate` et `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. Si votre utilisateur peut le faire dans l’application, la clé peut le faire via l’API.</Step>
-  <Step title="Abonnez-vous">Ajoutez un webhook pour **Enregistrement mis à jour** sur la liste Affaires avec un secret, pointez-le vers votre point d’accès et vérifiez la première livraison sous **Livraisons**.</Step>
+  <Step title="Abonnez-vous">Ajoutez un webhook pour **Enregistrement mis à jour** sur la liste Affaires avec un secret, pointez-le vers votre point d’accès et vérifiez la première livraison sous **Journal des webhooks**.</Step>
 </Steps>
 
 Une clé erronée, expirée ou supprimée reçoit HTTP `401`. Une clé dont le propriétaire a été réglé sur **Inactif** reçoit `403`.

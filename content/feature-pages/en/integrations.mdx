@@ -63,7 +63,7 @@ The details that matter when you build on them:
 
 - **Signatures.** Set a secret and every delivery carries an HMAC-SHA256 signature over the request body, so the receiver can reject forged calls.
 - **Retries.** Timeouts, network errors, 5xx responses and 408, 425 and 429 are retried automatically, up to 10 attempts in total. Other 4xx responses are not.
-- **Delivery log.** **Settings → Deliveries** shows every delivery with status code and payload, and you can resend one from there.
+- **Delivery log.** **Settings → Webhook log** shows every delivery with status code and payload, and you can resend one from there.
 - **Custom headers and body templates.** Headers let you authenticate against the receiver. A body template replaces the standard JSON envelope with the shape the receiver expects, using placeholders such as `{{event}}` and `{{data.record.ref.recordId}}`.
 - **Changes only.** A `record.updated` event lists each field that changed with its `before` and `after` value, and a write that changes nothing sends no event.
 
@@ -107,7 +107,7 @@ Customermates has no Slack app, no Slack channel in the inbox and no Slack setti
   <Step title="Create the Slack incoming webhook">In Slack, create an app, turn on incoming webhooks, add a webhook to your workspace and pick the channel. Copy the URL and keep it secret.</Step>
   <Step title="Add the Customermates webhook">Under **Settings → Webhooks → Add**, paste the Slack URL, select **Record created** and choose Deals under **Records from**.</Step>
   <Step title="Write the body template">Enter `{"text": "New deal: {{data.record.ref.recordId}}"}`. Any path under `{{data}}` works as a placeholder.</Step>
-  <Step title="Test and check the log">Create a test deal and open **Deliveries**. A 2xx status code means Slack accepted it.</Step>
+  <Step title="Test and check the log">Create a test deal and open **Webhook log**. A 2xx status code means Slack accepted it.</Step>
 </Steps>
 
 **Route 2, n8n.** Use n8n when the message needs logic: alert only when the deal **Stage** reaches a certain value, post a weekly pipeline digest from a scheduled `POST /api/v1/records/query`, or turn a Slack shortcut into a new contact through the API. Slack conversations never appear in the Customermates inbox either way.

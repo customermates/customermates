@@ -181,7 +181,7 @@ Nehmen wir eine Unternehmensberatung mit fünf Personen auf Sales Professional. 
 
 | In Dynamics 365 Sales | In Customermates |
 |---|---|
-| Firmen | Organisationen, in Konfigurieren umbenannt in „Accounts“ |
+| Firmen | Organisationen, im Datenmodell umbenannt in „Accounts“ |
 | Kontakte | Kontakte |
 | Leads | Kontakte mit einem Einzelauswahl-Feld „Lead-Status“: Neu, Kontaktiert, Qualifiziert, Abgelehnt |
 | Verkaufschancen | Deals, umbenannt in „Chancen“ |
@@ -189,7 +189,7 @@ Nehmen wir eine Unternehmensberatung mit fünf Personen auf Sales Professional. 
 | Aufgaben | Aufgaben mit Zugewiesenen; legen Sie ein Datumsfeld „Fällig am“ an, denn ab Werk haben Aufgaben keins |
 | E-Mails in Outlook | Das verbundene Outlook-Postfach im einheitlichen Posteingang |
 
-Phasen sind nicht vorgegeben: Legen Sie unter Konfigurieren an Ihrer Liste für Chancen ein Einzelauswahl-Feld „Phase“ mit einer Option je Dynamics-Phase und einer **Wahrscheinlichkeit %** je Option an (in der Cloud kann die KI-Einrichtung es anlegen). Customermates multipliziert den Wert jeder Chance mit der Wahrscheinlichkeit ihrer Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte.
+Phasen sind nicht vorgegeben: Legen Sie unter Datenmodell an Ihrer Liste für Chancen ein Einzelauswahl-Feld „Phase“ mit einer Option je Dynamics-Phase und einer **Wahrscheinlichkeit %** je Option an (in der Cloud kann die KI-Einrichtung es anlegen). Customermates multipliziert den Wert jeder Chance mit der Wahrscheinlichkeit ihrer Phase, und ein Diagramm-Widget auf dem Dashboard summiert die gewichteten Werte.
 
 Mit einem Konto pro Person arbeitet das Team in Pro, für [[commercial.price.pro.monthly.seats.5]] im Monat. Braucht ein Berater Outlook und LinkedIn nebeneinander, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.5]]. Jede Person speichert ein Board mit offenen Chancen, gruppiert nach Phase; der geschäftsführende Partner behält eine Tabelle, gruppiert nach „Zugewiesen“.
 
@@ -201,9 +201,9 @@ Jeder Partner hat eine eigene Routine in der Customermates Cloud. Sie läuft als
 
 <Steps>
   <Step title="Ansichten nach Excel exportieren">Öffnen Sie in Dynamics eine Tabelle wie Firmen, wählen Sie eine Ansicht mit allen Spalten, die Sie behalten wollen, und klicken Sie in der Befehlsleiste auf „Nach Excel exportieren“. Sie erhalten eine .xlsx-Datei. Bricht ein Export ab, empfiehlt Microsoft kleinere Teilmengen mit engeren Filtern oder weniger Spalten.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie in Konfigurieren unter Allgemein die Listen um (Accounts, Chancen, Produkte), legen Sie die Phasen mit ihren Wahrscheinlichkeiten fest und erstellen Sie eigene Felder für die Spalten, die Sie übernehmen.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie im Datenmodell unter Allgemein die Listen um (Accounts, Chancen, Produkte), legen Sie die Phasen mit ihren Wahrscheinlichkeiten fest und erstellen Sie eigene Felder für die Spalten, die Sie übernehmen.</Step>
   <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst die Accounts, dann die Kontakte, dann die Chancen, denn Verknüpfungsspalten finden Datensätze über den Namen. Neue Kontakte brauchen Vor- und Nachnamen. Stellen Sie Dynamics-ID-Spalten auf Nicht hinzufügen. Die Dateigrenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Outlook verbinden">Verbinden Sie in Pro oder während der Testphase Ihr Postfach unter Einstellungen, Kanäle, und verknüpfen Sie Teilnehmer mit Kontakten, sobald Gespräche eingehen.</Step>
+  <Step title="Outlook verbinden">Verbinden Sie in Pro oder während der Testphase Ihr Postfach unter Einstellungen, Kanäle & Kalender, und verknüpfen Sie Teilnehmer mit Kontakten, sobald Gespräche eingehen.</Step>
   <Step title="Ansichten und KI einrichten">Speichern Sie Ihre Boards und Tabellen, richten Sie eine Routine für Mate ein oder verbinden Sie Ihren eigenen KI-Client per MCP. Der Aktivitätsverlauf wird nicht übernommen; lassen Sie Dynamics deshalb bis zum Ende der Lizenzlaufzeit lesend weiterlaufen.</Step>
 </Steps>
 

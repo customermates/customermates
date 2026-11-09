@@ -1830,6 +1830,7 @@
     "checkpointToastTitle": "Verifizierung fehlgeschlagen",
     "connectAccount": "Kanal verbinden",
     "connectedAt": "Verbunden",
+    "connectedNote": "Verbunden",
     "connectedToastDescription": "Dein Verlauf wird im Hintergrund importiert. Das kann ein paar Minuten dauern. Du kannst in der Zwischenzeit weiterarbeiten.",
     "connectedToastTitle": "Kanal verbunden",
     "description": "Verbinde die Kanäle, aus denen dein Posteingang Nachrichten zieht, z. B. E-Mail, WhatsApp und LinkedIn. Kanäle sind standardmäßig privat und können mit deinem Workspace geteilt werden. Mit dem Verbinden beauftragst du uns, Nachrichten, Kontakte und Kalender des Kontos in deinem Auftrag zu verarbeiten. Siehe <dataPrivacyLink>Datenschutz</dataPrivacyLink>, <subprocessorsLink>Unterauftragsverarbeiter</subprocessorsLink> und <termsOfServiceLink>AGB</termsOfServiceLink>.",
@@ -2306,6 +2307,8 @@
     "share": {
       "descriptionDashboard": "Teammitglieder sehen dieselben Widgets und dasselbe Layout. Jede Zahl wird mit ihrem eigenen Zugriff berechnet, sodass niemand Datensätze sieht, die seine Rolle verbirgt.",
       "descriptionList": "Teammitglieder sehen deine Filter, Spalten und dein Layout. Jede Person sieht nur die Datensätze und Felder, die ihre Rolle erlaubt.",
+      "duplicateToEdit": "Zum Bearbeiten duplizieren",
+      "duplicateToEditLabel": "{name} duplizieren, um eine eigene Kopie zu bearbeiten",
       "hidden": "Aus deinen Tabs ausgeblendet",
       "hide": "Aus meinen Tabs ausblenden",
       "link": "Link",
@@ -2335,6 +2338,7 @@
         "saveToCreate": "Speichere, um den Link zu erstellen.",
         "workspaceDisabled": "Öffentliche Links sind für diesen Workspace unter Einstellungen, Allgemein ausgeschaltet."
       },
+      "readOnly": "Geteilt von {name} · nur lesen",
       "roles": "Ausgewählte Rollen",
       "rolesDescription": "Nur Mitglieder mit diesen Rollen sehen sie.",
       "rolesLabel": "Rollen",
@@ -2904,7 +2908,7 @@
       "add": "Datensatz oder Liste hinzufügen",
       "askMate": "Mate fragen",
       "close": "Obersten Dialog oder Drawer schließen",
-      "goConfigure": "Konfigurieren",
+      "goConfigure": "Datenmodell",
       "goDashboard": "Dashboard",
       "goInbox": "Posteingang",
       "goKnowledgeBase": "Wissensdatenbank",
@@ -4269,6 +4273,7 @@
     },
     "iconSearch": "Symbole suchen",
     "identityChannels": "Kontaktdaten",
+    "inlineEditHint": "Enter speichert · Umschalt+Enter fügt eine Zeile hinzu",
     "invalidConfiguration": "Diese Änderung muss vor dem Anwenden überprüft werden.",
     "lineFields": {
       "amount": "Betrag",

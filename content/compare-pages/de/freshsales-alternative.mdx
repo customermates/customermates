@@ -205,7 +205,7 @@ Nehmen wir eine Beratung mit vier Personen, die Beratungsprojekte verkauft. Zwei
 | In Freshsales | In Customermates |
 |---|---|
 | Kontakte | Kontakte |
-| Accounts | Organisationen, in Konfigurieren in „Accounts“ umbenannt |
+| Accounts | Organisationen, im Datenmodell in „Accounts“ umbenannt |
 | Deals in der Vertriebspipeline | Deals mit dem Feld „Phase“ und Gewinnwahrscheinlichkeiten |
 | Produktkatalog | Services, umbenannt in „Produkte“, als Positionen mit Menge im Deal |
 | Lifecycle-Phase des Kontakts | Ein Einzelauswahl-Feld „Lifecycle-Phase“ und je eine gespeicherte Ansicht pro bearbeiteter Phase |
@@ -213,7 +213,7 @@ Nehmen wir eine Beratung mit vier Personen, die Beratungsprojekte verkauft. Zwei
 | Aufgaben | Aufgaben mit einem eigenen Datumsfeld „Fällig am“, da Aufgaben kein eingebautes Fälligkeitsdatum haben |
 | Telefonnummern und Anrufprotokolle | Das Feld Kontaktdaten des Kontakts; Anrufe werden nicht protokolliert |
 
-In Konfigurieren für Deals benennt das Team die Optionen des Felds „Phase“ in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und setzt ihre Wahrscheinlichkeit % auf 10 %, 25 %, 50 %, 75 %, 100 % und 0 %. Jeder Berater speichert ein Board mit seinen eigenen Deals, gruppiert nach Phase. Die Partnerin führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
+Im Datenmodell für Deals benennt das Team die Optionen des Felds „Phase“ in Lead, Qualifiziert, Angebot gesendet, Verhandlung, Gewonnen und Verloren um und setzt ihre Wahrscheinlichkeit % auf 10 %, 25 %, 50 %, 75 %, 100 % und 0 %. Jeder Berater speichert ein Board mit seinen eigenen Deals, gruppiert nach Phase. Die Partnerin führt eine Tabelle aller offenen Deals, gruppiert nach „Zugewiesen“.
 
 Jede Person verbindet einen Kanal, zweimal LinkedIn und zweimal Gmail. Damit passt Pro, für das Team [[commercial.price.pro.monthly.seats.4]] im Monat. Möchte ein Berater LinkedIn und E-Mail nebeneinander nutzen, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.4]].
 
@@ -226,9 +226,9 @@ Für Freshsales-Sequenzen gibt es kein Gegenstück. Stattdessen richtet jeder Be
 <Steps>
   <Step title="Aus Freshsales exportieren">Laut Hilfe-Center von Freshworks öffnet ein Admin Admin Settings › Account, klickt auf Export data und wählt die gewünschten Datensatztypen. Freshworks schickt den Export als ZIP-Datei per E-Mail. Sie können bis zu fünfmal täglich exportieren, den gesamten Zeitraum aber nur einmal.</Step>
   <Step title="Jede Datei unverändert importieren">Customermates importiert .xlsx-, .xls- und .csv-Dateien, ein Freshsales-Export muss also nicht umgewandelt werden. Behalten Sie eine Liste pro Datei bei.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie Listen im Datenmodell bei Bedarf um, legen Sie eigene Felder für die Freshsales-Felder an, die Sie behalten, etwa Lifecycle-Phase und Lead-Quelle, und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
   <Step title="Eine Liste nach der anderen importieren">Öffnen Sie in jeder Liste Weitere Aktionen, dann Aus Datei hinzufügen: zuerst Organisationen, dann Kontakte, dann Deals. Enthält Ihr Export keine Datei mit Accounts, erstellen Sie die Arbeitsmappe für Organisationen aus der Account-Spalte der Kontaktdatei. Verknüpfungsspalten werden über den Namen zugeordnet, sodass die Account-Spalte eines Kontakts die zuvor importierte Organisation findet. E-Mail-Adressen und Telefonnummern ordnen Sie dem Feld Kontaktdaten des Kontakts zu. Größenlimits stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Der E-Mail-Verlauf aus dem Export wird nicht importiert; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
+  <Step title="Kanäle und KI verbinden">Im Pro-Tarif oder während der Testphase verbinden Sie unter Einstellungen › Kanäle & Kalender ein Postfach, LinkedIn oder WhatsApp. Der E-Mail-Verlauf aus dem Export wird nicht importiert; der Posteingang zeigt die Gespräche der Konten, die Sie verbinden. Danach richten Sie Routinen ein oder verbinden Ihren eigenen KI-Client per MCP.</Step>
 </Steps>
 
 ## Weitere Freshsales-Alternativen, die einen Blick wert sind

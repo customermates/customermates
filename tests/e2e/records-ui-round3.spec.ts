@@ -305,6 +305,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   expect(await textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
   await expect(row.locator("[data-inline-edit]:not(:has([data-empty-target])) svg.lucide-pencil")).toHaveCount(0);
   await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
+  await openInPlace("Text");
+  await expect(inPlace.locator("[data-inline-edit-hint]")).toHaveText("Enter saves · Shift+Enter adds a line");
+  await page.keyboard.press("Escape");
+  await expect(inPlace).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");
   await enterValue("Money", "99.95", "€99.95");
@@ -366,7 +370,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(multiline).toHaveValue(`${long}\nSecond line`);
   await page.keyboard.press("Enter");
   await expect(inPlace).toHaveCount(0);
-  await expect(row).toContainText("Second line");
+  const multilineValue = row.locator("[data-multiline-value]");
+  await expect(multilineValue).toHaveText(`${long} …`);
+  await multilineValue.hover();
+  await expect(page.getByRole("tooltip")).toContainText("Second line");
 
   await row.getByRole("switch", { name: "Edit Done" }).click();
   await expect(row.getByRole("switch", { name: "Edit Done" })).toHaveAttribute("data-state", "checked");

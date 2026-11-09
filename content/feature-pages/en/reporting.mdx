@@ -45,7 +45,7 @@ Every chart takes one list as its source, an aggregation and a grouping. The agg
 
 **Grouping** is **No grouping** (one total), a field such as Stage or Lead source, each record, **Assigned to**, or a field reached through a relationship. That gives you "deal value by stage", "deal value per organization" or "line item amounts by service". Group by a date field, **Created at** or **Updated at** and pick a **Time interval** to get one value per day, week, month, quarter or year.
 
-**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Configure**. Once the probabilities are set, it works from the first deal.
+**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Data model**. Once the probabilities are set, it works from the first deal.
 
 **Filters** narrow what a chart counts, using any field, including dates; linked fields appear as **List › Field**. That is how you chart "won deal value per organization": deals as the source, a filter on Stage is Won, grouped by organization.
 
@@ -85,8 +85,8 @@ Mate uses hosted AI credits, included per active user and month on every Cloud p
 ## Set up a weekly pipeline dashboard
 
 <Steps>
-  <Step title="Check the stage probabilities">In **Configure**, open Deals and the **Stage** field, and adjust the **Probability %** of each option. A preview shows the effect on deals and widgets.</Step>
-  <Step title="Add the fields your questions need">In **Configure**, open Deals and use **Add › Field** for a Single choice "Lead source" (Referral, LinkedIn, Website, Event), a Single choice "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
+  <Step title="Check the stage probabilities">In **Data model**, open Deals and the **Stage** field, and adjust the **Probability %** of each option. A preview shows the effect on deals and widgets.</Step>
+  <Step title="Add the fields your questions need">In **Data model**, open Deals and use **Add › Field** for a Single choice "Lead source" (Referral, LinkedIn, Website, Event), a Single choice "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
   <Step title="Create the first chart">On the **Dashboard**, press **Add widget** and pick **Bar chart**. Under **Data**, choose Deals as the source, sum **Weighted value** and group by Stage. Exclude Won and Lost in the filters, then press **Save**.</Step>
   <Step title="Add three more">Won deal value by Lead source, won deal value per organization, and a count of lost deals by Lost reason. Drag and resize them; the layout is saved for you.</Step>
   <Step title="Share the dashboard or the setup">Choose **Share…** in the menu of a named dashboard view to show it read-only to the workspace or to selected roles. Or switch on **Share as a template** for a chart, so a teammate picks it under **Start from a template** and gets their own copy. Either way, the numbers count only the records the viewer's role can read.</Step>

@@ -1830,6 +1830,7 @@
     "checkpointToastTitle": "Échec de la vérification",
     "connectAccount": "Connecter un canal",
     "connectedAt": "Connecté",
+    "connectedNote": "Connecté",
     "connectedToastDescription": "Votre historique est importé en arrière-plan. Cela peut prendre quelques minutes, vous pouvez continuer à travailler.",
     "connectedToastTitle": "Canal connecté",
     "description": "Connectez les canaux alimentant votre boîte de réception, comme l’e-mail, WhatsApp et LinkedIn. Les canaux sont privés par défaut et peuvent être partagés avec votre espace de travail. En connectant un canal, vous nous autorisez à traiter ses messages, contacts et son calendrier pour votre compte. Consultez notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>, nos <subprocessorsLink>sous-traitants</subprocessorsLink> et nos <termsOfServiceLink>conditions générales</termsOfServiceLink>.",
@@ -2306,6 +2307,8 @@
     "share": {
       "descriptionDashboard": "Votre équipe voit les mêmes widgets et la même disposition. Chaque chiffre est calculé avec ses propres accès : personne ne voit les fiches que son rôle masque.",
       "descriptionList": "Votre équipe voit vos filtres, colonnes et disposition. Chacun ne voit que les fiches et champs que son rôle autorise.",
+      "duplicateToEdit": "Dupliquer pour modifier",
+      "duplicateToEditLabel": "Dupliquer {name} pour modifier votre propre copie",
       "hidden": "Masquée de vos onglets",
       "hide": "Masquer de mes onglets",
       "link": "Lien",
@@ -2335,6 +2338,7 @@
         "saveToCreate": "Enregistrez pour créer le lien.",
         "workspaceDisabled": "Les liens publics sont désactivés pour cet espace de travail dans Paramètres, Général."
       },
+      "readOnly": "Partagée par {name} · lecture seule",
       "roles": "Rôles sélectionnés",
       "rolesDescription": "Seuls les membres ayant ces rôles la voient.",
       "rolesLabel": "Rôles",
@@ -2904,7 +2908,7 @@
       "add": "Ajouter un enregistrement ou une liste",
       "askMate": "Demander à Mate",
       "close": "Fermer la boîte de dialogue ou le panneau du dessus",
-      "goConfigure": "Configurer",
+      "goConfigure": "Modèle de données",
       "goDashboard": "Tableau de bord",
       "goInbox": "Boîte de réception",
       "goKnowledgeBase": "Base de connaissances",
@@ -4269,6 +4273,7 @@
     },
     "iconSearch": "Rechercher des icônes",
     "identityChannels": "Coordonnées",
+    "inlineEditHint": "Entrée enregistre · Maj+Entrée ajoute une ligne",
     "invalidConfiguration": "Cette modification doit être vérifiée avant son application.",
     "lineFields": {
       "amount": "Montant",

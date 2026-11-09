@@ -143,7 +143,7 @@ The useful version of the first workflow stores the inquiry where your team work
 
 <Steps>
   <Step title="Create an API key">
-    In Customermates, open **Settings → API keys**, click **Add** and choose **Standard API key**. The key acts with the permissions of the user who created it, so create it as a user who may create contacts. Details are in [API keys](/docs/api-keys).
+    In Customermates, open **Settings → API keys & connectors**, click **Add** and choose **Standard API key**. The key acts with the permissions of the user who created it, so create it as a user who may create contacts. Details are in [API keys](/docs/api-keys).
   </Step>
   <Step title="Store it as an n8n credential">
     In n8n, create a **Header Auth** credential with the header name `x-api-key` and the key as its value. Every node that talks to the CRM reuses it, so a rotated key is changed in one place.

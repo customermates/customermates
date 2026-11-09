@@ -1,5 +1,6 @@
 "use client";
 
+import { ConnectChannelButton } from "@/components/channels/connect-channel-menu";
 import type { PlannerOptions } from "@/features/planner/get-planner-options.interactor";
 import type { PlannerQuery, PlannerSource } from "@/features/planner/planner.schema";
 import type { PlannerResult } from "@/features/planner/read-planner.interactor";
@@ -612,9 +613,11 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
                       );
                     })
                   ) : (
-                    <Button asChild size="sm" variant="ghost">
-                      <IntlLink href="/settings/channels">{t("Planner.connectCalendar")}</IntlLink>
-                    </Button>
+                    <ConnectChannelButton
+                      channels={["google", "outlook"]}
+                      id="planner-connect-calendar"
+                      label={t("Planner.connectCalendar")}
+                    />
                   )}
                 </section>
               )}

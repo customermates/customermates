@@ -209,7 +209,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 
 ## Umstieg von Odoo CRM
 
-Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Öffnen Sie in **Konfigurieren** eine Liste und ändern Sie unter **Allgemein** **Name** und **Pluralname**, um Deals „Chancen“ und Organisationen „Unternehmen“ zu nennen, damit die gewohnten Begriffe bleiben.
+Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Öffnen Sie im **Datenmodell** eine Liste und ändern Sie unter **Allgemein** **Name** und **Pluralname**, um Deals „Chancen“ und Organisationen „Unternehmen“ zu nennen, damit die gewohnten Begriffe bleiben.
 
 | In Odoo | In Customermates |
 |---|---|
@@ -222,11 +222,11 @@ Für die meisten Daten aus Odoo CRM gibt es ein direktes Gegenstück. Öffnen Si
 | Tags in Odoo | Ein Mehrfachauswahl-Feld pro Gruppe von Tags; Customermates hat keine Tags an Datensätzen |
 | Angebote und Rechnungen | Kein Gegenstück; behalten Sie dafür die Odoo-App für Rechnungen oder Ihre Buchhaltungssoftware |
 
-Phasen sind nicht vorgegeben: Legen Sie in **Konfigurieren** an Ihrer Deal-Liste ein Einzelauswahl-Feld **Phase** mit einer Option je Odoo-Phase an (in der Cloud kann die KI-Einrichtung es anlegen) und tragen Sie je Option eine eigene **Wahrscheinlichkeit %** ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
+Phasen sind nicht vorgegeben: Legen Sie im **Datenmodell** an Ihrer Deal-Liste ein Einzelauswahl-Feld **Phase** mit einer Option je Odoo-Phase an (in der Cloud kann die KI-Einrichtung es anlegen) und tragen Sie je Option eine eigene **Wahrscheinlichkeit %** ein. Die Wahrscheinlichkeit pro Verkaufschance aus Odoo wird nicht übernommen: In Customermates bekommt jeder Deal einer Phase dieselbe Gewichtung.
 
 <Steps>
   <Step title="Aus Odoo exportieren">Markieren Sie in jeder Listenansicht die Datensätze, öffnen Sie Aktion und wählen Sie Exportieren. Nehmen Sie das Excel- oder das CSV-Format. Der Import-Assistent von Customermates liest .xlsx-, .xls- und .csv-Dateien, die Datei lässt sich also unverändert importieren.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie in **Konfigurieren** Ihre Listen um, legen Sie Felder für die Odoo-Spalten an, die Sie behalten, und richten Sie Phasen und ihre Wahrscheinlichkeiten ein.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie im **Datenmodell** Ihre Listen um, legen Sie Felder für die Odoo-Spalten an, die Sie behalten, und richten Sie Phasen und ihre Wahrscheinlichkeiten ein.</Step>
   <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Unternehmensspalte eines Kontakts also die zuvor importierte Organisation. Die Grenzen des Imports stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Pipeline-Ansicht anlegen">Legen Sie ein Board der Deals an, gruppiert nach Phase und gefiltert auf die Deals, bei denen Sie unter Zugewiesen stehen. Speichern Sie es als Ansicht. Eine Ansicht bleibt privat, bis Sie sie teilen, jede Person kann also ihre eigene speichern.</Step>
   <Step title="Kanäle verbinden und eine Routine anlegen">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp. Richten Sie dann in Customermates Cloud eine Routine ein, etwa die folgende.</Step>

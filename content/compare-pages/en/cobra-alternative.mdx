@@ -162,7 +162,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 
 **AI help with CRM upkeep, in Customermates Cloud.** In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views. It uses hosted AI credits, with a monthly allowance per active user shown on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. If you prefer Claude, ChatGPT or another client, connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs.
 
-**A configurable model.** A new workspace starts without lists: you create the lists you need (contacts, organizations, deals or your own) in Configure, or let AI setup build them in the cloud. Lists carry fields, relationships and calculated fields, with table and board layouts, dashboards, roles and an audit log on every plan. The interface is available in English, German, French, Italian and Spanish.
+**A configurable model.** A new workspace starts without lists: you create the lists you need (contacts, organizations, deals or your own) in Data model, or let AI setup build them in the cloud. Lists carry fields, relationships and calculated fields, with table and board layouts, dashboards, roles and an audit log on every plan. The interface is available in English, German, French, Italian and Spanish.
 
 **Open source, with a hosting choice.** The AGPL-3.0 core runs on your own server with Docker Compose and PostgreSQL, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox, no Mate and no hosted credits. In Customermates Cloud, the primary database is configured in the AWS Frankfurt region (a selected setting, not a contractual guarantee), a [DPA](/dpa) is available and the subprocessors, including US providers, are listed in the legal pages.
 
@@ -182,7 +182,7 @@ A worked example: a five-person consultancy on cobra CRM Cloud Essential, sellin
 
 | In cobra | In Customermates |
 |---|---|
-| Company addresses | Organizations, renamed "Companies" in Configure |
+| Company addresses | Organizations, renamed "Companies" in Data model |
 | Contact persons | Contacts, linked to their company |
 | Sales opportunities | Deals, renamed "Opportunities" |
 | Keywords and distribution lists | One single choice field per keyword group, plus a saved view filtered on it |
@@ -193,10 +193,10 @@ The opportunity stages become a stage field with probabilities, for example Inqu
 
 <Steps>
   <Step title="Export from cobra">cobra's pricing page lists export to Excel on every cloud plan. Export companies, contact persons and opportunities as separate workbooks and save them as .xlsx files. On cobra One, ask your cobra partner which export your version offers.</Step>
-  <Step title="Prepare the workspace">In Configure, open each list you want to rename and change its Name and Plural name under General. Create one single choice field per keyword group, and set up the stage field with its probabilities.</Step>
+  <Step title="Prepare the workspace">In Data model, open each list you want to rename and change its Name and Plural name under General. Create one single choice field per keyword group, and set up the stage field with its probabilities.</Step>
   <Step title="Import one list at a time">Import organizations first, then contacts, then deals. A link column finds the company you imported before by name. A workbook currently holds up to 10,000 rows, so split a larger address list. New contacts need a first and a last name, and a Notes column goes into the record's notes. The [records documentation](/docs/app-records) has the details.</Step>
   <Step title="Rebuild lists as views">Turn each cobra list into a saved view with a filter. Views stay private until you share them, so share the ones the whole team uses.</Step>
-  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
+  <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels & calendars. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
 </Steps>
 
 Each consultant can then own one routine for the weekly follow-up. A routine runs as its owner, with that person's channels, in Customermates Cloud, and uses hosted AI credits:

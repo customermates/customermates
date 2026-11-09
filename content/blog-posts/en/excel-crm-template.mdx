@@ -87,7 +87,7 @@ Small tables that feed the dropdowns. The stage table also carries a win probabi
 | `ActivityTypes` | Type | Call, Email, Meeting, LinkedIn, WhatsApp |
 | `Team` | Name | Full name of everyone who owns records |
 
-These stages and probabilities are an example. Customermates has no preset stages: create the same options on the Stage field of your deals list in Configure (or let AI setup build them in the cloud), and the Stage column imports later without renaming. Treat the percentages as a first guess and replace them once you have a few months of won and lost deals to count.
+These stages and probabilities are an example. Customermates has no preset stages: create the same options on the Stage field of your deals list in Data model (or let AI setup build them in the cloud), and the Stage column imports later without renaming. Treat the percentages as a first guess and replace them once you have a few months of won and lost deals to count.
 
 ### Companies
 
@@ -220,7 +220,7 @@ Customermates imports Excel workbooks (.xlsx or .xls) and CSV files, one list at
 | Open next steps from Activities | Tasks |
 
 <Steps>
-  <Step title="Create the custom fields first">In **Configure**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. Inspect the stage field and probabilities in your workspace; AI setup and existing workspaces can use different lists and options. Create or adjust the needed options in Configure rather than assuming they match this example.</Step>
+  <Step title="Create the custom fields first">In **Data model**, open the list and choose **Add**, then **Field**. For each dropdown column, create a Single choice field whose option labels match your Lists sheet exactly; the import flags any cell that is not an option. Inspect the stage field and probabilities in your workspace; AI setup and existing workspaces can use different lists and options. Create or adjust the needed options in Data model rather than assuming they match this example.</Step>
   <Step title="Decide how deal values come in">A deal's value in Customermates is the sum of its line items, each a service price times quantity. Import your price list into **Services** first (Name and Price are required), then add line items with their quantities on each deal. If every deal has its own price, a Money input field can keep the number. It does not automatically replace the existing line-item calculation; a schema manager must preview and deliberately change the value and weighting configuration if that is the intended model.</Step>
   <Step title="Import in dependency order">Services, then companies into Organizations, then contacts, then deals. Links are matched by name, ignoring case, so a company must exist before a contact can point to it, and a name that matches no record or several is flagged. A comma separates names within a cell, so a firm called "Hale, Brook and Partners" needs a rename before the import or a link set by hand afterwards.</Step>
   <Step title="Run the wizard">On each list, open **More actions**, choose **Add from file** and pick the file. The wizard asks which sheet to import, so the workbook can keep its other sheets; save it as .xlsx. A file can currently hold up to 10 MB and 5,000 rows. Match each column to a field; email addresses, phone numbers and LinkedIn profiles go into the contact's Contact details field.</Step>

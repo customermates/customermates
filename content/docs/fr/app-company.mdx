@@ -7,7 +7,7 @@ Les paramètres de l’espace de travail couvrent tout ce qui concerne l’ensem
 
 ## Où se trouvent les paramètres de l’espace de travail ? [#what-lives-on-the-company-screen]
 
-Cliquez sur le nom de l’espace de travail en haut de la barre latérale pour ouvrir le menu de l’espace de travail et choisissez **Paramètres**, ou appuyez sur G puis S. Les paramètres s’ouvrent sur [Profil et préférences](app:settings/profile), et la barre latérale passe à la navigation des paramètres : vos propres pages sous **Compte**, les pages de l’espace de travail sous **Espace de travail** : [Général](app:settings/general), [Membres](app:settings/members), [Rôles](app:settings/roles), [Facturation](app:settings/billing) (Cloud uniquement), [Activité](app:settings/activity) et [Webhooks](app:settings/webhooks). **Retour**, en haut de la navigation, ramène à la page d’où vous venez.
+Cliquez sur le nom de l’espace de travail en haut de la barre latérale pour ouvrir le menu de l’espace de travail et choisissez **Paramètres**, ou appuyez sur G puis S. Les paramètres s’ouvrent sur [Profil et préférences](app:settings/profile), et la barre latérale passe à la navigation des paramètres : vos propres pages sous **Compte**, les pages de l’espace de travail sous **Espace de travail** : [Général](app:settings/general), [Membres](app:settings/members), [Rôles](app:settings/roles), [Facturation](app:settings/billing) (Cloud uniquement), [Journal d’audit](app:settings/activity) et [Webhooks](app:settings/webhooks). **Retour**, en haut de la navigation, ramène à la page d’où vous venez.
 
 Le menu de l’espace de travail liste les espaces de travail dont vous faites partie, pour passer de l’un à l’autre, et propose **Créer un espace de travail** ([Espaces de travail](/docs/app-workspaces)). Il contient aussi **Inviter des membres** (exige **Créer** sur **Utilisateurs et rôles**), **Membres**, **Paramètres**, **Facturation** avec la pastille de la formule (Cloud uniquement) et, pour les opérateurs de Customermates uniquement, **Console opérateur**.
 
@@ -17,7 +17,7 @@ Votre rôle détermine ce que vous voyez. Une page que votre rôle ne peut pas l
 |---|---|
 | Membres, Rôles | Accès en lecture **Tous** sur **Utilisateurs et rôles** (**Assignés** affiche Membres avec votre seule ligne) |
 | Facturation | Tous les membres ; les commandes de facturation exigent **Modifier** sur **Entreprise** |
-| Activité | Accès en lecture **Tous** sur **Journal d’activité** |
+| Journal d’audit | Accès en lecture **Tous** sur **Journal d’activité** |
 | Webhooks | Accès en lecture **Tous** sur **API et webhooks** |
 
 Sur Cloud, quand les conditions générales ou le DPA changent, les membres voient **Documents juridiques mis à jour** avec **Examiner les conditions générales et le DPA** et la date limite pour accepter. Seul un membre ayant le rôle **Administrateur** peut accepter, en cochant la case et en cliquant sur **Accepter et continuer** ; tous les autres voient « Un administrateur de l’entreprise doit accepter au plus tard le » suivi de cette date. Si personne n’accepte à temps, chaque page ouvre cet écran jusqu’à ce qu’un administrateur accepte.
@@ -46,7 +46,7 @@ Dans [Membres](app:settings/members), cliquez sur la ligne du membre pour ouvrir
 - Les modifications que vous faites ici s’appliquent au membre dans cet espace de travail uniquement ; ce que les membres changent dans leur propre Profil et préférences s’applique dans tous les espaces de travail dont ils font partie. Les membres peuvent aussi quitter eux-mêmes un espace de travail, voir [Comment quitter un espace de travail ?](/docs/app-workspaces#how-do-i-leave-a-workspace).
 - L’espace de travail conserve toujours au moins un membre **Actif** ayant le rôle **Administrateur** ; un enregistrement qui supprimerait le dernier échoue avec « Au moins un utilisateur doit être administrateur système. »
 
-Chaque enregistrement est consigné dans [Activité](app:settings/activity).
+Chaque enregistrement est consigné dans [Journal d’audit](app:settings/activity).
 
 ## Rôles [#roles-tab]
 
@@ -69,7 +69,7 @@ Chaque ligne comporte des cases **Créer**, **Modifier** et **Supprimer** (sous 
 | **Entreprise** | **Modifier** uniquement : utilise la facturation dans [Facturation](app:settings/billing). |
 | **Modèle de données** | **Modifier** uniquement : configure les listes, les champs, les relations et les calculs, sans accès aux enregistrements ni administration des rôles. |
 | **Base de connaissances de l’espace de travail** | **Créer**, **Modifier** (et déplacer), **Supprimer** des pages ; cocher l’une d’elles force **Tous**. |
-| **Journal d’activité** | Lecture seule : [Activité](app:settings/activity) et l’historique des modifications des enregistrements. |
+| **Journal d’activité** | Lecture seule : [Journal d’audit](app:settings/activity) et l’historique des modifications des enregistrements. |
 | **Messages de la boîte de réception** (Cloud) | **Créer** connecte des comptes et envoie, rédige des brouillons et démarre des conversations ; **Modifier** modifie les comptes, les fils, l’état des conversations et les liens avec les enregistrements ; **Supprimer** déconnecte des comptes et abandonne des brouillons. Également limité par la formule. |
 | **Routines** (Cloud) | **Créer**, **Modifier** (et exécuter ou tester maintenant), **Supprimer** ; supprimer une routine ou mettre en pause celle d’un autre exige aussi le rôle **Administrateur**. **Tous** ou **Assignés** (ses propres routines). |
 | **Liens publics** | **Créer** : publier ses propres vues de tableau de bord et de liste par lien public ([Tableau de bord](/docs/app-dashboard#public-links)). |
@@ -84,7 +84,7 @@ Chaque espace de travail démarre avec un rôle intégré, **Administrateur**, a
 
 - Vous ne pouvez pas modifier votre propre rôle : son éditeur affiche « Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier. »
 - **Supprimer** n’apparaît que pour un rôle personnalisé qu’aucun membre n’a, membres inactifs compris. Déplacez d’abord tout le monde vers un autre rôle et retirez le rôle des préréglages d’accès.
-- Les modifications s’appliquent à chaque membre ayant le rôle à son prochain chargement de page ou appel API et sont consignées dans [Activité](app:settings/activity).
+- Les modifications s’appliquent à chaque membre ayant le rôle à son prochain chargement de page ou appel API et sont consignées dans [Journal d’audit](app:settings/activity).
 
 ## Facturation [#subscription-tab]
 
@@ -165,7 +165,7 @@ Dans un espace de travail payant qui reste **Impayé** ou **Expiré** pendant 3 
 
 ### Que deviennent les comptes connectés quand la formule change ? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Quand Lemon Squeezy signale une formule différente, Customermates retire les comptes connectés les plus récents de chaque utilisateur au-delà du nouveau quota. Starter inclut [[commercial.entitlement.starter.includedAccountsPerUser]] par utilisateur, donc chaque compte est retiré ; le premier paiement après l’essai compte comme un changement depuis Pro. Les membres ayant le rôle **Administrateur** reçoivent un e-mail listant les comptes retirés ; les autres restent dans [Canaux](app:settings/channels). Les routines au-delà du quota sont conservées, car le quota ne s’applique qu’à la création d’une routine.
+Quand Lemon Squeezy signale une formule différente, Customermates retire les comptes connectés les plus récents de chaque utilisateur au-delà du nouveau quota. Starter inclut [[commercial.entitlement.starter.includedAccountsPerUser]] par utilisateur, donc chaque compte est retiré ; le premier paiement après l’essai compte comme un changement depuis Pro. Les membres ayant le rôle **Administrateur** reçoivent un e-mail listant les comptes retirés ; les autres restent dans [Canaux et agendas](app:settings/channels). Les routines au-delà du quota sont conservées, car le quota ne s’applique qu’à la création d’une routine.
 
 ### En quoi un espace de travail Enterprise diffère-t-il ? [#how-does-an-enterprise-workspace-differ]
 
@@ -173,11 +173,11 @@ Enterprise se met en place avec Customermates et se facture sur facture. Factura
 
 ### Où mènent les boutons de mise à niveau ? [#where-do-upgrade-buttons-lead]
 
-Avec Starter, la [Boîte de réception](app:inbox) et les [Canaux](app:settings/channels) affichent **Passez à une formule supérieure pour débloquer la messagerie** avec **Passer à une formule supérieure**. À la limite de comptes connectés, les utilisateurs Pro voient **Passer à une formule supérieure pour connecter plus de comptes** avec **Voir les formules**, tout comme l’avis d’usage de l’assistant hébergé. Tous ouvrent [Facturation](app:settings/billing), où seuls les rôles ayant **Modifier** sur **Entreprise** peuvent agir.
+Avec Starter, la [Boîte de réception](app:inbox) et les [Canaux et agendas](app:settings/channels) affichent **Passez à une formule supérieure pour débloquer la messagerie** avec **Passer à une formule supérieure**. À la limite de comptes connectés, les utilisateurs Pro voient **Passer à une formule supérieure pour connecter plus de comptes** avec **Voir les formules**, tout comme l’avis d’usage de l’assistant hébergé. Tous ouvrent [Facturation](app:settings/billing), où seuls les rôles ayant **Modifier** sur **Entreprise** peuvent agir.
 
-## Activité : où trouver le journal d’audit et l’historique des modifications ? [#activity-tab]
+## Journal d’audit : où trouver l’historique des modifications ? [#activity-tab]
 
-[Activité](app:settings/activity) est le journal des évènements de l’espace de travail : qui a modifié quel enregistrement, réglage ou configuration, et quand, du plus récent au plus ancien. Chaque entrée montre en ligne la valeur précédente et la valeur actuelle ; les mêmes entrées apparaissent dans la vue **Activités** d’un enregistrement, comme celui d’un contact, dans le widget d’activité du tableau de bord et dans Mate. Filtrez par type :
+[Journal d’audit](app:settings/activity) est le journal des évènements de l’espace de travail : qui a modifié quel enregistrement, réglage ou configuration, et quand, du plus récent au plus ancien. Chaque entrée montre en ligne la valeur précédente et la valeur actuelle ; les mêmes entrées apparaissent dans la vue **Activités** d’un enregistrement, comme celui d’un contact, dans le widget d’activité du tableau de bord et dans Mate. Filtrez par type :
 
 - **Modifications d’enregistrements** : créations, mises à jour et suppressions d’enregistrements avec les valeurs des champs.
 - **Administration et système** : membres, rôles, webhooks, routines, comptes connectés, pages de la base de connaissances, mentions légales et exports. Les secrets des webhooks et les valeurs des en-têtes sont masqués.
@@ -193,19 +193,19 @@ Cliquez sur [Ajouter](app:settings/webhooks?focus=add), ou sur une ligne pour la
 
 ### Où voir les livraisons de webhooks ? [#deliveries-tab]
 
-[Livraisons](app:settings/webhook-deliveries), juste sous **Webhooks** dans la navigation des paramètres, liste une ligne par livraison, de la plus récente à la plus ancienne, avec **URL**, **Évènement**, **Élément**, **Statut**, **Code de statut** et **Créé le**. Cliquez sur une ligne pour **Détails de l’évènement** : statut (**En attente**, **Envoi en cours**, **Livré** ou **Échec**), code de statut, message de réponse et charge utile. La charge utile d’un évènement d’enregistrement est relue avec votre accès actuel : les valeurs que vous ne pouvez pas lire apparaissent comme restreintes, et la charge utile reste vide si vous ne pouvez pas lire l’enregistrement. **Renvoyer** (livraisons livrées ou en échec, **Créer** sur **API et webhooks**) crée une nouvelle livraison avec l’URL, le secret, les en-têtes et le modèle de corps actuels du webhook. Un évènement d’enregistrement est relu avec l’accès actuel du propriétaire du webhook, et seul ce propriétaire ou un administrateur peut le renvoyer ; les détails sont dans [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
+[Journal des webhooks](app:settings/webhook-deliveries), juste sous **Webhooks** dans la navigation des paramètres, liste une ligne par livraison, de la plus récente à la plus ancienne, avec **URL**, **Évènement**, **Élément**, **Statut**, **Code de statut** et **Créé le**. Cliquez sur une ligne pour **Détails de l’évènement** : statut (**En attente**, **Envoi en cours**, **Livré** ou **Échec**), code de statut, message de réponse et charge utile. La charge utile d’un évènement d’enregistrement est relue avec votre accès actuel : les valeurs que vous ne pouvez pas lire apparaissent comme restreintes, et la charge utile reste vide si vous ne pouvez pas lire l’enregistrement. **Renvoyer** (livraisons livrées ou en échec, **Créer** sur **API et webhooks**) crée une nouvelle livraison avec l’URL, le secret, les en-têtes et le modèle de corps actuels du webhook. Un évènement d’enregistrement est relu avec l’accès actuel du propriétaire du webhook, et seul ce propriétaire ou un administrateur peut le renvoyer ; les détails sont dans [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
 
 ## Où se définit la devise ? [#where-is-the-currency-set]
 
-Il n’y a pas de devise d’espace de travail : chaque champ monétaire porte la sienne. Ouvrez [Configurer](app:configure), ouvrez la liste et le champ monétaire, et choisissez **Devise**. La configuration IA de l’espace de travail crée les champs monétaires dans la devise que vous choisissez dans ses questions ; un champ monétaire que vous ajoutez vous-même démarre en EUR. Changer la devise d’un champ ne convertit pas les montants enregistrés, et les totaux qui mélangent des devises affichent une incohérence de devise au lieu d’une somme. Configurer des champs exige **Modifier** sur **Modèle de données**.
+Il n’y a pas de devise d’espace de travail : chaque champ monétaire porte la sienne. Ouvrez [Modèle de données](app:configure), ouvrez la liste et le champ monétaire, et choisissez **Devise**. La configuration IA de l’espace de travail crée les champs monétaires dans la devise que vous choisissez dans ses questions ; un champ monétaire que vous ajoutez vous-même démarre en EUR. Changer la devise d’un champ ne convertit pas les montants enregistrés, et les totaux qui mélangent des devises affichent une incohérence de devise au lieu d’une somme. Configurer des champs exige **Modifier** sur **Modèle de données**.
 
 ### Comment fonctionnent les probabilités d’étape et les totaux ? [#how-do-stage-probabilities-and-totals-work]
 
-Dans [Configurer](app:configure), ouvrez votre liste d’affaires, ouvrez son champ d’étape et définissez **Probabilité %** sur chaque option ; la configuration IA de l’espace de travail les renseigne à partir de la chance de gain de chaque étape. Un champ de valeur pondérée multiplie la valeur de l’affaire par la probabilité de l’étape divisée par 100 ; zéro donne zéro, l’absence de probabilité le laisse vide. Les modifications affichent un aperçu des dépendances et recalculent les enregistrements concernés. Pour les totaux du pipeline, ajoutez un widget graphique au [Tableau de bord](app:dashboard) qui additionne la valeur de l’affaire ou la valeur pondérée, regroupée par étape si vous le souhaitez. Voir [pipeline pondéré](/docs/concepts#how-does-a-weighted-pipeline-work).
+Dans [Modèle de données](app:configure), ouvrez votre liste d’affaires, ouvrez son champ d’étape et définissez **Probabilité %** sur chaque option ; la configuration IA de l’espace de travail les renseigne à partir de la chance de gain de chaque étape. Un champ de valeur pondérée multiplie la valeur de l’affaire par la probabilité de l’étape divisée par 100 ; zéro donne zéro, l’absence de probabilité le laisse vide. Les modifications affichent un aperçu des dépendances et recalculent les enregistrements concernés. Pour les totaux du pipeline, ajoutez un widget graphique au [Tableau de bord](app:dashboard) qui additionne la valeur de l’affaire ou la valeur pondérée, regroupée par étape si vous le souhaitez. Voir [pipeline pondéré](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### Comment renommer une liste comme Affaires ? [#how-do-i-rename-record-types-in-the-data-model]
 
-Ouvrez la liste dans [Configurer](app:configure), modifiez **Nom** et **Nom au pluriel** sous **Général** et cliquez sur **Enregistrer**. Toute liste peut être renommée ; les enregistrements, liens, vues, widgets et références d’API restent connectés. Les noms de listes doivent être uniques, sans tenir compte de la casse ni des accents. Supprimer une liste la déplace dans la **Corbeille**, où vous pouvez la **Restaurer** pendant 30 jours ou la **Supprimer définitivement**.
+Ouvrez la liste dans [Modèle de données](app:configure), modifiez **Nom** et **Nom au pluriel** sous **Général** et cliquez sur **Enregistrer**. Toute liste peut être renommée ; les enregistrements, liens, vues, widgets et références d’API restent connectés. Les noms de listes doivent être uniques, sans tenir compte de la casse ni des accents. Supprimer une liste la déplace dans la **Corbeille**, où vous pouvez la **Restaurer** pendant 30 jours ou la **Supprimer définitivement**.
 
 ## Pour les agents [#tips-for-agents]
 

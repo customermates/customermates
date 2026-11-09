@@ -1830,6 +1830,7 @@
     "checkpointToastTitle": "Verification failed",
     "connectAccount": "Connect channel",
     "connectedAt": "Connected",
+    "connectedNote": "Connected",
     "connectedToastDescription": "Importing your history in the background. This can take a few minutes, feel free to keep working.",
     "connectedToastTitle": "Channel connected",
     "description": "Connect the channels your inbox pulls from, like email, WhatsApp and LinkedIn. Channels are private by default and can be shared with your workspace. By connecting one, you authorize us to process its messages, contacts and calendar on your behalf. See our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>, <subprocessorsLink>Subprocessors</subprocessorsLink> and <termsOfServiceLink>Terms</termsOfServiceLink>.",
@@ -2306,6 +2307,8 @@
     "share": {
       "descriptionDashboard": "Teammates see the same widgets and layout. Every number is calculated with their own access, so nobody sees records their role hides.",
       "descriptionList": "Teammates see your filters, columns and layout. Each person only sees the records and fields their own role allows.",
+      "duplicateToEdit": "Duplicate to edit",
+      "duplicateToEditLabel": "Duplicate {name} to edit your own copy",
       "hidden": "Hidden from your tabs",
       "hide": "Hide from my tabs",
       "link": "Link",
@@ -2335,6 +2338,7 @@
         "saveToCreate": "Save to create the link.",
         "workspaceDisabled": "Public links are turned off for this workspace in Settings, General."
       },
+      "readOnly": "Shared by {name} · read-only",
       "roles": "Selected roles",
       "rolesDescription": "Only members with these roles see it.",
       "rolesLabel": "Roles",
@@ -2904,7 +2908,7 @@
       "add": "Add a record or list",
       "askMate": "Ask Mate",
       "close": "Close the topmost dialog or drawer",
-      "goConfigure": "Configure",
+      "goConfigure": "Data model",
       "goDashboard": "Dashboard",
       "goInbox": "Inbox",
       "goKnowledgeBase": "Knowledge Base",
@@ -4269,6 +4273,7 @@
     },
     "iconSearch": "Search icons",
     "identityChannels": "Contact details",
+    "inlineEditHint": "Enter saves · Shift+Enter adds a line",
     "invalidConfiguration": "This change needs attention before it can be applied.",
     "lineFields": {
       "amount": "Amount",

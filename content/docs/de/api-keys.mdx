@@ -7,7 +7,7 @@ API-Keys authentifizieren Clients für das Model Context Protocol (MCP) und die 
 
 ## API-Key anlegen: Wie lege ich einen API-Key an? [#how-do-i-create-an-api-key]
 
-Öffnen Sie in den Einstellungen [API-Schlüssel](app:settings/api-keys) und klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate). Der Dialog **API-Key hinzufügen** bietet zwei Wege:
+Öffnen Sie in den Einstellungen [API-Schlüssel & Konnektoren](app:settings/api-keys) und klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate). Der Dialog **API-Key hinzufügen** bietet zwei Wege:
 
 - **Standard-API-Key**: Geben Sie unter **Name** an, wo der Key eingesetzt wird, zum Beispiel `Claude Desktop, privater Laptop` (bis zu 255 Zeichen), wählen Sie optional unter **Läuft ab** ein Datum und klicken Sie auf **Speichern**. Der Key wird einmal unter **API-Schlüssel erfolgreich erstellt** angezeigt; kopieren Sie ihn, bevor Sie den Dialog schließen.
 - **Schnellverbindungen**: Wählen Sie **Claude**, **ChatGPT & Codex**, **Cursor** oder **Gemini** und dann die Einrichtung, die zu Ihrer Nutzung passt. Bei einer lokalen Einrichtung (**Claude Code oder Desktop**, dann **Claude Code** oder **Claude Desktop**; **Codex CLI oder IDE**; Cursor oder Gemini) klicken Sie auf **API-Key erstellen**: Der Dialog legt den Key an und zeigt das Setup-Snippet dieses Clients mit bereits eingesetztem Key. **Claude-Konto** und **ChatGPT-App** verbinden sich stattdessen per OAuth und legen keinen Key an. Schließen Sie den Dialog, wenn Sie fertig sind.
@@ -18,20 +18,20 @@ Keys gehören dem Nutzer, der sie angelegt hat, und erben dessen Berechtigungen.
 
 ## Wer kann API-Keys anlegen und sehen? [#who-can-create-and-see-api-keys]
 
-Die Seite API-Keys richtet sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** unter [Rollen](app:settings/roles):
+Die Seite API-Schlüssel & Konnektoren richtet sich nach der Zeile **API & Webhooks** Ihrer Rolle. Diese Zeile setzt ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** unter [Rollen](app:settings/roles):
 
 - **Lesen** **Alle** zeigt API-Keys in den Einstellungen und listet Ihre eigenen Keys. Mit **Keine** ist der Eintrag ausgeblendet und die Seite lässt sich nicht öffnen.
 - **Erstellen** blendet **Hinzufügen** ein, und **Löschen** erlaubt das Löschen von Keys. Ohne beide sehen Sie vorhandene Keys, können aber keine anlegen oder löschen.
 
 Eine neue Rolle startet ohne angehakte Checkbox und mit **Lesen** **Keine**; ohne Anpassung können also nur Mitglieder mit der eingebauten Rolle **Admin** API-Keys anlegen. Dieselbe Zeile öffnet auch [Webhooks](app:settings/webhooks) und deren Zustellungen. Wer sie für API-Keys vergibt, lässt das Mitglied also auch jeden Webhook des Workspace sehen und mit **Erstellen**, **Bearbeiten** oder **Löschen** ändern.
 
-Jede Person sieht nur ihre eigenen Keys, und nur die des aktuellen Workspace; um einen Key eines anderen Workspace zu sehen oder zu löschen, wechseln Sie in diesen Workspace. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Keys, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
+Jede Person sieht nur ihre eigenen Keys, und nur die des aktuellen Workspace; um einen Key eines anderen Workspace zu sehen oder zu löschen, wechseln Sie in diesen Workspace. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Schlüssel & Konnektoren, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
 
 Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht keinen API-Key. Wie jede MCP-Verbindung braucht er **Lesen** **Alle** auf **API & Webhooks** ([MCP-Endpoint](/docs/mcp#the-endpoint)). Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
 
 ## Welche Berechtigung braucht jede Aktion mit API-Keys? [#which-permission-does-each-api-key-action-need]
 
-Jede Verwaltung von Keys prüft die Zeile **API & Webhooks** Ihrer Rolle: Einen Key anzulegen braucht **Erstellen**, ihn zu ändern **Bearbeiten**, ihn zu löschen **Löschen**, und Ihre Keys zu lesen oder aufzulisten **Lesen** **Alle**. Ein Mitglied mit **Status** **Inaktiv** kann keine Keys verwalten. Keys verwalten Sie nur auf der Seite API-Keys; die zugrunde liegenden Endpunkte unter `/api/auth/api-key/` beantworten direkte Anfragen mit `404`, sodass jeder Key zu dem Workspace gehört, in dem er angelegt wurde. Diese Prüfungen gelten nur für die Verwaltung von Keys; was ein Aufruf mit einem Key darf, richtet sich nach der Rolle seines Eigentümers, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
+Jede Verwaltung von Keys prüft die Zeile **API & Webhooks** Ihrer Rolle: Einen Key anzulegen braucht **Erstellen**, ihn zu ändern **Bearbeiten**, ihn zu löschen **Löschen**, und Ihre Keys zu lesen oder aufzulisten **Lesen** **Alle**. Ein Mitglied mit **Status** **Inaktiv** kann keine Keys verwalten. Keys verwalten Sie nur auf der Seite API-Schlüssel & Konnektoren; die zugrunde liegenden Endpunkte unter `/api/auth/api-key/` beantworten direkte Anfragen mit `404`, sodass jeder Key zu dem Workspace gehört, in dem er angelegt wurde. Diese Prüfungen gelten nur für die Verwaltung von Keys; was ein Aufruf mit einem Key darf, richtet sich nach der Rolle seines Eigentümers, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
 
 ## Wie kann ich einen Key nutzen, und in welchen Header gehört er? [#how-do-i-use-a-key]
 
@@ -85,7 +85,7 @@ Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum w
 
 ## Wie kann ich einen Key widerrufen, löschen oder rotieren? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung ist er sofort ungültig. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine eigene Rotate- oder Revoke-Aktion fehlt: Zum Rotieren legen Sie einen neuen Key an, stellen jeden Client darauf um und löschen den alten.
+Klicken Sie unter [API-Schlüssel & Konnektoren](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung ist er sofort ungültig. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine eigene Rotate- oder Revoke-Aktion fehlt: Zum Rotieren legen Sie einen neuen Key an, stellen jeden Client darauf um und löschen den alten.
 
 Rotieren Sie, wenn ein Gerät mit dem Key verloren oder kompromittiert ist, ein Teammitglied mit Zugriff geht oder Sie einen Leak vermuten. Mit einem Key pro Client löschen Sie einen Client, ohne die anderen zu brechen; im Aktivitätsprotokoll steht aber der Nutzer, nicht der Key. Speichern Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager, nie in einer committeten Datei.
 

@@ -182,7 +182,7 @@ If two or more of these are daily work for your team, stay with Vtiger or look a
 
 ## Moving from Vtiger
 
-Most Vtiger sales data has a direct home. In Configure, you can rename organizations to "Accounts" and deals to "Opportunities", so your team keeps its vocabulary.
+Most Vtiger sales data has a direct home. In Data model, you can rename organizations to "Accounts" and deals to "Opportunities", so your team keeps its vocabulary.
 
 | In Vtiger | In Customermates |
 |---|---|
@@ -194,12 +194,12 @@ Most Vtiger sales data has a direct home. In Configure, you can rename organizat
 | Tasks | Tasks, plus a custom date field for due dates |
 | Cases, quotes, invoices, projects, campaigns | No equivalent; keep Vtiger or a dedicated tool for them |
 
-Stages are not preset in Customermates: add a Stage single choice field to your deals list in Configure (in the cloud, AI setup can create it), with one option per Vtiger stage, and set a **Probability %** on each option.
+Stages are not preset in Customermates: add a Stage single choice field to your deals list in Data model (in the cloud, AI setup can create it), with one option per Vtiger stage, and set a **Probability %** on each option.
 
 <Steps>
   <Step title="Export from Vtiger">In each module's list view, choose Export and export all data. Vtiger exports CSV files, not Excel.</Step>
   <Step title="Keep each file as CSV">Customermates imports CSV files directly, so there is nothing to convert.</Step>
-  <Step title="Prepare the workspace">Rename lists in Configure, create custom fields for the Vtiger fields you keep, and set the stage names and probabilities.</Step>
+  <Step title="Prepare the workspace">Rename lists in Data model, create custom fields for the Vtiger fields you keep, and set the stage names and probabilities.</Step>
   <Step title="Import one list at a time">Use More actions, then Add from file: organizations first, then contacts, then deals. Link columns are matched by record name, so a contact's organization column finds the organization you imported before. The [records documentation](/docs/app-records) lists the limits.</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp, then set up a routine or connect your own AI client.</Step>
 </Steps>

@@ -63,7 +63,7 @@ Les détails qui comptent quand vous construisez dessus :
 
 - **Signatures.** Définissez un secret et chaque livraison porte une signature HMAC-SHA256 du corps de la requête, pour que le destinataire puisse rejeter les appels falsifiés.
 - **Nouvelles tentatives.** Les délais dépassés, les erreurs réseau, les réponses 5xx et 408, 425 et 429 sont retentés automatiquement, jusqu’à 10 tentatives au total. Les autres réponses 4xx ne le sont pas.
-- **Journal des livraisons.** **Paramètres → Livraisons** affiche chaque livraison avec son code de statut et sa charge utile, et vous pouvez en renvoyer une depuis là.
+- **Journal des livraisons.** **Paramètres → Journal des webhooks** affiche chaque livraison avec son code de statut et sa charge utile, et vous pouvez en renvoyer une depuis là.
 - **En-têtes personnalisés et modèles de corps.** Les en-têtes permettent de vous authentifier auprès du destinataire. Un modèle de corps remplace l’enveloppe JSON standard par la forme qu’attend le destinataire, avec des variables comme `{{event}}` et `{{data.record.ref.recordId}}`.
 - **Changements uniquement.** Un évènement `record.updated` liste chaque champ modifié avec sa valeur `before` et `after`, et une écriture qui ne change rien n’envoie aucun évènement.
 
@@ -107,7 +107,7 @@ Customermates n’a ni application Slack, ni canal Slack dans la boîte de réce
   <Step title="Créez le webhook entrant Slack">Dans Slack, créez une application, activez les webhooks entrants, ajoutez un webhook à votre espace de travail et choisissez le canal. Copiez l’URL et gardez-la secrète.</Step>
   <Step title="Ajoutez le webhook Customermates">Sous **Paramètres → Webhooks → Ajouter**, collez l’URL Slack, sélectionnez **Enregistrement créé** et choisissez Affaires sous **Enregistrements de**.</Step>
   <Step title="Rédigez le modèle de corps">Saisissez `{"text": "New deal: {{data.record.ref.recordId}}"}`. Tout chemin sous `{{data}}` fonctionne comme variable.</Step>
-  <Step title="Testez et vérifiez le journal">Créez une affaire de test et ouvrez **Livraisons**. Un code de statut 2xx signifie que Slack l’a acceptée.</Step>
+  <Step title="Testez et vérifiez le journal">Créez une affaire de test et ouvrez **Journal des webhooks**. Un code de statut 2xx signifie que Slack l’a acceptée.</Step>
 </Steps>
 
 **Voie 2, n8n.** Utilisez n8n quand le message demande de la logique : n’alerter que lorsque l’**Étape** de l’affaire atteint une certaine valeur, publier un récapitulatif hebdomadaire du pipeline à partir d’un `POST /api/v1/records/query` planifié, ou transformer un raccourci Slack en nouveau contact via l’API. Les conversations Slack n’apparaissent de toute façon jamais dans la boîte de réception de Customermates.

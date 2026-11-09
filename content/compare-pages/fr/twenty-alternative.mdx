@@ -186,11 +186,11 @@ Prenons un cabinet de conseil de cinq personnes qui fonctionne avec les Personne
 |---|---|
 | Personnes | Contacts |
 | Entreprises | Organisations |
-| Opportunités | Affaires, renommées « Opportunités » dans Configurer pour que votre équipe garde ses mots |
+| Opportunités | Affaires, renommées « Opportunités » dans Modèle de données pour que votre équipe garde ses mots |
 | Étapes du pipeline | Un champ d’étape (choix unique) avec une probabilité par étape |
 | Un objet personnalisé, comme Missions | Votre propre liste « Missions », reliée aux opportunités |
 | Tâches | Tâches ; si vous suivez une échéance, ajoutez un champ date personnalisé, car les tâches n’ont pas d’échéance intégrée |
-| Boîtes aux lettres connectées | Reconnectez-les sous Paramètres, Canaux (Pro) ; leur historique s’importe en arrière-plan |
+| Boîtes aux lettres connectées | Reconnectez-les sous Paramètres, Canaux et agendas (Pro) ; leur historique s’importe en arrière-plan |
 | Workflows | Routines dans Customermates Cloud, ou webhooks vers n8n |
 
 Avec les étapes Prospect 10 %, Qualifié 30 %, Proposition 50 %, Négociation 70 %, Gagnée 100 % et Perdue 0 %, Customermates affiche la valeur pondérée de chaque opportunité, et un widget graphique du tableau de bord les additionne : valeur multipliée par la probabilité de l’étape, pas une prédiction.
@@ -202,9 +202,9 @@ Chacun des cinq possède une routine pour la relance du lundi. Elle fonctionne d
 <Steps>
   <Step title="Exporter chaque vue depuis Twenty">Ouvrez Personnes, Entreprises et Opportunités, affichez tous les champs que vous voulez garder, puis choisissez « Export view » dans le menu ⋮. Twenty écrit un CSV des colonnes visibles et des enregistrements filtrés, jusqu’à 20 000 enregistrements par export, sans pièces jointes ni images. Son guide ne dit pas si les notes ou les tâches suivent : vérifiez avec un export de test.</Step>
   <Step title="Garder les fichiers tels quels">Customermates accepte les fichiers CSV : il n’y a donc rien à convertir. Un fichier peut actuellement peser jusqu’à 10 Mo et une feuille compter jusqu’à 5 000 lignes : découpez donc un export plus gros.</Step>
-  <Step title="Préparer l’espace de travail">Renommez les affaires en Opportunités dans Configurer, créez des champs personnalisés pour les propriétés que vous gardez et configurez le champ d’étape avec ses probabilités.</Step>
+  <Step title="Préparer l’espace de travail">Renommez les affaires en Opportunités dans Modèle de données, créez des champs personnalisés pour les propriétés que vous gardez et configurez le champ d’étape avec ses probabilités.</Step>
   <Step title="Importer une liste à la fois">Choisissez Plus d’actions, puis Ajouter depuis un fichier. Importez d’abord les organisations, puis les contacts, puis les opportunités. Les colonnes de liens retrouvent les enregistrements par leur nom, les nouveaux contacts exigent un prénom et un nom, et une colonne de notes remplit les notes de l’enregistrement. Le [guide des enregistrements](/docs/app-records) couvre chaque règle.</Step>
-  <Step title="Connecter les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une boîte aux lettres, LinkedIn ou WhatsApp sous Paramètres, Canaux. Configurez ensuite des routines pour Mate, ou connectez votre propre client IA via MCP.</Step>
+  <Step title="Connecter les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une boîte aux lettres, LinkedIn ou WhatsApp sous Paramètres, Canaux et agendas. Configurez ensuite des routines pour Mate, ou connectez votre propre client IA via MCP.</Step>
 </Steps>
 
 ## Autres alternatives à Twenty à examiner

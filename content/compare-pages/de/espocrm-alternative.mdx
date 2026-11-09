@@ -189,7 +189,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Be
 
 ## Umstieg von EspoCRM
 
-Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. In **Konfigurieren** können Sie Organisationen in „Accounts“ und Deals in „Chancen“ umbenennen, damit die gewohnten Begriffe bleiben.
+Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. Im **Datenmodell** können Sie Organisationen in „Accounts“ und Deals in „Chancen“ umbenennen, damit die gewohnten Begriffe bleiben.
 
 | In EspoCRM | In Customermates |
 |---|---|
@@ -201,11 +201,11 @@ Für die meisten Vertriebsdaten aus EspoCRM gibt es ein direktes Gegenstück. In
 | Eigene Entitäten | Eigene Listen mit Feldern und Beziehungen |
 | Kampagnen, Massen-E-Mails, Portal | Kein Gegenstück; behalten Sie dafür ein eigenes Werkzeug |
 
-Die Phasen passen fast eins zu eins. Phasen sind in Customermates nicht vorgegeben: Legen Sie unter Konfigurieren an Ihrer Deal-Liste ein Einzelauswahl-Feld „Phase“ mit einer Option je EspoCRM-Phase an (in der Cloud kann die KI-Einrichtung es anlegen) und übernehmen Sie Ihre EspoCRM-Wahrscheinlichkeiten in die **Wahrscheinlichkeit %** jeder Option. Der gewichtete Wert multipliziert dann jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase. Das ist eine reine Rechnung mit Ihren eigenen Werten, keine Prognose.
+Die Phasen passen fast eins zu eins. Phasen sind in Customermates nicht vorgegeben: Legen Sie unter Datenmodell an Ihrer Deal-Liste ein Einzelauswahl-Feld „Phase“ mit einer Option je EspoCRM-Phase an (in der Cloud kann die KI-Einrichtung es anlegen) und übernehmen Sie Ihre EspoCRM-Wahrscheinlichkeiten in die **Wahrscheinlichkeit %** jeder Option. Der gewichtete Wert multipliziert dann jeden Deal-Wert mit der Wahrscheinlichkeit seiner Phase. Das ist eine reine Rechnung mit Ihren eigenen Werten, keine Prognose.
 
 <Steps>
   <Step title="Aus EspoCRM exportieren">Exportieren Sie jede Liste, die Sie behalten wollen, als Excel-Datei: Accounts, Kontakte, Leads und Opportunities.</Step>
-  <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Attribute an, die Sie behalten, und tragen Sie die Phasenwahrscheinlichkeiten ein.</Step>
+  <Step title="Workspace vorbereiten">Benennen Sie Listen im Datenmodell um, legen Sie eigene Felder für die Attribute an, die Sie behalten, und tragen Sie die Phasenwahrscheinlichkeiten ein.</Step>
   <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts also die zuvor importierte Organisation. Customermates importiert XLSX-, XLS- und CSV-Dateien; die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Listen als Ansichten anlegen">Machen Sie aus jedem Listenfilter in EspoCRM eine gespeicherte Ansicht. Ansichten bleiben privat, bis Sie sie teilen; teilen Sie die, die das ganze Team nutzt.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp, richten Sie dann Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>

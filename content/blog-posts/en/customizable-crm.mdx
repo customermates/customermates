@@ -94,10 +94,10 @@ Here is how a five-person consultancy would shape Customermates to its process. 
 
 <Steps>
   <Step title="Rename the lists">
-    In **Configure**, open a list and change **Name** and **Plural name** under **General**: Contacts become **Clients**, Deals become **Projects**, Services become **Packages**. Any name works, and records, links, views and API references stay connected; see the [workspace settings docs](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+    In **Data model**, open a list and change **Name** and **Plural name** under **General**: Contacts become **Clients**, Deals become **Projects**, Services become **Packages**. Any name works, and records, links, views and API references stay connected; see the [workspace settings docs](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
   </Step>
   <Step title="Define the stage field">
-    Stages are not preset. In Configure for Deals, add a **Stage** Single choice field (in the cloud, AI setup can create it) with options that match your sales steps, for example Enquiry, Scoping call, Proposal sent, Signed, Lost. Set **Probability %** on each option, and every deal gets a weighted value from those fixed percentages; a Dashboard chart widget that sums **Weighted value** by stage shows the weighted pipeline total.
+    Stages are not preset. In Data model for Deals, add a **Stage** Single choice field (in the cloud, AI setup can create it) with options that match your sales steps, for example Enquiry, Scoping call, Proposal sent, Signed, Lost. Set **Probability %** on each option, and every deal gets a weighted value from those fixed percentages; a Dashboard chart widget that sums **Weighted value** by stage shows the weighted pipeline total.
   </Step>
   <Step title="Add custom fields where they drive a decision">
     On Projects: **Engagement type** (Single choice: retainer, fixed scope, workshop), **Day rate** (Money), **Contract renewal** (Date). On Clients: **Source** (Single choice) and **Office address** (Address); phone numbers and email addresses go into the Contact details field. Sixteen field types and calculated fields are available, listed in the [data model docs](/docs/concepts#what-are-custom-columns).
@@ -165,7 +165,7 @@ For one person and a few hundred contacts, yes. It breaks down when several peop
 </FaqItem>
 
 <FaqItem question="Which CRM offers the most flexible data model for custom objects?">
-Among the products checked here, Twenty includes unlimited custom objects on its Pro, Organization and Enterprise plans, Attio allows up to 12 on Pro and unlimited on Enterprise, EspoCRM creates custom entities in its Entity Manager, HubSpot reserves custom objects for Enterprise tiers, and Zoho CRM allows between 10 and 500 custom modules depending on the paid edition. In Customermates you add your own lists with fields and relationships in Configure.
+Among the products checked here, Twenty includes unlimited custom objects on its Pro, Organization and Enterprise plans, Attio allows up to 12 on Pro and unlimited on Enterprise, EspoCRM creates custom entities in its Entity Manager, HubSpot reserves custom objects for Enterprise tiers, and Zoho CRM allows between 10 and 500 custom modules depending on the paid edition. In Customermates you add your own lists with fields and relationships in Data model.
 </FaqItem>
 
 <FaqItem question="Can I keep my CRM data on my own server?">

@@ -205,7 +205,7 @@ Prenons un cabinet de conseil de quatre personnes qui vend des missions de conse
 | Dans Freshsales | Dans Customermates |
 |---|---|
 | Contacts | Contacts |
-| Comptes | Organisations, renommées « Comptes » dans Configurer |
+| Comptes | Organisations, renommées « Comptes » dans Modèle de données |
 | Affaires dans le pipeline de vente | Affaires avec un champ Étape et des probabilités de gain |
 | Catalogue de produits | Services, renommés « Produits », ajoutés aux affaires comme lignes avec une quantité |
 | Étape du cycle de vie du contact | Un champ Choix unique « Étape du cycle de vie » et une vue enregistrée pour chaque étape que vous travaillez |
@@ -213,7 +213,7 @@ Prenons un cabinet de conseil de quatre personnes qui vend des missions de conse
 | Tâches | Tâches, avec un champ date personnalisé « Échéance », car les tâches n’ont pas d’échéance intégrée |
 | Numéros de téléphone et journaux d’appels | Le champ Coordonnées du contact ; les appels ne sont pas consignés |
 
-Dans Configurer pour les affaires, l’équipe renomme les options d’Étape en Lead, Qualifié, Proposition envoyée, Négociation, Gagnée et Perdue, et fixe leur Probabilité % à 10 %, 25 %, 50 %, 75 %, 100 % et 0 %. Chaque consultant enregistre un board de ses propres affaires regroupées par étape. L’associé garde un tableau de toutes les affaires ouvertes regroupées par utilisateur assigné.
+Dans Modèle de données pour les affaires, l’équipe renomme les options d’Étape en Lead, Qualifié, Proposition envoyée, Négociation, Gagnée et Perdue, et fixe leur Probabilité % à 10 %, 25 %, 50 %, 75 %, 100 % et 0 %. Chaque consultant enregistre un board de ses propres affaires regroupées par étape. L’associé garde un tableau de toutes les affaires ouvertes regroupées par utilisateur assigné.
 
 Chacun connecte un canal, deux comptes LinkedIn et deux messageries Gmail, donc Pro convient, à [[commercial.price.pro.monthly.seats.4]] par mois pour l’équipe. Si un consultant veut LinkedIn et l’e-mail côte à côte, l’espace de travail passe à Business à [[commercial.price.business.monthly.seats.4]].
 
@@ -226,9 +226,9 @@ Les séquences de Freshsales n’ont pas d’équivalent : chaque consultant po
 <Steps>
   <Step title="Exportez depuis Freshsales">D’après le centre d’aide de Freshworks, un administrateur ouvre Admin Settings › Account, clique sur Export data et choisit les types d’enregistrements à inclure. Freshworks envoie l’export par e-mail sous forme de fichier ZIP. Vous pouvez exporter jusqu’à cinq fois par jour, et la période complète une seule fois.</Step>
   <Step title="Importez chaque fichier tel quel">Customermates importe des fichiers .xlsx, .xls et .csv : un export Freshsales n’a donc pas besoin d’être converti. Gardez une liste par fichier.</Step>
-  <Step title="Préparez l’espace de travail">Renommez les listes dans Configurer si vos termes diffèrent, créez des champs personnalisés pour les champs Freshsales que vous gardez, comme l’étape du cycle de vie et la source du lead, et configurez le champ d’étape avec ses probabilités.</Step>
+  <Step title="Préparez l’espace de travail">Renommez les listes dans Modèle de données si vos termes diffèrent, créez des champs personnalisés pour les champs Freshsales que vous gardez, comme l’étape du cycle de vie et la source du lead, et configurez le champ d’étape avec ses probabilités.</Step>
   <Step title="Importez une liste à la fois">Sur chaque liste, ouvrez Plus d’actions, puis Ajouter depuis un fichier : les organisations d’abord, puis les contacts, puis les affaires. Si votre export n’a pas de fichier de comptes, construisez le classeur des organisations à partir de la colonne de compte du fichier des contacts. Les colonnes de lien associent les enregistrements par nom : la colonne de compte d’un contact retrouve donc l’organisation importée avant. Associez les adresses e-mail et les numéros de téléphone au champ Coordonnées du contact. Les limites de taille figurent dans la [documentation des enregistrements](/docs/app-records).</Step>
-  <Step title="Connectez les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp sous Paramètres › Canaux. L’historique des e-mails de l’export ne s’importe pas ; la boîte de réception affiche les conversations des comptes que vous connectez. Configurez ensuite des routines, ou connectez votre propre client IA via MCP.</Step>
+  <Step title="Connectez les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp sous Paramètres › Canaux et agendas. L’historique des e-mails de l’export ne s’importe pas ; la boîte de réception affiche les conversations des comptes que vous connectez. Configurez ensuite des routines, ou connectez votre propre client IA via MCP.</Step>
 </Steps>
 
 ## Autres alternatives à Freshsales à regarder

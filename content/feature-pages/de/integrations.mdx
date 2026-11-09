@@ -63,7 +63,7 @@ Worauf es beim Aufbau ankommt:
 
 - **Signaturen.** Mit einem **Secret** trägt jede Zustellung eine HMAC-SHA256-Signatur über den Request-Body. Der Empfänger kann gefälschte Aufrufe so abweisen.
 - **Wiederholungen.** Timeouts, Netzwerkfehler, 5xx-Antworten sowie 408, 425 und 429 werden automatisch wiederholt, mit bis zu 10 Versuchen insgesamt. Andere 4xx-Antworten nicht.
-- **Zustellprotokoll.** **Einstellungen → Zustellungen** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
+- **Zustellprotokoll.** **Einstellungen → Webhook-Protokoll** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
 - **Eigene Header und Body-Vorlagen.** Header authentifizieren Sie beim Empfänger. Eine **Body-Vorlage** ersetzt den Standard-JSON-Umschlag durch das Format, das der Empfänger erwartet, mit Platzhaltern wie `{{event}}` und `{{data.record.ref.recordId}}`.
 - **Nur echte Änderungen.** Ein `record.updated`-Ereignis enthält jedes geänderte Feld mit seinem Wert `before` und `after`. Ein Speichervorgang ohne Änderung löst kein Ereignis aus.
 
@@ -107,7 +107,7 @@ Customermates hat keine Slack-App, keinen Slack-Kanal im Posteingang und keine S
   <Step title="Slack-Incoming-Webhook anlegen">Legen Sie in Slack eine App an, aktivieren Sie Incoming Webhooks, fügen Sie einen Webhook zum Workspace hinzu und wählen Sie den Channel. Kopieren Sie die URL und behandeln Sie sie wie ein Passwort.</Step>
   <Step title="Webhook in Customermates anlegen">Fügen Sie unter **Einstellungen → Webhooks → Hinzufügen** die Slack-URL ein, wählen Sie **Datensatz erstellt** und unter **Datensätze aus** die Liste Deals.</Step>
   <Step title="Body-Vorlage schreiben">Tragen Sie `{"text": "Neuer Deal: {{data.record.ref.recordId}}"}` ein. Jeder Pfad unter `{{data}}` funktioniert als Platzhalter.</Step>
-  <Step title="Testen und Protokoll prüfen">Legen Sie einen Test-Deal an und öffnen Sie **Zustellungen**. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat.</Step>
+  <Step title="Testen und Protokoll prüfen">Legen Sie einen Test-Deal an und öffnen Sie **Webhook-Protokoll**. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat.</Step>
 </Steps>
 
 **Weg 2, mit n8n.** n8n brauchen Sie, sobald Logik ins Spiel kommt: nur melden, wenn die Deal-**Phase** einen bestimmten Wert erreicht, einmal pro Woche eine Pipeline-Übersicht aus einem geplanten `POST /api/v1/records/query` posten, oder aus einem Slack-Shortcut per API einen neuen Kontakt anlegen. Slack-Gespräche erscheinen in beiden Fällen nicht im Customermates-Posteingang.
