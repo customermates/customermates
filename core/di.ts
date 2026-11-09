@@ -194,7 +194,6 @@ import { PurgeExpiredRecordFilesInteractor } from "@/features/record-files/purge
 import { PurgeCompanyRecordFilesInteractor } from "@/features/record-files/purge-company-record-files.interactor";
 import { NormalizePhoneIdentitiesInteractor } from "@/features/records/normalize-phone-identities.interactor";
 import { NormalizeCompanyPhoneIdentitiesInteractor } from "@/features/records/normalize-company-phone-identities.interactor";
-import { ConsolidateLinkedinIdentitiesInteractor } from "@/features/records/consolidate-linkedin-identities.interactor";
 import { PurgeCompanyFileObjectsInteractor } from "@/features/record-files/purge-company-file-objects.interactor";
 import { ReadRecordFileInteractor } from "@/features/record-files/read-record-file.interactor";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
@@ -743,8 +742,6 @@ export const getNormalizePhoneIdentitiesInteractor = () =>
   );
 export const getNormalizeCompanyPhoneIdentitiesInteractor = () =>
   new NormalizeCompanyPhoneIdentitiesInteractor((companyId) => createPrismaRecordRepo(companyId));
-export const getConsolidateLinkedinIdentitiesInteractor = () =>
-  new ConsolidateLinkedinIdentitiesInteractor((companyId) => createPrismaRecordRepo(companyId));
 export const getPurgeCompanyFileObjectsInteractor = () =>
   new PurgeCompanyFileObjectsInteractor(() =>
     env.FILE_STORAGE_DRIVER === "database" ? [] : [getFileStorageDriver(env.FILE_STORAGE_DRIVER)],

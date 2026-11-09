@@ -1,4 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -22,9 +26,13 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
-const { ConsolidateLinkedinIdentitiesInteractor } = await import("../consolidate-linkedin-identities.interactor");
 
-const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
+const databaseUrl = getLocalDatabaseTestUrl();
+const describeDatabase = databaseUrl ? describe : describe.skip;
+const MIGRATION = readFileSync(
+  join(process.cwd(), "prisma/migrations/20261109120000_merge_linkedin_identity_aliases/migration.sql"),
+  "utf8",
+);
 const companies: string[] = [];
 
 const FRANCESCA = "ACoAAB8eNoQBhr8Ek4Y-7zwwnasJF849Xk3zums";
@@ -121,6 +129,44 @@ async function workspace() {
   return { companyId, typeId, repo, record, identity, owners, setIdentities };
 }
 
+type StoredIdentity = {
+  id: string;
+  value: string;
+  messagingId: string | null;
+  displayName: string | null;
+  profileUrl: string | null;
+  keys: string[];
+  records: string[];
+};
+
+async function storedIn(client: Client, companyId: string): Promise<StoredIdentity[]> {
+  const result = await client.query<StoredIdentity>(
+    `SELECT identity.id, identity.value, identity."messagingId", identity."displayName", identity."profileUrl",
+            coalesce((SELECT array_agg(key.value ORDER BY key.value) FROM "RecordIdentityKey" key
+                       WHERE key."companyId" = identity."companyId" AND key."identityId" = identity.id), '{}') AS keys,
+            coalesce((SELECT array_agg(link."recordId" ORDER BY link."recordId") FROM "RecordIdentityLink" link
+                       WHERE link."companyId" = identity."companyId" AND link."identityId" = identity.id), '{}') AS records
+       FROM "RecordIdentity" identity
+      WHERE identity."companyId" = $1
+      ORDER BY identity.id`,
+    [companyId],
+  );
+  return result.rows;
+}
+
+async function inMigration<T>(fn: (client: Client) => Promise<T>): Promise<T> {
+  if (!databaseUrl) throw new Error("Database tests must be enabled for this test");
+  const client = new Client({ connectionString: databaseUrl });
+  await client.connect();
+  try {
+    await client.query("BEGIN");
+    return await fn(client);
+  } finally {
+    await client.query("ROLLBACK");
+    await client.end();
+  }
+}
+
 async function stored(companyId: string) {
   return runWithoutTenant(async () => {
     const identities = await prisma.recordIdentity.findMany({
@@ -142,17 +188,17 @@ async function stored(companyId: string) {
 }
 
 describeDatabase("LinkedIn member id and username stored as two identities", () => {
-  const consolidate = new ConsolidateLinkedinIdentitiesInteractor((companyId) => createTestRecordRepo(companyId));
-
   beforeAll(() => preloadTestRecordRepo(), 120_000);
 
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
   });
 
-  it("merges each proven pair into one channel, keeps every key, link and message route, and repeats as a no-op", async () => {
+  it("the migration merges each proven pair into one channel, keeps every key, link and route, and repeats as a no-op", async () => {
     const w = await workspace();
-    const [francesca, joerg, luigi, glory, single] = await Promise.all(Array.from({ length: 5 }, () => w.record()));
+    const [francesca, joerg, luigi, glory, single, twoPeople, otherPerson] = await Promise.all(
+      Array.from({ length: 7 }, () => w.record()),
+    );
     const francescaMember = await w.identity({
       value: FRANCESCA,
       messagingId: FRANCESCA,
@@ -199,105 +245,49 @@ describeDatabase("LinkedIn member id and username stored as two identities", () 
       profileUrl: "https://www.linkedin.com/in/dan-mccormick-2458688",
       records: [single],
     });
+    await w.identity({
+      value: "ACoAABxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      profileUrl: "https://www.linkedin.com/in/shared-name",
+      records: [twoPeople],
+    });
+    await w.identity({ value: "shared-name", records: [otherPerson] });
     const before = await stored(w.companyId);
-
-    const dryRun = await consolidate.invoke({
-      companyId: w.companyId,
-      apply: false,
-    });
-    expect(dryRun).toMatchObject({
-      busy: false,
-      applied: false,
-      repair: null,
-    });
-    expect(dryRun.plan.merges.map((merge) => merge.survivorId).sort()).toEqual([francescaSlug, joergSlug].sort());
-    expect(dryRun.plan.backfills.map((backfill) => backfill.identityId)).toEqual([singleMember]);
-    expect(await stored(w.companyId)).toEqual(before);
-    await expect(consolidate.invoke({ companyId: w.companyId, apply: true })).rejects.toThrow(/backup/);
-    expect(await stored(w.companyId)).toEqual(before);
-
-    const backups: Array<{ rows: Array<{ id: string }> }> = [];
-    const applied = await consolidate.invoke({ companyId: w.companyId, apply: true }, (snapshot) => {
-      backups.push(snapshot);
-    });
-    expect(applied.applied).toBe(true);
-    expect(applied.repair).toMatchObject({ merged: 2, removed: 2 });
-    expect(applied.readback).toEqual({
-      remainingMerges: 0,
-      remainingBackfills: 0,
-      problems: [],
-    });
-    expect(backups[0]?.rows.map((row) => row.id).sort()).toEqual(
-      [francescaMember, francescaSlug, joergMember, joergSlug, singleMember].sort(),
+    const unchanged = before.filter((identity) =>
+      [luigi, glory, twoPeople, otherPerson].includes(identity.records[0] ?? ""),
     );
 
-    const after = await stored(w.companyId);
-    const byId = new Map(after.map((identity) => [identity.id, identity]));
-    expect(byId.has(francescaMember)).toBe(false);
-    expect(byId.has(joergMember)).toBe(false);
-    expect(byId.get(francescaSlug)).toMatchObject({
-      value: "francesca-pollard-004a12126",
-      messagingId: FRANCESCA,
-      displayName: "Francesca Pollard",
-      keys: [FRANCESCA, "francesca-pollard-004a12126"].sort(),
-      records: [francesca],
-    });
-    expect(byId.get(joergSlug)).toMatchObject({
-      messagingId: JOERG,
-      keys: [JOERG, "jörg-nückel"].sort(),
-    });
-    expect(byId.get(singleMember)?.keys).toEqual([SINGLE, "dan-mccormick-2458688"].sort());
-    for (const exception of before.filter((identity) => [luigi, glory].includes(identity.records[0] ?? "")))
-      expect(byId.get(exception.id)).toEqual(exception);
-    expect(after.filter((identity) => identity.records.includes(francesca))).toHaveLength(1);
+    await inMigration(async (client) => {
+      await client.query(MIGRATION);
+      const after = await storedIn(client, w.companyId);
+      const byId = new Map(after.map((identity) => [identity.id, identity]));
+      expect(byId.has(francescaMember)).toBe(false);
+      expect(byId.has(joergMember)).toBe(false);
+      expect(byId.get(francescaSlug)).toMatchObject({
+        value: "francesca-pollard-004a12126",
+        messagingId: FRANCESCA,
+        displayName: "Francesca Pollard",
+        keys: [FRANCESCA, "francesca-pollard-004a12126"].sort(),
+        records: [francesca],
+      });
+      expect(byId.get(joergSlug)).toMatchObject({
+        messagingId: JOERG,
+        profileUrl: "https://www.linkedin.com/in/j%C3%B6rg-n%C3%BCckel",
+        records: [joerg],
+      });
+      expect(byId.get(joergSlug)?.keys).toEqual(expect.arrayContaining([JOERG, "jörg-nückel"]));
+      expect(byId.get(singleMember)?.keys).toEqual([SINGLE, "dan-mccormick-2458688"].sort());
+      for (const identity of unchanged) {
+        expect(byId.get(identity.id)).toMatchObject({
+          value: identity.value,
+          messagingId: identity.messagingId,
+          records: identity.records,
+        });
+      }
+      expect(after.filter((identity) => identity.records.includes(francesca))).toHaveLength(1);
+      expect(after).toHaveLength(before.length - 2);
 
-    expect(await w.owners(FRANCESCA)).toEqual([francesca]);
-    expect(await w.owners("francesca-pollard-004a12126")).toEqual([francesca]);
-    expect(await w.owners("dan-mccormick-2458688")).toEqual([single]);
-
-    const again = await consolidate.invoke({ companyId: w.companyId, apply: true }, () => {
-      throw new Error("A repeated run must not need a backup");
-    });
-    expect(again).toMatchObject({
-      applied: false,
-      plan: { merges: [], backfills: [] },
-    });
-    expect(again.plan.skipped).toEqual([]);
-    expect(await stored(w.companyId)).toEqual(after);
-  });
-
-  it("skips groups on excluded records and leaves a busy workspace alone", async () => {
-    const w = await workspace();
-    const person = await w.record();
-    await w.identity({
-      value: FRANCESCA,
-      profileUrl: "https://www.linkedin.com/in/francesca-pollard-004a12126",
-      records: [person],
-    });
-    await w.identity({
-      value: "francesca-pollard-004a12126",
-      records: [person],
-    });
-    const excluded = await consolidate.invoke({
-      companyId: w.companyId,
-      apply: false,
-      excludeRecordIds: [person],
-    });
-    expect(excluded.plan).toMatchObject({
-      merges: [],
-      skipped: [{ reason: "excludedRecord" }],
-    });
-
-    await runWithoutTenant(() =>
-      prisma.recordSchemaState.update({
-        where: { companyId: w.companyId },
-        data: { activeOperationId: randomUUID() },
-      }),
-    );
-    const before = await stored(w.companyId);
-    expect(await consolidate.invoke({ companyId: w.companyId, apply: true }, () => undefined)).toMatchObject({
-      busy: true,
-      applied: false,
+      await client.query(MIGRATION);
+      expect(await storedIn(client, w.companyId)).toEqual(after);
     });
     expect(await stored(w.companyId)).toEqual(before);
   });
@@ -350,7 +340,7 @@ describeDatabase("LinkedIn member id and username stored as two identities", () 
     expect(await w.owners(FRANCESCA)).toEqual([person]);
   });
 
-  it("still saves a person that holds both identities before the consolidation ran", async () => {
+  it("still saves a person that holds both identities before the migration ran", async () => {
     const w = await workspace();
     const person = await w.record();
     const url = "https://www.linkedin.com/in/francesca-pollard-004a12126/";

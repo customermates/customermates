@@ -91,8 +91,6 @@ import type {
   PhoneIdentityValue,
   RecordPhoneIdentityRepo,
 } from "./record-phone-identity.repo";
-import type { LinkedinIdentityRepair, RecordLinkedinIdentityRepo } from "./record-linkedin-identity.repo";
-import type { LinkedinIdentityPlan, LinkedinIdentityRow } from "./linkedin-identity-consolidation";
 
 const CONFIGURATION_DELETION_PAGE = 200;
 const STAGED_EVENT_PAGE = 1000;
@@ -111,12 +109,7 @@ function uniqueRefs(refs: RecordRef[]): RecordRef[] {
 
 export class PrismaRecordRepo
   extends TenantRepository
-  implements
-    RecordRepo,
-    ProviderAvatarRecordRepo,
-    RecordOperationQueueRepo,
-    RecordPhoneIdentityRepo,
-    RecordLinkedinIdentityRepo
+  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo, RecordPhoneIdentityRepo
 {
   private resolvedOwners?: RecordRepoOwners;
 
@@ -519,77 +512,6 @@ export class PrismaRecordRepo
       select: { activeOperationId: true },
     });
     return Boolean(state?.activeOperationId);
-  }
-
-  async findLinkedinIdentitiesCompanyWide(): Promise<LinkedinIdentityRow[]> {
-    const rows = await this.prisma.recordIdentity.findMany({
-      where: { companyId: this.companyId, channelClass: "linkedin" },
-      orderBy: { id: "asc" },
-      include: {
-        keys: { where: { companyId: this.companyId }, select: { value: true }, orderBy: { value: "asc" } },
-        records: {
-          where: { companyId: this.companyId },
-          select: { typeId: true, recordId: true },
-          orderBy: [{ typeId: "asc" }, { recordId: "asc" }],
-        },
-      },
-    });
-    return rows.map((row) => ({
-      id: row.id,
-      value: row.value,
-      messagingId: row.messagingId,
-      displayName: row.displayName,
-      profileUrl: row.profileUrl,
-      createdAt: row.createdAt.toISOString(),
-      keys: row.keys.map((key) => key.value),
-      records: row.records,
-    }));
-  }
-
-  async consolidateLinkedinIdentitiesCompanyWide(
-    plan: Pick<LinkedinIdentityPlan, "merges" | "backfills">,
-  ): Promise<LinkedinIdentityRepair> {
-    const companyId = this.companyId;
-    const repair: LinkedinIdentityRepair = { merged: 0, removed: 0, keysAdded: 0 };
-    const addKeys = async (identityId: string, keys: string[]) => {
-      if (!keys.length) return;
-      const added = await this.prisma.recordIdentityKey.createMany({
-        data: keys.map((value) => ({ companyId, channelClass: "linkedin", value, identityId })),
-        skipDuplicates: true,
-      });
-      repair.keysAdded += added.count;
-    };
-    for (const merge of plan.merges) {
-      const links = await this.prisma.recordIdentityLink.findMany({
-        where: { companyId, identityId: { in: merge.mergedIds } },
-        select: { typeId: true, recordId: true, createdAt: true },
-      });
-      await this.prisma.recordIdentityLink.createMany({
-        data: links.map((link) => ({ ...link, companyId, identityId: merge.survivorId })),
-        skipDuplicates: true,
-      });
-      await this.prisma.recordIdentityKey.updateMany({
-        where: { companyId, channelClass: "linkedin", identityId: { in: merge.mergedIds } },
-        data: { identityId: merge.survivorId },
-      });
-      await this.prisma.recordIdentity.update({
-        where: { companyId, companyId_id: { companyId, id: merge.survivorId } },
-        data: {
-          value: merge.value,
-          messagingId: merge.messagingId,
-          displayName: merge.displayName,
-          profileUrl: merge.profileUrl,
-        },
-      });
-      const removed = await this.prisma.recordIdentity.deleteMany({
-        where: { companyId, channelClass: "linkedin", id: { in: merge.mergedIds } },
-      });
-      await addKeys(merge.survivorId, merge.keys);
-      repair.merged += 1;
-      repair.removed += removed.count;
-    }
-    for (const backfill of plan.backfills) await addKeys(backfill.identityId, backfill.keys);
-    return repair;
   }
 
   async renamePhoneIdentitiesCompanyWide(renames: PhoneIdentityRename[]): Promise<PhoneIdentityRepair> {
