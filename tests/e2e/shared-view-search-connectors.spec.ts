@@ -182,7 +182,7 @@ test("the calendar's date sources offer connecting Google or Microsoft calendars
   test.skip(e2eAppMode() !== "cloud", "Connected calendars are part of the cloud service");
   test.setTimeout(120000);
   await page.goto(companyPath(companyId, "/calendar"));
-  await page.locator("#planner-sources").click();
+  await page.getByRole("button", { name: englishMessages.Planner.sources, exact: true }).first().click();
   const connectCalendar = page.locator("#planner-connect-calendar");
   await expect(connectCalendar).toBeVisible();
   await expect(connectCalendar).toHaveText(englishMessages.Planner.connectCalendar);
