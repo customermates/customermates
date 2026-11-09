@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">Open-core CRM with an AGPL-licensed Community Edition, AI agents, APIs, MCP, and self-hosting.</p>
+<p align="center">Follow up on every client conversation. The open-source CRM with LinkedIn and email beside every client, replies drafted by Mate or your own AI agent through MCP, and self-hosting under the AGPL.</p>
 
 <p align="center">
   <a href="https://customermates.com">Website</a> |
@@ -24,16 +24,16 @@
 
 
 <p align="center">
-  <a href="#product-film"><img src=".github/media/customermates-film.webp" alt="Customermates: the open-source CRM for your team and your AI agents." width="1200"></a>
+  <a href="#product-film"><img src=".github/media/customermates-film.webp" alt="Customermates: every client conversation in one place. Follow up on every one." width="1200"></a>
 </p>
 
-Customermates is a CRM for modern teams that want a clear system for contacts, organizations, deals, services, and tasks without the usual enterprise-heavy setup. It combines practical CRM workflows with API access, webhooks, n8n automation, MCP-based tooling, and AI-agent workflows.
+Customermates helps small teams follow up on every client conversation. LinkedIn and email sit beside each client (on Cloud from Pro also WhatsApp, Instagram and Telegram), and Mate or your own AI agent through MCP drafts each reply and the next step for you to review and send. Underneath is a full CRM for contacts, organizations, deals, services and tasks, with API access, webhooks, n8n automation and MCP.
 
 You can use the managed cloud version or run Customermates yourself in your own infrastructure with Docker Compose.
 
 ## Product film
 
-Follow up on every client conversation. The 46 second film: client conversations scattered across LinkedIn, email and chat come together in one workspace, Mate drafts the reply from your playbook, you send it in one click, the next step lands on your dashboard, and the same flow covers quiet proposals, new clients and due check-ins. It works with Mate, Claude or ChatGPT.
+The 70 second product film shows the workspace: client conversations from email, LinkedIn and WhatsApp in one inbox, Mate drafting the reply and the next step, and the same records open to Claude, ChatGPT or any agent that speaks MCP.
 
 [Watch the film](https://customermates.com/customermates-film.mp4) or find it in this repository at [`public/customermates-film.mp4`](public/customermates-film.mp4).
 
