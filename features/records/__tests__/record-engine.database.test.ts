@@ -23,7 +23,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { validateRecordModel } from "../record-model-validation";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { interactorFailureCodes, interactorFailureStatus } from "@/core/validation/validation.utils";
 import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
 import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
@@ -5277,15 +5277,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(
       await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: f.id("contact") })), f.member),
     ).toMatchObject({ ok: false });
-    const created = await f.run(
-      () =>
-        getUpsertRoleInteractor().invoke(
-          roleInput({
-            recordGrants: [{ typeId: f.id("contact"), actions: ["readAll"] }],
-          }),
-        ),
-      f.member,
+    const contactReader = () =>
+      f.run(
+        () =>
+          getUpsertRoleInteractor().invoke(
+            roleInput({
+              recordGrants: [{ typeId: f.id("contact"), actions: ["readAll"] }],
+            }),
+          ),
+        f.member,
+      );
+    const exceeding = await contactReader();
+    expect(!exceeding.ok && interactorFailureCodes(exceeding.error)).toEqual([
+      CustomErrorCode.roleExceedsOwnPermissions,
+    ]);
+    await f.run(() =>
+      prisma.recordTypeGrant.create({
+        data: { companyId: f.company.id, typeId: f.id("contact"), roleId: f.memberRole.id, actions: ["readAll"] },
+      }),
     );
+    const created = await contactReader();
     expect(created).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
     if (!created.ok) throw created.error;
     const change: ConfigurationChange = {
@@ -5295,7 +5306,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           operation: "setTypeGrants",
           typeId: f.id("contact"),
-          grants: [{ roleId: created.data.role.id, actions: ["readOwn"] }],
+          grants: [
+            { roleId: created.data.role.id, actions: ["readOwn"] },
+            { roleId: f.memberRole.id, actions: ["readAll"] },
+          ],
         },
       ],
     };
@@ -5308,7 +5322,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               {
                 operation: "setTypeGrants",
                 typeId: f.id("contact"),
-                grants: [{ roleId: f.memberRole.id, actions: ["readAll"] }],
+                grants: [{ roleId: f.memberRole.id, actions: ["readAll", "update"] }],
               },
             ],
           }),
@@ -5533,8 +5547,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const grantOnly = (action: "create" | "update" | "delete") =>
       f.run(async () => {
         await prisma.rolePermission.deleteMany({ where: { companyId: f.company.id, roleId: f.memberRole.id } });
-        await prisma.rolePermission.create({
-          data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action },
+        await prisma.rolePermission.createMany({
+          data: [action, "readOwn" as const].map((granted) => ({
+            companyId: f.company.id,
+            roleId: f.memberRole.id,
+            resource: "users" as const,
+            action: granted,
+          })),
         });
       });
     const revision = async () => (await f.run(() => f.repo.getState()))?.revision ?? 0;

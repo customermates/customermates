@@ -167,6 +167,7 @@ export enum CustomErrorCode {
   roleAssignedCannotDelete = "roleAssignedCannotDelete",
   roleNameTaken = "roleNameTaken",
   roleSelfEditForbidden = "roleSelfEditForbidden",
+  roleExceedsOwnPermissions = "roleExceedsOwnPermissions",
   roleSystemImmutable = "roleSystemImmutable",
   roleAccessPresetInUse = "roleAccessPresetInUse",
   routineAdminRequired = "routineAdminRequired",

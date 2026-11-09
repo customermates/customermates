@@ -94,6 +94,7 @@ describe("RemoveWorkspaceMemberInteractor", () => {
       departure,
       companyRepo as never,
       emailService as never,
+      { load: vi.fn().mockResolvedValue({ isAdmin: true }) } as never,
     );
   }
 

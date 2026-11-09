@@ -76,6 +76,7 @@ function harness(previousStatus: Status) {
     subscriptionRepo as never,
     countUsersRepo as never,
     releaseOwnerRoutines as never,
+    { load: vi.fn().mockResolvedValue({ isAdmin: true }) } as never,
   );
 
   const invoke = (status: "active" | "inactive") =>

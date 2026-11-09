@@ -8,6 +8,8 @@ import type { ConfigurationReferences } from "./configuration-references";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordField, RecordModel } from "./record-model.schema";
 
+import { roleExceedsCaller } from "@/features/role/role-ceiling";
+
 import { deterministicId } from "./deterministic-id";
 
 export type ConfigurationGrants = Array<{
@@ -170,6 +172,20 @@ export async function applyConfigurationOperations(
         if ([...previous].sort().join() !== [...next].sort().join())
           throw unwindFailure(CustomErrorCode.roleSelfEditForbidden, "authorization");
       }
+      if (
+        current.types.some((type) => type.id === typeId) &&
+        operation.grants.some((grant) =>
+          roleExceedsCaller(
+            policy,
+            { permissions: [], recordGrants: [{ typeId, actions: grant.actions }] },
+            {
+              permissions: [],
+              recordGrants: previousGrants.filter((entry) => entry.typeId === typeId && entry.roleId === grant.roleId),
+            },
+          ),
+        )
+      )
+        throw unwindFailure(CustomErrorCode.roleExceedsOwnPermissions, "authorization");
       grants.push({ typeId, grants: operation.grants });
     }
     if (operation.operation === "putCapability") {

@@ -24,7 +24,8 @@ export class ReprocessStuckWebhookEventsInteractor {
 
     for (const id of ids) {
       try {
-        await this.processor.invoke({ id });
+        const { rateLimited } = await this.processor.invoke({ id });
+        if (rateLimited) break;
       } catch {
         continue;
       }

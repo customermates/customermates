@@ -1268,6 +1268,7 @@
       "recordWritePaused": "Le modèle de données est en cours de mise à jour. Votre brouillon est conservé ; réessayez une fois la mise à jour terminée.",
       "roleAccessPresetInUse": "Ce rôle est utilisé par un modèle d’accès. Modifiez le modèle avant de supprimer le rôle.",
       "roleAssignedCannotDelete": "Un rôle attribué à des utilisateurs ne peut pas être supprimé.",
+      "roleExceedsOwnPermissions": "Vous ne pouvez accorder, attribuer ou gérer que les autorisations et accès aux enregistrements de votre propre rôle. Seul un administrateur peut attribuer le rôle d’administrateur.",
       "roleNameTaken": "Un rôle portant ce nom existe déjà.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
