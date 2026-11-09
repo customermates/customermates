@@ -111,6 +111,7 @@ const { RecordEventPayloadSchema } = await import("../record-event.schema");
 const { RecordRevisionChangeSchema } = await import("../record-revision.schema");
 const { RecordHistoryReader } = await import("../record-history-reader");
 const { createTestRecordRecipientReader, createTestRoutineRepo } = await import("@/tests/helpers/record-delivery");
+const { MESSAGING_SYSTEM_ACTOR } = await import("@/features/records/record-system-actor");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
@@ -1873,6 +1874,39 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await f.update(service, [["service.amount", decimal("0")]])).toMatchObject({ ok: true });
     expect(await runWithoutTenant(() => reader.readEvent(delivery))).toBeNull();
+  });
+
+  it("delivers a record event written by a system job with the system actor as null instead of failing", async () => {
+    const f = await fixture();
+    const subscription = await subscribeRecordEvents(f, {
+      typeId: f.id("service"),
+      query: null,
+      events: ["record.updated"],
+    });
+    const service = await f.create("service", "Avatar refresh", [["service.amount", decimal("1")]]);
+    expect(await f.update(service, [["service.amount", decimal("2")]])).toMatchObject({ ok: true });
+    const match = recordInvariant(
+      await f.run(() =>
+        prisma.recordEventMatch.findFirst({
+          where: { companyId: f.company.id, subscriptionId: subscription.id, event: { kind: "record.updated" } },
+        }),
+      ),
+    );
+    await f.run(() =>
+      prisma.eventLog.update({
+        where: { companyId: f.company.id, companyId_id: { companyId: f.company.id, id: match.eventId } },
+        data: { actorId: MESSAGING_SYSTEM_ACTOR },
+      }),
+    );
+    const envelope = await runWithoutTenant(() =>
+      createTestRecordRecipientReader().readEvent({
+        companyId: f.company.id,
+        userId: f.admin.id,
+        eventId: match.eventId,
+        subscriptionId: subscription.id,
+      }),
+    );
+    expect(envelope).toMatchObject({ id: match.eventId, actorId: null });
   });
 
   it("creates a generic record routine through the application interactor and durably admits its matched event once", async () => {
