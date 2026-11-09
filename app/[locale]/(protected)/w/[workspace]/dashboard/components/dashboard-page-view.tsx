@@ -330,6 +330,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         <WidgetDataDrawer
           key={data.opening}
           open={data.open}
+          readOnly={readOnlyView}
           selection={data.selection}
           onClose={() => setData((current) => current && { ...current, open: false })}
           onSelect={(group, label) =>

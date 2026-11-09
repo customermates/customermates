@@ -894,6 +894,21 @@
     "labels": {
       "addRole": "Aggiungi ruolo",
       "addWebhook": "Aggiungi webhook",
+      "connect": {
+        "claude": "Collega Claude",
+        "cursor": "Collega Cursor",
+        "gemini": "Collega Gemini",
+        "google": "Collega Google (Gmail e Calendar)",
+        "imap": "Collega una casella IMAP",
+        "instagram": "Collega Instagram",
+        "linkedin": "Collega LinkedIn",
+        "linkedinRecruiter": "Collega LinkedIn Recruiter",
+        "linkedinSalesNavigator": "Collega LinkedIn Sales Navigator",
+        "openai": "Collega ChatGPT e Codex",
+        "outlook": "Collega Microsoft (Outlook e Calendario)",
+        "telegram": "Collega Telegram",
+        "whatsapp": "Collega WhatsApp"
+      },
       "connectChannel": "Collega un canale",
       "createApiKey": "Crea chiave API",
       "switchWorkspace": "Cambia spazio di lavoro…",
@@ -937,10 +952,23 @@
       },
       "setting": {
         "apiKeys": {
-          "create": "nuova chiave API, genera token"
+          "claude": "Claude, Anthropic, Claude Code, Claude Desktop, MCP, connettore, IA",
+          "create": "nuova chiave API, genera token",
+          "cursor": "Cursor, MCP, connettore, IA, editor",
+          "gemini": "Gemini, Google Gemini, Gemini CLI, MCP, connettore, IA",
+          "openai": "ChatGPT, Codex, OpenAI, MCP, connettore, IA"
         },
         "channels": {
-          "connect": "collega email, aggiungi account, LinkedIn, WhatsApp"
+          "connect": "collega email, aggiungi account, LinkedIn, WhatsApp",
+          "google": "Google Calendar, Calendario Google, Gmail, Google Workspace, email, calendario",
+          "imap": "email, server di posta, dominio personalizzato, casella di posta",
+          "instagram": "messaggi Instagram, Meta, social",
+          "linkedin": "messaggi LinkedIn, social, messaggi diretti",
+          "linkedinRecruiter": "Recruiter, LinkedIn, selezione",
+          "linkedinSalesNavigator": "Sales Navigator, LinkedIn, prospezione",
+          "outlook": "Microsoft, Microsoft 365, Office 365, calendario Outlook, Exchange, email, calendario",
+          "telegram": "chat Telegram, messaggistica",
+          "whatsapp": "WhatsApp Business, chat, messaggistica"
         },
         "profile": {
           "avatarUrl": "immagine del profilo, foto, immagine",
@@ -959,9 +987,9 @@
       },
       "settings": {
         "activity": "registro di audit, cronologia, modifiche",
-        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso",
+        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso, connettori, Claude, ChatGPT, Codex, Gemini, Cursor, IA",
         "billing": "piano, abbonamento, fatture, pagamento, prezzi",
-        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni",
+        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni, Google, Calendario Google, Gmail, Microsoft, Outlook, Instagram, Telegram",
         "general": "nome dello spazio di lavoro, rinomina spazio di lavoro, esci dallo spazio di lavoro",
         "members": "team, utenti, persone, colleghi",
         "profile": "il mio profilo, account, preferenze, personale",
@@ -4753,7 +4781,7 @@
   "SettingsNav": {
     "account": "Account",
     "activity": "Attività",
-    "apiKeys": "Chiavi API",
+    "apiKeys": "Chiavi API e connettori",
     "billing": "Fatturazione",
     "channels": "Canali",
     "deliveries": "Consegne",

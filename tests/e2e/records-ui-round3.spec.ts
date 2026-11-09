@@ -276,7 +276,7 @@ test("edits every field type inline in rows and on board cards, with validation,
     await row.hover();
     await row.getByRole("button", { name: `Edit ${label}`, exact: true }).click();
     await expect(inPlace).toBeVisible();
-    const input = inPlace.locator("input").first();
+    const input = inPlace.locator("input, textarea").first();
     await expect(input).toBeFocused();
     return input;
   };
@@ -352,6 +352,21 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(inPlace).toHaveCount(0);
   await expect(row).toContainText("Tabbed text");
   await expect(row).not.toContainText("Never saved");
+
+  const long = "A longer note that wraps across several lines while it is edited in the table cell";
+  const multiline = await openInPlace("Text");
+  expect(await multiline.evaluate((element) => element.tagName)).toBe("TEXTAREA");
+  await multiline.fill(long);
+  await expect
+    .poll(() => multiline.evaluate((element) => element.scrollHeight > element.clientHeight || element.clientHeight > 40))
+    .toBe(true);
+  await page.keyboard.press("Shift+Enter");
+  await page.keyboard.type("Second line");
+  await expect(inPlace).toBeVisible();
+  await expect(multiline).toHaveValue(`${long}\nSecond line`);
+  await page.keyboard.press("Enter");
+  await expect(inPlace).toHaveCount(0);
+  await expect(row).toContainText("Second line");
 
   await row.getByRole("switch", { name: "Edit Done" }).click();
   await expect(row.getByRole("switch", { name: "Edit Done" })).toHaveAttribute("data-state", "checked");

@@ -387,7 +387,9 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
   const activateNext = useRef<(() => void) | undefined>(undefined);
   const store = useFieldValueStore(records, record, field, () => onDone(activateNext.current));
   useEffect(() => {
-    const input = container.current?.querySelector<HTMLInputElement>('input:not([type="hidden"])');
+    const input = container.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+      'input:not([type="hidden"]), textarea',
+    );
     input?.focus({ preventScroll: true });
     input?.select();
   }, []);
@@ -417,7 +419,11 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           event.stopPropagation();
           store.resetForm();
           onDone();
-        } else if (event.key === "Enter") {
+        } else if (
+          event.key === "Enter" &&
+          !event.nativeEvent.isComposing &&
+          !(event.shiftKey && event.target instanceof HTMLTextAreaElement)
+        ) {
           event.preventDefault();
           event.stopPropagation();
           commit();
@@ -439,6 +445,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           inputId={inputId}
           label={null}
           members={record.memberUsers}
+          multilineText={field.valueType === "text" && field.id !== records.type?.primaryFieldId}
         />
       </AppFormProvider>
     </div>

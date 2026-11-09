@@ -1,6 +1,5 @@
-import type { LucideIcon } from "lucide-react";
 import type { ShortcutId } from "@/components/keyboard/shortcut-registry";
-import type { CommandActionId, CommandEnvironment } from "@/components/keyboard/command-registry";
+import type { CommandActionId, CommandEnvironment, CommandIcon } from "@/components/keyboard/command-registry";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
 import type { RecordFieldView, RecordRelationship } from "@/features/records/record-model.schema";
@@ -28,7 +27,7 @@ type PaletteRun =
   | { kind: "switchWorkspace"; companyId: string };
 
 export type PaletteEntry = PaletteCandidate & {
-  icon: LucideIcon;
+  icon: CommandIcon;
   subtitle?: string;
   shortcut?: ShortcutId;
   destructive?: boolean;

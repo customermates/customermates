@@ -894,6 +894,21 @@
     "labels": {
       "addRole": "Ajouter un rôle",
       "addWebhook": "Ajouter un webhook",
+      "connect": {
+        "claude": "Connecter Claude",
+        "cursor": "Connecter Cursor",
+        "gemini": "Connecter Gemini",
+        "google": "Connecter Google (Gmail et Agenda)",
+        "imap": "Connecter une boîte IMAP",
+        "instagram": "Connecter Instagram",
+        "linkedin": "Connecter LinkedIn",
+        "linkedinRecruiter": "Connecter LinkedIn Recruiter",
+        "linkedinSalesNavigator": "Connecter LinkedIn Sales Navigator",
+        "openai": "Connecter ChatGPT et Codex",
+        "outlook": "Connecter Microsoft (Outlook et Calendrier)",
+        "telegram": "Connecter Telegram",
+        "whatsapp": "Connecter WhatsApp"
+      },
       "connectChannel": "Connecter un canal",
       "createApiKey": "Créer une clé API",
       "switchWorkspace": "Changer d’espace de travail…",
@@ -937,10 +952,23 @@
       },
       "setting": {
         "apiKeys": {
-          "create": "nouvelle clé API, générer un jeton"
+          "claude": "Claude, Anthropic, Claude Code, Claude Desktop, MCP, connecteur, IA",
+          "create": "nouvelle clé API, générer un jeton",
+          "cursor": "Cursor, MCP, connecteur, IA, éditeur",
+          "gemini": "Gemini, Google Gemini, Gemini CLI, MCP, connecteur, IA",
+          "openai": "ChatGPT, Codex, OpenAI, MCP, connecteur, IA"
         },
         "channels": {
-          "connect": "connecter un e-mail, ajouter un compte, LinkedIn, WhatsApp"
+          "connect": "connecter un e-mail, ajouter un compte, LinkedIn, WhatsApp",
+          "google": "Google Agenda, Google Calendar, Gmail, Google Workspace, e-mail, agenda",
+          "imap": "e-mail, serveur de messagerie, domaine personnalisé, boîte mail",
+          "instagram": "messages Instagram, Meta, réseau social",
+          "linkedin": "messages LinkedIn, réseau social, messages privés",
+          "linkedinRecruiter": "Recruiter, LinkedIn, recrutement",
+          "linkedinSalesNavigator": "Sales Navigator, LinkedIn, prospection",
+          "outlook": "Microsoft, Microsoft 365, Office 365, calendrier Outlook, Exchange, e-mail, calendrier",
+          "telegram": "chat Telegram, messagerie",
+          "whatsapp": "WhatsApp Business, chat, messagerie"
         },
         "profile": {
           "avatarUrl": "photo de profil, photo, image",
@@ -959,9 +987,9 @@
       },
       "settings": {
         "activity": "journal d’audit, historique, modifications",
-        "api-keys": "jetons, API, MCP, développeur, clés d’accès",
+        "api-keys": "jetons, API, MCP, développeur, clés d’accès, connecteurs, Claude, ChatGPT, Codex, Gemini, Cursor, IA",
         "billing": "forfait, abonnement, factures, paiement, tarifs",
-        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations",
+        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram",
         "general": "nom de l’espace de travail, renommer l’espace de travail, quitter l’espace de travail",
         "members": "équipe, utilisateurs, personnes, collègues",
         "profile": "mon profil, compte, préférences, personnel",
@@ -4753,7 +4781,7 @@
   "SettingsNav": {
     "account": "Compte",
     "activity": "Activité",
-    "apiKeys": "Clés API",
+    "apiKeys": "Clés API et connecteurs",
     "billing": "Facturation",
     "channels": "Canaux",
     "deliveries": "Livraisons",

@@ -1,10 +1,9 @@
 "use client";
 
 import type { RecordSearchHit } from "@/features/records/record-search.schema";
-import type { CommandActionId, CommandEnvironment } from "@/components/keyboard/command-registry";
+import type { CommandActionId, CommandEnvironment, CommandIcon } from "@/components/keyboard/command-registry";
 import type { ListGroup } from "./command-palette/command-palette-search";
 import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./command-palette/palette-entries";
-import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles, WandSparkles } from "lucide-react";
@@ -64,7 +63,7 @@ const SECTION_LIMIT = 8;
 type PaletteRowData = {
   key: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: CommandIcon;
   subtitle?: string;
   entry?: PaletteEntry;
   hit?: RecordSearchHit;

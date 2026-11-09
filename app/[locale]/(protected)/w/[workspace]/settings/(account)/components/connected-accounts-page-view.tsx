@@ -39,6 +39,8 @@ import { accountStatusChipColor, getProviderDisplayLabel } from "./account-statu
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { CONNECT_INTENT_CHANNELS } from "@/components/keyboard/connect-intent";
+import { useConnectIntent } from "@/components/keyboard/use-connect-intent";
 
 type Props = {
   accounts: ConnectedAccountDto[];
@@ -207,6 +209,9 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
   const { connectedAccountsStore, connectedAccountModalStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
+  useConnectIntent(CONNECT_INTENT_CHANNELS, canConnect && !locked, (channel) =>
+    runUserAction(() => connectedAccountsStore.connectAccount(channel)),
+  );
 
   useLayoutEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 

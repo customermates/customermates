@@ -23,6 +23,8 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { ApiKeysPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { CONNECT_INTENT_AI_CLIENTS } from "@/components/keyboard/connect-intent";
+import { useConnectIntent } from "@/components/keyboard/use-connect-intent";
 
 type Props = {
   apiKeys: ApiKey[];
@@ -39,6 +41,10 @@ const ApiKeysPageViewContent = observer(({ apiKeys }: Props) => {
     : t("Workspaces.apiKeysScope");
 
   useLayoutEffect(() => apiKeysStore.setItems({ items: apiKeys }), [apiKeys]);
+  useConnectIntent(CONNECT_INTENT_AI_CLIENTS, canManage, (provider) => {
+    apiKeyModalStore.add();
+    apiKeyModalStore.aiConnectionStore.selectProvider(provider);
+  });
 
   const pageState = resolveResourcePageState(apiKeysStore.dataRequest, apiKeysStore.items.length);
   const topBarActions = useMemo(
