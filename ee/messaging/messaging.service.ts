@@ -63,6 +63,7 @@ import {
   LinkedinSaveToSalesListResultSchema,
 } from "./sales-navigator/sales-navigator.schema";
 import { EMAIL_LIKE, UnipileRequestError } from "./unipile-request-error";
+import { multipartRequest } from "./unipile-multipart";
 
 const UNIPILE_BASE_URL = "https://api.unipile.com";
 const UNIPILE_REQUEST_TIMEOUT_MS = 30_000;
@@ -305,44 +306,10 @@ export const fetchWithTimeout: typeof fetch = async (input, init) => {
   });
 };
 
-function isMessageFile(value: unknown): value is MessageFile {
-  return (
-    typeof value === "object" && value !== null && "content" in value && "content_type" in value && "filename" in value
-  );
-}
-
-function appendMultipartField(form: FormData, key: string, value: unknown): void {
-  if (value === undefined || value === null) return;
-
-  if (isMessageFile(value)) {
-    const bytes = new Uint8Array(Buffer.from(value.content, "base64"));
-    form.append(key, new Blob([bytes], { type: value.content_type }), value.filename);
-    return;
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => appendMultipartField(form, `${key}[${index}]`, item));
-    return;
-  }
-
-  if (typeof value === "object") {
-    for (const [nestedKey, nestedValue] of Object.entries(value))
-      appendMultipartField(form, `${key}[${nestedKey}]`, nestedValue);
-    return;
-  }
-
-  form.append(key, String(value));
-}
-
-const multipartBodySerializer = (body: unknown): FormData => {
-  const form = new FormData();
-  for (const [key, value] of Object.entries(body as Record<string, unknown>)) appendMultipartField(form, key, value);
-
-  return form;
-};
-
-function multipartOptions(attachments: MessageFile[] | undefined) {
-  return attachments?.length ? { bodySerializer: multipartBodySerializer, headers: { "Content-Type": null } } : {};
+function multipartOptions(attachments: MessageFile[] | undefined, headers: Record<string, string>) {
+  if (!attachments?.length) return { headers };
+  const multipart = multipartRequest();
+  return { bodySerializer: multipart.bodySerializer, headers: { ...headers, ...multipart.headers } };
 }
 
 async function requestData<T>(
@@ -867,8 +834,7 @@ export class MessagingService {
         this.sdk.messaging.sendMessage({
           path: { account_id: input.accountId, chat_id: input.chatId },
           body: { text: input.text, ...(input.attachments ? { attachments: input.attachments } : {}) },
-          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-          ...multipartOptions(input.attachments),
+          ...multipartOptions(input.attachments, { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) }),
         }),
       );
       const data = z.looseObject({ message_id: z.union([z.string(), z.array(z.string())]).nullish() }).parse(raw);
@@ -903,14 +869,12 @@ export class MessagingService {
           ? this.sdk.messaging.startChatFromInbox({
               path: { account_id: input.accountId, inbox_id: input.inboxId },
               body,
-              headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-              ...multipartOptions(input.attachments),
+              ...multipartOptions(input.attachments, { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) }),
             })
           : this.sdk.messaging.startChat({
               path: { account_id: input.accountId },
               body,
-              headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-              ...multipartOptions(input.attachments),
+              ...multipartOptions(input.attachments, { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) }),
             }),
       );
       const data = z
@@ -962,8 +926,7 @@ export class MessagingService {
               : {}),
             ...(input.attachments ? { attachments: input.attachments } : {}),
           },
-          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-          ...multipartOptions(input.attachments),
+          ...multipartOptions(input.attachments, { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) }),
         }),
       );
       const data = z.looseObject({ id: z.string().min(1), message_id: z.string().min(1).optional() }).parse(raw);
@@ -1056,8 +1019,7 @@ export class MessagingService {
             ...(input.postAs ? { post_as: input.postAs } : {}),
             ...(input.quotedPostId ? { quoted_post_id: input.quotedPostId } : {}),
           },
-          headers: { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) },
-          ...multipartOptions(input.attachments),
+          ...multipartOptions(input.attachments, { [UNIPILE_TIMEOUT_HEADER]: String(OUTBOUND_SEND_TIMEOUT_MS) }),
         }),
       );
 
