@@ -11,7 +11,7 @@ relatedHrefs:
 
 hero:
   title: CRM-Reporting für kleine Teams, die klare Zahlen brauchen und kein BI-Projekt
-  description: Bauen Sie Ihr persönliches Dashboard aus Diagrammen zu Deals, Kontakten, Organisationen, Leistungen und Aufgaben. Sehen Sie Gesamt- und gewichtete Pipeline nach Phase, und fragen Sie in Customermates Cloud Mate nach Werten, die kein Diagramm zeigt, etwa einem Median oder einer Rangliste.
+  description: Bauen Sie Ihr Dashboard aus Diagrammen zu Deals, Kontakten, Organisationen, Leistungen und Aufgaben. Sehen Sie Gesamt- und gewichtete Pipeline nach Phase, und fragen Sie in Customermates Cloud Mate nach Werten, die kein Diagramm zeigt, etwa einem Median oder einer Rangliste.
   buttonLeftText: Kostenlos starten
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
@@ -36,7 +36,7 @@ Der Umfang ist bewusst klein. Wenn Sie Konversionsraten im Zeitverlauf, Verweild
   <SummaryItem label="Was Sie bekommen">Diagramm-Widgets, die Datensätze zählen oder Felder wie Deal-Wert und gewichteten Wert summieren, gruppiert nach einem Feld, pro Datensatz oder im Zeitverlauf, dazu ein Aktivitätsverlauf als Widget.</SummaryItem>
   <SummaryItem label="Tarife">Dashboards und gewichtete Pipeline gehören zu jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und zur Self-Hosted-Version.</SummaryItem>
   <SummaryItem label="KI">In Customermates Cloud beantwortet Mate Fragen, die Berechnungen über viele Datensätze brauchen, und nutzt dafür gehostete KI-Credits. Ihr eigener KI-Client liest dieselben Daten über MCP.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine Konversionsraten im Zeitverlauf, keine Verweildauer, keine Ziele, keine vorausschauende Umsatzprognose, kein geplanter Berichtsversand und kein gemeinsames Team-Dashboard.</SummaryItem>
+  <SummaryItem label="Nicht enthalten">Keine Konversionsraten im Zeitverlauf, keine Verweildauer, keine Ziele, keine vorausschauende Umsatzprognose und kein geplanter Berichtsversand.</SummaryItem>
 </ArticleSummary>
 
 ## Was ein Diagramm-Widget auswertet
@@ -69,7 +69,7 @@ Die Beispiele setzen eine Deal-Liste mit dem Einzelauswahl-Feld „Phase“ vora
 
 Aufgaben haben kein eingebautes Fälligkeitsdatum. Das Feld „Status“ in der letzten Zeile ist ein Einzelauswahl-Feld, das Sie an Ihrer Aufgabenliste anlegen; Sie können es wie jedes andere Feld umbenennen, ändern oder löschen.
 
-Zwei Fragen beantwortet eine Liste besser als ein Diagramm. **Wer arbeitet an welchen Deals?** Stellen Sie die Deal-Liste auf das Board um und gruppieren Sie nach **Zugewiesen**: Jede Person bekommt eine Spalte mit Anzahl und Summen ihrer Deals. **Wie viele Deals haben wir pro Monat angelegt?** Gruppieren Sie die Deal-Tabelle nach Erstelldatum, zusammengefasst nach Monat. Als Ansicht gespeichert, sind beide Auswertungen einen Klick entfernt. Ansichten gehören der Person, die sie speichert.
+Zwei Fragen beantwortet eine Liste besser als ein Diagramm. **Wer arbeitet an welchen Deals?** Stellen Sie die Deal-Liste auf das Board um und gruppieren Sie nach **Zugewiesen**: Jede Person bekommt eine Spalte mit Anzahl und Summen ihrer Deals. **Wie viele Deals haben wir pro Monat angelegt?** Gruppieren Sie die Deal-Tabelle nach Erstelldatum, zusammengefasst nach Monat. Als Ansicht gespeichert, sind beide Auswertungen einen Klick entfernt, und Sie können die Ansicht mit dem Team teilen.
 
 ## Welchen Tarif Sie brauchen
 
@@ -89,7 +89,7 @@ Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer und Mo
   <Step title="Die Felder anlegen, die Ihre Fragen brauchen">Öffnen Sie unter **Konfigurieren** die Deals und legen Sie über **Hinzufügen › Feld** ein Einzelauswahl-Feld „Lead-Quelle“ (Empfehlung, LinkedIn, Website, Veranstaltung), ein Einzelauswahl-Feld „Verlustgrund“ und ein Datumsfeld „Abgeschlossen am“ an. Ein Diagramm kann nur nach dem gruppieren, was Sie erfassen.</Step>
   <Step title="Das erste Diagramm erstellen">Klicken Sie auf dem **Dashboard** auf **Widget hinzufügen** und wählen Sie **Balkendiagramm**. Wählen Sie unter **Daten** Deals als Quelle, summieren Sie **Gewichteter Wert** und gruppieren Sie nach Phase. Schließen Sie in den Filtern Gewonnen und Verloren aus und klicken Sie auf **Speichern**.</Step>
   <Step title="Drei weitere hinzufügen">Gewonnener Deal-Wert nach Lead-Quelle, gewonnener Deal-Wert pro Organisation und die Anzahl verlorener Deals nach Verlustgrund. Verschieben und vergrößern Sie die Widgets nach Bedarf; die Anordnung wird für Sie gespeichert.</Step>
-  <Step title="Die Vorlage teilen, nicht das Dashboard">Aktivieren Sie bei jedem Diagramm **Als Vorlage freigeben**. Kolleginnen und Kollegen wählen es unter **Mit einer Vorlage starten** und erhalten eine eigene Kopie, die nur die Datensätze zählt, die ihre Rolle lesen darf.</Step>
+  <Step title="Das Dashboard oder die Vorlage teilen">Wählen Sie im Menü einer benannten Dashboard-Ansicht **Teilen…**, um sie allen im Workspace oder ausgewählten Rollen nur lesend zu zeigen. Oder aktivieren Sie bei einem Diagramm **Als Vorlage freigeben**: Kolleginnen und Kollegen wählen es unter **Mit einer Vorlage starten** und erhalten eine eigene Kopie. In beiden Fällen zählen die Zahlen nur die Datensätze, die die Rolle der jeweiligen Person lesen darf.</Step>
 </Steps>
 
 Die [Dashboard-Dokumentation](/docs/app-dashboard) beschreibt jede Option des Widget-Editors.
@@ -103,7 +103,7 @@ Customermates veröffentlicht diese Seite. Die Angaben zu anderen Anbietern wurd
 | Umsatzprognosen über Phasengewichte hinaus | Nicht vorhanden. Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit, die Sie für seine Phase festlegen, sonst nichts. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional und Enterprise enthalten Umsatzprognosen (Forecasting); [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) bietet eine Forecast-Ansicht |
 | Einen Berichtsbaukasten mit Konversionsraten, Zielen und vielen Berichtstypen | Nicht vorhanden. Diagramme zählen und aggregieren; ein Trichter-Diagramm zeigt die Umwandlung von Schritt zu Schritt für die aktuellen Datensätze, aber es gibt keine Ziele und keine Konversion im Zeitverlauf. | HubSpot Sales Hub Professional (eigene Berichte); Pipedrive Insights (eigene Berichte, Dashboards und Ziele) |
 | Eigene BI-Auswertungen auf den Rohdaten | Kein eingebauter Anschluss an ein BI-Tool | Self-Hosted: Ihre Daten liegen in Ihrer eigenen PostgreSQL-Datenbank, die [Metabase](https://www.metabase.com/docs/latest/databases/connecting) unterstützt; die Open-Source-Edition ist kostenlos und selbst gehostet. Nutzen Sie einen Datenbanknutzer mit reinem Lesezugriff und rechnen Sie damit, Abfragen nach einem Update anzupassen, weil die Tabellen das interne Schema des Produkts sind. |
-| Ein Dashboard, das das ganze Team bearbeitet | Nicht vorhanden. Jedes Dashboard ist persönlich; Vorlagen geben jeder Person eine Kopie. | |
+| Ein Dashboard, das das ganze Team bearbeitet | Nicht vorhanden. Ein geteiltes Dashboard ist für Teammitglieder nur lesbar und nur sein Eigentümer ändert es; Duplizieren oder eine Vorlage geben jeder Person eine bearbeitbare Kopie. | |
 | Berichte per E-Mail nach Zeitplan | Nicht eingebaut | Eine Routine in Customermates Cloud oder n8n, beides weiter unten beschrieben |
 
 Für eine einmalige Auswertung exportieren Sie die Liste über das Menü **Weitere Aktionen** der Deal-Liste als Excel-Arbeitsmappe. Der Export übernimmt sichtbare Spalten, Filter und Sortierung, den Rest erledigt eine [PivotTable](https://support.microsoft.com/de-de/excel/get-started/create-a-pivottable-to-analyze-worksheet-data). Exportiert wird ein Datensatztyp nach dem anderen; die Grenzen stehen in der [Anleitung zu Datensätzen](/docs/app-records).
@@ -136,7 +136,7 @@ Nicht im vorausschauenden Sinn. Es berechnet eine gewichtete Pipeline: den Wert 
 </FaqItem>
 
 <FaqItem question="Kann mein Team ein gemeinsames Dashboard nutzen?">
-Nein. Dashboards und gespeicherte Ansichten sind persönlich. Ein Diagramm können Sie mit **Als Vorlage freigeben** teilen, und jede Person startet daraus eine eigene Kopie. Diese Kopie zählt nur die Datensätze, die die jeweilige Rolle lesen darf, deshalb sehen zwei Personen im selben Diagramm unter Umständen unterschiedliche Zahlen.
+Ja, als benannte Dashboard-Ansicht. Ihr Eigentümer wählt **Teilen…** und zeigt sie allen im Workspace oder ausgewählten Rollen; Teammitglieder sehen sie nur lesend, und jede Zahl wird mit ihrem eigenen Zugriff berechnet, deshalb sehen zwei Personen im selben Diagramm unter Umständen unterschiedliche Zahlen. Das Haupt-Dashboard lässt sich nicht teilen, und einzelne Widgets bleiben bei ihrem Eigentümer: Mit **Als Vorlage freigeben** startet eine Kollegin eine eigene Kopie. Eine Dashboard-Ansicht lässt sich auch als öffentlicher Link veröffentlichen; das erfordert **Erstellen** in der Zeile **Öffentliche Links** der Rolle.
 </FaqItem>
 
 <FaqItem question="Kann ich CRM-Berichte nach Excel exportieren?">

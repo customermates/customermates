@@ -185,7 +185,7 @@ Customermates est un CRM open source et IA native pour les petites équipes en c
 - **Pas de portail client, de devis, de stock ni de téléphonie.**
 - **Pas de BPM ni de concepteur visuel de workflows.** L’automatisation passe par les routines de Customermates Cloud, les webhooks et le nœud communautaire n8n distinct.
 - **Les tâches n’ont pas d’échéance intégrée.** Ajoutez un champ date personnalisé si vous en avez besoin.
-- **Pas d’applications mobiles natives ni d’authentification unique.** Les vues enregistrées sont personnelles, et les autorisations s’appliquent par liste et par action, pas par champ.
+- **Pas d’applications mobiles natives ni d’authentification unique.** Les autorisations s’appliquent par liste et par action, pas par champ.
 
 ## Migrer depuis EspoCRM
 
@@ -207,7 +207,7 @@ Les étapes se correspondent presque une à une. Dans Customermates, les étapes
   <Step title="Exportez depuis EspoCRM">Exportez chaque liste que vous voulez garder vers un fichier Excel : comptes, contacts, leads et opportunités.</Step>
   <Step title="Préparez l’espace de travail">Renommez les listes dans Configurer, créez des champs personnalisés pour les attributs que vous conservez et définissez les probabilités d’étape.</Step>
   <Step title="Importez une liste à la fois">Importez d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de lien associent les enregistrements par nom : la colonne de compte d’un contact retrouve donc l’organisation importée avant. Customermates importe des fichiers XLSX, XLS et CSV ; la [documentation des enregistrements](/docs/app-records) liste les limites.</Step>
-  <Step title="Reconstruisez les listes en vues">Transformez chaque filtre de liste EspoCRM en vue enregistrée. Les vues sont personnelles : chacun enregistre la sienne.</Step>
+  <Step title="Reconstruisez les listes en vues">Transformez chaque filtre de liste EspoCRM en vue enregistrée. Les vues restent privées tant que vous ne les partagez pas ; partagez celles que toute l’équipe utilise.</Step>
   <Step title="Connectez les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp, puis configurez des routines pour Mate ou connectez votre propre client IA via MCP.</Step>
 </Steps>
 

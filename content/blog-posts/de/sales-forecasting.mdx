@@ -1,0 +1,239 @@
+---
+title: "Umsatzprognose im Vertrieb: Methoden und Rechenbeispiel"
+description: "Die Umsatzprognose schätzt den Umsatz, den Ihr Team im Zeitraum gewinnt. Gewichtete Pipeline, Abschlussrate und Run-Rate im Rechenbeispiel, plus CRM-Felder."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Umsatzprognose (Sales Forecast): So prognostizieren Sie den Umsatz aus der Pipeline"
+  description: "Ein Rechenbeispiel mit acht Deals, drei Prognosemethoden im direkten Vergleich, die Formeln zum Nachbauen in Excel und die Deal-Felder, die ein CRM braucht, damit die Prognose belastbar ist."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Umsatzprognose
+    - Sales Pipeline
+    - Vertriebsprozess
+---
+
+# Umsatzprognose (Sales Forecast): So prognostizieren Sie den Umsatz aus der Pipeline
+
+Eine Umsatzprognose, im Vertrieb meist Sales Forecast genannt, schätzt, wie viel Umsatz Ihr Team in einem künftigen Zeitraum gewinnt, etwa im nächsten Monat oder Quartal, anhand der Deals in der Pipeline und der bisherigen Ergebnisse. Für B2B-Teams ist die gewichtete Pipeline die praktikabelste Methode: Sie multiplizieren den Betrag jedes offenen Deals mit der Abschlusswahrscheinlichkeit seiner Phase, addieren die Deals, die im Zeitraum abschließen sollen, und zählen den bereits gewonnenen Umsatz dazu.
+
+Dieser Leitfaden ist für Vertriebsteams geschrieben, die aus ihrer Pipeline prognostizieren, nicht für Gründer, die im Businessplan Preis mal Menge rechnen; den Unterschied klärt der erste Abschnitt. Sie rechnen die Prognose an acht Beispiel-Deals durch, sehen sie neben einer Methode über die Abschlussrate und einer über die Run-Rate und bekommen die Felder, die ein Deal braucht, damit sich alles in jeder Tabelle nachbauen lässt. Customermates veröffentlicht diesen Leitfaden; der Abschnitt zur Prognose in Customermates ist als unser Produkt gekennzeichnet und nennt offen, was es nicht kann.
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Definition">Eine Umsatzprognose ist Ihre beste Schätzung des Umsatzes, den Sie im Zeitraum gewinnen. Die Umsatzplanung nennt dagegen das Ziel. Das sind zwei verschiedene Zahlen.</SummaryItem>
+  <SummaryItem label="Kernformel">Gewichteter Wert = Deal-Betrag × Phasenwahrscheinlichkeit. Prognose = bisher gewonnen + gewichteter Wert der offenen Deals, deren erwartetes Abschlussdatum im Zeitraum liegt.</SummaryItem>
+  <SummaryItem label="Nie nur eine Methode">Rechnen Sie die gewichtete Pipeline, einen Wert über die Abschlussrate und einen über die Run-Rate, nennen Sie eine Spanne und erklären Sie Abweichungen.</SummaryItem>
+  <SummaryItem label="Felder an jedem Deal">Betrag, Phase, erwartetes Abschlussdatum, zuständige Person und bei geschlossenen Deals das Datum von Gewinn oder Verlust.</SummaryItem>
+</ArticleSummary>
+
+Eine Prognose ist nur so gut wie die Pipeline dahinter. Haben Ihre Phasen noch keine Eingangsbedingungen, beginnen Sie mit dem Leitfaden zum [Aufbau und zur Pflege einer Sales Pipeline](/blog/sales-pipeline) und kommen dann hierher zurück. Für die Zielseite des Vergleichs macht die [Vorlage für die Vertriebsplanung über 90 Tage](/blog/sales-plan-template) aus einem Umsatzziel Kundenaktionen, Verantwortliche und Prüftermine.
+
+## Was ist eine Umsatzprognose, und wie unterscheidet sie sich von Umsatzplanung und Absatzprognose?
+
+Die Begriffe liegen nah beieinander und werden oft vermischt. Die Tabelle trennt sie.
+
+| Begriff | Frage | Rechengrundlage | Typische Anwender |
+|---|---|---|---|
+| Umsatzprognose aus der Pipeline (Sales Forecast) | Was gewinnen wir voraussichtlich in diesem Quartal? | Einzelne Deals mit Betrag, Phase und Abschlussdatum, dazu Ergebnisse früherer Zeiträume | Vertriebsteam, Vertriebsleitung |
+| Umsatzplanung | Was wollen wir erreichen? | Ein Ziel (Soll), von der Geschäftsführung gesetzt | Geschäftsführung, Controlling |
+| Absatzprognose | Wie viele Einheiten verkaufen wir? | Mengen statt Euro; Umsatz = Absatz × Preis | Produktion, Handel, Einkauf |
+| Umsatzprognose im Businessplan | Was könnte ein junges Unternehmen ohne Verkaufshistorie erreichen? | Annahmen zu Preis, Menge und Kundenzahl pro Monat | Gründerinnen und Gründer |
+
+Der Businessplan rechnet mit Annahmen, weil es noch keine Deals gibt. Ein Vertriebsteam hat Deals, und die Prognose aus der Pipeline wertet genau diese aus. Das ist der Unterschied zu den Vorlagen für Gründer, die in den Suchergebnissen zu „Umsatzprognose“ häufig auftauchen.
+
+Das Lehrbuch von Rob J Hyndman und George Athanasopoulos (englischsprachig) beschreibt die Trennung von Prognose, Ziel und Plan so: Prognose heißt, mit den vorhandenen Informationen die Zukunft so genau wie möglich vorherzusagen, Ziele sind das, was man erreichen möchte, und Planung ist die Antwort auf Prognosen und Ziele ([Abschnitt 1.2](https://otexts.com/fpp3/planning.html)). Im Vertrieb ergibt das drei getrennte Zahlen:
+
+| Begriff | Frage | Beispiel aus dem Rechenbeispiel unten |
+|---|---|---|
+| Prognose | Was gewinnen wir in diesem Quartal wahrscheinlich? | 94.400 € (gewichtete Pipeline) |
+| Ziel | Was wollen wir gewinnen? | 110.000 € |
+| Plan | Was tun wir gegen die Differenz? | Neue Ansprache und ein Versuch, einen großen Deal vorzuziehen |
+
+**Was die Prognose zählt.** Dieser Leitfaden prognostiziert den gewonnenen Auftragswert: die Beträge der Deals, die Sie im Zeitraum gewinnen, netto ohne Umsatzsteuer und in einer Währung. Das ist weder der Umsatz nach Rechnungsstellung noch der bilanzielle Umsatz. Diese folgen Buchhaltungsregeln und Rechnungsdaten, und ein Deal im CRM ersetzt sie nicht.
+
+## Wie erstellt man eine Umsatzprognose in sieben Schritten?
+
+Eine Standardliste mit sieben Schritten gibt es nicht. Das Lehrbuch nennt für jede Prognoseaufgabe fünf Grundschritte: Problem definieren, Informationen sammeln, erste Analyse, Modelle wählen und anpassen, Modell einsetzen und bewerten ([Abschnitt 1.6](https://otexts.com/fpp3/basic-steps.html)). Vertriebsleitfäden zählen unterschiedlich. Für eine Prognose aus der Pipeline nutzen wir diese sieben:
+
+<Steps>
+  <Step title="Zeitraum und Zählweise festlegen">Benennen Sie den Zeitraum, zum Beispiel 1. Oktober bis 31. Dezember, und legen Sie fest, dass Sie den gewonnenen Auftragswert netto in einer Währung zählen.</Step>
+  <Step title="Die Pipeline bereinigen">Setzen Sie jeden Deal in die Phase, die er wirklich erreicht hat, und schließen Sie Deals, die seit Wochen niemand angefasst hat. Liegengebliebene Deals blähen eine Prognose unbemerkt auf.</Step>
+  <Step title="Vier Angaben an jedem offenen Deal prüfen">Betrag, Phase, erwartetes Abschlussdatum und zuständige Person. Fehlt eine, bleibt der Deal aus der Prognose und kommt auf eine Liste zum Nachpflegen, statt geschätzt zu werden.</Step>
+  <Step title="Phasenwahrscheinlichkeiten aus der eigenen Historie ableiten">Nehmen Sie Ihre gewonnenen und verlorenen Deals. Bis genug davon vorliegen, starten Sie mit Platzhaltern und kennzeichnen sie als Annahmen.</Step>
+  <Step title="Auf zwei Wegen rechnen">Die gewichtete Pipeline für die Deals des Zeitraums und eine Gegenprobe über Abschlussrate oder Run-Rate.</Step>
+  <Step title="Eine Spanne nennen, keinen Punkt">Geben Sie eine Untergrenze, einen Erwartungswert und einen Bestfall an und nennen Sie die zwei, drei größten Deals, die das Ergebnis bewegen.</Step>
+  <Step title="Mit dem tatsächlichen Ergebnis vergleichen">Halten Sie am Ende des Zeitraums fest, wie weit die Prognose danebenlag, und passen Sie die Wahrscheinlichkeiten an.</Step>
+</Steps>
+
+## Wie sieht eine Umsatzprognose aus der Pipeline konkret aus?
+
+Dieses Beispiel bauen Sie in zehn Minuten in einer Tabelle nach. Alle Zahlen sind erfunden. Die Annahmen:
+
+- Die Prognose entsteht am 9. November 2026 für das Quartal bis zum 31. Dezember 2026.
+- Der Betrag ist der gesamte Vertragswert, netto, in Euro.
+- Die Phasenwahrscheinlichkeiten sind Qualifizierung 20 %, Demo 40 %, Angebot 60 % und Verhandlung 80 %: die Startwerte aus unserem [Leitfaden zur Sales Pipeline](/blog/sales-pipeline). Ersetzen Sie sie so bald wie möglich durch Ihre eigenen.
+- In diesem Quartal sind bereits 38.000 € gewonnen. Das Ziel liegt bei 110.000 €.
+- Es zählen nur Deals, deren erwartetes Abschlussdatum im Quartal liegt.
+
+| Deal | Phase | Betrag | Abschluss erwartet | Wahrscheinlichkeit | Gewichteter Wert | Zählt in diesem Quartal? |
+|---|---|---|---|---|---|---|
+| A: Logistikunternehmen, Servicevertrag 12 Monate | Verhandlung | 24.000 € | 27.11. | 80 % | 19.200 € | Ja |
+| B: Zahnarztgruppe, Einführung | Angebot | 12.000 € | 04.12. | 60 % | 7.200 € | Ja |
+| C: Designstudio, Retainer | Verhandlung | 6.000 € | 10.12. | 80 % | 4.800 € | Ja |
+| D: Ingenieurbüro, Plattformprojekt | Angebot | 30.000 € | 15.12. | 60 % | 18.000 € | Ja |
+| E: Kanzlei, Pilotprojekt | Demo | 9.000 € | 18.12. | 40 % | 3.600 € | Ja |
+| F: Lebensmittelhersteller, Workshop-Reihe | Qualifizierung | 18.000 € | 22.12. | 20 % | 3.600 € | Ja |
+| G: Maschinenbauer, Servicepaket | Qualifizierung | 15.000 € | 20.01.2027 | 20 % | 3.000 € | Nein |
+| H: Klinikverbund, mehrere Standorte | Demo | 45.000 € | 15.02.2027 | 40 % | 18.000 € | Nein |
+| **Fällig in diesem Quartal (A bis F)** | | **99.000 €** | | | **56.400 €** | |
+
+Die gewichtete Pipeline für das Quartal beträgt 56.400 €. Mit den bereits gewonnenen 38.000 € ergibt sich eine Prognose von **94.400 €**, also 15.600 € unter dem Ziel von 110.000 €.
+
+Die Deals G und H sind echte Pipeline, 60.000 € Betrag und 21.000 € gewichtet, sollen aber erst nach dem 31. Dezember abschließen. Ohne die Datumsregel kämen 21.000 € dazu, und die Prognose läge mit 115.400 € über dem Ziel, aus dem falschen Grund.
+
+Beachten Sie, wie stark ein einzelner Deal die Zahl bewegt. Deal D steuert 18.000 € der 94.400 € bei, etwa ein Fünftel. Rutscht er in den Januar, sinkt die Prognose mit einer einzigen Änderung auf 76.400 €. Ein gewichteter Wert ist ein Durchschnitt über viele Deals; kein einzelner Deal schließt zu 60 % ab. Er schließt ab oder nicht.
+
+**Die Tabelle.** Legen Sie die acht Deals in die Zeilen 2 bis 9: Betrag in Spalte C, Abschluss erwartet in Spalte D, Wahrscheinlichkeit in Spalte E, Gewichteter Wert in Spalte F.
+
+```text
+Gewichteter Wert (F2, nach unten kopieren)   =C2*E2
+Gewichtete Pipeline im Quartal               =SUMMEWENNS(F2:F9;D2:D9;">="&DATUM(2026;10;1);D2:D9;"<="&DATUM(2026;12;31))
+Offener Betrag im Quartal                    =SUMMEWENNS(C2:C9;D2:D9;">="&DATUM(2026;10;1);D2:D9;"<="&DATUM(2026;12;31))
+Prognose                                     =38000+(gewichtete Pipeline im Quartal)
+```
+
+Die Formeln gelten für Excel mit deutscher Oberfläche. Halten Sie den bisher gewonnenen Betrag in einer eigenen Zelle und aktualisieren Sie ihn vor jeder Besprechung aus dem CRM.
+
+## Welche Methode ist die beste für die Umsatzprognose?
+
+Es gibt kein bestes Modell, nur das, das zu Ihren Daten passt. Das sind die Methoden, die ein kleines Team tatsächlich nutzen kann, mit der Schwäche jeder einzelnen.
+
+| Methode | So rechnen Sie | Voraussetzung | Schwäche |
+|---|---|---|---|
+| Untergrenze (Commit) | Bisher gewonnen + Deals in der letzten offenen Phase zum vollen Betrag. Das ist unsere eigene Definition, kein Standard | Eine Phase, die bedeutet: Der Kunde entscheidet gerade | Ignoriert alles, was früher in der Pipeline liegt |
+| Gewichtete Pipeline | Bisher gewonnen + Betrag × Phasenwahrscheinlichkeit der Deals des Zeitraums | Phasenwahrscheinlichkeiten und erwartete Abschlussdaten | Wahrscheinlichkeiten sind Schätzungen, bis sie kalibriert sind; wenige große Deals dominieren |
+| Abschlussrate × Pipeline | Bisher gewonnen + offener Betrag des Zeitraums × Abschlussrate nach Wert | Etwa ein Jahr gewonnener und verlorener Deals | Behandelt einen Deal nach dem Erstgespräch wie einen in Verhandlung |
+| Run-Rate aus der Historie | Durchschnitt des gewonnenen Werts der letzten vier Zeiträume | Vier oder mehr vergleichbare Zeiträume | Blind für die aktuelle Pipeline und für Wachstum |
+| Statistische Modelle (Zeitreihen, Regression) | Von Software an frühere Ergebnisse angepasst | Viele Zeiträume mit stabiler Historie | Die meisten kleinen Teams schließen zu wenige Deals, um eines anzupassen |
+
+Für den Vergleich der ersten vier am Beispiel kommen zwei weitere erfundene Angaben dazu. In den letzten zwölf Monaten hat das Team nach Wert 360.000 € gewonnen und 540.000 € verloren, die Abschlussrate beträgt also 360.000 € ÷ (360.000 € + 540.000 €) = 40 %. In den letzten vier Quartalen wurden 78.000 €, 88.000 €, 99.000 € und 95.000 € gewonnen.
+
+| Methode | Rechnung | Prognose Q4 | Gegenüber dem Ziel von 110.000 € |
+|---|---|---|---|
+| Untergrenze (Commit) | 38.000 + 24.000 + 6.000 | 68.000 € | 42.000 € darunter |
+| Abschlussrate × Pipeline | 38.000 + 40 % × 99.000 | 77.600 € | 32.400 € darunter |
+| Run-Rate aus der Historie | (78.000 + 88.000 + 99.000 + 95.000) ÷ 4 | 90.000 € | 20.000 € darunter |
+| Gewichtete Pipeline | 38.000 + 56.400 | 94.400 € | 15.600 € darunter |
+| Bestfall | 38.000 + 99.000 | 137.000 € | 27.000 € darüber |
+
+Drei Dinge lassen sich daraus ablesen:
+
+1. **Die Lücke ist echt.** Jeder Erwartungswert liegt unter dem Ziel. Würde eine Methode 115.000 € ausweisen und die übrigen 80.000 bis 94.000 €, sollten Sie der einen Methode misstrauen, statt zu feiern.
+2. **Die Methoden unterscheiden sich aus einem Grund.** Die pauschale Abschlussrate von 40 % mittelt über alle Deals ab dem Erstkontakt, die offenen Deals stehen hier aber überwiegend in späten Phasen. Der gewichtete Wert unterstellt, dass 57 % des offenen Betrags gewonnen werden (56.400 ÷ 99.000). Entweder sind die Deals ungewöhnlich weit, oder die Phasenwahrscheinlichkeiten sind zu großzügig. Welches von beidem zutrifft, zeigt erst der Vergleich mit echten Ergebnissen weiter unten.
+3. **Die Run-Rate ignoriert die Pipeline vollständig.** Sie ist eine Plausibilitätsprüfung, keine Prognose. Dass sie hier zwischen den anderen Werten liegt, beruhigt, beweist aber nichts.
+
+Womit Sie beginnen, hängt von Ihrer Historie ab. Ein Team mit wenigen abgeschlossenen Deals zeigt Untergrenze und gewichteten Wert und sagt dazu, dass die Wahrscheinlichkeiten Annahmen sind. Ein Team mit einem Jahr oder mehr an Deals führt mit einer kalibrierten gewichteten Pipeline und behält Abschlussrate und Run-Rate als Gegenprobe. Weichen zwei Methoden stark voneinander ab, klären Sie die Ursache, bevor Sie eine Zahl vorlegen.
+
+## Welche Arten der Umsatzprognose gibt es?
+
+Quellen gruppieren Prognosemethoden unterschiedlich, eine offizielle Liste mit vier Arten gibt es daher nicht. Diese Gruppierung hat sich für Vertriebsteams bewährt:
+
+1. **Einschätzung (Judgment):** das Urteil der Vertriebsperson oder der Führungskraft zu jedem Deal. Sie ist die einzige Möglichkeit, wenn es keine Historie gibt.
+2. **Pipeline-basiert:** Phasengewichtung und Untergrenze, wie oben.
+3. **Historisch:** Run-Rate, Abschlussrate und saisonale Muster aus früheren Zeiträumen.
+4. **Statistische Modelle:** Zeitreihen- und Regressionsmodelle, die Software anpasst.
+
+Das Kapitel des Lehrbuchs zu [Prognosen durch Einschätzung](https://otexts.com/fpp3/judgmental.html) beschreibt dieselbe Aufteilung allgemein: Einschätzung allein, wenn keine Daten vorliegen, statistische Prognosen mit Korrektur durch Einschätzung, wenn es Daten gibt, oder beides getrennt erzeugt und zusammengeführt. Für ein kleines Team ist in der Praxis eine berechnete Zahl plus der Kommentar der Führungskraft zu den Deals nützlich, die nicht ins Rechenschema passen.
+
+## Wie halte ich die Umsatzprognose genau?
+
+- **Stand sichern und rückwirkend prüfen.** Speichern Sie jeden Monat am selben Tag die Prognose und die Deal-Liste dahinter. Vergleichen Sie am Ende des Zeitraums: Abweichung = (Ist − Prognose) ÷ Prognose. Eine Prognose von 92.000 € bei einem Ist von 95.000 € ergibt zum Beispiel +3,3 %. Liegt die Abweichung dreimal hintereinander in dieselbe Richtung, ändern Sie die Wahrscheinlichkeiten, statt Pech zu vermuten.
+- **Jede Phase kalibrieren.** Die Wahrscheinlichkeit einer Phase ist der gewonnene Wert der Deals, die sie je erreicht haben, geteilt durch den Wert aller Deals, die sie erreicht haben. Wurden aus der Phase Angebot 220.000 € von 400.000 € gewonnen, beträgt die Wahrscheinlichkeit 55 %. Im Beispiel würden die Deals B und D sinken, und der gewichtete Wert des Quartals fiele um 2.100 €.
+- **Abschlussdaten ehrlich halten.** Ein Deal mit erwartetem Abschlussdatum in der Vergangenheit gehört erst wieder in die Prognose, wenn jemand ein neues Datum setzt. Verschieben Sie Daten, wenn Kunden sich verzögern, und zählen Sie, wie oft das passiert.
+- **Konzentration beachten.** Stellen Sie die drei größten Deals neben die Gesamtzahl. Macht ein Deal ein Fünftel aus, sagen Sie das.
+- **Wöchentlich besprechen.** Die 30-minütige Besprechung aus dem [Leitfaden zur Sales Pipeline](/blog/sales-pipeline) ist auch der Ort, an dem Abschlussdaten und nächste Schritte korrigiert werden.
+
+## Welche CRM-Felder braucht ein Deal für die Umsatzprognose?
+
+Jede Zahl oben stammt aus wenigen Feldern. Speichert Ihr CRM sie als strukturierte Felder statt in Notizen, besteht eine Prognose aus einem Filter und einer Summe.
+
+| Feld | Typ | Was es für die Prognose leistet | Regel |
+|---|---|---|---|
+| Betrag | Geldbetrag | Grundlage jeder Rechnung | Netto, eine Währung, an jedem Deal gleich definiert (zum Beispiel Vertragswert im ersten Jahr) |
+| Phase | Einzelauswahl | Bestimmt die Wahrscheinlichkeit | Eine prüfbare Eingangsbedingung pro Phase |
+| Phasenwahrscheinlichkeit | Prozentwert je Phase | Macht aus dem Betrag den gewichteten Wert | Jedes Quartal gegen echte Ergebnisse prüfen |
+| Gewichteter Wert | Berechnet | Betrag × Wahrscheinlichkeit ÷ 100 | Nie von Hand eintragen |
+| Erwartetes Abschlussdatum | Datum | Ordnet den Deal einem Zeitraum zu | Ab der Angebotsphase Pflicht; verschieben, wenn es rutscht |
+| Zuständige Person | Person | Wer für den Deal einsteht; Prognose pro Person | Genau eine |
+| Abgeschlossen am | Datum | Wann ein Deal gewonnen oder verloren wurde; speist Bisher-gewonnen, Abschlussrate und Run-Rate | Setzen, sobald die Phase auf Gewonnen oder Verloren wechselt |
+| Verlustgrund | Einzelauswahl | Zeigt, warum sich die Abschlussrate bewegt | Pflicht bei jedem verlorenen Deal |
+| Lead-Quelle | Einzelauswahl | Abschlussrate je Quelle | Optional, aber beim Anlegen schnell erfasst |
+| Nächster Schritt und Datum | Text und Datum | Findet liegengebliebene Deals, bevor sie die Zahl aufblähen | Ein Deal ohne nächsten Schritt bleibt aus der Untergrenze |
+| Organisation und Kontakt | Verknüpfungen mit anderen Datensätzen | Kontext und Gesprächsverlauf hinter dem Deal | Jeden Deal mit beiden verknüpfen |
+
+Ein optionales zwölftes Feld ist eine Prognosekategorie (Commit, Bestfall, Pipeline), die das eigene Urteil der zuständigen Person festhält, getrennt von der Phasenwahrscheinlichkeit. Legen Sie sie nur an, wenn Ihr Team damit wirklich die Phasenlogik übersteuern will.
+
+## So erstellen Sie die Umsatzprognose in Customermates
+
+Dieser Abschnitt beschreibt unser eigenes Produkt. Customermates ist ein Open-Source-[CRM für den Vertrieb](/blog/crm-for-sales), entwickelt in Deutschland. Es berechnet eine gewichtete Pipeline und stellt sie als Diagramm dar; es sagt nichts voraus. So richten Sie das Rechenbeispiel ein.
+
+<Steps>
+  <Step title="Phasenwahrscheinlichkeiten setzen">Öffnen Sie unter **Konfigurieren** die Liste Deals und das Feld **Phase** und tragen Sie an jeder Option die **Wahrscheinlichkeit %** ein. Eine Vorschau zeigt die Auswirkung auf bestehende Deals und Widgets, bevor Sie speichern. Der gewichtete Wert ist ein berechnetes Feld an Deals: **Wert** × Wahrscheinlichkeit ÷ 100. Wurde Ihre Liste von Hand eingerichtet, prüfen Sie, ob es existiert, und legen es sonst an. Die [Grundbegriffe](/docs/concepts#how-does-a-weighted-pipeline-work) erklären die Berechnung.</Step>
+  <Step title="Datumsfelder ergänzen">Legen Sie über **Hinzufügen › Feld** ein Datumsfeld „Erwartetes Abschlussdatum“ und ein Datumsfeld „Abgeschlossen am“ an, dazu ein Einzelauswahl-Feld „Verlustgrund“. Ein Diagramm kann nur nach dem gruppieren und filtern, was Sie erfassen.</Step>
+  <Step title="Die Widgets für das Quartal bauen">Auf dem **Dashboard** über **Widget hinzufügen**: ein Balkendiagramm, das den **Gewichteten Wert** nach Phase summiert, gefiltert auf Phase ist nicht Gewonnen oder Verloren und Erwartetes Abschlussdatum zwischen dem ersten und letzten Tag des Quartals; ein Kennzahl-Widget, das den **Wert** summiert, bei dem Phase Gewonnen ist und Abgeschlossen am im Quartal liegt (bisher gewonnen); ein Kennzahl-Widget, das den **Wert** derselben offenen Deals summiert (offener Betrag). Ein Diagramm vom Typ Fläche im Zeitverlauf mit monatlichem **Zeitintervall**, gruppiert nach Erwartetem Abschlussdatum, zeigt, wann der gewichtete Wert fällig wird.</Step>
+  <Step title="Beim Veröffentlichen einen Stand sichern">Öffnen Sie in der Deal-Liste **Weitere Aktionen** und wählen Sie **Als Excel exportieren (.xlsx)**. Der Export übernimmt Ihre Filter und Sortierung, umfasst bis zu 5.000 Datensätze und hat eine Spalte je Feld, das Sie lesen dürfen. Speichern Sie die Datei mit dem Datum im Namen. Sie ist Ihr Stand für die rückwirkende Prüfung und Ihre Datenbasis für Abschlussrate und Run-Rate in einer Tabelle.</Step>
+</Steps>
+
+Die Abschlussrate nach Wert braucht zwei Summen aus den abgeschlossenen Deals: die Summe des **Werts** für Gewonnen und für Verloren, jeweils nach Abgeschlossen am gefiltert. Beide lesen Sie aus Kennzahl-Widgets ab. In Customermates Cloud können Sie Mate die Rechnung auch übertragen, das verbraucht gehostete KI-Credits; mit Ihrem eigenen KI-Client über den [MCP-Server](/docs/mcp) kommen die Summen aus dem Werkzeug `query_crm_measure`. In beiden Fällen ist es Rechnen mit Ihren abgeschlossenen Deals, keine Vorhersage.
+
+Ein Diagramm zählt nur die Deals, die Ihre Rolle lesen darf. Wer die Prognose veröffentlicht, braucht also Leserechte auf alle Deals. Die [Anleitung zum Dashboard](/docs/app-dashboard) beschreibt jede Widget-Option, und die Seite [CRM-Reporting](/features/reporting) zeigt weitere Auswertungen, die ein kleines Team baut. Die Deals selbst liegen auf dem [Pipeline-Board](/features/pipeline).
+
+**Was es kostet.** Diagramm-Widgets, gewichtete Pipeline und Excel-Export sind in jedem Tarif enthalten, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet. Die Self-Hosted-Version enthält sie ebenfalls. Details stehen auf der [Preisseite](/pricing).
+
+<AcquisitionCallout title="Wann Customermates für die Umsatzprognose nicht passt" variant="boundary">
+Customermates multipliziert die Deal-Werte mit den Phasenwahrscheinlichkeiten, die Sie setzen, und summiert das Ergebnis. Es sagt nicht voraus, welche Deals abschließen, schlägt keine Abschlusswahrscheinlichkeiten vor und passt kein statistisches Modell an Ihre Historie an. Es zeigt Deals so, wie sie jetzt sind, und hat keinen Bericht über frühere Pipeline-Summen; sichern Sie also am Tag der Veröffentlichung einen Export. Es gibt keine Vertriebsziele pro Person (Quotas) und keine Zusammenführung von Prognosen nach Führungskraft; eine Kategorie, die Sie als Feld anlegen, lässt sich im Diagramm darstellen, aber nichts prüft oder führt sie zusammen. Angebote und Rechnungen gibt es nicht, „gewonnen“ heißt also der Deal-Wert, den Sie eintragen, nicht fakturierter oder bilanzieller Umsatz. Brauchen Sie eine vorausschauende Prognose, Prognosemeldungen je Vertriebsperson oder Szenario-Rechnungen, nutzen Sie ein eigenes Prognose-Werkzeug.
+</AcquisitionCallout>
+
+## Häufige Fragen
+
+<Faq>
+<FaqItem question="Was ist eine Umsatzprognose?">
+Eine Umsatzprognose schätzt den Umsatz, den ein Team in einem künftigen Zeitraum wie einem Monat oder Quartal gewinnt, anhand seiner offenen Deals und früherer Ergebnisse. Sie unterscheidet sich vom Ziel, also dem Umsatz, den Sie gewinnen wollen.
+</FaqItem>
+
+<FaqItem question="Wie berechne ich eine Umsatzprognose aus der Pipeline?">
+Multiplizieren Sie den Betrag jedes offenen Deals mit der Wahrscheinlichkeit seiner Phase, addieren Sie die gewichteten Werte der Deals, die im Zeitraum abschließen sollen, und zählen Sie den bereits gewonnenen Umsatz dazu. Prüfen Sie das Ergebnis mit einem Wert über die Abschlussrate (offener Betrag × Ihre Abschlussrate nach Wert) und einem über die Run-Rate (Durchschnitt der letzten vier Zeiträume).
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Umsatzprognose und Umsatzplanung?">
+Die Umsatzprognose schätzt, was Sie voraussichtlich gewinnen, und wird aus der Pipeline berechnet. Die Umsatzplanung legt fest, was Sie erreichen wollen. Der Plan ist das, was Sie gegen die Differenz tun.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Umsatzprognose und Absatzprognose?">
+Die Absatzprognose schätzt Mengen, also wie viele Einheiten Sie verkaufen. Die Umsatzprognose schätzt den Wert in Euro. Der Umsatz ergibt sich grob aus Absatz mal Preis; bei Dienstleistungen und Projekten rechnet man meist direkt mit Deal-Beträgen.
+</FaqItem>
+
+<FaqItem question="Welche Methode ist die beste für die Umsatzprognose?">
+Keine passt für jedes Team. Eine gewichtete Pipeline funktioniert für kleine Teams mit Phasenregeln und Abschlussdaten. Abschlussrate und Run-Rate brauchen eine Historie abgeschlossener Deals, statistische Modelle viele Zeiträume mit stabilen Ergebnissen. Rechnen Sie mindestens zwei Methoden und nennen Sie eine Spanne.
+</FaqItem>
+
+<FaqItem question="Wie genau ist eine Umsatzprognose?">
+Eine seriöse allgemeine Zahl gibt es nicht, denn sie hängt von Dealgröße, Verkaufszyklus und Pflegedisziplin ab. Messen Sie Ihre eigene: Vergleichen Sie jede Prognose mit dem Ist und verfolgen Sie die Abweichung über mehrere Zeiträume. Eine gleichbleibende Abweichung in eine Richtung lässt sich korrigieren, eine zufällige zeigt unzuverlässige Eingaben.
+</FaqItem>
+
+<FaqItem question="Kann Customermates den Umsatz prognostizieren?">
+Customermates berechnet eine gewichtete Pipeline: Deal-Wert mal die Wahrscheinlichkeit, die Sie für die Phase setzen, dargestellt in Dashboard-Diagrammen und als Excel exportierbar. Es sagt keine Abschlüsse voraus, schlägt keine Wahrscheinlichkeiten vor und modelliert Ihre Historie nicht. Dafür brauchen Sie ein eigenes Prognose-Werkzeug.
+</FaqItem>
+</Faq>
+
+Quellen Dritter am 9. November 2026 geprüft: Hyndman und Athanasopoulos, *Forecasting: Principles and Practice*, 3. Auflage (englischsprachig), [Abschnitt 1.2](https://otexts.com/fpp3/planning.html), [Abschnitt 1.6](https://otexts.com/fpp3/basic-steps.html) und [Kapitel 6](https://otexts.com/fpp3/judgmental.html). Alle Deal-Beträge, Abschlussraten und Quartalsergebnisse im Rechenbeispiel sind zur Veranschaulichung erfunden.

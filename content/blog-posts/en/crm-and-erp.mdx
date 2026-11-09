@@ -134,7 +134,7 @@ This is the smallest useful connection between a CRM and an invoicing tool or ER
     When the payment changes in the accounting tool (by its event subscription or a nightly poll), update "Payment status" on the deal. A write that changes nothing produces no new Customermates event, so the integration does not loop on its own updates.
   </Step>
   <Step title="Check it weekly">
-    Filter deals in stage Won with an empty "Invoice no." and save that as a personal view. Anything in it is a failed handover. Failed webhook deliveries are listed under Settings › Deliveries and can be re-sent from there.
+    Filter deals in stage Won with an empty "Invoice no." and save that as a view. Anything in it is a failed handover. Failed webhook deliveries are listed under Settings › Deliveries and can be re-sent from there.
   </Step>
 </Steps>
 

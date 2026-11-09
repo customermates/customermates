@@ -147,7 +147,7 @@ Voici la configuration dans Customermates pour le premier flux ci-dessus. Elle u
 
 **Échecs.** Customermates rejoue automatiquement une livraison échouée en cas de délai dépassé, d’erreur réseau, de réponse 5xx et de réponses 408, 425 et 429. Les autres réponses 4xx ne sont pas rejouées, car elles échoueraient de la même façon. Chaque livraison apparaît sous **Paramètres → Livraisons**, où vous pouvez la renvoyer après avoir corrigé la cause.
 
-**Rapprochement planifié.** Enregistrez une vue d’affaires filtrée sur Étape « Gagnée » et « N° de commande ERP » vide. Les vues enregistrées sont personnelles : c’est donc la personne qui traite les échecs d’intégration qui la garde. Tout ce qui y apparaît a été manqué par le flux d’évènements.
+**Rapprochement planifié.** Enregistrez une vue d’affaires filtrée sur Étape « Gagnée » et « N° de commande ERP » vide. Une vue enregistrée reste privée tant que vous ne la partagez pas : c’est donc la personne qui traite les échecs d’intégration qui la garde, et elle la partage avec l’équipe si d’autres en ont besoin. Tout ce qui y apparaît a été manqué par le flux d’évènements.
 
 **Le sens inverse.** Si votre ERP envoie des webhooks, dirigez-les vers le même récepteur, retrouvez l’affaire par « N° de commande ERP » et renseignez « Statut ERP ». Sinon, interrogez régulièrement l’ERP selon un planning. Le [guide n8n](/docs/n8n) liste les appels REST dont a besoin un workflow n8n ; un nœud communautaire existe aussi.
 

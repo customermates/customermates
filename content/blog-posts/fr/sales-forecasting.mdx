@@ -1,0 +1,235 @@
+---
+title: "Prévision des ventes : méthodes, calcul et exemple chiffré"
+description: "La prévision des ventes estime le chiffre d’affaires qu’une équipe va signer. Pipeline pondéré, taux de gain et run-rate comparés sur un exemple chiffré."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Prévision des ventes : comment la calculer à partir de votre pipeline"
+  description: "Un exemple chiffré avec huit affaires, trois méthodes de prévision comparées côte à côte, les formules pour le refaire dans un tableur et les champs dont un CRM a besoin pour que la prévision soit fiable."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Prévision des ventes
+    - Pipeline commercial
+    - Processus de vente
+---
+
+# Prévision des ventes : comment la calculer à partir de votre pipeline
+
+La prévision des ventes est une estimation du chiffre d’affaires que votre équipe va signer sur une période à venir, en général le mois ou le trimestre suivant, à partir des affaires du pipeline et de vos résultats passés. Pour une équipe B2B, la méthode la plus pratique est le pipeline pondéré : vous multipliez le montant de chaque affaire ouverte par la probabilité de gain de son étape, vous additionnez les affaires censées se conclure sur la période, et vous ajoutez ce qui est déjà gagné.
+
+Ce guide s’adresse aux équipes commerciales qui prévoient à partir de leur pipeline, pas à la personne qui bâtit le prévisionnel d’un business plan ; la différence est expliquée dans la première section. Vous calculez la prévision sur huit affaires d’exemple, vous la comparez à une méthode par le taux de gain et à une méthode par le run-rate, et vous obtenez la liste des champs dont une affaire a besoin pour que tout se refasse dans n’importe quel tableur. Customermates publie ce guide ; la section sur la prévision dans Customermates est identifiée comme notre produit et dit sans détour ce qu’il ne fait pas.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Définition">Une prévision des ventes est votre meilleure estimation du chiffre d’affaires que vous allez gagner sur la période. L’objectif, lui, est ce que vous voulez gagner. Ce sont deux chiffres différents.</SummaryItem>
+  <SummaryItem label="Formule de base">Valeur pondérée = montant de l’affaire × probabilité de l’étape. Prévision = déjà gagné + valeur pondérée des affaires ouvertes dont la date de clôture prévue tombe dans la période.</SummaryItem>
+  <SummaryItem label="Jamais une seule méthode">Calculez le pipeline pondéré, un chiffre par le taux de gain et un par le run-rate, annoncez une fourchette et expliquez les écarts.</SummaryItem>
+  <SummaryItem label="Champs de chaque affaire">Montant, étape, date de clôture prévue, responsable et, pour une affaire close, la date à laquelle elle a été gagnée ou perdue.</SummaryItem>
+</ArticleSummary>
+
+Une prévision ne vaut que ce que vaut le pipeline qui la porte. Si vos étapes n’ont pas encore de conditions d’entrée, commencez par le guide pour [construire et passer en revue un pipeline commercial](/blog/sales-pipeline), puis revenez ici. Pour le côté objectif de la comparaison, le [modèle de plan d’action commercial sur 90 jours](/blog/sales-plan-template) transforme un objectif de chiffre d’affaires en actions sur les comptes, responsables et dates de revue.
+
+## Qu’est-ce que la prévision des ventes, et en quoi diffère-t-elle d’un objectif ou d’un prévisionnel de business plan ?
+
+Les termes sont proches et souvent mélangés. Le tableau les sépare.
+
+| Terme | Question | Base de calcul | Qui l’utilise |
+|---|---|---|---|
+| Prévision des ventes à partir du pipeline | Que gagnerons-nous probablement ce trimestre ? | Des affaires individuelles avec montant, étape et date de clôture, plus les résultats des périodes passées | Équipe commerciale, direction commerciale |
+| Objectif de chiffre d’affaires (budget des ventes) | Que voulons-nous atteindre ? | Une cible fixée par la direction | Direction, contrôle de gestion |
+| Prévision de volumes | Combien d’unités vendrons-nous ? | Des quantités et non des euros ; chiffre d’affaires = volumes × prix | Production, distribution, achats |
+| Prévisionnel de chiffre d’affaires du business plan | Que pourrait atteindre une jeune entreprise sans historique de ventes ? | Des hypothèses de prix, de volumes et de nombre de clients par mois | Créatrices et créateurs d’entreprise |
+
+Un business plan raisonne sur des hypothèses parce qu’il n’y a pas encore d’affaires. Une équipe commerciale a des affaires, et la prévision à partir du pipeline les exploite. C’est ce qui la distingue des modèles pour créateurs d’entreprise que l’on trouve souvent en cherchant « prévision des ventes ».
+
+Le manuel de Rob J Hyndman et George Athanasopoulos (en anglais) distingue ainsi prévision, objectif et plan : prévoir, c’est anticiper l’avenir aussi précisément que possible avec les informations disponibles, les objectifs sont ce que l’on voudrait voir arriver, et planifier est la réponse aux prévisions et aux objectifs ([section 1.2](https://otexts.com/fpp3/planning.html)). Côté ventes, cela donne trois chiffres distincts :
+
+| Terme | Question | Exemple tiré de l’exemple chiffré ci-dessous |
+|---|---|---|
+| Prévision | Que gagnerons-nous probablement ce trimestre ? | 94 400 € (pipeline pondéré) |
+| Objectif | Que voulons-nous gagner ? | 110 000 € |
+| Plan | Que faisons-nous pour combler l’écart ? | Nouvelles prises de contact et un effort pour avancer une grosse affaire |
+
+**Ce que la prévision compte.** Ce guide prévoit la valeur des affaires gagnées : les montants des affaires que vous gagnez sur la période, saisis hors taxes et dans une seule devise. Ce n’est ni le chiffre d’affaires facturé ni le chiffre d’affaires comptable. Ceux-ci suivent des règles comptables et des dates de facture, et une fiche d’affaire dans un CRM ne les remplace pas.
+
+## Quelles sont les étapes d’une prévision des ventes ?
+
+Il n’existe pas de liste standard de sept étapes. Le manuel cité plus haut nomme cinq étapes de base pour toute tâche de prévision : définir le problème, rassembler l’information, faire une analyse préliminaire, choisir et ajuster des modèles, utiliser et évaluer le modèle ([section 1.6](https://otexts.com/fpp3/basic-steps.html)). Les guides commerciaux comptent autrement. Pour une prévision à partir du pipeline, nous utilisons ces sept étapes :
+
+<Steps>
+  <Step title="Définir la période et ce qui compte">Nommez la période (par exemple du 1er octobre au 31 décembre) et décidez que vous comptez la valeur des affaires gagnées, hors taxes, dans une seule devise.</Step>
+  <Step title="Nettoyer le pipeline">Placez chaque affaire à l’étape qu’elle a vraiment atteinte et clôturez celles que personne n’a touchées depuis des semaines. Les affaires dormantes gonflent discrètement une prévision.</Step>
+  <Step title="Vérifier quatre données sur chaque affaire ouverte">Montant, étape, date de clôture prévue et responsable. Une affaire à laquelle l’une manque reste hors de la prévision et va sur une liste à corriger, au lieu d’être devinée.</Step>
+  <Step title="Fixer les probabilités d’étape à partir de votre historique">Utilisez vos propres affaires gagnées et perdues. Tant que vous n’en avez pas assez, partez de valeurs provisoires et présentez-les comme des hypothèses.</Step>
+  <Step title="Calculer de deux façons">Le pipeline pondéré pour les affaires de la période, et un recoupement par le taux de gain ou le run-rate.</Step>
+  <Step title="Annoncer une fourchette, pas un point">Donnez un plancher, une valeur attendue et un meilleur scénario, et nommez les deux ou trois plus grosses affaires qui font bouger le résultat.</Step>
+  <Step title="Comparer avec le résultat réel">À la fin de la période, notez de combien la prévision s’est trompée et ajustez les probabilités.</Step>
+</Steps>
+
+## Comment calculer la prévision de vente ? Un exemple chiffré
+
+Voici un exemple que vous refaites dans un tableur en dix minutes. Tous les chiffres sont inventés. Les hypothèses :
+
+- La prévision est établie le 9 novembre 2026 pour le trimestre qui se termine le 31 décembre 2026.
+- Le montant est la valeur totale du contrat, hors taxes, en euros.
+- Les probabilités d’étape sont Qualification 20 %, Démo 40 %, Proposition 60 % et Négociation 80 % : les valeurs de départ de notre [guide du pipeline commercial](/blog/sales-pipeline). Remplacez-les par les vôtres dès que possible.
+- 38 000 € sont déjà gagnés ce trimestre. L’objectif est de 110 000 €.
+- Seules comptent les affaires dont la date de clôture prévue tombe dans le trimestre.
+
+| Affaire | Étape | Montant | Clôture prévue | Probabilité | Valeur pondérée | Compte ce trimestre ? |
+|---|---|---|---|---|---|---|
+| A : Entreprise de logistique, contrat de service de 12 mois | Négociation | 24 000 € | 27/11 | 80 % | 19 200 € | Oui |
+| B : Groupe de cabinets dentaires, déploiement | Proposition | 12 000 € | 04/12 | 60 % | 7 200 € | Oui |
+| C : Studio de design, contrat de suivi | Négociation | 6 000 € | 10/12 | 80 % | 4 800 € | Oui |
+| D : Bureau d’études, projet de plateforme | Proposition | 30 000 € | 15/12 | 60 % | 18 000 € | Oui |
+| E : Cabinet d’avocats, projet pilote | Démo | 9 000 € | 18/12 | 40 % | 3 600 € | Oui |
+| F : Producteur alimentaire, série d’ateliers | Qualification | 18 000 € | 22/12 | 20 % | 3 600 € | Oui |
+| G : Fabricant de machines, forfait de service | Qualification | 15 000 € | 20/01/2027 | 20 % | 3 000 € | Non |
+| H : Réseau de cliniques, plusieurs sites | Démo | 45 000 € | 15/02/2027 | 40 % | 18 000 € | Non |
+| **À conclure ce trimestre (A à F)** | | **99 000 €** | | | **56 400 €** | |
+
+Le pipeline pondéré du trimestre est de 56 400 €. En ajoutant les 38 000 € déjà gagnés, la prévision est de **94 400 €**, soit 15 600 € sous l’objectif de 110 000 €.
+
+Les affaires G et H sont un vrai pipeline, 60 000 € de montant et 21 000 € pondérés, mais leur clôture est prévue après le 31 décembre. Sans la règle de date, 21 000 € s’ajouteraient et la prévision atteindrait 115 400 €, au-dessus de l’objectif pour la mauvaise raison.
+
+Remarquez à quel point une seule affaire fait bouger le chiffre. L’affaire D pèse 18 000 € des 94 400 €, environ un cinquième. Si elle glisse en janvier, la prévision tombe à 76 400 € en une seule modification. Une valeur pondérée est une moyenne sur de nombreuses affaires ; aucune affaire ne se conclut à 60 %. Elle se conclut ou elle ne se conclut pas.
+
+**Le tableur.** Placez les huit affaires dans les lignes 2 à 9 : montant en colonne C, clôture prévue en colonne D, probabilité en colonne E, valeur pondérée en colonne F.
+
+```text
+Valeur pondérée (F2, à recopier vers le bas)   =C2*E2
+Pipeline pondéré du trimestre                  =SOMME.SI.ENS(F2:F9;D2:D9;">="&DATE(2026;10;1);D2:D9;"<="&DATE(2026;12;31))
+Montant ouvert du trimestre                    =SOMME.SI.ENS(C2:C9;D2:D9;">="&DATE(2026;10;1);D2:D9;"<="&DATE(2026;12;31))
+Prévision                                      =38000+(pipeline pondéré du trimestre)
+```
+
+Les formules sont données pour Excel en version française. Gardez le montant déjà gagné dans sa propre cellule et mettez-le à jour depuis le CRM avant chaque revue.
+
+## Quelles sont les principales méthodes de prévision ?
+
+Il n’existe pas de meilleur modèle, seulement celui qui convient aux données dont vous disposez. Voici les méthodes qu’une petite équipe peut réellement utiliser, avec le point faible de chacune.
+
+| Méthode | Comment la calculer | Ce qu’il faut | Point faible |
+|---|---|---|---|
+| Plancher (commit) | Déjà gagné + affaires de la dernière étape ouverte à leur valeur entière. C’est notre définition, pas un standard | Une étape qui signifie que l’acheteur est en train de décider | Ignore tout ce qui est plus tôt dans le pipeline |
+| Pipeline pondéré | Déjà gagné + montant × probabilité d’étape, pour les affaires de la période | Des probabilités d’étape et des dates de clôture prévues | Les probabilités sont des estimations tant qu’elles ne sont pas calibrées ; quelques grosses affaires dominent |
+| Taux de gain × pipeline | Déjà gagné + montant ouvert de la période × taux de gain en valeur | Environ un an d’affaires gagnées et perdues | Traite pareil une affaire après le premier appel et une affaire en négociation |
+| Run-rate historique | Moyenne de la valeur gagnée sur les quatre dernières périodes | Quatre périodes comparables ou plus | Aveugle au pipeline actuel et à la croissance |
+| Modèles statistiques (séries temporelles, régression) | Ajustés par un logiciel aux résultats passés | De nombreuses périodes d’historique stable | La plupart des petites équipes concluent trop peu d’affaires pour en ajuster un |
+
+Pour comparer les quatre premières méthodes sur l’exemple, ajoutons deux faits inventés de plus. Sur les douze derniers mois, l’équipe a gagné 360 000 € et perdu 540 000 € en valeur, soit un taux de gain de 360 000 € ÷ (360 000 € + 540 000 €) = 40 %. Sur les quatre derniers trimestres, elle a gagné 78 000 €, 88 000 €, 99 000 € et 95 000 €.
+
+| Méthode | Calcul | Prévision T4 | Par rapport à l’objectif de 110 000 € |
+|---|---|---|---|
+| Plancher (commit) | 38 000 + 24 000 + 6 000 | 68 000 € | 42 000 € en dessous |
+| Taux de gain × pipeline | 38 000 + 40 % × 99 000 | 77 600 € | 32 400 € en dessous |
+| Run-rate historique | (78 000 + 88 000 + 99 000 + 95 000) ÷ 4 | 90 000 € | 20 000 € en dessous |
+| Pipeline pondéré | 38 000 + 56 400 | 94 400 € | 15 600 € en dessous |
+| Meilleur scénario | 38 000 + 99 000 | 137 000 € | 27 000 € au-dessus |
+
+Trois enseignements :
+
+1. **L’écart est réel.** Toutes les valeurs attendues sont sous l’objectif. Si une méthode affichait 115 000 € et les autres 80 000 à 94 000 €, vous soupçonneriez cette méthode au lieu de vous réjouir.
+2. **Les méthodes diffèrent pour une raison.** Le taux de gain uniforme de 40 % est une moyenne sur toutes les affaires depuis le premier contact, alors que les affaires ouvertes sont ici surtout avancées. La valeur pondérée suppose que 57 % du montant ouvert sera gagné (56 400 ÷ 99 000). Soit les affaires sont exceptionnellement avancées, soit les probabilités d’étape sont trop généreuses. Seule la comparaison avec les résultats réels, plus bas, le dit.
+3. **Le run-rate ignore complètement le pipeline.** C’est un contrôle de vraisemblance, pas une prévision. Qu’il se situe ici entre les autres valeurs rassure, mais ne prouve rien.
+
+La méthode à privilégier dépend de votre historique. Une équipe qui n’a conclu que quelques affaires présente le plancher et la valeur pondérée en précisant que les probabilités sont des hypothèses. Une équipe qui a un an d’affaires ou plus s’appuie sur un pipeline pondéré calibré et garde le taux de gain et le run-rate comme recoupement. Quand deux méthodes divergent fortement, trouvez pourquoi avant de présenter un chiffre.
+
+## Quels sont les types de prévision ?
+
+Les sources regroupent les méthodes différemment : il n’existe donc pas de liste officielle de quatre types. Ce regroupement nous paraît utile pour une équipe commerciale :
+
+1. **Le jugement :** l’avis du commercial ou du responsable sur chaque affaire. C’est la seule option quand il n’y a pas d’historique.
+2. **Fondée sur le pipeline :** pondération par étape et plancher, comme ci-dessus.
+3. **Historique :** run-rate, taux de gain et schémas saisonniers des périodes passées.
+4. **Modèles statistiques :** modèles de séries temporelles et de régression ajustés par un logiciel.
+
+Le chapitre du manuel sur les [prévisions par jugement](https://otexts.com/fpp3/judgmental.html) décrit le même partage en termes généraux : le jugement seul quand il n’y a pas de données, des prévisions statistiques corrigées par le jugement quand il y en a, ou les deux produites séparément puis combinées. Pour une petite équipe, la combinaison utile est un chiffre calculé plus l’avis du responsable sur les affaires qui échappent à l’arithmétique.
+
+## Comment garder une prévision des ventes fiable ?
+
+- **Garder une photo et comparer après coup.** Chaque mois, le même jour, enregistrez la prévision et la liste d’affaires qui la fonde. À la fin de la période, comparez : écart = (réel − prévision) ÷ prévision. Une prévision de 92 000 € pour un réel de 95 000 € donne par exemple +3,3 %. Si l’écart va dans le même sens trois périodes de suite, changez les probabilités au lieu d’accuser la malchance.
+- **Calibrer chaque étape.** La probabilité d’une étape est la valeur gagnée des affaires qui l’ont atteinte, divisée par la valeur de toutes les affaires qui l’ont atteinte. Si 220 000 € sur 400 000 € ont été gagnés depuis Proposition, la probabilité est de 55 %. Dans l’exemple, les affaires B et D baisseraient et la valeur pondérée du trimestre perdrait 2 100 €.
+- **Garder des dates de clôture honnêtes.** Une affaire dont la clôture prévue est dans le passé ne rentre dans la prévision que lorsqu’on lui donne une nouvelle date. Décalez les dates quand les acheteurs tardent, et comptez à quelle fréquence cela arrive.
+- **Surveiller la concentration.** Placez les trois plus grosses affaires à côté du total. Si une affaire pèse un cinquième du chiffre, dites-le.
+- **Revoir chaque semaine.** La revue de 30 minutes décrite dans le [guide du pipeline commercial](/blog/sales-pipeline) est aussi le moment où l’on corrige dates de clôture et prochaines actions.
+
+## De quels champs une affaire a-t-elle besoin pour la prévision ?
+
+Chaque chiffre ci-dessus vient d’une poignée de champs. Si votre CRM les stocke dans des champs structurés plutôt que dans des notes, une prévision se résume à un filtre et à une somme.
+
+| Champ | Type | Ce qu’il apporte à la prévision | Règle |
+|---|---|---|---|
+| Montant | Montant | Base de tous les calculs | Hors taxes, une seule devise, défini de la même façon sur chaque affaire (par exemple valeur du contrat la première année) |
+| Étape | Choix unique | Détermine la probabilité | Une condition d’entrée vérifiable par étape |
+| Probabilité de l’étape | Pourcentage par étape | Transforme le montant en valeur pondérée | À revoir chaque trimestre face aux résultats réels |
+| Valeur pondérée | Calculé | Montant × probabilité ÷ 100 | Jamais saisie à la main |
+| Date de clôture prévue | Date | Place l’affaire dans une période | Obligatoire à partir de l’étape de proposition ; décalée quand elle glisse |
+| Responsable | Personne | Qui répond de l’affaire ; prévision par personne | Une seule personne |
+| Clôturée le | Date | Quand l’affaire a été gagnée ou perdue ; alimente le déjà-gagné, le taux de gain et le run-rate | À renseigner quand l’étape passe à Gagnée ou Perdue |
+| Motif de perte | Choix unique | Explique pourquoi le taux de gain bouge | Obligatoire pour chaque affaire perdue |
+| Source du lead | Choix unique | Taux de gain par source | Facultatif, mais simple à saisir à la création |
+| Prochaine action et sa date | Texte et date | Repère les affaires dormantes avant qu’elles gonflent le chiffre | Une affaire sans prochaine action reste hors du plancher |
+| Organisation et contact | Liens vers d’autres fiches | Contexte et historique des échanges derrière l’affaire | Lier chaque affaire aux deux |
+
+Un douzième champ facultatif est une catégorie de prévision (Commit, Meilleur scénario, Pipeline), qui consigne le jugement du responsable, séparé de la probabilité d’étape. Ne l’ajoutez que si votre équipe s’en servira vraiment pour passer outre la logique des étapes.
+
+## Comment faire une prévision des ventes dans Customermates ?
+
+Cette section décrit notre propre produit. Customermates est un [CRM pour équipes commerciales](/blog/crm-for-sales) open source, conçu en Allemagne. Il calcule un pipeline pondéré et le représente sous forme de graphique ; il ne prédit rien. Voici la configuration pour l’exemple chiffré.
+
+<Steps>
+  <Step title="Définir les probabilités d’étape">Dans **Configurer**, ouvrez la liste Affaires et le champ **Étape**, puis renseignez la **Probabilité %** de chaque option. Un aperçu montre l’effet sur les affaires et les widgets existants avant l’enregistrement. La valeur pondérée est un champ calculé des affaires : **Valeur** × probabilité ÷ 100. Si votre liste a été créée à la main, vérifiez qu’il existe et ajoutez-le sinon. Les [concepts clés](/docs/concepts#how-does-a-weighted-pipeline-work) expliquent le calcul.</Step>
+  <Step title="Ajouter les champs de date">Avec **Ajouter › Champ**, créez un champ Date « Date de clôture prévue » et un champ Date « Clôturée le », ainsi qu’un champ Choix unique « Motif de perte ». Un graphique ne peut regrouper et filtrer que ce que vous saisissez.</Step>
+  <Step title="Construire les widgets du trimestre">Sur le **Tableau de bord**, avec **Ajouter un widget** : un diagramme en barres qui additionne la **Valeur pondérée** par étape, filtré sur Étape différente de Gagnée ou Perdue et Date de clôture prévue entre le premier et le dernier jour du trimestre ; un widget Nombre qui additionne la **Valeur** pour Étape est Gagnée et Clôturée le dans le trimestre (déjà gagné) ; un widget Nombre qui additionne la **Valeur** des mêmes affaires ouvertes (montant ouvert). Un graphique Aire dans le temps avec un **Intervalle de temps** mensuel, regroupé par Date de clôture prévue, montre quand la valeur pondérée arrive à échéance.</Step>
+  <Step title="Garder une photo au moment de publier">Depuis la liste des affaires, ouvrez **Plus d’actions** et choisissez **Exporter en Excel (.xlsx)**. L’export conserve vos filtres et votre tri, contient jusqu’à 5 000 enregistrements et une colonne par champ que vous pouvez lire. Enregistrez le fichier avec la date dans son nom. C’est votre photo pour la comparaison après coup et votre base pour le taux de gain et le run-rate dans un tableur.</Step>
+</Steps>
+
+Le taux de gain en valeur demande deux totaux issus des affaires closes : la somme de la **Valeur** pour Gagnée et pour Perdue, chacune filtrée sur Clôturée le. Vous lisez les deux dans des widgets Nombre. Dans Customermates Cloud, vous pouvez aussi demander le calcul à Mate, ce qui consomme des crédits IA hébergés ; avec votre propre client IA via le [serveur MCP](/docs/mcp), les totaux viennent de l’outil `query_crm_measure`. Dans les deux cas, c’est de l’arithmétique sur vos affaires closes, pas une prédiction.
+
+Un graphique ne compte que les affaires que votre rôle peut lire : la personne qui publie la prévision a donc besoin d’un accès en lecture à toutes. Le [guide du tableau de bord](/docs/app-dashboard) décrit chaque option de widget, et la page [reporting CRM](/features/reporting) présente d’autres rapports qu’une petite équipe construit. Les affaires elles-mêmes se trouvent sur le [board du pipeline](/features/pipeline).
+
+**Ce que cela coûte.** Les widgets de graphique, le pipeline pondéré et l’export Excel sont dans toutes les formules, à partir de Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement. L’édition auto-hébergée les inclut aussi. La [page des tarifs](/pricing) donne les détails.
+
+<AcquisitionCallout title="Quand Customermates n’est pas le bon choix pour la prévision" variant="boundary">
+Customermates multiplie les valeurs des affaires par les probabilités d’étape que vous définissez et additionne le résultat. Il ne prédit pas quelles affaires se concluront, ne suggère pas de probabilités de gain et n’ajuste aucun modèle statistique à votre historique. Il montre les affaires telles qu’elles sont maintenant et n’a pas de rapport sur les totaux passés du pipeline : enregistrez donc un export le jour où vous publiez une prévision. Il n’y a pas d’objectifs individuels (quotas) ni de consolidation des prévisions par responsable ; une catégorie que vous ajoutez comme champ peut être représentée dans un graphique, mais rien ne la contrôle ni ne la consolide. Il n’y a ni devis ni facturation : « gagnée » signifie donc la valeur d’affaire que vous saisissez, pas un chiffre d’affaires facturé ou comptable. Si vous avez besoin d’une prévision prédictive, de prévisions soumises par commercial ou de scénarios, utilisez un outil de prévision dédié.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Qu’est-ce que la prévision des ventes ?">
+La prévision des ventes estime le chiffre d’affaires qu’une équipe va gagner sur une période à venir, comme un mois ou un trimestre, à partir de ses affaires ouvertes et de ses résultats passés. Elle diffère de l’objectif, qui est ce que vous voulez gagner.
+</FaqItem>
+
+<FaqItem question="Comment calculer la prévision de vente à partir du pipeline ?">
+Multipliez le montant de chaque affaire ouverte par la probabilité de son étape, additionnez les valeurs pondérées des affaires censées se conclure sur la période et ajoutez le chiffre d’affaires déjà gagné. Recoupez le résultat avec un chiffre par le taux de gain (montant ouvert × votre taux de gain en valeur) et un par le run-rate (la moyenne de vos quatre dernières périodes).
+</FaqItem>
+
+<FaqItem question="Quelle différence entre prévision des ventes et objectif de chiffre d’affaires ?">
+La prévision estime ce que vous allez probablement gagner et se calcule à partir du pipeline. L’objectif fixe ce que vous voulez atteindre. Le plan est ce que vous faites pour combler l’écart entre les deux.
+</FaqItem>
+
+<FaqItem question="Quelle est la meilleure méthode de prévision des ventes ?">
+Aucune ne convient à toutes les équipes. Un pipeline pondéré fonctionne pour de petites équipes qui ont des règles d’étape et des dates de clôture. Le taux de gain et le run-rate demandent un historique d’affaires closes, les modèles statistiques de nombreuses périodes de résultats stables. Calculez au moins deux méthodes et annoncez une fourchette.
+</FaqItem>
+
+<FaqItem question="Quelle est la fiabilité d’une prévision des ventes ?">
+Il n’existe pas de chiffre universel honnête, car elle dépend de la taille des affaires, de la durée du cycle et de la rigueur de la tenue du pipeline. Mesurez la vôtre : comparez chaque prévision au résultat réel et suivez l’écart sur plusieurs périodes. Un écart constant dans un sens se corrige ; un écart aléatoire montre des données d’entrée peu fiables.
+</FaqItem>
+
+<FaqItem question="Customermates peut-il faire de la prévision des ventes ?">
+Customermates calcule un pipeline pondéré : la valeur de l’affaire multipliée par la probabilité que vous fixez pour l’étape, affichée dans des graphiques du tableau de bord et exportable vers Excel. Il ne prédit pas les conclusions, ne suggère pas de probabilités et ne modélise pas votre historique. Pour cela, il faut un outil de prévision dédié.
+</FaqItem>
+</Faq>
+
+Sources de tiers vérifiées le 9 novembre 2026 : Hyndman et Athanasopoulos, *Forecasting: Principles and Practice*, 3e édition (en anglais), [section 1.2](https://otexts.com/fpp3/planning.html), [section 1.6](https://otexts.com/fpp3/basic-steps.html) et [chapitre 6](https://otexts.com/fpp3/judgmental.html). Tous les montants d’affaires, taux de gain et résultats trimestriels de l’exemple chiffré sont inventés pour l’illustration.
