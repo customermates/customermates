@@ -11,18 +11,112 @@ relatedHrefs:
 
 hero:
   title: "Kundenverwaltung und Kontaktverwaltung mit dem ganzen Kontext"
-  description: Für kleine Teams, die Kunden betreuen und nicht nur Telefonnummern sammeln. Customermates führt Firmenkontakte zentral an einem Ort und verknüpft jeden Kunden mit seinen Ansprechpartnern, Verkaufschancen, Aufgaben und, ab Pro in der Cloud, unterstützten Gesprächen. Listen und Felder richten Sie selbst ein. Tags gibt es nicht, und ein Import lässt sich nicht rückgängig machen.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  description: "Die Menschen, Chancen und Aufgaben jedes Kunden an einem Ort und, ab Pro in der Cloud, auch die Gespräche: So wissen Sie, wer zuletzt mit ihm gesprochen hat und was als Nächstes ansteht. Listen und Felder richten Sie selbst ein."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kundenverwaltung/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
+landing:
+  hero:
+    eyebrow: Kundendatenbank für kleine Teams
+    title: "Kundenverwaltung Software: löst Ihre Tabelle ab und zeigt den nächsten Kontakt"
+    description: "Importieren Sie Ihre Kundenliste einmal. Danach kann Mate in Customermates Cloud neue Ansprechpartner, Notizen und den nächsten Schritt aus den verbundenen Gesprächen beim richtigen Kunden ablegen."
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Import aus Excel · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihre Kundenliste, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Ansprechpartner, Verträge und die Felder, die Sie pflegen. Das ist das Beispiel zur Kundenverwaltung; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir beliefern Büros mit Kaffeemaschinen und Pausenraumbedarf. Ersetze unsere Kundentabelle durch Kunden, Ansprechpartner und Verträge je Standort und zeig uns, mit wem wir länger nicht gesprochen haben.
+  followUp:
+    eyebrow: Eine Kunden-E-Mail, abgelegt
+    title: "Ein Kunde nennt einen neuen Ansprechpartner. Der Datensatz ist aktualisiert, die Antwort entworfen."
+    description: Die E-Mail landet beim Kunden, dessen Adresse passt. Bitten Sie Mate darum oder lassen Sie eine Routine laufen, dann stehen neuer Kontakt, Standort und nächster Schritt beim Kunden, mit einem Antwortentwurf für Sie.
+    desk:
+      label: Szene zur Aktualisierung eines Kundendatensatzes
+      workspace: Bohnenhaus Büroservice
+      conversation:
+        label: E-Mail
+        name: Emma Krause
+        company: Lichtwerk Studios
+        time: Mi 10:12
+        message: Kurze Info. Ab nächstem Monat übernimmt Sara Lind den Einkauf von mir. Können Sie außerdem unseren neuen Standort in Leipzig in den Vertrag aufnehmen?
+      agent:
+        name: Mate
+        intent: Aktualisiert den Kundendatensatz aus dieser E-Mail
+        done: Sara Lind als Ansprechpartnerin angelegt. Entwurf und nächster Schritt gespeichert.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Frau Krause, vielen Dank für die Info. Ich habe Frau Lind als Ansprechpartnerin für den Einkauf notiert und schicke Ihnen bis Donnerstag den angepassten Vertrag mit dem Standort Leipzig. Viele Grüße, Daniel Meyer
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Mittwoch
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Angepassten Vertrag mit Standort Leipzig senden
+                meta: Lichtwerk Studios · fällig Donnerstag
+                owner: DM
+                state: added
+              - title: Jahresgespräch mit Kanzlei Hafner
+                meta: Kanzlei Hafner · 2 Tage überfällig
+                owner: DM
+                state: overdue
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, ein aktueller Datensatz.
+    before:
+      label: Vorher
+      points:
+        - Eine Kundentabelle, die niemand pflegt
+        - Kontakte und Notizen verteilt auf Postfächer
+        - Niemand weiß, wer zuletzt mit dem Kunden gesprochen hat
+    after:
+      label: Mit Customermates
+      points:
+        - Jeder Kunde mit Ansprechpartnern, Verträgen und Gesprächen
+        - Mate aktualisiert Datensätze auf Ihre Bitte oder per Routine
+        - Letzter Kontakt und nächster Schritt bei jedem Kunden
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Von der Tabelle zu aktuellen Daten.
+    items:
+      - title: Tabelle importieren
+        description: Die KI-Einrichtung baut Listen und Felder. Speichern Sie Ihre Tabelle als Excel-Arbeitsmappe und ordnen Sie jede Spalte einem Feld zu.
+      - title: E-Mail oder LinkedIn verbinden
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Mate hält alles aktuell
+        description: Bitten Sie Mate darum oder richten Sie eine Routine ein, um neue Kontakte, Notizen und nächste Schritte aus den letzten Gesprächen zu übernehmen.
+  plan:
+    eyebrow: Preise
+    title: Starten Sie mit Pro. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Starter für [[commercial.price.starter.monthly]] umfasst die Kundendatenbank ohne verbundene Konten. Verbundenes E-Mail und LinkedIn gibt es ab Pro in Customermates Cloud.
+    limits: Nicht geeignet, wenn Sie Datenanreicherung, Tags oder einen rückgängig machbaren Import brauchen. Prüfen Sie die Spaltenzuordnung vor dem Import.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
+
 cta:
   action: Die eigene Kundenliste im Test übernehmen
-  description: Speichern Sie Ihre Tabelle als Excel-Arbeitsmappe, ordnen Sie die Spalten Ihren Feldern zu und prüfen Sie im kostenlosen Testzeitraum, ob Ihr Team Kunden und ihren Kontext schneller findet.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  description: "Speichern Sie Ihre Tabelle als Excel-Arbeitsmappe, ordnen Sie die Spalten Ihren Feldern zu, verbinden Sie ein E-Mail- oder LinkedIn-Konto und prüfen Sie in der Testphase, ob Sie bei jedem Kunden den letzten Kontakt und den nächsten Schritt sehen."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kundenverwaltung/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -30,8 +124,10 @@ cta:
 
 Eine Kundenverwaltung führt Kunden, Ansprechpartner und Firmenkontakte zentral an einem Ort und zeigt, was offen ist und was als Nächstes passiert. Die Kontaktverwaltung, auch Kontaktmanagement genannt, ist ihr Kern aus Personen, Firmen und Kontaktdaten. Customermates deckt beides als Software für kleine Teams mit direktem Kundenkontakt ab: ein Open-Source-CRM mit KI aus Deutschland.
 
+**Wo Ihnen das beim Nachfassen hilft.** Ein Kunde fällt durchs Raster, wenn niemand sieht, wer zuletzt mit ihm gesprochen hat oder was zugesagt wurde. Ein Kundendatensatz trägt die Ansprechpartner, die Verträge oder Deals und, ab Pro in der Cloud, die E-Mail- und LinkedIn-Gespräche mit ihnen, dazu ein Datumsfeld für die nächste Aktion. Eine gespeicherte Ansicht nach diesem Datum oder ein Widget „Anstehend“ auf dem Dashboard listet, wen Sie als Nächstes kontaktieren.
+
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="In jedem Plan">Eigene Listen für Kunden, Ansprechpartner und Verkaufschancen, typisierte Felder, Verknüpfungen, Filter, teilbare Ansichten, Tabelle, Board oder Kalender, Rollen, Aktivitätsprotokoll, durchsuchbare Dateien, Excel-Import und -Export, REST, Webhooks und MCP. Auch selbst gehostet.</SummaryItem>
+  <SummaryItem label="In jedem Plan">Eigene Listen für Kunden, Ansprechpartner und Verkaufschancen, typisierte Felder, Verknüpfungen, Filter, teilbare Ansichten, Tabelle, Board oder Kalender, Rollen, Aktivitätsprotokoll, durchsuchbare Dateien, Excel-Import und -Export, REST und MCP, dazu Webhooks in bezahlten Tarifen. Auch selbst gehostet.</SummaryItem>
   <SummaryItem label="Ab Pro, nur in der Cloud">Gespräche aus E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben den beteiligten Personen.</SummaryItem>
   <SummaryItem label="Nicht enthalten">Keine Tags (stattdessen ein Mehrfachauswahlfeld), keine Rechte auf Feldebene, kein Rückgängigmachen von Importen, kein Zusammenführen von Dubletten, kein Adressbuch-Abgleich, keine Erinnerungen.</SummaryItem>
 </ArticleSummary>
@@ -74,7 +170,7 @@ Notizen stehen an jedem Datensatz. Die globale Suche (Cmd/Strg+K) findet Datens�
   <Step title="Listen anlegen oder prüfen">Lassen Sie die KI-Einrichtung in der Cloud die Listen bauen, oder legen Sie unter **Konfigurieren** Kunden, Ansprechpartner und Verkaufschancen mit Verknüpfungen an.</Step>
   <Step title="Felder ergänzen, nach denen Sie arbeiten">Etwa **Beziehung** (Einzelauswahl), **Rolle** beim Ansprechpartner (Entscheider, Tagesgeschäft, Buchhaltung) und **Nächste Aktion** (Datum).</Step>
   <Step title="Bestand importieren">Zuerst die Kunden, dann die Ansprechpartner, damit die Firmenspalte verknüpft wird. Details weiter unten.</Step>
-  <Step title="Ansichten speichern">„Meine aktiven Kunden“, „Nächste Aktion diese Woche“ oder „Ohne Kunde“ zum Aufräumen nach dem Import. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann ihre eigenen anlegen, oder Sie teilen eine mit dem Team.</Step>
+  <Step title="Ansichten speichern">„Meine aktiven Kunden“, „Nächste Aktion diese Woche“ oder „Ohne Kunde“ zum Aufräumen nach dem Import. Teilen Sie die Ansichten, die das ganze Team braucht, etwa „Nächste Aktion diese Woche“, mit allen im Workspace oder mit ausgewählten Rollen.</Step>
   <Step title="Rechte festlegen">Im Rolleneditor bestimmen Sie pro Liste, ob jemand **Alle**, nur **Zugewiesene** oder **Keine** Datensätze lesen darf, dazu Anlegen, Bearbeiten und Löschen. Rechte gelten für ganze Listen, nicht für einzelne Felder.</Step>
 </Steps>
 

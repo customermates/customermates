@@ -9,10 +9,20 @@ relatedHrefs:
   - /blog/crm-and-erp
   - /features/self-hosted
 
+sections:
+  reasons:
+    - title: "Outlook reste, et le client reçoit les conversations"
+      description: "Dès Pro, vous connectez une boîte Outlook, ou Gmail, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram, et la boîte de réception unifiée affiche chaque conversation dans une liste, liée au client."
+    - title: "Une IA qui rédige, sans changer de formule"
+      description: "Dans Customermates Cloud, Mate fait partie de chaque formule payante, dans une enveloppe mensuelle de crédits IA hébergés. Il rédige la réponse, résume le fil et met la fiche à jour."
+    - title: "Open source, avec un choix d’hébergement"
+      description: "Le cœur AGPL-3.0 tourne sur votre propre serveur avec Docker Compose et PostgreSQL 16, REST, webhooks et MCP compris. Dans le cloud, la base de données est configurée à Francfort."
+  switchSteps: true
+
 hero:
-  title: "Alternative à Microsoft Dynamics : Customermates et Dynamics 365 Sales comparés"
-  description: "Dynamics 365 Sales est facturé par utilisateur et payé à l’année, avec Copilot et des agents commerciaux conçus autour de Microsoft 365. Customermates est un CRM open source conçu en Allemagne pour les petites équipes en contact avec les clients : facturation mensuelle, Outlook, LinkedIn et WhatsApp à côté de vos affaires à partir de Pro, et Mate dans Customermates Cloud ou votre propre client d’IA pour le travail dans le CRM. Détails Microsoft vérifiés le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à Microsoft Dynamics : Customermates comparé"
+  description: "Dynamics 365 Sales démarre à 65 $ par utilisateur et par mois, payés à l’année, et Copilot arrive une formule plus haut. Customermates facture au mois, range les conversations Outlook, LinkedIn et WhatsApp sur la fiche client dès Pro, et Mate rédige la réponse. Vérifié le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -93,7 +103,7 @@ comparison:
 cta:
   action: Vous quittez Dynamics 365 Sales ?
   description: "Démarrez un essai, exportez une vue Dynamics vers Excel et importez-la comme comptes ou opportunités. Connectez votre boîte Outlook et voyez si vos données et vos conversations conviennent à Customermates avant de déplacer le reste."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -156,11 +166,11 @@ Les lignes n’achètent pas les mêmes choses :
 
 ## Où se place Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes en contact avec les clients : consultants, agences, autres entreprises de services et fondateurs. Il est conçu en Allemagne.
+Une petite équipe qui veut relancer ses clients n’a pas besoin d’une plateforme d’entreprise pour cela. Dès Pro, Customermates garde Outlook comme boîte mail, ajoute LinkedIn, WhatsApp, Instagram et Telegram, et laisse Mate ou votre propre agent IA rédiger la réponse et la prochaine étape. Vous relisez, modifiez et envoyez.
 
 **Outlook reste, et le CRM reçoit les conversations.** À partir de Pro, vous connectez une boîte Outlook, ou Gmail, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram, et la [boîte de réception unifiée](/features/unified-inbox) affiche toutes les conversations en une seule liste. Vous répondez sur le canal d’origine. Liez un participant à un contact une fois, et la conversation apparaît sur ce contact. Les évènements d’agenda du compte connecté apparaissent en lecture seule. Teams n’est pas un canal de la boîte de réception.
 
-**Une IA qui fait le travail dans le CRM.** Dans Customermates Cloud, Mate résume les fils, rédige des réponses et met à jour les enregistrements. Il utilise des crédits IA hébergés : chaque formule inclut un quota mensuel par utilisateur actif, indiqué sur la [page des tarifs](/pricing). Mate demande une nouvelle validation avant de supprimer quoi que ce soit, mais quand vous lui demandez d’envoyer un message, il l’envoie : demandez-lui d’enregistrer des brouillons si vous voulez les lire d’abord. Les [routines](/docs/app-routines) exécutent une consigne enregistrée selon un planning ou quand un enregistrement change, en tant que leur propriétaire : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business.
+**Une IA qui fait le travail dans le CRM.** Dans Customermates Cloud, Mate résume les fils, rédige des réponses et met à jour les enregistrements. Il utilise des crédits IA hébergés : chaque formule payante inclut un quota mensuel par utilisateur actif, indiqué sur la [page des tarifs](/pricing). Mate demande une nouvelle validation avant de supprimer quoi que ce soit, mais quand vous lui demandez d’envoyer un message, il l’envoie : demandez-lui d’enregistrer des brouillons si vous voulez les lire d’abord. Les [routines](/docs/app-routines) exécutent une consigne enregistrée selon un planning ou quand un enregistrement change, en tant que leur propriétaire : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business.
 
 Vous préférez Claude, ChatGPT ou un autre client que vous payez déjà ? Connectez-le au [serveur MCP](/docs/mcp) avec une clé API ou OAuth. Il offre [[derived.mcp.tools.total]] outils dans toutes les formules et sur les installations auto-hébergées, et ses appels au modèle passent par votre propre fournisseur d’IA.
 
@@ -173,7 +183,7 @@ Vous préférez Claude, ChatGPT ou un autre client que vous payez déjà ? Conn
 - **Sécurité fine.** Les rôles définissent des autorisations par liste et par action. Il n’y a ni sécurité au niveau du champ ni SSO.
 - **Contact Center ou Customer Service.** Microsoft vend les deux comme des applications Dynamics 365 distinctes. Customermates n’a ni téléphonie, ni dossiers, ni tickets.
 - **Outils commerciaux intégrés.** Pas d’application mobile, d’enregistrement des appels, d’enrichissement des données, de scoring de leads, de séquences d’e-mails ni d’e-mails de masse. Le pipeline pondéré est de l’arithmétique sur des probabilités d’étape, pas une prévision.
-- **Une formule gratuite.** Il y a un essai de [[commercial.trial.days]] jours, puis une formule payante.
+- **Une formule gratuite étendue.** Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Un exemple de mise en place : un cabinet de conseil qui quitte Sales Professional
 
@@ -232,7 +242,7 @@ Non. Dataverse est la plateforme de données sous-jacente. Dynamics 365 Sales et
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative gratuite à Microsoft Dynamics 365 ?">
-Salesforce (Free Suite), HubSpot, Zoho CRM et Odoo ont chacun une formule gratuite avec des limites sur les utilisateurs, les fonctionnalités ou les applications. Customermates n’a pas de formule gratuite ; il propose un essai de [[commercial.trial.days]] jours, et son noyau open source ne coûte aucun frais de licence si vous l’hébergez vous-même, sans la boîte de réception ni Mate.
+Salesforce (Free Suite), HubSpot, Zoho CRM et Odoo ont chacun une formule gratuite avec des limites sur les utilisateurs, les fonctionnalités ou les applications. Customermates propose une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, un essai de [[commercial.trial.days]] jours, et son noyau open source ne coûte aucun frais de licence si vous l’hébergez vous-même, sans la boîte de réception ni Mate.
 </FaqItem>
 
 <FaqItem question="Customermates fonctionne-t-il avec Outlook et Microsoft 365 ?">

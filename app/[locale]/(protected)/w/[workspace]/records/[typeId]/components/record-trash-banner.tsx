@@ -20,12 +20,14 @@ export const RecordTrashBanner = observer(function RecordTrashBanner({ trash }: 
     <Alert
       aria-busy={restoring || undefined}
       className="mx-4 my-3 w-auto md:mx-6"
-      color="warning"
       data-record-trash-banner=""
       icon={restoring ? <LoaderCircle className="animate-spin" /> : <Trash2 />}
+      variant="warning"
     >
-      <span className="flex min-h-5 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-warning/90">
-        <span className="font-medium text-warning">{restoring ? t("Trash.restoring") : t("Trash.inTrash")}</span>
+      <span className="flex min-h-5 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
+        <span className="font-medium text-warning-soft-foreground">
+          {restoring ? t("Trash.restoring") : t("Trash.inTrash")}
+        </span>
 
         {!restoring && (
           <>

@@ -1,4 +1,5 @@
 import type { RegistrationAdAttribution } from "@/features/acquisition/ad-attribution.schema";
+import type { RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import type { TenantUser } from "@/features/user/user.service";
 import type { RegisterUserCompanyRepo, WorkspaceSetup } from "./register-user-company.repo";
 import type { RegisterUserData } from "./register-user.interactor";
@@ -17,17 +18,19 @@ export class WorkspaceRegistrationService {
   createCompanyAndUser(
     args: RegisterUserData & {
       adAttribution?: RegistrationAdAttribution[];
+      signupSource?: RegistrationSignupSource | null;
       workspace?: WorkspaceSetup;
       preferences?: OwnerPreferences;
     },
   ): Promise<TenantUser> {
-    const { workspace, ...owner } = args;
+    const { workspace, signupSource, ...owner } = args;
     return runInTransaction(async () => {
       const companyId = await this.companies.createRegisteredCompany(workspace);
       if (workspace?.createdByAuthUserId) await this.users.markTrialConsumedUnscoped(workspace.createdByAuthUserId);
       const roleId = await this.roles.createAdminRole(companyId);
       const { user, createdAt } = await this.users.createCompanyOwnerOrThrow({ ...owner, companyId, roleId });
       if (owner.adAttribution?.length) await this.companies.recordSignupConversion(companyId, createdAt);
+      if (signupSource) await this.companies.recordSignupSource(companyId, signupSource);
       return user;
     });
   }

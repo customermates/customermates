@@ -198,21 +198,16 @@ describe("approved acquisition page contract", () => {
     expect(problems).toEqual([]);
   });
 
-  it("renders validated acquisition illustrations without legacy slug PNGs", () => {
-    for (const route of [
-      "app/[locale]/(static)/features/[slug]/page.tsx",
-      "app/[locale]/(static)/for/[industry]/page.tsx",
-    ]) {
-      const source = readFileSync(join(REPO_ROOT, route), "utf8");
-      expect(source, route).toContain(
-        'page.data.acquisition?.visual.kind === "brand-illustration"',
-      );
-      expect(source, route).toContain("<AcquisitionStoryVisual");
-      expect(source, route).not.toContain("<ShowcaseFrame");
-      expect(source, route).not.toMatch(
-        /src=\{`\$\{(?:slug|industry)\}\.png`\}/u,
-      );
-    }
+  it("builds acquisition pages from signature visuals without legacy slug PNGs", () => {
+    const solutionRoute = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/for/[industry]/page.tsx"), "utf8");
+    expect(solutionRoute).toContain("<ProductFilm />");
+    expect(solutionRoute).not.toContain("<AcquisitionStoryVisual");
+
+    const featureRoute = readFileSync(join(REPO_ROOT, "app/[locale]/(static)/features/[slug]/page.tsx"), "utf8");
+    expect(featureRoute).not.toContain("AcquisitionStoryVisual");
+    expect(featureRoute).toContain("<LandingVisual");
+    expect(featureRoute).not.toContain("<ShowcaseFrame");
+    expect(featureRoute).not.toMatch(/src=\{`\$\{(?:slug|industry)\}\.png`\}/u);
 
     const blog = readFileSync(
       join(REPO_ROOT, "app/[locale]/(static)/blog/[slug]/page.tsx"),
@@ -222,17 +217,7 @@ describe("approved acquisition page contract", () => {
     expect(blog).not.toContain("BlogHeroMedia");
     expect(blog).not.toContain(".png`");
 
-    const visual = readFileSync(
-      join(REPO_ROOT, "components/marketing/acquisition-story-visual.tsx"),
-      "utf8",
-    );
-    for (const focalForm of [
-      "context-card",
-      "provider-set",
-      "kanban-board",
-      "draft",
-    ])
-      expect(visual).toContain(`case "${focalForm}"`);
+    expect(existsSync(join(REPO_ROOT, "components/marketing/acquisition-story-visual.tsx"))).toBe(false);
   });
 
   it("keeps overview, related, and blog surfaces text-only after retiring static hero assets", () => {
@@ -280,7 +265,7 @@ describe("approved acquisition page contract", () => {
     );
     expect(source).toContain("showOpenSourceBadge = true");
     expect(source).toContain(
-      "showOpenSourceBadge ? <AgplGithubBadge /> : null",
+      'showOpenSourceBadge ? <AgplGithubBadge className="mk-hero-chip" /> : null',
     );
   });
 

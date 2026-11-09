@@ -58,7 +58,7 @@ async function seedAttributedConversion(args: {
         clickedAt: args.clickedAt,
         capturedAt: args.clickedAt,
         consentedAt: args.clickedAt,
-        consentNoticeVersion: "2026-09-02",
+        consentNoticeVersion: "2026-11-09",
         expiresAt: new Date(args.clickedAt.getTime() + 89 * 24 * 60 * 60 * 1000),
       },
     });

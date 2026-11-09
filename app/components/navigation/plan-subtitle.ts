@@ -1,4 +1,5 @@
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
+import type { PlanId } from "@/core/commercial/plan-catalog";
 
 type PlanChipVariant = "success" | "warning" | "destructive";
 
@@ -42,12 +43,13 @@ export function trialDaysLeft(trialEndDate: Date | null, now = Date.now()): numb
 }
 
 export function resolvePlanChip(
-  params: { status: SubscriptionStatus | null; plan: SubscriptionPlan | null; trialDaysLeft: number | null },
+  params: { status: SubscriptionStatus | null; plan: PlanId | null; trialDaysLeft: number | null },
   t: Translate,
 ): PlanChipModel | null {
   const { status, plan, trialDaysLeft } = params;
 
   if (!status) return null;
+  if (plan === "free") return { label: t("Subscription.planNames.free"), variant: "success" };
 
   const variant = statusVariant(status, trialDaysLeft);
   const text = statusText(status, trialDaysLeft, t);

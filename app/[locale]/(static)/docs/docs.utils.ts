@@ -27,7 +27,7 @@ export function getDocMethodColor(method: string | undefined) {
     case "GET":
       return "success";
     case "POST":
-      return "default";
+      return "secondary";
     case "PUT":
     case "PATCH":
       return "warning";

@@ -4,7 +4,7 @@ Customermates is an open-source CRM. Its MCP server is part of the app and runs 
 
 ## What you need from the user
 
-1. A Customermates account (cloud trial, 7 days, no card) or a self-hosted instance.
+1. A Customermates account (cloud trial, 14 days, no card) or a self-hosted instance.
 
 2. An API key: Settings, API keys, Add, Standard API key. The key has 64 characters, is shown once and carries the permissions of the user who created it.
 

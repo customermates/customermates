@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/ai-sales-agent
 
 hero:
-  title: "Copilot im Vertrieb: Was der Sales Agent kann, was er voraussetzt und was er kostet"
-  description: "Microsofts Vertriebsassistent für Outlook und Teams, früher Copilot for Sales: Lizenz- und CRM-Voraussetzungen, Einrichtung, ein Kostenbeispiel für ein kleines Team und Optionen ohne Dynamics 365 oder Salesforce."
+  title: "Copilot im Vertrieb: Was der Sales Agent kann, braucht und kostet"
+  description: "Microsofts Vertriebsassistent für Outlook und Teams, früher Copilot for Sales: Lizenz- und CRM-Voraussetzungen, Einrichtung, Kostenbeispiel und Optionen ohne Dynamics 365 oder Salesforce."
 
 blogPost:
   author: Benjamin Wagner
@@ -116,13 +116,15 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit K
 
 So sieht eine typische Einrichtung für ein Team mit fünf Personen aus:
 
-- **Datensätze.** Kontakte, Organisationen und Deals. Die Deal-Phase ist ein Feld vom Typ Einzelauswahl mit Gewichtung je Phase für einen gewichteten Pipeline-Wert. Deals haben zugewiesene Nutzer, und jede Person speichert ihre eigenen gespeicherten Ansichten, etwa „Meine Deals im Angebot".
+- **Datensätze.** Kontakte, Organisationen und Deals. Die Deal-Phase ist ein Feld vom Typ Einzelauswahl mit Gewichtung je Phase für einen gewichteten Pipeline-Wert. Deals haben zugewiesene Nutzer, und jede Person kann eigene Ansichten speichern und die teilen, die das Team braucht, etwa „Meine Deals im Angebot“.
 - **Posteingang.** Ab Pro ordnet der [einheitliche Posteingang](/features/unified-inbox) E-Mails aus Outlook, Gmail oder IMAP sowie Unterhaltungen aus LinkedIn, WhatsApp, Instagram und Telegram denselben Datensätzen zu. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Die [Outlook-Integration](/features/outlook-integration) verbindet das Postfach serverseitig, in Outlook wird nichts installiert.
 - **Mate, in Customermates Cloud.** Der Assistent in der App nutzt gehostete KI-Credits. Eine Anweisung könnte lauten: „Den letzten Verlauf mit Acme zusammenfassen und einen Antwortentwurf mit zwei Terminvorschlägen speichern." Wenn Sie Mate ausdrücklich zum Senden auffordern, verschickt er sofort. Verlangen Sie also einen Entwurf, wenn Sie den Text vorher lesen wollen. Einzelheiten stehen in der [Mate-Dokumentation](/docs/app-assistant).
 - **Eine Routine, in Customermates Cloud.** Auslöser „Wenn sich etwas ändert", Ereignis „Datensatz aktualisiert" für Deals, unter „Geänderte Felder" das Feld Phase. Anweisungen: „Wechselt ein Deal in die Phase Angebot: den letzten Verlauf mit dem Kontakt lesen und einen Antwortentwurf speichern. Nichts senden." Die Routine läuft im Namen ihres Eigentümers und nutzt dessen Kanäle. Siehe [Routinen](/docs/app-routines).
 - **Ihr eigener KI-Client.** Nutzt Ihr Team bereits Claude oder ChatGPT, verbinden Sie ihn per MCP über den [benutzerdefinierten Connector](/docs/connect-custom-connector). Microsoft dokumentiert, dass Agenten in Copilot Studio sich mit einem bestehenden MCP-Server verbinden können. Für diesen Client gibt es von Customermates noch keine Anleitung, testen Sie also zuerst einen Lesezugriff.
 
 **Kosten.** Fünf Nutzer auf Pro kosten [[commercial.price.pro.monthly.seats.5]] im Monat bei monatlicher Zahlung, inklusive Posteingang und monatlicher gehosteter KI-Credits pro aktivem Nutzer ([siehe Preise](/pricing)). Starter für [[commercial.price.starter.monthly]] pro Nutzer hat keinen Posteingang. Der selbst gehostete AGPL-Kern ist lizenzkostenfrei und bietet REST, Webhooks und MCP, aber keinen Posteingang und kein Mate.
+
+Für diesen Platz bekommt ein kleines Team Nachfassen ohne Microsoft-Umgebung: Verläufe am Kundendatensatz, einen Antwortentwurf und den nächsten Schritt von Mate oder Ihrem eigenen KI-Client, und Sie prüfen und senden. Um es mit Ihrem eigenen Postfach oder LinkedIn auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 **Was es nicht kann.** Customermates zeichnet keine Besprechungen auf und transkribiert sie nicht, hat kein Add-in für Outlook, Teams oder Word (CRM-Daten schlagen Sie in Customermates selbst nach), legt keine Kalendertermine an und hat keine App fürs Smartphone. Wenn Ihnen vor allem die Nachbereitung von Teams-Besprechungen wichtig ist, bleiben Sie bei Microsoft.
 

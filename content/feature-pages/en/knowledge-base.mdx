@@ -1,6 +1,6 @@
 ---
 title: "AI Knowledge Base for Customer-Facing Teams"
-description: "Keep company guidance, procedures and customer context in one workspace. Give people and AI clients the same sources, with clear permissions and limits."
+description: "Keep your playbook, tone of voice and follow-up rules beside your client records, so people and AI clients draft replies from the same sources."
 featureName: Knowledge Base
 
 relatedHrefs:
@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/cloud-crm
   - /features/self-hosted
 
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Read the source"
+        description: "Start with the operating guide and the procedure that matches the situation. Follow relevant reference links."
+      - title: "Check the current customer"
+        description: "Read the customer's actual record and agreed scope. A generic procedure does not supply missing customer facts."
+      - title: "Prepare the bounded next step"
+        description: "Create an internal checklist or draft supported by those sources. Show where each factual statement came from."
+      - title: "Read the saved result"
+        description: "Check the task, assigned owner and customer relationship. A successful request alone does not prove the intended state was saved."
+  highlights:
+    title: "What you can use it for"
+    capture: homepage-record
+    items:
+      - title: "Company guidance"
+        description: "Separate the operating guide, procedures and reference facts, with a named owner and a review date."
+      - title: "Customer context"
+        description: "Read the approved source and the current customer record before creating an internal next step."
+      - title: "Access"
+        description: "Knowledge Base access follows workspace role permissions. There are no per-page access controls."
+      - title: "Limits"
+        description: "Retrieved text still needs checking. A relevant-looking result does not prove that it answers the question."
+
 hero:
-  title: An AI knowledge base for your customer work
-  description: Keep the company facts, operating guide and procedures beside your customer records. People, Mate and connected MCP clients can consult the same maintained source before preparing the next step.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "Write your follow-up rules once. Mate and your AI agent use them."
+  description: "Keep your sales playbook, tone of voice and follow-up rules in the Knowledge Base beside your client records. Mate and connected MCP clients read the same pages before they draft a reply or suggest the next step."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the Knowledge Base guide
   buttonRightHref: /docs/mcp#shared-workspace-wiki
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Give your customer work a maintained source
-  description: Start with one operating guide, one procedure and the facts your team actually needs. Review the sources before asking an agent to act.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Write down how you follow up"
+  description: "Start the trial and pick the playbook for consultants, agencies, freelancers or small businesses. It writes a Sales playbook, Tone of voice and Follow-up rules page that you can edit. Mate reads them before it drafts a reply."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Read the Knowledge Base guide
   buttonRightHref: /docs/mcp#shared-workspace-wiki
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -30,14 +56,9 @@ cta:
 
 An AI knowledge base gives people and agents a maintained source for company facts and procedures. In Customermates, those pages live in the customer workspace, so a person, Mate or an external MCP client can consult the guidance alongside the customer record before preparing work.
 
-This fits a small team that handles customer conversations and next steps across several tools. It is not a public help centre, a learning platform or a replacement for an enterprise search system.
+**For follow-up.** The pages that matter most say when a conversation needs a reply, how soon you answer, how you sign off and what you never promise by message. In the "Follow up client conversations" setup, Customermates writes a Sales playbook, Tone of voice and Follow-up rules page from a ready-made playbook. Mate reads them before it drafts a reply or suggests a next step, and you edit them like any other page.
 
-<ArticleSummary title="What you can use it for">
-  <SummaryItem label="Company guidance">Separate the operating guide, procedures and reference facts, with a named owner and a review date.</SummaryItem>
-  <SummaryItem label="Customer context">Read the approved source and the current customer record before creating an internal next step.</SummaryItem>
-  <SummaryItem label="Access">Knowledge Base access follows workspace role permissions. There are no per-page access controls.</SummaryItem>
-  <SummaryItem label="Limits">Retrieved text still needs checking. A relevant-looking result does not prove that it answers the question.</SummaryItem>
-</ArticleSummary>
+This fits a small team that handles customer conversations and next steps across several tools. It is not a public help centre, a learning platform or a replacement for an enterprise search system.
 
 ## What belongs in an AI knowledge base for customer work?
 
@@ -57,13 +78,6 @@ The [Knowledge Base documentation](/docs/mcp#shared-workspace-wiki) describes th
 A person opens the workspace's Knowledge Base. Mate can consult company knowledge as part of supported work in Customermates Cloud. An external client connects through [MCP and the API](/features/api), reads the workspace context, searches the Knowledge Base and fetches the relevant page or section.
 
 The source should help finish a concrete task. For a handover, read the customer record and the handover procedure, prepare one internal task, assign its owner, link it to the customer and read it back. Creating a task does not send a customer message or establish a new commercial commitment.
-
-<Steps>
-  <Step title="Read the source">Start with the operating guide and the procedure that matches the situation. Follow relevant reference links.</Step>
-  <Step title="Check the current customer">Read the customer's actual record and agreed scope. A generic procedure does not supply missing customer facts.</Step>
-  <Step title="Prepare the bounded next step">Create an internal checklist or draft supported by those sources. Show where each factual statement came from.</Step>
-  <Step title="Read the saved result">Check the task, assigned owner and customer relationship. A successful request alone does not prove the intended state was saved.</Step>
-</Steps>
 
 The [integration overview](/features/integrations) separates external clients, REST, webhooks and other connection options. No local Markdown synchronisation or shared-drive connector is implied by storing company knowledge here.
 

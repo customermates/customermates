@@ -18,6 +18,10 @@
       "schedule": "*/5 * * * *"
     },
     {
+      "path": "/api/cron/free-plan",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/cron/record-deliveries",
       "schedule": "*/5 * * * *"
     }

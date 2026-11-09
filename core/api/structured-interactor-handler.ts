@@ -5,6 +5,7 @@ import { AppErrorCode, appErrorDetails } from "@/core/errors/app-errors";
 import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { prismaClientError } from "@/core/errors/prisma-client-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -102,6 +103,20 @@ export function interactorFailureResponse(error: z.ZodError): NextResponse {
 }
 
 export function handleError(source: unknown): NextResponse {
+  if (source instanceof ApiRateLimitExceededError) {
+    return NextResponse.json(
+      {
+        error: {
+          kind: "rate_limit",
+          issues: [
+            { code: "custom", path: [], message: source.message, customCode: CustomErrorCode.apiRateLimitReached },
+          ],
+        },
+      },
+      { status: 429, headers: { "retry-after": String(source.retryAfterSeconds) } },
+    );
+  }
+
   if (source instanceof WorkspaceChangedError) {
     return failure(
       {

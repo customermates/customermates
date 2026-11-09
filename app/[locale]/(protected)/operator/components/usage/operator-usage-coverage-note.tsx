@@ -14,7 +14,7 @@ export function OperatorUsageCoverageNote({ coverage, kind, monthStart }: Props)
   if (coverage.complete) return null;
 
   return (
-    <div className="flex flex-col gap-1 text-xs text-warning">
+    <div className="flex flex-col gap-1 text-xs text-warning-soft-foreground">
       {coverage.recordedFrom && coverage.recordedFrom > monthStart ? (
         <span>
           {kind === "seats"

@@ -110,6 +110,9 @@ Le serveur envoie ses instructions à votre IA lors de la connexion : le client
 - *« Affichez les dix derniers contacts que j’ai créés. Y en a-t-il sans adresse e-mail ? »*
 - *« Créez un contact pour Jane Doe chez Initech, reliez-le à l’organisation Initech et ouvrez une affaire pour 12 heures de conseil. »*
 - *« Réglez le champ Statut de l’affaire Acme sur Gagnée et ajoutez une note indiquant que le contrat a été signé aujourd’hui. »*
+- *« Quelles conversations clients attendent ma réponse ? Rédigez une réponse à la plus ancienne et enregistrez-la comme brouillon. »*
+
+Le prompt de réponse demande un canal connecté sur Customermates Cloud à partir de Pro ; le brouillon attend dans la conversation que vous le relisiez et l’envoyiez.
 
 Chaque espace de travail définit ses propres types d’enregistrements, comme les contacts, les affaires ou les tâches, et des champs comme l’étape d’une affaire ou la priorité d’une tâche sont aussi configurés par espace de travail. Demandez à votre IA d’appeler `discover_record_types` et `get_record_model` pour voir les champs concernés et les valeurs autorisées avant d’écrire.
 

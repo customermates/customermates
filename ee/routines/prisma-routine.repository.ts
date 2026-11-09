@@ -1,4 +1,5 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import type { PlanRoutinePauseRepo } from "@/ee/subscription/plan-routine-pause.repo";
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { RoutineRunLinkArgs, RoutineRunLinkRepo } from "@/ee/agent-chat/routine-run-link.repo";
 import type { RoutineConversationPurgeRepo } from "./routine-conversation-purge.repo";
@@ -59,6 +60,7 @@ import {
   ROUTINE_DISABLED_REASON_ADMIN_PAUSED,
   ROUTINE_DISABLED_REASON_OWNER_PAUSED,
   ROUTINE_DISABLED_REASON_OWNER_UNAVAILABLE,
+  ROUTINE_DISABLED_REASON_PLAN_PAUSED,
 } from "./routine-disabled-reason";
 import { type RoutineEventAccess } from "./routine-event-access";
 import {
@@ -216,7 +218,8 @@ export class PrismaRoutineRepo
     ReleaseOwnerRoutinesRepo,
     TriggerRoutinesRepo,
     RoutineLabelRepo,
-    RoutineRunLinkRepo
+    RoutineRunLinkRepo,
+    PlanRoutinePauseRepo
 {
   constructor(
     private readonly routineEventAccess: RoutineEventAccess,
@@ -620,6 +623,7 @@ export class PrismaRoutineRepo
               : input.enabled === false
                 ? ROUTINE_DISABLED_REASON_OWNER_PAUSED
                 : existing.disabledReason,
+          ...(input.enabled === undefined ? {} : { pausedByPlanAt: null }),
         },
       });
 
@@ -825,6 +829,7 @@ export class PrismaRoutineRepo
         enabled: false,
         disabledReason: ROUTINE_DISABLED_REASON_ADMIN_PAUSED,
         nextRunAt: null,
+        pausedByPlanAt: null,
       },
     });
     await this.settleQueuedRunsForRoutine(routineId, ROUTINE_DISABLED_REASON_ADMIN_PAUSED, now);
@@ -1661,6 +1666,63 @@ export class PrismaRoutineRepo
     return this.prisma.routine.findMany({
       where: { companyId, id: { in: ids } },
       select: { id: true, name: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async pauseRoutinesForPlanCompanyWide(now: Date): Promise<number> {
+    const companyId = this.companyId;
+    return this.withCompanyTransaction(companyId, async () => {
+      const routines = await this.prisma.routine.findMany({
+        where: { companyId, enabled: true, deletedAt: null },
+        select: { id: true },
+      });
+      if (routines.length === 0) return 0;
+      const ids = routines.map((routine) => routine.id);
+      await this.prisma.routine.updateMany({
+        where: { companyId, id: { in: ids } },
+        data: {
+          enabled: false,
+          nextRunAt: null,
+          disabledReason: ROUTINE_DISABLED_REASON_PLAN_PAUSED,
+          pausedByPlanAt: now,
+        },
+      });
+      for (const id of ids) {
+        await this.settleQueuedRunsForRoutine(id, ROUTINE_DISABLED_REASON_PLAN_PAUSED, now);
+        await this.subscriptions.pause(id);
+      }
+      return ids.length;
+    });
+  }
+
+  @BypassTenantGuard
+  async resumeRoutinesForPlanCompanyWide(now: Date): Promise<number> {
+    const companyId = this.companyId;
+    return this.withCompanyTransaction(companyId, async () => {
+      const routines = await this.prisma.routine.findMany({
+        where: { companyId, pausedByPlanAt: { not: null } },
+        select: { id: true, cronExpression: true, timezone: true, triggerKind: true, deletedAt: true },
+      });
+      for (const routine of routines) {
+        const live = routine.deletedAt === null;
+        await this.prisma.routine.update({
+          where: { id: routine.id, companyId },
+          data: {
+            pausedByPlanAt: null,
+            ...(live
+              ? {
+                  enabled: true,
+                  disabledReason: null,
+                  nextRunAt:
+                    routine.triggerKind === RoutineTriggerKind.schedule ? resolveNextRunAt(routine, now) : null,
+                }
+              : {}),
+          },
+        });
+        if (live) await this.subscriptions.resume(routine.id);
+      }
+      return routines.length;
     });
   }
 }

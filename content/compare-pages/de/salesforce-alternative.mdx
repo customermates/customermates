@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/zoho-vs-salesforce
   - /compare/microsoft-dynamics-alternative
 
+sections:
+  reasons:
+    - title: "Chat-Kanäle ohne Service Cloud"
+      description: "Auf der Preisseite von Salesforce gehört Digital Channels zur Service Cloud. Customermates bringt ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einen Posteingang beim Kunden."
+    - title: "Ein Antwortentwurf, kein Zusatzprodukt"
+      description: "In Customermates Cloud entwirft Mate Antworten, fasst Verläufe zusammen und aktualisiert Kontakte und Deals, mit gehosteten KI-Credits. Oder verbinden Sie Ihr eigenes Claude oder ChatGPT über MCP."
+    - title: "Monatlich kündbar, Open Source"
+      description: "Abgerechnet wird monatlich ohne Jahresbindung, und der AGPL-3.0-Kern läuft mit Docker Compose und PostgreSQL 16 auf Ihrem eigenen Server, inklusive REST-API, Webhooks und MCP."
+  switchSteps: true
+
 hero:
-  title: "Eine Salesforce-Alternative für kleine Teams mit viel Kundenkontakt"
-  description: "Customermates ist ein Open-Source-KI-CRM aus Deutschland für Beratungen, Agenturen und Gründer. Abgerechnet wird monatlich, ab Pro liegen E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihren Deals, und bei der Datenpflege helfen Mate (Customermates Cloud, gehostete KI-Credits) oder Ihr eigener KI-Client."
-  buttonLeftText: Kostenlos starten
+  title: "Salesforce-Alternative für Teams mit viel Kundenkontakt"
+  description: "Salesforce braucht jemanden, der es betreut, und über die Starter Suite hinaus einen Jahresvertrag. Für eine kleine Beratung oder Agentur ist Customermates der leichtere Weg zum Nachfassen: monatlich abgerechnet, Gespräche ab Pro beim Kunden, Antworten von Mate entworfen. Angaben zu Salesforce: Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Nur monatlich
         competitor: Starter Suite monatlich oder jährlich; ab Pro Suite jährlich
       - name: Kostenloser Tarif
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] Person, [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang und Mate"
         competitor: Free Suite, 2 Benutzerlizenzen
       - name: Testphase
         source: "[[commercial.trial.days]] Tage, ohne Kreditkarte"
@@ -67,7 +77,7 @@ comparison:
         source: Mate in Customermates Cloud, nutzt gehostete KI-Credits
         competitor: Agentforce for Sales als Zusatzprodukt ab 125 $ / Nutzer / Monat; in Max enthalten
       - name: APIs und Ereignisse
-        source: "REST-API und [[derived.webhooks.events.total]] Webhook-Ereignisse in jedem Tarif"
+        source: "REST-API und [[derived.webhooks.events.total]] Webhook-Ereignisse in jedem bezahlten Tarif"
         competitor: "Web Services API: in der Pro Suite für 25 $ / Nutzer / Monat zubuchbar, ab Core enthalten"
       - name: App-Marktplatz
         source: Nein; n8n-Community-Node (n8n läuft separat)
@@ -90,7 +100,7 @@ comparison:
 cta:
   action: Mit den eigenen Daten testen?
   description: "Exportieren Sie einige Accounts, Kontakte und Opportunities aus Salesforce, importieren Sie sie in der Testphase und verbinden Sie ein Postfach. Mit Ihren eigenen Daten sehen Sie innerhalb einer Woche, ob Customermates passt."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -159,11 +169,11 @@ So lesen Sie die Tabelle:
 - **Ist E-Mail Ihr einziger Kanal, ist die Starter Suite günstiger als Customermates Pro.** Customermates Starter kostet noch weniger, hat aber keinen Posteingang. Pro mit [[commercial.price.pro.monthly]] pro Platz lohnt sich, wenn Kunden auch über LinkedIn, WhatsApp, Instagram oder Telegram schreiben.
 - **Die Pro Suite enthält Dinge, die Customermates fehlen.** Angebote und Prognosen gehören dazu. Nutzen Sie diese, bezahlen Sie mit den 6.000 € im Jahr genau diese Funktionen.
 - **Mehrere Kanäle pro Person bedeuten Business.** Jeder Pro-Nutzer verbindet [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, jeder Business-Nutzer [[commercial.entitlement.business.includedAccountsPerUser]].
-- **KI wird anders berechnet.** Jeder Tarif von Customermates Cloud enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, siehe [Preisseite](/pricing). Agentforce for Sales kostet für fünf Plätze ab 625 $ im Monat.
+- **KI wird anders berechnet.** Jeder bezahlte Tarif von Customermates Cloud enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, siehe [Preisseite](/pricing). Agentforce for Sales kostet für fünf Plätze ab 625 $ im Monat.
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere beziehungsgetriebene Dienstleister und Gründer. Entwickelt wird es in Deutschland.
+Eine kleine Beratung oder Agentur braucht selten die ganze Salesforce-Plattform, um Kunden nachzufassen. Customermates hält die Aufgabe klein: Ab Pro liegen Gespräche beim Kunden, Antwort und nächster Schritt kommen als Entwurf von Mate oder Ihrem eigenen KI-Agenten, und Sie prüfen, bearbeiten und senden.
 
 **Gespräche neben dem Deal.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer über Gmail, Outlook und IMAP, LinkedIn (auch Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in eine Liste. Sie verknüpfen die Personen einer Unterhaltung mit Kontakten und antworten im ursprünglichen Kanal. Eine Unterhaltung bleibt privat, bis ihr Besitzer sie mit dem CRM teilt; ein ganzes verbundenes Konto zu teilen, setzt Business voraus.
 
@@ -180,7 +190,7 @@ Sie zahlen schon für Claude oder ChatGPT? Dann verbinden Sie diesen Client mit 
 - **Kein Marketing und kein Helpdesk.** Es gibt keine Kampagnen, keine Sequenzen, keine Webformulare und keine Tickets.
 - **Einfache Aufgaben.** Aufgaben haben Zugewiesene, Verknüpfungen, Notizen und eigene Felder, aber kein Fälligkeitsdatum und keine Erinnerung.
 - **Keine native Mobile-App, kein Single Sign-on, keine Rechte auf Feldebene.** Rollen legen pro Liste fest, ob jemand alle Einträge sieht, nur die eigenen oder keine.
-- **Kein kostenloser Tarif, keine Zertifizierung.** Es gibt eine Testphase von [[commercial.trial.days]] Tagen, danach einen bezahlten Tarif.
+- **Ein kleiner kostenloser Tarif, keine Zertifizierung.** Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
 ## Beispiel: Eine Beratung wechselt von der Starter Suite
 
@@ -230,7 +240,7 @@ Von 0 € für zwei Nutzer in der Free Suite bis 550 € pro Nutzer in Max. Die 
 </FaqItem>
 
 <FaqItem question="Gibt es eine kostenlose Alternative zu Salesforce?">
-Für zwei Nutzer ist die Free Suite von Salesforce selbst kostenlos, solange sich jemand alle 60 Tage anmeldet. Das kostenlose CRM von HubSpot deckt ebenfalls zwei Nutzer ab, die Gratis-Edition von Zoho CRM drei. SuiteCRM, Twenty und der AGPL-3.0-Kern von Customermates lassen sich ohne Lizenzgebühr selbst hosten; das selbst gehostete Customermates hat keinen Posteingang und kein Mate. Customermates Cloud bietet eine Testphase von [[commercial.trial.days]] Tagen, aber keinen kostenlosen Tarif.
+Für zwei Nutzer ist die Free Suite von Salesforce selbst kostenlos, solange sich jemand alle 60 Tage anmeldet. Das kostenlose CRM von HubSpot deckt ebenfalls zwei Nutzer ab, die Gratis-Edition von Zoho CRM drei. SuiteCRM, Twenty und der AGPL-3.0-Kern von Customermates lassen sich ohne Lizenzgebühr selbst hosten; das selbst gehostete Customermates hat keinen Posteingang und kein Mate. Customermates Cloud bietet eine Testphase von [[commercial.trial.days]] Tagen und einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen.
 </FaqItem>
 
 <FaqItem question="Welche Open-Source-Alternative zu Salesforce gibt es?">

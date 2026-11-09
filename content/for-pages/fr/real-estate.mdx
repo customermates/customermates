@@ -1,6 +1,6 @@
 ---
-title: "CRM immobilier : acheteurs, vendeurs et recommandations"
-description: "CRM immobilier pour agents et petites agences : profils de recherche, mandats, visites et recommandations, avec e-mail et WhatsApp près de chaque client."
+title: "CRM immobilier : relancer acheteurs et vendeurs"
+description: "Un acheteur « dans six mois » se tait, d’anciens clients s’éloignent. CRM immobilier : e-mail et WhatsApp sur la fiche, Mate rédige la réponse et la suite."
 industryName: "Immobilier"
 
 relatedHrefs:
@@ -10,25 +10,45 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: "Le CRM immobilier des agents qui vivent de la relation"
-  description: "Les acheteurs avec leurs profils de recherche, les vendeurs avec leurs mandats, les anciens clients et les apporteurs d’affaires au même endroit. À partir de Pro, les conversations e-mail et WhatsApp se placent à côté de la fiche client, et dans Customermates Cloud l’assistant Mate peut trouver les acheteurs qui correspondent et préparer des brouillons de relance que vous envoyez vous-même. Les annonces, les portails et les formalités de la transaction restent dans les outils conçus pour cela."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
-  buttonRightText: Voir la démo en direct
+  title: "Des acheteurs « dans six mois », des clients non rappelés depuis un an. Relancez-les tous."
+  description: "Les échanges e-mail et WhatsApp sont sur la fiche client, et Mate ou votre agent IA rédige la réponse et le prochain contact, que vous relisez et envoyez. Boîte de réception dès Pro sur Customermates Cloud ; les portails restent dans leurs outils."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: "Réunissez chaque acheteur, vendeur et recommandation dans un seul pipeline"
-  description: "Importez vos contacts depuis Excel, ajoutez des champs de profil de recherche et enregistrez les vues que vous parcourez chaque matin. Les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
-  buttonRightText: Voir la démo en direct
+  action: "Donnez suite à chaque acheteur, vendeur et recommandation"
+  description: "Connectez votre messagerie ou WhatsApp pendant votre essai Pro de [[commercial.trial.days]] jours, puis importez vos contacts depuis Excel et ajoutez une date de Prochain contact. Les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+useCases:
+  eyebrow: "Comment l’utiliser"
+  title: "Pour les agents immobiliers. Trois besoins, un seul espace."
+  items:
+    - title: "Anciens clients et acheteurs devenus silencieux"
+      description: "Acheteurs, vendeurs, anciens clients et apporteurs ont une date de prochain contact : une vue enregistrée montre qui appeler."
+      href: /features/follow-up
+      linkLabel: "Voir le suivi client"
+      visual: calendar
+    - title: "E-mail et WhatsApp sur la fiche"
+      description: "Dès Pro, demandes et réponses sont sur la fiche client. Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez et envoyez, et les portails restent dans leurs outils."
+      href: /features/whatsapp-integration
+      linkLabel: "Voir WhatsApp dans la boîte"
+      visual: conversation
+    - title: "Acheteurs et vendeurs dans un seul espace"
+      description: "Acheteurs avec profils de recherche et vendeurs avec mandats sont des contacts et des affaires, avec des champs que vous filtrez quand un mandat arrive."
+      href: /features/contact-management
+      linkLabel: "Voir la gestion des contacts"
+      visual: contacts
 ---
 
-Un CRM immobilier garde la trace de qui cherche quoi, de l’étape où en est chaque mandat et de l’ancien client que vous n’avez pas rappelé depuis un an. Customermates fait ce travail pour les agents indépendants, les petites équipes et les agences qui gagnent des affaires par la relation : acheteurs avec leurs critères de recherche, vendeurs avec leurs mandats, apporteurs d’affaires et anciens clients, et, à partir de la formule Pro, les conversations e-mail et WhatsApp qui les entourent. C’est un CRM open source et IA native développé en Allemagne. Ce n’est pas un logiciel immobilier au sens strict : il n’a ni base d’annonces, ni flux MLS ou portail, ni formalités de transaction. La section sur les limites ci-dessous cite des outils qui les ont.
+Le revenu d’un agent dépend d’échanges qui s’éteignent : l’acheteur qui a dit « dans six mois », le vendeur qui voulait réfléchir, le client qui a acheté il y a cinq ans. Customermates range les échanges sur la fiche client quand les coordonnées correspondent ou que vous les liez. Sur Customermates Cloud dès Pro, Mate rédige la réponse et le prochain contact quand vous le demandez ou via une routine, ou votre propre agent IA (Claude, ChatGPT ou tout client qui parle MCP) le fait via MCP. Vous relisez, modifiez et envoyez, et les prochains contacts datés apparaissent sur votre tableau de bord. C’est un CRM open source et IA native développé en Allemagne, mais pas un logiciel immobilier au sens strict : ni base d’annonces, ni flux MLS ou portail, ni formalités de transaction. La section sur les limites cite des outils qui les ont.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Convient à">
@@ -42,9 +62,12 @@ Un CRM immobilier garde la trace de qui cherche quoi, de l’étape où en est c
     tâches, et une vue enregistrée pour chaque contrôle de routine.
   </SummaryItem>
   <SummaryItem label="IA">
-    Dans Customermates Cloud, Mate trouve les acheteurs qui correspondent à un
-    nouveau mandat et enregistre des brouillons de réponse, avec des crédits IA
-    hébergés. Ou connectez votre propre client IA via MCP.
+    Dans Customermates Cloud, Mate rédige la réponse à une conversation de la
+    boîte de réception (dès Pro) et le prochain contact, quand vous le demandez
+    ou via une routine ; une routine peut aussi trouver les acheteurs qui
+    correspondent à un nouveau mandat. Crédits IA hébergés, vous relisez et
+    envoyez. Votre propre agent (Claude, ChatGPT ou tout client qui parle MCP)
+    travaille via MCP sur les mêmes fiches.
   </SummaryItem>
   <SummaryItem label="Non inclus">
     Base d’annonces, synchronisation MLS, IDX ou portails, formulaires web,
@@ -102,7 +125,9 @@ Sur le [board du pipeline](/features/pipeline), chaque affaire est une carte que
 4. **Leads en panne :** affaires aux étapes Lead ou Rendez-vous dont la date de mise à jour est **Plus ancien que…** 14 jours.
 5. **Réseau :** contacts dont le Rôle est Ancien client ou Partenaire, triés par Prochain contact.
 
-Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+Partagez **Leads en panne** avec toute l’équipe ou avec des rôles choisis, pour que chaque agent travaille la même liste.
+
+Sur le tableau de bord, un widget **À venir** sur Prochain contact liste qui est à relancer dans les prochains jours, avec une section **En retard**. Customermates n’envoie aucun rappel : c’est la liste que vous ouvrez chaque matin.
 
 ### Faire correspondre les acheteurs à un nouveau mandat
 
@@ -120,13 +145,13 @@ aucun message.
 
 ### Demandes et conversations dans une seule boîte de réception (Pro et au-dessus)
 
-Dans Customermates Cloud, avec Pro, Business et Enterprise, la [boîte de réception unifiée](/features/unified-inbox) réunit les e-mails Gmail, Outlook ou IMAP avec WhatsApp, LinkedIn, Instagram et Telegram. Vous répondez sur le canal d’origine. Si un portail transfère des demandes vers votre messagerie, elles arrivent ici avec vos autres e-mails. Liez une fois un expéditeur à un contact, et chaque conversation ultérieure avec cette adresse apparaît dans sa chronologie.
+Dans Customermates Cloud dès Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit les e-mails Gmail, Outlook ou IMAP avec WhatsApp, LinkedIn, Instagram et Telegram. Vous répondez sur le canal d’origine. Si un portail transfère des demandes vers votre messagerie, elles arrivent ici avec vos autres e-mails. Liez une fois un expéditeur à un contact, et chaque conversation ultérieure avec cette adresse apparaît dans sa chronologie.
 
 Deux détails déterminent la formule. Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur : un agent qui veut à la fois une messagerie et WhatsApp dans la boîte de réception a donc besoin de Business, qui en inclut [[commercial.entitlement.business.includedAccountsPerUser]]. Et vos conversations restent privées : les collègues, administrateurs compris, ne voient un fil qu’après que vous l’avez partagé. Partager un compte entier, comme une messagerie de demandes du bureau, demande Business. Les SMS et les appels téléphoniques ne sont pas des canaux.
 
 ### Une routine de relance quotidienne avec Mate (Customermates Cloud)
 
-Mate est l’assistant intégré à Customermates Cloud. Il utilise des crédits IA hébergés inclus par utilisateur actif dans chaque formule cloud ; lire les conversations de la boîte de réception demande Pro ou supérieur. Configurez une seconde routine avec **Selon un planning**, **Chaque jour** à 08:00 :
+Mate est l’assistant intégré à Customermates Cloud. Il utilise des crédits IA hébergés inclus par utilisateur actif dans chaque formule cloud payante ; lire les conversations de la boîte de réception demande Pro ou supérieur. Configurez une seconde routine avec **Selon un planning**, **Chaque jour** à 08:00 :
 
 ```text
 Trouvez les conversations de la boîte de réception dont le dernier message vient de
@@ -140,7 +165,7 @@ Terminez par une liste : nom, canal, ce qu’elle a demandé, brouillon enregist
   Demandez à Mate d’enregistrer des brouillons et de lister ses sources. Vérifiez chaque brouillon dans sa conversation avant l’envoi. Une routine s’exécute comme son propriétaire, avec ses droits et ses comptes connectés. Limitez donc ses instructions et ses autorisations à cette préparation. Le [guide des autorisations et approbations des routines](/docs/app-routines) explique les contrôles.
 </AcquisitionCallout>
 
-Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur et Pro en inclut [[commercial.entitlement.pro.includedRoutinesPerUser]]. Si vous préférez votre propre client IA, connectez Claude, ChatGPT ou un autre client via [MCP](/docs/mcp) ; cela fonctionne sur toutes les formules et sur les installations auto-hébergées, l’usage du modèle étant facturé par votre fournisseur d’IA.
+Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur et Pro en inclut [[commercial.entitlement.pro.includedRoutinesPerUser]]. Si vous préférez votre propre agent, connectez Claude, ChatGPT ou tout client qui parle [MCP](/docs/mcp) ; cela fonctionne sur toutes les formules et sur les installations auto-hébergées, sans la boîte de réception, l’usage du modèle étant facturé par votre fournisseur d’IA. Votre client suit les droits du compte auquel il se connecte ; qu’il demande ou non avant d’agir dépend du client.
 
 ### Équipes et agences
 
@@ -172,7 +197,7 @@ Une répartition courante utilise deux systèmes : un logiciel d’annonces ou 
 
 ## Ce que cela coûte
 
-Les prix sont par utilisateur actif et par mois, facturés mensuellement. Chaque formule inclut REST, les webhooks et MCP. Il n’y a pas de frais par lead ni par contact.
+Les prix sont par utilisateur actif et par mois, facturés mensuellement. Toutes les formules payantes incluent REST, les webhooks et MCP. Il n’y a pas de frais par lead ni par contact.
 
 | Équipe | Formule | Par mois |
 |---|---|---|
@@ -182,7 +207,7 @@ Les prix sont par utilisateur actif et par mois, facturés mensuellement. Chaque
 | Trois agents, messagerie plus WhatsApp chacun | Business | [[commercial.price.business.monthly.seats.3]] |
 | Cinq agents, pipeline uniquement | Starter | [[commercial.price.starter.monthly.seats.5]] |
 
-Chaque formule cloud ajoute des crédits IA hébergés mensuels par utilisateur actif pour Mate ; les montants figurent sur la [page des tarifs](/pricing). Faire tourner le cœur open source sur votre propre serveur ne coûte aucun frais de licence, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception, ni Mate, ni routines.
+Chaque formule cloud payante ajoute des crédits IA hébergés mensuels par utilisateur actif pour Mate ; les montants figurent sur la [page des tarifs](/pricing). Faire tourner le cœur open source sur votre propre serveur ne coûte aucun frais de licence, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception, ni Mate, ni routines.
 
 ## Passer d’un tableur ou d’un autre CRM
 
@@ -240,7 +265,7 @@ Seulement pour la relation : conquérir des propriétaires, les demandes de loc
 </FaqItem>
 
 <FaqItem question="Existe-t-il un CRM immobilier gratuit ?">
-Customermates propose un essai gratuit de [[commercial.trial.days]] jours et un cœur open source que vous pouvez auto-héberger sans frais de licence, sans la boîte de réception ni Mate. En Allemagne, FLOWFACT liste FLOWFACT Mini comme un logiciel gratuit pour courtiers indépendants et créateurs, avec une durée de contrat minimale indiquée sur [son site](https://flowfact.de/).
+Customermates Cloud propose une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, un essai Pro de [[commercial.trial.days]] jours et un cœur open source que vous pouvez auto-héberger sans frais de licence, sans la boîte de réception ni Mate. En Allemagne, FLOWFACT liste FLOWFACT Mini comme un logiciel gratuit pour courtiers indépendants et créateurs, avec une durée de contrat minimale indiquée sur [son site](https://flowfact.de/).
 </FaqItem>
 </Faq>
 

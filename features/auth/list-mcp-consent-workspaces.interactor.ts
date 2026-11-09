@@ -8,7 +8,7 @@ import { Status } from "@/generated/prisma";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
+import { isSubscriptionLocked } from "@/ee/subscription/entitlements";
 import { canConnectMcp } from "./mcp-access";
 
 export const MCP_CONSENT_UNAVAILABLE_REASONS = ["pending", "inactive", "permission", "plan", "terms"] as const;
@@ -50,7 +50,7 @@ export class ListMcpConsentWorkspacesInteractor {
     if (workspace.status !== Status.active) return "inactive";
 
     const membership = await this.routeGuardService.resolveMembershipForConsent(workspace.companyId);
-    if (!membership) return workspace.subscription && isSubscriptionExpired(workspace.subscription) ? "plan" : "terms";
+    if (!membership) return workspace.subscription && isSubscriptionLocked(workspace.subscription) ? "plan" : "terms";
 
     return canConnectMcp(membership.role) ? null : "permission";
   }

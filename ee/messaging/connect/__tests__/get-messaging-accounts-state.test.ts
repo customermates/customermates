@@ -92,7 +92,8 @@ describe("messaging accounts state for the Configure graph and the Inbox", () =>
       { plan: "starter", status: "trial", trialEndDate: expired },
       "plan",
     ],
-    ["an ended trial", { plan: "pro", status: "trial", trialEndDate: expired }, "subscription"],
+    ["an ended trial, which moved to Free", { plan: "pro", status: "trial", trialEndDate: expired }, "plan"],
+    ["an unpaid subscription", { plan: "pro", status: "unPaid", trialEndDate: null }, "subscription"],
   ])("is locked by %s without listing accounts", async (_, subscription, reason) => {
     const { interactor, repo } = setup({ subscription });
     expect(await invoke(interactor)).toEqual({ ok: true, data: { state: "locked", reason } });

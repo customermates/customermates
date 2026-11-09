@@ -6,7 +6,7 @@ type AssistantEntryState = {
   agentChatEnabled: boolean;
   restricted: boolean;
   configEnabled: boolean | null;
-  subscription: Pick<SubscriptionDto, "status" | "plan" | "trialEndDate"> | null;
+  subscription: Pick<SubscriptionDto, "status" | "plan" | "trialEndDate" | "onFreePlan"> | null;
 };
 
 export function assistantEntryVisible({
@@ -16,7 +16,7 @@ export function assistantEntryVisible({
   subscription,
 }: AssistantEntryState): boolean {
   if (!agentChatEnabled) return false;
-  if (restricted || configEnabled === true) return true;
+  if (restricted || configEnabled === true || subscription?.onFreePlan) return true;
   if (configEnabled === false) return false;
   return !subscription || (isSubscriptionUsable(subscription) && getEntitlements(subscription.plan).agentChat);
 }

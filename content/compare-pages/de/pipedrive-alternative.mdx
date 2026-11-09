@@ -9,6 +9,16 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/pipeline
 
+sections:
+  reasons:
+    - title: "LinkedIn, WhatsApp und E-Mail in einem Posteingang"
+      description: "Ab Pro bringt der einheitliche Posteingang Ihr Gmail-, Outlook- oder IMAP-Postfach, LinkedIn (inklusive Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal."
+    - title: "Antworten entworfen, Datensätze aktualisiert"
+      description: "In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten, aktualisiert Datensätze und legt gespeicherte Ansichten an, sodass weniger Tipparbeit ins CRM fließt. Ihr eigenes Claude oder ChatGPT arbeitet über MCP."
+    - title: "Keine Datensatzgrenzen in bezahlten Tarifen"
+      description: "Pipedrive begrenzt Leads und Deals pro Platz in jedem Tarif. In den bezahlten Tarifen von Customermates gibt es keine Datensatzgrenze, abgerechnet wird monatlich, und der AGPL-3.0-Kern läuft auf Ihrem eigenen Server."
+  switchSteps: true
+
 hero:
   title: Pipedrive Alternative für Teams, die nicht nur per E-Mail verkaufen
   description: "Pipedrive ist ein ausgereiftes Vertriebs-CRM mit Automationen, E-Mail-Sequenzen und Apps fürs Smartphone. Customermates ist ein Open-Source-CRM aus Deutschland: Ab Pro liegen E-Mail, LinkedIn, WhatsApp, Instagram und Telegram in einem Posteingang neben Ihren Deals, und Mate in Customermates Cloud oder Ihr eigener KI-Client hält die Datensätze aktuell. Angaben zu Pipedrive von pipedrive.com, geprüft am 9. November 2026."
@@ -31,7 +41,7 @@ comparison:
         source: Nur monatliche Zahlung
         competitor: "Lite 14 €, Growth 39 €, Premium 59 €, Ultimate 79 €"
       - name: Gratisplan
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] Person, [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang und Mate"
         competitor: false
       - name: Testphase
         source: "[[commercial.trial.days]] Tage, ohne Kreditkarte"
@@ -42,10 +52,10 @@ comparison:
   - title: Pipeline und Daten
     features:
       - name: Leads und Deals pro Unternehmen
-        source: Keine planabhängige Grenze
+        source: Keine Grenze in bezahlten Tarifen
         competitor: 2.500 bis 20.000 pro Nutzer je nach Plan, höchstens 300.000
       - name: Eigene Felder
-        source: Sechzehn Feldtypen und berechnete Felder, keine planabhängige Grenze
+        source: Sechzehn Feldtypen und berechnete Felder, keine Grenze in bezahlten Tarifen
         competitor: 30 (Lite) bis 500 (Ultimate) pro Unternehmen
       - name: Pipelines
         source: Ein Phasenfeld mit Phasenwahrscheinlichkeiten, als Tabelle oder Board
@@ -101,7 +111,7 @@ comparison:
         competitor: AWS, Region nach Herkunft bei der Anmeldung (EU für EU-Kunden), nicht garantiert
       - name: Auditprotokoll
         source: Jeder Plan
-        competitor: Jeder Plan (Geräteverlauf und Auditprotokoll)
+        competitor: Nur Ultimate (mit Geräteverlauf)
       - name: Single Sign-on
         source: false
         competitor: Jeder Plan
@@ -115,7 +125,7 @@ comparison:
 cta:
   action: Pipedrive und Customermates im Vergleich?
   description: "Starten Sie die Testphase, importieren Sie einen Pipedrive-Export und verbinden Sie Ihr Postfach oder WhatsApp. Nach [[commercial.trial.days]] Tagen wissen Sie, ob Ihre Pipeline und Ihre Gespräche zu Customermates passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -138,11 +148,11 @@ Das hängt davon ab, wofür Sie Pipedrive eingesetzt haben. Die Tabelle ordnet d
 | Sie akquirieren auf LinkedIn und verkaufen über Beziehungen | folk | Der Plan Standard nennt eine LinkedIn-Erweiterung, Sync von E-Mail, Kalender und WhatsApp sowie Kontaktanreicherung |
 | Sie wollen monatlich zahlen, ohne Aufschlag | Customermates | Es gibt nur monatliche Zahlung; bei Pipedrive kostet ein Nutzer bei monatlicher Zahlung mehr als bei jährlicher |
 | Sie brauchen eine Open-Source-Lizenz oder wollen das CRM selbst betreiben | Customermates oder Twenty | Beide laufen auf eigenen Servern (Customermates ohne Posteingang und Mate); Pipedrive gibt es nur als gehosteten Dienst |
-| Ein bis drei Personen, kein Budget | Der Gratisplan von HubSpot oder die kostenlose Edition von Zoho CRM | Kostenlos für bis zu zwei und bis zu drei Nutzer; weder Pipedrive noch Customermates hat einen Gratisplan |
+| Ein bis drei Personen, kein Budget | Der Gratisplan von HubSpot oder die kostenlose Edition von Zoho CRM | Kostenlos für bis zu zwei und bis zu drei Nutzer; Pipedrive hat keinen Gratisplan, Customermates Cloud ist für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze kostenlos |
 
 ## Für wen ist Pipedrive die bessere Wahl?
 
-Pipedrive ist um die visuelle Pipeline und die nächste geplante Aktivität herum gebaut. Schon Lite enthält anpassbare Pipelines, Aktivitäts- und Kalenderverwaltung mit Benachrichtigungen, einen Lead-Posteingang, über 500 Integrationen im Marketplace, KI-gestützte Berichtserstellung und einen offiziellen MCP-Server für ChatGPT, Claude und andere KI-Assistenten. Native Apps für iOS und Android, Single Sign-on, Geräteverlauf und Auditprotokoll sowie Zwei-Faktor-Authentifizierung gehören zu allen vier Plänen. Pipedrive Nova, das Meeting-Tool mit KI, zeichnet in jedem Plan Anrufe auf und liefert Zusammenfassungen und Transkripte, ohne Aufpreis.
+Pipedrive ist um die visuelle Pipeline und die nächste geplante Aktivität herum gebaut. Schon Lite enthält anpassbare Pipelines, Aktivitäts- und Kalenderverwaltung mit Benachrichtigungen, einen Lead-Posteingang, über 500 Integrationen im Marketplace, KI-gestützte Berichtserstellung und einen offiziellen MCP-Server für ChatGPT, Claude und andere KI-Assistenten. Native Apps für iOS und Android, SAML-Single-Sign-on und Zwei-Faktor-Authentifizierung gehören zu allen vier Plänen; Geräteverlauf und Auditprotokoll gibt es nur in Ultimate. Pipedrive Nova, das Meeting-Tool mit KI, zeichnet in jedem Plan Anrufe auf und liefert Zusammenfassungen und Transkripte, ohne Aufpreis.
 
 Growth bringt, wofür die meisten Teams Pipedrive kaufen: Zwei-Wege-E-Mail-Synchronisierung mit Öffnungs- und Klick-Tracking, Automationen mit Wenn-dann-Schritten, E-Mail-Sequenzen, einen Meetingplaner, Prognoseberichte und die WhatsApp-Integration, die Pipedrive noch als Beta führt. Premium ergänzt LeadBooster für das Erfassen und Weiterleiten von Leads, eigenes Scoring, die Anreicherung von Unternehmensdaten, KI zum Schreiben und Zusammenfassen von E-Mails, einen Team-Posteingang sowie Verträge mit eSignatur. Ultimate fügt Sicherheitswarnungen und -regeln, einen Sandbox-Account, die Anreicherung von Kontaktdaten und erweiterte Telefon-Supportzeiten hinzu.
 
@@ -184,13 +194,13 @@ Alle Pläne, Add-ons, Zusatzkontingente und Abrechnungsregeln von Pipedrive mit 
 
 ## Gibt es eine kostenlose oder Open-Source-Alternative zu Pipedrive?
 
-Weder Pipedrive noch Customermates hat einen Gratisplan: Pipedrive bietet eine 14-tägige Testphase ohne Kreditkarte, Customermates eine Testphase von [[commercial.trial.days]] Tagen. Kostenlose Pläne gibt es anderswo. Der Gratisplan von HubSpot gilt für bis zu zwei Nutzer ohne Kreditkarte, die kostenlose Edition von Zoho CRM für bis zu drei Nutzer.
+Pipedrive hat keinen Gratisplan und bietet eine 14-tägige Testphase ohne Kreditkarte. Customermates Cloud hat einen Gratisplan für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, dazu eine Pro-Testphase von [[commercial.trial.days]] Tagen. Größere Gratispläne gibt es anderswo: Der Gratisplan von HubSpot gilt für bis zu zwei Nutzer ohne Kreditkarte, die kostenlose Edition von Zoho CRM für bis zu drei Nutzer.
 
 Wollen Sie eine Lizenz, die Sie selbst betreiben, sind zwei Open-Source-CRMs einen Blick wert. Twenty nennt Self-Hosting seines Open-Source-Kerns kostenlos, und der AGPL-3.0-Kern von Customermates läuft mit Docker Compose auf Ihrem eigenen Server. Eine selbst gehostete Customermates-Installation hat keinen Posteingang, kein Mate und keine gehosteten Credits. Wo Gratispläne enden, zeigt der Ratgeber zum [kostenlosen CRM](/blog/free-crm), und der Vergleich [Open Source CRM](/blog/open-source-crm) stellt selbst gehostete Systeme nebeneinander.
 
 ## Wo Customermates passt (unser Produkt)
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Entwickelt wird es in Deutschland.
+Pipedrive plant Ihren Tag um geplante Aktivitäten herum. Customermates geht von der letzten Nachricht des Kunden aus: Ab Pro liegen Gespräche aus jedem Kanal beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt, die Sie prüfen, bearbeiten und senden.
 
 **Ein Posteingang für alle Kanäle.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und IMAP, LinkedIn (auch Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. WhatsApp verbinden Sie, indem Sie mit Ihrem eigenen Konto einen QR-Code scannen. Verknüpfen Sie einen Teilnehmer einmal mit einem Kontakt, erscheint jede Konversation mit dieser Adresse oder Kennung auf der Timeline des Kontakts. Starter hat keinen Posteingang.
 
@@ -261,7 +271,7 @@ Bei jährlicher Zahlung kostet ein Nutzer pro Monat in Lite 14 €, in Growth 39
 </FaqItem>
 
 <FaqItem question="Gibt es Pipedrive kostenlos?">
-Nein. Pipedrive hat keinen Gratisplan, sondern eine 14-tägige Testphase ohne Kreditkarte. Auch Customermates hat keinen Gratisplan; die Testphase dauert [[commercial.trial.days]] Tage. Kostenlos sind der Gratisplan von HubSpot für bis zu zwei Nutzer und die kostenlose Edition von Zoho CRM für bis zu drei.
+Nein. Pipedrive hat keinen Gratisplan, sondern eine 14-tägige Testphase ohne Kreditkarte. Customermates Cloud hat einen Gratisplan für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, dazu eine Testphase von [[commercial.trial.days]] Tagen. Für mehr als eine Person sind der Gratisplan von HubSpot (bis zu zwei Nutzer) und die kostenlose Edition von Zoho CRM (bis zu drei) kostenlos.
 </FaqItem>
 
 <FaqItem question="Ist Pipedrive seriös?">

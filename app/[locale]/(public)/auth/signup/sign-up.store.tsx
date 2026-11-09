@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { EmailSignUpData } from "@/features/auth/sign-up-with-email.interactor";
+import type { SignupJourneyInput } from "@/features/acquisition/signup-source";
 
 import { action, makeObservable, observable, toJS } from "mobx";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -13,17 +14,28 @@ import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-u
 
 export class SignUpStore extends BaseFormStore<EmailSignUpData> {
   showPassword = false;
+  signupJourney: SignupJourneyInput | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, { email: "", confirmEmail: "", password: "", confirmPassword: "", onboardingIntent: undefined });
 
     makeObservable(this, {
       showPassword: observable,
+      signupJourney: observable.ref,
 
       onSubmit: action,
       continueWithProvider: action,
       toggleShowPassword: action,
+      setSignupJourney: action,
     });
+  }
+
+  setSignupJourney = (journey: SignupJourneyInput | null) => {
+    this.signupJourney = journey;
+  };
+
+  private get journeyForAction(): SignupJourneyInput | undefined {
+    return this.form.onboardingIntent || !this.signupJourney ? undefined : toJS(this.signupJourney);
   }
 
   toggleShowPassword = () => {
@@ -35,7 +47,10 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
     this.setIsLoading(true);
 
     try {
-      const res = await signUpWithEmailAction(toJS(this.form));
+      const journey = this.journeyForAction;
+      const res = journey
+        ? await signUpWithEmailAction(toJS(this.form), journey)
+        : await signUpWithEmailAction(toJS(this.form));
 
       if (!res.ok) this.setError(res.error);
     } finally {
@@ -57,7 +72,10 @@ export class SignUpStore extends BaseFormStore<EmailSignUpData> {
       const errorCallbackURL = this.form.onboardingIntent
         ? pathWithOnboardingIntent("/auth/signup", this.form.onboardingIntent)
         : "/auth/signup";
-      const res = await action(callbackURL, errorCallbackURL);
+      const journey = this.journeyForAction;
+      const res = journey
+        ? await action(callbackURL, errorCallbackURL, journey)
+        : await action(callbackURL, errorCallbackURL);
 
       if (!res.ok) toastZodErrorTree(res.error);
     } catch (error) {

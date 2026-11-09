@@ -4,7 +4,7 @@ description: "Ce qu’est un serveur MCP et ce qu’il apporte à Claude, ChatGP
 
 hero:
   title: "Qu’est-ce qu’un serveur MCP ? Explication claire et exemple réel"
-  description: "Un serveur MCP est la brique qui permet à un client d’IA comme Claude, ChatGPT ou Cursor de lire et de modifier les données d’un autre système. Ce guide explique ce qu’un serveur expose, où il s’exécute, ce qui le distingue d’une API, quels clients l’utilisent, les risques de sécurité avec une check-list, et un vrai serveur MCP pour données métier de bout en bout."
+  description: "Un serveur MCP permet à un client IA comme Claude, ChatGPT ou Cursor de lire et modifier les données d’un autre système. Ce qu’il expose, où il s’exécute, sa différence avec une API, les risques."
 
 blogPost:
   author: Benjamin Wagner
@@ -146,6 +146,8 @@ La plupart des explications s’arrêtent à un outil météo. Voici à quoi res
 **Les garde-fous, et ce qu’ils ne sont pas.** Le catalogue indique quels outils sont en lecture seule et lesquels peuvent supprimer des données. Une suppression place les fiches dans la corbeille pendant 30 jours, et `preview_crm_deletion` en montre l’effet au préalable. Le texte rédigé par des personnes, comme les notes et les e-mails, revient entre des marqueurs de contenu non fiable, pour que le modèle le traite comme une donnée et non comme une instruction. Le serveur demande aussi aux clients de confirmer avec l’utilisateur avant de supprimer ou d’envoyer. Ce dernier point est une consigne adressée au client, pas un verrou dans le serveur : dès qu’un client autorisé appelle un outil, celui-ci s’exécute. Réglez les validations de votre client en conséquence.
 
 **Qui paie l’IA.** Un client externe comme Claude ou ChatGPT utilise votre propre abonnement d’IA. Le CRM ne fait pas tourner le modèle.
+
+**À quoi il sert.** Pour une équipe au contact des clients, l’usage utile est la relance : avec LinkedIn et l’e-mail connectés dans Customermates Cloud à partir de Pro, votre propre Claude ou ChatGPT lit l’échange sur la fiche du client et rédige la réponse et la prochaine étape, que vous relisez et envoyez. Pour l’essayer, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 Customermates n’est pas le bon choix si vous voulez seulement relier une IA au CRM que vous utilisez déjà ; prenez alors le serveur de ce CRM. Il convient si vous choisissez un CRM et voulez le serveur MCP, les données et le [code open source](/features/open-source-crm) dans un même produit.
 

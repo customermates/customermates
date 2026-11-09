@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Lead Qualification: How to Decide Which Leads Get Your Time"
-  description: "The four criteria every framework checks, when to use BANT, CHAMP, MEDDIC or SPICED, questions with warning signs, a written handoff between marketing and sales, and a CRM setup that records the answers the same way every time."
+  description: "The four criteria every framework checks, when to use BANT, CHAMP, MEDDIC or SPICED, questions with warning signs, a written marketing-to-sales handoff and a CRM setup that records answers the same way."
 
 blogPost:
   author: Benjamin Wagner
@@ -152,13 +152,13 @@ Let the model fill the fields and let a person decide. Never let it reject a lea
 
 ## Setting up lead qualification in Customermates
 
-Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. Contacts come with a Sales Pipeline field (New, Contact, Qualified, In Progress, Won, Lost) for a quick status before a deal exists. If your team says "opportunities", rename Deals in **Configure**: open the list and change **Name** and **Plural name** under **General**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
+Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the people, organizations and deals lists and a pipeline, and you change any of it in **Configure**. For a quick status before a deal exists, add a single choice field to the contacts list. If your team says "opportunities", rename Deals in **Configure**: open the list and change **Name** and **Plural name** under **General**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
 
 Create the fields in **Configure** for Deals with **Add** › **Field**:
 
 | Field | Type | Options |
 | --- | --- | --- |
-| Stage | Single choice, present in every new workspace | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%; add Parked at 0% |
+| Stage | Single choice, created by AI setup or by you | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%; add Parked at 0% |
 | Need | Single choice | Confirmed, Vague, None, Unknown |
 | Decision maker | Single choice | Talking to the decider, Can reach the decider, No access, Unknown |
 | Budget | Single choice | In our range, Below our range, Unknown |
@@ -168,7 +168,7 @@ Create the fields in **Configure** for Deals with **Add** › **Field**:
 
 Add a Source field (Single choice: Referral, Website, LinkedIn, Event, Outbound) on contacts, so the monthly review can count by source. The percentages are stage probabilities, set as **Probability %** on each option of the **Stage** field in Configure for Deals. They drive the weighted [pipeline](/features/pipeline) value, and Parked at 0% keeps parked deals out of that total.
 
-Then save three views on the Deals list. A saved view stays private until you share it, so each person can save their own or you share one with the team:
+Then save three views on the Deals list. Share them with the team or with selected roles:
 
 - **To qualify:** Stage is Prospecting or Qualification, sorted by created date, oldest first.
 - **Missing answers:** the same filter as a board grouped by Decision maker, so the Unknown column shows where calls are needed.
@@ -199,7 +199,9 @@ What it costs, billed monthly:
 | 2 people, fields, stages, views and Mate, no inbox | Starter, [[commercial.price.starter.monthly]] per user | [[commercial.price.starter.monthly.seats.2]] |
 | 3 people, with Mate and the inbox | Pro, [[commercial.price.pro.monthly]] per user | [[commercial.price.pro.monthly.seats.3]] |
 
-Each hosted plan includes monthly hosted AI credits per active user, see [pricing](/pricing). The trial runs [[commercial.trial.days]] days.
+Each paid plan includes monthly hosted AI credits per active user, see [pricing](/pricing). Your first workspace starts with Pro free for [[commercial.trial.days]] days, with no credit card.
+
+Qualification ends in a next step. With the inbox on Pro, the threads that show Need, Decision maker, Budget and Timing sit on the deal's contact, Mate fills the fields and drafts the reply, and you decide. To run it on your next inquiries, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup).
 
 ## Measuring whether qualification works
 

@@ -25,6 +25,7 @@ export type NavItem = {
   icon: React.FC<SVGProps<SVGSVGElement>>;
   visible: boolean;
   badge?: number;
+  planTag?: { plan: string; label: string };
   items?: NavItem[];
 };
 
@@ -54,8 +55,23 @@ export function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
 
   return (
-    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums group-data-[collapsible=icon]:hidden">
+    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning-soft-foreground tabular-nums group-data-[collapsible=icon]:hidden">
       {count}
+    </span>
+  );
+}
+
+export function NavPlanTag({ tag }: { tag?: NavItem["planTag"] }) {
+  if (!tag) return null;
+
+  return (
+    <span
+      aria-label={tag.label}
+      className="ml-auto inline-flex h-5 shrink-0 items-center rounded-md border border-border px-1.5 text-[11px] font-medium text-muted-foreground group-data-[collapsible=icon]:hidden"
+      data-nav-plan-tag={tag.plan}
+      role="note"
+    >
+      {tag.plan}
     </span>
   );
 }

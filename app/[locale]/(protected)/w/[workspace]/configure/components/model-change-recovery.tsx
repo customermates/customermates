@@ -20,7 +20,7 @@ export const ModelChangeRecovery = observer(function ModelChangeRecovery({ store
   const t = useTranslations();
   if (!store.refreshRequired && !store.refreshFailed && !store.targetMissing && !store.conflicts.length) return null;
   return (
-    <Alert color="warning" role="status">
+    <Alert role="status" variant="warning">
       <div className="space-y-2">
         {store.targetMissing ? <p>{t("RecordModel.staleTargetMissing")}</p> : null}
 

@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/pipedrive-alternative
   - /compare/salesmate-alternative
 
+sections:
+  reasons:
+    - title: "Les conversations là où écrivent vos clients"
+      description: "Dès Pro, LinkedIn (Sales Navigator et Recruiter compris), WhatsApp, Instagram, Telegram et votre boîte Gmail, Outlook ou IMAP sont dans une seule boîte de réception, et vous répondez sur le canal d’origine."
+    - title: "Mate rédige, vous envoyez"
+      description: "Dans Customermates Cloud, Mate résume les conversations, rédige des réponses et met à jour les fiches, avec des crédits IA hébergés. Demandez un brouillon quand vous voulez le relire avant l’envoi."
+    - title: "Open source, avec la base du cloud à Francfort"
+      description: "Le cœur est sous AGPL-3.0 et tourne sur votre propre serveur avec Docker Compose et PostgreSQL 16, REST, webhooks et MCP compris. La page de tarifs de Freshsales ne liste aucune édition auto-hébergée."
+  switchSteps: true
+
 hero:
-  title: "Alternative à Freshsales : Customermates et Freshsales comparés"
-  description: "Freshsales est le CRM commercial de Freshworks, avec téléphone intégré, séquences de vente, l’IA Freddy et une formule gratuite jusqu’à trois utilisateurs. Customermates est un CRM open source conçu en Allemagne qui place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires dès Pro, et laisse Mate ou votre propre client IA faire le travail du CRM. Les informations sur Freshsales proviennent de freshworks.com, vérifiées le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à Freshsales : Customermates comparé"
+  description: "Freshsales s’articule autour du téléphone, de l’e-mail et du chat de site web. Si vos clients écrivent plus sur LinkedIn ou Telegram qu’ils n’appellent, Customermates range ces fils sur la fiche client dès Pro et Mate rédige la réponse. Informations sur Freshsales vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Facturation mensuelle uniquement
         competitor: "Growth 9 $, Pro 39 $, Enterprise 59 $"
       - name: Formule gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: Jusqu’à 3 utilisateurs
       - name: Essai gratuit
         source: "[[commercial.trial.days]] jours, sans carte bancaire"
@@ -88,7 +98,7 @@ comparison:
         source: Les routines exécutent des consignes IA enregistrées selon un planning ou un évènement d’enregistrement (Customermates Cloud)
         competitor: "Workflows : 20 avec Growth, 50 de base et 50 avancés avec Pro, 100 de chaque avec Enterprise"
       - name: API REST
-        source: Toutes les formules et l’auto-hébergement, plus des webhooks
+        source: Toutes les formules et l’auto-hébergement ; webhooks sur les formules payantes
         competitor: À partir de Growth ; pas avec Free
   - title: Licence, hébergement et accès
     features:
@@ -114,7 +124,7 @@ comparison:
 cta:
   action: Vous comparez Freshsales et Customermates ?
   description: "Démarrez un essai, connectez la messagerie ou le compte LinkedIn sur lequel écrivent vos clients, et importez un export Freshsales. Vous verrez vite si vos propres données et conversations conviennent au modèle de Customermates."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -175,15 +185,15 @@ Les lignes n’achètent pas les mêmes choses, lisez-les donc par paires :
 - **Plusieurs canaux par personne, c’est Business.** Si chacun a besoin de l’e-mail et de LinkedIn côte à côte, l’espace de travail demande Business, avec [[commercial.entitlement.business.includedAccountsPerUser]] comptes par utilisateur et des comptes partagés.
 - **À trois personnes ou moins, Freshsales Free ne coûte rien.** Aucune formule Customermates ne fait mieux.
 
-Chaque formule Customermates Cloud inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate, indiqués sur la [page des tarifs](/pricing). Il n’y a ni recharges ni frais de dépassement automatiques.
+Chaque formule payante Customermates Cloud inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate, indiqués sur la [page des tarifs](/pricing). Il n’y a ni recharges ni frais de dépassement automatiques.
 
 ## La place de Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes en contact avec leurs clients : consultants, agences, autres entreprises de services et fondateurs. Il est conçu en Allemagne.
+Freshsales part de l’appel. Customermates part du dernier message du client : dès Pro, les fils LinkedIn, e-mail, WhatsApp, Instagram et Telegram sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape. Vous relisez, modifiez et envoyez.
 
 **Les conversations à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit dans une seule liste les messageries Gmail, Outlook et IMAP, LinkedIn (y compris Sales Navigator et Recruiter), WhatsApp, Instagram et Telegram, et vous répondez sur le canal d’origine. Reliez une fois un participant à un contact, et chaque conversation avec cette adresse ou ce pseudo apparaît dans la chronologie du contact.
 
-**Une IA qui assure l’entretien du CRM.** Dans Customermates Cloud, Mate résume les conversations, rédige des réponses, met à jour les enregistrements et construit des vues enregistrées, avec des crédits IA hébergés. Il demande une nouvelle approbation avant chaque suppression, mais envoie un message sans approbation quand vous lui demandez d’envoyer : demandez donc un brouillon quand vous voulez le lire d’abord. Les [routines](/docs/app-routines) exécutent une consigne enregistrée selon un planning ou quand un enregistrement change. Vous préférez Claude, ChatGPT ou un autre client que vous payez déjà ? Connectez-le au [serveur MCP](/docs/mcp), avec [[derived.mcp.tools.total]] outils dans toutes les formules et sur les installations auto-hébergées.
+**Une IA qui assure l’entretien du CRM.** Dans Customermates Cloud, Mate résume les conversations, rédige des réponses, met à jour les enregistrements et construit des vues enregistrées, avec des crédits IA hébergés. Il demande une nouvelle approbation avant chaque suppression, mais envoie un message sans approbation quand vous lui demandez d’envoyer : demandez donc un brouillon quand vous voulez le lire d’abord. Les [routines](/docs/app-routines) exécutent une consigne enregistrée selon un planning ou quand un enregistrement change. Vous préférez Claude, ChatGPT ou un autre client que vous payez déjà ? Connectez-le au [serveur MCP](/docs/mcp), avec [[derived.mcp.tools.total]] outils dans toutes les formules payantes et sur les installations auto-hébergées.
 
 **Open source, un cloud configuré dans la région AWS de Francfort, ou votre propre serveur.** Le cœur est sous AGPL-3.0 et tourne avec Docker Compose et PostgreSQL 16, REST, webhooks et MCP compris. Une [installation auto-hébergée](/features/self-hosted) n’a pas d’abonnement, et pas non plus de boîte de réception, de Mate ni de crédits hébergés. Dans Customermates Cloud, la base de données est configurée dans la région AWS de Francfort, un [accord de traitement des données (DPA)](/dpa) est disponible et les [sous-traitants](/subprocessors), dont des fournisseurs américains, sont listés. Customermates ne détient aucune certification de conformité. Le journal d’audit enregistre les modifications des enregistrements et des paramètres de l’espace de travail dans toutes les formules.
 
@@ -196,7 +206,7 @@ Vérifiez ces points avant de démarrer un essai :
 - **Pas de widget de chat ni de formulaires web.** Les leads de votre site web arrivent dans Customermates par l’API REST ou par un workflow dans une instance n8n que vous exploitez vous-même.
 - **Pas de scoring, d’enrichissement ni de prévision par IA.** Le pipeline pondéré multiplie la valeur de chaque affaire par la probabilité de son étape. C’est un calcul sur vos propres chiffres, qui ne prédit rien.
 - **Pas d’autorisations au niveau des champs.** Les autorisations s’appliquent par liste et par action.
-- **Pas d’applications mobiles natives ni de formule gratuite.** Customermates fonctionne dans le navigateur du téléphone, et après un essai de [[commercial.trial.days]] jours, vous choisissez une formule payante.
+- **Pas d’applications mobiles natives, une petite formule gratuite.** Customermates fonctionne dans le navigateur du téléphone. Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Une configuration concrète : un cabinet de conseil qui quitte Freshsales Growth
 
@@ -251,11 +261,11 @@ Cela dépend de la raison de votre départ. Si vous voulez des cadences de relan
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative gratuite à Freshsales ?">
-Oui, avec des limites. Zoho CRM est gratuit jusqu’à trois utilisateurs, les outils gratuits de HubSpot jusqu’à deux, et l’offre Starter de CentralStationCRM pour trois utilisateurs et 200 contacts. Customermates Cloud n’a pas de formule gratuite. Une installation Customermates auto-hébergée n’a pas d’abonnement : vous ne payez que votre propre serveur et vos fournisseurs, mais elle n’a ni boîte de réception ni Mate.
+Oui, avec des limites. Zoho CRM est gratuit jusqu’à trois utilisateurs, les outils gratuits de HubSpot jusqu’à deux, et l’offre Starter de CentralStationCRM pour trois utilisateurs et 200 contacts. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Une installation Customermates auto-hébergée n’a pas d’abonnement : vous ne payez que votre propre serveur et vos fournisseurs, mais elle n’a ni boîte de réception ni Mate.
 </FaqItem>
 
 <FaqItem question="Freshsales a-t-il une API ?">
-Oui, à partir de la formule Growth ; la formule Free n’a pas d’accès à l’API. Customermates inclut l’API REST, les webhooks et le serveur MCP dans toutes les formules et sur les installations auto-hébergées.
+Oui, à partir de la formule Growth ; la formule Free n’a pas d’accès à l’API. Customermates inclut l’API REST, les webhooks et le serveur MCP dans toutes les formules payantes et sur les installations auto-hébergées.
 </FaqItem>
 
 <FaqItem question="Où Freshsales stocke-t-il les données, et est-il conforme au RGPD ?">

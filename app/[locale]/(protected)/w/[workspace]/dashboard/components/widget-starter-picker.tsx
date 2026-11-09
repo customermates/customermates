@@ -39,7 +39,7 @@ export function ActivityTimelineIllustration({ className }: { className?: string
     <div aria-hidden className={cn("flex flex-col justify-center gap-2", className)}>
       {["w-4/5", "w-3/5", "w-2/3"].map((width, index) => (
         <div key={width} className="flex items-center gap-2">
-          <span className={cn("size-2.5 shrink-0 rounded-full bg-primary", index > 0 && "bg-primary/55")} />
+          <span className={cn("size-2.5 shrink-0 rounded-full bg-chart-1", index > 0 && "bg-chart-1/55")} />
 
           <span className="flex flex-1 flex-col gap-1">
             <span className={cn("h-1.5 rounded-full bg-border-strong", width)} />
@@ -74,7 +74,7 @@ export function CalendarUpcomingIllustration({ className }: { className?: string
             <span className={cn("h-1 w-1/3 rounded-full bg-border", index === 0 && "bg-destructive/50")} />
           </span>
 
-          {index > 0 && <span className="h-1.5 w-3 shrink-0 rounded-full bg-primary/55" />}
+          {index > 0 && <span className="h-1.5 w-3 shrink-0 rounded-full bg-chart-1/55" />}
         </div>
       ))}
     </div>
@@ -115,8 +115,8 @@ export function MapIllustration({ className }: { className?: string }) {
           />
         ))}
 
-        <span className="absolute left-[74%] top-[18%] flex size-4 items-center justify-center rounded-full bg-primary ring-2 ring-card">
-          <span className="size-1 rounded-full bg-primary-foreground" />
+        <span className="absolute left-[74%] top-[18%] flex size-4 items-center justify-center rounded-full bg-chart-1 ring-2 ring-card">
+          <span className="size-1 rounded-full bg-card" />
         </span>
       </div>
     </div>

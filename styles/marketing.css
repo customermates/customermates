@@ -1,0 +1,852 @@
+/* Customermates marketing design system.
+   Baseline: Attio (type, buttons, product framing), Linear (density, motion restraint, editorial headers)
+   and Apple (scale, whitespace, frosted chrome, scroll-driven reveals). The full guide lives at /styleguide.
+   One rule above all: ink on paper. No accent tint anywhere; an agent moment is marked by the Mate mark or a
+   sparkle in ink with a label, never by a colour. Signal colours carry state only. */
+
+:root,
+.light {
+  --mk-ink: var(--foreground);
+  --mk-paper: var(--background);
+  --mk-surface: var(--card);
+  --mk-muted: var(--muted-foreground);
+  --mk-agent: var(--foreground);
+
+  --mk-hairline: color-mix(in oklab, var(--foreground) 8%, transparent);
+  --mk-hairline-strong: color-mix(in oklab, var(--foreground) 16%, transparent);
+  --mk-wash: color-mix(in oklab, var(--foreground) 3.5%, transparent);
+  --mk-glow-warm: oklch(0.86 0.1 55 / 0.38);
+  --mk-glow-cool: oklch(0.84 0.09 245 / 0.38);
+  --mk-glow-mint: oklch(0.9 0.07 165 / 0.25);
+
+  --mk-radius-xs: 0.375rem;
+  --mk-radius-sm: 0.625rem;
+  --mk-radius-md: 0.875rem;
+  --mk-radius-lg: 1.25rem;
+  --mk-radius-xl: 1.75rem;
+  --mk-radius-pill: 999px;
+
+  --mk-shadow-ring: 0 0 0 1px var(--mk-hairline);
+  --mk-shadow-sm: 0 0 0 1px var(--mk-hairline), 0 1px 2px rgb(0 0 0 / 0.04);
+  --mk-shadow-md: 0 0 0 1px var(--mk-hairline), 0 14px 34px -20px rgb(0 0 0 / 0.32);
+  --mk-shadow-lg: 0 0 0 1px var(--mk-hairline), 0 34px 80px -40px rgb(0 0 0 / 0.45);
+  --mk-shadow-hover: 0 0 0 1px var(--mk-hairline-strong), 0 22px 48px -28px rgb(0 0 0 / 0.4);
+
+  --mk-ease: cubic-bezier(0.2, 0, 0, 1);
+  --mk-ease-emphasized: cubic-bezier(0.22, 1, 0.36, 1);
+  --mk-duration-fast: 150ms;
+  --mk-duration: 240ms;
+  --mk-duration-slow: 600ms;
+
+  --mk-section-space: clamp(5rem, 3.6rem + 5.6vw, 8.5rem);
+  --mk-header-gap: clamp(2.5rem, 2rem + 2vw, 4rem);
+  --mk-measure: 40rem;
+}
+
+.dark {
+  --mk-hairline: color-mix(in oklab, var(--foreground) 10%, transparent);
+  --mk-hairline-strong: color-mix(in oklab, var(--foreground) 20%, transparent);
+  --mk-wash: color-mix(in oklab, var(--foreground) 4%, transparent);
+  --mk-glow-warm: oklch(0.55 0.12 50 / 0.28);
+  --mk-glow-cool: oklch(0.5 0.12 250 / 0.32);
+  --mk-glow-mint: oklch(0.55 0.08 165 / 0.15);
+  --mk-shadow-sm: 0 0 0 1px var(--mk-hairline), 0 1px 2px rgb(0 0 0 / 0.3);
+  --mk-shadow-md: 0 0 0 1px var(--mk-hairline), 0 14px 34px -20px rgb(0 0 0 / 0.7);
+  --mk-shadow-lg: 0 0 0 1px var(--mk-hairline), 0 34px 80px -40px rgb(0 0 0 / 0.8);
+  --mk-shadow-hover: 0 0 0 1px var(--mk-hairline-strong), 0 22px 48px -28px rgb(0 0 0 / 0.75);
+}
+
+/* Type. Two weights (400 body, 600 display), negative tracking that grows with size, grey for the second clause. */
+
+.mk-hero {
+  font-size: clamp(2.5rem, 1.55rem + 3.8vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.042em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: var(--mk-ink);
+}
+
+.mk-display {
+  font-size: clamp(2rem, 1.55rem + 1.8vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.034em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: var(--mk-ink);
+}
+
+.mk-title {
+  font-size: clamp(1.1875rem, 1.1rem + 0.35vw, 1.375rem);
+  line-height: 1.25;
+  letter-spacing: -0.018em;
+  font-weight: 600;
+  color: var(--mk-ink);
+}
+
+.mk-lede {
+  max-width: var(--mk-measure);
+  font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  line-height: 1.6;
+  letter-spacing: -0.008em;
+  color: var(--mk-muted);
+  text-wrap: pretty;
+}
+
+.mk-body {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--mk-muted);
+}
+
+.mk-eyebrow {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  font-weight: 500;
+  color: var(--mk-muted);
+}
+
+.mk-caption {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: var(--mk-muted);
+}
+
+.mk-quiet {
+  color: var(--mk-muted);
+}
+
+/* Buttons. Ink is the only filled colour; Apple-size touch targets on phones. */
+
+.mk-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1.125rem;
+  border-radius: var(--mk-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color var(--mk-duration) var(--mk-ease),
+    box-shadow var(--mk-duration) var(--mk-ease),
+    color var(--mk-duration) var(--mk-ease),
+    transform var(--mk-duration-fast) var(--mk-ease);
+}
+
+.mk-button:active {
+  transform: scale(0.98);
+}
+
+.mk-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.mk-button svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--mk-duration) var(--mk-ease);
+}
+
+.mk-button:hover svg[data-mk-arrow] {
+  transform: translateX(2px);
+}
+
+.mk-button-sm {
+  height: 2.125rem;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.mk-button-lg {
+  height: 2.875rem;
+  padding: 0 1.375rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.mk-button-primary {
+  color: var(--background);
+  background: var(--foreground);
+}
+
+.mk-button-primary:hover {
+  background: color-mix(in oklab, var(--foreground) 84%, var(--background));
+}
+
+.mk-button-secondary {
+  color: var(--foreground);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-sm);
+}
+
+.mk-button-secondary:hover {
+  box-shadow: 0 0 0 1px var(--mk-hairline-strong), 0 6px 16px -10px rgb(0 0 0 / 0.3);
+}
+
+.mk-button-ghost {
+  color: var(--foreground);
+}
+
+.mk-button-ghost:hover {
+  background: var(--mk-wash);
+}
+
+@media (max-width: 39.99rem) {
+  .mk-button-lg {
+    height: 3rem;
+  }
+}
+
+/* Surfaces. One card language: paper on paper, a hairline ring, and a lift on hover only when it is a link. */
+
+.mk-card {
+  border-radius: var(--mk-radius-lg);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-ring);
+}
+
+.mk-card-raised {
+  border-radius: var(--mk-radius-lg);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-md);
+}
+
+.mk-card-interactive {
+  transition:
+    box-shadow var(--mk-duration) var(--mk-ease-emphasized),
+    transform var(--mk-duration) var(--mk-ease-emphasized);
+}
+
+.mk-card-interactive:hover,
+.mk-card-interactive:has(:focus-visible) {
+  transform: translateY(-2px);
+  box-shadow: var(--mk-shadow-hover);
+}
+
+.mk-card-interactive :focus-visible {
+  outline: none;
+}
+
+.mk-card-interactive:has(:focus-visible) {
+  box-shadow:
+    0 0 0 2px var(--ring),
+    0 22px 48px -28px rgb(0 0 0 / 0.4);
+}
+
+.mk-stage {
+  border-radius: var(--mk-radius-xl);
+  background:
+    radial-gradient(60% 45% at 50% 0%, rgb(255 255 255 / 0.08), transparent),
+    #0c0c0d;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.mk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: var(--mk-radius-pill);
+  padding: 0.1875rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--mk-muted);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline);
+}
+
+.mk-badge-strong {
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline-strong);
+}
+
+.mk-badge-agent {
+  color: var(--mk-agent);
+  background: var(--mk-wash);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline);
+}
+
+.mk-badge-agent svg,
+.mk-badge-agent img {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.mk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border-radius: var(--mk-radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: color-mix(in oklab, var(--foreground) 80%, transparent);
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  box-shadow: 0 0 0 1px var(--mk-hairline);
+  transition:
+    box-shadow var(--mk-duration) var(--mk-ease),
+    background-color var(--mk-duration) var(--mk-ease),
+    color var(--mk-duration) var(--mk-ease),
+    transform var(--mk-duration) var(--mk-ease);
+}
+
+a.mk-chip:hover,
+button.mk-chip:hover,
+.mk-chip[data-interactive]:hover {
+  color: var(--foreground);
+  background: var(--card);
+  box-shadow: 0 0 0 1px var(--mk-hairline-strong), 0 8px 20px -14px rgb(0 0 0 / 0.35);
+  transform: translateY(-1px);
+}
+
+.mk-icon-tile {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--mk-radius-sm);
+  color: var(--foreground);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-ring);
+}
+
+.mk-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  text-underline-offset: 4px;
+}
+
+.mk-link svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform var(--mk-duration) var(--mk-ease);
+}
+
+.mk-link:hover svg,
+.group:hover .mk-link svg {
+  transform: translateX(2px);
+}
+
+/* Layout */
+
+.mk-section {
+  padding-block: var(--mk-section-space);
+}
+
+.mk-section-tight {
+  padding-block: calc(var(--mk-section-space) * 0.6);
+}
+
+.mk-header {
+  margin-inline: auto;
+  max-width: 52rem;
+  text-align: center;
+}
+
+.mk-header[data-align="start"] {
+  margin-inline: 0;
+  text-align: left;
+}
+
+.mk-header > :is(h1, h2, h3) > .mk-quiet {
+  display: inline-block;
+}
+
+.mk-header > .mk-lede {
+  margin-inline: auto;
+}
+
+.mk-header[data-align="start"] > .mk-lede {
+  margin-inline: 0;
+}
+
+.mk-header + * {
+  margin-top: var(--mk-header-gap);
+}
+
+/* Motion. Hero content enters once on load; everything below rises as it scrolls in. CSS only, so nothing
+   is ever hidden without JavaScript, and reduced motion turns it all off. */
+
+@keyframes mk-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mk-enter > * {
+    animation: mk-enter 900ms var(--mk-ease-emphasized) both;
+  }
+
+  .mk-enter > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  .mk-enter > :nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  .mk-enter > :nth-child(4) {
+    animation-delay: 210ms;
+  }
+
+  .mk-enter > :nth-child(5) {
+    animation-delay: 280ms;
+  }
+
+  .mk-enter > :nth-child(n + 6) {
+    animation-delay: 350ms;
+  }
+}
+
+/* Hero */
+
+.mk-hero-section {
+  overflow-x: clip;
+}
+
+.mk-hero-light {
+  position: absolute;
+  inset: -4rem 0 auto;
+  z-index: -1;
+  height: 44rem;
+  pointer-events: none;
+  background:
+    radial-gradient(34% 42% at 38% 34%, var(--mk-glow-warm), transparent 72%),
+    radial-gradient(34% 42% at 62% 30%, var(--mk-glow-cool), transparent 72%),
+    radial-gradient(30% 30% at 50% 62%, var(--mk-glow-mint), transparent 75%);
+  filter: blur(30px);
+}
+
+.mk-hero-light[data-extend] {
+  height: 78rem;
+  background:
+    radial-gradient(34% 26% at 38% 20%, var(--mk-glow-warm), transparent 72%),
+    radial-gradient(34% 26% at 62% 18%, var(--mk-glow-cool), transparent 72%),
+    radial-gradient(30% 18% at 50% 38%, var(--mk-glow-mint), transparent 75%),
+    radial-gradient(45% 22% at 25% 78%, var(--mk-glow-warm), transparent 72%),
+    radial-gradient(45% 22% at 75% 74%, var(--mk-glow-cool), transparent 72%);
+}
+
+.mk-hero-light[data-align="start"] {
+  inset: -4rem -10% auto;
+  height: 36rem;
+  background:
+    radial-gradient(35% 55% at 20% 35%, var(--mk-glow-warm), transparent 70%),
+    radial-gradient(35% 55% at 55% 25%, var(--mk-glow-cool), transparent 70%);
+  filter: blur(24px);
+}
+
+.mk-hero-light[data-tone="plain"] {
+  inset: -10rem 0 auto;
+  height: 40rem;
+  background: radial-gradient(50% 55% at 50% 0%, color-mix(in oklab, var(--card) 90%, transparent), transparent 70%);
+  filter: none;
+}
+
+.mk-hero-chip {
+  margin-bottom: 1.25rem;
+  background: color-mix(in oklab, var(--card) 85%, transparent);
+  box-shadow: 0 8px 24px -16px rgb(0 0 0 / 0.35);
+}
+
+.mk-play {
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--mk-hairline-strong);
+}
+
+.mk-card-featured {
+  box-shadow:
+    inset 0 0 0 1.5px var(--foreground),
+    0 24px 60px -36px rgb(0 0 0 / 0.4);
+}
+
+@media (min-width: 64rem) {
+  .pricing-card-featured {
+    translate: 0 -0.75rem;
+    box-shadow:
+      0 0 0 1.5px var(--foreground),
+      var(--mk-shadow-lg);
+  }
+}
+
+/* Use-case tiles. A small product-styled vignette on a quiet wash: hairline windows, skeleton lines, ink for
+   the one active row. No text, so nothing in a tile can make a claim; the card copy carries the meaning. */
+
+.mk-usecase-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 12rem;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 80% at 50% 0%, color-mix(in oklab, var(--card) 85%, transparent), transparent 75%),
+    var(--mk-wash);
+  box-shadow: inset 0 -1px 0 var(--mk-hairline);
+}
+
+.mk-usecase-stage > * {
+  transition: transform var(--mk-duration-slow) var(--mk-ease-emphasized);
+}
+
+.group:hover .mk-usecase-stage > * {
+  transform: translateY(-3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group:hover .mk-usecase-stage > * {
+    transform: none;
+  }
+}
+
+/* Use-case crops. A tight crop of the real product, in a hairline app window that runs off the right and bottom of the
+   card and fades into the card colour. Everything scales with the card width (container units), so every card keeps
+   the same frame offset, the same angle of exit and the same fade length at any breakpoint. */
+
+.mk-usecase-crop {
+  --crop-inset: 5cqw;
+  --crop-bar: clamp(1.125rem, 6cqw, 1.5rem);
+  --crop-view: calc(100cqw - var(--crop-inset));
+  --crop-clear: color-mix(in srgb, var(--card) 0%, transparent);
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 6 / 5;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.mk-usecase-window {
+  position: absolute;
+  top: var(--crop-inset);
+  bottom: -2rem;
+  left: var(--crop-inset);
+  width: 100cqw;
+  overflow: hidden;
+  border-radius: var(--mk-radius-sm) 0 0 0;
+  background: var(--background);
+  box-shadow:
+    0 0 0 1px var(--mk-hairline-strong),
+    0 1px 2px rgb(0 0 0 / 0.05),
+    0 24px 48px -28px rgb(0 0 0 / 0.28);
+  transition: transform var(--mk-duration-fast) var(--mk-ease);
+}
+
+.dark .mk-usecase-window {
+  box-shadow:
+    0 0 0 1px var(--mk-hairline-strong),
+    0 24px 48px -28px rgb(0 0 0 / 0.8);
+}
+
+.mk-usecase-bar {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.3125rem;
+  height: var(--crop-bar);
+  padding-inline: clamp(0.5rem, 3cqw, 0.75rem);
+  background: var(--sidebar);
+  box-shadow: inset 0 -1px 0 var(--mk-hairline);
+}
+
+.dark .mk-usecase-bar {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    inset 0 -1px 0 var(--mk-hairline);
+}
+
+.mk-usecase-bar > span {
+  width: 0.3125rem;
+  height: 0.3125rem;
+  border-radius: var(--mk-radius-pill);
+  background: color-mix(in oklab, var(--foreground) 16%, transparent);
+}
+
+.mk-usecase-shot {
+  position: absolute;
+  inset: var(--crop-bar) 0 0 0;
+  overflow: hidden;
+}
+
+.mk-usecase-shot > img {
+  position: absolute;
+  top: calc(var(--crop-view) * var(--crop-fy) * -1);
+  left: calc(var(--crop-view) * var(--crop-fx) * -1);
+  width: calc(var(--crop-view) * var(--crop-scale));
+  max-width: none;
+  height: auto;
+}
+
+.mk-usecase-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      var(--crop-clear) 86%,
+      color-mix(in srgb, var(--card) 24%, transparent) 91%,
+      color-mix(in srgb, var(--card) 62%, transparent) 96%,
+      var(--card) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--crop-clear) 56%,
+      color-mix(in srgb, var(--card) 10%, transparent) 63%,
+      color-mix(in srgb, var(--card) 36%, transparent) 72%,
+      color-mix(in srgb, var(--card) 68%, transparent) 82%,
+      color-mix(in srgb, var(--card) 92%, transparent) 91%,
+      var(--card) 98%
+    );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .group:hover .mk-usecase-window,
+  .group:has(:focus-visible) .mk-usecase-window {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.mk-mini-window {
+  overflow: hidden;
+  border-radius: var(--mk-radius-md);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-md);
+}
+
+.mk-mini-line {
+  display: block;
+  height: 0.3125rem;
+  border-radius: var(--mk-radius-pill);
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+
+.mk-mini-line-faint {
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+}
+
+.mk-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--mk-radius-sm);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline);
+}
+
+.mk-mini-row[data-active] {
+  box-shadow:
+    inset 0 0 0 1px var(--mk-hairline-strong),
+    0 6px 16px -10px rgb(0 0 0 / 0.3);
+}
+
+.mk-mini-row[data-active] .mk-mini-line:not(.mk-mini-line-faint) {
+  background: color-mix(in oklab, var(--foreground) 32%, transparent);
+}
+
+.mk-mini-bubble {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.625rem 0.625rem 0.625rem 0.25rem;
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+.mk-mini-draft {
+  border-radius: 0.625rem 0.625rem 0.25rem 0.625rem;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline-strong);
+}
+
+.mk-mini-mate {
+  display: grid;
+  place-items: center;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  color: var(--background);
+  background: var(--foreground);
+}
+
+.mk-mini-button {
+  display: block;
+  width: 2.25rem;
+  height: 0.875rem;
+  border-radius: 0.3125rem;
+  background: var(--foreground);
+}
+
+.mk-mini-avatar {
+  display: block;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: var(--mk-radius-pill);
+  color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--foreground) 9%, var(--card));
+  box-shadow: 0 0 0 1.5px var(--card);
+}
+
+.mk-mini-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.4375rem;
+  border-radius: var(--mk-radius-pill);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline-strong);
+}
+
+.mk-mini-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+}
+
+.mk-mini-step {
+  height: 0.25rem;
+  border-radius: var(--mk-radius-pill);
+  background: color-mix(in oklab, var(--foreground) 9%, transparent);
+}
+
+.mk-mini-step[data-done] {
+  background: color-mix(in oklab, var(--foreground) 40%, transparent);
+}
+
+.mk-mini-step[data-current] {
+  background: var(--foreground);
+}
+
+.mk-mini-date {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.3125rem;
+  box-shadow: inset 0 0 0 1px var(--mk-hairline);
+}
+
+.mk-mini-dot {
+  flex-shrink: 0;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--mk-radius-pill);
+  background: var(--foreground);
+}
+
+.mk-mini-tile {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--mk-radius-sm);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-sm);
+}
+
+.mk-mini-wire {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(to right, currentColor 0 3px, transparent 3px 6px);
+  opacity: 0.6;
+}
+
+.mk-mini-brand {
+  filter: grayscale(1) contrast(1.1);
+  opacity: 0.85;
+}
+
+.mk-mini-column {
+  display: grid;
+  align-content: start;
+  gap: 0.375rem;
+  min-height: 8rem;
+  padding: 0.5rem;
+  border-radius: var(--mk-radius-md);
+  background: color-mix(in oklab, var(--foreground) 3%, transparent);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline);
+}
+
+.mk-mini-card {
+  display: grid;
+  gap: 0.3125rem;
+  padding: 0.5rem;
+  border-radius: var(--mk-radius-sm);
+  background: var(--card);
+  box-shadow: var(--mk-shadow-sm);
+}
+
+.mk-mini-card[data-active] {
+  box-shadow:
+    0 0 0 1px var(--mk-hairline-strong),
+    0 10px 20px -12px rgb(0 0 0 / 0.35);
+  transform: rotate(-2deg) translateY(-2px);
+}
+
+.mk-mini-day {
+  aspect-ratio: 1;
+  border-radius: 0.25rem;
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+.mk-mini-day[data-marked] {
+  background: color-mix(in oklab, var(--foreground) 22%, transparent);
+}
+
+.mk-mini-day[data-today] {
+  background: var(--foreground);
+}
+
+.mk-mini-highlight {
+  display: block;
+  padding: 0.3125rem 0.5rem;
+  border-left: 2px solid var(--foreground);
+  border-radius: 0 0.3125rem 0.3125rem 0;
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+}
+
+.mk-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 0.3125rem;
+  background: var(--mk-hairline);
+}
+
+.mk-mini-cell {
+  height: 0.875rem;
+  background: var(--card);
+}
+
+.mk-mini-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 1.75rem;
+  padding: 0 0.625rem;
+  border-radius: var(--mk-radius-sm);
+  box-shadow: inset 0 0 0 1px var(--mk-hairline-strong);
+}

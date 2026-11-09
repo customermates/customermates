@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/sales-pipeline
 
 hero:
-  title: "CRM-Beispiele: sieben Abläufe aus der Praxis, die Software dahinter und die Kosten"
-  description: "Wie ein CRM im Alltag aussieht, bei einer Freiberuflerin, einer Agentur, einem Vertriebsteam und einem Konzern, welche Werkzeuge diese Teams wählen, ob eine Tabelle reicht und was die Lizenzen kosten. Customermates veröffentlicht diesen Ratgeber und erscheint in einem eigenen, gekennzeichneten Abschnitt."
+  title: "CRM-Beispiele: sieben Abläufe aus der Praxis, Software und Kosten"
+  description: "Wie ein CRM bei Freiberuflerin, Agentur, Vertriebsteam und Konzern aussieht, welche Tools sie wählen, ob eine Tabelle reicht und was Lizenzen kosten. Customermates veröffentlicht den Ratgeber."
 
 blogPost:
   author: Benjamin Wagner
@@ -141,7 +141,7 @@ Listenpreise pro Nutzer und Monat ohne Mehrwertsteuer, in der Währung der jewei
 | Pipedrive | Keiner | Lite 14 € (jährlich) | Growth 39 €, Premium 59 € (jährlich) | Ultimate 79 € (jährlich) | 8.10.2026 |
 | Salesforce | Free Suite | Starter Suite 25 € | Pro Suite 100 € | bis Max 550 € | 8.10.2026 |
 | Microsoft Dynamics 365 Sales | Keiner | Sales Professional 56,30 € | Sales Enterprise 91 € | Sales Premium 130 € | 8.10.2026 |
-| Customermates | Keiner, [[commercial.trial.days]] Tage Testphase | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Monatliche Abrechnung |
+| Customermates | [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, nach [[commercial.trial.days]] Tagen Pro-Test | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Monatliche Abrechnung |
 
 Im Oktober 2026 kostete ein bezahltes CRM damit im Einstieg zwischen 14 € und 56,30 € pro Nutzer und Monat, in den mittleren Tarifen zwischen 23 $ und 100 € und an der Spitze bis zu 550 €. HubSpot verlangt für Professional und Enterprise zusätzlich ein verpflichtendes Onboarding. Planen Sie Einrichtung, Datenübernahme und Schulung gesondert ein; die [Übersicht der CRM-Kosten](/blog/crm-cost) rechnet ein Drei-Jahres-Beispiel durch.
 
@@ -151,9 +151,9 @@ Hier der Agentur-Ablauf bis auf die Spaltenebene. Die Listennamen sind Beispiele
 
 <Steps>
   <Step title="Listen festlegen">Kundenfirmen kommen in **Organisationen**, Personen in **Kontakte** und jedes Mandat, das Sie gewinnen wollen, in **Deals**. Ihre Standardleistungen legen Sie unter **Services** mit Preis an (etwa „Strategie-Workshop“ und „Monatliche Betreuungspauschale“). Konfigurieren Sie Positionen so, dass Menge mal Einzelpreis den Positionswert ergibt und deren Summe den Deal-Wert. Ohne Angebote kann ein Deal stattdessen einen manuellen Geldbetrag tragen.</Step>
-  <Step title="Deal-Phasen umbenennen">Die **Phase** eines Deals ist ein Feld vom Typ **Einzelauswahl**. Ersetzen Sie die Vorgaben durch Anfrage, Erstgespräch, Angebot verschickt, Gewonnen und Verloren. Hinterlegen Sie bei Bedarf Wahrscheinlichkeiten pro Option und eine Berechnung für den gewichteten Deal-Wert.</Step>
+  <Step title="Deal-Phasen umbenennen">Legen Sie die **Phase** eines Deals als Feld vom Typ **Einzelauswahl** an (in der Cloud kann die KI-Einrichtung das übernehmen), mit den Optionen Anfrage, Erstgespräch, Angebot verschickt, Gewonnen und Verloren. Hinterlegen Sie bei Bedarf Wahrscheinlichkeiten pro Option und eine Berechnung für den gewichteten Deal-Wert.</Step>
   <Step title="Drei eigene Felder anlegen">Auf Deals: „Mandatsart“ (Einzelauswahl: Projekt, Pauschale, Workshop), „Lead-Quelle“ (Einzelauswahl: Empfehlung, LinkedIn, Website, Veranstaltung) und „Geplanter Start“ (Datum). Nutzen Sie Einzelauswahl für eine Kategorie oder Mehrfachauswahl für mehrere Schlagwörter; beides sind konfigurierbare Felder.</Step>
-  <Step title="Ansicht speichern">Unter **Deals** filtern Sie auf Phase = Angebot verschickt und **Zugewiesen** = Sie, sortieren nach Änderungsdatum und speichern das mit **Neue Ansicht** als „Meine offenen Angebote“. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann mit denselben Filtern ihre eigene Ansicht anlegen, oder Sie teilen eine Ansicht mit dem Team.</Step>
+  <Step title="Ansicht speichern">Unter **Deals** filtern Sie auf Phase = Angebot verschickt und **Zugewiesen** = Sie, sortieren nach Änderungsdatum und speichern das mit **Neue Ansicht** als „Meine offenen Angebote“. Jede Person speichert ihre eigene, und eine Ansicht, die das ganze Team braucht, lässt sich mit allen im Workspace oder mit ausgewählten Rollen teilen.</Step>
   <Step title="Bestehende Kunden importieren">Exportieren Sie Ihre Kundenliste als Excel-Arbeitsmappe (.xlsx) und importieren Sie zuerst Organisationen, dann Kontakte, jeweils eine Liste pro Durchgang. Die Spaltenzuordnung erklärt die Dokumentation zu [Datensätzen, Import und Ansichten](/docs/app-records).</Step>
   <Step title="Posteingang verbinden (ab Pro)">Jede Beraterin verbindet ihr Postfach oder ihr LinkedIn-Konto im [zentralen Posteingang](/features/unified-inbox). Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Wer E-Mail, LinkedIn und WhatsApp nebeneinander nutzen will, braucht also Business. Starter hat keinen Posteingang.</Step>
 </Steps>
@@ -165,6 +165,8 @@ Hier der Agentur-Ablauf bis auf die Spaltenebene. Die Listennamen sind Beispiele
 Auf den letzten Satz kommt es an. Eine Routine läuft als ihr Eigentümer und darf Nachrichten ohne Rückfrage senden; soll sie nur Entwürfe schreiben, muss die Anweisung das sagen. Aktionen, die im Mate-Chat eine Freigabe brauchen, werden in einer unbeaufsichtigten Routine abgelehnt; Änderungen an der Wissensdatenbank werden zu Vorschlägen zur Prüfung. Legen Sie die Routine für die Konfigurationsprüfung pausiert an. Probieren Sie die Anweisung für reine Entwürfe zuerst in einem normalen Mate-Chat an erfundenen Datensätzen aus. Für einen Test der zeitgesteuerten Routine aktivieren Sie sie und verwenden **Auslöser testen**. Das führt einen echten Lauf aus. Prüfen Sie die Entwürfe und pausieren Sie die Routine bei Bedarf wieder. Grenzen und Laufstatus stehen in der [Dokumentation zu Routinen](/docs/app-routines). Wenn Sie lieber Ihren eigenen KI-Client nutzen: Claude, ChatGPT und andere MCP-Clients lesen und ändern dieselben Datensätze über den MCP-Server von Customermates, mit Ihrem eigenen KI-Anbieter für Modellaufrufe; die Suche nach Bedeutung kann weiterhin Mate-Nutzung verbrauchen.
 
 Vier Personen im Tarif Pro kosten [[commercial.price.pro.monthly.seats.4]] im Monat ([[commercial.price.pro.monthly]] pro Nutzer), inklusive Posteingang und monatlicher gehosteter KI-Credits pro aktivem Nutzer. Ohne Posteingang kostet Starter [[commercial.price.starter.monthly.seats.4]] im Monat. Alle Funktionen finden Sie in der [Funktionsübersicht](/features/all).
+
+Dieser Aufbau ist Nachfassen in der Praxis: Jedes Angebot hat einen datierten nächsten Schritt, der Verlauf liegt am Kunden, und die wöchentliche Routine lässt die Entwürfe für Sie bereitliegen. Um ihn an Ihren eigenen Kunden aufzubauen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 ## Wo Customermates nicht passt
 

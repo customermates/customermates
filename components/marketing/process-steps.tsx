@@ -35,7 +35,7 @@ export function Step({
       <div
         className={cn(
           "mt-2.5 space-y-3 text-sm leading-relaxed text-muted-foreground",
-          "[&_a]:text-primary [&_a]:no-underline hover:[&_a]:underline",
+          "[&_a]:text-foreground [&_a]:underline [&_a]:decoration-foreground/30 hover:[&_a]:decoration-foreground",
           "[&_p]:m-0 [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-muted-foreground",
           "[&_strong]:font-medium [&_strong]:text-foreground",
         )}

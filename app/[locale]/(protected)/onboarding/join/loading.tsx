@@ -43,7 +43,7 @@ function JoinSkeleton() {
               ))}
             </div>
 
-            <div className="flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
+            <div className="flex gap-3 rounded-lg border border-border bg-card px-4 py-3">
               <Shape animated className="size-8 shrink-0 rounded-lg" motionPhase={2} />
 
               <div className="flex-1 space-y-2">

@@ -34,7 +34,8 @@ export async function AgplGithubBadge({ className }: Props) {
     >
       <AppLink
         external
-        className="inline-flex items-center gap-2 text-foreground hover:text-primary hover:no-underline"
+        appearance="unstyled"
+        className="inline-flex items-center gap-2 text-foreground no-underline transition-colors hover:text-muted-foreground focus-visible:text-muted-foreground"
         href="https://github.com/customermates/customermates"
       >
         <Github aria-hidden className="size-3.5" />
@@ -43,7 +44,7 @@ export async function AgplGithubBadge({ className }: Props) {
       </AppLink>
 
       {starCount !== null && (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 text-muted-foreground">
           <Star aria-hidden className="size-3 fill-current text-yellow-400" />
 
           <span>{starCount.toLocaleString(formattingTag)}</span>

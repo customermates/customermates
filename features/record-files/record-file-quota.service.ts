@@ -1,12 +1,14 @@
 import type { AppMode } from "@/core/config/environment";
-import type { SubscriptionPlan } from "@/generated/prisma";
+import type { PlanId, PurchasablePlanId } from "@/core/commercial/plan-catalog";
 
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { nextStoragePlan } from "@/core/commercial/plan-fit";
 import { fileStorageLimitBytes } from "./record-file-quota";
 
 export type FileStorageUsage = { usedBytes: number; limitBytes: number | null };
 
 export type FileStorageQuotaSources = {
-  subscription: () => Promise<{ plan: SubscriptionPlan; enterpriseFileStorageBytesPerUser: number | null } | null>;
+  subscription: () => Promise<{ plan: PlanId; enterpriseFileStorageBytesPerUser: number | null } | null>;
   activeUsers: () => Promise<number>;
   usedBytes: () => Promise<number>;
 };
@@ -29,5 +31,11 @@ export class RecordFileQuotaService {
         activeUsers,
       }),
     };
+  }
+
+  async upgradePlan(): Promise<PurchasablePlanId | null> {
+    if (this.appMode !== "cloud") return null;
+    const subscription = await this.sources.subscription();
+    return nextStoragePlan(subscription?.plan ?? CLOUD_TRIAL.plan);
   }
 }

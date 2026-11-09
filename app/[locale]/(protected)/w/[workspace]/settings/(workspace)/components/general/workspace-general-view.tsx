@@ -126,10 +126,10 @@ const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, pub
               </h2>
 
               <Alert
-                color="danger"
                 description={t("Workspaces.leaveDescription")}
                 role="note"
                 title={t("Workspaces.leave")}
+                variant="destructive"
               >
                 <LeaveWorkspaceButton
                   className="mt-2"
@@ -144,10 +144,10 @@ const WorkspaceGeneralViewContent = observer(({ deleteRefusal, leaveRefusal, pub
 
               {workspace.isAdmin ? (
                 <Alert
-                  color="danger"
                   description={t("Workspaces.deleteDescription")}
                   role="note"
                   title={t("Workspaces.delete")}
+                  variant="destructive"
                 >
                   <DeleteWorkspaceButton
                     className="mt-2"

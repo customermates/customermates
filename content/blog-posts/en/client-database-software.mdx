@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Client database software: which kind fits your team"
-  description: Spreadsheets, no-code databases and CRMs are all sold as client database software. See where each one stops, what the free plans allow, and how to test a tool with your own data before you commit.
+  description: "Spreadsheets, no-code databases and CRMs are all sold as client database software. See where each one stops, what the free plans allow, and how to test a tool with your own data before you commit."
 
 blogPost:
   author: Benjamin Wagner
@@ -85,7 +85,7 @@ Free plans are real, but each one stops at a different wall. Limits as listed on
 | [EspoCRM](https://www.espocrm.com/download/) and [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | Open-source CRM, self-hosted | No licence fee, AGPLv3 | You run the server, the updates and the backups |
 | [Customermates core](/features/self-hosted) | Open-source CRM, self-hosted | No licence fee, AGPL-3.0 | Self-hosting has no unified inbox and no Mate |
 
-Pipedrive has no free plan and offers a 14-day free trial. Customermates Cloud has no free plan either; its trial runs [[commercial.trial.days]] days.
+Pipedrive has no free plan and offers a 14-day free trial. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; its trial runs [[commercial.trial.days]] days.
 
 How to read the table: two people with fewer than 1,000 contacts can start on HubSpot's free tools without trouble. Three people fit Zoho's free edition. If you'd rather design your own tables, look at Airtable or Ninox. If someone on the team runs servers, a self-hosted open-source CRM removes the per-user fee, but not the work.
 
@@ -105,13 +105,13 @@ Airtable and Ninox are database builders, so that price buys the tables and you 
 
 ## A client database in Customermates, step by step
 
-Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. Here is a client database for a small consultancy, set up the way the product works today.
+Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. Here is a client database for a small consultancy, set up the way the product works today. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the lists, pipeline and dashboard, and on a self-hosted instance you create the lists in Configure. Then adjust them like this.
 
 <Steps>
   <Step title="Name the records the way you talk">In Configure, open a list and change its **Name** and **Plural name** under **General**: rename Contacts to Clients and Organizations to Companies. Deals can become Projects, and Tasks can become Follow-ups. Any name works, and it applies to the whole workspace.</Step>
-  <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Billing address" as an Address field. Phone numbers and email addresses go into the Contact details field, which the Clients list has from the start.</Step>
-  <Step title="Import companies first, then people">Use More actions › Add from file with an .xlsx workbook, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and email and phone columns can be matched to the client's Contact details field. CSV files work too (comma, semicolon, tab or pipe as delimiter). One workbook currently takes up to 5,000 rows.</Step>
-  <Step title="Save three views">On Companies, "Retainer clients" filters Segment to Retainer. On Clients, "Untouched for 90 days" filters Updated at with Older than… 90 days. "Clients without a company" filters for clients with no linked company. A saved view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team.</Step>
+  <Step title="Add the fields you will filter on">On Companies, add "Segment" as a Single choice field with Retainer, Project and Former, and "Client since" as a Date field. On Clients, add "Billing address" as an Address field. Phone numbers and email addresses go into the Contact details field, which the people list from AI setup has from the start.</Step>
+  <Step title="Import companies first, then people">Use More actions › Add from file with an Excel workbook (.xlsx or .xls) or a CSV file, one list per import. Import the companies, then the people sheet with a column that holds each person's company name: the wizard matches link columns by record name, and email and phone columns can be matched to the client's Contact details field. A spreadsheet can be up to 10 MB and each sheet up to 5,000 data rows.</Step>
+  <Step title="Save three views">On Companies, "Retainer clients" filters Segment to Retainer. On Clients, "Untouched for 90 days" filters Updated at with Older than… 90 days. "Clients without a company" filters for clients with no linked company. Share "Untouched for 90 days" with the whole team or with selected roles, so everyone cleans up the same list.</Step>
   <Step title="Connect conversations (Pro)">On Pro, each user connects [[commercial.entitlement.pro.includedAccountsPerUser]] account, such as Gmail, Outlook, LinkedIn or WhatsApp, and the [unified inbox](/features/unified-inbox) shows those threads next to the client. Starter has no inbox.</Step>
 </Steps>
 
@@ -122,6 +122,8 @@ Two things the trial test above will show. Customermates lets one email address 
 > When a new client is added, check whether they are linked to a company. If not, find the company whose name matches the domain of their email address and link it. Never create a company and never send a message. If nothing matches, add one line to the client's notes saying so.
 
 The last two sentences matter. Mate can send messages when an instruction asks for it, so a routine that should only tidy records has to say so. If you'd rather use your own AI client, Claude, ChatGPT and other MCP clients can read and update the same records through MCP, and that works when you self-host too.
+
+A client database earns its keep when every client has a next step. On Pro, LinkedIn and email threads join the client record, Mate or your own AI client drafts the reply and the next step, and you review, edit and send. To try that on your real clients, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 ## When Customermates is the wrong client database
 
@@ -142,7 +144,7 @@ Ninox lists Germany as the server region on its pricing page. Customermates Clou
 
 <Faq>
 <FaqItem question="What is the best free client database software?">
-It depends on how many people use it and how many records you keep. HubSpot's free tools cover 2 users and 1,000 contacts, Zoho CRM's free edition 3 users, Airtable Free 1,000 records per base and Ninox Free 5 users with 5,000 records. If you can run a server, EspoCRM, SuiteCRM and the Customermates core are open source with no licence fee. Customermates Cloud has no free plan, only a [[commercial.trial.days]]-day trial.
+It depends on how many people use it and how many records you keep. HubSpot's free tools cover 2 users and 1,000 contacts, Zoho CRM's free edition 3 users, Airtable Free 1,000 records per base and Ninox Free 5 users with 5,000 records. If you can run a server, EspoCRM, SuiteCRM and the Customermates core are open source with no licence fee. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, and a [[commercial.trial.days]]-day trial.
 </FaqItem>
 
 <FaqItem question="How do I create a client database?">

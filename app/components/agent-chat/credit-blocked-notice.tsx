@@ -9,6 +9,9 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Button } from "@/components/ui/button";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 import { contactHref } from "@/core/utils/contact-href";
+import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { nextMateUsagePlan } from "@/app/components/upsell/plan-upsell-highlights";
+import { PlanUpsellNotice } from "@/app/components/upsell/plan-upsell-notice";
 
 export function CreditBlockedNotice({ usage }: { usage: AgentUsageView }) {
   const intlStore = useHydratedIntlStore();
@@ -17,6 +20,19 @@ export function CreditBlockedNotice({ usage }: { usage: AgentUsageView }) {
   const reason = usage.blockedReason ?? "credits_exhausted";
   const resetAt = intlStore.formatDescriptiveShortDate(new Date(usage.resetAt));
   const contact = reason === "configuration_unavailable";
+  const nextPlan = reason === "credits_exhausted" ? nextMateUsagePlan(usage.plan) : null;
+  const nextMultiplier = nextPlan ? PLAN_CATALOG[nextPlan].entitlements.hostedAiUsageMultiplier : null;
+
+  if (nextPlan && typeof nextMultiplier === "number") {
+    return (
+      <PlanUpsellNotice
+        detail={t("Subscription.picker.hostedAiUsage", { multiplier: nextMultiplier })}
+        id="mate-credits"
+        plan={nextPlan}
+        title={t(`AgentChat.credits.blocked.${reason}`, { resetAt })}
+      />
+    );
+  }
 
   return (
     <div className="flex items-start justify-between gap-3 px-1 py-2" role="status">

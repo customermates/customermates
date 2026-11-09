@@ -19,6 +19,7 @@ import type { GetMemberRemovalData } from "@/features/workspace/get-member-remov
 import type { RemoveWorkspaceMemberData } from "@/features/workspace/remove-workspace-member.interactor";
 import type { RenameWorkspaceData } from "@/features/workspace/rename-workspace.interactor";
 import type { UpdateWorkspaceSlugData } from "@/features/workspace/update-workspace-slug.interactor";
+import type { SwapFreePlanSeatData } from "@/ee/subscription/swap-free-plan-seat.interactor";
 
 import { z } from "zod";
 
@@ -26,6 +27,7 @@ import {
   getGetUsersInteractor,
   getGetUserByIdInteractor,
   getAdminUpdateUserDetailsInteractor,
+  getSwapFreePlanSeatInteractor,
   getGetOrCreateInviteTokenInteractor,
   getInviteUsersByEmailInteractor,
   getSendFeedbackInteractor,
@@ -90,6 +92,10 @@ export async function sendFeedbackAction(data: SendFeedbackData) {
 
 export async function adminUpdateUserDetailsAction(data: AdminUpdateUserDetailsData) {
   return serializeResult(getAdminUpdateUserDetailsInteractor().invoke(data));
+}
+
+export async function swapFreePlanSeatAction(data: SwapFreePlanSeatData) {
+  return serializeResult(getSwapFreePlanSeatInteractor().invoke(data));
 }
 
 export async function removeWorkspaceMemberAction(data: RemoveWorkspaceMemberData) {

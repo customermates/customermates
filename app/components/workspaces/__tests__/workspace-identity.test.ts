@@ -84,8 +84,9 @@ describe("workspacePlanChip", () => {
     });
     expect(
       workspacePlanChip({ status: "expired", plan: "pro", trialEndDate: new Date("2026-10-01T00:00:00.000Z") }, t, now),
-    ).toEqual({
-      label: "Subscription.planStatusLabel:Subscription.planNames.pro,Subscription.status.expired",
+    ).toEqual({ label: "Subscription.planNames.free", variant: "success" });
+    expect(workspacePlanChip({ status: "unPaid", plan: "pro", trialEndDate: null }, t, now)).toEqual({
+      label: "Subscription.planStatusLabel:Subscription.planNames.pro,Subscription.status.unPaid",
       variant: "destructive",
     });
     expect(workspacePlanChip(null, t, now)).toBeNull();

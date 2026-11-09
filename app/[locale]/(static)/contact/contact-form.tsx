@@ -129,7 +129,7 @@ export function ContactForm() {
       {isSent ? (
         <AppCard className="product-card">
           <AppCardBody className="items-center gap-4 text-center py-10">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <div className="flex size-12 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground">
               <CheckCircle2 className="size-6" />
             </div>
 
@@ -290,7 +290,7 @@ export function ContactForm() {
             </AppCardBody>
 
             <AppCardFooter>
-              <Button className="ml-auto" disabled={isLoading} type="submit">
+              <Button className="mk-button mk-button-primary ml-auto" disabled={isLoading} type="submit">
                 {t("ContactPage.form.submit")}
               </Button>
             </AppCardFooter>

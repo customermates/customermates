@@ -327,7 +327,7 @@ test("an admin who did not create a cloud workspace cannot delete it and says wh
     workspace.companyId,
     randomUUID(),
   ]);
-  await database.query('UPDATE "Subscription" SET status=\'expired\' WHERE "companyId"=$1', [workspace.companyId]);
+  await database.query('UPDATE "Subscription" SET status=\'unPaid\' WHERE "companyId"=$1', [workspace.companyId]);
 
   await page.goto(appPath(workspace.slug, "/subscription-expired"));
   await expectBlockedDelete(page, testInfo, "subscription-expired-delete", messages.deleteBlocked.notCreator);

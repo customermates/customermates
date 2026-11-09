@@ -18,11 +18,10 @@ import Feedback from "../feedback";
 import LegalDocumentNoticeContract from "../legal-document-notice-contract";
 import LegalDocumentNoticeInformation from "../legal-document-notice-information";
 import NewUserNotification from "../new-user-notification";
+import PlanPauseNotice from "../plan-pause-notice";
 import ResetPassword from "../reset-password";
 import SubscriptionInactivationNotice from "../subscription-inactivation-notice";
 import TrialExpiredOffer from "../trial-expired-offer";
-import TrialInactivationNotice from "../trial-inactivation-notice";
-import TrialInactivationReminder from "../trial-inactivation-reminder";
 import TrialWelcome from "../trial-welcome";
 import VerifyEmail from "../verify-email";
 import WorkspaceRemovalNotice from "../workspace-removal-notice";
@@ -115,7 +114,7 @@ function legalDocuments(locale: AppLocale, documents: readonly LegalDocument[]) 
 function localizedInactivation(
   template: PreviewTemplate,
   locale: AppLocale,
-  copy: typeof enMessages.TrialInactivationNotice,
+  copy: typeof enMessages.SubscriptionInactivationNotice,
 ): ReactElement {
   return createElement(template, {
     ...previewLayoutProps(locale),
@@ -309,34 +308,6 @@ const EMAIL_PREVIEW_CASES = [
     },
   },
   {
-    key: "trial-inactivation-reminder",
-    sendSite: "trial-inactivation-reminder",
-    audience: "recipient-localized",
-    sourcePath: "ee/lifecycle/send-trial-inactivation-reminder.interactor.ts",
-    templatePath: "components/emails/trial-inactivation-reminder.tsx",
-    template: TrialInactivationReminder,
-    expectedText: (locale) => catalog(locale).TrialInactivationReminder.title,
-    render: (locale) => {
-      const copy = catalog(locale).TrialInactivationReminder;
-      return createElement(TrialInactivationReminder, {
-        ...previewLayoutProps(locale),
-        ...copy,
-        greeting: withFirstName(copy.greeting),
-        href: `${PREVIEW_BASE_URL}/contact`,
-      });
-    },
-  },
-  {
-    key: "trial-inactivation-notice",
-    sendSite: "trial-inactivation-notice",
-    audience: "recipient-localized",
-    sourcePath: "ee/lifecycle/deactivate-trial-users-and-send-notice.interactor.ts",
-    templatePath: "components/emails/trial-inactivation-notice.tsx",
-    template: TrialInactivationNotice,
-    expectedText: (locale) => catalog(locale).TrialInactivationNotice.title,
-    render: (locale) => localizedInactivation(TrialInactivationNotice, locale, catalog(locale).TrialInactivationNotice),
-  },
-  {
     key: "subscription-inactivation-notice",
     sendSite: "subscription-inactivation-notice",
     audience: "recipient-localized",
@@ -346,6 +317,26 @@ const EMAIL_PREVIEW_CASES = [
     expectedText: (locale) => catalog(locale).SubscriptionInactivationNotice.title,
     render: (locale) =>
       localizedInactivation(SubscriptionInactivationNotice, locale, catalog(locale).SubscriptionInactivationNotice),
+  },
+  {
+    key: "plan-pause-notice",
+    sendSite: "plan-pause-notice",
+    audience: "recipient-localized",
+    sourcePath: "ee/subscription/sync-free-plan-pauses.interactor.ts",
+    templatePath: "components/emails/plan-pause-notice.tsx",
+    template: PlanPauseNotice,
+    expectedText: (locale) => catalog(locale).PlanPauseNotice.title,
+    render: (locale) => {
+      const copy = catalog(locale).PlanPauseNotice;
+      return createElement(PlanPauseNotice, {
+        ...previewLayoutProps(locale),
+        ...copy,
+        greeting: withFirstName(copy.greeting),
+        body: copy.bodyNamed.replace("{workspace}", "Northwind Studio").replace("{owner}", "Alex Morgan"),
+        subject: copy.subjectNamed.replace("{workspace}", "Northwind Studio"),
+        href: `${PREVIEW_BASE_URL}/auth/signin`,
+      });
+    },
   },
   {
     key: "accounts-removed-notice",
@@ -493,11 +484,11 @@ const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
 );
 
 describe("transactional email preview inventory", () => {
-  it("maps all 16 production send sites onto 17 production templates", () => {
-    expect(EMAIL_PREVIEW_CASES).toHaveLength(17);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(17);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(16);
-    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(17);
+  it("maps all 15 production send sites onto 16 production templates", () => {
+    expect(EMAIL_PREVIEW_CASES).toHaveLength(16);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ key }) => key)).size).toBe(16);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ sendSite }) => sendSite)).size).toBe(15);
+    expect(new Set(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath)).size).toBe(16);
     expect(EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath).sort()).toEqual(topLevelTemplates());
   });
 
@@ -526,11 +517,11 @@ describe("transactional email preview inventory", () => {
   });
 
   it("keeps recipient localization and internal English explicit", () => {
-    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(13);
+    expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "recipient-localized")).toHaveLength(12);
     expect(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english")).toHaveLength(4);
   });
 
-  it("discovers all 18 top-level production templates", () => {
+  it("discovers all 16 top-level production templates", () => {
     expect(discoveredPreviewEntries()).toEqual(
       EMAIL_PREVIEW_CASES.map(({ templatePath }) => templatePath.replace("components/emails/", "")).sort(),
     );
@@ -556,7 +547,7 @@ describe("transactional email preview inventory", () => {
 
 describe("transactional email preview rendering", () => {
   it("covers every behavior in each of its locales", () => {
-    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(69);
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(64);
   });
 
   it.each(LOCALIZED_PREVIEW_CASES)(
@@ -592,7 +583,7 @@ describe("transactional email preview rendering", () => {
     async (definition) => {
       const html = await render(definition.render(DEFAULT_LOCALE));
       expect(html).toMatch(/<html[^>]*\blang="en"/i);
-      expect(html).toContain("The agentic, open-source CRM");
+      expect(html).toContain("The open-source CRM for client follow-up");
     },
   );
 

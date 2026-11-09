@@ -14,19 +14,27 @@ type Props = {
 export function MarketingTableFrame({ className, children }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState(false);
+  const [atEnd, setAtEnd] = useState(false);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const measure = () => setOverflowing(el.scrollWidth > el.clientWidth + 1);
+    const measure = () => {
+      setOverflowing(el.scrollWidth > el.clientWidth + 1);
+      setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+    };
     measure();
 
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     for (const child of el.children) observer.observe(child);
+    el.addEventListener("scroll", measure, { passive: true });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("scroll", measure);
+    };
   }, []);
 
   return (
@@ -38,6 +46,14 @@ export function MarketingTableFrame({ className, children }: Props) {
       >
         {children}
       </div>
+
+      {overflowing && !atEnd ? (
+        <div
+          aria-hidden
+          data-table-scroll-hint
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-10 bg-gradient-to-l from-card to-transparent"
+        />
+      ) : null}
     </div>
   );
 }

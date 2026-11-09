@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { Avatar } from "@/components/ui/avatar";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
+import { ROUTINE_DISABLED_REASON_PLAN_PAUSED } from "@/ee/routines/routine-disabled-reason";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { describeRoutineSchedule, routineDisplayTimeZone } from "@/ee/routines/routine-schedule-preset";
@@ -68,8 +69,16 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
               {t("RoutineModal.enabled")}
             </AppChip>
           ) : (
-            <AppChip size="sm" variant="secondary">
-              {t("RoutineModal.disabled")}
+            <AppChip
+              data-routine-paused-by-plan={
+                row.original.disabledReason === ROUTINE_DISABLED_REASON_PLAN_PAUSED ? "" : undefined
+              }
+              size="sm"
+              variant="secondary"
+            >
+              {row.original.disabledReason === ROUTINE_DISABLED_REASON_PLAN_PAUSED
+                ? t("RoutineModal.planPaused")
+                : t("RoutineModal.disabled")}
             </AppChip>
           ),
       },

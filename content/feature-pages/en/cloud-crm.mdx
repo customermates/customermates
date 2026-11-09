@@ -29,10 +29,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-self-hosted-inbox
   cta:
-    action: Evaluate Customermates Cloud with your own workflow
-    description: Start the [[commercial.trial.days]]-day Pro trial, create a small pipeline, and test the records, views and integrations your team actually needs.
-    buttonLeftText: Start the Pro trial
-    buttonLeftHref: /auth/signup
+    action: "Try Customermates Cloud on your own client follow-up"
+    description: "Start the [[commercial.trial.days]]-day Pro trial, connect one email or LinkedIn account and see whether each client's conversations and next step are easier to keep on top of than today."
+    buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Compare plans
     buttonRightHref: /pricing
     hint: "No credit card required. Self-hosting is evaluated separately and uses the Starter feature set."
@@ -46,9 +46,9 @@ acquisition:
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Cloud CRM software with an open-source core you can self-host"
-      body: "Customermates Cloud is a managed, browser-based CRM for contacts, organizations, deals, services and tasks, with REST, webhooks and MCP. The open-source core can also be self-hosted with Docker. Compare both and learn how to choose cloud CRM software."
-      checksum: fnv1a-a9d73e6f
+      headline: "A cloud CRM that makes sure you follow up on every client"
+      body: "On Customermates Cloud from Pro, LinkedIn and email conversations sit on each client's record and Mate drafts the replies for you to review. Cloud database in Frankfurt, AGPL core you can self-host."
+      checksum: fnv1a-745de9d6
     kind: none
     reason: "The early disclosed dashboard demo supplies direct product proof; an additional hero illustration is unnecessary."
     selection: explicit
@@ -58,20 +58,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "We're a small B2B service business. Keep customers, quotes and conversations in one place, and show us on the dashboard who to call back."
+  steps:
+    title: "How a team evaluates Customermates Cloud"
+    items:
+      - title: "Create a small workspace"
+        description: "Start the Pro trial and invite only the teammates needed for the first evaluation."
+      - title: "Model one real pipeline"
+        description: "Add a few synthetic or approved test contacts, organizations and deals, then configure the stages and fields your team actually uses."
+      - title: "Test the working views"
+        description: "Compare table, card and kanban views and verify the relationships and permissions behind the workflow."
+      - title: "Connect only what is necessary"
+        description: "Add an entitled messaging account, webhook, REST integration or MCP client only after its data and permission boundary is understood."
+      - title: "Export, then decide"
+        description: "Export a list as Excel or JSON and import it back. Then decide whether the managed service fits, or whether the Starter boundary and operating work of self-hosting are preferable."
+  highlights:
+    title: "At a glance"
+    capture: homepage-dashboard
+    items:
+      - title: "What it is"
+        description: "The vendor operates the servers, updates and backups. You sign in through a browser and pay a subscription, usually per user and month."
+      - title: "Cloud or self-hosted"
+        description: "Cloud removes the operating work and gives up some control. Self-hosting keeps servers and data in your hands and adds the operating work."
+      - title: "Customermates"
+        description: "Managed cloud on monthly per-user plans, or the open-source core on your own servers with the Starter feature set: no inbox, no connected calendar, no hosted Mate."
+      - title: "Before you buy"
+        description: "Check data location and the data processing agreement, export formats, the API, the price per user and the availability commitment, then test an export with real records."
+
 hero:
-  title: Cloud CRM software with an open-source core you can self-host
-  description: Customermates Cloud is a managed, browser-based CRM for contacts, organizations, deals, services and tasks, with REST, webhooks and MCP. The open-source core can also be self-hosted with Docker. Compare both and learn how to choose cloud CRM software.
-  buttonLeftText: Start the Pro trial
-  buttonLeftHref: /auth/signup
+  title: "A cloud CRM that makes sure you follow up on every client"
+  description: "On Customermates Cloud from Pro, LinkedIn and email conversations sit on each client's record and Mate drafts the replies for you to review. Cloud database in Frankfurt, AGPL core you can self-host."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Compare plans
   buttonRightHref: /pricing
-  hint: "Managed cloud • Monthly plans • Separate self-hosting option"
+  hint: "No credit card required • Monthly plans • Separate self-hosting option"
 
 cta:
-  action: Evaluate Customermates Cloud with your own workflow
-  description: Start the [[commercial.trial.days]]-day Pro trial, create a small pipeline, and test the records, views and integrations your team actually needs.
-  buttonLeftText: Start the Pro trial
-  buttonLeftHref: /auth/signup
+  action: "Try Customermates Cloud on your own client follow-up"
+  description: "Start the [[commercial.trial.days]]-day Pro trial, connect one email or LinkedIn account and see whether each client's conversations and next step are easier to keep on top of than today."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Compare plans
   buttonRightHref: /pricing
   hint: "No credit card required. Self-hosting is evaluated separately and uses the Starter feature set."
@@ -79,26 +110,7 @@ cta:
 
 **Cloud CRM software** is customer-relationship software that the vendor hosts and runs, so your team uses it in a browser and installs, patches and backs up nothing itself. It is also called cloud-based CRM or hosted CRM. Customermates is one: a managed cloud CRM whose primary database is configured in Frankfurt, built on an open-source core that you can also self-host with Docker.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="What it is">
-    The vendor operates the servers, updates and backups. You sign in through a
-    browser and pay a subscription, usually per user and month.
-  </SummaryItem>
-  <SummaryItem label="Cloud or self-hosted">
-    Cloud removes the operating work and gives up some control. Self-hosting
-    keeps servers and data in your hands and adds the operating work.
-  </SummaryItem>
-  <SummaryItem label="Customermates">
-    Managed cloud on monthly per-user plans, or the open-source core on your own
-    servers with the Starter feature set: no inbox, no connected calendar, no
-    hosted Mate.
-  </SummaryItem>
-  <SummaryItem label="Before you buy">
-    Check data location and the data processing agreement, export formats, the
-    API, the price per user and the availability commitment, then test an
-    export with real records.
-  </SummaryItem>
-</ArticleSummary>
+**What the cloud changes for follow-up.** When the CRM runs in the cloud, your LinkedIn and email conversations can sit on the client's record and Mate can draft the reply from there. On Customermates Cloud that starts with Pro, and the free trial runs [[commercial.trial.days]] days on Pro. A self-hosted core keeps client records and MCP but has no inbox and no Mate, so drafted follow-up is a cloud feature.
 
 <ProofRail label="Verified Customermates Cloud capabilities">
   <ProofItem label="Records">Configurable lists, created in Configure</ProofItem>
@@ -235,32 +247,6 @@ Every managed-cloud plan includes a Mate entitlement and a plan-specific monthly
 
 External AI clients can use the [Customermates MCP server](/docs/mcp) with a model provider and subscription you choose, on every plan and in self-hosted installations. They use your provider rather than hosted credits. For automation, teams can call REST, receive webhooks, use MCP or connect a separately operated workflow tool such as n8n. Customermates includes neither the n8n runtime nor its third-party connectors.
 
-### How a team evaluates Customermates Cloud
-
-<Steps>
-  <Step title="Create a small workspace">
-    Start the Pro trial and invite only the teammates needed for the first
-    evaluation.
-  </Step>
-  <Step title="Model one real pipeline">
-    Add a few synthetic or approved test contacts, organizations and deals, then
-    configure the stages and fields your team actually uses.
-  </Step>
-  <Step title="Test the working views">
-    Compare table, card and kanban views and verify the relationships and
-    permissions behind the workflow.
-  </Step>
-  <Step title="Connect only what is necessary">
-    Add an entitled messaging account, webhook, REST integration or MCP client
-    only after its data and permission boundary is understood.
-  </Step>
-  <Step title="Export, then decide">
-    Export a list as Excel or JSON and import it back. Then decide whether the
-    managed service fits, or whether the Starter boundary and operating work of
-    self-hosting are preferable.
-  </Step>
-</Steps>
-
 ## Where is Customermates the wrong choice?
 
 Customermates is deliberately narrow. Choose another product, or add one next to it, when you need:
@@ -326,7 +312,7 @@ Customermates Cloud fits teams that want a managed, browser-based CRM for flexib
 </FaqItem>
 
 <FaqItem question="Does Customermates Cloud include AI?">
-  Every cloud plan includes a Mate entitlement and monthly hosted-AI allowance
+  Every paid cloud plan includes a Mate entitlement and monthly hosted-AI allowance
   per active user. Live Mate availability depends on the hosted
   environment's current configuration. External AI clients can also use MCP
   with their own provider and do not consume the hosted allowance.

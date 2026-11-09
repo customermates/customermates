@@ -359,7 +359,7 @@ describeDatabase("files given to Mate in a chat", () => {
           w.interactors.createChat.invoke({ name: "More.txt", size: 200, mimeType: "text/plain" }),
         ),
       ),
-    ).toMatchObject({ code: "storageQuotaExceeded" });
+    ).toMatchObject({ code: "storageQuotaExceededTopPlan" });
     w.quotaLimit.bytesPerUser = null;
   });
 

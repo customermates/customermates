@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/self-hosted
 
+sections:
+  reasons:
+    - title: "Kunden, die nicht nur per E-Mail schreiben"
+      description: "Ab Pro liegen Postfächer von Gmail, Outlook und per IMAP, LinkedIn (inklusive Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in einer Liste, und jedes Gespräch öffnen Sie von der Seite des Kunden."
+    - title: "Antworten von Mate entworfen"
+      description: "In Customermates Cloud fasst Mate Verläufe aus jedem Kanal zusammen, entwirft Antworten, aktualisiert Datensätze und legt Ansichten an. Sie prüfen, bearbeiten und senden."
+    - title: "Ihr eigener KI-Client über MCP"
+      description: "Der MCP-Server bietet [[derived.mcp.tools.total]] Tools in jedem Tarif und bei selbst gehosteten Installationen, sodass Claude oder ChatGPT das CRM im Rahmen Ihrer Berechtigungen lesen und aktualisieren können."
+  switchSteps: true
+
 hero:
-  title: "Twenty-CRM-Alternative: Customermates und Twenty im Vergleich"
-  description: "Twenty ist ein Open-Source-CRM, das Sie selbst zuschneiden: unbegrenzt eigene Objekte, E-Mail- und Kalender-Synchronisierung und ein MCP-Server. Customermates ist ein Open-Source-CRM aus Deutschland, das ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Deals holt und die CRM-Arbeit Mate in Customermates Cloud oder Ihrem eigenen KI-Client überlässt. Angaben zu Twenty von twenty.com und aus der Twenty-Dokumentation, Stand 8. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "Twenty-CRM-Alternative: Customermates im Vergleich"
+  description: "Twenty ist ebenfalls Open Source, und die eigene Anleitung deckt E-Mail- und Kalender-Sync ab. Customermates legt ab Pro zusätzlich LinkedIn, WhatsApp, Instagram und Telegram beim Kunden ab, und Mate entwirft die Antwort. Angaben zu Twenty: Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -37,7 +47,7 @@ comparison:
     features:
       - name: Cloud-Preis pro Nutzer / Monat
         source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
-        competitor: Pro 9 $, Organization 19 $ (jährlich abgerechnet); Enterprise ab 50.000 $ pro Jahr
+        competitor: Pro 9 $, Organization 39 $ (jährlich abgerechnet); Enterprise ab 50.000 $ pro Jahr
       - name: Zahlungsweise
         source: Nur monatlich
         competitor: Monatlich oder jährlich (jährlich mit 25 % Nachlass ausgewiesen)
@@ -88,7 +98,7 @@ comparison:
         competitor: REST, GraphQL und Webhooks
       - name: Berechtigungen
         source: Rollen je Liste (alle, zugewiesene oder keine Datensätze)
-        competitor: Feldebene in jedem Tarif; Zeilenebene ab Organization
+        competitor: Feld- und Zeilenebene ab Organization
       - name: Single Sign-On (SAML/OIDC)
         source: false
         competitor: Organization-Tarif
@@ -96,14 +106,14 @@ comparison:
 cta:
   action: Sie vergleichen Twenty und Customermates?
   description: "Starten Sie eine Testphase, verbinden Sie ein Postfach oder WhatsApp und importieren Sie eine Ansicht, die Sie aus Twenty exportiert haben. So sehen Sie schnell, ob Ihre Daten und Gespräche zum Modell von Customermates passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-> Ob Customermates die bessere Twenty-Alternative für Sie ist, hängt vor allem davon ab, wo Ihre Kunden schreiben. Die Dokumentation von Twenty beschreibt die Synchronisierung von E-Mail und Kalender. Customermates holt ab Pro Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in einen Posteingang, direkt neben den Deal. Hängt Ihr Prozess an Single Sign-On, Berechtigungen auf Zeilenebene oder GraphQL, ist Twenty das bessere Produkt, und es kostet pro Nutzer weniger. Customermates veröffentlicht diesen Vergleich. Alle Angaben zu Twenty stammen von twenty.com, aus der Twenty-Dokumentation und dem GitHub-Repository, Stand 8. Oktober 2026.
+> Ob Customermates die bessere Twenty-Alternative für Sie ist, hängt vor allem davon ab, wo Ihre Kunden schreiben. Die Dokumentation von Twenty beschreibt die Synchronisierung von E-Mail und Kalender. Customermates holt ab Pro Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in einen Posteingang, direkt neben den Deal. Hängt Ihr Prozess an Single Sign-On, Berechtigungen auf Zeilenebene oder GraphQL, ist Twenty das bessere Produkt. Customermates veröffentlicht diesen Vergleich. Alle Angaben zu Twenty stammen von twenty.com, aus der Twenty-Dokumentation und dem GitHub-Repository, Stand 8. Oktober 2026.
 
 ## Welches CRM zu welchem Team passt
 
@@ -125,7 +135,7 @@ Twenty nennt sich auf GitHub „the open alternative to Salesforce, designed for
 
 **E-Mail und Kalender als Kommunikationsebene.** Twenty bindet Google- und Microsoft-Konten direkt an, alle anderen Anbieter über IMAP, SMTP und CalDAV, mit unbegrenzt vielen Konten pro Nutzer. Für jedes Konto legen Sie fest, was das Team sieht: nur Metadaten, Betreff und Metadaten oder den vollständigen Inhalt.
 
-**Zugriffsrechte für wachsende Teams.** Berechtigungen auf Feldebene gibt es in jedem Tarif. Organization (19 $ pro Nutzer und Monat, jährlich abgerechnet) ergänzt Berechtigungen auf Zeilenebene, Single Sign-On per SAML/OIDC, eine eigene Domain und bevorzugten Support. Enterprise beginnt bei 50.000 $ pro Jahr und bringt Single-Tenant-Isolation, IP-Freigabelisten und SCIM-Provisionierung.
+**Zugriffsrechte für wachsende Teams.** Organization (39 $ pro Nutzer und Monat, jährlich abgerechnet) ergänzt Berechtigungen auf Feld- und Zeilenebene, Single Sign-On per SAML/OIDC, eine eigene Domain und bevorzugten Support. Enterprise beginnt bei 50.000 $ pro Jahr und bringt Single-Tenant-Isolation, IP-Freigabelisten und SCIM-Provisionierung.
 
 **KI und Schnittstellen.** Workflows und KI-Agenten sind in jedem Tarif enthalten. Jeder Cloud-Workspace hat einen MCP-Server, den Claude, ChatGPT oder Cursor per OAuth verbinden. REST- und GraphQL-API sowie Webhooks gehören dazu.
 
@@ -141,12 +151,12 @@ Wenn das meiste davon zu Ihrer Arbeitsweise passt, ist Twenty die stärkere Wahl
 
 ## Was fünf Personen pro Monat zahlen
 
-Preise am 8. Oktober 2026 von der [Preisseite von Twenty](https://twenty.com/pricing) abgelesen. Twenty nennt US-Dollar und weist die jährliche Zahlung mit 25 % Nachlass gegenüber der monatlichen aus. Customermates wird monatlich in Euro abgerechnet.
+Preise am 9. November 2026 von der [Preisseite von Twenty](https://twenty.com/pricing) abgelesen. Twenty nennt US-Dollar und weist die jährliche Zahlung mit 25 % Nachlass gegenüber der monatlichen aus. Customermates wird monatlich in Euro abgerechnet.
 
 | Tarif für fünf Personen | Pro Monat |
 |---|---|
 | Twenty Pro, jährlich abgerechnet | 45 $ |
-| Twenty Organization, jährlich abgerechnet | 95 $ |
+| Twenty Organization, jährlich abgerechnet | 195 $ |
 | Customermates Starter | [[commercial.price.starter.monthly.seats.5]] |
 | Customermates Pro | [[commercial.price.pro.monthly.seats.5]] |
 | Customermates Business | [[commercial.price.business.monthly.seats.5]] |
@@ -160,7 +170,7 @@ Für diese Beträge bekommen Sie nicht dasselbe:
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister, die von Beziehungen leben, und Gründer. Es wird in Deutschland entwickelt.
+Twenty und Customermates sind beide Open Source, der Unterschied liegt also im Gespräch. Ab Pro legt Customermates E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Verläufe beim Kunden ab, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt. Sie prüfen, bearbeiten und senden.
 
 **Gespräche neben dem Deal.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Gmail-, Outlook- und IMAP-Postfächer, LinkedIn (einschließlich Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in eine Liste. Sie antworten im ursprünglichen Kanal, verknüpfen einen Teilnehmer einmal mit einem Kontakt und öffnen danach jedes Gespräch mit diesem Kontakt direkt von seiner Seite aus.
 
@@ -176,7 +186,7 @@ Customermates ist ein Open-Source-KI-CRM für kleine Teams mit viel Kundenkontak
 - **Kein GraphQL und kein App-Framework.** Integrationen laufen über REST, Webhooks, MCP oder n8n, das separat betrieben wird.
 - **Der Kalender ist nur lesend angebunden.** Customermates legt keine Kalendertermine an und bucht keine.
 - **Keine Zertifizierung.** Twenty gibt SOC-2-Konformität an; Customermates hat keine Zertifizierung.
-- **Kein kostenloser Tarif.** Es gibt eine Testphase von [[commercial.trial.days]] Tagen, danach einen bezahlten Tarif.
+- **Ein kleiner kostenloser Tarif.** Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
 ## Umstieg von Twenty: was wohin gehört
 
@@ -219,7 +229,7 @@ Customermates veröffentlicht diese Liste. Preise und Funktionen stammen von den
 
 <Faq>
 <FaqItem question="Ist Twenty CRM kostenlos?">
-Den Open-Source-Kern selbst zu hosten ist kostenlos. Twenty Cloud beginnt mit Pro bei 9 $ pro Nutzer und Monat, jährlich abgerechnet, Organization kostet 19 $; für beide gibt es 30 Tage Testphase ohne Kreditkarte. Customermates hat keinen kostenlosen Cloud-Tarif, eine Testphase von [[commercial.trial.days]] Tagen und einen selbst hostbaren Kern ohne Lizenzgebühr.
+Den Open-Source-Kern selbst zu hosten ist kostenlos. Twenty Cloud beginnt mit Pro bei 9 $ pro Nutzer und Monat, jährlich abgerechnet, Organization kostet 39 $; für beide gibt es 30 Tage Testphase ohne Kreditkarte. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, eine Testphase von [[commercial.trial.days]] Tagen und einen selbst hostbaren Kern ohne Lizenzgebühr.
 </FaqItem>
 
 <FaqItem question="Eignet sich Twenty für kleine Teams?">

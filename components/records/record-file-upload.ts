@@ -3,7 +3,7 @@ import type { CreateRecordFileUploadResult, RecordFileDto } from "@/features/rec
 import { notifyIfWorkspaceChanged } from "@/core/errors/workspace-changed-notice";
 import { workspaceApiUrl } from "@/core/navigation/workspace-api-url";
 
-export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null };
+export type RecordFileRequest<T> = { ok: true; data: T } | { ok: false; message: string | null; code?: string };
 
 export type RecordFileUploadStart = RecordFileRequest<CreateRecordFileUploadResult>;
 
@@ -17,6 +17,12 @@ function failureMessage(body: unknown): string | null {
   const issues = (body as { error?: { issues?: Array<{ message?: unknown }> } }).error?.issues;
   const message = issues?.[0]?.message;
   return typeof message === "string" && message.trim() ? message : null;
+}
+
+function failureCode(body: unknown): string | undefined {
+  if (!body || typeof body !== "object") return undefined;
+  const code = (body as { error?: { issues?: Array<{ customCode?: unknown }> } }).error?.issues?.[0]?.customCode;
+  return typeof code === "string" ? code : undefined;
 }
 
 function workspaceChanged(status: number, body: unknown) {
@@ -43,7 +49,8 @@ async function postRecordFileRequest<T>(
   });
   const body = parsed(await response.text());
   if (response.ok) return { ok: true, data: body as T };
-  return { ok: false, message: workspaceChanged(response.status, body) ? null : failureMessage(body) };
+  if (workspaceChanged(response.status, body)) return { ok: false, message: null };
+  return { ok: false, message: failureMessage(body), code: failureCode(body) };
 }
 
 export function startRecordFileUpload(input: { typeId: string; fieldId: string; file: File }) {

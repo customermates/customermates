@@ -9,8 +9,8 @@ relatedHrefs:
   - /docs/app-records
 
 hero:
-  title: "CRM Google Sheets : un modèle gratuit, des formules et le point où il ne suffit plus"
-  description: "Onglets, colonnes, listes déroulantes et formules pour un CRM sur tableur qu’une à trois personnes peuvent tenir dans Google Sheets, un court Apps Script qui vous envoie un e-mail chaque matin, et un chemin propre vers un CRM quand trop de personnes se partagent la feuille."
+  title: "CRM Google Sheets : un modèle gratuit, des formules et ses limites"
+  description: "Onglets, colonnes, listes déroulantes et formules pour un CRM sur Google Sheets tenu par une à trois personnes, un court Apps Script qui vous écrit chaque matin et un chemin propre vers un CRM."
 
 blogPost:
   author: Benjamin Wagner
@@ -169,7 +169,7 @@ Une règle simple : dès que deux personnes modifient les mêmes affaires chaqu
 
 ## Migrer un CRM Google Sheets vers Customermates
 
-Customermates importe des classeurs Excel (.xlsx) et des fichiers CSV, une liste à la fois : une feuille Google passe donc d’abord par un téléchargement. Il n’y a pas de synchronisation en direct avec Google Sheets. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles, et le [guide du modèle Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associe chaque colonne de cette structure à un champ.
+Customermates importe des classeurs Excel (.xlsx) et des fichiers CSV, une liste à la fois : une feuille Google passe donc d’abord par un téléchargement. Il n’y a pas de synchronisation en direct avec Google Sheets. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles, et le [guide du modèle Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associe chaque colonne de cette structure à un champ. Une feuille ne relance que si quelqu’un pense à l’ouvrir. Dans Customermates, les conversations de chaque client se rangent sur sa fiche (dans Customermates Cloud, à partir de Pro), Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et la date de prochaine étape alimente votre tableau de bord au lieu d’un filtre à consulter.
 
 <Steps>
   <Step title="Nettoyer les onglets">Utilisez Données › Nettoyage des données › Supprimer les doublons sur Contacts et Deals, et corrigez toute valeur qu’une liste déroulante signale. Chaque étape et chaque type doit correspondre exactement à l’une des valeurs de Lists.</Step>
@@ -184,7 +184,7 @@ Les valeurs d’affaires fonctionnent différemment : dans Customermates, la va
 ### Ce qui remplace le Dashboard et l’Apps Script
 
 - **QUERY par étape** devient la liste des affaires en board regroupé par Étape, avec la valeur totale et pondérée par colonne, présentée dans la [vue pipeline](/features/pipeline).
-- **La liste de relances FILTER** devient une vue enregistrée des affaires filtrées sur la date de prochaine étape, triées de la plus ancienne à la plus récente.
+- **La liste de relances FILTER** devient une vue enregistrée des affaires filtrées sur la date de prochaine étape, triées de la plus ancienne à la plus récente. Elle peut être partagée avec l’équipe.
 - **L’e-mail du matin** peut devenir une routine dans Customermates Cloud. Customermates n’a ni rappels ni notifications, mais une routine réglée pour s’exécuter chaque jour à 8 h 00 peut suivre une consigne comme celle-ci, avec des crédits IA hébergés :
 
 > Listez mes affaires ouvertes dont la date de prochaine étape est aujourd’hui ou plus tôt. Pour chacune, créez une tâche liée à l’affaire, qui m’est assignée, nommée « Relancer » suivi du nom de l’affaire. N’envoyez et ne rédigez aucun message.
@@ -203,7 +203,7 @@ Si vous voulez quand même une copie de reporting dans Google Sheets, des webhoo
 | 3 personnes, avec la boîte de réception unifiée | Pro, [[commercial.price.pro.monthly]] par utilisateur | [[commercial.price.pro.monthly.seats.3]] |
 | Votre propre serveur | Cœur AGPL auto-hébergé | Sans frais de licence, plus l’hébergement ; REST, webhooks et MCP, mais ni boîte de réception ni Mate |
 
-La facturation est mensuelle, et l’essai hébergé dure [[commercial.trial.days]] jours. Chaque offre hébergée inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing).
+La facturation est mensuelle, et l’essai hébergé dure [[commercial.trial.days]] jours sur Pro, sans carte bancaire : [lancez votre essai](/auth/signup?job=followup) et importez un onglet pour y voir vos propres affaires. Chaque offre hébergée payante inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing).
 
 Customermates est le mauvais choix si votre processus vit dans des formules : il n’a pas de champs de formule, donc les calculs personnalisés restent dans un tableur via l’export. Il l’est aussi si vous avez besoin d’un composeur téléphonique, de campagnes d’e-mails ou d’une application mobile native. Customermates n’a rien de cela : cherchez un CRM qui les propose. Et si le vrai besoin est « rester dans Google Sheets », un module complémentaire de la Place de marché convient mieux que n’importe quel CRM distinct.
 

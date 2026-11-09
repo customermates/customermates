@@ -546,7 +546,7 @@ describe("registration legal copy covers the DPA", () => {
     expect(alert).not.toContain("status.informationNoticeVisible");
     expect(alert).toContain("status.mustAccept");
     expect(alert).toContain("border-primary/30 bg-primary/10 text-primary");
-    expect(alert).toContain("border-warning/30 bg-warning/10 text-warning");
+    expect(alert).toContain("border-warning/30 bg-warning/10 text-warning-soft-foreground");
     expect(page).toContain("status.contractNoticeSent");
     expect(page).toContain("status.contractAccepted");
     expect(page).toContain("status.effectiveAt");

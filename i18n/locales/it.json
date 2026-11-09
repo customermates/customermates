@@ -998,7 +998,8 @@
       "save": "Salva",
       "showLess": "Mostra meno",
       "showMore": "Mostra di più",
-      "signIn": "Accedi"
+      "signIn": "Accedi",
+      "startTrial": "Prova gratis"
     },
     "ariaLabels": {
       "breadcrumb": "Percorso di navigazione",
@@ -1115,6 +1116,7 @@
       "apiKeyMinExpiration": "La scadenza di una chiave API deve essere di almeno 1 giorno.",
       "apiKeyNameLength": "Il nome di una chiave API deve contenere tra 1 e 255 caratteri.",
       "apiKeyNotFound": "Questa chiave API non è stata trovata in questo spazio di lavoro.",
+      "apiRateLimitReached": "Questo spazio di lavoro ha raggiunto il limite di richieste API e MCP del piano Free. Attendi e riprova, oppure passa a Starter per rimuovere il limite.",
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "calendarExportIncomplete": "Questo periodo contiene più voci di quante un'esportazione possa includerne. Scegli un periodo più breve o filtri delle origini più restrittivi.",
@@ -1193,6 +1195,12 @@
       "passwordInvalid": "La password deve contenere tra 8 e 128 caratteri e includere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale.",
       "passwordMismatch": "Le password devono coincidere.",
       "permissionDenied": "Questa azione non è disponibile con le tue autorizzazioni attuali.",
+      "planMemberLimitReached": "Il piano Free include {limit, plural, one {una persona} other {# persone}} per spazio di lavoro, contando le richieste di accesso in sospeso. I team iniziano con Starter ({price} per utente al mese).",
+      "planRecordLimitReached": "Il piano Free include fino a {limit} record per spazio di lavoro. Passa a Starter ({price} per utente al mese) per aggiungerne altri, oppure sposta nel Cestino i record che non ti servono più.",
+      "planSeatSwapRequiresAdmin": "Solo un amministratore può scegliere chi mantiene il posto attivo.",
+      "planSeatSwapTargetNotAdmin": "Sul piano Free solo un amministratore può occupare il posto attivo. Dai prima a questa persona il ruolo di amministratore.",
+      "planSeatSwapUnavailable": "Il posto attivo si può cedere solo mentre questo spazio di lavoro è sul piano Free e la persona è in pausa a causa del piano.",
+      "planWebhooksNotIncluded": "I webhook e n8n non sono inclusi nel piano Free. Passa a Starter ({price} per utente al mese) per creare webhook.",
       "privacyAcknowledgementRequired": "Conferma di aver letto l’Informativa sulla privacy.",
       "publicLinkExpiryInPast": "La data di fine deve essere oggi o successiva.",
       "recordAddressCandidateInvalid": "Questo suggerimento di indirizzo non è più valido. Cerca di nuovo l'indirizzo.",
@@ -1258,6 +1266,7 @@
       "routineScheduleRequired": "Scegli una pianificazione o una data singola per questa routine.",
       "routineScheduleTooFrequent": "Questa pianificazione viene eseguita troppo spesso. Le routine possono essere eseguite al massimo ogni 15 minuti.",
       "routinesRequireCloud": "Le routine vengono eseguite su Customermates Cloud. Un'istanza self-hosted non può eseguirle.",
+      "routinesRequirePlan": "Le routine non sono incluse nel piano Free. Passa a Starter ({price} per utente al mese) per usarle.",
       "routineTestRequiresEnabled": "Attiva la routine prima di testarla.",
       "routineTimeZoneInvalid": "Questo fuso orario non è supportato.",
       "routineTriggerEventsRequired": "Seleziona almeno un evento per questa routine.",
@@ -1268,7 +1277,8 @@
       "socialActionRequiresSocialAccount": "Questa azione richiede un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
       "socialCompanyPageNotManaged": "L'account LinkedIn collegato non amministra questa pagina aziendale.",
       "socialPostsRequireSocialAccount": "I post social richiedono un account LinkedIn o Instagram collegato, ma questo account è {provider}.",
-      "storageQuotaExceeded": "Il tuo spazio di lavoro usa {used} di {limit} di archiviazione per i file. Rimuovi dei file o passa a un piano superiore per caricarne altri.",
+      "storageQuotaExceeded": "Il tuo spazio di lavoro usa {used} di {limit} di archiviazione per i file. {plan} include {size} per utente: sceglilo per caricarne altri, oppure rimuovi dei file.",
+      "storageQuotaExceededTopPlan": "Il tuo spazio di lavoro usa {used} di {limit} di archiviazione per i file, il massimo di questo piano. Contatta il supporto per aggiungerne, oppure rimuovi dei file.",
       "subjectRequired": "Aggiungi un oggetto.",
       "termsNotAgreed": "Devi accettare i termini e le condizioni.",
       "threadNotFound": "ID conversazione non trovato o non accessibile.",
@@ -1697,6 +1707,7 @@
         "events": "Eventi",
         "expiresAt": "Scade il",
         "firstName": "Nome",
+        "firstValue": "Primo valore",
         "isSystemRole": "Ruolo di sistema",
         "lastActiveAt": "Ultima attività",
         "lastName": "Cognome",
@@ -1713,6 +1724,7 @@
         "provider": "Provider",
         "reason": "Motivo",
         "role": "Ruolo",
+        "signupSource": "Registrazione",
         "source": "Origine",
         "status": "Stato",
         "statusCode": "Codice di stato",
@@ -1915,7 +1927,6 @@
     "title": "Canali",
     "upgradeToBusinessForMoreAccounts": "Hai raggiunto il numero di account collegati incluso nel piano Pro. Passa a Business per collegarne altri.",
     "upsellDialogTitle": "Passa a un piano superiore per collegare più account",
-    "viewPlansCta": "Vedi i piani",
     "visibility": "Visibilità",
     "visibilityPrivate": "Privato",
     "visibilityShared": "Condiviso",
@@ -2467,7 +2478,7 @@
     "invalid": "Contiene errori"
   },
   "EmailLayout": {
-    "tagline": "Il CRM agentico open source"
+    "tagline": "Il CRM open source per seguire ogni cliente"
   },
   "EmailVerification": {
     "notVerified": "E-mail non verificata",
@@ -2574,7 +2585,8 @@
   "FAQSection": {
     "contactCta": "Contattaci →",
     "contactIntro": "Non trovi quello che cerchi?",
-    "label": "FAQ"
+    "label": "FAQ",
+    "title": "Domande frequenti"
   },
   "feedback": {
     "general": {
@@ -2647,12 +2659,18 @@
     "placeholder": "Cerca...",
     "staleItem": "Questo elemento non esiste più ed è stato rimosso dagli elementi recenti."
   },
+  "HomepageIntegrations": {
+    "agents": "I tuoi agenti IA",
+    "channels": "I tuoi canali",
+    "label": "I tuoi canali e i tuoi agenti IA, collegati"
+  },
   "HomepagePricing": {
     "cloud": {
       "badge": "Popolare",
       "compareText": "Confronta i piani",
-      "ctaText": "Inizia gratis",
+      "ctaText": "Prova gratis",
       "featureBusiness": "Business: {accounts, plural, one {# account per utente} other {# account per utente}}, condivisione di account interi nella posta in arrivo e assistenza prioritaria",
+      "featureFree": "Free: provalo da solo, {members, plural, one {# persona} other {# persone}} e {records} record",
       "featurePro": "Pro: posta in arrivo unificata, {accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "featureStarter": "Starter: il nucleo del CRM",
       "period": "/ utente / mese",
@@ -2679,14 +2697,13 @@
       "tag": "Esegui il core dell'applicazione con licenza AGPL e PostgreSQL sul tuo server tramite Docker Compose, con funzionalità Starter, senza posta in arrivo e senza IA ospitata. I servizi esterni restano separati.",
       "title": "Self-hosted"
     },
-    "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis il core con licenza AGPL; i servizi esterni restano separati. Oppure inizia sul Cloud senza carta di credito.",
+    "subtitle": "Piani trasparenti, senza costi nascosti. Ospita gratis il core con licenza AGPL; i servizi esterni restano separati. Oppure prova gratis il Cloud, senza carta di credito.",
     "title": "Semplice, onesto, europeo"
   },
-  "HomepageStatsRow": {
-    "automationLabel": "Automazioni",
-    "taglineMcp": "MCP",
-    "taglinePost": " o il browser. Automazioni tramite REST, webhook e la tua istanza n8n.",
-    "taglinePre": "IA esterna tramite"
+  "HomepageWorkspacePrompt": {
+    "live": "Spazio dal vivo, esploralo",
+    "send": "Invia",
+    "sendTo": "Invia a"
   },
   "InactiveCard": {
     "body": "Quando il tuo accesso sarà di nuovo attivo, aggiorna questa pagina per continuare.",
@@ -2910,6 +2927,26 @@
     "then": "poi",
     "title": "Scorciatoie da tastiera"
   },
+  "LandingSections": {
+    "captureAlt": "{name} in Customermates, con dati di esempio",
+    "compareEyebrow": "Confronto",
+    "comparisonEyebrow": "Fianco a fianco",
+    "highlightsEyebrow": "Nel prodotto",
+    "reasonsEyebrow": "Perché i team cambiano",
+    "reasonsTitle": "Perché i team passano a Customermates.",
+    "stepsEyebrow": "Come funziona",
+    "stepsTitle": "{name} in {count} passaggi.",
+    "switch": {
+      "connectDescription": "Da Pro, collega LinkedIn, Gmail, Outlook o WhatsApp in Impostazioni, Canali. Ogni conversazione compare sul contatto collegato.",
+      "connectTitle": "Collega LinkedIn e l’email",
+      "eyebrow": "Il passaggio",
+      "importDescription": "Esporta contatti e trattative dal tuo CRM attuale in Excel o CSV e usa Aggiungi da file, un elenco alla volta.",
+      "importTitle": "Importa il tuo foglio di calcolo",
+      "mateDescription": "In Customermates Cloud, chiedi bozze a Mate. Scrive la risposta e il passo successivo: tu controlli e invii. Anche il tuo agente IA può preparare bozze tramite MCP.",
+      "mateTitle": "Lascia che Mate scriva",
+      "title": "Come cambiare."
+    }
+  },
   "LegalDocumentNotice": {
     "contractBody": "Abbiamo aggiornato i documenti legali elencati di seguito. Esaminali per il cliente aziendale e fai in modo che un amministratore di sistema autorizzato li accetti elettronicamente.",
     "contractBodyNamed": "Abbiamo aggiornato i documenti legali elencati di seguito per lo spazio di lavoro “{workspace}”. Esaminali per il cliente aziendale e fai in modo che un amministratore di sistema autorizzato li accetti elettronicamente.",
@@ -3035,7 +3072,7 @@
   "MessagingUpsell": {
     "cta": "Passa a un piano superiore",
     "description": "La messaggistica è disponibile dal piano Pro in su. Passa a un piano superiore per collegare un canale e usare la posta in arrivo unificata.",
-    "title": "Passa a un piano superiore per la messaggistica"
+    "title": "Fai follow-up da LinkedIn e dall’email"
   },
   "NavigationBar": {
     "addEntity": "Aggiungi {entity}",
@@ -3051,28 +3088,39 @@
     "overview": "Panoramica",
     "pricing": "Prezzi",
     "public": {
-      "agencies": "Agenzie",
+      "agenciesAndVas": "Agenzie e assistenti virtuali",
       "agenticCrm": "CRM agentico",
       "allFeatures": "Tutte le funzionalità",
       "allIntegrations": "Tutte le integrazioni",
-      "allSolutions": "Tutte le soluzioni",
+      "allTeams": "Tutti i team",
       "articlesAndGuides": "Articoli e guide",
       "blog": "Blog",
+      "byJob": "Per attività",
       "byTeam": "Per team",
-      "byWorkflow": "Per flusso di lavoro",
       "clientManagement": "Gestione clienti",
-      "cloudCrm": "CRM cloud",
+      "cloudVsSelfHosted": "Cloud o self-hosted",
       "compare": "Confronti",
       "consultants": "Consulenti",
-      "contactManagement": "Gestione dei contatti",
       "emailAndGmail": "Email e Gmail",
       "freelancers": "Freelance",
       "integrations": "Integrazioni",
+      "jobClientData": "Dati clienti in un unico posto",
+      "jobFollowUp": "Follow-up di ogni cliente",
+      "jobHandover": "Passaggio dei clienti alla produzione",
+      "jobLinkedin": "Relazioni LinkedIn attive",
       "linkedinCrm": "CRM per LinkedIn",
-      "mcp": "MCP",
+      "mcpDocs": "Documentazione MCP",
       "n8n": "Automazione n8n",
       "openExampleWorkspace": "Apri questa area di lavoro di esempio",
       "openSourceCrm": "CRM open source",
+      "pillarAgents": "Agenti",
+      "pillarAgentsDescription": "Mate, Claude o ChatGPT al lavoro nel tuo CRM",
+      "pillarData": "Dati",
+      "pillarDataDescription": "Clienti, trattative e liste su misura",
+      "pillarInbox": "Posta in arrivo",
+      "pillarInboxDescription": "Email, LinkedIn e WhatsApp su ogni cliente",
+      "pillarKnowledge": "Conoscenza",
+      "pillarKnowledgeDescription": "Guide e prezzi che i tuoi agenti seguono",
       "pipeline": "Pipeline di vendita",
       "primaryNavigation": "Navigazione principale",
       "product": "Prodotto",
@@ -3088,12 +3136,11 @@
       "providerInstagram": "Instagram",
       "providerLinkedIn": "LinkedIn",
       "providerOutlook": "Outlook",
-      "providerSlack": "Slack",
+      "providerSlack": "Slack tramite n8n",
       "providerTelegram": "Telegram",
       "providerWhatsApp": "WhatsApp",
       "resources": "Risorse",
-      "salesTracking": "Monitoraggio delle vendite",
-      "selfHosted": "CRM self-hosted",
+      "selfHosted": "Self-hosted",
       "smallBusiness": "Piccole imprese",
       "solutions": "Soluzioni",
       "solutionSummaries": {
@@ -3108,8 +3155,6 @@
         "whatsappCrm": "Chat WhatsApp con i clienti"
       },
       "startups": "Startup",
-      "taskManagement": "Gestione delle attività",
-      "unifiedInbox": "Posta in arrivo unificata",
       "whatsappCrm": "CRM per WhatsApp"
     },
     "routines": "Routine",
@@ -3145,6 +3190,47 @@
     "agreeToTerms": "Dichiaro di avere l’autorizzazione ad agire per il cliente aziendale e accetto i <termsOfServiceLink>Termini</termsOfServiceLink> e il <dpaLink>DPA</dpaLink>. Ho letto l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
     "invitationFrom": "Invito da {inviterName}",
     "invitedAgreeToTerms": "Accetto di rispettare i <termsOfServiceLink>Termini</termsOfServiceLink> e ho letto il <dpaLink>DPA</dpaLink> e l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>."
+  },
+  "OnboardingPlaybooks": {
+    "agencies": {
+      "description": "Brief, pitch e contratti continuativi con più persone dal lato del cliente.",
+      "followUps": "Brief e pitch si raffreddano in fretta. Ogni conversazione aperta ha un responsabile, un prossimo passo e una data.\n\n## Passi\n1. Rispondere a un nuovo brief o a una richiesta entro 1 giorno lavorativo.\n2. Dopo un incontro, inviare lo stesso giorno un riepilogo con decisioni, domande aperte e prossimo passo.\n3. Dopo aver inviato una proposta, sollecitare dopo 3 giorni lavorativi e offrire di esaminarla insieme.\n4. Senza risposta, scrivere di nuovo dopo 7 giorni lavorativi con un contributo utile, per esempio un calendario o un esempio di lavoro simile.\n5. Dopo un terzo messaggio senza risposta, chiedere se mettere in pausa l’argomento e annotare un prossimo passo tra 30 giorni.\n6. Quando un pitch è perso, ringraziare, chiedere il motivo e annotarlo sulla conversazione.",
+      "label": "Agenzie",
+      "salesPlaybook": "## Come vinciamo i progetti\nI nuovi progetti arrivano da brief, segnalazioni e clienti esistenti che vogliono di più. I clienti scelgono un team di cui si fidano per consegnare in tempo.\n\n## Rispondere a un brief o a una richiesta\n1. Confermare la ricezione e dire quando avranno nostre notizie.\n2. Chiedere ciò che serve per definire il progetto: obiettivo, scadenza, fascia di budget, chi approva e come si misura il successo.\n3. Proporre una breve call per esaminare il brief, con due fasce orarie precise.\n4. Non indicare un prezzo fisso prima che il perimetro sia chiaro. Se richiesto, dare una forchetta e le ipotesi alla base.\n\n## Dopo un pitch o una proposta\n- Inviare la proposta a ogni decisore noto, con un breve riepilogo e il prossimo passo.\n- Se possibile, concordare una data di decisione durante l’incontro.\n- Quando il cliente non risponde più, seguire le regole per i solleciti.\n\n## Clienti esistenti\n- Rispondere a una richiesta di modifica confermando cosa cambia in perimetro, tempi e costi prima di iniziare.\n- Non promettere mai una data di consegna che il responsabile del progetto non ha confermato.",
+      "toneOfVoice": "## Come suoniamo\nCordiali, sicuri e organizzati. Scriviamo come un team: noi, non io.\n\n## Regole\n- Iniziare da ciò che il cliente deve sapere o decidere.\n- Usare elenchi puntati per perimetro, date e domande aperte.\n- Tenere i messaggi LinkedIn in poche righe e spostare i dettagli su e-mail o call.\n- Dare del lei ai nuovi contatti e poi adattarsi al cliente.\n- Niente gergo che il cliente non abbia usato per primo, niente emoji in un primo messaggio.\n- Chiudere ogni messaggio con un prossimo passo chiaro."
+    },
+    "consultants": {
+      "description": "Primi colloqui, proposte e incarichi che nascono dalle relazioni.",
+      "followUps": "I solleciti fanno avanzare le conversazioni senza mettere pressione. Ogni conversazione aperta ha un prossimo passo e una data.\n\n## Passi\n1. Rispondere a ogni nuovo messaggio di un cliente o potenziale cliente entro 1 giorno lavorativo, anche solo per dire quando arriverà la risposta completa.\n2. Dopo un primo colloquio, inviare lo stesso giorno un riepilogo con il prossimo passo concordato.\n3. Dopo aver inviato una proposta, sollecitare dopo 3 giorni lavorativi con una breve domanda, per esempio se il perimetro va bene.\n4. Se ancora non c’è risposta, scrivere un’ultima volta dopo 7 giorni lavorativi e offrire di adattare perimetro o tempi.\n5. Dopo un terzo messaggio senza risposta, fermarsi e annotare un prossimo passo tra 30 giorni, salvo che il cliente abbia indicato un’altra data.\n6. Quando un cliente dice di no, ringraziarlo, chiedere cosa ha fatto la differenza e chiudere la conversazione.",
+      "label": "Consulenti",
+      "salesPlaybook": "## Come vinciamo gli incarichi\nLa maggior parte degli incarichi arriva da segnalazioni e da persone che ci conoscono già. Una prima conversazione riguarda il problema del cliente, non i nostri servizi.\n\n## Rispondere a una richiesta\n1. Ringraziare e riassumere il problema con le parole del cliente in una frase.\n2. Fare le domande che servono per definire l’incarico: obiettivo, tempi e chi decide.\n3. Offrire una breve call con due fasce orarie precise invece di inviare subito un prezzo.\n4. Se chiedono una cifra indicativa, dare una forchetta e dire da cosa dipende. Usare solo tariffe confermate dal titolare.\n\n## Dopo una proposta\n- Inviare la proposta con un riepilogo di un paragrafo dell’opzione consigliata.\n- Indicare il prossimo passo e la data in cui ci faremo sentire.\n- Quando il cliente non risponde più, seguire le regole per i solleciti.\n\n## Cosa non facciamo mai\n- Promettere risultati, date o prezzi che il titolare non ha confermato.\n- Parlare del lavoro di un cliente con un altro cliente.",
+      "toneOfVoice": "## Come suoniamo\nCalmi, chiari e concreti, come un consulente di fiducia: paragrafi brevi, parole semplici, niente parole di moda.\n\n## Regole\n- Iniziare con il nome della persona e arrivare al punto nella prima frase.\n- Fare una sola domanda per messaggio quando possibile, così rispondere è facile.\n- Usare le parole del cliente per descrivere il suo problema.\n- Dare del lei finché il cliente non passa al tu.\n- Firmare con il nome di battesimo, senza firme lunghe nei messaggi LinkedIn.\n- Niente punti esclamativi in un primo messaggio, niente emoji a meno che il cliente non le usi."
+    },
+    "followUpsWhenToUse": "Quando una conversazione con un cliente richiede una risposta o un sollecito, o una proposta o un preventivo aspetta un riscontro.",
+    "freelancers": {
+      "description": "Richieste di progetto, preventivi e clienti che segui da solo.",
+      "followUps": "Un sollecito mancato spesso è un progetto perso. Ogni richiesta aperta ha un prossimo passo e una data.\n\n## Passi\n1. Rispondere a una nuova richiesta entro 1 giorno lavorativo, anche solo per dire quando arriverà il preventivo.\n2. Inviare il preventivo entro il termine promesso.\n3. Sollecitare 3 giorni lavorativi dopo il preventivo con una breve domanda.\n4. Scrivere un’ultima volta dopo 7 giorni lavorativi offrendo una call o un primo passo più piccolo.\n5. Dopo un terzo messaggio senza risposta, fermarsi e annotare un prossimo passo tra 30 giorni.\n6. A fine progetto, chiedere un feedback e fissare un momento per risentirsi per lavori futuri.",
+      "label": "Freelance",
+      "salesPlaybook": "## Come trovo i progetti\nI progetti arrivano da segnalazioni, ex clienti, piattaforme e LinkedIn. I clienti vogliono sapere in fretta se posso fare il lavoro, quando e più o meno a che prezzo.\n\n## Rispondere a una richiesta di progetto\n1. Rispondere presto e in modo personale, riprendendo un dettaglio del loro messaggio.\n2. Chiedere ciò che mi serve per un preventivo: perimetro, scadenza, fascia di budget e modalità di collaborazione.\n3. Dire quando sono disponibile e proporre una breve call se il perimetro non è chiaro.\n4. Inviare un preventivo solo per un perimetro chiaro. Per una domanda indicativa, dare la mia tariffa giornaliera o una forchetta e dire da cosa dipende, usando solo tariffe che ho confermato.\n\n## Dopo un preventivo\n- Ripetere cosa è incluso e cosa no.\n- Indicare il prossimo passo: una call, una firma o una data di inizio.\n- Quando il cliente non risponde più, seguire le regole per i solleciti.\n\n## Limiti\n- Niente lavoro non pagato oltre una breve call.\n- Nessun impegno sulle date prima che il progetto sia confermato.",
+      "toneOfVoice": "## Come suono\nPersonale, diretto e affidabile. Scrivo come me stesso, in prima persona.\n\n## Regole\n- Messaggi brevi, un argomento ciascuno.\n- Dare del lei finché il cliente non passa al tu, poi fare lo stesso.\n- Essere concreti su disponibilità, prezzo e prossimi passi.\n- Cordiale, ma senza paragrafi di chiacchiere prima del punto.\n- Niente emoji in un primo messaggio; dopo, adattarsi al cliente."
+    },
+    "guide": {
+      "intro": "Questo spazio è partito dal playbook {playbook}. Mate legge queste pagine prima di scrivere una bozza di risposta o proporre un prossimo passo. Modificale finché non suonano come te: i tuoi servizi, i tuoi prezzi e il tuo modo di scrivere.",
+      "pagesHeading": "Pagine della knowledge base"
+    },
+    "pages": {
+      "followUps": "Regole per i solleciti",
+      "guide": "Guida operativa",
+      "salesPlaybook": "Playbook di vendita",
+      "toneOfVoice": "Tono di voce"
+    },
+    "smb": {
+      "description": "Richieste dei clienti, preventivi e clienti abituali via e-mail e chat.",
+      "followUps": "Una risposta rapida spesso decide chi ottiene l’ordine. Ogni richiesta aperta ha un prossimo passo e una data.\n\n## Passi\n1. Rispondere a ogni richiesta entro 1 giorno lavorativo.\n2. Inviare un preventivo entro 2 giorni lavorativi, o dire quando arriverà.\n3. Sollecitare 3 giorni lavorativi dopo l’invio di un preventivo e chiedere se qualcosa non è chiaro.\n4. Prima che un preventivo scada, scrivere ancora una volta indicando fino a quando è valido.\n5. Se ancora non c’è risposta, chiudere la richiesta e annotare il motivo.\n6. A ordine concluso, ringraziare il cliente e chiedere se ci consiglierebbe.",
+      "label": "Piccole imprese",
+      "salesPlaybook": "## Come troviamo clienti\nI clienti ci trovano tramite il nostro sito, il passaparola e i messaggi. Si aspettano una risposta rapida e chiara e un preventivo onesto.\n\n## Rispondere a una richiesta o a una richiesta di preventivo\n1. Ringraziare e rispondere prima alla domanda posta.\n2. Chiedere solo ciò che serve per il preventivo: cosa, quanto, dove ed entro quando.\n3. Inviare il preventivo con cosa è incluso, il prezzo del nostro listino e la sua validità.\n4. Se non possiamo aiutare, dirlo con gentilezza e, se possibile, indicare chi può farlo.\n\n## Dopo un preventivo\n- Offrirsi di rispondere alle domande per telefono o per messaggio.\n- Indicare il prossimo passo, per esempio confermare l’ordine o prenotare una data.\n- Quando il cliente non risponde più, seguire le regole per i solleciti.\n\n## Cosa non facciamo mai\n- Indicare prezzi che non sono nel nostro listino o non confermati dal titolare.\n- Promettere date di consegna che non abbiamo verificato.",
+      "toneOfVoice": "## Come suoniamo\nCordiali, disponibili e alla mano. Scriviamo come parliamo con i clienti di persona.\n\n## Regole\n- Salutare per nome e rispondere nella prima frase.\n- Parole semplici e una breve spiegazione per ciò che è tecnico.\n- Paragrafi brevi, con elenchi per prezzi, date e opzioni.\n- Dare del lei, a meno che il cliente non scriva in modo informale.\n- Ringraziare per l’ordine, e per la pazienza quando qualcosa richiede più tempo.\n- Emoji solo nelle app di chat, e solo se il cliente le usa."
+    }
   },
   "OnboardingWizard": {
     "ai": {
@@ -3245,6 +3331,39 @@
       }
     },
     "finish": "Fine",
+    "goal": {
+      "agent": {
+        "description": "Usa Claude, ChatGPT o un client CLI con il tuo spazio tramite MCP.",
+        "title": "Collegare il mio agente IA"
+      },
+      "channelsHint": {
+        "action": "Apri la dashboard",
+        "connectedDescription": "Mate scriverà bozze di risposta nella tua posta in arrivo man mano che arrivano le conversazioni. I prossimi passi compaiono sulla tua dashboard.",
+        "connectedEmailTitle": "E-mail collegata",
+        "connectedLinkedinTitle": "LinkedIn collegato",
+        "description": "Mate legge le conversazioni con i clienti, scrive bozze di risposta secondo il tuo playbook e mette i prossimi passi sulla tua dashboard.",
+        "emailTitle": "Oppure inizia con l’e-mail",
+        "inboxAction": "Apri la posta in arrivo",
+        "later": "Puoi collegare altri canali da questa pagina quando vuoi.",
+        "linkedinAction": "Collega LinkedIn",
+        "linkedinDescription": "Qui iniziano la maggior parte delle conversazioni con i clienti. Messaggi e contatti arrivano e sono privati per impostazione predefinita.",
+        "linkedinTitle": "LinkedIn",
+        "otherEmail": "Altra e-mail (IMAP)",
+        "recommended": "Consigliato",
+        "salesNavigator": "Usi Sales Navigator? Collega invece LinkedIn con Sales Navigator",
+        "title": "Collega prima LinkedIn"
+      },
+      "followup": {
+        "description": "Scegli un playbook, collega LinkedIn e vedi chi aspetta una risposta.",
+        "title": "Seguire le conversazioni con i clienti"
+      },
+      "optionsLabel": "Primi passi",
+      "suggested": "Consigliato",
+      "workspace": {
+        "description": "Rispondi a qualche domanda. Creiamo liste, viste e dashboard.",
+        "title": "Configurare il mio spazio clienti"
+      }
+    },
     "invite": {
       "emailCount": "{current} di {max} e-mail · separale con una virgola o premi Invio",
       "emailPlaceholder": "collega@esempio.com",
@@ -3263,24 +3382,42 @@
     },
     "milestones": {
       "ai": "Strumenti IA",
+      "goal": "Obiettivo",
       "invite": "Team",
+      "playbook": "Playbook",
       "profile": "Tu",
       "setup": "Spazio di lavoro"
     },
     "next": "Avanti",
+    "playbook": {
+      "continue": "Usa questo playbook",
+      "optionsLabel": "Playbook",
+      "skip": "Salta per ora",
+      "writesDescription": "{pages}. Mate legge queste pagine prima di scrivere una bozza di risposta o proporre un prossimo passo.",
+      "writesTitle": "Tre pagine della base di conoscenza, pronte da modificare"
+    },
     "profile": {
       "websitePlaceholder": "esempio.it"
     },
     "progress": "Passaggio {current} di {total}",
     "progressLabel": "Avanzamento della configurazione iniziale",
+    "progressOpen": "Passaggio {current}",
     "steps": {
       "ai": {
         "subtitle": "Scegli uno strumento di IA da collegare al tuo spazio di lavoro e alle sue conoscenze. Collegane uno ora, aggiungine altri più avanti oppure salta questo passaggio.",
         "title": "Collega l’IA che usi già"
       },
+      "goal": {
+        "subtitle": "Scegli un punto di partenza. Il resto puoi farlo quando vuoi.",
+        "title": "Da cosa vuoi iniziare?"
+      },
       "invite": {
         "subtitle": "Invita i colleghi con un link condiviso o con singoli inviti via e-mail. Puoi anche continuare da solo e invitarli in seguito.",
         "title": "Coinvolgi il tuo team"
+      },
+      "playbook": {
+        "subtitle": "Mate scrive le bozze delle tue risposte partendo da qui. Lo salviamo nella tua base di conoscenza e puoi modificarlo quando vuoi.",
+        "title": "Scegli il playbook per il tuo lavoro"
       },
       "profile": {
         "invitedSubtitle": "Completa il profilo per richiedere l’accesso allo spazio di lavoro a cui sei stato invitato.",
@@ -3526,6 +3663,19 @@
       "workspaceId": "ID spazio di lavoro"
     },
     "navigation": "Aree di lavoro",
+    "signup": {
+      "events": {
+        "agentConnected": "Agente collegato",
+        "channelConnected": "Canale collegato",
+        "jobSelected": "Obiettivo scelto",
+        "setupCompleted": "Configurazione pronta"
+      },
+      "jobs": {
+        "agent": "Agente IA proprio",
+        "followup": "Follow-up",
+        "workspace": "Configurazione spazio"
+      }
+    },
     "stats": {
       "assistantConversations": "Chat dell'assistente",
       "connectedAccounts": "Account collegati",
@@ -3568,6 +3718,10 @@
     "withdrawConfirmDescription": "Gli amministratori non vedono più la tua richiesta. Per unirti in seguito, puoi chiederlo di nuovo con un link di invito e un amministratore dovrà approvare la richiesta.",
     "withdrawConfirmTitle": "Ritirare la richiesta di unirti a {name}?",
     "withdrawShort": "Ritira"
+  },
+  "PlanBanner": {
+    "paymentFailed": "L’ultimo pagamento per questo spazio di lavoro non è andato a buon fine. Aggiorna i dati di pagamento per mantenere {plan}.",
+    "reviewPayment": "Controlla il pagamento"
   },
   "Planner": {
     "addSource": "Aggiungi fonte delle date",
@@ -3615,6 +3769,56 @@
     "title": "Calendario",
     "truncated": "Alcuni eventi superano il limite. Riduci il periodo o filtra una fonte. Le esportazioni richiedono risultati completi.",
     "unavailableSource": "Fonte non disponibile"
+  },
+  "PlanPause": {
+    "banner": "{count, plural, one {# persona è in pausa} other {# persone sono in pausa}}. Scegli {plan} per farle tornare.",
+    "memberStatus": "In pausa (piano Free)",
+    "swapAction": "Cedi il posto attivo",
+    "swapConfirm": "Cedi il posto",
+    "swapDescription": "Free ha un posto attivo. {name} diventa la persona attiva e tu vai in pausa finché questo spazio di lavoro non sceglie un piano. Non viene eliminato nulla.",
+    "swapNeedsAdmin": "Sul piano Free solo un amministratore può occupare il posto attivo, così qualcuno può ancora scegliere un piano. Dai prima a {name} il ruolo di amministratore, poi cedi il posto.",
+    "swapTitle": "Dare il posto attivo a {name}?"
+  },
+  "PlanPausedCard": {
+    "askAdmin": "Chiedi a un amministratore di questo spazio di lavoro di scegliere {plan} per farti tornare.",
+    "askOwner": "Chiedi a {owner} di scegliere {plan} per farti tornare.",
+    "body": "Free non include i team, quindi il tuo accesso a {workspace} è in pausa. I tuoi record e la tua cronologia restano.",
+    "switchTitle": "Cambia spazio di lavoro",
+    "title": "Questo spazio di lavoro è sul piano Free"
+  },
+  "PlanPauseNotice": {
+    "body": "Il tuo spazio di lavoro è passato al piano Free, che non include i team, quindi il tuo accesso è in pausa. Chiedi a {owner} di scegliere Starter per farti tornare.",
+    "bodyNamed": "Lo spazio di lavoro “{workspace}” è passato al piano Free, che non include i team, quindi il tuo accesso è in pausa. Chiedi a {owner} di scegliere Starter per farti tornare.",
+    "cta": "Apri Customermates",
+    "greeting": "Ciao {firstName},",
+    "kept": "Non viene eliminato nulla. I tuoi record e la tua cronologia restano nello spazio di lavoro e gli altri tuoi spazi di lavoro non cambiano.",
+    "ownerFallback": "un amministratore dello spazio di lavoro",
+    "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
+    "signoff": "Cordiali saluti,\nBen",
+    "subject": "Il tuo accesso è in pausa finché lo spazio di lavoro è sul piano Free",
+    "subjectNamed": "Il tuo accesso a “{workspace}” è in pausa",
+    "title": "Accesso in pausa"
+  },
+  "PlanUsage": {
+    "apiPerMinute": "Fino a {perMinute} al minuto",
+    "apiToday": "Chiamate API oggi",
+    "description": "Questo spazio di lavoro è sul piano Free. Posta in arrivo, Mate, routine, webhook e n8n non sono inclusi.",
+    "members": "Persone",
+    "membersReached": "Il piano Free include {limit, plural, one {una persona} other {# persone}}. I team iniziano con Starter.",
+    "of": "{used} di {limit}",
+    "paused": "{count, plural, one {# persona è in pausa} other {# persone sono in pausa}}",
+    "pausedHelp": "I loro dati e la loro cronologia restano. Scegli {plan} per farle tornare. Da quel momento contano di nuovo come posti.",
+    "records": "Record",
+    "recordsApproaching": "{used} di {limit} record utilizzati. Il piano Free blocca i nuovi record a quota {limit}.",
+    "recordsReached": "Questo spazio di lavoro ha raggiunto il limite di {limit} record del piano Free. Cambia piano per aggiungerne altri, oppure sposta nel Cestino i record che non ti servono più.",
+    "storage": "Spazio per i file",
+    "teamsDescription": "Free serve a provare Customermates da soli. Per lavorare in team, scegli {plan}. Tutto ciò che è già in questo spazio di lavoro resta.",
+    "teamsTitle": "I team iniziano con {plan}",
+    "title": "Utilizzo del piano Free"
+  },
+  "ProductFilm": {
+    "caption": "Ogni conversazione con i clienti da email, LinkedIn e WhatsApp in un unico posto. Mate configura il tuo spazio e prepara il follow-up, tu lo controlli e lo invii. Funziona con Claude, ChatGPT o qualsiasi agente che parla MCP. Film in inglese.",
+    "title": "Video del prodotto Customermates"
   },
   "ProfileSections": {
     "apiKeysDescription": "Chiavi API di lunga durata per l'accesso programmatico."
@@ -4669,6 +4873,7 @@
     "eventSuppressionNote": "Gli eventi causati dalle routine non attivano alcuna routine.",
     "onMinute": "al minuto",
     "pausedHelp": "Questa routine è attualmente in pausa e non verrà eseguita.",
+    "planPaused": "In pausa, piano Free",
     "promptExampleEvent": "Leggi il record che è cambiato e rispondi con una frase su cosa significa.",
     "promptExampleSchedule": "Riassumi ciò che è cambiato da ieri e rispondi con un breve elenco.",
     "scheduleTimeZone": "Gli orari sono mostrati in {timezone}.",
@@ -4688,6 +4893,7 @@
     "ownerInactive": "L’account del proprietario della routine non è più attivo",
     "ownerPaused": "Il proprietario ha sospeso la routine",
     "ownerUnavailable": "Il proprietario della routine non è più disponibile",
+    "planPaused": "Lo spazio di lavoro è passato al piano Free",
     "platformPaused": "Customermates ha sospeso il lavoro dell’IA; gli amministratori dello spazio di lavoro non possono riattivarlo",
     "routineDisabled": "La routine era in pausa",
     "startAbandoned": "L’esecuzione è stata interrotta prima di iniziare",
@@ -4855,6 +5061,7 @@
   },
   "Subscription": {
     "currentPeriodEnd": "Il periodo attuale termina il",
+    "currentPlan": "Piano attuale",
     "fieldHelp": {
       "currentPeriodEndManage": "Definita dal ciclo di fatturazione attuale. Usa «{billing}» per modificare l’abbonamento.",
       "currentPeriodEndReadOnly": "Definita dal ciclo di fatturazione attuale. Chiedi le modifiche a un amministratore dell’area di lavoro.",
@@ -4865,7 +5072,7 @@
       "planReadOnly": "Sincronizzato con la fatturazione. Chiedi le modifiche a un amministratore dell’area di lavoro.",
       "quantity": "Sincronizzato con il numero di membri attivi dell’area di lavoro. Gli amministratori possono attivare o disattivare i membri in «{members}».",
       "trialEndsManage": "Definita dal periodo di prova. Usa «{billing}» per gestire l’abbonamento.",
-      "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per continuare senza interruzioni.",
+      "trialEndsPicker": "Definita dal periodo di prova. Scegli un piano prima di questa data per mantenere le funzioni a pagamento; altrimenti lo spazio di lavoro passa al piano Free.",
       "trialEndsReadOnly": "Definita dal periodo di prova. Chiedi a un amministratore dell’area di lavoro di gestire l’abbonamento."
     },
     "fileStorage": "Spazio per i file",
@@ -4873,13 +5080,19 @@
     "managedExternallyNote": "Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.",
     "manageWithLemonSqueezy": "Gestisci con Lemon Squeezy",
     "picker": {
+      "bestForFollowUp": "Ideale per il follow-up",
       "choose": "Scegli {plan}",
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "creditNote": "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
       "features": {
         "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
         "max": ["Tutto ciò che c'è in Business", "Accesso anticipato alle funzionalità beta"],
-        "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
+        "pro": [
+          "Tutto ciò che c'è in Starter",
+          "Posta in arrivo unificata per i tuoi account",
+          "Mate scrive le bozze delle risposte, tu le rivedi",
+          "Condividi le singole conversazioni con il tuo team"
+        ],
         "starter": [
           "Liste, campi, relazioni e pipeline tutti tuoi, oppure lascia che Mate configuri il tuo spazio di lavoro",
           "Dashboard, viste e knowledge base",
@@ -4888,16 +5101,28 @@
           "Accesso al server MCP"
         ]
       },
+      "forTeams": "Per i team",
+      "freeCurrent": "Free · piano attuale",
+      "freeSummary": "{members, plural, one {Una persona} other {# persone}} e fino a {records} record. API e MCP con un limite di richieste.",
       "hostedAiUsage": "Utilizzo di Mate {multiplier}x per utente attivo / mese",
       "perUserMonth": "per utente / mese",
-      "recommended": "Consigliato",
+      "recommendedForYou": "Consigliato per te",
       "routinesPerUser": "{routines, plural, one {# routine per utente} other {# routine per utente}}",
+      "seatsIncludePaused": "Un piano a pagamento riattiva {paused, plural, one {la persona in pausa} other {le # persone in pausa}}, quindi il pagamento copre {count, plural, one {# persona} other {# persone}}.",
+      "seatTotal": "{count, plural, one {# persona} other {# persone}}, {total} al mese",
+      "taglines": {
+        "business": "Team che condividono le caselle",
+        "max": "Uso intensivo di Mate",
+        "pro": "Fai follow-up da LinkedIn e dall’email",
+        "starter": "Il tuo spazio di lavoro e la tua IA"
+      },
       "unlimitedRoutinesPerUser": "Routine illimitate per utente"
     },
     "plan": "Piano",
     "planNames": {
       "business": "Business",
       "enterprise": "Enterprise",
+      "free": "Free",
       "max": "Max",
       "pro": "Pro",
       "starter": "Starter"
@@ -4999,8 +5224,8 @@
     "undo": "Annulla"
   },
   "TrialExpiredOffer": {
-    "body": "La tua prova è terminata da poco, ma mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la tua prova e rivedere insieme a te la configurazione.",
-    "bodyNamed": "La prova del tuo spazio di lavoro “{workspace}” è terminata da poco, ma mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la prova e rivedere insieme a te la configurazione.",
+    "body": "La tua prova è terminata da poco e il tuo spazio di lavoro è passato al piano Free, quindi tutti i tuoi dati sono ancora lì. Se altre persone ci lavoravano con te, sono in pausa finché non scegli un piano. Mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la tua prova e rivedere insieme a te la configurazione.",
+    "bodyNamed": "La prova del tuo spazio di lavoro “{workspace}” è terminata da poco e lo spazio di lavoro è passato al piano Free, quindi tutti i tuoi dati sono ancora lì. Se altre persone ci lavoravano con te, sono in pausa finché non scegli un piano. Mi farebbe piacere aiutarti a ottenere un valore concreto da Customermates. Se vuoi, posso prolungare la prova e rivedere insieme a te la configurazione.",
     "cta": "Mettiti in contatto",
     "greeting": "Ciao {firstName},",
     "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
@@ -5008,30 +5233,6 @@
     "subject": "Ti serve più tempo? Continuiamo insieme",
     "subjectNamed": "Ti serve più tempo per “{workspace}”? Continuiamo insieme",
     "title": "Offerta di prolungamento della prova"
-  },
-  "TrialInactivationNotice": {
-    "body": "Il tuo account è ora inattivo perché la tua prova è terminata più di 6 giorni fa. Se vuoi ancora continuare, posso aiutarti a riattivarlo rapidamente e guidarti nei passaggi successivi.",
-    "bodyNamed": "Il tuo accesso allo spazio di lavoro “{workspace}” è ora inattivo perché la sua prova è terminata più di 6 giorni fa. Se vuoi ancora continuare, posso aiutarti a riattivarlo rapidamente e guidarti nei passaggi successivi.",
-    "cta": "Mettiti in contatto",
-    "dismiss": "Se questa e-mail ti ha raggiunto in un momento impegnativo, nessun problema. Puoi tornare quando vuoi e ti aiuterò personalmente.",
-    "greeting": "Ciao {firstName},",
-    "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
-    "signoff": "Cordiali saluti,\nBen",
-    "subject": "Il tuo account è inattivo: possiamo aiutarti a ripartire",
-    "subjectNamed": "Il tuo accesso a “{workspace}” è inattivo: possiamo aiutarti a ripartire",
-    "title": "Account disattivato"
-  },
-  "TrialInactivationReminder": {
-    "body": "La tua prova è terminata qualche giorno fa e il tuo account diventerà inattivo tra 3 giorni. Se vuoi, posso aiutarti rapidamente a completare la configurazione e a mantenere tutto attivo.",
-    "bodyNamed": "La prova del tuo spazio di lavoro “{workspace}” è terminata qualche giorno fa e il tuo accesso diventerà inattivo tra 3 giorni. Se vuoi, posso aiutarti rapidamente a completare la configurazione e a mantenere tutto attivo.",
-    "cta": "Mettiti in contatto",
-    "dismiss": "Se non ti serve più il tuo account, non devi fare nulla.",
-    "greeting": "Ciao {firstName},",
-    "scheduleFallback": "Se il pulsante non funziona, copia e incolla questo link nel tuo browser: ",
-    "signoff": "Cordiali saluti,\nBen",
-    "subject": "3 giorni prima che il tuo account diventi inattivo",
-    "subjectNamed": "3 giorni prima che il tuo accesso a “{workspace}” diventi inattivo",
-    "title": "Promemoria di disattivazione della prova"
   },
   "TrialWelcome": {
     "body": "È bello averti qui. Sono Ben, fondatore di Customermates, e mi farebbe piacere aiutarti a iniziare in fretta e rendere semplici i tuoi primi passi di configurazione.",
@@ -5041,6 +5242,97 @@
     "signoff": "Cordiali saluti,\nBen",
     "subject": "Ti diamo il benvenuto in Customermates",
     "title": "La tua prova inizia qui"
+  },
+  "Upsell": {
+    "askAdmin": "Solo gli amministratori dello spazio di lavoro possono cambiare piano. Chiedi a un amministratore di scegliere {plan}.",
+    "availableOn": "Disponibile con il piano {plan}",
+    "business": {
+      "sharedAccounts": "Condividi un intero account con il tuo team"
+    },
+    "compose": {
+      "title": "Scrivi da questo record con il piano {plan}"
+    },
+    "free": {
+      "description": "Per {members, plural, one {una persona} other {# persone}} e fino a {records} record. Team, Mate, routine e webhook partono da {plan}, la posta in arrivo da {inboxPlan}.",
+      "title": "Questo spazio di lavoro è sul piano Free",
+      "upgradeDescription": "{plan} aggiunge team, Mate, routine e webhook; {inboxPlan} la posta in arrivo."
+    },
+    "locked": {
+      "mate": {
+        "description": "Mate, l’assistente IA di Customermates, non è incluso nel piano Free. Puoi comunque collegare il tuo Claude o ChatGPT tramite MCP.",
+        "title": "Mate fa parte dei piani a pagamento"
+      },
+      "routines": {
+        "description": "Le tue routine restano e sono in pausa finché questo spazio di lavoro è sul piano Free. Scegli {plan} e riprendono da sole.",
+        "title": "Le routine sono in pausa sul piano Free"
+      },
+      "webhooks": {
+        "description": "I webhook e il trigger di n8n non sono inclusi nel piano Free. I webhook esistenti restano, ma non inviano nulla finché questo spazio di lavoro è sul piano Free. Scegli {plan} e tornano a consegnare.",
+        "title": "Webhook e n8n da {plan}"
+      }
+    },
+    "planPrice": "{plan} · {price} per utente / mese",
+    "preview": {
+      "draftBadge": "Bozza, in attesa della tua revisione",
+      "draftText": "Ciao Jonas, grazie. Ti invio la proposta rivista martedì. A presto, Anna",
+      "firstMessage": "Va bene. Puoi mandarmi la proposta rivista la prossima settimana?",
+      "firstName": "Jonas Weber",
+      "firstTime": "16:42",
+      "label": "Posta in arrivo di esempio con dati demo: una risposta LinkedIn e una bozza di Mate in attesa della tua revisione",
+      "mate": {
+        "answer": "Tre clienti stanno aspettando. Ho preparato un follow-up per ognuno, da rivedere.",
+        "label": "Chat di esempio con Mate e dati demo: una domanda sulle risposte in sospeso e la risposta di Mate",
+        "question": "Chi aspetta una risposta questa settimana?"
+      },
+      "nextStep": "Prossimo passo aggiunto da Mate",
+      "routines": {
+        "firstName": "Revisione settimanale della pipeline",
+        "firstTrigger": "Ogni lunedì alle 08:00",
+        "label": "Elenco di routine di esempio con dati demo: una routine settimanale e una che parte quando cambia qualcosa",
+        "secondName": "Follow-up dopo una risposta"
+      },
+      "secondMessage": "Date del workshop di primavera",
+      "secondName": "Mira Holm",
+      "secondTime": "09:15",
+      "webhooks": {
+        "label": "Elenco di webhook di esempio con dati demo: un webhook per i nuovi record e un webhook n8n per gli aggiornamenti"
+      }
+    },
+    "pro": {
+      "drafts": "Mate scrive le bozze delle risposte, tu le rivedi",
+      "inbox": "Un'unica casella per i tuoi account LinkedIn, email, WhatsApp, Instagram e Telegram",
+      "nextSteps": "Condividi le singole conversazioni con il tuo team"
+    },
+    "routines": {
+      "reachedTitle": "Stai usando tutte le routine incluse nel tuo piano {plan}"
+    },
+    "starter": {
+      "noLimits": "Tutto il tuo team, nessun limite di record, webhook e n8n"
+    },
+    "storage": {
+      "nextPlan": "{plan} include {size} per utente.",
+      "supportSubject": "Più spazio per i file",
+      "topPlan": "Nessun piano include più spazio."
+    },
+    "trial": {
+      "cta": "Scegli un piano",
+      "description": "Scegli un piano per mantenere il tuo team, la posta in arrivo, Mate e le routine dopo la prova. Senza un piano, questo spazio di lavoro passa a Free, pensato per provarlo da soli.",
+      "dismiss": "Nascondi per ora",
+      "title": "{days, plural, =0 {La tua prova {plan} termina oggi} one {Ti resta # giorno di prova {plan}} other {Ti restano # giorni di prova {plan}}}"
+    },
+    "trialEnd": {
+      "cta": "Mantieni tutto con {plan}",
+      "items": {
+        "accounts": "{count, plural, one {# account collegato} other {# account collegati}}",
+        "drafts": "{count, plural, one {# bozza aperta} other {# bozze aperte}}",
+        "mate": "Mate ({count, plural, one {# richiesta} other {# richieste}})",
+        "members": "{count, plural, one {# persona in più} other {# persone in più}}",
+        "routines": "{count, plural, one {# routine attiva} other {# routine attive}}",
+        "webhooks": "{count, plural, one {# webhook attivo} other {# webhook attivi}}"
+      },
+      "lead": "Questo si ferma sul piano Free:"
+    },
+    "upgradeTo": "Passa a {plan}"
   },
   "UserAvatar": {
     "documentation": "Documentazione",
@@ -5317,7 +5609,7 @@
   "Workspaces": {
     "apiKeysScope": "Queste chiavi accedono solo a questo spazio di lavoro.",
     "apiKeysScopeNamed": "Queste chiavi accedono solo allo spazio di lavoro {name}.",
-    "billingNote": "Ogni spazio di lavoro ha il proprio piano e le proprie postazioni. Il primo spazio di lavoro che crei include la prova gratuita; quelli successivi iniziano con la scelta di un piano.",
+    "billingNote": "Ogni spazio di lavoro ha il proprio piano e le proprie postazioni. Il primo spazio di lavoro che crei include la prova gratuita e poi passa al piano Free; quelli successivi iniziano con la scelta di un piano.",
     "create": "Crea spazio di lavoro",
     "createDescription": "Un nuovo spazio di lavoro parte vuoto, con record, base di conoscenza, membri e connessioni propri.",
     "current": "Attuale",

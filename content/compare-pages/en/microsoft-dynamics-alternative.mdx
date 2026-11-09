@@ -9,10 +9,20 @@ relatedHrefs:
   - /blog/crm-and-erp
   - /features/self-hosted
 
+sections:
+  reasons:
+    - title: "Outlook stays, and the client gets the conversations"
+      description: "From Pro, you connect an Outlook mailbox, or Gmail, IMAP, LinkedIn, WhatsApp, Instagram or Telegram, and the unified inbox shows every conversation in one list, linked to the client."
+    - title: "AI drafting without a plan step"
+      description: "In Customermates Cloud, Mate is part of every paid plan, within a monthly allowance of hosted AI credits. It drafts the reply, summarizes the thread and updates the record."
+    - title: "Open source, with a hosting choice"
+      description: "The AGPL-3.0 core runs on your own server with Docker Compose and PostgreSQL 16, including REST, webhooks and MCP. In the cloud, the database is configured in Frankfurt."
+  switchSteps: true
+
 hero:
-  title: "Microsoft Dynamics Alternative: Customermates and Dynamics 365 Sales Compared"
-  description: "Dynamics 365 Sales is licensed per user and paid yearly, with Copilot and sales agents built around Microsoft 365. Customermates is an open-source CRM built in Germany for small client-facing teams: monthly billing, Outlook, LinkedIn and WhatsApp next to your deals from Pro, and Mate in Customermates Cloud or your own AI client for the CRM work. Microsoft details checked on 8 October 2026."
-  buttonLeftText: Start for free
+  title: "Microsoft Dynamics Alternative: Customermates Compared"
+  description: "Dynamics 365 Sales starts at $65 per user per month, paid yearly, and Copilot begins one plan up. Customermates bills monthly, keeps Outlook, LinkedIn and WhatsApp conversations on the client from Pro, and Mate drafts the reply. Checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -93,7 +103,7 @@ comparison:
 cta:
   action: Leaving Dynamics 365 Sales?
   description: "Start a trial, export one Dynamics view to Excel and import it as accounts or opportunities. Connect your Outlook mailbox and see whether your data and conversations fit Customermates before you move the rest."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -156,11 +166,11 @@ The rows do not buy the same things:
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
+A small team that needs to follow up with clients does not need a business platform for it. From Pro, Customermates keeps Outlook as your mailbox, adds LinkedIn, WhatsApp, Instagram and Telegram, and lets Mate or your own AI agent draft the reply and the next step. You review, edit and send.
 
 **Outlook stays, and the CRM gets the conversations.** From Pro, you connect an Outlook mailbox, or Gmail, IMAP, LinkedIn, WhatsApp, Instagram or Telegram, and the [unified inbox](/features/unified-inbox) shows every conversation in one list. You reply on the original channel. Link a participant to a contact once and the conversation shows on that contact. Calendar events from the connected account appear read-only. Teams is not an inbox channel.
 
-**AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. It uses hosted AI credits: every plan includes a monthly allowance per active user, listed on the [pricing page](/pricing). Mate asks for a fresh approval before it deletes anything, but when you ask it to send a message, it sends, so tell it to save drafts if you want to read them first. [Routines](/docs/app-routines) run a saved instruction on a schedule or when a record changes, as their owner: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business.
+**AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. It uses hosted AI credits: every paid plan includes a monthly allowance per active user, listed on the [pricing page](/pricing). Mate asks for a fresh approval before it deletes anything, but when you ask it to send a message, it sends, so tell it to save drafts if you want to read them first. [Routines](/docs/app-routines) run a saved instruction on a schedule or when a record changes, as their owner: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business.
 
 Prefer Claude, ChatGPT or another client you already pay for? Connect it to the [MCP server](/docs/mcp) with an API key or OAuth. It offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs, and its model calls run on your own AI provider.
 
@@ -173,7 +183,7 @@ Prefer Claude, ChatGPT or another client you already pay for? Connect it to the 
 - **Fine-grained security.** Roles set permissions per list and action. There is no field-level security and no SSO.
 - **Contact Center or Customer Service.** Microsoft sells both as separate Dynamics 365 apps. Customermates has no telephony, cases or tickets.
 - **Bundled sales tooling.** No mobile app, call recording, data enrichment, lead scoring, email sequences or bulk email. The weighted pipeline is arithmetic on stage probabilities, not a forecast.
-- **A free plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
+- **A large free plan.** Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a consulting firm leaving Sales Professional
 
@@ -232,7 +242,7 @@ No. Dataverse is the data platform underneath. Dynamics 365 Sales and Customer S
 </FaqItem>
 
 <FaqItem question="Is there a free alternative to Microsoft Dynamics 365?">
-Salesforce (Free Suite), HubSpot, Zoho CRM and Odoo each have a free plan with limits on users, features or apps. Customermates has no free plan; it has a [[commercial.trial.days]]-day trial, and its open-source core costs no licence fee if you host it yourself, without the inbox and Mate.
+Salesforce (Free Suite), HubSpot, Zoho CRM and Odoo each have a free plan with limits on users, features or apps. Customermates has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, a [[commercial.trial.days]]-day trial, and its open-source core costs no licence fee if you host it yourself, without the inbox and Mate.
 </FaqItem>
 
 <FaqItem question="Does Customermates work with Outlook and Microsoft 365?">

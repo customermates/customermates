@@ -1,6 +1,6 @@
 ---
 title: "CRM Integrations: REST API, Webhooks, MCP and n8n"
-description: "Connect Customermates to other tools with REST, signed webhooks, MCP for AI clients and your own n8n. Every plan, self-hosted too, with honest limits."
+description: "Connect Customermates to other tools: REST and MCP on every plan, signed webhooks and your own n8n on paid plans and self-hosted, with honest limits."
 featureName: CRM Integrations
 
 relatedHrefs:
@@ -9,37 +9,53 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/crm-erp-integration
 
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Create the Slack incoming webhook"
+        description: "In Slack, create an app, turn on incoming webhooks, add a webhook to your workspace and pick the channel. Copy the URL and keep it secret."
+      - title: "Add the Customermates webhook"
+        description: "Under Settings → Webhooks → Add, paste the Slack URL, select Record created and choose Deals under Records from."
+      - title: "Write the body template"
+        description: "Enter {\"text\": \"New deal: {{data.record.ref.recordId}}\"}. Any path under {{data}} works as a placeholder."
+      - title: "Test and check the log"
+        description: "Create a test deal and open Deliveries. A 2xx status code means Slack accepted it."
+
 hero:
-  title: CRM integrations through open interfaces, not a marketplace
-  description: Customermates connects to other software through a documented REST API, [[derived.webhooks.events.total]] webhook events, an MCP endpoint for AI clients like Claude and ChatGPT, and a community node for n8n. All of it works on every plan and on self-hosted installations. Email, LinkedIn, WhatsApp, Instagram and Telegram connect natively through the unified inbox from Pro.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "Open interfaces, so your tools and agents work from the same client record"
+  description: "Connect other software through a documented REST API, [[derived.webhooks.events.total]] webhook events, MCP for Claude and ChatGPT and an n8n community node. REST and MCP are on every plan, webhooks and n8n triggers on paid plans and self-hosted. From Pro, LinkedIn and email conversations sit on the client, and REST and MCP can read them."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Connect your first tool
-  description: Create an API key or a webhook during the trial and send one real CRM event to the system that needs it.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Send your first client event to another tool"
+  description: "Create an API key or a webhook during the trial and send one real CRM event, for example a new message or a changed deal, to the system that needs it."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-A CRM integration moves data or triggers between your CRM and another system, so nobody copies a deal from one screen into another. Customermates does this through four open interfaces instead of an app marketplace: a REST API, outgoing webhooks, an MCP endpoint for AI clients, and a community node for n8n. They are available on every plan, including self-hosted installations.
+A CRM integration moves data or triggers between your CRM and another system, so nobody copies a deal from one screen into another. Customermates does this through four open interfaces instead of an app marketplace: a REST API, outgoing webhooks, an MCP endpoint for AI clients, and a community node for n8n. The REST API and MCP are available on every plan. Webhooks, and the n8n triggers that depend on them, come with every paid plan. Self-hosted installations have all four.
 
 That choice has a cost you should know up front. There is no catalog of one-click apps. If you want Customermates to talk to Slack, your accounting tool or a form builder, you either point a webhook at that tool, call the API from your own code, or build the flow in an automation tool such as n8n, Make or Zapier.
+
+**What this means for follow-up.** The follow-up on a client conversation often ends in another system: a message in your team chat when a reply arrives, a record in your project tool. A webhook on the messaging events, an n8n flow or your own AI client over MCP can pick that up, so the next step does not depend on someone copying it across.
 
 ## The five connection types at a glance
 
 | Connection | Direction | What it is for | Plan |
 |---|---|---|---|
-| Webhooks | CRM to your system | Push an event when a record in any list is created, updated, moved to Trash, restored or deleted permanently, or when an inbox message arrives | Every plan, self-hosted included |
+| Webhooks | CRM to your system | Push an event when a record in any list is created, updated, moved to Trash, restored or deleted permanently, or when an inbox message arrives | Every paid plan and self-hosted, not Free |
 | REST API | Your system to CRM | Create, read, search, update and delete records from code or an automation tool | Every plan, self-hosted included |
 | MCP | AI client to CRM | Let Claude, ChatGPT, Cursor, Codex or Gemini CLI read and write records in conversation | Every plan, self-hosted included |
-| n8n community node | Both | Dedicated Customermates nodes in a separately run n8n instance | Every plan; n8n is billed by n8n |
+| n8n community node | Both | Dedicated Customermates nodes in a separately run n8n instance | Actions on every plan, triggers on paid plans and self-hosted; n8n is billed by n8n |
 | Unified inbox | Channels to CRM | Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram conversations next to the record, plus read-only Google and Microsoft calendars | Customermates Cloud, Pro or higher |
 
 Webhooks, REST and MCP come with Starter at [[commercial.price.starter.monthly]] per user per month. The [unified inbox](/features/unified-inbox) starts with Pro at [[commercial.price.pro.monthly]] per user per month and includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user; Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user and shared accounts. Self-hosted installations get REST, webhooks and MCP but no inbox, so messaging events never fire there.
@@ -103,13 +119,6 @@ Customermates has no Slack app, no Slack channel in the inbox and no Slack setti
 
 **Route 1, webhook only.** Slack's [incoming webhooks](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) accept a JSON POST such as `{"text": "Hello"}` and post it into one channel. A Customermates body template produces exactly that:
 
-<Steps>
-  <Step title="Create the Slack incoming webhook">In Slack, create an app, turn on incoming webhooks, add a webhook to your workspace and pick the channel. Copy the URL and keep it secret.</Step>
-  <Step title="Add the Customermates webhook">Under **Settings → Webhooks → Add**, paste the Slack URL, select **Record created** and choose Deals under **Records from**.</Step>
-  <Step title="Write the body template">Enter `{"text": "New deal: {{data.record.ref.recordId}}"}`. Any path under `{{data}}` works as a placeholder.</Step>
-  <Step title="Test and check the log">Create a test deal and open **Deliveries**. A 2xx status code means Slack accepted it.</Step>
-</Steps>
-
 **Route 2, n8n.** Use n8n when the message needs logic: alert only when the deal **Stage** reaches a certain value, post a weekly pipeline digest from a scheduled `POST /api/v1/records/query`, or turn a Slack shortcut into a new contact through the API. Slack conversations never appear in the Customermates inbox either way.
 
 ## What is not included
@@ -130,7 +139,7 @@ Connections that move data or triggers between a CRM and other software, for exa
 </FaqItem>
 
 <FaqItem question="Does Customermates have an open API and webhooks?">
-Yes, on every plan and in self-hosted installations. The REST API is documented with OpenAPI and uses an `x-api-key` header. Webhooks cover [[derived.webhooks.events.total]] events, with HMAC signatures, automatic retries and a delivery log.
+Yes: the API on every plan and in self-hosted installations, webhooks on every paid plan and when self-hosted. The REST API is documented with OpenAPI and uses an `x-api-key` header. Webhooks cover [[derived.webhooks.events.total]] events, with HMAC signatures, automatic retries and a delivery log.
 </FaqItem>
 
 <FaqItem question="Is there a native Slack integration?">

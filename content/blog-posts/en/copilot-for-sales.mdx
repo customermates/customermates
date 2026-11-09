@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Copilot for Sales: What Sales Agent Does, What It Needs and What It Costs"
-  description: "Microsoft's sales assistant for Outlook and Teams, renamed Sales agent: the license and CRM it depends on, the setup steps, a cost example for a small team, and options when you are not on Dynamics 365 or Salesforce."
+  description: "Microsoft's sales assistant for Outlook and Teams, renamed Sales agent: the license and CRM it depends on, setup steps, a cost example for a small team, and options without Dynamics 365 or Salesforce."
 
 blogPost:
   author: Benjamin Wagner
@@ -116,13 +116,15 @@ Customermates is an open-source, AI-native CRM for small client-facing teams suc
 
 A typical setup for a five-person team:
 
-- **Records.** Contacts, organizations and deals, with deal stages as a Single choice field and stage weights for a weighted pipeline value. Deals have assigned users, and each person keeps their own saved views, for example "My deals in Proposal".
+- **Records.** Contacts, organizations and deals, with deal stages as a Single choice field and stage weights for a weighted pipeline value. Deals have assigned users, and each person keeps their own saved views and shares the ones the team needs, for example "My deals in Proposal".
 - **Inbox.** On Pro or higher, the [unified inbox](/features/unified-inbox) links email from Outlook, Gmail or IMAP, plus LinkedIn, WhatsApp, Instagram and Telegram conversations, to the same records. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]]. The [Outlook integration](/features/outlook-integration) connects the mailbox server-side; there is nothing to install in Outlook.
 - **Mate, in Customermates Cloud.** The in-app assistant uses hosted AI credits. Ask it "Summarize the last thread with Acme and save a reply draft that proposes two meeting slots". Mate sends email immediately when you tell it to send, so ask for a draft when you want to review first. Details are in the [Mate documentation](/docs/app-assistant).
 - **A routine, in Customermates Cloud.** Trigger "When something changes", event "Record updated" for Deals, under "Changed fields" the Stage field. Instructions: "When a deal moves to Proposal, read the last thread with the contact and save a reply draft. Do not send anything." The routine runs as its owner, with that owner's channels. See [routines](/docs/app-routines).
 - **Your own AI client.** If your team already uses Claude or ChatGPT, connect it over MCP with the [custom connector](/docs/connect-custom-connector). Microsoft documents that Copilot Studio agents can connect to an existing MCP server; Customermates has no published guide for that client yet, so test one read before relying on it.
 
 **Cost.** Five users on Pro cost [[commercial.price.pro.monthly.seats.5]] a month, billed monthly, including the inbox and monthly hosted AI credits per active user ([see pricing](/pricing)). Starter at [[commercial.price.starter.monthly]] per user has no inbox. Self-hosting the AGPL core is free of license fees and keeps REST, webhooks and MCP, but has no inbox and no Mate.
+
+What a small team gets for that seat is follow-up without a Microsoft stack: threads on the client record, a reply draft and next step prepared by Mate or your own AI client, and you review and send. To try it with your own mailbox or LinkedIn, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 **What it does not do.** Customermates does not record or transcribe meetings, has no Outlook, Teams or Word add-in, so CRM details are looked up in Customermates itself, does not write calendar events and has no mobile app. If meeting recaps from Teams are the reason you are looking at Copilot for Sales, stay with Microsoft.
 

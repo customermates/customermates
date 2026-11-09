@@ -9,6 +9,7 @@ import { isCanonicalInactiveErrorType, isRestrictedAccountState } from "@/featur
 import { requireAccountState } from "@/features/auth/next/require";
 import { resolveRequestAccountState } from "@/features/auth/next/resolve-account-state";
 import { buildLocalePath } from "@/i18n/locale-registry";
+import { getGetPlanPauseStateInteractor } from "@/core/di";
 
 import type { ErrorPageKey } from "./error-page-content";
 import { NOINDEX_METADATA } from "@/core/seo/noindex-metadata";
@@ -42,6 +43,9 @@ export default async function ErrorPage({ searchParams }: Props) {
     (requestedErrorKey === "inactiveUser" || isRestrictedAccountState(resolution.state))
   )
     await requireAccountState("inactive");
+
+  if (isInactive && resolution.user && (await getGetPlanPauseStateInteractor().invoke(resolution.user.id)).paused)
+    redirect(buildLocalePath(await getLocale(), "/auth/paused"));
 
   if (isInactive) {
     return (

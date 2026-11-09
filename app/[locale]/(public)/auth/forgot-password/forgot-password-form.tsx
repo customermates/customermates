@@ -69,7 +69,7 @@ const ForgotPasswordFormContent = observer(({ inviterName, onboardingIntent }: P
           ) : null}
 
           {info === "RESET_LINK_INVALID" && (
-            <Alert className="mb-4" color="warning">
+            <Alert className="mb-4" variant="warning">
               <p className="text-x-sm">{t("ForgotPasswordForm.resetLinkInvalid")}</p>
             </Alert>
           )}

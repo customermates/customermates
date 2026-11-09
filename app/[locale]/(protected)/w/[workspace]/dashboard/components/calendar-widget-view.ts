@@ -8,10 +8,10 @@ export type CalendarHeatLevel = (typeof CALENDAR_HEAT_LEVELS)[number];
 
 export const CALENDAR_HEAT_CLASS: Record<CalendarHeatLevel, string> = {
   0: "bg-muted text-muted-foreground",
-  1: "bg-chart-1/16 text-foreground",
-  2: "bg-chart-1/36 text-foreground",
-  3: "bg-chart-1/62 text-foreground",
-  4: "bg-chart-1 text-primary-foreground",
+  1: "bg-primary/10 text-foreground",
+  2: "bg-primary/25 text-foreground",
+  3: "bg-primary/55 text-primary-foreground",
+  4: "bg-primary text-primary-foreground",
 };
 
 type CalendarDay = CalendarWidgetData["days"][number];

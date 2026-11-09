@@ -36,7 +36,7 @@ export const RecordAddressStatus = observer(function RecordAddressStatus({
   if (verified) {
     return (
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground" data-address-status="verified">
-        <BadgeCheck aria-hidden className="size-3.5 shrink-0 text-success" />
+        <BadgeCheck aria-hidden className="size-3.5 shrink-0 text-success-soft-foreground" />
 
         {t("RecordModel.addressVerified")}
       </p>

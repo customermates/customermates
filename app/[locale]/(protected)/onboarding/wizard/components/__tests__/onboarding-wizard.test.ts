@@ -1,6 +1,7 @@
 import type { RootStore } from "@/core/stores/root.store";
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
 import type { SetupStage } from "../setup/setup-interview-state";
+import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
 
 import type { ReactNode } from "react";
 
@@ -37,13 +38,13 @@ vi.mock("../../actions", () => ({
   completeOnboardingSetupStepAction: testContext.completeSetupStep,
   completeOnboardingWizardAction: vi.fn(),
   saveOnboardingWizardProgressAction: vi.fn(),
+  selectOnboardingJobAction: vi.fn(),
+  applyOnboardingPlaybookAction: vi.fn(),
 }));
-vi.mock("../step-profile", () => ({
-  StepProfile: () => createElement("div", { "data-step": "profile" }),
-}));
-vi.mock("../step-invite", () => ({
-  StepInvite: () => createElement("div", { "data-step": "invite" }),
-}));
+vi.mock("../step-profile", () => ({ StepProfile: () => createElement("div", { "data-step": "profile" }) }));
+vi.mock("../step-invite", () => ({ StepInvite: () => createElement("div", { "data-step": "invite" }) }));
+vi.mock("../step-goal", () => ({ StepGoal: () => createElement("div", { "data-step": "goal" }) }));
+vi.mock("../step-playbook", () => ({ StepPlaybook: () => createElement("div", { "data-step": "playbook" }) }));
 vi.mock("../step-ai", () => ({
   StepAi: () => createElement("div", { "data-step": "ai" }),
   StepAiFooter: () => createElement("div", { "data-step-footer": "ai" }),
@@ -68,6 +69,7 @@ type RenderOptions = {
   setupStatus?: WorkspaceSetupStatusView;
   setupStepCompleted?: boolean;
   appMode?: "cloud" | "self-hosted" | "demo";
+  jobChoice?: OnboardingJobChoiceView;
 };
 
 function renderWizard({
@@ -76,12 +78,13 @@ function renderWizard({
   setupStatus,
   setupStepCompleted = false,
   appMode = "cloud",
+  jobChoice,
 }: RenderOptions = {}): string {
   const store = new OnboardingWizardStore({} as RootStore);
   testContext.rootStore = { onboardingWizardStore: store, appMode } as unknown as RootStore;
 
   return renderToStaticMarkup(
-    createElement(OnboardingWizard, { profileCompleted, isInvited, setupStatus, setupStepCompleted }),
+    createElement(OnboardingWizard, { profileCompleted, isInvited, setupStatus, setupStepCompleted, jobChoice }),
   );
 }
 
@@ -103,7 +106,91 @@ describe("resolveWizardResume", () => {
         setupAvailable: true,
         setupStepCompleted: false,
       }),
-    ).toEqual({ steps: ["profile", "setup", "invite", "ai"], resumeStepIndex: 1 });
+    ).toEqual({ steps: ["profile", "goal", "setup", "invite", "ai"], resumeStepIndex: 2 });
+  });
+
+  it("opens the goal step after the profile until the owner chose what to do first", () => {
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: false,
+        jobSelected: false,
+      }).resumeStepIndex,
+    ).toBe(1);
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: true,
+        jobSelected: false,
+      }).resumeStepIndex,
+    ).toBe(3);
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: true,
+        setupAvailable: false,
+        setupStepCompleted: false,
+        jobSelected: false,
+      }),
+    ).toEqual({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
+  });
+
+  it("shows only profile, goal and AI client for the agent job, so no skipped step reads as done", () => {
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: false,
+        jobSelected: true,
+        job: "agent",
+      }),
+    ).toEqual({ steps: ["profile", "goal", "ai"], resumeStepIndex: 2 });
+  });
+
+  it("follows the playbook path for the follow-up job until the setup step is closed", () => {
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: false,
+        jobSelected: true,
+        job: "followup",
+      }),
+    ).toEqual({ steps: ["profile", "goal", "playbook"], resumeStepIndex: 2 });
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: false,
+        jobSelected: false,
+        job: "followup",
+      }).resumeStepIndex,
+    ).toBe(1);
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: true,
+        job: "followup",
+      }),
+    ).toEqual({ steps: ["profile", "goal", "setup", "invite", "ai"], resumeStepIndex: 3 });
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: false,
+        setupStepCompleted: false,
+        job: "followup",
+      }),
+    ).toEqual({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
   });
 
   it("drops the setup step for self-hosted and demo workspaces without a dead end", () => {
@@ -121,7 +208,7 @@ describe("resolveWizardResume", () => {
     expect(
       resolveWizardResume({ profileCompleted: true, isInvited: false, setupAvailable: true, setupStepCompleted: true })
         .resumeStepIndex,
-    ).toBe(2);
+    ).toBe(3);
     expect(
       resolveWizardResume({ profileCompleted: true, isInvited: true, setupAvailable: false, setupStepCompleted: false })
         .resumeStepIndex,
@@ -137,11 +224,12 @@ describe("resolveWizardResume", () => {
 });
 
 describe("OnboardingWizard", () => {
-  it("counts the setup among four steps for a new cloud owner", () => {
+  it("counts the goal and the setup among five steps for a new cloud owner", () => {
     const html = renderWizard();
 
     expect(html).toContain('data-step="profile"');
-    expect(html).toContain("OnboardingWizard.progress current=1 total=4");
+    expect(html).toContain("OnboardingWizard.progressOpen current=1");
+    expect(html).toContain("OnboardingWizard.milestones.goal");
     expect(html).toContain("OnboardingWizard.milestones.setup");
   });
 
@@ -149,7 +237,7 @@ describe("OnboardingWizard", () => {
     const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
 
     expect(html).toContain('data-step="setup"');
-    expect(html).toContain("OnboardingWizard.progress current=2 total=4");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=5");
     expect(html).toContain("OnboardingWizard.steps.setup.title");
     expect(html).toContain("max-w-3xl");
     expect(testContext.hydrated).toEqual([AVAILABLE]);
@@ -170,6 +258,7 @@ describe("OnboardingWizard", () => {
     const fresh = renderWizard({ appMode: "self-hosted" });
     expect(fresh).toContain("OnboardingWizard.progress current=1 total=3");
     expect(fresh).not.toContain("OnboardingWizard.milestones.setup");
+    expect(fresh).not.toContain("OnboardingWizard.milestones.goal");
 
     const registered = renderWizard({ profileCompleted: true, setupStatus: SELF_HOSTED, appMode: "self-hosted" });
     expect(registered).toContain('data-step="invite"');
@@ -198,6 +287,48 @@ describe("OnboardingWizard", () => {
 
     expect(html).toContain("OnboardingWizard.steps.profile.invitedSubtitleNamed workspace=Bergmann Steuern");
     expect(html).not.toContain("OnboardingWizard.steps.profile.invitedSubtitle<");
+  });
+
+  it("asks a new owner what to do first before the setup, preselected from the signup", () => {
+    const html = renderWizard({
+      profileCompleted: true,
+      setupStatus: AVAILABLE,
+      jobChoice: { selectedJob: null, signupJob: "followup", preselectedJob: "followup", suggestedPlaybook: null },
+    });
+
+    expect(html).toContain("OnboardingWizard.steps.goal.title");
+    expect(html).toContain("OnboardingWizard.milestones.goal");
+    expect(html).toContain("OnboardingWizard.milestones.playbook");
+    expect(html).not.toContain("OnboardingWizard.milestones.setup");
+    expect(html).toContain("OnboardingWizard.progressOpen current=2");
+    expect(html).not.toContain('data-step="setup"');
+  });
+
+  it("skips the goal step once the owner chose", () => {
+    const html = renderWizard({
+      profileCompleted: true,
+      setupStatus: AVAILABLE,
+      jobChoice: { selectedJob: "workspace", signupJob: null, preselectedJob: "workspace", suggestedPlaybook: null },
+    });
+
+    expect(html).toContain('data-step="setup"');
+  });
+
+  it("resumes on the playbook step once the owner chose to follow up", () => {
+    const html = renderWizard({
+      profileCompleted: true,
+      setupStatus: AVAILABLE,
+      jobChoice: {
+        selectedJob: "followup",
+        signupJob: null,
+        preselectedJob: "followup",
+        suggestedPlaybook: "consultants",
+      },
+    });
+
+    expect(html).toContain("OnboardingWizard.steps.playbook.title");
+    expect(html).toContain("OnboardingWizard.progress current=3 total=3");
+    expect(html).toContain("max-w-3xl");
   });
 
   it("resumes on invitations once the setup step is completed", () => {
@@ -252,7 +383,7 @@ describe("OnboardingWizard", () => {
 describe("completing the setup step", () => {
   function setupStore() {
     const store = new OnboardingWizardStore({ stepAiStore: { restoreSelection: vi.fn(), reset: vi.fn() } } as never);
-    store.initialize(1, undefined, undefined, true);
+    store.initialize(2, undefined, undefined, true);
     return store;
   }
 

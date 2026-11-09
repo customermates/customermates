@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Kostenloses CRM: was die Gratis-Tarife enthalten und wo sie aufhören"
-  description: Mehrere gehostete CRM-Systeme sind dauerhaft kostenlos, Open-Source-CRMs kosten keine Lizenzgebühr. Jedes Modell endet irgendwo, an einer Nutzergrenze, einer Kontaktgrenze oder beim Betriebsaufwand. Dieser Leitfaden zeigt, wo, mit den Grenzen von den Seiten der Anbieter selbst.
+  description: "Mehrere gehostete CRMs sind dauerhaft kostenlos, Open-Source-CRMs kosten keine Lizenz. Jedes endet irgendwo: an einer Nutzer- oder Kontaktgrenze oder beim Betriebsaufwand. Mit Grenzen der Anbieter."
 
 blogPost:
   author: Benjamin Wagner
@@ -33,7 +33,7 @@ Eine kostenlose Testphase ist etwas Drittes und kein Gratis-Tarif. Pipedrive und
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Gehostete Gratis-Tarife">Die meisten erlauben zwei oder drei Nutzer. Die Kontaktgrenzen reichen von 200 (CentralStationCRM) bis 1.000 (HubSpot), Zoho zählt 5.000 Datensätze über alle Module.</SummaryItem>
   <SummaryItem label="Open Source">SuiteCRM, EspoCRM und der Customermates-Kern stehen unter der AGPL und lassen sich kostenlos selbst hosten. Hosting, Updates und Backups liegen bei Ihnen.</SummaryItem>
-  <SummaryItem label="Testphasen">Pipedrive bietet 14 Tage, Freshsales 21 Tage, Customermates Cloud [[commercial.trial.days]] Tage. Danach zahlen Sie oder wechseln.</SummaryItem>
+  <SummaryItem label="Testphasen">Pipedrive bietet 14 Tage, Freshsales 21 Tage, Customermates Cloud [[commercial.trial.days]] Tage. Danach zahlen Sie oder wechseln; Customermates Cloud wechselt in den kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Leitfaden. Die Übersicht ist keine Rangliste, Customermates hat einen eigenen, gekennzeichneten Abschnitt.</SummaryItem>
 </ArticleSummary>
 
@@ -110,11 +110,13 @@ Für ein Team mit fünf Personen kann ein kleiner VPS im Monat weniger kosten al
 
 ## Wo Customermates einzuordnen ist
 
-*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Es ist in einer Form kostenlos und in der anderen kostenpflichtig, und beide unterscheiden sich im Umfang.
+*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Selbst gehostet ist es kostenlos, und Customermates Cloud hat einen kleinen kostenlosen Tarif und bezahlte Tarife; sie unterscheiden sich im Umfang.
 
 **Selbst gehostet: kostenlos, ohne Begrenzung der Nutzerzahl.** Sie betreiben den AGPL-Kern mit Docker Compose: ein Container für die Anwendung, einer für PostgreSQL. Ein selbst gehosteter Workspace hat kein Abonnement und keine Testphase, die Anwendung zählt keine Nutzerlizenzen. Sie erhalten den Funktionsumfang von Starter: Kontakte, Organisationen, Deals, Services und Aufgaben, eigene Felder, gespeicherte Ansichten, Dashboards, Rollen, das Audit-Log, REST, Webhooks und MCP für Ihren eigenen KI-Client. Nicht enthalten sind der einheitliche Posteingang, Mate und gehostete KI-Credits. Für den E-Mail-Versand brauchen Sie einen eigenen Resend-API-Schlüssel. Die [Self-Hosting-Dokumentation](/docs/self-hosting) führt durch die Installation.
 
-**Cloud: kostenpflichtig, mit Testphase.** Customermates Cloud hat keinen Gratis-Tarif. Die Testphase dauert [[commercial.trial.days]] Tage ohne Kreditkarte. Danach zahlt ein Team mit drei Personen [[commercial.price.starter.monthly.seats.3]] pro Monat für Starter, ohne Posteingang, oder [[commercial.price.pro.monthly.seats.3]] für Pro mit dem einheitlichen Posteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Abgerechnet wird nur monatlich. Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, den Assistenten in Customermates Cloud; die Kontingente stehen auf der [Preisseite](/pricing).
+**Cloud: ein kleiner kostenloser Tarif, bezahlte Tarife und eine Testphase.** Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Die Testphase dauert [[commercial.trial.days]] Tage ohne Kreditkarte. Danach zahlt ein Team mit drei Personen [[commercial.price.starter.monthly.seats.3]] pro Monat für Starter, ohne Posteingang, oder [[commercial.price.pro.monthly.seats.3]] für Pro mit dem einheitlichen Posteingang für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram. Abgerechnet wird nur monatlich. Jeder bezahlte Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, den Assistenten in Customermates Cloud; die Kontingente stehen auf der [Preisseite](/pricing).
+
+Der kostenlose Tarif dient dazu, Customermates allein auszuprobieren. Die Arbeit, für die Customermates gebaut ist, nämlich jedes Kundengespräch nachzufassen, beginnt mit Pro: LinkedIn- und E-Mail-Verläufe stehen am Kundendatensatz, Mate oder Ihr eigener KI-Agent entwirft die Antwort und den nächsten Schritt, und Sie prüfen und senden.
 
 Ein konkreter Start für eine kleine Beratung, in beiden Varianten:
 
@@ -122,12 +124,14 @@ Ein konkreter Start für eine kleine Beratung, in beiden Varianten:
 2. Behalten Sie das vorgegebene Deal-Feld **Phase** (Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren) oder benennen Sie die Optionen nach Ihren Vertriebsschritten um. Gewichte je Phase ergeben einen gewichteten Pipelinewert.
 3. Ergänzen Sie bei Deals ein eigenes Feld vom Typ Einzelauswahl, etwa „Leistungsbereich“, und speichern Sie eine Board-Ansicht, gruppiert nach **Phase** und gefiltert auf die Deals, denen Sie zugewiesen sind.
 
+Um das Nachfassen an Ihren eigenen Kunden zu sehen, [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte. Ohne bezahlten Tarif wechselt der Workspace danach in den kostenlosen Tarif.
+
 <ProductDemo hostedBoundary path="/dashboard" />
 
 <AcquisitionCallout title="Wann Customermates nicht das passende kostenlose CRM ist" variant="boundary">
-  Wenn Sie ein gehostetes CRM suchen, das jeden Monat nichts kostet, bietet
-  Customermates Cloud das nicht: Sehen Sie sich die Gratis-Tarife in der Tabelle
-  oben an. Wenn Sie den einheitlichen Posteingang oder Mate brauchen, ist beides
+  Wenn Sie ein gehostetes CRM suchen, das jeden Monat nichts kostet und mehr als
+  [[commercial.limit.free.maxMembers]] Person oder Posteingang und Mate abdeckt, sehen Sie sich die Gratis-Tarife
+  in der Tabelle oben an. Wenn Sie den einheitlichen Posteingang oder Mate brauchen, ist beides
   beim Self-Hosting nicht enthalten. Customermates hat außerdem keine mobile App
   und keine E-Mail-Sequenzen.
 </AcquisitionCallout>
@@ -156,7 +160,7 @@ Für eine Person und eine kurze Liste ja. Sobald Deals, Kontakte und Aufgaben ve
 </FaqItem>
 
 <FaqItem question="Hat Customermates einen kostenlosen Tarif?">
-Self-Hosting ist kostenlos: kein Abonnement, keine Testphase, keine Begrenzung der Nutzerzahl, der Kern steht unter der AGPL. Die selbst gehostete Variante nutzt aber den Funktionsumfang von Starter ohne Posteingang und ohne Mate. Customermates Cloud hat keinen Gratis-Tarif, sondern eine Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte und danach monatliche Abrechnung pro Nutzer.
+Self-Hosting ist kostenlos: kein Abonnement, keine Testphase, keine Begrenzung der Nutzerzahl, der Kern steht unter der AGPL. Die selbst gehostete Variante nutzt aber den Funktionsumfang von Starter ohne Posteingang und ohne Mate. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, dazu eine Pro-Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte und bezahlte Tarife mit monatlicher Abrechnung pro Nutzer.
 </FaqItem>
 </Faq>
 

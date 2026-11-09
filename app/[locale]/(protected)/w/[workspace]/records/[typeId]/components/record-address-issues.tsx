@@ -93,11 +93,11 @@ export function RecordAddressIssues({
         return (
           <Alert
             key={`${issue.code}:${issue.part}`}
-            color={issue.severity === "error" ? "danger" : "warning"}
             data-address-issue={issue.code}
             data-severity={issue.severity}
             description={message(issue)}
             role="note"
+            variant={issue.severity === "error" ? "destructive" : "warning"}
           >
             {actions.length > 0 && (
               <div className="flex flex-wrap gap-1.5">

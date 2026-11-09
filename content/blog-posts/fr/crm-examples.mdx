@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/sales-pipeline
 
 hero:
-  title: "Exemples de CRM : sept cas concrets, les logiciels qui les portent et ce qu’ils coûtent"
-  description: "À quoi ressemble un CRM au quotidien chez une indépendante, une agence, une équipe commerciale et un grand groupe, quels outils ces équipes choisissent, si un tableur suffit, et les prix catalogue avec leur date de vérification. Customermates publie ce guide et figure dans une section à part, clairement signalée."
+  title: "Exemples de CRM : sept cas concrets, logiciels et coûts"
+  description: "À quoi ressemble un CRM chez une indépendante, une agence, une équipe commerciale et un grand groupe, quels outils ils choisissent, si un tableur suffit et les prix datés. Customermates publie ce guide."
 
 blogPost:
   author: Benjamin Wagner
@@ -141,7 +141,7 @@ Prix catalogue par utilisateur et par mois, hors taxes, dans la devise affichée
 | Pipedrive | Aucune | Lite 14 € (annuel) | Growth 39 €, Premium 59 € (annuel) | Ultimate 79 € (annuel) | 8 oct. 2026 |
 | Salesforce | Free Suite | Starter Suite 25 $ | Pro Suite 100 $ | jusqu’à Max 550 $ | 8 oct. 2026 |
 | Microsoft Dynamics 365 Sales | Aucune | Sales Professional 65 $ | Sales Enterprise 105 $ | Sales Premium 150 $ | 8 oct. 2026 |
-| Customermates | Aucune, essai de [[commercial.trial.days]] jours | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Facturé au mois |
+| Customermates | [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, après un essai Pro de [[commercial.trial.days]] jours | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Facturé au mois |
 
 En octobre 2026, un CRM payant coûtait donc entre 14 € et 65 $ par utilisateur et par mois en entrée de gamme, entre 23 $ et 105 $ pour les niveaux intermédiaires et jusqu’à 550 $ au sommet. HubSpot facture aussi des frais d’intégration uniques sur Professional et Enterprise. Prévoyez séparément la mise en place, la reprise des données et la formation ; [le guide du coût d’un CRM](/blog/crm-cost) détaille un exemple sur trois ans.
 
@@ -151,9 +151,9 @@ Voici l’usage de type agence poussé jusqu’aux colonnes. Les noms de listes 
 
 <Steps>
   <Step title="Configurer les listes">Les clients vont dans **Organisations**, les personnes dans **Contacts**, et chaque mission que vous cherchez à décrocher dans **Affaires**. Vos offres standard vont dans **Services**, avec un prix chacune (par exemple « Atelier de stratégie » et « Mission mensuelle »). Configurez les lignes pour que quantité multipliée par prix unitaire donne le montant de chaque ligne, puis leur somme la valeur de l’affaire. Sans offres, l’affaire peut porter un montant saisi manuellement.</Step>
-  <Step title="Renommer les étapes des affaires">L’**Étape** d’une affaire est un champ à choix unique. Remplacez les valeurs par défaut par Demande, Appel de découverte, Proposition envoyée, Gagnée et Perdue. Configurez au besoin une probabilité par option et un calcul de valeur pondérée.</Step>
+  <Step title="Renommer les étapes des affaires">Créez l’**Étape** d’une affaire comme champ à choix unique (sur le cloud, la configuration IA peut le faire) avec les options Demande, Appel de découverte, Proposition envoyée, Gagnée et Perdue. Configurez au besoin une probabilité par option et un calcul de valeur pondérée.</Step>
   <Step title="Ajouter trois champs personnalisés">Sur les affaires : « Type de mission » (Choix unique : Projet, Mission récurrente, Atelier), « Source du lead » (Choix unique : Recommandation, LinkedIn, Site web, Évènement) et « Début prévu » (Date). Utilisez Choix unique pour une catégorie ou Choix multiple pour plusieurs étiquettes ; ces champs sont configurables.</Step>
-  <Step title="Enregistrer une vue">Sur **Affaires**, filtrez Étape = Proposition envoyée et utilisateurs assignés = vous, triez par date de mise à jour et enregistrez la vue avec **Nouvelle vue** sous le nom « Mes propositions ouvertes ». Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.</Step>
+  <Step title="Enregistrer une vue">Sur **Affaires**, filtrez Étape = Proposition envoyée et utilisateurs assignés = vous, triez par date de mise à jour et enregistrez la vue avec **Nouvelle vue** sous le nom « Mes propositions ouvertes ». Chacun enregistre la sienne, et une vue dont toute l’équipe a besoin peut être partagée avec tout l’espace de travail ou avec des rôles choisis.</Step>
   <Step title="Importer les clients existants">Exportez votre liste de clients dans un classeur Excel (.xlsx) et importez d’abord les organisations, puis les contacts, une liste à la fois. Voir [enregistrements, import et vues](/docs/app-records) pour la correspondance des colonnes.</Step>
   <Step title="Connecter la boîte de réception (Pro ou supérieur)">Chaque consultant connecte sa messagerie ou son compte LinkedIn dans la [boîte de réception unifiée](/features/unified-inbox). Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur et Business [[commercial.entitlement.business.includedAccountsPerUser]] : un consultant qui veut l’e-mail, LinkedIn et WhatsApp côte à côte a donc besoin de Business. Starter n’a pas de boîte de réception.</Step>
 </Steps>
@@ -165,6 +165,8 @@ Voici l’usage de type agence poussé jusqu’aux colonnes. Les noms de listes 
 La dernière phrase compte. Une routine s’exécute au nom de son propriétaire et peut envoyer des messages sans demander ; une consigne qui ne doit produire que des brouillons doit donc le dire. Les actions qui demandent une approbation dans le chat Mate sont refusées dans une routine sans supervision ; les modifications de la base de connaissances deviennent des propositions à examiner. Créez-la en pause pour examiner sa configuration. Essayez d’abord la consigne de brouillon seul dans un chat Mate normal, sur des fiches fictives. Pour tester la routine planifiée elle-même, activez-la puis utilisez **Tester le déclencheur**, qui effectue une véritable exécution. Vérifiez les brouillons et remettez-la en pause si nécessaire. Les limites et les statuts d’exécution figurent dans la [documentation des routines](/docs/app-routines). Si vous préférez votre propre client IA, Claude, ChatGPT et d’autres clients MCP peuvent lire et mettre à jour les mêmes enregistrements via le serveur MCP de Customermates, avec votre fournisseur d’IA pour les appels au modèle ; la recherche par sens peut toujours compter dans l’utilisation de Mate.
 
 Quatre consultants sur Pro coûtent [[commercial.price.pro.monthly.seats.4]] par mois ([[commercial.price.pro.monthly]] par utilisateur), boîte de réception et crédits IA hébergés mensuels par utilisateur actif compris. Sans la boîte de réception, Starter coûte [[commercial.price.starter.monthly.seats.4]] par mois. La liste complète figure sur [toutes les fonctionnalités](/features/all).
+
+Cette configuration, c’est le suivi en pratique : chaque proposition a une prochaine étape datée, le fil est sur la fiche du client et la routine hebdomadaire laisse les brouillons prêts pour vous. Pour la construire sur vos propres clients, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 
 ## Là où Customermates ne convient pas
 

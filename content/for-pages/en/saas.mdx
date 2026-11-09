@@ -1,6 +1,6 @@
 ---
-title: "CRM for SaaS Teams: Accounts, Trials, API and MCP"
-description: "A CRM for SaaS teams: accounts, trials and deals as lists you configure, connected to your own product by REST API, webhooks, n8n or MCP. Self-hostable."
+title: "CRM for SaaS Teams: Follow Up on Every Trial and Demo"
+description: "A CRM for SaaS teams: trial, demo and LinkedIn threads on the account, a dated next step each, and Mate or your own AI client drafting replies."
 industryName: "SaaS Companies"
 
 relatedHrefs:
@@ -10,25 +10,45 @@ relatedHrefs:
   - /blog/what-is-an-mcp-server
 
 hero:
-  title: "CRM for SaaS teams that connect their own product data"
-  description: "For product-led SaaS teams that sell to businesses: keep accounts, contacts, trials, deals and renewals in lists you shape yourself, write product data in through the REST API or n8n, react to changes with webhooks and let your own AI client work in the CRM over MCP. No native billing or product-analytics sync, lead scoring, sequences or web forms."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  title: "CRM for SaaS teams: follow up before a trial goes quiet"
+  description: "Trials, demos and LinkedIn conversations go quiet while you ship. On Customermates Cloud from Pro they sit on the account, Mate or your own AI client drafts the reply and the next step, and you review and send it. Product data comes in through the REST API or n8n. No native billing sync, lead scoring or sequences."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Write one signup from your product into your CRM before you commit
-  description: Start the trial, create an API key and send one account into a list you define. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  action: Follow up on every trial before it ends
+  description: Start with one open trial and one channel. Connect LinkedIn or email, then send one account from your product through the API. The [[commercial.trial.days]]-day trial includes Pro, no credit card. Paid plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "For SaaS teams. Three jobs, one workspace."
+  items:
+    - title: "Follow up before a trial ends"
+      description: "Accounts carry a Trial ends date and a dated next step, so the trials about to lapse are the first you see."
+      href: /features/follow-up
+      linkLabel: "See follow-up"
+      visual: dashboard
+    - title: "Reply where the champion wrote"
+      description: "From Pro, LinkedIn and email threads sit on the account. Mate saves a draft in the conversation, and you review, edit and send it."
+      href: /features/unified-inbox
+      linkLabel: "See the unified inbox"
+      visual: inbox
+    - title: "Write product data in through the API"
+      description: "Your backend or n8n creates the account and updates plan, MRR and last activity, and webhooks send changes back out."
+      href: /features/api
+      linkLabel: "See the REST API"
+      visual: import
 ---
 
-A CRM for SaaS keeps every account that trials, buys, expands or churns in one place, with the people in it, the deals around it and the conversations behind it. Customermates is an open-source, AI-native CRM made in Germany for product-led SaaS teams that want to shape their own lists and connect their own product through a REST API, webhooks and n8n; it has no native billing or product-analytics sync.
+A SaaS trial often goes quiet instead of ending in a "no": the champion's last LinkedIn message sits unanswered while the team ships, and nobody writes on the day the trial runs out. A CRM for SaaS keeps every account that trials, buys, expands or churns in one place, with the people in it, the deals around it and the conversations behind it. Customermates is an open-source, AI-native CRM made in Germany for product-led SaaS teams who shape their own lists and connect their own product through a REST API, webhooks and n8n. On Customermates Cloud from Pro, the LinkedIn and email threads sit on the account, and Mate or your own AI client through MCP drafts the reply and the next step for you to review, edit and send. It has no native billing or product-analytics sync.
 
 "SaaS CRM" also means a CRM that is itself delivered as a cloud service, and Customermates is that too, so the first section below separates the two meanings.
 
@@ -37,14 +57,20 @@ A CRM for SaaS keeps every account that trials, buys, expands or churns in one p
     B2B SaaS teams from the first sales conversations to a small sales and
     success team, who are comfortable wiring product data in themselves.
   </SummaryItem>
+  <SummaryItem label="Follow-up">
+    On Customermates Cloud from Pro, LinkedIn and email threads sit on the
+    account with a dated next step, and Mate or your own AI client drafts the
+    reply for you to review and send.
+  </SummaryItem>
   <SummaryItem label="Model">
     Accounts, contacts, trials, subscriptions and deals as lists and fields
     you define. A new workspace starts without lists.
   </SummaryItem>
   <SummaryItem label="Connections">
-    REST API, [[derived.webhooks.events.total]] webhook events, an n8n
-    community node and [[derived.mcp.tools.total]] MCP tools for your own AI
-    client, on every plan and when self-hosted.
+    REST API and [[derived.mcp.tools.total]] MCP tools for your own AI client
+    on every plan and when self-hosted. [[derived.webhooks.events.total]]
+    webhook events and an n8n community node on every paid plan and when
+    self-hosted, not on Free.
   </SummaryItem>
   <SummaryItem label="Not included">
     Native billing or product-analytics integrations, lead scoring,
@@ -69,10 +95,11 @@ The phrase has two meanings, and search results mix them.
 | A CRM delivered as SaaS | Any CRM you use in the browser without running servers, as opposed to software you install yourself | [Cloud CRM](/features/cloud-crm) explains cloud versus self-hosted and how to choose |
 | A CRM for SaaS companies | A CRM that fits a business that sells subscriptions: accounts with several users, trials, plans, renewals and usage | The rest of this page |
 
-Customermates covers both. It runs as Customermates Cloud, a hosted service billed monthly per user, and as a self-hosted installation of the open-source core. What it does not do is understand subscriptions on its own. There is no built-in subscription, trial or billing model, so you define those as fields and lists and decide how product data reaches them.
+Customermates covers both. It runs as Customermates Cloud, a hosted service with paid plans billed monthly per user and a Free plan for one person, and as a self-hosted installation of the open-source core. What it does not do is understand subscriptions on its own. There is no built-in subscription, trial or billing model, so you define those as fields and lists and decide how product data reaches them.
 
 ## What does a SaaS company need from a CRM?
 
+- **Follow-up on every conversation.** A trial user's reply, a champion's LinkedIn message and a question after the demo each need an answer and a dated next step, wherever the conversation happened.
 - **Accounts, not just people.** A B2B product is bought by a company and used by many users. The record you open before a call is the account, with its users as linked contacts.
 - **Lifecycle on the record.** Trial, paying, at risk and churned, with the dates that matter: trial end, renewal, last activity.
 - **Product data next to the relationship.** Plan, seats and a usage number belong beside the notes and deals, not in a separate dashboard that sales never opens.
@@ -80,9 +107,19 @@ Customermates covers both. It runs as Customermates Cloud, a hosted service bill
 - **An API your own engineers can use.** A SaaS team usually prefers a documented API and webhooks to a catalog of ready-made connectors.
 - **A way to hand over.** When the first customer success hire arrives, the account history is in the CRM and not in someone's inbox.
 
+## How do you follow up on trials, demos and LinkedIn conversations?
+
+Most SaaS follow-up happens outside the product: a trial user answers the welcome email, the champion replies on LinkedIn after the demo, a prospect asks for a security answer before the review. Where those threads live decides whether the next step happens.
+
+1. **Connect LinkedIn and email.** On Customermates Cloud from Pro, threads appear on the contact whose email address, phone number or LinkedIn profile matches, and WhatsApp, Instagram and Telegram work the same way. You or Mate link a thread to the account or deal when it belongs there.
+2. **Date the next step.** Add a Next step date to Accounts and Deals. The dashboard's Upcoming widget lists what is due and what is overdue, and a Trials ending view sorts accounts by Trial ends.
+3. **Let Mate or your own AI client draft the reply.** Ask for a draft, or set up a [routine](/docs/app-routines) that drafts a check-in when Lifecycle changes to At risk. The draft waits in the conversation until you edit and send it.
+
+The sections below show how to model the accounts and how to connect your product.
+
 ## How do you model accounts, trials and subscriptions in Customermates?
 
-A new workspace starts without lists, so everything below is an example you create yourself in **Configure**, or let the AI workspace setup in Customermates Cloud build from your description. Every field name is yours to choose.
+A new workspace starts without lists, so everything below is an example you create yourself in **Configure**, or, on Customermates Cloud, describe your business in one sentence and let Mate build the lists, pipeline and dashboard. Every field name is yours to choose.
 
 | List | Used for | Example fields |
 |---|---|---|
@@ -102,7 +139,7 @@ Useful saved views for a SaaS team:
 3. **Expansion board:** deals on the [pipeline board](/features/pipeline), one card per deal, linked to its account.
 4. **Quiet accounts:** accounts with a Last active date older than 14 days ([filter reference](/docs/filter-syntax)).
 
-A saved view stays private until you share it, so each person can save their own or you share one with the team. To group accounts by plan, size or lifecycle in the first place, the [customer segmentation guide](/blog/customer-segmentation) shows the fields and views.
+A saved view can be shared with everyone in the workspace or with selected roles from its **Share…** menu. Colleagues see the same filters, but only the records their own role allows. To group accounts by plan, size or lifecycle in the first place, the [customer segmentation guide](/blog/customer-segmentation) shows the fields and views.
 
 ## How does product data get into the CRM?
 
@@ -118,10 +155,11 @@ Customermates has no native integration with a billing tool or a product-analyti
 
 <Steps>
   <Step title="Create an API key">
-    Open **Settings → API keys** and create a key. It acts with the role of the
-    person who owns it, so there are no per-key scopes, and on Customermates
-    Cloud that person is a paid seat like any other. The [API keys
-    guide](/docs/api-keys) covers expiry and rotation.
+    Open **Settings → API keys** and create a key; a role needs **Create** on
+    **API & Webhooks** for that, which the Admin role has. The key acts with
+    the permissions of the person who owns it, so there are no per-key scopes,
+    and on Customermates Cloud that person is a member of your workspace like
+    any other. The [API keys guide](/docs/api-keys) covers expiry and rotation.
   </Step>
   <Step title="Read your lists and fields">
     Call `POST /api/v1/model/discover` and `POST /api/v1/model/read` to get the
@@ -143,7 +181,8 @@ Customermates has no native integration with a billing tool or a product-analyti
     Add a webhook for **Record updated** on the Accounts list, with a secret
     and, if you like, only the Lifecycle field as the trigger. Every delivery
     is signed with HMAC-SHA256, retried up to 10 attempts in total and can
-    arrive out of order, so deduplicate by event ID.
+    arrive out of order, so deduplicate by event ID. Webhooks need a paid plan
+    on Customermates Cloud and are included when self-hosted.
   </Step>
 </Steps>
 
@@ -166,13 +205,13 @@ For a SaaS team, a typical use is account research before a call: ask the client
 
 Some features exist only in Customermates Cloud. The [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram, and the plan decides what you can connect:
 
-- **Starter and self-hosted:** no connected messaging accounts.
+- **Free, Starter and self-hosted:** no connected messaging accounts.
 - **Pro:** each person's own accounts, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included, plus threads shared one at a time.
 - **Business, Max or Enterprise:** needed to share a whole account, for example a shared sales or success mailbox.
 
 Participants are matched to contacts by email, phone or LinkedIn identity. A conversation is linked to an account only when a person, or an agent you ask, links it.
 
-Mate, the assistant inside Customermates Cloud, summarizes an account, updates records and drafts replies within your plan's hosted AI credits. A [routine](/docs/app-routines) can run Mate when a record changes, for example when Lifecycle changes to At risk, to save a check-in draft for you to review. Mate sends a message as soon as you ask it to, so ask for drafts when you want to read first. Mate and routines are not available when self-hosted.
+Mate, the assistant inside Customermates Cloud, summarizes an account, updates records and drafts replies when you ask, within your plan's hosted AI credits. A [routine](/docs/app-routines) can run Mate when a record changes, for example when Lifecycle changes to At risk, to save a check-in draft for you to review. Mate sends a message as soon as you ask it to, so ask for drafts when you want to read first. Mate and routines are not available on Free or when self-hosted.
 
 ## Where is Customermates the wrong choice for a SaaS company?
 
@@ -181,7 +220,7 @@ Mate, the assistant inside Customermates Cloud, summarizes an account, updates r
 - No sequences, drip campaigns or bulk messaging.
 - No embeddable web forms: a demo-request form on your site needs your own backend to write to the API.
 - No SSO or SAML sign-in, no certification such as ISO 27001 or SOC 2, no native mobile apps.
-- There are no field-level permissions.
+- There are no field-level permissions, so a role cannot hide one field such as MRR from a colleague who can open the account.
 
 If one of these decides the purchase, look at a tool built for it. Customermates publishes this page, so read the table as pointers, not a ranking. Vendor details were checked on 8 November 2026 on each vendor's own website.
 
@@ -202,7 +241,7 @@ In Customermates Cloud, the primary database is in the AWS Frankfurt region. Sub
 
 ## What does it cost?
 
-Prices are per user per month, billed monthly in euros. The trial runs [[commercial.trial.days]] days on Customermates Cloud without a credit card. The API, webhooks and MCP have no surcharge.
+Prices are per user per month, billed monthly in euros. The trial runs [[commercial.trial.days]] days on Customermates Cloud without a credit card. Then the workspace moves to a Free plan for [[commercial.limit.free.maxMembers]] member and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate, routines or webhooks, unless you choose a paid plan. The API and MCP are on every plan and webhooks come with every paid plan, at no surcharge.
 
 | Plan | Per user per month | For a SaaS team |
 |---|---|---|
@@ -216,6 +255,10 @@ Details are on the [pricing page](/pricing). If founders still sell every deal t
 ## Frequently asked questions
 
 <Faq>
+<FaqItem question="Does Customermates follow up with trial users for me?">
+It keeps the conversation and the next step on the account and drafts the reply, and you review, edit and send. On Customermates Cloud from Pro, LinkedIn and email threads sit on the account, and Mate or your own AI client drafts the reply when you ask or on a routine you set up. Mate sends only when you ask it to or when you set up a routine that sends. There are no sequences, drip campaigns or bulk messages.
+</FaqItem>
+
 <FaqItem question="Which CRM is best for a SaaS company?">
 There is no single answer. If you need website forms, contact scoring or many ready-made integrations, HubSpot or Attio may fit better. If your engineers would rather write product data into a configurable CRM through an API, keep billing and analytics as the source of truth and want MCP for your own AI client, Customermates is built for that. The table above lists what each vendor's site names.
 </FaqItem>
@@ -233,10 +276,10 @@ No. There is no lead scoring, health scoring or enrichment. If you want a score,
 </FaqItem>
 
 <FaqItem question="Does the API cost extra?">
-No. The REST API, webhooks and MCP are on every plan and in the self-hosted edition. A key acts with its owner's permissions, and on Customermates Cloud that owner is a paid seat.
+No. The REST API and MCP are on every plan and in the self-hosted edition, and webhooks come with every paid plan and the self-hosted edition. A key acts with its owner's permissions. On the Free plan, REST and MCP requests together are limited to [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace.
 </FaqItem>
 
 <FaqItem question="Is Customermates itself a SaaS CRM?">
-Yes, in the cloud sense: Customermates Cloud is a hosted service billed monthly per user, and the [cloud CRM page](/features/cloud-crm) explains what that means. You can also self-host the open-source core without the inbox and Mate.
+Yes, in the cloud sense: Customermates Cloud is a hosted service with a Free plan for one person and paid plans billed monthly per user, and the [cloud CRM page](/features/cloud-crm) explains what that means. You can also self-host the open-source core without the inbox and Mate.
 </FaqItem>
 </Faq>

@@ -675,8 +675,8 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
       root.className = previous;
       return [...new Set(painted)];
     }, theme);
-  expect(await paintedFills("light")).toEqual(["rgb(124, 120, 244)", "rgb(94, 74, 227)"]);
-  expect(await paintedFills("dark")).toEqual(["rgb(110, 99, 212)", "rgb(124, 109, 242)"]);
+  expect(await paintedFills("light")).toEqual(["rgb(81, 81, 85)", "rgb(24, 24, 27)"]);
+  expect(await paintedFills("dark")).toEqual(["rgb(183, 183, 188)", "rgb(237, 237, 240)"]);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,

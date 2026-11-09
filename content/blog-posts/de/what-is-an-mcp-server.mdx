@@ -4,7 +4,7 @@ description: "MCP-Server einfach erklärt: was Claude, ChatGPT oder Cursor darü
 
 hero:
   title: "MCP-Server: Was er ist, wo er läuft und wie ein echter aussieht"
-  description: "Ein MCP-Server ist das Bindeglied, über das ein KI-Client wie Claude, ChatGPT oder Cursor Daten in einem anderen System liest und ändert. Dieser Leitfaden erklärt, was ein Server bereitstellt, wo er läuft, was ihn von einer API unterscheidet, welche Clients ihn nutzen, welche Risiken es gibt, mit Checkliste, und zeigt einen echten MCP-Server für Geschäftsdaten von Anfang bis Ende."
+  description: "Ein MCP-Server lässt einen KI-Client wie Claude, ChatGPT oder Cursor Daten in anderen Systemen lesen und ändern. Was er bereitstellt, wo er läuft, Unterschied zur API, Risiken und ein echtes Beispiel."
 
 blogPost:
   author: Benjamin Wagner
@@ -146,6 +146,8 @@ Die meisten Erklärungen enden bei einem Wetter-Tool. So sieht ein produktiver S
 **Leitplanken und was sie nicht sind.** Der Katalog kennzeichnet, welche Tools nur lesen und welche Daten löschen können. Gelöschte Datensätze landen 30 Tage im Papierkorb, und `preview_crm_deletion` zeigt die Auswirkung vorher. Von Menschen geschriebener Text wie Notizen und E-Mails kommt zwischen Markierungen für nicht vertrauenswürdige Inhalte zurück, damit das Modell ihn als Daten behandelt und nicht als Anweisung. Außerdem weist der Server Clients an, vor dem Löschen oder Senden beim Nutzer nachzufragen. Das ist ein Hinweis an den Client, keine Sperre im Server: Ruft ein berechtigter Client ein Tool auf, läuft es. Stellen Sie die Freigaben in Ihrem Client entsprechend ein.
 
 **Wer die KI bezahlt.** Ein externer Client wie Claude oder ChatGPT nutzt Ihr eigenes KI-Abonnement. Das CRM betreibt das Modell nicht.
+
+**Wofür es gut ist.** Für ein kundennahes Team ist die nützliche Aufgabe das Nachfassen: Sind in Customermates Cloud ab Pro LinkedIn und E-Mail verbunden, liest Ihr eigenes Claude oder ChatGPT das Gespräch am Kundendatensatz und entwirft die Antwort und den nächsten Schritt, die Sie prüfen und senden. Zum Ausprobieren [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 Customermates ist die falsche Wahl, wenn Sie nur eine KI an Ihr bestehendes CRM anbinden wollen; nutzen Sie dann den Server dieses CRM. Es passt, wenn Sie ein CRM auswählen und MCP-Server, Daten und [offenen Quellcode](/features/open-source-crm) in einem Produkt haben möchten.
 

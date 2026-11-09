@@ -61,7 +61,12 @@ export async function finishOnboarding(page: Page) {
     heading(englishMessages.OnboardingWizard.steps.setup.title),
   );
   const invite = heading(englishMessages.OnboardingWizard.steps.invite.title);
-  await expect(setup.or(invite)).toBeVisible();
+  const goal = heading(englishMessages.OnboardingWizard.steps.goal.title);
+  await expect(goal.or(setup).or(invite)).toBeVisible();
+  if (await goal.isVisible()) {
+    await clickHydrated(page.locator("#onboarding-goal-continue"));
+    await expect(setup.or(invite)).toBeVisible();
+  }
   if (await setup.isVisible()) {
     await completeSetupStepInDatabase(page);
     await page.reload();

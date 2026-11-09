@@ -80,6 +80,10 @@ Mit dem Zeitplan-Trigger von n8n und der Datensatz-API können Sie passende Date
 - **Wiederholungen:** Nutzen Sie für exakt dieselbe Mutation denselben Idempotenzschlüssel. Ein geänderter Payload braucht einen neuen Schlüssel.
 - **Webhooks:** Zustellungen sind weder strikt geordnet noch genau einmalig. Deduplizieren Sie nach Ereignis-ID und verwenden Sie den Zeitstempel des Payloads zur Ordnung.
 
+## Funktioniert n8n im Free-Tarif? [#n8n-on-the-free-plan]
+
+Der n8n-Trigger braucht einen Webhook und funktioniert deshalb nicht, solange ein Workspace in Customermates Cloud Free nutzt: Das Anlegen des Abonnements wird mit dem Starter-Preis in der Meldung abgelehnt, und ein vorhandener Trigger erhält nichts, bis der Workspace einen bezahlten Tarif wählt. Aktionen, die Datensätze lesen oder schreiben, laufen über die REST-API und zählen zum Free-Anfragelimit von [[commercial.limit.free.apiRequestsPerMinute]] pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag. Selbst gehostete Installationen haben diese Grenze nicht.
+
 ## Weiter [#next]
 
 - [Webhooks](/docs/webhooks): Ereignis-Payloads und Zustellung.

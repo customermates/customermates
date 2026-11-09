@@ -121,13 +121,13 @@ export const CompanyUserModal = observer(() => {
 
           <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {loadedLeftAt ? (
-              <Alert color="warning">
+              <Alert variant="warning">
                 <p className="text-x-sm">{t("WorkspaceMembership.leftNotice", { name })}</p>
               </Alert>
             ) : null}
 
             {isOwnProfile && (
-              <Alert color="warning">
+              <Alert variant="warning">
                 <p className="text-x-sm">
                   {t.rich("CompanyUserModal.activeUserWarning", {
                     settingsLink: (chunks) => (

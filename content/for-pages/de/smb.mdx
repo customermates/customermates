@@ -1,6 +1,6 @@
 ---
-title: "CRM für kleine Unternehmen"
-description: "Kunden, Deals und unterstützte Gespräche in einem anpassbaren CRM für kleine B2B-Teams. Mit Beispiel-Workspace für ein kleines Dienstleistungsteam."
+title: "CRM für kleine Unternehmen: jeden Kundenkontakt nachfassen"
+description: "CRM für kleine B2B-Teams: E-Mail-, LinkedIn- und WhatsApp-Verläufe am Kunden, Mate entwirft Antwort und nächsten Schritt. Mit Beispiel-Workspace."
 industryName: "Kleine Unternehmen"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/tradespeople
 
 hero:
-  title: "CRM für kleine Unternehmen: Kunden und Vertrieb im Blick"
-  description: "Für kleine Dienstleistungsteams, die Kunden im Gespräch gewinnen: Personen, Organisationen, offene Deals und der nächste Schritt in einem anpassbaren Workspace. Gespräche aus E-Mail, LinkedIn und WhatsApp gibt es ab Pro in Customermates Cloud. Webformulare, Telefonie, SMS, Terminbuchung und native Mobile-Apps gehören nicht dazu."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "CRM für kleine Unternehmen: jede Kundennachricht bekommt einen nächsten Schritt"
+  description: Für kleine Dienstleistungsteams, die Kunden im Gespräch gewinnen. Verläufe liegen beim Kunden, Mate entwirft die Antwort und den nächsten Schritt, und das Team sieht den nächsten Schritt am Deal. E-Mail, LinkedIn und WhatsApp ab Pro in der Cloud.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte nötig ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+landing:
+  hero:
+    eyebrow: Für kleine B2B-Dienstleistungsteams
+    title: Das CRM für kleine Unternehmen, das jeden Kundenverlauf im Blick behält.
+    description: Kunden, Deals und die E-Mail-, LinkedIn- und WhatsApp-Verläufe dahinter in einem Workspace. Mate entwirft die Antwort aus Ihrem Leitfaden, und der nächste Schritt steht am Deal, wo ihn das ganze Team sieht.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihre Buchhaltungssoftware bleibt · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihr Unternehmen, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Deals, Ihre Pipeline und Ihren Leitfaden. Das ist das Beispiel für kleine Unternehmen; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir sind ein kleiner B2B-Dienstleister. Halte Kunden, Deals und Gespräche an einem Ort und zeig uns, wem wir noch eine Antwort schulden.
+  followUp:
+    eyebrow: Eine Nachricht am Montag, beantwortet
+    title: Ein Kunde bestätigt per WhatsApp einen Termin. Die Antwort ist entworfen, der Besuch steht auf der Liste.
+    description: Der WhatsApp-Verlauf liegt beim Kunden. Mate entwirft die Antwort aus Ihrem Leitfaden, terminiert den nächsten Schritt und lässt den Entwurf zur Prüfung liegen.
+    desk:
+      label: Beispielszene zum Nachfassen mit Demodaten
+      workspace: Hartmann Service
+      conversation:
+        label: WhatsApp
+        name: Tobias Ritter
+        company: Ritter Logistik
+        time: Mo 17:48
+        message: Danke für das Angebot. Können Sie den ersten Besuch am 12. machen? Dann bestätige ich das mit meinem Partner.
+      agent:
+        name: Mate
+        intent: Entwirft eine Antwort aus Ihrem Service-Leitfaden
+        done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Herr Ritter, danke. Der 12. passt bei uns. Die Uhrzeit bestätige ich Ihnen morgen früh. Viele Grüße, Nina Hartmann
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Dienstag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Besuchszeit bestätigen
+                meta: Ritter Logistik · heute fällig
+                owner: NH
+                state: added
+              - title: Zum Angebot zurückrufen
+                meta: Eichmann GmbH · 1 Tag überfällig
+                owner: NH
+                state: overdue
+          - title: Angebote ohne Antwort
+            items:
+              - title: Angebot Eichmann
+                meta: vor 4 Tagen gesendet
+                owner: NH
+                state: due
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, jeder Verlauf mit einem nächsten Schritt.
+    before:
+      label: Vorher
+      points:
+        - Kundenverläufe liegen im Postfach einer Person
+        - Niemand weiß sicher, wer die nächste Nachricht beantwortet
+        - Nachfassen hängt davon ab, dass sich jemand erinnert
+    after:
+      label: Mit Customermates
+      points:
+        - Jeder Deal hat einen nächsten Schritt mit Datum und Zuständigkeit
+        - Kunde und Gespräch liegen an einem Datensatz, mit fertigem Entwurf
+        - Das Dashboard zeigt, was im Team fällig ist
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zum ersten Nachfassen.
+    items:
+      - title: Unternehmen beschreiben
+        description: Die KI-Einrichtung baut Kunden, Deals, Ihre Pipeline und Ihren Leitfaden aus einer Beschreibung und ein paar Antworten.
+      - title: E-Mail oder WhatsApp verbinden
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse, Telefonnummer oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Nachfassen im Dashboard prüfen
+        description: Mate entwirft die Antwort und terminiert den nächsten Schritt, wenn Sie es verlangen oder in einer Routine, die Sie einrichten. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Pro reicht dafür. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Für ein Team-Postfach, das mehrere Personen beantworten, brauchen Sie Business für [[commercial.price.business.monthly]]. Starter für [[commercial.price.starter.monthly]] hat keinen Posteingang. Ihr eigenes Claude- oder ChatGPT-Abo bleibt beim Anbieter.
+    limits: Nicht geeignet, wenn Sie Angebote oder Rechnungen erstellen, Webformulare, Telefon oder SMS oder E-Mail-Sequenzen brauchen. Dafür bleiben Ihre anderen Tools.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
 
 cta:
-  action: "Kunden und offene Deals in einem Workspace zusammenführen"
+  action: Mit einem Kundenverlauf und einem nächsten Schritt beginnen
   description: "Starten Sie die Testphase in Customermates Cloud, beschreiben Sie Ihr Unternehmen der KI-Einrichtung oder legen Sie Ihre Listen selbst an, und importieren Sie Ihre Daten aus einer Excel-Arbeitsmappe. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte nötig ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+useCases:
+  eyebrow: So können Sie es nutzen
+  title: Für kleine Unternehmen. Drei Aufgaben, ein Workspace.
+  items:
+    - title: Von der Anfrage zum nächsten Schritt
+      description: Erfassen Sie, wer geschrieben hat, eröffnen Sie einen Deal und setzen Sie den nächsten Schritt, so sieht das Team, wo ein Kunde steht.
+      href: /features/pipeline
+      linkLabel: Zur Pipeline
+      visual: proposal
+    - title: Antworten aus dem Verlauf entworfen
+      description: Ab Pro liegen E-Mail-, LinkedIn- und WhatsApp-Verläufe beim Kunden, und Mate entwirft die Antwort, die Sie senden.
+      href: /features/unified-inbox
+      linkLabel: Zum CRM-Posteingang
+      visual: conversation
+    - title: Listen, die zu Ihrem Geschäft passen
+      description: Unternehmen, Kontakte, Deals und Leistungen oder Ihre eigenen Listen, Felder und Phasen.
+      href: /features/simple-crm
+      linkLabel: Zum einfachen CRM
+      visual: import
 ---
 
-Spätestens wenn zwei Personen mit denselben Kunden sprechen oder eine Nachfrage untergeht, weil sie nur in einem Postfach stand, braucht ein kleines Unternehmen ein CRM. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Dienstleistungsteams, die über Beziehungen verkaufen: B2B-Dienstleister, Beratungen, Agenturen und inhabergeführte Betriebe, deren Aufträge in E-Mail-, LinkedIn- und WhatsApp-Verläufen entstehen. Personen, Organisationen, offene Deals und die zugehörigen Gespräche hängen zusammen, damit jeder im Team sieht, wo ein Kunde steht und was als Nächstes ansteht.
+Spätestens wenn zwei Personen mit denselben Kunden sprechen oder eine Nachfrage untergeht, weil sie nur in einem Postfach stand, braucht ein kleines Unternehmen ein CRM. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Dienstleistungsteams, die über Beziehungen verkaufen: B2B-Dienstleister, Beratungen, Agenturen und inhabergeführte Betriebe, deren Aufträge in E-Mail-, LinkedIn- und WhatsApp-Verläufen entstehen. Personen, Organisationen, offene Deals und die zugehörigen Gespräche hängen zusammen, damit jeder im Team sieht, wo ein Kunde steht und was als Nächstes ansteht. Ab Pro in der Cloud entwirft Mate, oder Ihr eigener KI-Agent über MCP, die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -125,7 +245,7 @@ Ebenfalls nicht enthalten: native Mobile-Apps (die Web-App läuft im Browser auf
 
 ## Was es kostet
 
-Preise gelten pro Nutzer und Monat, monatlich in Euro abgerechnet. REST, Webhooks und MCP sind in jedem Tarif enthalten.
+Preise gelten pro Nutzer und Monat, monatlich in Euro abgerechnet. REST, Webhooks und MCP sind in jedem bezahlten Tarif enthalten.
 
 | Team | Tarif | Pro Monat |
 |---|---|---|
@@ -162,10 +282,10 @@ Nein. Angebote, Rechnungen, Terminbuchung, Webformulare, Telefonie und SMS gibt 
 </FaqItem>
 
 <FaqItem question="Gibt es eine Mobile-App?">
-Keine native Mobile-App. Die Web-App läuft im Browser und passt sich schmalen Bildschirmen an.
+Keine native Mobile-App. Die Web-App läuft im Browser, und der Posteingang passt sich schmalen Bildschirmen an.
 </FaqItem>
 
 <FaqItem question="Gibt es eine kostenlose Version?">
-Einen kostenlosen Cloud-Tarif gibt es nicht. Sie können [[commercial.trial.days]] Tage ohne Kreditkarte testen, und den Open-Source-Kern ohne Lizenzgebühr selbst hosten, mit dem Funktionsumfang von Starter und ohne Posteingang und Mate.
+Es gibt einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Außerdem können Sie [[commercial.trial.days]] Tage ohne Kreditkarte testen, und den Open-Source-Kern ohne Lizenzgebühr selbst hosten, mit dem Funktionsumfang von Starter und ohne Posteingang und Mate.
 </FaqItem>
 </Faq>

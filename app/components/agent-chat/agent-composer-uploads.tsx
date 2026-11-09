@@ -14,7 +14,7 @@ export function AgentFileDropOverlay() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-20 grid place-items-center rounded-2xl border-2 border-dashed border-primary bg-background/90 p-6 text-center text-sm font-medium text-primary"
+      className="pointer-events-none absolute inset-0 z-20 grid place-items-center rounded-2xl border-2 border-dashed border-border-strong bg-background/90 p-6 text-center text-sm font-medium text-foreground"
       data-testid="agent-file-drop-overlay"
     >
       {t("AgentChat.files.dropHint")}

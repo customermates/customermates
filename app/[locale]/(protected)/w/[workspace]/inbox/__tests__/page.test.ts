@@ -30,7 +30,9 @@ vi.mock("@/core/di", () => ({
   getGetMessagingAccountsStateInteractor: () => ({ invoke: mocks.getAccountsState }),
 }));
 vi.mock("@/components/shared/page-container", () => ({ PageContainer: "page-container" }));
-vi.mock("@/components/shared/locked-feature-overlay", () => ({ LockedFeatureOverlay: "locked-feature-overlay" }));
+vi.mock("@/app/components/upsell/messaging-upsell-overlay", () => ({
+  MessagingUpsellOverlay: "messaging-upsell-overlay",
+}));
 vi.mock("../components/inbox-list", () => ({ InboxList: "inbox-list" }));
 vi.mock("../components/inbox-surface", () => ({ InboxSurface: "inbox-surface" }));
 vi.mock("../components/thread-panel", () => ({ ThreadPanel: "thread-panel" }));
@@ -61,11 +63,8 @@ describe("InboxPage subscription lock", () => {
     const page = await renderPage();
     const overlay = page.props.children;
 
-    expect(overlay.type).toBe("locked-feature-overlay");
-    expect(overlay.props).toMatchObject({
-      ctaHref: "/settings/billing",
-      description: "ConnectedAccountsCard.paidSubscriptionRequired",
-    });
+    expect(overlay.type).toBe("messaging-upsell-overlay");
+    expect(overlay.props).toMatchObject({ reason: "subscription" });
     expect(mocks.getThreads).not.toHaveBeenCalled();
     expect(mocks.getThread).not.toHaveBeenCalled();
   });
@@ -75,8 +74,8 @@ describe("InboxPage subscription lock", () => {
 
     const page = await renderPage();
 
-    expect(page.props.children.type).toBe("locked-feature-overlay");
-    expect(page.props.children.props).toMatchObject({ description: "MessagingUpsell.description" });
+    expect(page.props.children.type).toBe("messaging-upsell-overlay");
+    expect(page.props.children.props).toMatchObject({ reason: "plan" });
     expect(mocks.getThreads).not.toHaveBeenCalled();
   });
 

@@ -14,6 +14,7 @@ export const ROUTINE_RUN_REASONS = [
   "routineDisabled",
   "ownerPaused",
   "ownerUnavailable",
+  "planPaused",
   "hourlyRunLimit",
   "filtersNotMatched",
   "startAbandoned",

@@ -4,7 +4,7 @@ description: "Un CRM IA laisse un modèle de langage lire, modifier et rédiger 
 
 hero:
   title: "CRM IA : ce que fait un CRM IA native et comment le juger"
-  description: "Ce que l’IA fait vraiment dans un CRM, ce qui distingue un CRM IA native d’une IA ajoutée après coup, comment les grands éditeurs la packagent et la facturent, et huit questions qui trient vite les produits."
+  description: "Ce que l’IA fait vraiment dans un CRM, ce qui distingue un CRM IA native d’une IA ajoutée après coup, comment les grands éditeurs la facturent, et huit questions qui trient vite les produits."
 
 blogPost:
   author: Benjamin Wagner
@@ -117,7 +117,7 @@ Customermates est un CRM open source développé en Allemagne pour les petites �
 
 | | Mate | Votre propre client IA via MCP | Auto-hébergé |
 |---|---|---|---|
-| Où il s’exécute | Customermates Cloud, toutes les formules | Customermates Cloud sur toutes les formules, et en auto-hébergement | Votre serveur, avec le noyau AGPL |
+| Où il s’exécute | Customermates Cloud, toutes les formules payantes | Customermates Cloud sur toutes les formules, et en auto-hébergement | Votre serveur, avec le noyau AGPL |
 | Qui paie le modèle | Des crédits IA hébergés mensuels par utilisateur actif | Votre propre abonnement ou fournisseur d’IA ; les clients comprennent Claude, ChatGPT, Cursor, Codex et Gemini CLI | Votre propre fournisseur d’IA, via MCP |
 | Boîte de réception | Pro et supérieur | Outils de messagerie à partir de Pro, cloud uniquement | Pas de boîte de réception |
 | Exécutions sans surveillance | Routines | Seulement si votre client les planifie | Ni Mate ni routines |
@@ -130,7 +130,7 @@ Votre propre client IA se connecte au [serveur MCP](/docs/mcp) : Claude et Chat
 
 - **Étapes des affaires :** Lead (10 %), Qualifiée (30 %), Proposition envoyée (60 %), Gagnée (100 %), Perdue (0 %). Les pourcentages sont les probabilités d’étape et alimentent le pipeline pondéré.
 - **Champ personnalisé sur les affaires :** Source, un champ à choix unique avec Recommandation, LinkedIn, Site web et Évènement.
-- **Vue enregistrée :** « Mes propositions ouvertes », filtrée sur l’étape Proposition envoyée et sur les affaires qui me sont attribuées, triée par valeur. Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque consultant peut enregistrer la sienne, ou vous partagez une vue avec l’équipe.
+- **Vue enregistrée :** « Mes propositions ouvertes », filtrée sur l’étape Proposition envoyée et sur les affaires qui me sont attribuées, triée par valeur. Chaque consultant enregistre la sienne ou partage une vue avec toute l’équipe.
 - **Boîte de réception :** chaque consultant connecte [[commercial.entitlement.pro.includedAccountsPerUser]] compte sur Pro, en général la messagerie professionnelle ou LinkedIn.
 
 Chaque consultant ajoute ensuite deux [routines](/docs/app-routines). Les deux s’exécutent dans Customermates Cloud et consomment des crédits IA hébergés.
@@ -159,6 +159,8 @@ autre, ne faites rien.
 Une routine s’exécute au nom de son propriétaire, avec les canaux et les droits de celui-ci. Une exécution sans surveillance refuse tout ce qui demanderait une approbation, et les modifications faites par une routine ne déclenchent jamais une autre routine. Mate envoie des messages quand on le lui demande, c’est pourquoi la première instruction dit « N’envoie rien ».
 
 **Ce que cela coûte :** sur Pro, cette équipe paie [[commercial.price.pro.monthly.seats.5]] par mois pour la boîte de réception, [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté et jusqu’à [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par personne, avec des crédits IA hébergés mensuels par utilisateur actif pour Mate et les routines (voir les [tarifs](/pricing)). Starter coûte [[commercial.price.starter.monthly.seats.5]] par mois à la même équipe et inclut Mate, MCP et [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par personne, mais pas de boîte de réception : la routine de relance n’aurait donc aucun fil à lire. La facturation est mensuelle.
+
+Cette configuration, c’est le suivi en pratique : les fils LinkedIn et e-mail sur la fiche du client, un brouillon qui attend chaque matin pour chaque proposition restée sans réponse, et une tâche de lancement dès qu’une affaire est gagnée. Pour construire la première routine sur vos propres propositions, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 
 ### Ce que Customermates ne fait pas
 

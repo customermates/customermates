@@ -53,7 +53,8 @@ test("a locked German phone Inbox stays quiet and recovers when the subscription
     ),
   ).toBe(false);
   await page.reload();
-  await expect(page.getByText("Upgrade nötig, um Messaging freizuschalten")).toBeVisible();
+  await expect(page.getByText("Nachfassen über LinkedIn und E-Mail")).toBeVisible();
+  await expect(page.getByText("Das Verbinden von Kanälen erfordert ein aktives Abonnement")).toBeVisible();
   let blockedPolls = 0;
   page.on("request", (request) => {
     if (invokesServerAction(request, actionIds)) blockedPolls += 1;

@@ -4,7 +4,7 @@ description: "So funktioniert der HubSpot MCP-Server: Connector für Claude und 
 
 hero:
   title: "HubSpot MCP-Server: Welcher Weg passt, was er kann und wo er aufhört"
-  description: "HubSpot verbindet KI-Clients über einen gehosteten MCP-Server unter mcp.hubspot.com und einen lokalen Entwickler-Server mit Ihrem CRM. Dieser Leitfaden zeigt, welcher Verbindungsweg zu Ihrem Client passt, was der Server liest und schreibt, welche Grenzen HubSpot dokumentiert und wie Sie die Einführung im Team angehen."
+  description: "HubSpot verbindet KI-Clients über einen gehosteten MCP-Server und einen lokalen Entwickler-Server mit dem CRM. Welcher Weg passt, was der Server liest und schreibt, welche Grenzen gelten."
 
 blogPost:
   author: Benjamin Wagner
@@ -142,7 +142,9 @@ Stehen Sie vor der Wahl eines CRM, statt ein bestehendes anzubinden, ist ein im 
 
 Dass Löschen und Senden möglich sind, hat zwei Seiten. Der Customermates-Server fordert verbundene Clients auf, vor dem Löschen oder Senden nachzufragen. Das ist eine Anweisung an den Client, keine Sperre im Server: Ruft ein berechtigter Client ein Werkzeug auf, wird es ausgeführt. Prüfen Sie, wie Ihr Client Freigaben handhabt, und beginnen Sie wie bei HubSpot mit Lesen und Entwürfen.
 
-Auch die Kosten sind anders verteilt. MCP ist ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten; die Posteingangs-Werkzeuge brauchen Pro für [[commercial.price.pro.monthly]]. Ein externer KI-Client läuft über Ihr eigenes KI-Abo, nicht über Customermates-Credits. Wer gar keinen externen Client anbinden möchte, kann in Customermates Cloud Mate nutzen, einen Assistenten in der App, der gehostete KI-Credits verbraucht ([Mate-Dokumentation](/docs/app-assistant)).
+Auch die Kosten sind anders verteilt. MCP ist in jedem Tarif enthalten, auch im kostenlosen mit Ratenbegrenzung; bezahlte Tarife beginnen bei [[commercial.price.starter.monthly]] pro Nutzer und Monat, und die Posteingangs-Werkzeuge brauchen Pro für [[commercial.price.pro.monthly]]. Ein externer KI-Client läuft über Ihr eigenes KI-Abo, nicht über Customermates-Credits. Wer gar keinen externen Client anbinden möchte, kann in Customermates Cloud Mate nutzen, einen Assistenten in der App, der gehostete KI-Credits verbraucht ([Mate-Dokumentation](/docs/app-assistant)).
+
+Was Ihr eigener Agent damit macht, ist Nachfassen. Sind in Customermates Cloud ab Pro LinkedIn und E-Mail verbunden, stehen Kundengespräche am Kundendatensatz, wenn die Kontaktdaten passen oder Sie sie verknüpfen, und Claude, ChatGPT oder Mate entwirft die Antwort und den nächsten Schritt, die Sie prüfen und senden. Zum Ausprobieren [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 Customermates passt nicht, wenn Sie auf HubSpots Marketing-Werkzeuge, den Help Desk oder die Umsatzobjekte angewiesen sind; nichts davon gibt es dort. Bleiben Sie bei HubSpot, nutzen Sie HubSpots Server. Erwägen Sie einen Wechsel, zeigt der [Vergleich mit HubSpot](/compare/hubspot-alternative) die Unterschiede, und der [Leitfaden zu Salesforce MCP](/blog/salesforce-mcp) erklärt die entsprechenden Server bei Salesforce.
 

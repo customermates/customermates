@@ -21,7 +21,7 @@ export function CardHeroHeader({ alt, subtitle, title, isLoading }: Props) {
       ) : (
         <AppImage
           alt={alt ?? title}
-          className="inline-block rounded-lg object-contain select-none shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
+          className="inline-block rounded-lg object-contain select-none"
           height={48}
           loading="eager"
           src="customermates-square.svg"

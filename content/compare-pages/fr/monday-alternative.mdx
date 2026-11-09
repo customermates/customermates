@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /compare/notion-alternative
 
+sections:
+  reasons:
+    - title: "Un modèle de CRM plutôt que des tableaux à concevoir"
+      description: "Contacts, organisations, affaires, services et tâches arrivent reliés entre eux, et chaque liste passe de la disposition en tableau à la disposition en board."
+    - title: "Les conversations clients sur la fiche"
+      description: "Dès Pro, la boîte de réception unifiée réunit dans une seule liste les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram, liées à vos contacts, et vous répondez sur le canal d’origine."
+    - title: "Des réponses rédigées, des enregistrements à jour"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses et met à jour les enregistrements. Votre propre Claude ou ChatGPT peut en faire autant via MCP."
+  switchSteps: true
+
 hero:
-  title: "Alternative à monday CRM : quand Customermates convient, et quand non"
-  description: "monday CRM est le produit de vente de monday.com : des tableaux que vous concevez, des agents IA, des devis et des factures, vendu à partir de trois sièges. Customermates est un CRM open source conçu en Allemagne pour les petites équipes en contact avec leurs clients, avec l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires à partir de Pro. Les informations sur monday viennent de monday.com, vérifiées le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à monday CRM : quand Customermates convient"
+  description: "monday CRM se vend à partir de trois postes. Customermates facture par utilisateur dès un poste, et dès Pro vos conversations LinkedIn, e-mail et WhatsApp apparaissent sur la fiche client quand les coordonnées correspondent ou que vous les liez, avec un brouillon de réponse à relire et envoyer. Informations sur monday CRM vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -39,10 +49,10 @@ comparison:
         source: Contacts, organisations, affaires, services, tâches, reliés entre eux, plus vos propres listes
         competitor: Tableaux que vous concevez colonne par colonne
       - name: Contacts et affaires
-        source: Aucun plafond selon la formule
+        source: Aucun plafond sur les formules payantes
         competitor: "Basic 1 000, Standard 10 000, Pro 100 000 actifs"
       - name: Champs personnalisés
-        source: Aucun plafond selon la formule
+        source: Aucun plafond sur les formules payantes
         competitor: "Basic 5, Standard 15, Pro 75 colonnes par tableau"
   - title: Conversations
     features:
@@ -90,7 +100,7 @@ comparison:
 cta:
   action: Vous comparez monday CRM et Customermates ?
   description: "Démarrez un essai, exportez un tableau monday vers Excel et importez-le comme affaires. Connectez une messagerie ou WhatsApp et voyez si votre pipeline et vos conversations clients s’y retrouvent."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -146,7 +156,7 @@ Les formules de ces lignes ne sont pas équivalentes. monday CRM Standard et Cus
 
 ## Où se place Customermates
 
-Customermates est un CRM open source et IA natif pour les petites équipes en contact direct avec leurs clients : consultants, agences, autres entreprises de services et fondateurs.
+monday CRM vous donne des tableaux à concevoir. Customermates vous donne une fiche client où, dès Pro, se trouvent les conversations, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez.
 
 **Un modèle de CRM plutôt que des tableaux à concevoir.** Contacts, organisations, affaires, services et tâches arrivent reliés entre eux. Vous pouvez renommer n’importe quelle liste, par exemple affaires en projets, et ajouter vos propres listes. L’étape de l’affaire est un champ à choix unique avec une probabilité de gain par option, et la valeur pondérée est la valeur multipliée par la probabilité, un calcul fixe. Toute liste bascule entre tableau et board : un board de statuts à la manière de monday est un simple réglage de disposition. La [documentation des enregistrements](/docs/app-records) donne les détails.
 
@@ -157,7 +167,7 @@ Customermates est un CRM open source et IA natif pour les petites équipes en co
 **Un choix d’hébergement.** Dans Customermates Cloud, la base de données est configurée dans la région AWS de Francfort, et un [DPA](/dpa) ainsi que la [liste des sous-traitants](/subprocessors), fournisseurs américains compris, sont publics. Le cœur AGPL-3.0 fonctionne aussi sur votre propre serveur avec Docker Compose ; une [installation auto-hébergée](/features/self-hosted) a REST, les webhooks et MCP, mais ni boîte de réception ni Mate.
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon choix" variant="boundary">
-Ce n’est pas de la gestion de projet : pas de diagrammes de Gantt ni de chronologies, et les tâches ont un statut mais pas d’échéance intégrée, seulement des champs personnalisés que vous ajoutez. Il n’a ni recherche, enrichissement ou scoring de leads, ni appels, ni devis ou factures, ni séquences ou envois d’e-mails en masse. Il n’y a ni applications mobiles natives ni SSO. Customermates Cloud n’a pas de formule gratuite, seulement un essai de [[commercial.trial.days]] jours ; le cœur auto-hébergé n’a pas de coût de licence. Customermates ne détient aucune certification de conformité.
+Ce n’est pas de la gestion de projet : pas de diagrammes de Gantt ni de chronologies, et les tâches ont un statut mais pas d’échéance intégrée, seulement des champs personnalisés que vous ajoutez. Il n’a ni recherche, enrichissement ou scoring de leads, ni appels, ni devis ou factures, ni séquences ou envois d’e-mails en masse. Il n’y a ni applications mobiles natives ni SSO. Customermates Cloud n’a une formule gratuite que pour [[commercial.limit.free.maxMembers]] personne, sans boîte de réception ni Mate, plus un essai de [[commercial.trial.days]] jours ; le cœur auto-hébergé n’a pas de coût de licence. Customermates ne détient aucune certification de conformité.
 </AcquisitionCallout>
 
 ## Migrer un tableau monday CRM vers Customermates
@@ -196,7 +206,7 @@ Pour les équipes qui travaillent déjà dans monday.com, oui. Il partage les ta
 </FaqItem>
 
 <FaqItem question="Existe-t-il une version gratuite de monday CRM ?">
-Non. monday CRM a un essai de 14 jours et aucune formule gratuite permanente ; les associations peuvent demander des formules à tarif réduit. La formule gratuite pour jusqu’à deux sièges appartient à monday work management. Customermates Cloud n’a pas non plus de formule gratuite, seulement un essai de [[commercial.trial.days]] jours ; le cœur auto-hébergé n’a pas de coût de licence, mais ni boîte de réception ni Mate.
+Non. monday CRM a un essai de 14 jours et aucune formule gratuite permanente ; les associations peuvent demander des formules à tarif réduit. La formule gratuite pour jusqu’à deux sièges appartient à monday work management. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, plus un essai de [[commercial.trial.days]] jours ; le cœur auto-hébergé n’a pas de coût de licence, mais ni boîte de réception ni Mate.
 </FaqItem>
 
 <FaqItem question="Quelles sont les meilleures alternatives à monday CRM ?">

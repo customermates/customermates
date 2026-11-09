@@ -1,6 +1,6 @@
 ---
-title: "CRM for Law Firms: Intake, Referrals, Conflict Search"
-description: "A CRM for law firms and solo lawyers: intake pipeline, referral sources, conflict search and client history, next to your practice management software."
+title: "CRM for Law Firms: Follow Up on Every Inquiry and Referral"
+description: "An inquiry arrives while you are in court. Inquiries sit on the record, Mate drafts the reply, you review and send. Billing stays in your practice software."
 industryName: "Law Firms"
 
 relatedHrefs:
@@ -10,25 +10,45 @@ relatedHrefs:
   - /for/architects
 
 hero:
-  title: "The CRM for Law Firms and Lawyers Who Grow Through Referrals"
-  description: "Track every inquiry from first call to signed engagement, see which referral sources send you work, and search past clients and adverse parties before you accept a matter. From Pro, client email, LinkedIn and WhatsApp sit in one inbox next to the client record. Deadlines, documents and billing stay in your practice management software."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  title: "An inquiry arrives while you are in court. Reply before the next firm does."
+  description: "Inquiries and client conversations sit on one record, and Mate or your own AI agent drafts the reply and the next step for you to review and send. The inbox needs Customermates Cloud from Pro; billing stays in your practice software."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: "Put intake, referrals and client history in one place"
-  description: "Import your client list from Excel, set your intake stages and save the views you check every morning. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  action: "Follow up on every inquiry, referral and former client"
+  description: "Start with one mailbox and one open inquiry, and let Mate draft the first reply. Your [[commercial.trial.days]]-day trial includes Pro, no credit card. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "For law firms. Three jobs, one workspace."
+  items:
+    - title: "Answer every inquiry"
+      description: "Each inquiry is a deal with a stage and a dated next step, so the ones nobody has answered are the first you see."
+      href: /features/follow-up
+      linkLabel: "See follow-up"
+      visual: pipeline
+    - title: "Replies drafted beside the inquiry"
+      description: "From Pro, email, LinkedIn and WhatsApp sit on the record. Mate saves a draft reply in the conversation, and you review, edit and send it."
+      href: /features/unified-inbox
+      linkLabel: "See the unified inbox"
+      visual: inbox
+    - title: "Search before you accept a matter"
+      description: "Search past clients and adverse parties before you accept a new matter."
+      href: /features/contact-management
+      linkLabel: "See contact management"
+      visual: search
 ---
 
-A CRM for a law firm covers the work before and around a matter: answering inquiries fast, knowing who referred whom, and finding a name from an old matter before you accept a new one. Customermates does that part. It is an open-source, AI-native CRM built in Germany, and it is not practice management software, so docketing, documents, time, billing and trust accounting stay in a tool such as MyCase or, in Germany, Actaport or RA-MICRO. If you want one system for everything, buy practice management with a lead module. If you want a relationship CRM next to it, read on.
+A prospective client writes while you are in court, and by the time you reply they may have called the next firm. Customermates, an open-source CRM made in Germany, keeps every inquiry and client conversation on the record with a dated next step. On Customermates Cloud from Pro, Mate or your own AI agent (Claude, ChatGPT or any client that speaks MCP) drafts the reply when you ask or on a routine you set up; you review, edit and send. It is a relationship CRM, not practice management: docketing, documents, time, billing and trust accounting stay in a tool such as MyCase or, in Germany, Actaport or RA-MICRO, compared in the table below. If you want one system for everything, practice management with a lead module fits better.
 
 This page also answers the questions solo lawyers ask. The setup below works the same for one attorney as for twenty.
 
@@ -42,8 +62,10 @@ This page also answers the questions solo lawyers ask. The setup below works the
     referral sources are contacts and organizations with a Relationship field.
   </SummaryItem>
   <SummaryItem label="AI">
-    In Customermates Cloud, Mate drafts intake replies and lists stalled
-    inquiries, using hosted AI credits. Or connect your own AI client through MCP.
+    On Customermates Cloud, Mate drafts the reply to an inquiry and lists
+    stalled inquiries when you ask or on a routine you set up, using hosted AI
+    credits. Or use your own agent (Claude, ChatGPT or any client that speaks
+    MCP). You review and send.
   </SummaryItem>
   <SummaryItem label="Not included">
     Deadlines and docketing, documents, time tracking, billing, trust
@@ -103,7 +125,7 @@ Weighted values are your fee items times your own probabilities, not a forecast.
 
 ### How the conflict search works, and where it stops
 
-Global search (Cmd or Ctrl+K) finds contacts by first name, last name, email address or other channel identifier and the names of their linked organizations, and organizations by their name and their contacts' names. Deals are matched on their name only, and notes are not searched. So a conflict search in Customermates is only as good as this habit: every adverse party and every related company becomes its own contact or organization, linked to the matter, with Relationship set. A name typed only into a deal's notes will not show up. On the list pages you can also filter a text field such as Related entities with "contains".
+Global search (Cmd or Ctrl+K) matches record titles and searchable field values in the lists you may read, finds contacts by any email address or phone number in their contact details and looks into the text of attached files. So a conflict search in Customermates is only as good as this habit: every adverse party and every related company becomes its own contact or organization, linked to the matter, with Relationship set. Do not rely on a name that appears only in free text such as a note. Search returns only what your role may read, and with Assigned read access you find only the records assigned to you, so run it with a role that reads all clients. On the list pages you can also filter a text field such as Related entities with "contains".
 
 A link between a deal and a contact does not say in which role the contact took part. If a person was an adverse party in one matter and a client in another, write that in the contact's notes and check the linked deals. Customermates is a search, not a conflict-check system: it does not flag conflicts, and the assessment stays with the lawyer and your firm's procedure.
 
@@ -115,11 +137,11 @@ A link between a deal and a contact does not say in which role the contact took 
 4. **Where work comes from:** deals grouped by Source, with a dashboard widget that counts engaged deals per Source.
 5. **Quiet former clients:** organizations with Relationship Former client, sorted by last update, oldest first.
 
-A saved view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team. More on lists and filters is in the [records guide](/docs/app-records).
+Share **Quiet former clients** with the whole firm or with selected roles, so every partner works from the same list. More on lists and filters is in the [records guide](/docs/app-records).
 
 ### Client conversations in one inbox (Pro and above)
 
-In Customermates Cloud on Pro and higher, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram, and you reply on the original channel. Link a participant to a contact once, and their conversations appear on that contact's timeline. SMS and phone calls are not channels.
+In Customermates Cloud on Pro and higher, the [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or IMAP together with LinkedIn, WhatsApp, Instagram and Telegram, and you reply on the original channel. Link a participant to a contact once, and their conversations appear on that contact's timeline; linking a conversation to a deal is a separate step, by you or by Mate. SMS and phone calls are not channels.
 
 Two details matter for a firm. Conversations from a lawyer's own accounts are private: colleagues, admins included, see a thread only after the owner shares it. And Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so a shared intake mailbox that the whole team works from needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user and can share a whole account.
 
@@ -146,7 +168,7 @@ list: deal, stage, days since the last update, draft saved yes or no.
   approved that provider.
 </AcquisitionCallout>
 
-Prefer your own AI client? Claude, ChatGPT and others connect through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools, on every plan and on self-hosted installations, with model use billed by your AI provider. An MCP client decides for itself whether it asks before writing.
+Prefer your own AI client? Claude, ChatGPT and others connect through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools, on every plan and on self-hosted installations, with model use billed by your AI provider. With the inbox on Customermates Cloud from Pro it can read the same threads and save drafts too. An MCP client decides for itself whether it asks before writing.
 
 ## What Customermates does not do for law firms
 
@@ -166,7 +188,7 @@ Prefer your own AI client? Claude, ChatGPT and others connect through [MCP](/doc
 
 ## What it costs
 
-Prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP. Assistants and paralegals who log in count as users.
+Prices are per active user per month, billed monthly. Every paid plan includes REST, webhooks and MCP. Assistants and paralegals who log in count as users.
 
 | Firm | Plan | Per month |
 |---|---|---|
@@ -176,7 +198,7 @@ Prices are per active user per month, billed monthly. Every plan includes REST, 
 | Same five people with a shared intake mailbox | Business | [[commercial.price.business.monthly.seats.5]] |
 | Ten-person firm, pipeline and referrals only | Starter | [[commercial.price.starter.monthly.seats.10]] |
 
-Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting the open-source core costs no licence fee.
+Each paid cloud plan adds monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting the open-source core costs no licence fee.
 
 ## Moving in from a spreadsheet
 
@@ -215,7 +237,7 @@ A spreadsheet works while you remember every open inquiry. It stops working when
 </FaqItem>
 
 <FaqItem question="Can Customermates run conflict checks?">
-It can search, not check. Global search finds contacts and organizations by name and by linked company, so every adverse party you record as its own contact or organization shows up. It does not search notes, does not flag conflicts and does not replace your firm's conflict procedure.
+It can search, not check. Global search finds records by name, by contact details and by the text of attached files, so every adverse party you record as its own contact or organization shows up. It does not flag conflicts, only shows what your role may read, and does not replace your firm's conflict procedure.
 </FaqItem>
 
 <FaqItem question="Can I connect Customermates to my practice management or billing software?">

@@ -23,8 +23,9 @@ export function organizationSchema() {
 }
 
 export function aggregateOfferSchema(params: { locale: string }) {
-  const amounts = COMMERCIAL_OFFERS.map((offer) => offer.unitPriceMinor / 100);
-  if (amounts.length === 0) return undefined;
+  const paid = COMMERCIAL_OFFERS.map((offer) => offer.unitPriceMinor / 100);
+  if (paid.length === 0) return undefined;
+  const amounts = [0, ...paid];
 
   return {
     "@type": "AggregateOffer",

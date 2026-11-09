@@ -3,9 +3,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const actions = vi.hoisted(() => ({
+  applyOnboardingPlaybookAction: vi.fn(),
   completeOnboardingSetupStepAction: vi.fn(),
   completeOnboardingWizardAction: vi.fn(),
   saveOnboardingWizardProgressAction: vi.fn(),
+  selectOnboardingJobAction: vi.fn(),
 }));
 const assign = vi.hoisted(() => vi.fn());
 
@@ -53,7 +55,7 @@ describe("returning-user onboarding progress", () => {
         claudeMethod: "account" as const,
       },
     };
-    store.initialize(2, "owner-a", progress);
+    store.initialize(3, "owner-a", progress);
     expect(store.currentStep).toBe("ai");
     expect(store.inviteTab).toBe("email");
     expect(ai.connectorProvider).toBe("claude");
@@ -68,7 +70,7 @@ describe("returning-user onboarding progress", () => {
 
   it("waits for a successful server save before advancing and stays put on failure", async () => {
     const { store } = persistentStore();
-    store.initialize(2, "owner-a");
+    store.initialize(3, "owner-a");
     let resolveSave!: (value: unknown) => void;
     actions.saveOnboardingWizardProgressAction.mockImplementationOnce(
       () =>
@@ -88,7 +90,7 @@ describe("returning-user onboarding progress", () => {
 
   it("serializes selection saves and excludes one-time key values from progress", async () => {
     const { store, ai } = persistentStore();
-    store.initialize(2, "owner-a");
+    store.initialize(3, "owner-a");
     await store.next();
     ai.selectProvider("cursor");
     ai.credentials.cursor = { id: "synthetic-key-id", key: "synthetic-one-time-value", expiresAt: null };
@@ -97,7 +99,7 @@ describe("returning-user onboarding progress", () => {
     expect(saved.progress.ai.apiKeyIds).toEqual({ cursor: "synthetic-key-id" });
     expect(JSON.stringify(saved)).not.toContain("synthetic-one-time-value");
     const returning = persistentStore();
-    returning.store.initialize(2, "owner-a", saved.progress);
+    returning.store.initialize(3, "owner-a", saved.progress);
     expect(returning.ai.canFinish).toBe(true);
     expect(returning.ai.apiKey).toBeNull();
     expect(returning.ai.hasSavedApiKey).toBe(true);
@@ -115,9 +117,9 @@ describe("returning-user onboarding progress", () => {
         claudeMethod: "account" as const,
       },
     };
-    store.initialize(2, "owner-a", progress);
+    store.initialize(3, "owner-a", progress);
     expect(ai.canFinish).toBe(true);
-    store.initialize(2, "owner-b");
+    store.initialize(3, "owner-b");
     expect(store.currentStep).toBe("invite");
     expect(ai.canFinish).toBe(false);
     expect(ai.selection.apiKeyIds).toEqual({});
@@ -125,7 +127,7 @@ describe("returning-user onboarding progress", () => {
 
   it("keeps an owner with a pending setup on the setup step even with saved AI progress", async () => {
     const { store } = persistentStore();
-    store.initialize(1, "owner-a", { ...readOnboardingWizardProgress(null), step: "ai" });
+    store.initialize(2, "owner-a", { ...readOnboardingWizardProgress(null), step: "ai" });
     expect(store.currentStep).toBe("setup");
     expect(store.isFirstStep).toBe(true);
 
@@ -139,7 +141,7 @@ describe("returning-user onboarding progress", () => {
 
   it("finishes from the provider chooser without a selected tool", async () => {
     const { store } = persistentStore();
-    store.initialize(2, "owner-a", { ...readOnboardingWizardProgress(null), step: "ai" });
+    store.initialize(3, "owner-a", { ...readOnboardingWizardProgress(null), step: "ai" });
 
     await store.complete();
 
@@ -158,7 +160,7 @@ describe("returning-user onboarding progress", () => {
         apiKeyIds: { cursor: "deleted-key-id" },
       },
     };
-    store.initialize(2, "owner-a", progress);
+    store.initialize(3, "owner-a", progress);
     expect(ai.canFinish).toBe(true);
     actions.saveOnboardingWizardProgressAction.mockImplementation(({ progress: sent }) =>
       Promise.resolve({ ok: true, data: { ...sent, ai: { ...sent.ai, apiKeyIds: {} } } }),
@@ -174,7 +176,7 @@ describe("returning-user onboarding progress", () => {
 
   it("keeps a key created while an older save was in flight", async () => {
     const { store, ai } = persistentStore();
-    store.initialize(2, "owner-a");
+    store.initialize(3, "owner-a");
     await store.next();
     ai.selectProvider("cursor");
     let resolveSave!: (value: unknown) => void;
@@ -196,7 +198,7 @@ describe("returning-user onboarding progress", () => {
 
   it("does not let an old account's in-flight save advance a new account", async () => {
     const { store } = persistentStore();
-    store.initialize(2, "owner-a");
+    store.initialize(3, "owner-a");
     let resolveSave!: (value: unknown) => void;
     actions.saveOnboardingWizardProgressAction.mockImplementationOnce(
       () =>
@@ -206,7 +208,7 @@ describe("returning-user onboarding progress", () => {
     );
     const next = store.next();
     await Promise.resolve();
-    store.initialize(2, "owner-b");
+    store.initialize(3, "owner-b");
     resolveSave({ ok: true, data: { ...readOnboardingWizardProgress(null), step: "ai" } });
     await next;
     expect(store.currentStep).toBe("invite");
@@ -218,8 +220,8 @@ describe("OnboardingWizardStore", () => {
   it("contains Profile, the workspace setup, Invite, and AI in order", () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    expect(WIZARD_STEPS).toEqual(["profile", "setup", "invite", "ai"]);
-    expect(store.totalSteps).toBe(4);
+    expect(WIZARD_STEPS).toEqual(["profile", "goal", "playbook", "setup", "invite", "ai"]);
+    expect(store.totalSteps).toBe(5);
     expect(store.currentStep).toBe("profile");
   });
 
@@ -238,7 +240,7 @@ describe("OnboardingWizardStore", () => {
   it("starts registered owners at the setup and prevents returning to Profile", async () => {
     const store = new OnboardingWizardStore(rootStore);
 
-    store.setInitialStep(1);
+    store.setInitialStep(2);
     expect(store.currentStep).toBe("setup");
     expect(store.isFirstStep).toBe(true);
 
@@ -248,7 +250,7 @@ describe("OnboardingWizardStore", () => {
 
   it("advances the setup through Invite to the terminal AI step", async () => {
     const store = new OnboardingWizardStore(rootStore);
-    store.setInitialStep(1);
+    store.setInitialStep(2);
 
     await store.next();
     expect(store.currentStep).toBe("invite");
@@ -262,7 +264,7 @@ describe("OnboardingWizardStore", () => {
 
   it("resets progress when a different account starts at an earlier step", async () => {
     const store = new OnboardingWizardStore(rootStore);
-    store.setInitialStep(1);
+    store.setInitialStep(2);
     await store.next();
 
     store.setInitialStep(0);
@@ -307,7 +309,7 @@ describe("OnboardingWizardStore", () => {
   it("starts an empty workspace by closing only the setup step, then continues to the team step", async () => {
     const ai = new AiConnectionStore({} as RootStore);
     const store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "de" } } as RootStore);
-    store.initialize(1, "owner-a");
+    store.initialize(2, "owner-a");
     expect(store.currentStep).toBe("setup");
 
     await store.completeSetupStep();
@@ -330,6 +332,143 @@ describe("OnboardingWizardStore", () => {
     await store.completeSetupStep();
 
     expect(actions.completeOnboardingWizardAction).not.toHaveBeenCalled();
+    expect(assign).not.toHaveBeenCalled();
+  });
+});
+
+describe("choosing what to do first", () => {
+  function goalStore(jobChoice?: {
+    selectedJob: "workspace" | "followup" | "agent";
+    suggestedJob: "followup" | null;
+    suggestedPlaybook?: "consultants" | "agencies" | "freelancers" | "smb" | null;
+  }) {
+    const ai = new AiConnectionStore({} as RootStore);
+    const store = new OnboardingWizardStore({ stepAiStore: ai, localeStore: { locale: "de" } } as RootStore);
+    store.initialize(1, "owner-a", undefined, true, jobChoice);
+    return store;
+  }
+
+  it("opens on the goal step with the job from the signup preselected", () => {
+    const store = goalStore({ selectedJob: "followup", suggestedJob: "followup" });
+
+    expect(store.currentStep).toBe("goal");
+    expect(store.selectedJob).toBe("followup");
+    expect(store.suggestedJob).toBe("followup");
+    expect(store.isFirstStep).toBe(true);
+  });
+
+  it("preselects the workspace setup without a signup job and ignores unknown values", () => {
+    const store = goalStore();
+
+    expect(store.selectedJob).toBe("workspace");
+    store.setSelectedJob("crm");
+    expect(store.selectedJob).toBe("workspace");
+    store.setSelectedJob("agent");
+    expect(store.selectedJob).toBe("agent");
+  });
+
+  it("continues to the setup interview for the workspace job and keeps Back from reopening the goal", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "workspace", next: "setup" } });
+    const store = goalStore();
+
+    await store.chooseJob();
+
+    expect(actions.selectOnboardingJobAction).toHaveBeenCalledExactlyOnceWith({ job: "workspace" });
+    expect(store.currentStep).toBe("setup");
+    expect(store.isFirstStep).toBe(true);
+  });
+
+  it("goes straight to the AI connection for the agent job and saves that step", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "agent", next: "ai" } });
+    const store = goalStore({ selectedJob: "agent", suggestedJob: null });
+
+    await store.chooseJob();
+
+    expect(store.currentStep).toBe("ai");
+    expect(actions.saveOnboardingWizardProgressAction).toHaveBeenLastCalledWith(
+      expect.objectContaining({ progress: expect.objectContaining({ step: "ai" }) }),
+    );
+  });
+
+  it("shows three steps for the follow-up job and five for the workspace setup", () => {
+    const store = goalStore({ selectedJob: "followup", suggestedJob: "followup" });
+
+    expect(store.steps).toEqual(["profile", "goal", "playbook"]);
+    store.setSelectedJob("workspace");
+    expect(store.steps).toEqual(["profile", "goal", "setup", "invite", "ai"]);
+    expect(store.currentStep).toBe("goal");
+  });
+
+  it("continues to the job playbook for the follow-up job and keeps Back from reopening the goal", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } });
+    const store = goalStore({ selectedJob: "followup", suggestedJob: "followup", suggestedPlaybook: "agencies" });
+
+    await store.chooseJob();
+
+    expect(store.currentStep).toBe("playbook");
+    expect(store.isFirstStep).toBe(true);
+    expect(store.selectedPlaybook).toBe("agencies");
+    expect(store.suggestedPlaybook).toBe("agencies");
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("writes the chosen playbook and leaves for the channel settings", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } });
+    actions.applyOnboardingPlaybookAction.mockResolvedValue({
+      ok: true,
+      data: { playbook: "freelancers", pagesWritten: 4, redirectTo: "/w/atlas/settings/channels?from=onboarding" },
+    });
+    const store = goalStore({ selectedJob: "followup", suggestedJob: "followup" });
+    await store.chooseJob();
+
+    await store.applyPlaybook();
+    expect(actions.applyOnboardingPlaybookAction).not.toHaveBeenCalled();
+
+    store.setSelectedPlaybook("crm");
+    expect(store.selectedPlaybook).toBeNull();
+    store.setSelectedPlaybook("freelancers");
+    await store.applyPlaybook();
+
+    expect(actions.applyOnboardingPlaybookAction).toHaveBeenCalledExactlyOnceWith({ playbook: "freelancers" });
+    expect(assign).toHaveBeenCalledExactlyOnceWith("/de/w/atlas/settings/channels?from=onboarding");
+  });
+
+  it("skips the playbook without writing pages", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } });
+    actions.applyOnboardingPlaybookAction.mockResolvedValue({
+      ok: true,
+      data: { playbook: null, pagesWritten: 0, redirectTo: "/w/atlas/settings/channels?from=onboarding" },
+    });
+    const store = goalStore({ selectedJob: "followup", suggestedJob: null, suggestedPlaybook: "smb" });
+    await store.chooseJob();
+
+    await store.applyPlaybook(true);
+
+    expect(actions.applyOnboardingPlaybookAction).toHaveBeenCalledExactlyOnceWith({ playbook: null });
+    expect(assign).toHaveBeenCalledOnce();
+  });
+
+  it("stays on the playbook step when the server refuses it", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: true, data: { job: "followup", next: "playbook" } });
+    actions.applyOnboardingPlaybookAction.mockResolvedValue({ ok: false, failure: { kind: "validation", issues: [] } });
+    const store = goalStore({ selectedJob: "followup", suggestedJob: null, suggestedPlaybook: "consultants" });
+    await store.chooseJob();
+
+    await store.applyPlaybook();
+
+    expect(store.currentStep).toBe("playbook");
+    expect(store.isSubmitting).toBe(false);
+    expect(assign).not.toHaveBeenCalled();
+  });
+
+  it("stays on the goal step when the server refuses the choice", async () => {
+    actions.selectOnboardingJobAction.mockResolvedValue({ ok: false, failure: { kind: "validation", issues: [] } });
+    const store = goalStore();
+
+    await store.chooseJob();
+
+    expect(store.currentStep).toBe("goal");
+    expect(store.isSubmitting).toBe(false);
     expect(assign).not.toHaveBeenCalled();
   });
 });

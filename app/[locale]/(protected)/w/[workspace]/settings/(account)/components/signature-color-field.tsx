@@ -53,7 +53,7 @@ export const EmailLinkColorField = observer(() => {
       )}
 
       {contrast && !contrast.readable && (
-        <p aria-live="polite" className="text-warning text-xs" id="email-linkHex-contrast">
+        <p aria-live="polite" className="text-warning-soft-foreground text-xs" id="email-linkHex-contrast">
           {t("ConnectedAccountsCard.emailLinkColourLowContrast", {
             light: contrast.light.toFixed(1),
             dark: contrast.dark.toFixed(1),

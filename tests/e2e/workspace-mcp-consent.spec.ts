@@ -29,7 +29,7 @@ test("the MCP consent picker binds the connection to the chosen workspace and ex
   const deactivated = await addBrowserWorkspace(database, workspace, "Paused Agency");
   await setMembershipStatus(database, deactivated, "inactive");
   const unpaid = await addBrowserWorkspace(database, workspace, "Unpaid Studio");
-  await database.query('UPDATE "Subscription" SET status=\'expired\' WHERE "companyId"=$1', [unpaid.companyId]);
+  await database.query('UPDATE "Subscription" SET status=\'unPaid\' WHERE "companyId"=$1', [unpaid.companyId]);
   const reader = await addBrowserWorkspace(database, workspace, "Reading Room");
   await giveMemberRole(database, reader, "Reader");
   const clientId = `connector-${randomUUID()}`;

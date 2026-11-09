@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const invokes = vi.hoisted(() => Array.from({ length: 17 }, () => vi.fn(() => Promise.resolve())));
+const invokes = vi.hoisted(() => Array.from({ length: 15 }, () => vi.fn(() => Promise.resolve())));
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
 const mockEnv = vi.hoisted(() => ({
   APP_MODE: "cloud" as "cloud" | "demo" | "self-hosted",
@@ -15,35 +15,31 @@ vi.mock("@/core/observability/server", () => sentry);
 vi.mock("@/core/di", () => ({
   getSendWelcomeAndDemoInteractor: () => ({ invoke: invokes[0] }),
   getSendTrialExtensionOfferInteractor: () => ({ invoke: invokes[1] }),
-  getSendTrialInactivationReminderInteractor: () => ({ invoke: invokes[2] }),
-  getDeactivateTrialUsersAndSendNoticeInteractor: () => ({
-    invoke: invokes[3],
-  }),
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor: () => ({
-    invoke: invokes[4],
+    invoke: invokes[2],
   }),
   getDeleteConnectedAccountsForExpiredTrialsInteractor: () => ({
-    invoke: invokes[5],
+    invoke: invokes[3],
   }),
   getDeleteConnectedAccountsForInactiveOwnersInteractor: () => ({
-    invoke: invokes[6],
+    invoke: invokes[4],
   }),
-  getDeleteOrphanedUnipileAccountsInteractor: () => ({ invoke: invokes[7] }),
-  getExpireAdAttributionInteractor: () => ({ invoke: invokes[8] }),
-  getSendLegalDocumentNoticesInteractor: () => ({ invoke: invokes[9] }),
-  getPruneRoutineRunsInteractor: () => ({ invoke: invokes[10] }),
-  getPurgeExpiredTrashInteractor: () => ({ invoke: invokes[11] }),
-  getPruneDraftSendsInteractor: () => ({ invoke: invokes[12] }),
-  getPruneWikiKnowledgeGapsInteractor: () => ({ invoke: invokes[13] }),
-  getSyncStaleWikiSectionsInteractor: () => ({ invoke: invokes[14] }),
-  getPurgeExpiredRecordFilesInteractor: () => ({ invoke: invokes[15] }),
-  getNormalizePhoneIdentitiesInteractor: () => ({ invoke: invokes[16] }),
+  getDeleteOrphanedUnipileAccountsInteractor: () => ({ invoke: invokes[5] }),
+  getExpireAdAttributionInteractor: () => ({ invoke: invokes[6] }),
+  getSendLegalDocumentNoticesInteractor: () => ({ invoke: invokes[7] }),
+  getPruneRoutineRunsInteractor: () => ({ invoke: invokes[8] }),
+  getPurgeExpiredTrashInteractor: () => ({ invoke: invokes[9] }),
+  getPruneDraftSendsInteractor: () => ({ invoke: invokes[10] }),
+  getPruneWikiKnowledgeGapsInteractor: () => ({ invoke: invokes[11] }),
+  getSyncStaleWikiSectionsInteractor: () => ({ invoke: invokes[12] }),
+  getPurgeExpiredRecordFilesInteractor: () => ({ invoke: invokes[13] }),
+  getNormalizePhoneIdentitiesInteractor: () => ({ invoke: invokes[14] }),
 }));
 
 import { GET } from "../route";
 
-const RETENTION_STEPS = [8, 10, 11, 12, 13, 14, 15, 16];
-const UNIPILE_STEPS = [5, 6, 7];
+const RETENTION_STEPS = [6, 8, 9, 10, 11, 12, 13, 14];
+const UNIPILE_STEPS = [3, 4, 5];
 
 function callLifecycle() {
   return GET(
@@ -84,7 +80,7 @@ describe("lifecycle cron", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
-    expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(calledSteps()).toEqual(invokes.map((_, index) => index));
   });
 
   it("runs only the retention steps on a self-hosted instance", async () => {
@@ -116,7 +112,7 @@ describe("lifecycle cron", () => {
     invokes[0].mockImplementationOnce(() => {
       throw welcomeFailure;
     });
-    invokes[7].mockRejectedValueOnce(unipileFailure);
+    invokes[5].mockRejectedValueOnce(unipileFailure);
 
     const error = await callLifecycle().catch((thrown: unknown) => thrown);
 
@@ -125,13 +121,13 @@ describe("lifecycle cron", () => {
       "Lifecycle steps failed: sendWelcomeAndDemo (welcome mail template missing), deleteOrphanedUnipileAccounts (UNIPILE_API_KEY env var is not set)",
     );
     expect((error as AggregateError).errors).toEqual([welcomeFailure, unipileFailure]);
-    expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(calledSteps()).toEqual(invokes.map((_, index) => index));
   });
 
   it("still runs the other lifecycle tasks when the Knowledge Base section sync fails", async () => {
     mockEnv.VERCEL_ENV = "production";
     const failure = new Error("canceling statement due to lock timeout");
-    invokes[14].mockRejectedValueOnce(failure);
+    invokes[12].mockRejectedValueOnce(failure);
 
     const response = await GET(
       new Request("https://customermates.com/api/cron/lifecycle", {
@@ -141,7 +137,7 @@ describe("lifecycle cron", () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
-    expect(invokes.every((invoke) => invoke.mock.calls.length === 1)).toBe(true);
+    expect(calledSteps()).toEqual(invokes.map((_, index) => index));
     expect(sentry.captureException).toHaveBeenCalledWith(failure, {
       tags: { kind: "wiki-section-cron-sync" },
     });

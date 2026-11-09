@@ -1,12 +1,12 @@
 ---
 title: "Customermates-CRM-Dokumentation"
-description: Open-Source-CRM mit nativem MCP-Endpoint, sodass KI-Clients Ihr CRM direkt lesen und schreiben. Hier starten.
+description: "Open-Source-CRM fürs Nachfassen: Gespräche am Kunden, Antworten, die Mate oder Ihr KI-Agent über MCP entwirft und die Sie prüfen und senden. Hier starten."
 demo:
   src: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard?agentChat=closed
   title: Customermates Demo
 ---
 
-Customermates ist ein Open-Source-CRM mit einem nativen MCP-Endpoint. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt Ihr CRM direkt, ganz ohne Copy-Paste.
+Customermates ist ein Open-Source-CRM für kleine, kundennahe Teams. In Customermates Cloud ab Pro verbinden Sie E-Mail und LinkedIn sowie WhatsApp, Instagram und Telegram, und Gespräche liegen am Kundendatensatz, wenn die Kontaktdaten passen oder Sie sie verknüpfen. Mate, der in Customermates Cloud eingebaute Assistent, oder Ihr eigener KI-Agent entwirft die Antwort und den nächsten Schritt; Sie prüfen, bearbeiten und senden. Claude, ChatGPT, Cursor und jeder andere Client, der das Model Context Protocol spricht, liest und schreibt Ihr CRM über einen nativen MCP-Endpoint direkt, ganz ohne Copy-Paste, in jedem Tarif und bei Self-Hosting.
 
 ## Client wählen und loslegen [#pick-your-client-and-start]
 
@@ -21,16 +21,16 @@ Jede Seite enthält die Verbindungsschritte und Ihre ersten Kommandos, und der S
 
 ## Was Customermates ist [#what-customermates-is]
 
-Ein CRM mit konfigurierbaren Listen, Feldern, Beziehungen und Berechnungen, Tabellen- und Board-Ansichten sowie Dashboards. In Customermates Cloud entwirft eine KI-Einrichtung Ihre Listen, Pipeline, Dashboard und Wissensdatenbank aus ein paar Fragen zu Ihrem Geschäft; alles lässt sich ändern und um eigene Listen ergänzen. Dazu kommen:
+Ein CRM mit konfigurierbaren Listen, Feldern, Beziehungen und Berechnungen, Tabellen- und Board-Ansichten sowie Dashboards. In Customermates Cloud beschreiben Sie Ihr Geschäft und beantworten ein paar Fragen, und Mate entwirft Ihre Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten, die Sie prüfen, bevor etwas gebaut wird; alles lässt sich ändern und um eigene Listen ergänzen. Dazu kommen:
 
 - **Nativer MCP-Endpoint** unter `/api/v1/mcp`: Ein MCP-Client entdeckt und ruft CRM-Operationen ohne Plugin auf.
 - **Open Source** unter AGPLv3; Enterprise-Komponenten stehen unter einer separaten kommerziellen Lizenz. Self-Hosting oder die Managed Cloud.
 - **Managed Cloud** mit Datenbank in der AWS-Region Frankfurt, einem [AVV](/dpa) und allen Unterauftragsverarbeitern, auch aus den USA, in der [Liste der Unterauftragsverarbeiter](/subprocessors).
 - **Webhooks** mit optional signierten Payloads, Retries und Delivery-Log.
 - **OpenAPI-3.1**-Spezifikation für die volle REST-Oberfläche unter `/api/v1/openapi`.
-- **Mate**, der In-App-KI-Assistent in Customermates Cloud: kein externer KI-Client, keine Einrichtung, er nutzt die Credits aus Ihrem Tarif. Siehe [Assistent](/docs/app-assistant).
+- **Mate**, der In-App-KI-Assistent in Customermates Cloud: kein externer KI-Client, keine Einrichtung, er nutzt die Credits aus Ihrem Tarif. Bitten Sie ihn um eine Antwort, legt er einen Entwurf in der Konversation ab, den Sie prüfen und senden. Siehe [Assistent](/docs/app-assistant).
 - **Routinen**, die Mate nach Zeitplan oder bei einer Datensatzänderung ausführen, in Customermates Cloud. Siehe [Routinen](/docs/app-routines).
-- **Posteingang** für E-Mail und verbundene LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, in Customermates Cloud. Siehe [Posteingang](/docs/app-inbox).
+- **Posteingang** für E-Mail und verbundene LinkedIn-, WhatsApp-, Instagram- und Telegram-Konten, in Customermates Cloud ab Pro. Siehe [Posteingang](/docs/app-inbox).
 - **Rollen**, die je Liste festlegen, wer alle Datensätze, nur zugewiesene oder keine lesen und wer sie erstellen, bearbeiten oder löschen darf. Siehe [Unternehmen](/docs/app-company).
 
 ## Vier Wege, wie Customermates mit Ihrem Stack spricht [#four-ways-customermates-connects-to-your-stack]
@@ -59,4 +59,4 @@ Customermates behandelt den KI-Client als First-Class-User. Tools sind imperativ
 
 ## Ausprobieren [#try-it]
 
-Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten. Sie können sie durchsehen und durchsuchen; Datensätze anlegen, ändern oder löschen und Mate fragen zeigt einen Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup), um mit Ihren eigenen Daten zu arbeiten.
+Die eingebettete Demo auf dieser Seite ist eine schreibgeschützte Live-Instanz mit Beispieldaten. Sie können sie durchsehen und durchsuchen; Datensätze anlegen, ändern oder löschen und Mate fragen zeigt einen Hinweis, dass die Aktion im Demo-Modus nicht verfügbar ist. [Starten Sie eine kostenlose Testphase](/auth/signup) ([[commercial.trial.days]] Tage, ohne Kreditkarte), um mit Ihren eigenen Daten zu arbeiten.

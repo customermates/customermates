@@ -1,6 +1,6 @@
 ---
 title: "CRM für Outlook: E-Mail, Ordner und Kalender verbinden"
-description: "Outlook mit dem CRM verbinden: E-Mails im Posteingang, Ordnerablage im echten Postfach, Kalender nur lesend. Ohne Add-in, ab dem Pro-Tarif."
+description: "Outlook-Mails im CRM nachfassen: Verläufe beim passenden Kontakt, Entwürfe von Mate, Ordnerablage im echten Postfach. Ohne Add-in, ab dem Pro-Tarif."
 featureName: Outlook-Integration
 
 relatedHrefs:
@@ -9,20 +9,48 @@ relatedHrefs:
   - /blog/outlook-crm-integration
   - /features/contact-management
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Tarif prüfen"
+        description: "Sie brauchen Customermates Cloud mit Pro oder höher oder die Testphase. Zum Verbinden eines Kanals braucht Ihre Rolle Erstellen bei Inbox-Nachrichten."
+      - title: "Outlook verbinden"
+        description: "Öffnen Sie Einstellungen › Kanäle, klicken Sie auf Kanal verbinden und wählen Sie Outlook. Der Tab wechselt auf eine sichere Verbindungsseite, auf der Sie sich anmelden. Danach wird Ihr Verlauf im Hintergrund importiert, meist in wenigen Minuten, bei großen Postfächern in bis zu einer Stunde. Erlaubt Ihr Microsoft-365-Mandant Nutzern keine Zustimmung zu Drittanbieter-Apps, muss zuerst ein Administrator die Verbindung freigeben."
+      - title: "Ordner auswählen"
+        description: "Schalten Sie im Tab Ordner die Ordner ein, die ins CRM sollen, etwa ein Archiv, oder schalten Sie Newsletter-Ordner aus."
+      - title: "Signatur hinterlegen"
+        description: "Schalten Sie im Tab E-Mail die Option Signatur hinzufügen ein und schreiben Sie die Signatur einmal. Fügen Sie sie nicht zusätzlich in Nachrichten ein."
+      - title: "Erste Kontakte verknüpfen"
+        description: "Filtern Sie den Posteingang nach Teilnehmer: nicht vollständig verknüpft und verknüpfen Sie jeden Absender mit einem Kontakt oder legen Sie einen an."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-inbox
+    items:
+      - title: "Was verbunden wird"
+        description: "E-Mails Ihres Outlook-Kontos in beide Richtungen, dazu die Termine des Kalenders als schreibgeschützte Einträge. Die Kanalkarte zeigt, ob E-Mail, Kalender oder beides verbunden ist."
+      - title: "Tarif"
+        description: "Customermates Cloud ab Pro. Pro enthält [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter und selbst gehostete Installationen haben keinen Posteingang."
+      - title: "Funktionsweise"
+        description: "Kein Outlook-Add-in, keine Seitenleiste. Customermates liest und sendet über das verbundene Konto, deshalb ist egal, in welcher Outlook-App Sie schreiben."
+      - title: "Nicht enthalten"
+        description: "Kein Abgleich des Outlook-Adressbuchs, kein Anlegen oder Buchen von Terminen, kein Massenversand."
+
 hero:
-  title: Outlook-E-Mail und Kalender im CRM, ohne Add-in
-  description: Sie verbinden Ihr Outlook-Konto einmal, und seine E-Mail-Verläufe landen im Posteingang von Customermates, zugeordnet zu den passenden Kontakten. Antworten Sie aus dem CRM oder schreiben Sie weiter in Outlook. Kalendertermine sind nur lesend. Verfügbar in Customermates Cloud ab Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Jeder Outlook-Verlauf bei seinem Kunden, ohne Add-in"
+  description: "Verbinden Sie Outlook einmal, und die E-Mail-Verläufe landen beim passenden Kontakt. Sie sehen, wer auf Ihre Antwort wartet, lassen Mate die Antwort entwerfen und senden sie aus dem CRM oder aus Outlook. Kalender nur lesend. Cloud ab Pro, [[commercial.price.pro.monthly]] pro Nutzer und Monat."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Verbinden Sie ein Outlook-Konto und prüfen Sie es mit echten E-Mails
-  description: Starten Sie die Testphase, verbinden Sie Outlook unter Einstellungen › Kanäle und prüfen Sie, ob Ihre Verläufe, Ordner und Kontakte so zusammenpassen, wie Ihr Team arbeitet.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Outlook-Konto verbinden und sehen, wer auf Antwort wartet"
+  description: "Starten Sie die Testphase, verbinden Sie Outlook unter Einstellungen › Kanäle und prüfen Sie, ob Ihre Verläufe, Ordner und Kontakte so zusammenpassen, wie Ihr Team arbeitet."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -30,27 +58,7 @@ cta:
 
 Customermates verbindet sich serverseitig mit Outlook: Sie melden sich einmal mit Ihrem Outlook-Konto an, und dessen E-Mail-Verläufe erscheinen im [einheitlichen Posteingang](/features/unified-inbox) des CRM, über die E-Mail-Adresse den Kontakten zugeordnet. Antworten können Sie im CRM oder weiter in Outlook, denn auch aus Outlook gesendete Mails landen im selben Verlauf. Verschieben Sie eine E-Mail in Customermates in einen Ordner, wird sie auch in Ihrem echten Postfach verschoben. Kalendertermine werden nur gelesen, nie geschrieben. In Outlook installieren Sie nichts. Voraussetzung ist Customermates Cloud ab dem Pro-Tarif.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Was verbunden wird">
-    E-Mails Ihres Outlook-Kontos in beide Richtungen, dazu die Termine des
-    Kalenders als schreibgeschützte Einträge. Die Kanalkarte zeigt, ob E-Mail,
-    Kalender oder beides verbunden ist.
-  </SummaryItem>
-  <SummaryItem label="Tarif">
-    Customermates Cloud ab Pro. Pro enthält
-    [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro
-    Nutzer, Business [[commercial.entitlement.business.includedAccountsPerUser]].
-    Starter und selbst gehostete Installationen haben keinen Posteingang.
-  </SummaryItem>
-  <SummaryItem label="Funktionsweise">
-    Kein Outlook-Add-in, keine Seitenleiste. Customermates liest und sendet über
-    das verbundene Konto, deshalb ist egal, in welcher Outlook-App Sie schreiben.
-  </SummaryItem>
-  <SummaryItem label="Nicht enthalten">
-    Kein Abgleich des Outlook-Adressbuchs, kein Anlegen oder Buchen von
-    Terminen, kein Massenversand.
-  </SummaryItem>
-</ArticleSummary>
+**Wo Ihnen das beim Nachfassen hilft.** Eine Kundenmail, die Sie am Freitag gelesen und am Montag beantworten wollten, ist der klassische Fall, in dem Nachfassen untergeht. Mit verbundenem Outlook liegt der Verlauf am Kontakt, ein Posteingang-Filter listet die Verläufe, in denen Sie zuletzt geschrieben und nichts gehört haben, und Mate kann im Verlauf einen Antwortentwurf speichern, den Sie prüfen. Sie senden ihn aus dem CRM oder aus Outlook; in beiden Fällen bleibt alles in einem Verlauf.
 
 ## Drei Arten, Outlook und CRM zu verknüpfen
 
@@ -78,34 +86,6 @@ Brauchen Sie einen beidseitigen Abgleich der Outlook-Kontakte oder einen CRM-Ber
 
 ## Einrichtung
 
-<Steps>
-  <Step title="Tarif prüfen">
-    Sie brauchen Customermates Cloud mit Pro, Business, Enterprise oder der
-    Testphase. Zum Verbinden eines Kanals braucht Ihre Rolle Erstellen bei
-    Inbox-Nachrichten.
-  </Step>
-  <Step title="Outlook verbinden">
-    Öffnen Sie Einstellungen › Kanäle, klicken Sie auf Kanal verbinden und
-    wählen Sie Outlook. Der Tab wechselt auf eine sichere Verbindungsseite, auf
-    der Sie sich anmelden. Danach wird Ihr Verlauf im Hintergrund importiert,
-    meist in wenigen Minuten, bei großen Postfächern in bis zu einer Stunde.
-    Erlaubt Ihr Microsoft-365-Mandant Nutzern keine Zustimmung zu
-    Drittanbieter-Apps, muss zuerst ein Administrator die Verbindung freigeben.
-  </Step>
-  <Step title="Ordner auswählen">
-    Schalten Sie im Tab Ordner die Ordner ein, die ins CRM sollen, etwa ein
-    Archiv, oder schalten Sie Newsletter-Ordner aus.
-  </Step>
-  <Step title="Signatur hinterlegen">
-    Schalten Sie im Tab E-Mail die Option Signatur hinzufügen ein und schreiben
-    Sie die Signatur einmal. Fügen Sie sie nicht zusätzlich in Nachrichten ein.
-  </Step>
-  <Step title="Erste Kontakte verknüpfen">
-    Filtern Sie den Posteingang nach Teilnehmer: nicht vollständig verknüpft
-    und verknüpfen Sie jeden Absender mit einem Kontakt oder legen Sie einen an.
-  </Step>
-</Steps>
-
 Microsoft beschreibt die Zustimmungseinstellungen unter [Konfigurieren der Benutzereinwilligung für Anwendungen](https://learn.microsoft.com/de-de/entra/identity/enterprise-apps/configure-user-consent): Standardmäßig dürfen Nutzer Apps für Berechtigungen zustimmen, die keine Administratorzustimmung erfordern, und Administratoren können das einschränken. Lässt sich Ihr Postfach nicht über die Option Outlook anmelden, verbindet die Option IMAP andere E-Mail-Konten über IMAP und SMTP.
 
 ## Wer welche E-Mails sieht
@@ -114,7 +94,7 @@ Ein neuer Kanal ist privat: Nur Sie sehen seine Verläufe, und keine Rolle, auch
 
 ## KI für Ihre Outlook-Verläufe
 
-**Mate, in Customermates Cloud.** Mate fasst einen Verlauf zusammen, entwirft eine Antwort, legt eine E-Mail in einem Ordner ab oder sendet sie, wenn Sie das verlangen. Mate verbraucht gehostete KI-Credits; jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Bitten Sie Mate ums Senden, sendet es ohne weitere Rückfrage. Wollen Sie nur einen Entwurf, sagen Sie „Entwurf“.
+**Mate, in Customermates Cloud.** Mate fasst einen Verlauf zusammen, entwirft eine Antwort, legt eine E-Mail in einem Ordner ab oder sendet sie, wenn Sie das verlangen. Mate verbraucht gehostete KI-Credits; jeder bezahlte Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Bitten Sie Mate ums Senden, sendet es ohne weitere Rückfrage. Wollen Sie nur einen Entwurf, sagen Sie „Entwurf“.
 
 **Routinen, in Customermates Cloud.** Eine Routine kann beim Ereignis **E-Mail empfangen** starten. Beispiel für eine Anweisung: „Wenn eine E-Mail von einem Kontakt eingeht, der mit einem offenen Deal verknüpft ist, an diesem Deal eine mir zugewiesene Aufgabe mit einer Zusammenfassung in zwei Zeilen anlegen und einen Antwortentwurf im Verlauf speichern. Nichts senden.“ Die Routine läuft als ihr Besitzer und sieht nur Verläufe, die diese Person sehen darf. Grenzen nennt die [Anleitung zu Routinen](/docs/app-routines).
 

@@ -19,6 +19,7 @@ export const UserDtoSchema = z.object({
 
 export const MemberDtoSchema = UserDtoSchema.extend({
   leftAt: z.date().nullable(),
+  pausedByPlanAt: z.date().nullable().optional(),
 });
 
 export type MemberDto = Data<typeof MemberDtoSchema>;

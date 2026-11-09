@@ -4,7 +4,7 @@ description: "What an MCP server is and what it gives Claude, ChatGPT or Cursor:
 
 hero:
   title: "What Is an MCP Server? A Plain Explanation With a Real Example"
-  description: "An MCP server is the piece that lets an AI client such as Claude, ChatGPT or Cursor read and change data in another system. This guide explains what a server exposes, where it runs, how it differs from an API, which clients use it, the security risks with a checklist, and one real business MCP server end to end."
+  description: "An MCP server lets an AI client such as Claude, ChatGPT or Cursor read and change data in another system. What it exposes, where it runs, how it differs from an API, the risks, and a real example."
 
 blogPost:
   author: Benjamin Wagner
@@ -143,6 +143,8 @@ Most explanations stop at a weather tool. Here is what a production server for c
 **Guardrails, and what they are not.** The catalog marks which tools are read-only and which can delete data. Deletes move records to Trash for 30 days, and `preview_crm_deletion` shows the effect first. Customer-written text such as notes and emails comes back between untrusted-content markers, so the model can treat it as data rather than instructions. The server also tells clients to confirm with the user before deleting or sending. That last point is guidance to the client, not a gate inside the server: once an authorized client calls a tool, it runs. Set approvals in your client accordingly.
 
 **Who pays for the AI.** An external client such as Claude or ChatGPT uses your own AI subscription. The CRM does not run the model.
+
+**What it is for.** For a client-facing team, the useful job is follow-up: with LinkedIn and email connected on Customermates Cloud from Pro, your own Claude or ChatGPT reads the conversation on the client record and drafts the reply and the next step for you to review and send. To try it, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 Customermates is the wrong choice if you only want to connect an AI to the CRM you already use; then use that CRM's own server. It fits when you are choosing a CRM and want the MCP server, the data and the [open-source code](/features/open-source-crm) in one product.
 

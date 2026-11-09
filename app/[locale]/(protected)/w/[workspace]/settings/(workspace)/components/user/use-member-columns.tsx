@@ -59,6 +59,10 @@ export function useMemberColumns(): ColumnDef<MemberDto>[] {
         cell: ({ row }) =>
           row.original.leftAt ? (
             <AppChip variant="secondary">{t("WorkspaceMembership.left")}</AppChip>
+          ) : row.original.pausedByPlanAt ? (
+            <AppChip data-plan-paused="" variant="secondary">
+              {t("PlanPause.memberStatus")}
+            </AppChip>
           ) : (
             <AppChip variant={USER_STATUS_COLORS_MAP[row.original.status]}>
               {t(`Common.userStatuses.${row.original.status}`)}

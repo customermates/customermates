@@ -2,6 +2,8 @@ import type { WorkspaceSummary } from "@/features/workspace/workspace.schema";
 
 import { SubscriptionStatus } from "@/generated/prisma";
 
+import { effectivePlanId } from "@/ee/subscription/entitlements";
+
 import { resolvePlanChip, trialDaysLeft } from "@/app/components/navigation/plan-subtitle";
 
 type Translate = Parameters<typeof resolvePlanChip>[1];
@@ -18,7 +20,7 @@ export function workspacePlanChip(
   return resolvePlanChip(
     {
       status: subscription.status,
-      plan: subscription.plan,
+      plan: effectivePlanId(subscription, new Date(now)),
       trialDaysLeft: trialDaysLeft(subscription.trialEndDate, now),
     },
     t,

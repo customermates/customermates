@@ -1,6 +1,6 @@
 ---
-title: "CRM pour PME et TPE : clients, affaires et échanges"
-description: "Fiches clients, affaires et échanges pris en charge réunis dans un CRM configurable. Explorez un espace de travail pour une petite équipe B2B."
+title: "CRM pour PME et TPE : suivre chaque échange client"
+description: "Un CRM pour petites équipes B2B : fils e-mail, LinkedIn et WhatsApp sur la fiche client, Mate rédige la réponse, vous relisez et envoyez. Espace d’exemple."
 industryName: "PME et TPE"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/tradespeople
 
 hero:
-  title: "Un CRM pour les petites entreprises qui vendent par la relation"
-  description: "Pour les petites équipes de services qui gagnent leurs clients dans la conversation : personnes, organisations, affaires ouvertes et prochaine étape dans un seul espace de travail configurable. Les conversations e-mail, LinkedIn et WhatsApp demandent Pro sur Customermates Cloud. Il n’y a ni formulaires web, ni téléphonie, ni SMS, ni prise de rendez-vous, ni applications mobiles natives."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "CRM pour petites entreprises : chaque message client a sa prochaine étape"
+  description: "Pour les petites équipes de services qui gagnent en conversation. Les fils sont rattachés au client, Mate rédige la réponse et la prochaine étape, et l’équipe voit la prochaine étape sur l’affaire. E-mail, LinkedIn et WhatsApp : Cloud dès Pro."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+landing:
+  hero:
+    eyebrow: Pour les petites équipes de services B2B
+    title: Le CRM pour petites entreprises qui garde chaque fil client sous les yeux.
+    description: Clients, affaires et les fils e-mail, LinkedIn et WhatsApp derrière, dans un seul espace. Mate rédige la réponse à partir de votre guide, et la prochaine étape figure sur l’affaire, visible de toute l’équipe.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Parler à Ben, 15 minutes
+      href: /contact
+  facts: Sans carte bancaire · Votre logiciel de comptabilité reste · Pro dès [[commercial.price.pro.monthly]] par personne/mois
+  generator:
+    eyebrow: À partir d’une seule description
+    title: Votre entreprise, décrite une fois. Construite pour vous.
+    description: La configuration IA pose quelques questions et construit clients, affaires, votre pipeline et votre guide. Voici l’exemple de petite entreprise ; explorez-le.
+    promptLabel: Votre description pour Mate
+    arrowLabel: est devenue cet espace
+    prompt: Nous sommes une petite entreprise de services B2B. Garde clients, affaires et conversations au même endroit, et montre-nous à qui nous devons encore une réponse.
+  followUp:
+    eyebrow: Un message du lundi, traité
+    title: Un client confirme une date sur WhatsApp. La réponse est rédigée et la visite est sur la liste.
+    description: Le fil WhatsApp est rattaché au client. Mate rédige la réponse à partir de votre guide, date la prochaine étape et laisse le brouillon à relire.
+    desk:
+      label: Scène de suivi client avec des données de démonstration
+      workspace: Hartmann Services
+      conversation:
+        label: WhatsApp
+        name: Tobias Ritter
+        company: Ritter Logistique
+        time: lun. 17:48
+        message: Merci pour le devis. Pouvez-vous passer le 12 pour la première visite ? Je confirmerai ensuite avec mon associé.
+      agent:
+        name: Mate
+        intent: Rédige une réponse à partir de votre guide de service
+        done: Brouillon enregistré. Prochaine étape ajoutée à votre tableau de bord.
+      draft:
+        badge: Brouillon, en attente de votre relecture
+        text: Bonjour Tobias, merci. Le 12 nous convient. Je vous confirme l’heure demain matin. Bien à vous, Nina
+        edit: Modifier
+        send: Envoyer le brouillon
+      today:
+        title: Tableau de bord
+        date: mardi
+        addedBy: Ajouté par Mate
+        assign: Attribuer
+        sections:
+          - title: Prochaines étapes à traiter
+            items:
+              - title: Confirmer l’heure de la visite
+                meta: Ritter Logistique · à faire aujourd’hui
+                owner: NH
+                state: added
+              - title: Rappeler au sujet de la proposition
+                meta: Eichmann GmbH · en retard de 1 jour
+                owner: NH
+                state: overdue
+          - title: Propositions sans réponse
+            items:
+              - title: Proposition Eichmann
+                meta: envoyée il y a 4 jours
+                owner: NH
+                state: due
+  beforeAfter:
+    eyebrow: Ce qui change
+    title: Avant et après. Les mêmes clients, chaque fil avec une prochaine étape.
+    before:
+      label: Avant
+      points:
+        - Les fils clients vivent dans la boîte d’une seule personne
+        - Personne ne sait vraiment qui répond au prochain message
+        - Les relances dépendent de la mémoire de quelqu’un
+    after:
+      label: Avec Customermates
+      points:
+        - Chaque affaire a une prochaine étape avec une date et un responsable
+        - Le client et la conversation sont sur une même fiche, avec un brouillon prêt
+        - Le tableau de bord montre ce qui est à faire dans l’équipe
+  steps:
+    eyebrow: Pour commencer
+    title: Trois étapes. Jusqu’à votre première relance.
+    items:
+      - title: Décrivez votre entreprise
+        description: La configuration IA construit clients, affaires, votre pipeline et votre guide à partir d’une description et de quelques réponses.
+      - title: Connectez l’e-mail ou WhatsApp
+        description: Les conversations arrivent sur le client dont l’adresse e-mail, le numéro de téléphone ou le profil LinkedIn correspond. Sur Pro, un compte connecté par personne.
+      - title: Relisez les relances depuis votre tableau de bord
+        description: Mate rédige la réponse et date la prochaine étape, quand vous le demandez ou via une routine que vous configurez. Vous modifiez, envoyez ou ignorez.
+  plan:
+    eyebrow: Tarifs
+    title: Pro suffit. [[commercial.price.pro.monthly]] par personne et par mois.
+    description: Une boîte d’équipe à laquelle plusieurs personnes répondent demande Business à [[commercial.price.business.monthly]]. Starter à [[commercial.price.starter.monthly]] n’a pas de boîte de réception. Votre abonnement Claude ou ChatGPT reste chez son fournisseur.
+    limits: Ne convient pas si vous avez besoin de devis ou de factures, de formulaires web, de téléphone ou de SMS, ou de séquences d’e-mails. Vos autres outils restent là pour ces besoins.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Comparer toutes les offres
+      href: /pricing
 
 cta:
-  action: "Réunissez vos clients et vos affaires ouvertes dans un seul espace de travail"
+  action: Commencez par un échange client et une prochaine étape
   description: "Lancez l’essai sur Customermates Cloud, décrivez votre activité à la configuration IA de l’espace de travail ou construisez vos listes vous-même, et importez vos fiches depuis un classeur Excel. Les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+useCases:
+  eyebrow: Comment l’utiliser
+  title: Pour les petites entreprises. Trois besoins, un seul espace.
+  items:
+    - title: De la demande à la prochaine étape
+      description: Enregistrez qui a écrit, ouvrez une affaire et fixez la prochaine étape, l’équipe voit où en est chaque client.
+      href: /features/pipeline
+      linkLabel: Voir le pipeline
+      visual: proposal
+    - title: Des réponses rédigées depuis l’échange
+      description: Dès Pro, les échanges e-mail, LinkedIn et WhatsApp sont sur le client, et Mate rédige la réponse que vous envoyez.
+      href: /features/unified-inbox
+      linkLabel: Voir la boîte unifiée
+      visual: conversation
+    - title: Des listes adaptées à votre activité
+      description: Entreprises, contacts, affaires et services, ou vos propres listes, champs et étapes.
+      href: /features/simple-crm
+      linkLabel: Voir le CRM simple
+      visual: import
 ---
 
-Une petite entreprise a besoin d’un CRM dès que plusieurs personnes parlent aux mêmes clients, ou dès qu’une relance a glissé parce qu’elle vivait dans la boîte de réception de quelqu’un. Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes de services qui vendent par la relation : sociétés de services B2B, cabinets de conseil, agences et entreprises dirigées par leur propriétaire, dont le travail se gagne dans des fils d’e-mails, de LinkedIn et de WhatsApp. Il garde reliés les personnes, les organisations, les affaires ouvertes et leurs conversations : chacun, dans l’équipe, voit où en est un client et ce qui se passe ensuite.
+Une petite entreprise a besoin d’un CRM dès que plusieurs personnes parlent aux mêmes clients, ou dès qu’une relance a glissé parce qu’elle vivait dans la boîte de réception de quelqu’un. Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes de services qui vendent par la relation : sociétés de services B2B, cabinets de conseil, agences et entreprises dirigées par leur propriétaire, dont le travail se gagne dans des fils d’e-mails, de LinkedIn et de WhatsApp. Il garde reliés les personnes, les organisations, les affaires ouvertes et leurs conversations : chacun, dans l’équipe, voit où en est un client et ce qui se passe ensuite. Dès Pro sur le Cloud, Mate, ou votre propre agent IA via MCP, rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Convient à">
@@ -120,11 +240,11 @@ Customermates porte les relations clients et le côté commercial de votre activ
 | Formulaires de capture de leads | Votre site web ou votre outil de formulaires, qui envoie les contacts via l’API REST. Il n’y a pas de formulaires web. |
 | Travail spécialisé comme les projets, la planification ou une boutique | Le système qui exécute ce travail, relié par l’API, les webhooks ou n8n. |
 
-Ne sont pas non plus inclus : les applications mobiles natives (l’application web fonctionne dans le navigateur d’un téléphone), les séquences d’e-mails ou les envois en masse, le scoring des leads et l’authentification unique. Si l’un de ces points décide de votre achat, le [guide pour choisir un CRM pour petite entreprise](/blog/crm-for-small-business) compare d’autres outils.
+Ne sont pas non plus inclus : les applications mobiles natives (l’application web fonctionne dans le navigateur), les séquences d’e-mails ou les envois en masse, le scoring des leads et l’authentification unique. Si l’un de ces points décide de votre achat, le [guide pour choisir un CRM pour petite entreprise](/blog/crm-for-small-business) compare d’autres outils.
 
 ## Ce que cela coûte
 
-Les prix sont par utilisateur et par mois, facturés mensuellement en euros. Chaque formule inclut REST, les webhooks et MCP.
+Les prix sont par utilisateur et par mois, facturés mensuellement en euros. Toutes les formules payantes incluent REST, les webhooks et MCP.
 
 | Équipe | Formule | Par mois |
 |---|---|---|
@@ -133,7 +253,7 @@ Les prix sont par utilisateur et par mois, facturés mensuellement en euros. Cha
 | 12 personnes, chacune avec son propre compte connecté | Pro | [[commercial.price.pro.monthly.seats.12]] |
 | 5 personnes qui partagent une messagerie d’équipe | Business | [[commercial.price.business.monthly.seats.5]] |
 
-L’essai de [[commercial.trial.days]] jours ne demande pas de carte bancaire. Les crédits IA hébergés de chaque formule figurent sur la [page des tarifs](/pricing). Une [installation auto-hébergée](/features/self-hosted) offre les fonctions de Starter, sans la boîte de réception, Mate ni la configuration IA.
+L’essai de [[commercial.trial.days]] jours ne demande pas de carte bancaire. Les crédits IA hébergés de chaque formule payante figurent sur la [page des tarifs](/pricing). Une [installation auto-hébergée](/features/self-hosted) offre les fonctions de Starter, sans la boîte de réception, Mate ni la configuration IA.
 
 Dans Customermates Cloud, la base de données tourne dans la région AWS de Francfort. La [page des sous-traitants](/subprocessors) liste les prestataires concernés, dont des fournisseurs américains, et un [accord de sous-traitance des données](/dpa) est disponible. Customermates ne détient aucune certification comme ISO 27001 ou SOC 2.
 
@@ -161,10 +281,10 @@ Non. Il n’y a ni devis, ni factures, ni prise de rendez-vous, ni formulaires w
 </FaqItem>
 
 <FaqItem question="Existe-t-il une application mobile ?">
-Pas d’application mobile native. L’application web fonctionne dans le navigateur et s’adapte aux écrans étroits.
+Pas d’application mobile native. L’application web fonctionne dans le navigateur, et la boîte de réception s’adapte aux écrans étroits.
 </FaqItem>
 
 <FaqItem question="Existe-t-il une version gratuite ?">
-Pas de formule hébergée gratuite. Il y a un essai de [[commercial.trial.days]] jours sans carte bancaire, et le cœur open source peut être auto-hébergé sans frais de licence, avec les fonctions de Starter et sans la boîte de réception ni Mate.
+Il y a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, ainsi qu’un essai de [[commercial.trial.days]] jours sans carte bancaire, et le cœur open source peut être auto-hébergé sans frais de licence, avec les fonctions de Starter et sans la boîte de réception ni Mate.
 </FaqItem>
 </Faq>

@@ -46,50 +46,34 @@ function pngDimensions(file: Buffer) {
   return { height: file.readUInt32BE(20), width: file.readUInt32BE(16) };
 }
 
-function stageCaptures(mdx: string) {
-  const stage = mdx.slice(mdx.indexOf("  stage:\n"), mdx.indexOf("\nflow:\n"));
-  return [...stage.matchAll(/^ {6}- capture: ([a-z-]+)$/gmu)].map(([, capture]) => capture);
-}
-
-function altTexts(mdx: string) {
-  return [...mdx.matchAll(/^\s+alt: (.*)$/gmu)].map(([, alt]) => alt);
-}
-
 const page = readFileSync(join(HOMEPAGE_ROOT, "page.tsx"), "utf8");
 const components = [
-  "homepage-benefits.tsx",
   "homepage-capture-image.tsx",
   "homepage-closing.tsx",
+  "homepage-follow-up-desk.tsx",
+  "homepage-follow-up.tsx",
   "homepage-hero.tsx",
-  "homepage-how-it-works.tsx",
-  "homepage-pipeline.tsx",
-  "homepage-pricing.tsx",
-  "homepage-product-proof.tsx",
+  "homepage-pillars.tsx",
+  "homepage-plans.tsx",
   "homepage-product-stage.tsx",
-  "homepage-routines.tsx",
-  "homepage-stage-link.tsx",
-  "homepage-stats-row.tsx",
-  "homepage-story.tsx",
+  "homepage-proof-partners.tsx",
   "homepage-viewport-video.tsx",
-  "homepage-walkthrough.tsx",
+  "homepage-workspace-generator.tsx",
 ].map(readComponent);
 const componentSource = components.join("\n");
 const captureNames = Object.keys(HOMEPAGE_CAPTURES) as HomepageCaptureName[];
 
 describe("homepage visual-system adoption", () => {
-  it("tells the story in a fixed order with real product proof instead of drawn illustrations", () => {
+  it("tells the follow-up story in a fixed order with the film right under the hero", () => {
     const order = [
       "<HomepageHero",
-      "<HomepageFacts",
-      "<HomepageProductProof",
-      "<HomepageStory",
-      "<HomepageStatsRow",
-      "<HomepageWalkthrough",
-      "<HomepageHowItWorks",
-      "<HomepagePipeline",
-      "<HomepageRoutines",
-      "<HomepageBenefits",
-      "<HomepagePricing",
+      "<ProductFilm",
+      "<UseCasesSection",
+      "<HomepageWorkspaceGenerator",
+      "<HomepageFollowUp",
+      "<HomepagePillars",
+      "<HomepageProofPartners",
+      "<HomepagePlans",
       "<HomepageFaq",
       "<HomepageClosing",
     ];
@@ -99,11 +83,10 @@ describe("homepage visual-system adoption", () => {
       if (index > 0) expect(page.indexOf(order[index - 1]), marker).toBeLessThan(page.indexOf(marker));
     }
 
-    expect(page).not.toMatch(/HomepageClipTerminal|FeatureSection|visualLabels/u);
-    expect(componentSource).not.toMatch(/homepage-story-visuals|homepage-hero-visual/u);
-    expect(componentSource).not.toMatch(/GoldenStoryVisual|GOLDEN_LAYOUT|MarketingVisualArtboard/u);
+    expect(page).not.toMatch(/HomepageClipTerminal|FeatureSection|visualLabels|HomepageStatsRow|HomepageBenefits/u);
     expect(existsSync(join(COMPONENT_ROOT, "homepage-story-visuals.tsx"))).toBe(false);
     expect(existsSync(join(COMPONENT_ROOT, "homepage-hero-visual.tsx"))).toBe(false);
+    expect(existsSync(join(COMPONENT_ROOT, "rotating-accent.tsx"))).toBe(false);
   });
 
   it("ships every registered capture as an unedited still with pinned provenance", () => {
@@ -159,16 +142,17 @@ describe("homepage visual-system adoption", () => {
   });
 
   it("runs the product stage as an accessible tab set that only advances while appropriate", () => {
-    const hero = readComponent("homepage-hero.tsx");
+    const solutionStage = readComponent("solution-product-stage.tsx");
     const stage = readComponent("homepage-product-stage.tsx");
 
-    expect(hero).toContain("<HomepageProductStage");
-    expect(hero.match(/<h1\b/gu)).toHaveLength(1);
+    expect(solutionStage).toContain("<HomepageProductStage");
+    expect(readFileSync(join(process.cwd(), "components/marketing/marketing-hero.tsx"), "utf8").match(/<h1\b/gu)).toHaveLength(1);
+    expect(readComponent("homepage-hero.tsx")).toContain("<MarketingHero");
     expect(stage).toContain("PRODUCT_STAGE_INTERVAL_MS = 6_000");
     expect(stage).toContain("useHomepageMotion<HTMLDivElement>()");
     expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered;");
     expect(stage).toContain("window.matchMedia?.(LIVE_STAGE_MEDIA)");
-    expect(hero).toContain("demoBaseUrl={homepageDemoBaseUrl()}");
+    expect(solutionStage).toContain("demoBaseUrl={homepageDemoBaseUrl()}");
     expect(stage).toContain('role="tablist"');
     expect(stage).toContain('role="tab"');
     expect(stage).toContain('role="tabpanel"');
@@ -199,79 +183,34 @@ describe("homepage visual-system adoption", () => {
     expect(motionSource).toContain('document.addEventListener("visibilitychange"');
   });
 
-  it("keeps the display headings neutral inside the split hero", () => {
+  it("opens with one plain centered claim, a trial call to action and the film link", () => {
     const hero = readComponent("homepage-hero.tsx");
-    const walkthrough = readComponent("homepage-walkthrough.tsx");
+    const sharedHero = readFileSync(join(process.cwd(), "components/marketing/marketing-hero.tsx"), "utf8");
 
-    expect(readOpeningElementContaining(hero, 'data-homepage-hero-line="lead"')).not.toContain("text-primary");
-    expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
-    expect(hero).toContain("GridPattern");
-    expect(hero).toContain("heroSection.useCase");
-    expect(hero).toContain('data-homepage-hero-layout="centered"');
+    expect(sharedHero).toContain("mk-enter mx-auto flex max-w-[60rem] flex-col items-center text-center");
+    expect(readOpeningElementContaining(sharedHero, 'className="mk-hero mt-4"')).not.toContain("text-primary");
+    expect(hero).toContain("primary={heroSection.primaryCta}");
+    expect(hero).toContain("secondary={{ ...heroSection.secondaryCta, play: true }}");
+    expect(hero).not.toMatch(/RotatingAccent|GridPattern|titleRotations/u);
+    expect(englishHomepage).toContain('href: "#film"');
+    expect(germanHomepage).toContain('href: "#film"');
+    expect(englishHomepage).toContain("job=followup");
   });
 
-  it("rotates the hero claim through the data a workspace holds and ends on business data", () => {
-    const hero = readComponent("homepage-hero.tsx");
-    const rotations = (mdx: string) =>
-      [...mdx.slice(mdx.indexOf("  titleRotations:\n"), mdx.indexOf("  useCase:")).matchAll(/^ {4}- (.+)$/gmu)].map(
-        ([, word]) => word,
-      );
+  it("shows prompt-to-workspace scenes and the follow-up desk in both locales without em dashes", () => {
+    const generator = readComponent("homepage-workspace-generator.tsx");
 
-    expect(hero).toContain("<RotatingAccent");
-    expect(hero).toContain("heroSection.titleRotations[0]");
-    expect(hero).toContain('className="sr-only"');
-    expect(rotations(englishHomepage)).toEqual([
-      "CRM",
-      "Customer data",
-      "Projects",
-      "ERP",
-      "Suppliers",
-      "Campaigns",
-      "Team tasks",
-      "Business data",
-    ]);
-    expect(rotations(germanHomepage)).toEqual([
-      "CRM",
-      "Kundendaten",
-      "Projekte",
-      "ERP",
-      "Lieferanten",
-      "Kampagnen",
-      "Teamaufgaben",
-      "Geschäftsdaten",
-    ]);
-    expect(englishHomepage).toContain("  title: and your AI,");
-    expect(englishHomepage).toContain("  titleAccent: in one workspace.");
-    expect(germanHomepage).toContain("  title: und Ihre KI,");
-    expect(germanHomepage).toContain("  titleAccent: in einem Workspace.");
-    expect(hero).toContain("bg-linear-to-b from-foreground to-foreground/65 bg-clip-text");
+    expect(generator).toContain("<SolutionProductStage");
+    expect(generator).toContain("<HomepageWorkspaceTabs");
     for (const mdx of [englishHomepage, germanHomepage]) {
-      const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));
-      expect(hero).not.toMatch(/financ|Finanz|Budget|Buchhaltung|accounting|invoic|Rechnung/iu);
+      expect(mdx).toContain("\ngenerator:\n");
+      expect(mdx).toContain("\nfollowUp:\n");
+      for (const solution of ["consultants", "agencies", "smb", "freelancers"]) {
+        expect(mdx).toContain(`solution: ${solution}`);
+      }
+      expect(mdx).not.toContain("\u2014");
+      expect(mdx).not.toMatch(/titleAccentRotations|illustration:|visualLabels/u);
     }
-  });
-
-  it("localizes the stage and alt texts in both locales", () => {
-    const expected = [
-      "homepage-dashboard",
-      "homepage-inbox",
-      "homepage-pipeline",
-      "homepage-configure",
-      "homepage-routines",
-    ];
-
-    expect(stageCaptures(englishHomepage)).toEqual(expected);
-    expect(stageCaptures(germanHomepage)).toEqual(expected);
-    expect(englishHomepage).not.toMatch(/^\s*disclosure:/mu);
-    expect(germanHomepage).not.toMatch(/^\s*disclosure:/mu);
-    expect(altTexts(englishHomepage)).toHaveLength(9);
-    expect(altTexts(germanHomepage)).toHaveLength(9);
-    for (const alt of altTexts(englishHomepage)) expect(alt).toMatch(/, using demo data$/u);
-    for (const alt of altTexts(germanHomepage)) expect(alt).toMatch(/, mit Beispieldaten$/u);
-    expect(englishHomepage).not.toContain("—");
-    expect(germanHomepage).not.toContain("—");
-    expect(englishHomepage).not.toMatch(/titleAccentRotations|illustration:|visualLabels/u);
-    expect(germanHomepage).not.toMatch(/titleAccentRotations|illustration:|visualLabels/u);
   });
 
   it("does not ship the local marketing-preview authentication bypass", () => {
@@ -296,7 +235,7 @@ describe("homepage visual-system adoption", () => {
   it("keeps one live workspace in the product stage and links every capture to it", () => {
     const stage = readComponent("homepage-product-stage.tsx");
     const link = readComponent("homepage-stage-link.tsx");
-    const proof = readComponent("homepage-product-proof.tsx");
+    const proof = readFileSync(join(REPO_ROOT, "components", "marketing", "product-film.tsx"), "utf8");
     const viewportVideo = readComponent("homepage-viewport-video.tsx");
     const hero = readComponent("homepage-hero.tsx");
 
@@ -310,17 +249,6 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("window.addEventListener(STAGE_OPEN_EVENT, openFromEvent)");
     expect(link).toContain("href={`#${PRODUCT_DEMO_ANCHOR}`}");
     expect(link).toContain("window.dispatchEvent(new CustomEvent<HomepageStageArea>(STAGE_OPEN_EVENT");
-    for (const file of [
-      "homepage-walkthrough.tsx",
-      "homepage-how-it-works.tsx",
-      "homepage-pipeline.tsx",
-      "homepage-routines.tsx",
-    ]) {
-      const source = readComponent(file);
-      expect(source.match(/<HomepageCaptureImage\b/gu)?.length, file).toBe(source.match(/<HomepageStageLink\b/gu)?.length);
-    }
-    expect(englishHomepage).toContain('buttonRightHref: "#product-demo"');
-    expect(germanHomepage).toContain('buttonRightHref: "#product-demo"');
     expect(proof).not.toMatch(/tone=/u);
     expect(proof.match(/<HomepageViewportVideo\b/gu)).toHaveLength(1);
     expect(proof).not.toMatch(/<iframe\b/u);
@@ -337,65 +265,19 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("onLoad={() => revealLive(index)}");
     expect(stage).toContain("live && liveMounted.has(index)");
     expect(productWindow).not.toContain("data-homepage-window-chrome");
-    expect(stage).toContain("LIVE_VIEWPORT = { height: 900, width: 1440 }");
+    expect(stage).toContain("LIVE_VIEWPORT = { maxWidth: 1440, minScale: 0.8, minWidth: 1120, ratio: 1.6 }");
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');
     expect(productWindow).toContain("data-homepage-panel");
     expect(productWindow).toContain("data-homepage-phone");
     expect(productWindow).toContain("data-reveal");
-    expect(readComponent("homepage-how-it-works.tsx")).toContain('<Steps data-step-progress className="my-0">');
-    expect(readComponent("homepage-how-it-works.tsx")).toContain("<HomepageMcpSnippet");
-    expect(readComponent("homepage-mcp-snippet.tsx")).toContain('getMcpInstallSnippet("cursor", DOCS_API_KEY_PLACEHOLDER, env.BASE_URL)');
-    expect(globalStyles).toMatch(/\[data-step-progress\]::after/u);
-    expect(globalStyles).toContain('[data-marketing-flow="continuous"] [data-marketing-tone="canvas"] {');
-    expect(globalStyles).toContain("--section-fade-top: var(--background);");
-    expect(globalStyles).toContain("--section-fade-bottom: var(--background);");
-    expect(readComponent("homepage-product-proof.tsx")).toContain("<ProductWindow>");
     expect(globalStyles).toContain("animation-timeline: view();");
     expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-reveal\]/u);
-    for (const file of [
-      "homepage-walkthrough.tsx",
-      "homepage-how-it-works.tsx",
-      "homepage-pipeline.tsx",
-      "homepage-routines.tsx",
-    ]) {
-      const source = readComponent(file);
-      expect(source, file).toContain("<ProductPanel");
-      expect(source, file).toContain("<ProductWindow");
-      expect(source, file).not.toMatch(/shadow-xl shadow-black/u);
-    }
     expect(componentSource).not.toMatch(/bg-primary\/20 blur-3xl/u);
   });
 
-  it("runs horizontal rules to the edges of their owning surfaces", () => {
-    const benefits = readComponent("homepage-benefits.tsx");
-    const hero = readComponent("homepage-hero.tsx");
-    const strip = readComponent("homepage-stats-row.tsx");
-
-    expect(componentSource.match(/data-homepage-rules="full-bleed"/gu)?.length).toBeGreaterThanOrEqual(6);
-    expect(benefits).toContain('<section className="relative w-full border-y border-border" id="facts">');
-    expect(benefits).toContain("lg:grid-cols-5");
-    expect(benefits).not.toContain("absolute inset-x-0 top-1/2");
-    expect(benefits).not.toContain("grid grid-cols-2 border-y border-border");
-    for (const figure of ['figure: "5"', "figure: MCP", "figure: AGPL-3.0", "figure: EU", "figure: DE"]) {
-      expect(englishHomepage).toContain(figure);
-    }
-    expect(strip).toContain('className="w-full border-y border-border"');
-    expect(hero).toContain('className="relative isolate w-full overflow-hidden"');
-    expect(hero).toContain('data-homepage-section="hero"');
+  it("keeps the homepage in one continuous marketing flow", () => {
     expect(page).toContain('data-marketing-flow="continuous"');
-    expect(globalStyles).toMatch(/\[data-marketing-flow="continuous"\]\s+\.marketing-section:not/u);
-  });
-
-  it("shows five authorable AI-client identities and a distinct n8n automation identity", () => {
-    const strip = readComponent("homepage-stats-row.tsx");
-
-    for (const provider of ["chatgpt", "claude", "cursor", "gemini", "grok"]) {
-      expect(strip).toContain(`"${provider}"`);
-    }
-    expect(strip).toContain("NativeAutomationProviderIdentity");
-    expect(strip).toContain('provider="n8n"');
-    expect(strip).toContain("HomepageStatsRow.automationLabel");
-    expect(strip).not.toMatch(/codex/iu);
+    expect(globalStyles).toMatch(/\.marketing-section\[data-marketing-divider="explicit"\]\s*\{/u);
   });
 
   it("uses the shared 80rem marketing shell and no inverted band", () => {

@@ -1,6 +1,6 @@
 ---
-title: "Recruiting CRM for Agencies: Clients and Candidates"
-description: "A recruiting CRM for small agencies and search firms: client companies, hiring managers, candidates and search mandates in one place. Not an ATS."
+title: "Recruiting CRM: Follow Up on Candidates and Clients"
+description: "Candidates go quiet and hiring managers wait. Recruiting CRM for small agencies: LinkedIn and email on the record, Mate drafts replies. Not an ATS."
 industryName: "Recruiting"
 
 relatedHrefs:
@@ -10,25 +10,45 @@ relatedHrefs:
   - /for/agencies
 
 hero:
-  title: "A Recruiting CRM for Agencies That Win Mandates Through Relationships"
-  description: "Keep client companies, hiring managers, candidates and every search mandate in one CRM. From Pro, your email, LinkedIn (including Recruiter) and WhatsApp conversations arrive in one inbox next to the contact. Customermates is a business-development CRM for recruitment agencies, not an applicant tracking system."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  title: "Candidates on LinkedIn, clients waiting for a shortlist. Follow up on both."
+  description: "Conversations from LinkedIn and email sit on the candidate or client record, and Mate or your own AI agent drafts the reply and next step for you to review and send. Inbox from Pro on Customermates Cloud; not an ATS."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explore the workspace"
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Put clients, mandates and candidates in one place
-  description: Import your client and candidate lists from Excel, set your mandate stages and save the views you check every Monday. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Watch live demo
+  action: "Follow up on every candidate and client"
+  description: "Connect LinkedIn or email during your [[commercial.trial.days]]-day Pro trial, then import your client and candidate lists from Excel. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explore the workspace"
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "For recruiters. Three jobs, one workspace."
+  items:
+    - title: "Follow up with candidates who went quiet"
+      description: "Every candidate and client gets a dated next step, so the ones who went quiet surface in a saved view."
+      href: /features/follow-up
+      linkLabel: "See follow-up"
+      visual: calendar
+    - title: "LinkedIn, Recruiter and email on the record"
+      description: "From Pro, conversations sit on the candidate or client. Mate or your own AI agent drafts the reply, and you review and send."
+      href: /features/linkedin-integration
+      linkLabel: "See LinkedIn in the inbox"
+      visual: conversation
+    - title: "Mandates, clients and candidates linked"
+      description: "Each mandate is a deal, and candidates link to the jobs they were put forward for: a CRM, not an applicant tracking system."
+      href: /features/pipeline
+      linkLabel: "See the pipeline"
+      visual: pipeline
 ---
 
-A recruiting CRM keeps the relationships a recruitment business lives on: the client companies that give you mandates, the hiring managers inside them, and the candidates you place. Customermates fits the business-development side of that work for small agencies, executive search boutiques and independent recruiters. Clients, hiring managers and candidates sit in one contact base, each search mandate is a deal on a board, and from the Pro plan the email, LinkedIn and WhatsApp conversations around them land in one inbox. It is not an applicant tracking system: no job postings, no career page, no application forms and no per-candidate hiring pipeline. If those are what you need, the comparison further down names tools built for them.
+A recruiter's week is full of conversations that can slip: a candidate who answered on LinkedIn on Friday, a hiring manager waiting for the shortlist, a passive candidate you promised to call in autumn. Customermates keeps each one on the candidate or client record. On Customermates Cloud from Pro, Mate drafts the reply and the next step when you ask or on a routine you set up, or your own AI agent (Claude, ChatGPT or any client that speaks MCP) does it through MCP. You review, edit and send, and dated next steps show on your dashboard. It covers the business-development side of recruiting and is not an applicant tracking system: no job postings, career page, application forms or per-candidate hiring pipeline. The comparison below names tools built for those.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -38,12 +58,13 @@ A recruiting CRM keeps the relationships a recruitment business lives on: the cl
   <SummaryItem label="Setup">
     Client companies as organizations, hiring managers and candidates as
     contacts told apart by a single choice field, each mandate as a deal
-    named Job.
+    named Job, and a Next contact date on every person you follow up.
   </SummaryItem>
   <SummaryItem label="AI">
-    In Customermates Cloud, Mate summarizes a candidate's history and saves
-    reply drafts, using hosted AI credits. Or connect your own AI client
-    through MCP.
+    On Customermates Cloud from Pro, Mate saves the reply draft and the next
+    step when you ask or on a routine you set up, using hosted AI credits;
+    you review, edit and send. Your own agent (Claude, ChatGPT or any client
+    that speaks MCP) works from the same records through MCP.
   </SummaryItem>
   <SummaryItem label="Not included">
     Job posting, career page, CV parsing, application intake, interview
@@ -77,7 +98,7 @@ A new workspace starts without lists: you create the lists you need (contacts, o
 | Record type | Used for | Example custom fields |
 |---|---|---|
 | Organizations | Client companies and the companies candidates work at | Relationship (single choice: Prospect, Active client, Past client), Off-limits (single choice: Yes, No), Industry |
-| Contacts | Hiring managers and candidates | Contact type (single choice: Candidate, Hiring manager, Referee), Availability (Open to move, Passive, Not looking, Placed), Practice area, Notice period, Salary expectation (money), Retention until (date) |
+| Contacts | Hiring managers and candidates | Contact type (single choice: Candidate, Hiring manager, Referee), Availability (Open to move, Passive, Not looking, Placed), Practice area, Notice period, Salary expectation (money), Next contact (date), Retention until (date) |
 | Deals, named Jobs | Each search mandate | Stage, Search type (Retained, Contingent, Interim), Mandate signed on, Shortlist due, Target salary (money) |
 | Services | Your fee types | Retained search fee, Contingent fee, Interim day rate |
 | Tasks | Next steps, assigned to a recruiter | A "Due on" date field you add, because tasks have no built-in due date |
@@ -93,21 +114,24 @@ A deal's value is the sum of its line items, each a service times quantity. Fees
 ### Saved views for shortlists and the Monday call list
 
 1. **Shortlist for one job:** contacts with Contact type Candidate linked to that job, grouped by Availability.
-2. **Warm candidates:** candidates with Availability Open to move whose record has not been updated for 60 days, oldest first.
-3. **Mandates by shortlist date:** jobs in Mandate signed, sorted by Shortlist due.
-4. **Retention review:** contacts whose Retention until date has passed.
+2. **Who is due:** candidates and hiring managers with a Next contact date, sorted by it, earliest first. A sort keeps this view current; a filter on a custom date takes a fixed date.
+3. **Warm candidates:** candidates with Availability Open to move whose record has not been updated for 60 days, oldest first.
+4. **Mandates by shortlist date:** jobs in Mandate signed, sorted by Shortlist due.
+5. **Retention review:** contacts whose Retention until date has passed.
 
-A saved view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team. More on filters and views is in the [records guide](/docs/app-records).
+Share **Retention review** with the whole team or with selected roles, so every recruiter works from the same list. More on filters and views is in the [records guide](/docs/app-records).
+
+On the dashboard, an **Upcoming** widget on the same date field lists who is due in the coming days, with an **Overdue** section. Customermates sends no reminders; the list is what you open each morning.
 
 ### Candidate and client conversations in one inbox (Pro and above)
 
-In Customermates Cloud on Pro, Business and Enterprise, the [unified inbox](/features/unified-inbox) brings together email from Gmail, Outlook or IMAP, LinkedIn, WhatsApp, Instagram and Telegram. For LinkedIn you can connect a Classic account, or Classic with Recruiter if you hold a LinkedIn Recruiter seat; when you write from a contact, **Send as** then offers Recruiter InMail. Link a participant to a contact once and the conversations show on that contact's timeline. The [LinkedIn integration page](/features/linkedin-integration) has the details.
+In Customermates Cloud on Pro and higher, the [unified inbox](/features/unified-inbox) brings together email from Gmail, Outlook or IMAP, LinkedIn, WhatsApp, Instagram and Telegram. For LinkedIn you can connect a Classic account, or Classic with Recruiter if you hold a LinkedIn Recruiter seat; when you write from a contact, **Send as** then offers Recruiter InMail. Link a participant to a contact once and the conversations show on that contact's timeline. The [LinkedIn integration page](/features/linkedin-integration) has the details.
 
 Two details decide the plan. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, so a recruiter who wants a mailbox and LinkedIn in the inbox needs Business, which includes [[commercial.entitlement.business.includedAccountsPerUser]]. And conversations from your own accounts stay private: colleagues see a thread only after you share it, or after you share the whole account on Business and above. If two recruiters must see who last wrote to a candidate, agree to share those threads.
 
 ### Candidate briefings and a weekly check-in with Mate (Customermates Cloud)
 
-Mate is the assistant in Customermates Cloud. It runs on hosted AI credits included per active user on every cloud plan; reading inbox conversations needs Pro or higher. Before a client call, ask in the chat:
+Mate is the assistant in Customermates Cloud. It runs on hosted AI credits included per active user on every paid cloud plan; reading inbox conversations needs Pro or higher. Before a client call, ask in the chat:
 
 > Summarize what we know about Anna Berger: her current role, the jobs we put her forward for, and our last three conversations on LinkedIn and email.
 
@@ -132,12 +156,12 @@ draft saved yes or no.
 
 A second routine can react to an event: when a job's Stage changes to Shortlist sent, create a task "Collect interview feedback" linked to that job and assigned to the same recruiter. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
-Prefer your own AI client? Connect Claude, ChatGPT or another client through [MCP](/docs/mcp). It works on every plan and on self-hosted installations, with model use billed by your AI provider.
+Prefer your own agent? Connect Claude, ChatGPT or any client that speaks [MCP](/docs/mcp). It works on every plan and on self-hosted installations, minus the inbox, with model use billed by your AI provider. Your client follows the permissions of the account it connects with; whether it asks before acting depends on the client.
 
 ## What Customermates does not do for recruiting
 
 - No job postings, job board distribution, career page or application forms.
-- No CV parsing. A CV that arrives by email stays as an attachment in the inbox thread; to keep it with the candidate, add it to a File field on the contact.
+- No CV parsing. A CV that arrives by email stays as an attachment in the inbox thread; to keep it with the candidate, download it and add it to a File field on the contact.
 - No per-candidate stage inside a job. A job has one stage; whether a candidate is submitted, interviewing or rejected for that job is not a field on the link. Note it in the job's notes, or use an ATS when you run many candidates per role.
 - No interview scheduling or calendar booking. Pro adds read-only calendar access.
 - No email sequences or bulk outreach, no candidate scoring or data enrichment, no mobile app.
@@ -159,7 +183,7 @@ A common split for a boutique firm is Customermates for clients, mandates and ca
 
 ## What it costs
 
-Customermates prices are per active user per month, billed monthly. Every plan includes REST, webhooks and MCP.
+Customermates prices are per active user per month, billed monthly. Every paid plan includes REST, webhooks and MCP.
 
 | Team | Plan | Per month |
 |---|---|---|
@@ -168,7 +192,7 @@ Customermates prices are per active user per month, billed monthly. Every plan i
 | Three recruiters, mailbox plus LinkedIn Recruiter each (Recruiter seat billed by LinkedIn) | Business | [[commercial.price.business.monthly.seats.3]] |
 | Five recruiters, one account each | Pro | [[commercial.price.pro.monthly.seats.5]] |
 
-Each cloud plan adds monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Running the open-source core on your own server costs no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox, no Mate and no routines.
+Each paid cloud plan adds monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Running the open-source core on your own server costs no licence fee, but a [self-hosted installation](/features/self-hosted) has no inbox, no Mate and no routines.
 
 ## Moving in from a spreadsheet or another system
 
@@ -220,7 +244,7 @@ Agencies that advertise roles and handle many applications usually pick an ATS p
 </FaqItem>
 
 <FaqItem question="How do I keep shortlists of candidates?">
-Link the candidates to the job, then save a view of contacts filtered by that job and Contact type Candidate. A saved view stays private until you share it, so each colleague can save their own or you share one with the team. A per-candidate status inside the job is not available.
+Link the candidates to the job, then save a view of contacts filtered by that job and Contact type Candidate. Share it with the team or with selected roles so every recruiter works from the same candidate list. A per-candidate status inside the job is not available.
 </FaqItem>
 
 <FaqItem question="How much does Recruit CRM cost?">

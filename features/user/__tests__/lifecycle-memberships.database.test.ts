@@ -153,20 +153,17 @@ describeDatabase("lifecycle email queries with several memberships per login on 
       name: null,
       subscription: {
         status: "trial",
-        trialEndDate: new Date(Date.now() - 6.5 * DAY),
+        trialEndDate: new Date(Date.now() - 6 * 60 * 60 * 1000),
       },
       members: [{ email }],
     });
 
     const ended = await runWithoutTenant(() => repo().findUsersWithTrialEndedLast24Hours());
     expect(ended.find((user) => user.id === named.memberIds[0])?.company).toEqual({ name: "Bergmann Steuern" });
-    expect(ended.some((user) => user.id === unnamed.memberIds[0])).toBe(false);
-
-    const deactivating = await runWithoutTenant(() => repo().findUsersWithTrialEndedBetween6And7Days());
-    expect(deactivating.find((user) => user.id === unnamed.memberIds[0])?.company).toEqual({ name: null });
+    expect(ended.find((user) => user.id === unnamed.memberIds[0])?.company).toEqual({ name: null });
   });
 
-  it("deactivates lapsed subscriptions after the grace period but never a workspace still waiting for its first plan", async () => {
+  it("deactivates lapsed subscriptions after the grace period, never a Free workspace or one waiting for its first plan", async () => {
     const email = `grace-${randomUUID()}@example.invalid`;
     const fiveDaysAgo = new Date(Date.now() - 5 * DAY);
     const awaitingPlan = await workspace({
@@ -185,6 +182,17 @@ describeDatabase("lifecycle email queries with several memberships per login on 
         status: "expired",
         plan: "pro",
         lemonSqueezyId: `ls-${randomUUID()}`,
+        updatedAt: fiveDaysAgo,
+      },
+      members: [{ email }],
+    });
+    const free = await workspace({
+      name: "Free",
+      subscription: {
+        status: "expired",
+        plan: "pro",
+        lemonSqueezyId: `ls-${randomUUID()}`,
+        trialEndDate: new Date(Date.now() - 30 * DAY),
         updatedAt: fiveDaysAgo,
       },
       members: [{ email }],
@@ -208,6 +216,7 @@ describeDatabase("lifecycle email queries with several memberships per login on 
     const ids = new Set(recipients.map((user) => user.id));
     expect(ids.has(awaitingPlan.memberIds[0])).toBe(false);
     expect(ids.has(lapsed.memberIds[0])).toBe(true);
+    expect(ids.has(free.memberIds[0])).toBe(false);
     expect(ids.has(unpaid.memberIds[0])).toBe(true);
     expect(ids.has(enterprise.memberIds[0])).toBe(true);
     expect(recipients.find((user) => user.id === lapsed.memberIds[0])?.company).toEqual({ name: "Lapsed" });

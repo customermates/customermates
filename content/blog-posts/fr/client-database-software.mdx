@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Logiciel de fichier client : quel type convient à votre équipe"
-  description: "Tableurs, bases de données no-code et CRM se vendent tous comme logiciel de fichier client. Voyez où chacun s’arrête, ce que permettent les formules gratuites et comment tester un outil avec vos propres données avant de vous engager."
+  description: "Tableurs, bases no-code et CRM se vendent tous comme logiciel de fichier client. Où chacun s’arrête, ce que permettent les formules gratuites et comment tester avec vos propres données."
 
 blogPost:
   author: Benjamin Wagner
@@ -83,7 +83,7 @@ Les formules gratuites existent bel et bien, mais chacune s’arrête contre un 
 | [EspoCRM](https://www.espocrm.com/download/) et [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | CRM open source, auto-hébergé | Pas de frais de licence, AGPLv3 | Vous gérez le serveur, les mises à jour et les sauvegardes |
 | [Noyau Customermates](/features/self-hosted) | CRM open source, auto-hébergé | Pas de frais de licence, AGPL-3.0 | L’auto-hébergement n’a ni boîte de réception unifiée ni Mate |
 
-Pipedrive n’a pas de formule gratuite et propose un essai gratuit de 14 jours. Customermates Cloud n’a pas non plus de formule gratuite ; son essai dure [[commercial.trial.days]] jours.
+Pipedrive n’a pas de formule gratuite et propose un essai gratuit de 14 jours. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; son essai dure [[commercial.trial.days]] jours.
 
 Comment lire le tableau : deux personnes avec moins de 1 000 contacts peuvent démarrer sans difficulté sur les outils gratuits de HubSpot. Trois personnes tiennent dans l’édition gratuite de Zoho. Si vous préférez concevoir vos propres tables, regardez Airtable ou Ninox. Si quelqu’un de l’équipe gère des serveurs, un CRM open source auto-hébergé supprime le coût par utilisateur, mais pas le travail.
 
@@ -103,13 +103,13 @@ Airtable et Ninox sont des outils pour construire des bases de données : ce pr
 
 ## Un fichier client dans Customermates, étape par étape
 
-Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Voici un fichier client pour un petit cabinet de conseil, configuré comme le produit fonctionne aujourd’hui.
+Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Voici un fichier client pour un petit cabinet de conseil, configuré comme le produit fonctionne aujourd’hui. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes, le pipeline et le tableau de bord ; en auto-hébergement, vous créez les listes dans Configurer. Ensuite, vous les ajustez ainsi.
 
 <Steps>
   <Step title="Nommez les enregistrements comme vous parlez">Dans Configurer, ouvrez une liste et modifiez son **Nom** et son **Nom au pluriel** sous **Général** : renommez Contacts en Clients et Organisations en Entreprises. Les affaires peuvent devenir des Projets, et les tâches des Suivis. N’importe quel nom convient, et il s’applique à tout l’espace de travail.</Step>
-  <Step title="Ajoutez les champs sur lesquels vous filtrerez">Sur Entreprises, ajoutez « Segment » comme champ Choix unique avec Récurrent, Projet et Ancien, et « Client depuis » comme champ Date. Sur Clients, ajoutez « Adresse de facturation » comme champ Adresse. Les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées, que la liste Clients possède dès le départ.</Step>
-  <Step title="Importez d’abord les entreprises, puis les personnes">Utilisez Plus d’actions › Ajouter depuis un fichier avec un classeur .xlsx, une liste par import. Importez les entreprises, puis la feuille des personnes avec une colonne qui contient le nom de l’entreprise de chaque personne : l’assistant rapproche les colonnes de liens par nom d’enregistrement, et les colonnes d’e-mail et de téléphone peuvent être rapprochées du champ Coordonnées du client. Les fichiers CSV sont aussi acceptés (virgule, point-virgule, tabulation ou barre verticale comme séparateur). Un classeur accepte actuellement jusqu’à 5 000 lignes.</Step>
-  <Step title="Enregistrez trois vues">Sur Entreprises, « Clients récurrents » filtre Segment sur Récurrent. Sur Clients, « Sans mise à jour depuis 90 jours » filtre Mis à jour le avec Plus ancien que… 90 jours. « Clients sans entreprise » filtre les clients sans entreprise liée. Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.</Step>
+  <Step title="Ajoutez les champs sur lesquels vous filtrerez">Sur Entreprises, ajoutez « Segment » comme champ Choix unique avec Récurrent, Projet et Ancien, et « Client depuis » comme champ Date. Sur Clients, ajoutez « Adresse de facturation » comme champ Adresse. Les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées, que la liste des personnes issue de la configuration IA possède dès le départ.</Step>
+  <Step title="Importez d’abord les entreprises, puis les personnes">Utilisez Plus d’actions › Ajouter depuis un fichier avec un classeur Excel (.xlsx ou .xls) ou un fichier CSV, une liste par import. Importez les entreprises, puis la feuille des personnes avec une colonne qui contient le nom de l’entreprise de chaque personne : l’assistant rapproche les colonnes de liens par nom d’enregistrement, et les colonnes d’e-mail et de téléphone peuvent être rapprochées du champ Coordonnées du client. Un fichier peut peser jusqu’à 10 Mo et chaque feuille compter jusqu’à 5 000 lignes de données.</Step>
+  <Step title="Enregistrez trois vues">Sur Entreprises, « Clients récurrents » filtre Segment sur Récurrent. Sur Clients, « Sans mise à jour depuis 90 jours » filtre Mis à jour le avec Plus ancien que… 90 jours. « Clients sans entreprise » filtre les clients sans entreprise liée. Partagez « Sans mise à jour depuis 90 jours » avec toute l’équipe ou avec des rôles choisis, pour que chacun nettoie la même liste.</Step>
   <Step title="Connectez les conversations (Pro)">Avec Pro, chaque utilisateur connecte [[commercial.entitlement.pro.includedAccountsPerUser]] compte, comme Gmail, Outlook, LinkedIn ou WhatsApp, et la [boîte de réception unifiée](/features/unified-inbox) affiche ces fils à côté du client. Starter n’a pas de boîte de réception.</Step>
 </Steps>
 
@@ -120,6 +120,8 @@ Deux choses que le test d’essai ci-dessus fera apparaître. Customermates perm
 > Quand un nouveau client est ajouté, vérifiez s’il est lié à une entreprise. Sinon, trouvez l’entreprise dont le nom correspond au domaine de son adresse e-mail et reliez-la. Ne créez jamais d’entreprise et n’envoyez jamais de message. Si rien ne correspond, ajoutez une ligne aux notes du client pour l’indiquer.
 
 Les deux dernières phrases comptent. Mate peut envoyer des messages quand une instruction le demande : une routine qui ne doit que ranger les enregistrements doit donc le préciser. Si vous préférez utiliser votre propre client IA, Claude, ChatGPT et d’autres clients MCP peuvent lire et mettre à jour les mêmes enregistrements via MCP, y compris en auto-hébergement.
+
+Une base de clients se rentabilise quand chaque client a une prochaine étape. Avec Pro, les fils LinkedIn et e-mail rejoignent la fiche du client, Mate ou votre propre client IA rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez. Pour l’essayer sur vos vrais clients, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 
 ## Quand Customermates n’est pas le bon fichier client
 
@@ -140,7 +142,7 @@ Ninox indique l’Allemagne comme région de serveur sur sa page tarifs. Custome
 
 <Faq>
 <FaqItem question="Quel est le meilleur logiciel de fichier client gratuit ?">
-Cela dépend du nombre de personnes qui l’utilisent et du nombre d’enregistrements que vous gardez. Les outils gratuits de HubSpot couvrent 2 utilisateurs et 1 000 contacts, l’édition gratuite de Zoho CRM 3 utilisateurs, Airtable Free 1 000 enregistrements par base et Ninox Free 5 utilisateurs avec 5 000 enregistrements. Si vous pouvez gérer un serveur, EspoCRM, SuiteCRM et le noyau Customermates sont open source sans frais de licence. Customermates Cloud n’a pas de formule gratuite, seulement un essai de [[commercial.trial.days]] jours.
+Cela dépend du nombre de personnes qui l’utilisent et du nombre d’enregistrements que vous gardez. Les outils gratuits de HubSpot couvrent 2 utilisateurs et 1 000 contacts, l’édition gratuite de Zoho CRM 3 utilisateurs, Airtable Free 1 000 enregistrements par base et Ninox Free 5 utilisateurs avec 5 000 enregistrements. Si vous pouvez gérer un serveur, EspoCRM, SuiteCRM et le noyau Customermates sont open source sans frais de licence. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, et un essai de [[commercial.trial.days]] jours.
 </FaqItem>
 
 <FaqItem question="Comment créer un fichier client ?">

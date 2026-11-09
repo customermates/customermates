@@ -4,6 +4,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 import type { JoinWorkspaceRepo } from "./join-workspace.repo";
 import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
+import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 
 import { z } from "zod";
 import { Status } from "@/generated/prisma";
@@ -16,7 +17,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { fail, failAuthorization } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const Schema = z.object({ intent: z.string().min(1), agreeToTerms: z.boolean() });
@@ -37,6 +38,7 @@ export class JoinWorkspaceInteractor {
     private readonly memberships: WorkspaceMembershipRepo,
     private readonly repo: JoinWorkspaceRepo,
     private readonly eventService: EventService,
+    private readonly seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
   ) {}
 
   @Validate(Schema)
@@ -63,6 +65,8 @@ export class JoinWorkspaceInteractor {
 
     const profile = await this.memberships.findMembershipProfileUnscoped(email);
     if (!profile) return fail(CustomErrorCode.workspaceCreationUnavailable);
+    const refused = await this.seats.admitMembers(1, intent.companyId);
+    if (refused) return failConflict(CustomErrorCode.planMemberLimitReached, [], refused);
 
     const joined = await runInTransaction(
       async () => {

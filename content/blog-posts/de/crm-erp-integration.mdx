@@ -41,7 +41,7 @@ Für einen n8n-Ablauf unterscheidet der [Vergleich der n8n-MCP-Verbindungen mit 
   <SummaryItem label="Wege">Fertiger Connector, Automatisierungsplattform (iPaaS oder n8n), direkte API-Anbindung oder Middleware. Oder eine Komplettlösung, deren ERP ein CRM-Modul mitbringt.</SummaryItem>
   <SummaryItem label="Vorab klären">Ein führendes System pro Feld, eine Strategie für stabile IDs und das Verhalten, wenn ein Ereignis doppelt kommt oder scheitert.</SummaryItem>
   <SummaryItem label="ERP prüfen">Ob die API in Ihrem Tarif enthalten ist, ob das ERP Webhooks sendet und welche Ratenlimits gelten. Hier unterscheiden sich die Anbieter stark.</SummaryItem>
-  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Cloud-Tarif und beim Self-Hosting. ERP-Nummern liegen in eigenen Feldern vom Typ Text.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API in jedem Cloud-Tarif, Webhooks in jedem bezahlten Tarif, beides beim Self-Hosting. ERP-Nummern liegen in eigenen Feldern vom Typ Text.</SummaryItem>
 </ArticleSummary>
 
 ## Welches System welche Daten führt
@@ -133,7 +133,7 @@ Eine Integration, die nur den Normalfall abdeckt, erzeugt innerhalb weniger Woch
 
 ## Beispiel: vom gewonnenen Deal zum ERP-Auftrag mit Customermates
 
-So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/features/api) und die [Webhooks](/docs/webhooks), die in jedem Cloud-Tarif von Customermates und beim Self-Hosting funktionieren. Den Empfänger in der Mitte betreiben Sie selbst, als n8n-Workflow oder kleinen Dienst.
+So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/features/api) und die [Webhooks](/docs/webhooks), die beim Self-Hosting und in Customermates Cloud funktionieren: die REST-API in jedem Tarif, Webhooks in jedem bezahlten Tarif. Den Empfänger in der Mitte betreiben Sie selbst, als n8n-Workflow oder kleinen Dienst.
 
 **Felder.** Legen Sie in **Konfigurieren** eigene Felder vom Typ Text an: „ERP-Kundennummer“ an Organisationen, „ERP-Auftragsnummer“ an Deals und „ERP-Artikelnummer“ an Leistungen. Jede Position eines Deals enthält eine Leistung und eine Menge, Positionen und Artikelnummern ergeben also die Auftragspositionen. Braucht der Vertrieb den Liefer- oder Zahlungsstand, ergänzen Sie ein Feld vom Typ Einzelauswahl wie „ERP-Status“ an Deals, und legen Sie im Adapter fest, dass das ERP diesen Wert führt. Customermates bietet Listen- und Rollenrechte, aber keine Feldrechte, die dieses Feld allein der Integration vorbehalten.
 
@@ -147,7 +147,7 @@ So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/fea
 
 **Fehler.** Customermates wiederholt eine fehlgeschlagene Zustellung automatisch bei Timeouts, Netzwerkfehlern, 5xx-Antworten sowie 408, 425 und 429. Andere 4xx-Antworten werden nicht wiederholt, weil sie genauso scheitern würden. Jede Zustellung steht unter **Einstellungen → Zustellungen**, wo Sie sie nach der Fehlerbehebung erneut senden.
 
-**Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Die Person, die Integrationsfehler bearbeitet, legt sie an und teilt sie mit dem Team, wenn andere sie brauchen. Was dort auftaucht, hat der Ereignisfluss verpasst.
+**Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Teilen Sie sie mit der Person, die Integrationsfehler bearbeitet, oder mit dem ganzen Team. Was dort auftaucht, hat der Ereignisfluss verpasst.
 
 **Die Gegenrichtung.** Sendet Ihr ERP Webhooks, richten Sie diese auf denselben Empfänger, suchen den Deal über die „ERP-Auftragsnummer“ und setzen „ERP-Status“. Sendet es keine, fragen Sie das ERP zeitgesteuert ab. Die [n8n-Anleitung](/docs/n8n) listet die REST-Aufrufe, die ein n8n-Workflow braucht; eine Community-Node gibt es ebenfalls.
 
@@ -183,7 +183,9 @@ Einen ehrlichen Pauschalwert für alle CRM-ERP-Integrationen gibt es nicht. Ein 
 - Ratenlimits und Volumen;
 - wer die Plattform oder den Dienst betreibt und wer auf Fehlermeldungen reagiert.
 
-Auf der CRM-Seite brauchen API und Webhooks keinen bestimmten Customermates-Tarif. Ein Team aus drei Personen zahlt im Tarif Starter [[commercial.price.starter.monthly.seats.3]] pro Monat. Die Unified Inbox, die E-Mail-, LinkedIn- und WhatsApp-Gespräche an dieselben Datensätze holt, beginnt mit Pro ([[commercial.price.pro.monthly]] pro Nutzer und Monat).
+Auf der CRM-Seite braucht die REST-API keinen bestimmten Customermates-Tarif, und Webhooks gehören zu jedem bezahlten Tarif. Ein Team aus drei Personen zahlt im Tarif Starter [[commercial.price.starter.monthly.seats.3]] pro Monat. Die Unified Inbox, die E-Mail-, LinkedIn- und WhatsApp-Gespräche an dieselben Datensätze holt, beginnt mit Pro ([[commercial.price.pro.monthly]] pro Nutzer und Monat).
+
+Bevor aus einem gewonnenen Deal ein ERP-Auftrag wird, liegt das Gespräch, das ihn gewonnen hat, am Kundendatensatz, mit einer Antwort und einem nächsten Schritt, die Mate oder Ihr eigener KI-Client zur Prüfung und zum Senden entwirft. Um diesen Teil an Ihren eigenen Kunden zu sehen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 ## Häufige Fehler
 

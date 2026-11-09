@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/hubspot-alternative
   - /blog/open-source-crm
 
+sections:
+  reasons:
+    - title: "Client conversations on the record"
+      description: "From Pro, the inbox brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list, and every thread with a linked contact shows on that contact."
+    - title: "Replies drafted for you to review and send"
+      description: "In Customermates Cloud, Mate drafts replies, summarizes threads and updates records. Or connect Claude, ChatGPT or another client over MCP and use the subscription you already have."
+    - title: "A configurable model you can host yourself"
+      description: "A new workspace starts without lists: you create the ones you need in Configure, or let AI setup build them in the cloud. The AGPL-3.0 core runs on your own server."
+  switchSteps: true
+
 hero:
   title: "cobra CRM Alternative: Customermates and cobra Compared"
-  description: "cobra CRM is a German CRM from Konstanz with cloud plans from €36 per user per month and an on-premise edition called cobra One. Customermates is an open-source CRM for small client-facing teams, from [[commercial.price.starter.monthly]] per user per month, with email, LinkedIn and WhatsApp in one inbox from Pro and the Mate AI assistant in Customermates Cloud, which uses hosted AI credits."
-  buttonLeftText: Start for free
+  description: "Looking for a lighter, open-source alternative to cobra CRM? Customermates starts at [[commercial.price.starter.monthly]] per user per month, and from Pro your LinkedIn, email and WhatsApp conversations show on the client when the contact details match or you link them, while Mate drafts the reply. cobra Cloud Essential starts at €36."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -42,7 +52,7 @@ comparison:
         source: Your own lists, with fields and relationships
         competitor: "Cloud: 1 type (up to 10,000 records) on Essential, 3 on Grow, 50 on Max"
       - name: Saved views
-        source: Saved views on every plan, shareable with the team
+        source: Saved views on every plan, shared with the team or selected roles
         competitor: Saved filters and custom table views from Grow
       - name: Change history
         source: Audit log on every plan
@@ -76,7 +86,7 @@ comparison:
         source: "Any MCP client, [[derived.mcp.tools.total]] tools, every plan and self-hosted"
         competitor: cobra One Essential and Grow (OpenAI, Azure or IONOS)
       - name: REST API and webhooks
-        source: Every plan
+        source: REST API on every plan, webhooks on paid plans and self-hosted
         competitor: "Cloud: full API and 50 webhooks on Max, partner apps below. cobra One: REST API with 3, 9 or unlimited endpoints"
   - title: Licence, Hosting & Access
     features:
@@ -99,7 +109,7 @@ comparison:
 cta:
   action: Comparing cobra CRM and Customermates?
   description: "Start a trial, import one Excel export from cobra and connect a mailbox or WhatsApp. You will see quickly whether your addresses, deals and conversations fit the Customermates model."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -117,7 +127,7 @@ cta:
 | You need your own record types, such as members, funding cases or seminars | cobra Grow or Max, or Customermates | 3 custom object types on Grow, 50 on Max. Customermates starts without lists; you create your own (contacts, deals or anything else) |
 | Field staff need native phone apps, or IT requires single sign-on | cobra | Native iOS and Android apps; single sign-on on Cloud Max |
 | Clients write on WhatsApp, LinkedIn, Instagram or Telegram as well as email | Customermates Pro or Business | All of these channels share one inbox, next to the deal |
-| You want REST API and webhooks on the entry plan | Customermates | REST API and webhooks are on every plan. cobra CRM Cloud has the full API and webhooks on Max; cobra One Essential has a REST API with 3 endpoints |
+| You want REST API and webhooks on the entry plan | Customermates | REST API and webhooks are on every paid plan. cobra CRM Cloud has the full API and webhooks on Max; cobra One Essential has a REST API with 3 endpoints |
 | You want open-source code and a CRM you can host yourself | Customermates | AGPL-3.0 core with Docker Compose; the inbox and Mate stay in Customermates Cloud |
 | You run on-premise today and want vendor support for it | cobra One or combit CRM | Both sell supported on-premise editions |
 
@@ -156,7 +166,7 @@ The rows do not buy the same things. Starter has no inbox: it covers the CRM, th
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM built in Germany for consultants, agencies, other relationship-driven service businesses and founders.
+cobra CRM covers newsletters, events and serial letters. Customermates covers the other half of the job for a small client team: conversations on the client record from Pro, matched by contact details or linked by you, a reply and a next step drafted by Mate or your own AI agent, and you review, edit and send. It is open source and built in Germany.
 
 **Conversations next to the deal.** From Pro, the inbox brings Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list. You reply on the original channel, and every thread with a linked contact shows on that contact's timeline.
 
@@ -195,7 +205,7 @@ The opportunity stages become a stage field with probabilities, for example Inqu
   <Step title="Export from cobra">cobra's pricing page lists export to Excel on every cloud plan. Export companies, contact persons and opportunities as separate workbooks and save them as .xlsx files. On cobra One, ask your cobra partner which export your version offers.</Step>
   <Step title="Prepare the workspace">In Configure, open each list you want to rename and change its Name and Plural name under General. Create one single choice field per keyword group, and set up the stage field with its probabilities.</Step>
   <Step title="Import one list at a time">Import organizations first, then contacts, then deals. A link column finds the company you imported before by name. A workbook currently holds up to 10,000 rows, so split a larger address list. New contacts need a first and a last name, and a Notes column goes into the record's notes. The [records documentation](/docs/app-records) has the details.</Step>
-  <Step title="Rebuild lists as views">Turn each cobra list into a saved view with a filter. Views stay private until you share them, so share the ones the whole team uses.</Step>
+  <Step title="Rebuild lists as views">Turn each cobra list into a saved view with a filter. Share the ones the whole team needs from the view's **Share…** menu.</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels. Then set up a routine for Mate, or connect your own AI client through MCP.</Step>
 </Steps>
 
@@ -225,7 +235,7 @@ cobra CRM Cloud runs in the browser from cobra's cloud and includes cobra AI as 
 </FaqItem>
 
 <FaqItem question="Is there a free alternative to cobra CRM?">
-HubSpot's CRM is free for up to two users and 1,000 contacts. Customermates has no free plan: Customermates Cloud starts with a [[commercial.trial.days]]-day trial. Its open-source core can be self-hosted, without the inbox and without Mate.
+HubSpot's CRM is free for up to two users and 1,000 contacts. Customermates Cloud starts with a [[commercial.trial.days]]-day trial and then has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Its open-source core can be self-hosted, without the inbox and without Mate.
 </FaqItem>
 
 <FaqItem question="Is there an open-source alternative to cobra CRM that runs on my own server?">

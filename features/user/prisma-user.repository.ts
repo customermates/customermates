@@ -4,12 +4,10 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
 import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
 import type { CompleteOnboardingSetupStepRepo } from "@/features/onboarding-wizard/complete-onboarding-setup-step.repo";
-import type { DeactivateTrialUsersAndSendNoticeRepo } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.repo";
 import type { DeactivateUsersAfterSubscriptionGracePeriodRepo } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.repo";
 import type { ExpireAdAttributionRepo } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import type { SendLegalDocumentNoticesRepo } from "@/ee/lifecycle/send-legal-document-notices.repo";
 import type { SendTrialExtensionOfferActionRepo } from "@/ee/lifecycle/send-trial-extension-offer.repo";
-import type { SendTrialInactivationReminderActionRepo } from "@/ee/lifecycle/send-trial-inactivation-reminder.repo";
 import type { SendWelcomeAndDemoActionRepo } from "@/ee/lifecycle/send-welcome-and-demo.repo";
 import type { DeleteAccountsForPlanUserRepo } from "@/ee/messaging/connect/delete-accounts-for-plan-user.repo";
 import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-webhook.repo";
@@ -32,6 +30,7 @@ import type { WorkspaceMembershipRepo } from "@/features/workspace/workspace-mem
 import type { LeaveWorkspaceRepo } from "@/features/workspace/leave-workspace.repo";
 import type { JoinWorkspaceRepo } from "@/features/workspace/join-workspace.repo";
 import type { RemoveWorkspaceMemberRepo } from "@/features/workspace/remove-workspace-member.repo";
+import type { FreePlanMemberRepo } from "@/ee/subscription/free-plan-member.repo";
 
 import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -79,8 +78,6 @@ export class PrismaUserRepo
     AdminUpdateUserDetailsRepo,
     SendWelcomeAndDemoActionRepo,
     SendTrialExtensionOfferActionRepo,
-    SendTrialInactivationReminderActionRepo,
-    DeactivateTrialUsersAndSendNoticeRepo,
     DeactivateUsersAfterSubscriptionGracePeriodRepo,
     DeleteAccountsForPlanUserRepo,
     CountActiveUsersRepo,
@@ -97,7 +94,8 @@ export class PrismaUserRepo
     WorkspaceMembershipRepo,
     LeaveWorkspaceRepo,
     JoinWorkspaceRepo,
-    RemoveWorkspaceMemberRepo
+    RemoveWorkspaceMemberRepo,
+    FreePlanMemberRepo
 {
   constructor(
     private readonly permissions: PermissionService,
@@ -246,6 +244,7 @@ export class PrismaUserRepo
       status: true,
       avatarUrl: true,
       leftAt: true,
+      pausedByPlanAt: true,
       createdAt: true,
       updatedAt: true,
     } as const;
@@ -857,22 +856,6 @@ export class PrismaUserRepo
     return await this.findUsersWithTrialEndDateBetween(from, to);
   }
 
-  async findUsersWithTrialEndedBetween3And4Days() {
-    const now = Date.now();
-    const from = new Date(now - 4 * 24 * 60 * 60 * 1000);
-    const to = new Date(now - 3 * 24 * 60 * 60 * 1000);
-
-    return await this.findUsersWithTrialEndDateBetween(from, to);
-  }
-
-  async findUsersWithTrialEndedBetween6And7Days() {
-    const now = Date.now();
-    const from = new Date(now - 7 * 24 * 60 * 60 * 1000);
-    const to = new Date(now - 6 * 24 * 60 * 60 * 1000);
-
-    return await this.findUsersWithTrialEndDateBetween(from, to);
-  }
-
   async findUsersPastSubscriptionGracePeriod() {
     const before = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
@@ -885,13 +868,24 @@ export class PrismaUserRepo
               in: [SubscriptionStatus.unPaid, SubscriptionStatus.expired],
             },
             updatedAt: { lte: before },
-            NOT: {
-              status: SubscriptionStatus.expired,
-              plan: { not: SubscriptionPlan.enterprise },
-              lemonSqueezyId: null,
-              trialEndDate: null,
-              currentPeriodEnd: null,
-            },
+            AND: [
+              {
+                NOT: {
+                  status: SubscriptionStatus.expired,
+                  plan: { not: SubscriptionPlan.enterprise },
+                  lemonSqueezyId: null,
+                  trialEndDate: null,
+                  currentPeriodEnd: null,
+                },
+              },
+              {
+                NOT: {
+                  status: SubscriptionStatus.expired,
+                  plan: { not: SubscriptionPlan.enterprise },
+                  trialEndDate: { not: null },
+                },
+              },
+            ],
           },
         },
       },
@@ -938,26 +932,6 @@ export class PrismaUserRepo
     const result = await this.prisma.user.updateMany({
       where: { id: userId, trialExpiredOfferSentAt: null },
       data: { trialExpiredOfferSentAt: sentAt },
-    });
-
-    return result.count > 0;
-  }
-
-  async claimTrialInactivationReminderSent(args: { userId: string; sentAt: Date }) {
-    const { userId, sentAt } = args;
-    const result = await this.prisma.user.updateMany({
-      where: { id: userId, trialInactivationReminderSentAt: null },
-      data: { trialInactivationReminderSentAt: sentAt },
-    });
-
-    return result.count > 0;
-  }
-
-  async claimTrialInactivationNoticeSent(args: { userId: string; sentAt: Date }) {
-    const { userId, sentAt } = args;
-    const result = await this.prisma.user.updateMany({
-      where: { id: userId, trialInactivationNoticeSentAt: null },
-      data: { trialInactivationNoticeSentAt: sentAt },
     });
 
     return result.count > 0;
@@ -1063,5 +1037,262 @@ export class PrismaUserRepo
       where: { companyId, id: { in: [...new Set(userIds)] } },
       select: { id: true, firstName: true, lastName: true, avatarUrl: true },
     });
+  }
+
+  @BypassTenantGuard
+  async findWorkspacesOverFreePlanUnscoped(now: Date, maxMembers: number): Promise<string[]> {
+    const free = await this.prisma.subscription.findMany({
+      where: {
+        plan: { not: SubscriptionPlan.enterprise },
+        trialEndDate: { not: null },
+        OR: [{ status: SubscriptionStatus.expired }, { status: SubscriptionStatus.trial, trialEndDate: { lt: now } }],
+      },
+      select: { companyId: true },
+    });
+    const companyIds = free.map((row) => row.companyId);
+    if (companyIds.length === 0) return [];
+    const [crowded, dormant, pending, invites, routines] = await Promise.all([
+      this.prisma.user.groupBy({
+        by: ["companyId"],
+        where: { companyId: { in: companyIds }, status: Status.active, leftAt: null },
+        _count: { _all: true },
+      }),
+      this.prisma.user.findMany({
+        where: { companyId: { in: companyIds }, status: Status.inactive, leftAt: null },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+      this.prisma.user.findMany({
+        where: { companyId: { in: companyIds }, status: Status.pendingAuthorization, leftAt: null },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+      this.prisma.inviteToken.findMany({
+        where: { companyId: { in: companyIds } },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+      this.prisma.routine.findMany({
+        where: { companyId: { in: companyIds }, enabled: true, deletedAt: null },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+    ]);
+    const staffed = new Set(crowded.map((group) => group.companyId));
+    return [
+      ...new Set([
+        ...crowded.filter((group) => group._count._all > maxMembers).map((group) => group.companyId),
+        ...dormant.filter((row) => !staffed.has(row.companyId)).map((row) => row.companyId),
+        ...pending.map((row) => row.companyId),
+        ...invites.map((row) => row.companyId),
+        ...routines.map((row) => row.companyId),
+      ]),
+    ];
+  }
+
+  @BypassTenantGuard
+  async findWorkspacesWithPlanPausesUnscoped(now: Date): Promise<string[]> {
+    const [members, routines] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { pausedByPlanAt: { not: null } },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+      this.prisma.routine.findMany({
+        where: { pausedByPlanAt: { not: null } },
+        select: { companyId: true },
+        distinct: ["companyId"],
+      }),
+    ]);
+    const companyIds = [...new Set([...members, ...routines].map((row) => row.companyId))];
+    if (companyIds.length === 0) return [];
+    const usable = await this.prisma.subscription.findMany({
+      where: {
+        companyId: { in: companyIds },
+        OR: [
+          { status: SubscriptionStatus.active },
+          { status: SubscriptionStatus.trial, OR: [{ trialEndDate: null }, { trialEndDate: { gte: now } }] },
+        ],
+      },
+      select: { companyId: true },
+    });
+    return usable.map((row) => row.companyId);
+  }
+
+  @BypassTenantGuard
+  async findPlanSubscriptionUnscoped(companyId: string) {
+    return this.prisma.subscription.findUnique({
+      where: { companyId },
+      select: { status: true, plan: true, trialEndDate: true, currentPeriodEnd: true },
+    });
+  }
+
+  @BypassTenantGuard
+  async findOwnerEmailsUnscoped(companyId: string): Promise<string[]> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { createdByAuthUserId: true, subscription: { select: { checkoutEmail: true } } },
+    });
+    if (!company) return [];
+    const creator = company.createdByAuthUserId
+      ? await this.prisma.authUser.findUnique({ where: { id: company.createdByAuthUserId }, select: { email: true } })
+      : null;
+    return [creator?.email, company.subscription?.checkoutEmail].filter((email): email is string => Boolean(email));
+  }
+
+  @BypassTenantGuard
+  async listMembersUnscoped(companyId: string) {
+    const members = await this.prisma.user.findMany({
+      where: { companyId, leftAt: null },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        status: true,
+        createdAt: true,
+        pausedByPlanAt: true,
+        role: { select: { isSystemRole: true } },
+      },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return members.map(({ role, ...member }) => ({ ...member, isAdmin: role?.isSystemRole === true }));
+  }
+
+  @BypassTenantGuard
+  async pauseMembersForPlanUnscoped(args: { companyId: string; userIds: string[]; now: Date; noticeSent: boolean }) {
+    if (args.userIds.length === 0) return 0;
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const { count } = await this.prisma.user.updateMany({
+        where: { companyId: args.companyId, id: { in: args.userIds }, leftAt: null, status: Status.active },
+        data: {
+          status: Status.inactive,
+          agentCreditActivatedAt: null,
+          pausedByPlanAt: args.now,
+          planPauseNoticeSentAt: args.noticeSent ? args.now : null,
+        },
+      });
+      await this.billingUsage.recordSeats(args.companyId, args.userIds);
+      return count;
+    });
+  }
+
+  @BypassTenantGuard
+  async resumeMembersForPlanUnscoped(args: { companyId: string; userIds?: string[] }) {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const where = {
+        companyId: args.companyId,
+        leftAt: null,
+        pausedByPlanAt: { not: null },
+        ...(args.userIds ? { id: { in: args.userIds } } : {}),
+      };
+      const resumed = await this.prisma.user.findMany({ where, select: { id: true } });
+      if (resumed.length === 0) return 0;
+      const now = new Date();
+      await this.prisma.user.updateMany({
+        where: { ...where, id: { in: resumed.map((user) => user.id) } },
+        data: {
+          status: Status.active,
+          pausedByPlanAt: null,
+          planPauseNoticeSentAt: null,
+          agentCreditActivatedAt: now,
+        },
+      });
+      await this.billingUsage.recordSeats(
+        args.companyId,
+        resumed.map((user) => user.id),
+      );
+      return resumed.length;
+    });
+  }
+
+  @BypassTenantGuard
+  async reviveMemberForPlanUnscoped(args: { companyId: string; userId: string }) {
+    return this.withCompanyTransaction(args.companyId, async () => {
+      const { count } = await this.prisma.user.updateMany({
+        where: { companyId: args.companyId, id: args.userId, leftAt: null, status: Status.inactive },
+        data: { status: Status.active, pausedByPlanAt: null, planPauseNoticeSentAt: null },
+      });
+      if (count > 0) await this.billingUsage.recordSeats(args.companyId, [args.userId]);
+      return count;
+    });
+  }
+
+  @BypassTenantGuard
+  async endPendingJoinRequestsUnscoped(companyId: string, now: Date) {
+    const { count } = await this.prisma.user.updateMany({
+      where: { companyId, leftAt: null, status: Status.pendingAuthorization },
+      data: { status: Status.inactive, leftAt: now },
+    });
+    return count;
+  }
+
+  @BypassTenantGuard
+  async findPauseNoticeRecipientsUnscoped(limit: number, companyIds?: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        pausedByPlanAt: { not: null },
+        planPauseNoticeSentAt: null,
+        leftAt: null,
+        status: Status.inactive,
+        ...(companyIds ? { companyId: { in: companyIds } } : {}),
+      },
+      select: {
+        id: true,
+        companyId: true,
+        email: true,
+        firstName: true,
+        displayLanguage: true,
+        company: { select: { name: true } },
+      },
+      orderBy: { pausedByPlanAt: "asc" },
+      take: limit,
+    });
+    return users.map(({ company, ...user }) => ({ ...user, workspaceName: company.name }));
+  }
+
+  @BypassTenantGuard
+  async claimPauseNoticeUnscoped(userId: string, now: Date): Promise<boolean> {
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: userId, pausedByPlanAt: { not: null }, planPauseNoticeSentAt: null },
+      data: { planPauseNoticeSentAt: now },
+    });
+    return count === 1;
+  }
+
+  @BypassTenantGuard
+  async releasePauseNoticeUnscoped(userId: string): Promise<void> {
+    await this.prisma.user.updateMany({
+      where: { id: userId, pausedByPlanAt: { not: null } },
+      data: { planPauseNoticeSentAt: null },
+    });
+  }
+
+  @BypassTenantGuard
+  async findMemberPauseUnscoped(userId: string) {
+    return this.prisma.user.findUnique({ where: { id: userId }, select: { companyId: true, pausedByPlanAt: true } });
+  }
+
+  @BypassTenantGuard
+  async countPlanPausedMembersUnscoped(companyId: string): Promise<number> {
+    return this.prisma.user.count({ where: { companyId, leftAt: null, pausedByPlanAt: { not: null } } });
+  }
+
+  @BypassTenantGuard
+  async countActiveMembersUnscoped(companyId: string): Promise<number> {
+    return this.prisma.user.count({ where: { companyId, status: Status.active, leftAt: null } });
+  }
+
+  @BypassTenantGuard
+  async findActiveKeeperNameUnscoped(companyId: string): Promise<string | null> {
+    const find = (admin: boolean) =>
+      this.prisma.user.findFirst({
+        where: { companyId, leftAt: null, status: Status.active, ...(admin ? { role: { isSystemRole: true } } : {}) },
+        select: { firstName: true, lastName: true, email: true },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      });
+    const keeper = (await find(true)) ?? (await find(false));
+    if (!keeper) return null;
+    return `${keeper.firstName} ${keeper.lastName}`.trim() || keeper.email;
   }
 }

@@ -54,7 +54,7 @@ const VerifyEmailCardContent = observer(
           ) : null}
 
           {linkProblem ? (
-            <Alert color="warning">
+            <Alert variant="warning">
               <p className="text-x-sm">
                 {linkProblem === "expired" ? t("VerifyEmailCard.linkExpired") : t("VerifyEmailCard.linkInvalid")}
               </p>

@@ -7,30 +7,28 @@ import {
   Boxes,
   BriefcaseBusiness,
   Cable,
-  CircleCheck,
   Compass,
+  Database,
   FileText,
   GitCompareArrows,
   Github,
-  Laptop,
+  Handshake,
   Inbox,
-  LayoutGrid,
+  Laptop,
   Megaphone,
+  MessageSquareReply,
   Newspaper,
   Plug,
   Presentation,
-  Rocket,
+  HardDrive,
   Server,
-  SquareKanban,
   Store,
-  TrendingUp,
   Users,
   UsersRound,
 } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
 import { resolvePublicNavGroups } from "@/app/components/navigation/public-navbar-model";
-import { SOLUTION_CATALOG } from "@/core/solutions/solution-catalog";
 import { DEFAULT_LOCALE, PARTIAL_MARKETING_LOCALES, isMarketingPathPublished } from "@/i18n/locale-registry";
 
 const REPO_ROOT = process.cwd();
@@ -136,14 +134,23 @@ describe("public navigation preferences", () => {
     for (const href of [
       "/blog/agentic-crm",
       "/blog/open-source-crm",
+      "/features/follow-up",
+      "/features/integrations",
+      "/features/knowledge-base",
+      "/features/open-source-crm",
       "/features/self-hosted",
       "/features/unified-inbox",
-      "/for/agencies",
       "/for/professional-services",
+      "/for/agencies",
     ]) {
       expect(hrefs, `${href} is missing from the sitewide navigation`).toContain(href);
     }
-    expect(hrefs, "the integrations group has no hub page of its own").not.toContain("/features/integrations");
+    const integrationHrefs = publicNavGroups
+      .filter((group) => group.id === "integrations")
+      .flatMap((group) => group.links.map((link) => link.href));
+    expect(integrationHrefs, "the integrations group lists providers, not its hub page").not.toContain(
+      "/features/integrations",
+    );
 
     for (const group of publicNavGroups) {
       expect(["activeHref", "columns", "icon", "id", "links", "sections", "title"]).toEqual(
@@ -151,7 +158,7 @@ describe("public navigation preferences", () => {
       );
       for (const link of group.links) {
         expect(
-          ["activeMatch", "footer", "href", "icon", "mark", "preview", "section", "title"],
+          ["activeMatch", "description", "footer", "href", "icon", "mark", "preview", "section", "title"],
           `${link.href} carries a field the flat map does not render`,
         ).toEqual(expect.arrayContaining(Object.keys(link)));
       }
@@ -162,33 +169,40 @@ describe("public navigation preferences", () => {
 
     const iconLinks = (id: string) => publicNavGroup(id).links.map((link) => [link.href, link.icon]);
     expect(iconLinks("product")).toEqual([
-      ["/features/unified-inbox", Inbox],
+      ["/features/knowledge-base", BookOpen],
       ["/features/contact-management", Users],
-      ["/features/pipeline", SquareKanban],
-      ["/features/sales", TrendingUp],
-      ["/features/task-management", CircleCheck],
-      ["/features/cloud-crm", LayoutGrid],
-      ["/features/self-hosted", Server],
+      ["/features/unified-inbox", Inbox],
+      ["/features/integrations", Bot],
       ["/docs/mcp", Cable],
+      ["/features/open-source-crm", Server],
+      ["/features/self-hosted", HardDrive],
       ["/features/all", Boxes],
     ]);
-    expect(publicNavGroup("solutions").links.map((link) => [link.href, link.section])).toEqual([
-      ...SOLUTION_CATALOG.map((solution) => [solution.landingPath, solution.group]),
+    const solutionLinks = [
+      ["/features/follow-up", "job"],
+      ["/for/agencies", "job"],
+      ["/features/contact-management", "job"],
+      ["/features/linkedin-integration", "job"],
+      ["/for/consultants", "team"],
+      ["/for/agencies", "team"],
+      ["/for/smb", "team"],
+      ["/for/freelancers", "team"],
       ["/for/professional-services", "team"],
-      ["/for", "workflow"],
-    ]);
-    expect(iconLinks("solutions").slice(0, 5)).toEqual([
-      ["/for/smb", Store],
+      ["/for", "team"],
+    ];
+    expect(publicNavGroup("solutions").links.map((link) => [link.href, link.section])).toEqual(solutionLinks);
+    expect(iconLinks("solutions").filter(([, icon]) => icon)).toEqual([
+      ["/features/follow-up", MessageSquareReply],
+      ["/for/agencies", Handshake],
+      ["/features/contact-management", Database],
       ["/for/consultants", Presentation],
       ["/for/agencies", Megaphone],
+      ["/for/smb", Store],
       ["/for/freelancers", Laptop],
-      ["/for/startups", Rocket],
-    ]);
-    expect(iconLinks("solutions").slice(-2)).toEqual([
       ["/for/professional-services", BriefcaseBusiness],
       ["/for", Compass],
     ]);
-    expect(publicNavGroup("solutions").links.filter((link) => link.preview)).toHaveLength(SOLUTION_CATALOG.length);
+    expect(publicNavGroup("solutions").links.filter((link) => link.preview)).toHaveLength(7);
     expect(hrefs).not.toContain("/for/recruiting");
     expect(hrefs).not.toContain("/for/law-firms");
 
@@ -196,12 +210,9 @@ describe("public navigation preferences", () => {
       const solutionHrefs = resolvePublicNavGroups(translationKey, locale)
         .find((group) => group.id === "solutions")
         ?.links.map((link) => link.href);
-      expect(solutionHrefs).toEqual([
-        ...SOLUTION_CATALOG.filter((solution) => solution.publicLocales.includes(locale)).map(
-          (solution) => solution.landingPath,
-        ),
-        ...["/for/professional-services", "/for"].filter((href) => isMarketingPathPublished(locale, href)),
-      ]);
+      expect(solutionHrefs).toEqual(
+        solutionLinks.map(([href]) => href).filter((href) => href === "/for" || isMarketingPathPublished(locale, href)),
+      );
     }
     expect(iconLinks("resources")).toEqual([
       ["/docs", FileText],

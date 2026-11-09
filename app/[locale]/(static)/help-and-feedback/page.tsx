@@ -27,7 +27,7 @@ export default async function HelpAndSettingsPage({ params }: StaticLocaleProps)
     <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <PageHero description={page.data.description} showOpenSourceBadge={false} title={page.data.title} />
 
-      <FAQSection {...page.data.faq} />
+      <FAQSection {...page.data.faq} showHeader={false} />
 
       <Footer />
     </div>

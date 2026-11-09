@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/linkedin-integration
 
+sections:
+  reasons:
+    - title: "Des conversations que vous liez volontairement"
+      description: "Dès Pro, la boîte de réception unifiée réunit dans une liste votre boîte Gmail, Outlook ou IMAP, LinkedIn, WhatsApp, Instagram et Telegram. Vous décidez à quel contact un fil appartient, et vous répondez sur le canal d’origine."
+    - title: "Des réponses rédigées par Mate"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses, crée et met à jour les enregistrements et construit des vues. Votre propre Claude ou ChatGPT peut en faire autant via MCP."
+    - title: "Les bases d’équipe dès Starter"
+      description: "Les rôles règlent les droits par liste et par action, et les tableaux de bord, vos propres listes et champs et l’API REST sont inclus dès Starter. Salesflare réserve les droits utilisateur et les tableaux de bord personnalisés à Pro."
+  switchSteps: true
+
 hero:
-  title: "Alternative à Salesflare : Customermates et Salesflare comparés"
-  description: "Salesflare est un CRM de vente B2B qui se remplit à partir de vos e-mails et de vos réunions et suit les e-mails et les visites du site web. Customermates est un CRM open source conçu en Allemagne : l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram se trouvent à côté de vos affaires à partir de Pro, les rôles et les tableaux de bord sont inclus dans chaque formule, et Mate ou votre propre client IA fait le travail du CRM. Informations sur Salesflare vérifiées le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à Salesflare : Customermates comparé"
+  description: "Salesflare se remplit à partir de votre e-mail, et les messages LinkedIn y arrivent comme des notes que vous copiez. Customermates fait l’inverse : vous liez chaque personne volontairement, et dès Pro les fils LinkedIn, e-mail et WhatsApp sont sur la fiche client, avec un brouillon de réponse. Informations sur Salesflare vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -101,7 +111,7 @@ comparison:
 cta:
   action: Vous comparez Salesflare et Customermates ?
   description: "Démarrez un essai, connectez une messagerie ou votre compte LinkedIn, et importez un export de contacts depuis Salesflare. Quelques jours avec vos vraies conversations montreront si relier les personnes volontairement convient mieux à votre équipe qu’une saisie automatique."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -164,7 +174,7 @@ Les lignes n’achètent pas les mêmes choses : lisez-les par paires.
 
 ## Où se place Customermates
 
-Customermates est un CRM open source et IA natif pour les petites équipes en contact direct avec leurs clients : consultants, agences, autres entreprises de services et fondateurs. Il est conçu en Allemagne.
+Salesflare se remplit à partir de votre e-mail. Customermates fait l’inverse : vous décidez quelles conversations appartiennent à quel client, et dès Pro, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez.
 
 **Des conversations que vous reliez volontairement.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit les messageries Gmail, Outlook et IMAP, [LinkedIn](/features/linkedin-integration) (y compris Sales Navigator et Recruiter), WhatsApp, Instagram et Telegram dans une seule liste, et vous répondez sur le canal d’origine. Rien n’atterrit tout seul sur un contact. Vous ouvrez les participants d’une conversation, cliquez sur Lier et choisissez un contact ou en créez un. Cette adresse ou ce profil est alors ajouté aux coordonnées du contact, et les conversations qui l’utilisent apparaissent sur la chronologie du contact. Starter n’a pas de boîte de réception.
 
@@ -172,7 +182,7 @@ Customermates est un CRM open source et IA natif pour les petites équipes en co
 
 Vous préférez Claude, ChatGPT ou un autre client que vous payez déjà ? Connectez-le au [serveur MCP](/docs/mcp), qui propose [[derived.mcp.tools.total]] outils sur toutes les formules et sur les installations auto-hébergées. Ses appels au modèle passent alors par votre propre fournisseur d’IA.
 
-**Les bases d’équipe dès Starter.** Les rôles fixent les permissions par liste et par action. Les tableaux de bord, vos propres listes et champs, les champs calculés, l’API REST et [[derived.webhooks.events.total]] types d’évènements de webhook sont inclus dans chaque formule.
+**Les bases d’équipe dès Starter.** Les rôles fixent les permissions par liste et par action. Les tableaux de bord, vos propres listes et champs, les champs calculés, l’API REST et [[derived.webhooks.events.total]] types d’évènements de webhook sont inclus dans chaque formule payante.
 
 **Open source, avec un choix d’hébergement.** Le cœur est sous AGPL-3.0 et fonctionne sur votre propre serveur avec Docker Compose et PostgreSQL 16, REST, webhooks et MCP compris. Une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception, ni Mate, ni crédits hébergés ; il n’y a pas non plus d’abonnement ni de frais par siège : vous payez votre propre infrastructure. Dans Customermates Cloud, la base de données est configurée dans la région AWS de Francfort, un [DPA](/dpa) est disponible, et les [sous-traitants](/subprocessors), fournisseurs américains compris, sont listés. Customermates ne détient aucune certification de conformité.
 
@@ -182,8 +192,8 @@ Outre les lacunes du tableau ci-dessus (pas de saisie automatique, pas de suivi,
 
 - **Pas d’enrichissement ni de séquences.** Les contacts viennent de votre équipe, d’un import, de Mate ou de votre propre client IA, et la prospection se fait un message à la fois, écrit par vous ou rédigé par Mate.
 - **Pas d’échéances de tâches ni de rappels.** Les tâches ont des responsables, un statut, des liens vers des enregistrements et des notes. Une date de relance est un champ date personnalisé sur lequel vous triez.
-- **Permissions plus grossières.** Les permissions s’appliquent par liste et par action, pas par champ.
-- **Pas de formule cloud gratuite.** Il y a un essai de [[commercial.trial.days]] jours, puis une formule payante.
+- **Permissions plus grossières.** Les permissions s’appliquent par liste et par action, pas par champ, et une vue partagée est en lecture seule pour vos collègues.
+- **Une petite formule cloud gratuite.** Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Une mise en place concrète : un cabinet de conseil qui quitte Salesflare
 
@@ -234,7 +244,7 @@ Par utilisateur et par mois, Growth coûte 39 € en facturation mensuelle ou 2
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative gratuite à Salesflare ?">
-Capsule CRM a une formule gratuite pour deux utilisateurs et 250 contacts ; la page de tarifs de Salesflare n’affiche pas de formule gratuite. Customermates n’a pas de formule cloud gratuite, mais son cœur open source peut être auto-hébergé sans abonnement ni frais par siège. Vous payez le serveur et obtenez le CRM, REST, les webhooks et MCP, sans la boîte de réception ni Mate.
+Capsule CRM a une formule gratuite pour deux utilisateurs et 250 contacts ; la page de tarifs de Salesflare n’affiche pas de formule gratuite. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, et son cœur open source peut être auto-hébergé sans abonnement ni frais par siège. Vous payez le serveur et obtenez le CRM, REST, les webhooks et MCP, sans la boîte de réception ni Mate.
 </FaqItem>
 
 <FaqItem question="Salesflare fonctionne-t-il avec les messages WhatsApp et LinkedIn ?">

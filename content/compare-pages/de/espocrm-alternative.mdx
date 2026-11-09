@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/self-hosted
   - /blog/open-source-crm
 
+sections:
+  reasons:
+    - title: "LinkedIn und WhatsApp neben der E-Mail"
+      description: "EspoCRM synchronisiert E-Mail; im Erweiterungskatalog gibt es keine offizielle Anbindung für WhatsApp, LinkedIn, Instagram oder Telegram. Customermates legt sie ab Pro alle in einem Posteingang beim Kunden ab."
+    - title: "Mate oder Ihr eigener KI-Agent entwirft die Antwort"
+      description: "Der MCP-Server ist in jedem Tarif und bei selbst gehosteten Installationen enthalten, mit [[derived.mcp.tools.total]] Tools. In Customermates Cloud entwirft Mate die Antwort und den nächsten Schritt zur Prüfung."
+    - title: "Open Source ohne Erweiterungslizenzen"
+      description: "Der selbst gehostete Kern steht unter AGPL-3.0 und wird mit Docker Compose betrieben, pro Instanz wird nichts extra lizenziert. Posteingang und Mate gibt es dort nicht, sie laufen in Customermates Cloud."
+  switchSteps: true
+
 hero:
-  title: "EspoCRM-Alternative: Customermates und EspoCRM im Vergleich"
-  description: "EspoCRM ist ein ausgereiftes Open-Source-CRM mit eigenen Entitäten, Kampagnen und einem Katalog kostenpflichtiger Erweiterungen. Customermates ist ein Open-Source-CRM aus Deutschland, das ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Deals legt und die CRM-Pflege an Mate (Customermates Cloud, gehostete KI-Credits) oder Ihren eigenen KI-Client über MCP abgibt. Alle Angaben zu EspoCRM stammen von espocrm.com, geprüft am 8. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "EspoCRM-Alternative: Customermates im Vergleich"
+  description: "EspoCRM ist ebenfalls Open Source, der Unterschied liegt im Nachfassen. Customermates legt LinkedIn-, WhatsApp- und E-Mail-Verläufe ab Pro beim Kunden ab, und Mate oder Ihr eigener KI-Agent entwirft die Antwort. Angaben zu EspoCRM: Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -105,7 +115,7 @@ comparison:
 cta:
   action: Sie prüfen Alternativen zu EspoCRM?
   description: "Starten Sie die Testphase, exportieren Sie eine EspoCRM-Liste nach Excel und importieren Sie sie, dann verbinden Sie ein Postfach oder WhatsApp. So sehen Sie schnell, ob Ihre Daten und Gespräche zum Modell von Customermates passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -167,7 +177,7 @@ Selbst gehostet kosten beide Kerne keine Lizenzgebühr. Sie zahlen für den Serv
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Es wird in Deutschland entwickelt.
+EspoCRM und Customermates haben einen gemeinsamen Open-Source-Start. Customermates ergänzt das Nachfassen: In Customermates Cloud liegen ab Pro E-Mail-, LinkedIn- und WhatsApp-Verläufe beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt, die Sie prüfen, bearbeiten und senden. Es wird in Deutschland entwickelt.
 
 **Kundengespräche direkt am Deal.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Teilnehmer einmal mit einem Kontakt, wird das Gespräch diesem Kontakt zugeordnet. Starter hat keinen Posteingang.
 
@@ -207,7 +217,7 @@ Die Phasen passen fast eins zu eins. Phasen sind in Customermates nicht vorgegeb
   <Step title="Aus EspoCRM exportieren">Exportieren Sie jede Liste, die Sie behalten wollen, als Excel-Datei: Accounts, Kontakte, Leads und Opportunities.</Step>
   <Step title="Workspace vorbereiten">Benennen Sie Listen in Konfigurieren um, legen Sie eigene Felder für die Attribute an, die Sie behalten, und tragen Sie die Phasenwahrscheinlichkeiten ein.</Step>
   <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst die Organisationen, dann die Kontakte, dann die Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts also die zuvor importierte Organisation. Customermates importiert XLSX-, XLS- und CSV-Dateien; die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Listen als Ansichten anlegen">Machen Sie aus jedem Listenfilter in EspoCRM eine gespeicherte Ansicht. Ansichten bleiben privat, bis Sie sie teilen; teilen Sie die, die das ganze Team nutzt.</Step>
+  <Step title="Listen als Ansichten anlegen">Machen Sie aus jedem Listenfilter in EspoCRM eine gespeicherte Ansicht. Die Ansichten, die das ganze Team braucht, teilen Sie über das Menü **Teilen…** der Ansicht.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder während der Testphase ein Postfach, LinkedIn oder WhatsApp, richten Sie dann Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>
 </Steps>
 
@@ -216,7 +226,7 @@ Die Phasen passen fast eins zu eins. Phasen sind in Customermates nicht vorgegeb
 Customermates veröffentlicht diese Liste. Die Angaben stammen von den Websites der Anbieter, geprüft am 8. Oktober 2026.
 
 - **SuiteCRM** kommt EspoCRM im Umfang am nächsten. Es ist Open Source, Sie können es auf dem eigenen Server betreiben, und SuiteCRM 8 ist die aktuelle Hauptversion. Die Website stellt Reporting und Dashboards, Kundensegmentierung, zielgerichtetes Marketing und Angebote heraus und bietet eine gehostete Testversion, Support, Implementierung, Schulungen und das Betreuungspaket SuiteASSURED an. Kosten und Umstieg stehen im [SuiteCRM-Vergleich](/compare/suitecrm-alternative).
-- **Twenty** passt zu Teams, die eigene Objekte in einem gehosteten Produkt mit kostenlosem selbst gehostetem Kern wollen. Es bietet unbegrenzt eigene Objekte, einen MCP-Server, KI-Agenten, Webhooks sowie REST- und GraphQL-APIs. Cloud Pro kostet 9 US-Dollar pro Nutzer und Monat bei jährlicher Zahlung. Organization für 19 US-Dollar pro Nutzer und Monat, ebenfalls bei jährlicher Zahlung, ergänzt Berechtigungen auf Zeilenebene und Single Sign-on per SAML oder OIDC. Den Open-Source-Kern können Sie kostenlos selbst hosten. Mehr dazu im [Twenty-Vergleich](/compare/twenty-alternative).
+- **Twenty** passt zu Teams, die eigene Objekte in einem gehosteten Produkt mit kostenlosem selbst gehostetem Kern wollen. Es bietet unbegrenzt eigene Objekte, einen MCP-Server, KI-Agenten, Webhooks sowie REST- und GraphQL-APIs. Cloud Pro kostet 9 US-Dollar pro Nutzer und Monat bei jährlicher Zahlung. Organization für 39 US-Dollar pro Nutzer und Monat, ebenfalls bei jährlicher Zahlung, ergänzt Berechtigungen auf Feld- und Zeilenebene und Single Sign-on per SAML oder OIDC (geprüft am 9. November 2026). Den Open-Source-Kern können Sie kostenlos selbst hosten. Mehr dazu im [Twenty-Vergleich](/compare/twenty-alternative).
 - **Odoo** passt, wenn das CRM nur ein Teil der Unternehmenssoftware ist. Der kostenlose Tarif umfasst eine App mit unbegrenzt vielen Nutzern auf Odoo Online, die bezahlten Tarife enthalten alle Apps von Buchhaltung über Lager bis Personal, und die Community Edition ist ein kostenloser Open-Source-Download.
 
 ## Häufig gestellte Fragen

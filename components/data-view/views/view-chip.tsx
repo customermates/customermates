@@ -17,7 +17,7 @@ export const VIEW_TAB_CLASS = cn(
 );
 
 const VIEW_TAB_ACTIVE_CLASS =
-  "border-primary/40 bg-primary/20 text-primary-soft-foreground hover:bg-primary/20 hover:text-primary-soft-foreground";
+  "border-primary/25 bg-primary/10 text-primary-soft-foreground hover:bg-primary/10 hover:text-primary-soft-foreground";
 
 export const VIEW_MODIFIED_DOT_CLASS = "absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary";
 

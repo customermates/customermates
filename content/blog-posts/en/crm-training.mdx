@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM Training: What Each Role Must Learn and a 30-Day Rollout Plan"
-  description: "A role-based CRM training plan for admins, managers, sales reps and support, a 30-day rollout schedule, a skills checklist, adoption checks a team can read from its own lists, and the free vendor courses and paid certifications worth knowing."
+  description: "A role-based CRM training plan for admins, managers, sales reps and support, a 30-day rollout, a skills checklist, adoption checks from your own lists, and the free vendor courses worth knowing."
 
 blogPost:
   author: Benjamin Wagner
@@ -167,6 +167,8 @@ A certification is worth the time and any exam fee when you will configure a CRM
 
 Customermates is an open-source, AI-native CRM for small client-facing teams. If your team uses it, a few parts of the product change how the plan above works in practice. This section describes what is in the product and what is not.
 
+The habit worth training first is follow-up: every client conversation ends with a reply and a next step with a date. On Customermates Cloud from Pro, LinkedIn and email threads sit on the client record, Mate or your own AI agent drafts the reply and the next step, and the person reviews and sends it. The session then teaches one routine instead of five screens.
+
 **Import before the sessions.** On Customermates Cloud, the [[commercial.trial.days]]-day trial lets you set up the workspace, import real data and run a first session before you pay. In each list, **More actions › Add from file** takes a CSV file, an Excel workbook (.xlsx or legacy .xls) or a JSON export of the same list, one list at a time: organizations first, then contacts, then deals. A wizard asks for the sheet, maps columns to fields and shows a preview, and rows that fail are listed with their reason. A file can be up to 10 MB and each sheet up to 5,000 data rows. The [records documentation](/docs/app-records) has the details.
 
 **Write the rules where the tools read them.** The one-page rules belong in the workspace's [Knowledge Base](/features/knowledge-base). Put the standing rules in the Operating Guide and turn repeated tasks, such as "log a discovery call", into Procedures with a "When to use" line. Knowledge Base pages also work on self-hosted instances. Mate and connected AI clients read the Operating Guide first and follow a matching procedure before acting.
@@ -175,13 +177,15 @@ Customermates is an open-source, AI-native CRM for small client-facing teams. If
 
 **Train each role on what that role sees.** Roles decide which lists a person can read, create and edit. With **Assigned** read access a person sees only the records assigned to them, and sidebar entries a role cannot open are hidden. Test the setup with a non-admin login before the sessions, so the screens you demonstrate are the ones people will have. The [workspace settings documentation](/docs/app-company) covers roles.
 
-**Each person saves their own views.** A saved view in Customermates stays private until its owner shares it, so the "my open deals" step in the session still gives everyone their own list; a lead can also share one view with the team, read-only. The [records documentation](/docs/app-records) explains filters, grouping and the board.
+**Share the team's views, save your own.** An admin can build the views everyone works from, such as the weekly-review list, and share them with everyone in the workspace or with selected roles; colleagues see them read-only. A "my open deals" view differs for every person, so keep that step in the session: each person filters the deal list to their own open deals and saves it. The [records documentation](/docs/app-records) explains filters, grouping and the board.
 
 **A next-step date, and the adoption checks as filters.** Customermates tasks have no due dates or reminders. For the "every deal has a next step" rule, add a custom Date field called "Next step on" to deals and sort your deal view by it. Two of the five checks then become filters: **Next step on** is empty, and the built-in **Updated at** field with **Older than…**, as described in the [filter reference](/docs/filter-syntax). A **Number** widget on the dashboard can show either count, and a chart grouped by **Assigned to** shows how many open deals each person holds. The **Activity** page lists record changes with who made them; use it to see whether records are moving, not to rank people.
 
 **A weekly check as a Routine, in Customermates Cloud.** A manager can create a [routine](/docs/app-routines) that repeats every week on Monday at 8:00, with an instruction such as: "List the open deals assigned to me that have no Next step on date or were last updated more than 14 days ago. Write the list in the run summary. Do not send any messages." A routine runs as its owner and spends that person's hosted AI credits. Because Mate can send messages when an instruction asks it to, keep the "do not send" line in.
 
 **Show first, practice second.** The public demo at [demo.customermates.com](https://demo.customermates.com/en/w/small-business/dashboard) is a read-only instance with sample data. You can open its lists, board and records to show people the screens, but nothing can be created or changed there and Mate does not answer in it. Practice happens in your own workspace, on your own records.
+
+**Start with one team and one client.** The trial runs [[commercial.trial.days]] days on Pro with no credit card, so you can hold the first session on real data before you pay. [Start your trial](/auth/signup?job=followup) and load one client's real conversations first.
 
 <AcquisitionCallout title="When Customermates is the wrong choice for training" variant="boundary">
   Customermates has no built-in course library, quiz or academy, no native mobile app and no task due dates or reminders. Mate, tours and routines need Customermates Cloud; self-hosting has the CRM, the Knowledge Base and MCP for your own AI client, but no Mate. If your admins need a vendor certification path or your onboarding relies on a large course library, a Salesforce or HubSpot setup has one (see the table above). For a team of five on Pro, the CRM costs [[commercial.price.pro.monthly.seats.5]] per month.

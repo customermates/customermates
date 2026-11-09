@@ -20,6 +20,7 @@ const form = vi.hoisted(() => ({
 const uploads = vi.hoisted(() => ({
   started: [] as Array<{ typeId: string; fieldId: string; file: File }>,
   refusal: null as string | null,
+  refusalCode: undefined as string | undefined,
   hold: false,
   transfers: [] as Transfer[],
   held: [] as Array<() => void>,
@@ -122,8 +123,18 @@ vi.mock("@/core/errors/report-application-error", () => ({
   },
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ userStore: { user: { id: VIEWER_ID, firstName: "Max", lastName: "Bergmann" } } }),
+  useRootStore: () => ({
+    userStore: { user: { id: VIEWER_ID, firstName: "Max", lastName: "Bergmann" }, can: () => true },
+    subscriptionStore: { subscription: { plan: "pro", onFreePlan: false } },
+  }),
 }));
+vi.mock("@/i18n/navigation", async () => {
+  const React = await import("react");
+  return {
+    IntlLink: ({ href, children, ...props }: { href: string; children: ReactNode }) =>
+      React.createElement("a", { href, ...props }, children),
+  };
+});
 vi.mock("@/app/[locale]/(protected)/w/[workspace]/settings/(workspace)/actions", () => ({
   getActiveUsersAction: vi.fn(),
 }));
@@ -134,7 +145,7 @@ vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/actions", () => ({
 vi.mock("@/components/records/record-file-upload", () => ({
   startRecordFileUpload: (input: { typeId: string; fieldId: string; file: File }) => {
     uploads.started.push(input);
-    if (uploads.refusal) return Promise.resolve({ ok: false, message: uploads.refusal });
+    if (uploads.refusal) return Promise.resolve({ ok: false, message: uploads.refusal, code: uploads.refusalCode });
     const started = {
       ok: true,
       data: {
@@ -258,6 +269,7 @@ beforeEach(() => {
   form.changes.length = 0;
   uploads.started.length = 0;
   uploads.refusal = null;
+  uploads.refusalCode = undefined;
   uploads.hold = false;
   uploads.held.length = 0;
   uploads.transfers.length = 0;
@@ -315,6 +327,27 @@ describe("RecordFileInput", () => {
     expect(form.changes).toEqual([]);
     act(() => view.button('RecordModel.fileRemove {"name":"contract.pdf"}')?.click());
     expect(view.rows()).toEqual(["Offer.pdf"]);
+  });
+
+  it("links a full storage to billing focused on the next plan with more storage", async () => {
+    uploads.refusal = "Your workspace uses 5 GB of its 5 GB file storage. Business includes 20 GB per user.";
+    uploads.refusalCode = "storageQuotaExceeded";
+    const view = render();
+    await view.pick(new File(["x"], "contract.pdf", { type: "application/pdf" }));
+
+    const link = view.row("contract.pdf")?.querySelector("a");
+    expect(view.subtitle("contract.pdf")).toContain("Business includes 20 GB per user.");
+    expect(link?.getAttribute("href")).toBe("/settings/billing?plan=business");
+    expect(link?.getAttribute("data-storage-upgrade")).toBe("business");
+  });
+
+  it("adds no billing link to other refusals", async () => {
+    uploads.refusal = "A file can be at most 1 GB.";
+    uploads.refusalCode = "recordFileTooLarge";
+    const view = render();
+    await view.pick(new File(["x"], "big.pdf", { type: "application/pdf" }));
+
+    expect(view.row("big.pdf")?.querySelector("a")).toBeNull();
   });
 
   it("reports a failed transfer and cancels a running one without touching the value", async () => {

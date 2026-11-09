@@ -81,6 +81,10 @@ describeDatabase("routine REST routes over API keys", () => {
     ]);
     foreign = await createApiKeyTenant(client, [{ label: "routine-foreign", systemRole: true }]);
     [admin, reader, outsider] = tenant.members;
+    await client.query(
+      'INSERT INTO "Subscription" ("id", "companyId", "status", "updatedAt") VALUES ($1, $2, \'active\', NOW())',
+      [randomUUID(), tenant.companyId],
+    );
     await insertRoutine(ownRoutineId, tenant.companyId, admin.userId, "Weekly digest");
     await insertRoutine(foreignRoutineId, foreign.companyId, foreign.members[0].userId, "Foreign confidential routine");
   });

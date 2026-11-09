@@ -37,7 +37,7 @@ export function OperatorUsagePageView({ months, usage }: Props) {
   const dateTime = (value: Date) => intlStore.formatNumericalShortDateTime(value, { timeZone: "UTC" });
   const incomplete = (complete: boolean) =>
     complete ? null : (
-      <span className="text-warning">
+      <span className="text-warning-soft-foreground">
         <span aria-hidden="true"> *</span>
 
         <span className="sr-only">{t("OperatorUsage.coverage.incomplete")}</span>
@@ -88,7 +88,7 @@ export function OperatorUsagePageView({ months, usage }: Props) {
         ) : null}
 
         {usage.recordingStartedAt && usage.from < usage.recordingStartedAt ? (
-          <p className="text-xs text-warning">
+          <p className="text-xs text-warning-soft-foreground">
             {t("OperatorUsage.deletedBeforeRecording", { date: dateTime(usage.recordingStartedAt) })}
           </p>
         ) : null}
@@ -196,7 +196,9 @@ export function OperatorUsagePageView({ months, usage }: Props) {
           </Table>
         )}
 
-        {hasIncomplete ? <p className="text-xs text-warning">{t("OperatorUsage.coverage.footnote")}</p> : null}
+        {hasIncomplete ? (
+          <p className="text-xs text-warning-soft-foreground">{t("OperatorUsage.coverage.footnote")}</p>
+        ) : null}
       </AppCardBody>
     </AppCard>
   );

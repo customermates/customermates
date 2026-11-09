@@ -142833,6 +142833,7 @@
                         "recordFileUploadIncomplete",
                         "recordFileUploadTargetRequired",
                         "storageQuotaExceeded",
+                        "storageQuotaExceededTopPlan",
                         "trashItemNotFound",
                         "trashChanged",
                         "agentApprovalUnavailable",
@@ -142965,6 +142966,14 @@
                         "routineScheduleTooFrequent",
                         "routineTimeZoneInvalid",
                         "routineLimitReached",
+                        "planMemberLimitReached",
+                        "planRecordLimitReached",
+                        "planWebhooksNotIncluded",
+                        "planSeatSwapUnavailable",
+                        "planSeatSwapRequiresAdmin",
+                        "planSeatSwapTargetNotAdmin",
+                        "routinesRequirePlan",
+                        "apiRateLimitReached",
                         "routinesRequireCloud",
                         "routineTriggerEventsRequired",
                         "invalidFilterField",
@@ -143119,6 +143128,16 @@
             "type": "string"
           },
           "leftAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pausedByPlanAt": {
             "anyOf": [
               {
                 "type": "string"

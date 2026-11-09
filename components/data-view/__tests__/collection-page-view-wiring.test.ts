@@ -199,6 +199,8 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
     },
     roleModalStore: { add: harness.roleAdd, allows: () => false, editRole: harness.roleEdit },
     userModalStore: { loadById: harness.userLoad },
+    subscriptionStore: { subscription: null },
+    userStore: { user: null },
     webhookDeliveryModalStore: {
       onInitOrRefresh: harness.webhookDeliveryInit,
       open: harness.webhookDeliveryOpen,

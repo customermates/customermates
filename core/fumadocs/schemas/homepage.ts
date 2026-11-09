@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { ctaSchema, faqSchema } from "./common";
 import { pricingDataSchema } from "./pricing";
+import { useCasesSchema } from "./use-cases";
 
 const automationExplanationSchema = z.string();
 
@@ -41,36 +42,70 @@ export const HOMEPAGE_STAGE_CAPTURES = [
   "homepage-configure",
 ] as const;
 
-const homepageStageTabSchema = z.object({
-  alt: z.string(),
-  capture: z.enum(HOMEPAGE_STAGE_CAPTURES),
-  caption: z.string(),
+export type HomepageStageTab = {
+  alt: string;
+  capture: (typeof HOMEPAGE_STAGE_CAPTURES)[number];
+  caption: string;
+  label: string;
+};
+
+const homepageLinkSchema = z.object({
+  href: z.string(),
   label: z.string(),
 });
-export type HomepageStageTab = z.infer<typeof homepageStageTabSchema>;
+
+const deskItemSchema = z.object({
+  meta: z.string(),
+  owner: z.string().optional(),
+  state: z.enum(["added", "due", "overdue", "draft", "reply"]),
+  title: z.string(),
+});
+
+export const deskSchema = z.object({
+  agent: z.object({
+    done: z.string(),
+    intent: z.string(),
+    name: z.string(),
+  }),
+  conversation: z.object({
+    company: z.string(),
+    label: z.string(),
+    message: z.string(),
+    name: z.string(),
+    time: z.string(),
+  }),
+  draft: z.object({
+    badge: z.string(),
+    edit: z.string(),
+    send: z.string(),
+    text: z.string(),
+  }),
+  label: z.string(),
+  today: z.object({
+    addedBy: z.string(),
+    assign: z.string(),
+    date: z.string(),
+    sections: z
+      .array(
+        z.object({
+          items: z.array(deskItemSchema).min(1).max(3),
+          title: z.string(),
+        }),
+      )
+      .min(1)
+      .max(3),
+    title: z.string(),
+  }),
+  workspace: z.string(),
+});
+export type HomepageDesk = z.infer<typeof deskSchema>;
 
 export const heroSchema = z.object({
-  buttonLeftHref: z.string(),
-  buttonLeftText: z.string(),
-  buttonRightHref: z.string(),
-  buttonRightText: z.string(),
-  stage: z.object({
-    label: z.string(),
-    live: z.object({
-      prompt: z.string(),
-    }),
-    tabs: z
-      .array(homepageStageTabSchema)
-      .min(2)
-      .max(HOMEPAGE_STAGE_CAPTURES.length)
-      .refine((tabs) => new Set(tabs.map((tab) => tab.capture)).size === tabs.length),
-  }),
-  startFree: z.string(),
+  assurance: z.string(),
+  primaryCta: homepageLinkSchema,
+  secondaryCta: homepageLinkSchema,
   subtitle: z.string(),
   title: z.string(),
-  titleAccent: z.string(),
-  titleRotations: z.array(z.string()).min(2).max(8),
-  useCase: z.string(),
 });
 export type Hero = z.infer<typeof heroSchema>;
 
@@ -116,7 +151,7 @@ export type HomepageFlow = z.infer<typeof homepageFlowSchema>;
 const homepageStorySchema = z.object({
   capture: z.object({
     alt: z.string(),
-    caption: z.string(),
+    caption: z.string().optional(),
     title: z.string(),
   }),
   description: z.string(),
@@ -135,15 +170,6 @@ const homepageRoutinesSchema = z.object({
 });
 export type HomepageRoutines = z.infer<typeof homepageRoutinesSchema>;
 
-const homepageProductProofSchema = z.object({
-  videoDescription: z.string(),
-  videoHeading: z.string(),
-  videoLabel: z.string(),
-  videoSrc: z.string(),
-  videoTitle: z.string(),
-});
-export type HomepageProductProof = z.infer<typeof homepageProductProofSchema>;
-
 const pricingTitleSchema = z.object({
   subtitle: z.string(),
   title: z.string(),
@@ -154,6 +180,117 @@ const rootMetadataSchema = z.object({
 });
 export type HomepageRootMetadata = z.infer<typeof rootMetadataSchema>;
 
+const homepageGeneratorSchema = z.object({
+  arrowLabel: z.string(),
+  steps: z
+    .array(z.object({ description: z.string(), title: z.string() }))
+    .length(3)
+    .optional(),
+  description: z.string(),
+  eyebrow: z.string(),
+  items: z
+    .array(
+      z.object({
+        href: z.string(),
+        label: z.string(),
+        linkLabel: z.string(),
+        prompt: z.string(),
+        solution: z.enum(["consultants", "agencies", "smb", "freelancers", "startups", "linkedin-crm"]),
+      }),
+    )
+    .min(2)
+    .max(6),
+  promptLabel: z.string(),
+  title: z.string(),
+});
+export type HomepageGenerator = z.infer<typeof homepageGeneratorSchema>;
+
+const homepageFollowUpSchema = z.object({
+  description: z.string(),
+  desk: deskSchema,
+  eyebrow: z.string(),
+  title: z.string(),
+});
+export type HomepageFollowUp = z.infer<typeof homepageFollowUpSchema>;
+
+const pillarBaseSchema = z.object({
+  description: z.string(),
+  plan: z.string(),
+  title: z.string(),
+});
+
+const homepagePillarsSchema = z.object({
+  agents: pillarBaseSchema.extend({
+    clients: z.array(z.object({ detail: z.string(), name: z.string() })).length(4),
+  }),
+  data: pillarBaseSchema.extend({
+    lists: z.array(z.string()).min(2).max(4),
+    record: z.object({
+      fields: z.array(z.object({ label: z.string(), value: z.string() })).length(4),
+      name: z.string(),
+    }),
+  }),
+  description: z.string(),
+  eyebrow: z.string(),
+  inbox: pillarBaseSchema.extend({
+    thread: z.object({
+      linkedTo: z.string(),
+      name: z.string(),
+      preview: z.string(),
+    }),
+  }),
+  knowledge: pillarBaseSchema.extend({
+    doc: z.object({
+      lines: z.array(z.string()).length(3),
+      title: z.string(),
+      usedBy: z.string(),
+    }),
+  }),
+  title: z.string(),
+});
+export type HomepagePillars = z.infer<typeof homepagePillarsSchema>;
+
+const homepageProofSchema = z.object({
+  partners: z.object({
+    cta: homepageLinkSchema,
+    description: z.string(),
+    eyebrow: z.string(),
+    points: z.array(z.string()).length(3),
+    title: z.string(),
+  }),
+  proof: z.object({
+    description: z.string(),
+    eyebrow: z.string(),
+    note: z.string(),
+    steps: z.array(z.string()).length(3),
+    title: z.string(),
+  }),
+});
+export type HomepageProof = z.infer<typeof homepageProofSchema>;
+
+const homepagePlansSchema = z.object({
+  compareHref: z.string(),
+  compareLabel: z.string(),
+  cta: z.string(),
+  ctaHref: z.string(),
+  description: z.string(),
+  eyebrow: z.string(),
+  items: z
+    .array(
+      z.object({
+        badge: z.string().optional(),
+        job: z.string(),
+        name: z.string(),
+        points: z.array(z.string()).length(3),
+        price: z.string(),
+      }),
+    )
+    .length(3),
+  perSeat: z.string(),
+  title: z.string(),
+});
+export type HomepagePlans = z.infer<typeof homepagePlansSchema>;
+
 export const homepageSchema = frontmatterSchema.extend({
   automationExplanation: automationExplanationSchema,
   benefits: benefitsSchema,
@@ -163,13 +300,18 @@ export const homepageSchema = frontmatterSchema.extend({
   faq: faqSchema,
   flow: homepageFlowSchema,
   hero: heroSchema,
+  followUp: homepageFollowUpSchema,
+  generator: homepageGeneratorSchema,
+  pillars: homepagePillarsSchema,
+  plansTeaser: homepagePlansSchema,
+  proofAndPartners: homepageProofSchema,
   howItWorks: howItWorksSchema.optional(),
   pricing: pricingDataSchema.optional(),
   pricingTitle: pricingTitleSchema.optional(),
-  productProof: homepageProductProofSchema,
   pipelineStory: homepageStorySchema,
   routines: homepageRoutinesSchema,
   walkthrough: walkthroughSchema.optional(),
   rootMetadata: rootMetadataSchema,
   title: z.string(),
+  useCases: useCasesSchema,
 });

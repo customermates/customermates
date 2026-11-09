@@ -51,7 +51,7 @@ function ReviewHeader({ brief, eyebrow, note }: { brief: BrandIllustrationBrief;
 
   return (
     <header className="mb-12 max-w-3xl">
-      <p className="font-terminal text-sm text-primary">{eyebrow}</p>
+      <p className="font-terminal text-sm text-foreground">{eyebrow}</p>
 
       <h1 className="mt-4 text-4xl font-semibold tracking-tight">{brief.takeaway}</h1>
 

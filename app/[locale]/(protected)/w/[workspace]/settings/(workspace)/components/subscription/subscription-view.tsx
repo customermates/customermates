@@ -8,6 +8,8 @@ import { Action, Resource, SubscriptionPlan, SubscriptionStatus } from "@/genera
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { FileStorageUsageDto } from "@/features/record-files/record-file.schema";
+import type { PlanUsageDto } from "@/ee/subscription/get-plan-usage.interactor";
+import type { PurchasablePlanId } from "@/core/commercial/plan-catalog";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -20,9 +22,13 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 type Props = {
   initialSubscription: SubscriptionDto | null;
   storage: FileStorageUsageDto | null;
+  usage?: PlanUsageDto | null;
+  focusPlan?: PurchasablePlanId;
+  recommendedPlan?: PurchasablePlanId | null;
 };
 
-const SubscriptionViewContent = observer(({ initialSubscription, storage }: Props) => {
+const SubscriptionViewContent = observer((props: Props) => {
+  const { initialSubscription, storage, usage = null, focusPlan, recommendedPlan = null } = props;
   const t = useTranslations();
   const { subscriptionStore, userStore } = useRootStore();
 
@@ -59,7 +65,13 @@ const SubscriptionViewContent = observer(({ initialSubscription, storage }: Prop
 
   return (
     <div className="animate-page-result-in flex w-full max-w-3xl flex-col gap-4 motion-reduce:animate-none">
-      <SubscriptionPanel initialSubscription={initialSubscription} storage={storage} />
+      <SubscriptionPanel
+        focusPlan={focusPlan}
+        initialSubscription={initialSubscription}
+        recommendedPlan={recommendedPlan}
+        storage={storage}
+        usage={usage}
+      />
     </div>
   );
 });

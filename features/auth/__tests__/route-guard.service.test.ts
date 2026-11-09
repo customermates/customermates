@@ -283,7 +283,7 @@ describe("RouteGuardService.resolveAccountState", () => {
 
   it("sends an incomplete administrator of a workspace without a usable plan to the plan page first", async () => {
     mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
-    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.unPaid));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "subscription",
@@ -309,11 +309,20 @@ describe("RouteGuardService.resolveAccountState", () => {
     expect(mocks.getSubscriptionOrThrowUnscoped).not.toHaveBeenCalled();
   });
 
-  it("resolves an expired subscription with the raw subscription", async () => {
-    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+  it("resolves an unpaid subscription with the raw subscription", async () => {
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.unPaid));
 
     expect(await makeService().resolveAccountState()).toMatchObject({
       state: "subscription",
+      subscription: { status: SubscriptionStatus.unPaid },
+    });
+  });
+
+  it("lets a workspace whose trial ended in on the Free plan instead of locking it", async () => {
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+
+    expect(await makeService().resolveAccountState()).toMatchObject({
+      state: "allowed",
       subscription: { status: SubscriptionStatus.trial, trialEndDate: PAST },
     });
   });
@@ -447,9 +456,9 @@ describe("RouteGuardService.resolveMcpConsentState", () => {
     expect(await consentState()).toBe("legal");
   });
 
-  it("keeps an expired subscription blocking consent during onboarding", async () => {
+  it("keeps an unpaid subscription blocking consent during onboarding", async () => {
     mocks.findCurrentUserUnscoped.mockResolvedValue(user({ onboardingWizardCompletedAt: null }));
-    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.trial, PAST));
+    mocks.getSubscriptionOrThrowUnscoped.mockResolvedValue(subscription(SubscriptionStatus.unPaid));
 
     expect(await consentState()).toBe("subscription");
   });

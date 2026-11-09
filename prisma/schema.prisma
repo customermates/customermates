@@ -189,6 +189,9 @@ model User {
   onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
   leftAt                          DateTime?
+  /// Set while the Free plan pauses this membership; an admin deactivation leaves it null.
+  pausedByPlanAt                  DateTime?
+  planPauseNoticeSentAt           DateTime?
   createdAt                       DateTime                  @default(now())
   updatedAt                       DateTime                  @updatedAt
   company                         Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -232,6 +235,8 @@ model Company {
   oauthAccessTokens           OauthAccessToken[]
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
+  signupSource                CompanySignupSource?
+  funnelEvents                CompanyFunnelEvent[]
   adConversionUploads         AdConversionUpload[]
   inviteTokens                InviteToken[]
   widgets                     Widget[]
@@ -300,6 +305,7 @@ model Company {
   workspaceSetup              WorkspaceSetup?
   hostedAiWorkspaceUsage      HostedAiPlatformWorkspaceUsage[]
   hostedAiWorkspaceHolds      HostedAiPlatformWorkspaceHold[]
+  apiRateLimitWindows         ApiRateLimitWindow[]
 
   @@index([createdByAuthUserId])
 }
@@ -918,6 +924,16 @@ model Subscription {
 
   @@index([companyId])
   @@index([lemonSqueezyId])
+}
+
+model ApiRateLimitWindow {
+  companyId   String
+  window      String
+  windowStart DateTime
+  count       Int      @default(0)
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, window, windowStart])
 }
 
 model AgentCreditAdjustment {
@@ -1914,6 +1930,7 @@ model Routine {
   lastRunAt       DateTime?
   lastRunStatus   RoutineRunStatus?
   disabledReason  String?
+  pausedByPlanAt  DateTime?
   deletedAt       DateTime?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
@@ -2042,6 +2059,47 @@ model ConversionEvent {
 enum ConversionEventType {
   signup
   paid
+}
+
+enum OnboardingJob {
+  workspace
+  followup
+  agent
+}
+
+model CompanySignupSource {
+  id                   String         @id @default(uuid())
+  companyId            String         @unique
+  company              Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job                  OnboardingJob?
+  landingPath          String         @db.VarChar(512)
+  referrerHost         String?        @db.VarChar(253)
+  utmSource            String?        @db.VarChar(128)
+  utmMedium            String?        @db.VarChar(128)
+  utmCampaign          String?        @db.VarChar(128)
+  marketingConsentedAt DateTime?
+  capturedAt           DateTime
+  createdAt            DateTime       @default(now())
+}
+
+enum CompanyFunnelEventType {
+  jobSelected
+  setupCompleted
+  channelConnected
+  agentConnected
+}
+
+model CompanyFunnelEvent {
+  id         String                 @id @default(uuid())
+  companyId  String
+  company    Company                @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type       CompanyFunnelEventType
+  job        OnboardingJob?
+  occurredAt DateTime
+  createdAt  DateTime               @default(now())
+
+  @@unique([companyId, type])
+  @@index([occurredAt])
 }
 
 model AdConversionUpload {

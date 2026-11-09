@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM personnalisable : ce que vous pouvez changer, et quand créer le vôtre"
-  description: "La plupart des petites équipes ont besoin d’un CRM dont elles peuvent remodeler les champs, les étapes et les vues, pas d’un CRM écrit de zéro. Voici comment distinguer les deux, où les éditeurs placent la limite, et à quoi ressemble une configuration concrète."
+  description: "La plupart des petites équipes ont besoin d’un CRM dont elles remodèlent champs, étapes et vues, pas d’un CRM écrit de zéro. Comment distinguer les deux et à quoi ressemble une configuration."
 
 blogPost:
   author: Benjamin Wagner
@@ -103,7 +103,7 @@ Voici comment un cabinet de conseil de cinq personnes façonnerait Customermates
     Sur les Projets : **Type de mission** (Choix unique : mission récurrente, périmètre fixe, atelier), **Taux journalier** (Montant), **Renouvellement du contrat** (Date). Sur les Clients : **Source** (Choix unique) et **Adresse du bureau** (Adresse) ; les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées. Seize types de champs et des champs calculés sont disponibles, listés dans la [documentation du modèle de données](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Enregistrer les vues dont chacun se sert">
-    Un board des Projets regroupés par Étape, un tableau des missions récurrentes trié par **Renouvellement du contrat**, et une liste de Clients regroupés par **Source**. Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+    Un board des Projets regroupés par Étape, un tableau des missions récurrentes trié par **Renouvellement du contrat**, et une liste de Clients regroupés par **Source**. Partagez le board des Projets avec toute l’équipe ou avec des rôles choisis, pour que chacun travaille avec le même pipeline.
   </Step>
   <Step title="Importer les données existantes">
     Exportez chaque feuille de votre ancien outil sous forme de classeur Excel et importez une liste à la fois, d’abord les Clients, puis les Projets, en associant les colonnes à vos nouveaux champs personnalisés. La [documentation des enregistrements](/docs/app-records#how-do-i-import-or-export-records) donne les limites de fichiers.
@@ -115,11 +115,14 @@ Voici comment un cabinet de conseil de cinq personnes façonnerait Customermates
 
 Les conversations connectées par e-mail, LinkedIn et WhatsApp apparaissent à côté de ces enregistrements dans la [boîte de réception unifiée](/features/unified-inbox) à partir de Pro. Starter n’a pas de boîte de réception. Si vous travaillez avec Claude, ChatGPT ou un autre client IA, il lit et écrit les mêmes enregistrements, y compris vos champs personnalisés, via [MCP](/docs/mcp) avec [[derived.mcp.tools.total]] outils.
 
+L’intérêt d’adapter le modèle est la relance de chaque échange client. Avec la boîte de réception connectée, les fils de chaque client se rangent sur sa fiche, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez et envoyez, et les champs de date que vous avez ajoutés, comme le renouvellement du contrat ou une date de prochaine étape, montrent sur votre tableau de bord ce qui est à traiter.
+
 ## Ce que Customermates ne vous laisse pas personnaliser
 
 Ces limites comptent si vous comparez des CRM personnalisables :
 
 - **Les droits s’arrêtent à la liste.** Les rôles contrôlent la création, la lecture, la modification et la suppression par liste, y compris « uniquement les enregistrements qui me sont assignés ». Il n’y a pas de droits au niveau du champ.
+- **Les vues partagées sont en lecture seule.** Vos collègues peuvent filtrer une vue partagée ou en garder une copie, mais seul son auteur la modifie.
 - **Pas d’étiquettes.** Utilisez plutôt un champ à choix unique, qui garde aussi les valeurs cohérentes.
 - **Les tâches n’ont pas d’échéance intégrée.** Ajoutez un champ Date et triez dessus ; rien ne vous alerte quand cette date passe.
 - **L’import et l’export se font liste par liste**, sous forme de classeurs Excel ou de JSON, jusqu’à 5 000 enregistrements par export. Il n’y a pas d’export de tout le compte.
@@ -135,7 +138,9 @@ Customermates est facturé par utilisateur et par mois, au mois uniquement. Pour
 | Starter | [[commercial.price.starter.monthly.seats.5]] | Champs personnalisés, étapes, vues, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur |
 | Pro | [[commercial.price.pro.monthly.seats.5]] | Tout ce qui précède, plus la boîte de réception unifiée avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur et [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur |
 
-Une année sur Pro pour cinq personnes revient à [[commercial.price.pro.monthly.seats.5.months.12]]. Chaque offre inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate ; voir les [tarifs](/pricing). L’auto-hébergement n’a pas de frais de licence pour le cœur open source ; vous payez votre propre serveur et le temps pour l’exploiter.
+Une année sur Pro pour cinq personnes revient à [[commercial.price.pro.monthly.seats.5.months.12]]. Chaque offre payante inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate ; voir les [tarifs](/pricing). L’auto-hébergement n’a pas de frais de licence pour le cœur open source ; vous payez votre propre serveur et le temps pour l’exploiter.
+
+Pour façonner votre propre espace de travail, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 ## Garder un CRM personnalisé utilisable
 

@@ -1,7 +1,9 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 import { chromium, type Locator, type Page } from "@playwright/test";
+import ExcelJS from "exceljs";
 
 import { newCaptureContext, openReadyPage, sha256, withRetries, workspaceTimeZone, type CaptureViewport } from "./lib/capture-page";
 import { isLoopbackBaseUrl } from "./lib/capture-solutions-options";
@@ -20,8 +22,22 @@ import { ASSET_LOCALES, type AssetLocale } from "@/i18n/locale-registry";
 type Theme = "dark" | "light";
 
 const SOLUTION = findSolution("smb");
+const LINKEDIN = findSolution("linkedin-crm");
+const AGENCIES = findSolution("agencies");
+const CONSULTANTS = findSolution("consultants");
 // inbox thread list positions in the small-business story
-const THREAD = { draft: 0, linkedin: 4, whatsapp: 1 } as const;
+const THREAD = { draft: 3, linkedin: 4, whatsapp: 1 } as const;
+const AGENCY_HANDOVER_THREAD = 5;
+const AGENDA_DAYS = 5;
+const CONTACT_ROWS = 8;
+const IMPORT_CONTACTS = [
+  { company: "Brightwater", first: "Priya", last: "Nair" },
+  { company: "Harborline", first: "Tom", last: "Becker" },
+  { company: "Kestrel Studio", first: "Lena", last: "Okafor" },
+  { company: "Webb & Co", first: "Marcus", last: "Webb" },
+] as const;
+const CONTACT_COLUMN = { company: 7, firstName: 2, jobTitle: 5, lastName: 3 } as const;
+const IMPORT_EMAIL_HEADER = "E-Mail";
 // contact list position of the partner at the law firm (James Finch, Jakob Fink in German)
 const PARTNER_ROW = 6;
 const GUTTER = 12;
@@ -30,6 +46,12 @@ const DESKTOP: CaptureViewport = { deviceScaleFactor: 2, height: 900, width: 144
 const DESKTOP_WIDE: CaptureViewport = { deviceScaleFactor: 2, height: 900, width: 1600 };
 const NARROW: CaptureViewport = { deviceScaleFactor: 2.5, height: 1000, width: 1024 };
 const PHONE: CaptureViewport = { deviceScaleFactor: 2, height: 844, width: 390 };
+// a window just tall enough for the last messages of a thread and its composer, with no gap between them
+const THREAD_ENDING: CaptureViewport = { deviceScaleFactor: 2, height: 760, width: 1440 };
+// a dialog as wide as a use-case card shows it, so its two columns of choices keep whole labels
+const NARROW_DIALOG_WIDTH = 520;
+const DESKTOP_DIALOG_WIDTH = 800;
+const THREAD_PANEL: CaptureViewport = { deviceScaleFactor: 2, height: 900, width: 1100 };
 
 type Shot = {
   clip?: (page: Page) => Promise<Locator[]>;
@@ -43,9 +65,16 @@ type Shot = {
   within?: (page: Page) => Locator;
   // right edge of the last whole table column on a phone; the viewport narrows to it so no next column peeks in
   fitWidth?: (page: Page) => Promise<number>;
+  // the solution whose workspace the route opens, for its time zone; the small-business story when absent
+  solution?: typeof SOLUTION;
+  // the clip keeps only this many CSS px from its left edge, for a still that a card shows running off to the right
+  clipWidth?: number;
 };
 
 const route = (path: string) => (locale: AssetLocale) => `/${locale}/w/${SOLUTION.workspaceSlugs[locale]}/${path}`;
+const linkedinRoute = (path: string) => (locale: AssetLocale) => `/${locale}/w/${LINKEDIN.workspaceSlugs[locale]}/${path}`;
+const inSolution = (solution: typeof SOLUTION) => (path: string) => (locale: AssetLocale) =>
+  `/${locale}/w/${solution.workspaceSlugs[locale]}/${path}`;
 const records = (list: "contacts" | "deals") => (locale: AssetLocale) =>
   route(`records/${DEMO_DEFAULT_RECORD_TYPE_IDS[locale][list]}`)(locale);
 
@@ -81,13 +110,13 @@ async function ownerColumnEdge(page: Page): Promise<number> {
   return Math.round(box.x + box.width);
 }
 
-// the one accent of the still: the saved reply draft carries a ring in the app's own primary token
+// the one accent of the still: the saved reply draft is the agent's work, so it carries a ring in the agent token
 async function markDraft(page: Page): Promise<void> {
   await page.locator("main [data-email-header]").last().evaluate((header) => {
     let card: HTMLElement | null = header as HTMLElement;
     while (card && getComputedStyle(card).borderTopLeftRadius === "0px") card = card.parentElement;
     if (!card) throw new Error("the reply draft has no card");
-    card.style.boxShadow = "0 0 0 2px var(--primary)";
+    card.style.boxShadow = "0 0 0 2px var(--agent)";
   });
 }
 
@@ -95,6 +124,93 @@ async function openThread(page: Page, position: number): Promise<void> {
   await page.locator("#inbox-thread-list button[data-thread-id]").nth(position).click();
   await page.waitForURL(/threadId=/u, { timeout: 20_000 });
   await settle(page);
+}
+
+// the first thread of the list that ends in a saved reply draft; the LinkedIn sales story has one, in a LinkedIn conversation
+async function openThreadWithDraft(page: Page): Promise<void> {
+  const threads = page.locator("#inbox-thread-list button[data-thread-id]");
+  const draft = page.locator("main button").filter({ hasText: /send draft|entwurf senden/iu });
+  for (let position = 0; position < (await threads.count()); position++) {
+    await openThread(page, position);
+    if ((await draft.count()) > 0) return;
+  }
+  throw new Error(`${page.url()}: no thread ends in a reply draft`);
+}
+
+async function isolateDialog(page: Page, width = NARROW_DIALOG_WIDTH): Promise<void> {
+  await page.locator('[data-slot="dialog-content"]').waitFor({ state: "visible", timeout: 20_000 });
+  await page.setViewportSize({ height: page.viewportSize()!.height, width });
+  await page.waitForTimeout(800);
+  await page.addStyleTag({
+    content: '[data-slot="dialog-overlay"] { background: transparent !important; backdrop-filter: none !important; } body > :not([data-slot="dialog-content"]) { visibility: hidden !important; }',
+  });
+  await page.evaluate(() => document.querySelector("main")?.replaceChildren());
+  await page.waitForTimeout(300);
+}
+
+// the key creation dialog on its own: the scrim, the page behind it and the loading placeholders of an empty list stay out of the still
+async function openKeyDialogAlone(page: Page): Promise<void> {
+  await page.locator("#settings-api-keys-generate, main button").filter({ hasText: /^\s*(add|hinzufügen)\s*$/iu }).first().click();
+  await isolateDialog(page);
+}
+
+async function openSearchAlone(page: Page): Promise<void> {
+  const partner = await page.locator("main table tbody tr").nth(PARTNER_ROW).locator("td").nth(1).innerText();
+  await page.keyboard.press("Control+k");
+  await page.locator('[data-slot="dialog-content"]').waitFor({ state: "visible", timeout: 20_000 });
+  await page.keyboard.type(partner.trim().split(/\s+/u).at(-1)!, { delay: 60 });
+  await page.locator("[cmdk-item]").nth(3).waitFor({ state: "visible", timeout: 20_000 });
+  await page.waitForTimeout(800);
+  await isolateDialog(page, DESKTOP_DIALOG_WIDTH);
+}
+
+async function writeImportWorkbook(page: Page): Promise<string> {
+  const labels = (await page.locator("main table thead th").allTextContents()).map((text) => text.trim());
+  const jobTitles = await page.locator(`main table tbody tr td:nth-child(${CONTACT_COLUMN.jobTitle + 1})`).allInnerTexts();
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet("Sheet1");
+  sheet.addRow([labels[CONTACT_COLUMN.firstName], labels[CONTACT_COLUMN.lastName], labels[CONTACT_COLUMN.company], IMPORT_EMAIL_HEADER, labels[CONTACT_COLUMN.jobTitle]]);
+  IMPORT_CONTACTS.forEach(({ company, first, last }, index) =>
+    sheet.addRow([first, last, company, `${first}.${last}@${company.toLowerCase().replace(/[^a-z]+/gu, "")}.example`.toLowerCase(), jobTitles[index].trim()]),
+  );
+  const file = join(mkdtempSync(join(tmpdir(), "capture-import-")), "contacts-2026.xlsx");
+  await workbook.xlsx.writeFile(file);
+  return file;
+}
+
+async function openImportMappingAlone(page: Page): Promise<void> {
+  const file = await writeImportWorkbook(page);
+  await page.locator("#records-more").click();
+  await page.getByText(/add from file|aus datei/iu).first().click();
+  await page.locator('[data-slot="dialog-content"] input[type="file"]').setInputFiles(file);
+  const next = page.locator('[data-slot="dialog-content"] button').filter({ hasText: /^(next|weiter)$/iu });
+  await next.click();
+  await page.locator('[data-slot="dialog-content"] [role="combobox"]').first().waitFor({ state: "visible", timeout: 20_000 });
+  await isolateDialog(page, DESKTOP_DIALOG_WIDTH);
+}
+
+async function openAgenda(page: Page): Promise<void> {
+  await page.getByText(/^agenda$/iu).first().click();
+  await page.locator("main ol > li").first().waitFor({ state: "visible", timeout: 20_000 });
+  await page.locator("main .animate-spin").waitFor({ state: "detached", timeout: 20_000 });
+  await page.waitForTimeout(800);
+}
+
+async function showContactColumns(page: Page): Promise<void> {
+  await page.locator("#records-display-options").click();
+  for (const label of [/^(first name|vorname)$/iu, /^(last name|nachname)$/iu, /^(contact details|kontaktdaten)$/iu, /^(job title|position)$/iu, /^(decision role|rolle in der entscheidung)$/iu])
+    await page.getByRole("checkbox", { name: label }).setChecked(false);
+  await page.keyboard.press("Escape");
+  await page.mouse.click(1000, 880);
+  await page.waitForTimeout(800);
+}
+
+async function openKnowledgePage(page: Page): Promise<void> {
+  await page.locator("#wiki-pages-panel").getByText(/day rates|tagessätze/iu).first().click();
+  await page.waitForFunction(() => /day rates|tagessätze/iu.test(document.querySelector<HTMLTextAreaElement>("textarea#title")?.value ?? ""), null, {
+    timeout: 20_000,
+  });
+  await page.waitForTimeout(800);
 }
 
 async function openRow(page: Page, position: number): Promise<void> {
@@ -226,8 +342,11 @@ const SHOTS: Shot[] = [
       // whole rows (card and avatar) of the last two messages, across the full width of the message column
       const rows = page.locator("main [data-email-header]").locator("xpath=../../..");
       const count = await rows.count();
-      // and the date separator right above them, whole
-      return [rows.nth(count - 2).locator("xpath=preceding-sibling::*[1]"), rows.nth(count - 2), rows.nth(count - 1)];
+      // and the date separator right above them, whole, when it directly precedes them; an earlier message of the same
+      // day sits between them otherwise, and the still keeps to the two rows
+      const before = rows.nth(count - 2).locator("xpath=preceding-sibling::*[1]");
+      const separator = (await before.count()) > 0 && (await before.evaluate((node) => node.querySelector("[data-email-header]") === null));
+      return [...(separator ? [before] : []), rows.nth(count - 2), rows.nth(count - 1)];
     },
     name: "homepage-draft",
     gutter: 0,
@@ -248,6 +367,110 @@ const SHOTS: Shot[] = [
     prepare: openPipelineView,
     route: records("deals"),
     viewport: DESKTOP_WIDE,
+  },
+  {
+    // the use-case card on LinkedIn follow-up: the contact's last message, the saved reply draft with its buttons and the
+    // composer under it, whole rows only, the left part of the thread column
+    clip: async (page) => {
+      const draft = page.locator("main button").filter({ hasText: /send draft|entwurf senden/iu }).last().locator("xpath=ancestor::div[contains(@class,'flex-row-reverse')][1]");
+      return [draft.locator("xpath=preceding-sibling::*[1]"), draft, page.locator("main [class*='bg-input-background'][class*='rounded-xl']").last()];
+    },
+    clipWidth: 500,
+    gutter: 0,
+    name: "homepage-usecase-draft",
+    prepare: async (page) => {
+      await openThreadWithDraft(page);
+      await scrollThreadTo(page, "bottom");
+    },
+    route: linkedinRoute("inbox"),
+    solution: LINKEDIN,
+    viewport: THREAD_ENDING,
+  },
+  {
+    // the use-case card on connecting your own AI: the quick connections of the key creation dialog
+    clip: async (page) => [page.locator('[data-slot="dialog-content"]')],
+    gutter: 16,
+    name: "homepage-usecase-connect",
+    prepare: (page) => openKeyDialogAlone(page),
+    route: route("settings/api-keys"),
+    viewport: DESKTOP,
+  },
+  {
+    clip: async (page) => {
+      const days = page.locator("main ol > li");
+      const first = await days.evaluateAll((nodes) => nodes.findIndex((node) => node.querySelector("div.text-primary") !== null));
+      return Array.from({ length: Math.min((await days.count()) - first, AGENDA_DAYS) }, (_, index) => days.nth(first + index));
+    },
+    clipWidth: 500,
+    gutter: 0,
+    name: "homepage-usecase-calendar",
+    prepare: openAgenda,
+    route: route("calendar"),
+    viewport: DESKTOP,
+  },
+  {
+    clip: async (page) => [
+      page.locator("main table thead tr").first(),
+      ...Array.from({ length: CONTACT_ROWS }, (_, index) => page.locator("main table tbody tr").nth(index)),
+    ],
+    clipWidth: 460,
+    gutter: 0,
+    name: "homepage-usecase-contacts",
+    prepare: showContactColumns,
+    route: records("contacts"),
+    viewport: DESKTOP,
+  },
+  {
+    clip: async (page) => [page.locator('[data-slot="dialog-content"]')],
+    gutter: 16,
+    name: "homepage-usecase-import",
+    prepare: (page) => openImportMappingAlone(page),
+    route: records("contacts"),
+    viewport: DESKTOP,
+  },
+  {
+    clip: async (page) => [page.locator('[data-slot="dialog-content"]')],
+    gutter: 16,
+    name: "homepage-usecase-search",
+    prepare: (page) => openSearchAlone(page),
+    route: records("contacts"),
+    viewport: DESKTOP,
+  },
+  {
+    clip: async (page) => {
+      const rows = page.locator("main [data-email-header]").locator("xpath=../../..");
+      const separator = rows.first().locator("xpath=preceding-sibling::*[1]");
+      return [separator, ...(await rows.all())];
+    },
+    clipWidth: 440,
+    gutter: 12,
+    name: "homepage-usecase-team",
+    prepare: (page) => openThread(page, AGENCY_HANDOVER_THREAD),
+    route: inSolution(AGENCIES)("inbox"),
+    solution: AGENCIES,
+    viewport: THREAD_PANEL,
+    within: (page) => page.locator("main [data-email-header]").first().locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
+  },
+  {
+    clip: async (page) => [page.locator("main section.flex.flex-col.gap-1").first().locator("xpath=..")],
+    clipWidth: 440,
+    gutter: 12,
+    name: "homepage-usecase-whatsapp",
+    prepare: (page) => openThread(page, THREAD.whatsapp),
+    route: route("inbox"),
+    viewport: THREAD_PANEL,
+    within: (page) => page.locator("main section.flex.flex-col.gap-1").first().locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
+  },
+  {
+    clip: async (page) => [page.locator("textarea#title"), page.locator("#wiki-document-panel .ProseMirror ul.tight").first()],
+    clipWidth: 560,
+    gutter: 24,
+    name: "homepage-usecase-playbook",
+    prepare: openKnowledgePage,
+    route: inSolution(CONSULTANTS)("wiki"),
+    solution: CONSULTANTS,
+    viewport: DESKTOP,
+    within: (page) => page.locator("#wiki-document-panel"),
   },
   {
     // the routines section: the list header and the whole routines table
@@ -307,7 +530,7 @@ async function main(): Promise<void> {
         for (const theme of ["light", "dark"] as const) {
           const key = `${theme}/${shot.name}-${locale}`;
           await withRetries(key, async () => {
-            const context = await newCaptureContext(browser, { locale, theme, timeZone: workspaceTimeZone(SOLUTION.id, locale) }, shot.viewport);
+            const context = await newCaptureContext(browser, { locale, theme, timeZone: workspaceTimeZone((shot.solution ?? SOLUTION).id, locale) }, shot.viewport);
             try {
               const page = await openReadyPage(context, baseUrl, key, shot.route(locale));
               await closeAgentPanel(page);
@@ -321,6 +544,7 @@ async function main(): Promise<void> {
                 await assertSettled(page);
               }
               const clip = shot.clip ? await unionBox(page, await shot.clip(page), shot.gutter, shot.within?.(page)) : undefined;
+              if (clip && shot.clipWidth) clip.width = Math.min(clip.width, shot.clipWidth);
               const png = await page.screenshot({ animations: "disabled", caret: "hide", clip, type: "png" });
               const file = join(process.cwd(), "public", "captures", theme, `${shot.name}-${locale}.png`);
               mkdirSync(dirname(file), { recursive: true });

@@ -1,6 +1,7 @@
 import type { FeatureItem } from "@/core/fumadocs/schemas/features";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
+import { SectionHeader } from "@/components/marketing/section-header";
 import { Icon } from "@/components/shared/icon";
 import { ICONS } from "@/components/shared/icons";
 
@@ -12,32 +13,26 @@ type Props = {
 
 export function WhyFeaturesSection({ description, features, title }: Props) {
   return (
-    <MarketingSection className="py-16 sm:py-20 lg:py-24" tone="canvas">
-      <div className="marketing-grid gap-y-10">
-        <div className="col-span-12 lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
-          <h2 className="text-display-sm">{title}</h2>
+    <MarketingSection className="mk-section">
+      <SectionHeader description={description} title={title} />
 
-          <p className="mt-5 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
-        </div>
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {features.map((feature) => {
+          const IconComponent = ICONS[feature.icon];
 
-        <div className="col-span-12 grid border-l border-t border-border sm:grid-cols-2 lg:col-start-6 lg:col-end-13">
-          {features.map((feature) => {
-            const IconComponent = ICONS[feature.icon];
+          return (
+            <li key={feature.title} data-reveal className="mk-card p-6 sm:p-7">
+              <span className="grid size-9 place-items-center rounded-lg border border-border bg-card text-foreground">
+                <Icon aria-hidden icon={IconComponent} />
+              </span>
 
-            return (
-              <article key={feature.title} className="border-b border-r border-border bg-sidebar p-5 sm:p-6">
-                <span className="grid size-9 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
-                  <Icon aria-hidden icon={IconComponent} />
-                </span>
+              <h3 className="mt-6 text-lg font-semibold tracking-tight">{feature.title}</h3>
 
-                <h3 className="mt-5 text-sm font-semibold">{feature.title}</h3>
-
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
-              </article>
-            );
-          })}
-        </div>
-      </div>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{feature.description}</p>
+            </li>
+          );
+        })}
+      </ul>
     </MarketingSection>
   );
 }

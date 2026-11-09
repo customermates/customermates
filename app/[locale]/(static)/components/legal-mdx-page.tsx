@@ -16,11 +16,13 @@ export async function LegalMdxPage({ slug }: { slug: string }) {
   const components = getMDXComponents();
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
-        <article className="max-w-6xl mx-auto px-4">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
+      <section className="relative isolate w-full pt-14 pb-20 sm:pt-20 md:pb-28">
+        <div aria-hidden className="mk-hero-light" data-tone="plain" />
+
+        <article className="marketing-container [--toc-anchor-offset:5.5rem] [--toc-sticky-top:5.5rem]">
           <Toc items={page.data.toc}>
-            <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
+            <div className="prose prose-neutral max-w-[82ch] text-[0.9375rem] leading-7 dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-[clamp(2rem,1.55rem+1.8vw,3rem)] prose-h1:leading-[1.08] prose-h1:tracking-[-0.034em] prose-h2:mt-12 prose-h2:text-[1.375rem] prose-a:font-medium prose-a:decoration-foreground/30 prose-a:underline-offset-4">
               <MDX components={components} />
             </div>
           </Toc>

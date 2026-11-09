@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM database: what it is and how to build one that stays clean"
-  description: A CRM database is a set of linked records about the people you work with, the companies they belong to and the deals and tasks between you. Here is how the major CRMs structure it, how to design and import your own, and which rules keep it accurate.
+  description: "A CRM database is a set of linked records about people, companies, deals and tasks. How the major CRMs structure it, how to design and import your own, and which rules keep it accurate."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,7 +107,7 @@ This is the most common design problem, and there are four honest answers.
 
 ## Worked example: a CRM database for a four-person consultancy
 
-Here is the same design in Customermates, set up the way the product works today. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders.
+Here is the same design in Customermates, set up the way the product works today. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the lists, pipeline and dashboard, and the steps below also work by hand in Configure.
 
 **Lists.** In Configure, open Contacts and change **Name** and **Plural name** under **General** to Client and Clients, then rename Deals to Projects the same way. Any name works. Organizations, Services and Tasks keep their names.
 
@@ -130,15 +130,17 @@ Here is the same design in Customermates, set up the way the product works today
 
 **Import.** Use More actions › Add from file with an .xlsx workbook or a .csv file, one list at a time, in the order organizations, clients, projects. Link columns are matched by record name. A CSV file can be imported directly, with no conversion. The [records documentation](/docs/app-records) has the full import rules.
 
-**Views.** Save "Not touched in 90 days" by filtering Updated at with Older than… 90 days, and "Clients without an organization". A saved view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team.
+**Views.** Save "Not touched in 90 days" by filtering Updated at with Older than… 90 days, and "Clients without an organization". Share "Not touched in 90 days" with the whole team or with selected roles, so everyone works from the same list.
 
-**Cost.** Four people on Starter pay [[commercial.price.starter.monthly.seats.4]] per month. On Pro, which adds the [unified inbox](/features/unified-inbox) so each user's connected email, LinkedIn or WhatsApp account shows its conversations next to the client, it is [[commercial.price.pro.monthly.seats.4]] per month. Billing is monthly, and the trial runs [[commercial.trial.days]] days. Self-hosting the open-source core has no licence fee but no inbox and no Mate.
+**Cost.** Four people on Starter pay [[commercial.price.starter.monthly.seats.4]] per month. On Pro, which adds the [unified inbox](/features/unified-inbox) so each user's connected email, LinkedIn or WhatsApp account shows its conversations next to the client, it is [[commercial.price.pro.monthly.seats.4]] per month. Billing is monthly, and your first workspace starts with Pro free for [[commercial.trial.days]] days without a credit card. Self-hosting the open-source core has no licence fee but no inbox and no Mate.
 
 **A routine for data quality (Customermates Cloud).** Mate, the assistant in Customermates Cloud, uses hosted AI credits. A routine runs saved instructions on a schedule or on a record event, as the person who owns it; Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. A weekly routine could carry this instruction:
 
 > Every Monday, list clients created in the last 7 days that have no linked organization or no email address, and list organizations with no Segment value. Report the lists in the run summary. Do not change any record and do not send any message.
 
 The last sentence matters. Mate can send messages when an instruction asks for it, so a routine meant only to report has to say so. If you prefer your own AI client, Claude, ChatGPT and other MCP clients can query the same records through [[derived.mcp.tools.total]] [MCP tools](/docs/mcp), on Cloud and self-hosted.
+
+A database earns its keep when each record has a next step. On Pro, the threads join the client record, Mate or your own AI client drafts the reply and the next step, and you review, edit and send. To try that on your own records, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup).
 
 ## Keeping a CRM database clean
 

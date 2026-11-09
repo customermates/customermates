@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 
 import type { Hero } from "@/core/fumadocs/schemas/common";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHeroView } from "@/components/marketing/landing-hero";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -27,8 +27,8 @@ type Props = {
 
 function HubGridCards({ heading: Heading, items }: { heading: "h2" | "h3"; items: HubGridItem[] }) {
   return items.map((item) => (
-    <li key={item.href} className="border-t border-border">
-      <IntlLink className="group flex h-full min-h-40 flex-col py-6 text-foreground" href={item.href}>
+    <li key={item.href} className="mk-card mk-card-interactive group">
+      <IntlLink className="flex h-full min-h-40 flex-col p-6 text-foreground" href={item.href}>
         <div className="flex items-start justify-between gap-3">
           <Heading className="text-lg font-semibold leading-snug text-balance">{item.name}</Heading>
 
@@ -47,24 +47,24 @@ export function HubGrid({ groups = [], hero, items, resultsTitle }: Props) {
 
   return (
     <div className="flex w-full flex-col items-center" data-marketing-flow="continuous">
-      <PageHero {...hero} />
+      <LandingHeroView hero={hero} />
 
-      <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="canvas">
+      <MarketingSection className="mk-section-tight pt-6 sm:pt-8">
         {visibleGroups.map((group) => (
           <section key={group.id} aria-labelledby={`hub-group-${group.id}`} className="mb-14" data-hub-group={group.id}>
-            <h2 className="mb-2 text-sm font-medium text-subdued" id={`hub-group-${group.id}`}>
+            <h2 className="mk-eyebrow mb-4" id={`hub-group-${group.id}`}>
               {group.title}
             </h2>
 
-            <ul className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <HubGridCards heading={cardHeading} items={group.items} />
             </ul>
           </section>
         ))}
 
-        {resultsTitle ? <h2 className="mb-2 text-sm font-medium text-subdued">{resultsTitle}</h2> : null}
+        {resultsTitle ? <h2 className="mk-eyebrow mb-4">{resultsTitle}</h2> : null}
 
-        <ul className="grid grid-cols-1 gap-x-8 md:grid-cols-2 lg:grid-cols-3" data-hub-results="">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" data-hub-results="">
           <HubGridCards heading={cardHeading} items={items} />
         </ul>
       </MarketingSection>

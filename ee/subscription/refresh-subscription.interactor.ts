@@ -1,4 +1,6 @@
 import type { SubscriptionService } from "./subscription.service";
+import * as ErrorReporter from "@/core/observability/server";
+import type { FreePlanPauseService } from "./free-plan-pause.service";
 import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import type { z } from "zod";
 
@@ -16,6 +18,7 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
     private repo: RefreshSubscriptionRepo,
     private subscriptionService: SubscriptionService,
     private deleteAccountsForPlan: DeleteAccountsForPlanInteractor,
+    private freePlan?: Pick<FreePlanPauseService, "syncUnscoped">,
   ) {
     super();
   }
@@ -35,6 +38,9 @@ export class RefreshSubscriptionInteractor extends AuthenticatedInteractor<void,
 
     if (synced.changedPlan)
       await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
+    await this.freePlan?.syncUnscoped(synced.companyId).catch((error: unknown) => {
+      ErrorReporter.captureException(error, { tags: { kind: "free-plan-pause-sync", companyId: synced.companyId } });
+    });
 
     return { ok: true as const, data: null };
   }

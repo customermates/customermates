@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/cobra-alternative
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "Un petit modèle commercial"
+      description: "Un nouvel espace de travail démarre sans listes : vous créez celles dont vous avez besoin (contacts, organisations, affaires ou les vôtres) avec des champs et des champs calculés dans Configurer, ou laissez la configuration IA les construire dans le cloud."
+    - title: "LinkedIn et WhatsApp à côté de l’e-mail"
+      description: "Dès Pro, les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram arrivent dans une seule liste, liées au client."
+    - title: "Des réponses rédigées, les factures restent où elles sont"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses et met à jour les enregistrements. Devis et factures restent dans l’outil de comptabilité que vous utilisez déjà."
+  switchSteps: true
+
 hero:
   title: "Alternative à weclapp : Customermates et weclapp comparés"
-  description: "weclapp est un ERP cloud de Kitzingen dont le module CRM commence avec le forfait ERP Dienstleistung à 86 € par utilisateur et par mois avec un contrat annuel. Customermates est un CRM open source pour les petites équipes en contact direct avec leurs clients, dès [[commercial.price.starter.monthly]] par utilisateur et par mois, avec l’e-mail, LinkedIn et WhatsApp dans une seule boîte de réception dès Pro. Vos factures restent dans votre outil de comptabilité."
-  buttonLeftText: Commencer gratuitement
+  description: "Le module CRM de weclapp démarre à 86 € par utilisateur et par mois avec un contrat annuel. Customermates est le CRM seul, facturé au mois : dès Pro, les fils LinkedIn, e-mail et WhatsApp sont sur la fiche client et Mate rédige la réponse. Les factures restent dans votre comptabilité."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -82,7 +92,7 @@ comparison:
         source: Chaque offre
         competitor: À partir d’ERP Dienstleistung
       - name: Webhooks
-        source: "[[derived.webhooks.events.total]] types d’évènements, chaque offre"
+        source: "[[derived.webhooks.events.total]] types d’évènements, chaque offre payante"
         competitor: Évènements de création, de mise à jour et de suppression par entité
   - title: Licence, hébergement et sécurité
     features:
@@ -105,7 +115,7 @@ comparison:
 cta:
   action: Vous comparez weclapp et Customermates ?
   description: "Démarrez un essai, importez un export de contacts de weclapp et configurez vos étapes d’affaires. Pendant l’essai, vous verrez si un CRM à côté de votre outil de comptabilité couvre votre travail commercial."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -172,9 +182,9 @@ Les lignes n’achètent pas les mêmes choses. Le prix de weclapp inclut les de
 
 ## Où Customermates trouve sa place
 
-Customermates est un CRM open source et IA native conçu en Allemagne pour les consultants, les agences, d’autres prestataires de services fondés sur la relation et les fondateurs. Il couvre tout jusqu’à l’affaire signée et n’écrit pas de factures.
+weclapp gère devis, factures et comptabilité. Customermates relance les clients jusqu’à la signature et n’établit pas de factures : dès Pro, les conversations sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez.
 
-**Un petit modèle de vente.** Un nouvel espace de travail démarre sans listes : vous créez celles dont vous avez besoin (contacts, organisations, affaires ou les vôtres) avec des champs et des champs calculés dans Configurer, ou vous laissez la configuration IA les construire dans le cloud. L’étape de l’affaire est un champ avec une probabilité par étape, affiché en board, et un widget graphique du tableau de bord peut additionner les valeurs d’affaires pondérées. Les vues enregistrées peuvent être partagées avec l’équipe. Les tableaux de bord, les rôles et un journal d’audit sont sur chaque offre.
+**Un petit modèle de vente.** Un nouvel espace de travail démarre sans listes : vous créez celles dont vous avez besoin (contacts, organisations, affaires ou les vôtres) avec des champs et des champs calculés dans Configurer, ou vous laissez la configuration IA les construire dans le cloud. L’étape de l’affaire est un champ avec une probabilité par étape, affiché en board, et un widget graphique du tableau de bord peut additionner les valeurs d’affaires pondérées. Les tableaux de bord, les rôles et un journal d’audit sont sur chaque offre.
 
 **Les conversations à côté de l’affaire.** Dès Pro, les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram arrivent dans une seule liste. Vous répondez sur le canal d’origine, et les fils avec un contact lié apparaissent dans la chronologie de ce contact.
 
@@ -195,7 +205,7 @@ Customermates est un CRM open source et IA native conçu en Allemagne pour les c
 
 La configuration habituelle après avoir quitté un ERP : Customermates jusqu’à l’affaire gagnée, votre outil de comptabilité pour tout ce qui suit. Il y a deux façons de passer le relais.
 
-**Avec des webhooks, sur toute offre.** Customermates envoie un évènement `record.updated` pour la liste Affaires quand une affaire change, son étape comprise. Un workflow dans votre propre instance n8n, exploitée séparément, vérifie l’étape Gagnée et appelle votre outil de comptabilité. Lexware Office, par exemple, a une API REST publique avec des points d’accès pour les contacts et les factures. La [documentation des webhooks](/docs/webhooks) liste tous les évènements.
+**Avec des webhooks, sur toute offre payante.** Customermates envoie un évènement `record.updated` pour la liste Affaires quand une affaire change, son étape comprise. Un workflow dans votre propre instance n8n, exploitée séparément, vérifie l’étape Gagnée et appelle votre outil de comptabilité. Lexware Office, par exemple, a une API REST publique avec des points d’accès pour les contacts et les factures. La [documentation des webhooks](/docs/webhooks) liste tous les évènements.
 
 **Avec une routine, dans Customermates Cloud.** Une routine exécute une instruction enregistrée quand un enregistrement change, utilise des crédits d’IA hébergée et s’exécute en tant que son propriétaire. Sous Évènements, choisissez Affaire mise à jour, ajoutez le champ d’étape sous Champs modifiés, définissez un filtre d’enregistrement sur Gagnée et enregistrez une instruction comme celle-ci :
 
@@ -218,7 +228,7 @@ Mate peut envoyer des messages sans redemander : la dernière phrase compte don
   <Step title="Exporter avant la fin du contrat">weclapp supprime vos données après la résiliation : exportez donc d’abord. Chaque tableau de synthèse s’exporte avec ses colonnes visibles et ses filtres sous forme de fichier XLS ; les administrateurs peuvent aussi utiliser l’assistant Import/Export sous Global settings. Customermates lit les fichiers .xls : ils peuvent donc être importés tels quels.</Step>
   <Step title="Préparer l’espace de travail">Configurez le champ d’étape avec vos étapes d’opportunité et une probabilité pour chacune. Créez des champs à choix unique pour la région et le statut de qualification.</Step>
   <Step title="Importer une liste à la fois">Importez d’abord les organisations, puis les contacts, puis les affaires, afin que les colonnes de liens retrouvent l’organisation par son nom. La [documentation des enregistrements](/docs/app-records) liste les colonnes requises et les limites.</Step>
-  <Step title="Reconstruire les listes en vues enregistrées">Transformez chaque liste de weclapp en vue enregistrée avec un filtre. Les vues restent privées tant que vous ne les partagez pas ; partagez celles que toute l’équipe utilise.</Step>
+  <Step title="Reconstruire les listes en vues enregistrées">Transformez chaque liste de weclapp en vue enregistrée avec un filtre. Partagez celles dont toute l’équipe a besoin depuis le menu **Partager…** de la vue.</Step>
   <Step title="Connecter les canaux et l’IA">Avec Pro ou pendant l’essai, connectez une boîte aux lettres, LinkedIn ou WhatsApp sous Paramètres, Canaux. Configurez ensuite le passage de relais vers votre outil de comptabilité.</Step>
 </Steps>
 

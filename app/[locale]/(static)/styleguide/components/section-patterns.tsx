@@ -250,7 +250,7 @@ export function SectionPatterns() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button size="lg">Start a 7-day trial for 0€</Button>
+                <Button size="lg">Start a 14-day trial for 0€</Button>
 
                 <Button className="glass-surface" size="lg" variant="ghost">
                   Read the MCP docs
@@ -347,8 +347,8 @@ export function SectionPatterns() {
         >
           <div className="marketing-grid mt-14 gap-y-4 lg:mt-16">
             <div className="col-span-12 overflow-hidden rounded-card border border-border bg-card md:col-span-6">
-              <div className="bg-primary px-7 py-5">
-                <h3 className="m-0 font-medium text-primary-foreground">Decided by the system</h3>
+              <div className="bg-foreground px-7 py-5">
+                <h3 className="m-0 font-medium text-background">Decided by the system</h3>
               </div>
 
               <ul className="divide-y divide-border">

@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
-import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
 import { LandingArticle } from "@/components/marketing/landing-article";
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
+import { ProductFilm } from "@/components/marketing/product-film";
+import { UseCasesSection } from "@/components/marketing/use-cases-section";
 import { productDemoForIndustry } from "@/components/marketing/product-demo-config";
-import { ProductDemoSection } from "@/components/marketing/product-demo-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { forPagesSource } from "@/core/fumadocs/source";
@@ -22,7 +22,8 @@ import { marketingLocaleOrDefault } from "@/i18n/locale-registry";
 import { enableMarketingLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
 
-import { SolutionProductStage } from "../../components/solution-product-stage";
+import { SolutionLanding } from "../../components/solution-landing";
+import { SolutionStageSection } from "../../components/solution-stage-section";
 
 interface Props {
   params: Promise<{
@@ -57,12 +58,8 @@ export default async function ForIndustryPage({ params }: Props) {
 
   const MDX = page.data.body;
   const components = getMDXComponents();
-  const demo = productDemoForIndustry(industry);
   const solution = findSolutionByLandingPath(`/for/${industry}`);
-  const visual =
-    page.data.acquisition?.visual.kind === "brand-illustration" ? (
-      <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
-    ) : undefined;
+  const stageSolutionId = solution?.id ?? productDemoForIndustry(industry)?.solutionId;
 
   return (
     <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
@@ -83,14 +80,28 @@ export default async function ForIndustryPage({ params }: Props) {
         ]}
       />
 
-      <PageHero
-        {...page.data.hero}
-        meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
-        stage={solution ? <SolutionProductStage locale={locale} solutionId={solution.id} /> : undefined}
-        visual={solution ? undefined : visual}
-      />
+      {page.data.landing && solution ? (
+        <SolutionLanding
+          landing={page.data.landing}
+          locale={locale}
+          solutionId={solution.id}
+          useCases={page.data.useCases}
+        />
+      ) : (
+        <>
+          <LandingHero
+            eyebrow={page.data.industryName}
+            hero={page.data.hero}
+            meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
+          />
 
-      {demo && !solution ? <ProductDemoSection {...demo} /> : null}
+          <ProductFilm />
+
+          {page.data.useCases ? <UseCasesSection useCases={page.data.useCases} /> : null}
+
+          {stageSolutionId ? <SolutionStageSection locale={locale} solutionId={stageSolutionId} /> : null}
+        </>
+      )}
 
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />

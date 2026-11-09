@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Salesforce Agentforce : comment fonctionnent ses agents IA et ce qu’ils coûtent"
-  description: "Agentforce est la plateforme de Salesforce pour des agents IA qui répondent aux clients et agissent sur les données Salesforce. Voici comment un agent est construit, ce que coûte chaque modèle de tarification en pratique, ce qu’est devenu Einstein et comment l’introduire un cas d’usage après l’autre."
+  description: "Agentforce est la plateforme de Salesforce pour des agents IA qui agissent sur Salesforce. Comment un agent est construit, ce que coûte chaque modèle, ce qu’est devenu Einstein et comment démarrer."
 
 blogPost:
   author: Benjamin Wagner
@@ -148,7 +148,7 @@ Cette section parle de Customermates, qui publie ce guide. Customermates est un 
 |---|---|---|
 | Agents et actions | Mate, l’assistant de Customermates Cloud, qui utilise des crédits IA hébergés, plus les [routines](/docs/app-routines) : des consignes enregistrées qui s’exécutent selon un planning ou quand un enregistrement change | Un seul assistant, pas de constructeur d’agents, pas de voix. Les suppressions et quelques actions d’administration attendent votre accord |
 | Agentforce Data Library | La base de connaissances, rédigée à la main ou importée depuis votre site web par Mate | Mate cite les pages qu’il a utilisées |
-| Flex Credits | Des crédits IA hébergés mensuels par utilisateur actif, inclus dans chaque formule cloud | Pas de prix à l’action ; voir les [tarifs](/pricing) |
+| Flex Credits | Des crédits IA hébergés mensuels par utilisateur actif, inclus dans chaque formule payante | Pas de prix à l’action ; voir les [tarifs](/pricing) |
 | Apportez votre propre modèle | Claude, ChatGPT et d’autres clients se connectent via le [serveur MCP](/docs/mcp) et ses [[derived.mcp.tools.total]] outils, avec votre propre abonnement IA | Fonctionne sur toutes les formules et sur les installations auto-hébergées |
 | Einstein Trust Layer | Des cartes d’approbation pour les suppressions, les invitations d’équipe et quelques autres actions | Pas de masquage des données ni de scores de toxicité |
 | Agents de service destinés aux clients | Aucun | Pas de chat sur site web, d’agent vocal ni de téléphonie |
@@ -164,9 +164,9 @@ la conversation. N’envoyez rien.
 Terminez par la liste des brouillons enregistrés.
 ```
 
-Une routine s’exécute au nom de son propriétaire, avec ses canaux connectés et ses autorisations, et refuse tout ce qui exigerait un accord. Mate envoie des messages quand on le lui demande, c’est pourquoi la consigne dit « Ne rien envoyer ».
+Une routine s’exécute au nom de son propriétaire, avec ses canaux connectés et ses autorisations, et refuse tout ce qui exigerait un accord. Mate envoie des messages quand on le lui demande, c’est pourquoi la consigne dit « Ne rien envoyer ». Exécutée chaque matin, cette routine est le suivi en petit : pour chaque client qui a écrit en dernier, un brouillon de réponse attend dans la conversation, et vous le relisez, le modifiez et l’envoyez.
 
-Pour ces mêmes 10 personnes, Pro coûte [[commercial.price.pro.monthly.seats.10]] par mois. Cela comprend la [boîte de réception unifiée](/features/unified-inbox) avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur (e-mail, LinkedIn, WhatsApp, Instagram ou Telegram), jusqu’à [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur et des crédits IA hébergés mensuels par utilisateur actif. Starter coûte [[commercial.price.starter.monthly.seats.10]] par mois, avec Mate et MCP mais sans boîte de réception. La facturation est mensuelle. L’auto-hébergement vous donne le cœur AGPL avec REST, webhooks et MCP, sans la boîte de réception, Mate ni les routines.
+Pour ces mêmes 10 personnes, Pro coûte [[commercial.price.pro.monthly.seats.10]] par mois. Cela comprend la [boîte de réception unifiée](/features/unified-inbox) avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur (e-mail, LinkedIn, WhatsApp, Instagram ou Telegram), jusqu’à [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur et des crédits IA hébergés mensuels par utilisateur actif. Starter coûte [[commercial.price.starter.monthly.seats.10]] par mois, avec Mate et MCP mais sans boîte de réception. La facturation est mensuelle. L’auto-hébergement vous donne le cœur AGPL avec REST, webhooks et MCP, sans la boîte de réception, Mate ni les routines. La routine de brouillons a besoin de la boîte de réception, qui commence avec Pro. [Lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup) pour l’essayer sur vos propres conversations, sans carte bancaire.
 
 Customermates n’a pas d’agent de service à fort volume, pas d’agent vocal et pas d’IA prédictive pour les grandes équipes commerciales. Si vous en avez besoin, ou si votre entreprise a déjà construit ses processus dans Salesforce, Agentforce est le chemin le plus court, et la [comparaison avec les alternatives à Salesforce](/compare/salesforce-alternative) vous aide si vous envisagez de changer.
 

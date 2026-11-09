@@ -38,7 +38,7 @@ describe("guarded account-state route contract", () => {
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
-      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution\s*\}\s*\)/,
+      /getRegisterOnboardingProfileInteractor\(\)\.invoke\(\s*data,\s*\{\s*adAttribution,\s*signupSource,?\s*\}\s*\)/,
     );
     expect(page).toContain("resolveOnboardingIntent(");
     expect(page).toContain("canCreateCompany");
@@ -47,7 +47,8 @@ describe("guarded account-state route contract", () => {
     expect(registrationBoundary).toContain('target = { type: "createCompany" }');
     expect(actions).toContain("getCompleteOnboardingWizardInteractor().invoke()");
     expect(actions.match(/serializeResult\(/g)).toHaveLength(1);
-    expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(3);
+    expect(actions.match(/serializeTypedResult\(/g)).toHaveLength(5);
+    expect(actions).toContain("getApplyOnboardingPlaybookInteractor().invoke({ playbook: data.playbook, locale })");
     expect(actions).toContain("getCompleteOnboardingSetupStepInteractor().invoke()");
     expect(actions).toContain("getSaveOnboardingWizardProgressInteractor().invoke(data)");
     expect(page).toContain("getGetOnboardingWizardProgressInteractor().invoke()");

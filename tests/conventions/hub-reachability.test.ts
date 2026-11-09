@@ -120,8 +120,8 @@ vi.mock("@/app/components/footer", () => ({ Footer: () => null }));
 vi.mock("@/components/marketing/cta-section", () => ({
   CTASection: () => null,
 }));
-vi.mock("@/components/marketing/page-hero", () => ({
-  PageHero: ({ title }: { title: string }) => createElement("h1", null, title),
+vi.mock("@/components/marketing/landing-hero", () => ({
+  LandingHeroView: ({ hero }: { hero: { title: string } }) => createElement("h1", null, hero.title),
 }));
 vi.mock("@/components/seo/json-ld", () => ({ JsonLd: () => null }));
 vi.mock("@/components/marketing/hub-grid", async () => {

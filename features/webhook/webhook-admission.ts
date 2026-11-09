@@ -5,15 +5,21 @@ import type { RecordRecipientReader } from "@/features/records/record-recipient-
 import type { WebhookAdmissionRepo } from "./webhook-admission.repo";
 import type { WebhookDeliveryAdmissionRepo } from "./webhook-delivery-admission.repo";
 
+export type WebhookPlanGate = { deliversWebhooks(companyId: string): Promise<boolean> };
+
+const OPEN_WEBHOOK_PLAN_GATE: WebhookPlanGate = { deliversWebhooks: () => Promise.resolve(true) };
+
 export class WebhookAdmission implements EventAdmission {
   constructor(
     private readonly reader: RecordRecipientReader,
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
     private readonly webhooks: WebhookAdmissionRepo,
     private readonly deliveries: WebhookDeliveryAdmissionRepo,
+    private readonly plans: WebhookPlanGate = OPEN_WEBHOOK_PLAN_GATE,
   ) {}
 
   async admit(event: EventLog): Promise<void> {
+    if (!(await this.plans.deliversWebhooks(event.companyId))) return;
     if (event.subjectKind !== "record") {
       for (const webhook of await this.webhooks.findEventWebhooksUnscoped(event))
         await this.deliver(event, webhook, null);

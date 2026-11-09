@@ -15,7 +15,8 @@ import {
   PUBLIC_AD_ATTRIBUTION_COOKIE_MAX_AGE_SECONDS,
   PUBLIC_AD_ATTRIBUTION_COOKIE_NAME,
 } from "../ad-attribution.schema";
-import { registrationAdAttributionFromCookie } from "../ad-click-retention";
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
+import { isConsentForNotice, registrationAdAttributionFromCookie } from "../ad-click-retention";
 
 function signingSecret(): string | null {
   return env.APP_MODE === "cloud" ? adAttributionSigningSecret(env.BETTER_AUTH_SECRET) : null;
@@ -72,4 +73,10 @@ export async function clearRegisteredAdClicksFromCookie(): Promise<void> {
   const cookie = await registrationCookieRepo.readCookie();
   if (!cookie || cookie.clicks.length === 0) return;
   await registrationCookieRepo.writeCookie({ ...cookie, clicks: [] });
+}
+
+export async function readAdvertisingConsentedAt(): Promise<Date | null> {
+  const consent = (await registrationCookieRepo.readCookie())?.consent;
+  if (!consent?.advertising || !isConsentForNotice(consent, AD_ATTRIBUTION_NOTICE_VERSION)) return null;
+  return new Date(consent.decidedAt);
 }

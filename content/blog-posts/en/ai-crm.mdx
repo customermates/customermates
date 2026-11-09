@@ -117,7 +117,7 @@ Customermates is an open-source CRM built in Germany for small client-facing tea
 
 | | Mate | Your own AI client through MCP | Self-hosted |
 |---|---|---|---|
-| Where it runs | Customermates Cloud, every plan | Customermates Cloud on every plan, and self-hosted | Your server, with the AGPL core |
+| Where it runs | Customermates Cloud, every paid plan | Customermates Cloud on every plan, and self-hosted | Your server, with the AGPL core |
 | Who pays for the model | Monthly hosted AI credits per active user | Your own AI subscription or provider; clients include Claude, ChatGPT, Cursor, Codex and Gemini CLI | Your own AI provider, through MCP |
 | Inbox | Pro and higher | Messaging tools on Pro and higher, cloud only | No inbox |
 | Unattended runs | Routines | Only if your client schedules them | No Mate and no routines |
@@ -130,7 +130,7 @@ Your own AI client connects to the [MCP server](/docs/mcp): Claude and ChatGPT t
 
 - **Deal stages:** Lead (10%), Qualified (30%), Proposal sent (60%), Won (100%), Lost (0%). The percentages are stage probabilities and drive the weighted pipeline.
 - **Custom field on deals:** Source, a single choice field with Referral, LinkedIn, Website and Event.
-- **Saved view:** "My open proposals", filtered to the stage Proposal sent and to deals assigned to me, sorted by value. A saved view stays private until you share it, so each consultant can save their own or you share one with the team.
+- **Saved view:** "My open proposals", filtered to the stage Proposal sent and to deals assigned to me, sorted by value. Each consultant saves their own, or shares one view with the whole team.
 - **Inbox:** each consultant connects [[commercial.entitlement.pro.includedAccountsPerUser]] account on Pro, usually the work email or LinkedIn.
 
 Each consultant then adds two [routines](/docs/app-routines). Both run in Customermates Cloud and use hosted AI credits.
@@ -159,6 +159,8 @@ do nothing.
 A routine runs as its owner, with the owner's channels and permissions. An unattended run refuses everything that would need approval, and changes made by a routine never trigger another routine. Mate sends messages when asked to, which is why the first instruction says "Do not send anything".
 
 **What it costs:** on Pro, this team pays [[commercial.price.pro.monthly.seats.5]] per month for the inbox, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account and up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per person, with monthly hosted AI credits per active user for Mate and the routines (see [pricing](/pricing)). Starter costs the same team [[commercial.price.starter.monthly.seats.5]] per month and includes Mate, MCP and [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per person, but no inbox, so the follow-up routine would have no threads to read. Billing is monthly.
+
+That setup is follow-up in practice: LinkedIn and email threads on the client, a draft waiting each morning for every proposal that has gone quiet, and a kick-off task the moment a deal is won. To build the first routine on your own proposals, [start the [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 ### What Customermates does not do
 

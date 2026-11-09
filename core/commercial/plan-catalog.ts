@@ -1,5 +1,5 @@
-export const PLAN_IDS = ["starter", "pro", "business", "max", "enterprise"] as const;
-type PlanId = (typeof PLAN_IDS)[number];
+export const PLAN_IDS = ["free", "starter", "pro", "business", "max", "enterprise"] as const;
+export type PlanId = (typeof PLAN_IDS)[number];
 
 export const PURCHASABLE_PLAN_IDS = ["starter", "pro", "business", "max"] as const;
 export type PurchasablePlanId = (typeof PURCHASABLE_PLAN_IDS)[number];
@@ -21,8 +21,19 @@ export type PlanEntitlements = {
   hostedAiUsageMultiplier: number | "contract" | null;
   hostedAiCreditsPerActiveUser: number | "contract" | null;
   fileStorageBytesPerActiveUser: number | "contract" | null;
+  webhooks: boolean;
+  usageLimits: PlanUsageLimits | null;
 };
 
+export type PlanUsageLimits = {
+  maxMembers: number;
+  maxRecords: number;
+  fileStorageBytes: number;
+  apiRequestsPerMinute: number;
+  apiRequestsPerDay: number;
+};
+
+export const MIB = 1024 ** 2;
 export const GIB = 1024 ** 3;
 export const HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER = 100;
 
@@ -58,11 +69,18 @@ type SalesLedPlanDefinition = {
   offers: Record<string, never>;
 };
 
-type PlanDefinition = SelfServePlanDefinition | SalesLedPlanDefinition;
+type FreePlanDefinition = {
+  plan: "free";
+  availability: "free";
+  entitlements: PlanEntitlements;
+  offers: Record<string, never>;
+};
+
+type PlanDefinition = FreePlanDefinition | SelfServePlanDefinition | SalesLedPlanDefinition;
 
 export const CLOUD_TRIAL = {
   plan: "pro",
-  days: 7,
+  days: 14,
   owner: "application",
   providerTrialDays: 0,
 } as const satisfies {
@@ -74,7 +92,34 @@ export const CLOUD_TRIAL = {
 
 export const CLOUD_WORKSPACE_CREATION_LIMIT = 20;
 
+export const FREE_PLAN_ID = "free" satisfies PlanId;
+
+export const FREE_PLAN_UPGRADE_PLAN = "starter" satisfies PurchasablePlanId;
+
 export const PLAN_CATALOG = {
+  free: {
+    plan: "free",
+    availability: "free",
+    entitlements: {
+      agentChat: false,
+      messaging: false,
+      includedAccountsPerUser: 0,
+      includedRoutinesPerUser: 0,
+      sharedAccounts: false,
+      hostedAiUsageMultiplier: null,
+      hostedAiCreditsPerActiveUser: null,
+      fileStorageBytesPerActiveUser: null,
+      webhooks: false,
+      usageLimits: {
+        maxMembers: 1,
+        maxRecords: 250,
+        fileStorageBytes: 100 * MIB,
+        apiRequestsPerMinute: 10,
+        apiRequestsPerDay: 200,
+      },
+    },
+    offers: {},
+  },
   starter: {
     plan: "starter",
     availability: "self-serve",
@@ -86,6 +131,8 @@ export const PLAN_CATALOG = {
       sharedAccounts: false,
       ...hostedAiUsage(1),
       fileStorageBytesPerActiveUser: Number(GIB),
+      webhooks: true,
+      usageLimits: null,
     },
     offers: {
       monthly: {
@@ -111,6 +158,8 @@ export const PLAN_CATALOG = {
       sharedAccounts: false,
       ...hostedAiUsage(3),
       fileStorageBytesPerActiveUser: 5 * GIB,
+      webhooks: true,
+      usageLimits: null,
     },
     offers: {
       monthly: {
@@ -136,6 +185,8 @@ export const PLAN_CATALOG = {
       sharedAccounts: true,
       ...hostedAiUsage(10),
       fileStorageBytesPerActiveUser: 20 * GIB,
+      webhooks: true,
+      usageLimits: null,
     },
     offers: {
       monthly: {
@@ -161,6 +212,8 @@ export const PLAN_CATALOG = {
       sharedAccounts: true,
       ...hostedAiUsage(20),
       fileStorageBytesPerActiveUser: 50 * GIB,
+      webhooks: true,
+      usageLimits: null,
     },
     offers: {
       monthly: {
@@ -187,12 +240,16 @@ export const PLAN_CATALOG = {
       hostedAiUsageMultiplier: "contract",
       hostedAiCreditsPerActiveUser: "contract",
       fileStorageBytesPerActiveUser: "contract",
+      webhooks: true,
+      usageLimits: null,
     },
     offers: {},
   },
 } as const satisfies Record<PlanId, PlanDefinition>;
 
-export const RECOMMENDED_PLAN_ID = "business" satisfies PurchasablePlanId;
+export const FREE_PLAN_USAGE_LIMITS: PlanUsageLimits = PLAN_CATALOG.free.entitlements.usageLimits;
+
+export const TEAM_PLAN_ID = "business" satisfies PurchasablePlanId;
 
 export const CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER =
   PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier;
@@ -206,7 +263,7 @@ export function isPlanId(value: string): value is PlanId {
   return (PLAN_IDS as readonly string[]).includes(value);
 }
 
-function isPurchasablePlanId(value: string): value is PurchasablePlanId {
+export function isPurchasablePlanId(value: string): value is PurchasablePlanId {
   return (PURCHASABLE_PLAN_IDS as readonly string[]).includes(value);
 }
 

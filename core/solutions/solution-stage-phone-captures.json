@@ -1,0 +1,1303 @@
+{
+  "capturedOn": "2026-11-08",
+  "entries": [
+    {
+      "bytes": 13480,
+      "height": 960,
+      "key": "smb:dashboard:en:light:phone",
+      "route": "/en/w/small-business/dashboard",
+      "sha256": "63badca0f9068cf57b553a2a380eba8616cf6bbf0b0084f3cf99dda7c63228dc",
+      "src": "/captures/solutions/stage/phone/light/smb-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13496,
+      "height": 960,
+      "key": "smb:dashboard:en:dark:phone",
+      "route": "/en/w/small-business/dashboard",
+      "sha256": "db1b94ce5d4d84d6e05d74c5eec4cbf0a5e3a16e66ae7137e833cac43d507d82",
+      "src": "/captures/solutions/stage/phone/dark/smb-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16688,
+      "height": 960,
+      "key": "smb:dashboard:de:light:phone",
+      "route": "/de/w/kleine-unternehmen/dashboard",
+      "sha256": "1a486a7aa8a032b9df8710b04092f3729fde2ffc7b44382eb3f9946dd788a3ea",
+      "src": "/captures/solutions/stage/phone/light/smb-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16726,
+      "height": 960,
+      "key": "smb:dashboard:de:dark:phone",
+      "route": "/de/w/kleine-unternehmen/dashboard",
+      "sha256": "d25c10d026d22a65a6dd36592b126508d0a0e598a183cab3b9e2a5a404aafd3e",
+      "src": "/captures/solutions/stage/phone/dark/smb-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20186,
+      "height": 960,
+      "key": "smb:pipeline:en:light:phone",
+      "route": "/en/w/small-business/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001",
+      "sha256": "c7f953d72636716e779d41122f0b2bbb7e760b3afcee4d7170103cf3db287564",
+      "src": "/captures/solutions/stage/phone/light/smb-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20452,
+      "height": 960,
+      "key": "smb:pipeline:en:dark:phone",
+      "route": "/en/w/small-business/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001",
+      "sha256": "7a9582740eeb259e2c42d0727bacd531bf3e85af3bc2bb53ca67786d9d8c472b",
+      "src": "/captures/solutions/stage/phone/dark/smb-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19994,
+      "height": 960,
+      "key": "smb:pipeline:de:light:phone",
+      "route": "/de/w/kleine-unternehmen/records/fe81a7a6-6bd5-8c33-8378-e97817774ef7?view=1f100000-5010-4000-8000-000000000001",
+      "sha256": "29d0fc8da57a596d7623edeafee89d481a7120121476480b9226f3679cac2b5e",
+      "src": "/captures/solutions/stage/phone/light/smb-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20562,
+      "height": 960,
+      "key": "smb:pipeline:de:dark:phone",
+      "route": "/de/w/kleine-unternehmen/records/fe81a7a6-6bd5-8c33-8378-e97817774ef7?view=1f100000-5010-4000-8000-000000000001",
+      "sha256": "8980e5a3f92f5b5b120178f6aa2bdae9704187d837b52f11ef315b7d67d63a36",
+      "src": "/captures/solutions/stage/phone/dark/smb-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22580,
+      "height": 960,
+      "key": "smb:inbox:en:light:phone",
+      "route": "/en/w/small-business/inbox?threadId=latest",
+      "sha256": "9dffc431bf4fb7250f78e2f9244e11b130d0f18c0a46c337c88644272b154338",
+      "src": "/captures/solutions/stage/phone/light/smb-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21764,
+      "height": 960,
+      "key": "smb:inbox:en:dark:phone",
+      "route": "/en/w/small-business/inbox?threadId=latest",
+      "sha256": "eb74a546a3b9ceff8bfbc8e44b38a2d2e1634a7ef7ca26ae22a442dae980bd7b",
+      "src": "/captures/solutions/stage/phone/dark/smb-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 24140,
+      "height": 960,
+      "key": "smb:inbox:de:light:phone",
+      "route": "/de/w/kleine-unternehmen/inbox?threadId=latest",
+      "sha256": "175eca36d7537f53f4cd64381fb0d5dc0f752f53f20eab9ac0deabf4afe510fa",
+      "src": "/captures/solutions/stage/phone/light/smb-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 23464,
+      "height": 960,
+      "key": "smb:inbox:de:dark:phone",
+      "route": "/de/w/kleine-unternehmen/inbox?threadId=latest",
+      "sha256": "94c72f97b63ad63d0d8dbb24c4e17887585f54f4b171d72b27b4bd3412ac58ae",
+      "src": "/captures/solutions/stage/phone/dark/smb-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22986,
+      "height": 960,
+      "key": "smb:calendar:en:light:phone",
+      "route": "/en/w/small-business/calendar",
+      "sha256": "322fe1caf38c2973dc95c44b1640c6a5d93ded9cbf51a99a0110d0e530a9dd9a",
+      "src": "/captures/solutions/stage/phone/light/smb-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20982,
+      "height": 960,
+      "key": "smb:calendar:en:dark:phone",
+      "route": "/en/w/small-business/calendar",
+      "sha256": "5250100a6f1583d152bcb4a6c8179894404d4887ac9ca928b7d92a9345b6adf4",
+      "src": "/captures/solutions/stage/phone/dark/smb-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22110,
+      "height": 960,
+      "key": "smb:calendar:de:light:phone",
+      "route": "/de/w/kleine-unternehmen/calendar",
+      "sha256": "d68e192b459c666cad5d3ac3f865f25ca33f7a35b2700c1be9d24b45bbab25a7",
+      "src": "/captures/solutions/stage/phone/light/smb-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19926,
+      "height": 960,
+      "key": "smb:calendar:de:dark:phone",
+      "route": "/de/w/kleine-unternehmen/calendar",
+      "sha256": "a79932564957dfc91cded1ce5359cb3faf144ec92dc3e63a54be97eaf240b68e",
+      "src": "/captures/solutions/stage/phone/dark/smb-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14334,
+      "height": 960,
+      "key": "consultants:dashboard:en:light:phone",
+      "route": "/en/w/consultants/dashboard",
+      "sha256": "cc61ceb822371fdfd1385f45ee8733e35a518d9bd4590792b73c21730d566cd2",
+      "src": "/captures/solutions/stage/phone/light/consultants-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14408,
+      "height": 960,
+      "key": "consultants:dashboard:en:dark:phone",
+      "route": "/en/w/consultants/dashboard",
+      "sha256": "301f0dbeab4b2f7dc0f7d4e6b75a52a1b0d43f898bb6084006af53b100b390e5",
+      "src": "/captures/solutions/stage/phone/dark/consultants-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16676,
+      "height": 960,
+      "key": "consultants:dashboard:de:light:phone",
+      "route": "/de/w/beratung/dashboard",
+      "sha256": "e722613b121f810dae01213c3deae8996573513fb176812cbcb71bc4169a3cc1",
+      "src": "/captures/solutions/stage/phone/light/consultants-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16690,
+      "height": 960,
+      "key": "consultants:dashboard:de:dark:phone",
+      "route": "/de/w/beratung/dashboard",
+      "sha256": "7cda373366b451256e174b94662a66622cee12d9c3edfc23de466328974172da",
+      "src": "/captures/solutions/stage/phone/dark/consultants-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13400,
+      "height": 960,
+      "key": "consultants:engagements:en:light:phone",
+      "route": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
+      "sha256": "bfa7ec06a6da87bf95471ce892b7c929d4c9c98f7e631abba93e6bc978da76ef",
+      "src": "/captures/solutions/stage/phone/light/consultants-engagements-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13212,
+      "height": 960,
+      "key": "consultants:engagements:en:dark:phone",
+      "route": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
+      "sha256": "ef6d30c527f154a75e006c7ba5a707635cd2c13eb3cc7197f6d16cf925293940",
+      "src": "/captures/solutions/stage/phone/dark/consultants-engagements-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13994,
+      "height": 960,
+      "key": "consultants:engagements:de:light:phone",
+      "route": "/de/w/beratung/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
+      "sha256": "858a7eff51bca1d6976148a8ee56cf97f22d895ec0430b333b75d77fdac92d03",
+      "src": "/captures/solutions/stage/phone/light/consultants-engagements-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13788,
+      "height": 960,
+      "key": "consultants:engagements:de:dark:phone",
+      "route": "/de/w/beratung/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
+      "sha256": "a51851354c7bded53e9e8ce318db78e9af6c273caa8556099f5b1ee52458d808",
+      "src": "/captures/solutions/stage/phone/dark/consultants-engagements-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21272,
+      "height": 960,
+      "key": "consultants:inbox:en:light:phone",
+      "route": "/en/w/consultants/inbox?threadId=latest",
+      "sha256": "1295fdfad6c4a502808baa932c8a4661946cf606992e50c07834eaf65688121a",
+      "src": "/captures/solutions/stage/phone/light/consultants-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20770,
+      "height": 960,
+      "key": "consultants:inbox:en:dark:phone",
+      "route": "/en/w/consultants/inbox?threadId=latest",
+      "sha256": "09f8e343d11e3d5df3b7f5e645c0b429f5e8216481770d288a6f8c571a9d042f",
+      "src": "/captures/solutions/stage/phone/dark/consultants-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 24514,
+      "height": 960,
+      "key": "consultants:inbox:de:light:phone",
+      "route": "/de/w/beratung/inbox?threadId=latest",
+      "sha256": "f090b122c9a3ba11d3ff15151c3347c025212ee00e0b96192ac1aa138a883573",
+      "src": "/captures/solutions/stage/phone/light/consultants-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 24022,
+      "height": 960,
+      "key": "consultants:inbox:de:dark:phone",
+      "route": "/de/w/beratung/inbox?threadId=latest",
+      "sha256": "47db4fb79746d374f14eeed1c8e14adcc228d39701ae3ac4339ec29262024a26",
+      "src": "/captures/solutions/stage/phone/dark/consultants-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 24192,
+      "height": 960,
+      "key": "consultants:calendar:en:light:phone",
+      "route": "/en/w/consultants/calendar",
+      "sha256": "e3a6e9ebcfac6f364ecec35525596e0fb6a68626b1443891d4fac9f977367b14",
+      "src": "/captures/solutions/stage/phone/light/consultants-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21278,
+      "height": 960,
+      "key": "consultants:calendar:en:dark:phone",
+      "route": "/en/w/consultants/calendar",
+      "sha256": "f8eb97e1f42045762e4985d3580ddac1d9af5de2a3f64785acc09485a749a172",
+      "src": "/captures/solutions/stage/phone/dark/consultants-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 25814,
+      "height": 960,
+      "key": "consultants:calendar:de:light:phone",
+      "route": "/de/w/beratung/calendar",
+      "sha256": "76a6773f53856e025a8bef808b04adbc1eeee697554416c37a8f7f81aa2cb834",
+      "src": "/captures/solutions/stage/phone/light/consultants-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22864,
+      "height": 960,
+      "key": "consultants:calendar:de:dark:phone",
+      "route": "/de/w/beratung/calendar",
+      "sha256": "70fcba6e80e70d8a868af8dc8202c09d659da9f5fa07916c839ac834f49e1ac5",
+      "src": "/captures/solutions/stage/phone/dark/consultants-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16104,
+      "height": 960,
+      "key": "agencies:dashboard:en:light:phone",
+      "route": "/en/w/agencies/dashboard",
+      "sha256": "1a2606c49b0f9fe2ebbf3ffbb5c2ac4e2a87d3cee4ac05916af1c83c578917fa",
+      "src": "/captures/solutions/stage/phone/light/agencies-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16380,
+      "height": 960,
+      "key": "agencies:dashboard:en:dark:phone",
+      "route": "/en/w/agencies/dashboard",
+      "sha256": "d219f04920795513d91c3d9937e3ae18de66018da77203f4f12b1566d7d60835",
+      "src": "/captures/solutions/stage/phone/dark/agencies-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17814,
+      "height": 960,
+      "key": "agencies:dashboard:de:light:phone",
+      "route": "/de/w/agenturen/dashboard",
+      "sha256": "1cfb8721c946a9ec05a8883ba45e687d9f59ee884abb840ab2113a86b632dd62",
+      "src": "/captures/solutions/stage/phone/light/agencies-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 18028,
+      "height": 960,
+      "key": "agencies:dashboard:de:dark:phone",
+      "route": "/de/w/agenturen/dashboard",
+      "sha256": "897cb4418b40eb5676f0513cb0f02c41b0039ae6013870b7f4b7e0ce0a5f35f8",
+      "src": "/captures/solutions/stage/phone/dark/agencies-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19648,
+      "height": 960,
+      "key": "agencies:pitchBoard:en:light:phone",
+      "route": "/en/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "sha256": "1fe1867adf2f5cb20767f7e3a0f8afa40bf0c06264d35d979bf7c9f41c0a60a1",
+      "src": "/captures/solutions/stage/phone/light/agencies-pitchBoard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19112,
+      "height": 960,
+      "key": "agencies:pitchBoard:en:dark:phone",
+      "route": "/en/w/agencies/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+      "sha256": "a5cfcf382072bc5c09a2ef7089503caa742e8be0141eb2d1cd19da422db91c40",
+      "src": "/captures/solutions/stage/phone/dark/agencies-pitchBoard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20308,
+      "height": 960,
+      "key": "agencies:pitchBoard:de:light:phone",
+      "route": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
+      "sha256": "f3008d2592b40a340dd6a93e47578591a98af6871d3d7087f1b3f1879ea53ec8",
+      "src": "/captures/solutions/stage/phone/light/agencies-pitchBoard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20382,
+      "height": 960,
+      "key": "agencies:pitchBoard:de:dark:phone",
+      "route": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
+      "sha256": "ebd2c4f7dd575465e28d1777132d9f7e4a0bb3debfad8281269df1bcf9cd7c6a",
+      "src": "/captures/solutions/stage/phone/dark/agencies-pitchBoard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21434,
+      "height": 960,
+      "key": "agencies:inbox:en:light:phone",
+      "route": "/en/w/agencies/inbox?threadId=latest",
+      "sha256": "e7ca2b086b020769a46ffc48f90c413c764e43edd6845ab52442a48ae7431544",
+      "src": "/captures/solutions/stage/phone/light/agencies-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19618,
+      "height": 960,
+      "key": "agencies:inbox:en:dark:phone",
+      "route": "/en/w/agencies/inbox?threadId=latest",
+      "sha256": "ee0e9835abc6be5adbfa78551b1308a9c96b63cbc6b490b339986a98048a0c7b",
+      "src": "/captures/solutions/stage/phone/dark/agencies-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22052,
+      "height": 960,
+      "key": "agencies:inbox:de:light:phone",
+      "route": "/de/w/agenturen/inbox?threadId=latest",
+      "sha256": "09ef3b8e4b854e0ae95f00e1b1635f9316b4e7a72883f7aa0520c5bc9a3a34f5",
+      "src": "/captures/solutions/stage/phone/light/agencies-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21476,
+      "height": 960,
+      "key": "agencies:inbox:de:dark:phone",
+      "route": "/de/w/agenturen/inbox?threadId=latest",
+      "sha256": "4f1f721e458460851634431fa572363d4ca6f284aa3d7bdae319909d0c9de84d",
+      "src": "/captures/solutions/stage/phone/dark/agencies-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21428,
+      "height": 960,
+      "key": "agencies:calendar:en:light:phone",
+      "route": "/en/w/agencies/calendar",
+      "sha256": "fd161a3e88eece6c161ce70084d04f694580bb50c2deb9cf2c69b6657fc4eb09",
+      "src": "/captures/solutions/stage/phone/light/agencies-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19358,
+      "height": 960,
+      "key": "agencies:calendar:en:dark:phone",
+      "route": "/en/w/agencies/calendar",
+      "sha256": "0a7ab16c415fc9b1c88558b78b2568b8a638f826240058a78b53cc1ea91e53d6",
+      "src": "/captures/solutions/stage/phone/dark/agencies-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 24504,
+      "height": 960,
+      "key": "agencies:calendar:de:light:phone",
+      "route": "/de/w/agenturen/calendar",
+      "sha256": "41e4ee0b349889b382c6281d2742bfb368fec9c2f65b7343e75c1e0a21f3887d",
+      "src": "/captures/solutions/stage/phone/light/agencies-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21412,
+      "height": 960,
+      "key": "agencies:calendar:de:dark:phone",
+      "route": "/de/w/agenturen/calendar",
+      "sha256": "6aecce5f0b7818e66991ef3b3b19ff7f42090f3a3d6b052fd148f4485e226ec1",
+      "src": "/captures/solutions/stage/phone/dark/agencies-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14632,
+      "height": 960,
+      "key": "freelancers:dashboard:en:light:phone",
+      "route": "/en/w/freelancers/dashboard",
+      "sha256": "41200f805063f91cda80d69d0c79fe824887c380a739fb1c373e73355c62bec7",
+      "src": "/captures/solutions/stage/phone/light/freelancers-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14996,
+      "height": 960,
+      "key": "freelancers:dashboard:en:dark:phone",
+      "route": "/en/w/freelancers/dashboard",
+      "sha256": "7ebebb8a57dfcb05691bfa0b5995cb92cd8cb0ba09ac7c385ba2ab34e2b6f00f",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16722,
+      "height": 960,
+      "key": "freelancers:dashboard:de:light:phone",
+      "route": "/de/w/selbststaendige/dashboard",
+      "sha256": "c753434765d33c819cff22c4338dc9ec0edcfa1c22d5669b15e7b96876143738",
+      "src": "/captures/solutions/stage/phone/light/freelancers-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17042,
+      "height": 960,
+      "key": "freelancers:dashboard:de:dark:phone",
+      "route": "/de/w/selbststaendige/dashboard",
+      "sha256": "38f0b81eee3651141e35b094460ec72b2ec4915ceeaaa641b335b1109fde65c0",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19186,
+      "height": 960,
+      "key": "freelancers:clients:en:light:phone",
+      "route": "/en/w/freelancers/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
+      "sha256": "1bb25322f586224ad342bff37edf16d6b91e79ce61907c2b90b9a68a48acd10f",
+      "src": "/captures/solutions/stage/phone/light/freelancers-clients-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20694,
+      "height": 960,
+      "key": "freelancers:clients:en:dark:phone",
+      "route": "/en/w/freelancers/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
+      "sha256": "8b5b00c3f3d8691e5a87b442284ceb02994134fda96cb2c4678531aad94659e9",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-clients-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21388,
+      "height": 960,
+      "key": "freelancers:clients:de:light:phone",
+      "route": "/de/w/selbststaendige/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
+      "sha256": "eb15b3cb71fea2b173940f14617b79e90524ea637c1ce98ef999d1d6d0da6034",
+      "src": "/captures/solutions/stage/phone/light/freelancers-clients-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21086,
+      "height": 960,
+      "key": "freelancers:clients:de:dark:phone",
+      "route": "/de/w/selbststaendige/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
+      "sha256": "6b68a2dce5b312c822ca8855e1dd6f84727f89e476acc5c20df0fbd5b54316eb",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-clients-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20850,
+      "height": 960,
+      "key": "freelancers:inbox:en:light:phone",
+      "route": "/en/w/freelancers/inbox?threadId=latest",
+      "sha256": "df2c2cd40a62562b0bf142215431a524751a769e65e5c8dd74e1162e3f8dc949",
+      "src": "/captures/solutions/stage/phone/light/freelancers-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19104,
+      "height": 960,
+      "key": "freelancers:inbox:en:dark:phone",
+      "route": "/en/w/freelancers/inbox?threadId=latest",
+      "sha256": "c58e6510e97c9b5e7e5eae514ec13537c2437ddf72c5810198424ba986c692aa",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21768,
+      "height": 960,
+      "key": "freelancers:inbox:de:light:phone",
+      "route": "/de/w/selbststaendige/inbox?threadId=latest",
+      "sha256": "8067ca9f0931b3901176b0e85d683c701ad98e63368b1acca2581937221bfc99",
+      "src": "/captures/solutions/stage/phone/light/freelancers-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21172,
+      "height": 960,
+      "key": "freelancers:inbox:de:dark:phone",
+      "route": "/de/w/selbststaendige/inbox?threadId=latest",
+      "sha256": "328d8a126209c85d74956203c716aa55eb8e3b71efecf5e1d8be81e56d93207c",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20146,
+      "height": 960,
+      "key": "freelancers:calendar:en:light:phone",
+      "route": "/en/w/freelancers/calendar",
+      "sha256": "006d06254a2ec4026a5ac80fc11903d3b6e27d0e7fd24c35381a2b0b38de50b1",
+      "src": "/captures/solutions/stage/phone/light/freelancers-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19920,
+      "height": 960,
+      "key": "freelancers:calendar:en:dark:phone",
+      "route": "/en/w/freelancers/calendar",
+      "sha256": "1b8841b5d54836afc9389d99a816dea16b722978b64813f564aae2211959dcca",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20954,
+      "height": 960,
+      "key": "freelancers:calendar:de:light:phone",
+      "route": "/de/w/selbststaendige/calendar",
+      "sha256": "9905e0a4f4eb5589c10ecd7fcdc1c8e010cd171343df73b30372432d3abcb209",
+      "src": "/captures/solutions/stage/phone/light/freelancers-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 18960,
+      "height": 960,
+      "key": "freelancers:calendar:de:dark:phone",
+      "route": "/de/w/selbststaendige/calendar",
+      "sha256": "b6471a806dc39fe097a8b49195b5240e5ace35a4aac1041148d63b32399421f1",
+      "src": "/captures/solutions/stage/phone/dark/freelancers-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17816,
+      "height": 960,
+      "key": "startups:dashboard:en:light:phone",
+      "route": "/en/w/founder-sales/dashboard",
+      "sha256": "cd380758f09e05edca759f4bb729bd23641b18503fb8bb91a6d0734982f3a3f3",
+      "src": "/captures/solutions/stage/phone/light/startups-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17886,
+      "height": 960,
+      "key": "startups:dashboard:en:dark:phone",
+      "route": "/en/w/founder-sales/dashboard",
+      "sha256": "cccd3bec3799146d5e2bacee0143a52da23c074128828fffdde281ab3e96d6f1",
+      "src": "/captures/solutions/stage/phone/dark/startups-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19872,
+      "height": 960,
+      "key": "startups:dashboard:de:light:phone",
+      "route": "/de/w/gruender-vertrieb/dashboard",
+      "sha256": "d6f57be3cbd0b4ea6f78d09998ee541f44f68c8bcdc48d6cac2bc5a487695292",
+      "src": "/captures/solutions/stage/phone/light/startups-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19972,
+      "height": 960,
+      "key": "startups:dashboard:de:dark:phone",
+      "route": "/de/w/gruender-vertrieb/dashboard",
+      "sha256": "22ca74f75de76509461cfdc436521cd23f6edc03395c647085a11f98f237961f",
+      "src": "/captures/solutions/stage/phone/dark/startups-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19786,
+      "height": 960,
+      "key": "startups:pipeline:en:light:phone",
+      "route": "/en/w/founder-sales/records/bfc1fea3-39ec-89d2-8ce4-fe23c28267bf?view=1f100000-5400-4000-8000-000000000001",
+      "sha256": "7eff979f74f93a4a08d0b6b585389eb4119614bd620547217dd28b2bd940346a",
+      "src": "/captures/solutions/stage/phone/light/startups-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20326,
+      "height": 960,
+      "key": "startups:pipeline:en:dark:phone",
+      "route": "/en/w/founder-sales/records/bfc1fea3-39ec-89d2-8ce4-fe23c28267bf?view=1f100000-5400-4000-8000-000000000001",
+      "sha256": "16bacf4c50bc3b114e996a44200b186010d9762813d1ad195efcc0e6a3186446",
+      "src": "/captures/solutions/stage/phone/dark/startups-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20018,
+      "height": 960,
+      "key": "startups:pipeline:de:light:phone",
+      "route": "/de/w/gruender-vertrieb/records/bf9f2192-7836-8952-86a1-8d2a0e89903b?view=1f100000-5410-4000-8000-000000000001",
+      "sha256": "141c27401432ba31b44c456a0020b91645e84dfb15af09e9209017d53dba3180",
+      "src": "/captures/solutions/stage/phone/light/startups-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19394,
+      "height": 960,
+      "key": "startups:pipeline:de:dark:phone",
+      "route": "/de/w/gruender-vertrieb/records/bf9f2192-7836-8952-86a1-8d2a0e89903b?view=1f100000-5410-4000-8000-000000000001",
+      "sha256": "5f7344b0488dc16416eeaf15646fae90424f286bba617ac7362990af63426a18",
+      "src": "/captures/solutions/stage/phone/dark/startups-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20424,
+      "height": 960,
+      "key": "startups:inbox:en:light:phone",
+      "route": "/en/w/founder-sales/inbox?threadId=latest",
+      "sha256": "b62300403629fb808c811e2d019d2bc82e607849901c1df267d79cb8b0403bfa",
+      "src": "/captures/solutions/stage/phone/light/startups-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20142,
+      "height": 960,
+      "key": "startups:inbox:en:dark:phone",
+      "route": "/en/w/founder-sales/inbox?threadId=latest",
+      "sha256": "efc2bdb4053c23d14cb3fe5d4804005edc7deccd90372c4a03b12e6aedd0fc94",
+      "src": "/captures/solutions/stage/phone/dark/startups-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20518,
+      "height": 960,
+      "key": "startups:inbox:de:light:phone",
+      "route": "/de/w/gruender-vertrieb/inbox?threadId=latest",
+      "sha256": "49823375357912e81f89ee0fa253a8fd0de7ae7de269283050249cac23f7645a",
+      "src": "/captures/solutions/stage/phone/light/startups-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20084,
+      "height": 960,
+      "key": "startups:inbox:de:dark:phone",
+      "route": "/de/w/gruender-vertrieb/inbox?threadId=latest",
+      "sha256": "0d087e783b15bbe3e596231a03f82e1dfbad33f1d811ac3a8f0312ab2d891e4c",
+      "src": "/captures/solutions/stage/phone/dark/startups-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19518,
+      "height": 960,
+      "key": "startups:calendar:en:light:phone",
+      "route": "/en/w/founder-sales/calendar",
+      "sha256": "439bbfb01f4a18bd7bd0bdeeec900bb5c50a4f0265abba1a9fbc0165da2611bf",
+      "src": "/captures/solutions/stage/phone/light/startups-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19292,
+      "height": 960,
+      "key": "startups:calendar:en:dark:phone",
+      "route": "/en/w/founder-sales/calendar",
+      "sha256": "050f00493e1c91f67158cef9d9b8229901bb5674e12118b9fa673ba314869fb0",
+      "src": "/captures/solutions/stage/phone/dark/startups-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19736,
+      "height": 960,
+      "key": "startups:calendar:de:light:phone",
+      "route": "/de/w/gruender-vertrieb/calendar",
+      "sha256": "2a57111aeb58e239b5790018a4e32277f4fcf3d987063db995efea6b6af13398",
+      "src": "/captures/solutions/stage/phone/light/startups-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19258,
+      "height": 960,
+      "key": "startups:calendar:de:dark:phone",
+      "route": "/de/w/gruender-vertrieb/calendar",
+      "sha256": "f375068e690c9a676c9c6710cffd9f3fd7ebaaee2e799347903dd69cc843537e",
+      "src": "/captures/solutions/stage/phone/dark/startups-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 11402,
+      "height": 960,
+      "key": "client-management:dashboard:en:light:phone",
+      "route": "/en/w/client-management/dashboard",
+      "sha256": "2814faaf592c3b0f1e286a4e262efd72fa7c39d9b4ab99d74936c9cb3109f7c2",
+      "src": "/captures/solutions/stage/phone/light/client-management-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 11544,
+      "height": 960,
+      "key": "client-management:dashboard:en:dark:phone",
+      "route": "/en/w/client-management/dashboard",
+      "sha256": "2c538b203983c29a31f62360a6b2b1b97d48ec081ea96320c0ceeccf8db34251",
+      "src": "/captures/solutions/stage/phone/dark/client-management-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14090,
+      "height": 960,
+      "key": "client-management:dashboard:de:light:phone",
+      "route": "/de/w/kundenverwaltung/dashboard",
+      "sha256": "45731478c896be11e9af981806b67e8c1b1d7e770b7a8f7a5b163bb3674a58e5",
+      "src": "/captures/solutions/stage/phone/light/client-management-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14252,
+      "height": 960,
+      "key": "client-management:dashboard:de:dark:phone",
+      "route": "/de/w/kundenverwaltung/dashboard",
+      "sha256": "89906098ce015889ba0ac1e1cb8c505d6c716aaa0399ae99cf71e28e2f60648c",
+      "src": "/captures/solutions/stage/phone/dark/client-management-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22664,
+      "height": 960,
+      "key": "client-management:clientOverview:en:light:phone",
+      "route": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "sha256": "0153f8cb378d250d4a65e01ea733039d7843740dbf9e73bd95913c764c664634",
+      "src": "/captures/solutions/stage/phone/light/client-management-clientOverview-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22538,
+      "height": 960,
+      "key": "client-management:clientOverview:en:dark:phone",
+      "route": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+      "sha256": "cf6282ee493d3dafb5a6cbe45c6ed25133b8d0e7886042d3716426e5aa9ff3ed",
+      "src": "/captures/solutions/stage/phone/dark/client-management-clientOverview-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 23722,
+      "height": 960,
+      "key": "client-management:clientOverview:de:light:phone",
+      "route": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
+      "sha256": "b3ecc39a245ccb93e3c3530d52074cb02a2759bf02642fcebb6bae45569d72d3",
+      "src": "/captures/solutions/stage/phone/light/client-management-clientOverview-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 23348,
+      "height": 960,
+      "key": "client-management:clientOverview:de:dark:phone",
+      "route": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
+      "sha256": "8bf7e3b7c6cc719397cb70726c8fe14c089a3a6e0e7e6a7c49f5307f614ea7ec",
+      "src": "/captures/solutions/stage/phone/dark/client-management-clientOverview-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 15130,
+      "height": 960,
+      "key": "client-management:inbox:en:light:phone",
+      "route": "/en/w/client-management/inbox?threadId=latest",
+      "sha256": "57035e90022fe71ce55cc94e99e02c19342e43bfd088f00e4a5561dd45e9ec6d",
+      "src": "/captures/solutions/stage/phone/light/client-management-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14884,
+      "height": 960,
+      "key": "client-management:inbox:en:dark:phone",
+      "route": "/en/w/client-management/inbox?threadId=latest",
+      "sha256": "8321f67afb3ae9f2c2c213895fec84e97220f72f7a07d5bb006e19c019d87e0c",
+      "src": "/captures/solutions/stage/phone/dark/client-management-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17086,
+      "height": 960,
+      "key": "client-management:inbox:de:light:phone",
+      "route": "/de/w/kundenverwaltung/inbox?threadId=latest",
+      "sha256": "85c19ba0ce2c3935b8ce1fcef745e337f15a2e0a4d7facc717f3d3f9d346c6ef",
+      "src": "/captures/solutions/stage/phone/light/client-management-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16846,
+      "height": 960,
+      "key": "client-management:inbox:de:dark:phone",
+      "route": "/de/w/kundenverwaltung/inbox?threadId=latest",
+      "sha256": "92706536af4ffc27d1344f5790ff815c10ea037ac9132cc41236ce24c1446657",
+      "src": "/captures/solutions/stage/phone/dark/client-management-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19164,
+      "height": 960,
+      "key": "client-management:calendar:en:light:phone",
+      "route": "/en/w/client-management/calendar",
+      "sha256": "4cb594831407bbddc9248d3ed1f6716e434d004b60a3dd94d5fa59001eb90199",
+      "src": "/captures/solutions/stage/phone/light/client-management-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 18930,
+      "height": 960,
+      "key": "client-management:calendar:en:dark:phone",
+      "route": "/en/w/client-management/calendar",
+      "sha256": "ca584e8fb43ce790cd60216d5f6a487702b694b13f193ed3cacf0974edafd0bb",
+      "src": "/captures/solutions/stage/phone/dark/client-management-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19494,
+      "height": 960,
+      "key": "client-management:calendar:de:light:phone",
+      "route": "/de/w/kundenverwaltung/calendar",
+      "sha256": "ccde76dcf50abe1a2869251baa7e3b78a483787b37f12071a5dd1a8e0f5f4acc",
+      "src": "/captures/solutions/stage/phone/light/client-management-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19302,
+      "height": 960,
+      "key": "client-management:calendar:de:dark:phone",
+      "route": "/de/w/kundenverwaltung/calendar",
+      "sha256": "d05cb2be986ce5ce0bac6ceae30261c5e7fca3b619075e6d23f852746c6ee92e",
+      "src": "/captures/solutions/stage/phone/dark/client-management-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16884,
+      "height": 960,
+      "key": "sales-pipeline:dashboard:en:light:phone",
+      "route": "/en/w/sales-pipeline/dashboard",
+      "sha256": "a06b6934640483958412672d0d9709ee6a641607c86979bc346cdb14fadc8004",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 16878,
+      "height": 960,
+      "key": "sales-pipeline:dashboard:en:dark:phone",
+      "route": "/en/w/sales-pipeline/dashboard",
+      "sha256": "b805a03b98f1835aa89a7920af5ea72ba827621c403e6c2700973a22ef5f0ff8",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19594,
+      "height": 960,
+      "key": "sales-pipeline:dashboard:de:light:phone",
+      "route": "/de/w/vertriebspipeline/dashboard",
+      "sha256": "fcca68b678906b7f25016b9e1ebd39633961426c3b289ac1a3a399629fe8bfcc",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19418,
+      "height": 960,
+      "key": "sales-pipeline:dashboard:de:dark:phone",
+      "route": "/de/w/vertriebspipeline/dashboard",
+      "sha256": "ed1ff87087926f56b599d46ffbeecc40f9515e055cade15ced9a3f6c1e492d53",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22362,
+      "height": 960,
+      "key": "sales-pipeline:pipeline:en:light:phone",
+      "route": "/en/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "sha256": "6d7f82e753067cb512f08dc179ba4c8bb771ba1c4cb07dcbe0173c9b7b77ab8d",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21658,
+      "height": 960,
+      "key": "sales-pipeline:pipeline:en:dark:phone",
+      "route": "/en/w/sales-pipeline/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+      "sha256": "732b4ec103b788fab9eb38a8d5b42d92c2fbdce5cfade39af259c2e3e760e789",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 22422,
+      "height": 960,
+      "key": "sales-pipeline:pipeline:de:light:phone",
+      "route": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
+      "sha256": "43be53a28d3dff33af2b3a710c7bb352d2370644444cbb8c8526d2e6c7f628e1",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21476,
+      "height": 960,
+      "key": "sales-pipeline:pipeline:de:dark:phone",
+      "route": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
+      "sha256": "041cf3e3d145ee94ab79382c15a96c86deac38c8fcbcf7ebbd086118080535e9",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20114,
+      "height": 960,
+      "key": "sales-pipeline:inbox:en:light:phone",
+      "route": "/en/w/sales-pipeline/inbox?threadId=latest",
+      "sha256": "bd809daa25c290981cdf1dd8442ada812135b15e13b36752b5c49a5b88f25241",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19768,
+      "height": 960,
+      "key": "sales-pipeline:inbox:en:dark:phone",
+      "route": "/en/w/sales-pipeline/inbox?threadId=latest",
+      "sha256": "b7739de2b31c10d1483a1f5896167cab42786eb2650ac6c5b82615948a1fa9bc",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20390,
+      "height": 960,
+      "key": "sales-pipeline:inbox:de:light:phone",
+      "route": "/de/w/vertriebspipeline/inbox?threadId=latest",
+      "sha256": "4ce027d27f01d7f421acc7e2d5e7dbdb45756fdc7811f063251161c25b71a63b",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19792,
+      "height": 960,
+      "key": "sales-pipeline:inbox:de:dark:phone",
+      "route": "/de/w/vertriebspipeline/inbox?threadId=latest",
+      "sha256": "902e5e60a5a5e90e68008067072f3d39022050647e352d4ede6a204c1b9434da",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21398,
+      "height": 960,
+      "key": "sales-pipeline:calendar:en:light:phone",
+      "route": "/en/w/sales-pipeline/calendar",
+      "sha256": "0d32e02ca0896282a67798697fc0480270277ddfc8a1cf8b5b2eea6d00e59bb5",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20486,
+      "height": 960,
+      "key": "sales-pipeline:calendar:en:dark:phone",
+      "route": "/en/w/sales-pipeline/calendar",
+      "sha256": "f5c5120064ac46212035208c1c96f775cf5fc00803a3b309c37e0607651c64b8",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21704,
+      "height": 960,
+      "key": "sales-pipeline:calendar:de:light:phone",
+      "route": "/de/w/vertriebspipeline/calendar",
+      "sha256": "cf9f383185ec07d48efddffbe792c4ce15bffc8b448bbb7855516e72b945241d",
+      "src": "/captures/solutions/stage/phone/light/sales-pipeline-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20872,
+      "height": 960,
+      "key": "sales-pipeline:calendar:de:dark:phone",
+      "route": "/de/w/vertriebspipeline/calendar",
+      "sha256": "68abeb064892ab205d580e9c74244b4f2d7c5745d77e851e04a40ae3fcdd2f62",
+      "src": "/captures/solutions/stage/phone/dark/sales-pipeline-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13830,
+      "height": 960,
+      "key": "linkedin-crm:dashboard:en:light:phone",
+      "route": "/en/w/linkedin-sales/dashboard",
+      "sha256": "fa9e7214d94cb0ff5e5b169abaaacc95bfb3115cd795e0f37e0b6a9ebd77b2c5",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 13712,
+      "height": 960,
+      "key": "linkedin-crm:dashboard:en:dark:phone",
+      "route": "/en/w/linkedin-sales/dashboard",
+      "sha256": "8ab9fdb905949065f6b9caf2811589937e62d57f249302f451979f574747b19e",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 15992,
+      "height": 960,
+      "key": "linkedin-crm:dashboard:de:light:phone",
+      "route": "/de/w/linkedin-vertrieb/dashboard",
+      "sha256": "981d2e911dba6bb3777d0ece9ed798ae08f7d28d27bfffef1a34b6f8718d4357",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 15986,
+      "height": 960,
+      "key": "linkedin-crm:dashboard:de:dark:phone",
+      "route": "/de/w/linkedin-vertrieb/dashboard",
+      "sha256": "4f780b84b644187839d12eef05e2d36aaac33b8462b0b8312766a02d9d7d63b3",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 26922,
+      "height": 960,
+      "key": "linkedin-crm:inbox:en:light:phone",
+      "route": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
+      "sha256": "9933de2c3a71a9acf7e6ce5c264488eff373cb6cab85adb64decc13fc2774b1e",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 26002,
+      "height": 960,
+      "key": "linkedin-crm:inbox:en:dark:phone",
+      "route": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
+      "sha256": "0662e72fc341eed309e65980ef59f839e8814b92b63fc4c0730bc1272acff5bb",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 26132,
+      "height": 960,
+      "key": "linkedin-crm:inbox:de:light:phone",
+      "route": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
+      "sha256": "def53b58a46cf6d7220d36ac26dff90c6db000bbd536531143738f243cc4c49a",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 25342,
+      "height": 960,
+      "key": "linkedin-crm:inbox:de:dark:phone",
+      "route": "/de/w/linkedin-vertrieb/inbox?threadId=17000000-5710-4000-8000-000000000001",
+      "sha256": "e8534e1945283a94dadd4d8d3cf181eb922b3b4e23f42a490377892c33b8869c",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19230,
+      "height": 960,
+      "key": "linkedin-crm:pipeline:en:light:phone",
+      "route": "/en/w/linkedin-sales/records/f53ac0d4-2cf6-8225-8956-f7e508385f9e?view=1f100000-5700-4000-8000-000000000003",
+      "sha256": "8f60ad51b8734b88afc10861ecf866f9aceea5fa30f199406004354374b38c81",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19022,
+      "height": 960,
+      "key": "linkedin-crm:pipeline:en:dark:phone",
+      "route": "/en/w/linkedin-sales/records/f53ac0d4-2cf6-8225-8956-f7e508385f9e?view=1f100000-5700-4000-8000-000000000003",
+      "sha256": "3e5feab77f371f97c60b5a7667b9a878420bac991b5d51ef03a19549b3179dcc",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20502,
+      "height": 960,
+      "key": "linkedin-crm:pipeline:de:light:phone",
+      "route": "/de/w/linkedin-vertrieb/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
+      "sha256": "dcb2ee1bd77e98761b2febe3cf22ca1cc362abd229401a1af05cf08074d8b4e5",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20100,
+      "height": 960,
+      "key": "linkedin-crm:pipeline:de:dark:phone",
+      "route": "/de/w/linkedin-vertrieb/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
+      "sha256": "0758fc8362e7225be936207b02ddf0c0d59aa16e939ea6f86828023c74fa752e",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21668,
+      "height": 960,
+      "key": "linkedin-crm:calendar:en:light:phone",
+      "route": "/en/w/linkedin-sales/calendar",
+      "sha256": "2911db6dda9255f3e0085a89635d0383ccec5c08abb6df8e865571f8ebf68ccc",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20102,
+      "height": 960,
+      "key": "linkedin-crm:calendar:en:dark:phone",
+      "route": "/en/w/linkedin-sales/calendar",
+      "sha256": "3f3e2d4741fd28675ea6134edbab1b63501c9ec0d4307b07393d88cb0ab1f933",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 23044,
+      "height": 960,
+      "key": "linkedin-crm:calendar:de:light:phone",
+      "route": "/de/w/linkedin-vertrieb/calendar",
+      "sha256": "3aca194b0311e6a482e44f009aa22cc54be1467853ab80011da353e7ed1acfdb",
+      "src": "/captures/solutions/stage/phone/light/linkedin-crm-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21334,
+      "height": 960,
+      "key": "linkedin-crm:calendar:de:dark:phone",
+      "route": "/de/w/linkedin-vertrieb/calendar",
+      "sha256": "23ff0aa5d820951e3abe791af5e68b42204ca15610c6d3478951817f4313c11f",
+      "src": "/captures/solutions/stage/phone/dark/linkedin-crm-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14432,
+      "height": 960,
+      "key": "whatsapp-crm:dashboard:en:light:phone",
+      "route": "/en/w/whatsapp/dashboard",
+      "sha256": "d4d879da0a951651963dbad8730f0e65a4f42caba1f958b18be31889db9567d4",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 14404,
+      "height": 960,
+      "key": "whatsapp-crm:dashboard:en:dark:phone",
+      "route": "/en/w/whatsapp/dashboard",
+      "sha256": "9a23b6fc5ca4ac6d74a9a0e696b4762043ff379aa16a1bc6ad3028fbcad847b4",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-dashboard-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 15316,
+      "height": 960,
+      "key": "whatsapp-crm:dashboard:de:light:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/dashboard",
+      "sha256": "c8f46a93a575acae7dfc98a1dcccafff0f7b027eff92f3e331506f9a6def8731",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 15396,
+      "height": 960,
+      "key": "whatsapp-crm:dashboard:de:dark:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/dashboard",
+      "sha256": "13b73303396e70701bf590b8f4d6eb4d4fa3e6e865e21d054952f37cc6395a9f",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-dashboard-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20084,
+      "height": 960,
+      "key": "whatsapp-crm:inbox:en:light:phone",
+      "route": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
+      "sha256": "97d423063bc0cbbd1ef98a8c8d2f252bc8e288fd975a165ed1ebd33cc752a9fc",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20474,
+      "height": 960,
+      "key": "whatsapp-crm:inbox:en:dark:phone",
+      "route": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
+      "sha256": "f10f8789109f4c0fe8ad51f5466f980aef14870ef3fd4c4c06280e7a4f0725f0",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-inbox-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20702,
+      "height": 960,
+      "key": "whatsapp-crm:inbox:de:light:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
+      "sha256": "26adc7c7759657cebc23b8d3df0bb663f4d3dfaa92b67306b55a11adab57c336",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20348,
+      "height": 960,
+      "key": "whatsapp-crm:inbox:de:dark:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
+      "sha256": "60d4aceb68655b21cfdbf4aa176132eeaa0f7f2264544b63e2ae4ea7d3469842",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-inbox-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 18130,
+      "height": 960,
+      "key": "whatsapp-crm:pipeline:en:light:phone",
+      "route": "/en/w/whatsapp/records/71ccb9f3-256a-82b0-88b8-699c1c5aa3b2?view=1f100000-5800-4000-8000-000000000001",
+      "sha256": "114ea985cee440217c3390e621af29ca0e99a32d0d5e06e3574024d974f66bef",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 17846,
+      "height": 960,
+      "key": "whatsapp-crm:pipeline:en:dark:phone",
+      "route": "/en/w/whatsapp/records/71ccb9f3-256a-82b0-88b8-699c1c5aa3b2?view=1f100000-5800-4000-8000-000000000001",
+      "sha256": "dc341e4c11e776578499ece28bd159bebded50b7406dbf65c9488cdf27ee97ce",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-pipeline-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20520,
+      "height": 960,
+      "key": "whatsapp-crm:pipeline:de:light:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/records/fb449340-6498-83f4-8c17-8cafcaba0c38?view=1f100000-5810-4000-8000-000000000001",
+      "sha256": "c9fc862dd6bb0fac2cac3d2cec68f8f59f212341158f2b762e8bed2ffa75cb72",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20130,
+      "height": 960,
+      "key": "whatsapp-crm:pipeline:de:dark:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/records/fb449340-6498-83f4-8c17-8cafcaba0c38?view=1f100000-5810-4000-8000-000000000001",
+      "sha256": "174bbde758d31a55202b04b9d902dfd7a86c1d0c7b774868d58e6d256b8e7b10",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-pipeline-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19912,
+      "height": 960,
+      "key": "whatsapp-crm:calendar:en:light:phone",
+      "route": "/en/w/whatsapp/calendar",
+      "sha256": "b6abd7b907e600c384262bc4aad41ab063a47cc4659f35ae6d314dfa2294462b",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 20224,
+      "height": 960,
+      "key": "whatsapp-crm:calendar:en:dark:phone",
+      "route": "/en/w/whatsapp/calendar",
+      "sha256": "1e24ab86a4a5b4563c89b30ca3d378138ea1ce79b47f0d6b9e1a18c4c371275f",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-calendar-en.webp",
+      "width": 585
+    },
+    {
+      "bytes": 21642,
+      "height": 960,
+      "key": "whatsapp-crm:calendar:de:light:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/calendar",
+      "sha256": "c907cfef3342ccc7d57c1182d0d24abf870c9a92ad5e46513c0ee1c76cab8397",
+      "src": "/captures/solutions/stage/phone/light/whatsapp-crm-calendar-de.webp",
+      "width": 585
+    },
+    {
+      "bytes": 19934,
+      "height": 960,
+      "key": "whatsapp-crm:calendar:de:dark:phone",
+      "route": "/de/w/whatsapp-kundenkontakt/calendar",
+      "sha256": "900a032eeab81094c866c893321d9818bc9c2f47749897fd017e0742636f5927",
+      "src": "/captures/solutions/stage/phone/dark/whatsapp-crm-calendar-de.webp",
+      "width": 585
+    }
+  ],
+  "environment": "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright, 390 px wide",
+  "sourceRevision": "d1cb12415-dirty"
+}

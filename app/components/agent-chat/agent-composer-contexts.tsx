@@ -68,13 +68,7 @@ export function AgentComposerContexts({
         if (isAgentFileContext(context))
           return <AgentComposerFileChip key={key} context={context} removeButton={removeButton} />;
         return (
-          <AppChip
-            key={key}
-            className={AGENT_COMPOSER_CHIP_CLASS}
-            endContent={removeButton}
-            size="sm"
-            variant="default"
-          >
+          <AppChip key={key} className={AGENT_COMPOSER_CHIP_CLASS} endContent={removeButton} size="sm" variant="ink">
             {context.label}
           </AppChip>
         );

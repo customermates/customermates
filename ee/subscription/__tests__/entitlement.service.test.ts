@@ -66,13 +66,15 @@ describe('EntitlementService.require("messaging")', () => {
   });
 
   it("denies an unusable subscription with paidSubscriptionRequired", async () => {
-    const { service } = makeService({
-      status: "trial",
-      trialEndDate: EXPIRED_TRIAL,
-      plan: "pro",
-    });
+    const { service } = makeService({ status: "unPaid", trialEndDate: null, plan: "pro" });
     const denied = await service.require("messaging");
     expect(denialCode(denied)).toBe("paidSubscriptionRequired");
+  });
+
+  it("denies the inbox and Mate of a Free workspace with the plan that includes them", async () => {
+    const { service } = makeService({ status: "trial", trialEndDate: EXPIRED_TRIAL, plan: "pro" });
+    expect(denialCode(await service.require("messaging"))).toBe("messagingRequiresPro");
+    expect(denialCode(await service.require("agentChat"))).toBe("agentChatRequiresPlan");
   });
 });
 

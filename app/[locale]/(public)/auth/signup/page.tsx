@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
@@ -13,6 +14,8 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import { buildLocalePath } from "@/i18n/locale-registry";
+import { signupJourneyFromRequest } from "@/features/acquisition/signup-source";
+import { env } from "@/env";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -36,12 +39,21 @@ export default async function SignUpPage({ searchParams }: Props) {
     redirect(buildLocalePath(await getLocale(), pathWithOnboardingIntent("/auth/invitation", invitation.intent)));
 
   await requireUnauthenticated();
+  const signupJourney =
+    invitation || env.APP_MODE !== "cloud"
+      ? undefined
+      : signupJourneyFromRequest({
+          searchParams: params,
+          referer: (await headers()).get("referer"),
+          baseUrl: env.BASE_URL,
+        });
 
   return (
     <CenteredCardPage>
       <SignUpForm
         invitationIntent={invitation?.intent}
         inviterName={invitation?.inviterName}
+        signupJourney={signupJourney}
         socialProviders={enabledSocialProviders}
         workspaceName={invitation?.companyName}
       />

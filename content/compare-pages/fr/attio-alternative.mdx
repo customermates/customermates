@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/agentic-crm
 
+sections:
+  reasons:
+    - title: "WhatsApp et LinkedIn sans application tierce"
+      description: "Dès Pro, votre boîte Gmail, Outlook ou IMAP, LinkedIn (Sales Navigator et Recruiter compris), WhatsApp, Instagram et Telegram arrivent dans une seule boîte de réception, et chaque fil apparaît sur la fiche client."
+    - title: "Une réponse rédigée, une prochaine étape fixée"
+      description: "Dans Customermates Cloud, Mate enregistre un brouillon de réponse dans la conversation et ajoute la prochaine étape. Vous relisez, modifiez et envoyez. Vous préférez Claude ou ChatGPT ? Connectez-le via MCP."
+    - title: "Open source, avec un choix d’hébergement"
+      description: "Attio ne propose que des formules hébergées. Le cœur de Customermates est sous AGPL-3.0 et tourne sur votre propre serveur avec Docker Compose et PostgreSQL 16 ; dans le cloud, la base de données est configurée à Francfort."
+  switchSteps: true
+
 hero:
   title: "Alternative à Attio : Customermates et Attio comparés"
-  description: "Attio est un CRM IA flexible avec enrichissement des données, objets personnalisés à partir de sa formule Pro et une formule gratuite pour trois sièges au maximum. Customermates est un CRM open source développé en Allemagne qui place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires à partir de Pro, et laisse Mate ou votre propre client IA faire le travail dans le CRM. Les informations sur Attio viennent d’attio.com, vérifiées le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  description: "Chez Attio, les objets personnalisés et les séquences sont réservés à Pro, et WhatsApp et LinkedIn passent par des applications tierces. Dès Pro, Customermates range les conversations client sur la fiche client quand les coordonnées correspondent ou que vous les liez, et Mate rédige la réponse. Informations sur Attio vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Facturation mensuelle uniquement
         competitor: 20 % de remise sur Plus et Pro
       - name: Formule gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: Jusqu’à 3 sièges et 50 000 fiches
       - name: Essai gratuit
         source: "[[commercial.trial.days]] jours, sans carte bancaire"
@@ -102,7 +112,7 @@ comparison:
 cta:
   action: Vous comparez Attio et Customermates ?
   description: "Lancez un essai, connectez une boîte mail ou WhatsApp et importez une vue exportée d’Attio. Vous verrez vite si vos propres données et vos conversations conviennent au modèle de Customermates."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -110,6 +120,17 @@ cta:
 ---
 
 > Cherchez une alternative à Attio quand vos clients écrivent sur des canaux qu’Attio ne synchronise pas lui-même, ou quand il vous faut un CRM que vous pouvez héberger vous-même. Attio synchronise directement Gmail et Microsoft 365, intègre WhatsApp et LinkedIn via des applications tierces et ne vend que des formules hébergées. Customermates réunit les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram dans une seule boîte de réception à partir de Pro, et son cœur open source tourne sur votre propre serveur. Si vous dépendez d’un enrichissement de données intégré, Attio est le produit le plus solide, et Twenty ou folk s’en rapprochent davantage que Customermates. Customermates publie cette comparaison ; chaque information sur Attio provient d’attio.com et a été vérifiée le 8 octobre 2026.
+
+## Alternatives à Attio, classées
+
+Le classement suit une seule tâche : garder chaque conversation client à côté de l’affaire. Customermates publie cette liste et arrive premier sur ce critère ; vérifiez donc chaque ligne sur le site de l’éditeur. Les prix et les fonctions viennent de la page tarifs de chaque éditeur, vérifiée le 8 octobre 2026 ; Twenty, Breakcold, HubSpot et Pipedrive ont été revérifiés le 9 novembre 2026.
+
+1. **Customermates** convient aux petites équipes au contact des clients, dont les clients écrivent par e-mail, LinkedIn, WhatsApp, Instagram et Telegram. À partir de Pro, à [[commercial.price.pro.monthly]] par utilisateur et par mois, ces fils se trouvent sur la fiche du client et Mate rédige la réponse que vous relisez et envoyez. Le cœur AGPL-3.0 peut être auto-hébergé, sans la boîte de réception ni Mate.
+2. **Twenty** est l’équivalent open source le plus proche du modèle de données d’Attio. Il offre des objets personnalisés en nombre illimité, un serveur MCP dans chaque espace de travail cloud et une édition auto-hébergée. Cloud Pro coûte 9 $ par utilisateur et par mois facturés annuellement. Organization, à 39 $ par utilisateur et par mois facturés annuellement, ajoute l’authentification unique SAML/OIDC et les permissions au niveau des champs et des lignes (vérifié le 9 novembre 2026). L’essai dure 30 jours. La [comparaison avec Twenty](/compare/twenty-alternative) détaille tout cela.
+3. **folk** convient aux équipes fondées sur la relation qui prospectent sur LinkedIn. Standard coûte 24 $ par membre et par mois facturés annuellement ou 30 $ mensuellement, et comprend une extension LinkedIn, la synchronisation des e-mails, de l’agenda et de WhatsApp, l’enrichissement des contacts et des campagnes d’e-mails. Les objets personnalisés, les affaires et les séquences d’e-mails demandent Premium à 48 $ ou 60 $. Voir [folk comparé à Customermates](/compare/folk).
+4. **Breakcold** convient aux équipes qui vendent sur LinkedIn. Sa page tarifs indique des formules à partir de 49 $ par poste et par mois, facturé mensuellement, avec deux comptes connectés par poste et un accès à Claude, ChatGPT et MCP dans chaque formule.
+5. **HubSpot** convient aux équipes qui veulent démarrer gratuitement. Son CRM gratuit couvre jusqu’à 2 utilisateurs, et Starter coûte 7 € par poste et par mois en facturation annuelle, un prix limité dans le temps.
+6. **Pipedrive** convient aux équipes commerciales centrées sur le pipeline. Lite coûte 14 € par poste et par mois en facturation annuelle, des applications natives iOS et Android sont incluses dans chaque formule, et la synchronisation d’e-mails bidirectionnelle commence avec Growth.
 
 ## Quel CRM pour quelle équipe
 
@@ -137,7 +158,7 @@ Si cette liste décrit votre façon de travailler, changer vous coûtera probabl
 
 **L’IA et les workflows fonctionnent avec des crédits.** Chaque formule comprend des crédits par siège pour Ask Attio et un pool de crédits d’espace de travail pour les fonctions IA et les workflows. Quand un espace de travail sur une formule payante en a besoin de plus, Attio vend des packs de 5 000 à 50 000 crédits d’espace de travail, à partir de 85 $ par mois en facturation mensuelle ou 70 $ facturés annuellement.
 
-**L’e-mail, c’est Google ou Microsoft.** Attio synchronise directement Gmail et Microsoft 365. Son centre d’aide indique que les autres fournisseurs et IMAP ne peuvent pas être connectés ; le courrier venant d’ailleurs arrive par transfert. Les conversations WhatsApp et LinkedIn parviennent à Attio via des applications tierces de son App Store, comme TimelinesAI pour WhatsApp et SuperLinkIn pour LinkedIn, qui enregistrent les messages sous forme de notes sur la fiche de la personne.
+**L’e-mail, c’est Google ou Microsoft.** Attio synchronise directement Gmail et Microsoft 365. Son centre d’aide, consulté le 9 novembre 2026, indique que les autres fournisseurs et IMAP ne peuvent pas être connectés ; le courrier venant d’ailleurs arrive par transfert. Les conversations WhatsApp et LinkedIn parviennent à Attio via des applications tierces de son App Store, comme TimelinesAI pour WhatsApp et SuperLinkIn pour LinkedIn, qui enregistrent les messages sous forme de notes sur la fiche de la personne.
 
 **Des formules hébergées uniquement.** La page tarifs d’Attio liste Free, Plus, Pro et Enterprise comme des formules hébergées, sans édition auto-hébergée ni licence open source. Son avenant de traitement des données désigne Google Cloud comme hébergeur et applique les clauses contractuelles types de l’UE pour les transferts.
 
@@ -162,7 +183,7 @@ Ces lignes n’achètent pas les mêmes choses : lisez-les par paires.
 
 ## Où se situe Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes au contact des clients : consultants, agences, autres entreprises de services et fondateurs. Il est développé en Allemagne.
+Si vos clients répondent sur LinkedIn ou WhatsApp et qu’Attio garde ces fils dans des applications tierces, Customermates les range d’emblée sur la fiche client. Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez, modifiez et envoyez. Le cœur est open source et développé en Allemagne.
 
 **Les conversations à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit dans une seule liste les boîtes Gmail, Outlook et IMAP, LinkedIn (Sales Navigator et Recruiter compris), WhatsApp, Instagram et Telegram, et vous répondez sur le canal d’origine. Liez une fois un participant à un contact, et chaque conversation avec cette adresse ou ce profil apparaît dans la chronologie du contact. Starter n’a pas de boîte de réception.
 
@@ -179,7 +200,7 @@ Vérifiez ces points avant de lancer un essai :
 - **Ni enrichissement, ni enregistrement des appels, ni téléphonie.** Les données de contact sont celles que votre équipe ou votre client IA saisit.
 - **Ni séquences, ni envoi d’e-mails en masse.** La prospection se fait message par message, écrit par vous ou rédigé par Mate.
 - **Ni applications mobiles natives, ni SSO.** Customermates fonctionne dans le navigateur du téléphone. Les permissions s’appliquent par liste et par action, pas par champ.
-- **Pas de formule gratuite.** Il y a un essai de [[commercial.trial.days]] jours, puis une formule payante.
+- **Une petite formule gratuite.** Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Une configuration type : une agence qui quitte Attio
 
@@ -208,22 +229,15 @@ Chacun des cinq possède une routine pour la vérification des relances du lundi
   <Step title="Exporter depuis Attio">Ouvrez chaque vue dans Attio et choisissez Import / Export, puis Export view as Excel. Le fichier contient les colonnes visibles dans la vue : affichez donc d’abord tous les attributs que vous voulez garder. Attio n’exporte pas les valeurs enrichies ; ces cellules sortent vides.</Step>
   <Step title="Préparer l’espace de travail">Renommez les listes dans Configurer si vos mots diffèrent, créez des champs personnalisés pour les attributs que vous gardez et configurez le champ d’étape avec ses probabilités.</Step>
   <Step title="Importer une liste à la fois">Importez d’abord les organisations, puis les contacts, puis les affaires. Un classeur peut contenir jusqu’à 10 000 lignes et 10 Mo. Les colonnes de liaison associent les fiches par leur nom : la colonne entreprise d’un contact retrouve donc l’organisation importée avant. Les nouveaux contacts ont besoin d’un prénom et d’un nom. Associez les adresses e-mail et les numéros de téléphone au champ Coordonnées du contact ; les coordonnées ne sont ajoutées qu’aux nouveaux contacts.</Step>
-  <Step title="Reconstruire les listes sous forme de vues">Transformez chaque liste Attio en un champ à choix unique et une vue enregistrée. Les vues restent privées tant que vous ne les partagez pas ; partagez celles que toute l’équipe utilise. Une colonne de notes du classeur est associée aux notes de la fiche ; les notes que vous ajoutez ensuite peuvent être écrites en masse par un client IA via MCP, jusqu’à 100 fiches par appel.</Step>
+  <Step title="Reconstruire les listes sous forme de vues">Transformez chaque liste Attio en un champ à choix unique et une vue enregistrée. Partagez les vues dont toute l’équipe a besoin depuis le menu **Partager…** de la vue. Une colonne de notes du classeur est associée aux notes de la fiche ; les notes que vous ajoutez ensuite peuvent être écrites en masse par un client IA via MCP, jusqu’à 100 fiches par appel.</Step>
   <Step title="Connecter les canaux et l’IA">Sur Pro ou pendant l’essai, connectez une boîte mail, LinkedIn ou WhatsApp sous Paramètres, Canaux. Configurez ensuite des routines pour Mate, ou connectez votre propre client IA via MCP.</Step>
 </Steps>
-
-## D’autres alternatives à Attio à considérer
-
-Customermates publie cette liste. Les prix et les fonctions viennent de la page tarifs de chaque éditeur, vérifiée le 8 octobre 2026.
-
-- **Twenty** est l’équivalent open source le plus proche du modèle de données d’Attio. Il offre des objets personnalisés en nombre illimité, un serveur MCP dans chaque espace de travail cloud et une édition auto-hébergée. Cloud Pro coûte 9 $ par utilisateur et par mois facturés annuellement. Organization, à 19 $ par utilisateur et par mois facturés annuellement, ajoute l’authentification unique SAML/OIDC et les permissions au niveau des lignes. L’essai dure 30 jours. La [comparaison avec Twenty](/compare/twenty-alternative) détaille tout cela.
-- **folk** convient aux équipes fondées sur la relation qui prospectent sur LinkedIn. Standard coûte 24 $ par membre et par mois facturés annuellement ou 30 $ mensuellement, et comprend une extension LinkedIn, la synchronisation des e-mails, de l’agenda et de WhatsApp, l’enrichissement des contacts et des campagnes d’e-mails. Les objets personnalisés, les affaires et les séquences d’e-mails demandent Premium à 48 $ ou 60 $. Voir [folk comparé à Customermates](/compare/folk).
 
 ## Questions fréquentes
 
 <Faq>
 <FaqItem question="Attio est-il gratuit ?">
-Oui, pour les petites équipes. Attio Free couvre jusqu’à 3 sièges, 50 000 fiches et 3 objets, avec synchronisation des e-mails et de l’agenda, enrichissement et une enveloppe mensuelle de crédits. Les formules payantes commencent avec Plus à 44 $ par utilisateur et par mois, ou 35 $ facturés annuellement. Attio propose aussi un essai de 14 jours de Pro. Customermates n’a pas de formule gratuite ; il propose un essai de [[commercial.trial.days]] jours et des formules payantes facturées mensuellement.
+Oui, pour les petites équipes. Attio Free couvre jusqu’à 3 sièges, 50 000 fiches et 3 objets, avec synchronisation des e-mails et de l’agenda, enrichissement et une enveloppe mensuelle de crédits. Les formules payantes commencent avec Plus à 44 $ par utilisateur et par mois, ou 35 $ facturés annuellement. Attio propose aussi un essai de 14 jours de Pro. Customermates propose une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines, un essai de [[commercial.trial.days]] jours et des formules payantes facturées mensuellement.
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative open source à Attio ?">

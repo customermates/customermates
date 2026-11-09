@@ -470,14 +470,14 @@ describe("filter palette pages", () => {
 
     const applied = openingTag(render(table), "data-filter-index=");
 
-    expect(applied).toContain("bg-primary/20");
+    expect(applied).toContain("bg-primary/10");
     expect(applied).toContain("text-primary-soft-foreground");
 
     for (const theme of ["light", "dark"] as const) {
       const tokens = THEME_TOKENS[theme];
       const ground = composite(tokens, "--popover", [0, 0, 0]);
       const fill = composite(tokens, "--primary", ground.map(() => 0) as Rgb);
-      const tint = ground.map((base, channel) => fill[channel] * 0.2 + base * 0.8) as Rgb;
+      const tint = ground.map((base, channel) => fill[channel] * 0.1 + base * 0.9) as Rgb;
       const label = composite(tokens, "--primary-soft-foreground", ground);
 
       expect(contrast(label, tint)).toBeGreaterThanOrEqual(4.5);

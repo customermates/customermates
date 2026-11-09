@@ -14,9 +14,10 @@ import type { RecordSuggestionSignals } from "./record-suggestion-signals";
 
 import { AgentConversationSummarySchema, AgentDataCountsSchema } from "./agent-chat.schema";
 import { resolveAgentModel } from "./model-catalog";
+import { FREE_PLAN_UPGRADE_PLAN, PURCHASABLE_PLAN_IDS } from "@/core/commercial/plan-catalog";
 
 const OutputSchema = z.discriminatedUnion("enabled", [
-  z.object({ enabled: z.literal(false) }),
+  z.object({ enabled: z.literal(false), upgradePlan: z.enum(PURCHASABLE_PLAN_IDS).optional() }),
   z.object({
     enabled: z.literal(true),
     usage: AgentUsageViewSchema,
@@ -46,7 +47,15 @@ export class GetAgentConfigInteractor extends AuthenticatedInteractor<void, Agen
   @ValidateOutput(OutputSchema)
   async invoke(): Validated<AgentConfig> {
     const denied = await this.entitlements.require("agentChat");
-    if (denied) return { ok: true as const, data: { enabled: false as const } };
+    if (denied) {
+      return {
+        ok: true as const,
+        data: {
+          enabled: false as const,
+          ...(denied.code === "agentChatRequiresPlan" ? { upgradePlan: FREE_PLAN_UPGRADE_PLAN } : {}),
+        },
+      };
+    }
 
     await this.repo.normalizeExpiredAgentRunLease(new Date(), resolveAgentModel().modelId);
 

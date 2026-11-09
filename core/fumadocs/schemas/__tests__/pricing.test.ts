@@ -29,7 +29,9 @@ describe("pricingDataSchema", () => {
   it("requires exactly one card for every catalog plan", () => {
     expect(pricingDataSchema.parse(pricingCards(PLAN_IDS.map(card))).pricingCards).toHaveLength(PLAN_IDS.length);
 
-    expect(() => pricingDataSchema.parse(pricingCards(PLAN_IDS.slice(1).map(card)))).toThrow("exactly one starter");
+    expect(() =>
+      pricingDataSchema.parse(pricingCards(PLAN_IDS.filter((plan) => plan !== "starter").map(card))),
+    ).toThrow("exactly one starter");
     expect(() => pricingDataSchema.parse(pricingCards([...PLAN_IDS.map(card), card("starter")]))).toThrow(
       "exactly one starter",
     );

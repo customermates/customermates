@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Salesforce Agentforce: How Its AI Agents Work and What They Cost"
-  description: "Agentforce is Salesforce's platform for AI agents that answer customers and act on Salesforce data. Here is how an agent is built, what each pricing model costs in practice, what happened to Einstein, and how to introduce it one use case at a time."
+  description: "Agentforce is Salesforce's platform for AI agents that act on Salesforce data. How an agent is built, what each pricing model costs, what happened to Einstein and how to start with one use case."
 
 blogPost:
   author: Benjamin Wagner
@@ -148,7 +148,7 @@ This section is about Customermates, which publishes this guide. Customermates i
 |---|---|---|
 | Agents and actions | Mate, the assistant in Customermates Cloud, which uses hosted AI credits, plus [routines](/docs/app-routines): saved instructions that run on a schedule or when a record changes | One assistant, no agent builder, no voice. Deletions and a few admin actions wait for your approval |
 | Agentforce Data Library | The Knowledge Base, written by hand or imported from your website by Mate | Mate cites the pages it used |
-| Flex Credits | Monthly hosted AI credits per active user, part of each cloud plan | No per-action price; see [pricing](/pricing) |
+| Flex Credits | Monthly hosted AI credits per active user, part of each paid plan | No per-action price; see [pricing](/pricing) |
 | Bring your own model | Claude, ChatGPT and other clients connect through the [MCP server](/docs/mcp) and its [[derived.mcp.tools.total]] tools, on your own AI subscription | Works on every plan and on self-hosted installs |
 | Einstein Trust Layer | Approval cards for deletions, team invitations and a few other actions | No data masking and no toxicity scores |
 | Customer-facing service agents | None | No website chat, voice agent or telephony |
@@ -163,9 +163,9 @@ language of the conversation. Do not send anything.
 End with a list of the drafts you saved.
 ```
 
-A routine runs as its owner, with the owner's connected channels and permissions, and refuses anything that would need approval. Mate sends messages when asked to, which is why the instruction says "Do not send anything".
+A routine runs as its owner, with the owner's connected channels and permissions, and refuses anything that would need approval. Mate sends messages when asked to, which is why the instruction says "Do not send anything". Run every morning, that routine is the follow-up promise in small: for each client who wrote last, a reply draft is waiting in the conversation, and you review, edit and send it.
 
-For the same 10 people, Pro costs [[commercial.price.pro.monthly.seats.10]] per month. That includes the [unified inbox](/features/unified-inbox) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user (email, LinkedIn, WhatsApp, Instagram or Telegram), up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user and monthly hosted AI credits per active user. Starter costs [[commercial.price.starter.monthly.seats.10]] per month, with Mate and MCP but no inbox. Billing is monthly. Self-hosting gives you the AGPL core with REST, webhooks and MCP, without the inbox, Mate or routines.
+For the same 10 people, Pro costs [[commercial.price.pro.monthly.seats.10]] per month. That includes the [unified inbox](/features/unified-inbox) with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user (email, LinkedIn, WhatsApp, Instagram or Telegram), up to [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user and monthly hosted AI credits per active user. Starter costs [[commercial.price.starter.monthly.seats.10]] per month, with Mate and MCP but no inbox. Billing is monthly. Self-hosting gives you the AGPL core with REST, webhooks and MCP, without the inbox, Mate or routines. The reply-draft routine needs the inbox, which starts on Pro, so [start the [[commercial.trial.days]]-day trial](/auth/signup?job=followup) to run it on your own conversations. No credit card.
 
 Customermates has no high-volume service agent, no voice agent and no predictive AI for large sales teams. If you need those, or your company has already built its processes in Salesforce, Agentforce is the shorter path, and the [Salesforce alternative comparison](/compare/salesforce-alternative) helps if you are weighing a move.
 
