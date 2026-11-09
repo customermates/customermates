@@ -7,6 +7,7 @@ import {
   ArrowLeftRight,
   BookOpen,
   Building2,
+  CalendarDays,
   Repeat,
   Settings,
   Contrast,
@@ -183,6 +184,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/wiki" },
     shortcut: "goKnowledgeBase",
     requires: { resource: Resource.wiki },
+  },
+  {
+    id: "page.calendar",
+    labelKey: "Planner.title",
+    kind: "page",
+    icon: CalendarDays,
+    target: { href: "/calendar" },
   },
   {
     id: "page.routines",

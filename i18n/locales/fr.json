@@ -941,12 +941,13 @@
         "themeSystem": "thème automatique, suivre le système"
       },
       "page": {
-        "configure": "modèle de données, schéma, listes, champs, relations",
-        "dashboard": "accueil, aperçu, widgets, graphiques",
+        "calendar": "planificateur, rendez-vous, réunions, événements, agenda, planning",
+        "configure": "modèle de données, schéma, listes, champs, relations, Configurer, champs personnalisés, objets",
+        "dashboard": "accueil, aperçu, widgets, graphiques, rapports, analyses, KPI, indicateurs",
         "documentation": "docs, aide, guide, manuel",
-        "inbox": "messages, e-mail, courriel, conversations, discussions",
-        "knowledgeBase": "wiki, notes, fiches, articles",
-        "routines": "automatisations, planifications, tâches récurrentes",
+        "inbox": "messages, e-mail, courriel, conversations, discussions, boîte de réception unifiée, messages privés, messages LinkedIn, WhatsApp",
+        "knowledgeBase": "wiki, notes, fiches, articles, documentation, playbook, manuel, procédures, infos entreprise",
+        "routines": "automatisations, planifications, tâches récurrentes, workflows, déclencheurs, règles d’automatisation",
         "settings": "préférences, options, compte, espace de travail",
         "trash": "éléments supprimés, corbeille, restaurer, annuler la suppression"
       },
@@ -986,16 +987,16 @@
         }
       },
       "settings": {
-        "activity": "journal d’audit, historique, modifications",
-        "api-keys": "jetons, API, MCP, développeur, clés d’accès, connecteurs, Claude, ChatGPT, Codex, Gemini, Cursor, IA",
-        "billing": "forfait, abonnement, factures, paiement, tarifs",
-        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram",
+        "activity": "journal d’audit, historique, modifications, Activité, journal d’audit, qui a modifié quoi",
+        "api-keys": "jetons, API, MCP, développeur, clés d’accès, connecteurs, Claude, ChatGPT, Codex, Gemini, Cursor, IA, serveur MCP, n8n, intégration",
+        "billing": "forfait, abonnement, factures, paiement, tarifs, mise à niveau, reçu, facture",
+        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations, Google, Google Agenda, Gmail, Microsoft, Outlook, Instagram, Telegram, agendas, synchronisation de la boîte mail, synchronisation d’agenda, synchronisation e-mail, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "nom de l’espace de travail, renommer l’espace de travail, quitter l’espace de travail",
-        "members": "équipe, utilisateurs, personnes, collègues",
+        "members": "équipe, utilisateurs, personnes, collègues, inviter, sièges, licences",
         "profile": "mon profil, compte, préférences, personnel",
-        "roles": "permissions, accès, droits",
-        "webhook-deliveries": "livraisons de webhook, journal des webhooks, évènements envoyés",
-        "webhooks": "intégrations, rappels, évènements, HTTP",
+        "roles": "permissions, accès, droits, admin, jeux de permissions",
+        "webhook-deliveries": "livraisons de webhook, journal des webhooks, évènements envoyés, Livraisons, journal des webhooks, webhooks échoués, renvoyer",
+        "webhooks": "intégrations, rappels, évènements, HTTP, Zapier, Make, n8n",
         "workspaces": "mes espaces de travail, adhésions, entreprises, changer d’espace de travail, quitter un espace de travail"
       }
     }
@@ -4046,7 +4047,7 @@
       },
       "moved": "Déplacé dans la Corbeille"
     },
-    "configure": "Configurer",
+    "configure": "Modèle de données",
     "configureList": "Configurer {list}",
     "connectionType": "Connexion",
     "constant": "Valeur fixe",
@@ -4780,11 +4781,11 @@
   },
   "SettingsNav": {
     "account": "Compte",
-    "activity": "Activité",
+    "activity": "Journal d’audit",
     "apiKeys": "Clés API et connecteurs",
     "billing": "Facturation",
-    "channels": "Canaux",
-    "deliveries": "Livraisons",
+    "channels": "Canaux et agendas",
+    "deliveries": "Journal des webhooks",
     "general": "Général",
     "members": "Membres",
     "profile": "Profil et préférences",

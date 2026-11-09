@@ -941,12 +941,13 @@
         "themeSystem": "automatic theme, follow system"
       },
       "page": {
-        "configure": "data model, schema, lists, fields, relationships",
-        "dashboard": "home, overview, start, widgets, charts",
+        "calendar": "planner, schedule, meetings, events, agenda, appointments",
+        "configure": "data model, schema, lists, fields, relationships, Configure, custom fields, objects",
+        "dashboard": "home, overview, start, widgets, charts, reports, analytics, KPIs, metrics",
         "documentation": "docs, help, guide, manual",
-        "inbox": "messages, email, mail, conversations, chats",
-        "knowledgeBase": "wiki, notes, pages, articles",
-        "routines": "automations, schedules, recurring tasks",
+        "inbox": "messages, email, mail, conversations, chats, unified inbox, DMs, LinkedIn messages, WhatsApp",
+        "knowledgeBase": "wiki, notes, pages, articles, docs, playbook, handbook, SOPs, company info",
+        "routines": "automations, schedules, recurring tasks, workflows, triggers, automation rules",
         "settings": "preferences, options, account, workspace",
         "trash": "deleted items, recycle bin, restore, undo delete"
       },
@@ -986,16 +987,16 @@
         }
       },
       "settings": {
-        "activity": "audit log, history, changes, log",
-        "api-keys": "tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI",
-        "billing": "plan, subscription, invoices, payment, pricing",
-        "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram",
+        "activity": "audit log, history, changes, log, Activity, audit log, who changed what",
+        "api-keys": "tokens, API, MCP, developer, access keys, connectors, Claude, ChatGPT, Codex, Gemini, Cursor, AI, MCP server, n8n, integration",
+        "billing": "plan, subscription, invoices, payment, pricing, upgrade, receipt",
+        "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendars, inbox sync, calendar sync, email sync, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "workspace name, rename workspace, leave workspace",
-        "members": "team, users, people, colleagues",
+        "members": "team, users, people, colleagues, invite, seats",
         "profile": "account, preferences, personal, name",
-        "roles": "permissions, access, rights",
-        "webhook-deliveries": "webhook deliveries, webhook log, sent events",
-        "webhooks": "integrations, callbacks, events, HTTP",
+        "roles": "permissions, access, rights, admin, permission sets",
+        "webhook-deliveries": "webhook deliveries, webhook log, sent events, Deliveries, webhook log, failed webhooks, resend",
+        "webhooks": "integrations, callbacks, events, HTTP, Zapier, Make, n8n",
         "workspaces": "my workspaces, memberships, companies, switch workspace, leave workspace"
       }
     }
@@ -4046,7 +4047,7 @@
       },
       "moved": "Moved to Trash"
     },
-    "configure": "Configure",
+    "configure": "Data model",
     "configureList": "Configure {list}",
     "connectionType": "Connection",
     "constant": "Fixed value",
@@ -4780,11 +4781,11 @@
   },
   "SettingsNav": {
     "account": "Account",
-    "activity": "Activity",
+    "activity": "Audit log",
     "apiKeys": "API keys & connectors",
     "billing": "Billing",
-    "channels": "Channels",
-    "deliveries": "Deliveries",
+    "channels": "Channels & calendars",
+    "deliveries": "Webhook log",
     "general": "General",
     "members": "Members",
     "profile": "Profile & preferences",

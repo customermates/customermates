@@ -83,11 +83,11 @@ describe("rule 43: Settings is one area, the old company and profile routes are 
 
 const SETTINGS_NAVIGATION = {
   account: "Account",
-  activity: "Activity",
+  activity: "Audit log",
   apiKeys: "API keys & connectors",
   billing: "Billing",
-  channels: "Channels",
-  deliveries: "Deliveries",
+  channels: "Channels & calendars",
+  deliveries: "Webhook log",
   general: "General",
   members: "Members",
   profile: "Profile & preferences",

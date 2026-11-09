@@ -941,12 +941,13 @@
         "themeSystem": "tema automatico, segui il sistema"
       },
       "page": {
-        "configure": "modello dati, schema, elenchi, campi, relazioni",
-        "dashboard": "home, panoramica, widget, grafici",
+        "calendar": "planner, appuntamenti, riunioni, eventi, agenda, programmazione",
+        "configure": "modello dati, schema, elenchi, campi, relazioni, Configura, campi personalizzati, oggetti",
+        "dashboard": "home, panoramica, widget, grafici, report, analisi, KPI, metriche",
         "documentation": "documenti, aiuto, guida, manuale",
-        "inbox": "messaggi, email, posta, conversazioni, chat",
-        "knowledgeBase": "wiki, note, pagine, articoli",
-        "routines": "automazioni, pianificazioni, attività ricorrenti",
+        "inbox": "messaggi, email, posta, conversazioni, chat, posta unificata, messaggi diretti, messaggi LinkedIn, WhatsApp",
+        "knowledgeBase": "wiki, note, pagine, articoli, documentazione, playbook, manuale, procedure, informazioni aziendali",
+        "routines": "automazioni, pianificazioni, attività ricorrenti, workflow, trigger, regole di automazione",
         "settings": "preferenze, opzioni, account, spazio di lavoro",
         "trash": "elementi eliminati, cestino, ripristina, annulla eliminazione"
       },
@@ -986,16 +987,16 @@
         }
       },
       "settings": {
-        "activity": "registro di audit, cronologia, modifiche",
-        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso, connettori, Claude, ChatGPT, Codex, Gemini, Cursor, IA",
-        "billing": "piano, abbonamento, fatture, pagamento, prezzi",
-        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni, Google, Calendario Google, Gmail, Microsoft, Outlook, Instagram, Telegram",
+        "activity": "registro di audit, cronologia, modifiche, Attività, registro di controllo, chi ha cambiato cosa",
+        "api-keys": "token, API, MCP, sviluppatore, chiavi di accesso, connettori, Claude, ChatGPT, Codex, Gemini, Cursor, IA, server MCP, n8n, integrazione",
+        "billing": "piano, abbonamento, fatture, pagamento, prezzi, upgrade, ricevuta, fattura",
+        "channels": "account collegati, account email, LinkedIn, WhatsApp, integrazioni, Google, Calendario Google, Gmail, Microsoft, Outlook, Instagram, Telegram, calendari, sincronizzazione posta, sincronizzazione calendario, sincronizzazione email, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "nome dello spazio di lavoro, rinomina spazio di lavoro, esci dallo spazio di lavoro",
-        "members": "team, utenti, persone, colleghi",
+        "members": "team, utenti, persone, colleghi, invitare, postazioni, licenze",
         "profile": "il mio profilo, account, preferenze, personale",
-        "roles": "permessi, accesso, diritti",
-        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati",
-        "webhooks": "integrazioni, callback, eventi, HTTP",
+        "roles": "permessi, accesso, diritti, admin, set di permessi",
+        "webhook-deliveries": "consegne webhook, registro webhook, eventi inviati, Consegne, log dei webhook, webhook non riusciti, reinvia",
+        "webhooks": "integrazioni, callback, eventi, HTTP, Zapier, Make, n8n",
         "workspaces": "i miei spazi di lavoro, appartenenze, aziende, cambia spazio di lavoro, esci da uno spazio di lavoro"
       }
     }
@@ -4046,7 +4047,7 @@
       },
       "moved": "Spostato nel Cestino"
     },
-    "configure": "Configura",
+    "configure": "Modello dati",
     "configureList": "Configura {list}",
     "connectionType": "Collegamento",
     "constant": "Valore fisso",
@@ -4780,11 +4781,11 @@
   },
   "SettingsNav": {
     "account": "Account",
-    "activity": "Attività",
+    "activity": "Registro attività",
     "apiKeys": "Chiavi API e connettori",
     "billing": "Fatturazione",
-    "channels": "Canali",
-    "deliveries": "Consegne",
+    "channels": "Canali e calendari",
+    "deliveries": "Log dei webhook",
     "general": "Generale",
     "members": "Membri",
     "profile": "Profilo e preferenze",

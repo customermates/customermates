@@ -48,7 +48,7 @@ test("adds contact details as a field, keeps its settings, deletes, restores and
   const channelsOf = async (typeId: string) => recordChannelsField(await readModel(database, companyId), typeId);
   await page.goto(companyPath(companyId, `/records/${contactTypeId}`));
   const configure = page
-    .getByRole("link", { name: "Configure", exact: true })
+    .getByRole("link", { name: "Data model", exact: true })
     .and(page.locator("#nav-configure-records"));
   if (!(await configure.isVisible())) await page.locator("#sidebar-trigger").click();
   await configure.click();

@@ -73,3 +73,33 @@ describe("connection entries in the search", () => {
     expect(readConnectIntent("view=1", CONNECT_INTENT_AI_CLIENTS)).toBeNull();
   });
 });
+
+describe("forgiving search", () => {
+  it("finds connections despite a typo", () => {
+    expect(top("telgram")?.key).toBe("cmd:setting.channels.telegram");
+    expect(top("telegarm")?.key).toBe("cmd:setting.channels.telegram");
+    expect(top("outlok")?.key).toBe("cmd:setting.channels.outlook");
+    expect(top("instagarm")?.key).toBe("cmd:setting.channels.instagram");
+    expect(top("calender")?.key).toBe("cmd:page.calendar");
+  });
+
+  it("finds German compound words by the word they contain", async () => {
+    const german = (await import("@/i18n/locales/de.json")).default;
+    const de: PaletteTranslator = (key) => {
+      const value = key.split(".").reduce<unknown>((node, part) => (node as Record<string, unknown>)?.[part], german);
+      return typeof value === "string" ? value : key;
+    };
+    const ranked = rankCandidates("Kalenderverbindung", staticEntries(de, everything), null);
+    expect(ranked.map((entry) => entry.key)).toEqual(
+      expect.arrayContaining(["cmd:page.calendar", "cmd:settings.channels"]),
+    );
+  });
+
+  it("finds Calendar and renamed pages under their old names", () => {
+    expect(top("calendar")?.key).toBe("cmd:page.calendar");
+    expect(top("planner")?.key).toBe("cmd:page.calendar");
+    expect(top("data model")?.key).toBe("cmd:page.configure");
+    expect(top("audit log")?.key).toBe("cmd:settings.activity");
+    expect(top("deliveries")?.key).toBe("cmd:settings.webhook-deliveries");
+  });
+});

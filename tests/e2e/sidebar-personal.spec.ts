@@ -28,7 +28,7 @@ async function storedLayout(database: Client, userId: string) {
   return result.rows[0]?.settings ?? null;
 }
 
-const DEFAULT_DATA = ["#Data", "Contacts", "Organizations", "Deals", "Services", "Tasks", "Configure"];
+const DEFAULT_DATA = ["#Data", "Contacts", "Organizations", "Deals", "Services", "Tasks", "Data model"];
 
 test("each person customizes their own sidebar and others keep the default", async ({
   page,
@@ -56,8 +56,8 @@ test("each person customizes their own sidebar and others keep the default", asy
     .poll(async () => (await sidebarOrder(page)).filter((entry) => DEFAULT_DATA.includes(entry)))
     .toEqual(
       touch
-        ? ["#Data", "Contacts", "Deals", "Organizations", "Tasks", "Services", "Configure"]
-        : ["#Data", "Deals", "Contacts", "Organizations", "Tasks", "Services", "Configure"],
+        ? ["#Data", "Contacts", "Deals", "Organizations", "Tasks", "Services", "Data model"]
+        : ["#Data", "Deals", "Contacts", "Organizations", "Tasks", "Services", "Data model"],
     );
 
   const menu = await itemMenu(page, "Organizations");
