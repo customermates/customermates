@@ -124,11 +124,17 @@ test("the search finds every channel and AI client connection and starts it on i
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(companyUrlPattern(companyId, "/settings/api-keys$"));
   await expect(
-    page.getByRole("dialog").getByRole("heading", { name: englishMessages.OnboardingWizard.ai.screen.claude.title }),
+    page
+      .getByRole("dialog")
+      .getByRole("heading", { name: englishMessages.OnboardingWizard.ai.screen.claude.title })
+      .first(),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: englishMessages.SettingsNav.apiKeys, exact: true }).first()).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("connect-claude.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("link", { name: englishMessages.SettingsNav.apiKeys, exact: true }).first(),
+  ).toBeVisible();
 
   if (e2eAppMode() === "self-hosted") return;
   const startConnect = serverActionIds(
