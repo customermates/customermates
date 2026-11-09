@@ -1,0 +1,226 @@
+---
+title: "Sales Forecasting: Methods, Formulas and a Worked Example"
+description: "Sales forecasting estimates the revenue a team will win in a period. Weighted pipeline, win rate and run-rate on one worked example, plus a CRM field map."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Sales Forecasting: How to Forecast Revenue From Your Pipeline"
+  description: "A worked example with eight deals, three forecasting methods compared side by side, the formulas to rebuild it in a spreadsheet, and the deal fields a CRM needs so the forecast can be trusted."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to Blog
+  by: by Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Sales Forecasting
+    - Sales Pipeline
+    - Sales Process
+---
+
+# Sales Forecasting: How to Forecast Revenue From Your Pipeline
+
+Sales forecasting is estimating how much revenue your team will win in a future period, usually the next month or quarter, from the deals in your pipeline and your own results so far. For a small B2B team the practical method is a weighted pipeline: multiply each open deal's amount by the win probability of its stage, add up the deals expected to close in the period, and add what you have already won.
+
+This guide works that out on eight example deals, compares the result with a win-rate method and a run-rate method side by side, and lists the fields a deal record needs so you can rebuild the forecast in any spreadsheet. Customermates publishes this guide; the section on forecasting in Customermates is labelled as ours and says plainly what the product does not do.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="Definition">A sales forecast is your best estimate of the revenue you will win in a period. A target is what you want to win. They are different numbers.</SummaryItem>
+  <SummaryItem label="Core formula">Weighted value = deal amount × stage probability. Forecast = won so far + weighted value of the open deals whose expected close date falls inside the period.</SummaryItem>
+  <SummaryItem label="Never rely on one method">Calculate the weighted pipeline, a win-rate figure and a run-rate figure, then publish a range and explain any gap between them.</SummaryItem>
+  <SummaryItem label="Fields every deal needs">Amount, stage, expected close date, owner and, once a deal is closed, the date it was won or lost.</SummaryItem>
+</ArticleSummary>
+
+A forecast is only as good as the pipeline behind it. If your stages have no entry conditions yet, start with the guide to [building and reviewing a sales pipeline](/blog/sales-pipeline), then come back here. For the target side of the comparison, the [90-day sales plan template](/blog/sales-plan-template) turns a revenue goal into accounts, owners and review dates.
+
+## What is sales forecasting, and how is it different from a target or a plan?
+
+A forecast says what will probably happen. A target says what you want to happen. A plan says what you will do about the difference. Mixing them up is a common way for a forecast to go wrong: a number that has been nudged towards the target is no longer a forecast.
+
+The forecasting textbook by Rob J Hyndman and George Athanasopoulos puts it the same way: forecasting is about predicting the future as accurately as possible given the information available, goals are what you would like to have happen, and planning is the response to forecasts and goals ([section 1.2](https://otexts.com/fpp3/planning.html)). In a sales team that gives you three separate numbers.
+
+| Term | Question it answers | Example from the worked example below |
+|---|---|---|
+| Forecast | What will we probably win this quarter? | 94,400 (weighted pipeline method) |
+| Target | What do we want to win this quarter? | 110,000 |
+| Plan | What do we do about the difference? | New outreach, and a push to bring a large deal forward |
+
+**What the forecast counts.** This guide forecasts won deal value: the amount of the deals you win in the period, entered net of tax and in one currency. It is not recognised revenue or invoiced revenue. Those follow accounting rules and invoice dates, and a CRM deal record does not replace them.
+
+## What are the 7 steps of forecasting?
+
+There is no standard list of seven. The textbook above names five basic steps for any forecasting task: problem definition, gathering information, preliminary analysis, choosing and fitting models, and using and evaluating the model ([section 1.6](https://otexts.com/fpp3/basic-steps.html)). Sales guides count differently. For a pipeline forecast we use these seven:
+
+<Steps>
+  <Step title="Define the period and what counts">Name the period (for example 1 October to 31 December), and decide that you count won deal value, net of tax, in one currency.</Step>
+  <Step title="Clean the pipeline">Move every deal to the stage it has really reached, and close deals nobody has touched in weeks. Stale deals quietly inflate a forecast.</Step>
+  <Step title="Check four inputs on every open deal">Amount, stage, expected close date and owner. A deal missing one of them stays out of the forecast and goes on a list to fix, rather than being guessed.</Step>
+  <Step title="Set stage probabilities from your history">Use your own won and lost deals. Until you have enough, start with placeholders and label them as assumptions.</Step>
+  <Step title="Calculate two ways">The weighted pipeline for the deals due in the period, and a cross-check from win rate or run-rate.</Step>
+  <Step title="Publish a range, not a point">Give a floor, an expected figure and a best case, and name the two or three largest deals that swing the result.</Step>
+  <Step title="Compare with the actual result">At the end of the period, record how far off the forecast was and adjust the probabilities.</Step>
+</Steps>
+
+## What is an example of a sales forecast?
+
+Here is one you can rebuild in a spreadsheet in ten minutes. Every number is made up. The assumptions:
+
+- The forecast is made on 9 November 2026 for the quarter that ends on 31 December 2026.
+- Amount is the total contract value, net of tax, in dollars.
+- Stage probabilities are Qualification 20%, Demo 40%, Proposal 60% and Negotiation 80%: the starting values from our [sales pipeline guide](/blog/sales-pipeline). Replace them with your own as soon as you can.
+- 38,000 has already been won this quarter. The target is 110,000.
+- Only deals whose expected close date falls inside the quarter count.
+
+| Deal | Stage | Amount | Expected close | Probability | Weighted value | Counts this quarter? |
+|---|---|---|---|---|---|---|
+| A: Logistics firm, 12-month service contract | Negotiation | 24,000 | Nov 27 | 80% | 19,200 | Yes |
+| B: Dental group, rollout | Proposal | 12,000 | Dec 4 | 60% | 7,200 | Yes |
+| C: Design studio, retainer | Negotiation | 6,000 | Dec 10 | 80% | 4,800 | Yes |
+| D: Engineering firm, platform project | Proposal | 30,000 | Dec 15 | 60% | 18,000 | Yes |
+| E: Law firm, pilot | Demo | 9,000 | Dec 18 | 40% | 3,600 | Yes |
+| F: Food producer, workshop series | Qualification | 18,000 | Dec 22 | 20% | 3,600 | Yes |
+| G: Machine supplier, service package | Qualification | 15,000 | Jan 20, 2027 | 20% | 3,000 | No |
+| H: Clinic network, multi-site | Demo | 45,000 | Feb 15, 2027 | 40% | 18,000 | No |
+| **Due this quarter (A to F)** | | **99,000** | | | **56,400** | |
+
+The weighted pipeline for the quarter is 56,400. Add the 38,000 already won and the forecast is **94,400**, which is 15,600 short of the 110,000 target.
+
+Deals G and H are real pipeline, worth 60,000 in amount and 21,000 weighted, but they are expected to close after 31 December. Leaving the date rule out would have added 21,000 and produced a forecast of 115,400, above target for the wrong reason.
+
+Notice how much one deal moves the number. Deal D is 18,000 of the 94,400, about a fifth. If it slips to January, the forecast drops to 76,400 in one edit. A weighted value is an average over many deals; no single deal ever closes at 60%. It closes or it does not.
+
+**The spreadsheet.** Put the eight deals in rows 2 to 9 with Amount in column C, Expected close in column D, Probability in column E and Weighted value in column F.
+
+```text
+Weighted value (F2, copied down)   =C2*E2
+Weighted pipeline for the quarter  =SUMIFS(F2:F9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Open amount for the quarter        =SUMIFS(C2:C9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Forecast                           =38000+(weighted pipeline for the quarter)
+```
+
+The formulas work in Excel and Google Sheets. Keep the won-so-far figure in its own cell and update it from the CRM before each review.
+
+## What is the best model for sales forecasting?
+
+There is no best model, only the one that fits the data you have. These are the methods a small team can actually use, with the weak spot of each.
+
+| Method | How to calculate it | Needs | Weak spot |
+|---|---|---|---|
+| Commit (floor) | Won so far + deals in the last open stage at full value. This is our own definition, not a standard | A stage that means the buyer is deciding | Ignores everything earlier in the pipeline |
+| Weighted pipeline | Won so far + amount × stage probability, for deals due in the period | Stage probabilities and expected close dates | Probabilities are guesses until calibrated; a few big deals dominate |
+| Win rate × pipeline | Won so far + open amount due in the period × win rate by value | A year or so of won and lost deals | Treats a first-call deal and a deal in negotiation alike |
+| Historical run-rate | Average won value of the last four periods | Four or more comparable periods | Blind to the current pipeline and to growth |
+| Statistical models (time series, regression) | Fitted to past results by software | Many periods of steady history | Most small teams close too few deals to fit one |
+
+To compare the first four on the example, add two more made-up facts. Over the last twelve months the team won 360,000 and lost 540,000 by value, a win rate of 360,000 ÷ (360,000 + 540,000) = 40%. In the last four quarters it won 78,000, 88,000, 99,000 and 95,000.
+
+| Method | Calculation | Q4 forecast | Against the 110,000 target |
+|---|---|---|---|
+| Commit (floor) | 38,000 + 24,000 + 6,000 | 68,000 | 42,000 short |
+| Win rate × pipeline | 38,000 + 40% × 99,000 | 77,600 | 32,400 short |
+| Historical run-rate | (78,000 + 88,000 + 99,000 + 95,000) ÷ 4 | 90,000 | 20,000 short |
+| Weighted pipeline | 38,000 + 56,400 | 94,400 | 15,600 short |
+| Best case | 38,000 + 99,000 | 137,000 | 27,000 over |
+
+Three things to read from it:
+
+1. **The gap is real.** Every expected figure is below the target. If one method said 115,000 and the others said 80,000 to 94,000, you would suspect the one method, not celebrate.
+2. **The methods differ for a reason.** The flat 40% win rate is a blend over all deals from first contact, while the open deals here are mostly late-stage. The weighted figure implies that 57% of the open amount is won (56,400 ÷ 99,000). Either the deals are unusually advanced, or the stage probabilities are too generous. Only the comparison with real results, below, tells you which.
+3. **The run-rate ignores the pipeline entirely.** It is a sanity check, not a forecast. It sits between the other figures here, which is reassuring but proves nothing.
+
+Which one to lead with depends on your history. A team with only a handful of closed deals should show the commit and weighted figures and say that the probabilities are assumptions. A team with a year or more of deals should lead with a calibrated weighted pipeline and keep win rate and run-rate as cross-checks. When two methods disagree widely, find out why before you present a number.
+
+## What are the four types of forecasting?
+
+Sources group forecasting methods differently, so there is no official list of four. This grouping is the one we find useful for a sales team:
+
+1. **Judgment:** the rep's or manager's call on each deal. It is the only option when you have no history.
+2. **Pipeline-based:** stage weighting and commit, as above.
+3. **Historical:** run-rate, win rate and seasonal patterns from past periods.
+4. **Statistical models:** time-series and regression models fitted by software.
+
+The textbook's chapter on [judgmental forecasts](https://otexts.com/fpp3/judgmental.html) describes the same split in general terms: judgment on its own when there is no data, statistical forecasts adjusted by judgment when there is, or both produced separately and combined. In practice the useful combination for a small team is a calculated number plus a manager's note on the deals that do not fit the arithmetic.
+
+## How do you keep a sales forecast accurate?
+
+- **Save a snapshot and back-test.** On the same day each month, save the forecast and the deal list behind it. At the end of the period, compare: error = (actual − forecast) ÷ forecast. For example, a forecast of 92,000 against an actual 95,000 is +3.3%. If the error leans the same way three periods in a row, change the probabilities rather than blaming luck.
+- **Calibrate each stage.** The probability of a stage is the won value of the deals that ever reached it, divided by the value of all deals that reached it. If 220,000 of 400,000 won from Proposal, the Proposal probability is 55%. In the example, that would lower deals B and D and take 2,100 off the quarter's weighted figure.
+- **Keep close dates honest.** A deal whose expected close date is in the past is not in this period's forecast until someone gives it a new date. Move dates when buyers slip, and count how often they do.
+- **Watch concentration.** List the three largest deals next to the total. If one deal is a fifth of the number, say so.
+- **Review weekly.** The 30-minute review in the [sales pipeline guide](/blog/sales-pipeline) is also where close dates and next steps get corrected.
+
+## Which CRM fields does a deal need for a sales forecast?
+
+Every number above comes from a handful of fields. If your CRM stores them as structured fields instead of notes, a forecast is a filter and a sum.
+
+| Field | Type | What it does for the forecast | Rule |
+|---|---|---|---|
+| Amount | Money | The base of every calculation | Net of tax, one currency, and the same meaning on every deal (for example first-year contract value) |
+| Stage | Single choice | Decides the probability | One checkable entry condition per stage |
+| Stage probability | Percentage on each stage | Turns amount into weighted value | Reviewed every quarter against real results |
+| Weighted value | Calculated | Amount × probability ÷ 100 | Never typed by hand |
+| Expected close date | Date | Puts the deal into a period | Required from the proposal stage on; moved when it slips |
+| Owner | Person | Who answers for the deal; forecast per person | Exactly one |
+| Closed on | Date | When a deal was won or lost; feeds won-so-far, win rate and run-rate | Set when the stage becomes Won or Lost |
+| Lost reason | Single choice | Shows why win rate moves | Required on every lost deal |
+| Lead source | Single choice | Win rate by source | Optional, but cheap to record at creation |
+| Next step and its date | Text and date | Finds stale deals before they inflate the number | A deal with no next step stays out of Commit |
+| Organization and contact | Links to other records | Context, and the conversation history behind the deal | Link every deal to both |
+
+An optional twelfth field is a forecast category (Commit, Best case, Pipeline) that records the owner's own call, kept apart from the stage probability. Add it only if your team will actually use it to override the stage logic.
+
+## How to forecast sales in Customermates
+
+This section describes our own product. Customermates is an open-source [CRM for sales teams](/blog/crm-for-sales), made in Germany. It calculates a weighted pipeline and charts it; it does not predict. Here is the setup for the worked example.
+
+<Steps>
+  <Step title="Set the stage probabilities">In **Configure**, open Deals and the **Stage** field, and set **Probability %** on each option. A preview shows the effect on existing deals and widgets before you save. Weighted value is a calculated field on deals: **Value** × probability ÷ 100. If your list was set up by hand, check that it exists and add it if not. The [core concepts](/docs/concepts#how-does-a-weighted-pipeline-work) explain the calculation.</Step>
+  <Step title="Add the date fields">Use **Add › Field** to add a Date field "Expected close" and a Date field "Closed on". Add a Single choice field "Lost reason" too. A chart can only group and filter by what you record.</Step>
+  <Step title="Build the quarter's widgets">On the **Dashboard**, **Add widget**: a Bar chart that sums **Weighted value** grouped by Stage, filtered to Stage is not Won or Lost and Expected close between the first and last day of the quarter; a Number widget that sums **Value** for Stage is Won and Closed on in the quarter (won so far); a Number widget that sums **Value** of the same open deals (the open amount). An Area over time chart with a monthly **Time interval**, grouped by Expected close, shows when the weighted value is due.</Step>
+  <Step title="Save a snapshot when you publish">From the deals list, open **More actions** and choose **Export as Excel (.xlsx)**. The export keeps your filters and sorting, holds up to 5,000 records and has one column per field you can read. Save it with the date in the file name. This is your snapshot for the back-test, and your input for win rate and run-rate in a spreadsheet.</Step>
+</Steps>
+
+Win rate by value needs two totals from your closed deals: the sum of **Value** for Won and for Lost, each filtered by Closed on. You can read both from Number widgets. In Customermates Cloud you can also ask Mate to calculate them, which uses hosted AI credits; with your own AI client over the [MCP server](/docs/mcp) the totals come from the `query_crm_measure` tool. Either way it is arithmetic on your closed deals, not a prediction.
+
+A chart counts only the deals your role can read, so whoever publishes the forecast needs read access to all of them. The [dashboard guide](/docs/app-dashboard) documents every widget option, and the [CRM reporting page](/features/reporting) lists the other reports a small team builds. The deals themselves live on the [pipeline board](/features/pipeline).
+
+**What it costs.** Chart widgets, the weighted pipeline and Excel export are in every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, billed monthly. The self-hosted edition includes them as well. The [pricing page](/pricing) has the details.
+
+<AcquisitionCallout title="Where Customermates is the wrong pick for forecasting" variant="boundary">
+Customermates multiplies the deal values by the stage probabilities you set and sums the result. It does not predict which deals will close, suggest win probabilities, or fit a statistical model to your history. It shows deals as they are now and has no report of past pipeline totals, so save an export on the day you publish a forecast. It has no quotas and no manager roll-up of forecasts; a category field you add can be charted, but nothing checks or rolls it up. It has no quotes or invoicing, so won means the deal value you enter, not invoiced or recognised revenue. If you need predictive forecasting, forecast submissions per rep or scenario modelling, use a dedicated forecasting tool.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="What is sales forecasting?">
+Sales forecasting is estimating the revenue a team will win in a future period, such as a month or quarter, from its open deals and its past results. It is different from a target, which is what you want to win.
+</FaqItem>
+
+<FaqItem question="How do you calculate a sales forecast?">
+Multiply each open deal's amount by the probability of its stage, add up the weighted values of the deals expected to close in the period, and add the revenue already won in that period. Cross-check the result with a win-rate figure (open amount × your win rate by value) and a run-rate figure (the average of your last four periods).
+</FaqItem>
+
+<FaqItem question="What is the best model for sales forecasting?">
+There is none that fits every team. A weighted pipeline works for small teams with stage rules and close dates. Win rate and run-rate need a history of closed deals. Statistical models need many periods of steady results. Calculate at least two and publish a range.
+</FaqItem>
+
+<FaqItem question="What is the difference between a sales forecast and a sales target?">
+A forecast is the estimate of what you will probably win, calculated from the pipeline. A target is the number you want to reach. The plan is what you do about the gap between them.
+</FaqItem>
+
+<FaqItem question="How accurate is a sales forecast?">
+There is no honest universal figure, because it depends on your deal sizes, cycle length and discipline. Measure your own: compare each forecast with the actual result and track the error over several periods. A steady error in one direction can be corrected; a random one means the inputs are unreliable.
+</FaqItem>
+
+<FaqItem question="Can Customermates forecast sales?">
+It calculates a weighted pipeline: deal value times the probability you set for the stage, shown in dashboard charts and exportable to Excel. It does not predict closings, suggest probabilities or model your history. For those, use a dedicated forecasting tool.
+</FaqItem>
+</Faq>
+
+Third-party sources checked on 9 November 2026: Hyndman and Athanasopoulos, *Forecasting: Principles and Practice*, 3rd edition, [section 1.2](https://otexts.com/fpp3/planning.html), [section 1.6](https://otexts.com/fpp3/basic-steps.html) and [chapter 6](https://otexts.com/fpp3/judgmental.html). All deal amounts, win rates and quarterly results in the worked example are made up for illustration.
