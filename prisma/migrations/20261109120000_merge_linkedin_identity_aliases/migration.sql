@@ -6,7 +6,9 @@
 -- hold at most one member id and link exactly the same records; anything else is left alone.
 -- Running it again finds nothing to merge.
 
-CREATE FUNCTION pg_temp.linkedin_handle(raw text) RETURNS text
+CREATE SCHEMA crm_upgrade;
+
+CREATE FUNCTION crm_upgrade.linkedin_handle(raw text) RETURNS text
 LANGUAGE plpgsql IMMUTABLE AS $$
 DECLARE
   handle text;
@@ -40,14 +42,14 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION pg_temp.linkedin_key(raw text) RETURNS text
+CREATE FUNCTION crm_upgrade.linkedin_key(raw text) RETURNS text
 LANGUAGE sql IMMUTABLE AS $$
   SELECT CASE
     WHEN handle IS NULL THEN NULL
     WHEN handle ~ '^AC[A-Za-z0-9_-]{20,}$' THEN handle
     ELSE lower(normalize(handle, NFC))
   END
-  FROM (SELECT pg_temp.linkedin_handle(raw) AS handle) AS h
+  FROM (SELECT crm_upgrade.linkedin_handle(raw) AS handle) AS h
 $$;
 
 CREATE TEMP TABLE linkedin_identity AS
@@ -57,8 +59,8 @@ SELECT
   identity."createdAt",
   identity.value ~ '^AC[A-Za-z0-9_-]{20,}$' AS "isMember",
   CASE
-    WHEN identity.value ~ '^AC[A-Za-z0-9_-]{20,}$' THEN pg_temp.linkedin_key(identity."profileUrl")
-    ELSE pg_temp.linkedin_key(identity.value)
+    WHEN identity.value ~ '^AC[A-Za-z0-9_-]{20,}$' THEN crm_upgrade.linkedin_key(identity."profileUrl")
+    ELSE crm_upgrade.linkedin_key(identity.value)
   END AS username,
   coalesce(
     CASE WHEN identity.value ~ '^AC[A-Za-z0-9_-]{20,}$' THEN identity.value END,
@@ -144,9 +146,9 @@ SELECT DISTINCT ON (identity."companyId", key.value)
 FROM "RecordIdentity" identity
 CROSS JOIN LATERAL (
   VALUES
-    (pg_temp.linkedin_key(identity.value)),
-    (pg_temp.linkedin_key(identity."messagingId")),
-    (pg_temp.linkedin_key(identity."profileUrl"))
+    (crm_upgrade.linkedin_key(identity.value)),
+    (crm_upgrade.linkedin_key(identity."messagingId")),
+    (crm_upgrade.linkedin_key(identity."profileUrl"))
 ) AS key(value)
 WHERE identity."channelClass" = 'linkedin' AND key.value IS NOT NULL
 ORDER BY identity."companyId", key.value, identity."createdAt", identity.id
@@ -154,5 +156,6 @@ ON CONFLICT ("companyId", "channelClass", value) DO NOTHING;
 
 DROP TABLE linkedin_merge;
 DROP TABLE linkedin_identity;
-DROP FUNCTION pg_temp.linkedin_key(text);
-DROP FUNCTION pg_temp.linkedin_handle(text);
+DROP FUNCTION crm_upgrade.linkedin_key(text);
+DROP FUNCTION crm_upgrade.linkedin_handle(text);
+DROP SCHEMA crm_upgrade;
