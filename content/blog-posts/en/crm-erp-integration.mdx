@@ -147,7 +147,7 @@ This is the setup in Customermates for the first flow above. It uses the [REST A
 
 **Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Settings → Deliveries**, where you can resend it after fixing the cause.
 
-**Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. Saved views are personal, so the person who handles integration failures keeps it. Anything that shows up there was missed by the event flow.
+**Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. A saved view stays private until you share it, so the person who handles integration failures keeps it and shares it with the team if others need it. Anything that shows up there was missed by the event flow.
 
 **The reverse direction.** If your ERP sends webhooks, point them at the same receiver, look up the deal by "ERP order no." and set "ERP status". If it does not, poll the ERP on a schedule. The [n8n guide](/docs/n8n) lists the REST calls an n8n workflow needs; a community node also exists.
 

@@ -196,7 +196,7 @@ Vérifiez ceci avant de démarrer un essai :
 - **Pas de créateur de règles.** Il n’y a ni règles de workflow, ni processus de validation, ni étapes de processus. Les routines de Customermates Cloud suivent des instructions écrites, et les webhooks avec l’API REST alimentent une instance n8n que vous exploitez vous-même.
 - **Pas de téléphonie, d’e-mails en masse ni de séquences.** Les appels passent par votre propre système téléphonique, et les messages partent un à la fois, écrits par vous ou rédigés par Mate.
 - **Pas de formulaires web, de scoring, d’enrichissement ni de prévisions par IA.** Le pipeline pondéré multiplie la valeur de chaque affaire par la probabilité de son étape. C’est de l’arithmétique sur vos propres chiffres, et elle ne prédit rien.
-- **Pas de permissions au niveau du champ.** Les permissions s’appliquent par liste et par action, pas par champ, et les vues enregistrées sont personnelles.
+- **Pas de permissions au niveau du champ.** Les permissions s’appliquent par liste et par action, pas par champ.
 - **Pas d’applications mobiles natives ni de formule gratuite.** Customermates fonctionne dans le navigateur du téléphone, et après un essai de [[commercial.trial.days]] jours vous choisissez une formule payante.
 
 ## Une mise en place concrète : une agence web qui quitte Zoho CRM Standard
@@ -216,7 +216,7 @@ Prenons une agence web de trois personnes. La fondatrice trouve de nouveaux clie
 | Étiquettes | Un champ à choix unique, car les enregistrements n’ont pas d’étiquettes |
 | Règles de workflow | Routines dans Customermates Cloud, ou webhooks vers votre propre n8n |
 
-La fondatrice modifie les options du champ Étape en Brief reçu, Proposition envoyée, Négociation, Gagnée et Perdue, et leur donne dans Configurer pour Affaires des probabilités de gain de 20 %, 50 %, 75 %, 100 % et 0 %. Elle enregistre un board de toutes les affaires ouvertes regroupées par Étape. Chaque responsable de comptes enregistre un tableau de ses propres affaires regroupées par organisation ; les vues enregistrées sont personnelles, donc chacun construit les siennes.
+La fondatrice modifie les options du champ Étape en Brief reçu, Proposition envoyée, Négociation, Gagnée et Perdue, et leur donne dans Configurer pour Affaires des probabilités de gain de 20 %, 50 %, 75 %, 100 % et 0 %. Elle enregistre un board de toutes les affaires ouvertes regroupées par Étape. Chaque responsable de comptes enregistre un tableau de ses propres affaires regroupées par organisation ; une vue enregistrée reste privée tant qu’elle n’est pas partagée, donc chacun construit les siennes.
 
 Chaque personne connecte un compte, LinkedIn pour la fondatrice et Gmail pour les deux autres : Pro convient donc, à [[commercial.price.pro.monthly.seats.3]] par mois pour l’équipe. Si la fondatrice veut aussi WhatsApp à côté de LinkedIn, l’espace de travail passe à Business à [[commercial.price.business.monthly.seats.3]].
 

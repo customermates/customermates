@@ -147,7 +147,7 @@ So sieht der erste Datenfluss in Customermates aus. Er nutzt die [REST-API](/fea
 
 **Fehler.** Customermates wiederholt eine fehlgeschlagene Zustellung automatisch bei Timeouts, Netzwerkfehlern, 5xx-Antworten sowie 408, 425 und 429. Andere 4xx-Antworten werden nicht wiederholt, weil sie genauso scheitern würden. Jede Zustellung steht unter **Einstellungen → Zustellungen**, wo Sie sie nach der Fehlerbehebung erneut senden.
 
-**Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Gespeicherte Ansichten sind persönlich, also legt sie die Person an, die Integrationsfehler bearbeitet. Was dort auftaucht, hat der Ereignisfluss verpasst.
+**Abgleich.** Speichern Sie eine Deal-Ansicht mit Phase „Gewonnen“ und leerer „ERP-Auftragsnummer“. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Die Person, die Integrationsfehler bearbeitet, legt sie an und teilt sie mit dem Team, wenn andere sie brauchen. Was dort auftaucht, hat der Ereignisfluss verpasst.
 
 **Die Gegenrichtung.** Sendet Ihr ERP Webhooks, richten Sie diese auf denselben Empfänger, suchen den Deal über die „ERP-Auftragsnummer“ und setzen „ERP-Status“. Sendet es keine, fragen Sie das ERP zeitgesteuert ab. Die [n8n-Anleitung](/docs/n8n) listet die REST-Aufrufe, die ein n8n-Workflow braucht; eine Community-Node gibt es ebenfalls.
 

@@ -196,7 +196,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Kein Regel-Editor.** Es gibt keine Workflow-Regeln, Genehmigungsprozesse oder Prozessschritte. Routinen in der Customermates Cloud folgen schriftlichen Anweisungen, und Webhooks mit der REST-API speisen eine n8n-Instanz, die Sie selbst betreiben.
 - **Keine Telefonie, keine Massenmails, keine Sequenzen.** Telefonate führen Sie über Ihre eigene Telefonanlage, und Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Keine Webformulare, kein Scoring, keine Datenanreicherung, keine KI-Prognose.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Rechnen mit Ihren eigenen Zahlen, keine Vorhersage.
-- **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld, und gespeicherte Ansichten sind persönlich.
+- **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
 - **Keine nativen Smartphone-Apps und kein kostenloser Tarif.** Customermates läuft im Browser des Smartphones, und nach [[commercial.trial.days]] Tagen Testphase wählen Sie einen bezahlten Tarif.
 
 ## Ein Beispiel: eine Webagentur verlässt Zoho CRM Standard
@@ -216,7 +216,7 @@ Nehmen wir eine Webagentur mit drei Personen. Die Gründerin gewinnt neue Kunden
 | Tags | Ein Einzelauswahl-Feld, da Datensätze keine Tags haben |
 | Workflow-Regeln | Routinen in der Customermates Cloud oder Webhooks an Ihr eigenes n8n |
 
-Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt in Konfigurieren für Deals die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation; gespeicherte Ansichten sind persönlich, also legt jede Person ihre eigenen an.
+Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt in Konfigurieren für Deals die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation; eine gespeicherte Ansicht bleibt privat, bis sie geteilt wird, also legt jede Person ihre eigenen an.
 
 Jede Person verbindet ein Konto, die Gründerin LinkedIn, die beiden anderen Gmail. Damit reicht Pro für [[commercial.price.pro.monthly.seats.3]] im Monat für das Team. Will die Gründerin zusätzlich WhatsApp neben LinkedIn, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.3]].
 

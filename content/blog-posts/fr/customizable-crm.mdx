@@ -36,7 +36,7 @@ Customermates publie cet article et fait partie des produits qu’il décrit.
 <ArticleSummary title="En bref">
   <SummaryItem label="Personnalisable ou sur mesure">Personnalisable signifie que vous configurez un produit fini. Sur mesure signifie que vous construisez et maintenez le système vous-même, avec du code ou une plateforme no-code.</SummaryItem>
   <SummaryItem label="Où se situe la limite">Les champs personnalisés sont la norme. Les objets personnalisés (nouveaux types d’enregistrements) sont l’endroit où les éditeurs se distinguent selon l’offre : HubSpot exige un abonnement Enterprise, Zoho CRM inclut des modules personnalisés dans chaque édition payante, avec une limite par édition.</SummaryItem>
-  <SummaryItem label="Customermates">Démarre sans listes : vous créez les vôtres, avec un renommage libre, 16 types de champs, des relations, des champs calculés, vos propres étapes avec pondérations, des vues enregistrées personnelles, REST, des webhooks et MCP.</SummaryItem>
+  <SummaryItem label="Customermates">Démarre sans listes : vous créez les vôtres, avec un renommage libre, 16 types de champs, des relations, des champs calculés, vos propres étapes avec pondérations, des vues enregistrées partageables, REST, des webhooks et MCP.</SummaryItem>
   <SummaryItem label="Créer le vôtre">À envisager quand vos enregistrements ne correspondent pas à des contacts, des entreprises et des affaires. Sinon, vous prenez en charge l’authentification, les droits, la synchronisation des e-mails et l’import pour un gain minime.</SummaryItem>
 </ArticleSummary>
 
@@ -103,7 +103,7 @@ Voici comment un cabinet de conseil de cinq personnes façonnerait Customermates
     Sur les Projets : **Type de mission** (Choix unique : mission récurrente, périmètre fixe, atelier), **Taux journalier** (Montant), **Renouvellement du contrat** (Date). Sur les Clients : **Source** (Choix unique) et **Adresse du bureau** (Adresse) ; les numéros de téléphone et les adresses e-mail vont dans le champ Coordonnées. Seize types de champs et des champs calculés sont disponibles, listés dans la [documentation du modèle de données](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Enregistrer les vues dont chacun se sert">
-    Un board des Projets regroupés par Étape, un tableau des missions récurrentes trié par **Renouvellement du contrat**, et une liste de Clients regroupés par **Source**. Les vues enregistrées sont personnelles : chaque collègue règle les mêmes filtres et enregistre sa propre vue.
+    Un board des Projets regroupés par Étape, un tableau des missions récurrentes trié par **Renouvellement du contrat**, et une liste de Clients regroupés par **Source**. Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
   </Step>
   <Step title="Importer les données existantes">
     Exportez chaque feuille de votre ancien outil sous forme de classeur Excel et importez une liste à la fois, d’abord les Clients, puis les Projets, en associant les colonnes à vos nouveaux champs personnalisés. La [documentation des enregistrements](/docs/app-records#how-do-i-import-or-export-records) donne les limites de fichiers.
@@ -120,7 +120,6 @@ Les conversations connectées par e-mail, LinkedIn et WhatsApp apparaissent à c
 Ces limites comptent si vous comparez des CRM personnalisables :
 
 - **Les droits s’arrêtent à la liste.** Les rôles contrôlent la création, la lecture, la modification et la suppression par liste, y compris « uniquement les enregistrements qui me sont assignés ». Il n’y a pas de droits au niveau du champ.
-- **Les vues enregistrées sont personnelles.** Il n’y a pas de vues d’équipe partagées.
 - **Pas d’étiquettes.** Utilisez plutôt un champ à choix unique, qui garde aussi les valeurs cohérentes.
 - **Les tâches n’ont pas d’échéance intégrée.** Ajoutez un champ Date et triez dessus ; rien ne vous alerte quand cette date passe.
 - **L’import et l’export se font liste par liste**, sous forme de classeurs Excel ou de JSON, jusqu’à 5 000 enregistrements par export. Il n’y a pas d’export de tout le compte.
