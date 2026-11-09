@@ -376,20 +376,26 @@ export class PrismaRecordRepo
         },
       });
     }
-    const existing = new Set(known.map((row) => row.id));
+    const existing = new Map(known.map((row) => [row.id, row]));
     for (const { aliases, ...row } of rows) {
-      if (!existing.has(row.id)) {
+      const previous = existing.get(row.id);
+      const keys = identityKeys({ ...row, aliases }).map((value) => ({
+        companyId: this.companyId,
+        identityId: row.id,
+        channelClass: row.channelClass,
+        value,
+      }));
+      if (!previous) {
         await this.prisma.recordIdentity.create({
           data: { ...row, companyId: this.companyId },
         });
-        await this.prisma.recordIdentityKey.createMany({
-          data: identityKeys({ ...row, aliases }).map((value) => ({
-            companyId: this.companyId,
-            identityId: row.id,
-            channelClass: row.channelClass,
-            value,
-          })),
+        await this.prisma.recordIdentityKey.createMany({ data: keys });
+      } else if (previous.updatedAt !== row.updatedAt) {
+        await this.prisma.recordIdentity.update({
+          where: { companyId: this.companyId, companyId_id: { companyId: this.companyId, id: row.id } },
+          data: { messagingId: row.messagingId, profileUrl: row.profileUrl },
         });
+        await this.prisma.recordIdentityKey.createMany({ data: keys, skipDuplicates: true });
       }
     }
     if (ids.length) {
@@ -456,6 +462,20 @@ export class PrismaRecordRepo
         },
       });
       if (owner?.identityId !== identityId) throw unwindFailure(CustomErrorCode.channelAlreadyLinked, "conflict");
+    }
+    const aliases = identityKeys({ ...row, ...data }).filter(
+      (value) => value !== row.value && value !== row.messagingId && value !== data.messagingId,
+    );
+    if (aliases.length) {
+      await this.prisma.recordIdentityKey.createMany({
+        data: aliases.map((value) => ({
+          companyId: this.companyId,
+          channelClass: row.channelClass,
+          value,
+          identityId,
+        })),
+        skipDuplicates: true,
+      });
     }
     await this.prisma.recordIdentity.update({
       where: {
@@ -2591,6 +2611,15 @@ export class PrismaRecordRepo
       FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') AS item(data)
       JOIN "CrmRecord" record ON record."companyId" = ${companyId} AND record."typeId" = stage.payload->'ref'->>'typeId' AND record.id = stage.payload->'ref'->>'recordId'
       WHERE ${stage("identity")} ON CONFLICT ("companyId", id) DO NOTHING
+    `);
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "RecordIdentity" identity SET
+        "messagingId" = COALESCE(identity."messagingId", item.data->>'messagingId'),
+        "profileUrl" = COALESCE(identity."profileUrl", item.data->>'profileUrl')
+      FROM "RecordStageRow" stage CROSS JOIN LATERAL jsonb_array_elements(stage.payload->'identities') item(data)
+      WHERE ${stage("identity")} AND identity."companyId" = ${companyId} AND identity.id = item.data->>'id'
+        AND identity."channelClass" = 'linkedin'
+        AND (identity."messagingId" IS NULL OR identity."profileUrl" IS NULL)
     `);
     await this.prisma.$executeRaw(Prisma.sql`
       INSERT INTO "RecordIdentityKey" ("companyId", "channelClass", value, "identityId")

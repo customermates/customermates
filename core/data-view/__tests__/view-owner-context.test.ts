@@ -5,13 +5,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_PRISMA_DB_MODULE, MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
-const operatorUser = createMockUser({ id: "operator-user", companyId: "operator-company" });
-const { getActiveUserByIdOrThrow } = vi.hoisted(() => ({ getActiveUserByIdOrThrow: vi.fn() }));
+const operatorUser = createMockUser({
+  id: "operator-user",
+  companyId: "operator-company",
+  email: "operator@example.invalid",
+});
+const { getActiveUserByIdOrThrow, getActiveUserOrThrow } = vi.hoisted(() => ({
+  getActiveUserByIdOrThrow: vi.fn(),
+  getActiveUserOrThrow: vi.fn(),
+}));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("@/core/di", () => ({ getUserService: () => ({ getActiveUserByIdOrThrow }) }));
+vi.mock("@/core/di", () => ({ getUserService: () => ({ getActiveUserByIdOrThrow, getActiveUserOrThrow }) }));
 
 import { runAsViewOwner } from "../view-owner-context";
 import { getTenantUser, runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
@@ -21,32 +28,41 @@ const ambientUser = createMockUser({ id: "tenant-user", companyId: "tenant-compa
 
 const OPERATOR_ACTOR = {
   authUserId: "auth-operator",
-  userId: operatorUser.id,
-  companyId: operatorUser.companyId,
+  userId: "operator-busiest-membership",
+  companyId: "operator-busiest-company",
   email: "operator@example.invalid",
 };
 
 describe("runAsViewOwner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getActiveUserByIdOrThrow.mockResolvedValue(operatorUser);
+    getActiveUserOrThrow.mockResolvedValue(operatorUser);
   });
 
   it("runs inside the ambient tenant frame without resolving a user again", async () => {
     const seen = await runWithTenant(ambientUser, () => runAsViewOwner(() => Promise.resolve(getTenantUser())));
 
     expect(seen.id).toBe(ambientUser.id);
-    expect(getActiveUserByIdOrThrow).not.toHaveBeenCalled();
+    expect(getActiveUserOrThrow).not.toHaveBeenCalled();
   });
 
-  it("resolves the operator's own user and establishes a tenant frame carrying their companyId", async () => {
+  it("reads as the operator's membership in the open workspace, the user that creates views, not their busiest one", async () => {
     const seen: TenantUser = await runWithOperator(OPERATOR_ACTOR, () =>
       runAsViewOwner(() => Promise.resolve(getTenantUser())),
     );
 
-    expect(getActiveUserByIdOrThrow).toHaveBeenCalledWith(OPERATOR_ACTOR.userId);
+    expect(getActiveUserOrThrow).toHaveBeenCalledOnce();
+    expect(getActiveUserByIdOrThrow).not.toHaveBeenCalled();
     expect(seen.companyId).toBe(operatorUser.companyId);
     expect(seen.id).toBe(operatorUser.id);
+  });
+
+  it("refuses an open-workspace user that is not the operator", async () => {
+    getActiveUserOrThrow.mockResolvedValue(createMockUser({ id: "someone", email: "someone@example.invalid" }));
+
+    await expect(
+      runWithOperator(OPERATOR_ACTOR, () => runAsViewOwner(() => Promise.resolve("unreachable"))),
+    ).rejects.toThrow("View owner does not match the operator");
   });
 
   it("throws with neither a tenant frame nor an operator actor", async () => {

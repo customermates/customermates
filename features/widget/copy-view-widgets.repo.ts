@@ -1,3 +1,3 @@
 export abstract class CopyViewWidgetsRepo {
-  abstract copyViewWidgets(sourceViewId: string, targetViewId: string): Promise<number>;
+  abstract copyViewWidgets(sourceViewId: string | null, targetViewId: string): Promise<number>;
 }

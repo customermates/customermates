@@ -3,6 +3,7 @@ import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
+import { z } from "zod";
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import * as ErrorReporter from "@/core/observability/server";
 
@@ -67,6 +68,8 @@ const baseUrlProtocol = new URL(env.BASE_URL).protocol === "https:" ? "https" : 
 
 const VERIFIED_LANDING_PATH = "/auth/verify-email?verified=1";
 
+const CHANGE_PASSWORD_PATH = "/change-password";
+
 export const auth = betterAuth({
   baseURL: {
     allowedHosts: env.AUTH_ALLOWED_HOSTS,
@@ -83,6 +86,8 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === CHANGE_PASSWORD_PATH) return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
+
       const apiKeyAction = apiKeyRouteAction(ctx.path);
       if (apiKeyAction) {
         if (ctx.request) throw new APIError("NOT_FOUND", { code: "NOT_FOUND", message: "Not found" });
@@ -122,6 +127,12 @@ export const auth = betterAuth({
       });
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === CHANGE_PASSWORD_PATH) {
+        const userId = changedPasswordUserId(ctx.context.returned);
+        if (userId) await revokeOauthTokens(userId);
+        return;
+      }
+
       if (ctx.path === MCP_AUTHORIZE_PATH) {
         const resourceCompanyId = mcpWorkspaceIdFromResource(ctx.query?.resource, env.BASE_URL);
         const consentCode = consentCodeFromAuthorizeRedirect(
@@ -263,8 +274,12 @@ export const auth = betterAuth({
     autoSignIn: true,
     minPasswordLength: PASSWORD_MIN_LENGTH,
     maxPasswordLength: PASSWORD_MAX_LENGTH,
+    revokeSessionsOnPasswordReset: true,
     onPasswordReset: async ({ user }) => {
-      if (user.emailVerified) return;
+      if (user.emailVerified) {
+        await revokeOauthTokens(user.id);
+        return;
+      }
 
       await revokeUnprovenAccess(user.id, { removeAccounts: false });
     },
@@ -350,6 +365,17 @@ export async function deleteApiKeysForIdentities(identityIds: string[]): Promise
   await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
     where: { referenceId: { in: identityIds } },
   });
+}
+
+async function revokeOauthTokens(userId: string): Promise<void> {
+  await prisma.oauthAccessToken.deleteMany({ where: { userId } });
+}
+
+const ChangedPasswordResultSchema = z.object({ user: z.object({ id: z.string() }) });
+
+function changedPasswordUserId(returned: unknown): string | null {
+  const result = ChangedPasswordResultSchema.safeParse(returned);
+  return result.success ? result.data.user.id : null;
 }
 
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
