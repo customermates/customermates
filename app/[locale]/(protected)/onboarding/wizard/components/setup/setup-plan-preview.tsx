@@ -143,7 +143,7 @@ export const SetupPlanPending = observer(function SetupPlanPending() {
   return (
     <section className="flex animate-page-empty-in flex-col gap-6 py-4 motion-reduce:animate-none">
       <div className="flex items-start gap-4">
-        <IconContainer icon={Sparkles} size="md" />
+        <IconContainer color="muted" icon={Sparkles} size="md" />
 
         <div className="flex min-w-0 flex-col gap-1">
           <h2 className="text-base font-medium text-foreground">{t("WorkspaceSetup.plan.planningTitle")}</h2>
@@ -174,7 +174,7 @@ export const SetupPlanFailed = observer(function SetupPlanFailed({ onContinue, c
   const error = store.setup?.plan.error ?? null;
   return (
     <section className="flex flex-col gap-5">
-      <Alert color="danger" description={failureMessage(error)} title={t("WorkspaceSetup.plan.failedTitle")} />
+      <Alert description={failureMessage(error)} title={t("WorkspaceSetup.plan.failedTitle")} variant="destructive" />
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
         {error === "spendCap" ? (

@@ -15,7 +15,7 @@ import { appPath, appUrlPattern, workspaceSlugOf } from "./app-paths";
 test.skip(e2eAppMode() !== "cloud", "The guided workspace setup runs in the cloud only");
 
 // A legacy workspace another administrator set up leaves the login its trial, so the new workspace opens its wizard.
-async function openSetupOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+async function openGoalOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
   await database.query('UPDATE "Company" SET "createdByAuthUserId"=NULL WHERE id=$1', [workspace.companyId]);
   await database.query(
     'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","createdAt","updatedAt") SELECT $1,"companyId","roleId",$2,\'Clara\',\'Founder\',\'active\',true,NOW(),"createdAt" - interval \'1 day\',NOW() FROM "User" WHERE id=$3',
@@ -29,10 +29,28 @@ async function openSetupOfNewWorkspace(page: Page, database: Client, workspace: 
   await dialog.getByRole("button", { name: "Create workspace", exact: true }).click();
   await expect(page).toHaveURL(/\/en(?:\/w\/[a-z0-9-]+)?\/onboarding\/wizard$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.startTitle, exact: true }),
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.goal.title, exact: true }),
   ).toBeVisible();
   const { rows } = await database.query<{ id: string }>('SELECT id FROM "Company" WHERE name=$1', [name]);
   return rows[0].id;
+}
+
+async function openSetupOfNewWorkspace(page: Page, database: Client, workspace: BrowserWorkspace, name: string) {
+  const companyId = await openGoalOfNewWorkspace(page, database, workspace, name);
+  await expect(page.getByRole("radio", { name: new RegExp(`^${goal.workspace.title}`) })).toBeChecked();
+  await clickHydrated(page.locator("#onboarding-goal-continue"));
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.startTitle, exact: true }),
+  ).toBeVisible();
+  return companyId;
+}
+
+async function funnelEvents(database: Client, companyId: string) {
+  const { rows } = await database.query<{ type: string; job: string | null }>(
+    'SELECT type::text, job::text FROM "CompanyFunnelEvent" WHERE "companyId"=$1 ORDER BY "occurredAt"',
+    [companyId],
+  );
+  return rows;
 }
 
 function question(page: Page, id: string) {
@@ -46,6 +64,8 @@ async function entries(page: Page) {
 }
 
 const setup = englishMessages.WorkspaceSetup;
+const goal = englishMessages.OnboardingWizard.goal;
+const ONBOARDING_CONNECT_KEY = "customermates:onboarding-connect";
 
 test("the setup offers the website and the questions as two cards, with starting empty as the quiet footnote", async ({
   page,
@@ -136,15 +156,17 @@ test("the questions mark missing answers, suggest steps that reorder by dragging
   expect(errors).toEqual([]);
 });
 
-test("the questions take a contact list as Excel 97-2003 (.xls), Excel or CSV", async ({ page, database, workspace }) => {
+test("the questions take a contact list as Excel 97-2003 (.xls), Excel or CSV", async ({
+  page,
+  database,
+  workspace,
+}) => {
   const errors = collectPageErrors(page);
   await openSetupOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Upload Studio"));
   await clickHydrated(page.getByRole("button", { name: new RegExp(`^${setup.start.questions.title}`) }));
   const existingData = question(page, "existingData");
   await existingData.scrollIntoViewIfNeeded();
-  await existingData
-    .getByRole("radio", { name: setup.options.existingData.spreadsheet, exact: true })
-    .click();
+  await existingData.getByRole("radio", { name: setup.options.existingData.spreadsheet, exact: true }).click();
   const input = page.locator("#setup-spreadsheet");
   expect((await input.getAttribute("accept"))?.split(",")).toEqual(expect.arrayContaining([".csv", ".xlsx", ".xls"]));
   for (const file of [
@@ -201,5 +223,121 @@ test("starting with an empty workspace skips only the guided setup and continues
   );
   expect(rows).toEqual([{ wizard: expect.any(Date), setup: expect.any(Date) }]);
   await page.screenshot({ path: testInfo.outputPath("setup-empty-dashboard.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test("a new workspace asks what to do first, preselects the workspace setup and records the choice", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  const errors = collectPageErrors(page);
+  const companyId = await openSetupOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Goal Studio"));
+
+  expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "workspace" }]);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { level: 1, name: englishMessages.OnboardingWizard.steps.setup.startTitle, exact: true }),
+  ).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("goal-resumes-setup.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test("the signup job preselects following up, which writes the job playbook and leads to connecting LinkedIn first", async ({
+  page,
+  database,
+  workspace,
+}, testInfo) => {
+  const errors = collectPageErrors(page);
+  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Follow Studio"));
+  await database.query(
+    'INSERT INTO "CompanySignupSource" (id,"companyId",job,"landingPath","capturedAt") VALUES ($1,$2,\'followup\',\'/en/for/consultants\',NOW())',
+    [randomUUID(), companyId],
+  );
+  await page.reload();
+
+  const followup = page.getByRole("radio", { name: new RegExp(`^${goal.followup.title}`) });
+  await expect(followup).toBeChecked();
+  await expect(page.locator('label[for="onboarding-goal-followup"]')).toContainText(goal.suggested);
+  await page.screenshot({ path: testInfo.outputPath("goal-step.png"), fullPage: true });
+  await clickHydrated(page.locator("#onboarding-goal-continue"));
+
+  const steps = englishMessages.OnboardingWizard.steps;
+  const playbooks = englishMessages.OnboardingPlaybooks;
+  await expect(page.getByRole("heading", { level: 1, name: steps.playbook.title, exact: true })).toBeVisible();
+  const consultants = page.getByRole("radio", { name: new RegExp(`^${playbooks.consultants.label}`) });
+  await expect(consultants).toBeChecked();
+  await expect(page.locator('label[for="onboarding-playbook-consultants"]')).toContainText(goal.suggested);
+  expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "followup" }]);
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: steps.playbook.title, exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("playbook-step.png"), fullPage: true });
+  await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${playbooks.agencies.label}`) }));
+  await clickHydrated(page.locator("#onboarding-playbook-continue"));
+
+  await expect(page).toHaveURL(
+    appUrlPattern(await workspaceSlugOf(database, companyId), "/settings/channels\\?from=onboarding$"),
+  );
+  const hint = goal.channelsHint;
+  await expect(page.getByRole("heading", { level: 2, name: hint.title, exact: true })).toBeVisible();
+  await expect(page.locator("#onboarding-connect-linkedin")).toHaveText(hint.linkedinAction);
+  await expect(page.locator("#onboarding-connect-google")).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("channels-linkedin-first.png"), fullPage: true });
+
+  const { rows: pages } = await database.query<{ title: string; kind: string; markdown: string }>(
+    'SELECT title, kind::text, markdown FROM "WikiPage" WHERE "companyId"=$1 AND "deletedAt" IS NULL ORDER BY "createdAt"',
+    [companyId],
+  );
+  expect(pages.map(({ title, kind }) => [title, kind])).toEqual([
+    [playbooks.pages.salesPlaybook, "knowledge"],
+    [playbooks.pages.toneOfVoice, "knowledge"],
+    [playbooks.pages.followUps, "procedure"],
+    [playbooks.pages.guide, "guide"],
+  ]);
+  expect(pages[0].markdown).toContain("## How we win work");
+  expect(pages[3].markdown).toContain(playbooks.agencies.label);
+  const { rows } = await database.query<{ wizard: Date | null; setup: Date | null }>(
+    'SELECT "onboardingWizardCompletedAt" AS wizard,"onboardingWikiStepCompletedAt" AS setup FROM "User" WHERE "companyId"=$1',
+    [companyId],
+  );
+  expect(rows).toEqual([{ wizard: expect.any(Date), setup: expect.any(Date) }]);
+
+  const slug = await workspaceSlugOf(database, companyId);
+  await page.evaluate(
+    ({ key, value }) => window.sessionStorage.setItem(key, value),
+    { key: ONBOARDING_CONNECT_KEY, value: JSON.stringify({ channel: "linkedin", at: Date.now() }) },
+  );
+  await page.goto(appPath(slug, "/settings/channels?account_id=e2e-linkedin&status=CREATION_SUCCESS"));
+  await expect(page).toHaveURL(appUrlPattern(slug, "/settings/channels\\?from=onboarding&connected=linkedin$"));
+  const connected = page.locator("#onboarding-channel-connected");
+  await expect(connected).toContainText(hint.connectedLinkedinTitle);
+  await expect(connected).toContainText(hint.connectedDescription);
+  await expect(page.locator("#onboarding-connect-linkedin")).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("channels-linkedin-connected.png"), fullPage: true });
+  expect(await page.evaluate((key) => window.sessionStorage.getItem(key), ONBOARDING_CONNECT_KEY)).toBeNull();
+  await page.reload();
+  await expect(connected).toContainText(hint.connectedLinkedinTitle);
+  await expect(page.locator("#onboarding-open-inbox")).toHaveText(hint.inboxAction);
+  await clickHydrated(page.locator("#onboarding-open-dashboard"));
+  await expect(page).toHaveURL(appUrlPattern(slug, "/dashboard"));
+  expect(errors).toEqual([]);
+});
+
+test("connecting an own AI agent skips the setup interview and opens the AI connection", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectPageErrors(page);
+  const companyId = await openGoalOfNewWorkspace(page, database, workspace, uniqueWorkspaceName("Agent Studio"));
+
+  await clickHydrated(page.getByRole("radio", { name: new RegExp(`^${goal.agent.title}`) }));
+  await clickHydrated(page.locator("#onboarding-goal-continue"));
+
+  const steps = englishMessages.OnboardingWizard.steps;
+  await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
+  expect(await funnelEvents(database, companyId)).toEqual([{ type: "jobSelected", job: "agent" }]);
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: steps.ai.title, exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });

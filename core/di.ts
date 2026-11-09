@@ -210,10 +210,27 @@ import { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { MessagingService } from "@/ee/messaging/messaging.service";
 import { IngestUnipileWebhookInteractor } from "@/ee/messaging/webhooks/ingest-unipile-webhook.interactor";
 import { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { PlanLimitsService } from "@/ee/subscription/plan-limits.service";
+import { FreePlanPauseService } from "@/ee/subscription/free-plan-pause.service";
+import { GetPlanPauseStateInteractor } from "@/ee/subscription/get-plan-pause-state.interactor";
+import { PaidSeatQuantitySync } from "@/ee/subscription/paid-seat-quantity-sync";
+import { SwapFreePlanSeatInteractor } from "@/ee/subscription/swap-free-plan-seat.interactor";
+import { SyncFreePlanPausesInteractor } from "@/ee/subscription/sync-free-plan-pauses.interactor";
+import { GetPlanFitInteractor } from "@/ee/subscription/get-plan-fit.interactor";
+import { GetPlanUsageInteractor } from "@/ee/subscription/get-plan-usage.interactor";
+import { ApiRateLimitService } from "@/ee/subscription/api-rate-limit.service";
+import { IntegrationRequestLimiter } from "@/ee/subscription/integration-request-limiter";
+import { PrismaApiRateLimitRepo } from "@/ee/subscription/prisma-api-rate-limit.repository";
+import { PrismaPlanUsageRepo } from "@/ee/subscription/prisma-plan-usage.repository";
 import { SubscriptionService } from "@/ee/subscription/subscription.service";
 import { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
 import { CaptureAdClickInteractor } from "@/features/acquisition/capture-ad-click.interactor";
 import { DecideAdAttributionConsentInteractor } from "@/features/acquisition/decide-ad-attribution-consent.interactor";
+import { PrismaOnboardingFunnelRepo } from "@/features/onboarding-funnel/prisma-onboarding-funnel.repository";
+import { GetOnboardingJobChoiceInteractor } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
+import { SelectOnboardingJobInteractor } from "@/features/onboarding-funnel/select-onboarding-job.interactor";
+import { ApplyOnboardingPlaybookInteractor } from "@/features/onboarding-funnel/apply-onboarding-playbook.interactor";
+import { RecordAgentConnectedInteractor } from "@/features/onboarding-funnel/record-agent-connected.interactor";
 import { NextAdAttributionCookieRepo } from "@/features/acquisition/next/ad-attribution-cookie";
 import { ReadAdAttributionConsentInteractor } from "@/features/acquisition/read-ad-attribution-consent.interactor";
 import { WithdrawAdAttributionInteractor } from "@/features/acquisition/withdraw-ad-attribution.interactor";
@@ -446,7 +463,6 @@ import { GetSubscriptionInteractor } from "@/ee/subscription/get-subscription.in
 import { ProcessLemonSqueezyWebhookInteractor } from "@/ee/subscription/process-lemon-squeezy-webhook.interactor";
 import { RefreshSubscriptionInteractor } from "@/ee/subscription/refresh-subscription.interactor";
 // EE Lifecycle interactors (cron consumers)
-import { DeactivateTrialUsersAndSendNoticeInteractor } from "@/ee/lifecycle/deactivate-trial-users-and-send-notice.interactor";
 import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "@/ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor";
 import { DeleteConnectedAccountsForExpiredTrialsInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-expired-trials.interactor";
 import { DeleteConnectedAccountsForInactiveOwnersInteractor } from "@/ee/lifecycle/delete-connected-accounts-for-inactive-owners.interactor";
@@ -454,7 +470,6 @@ import { DeleteOrphanedUnipileAccountsInteractor } from "@/ee/lifecycle/delete-o
 import { ExpireAdAttributionInteractor } from "@/ee/lifecycle/expire-ad-attribution.interactor";
 import { SendLegalDocumentNoticesInteractor } from "@/ee/lifecycle/send-legal-document-notices.interactor";
 import { SendTrialExtensionOfferInteractor } from "@/ee/lifecycle/send-trial-extension-offer.interactor";
-import { SendTrialInactivationReminderInteractor } from "@/ee/lifecycle/send-trial-inactivation-reminder.interactor";
 import { SendWelcomeAndDemoInteractor } from "@/ee/lifecycle/send-welcome-and-demo.interactor";
 import { AcceptLegalDocumentsInteractor } from "@/features/legal/accept-legal-documents.interactor";
 import { GetLegalStatusInteractor } from "@/features/legal/get-legal-status.interactor";
@@ -613,7 +628,7 @@ export const getPreviewRecordDeletionInteractor = () =>
 export const getRecordCalculationService = (records: RecordRepo = getRecordRepo()) =>
   new RecordCalculationService(records);
 export const getRecordTrashService = (records: RecordRepo = getRecordRepo()) =>
-  new RecordTrashService(records, getRecordCalculationService(records));
+  new RecordTrashService(records, getRecordCalculationService(records), getPlanLimitsService());
 export const getPreviewCalculationInteractor = () =>
   new PreviewCalculationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
@@ -624,6 +639,7 @@ export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
     getAddressCandidateVerifier(),
     getRecordFileAttachmentService(),
     getAddressCheckService(),
+    getPlanLimitsService(),
   );
 const getAddressCandidateVerifier = () => new SignedAddressCandidateVerifier(env.BETTER_AUTH_SECRET);
 const getRecordFileRepo = (companyId?: string) => new PrismaRecordFileRepo(companyId);
@@ -1012,6 +1028,7 @@ export const getWebhookAdmission = () =>
     getBackgroundTaskService(),
     getWebhookAdmissionRepo(),
     getWebhookDeliveryRepo(),
+    getPlanLimitsService(),
   );
 export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
@@ -1072,7 +1089,13 @@ export const getOperatorAccessService = () => new OperatorAccessService(getAuthS
 export const getActiveWorkspaceService = () => new ActiveWorkspaceService(getAuthService(), getUserRepo());
 export const getWorkspacePlanService = () => new WorkspacePlanService(getCompanyRepo());
 export const getUserService = () =>
-  new UserService(getAuthService(), getUserRepo(), getActiveWorkspaceService(), getWorkspacePlanService());
+  new UserService(
+    getAuthService(),
+    getUserRepo(),
+    getActiveWorkspaceService(),
+    getWorkspacePlanService(),
+    getIntegrationRequestLimiter(),
+  );
 export const getRouteGuardService = () =>
   new RouteGuardService(
     getAuthService(),
@@ -1196,6 +1219,28 @@ export const getEventService = () => {
 };
 export const getSubscriptionService = () => new SubscriptionService(getCompanyRepo());
 export const getEntitlementService = () => new EntitlementService(getCompanyRepo());
+export const getPlanLimitsService = () => new PlanLimitsService(new PrismaPlanUsageRepo(), env.APP_MODE);
+export const getGetPlanUsageInteractor = () => new GetPlanUsageInteractor(getPlanLimitsService());
+export const getGetPlanFitInteractor = () => new GetPlanFitInteractor(getPlanLimitsService());
+export const getFreePlanPauseService = () =>
+  new FreePlanPauseService(
+    getUserRepo(),
+    getCompanyRepo(),
+    (companyId) => getRoutineRepo(companyId),
+    env.APP_MODE,
+    new PaidSeatQuantitySync(getCompanyRepo(), getSubscriptionService()).sync,
+  );
+export const getSyncFreePlanPausesInteractor = () =>
+  new SyncFreePlanPausesInteractor(getUserRepo(), getFreePlanPauseService(), getEmailService());
+export const getSwapFreePlanSeatInteractor = () => new SwapFreePlanSeatInteractor(getUserRepo(), getEventService());
+export const getGetPlanPauseStateInteractor = () => new GetPlanPauseStateInteractor(getUserRepo());
+const getIntegrationRequestLimiter = () =>
+  new IntegrationRequestLimiter(
+    new ApiRateLimitService(
+      new PrismaApiRateLimitRepo(),
+      async (companyId) => (await getPlanLimitsService().plan(companyId)).limits,
+    ),
+  );
 export const getMessagingService = () => new MessagingService();
 export const getDraftSendGate = () => new DraftSendGate(getMessagingRepo());
 export const getDeleteAccountForBillingService = () =>
@@ -1228,6 +1273,7 @@ export const getRegisterUserInteractor = () =>
     getRouteGuardService(),
     getCompanyRepo(),
     new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
+    getPlanLimitsService(),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>
@@ -1259,6 +1305,20 @@ export const getCompleteOnboardingWizardInteractor = () =>
 export const getCompleteOnboardingSetupStepInteractor = () =>
   new CompleteOnboardingSetupStepInteractor(getUserRepo(), getRouteGuardService());
 
+export const getOnboardingFunnelRepo = () => new PrismaOnboardingFunnelRepo();
+export const getGetOnboardingJobChoiceInteractor = () =>
+  new GetOnboardingJobChoiceInteractor(getOnboardingFunnelRepo());
+export const getSelectOnboardingJobInteractor = () =>
+  new SelectOnboardingJobInteractor(getOnboardingFunnelRepo(), getUserRepo(), getRouteGuardService());
+export const getApplyOnboardingPlaybookInteractor = () =>
+  new ApplyOnboardingPlaybookInteractor(
+    getCreateWikiPagesInteractor(),
+    getUserRepo(),
+    getUserRepo(),
+    getRouteGuardService(),
+  );
+export const getRecordAgentConnectedInteractor = () => new RecordAgentConnectedInteractor(getOnboardingFunnelRepo());
+
 export const getGetOnboardingWizardProgressInteractor = () =>
   new GetOnboardingWizardProgressInteractor(getUserRepo(), getRouteGuardService(), getAuthService());
 
@@ -1279,6 +1339,7 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getCompanyRepo(),
     getUserRepo(),
     getReleaseOwnerRoutinesInteractor(),
+    getPlanLimitsService(),
   );
 
 export const getGetUsersInteractor = () =>
@@ -1366,6 +1427,7 @@ export const getJoinWorkspaceInteractor = () =>
     getUserRepo(),
     getUserRepo(),
     getEventService(),
+    getPlanLimitsService(),
   );
 
 // --- Auth ---
@@ -1405,7 +1467,12 @@ export const getGetInvitationLinkInteractor = () =>
   new GetInvitationLinkInteractor(getGetOrCreateInviteTokenInteractor());
 
 export const getInviteUsersByEmailInteractor = () =>
-  new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor(), getCompanyRepo());
+  new InviteUsersByEmailInteractor(
+    getEmailService(),
+    getGetOrCreateInviteTokenInteractor(),
+    getCompanyRepo(),
+    getPlanLimitsService(),
+  );
 
 export const getInviteTokenValidationInteractor = () => new InviteTokenValidationInteractor(getCompanyRepo());
 
@@ -1527,7 +1594,7 @@ export const getGetWebhooksApiInteractor = () =>
   new GetWebhooksInteractor(getWebhookRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
 
 export const getUpsertWebhookInteractor = () =>
-  new UpsertWebhookInteractor(getWebhookRepo(), getEventService(), getWebhookIdsValidator());
+  new UpsertWebhookInteractor(getWebhookRepo(), getEventService(), getWebhookIdsValidator(), getPlanLimitsService());
 
 export const getGetWebhookByIdInteractor = () => new GetWebhookByIdInteractor(getWebhookRepo());
 
@@ -1734,6 +1801,7 @@ export const getProcessAccountAddWebhookInteractor = () =>
     getUserRepo(),
     getBackgroundTaskService(),
     getEventService(),
+    getOnboardingFunnelRepo(),
   );
 export const getProcessAccountReadyWebhookInteractor = () =>
   new ProcessAccountReadyWebhookInteractor(getConnectedAccountRepo(), getBackgroundTaskService());
@@ -2057,7 +2125,13 @@ export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnect
 // --- EE Subscription ---
 
 export const getCreateCheckoutSessionInteractor = () =>
-  new CreateCheckoutSessionInteractor(getSubscriptionService(), getCompanyRepo(), getUserRepo(), getCompanyRepo());
+  new CreateCheckoutSessionInteractor(
+    getSubscriptionService(),
+    getCompanyRepo(),
+    getUserRepo(),
+    getCompanyRepo(),
+    getUserRepo(),
+  );
 
 export const getAbandonCheckoutInteractor = () => new AbandonCheckoutInteractor(getCompanyRepo());
 
@@ -2067,15 +2141,22 @@ export const getProcessLemonSqueezyWebhookInteractor = () =>
     getSubscriptionService(),
     getDeleteAccountsForPlanInteractor(),
     getEmailService(),
+    getFreePlanPauseService(),
   );
 
-export const getGetSubscriptionInteractor = () => new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo());
+export const getGetSubscriptionInteractor = () =>
+  new GetSubscriptionInteractor(getCompanyRepo(), getUserRepo(), getUserRepo());
 
 export const getGetBillingPortalUrlInteractor = () =>
   new GetBillingPortalUrlInteractor(getCompanyRepo(), getSubscriptionService());
 
 export const getRefreshSubscriptionInteractor = () =>
-  new RefreshSubscriptionInteractor(getCompanyRepo(), getSubscriptionService(), getDeleteAccountsForPlanInteractor());
+  new RefreshSubscriptionInteractor(
+    getCompanyRepo(),
+    getSubscriptionService(),
+    getDeleteAccountsForPlanInteractor(),
+    getFreePlanPauseService(),
+  );
 
 // --- EE Lifecycle (workflow cron) ---
 
@@ -2083,16 +2164,6 @@ export const getSendWelcomeAndDemoInteractor = () => new SendWelcomeAndDemoInter
 
 export const getSendTrialExtensionOfferInteractor = () =>
   new SendTrialExtensionOfferInteractor(getUserRepo(), getEmailService());
-
-export const getSendTrialInactivationReminderInteractor = () =>
-  new SendTrialInactivationReminderInteractor(getUserRepo(), getEmailService());
-
-export const getDeactivateTrialUsersAndSendNoticeInteractor = () =>
-  new DeactivateTrialUsersAndSendNoticeInteractor(
-    getUserRepo(),
-    getEmailService(),
-    getReleaseOwnerRoutinesInteractor(),
-  );
 
 export const getDeactivateUsersAfterSubscriptionGracePeriodInteractor = () =>
   new DeactivateUsersAfterSubscriptionGracePeriodInteractor(
@@ -2484,7 +2555,8 @@ import { AdjustWorkspaceSetupInteractor } from "@/ee/workspace-setup/adjust-work
 import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-workspace-setup.interactor";
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
 
-export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo());
+export const getWorkspaceSetupRepo = () =>
+  new PrismaWorkspaceSetupRepo(getWikiWebsiteCrawlRepo(), getOnboardingFunnelRepo());
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
 export const getWorkspaceSetupModelService = (budget: WorkspaceSetupBudgetKind) =>
   new WorkspaceSetupModelService(getAgentUsageService(), WORKSPACE_SETUP_BUDGETS[budget]);

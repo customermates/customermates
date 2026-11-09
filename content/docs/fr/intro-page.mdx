@@ -1,12 +1,12 @@
 ---
 title: "Documentation du CRM Customermates"
-description: "CRM open source avec un point d’accès MCP natif : les clients IA lisent et écrivent directement dans votre CRM. Commencez ici."
+description: "CRM open source pour relancer vos clients : conversations sur la fiche client, réponses rédigées par Mate ou votre agent IA via MCP, à relire et envoyer."
 demo:
   src: https://demo.customermates.com/fr/w/small-business/dashboard?agentChat=closed
   title: Démo Customermates
 ---
 
-Customermates est un CRM open source avec un point d’accès MCP natif. Claude, ChatGPT, Cursor et tout autre client qui parle le Model Context Protocol lisent et écrivent directement dans votre CRM, sans copier-coller.
+Customermates est un CRM open source pour les petites équipes au contact des clients. Sur Customermates Cloud à partir de Pro, vous connectez l’e-mail et LinkedIn, ainsi que WhatsApp, Instagram et Telegram, et les conversations se trouvent sur la fiche du client quand les coordonnées correspondent ou que vous les liez. Mate, l’assistant intégré à Customermates Cloud, ou votre propre agent IA rédige la réponse et la prochaine étape ; vous relisez, modifiez et envoyez. Claude, ChatGPT, Cursor et tout autre client qui parle le Model Context Protocol lisent et écrivent directement dans votre CRM via un point d’accès MCP natif, sans copier-coller, sur toutes les formules et en auto-hébergement.
 
 ## Choisir votre client et démarrer [#pick-your-client-and-start]
 
@@ -21,16 +21,16 @@ Chaque page couvre les étapes de connexion et vos premières commandes, et le s
 
 ## Ce qu’est Customermates [#what-customermates-is]
 
-Un CRM avec des listes, des champs, des relations et des calculs configurables, des vues en tableau et en board, et des tableaux de bord. Sur Customermates Cloud, une configuration IA conçoit vos listes, votre pipeline, votre tableau de bord et votre base de connaissances à partir de quelques questions sur votre activité ; vous pouvez tout modifier et ajouter vos propres listes. Et aussi :
+Un CRM avec des listes, des champs, des relations et des calculs configurables, des vues en tableau et en board, et des tableaux de bord. Sur Customermates Cloud, vous décrivez votre activité, répondez à quelques questions, et Mate conçoit vos listes, votre pipeline, votre tableau de bord et vos pages de base de connaissances, que vous relisez avant que rien ne soit créé ; vous pouvez tout modifier et ajouter vos propres listes. Et aussi :
 
 - **Point d’accès MCP natif** sur `/api/v1/mcp` : un client MCP découvre et appelle les opérations du CRM sans module d’extension.
 - **Open source** sous AGPLv3 ; les composants entreprise relèvent d’une licence commerciale distincte. Auto-hébergez ou utilisez le cloud géré.
 - **Cloud géré** avec sa base de données dans la région AWS de Francfort, un [DPA](/dpa), et chaque sous-traitant, fournisseurs américains compris, listé sur la [page des sous-traitants](/subprocessors).
 - **Webhooks** avec des charges utiles signées en option, des nouvelles tentatives et un journal des envois.
 - **Spécification OpenAPI 3.1** de toute l’interface REST sur `/api/v1/openapi`.
-- **Mate**, l’assistant IA intégré à l’application sur Customermates Cloud : pas de client IA externe ni de configuration, il utilise les crédits inclus dans votre formule. Voir [Assistant](/docs/app-assistant).
+- **Mate**, l’assistant IA intégré à l’application sur Customermates Cloud : pas de client IA externe ni de configuration, il utilise les crédits inclus dans votre formule. Demandez-lui une réponse et il enregistre un brouillon dans la conversation, que vous relisez et envoyez. Voir [Assistant](/docs/app-assistant).
 - **Routines** qui exécutent Mate selon un calendrier ou lorsqu’un enregistrement change, sur Customermates Cloud. Voir [Routines](/docs/app-routines).
-- **Boîte de réception** pour l’e-mail et les comptes LinkedIn, WhatsApp, Instagram et Telegram connectés, sur Customermates Cloud. Voir [Boîte de réception](/docs/app-inbox).
+- **Boîte de réception** pour l’e-mail et les comptes LinkedIn, WhatsApp, Instagram et Telegram connectés, sur Customermates Cloud à partir de Pro. Voir [Boîte de réception](/docs/app-inbox).
 - **Rôles** qui décident, liste par liste, qui peut lire tous les enregistrements, seulement ceux qui lui sont assignés ou aucun, et qui peut les créer, les modifier ou les supprimer. Voir [Entreprise](/docs/app-company).
 
 ## Quatre façons dont Customermates se connecte à votre stack [#four-ways-customermates-connects-to-your-stack]
@@ -59,4 +59,4 @@ Customermates traite le client IA comme un utilisateur à part entière. Les out
 
 ## Essayer [#try-it]
 
-La démo intégrée à cette page est une instance en direct en lecture seule avec des données d’exemple. Vous pouvez la parcourir et y chercher ; créer, modifier ou supprimer des enregistrements et interroger Mate affichent un avis indiquant que l’action n’est pas disponible en mode démo. [Démarrez un essai gratuit](/auth/signup) pour travailler avec vos propres données.
+La démo intégrée à cette page est une instance en direct en lecture seule avec des données d’exemple. Vous pouvez la parcourir et y chercher ; créer, modifier ou supprimer des enregistrements et interroger Mate affichent un avis indiquant que l’action n’est pas disponible en mode démo. [Démarrez un essai gratuit](/auth/signup) ([[commercial.trial.days]] jours, sans carte bancaire) pour travailler avec vos propres données.

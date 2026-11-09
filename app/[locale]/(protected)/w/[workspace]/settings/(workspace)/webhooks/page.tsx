@@ -2,7 +2,9 @@ import { Resource } from "@/generated/prisma";
 
 import { WebhooksPageView } from "../components/webhook/webhooks-page-view";
 
-import { getGetWebhooksInteractor } from "@/core/di";
+import { getGetPlanUsageInteractor, getGetWebhooksInteractor } from "@/core/di";
+import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
+import { FreePlanFeatureOverlay } from "@/app/components/upsell/free-plan-feature-overlay";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
@@ -18,11 +20,15 @@ export default async function CompanyWebhooksPage({ searchParams }: Props) {
 
   const webhookParams = await readSurfaceParams(SURFACE.webhooks, searchParams);
 
-  const webhooks = await unwrapPage(getGetWebhooksInteractor().invoke(webhookParams));
+  const [webhooks, usage] = await Promise.all([
+    unwrapPage(getGetWebhooksInteractor().invoke(webhookParams)),
+    unwrapPage(getGetPlanUsageInteractor().invoke()),
+  ]);
+  const view = <WebhooksPageView initialWebhooks={webhooks} />;
 
   return (
     <PageContainer padded={false}>
-      <WebhooksPageView initialWebhooks={webhooks} />
+      {usage.plan === FREE_PLAN_ID ? <FreePlanFeatureOverlay feature="webhooks">{view}</FreePlanFeatureOverlay> : view}
     </PageContainer>
   );
 }

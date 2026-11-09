@@ -7,7 +7,6 @@ import { TokenTable, TypeTable } from "../components/style-readout";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 import { PhoneFrame, ProductPanel, ProductWindow } from "@/components/marketing/product-window";
-import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
@@ -41,38 +40,24 @@ const WASHES = [
 ];
 
 const ACCENTS = [
-  { name: "--primary", role: "the one accent — a payoff, never a mood" },
+  { name: "--primary", role: "ink, the primary action" },
+  { name: "--mk-agent", role: "ink; an agent moment is a mark and a label, not a colour" },
   { name: "--success", role: "a resolved state" },
   { name: "--warning", role: "an attention state" },
   { name: "--destructive", role: "a destructive state" },
 ];
 
 const TYPE_ROLES = [
+  { className: "mk-hero", sample: "Follow up on every client conversation." },
+  { className: "mk-display", sample: "One description. A workspace your agent built." },
+  { className: "mk-title", sample: "Replies drafted and waiting for you" },
   {
-    className: "text-hero",
-    sample: "One clear promise with one dominant idea.",
+    className: "mk-lede",
+    sample: "Connect LinkedIn and email. Mate drafts the reply and puts the next step on your dashboard.",
   },
-  {
-    className: "text-display",
-    sample: "Editorial display for a singular campaign statement",
-  },
-  {
-    className: "text-display-sm",
-    sample: "Every conversation lands on the record it belongs to",
-  },
-  {
-    className: "text-lede",
-    sample:
-      "Claude can use allowed CRM and inbox operations through MCP. You review its changes and drafts in Customermates.",
-  },
-  {
-    className: "text-eyebrow",
-    sample: "Reserved for metadata, not section headings",
-  },
-  {
-    className: "text-meta",
-    sample: "No credit card required. Cancel anytime. Made in Germany.",
-  },
+  { className: "mk-body", sample: "Playbooks, prices and how you work, written once." },
+  { className: "mk-eyebrow", sample: "Every reply, handled" },
+  { className: "mk-caption", sample: "No credit card. Cancel anytime. Made in Germany." },
 ];
 
 const GEOMETRY = [
@@ -127,22 +112,43 @@ const GEOMETRY = [
     value: "1200 / 630",
   },
   {
-    label: "--marketing-duration",
-    role: "the one interface transition duration",
-    value: "200ms",
+    label: "--mk-radius-sm / md / lg / xl",
+    role: "buttons and tiles / small panels / cards / stages and the closing panel",
+    value: "10 / 14 / 20 / 28px",
   },
   {
-    label: "--marketing-ease",
-    role: "the one interface easing curve",
-    value: "cubic-bezier(.22, 1, .36, 1)",
+    label: "--mk-section-space",
+    role: "vertical rhythm between sections (Linear and Apple sit at 128 to 144px)",
+    value: "80 → 136px",
+  },
+  {
+    label: "--mk-header-gap",
+    role: "space between a section header and its content",
+    value: "40 → 64px",
+  },
+  {
+    label: "--mk-measure",
+    role: "maximum width of a lede, about 70 characters",
+    value: "40rem",
+  },
+  {
+    label: "--mk-ease / --mk-ease-emphasized",
+    role: "state changes (Attio's curve) / entrances and lifts",
+    value: "cubic-bezier(.2, 0, 0, 1) / (.22, 1, .36, 1)",
+  },
+  {
+    label: "--mk-duration-fast / base / slow",
+    role: "press feedback / hover and state / entrances",
+    value: "150 / 240 / 600ms",
   },
 ];
 
-const GRADIENT_RULES = [
-  "text-display, text-display-sm and text-hero carry it; text-display-gradient opts in custom-sized titles such as Markdown and docs page titles and the featured post.",
-  "Muted accent spans inside a display heading join the gradient instead of keeping their grey.",
-  "Moving or separately coloured text stays outside it, because background-clip paints through every glyph.",
-  "Forced colours fall back to plain text.",
+const DEPTH = [
+  ["--mk-shadow-ring", "a resting card: a hairline ring, no blur"],
+  ["--mk-shadow-sm", "secondary buttons and chips"],
+  ["--mk-shadow-md", "a raised panel such as the closing panel"],
+  ["--mk-shadow-lg", "the live stage and product windows"],
+  ["--mk-shadow-hover", "an interactive card under the pointer, together with a 2px lift"],
 ] as const;
 
 const SURFACE_RULES = [
@@ -181,18 +187,19 @@ const FRAMING_RULES = [
 ] as const;
 
 const MOTION_RULES = [
+  ["Hero entrance", "mk-enter: the hero's children rise 14px out of a 4px blur, 70ms apart, once on load (900ms)."],
   [
-    "Rotating claim",
-    "One word on its own line, in primary on a soft highlight padded from the font metrics; the highlight animates its real width every 2.6 s.",
+    "Scroll reveal",
+    "data-reveal: section headers, cards and panels rise and fade in once through a CSS view timeline. Nothing is hidden where view timelines are not supported.",
   ],
+  [
+    "Hover",
+    "Interactive cards lift 2px and strengthen their ring in 240ms; arrows in buttons and links nudge 2px; chips lift 1px.",
+  ],
+  ["Press", "Buttons scale to 98 per cent for 150ms."],
   [
     "Live stage",
-    "From 40rem, one live demo iframe per tab after hydration with the next tab preloaded; 6 s rotation with a progress ring, stopped by any visitor action.",
-  ],
-  ["Scroll reveal", "Panels, video and closing card rise 2rem and fade in once through a CSS view timeline."],
-  [
-    "Step progress",
-    "Numbered steps fill their line in primary and light each number as it crosses the middle of the screen.",
+    "From 40rem, one live demo iframe per tab after hydration with the next tab preloaded; 6s rotation with a progress ring, stopped by any visitor action.",
   ],
   [
     "Restraint",
@@ -201,6 +208,17 @@ const MOTION_RULES = [
 ] as const;
 
 const FORBIDDEN = [
+  [
+    "No accent colour",
+    "Buttons, headings, icons, charts and agent moments stay ink, grey and hairline. Only signal colours carry state.",
+  ],
+  ["No gradient or coloured headline text", "Headlines are ink with an optional grey second clause."],
+  [
+    "No grid paper or floating logo tiles behind a hero",
+    "They read as a template. The hero sits on the page colour with one soft light.",
+  ],
+  ["No second primary action", "One ink button per section; alternatives use the secondary or ghost button."],
+  ["No type size by eye", "Every heading and paragraph uses a class from the type scale."],
   [
     "No shadow on a new resting surface",
     "Elevation is a rung, not a distance. Only floating layers carry shadow: product windows, floating panels, glass controls and lit marks.",
@@ -266,9 +284,9 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="One accent, used where something resolves. Signal colours carry state and nothing else."
+        description="There is no accent colour. The primary action is ink, an agent moment is marked by the Mate mark or a sparkle in ink with a label, and signal colours carry state and nothing else."
         id="signals"
-        title="Accent and signal"
+        title="Ink and signal colours"
       >
         <div className="mt-14 lg:mt-16">
           <TokenTable rows={ACCENTS} />
@@ -276,9 +294,9 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
       </MarketingSection>
 
       <MarketingSection
-        description="One family. Contrast comes from size, neutral 500 weight and tracking; accent colour stays with signals and actions rather than display text."
+        description="Inter, two weights. Display at 600 with tracking from -0.018em to -0.042em; body at 400. Sizes are fluid between phone and desktop, measured against Attio (64px hero, 40px sections) and Linear (64 / 48px)."
         id="typography"
-        title="Typography"
+        title="Type scale"
       >
         <div className="mt-14 lg:mt-16">
           <TypeTable rows={TYPE_ROLES} />
@@ -328,46 +346,30 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Button size="lg">Primary</Button>
-
-          <Button size="lg" variant="secondary">
-            Secondary
-          </Button>
-
-          <Button size="lg" variant="ghost">
-            Ghost
-          </Button>
-
-          <Button size="lg" variant="softPrimary">
-            Soft primary
-          </Button>
-
-          <Button disabled size="lg">
-            Disabled
-          </Button>
-        </div>
+        <p className="mk-body mt-10">
+          Buttons, cards, badges and chips are specified with live examples in the Building blocks chapter.
+        </p>
       </MarketingSection>
 
       <MarketingSection
-        description="One vertical gradient for every display heading, from the foreground colour to 65 per cent of it."
-        id="heading-gradient"
-        title="Display gradient"
+        description="Depth is a ring first and a shadow only when something floats or responds to the pointer."
+        id="depth"
+        title="Depth"
       >
-        <div className="mt-14 grid gap-10 lg:mt-16 lg:grid-cols-2">
-          <div className="rounded-card border border-border bg-background p-8">
-            <p className="text-meta mb-4">text-display-sm</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {DEPTH.map(([token, role], index) => (
+            <div
+              key={token}
+              className={
+                ["mk-card", "mk-card", "mk-card-raised", "mk-card-raised", "mk-card mk-card-interactive"][index] +
+                " p-5"
+              }
+            >
+              <code className="font-mono text-xs">{token}</code>
 
-            <p className="text-display-sm m-0">
-              Every channel, <span className="text-muted-foreground">one customer story.</span>
-            </p>
-          </div>
-
-          <ul className="m-0 list-none space-y-3 p-0 text-sm leading-relaxed text-muted-foreground">
-            {GRADIENT_RULES.map((rule) => (
-              <li key={rule}>{rule}</li>
-            ))}
-          </ul>
+              <p className="mk-caption mt-3">{role}</p>
+            </div>
+          ))}
         </div>
       </MarketingSection>
 
@@ -380,7 +382,7 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
           <div className="relative isolate flex min-h-64 flex-col items-center justify-center gap-6 overflow-hidden rounded-card border border-border bg-sidebar p-8">
             <div
               aria-hidden
-              className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_50%_100%,color-mix(in_oklab,var(--primary)_30%,transparent),transparent)]"
+              className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_50%_100%,color-mix(in_oklab,var(--foreground)_12%,transparent),transparent)]"
             />
 
             <div className="glass-surface flex gap-0.5 rounded-full p-1 text-sm font-medium">

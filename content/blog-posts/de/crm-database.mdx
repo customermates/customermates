@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM-Datenbank: Was sie ist und wie Sie eine aufbauen, die sauber bleibt"
-  description: Eine CRM-Datenbank verknüpft Personen, Unternehmen, Deals und Aufgaben. Hier sehen Sie, wie große CRM-Systeme ihr Datenmodell ordnen, wie Sie Ihre eigene Kundendatenbank planen und importieren und mit welchen Regeln sie aktuell bleibt.
+  description: "Eine CRM-Datenbank verknüpft Personen, Unternehmen, Deals und Aufgaben. Wie große CRMs ihr Datenmodell ordnen, wie Sie Ihre eigene planen und importieren und welche Regeln sie aktuell halten."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,7 +107,7 @@ Das ist die häufigste Frage beim Datenmodell, und es gibt vier ehrliche Antwort
 
 ## Beispiel: Die CRM-Datenbank einer Beratung mit vier Personen
 
-So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen Stand des Produkts. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer.
+So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen Stand des Produkts. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Ein neuer Workspace startet ohne Listen: In Customermates Cloud beschreiben Sie Ihr Geschäft in einem Satz, und Mate baut Listen, Pipeline und Dashboard; die folgenden Schritte funktionieren auch von Hand in Konfigurieren.
 
 **Listen.** Öffnen Sie in Konfigurieren die Liste Kontakte und ändern Sie unter **Allgemein** **Name** und **Pluralname** in Kunde und Kunden, dann benennen Sie Deals ebenso in Projekte um. Jeder Name ist möglich. Organisationen, Services und Aufgaben behalten ihre Namen.
 
@@ -130,15 +130,17 @@ So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen S
 
 **Import.** Über Weitere Aktionen › Aus Datei hinzufügen lesen Sie eine .xlsx-Arbeitsmappe oder eine .csv-Datei ein, eine Liste pro Import, in der Reihenfolge Organisationen, Kunden, Projekte. Verknüpfungsspalten werden über den Datensatznamen zugeordnet. Eine CSV-Datei können Sie direkt importieren, ohne sie umzuwandeln. Alle Importregeln stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
-**Ansichten.** Speichern Sie „Seit 90 Tagen unverändert" mit dem Filter Aktualisiert am, Älter als… 90 Tage, und „Kunden ohne Organisation". Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann mit denselben Filtern ihre eigene Ansicht anlegen, oder Sie teilen eine Ansicht mit dem Team.
+**Ansichten.** Speichern Sie „Seit 90 Tagen unverändert“ mit dem Filter Aktualisiert am, Älter als… 90 Tage, und „Kunden ohne Organisation“. Teilen Sie „Seit 90 Tagen unverändert“ mit dem ganzen Team oder mit ausgewählten Rollen, damit alle mit derselben Liste arbeiten.
 
-**Kosten.** Vier Personen zahlen im Tarif Starter [[commercial.price.starter.monthly.seats.4]] pro Monat. Im Tarif Pro, der die [Unified Inbox](/features/unified-inbox) ergänzt, sodass das verbundene E-Mail-, LinkedIn- oder WhatsApp-Konto jedes Nutzers seine Gespräche neben dem Kunden zeigt, sind es [[commercial.price.pro.monthly.seats.4]] pro Monat. Abgerechnet wird monatlich, die Testphase dauert [[commercial.trial.days]] Tage. Der selbst gehostete Open-Source-Kern kostet keine Lizenzgebühr, enthält aber weder Inbox noch Mate.
+**Kosten.** Vier Personen zahlen im Tarif Starter [[commercial.price.starter.monthly.seats.4]] pro Monat. Im Tarif Pro, der die [Unified Inbox](/features/unified-inbox) ergänzt, sodass das verbundene E-Mail-, LinkedIn- oder WhatsApp-Konto jedes Nutzers seine Gespräche neben dem Kunden zeigt, sind es [[commercial.price.pro.monthly.seats.4]] pro Monat. Abgerechnet wird monatlich, und Ihr erster Workspace startet [[commercial.trial.days]] Tage kostenlos mit Pro, ohne Kreditkarte. Der selbst gehostete Open-Source-Kern kostet keine Lizenzgebühr, enthält aber weder Inbox noch Mate.
 
 **Eine Routine für die Datenqualität (Customermates Cloud).** Mate, der Assistent in Customermates Cloud, nutzt gehostete KI-Credits. Eine Routine führt gespeicherte Anweisungen nach Zeitplan oder bei einem Datensatzereignis aus, und zwar als die Person, der sie gehört; Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer. Eine wöchentliche Routine könnte diese Anweisung haben:
 
 > Liste jeden Montag die Kunden auf, die in den letzten 7 Tagen angelegt wurden und keine verknüpfte Organisation oder keine E-Mail-Adresse haben, und die Organisationen ohne Wert im Feld Segment. Gib die Listen in der Zusammenfassung des Laufs aus. Ändere keinen Datensatz und sende keine Nachricht.
 
 Auf den letzten Satz kommt es an. Mate kann Nachrichten senden, wenn eine Anweisung darum bittet; eine Routine, die nur berichten soll, muss das also ausdrücklich sagen. Wenn Sie lieber Ihren eigenen KI-Client nutzen, können Claude, ChatGPT und andere MCP-Clients dieselben Datensätze über [[derived.mcp.tools.total]] [MCP-Tools](/docs/mcp) abfragen, in der Cloud und selbst gehostet.
+
+Eine Datenbank zahlt sich aus, wenn jeder Datensatz einen nächsten Schritt hat. In Pro liegen die Verläufe am Kundendatensatz, Mate oder Ihr eigener KI-Client entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Um das an Ihren eigenen Datensätzen auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup).
 
 ## CRM-Datenpflege: So bleibt die Datenbank sauber
 

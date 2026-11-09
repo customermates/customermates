@@ -73,7 +73,7 @@ export function AppChip({
       interactive={interactive}
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a truncated, noninteractive chip needs a keyboard focus target for its tooltip
       tabIndex={tabIndex ?? keyboardTooltipTabIndex}
-      variant={variant}
+      variant={variant === "default" ? "blue" : variant}
       {...props}
     >
       {startContent}

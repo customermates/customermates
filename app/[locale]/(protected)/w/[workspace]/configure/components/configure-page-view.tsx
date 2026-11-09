@@ -285,7 +285,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     >
       {store.refreshFailed && (
         <div className="px-4 pt-4 md:px-8">
-          <Alert color="danger" description={t("ErrorCard.title")}>
+          <Alert description={t("ErrorCard.title")} variant="destructive">
             <Button disabled={store.isRefreshing} size="sm" variant="secondary" onClick={() => runUserAction(refresh)}>
               {t("ErrorCard.retry")}
             </Button>

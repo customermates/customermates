@@ -49,7 +49,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
         {detail && <p className="text-subdued mt-0.5 line-clamp-2 text-xs font-normal">{detail}</p>}
 
         {run.wikiProposalCount > 0 && (
-          <p className="mt-0.5 text-xs font-normal text-primary" data-routine-run-wiki-proposals="">
+          <p className="mt-0.5 text-xs font-normal text-foreground" data-routine-run-wiki-proposals="">
             {t("RoutineDetail.wikiProposals", { count: run.wikiProposalCount })}
           </p>
         )}
@@ -123,9 +123,9 @@ export const RoutineRunsPane = observer(({ store }: { store: RoutineModalStore }
         </div>
       ) : store.runsRequestState === "error" ? (
         <Alert
-          color="danger"
           description={t("RoutineDetail.runsLoadErrorDescription")}
           title={t("RoutineDetail.runsLoadErrorTitle")}
+          variant="destructive"
         >
           <Button
             className="mt-2"

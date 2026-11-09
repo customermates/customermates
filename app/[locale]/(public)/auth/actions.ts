@@ -24,6 +24,7 @@ import { getLocale } from "next-intl/server";
 import { serializeResult } from "@/core/utils/action-result";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import { buildLocalePath } from "@/i18n/locale-registry";
+import { rememberSignupJourney } from "@/features/acquisition/next/signup-journey-cookie";
 
 export async function signInWithEmailAction(data: EmailSignInData) {
   const result = await getSignInWithEmailInteractor().invoke(data);
@@ -40,7 +41,12 @@ export async function signInWithEmailAction(data: EmailSignInData) {
   return serialized;
 }
 
-export async function continueWithGoogleAction(callbackURL?: string, errorCallbackURL?: string) {
+export async function continueWithGoogleAction(
+  callbackURL?: string,
+  errorCallbackURL?: string,
+  signupJourney?: unknown,
+) {
+  if (signupJourney !== undefined) await rememberSignupJourney(signupJourney);
   const result = await getContinueWithSocialsInteractor().invoke({
     provider: "google",
     callbackURL,
@@ -51,7 +57,12 @@ export async function continueWithGoogleAction(callbackURL?: string, errorCallba
   return serializeResult(result);
 }
 
-export async function continueWithMicrosoftAction(callbackURL?: string, errorCallbackURL?: string) {
+export async function continueWithMicrosoftAction(
+  callbackURL?: string,
+  errorCallbackURL?: string,
+  signupJourney?: unknown,
+) {
+  if (signupJourney !== undefined) await rememberSignupJourney(signupJourney);
   const result = await getContinueWithSocialsInteractor().invoke({
     provider: "microsoft",
     callbackURL,
@@ -62,7 +73,8 @@ export async function continueWithMicrosoftAction(callbackURL?: string, errorCal
   return serializeResult(result);
 }
 
-export async function signUpWithEmailAction(data: EmailSignUpData) {
+export async function signUpWithEmailAction(data: EmailSignUpData, signupJourney?: unknown) {
+  if (signupJourney !== undefined && data.onboardingIntent === undefined) await rememberSignupJourney(signupJourney);
   const result = await getSignUpWithEmailInteractor().invoke(data);
   if (isRedirect(result)) redirect(buildLocalePath(await getLocale(), result.redirect));
 

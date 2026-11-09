@@ -11,7 +11,7 @@ export type TagListProps = {
 
 const GAP_PX = 8;
 
-export function TagList({ tags, variant = "default" }: TagListProps) {
+export function TagList({ tags, variant = "secondary" }: TagListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const overflowRef = useRef<HTMLSpanElement>(null);
   const [visibleCount, setVisibleCount] = useState(tags.length);

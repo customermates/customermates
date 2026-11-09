@@ -12,11 +12,11 @@ import VerifyEmail from "../verify-email";
 import { APP_LOCALES, DEFAULT_LOCALE, type AppLocale } from "@/i18n/locale-registry";
 
 const EXPECTED_LAYOUT_COPY = {
-  de: { country: "Deutschland", tagline: "Das agentische Open-Source-CRM" },
-  en: { country: "Germany", tagline: "The agentic, open-source CRM" },
-  es: { country: "Alemania", tagline: "El CRM agéntico de código abierto" },
-  fr: { country: "Allemagne", tagline: "Le CRM agentique open source" },
-  it: { country: "Germania", tagline: "Il CRM agentico open source" },
+  de: { country: "Deutschland", tagline: "Das Open-Source-CRM zum Nachfassen" },
+  en: { country: "Germany", tagline: "The open-source CRM for client follow-up" },
+  es: { country: "Alemania", tagline: "El CRM de código abierto para el seguimiento de clientes" },
+  fr: { country: "Allemagne", tagline: "Le CRM open source pour relancer vos clients" },
+  it: { country: "Germania", tagline: "Il CRM open source per seguire ogni cliente" },
 } satisfies Record<AppLocale, { country: string; tagline: string }>;
 
 const verifyEmailCopy = {
@@ -83,5 +83,17 @@ describe("email locale", () => {
         expect(langAttribute(html), `${Email.name} rendered for ${locale}`).toBe(locale);
       }
     }
+  });
+});
+
+describe("email look", () => {
+  it("keeps every email on white with one ink button and no violet", async () => {
+    const layoutCopy = await getEmailLayoutCopy(DEFAULT_LOCALE);
+    const html = await render(createElement(VerifyEmail, { locale: DEFAULT_LOCALE, layoutCopy, ...verifyEmailCopy }));
+
+    expect(html).toContain("background-color:#ffffff");
+    expect(html).toMatch(/background-color:#0a0a0b[^"]*color:#ffffff/);
+    expect(html).toContain("border-radius:6px");
+    expect(html).not.toMatch(/#5e4ae3|#7a6ae8|#4e3dbb|#f4f4f5/i);
   });
 });

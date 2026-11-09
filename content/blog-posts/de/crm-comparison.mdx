@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM Vergleich: Funktionen, Preise und echte Kosten nebeneinander"
-  description: Eine Vergleichstabelle für acht CRM-Systeme, die zeigt, welchen Tarif Sie für welche Funktion brauchen, was dieser Tarif ein Team mit fünf Personen in zwei Jahren kostet und wie Sie Ihre Auswahl selbst bewerten. Customermates gibt diesen Vergleich heraus.
+  description: "Eine Vergleichstabelle für acht CRM-Systeme: welchen Tarif Sie für welche Funktion brauchen, was er fünf Personen in zwei Jahren kostet und wie Sie selbst bewerten. Customermates gibt sie heraus."
 
 blogPost:
   author: Benjamin Wagner
@@ -51,7 +51,7 @@ Jede Zelle nennt den ersten Tarif, für den die Preisseite des Anbieters die Fun
 | Pipedrive | 14 Tage kostenlos testen, kein kostenloser Tarif | Growth (Wenn-dann-Schritte) | Growth | Hier nicht verglichen | Growth | Premium nennt 150.000 API-Tokens |
 | Salesforce Sales Cloud | Free Suite | Starter Suite (Sales Flows, Lead-Routing) | Hier nicht verglichen | Hier nicht verglichen | Pro Suite | Hier nicht verglichen |
 | Zoho CRM | Kostenlose Edition für 3 Nutzer | Ab kostenloser Edition | Hier nicht verglichen | Standard (integrierte Telefonie) | Ab kostenloser Edition | Ab kostenloser Edition, 5.000 Aufrufe pro Tag |
-| Customermates | [[commercial.trial.days]] Tage kostenlos testen; AGPL-Kern kostenlos selbst hostbar | Keine Regel-Engine; Routinen in der Customermates Cloud, dazu Webhooks für Ihr eigenes n8n | Keine | Keine | Gewichtete Pipeline aus Phasenwahrscheinlichkeiten, keine Umsatzprognose | REST, Webhooks und MCP in jedem Tarif |
+| Customermates | [[commercial.trial.days]] Tage kostenlos testen; kostenloser Cloud-Tarif für [[commercial.limit.free.maxMembers]] Person; AGPL-Kern kostenlos selbst hostbar | Keine Regel-Engine; Routinen in der Customermates Cloud, dazu Webhooks für Ihr eigenes n8n | Keine | Keine | Gewichtete Pipeline aus Phasenwahrscheinlichkeiten, keine Umsatzprognose | REST, Webhooks und MCP in jedem bezahlten Tarif |
 
 Zwei Dinge zeigt die Tabelle nicht. Dass eine Funktion im Tarif steht, sagt nichts darüber, ob sie zu Ihrer Arbeit passt, und die Grenzen unterscheiden sich: Die Workflows in HubSpot Starter haben eingeschränkte Auslöser und Aktionen, und monday begrenzt Automatisierungen im Standard-Tarif auf 250 pro Monat. Achten Sie auf die Grenze, nicht nur auf den Tarifnamen, und klären Sie offene Zellen in der Testphase.
 
@@ -153,14 +153,18 @@ A und B sind Platzhalter für Ihre eigenen Systeme und Punkte. Den vollständige
 
 Drei Zeilen der Tabellen oben lohnen einen genaueren Blick:
 
-- **KI.** In der Customermates Cloud bereitet der Assistent Mate Zusammenfassungen und Antwortentwürfe vor und nutzt dafür gehostete KI-Credits; jeder Cloud-Tarif enthält monatliche KI-Credits pro aktivem Nutzer, Details auf der Preisseite. Routinen führen gespeicherte Anweisungen nach Zeitplan aus oder wenn sich ein Datensatz ändert. Wenn Sie lieber Claude, ChatGPT oder einen anderen Client nutzen, arbeitet er in jedem Tarif über [MCP](/docs/mcp) mit dem CRM; die Nutzung rechnet Ihr eigener KI-Anbieter ab.
+- **KI.** In der Customermates Cloud bereitet der Assistent Mate Zusammenfassungen und Antwortentwürfe vor und nutzt dafür gehostete KI-Credits; jeder kostenpflichtige Tarif enthält monatliche KI-Credits pro aktivem Nutzer, Details auf der Preisseite. Routinen führen gespeicherte Anweisungen nach Zeitplan aus oder wenn sich ein Datensatz ändert. Wenn Sie lieber Claude, ChatGPT oder einen anderen Client nutzen, arbeitet er in jedem Tarif über [MCP](/docs/mcp) mit dem CRM; die Nutzung rechnet Ihr eigener KI-Anbieter ab.
 - **Automatisierung.** Eine Regel-Engine gibt es nicht. Webhooks und die REST-API verbinden das CRM mit einer n8n-Instanz, die Sie selbst betreiben.
 - **Hosting.** Der AGPL-Kern lässt sich mit Docker [selbst hosten](/features/self-hosted), mit REST, Webhooks und MCP. Selbst gehostet gibt es keinen Posteingang, kein Mate und keine gehosteten Credits.
 
 Der Wert eines Deals ergibt sich aus seinen Positionen, jeweils Service mal Menge, und jede Phase, ein konfigurierbares Feld vom Typ Einzelauswahl, trägt eine Wahrscheinlichkeit. Die gewichtete Pipeline ist diese Rechnung und keine Vorhersage. Datensätze werden als Excel-Arbeitsmappe oder JSON importiert und exportiert, eine Liste nach der anderen.
 
+Für ein kleines Team mit Kundenkontakt ist die Zeile zum Testen das Nachfassen: Gespräche am Kundendatensatz, eine Antwort und ein nächster Schritt von Mate oder Ihrem eigenen KI-Client entworfen, und Sie prüfen, bearbeiten und senden. Testen Sie es an Ihren eigenen Deals in der [[commercial.trial.days]]-tägigen Testphase: [hier starten](/auth/signup?job=followup), ohne Kreditkarte.
+
+Eine unabhängige Übersicht, in der Customermates neben anderen Tools gelistet ist, finden Sie bei [Toolradar](https://toolradar.com/tools/customermates).
+
 <AcquisitionCallout title="Wann ein anderes System besser passt" variant="boundary">
-  Customermates hat keine Telefonie, keine E-Mail-Sequenzen oder Massenversand, keine native App für Smartphones, keine Umsatzprognose über gewichtete Phasen hinaus und keinen kostenlosen gehosteten Tarif. Wenn Sie am Telefon verkaufen, vergleichen Sie Close. Brauchen Sie Sequenzen, enthalten Pipedrive Growth und HubSpot Sales Hub sie. Kostenlos starten können Sie mit HubSpot Free Tools oder der kostenlosen Edition von Zoho CRM. Große Organisationen mit eigener CRM-Administration sind bei Salesforce oder Dynamics 365 besser aufgehoben.
+  Customermates hat keine Telefonie, keine E-Mail-Sequenzen oder Massenversand, keine native App für Smartphones, keine Umsatzprognose über gewichtete Phasen hinaus, und der kostenlose gehostete Tarif endet bei [[commercial.limit.free.maxMembers]] Person. Wenn Sie am Telefon verkaufen, vergleichen Sie Close. Brauchen Sie Sequenzen, enthalten Pipedrive Growth und HubSpot Sales Hub sie. Kostenlos starten können Sie mit HubSpot Free Tools oder der kostenlosen Edition von Zoho CRM. Große Organisationen mit eigener CRM-Administration sind bei Salesforce oder Dynamics 365 besser aufgehoben.
 </AcquisitionCallout>
 
 ## Häufige Fragen
@@ -183,7 +187,7 @@ Operatives, analytisches und kollaboratives CRM. Manche Quellen nennen strategis
 </FaqItem>
 
 <FaqItem question="Welches ist das beste kostenlose CRM?">
-Pauschal beste gibt es nicht, aber drei Anbieter haben einen kostenlosen Tarif: HubSpot Free Tools (bis zu 2 Nutzer), die kostenlose Edition von Zoho CRM (3 Nutzer) und die Free Suite von Salesforce. Pipedrive und monday CRM haben keinen kostenlosen Tarif. Customermates hat keinen kostenlosen gehosteten Tarif; der AGPL-Kern lässt sich ohne Lizenzgebühr selbst hosten, ohne Posteingang und Mate. Mehr dazu im Beitrag [kostenloses CRM](/blog/free-crm).
+Pauschal beste gibt es nicht, aber drei Anbieter haben einen kostenlosen Tarif: HubSpot Free Tools (bis zu 2 Nutzer), die kostenlose Edition von Zoho CRM (3 Nutzer) und die Free Suite von Salesforce. Pipedrive und monday CRM haben keinen kostenlosen Tarif. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; der AGPL-Kern lässt sich ohne Lizenzgebühr selbst hosten, ohne Posteingang und Mate. Mehr dazu im Beitrag [kostenloses CRM](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Kann ich das CRM später wechseln?">

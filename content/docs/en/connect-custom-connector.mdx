@@ -110,6 +110,9 @@ The server sends its instructions to your AI when it connects, so the client alr
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 - *"Set the Status field on the Acme deal to Won and add a note that the contract was signed today."*
+- *"Which client conversations are waiting for my reply? Draft an answer to the oldest one and save it as a draft."*
+
+The reply prompt needs a channel connected on Customermates Cloud from Pro; the draft waits in the conversation until you review and send it.
 
 Each workspace defines its own record types, such as contacts, deals or tasks, and fields such as a deal's stage or a task's priority are configured per workspace too. Ask your AI to call `discover_record_types` and `get_record_model` to see the relevant fields and allowed values before writing.
 

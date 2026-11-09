@@ -14,6 +14,7 @@ export type SolutionStageTab = {
   id: string;
   kind: "solution";
   label: string;
+  phonePoster?: Record<SolutionCaptureTheme, SolutionStageImage>;
   poster: Record<SolutionCaptureTheme, SolutionStageImage>;
 };
 

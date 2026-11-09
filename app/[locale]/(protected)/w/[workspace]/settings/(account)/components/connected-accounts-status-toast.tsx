@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
+import { forgetOnboardingConnect, readOnboardingConnect, withOnboardingReturn } from "./onboarding-connect-return";
+
 const RESULT_PARAMS = ["account_id", "provider", "state", "status", "error_type", "error_detail", "error_title"];
 
 const ALREADY_EXISTS = {
@@ -67,7 +69,10 @@ export function ConnectedAccountsStatusToast() {
     const errorTitle = searchParams.get("error_title");
     if (!connected && errorType === null && errorTitle === null) return;
 
+    const onboardingChannel = readOnboardingConnect();
+
     const timer = setTimeout(() => {
+      if (onboardingChannel) forgetOnboardingConnect();
       if (connected) {
         toast.success(t("ConnectedAccountsCard.connectedToastTitle"), {
           description: t("ConnectedAccountsCard.connectedToastDescription"),
@@ -82,6 +87,7 @@ export function ConnectedAccountsStatusToast() {
 
     const params = new URLSearchParams(searchParams.toString());
     RESULT_PARAMS.forEach((key) => params.delete(key));
+    if (onboardingChannel) withOnboardingReturn(params, onboardingChannel, connected);
     const query = params.toString();
     const path = window.location.pathname;
     window.history.replaceState(null, "", query ? `${path}?${query}` : path);

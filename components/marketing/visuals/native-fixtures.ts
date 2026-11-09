@@ -197,7 +197,6 @@ export const APPROVED_NATIVE_VISUAL_ASSETS = [
 ] as const;
 
 export const NATIVE_VISUAL_FIXTURE_SOURCES = [
-  "app/[locale]/(static)/components/homepage-stats-row.tsx",
   "app/[locale]/(static)/components/homepage-hero.tsx",
   "components/ai-connection/ai-client-identities.ts",
   "components/ai-connection/ai-client-logo.tsx",

@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { ConversionEventType, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import { AdIdentifierKindSchema, AdProviderSchema } from "@/features/acquisition/ad-attribution.schema";
+import { OnboardingJobSchema } from "@/features/onboarding-funnel/onboarding-job";
+import { FUNNEL_EVENT_TYPES } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 export const OperatorUserRowDtoSchema = z.object({
   id: z.uuid(),
@@ -46,6 +48,9 @@ export const OperatorWorkspaceRowDtoSchema = z.object({
   lemonSqueezyId: z.string().nullable(),
   subscriptionUpdatedAt: z.date().nullable(),
   adProvider: z.string().nullable(),
+  signupJob: OnboardingJobSchema.nullable(),
+  signupSource: z.string().nullable(),
+  funnelEvents: z.array(z.enum(FUNNEL_EVENT_TYPES)),
   tags: z.array(z.string()),
   createdAt: z.date(),
 });

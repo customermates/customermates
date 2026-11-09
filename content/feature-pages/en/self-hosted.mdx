@@ -25,12 +25,12 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Ready to evaluate self-hosting?
-    description: Review the deployment requirements and product boundaries before you put the CRM on your infrastructure.
-    buttonLeftText: Read the setup guide
-    buttonLeftHref: /docs/self-hosting
-    buttonRightText: View the source
-    buttonRightHref: https://github.com/customermates/customermates
+    action: "Need LinkedIn and email follow-up too? Try the cloud first"
+    description: "Self-hosting covers client records, REST, webhooks and MCP. For LinkedIn and email conversations on each client and Mate's drafted replies, try Customermates Cloud free for [[commercial.trial.days]] days on Pro, with no credit card. The self-hosted route stays open."
+    buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: "Read the setup guide"
+    buttonRightHref: /docs/self-hosting
     hint: "The operator owns infrastructure, updates, backups and connected providers."
   relatedHrefs:
     - /docs/self-hosting
@@ -42,9 +42,9 @@ acquisition:
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Self-Hosted CRM with Docker and PostgreSQL"
-      body: "Run the Customermates application and PostgreSQL on infrastructure you control. The self-hosted edition includes the core CRM and MCP, but not the hosted inbox or Mate."
-      checksum: fnv1a-5c3e0b4d
+      headline: "Self-hosted CRM: client records and next steps on your own servers"
+      body: "Run the Customermates application and PostgreSQL on infrastructure you control, with MCP for your own AI client. The inbox for LinkedIn and email conversations and Mate's reply drafts need Customermates Cloud."
+      checksum: fnv1a-4ac01436
     kind: brand-illustration
     pathway: converge
     placements:
@@ -84,22 +84,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "How to evaluate the deployment"
+    items:
+      - title: "Inspect the exact deployment"
+        description: "Read the self-hosting guide and review the current Compose file in the repository."
+      - title: "Check the edition boundary"
+        description: "Confirm that the Starter feature set covers the records, views and interfaces your workflow needs."
+      - title: "Map external services"
+        description: "List every SMTP, OAuth, monitoring, workflow or AI provider you plan to configure and the data each one receives."
+      - title: "Design operations"
+        description: "Define backups, tested restoration, upgrades, TLS, monitoring and access control for your environment."
+      - title: "Test without customer data"
+        description: "Run the complete workflow in a non-production environment before the system handles real records."
+  highlights:
+    title: "At a glance"
+    capture: homepage-configure
+    items:
+      - title: "Runs on your infrastructure"
+        description: "The Customermates application and PostgreSQL 16 run as two services in the tracked Docker Compose deployment."
+      - title: "Included product surface"
+        description: "Core CRM records, custom fields and views, REST, webhooks and MCP with the Starter feature set."
+      - title: "You operate"
+        description: "Network access, TLS, updates, backups, restore tests, monitoring and every configured external provider."
+      - title: "Cloud-only boundary"
+        description: "Connected messaging, the unified inbox, connected calendar, hosted Mate and hosted AI credits stay outside self-hosting."
+
 hero:
-  title: Self-Hosted CRM with Docker and PostgreSQL
-  description: Run the Customermates application and PostgreSQL on infrastructure you control. The self-hosted edition includes the core CRM and MCP, but not the hosted inbox or Mate.
-  buttonLeftText: Read the setup guide
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: View the source
-  buttonRightHref: https://github.com/customermates/customermates
+  title: "Self-hosted CRM: client records and next steps on your own servers"
+  description: "Run the Customermates application and PostgreSQL on infrastructure you control, with MCP for your own AI client. The inbox for LinkedIn and email conversations and Mate's reply drafts need Customermates Cloud."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Read the setup guide"
+  buttonRightHref: /docs/self-hosting
   hint: "AGPL core • Docker Compose • PostgreSQL 16"
 
 cta:
-  action: Ready to evaluate self-hosting?
-  description: Review the deployment requirements and product boundaries before you put the CRM on your infrastructure.
-  buttonLeftText: Read the setup guide
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: View the source
-  buttonRightHref: https://github.com/customermates/customermates
+  action: "Need LinkedIn and email follow-up too? Try the cloud first"
+  description: "Self-hosting covers client records, REST, webhooks and MCP. For LinkedIn and email conversations on each client and Mate's drafted replies, try Customermates Cloud free for [[commercial.trial.days]] days on Pro, with no credit card. The self-hosted route stays open."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Read the setup guide"
+  buttonRightHref: /docs/self-hosting
   hint: "The operator owns infrastructure, updates, backups and connected providers."
 ---
 
@@ -107,24 +136,7 @@ Customermates is a **self-hosted CRM** you can run as two Docker Compose service
 
 A self-hosted CRM runs on servers you control instead of the vendor's cloud: you decide where the application and database live, and you take on updates, backups and security. Whether the code is open source is a separate question about licence rights, covered in the [open-source CRM guide](/blog/open-source-crm). This page covers the operational side for Customermates.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="Runs on your infrastructure">
-    The Customermates application and PostgreSQL 16 run as two services in the
-    tracked Docker Compose deployment.
-  </SummaryItem>
-  <SummaryItem label="Included product surface">
-    Core CRM records, custom fields and views, REST, webhooks and MCP with
-    the Starter feature set.
-  </SummaryItem>
-  <SummaryItem label="You operate">
-    Network access, TLS, updates, backups, restore tests, monitoring and every
-    configured external provider.
-  </SummaryItem>
-  <SummaryItem label="Cloud-only boundary">
-    Connected messaging, the unified inbox, connected calendar, hosted Mate and
-    hosted AI credits stay outside self-hosting.
-  </SummaryItem>
-</ArticleSummary>
+**Where follow-up fits.** Self-hosting keeps client records, next-step dates, dashboards and MCP on your own servers, so your own AI client can read and update them. It does not have the inbox that puts LinkedIn and email conversations on the client, and it does not have Mate, which drafts the replies. If drafted follow-up on conversations is why you want the CRM, start on Customermates Cloud; self-hosting fits better when control over where the data runs matters more.
 
 <ProofRail label="Verified self-hosted CRM facts">
   <ProofItem label="Deployment">Docker Compose</ProofItem>
@@ -193,31 +205,6 @@ Connected services remain separate processing boundaries. OAuth providers, SMTP,
 If you want to try Customermates before running your own server, the [open source CRM in the cloud or self-hosted](/features/open-source-crm) page sets both routes side by side, with the free cloud trial as the fastest start.
 
 Records move between installations or from another CRM as XLSX workbooks, one record type at a time and within row limits, or through the REST API, which can also upload files to File fields. An XLSX import carries no attachments and there is no complete account transfer, so plan a larger move as a migration project you validate.
-
-## How to evaluate the deployment
-
-<Steps>
-  <Step title="Inspect the exact deployment">
-    Read the [self-hosting guide](/docs/self-hosting) and review the current
-    Compose file in the repository.
-  </Step>
-  <Step title="Check the edition boundary">
-    Confirm that the Starter feature set covers the records, views and interfaces
-    your workflow needs.
-  </Step>
-  <Step title="Map external services">
-    List every SMTP, OAuth, monitoring, workflow or AI provider you plan to
-    configure and the data each one receives.
-  </Step>
-  <Step title="Design operations">
-    Define backups, tested restoration, upgrades, TLS, monitoring and access
-    control for your environment.
-  </Step>
-  <Step title="Test without customer data">
-    Run the complete workflow in a non-production environment before the system
-    handles real records.
-  </Step>
-</Steps>
 
 ## Frequently asked questions
 

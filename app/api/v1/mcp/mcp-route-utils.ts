@@ -12,7 +12,9 @@ import { env } from "@/env";
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
 import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
+import { AGENT_RECORD_WRITE_TOOLS } from "@/features/onboarding-funnel/record-agent-connected.interactor";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
@@ -42,6 +44,16 @@ function strictInputSchema(inputSchema: z.ZodType): z.ZodType {
   return strict;
 }
 
+async function recordAgentConnected(toolName: string): Promise<void> {
+  if (!AGENT_RECORD_WRITE_TOOLS.has(toolName)) return;
+  try {
+    const { getRecordAgentConnectedInteractor } = await import("@/core/di");
+    await getRecordAgentConnectedInteractor().invoke();
+  } catch (error) {
+    ErrorReporter.captureException(redactUnexpectedError(error, "The agent connection could not be recorded."));
+  }
+}
+
 function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>[0]>[0], tools: McpTool[]) {
   for (const tool of tools) {
     server.registerTool(
@@ -62,6 +74,7 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
               _meta: { failure: result.failure },
             };
           }
+          await recordAgentConnected(tool.name);
           return {
             ...createTextContent(result.result),
             ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
@@ -187,6 +200,18 @@ function planRequired(message: string) {
   });
 }
 
+function rateLimited(error: ApiRateLimitExceededError) {
+  return new Response(JSON.stringify({ error: "rate_limited", message: error.message }), {
+    status: 429,
+    headers: {
+      "Content-Type": "application/json",
+      "Retry-After": String(error.retryAfterSeconds),
+      "Access-Control-Expose-Headers": "Retry-After",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+}
+
 function inactiveUser(message: string) {
   return new Response(JSON.stringify({ error: "inactive_user", message }), {
     status: 403,
@@ -209,6 +234,7 @@ async function mcpAccessRefusal(resourceMetadataUrl: string): Promise<Response |
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedChallenge(resourceMetadataUrl);
     if (error instanceof WorkspacePlanRequiredError) return planRequired(error.message);
+    if (error instanceof ApiRateLimitExceededError) return rateLimited(error);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
     if (error instanceof EmailVerificationRequiredError) return emailNotVerified(error.message);

@@ -101,7 +101,7 @@ function AmbientField({ placement }: { placement: VisualPlacement }) {
     <DepthPlane className="pointer-events-none absolute inset-0" depth={1}>
       <div
         className={cn(
-          "absolute rounded-full bg-primary/15 blur-3xl",
+          "absolute rounded-full bg-foreground/[0.05] blur-3xl",
           placement === "wide" ? "right-[8%] top-[8%] size-[54%]" : "-right-[18%] bottom-[4%] size-[82%]",
         )}
       />
@@ -160,7 +160,7 @@ function SourceMark({
       <span className="sr-only">{providerFixture.name}</span>
 
       {active ? (
-        <span className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full bg-primary ring-2 ring-card" />
+        <span className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full bg-foreground ring-2 ring-card" />
       ) : null}
     </div>
   );
@@ -270,7 +270,7 @@ function RecordAnchor({
         </div>
       </div>
 
-      <div className="mt-[10%] flex items-center gap-[6%] rounded-lg bg-primary/7 p-[5%]">
+      <div className="mt-[10%] flex items-center gap-[6%] rounded-lg bg-foreground/[0.03] p-[5%]">
         <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-card">
           <ProviderMark provider={provider} size={19} />
         </span>
@@ -394,7 +394,7 @@ function HumanAction({
     >
       <PersonIdentity className="max-w-28" person={person} size={28} />
 
-      <span className="flex items-center gap-1.5 rounded-lg bg-primary px-2.5 py-2 text-xs font-medium text-primary-foreground">
+      <span className="flex items-center gap-1.5 rounded-lg bg-foreground px-2.5 py-2 text-xs font-medium text-foreground-foreground">
         <span>{label}</span>
 
         <Send aria-hidden="true" className="size-3.5" />
@@ -541,7 +541,7 @@ function SignalArtifact({
         {status ? (
           <NativeStatusBadge locale={locale} status={status} />
         ) : (
-          <span className="size-2 rounded-full bg-primary" />
+          <span className="size-2 rounded-full bg-foreground" />
         )}
       </div>
 

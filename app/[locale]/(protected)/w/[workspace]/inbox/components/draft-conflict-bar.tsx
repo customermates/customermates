@@ -20,7 +20,7 @@ export const DraftConflictBar = observer(({ store, senderUnavailable }: Props) =
   if (!store.draftConflict) return null;
 
   return (
-    <Alert className="rounded-none border-x-0 border-t-0 px-3 py-2" color="warning" role="status">
+    <Alert layout="banner" role="status" variant="warning">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p>{t("Inbox.compose.draftChangedNotice")}</p>
 

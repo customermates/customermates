@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/zoho-crm-pricing
 
+sections:
+  reasons:
+    - title: "WhatsApp ohne Geschäftsnummer"
+      description: "WhatsApp verbindet das Konto, das Sie ohnehin nutzen: Sie scannen einen QR-Code, statt eine Geschäftsnummer zu registrieren. Ab Pro liegen LinkedIn, Instagram, Telegram und Ihr Postfach im selben Posteingang."
+    - title: "Antworten von Mate entworfen"
+      description: "In Customermates Cloud fasst Mate Gespräche zusammen, entwirft Antworten, aktualisiert Datensätze und legt gespeicherte Ansichten an, mit gehosteten KI-Credits. Sie prüfen, bearbeiten und senden."
+    - title: "Open Source, Cloud-Datenbank in Frankfurt oder eigener Server"
+      description: "Zoho bietet keine selbst gehostete Edition. Der Kern von Customermates steht unter AGPL-3.0 und läuft mit Docker Compose und PostgreSQL 16, inklusive REST, Webhooks und MCP."
+  switchSteps: true
+
 hero:
-  title: "Zoho-CRM-Alternative: Customermates und Zoho CRM im Vergleich"
-  description: "Zoho CRM verteilt seine Funktionen auf eine kostenlose und vier bezahlte Editionen, von der Umsatzprognose in Standard bis zu Zias Analysen und Empfehlungen in Enterprise, und läuft in Zohos eigenen Rechenzentren. Customermates ist ein Open-Source-CRM aus Deutschland, das ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Deals holt und die CRM-Pflege Mate oder Ihrem eigenen KI-Client überlässt. Zoho-Preise von zoho.com, Stand 30. Oktober 2026; übrige Angaben zu Zoho Stand 8. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "Zoho-CRM-Alternative: Customermates im Vergleich"
+  description: "Zoho CRM schaltet Funktionen Ausgabe für Ausgabe frei, und die WhatsApp-Anbindung braucht eine registrierte Geschäftsnummer. Verfolgen Sie vor allem Kontakte, Deals und Gespräche, ist Customermates schmaler: Ab Pro liegen LinkedIn, E-Mail und WhatsApp beim Kunden, Mate entwirft die Antwort. Zoho-Preise geprüft am 30. Oktober 2026, übrige Angaben am 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Nur monatliche Abrechnung
         competitor: "Standard 14 €, Professional 23 €, Enterprise 40 €, Ultimate 52 €"
       - name: Kostenloser Tarif
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] Person, [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang und Mate"
         competitor: Kostenlose Edition für bis zu 3 Nutzer
       - name: Testphase
         source: "[[commercial.trial.days]] Tage, ohne Kreditkarte"
@@ -79,13 +89,13 @@ comparison:
         source: "MCP-Server in jedem Tarif und selbst gehostet, [[derived.mcp.tools.total]] Tools"
         competitor: Zoho MCP, ein separater Zoho-Dienst mit Unterstützung für Zoho CRM
       - name: Regelbasierte Automatisierung
-        source: Kein Regel-Editor; Webhooks und REST in jedem Tarif, n8n separat betrieben
+        source: Kein Regel-Editor; Webhooks und REST in jedem bezahlten Tarif, n8n separat betrieben
         competitor: Workflow-Regeln in jeder Edition; Prozessmanagement ab Professional; Genehmigungsprozesse in Enterprise
       - name: KI-Automatisierung
         source: Routinen führen gespeicherte Anweisungen nach Zeitplan oder bei Datensatz-Ereignissen aus (Customermates Cloud)
         competitor: KI-Agenten in den bezahlten Editionen aufgeführt
       - name: REST-API
-        source: In jedem Tarif und selbst gehostet, dazu Webhooks
+        source: In jedem Tarif und selbst gehostet; Webhooks in bezahlten Tarifen
         competitor: In jeder Edition; Free mit 5.000 API-Aufrufen pro Tag
   - title: Lizenz, Hosting & Daten
     features:
@@ -108,7 +118,7 @@ comparison:
 cta:
   action: Sie vergleichen Zoho CRM und Customermates?
   description: "Starten Sie eine Testphase, exportieren Sie ein Zoho-Modul als XLSX-Datei und importieren Sie es, und verbinden Sie dann das Postfach oder LinkedIn-Konto, über das Ihre Kunden schreiben. So sehen Sie schnell, ob Ihre eigenen Daten und Gespräche zum Customermates-Modell passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -176,11 +186,11 @@ Die Zeilen enthalten nicht dasselbe, vergleichen Sie sie deshalb paarweise:
 - **Zwei Kanäle pro Person bedeuten Business.** Braucht jede Person E-Mail und LinkedIn nebeneinander, braucht der Workspace Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer und geteilten Konten.
 - **Bis zu drei Personen zahlen bei Zoho CRM Free nichts.** Das unterbietet kein Customermates-Tarif.
 
-Jeder Tarif der Customermates Cloud enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, aufgeführt auf der [Preisseite](/pricing). Es gibt keine Aufladungen und keine automatischen Mehrkosten.
+Jeder bezahlte Tarif der Customermates Cloud enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, aufgeführt auf der [Preisseite](/pricing). Es gibt keine Aufladungen und keine automatischen Mehrkosten.
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Es wird in Deutschland entwickelt.
+Zoho CRM ist ein großes Produkt mit Ausgaben. Customermates ist schmaler: Ab Pro liegen LinkedIn-, E-Mail-, WhatsApp-, Instagram- und Telegram-Verläufe beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt. Sie prüfen, bearbeiten und senden.
 
 **Gespräche neben dem Deal.** Ab Pro bündelt der [einheitliche Posteingang](/features/unified-inbox) Gmail-, Outlook- und IMAP-Postfächer, LinkedIn (einschließlich Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in einer Liste, und Sie antworten im ursprünglichen Kanal. Bei WhatsApp verbinden Sie das Konto, das Sie schon nutzen: Sie scannen einen QR-Code, statt eine Geschäftsnummer zu registrieren. Verknüpfen Sie einen Gesprächsteilnehmer einmal mit einem Kontakt, erscheint jedes Gespräch mit dieser Adresse oder diesem Handle in der Zeitleiste des Kontakts.
 
@@ -197,7 +207,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Keine Telefonie, keine Massenmails, keine Sequenzen.** Telefonate führen Sie über Ihre eigene Telefonanlage, und Nachrichten gehen einzeln hinaus, von Ihnen geschrieben oder von Mate entworfen.
 - **Keine Webformulare, kein Scoring, keine Datenanreicherung, keine KI-Prognose.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Rechnen mit Ihren eigenen Zahlen, keine Vorhersage.
 - **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion, nicht pro Feld.
-- **Keine nativen Smartphone-Apps und kein kostenloser Tarif.** Customermates läuft im Browser des Smartphones, und nach [[commercial.trial.days]] Tagen Testphase wählen Sie einen bezahlten Tarif.
+- **Keine nativen Smartphone-Apps und ein kleiner kostenloser Tarif.** Customermates läuft im Browser des Smartphones. Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
 ## Ein Beispiel: eine Webagentur verlässt Zoho CRM Standard
 
@@ -216,7 +226,7 @@ Nehmen wir eine Webagentur mit drei Personen. Die Gründerin gewinnt neue Kunden
 | Tags | Ein Einzelauswahl-Feld, da Datensätze keine Tags haben |
 | Workflow-Regeln | Routinen in der Customermates Cloud oder Webhooks an Ihr eigenes n8n |
 
-Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt in Konfigurieren für Deals die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation; eine gespeicherte Ansicht bleibt privat, bis sie geteilt wird, also legt jede Person ihre eigenen an.
+Die Gründerin ändert die Optionen des Felds Phase in Briefing erhalten, Angebot gesendet, Verhandlung, Gewonnen und Verloren und vergibt in Konfigurieren für Deals die Wahrscheinlichkeiten 20 %, 50 %, 75 %, 100 % und 0 %. Sie speichert ein Board aller offenen Deals, gruppiert nach Phase, und teilt es mit dem ganzen Team. Jeder Kundenberater speichert eine Tabelle seiner eigenen Deals, gruppiert nach Organisation.
 
 Jede Person verbindet ein Konto, die Gründerin LinkedIn, die beiden anderen Gmail. Damit reicht Pro für [[commercial.price.pro.monthly.seats.3]] im Monat für das Team. Will die Gründerin zusätzlich WhatsApp neben LinkedIn, wechselt der Workspace zu Business für [[commercial.price.business.monthly.seats.3]].
 
@@ -246,7 +256,7 @@ Customermates veröffentlicht diese Liste. Die Angaben stammen von den Seiten de
 
 <Faq>
 <FaqItem question="Was kostet Zoho CRM, und ist es noch kostenlos?">
-Die Free-Edition ist ohne Zeitlimit kostenlos für bis zu drei Nutzer, mit Workflow-Automatisierung, Standardberichten, bis zu 10 E-Mail-Vorlagen, Import und Export, 5.000 API-Aufrufen pro Tag und der mobilen App. Ab dem vierten Nutzer brauchen Sie eine bezahlte Edition: 14 € bis 52 € pro Nutzer und Monat bei jährlicher Abrechnung, 20 € bis 65 € bei monatlicher, jeweils zuzüglich Mehrwertsteuer. Die Customermates Cloud hat keinen kostenlosen Tarif; eine selbst gehostete Installation braucht kein Abonnement, hat aber keinen Posteingang und kein Mate.
+Die Free-Edition ist ohne Zeitlimit kostenlos für bis zu drei Nutzer, mit Workflow-Automatisierung, Standardberichten, bis zu 10 E-Mail-Vorlagen, Import und Export, 5.000 API-Aufrufen pro Tag und der mobilen App. Ab dem vierten Nutzer brauchen Sie eine bezahlte Edition: 14 € bis 52 € pro Nutzer und Monat bei jährlicher Abrechnung, 20 € bis 65 € bei monatlicher, jeweils zuzüglich Mehrwertsteuer. Die Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; eine selbst gehostete Installation braucht kein Abonnement, hat aber keinen Posteingang und kein Mate.
 </FaqItem>
 
 <FaqItem question="Was ist der Unterschied zwischen Bigin und Zoho CRM?">

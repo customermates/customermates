@@ -3,6 +3,7 @@ import type { ElementType, ReactNode } from "react";
 import { cn } from "@/core/utils/cn";
 
 import { MarketingContainer } from "./marketing-container";
+import { SectionHeader } from "./section-header";
 
 type MarketingSectionTone = "page" | "canvas";
 
@@ -12,6 +13,8 @@ type Props = {
   containerClassName?: string;
   description?: string;
   divider?: boolean;
+  eyebrow?: string;
+  headerAlign?: "center" | "start";
   flush?: boolean;
   headingAs?: ElementType;
   headingClassName?: string;
@@ -27,6 +30,8 @@ export function MarketingSection({
   containerClassName,
   description,
   divider = false,
+  eyebrow,
+  headerAlign = "center",
   flush = false,
   headingAs,
   headingClassName,
@@ -39,11 +44,20 @@ export function MarketingSection({
   const hasHeader = Boolean(title || description);
   const content = (
     <MarketingContainer className={containerClassName} size={containerSize}>
-      {hasHeader ? (
-        <div className="mx-auto max-w-3xl text-center">
-          {title ? <Heading className={cn("text-display-sm m-0", headingClassName)}>{title}</Heading> : null}
+      {hasHeader && title ? (
+        <SectionHeader
+          align={headerAlign}
+          as={Heading}
+          className={headingClassName}
+          description={description}
+          eyebrow={eyebrow}
+          title={title}
+        />
+      ) : null}
 
-          {description ? <p className="text-lede mx-auto mt-5">{description}</p> : null}
+      {hasHeader && !title ? (
+        <div className="mk-header">
+          <p className="mk-lede">{description}</p>
         </div>
       ) : null}
 

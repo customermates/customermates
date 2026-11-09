@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/pipedrive-alternative
   - /compare/salesmate-alternative
 
+sections:
+  reasons:
+    - title: "Gespräche dort, wo Ihre Kunden schreiben"
+      description: "Ab Pro liegen LinkedIn (inklusive Sales Navigator und Recruiter), WhatsApp, Instagram, Telegram und Ihr Gmail-, Outlook- oder IMAP-Postfach in einem Posteingang, und Sie antworten im ursprünglichen Kanal."
+    - title: "Mate entwirft, Sie senden"
+      description: "In Customermates Cloud fasst Mate Gespräche zusammen, entwirft Antworten und aktualisiert Datensätze, mit gehosteten KI-Credits. Lassen Sie einen Entwurf speichern, wenn Sie ihn vor dem Versand lesen möchten."
+    - title: "Open Source, mit der Cloud-Datenbank in Frankfurt"
+      description: "Der Kern steht unter AGPL-3.0 und läuft mit Docker Compose und PostgreSQL 16 auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP. Auf der Preisseite von Freshsales steht keine selbst gehostete Edition."
+  switchSteps: true
+
 hero:
-  title: "Freshsales-Alternative: Customermates und Freshsales im Vergleich"
-  description: "Freshsales ist das Vertriebs-CRM von Freshworks, mit eingebauter Telefonie, Vertriebssequenzen, Freddy AI und einem kostenlosen Tarif für bis zu drei Nutzer. Customermates ist ein Open-Source-CRM aus Deutschland, das ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Deals holt und die CRM-Pflege Mate oder Ihrem eigenen KI-Client überlässt. Angaben zu Freshsales von freshworks.com, Stand 8. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "Freshsales-Alternative: Customermates im Vergleich"
+  description: "Freshsales ist auf Telefon, E-Mail und Website-Chat ausgelegt. Schreiben Ihre Kunden eher auf LinkedIn oder Telegram, als dass sie anrufen, legt Customermates diese Verläufe ab Pro beim Kunden ab, und Mate entwirft die Antwort. Angaben zu Freshsales: Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Nur monatlich
         competitor: "Growth 9 €, Pro 39 €, Enterprise 59 €"
       - name: Kostenloser Tarif
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] Person, [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang und Mate"
         competitor: Bis zu 3 Nutzer
       - name: Testphase
         source: "[[commercial.trial.days]] Tage, ohne Kreditkarte"
@@ -88,7 +98,7 @@ comparison:
         source: Routinen führen gespeicherte KI-Anweisungen nach Zeitplan oder bei Datensatzereignissen aus (Customermates Cloud)
         competitor: "Workflows: 20 in Growth, je 50 einfache und erweiterte in Pro, je 100 in Enterprise"
       - name: REST-API
-        source: Jeder Tarif und selbst gehostet, dazu Webhooks
+        source: Jeder Tarif und selbst gehostet; Webhooks in bezahlten Tarifen
         competitor: Ab Growth; nicht in Free
   - title: Lizenz, Hosting & Zugang
     features:
@@ -114,7 +124,7 @@ comparison:
 cta:
   action: Sie vergleichen Freshsales und Customermates?
   description: "Starten Sie eine Testphase, verbinden Sie das Postfach oder LinkedIn-Konto, über das Ihre Kunden schreiben, und importieren Sie einen Freshsales-Export. So sehen Sie schnell, ob Ihre eigenen Daten und Gespräche zum Modell von Customermates passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -175,11 +185,11 @@ Für das Geld bekommen Sie nicht dasselbe. Lesen Sie die Zeilen deshalb paarweis
 - **Mehrere Kanäle pro Person bedeuten Business.** Brauchen alle E-Mail und LinkedIn nebeneinander, braucht der Workspace Business mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Nutzer und geteilten Konten.
 - **Bis zu drei Personen zahlen bei Freshsales Free nichts.** Das unterbietet kein Customermates-Tarif.
 
-Jeder Tarif von Customermates Cloud enthält für Mate ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Aufstockungen oder automatische Zusatzkosten bei Überschreitung gibt es nicht.
+Jeder bezahlte Tarif von Customermates Cloud enthält für Mate ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Aufstockungen oder automatische Zusatzkosten bei Überschreitung gibt es nicht.
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Entwickelt wird es in Deutschland.
+Freshsales geht vom Anruf aus. Customermates geht von der letzten Nachricht des Kunden aus: Ab Pro liegen LinkedIn-, E-Mail-, WhatsApp-, Instagram- und Telegram-Verläufe beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt. Sie prüfen, bearbeiten und senden.
 
 **Gespräche direkt am Deal.** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) Postfächer von Gmail, Outlook und per IMAP, LinkedIn (inklusive Sales Navigator und Recruiter), WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Verknüpfen Sie einen Gesprächspartner einmal mit einem Kontakt, erscheint jedes Gespräch mit dieser Adresse oder Kennung in der Timeline des Kontakts.
 
@@ -196,7 +206,7 @@ Prüfen Sie diese Punkte vor der Testphase:
 - **Kein Chat-Widget und keine Webformulare.** Anfragen von Ihrer Website kommen über die REST-API oder einen Workflow in einer selbst betriebenen n8n-Instanz ins CRM.
 - **Keine Lead-Bewertung, keine Datenanreicherung, keine KI-Prognosen.** Die gewichtete Pipeline multipliziert den Wert jedes Deals mit der Wahrscheinlichkeit seiner Phase. Das ist Arithmetik mit Ihren eigenen Zahlen und keine Vorhersage.
 - **Keine Berechtigungen auf Feldebene.** Berechtigungen gelten pro Liste und Aktion.
-- **Keine nativen Smartphone-Apps und kein kostenloser Tarif.** Auf dem Smartphone läuft Customermates im Browser, und nach einer [[commercial.trial.days]]-tägigen Testphase wählen Sie einen bezahlten Tarif.
+- **Keine nativen Smartphone-Apps und ein kleiner kostenloser Tarif.** Auf dem Smartphone läuft Customermates im Browser. Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
 ## Beispiel: Eine Beratung wechselt von Freshsales Growth
 
@@ -251,7 +261,7 @@ Das hängt davon ab, warum Sie wechseln. Wollen Sie Cadences und Umsatzprognosen
 </FaqItem>
 
 <FaqItem question="Gibt es eine kostenlose Alternative zu Freshsales?">
-Ja, mit Einschränkungen. Zoho CRM ist für bis zu drei Nutzer kostenlos, die kostenlosen Tools von HubSpot für bis zu zwei, und das Starter-Paket von CentralStationCRM für drei Nutzer und 200 Kontakte. Customermates Cloud hat keinen kostenlosen Tarif. Eine selbst gehostete Installation von Customermates kommt ohne Abonnement aus; Sie zahlen nur Ihren eigenen Server und Ihre Anbieter, verzichten aber auf Posteingang und Mate.
+Ja, mit Einschränkungen. Zoho CRM ist für bis zu drei Nutzer kostenlos, die kostenlosen Tools von HubSpot für bis zu zwei, und das Starter-Paket von CentralStationCRM für drei Nutzer und 200 Kontakte. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Eine selbst gehostete Installation von Customermates kommt ohne Abonnement aus; Sie zahlen nur Ihren eigenen Server und Ihre Anbieter, verzichten aber auf Posteingang und Mate.
 </FaqItem>
 
 <FaqItem question="Gibt es eine Open-Source-Alternative zu Freshsales?">

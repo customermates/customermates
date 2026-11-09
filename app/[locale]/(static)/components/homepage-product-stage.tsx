@@ -91,7 +91,9 @@ function tabIcon(tab: ProductStageTab) {
   return isSolutionStageTab(tab) ? SOLUTION_TAB_ICONS[tab.icon] : TAB_ICONS[tab.capture];
 }
 
-const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
+const LIVE_STAGE_MEDIA = "(min-width: 64rem)";
+
+const PHONE_MEDIA = "(max-width: 39.99rem)";
 
 function subscribeToLiveStageMedia(onChange: () => void) {
   const media = window.matchMedia?.(LIVE_STAGE_MEDIA);
@@ -109,7 +111,28 @@ function getServerLiveStageMediaSnapshot() {
 
 export const LIVE_REVEAL_DELAY_MS = 500;
 
-const LIVE_VIEWPORT = { height: 900, width: 1440 } as const;
+const LIVE_VIEWPORT = { maxWidth: 1440, minScale: 0.8, minWidth: 1120, ratio: 1.6 } as const;
+
+function liveViewportWidth(boxWidth: number) {
+  return Math.round(
+    Math.min(LIVE_VIEWPORT.maxWidth, Math.max(LIVE_VIEWPORT.minWidth, boxWidth / LIVE_VIEWPORT.minScale)),
+  );
+}
+
+function hasPhonePoster(tab: ProductStageTab) {
+  return !isSolutionStageTab(tab) || tab.phonePoster !== undefined;
+}
+
+function nextTabIndex(tabs: ProductStageTab[], index: number) {
+  const phone = typeof window !== "undefined" && (window.matchMedia?.(PHONE_MEDIA).matches ?? false);
+
+  for (let step = 1; step <= tabs.length; step += 1) {
+    const candidate = (index + step) % tabs.length;
+    if (!phone || hasPhonePoster(tabs[candidate])) return candidate;
+  }
+
+  return (index + 1) % tabs.length;
+}
 
 const STAGE_MAX_TILT_DEG = 12;
 
@@ -138,7 +161,7 @@ function StageProgressRing() {
         fill="none"
         initial={{ pathLength: 0 }}
         r="6"
-        stroke="var(--primary)"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeWidth="2"
         transition={{ duration: PRODUCT_STAGE_INTERVAL_MS / 1000, ease: "linear" }}
@@ -178,11 +201,12 @@ export function HomepageProductStage({
   const [liveShown, setLiveShown] = useState<ReadonlySet<number>>(() => new Set());
   const revealTimers = useRef(new Map<number, number>());
   const liveBoxRef = useRef<HTMLDivElement>(null);
+  const [liveWidth, setLiveWidth] = useState<number>(LIVE_VIEWPORT.maxWidth);
   const [liveScale, setLiveScale] = useState(1);
   const activeTab = tabs[activeIndex];
   const liveReady = live && liveShown.has(activeIndex);
   const autoAdvance = shouldAnimate && !stopped && !hovered;
-  const phoneCaptures = !tabs.some(isSolutionStageTab);
+  const phoneCaptures = hasPhonePoster(activeTab);
 
   if (embed) preconnect(demoBaseUrl);
 
@@ -243,7 +267,7 @@ export function HomepageProductStage({
     if (!autoAdvance) return;
 
     const timer = window.setTimeout(
-      () => setActiveIndex((index) => (index + 1) % tabs.length),
+      () => setActiveIndex((index) => nextTabIndex(tabs, index)),
       PRODUCT_STAGE_INTERVAL_MS,
     );
 
@@ -306,7 +330,11 @@ export function HomepageProductStage({
     const box = liveBoxRef.current;
     if (!box || !live || typeof ResizeObserver === "undefined") return;
 
-    const observer = new ResizeObserver(([entry]) => setLiveScale(entry.contentRect.width / LIVE_VIEWPORT.width));
+    const observer = new ResizeObserver(([entry]) => {
+      const width = liveViewportWidth(entry.contentRect.width);
+      setLiveWidth(width);
+      setLiveScale(entry.contentRect.width / width);
+    });
     observer.observe(box);
 
     return () => observer.disconnect();
@@ -372,7 +400,7 @@ export function HomepageProductStage({
       <div className="relative [perspective:2400px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(40%_45%_at_50%_100%,color-mix(in_oklab,var(--primary)_14%,transparent),transparent)] blur-2xl"
+          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(40%_45%_at_50%_100%,color-mix(in_oklab,var(--foreground)_5%,transparent),transparent)] blur-2xl"
         />
 
         <div
@@ -410,6 +438,7 @@ export function HomepageProductStage({
                         alt={tab.alt}
                         eager={index === 0}
                         name={tab.id}
+                        phonePoster={tab.phonePoster}
                         poster={tab.poster}
                         sizes="(min-width: 1280px) 1216px, 92vw"
                       />
@@ -442,9 +471,9 @@ export function HomepageProductStage({
                     sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                     src={liveSrcFor(tab)}
                     style={{
-                      height: LIVE_VIEWPORT.height,
+                      height: Math.round(liveWidth / LIVE_VIEWPORT.ratio),
                       transform: `scale(${liveScale})`,
-                      width: LIVE_VIEWPORT.width,
+                      width: liveWidth,
                     }}
                     tabIndex={index === activeIndex ? 0 : -1}
                     title={`${liveCopy.prompt}: ${tab.label}`}
@@ -477,6 +506,7 @@ export function HomepageProductStage({
               aria-controls={`${baseId}-panel-${index}`}
               aria-selected={isActive}
               className={cn(
+                !hasPhonePoster(tab) && "max-sm:hidden",
                 "relative isolate inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 isActive && "text-foreground",
               )}
@@ -491,7 +521,7 @@ export function HomepageProductStage({
               {isActive ? (
                 <motion.span
                   aria-hidden
-                  className="mark-glow absolute inset-0 -z-10 rounded-full [--tint:color-mix(in_oklab,var(--primary)_32%,transparent)]"
+                  className="mark-glow absolute inset-0 -z-10 rounded-full [--tint:color-mix(in_oklab,var(--foreground)_14%,transparent)]"
                   data-homepage-stage-progress={autoAdvance && !shouldReduceMotion ? undefined : "static"}
                   layoutId={`${baseId}-thumb`}
                   transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -514,8 +544,8 @@ export function HomepageProductStage({
         key={tabKey(activeTab)}
         animate={{ opacity: 1, y: 0 }}
         className="mt-4 text-center text-sm text-muted-foreground"
-        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 4 }}
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.35, ease: "easeOut" }}
       >
         {activeTab.caption}
       </motion.p>

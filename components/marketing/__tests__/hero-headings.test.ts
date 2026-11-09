@@ -38,47 +38,22 @@ function headingText(html: string): string {
 }
 
 describe("hero headings", () => {
-  it("keeps the whole homepage claim inside one h1 and reads the first rotation to assistive technology", () => {
+  it("keeps the whole homepage claim inside one h1 with the trial and film calls to action", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
-        demoLocale: "en",
         heroSection: {
-          buttonLeftHref: "/auth/signup",
-          buttonLeftText: "Start free",
-          buttonRightHref: "#demo",
-          buttonRightText: "Watch",
-          stage: {
-            label: "Product areas",
-            live: { prompt: "Try it live" },
-            tabs: [
-              { alt: "Inbox", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
-              { alt: "Record", capture: "homepage-record", caption: "Record caption", label: "Customers" },
-              { alt: "Pipeline", capture: "homepage-pipeline", caption: "Pipeline caption", label: "Pipeline" },
-              { alt: "Dashboard", capture: "homepage-dashboard", caption: "Dashboard caption", label: "Dashboard" },
-              { alt: "Routines", capture: "homepage-routines", caption: "Routines caption", label: "Routines" },
-            ],
-          },
-          startFree: "No card",
+          assurance: "No credit card",
+          primaryCta: { href: "/auth/signup?job=followup", label: "Start your 14-day trial" },
+          secondaryCta: { href: "#film", label: "Watch the film (46 s)" },
           subtitle: "Subtitle",
-          title: "and your AI,",
-          titleAccent: "in one workspace.",
-          titleRotations: ["Customer data", "Projects", "Business data"],
-          useCase: "Use case",
+          title: "Follow up on every client conversation.",
         },
-        locale: "en",
       }),
     );
 
-    const heading = html.match(/<h1\b[\s\S]*?<\/h1>/u)?.[0] ?? "";
-
-    expect(headingText(html).startsWith("Customer data and your AI, in one workspace.")).toBe(true);
-    expect(headingText(html)).toBe("Customer data and your AI, in one workspace.");
-    expect(heading).toContain('<span class="sr-only">Customer data </span>');
-    expect(heading.match(/aria-hidden="true"/gu)).toHaveLength(1);
-    expect(heading).toContain('data-word="Customer data"');
-    expect(heading).toContain('data-homepage-motion="rotating-accent"');
-    expect(html).toContain('role="tablist"');
-    expect(html.match(/role="tab"/gu)).toHaveLength(5);
+    expect(headingText(html)).toBe("Follow up on every client conversation.");
+    expect(html).toContain('href="#film"');
+    expect(html).toContain("job=followup");
   });
 
   it("keeps a page hero's accent phrase beside the h1 rather than inside it", () => {

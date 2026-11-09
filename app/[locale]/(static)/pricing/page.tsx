@@ -46,11 +46,11 @@ export default async function PricingPage({ params }: StaticLocaleProps) {
         buttonRightText={page.data.cta.buttonRightText}
         description={page.data.description}
         hint={page.data.cta.hint}
-        title={page.data.title}
+        title={page.data.heading ?? page.data.title}
         titleAccent={page.data.titleAccent}
       />
 
-      <MarketingSection className="py-16 sm:py-20 lg:py-24">
+      <MarketingSection className="pt-2 pb-16 sm:pb-20 lg:pb-24">
         <PricingSection {...page.data.pricing} />
       </MarketingSection>
 

@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/self-hosted
   - /blog/open-source-crm
 
+sections:
+  reasons:
+    - title: "Les conversations clients au-delà de l’e-mail"
+      description: "Le guide utilisateur de SuiteCRM ne liste aucune intégration pour WhatsApp, LinkedIn, Instagram ou Telegram. Dès Pro, Customermates les réunit toutes avec votre boîte mail dans une boîte de réception, à côté du client."
+    - title: "Mate ou votre propre agent IA rédige la réponse"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses, met à jour les enregistrements et construit des vues. Le serveur MCP est inclus sur toutes les formules et sur les installations auto-hébergées, avec [[derived.mcp.tools.total]] outils."
+    - title: "Un CRM que vous n’avez pas à exploiter"
+      description: "Customermates Cloud n’a rien à installer ni à mettre à jour. Si vous voulez votre propre serveur, le cœur s’auto-héberge en deux conteneurs Docker : l’application et PostgreSQL 16."
+  switchSteps: true
+
 hero:
-  title: "Alternative à SuiteCRM : Customermates et SuiteCRM comparés"
-  description: "SuiteCRM est un CRM open source étendu, écrit en PHP, avec devis, factures, campagnes et tickets, et sans frais de licence par utilisateur. Customermates est un CRM open source développé en Allemagne qui place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires à partir de Pro, et laisse Mate (Customermates Cloud, crédits IA hébergés) ou votre propre client IA via MCP faire le travail dans le CRM. Les informations sur SuiteCRM viennent de suitecrm.com et de docs.suitecrm.com, vérifiées le 27 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à SuiteCRM : Customermates comparé"
+  description: "SuiteCRM est lui aussi open source, mais vous gérez vous-même PHP, les mises à jour et les modules. Customermates est plus léger : dans Customermates Cloud, dès Pro, les fils LinkedIn, e-mail et WhatsApp sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse. Informations sur SuiteCRM vérifiées le 27 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -96,7 +106,7 @@ comparison:
 cta:
   action: Vous évaluez des alternatives à SuiteCRM ?
   description: "Lancez un essai, exportez une liste SuiteCRM et importez-la comme classeur Excel, puis connectez une boîte mail ou WhatsApp. Vous verrez vite si vos données et vos conversations conviennent au modèle de Customermates."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -158,7 +168,7 @@ En auto-hébergement, les deux cœurs ne coûtent rien en frais de licence. Vous
 
 ## Où se situe Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes au contact des clients : consultants, agences, autres entreprises de services et fondateurs. Il est développé en Allemagne.
+SuiteCRM est une suite open source que vous exploitez vous-même. Customermates est un CRM plus petit, centré sur le suivi : dans Customermates Cloud, dès Pro, les conversations sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape. Vous relisez, modifiez et envoyez.
 
 **Les conversations clients à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit dans une seule liste les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram, et vous répondez sur le canal d’origine. Liez une fois un participant à un contact, et la conversation est classée avec ce contact. Starter n’a pas de boîte de réception.
 
@@ -198,7 +208,7 @@ Ajoutez à vos opportunités un champ à choix unique Étape avec une option par
   <Step title="Exporter depuis SuiteCRM">Exportez chaque liste que vous voulez garder depuis sa vue en liste : comptes, contacts, leads et opportunités. Customermates importe les fichiers CSV tels quels.</Step>
   <Step title="Préparer l’espace de travail">Créez ou renommez des listes dans Configurer, ajoutez des champs personnalisés pour les attributs que vous gardez et définissez les probabilités des étapes. Dans Customermates Cloud, la configuration IA peut construire les listes pour vous.</Step>
   <Step title="Importer une liste à la fois">Importez d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de liaison associent les fiches par leur nom : la colonne compte d’un contact retrouve donc l’organisation importée avant. La [documentation des fiches](/docs/app-records) liste les limites.</Step>
-  <Step title="Reconstruire les filtres de liste sous forme de vues">Transformez chaque filtre enregistré de SuiteCRM en vue enregistrée. Les vues restent privées tant que vous ne les partagez pas ; partagez celles que toute l’équipe utilise.</Step>
+  <Step title="Reconstruire les filtres de liste sous forme de vues">Transformez chaque filtre enregistré de SuiteCRM en vue enregistrée. Partagez celles dont toute l’équipe a besoin depuis le menu **Partager…** de la vue.</Step>
   <Step title="Connecter les canaux et l’IA">Sur Pro ou pendant l’essai, connectez une boîte mail, LinkedIn ou WhatsApp, puis configurez des routines pour Mate ou connectez votre propre client IA via MCP.</Step>
 </Steps>
 

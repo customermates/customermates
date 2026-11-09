@@ -28,6 +28,10 @@ import { accountStateForPath } from "./account-state-for-path";
 import { resolveNavigationShell } from "./navigation-shell";
 import { PublicScrollport } from "./public-scrollport";
 import { ControlFocus } from "@/components/focus/control-focus";
+import { PlanPausedBanner } from "@/app/components/upsell/plan-paused-banner";
+import { PaymentFailedBanner } from "@/app/components/upsell/payment-failed-banner";
+import { Resource } from "@/generated/prisma";
+import { sidebarUserCanAccess } from "./sidebar-user";
 import { WorkspaceUnavailableDialog } from "@/app/components/workspaces/workspace-unavailable-dialog";
 
 const AppSidebar = dynamic(() => import("../app-sidebar").then((mod) => ({ default: mod.AppSidebar })));
@@ -205,6 +209,13 @@ export function NavigationSwitch({
           <TopBarActionsProvider>
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-clip overflow-y-auto [--table-sticky-top:4rem] [&:has([data-joins-top-bar])>header]:border-b-0">
               <AppTopBar operatorConsoleVisible={operatorConsoleVisible} />
+
+              <PlanPausedBanner subscription={subscription} />
+
+              <PaymentFailedBanner
+                canOpenBilling={sidebarUserCanAccess(sidebarUser, Resource.company)}
+                subscription={subscription}
+              />
 
               <ControlFocus />
 

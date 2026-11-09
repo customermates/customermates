@@ -180,7 +180,6 @@ const ConnectedAccountsAlert = () => {
 
   return (
     <Alert
-      color="primary"
       description={t.rich("ConnectedAccountsCard.description", {
         dataPrivacyLink: (chunks) => (
           <AppLink inheritSize appearance="inline" href="/privacy" target="_blank">
@@ -198,6 +197,7 @@ const ConnectedAccountsAlert = () => {
           </AppLink>
         ),
       })}
+      variant="neutral"
     />
   );
 };

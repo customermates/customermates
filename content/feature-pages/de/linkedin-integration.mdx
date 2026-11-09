@@ -1,6 +1,6 @@
 ---
 title: "LinkedIn CRM: Unterhaltungen und Sales Navigator im Kontext"
-description: "Verbinden Sie unterstützte LinkedIn-Unterhaltungen mit Kontakten und Verkaufschancen, im Cloud-Postfach ab Pro. Tarifgrenzen prüfen. Kein CRM Sync."
+description: "LinkedIn- und Sales-Navigator-Chats im CRM: jedes Gespräch am Kontakt und Deal, Mate entwirft die Antwort, Sie senden. Cloud-Posteingang ab Pro."
 featureName: LinkedIn CRM-Integration
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: LinkedIn CRM-Integration für Nachrichten und Sales-Navigator-Workflows
   metadata:
     title: "LinkedIn CRM: Unterhaltungen und Sales Navigator im Kontext"
-    description: "Verbinden Sie unterstützte LinkedIn-Unterhaltungen mit Kontakten und Verkaufschancen, im Cloud-Postfach ab Pro. Tarifgrenzen prüfen. Kein CRM Sync."
+    description: "LinkedIn- und Sales-Navigator-Chats im CRM: jedes Gespräch am Kontakt und Deal, Mate entwirft die Antwort, Sie senden. Cloud-Posteingang ab Pro."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -27,10 +27,10 @@ acquisition:
       - claim:no-native-linkedin-enrichment-monitoring
       - claim:no-linkedin-bulk-import
   cta:
-    action: LinkedIn-Workflow im echten CRM-Kontext testen
-    description: Sehen Sie sich den Beispiel-Workspace für LinkedIn-Vertrieb an, verbinden Sie dann in der Pro-Testphase ein LinkedIn-Konto und prüfen Sie eine echte Unterhaltung mit Ihren eigenen Datensätzen.
-    buttonLeftText: Pro-Testphase starten
-    buttonLeftHref: /auth/signup
+    action: "Ihr LinkedIn-Nachfassen mit echtem CRM-Kontext testen"
+    description: "Sehen Sie sich den Beispiel-Workspace für LinkedIn-Vertrieb an, verbinden Sie dann in der [[commercial.trial.days]]-tägigen Testphase ein LinkedIn-Konto und prüfen Sie eine echte Unterhaltung mit Ihren eigenen Datensätzen."
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Workspace ansehen
     buttonRightHref: https://demo.customermates.com/de/w/linkedin-vertrieb/dashboard
     hint: "LinkedIn-Messaging und Sales Navigator benötigen Cloud Pro oder höher sowie das passende LinkedIn-Abonnement."
@@ -44,9 +44,9 @@ acquisition:
     locale: de
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "LinkedIn-Unterhaltungen im Kontext Ihrer Kundenbeziehungen"
-      body: "Für Gründer, Beraterinnen und kleine Vertriebsteams, die über LinkedIn verkaufen: Jede unterstützte Unterhaltung steht neben dem Kontakt und der Verkaufschance, zu der sie gehört. Customermates Cloud ab Pro, nicht in Starter oder Self-Hosting. Kein LinkedIn CRM Sync, kein Anreicherungs-Feed und kein Bulk-Import."
-      checksum: fnv1a-bc5736ce
+      headline: "Bei jeder LinkedIn-Unterhaltung nachfassen, direkt aus dem CRM"
+      body: "Für Gründer und kleine Vertriebsteams auf LinkedIn: jede Unterhaltung liegt beim Kontakt und Deal, Mate oder Ihr eigener KI-Client entwirft die Antwort, Sie prüfen und senden. Nur Cloud, ab Pro. Kein CRM Sync, Anreicherungs-Feed oder Bulk-Import."
+      checksum: fnv1a-f9977353
     kind: none
     reason: "Die frühe Postfach-Demo liefert den konkreten Produktbeleg; ein zusätzliches Hero-Bild würde ihn nur wiederholen."
     selection: explicit
@@ -56,21 +56,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Wir sind eine Strategieberatung mit vier Personen. Verwalte Kunden, Mandate und Angebote und hilf uns, Interessenten auf LinkedIn nachzufassen."
+  steps:
+    items:
+      - title: "Berechtigtes Konto verbinden"
+        description: "Verwenden Sie Customermates Cloud Pro oder höher und verbinden Sie genau das LinkedIn-Produkt, für das der Nutzer berechtigt ist."
+      - title: "Eine bekannte Unterhaltung öffnen"
+        description: "Beginnen Sie mit einem echten Thread mit einem Interessenten, den Sie schon kennen, nicht mit einer Massenliste oder automatisierten Sequenz."
+      - title: "Teilnehmer zuordnen"
+        description: "Tragen Sie die LinkedIn-Identität der Person im Feld Kontaktdaten des passenden Datensatzes ein oder legen Sie den Datensatz aus der Unterhaltung an."
+      - title: "Verkaufschance verknüpfen"
+        description: "Hängen Sie die Unterhaltung unter Datensätze dieser Unterhaltung mit Datensatz verknüpfen an die Verkaufschance oder Organisation, zu der sie gehört."
+      - title: "Eine Antwort prüfen und senden"
+        description: "Kontrollieren Sie Empfänger, Inhalt und verbundene LinkedIn-Identität, bevor ein Nutzer oder autorisierter Client die einzelne Nachricht sendet."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-thread-linkedin
+    items:
+      - title: "Ergebnis"
+        description: "Einzelne LinkedIn-Gespräche stehen neben dem Kontakt, der Organisation und der Verkaufschance, die Ihr Team bereits pflegt, und die E-Mail gleich daneben."
+      - title: "Verfügbarkeit"
+        description: "Customermates Cloud ab Pro. Starter und Self-Hosting enthalten keine verbundenen Messaging-Konten. Das LinkedIn-Abonnement bleibt separat."
+      - title: "Verknüpfung mit Datensätzen"
+        description: "Teilnehmer werden über ihre LinkedIn-Identität einem Datensatz zugeordnet. Die Verknüpfung mit einer Verkaufschance oder Organisation setzt ein Nutzer oder Agent bewusst, nie automatisch."
+      - title: "Wichtige Grenze"
+        description: "Kein offizieller CRM Sync, kein eingebettetes LinkedIn-Profil, kein Lead-Feed, keine integrierte laufende Anreicherung, kein Scraping, kein Bulk-Import, keine Massen-Einladungen, Sequenzen oder Massennachrichten."
+
 hero:
-  title: LinkedIn-Unterhaltungen im Kontext Ihrer Kundenbeziehungen
-  description: "Für Gründer, Beraterinnen und kleine Vertriebsteams, die über LinkedIn verkaufen: Jede unterstützte Unterhaltung steht neben dem Kontakt und der Verkaufschance, zu der sie gehört. Customermates Cloud ab Pro, nicht in Starter oder Self-Hosting. Kein LinkedIn CRM Sync, kein Anreicherungs-Feed und kein Bulk-Import."
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  title: "Bei jeder LinkedIn-Unterhaltung nachfassen, direkt aus dem CRM"
+  description: "Für Gründer und kleine Vertriebsteams auf LinkedIn: jede Unterhaltung liegt beim Kontakt und Deal, Mate oder Ihr eigener KI-Client entwirft die Antwort, Sie prüfen und senden. Nur Cloud, ab Pro. Kein CRM Sync, Anreicherungs-Feed oder Bulk-Import."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/linkedin-vertrieb/dashboard
-  hint: "Nur Cloud • Pro oder höher • LinkedIn-Abonnements bleiben separat"
+  hint: "Keine Kreditkarte benötigt • Nur Cloud, ab Pro • LinkedIn-Abonnements bleiben separat"
   showOpenSourceBadge: false
 
 cta:
-  action: LinkedIn-Workflow im echten CRM-Kontext testen
-  description: Sehen Sie sich den Beispiel-Workspace für LinkedIn-Vertrieb an, verbinden Sie dann in der Pro-Testphase ein LinkedIn-Konto und prüfen Sie eine echte Unterhaltung mit Ihren eigenen Datensätzen.
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  action: "Ihr LinkedIn-Nachfassen mit echtem CRM-Kontext testen"
+  description: "Sehen Sie sich den Beispiel-Workspace für LinkedIn-Vertrieb an, verbinden Sie dann in der [[commercial.trial.days]]-tägigen Testphase ein LinkedIn-Konto und prüfen Sie eine echte Unterhaltung mit Ihren eigenen Datensätzen."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/linkedin-vertrieb/dashboard
   hint: "LinkedIn-Messaging und Sales Navigator benötigen Cloud Pro oder höher sowie das passende LinkedIn-Abonnement."
@@ -78,27 +108,7 @@ cta:
 
 Wer über LinkedIn verkauft, verliert selten die Nachricht selbst aus dem Blick, sondern den Zusammenhang: Wer ist die Person, zu welcher Verkaufschance gehört das Gespräch, und was wurde per E-Mail vereinbart? Ein **LinkedIn CRM** bedeutet bei Customermates drei klar begrenzte Dinge: unterstützte LinkedIn-Unterhaltungen und InMails im Managed-Cloud-Postfach neben Ihren CRM-Datensätzen, Profil-, Beitrags- und Kontaktanfrage-Aktionen bei Bedarf sowie Sales-Navigator-Suchen und Listenaktionen per REST oder MCP. Gemeint ist kein LinkedIn CRM Sync, und Customermates reichert Profile weder an noch liest es sie per Scraping aus oder importiert sie in großen Mengen.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Ergebnis">
-    Einzelne LinkedIn-Gespräche stehen neben dem Kontakt, der Organisation und
-    der Verkaufschance, die Ihr Team bereits pflegt, und die E-Mail gleich
-    daneben.
-  </SummaryItem>
-  <SummaryItem label="Verfügbarkeit">
-    Customermates Cloud ab Pro. Starter und Self-Hosting enthalten keine
-    verbundenen Messaging-Konten. Das LinkedIn-Abonnement bleibt separat.
-  </SummaryItem>
-  <SummaryItem label="Verknüpfung mit Datensätzen">
-    Teilnehmer werden über ihre LinkedIn-Identität einem Datensatz zugeordnet.
-    Die Verknüpfung mit einer Verkaufschance oder Organisation setzt ein Nutzer
-    oder Agent bewusst, nie automatisch.
-  </SummaryItem>
-  <SummaryItem label="Wichtige Grenze">
-    Kein offizieller CRM Sync, kein eingebettetes LinkedIn-Profil, kein
-    Lead-Feed, keine integrierte laufende Anreicherung, kein Scraping, kein
-    Bulk-Import, keine Massen-Einladungen, Sequenzen oder Massennachrichten.
-  </SummaryItem>
-</ArticleSummary>
+**Wie Ihnen das beim Nachfassen hilft.** Eine LinkedIn-Unterhaltung schläft ein, wenn niemand mehr weiß, was darin zugesagt wurde. Liegt der Verlauf am Datensatz des Kontakts, lesen Sie den bisherigen Austausch, sehen den zugehörigen Deal und lassen Mate oder Ihren eigenen KI-Client einen Antwortentwurf im Verlauf speichern. Sie bearbeiten ihn und senden ihn über das verbundene LinkedIn-Konto. Customermates sendet nur einzelne Nachrichten und führt keine Sequenzen oder Massen-Einladungen aus.
 
 <ProofRail label="Verifizierte Funktionen der LinkedIn CRM-Integration">
   <ProofItem label="Postfach">LinkedIn-Unterhaltungen</ProofItem>
@@ -119,29 +129,6 @@ Diese Listen und Phasen sind ein Beispiel. Ein neuer Workspace startet ohne List
 ## Einer bekannten Unterhaltung folgen
 
 Ein berechtigtes Cloud-Konto kann unterstützte LinkedIn-Classic-, Sales-Navigator- oder Recruiter-Varianten verbinden. Das [einheitliche Postfach](/features/unified-inbox) zeigt die unterstützten Gespräche neben E-Mail und weiteren verbundenen Kanälen. Ein Teammitglied kann einen Thread lesen, einen Entwurf speichern, antworten oder einen einzelnen Chat starten. InMails aus Sales Navigator oder Recruiter verwenden Betreff und Signatur, wenn das jeweilige Produkt diese Angaben verlangt.
-
-<Steps>
-  <Step title="Berechtigtes Konto verbinden">
-    Verwenden Sie Customermates Cloud Pro oder höher und verbinden Sie genau das
-    LinkedIn-Produkt, für das der Nutzer berechtigt ist.
-  </Step>
-  <Step title="Eine bekannte Unterhaltung öffnen">
-    Beginnen Sie mit einem echten Thread mit einem Interessenten, den Sie schon
-    kennen, nicht mit einer Massenliste oder automatisierten Sequenz.
-  </Step>
-  <Step title="Teilnehmer zuordnen">
-    Tragen Sie die LinkedIn-Identität der Person im Feld Kontaktdaten des passenden
-    Datensatzes ein oder legen Sie den Datensatz aus der Unterhaltung an.
-  </Step>
-  <Step title="Verkaufschance verknüpfen">
-    Hängen Sie die Unterhaltung unter **Datensätze dieser Unterhaltung** mit
-    **Datensatz verknüpfen** an die Verkaufschance oder Organisation, zu der sie gehört.
-  </Step>
-  <Step title="Eine Antwort prüfen und senden">
-    Kontrollieren Sie Empfänger, Inhalt und verbundene LinkedIn-Identität, bevor
-    ein Nutzer oder autorisierter Client die einzelne Nachricht sendet.
-  </Step>
-</Steps>
 
 Die Zuordnung läuft über das Feld Kontaktdaten: die E-Mail-Adressen und Social-Identitäten, die Nachrichten mit einem Datensatz verbinden. Eine Verkaufschance oder Organisation erreicht ein Gespräch nur, wenn ein Nutzer oder Agent es ausdrücklich verknüpft. Customermates hängt eine LinkedIn-Unterhaltung nie automatisch an einen Deal, und das Postfach ist weder Social-Listening- noch Kampagnenprodukt.
 
@@ -204,6 +191,19 @@ Customermates verbindet stattdessen unterstützte Nachrichten und stellt kundens
   Hintergrund-Rückschreibung. Profilabruf und zugeordneter CRM-Schreibvorgang
   bleiben getrennte Aktionen.
 </AcquisitionCallout>
+
+## Customermates, folk und Breakcold bei LinkedIn-Unterhaltungen
+
+Zwei Tools, die Menschen für LinkedIn-Unterhaltungen vergleichen, sind folk und Breakcold. Diesen Vergleich veröffentlicht Customermates; die Zeilen zu folk und Breakcold geben die eigenen Seiten der Anbieter wieder, Stand 9. November 2026.
+
+| | Customermates | folk | Breakcold |
+| --- | --- | --- | --- |
+| So kommen die Nachrichten an | Unterstützte LinkedIn-Unterhaltungen und InMails eines verbundenen Kontos erscheinen ab Pro im Cloud-Postfach | Der [Hilfeartikel](https://help.folk.app/en/articles/7177488-track-linkedin-interactions) von folk beschreibt die Chrome-Erweiterung folkX: Sie öffnen einen LinkedIn-Thread, klicken auf folkX und erfassen dessen Nachrichten als Interaktionen, jeweils einen Thread nach dem anderen | Auf der [LinkedIn-Seite](https://www.breakcold.com/crm/crm-for-linkedin) steht, dass LinkedIn-DMs, InMails, Kontaktanfragen und Sales-Navigator-Threads von selbst synchronisiert werden |
+| Verknüpfung mit dem Deal | Eine Person oder ein Agent verknüpft eine Unterhaltung gezielt mit einer Verkaufschance | Sie fügen den Kontakt einer Gruppe hinzu und erfassen dann die Nachrichten | Laut derselben Seite landen Threads von selbst am passenden Datensatz |
+| Antworten | Im Postfach, vom verbundenen Konto, mit einem Entwurf von Mate oder Ihrem eigenen KI-Client, den Sie prüfen und senden | Der Artikel beschreibt das Erfassen von Nachrichten, nicht das Antworten | Laut derselben Seite antworten Sie aus Breakcold, und die Person sieht die Nachricht in LinkedIn |
+| Preis | Pro [[commercial.price.pro.monthly]] pro Nutzer und Monat bei monatlicher Zahlung | Siehe [Preisseite von folk](https://www.folk.app/pricing) | Ab 49 $ pro Platz und Monat bei monatlicher Zahlung, mit zwei verbundenen Konten pro Platz ([Preise](https://www.breakcold.com/pricing)) |
+
+Wählen Sie Breakcold, wenn es vor allem darauf ankommt, LinkedIn-Threads ohne Zutun einer Person Datensätzen zuzuordnen. Wählen Sie folk, wenn Sie LinkedIn-Unterhaltungen gern aus dem Browser erfassen, jeweils einen Thread nach dem anderen. Wählen Sie Customermates, wenn Sie LinkedIn neben E-Mail, WhatsApp, Instagram und Telegram am Kundendatensatz haben möchten, mit einem Antwortentwurf, den Sie prüfen und senden.
 
 ## Tarife, Konten und Teilen im Postfach
 

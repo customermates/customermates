@@ -1,6 +1,6 @@
 ---
-title: "CRM pour services professionnels | Clients et pipeline"
-description: "Contacts, organisations, affaires, services et tâches de relance réunis dans un CRM de relations et de pipeline : valeurs pondérées, REST, webhooks, MCP."
+title: "CRM pour services professionnels : relancer chaque client"
+description: "Un CRM pour services professionnels : conversations clients sur la fiche, prochaine étape datée par opportunité, réponse rédigée par Mate ou votre client IA."
 industryName: Services professionnels
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: hub
   primaryIntent: CRM de relations et de pipeline pour les services professionnels
   metadata:
-    title: "CRM pour services professionnels | Clients et pipeline"
-    description: "Contacts, organisations, affaires, services et tâches de relance réunis dans un CRM de relations et de pipeline : valeurs pondérées, REST, webhooks, MCP."
+    title: "CRM pour services professionnels : relancer chaque client"
+    description: "Un CRM pour services professionnels : conversations clients sur la fiche, prochaine étape datée par opportunité, réponse rédigée par Mate ou votre client IA."
   proof:
     factReferences:
       - product:core-crm-records
@@ -26,10 +26,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-time-tracking
   cta:
-    action: Réunir relations clients et pipeline au même endroit
-    description: Commencez par les contacts, les organisations et les affaires, puis adaptez les étapes et les champs à votre processus de développement commercial.
-    buttonLeftText: Démarrer l’essai Pro
-    buttonLeftHref: /auth/signup
+    action: Gardez chaque conversation client et sa prochaine étape au même endroit
+    description: Commencez par un client et une conversation ouverte, puis adaptez les étapes et les champs à votre processus de développement commercial.
+    buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Explorer l’espace de travail
     buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
     hint: "Gardez la réalisation, les propositions, le temps et la facturation dans les systèmes spécialisés que vous utilisez déjà."
@@ -43,9 +43,9 @@ acquisition:
     locale: fr
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Un CRM de relations et de pipeline pour les services professionnels"
-      body: "Gardez le contexte client, les opportunités, les services et les tâches de relance reliés. Customermates soutient le développement commercial, tandis que la réalisation des projets, les propositions, la facturation et le suivi du temps restent dans des systèmes spécialisés."
-      checksum: fnv1a-55ed041a
+      headline: "Un CRM pour services professionnels : relancer chaque conversation client"
+      body: "Interlocuteurs, opportunités et prochaine étape sur une même fiche, avec dès Pro les fils e-mail et LinkedIn à côté. Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et vous relisez et envoyez. Réalisation, propositions, facturation et suivi du temps restent dans des systèmes spécialisés."
+      checksum: fnv1a-ceff1967
     kind: brand-illustration
     pathway: focus
     placements:
@@ -88,26 +88,46 @@ acquisition:
     faqFromRenderedContent: true
 
 hero:
-  title: Un CRM de relations et de pipeline pour les services professionnels
-  description: Gardez le contexte client, les opportunités, les services et les tâches de relance reliés. Customermates soutient le développement commercial, tandis que la réalisation des projets, les propositions, la facturation et le suivi du temps restent dans des systèmes spécialisés.
-  buttonLeftText: Démarrer l’essai Pro
-  buttonLeftHref: /auth/signup
+  title: "Un CRM pour services professionnels : relancer chaque conversation client"
+  description: "Interlocuteurs, opportunités et prochaine étape sur une même fiche, avec dès Pro les fils e-mail et LinkedIn à côté. Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et vous relisez et envoyez. Réalisation, propositions, facturation et suivi du temps restent dans des systèmes spécialisés."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "Sans carte bancaire • Essai Pro de [[commercial.trial.days]] jours"
   showOpenSourceBadge: false
 
 cta:
-  action: Réunir relations clients et pipeline au même endroit
-  description: Commencez par les contacts, les organisations et les affaires, puis adaptez les étapes et les champs à votre processus de développement commercial.
-  buttonLeftText: Démarrer l’essai Pro
-  buttonLeftHref: /auth/signup
+  action: Gardez chaque conversation client et sa prochaine étape au même endroit
+  description: Commencez par un client et une conversation ouverte, puis adaptez les étapes et les champs à votre processus de développement commercial.
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "Gardez la réalisation, les propositions, le temps et la facturation dans les systèmes spécialisés que vous utilisez déjà."
+
+useCases:
+  eyebrow: "Comment l’utiliser"
+  title: "Pour les sociétés de services. Trois besoins, un seul espace."
+  items:
+    - title: "Suivre une opportunité jusqu’à l’action suivante"
+      description: "Contexte client, opportunité, services et tâche de suivi restent reliés dans une seule fiche."
+      href: /features/pipeline
+      linkLabel: "Voir le pipeline"
+      visual: proposal
+    - title: "Répondre là où le client a écrit"
+      description: "Dès Pro, les fils e-mail et LinkedIn sont rattachés au client, et Mate ou votre propre client IA rédige la réponse à relire et envoyer."
+      href: /features/unified-inbox
+      linkLabel: "Voir la boîte unifiée"
+      visual: conversation
+    - title: "Votre propre IA sur vos données clients"
+      description: "Connectez Claude, ChatGPT ou un autre client MCP, dans le Cloud ou en auto-hébergement."
+      href: /features/integrations
+      linkLabel: "Connecter votre agent"
+      visual: agent
 ---
 
-Customermates est un **CRM pour services professionnels** destiné aux équipes qui vendent leur expertise par la relation et par des opportunités à étapes. Il relie l’organisation cliente, ses interlocuteurs, l’opportunité, les services en discussion, la valeur pondérée et la prochaine tâche dans un seul espace de travail de développement commercial.
+Dans une société de services, les missions se gagnent dans des conversations qui s’étirent sur des semaines : une introduction sur LinkedIn, le cadrage par e-mail, puis le silence après la proposition. Customermates est un **CRM pour services professionnels** destiné aux équipes qui vendent leur expertise par la relation et par des opportunités à étapes. Il relie l’organisation cliente, ses interlocuteurs, l’opportunité, les services en discussion, la valeur pondérée et la prochaine tâche dans un seul espace de travail de développement commercial. Dans Customermates Cloud à partir de Pro, les fils e-mail et LinkedIn sont rattachés au client, et Mate, ou votre propre agent IA via MCP, rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Idéal pour">
@@ -115,8 +135,9 @@ Customermates est un **CRM pour services professionnels** destiné aux équipes 
     besoin d’un pipeline clair de clients et d’opportunités.
   </SummaryItem>
   <SummaryItem label="Mission principale">
-    Garder reliés les interlocuteurs, les affaires, les services et les
-    prochaines actions, au lieu de les éparpiller entre notes personnelles et
+    Garder reliés les interlocuteurs, les affaires, les services, les
+    conversations et les prochaines actions, pour que chaque conversation
+    client ait une relance au lieu de se perdre entre notes personnelles et
     tableurs.
   </SummaryItem>
   <SummaryItem label="Capacités principales">

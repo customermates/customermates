@@ -219,7 +219,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               key={family.kind}
               className="col-span-12 rounded-card border border-border bg-card p-6 md:col-span-4"
             >
-              <p className="font-mono text-sm text-primary">{String(index + 1).padStart(2, "0")}</p>
+              <p className="font-mono text-sm text-muted-foreground">{String(index + 1).padStart(2, "0")}</p>
 
               <h3 className="mt-4 text-lg font-medium">{family.kind}</h3>
 
@@ -238,7 +238,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
           <ul className="divide-y divide-border">
             {CONTRACT_ROWS.map(([label, description]) => (
               <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
-                <code className="font-mono text-sm text-primary">{label}</code>
+                <code className="font-mono text-sm text-muted-foreground">{label}</code>
 
                 <span className="text-sm text-muted-foreground">{description}</span>
               </li>
@@ -327,7 +327,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               {DETAIL_BUDGET.map((entry) => (
                 <div key={entry.placement} className="border-t border-border-strong pt-3">
                   <div className="flex items-baseline justify-between gap-3">
-                    <code className="font-mono text-sm text-primary">{entry.placement}</code>
+                    <code className="font-mono text-sm text-muted-foreground">{entry.placement}</code>
 
                     <span className="text-meta">{entry.budget}</span>
                   </div>
@@ -420,7 +420,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
               <article key={pathway}>
                 <div className="mb-6 flex flex-col gap-2 border-t border-border-strong pt-5 md:flex-row md:items-baseline md:justify-between md:gap-8">
                   <div>
-                    <p className="font-mono text-sm text-primary">{pathway}</p>
+                    <p className="font-mono text-sm text-muted-foreground">{pathway}</p>
 
                     <h3 className="mt-2 text-xl font-medium">{brief.takeaway}</h3>
                   </div>
@@ -479,7 +479,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
           <ul className="divide-y divide-border">
             {PROFILE_HERO_ROWS.map(([label, description]) => (
               <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
-                <code className="font-mono text-sm text-primary">{label}</code>
+                <code className="font-mono text-sm text-muted-foreground">{label}</code>
 
                 <span className="text-sm text-muted-foreground">{description}</span>
               </li>
@@ -491,7 +491,10 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
           {PROFILE_SAFE_ZONES.map((zone) => (
             <figure key={zone.canvas} className="m-0 min-w-0">
               <VisualArtboard aria-label={`${zone.canvas} safe zones`} className={zone.aspect}>
-                <div className="absolute rounded-lg border border-primary bg-primary/10" style={zone.text} />
+                <div
+                  className="absolute rounded-lg border border-border-strong bg-foreground/[0.05]"
+                  style={zone.text}
+                />
 
                 {zone.photos.map((photo) => (
                   <div
@@ -506,7 +509,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="text-sm font-medium">{zone.canvas}</span>
 
-                  <code className="font-mono text-sm text-primary">{zone.size}</code>
+                  <code className="font-mono text-sm text-muted-foreground">{zone.size}</code>
                 </div>
 
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{zone.rule}</p>
@@ -525,7 +528,7 @@ export function VisualsChapter({ locale }: { locale: VisualLocale }) {
           <ul className="divide-y divide-border">
             {PRODUCT_STILL_ROWS.map(([label, description]) => (
               <li key={label} className="grid gap-2 px-5 py-4 md:grid-cols-[10rem_1fr] md:items-baseline">
-                <code className="font-mono text-sm text-primary">{label}</code>
+                <code className="font-mono text-sm text-muted-foreground">{label}</code>
 
                 <span className="text-sm text-muted-foreground">{description}</span>
               </li>

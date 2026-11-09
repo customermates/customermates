@@ -37,7 +37,7 @@ Below you will find a vendor table with sources, the setup in Claude and Claude 
   <SummaryItem label="Claude plan">Custom connectors work on every Claude plan, and Free is limited to one. Some vendor connectors, HubSpot's for example, need a paid Claude plan.</SummaryItem>
   <SummaryItem label="Control">Claude lets you set each tool to Always allow, Needs approval or Blocked. Keep anything that writes, sends or deletes on approval.</SummaryItem>
   <SummaryItem label="Proof">Before you rely on it, run one read and one update and check the change in the CRM itself.</SummaryItem>
-  <SummaryItem label="Disclosure">Customermates publishes this guide. Vendor facts were checked on 8 October 2026 against the vendors' own pages.</SummaryItem>
+  <SummaryItem label="Disclosure">Customermates publishes this guide. Vendor facts were checked against the vendors' own pages on 8 October 2026; the ranked table on 9 November 2026.</SummaryItem>
 </ArticleSummary>
 
 ## Four things people mean by "Claude CRM"
@@ -61,6 +61,21 @@ The tools come from the CRM, not from Claude, so the exact list depends on the v
 - Where the CRM holds conversations, read a thread and prepare a reply.
 
 Claude picks the tools and the order on its own. That works well for a handful of records per request. For hundreds of rows, vendor limits apply (HubSpot's connector creates or updates 10 records at a time in bulk), and an import is the better tool.
+
+## CRMs with a Claude connector, ranked
+
+The ranking follows how much of the client conversation the vendor's own documentation says Claude can reach, then what Claude can change. It was checked on 9 November 2026 against each vendor's documentation, linked in the second column. Customermates publishes this guide and ranks first on that measure, so read the vendor pages before you decide.
+
+| # | CRM | What the vendor documents | Claude side |
+| --- | --- | --- | --- |
+| 1 | Customermates (publisher) | [[derived.mcp.tools.total]] tools for contacts, organizations, deals, services, tasks, your own lists, notes and the Knowledge Base; on Pro and higher also the unified inbox with email, LinkedIn, WhatsApp, Instagram and Telegram. Works on every plan, self-hosted included. | Custom connector, a shortcut under Settings › API keys, or an API key in Claude Code |
+| 2 | [Breakcold](https://www.breakcold.com/crm/claude) | A first-party MCP server with tools across records, tasks, notes, the inbox (email, LinkedIn, WhatsApp, Telegram) and meetings, with full MCP on every plan. | Add the Breakcold MCP server to Claude, or use its Cowork Skill |
+| 3 | [Attio](https://docs.attio.com/mcp/overview) | Search, read, create and update records, notes, tasks and lists, plus search and retrieval of emails, meetings and call recordings. Writes ask for confirmation. The page names no plan requirement. | Claude Desktop or Claude.ai: Settings › Connectors › Browse connectors |
+| 4 | [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) | View, create and update most objects, engagement history included. Delete is not supported. All HubSpot products and plans. | Paid Claude plan: Pro, Max, Team or Enterprise |
+| 5 | [Close](https://help.close.com/docs/mcp-server) | Three scopes: read only, read and write, or read, write and delete. | The Claude connectors library needs a paid Claude plan; on Claude Desktop with a free plan, add Close through the + menu in a chat |
+| 6 | [folk](https://help.folk.app/en/articles/15503108-mcp-how-to-connect-folk-to-claude) | Search people, companies and groups, create and update contacts, notes and custom fields, and move deals through pipelines. The article names no plan requirement. | Connector URL `https://mcp.folk.app/mcp`, then OAuth sign-in |
+
+The next table adds the plan details and the connectors of Pipedrive, Zoho CRM, Capsule and Salesforce.
 
 ## Which CRMs connect to Claude
 
@@ -151,7 +166,9 @@ Four prompts that test the setup. Customermates has no preset stages, so replace
 3. "Create a contact for Sarah Lee, link her to the [organization] organization and its deal, and create a task assigned to me to send the contract draft." (create and link)
 4. "Find my latest email thread with Sarah Lee, summarize it in two lines and save a reply as a draft. Do not send it." (Pro, inbox)
 
-If you would rather not run your own AI client, Mate is the assistant inside Customermates Cloud. It uses the monthly hosted AI credits per active user that come with the plan, prepares summaries and reply drafts, and runs Routines: saved instructions on a schedule or on record events. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. That is a selected setting rather than a residency guarantee, and the subprocessors are listed publicly.
+The fourth prompt is follow-up in one line: Claude reads the thread on the client record and drafts the reply, and you review, edit and send it. To run it on your own Claude account, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
+
+If you would rather not run your own AI client, Mate is the assistant inside Customermates Cloud. It uses the monthly hosted AI credits per active user that come with each paid plan, prepares summaries and reply drafts, and runs Routines: saved instructions on a schedule or on record events. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. That is a selected setting rather than a residency guarantee, and the subprocessors are listed publicly.
 
 Customermates is not the right pick if you need a phone dialer, email sequences or a native mobile app, or if your team runs HubSpot or Salesforce and is happy with it. In that case, use the vendor's own connector from the table above.
 

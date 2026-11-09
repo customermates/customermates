@@ -7,8 +7,6 @@ import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 
 const templates = vi.hoisted(() => ({
   offer: vi.fn((props: unknown) => ({ type: "trial-expired-offer", props })),
-  reminder: vi.fn((props: unknown) => ({ type: "trial-inactivation-reminder", props })),
-  trialNotice: vi.fn((props: unknown) => ({ type: "trial-inactivation-notice", props })),
   subscriptionNotice: vi.fn((props: unknown) => ({ type: "subscription-inactivation-notice", props })),
 }));
 
@@ -16,8 +14,6 @@ vi.mock("@/core/decorators/system-interactor.decorator", () => ({
   SystemInteractor: (target: unknown) => target,
 }));
 vi.mock("@/components/emails/trial-expired-offer", () => ({ default: templates.offer }));
-vi.mock("@/components/emails/trial-inactivation-reminder", () => ({ default: templates.reminder }));
-vi.mock("@/components/emails/trial-inactivation-notice", () => ({ default: templates.trialNotice }));
 vi.mock("@/components/emails/subscription-inactivation-notice", () => ({ default: templates.subscriptionNotice }));
 
 import deMessages from "@/i18n/locales/de.json";
@@ -27,10 +23,8 @@ import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { DeactivateTrialUsersAndSendNoticeInteractor } from "../deactivate-trial-users-and-send-notice.interactor";
 import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "../deactivate-users-after-subscription-grace-period.interactor";
 import { SendTrialExtensionOfferInteractor } from "../send-trial-extension-offer.interactor";
-import { SendTrialInactivationReminderInteractor } from "../send-trial-inactivation-reminder.interactor";
 
 const CATALOGS: Record<AppLocale, typeof enMessages> = {
   de: deMessages,
@@ -41,11 +35,7 @@ const CATALOGS: Record<AppLocale, typeof enMessages> = {
 };
 const WORKSPACE = "Bergmann Steuern";
 
-type Namespace =
-  | "TrialExpiredOffer"
-  | "TrialInactivationReminder"
-  | "TrialInactivationNotice"
-  | "SubscriptionInactivationNotice";
+type Namespace = "TrialExpiredOffer" | "SubscriptionInactivationNotice";
 type SendEmail = (email: unknown) => Promise<boolean>;
 type DeactivateUser = (userId: string) => Promise<void>;
 type ReleaseOwnerRoutines = (args: { companyId: string; ownerUserId: string }) => Promise<void>;
@@ -71,8 +61,6 @@ function recipient(companyName: string | null, displayLanguage: Locale = "en"): 
     ...createMockUser({ id: "member-1", companyId: "company-1", email: "member@example.com", displayLanguage }),
     welcomeEmailSentAt: null,
     trialExpiredOfferSentAt: null,
-    trialInactivationReminderSentAt: null,
-    trialInactivationNoticeSentAt: null,
     company: { name: companyName },
   } as unknown as LifecycleRecipient;
 }
@@ -94,34 +82,6 @@ const CASES: Array<{
           claimTrialExpiredOfferSent: vi.fn().mockResolvedValue(true),
         },
         emailService as never,
-      ).invoke(),
-  },
-  {
-    name: "trial inactivation reminder",
-    namespace: "TrialInactivationReminder",
-    template: templates.reminder,
-    run: (users, emailService) =>
-      new SendTrialInactivationReminderInteractor(
-        {
-          findUsersWithTrialEndedBetween3And4Days: vi.fn().mockResolvedValue(users),
-          claimTrialInactivationReminderSent: vi.fn().mockResolvedValue(true),
-        },
-        emailService as never,
-      ).invoke(),
-  },
-  {
-    name: "trial inactivation notice",
-    namespace: "TrialInactivationNotice",
-    template: templates.trialNotice,
-    run: (users, emailService, collaborators) =>
-      new DeactivateTrialUsersAndSendNoticeInteractor(
-        {
-          findUsersWithTrialEndedBetween6And7Days: vi.fn().mockResolvedValue(users),
-          claimTrialInactivationNoticeSent: vi.fn().mockResolvedValue(true),
-          deactivateUserOrThrow: collaborators.deactivateUserOrThrow,
-        },
-        emailService as never,
-        collaborators.releaseOwnerRoutines as never,
       ).invoke(),
   },
   {
@@ -175,11 +135,11 @@ describe.each(CASES)("$name names the workspace it is about", (definition) => {
 });
 
 describe("workspace deactivation notices", () => {
-  it.each([CASES[2], CASES[3]])("$name deactivates only the membership of that workspace", async (definition) => {
+  it("subscription grace-period notice deactivates only the membership of that workspace", async () => {
     const emailService = emailServiceMock();
     const collaborators = collaboratorMocks();
 
-    await definition.run([recipient(WORKSPACE)], emailService, collaborators);
+    await CASES[1].run([recipient(WORKSPACE)], emailService, collaborators);
 
     expect(collaborators.deactivateUserOrThrow).toHaveBeenCalledExactlyOnceWith("member-1");
     expect(collaborators.releaseOwnerRoutines.invoke).toHaveBeenCalledExactlyOnceWith({

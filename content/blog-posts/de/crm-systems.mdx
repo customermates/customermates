@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM System: Was es ist, wie es aussieht und 10 CRM Systeme im Überblick"
-  description: "Was ein CRM System speichert und wie Datensatz, Liste und Pipeline aussehen, welche Arten es gibt (operativ, analytisch, kollaborativ, Cloud, selbst gehostet, Open Source), zehn Beispiele mit Lizenz, Hosting und Einstiegspreis, Stand 1. November 2026, und der Unterschied zu ERP."
+  description: "Was ein CRM System speichert, welche Arten es gibt (operativ, analytisch, kollaborativ, Cloud, selbst gehostet), zehn Beispiele mit Lizenz, Hosting und Einstiegspreis und der Unterschied zu ERP."
 
 blogPost:
   author: Benjamin Wagner
@@ -243,17 +243,19 @@ Eine gewichtete Bewertungsmatrix finden Sie im Leitfaden [CRM System auswählen]
 
 *Hinweis: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister, deren Geschäft auf Beziehungen beruht, und Gründer. Es ist ein operatives und kollaboratives CRM mit Dashboards und bewusst schmal geschnitten. Listen zeigen Sie als Tabelle, als Board oder im Kalender.
 
+Gebaut ist es fürs Nachfassen. In Customermates Cloud verbinden Sie ab Pro LinkedIn und E-Mail, und Kundengespräche stehen am Kundendatensatz, wenn die Kontaktdaten passen oder Sie sie verknüpfen. Mate, in der Cloud eingebaut, oder Ihr eigener KI-Agent (Claude, ChatGPT oder jeder Client, der MCP spricht) entwirft die Antwort und den nächsten Schritt, Sie prüfen, ändern und senden, und die nächsten Schritte erscheinen auf Ihrem Dashboard. So können Sie bei jedem Kundengespräch nachfassen.
+
 So sieht eine typische Einrichtung für eine kleine Beratung aus:
 
 - **Datensätze:** Kontakte, Organisationen, Deals, Services und Aufgaben. Der Wert eines Deals ergibt sich aus seinen Positionen: den verkauften Services und ihren Mengen.
 - **Phasen:** Das Feld „Phase“ an Deals ist mit Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen und Verloren vorbelegt. Jede Option kann eine Gewichtung tragen, daraus entstehen feste gewichtete Deal-Werte und eine gewichtete Summe der [Vertriebspipeline](/features/pipeline). Das ist eine Gewichtung nach Phase, keine Vorhersage.
 - **Eigene Felder:** ein Feld vom Typ Einzelauswahl wie „Lead-Quelle“ oder „Leistungsbereich“, nach der Sie auch das Board gruppieren können.
-- **Gespeicherte Ansichten:** „Meine offenen Angebote“, gefiltert auf Ihre zugewiesenen Deals in Angebot und Verhandlung. Eine Ansicht ist nur für die Person sichtbar, die sie anlegt, bis diese sie teilt.
+- **Gespeicherte Ansichten:** „Meine offenen Angebote“, gefiltert auf Ihre zugewiesenen Deals in Angebot und Verhandlung. Eine Ansicht gehört Ihnen, bis Sie sie mit dem Team teilen.
 - **Gespräche:** Ab Pro holt der [einheitliche Posteingang](/features/unified-inbox) E-Mails (Gmail, Outlook, IMAP) sowie Nachrichten aus LinkedIn, WhatsApp, Instagram und Telegram direkt zu den Datensätzen. Starter enthält keinen Posteingang.
 - **KI in Customermates Cloud:** Mate, der Assistent in der App, nutzt gehostete KI-Credits. Eine Routine kann jeden Montagmorgen eine gespeicherte Anweisung ausführen, etwa: „Meine Deals in der Phase Angebot auflisten, das letzte Gespräch mit jedem Kontakt zusammenfassen und eine Nachfass-Nachricht entwerfen, wo noch keine gesendet wurde. Nichts senden.“ Die Routine läuft mit den Rechten und Kanälen der Person, der sie gehört. Deshalb ist der Satz „Nichts senden“ wichtig. Mehr dazu unter [Routinen in Customermates](/docs/app-routines). Wenn Sie lieber Ihren eigenen KI-Client nutzen, arbeiten Claude, ChatGPT und andere über MCP mit dem CRM.
 - **Eigenes Hosting:** Der AGPL-Kern läuft auf Ihrem eigenen Server mit REST, Webhooks und MCP. Er enthält keinen Posteingang, kein Mate und keine gehosteten Credits. Wie das funktioniert, steht unter [Customermates selbst hosten](/features/self-hosted).
 
-Datensätze kommen als Excel-, CSV- oder JSON-Dateien hinein und gehen als XLSX-Arbeitsmappen oder JSON hinaus, jeweils eine Liste. Die online buchbaren Tarife beginnen bei [[commercial.price.starter.monthly]] (Starter) pro Nutzer und Monat, Business kostet [[commercial.price.business.monthly]]; abgerechnet wird monatlich, mit [[commercial.trial.days]] Tagen Testphase auf Pro.
+Datensätze kommen als Excel-, CSV- oder JSON-Dateien hinein und gehen als XLSX-Arbeitsmappen oder JSON hinaus, jeweils eine Liste. Die online buchbaren Tarife beginnen bei [[commercial.price.starter.monthly]] (Starter) pro Nutzer und Monat, Business kostet [[commercial.price.business.monthly]]; abgerechnet wird monatlich. Die Testphase läuft [[commercial.trial.days]] Tage auf Pro, ohne Kreditkarte: [Starten Sie Ihre Testphase](/auth/signup?job=followup) mit einem Kanal und einem Kunden.
 
 <AcquisitionCallout title="Wofür Customermates nicht das richtige System ist" variant="boundary">
   Es gibt keine Marketingautomatisierung, keine Newsletter oder E-Mail-Kampagnen, keine Ticket-Warteschlange für den Support, keine Telefonie, keine mobile App und keine Angebote oder Rechnungen. Wenn Marketingautomatisierung Ihre Hauptaufgabe ist, sehen Sie sich eine Suite wie HubSpot oder Zoho CRM an. Wenn Service-Tickets im Vordergrund stehen, suchen Sie ein Helpdesk oder ein CRM mit Serviceautomatisierung. Wenn Sie CRM und Warenwirtschaft aus einer Hand wollen, passt eine Suite wie Odoo besser, und wenn Sie SAP-ERP einsetzen, ist SAP Sales Cloud auf diese Anbindung ausgelegt.

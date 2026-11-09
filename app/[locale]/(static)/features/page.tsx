@@ -6,10 +6,11 @@ import { getLocale } from "next-intl/server";
 import { BaseFeaturesSection } from "./components/base-features-section";
 import { FeaturesHero } from "./components/features-hero";
 import { WhyFeaturesSection } from "./components/why-features-section";
+import { SolutionStageSection } from "../components/solution-stage-section";
 
 import { Footer } from "@/app/components/footer";
+import { ProductFilm } from "@/components/marketing/product-film";
 import { CTASection } from "@/components/marketing/cta-section";
-import { ProductDemoSection } from "@/components/marketing/product-demo-section";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featuresSource } from "@/core/fumadocs/source";
 import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
@@ -36,7 +37,9 @@ export default async function FeaturesPage({ params }: StaticLocaleProps) {
     <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <FeaturesHero {...hero} />
 
-      <ProductDemoSection hostedBoundary path="/dashboard" />
+      <ProductFilm />
+
+      <SolutionStageSection locale={locale} solutionId="smb" />
 
       {features.map((section, index) => (
         <BaseFeaturesSection key={section.title} index={index} {...section} />

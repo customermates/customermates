@@ -24,7 +24,7 @@
 
 
 <p align="center">
-  <a href="#product-film"><img src=".github/media/customermates-film-hook.webp" alt="Customermates: your next hires won't be people. They'll be agents." width="1200"></a>
+  <a href="#product-film"><img src=".github/media/customermates-film.webp" alt="Customermates: the open-source CRM for your team and your AI agents." width="1200"></a>
 </p>
 
 Customermates is a CRM for modern teams that want a clear system for contacts, organizations, deals, services, and tasks without the usual enterprise-heavy setup. It combines practical CRM workflows with API access, webhooks, n8n automation, MCP-based tooling, and AI-agent workflows.
@@ -33,9 +33,9 @@ You can use the managed cloud version or run Customermates yourself in your own 
 
 ## Product film
 
-The 70 second film, with sound.
+Follow up on every client conversation. The 46 second film: client conversations scattered across LinkedIn, email and chat come together in one workspace, Mate drafts the reply from your playbook, you send it in one click, the next step lands on your dashboard, and the same flow covers quiet proposals, new clients and due check-ins. It works with Mate, Claude or ChatGPT.
 
-https://github.com/user-attachments/assets/fd11451e-14e4-4ed1-8439-0a0f70b1f47f
+[Watch the film](https://customermates.com/customermates-film.mp4) or find it in this repository at [`public/customermates-film.mp4`](public/customermates-film.mp4).
 
 ## 🚀 Getting Started
 

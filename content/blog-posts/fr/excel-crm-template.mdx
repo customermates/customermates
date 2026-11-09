@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Modèle CRM Excel : une structure gratuite de six feuilles, importable plus tard"
-  description: "Chaque colonne, chaque liste déroulante et chaque formule d’un CRM sur tableur que gèrent une à trois personnes, avec un suivi hebdomadaire par commercial, plus les règles de structure qui permettent à chaque feuille de passer dans un CRM sans ressaisie."
+  description: "Chaque colonne, liste déroulante et formule d’un CRM sur tableur tenu par une à trois personnes, avec suivi hebdomadaire par commercial et règles pour passer ensuite dans un CRM sans ressaisie."
 
 blogPost:
   author: Benjamin Wagner
@@ -200,7 +200,7 @@ Si deux de ces points sont vrais, je changerais. Un seul se règle généralemen
 
 ## Migrer le modèle vers Customermates
 
-Customermates importe des classeurs Excel (.xlsx ou .xls) et des fichiers CSV, une liste à la fois. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles. Voici où atterrissent les colonnes du modèle :
+Customermates importe des classeurs Excel (.xlsx ou .xls) et des fichiers CSV, une liste à la fois. La [documentation de l’import](/docs/app-records#how-do-i-import-or-export-records) donne toutes les règles. Un tableur ne relance que si quelqu’un pense à l’ouvrir. Une fois la feuille dans Customermates, les conversations de chaque client se rangent sur sa fiche (dans Customermates Cloud, à partir de Pro), Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et la date de prochaine étape alimente votre tableau de bord au lieu d’une cellule rouge. Voici où atterrissent les colonnes du modèle :
 
 | Colonne du modèle | Champ Customermates |
 | --- | --- |
@@ -248,7 +248,7 @@ Une routine agit avec les accès de son propriétaire, et Mate envoie des messag
 | 3 personnes, avec la boîte de réception unifiée | Pro, [[commercial.price.pro.monthly]] par utilisateur | [[commercial.price.pro.monthly.seats.3]] |
 | Votre propre serveur | Cœur AGPL auto-hébergé | Aucun frais de licence, plus votre hébergement ; REST, webhooks et MCP, mais ni boîte de réception ni Mate |
 
-La facturation est mensuelle, et l’essai hébergé dure [[commercial.trial.days]] jours. Chaque formule hébergée inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing).
+La facturation est mensuelle, et l’essai hébergé dure [[commercial.trial.days]] jours sur Pro, sans carte bancaire : [lancez votre essai](/auth/signup?job=followup) et importez une feuille pour y voir vos propres affaires. Chaque formule hébergée payante inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing).
 
 Customermates a des [champs calculés](/docs/concepts#how-do-i-build-a-calculated-field), notamment des valeurs issues de la même fiche et des totaux sur des fiches liées. Ce n’est pas la bonne étape si vous avez besoin d’un tableur généraliste avec des formules de cellules arbitraires et des mises en page de classeur ; gardez cette analyse dans Excel grâce à l’export. Ce n’est pas non plus la bonne étape si votre équipe a besoin d’un composeur téléphonique, de campagnes d’e-mails ou d’une application native sur téléphone : Customermates n’a ni application mobile, ni téléphonie, ni outil de campagnes. Cherchez un CRM qui les propose.
 

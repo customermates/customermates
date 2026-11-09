@@ -20,7 +20,7 @@ export function AutomationDemo({ architecture }: Props) {
   const { boundary, crmDescription, crmTitle, description, interfaceTitle, title, workflowDescription } = architecture;
 
   return (
-    <MarketingSection description={description} id="architecture" title={title} tone="canvas">
+    <MarketingSection description={description} id="architecture" title={title}>
       <VisualArtboard aria-label={title} className="mx-auto mt-10 min-h-0 max-w-5xl p-5 sm:p-8">
         <div
           aria-hidden

@@ -2,19 +2,18 @@ import { Resource } from "@/generated/prisma";
 
 import { ConnectedAccountsPageView } from "../components/connected-accounts-page-view";
 import { ConnectedAccountsStatusToast } from "../components/connected-accounts-status-toast";
+import { OnboardingChannelsHint } from "../components/onboarding-channels-hint";
 
 import { redirect } from "next/navigation";
 import { appRedirectHref } from "@/features/auth/next/app-redirect";
 
 import { getGetMyConnectedAccountsInteractor, getGetSubscriptionInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
-import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { MessagingUpsellOverlay } from "@/app/components/upsell/messaging-upsell-overlay";
+import { effectivePlanId, getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export default async function ConnectedAccountsPage() {
   await requireAccess({ resource: Resource.inboxMessages });
@@ -22,7 +21,7 @@ export default async function ConnectedAccountsPage() {
   if (env.APP_MODE === "self-hosted") redirect(await appRedirectHref("/dashboard"));
 
   const subscription = await unwrapPage(getGetSubscriptionInteractor().invoke());
-  const locked = !getEntitlements(subscription.plan).messaging;
+  const locked = !getEntitlements(effectivePlanId(subscription)).messaging;
 
   const accounts = locked ? [] : await unwrapPage(getGetMyConnectedAccountsInteractor().invoke());
 
@@ -31,25 +30,20 @@ export default async function ConnectedAccountsPage() {
       <PageContainer>
         <ConnectedAccountsStatusToast />
 
+        <OnboardingChannelsHint />
+
         <ConnectedAccountsPageView accounts={accounts} />
       </PageContainer>
     );
   }
 
-  const t = await getTranslations();
-
   return (
     <PageContainer padded={false}>
-      <LockedFeatureOverlay
-        ctaHref={settingsHref("billing")}
-        ctaLabel={t("MessagingUpsell.cta")}
-        description={t("MessagingUpsell.description")}
-        title={t("MessagingUpsell.title")}
-      >
+      <MessagingUpsellOverlay reason="plan">
         <div className="flex flex-col gap-6 p-4 md:p-6">
           <ConnectedAccountsPageView locked accounts={[]} />
         </div>
-      </LockedFeatureOverlay>
+      </MessagingUpsellOverlay>
     </PageContainer>
   );
 }

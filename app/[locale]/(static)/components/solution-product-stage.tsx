@@ -5,11 +5,14 @@ import { getTranslations } from "next-intl/server";
 
 import solutionCaptureManifest from "@/core/solutions/solution-capture-manifest.json";
 import solutionStageCaptures from "@/core/solutions/solution-stage-captures.json";
+import solutionStagePhoneCaptures from "@/core/solutions/solution-stage-phone-captures.json";
 import { type SolutionCaptureManifest, solutionCapturePair } from "@/core/solutions/solution-captures";
 import { type SolutionId, type SolutionStageTabId, findSolution } from "@/core/solutions/solution-catalog";
 import {
   SOLUTION_STAGE_MAIN_CAPTURE_TAB,
   type SolutionStageCaptures,
+  type SolutionStagePhoneCaptures,
+  solutionStagePhonePoster,
   solutionStagePoster,
   solutionStageRoute,
 } from "@/core/solutions/solution-stage";
@@ -76,11 +79,12 @@ function tabCaption(t: Translate, id: SolutionStageTabId): string {
 }
 
 type Props = {
+  className?: string;
   locale: string;
   solutionId: SolutionId;
 };
 
-export async function SolutionProductStage({ locale, solutionId }: Props) {
+export async function SolutionProductStage({ className = "mt-8 sm:mt-10 lg:mt-12", locale, solutionId }: Props) {
   const t = await getTranslations("SolutionStage");
   const solution = findSolution(solutionId);
   const contentLocale = contentLocaleOrDefault(locale);
@@ -99,6 +103,10 @@ export async function SolutionProductStage({ locale, solutionId }: Props) {
     const demoPath = solutionStageRoute(captures.routes, solution, tab.id, locale);
     if (!demoPath) return [];
     const label = tabLabel(t, tab.id);
+    const area = TAB_AREAS[tab.id];
+    const phonePoster =
+      solutionStagePhonePoster(solutionStagePhoneCaptures as SolutionStagePhoneCaptures, solutionId, tab.id, locale) ??
+      undefined;
     const poster =
       tab.id === SOLUTION_STAGE_MAIN_CAPTURE_TAB
         ? fallbackPoster
@@ -107,13 +115,14 @@ export async function SolutionProductStage({ locale, solutionId }: Props) {
     return [
       {
         alt: t("alt", { area: label }),
-        area: TAB_AREAS[tab.id],
+        area,
         caption: tabCaption(t, tab.id),
         demoPath,
         icon: tab.id,
         id: tab.id,
         kind: "solution",
         label,
+        phonePoster,
         poster,
       },
     ];
@@ -121,7 +130,7 @@ export async function SolutionProductStage({ locale, solutionId }: Props) {
 
   return (
     <HomepageProductStage
-      className="mt-8 sm:mt-10 lg:mt-12"
+      className={className}
       demoBaseUrl={homepageDemoBaseUrl()}
       demoLocale={appLocaleOrDefault(locale)}
       embed={env.APP_MODE !== "self-hosted"}

@@ -87,7 +87,6 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
           {store.isReadOnly && (
             <Alert
-              color="default"
               description={
                 store.isOwner && !store.canManage
                   ? t("RoutineDetail.ownerPermissionReadOnly")
@@ -96,6 +95,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
                     : t("RoutineDetail.ownerUnavailableReadOnly")
               }
               title={t("RoutineDetail.readOnlyTitle")}
+              variant="neutral"
             />
           )}
 

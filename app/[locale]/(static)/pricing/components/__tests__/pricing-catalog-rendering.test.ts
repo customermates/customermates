@@ -1,8 +1,15 @@
+import type * as React from "react";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 
 import { Children, createElement, isValidElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("react", async (importOriginal) => ({
+  ...(await importOriginal<typeof React>()),
+  useEffect: () => undefined,
+  useRef: <T>(initial: T) => ({ current: initial }),
+}));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
@@ -73,7 +80,7 @@ const { HomepagePricing } = await import("@/app/[locale]/(static)/components/hom
 
 type PlanAction = { onClick: () => void; type?: string; variant?: string; children?: ReactNode };
 
-const pricingCards = ["starter", "pro", "business", "max", "enterprise"].map((plan) => ({
+const pricingCards = ["free", "starter", "pro", "business", "max", "enterprise"].map((plan) => ({
   plan,
   title: plan,
   description: plan,
@@ -97,6 +104,9 @@ describe("catalog-backed pricing rendering", () => {
       }),
     );
 
+    expect(html).toMatch(/<p[^>]*data-pricing-plan="free"/);
+    expect(html).not.toMatch(/<article[^>]*data-pricing-plan="free"/);
+    expect(html).not.toContain('data-plan="free"');
     expect(html).toContain('data-plan="starter" data-price="€12"');
     expect(html).toContain('data-plan="pro" data-price="€29"');
     expect(html).toContain('data-plan="business" data-price="€69"');
@@ -125,12 +135,13 @@ describe("catalog-backed pricing rendering", () => {
 
   it("renders comparison prices and account allowances from the catalog", () => {
     const plans = Object.fromEntries(
-      ["starter", "pro", "business", "max", "enterprise"].map((plan) => [
+      ["free", "starter", "pro", "business", "max", "enterprise"].map((plan) => [
         plan,
         { name: plan, button: "Select", buttonHref: "/auth/signup" },
       ]),
     );
     const presentation = pricingComparisonPresentation({
+      apiLimitValue: "{perMinute}/min, {perDay}/day",
       customValue: "Custom",
       locale: "en",
       plans: plans as Parameters<typeof pricingComparisonPresentation>[0]["plans"],
@@ -142,17 +153,26 @@ describe("catalog-backed pricing rendering", () => {
             { label: "Accounts", catalogFact: "includedAccountsPerUser" },
             { label: "Mate usage", catalogFact: "hostedAiUsage" },
             { label: "Storage", catalogFact: "fileStoragePerActiveUser" },
+            { label: "People", catalogFact: "maxMembers" },
+            { label: "Records", catalogFact: "maxRecords" },
+            { label: "API", catalogFact: "apiRequestLimit" },
+            { label: "Webhooks", catalogFact: "webhooks" },
           ],
         },
       ],
       unlimitedValue: "Unlimited",
+      workspaceStorageValue: "{size} per workspace",
     });
 
     expect(presentation.sections[0].rows).toEqual([
-      { label: "Price", values: ["€12", "€29", "€69", "€149", "Custom"] },
-      { label: "Accounts", values: ["0", "1", "3", "10", "Unlimited"] },
-      { label: "Mate usage", values: ["1x", "3x", "10x", "20x", "Custom"] },
-      { label: "Storage", values: ["1 GB", "5 GB", "20 GB", "50 GB", "Custom"] },
+      { label: "Price", values: ["€0", "€12", "€29", "€69", "€149", "Custom"] },
+      { label: "Accounts", values: ["0", "0", "1", "3", "10", "Unlimited"] },
+      { label: "Mate usage", values: [false, "1x", "3x", "10x", "20x", "Custom"] },
+      { label: "Storage", values: ["100 MB per workspace", "1 GB", "5 GB", "20 GB", "50 GB", "Custom"] },
+      { label: "People", values: ["1", "Unlimited", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
+      { label: "Records", values: ["250", "Unlimited", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
+      { label: "API", values: ["10/min, 200/day", true, true, true, true, true] },
+      { label: "Webhooks", values: [false, true, true, true, true, true] },
     ]);
   });
 
@@ -181,8 +201,8 @@ describe("catalog-backed pricing rendering", () => {
     expect(html).not.toContain('role="button"');
     expect(actions.map(({ plan, type, variant, children }) => ({ plan, type, variant, children }))).toEqual([
       { plan: "starter", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
-      { plan: "pro", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
-      { plan: "business", type: "button", variant: "default", children: "Subscription.picker.choose" },
+      { plan: "pro", type: "button", variant: "ink", children: "Subscription.picker.choose" },
+      { plan: "business", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
       { plan: "max", type: "button", variant: "secondary", children: "Subscription.picker.choose" },
     ]);
 
@@ -193,7 +213,23 @@ describe("catalog-backed pricing rendering", () => {
     });
   });
 
-  it("recommends Business and keeps every plan's checkout enabled", () => {
+  it("features the Pro trial plan with the follow-up outcome from the pricing page", () => {
+    const element = (PlanPicker as unknown as (props: ComponentProps<typeof PlanPicker>) => ReactElement)({
+      onSelect: vi.fn(),
+    });
+    const html = renderToStaticMarkup(element);
+    const featured = [...html.matchAll(/data-featured="true" data-plan="(\w+)"/g)].map((match) => match[1]);
+    const proCard = html.slice(html.indexOf('data-plan="pro"'), html.indexOf('data-plan="business"'));
+
+    expect(featured).toEqual(["pro"]);
+    expect(html.match(/Subscription\.picker\.bestForFollowUp/g)).toHaveLength(1);
+    expect(proCard).toContain("Subscription.picker.bestForFollowUp");
+    expect(proCard).toContain("Subscription.picker.taglines.pro");
+    for (const plan of ["starter", "pro", "business", "max"])
+      expect(html).toContain(`Subscription.picker.taglines.${plan}`);
+  });
+
+  it("labels Business for teams and keeps every plan's checkout enabled", () => {
     const onSelect = vi.fn();
     const element = (PlanPicker as unknown as (props: ComponentProps<typeof PlanPicker>) => ReactElement)({
       onSelect,
@@ -221,9 +257,9 @@ describe("catalog-backed pricing rendering", () => {
       ["business", false],
       ["max", false],
     ]);
-    expect(html.match(/Subscription\.picker\.recommended/g)).toHaveLength(1);
+    expect(html.match(/Subscription\.picker\.forTeams/g)).toHaveLength(1);
     expect(html).not.toContain("mostPopular");
-    expect(html.indexOf("Subscription.picker.recommended")).toBeLessThan(html.indexOf('data-plan="max"'));
-    expect(html.indexOf('data-plan="business"')).toBeLessThan(html.indexOf("Subscription.picker.recommended"));
+    expect(html.indexOf("Subscription.picker.forTeams")).toBeLessThan(html.indexOf('data-plan="max"'));
+    expect(html.indexOf('data-plan="business"')).toBeLessThan(html.indexOf("Subscription.picker.forTeams"));
   });
 });

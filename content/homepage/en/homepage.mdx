@@ -1,54 +1,221 @@
 ---
-title: "The Open-Source, AI-Native CRM"
-description: "Customermates is the open-source, AI-native CRM for small client-facing teams: customer records you configure, MCP for Claude, ChatGPT or Gemini on every plan, and on Customermates Cloud from Pro one inbox for email, LinkedIn, WhatsApp, Instagram and Telegram. Made in Germany, with the cloud database in Frankfurt, from [[commercial.price.starter.monthly]] per user per month."
+title: "The Open-Source CRM for Client Follow-Up"
+description: "Customermates is the open-source CRM for following up on every client conversation: LinkedIn and email beside each client, a dated next step on each deal, and Mate drafting replies you review and send. Made in Germany."
 rootMetadata:
-  defaultTitle: "Customermates: The Open-Source, AI-Native CRM"
-  defaultDescription: "The open-source, AI-native CRM for small client-facing teams: configurable records, email, LinkedIn and WhatsApp beside the contact, and AI for the next step."
+  defaultTitle: "Customermates: Follow Up Every Client | Open-Source AI CRM"
+  defaultDescription: "Follow up on every client conversation: LinkedIn and email threads on the client, a dated next step on each, and Mate drafting replies you review and send."
 
 hero:
-  title: and your AI,
-  titleAccent: in one workspace.
-  titleRotations:
-    - CRM
-    - Customer data
-    - Projects
-    - ERP
-    - Suppliers
-    - Campaigns
-    - Team tasks
-    - Business data
-  useCase: Customermates is the open-source CRM for small businesses, consultants, agencies, freelancers and startups. Contacts, organizations, deals and any list you configure live in one workspace, and Mate on Customermates Cloud or your own AI through MCP prepares the next step for your review.
-  subtitle: "On Customermates Cloud from Pro, one inbox for email, LinkedIn, WhatsApp, Instagram and Telegram. On every plan, connect ChatGPT, Claude, Gemini or Cursor through MCP and check its changes in the CRM."
-  buttonLeftText: Start a [[commercial.trial.days]]-day trial for €0
-  buttonLeftHref: /auth/signup
-  buttonRightText: Explore the live demo
-  buttonRightHref: "#product-demo"
-  startFree: ✓ No credit card required ✓ Cancel anytime ✓ Made in Germany
-  stage:
-    label: Product areas
-    live:
-      prompt: Try it live
-    tabs:
-      - capture: homepage-dashboard
-        label: Dashboard
-        caption: Widgets built from your own lists and fields
-        alt: Dashboard with open pipeline, value won in the last 12 months, average won deal, overdue tasks and pipeline by stage, using demo data
-      - capture: homepage-inbox
-        label: Inbox
-        caption: Email, LinkedIn, WhatsApp, Instagram and Telegram, on Cloud from Pro
-        alt: Customermates inbox with a WhatsApp conversation with Sophie Turner, using demo data
-      - capture: homepage-pipeline
-        label: Pipeline
-        caption: Deal value and stage on every card
-        alt: Deals board grouped by stage, from New and Qualified to Conversation and Proposal sent, using demo data
-      - capture: homepage-configure
-        label: Data model
-        caption: Your own lists, fields, relationships and calculations
-        alt: Data model with the Deals list, its line items and calculated fields such as value and weighted value, using demo data
-      - capture: homepage-routines
-        label: Routines
-        caption: Mate on a schedule or trigger, on Customermates Cloud
-        alt: Routines with owners and triggers, such as a morning pipeline briefing, follow-ups on stale deals and reply drafts, using demo data
+  title: Follow up on every client conversation.
+  subtitle: Connect LinkedIn and email. Mate or your own AI agent drafts each reply and the next step, and you review and send them in one place.
+  primaryCta:
+    label: Start your [[commercial.trial.days]]-day trial
+    href: /auth/signup?job=followup
+  secondaryCta:
+    label: Watch the film (70 s)
+    href: "#film"
+  assurance: No credit card · Open source (AGPL) · Database in Frankfurt · Works with your Claude or ChatGPT
+
+generator:
+  eyebrow: Start from one description
+  title: One description. A workspace your agent built.
+  description: This is what setup builds from one sentence. Sample data, the real product.
+  promptLabel: Your description to Mate
+  arrowLabel: became this workspace
+  steps:
+    - title: "Describe your business"
+      description: "One sentence about your team, your clients and how you sell."
+    - title: "Mate builds it"
+      description: "It asks a few questions, then creates the lists, pipeline, dashboard and playbook."
+    - title: "Work in it"
+      description: "Connect LinkedIn and email. Click through a finished example below."
+  items:
+    - solution: consultants
+      label: Consultancy
+      prompt: We're a four-person strategy consultancy. Track clients, engagements and proposals, and help us follow up with prospects on LinkedIn.
+      href: /for/consultants
+      linkLabel: Customermates for consultants
+    - solution: agencies
+      label: Agency
+      prompt: We're a design agency. Track pitches, retainers and projects, and hand every new client from sales to delivery.
+      href: /for/agencies
+      linkLabel: Customermates for agencies
+    - solution: smb
+      label: Small business
+      prompt: We're a small B2B service business. Keep customers, quotes and conversations in one place, and show us on the dashboard who to call back.
+      href: /for/smb
+      linkLabel: Customermates for small businesses
+    - solution: freelancers
+      label: Freelancer
+      prompt: I'm a freelance developer. Track clients, projects and follow-ups, so no lead goes cold while I'm busy delivering.
+      href: /for/freelancers
+      linkLabel: Customermates for freelancers
+    - solution: startups
+      label: Founder-led sales
+      prompt: We're two founders selling our software ourselves. Track leads, demos and trials, and help us follow up after every call.
+      href: /for/startups
+      linkLabel: Customermates for startups
+    - solution: linkedin-crm
+      label: LinkedIn sales
+      prompt: I sell through LinkedIn. Put every conversation next to its deal, draft my follow-ups and show me who is waiting for a reply.
+      href: /features/linkedin-integration
+      linkLabel: LinkedIn CRM integration
+
+followUp:
+  eyebrow: Every reply, handled
+  title: "Then it keeps up with you. Replies drafted, next steps on your dashboard."
+  description: "When a client writes, Mate drafts the answer from your playbook and puts the next step on your dashboard. You review, edit and send."
+  desk:
+    label: Example follow-up scene with demo data
+    workspace: Lindqvist Advisory
+    conversation:
+      label: LinkedIn
+      name: Jonas Weber
+      company: Halden & Co.
+      time: Fri 16:42
+      message: Sounds good. Could you send the revised scope next week? Then I can take it to our board.
+    agent:
+      name: Mate
+      intent: Drafting a reply from your proposal playbook
+      done: Draft saved. Next step added to your dashboard.
+    draft:
+      badge: Draft, waiting for your review
+      text: Hi Jonas, thank you. I'll send the revised scope on Tuesday, with the two workshop options we discussed. Best, Anna
+      edit: Edit
+      send: Send draft
+    today:
+      title: Dashboard
+      date: Tuesday
+      addedBy: Added by Mate
+      assign: Assign
+      sections:
+        - title: Next steps due
+          items:
+            - title: Send revised scope
+              meta: Halden & Co. · due today
+              owner: AL
+              state: added
+            - title: Chase the signed proposal
+              meta: Norrland Studio · 2 days overdue
+              owner: AL
+              state: overdue
+        - title: Proposals waiting for an answer
+          items:
+            - title: Norrland Studio proposal
+              meta: sent 5 days ago
+              owner: AL
+              state: due
+
+pillars:
+  eyebrow: How it works
+  title: Everything your follow-up needs, in one place. Four parts that work together.
+  description: Your knowledge, your client data and your conversations live together, so every agent that helps you works from the same facts.
+  knowledge:
+    title: Knowledge
+    description: Playbooks, prices and how you work, written once. Mate and connected agents use the pages their permissions allow.
+    plan: Every plan
+    doc:
+      title: Proposal playbook
+      lines:
+        - Send a revised scope within two business days.
+        - Always offer two workshop options.
+        - Sign off with the consultant's first name.
+      usedBy: Used for the draft to Jonas Weber
+  data:
+    title: Data
+    description: Clients, deals and any list your business needs, with your own fields, stages and views.
+    plan: Every plan
+    lists:
+      - Clients
+      - Engagements
+      - Proposals
+    record:
+      name: Halden & Co.
+      fields:
+        - label: Stage
+          value: Proposal sent
+        - label: Value
+          value: €18,400
+        - label: Next step
+          value: Send revised scope · Tue
+        - label: Owner
+          value: Anna Lindqvist
+  inbox:
+    title: Inbox
+    description: Email and LinkedIn, plus WhatsApp, Instagram and Telegram, beside the client each conversation belongs to.
+    plan: Cloud, from Pro
+    thread:
+      name: Jonas Weber
+      preview: Sounds good. Could you send the revised scope next week?
+      linkedTo: Linked to Halden & Co.
+  agents:
+    title: Agents
+    description: Mate is built in. Or connect the AI you already pay for, and it works with the same records and rules.
+    plan: Every plan, Mate on paid Cloud
+    clients:
+      - name: Mate
+        detail: Built in, on Customermates Cloud
+      - name: Claude
+        detail: Custom connector
+      - name: ChatGPT
+        detail: Custom connector
+      - name: Cursor, Codex, Gemini CLI
+        detail: API key
+
+proofAndPartners:
+  proof:
+    eyebrow: Built on our own work
+    title: We run our own sales on Customermates.
+    description: Our prospects, partners and conversations live in a Customermates workspace. AI agents connected through MCP prepare the replies and follow-ups. We approve each new kind of message once, and similar ones follow the rules we approved.
+    steps:
+      - A reply arrives on LinkedIn or by email
+      - An agent drafts the answer and the next step
+      - A new kind of message waits for our approval
+    note: The same product you start with today.
+  partners:
+    eyebrow: For VAs, agencies and automation builders
+    title: Run follow-up for your clients.
+    description: Set up one workspace per client, connect their channels and let agents prepare the work you deliver.
+    points:
+      - Up to [[commercial.workspaces.creationLimit]] workspaces per login, one per client
+      - Your own agents and recipes through MCP
+      - 35% commission on qualifying subscription payments
+    cta:
+      label: See the partner programme
+      href: /affiliate
+
+plansTeaser:
+  eyebrow: Pricing
+  title: Simple per-seat pricing. Start with [[commercial.trial.days]] days of Pro.
+  description: One monthly price per person, in euros. Your own Claude or ChatGPT subscription stays with its provider.
+  perSeat: per person/month
+  cta: Start your [[commercial.trial.days]]-day trial
+  ctaHref: /auth/signup?job=followup
+  compareLabel: Compare all plans
+  compareHref: /pricing
+  items:
+    - name: Starter
+      price: "[[commercial.price.starter.monthly]]"
+      job: Your workspace and your own AI
+      points:
+        - Lists, pipeline, dashboards and Knowledge Base
+        - MCP for Claude, ChatGPT and Cursor
+        - No inbox or connected accounts
+    - name: Pro
+      price: "[[commercial.price.pro.monthly]]"
+      job: Follow up from LinkedIn and email
+      badge: Best for follow-up
+      points:
+        - Unified inbox, [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per person
+        - Mate drafts replies, 3x Starter usage
+        - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per person"
+    - name: Business
+      price: "[[commercial.price.business.monthly]]"
+      job: Teams that share inboxes
+      points:
+        - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per person"
+        - Share a whole account with the team
+        - 10x Starter usage, priority support
 
 flow:
   eyebrow: How it works
@@ -106,7 +273,6 @@ pipelineStory:
     - Dashboards built from your own data
   capture:
     title: Pipeline.
-    caption: Stage, deal value, company, owner and close date on every card.
     alt: Deals board with the stages New, Qualified, Conversation and Proposal sent, using demo data
 
 routines:
@@ -118,13 +284,6 @@ routines:
     - Or when a record or message changes
     - Each routine runs as its owner, within their permissions
   alt: Routines list with owners, schedules, triggers and last runs, using demo data
-
-productProof:
-  videoLabel: Product film
-  videoHeading: See how the workflow fits together.
-  videoDescription: The 70-second film shows Mate turning your description into a workspace, keeping records current and drafting follow-ups for your review, and the agents you already use working in it through MCP.
-  videoTitle: Customermates 70-second product film
-  videoSrc: /customermates-film.mp4
 
 benefits:
   badge: Why Customermates
@@ -175,7 +334,7 @@ benefits:
       description: Keep tasks as records and add your own date or status fields when the workflow needs them.
     - icon: Filter
       title: Filters & Segments
-      description: Each user can save filters and views over shared CRM records and share a view with the team or selected roles.
+      description: Save filters and views over shared CRM records and share them with the whole team or with selected roles.
     - icon: Table
       title: Custom Fields
       description: Add typed fields such as choice, currency, date, member or channels, plus calculated fields, for filtering, grouping, and reporting.
@@ -216,9 +375,15 @@ pricingTitle:
 faq:
   title: Frequently asked questions
   faqs:
-    - id: faq-ai-native
-      title: What is an AI-native CRM?
-      content: "A CRM built for AI agents from the start. In Customermates, conversations and records share one context. Mate, the AI agent in Customermates Cloud, works within your plan's credits; your own Claude, ChatGPT, or Cursor connects through MCP on every plan. Both read that context within your permissions, draft replies, and update records. Mate also runs routines on a schedule or trigger. Drafts wait for your review, and the core is open source."
+    - id: faq-keep-crm
+      title: Do I have to replace my CRM?
+      content: "No. You can start by connecting LinkedIn or email and use Customermates for conversations, drafts and next steps while your current CRM keeps the pipeline. Import contacts from an Excel workbook whenever you want, and connect other tools through the REST API, webhooks or n8n. There is no built-in two-way sync with other CRMs."
+    - id: faq-mate-send
+      title: Does Mate send messages on its own?
+      content: "Mate saves reply drafts for your review in the conversation. It sends when you ask it to, or when you set up a routine that sends. Your own AI client follows the permissions of the account it connects with."
+    - id: faq-free
+      title: Is there a free plan?
+      content: "Yes, to try it alone: Customermates Cloud is free for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records. Your first workspace starts with Pro free for [[commercial.trial.days]] days without a credit card and then moves to Free unless you choose a paid plan; every further workspace starts by choosing a plan. Free has no inbox, Mate or routines. You can also self-host the open-source core for free with the Starter feature set."
     - id: faq-who
       title: Who is Customermates for?
       content: "Small client-facing teams: small businesses, consultants, agencies, freelancers and startups. It also fits by workflow: client management, a sales pipeline, LinkedIn conversations or WhatsApp customer contact. Each of these has its own page under Solutions and an example workspace with sample data you can explore. The example lists show one way to configure Customermates; your own workspace starts empty and holds the lists you create."
@@ -227,28 +392,44 @@ faq:
       content: "It is not the right fit for everyone, but it is different in ways that matter to small client-facing teams. External AI clients such as Claude, ChatGPT or Cursor operate the CRM directly through MCP with [[derived.mcp.tools.total]] tools. On Customermates Cloud from Pro, email, LinkedIn, WhatsApp, Instagram and Telegram conversations sit next to the contact in one unified inbox. The core is open source (AGPL-3.0) and can be self-hosted, and the managed cloud database runs in the AWS Frankfurt region. If you need marketing automation, sequences, quotes or invoicing, a larger suite fits better."
     - id: faq-plans
       title: Which features need which plan?
-      content: "Core CRM, MCP, REST API, webhooks and the n8n node are in every plan, including self-hosting. The inbox is on Customermates Cloud from Pro: on Pro you connect your own accounts and share single threads; sharing a whole connected account with the team needs Business, Max or Enterprise. Mate, routines and AI setup run on Customermates Cloud only, within each plan's credits. A self-hosted instance has the Starter feature set without the inbox, Mate or AI setup."
-    - id: faq-2
-      title: How does the integration with n8n work?
-      content: Use the REST API and webhooks, or the published community node, to connect an n8n instance you operate or subscribe to. n8n is a separate product and is not bundled with Customermates.
-    - id: faq-3
-      title: How do I set up my workspace?
-      content: "A new workspace starts without lists. On Customermates Cloud, AI setup builds lists, stages, a dashboard and Knowledge Base pages from your description once at onboarding, within a credit cap; you can skip it and start with an empty workspace. Otherwise people with Configure rights create lists and fields in Configure and import records from an Excel workbook. Migration, external-client setup, and integration effort depend on your source data and systems."
+      content: "Core CRM, MCP and the REST API are in every plan, including Free and self-hosting; webhooks and the n8n node come with every paid plan and self-hosting. The inbox is on Customermates Cloud from Pro: on Pro you connect your own accounts and share single threads; sharing a whole connected account with the team needs Business, Max or Enterprise. Mate, routines and AI setup run on Customermates Cloud only, within each paid plan's credits. A self-hosted instance has the Starter feature set without the inbox, Mate or AI setup."
     - id: faq-4
       title: Where is my data stored?
       content: The managed database runs in the AWS Frankfurt region, while application hosting and other providers, including US providers, are listed on our Subprocessors page. You can self-host the AGPL core CRM application and PostgreSQL with the Starter feature set; the unified inbox, calendar view, AI setup, Mate and Routines remain managed-cloud features, and connected providers remain separate.
-    - id: faq-5
-      title: Why is your CRM cheaper than others?
-      content: "We have no investors to pay back and run a lean team, so we do not need enterprise-style pricing. There is one monthly price per seat, starting at [[commercial.price.starter.monthly]] on Starter, and every core CRM feature is included from Starter. The core is open source, so you can also self-host it. Mate and Routines use the hosted AI credits included in each cloud plan. External AI clients, automation tools, and messaging providers you connect keep their own subscriptions and usage costs."
 
 closingEyebrow: Customermates
 
 cta:
-  action: Ready to get started?
-  description: Explore an example small-business workspace with sample data, or start your own trial on Customermates Cloud. Your workspace starts empty, and AI setup or Configure builds the lists you need.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Explore the workspace
-  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
-  hint: ✓ No credit card required ✓ First [[commercial.trial.days]] days free
+  action: Ready to follow up on every client?
+  description: Start with one channel and one client. Your trial runs [[commercial.trial.days]] days on Pro without a credit card, or explore a consultancy demo workspace first.
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explore the demo
+  buttonRightHref: https://demo.customermates.com/en/w/consultants/dashboard
+  hint: No credit card · Cancel anytime · Made in Germany
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "Pick the job. The workspace follows."
+  items:
+    - title: "Follow up on LinkedIn conversations"
+      description: "LinkedIn and email threads sit on the client. Mate drafts the reply and dates the next step, and you review and send it in the conversation."
+      href: /features/linkedin-integration
+      linkLabel: "See LinkedIn in the inbox"
+      visual: conversation
+    - title: "Follow up on every proposal after the call"
+      description: "Clients, engagements and proposals with the conversations behind them, and a dated next step on each."
+      href: /for/consultants
+      linkLabel: "CRM for consultants"
+      visual: proposal
+    - title: "Keep client next steps on one dashboard"
+      description: "Every client gets a dated next step, and your dashboard shows what is due across all of them."
+      href: /features/follow-up
+      linkLabel: "See follow-up"
+      visual: dashboard
+    - title: "Let your own Claude or ChatGPT work in your CRM"
+      description: "Connect Claude, ChatGPT, Cursor or another MCP client. It reads and updates your workspace within your permissions."
+      href: /features/integrations
+      linkLabel: "Connect your agent"
+      visual: agent
 ---

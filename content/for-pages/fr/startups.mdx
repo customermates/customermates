@@ -1,6 +1,6 @@
 ---
-title: "CRM pour startups : vente B2B menée par les fondateurs"
-description: "Un CRM pour la vente B2B menée par les fondateurs : prospects, opportunités et investisseurs dans un espace configurable, avec accès MCP pour votre client IA."
+title: "CRM pour startups : relancer chaque affaire de fondateur"
+description: "Un CRM pour la vente B2B menée par les fondateurs : fils LinkedIn et e-mail sur le prospect, étape datée par affaire, Mate ou votre client IA rédige."
 industryName: "Startups"
 
 relatedHrefs:
@@ -10,25 +10,150 @@ relatedHrefs:
   - /for/smb
 
 hero:
-  title: "Un CRM pour la vente B2B menée par les fondateurs"
-  description: "Pour les fondateurs qui vendent eux-mêmes à des entreprises : gardez reliés les organisations prospects, les contacts, les opportunités de vente et la prochaine étape, et laissez votre propre client IA lire ou modifier les enregistrements autorisés via MCP. Pas d’enrichissement de leads, de séquences, de prospection automatisée ni de prévisions prédictives."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "Un CRM pour la vente menée par les fondateurs : relancez avant qu’un prospect ne se taise"
+  description: Pour les fondateurs qui vendent eux-mêmes aux entreprises. Les conversations avec les prospects sont sur la fiche, Mate ou votre propre client IA rédige la réponse et la prochaine étape, et vous relisez et envoyez. Sans enrichissement de leads ni prospection sortante.
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/founder-sales/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+landing:
+  hero:
+    eyebrow: Pour les startups B2B menées par leurs fondateurs
+    title: "Un CRM pour la vente menée par les fondateurs : relancez chaque prospect"
+    description: Prospects, contacts et les fils LinkedIn et e-mail derrière, dans un seul espace. Mate, ou votre propre client IA via MCP, rédige la réponse et la prochaine étape, et vous relisez et envoyez.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Parler à Ben, 15 minutes
+      href: /contact
+  facts: Sans carte bancaire · Gardez vos outils actuels · Pro dès [[commercial.price.pro.monthly]] par personne/mois
+  generator:
+    eyebrow: À partir d’une seule description
+    title: Votre vente, décrite une fois. Construite pour vous.
+    description: La configuration IA pose quelques questions et construit prospects, opportunités, votre pipeline et votre guide. Voici l’exemple de vente menée par les fondateurs ; explorez-le.
+    promptLabel: Votre description pour Mate
+    arrowLabel: est devenue cet espace
+    prompt: Nous sommes deux fondateurs et vendons un produit B2B. Suis nos prospects, pilotes et investisseurs, et aide-nous à relancer avant qu’un pilote ne s’éteigne.
+  followUp:
+    eyebrow: Un message du jeudi, traité
+    title: Un prospect demande les réponses sécurité avant la revue de vendredi. La réponse et la prochaine étape attendent votre relecture.
+    description: Le fil LinkedIn est rattaché au prospect. Mate rédige la réponse à partir de votre guide de vente, date la prochaine étape et laisse le brouillon à relire.
+    desk:
+      label: Scène de suivi client avec des données de démonstration
+      workspace: Fenn Labs
+      conversation:
+        label: LinkedIn
+        name: Elena Marsh
+        company: Fieldwork Analytics
+        time: jeu. 18:10
+        message: Le périmètre du pilote me convient. Pourriez-vous nous envoyer les réponses sécurité avant notre revue de vendredi ?
+      agent:
+        name: Mate
+        intent: Rédige une réponse à partir de votre guide de vente
+        done: Brouillon enregistré. Prochaine étape ajoutée à votre tableau de bord.
+      draft:
+        badge: Brouillon, en attente de votre relecture
+        text: Bonjour Elena, merci. Je vous envoie les réponses sécurité demain matin, avec le périmètre du pilote dont nous avons parlé. Bien à vous, Jonas
+        edit: Modifier
+        send: Envoyer le brouillon
+      today:
+        title: Tableau de bord
+        date: vendredi
+        addedBy: Ajouté par Mate
+        assign: Attribuer
+        sections:
+          - title: Prochaines étapes à traiter
+            items:
+              - title: Envoyer les réponses sécurité
+                meta: Fieldwork Analytics · à faire aujourd’hui
+                owner: JF
+                state: added
+              - title: Demander la décision sur le pilote
+                meta: Kaplan Systems · en retard de 2 jours
+                owner: JF
+                state: overdue
+          - title: Opportunités sans réponse
+            items:
+              - title: Pilote Kaplan Systems
+                meta: proposé il y a 5 jours
+                owner: JF
+                state: due
+  beforeAfter:
+    eyebrow: Ce qui change
+    title: Avant et après. Les mêmes prospects, chacun avec une prochaine étape.
+    before:
+      label: Avant
+      points:
+        - Des prospects répartis entre deux boîtes de réception et un tableur
+        - La relance promise dépend de qui s’en souvient
+        - Un nouveau commercial repart de zéro
+    after:
+      label: Avec Customermates
+      points:
+        - Chaque opportunité ouverte a une prochaine étape avec une date
+        - Les conversations et la prochaine étape sont sur la fiche du prospect
+        - Le premier commercial hérite de l’historique
+  steps:
+    eyebrow: Pour commencer
+    title: Trois étapes. Jusqu’à votre première relance.
+    items:
+      - title: Décrivez votre façon de vendre
+        description: La configuration IA construit prospects, opportunités, votre pipeline et votre guide à partir d’une description et de quelques réponses.
+      - title: Connectez LinkedIn ou l’e-mail
+        description: Les conversations arrivent sur le prospect dont l’adresse e-mail ou le profil LinkedIn correspond. Sur Pro, un compte connecté par personne.
+      - title: Relisez les relances depuis votre tableau de bord
+        description: Mate ou votre propre client IA rédige la réponse et date la prochaine étape, quand vous le demandez ou via une routine que vous configurez. Vous modifiez, envoyez ou ignorez.
+  plan:
+    eyebrow: Tarifs
+    title: Pro suffit. [[commercial.price.pro.monthly]] par personne et par mois.
+    description: Un premier commercial qui répond depuis une boîte de vente partagée demande Business à [[commercial.price.business.monthly]]. Votre abonnement Claude ou ChatGPT reste chez son fournisseur.
+    limits: Ne convient pas si vous avez besoin d’enrichissement de leads, de séquences, d’appels ou d’une plateforme de levée de fonds. D’autres outils restent là pour ces besoins.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Comparer toutes les offres
+      href: /pricing
 
 cta:
-  action: Découvrez un espace de travail de vente de fondateurs avant de construire le vôtre
+  action: Découvrez le bureau de relances d’un fondateur avant de construire le vôtre
   description: "Ouvrez l’espace de travail d’exemple avec ses données fictives. Votre propre espace de travail commence sans listes : sur Customermates Cloud, la configuration IA les construit à partir de votre description, ou vous les créez dans Configurer et importez un classeur Excel. Facturation mensuelle par utilisateur."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/founder-sales/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+useCases:
+  eyebrow: Comment l’utiliser
+  title: Pour les fondateurs. Quatre besoins, un seul espace.
+  items:
+    - title: Relancer avant qu’un prospect ne se taise
+      description: Triez les opportunités par la date de leur prochaine étape, pour que la relance promise après un appel soit sur votre liste.
+      href: /features/follow-up
+      linkLabel: Voir le suivi client
+      visual: dashboard
+    - title: Préparer un échange avec un prospect
+      description: Ouvrez un prospect et voyez avant l’appel les contacts, le dernier échange et la prochaine étape.
+      href: /features/sales
+      linkLabel: Voir la vente
+      visual: proposal
+    - title: Votre propre client IA via MCP
+      description: Laissez Claude, ChatGPT ou Cursor lire ou mettre à jour via MCP les fiches que vous autorisez.
+      href: /features/integrations
+      linkLabel: Connecter votre agent
+      visual: agent
+    - title: Transmettre les affaires au premier commercial
+      description: Affaires, contacts et prochaines étapes sont déjà dans un seul espace quand votre premier commercial arrive.
+      href: /features/pipeline
+      linkLabel: Voir le pipeline
+      visual: pipeline
 ---
 
-Dans une startup B2B à ses débuts, les fondateurs sont l’équipe commerciale. Les affaires démarrent par une introduction chaleureuse, un message LinkedIn ou une conversation lors d’un évènement, et le contexte vit dans deux boîtes de réception et un tableur. Un CRM pour startups devient utile dès que la deuxième personne parle aux clients, ou la première fois qu’une relance promise passe à la trappe. Customermates est un CRM open source et IA natif conçu en Allemagne. Il garde les organisations prospects, les contacts, les opportunités de vente et la prochaine étape dans un espace de travail configurable, et laisse un client IA que vous utilisez déjà lire ou modifier les enregistrements qu’il a le droit de voir. Il ne trouve pas de leads pour vous, ne les enrichit pas et n’envoie pas de prospection en votre nom.
+Dans une startup B2B à ses débuts, les fondateurs sont l’équipe commerciale. Les affaires démarrent par une introduction chaleureuse, un message LinkedIn ou une conversation lors d’un évènement, et le contexte vit dans deux boîtes de réception et un tableur. Un CRM pour startups devient utile dès que la deuxième personne parle aux clients, ou la première fois qu’une relance promise passe à la trappe. Customermates est un CRM open source et IA natif conçu en Allemagne. Il garde les organisations prospects, les contacts, les opportunités de vente et la prochaine étape dans un espace de travail configurable, et laisse un client IA que vous utilisez déjà lire ou modifier les enregistrements qu’il a le droit de voir. Dès Pro sur Customermates Cloud, les fils LinkedIn et e-mail sont rattachés au prospect, et Mate, ou votre propre client IA via MCP, rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez. Il ne trouve pas de leads pour vous, ne les enrichit pas et n’envoie pas de prospection en votre nom.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Pour qui">
@@ -126,15 +251,15 @@ La [boîte de réception unifiée](/features/unified-inbox) réunit l’e-mail d
 
 Les participants sont associés aux contacts par leur e-mail, leur téléphone ou leur identité LinkedIn. Une conversation n’est liée à une opportunité ou à une organisation que lorsqu’une personne, ou un agent à qui vous le demandez, la lie ; elle n’est jamais classée automatiquement.
 
-Mate, l’assistant de Customermates Cloud, peut résumer une opportunité, mettre à jour des enregistrements et rédiger des réponses. Il fonctionne sur toutes les formules cloud dans la limite des crédits IA hébergés de votre formule et est désactivé en auto-hébergement. Mate met à jour les enregistrements et envoie des messages dès que vous le lui demandez ; seules les suppressions, les imports, les changements d’accès et les modifications destructives du modèle de données attendent votre validation. Un brouillon attend que vous le modifiiez ou l’envoyiez : demandez des brouillons quand vous voulez relire d’abord. Une [routine](/docs/app-routines) exécute une instruction enregistrée selon un calendrier ou lorsqu’un enregistrement change, appartient à un utilisateur et se limite à ce que cet utilisateur voit.
+Mate, l’assistant de Customermates Cloud, peut résumer une opportunité, mettre à jour des enregistrements et rédiger des réponses. Il fonctionne sur toutes les formules cloud payantes dans la limite des crédits IA hébergés de votre formule et est désactivé en auto-hébergement. Mate met à jour les enregistrements et envoie des messages dès que vous le lui demandez ; seules les suppressions, les imports, les changements d’accès et les modifications destructives du modèle de données attendent votre validation. Un brouillon attend que vous le modifiiez ou l’envoyiez : demandez des brouillons quand vous voulez relire d’abord. Une [routine](/docs/app-routines) exécute une instruction enregistrée selon un calendrier ou lorsqu’un enregistrement change, appartient à un utilisateur et se limite à ce que cet utilisateur voit.
 
 ## Passer les affaires au premier commercial
 
-Assignez le nouveau venu aux opportunités qu’il reprend et filtrez par utilisateur assigné. Un rôle personnalisé peut limiter son accès en lecture aux enregistrements assignés pour les prospects, les contacts et les opportunités. Une limite à connaître : il n’y a pas de droits par champ. Les conversations du compte propre d’un fondateur restent privées jusqu’à ce que le fondateur partage un fil, ou le compte entier sur Business ou au-dessus.
+Assignez le nouveau venu aux opportunités qu’il reprend et filtrez par utilisateur assigné. Un rôle personnalisé peut limiter son accès en lecture aux enregistrements assignés pour les prospects, les contacts et les opportunités. Deux limites à connaître : une vue partagée est en lecture seule pour vos collègues, et il n’y a pas de droits par champ. Les conversations du compte propre d’un fondateur restent privées jusqu’à ce que le fondateur partage un fil, ou le compte entier sur Business ou au-dessus.
 
 ## Intégrations
 
-Chaque formule, auto-hébergement compris, a une [API REST](/features/api), des webhooks et un nœud communautaire n8n. Votre produit peut créer un contact quand quelqu’un s’inscrit, et un webhook sur un changement d’opportunité peut notifier un workflow n8n exploité séparément ou un webhook entrant Slack ; il n’y a pas d’application Slack native. La [page des intégrations](/features/integrations) liste ce qui se connecte.
+Chaque formule, auto-hébergement compris, a une [API REST](/features/api) ; les webhooks et les déclencheurs n8n qui en dépendent sont inclus dans toutes les formules payantes et en auto-hébergement. Votre produit peut créer un contact quand quelqu’un s’inscrit, et un webhook sur un changement d’opportunité peut notifier un workflow n8n exploité séparément ou un webhook entrant Slack ; il n’y a pas d’application Slack native. La [page des intégrations](/features/integrations) liste ce qui se connecte.
 
 ## Ce que Customermates ne fait pas pour les startups
 
@@ -143,7 +268,7 @@ Chaque formule, auto-hébergement compris, a une [API REST](/features/api), des 
 - Pas de prévisions prédictives ; la valeur pondérée reprend vos propres pourcentages d’étape.
 - Pas d’appels, de SMS, de formulaires web, de prise de rendez-vous ni d’applications mobiles natives.
 - Pas de plateforme de levée de fonds, de table de capitalisation ni de data room.
-- Pas de formule hébergée gratuite et pas de remise pour startups.
+- Pas de remise pour startups. La formule gratuite s’arrête à [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate.
 
 Si l’un de ces points est ce qu’il vous faut, regardez un outil conçu pour cela. Customermates publie cette page : lisez donc le tableau comme des pistes, pas comme un classement. Les informations sur les éditeurs ont été vérifiées le 8 octobre 2026 sur le site de chacun.
 
@@ -196,6 +321,6 @@ Non. Un nouvel espace de travail commence sans listes. Sur Customermates Cloud, 
 </FaqItem>
 
 <FaqItem question="Customermates est-il gratuit pour les startups ?">
-Non. Il y a un essai de [[commercial.trial.days]] jours sans carte bancaire, puis des formules à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois, facturées au mois. Il n’y a ni formule hébergée gratuite ni remise pour startups. Le cœur open source peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate. Notre [sélection de CRM pour startups](/blog/best-crm-startups) compare d’autres options.
+Il y a un essai de [[commercial.trial.days]] jours sans carte bancaire. La formule gratuite couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements sans boîte de réception ni Mate, et les formules payantes démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturées au mois. Il n’y a pas de remise pour startups. Le cœur open source peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate. Notre [sélection de CRM pour startups](/blog/best-crm-startups) compare d’autres options.
 </FaqItem>
 </Faq>

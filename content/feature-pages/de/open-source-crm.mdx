@@ -29,10 +29,10 @@ acquisition:
       - claim:no-hosted-ai-self-hosted
       - claim:no-invoicing
   cta:
-    action: Prüfen Sie das Open Source CRM mit Ihrem eigenen Ablauf
-    description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, lassen Sie die KI-Einrichtung Ihren Workspace entwerfen und testen Sie ihn mit echten Kontakten und Deals. Der Self-Hosted-Weg mit Docker bleibt daneben offen.
+    action: "Prüfen Sie das Open Source CRM an Ihrem eigenen Nachfassen"
+    description: "Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, verbinden Sie ein E-Mail- oder LinkedIn-Konto und lassen Sie die KI-Einrichtung Ihren Workspace entwerfen. Der Self-Hosted-Weg mit Docker bleibt daneben offen."
     buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
-    buttonLeftHref: /auth/signup
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Self-Hosting mit Docker
     buttonRightHref: /features/self-hosted
     hint: "Keine Kreditkarte erforderlich. Self-Hosting umfasst den Funktionsumfang von Starter, ohne gehosteten Posteingang und ohne Mate."
@@ -46,9 +46,9 @@ acquisition:
     locale: de
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Open Source CRM: in der Cloud starten oder Self-Hosted betreiben"
-      body: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Managed Cloud mit Pro-Funktionen kostenlos und ohne Kreditkarte, oder betreiben Sie den Kern selbst mit Docker Compose und PostgreSQL."
-      checksum: fnv1a-5a44dadf
+      headline: "Open Source CRM zum Nachfassen: in der Cloud starten oder selbst hosten"
+      body: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Cloud mit Pro-Funktionen kostenlos, mit LinkedIn- und E-Mail-Gesprächen beim Kunden und Entwürfen von Mate, oder betreiben Sie den Kern selbst mit Docker Compose."
+      checksum: fnv1a-cbc8acb5
     kind: none
     reason: "Die frühe Dashboard-Demo ist der direkte Produktbeleg; ein zusätzliches Hero-Bild ist nicht nötig."
     selection: explicit
@@ -58,20 +58,49 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "So testen Sie Customermates in der Cloud"
+    items:
+      - title: "Konto anlegen"
+        description: "Registrieren Sie sich und legen Sie Ihren ersten Workspace an. Er erhält [[commercial.trial.days]] Tage mit Pro-Funktionen, ohne Kreditkarte."
+      - title: "Workspace beschreiben"
+        description: "Beantworten Sie einige Fragen zu Kunden, Vertrieb und Zahlen oder lassen Sie Ihre Website lesen. Die KI-Einrichtung zeigt einen Plan mit Listen, Pipeline-Phasen, Feldern, Dashboard und Seiten der Wissensdatenbank, den Sie bestätigen oder anpassen."
+      - title: "Eigene Daten einspielen"
+        description: "Importieren Sie eine Excel-Arbeitsmappe (XLSX) oder starten Sie mit Beispieldaten, um Ansichten und Pipeline zu prüfen."
+      - title: "Eigene KI verbinden"
+        description: "Verbinden Sie bei Bedarf Claude, ChatGPT oder einen anderen MCP-Client. Mate arbeitet im Workspace mit den Rechten des Nutzers, und Löschungen, Importe und Änderungen an Zugriffsrechten brauchen Ihre Freigabe."
+      - title: "Tarif wählen"
+        description: "Passt Customermates, wählen Sie einen Tarif. Ohne Checkout wird nichts abgerechnet; nach der Testphase wechselt der Workspace in den kostenlosen Free-Tarif, bis Sie einen Tarif wählen."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-record
+    items:
+      - title: "Open Source"
+        description: "Selbst entwickelter Code außerhalb von ee/ steht unter AGPL-3.0-only. Der Quellcode liegt im öffentlichen Repository."
+      - title: "Schnellster Start"
+        description: "Managed Cloud mit [[commercial.trial.days]] Tagen Pro-Funktionen, ohne Kreditkarte. Die KI-Einrichtung entwirft Listen, Pipeline, Dashboard und Wissensdatenbank."
+      - title: "Self-Hosted"
+        description: "Zwei Container mit Docker Compose: die Anwendung und PostgreSQL 16, im Funktionsumfang von Starter und ohne Abrechnung."
+      - title: "Grenze"
+        description: "Posteingang, verbundene Kalender, Mate und die KI-Einrichtung gibt es nur in der Cloud. Rechnungen, Angebote und Telefonie fehlen in beiden Varianten."
+
 hero:
-  title: "Open Source CRM: in der Cloud starten oder Self-Hosted betreiben"
-  description: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Managed Cloud mit Pro-Funktionen kostenlos und ohne Kreditkarte, oder betreiben Sie den Kern selbst mit Docker Compose und PostgreSQL."
+  title: "Open Source CRM zum Nachfassen: in der Cloud starten oder selbst hosten"
+  description: "Customermates ist ein Open Source CRM aus Deutschland mit AGPL-Kern und öffentlichem Quellcode. Testen Sie die Cloud mit Pro-Funktionen kostenlos, mit LinkedIn- und E-Mail-Gesprächen beim Kunden und Entwürfen von Mate, oder betreiben Sie den Kern selbst mit Docker Compose."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
-  buttonLeftHref: /auth/signup
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Self-Hosting mit Docker
   buttonRightHref: /features/self-hosted
   hint: "Keine Kreditkarte erforderlich • Cloud danach ab [[commercial.price.starter.monthly]] pro Nutzer und Monat • Self-Hosted ohne Abrechnung"
 
 cta:
-  action: Prüfen Sie das Open Source CRM mit Ihrem eigenen Ablauf
-  description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, lassen Sie die KI-Einrichtung Ihren Workspace entwerfen und testen Sie ihn mit echten Kontakten und Deals. Der Self-Hosted-Weg mit Docker bleibt daneben offen.
+  action: "Prüfen Sie das Open Source CRM an Ihrem eigenen Nachfassen"
+  description: "Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase in der Cloud, verbinden Sie ein E-Mail- oder LinkedIn-Konto und lassen Sie die KI-Einrichtung Ihren Workspace entwerfen. Der Self-Hosted-Weg mit Docker bleibt daneben offen."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
-  buttonLeftHref: /auth/signup
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Self-Hosting mit Docker
   buttonRightHref: /features/self-hosted
   hint: "Keine Kreditkarte erforderlich. Self-Hosting umfasst den Funktionsumfang von Starter, ohne gehosteten Posteingang und ohne Mate."
@@ -79,25 +108,7 @@ cta:
 
 **Customermates ist ein Open Source CRM** für kleine Teams: Kontakte, Organisationen, Deals und Aufgaben in Listen, die Sie selbst konfigurieren, mit REST, Webhooks und MCP für KI-Agenten. Der Kern steht unter AGPL-3.0 und liegt öffentlich auf GitHub. Sie starten in der Managed Cloud mit einer kostenlosen Pro-Testphase ohne Kreditkarte oder betreiben den Kern Self-Hosted mit Docker Compose und PostgreSQL.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Open Source">
-    Selbst entwickelter Code außerhalb von `ee/` steht unter AGPL-3.0-only. Der
-    Quellcode liegt im öffentlichen Repository.
-  </SummaryItem>
-  <SummaryItem label="Schnellster Start">
-    Managed Cloud mit [[commercial.trial.days]] Tagen Pro-Funktionen, ohne
-    Kreditkarte. Die KI-Einrichtung entwirft Listen, Pipeline, Dashboard und
-    Wissensdatenbank.
-  </SummaryItem>
-  <SummaryItem label="Self-Hosted">
-    Zwei Container mit Docker Compose: die Anwendung und PostgreSQL 16, im
-    Funktionsumfang von Starter und ohne Abrechnung.
-  </SummaryItem>
-  <SummaryItem label="Grenze">
-    Posteingang, verbundene Kalender, Mate und die KI-Einrichtung gibt es nur in
-    der Cloud. Rechnungen, Angebote und Telefonie fehlen in beiden Varianten.
-  </SummaryItem>
-</ArticleSummary>
+**Warum Nachfassen eine Cloud-Funktion ist.** Die Arbeit am Nachfassen, also LinkedIn- und E-Mail-Gespräche beim Kunden und Entwürfe von Mate, läuft in Customermates Cloud ab Pro. Der Self-Hosted-Kern ist dasselbe Open Source CRM mit Datensätzen, Ansichten, REST, Webhooks und MCP für Ihren eigenen KI-Client, ohne Posteingang und ohne Mate. Testen Sie zuerst die Cloud, wenn Sie entworfenes Nachfassen wollen, und hosten Sie selbst, wenn die Kontrolle darüber, wo die Daten laufen, wichtiger ist.
 
 <ProofRail label="Fakten zum Open Source CRM">
   <ProofItem label="Lizenz">AGPL-3.0-Kern</ProofItem>
@@ -138,38 +149,6 @@ Self-Hosting passt, wenn Ihr Team Docker und PostgreSQL betreiben kann und der F
   Anhängen per Import gibt es nicht. Ein gekaufter Cloud-Tarif schaltet in
   einer Self-Hosted-Installation nichts frei.
 </AcquisitionCallout>
-
-## So testen Sie Customermates in der Cloud
-
-<Steps>
-  <Step title="Konto anlegen">
-    [Registrieren Sie sich](/auth/signup) und legen Sie Ihren ersten Workspace
-    an. Er erhält [[commercial.trial.days]] Tage mit Pro-Funktionen, ohne
-    Kreditkarte.
-  </Step>
-  <Step title="Workspace beschreiben">
-    Beantworten Sie einige Fragen zu Kunden, Vertrieb und Zahlen oder lassen Sie
-    Ihre Website lesen. Die KI-Einrichtung zeigt einen Plan mit Listen,
-    Pipeline-Phasen, Feldern, Dashboard und Seiten der Wissensdatenbank, den Sie
-    bestätigen oder anpassen.
-  </Step>
-  <Step title="Eigene Daten einspielen">
-    Importieren Sie eine Excel-Arbeitsmappe (XLSX) oder starten Sie mit
-    Beispieldaten, um Ansichten und Pipeline zu prüfen.
-  </Step>
-  <Step title="Eigene KI verbinden">
-    Verbinden Sie bei Bedarf Claude, ChatGPT oder einen anderen MCP-Client.
-    Mate arbeitet im Workspace mit den Rechten des Nutzers, und sensible
-    Aktionen brauchen Ihre Freigabe.
-  </Step>
-  <Step title="Tarif wählen">
-    Passt Customermates, wählen Sie einen Tarif. Ohne Checkout wird nichts
-    abgerechnet; nach der Testphase pausiert der Workspace, bis ein Tarif
-    gewählt ist.
-  </Step>
-</Steps>
-
-Die Tarife und was sie enthalten, stehen auf der Seite [Preise](/pricing).
 
 ## So betreiben Sie Customermates Self-Hosted
 

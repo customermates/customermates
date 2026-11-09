@@ -60,10 +60,6 @@ describe("WorkspacePlanService", () => {
     ["a lapsed paid subscription", plan({ status: SubscriptionStatus.expired })],
     ["an unpaid subscription", plan({ status: SubscriptionStatus.unPaid })],
     [
-      "an ended trial",
-      plan({ status: SubscriptionStatus.trial, lemonSqueezyId: null, trialEndDate: new Date(Date.now() - DAY_MS) }),
-    ],
-    [
       "an expired Enterprise plan",
       plan({
         status: SubscriptionStatus.expired,
@@ -79,6 +75,17 @@ describe("WorkspacePlanService", () => {
       await expect(service(found).canCreateIntegrations("company-1")).resolves.toBe(false);
     },
   );
+
+  it("keeps existing and new integrations of a workspace whose trial ended, because it moved to Free", async () => {
+    const ended = plan({
+      status: SubscriptionStatus.trial,
+      lemonSqueezyId: null,
+      trialEndDate: new Date(Date.now() - DAY_MS),
+    });
+
+    await expect(service(ended).canUseIntegrations("company-1")).resolves.toBe(true);
+    await expect(service(ended).canCreateIntegrations("company-1")).resolves.toBe(true);
+  });
 
   it.each(["self-hosted", "demo"] as const)("does not consult the plan in %s mode", async (mode) => {
     mocks.env.APP_MODE = mode;

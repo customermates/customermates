@@ -1,6 +1,6 @@
 ---
-title: "CRM for Startups: Founder-Led B2B Sales"
-description: "A CRM for founder-led B2B sales: prospects, opportunities and investor relationships in one configurable workspace, with MCP access for your own AI client."
+title: "CRM for Startups: Follow Up on Every Founder-Led Deal"
+description: "A CRM for founder-led B2B sales: LinkedIn and email threads on the prospect, a dated next step per deal, and Mate or your own AI client drafting replies."
 industryName: "Startups"
 
 relatedHrefs:
@@ -10,25 +10,150 @@ relatedHrefs:
   - /for/smb
 
 hero:
-  title: "A CRM for founder-led B2B sales"
-  description: "For founders who sell to businesses themselves: keep prospect organizations, contacts, sales opportunities and the next step connected, and let your own AI client read or update permitted records through MCP. No lead enrichment, sequences, automated outbound or predictive forecasting."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "A CRM for founder-led sales: follow up before a prospect goes quiet"
+  description: For founders who sell to businesses themselves. Prospect conversations sit on the record, Mate or your own AI client drafts the reply and the next step, and you review and send it. No lead enrichment or outbound.
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/founder-sales/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+landing:
+  hero:
+    eyebrow: For founder-led B2B startups
+    title: The CRM for founder-led sales that keeps every prospect conversation moving.
+    description: Prospects, contacts and the LinkedIn and email threads behind them in one workspace. Mate, or your own AI client through MCP, drafts the reply and the next step, and you review and send it.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Talk to Ben, 15 minutes
+      href: /contact
+  facts: No credit card · Keep your current tools · Pro from [[commercial.price.pro.monthly]] per person/month
+  generator:
+    eyebrow: Start from one description
+    title: Your sales motion, described once. Built for you.
+    description: AI setup asks a few questions and builds prospects, opportunities, your pipeline and your playbook. This is the founder-sales example; click around.
+    promptLabel: Your description to Mate
+    arrowLabel: became this workspace
+    prompt: We're two founders selling a B2B product. Track prospects, pilots and investors, and help us follow up before a pilot goes quiet.
+  followUp:
+    eyebrow: A Thursday message, handled
+    title: A prospect asks for security answers before Friday's review. The reply and the next step wait for your review.
+    description: The LinkedIn thread sits on the prospect. Mate drafts the reply from your sales playbook, dates the next step and leaves the draft for your review.
+    desk:
+      label: Follow-up scene for a founder
+      workspace: Fenn Labs
+      conversation:
+        label: LinkedIn
+        name: Elena Marsh
+        company: Fieldwork Analytics
+        time: Thu 18:10
+        message: The pilot scope looks right. Could you send the security answers before our Friday review?
+      agent:
+        name: Mate
+        intent: Drafting a reply from your sales playbook
+        done: Draft saved. Next step added to your dashboard.
+      draft:
+        badge: Draft, waiting for your review
+        text: Hi Elena, thanks. I will send the security answers tomorrow morning, together with the pilot scope we discussed. Best, Jonas
+        edit: Edit
+        send: Send draft
+      today:
+        title: Dashboard
+        date: Friday
+        addedBy: Added by Mate
+        assign: Assign
+        sections:
+          - title: Next steps due
+            items:
+              - title: Send the security answers
+                meta: Fieldwork Analytics · due today
+                owner: JF
+                state: added
+              - title: Ask about the pilot decision
+                meta: Kaplan Systems · 2 days overdue
+                owner: JF
+                state: overdue
+          - title: Opportunities waiting for an answer
+            items:
+              - title: Kaplan Systems pilot
+                meta: proposed 5 days ago
+                owner: JF
+                state: due
+  beforeAfter:
+    eyebrow: What changes
+    title: Before and after. Same prospects, each with a next step.
+    before:
+      label: Before
+      points:
+        - Prospects tracked across two inboxes and a spreadsheet
+        - The promised follow-up depends on who remembers
+        - A new sales hire starts from zero
+    after:
+      label: With Customermates
+      points:
+        - Every open opportunity has a next step with a date
+        - Conversations and the next step sit on the prospect
+        - The first sales hire inherits the history
+  steps:
+    eyebrow: How you start
+    title: Three steps. To your first follow-up.
+    items:
+      - title: Describe how you sell
+        description: AI setup builds prospects, opportunities, your pipeline and your playbook from one description and a few answers.
+      - title: Connect LinkedIn or email
+        description: Threads land on the prospect whose email address or LinkedIn profile matches. On Pro, one connected account per person.
+      - title: Review follow-ups from your dashboard
+        description: Mate or your own AI client drafts the reply and dates the next step, when you ask or on a routine you set. You edit, send or skip.
+  plan:
+    eyebrow: Pricing
+    title: Pro covers it. [[commercial.price.pro.monthly]] per person per month.
+    description: A first sales hire answering from a shared sales mailbox needs Business at [[commercial.price.business.monthly]]. Your own Claude or ChatGPT subscription stays with its provider.
+    limits: Not a fit if you need lead enrichment, sequences, calling or a fundraising platform. Those stay in other tools.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Compare all plans
+      href: /pricing
 
 cta:
-  action: See a founder sales workspace before you build your own
+  action: See a founder's follow-up desk before you build your own
   description: "Open the example workspace with sample data. A new workspace of your own starts without lists: on Customermates Cloud the AI workspace setup builds them from your description, or you create them in Configure and import an Excel workbook. Billed monthly per user."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/founder-sales/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: Ways you can use it
+  title: For founders. Four jobs, one workspace.
+  items:
+    - title: Follow up before a prospect goes quiet
+      description: Sort opportunities by their next-step date, so the follow-up promised after a call is on your list.
+      href: /features/follow-up
+      linkLabel: See follow-up
+      visual: dashboard
+    - title: Prepare for a prospect conversation
+      description: Open a prospect and see the contacts, the last conversation and the next step before the call.
+      href: /features/sales
+      linkLabel: See sales
+      visual: proposal
+    - title: Your own AI client through MCP
+      description: Let Claude, ChatGPT or Cursor read or update the records you permit through MCP.
+      href: /features/integrations
+      linkLabel: Connect your agent
+      visual: agent
+    - title: Hand deals to your first sales hire
+      description: Deals, contacts and next steps are already in one workspace when your first salesperson joins.
+      href: /features/pipeline
+      linkLabel: See the pipeline
+      visual: pipeline
 ---
 
-In an early B2B startup, the founders are the sales team. Deals start with a warm intro, a LinkedIn message or a conversation at an event, and the context lives in two inboxes and a spreadsheet. A CRM for startups is useful once the second person talks to customers, or the first time a promised follow-up slips. Customermates is an open-source, AI-native CRM made in Germany. It keeps prospect organizations, contacts, sales opportunities and the next step in one configurable workspace, and it lets an AI client you already use read or update the records it is allowed to see. It does not find leads for you, enrich them or send outbound on your behalf.
+In an early B2B startup, the founders are the sales team. Deals start with a warm intro, a LinkedIn message or a conversation at an event, and the context lives in two inboxes and a spreadsheet. A CRM for startups is useful once the second person talks to customers, or the first time a promised follow-up slips. Customermates is an open-source, AI-native CRM made in Germany. It keeps prospect organizations, contacts, sales opportunities and the next step in one configurable workspace, and an AI client you already use can read or update the records it is allowed to see. From Pro on Customermates Cloud, the LinkedIn and email threads sit on the prospect, and Mate or your own AI client through MCP drafts the reply and the next step for you to review, edit and send. It does not find leads for you, enrich them or send outbound on your behalf.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -110,7 +235,7 @@ Before a call, open the company: its contacts, the open opportunity and its stag
 
 Customermates has an [MCP](/docs/mcp) endpoint on every plan, including self-hosted installations. Connect Claude, ChatGPT, Gemini, Cursor or another client, and it uses your own AI provider, which bills the model use.
 
-A typical use for a founder: in Claude, ask which stage your opportunity with a prospect is in and who the champion is The client reads the opportunity and the linked contact through MCP. After the call, ask it to move the opportunity to Pilot and add a note with the agreed next step. The client updates that record, and you see the change in Customermates.
+A typical use for a founder: in Claude, ask which stage your opportunity with a prospect is in and who the champion is. The client reads the opportunity and the linked contact through MCP. After the call, ask it to move the opportunity to Pilot and add a note with the agreed next step. The client updates that record, and you see the change in Customermates.
 
 What the client can do is limited by your role and permissions: it sees and changes only what you could see and change in the app. Treat it like any tool with write access. An MCP client may ask you to confirm before deleting or sending, but that is the client's behaviour, not a check in Customermates, so review what you ask it to do. Deleted records go to Trash for 30 days; other changes are not undone automatically.
 
@@ -124,15 +249,15 @@ The [unified inbox](/features/unified-inbox) brings email from Gmail, Outlook or
 
 Participants are matched to contacts by email, phone or LinkedIn identity. A conversation is linked to an opportunity or organization only when a person, or an agent you ask, links it; it is never filed automatically.
 
-Mate, the assistant inside Customermates Cloud, can summarize an opportunity, update records and draft replies. It works on every cloud plan within your plan's hosted AI credits and is disabled in self-hosting. Mate updates records and sends messages as soon as you ask; only deletions, imports, access changes and destructive data-model changes stop for your approval. A draft waits until you edit or send it, so ask for drafts when you want to review first. A [routine](/docs/app-routines) runs a saved instruction on a schedule or when a record changes, owned by one user and limited to what that user sees.
+Mate, the assistant inside Customermates Cloud, can summarize an opportunity, update records and draft replies. It works on every paid cloud plan within your plan's hosted AI credits and is disabled in self-hosting. Mate updates records and sends messages as soon as you ask; only deletions, imports, access changes and destructive data-model changes stop for your approval. A draft waits until you edit or send it, so ask for drafts when you want to review first. A [routine](/docs/app-routines) runs a saved instruction on a schedule or when a record changes, owned by one user and limited to what that user sees.
 
 ## Handing deals to the first sales hire
 
-Assign the new hire to the opportunities they take over and filter by assigned user. A custom role can limit their read access to assigned records on prospects, contacts and opportunities. One limit to know: there are no field-level permissions. Conversations from a founder's own account stay private until the founder shares a thread, or the whole account on Business or higher.
+Assign the new hire to the opportunities they take over and filter by assigned user. A custom role can limit their read access to assigned records on prospects, contacts and opportunities. Two limits to know: a shared view is read-only for colleagues, and there are no field-level permissions. Conversations from a founder's own account stay private until the founder shares a thread, or the whole account on Business or higher.
 
 ## Integrations
 
-Every plan, self-hosted included, has a [REST API](/features/api), webhooks and an n8n community node. Your product can create a contact when someone signs up, and a webhook on an opportunity change can notify a separately run n8n workflow or a Slack incoming webhook; there is no native Slack app. The [integrations page](/features/integrations) lists what connects.
+Every plan, self-hosted included, has a [REST API](/features/api); webhooks and the n8n triggers that use them come with every paid plan and self-hosting. Your product can create a contact when someone signs up, and a webhook on an opportunity change can notify a separately run n8n workflow or a Slack incoming webhook; there is no native Slack app. The [integrations page](/features/integrations) lists what connects.
 
 ## What Customermates does not do for startups
 
@@ -141,7 +266,7 @@ Every plan, self-hosted included, has a [REST API](/features/api), webhooks and 
 - No predictive forecasting; weighted value is your own stage percentages.
 - No calling, SMS, web forms, calendar booking or native mobile apps.
 - No fundraising platform, cap table or data room.
-- No free hosted plan and no startup discount.
+- No startup discount. The free plan stops at [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox or Mate.
 
 If one of these is what you need, look at a tool built for it. Customermates publishes this page, so read the table as pointers, not a ranking. Vendor details were checked on 8 October 2026 on each vendor's own website.
 
@@ -194,6 +319,6 @@ No. A new workspace starts without lists. On Customermates Cloud the AI workspac
 </FaqItem>
 
 <FaqItem question="Is Customermates free for startups?">
-No. There is a [[commercial.trial.days]]-day trial without a credit card, then plans from [[commercial.price.starter.monthly]] per user per month, billed monthly. There is no free hosted plan and no startup discount. The open-source core can be self-hosted without a licence fee, without the inbox and Mate. Our [startup CRM shortlist](/blog/best-crm-startups) compares other options.
+There is a [[commercial.trial.days]]-day trial without a credit card. The free plan covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records without the inbox or Mate, and paid plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly. There is no startup discount. The open-source core can be self-hosted without a licence fee, without the inbox and Mate. Our [startup CRM shortlist](/blog/best-crm-startups) compares other options.
 </FaqItem>
 </Faq>

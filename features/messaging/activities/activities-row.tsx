@@ -22,13 +22,13 @@ const BADGE_BASE =
 type BadgeTone = "created" | "updated" | "deleted" | "received" | "sent" | "calendar" | "activity";
 
 const BADGE_TONE: Record<BadgeTone, string> = {
-  created: "border-success/30 bg-success/20 text-success",
-  updated: "border-primary/30 bg-primary/20 text-primary",
+  created: "border-success/30 bg-success/20 text-success-soft-foreground",
+  updated: "border-primary/20 bg-primary/10 text-primary",
   deleted: "border-destructive/30 bg-destructive/20 text-destructive",
   received: "border-input bg-foreground/5 text-foreground/80",
-  sent: "border-primary/30 bg-primary/20 text-primary",
-  calendar: "border-warning/30 bg-warning/20 text-warning",
-  activity: "border-info/30 bg-info/20 text-info",
+  sent: "border-primary/20 bg-primary/10 text-primary",
+  calendar: "border-warning/30 bg-warning/20 text-warning-soft-foreground",
+  activity: "border-info/30 bg-info/20 text-info-soft-foreground",
 };
 
 export function TypeBadge({ icon: IconCmp, tone, label }: { icon: LucideIcon; tone: BadgeTone; label?: string }) {

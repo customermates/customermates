@@ -11,7 +11,6 @@ import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppModal, type AppModalActionProps, type AppModalActions } from "@/components/modal";
 import { AppCard } from "@/components/card/app-card";
 import { UnsavedChangesBar } from "@/components/forms/unsaved-changes-bar";
@@ -23,6 +22,8 @@ import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confi
 import { InfoRow } from "@/components/shared/info-row";
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { getEffectiveEntitlements } from "@/ee/subscription/entitlements";
+import { TEAM_PLAN_ID } from "@/core/commercial/plan-catalog";
+import { PlanUpsellNotice } from "@/app/components/upsell/plan-upsell-notice";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
@@ -185,15 +186,7 @@ export const ConnectedAccountModal = observer(() => {
                           }
                         />
                       ) : (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Switch disabled checked={false} id="connected-account-visibility" />
-                            </span>
-                          </TooltipTrigger>
-
-                          <TooltipContent>{t("ConnectedAccountsCard.sharedAccountsRequiresBusiness")}</TooltipContent>
-                        </Tooltip>
+                        <Switch disabled checked={false} id="connected-account-visibility" />
                       )}
                     </div>
                   ) : (
@@ -238,6 +231,18 @@ export const ConnectedAccountModal = observer(() => {
                   </InfoRow>
                 )}
               </div>
+
+              {account.isOwner && !canShareAccounts && rootStore.appMode === "cloud" ? (
+                <PlanUpsellNotice
+                  stacked
+                  className="mt-4"
+                  detail={t("ConnectedAccountsCard.sharedAccountsRequiresBusiness")}
+                  id="shared-accounts"
+                  plan={TEAM_PLAN_ID}
+                  title={t("Upsell.business.sharedAccounts")}
+                  onNavigate={close}
+                />
+              ) : null}
             </SegmentedControlPanel>
 
             {showEmailTab && (

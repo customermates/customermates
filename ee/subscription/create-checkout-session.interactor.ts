@@ -19,6 +19,7 @@ import { getCommercialOfferOrThrow, PURCHASABLE_PLAN_IDS } from "@/core/commerci
 import { failConflict, failUnavailable } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { CreateCheckoutCompanyRepo } from "./create-checkout-session.repo";
+import type { FreePlanMemberRepo } from "./free-plan-member.repo";
 import { checkoutExpiresAt, checkoutPendingSince } from "./checkout-state";
 import { hasLiveSubscription, isSubscriptionExpired } from "./entitlements";
 import { signCheckoutWorkspace } from "./checkout-workspace-signature";
@@ -44,6 +45,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
     private repo: CreateCheckoutCompanyRepo,
     private userRepo: CountActiveUsersRepo,
     private companyRepo: GetCompanyRepo,
+    private pauses?: Pick<FreePlanMemberRepo, "countPlanPausedMembersUnscoped">,
   ) {
     super();
   }
@@ -70,7 +72,10 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
     if (claimed === "pending") return CHECKOUT_PENDING;
 
     try {
-      const activeUsersCount = await this.userRepo.countActiveUsers();
+      const [activeUsersCount, pausedMembersCount] = await Promise.all([
+        this.userRepo.countActiveUsers(),
+        this.pauses ? this.pauses.countPlanPausedMembersUnscoped(this.companyId) : Promise.resolve(0),
+      ]);
       const workspaceName = (await this.companyRepo.findCompanyOrThrow()).name?.trim();
 
       const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
@@ -83,7 +88,7 @@ export class CreateCheckoutSessionInteractor extends UserAccessor {
       );
       const checkout = await this.lemonSqueezyService.createCheckoutOrThrow({
         offer,
-        quantity: activeUsersCount,
+        quantity: activeUsersCount + pausedMembersCount,
         email: this.user.email,
         ...(workspaceName ? { productName: workspaceName } : {}),
         custom: {

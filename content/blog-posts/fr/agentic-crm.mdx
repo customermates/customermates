@@ -25,10 +25,10 @@ acquisition:
   cta:
     action: Évaluer un CRM agentique sur un workflow délimité
     description: Comparez la capacité Mate hébergée aux clients MCP externes, examinez leurs limites de contrôle et testez un workflow CRM délimité.
-    buttonLeftText: Lire le guide MCP
-    buttonLeftHref: /docs/mcp
-    buttonRightText: Démarrer l’essai Pro
-    buttonRightHref: /auth/signup
+    buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Lire le guide MCP
+    buttonRightHref: /docs/mcp
     hint: "Lorsqu’il est activé, Mate utilise les crédits de l’offre hébergée ; les clients MCP externes utilisent le fournisseur de modèle du client."
   relatedHrefs:
     - /docs/mcp
@@ -41,8 +41,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "CRM agentique et IA native : MCP, Mate et actions sûres"
-      body: "Suivez un exemple délimité : un client MCP externe enregistre un brouillon sur un fil existant de la boîte de réception, qu’une personne relit et envoie ; les outils d’envoi autorisés n’obtiennent pas de seconde validation côté serveur."
-      checksum: fnv1a-311f2e64
+      body: "Un exemple délimité : un client MCP externe enregistre un brouillon sur un fil de la boîte, qu’une personne relit et envoie ; les outils d’envoi autorisés n’exigent pas de seconde validation."
+      checksum: fnv1a-1f227324
     kind: brand-illustration
     pathway: handoff
     placements:
@@ -87,7 +87,7 @@ acquisition:
 
 hero:
   title: "CRM agentique et IA native : MCP, Mate et actions sûres"
-  description: "Suivez un exemple délimité : un client MCP externe enregistre un brouillon sur un fil existant de la boîte de réception, qu’une personne relit et envoie ; les outils d’envoi autorisés n’obtiennent pas de seconde validation côté serveur."
+  description: "Un exemple délimité : un client MCP externe enregistre un brouillon sur un fil de la boîte, qu’une personne relit et envoie ; les outils d’envoi autorisés n’exigent pas de seconde validation."
 
 blogPost:
   author: Benjamin Wagner
@@ -105,7 +105,7 @@ blogPost:
 
 Un **CRM IA native** expose des données clients structurées et des actions typées que l’IA peut utiliser. Un **CRM agentique** laisse un client IA ou un assistant accomplir, grâce à ces interfaces, le travail pris en charge : lire le contexte, créer ou mettre à jour des enregistrements, préparer un brouillon ou mener un workflow à son terme. Les deux termes se recoupent, mais l’un décrit l’architecture, l’autre le comportement.
 
-Customermates prend en charge les deux modèles d’exploitation. Chaque offre cloud inclut un droit d’utilisation de Mate et un quota mensuel de crédits d’IA hébergée par utilisateur actif ; que Mate soit disponible ou non dans un environnement hébergé dépend de la configuration actuelle de cet environnement. Les déploiements cloud et auto-hébergés peuvent aussi connecter des clients IA externes via MCP, l’organisation cliente choisissant et finançant elle-même ce client IA et ce fournisseur de modèle distincts.
+Customermates prend en charge les deux modèles d’exploitation. Chaque offre payante inclut un droit d’utilisation de Mate et un quota mensuel de crédits d’IA hébergée par utilisateur actif ; que Mate soit disponible ou non dans un environnement hébergé dépend de la configuration actuelle de cet environnement. Les déploiements cloud et auto-hébergés peuvent aussi connecter des clients IA externes via MCP, l’organisation cliente choisissant et finançant elle-même ce client IA et ce fournisseur de modèle distincts. Pour une petite équipe en contact avec les clients, les deux visent le suivi : un client écrit, l’IA rédige la réponse et la prochaine étape sur la fiche du client, et une personne la relit, la modifie et l’envoie.
 
 Pour choisir entre une intégration fixe et un client d’IA, consultez le [comparatif MCP vs API sur une même fiche client](/blog/mcp-vs-api). La découverte des outils change la manière de trouver une opération. L’authentification et les permissions restent applicables.
 
@@ -201,7 +201,7 @@ Sur les comptes cloud éligibles, le MCP expose aussi le travail de messagerie p
 
 Agentique ne veut pas dire sans permission. Les instructions du serveur MCP demandent aux clients de réclamer une confirmation explicite avant chaque suppression et chaque action `send_*` sortante. Il s’agit d’une consigne adressée au client, pas d’une seconde validation côté serveur : dès qu’un client autorisé appelle l’outil MCP, le serveur exécute l’action permise. Vérifiez que le client que vous avez choisi affiche l’effet de bord exact et attend une approbation.
 
-Lorsqu’il est activé, Mate applique des validations distinctes, imposées appel par appel, pour les actions destructrices, les envois et les renvois, les invitations, l’escalade vers le support et les modifications de comptes externes ou sociaux. Chaque offre cloud inclut le droit d’utilisation et le quota mensuel de crédits, tandis que la disponibilité réelle dépend de la configuration actuelle de l’environnement hébergé.
+Lorsqu’il est activé, Mate applique des validations distinctes, imposées appel par appel, pour les actions destructrices, le renvoi de livraisons de webhooks, les invitations de membres, l’escalade vers le support et les modifications de comptes externes ou sociaux. Chaque offre payante inclut le droit d’utilisation et le quota mensuel de crédits, tandis que la disponibilité réelle dépend de la configuration actuelle de l’environnement hébergé.
 
 ## Limites entre cloud et auto-hébergement
 
@@ -256,9 +256,12 @@ Pour un acheteur, les questions pratiques comptent plus que l’étiquette :
 
 <AcquisitionCallout title="Évaluer l’intégration actuelle" variant="fit">
   [Lisez le guide MCP](/docs/mcp) pour connaître la voie de connexion actuelle.
-  Vous pouvez aussi [démarrer un essai cloud](/auth/signup) pour évaluer le CRM
-  géré et, lorsque Mate est activé dans cet environnement, un workflow
-  d’assistant délimité avant d’accorder des droits plus larges.
+  Pour voir le suivi de bout en bout, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup) :
+  connectez LinkedIn ou l’e-mail et, lorsque Mate est activé dans cet
+  environnement, laissez Mate ou votre propre client IA rédiger la réponse et la
+  prochaine étape sur la fiche du client. Vous relisez, modifiez et envoyez
+  vous-même, et un seul workflow délimité suffit avant d’accorder des droits
+  plus larges.
 </AcquisitionCallout>
 
 ## Questions fréquentes
@@ -279,7 +282,7 @@ IA native décrit l’architecture : des données structurées et des actions t
 </FaqItem>
 
 <FaqItem question="Mate est-il disponible dans tous les environnements Customermates Cloud ?">
-  Chaque offre cloud inclut un droit d’utilisation de Mate et un quota mensuel
+  Chaque offre payante inclut un droit d’utilisation de Mate et un quota mensuel
   d’IA hébergée par utilisateur actif. La disponibilité réelle dépend de la
   configuration actuelle de l’environnement hébergé ; ce n’est donc pas une
   promesse de disponibilité universelle. Les déploiements auto-hébergés

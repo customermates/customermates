@@ -14,13 +14,11 @@ import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { redirect } from "next/navigation";
 import { appRedirectHref } from "@/features/auth/next/app-redirect";
-import { getTranslations } from "next-intl/server";
 import { PageContainer } from "@/components/shared/page-container";
-import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
+import { MessagingUpsellOverlay } from "@/app/components/upsell/messaging-upsell-overlay";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapPage } from "@/core/validation/next/unwrap-page";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const LATEST_THREAD_ID = "latest";
 
@@ -76,22 +74,13 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (!locked) return <PageContainer padded={false}>{content}</PageContainer>;
 
-  const t = await getTranslations();
-
   return (
     <PageContainer padded={false}>
-      <LockedFeatureOverlay
-        ctaHref={settingsHref("billing")}
-        ctaLabel={t("MessagingUpsell.cta")}
-        description={
-          messaging.state === "locked" && messaging.reason === "subscription"
-            ? t("ConnectedAccountsCard.paidSubscriptionRequired")
-            : t("MessagingUpsell.description")
-        }
-        title={t("MessagingUpsell.title")}
+      <MessagingUpsellOverlay
+        reason={messaging.state === "locked" && messaging.reason === "subscription" ? "subscription" : "plan"}
       >
         {content}
-      </LockedFeatureOverlay>
+      </MessagingUpsellOverlay>
     </PageContainer>
   );
 }

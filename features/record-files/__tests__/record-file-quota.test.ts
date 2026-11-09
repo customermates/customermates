@@ -80,6 +80,43 @@ describe("file storage quota", () => {
   });
 });
 
+describe("the plan an upload refusal points to", () => {
+  function quota(plan: "free" | "starter" | "pro" | "business" | "max" | "enterprise" | null) {
+    return new RecordFileQuotaService(
+      {
+        subscription: () => Promise.resolve(plan ? { plan, enterpriseFileStorageBytesPerUser: null } : null),
+        activeUsers: () => Promise.resolve(2),
+        usedBytes: () => Promise.resolve(0),
+      },
+      "cloud",
+    );
+  }
+
+  it("is the next plan with more storage per user, and none on the top plan or a contract", async () => {
+    expect(await quota("free").upgradePlan()).toBe("starter");
+    expect(await quota("starter").upgradePlan()).toBe("pro");
+    expect(await quota("pro").upgradePlan()).toBe("business");
+    expect(await quota("business").upgradePlan()).toBe("max");
+    expect(await quota("max").upgradePlan()).toBeNull();
+    expect(await quota("enterprise").upgradePlan()).toBeNull();
+  });
+
+  it("reads a workspace without a subscription row as the trial plan", async () => {
+    expect(await quota(null).upgradePlan()).toBe("business");
+  });
+
+  it("points nowhere outside the cloud", async () => {
+    const sources = {
+      subscription: () => Promise.resolve({ plan: "starter" as const, enterpriseFileStorageBytesPerUser: null }),
+      activeUsers: () => Promise.resolve(1),
+      usedBytes: () => Promise.resolve(0),
+    };
+
+    expect(await new RecordFileQuotaService(sources, "self-hosted").upgradePlan()).toBeNull();
+    expect(await new RecordFileQuotaService(sources, "demo").upgradePlan()).toBeNull();
+  });
+});
+
 describe("file size labels in upload and quota messages", () => {
   it("read like the file sizes shown in the app", () => {
     expect(fileSizeLabel(443, "en")).toBe("443 B");

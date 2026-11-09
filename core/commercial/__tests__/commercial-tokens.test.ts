@@ -7,7 +7,9 @@ describe("commercial content tokens", () => {
     expect(resolveCommercialTokens("[[commercial.price.starter.monthly]]", "en")).toBe("€12");
     expect(resolveCommercialTokens("[[commercial.price.pro.monthly.seats.5]]", "en")).toBe("€145");
     expect(resolveCommercialTokens("[[commercial.price.starter.monthly.seats.15.months.12]]", "en")).toBe("€2,160");
-    expect(resolveCommercialTokens("[[commercial.trial.days]]", "en")).toBe("7");
+    expect(resolveCommercialTokens("[[commercial.trial.days]]", "en")).toBe("14");
+    expect(resolveCommercialTokens("[[commercial.limit.free.maxRecords]]", "en")).toBe("250");
+    expect(resolveCommercialTokens("[[commercial.limit.free.fileStorageBytes]]", "en")).toBe("100 MB");
     expect(resolveCommercialTokens("[[commercial.workspaces.creationLimit]]", "en")).toBe("20");
     expect(resolveCommercialTokens("[[commercial.entitlement.business.includedAccountsPerUser]]", "en")).toBe("3");
     expect(resolveCommercialTokens("[[commercial.entitlement.starter.includedRoutinesPerUser]]", "en")).toBe("1");
@@ -53,7 +55,7 @@ describe("commercial content tokens", () => {
       description: "From €12",
       enabled: true,
       publishedAt,
-      rows: ["7"],
+      rows: ["14"],
     });
   });
 

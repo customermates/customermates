@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/self-hosted
   - /blog/open-source-crm
 
+sections:
+  reasons:
+    - title: "Kundengespräche über die E-Mail hinaus"
+      description: "Im Benutzerhandbuch von SuiteCRM steht keine Anbindung für WhatsApp, LinkedIn, Instagram oder Telegram. Customermates legt ab Pro alle davon und Ihr Postfach in einem Posteingang beim Kunden ab."
+    - title: "Mate oder Ihr eigener KI-Agent entwirft die Antwort"
+      description: "In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten, aktualisiert Datensätze und legt Ansichten an. Der MCP-Server ist in jedem Tarif und bei selbst gehosteten Installationen enthalten, mit [[derived.mcp.tools.total]] Tools."
+    - title: "Ein CRM, das Sie nicht betreiben müssen"
+      description: "Customermates Cloud muss nicht installiert oder gepatcht werden. Wollen Sie einen eigenen Server, läuft der Kern selbst gehostet als zwei Docker-Container: die App und PostgreSQL 16."
+  switchSteps: true
+
 hero:
-  title: "SuiteCRM-Alternative: Customermates und SuiteCRM im Vergleich"
-  description: "SuiteCRM ist ein umfangreiches Open-Source-CRM in PHP mit Angeboten, Rechnungen, Kampagnen und Service-Fällen, ohne Lizenzgebühr pro Nutzer. Customermates ist ein Open-Source-CRM aus Deutschland, das ab Pro E-Mail, LinkedIn, WhatsApp, Instagram und Telegram neben Ihre Deals legt und die CRM-Pflege an Mate (Customermates Cloud, gehostete KI-Credits) oder Ihren eigenen KI-Client über MCP abgibt. Alle Angaben zu SuiteCRM stammen von suitecrm.com und docs.suitecrm.com, geprüft am 27. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "SuiteCRM-Alternative: Customermates im Vergleich"
+  description: "SuiteCRM ist ebenfalls Open Source, doch PHP, Updates und Module betreiben Sie selbst. Customermates ist leichter: In der Customermates Cloud liegen ab Pro LinkedIn-, E-Mail- und WhatsApp-Verläufe beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft die Antwort. Angaben zu SuiteCRM: Stand 27. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -96,7 +106,7 @@ comparison:
 cta:
   action: Sie prüfen Alternativen zu SuiteCRM?
   description: "Starten Sie die Testphase, exportieren Sie eine SuiteCRM-Liste und importieren Sie sie als Excel-Datei, dann verbinden Sie ein Postfach oder WhatsApp. So sehen Sie schnell, ob Ihre Daten und Gespräche zum Modell von Customermates passen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -158,7 +168,7 @@ Selbst gehostet kosten beide Kerne keine Lizenzgebühr. Sie zahlen für den Serv
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-CRM mit KI im Kern für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Es wird in Deutschland entwickelt.
+SuiteCRM ist eine Open-Source-Suite, die Sie selbst betreiben. Customermates ist ein kleineres CRM rund ums Nachfassen: In Customermates Cloud liegen ab Pro Gespräche beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt. Sie prüfen, bearbeiten und senden.
 
 **Kundengespräche neben dem Deal.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) E-Mail-Konten über Gmail, Outlook und IMAP, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, und Sie antworten im ursprünglichen Kanal. Ordnen Sie einen Teilnehmer einmal einem Kontakt zu, landet das Gespräch bei diesem Kontakt. Starter hat kein Postfach.
 
@@ -198,7 +208,7 @@ Legen Sie für Ihre Verkaufschancen ein Auswahlfeld „Phase“ an, mit einer Op
   <Step title="Aus SuiteCRM exportieren">Exportieren Sie jede Liste, die Sie behalten wollen, aus ihrer Listenansicht: Accounts, Kontakte, Leads und Verkaufschancen. Customermates importiert die CSV-Dateien unverändert.</Step>
   <Step title="Workspace vorbereiten">Legen Sie in Configure die Listen an oder benennen Sie sie um, ergänzen Sie eigene Felder für die Angaben, die Sie behalten, und setzen Sie die Phasenwahrscheinlichkeiten. In Customermates Cloud kann die KI-Einrichtung die Listen für Sie bauen.</Step>
   <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungsspalten finden Datensätze über den Namen, die Account-Spalte eines Kontakts findet also die vorher importierte Organisation. Die Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Filter als Ansichten anlegen">Legen Sie jeden gespeicherten SuiteCRM-Filter als gespeicherte Ansicht an. Ansichten bleiben privat, bis Sie sie teilen; teilen Sie die, die das ganze Team nutzt.</Step>
+  <Step title="Filter als Ansichten anlegen">Legen Sie jeden gespeicherten SuiteCRM-Filter als gespeicherte Ansicht an. Die Ansichten, die das ganze Team braucht, teilen Sie über das Menü **Teilen…** der Ansicht.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder während der Testphase ein E-Mail-Konto, LinkedIn oder WhatsApp, richten Sie dann Routinen für Mate ein oder verbinden Sie Ihren eigenen KI-Client über MCP.</Step>
 </Steps>
 

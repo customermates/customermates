@@ -74,10 +74,8 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
     'app/components/footer-content.tsx :: jsx-text :: "GitHub"',
     'app/components/footer-content.tsx :: jsx-text :: "LinkedIn"',
     'app/components/footer-content.tsx :: jsx-text :: "X (Twitter)"',
-    'components/emails/base/email-layout.tsx :: jsx-alt :: "Customermates"',
     'components/emails/base/email-layout.tsx :: jsx-text :: "Customermates ·"',
     'components/marketing/founder-contact-card.tsx :: jsx-text :: "Benjamin Wagner"',
-    'components/marketing/comparison-table.tsx :: jsx-alt :: "Customermates"',
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
     'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',

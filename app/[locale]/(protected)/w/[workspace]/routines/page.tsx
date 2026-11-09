@@ -5,7 +5,10 @@ import { appRedirectHref } from "@/features/auth/next/app-redirect";
 
 import { Resource } from "@/generated/prisma";
 
-import { getGetRoutinesInteractor } from "@/core/di";
+import { getGetPlanUsageInteractor, getGetRoutinesInteractor } from "@/core/di";
+import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
+import { FreePlanFeatureOverlay } from "@/app/components/upsell/free-plan-feature-overlay";
+import { RoutineAllowanceNotice } from "@/app/components/upsell/routine-allowance-notice";
 import { env } from "@/env";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
@@ -23,11 +26,23 @@ export default async function RoutinesPage({ searchParams }: Props) {
 
   const routineParams = await readSurfaceParams(SURFACE.routines, searchParams);
 
-  const routines = await unwrapPage(getGetRoutinesInteractor().invoke(routineParams));
+  const [routines, usage] = await Promise.all([
+    unwrapPage(getGetRoutinesInteractor().invoke(routineParams)),
+    unwrapPage(getGetPlanUsageInteractor().invoke()),
+  ]);
+  const view = <RoutinesPageView initialRoutines={routines} />;
 
   return (
     <PageContainer padded={false}>
-      <RoutinesPageView initialRoutines={routines} />
+      {usage.plan === FREE_PLAN_ID ? (
+        <FreePlanFeatureOverlay feature="routines">{view}</FreePlanFeatureOverlay>
+      ) : (
+        <>
+          <RoutineAllowanceNotice plan={usage.plan} />
+
+          {view}
+        </>
+      )}
     </PageContainer>
   );
 }

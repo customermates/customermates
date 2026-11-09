@@ -139,17 +139,16 @@ describe("style-guide CSS isolation", () => {
   it("declares the approved neutral hero role and continuous-flow divider ownership", () => {
     const css = readFileSync(GLOBALS_CSS, "utf8");
 
+    const marketing = readFileSync(join(REPO_ROOT, "styles", "marketing.css"), "utf8");
+
+    expect(css).toContain('@import "./marketing.css";');
+    expect(marketing).toMatch(/\.mk-hero\s*\{[\s\S]*?font-size:\s*clamp\(2\.5rem, 1\.55rem \+ 3\.8vw, 4\.5rem\);/u);
+    expect(marketing).toMatch(/\.mk-display\s*\{[\s\S]*?font-size:\s*clamp\(2rem, 1\.55rem \+ 1\.8vw, 3rem\);/u);
+    expect(css).toMatch(/\.text-hero\s*\{[\s\S]*?font-size:\s*clamp\(2\.5rem, 1\.55rem \+ 3\.8vw, 4\.5rem\);/u);
+    expect(css).toMatch(/\.text-display-sm\s*\{[\s\S]*?font-size:\s*clamp\(2rem, 1\.55rem \+ 1\.8vw, 3rem\);/u);
+    expect(css).not.toMatch(/\.text-display,\s*\.text-display-sm,\s*\.text-hero,\s*\.text-display-gradient\s*\{\s*background-image/u);
     expect(css).toMatch(
-      /\.text-hero\s*\{[\s\S]*?font-size:\s*clamp\(3rem, 6\.5vw, 6rem\);/u,
-    );
-    expect(css).toMatch(
-      /\.text-display\s*\{[\s\S]*?@apply font-medium text-balance;/u,
-    );
-    expect(css).toMatch(
-      /\.text-display-sm\s*\{[\s\S]*?@apply font-medium text-balance;/u,
-    );
-    expect(css).toMatch(
-      /\[data-marketing-flow="continuous"\]\s+\.marketing-section:not/u,
+      /\.marketing-section\[data-marketing-divider="explicit"\]\s*\{/u,
     );
   });
 });

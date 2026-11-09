@@ -110,7 +110,7 @@ export const DocsSidebar = observer(() => {
               <IntlLink href="/">
                 <AppImage
                   alt={logoAlt}
-                  className="size-8 shrink-0 rounded-lg shadow-[0_0_10px_0] shadow-primary/10 dark:shadow-primary/20"
+                  className="size-8 shrink-0 rounded-lg"
                   height={32}
                   loading="eager"
                   src="customermates-square.svg"

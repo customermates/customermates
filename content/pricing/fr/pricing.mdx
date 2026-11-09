@@ -1,7 +1,8 @@
 ---
-title: "Tarifs du CRM open source et IA native"
-titleAccent: "simples, honnêtes, européens."
-description: "Tarifs mensuels par utilisateur du CRM open source, à partir de [[commercial.price.starter.monthly]]. CRM, REST, webhooks et MCP dans chaque formule, boîte de réception cloud dès Pro."
+title: "Tarifs Customermates : des offres simples par personne"
+heading: "Un prix par personne."
+titleAccent: "Commencez par [[commercial.trial.days]] jours de Pro."
+description: "Formule Free pour une personne, formules payantes dès [[commercial.price.starter.monthly]] par utilisateur et par mois, facturation mensuelle. Essayez Pro [[commercial.trial.days]] jours gratuitement, sans carte."
 
 pricing:
   ariaLabelSlider: "Nombre d’utilisateurs"
@@ -10,105 +11,126 @@ pricing:
   footnote: "Un compte connecté est une boîte e-mail, un profil LinkedIn, WhatsApp, Instagram ou Telegram relié, qui appartient à un seul utilisateur. Starter n’inclut aucun compte connecté. Avec Pro, vous partagez des fils un par un ; le partage d’un compte entier avec l’équipe commence avec Business. Les prix sont par utilisateur, facturés au mois en euros."
   totalSuffixSingular: "/mois au total pour {count} utilisateur"
   totalSuffixPlural: "/mois au total pour {count} utilisateurs"
+  moreTitle: "Plus d’usage ou une configuration sur mesure"
+  selfHost:
+    text: "Vous préférez l’héberger vous-même ? L’édition open source s’auto-héberge gratuitement."
+    linkLabel: "Guide d’auto-hébergement"
+    href: /docs/self-hosting
   pricingCards:
+  - plan: free
+    title: Free
+    description: "Essayez seul, gratuitement : [[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements."
+    buttonText: "Comment fonctionne Free"
+    buttonHref: "#faq"
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - "[[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail"
+      - "API et MCP avec [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour"
+      - "Sans boîte de réception, Mate, routines, webhooks ni déclencheurs n8n"
   - plan: starter
     title: Starter
-    description: "CRM de base et MCP"
-    buttonText: "Démarrer l’essai gratuit"
+    description: "Votre CRM et votre propre IA"
+    buttonText: "Essai Pro de [[commercial.trial.days]] jours"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - "Contacts, organisations, affaires, services et tâches"
-      - "Accès MCP : connectez un client IA externe comme Claude, ChatGPT ou Gemini"
-      - "API REST, webhooks et interfaces pour votre propre n8n"
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur : Mate travaille selon un planning ou quand un enregistrement change"
-      - "Usage Mate : 1x par utilisateur actif, l’allocation de base (utilisable quand Mate est activé)"
-      - "Ni boîte de réception ni comptes de messagerie connectés"
-      - "Auto-hébergement : les fonctions de Starter sans Mate, routines ni configuration par IA"
+      - Contacts, organisations, affaires et tâches
+      - "Connectez votre propre IA via MCP : Claude, ChatGPT ou Gemini"
+      - API REST, webhooks et votre propre n8n
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - "Usage Mate : 1x par utilisateur actif, l’allocation de base"
+    missingFeatures:
+      - Boîte de réception unifiée pour LinkedIn et l’e-mail
+      - Brouillons de réponse rédigés par Mate
   - plan: pro
     title: Pro
-    description: "CRM et boîte de réception unifiée. Inclut votre essai gratuit de [[commercial.trial.days]] jours."
-    badge: "Essai gratuit de [[commercial.trial.days]] jours"
-    buttonText: "Démarrer l’essai gratuit"
-    buttonHref: /auth/signup
-    buttonColor: default
-    buttonVariant: bordered
-    features:
-      - "Tout Starter"
-      - "Boîte de réception unifiée pour vos propres comptes : e-mail, LinkedIn, WhatsApp, Instagram, Telegram"
-      - "[[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus"
-      - "Partage de fils individuels avec vos collègues"
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur : Mate travaille selon un planning ou quand un enregistrement change"
-      - "Accès au calendrier en lecture seule et LinkedIn Sales Navigator"
-      - "Usage Mate : 3x Starter par utilisateur actif (utilisable quand Mate est activé)"
-  - plan: business
-    title: Business
-    description: "Pour les équipes"
-    badge: "Recommandé"
+    badge: "Idéal pour les relances"
     featured: true
-    buttonText: "Démarrer l’essai gratuit"
+    description: "Relancez depuis LinkedIn et l’e-mail"
+    buttonText: "Essai Pro de [[commercial.trial.days]] jours"
     buttonHref: /auth/signup
     buttonColor: primary
     buttonVariant: shadow
-    shadow: md
-    cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
     features:
-      - "Tout Pro"
-      - "[[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur inclus"
-      - "Routines par utilisateur : [[commercial.entitlement.business.includedRoutinesPerUser]] (usage raisonnable)"
-      - "Partage de compte entier : partagez un compte connecté avec l’équipe"
-      - "Support prioritaire"
-      - "Usage Mate : 10x Starter par utilisateur actif, le plus d’usage par euro (utilisable quand Mate est activé)"
-  - plan: max
-    title: Max
-    description: "Pour un usage intensif de Mate"
-    buttonText: "Démarrer l’essai gratuit"
+      - "LinkedIn, e-mail, WhatsApp, Instagram et Telegram dans une seule boîte de réception"
+      - Mate rédige les réponses à partir de votre playbook, vous relisez et envoyez
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur inclus"
+      - Partagez des fils un par un avec l’équipe
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur : Mate travaille selon un planning ou quand une fiche change"
+      - Accès en lecture au calendrier et LinkedIn Sales Navigator
+      - "Usage Mate : 3x Starter par utilisateur actif"
+      - Tout Starter
+  - plan: business
+    title: Business
+    badge: "Pour les équipes"
+    description: "Les équipes qui partagent leurs boîtes"
+    buttonText: "Essai Pro de [[commercial.trial.days]] jours"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - "Tout Business"
+      - Tout Pro
+      - "[[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur inclus"
+      - "Partage de compte entier : partagez un compte connecté avec l’équipe"
+      - "Routines par utilisateur : [[commercial.entitlement.business.includedRoutinesPerUser]] (usage raisonnable)"
+      - Support prioritaire
+      - "Usage Mate : 10x Starter par utilisateur actif, le plus d’usage par euro"
+  - plan: max
+    title: Max
+    description: "Pour un usage intensif de Mate"
+    buttonText: "Essai Pro de [[commercial.trial.days]] jours"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Tout Business
+      - "Usage Mate : 20x Starter par utilisateur actif"
       - "[[commercial.entitlement.max.includedAccountsPerUser]] comptes connectés par utilisateur inclus"
-      - "Usage Mate : 20x Starter par utilisateur actif (utilisable quand Mate est activé)"
-      - "Support prioritaire"
-      - "Accès anticipé aux fonctionnalités en bêta"
+      - Support prioritaire et accès anticipé aux fonctionnalités bêta
   - plan: enterprise
     title: Enterprise
-    description: "Périmètre et support sur mesure"
-    buttonText: "Contacter l’équipe commerciale"
+    description: Périmètre et support sur mesure
+    buttonText: Contacter les ventes
     buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
-      - "Tout Business"
-      - "Processus d’agent personnalisé ou de données de prospection sous contrat (non intégrés au produit)"
-      - "Mise en place réalisée pour vous"
-      - "Comptes connectés par utilisateur : [[commercial.entitlement.enterprise.includedAccountsPerUser]] (usage raisonnable) ; SSO et marque blanche ne sont pas développés et demandent un travail sous contrat"
-      - "Support dédié et conditions sur mesure"
-      - "Usage Mate : sur mesure, fixé par contrat par utilisateur actif et par mois (utilisable quand Mate est activé)"
+      - Tout Business
+      - Mise en place clé en main
+      - Workflows d’agents sur mesure ou de données de prospects sous contrat (non intégrés)
+      - Support dédié et conditions sur mesure
+      - "Comptes connectés par utilisateur : [[commercial.entitlement.enterprise.includedAccountsPerUser]] (usage raisonnable) ; le SSO et la marque blanche ne sont pas implémentés et nécessitent un travail sous contrat"
+      - "Usage Mate : sur mesure, fixé par contrat par utilisateur actif et par mois"
 
 comparison:
+  apiLimitValue: "{perMinute}/min, {perDay}/jour"
   customValue: "Sur mesure"
-  header: "Formules"
+  header: "Comparer toutes les fonctionnalités"
   unlimitedValue: "Illimité (usage raisonnable)"
+  workspaceStorageValue: "{size} par espace de travail"
   plans:
+    free:
+      name: Free
+      button: "Démarrer l’essai Pro de [[commercial.trial.days]] jours"
+      buttonHref: /auth/signup
     starter:
       name: Starter
-      button: "Démarrer l’essai gratuit"
+      button: "Démarrer l’essai Pro de [[commercial.trial.days]] jours"
       buttonHref: /auth/signup
     pro:
       name: Pro
-      button: "Démarrer l’essai gratuit"
-      buttonHref: /auth/signup
-    business:
-      name: Business
-      button: "Démarrer l’essai gratuit"
+      button: "Démarrer l’essai Pro de [[commercial.trial.days]] jours"
       buttonHref: /auth/signup
       featured: true
+    business:
+      name: Business
+      button: "Démarrer l’essai Pro de [[commercial.trial.days]] jours"
+      buttonHref: /auth/signup
     max:
       name: Max
-      button: "Démarrer l’essai gratuit"
+      button: "Démarrer l’essai Pro de [[commercial.trial.days]] jours"
       buttonHref: /auth/signup
     enterprise:
       name: Enterprise
@@ -121,6 +143,10 @@ comparison:
         catalogFact: monthlyPrice
       - label: "Usage Mate par utilisateur actif (multiple de Starter)"
         catalogFact: hostedAiUsage
+      - label: "Personnes par espace de travail"
+        catalogFact: maxMembers
+      - label: "Enregistrements"
+        catalogFact: maxRecords
   - title: "Messagerie"
     rows:
       - label: "Boîte de réception unifiée"
@@ -130,24 +156,28 @@ comparison:
       - label: "Partage de compte entier"
         catalogFact: sharedAccounts
       - label: "Partage de fils individuels"
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: "Accès au calendrier en lecture seule"
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: "Suivi des publications sur les réseaux sociaux"
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: "LinkedIn Sales Navigator"
+        free: false
         starter: false
         pro: true
         business: true
@@ -159,37 +189,47 @@ comparison:
         catalogFact: includedRoutinesPerUser
       - label: "Stockage de fichiers par utilisateur, partagé dans l’espace de travail"
         catalogFact: fileStoragePerActiveUser
+      - label: "Requêtes API et MCP par espace de travail"
+        catalogFact: apiRequestLimit
       - label: "Contacts, organisations, affaires, services et tâches"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: "Champs personnalisés, rôles et droits"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: "Fiches reliées et notes"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: "API REST et webhooks"
+      - label: "API REST"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
+      - label: "Webhooks et déclencheur n8n"
+        catalogFact: webhooks
       - label: "Accès MCP pour un client IA externe"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: "Interfaces pour une instance n8n externe"
+      - label: "Actions n8n qui lisent et écrivent des enregistrements"
+        free: true
         starter: true
         pro: true
         business: true
@@ -198,36 +238,42 @@ comparison:
   - title: "Enterprise"
     rows:
       - label: "Authentification unique SSO (pas encore développée, sur accord)"
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Sur demande"
       - label: "Marque blanche (pas encore développée, sur accord)"
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Sur demande"
       - label: "Processus d’agent personnalisé sous contrat (non intégré)"
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Sur demande"
       - label: "Processus de données de prospection sous contrat (non intégré)"
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Sur demande"
       - label: "Support"
+        free: "Communauté et e-mail"
         starter: "Communauté et e-mail"
         pro: "Communauté et e-mail"
         business: "Prioritaire"
         max: "Prioritaire"
         enterprise: "Dédié"
       - label: "Accès anticipé aux fonctionnalités en bêta"
+        free: false
         starter: false
         pro: false
         business: false
@@ -260,7 +306,7 @@ faq:
     content: "Vous payez par utilisateur actif. Quand vous ajoutez ou retirez des utilisateurs, la différence est calculée au prorata sur votre prochaine facture. Un passage à une formule supérieure s’applique immédiatement, avec un montant au prorata pour le reste de la période de facturation. Un passage à une formule inférieure s’applique aussi immédiatement, et la part non utilisée est créditée."
   - id: pricing-faq-8
     title: "Comment fonctionne l’usage Mate ?"
-    content: "Chaque formule Cloud inclut Mate et une allocation mensuelle d’usage Mate par utilisateur actif, exprimée en multiple de l’allocation Starter : Starter 1x, Pro 3x, Business 10x, Max 20x, et Enterprise selon le contrat. Business offre le plus d’usage par euro. L’usage ne compte que lorsque Mate est activé dans l’environnement hébergé : le traitement IA hébergé dans Customermates y est alors imputé. Il suit le coût réel chez le fournisseur, y compris les appels au modèle et la recherche sémantique côté serveur : une question simple en consomme peu, une demande en plusieurs étapes davantage. Dans l’application, le compteur Mate affiche en pourcentage la part de l’allocation mensuelle déjà utilisée. Les allocations payantes se renouvellent chaque mois et l’usage non consommé n’est pas reporté. Chaque utilisateur actif en période d’essai dispose de l’allocation Pro de 3x. Les allocations des membres actifs forment la réserve commune de l’espace de travail, et chaque membre a aussi sa propre part. Un nouvel utilisateur payant reçoit une allocation exactement au prorata de la période de facturation restante. Un passage à une formule supérieure augmente l’allocation immédiatement, un passage à une formule inférieure la réduit immédiatement. Les clients MCP externes utilisent votre propre fournisseur d’IA pour les appels au modèle. La recherche sémantique côté serveur peut compter dans l’usage Mate, y compris via MCP. Mate n’existe que sur le Cloud. Il n’y a ni recharge ni dépassement facturé automatiquement."
+    content: "Chaque formule Cloud payante inclut Mate et une allocation mensuelle d’usage Mate par utilisateur actif, exprimée en multiple de l’allocation Starter : Starter 1x, Pro 3x, Business 10x, Max 20x, et Enterprise selon le contrat. Business offre le plus d’usage par euro. L’usage ne compte que lorsque Mate est activé dans l’environnement hébergé : le traitement IA hébergé dans Customermates y est alors imputé. Il suit le coût réel chez le fournisseur, y compris les appels au modèle et la recherche sémantique côté serveur : une question simple en consomme peu, une demande en plusieurs étapes davantage. Dans l’application, le compteur Mate affiche en pourcentage la part de l’allocation mensuelle déjà utilisée. Les allocations payantes se renouvellent chaque mois et l’usage non consommé n’est pas reporté. Chaque utilisateur actif en période d’essai dispose de l’allocation Pro de 3x. Les allocations des membres actifs forment la réserve commune de l’espace de travail, et chaque membre a aussi sa propre part. Un nouvel utilisateur payant reçoit une allocation exactement au prorata de la période de facturation restante. Un passage à une formule supérieure augmente l’allocation immédiatement, un passage à une formule inférieure la réduit immédiatement. Les clients MCP externes utilisent votre propre fournisseur d’IA pour les appels au modèle. La recherche sémantique côté serveur peut compter dans l’usage Mate, y compris via MCP. Mate n’existe que sur le Cloud. Il n’y a ni recharge ni dépassement facturé automatiquement."
   - id: pricing-faq-9
     title: "Un même identifiant peut-il utiliser plusieurs espaces de travail ?"
     content: "Oui. Un identifiant peut appartenir à plusieurs espaces de travail entièrement séparés, par exemple un pour la vente et un pour la comptabilité, et passer de l’un à l’autre. Chaque espace de travail a sa propre formule, son propre abonnement et ses propres factures, et les utilisateurs sont comptés par espace de travail : une personne active dans deux espaces de travail compte comme utilisateur payant dans les deux. Le premier espace de travail que vous créez inclut l’essai gratuit de [[commercial.trial.days]] jours ; chaque espace de travail supplémentaire commence par le choix d’une formule. Une instance auto-hébergée gère autant d’espaces de travail que nécessaire, sans facturation."
@@ -270,13 +316,19 @@ faq:
   - id: pricing-faq-11
     title: "Où sont stockées mes données et les identifiants de mes comptes connectés ?"
     content: "La base de données du cloud est hébergée dans la région AWS de Francfort, et les comptes connectés se connectent via le parcours hébergé d’Unipile, de sorte que Customermates ne reçoit ni les mots de passe des fournisseurs ni les jetons OAuth. La réponse complète se trouve dans la documentation : https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
+  - id: pricing-faq-12
+    title: "Qu’est-ce que la formule Free ?"
+    content: "Votre premier espace de travail Cloud commence par l’essai Pro de [[commercial.trial.days]] jours, sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. Si l’essai se termine sans formule payante, l’espace de travail passe à Free au lieu d’être bloqué, et rien n’est supprimé. Free sert à essayer Customermates seul : [[commercial.limit.free.maxMembers]] personne, jusqu’à [[commercial.limit.free.maxRecords]] enregistrements et [[commercial.limit.free.fileStorageBytes]] de stockage de fichiers par espace de travail. Elle n’inclut ni boîte de réception ni comptes connectés, ni Mate, ni routines, ni webhooks, ni déclencheur n8n. L’API REST et MCP sont inclus, avec jusqu’à [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour et par espace de travail : vous pouvez donc utiliser votre propre Claude ou ChatGPT. Les enregistrements et fichiers au-delà d’une limite sont conservés, seul l’ajout de nouveaux est refusé. Vous pouvez passer à une formule payante à tout moment. Une instance auto-hébergée reste gratuite et sans ces limites."
+  - id: pricing-faq-13
+    title: "Que devient mon équipe quand un espace de travail passe à Free ?"
+    content: "Free garde [[commercial.limit.free.maxMembers]] personne active par espace de travail : la personne qui a créé l’espace de travail, sinon le premier administrateur. Toutes les autres sont mises en pause, pas supprimées. Les personnes en pause ne peuvent pas ouvrir l’espace de travail, et leurs enregistrements, notes et historique sont conservés. Les invitations et demandes d’accès en attente sont annulées, les routines sont mises en pause et les webhooks existants n’envoient plus rien. Un administrateur peut transmettre la place active à un autre administrateur. Dès que l’espace de travail choisit une formule payante, toutes les personnes en pause reviennent automatiquement et comptent de nouveau comme des places payantes, et les routines et webhooks reprennent."
 
 cta:
-  action: "Prêt à commencer ?"
-  description: "Découvrez l’espace de travail d’exemple d’une petite entreprise avec des données d’exemple, ou démarrez votre propre essai sur Customermates Cloud avec les fonctions Pro."
-  buttonLeftText: "Commencer gratuitement"
-  buttonLeftHref: /auth/signup
-  buttonRightText: "Explorer l’espace de travail"
-  buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
-  hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+  action: "Prêt à donner suite à chaque échange client ?"
+  description: "Commencez avec un canal et un client : [[commercial.trial.days]] jours sur Pro, sans carte bancaire. Ou parlez d’abord 15 minutes avec Ben."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Parler à Ben, 15 minutes"
+  buttonRightHref: /contact
+  hint: "Sans carte bancaire · Résiliable à tout moment · Made in Germany"
 ---

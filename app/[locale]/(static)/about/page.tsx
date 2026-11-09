@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
-import { Toc } from "@/components/shared/toc";
+import { LandingArticle } from "@/components/marketing/landing-article";
+import { PageHero } from "@/components/marketing/page-hero";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
@@ -29,18 +30,18 @@ export default async function AboutPage({ params }: StaticLocaleProps) {
   const MDX = page.data.body;
 
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center" data-marketing-flow="continuous">
       <JsonLd schema={founderProfileSchema(locale)} />
 
-      <section className="pt-12 md:pt-16 pb-16 md:pb-24 w-full">
-        <article className="max-w-6xl mx-auto px-4">
-          <Toc items={page.data.toc}>
-            <div className="prose prose-sm prose-neutral dark:prose-invert max-w-none">
-              <MDX components={getMDXComponents()} />
-            </div>
-          </Toc>
-        </article>
-      </section>
+      <PageHero
+        description={page.data.description}
+        showOpenSourceBadge={false}
+        title={page.data.heading ?? page.data.title}
+      />
+
+      <LandingArticle founderContact items={page.data.toc}>
+        <MDX components={getMDXComponents()} />
+      </LandingArticle>
 
       <Footer />
     </div>

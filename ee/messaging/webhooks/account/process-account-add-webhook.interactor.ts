@@ -14,6 +14,7 @@ import { isEmailProvider } from "../../provider";
 import { verifyHostedAuthState } from "../../webhook-signature";
 import { deriveAccountFeatures, mapUnipileProvider, mapUnipileStatus } from "../../unipile.mappers";
 import type { AccountWebhookRepo, WebhookUserRepo } from "./account-webhook.repo";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 const Schema = z.object({
   type: z.literal("account.add"),
@@ -31,6 +32,7 @@ export class ProcessAccountAddWebhookInteractor {
     private userRepo: WebhookUserRepo,
     private backgroundTaskService: BackgroundTaskService,
     private eventService: EventService,
+    private funnel: Pick<OnboardingFunnelRepo, "recordFunnelEventUnscoped">,
   ) {}
 
   @Enforce(Schema)
@@ -82,6 +84,12 @@ export class ProcessAccountAddWebhookInteractor {
       provider,
       hasMessaging,
       hasCalendar,
+    });
+
+    await this.funnel.recordFunnelEventUnscoped({
+      companyId: user.companyId,
+      type: "channelConnected",
+      occurredAt: new Date(),
     });
 
     if (!existing) {

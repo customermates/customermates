@@ -12,7 +12,7 @@ type Props = {
 export function PageEnding({ cta, relatedHrefs }: Props) {
   return (
     <>
-      <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="page">
+      <MarketingSection className="mk-section-tight">
         <RelatedPages>
           {relatedHrefs.map((href) => (
             <RelatedPage key={href} href={href} />

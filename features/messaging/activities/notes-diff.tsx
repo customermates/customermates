@@ -123,7 +123,11 @@ export function NotesDiff({ previous, current }: Props) {
               : "text-subdued";
 
         const gutterColor =
-          segment.kind === "added" ? "text-success" : segment.kind === "removed" ? "text-destructive" : "opacity-40";
+          segment.kind === "added"
+            ? "text-success-soft-foreground"
+            : segment.kind === "removed"
+              ? "text-destructive"
+              : "opacity-40";
 
         const gutter = segment.kind === "added" ? "+" : segment.kind === "removed" ? "−" : " ";
 

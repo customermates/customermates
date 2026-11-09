@@ -29,10 +29,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-self-hosted-inbox
   cta:
-    action: Customermates Cloud mit Ihrem eigenen Ablauf prüfen
-    description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase, legen Sie eine kleine Pipeline an und prüfen Sie genau die Datensätze, Ansichten und Schnittstellen, die Ihr Team benötigt.
-    buttonLeftText: Pro-Testphase starten
-    buttonLeftHref: /auth/signup
+    action: "Testen Sie Customermates Cloud an Ihrem eigenen Nachfassen"
+    description: "Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase, verbinden Sie ein E-Mail- oder LinkedIn-Konto und prüfen Sie, ob Sie Gespräche und nächsten Schritt jedes Kunden damit leichter im Griff haben als bisher."
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Tarife vergleichen
     buttonRightHref: /pricing
     hint: "Keine Kreditkarte erforderlich. Self-Hosting wird separat bewertet und umfasst den Funktionsumfang von Starter."
@@ -46,9 +46,9 @@ acquisition:
     locale: de
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Cloud CRM mit Open-Source-Kern, den Sie auch selbst hosten können"
-      body: "Customermates Cloud ist ein verwaltetes Browser-CRM für Kontakte, Organisationen, Deals, Services und Aufgaben mit REST, Webhooks und MCP. Den Open-Source-Kern können Sie auch selbst mit Docker betreiben. Hier vergleichen Sie beides und erfahren, wie Sie ein Cloud CRM auswählen."
-      checksum: fnv1a-6052754f
+      headline: "Ein Cloud-CRM, mit dem Sie bei jedem Kunden nachfassen"
+      body: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, AGPL-Kern zum Selbst-Hosten."
+      checksum: fnv1a-3800ab7d
     kind: none
     reason: "Die frühe, offengelegte Dashboard-Demo ist der direkte Produktbeleg; ein zusätzliches Hero-Bild ist nicht nötig."
     selection: explicit
@@ -58,20 +58,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "Wir sind ein kleiner B2B-Dienstleister. Halte Kunden, Angebote und Gespräche an einem Ort und zeig uns auf dem Dashboard, wen wir zurückrufen müssen."
+  steps:
+    title: "So prüft ein Team Customermates Cloud"
+    items:
+      - title: "Kleinen Workspace anlegen"
+        description: "Starten Sie die Pro-Testphase und laden Sie zunächst nur die Teammitglieder ein, die für die erste Prüfung nötig sind."
+      - title: "Eine echte Pipeline modellieren"
+        description: "Legen Sie einige synthetische oder freigegebene Testkontakte, Organisationen und Deals an und konfigurieren Sie die tatsächlich genutzten Phasen und Felder."
+      - title: "Arbeitsansichten prüfen"
+        description: "Vergleichen Sie Tabellen-, Karten- und Kanban-Ansichten und kontrollieren Sie Beziehungen und Berechtigungen hinter dem Ablauf."
+      - title: "Nur Nötiges verbinden"
+        description: "Ergänzen Sie ein berechtigtes Messaging-Konto, einen Webhook, REST oder MCP erst, wenn Daten- und Berechtigungsgrenzen verstanden sind."
+      - title: "Exportieren, dann entscheiden"
+        description: "Exportieren Sie eine Liste als Excel oder JSON und importieren Sie sie wieder. Entscheiden Sie dann, ob der verwaltete Dienst passt oder ob die Starter-Grenze und der Betriebsaufwand des Self-Hostings vorzuziehen sind."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-dashboard
+    items:
+      - title: "Was es ist"
+        description: "Der Anbieter betreibt Server, Updates und Backups. Sie melden sich im Browser an und zahlen ein Abonnement, meist pro Nutzer und Monat."
+      - title: "Cloud oder Self-Hosting"
+        description: "Die Cloud nimmt Ihnen den Betrieb ab und kostet etwas Kontrolle. Self-Hosting hält Server und Daten in Ihrer Hand und bringt den Betrieb mit."
+      - title: "Customermates"
+        description: "Managed Cloud mit monatlichen Tarifen pro Nutzer oder der Open-Source-Kern auf eigenen Servern mit dem Funktionsumfang von Starter: ohne Postfach, ohne verbundenen Kalender, ohne gehosteten Mate."
+      - title: "Vor dem Kauf"
+        description: "Prüfen Sie Datenstandort und Auftragsverarbeitungsvertrag, Exportformate, API, Preis pro Nutzer und die Verfügbarkeitszusage, und testen Sie einen Export mit echten Datensätzen."
+
 hero:
-  title: Cloud CRM mit Open-Source-Kern, den Sie auch selbst hosten können
-  description: Customermates Cloud ist ein verwaltetes Browser-CRM für Kontakte, Organisationen, Deals, Services und Aufgaben mit REST, Webhooks und MCP. Den Open-Source-Kern können Sie auch selbst mit Docker betreiben. Hier vergleichen Sie beides und erfahren, wie Sie ein Cloud CRM auswählen.
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  title: "Ein Cloud-CRM, mit dem Sie bei jedem Kunden nachfassen"
+  description: "In Customermates Cloud ab Pro liegen LinkedIn- und E-Mail-Gespräche am Kundendatensatz, und Mate entwirft die Antworten zur Prüfung. Cloud-Datenbank in Frankfurt, AGPL-Kern zum Selbst-Hosten."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Tarife vergleichen
   buttonRightHref: /pricing
-  hint: "Managed Cloud • Monatliche Tarife • Separate Self-Hosting-Option"
+  hint: "Keine Kreditkarte benötigt • Monatliche Tarife • Separate Self-Hosting-Option"
 
 cta:
-  action: Customermates Cloud mit Ihrem eigenen Ablauf prüfen
-  description: Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase, legen Sie eine kleine Pipeline an und prüfen Sie genau die Datensätze, Ansichten und Schnittstellen, die Ihr Team benötigt.
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  action: "Testen Sie Customermates Cloud an Ihrem eigenen Nachfassen"
+  description: "Starten Sie die [[commercial.trial.days]]-tägige Pro-Testphase, verbinden Sie ein E-Mail- oder LinkedIn-Konto und prüfen Sie, ob Sie Gespräche und nächsten Schritt jedes Kunden damit leichter im Griff haben als bisher."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Tarife vergleichen
   buttonRightHref: /pricing
   hint: "Keine Kreditkarte erforderlich. Self-Hosting wird separat bewertet und umfasst den Funktionsumfang von Starter."
@@ -79,26 +110,7 @@ cta:
 
 Ein **Cloud CRM** (auch cloudbasiertes CRM, CRM in der Cloud oder SaaS-CRM genannt) ist eine Kundenmanagement-Software, die der Anbieter hostet und betreibt: Ihr Team nutzt das CRM-System im Browser und installiert, aktualisiert und sichert nichts selbst. Customermates ist ein solches Cloud-CRM-System: Die primäre Produktionsdatenbank ist in Frankfurt konfiguriert, und den Open-Source-Kern können Sie alternativ selbst hosten.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Was es ist">
-    Der Anbieter betreibt Server, Updates und Backups. Sie melden sich im Browser
-    an und zahlen ein Abonnement, meist pro Nutzer und Monat.
-  </SummaryItem>
-  <SummaryItem label="Cloud oder Self-Hosting">
-    Die Cloud nimmt Ihnen den Betrieb ab und kostet etwas Kontrolle.
-    Self-Hosting hält Server und Daten in Ihrer Hand und bringt den Betrieb mit.
-  </SummaryItem>
-  <SummaryItem label="Customermates">
-    Managed Cloud mit monatlichen Tarifen pro Nutzer oder der Open-Source-Kern
-    auf eigenen Servern mit dem Funktionsumfang von Starter: ohne Postfach,
-    ohne verbundenen Kalender, ohne gehosteten Mate.
-  </SummaryItem>
-  <SummaryItem label="Vor dem Kauf">
-    Prüfen Sie Datenstandort und Auftragsverarbeitungsvertrag, Exportformate,
-    API, Preis pro Nutzer und die Verfügbarkeitszusage, und testen Sie einen
-    Export mit echten Datensätzen.
-  </SummaryItem>
-</ArticleSummary>
+**Was die Cloud beim Nachfassen ändert.** Läuft das CRM in der Cloud, können Ihre LinkedIn- und E-Mail-Gespräche am Datensatz des Kunden liegen, und Mate kann dort die Antwort entwerfen. In Customermates Cloud beginnt das mit Pro, und die kostenlose Testphase dauert [[commercial.trial.days]] Tage auf Pro. Ein selbst gehosteter Kern behält Kundendatensätze und MCP, hat aber keinen Posteingang und kein Mate; entworfenes Nachfassen ist also eine Cloud-Funktion.
 
 <ProofRail label="Verifizierte Funktionen von Customermates Cloud">
   <ProofItem label="Datensätze">Konfigurierbare Listen, angelegt unter Konfigurieren</ProofItem>
@@ -238,33 +250,6 @@ Alle Managed-Cloud-Tarife umfassen eine Mate-Berechtigung und ein tarifabhängig
 
 Externe KI-Clients können den [Customermates MCP-Server](/docs/mcp) mit einem von Ihnen gewählten Modellanbieter und Abonnement nutzen, in jedem Tarif und auch bei Self-Hosting. Sie nutzen Ihren Anbieter statt gehosteter Credits. Für Automatisierung können Teams REST aufrufen, Webhooks empfangen, MCP verwenden oder ein separat betriebenes Workflow-Werkzeug wie n8n verbinden. Customermates enthält weder die n8n-Laufzeit noch dessen Drittanbieter-Konnektoren.
 
-### So prüft ein Team Customermates Cloud
-
-<Steps>
-  <Step title="Kleinen Workspace anlegen">
-    Starten Sie die Pro-Testphase und laden Sie zunächst nur die Teammitglieder
-    ein, die für die erste Prüfung nötig sind.
-  </Step>
-  <Step title="Eine echte Pipeline modellieren">
-    Legen Sie einige synthetische oder freigegebene Testkontakte, Organisationen
-    und Deals an und konfigurieren Sie die tatsächlich genutzten Phasen und
-    Felder.
-  </Step>
-  <Step title="Arbeitsansichten prüfen">
-    Vergleichen Sie Tabellen-, Karten- und Kanban-Ansichten und kontrollieren
-    Sie Beziehungen und Berechtigungen hinter dem Ablauf.
-  </Step>
-  <Step title="Nur Nötiges verbinden">
-    Ergänzen Sie ein berechtigtes Messaging-Konto, einen Webhook, REST oder MCP
-    erst, wenn Daten- und Berechtigungsgrenzen verstanden sind.
-  </Step>
-  <Step title="Exportieren, dann entscheiden">
-    Exportieren Sie eine Liste als Excel oder JSON und importieren Sie sie
-    wieder. Entscheiden Sie dann, ob der verwaltete Dienst passt oder ob die
-    Starter-Grenze und der Betriebsaufwand des Self-Hostings vorzuziehen sind.
-  </Step>
-</Steps>
-
 ## Wann ist Customermates die falsche Wahl?
 
 Customermates ist bewusst schmal geschnitten. Wählen Sie ein anderes Produkt oder ergänzen Sie eines, wenn Sie brauchen:
@@ -294,17 +279,6 @@ Customermates Cloud passt zu Teams, die ein verwaltetes Browser-CRM für flexibl
   On-Premise-Systeme und selbst gehostete Systeme, darunter Open-Source-CRM.
   Beispiele mit Lizenz, Hosting und Einstiegspreis stehen im
   [CRM-Software-Vergleich](/blog/best-crm-software).
-</FaqItem>
-
-<FaqItem question="Ist HubSpot wirklich kostenlos?">
-  HubSpot nennt auf seiner [Preisseite](https://www.hubspot.com/pricing/crm)
-  kostenlose CRM-Werkzeuge ohne Zeitlimit für bis zu 2 Nutzer, mit Mengengrenzen
-  etwa bei Kontakten; geprüft am 2. November 2026. Weitere Funktionen und mehr
-  Nutzer gehören zu den bezahlten Tarifen. Wer einen kostenlosen Einstieg
-  vergleicht, findet Grenzen und Preise mehrerer Anbieter im
-  [CRM-Software-Vergleich](/blog/best-crm-software). Customermates hat keinen
-  kostenlosen gehosteten Tarif, aber eine [[commercial.trial.days]]-tägige
-  Testphase auf Pro.
 </FaqItem>
 
 <FaqItem question="Wo werden Daten von Customermates Cloud gespeichert?">
@@ -345,7 +319,7 @@ Customermates Cloud passt zu Teams, die ein verwaltetes Browser-CRM für flexibl
 </FaqItem>
 
 <FaqItem question="Enthält Customermates Cloud KI-Funktionen?">
-  Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches
+  Alle bezahlten Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches
   Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Die Live-Verfügbarkeit von Mate hängt von der aktuellen Konfiguration der gehosteten Umgebung ab.
   Externe KI-Clients können zusätzlich MCP mit ihrem eigenen Anbieter nutzen
   und verbrauchen das gehostete Kontingent nicht.

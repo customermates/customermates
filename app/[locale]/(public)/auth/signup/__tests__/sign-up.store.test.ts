@@ -121,3 +121,42 @@ describe("SignUpStore social continuation", () => {
     expect(store.isLoading).toBe(false);
   });
 });
+
+describe("SignUpStore signup journey", () => {
+  const journey = {
+    job: "followup" as const,
+    landingPath: "/en/consultants",
+    referrerHost: null,
+    utmSource: null,
+    utmMedium: null,
+    utmCampaign: null,
+  };
+
+  it("hands the job and landing page to email and social signup", async () => {
+    authActions.signUpWithEmailAction.mockResolvedValue({ ok: true, data: null });
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: null });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: undefined });
+    store.setSignupJourney(journey);
+
+    await store.onSubmit();
+    await store.continueWithProvider("google");
+
+    expect(authActions.signUpWithEmailAction).toHaveBeenLastCalledWith(expect.any(Object), journey);
+    expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith("/onboarding", "/auth/signup", journey);
+  });
+
+  it("keeps an invitation signup free of the journey", async () => {
+    authActions.continueWithGoogleAction.mockResolvedValue({ ok: true, data: null });
+    const store = new SignUpStore(rootStore);
+    store.onInitOrRefresh({ onboardingIntent: "invite-a" });
+    store.setSignupJourney(journey);
+
+    await store.continueWithProvider("google");
+
+    expect(authActions.continueWithGoogleAction).toHaveBeenLastCalledWith(
+      "/auth/invitation?intent=invite-a",
+      "/auth/signup?intent=invite-a",
+    );
+  });
+});

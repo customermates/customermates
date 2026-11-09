@@ -12,7 +12,7 @@ export function PatternHeader({ columns, id, name, when }: PatternSpec) {
     <MarketingContainer className="pt-16">
       <div className="flex flex-col gap-2 border-t border-border-strong pt-5 lg:flex-row lg:items-baseline lg:justify-between lg:gap-8">
         <div className="flex items-baseline gap-3">
-          <code className="font-mono text-sm text-primary">{id}</code>
+          <code className="font-mono text-sm text-muted-foreground">{id}</code>
 
           <span className="font-medium">{name}</span>
         </div>

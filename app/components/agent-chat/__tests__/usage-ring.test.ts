@@ -20,6 +20,9 @@ vi.mock("next-intl", () => ({
           .join(",")})`
       : key,
 }));
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ userStore: { user: {}, can: () => true } }),
+}));
 vi.mock("../agent-chat-store-context", () => ({
   useAgentChatStore: () => ({ usage: harness.usage }),
   useAgentChatUiTargets: () => ({ usageId: "agent-usage" }),
@@ -35,6 +38,9 @@ vi.mock("@/components/ui/popover", () => ({
   PopoverTrigger: ({ children, ...props }: { children: ReactNode }) =>
     createElement("button", { "aria-label": (props as { "aria-label"?: string })["aria-label"] }, children),
   PopoverContent: ({ children }: { children: ReactNode }) => createElement("div", null, children),
+}));
+vi.mock("@/i18n/navigation", () => ({
+  IntlLink: ({ children, href }: { children: ReactNode; href: string }) => createElement("a", { href }, children),
 }));
 vi.mock("@/components/modal/assistant-surface", () => ({ assistantSurfaceProps: () => ({}) }));
 
@@ -71,6 +77,25 @@ describe("UsageRing", () => {
 
     expect(html).toContain("AgentChat.credits.plan(plan=Subscription.planNames.enterprise)");
     expect(html).toContain("AgentChat.credits.recentTurn(used=0.4%)");
+  });
+
+  it("shows Starter what Pro adds to Mate usage, from the plan catalog", () => {
+    harness.usage = { ...usage, plan: "starter", multiplier: 1, usedPct: 12 };
+    const html = renderToStaticMarkup(createElement(UsageRing));
+
+    expect(html).toContain('data-upsell-notice="mate-usage"');
+    expect(html).toContain("Subscription.picker.hostedAiUsage(multiplier=3)");
+    expect(html).toContain("Upsell.upgradeTo(plan=Subscription.planNames.pro)");
+  });
+
+  it("offers more usage on Pro only once the month is mostly used", () => {
+    harness.usage = { ...usage, plan: "pro", multiplier: 3, usedPct: 40 };
+    expect(renderToStaticMarkup(createElement(UsageRing))).not.toContain("data-upsell-notice");
+
+    harness.usage = { ...usage, plan: "pro", multiplier: 3, usedPct: 85 };
+    expect(renderToStaticMarkup(createElement(UsageRing))).toContain(
+      "Subscription.picker.hostedAiUsage(multiplier=10)",
+    );
   });
 
   it("stays hidden without an allowance", () => {

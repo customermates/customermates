@@ -39,8 +39,6 @@ const GUARD_EXEMPT_MODELS = new Set([
 
 const REACHED_ONLY_FROM_BYPASSED_CALLERS = new Set([
   "features/user/prisma-user.repository.ts#claimTrialExpiredOfferSent",
-  "features/user/prisma-user.repository.ts#claimTrialInactivationReminderSent",
-  "features/user/prisma-user.repository.ts#claimTrialInactivationNoticeSent",
 ]);
 
 type WriteSite = {

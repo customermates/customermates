@@ -1,6 +1,6 @@
 ---
-title: "CRM für Gründer und Startups im B2B-Vertrieb"
-description: "CRM für Startups im Gründervertrieb: Interessenten, Verkaufschancen und Investorenkontakte in einem anpassbaren Workspace, mit MCP für Ihren KI-Client."
+title: "CRM für Startups: Nachfassen, bevor ein Deal verstummt"
+description: "CRM für B2B-Gründervertrieb: LinkedIn- und E-Mail-Verläufe am Interessenten, ein nächster Schritt je Deal, Mate oder Ihr KI-Client entwirft Antworten."
 industryName: "Startups"
 
 relatedHrefs:
@@ -10,25 +10,150 @@ relatedHrefs:
   - /for/smb
 
 hero:
-  title: "CRM für Gründer: B2B-Vertrieb mit klaren nächsten Schritten"
-  description: "Für Gründer, die selbst an Unternehmen verkaufen: Interessenten, Kontakte, Verkaufschancen und der nächste Schritt bleiben verbunden, und Ihr eigener KI-Client liest oder ändert freigegebene Datensätze über MCP. Keine Lead-Anreicherung, keine Sequenzen, kein automatisierter Outbound und keine Vorhersage-Prognosen."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "CRM für Gründervertrieb: nachfassen, bevor ein Interessent verstummt"
+  description: Für Gründer, die selbst an Unternehmen verkaufen. Gespräche mit Interessenten liegen am Datensatz, Mate oder Ihr eigener KI-Client entwirft die Antwort und den nächsten Schritt, und Sie prüfen und senden sie. Keine Lead-Anreicherung, kein Outbound.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/gruender-vertrieb/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+landing:
+  hero:
+    eyebrow: Für B2B-Startups mit Gründervertrieb
+    title: Das CRM für den Gründervertrieb, das jedes Interessentengespräch in Bewegung hält.
+    description: Interessenten, Kontakte und die LinkedIn- und E-Mail-Verläufe dahinter in einem Workspace. Mate, oder Ihr eigener KI-Client über MCP, entwirft die Antwort und den nächsten Schritt, und Sie prüfen und senden sie.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihre bisherigen Tools bleiben · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihr Vertrieb, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Interessenten, Verkaufschancen, Ihre Pipeline und Ihren Leitfaden. Das ist das Beispiel für den Gründervertrieb; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir sind zwei Gründer und verkaufen ein B2B-Produkt. Verwalte Interessenten, Piloten und Investoren und hilf uns nachzufassen, bevor ein Pilot einschläft.
+  followUp:
+    eyebrow: Eine Nachricht am Donnerstag, erledigt
+    title: Ein Interessent will Sicherheitsantworten vor dem Review am Freitag. Antwort und nächster Schritt warten auf Ihre Prüfung.
+    description: Der LinkedIn-Verlauf liegt beim Interessenten. Mate entwirft die Antwort aus Ihrem Vertriebsleitfaden, terminiert den nächsten Schritt und lässt den Entwurf zur Prüfung liegen.
+    desk:
+      label: Beispielszene zum Nachfassen mit Demodaten
+      workspace: Fenn Labs
+      conversation:
+        label: LinkedIn
+        name: Elena Marsh
+        company: Fieldwork Analytics
+        time: Do 18:10
+        message: Der Pilot-Umfang passt. Könnten Sie uns die Sicherheitsantworten vor unserem Review am Freitag schicken?
+      agent:
+        name: Mate
+        intent: Entwirft eine Antwort aus Ihrem Vertriebsleitfaden
+        done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Frau Marsh, danke. Die Sicherheitsantworten schicke ich Ihnen morgen früh, zusammen mit dem Pilot-Umfang, über den wir gesprochen haben. Viele Grüße, Jonas Fenn
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Freitag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Sicherheitsantworten senden
+                meta: Fieldwork Analytics · heute fällig
+                owner: JF
+                state: added
+              - title: Nach der Pilot-Entscheidung fragen
+                meta: Kaplan Systems · 2 Tage überfällig
+                owner: JF
+                state: overdue
+          - title: Verkaufschancen ohne Antwort
+            items:
+              - title: Pilot Kaplan Systems
+                meta: vor 5 Tagen angeboten
+                owner: JF
+                state: due
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Interessenten, jeder mit einem nächsten Schritt.
+    before:
+      label: Vorher
+      points:
+        - Interessenten verteilt auf zwei Postfächer und eine Tabelle
+        - Das zugesagte Nachfassen hängt davon ab, wer sich erinnert
+        - Ein neuer Vertriebsmitarbeiter fängt bei null an
+    after:
+      label: Mit Customermates
+      points:
+        - Jede offene Verkaufschance hat einen nächsten Schritt mit Datum
+        - Gespräche und nächster Schritt liegen am Interessenten
+        - Die erste Vertriebskraft erbt die Historie
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zum ersten Nachfassen.
+    items:
+      - title: Beschreiben, wie Sie verkaufen
+        description: Die KI-Einrichtung baut Interessenten, Verkaufschancen, Ihre Pipeline und Ihren Leitfaden aus einer Beschreibung und ein paar Antworten.
+      - title: LinkedIn oder E-Mail verbinden
+        description: Verläufe landen beim Interessenten, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Nachfassen im Dashboard prüfen
+        description: Mate oder Ihr eigener KI-Client entwirft die Antwort und terminiert den nächsten Schritt, wenn Sie es verlangen oder in einer Routine, die Sie einrichten. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Pro reicht dafür. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Wenn Ihre erste Vertriebskraft aus einem gemeinsamen Vertriebspostfach antwortet, brauchen Sie Business für [[commercial.price.business.monthly]]. Ihr eigenes Claude- oder ChatGPT-Abo bleibt beim Anbieter.
+    limits: Nicht geeignet, wenn Sie Lead-Anreicherung, Sequenzen, Telefonie oder eine Fundraising-Plattform brauchen. Dafür bleiben andere Tools.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
 
 cta:
-  action: Erst den Gründer-Workspace ansehen, dann den eigenen aufbauen
+  action: Erst den Nachfass-Schreibtisch eines Gründers ansehen, dann den eigenen aufbauen
   description: "Sehen Sie sich den Beispiel-Workspace mit Beispieldaten an. Ihr eigener Workspace startet ohne Listen: In Customermates Cloud legt die KI-Einrichtung sie nach Ihrer Beschreibung an, alternativ erstellen Sie sie unter Konfigurieren und importieren eine Excel-Arbeitsmappe. Monatliche Abrechnung pro Nutzer."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/gruender-vertrieb/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+useCases:
+  eyebrow: So können Sie es nutzen
+  title: Für Gründer. Vier Aufgaben, ein Workspace.
+  items:
+    - title: Nachfassen, bevor ein Interessent verstummt
+      description: Sortieren Sie Verkaufschancen nach dem Termin des nächsten Schritts, damit das nach einem Gespräch zugesagte Nachfassen auf Ihrer Liste steht.
+      href: /features/follow-up
+      linkLabel: Zum Nachfassen
+      visual: dashboard
+    - title: Ein Interessentengespräch vorbereiten
+      description: Öffnen Sie einen Interessenten und sehen Sie vor dem Termin Ansprechpartner, letztes Gespräch und nächsten Schritt.
+      href: /features/sales
+      linkLabel: Zum Vertrieb
+      visual: proposal
+    - title: Ihr eigener KI-Client über MCP
+      description: Lassen Sie Claude, ChatGPT oder Cursor über MCP die Datensätze lesen oder pflegen, die Sie erlauben.
+      href: /features/integrations
+      linkLabel: Agenten verbinden
+      visual: agent
+    - title: Deals an die erste Vertriebskraft übergeben
+      description: Deals, Kontakte und nächste Schritte liegen schon in einem Workspace, wenn Ihre erste Vertriebskraft startet.
+      href: /features/pipeline
+      linkLabel: Zur Pipeline
+      visual: pipeline
 ---
 
-In einem jungen B2B-Startup sind die Gründer das Vertriebsteam. Deals beginnen mit einer Empfehlung, einer LinkedIn-Nachricht oder einem Gespräch auf einer Veranstaltung, und der Kontext verteilt sich auf zwei Postfächer und eine Tabelle. Ein CRM für Startups lohnt sich, sobald eine zweite Person mit Kunden spricht oder zum ersten Mal ein zugesagtes Nachfassen untergeht. Customermates ist ein Open-Source-CRM mit KI aus Deutschland. Es hält Interessenten, Kontakte, Verkaufschancen und den nächsten Schritt in einem anpassbaren Workspace zusammen, und ein KI-Client, den Sie ohnehin nutzen, kann die Datensätze lesen oder ändern, die er sehen darf. Leads sucht, bewertet oder kontaktiert Customermates nicht für Sie.
+In einem jungen B2B-Startup sind die Gründer das Vertriebsteam. Deals beginnen mit einer Empfehlung, einer LinkedIn-Nachricht oder einem Gespräch auf einer Veranstaltung, und der Kontext verteilt sich auf zwei Postfächer und eine Tabelle. Ein CRM für Startups lohnt sich, sobald eine zweite Person mit Kunden spricht oder zum ersten Mal ein zugesagtes Nachfassen untergeht. Customermates ist ein Open-Source-CRM mit KI aus Deutschland. Es hält Interessenten, Kontakte, Verkaufschancen und den nächsten Schritt in einem anpassbaren Workspace zusammen, und ein KI-Client, den Sie ohnehin nutzen, kann die Datensätze lesen oder ändern, die er sehen darf. Ab Pro in Customermates Cloud liegen die LinkedIn- und E-Mail-Verläufe beim Interessenten, und Mate oder Ihr eigener KI-Client über MCP entwirft die Antwort und den nächsten Schritt, die Sie prüfen, bearbeiten und senden. Leads sucht, bewertet oder kontaktiert Customermates nicht für Sie.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -125,15 +250,15 @@ Der [gemeinsame Posteingang](/features/unified-inbox) bündelt E-Mail aus Gmail,
 
 Gesprächsteilnehmer werden über E-Mail-Adresse, Telefonnummer oder LinkedIn-Identität einem Kontakt zugeordnet. Mit einer Verkaufschance oder einem Unternehmen verknüpft wird ein Gespräch nur, wenn eine Person oder ein von ihr beauftragter Agent es verknüpft, nie automatisch.
 
-Mate, der Assistent in Customermates Cloud, fasst Verkaufschancen zusammen, ändert Datensätze und entwirft Antworten. Mate läuft in jedem Cloud-Tarif im Rahmen der gehosteten KI-Credits Ihres Tarifs und ist beim Self-Hosting abgeschaltet. Mate ändert Datensätze und sendet Nachrichten, sobald Sie darum bitten; nur Löschungen, Importe, Änderungen an Zugriffsrechten und destruktive Änderungen am Datenmodell warten auf Ihre Freigabe. Ein Entwurf bleibt liegen, bis Sie ihn bearbeiten oder senden, bitten Sie also um Entwürfe, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus. Sie gehört einer Person und sieht nur, was diese Person sieht.
+Mate, der Assistent in Customermates Cloud, fasst Verkaufschancen zusammen, ändert Datensätze und entwirft Antworten. Mate läuft in jedem bezahlten Cloud-Tarif im Rahmen der gehosteten KI-Credits Ihres Tarifs und ist beim Self-Hosting abgeschaltet. Mate ändert Datensätze und sendet Nachrichten, sobald Sie darum bitten; nur Löschungen, Importe, Änderungen an Zugriffsrechten und destruktive Änderungen am Datenmodell warten auf Ihre Freigabe. Ein Entwurf bleibt liegen, bis Sie ihn bearbeiten oder senden, bitten Sie also um Entwürfe, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) führt eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus. Sie gehört einer Person und sieht nur, was diese Person sieht.
 
 ## Übergabe an die erste Vertriebsperson
 
-Weisen Sie die neue Person den Verkaufschancen zu, die sie übernimmt, und filtern Sie nach zugewiesenen Nutzern. Eine eigene Rolle kann ihren Lesezugriff bei Interessenten, Kontakten und Verkaufschancen auf zugewiesene Datensätze beschränken. Eine Grenze sollten Sie kennen: Es gibt keine Berechtigungen auf Feldebene. Gespräche aus dem eigenen Konto eines Gründers bleiben privat, bis er einen Verlauf teilt, oder ab Business das ganze Konto.
+Weisen Sie die neue Person den Verkaufschancen zu, die sie übernimmt, und filtern Sie nach zugewiesenen Nutzern. Eine eigene Rolle kann ihren Lesezugriff bei Interessenten, Kontakten und Verkaufschancen auf zugewiesene Datensätze beschränken. Zwei Grenzen sollten Sie kennen: Eine geteilte Ansicht ist für Kolleginnen und Kollegen nur lesbar, und es gibt keine Berechtigungen auf Feldebene. Gespräche aus dem eigenen Konto eines Gründers bleiben privat, bis er einen Verlauf teilt, oder ab Business das ganze Konto.
 
 ## Integrationen
 
-Jeder Tarif, auch Self-Hosting, hat eine [REST-API](/features/api), Webhooks und einen n8n-Community-Node. Ihr Produkt kann bei einer Registrierung einen Kontakt anlegen, und ein Webhook bei einer geänderten Verkaufschance kann einen separat betriebenen n8n-Workflow oder einen eingehenden Slack-Webhook ansprechen; eine native Slack-App gibt es nicht. Was sich anbinden lässt, zeigt die [Seite zu Integrationen](/features/integrations).
+Jeder Tarif, auch Self-Hosting, hat eine [REST-API](/features/api); Webhooks und die n8n-Trigger, die darauf aufbauen, gehören zu jedem bezahlten Tarif und zum Self-Hosting. Ihr Produkt kann bei einer Registrierung einen Kontakt anlegen, und ein Webhook bei einer geänderten Verkaufschance kann einen separat betriebenen n8n-Workflow oder einen eingehenden Slack-Webhook ansprechen; eine native Slack-App gibt es nicht. Was sich anbinden lässt, zeigt die [Seite zu Integrationen](/features/integrations).
 
 ## Was Customermates für Startups nicht macht
 
@@ -142,7 +267,7 @@ Jeder Tarif, auch Self-Hosting, hat eine [REST-API](/features/api), Webhooks und
 - Keine Vorhersage-Prognosen; der gewichtete Wert beruht auf Ihren eigenen Phasenwerten.
 - Keine Telefonie, keine SMS, keine Webformulare, keine Terminbuchung und keine nativen mobilen Apps.
 - Keine Fundraising-Plattform, kein Cap Table und kein Datenraum.
-- Kein kostenloser gehosteter Tarif und kein Startup-Rabatt.
+- Kein Startup-Rabatt. Der kostenlose Tarif endet bei [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätzen, ohne Posteingang und Mate.
 
 Brauchen Sie genau so etwas, schauen Sie sich ein Tool an, das dafür gebaut ist. Diese Seite veröffentlicht Customermates selbst, lesen Sie die Tabelle also als Hinweise, nicht als Rangliste. Die Herstellerangaben haben wir am 8. Oktober 2026 auf den jeweiligen Websites geprüft.
 
@@ -195,6 +320,6 @@ Nein. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die K
 </FaqItem>
 
 <FaqItem question="Ist Customermates für Startups kostenlos?">
-Nein. Es gibt eine Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte, danach Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat bei monatlicher Abrechnung. Einen kostenlosen gehosteten Tarif und einen Startup-Rabatt gibt es nicht. Den Open-Source-Kern können Sie ohne Lizenzgebühr selbst betreiben, dann ohne Posteingang und Mate. Unsere [Übersicht zu Startup-CRMs](/blog/best-crm-startups) vergleicht weitere Optionen.
+Es gibt eine Testphase von [[commercial.trial.days]] Tagen ohne Kreditkarte. Der kostenlose Tarif umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang und Mate, und bezahlte Tarife beginnen bei [[commercial.price.starter.monthly]] pro Nutzer und Monat bei monatlicher Abrechnung. Einen Startup-Rabatt gibt es nicht. Den Open-Source-Kern können Sie ohne Lizenzgebühr selbst betreiben, dann ohne Posteingang und Mate. Unsere [Übersicht zu Startup-CRMs](/blog/best-crm-startups) vergleicht weitere Optionen.
 </FaqItem>
 </Faq>

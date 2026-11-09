@@ -25,6 +25,8 @@ Members with the **Admin** role can pause (**Pause routine**) or delete anyone's
 
 Each user has their own allowance: Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] and Business, Max and Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Pausing a routine does not free a slot; moving it to [Trash](/docs/app-trash) frees its slot at once. At the limit, a new routine is refused with a prompt to upgrade under [Billing](app:settings/billing), and restoring a routine from Trash leaves it there with the note that its owner already has all the routines their plan includes; move another of the owner's routines to Trash first. Over REST and MCP, the restore result lists it under `blocked` with the reason `routineLimitReached` and the plan's `limit`. The limit is checked only when a routine is created or restored, so routines above a lower plan's limit are kept after a downgrade. The allowance runs draw on is described under [Plans and Mate usage](/docs/app-assistant#plans-and-credits).
 
+On the Free plan, routines are not included: existing routines are kept, show **Paused, Free plan** and do not run, and creating or activating one is refused with the Starter price. They resume on their own when the workspace chooses a paid plan.
+
 ## What are the limits, such as runs per hour and usage per run? [#what-are-the-limits]
 
 | Limit | Value | At the limit |

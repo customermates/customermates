@@ -12,7 +12,6 @@ export const MARKETING_NAMESPACES = [
   "Footer",
   "ForHub",
   "HomepagePricing",
-  "HomepageStatsRow",
   "Loading",
   "NavigationBar",
   "NotFoundPage",

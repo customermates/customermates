@@ -1,7 +1,8 @@
 ---
-title: "Preise: das agentische Open-Source-CRM"
-titleAccent: einfach, ehrlich, europäisch.
-description: "Monatliche Preise pro Nutzer für das Open-Source-CRM: Kern-CRM, REST, Webhooks und MCP ab [[commercial.price.starter.monthly]], der Posteingang in der Cloud ab Pro."
+title: "Customermates Preise: einfache Tarife pro Person"
+heading: "Ein Preis pro Person."
+titleAccent: "Starten Sie [[commercial.trial.days]] Tage mit Pro."
+description: "Free-Tarif für eine Person, bezahlte Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet. Pro [[commercial.trial.days]] Tage gratis testen, ohne Kreditkarte."
 
 pricing:
   ariaLabelSlider: Anzahl der Nutzer
@@ -10,105 +11,126 @@ pricing:
   footnote: "Ein verbundenes Konto ist ein verknüpftes Postfach oder ein LinkedIn-, WhatsApp-, Instagram- oder Telegram-Profil, das einem einzelnen Nutzer gehört. Starter enthält keine verbundenen Konten. Mit Pro teilen Sie einzelne Threads, ganze Konten teilen Sie ab Business mit dem Team. Die Preise gelten pro Nutzer und werden monatlich in Euro abgerechnet."
   totalSuffixSingular: "/Monat gesamt für {count} Nutzer"
   totalSuffixPlural: "/Monat gesamt für {count} Nutzer"
+  moreTitle: "Mehr Nutzung oder ein individuelles Setup"
+  selfHost:
+    text: "Lieber selbst betreiben? Die Open-Source-Version können Sie kostenlos selbst hosten."
+    linkLabel: "Anleitung zum Self-Hosting"
+    href: /docs/self-hosting
   pricingCards:
+  - plan: free
+    title: Free
+    description: "Allein ausprobieren, kostenlos: [[commercial.limit.free.maxMembers]] Person, [[commercial.limit.free.maxRecords]] Datensätze."
+    buttonText: "So funktioniert Free"
+    buttonHref: "#faq"
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - "[[commercial.limit.free.fileStorageBytes]] Dateispeicher pro Workspace"
+      - "API und MCP mit [[commercial.limit.free.apiRequestsPerMinute]] Anfragen pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag"
+      - "Kein Posteingang, kein Mate, keine Routinen, keine Webhooks und keine n8n-Trigger"
   - plan: starter
     title: Starter
-    description: CRM-Kern & MCP
-    buttonText: Kostenlos testen
+    description: "Ihr CRM und Ihre eigene KI"
+    buttonText: "[[commercial.trial.days]] Tage Pro testen"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - Kontakte, Unternehmen, Deals, Services & Aufgaben
-      - "MCP-Zugriff: externen KI-Client wie Claude, ChatGPT oder Gemini verbinden"
-      - REST-API, Webhooks & Schnittstellen für Ihr eigenes n8n
+      - Kontakte, Organisationen, Deals und Aufgaben
+      - "Ihre eigene KI per MCP verbinden: Claude, ChatGPT oder Gemini"
+      - REST API, Webhooks und Ihr eigenes n8n
       - "[[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
-      - "Mate-Nutzung: 1x pro aktivem Nutzer, das Basiskontingent (nutzbar, wenn Mate aktiviert ist)"
-      - Kein Posteingang und keine verbundenen Nachrichtenkonten
-      - "Self-Hosting: Funktionsumfang von Starter ohne Mate, Routinen und KI-Einrichtung"
+      - "Mate-Nutzung: 1x pro aktivem Nutzer, das Basiskontingent"
+    missingFeatures:
+      - Gemeinsamer Posteingang für LinkedIn und E-Mail
+      - Antwortentwürfe von Mate für Ihre Gespräche
   - plan: pro
     title: Pro
-    description: CRM + einheitlicher Posteingang. Inklusive kostenloser Testphase von [[commercial.trial.days]] Tagen.
-    badge: "[[commercial.trial.days]] Tage kostenlos testen"
-    buttonText: Kostenlos testen
-    buttonHref: /auth/signup
-    buttonColor: default
-    buttonVariant: bordered
-    features:
-      - Alles aus Starter
-      - "Einheitlicher Posteingang für Ihre eigenen Konten: E-Mail, LinkedIn, WhatsApp, Instagram, Telegram"
-      - "[[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive"
-      - Einzelne Threads mit dem Team teilen
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
-      - Kalenderzugriff (nur lesend) & LinkedIn Sales Navigator
-      - "Mate-Nutzung: 3x Starter pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
-  - plan: business
-    title: Business
-    description: Für Teams
-    badge: Empfohlen
+    badge: "Ideal zum Nachfassen"
     featured: true
-    buttonText: Kostenlos testen
+    description: "Nachfassen über LinkedIn und E-Mail"
+    buttonText: "[[commercial.trial.days]] Tage Pro testen"
     buttonHref: /auth/signup
     buttonColor: primary
     buttonVariant: shadow
-    shadow: md
-    cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
+    features:
+      - "LinkedIn, E-Mail, WhatsApp, Instagram und Telegram in einem Posteingang"
+      - Mate entwirft Antworten aus Ihrem Playbook, Sie prüfen und senden
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto pro Nutzer inklusive"
+      - Einzelne Threads mit dem Team teilen
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer: Mate arbeitet nach Zeitplan oder wenn sich ein Datensatz ändert"
+      - Lesezugriff auf den Kalender und LinkedIn Sales Navigator
+      - "Mate-Nutzung: 3x Starter pro aktivem Nutzer"
+      - Alles aus Starter
+  - plan: business
+    title: Business
+    badge: "Für Teams"
+    description: "Teams, die Posteingänge teilen"
+    buttonText: "[[commercial.trial.days]] Tage Pro testen"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
     features:
       - Alles aus Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer inklusive"
+      - "Ganze Konten teilen: ein verbundenes Konto mit dem Team teilen"
       - "Routinen pro Nutzer: [[commercial.entitlement.business.includedRoutinesPerUser]] (Fair Use)"
-      - "Ganze Konten teilen: ein verbundenes Konto für das Team freigeben"
-      - Priorisierter Support
-      - "Mate-Nutzung: 10x Starter pro aktivem Nutzer, die meiste Nutzung pro Euro (nutzbar, wenn Mate aktiviert ist)"
+      - Bevorzugter Support
+      - "Mate-Nutzung: 10x Starter pro aktivem Nutzer, die meiste Nutzung pro Euro"
   - plan: max
     title: Max
-    description: Für intensive Mate-Nutzung
-    buttonText: Kostenlos testen
+    description: "Für intensive Mate-Nutzung"
+    buttonText: "[[commercial.trial.days]] Tage Pro testen"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
       - Alles aus Business
+      - "Mate-Nutzung: 20x Starter pro aktivem Nutzer"
       - "[[commercial.entitlement.max.includedAccountsPerUser]] verbundene Konten pro Nutzer inklusive"
-      - "Mate-Nutzung: 20x Starter pro aktivem Nutzer (nutzbar, wenn Mate aktiviert ist)"
-      - Priorisierter Support
-      - Früher Zugang zu Beta-Funktionen
+      - Bevorzugter Support und früher Zugang zu Beta-Funktionen
   - plan: enterprise
     title: Enterprise
-    description: Individueller Umfang & Support
-    buttonText: Kontakt aufnehmen
-    buttonHref: mailto:sales@customermates.com?subject=Anfrage%20Enterprise%20Plan
+    description: Individueller Umfang und Support
+    buttonText: Vertrieb kontaktieren
+    buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
       - Alles aus Business
-      - Vertraglich vereinbarte Agenten- oder Lead-Daten-Workflows (nicht eingebaut)
       - Einrichtung durch uns
-      - "Verbundene Konten pro Nutzer: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (Fair Use); SSO & White-Label sind nicht implementiert und erfordern Vertragsarbeit"
-      - Dedizierter Support & individuelle Konditionen
-      - "Mate-Nutzung: individuell, vertraglich festgelegt pro aktivem Nutzer/Monat (nutzbar, wenn Mate aktiviert ist)"
+      - Vertraglich vereinbarte Custom-Agent- oder Lead-Daten-Workflows (nicht eingebaut)
+      - Persönlicher Support und individuelle Konditionen
+      - "Verbundene Konten pro Nutzer: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (Fair Use); SSO und White-Label sind nicht implementiert und erfordern vertraglich vereinbarte Arbeit"
+      - "Mate-Nutzung: individuell, vertraglich pro aktivem Nutzer und Monat festgelegt"
 
 comparison:
+  apiLimitValue: "{perMinute}/Min., {perDay}/Tag"
   customValue: Individuell
-  header: Pläne
+  header: "Alle Funktionen im Vergleich"
   unlimitedValue: Unbegrenzt (Fair Use)
+  workspaceStorageValue: "{size} pro Workspace"
   plans:
+    free:
+      name: Free
+      button: "[[commercial.trial.days]] Tage Pro testen"
+      buttonHref: /auth/signup
     starter:
       name: Starter
-      button: Kostenlos testen
+      button: "[[commercial.trial.days]] Tage Pro testen"
       buttonHref: /auth/signup
     pro:
       name: Pro
-      button: Kostenlos testen
-      buttonHref: /auth/signup
-    business:
-      name: Business
-      button: Kostenlos testen
+      button: "[[commercial.trial.days]] Tage Pro testen"
       buttonHref: /auth/signup
       featured: true
+    business:
+      name: Business
+      button: "[[commercial.trial.days]] Tage Pro testen"
+      buttonHref: /auth/signup
     max:
       name: Max
-      button: Kostenlos testen
+      button: "[[commercial.trial.days]] Tage Pro testen"
       buttonHref: /auth/signup
     enterprise:
       name: Enterprise
@@ -121,6 +143,10 @@ comparison:
         catalogFact: monthlyPrice
       - label: Mate-Nutzung pro aktivem Nutzer (Vielfaches von Starter)
         catalogFact: hostedAiUsage
+      - label: "Personen pro Workspace"
+        catalogFact: maxMembers
+      - label: "Datensätze"
+        catalogFact: maxRecords
   - title: Messaging
     rows:
       - label: Einheitlicher Posteingang
@@ -130,24 +156,28 @@ comparison:
       - label: Ganze Konten teilen
         catalogFact: sharedAccounts
       - label: Einzelne Threads teilen
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Kalenderzugriff (nur lesend)
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Social-Post-Tracking
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: LinkedIn Sales Navigator
+        free: false
         starter: false
         pro: true
         business: true
@@ -159,37 +189,47 @@ comparison:
         catalogFact: includedRoutinesPerUser
       - label: Dateispeicher pro Nutzer, gemeinsam im Workspace
         catalogFact: fileStoragePerActiveUser
+      - label: "API- und MCP-Anfragen pro Workspace"
+        catalogFact: apiRequestLimit
       - label: Kontakte, Unternehmen, Deals, Services & Aufgaben
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Eigene Felder, Rollen & Rechte
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Verknüpfte Datensätze & Notizen
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: REST-API & Webhooks
+      - label: "REST-API"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
+      - label: "Webhooks und der n8n-Trigger"
+        catalogFact: webhooks
       - label: MCP-Zugriff für einen externen KI-Client
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: Schnittstellen für eine externe n8n-Instanz
+      - label: n8n-Aktionen, die Datensätze lesen und schreiben
+        free: true
         starter: true
         pro: true
         business: true
@@ -198,36 +238,42 @@ comparison:
   - title: Enterprise
     rows:
       - label: Single Sign-On (noch nicht gebaut, nach Vereinbarung)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Auf Anfrage"
       - label: White-Label (noch nicht gebaut, nach Vereinbarung)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Auf Anfrage"
       - label: Vertraglicher Agenten-Workflow (nicht eingebaut)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Auf Anfrage"
       - label: Vertraglicher Lead-Daten-Workflow (nicht eingebaut)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "Auf Anfrage"
       - label: Support
+        free: "Community & E-Mail"
         starter: "Community & E-Mail"
         pro: "Community & E-Mail"
         business: "Priorisiert"
         max: "Priorisiert"
         enterprise: "Dediziert"
       - label: Früher Zugang zu Beta-Funktionen
+        free: false
         starter: false
         pro: false
         business: false
@@ -239,10 +285,10 @@ faq:
   faqs:
   - id: pricing-faq-1
     title: Warum ist Ihr CRM so günstig?
-    content: Wir arbeiten ohne Investoren und halten unsere Kosten damit bewusst niedrig. So können wir unseren Kunden dauerhaft niedrige Preise sichern.
+    content: Wir arbeiten ohne Investoren und halten unsere Kosten damit bewusst niedrig. So können wir die Preise für unsere Kunden niedrig halten.
   - id: pricing-faq-2
     title: Wie bleibt Ihr CRM langfristig zuverlässig?
-    content: Wir wachsen organisch und investieren direkt in das Produkt und den Support. So bleibt unser CRM dauerhaft zukunftssicher.
+    content: Wir wachsen organisch und investieren direkt in das Produkt und den Support. So bleibt das Produkt langfristig gepflegt.
   - id: pricing-faq-3
     title: Warum ein spezialisiertes CRM?
     content: Große CRM-Suiten bündeln Marketing, Service und Vertrieb und berechnen dafür Module, die viele kleine Teams nie nutzen. Customermates konzentriert sich auf Kundendatensätze, die Sie selbst konfigurieren, den einheitlichen Posteingang und KI-Zugriff per MCP. Sie zahlen nur dafür und erweitern den Rest bei Bedarf über REST-API, Webhooks oder Ihre eigene n8n-Instanz.
@@ -260,7 +306,7 @@ faq:
     content: "Sie zahlen pro aktivem Nutzer. Wenn Sie Nutzer hinzufügen oder entfernen, wird die Änderung anteilig mit der nächsten Rechnung verrechnet. Tarif-Upgrades gelten sofort mit anteiliger Berechnung für den Rest des Abrechnungszeitraums, Downgrades gelten sofort und der nicht genutzte Anteil wird gutgeschrieben."
   - id: pricing-faq-8
     title: Wie funktioniert die Mate-Nutzung?
-    content: "Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent für die Mate-Nutzung pro aktivem Nutzer, angegeben als Vielfaches des Starter-Kontingents: Starter 1x, Pro 3x, Business 10x, Max 20x und Enterprise nach Vertrag. Business bietet die meiste Nutzung pro Euro. Nutzung fällt nur an, wenn Mate in der gehosteten Umgebung aktiviert ist. Dann zählt die gehostete KI-Verarbeitung in Customermates zur Nutzung. Der Verbrauch folgt den tatsächlichen Anbieter-Kosten, einschließlich Modellaufrufen und serverseitiger semantischer Suche; eine einfache Frage verbraucht nur einen kleinen Anteil, eine mehrstufige Anfrage mehr. In der App zeigt der Mate-Zähler in Prozent, wie viel des Monatskontingents verbraucht ist. Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Nutzung wird nicht übertragen. Jeder aktive Nutzer in der Testphase hat das Pro-Kontingent von 3x. Die Kontingente aktiver Mitglieder bilden den gemeinsamen Workspace-Pool; jedes Mitglied hat außerdem eine individuelle Zuteilung. Neue bezahlte Plätze erhalten für den verbleibenden Abrechnungszeitraum ein exakt anteiliges Kontingent. Upgrades erhöhen das aktuelle Kontingent sofort, Downgrades senken es sofort. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter für Modellaufrufe. Serverseitige semantische Suche kann auch über MCP zur Mate-Nutzung zählen. Mate ist nur in der Cloud vorgesehen. Es gibt keine Aufladungen oder automatischen Mehrkosten."
+    content: "Alle bezahlten Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent für die Mate-Nutzung pro aktivem Nutzer, angegeben als Vielfaches des Starter-Kontingents: Starter 1x, Pro 3x, Business 10x, Max 20x und Enterprise nach Vertrag. Business bietet die meiste Nutzung pro Euro. Nutzung fällt nur an, wenn Mate in der gehosteten Umgebung aktiviert ist. Dann zählt die gehostete KI-Verarbeitung in Customermates zur Nutzung. Der Verbrauch folgt den tatsächlichen Anbieter-Kosten, einschließlich Modellaufrufen und serverseitiger semantischer Suche; eine einfache Frage verbraucht nur einen kleinen Anteil, eine mehrstufige Anfrage mehr. In der App zeigt der Mate-Zähler in Prozent, wie viel des Monatskontingents verbraucht ist. Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Nutzung wird nicht übertragen. Jeder aktive Nutzer in der Testphase hat das Pro-Kontingent von 3x. Die Kontingente aktiver Mitglieder bilden den gemeinsamen Workspace-Pool; jedes Mitglied hat außerdem eine individuelle Zuteilung. Neue bezahlte Plätze erhalten für den verbleibenden Abrechnungszeitraum ein exakt anteiliges Kontingent. Upgrades erhöhen das aktuelle Kontingent sofort, Downgrades senken es sofort. Externe MCP-Clients nutzen Ihren eigenen KI-Anbieter für Modellaufrufe. Serverseitige semantische Suche kann auch über MCP zur Mate-Nutzung zählen. Mate ist nur in der Cloud vorgesehen. Es gibt keine Aufladungen oder automatischen Mehrkosten."
   - id: pricing-faq-9
     title: Kann ein Login mehrere Workspaces nutzen?
     content: "Ja. Ein Login kann zu mehreren vollständig getrennten Workspaces gehören, etwa einem für den Vertrieb und einem für die Buchhaltung, und zwischen ihnen wechseln. Jeder Workspace hat einen eigenen Tarif, ein eigenes Abonnement und eigene Rechnungen, und Nutzerplätze zählen je Workspace: Wer in zwei Workspaces aktiv ist, ist in beiden ein bezahlter Nutzerplatz. Der erste Workspace, den Sie erstellen, enthält die kostenlose Testphase von [[commercial.trial.days]] Tagen; jeder weitere Workspace startet mit der Wahl eines Tarifs. Eine Self-Hosted-Instanz betreibt beliebig viele Workspaces ohne Abrechnung."
@@ -270,13 +316,19 @@ faq:
   - id: pricing-faq-11
     title: Wo werden meine Daten und die Zugangsdaten verbundener Konten gespeichert?
     content: "Die Cloud-Datenbank läuft in AWS Frankfurt, und verbundene Konten melden sich über den gehosteten Ablauf von Unipile an, sodass Customermates weder Passwörter der Kontoanbieter noch OAuth-Token erhält. Die vollständige Antwort steht in der Dokumentation: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
+  - id: pricing-faq-12
+    title: "Was ist der Free-Tarif?"
+    content: "Ihr erster Cloud-Workspace startet mit der Pro-Testphase von [[commercial.trial.days]] Tagen, ohne Kreditkarte; jeder weitere Workspace startet mit der Wahl eines Tarifs. Endet die Testphase ohne bezahlten Tarif, wechselt der Workspace in den Free-Tarif, statt gesperrt zu werden, und nichts wird gelöscht. Free ist zum Ausprobieren allein gedacht: [[commercial.limit.free.maxMembers]] Person, bis zu [[commercial.limit.free.maxRecords]] Datensätze und [[commercial.limit.free.fileStorageBytes]] Dateispeicher pro Workspace. Posteingang und verbundene Konten, Mate, Routinen, Webhooks und der n8n-Trigger sind nicht enthalten. REST-API und MCP sind inklusive, mit bis zu [[commercial.limit.free.apiRequestsPerMinute]] Anfragen pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag je Workspace, sodass Sie Ihr eigenes Claude oder ChatGPT anbinden können. Datensätze und Dateien über einer Grenze bleiben erhalten, nur Neues kommt nicht mehr hinzu. Sie können jederzeit in einen bezahlten Tarif wechseln. Eine selbst gehostete Instanz bleibt kostenlos und ohne diese Grenzen."
+  - id: pricing-faq-13
+    title: "Was passiert mit meinem Team, wenn ein Workspace zu Free wechselt?"
+    content: "Free behält [[commercial.limit.free.maxMembers]] aktive Person pro Workspace: die Person, die den Workspace angelegt hat, sonst den frühesten Admin. Alle anderen werden pausiert, nicht entfernt. Pausierte Personen können den Workspace nicht öffnen, ihre Datensätze, Notizen und ihr Verlauf bleiben erhalten. Offene Einladungen und Beitrittsanfragen werden storniert, Routinen werden pausiert und bestehende Webhooks senden nicht mehr. Ein Admin kann den aktiven Platz an einen anderen Admin übergeben. Sobald der Workspace einen bezahlten Tarif wählt, sind alle pausierten Personen automatisch zurück und zählen wieder als bezahlte Plätze, und Routinen und Webhooks laufen weiter."
 
 cta:
-  action: Bereit loszulegen?
-  description: Sehen Sie sich einen Beispiel-Workspace für kleine Unternehmen mit Beispieldaten an oder starten Sie Ihre eigene Testphase in der Customermates Cloud mit Pro-Funktionen.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
-  buttonRightText: Workspace ansehen
-  buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
-  hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+  action: "Bereit, jeden Kunden nachzufassen?"
+  description: "Starten Sie mit einem Kanal und einem Kunden: [[commercial.trial.days]] Tage Pro, ohne Kreditkarte. Oder sprechen Sie vorher 15 Minuten mit Ben."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "15 Minuten mit Ben sprechen"
+  buttonRightHref: /contact
+  hint: "Keine Kreditkarte · Jederzeit kündbar · Made in Germany"
 ---

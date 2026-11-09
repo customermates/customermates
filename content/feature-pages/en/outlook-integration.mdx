@@ -1,6 +1,6 @@
 ---
 title: "CRM Outlook Integration: Email, Folders and Calendar"
-description: "Connect Outlook to Customermates: email in the CRM inbox, folder moves that reach your mailbox, calendar events read-only. No add-in. Pro or higher."
+description: "Follow up on Outlook email from your CRM: threads on the matching contact, drafts from Mate, folder moves that reach your mailbox. No add-in. Pro or higher."
 featureName: Outlook Integration
 
 relatedHrefs:
@@ -9,20 +9,48 @@ relatedHrefs:
   - /blog/outlook-crm-integration
   - /features/contact-management
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Check the plan"
+        description: "Use Customermates Cloud on Pro or higher, or a trial. Your role needs Create on Inbox messages to connect a channel."
+      - title: "Connect Outlook"
+        description: "Open Settings › Channels, click Connect channel and choose Outlook. The tab moves to a secure connection page where you sign in. Your history then imports in the background, usually in a few minutes and up to an hour for a large mailbox. If your Microsoft 365 tenant blocks user consent to third-party apps, an admin has to approve the connection first."
+      - title: "Choose folders"
+        description: "Open the account's Folders tab and switch on the folders you want in the CRM, for example an archive folder, or switch off newsletters."
+      - title: "Set the signature"
+        description: "On the Email tab, switch on Add a signature and write it once. Don't paste it into messages as well."
+      - title: "Link the first contacts"
+        description: "Filter the inbox by Participants: not fully linked, then link each sender to a contact or create one."
+  highlights:
+    title: "At a glance"
+    capture: homepage-inbox
+    items:
+      - title: "What connects"
+        description: "Email from your Outlook account, both directions, plus its calendar events as read-only entries. The channel card shows whether email, calendar or both are connected."
+      - title: "Plan"
+        description: "Customermates Cloud, Pro or higher. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter and self-hosted installations have no inbox."
+      - title: "How it works"
+        description: "No Outlook add-in or sidebar. Customermates reads and sends through the connected account, so it works whichever Outlook app you write in."
+      - title: "Not included"
+        description: "No sync of Outlook address-book contacts, no creating or booking calendar events, no bulk email."
+
 hero:
-  title: Outlook email and calendar inside your CRM, without an add-in
-  description: Connect your Outlook account once and its email threads land in the Customermates inbox, linked to the contacts they belong to. Reply from the CRM or keep writing in Outlook. Calendar events are read-only. Available on Customermates Cloud from Pro at [[commercial.price.pro.monthly]] per user per month.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "Every Outlook thread on its client, without an add-in"
+  description: "Connect Outlook once and its email threads land on the matching contact. See who is waiting for your answer, have Mate draft the reply and send it from the CRM or from Outlook. Calendar is read-only. Cloud from Pro, [[commercial.price.pro.monthly]] per user per month."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Connect one Outlook account and check it with real mail
-  description: Start a trial, connect Outlook under Settings › Channels, and see whether your own threads, folders and contacts line up the way your team works.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Connect one Outlook account and see who is waiting for a reply"
+  description: "Start the trial, connect Outlook under Settings › Channels, and check whether your own threads, folders and contacts line up the way your team works."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -30,27 +58,7 @@ cta:
 
 Customermates connects to Outlook on the server side: you sign in to your Outlook account once, and its email threads appear in the CRM's [unified inbox](/features/unified-inbox), matched to contacts by email address. You can answer from the CRM or keep writing in Outlook, because sent mail from Outlook reaches the same thread. Moving an email to a folder in Customermates moves it in your real mailbox too. Calendar events come in read-only. There is nothing to install in Outlook, and the integration needs Customermates Cloud on Pro or higher.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="What connects">
-    Email from your Outlook account, both directions, plus its calendar events
-    as read-only entries. The channel card shows whether email, calendar or
-    both are connected.
-  </SummaryItem>
-  <SummaryItem label="Plan">
-    Customermates Cloud, Pro or higher. Pro includes
-    [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per
-    user, Business [[commercial.entitlement.business.includedAccountsPerUser]].
-    Starter and self-hosted installations have no inbox.
-  </SummaryItem>
-  <SummaryItem label="How it works">
-    No Outlook add-in or sidebar. Customermates reads and sends through the
-    connected account, so it works whichever Outlook app you write in.
-  </SummaryItem>
-  <SummaryItem label="Not included">
-    No sync of Outlook address-book contacts, no creating or booking calendar
-    events, no bulk email.
-  </SummaryItem>
-</ArticleSummary>
+**Where this helps you follow up.** A client email you read on Friday and meant to answer on Monday is how follow-ups slip. With Outlook connected, the thread sits on the contact, an inbox filter lists the threads where you wrote last and heard nothing back, and Mate can save a reply draft in the thread for you to review. You send it from the CRM or from Outlook; either way it stays in one thread.
 
 ## Three kinds of Outlook CRM integration
 
@@ -78,32 +86,6 @@ If you need Outlook contacts kept in sync both ways, or a CRM pane inside Outloo
 
 ## Set it up
 
-<Steps>
-  <Step title="Check the plan">
-    Use Customermates Cloud on Pro, Business, Enterprise or a trial. Your role
-    needs Create on Inbox messages to connect a channel.
-  </Step>
-  <Step title="Connect Outlook">
-    Open Settings › Channels, click Connect channel and choose Outlook. The
-    tab moves to a secure connection page where you sign in. Your history then
-    imports in the background, usually in a few minutes and up to an hour for a
-    large mailbox. If your Microsoft 365 tenant blocks user consent to
-    third-party apps, an admin has to approve the connection first.
-  </Step>
-  <Step title="Choose folders">
-    Open the account's Folders tab and switch on the folders you want in the
-    CRM, for example an archive folder, or switch off newsletters.
-  </Step>
-  <Step title="Set the signature">
-    On the Email tab, switch on Add a signature and write it once. Don't paste
-    it into messages as well.
-  </Step>
-  <Step title="Link the first contacts">
-    Filter the inbox by Participants: not fully linked, then link each sender
-    to a contact or create one.
-  </Step>
-</Steps>
-
 Microsoft documents the consent settings in [Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent): by default users can consent to apps for permissions that don't need admin consent, and admins can restrict that. If your mailbox can't sign in through the Outlook option, the IMAP option connects other email accounts over IMAP and SMTP.
 
 ## Who sees which emails
@@ -112,7 +94,7 @@ A new channel is private: only you see its threads, and no role, Admin included,
 
 ## AI on your Outlook threads
 
-**Mate, in Customermates Cloud.** Mate can summarize a thread, draft a reply, file an email to a folder or send it when you ask. Mate uses hosted AI credits; each plan includes monthly hosted AI credits per active user, see [pricing](/pricing). Mate sends without a further confirmation when you ask it to send, so say "draft" when you only want a draft.
+**Mate, in Customermates Cloud.** Mate can summarize a thread, draft a reply, file an email to a folder or send it when you ask. Mate uses hosted AI credits; each paid plan includes monthly hosted AI credits per active user, see [pricing](/pricing). Mate sends without a further confirmation when you ask it to send, so say "draft" when you only want a draft.
 
 **Routines, in Customermates Cloud.** A routine can start on the **Email Received** event. Example instruction: "When an email arrives from a contact linked to an open deal, create a task on that deal assigned to me with a two-line summary, and save a reply draft in the thread. Do not send anything." The routine runs as its owner and only sees threads that person can see. Limits are in the [routines guide](/docs/app-routines).
 

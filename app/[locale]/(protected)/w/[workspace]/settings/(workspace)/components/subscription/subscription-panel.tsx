@@ -3,6 +3,8 @@
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { FileStorageUsageDto } from "@/features/record-files/record-file.schema";
 import type { ChipColor } from "@/constants/chip-colors";
+import type { PlanUsageDto } from "@/ee/subscription/get-plan-usage.interactor";
+import type { PurchasablePlanId } from "@/core/commercial/plan-catalog";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -20,10 +22,16 @@ import { startBackgroundPoll } from "@/core/utils/background-poll";
 import { CHECKOUT_POLL_INTERVAL_MS } from "@/ee/subscription/checkout-state";
 
 import { PlanSelection } from "./plan-selection";
+import { PlanUsageCard } from "@/app/components/upsell/plan-usage-card";
+import { StorageUpsellNote } from "@/app/components/upsell/storage-upsell-note";
+import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 
 type Props = {
   initialSubscription: SubscriptionDto | null;
   storage: FileStorageUsageDto | null;
+  usage?: PlanUsageDto | null;
+  focusPlan?: PurchasablePlanId;
+  recommendedPlan?: PurchasablePlanId | null;
 };
 
 export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor> = {
@@ -35,7 +43,8 @@ export const SUBSCRIPTION_STATUS_COLOR_MAP: Record<SubscriptionStatus, ChipColor
   [SubscriptionStatus.cancelled]: "secondary",
 };
 
-export const SubscriptionPanel = observer(({ initialSubscription, storage }: Props) => {
+export const SubscriptionPanel = observer((props: Props) => {
+  const { initialSubscription, storage, usage = null, focusPlan, recommendedPlan = null } = props;
   const t = useTranslations();
   const { subscriptionStore, loadingOverlayStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -44,6 +53,8 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
 
   const subscription = subscriptionStore.subscription ?? initialSubscription;
   const isManaged = subscription?.plan === SubscriptionPlan.enterprise;
+  const onFreePlan = subscription?.onFreePlan ?? false;
+  const planKey = onFreePlan ? FREE_PLAN_ID : (subscription?.plan ?? SubscriptionPlan.pro);
   const seats = subscription?.quantity ?? subscription?.activeUsers ?? 0;
   const hasActiveSubscription = subscription?.hasActiveSubscription ?? false;
   const canManageCompany = userStore.can(Resource.company, Action.update);
@@ -70,11 +81,19 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
     : !canManageCompany
       ? t("Subscription.fieldHelp.trialEndsReadOnly")
       : t("Subscription.fieldHelp.trialEndsManage", { billing: t("Subscription.manageWithLemonSqueezy") });
-  const storageRow = storage?.limitBytes ? (
-    <FormOutputField help={t("Subscription.fieldHelp.fileStorage")} label={t("Subscription.fileStorage")}>
-      {t("Subscription.fileStorageUsage", { used: sizeLabel(storage.usedBytes), limit: sizeLabel(storage.limitBytes) })}
-    </FormOutputField>
-  ) : null;
+  const storageRow =
+    storage?.limitBytes && !onFreePlan ? (
+      <FormOutputField
+        description={storage.usedBytes >= storage.limitBytes ? <StorageUpsellNote plan={planKey} /> : undefined}
+        help={t("Subscription.fieldHelp.fileStorage")}
+        label={t("Subscription.fileStorage")}
+      >
+        {t("Subscription.fileStorageUsage", {
+          used: sizeLabel(storage.usedBytes),
+          limit: sizeLabel(storage.limitBytes),
+        })}
+      </FormOutputField>
+    ) : null;
 
   useEffect(() => {
     if (!awaitingPayment) return;
@@ -87,19 +106,25 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
 
   return (
     <section className="flex w-full flex-col gap-4">
-      {isManaged && <Alert color="primary" description={t("Subscription.managedExternallyNote")} />}
+      {isManaged && <Alert description={t("Subscription.managedExternallyNote")} variant="info" />}
 
       <FormOutputField help={isManaged ? undefined : planHelp} label={t("Subscription.plan")}>
         <span className="flex w-full items-center justify-between gap-2">
-          <span>{t(`Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}`)}</span>
+          <span>{t(`Subscription.planNames.${planKey}`)}</span>
 
-          <AppChip
-            className="shrink-0"
-            size="sm"
-            variant={subscription ? SUBSCRIPTION_STATUS_COLOR_MAP[subscription.status] : "default"}
-          >
-            {t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`)}
-          </AppChip>
+          {onFreePlan ? (
+            <AppChip className="shrink-0" size="sm" variant="secondary">
+              {t("Subscription.currentPlan")}
+            </AppChip>
+          ) : (
+            <AppChip
+              className="shrink-0"
+              size="sm"
+              variant={subscription ? SUBSCRIPTION_STATUS_COLOR_MAP[subscription.status] : "default"}
+            >
+              {t(`Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}`)}
+            </AppChip>
+          )}
         </span>
       </FormOutputField>
 
@@ -108,7 +133,7 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
       {!isManaged && (
         <>
           <div className="grid w-full grid-cols-1 gap-3">
-            {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && (
+            {subscription?.trialEndDate && subscription.status === SubscriptionStatus.trial && !onFreePlan && (
               <FormOutputField help={trialEndHelp} label={t("Subscription.trialEnds")}>
                 {intlStore.formatDescriptiveLongDate(subscription.trialEndDate)}
               </FormOutputField>
@@ -120,21 +145,30 @@ export const SubscriptionPanel = observer(({ initialSubscription, storage }: Pro
               </FormOutputField>
             )}
 
-            <FormOutputField
-              description={t("Subscription.seatBillingNote")}
-              help={t("Subscription.fieldHelp.quantity", { members: t("SettingsNav.members") })}
-              label={t("Subscription.quantity")}
-            >
-              {seats.toString()}
-            </FormOutputField>
+            {!onFreePlan && (
+              <FormOutputField
+                description={t("Subscription.seatBillingNote")}
+                help={t("Subscription.fieldHelp.quantity", { members: t("SettingsNav.members") })}
+                label={t("Subscription.quantity")}
+              >
+                {seats.toString()}
+              </FormOutputField>
+            )}
 
             {storageRow}
           </div>
 
+          {onFreePlan && usage ? <PlanUsageCard usage={usage} /> : null}
+
           {!hasActiveSubscription && canManageCompany && (
             <PlanSelection
               checkout={checkout}
+              checkoutSeats={(subscription?.activeUsers ?? 0) + (subscription?.pausedMembers ?? 0)}
+              currentFree={onFreePlan}
+              focusPlan={focusPlan}
               isLoading={loadingOverlayStore.isLoading}
+              pausedSeats={subscription?.pausedMembers ?? 0}
+              recommendedPlan={recommendedPlan}
               onAbandon={() => runUserAction(() => subscriptionStore.handleAbandon())}
               onSelect={(plan) => runUserAction(() => subscriptionStore.handleSubscribe(plan))}
             />

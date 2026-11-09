@@ -29,12 +29,19 @@ describe("acquisition MDX component system", () => {
     for (const page of APPROVED_PAGES) {
       const content = source(page);
 
-      expect(content, page).toContain("<ArticleSummary");
-      expect(content, page).toContain("<SummaryItem");
+      const sectionModel = page.includes("/feature-pages/") && content.includes("\nsections:\n");
+
+      if (sectionModel) {
+        expect(content, page).toContain("\n  highlights:\n");
+        expect(content, page).toContain("\n  steps:\n");
+      } else {
+        expect(content, page).toContain("<ArticleSummary");
+        expect(content, page).toContain("<SummaryItem");
+        expect(content, page).toContain("<Steps>");
+        expect(content, page).toContain("<Step ");
+      }
       expect(content, page).toContain("<ProofRail");
       expect(content, page).toContain("<ProofItem");
-      expect(content, page).toContain("<Steps>");
-      expect(content, page).toContain("<Step ");
     }
   });
 

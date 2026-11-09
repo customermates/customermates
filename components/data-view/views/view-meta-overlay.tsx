@@ -168,7 +168,7 @@ export function ViewMetaOverlay({
               onOpenChange(false);
             }}
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/20 text-primary-soft-foreground">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
               <Sparkles aria-hidden className="size-4" />
             </span>
 

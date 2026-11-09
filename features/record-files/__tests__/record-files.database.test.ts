@@ -687,7 +687,7 @@ describeDatabase("record files", () => {
     w.quotaLimit.bytesPerUser = 4000;
     await w.uploaded(3000);
     const refused = await start({ size: 1001 });
-    expect(failure(refused)).toMatchObject({ code: "storageQuotaExceeded", kind: "conflict" });
+    expect(failure(refused)).toMatchObject({ code: "storageQuotaExceededTopPlan", kind: "conflict" });
     expect(data(await start({ size: 1000 })).fileId).toBeTruthy();
   });
 

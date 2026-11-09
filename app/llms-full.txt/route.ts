@@ -7,7 +7,7 @@ export function GET() {
   const sections: string[] = [
     "# Customermates documentation (full text)",
     "",
-    `> Customermates is an open-source, AI-native CRM. This file concatenates every English docs page in reading order. Per-page markdown: ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/docs/<slug>.md - index: ${env.BASE_URL}/llms.txt`,
+    `> Customermates is the open-source CRM for following up on every client conversation. This file concatenates every English docs page in reading order. Per-page markdown: ${env.BASE_URL}/${DEFAULT_LOCALE}/raw/docs/<slug>.md - index: ${env.BASE_URL}/llms.txt`,
   ];
 
   for (const group of DOC_NAV_GROUPS) {

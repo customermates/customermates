@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Intégration CRM Outlook : les trois méthodes et celle qu’il vous faut"
-  description: "Ce que fait un complément Outlook et ce que fait la synchronisation côté serveur, ce que proposent HubSpot, Microsoft Dynamics 365, Salesforce et Pipedrive pour Outlook, pourquoi le nouvel Outlook pour Windows compte, et comment tester une intégration avant de la déployer."
+  description: "Ce que font un complément Outlook et la synchronisation serveur, ce que proposent HubSpot, Dynamics 365, Salesforce et Pipedrive, pourquoi le nouvel Outlook pour Windows compte et comment tester."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,6 +107,8 @@ Le [guide de la boîte de réception](/docs/app-inbox) détaille les droits, les
 
 ### Confier la suite à Mate ou à votre propre client IA
 
+La raison d’intégrer Outlook à Customermates est la relance : chaque e-mail client se range sur la fiche du client, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez et envoyez, et les prochaines étapes apparaissent sur votre tableau de bord.
+
 Dans Customermates Cloud, Mate peut résumer un fil ou rédiger une réponse, et il utilise des crédits d’IA hébergée. Une routine exécute une instruction enregistrée lorsque quelque chose se produit. Pour le courrier Outlook, créez une routine avec le déclencheur **Quand quelque chose change**, choisissez l’évènement **E-mail reçu** et rédigez des instructions comme celles-ci :
 
 > Lorsqu’un e-mail arrive d’un contact qui a une affaire ouverte qui m’est attribuée, lisez le fil et l’affaire. Enregistrez dans le fil un brouillon de réponse qui répond à la question en suspens. N’envoyez rien. Si l’e-mail demande une réunion, dites-le dans le brouillon au lieu de proposer des horaires.
@@ -116,6 +118,8 @@ La phrase « n’envoie rien » compte. Une routine s’exécute en tant que s
 ### Ce que cela coûte
 
 Une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]] par mois. Chaque utilisateur dispose de [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté, ce qui suffit pour une boîte aux lettres Outlook par personne. Partager une boîte d’équipe entière demande Business, soit [[commercial.price.business.monthly.seats.5]] par mois pour les mêmes cinq personnes, avec [[commercial.entitlement.business.includedAccountsPerUser]] comptes par utilisateur. Starter, à [[commercial.price.starter.monthly]] par utilisateur, n’a ni boîte de réception ni connexion Outlook. Consultez les [tarifs](/pricing) pour les crédits d’IA hébergée mensuels par utilisateur actif.
+
+Pour l’essayer avec votre propre Outlook, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 <AcquisitionCallout title="Là où Customermates ne convient pas" variant="boundary">
 Il n’y a pas de complément Outlook : les informations du CRM se consultent donc dans Customermates, pas dans un panneau latéral d’Outlook. Les contacts et les tâches Outlook ne se synchronisent pas, et les évènements du calendrier sont en lecture seule. Customermates n’a ni séquences d’e-mails ni e-mailing en masse. Une installation auto-hébergée n’a ni boîte de réception ni connexion Outlook ; elle propose REST, les webhooks et MCP. Si votre équipe doit rester dans Outlook, ou a besoin d’une synchronisation bidirectionnelle des contacts avec le carnet d’adresses Exchange, choisissez un CRM doté d’un complément web et d’une synchronisation côté serveur, parmi ceux du tableau ci-dessus.

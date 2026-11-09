@@ -4,7 +4,7 @@ description: "MCP Salesforce expliqué : quel serveur fait quoi, comment l’ad
 
 hero:
   title: "MCP Salesforce expliqué : quel serveur fait quoi et ce que cela coûte"
-  description: "Salesforce exploite plusieurs serveurs MCP pour des usages différents. Ce guide présente les serveurs hébergés pour les données CRM, le serveur DX pour les développeurs, MuleSoft et Heroku, les étapes de mise en place, le nouveau modèle de facturation et les cas où un CRM avec serveur MCP intégré est le choix le plus simple."
+  description: "Salesforce exploite plusieurs serveurs MCP : serveurs hébergés pour les données CRM, serveur DX, MuleSoft et Heroku. Mise en place, facturation et cas où un serveur MCP intégré est plus simple."
 
 blogPost:
   author: Benjamin Wagner
@@ -169,6 +169,8 @@ La connexion se fait de deux façons, comme le décrit la [documentation MCP](/d
 Le calcul du coût est simple. Une équipe de cinq personnes sur Starter paie [[commercial.price.starter.monthly.seats.5]] par mois et obtient l’ensemble complet des outils CRM via MCP. Les outils de la boîte de réception exigent Pro, soit [[commercial.price.pro.monthly.seats.5]] par mois pour la même équipe. L’abonnement du client IA lui-même s’y ajoute, chez Anthropic, OpenAI ou le fournisseur que vous utilisez. Les prix actuels figurent sur la [page des tarifs](/pricing).
 
 Une différence de contrôle compte. Le serveur MCP de Customermates indique aux clients d’obtenir la confirmation de l’utilisateur avant de supprimer ou d’envoyer, mais cette confirmation se fait dans le client. Dès qu’un client autorisé appelle un outil, le serveur l’exécute. Vérifiez comment votre client gère les approbations, et commencez par la lecture et les brouillons.
+
+Pour une équipe au contact des clients, l’intérêt de MCP est la relance : avec LinkedIn et l’e-mail connectés dans Customermates Cloud à partir de Pro, votre propre Claude ou ChatGPT lit l’échange sur la fiche du client et rédige la réponse et la prochaine étape, que vous relisez et envoyez. Pour l’essayer, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 **Quand Customermates n’est pas le bon choix.** Si vous utilisez déjà Salesforce avec des objets personnalisés, de la logique Apex, des modèles de territoires ou de partage et une sécurité au niveau des champs, restez sur Salesforce et utilisez les serveurs hébergés : changer fait perdre plus que cela ne rapporte. Customermates n’a pas non plus de définition d’outils personnalisés ni d’autorisations au niveau des champs. Il convient à un cabinet de conseil, une agence ou une équipe dirigée par son fondateur qui choisit son premier vrai CRM, ou qui en quitte un grand. La [comparaison avec les alternatives à Salesforce](/compare/salesforce-alternative) traite de cette décision, et le [guide du MCP HubSpot](/blog/hubspot-mcp) traite du serveur distant de HubSpot.
 

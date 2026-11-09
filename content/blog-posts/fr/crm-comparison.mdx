@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Comparatif CRM : fonctionnalités, prix et coût réel côte à côte"
-  description: "Un tableau comparatif de huit CRM qui montre la formule nécessaire pour chaque fonctionnalité, ce que cette formule coûte à une équipe de cinq personnes sur deux ans, et comment noter vous-même votre présélection. Customermates publie ce comparatif."
+  description: "Un tableau comparatif de huit CRM : la formule nécessaire pour chaque fonction, son coût pour cinq personnes sur deux ans, et comment noter votre présélection. Customermates publie ce comparatif."
 
 blogPost:
   author: Benjamin Wagner
@@ -51,7 +51,7 @@ Chaque cellule nomme la première formule où la page de tarifs de l’éditeur 
 | Pipedrive | 14 jours d’essai, pas de formule gratuite | Growth (étapes si/sinon) | Growth | Non comparé ici | Growth | Premium affiche 150 000 jetons d’API |
 | Salesforce Sales Cloud | Free Suite | Starter Suite (flux de vente, routage des leads) | Non comparé ici | Non comparé ici | Pro Suite | Non comparé ici |
 | Zoho CRM | Édition gratuite, 3 utilisateurs | L’édition gratuite affiche l’automatisation de workflows | Non comparé ici | Standard (appels intégrés) | Édition gratuite et au-dessus | Édition gratuite, 5 000 appels par jour |
-| Customermates | Essai de [[commercial.trial.days]] jours ; cœur AGPL gratuit à auto-héberger | Pas de moteur de règles ; routines dans Customermates Cloud, plus des webhooks pour votre propre n8n | Aucun | Aucun | Pipeline pondéré à partir des probabilités d’étape, sans prévision | REST, webhooks et MCP sur toutes les formules |
+| Customermates | Essai de [[commercial.trial.days]] jours ; formule hébergée gratuite pour [[commercial.limit.free.maxMembers]] personne ; cœur AGPL gratuit à auto-héberger | Pas de moteur de règles ; routines dans Customermates Cloud, plus des webhooks pour votre propre n8n | Aucun | Aucun | Pipeline pondéré à partir des probabilités d’étape, sans prévision | REST, webhooks et MCP sur toutes les formules payantes |
 
 Deux choses que ce tableau ne peut pas montrer. Une fonctionnalité présente dans la formule ne signifie pas qu’elle est bonne pour votre métier, et les limites diffèrent : les workflows de HubSpot Starter ont des déclencheurs et des actions restreints, et la formule Standard de monday plafonne les automatisations à 250 par mois. Vérifiez la limite, pas seulement le nom de la formule, et confirmez les cellules ouvertes pendant l’essai.
 
@@ -153,14 +153,18 @@ A et B sont des substituts. Mettez vos propres systèmes et vos propres notes. P
 
 Trois lignes des tableaux ci-dessus méritent une lecture attentive :
 
-- **IA.** Dans Customermates Cloud, l’assistant Mate prépare des synthèses et des brouillons de réponse et utilise les crédits IA hébergés ; chaque formule cloud comprend des crédits IA hébergés mensuels par utilisateur actif, voir les tarifs. Les routines exécutent des instructions enregistrées selon un calendrier ou lorsqu’un enregistrement change. Si vous préférez Claude, ChatGPT ou un autre client, il fonctionne avec le CRM via [MCP](/docs/mcp) sur toutes les formules, facturé par votre propre fournisseur d’IA.
+- **IA.** Dans Customermates Cloud, l’assistant Mate prépare des synthèses et des brouillons de réponse et utilise les crédits IA hébergés ; chaque formule payante comprend des crédits IA hébergés mensuels par utilisateur actif, voir les tarifs. Les routines exécutent des instructions enregistrées selon un calendrier ou lorsqu’un enregistrement change. Si vous préférez Claude, ChatGPT ou un autre client, il fonctionne avec le CRM via [MCP](/docs/mcp) sur toutes les formules, facturé par votre propre fournisseur d’IA.
 - **Automatisation.** Il n’y a pas de moteur de règles. Les webhooks et l’API REST se connectent à une instance n8n que vous exploitez vous-même.
 - **Hébergement.** Le cœur AGPL peut être [auto-hébergé](/features/self-hosted) avec Docker, avec REST, les webhooks et MCP. L’auto-hébergement n’a ni boîte de réception, ni Mate, ni crédits hébergés.
 
 La valeur d’une affaire vient de ses lignes, chacune étant un service multiplié par une quantité, et chaque étape, un champ Choix unique configurable, porte une probabilité. Le pipeline pondéré est cette arithmétique, pas une prévision. Les enregistrements s’importent et s’exportent sous forme de classeurs Excel ou de JSON, une liste à la fois.
 
+Pour une petite équipe en contact avec les clients, la ligne à tester est le suivi : des conversations sur la fiche du client, une réponse et une prochaine étape rédigées par Mate ou votre propre client IA, et vous relisez, modifiez et envoyez. Testez-le sur vos propres affaires pendant l’essai de [[commercial.trial.days]] jours : [commencez ici](/auth/signup?job=followup), sans carte bancaire.
+
+Pour voir Customermates répertorié à côté d’autres outils par un annuaire indépendant, consultez [Toolradar](https://toolradar.com/tools/customermates).
+
 <AcquisitionCallout title="Quand regarder ailleurs" variant="boundary">
-  Customermates n’a ni téléphonie, ni séquences d’e-mails ou envois en masse, ni application mobile native, ni prévision du chiffre d’affaires au-delà des étapes pondérées, ni formule hébergée gratuite. Si vous vendez par téléphone, comparez Close. Si vous avez besoin de séquences, Pipedrive Growth et HubSpot Sales Hub en incluent. Si vous voulez un démarrage gratuit, HubSpot Free Tools et l’édition gratuite de Zoho CRM ne coûtent rien. Les grandes organisations avec une équipe d’administration conviennent mieux à Salesforce ou à Dynamics 365.
+  Customermates n’a ni téléphonie, ni séquences d’e-mails ou envois en masse, ni application mobile native, ni prévision du chiffre d’affaires au-delà des étapes pondérées, et sa formule hébergée gratuite s’arrête à [[commercial.limit.free.maxMembers]] personne. Si vous vendez par téléphone, comparez Close. Si vous avez besoin de séquences, Pipedrive Growth et HubSpot Sales Hub en incluent. Si vous voulez un démarrage gratuit, HubSpot Free Tools et l’édition gratuite de Zoho CRM ne coûtent rien. Les grandes organisations avec une équipe d’administration conviennent mieux à Salesforce ou à Dynamics 365.
 </AcquisitionCallout>
 
 ## FAQ
@@ -183,7 +187,7 @@ Opérationnel, analytique et collaboratif sont les trois que citent la plupart d
 </FaqItem>
 
 <FaqItem question="Quel CRM est gratuit ?">
-HubSpot Free Tools couvre jusqu’à 2 utilisateurs, l’édition gratuite de Zoho CRM 3 utilisateurs, et Salesforce affiche une Free Suite. Pipedrive et monday CRM n’ont pas de formule gratuite. Customermates n’a pas de formule hébergée gratuite ; son cœur AGPL peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate. Voir le [guide du CRM gratuit](/blog/free-crm).
+HubSpot Free Tools couvre jusqu’à 2 utilisateurs, l’édition gratuite de Zoho CRM 3 utilisateurs, et Salesforce affiche une Free Suite. Pipedrive et monday CRM n’ont pas de formule gratuite. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; son cœur AGPL peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate. Voir le [guide du CRM gratuit](/blog/free-crm).
 </FaqItem>
 
 <FaqItem question="Puis-je changer de CRM plus tard ?">

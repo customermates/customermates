@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { WorkspaceGeneratorSection } from "../../components/workspace-generator-section";
+import { LandingHero } from "@/components/marketing/landing-hero";
+import { ProductFilm } from "@/components/marketing/product-film";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { Footer } from "@/app/components/footer";
 import { ComparisonTable } from "@/components/marketing/comparison-table";
@@ -17,6 +19,13 @@ import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
 import { enableStaticLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
+
+import {
+  CompareReasons,
+  CompareSwitchSteps,
+  LandingUseCases,
+  compareEyebrows,
+} from "../../components/landing-sections";
 
 interface Props {
   params: Promise<{
@@ -44,6 +53,7 @@ export default async function CompetitorComparePage({ params }: Props) {
 
   const locale = await getLocale();
   const t = await getTranslations("StructuredData.breadcrumb");
+  const eyebrows = await compareEyebrows();
   const { competitor } = await params;
   const page = comparePagesSource.getPage([competitor], locale);
 
@@ -74,25 +84,29 @@ export default async function CompetitorComparePage({ params }: Props) {
         ]}
       />
 
-      <PageHero
-        {...page.data.hero}
+      <LandingHero
+        eyebrow={eyebrows.hero}
+        hero={page.data.hero}
         meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
       />
+
+      <ProductFilm />
+
+      <CompareReasons reasons={page.data.sections.reasons} />
+
+      <WorkspaceGeneratorSection locale={locale} />
 
       <ComparisonTable
         competitor2Name={page.data.comparison.competitor2Name}
         competitorName={page.data.comparison.competitorName}
-        sections={page.data.comparison.sections.map((section) => ({
-          title: section.title,
-          features: section.features.map((feature) => ({
-            name: feature.name,
-            source: feature.source,
-            competitor: feature.competitor,
-            competitor2: feature.competitor2,
-          })),
-        }))}
+        eyebrow={eyebrows.table}
+        sections={page.data.comparison.sections}
         title={page.data.comparison.title}
       />
+
+      {page.data.sections.switchSteps ? <CompareSwitchSteps /> : null}
+
+      <LandingUseCases locale={locale} override={page.data.sections.useCases} path={`/compare/${competitor}`} />
 
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />

@@ -5,9 +5,11 @@ export const FOOTER_PREFERRED_SLUGS = {
   "feature-pages": [
     "self-hosted",
     "unified-inbox",
-    "open-source-crm",
+    "pipeline",
+    "sales",
+    "task-management",
+    "whatsapp-integration",
     "cloud-crm",
-    "contact-management",
     "workflow-automation",
   ],
   "for-pages": ["professional-services", "agencies", "consultants", "recruiting", "startups", "freelancers"],
@@ -17,7 +19,7 @@ export type FooterCollection = keyof typeof FOOTER_PREFERRED_SLUGS;
 
 export const FOOTER_RENDERED_COLLECTION_SIZE: Record<FooterCollection, number> = {
   "blog-posts": 2,
-  "feature-pages": FOOTER_COLUMN_SIZE,
+  "feature-pages": 8,
   "for-pages": FOOTER_COLUMN_SIZE,
 };
 

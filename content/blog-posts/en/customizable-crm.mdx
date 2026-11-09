@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Customizable CRM: What You Can Change, and When to Build Your Own"
-  description: "Most small teams need a CRM whose fields, stages and views they can reshape, not a CRM written from scratch. Here is how to tell the two apart, where vendors draw the line, and what a worked setup looks like."
+  description: "Most small teams need a CRM whose fields, stages and views they can reshape, not one written from scratch. How to tell the two apart, where vendors draw the line, and what a worked setup looks like."
 
 blogPost:
   author: Benjamin Wagner
@@ -103,7 +103,7 @@ Here is how a five-person consultancy would shape Customermates to its process. 
     On Projects: **Engagement type** (Single choice: retainer, fixed scope, workshop), **Day rate** (Money), **Contract renewal** (Date). On Clients: **Source** (Single choice) and **Office address** (Address); phone numbers and email addresses go into the Contact details field. Sixteen field types and calculated fields are available, listed in the [data model docs](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Save the views each person works from">
-    A board of Projects grouped by Stage, a table of retainers sorted by **Contract renewal**, and a list of Clients grouped by **Source**. A saved view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team.
+    A board of Projects grouped by Stage, a table of retainers sorted by **Contract renewal**, and a list of Clients grouped by **Source**. Share the Projects board with the whole team or with selected roles so everyone works from the same pipeline.
   </Step>
   <Step title="Bring existing data in">
     Export each sheet from your old tool as an Excel workbook and import one list at a time, Clients first, then Projects, mapping columns to your new custom fields. The [records docs](/docs/app-records#how-do-i-import-or-export-records) list the file limits.
@@ -115,11 +115,14 @@ Here is how a five-person consultancy would shape Customermates to its process. 
 
 Connected email, LinkedIn and WhatsApp conversations appear next to these records in the [unified inbox](/features/unified-inbox) on Pro and higher. Starter has no inbox. If you work with Claude, ChatGPT or another AI client, it reads and writes the same records, including your custom fields, through [MCP](/docs/mcp) with [[derived.mcp.tools.total]] tools.
 
+The point of shaping the model is follow-up on every client conversation. With the inbox connected, each client's threads sit on the client record, Mate or your own AI agent drafts the reply and the next step, you review and send, and the date fields you added, such as Contract renewal or a next-step date, put what is due on your dashboard.
+
 ## What Customermates does not let you customize
 
 These limits matter if you are comparing customizable CRMs:
 
 - **Permissions stop at the list.** Roles control create, read, edit and delete per list, including "only records assigned to me". There are no field-level permissions.
+- **Shared views are read-only.** Colleagues can filter a shared view or keep their own copy, but only its owner changes it.
 - **No tagging.** Use a Single choice field instead, which also keeps values consistent.
 - **Tasks have no built-in due date.** Add a Date field and sort by it; nothing alerts you when that date passes.
 - **Import and export run per list**, as Excel workbooks or JSON, up to 5,000 records per export. There is no whole-account export.
@@ -135,7 +138,9 @@ Customermates is billed per user and month, monthly only. For the five-person co
 | Starter | [[commercial.price.starter.monthly.seats.5]] | Custom fields, stages, views, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user |
 | Pro | [[commercial.price.pro.monthly.seats.5]] | Everything above, plus the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user |
 
-A year on Pro for five people comes to [[commercial.price.pro.monthly.seats.5.months.12]]. Each plan includes monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting has no licence fee for the open-source core; you pay for your own server and the time to run it.
+A year on Pro for five people comes to [[commercial.price.pro.monthly.seats.5.months.12]]. Each paid plan includes monthly hosted AI credits per active user for Mate; see [pricing](/pricing). Self-hosting has no licence fee for the open-source core; you pay for your own server and the time to run it.
+
+To shape your own workspace, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 ## Keeping a customized CRM usable
 

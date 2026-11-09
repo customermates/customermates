@@ -12,6 +12,7 @@ import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { ONBOARDING_INTENT_QUERY_PARAM, onboardingIntentAuthRedirects } from "@/features/company/onboarding-intent-url";
 import { resolveOnboardingIntent } from "@/features/company/next/onboarding-intent";
 import {
+  getGetOnboardingJobChoiceInteractor,
   getGetOnboardingWizardProgressInteractor,
   getGetWorkspaceSetupStatusInteractor,
   getListMyWorkspacesInteractor,
@@ -20,6 +21,7 @@ import { SETUP_WORKSPACE_QUERY_PARAM } from "@/ee/workspace-setup/workspace-setu
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
+import type { OnboardingJobChoiceView } from "@/features/onboarding-funnel/get-onboarding-job-choice.interactor";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -71,6 +73,9 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
     if (status.ok) setupStatus = status.data;
     setupStepCompleted = user.onboardingWikiStepCompletedAt !== null || !setupStatus?.available;
   }
+  let jobChoice: OnboardingJobChoiceView | undefined;
+  if (user?.role?.isSystemRole && !isInvited && !setupStepCompleted)
+    jobChoice = (await runWithTenant(user, () => getGetOnboardingJobChoiceInteractor().invoke())).data;
 
   const sessionName = sessionUser.name ?? "";
   const isEmail = sessionName.includes("@");
@@ -91,6 +96,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
         canNameWorkspace={canCreateCompany}
         inviterName={invitation?.inviterName}
         isInvited={isInvited}
+        jobChoice={jobChoice}
         onboardingIntent={effectiveIntent?.intent}
         profileCompleted={Boolean(user)}
         savedProgress={savedProgress?.data}

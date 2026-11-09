@@ -1,4 +1,5 @@
-import { unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 import type { UpsertWebhookRepo } from "./upsert-webhook.repo";
 import {
   RecordTriggerDefinitionSchema,
@@ -113,6 +114,7 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
     private repo: UpsertWebhookRepo,
     private eventService: EventService,
     private validator: ValidateWebhookIdsInteractor,
+    private plans: Pick<PlanLimitsService, "admitWebhooks"> = UNLIMITED_PLAN_LIMITS,
   ) {
     super();
   }
@@ -123,6 +125,10 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
     precheck: (self, data, ctx) => self.precheck(data, ctx),
   })
   async invoke(data: UpsertWebhookData): Validated<WebhookDto> {
+    if (!data.id) {
+      const refused = await this.plans.admitWebhooks(this.companyId);
+      if (refused) return failConflict(CustomErrorCode.planWebhooksNotIncluded, [], refused);
+    }
     const previousWebhook = data.id ? await this.repo.getWebhookByIdOrThrow(data.id) : undefined;
 
     let webhook: WebhookDto;

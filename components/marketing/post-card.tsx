@@ -19,7 +19,7 @@ export function PostCard({ bottom, description, featured = false, href, title, t
   return (
     <AppLink
       appearance="unstyled"
-      className="group block size-full min-w-0 border-t border-border py-6 text-foreground transition-colors hover:border-foreground/50"
+      className="mk-card mk-card-interactive group block size-full min-w-0 p-6 text-foreground"
       href={href}
     >
       <article className={cn("flex size-full min-w-0 flex-col gap-4", featured && "sm:pr-10")}>

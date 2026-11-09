@@ -4,6 +4,8 @@ import {
   BILLING_CADENCES,
   CLOUD_TRIAL,
   COMMERCIAL_OFFERS,
+  FREE_PLAN_UPGRADE_PLAN,
+  FREE_PLAN_USAGE_LIMITS,
   formatCommercialAmount,
   getCommercialOffer,
   getPlanDefinition,
@@ -12,13 +14,13 @@ import {
   HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER,
   PLAN_IDS,
   PURCHASABLE_PLAN_IDS,
-  RECOMMENDED_PLAN_ID,
+  TEAM_PLAN_ID,
   totalPriceAmountMinor,
 } from "@/core/commercial/plan-catalog";
 
 describe("commercial plan catalog", () => {
   it("defines every product plan exactly once and keeps Enterprise sales-led", () => {
-    expect(PLAN_IDS).toEqual(["starter", "pro", "business", "max", "enterprise"]);
+    expect(PLAN_IDS).toEqual(["free", "starter", "pro", "business", "max", "enterprise"]);
     expect(PLAN_IDS.map((plan) => getPlanDefinition(plan).plan)).toEqual(PLAN_IDS);
     expect(getPlanDefinition("enterprise")).toMatchObject({
       availability: "sales-led",
@@ -51,7 +53,7 @@ describe("commercial plan catalog", () => {
   it("owns the app trial and public entitlement values", () => {
     expect(CLOUD_TRIAL).toEqual({
       plan: "pro",
-      days: 7,
+      days: 14,
       owner: "application",
       providerTrialDays: 0,
     });
@@ -64,6 +66,8 @@ describe("commercial plan catalog", () => {
       hostedAiUsageMultiplier: 1,
       hostedAiCreditsPerActiveUser: 100,
       fileStorageBytesPerActiveUser: 1024 ** 3,
+      webhooks: true,
+      usageLimits: null,
     });
     expect(getPlanDefinition("max").entitlements).toEqual({
       agentChat: true,
@@ -74,6 +78,8 @@ describe("commercial plan catalog", () => {
       hostedAiUsageMultiplier: 20,
       hostedAiCreditsPerActiveUser: 2_000,
       fileStorageBytesPerActiveUser: 50 * 1024 ** 3,
+      webhooks: true,
+      usageLimits: null,
     });
     expect(getPlanDefinition("pro").entitlements.includedAccountsPerUser).toBe(1);
     expect(getPlanDefinition("business").entitlements.includedAccountsPerUser).toBe(3);
@@ -87,6 +93,36 @@ describe("commercial plan catalog", () => {
     expect(getPlanDefinition("pro").entitlements.fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);
     expect(getPlanDefinition("business").entitlements.fileStorageBytesPerActiveUser).toBe(20 * 1024 ** 3);
     expect(getPlanDefinition("enterprise").entitlements.fileStorageBytesPerActiveUser).toBe("contract");
+  });
+
+  it("owns the owner-approved Free plan: not purchasable, no paid features, per-workspace limits", () => {
+    expect(PURCHASABLE_PLAN_IDS).not.toContain("free");
+    expect(getCommercialOffer("free", "monthly")).toBeNull();
+    expect(getPlanDefinition("free")).toMatchObject({ availability: "free", offers: {} });
+    expect(getPlanDefinition("free").entitlements).toEqual({
+      agentChat: false,
+      messaging: false,
+      includedAccountsPerUser: 0,
+      includedRoutinesPerUser: 0,
+      sharedAccounts: false,
+      hostedAiUsageMultiplier: null,
+      hostedAiCreditsPerActiveUser: null,
+      fileStorageBytesPerActiveUser: null,
+      webhooks: false,
+      usageLimits: {
+        maxMembers: 1,
+        maxRecords: 250,
+        fileStorageBytes: 100 * 1024 ** 2,
+        apiRequestsPerMinute: 10,
+        apiRequestsPerDay: 200,
+      },
+    });
+    expect(FREE_PLAN_USAGE_LIMITS).toBe(getPlanDefinition("free").entitlements.usageLimits);
+    expect(FREE_PLAN_UPGRADE_PLAN).toBe("starter");
+    for (const plan of PURCHASABLE_PLAN_IDS) {
+      expect(getPlanDefinition(plan).entitlements.usageLimits).toBeNull();
+      expect(getPlanDefinition(plan).entitlements.webhooks).toBe(true);
+    }
   });
 
   it("derives every self-serve allowance from the one base and the plan multiplier", () => {
@@ -121,7 +157,7 @@ describe("commercial plan catalog", () => {
       billingModel: "per-seat",
     });
     expect(getPlanDefinition("max").availability).toBe("self-serve");
-    expect(RECOMMENDED_PLAN_ID).toBe("business");
+    expect(TEAM_PLAN_ID).toBe("business");
   });
 
   it("formats and totals integer minor-unit amounts at the presentation boundary", () => {

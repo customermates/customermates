@@ -220,10 +220,11 @@ const ConversationHistoryStatus = observer(function ConversationHistoryStatus() 
       </div>
     );
   }
-  if (store.conversationLoadError) return <Alert className="mb-2" color="danger" description={copy.loadChatFailed} />;
+  if (store.conversationLoadError)
+    return <Alert className="mb-2" description={copy.loadChatFailed} variant="destructive" />;
 
   if (store.historyRefreshError)
-    return <Alert className="mb-2" color="danger" description={copy.refreshHistoryFailed} />;
+    return <Alert className="mb-2" description={copy.refreshHistoryFailed} variant="destructive" />;
 
   return null;
 });

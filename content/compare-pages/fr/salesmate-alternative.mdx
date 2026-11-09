@@ -9,9 +9,19 @@ relatedHrefs:
   - /compare/gohighlevel-alternative
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "LinkedIn et Telegram dans la même boîte de réception"
+      description: "La page des conversations de Salesmate cite Facebook, Instagram, WhatsApp, le chat de site web, les SMS et l’e-mail. Dès Pro, Customermates ajoute LinkedIn et Telegram à l’e-mail, WhatsApp et Instagram dans une seule boîte."
+    - title: "Des réponses rédigées plutôt que composées"
+      description: "Dans Customermates Cloud, Mate résume les conversations, rédige des réponses et met à jour les enregistrements, avec des crédits IA hébergés. Vous relisez, modifiez et envoyez."
+    - title: "Open source, base du cloud à Francfort ou votre propre serveur"
+      description: "La page de tarifs de Salesmate ne liste aucune édition auto-hébergée. Le cœur de Customermates est sous AGPL-3.0 et tourne avec Docker Compose et PostgreSQL 16, REST, webhooks et MCP compris."
+  switchSteps: true
+
 hero:
-  title: "Alternative à Salesmate : Customermates et Salesmate comparés"
-  description: "Salesmate est un CRM hébergé pour la vente, le marketing et le support, avec appels et SMS, séquences, l’IA Sandy et des applications pour iPhone et Android. Customermates est un CRM open source développé en Allemagne qui place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires à partir de Pro, et laisse Mate (dans Customermates Cloud) ou votre propre client IA assurer la tenue du CRM. Les informations sur Salesmate viennent de salesmate.io, vérifiées le 8 octobre 2026."
+  title: "Alternative à Salesmate : Customermates comparé"
+  description: "Salesmate réunit téléphonie, séquences et centre d’aide, et sa liste de canaux ne compte ni LinkedIn ni Telegram. Customermates est plus petit : dès Pro, LinkedIn, e-mail, WhatsApp, Instagram et Telegram sont sur la fiche client et Mate rédige la réponse. Informations sur Salesmate vérifiées le 8 octobre 2026."
   buttonLeftText: Commencer l’essai gratuit
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
@@ -34,7 +44,7 @@ comparison:
         source: Tarification sur devis
         competitor: "Tarification sur devis ; forfaits d’onboarding à partir de 1 999 $"
       - name: Formule gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: false
       - name: Essai gratuit
         source: "[[commercial.trial.days]] jours, sans carte bancaire"
@@ -88,7 +98,7 @@ comparison:
         source: Les routines exécutent des consignes IA enregistrées selon un planning ou un évènement d’enregistrement (Customermates Cloud)
         competitor: "Smart Flows : 5K, 10K ou 15K crédits par utilisateur / mois avec Basic, Pro, Business"
       - name: API REST
-        source: Toutes les formules et l’auto-hébergement, plus des webhooks
+        source: Toutes les formules et l’auto-hébergement ; webhooks sur les formules payantes
         competitor: Toutes les formules
   - title: Licence, hébergement et accès
     features:
@@ -176,11 +186,11 @@ Les lignes n’achètent pas la même chose, lisez-les donc par paires :
 - **Business diffère aussi.** Salesmate Business ajoute le power dialer et les modules personnalisés. Customermates Business donne à chaque utilisateur [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés et permet à l’équipe de partager des comptes entiers.
 - **Les appels coûtent un supplément sur chaque ligne Salesmate.** Avec Customermates, les appels restent sur votre propre système téléphonique et ne sont pas consignés dans le CRM.
 
-Chaque formule Customermates Cloud inclut chaque mois des crédits IA hébergés par utilisateur actif pour Mate, indiqués sur la [page des tarifs](/pricing). Il n’y a ni recharge ni frais de dépassement automatiques.
+Chaque formule payante Customermates Cloud inclut chaque mois des crédits IA hébergés par utilisateur actif pour Mate, indiqués sur la [page des tarifs](/pricing). Il n’y a ni recharge ni frais de dépassement automatiques.
 
 ## Là où Customermates convient
 
-Customermates est un CRM open source et IA native développé en Allemagne pour les petites équipes en contact direct avec leurs clients : consultants, agences, autres prestataires de services et fondateurs.
+Si vos clients écrivent plus qu’ils n’appellent, Customermates convient mieux qu’un composeur avec des séquences : dès Pro, leurs fils LinkedIn, e-mail, WhatsApp, Instagram et Telegram sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape. Vous relisez, modifiez et envoyez.
 
 **Les conversations à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit dans une seule liste les messageries Gmail, Outlook et IMAP, LinkedIn (Sales Navigator et Recruiter compris), WhatsApp, Instagram et Telegram, et vous répondez sur le canal d’origine. Reliez un participant à un contact une fois, et chaque conversation avec cette adresse ou cet identifiant apparaît dans la chronologie du contact.
 
@@ -191,12 +201,12 @@ Customermates est un CRM open source et IA native développé en Allemagne pour 
 ## Quand Customermates n’est pas le bon choix
 
 - **Pas de téléphonie ni de SMS.** Pas de numéroteur, pas d’enregistrement des appels, pas de transcription. Un numéro de téléphone va dans le champ Coordonnées.
-- **Pas de séquences ni de campagnes.** Vous rédigez ou validez chaque message et l’envoyez séparément.
+- **Pas de séquences ni de campagnes.** Vous rédigez ou relisez chaque message et l’envoyez séparément.
 - **Pas de help desk.** Ni tickets, ni widget de chat en direct, ni chatbots, ni enquêtes.
 - **Pas de formulaires web ni d’outil de prise de rendez-vous.** Les leads du site web arrivent par l’API REST ou par une [instance n8n que vous exploitez vous-même](/features/workflow-automation). Pro lit votre agenda mais ne réserve pas de rendez-vous.
 - **Pas de scoring des leads, pas d’enrichissement et pas de prévision par IA.** Le pipeline pondéré multiplie la valeur de chaque affaire par sa probabilité d’étape. C’est de l’arithmétique sur vos propres chiffres, pas une prédiction.
 - **Pas d’autorisations au niveau du champ et pas de SSO.** Les autorisations s’appliquent par liste et par action.
-- **Pas d’applications mobiles natives, pas de formule gratuite et pas de certification.** Customermates fonctionne dans le navigateur du téléphone. La page de sécurité de Salesmate indique ISO 27001:2013 et SOC 2 ; Customermates ne détient aucune certification.
+- **Pas d’applications mobiles natives, une petite formule gratuite et pas de certification.** Customermates fonctionne dans le navigateur du téléphone. La page de sécurité de Salesmate indique ISO 27001:2013 et SOC 2 ; Customermates ne détient aucune certification.
 
 ## Un exemple de configuration : une agence qui quitte Salesmate Pro
 
@@ -253,7 +263,7 @@ Cela dépend de la raison de votre départ. Pour des appels intensifs avec un po
 </FaqItem>
 
 <FaqItem question="Existe-t-il une alternative gratuite à Salesmate ?">
-Oui, avec des limites. Freshsales a une formule gratuite jusqu’à 3 utilisateurs. Salesmate n’a pas de formule gratuite, seulement un essai de 15 jours, et Customermates Cloud non plus. Une installation Customermates auto-hébergée n’a pas d’abonnement : vous ne payez que votre propre serveur, mais sans boîte de réception et sans Mate.
+Oui, avec des limites. Freshsales a une formule gratuite jusqu’à 3 utilisateurs. Salesmate n’a pas de formule gratuite, seulement un essai de 15 jours ; Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Une installation Customermates auto-hébergée n’a pas d’abonnement : vous ne payez que votre propre serveur, mais sans boîte de réception et sans Mate.
 </FaqItem>
 
 <FaqItem question="Puis-je connecter ChatGPT ou Claude à Salesmate ou à Customermates ?">

@@ -64,7 +64,7 @@ L’accès vient de la ligne **API et webhooks** d’un rôle dans [Rôles](app:
 | **Accès en lecture** **Tous** plus **Modifier** | Modifier des webhooks et voir les valeurs enregistrées de **Secret** et d’**En-têtes personnalisés**. |
 | **Accès en lecture** **Tous** plus **Supprimer** | Supprimer des webhooks. |
 
-La même ligne contrôle aussi les [Clés API](app:settings/api-keys) : un rôle qui peut créer ou supprimer ses propres clés API peut donc aussi créer ou supprimer tous les webhooks de l’espace de travail. Le rôle **Administrateur** peut tout faire. Les webhooks n’ont aucune restriction d’offre : ils fonctionnent sur chaque offre Cloud et en auto-hébergement. Les mêmes droits s’appliquent à `manage_webhooks` par MCP et dans Mate, où supprimer un webhook ou renvoyer une livraison demande d’abord votre validation.
+La même ligne contrôle aussi les [Clés API](app:settings/api-keys) : un rôle qui peut créer ou supprimer ses propres clés API peut donc aussi créer ou supprimer tous les webhooks de l’espace de travail. Le rôle **Administrateur** peut tout faire. Les webhooks fonctionnent sur chaque offre Cloud payante, pendant l’essai et en auto-hébergement, mais pas sur la formule Free ([détails](#webhooks-on-the-free-plan)). Les mêmes droits s’appliquent à `manage_webhooks` par MCP et dans Mate, où supprimer un webhook ou renvoyer une livraison demande d’abord votre validation.
 
 ## À quoi ressemble la charge utile ? [#what-does-the-payload-look-like]
 
@@ -322,6 +322,10 @@ Les évènements de messagerie se déclenchent sur l’activité entrante du fou
 | `messaging.calendar.changed` | Un calendrier connecté change |
 | `messaging.calendar_event.changed` | Un évènement de calendrier change |
 | `messaging.relation.created` | Une nouvelle relation du fournisseur est créée |
+
+## Les webhooks fonctionnent-ils sur la formule Free ? [#webhooks-on-the-free-plan]
+
+Non. Sur Customermates Cloud, les webhooks et le déclencheur n8n commencent avec Starter. Tant qu’un espace de travail est en Free, la création d’un webhook est refusée dans les Paramètres, via REST (`409` avec `customCode` `planWebhooksNotIncluded`) et via MCP, avec le prix de Starter dans le message. Les webhooks créés avant restent dans la liste mais n’envoient rien tant que l’espace de travail est en Free ; les événements de cette période ne sont pas livrés plus tard. Dès que l’espace de travail choisit une formule payante, ils livrent de nouveau. Les installations auto-hébergées n’ont pas cette limite.
 
 ## Suite [#next]
 

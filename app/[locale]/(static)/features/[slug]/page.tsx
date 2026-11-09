@@ -1,28 +1,30 @@
+import { WorkspaceGeneratorSection } from "../../components/workspace-generator-section";
 import type { Metadata } from "next";
+import type { FeatureSections } from "@/core/fumadocs/schemas/landing-sections";
 
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { Footer } from "@/app/components/footer";
-import { AcquisitionStoryVisual } from "@/components/marketing/acquisition-story-visual";
 import { LandingArticle } from "@/components/marketing/landing-article";
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHero } from "@/components/marketing/landing-hero";
 import { PageUpdatedAt } from "@/components/marketing/page-updated-at";
 import { PageEnding } from "@/components/marketing/page-ending";
-import { productDemoForFeature } from "@/components/marketing/product-demo-config";
-import { ProductDemoSection } from "@/components/marketing/product-demo-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
 import { featurePagesSource } from "@/core/fumadocs/source";
 import { getMDXComponents } from "@/core/fumadocs/mdx-components";
 import { breadcrumbListSchema, webPageSchema } from "@/core/seo/schemas";
 import { resolvePageLastModified } from "@/core/seo/sitemap";
-import { findSolutionByLandingPath } from "@/core/solutions/solution-catalog";
+import { SOLUTION_CATALOG, findSolutionByLandingPath } from "@/core/solutions/solution-catalog";
 import { marketingLocaleOrDefault } from "@/i18n/locale-registry";
 import { enableMarketingLocale } from "@/i18n/static-locale";
 import { localizedSlugParams } from "@/core/fumadocs/static-params";
 
-import { SolutionProductStage } from "../../components/solution-product-stage";
+import { FeatureSteps, LandingHighlights, LandingUseCases, LandingVisual } from "../../components/landing-sections";
+import { SolutionLanding } from "../../components/solution-landing";
+
+const DEFAULT_SECTIONS: FeatureSections = { visual: { kind: "film" } };
 
 interface Props {
   params: Promise<{
@@ -57,12 +59,10 @@ export default async function FeaturePage({ params }: Props) {
 
   const MDX = page.data.body;
   const components = getMDXComponents();
-  const demo = productDemoForFeature(slug);
   const solution = findSolutionByLandingPath(`/features/${slug}`);
-  const visual =
-    page.data.acquisition?.visual.kind === "brand-illustration" ? (
-      <AcquisitionStoryVisual brief={page.data.acquisition.visual} locale={locale} />
-    ) : undefined;
+  const landingSolution = SOLUTION_CATALOG.find((entry) => entry.id === page.data.landing?.solution) ?? solution;
+  const sections = page.data.sections ?? DEFAULT_SECTIONS;
+  const updatedAt = <PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />;
 
   return (
     <div className="relative flex flex-col items-center justify-center" data-marketing-flow="continuous">
@@ -71,7 +71,10 @@ export default async function FeaturePage({ params }: Props) {
           breadcrumbListSchema([
             { name: t("home"), path: `/${locale}` },
             { name: t("features"), path: `/${locale}/features` },
-            { name: page.data.featureName, path: `/${locale}/features/${slug}` },
+            {
+              name: page.data.featureName,
+              path: `/${locale}/features/${slug}`,
+            },
           ]),
           webPageSchema({
             name: page.data.title,
@@ -83,14 +86,25 @@ export default async function FeaturePage({ params }: Props) {
         ]}
       />
 
-      <PageHero
-        {...page.data.hero}
-        meta={<PageUpdatedAt date={resolvePageLastModified(page.data)} locale={locale} />}
-        stage={solution ? <SolutionProductStage locale={locale} solutionId={solution.id} /> : undefined}
-        visual={solution ? undefined : visual}
-      />
+      {page.data.landing && landingSolution ? (
+        <SolutionLanding landing={page.data.landing} locale={locale} solutionId={landingSolution.id} />
+      ) : (
+        <>
+          <LandingHero eyebrow={page.data.featureName} hero={page.data.hero} meta={updatedAt} />
 
-      {demo && !solution ? <ProductDemoSection {...demo} /> : null}
+          <LandingVisual locale={locale} name={page.data.featureName} visual={sections.visual} />
+
+          {sections.visual.kind === "stage" ? null : <WorkspaceGeneratorSection locale={locale} />}
+
+          <LandingUseCases locale={locale} override={sections.useCases} path={`/features/${slug}`} />
+
+          {sections.steps ? <FeatureSteps name={page.data.featureName} steps={sections.steps} /> : null}
+
+          {sections.highlights ? (
+            <LandingHighlights highlights={sections.highlights} locale={locale} name={page.data.featureName} />
+          ) : null}
+        </>
+      )}
 
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />

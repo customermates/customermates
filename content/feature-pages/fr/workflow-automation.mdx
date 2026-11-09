@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/integrations
   - /features/api
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Ajoutez la routine"
+        description: "Ouvrez Routines, cliquez sur Ajouter et nommez-la « Contrôle du pipeline du lundi »."
+      - title: "Définissez le déclencheur"
+        description: "Choisissez Selon un planning, puis Répétition : Chaque semaine, lundi, 08:00."
+      - title: "Collez la consigne"
+        description: "Collez votre consigne avec les noms de vos propres étapes, et enregistrez."
+      - title: "Testez une fois"
+        description: "Cliquez sur Tester le déclencheur. Détails de l’exécution affiche la réponse de Mate, les enregistrements lus et les crédits utilisés."
+  highlights:
+    title: "En bref"
+    capture: homepage-routines
+    items:
+      - title: "Deux moteurs"
+        description: "Les routines pour le travail qui demande de la lecture et du jugement. Les webhooks avec n8n ou votre propre code pour les règles fixes."
+      - title: "Formules"
+        description: "Routines avec toutes les formules Cloud payantes : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business. REST et MCP avec toutes les formules, webhooks avec toutes les formules payantes, auto-hébergement compris."
+      - title: "Coût"
+        description: "Une exécution de routine utilise les crédits IA hébergés mensuels de son propriétaire et s’arrête à 10 crédits. n8n facture ses propres formules."
+      - title: "Non inclus"
+        description: "Pas de générateur visuel ni de branches dans le CRM, pas de séquences d’e-mails et pas de rappels de tâches."
+
 hero:
   title: Automatisation CRM avec des routines IA et des webhooks ouverts
-  description: Les routines de Customermates Cloud exécutent une consigne enregistrée via Mate selon un planning ou lorsqu’un enregistrement change, avec des crédits IA hébergés. Les webhooks, l’API REST, n8n et MCP relient toutes les formules, installations auto-hébergées comprises, à l’outil d’automatisation ou au client IA que vous exploitez.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  description: "Les routines de Customermates Cloud exécutent Mate selon un planning ou à l’arrivée d’un e-mail, pour que des brouillons de réponse attendent votre relecture. REST et MCP relient tout outil sur toutes les formules ; les webhooks et n8n sont inclus dans toutes les formules payantes et en auto-hébergement."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Lire le guide des routines
   buttonRightHref: /docs/app-routines
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: Automatisez une tâche récurrente cette semaine
-  description: Construisez la routine de relance pendant l’essai, puis connectez n8n pour les règles qui doivent se déclencher toujours de la même façon.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  action: "Automatisez votre contrôle de relance du lundi"
+  description: "Configurez le contrôle du pipeline du lundi pendant l’essai et laissez une routine rédiger les relances. Connectez n8n pour les règles qui doivent se déclencher toujours de la même façon."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Connecter n8n
   buttonRightHref: /docs/n8n
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
@@ -34,7 +60,7 @@ La limite est simple à poser. Customermates automatise le travail sur des enreg
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Trois voies">Les routines pour le travail qui demande de la lecture et du jugement. Les webhooks avec n8n ou votre propre code pour les règles fixes. Votre propre client IA via MCP pour les mises à jour que vous demandez.</SummaryItem>
-  <SummaryItem label="Formules">Routines avec toutes les formules Cloud : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business. Webhooks, REST et MCP avec toutes les formules, auto-hébergement compris.</SummaryItem>
+  <SummaryItem label="Formules">Routines avec toutes les formules Cloud payantes : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur avec Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] avec Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business. REST et MCP avec toutes les formules, webhooks avec toutes les formules payantes, auto-hébergement compris.</SummaryItem>
   <SummaryItem label="Coût">Une exécution de routine utilise les crédits IA hébergés mensuels de son propriétaire et s’arrête à 10 crédits. n8n facture ses propres formules.</SummaryItem>
   <SummaryItem label="Non inclus">Pas de générateur visuel ni de branches dans le CRM, pas de séquences d’e-mails, pas de rappels de tâches, pas de scoring des leads.</SummaryItem>
 </ArticleSummary>
@@ -55,12 +81,12 @@ Un brouillon de réponse est un message dans une conversation, pas une séquence
 
 | Tâche | À utiliser | Formule |
 |---|---|---|
-| Rappel de relance : une tâche pour chaque affaire dont la date de prochain contact est dépassée | Routine planifiée | Toute formule Cloud |
+| Rappel de relance : une tâche pour chaque affaire dont la date de prochain contact est dépassée | Routine planifiée | Toute formule Cloud payante |
 | Brouillon de réponse quand un client écrit | Routine sur **E-mail reçu** | Cloud, Pro et au-delà |
-| Tâches d’intégration quand une affaire est gagnée | Routine sur **Enregistrement mis à jour** pour Affaires, ou webhook vers n8n | Routine : Cloud. Webhook : toutes les formules |
-| Message dans un chat d’équipe quand une affaire est créée | Webhook vers n8n, ou webhook avec un modèle de corps | Toutes les formules |
-| Flux avec branches, attentes et autres applications | n8n sur webhooks et REST | Toutes les formules, plus n8n |
-| Mettre à jour une affaire à partir de notes d’appel collées | Chat avec Mate, ou votre propre client IA via MCP | Mate : Cloud. MCP : toutes les formules |
+| Tâches d’intégration quand une affaire est gagnée | Routine sur **Enregistrement mis à jour** pour Affaires, ou webhook vers n8n | Routine : Cloud payant. Webhook : formules payantes |
+| Message dans un chat d’équipe quand une affaire est créée | Webhook vers n8n, ou webhook avec un modèle de corps | Formules payantes |
+| Flux avec branches, attentes et autres applications | n8n sur webhooks et REST | Formules payantes, plus n8n |
+| Mettre à jour une affaire à partir de notes d’appel collées | Chat avec Mate, ou votre propre client IA via MCP | Mate : Cloud payant. MCP : toutes les formules |
 
 Notre règle empirique : si une étape doit se comporter à l’identique à chaque fois, comme créer les mêmes tâches pour chaque affaire gagnée, utilisez un webhook et n8n. Une routine est une exécution d’IA qui lit, décide et écrit : son résultat varie donc un peu et chaque exécution consomme des crédits. Utilisez-la là où la lecture est l’essentiel.
 
@@ -123,7 +149,7 @@ Utilisation des crédits : chaque exécution qui démarre consomme des crédits
 
 ## Comment envoyer une nouvelle affaire vers n8n, Slack ou un autre outil ?
 
-Customermates envoie un POST JSON pour chacun des [[derived.webhooks.events.total]] types d’évènement : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de boîte de réception. Les évènements d’enregistrement couvrent chaque liste, les vôtres comprises, avec toutes les formules. L’**Étape** d’une affaire est un champ à choix unique configurable : un changement d’étape arrive donc comme `record.updated` pour la liste Affaires, et une nouvelle affaire comme `record.created`. La [référence des webhooks](/docs/webhooks) liste chaque charge utile.
+Customermates envoie un POST JSON pour chacun des [[derived.webhooks.events.total]] types d’évènement : [[derived.webhooks.events.records]] évènements d’enregistrement et [[derived.webhooks.events.messaging]] évènements de boîte de réception. Les évènements d’enregistrement couvrent chaque liste, les vôtres comprises. L’**Étape** d’une affaire est un champ à choix unique configurable : un changement d’étape arrive donc comme `record.updated` pour la liste Affaires, et une nouvelle affaire comme `record.created`. La [référence des webhooks](/docs/webhooks) liste chaque charge utile.
 
 <Steps>
   <Step title="Ajoutez le déclencheur dans n8n">Ajoutez un nœud Webhook et copiez son URL. Avec le nœud communautaire, en version 2 ou ultérieure, un nœud Customermates Trigger crée l’abonnement pour vous à l’activation du workflow ; vous pouvez alors sauter l’étape suivante.</Step>
@@ -224,6 +250,6 @@ Non. Les routines exigent Mate et des crédits IA hébergés, qui n’existent q
 </FaqItem>
 
 <FaqItem question="Combien coûte l’automatisation CRM dans Customermates ?">
-Les webhooks, REST et MCP sont inclus dans toutes les formules, sans frais Customermates par workflow. Les routines sont incluses par utilisateur, de [[commercial.entitlement.starter.includedRoutinesPerUser]] avec Starter à [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business, et chaque exécution utilise au plus 10 des crédits IA hébergés du propriétaire. n8n facture séparément.
+REST et MCP sont inclus dans toutes les formules et les webhooks dans toutes les formules payantes, sans frais Customermates par workflow. Les routines sont incluses par utilisateur, de [[commercial.entitlement.starter.includedRoutinesPerUser]] avec Starter à [[commercial.entitlement.business.includedRoutinesPerUser]] avec Business, et chaque exécution utilise au plus 10 des crédits IA hébergés du propriétaire. n8n facture séparément.
 </FaqItem>
 </Faq>

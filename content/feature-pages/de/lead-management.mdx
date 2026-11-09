@@ -9,11 +9,39 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/client-qualification
 
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "Wir sind ein kleiner B2B-Dienstleister. Halte Kunden, Angebote und Gespräche an einem Ort und zeig uns auf dem Dashboard, wen wir zurückrufen müssen."
+  steps:
+    items:
+      - title: "Leads auch Leads nennen"
+        description: "Öffnen Sie unter Konfigurieren die Kontakte und benennen Sie sie unter Allgemein in Leads um, wenn Ihr Team so spricht. Das gilt für den ganzen Workspace."
+      - title: "Zwei Felder am Kontakt anlegen"
+        description: "Quelle (Einzelauswahl: Empfehlung, Website, LinkedIn, Messe, Partner) und Eignung (Einzelauswahl: Passt gut, Unklar, Passt nicht). Wenige Optionen halten die Filter brauchbar."
+      - title: "Zwei Ansichten speichern"
+        description: "„Neu und ohne Zuständigkeit“: Vertriebsphase ist Neu und Zugewiesen hat keine. „Meine offenen Leads“: Zugewiesen sind Sie, Vertriebsphase ist Kontaktiert, Qualifiziert oder In Bearbeitung, sortiert nach Aktualisiert am, älteste zuerst."
+      - title: "Mit dem Board arbeiten"
+        description: "Stellen Sie „Meine offenen Leads“ auf das Board, gruppiert nach Vertriebsphase, und ziehen Sie eine Karte weiter, wenn das Gespräch vorankommt."
+      - title: "Einen Deal anlegen, wenn es ernst wird"
+        description: "Fragt ein Lead nach einem Angebot, legen Sie einen Deal an, verknüpfen Kontakt und Organisation und fügen für jede Leistung, die Sie verkaufen würden, eine Position hinzu. Der Deal-Wert ist die Summe seiner Positionen, jeweils Service mal Menge."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-pipeline
+    items:
+      - title: "In jedem Plan"
+        description: "Kontakte mit fertigem Phasenfeld, eigene Felder für Quelle und Eignung, teilbare Ansichten, Tabelle oder Board, Excel-Import, REST und MCP, dazu Webhooks in bezahlten Tarifen. Auch selbst gehostet."
+      - title: "Ab Pro"
+        description: "E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Lead. Nur in Customermates Cloud."
+      - title: "Nicht enthalten"
+        description: "Kein Lead-Scoring, keine Datenanreicherung, keine Webformulare, keine automatische Zuweisung, keine E-Mail-Sequenzen, keine Erinnerungen."
+
 hero:
-  title: "Lead-Management-Software für kleine Teams, die Kunden im Gespräch gewinnen"
-  description: Customermates führt jeden Lead als Kontakt mit Phase, Quelle und allen E-Mails, LinkedIn- und WhatsApp-Nachrichten daneben. Qualifizierte Leads werden zu Deals in einer gewichteten Pipeline. Ohne Scoring-Engine, ohne Formulare, ohne Einführungsprojekt.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Lead-Management: Bei jedem Lead nachfassen"
+  description: "Jeder Lead als Kontakt mit Phase, Quelle und allen E-Mails, LinkedIn- und WhatsApp-Nachrichten daneben. Sie sehen, welche Leads auf Sie warten, und lassen Mate das Nachfassen zur Prüfung entwerfen. Ohne Scoring und Formulare."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -21,8 +49,8 @@ hero:
 cta:
   action: Bringen Sie Ihre offenen Leads diese Woche in eine Liste
   description: Importieren Sie Ihre Lead-Liste als .xlsx-Datei, legen Sie ein Feld Quelle an, speichern Sie zwei Ansichten und prüfen Sie in [[commercial.trial.days]] Tagen, ob weniger Anfragen liegen bleiben.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -30,13 +58,9 @@ cta:
 
 Eine Lead-Management-Software hält alle Interessenten in einer Liste fest, zeigt, wo jeder steht und wer sich kümmert, und speichert, woher die Anfrage kam. Customermates macht das für kleine Teams mit direktem Kundenkontakt: Ein Lead ist ein Kontakt mit einer Phase, einer Quelle und einer zugewiesenen Person. Sobald er qualifiziert ist, legen Sie dazu einen Deal in der [Pipeline](/features/pipeline) an.
 
-Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reichert keine Daten an, stellt keine Webformulare bereit und verteilt Leads nicht automatisch im Rotationsprinzip. Wenn bei Ihnen Hunderte Leads im Monat aus Anzeigen und Formularen kommen, brauchen Sie diese Funktionen; die Tabelle weiter unten nennt Anbieter, die sie haben.
+**Wo Leads einschlafen.** Ein Lead schläft ein, wenn die letzte Nachricht unbeantwortet bleibt oder niemand den nächsten Schritt festgelegt hat. Liegt das Gespräch am Lead, sehen Sie, was zuletzt gesagt wurde, und eine gespeicherte Ansicht, nach **Aktualisiert am** aufsteigend sortiert, listet die Leads, die niemand angefasst hat. In Customermates Cloud kann Mate das Nachfassen im Gespräch des Leads entwerfen, damit Sie es prüfen, bevor etwas gesendet wird.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="In jedem Plan">Kontakte mit fertigem Phasenfeld, eigene Felder für Quelle und Eignung, teilbare Ansichten, Tabelle oder Board, Excel-Import, REST, Webhooks und MCP. Auch selbst gehostet.</SummaryItem>
-  <SummaryItem label="Ab Pro">E-Mail-, LinkedIn-, WhatsApp-, Instagram- und Telegram-Gespräche am Lead. Nur in Customermates Cloud.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Kein Lead-Scoring, keine Datenanreicherung, keine Webformulare, keine automatische Zuweisung, keine E-Mail-Sequenzen, keine Erinnerungen.</SummaryItem>
-</ArticleSummary>
+Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reichert keine Daten an, stellt keine Webformulare bereit und verteilt Leads nicht automatisch im Rotationsprinzip. Wenn bei Ihnen Hunderte Leads im Monat aus Anzeigen und Formularen kommen, brauchen Sie diese Funktionen; die Tabelle weiter unten nennt Anbieter, die sie haben.
 
 ## Was zum Lead Management gehört und was Customermates davon abdeckt
 
@@ -49,7 +73,7 @@ Genauso wichtig ist, was fehlt. Customermates vergibt keine Lead-Scores, reicher
 | Nachfassen | Antwort über den Kanal des Kontakts, Entwürfe von Mate in Customermates Cloud | Mehrstufige E-Mail-Sequenzen |
 | Auswerten | Dashboard-Diagramme mit Anzahl und Deal-Wert je Einzelauswahlfeld | Konversion im Zeitverlauf, Multi-Touch-Attribution |
 
-Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit 10 bis 50 neuen Anfragen im Monat ist die mittlere Spalte meist schon alles. Die rechte Spalte betrifft Marketingteams mit hohem Anfragevolumen.
+Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit einigen Dutzend Anfragen im Monat ist die mittlere Spalte meist schon alles. Die rechte Spalte betrifft Marketingteams mit hohem Anfragevolumen.
 
 ## Wie Leads in Customermates kommen
 
@@ -63,15 +87,7 @@ Für eine Beratung, eine Agentur oder ein gründergeführtes Unternehmen mit 10 
 
 Ein neuer Workspace startet ohne Listen und Felder. Legen Sie unter **Konfigurieren** eine Kontaktliste mit dem Einzelauswahlfeld **Vertriebsphase** an (etwa Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen und Verloren) und eine Deal-Liste mit dem Feld **Phase**, oder die KI-Einrichtung baut sie in der Cloud. Beide können Sie später umbenennen und die Optionen anpassen. Trennt Ihr Team zwischen Leads und Prospects, zeigt der Beitrag zum [Unterschied zwischen Lead und Prospect](/blog/prospect-vs-lead), wie Sie jede Phase definieren.
 
-<Steps>
-  <Step title="Leads auch Leads nennen">Öffnen Sie unter **Konfigurieren** die Kontakte und benennen Sie sie unter **Allgemein** in **Leads** um, wenn Ihr Team so spricht. Das gilt für den ganzen Workspace.</Step>
-  <Step title="Zwei Felder am Kontakt anlegen">**Quelle** (Einzelauswahl: Empfehlung, Website, LinkedIn, Messe, Partner) und **Eignung** (Einzelauswahl: Passt gut, Unklar, Passt nicht). Wenige Optionen halten die Filter brauchbar.</Step>
-  <Step title="Zwei Ansichten speichern">„Neu und ohne Zuständigkeit“: **Vertriebsphase** ist Neu und **Zugewiesen** hat keine. „Meine offenen Leads“: **Zugewiesen** sind Sie, **Vertriebsphase** ist Kontaktiert, Qualifiziert oder In Bearbeitung, sortiert nach **Aktualisiert am**, älteste zuerst.</Step>
-  <Step title="Mit dem Board arbeiten">Stellen Sie „Meine offenen Leads“ auf das Board, gruppiert nach **Vertriebsphase**, und ziehen Sie eine Karte weiter, wenn das Gespräch vorankommt.</Step>
-  <Step title="Einen Deal anlegen, wenn es ernst wird">Fragt ein Lead nach einem Angebot, legen Sie einen Deal an, verknüpfen Kontakt und Organisation und fügen für jede Leistung, die Sie verkaufen würden, eine Position hinzu. Der Deal-Wert ist die Summe seiner Positionen, jeweils Service mal Menge.</Step>
-</Steps>
-
-Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Kollegin kann ihre eigene anlegen, oder Sie teilen eine mit dem Team. Filter, Gruppierung und Import beschreibt die [Anleitung zu Datensätzen](/docs/app-records).
+Teilen Sie „Neu und ohne Zuständigkeit“ mit dem ganzen Team oder mit ausgewählten Rollen, damit alle dieselben neuen Leads sehen; „Meine offenen Leads“ bleibt Ihre eigene Ansicht. Filter, Gruppierung und Import beschreibt die [Anleitung zu Datensätzen](/docs/app-records).
 
 ## Leads nachverfolgen nach der ersten Antwort
 
@@ -81,7 +97,7 @@ Geben Sie jeder Deal-Phase eine Gewichtung, zum Beispiel 10, 20, 40, 60 und 80 P
 
 Auf dem Dashboard zeigt ein Diagramm-Widget über Kontakte, gruppiert nach **Quelle**, wie viele Leads jeder Kanal gebracht hat. Dasselbe Diagramm über Deals, mit einem Feld Quelle am Deal und summiertem **Wert**, zeigt, welche Kanäle Umsatz bringen. Ein **Trichter**-Diagramm zeigt die aktuellen Datensätze je Phase mit der Umwandlung von Schritt zu Schritt; Konversion im Zeitverlauf erfasst Customermates nicht, dafür exportieren Sie die Liste nach Excel.
 
-Damit andere Systeme Leads mitverfolgen, sobald sich etwas ändert, senden Webhooks unter anderem `record.created` und `record.updated` für die Listen Kontakte und Deals, insgesamt gibt es [[derived.webhooks.events.total]] Ereignisse. Eine Slack-Nachricht zu einem neuen Lead läuft über n8n oder Ihren eigenen Endpunkt; eine native Slack-Integration gibt es nicht. Jede Änderung an einem Lead landet in seinem Verlauf, sichtbar für Rollen mit Lesezugriff auf das **Audit-Log**.
+Damit andere Systeme Leads mitverfolgen, sobald sich etwas ändert, senden Webhooks unter anderem `record.created` und `record.updated` für die Listen Kontakte und Deals, insgesamt gibt es [[derived.webhooks.events.total]] Ereignisse. Eine Slack-Nachricht zu einem neuen Lead läuft über n8n oder Ihren eigenen Endpunkt; eine native Slack-Integration gibt es nicht. Jede Änderung an einem Lead landet in seinem Verlauf, sichtbar für Rollen mit Lesezugriff auf das **Aktivitätsprotokoll**.
 
 ## Mate und Routinen für neue Leads (Customermates Cloud)
 
@@ -121,7 +137,7 @@ Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbie
 
 ## Was es kostet
 
-Eine [Beraterin allein](/for/freelancers) zahlt im Starter-Plan [[commercial.price.starter.monthly]] im Monat, ohne Posteingang. Drei Personen im Pro-Plan zahlen [[commercial.price.pro.monthly.seats.3]] im Monat und sehen die Gespräche am Lead, mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer. Abgerechnet wird monatlich pro Nutzer, nie pro Lead oder Kontakt. Jeder Cloud-Plan enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing).
+Eine [Beraterin allein](/for/freelancers) zahlt im Starter-Plan [[commercial.price.starter.monthly]] im Monat, ohne Posteingang. Drei Personen im Pro-Plan zahlen [[commercial.price.pro.monthly.seats.3]] im Monat und sehen die Gespräche am Lead, mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer. Abgerechnet wird monatlich pro Nutzer, nie pro Lead oder Kontakt. Jeder bezahlte Cloud-Plan enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing).
 
 ## Häufig gestellte Fragen
 
@@ -147,7 +163,7 @@ Ja. Speichern Sie die gelieferte Liste als .xlsx-Datei und importieren Sie sie, 
 </FaqItem>
 
 <FaqItem question="Was kostet Lead-Management-Software?">
-Die kostenlosen CRM-Tools von HubSpot erlauben 2 Nutzer und 1.000 Kontakte, die kostenlose Edition von Zoho CRM 3 Nutzer und 5.000 Datensätze. Customermates kostet ab [[commercial.price.starter.monthly]] pro Nutzer im Monat; einen kostenlosen Cloud-Plan gibt es nicht, der AGPL-Kern läuft aber [selbst gehostet](/features/self-hosted) ohne Lizenzgebühr, dann ohne Posteingang und ohne Mate.
+Die kostenlosen CRM-Tools von HubSpot erlauben 2 Nutzer und 1.000 Kontakte, die kostenlose Edition von Zoho CRM 3 Nutzer und 5.000 Datensätze. Customermates Cloud hat einen kostenlosen Plan für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, und der AGPL-Kern läuft [selbst gehostet](/features/self-hosted) ohne Lizenzgebühr, ohne Posteingang und ohne Mate.
 </FaqItem>
 </Faq>
 

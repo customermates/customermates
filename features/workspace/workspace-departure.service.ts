@@ -10,6 +10,7 @@ import type { WorkspaceMembershipRepo } from "./workspace-membership.repo";
 
 import * as ErrorReporter from "@/core/observability/server";
 import { Status, SubscriptionPlan } from "@/generated/prisma";
+import { isOnFreePlan } from "@/ee/subscription/entitlements";
 
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -71,6 +72,7 @@ export class WorkspaceDepartureService {
   private async updateSubscriptionQuantity(): Promise<void> {
     const subscription = await this.subscriptionRepo.getSubscriptionOrThrow();
     if (subscription.plan === SubscriptionPlan.enterprise || !subscription.lemonSqueezyId) return;
+    if (isOnFreePlan(subscription)) return;
 
     const activeUsersCount = await this.countUsersRepo.countActiveUsers();
     await this.subscriptionService.updateSubscriptionQuantityOrThrow(subscription.lemonSqueezyId, activeUsersCount);

@@ -64,7 +64,7 @@ Access comes from the **API & Webhooks** row of a role in [Roles](app:settings/r
 | **Read access** **All** plus **Edit** | Edit webhooks and see saved **Secret** and **Custom headers** values. |
 | **Read access** **All** plus **Delete** | Delete webhooks. |
 
-The same row also controls [API keys](app:settings/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks have no plan restriction: they work on every Cloud plan and when self-hosted. The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
+The same row also controls [API keys](app:settings/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks work on every paid Cloud plan, during the trial and when self-hosted, but not on the Free plan ([details](#webhooks-on-the-free-plan)). The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
 
 ## What does the payload look like? [#what-does-the-payload-look-like]
 
@@ -322,6 +322,10 @@ Messaging events fire on inbound provider activity on connected accounts. **Even
 | `messaging.calendar.changed` | A connected calendar changes |
 | `messaging.calendar_event.changed` | A calendar event changes |
 | `messaging.relation.created` | A new provider relation is created |
+
+## Do webhooks work on the Free plan? [#webhooks-on-the-free-plan]
+
+No. On Customermates Cloud, webhooks and the n8n trigger start on Starter. While a workspace is on Free, creating a webhook is refused in Settings, over REST (`409` with `customCode` `planWebhooksNotIncluded`) and over MCP, with the Starter price in the message. Webhooks created before stay in the list but send nothing while the workspace is on Free; events from that time are not delivered later. Once the workspace chooses a paid plan, they deliver again. Self-hosted installs have no such limit.
 
 ## Next [#next]
 

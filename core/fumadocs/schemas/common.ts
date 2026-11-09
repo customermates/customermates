@@ -158,6 +158,7 @@ export const heroSchema = z.object({
   buttonRightHref: z.string(),
   buttonRightText: z.string(),
   description: z.string(),
+  eyebrow: z.string().optional(),
   hint: z.string(),
   showOpenSourceBadge: z.boolean().optional(),
   title: z.string(),

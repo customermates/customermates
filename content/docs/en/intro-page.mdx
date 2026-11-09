@@ -1,12 +1,12 @@
 ---
 title: "Customermates CRM Documentation"
-description: Open-source CRM with a native MCP endpoint, so AI clients can read and write your CRM directly. Start here.
+description: "Open-source CRM for client follow-up: conversations on the client record, replies drafted by Mate or your AI agent over MCP for you to review and send."
 demo:
   src: https://demo.customermates.com/en/w/small-business/dashboard?agentChat=closed
   title: Customermates Demo
 ---
 
-Customermates is an open-source CRM with a native MCP endpoint. Claude, ChatGPT, Cursor and any other client that speaks the Model Context Protocol read and write your CRM directly, without copy-paste.
+Customermates is an open-source CRM for small client-facing teams. On Customermates Cloud from Pro, you connect email and LinkedIn, plus WhatsApp, Instagram and Telegram, and conversations sit on the client's record when the contact details match or you link them. Mate, the assistant built into Customermates Cloud, or your own AI agent drafts the reply and the next step; you review, edit and send. Claude, ChatGPT, Cursor and any other client that speaks the Model Context Protocol read and write your CRM directly through a native MCP endpoint, without copy-paste, on every plan and on self-hosted instances.
 
 ## Pick your client and start [#pick-your-client-and-start]
 
@@ -21,16 +21,16 @@ Each page covers the connect steps and your first commands, and the server brief
 
 ## What Customermates is [#what-customermates-is]
 
-A CRM with configurable lists, fields, relationships and calculations, table and board views, and dashboards. On Customermates Cloud, an AI setup designs your lists, pipeline, dashboard and Knowledge Base from a few questions about your business; you can change all of it and add your own lists. Plus:
+A CRM with configurable lists, fields, relationships and calculations, table and board views, and dashboards. On Customermates Cloud, you describe your business, answer a few questions, and Mate designs your lists, pipeline, dashboard and Knowledge Base pages for you to review before anything is built; you can change all of it and add your own lists. Plus:
 
 - **Native MCP endpoint** at `/api/v1/mcp`: an MCP client discovers and calls CRM operations without a plugin.
 - **Open source** under AGPLv3; enterprise components are under a separate commercial license. Self-host or use the managed cloud.
 - **Managed cloud** with its database in the AWS Frankfurt region, a [DPA](/dpa), and every subprocessor, including US providers, listed on the [subprocessors page](/subprocessors).
 - **Webhooks** with optionally signed payloads, retries and a delivery log.
 - **OpenAPI 3.1** specification for the full REST surface at `/api/v1/openapi`.
-- **Mate**, the in-app AI assistant on Customermates Cloud: no external AI client or setup, it uses the credits included in your plan. See [Assistant](/docs/app-assistant).
+- **Mate**, the in-app AI assistant on Customermates Cloud: no external AI client or setup, it uses the credits included in your plan. Ask it for a reply and it saves a draft in the conversation for you to review and send. See [Assistant](/docs/app-assistant).
 - **Routines** that run Mate on a schedule or when a record changes, on Customermates Cloud. See [Routines](/docs/app-routines).
-- **Inbox** for email and connected LinkedIn, WhatsApp, Instagram and Telegram accounts, on Customermates Cloud. See [Inbox](/docs/app-inbox).
+- **Inbox** for email and connected LinkedIn, WhatsApp, Instagram and Telegram accounts, on Customermates Cloud from Pro. See [Inbox](/docs/app-inbox).
 - **Roles** that decide per list who can read all records, only assigned ones or none, and who can create, edit or delete them. See [Company](/docs/app-company).
 
 ## Four ways Customermates connects to your stack [#four-ways-customermates-connects-to-your-stack]
@@ -59,4 +59,4 @@ Customermates treats the AI client as a first-class user. Tools are named impera
 
 ## Try it [#try-it]
 
-The embedded demo on this page is a read-only live instance with sample data. You can browse and search it; creating, changing or deleting records and asking Mate show a notice that the action is not available in demo mode. [Start a free trial](/auth/signup) to work with your own data.
+The embedded demo on this page is a read-only live instance with sample data. You can browse and search it; creating, changing or deleting records and asking Mate show a notice that the action is not available in demo mode. [Start a free trial](/auth/signup) ([[commercial.trial.days]] days, no credit card) to work with your own data.

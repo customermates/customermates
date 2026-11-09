@@ -1,10 +1,8 @@
 import * as ErrorReporter from "@/core/observability/server";
 
 import {
-  getDeactivateTrialUsersAndSendNoticeInteractor,
   getDeactivateUsersAfterSubscriptionGracePeriodInteractor,
   getSendTrialExtensionOfferInteractor,
-  getSendTrialInactivationReminderInteractor,
   getSendWelcomeAndDemoInteractor,
   getDeleteConnectedAccountsForExpiredTrialsInteractor,
   getDeleteConnectedAccountsForInactiveOwnersInteractor,
@@ -63,8 +61,6 @@ function concurrentSteps(): LifecycleStep[] {
   return [
     ["sendWelcomeAndDemo", () => getSendWelcomeAndDemoInteractor().invoke()],
     ["sendTrialExtensionOffer", () => getSendTrialExtensionOfferInteractor().invoke()],
-    ["sendTrialInactivationReminder", () => getSendTrialInactivationReminderInteractor().invoke()],
-    ["deactivateTrialUsersAndSendNotice", () => getDeactivateTrialUsersAndSendNoticeInteractor().invoke()],
     [
       "deactivateUsersAfterSubscriptionGracePeriod",
       () => getDeactivateUsersAfterSubscriptionGracePeriodInteractor().invoke(),

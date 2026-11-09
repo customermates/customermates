@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/pipeline
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "The pipeline is a field, not a formula project"
+      description: "Stages are not preset: you add a Stage single choice field to your deals list and set a probability per option in Configure."
+    - title: "Conversations arrive on the record"
+      description: "Instead of pasting messages into a database, connect your mailbox, LinkedIn or WhatsApp from Pro, and each thread shows on the client. You reply on the original channel."
+    - title: "Replies drafted, records updated"
+      description: "In Customermates Cloud, Mate summarizes threads, drafts replies, updates records and builds views, using hosted AI credits with a monthly allowance per active user (see pricing)."
+  switchSteps: true
+
 hero:
-  title: "Notion CRM Alternative: When to Move Your Pipeline Out of Notion"
-  description: "Notion lets you build a CRM from databases, formulas and automations. Customermates is an open-source CRM built in Germany that starts with a weighted deal pipeline, puts email, LinkedIn, WhatsApp, Instagram and Telegram next to your records from Pro, and lets Mate or your own AI client keep them current. Notion details are from notion.com, checked on 8 October 2026."
-  buttonLeftText: Start for free
+  title: "Notion CRM Alternative: Move Your Pipeline Out of Notion"
+  description: "A CRM built in Notion falls behind once client conversations happen outside it. Customermates puts email, LinkedIn and WhatsApp threads on the client record from Pro, and Mate drafts the reply. Notion details checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Monthly billing only
         competitor: "Plus $10 (€9.50), Business $20 (€19.50)"
       - name: Free plan
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records, no inbox or Mate"
         competitor: Yes; block limit once a workspace has 2 or more members
   - title: CRM Data Model
     features:
@@ -96,7 +106,7 @@ comparison:
 cta:
   action: Is your Notion CRM getting hard to maintain?
   description: "Start a trial, import one Notion database saved as an Excel workbook, and connect the mailbox or WhatsApp account your clients write to. You will see quickly whether your pipeline fits the Customermates model."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -152,7 +162,7 @@ The rows do not buy the same things:
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
+In Notion you build the CRM yourself and paste the conversations in. In Customermates they arrive on the client record from Pro, and Mate or your own AI agent drafts the reply and the next step for you to review, edit and send.
 
 **The pipeline is a field, not a formula project.** Stages are not preset: you add a Stage single choice field to your deals list and set a probability per option in Configure (in the cloud, AI setup can create it), for example Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0%. A deal's value is the sum of its line items, each a service's price times quantity, and Customermates multiplies it by the stage probability for a weighted value per deal, which a Dashboard chart can sum into a [pipeline total](/features/pipeline). That is arithmetic on your numbers, not a prediction.
 
@@ -166,7 +176,7 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 - **No docs or wiki.** Each record has one rich-text notes field that can hold images and tables. Proposals and handbooks stay in Notion.
 - **No reminders and no task due dates.** Add a Date field and sort a saved view by it, or let a routine check it.
-- **No native mobile apps, no SSO and no free plan.** Customermates runs in the phone's browser, and a [[commercial.trial.days]]-day trial leads to a paid plan.
+- **No native mobile apps and no SSO.** Customermates runs in the phone's browser. Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a four-person consultancy leaving Notion
 
@@ -197,7 +207,7 @@ Each consultant saves a board of their own deals grouped by stage, and the found
   <Step title="Prepare the file">Customermates reads CSV files, so there is nothing to convert. Split names into first and last name, because new contacts need both.</Step>
   <Step title="Prepare the workspace">Rename lists in Configure, adjust the Stage options and probabilities, and add the fields from the table above.</Step>
   <Step title="Import one list at a time">Under More actions, choose Add from file: organizations first, then contacts, services and deals. Link columns match records by name, ignoring case. Map email addresses and phone numbers to the contact's Contact details field. The [records guide](/docs/app-records) lists the file limits.</Step>
-  <Step title="Bring over notes and views">Meeting notes are in the Markdown files, not the table. Paste the ones you need into each record's notes, or have an AI client write them over MCP. Then rebuild your views and share the ones the whole team uses.</Step>
+  <Step title="Bring over notes and views">Meeting notes are in the Markdown files, not the table. Paste the ones you need into each record's notes, or have an AI client write them over MCP. Then rebuild your views and share the ones the whole team needs.</Step>
 </Steps>
 
 ## Other Notion CRM alternatives worth a look
@@ -205,7 +215,7 @@ Each consultant saves a board of their own deals grouped by stage, and the found
 Customermates publishes this list. Details come from each vendor's pricing page, checked on 8 October 2026.
 
 - **Attio** is the CRM closest to Notion's way of modelling data, with objects, relationship and formula attributes, email and calendar sync, and automatic enrichment, which Customermates does not offer. According to [Attio's pricing page](https://attio.com/pricing), Free covers up to 3 seats and 50,000 records; Plus costs €39 per user per month (€31 billed yearly) and Pro €93 (€74), with a 14-day Pro trial. See the [Attio comparison](/compare/attio-alternative).
-- **Twenty** is an open-source CRM with unlimited custom objects, so a Notion schema can be rebuilt closely and hosted yourself. Every cloud workspace has an MCP server. On [Twenty's pricing page](https://twenty.com/pricing), Cloud Pro costs $9 per user per month billed yearly and Organization $19, after a 30-day trial.
+- **Twenty** is an open-source CRM with unlimited custom objects, so a Notion schema can be rebuilt closely and hosted yourself. Every cloud workspace has an MCP server. On [Twenty's pricing page](https://twenty.com/pricing), Cloud Pro costs $9 per user per month billed yearly and Organization $39, after a 30-day trial (checked on 9 November 2026).
 - **Airtable** suits teams that want to keep building their own system, with relational databases, interfaces and automations. Per [Airtable's pricing page](https://airtable.com/pricing), Team costs $20 and Business $45 per user per month, billed yearly; Free costs nothing.
 
 ## Frequently asked questions

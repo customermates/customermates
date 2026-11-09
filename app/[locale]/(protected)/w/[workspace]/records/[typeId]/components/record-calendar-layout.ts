@@ -127,13 +127,13 @@ export function calendarEntryColor(
   entry: CalendarEntry,
   colorField: Pick<RecordFieldView, "options"> | null,
 ): ChipColor {
-  if (!colorField) return "default";
+  if (!colorField) return "secondary";
   const option = entry.color ? colorField.options.find((candidate) => candidate.id === entry.color) : undefined;
   return option ? toChipColor(option.color) : "secondary";
 }
 
 const CHIP_TOKENS: Record<ChipColor, { color: string; tint: number; text: number }> = {
-  default: { color: "var(--primary)", tint: 20, text: 100 },
+  default: { color: "var(--chip-blue)", tint: 20, text: 100 },
   secondary: { color: "var(--foreground)", tint: 5, text: 80 },
   destructive: { color: "var(--destructive)", tint: 20, text: 100 },
   success: { color: "var(--success)", tint: 20, text: 100 },

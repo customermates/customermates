@@ -13,7 +13,6 @@ import { REPO_ROOT, walkFiles } from "./walk";
 const USER_STATUS_WRITERS = ["features/user/prisma-user.repository.ts"];
 
 const RELEASE_CALLERS = [
-  "ee/lifecycle/deactivate-trial-users-and-send-notice.interactor.ts",
   "ee/lifecycle/deactivate-users-after-subscription-grace-period.interactor.ts",
   "ee/operator/update-operator-user-status.interactor.ts",
   "features/user/upsert/admin-update-user-details.interactor.ts",

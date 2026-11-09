@@ -39,7 +39,7 @@ export function AgentComposerFileChip({
       interactive={!removeButton}
       size="sm"
       startContent={<FileTypeBadge mimeType={context.reference.mimeType} name={context.label} size="sm" />}
-      variant="default"
+      variant="ink"
     >
       {context.label}
     </AppChip>

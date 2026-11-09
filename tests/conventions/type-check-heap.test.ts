@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT } from "./walk";
 
-const TYPE_CHECK_HEAP_MB = 6144;
+const TYPE_CHECK_HEAP_MB = 9216;
 const HEADROOM_SHARE = 0.8;
 
 const scripts: Record<string, string> = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf8")).scripts;

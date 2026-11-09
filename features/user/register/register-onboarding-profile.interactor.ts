@@ -1,6 +1,7 @@
 import type { AuthService } from "@/features/auth/auth.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { RegistrationAdAttribution } from "@/features/acquisition/ad-attribution.schema";
+import type { RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import type { InviteTokenCookieRepo } from "@/features/company/invite-token-cookie.repo";
 import type { OnboardingIntentService } from "@/features/company/onboarding-intent.service";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -17,7 +18,10 @@ import {
 
 export type RegisterOnboardingProfileData = RegisterUserData & { onboardingIntent?: string };
 
-type RegistrationContext = { adAttribution?: RegistrationAdAttribution[] };
+type RegistrationContext = {
+  adAttribution?: RegistrationAdAttribution[];
+  signupSource?: RegistrationSignupSource | null;
+};
 
 @SystemInteractor
 export class RegisterOnboardingProfileInteractor {
@@ -58,6 +62,7 @@ export class RegisterOnboardingProfileInteractor {
     delete registrationData.onboardingIntent;
     const result = await this.registerUserInteractor.invoke(registrationData, {
       adAttribution: context.adAttribution,
+      signupSource: context.signupSource,
       target,
     });
 

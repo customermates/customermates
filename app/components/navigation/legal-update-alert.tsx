@@ -56,7 +56,7 @@ export function LegalUpdateAlert({ status, onNavigate }: Props) {
               className={cn(
                 "h-auto min-h-12 items-start gap-2.5 border px-3 py-2.5 group-data-[collapsible=icon]:items-center",
                 isWarning
-                  ? "border-warning/30 bg-warning/10 text-warning hover:bg-warning/15 hover:text-warning"
+                  ? "border-warning/30 bg-warning/10 text-warning-soft-foreground hover:bg-warning/15 hover:text-warning-soft-foreground"
                   : "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary",
               )}
               tooltip={contractModel.title}

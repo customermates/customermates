@@ -18,7 +18,6 @@ const SHARED_VALUE_PREFIXES = [
   "OnboardingWizard.ai.choices.",
   "Subscription.planNames.",
   "Subscription.picker.price.",
-  "HomepageStatsRow.taglineMcp",
   "AgplGithubBadge.label",
 ];
 

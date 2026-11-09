@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM gratuit : ce que comprend chaque offre gratuite, et où elle s’arrête"
-  description: "Plusieurs CRM hébergés sont gratuits sans date de fin, et les CRM open source ne coûtent aucune licence. Chacun s’arrête quelque part : un plafond d’utilisateurs, un plafond de contacts ou une facture d’exploitation. Ce guide montre où, avec les limites prises sur la page de chaque éditeur."
+  description: "Plusieurs CRM hébergés sont gratuits sans date de fin, les CRM open source sans licence. Chacun s’arrête quelque part : plafond d’utilisateurs, de contacts ou coût d’exploitation. Limites des éditeurs."
 
 blogPost:
   author: Benjamin Wagner
@@ -33,7 +33,7 @@ Un essai gratuit est une troisième chose, et non une offre gratuite. Pipedrive 
 <ArticleSummary title="En bref">
   <SummaryItem label="Offres hébergées gratuites">La plupart limitent l’équipe à deux ou trois utilisateurs. Les plafonds de contacts vont de 200 (CentralStationCRM) à 1 000 (HubSpot), et Zoho compte 5 000 enregistrements tous modules confondus.</SummaryItem>
   <SummaryItem label="Open source">SuiteCRM, EspoCRM et le noyau de Customermates sont sous licence AGPL et gratuits à auto-héberger. L’hébergement, les mises à jour et les sauvegardes sont à votre charge.</SummaryItem>
-  <SummaryItem label="Essais">Pipedrive offre 14 jours, Freshsales 21 jours, Customermates Cloud [[commercial.trial.days]] jours. Ensuite, vous payez ou vous partez.</SummaryItem>
+  <SummaryItem label="Essais">Pipedrive offre 14 jours, Freshsales 21 jours, Customermates Cloud [[commercial.trial.days]] jours. Ensuite, vous payez ou vous partez ; Customermates Cloud passe à sa formule gratuite pour [[commercial.limit.free.maxMembers]] personne.</SummaryItem>
   <SummaryItem label="Transparence">Customermates publie ce guide. La liste ci-dessous n’est pas un classement, et Customermates a sa propre section signalée.</SummaryItem>
 </ArticleSummary>
 
@@ -110,11 +110,13 @@ Pour une équipe de cinq personnes, un petit VPS peut coûter moins cher par moi
 
 ## Où se place Customermates
 
-*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native conçu en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Il est gratuit sous une forme et payant sous l’autre, et les deux diffèrent par ce qu’ils comprennent.
+*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native conçu en Allemagne pour les petites équipes en contact avec les clients, comme les consultants, les agences et les fondateurs. Il est gratuit en auto-hébergement, et Customermates Cloud a une petite formule gratuite et des formules payantes ; elles diffèrent par ce qu’elles comprennent.
 
 **Auto-hébergé : gratuit, sans nombre de sièges.** Vous exploitez le noyau AGPL avec Docker Compose : un conteneur d’application et un conteneur PostgreSQL. Un espace de travail auto-hébergé n’a ni abonnement ni essai, et l’application ne compte aucun siège. Vous obtenez les fonctionnalités de Starter : contacts, organisations, affaires, services et tâches, champs personnalisés, vues enregistrées, tableaux de bord, rôles, journal d’audit, REST, webhooks et MCP pour votre propre client d’IA. Vous n’avez ni la boîte de réception unifiée, ni Mate, ni les crédits IA hébergés. Il vous faut votre propre clé d’API Resend pour l’envoi des e-mails. La [documentation d’auto-hébergement](/docs/self-hosting) détaille l’installation.
 
-**Cloud : payant, avec un essai.** Customermates Cloud n’a pas d’offre gratuite. L’essai dure [[commercial.trial.days]] jours sans carte bancaire. Ensuite, une équipe de trois personnes paie [[commercial.price.starter.monthly.seats.3]] par mois sur Starter, qui n’a pas de boîte de réception, ou [[commercial.price.pro.monthly.seats.3]] sur Pro, qui ajoute la boîte de réception unifiée pour les conversations par e-mail, LinkedIn, WhatsApp, Instagram et Telegram. La facturation est uniquement mensuelle. Chaque offre cloud comprend chaque mois des crédits IA hébergés par utilisateur actif pour Mate, l’assistant de Customermates Cloud ; voir les [tarifs](/pricing) pour les quotas.
+**Cloud : une petite formule gratuite, des formules payantes et un essai.** Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. L’essai dure [[commercial.trial.days]] jours sans carte bancaire. Ensuite, une équipe de trois personnes paie [[commercial.price.starter.monthly.seats.3]] par mois sur Starter, qui n’a pas de boîte de réception, ou [[commercial.price.pro.monthly.seats.3]] sur Pro, qui ajoute la boîte de réception unifiée pour les conversations par e-mail, LinkedIn, WhatsApp, Instagram et Telegram. La facturation est uniquement mensuelle. Chaque offre cloud payante payante comprend chaque mois des crédits IA hébergés par utilisateur actif pour Mate, l’assistant de Customermates Cloud ; voir les [tarifs](/pricing) pour les quotas.
+
+La formule gratuite sert à essayer Customermates seul. Le travail pour lequel Customermates est conçu, donner suite à chaque échange client, commence avec Pro : les fils LinkedIn et e-mail se rangent sur la fiche du client, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et vous relisez et envoyez.
 
 Une configuration de départ concrète pour un petit cabinet de conseil, dans l’une ou l’autre édition :
 
@@ -122,11 +124,13 @@ Une configuration de départ concrète pour un petit cabinet de conseil, dans l�
 2. Gardez le champ d’affaire par défaut **Étape** (Prospection, Qualification, Démo, Proposition, Négociation, Gagnée, Perdue) ou renommez les options selon vos étapes de vente. Les pondérations d’étape donnent une valeur de pipeline pondérée.
 3. Ajoutez aux affaires un champ personnalisé de type Choix unique, comme « Ligne de service », et enregistrez une vue Board regroupée par **Étape** et filtrée sur les affaires qui vous sont assignées.
 
+Pour voir la relance sur vos propres clients, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire. Sans formule payante, l’espace de travail passe ensuite à la formule gratuite.
+
 <ProductDemo hostedBoundary path="/dashboard" />
 
 <AcquisitionCallout title="Quand Customermates n’est pas le CRM gratuit qu’il vous faut" variant="boundary">
-  Si vous voulez un CRM hébergé qui ne coûte rien chaque mois, Customermates
-  Cloud ne l’offre pas : regardez les offres gratuites du tableau ci-dessus. Si
+  Si vous voulez un CRM hébergé qui ne coûte rien chaque mois pour plus de
+  [[commercial.limit.free.maxMembers]] personne, ou avec la boîte de réception ou Mate, regardez les offres gratuites du tableau ci-dessus. Si
   vous avez besoin de la boîte de réception unifiée ou de Mate, l’auto-hébergement
   ne les comprend pas. Customermates n’a pas non plus d’application mobile ni de
   séquences d’e-mails.
@@ -156,7 +160,7 @@ Un tableur convient à une personne et à une courte liste. Dès que les affaire
 </FaqItem>
 
 <FaqItem question="Customermates a-t-il une offre gratuite ?">
-L’auto-hébergement est gratuit : ni abonnement, ni essai, ni nombre de sièges, avec le noyau sous AGPL. Il comprend les fonctionnalités de Starter sans la boîte de réception ni Mate. Customermates Cloud n’a pas d’offre gratuite ; il propose un essai de [[commercial.trial.days]] jours sans carte bancaire, puis une facturation mensuelle par utilisateur.
+L’auto-hébergement est gratuit : ni abonnement, ni essai, ni nombre de sièges, avec le noyau sous AGPL. Il comprend les fonctionnalités de Starter sans la boîte de réception ni Mate. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; il propose aussi un essai Pro de [[commercial.trial.days]] jours sans carte bancaire et des formules payantes facturées mensuellement par utilisateur.
 </FaqItem>
 </Faq>
 

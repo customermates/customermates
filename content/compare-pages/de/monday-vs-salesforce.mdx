@@ -11,10 +11,20 @@ relatedHrefs:
   - /compare/hubspot-vs-monday
   - /blog/salesforce-pricing
 
+sections:
+  reasons:
+    - title: "Gespräche am Datensatz"
+      description: "Ab Pro bringt der einheitliche Posteingang Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, verknüpft mit Kontakten, Organisationen und Deals."
+    - title: "Antworten und nächste Schritte entworfen"
+      description: "In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten und aktualisiert Datensätze, mit gehosteten KI-Credits. Sie prüfen, bearbeiten und senden."
+    - title: "Open Source mit Wahl beim Hosting"
+      description: "Der AGPL-3.0-Kern läuft mit Docker Compose auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP."
+  switchSteps: true
+
 hero:
-  title: "Monday vs Salesforce: Welches CRM passt zu einem kleinen Team?"
-  description: "monday CRM ist ein Vertriebs-CRM auf den Boards von monday.com, verkauft ab drei Plätzen und ab 12 € pro Platz und Monat. Salesforce Sales Cloud ist für zwei Nutzer kostenlos; die bezahlten Suites und Editionen kosten 25 € bis 550 € pro Nutzer, Angebotserstellung und Umsatzprognosen kommen mit der Pro Suite. Preise und Grenzen stammen von den Seiten beider Anbieter, geprüft am 8. Oktober 2026. Customermates veröffentlicht diesen Vergleich."
-  buttonLeftText: Kostenlos starten
+  title: "monday vs Salesforce: Welches CRM passt zu Ihnen?"
+  description: "monday CRM oder Salesforce für ein kleines Team? monday CRM gibt es ab drei Plätzen und 12 € pro Platz, Salesforce Sales Cloud ist für zwei Nutzer kostenlos. Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -53,7 +63,7 @@ comparison:
         competitor: Leads, Kontakte und Deals als Einträge auf Boards
         competitor2: Accounts, Kontakte, Leads, Opportunities
       - name: Tarifgrenzen für Ihre Daten
-        source: Keine Begrenzung von Einträgen oder Spalten je Tarif
+        source: Keine Begrenzung von Einträgen oder Spalten in bezahlten Tarifen
         competitor: "5, 15 oder 75 Spalten pro Board; 1.000, 10.000 oder 100.000 aktive Kontakte und Deals"
         competitor2: Datenspeicher pro Organisation, je nach Edition
       - name: Angebote und Prognosen
@@ -99,7 +109,7 @@ comparison:
 cta:
   action: Eine dritte Option prüfen?
   description: "Starten Sie eine Testphase, importieren Sie eine Liste aus einer Excel-Arbeitsmappe und verbinden Sie ein Postfach oder WhatsApp. An Ihren eigenen Daten und Gesprächen sehen Sie schnell, ob Customermates passt."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -176,20 +186,20 @@ So lesen Sie die Tabelle:
 
 ## Eine dritte Option: Customermates
 
-Customermates veröffentlicht diese Seite. Lesen Sie diesen Abschnitt deshalb als Beschreibung eines Anbieters über sein eigenes Produkt. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Es deckt weniger ab als die beiden Systeme oben und ist für eine Aufgabe gebaut: Die Gespräche, die einen Deal voranbringen, liegen direkt an diesem Deal.
+Customermates veröffentlicht diese Seite. Lesen Sie diesen Abschnitt deshalb als Beschreibung eines Anbieters über sein eigenes Produkt. Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Es deckt weniger ab als die beiden Systeme oben und ist für eine Aufgabe gebaut, nämlich bei jedem Kundengespräch nachzufassen: Ab Pro liegen die Gespräche, die einen Deal voranbringen, direkt an diesem Deal, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt.
 
 - **Gespräche am Datensatz.** Ab Pro bringt der [einheitliche Posteingang](/features/unified-inbox) Gmail-, Outlook- und IMAP-Postfächer, LinkedIn, WhatsApp, Instagram und Telegram in eine Liste, verknüpft mit Kontakten, Organisationen und Deals. Sie antworten im ursprünglichen Kanal. Starter hat keinen Posteingang.
 - **Mate für die CRM-Arbeit.** In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten und aktualisiert Datensätze; dafür nutzt Mate gehostete KI-Credits. Wenn Sie lieber Ihr eigenes Claude oder ChatGPT einsetzen, verbinden Sie es mit dem [MCP-Server](/docs/mcp), der in jedem Tarif [[derived.mcp.tools.total]] Tools bietet.
 - **Open Source mit Wahl beim Hosting.** Der AGPL-3.0-Kern läuft mit Docker Compose auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP. Eine [selbst gehostete Installation](/features/self-hosted) hat keinen Posteingang, kein Mate und keine gehosteten Credits. In Customermates Cloud ist die Datenbank in der AWS-Region Frankfurt konfiguriert.
 - **Monatliche Preise pro Nutzer, keine Mindestanzahl Plätze.** Fünf Personen zahlen [[commercial.price.starter.monthly.seats.5]] im Monat mit Starter, [[commercial.price.pro.monthly.seats.5]] mit Pro und [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Person oder [[commercial.price.business.monthly.seats.5]] mit Business und je [[commercial.entitlement.business.includedAccountsPerUser]] Konten. Dazu erhält jeder aktive Nutzer ein monatliches Kontingent gehosteter KI-Credits, das auf der [Preisseite](/pricing) steht.
 
-Eine Beratung mit fünf Personen würde dem Feld Phase Wahrscheinlichkeiten geben, etwa Anfrage 10 %, Angebot verschickt 50 % und Gewonnen 100 %. Dann zeigt jeder Deal einen gewichteten Wert, und ein Diagramm-Widget auf dem Dashboard summiert sie. Dazu kommen ein Feld vom Typ Einzelauswahl „Kundenstatus“ und eine gespeicherte Board-Ansicht pro Person; eine gespeicherte Ansicht bleibt privat, bis ihr Eigentümer sie teilt. Mit Pro und verbundenem Postfach kann jeder Partner eine eigene [Routine](/docs/app-routines) besitzen, die in Customermates Cloud als dieser Partner läuft:
+Eine Beratung mit fünf Personen würde dem Feld Phase Wahrscheinlichkeiten geben, etwa Anfrage 10 %, Angebot verschickt 50 % und Gewonnen 100 %. Dann zeigt jeder Deal einen gewichteten Wert, und ein Diagramm-Widget auf dem Dashboard summiert sie. Dazu kommen ein Feld vom Typ Einzelauswahl „Kundenstatus“ und eine gespeicherte Board-Ansicht pro Person, die jeder Partner mit dem Team teilen kann. Mit Pro und verbundenem Postfach kann jeder Partner eine eigene [Routine](/docs/app-routines) besitzen, die in Customermates Cloud als dieser Partner läuft:
 
 > Jeden Freitag um 15:00 Uhr: meine Deals in der Phase „Angebot verschickt“ heraussuchen, bei denen der Kontakt seit sieben Tagen nicht geschrieben hat. Für jeden einen kurzen Nachfass-Entwurf in meinem letzten Gespräch mit diesem Kontakt speichern. Nichts senden.
 
 Der letzte Satz ist wichtig, denn Mate sendet Nachrichten ohne erneute Rückfrage, wenn eine Anweisung das verlangt.
 
-Customermates ist die falsche Wahl, wenn Sie brauchen, was fehlt: Es gibt kein Projektmanagement über Aufgaben hinaus, keine Angebote oder Rechnungen, keine Massenmails oder Sequenzen, keine Telefonie und keine nativen mobilen Apps. Die gewichtete Pipeline rechnet nur mit Ihren eigenen Zahlen und ist keine Prognose, und Aufgaben haben kein Fälligkeitsdatum. Für Projekt-Boards bleiben Sie bei monday CRM. Angebote und Umsatzprognosen nennt Salesforce ab der Pro Suite. Einen kostenlosen Tarif gibt es nicht, nur eine Testphase von [[commercial.trial.days]] Tagen.
+Customermates ist die falsche Wahl, wenn Sie brauchen, was fehlt: Es gibt kein Projektmanagement über Aufgaben hinaus, keine Angebote oder Rechnungen, keine Massenmails oder Sequenzen, keine Telefonie und keine nativen mobilen Apps. Die gewichtete Pipeline rechnet nur mit Ihren eigenen Zahlen und ist keine Prognose, und Aufgaben haben kein Fälligkeitsdatum. Für Projekt-Boards bleiben Sie bei monday CRM. Angebote und Umsatzprognosen nennt Salesforce ab der Pro Suite. Der kostenlose Tarif endet bei [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätzen, ohne Posteingang und Mate; die Testphase von [[commercial.trial.days]] Tagen zeigt das ganze Produkt.
 
 ## Häufige Fragen
 
@@ -203,7 +213,7 @@ Ja. Die Salesforce-Integration von monday.com übernimmt neue Accounts, Leads un
 </FaqItem>
 
 <FaqItem question="Ist monday CRM kostenlos?">
-Nein. monday CRM bietet eine Testphase von 14 Tagen, aber keinen kostenlosen Tarif, und die bezahlten Tarife beginnen bei drei Plätzen. Von beiden Anbietern hat nur Salesforce eine kostenlose Variante, die Free Suite für zwei Nutzer. Auch Customermates hat keinen kostenlosen Tarif, nur eine Testphase von [[commercial.trial.days]] Tagen.
+Nein. monday CRM bietet eine Testphase von 14 Tagen, aber keinen kostenlosen Tarif, und die bezahlten Tarife beginnen bei drei Plätzen. Von beiden Anbietern hat nur Salesforce eine kostenlose Variante, die Free Suite für zwei Nutzer. Customermates hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen und eine Testphase von [[commercial.trial.days]] Tagen.
 </FaqItem>
 
 <FaqItem question="Ist monday CRM ein echtes CRM oder ein Projektmanagement-Tool?">

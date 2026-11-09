@@ -10,6 +10,10 @@ import { assistantSurfaceProps } from "@/components/modal/assistant-surface";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
+import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { PLAN_USAGE_WARNING_SHARE } from "@/app/components/upsell/plan-usage-meter";
+import { nextMateUsagePlan } from "@/app/components/upsell/plan-upsell-highlights";
+import { PlanUpsellNotice } from "@/app/components/upsell/plan-upsell-notice";
 
 export const UsageRing = observer(function UsageRing() {
   const store = useAgentChatStore();
@@ -24,6 +28,12 @@ export const UsageRing = observer(function UsageRing() {
   const used = intlStore.formatAllowanceShare(pct);
   const resetAt = intlStore.formatDayMonth(new Date(usage.resetAt));
   const circumference = 2 * Math.PI * 7;
+  const nextPlan = nextMateUsagePlan(usage.plan);
+  const nextMultiplier = nextPlan ? PLAN_CATALOG[nextPlan].entitlements.hostedAiUsageMultiplier : null;
+  const offerNextPlan =
+    nextPlan !== null &&
+    typeof nextMultiplier === "number" &&
+    (usage.plan === "starter" || pct >= PLAN_USAGE_WARNING_SHARE * 100);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,7 +48,7 @@ export const UsageRing = observer(function UsageRing() {
           <circle className="stroke-muted" cx="9" cy="9" fill="none" r="7" strokeWidth="3" />
 
           <circle
-            className="stroke-primary"
+            className="stroke-foreground/70"
             cx="9"
             cy="9"
             fill="none"
@@ -77,6 +87,17 @@ export const UsageRing = observer(function UsageRing() {
             {t("AgentChat.credits.recentTurn", { used: intlStore.formatAllowanceShare(usage.recentTurnPct) })}
           </p>
         )}
+
+        {offerNextPlan ? (
+          <PlanUpsellNotice
+            compact
+            className="mt-2"
+            id="mate-usage"
+            plan={nextPlan}
+            title={t("Subscription.picker.hostedAiUsage", { multiplier: nextMultiplier })}
+            onNavigate={() => setOpen(false)}
+          />
+        ) : null}
       </PopoverContent>
     </Popover>
   );

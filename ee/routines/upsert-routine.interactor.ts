@@ -11,7 +11,9 @@ import { RoutineDtoSchema, UpsertRoutineSchema, validateRoutineFinalState } from
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { effectivePlanId, getEntitlements } from "@/ee/subscription/entitlements";
+import { upgradeOfferValues } from "@/ee/subscription/plan-upgrade-offer";
+import { FREE_PLAN_ID, FREE_PLAN_UPGRADE_PLAN } from "@/core/commercial/plan-catalog";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -89,9 +91,12 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
       if (!validation.ok) return validation;
     }
 
-    const routineLimit = data.id
-      ? undefined
-      : getEntitlements((await this.subscriptionRepo.getSubscriptionOrThrow()).plan).includedRoutinesPerUser;
+    const subscription =
+      !data.id || data.enabled === true ? await this.subscriptionRepo.getSubscriptionOrThrow() : null;
+    const plan = subscription ? effectivePlanId(subscription) : undefined;
+    if (plan === FREE_PLAN_ID)
+      return failConflict(CustomErrorCode.routinesRequirePlan, [], await upgradeOfferValues(FREE_PLAN_UPGRADE_PLAN));
+    const routineLimit = plan && !data.id ? getEntitlements(plan).includedRoutinesPerUser : undefined;
 
     let routine: RoutineDto;
     try {

@@ -14,7 +14,7 @@ import type { Resource, Subscription } from "@/generated/prisma";
 import { redirectTo } from "./auth-outcome";
 import { accountStateRedirect } from "./account-state";
 import { mustVerifyEmail } from "./email-verification-grace";
-import { isSubscriptionExpired } from "@/ee/subscription/entitlements";
+import { isSubscriptionLocked } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 
@@ -190,7 +190,7 @@ export class RouteGuardService {
     let subscription: Subscription | null = null;
     if (env.APP_MODE !== "demo") {
       subscription = await this.companyRepo.getSubscriptionOrThrowUnscoped(user.companyId);
-      if (isSubscriptionExpired(subscription)) return { state: "subscription", legalStatus, subscription };
+      if (isSubscriptionLocked(subscription)) return { state: "subscription", legalStatus, subscription };
     }
 
     return { state: "allowed", legalStatus, subscription };

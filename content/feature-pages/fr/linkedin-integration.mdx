@@ -1,6 +1,6 @@
 ---
 title: "CRM LinkedIn : conversations et Sales Navigator"
-description: "Reliez les conversations LinkedIn prises en charge aux contacts et aux affaires dans la boîte de réception cloud dès Pro. Vérifiez les limites. Sans CRM Sync."
+description: "Vos conversations LinkedIn et Sales Navigator dans le CRM : chacune sur son contact et son affaire, Mate rédige la réponse, vous envoyez. Boîte cloud dès Pro."
 featureName: Intégration LinkedIn au CRM
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: Intégration LinkedIn au CRM pour les messages et les workflows Sales Navigator
   metadata:
     title: "CRM LinkedIn : conversations et Sales Navigator"
-    description: "Reliez les conversations LinkedIn prises en charge aux contacts et aux affaires dans la boîte de réception cloud dès Pro. Vérifiez les limites. Sans CRM Sync."
+    description: "Vos conversations LinkedIn et Sales Navigator dans le CRM : chacune sur son contact et son affaire, Mate rédige la réponse, vous envoyez. Boîte cloud dès Pro."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -27,10 +27,10 @@ acquisition:
       - claim:no-native-linkedin-enrichment-monitoring
       - claim:no-linkedin-bulk-import
   cta:
-    action: Testez votre workflow LinkedIn avec le contexte CRM réel
-    description: Explorez l’espace de travail d’exemple de vente sur LinkedIn, puis connectez un compte LinkedIn pendant un essai Pro et vérifiez une vraie conversation avec vos propres enregistrements.
-    buttonLeftText: Démarrer l’essai Pro
-    buttonLeftHref: /auth/signup
+    action: "Testez votre relance LinkedIn avec le contexte CRM réel"
+    description: "Explorez l’espace de travail d’exemple de vente sur LinkedIn, puis connectez un compte LinkedIn pendant l’essai de [[commercial.trial.days]] jours et vérifiez une vraie conversation avec vos propres enregistrements."
+    buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Explorer l’espace de travail
     buttonRightHref: https://demo.customermates.com/fr/w/linkedin-sales/dashboard
     hint: "La messagerie LinkedIn et Sales Navigator demandent Cloud Pro ou supérieur et l’abonnement LinkedIn correspondant."
@@ -44,9 +44,9 @@ acquisition:
     locale: fr
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Les conversations LinkedIn dans le contexte de vos relations clients"
-      body: "Pour les fondateurs, consultants et petites équipes commerciales qui vendent par LinkedIn : gardez chaque conversation prise en charge à côté du prospect et de l’affaire auxquels elle appartient. Customermates Cloud à partir de Pro, pas Starter ni auto-hébergé. Ni CRM Sync LinkedIn, ni flux d’enrichissement, ni import en masse."
-      checksum: fnv1a-98b27251
+      headline: "Relancez chaque conversation LinkedIn depuis votre CRM"
+      body: "Pour fondateurs et petites équipes vendant sur LinkedIn : chaque conversation reste sur la fiche du prospect et de l’affaire, Mate ou votre propre client IA rédige la réponse, vous relisez, modifiez et envoyez. Cloud, dès Pro. Ni CRM Sync, ni flux d’enrichissement, ni import en masse."
+      checksum: fnv1a-0009a186
     kind: none
     reason: "La démo de la boîte de réception, signalée en début de page, prouve cette page ; une illustration de hero distincte ferait doublon."
     selection: explicit
@@ -56,21 +56,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Nous sommes un cabinet de conseil en stratégie de quatre personnes. Suis nos clients, missions et propositions, et aide-nous à relancer nos prospects sur LinkedIn."
+  steps:
+    items:
+      - title: "Connectez un compte autorisé"
+        description: "Utilisez Customermates Cloud Pro ou supérieur et connectez le produit LinkedIn que votre utilisateur a le droit d’utiliser."
+      - title: "Ouvrez une conversation connue"
+        description: "Commencez par un vrai fil avec un prospect que vous connaissez déjà, pas avec une liste en masse ni une séquence automatisée."
+      - title: "Rapprochez le participant"
+        description: "Ajoutez l’identité LinkedIn de la personne au champ Coordonnées de la bonne fiche prospect, ou créez la fiche à partir de la conversation."
+      - title: "Liez l’affaire"
+        description: "Sous Fiches de la conversation, utilisez Lier une fiche pour rattacher cette conversation à l’affaire ou à l’organisation à laquelle elle appartient."
+      - title: "Rédigez et envoyez une réponse"
+        description: "Vérifiez le destinataire, le contenu et l’identité LinkedIn connectée avant qu’un utilisateur ou un client autorisé envoie le message individuel."
+  highlights:
+    title: "En bref"
+    capture: homepage-thread-linkedin
+    items:
+      - title: "Résultat"
+        description: "Gardez une conversation LinkedIn individuelle à côté du contact, de l’organisation et de l’affaire que votre équipe suit déjà, avec l’e-mail à côté."
+      - title: "Disponibilité"
+        description: "Customermates Cloud à partir de Pro. Starter et les installations auto-hébergées n’ont aucun compte de messagerie connecté. L’abonnement LinkedIn reste distinct."
+      - title: "Liens avec les enregistrements"
+        description: "Les participants sont rapprochés des enregistrements par leur identité LinkedIn. Lier une conversation à une affaire ou à une organisation est une étape explicite d’un utilisateur ou d’un agent, jamais automatique."
+      - title: "Limite importante"
+        description: "Ni CRM Sync officiel, ni profil LinkedIn intégré, ni flux de leads, ni enrichissement continu inclus, ni scraping, ni import en masse, ni invitations en masse, ni séquences, ni messages en masse."
+
 hero:
-  title: Les conversations LinkedIn dans le contexte de vos relations clients
-  description: "Pour les fondateurs, consultants et petites équipes commerciales qui vendent par LinkedIn : gardez chaque conversation prise en charge à côté du prospect et de l’affaire auxquels elle appartient. Customermates Cloud à partir de Pro, pas Starter ni auto-hébergé. Ni CRM Sync LinkedIn, ni flux d’enrichissement, ni import en masse."
-  buttonLeftText: Démarrer l’essai Pro
-  buttonLeftHref: /auth/signup
+  title: "Relancez chaque conversation LinkedIn depuis votre CRM"
+  description: "Pour fondateurs et petites équipes vendant sur LinkedIn : chaque conversation reste sur la fiche du prospect et de l’affaire, Mate ou votre propre client IA rédige la réponse, vous relisez, modifiez et envoyez. Cloud, dès Pro. Ni CRM Sync, ni flux d’enrichissement, ni import en masse."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/linkedin-sales/dashboard
-  hint: "Cloud uniquement • Pro ou supérieur • Les abonnements LinkedIn restent distincts"
+  hint: "Sans carte bancaire • Cloud uniquement, dès Pro • Les abonnements LinkedIn restent distincts"
   showOpenSourceBadge: false
 
 cta:
-  action: Testez votre workflow LinkedIn avec le contexte CRM réel
-  description: Explorez l’espace de travail d’exemple de vente sur LinkedIn, puis connectez un compte LinkedIn pendant un essai Pro et vérifiez une vraie conversation avec vos propres enregistrements.
-  buttonLeftText: Démarrer l’essai Pro
-  buttonLeftHref: /auth/signup
+  action: "Testez votre relance LinkedIn avec le contexte CRM réel"
+  description: "Explorez l’espace de travail d’exemple de vente sur LinkedIn, puis connectez un compte LinkedIn pendant l’essai de [[commercial.trial.days]] jours et vérifiez une vraie conversation avec vos propres enregistrements."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/linkedin-sales/dashboard
   hint: "La messagerie LinkedIn et Sales Navigator demandent Cloud Pro ou supérieur et l’abonnement LinkedIn correspondant."
@@ -78,28 +108,7 @@ cta:
 
 Si vous vendez par des conversations LinkedIn, le plus difficile est rarement le message lui-même. C’est de se rappeler qui est la personne, à quelle affaire la conversation appartient et ce qui a été convenu par e-mail. Dans Customermates, une **intégration LinkedIn au CRM** recouvre trois choses délimitées : les conversations LinkedIn prises en charge et les InMail dans la boîte de réception du cloud géré, à côté de vos enregistrements CRM ; des opérations à la demande sur les profils, les publications et les demandes de connexion ; et des opérations de recherche et de listes Sales Navigator via REST ou MCP. Ce n’est pas LinkedIn CRM Sync, et cela n’enrichit pas, ne scrape pas et n’importe pas de profils en masse.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Résultat">
-    Gardez une conversation LinkedIn individuelle à côté du contact, de
-    l’organisation et de l’affaire que votre équipe suit déjà, avec l’e-mail à
-    côté.
-  </SummaryItem>
-  <SummaryItem label="Disponibilité">
-    Customermates Cloud à partir de Pro. Starter et les installations
-    auto-hébergées n’ont aucun compte de messagerie connecté. L’abonnement
-    LinkedIn reste distinct.
-  </SummaryItem>
-  <SummaryItem label="Liens avec les enregistrements">
-    Les participants sont rapprochés des enregistrements par leur identité
-    LinkedIn. Lier une conversation à une affaire ou à une organisation est une
-    étape explicite d’un utilisateur ou d’un agent, jamais automatique.
-  </SummaryItem>
-  <SummaryItem label="Limite importante">
-    Ni CRM Sync officiel, ni profil LinkedIn intégré, ni flux de leads, ni
-    enrichissement continu inclus, ni scraping, ni import en masse, ni
-    invitations en masse, ni séquences, ni messages en masse.
-  </SummaryItem>
-</ArticleSummary>
+**Ce que cela change pour la relance.** Une conversation LinkedIn s’éteint quand plus personne ne se souvient de ce qui y a été promis. Quand le fil est rattaché à la fiche du contact, vous relisez l’échange précédent, voyez l’affaire concernée et laissez Mate ou votre propre client IA enregistrer un brouillon de réponse dans le fil. Vous le modifiez et l’envoyez depuis le compte LinkedIn connecté. Customermates n’envoie que des messages individuels et ne lance ni séquences ni invitations en masse.
 
 <ProofRail label="Capacités vérifiées de l’intégration LinkedIn au CRM">
   <ProofItem label="Boîte de réception">Conversations LinkedIn</ProofItem>
@@ -120,30 +129,6 @@ Ces listes et ces étapes sont un exemple. Un nouvel espace de travail démarre 
 ## Suivre la conversation d’un prospect connu
 
 Un compte cloud autorisé peut connecter les variantes LinkedIn Classic, Sales Navigator ou Recruiter prises en charge. La [boîte de réception unifiée](/features/unified-inbox) affiche alors les conversations prises en charge à côté de l’e-mail et des autres canaux connectés. Un collègue peut lire un fil, garder un brouillon, répondre ou démarrer une conversation individuelle. Les InMail de Sales Navigator et de Recruiter utilisent les champs d’objet et de signature exigés par le produit connecté.
-
-<Steps>
-  <Step title="Connectez un compte autorisé">
-    Utilisez Customermates Cloud Pro ou supérieur et connectez le produit
-    LinkedIn que votre utilisateur a le droit d’utiliser.
-  </Step>
-  <Step title="Ouvrez une conversation connue">
-    Commencez par un vrai fil avec un prospect que vous connaissez déjà, pas
-    avec une liste en masse ni une séquence automatisée.
-  </Step>
-  <Step title="Rapprochez le participant">
-    Ajoutez l’identité LinkedIn de la personne au champ Coordonnées de la bonne
-    fiche prospect, ou créez la fiche à partir de la conversation.
-  </Step>
-  <Step title="Liez l’affaire">
-    Sous **Fiches de la conversation**, utilisez **Lier une fiche** pour
-    rattacher cette conversation à l’affaire ou à l’organisation à laquelle
-    elle appartient.
-  </Step>
-  <Step title="Rédigez et envoyez une réponse">
-    Vérifiez le destinataire, le contenu et l’identité LinkedIn connectée avant
-    qu’un utilisateur ou un client autorisé envoie le message individuel.
-  </Step>
-</Steps>
 
 Le rapprochement fonctionne via le champ Coordonnées : les adresses e-mail et les identités sociales qui relient des messages à un enregistrement. Une conversation n’atteint une affaire ou une organisation que lorsqu’un utilisateur ou un agent la lie explicitement. Customermates ne consigne jamais automatiquement une conversation LinkedIn dans une affaire, et la boîte de réception n’est pas un produit d’écoute des réseaux sociaux ni de campagnes.
 
@@ -205,6 +190,19 @@ Customermates connecte plutôt les messages pris en charge et expose des opérat
   réécriture d’activité en arrière-plan. Les lectures de profil à la demande et
   les écritures CRM avec correspondance restent des opérations distinctes.
 </AcquisitionCallout>
+
+## Customermates, folk et Breakcold pour les conversations LinkedIn
+
+Deux outils que l’on compare pour les conversations LinkedIn sont folk et Breakcold. Customermates publie cette comparaison, et les lignes sur folk et Breakcold citent les pages de chaque éditeur, vérifiées le 9 novembre 2026.
+
+| | Customermates | folk | Breakcold |
+| --- | --- | --- | --- |
+| Comment les messages arrivent | Les conversations LinkedIn prises en charge et les InMails d’un compte connecté apparaissent dans la boîte de réception cloud à partir de Pro | L’[article d’aide](https://help.folk.app/en/articles/7177488-track-linkedin-interactions) de folk décrit l’extension Chrome folkX : vous ouvrez un fil LinkedIn, cliquez sur folkX et enregistrez ses messages comme interactions, un fil à la fois | Sa [page LinkedIn](https://www.breakcold.com/crm/crm-for-linkedin) indique que les DM LinkedIn, les InMails, les demandes de connexion et les fils Sales Navigator se synchronisent d’eux-mêmes |
+| Lien avec l’affaire | Une personne ou un agent relie volontairement une conversation à une affaire | Vous ajoutez le contact à un groupe, puis vous enregistrez les messages | La même page indique que les fils arrivent d’eux-mêmes sur la bonne fiche |
+| Répondre | Dans la boîte de réception, depuis le compte connecté, avec un brouillon de Mate ou de votre propre client IA à relire et à envoyer | L’article décrit l’enregistrement des messages, pas la réponse | La même page indique que vous répondez depuis Breakcold et que le prospect voit le message dans LinkedIn |
+| Prix | Pro [[commercial.price.pro.monthly]] par utilisateur et par mois, facturé mensuellement | Voir la [page tarifs de folk](https://www.folk.app/pricing) | À partir de 49 $ par poste et par mois, facturé mensuellement, avec deux comptes connectés par poste ([tarifs](https://www.breakcold.com/pricing)) |
+
+Choisissez Breakcold quand l’essentiel est de rattacher les fils LinkedIn aux fiches sans qu’une personne les relie. Choisissez folk quand vous êtes d’accord pour enregistrer les conversations LinkedIn depuis le navigateur, un fil à la fois. Choisissez Customermates quand vous voulez LinkedIn à côté de l’e-mail, de WhatsApp, d’Instagram et de Telegram sur la fiche du client, avec un brouillon de réponse que vous relisez et envoyez.
 
 ## Formules, comptes et partage de la boîte de réception
 

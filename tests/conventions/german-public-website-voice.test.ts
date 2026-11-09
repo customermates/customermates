@@ -19,7 +19,6 @@ describe("German website voice boundary", () => {
       ContactPage: messages.ContactPage,
       DocsPage: messages.DocsPage,
       HomepagePricing: messages.HomepagePricing,
-      HomepageStatsRow: messages.HomepageStatsRow,
       NotFoundPage: messages.NotFoundPage,
     });
 

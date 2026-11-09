@@ -4,41 +4,58 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
 import { AppModal } from "@/components/modal";
 import { AppLink } from "@/components/shared/app-link";
+import { UpsellCardBody, UpsellCardHeader } from "@/components/shared/upsell-card";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { billingHref } from "@/app/components/navigation/settings-routes";
+import { planUpsellHighlights } from "@/app/components/upsell/plan-upsell-highlights";
+import { UpsellHighlights } from "@/app/components/upsell/upsell-highlights";
+import { UpsellInboxPreview } from "@/app/components/upsell/upsell-inbox-preview";
+import { UpsellPlanPrice } from "@/app/components/upsell/upsell-plan-price";
+import { useCanChangePlan } from "@/app/components/upsell/use-can-change-plan";
 
 export const ConnectUpsellModal = observer(() => {
   const t = useTranslations();
   const { connectUpsellModalStore: store } = useRootStore();
   const { form, isOpen, isLoading, close } = store;
+  const canChangePlan = useCanChangePlan();
 
   const title = t("ConnectedAccountsCard.upsellDialogTitle");
+  const planName = t(`Subscription.planNames.${form.plan}`);
 
   return (
-    <AppModal open={isOpen} size="sm" title={title} onClose={close}>
-      <AppCard>
-        <AppCardHeader>
-          <h2 className="text-base font-semibold">{title}</h2>
-        </AppCardHeader>
+    <AppModal open={isOpen} size="md" title={title} onClose={close}>
+      <AppCard data-connect-upsell="">
+        <UpsellCardHeader
+          eyebrow={<UpsellPlanPrice plan={form.plan} />}
+          preview={<UpsellInboxPreview />}
+          title={title}
+        />
 
-        <AppCardBody>
-          <p className="text-sm">{form.message}</p>
-        </AppCardBody>
+        <UpsellCardBody
+          description={
+            canChangePlan
+              ? form.message || undefined
+              : [form.message, t("Upsell.askAdmin", { plan: planName })].filter(Boolean).join(" ")
+          }
+          highlights={<UpsellHighlights items={planUpsellHighlights(form.plan, t)} />}
+        />
 
         <AppCardFooter>
-          <Button disabled={isLoading} type="button" variant="secondary" onClick={close}>
+          <Button disabled={isLoading} type="button" variant="ghost" onClick={close}>
             {t("Common.actions.cancel")}
           </Button>
 
-          <AppLink href={settingsHref("billing")} onClick={close}>
-            <Button type="button">{t("ConnectedAccountsCard.viewPlansCta")}</Button>
-          </AppLink>
+          {canChangePlan ? (
+            <Button asChild variant="ink">
+              <AppLink appearance="unstyled" href={billingHref(form.plan)} onClick={close}>
+                {t("Upsell.upgradeTo", { plan: planName })}
+              </AppLink>
+            </Button>
+          ) : null}
         </AppCardFooter>
       </AppCard>
     </AppModal>

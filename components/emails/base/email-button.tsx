@@ -1,6 +1,6 @@
 import { Button } from "@react-email/components";
 
-import { cn } from "@/core/utils/cn";
+import { EMAIL_INK } from "./email-tokens";
 
 type Props = {
   href: string;
@@ -11,11 +11,19 @@ type Props = {
 export function EmailButton({ href, children, className }: Props) {
   return (
     <Button
-      className={cn(
-        "rounded-lg px-4 min-w-20 h-10 bg-primary-400 hover:bg-primary-500 active:bg-primary-600 text-white no-underline inline-flex items-center justify-center",
-        className,
-      )}
+      className={className}
       href={href}
+      style={{
+        display: "inline-block",
+        padding: "11px 18px",
+        borderRadius: "6px",
+        backgroundColor: EMAIL_INK,
+        color: "#ffffff",
+        fontSize: "14px",
+        lineHeight: "18px",
+        fontWeight: 600,
+        textDecoration: "none",
+      }}
     >
       {children}
     </Button>

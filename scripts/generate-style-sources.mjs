@@ -113,6 +113,8 @@ export function generateStyleSources(root, development) {
   write("public.css", [...seen, path.join(root, "content")].sort());
 }
 
+export const PUBLIC_CSS_CHUNKS = 5;
+
 // Split one compilation, never independently compiled utility subsets: a later
 // subset's .hidden could otherwise override an earlier responsive .xl:flex.
 export function partitionStyles(root, limit = 80_000) {
@@ -145,7 +147,7 @@ export function partitionStyles(root, limit = 80_000) {
 export async function generatePublicStyles(root, development) {
   const output = path.join(root, "styles/.generated");
   if (development) {
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < PUBLIC_CSS_CHUNKS; index++) {
       fs.writeFileSync(
         path.join(output, `public-${index}.css`),
         index === 0 ? '@import "../public.css";\n' : "/* development */\n",
@@ -162,9 +164,9 @@ export async function generatePublicStyles(root, development) {
     from: source,
   });
   const parts = partitionStyles(compiled.root);
-  if (parts.length > 4)
-    throw new Error("Public CSS exceeds its four-chunk budget; review candidates before adding assets");
-  for (let index = 0; index < 4; index++) {
+  if (parts.length > PUBLIC_CSS_CHUNKS)
+    throw new Error(`Public CSS exceeds its ${PUBLIC_CSS_CHUNKS}-chunk budget; review candidates before adding assets`);
+  for (let index = 0; index < PUBLIC_CSS_CHUNKS; index++) {
     fs.writeFileSync(path.join(output, `public-${index}.css`), parts[index] ?? "/* empty */\n");
   }
 }

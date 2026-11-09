@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/gmail-crm-integration
 
 hero:
-  title: "Calendly CRM Integration: Welche CRMs nativ angebunden sind und wie Sie den Rest verbinden"
-  description: "Was die Calendly-Integrationen für HubSpot, Salesforce und Dynamics 365 leisten und welchen Calendly-Tarif sie voraussetzen, wie Sie jedes andere CRM anbinden und wie Sie Umbuchungen, wiederholte Buchungen und No-Shows sauber abbilden."
+  title: "Calendly CRM Integration: Native CRMs und wie Sie den Rest verbinden"
+  description: "Was die Calendly-Integrationen für HubSpot, Salesforce und Dynamics 365 leisten und welchen Tarif sie brauchen, wie Sie jedes andere CRM anbinden und wie Sie Umbuchungen und No-Shows sauber abbilden."
 
 blogPost:
   author: Benjamin Wagner
@@ -37,7 +37,7 @@ Diesen Leitfaden veröffentlicht Customermates, ein KI-CRM für kleine Teams mit
   <SummaryItem label="Alle anderen CRMs">Eine App aus dem Marktplatz des CRM-Anbieters, eine Integrationsplattform wie Zapier, Zoho Flow oder n8n oder ein eigener Webhook-Empfänger.</SummaryItem>
   <SummaryItem label="Webhooks">Nicht im kostenlosen Free-Tarif, und nur über die API anzulegen. Die zentralen Events sind invitee.created, invitee.canceled und routing_form_submission.created.</SummaryItem>
   <SummaryItem label="Häufigster Fehler">Eine Umbuchung löst eine Stornierung und eine neue Buchung aus. Prüfen Sie das Feld rescheduled, bevor Sie einen Deal als storniert schließen.</SummaryItem>
-  <SummaryItem label="Customermates">REST-API und Webhooks in jedem Tarif. Ab Pro in Customermates Cloud kommt der gebuchte Termin zusätzlich über den verbundenen Google- oder Outlook-Kalender des Gastgebers an.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API in jedem Tarif, Webhooks in jedem bezahlten Tarif. Ab Pro in Customermates Cloud kommt der gebuchte Termin zusätzlich über den verbundenen Google- oder Outlook-Kalender des Gastgebers an.</SummaryItem>
 </ArticleSummary>
 
 ## Was die nativen CRM-Integrationen von Calendly leisten
@@ -139,6 +139,8 @@ Calendly betreibt einen MCP-Server unter `https://mcp.calendly.com/` mit Tools, 
 
 - **Webhook-Weg mit Starter:** [[commercial.price.starter.monthly.seats.3]] pro Monat für Customermates, dazu ein Calendly-Tarif mit Webhooks und der Betrieb von n8n.
 - **Kalender-Weg mit Pro:** [[commercial.price.pro.monthly.seats.3]] pro Monat. Darin enthalten sind die [Unified Inbox](/features/unified-inbox) und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer. Routine-Läufe verbrauchen die monatlichen gehosteten KI-Credits pro aktivem Nutzer; Details unter [Preise](/pricing).
+
+Mit einer Buchung beginnt das Nachfassen. Beim Kalender-Weg mit Pro kann eine von Ihnen eingerichtete Routine den gebuchten Termin am Kundendatensatz neben den E-Mail- und LinkedIn-Verläufen anlegen, und Mate kann die Bestätigung oder die Vorbereitungsnotiz entwerfen, die Sie prüfen und senden, mit dem nächsten Schritt datiert am Deal. Um es an Ihren eigenen Calendly-Buchungen auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 <AcquisitionCallout title="Wo Customermates nicht passt" variant="boundary">
 Einen Calendly-Konnektor gibt es nicht. Jeder Weg braucht entweder einen Workflow, den Sie selbst betreiben, oder den Kalender plus eine Routine. In Pro ist das Gmail- oder Outlook-Postfach das [[commercial.entitlement.pro.includedAccountsPerUser]] enthaltene verbundene Konto pro Nutzer; Business enthält [[commercial.entitlement.business.includedAccountsPerUser]]. Aufgaben haben keine Fälligkeitsdaten, legen Sie das Folgedatum deshalb in ein Datumsfeld am Deal. Customermates bewertet Leads nicht automatisch; speichern Sie Antworten aus Routing-Formularen in Einzelauswahl-Feldern und filtern Sie danach. Eine selbst gehostete Installation hat REST, Webhooks und MCP, aber weder Kalender noch Inbox, Mate oder Routinen. Soll Calendly den Gastgeber schon bei der Buchung nach der Zuständigkeit im CRM wählen, ist das eine Calendly-Funktion für HubSpot und Salesforce.

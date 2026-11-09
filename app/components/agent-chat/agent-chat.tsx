@@ -30,6 +30,7 @@ import { ArchiveUndo, ConversationHistory } from "./conversation-history";
 import { SuggestedQuestions } from "./suggested-questions";
 import { AgentRouteReloadBridge } from "./agent-route-reload";
 import { useAgentChatConfig } from "./use-agent-chat-config";
+import { AgentUpgradePanel } from "./agent-upgrade-panel";
 
 const PAGE_OVERLAY_SELECTOR = "[data-overlay-surface], [data-slot='popover-content']";
 
@@ -124,7 +125,11 @@ export const AgentChat = observer(function AgentChat() {
       pageOverlayFocusRef.current = captureOverlayFocusTarget(target);
   }
 
-  if (store.enabled !== true) return null;
+  if (store.enabled !== true) {
+    return store.upgradePlan && store.isOpen ? (
+      <AgentUpgradePanel plan={store.upgradePlan} onClose={store.close} />
+    ) : null;
+  }
 
   return (
     <>
@@ -282,7 +287,7 @@ const AgentChatPanel = observer(function AgentChatPanel({
             aria-label={t("AgentChat.title")}
             className="animate-page-empty-in flex flex-col items-center gap-5 motion-reduce:animate-none"
           >
-            <IconContainer icon={Sparkles} size="md" />
+            <IconContainer color="muted" icon={Sparkles} size="md" />
 
             <div className="flex max-w-sm flex-col gap-2">
               <p className="text-base font-medium text-foreground">{t("AgentChat.greeting.headline")}</p>

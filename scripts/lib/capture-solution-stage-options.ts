@@ -7,6 +7,7 @@ export type CaptureSolutionStageOptions = {
   baseUrl: string;
   mode: CaptureSolutionStageMode;
   only: string[];
+  phone: boolean;
   requireAll: boolean;
   withMain: boolean;
 };
@@ -23,6 +24,7 @@ export function parseCaptureSolutionStageArgs(args: readonly string[]): CaptureS
     baseUrl: DEFAULT_CAPTURE_BASE_URL,
     mode: "capture",
     only: [],
+    phone: false,
     requireAll: false,
     withMain: false,
   };
@@ -35,6 +37,7 @@ export function parseCaptureSolutionStageArgs(args: readonly string[]): CaptureS
     else if (arg === "--require-all") options.requireAll = true;
     else if (arg === "--allow-dirty") options.allowDirty = true;
     else if (arg === "--with-main") options.withMain = true;
+    else if (arg === "--phone") options.phone = true;
     else if (arg === "--base-url") options.baseUrl = valueAfter(args, index++, arg).replace(/\/+$/u, "");
     else if (arg === "--only") options.only = valueAfter(args, index++, arg).split(",").filter(Boolean);
     else throw new Error(`Unknown argument ${arg}`);

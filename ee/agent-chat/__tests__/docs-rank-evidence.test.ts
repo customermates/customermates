@@ -585,7 +585,7 @@ describe("bounded classifier evidence", () => {
       "app-onboarding",
       "what-are-the-three-steps",
       "link to the onboarding wizard",
-      "has four steps, shown as You, Workspace, Team and AI tools.",
+      "starts with You and Goal, and the goal you choose decides what follows.",
     ],
     [
       "webhooks",

@@ -130,6 +130,6 @@ describe("calendar colors", () => {
     expect(calendarEntryColor({ ...item("a", "2026-10-01").entry, color: "won" }, colorField)).toBe("success");
     expect(calendarEntryColor({ ...item("a", "2026-10-01").entry, color: "plain" }, colorField)).toBe("secondary");
     expect(calendarEntryColor(item("a", "2026-10-01").entry, colorField)).toBe("secondary");
-    expect(calendarEntryColor(item("a", "2026-10-01").entry, null)).toBe("default");
+    expect(calendarEntryColor(item("a", "2026-10-01").entry, null)).toBe("secondary");
   });
 });

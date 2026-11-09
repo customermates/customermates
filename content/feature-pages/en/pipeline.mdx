@@ -9,20 +9,49 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/sales-pipeline
 
+sections:
+  visual:
+    kind: stage
+    solution: agencies
+    prompt: "We're a design agency. Track pitches, retainers and projects, and hand every new client from sales to delivery."
+  steps:
+    title: "From board to next step"
+    items:
+      - title: "See opportunities by stage"
+        description: "Open the board view of your opportunities and scan the column totals."
+      - title: "Inspect one deal"
+        description: "Open a card to see the account, contacts, tasks and notes linked to it."
+      - title: "Record the next action"
+        description: "Fill a date field such as Next step and add a task. Customermates has no built-in reminders, so a saved view filtered to passed dates does that job."
+      - title: "Adapt fields and stages"
+        description: "Add the fields you sort by, such as Expected close (date) or Lost reason (single choice), and adjust probabilities when your experience changes."
+      - title: "Let AI help where permitted"
+        description: "Ask Mate in the cloud, or your own AI client through MCP, to update a stage or list deals without a next step."
+  highlights:
+    title: "At a glance"
+    capture: homepage-pipeline-board
+    items:
+      - title: "Every plan"
+        description: "Opportunity board grouped by stage, stage probabilities, value and weighted value per column, saved views you can share, dashboard widgets, Excel import and export, REST and MCP, plus webhooks on paid plans. Self-hosted included."
+      - title: "Cloud only"
+        description: "Mate, the hosted assistant, and routines within your plan's AI credits. The unified inbox from Pro."
+      - title: "Not included"
+        description: "No predictive forecasting, no pipeline velocity or stage conversion analytics, no idle-deal highlighting, no field-level permissions."
+
 hero:
-  title: Sales pipeline software for small relationship-led teams
-  description: See every opportunity by stage, with stage probability, value and weighted value, and open the customer behind it in one click. You configure the stages yourself. Weighted value is your value times your probability, not a forecast, and a saved view can be shared with the team.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "Sales pipeline where every open deal has a next step"
+  description: "See every opportunity by stage with value and weighted value, open the client conversation behind it and record a dated next step. You configure the stages. Weighted value is value times probability, not a forecast."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/sales-pipeline/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Put your open opportunities on a board
-  description: Configure your stages and probabilities, import your opportunities from an Excel workbook and check within [[commercial.trial.days]] days whether your team keeps the board current. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Put your open opportunities on a board, each with a next step"
+  description: "Configure your stages, import your opportunities from an Excel workbook and add a Next step date field. Check within [[commercial.trial.days]] days whether fewer deals go quiet. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/sales-pipeline/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -30,11 +59,7 @@ cta:
 
 Sales pipeline software puts your open opportunities on a board, one column per stage, so you see what is in play, what it is worth and which deal needs the next step. Customermates is CRM software for small sales teams whose deals depend on conversations: consultancies, agencies, service businesses and founders who sell themselves. It is open source, AI-native and made in Germany.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="Every plan">Opportunity board grouped by stage, stage probabilities, value and weighted value per column, saved views you can share, dashboard widgets, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
-  <SummaryItem label="Cloud only">Mate, the hosted assistant, and routines within your plan's AI credits. The unified inbox from Pro.</SummaryItem>
-  <SummaryItem label="Not included">No predictive forecasting, no pipeline velocity or stage conversion analytics, no idle-deal highlighting, no field-level permissions.</SummaryItem>
-</ArticleSummary>
+**Where deals stall.** A deal stalls when nobody recorded what happens next. On a card you see the account, the contacts and, on Pro and higher, the conversations with them, and a date field such as Next step puts the follow-up on the record. A saved view or an Upcoming widget on the dashboard then lists the deals that are due or overdue.
 
 ## See it in an example workspace
 
@@ -67,16 +92,6 @@ That total weights your own numbers. It does not predict revenue or close dates.
 
 **Table view.** Switch to **Table** and keep the grouping: stages become row groups with their own counts and sums, and you can sort by value or weighted value.
 
-## From board to next step
-
-<Steps>
-  <Step title="See opportunities by stage">Open the board view of your opportunities and scan the column totals.</Step>
-  <Step title="Inspect one deal">Open a card to see the account, contacts, tasks and notes linked to it.</Step>
-  <Step title="Record the next action">Fill a date field such as **Next step** and add a task. Customermates has no built-in reminders, so a saved view filtered to passed dates does that job.</Step>
-  <Step title="Adapt fields and stages">Add the fields you sort by, such as **Expected close** (date) or **Lost reason** (single choice), and adjust probabilities when your experience changes.</Step>
-  <Step title="Let AI help where permitted">Ask Mate in the cloud, or your own AI client through MCP, to update a stage or list deals without a next step.</Step>
-</Steps>
-
 ## Customer context next to the deal
 
 An opportunity links to its account and contacts, so the people and the history are one click away. On Customermates Cloud, Pro and higher add the [unified inbox](/features/unified-inbox) for Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram and Telegram. A participant is matched to a contact by the identity in its Contact details field. A conversation is linked to an opportunity or account only when you or an agent do it explicitly; nothing is filed to a deal automatically.
@@ -101,6 +116,7 @@ Mate creates and updates records and sends messages as soon as it is asked, so s
 
 Everyone whose role reads all opportunities sees the same deals; with **Assigned** read access, a person sees only their own. A board view you save stays private until you share it with the workspace or selected roles; teammates see it read-only. Two limits matter for teams:
 
+- A board you share is read-only for colleagues. Share it with the whole team or with selected roles and everyone works from the same one, but only you change it, and each person sees only the records their role allows.
 - Permissions apply to whole lists. There are no field-level permissions, so a person who can read opportunities sees every field on them.
 - Whole-account inbox sharing starts on Business. On Pro, colleagues share single threads.
 
@@ -140,7 +156,7 @@ No. Weighted value multiplies each opportunity's value by the probability you se
 </FaqItem>
 
 <FaqItem question="Can my whole team work from the same board?">
-Everyone with read access to all opportunities sees the same deals. A saved board view stays private until you share it with the team. There are no field-level permissions.
+Everyone with read access to all opportunities sees the same deals. Share a saved board view with the whole team or with selected roles and everyone works from the same board; each person still sees only the records their role allows. There are no field-level permissions.
 </FaqItem>
 
 <FaqItem question="Can I have several pipelines?">

@@ -1,21 +1,20 @@
 import type { ReactNode } from "react";
 
-import { IntlLink } from "@/i18n/navigation";
 import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
-import { CardHeroHeader } from "@/components/card/card-hero-header";
-import { Button } from "@/components/ui/button";
+import { UpsellCardBody, UpsellCardHeader } from "@/components/shared/upsell-card";
 
 type Props = {
   title: string;
   description: ReactNode;
-  ctaHref: string;
-  ctaLabel: string;
+  action: ReactNode;
   children: ReactNode;
+  eyebrow?: ReactNode;
+  preview?: ReactNode;
+  highlights?: ReactNode;
 };
 
-export function LockedFeatureOverlay({ title, description, ctaHref, ctaLabel, children }: Props) {
+export function LockedFeatureOverlay({ title, description, action, children, eyebrow, preview, highlights }: Props) {
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <div aria-hidden className="pointer-events-none flex min-h-0 flex-1 flex-col select-none">
@@ -23,18 +22,12 @@ export function LockedFeatureOverlay({ title, description, ctaHref, ctaLabel, ch
       </div>
 
       <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/40 p-4 backdrop-blur-[1.5px]">
-        <AppCard className="max-w-md shadow-xl">
-          <CardHeroHeader title={title} />
+        <AppCard className="my-auto max-w-[26rem] shadow-xl" data-locked-feature="">
+          <UpsellCardHeader eyebrow={eyebrow} headingLevel="h1" preview={preview} title={title} />
 
-          <AppCardBody>
-            <p className="text-x-sm text-center text-subdued">{description}</p>
-          </AppCardBody>
+          <UpsellCardBody description={description} highlights={highlights} />
 
-          <AppCardFooter>
-            <Button asChild className="w-full">
-              <IntlLink href={ctaHref}>{ctaLabel}</IntlLink>
-            </Button>
-          </AppCardFooter>
+          <AppCardFooter>{action}</AppCardFooter>
         </AppCard>
       </div>
     </div>

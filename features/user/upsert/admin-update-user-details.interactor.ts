@@ -1,3 +1,4 @@
+import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 import type { AdminUpdateUserSubscriptionRepo } from "./admin-update-user-subscription.repo";
 import type { UpdateUserRoleRepo } from "./update-user-role.repo";
 import type { AdminUpdateUserDetailsRepo } from "./admin-update-user-details.repo";
@@ -10,6 +11,7 @@ import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
 import { Status, Resource, SubscriptionPlan } from "@/generated/prisma";
+import { isOnFreePlan } from "@/ee/subscription/entitlements";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -17,7 +19,13 @@ import { zx, type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import {
+  fail,
+  failAuthorization,
+  failConflict,
+  failNotFound,
+  unwoundFailure,
+} from "@/core/validation/interactor-failure-server";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -45,6 +53,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     private subscriptionRepo: AdminUpdateUserSubscriptionRepo,
     private countUsersRepo: CountActiveUsersRepo,
     private releaseOwnerRoutines: ReleaseOwnerRoutinesInteractor,
+    private seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
   ) {
     super();
   }
@@ -77,6 +86,11 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     if (targetUser.leftAt && next.status === Status.active)
       return fail(CustomErrorCode.workspaceMemberLeft, ["status"]);
     const data: AdminUpdateUserDetailsData = { ...next, status: next.status };
+
+    if (targetUser.status === Status.inactive && data.status === Status.active) {
+      const refused = await this.seats.admitMembers(1);
+      if (refused) return failConflict(CustomErrorCode.planMemberLimitReached, ["status"], refused);
+    }
 
     const leavingActive = targetUser.status === Status.active && data.status !== Status.active;
     if (leavingActive && (await this.userRepo.strandsLastPlatformOperatorCompanyWide(targetUserId)))
@@ -137,6 +151,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
 
     if (subscription.plan === SubscriptionPlan.enterprise) return;
     if (!subscription.lemonSqueezyId) return;
+    if (isOnFreePlan(subscription)) return;
 
     const activeUsersCount = await this.countUsersRepo.countActiveUsers();
 

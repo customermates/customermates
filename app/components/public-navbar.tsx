@@ -30,6 +30,7 @@ import { PublicNavbarAccountMenu } from "./navigation/public-navbar-account-menu
 import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
 import { isPrimaryPublicNavLink, PublicNavbarMenu } from "./navigation/public-navbar-menu";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
+import { marketingButtonClassName } from "@/components/marketing/marketing-button";
 
 type Props = {
   accountState: AccountState;
@@ -109,11 +110,32 @@ export function PublicNavbar({
     if (!cta || !ctaLabel || pathname === cta.href) return null;
 
     return (
-      <Button asChild className={className} size="sm" variant={prominent ? "default" : "softPrimary"}>
+      <Button
+        asChild
+        className={className}
+        size="sm"
+        variant={cta.label === "signIn" ? "ghost" : prominent ? "default" : "softPrimary"}
+      >
         <AppLink appearance="unstyled" href={cta.href} onNavigate={closeMenu}>
           {ctaLabel}
         </AppLink>
       </Button>
+    );
+  }
+
+  function renderTrialButton(className?: string) {
+    if (cta?.label !== "signIn" || pathname === "/auth/signup") return null;
+
+    return (
+      <AppLink
+        appearance="unstyled"
+        className={marketingButtonClassName({ className, size: "sm" })}
+        data-public-nav-trial=""
+        href="/auth/signup"
+        onNavigate={closeMenu}
+      >
+        {t("Common.actions.startTrial")}
+      </AppLink>
     );
   }
 
@@ -191,7 +213,7 @@ export function PublicNavbar({
 
   return (
     <div className="border-b border-border">
-      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:h-14 xl:max-w-[75rem] xl:border-x xl:border-border xl:gap-4">
+      <MarketingContainer className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:h-14 xl:max-w-[75rem] xl:gap-4">
         <div className="hidden justify-self-start xl:flex">{renderHomeButton()}</div>
 
         <PublicNavbarMenu
@@ -214,10 +236,12 @@ export function PublicNavbar({
                 className="hidden size-8 animate-pulse rounded-lg bg-muted [[data-session-hint]_&]:block"
               />
 
-              <div className="flex items-center gap-2 [[data-session-hint]_&]:hidden">
-                {renderContactButton()}
+              <span aria-hidden className="mx-1 h-4 w-px bg-border [[data-session-hint]_&]:hidden" />
 
+              <div className="flex items-center gap-1 [[data-session-hint]_&]:hidden">
                 {renderCtaButton(undefined, true)}
+
+                {renderTrialButton()}
 
                 {renderSignOutButton()}
               </div>
@@ -329,6 +353,8 @@ export function PublicNavbar({
 
                     {renderCtaButton("flex-1", true)}
                   </div>
+
+                  {renderTrialButton("w-full")}
 
                   {renderSignOutButton("w-full")}
                 </MarketingContainer>

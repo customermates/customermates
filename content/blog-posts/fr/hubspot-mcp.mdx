@@ -4,7 +4,7 @@ description: "Comment fonctionne le serveur MCP de HubSpot : connecteurs Claude
 
 hero:
   title: "Serveur MCP HubSpot : quelle voie choisir, ce qu’il sait faire, où il s’arrête"
-  description: "HubSpot relie des clients IA à votre CRM par un serveur MCP hébergé sur mcp.hubspot.com et par un serveur développeur local. Ce guide montre quelle voie de connexion convient à votre client, ce que le serveur lit et écrit, les limites documentées par HubSpot et une checklist de déploiement."
+  description: "HubSpot relie des clients IA à votre CRM par un serveur MCP hébergé et un serveur développeur local. Quelle voie choisir, ce que le serveur lit et écrit et les limites documentées par HubSpot."
 
 blogPost:
   author: Benjamin Wagner
@@ -143,7 +143,9 @@ Si vous choisissez un CRM plutôt que d’en connecter un existant, un serveur M
 
 Pouvoir supprimer et envoyer coupe dans les deux sens. Le serveur Customermates indique aux clients connectés de demander une confirmation avant de supprimer ou d’envoyer, mais c’est une consigne donnée au client, pas une barrière dans le serveur : dès qu’un client autorisé appelle un outil, celui-ci s’exécute. Vérifiez comment votre client gère les approbations d’outils, et commencez par la lecture et les brouillons, comme avec HubSpot.
 
-Le coût fonctionne aussi différemment. MCP est inclus à partir de Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois ; les outils de la boîte de réception exigent Pro à [[commercial.price.pro.monthly]]. Un client IA externe utilise votre propre abonnement IA, pas les crédits de Customermates. Customermates Cloud a aussi Mate, un assistant intégré qui utilise des crédits IA hébergés, si vous préférez ne connecter aucun client externe ([documentation de Mate](/docs/app-assistant)).
+Le coût fonctionne aussi différemment. MCP est inclus dans chaque formule, y compris la formule gratuite avec une limite de débit ; les formules payantes commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, et les outils de la boîte de réception exigent Pro à [[commercial.price.pro.monthly]]. Un client IA externe utilise votre propre abonnement IA, pas les crédits de Customermates. Customermates Cloud a aussi Mate, un assistant intégré qui utilise des crédits IA hébergés, si vous préférez ne connecter aucun client externe ([documentation de Mate](/docs/app-assistant)).
+
+Ce que votre propre agent en fait, c’est la relance. Avec LinkedIn et l’e-mail connectés dans Customermates Cloud à partir de Pro, les échanges client se rangent sur la fiche du client quand les coordonnées correspondent ou que vous les liez, et Claude, ChatGPT ou Mate rédige la réponse et la prochaine étape, que vous relisez et envoyez. Pour l’essayer, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 Customermates n’est pas le bon choix si vous vous appuyez sur les outils marketing, le help desk ou les objets de revenus de HubSpot ; il n’en a aucun. Si vous restez sur HubSpot, utilisez le serveur de HubSpot. Si vous envisagez de changer, la [comparaison avec les alternatives à HubSpot](/compare/hubspot-alternative) présente les compromis, et le [guide du MCP Salesforce](/blog/salesforce-mcp) explique les serveurs équivalents chez Salesforce.
 

@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Kundendatenbank-Software: Welche Lösung zu Ihrem Team passt"
-  description: Excel-Listen, Datenbank-Baukästen und CRM-Systeme werden alle als Kundendatenbank angeboten. Hier sehen Sie, wo jede Variante an Grenzen stößt, was die kostenlosen Tarife erlauben und wie Sie ein Tool mit eigenen Daten prüfen, bevor Sie sich festlegen.
+  description: "Excel-Listen, Datenbank-Baukästen und CRM-Systeme werden alle als Kundendatenbank angeboten. Wo jede Variante an Grenzen stößt, was kostenlose Tarife erlauben und wie Sie mit eigenen Daten testen."
 
 blogPost:
   author: Benjamin Wagner
@@ -85,7 +85,7 @@ Kostenlose Tarife gibt es wirklich, aber jeder endet an einer anderen Stelle. Gr
 | [EspoCRM](https://www.espocrm.com/download/) und [SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core) | Open-Source-CRM, selbst gehostet | Keine Lizenzkosten, AGPLv3 | Server, Updates und Datensicherungen liegen bei Ihnen |
 | [Customermates Kern](/features/self-hosted) | Open-Source-CRM, selbst gehostet | Keine Lizenzkosten, AGPL-3.0 | Selbst gehostet ohne einheitlichen Posteingang und ohne Mate |
 
-Pipedrive hat keinen kostenlosen Tarif und bietet eine 14-tägige kostenlose Testversion. Auch Customermates Cloud hat keinen Gratis-Tarif; die Testphase dauert [[commercial.trial.days]] Tage.
+Pipedrive hat keinen kostenlosen Tarif und bietet eine 14-tägige kostenlose Testversion. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; die Testphase dauert [[commercial.trial.days]] Tage.
 
 So lesen Sie die Tabelle: Zwei Personen mit weniger als 1.000 Kontakten starten problemlos mit den kostenlosen HubSpot-Tools. Drei Personen passen in die Free Edition von Zoho. Wenn Sie Ihre Tabellen lieber selbst entwerfen, kommen Ninox oder Airtable in Frage. Und wenn jemand im Team Server betreibt, spart ein selbst gehostetes Open-Source-CRM die Kosten pro Nutzer, aber nicht die Arbeit.
 
@@ -105,13 +105,13 @@ Airtable und Ninox sind Baukästen: Der Preis kauft die Tabellen, die Kundenverw
 
 ## Eine Kundendatenbank in Customermates, Schritt für Schritt
 
-Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Hier eine Kundenverwaltung für eine kleine Beratung, eingerichtet so, wie das Produkt heute funktioniert.
+Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt, etwa Beratungen, Agenturen und Gründer. Hier eine Kundenverwaltung für eine kleine Beratung, eingerichtet so, wie das Produkt heute funktioniert. Ein neuer Workspace startet ohne Listen: In Customermates Cloud beschreiben Sie Ihr Geschäft in einem Satz, und Mate baut Listen, Pipeline und Dashboard; bei einer selbst gehosteten Installation legen Sie die Listen in Konfigurieren an. Danach passen Sie sie so an.
 
 <Steps>
   <Step title="Datensätze so benennen, wie Sie sprechen">Öffnen Sie in Konfigurieren eine Liste und ändern Sie **Name** und **Pluralname** unter **Allgemein**: Benennen Sie die Kontakte in „Kunden“ und die Organisationen in „Unternehmen“ um. Aus Deals können „Projekte“ werden, aus Aufgaben „Follow-ups“. Jeder Name ist möglich und gilt für den ganzen Workspace.</Step>
-  <Step title="Die Felder anlegen, nach denen Sie filtern">Bei Unternehmen legen Sie „Segment“ als Einzelauswahl mit Rahmenvertrag, Projekt und Ehemalig an, dazu „Kunde seit“ als Datum. Bei Kunden legen Sie „Anschrift“ als Feld vom Typ Adresse an. Telefonnummern und E-Mail-Adressen gehören in das Feld Kontaktdaten, das die Liste Kunden von Anfang an hat.</Step>
-  <Step title="Erst Unternehmen, dann Personen importieren">Über Weitere Aktionen › Aus Datei hinzufügen laden Sie eine .xlsx-Arbeitsmappe, eine Liste pro Import. Importieren Sie zuerst die Unternehmen, dann das Personenblatt mit einer Spalte, die den Firmennamen jeder Person enthält: Der Import-Assistent ordnet Verknüpfungsspalten über den Namen des Datensatzes zu, und E-Mail- und Telefonspalten lassen sich dem Feld Kontaktdaten des Kunden zuordnen. CSV-Dateien gehen ebenso (Komma, Semikolon, Tab oder senkrechter Strich als Trennzeichen). Eine Arbeitsmappe fasst derzeit bis zu 5.000 Zeilen.</Step>
-  <Step title="Drei Ansichten speichern">Bei Unternehmen filtert „Kunden mit Rahmenvertrag“ das Segment auf Rahmenvertrag. Bei Kunden filtert „Seit 90 Tagen unverändert“ das Feld Aktualisiert am mit Älter als… 90 Tage, und „Kunden ohne Unternehmen“ filtert auf Kunden ohne verknüpftes Unternehmen. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann mit denselben Filtern ihre eigene Ansicht anlegen, oder Sie teilen eine Ansicht mit dem Team.</Step>
+  <Step title="Die Felder anlegen, nach denen Sie filtern">Bei Unternehmen legen Sie „Segment“ als Einzelauswahl mit Rahmenvertrag, Projekt und Ehemalig an, dazu „Kunde seit“ als Datum. Bei Kunden legen Sie „Anschrift“ als Feld vom Typ Adresse an. Telefonnummern und E-Mail-Adressen gehören in das Feld Kontaktdaten, das die Personenliste aus der KI-Einrichtung von Anfang an hat.</Step>
+  <Step title="Erst Unternehmen, dann Personen importieren">Über Weitere Aktionen › Aus Datei hinzufügen laden Sie eine Excel-Arbeitsmappe (.xlsx oder .xls) oder eine CSV-Datei, eine Liste pro Import. Importieren Sie zuerst die Unternehmen, dann das Personenblatt mit einer Spalte, die den Firmennamen jeder Person enthält: Der Import-Assistent ordnet Verknüpfungsspalten über den Namen des Datensatzes zu, und E-Mail- und Telefonspalten lassen sich dem Feld Kontaktdaten des Kunden zuordnen. Eine Tabellendatei darf bis zu 10 MB groß sein, jedes Blatt hat bis zu 5.000 Datenzeilen.</Step>
+  <Step title="Drei Ansichten speichern">Bei Unternehmen filtert „Kunden mit Rahmenvertrag“ das Segment auf Rahmenvertrag. Bei Kunden filtert „Seit 90 Tagen unverändert“ das Feld Aktualisiert am mit Älter als… 90 Tage, und „Kunden ohne Unternehmen“ filtert auf Kunden ohne verknüpftes Unternehmen. Teilen Sie „Seit 90 Tagen unverändert“ mit dem ganzen Team oder mit ausgewählten Rollen, damit alle dieselbe Liste aufräumen.</Step>
   <Step title="Kommunikation anbinden (Pro)">Mit Pro verbindet jeder Nutzer [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, etwa Gmail, Outlook, LinkedIn oder WhatsApp, und der [einheitliche Posteingang](/features/unified-inbox) zeigt diese Verläufe neben dem Kunden. Starter hat keinen Posteingang.</Step>
 </Steps>
 
@@ -122,6 +122,8 @@ Zwei Dinge zeigt Ihnen der Test von oben. Customermates lässt dieselbe E-Mail-A
 > Bei jedem neuen Kunden prüfen, ob er mit einem Unternehmen verknüpft ist. Falls nicht, das Unternehmen suchen, dessen Name zur Domain seiner E-Mail-Adresse passt, und es verknüpfen. Niemals ein Unternehmen anlegen und niemals eine Nachricht senden. Wenn nichts passt, eine Zeile in die Notizen des Kunden schreiben, die das festhält.
 
 Die beiden letzten Sätze sind wichtig. Mate sendet Nachrichten, wenn eine Anweisung das verlangt; eine Routine, die nur Daten pflegen soll, muss das deshalb ausdrücklich sagen. Wenn Sie lieber Ihren eigenen KI-Client nutzen, lesen und ändern Claude, ChatGPT und andere MCP-Clients dieselben Datensätze über MCP, auch bei einer selbst gehosteten Installation.
+
+Eine Kundendatenbank zahlt sich aus, wenn jeder Kunde einen nächsten Schritt hat. In Pro liegen LinkedIn- und E-Mail-Verläufe am Kundendatensatz, Mate oder Ihr eigener KI-Client entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Um das an Ihren echten Kunden auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 ## Wann Customermates die falsche Kundendatenbank ist
 
@@ -142,7 +144,7 @@ Ninox nennt auf seiner Preisseite Deutschland als Server-Region. Customermates C
 
 <Faq>
 <FaqItem question="Welche kostenlose Kundendatenbank-Software gibt es?">
-Das hängt davon ab, wie viele Personen sie nutzen und wie viele Datensätze Sie haben. Die kostenlosen HubSpot-Tools decken 2 Nutzer und 1.000 Kontakte ab, die Free Edition von Zoho CRM 3 Nutzer, Airtable Free 1.000 Datensätze pro Base und Ninox Free 5 Nutzer mit 5.000 Datensätzen. Wenn Sie einen Server betreiben können, sind EspoCRM, SuiteCRM und der Kern von Customermates Open Source ohne Lizenzkosten. Customermates Cloud hat keinen Gratis-Tarif, nur eine Testphase von [[commercial.trial.days]] Tagen.
+Das hängt davon ab, wie viele Personen sie nutzen und wie viele Datensätze Sie haben. Die kostenlosen HubSpot-Tools decken 2 Nutzer und 1.000 Kontakte ab, die Free Edition von Zoho CRM 3 Nutzer, Airtable Free 1.000 Datensätze pro Base und Ninox Free 5 Nutzer mit 5.000 Datensätzen. Wenn Sie einen Server betreiben können, sind EspoCRM, SuiteCRM und der Kern von Customermates Open Source ohne Lizenzkosten. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen und eine Testphase von [[commercial.trial.days]] Tagen.
 </FaqItem>
 
 <FaqItem question="Was kostet ein CRM-System im Monat?">
