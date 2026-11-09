@@ -961,7 +961,7 @@
         },
         "channels": {
           "connect": "collega email, aggiungi account, LinkedIn, WhatsApp",
-          "google": "Google Calendar, Calendario Google, Gmail, Google Workspace, email, calendario",
+          "google": "Google Calendar, Calendario Google, Gmail, email, calendario",
           "imap": "email, server di posta, dominio personalizzato, casella di posta",
           "instagram": "messaggi Instagram, Meta, social",
           "linkedin": "messaggi LinkedIn, social, messaggi diretti",
