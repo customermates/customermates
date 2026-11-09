@@ -27,16 +27,10 @@ function collectParts(parts: Part[], name: string, value: unknown): void {
   parts.push({ name, value: String(value) });
 }
 
-/** Escapes a header parameter as the HTML multipart/form-data encoding does. */
 function quoted(text: string): string {
   return text.replace(/\r/g, "%0D").replace(/\n/g, "%0A").replace(/"/g, "%22");
 }
 
-/**
- * Builds a multipart/form-data body by hand. WHATWG FormData rewrites every line break in a text
- * field to CRLF when it encodes, and LinkedIn then shows a CRLF as two line breaks, so a post's
- * paragraphs gained blank lines. Text fields here keep their bytes exactly as given.
- */
 export function encodeMultipart(body: Record<string, unknown>, boundary: string): Uint8Array {
   const parts: Part[] = [];
   for (const [key, value] of Object.entries(body)) collectParts(parts, key, value);
