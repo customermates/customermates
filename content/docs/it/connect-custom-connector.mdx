@@ -1,0 +1,160 @@
+---
+title: Collegare Claude e ChatGPT (connettore personalizzato)
+description: "Aggiungi Customermates a Claude (web, desktop, mobile) o ChatGPT come connettore MCP: accesso OAuth, senza chiave API, più l’alternativa con intestazione."
+---
+
+Customermates è un CRM open source pensato per l’IA, che la tua IA usa direttamente tramite MCP. Il connettore personalizzato è il modo più semplice per collegarti: incolla un URL, accedi a Customermates e approva l’accesso. Non c’è nessuna chiave API da copiare, nessun file di configurazione da modificare e nessun adattatore da installare. Autorizzi una volta e il collegamento resta attivo.
+
+È il percorso consigliato per **Claude** (web, desktop e mobile) e **ChatGPT**. Su una CLI o in un editor (Claude Code, Codex, Cursor, Gemini CLI) usa invece [il metodo con chiave API](/docs/connect-cli).
+
+> Claude offre i connettori personalizzati su ogni piano (Free, Pro, Max, Ultra, Team, Enterprise); il piano Free ne consente uno (assistenza Anthropic, verificato il 3 novembre 2026). In ChatGPT sono una funzione a pagamento (Plus, Pro, Business, Enterprise).
+
+## Quale URL devo incollare? [#the-url]
+
+Ogni spazio di lavoro ha il proprio URL MCP:
+
+```
+<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
+```
+
+`<BASE_URL>` è l’indirizzo con cui apri Customermates, nel cloud o sulla tua istanza, e `<WORKSPACE_ID>` indica lo spazio di lavoro. Non devi comporlo a mano: Customermates mostra l’URL del tuo spazio di lavoro corrente con un pulsante di copia in [Chiavi API e connettori](app:settings/api-keys) quando fai clic su [Aggiungi](app:settings/api-keys?focus=generate) e scegli **Claude** e poi **Account Claude** (oppure **ChatGPT & Codex** e poi **App ChatGPT**), e nel passaggio iniziale **Collega l’IA che usi già**. Cambiando spazio di lavoro copi l’URL di un altro.
+
+Poiché ogni spazio di lavoro ha il proprio URL, puoi aggiungere più spazi di lavoro a Claude contemporaneamente, con un connettore per ciascuno. Claude rifiuta un secondo connettore con un URL che ha già («A connector with this URL already exists in your organization»), quindi un secondo spazio di lavoro richiede un URL proprio.
+
+`<BASE_URL>/api/v1/mcp` continua a funzionare: offre gli stessi strumenti, e la schermata di consenso chiede a quale spazio di lavoro dare il collegamento. I collegamenti che hai aggiunto in precedenza con questo URL restano invariati.
+
+Il connettore funziona su ogni piano di Customermates e sulle istanze self-hosted; solo gli strumenti di messaggistica, calendario e social richiedono nel cloud un piano con messaggistica, Pro o superiore.
+
+## Come collego Claude al CRM Customermates? [#claude]
+
+Per collegare Claude al tuo CRM, aggiungi Customermates come connettore personalizzato in Claude:
+
+<Steps>
+<Step title="Apri il modulo del connettore">
+**Claude → Settings → Connectors → Add custom connector.**
+</Step>
+<Step title="Incolla l’URL">
+Lascia l’autenticazione su quella predefinita (OAuth). Nessuna intestazione, nessuna chiave.
+</Step>
+<Step title="Accedi e approva">
+Si apre una finestra di Customermates. Accedi, poi fai clic su **Approva** nella schermata di consenso.
+</Step>
+<Step title="Verifica che gli strumenti siano arrivati">
+Tornato in Claude, Customermates compare con l’elenco dei suoi strumenti.
+</Step>
+</Steps>
+
+Aggiunto una volta, si sincronizza con Claude su web, desktop e mobile. Il collegamento è legato al tuo account Claude, non a un solo dispositivo, e si rinnova in background.
+
+Con un solo clic: in Customermates apri [Chiavi API e connettori](app:settings/api-keys), fai clic su [Aggiungi](app:settings/api-keys?focus=generate), scegli **Claude** in **Connessioni rapide**, poi **Account Claude**, e fai clic su **Aggiungi a Claude**. Si apre la finestra di aggiunta del connettore di Claude già compilata con l’URL del tuo spazio di lavoro corrente e un nome del connettore che include il nome dello spazio di lavoro (solo Claude web e Teams). Il passaggio iniziale **Collega l’IA che usi già** offre lo stesso pulsante. **Aggiungi** richiede **Crea** su **API e webhook**; senza questo permesso, incolla l’URL come descritto sopra.
+
+## Come collego ChatGPT? [#chatgpt]
+
+Per collegare ChatGPT, apri in ChatGPT: **Settings → Connectors → Add connector → Custom connector (MCP)**.
+
+- **Name:** Customermates
+- **URL:** l’URL del tuo spazio di lavoro, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>` ([quale URL](#the-url))
+- **Authentication:** OAuth
+
+Salva. ChatGPT apre una finestra di Customermates. Accedi, poi fai clic su **Approva** nella schermata di consenso. Sono elencati tutti gli strumenti di Customermates, senza nessuna chiave da conservare o ruotare.
+
+### ChatGPT può usare una chiave API al posto di OAuth? [#chatgpt-with-an-api-key]
+
+Sì. Aggiungi il connettore nello stesso modo, ma autenticati con un’intestazione:
+
+<Steps>
+<Step title="Crea una chiave">
+In Customermates apri [Chiavi API e connettori](app:settings/api-keys), fai clic su **Aggiungi** e scegli **Chiave API standard**. Copia subito la stringa di 64 caratteri: viene mostrata una sola volta. Per creare una chiave serve **Crea** sulla riga **API e webhook** del tuo ruolo, e per la pagina stessa serve **Accesso in lettura** **Tutti** su quella riga; il ruolo integrato **Amministratore** ha entrambi. Vedi [Chiavi API](/docs/api-keys).
+</Step>
+<Step title="Autenticati con un’intestazione">
+Nel modulo del connettore imposta **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** la tua chiave.
+</Step>
+</Steps>
+
+Salva. ChatGPT raggiunge il server ed elenca tutti gli strumenti. Customermates controlla la chiave a ogni richiesta: con una chiave errata, troncata, scaduta o eliminata il server risponde con HTTP `401` e un’intestazione `WWW-Authenticate` e non viene elencato nulla, quindi crea una nuova chiave.
+
+## Che cosa mostra la schermata di consenso? [#sign-in-and-approve]
+
+Il connettore apre una finestra di Customermates:
+
+<Steps>
+<Step title="Accedi">
+Oppure sei già connesso.
+</Step>
+<Step title="Leggi che cosa viene autorizzato">
+La schermata di consenso, intitolata **Collega … a …**, indica l’app che si sta collegando, elenca ciò che richiede (come **Confermare la tua identità**, **Leggere il tuo profilo di base**, **Leggere il tuo indirizzo e-mail** e **Restare collegato mentre sei assente**) e mostra la **Destinazione del collegamento** con l’host a cui invierà l’accesso. Con l’URL di uno spazio di lavoro mostra quello spazio di lavoro con il suo avatar, e il collegamento riceve esattamente quello spazio di lavoro. Con `<BASE_URL>/api/v1/mcp` e più spazi di lavoro chiede a quale spazio di lavoro dare il collegamento; il tuo spazio di lavoro corrente è preselezionato.
+</Step>
+<Step title="Approva">
+Fai clic su **Approva**, oppure su **Rifiuta** per negare l’accesso.
+</Step>
+</Steps>
+
+Torni alla tua IA, collegata, con l’elenco degli strumenti di Customermates.
+
+Se non puoi collegare lo spazio di lavoro dell’URL, la schermata ne spiega il motivo e offre solo **Rifiuta**: non ne sei membro (accedi con l’account che usi lì), la tua richiesta di adesione è in attesa di approvazione, il tuo accesso è disattivato, il tuo ruolo non ha **Accesso in lettura** **Tutti** su **API e webhook**, lo spazio di lavoro non ha un abbonamento attivo, oppure devi accettare condizioni aggiornate.
+
+Il connettore accetta qualsiasi client, quindi la schermata di consenso è il filtro. Approva solo un collegamento che hai avviato tu e fai clic su **Rifiuta** per qualsiasi cosa che non hai avviato. Il collegamento tramite OAuth non richiede una chiave API, ma il tuo ruolo deve avere **Accesso in lettura** **Tutti** su **API e webhook**, come per ogni connessione MCP; senza, la schermata rifiuta il collegamento.
+
+## Per quanto tempo il collegamento resta valido? [#it-syncs-and-stays-connected]
+
+- Aggiunto una volta su Claude web, compare anche su **desktop e mobile**. Il collegamento è legato al tuo account Claude, non a un solo dispositivo.
+- Si rinnova in background. Usalo entro una qualsiasi finestra di 30 giorni e non devi mai autorizzare di nuovo; resta inattivo più a lungo e approvi ancora una volta.
+- Ogni chiamata viene eseguita come l’utente Customermates che ha approvato, all’interno dello spazio di lavoro scelto nella schermata di consenso e con i permessi del ruolo di quell’utente al suo interno. Le chiavi API funzionano allo stesso modo: ereditano i permessi dell’utente proprietario nello spazio di lavoro in cui sono state create, e non esiste un ambito per singola chiave.
+- Un collegamento resta nel proprio spazio di lavoro, token rinnovati compresi. Per lavorare in più spazi di lavoro, aggiungi un connettore per ciascuno con l’URL di quello spazio di lavoro; funzionano affiancati nello stesso account Claude. Vedi [Spazi di lavoro](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+- Se quell’utente viene impostato su **Inattivo**, ogni chiamata che legge o modifica i dati dello spazio di lavoro fallisce con «Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.» finché un membro con **Modifica** su **Utenti e ruoli** non lo reimposta su **Attivo**.
+
+## Che cosa provo per prima cosa? [#try-your-first-prompt]
+
+Il server invia le proprie istruzioni alla tua IA quando si collega, quindi il client conosce già il flusso di lavoro e le regole di sicurezza. Nei client che supportano i prompt MCP (come Claude) puoi anche eseguire il prompt integrato `get-started` per un avvio personalizzato: il tuo nome, il tuo ruolo e un primo riepilogo del tuo spazio di lavoro.
+
+- *«Mostrami gli ultimi dieci contatti che ho creato. Ce n’è qualcuno senza indirizzo e-mail?»*
+- *«Crea un contatto per Jane Doe presso Initech, collegalo all’organizzazione Initech e avvia una trattativa per 12 ore di consulenza.»*
+- *«Imposta il campo Stato della trattativa Acme su Vinta e aggiungi una nota che dice che il contratto è stato firmato oggi.»*
+- *«Quali conversazioni con i clienti aspettano una mia risposta? Prepara una risposta alla più vecchia e salvala come bozza.»*
+
+Il prompt di risposta richiede un canale collegato su Customermates Cloud dal piano Pro; la bozza resta nella conversazione finché non la rivedi e non la invii.
+
+Ogni spazio di lavoro definisce i propri tipi di record, come contatti, trattative o attività, e anche campi come la fase di una trattativa o la priorità di un’attività sono configurati per spazio di lavoro. Chiedi alla tua IA di chiamare `discover_record_types` e `get_record_model` per vedere i campi pertinenti e i valori consentiti prima di scrivere.
+
+## Conferma delle chiamate agli strumenti: quali posso consentire sempre? [#confirming-tool-calls]
+
+Customermates non interrompe mai una chiamata a uno strumento per chiedere conferma; lo fa il client, e lì puoi controllarlo. In Claude: **Settings → Connectors → Customermates**, poi imposta ogni strumento (o il gruppo di sola lettura) su *Always allow* oppure *Ask*.
+
+- Le letture (`get_*`, `list_*`, `search_*`) hanno il flag di sola lettura, quindi puoi consentirle senza rischi.
+- Gli strumenti che possono eliminare hanno il flag distruttivo e riportano `IRREVERSIBLE`.
+- Gli strumenti che si limitano a creare, modificare o inviare non hanno nessuno dei due flag; gli strumenti unificati con un’azione di eliminazione, come `manage_webhooks`, hanno il flag distruttivo, e così anche `manage_team`, il cui `remove_member` revoca l’accesso di un membro. Tra gli strumenti senza flag ci sono `send_email`, `send_chat_message`, `request_support`, `manage_social_relations`, `publish_social_post` e `comment_on_social_post`, che raggiungono persone reali, e `move_email_thread`, che sposta la posta nella casella reale.
+
+Lascia su *Ask* ogni strumento che non sia di sola lettura. L’elenco completo è nel [catalogo degli strumenti MCP](/docs/mcp#tool-catalog).
+
+## Che cosa faccio se il collegamento non riesce? [#troubleshooting]
+
+| Sintomo | Causa | Soluzione |
+|---|---|---|
+| «Couldn't register with the sign-in service» (Claude) o «Connector verification failed» (ChatGPT) | URL del server errato o non raggiungibile | Copia di nuovo l’URL da Customermates ([quale URL](#the-url)), oppure usa esattamente `<BASE_URL>/api/v1/mcp`, con l’indirizzo con cui apri Customermates come `<BASE_URL>` |
+| «A connector with this URL already exists in your organization» (Claude) | Quell’URL è già collegato, magari per un altro spazio di lavoro | Aggiungi l’altro spazio di lavoro con il suo URL, copiato mentre quello spazio di lavoro è aperto |
+| L’URL di uno spazio di lavoro risponde con HTTP `401` e `error="invalid_token"` | Il collegamento è stato approvato per un altro spazio di lavoro | Ricollega; il client accede di nuovo per lo spazio di lavoro dell’URL |
+| L’URL di uno spazio di lavoro risponde con HTTP `403` e `error: workspace_mismatch` (chiave nell’intestazione) | La chiave API appartiene a un altro spazio di lavoro | Usa l’URL dello spazio di lavoro della chiave, oppure crea una chiave in questo spazio di lavoro |
+| Il connettore non elenca alcuno strumento e il server risponde con HTTP `401` (ChatGPT con intestazione) | Il valore di `x-api-key` è errato, troncato, scaduto o eliminato | Crea una nuova chiave in [Chiavi API e connettori](app:settings/api-keys) e incolla tutti i 64 caratteri |
+| Ogni chiamata che legge o modifica i dati dello spazio di lavoro dice «Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.» | Il tuo utente Customermates è stato impostato su **Inattivo** | Un membro con **Modifica** su **Utenti e ruoli** ti reimposta su **Attivo** in [Membri](app:settings/members) |
+| Nessuna opzione «Add custom connector» | Piano Free | ChatGPT richiede un piano a pagamento; Claude Free consente un connettore personalizzato, quindi rimuovine prima un altro. Vedi [il metodo CLI](/docs/connect-cli) |
+| Approvato, ma non si collega nulla | Hai approvato da un altro account | Accedi con l’account Customermates giusto, poi riprova |
+| «Tool not found» | Cache del connettore non aggiornata | Rimuovi e aggiungi di nuovo il connettore |
+| Il server rifiuta l’aggiornamento di una relazione | L’ID della relazione o un estremo è mancante o non accessibile | Chiedi all’agente di leggere `get_record_model`, poi di usare `mutate_crm_record` con `link` o `unlink` |
+| Campo di selezione rifiutato | Valore non presente nell’elenco di opzioni del campo | Chiedi all’agente di chiamare prima `get_record_model` |
+| Uno strumento di messaggistica, calendario o social viene rifiutato con un messaggio sul piano | Lo spazio di lavoro non ha un piano con messaggistica (Starter, self-hosted, oppure nessun abbonamento o prova attivi) | Nel cloud, un membro con **Modifica** su **Azienda** sceglie Pro o superiore in [Fatturazione](app:settings/billing). Le istanze self-hosted non hanno la messaggistica; per questi strumenti usa Customermates Cloud |
+
+## Con un piano gratuito o in una CLI? [#on-a-free-plan-or-in-a-cli]
+
+ChatGPT richiede un piano a pagamento per i connettori personalizzati (Claude Free ne consente uno), e i client CLI e gli editor non usano affatto il flusso del connettore. Entrambi si autenticano invece con una chiave API: vedi [CLI ed editor](/docs/connect-cli). Claude Desktop con un piano gratuito può usare l’[alternativa con file di configurazione](/docs/connect-cli#claude-desktop-config-file).
+
+## Prossimi passi [#next]
+
+- [Catalogo degli strumenti MCP](/docs/mcp#tool-catalog): tutti gli strumenti che la tua IA può chiamare.
+- [Webhook](/docs/webhooks): l’altra metà del ciclo agentico.
+- [CLI ed editor](/docs/connect-cli): configurazione con chiave API per Claude Code, Codex, Cursor e Gemini CLI.
+
+## Grok Bot [#grok-bot]
+
+Grok Bot può lavorare in Customermates tramite il proprio browser. Chiedigli di aprire l’URL di Customermates, di prendere il controllo dell’accesso quando richiesto e poi di descrivere l’attività. Rivedi le bozze prima di inviarle. Questo flusso nel browser non richiede una nuova chiave API di Customermates.
+
+Grok Bot e i connettori della chat di Grok hanno procedure di configurazione diverse. Per la chat di Grok, aggiungi un connettore MCP personalizzato con `<BASE_URL>/api/v1/mcp` e completa l’autenticazione. Vedi la [guida ufficiale all’app Grok Bot](https://docs.x.ai/grok-bot/computer-and-apps) e la [guida ufficiale ai connettori Grok](https://docs.x.ai/grok/connectors).

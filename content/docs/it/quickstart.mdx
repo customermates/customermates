@@ -1,0 +1,57 @@
+---
+title: "Avvio rapido del CRM Customermates in pochi minuti"
+heading: "Configura il tuo spazio di lavoro Customermates"
+description: "Dalla registrazione al primo record aggiornato da un agente in pochi minuti: crea un account, collega Claude o ChatGPT oppure usa una chiave API."
+---
+
+Crea un account, collega un client IA e inizia a fare domande. Claude e ChatGPT si collegano con un connettore personalizzato e non richiedono una chiave API; i client a riga di comando e gli editor usano una chiave API.
+
+## Come mi registro e quanto dura la prova gratuita? [#how-do-i-sign-up-and-how-long-is-the-free-trial]
+
+[Registrati](/auth/signup) senza carta di credito. I primi [[commercial.trial.days]] giorni sono una prova gratuita del piano Pro.
+
+Su Customermates Cloud, la configurazione iniziale chiede poi da dove cominciare. **Configurare il mio spazio clienti** richiede una descrizione della tua attività e alcune risposte: Mate progetta liste, pipeline, dashboard e pagine della Base di conoscenza e li crea non appena confermi il piano. **Seguire le conversazioni con i clienti** scrive nella Base di conoscenza un playbook adatto al tuo tipo di lavoro e apre Canali per collegare LinkedIn o l’e-mail, così Mate può preparare risposte da rivedere e inviare. Dettagli: [Procedura di configurazione](/docs/app-onboarding).
+
+Alla fine della prova lo spazio di lavoro passa al piano Free per una persona; tutte le altre persone restano in pausa finché non scegli un piano. Per mantenere le funzioni Pro dopo la prova, scegli un piano in [Fatturazione](app:settings/billing?focus=plan-picker) nelle Impostazioni prima che termini; vedi [che cosa succede alla fine della prova](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) e [quali piani esistono](/docs/app-company#which-plans-are-there). Per scegliere un piano serve **Modifica** sulla riga **Azienda** del tuo ruolo. Il ruolo **Amministratore**, che spetta a chi crea lo spazio di lavoro, ce l’ha. Un’istanza [self-hosted](/docs/self-hosting) non ha né prova né piano.
+
+## Come collego Claude o ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
+
+Aggiungi un connettore personalizzato:
+
+- **Claude** (web, desktop, mobile): **Settings → Connectors → Add custom connector**.
+- **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, con **Authentication** impostato su OAuth.
+
+Incolla l’URL MCP dello spazio di lavoro, che Customermates mostra con un pulsante di copia nel passaggio iniziale **Collega l’IA che usi già** e in [Chiavi API e connettori](app:settings/api-keys), accedi e fai clic su **Approva** nella schermata di consenso. Funziona anche l’indirizzo con cui apri Customermates seguito da `/api/v1/mcp`, e lo spazio di lavoro viene richiesto nella schermata di consenso. Passaggi completi: [Collegati con un connettore personalizzato](/docs/connect-custom-connector#the-url).
+
+Al collegamento il server presenta al client i propri strumenti e il tuo spazio di lavoro. Nei client che supportano i prompt MCP, come Claude, il prompt integrato `get-started` aggiunge un avvio personalizzato: il tuo nome, il tuo ruolo e un primo riepilogo del tuo spazio di lavoro.
+
+## Come collego una CLI o un editor? [#how-do-i-connect-a-cli-or-editor]
+
+Apri [Chiavi API e connettori](app:settings/api-keys), fai clic su [Aggiungi](app:settings/api-keys?focus=generate) e scegli **Chiave API standard**, oppure scegli il tuo client in **Connessioni rapide** per ottenere la chiave insieme al relativo frammento di configurazione. Copia subito la chiave: viene mostrata una sola volta. Per creare una chiave serve **Crea** sulla riga **API e webhook** del tuo ruolo; il ruolo **Amministratore** ce l’ha. Dettagli: [Chiavi API](/docs/api-keys). Poi segui i passaggi del tuo client:
+
+- [Claude Code](/docs/connect-cli#claude-code): un comando da terminale
+- [Cursor](/docs/connect-cli#cursor): interfaccia delle impostazioni, due clic
+- [Codex](/docs/connect-cli#codex): un blocco TOML in `~/.codex/config.toml`
+- [Gemini](/docs/connect-cli#gemini-cli): un blocco di impostazioni
+
+## Che cosa provo per prima cosa? [#what-should-i-try-first]
+
+- *«Imposta lo stato della trattativa Acme su Vinta e aggiungi una nota che dice che il contratto è stato firmato oggi.»*
+- *«Mostrami gli ultimi dieci contatti che ho creato. Ce n’è qualcuno senza indirizzo e-mail?»*
+- *«Crea un contatto per Jane Doe presso Initech, collegalo all’organizzazione Initech e avvia una trattativa per 12 ore di consulenza.»*
+- *«Quali conversazioni con i clienti aspettano una mia risposta? Prepara una risposta alla più vecchia e salvala come bozza.»*
+
+L’agente riferisce che cosa ha fatto e che cosa è cambiato. Le fasi delle trattative e gli altri campi cambiano da uno spazio di lavoro all’altro; l’agente legge i tuoi prima di scrivere. Il prompt di risposta richiede un canale collegato su Customermates Cloud dal piano Pro; la bozza resta nella conversazione finché non la rivedi e non la invii.
+
+## Come provo un webhook? [#how-do-i-test-a-webhook]
+
+Facoltativo, per avvisare altri strumenti quando il CRM cambia: apri [Webhook](app:settings/webhooks) e fai clic su [Aggiungi](app:settings/webhooks?focus=add). Imposta **URL** su un endpoint usa e getta di [webhook.site](https://webhook.site), seleziona **Record creato** e **Record aggiornato** in **Eventi**, scegli le liste da osservare e fai clic su **Salva**. Per aggiungere un webhook serve **Crea** sulla riga **API e webhook**, come per le chiavi API.
+
+Ora crea o modifica un record in una di quelle liste. Nel giro di pochi secondi la consegna arriva su webhook.site con il payload completo e compare in [Log dei webhook](app:settings/webhook-deliveries). Altre informazioni in [Webhook](/docs/webhooks).
+
+## Prossimi passi [#next]
+
+- [Concetti chiave](/docs/concepts): record, campi e relazioni in breve.
+- [Catalogo degli strumenti MCP](/docs/mcp#tool-catalog): tutti gli strumenti che la tua IA può chiamare tramite il Model Context Protocol (MCP).
+
+Per gli agenti: leggi le liste e i campi dello spazio di lavoro con `discover_record_types` e `get_record_model` prima di proporre o scrivere modifiche.

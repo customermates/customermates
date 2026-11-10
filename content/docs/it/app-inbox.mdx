@@ -1,0 +1,143 @@
+---
+title: "Posta in arrivo di Customermates: conversazioni e risposte"
+description: "La Posta in arrivo riunisce e-mail, LinkedIn, WhatsApp, Instagram e Telegram: leggere, rispondere, smistare, condividere e collegare ai record."
+---
+
+## Che cos’è la Posta in arrivo? [#what-is-the-inbox]
+
+La [Posta in arrivo](app:inbox) è la messaggistica unificata di Customermates Cloud: conversazioni di e-mail, LinkedIn, WhatsApp, Instagram e Telegram in un solo elenco, con l’attività più recente per prima. Un clic su una conversazione la apre accanto all’elenco; sugli schermi stretti l’elenco e la conversazione si alternano. Da una conversazione si risponde sul canale originale, se ne imposta lo stato, si sposta un’e-mail in un’altra cartella, la si condivide con il team e si collegano i suoi partecipanti ai record. Mate, o un proprio agente IA tramite [MCP](/docs/mcp), può lasciare una risposta come bozza nella conversazione; la rivedi, la modifichi e la invii (vedere [bozze](#how-do-drafts-and-attachments-work)). Gli account si collegano in [Canali e calendari](app:settings/channels), vedere [Guida all’app, Profilo](/docs/app-profile).
+
+## Chi può usare la Posta in arrivo e perché è bloccata su Starter o assente nella versione self-hosted? [#who-can-use-the-inbox]
+
+Devono valere tutte e quattro le condizioni:
+
+- **Customermates Cloud.** Le installazioni self-hosted non hanno la Posta in arrivo: la voce della barra laterale è nascosta e aprirla porta alla Dashboard.
+- **Un piano con messaggistica:** Pro, Business, Max, Enterprise o una prova. Su Starter la Posta in arrivo resta nella barra laterale ma mostra **Passa a un piano superiore per sbloccare la messaggistica**, e **Passa a un piano superiore** apre [Fatturazione](app:settings/billing).
+- **Un abbonamento utilizzabile:** stato **Attivo** o una prova non terminata. Mentre lo stato è **Pagamento in ritardo** o **Annullato**, la Posta in arrivo è bloccata allo stesso modo.
+- **Il ruolo:** **Messaggi della posta in arrivo** con **Accesso in lettura** impostato su **Tutti**. Con **Nessuno** la voce della barra laterale è nascosta e aprire la Posta in arrivo porta alla Dashboard. Il ruolo **Amministratore** ha sempre accesso.
+
+Finché il piano o l’abbonamento blocca la Posta in arrivo, l’avviso di upgrade resta visibile e gli aggiornamenti in background delle conversazioni e del conteggio dei non letti si fermano. Quando l’accesso torna, riaprire la Posta in arrivo carica di nuovo le conversazioni. Le conversazioni private mantengono sempre le proprie impostazioni di visibilità.
+
+## Serve un canale collegato? [#do-i-need-a-connected-channel]
+
+Non per aprire la Posta in arrivo: senza un canale proprio si vede comunque ciò che i colleghi condividono. Per inviare e ricevere sui propri account ne serve uno. Una Posta in arrivo vuota riporta **Ancora niente qui**; i membri con **Crea** su **Messaggi della posta in arrivo** vedono sotto un pulsante **Canali** (quando Mate è disponibile, al suo posto compaiono richieste iniziali). Si aggiunge un account e-mail, LinkedIn, WhatsApp, Instagram o Telegram con [Collega un canale](app:settings/channels?focus=connect), vedere [Come si collega un canale?](/docs/app-profile#how-do-i-connect-a-channel). Canali per membro: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; una prova conta come Pro.
+
+## Quali conversazioni vedo e un amministratore può leggere le mie private? [#which-conversations-do-i-see]
+
+L’elenco combina i canali collegati da te, i canali che un collega ha condiviso con l’intero spazio di lavoro e le singole conversazioni che un collega ha condiviso da un canale privato. Le conversazioni private di un collega non compaiono mai, qualunque sia il ruolo, **Amministratore** compreso.
+
+Per gli account e-mail compaiono solo le cartelle attivate nella scheda **Cartelle** dell’account in [Canali e calendari](app:settings/channels). Per impostazione predefinita ogni cartella è attiva tranne cestino, posta indesiderata o spam, bozze e la cartella con tutta la posta; se manca la posta di un archivio, controlla il suo interruttore. Una conversazione senza alcun messaggio compare solo finché contiene una bozza salvata.
+
+## Quali permessi richiede la Posta in arrivo? [#which-permissions-does-the-inbox-need]
+
+I ruoli si modificano in [Ruoli](app:settings/roles). La Posta in arrivo usa la riga **Messaggi della posta in arrivo**: **Crea**, **Modifica**, **Elimina** e **Accesso in lettura** **Nessuno** o **Tutti**.
+
+| Per fare questo | Il ruolo richiede |
+| --- | --- |
+| Vedere la Posta in arrivo e leggere le conversazioni | **Messaggi della posta in arrivo**: **Accesso in lettura** **Tutti** |
+| Rispondere, salvare o inviare bozze, avviare una conversazione da un contatto | **Messaggi della posta in arrivo**: **Crea** |
+| Scartare una bozza | **Messaggi della posta in arrivo**: **Elimina** |
+| Cambiare lo stato, spostare un’e-mail, **Aggiorna**, **Risincronizza la conversazione**, caricare messaggi meno recenti, condividere una conversazione | **Messaggi della posta in arrivo**: **Modifica** |
+| Collegare l’indirizzo di un partecipante a un record, o creare un record da esso | Accesso in lettura e modifica a quel record; accesso in creazione per un nuovo record |
+| Collegare un record a questa singola conversazione | **Messaggi della posta in arrivo**: **Modifica**, più accesso in lettura e modifica al record |
+| Aggiungere un campo Recapiti a una lista | **Modello dati** |
+
+Senza **Crea** la casella di risposta è nascosta. Senza **Modifica** l’azione di spostamento è nascosta, lo stato è un chip di sola lettura e aprire una conversazione non letta la lascia **Non letta**. Condividere una singola conversazione richiede inoltre di essere proprietari del suo canale.
+
+## Come cerco, filtro o aggiorno la Posta in arrivo? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+La barra superiore della [Posta in arrivo](app:inbox) contiene:
+
+- **Filtri** cerca e filtra: si scrive del testo e si sceglie la voce **contiene** per trovare le conversazioni per oggetto, testo dei messaggi, nome della conversazione e nomi o indirizzi dei partecipanti (F lo apre). Offre inoltre **Stato**, **Record collegati**, **Partecipanti** (**non completamente collegato** trova le conversazioni con qualcuno che non ha un record corrispondente leggibile), **Provider**, **Canale**, **Cartella email**, **Bozza** (**ne ha almeno uno** trova le conversazioni con una bozza salvata), **Ultimo messaggio** (**Inviato** o **Ricevuto**), **Data ultimo messaggio** e **Ultima attività**.
+- **Aggiorna** recupera subito i nuovi messaggi (**Posta in arrivo aggiornata.**) e segnala i canali che hanno raggiunto un limite di frequenza, devono essere ricollegati o non è stato possibile aggiornare. Richiede **Modifica**.
+- **Canali** apre [Canali e calendari](app:settings/channels), con un numero quando dei canali richiedono attenzione. Richiede **Crea**.
+
+**Cartella email** raggruppa le cartelle sotto il loro account, così le cartelle con lo stesso nome restano separate; **è uno di** trova le conversazioni con un messaggio visibile in una qualsiasi delle cartelle selezionate, **non è uno di** le esclude. **Ultimo messaggio** e **Data ultimo messaggio** usano l’ultimo messaggio realmente inviato o ricevuto; bozze, messaggi eliminati ed eventi di sistema non contano. Per la posta di un periodo da tre a sette giorni fa, si aggiungono due condizioni su **Data ultimo messaggio**: **Più vecchio di…** 3 giorni e **7 giorni**. **Ultima attività** include le bozze salvate. Tutti i filtri rispettano la condivisione degli account e le cartelle abilitate.
+
+La riga delle viste inizia con **Tutte le conversazioni**, seguita dalle viste salvate e da quelle che i colleghi hanno condiviso con te; un clic su **Tutte le conversazioni** esce da una vista. L’elenco mostra 25 conversazioni per pagina (5, 10, 25 o 100). La voce della barra laterale indica quante conversazioni visibili sono **Non letta**.
+
+## Come apro una conversazione specifica? [#how-do-i-open-a-specific-conversation]
+
+Si fa clic sulla sua riga. L’indirizzo del browser punta allora a quella conversazione, così si può salvare tra i preferiti o inviare a un collega che può vederla; un indirizzo che non si può aprire riporta alla Posta in arrivo. Per trovare le conversazioni di un record, lo si sceglie nel filtro **Record collegati**: la corrispondenza usa i recapiti del record e verifica comunque l’accesso a ogni conversazione. Mate non apre per te una singola conversazione: apre la Posta in arrivo e nomina la conversazione.
+
+Con **Modifica** su **Messaggi della posta in arrivo**, scorrere in cima a una conversazione recupera dal provider i messaggi meno recenti, una volta per conversazione fino al ricaricamento. **Risincronizza la conversazione** nell’intestazione recupera di nuovo l’intera conversazione.
+
+## Che cosa c’è nell’intestazione della conversazione? [#what-is-in-the-conversation-header]
+
+Accanto al nome della conversazione, da sinistra a destra:
+
+| Controllo | Che cosa fa |
+| --- | --- |
+| **Sposta la conversazione in una cartella…** (IMAP e Outlook) | Archivia la conversazione in un’altra cartella; richiede **Modifica** |
+| **Risincronizza la conversazione** | Recupera di nuovo la conversazione; richiede **Modifica** |
+| Chip **Conversazione privata** o **Conversazione condivisa** | Apre **Impostazioni della conversazione** |
+| **Alcuni partecipanti non hanno record collegati che puoi vedere** | Apre **Impostazioni della conversazione**; compare quando si possono creare o modificare record in una lista con un campo Recapiti |
+| Chip di stato | **Non letta**, **Aperta**, **Chiusa** o **Spam** |
+
+Sugli schermi stretti i chip mostrano solo icone.
+
+I messaggi in arrivo stanno a sinistra, quelli in uscita a destra. L’intestazione compatta di un’e-mail mostra mittente, ora e primo destinatario; **Dettagli** (anche in **Azioni dell’email**) mostra **Da**, **A**, **Cc** e **Ccn**. Ccn è visibile solo sulla posta in uscita, al proprietario dell’account e ai colleghi con accesso all’intero account; condividere una singola conversazione non lo rivela mai. Un clic su un indirizzo lo copia. Un pulsante cartella sotto i destinatari mostra dove è archiviata quell’e-mail. Le e-mail scritte in Customermates e quelle in testo semplice usano i colori e il carattere dell’app e seguono il tema chiaro o scuro. L’HTML ricevuto che porta con sé una propria modalità scura viene mostrato nel tema scelto; l’altro HTML ricevuto mantiene layout e colori del mittente su uno sfondo chiaro. Le immagini remote si caricano solo dopo **Carica le immagini remote**.
+
+## Che cosa significano gli stati delle conversazioni? [#what-do-the-thread-states-mean]
+
+| Stato | Significato |
+| --- | --- |
+| **Non letta** | Nuova, o è arrivato un nuovo messaggio |
+| **Aperta** | Letta, richiede ancora attenzione |
+| **Chiusa** | Conclusa |
+| **Spam** | Segnata come spam |
+
+Aprire una conversazione non letta la imposta su **Aperta** (solo con **Modifica**). Lo stato è condiviso da tutti coloro che vedono la conversazione. Un nuovo messaggio in arrivo la riporta su **Non letta**, anche da **Chiusa** o **Spam**. **Spam** è solo un’etichetta: non nasconde la conversazione, non blocca il mittente e non segnala nulla al provider; si usa il filtro **Stato** per tenerla fuori vista. Impostare uno stato non invia mai nulla.
+
+## Come sposto un’e-mail in un’altra cartella? [#how-do-i-move-an-email-to-another-folder]
+
+Nelle conversazioni IMAP e Outlook, si fa clic sul pulsante cartella di un’e-mail e si sceglie una destinazione sotto **Sposta questa e-mail in…** per spostare solo quell’e-mail, oppure si usa **Sposta la conversazione in una cartella…** nell’intestazione per archiviare l’intera conversazione. I messaggi si spostano anche nella casella di posta reale. Inviata e Bozze non sono mai destinazioni, e i messaggi al loro interno restano dove sono. Le conversazioni Gmail, i membri senza **Modifica** e i colleghi che vedono una conversazione condivisa da un canale privato possono leggere i nomi delle cartelle ma non hanno opzioni di spostamento; solo il proprietario del canale le archivia.
+
+Si può continuare a lavorare mentre lo spostamento è in corso. I messaggi spostati in una cartella disattivata nella scheda **Cartelle** dell’account scompaiono dalla conversazione; quando non resta nulla di visibile, la conferma dice che non compare più nella Posta in arrivo. Se il provider applica un limite di frequenza a metà, un messaggio lo segnala e si può spostare il resto più tardi.
+
+## Come condivido una singola conversazione? [#how-do-i-share-a-single-conversation]
+
+Si fa clic su **Conversazione privata** o **Conversazione condivisa** nell’intestazione per aprire **Impostazioni della conversazione**. L’interruttore **Condividi con il team** condivide solo questa conversazione con tutti coloro il cui ruolo può leggere la Posta in arrivo (**Condivisa con il CRM**); disattivarlo mostra **La conversazione è ora privata**. Può usarlo solo il proprietario del canale, su un piano con messaggistica e con **Modifica**. I colleghi possono allora leggere la conversazione, cambiarne lo stato e risincronizzarla, ma non spostarla, e solo tu puoi rispondere finché il canale stesso è privato.
+
+Per condividere ogni conversazione di un canale, si attiva **Visibilità** nella scheda **Dettagli** del canale in [Canali e calendari](app:settings/channels) (Business, Max o Enterprise). L’interruttore per singola conversazione resta allora attivo e bloccato.
+
+## Come collego partecipanti e record? [#how-do-i-link-a-participant]
+
+I messaggi vengono abbinati ai record tramite i recapiti: un record il cui campo Recapiti contiene un indirizzo e-mail, un numero di telefono o un profilo mostra ogni conversazione con quell’indirizzo. Un numero di telefono corrisponde anche alle chat WhatsApp dello stesso numero. Apri **Impostazioni della conversazione**. Sotto **Persone**, ogni partecipante mostra come chip i record visibili che corrispondono al suo indirizzo. **Collega** apre una ricerca che aggiunge l’indirizzo ai recapiti di un record di una qualsiasi lista che abbia un campo Recapiti; la **✕** su un chip rimuove solo quella corrispondenza. Un indirizzo può appartenere a più record, per esempio un contatto e un’organizzazione, e ogni altra conversazione con lo stesso indirizzo segue. I normali campi di testo non vengono mai usati per l’abbinamento.
+
+Sotto **Record della conversazione**, il selettore del campo (**Collega record**) collega solo questa conversazione a un record, per esempio una trattativa in una lista senza campo Recapiti; le altre conversazioni con il partecipante restano separate. Il collegamento non concede mai accesso a messaggi privati o a record riservati.
+
+## Come rispondo a una conversazione? [#how-do-i-reply-to-a-conversation]
+
+Si fa clic su **Scrivi una risposta...** (e-mail) o **Scrivi un messaggio...** (chat) sotto la conversazione. Le risposte e-mail mostrano **Oggetto** e **A**, compilati dalla conversazione; **Cc/Ccn** aggiunge quei campi, e qualsiasi combinazione funziona purché ci sia un destinatario valido. L’e-mail si scrive in un editor Markdown, e la firma, se attivata, viene aggiunta all’invio. I destinatari in Ccn non vengono mai riportati in una risposta. Le risposte in chat sono testo semplice. Si usano **Allega file** e **Inserisci un’emoji** secondo necessità, poi **Invia** o Cmd/Ctrl+Invio; **Altre opzioni di invio** contiene **Salva come bozza**.
+
+Se l’invio fallisce, **Riprova** compare solo quando riprovare può servire (limite di frequenza, interruzione temporanea). Quando il provider rifiuta un messaggio, lo si modifica prima; dopo un timeout, si controlla la conversazione, perché il messaggio potrebbe essere già partito. Un canale che richiede il ricollegamento viene segnalato prima che venga inviato qualsiasi cosa, e solo il suo proprietario può ricollegarlo. Le risposte partono dal canale della conversazione, quindi si può rispondere solo sui canali propri o condivisi con lo spazio di lavoro.
+
+## Come avvio una nuova conversazione o scrivo una nuova e-mail a un contatto? [#how-do-i-start-a-new-conversation]
+
+La Posta in arrivo non ha un pulsante per una nuova conversazione. Si apre il record della persona, per esempio nella lista dei contatti, e si fa clic sull’icona **Nuovo messaggio** accanto a un indirizzo e-mail o a un nome utente nei suoi recapiti. Quando più canali propri possono inviare, se ne sceglie uno sotto **Da**; per LinkedIn con Sales Navigator o Recruiter, **Invia come** sceglie **Classic**, **Sales Navigator InMail** o **Recruiter InMail**. Dopo **Invia** il messaggio parte in background (**Invio del messaggio**, poi **Messaggio inviato.**). Servono Customermates Cloud e **Crea** su **Messaggi della posta in arrivo**.
+
+## Come funzionano bozze e allegati? [#how-do-drafts-and-attachments-work]
+
+**Salva come bozza** conserva un messaggio senza inviarlo; mentre si modifica una bozza salvata il pulsante diventa **Aggiorna la bozza**. Una bozza di risposta sta nella sua conversazione con **Invia la bozza**, **Modifica** e **Scarta**. Una bozza per una nuova conversazione compare nell’elenco come conversazione a sé («Bozza salvata. La trovi nella posta in arrivo.»), anche quando c’è già una bozza per le stesse persone; il filtro **Bozza** con **ne ha almeno uno** le elenca tutte. Una conversazione contiene una sola bozza. Una nuova InMail LinkedIn non si può salvare come bozza. Scartare non si può annullare. L’app, l’API REST e MCP condividono le stesse bozze.
+
+Ogni versione salvata di una bozza viene inviata al massimo una volta. Se la bozza è cambiata dopo averla aperta, per esempio in un’altra scheda, da Mate o da un agente, **Invia** mantiene il testo e offre **Carica la versione più recente** o **Invia la mia**. Se l’invio non ha potuto essere confermato, la bozza non viene inviata di nuovo: si controlla prima la conversazione, per le e-mail anche la cartella Inviata, poi si modifica e si aggiorna la bozza per inviarla comunque. Per le e-mail, appena la copia inviata di quell’invio precedente arriva dalla casella di posta, la bozza conta come inviata e lascia la posta in arrivo; non viene più inviata, nemmeno dopo una modifica.
+
+Per questo, ogni bozza inviata lascia un registro di invio: i suoi ID, il suo stato e gli hash del contenuto inviato, mai il contenuto stesso. Per le e-mail gli hash riguardano A, Cc, oggetto, testo e nomi degli allegati, e per l’invio esatto anche Ccn e il contenuto degli allegati; per le chat riguardano testo e allegati. Il registro viene eliminato 30 giorni dopo l’ultima modifica, una volta scomparsa la bozza. Finché la bozza esiste, per esempio dopo un invio non confermabile, il registro resta, quindi la bozza non può partire due volte. Scollegare il canale elimina i suoi registri.
+
+**Allega file** aggiunge fino a 20 file per messaggio, 15 MB in tutto. Le bozze non possono conservare allegati («Rimuovi gli allegati prima di salvare questa bozza.»). Nei messaggi ricevuti i contenuti multimediali supportati si aprono in linea, gli altri file si scaricano e gli elementi non supportati mostrano **Non supportato**.
+
+## Come imposto la firma e-mail? [#how-do-i-set-an-email-signature]
+
+La firma appartiene a ogni account e-mail di cui si è proprietari: in [Canali e calendari](app:settings/channels), si apre l’account Gmail, Outlook o IMAP e si usa la sua scheda **E-mail**. Si impostano carattere, dimensione e stile dei link, si attiva **Aggiungi una firma**, si sceglie una disposizione con o senza logo e si scrive il testo in Markdown. Finché è attiva, viene aggiunta sotto ogni e-mail inviata da quell’account, dalla Posta in arrivo, dall’API REST o da MCP, quindi non va incollata nel messaggio; l’editor ne mostra un’anteprima. Tutti i campi: [Aspetto e firma delle e-mail](/docs/app-profile#email-appearance-and-signature).
+
+## Per gli agenti [#tips-for-agents]
+
+Preferisci gli strumenti [MCP](/docs/mcp) ai clic: `get_messaging_threads` legge le conversazioni, `update_messaging_thread` imposta lo stato (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` archivia un’e-mail (REST `POST /api/v1/messaging/threads/{id}/move`; fallisce per una conversazione condivisa dal canale privato di un altro), `send_email` e `send_chat_message` avviano conversazioni, e `save_message_draft` (REST `POST /api/v1/messaging/drafts`) ne prepara una da rivedere; si invia o si scarta una bozza con il suo ID messaggio e il `draftRevision` attuale. `resolve_record_identifiers` trova i record che corrispondono a un indirizzo, `manage_conversation_records` legge e modifica i record collegati a una conversazione, e `mutate_crm_record` modifica i recapiti di un record.
+
+**Modifica non retrocompatibile:** l’invio di bozze salvate tramite l’API REST è cambiato. `POST /api/v1/messaging/send-email` risponde `200`, e `POST /api/v1/messaging/threads/{id}/messages` e `POST /api/v1/messaging/start-chat` rispondono `201`, una volta registrato il messaggio inviato, anche quando la chiamata ripete un invio precedente della stessa revisione della bozza; una simile ripetizione porta `repeated: true` e non invia nulla. Rispondono `202` con una ricevuta solo finché il messaggio inviato non è ancora registrato. Un `draftRevision` obsoleto o destinatari modificati rispondono `409` con customCode `draftChanged` o `draftRecipientsChanged` invece di `404`, e `DELETE /api/v1/messaging/drafts/{id}` con un `draftRevision` obsoleto risponde `409` con customCode `draftChanged` invece di `404`. `POST /api/v1/messaging/drafts`, come `save_message_draft` con `connectedAccountId`, crea una nuova conversazione a ogni chiamata; si aggiorna una bozza salvata tramite la sua conversazione con `POST /api/v1/messaging/threads/{id}/drafts` o `threadId`.
+
+## Argomenti correlati [#related]
+
+- [Guida all’app, Profilo](/docs/app-profile): collegare gli account che alimentano la Posta in arrivo.
+- [Limiti di frequenza](/docs/messaging-rate-limits): i budget per provider per letture e invii.
