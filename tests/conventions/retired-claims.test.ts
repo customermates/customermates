@@ -30,7 +30,7 @@ type RetiredClaim = {
 };
 
 const DENIED =
-  /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine))\b/iu;
+  /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine)|non|nessun\w*|senza)\b/iu;
 const EXTERNAL =
   /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
 const CONTRASTED =
@@ -261,7 +261,7 @@ const PRODUCT = /\bCustomermates\b/iu;
 const COMPETITOR =
   /^\s*(?:HubSpot|Salesforce|Pipedrive|Zoho|Folk|Freshsales|Salesflare|monday|Cobra|GoHighLevel|Close|Attio|Twenty|Odoo)\b/iu;
 const UNAVAILABLE_VALUE =
-  /^(?:false|none|no|not available|not included|unavailable|nein|nicht verfügbar|nicht enthalten)(?:\b|\s*[-—:])/iu;
+  /^(?:false|none|no|not available|not included|unavailable|nein|nicht verfügbar|nicht enthalten|non disponibile|non incluso)(?:\b|\s*[-—:])/iu;
 
 function normalized(file: string): string {
   return file.split(sep).join("/");

@@ -203,6 +203,7 @@ describe("alternate languages", () => {
       de: `${BASE_URL}/de/blog?page=2`,
       en: `${BASE_URL}/en/blog?page=2`,
       fr: `${BASE_URL}/fr/blog?page=2`,
+      it: `${BASE_URL}/it/blog?page=2`,
       "x-default": `${BASE_URL}/en/blog?page=2`,
     });
   });

@@ -580,8 +580,9 @@ describe("internal link targets", () => {
     expect(resolves("/fr/for/consultants", DEFAULT_LOCALE)).toBe(true);
     expect(resolves("/fr/contact", DEFAULT_LOCALE)).toBe(true);
     expect(resolves("/fr/for/not-a-page", DEFAULT_LOCALE)).toBe(false);
-    expect(resolves("/it/pricing", DEFAULT_LOCALE)).toBe(false);
-    expect(resolves("/it/blog", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/it/pricing", DEFAULT_LOCALE)).toBe(true);
+    expect(resolves("/es/pricing", DEFAULT_LOCALE)).toBe(false);
+    expect(resolves("/es/blog", DEFAULT_LOCALE)).toBe(false);
     expect(resolves("/for/agencies", "fr")).toBe(true);
     expect(resolves("/docs/app-records", "fr")).toBe(true);
     expect(resolves("/for/consultants", "fr")).toBe(true);
