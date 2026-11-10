@@ -1,0 +1,177 @@
+---
+title: "Gestione dei reclami: processo, passaggi e CRM"
+description: "Gestione dei reclami in sette passaggi: tabella di triage ed escalation, reclamo o richiesta di garanzia e un setup CRM per piccoli team, con i suoi limiti."
+
+relatedHrefs:
+  - /blog/customer-interaction-management
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/customer-journey
+
+hero:
+  title: "Gestione dei reclami: processo, tabella di triage e tracciamento nel CRM"
+  description: "Come gestire i reclami senza perderne nessuno: sette passaggi dalla ricezione all’apprendimento, chi è responsabile di cosa, quando fare escalation e l’esempio di un piccolo team che li traccia in Customermates, con i suoi limiti."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Gestione dei reclami
+    - Assistenza clienti
+    - Esperienza del cliente
+---
+
+# Gestione dei reclami: un processo, una tabella di triage e un modo semplice per tracciarli in un CRM
+
+La gestione dei reclami è il processo con cui si ricevono, si registrano, si risolvono i reclami dei clienti e se ne trae un insegnamento: ogni reclamo ha un responsabile, una conferma di ricezione, una soluzione e una verifica che il cliente accetti l’esito. Un piccolo team può gestire i reclami in un CRM come Customermates, tenendoli in una lista a parte collegata al cliente, come mostrato più sotto, ma Customermates non è un helpdesk e nemmeno un sistema regolamentato per la gestione dei reclami.
+
+Questa guida spiega che cos’è un sistema di gestione dei reclami, in che cosa un reclamo si distingue da una richiesta di garanzia, come funziona una tabella di triage, responsabilità ed escalation, quali sono i sette passaggi del processo, le dieci regole per una buona risposta e un esempio concreto di tracciamento dei reclami in Customermates, con i limiti dichiarati accanto.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Definizione">Un modo definito per ricevere, registrare, risolvere e imparare dai reclami dei clienti, con un solo responsabile per ogni reclamo.</SummaryItem>
+  <SummaryItem label="Processo">Ricevere, registrare, confermare la ricezione, indagare, risolvere, ricontattare, imparare. I modelli in cinque passaggi ne accorpano alcuni.</SummaryItem>
+  <SummaryItem label="Reclamo o richiesta di garanzia">Un reclamo esprime insoddisfazione. Una richiesta di garanzia (in tedesco: Reklamation) chiede un rimedio per un difetto, e possono valere le norme legali sulla garanzia.</SummaryItem>
+  <SummaryItem label="Triage">Dai a ogni reclamo un tipo, una gravità, un solo responsabile, un obiettivo di prima risposta che fissi tu e un percorso di escalation.</SummaryItem>
+  <SummaryItem label="In Customermates">Una lista Reclami collegata al cliente, una board degli stati, attività con data obiettivo e le conversazioni sulla scheda del cliente.</SummaryItem>
+  <SummaryItem label="Non incluso">Nessun helpdesk, nessun motore SLA per i ticket, nessun portale clienti, nessuna telefonia e nessuna certificazione ISO 10002.</SummaryItem>
+</ArticleSummary>
+
+## Che cos’è la gestione dei reclami e che cos’è un sistema di gestione dei reclami?
+
+La gestione dei reclami comprende tutto ciò che un’azienda fa da quando un cliente dice che qualcosa è andato storto fino a quando la causa è risolta: ricevere il reclamo su qualsiasi canale, registrarlo in un unico posto, rispondere, trovare la causa, rimediare, ricontattare il cliente e usare ciò che hai imparato perché il prossimo cliente non incontri lo stesso problema. Due compiti procedono in parallelo. Uno è risolvere il problema di questo cliente. L’altro è imparare da tutti i reclami insieme.
+
+Un sistema di gestione dei reclami è ciò che tiene insieme questo processo. Può essere un foglio di calcolo condiviso, una lista in un CRM, un helpdesk con code di ticket oppure, nei settori regolamentati, un software dedicato con tracce di audit. Conta che ogni reclamo abbia un record, un responsabile, uno stato e una decisione di chiusura. La gestione dei reclami si distingue anche dall’assistenza clienti in generale: l’assistenza risponde a domande e richieste, mentre la gestione dei reclami è il percorso definito per l’insoddisfazione espressa.
+
+Esiste uno standard. La [ISO 10002:2018](https://www.iso.org/standard/71580.html) fornisce linee guida per la gestione dei reclami nelle organizzazioni di qualsiasi dimensione, da usare come un processo all’interno di un sistema di gestione della qualità. Questa guida non si basa su di essa e non dichiara alcuna conformità.
+
+## Qual è la differenza tra un reclamo e una richiesta di garanzia?
+
+Nel linguaggio di tutti i giorni le due espressioni si sovrappongono. La differenza conta quando il cliente vuole un rimedio per un difetto, perché una richiesta di garanzia può avere conseguenze legali e scadenze che un reclamo non ha.
+
+| | Reclamo | Richiesta di garanzia (in tedesco: Reklamation) |
+| --- | --- | --- |
+| Che cosa dice il cliente | «Non sono soddisfatto.» | «Questo è difettoso, per favore sistemalo.» |
+| Che cosa vuole il cliente | Una risposta, una spiegazione, delle scuse, un cambiamento | Un rimedio preciso: riparazione, sostituzione, riduzione del prezzo, rimborso |
+| Aspetto legale | In genere nessuno | Possono valere le norme sulla garanzia del paese |
+| Che cosa registrare | Data, canale, le parole del cliente, l’esito | Lo stesso, più data di consegna, data della segnalazione, riferimento a ordine o fattura e rimedio richiesto |
+
+La Germania rende evidente la distinzione. Una Beschwerde è qualsiasi espressione di insoddisfazione. Una Reklamation è la segnalazione di un difetto, di solito in base alla garanzia legale (Gewährleistung). Se un bene è difettoso, il [§ 437 del codice civile tedesco (BGB)](https://www.gesetze-im-internet.de/bgb/__437.html) consente all’acquirente, alle condizioni delle disposizioni successive, di chiedere l’adempimento successivo, di recedere dal contratto o ridurre il prezzo e di chiedere il risarcimento del danno. Il [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) stabilisce i termini di prescrizione, in generale due anni. Tra commercianti, il [§ 377 del codice commerciale tedesco (HGB)](https://www.gesetze-im-internet.de/hgb/__377.html) aggiunge che la merce va controllata e i difetti vanno comunicati senza ritardo. Le norme cambiano da paese a paese, tra consumatori e imprese e a seconda del contratto, e questa non è consulenza legale.
+
+Per il tuo processo la conseguenza è pratica: registra entrambi nella stessa lista con un campo Tipo, ma tratta le richieste di garanzia come urgenti e conserva ogni data, perché da quelle possono decorrere dei termini.
+
+## Come si fa il triage dei reclami e si decide chi ne è responsabile?
+
+Il triage ordina i reclami per tipo e gravità, così la persona giusta risponde con la giusta rapidità. Scrivi la tabella una volta sola, condividila con il team e modificala quando i casi reali mostrano dove sbaglia. Ogni reclamo ha bisogno di esattamente un responsabile, anche quando più persone danno una mano.
+
+| Tipo di reclamo | Gravità | Responsabile | Obiettivo di prima risposta (lo fissi tu) | Percorso di escalation | Criterio di chiusura |
+| --- | --- | --- | --- | --- | --- |
+| Difetto o richiesta di garanzia | Alta | Responsabile dell’account, con chi ha consegnato il lavoro | Esempio: entro lo stesso giorno lavorativo | Alla direzione se una seconda correzione fallisce o il cliente accenna a disdetta o a passi legali | Il cliente conferma la correzione, oppure viene consegnato il rimedio concordato |
+| Consegna in ritardo o mancata | Normale, Alta se la scadenza del cliente dipende da essa | Responsabile del progetto o della consegna | Esempio: entro lo stesso giorno lavorativo | Al responsabile dell’account quando una nuova data viene mancata una volta | Nuova data rispettata e cliente informato per iscritto |
+| Errore di fatturazione | Normale | Chi emette le fatture | Esempio: un giorno lavorativo | Alla direzione se l’importo resta contestato dopo una verifica | Fattura corretta o nota di credito inviata e confermata |
+| Comunicazione o comportamento (risposte lente, tono, passaggio di consegne) | Normale | Responsabile del team della persona coinvolta | Esempio: un giorno lavorativo | Alla direzione se si ripete | Conversazione svolta, risposta inviata al cliente, feedback interno dato |
+| Questioni legali, di sicurezza, di protezione dei dati o escalation pubblica (avvocato, sito di recensioni, stampa) | Critica | Direttamente la direzione | Esempio: subito | La direzione decide su una consulenza esterna, per esempio un avvocato o il responsabile della protezione dei dati | La decisione della direzione è documentata e inviata al cliente |
+
+Leggi la gravità così, come punto di partenza: Critica è un rischio per la sicurezza, una questione legale o di protezione dei dati, o un cliente chiave a rischio; Alta significa che il cliente non riesce a lavorare o che una data promessa è stata mancata; Normale è un problema con una soluzione alternativa; Bassa è un suggerimento o un piccolo fastidio.
+
+Gli obiettivi di risposta qui sopra sono esempi per un piccolo team B2B, non uno standard né un obbligo di legge. Il tempo di prima risposta lo fissi tu: scegli obiettivi che riesci a rispettare, scrivili e confrontali con le date reali. I settori regolamentati come servizi finanziari e sanità possono avere regole e scadenze proprie per la gestione dei reclami; verifica quelle del tuo settore.
+
+## Quali sono i passaggi del processo di gestione dei reclami?
+
+Sette passaggi coprono l’intero percorso, dal primo messaggio all’insegnamento. Modelli più brevi e più lunghi descrivono lo stesso percorso con meno o più riquadri.
+
+<Steps>
+  <Step title="Ricevere">Accetta i reclami su ogni canale che usi: email, LinkedIn, telefono, un’osservazione dal cliente. Indica dove i clienti devono inviarli. Annota il canale e la data e l’ora reali in cui sono arrivati.</Step>
+  <Step title="Registrare">Crea un record per ogni reclamo prima di rispondere, collegato al cliente. Annota le parole del cliente, il tipo, la gravità, che cosa vuole il cliente e ogni riferimento a ordine, progetto o fattura.</Step>
+  <Step title="Confermare la ricezione">Di’ al cliente che il reclamo è arrivato, chi lo segue e quando avrà una risposta. Fallo entro l’obiettivo di prima risposta della tua tabella di triage, anche se non hai ancora una risposta.</Step>
+  <Step title="Indagare">Scopri che cosa è successo. Chiedi alle persone coinvolte, controlla l’ordine, la consegna o la fattura e scrivi la causa. Tieni le colpe fuori dalla prima risposta.</Step>
+  <Step title="Risolvere">Offri una correzione, una sostituzione, una rettifica, un credito o una spiegazione chiara del perché nulla cambierà. Decidi nei limiti della tua autorità oppure fai escalation secondo la tabella, e comunica al cliente la decisione e il motivo.</Step>
+  <Step title="Ricontattare">Verifica che la soluzione abbia funzionato e che il cliente sia soddisfatto. Chiudi il reclamo solo quando il criterio di chiusura è soddisfatto e registra la data di chiusura e l’esito. La [guida alle email di follow-up](/blog/sales-follow-up-email) contiene un modello di controllo per dopo un acquisto e un calendario dei tempi; le stesse abitudini valgono per ricontattare il cliente dopo una correzione.</Step>
+  <Step title="Imparare">Rivedi i reclami con regolarità per tipo e causa. Correggi la causa: un modello, una checklist, un fornitore, un bug del prodotto. I reclami sono anche punti di contatto nella fase di fidelizzazione del [customer journey](/blog/customer-journey), quindi mostrano dove la strada si fa dura.</Step>
+</Steps>
+
+## Quali regole fanno funzionare la risposta a un reclamo?
+
+Non esiste un elenco ufficiale di regole d’oro per gestire una richiesta di garanzia o un reclamo. Queste dieci sono regole pratiche che reggono nei piccoli team:
+
+1. Rispondi in fretta, anche se la risposta è «ce ne stiamo occupando».
+2. Leggi tutto il reclamo prima di rispondere.
+3. Non polemizzare e non dare la colpa al cliente o a un collega.
+4. Riconosci l’esperienza del cliente e chiedi scusa dove l’errore è tuo.
+5. Prometti solo ciò che puoi mantenere e indica una data.
+6. Indica un solo responsabile nella risposta.
+7. Registra ogni reclamo, compresi quelli che arrivano per telefono o di persona.
+8. Correggi la causa, non solo il sintomo.
+9. Ricontatta il cliente dopo la correzione.
+10. Conta e rivedi i reclami perché lo stesso non si ripresenti.
+
+## Come può un piccolo team tracciare i reclami in Customermates?
+
+Questa sezione parla del nostro prodotto, Customermates, un CRM open source made in Germany. Non ha un modulo per i reclami. Ha liste configurabili, relazioni, una vista board, attività e una inbox unificata, e un piccolo team può combinarle. Il setup qui sotto è un manuale illustrativo per un team di poche persone, non un caso cliente. Liste, relazioni, board e attività funzionano su ogni piano, compreso il self-hosting. Le conversazioni dell’inbox richiedono Customermates Cloud con il piano Pro o superiore.
+
+La lista usa questi campi. Nomi e opzioni sono modificabili; rispecchiano la tabella di triage.
+
+| Campo | Tipo | Che cosa contiene |
+| --- | --- | --- |
+| Nome | Testo (il nome del record) | Una riga, per esempio «Importo errato nella fattura di marzo» |
+| Cliente | Relazione con Contatti, facoltativamente Organizzazioni | Chi ha fatto il reclamo; il reclamo compare sulla scheda del cliente |
+| Stato | Scelta singola | Nuovo, Ricezione confermata, In verifica, In attesa del cliente, Risolto, Chiuso |
+| Tipo | Scelta singola | Difetto o garanzia, Consegna, Fatturazione, Comunicazione, Questioni legali o di sicurezza |
+| Gravità | Scelta singola | Critica, Alta, Normale, Bassa |
+| Responsabile | Membro | L’unica persona responsabile |
+| Ricevuto il | Data | La data reale in cui il reclamo è arrivato |
+| Rispondere entro | Data | L’obiettivo di prima risposta per questo reclamo, inserito a mano |
+| Dettagli | Testo formattato | Le parole del cliente, la causa e la soluzione |
+| Chiuso il | Data | Il giorno in cui il criterio di chiusura è stato soddisfatto |
+
+<Steps>
+  <Step title="Crea la lista">In **Modello dati** aggiungi una lista chiamata «Reclami» e i campi qui sopra. Modificare il modello dati è un permesso a sé, quindi chiedi a chi ce l’ha. Se solo alcuni colleghi devono poter leggere i reclami, limita la lista tramite i [ruoli](/docs/app-company#roles-tab); i permessi valgono per lista, non per campo.</Step>
+  <Step title="Collegala al cliente">Aggiungi una **Relazione** tra Reclami e Contatti (un contatto, più reclami) e, se lavori con aziende, Organizzazioni. Entrambi i record mostrano il collegamento, così la scheda del cliente elenca i suoi reclami. [Come le relazioni collegano i record](/docs/concepts#how-do-relationships-link-records) spiega le opzioni.</Step>
+  <Step title="Porta dentro le conversazioni">Tieni l’indirizzo email, il numero di telefono e i profili del cliente nei **Recapiti** del contatto, così le sue conversazioni dalla [inbox unificata](/features/unified-inbox) compaiono sul contatto. Nel pannello della relazione attiva i messaggi per il lato Reclami (per esempio **Mostra i loro messaggi in Reclami**), così anche le **Attività** del reclamo li mostrano. Per collegare una conversazione specifica, apri le **Impostazioni della conversazione** e scegli il reclamo sotto **Record della conversazione**; le altre conversazioni con quella persona restano separate. Le conversazioni nella casella di un collega restano private finché quella conversazione non viene condivisa con il team, e condividere un intero account collegato richiede il piano Business o superiore. La [guida all’inbox](/docs/app-inbox#how-do-i-link-a-participant) ha i dettagli.</Step>
+  <Step title="Lavora con la board degli stati">In **Aspetto** scegli **Board**. Le schede si raggruppano per Stato e trascini un reclamo nella colonna successiva man mano che avanza. La [guida ai record](/docs/app-records#how-do-i-switch-between-table-and-board-view) tratta la board e l’ordinamento. Nella tabella ordina per Rispondere entro per vedere che cosa scade per primo.</Step>
+  <Step title="Aggiungi attività con date obiettivo">Ogni passaggio di indagine o di riparazione diventa un’attività. Le attività non hanno una scadenza integrata, quindi aggiungi un campo **Data** come «Data obiettivo» alla lista Attività, come descrive la [guida alla gestione delle attività](/features/task-management), e una relazione tra Attività e Reclami. Assegna ogni attività a un collega.</Step>
+  <Step title="Rivedi e impara">Salva una vista «I miei reclami aperti» e condividila con il team o con ruoli selezionati, e aggiungi un grafico alla dashboard che conta i Reclami per Tipo per la tua revisione periodica. Su Customermates Cloud, Mate o il tuo client AI tramite MCP può riassumere un reclamo con le sue conversazioni e preparare una risposta che rivedi tu prima che venga inviato qualcosa.</Step>
+</Steps>
+
+<AcquisitionCallout title="Che cosa questo setup non fa" variant="boundary">
+  Customermates non è un helpdesk e non è un sistema regolamentato per la gestione dei reclami. Non ha un motore SLA per i ticket: «Rispondere entro» è una data che inserisci tu e nulla fa escalation, ricorda o avvisa qualcuno quando passa. Non ha un portale clienti o un modulo web in cui i clienti presentano i reclami, né telefonia (registra le chiamate a mano), né rimborsi o note di credito automatici, né prove non modificabili: il registro delle attività annota le modifiche ai record, ma non è una traccia di audit completa, non modificabile o conservata in modo indipendente. Non ha la certificazione ISO 10002 né alcun’altra certificazione di conformità. Per i settori regolamentati come servizi finanziari e sanità usa un sistema specializzato.
+</AcquisitionCallout>
+
+Customermates è la scelta sbagliata se gestisci molti ticket al giorno tra telefono e chat, se ti servono timer SLA ed escalation automatica, se vuoi che i clienti seguano la loro pratica in un portale o se lavori in un settore regolamentato. Va bene quando i reclami sono pochi e personali, legati a clienti con un nome, e le persone che rispondono lavorano già nel CRM. Per collocare tutto questo in un quadro più ampio, leggi la guida alla [gestione delle interazioni con i clienti](/blog/customer-interaction-management).
+
+Un reclamo è la conversazione che meno puoi permetterti di lasciar cadere. Con Pro, la conversazione email o LinkedIn del cliente sta sul reclamo, Mate prepara la risposta e il passo successivo con la sua data «Rispondere entro», e tu la rivedi, la modifichi e la invii. Per impostare la lista Reclami sui tuoi casi, [inizia la tua prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup). Nessuna carta di credito.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Che cos’è un sistema di gestione dei reclami?">
+Un sistema di gestione dei reclami è lo strumento e la routine che tengono insieme il processo: un record per ogni reclamo, un responsabile, uno stato, scadenze, la conversazione con il cliente e una decisione di chiusura. Può essere un foglio di calcolo, una lista in un CRM, un helpdesk oppure, nei settori regolamentati, un software specializzato con tracce di audit.
+</FaqItem>
+
+<FaqItem question="Quali sono i 5 passaggi per gestire il reclamo di un cliente?">
+I modelli in cinque passaggi di solito dicono: confermare la ricezione, capire, risolvere, ricontattare e imparare. I sette passaggi di questa guida suddividono lo stesso percorso: ricevere e registrare vengono prima della conferma di ricezione, e indagare viene prima della soluzione. Non esiste un numero di passaggi vincolante.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra un reclamo e una richiesta di garanzia?">
+Un reclamo esprime insoddisfazione. Una richiesta di garanzia chiede un rimedio per un difetto, come riparazione, sostituzione o riduzione del prezzo, e possono valere le norme legali sulla garanzia. In tedesco è Beschwerde contro Reklamation. Registra entrambi e conserva le date di una richiesta di garanzia.
+</FaqItem>
+
+<FaqItem question="Con quale rapidità bisogna rispondere a un reclamo?">
+L’obiettivo di prima risposta lo fissi tu, per tipo di reclamo: scrivilo nella tua tabella di triage e confrontalo con le date reali. I settori regolamentati e i singoli contratti possono aggiungere scadenze proprie.
+</FaqItem>
+
+<FaqItem question="Esiste uno standard per la gestione dei reclami?">
+La ISO 10002:2018 fornisce linee guida per la gestione dei reclami nelle organizzazioni ed è pensata come un processo all’interno di un sistema di gestione della qualità. Customermates non è certificato secondo questa norma e questa guida non dichiara alcuna conformità.
+</FaqItem>
+
+<FaqItem question="Customermates può sostituire un helpdesk per i reclami?">
+Non per volumi elevati o settori regolamentati. Customermates non ha un motore SLA per i ticket, un portale clienti né telefonia. Per un piccolo team con pochi reclami personali a settimana può contenere una lista Reclami collegata al cliente, una board degli stati, attività e le conversazioni.
+</FaqItem>
+
+<FaqItem question="Customermates mi ricorda quando una risposta è in ritardo?">
+No. Una data «Rispondere entro» è un normale campo e Customermates non ha promemoria né notifiche. Ordina o filtra la lista per quella data e aprila nella tua routine quotidiana.
+</FaqItem>
+</Faq>
+
+Fonti di terze parti verificate il 2 novembre 2026: [ISO 10002:2018](https://www.iso.org/standard/71580.html) (edizione 3, confermata nel 2023), [§ 437 BGB](https://www.gesetze-im-internet.de/bgb/__437.html), [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) e [§ 377 HGB](https://www.gesetze-im-internet.de/hgb/__377.html). Le norme tedesche sono citate solo in sintesi e non costituiscono consulenza legale.

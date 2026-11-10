@@ -1,0 +1,188 @@
+---
+title: "Calendly CRM: integrazione nativa, Zapier o webhook"
+description: "Calendly CRM: integrazione nativa con HubSpot, Salesforce e Dynamics 365. Per gli altri CRM servono app, Zapier o webhook. Piani, mappatura dei campi e setup."
+
+relatedHrefs:
+  - /features/integrations
+  - /docs/n8n
+  - /docs/app-routines
+  - /blog/gmail-crm-integration
+
+hero:
+  title: "Calendly CRM: i CRM con integrazione nativa e come collegare gli altri"
+  description: "Cosa fanno le integrazioni di Calendly con HubSpot, Salesforce e Dynamics 365 e quale piano di Calendly serve per ciascuna, come collegare qualunque altro CRM e come gestire spostamenti, prenotazioni ripetute e mancate presenze."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2025-12-10
+  updated: 2026-10-08
+  tags:
+    - Automazione del CRM
+    - Integrazione Calendly
+    - Efficienza nelle vendite
+---
+
+# Calendly CRM: integrazioni native, webhook e casi limite
+
+L’integrazione Calendly CRM nativa esiste per tre CRM: HubSpot dal piano Standard, Salesforce con Teams o Enterprise e Microsoft Dynamics 365 con Power Automate su Enterprise. Ogni altro CRM si collega tramite un’app nel marketplace di quel CRM, una piattaforma di connettori come Zapier o Zoho Flow, oppure i webhook di Calendly. I webhook richiedono un piano Calendly a pagamento e si creano tramite l’API di Calendly, non nelle sue impostazioni.
+
+Qualunque strada scelga, decidi prima di costruire cosa deve creare nel CRM una prenotazione e cosa deve cambiare uno spostamento. Lo spostamento è la parte facile da sbagliare, perché Calendly lo segnala come una cancellazione più una nuova prenotazione.
+
+Questa guida è pubblicata da Customermates, un CRM nativo per l’IA. Customermates non ha un connettore Calendly proprio; la sezione che lo riguarda qui sotto mostra i tre percorsi che funzionano al suo posto. I dettagli dei fornitori sono stati verificati l’8 ottobre 2026 sulle pagine dei fornitori, indicate in fondo.
+
+<ArticleSummary title="In sintesi">
+  <SummaryItem label="Nativi">HubSpot, Salesforce e Microsoft Dynamics 365, ciascuno legato a un piano specifico di Calendly.</SummaryItem>
+  <SummaryItem label="Ogni altro CRM">Un’app del marketplace, una piattaforma di connettori come Zapier, Zoho Flow o n8n, oppure un tuo ricevitore di webhook.</SummaryItem>
+  <SummaryItem label="Webhook">Non sul piano Free di Calendly, e creati tramite l’API. Gli eventi principali sono invitee.created, invitee.canceled e routing_form_submission.created.</SummaryItem>
+  <SummaryItem label="Trappola principale">Uno spostamento genera una cancellazione e una nuova prenotazione. Controlla il flag di spostamento prima di chiudere una trattativa come annullata.</SummaryItem>
+  <SummaryItem label="Customermates">API REST su ogni piano, webhook su ogni piano a pagamento. Con Pro e superiori in Customermates Cloud, la riunione prenotata arriva anche dal calendario Google o Outlook collegato dell’organizzatore.</SummaryItem>
+</ArticleSummary>
+
+## Cosa fanno le integrazioni CRM native di Calendly
+
+| CRM | Piano Calendly | Cosa fa, secondo Calendly |
+|---|---|---|
+| HubSpot | Standard, Teams o Enterprise | Crea e aggiorna contatti e lead quando viene prenotata una riunione, registra le attività compresi spostamenti e cancellazioni e aggiunge al record di HubSpot le risposte alle domande della prenotazione. Teams aggiunge l’assegnazione in base all’assegnazione di HubSpot. |
+| Salesforce | Teams o Enterprise | Crea un lead, un contatto o un’opportunità per un nuovo potenziale cliente, crea eventi o attività su qualunque oggetto Salesforce, associa i dati della prenotazione a un oggetto personalizzato e assegna i lead noti al loro proprietario in Salesforce. Enterprise può limitare la sincronizzazione a gruppi specifici, come il team di vendita. |
+| Microsoft Dynamics 365 | Enterprise | Elencata nella pagina dei prezzi come «Microsoft Dynamics 365 and Power Automate for CRM workflows». Calendly non dà altri dettagli lì. |
+
+Due dettagli contano nella scelta. La pagina di Calendly su HubSpot parla di contatti, lead, attività e assegnazione, e non dice nulla sulle trattative. Se ogni prenotazione deve aprire una trattativa in HubSpot, verificalo prima di farci affidamento. Entrambe le pagine descrivono anche la registrazione nel record dei riepiloghi delle riunioni di Calendly Notetaker, che vale solo per le riunioni registrate con quello strumento.
+
+Se il tuo CRM è in questo elenco e il tuo piano Calendly lo permette, parti dall’integrazione nativa. Non c’è nulla in più da gestire, e la mantiene Calendly.
+
+## Collegare un CRM che Calendly non supporta in modo nativo
+
+Ricerche come «Calendly Pipedrive integration» o «Calendly Freshworks integration» finiscono in una di quattro strade:
+
+| Percorso | Esempio | Sceglilo se | Su cosa stare attento |
+|---|---|---|---|
+| App nel marketplace del CRM | Il Pipedrive Marketplace elenca Calendly Sync di Outfunnel, che crea contatti, lead, trattative, attività o note. Il Freshworks Marketplace elenca Calendly Events for CRM. | Esiste un’app per il tuo CRM e copre ciò che ti serve | Le app di terzi hanno condizioni proprie. L’app di Freshworks lavora al contrario: pianifica, sposta e annulla gli eventi di Calendly dall’interno del CRM. |
+| Piattaforma di connettori | Il trigger «Invitee Created or Rescheduled» di Zapier, oppure Zoho Flow da «Event scheduled by invitee» a «Create or update contact» in Zoho CRM | Nessuno nel team scrive codice e il tuo CRM ha un connettore sulla piattaforma | Un altro account da pagare e tenere d’occhio. Controlla come il trigger tratta gli spostamenti. |
+| Webhook verso n8n o il tuo codice | Il nodo Calendly Trigger di n8n, con gli eventi «Event created» e «Event canceled» | Ti servono ricerche e ramificazioni, oppure il tuo CRM non ha un connettore da nessuna parte | Qualcuno deve gestirlo e monitorarlo. n8n si può ospitare da sé o usare come n8n Cloud. |
+| Client IA con due connettori MCP | Il server MCP di Calendly in Claude o ChatGPT, accanto al connettore del tuo CRM | Rivedi le prenotazioni a blocchi e vuoi confermare ogni scrittura | Funziona quando qualcuno lo chiede. Non è una sincronizzazione. |
+
+La lunga coda dei CRM (Keap, Agile CRM, LeadConnector, Pipeline CRM e molti altri) di solito rientra nelle prime due righe. Cerca prima nel marketplace del CRM stesso, poi nella pagina di Calendly su Zapier.
+
+## Cosa deve creare una prenotazione
+
+L’API di Calendly ti dà nome, e-mail e risposte alle domande personalizzate dell’invitato, oltre al tipo di evento, all’organizzatore e all’ora di inizio. Associali prima di costruire qualunque cosa:
+
+| Dato di Calendly | Dove va nel CRM | Perché |
+|---|---|---|
+| E-mail dell’invitato | E-mail del contatto, usata come chiave di ricerca | Chi prenota più volte deve ritrovare il proprio contatto esistente |
+| Nome dell’invitato | Nome e cognome del contatto | La maggior parte dei CRM li tiene in due campi |
+| Domanda «Azienda» | Organizzazione, trovata o creata | Il contatto e la trattativa stanno poi sotto l’account |
+| Altre domande con scelte fisse | Un campo a scelta sulla trattativa | Puoi filtrare e raggruppare per quel campo in seguito |
+| Risposte a testo libero | Le note della trattativa | Il testo libero in un campo a scelta rompe i filtri |
+| Tipo di evento | Nome della trattativa e un campo fonte del lead | Mostra quale pagina di prenotazione porta trattative |
+| Organizzatore | Proprietario della trattativa o utente assegnato | Le prenotazioni a rotazione arrivano alla persona giusta |
+| Ora di inizio | Un campo data sulla trattativa | Ti permette di ordinare le chiamate in arrivo in una vista elenco |
+| Link all’invitato o all’evento di Calendly | Un campo di testo sulla trattativa | Permette a una cancellazione successiva di trovare la trattativa giusta |
+
+L’ultima riga è quella che tutti saltano, ed è quella di cui ha bisogno il passaggio della cancellazione.
+
+## Spostamenti, prenotazioni ripetute e mancate presenze
+
+- **Spostamenti.** Quando un invitato sposta l’appuntamento, Calendly invia invitee.canceled per l’orario vecchio e invitee.created per quello nuovo. La cancellazione porta `rescheduled: true`, e la nuova prenotazione rimanda alla vecchia tramite `old_invitee`. Un flusso che ignora il flag segna la trattativa come annullata e poi ne apre una seconda.
+- **Chi prenota più volte.** Cerca l’e-mail nel CRM prima di creare un contatto, e convertila prima in minuscolo. Le persone scrivono il proprio indirizzo in modo diverso da una prenotazione all’altra.
+- **Mancate presenze.** Zapier offre il trigger di Calendly «Invitee No Show Created». La panoramica dei webhook di Calendly elenca solo prenotazioni, cancellazioni e invii di moduli di assegnazione, quindi se costruisci sui webhook, prevedi di segnare le mancate presenze a mano. Spostare la trattativa in una fase di mancata presenza è meglio che indovinare da un timer.
+- **Moduli di assegnazione.** routing_form_submission.created scatta quando qualcuno invia un modulo di assegnazione, anche se non viene prenotata nessuna riunione. Usalo per catturare chi si è qualificato ma non ha mai scelto un orario. La sottoscrizione deve usare l’ambito organizzazione.
+
+## Dove si colloca Customermates
+
+Customermates è un CRM open source e nativo per l’IA per i piccoli team a contatto con i clienti, come studi di consulenza e agenzie. Non ha un connettore Calendly, quindi le prenotazioni arrivano attraverso uno di tre percorsi.
+
+### Percorso 1: i webhook di Calendly verso l’API REST
+
+Funziona su ogni piano di Customermates e su un’installazione self-hosted. Ti servono un piano Calendly con i webhook e un posto dove eseguire il flusso. L’esempio usa n8n, che gira separatamente e non fa parte di Customermates.
+
+<Steps>
+<Step title="Crea una chiave API">
+In Customermates apri **Impostazioni › Chiavi API e connettori**, clicca **Aggiungi** e scegli **Chiave API standard**. La chiave agisce con i tuoi permessi. In n8n salvala come credenziale Header Auth con il nome di intestazione `x-api-key`. Vedi [Chiavi API](/docs/api-keys).
+</Step>
+<Step title="Prepara i campi della trattativa">
+Apri le Trattative in **Modello dati** e aggiungi un’opzione «Chiamata prenotata» e una «Annullata» al campo **Fase**, che è un campo a **Scelta singola**. Aggiungi un campo **Data e ora** «Incontro», un campo a **Scelta singola** «Fonte del lead» con un’opzione per ogni tipo di evento e un campo **Testo** «Prenotazione Calendly». `POST /api/v1/model/discover` trova gli ID di tipo di Contatti e Trattative, e `POST /api/v1/model/read` restituisce la revisione dello schema e gli ID di campi, opzioni e relazioni che l’API si aspetta. Questi ID restano validi anche quando qualcuno rinomina un elenco o un campo.
+</Step>
+<Step title="Ricevi la prenotazione">
+Aggiungi il Calendly Trigger di n8n con «Event created» e «Event canceled». In alternativa usa un nodo Webhook e sottoscrivi il suo URL tramite l’API di Calendly.
+</Step>
+<Step title="Trova o crea il contatto">
+Invia `POST /api/v1/records/identities/resolve` con l’e-mail dell’invitato come identificatore `mail`; restituisce solo corrispondenze esatte. Se non c’è nessuna corrispondenza, invia `POST /api/v1/records/mutate` con una mutazione `create` per i Contatti: nome e cognome come valori di campo tipizzati e `identities: [{ "provider": "mail", "value": "<email>" }]`.
+</Step>
+<Step title="Crea la trattativa">
+Invia una mutazione `create` per le Trattative a `POST /api/v1/records/mutate`, con un nome come «Anna Weber, chiamata introduttiva», l’ID utente Customermates dell’organizzatore in `assignedUserIds` e valori tipizzati per fase, orario della riunione, fonte del lead e link di Calendly. Collega il contatto tramite l’ID di relazione ottenuto da `model/read`. Le risposte a testo libero vanno nelle note della trattativa, un campo di testo formattato: aggiungile con una mutazione `update` la cui voce di campo `{ fieldId, append }` accetta Markdown. Usa l’ID evento di Calendly nell’`idempotencyKey` e associa una volta sola, nel flusso, le e-mail degli organizzatori agli ID utente.
+</Step>
+<Step title="Gestisci la cancellazione">
+Con invitee.canceled, trova la trattativa dal valore «Prenotazione Calendly» con `POST /api/v1/records/query` e un filtro `eq` (vedi la [sintassi dei filtri](/docs/filter-syntax)). Se `rescheduled` è true, aggiorna «Incontro» dalla nuova prenotazione. Se è false, invia una mutazione `update` con il riferimento al record della trattativa e la versione corrente che imposta la fase su «Annullata».
+</Step>
+</Steps>
+
+Customermates non blocca un secondo contatto con lo stesso indirizzo, perché una stessa e-mail può appartenere a più record. Risolvi l’e-mail prima di ogni creazione e tieni l’ID evento di Calendly come chiave di idempotenza, così una consegna ripetuta restituisce il primo risultato invece di creare un secondo record. La [guida a n8n](/docs/n8n) elenca ogni endpoint e le regole per collegamenti e nuovi tentativi.
+
+### Percorso 2: il calendario, con Pro e superiori in Customermates Cloud
+
+Se Calendly è impostato per inviare gli **Calendar Invitations**, il calendario Google o Outlook dell’organizzatore crea l’evento e aggiunge l’invitato come ospite. Collega lo stesso account in Customermates in **Impostazioni › Canali e calendari** con **Collega un canale**, e la riunione arriva senza nessuno strumento di flusso. Gli eventi del calendario compaiono in una [cronologia delle attività](/docs/app-dashboard) e sul record del contatto la cui e-mail corrisponde a un ospite. Customermates legge solo il calendario. Non prenota né modifica mai le riunioni.
+
+Per trasformare le prenotazioni in record, una routine può scansionare il calendario. Le routine funzionano solo in Customermates Cloud e usano crediti IA ospitati dalla quota mensile del proprietario. Scegli **Secondo una pianificazione**, imposta **Ripetizione** su **Ogni ora** e dalle istruzioni come queste:
+
+> Guarda gli eventi del mio calendario che iniziano nei prossimi 14 giorni. Per ogni evento con un ospite la cui e-mail non termina con @tuaazienda.com, trova il contatto da quell’e-mail oppure creane uno con il nome e l’e-mail dell’ospite. Se quel contatto non ha una trattativa nella fase «Chiamata prenotata», creane una con il nome «[nome dell’ospite], chiamata introduttiva», imposta «Incontro» sull’inizio dell’evento e assegnala a me. Copia la descrizione dell’evento nelle note della trattativa. Non inviare nessuna e-mail né messaggio. Elenca ciò che hai creato.
+
+Le ultime due frasi contano. Una routine gira come il suo proprietario, con i canali del proprietario, e può inviare messaggi senza chiedere se le istruzioni non dicono altro. Esiste anche un trigger a evento per le modifiche al calendario, **Evento del calendario modificato**. Scatta a ogni modifica del calendario collegato, e gli eventi che arrivano poco dopo l’avvio di un’esecuzione vengono ignorati, quindi per le prenotazioni una pianificazione è la scelta più sicura. [Routine](/docs/app-routines) elenca i limiti attuali.
+
+### Percorso 3: il tuo client IA
+
+Calendly gestisce un server MCP su `https://mcp.calendly.com/` con strumenti che elencano gli eventi programmati e i loro invitati. Calendly dice che per collegarlo non serve un piano a pagamento, anche se alcune azioni dipendono dal piano. Aggiungilo a Claude o ChatGPT accanto al [connettore di Customermates](/docs/connect-custom-connector), poi chiedi: «Elenca le riunioni Calendly prenotate da lunedì con i loro invitati. Trova o crea ogni invitato come contatto in Customermates e crea una trattativa nella fase Chiamata prenotata.» Il lato Customermates funziona su ogni piano e sulle installazioni self-hosted, e usa il tuo fornitore di IA invece dei crediti ospitati. Customermates esegue ciò che il client chiama, quindi imposta le approvazioni per gli strumenti di scrittura nel tuo client IA.
+
+### Quanto costa per un team di tre persone
+
+- **Percorso con i webhook su Starter:** [[commercial.price.starter.monthly.seats.3]] al mese per Customermates, più un piano Calendly che include i webhook e il luogo in cui gira n8n.
+- **Percorso con il calendario su Pro:** [[commercial.price.pro.monthly.seats.3]] al mese. Comprende la [Posta in arrivo unificata](/features/unified-inbox) e [[commercial.entitlement.pro.includedRoutinesPerUser]] routine per utente. Le esecuzioni delle routine attingono ai crediti IA ospitati mensili per utente attivo; vedi i [prezzi](/pricing).
+
+Una prenotazione è il punto in cui parte il follow up. Con il percorso del calendario su Pro, una routine che imposti tu può mettere la riunione prenotata sulla scheda del cliente accanto ai suoi thread di e-mail e LinkedIn, e Mate può preparare la conferma o la nota di preparazione da rivedere e inviare, con il passo successivo datato sulla trattativa. Per provarlo sulle tue prenotazioni Calendly, [avvia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup). Senza carta di credito.
+
+<AcquisitionCallout title="Quando Customermates non è la scelta giusta" variant="boundary">
+Non c’è un connettore Calendly, quindi ogni percorso richiede o un flusso che gestisci tu oppure il calendario più una routine. Su Pro, la casella Gmail o Outlook è l’account collegato incluso dell’utente, [[commercial.entitlement.pro.includedAccountsPerUser]]; Business ne include [[commercial.entitlement.business.includedAccountsPerUser]]. Le attività non hanno scadenze né promemoria, quindi metti la data del follow up in un campo data sulla trattativa. Customermates non fa lead scoring; salva le risposte dei moduli di assegnazione in campi a scelta singola e filtra per quelli. Un’installazione self-hosted ha REST, webhook e MCP, ma non calendario, Posta in arrivo, Mate né routine. Se vuoi che Calendly scelga l’organizzatore dal proprietario del CRM al momento della prenotazione, è una funzione di Calendly per HubSpot e Salesforce.
+</AcquisitionCallout>
+
+## Prova prima di fidarti
+
+Esegui queste sei prenotazioni su un tipo di evento di prova prima di attivare davvero l’integrazione:
+
+1. Un nuovo invitato. Arrivano il contatto, la trattativa e ogni campo associato.
+2. Lo stesso invitato di nuovo, con l’e-mail scritta in maiuscolo. Non compare un secondo contatto.
+3. Uno spostamento. L’orario della riunione sulla trattativa si sposta e la fase non passa ad annullata.
+4. Una vera cancellazione. La fase cambia e non viene creato nient’altro.
+5. Una prenotazione con una domanda facoltativa lasciata vuota. Il flusso si completa comunque.
+6. Una mancata presenza, se le tracci tramite Zapier.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Calendly ha un CRM?">
+No. Calendly è una piattaforma di pianificazione. Tiene i contatti delle persone che incontri (Zapier elenca trigger sui contatti che richiedono un piano Calendly a pagamento), ma non ha una pipeline. Le sue integrazioni CRM inviano le prenotazioni in HubSpot, Salesforce e Dynamics 365, dove vivono fasi e report sulle trattative.
+</FaqItem>
+
+<FaqItem question="Calendly funziona con Salesforce e HubSpot?">
+Sì, in modo nativo. L’integrazione con HubSpot è disponibile sui piani Standard, Teams ed Enterprise di Calendly e crea contatti o lead e registra le attività. L’integrazione con Salesforce richiede Teams o Enterprise e può creare un lead, un contatto o un’opportunità, oltre a eventi o attività su qualunque oggetto Salesforce.
+</FaqItem>
+
+<FaqItem question="Quale piano Calendly serve per un’integrazione con un CRM?">
+Non Free. HubSpot e i webhook partono da Standard, Salesforce richiede Teams o Enterprise e Microsoft Dynamics 365 è elencato per Enterprise. Il server MCP di Calendly per i client IA è l’eccezione: Calendly dice che non serve un piano a pagamento, anche se alcune azioni dipendono dal piano.
+</FaqItem>
+
+<FaqItem question="Come collego Calendly a Pipedrive, Freshworks o un altro CRM?">
+Guarda prima nel marketplace del CRM stesso. Pipedrive elenca Calendly Sync di Outfunnel, e il Freshworks Marketplace elenca Calendly Events for CRM. Se nulla va bene, usa una piattaforma di connettori come Zapier o Zoho Flow, oppure punta i webhook di Calendly a n8n o al tuo codice e chiama l’API del CRM.
+</FaqItem>
+
+<FaqItem question="Come deve aggiornare il CRM una riunione Calendly spostata?">
+Calendly invia una cancellazione per l’orario vecchio e una nuova prenotazione per quello nuovo. La cancellazione porta rescheduled impostato su true. In quel caso aggiorna l’orario della riunione sulla trattativa esistente, e cambia la fase solo quando il flag è false.
+</FaqItem>
+
+<FaqItem question="Customermates si integra con Calendly?">
+Non con un connettore nativo. Le prenotazioni arrivano in Customermates tramite i webhook di Calendly e l’API REST su qualunque piano, tramite il calendario Google o Outlook collegato dell’organizzatore con Pro e superiori in Customermates Cloud, oppure tramite un client IA che ha sia il connettore MCP di Calendly sia quello di Customermates. Customermates non prenota riunioni né scrive eventi di calendario.
+</FaqItem>
+</Faq>
+
+Dettagli dei fornitori verificati l’8 ottobre 2026 su [prezzi](https://calendly.com/pricing), [integrazione con HubSpot](https://calendly.com/integration/hubspot), [integrazione con Salesforce](https://calendly.com/integration/salesforce), [panoramica dei webhook](https://calendly.com/help/webhooks-overview), [payload degli spostamenti](https://developer.calendly.com/see-how-webhook-payloads-change-when-invitees-reschedule-events), [sottoscrizioni ai webhook](https://developer.calendly.com/receive-data-from-scheduled-events-in-real-time-with-webhook-subscriptions), [notifiche di pianificazione](https://calendly.com/help/calendly-scheduling-notifications), [guida agli strumenti IA](https://calendly.com/help/connect-calendly-to-your-ai-tools) e [strumenti MCP](https://developer.calendly.com/docs/mcp/supported-tools) di Calendly, oltre a [Pipedrive Marketplace](https://www.pipedrive.com/en/marketplace/app/calendly-sync/0356741bcb89ba03), [Freshworks](https://www.freshworks.com/apps/calendly_events_for_crm/), [Zoho Flow](https://www.zohoflow.com/apps/calendly/integrations/zoho-crm/), [Zapier](https://zapier.com/apps/calendly/integrations), il [Calendly Trigger di n8n](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.calendlytrigger/) e l’[hosting di n8n](https://docs.n8n.io/hosting/).

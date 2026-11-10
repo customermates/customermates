@@ -1,0 +1,240 @@
+---
+title: "CRM email: inbox unificata per email e canali social"
+description: "CRM email: inbox unificata per Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversazioni sul cliente, risposte in bozza. Cloud dal Pro."
+featureName: Inbox CRM unificata
+
+acquisition:
+  locale: it
+  slug: unified-inbox
+  clusterId: unified-inbox
+  role: hub
+  primaryIntent: Un’unica inbox CRM per i canali supportati
+  metadata:
+    title: "CRM email: inbox unificata per email e canali social"
+    description: "CRM email: inbox unificata per Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversazioni sul cliente, risposte in bozza. Cloud dal Pro."
+  proof:
+    factReferences:
+      - product:cloud-only-unified-inbox
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+      - product:core-crm-records
+      - product:mcp-tools
+      - product:hosted-mate-capability
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-unsupported-channels
+  cta:
+    action: "Segui la tua prossima conversazione con un cliente da un’unica inbox"
+    description: "Avvia la prova, collega un account email o LinkedIn e guarda se le tue conversazioni si allineano ai tuoi clienti. La prova dura [[commercial.trial.days]] giorni su Pro, senza carta di credito."
+    buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Leggi la guida alla Posta in arrivo
+    buttonRightHref: /docs/app-inbox
+    hint: "Nessuna inbox unificata è inclusa in Starter né nelle installazioni self-hosted."
+  relatedHrefs:
+    - /docs/app-inbox
+    - /docs/mcp
+    - /blog/agentic-crm
+    - /for/agencies
+  visual:
+    id: acquisition.unified-inbox.it
+    locale: it
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM email: un’unica inbox per ogni conversazione con i clienti. Rispondi a ognuna."
+      body: "I thread email e LinkedIn, più WhatsApp, Instagram e Telegram, stanno sul cliente a cui appartengono. Vedi chi aspetta una tua risposta, rivedi la bozza e inviala. Customermates Cloud, dal piano Pro."
+      checksum: fnv1a-b2b35059
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "I canali email, social e di messaggistica supportati convergono in un’unica inbox CRM."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "I canali email, social e di messaggistica supportati convergono in un’unica inbox CRM."
+    factReferences:
+      - product:conversation-record-association
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: it
+      text: Canali
+    semanticLabels:
+      - locale: it
+        text: Un’unica inbox
+      - locale: it
+        text: Contesto CRM
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: record
+        fixtures:
+          conversation: gmail-rollout-next-steps
+          person: anna-mueller
+      - id: contact-context
+        form: context-card
+        fixtures:
+          person: anna-mueller
+    accentTarget: inbox-providers
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    title: "Segui una conversazione fino al contesto del CRM"
+    items:
+      - title: "Apri la conversazione in arrivo"
+        description: "Parti dall’elenco unico delle conversazioni invece di passare da una scheda del provider all’altra."
+      - title: "Controlla il partecipante"
+        description: "Associa la persona della conversazione a un contatto del CRM, così il contesto della relazione è a portata di mano."
+      - title: "Rivedi e rispondi"
+        description: "Leggi la cronologia, tieni una bozza persistente sulla conversazione esistente e invia dal canale collegato quando sei pronto."
+      - title: "Smista la conversazione"
+        description: "Segna la conversazione come non letta, aperta, chiusa o spam, così l’inbox riflette il suo stato attuale."
+  highlights:
+    title: "In breve"
+    capture: homepage-inbox
+    items:
+      - title: "Risultato"
+        description: "Gestisci in un solo elenco le conversazioni con i clienti supportate, tenendo vicino il contesto del contatto CRM del partecipante."
+      - title: "Disponibile con"
+        description: "Customermates Cloud dal piano Pro, con numero di account e funzioni di condivisione che variano in base al piano."
+      - title: "Azioni principali"
+        description: "Leggere e rispondere, smistare lo stato delle conversazioni, tenere una bozza, lavorare con gli allegati supportati e associare i partecipanti ai contatti."
+      - title: "Limite importante"
+        description: "La relazione con il contatto fa da ponte tra la conversazione e il contesto della pipeline. Una singola conversazione può anche essere collegata a un record come una trattativa."
+
+hero:
+  title: "CRM email: un’unica inbox per ogni conversazione con i clienti. Rispondi a ognuna."
+  description: "I thread email e LinkedIn, più WhatsApp, Instagram e Telegram, stanno sul cliente a cui appartengono. Vedi chi aspetta una tua risposta, rivedi la bozza e inviala. Customermates Cloud, dal piano Pro."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Leggi la guida alla Posta in arrivo
+  buttonRightHref: /docs/app-inbox
+  hint: "Nessuna carta di credito • Solo Cloud, dal piano Pro"
+  showOpenSourceBadge: false
+
+cta:
+  action: "Segui la tua prossima conversazione con un cliente da un’unica inbox"
+  description: "Avvia la prova, collega un account email o LinkedIn e guarda se le tue conversazioni si allineano ai tuoi clienti. La prova dura [[commercial.trial.days]] giorni su Pro, senza carta di credito."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Leggi la guida alla Posta in arrivo
+  buttonRightHref: /docs/app-inbox
+  hint: "Nessuna inbox unificata è inclusa in Starter né nelle installazioni self-hosted."
+---
+
+Il **CRM email di Customermates** è un’inbox unificata: porta in un unico elenco le conversazioni email e social supportate. I membri del team possono leggere e rispondere alle conversazioni, smistarne lo stato, tenere una bozza su una conversazione esistente e associare i partecipanti ai contatti del CRM.
+
+È una funzione del cloud gestito dal piano Pro in su. Starter e Customermates self-hosted non includono account di messaggistica né l’inbox unificata.
+
+**Perché ti aiuta a seguire i clienti.** La risposta di un cliente si perde quando resta in una scheda che non hai aperto. Nell’inbox ogni conversazione compare sul cliente il cui indirizzo email, numero di telefono o profilo LinkedIn è nel record, e un nuovo messaggio riporta la conversazione su Non letta. Una vista salvata con **Ultimo messaggio** = **Inviato** e un’anzianità di qualche giorno elenca le conversazioni in cui stai ancora aspettando una risposta. Mate, o il tuo client IA tramite MCP, può salvare una bozza di risposta nella conversazione; tu la rivedi e la invii dal canale da cui è arrivata la conversazione.
+
+<ProofRail label="Funzionalità verificate dell’inbox CRM unificata">
+  <ProofItem label="Email">Gmail, Outlook e IMAP</ProofItem>
+  <ProofItem label="Professionale">Varianti LinkedIn</ProofItem>
+  <ProofItem label="Messaggistica">WhatsApp e Telegram</ProofItem>
+  <ProofItem label="Social">Instagram</ProofItem>
+  <ProofItem label="Contesto CRM">Associazione partecipante-contatto</ProofItem>
+</ProofRail>
+
+## Canali supportati
+
+| Famiglia di canali    | Connessioni supportate                                   |
+| --------------------- | -------------------------------------------------------- |
+| Email                 | Gmail/Google, Outlook/Microsoft e IMAP                   |
+| Reti professionali    | Varianti LinkedIn Classic, Sales Navigator e Recruiter   |
+| Messaggistica e social | WhatsApp, Instagram e Telegram                          |
+
+L’insieme supportato non comprende SMS né telefonia. Il comportamento dei provider e il supporto agli allegati possono variare in base al tipo di connessione. Per WhatsApp, la pagina sull’[integrazione WhatsApp del CRM](/features/whatsapp-integration) spiega cosa copre la connessione e dove si ferma.
+
+## Cosa puoi fare nell’inbox
+
+- vedere in un solo elenco le conversazioni degli account collegati;
+- aprire una conversazione e rispondere nel suo canale;
+- segnare le conversazioni come non lette, aperte, chiuse o spam;
+- associare i partecipanti delle conversazioni ai contatti del CRM;
+- tenere una bozza persistente su una conversazione esistente; e
+- lavorare con gli allegati supportati dove la connessione del provider lo consente.
+
+Il contesto di una conversazione può emergere attraverso la sua relazione con il contatto, quindi il contatto e i suoi record CRM collegati sono il ponte principale verso il contesto della pipeline. Sotto **Record della conversazione**, **Collega record** collega anche una singola conversazione a un record come una trattativa.
+
+## Accesso agli account personali e condivisi
+
+| Piano cloud | Account collegati inclusi          | Account condivisi |
+| ----------- | ---------------------------------- | ----------------- |
+| Starter     | 0                                  | No                |
+| Pro         | 1 per utente                       | No                |
+| Business    | 3 per utente                       | Sì                |
+| Enterprise  | Illimitati nel rispetto del fair use | Sì              |
+
+Gli utenti Pro possono condividere singole conversazioni con i colleghi del CRM. La condivisione di un intero account collegato è disponibile con Business ed Enterprise. I permessi continuano a stabilire a quali risorse e azioni del CRM può accedere un utente.
+
+<AcquisitionCallout
+  title="Condividere una conversazione e condividere un account sono cose diverse"
+  variant="proof"
+>
+  Un utente Pro può condividere una singola conversazione con i colleghi del
+  CRM. Condividere l’intero account collegato è una funzione di Business o
+  Enterprise. Questa differenza conta quando confronti inbox personali e
+  indirizzi di proprietà del team, cioè un’inbox condivisa.
+</AcquisitionCallout>
+
+## Inbox, MCP e limiti di approvazione
+
+Il [server MCP](/docs/mcp) di Customermates include strumenti per il lavoro di messaggistica supportato, tra cui leggere conversazioni e attività, gestire le bozze, smistare le conversazioni e inviare risposte. Le sue istruzioni dicono ai client compatibili di chiedere una conferma esplicita prima di un invio, ma l’endpoint MCP non aggiunge un secondo passaggio di approvazione dopo che il client ha chiamato lo strumento. Verifica il passaggio di revisione lato client prima di concedere l’accesso alla messaggistica.
+
+Ogni piano cloud a pagamento include un diritto d’uso di Mate e un’allocazione mensile di crediti IA ospitati per ogni utente attivo. Quando Mate è attivo nell’ambiente ospitato, può lavorare con gli strumenti dell’inbox idonei con i permessi dell’utente corrente e i propri controlli di conferma. I client MCP esterni usano invece il provider di modelli del cliente e non consumano l’allocazione ospitata.
+
+## Limite del calendario
+
+Gli account collegati supportati possono esporre una vista calendario in sola lettura sui piani cloud che lo prevedono. Customermates non crea, non aggiorna e non prenota eventi del calendario del provider.
+
+## Edizioni Cloud e self-hosted
+
+L’inbox unificata è disponibile solo in Customermates Cloud dal piano Pro in su. Il [CRM self-hosted](/features/self-hosted) usa le funzioni di Starter: zero account di messaggistica collegati, nessun account condiviso, nessuna inbox unificata e nessun Mate o crediti ospitati. I client IA esterni possono comunque usare MCP con il nucleo CRM self-hosted.
+
+Per i dettagli su Gmail, leggi la [guida al CRM per Gmail](/blog/gmail-crm-integration), oppure segui il flusso di lavoro esatto del prodotto nella [guida alla Posta in arrivo](/docs/app-inbox).
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Quali piani includono l’inbox CRM unificata?">
+Pro, Business ed Enterprise in Customermates Cloud. Pro include un account collegato per utente; Business ne include tre e gli account condivisi; Enterprise include account collegati illimitati nel rispetto del fair use e supporta gli account condivisi.
+</FaqItem>
+
+<FaqItem question="L’inbox funziona con il self-hosting?">
+  No. Le installazioni self-hosted usano le funzioni di Starter, che include zero
+  account di messaggistica e nessuna inbox unificata. MCP resta disponibile per i
+  client IA esterni che lavorano con il CRM di base.
+</FaqItem>
+
+<FaqItem question="Customermates supporta SMS o chiamate telefoniche in questa inbox?">
+  No. L’insieme supportato comprende email Gmail/Google, Outlook/Microsoft e
+  IMAP, le varianti LinkedIn, WhatsApp, Instagram e Telegram, non SMS né
+  telefonia.
+</FaqItem>
+
+<FaqItem question="I messaggi sono collegati direttamente alle trattative?">
+  Sì, una conversazione alla volta. I partecipanti possono essere associati ai
+  contatti del CRM, e le relazioni dei contatti fanno da ponte verso il contesto
+  CRM pertinente. Sotto **Record della conversazione**, **Collega record**
+  collega una singola conversazione a un record come una trattativa.
+</FaqItem>
+
+<FaqItem question="Un client IA può inviare messaggi tramite l’inbox?">
+Sì, sugli account cloud che lo prevedono. Le istruzioni MCP dicono ai client compatibili di chiedere conferma prima di inviare, ma il server esegue uno strumento di invio consentito non appena il client lo chiama. Verifica il comportamento di conferma del client e i permessi dell’utente prima di attivare gli strumenti di messaggistica.
+</FaqItem>
+</Faq>

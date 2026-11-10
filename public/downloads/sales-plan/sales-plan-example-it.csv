@@ -1,0 +1,34 @@
+﻿Sezione,Voce,Responsabile,Valore pianificato,Unità,Ipotesi o calcolo,Data di revisione,Valore effettivo,Azione successiva
+Periodo,Dati di pianificazione fittizi; non sono risultati effettivi; ricalcola dopo ogni modifica; nessuna formula attiva,,,,,,,
+Periodo,2027-01-04 / 2027-04-03,Alex,90,giorni di calendario,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Ipotesi,Cliente target e offerta,Alex,Progetto di miglioramento operativo per piccole imprese di servizi,testo,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Obiettivo di contratti firmati,Alex,36000,EUR,6 × 6000,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Valore del contratto per progetto,Alex,6000,EUR,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Vittorie necessarie,Alex,6,contratti,36000 ÷ 6000,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Tasso di successo delle proposte,Alex,50,per cento,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Tasso da riunione a proposta,Alex,40,per cento,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Tasso da account a riunione,Alex,25,per cento,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Proposte necessarie,Alex,12,proposte,6 ÷ 0.50,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Riunioni necessarie,Alex,30,riunioni,12 ÷ 0.40,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Account necessari,Alex,120,aziende,30 ÷ 0.25,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Tempo di decisione dopo la proposta,Alex,30,giorni di calendario,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Ipotesi,Budget di cassa aggiuntivo,Alex,0,EUR,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,aziende,Sam,60,aziende,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,riunioni qualificate,Alex,20,riunioni qualificate,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,proposte,Alex,8,proposte,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,contratti,Alex,0,contratti,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,Nuovi contratti firmati al netto delle imposte,Alex,0,EUR,,2027-02-02,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,aziende,Sam,100,aziende,,2027-03-04,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,riunioni qualificate,Alex,27,riunioni qualificate,,2027-03-04,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,proposte,Alex,12,proposte,,2027-03-04,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,contratti,Alex,4,contratti,,2027-03-04,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,Nuovi contratti firmati al netto delle imposte,Alex,24000,EUR,,2027-03-04,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,aziende,Sam,120,aziende,,2027-04-03,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,riunioni qualificate,Alex,30,riunioni qualificate,,2027-04-03,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,proposte,Alex,12,proposte,,2027-04-03,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,contratti,Alex,6,contratti,,2027-04-03,,Inserisci il valore effettivo; conferma l’azione successiva
+Tappe cumulative,Nuovi contratti firmati al netto delle imposte,Alex,36000,EUR,,2027-04-03,,Inserisci il valore effettivo; conferma l’azione successiva
+Azioni,aziende,Sam,,,Inserisci il valore effettivo; conferma l’azione successiva,2027-01-08,,
+Azioni,riunioni qualificate,Alex,,,Inserisci il valore effettivo; conferma l’azione successiva,2027-01-15,,
+Azioni,proposte,Alex,,,Inserisci il valore effettivo; conferma l’azione successiva,2027-03-04,,
+Azioni,Consegna,Jo,,,Inserisci il valore effettivo; conferma l’azione successiva,2027-04-03,,

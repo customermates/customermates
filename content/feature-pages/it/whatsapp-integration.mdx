@@ -1,0 +1,161 @@
+---
+title: "CRM WhatsApp: le chat accanto alla scheda cliente"
+description: "CRM WhatsApp: collega WhatsApp alla Posta in arrivo di Customermates Cloud da Pro, ogni chat sul suo contatto e bozze di risposta. Non è l’API Business."
+featureName: Integrazione WhatsApp CRM
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /features/linkedin-integration
+  - /features/contact-management
+
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "Siamo una piccola impresa di servizi B2B. Tieni clienti, preventivi e conversazioni in un unico posto e mostraci sulla dashboard chi richiamare."
+  steps:
+    items:
+      - title: "Controlla il piano"
+        description: "Usa Customermates Cloud con Pro o superiore, oppure una prova. Il tuo ruolo deve avere Crea su Messaggi della posta in arrivo per collegare un canale."
+      - title: "Collega WhatsApp"
+        description: "Apri Impostazioni › Canali e calendari, scegli Collega un canale e WhatsApp, poi inquadra il codice QR con l’app WhatsApp sul tuo telefono."
+      - title: "Abbina i tuoi contatti"
+        description: "Aggiungi il numero WhatsApp di ogni cliente al campo Recapiti del suo record di contatto, oppure collega il mittente dalle Impostazioni della conversazione della chat."
+      - title: "Collega la chat a una trattativa"
+        description: "Quando una chat appartiene a una trattativa aperta o a un’organizzazione, usa Collega record sotto Record della conversazione. Customermates non lo fa al posto tuo."
+      - title: "Rispondi e smista"
+        description: "Rispondi nella chat, tieni una bozza se prima devi controllare qualcosa e imposta lo stato su aperta o chiusa man mano che la conversazione procede."
+  highlights:
+    title: "In sintesi"
+    capture: homepage-inbox
+    items:
+      - title: "Cosa si collega"
+        description: "Un account WhatsApp per ogni posto di account collegato, abbinato con un codice QR tramite il fornitore di messaggistica. Nella Posta in arrivo entrano le chat singole e di gruppo."
+      - title: "Piano"
+        description: "Customermates Cloud da Pro. Pro include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente. Starter e le installazioni self-hosted non hanno account di messaggistica collegati."
+      - title: "Contesto CRM"
+        description: "I contatti vengono abbinati tramite il numero di telefono nel loro campo Recapiti. Collegare una chat a una trattativa o a un’organizzazione è un passaggio esplicito di un utente o di un agente."
+      - title: "Non incluso"
+        description: "Nessuna API ufficiale di WhatsApp Business, nessun modello di messaggio, campagna, lista broadcast, sequenza, chatbot, invio di massa né automazione."
+
+hero:
+  title: "CRM WhatsApp: nessuna chat di un cliente resta senza risposta"
+  description: "Ogni chat WhatsApp sta sul contatto con quel numero di telefono, così vedi quali chat aspettano una risposta, fai preparare la bozza a Mate e la invii dal CRM. Non è l’API WhatsApp Business. Solo cloud, da Pro."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Esplora lo spazio di lavoro
+  buttonRightHref: https://demo.customermates.com/it/w/whatsapp/dashboard
+  hint: "Nessuna carta di credito richiesta • Solo cloud, da Pro • Non è l’API WhatsApp Business"
+  showOpenSourceBadge: false
+
+cta:
+  action: "Segui la tua prossima chat WhatsApp dalla scheda del cliente"
+  description: "Esplora lo spazio di lavoro WhatsApp di esempio, poi collega il tuo account WhatsApp durante la prova di [[commercial.trial.days]] giorni su Pro e guarda se le tue chat e i tuoi contatti si allineano a come lavora il tuo team."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Esplora lo spazio di lavoro
+  buttonRightHref: https://demo.customermates.com/it/w/whatsapp/dashboard
+  hint: "WhatsApp nella Posta in arrivo richiede Customermates Cloud Pro o superiore. Starter e self-hosted non hanno account di messaggistica collegati."
+---
+
+Molte piccole imprese concordano appuntamenti, preventivi e modifiche con i clienti su WhatsApp, mentre la scheda del cliente sta da un’altra parte. Un **CRM WhatsApp** come Customermates porta quelle chat nella [Posta in arrivo unificata](/features/unified-inbox) di Customermates Cloud, accanto al contatto a cui appartengono. Colleghi un account WhatsApp tramite il nostro fornitore di messaggistica con un codice QR. Non è l’API ufficiale di WhatsApp Business ed è pensato per le singole conversazioni, non per campagne o messaggi automatici.
+
+**Dove ti aiuta a seguire i clienti.** Una chat che aspetta la tua risposta è facile da perdere tra sopralluoghi e telefonate. Con la chat sul contatto puoi filtrare la Posta in arrivo per le conversazioni in cui l’ultimo messaggio è del cliente, oppure tenere sul contatto un campo Stato della chat e gestire una board delle chat ancora aperte. Mate, o il tuo client IA tramite MCP, può salvare nella chat una bozza di risposta da rivedere e inviare. Mate invia senza un’ulteriore approvazione quando glielo chiedi, quindi chiedi una bozza quando vuoi leggere prima la formulazione.
+
+## Lo spazio di lavoro di esempio: contatto WhatsApp di un cliente con dati dimostrativi
+
+La demo qui sopra e lo [spazio di lavoro di esempio](https://demo.customermates.com/it/w/whatsapp/dashboard) usano dati dimostrativi, non un cliente reale. Lo spazio di lavoro ha elenchi per clienti, contatti, progetti e attività. Nella Posta in arrivo una chat WhatsApp sta accanto al record di contatto del cliente: il contatto è stato abbinato tramite il numero di telefono nel suo campo Recapiti, e la chat è stata collegata a un progetto aperto sotto **Record della conversazione**, di proposito e a mano. Un campo Stato della chat su ogni contatto, impostato a mano, alimenta una board delle chat che aspettano ancora una risposta. I progetti conservano foto del cantiere, disegni e l’offerta in un campo File e riportano data e ora di un sopralluogo; la dashboard elenca i sopralluoghi dei prossimi 14 giorni, e una vista calendario mostra le installazioni per settimana.
+
+Questi elenchi sono un esempio. Un nuovo spazio di lavoro parte senza elenchi: su Customermates Cloud la configurazione dello spazio di lavoro con l’IA può costruire elenchi, fasi, una dashboard e pagine della Base di conoscenza a partire dalla tua descrizione, una volta all’onboarding e entro il suo limite di crediti, oppure la salti con **Inizia con uno spazio di lavoro vuoto**. Altrimenti chi ha i diritti sul Modello dati crea gli elenchi e i campi nel Modello dati e importa i contatti esistenti da una cartella di lavoro Excel. Per abbinare le chat WhatsApp, l’elenco dei contatti ha bisogno del campo Recapiti.
+
+## Cosa fa il collegamento con WhatsApp
+
+**Chat nella Posta in arrivo.** Dopo il collegamento, le chat singole e di gruppo dell’account WhatsApp vengono importate e i nuovi messaggi continuano ad arrivare. Compaiono nello stesso elenco delle conversazioni di e-mail, LinkedIn, Instagram e Telegram, con l’attività più recente per prima.
+
+**Leggi e rispondi.** Apri una chat, leggi la cronologia e rispondi nella stessa chat. Gli allegati funzionano dove la connessione del fornitore li supporta. Puoi tenere una bozza su una chat esistente e inviarla più tardi.
+
+**Avvia una chat da un numero di telefono.** Avvia una nuova chat dal numero di telefono di un contatto in formato internazionale, per esempio +49 seguito dal numero senza lo zero iniziale.
+
+**Contatti abbinati dal numero di telefono.** Un numero di telefono nel campo Recapiti di un record collega quel record alle chat WhatsApp con quel numero. Lo stesso numero si può anche chiamare dal record. Per un mittente che non ha ancora un record, apri **Impostazioni della conversazione** e collega il numero a un contatto esistente oppure creane uno.
+
+**Stato conservato in Customermates.** Segna una chat come non letta, aperta, chiusa o spam per organizzare la Posta in arrivo. Questo stato vive solo in Customermates: chiudere una chat qui non la archivia né la modifica in WhatsApp.
+
+## Cosa non è questo CRM WhatsApp
+
+Il collegamento passa da un fornitore di messaggistica che abbina il tuo account WhatsApp, in modo simile a collegare WhatsApp su un secondo dispositivo. Questo rende semplice la configurazione, e fissa anche limiti chiari.
+
+| Potresti aspettarti                                   | In Customermates                                          |
+| ----------------------------------------------------- | --------------------------------------------------------- |
+| API ufficiale di WhatsApp Business o Cloud API        | Non usata; l’account si collega tramite il fornitore di messaggistica |
+| Modelli di messaggio, campagne, broadcast, newsletter | Non disponibili                                           |
+| Sequenze, chatbot o risposte automatiche              | Non disponibili                                           |
+| Invio di massa a molti numeri                         | Non disponibile; ogni messaggio viene inviato singolarmente |
+| Stato della chat sincronizzato con WhatsApp           | No; non letta, aperta, chiusa e spam restano in Customermates |
+| Chat registrate automaticamente sulle trattative      | No; un utente o un agente collega una chat in modo esplicito |
+| Consegna garantita o conservazione garantita dei messaggi | Nessuna garanzia; consegna e cronologia dipendono da WhatsApp e dal fornitore |
+
+I fornitori limitano la velocità con cui i messaggi possono essere letti e inviati, e le nuove chat hanno un budget proprio. Customermates applica un budget prudente di richieste per canale e si ferma prima che WhatsApp opponga resistenza; i numeri attuali sono nei [limiti della messaggistica](/docs/messaging-rate-limits). Scollegare il canale elimina in modo permanente le chat e i messaggi che Customermates ha importato da esso. Il tuo account WhatsApp e i termini di WhatsApp restano tuoi. Il fornitore di messaggistica è elencato nella [pagina dei sub-responsabili del trattamento](/subprocessors).
+
+<AcquisitionCallout title="Pensato per le conversazioni, non per le campagne" variant="boundary">
+  Se ti servono modelli di messaggio approvati, liste broadcast, un chatbot o
+  follow up automatici, ti serve un fornitore dell’API WhatsApp Business.
+  Customermates copre la singola conversazione con il cliente accanto al record
+  del CRM.
+</AcquisitionCallout>
+
+## Chi vede quali chat
+
+Un nuovo canale è privato: solo tu ne vedi le chat, e nessun ruolo, Amministratore compreso, può leggere le conversazioni private di un collega. Su Pro lavori con i tuoi account e puoi condividere singole chat con i colleghi. Condividere un intero account collegato, per esempio un numero WhatsApp del team che una persona ha collegato, richiede Business, Max o Enterprise.
+
+| Piano                  | Account collegati per utente                                   | Condivisione della Posta in arrivo              |
+| ---------------------- | -------------------------------------------------------------- | ----------------------------------------------- |
+| Starter o self-hosted  | Nessuno                                                        | Nessuna Posta in arrivo                         |
+| Pro                    | [[commercial.entitlement.pro.includedAccountsPerUser]]         | I tuoi account più le chat condivise singolarmente |
+| Business               | [[commercial.entitlement.business.includedAccountsPerUser]]    | Si possono condividere interi account collegati |
+| Max                    | [[commercial.entitlement.max.includedAccountsPerUser]]         | Si possono condividere interi account collegati |
+| Enterprise             | [[commercial.entitlement.enterprise.includedAccountsPerUser]] con condizioni di uso corretto | Si possono condividere interi account collegati |
+
+La quota è un unico pool condiviso tra e-mail, LinkedIn, WhatsApp, Instagram e Telegram. Se una persona ha bisogno di WhatsApp e di una casella e-mail, ha bisogno di più della quota di Pro. I prezzi attuali sono nella [pagina dei prezzi](/pricing); la fatturazione è mensile.
+
+## L’IA sulle tue chat WhatsApp
+
+**Mate, in Customermates Cloud.** Mate può riassumere una chat o preparare una risposta quando glielo chiedi, entro i crediti IA ospitati del tuo piano. Mate invia un messaggio non appena gli chiedi di inviarlo, quindi di’ «bozza» quando vuoi solo una bozza. Mate non è disponibile nelle installazioni self-hosted.
+
+**Il tuo client IA, tramite MCP.** Claude, ChatGPT e altri client MCP possono leggere le chat e salvare bozze tramite il [server MCP](/docs/mcp), usando il tuo fornitore di IA. Se il client chieda conferma prima di inviare dipende dal client, quindi controlla come gestisce la conferma prima di consentire l’invio.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="È l’API ufficiale di WhatsApp Business?">
+No. Customermates collega un account WhatsApp tramite il suo fornitore di messaggistica con un codice QR. Non usa l’API WhatsApp Business né la Cloud API, e non offre nessuna delle funzioni dell’API, come i modelli approvati.
+</FaqItem>
+
+<FaqItem question="Posso inviare broadcast, modelli o campagne?">
+No. Non ci sono broadcast, newsletter, modelli, campagne, sequenze né invii di massa. Ogni messaggio viene scritto e inviato in una chat.
+</FaqItem>
+
+<FaqItem question="Quali piani includono WhatsApp?">
+Customermates Cloud da Pro, e la prova. Pro include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente. Starter non ha account di messaggistica collegati.
+</FaqItem>
+
+<FaqItem question="WhatsApp funziona in Customermates self-hosted?">
+No. Le installazioni self-hosted usano le funzioni di Starter: nessun account di messaggistica collegato, nessuna Posta in arrivo e nessun Mate. MCP con il tuo client IA funziona comunque per i record del CRM di base.
+</FaqItem>
+
+<FaqItem question="Le chat WhatsApp vengono collegate automaticamente alle trattative?">
+No. Il contatto viene abbinato tramite il numero di telefono nel suo campo Recapiti. Collegare una chat a una trattativa o a un’organizzazione è un passaggio esplicito sotto Record della conversazione, compiuto da un utente o da un agente.
+</FaqItem>
+
+<FaqItem question="Se chiudo una chat in Customermates, cambia anche in WhatsApp?">
+No. Non letta, aperta, chiusa e spam sono stati di Customermates. Non vengono sincronizzati con l’app WhatsApp.
+</FaqItem>
+
+<FaqItem question="Gestisce le chat di gruppo?">
+Sì. Nella Posta in arrivo entrano le chat singole e di gruppo dell’account collegato, e puoi leggerle e rispondervi.
+</FaqItem>
+
+<FaqItem question="Customermates garantisce la consegna o conserva ogni messaggio?">
+No. La consegna dipende da WhatsApp e dal fornitore di messaggistica, e Customermates non garantisce la conservazione dei messaggi. Scollegare il canale elimina le chat importate da esso.
+</FaqItem>
+</Faq>

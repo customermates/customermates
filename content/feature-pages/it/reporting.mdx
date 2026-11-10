@@ -1,0 +1,167 @@
+---
+title: "Dashboard CRM: report, grafici e pipeline ponderata"
+description: "Dashboard CRM in Customermates: grafici su trattative, contatti e attività, pipeline ponderata e analisi dei record con Mate. Configurazione, piani e limiti."
+featureName: Dashboard CRM
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
+
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Siamo una società di consulenza strategica di quattro persone. Tieni traccia di clienti, incarichi e proposte e aiutaci a fare follow-up con i potenziali clienti su LinkedIn."
+  steps:
+    title: "Imposta una dashboard settimanale della pipeline"
+    items:
+      - title: "Controlla le probabilità delle fasi"
+        description: "Nel Modello dati, apri Trattative e il campo Fase e regola la Probabilità % di ogni opzione. Un’anteprima mostra l’effetto su trattative e widget."
+      - title: "Aggiungi i campi che servono alle tue domande"
+        description: "Nel Modello dati, apri Trattative e usa Aggiungi › Campo per un campo a Scelta singola \"Fonte del lead\" (Segnalazione, LinkedIn, Sito web, Evento), un campo a Scelta singola \"Motivo della perdita\" e un campo Data \"Chiusa il\". Un grafico può raggruppare solo ciò che registri."
+      - title: "Crea il primo grafico"
+        description: "Nella Dashboard, premi Aggiungi widget e scegli Grafico a barre. In Dati, scegli Trattative come origine, somma Valore ponderato e raggruppa per Fase. Escludi Vinta e Persa nei filtri, poi premi Salva."
+      - title: "Aggiungine altri tre"
+        description: "Valore delle trattative vinte per Fonte del lead, valore delle trattative vinte per organizzazione e un conteggio delle trattative perse per Motivo della perdita. Trascinali e ridimensionali; il layout viene salvato per te."
+      - title: "Condividi la dashboard con il tuo team"
+        description: "Metti i grafici su una vista della dashboard con un nome come \"Pipeline settimanale\" (Nuova vista sopra i widget), poi scegli Condividi… nel suo menu. Tutti nel workspace o i ruoli che scegli vedono gli stessi grafici, in sola lettura, e ogni numero è calcolato con il loro accesso."
+  highlights:
+    title: "In breve"
+    capture: homepage-dashboard
+    items:
+      - title: "Cosa ottieni"
+        description: "Widget grafici che contano record o sommano campi come il valore e il valore ponderato delle trattative, raggruppati per un campo, per record o nel tempo, più un widget con la cronologia delle attività."
+      - title: "Piani"
+        description: "Le dashboard e la pipeline ponderata fanno parte di ogni piano, da Starter a [[commercial.price.starter.monthly]] per utente al mese, e dell’edizione self-hosted."
+      - title: "IA"
+        description: "In Customermates Cloud, Mate risponde alle domande che richiedono calcoli su molti record, con crediti IA ospitati. Il tuo client IA legge gli stessi dati tramite MCP."
+      - title: "Non incluso"
+        description: "Nessun tracciamento delle conversioni nel tempo, del tempo in fase, degli obiettivi, nessuna previsione predittiva né e-mail di report programmate, e nessuna dashboard che tutto il team modifica insieme (una dashboard condivisa è in sola lettura per i colleghi)."
+
+hero:
+  title: "Dashboard CRM: vedi quali follow-up scadono e quanto vale la tua pipeline"
+  description: "Costruisci una dashboard con le trattative per fase, la pipeline ponderata e un elenco In arrivo di ciò che scade e di ciò che è scaduto, e condividila con il tuo team. In Customermates Cloud, chiedi a Mate le cifre che un grafico non può mostrare."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Senza carta di credito ✓ Primi [[commercial.trial.days]] giorni gratis"
+
+cta:
+  action: "Metti follow-up e pipeline su un’unica dashboard"
+  description: "Durante la prova, aggiungi un campo data per il passo successivo, un widget In arrivo e un grafico della pipeline ponderata. Le dashboard sono incluse da [[commercial.price.starter.monthly]] per utente al mese, fatturati mensilmente."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Senza carta di credito ✓ Primi [[commercial.trial.days]] giorni gratis"
+---
+
+Una dashboard CRM serve a contare e sommare ciò che è già nel tuo CRM: il reporting CRM, in pratica, risponde a domande come «cosa c’è in pipeline?» o «quali clienti hanno portato più ricavi?» senza un foglio di calcolo. In Customermates succede in tre posti: i grafici della dashboard, le liste raggruppate per un campo e il valore ponderato di ogni trattativa. Tutto ciò che richiede vera aritmetica su molti record, come la dimensione mediana delle trattative o una classifica, passa a Mate in Customermates Cloud, al tuo client IA tramite MCP o a Excel dopo un’esportazione.
+
+È volutamente piccolo. Se ti servono tracciamento delle conversioni nel tempo, tempo in fase, quote o previsioni di ricavo, la sezione sui limiti indica strumenti che lo fanno.
+
+## Cosa può calcolare un widget grafico
+
+Ogni grafico prende come origine una lista, un’aggregazione e un raggruppamento. L’aggregazione è un conteggio dei record, oppure la somma, la media, il minimo o il massimo di un campo numerico o di denaro, come **Valore** o **Valore ponderato** sulle trattative.
+
+Il **raggruppamento** è **Nessun raggruppamento** (un solo totale), un campo come Fase o Fonte del lead, ogni record, **Assegnato a**, oppure un campo raggiunto tramite una relazione. Questo ti dà «valore delle trattative per fase», «valore delle trattative per organizzazione» o «importi delle voci per servizio». Raggruppa per un campo data, **Creato il** o **Aggiornato il** e scegli un **Intervallo di tempo** per ottenere un valore per giorno, settimana, mese, trimestre o anno.
+
+Il **Valore ponderato** è un campo calcolato sulle trattative: il valore della trattativa per la **Probabilità %** della sua fase, che imposti su ogni opzione del campo Fase nel **Modello dati**. Una volta impostate le probabilità, funziona dalla prima trattativa.
+
+I **filtri** restringono ciò che un grafico conta, usando qualsiasi campo, date comprese; i campi collegati compaiono come **Lista › Campo**. È così che disegni il grafico del «valore delle trattative vinte per organizzazione»: trattative come origine, un filtro su Fase uguale a Vinta, raggruppato per organizzazione.
+
+Gli **stili di grafico** sono Numero, Grafico a barre, Barre orizzontali, Area nel tempo, Classifica, Anello, Imbuto e Radar. Un’anteprima dal vivo mostra il risultato prima di salvare.
+
+Il secondo tipo di widget, la **Cronologia attività**, è un feed in ordine dal più recente delle modifiche ai record e, da Pro in su, anche di messaggi ed eventi del calendario degli account collegati. Lo filtri per categoria, account o record collegati, per esempio «tutto ciò che è successo sulle trattative dei miei tre clienti più grandi».
+
+## Report che un piccolo team usa, e come costruirli
+
+Queste ricette presuppongono una lista di trattative con un campo a scelta singola Fase più altri due campi a scelta singola che aggiungi tu: «Fonte del lead» e «Motivo della perdita».
+
+| Domanda | Origine | Misura | Raggruppamento | Filtri |
+|---|---|---|---|---|
+| Cosa c’è in pipeline, per fase? | Trattative | Somma di Valore | Fase | Fase non è Vinta né Persa |
+| Quanto vale se le probabilità delle fasi reggono? | Trattative | Somma di Valore ponderato | Fase | Fase non è Vinta né Persa |
+| Da dove viene il lavoro vinto? | Trattative | Somma di Valore | Fonte del lead | Fase è Vinta, data personalizzata «Chiusa il» tra il primo e l’ultimo giorno del trimestre |
+| Quali clienti portano più ricavi? | Trattative | Somma di Valore | Organizzazione | Fase è Vinta |
+| Quali servizi si vendono? | Voci di riga | Somma di Importo | Servizio | Trattative › Fase è Vinta |
+| Perché perdiamo? | Trattative | Conteggio | Motivo della perdita | Fase è Persa |
+| Quanto lavoro aperto c’è? | Attività | Conteggio | Stato | Stato non è Completata né Archiviata |
+
+Le attività non hanno una scadenza integrata. Il campo Stato dell’ultima riga è un campo a scelta singola che aggiungi alla tua lista di attività, e puoi rinominarlo, cambiarlo o eliminarlo come qualsiasi altro campo.
+
+Due domande trovano risposta meglio in una lista che in un grafico. **Chi lavora su quali trattative?** Passa la lista delle trattative alla board e raggruppala per **Assegnato a**: ogni persona ottiene una colonna con il numero delle sue trattative e i totali. **Quante trattative abbiamo aperto al mese?** Raggruppa la tabella delle trattative per data di creazione, a intervalli mensili. Salvate come viste, entrambe restano a un clic di distanza, e puoi condividerle con il team.
+
+Una terza domanda riguarda il follow-up: **cosa scade dopo?** Aggiungi un widget **In arrivo** su un campo data come Prossimo passo. Elenca i record in scadenza nei prossimi 14 giorni, con una sezione **Scaduti** per le date precedenti, così i passi successivi sono nella tua dashboard quando accedi. Filtra i record conclusi, in modo che solo quelli aperti contino come scaduti.
+
+## Di quale piano hai bisogno
+
+| Piano | Funzioni di reporting | Prezzo |
+|---|---|---|
+| Starter | Widget grafici, cronologia attività delle modifiche ai record, pipeline ponderata, liste raggruppate, esportazione XLSX, REST, MCP | [[commercial.price.starter.monthly]] per utente al mese |
+| Pro | Starter più messaggi ed eventi del calendario nella cronologia attività, tramite la posta in arrivo unificata | [[commercial.price.pro.monthly]] per utente al mese |
+| Business | Pro più un’unica cronologia di team su ogni canale | [[commercial.price.business.monthly]] per utente al mese |
+| Self-hosted | Grafici, pipeline ponderata, esportazione, REST e MCP sul tuo server; senza posta in arrivo, Mate né routine | Nessun costo di licenza |
+
+Mate usa crediti IA ospitati, inclusi per utente attivo e per mese in ogni piano Cloud a pagamento; la [pagina dei prezzi](/pricing) indica gli importi. Un team di tre persone su Starter paga [[commercial.price.starter.monthly.seats.3]] al mese, e un team di cinque persone su Pro paga [[commercial.price.pro.monthly.seats.5]]. Non c’è alcun componente aggiuntivo di reporting né un costo per singolo report.
+
+## Cosa non fa il reporting di Customermates e cosa usare al suo posto
+
+Customermates pubblica questa pagina. I dettagli dei fornitori sono stati verificati l’8 ottobre 2026 sulle pagine dei fornitori stessi.
+
+| Ti serve | In Customermates | Dove guardare |
+|---|---|---|
+| Previsioni di ricavo oltre i pesi delle fasi | Non disponibile. La pipeline ponderata moltiplica il valore di ogni trattativa per la probabilità che imposti per la sua fase, nient’altro. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional ed Enterprise includono le previsioni; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) offre una vista di previsione |
+| Un costruttore di report personalizzati con tassi di conversione, obiettivi e molti tipi di report | Non disponibile. I grafici contano e aggregano; un grafico a Imbuto mostra la conversione da un passaggio all’altro dei record attuali, ma non ci sono obiettivi né conversione nel tempo. | HubSpot Sales Hub Professional (report personalizzati); Pipedrive Insights (report personalizzati, dashboard e obiettivi) |
+| Il tuo BI sui dati grezzi | Nessun connettore integrato verso uno strumento di BI | Self-hosted: i tuoi dati stanno nel tuo PostgreSQL, che [Metabase](https://www.metabase.com/docs/latest/databases/connecting) supporta; la sua edizione Open Source è gratuita e self-hosted. Usa un utente di database in sola lettura e aspettati di dover adattare le query dopo un aggiornamento, perché le tabelle sono lo schema interno del prodotto. |
+| Una dashboard che tutto il team modifica | Non disponibile. Una dashboard condivisa è in sola lettura per i colleghi: solo il suo proprietario modifica i widget, e **Duplica come nuova vista** dà a ciascuno una copia modificabile. | |
+| E-mail di report programmate | Non integrate | Una routine in Customermates Cloud, oppure n8n, entrambi descritti qui sotto |
+
+Per un’analisi una tantum, esporta la lista come cartella di lavoro Excel dal menu **Altre azioni** della lista delle trattative. L’esportazione prende le colonne visibili, i filtri e l’ordinamento, e una [tabella pivot](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data) fa il resto. L’esportazione procede un tipo di record alla volta; la [guida ai record](/docs/app-records) indica i limiti.
+
+## Come il reporting si collega a Mate, MCP e API
+
+**Mate (Customermates Cloud).** Mate ha uno strumento di analisi in sola lettura per le domande che richiedono aritmetica su molti record: una mediana, una classifica, un tasso di vittoria o un join tra trattative e organizzazioni. Legge i record che il tuo ruolo può vedere, calcola in una sandbox isolata e non cambia nulla. Ogni domanda usa crediti IA ospitati. Un esempio:
+
+```text
+Per le trattative arrivate a Vinta o Persa dal 1º luglio: qual è il tasso di vittoria per fonte del lead, qual è il valore mediano delle trattative vinte e quali tre organizzazioni hanno portato più valore vinto?
+```
+
+La risposta è un messaggio di chat, non un grafico salvato. Mate può anche creare o modificare widget della dashboard per te quando li descrivi.
+
+**Routine (Customermates Cloud).** Una routine esegue un’istruzione salvata a orari prestabiliti, come «Ogni lunedì alle 8:00, riassumi la pipeline aperta per fase ed elenca le trattative non aggiornate da 30 giorni.» Gira come te, il suo proprietario, con il tuo accesso e i tuoi crediti, e il riepilogo dell’esecuzione resta sulla routine. Da Pro in su può anche inviarti quel riepilogo per e-mail dalla tua casella collegata; Mate invia senza chiedere di nuovo, quindi scrivi «bozza» nell’istruzione se vuoi leggerlo prima. Vedi [l’automazione dei flussi di lavoro](/features/workflow-automation) per trigger e limiti.
+
+**Il tuo client IA tramite MCP.** Claude, ChatGPT e altri client MCP usano [[derived.mcp.tools.total]] strumenti su ogni piano e in self-hosting. Con `query_crm_measure` un client calcola i totali su tutti i record corrispondenti, quindi «qual è la nostra pipeline ponderata per le organizzazioni in Baviera?» ha una risposta esatta. La [documentazione MCP](/docs/mcp) descrive la configurazione.
+
+**REST e webhook.** Se i report appartengono a un altro sistema, leggi i record tramite l’[API REST](/features/api) o ricevi un webhook a ogni modifica e tieni aggiornata una tua tabella di reporting. [n8n](/docs/n8n) può fare entrambe le cose a orari prestabiliti; gira separatamente e non fa parte di Customermates.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Quali sono i report CRM tipici?">
+Per un piccolo team, cinque coprono la maggior parte delle decisioni: valore della pipeline per fase, pipeline ponderata, ricavi vinti per fonte del lead, ricavi per cliente e trattative perse per motivo. Tutti e cinque sono widget grafici in Customermates. I report sulle attività, gli imbuti di conversione e le previsioni di vendita sono comuni nei CRM più grandi; Customermates ha una cronologia delle attività e un grafico a imbuto delle fasi attuali, ma nessuna previsione.
+</FaqItem>
+
+<FaqItem question="Customermates può prevedere i ricavi?">
+Non in senso predittivo. Calcola una pipeline ponderata: il valore di ogni trattativa per la probabilità di vittoria che imposti per la sua fase. Niente impara dalle trattative passate né prevede le date di chiusura. Se ti serve, guarda HubSpot Sales Hub Professional o la vista di previsione di Pipedrive.
+</FaqItem>
+
+<FaqItem question="Il mio team può condividere un’unica dashboard?">
+Sì. In una vista della dashboard con un nome di cui sei proprietario, scegli **Condividi…** e seleziona tutti i membri del workspace o ruoli specifici. I colleghi vedono gli stessi widget e lo stesso layout, in sola lettura, e ogni numero è calcolato con il loro accesso, quindi due persone possono vedere numeri diversi nello stesso grafico. Solo tu modifichi i widget; **Duplica come nuova vista** dà a un collega una copia modificabile. La dashboard principale non si può condividere, quindi metti i grafici su una vista con un nome. Un singolo grafico può anche uscire con **Condividi come modello**. Per le persone fuori dal workspace, una vista della dashboard può essere pubblicata con un link pubblico, in sola lettura e senza accesso, se il tuo ruolo può pubblicare e il workspace consente i link pubblici.
+</FaqItem>
+
+<FaqItem question="Posso esportare i report del CRM in Excel?">
+Esporti i record, non i grafici. Qualsiasi lista si esporta in una cartella di lavoro Excel con i suoi filtri, l’ordinamento e le colonne visibili attuali, un tipo di record alla volta. Il CSV non è offerto, quindi costruisci il report con una tabella pivot in Excel.
+</FaqItem>
+
+<FaqItem question="Quali report sono inclusi nel piano Starter?">
+Tutti i widget grafici, la pipeline ponderata, le liste raggruppate, la cronologia delle attività delle modifiche ai record e l’esportazione XLSX sono su Starter. Pro aggiunge messaggi ed eventi del calendario alla cronologia. L’analisi di Mate richiede Customermates Cloud e crediti IA ospitati, che ogni piano Cloud a pagamento include.
+</FaqItem>
+
+<FaqItem question="Posso costruire report con ChatGPT o Claude?">
+Sì. Collega il client tramite MCP, e potrà elencare e filtrare i record, calcolare i totali delle trattative corrispondenti e creare widget della dashboard. Il modello, il suo abbonamento e ciò che fa con i tuoi dati dipendono dal tuo fornitore di IA, non da Customermates.
+</FaqItem>
+</Faq>
