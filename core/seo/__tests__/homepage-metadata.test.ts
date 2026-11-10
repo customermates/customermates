@@ -39,6 +39,7 @@ describe("homepage metadata", () => {
           de: `${BASE_URL}/de`,
           en: `${BASE_URL}/en`,
           fr: `${BASE_URL}/fr`,
+          it: `${BASE_URL}/it`,
           "x-default": `${BASE_URL}/en`,
         },
       },
