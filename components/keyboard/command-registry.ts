@@ -1,3 +1,4 @@
+import type { ComponentType } from "react";
 import type { LucideIcon } from "lucide-react";
 import type { AppMode } from "@/core/config/environment";
 import type { ShortcutId } from "./shortcut-registry";
@@ -6,6 +7,7 @@ import {
   ArrowLeftRight,
   BookOpen,
   Building2,
+  CalendarDays,
   Repeat,
   Settings,
   Contrast,
@@ -35,6 +37,9 @@ import { Action, Resource } from "@/generated/prisma";
 import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
+import { AI_CLIENT_COMMAND_ICONS, CHANNEL_COMMAND_ICONS } from "./connect-command-icons";
+import { CONNECT_INTENT_AI_CLIENTS, CONNECT_INTENT_CHANNELS, connectIntentHref } from "./connect-intent";
+
 type CommandKind = "page" | "setting" | "action";
 
 export type CommandActionId =
@@ -63,11 +68,13 @@ type CommandRequirement = {
   workspaceCreation?: boolean;
 };
 
+export type CommandIcon = ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" | "false" }>;
+
 type StaticCommand = {
   id: string;
   labelKey: string;
   kind: CommandKind;
-  icon: LucideIcon;
+  icon: CommandIcon;
   target: CommandTarget;
   parentId?: string;
   shortcut?: ShortcutId;
@@ -92,6 +99,53 @@ function profileSetting(name: string, icon: LucideIcon, control: string): Static
     target: { control: `settings-profile-${control}` },
   };
 }
+
+const CHANNEL_CONNECTION_COMMANDS: Record<(typeof CONNECT_INTENT_CHANNELS)[number], { id: string; labelKey: string }> =
+  {
+    google: { id: "setting.channels.google", labelKey: "CommandPalette.labels.connect.google" },
+    outlook: { id: "setting.channels.outlook", labelKey: "CommandPalette.labels.connect.outlook" },
+    imap: { id: "setting.channels.imap", labelKey: "CommandPalette.labels.connect.imap" },
+    whatsapp: { id: "setting.channels.whatsapp", labelKey: "CommandPalette.labels.connect.whatsapp" },
+    linkedin: { id: "setting.channels.linkedin", labelKey: "CommandPalette.labels.connect.linkedin" },
+    linkedin_sales_navigator: {
+      id: "setting.channels.linkedinSalesNavigator",
+      labelKey: "CommandPalette.labels.connect.linkedinSalesNavigator",
+    },
+    linkedin_recruiter: {
+      id: "setting.channels.linkedinRecruiter",
+      labelKey: "CommandPalette.labels.connect.linkedinRecruiter",
+    },
+    instagram: { id: "setting.channels.instagram", labelKey: "CommandPalette.labels.connect.instagram" },
+    telegram: { id: "setting.channels.telegram", labelKey: "CommandPalette.labels.connect.telegram" },
+  };
+
+const AI_CLIENT_CONNECTION_COMMANDS: Record<
+  (typeof CONNECT_INTENT_AI_CLIENTS)[number],
+  { id: string; labelKey: string }
+> = {
+  claude: { id: "setting.apiKeys.claude", labelKey: "CommandPalette.labels.connect.claude" },
+  openai: { id: "setting.apiKeys.openai", labelKey: "CommandPalette.labels.connect.openai" },
+  cursor: { id: "setting.apiKeys.cursor", labelKey: "CommandPalette.labels.connect.cursor" },
+  gemini: { id: "setting.apiKeys.gemini", labelKey: "CommandPalette.labels.connect.gemini" },
+};
+
+const CHANNEL_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_CHANNELS.map((channel) => ({
+  ...CHANNEL_CONNECTION_COMMANDS[channel],
+  kind: "setting",
+  icon: CHANNEL_COMMAND_ICONS[channel],
+  parentId: "settings.channels",
+  target: { href: connectIntentHref(settingsHref("channels"), channel) },
+  requires: { resource: Resource.inboxMessages, action: Action.create, cloudOnly: true },
+}));
+
+const AI_CLIENT_CONNECTIONS: StaticCommand[] = CONNECT_INTENT_AI_CLIENTS.map((provider) => ({
+  ...AI_CLIENT_CONNECTION_COMMANDS[provider],
+  kind: "setting",
+  icon: AI_CLIENT_COMMAND_ICONS[provider],
+  parentId: "settings.api-keys",
+  target: { href: connectIntentHref(settingsHref("api-keys"), provider) },
+  requires: { resource: Resource.api, action: Action.create },
+}));
 
 const SETTINGS_PAGES: StaticCommand[] = [...SETTINGS_SECTIONS.account, ...SETTINGS_SECTIONS.workspace].map(
   (subroute) => ({
@@ -130,6 +184,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/wiki" },
     shortcut: "goKnowledgeBase",
     requires: { resource: Resource.wiki },
+  },
+  {
+    id: "page.calendar",
+    labelKey: "Planner.title",
+    kind: "page",
+    icon: CalendarDays,
+    target: { href: "/calendar" },
   },
   {
     id: "page.routines",
@@ -214,6 +275,8 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { control: "settings-channels-connect" },
     requires: { resource: Resource.inboxMessages, cloudOnly: true },
   },
+  ...CHANNEL_CONNECTIONS,
+  ...AI_CLIENT_CONNECTIONS,
   {
     id: "action.add",
     labelKey: "KeyboardShortcuts.actions.add",

@@ -103,13 +103,13 @@ This is the most common design problem, and there are four honest answers.
 1. **It describes an existing record.** A contract end date, a client segment, a LinkedIn URL. Add a typed custom field to that record type.
 2. **It is something you sell.** Put it in the product or service catalogue and link it to deals, so the deal value follows from what is in it.
 3. **It is text you read but never filter.** Meeting notes, background, preferences. Use the notes field.
-4. **It has its own lifecycle and relations.** Properties, vehicles, candidates, events. That is a custom object. HubSpot offers them on Enterprise, Salesforce on its platform, and no-code databases such as Airtable are built around them. In Customermates you add it as your own list in Configure, with its own fields and relationships.
+4. **It has its own lifecycle and relations.** Properties, vehicles, candidates, events. That is a custom object. HubSpot offers them on Enterprise, Salesforce on its platform, and no-code databases such as Airtable are built around them. In Customermates you add it as your own list in Data model, with its own fields and relationships.
 
 ## Worked example: a CRM database for a four-person consultancy
 
 Here is the same design in Customermates, set up the way the product works today. Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams such as consultants, agencies and founders. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the lists, pipeline and dashboard, and the steps below also work by hand in Configure.
 
-**Lists.** In Configure, open Contacts and change **Name** and **Plural name** under **General** to Client and Clients, then rename Deals to Projects the same way. Any name works. Organizations, Services and Tasks keep their names.
+**Lists.** In Data model, open Contacts and change **Name** and **Plural name** under **General** to Client and Clients, then rename Deals to Projects the same way. Any name works. Organizations, Services and Tasks keep their names.
 
 **Fields.** Each field has a type: Text, Formatted text, Number, Money, Yes or no, Date, Date and time, Date range, Date and time range, Single choice, Multiple choice, Web address, Member, Address, File or Phone, email & social.
 
@@ -124,7 +124,7 @@ Here is the same design in Customermates, set up the way the product works today
 
 **Relations.** A client can link to several organizations, and a project to several clients, organizations and assigned users. A project's value is the sum of its line items, each a service price multiplied by its quantity, so "Strategy workshop" at one price and "Monthly retainer" times six add up on their own.
 
-**Stages.** Stages are not preset: you add a Stage field (for example Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) and set win probabilities per stage in Configure. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
+**Stages.** Stages are not preset: you add a Stage field (for example Prospecting, Qualification, Demo, Proposal, Negotiation, Won, Lost) and set win probabilities per stage in Data model. The weighted pipeline is the plain arithmetic of those percentages, not a prediction.
 
 **Unique key.** Email addresses go into the client's Contact details field, which matches incoming messages to the record. One address can belong to several records, so remove duplicates before you import. Global search (Cmd/Ctrl+K) finds a client by name or by any email address or phone number in their contact details.
 

@@ -78,6 +78,7 @@ const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.insufficientPermissions,
   CustomErrorCode.demoMode,
   CustomErrorCode.roleSelfEditForbidden,
+  CustomErrorCode.roleExceedsOwnPermissions,
 ]);
 const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.calendarEventNotFound,

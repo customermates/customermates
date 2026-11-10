@@ -128,7 +128,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   });
   await expect(dealsPath.locator("[data-field-derivation]")).toHaveText("Through linked records · Line items → Deals");
   await expect(
-    dealsPath.locator('[data-slot="app-modal-actions"]').getByRole("link", { name: "Edit in Configure", exact: true }),
+    dealsPath.locator('[data-slot="app-modal-actions"]').getByRole("link", { name: "Edit in Data model", exact: true }),
   ).toBeVisible();
   await expect(dealsPath.locator("[data-field-derivation]").getByRole("link")).toHaveCount(0);
   await page.keyboard.press("Escape");

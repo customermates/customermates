@@ -64,7 +64,7 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit v
 
 ## Was die REST-API abdeckt
 
-Die REST-API arbeitet mit jeder Liste des CRM. Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) unter Konfigurieren, per API oder MCP an, oder die KI-Einrichtung baut sie in der Cloud. Jede Datensatz-Route ist ein `POST` an eine benannte Aktion mit JSON-Body. Derselbe Code funktioniert also für Deals, Kontakte oder eine Liste, die Sie letzte Woche angelegt haben.
+Die REST-API arbeitet mit jeder Liste des CRM. Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) unter Datenmodell, per API oder MCP an, oder die KI-Einrichtung baut sie in der Cloud. Jede Datensatz-Route ist ein `POST` an eine benannte Aktion mit JSON-Body. Derselbe Code funktioniert also für Deals, Kontakte oder eine Liste, die Sie letzte Woche angelegt haben.
 
 | Ziel | Methode und Pfad |
 |---|---|
@@ -97,7 +97,7 @@ Ein Webhook schickt einen JSON-`POST` an Ihre URL, sobald ein abonniertes Ereign
 - **Änderungen inklusive:** Ein `record.updated`-Payload enthält die Datensatzreferenz und jedes geänderte Feld mit seinem Wert `before` und `after`. Ein Schreibvorgang ohne Änderung löst kein Event aus.
 - **Signatur:** Mit gesetztem Secret wird jede Zustellung per HMAC-SHA256 über den Roh-Body signiert.
 - **Wiederholungen:** Bei Timeout, Netzwerkfehler, 5xx, 408, 425 oder 429 wird automatisch wiederholt, mit bis zu 10 Versuchen insgesamt. Andere 4xx-Antworten werden nicht wiederholt, weil ein zweiter Versuch genauso scheitern würde. Jede Zustellung hat 5 Sekunden Timeout.
-- **Zustellprotokoll:** Unter **Einstellungen → Zustellungen** sehen Sie Statuscode und Antworttext jeder Zustellung und können sie erneut senden.
+- **Zustellprotokoll:** Unter **Einstellungen → Webhook-Protokoll** sehen Sie Statuscode und Antworttext jeder Zustellung und können sie erneut senden.
 - **Body-Vorlagen:** Eine Vorlage ersetzt das Standardformat der Zustellung. So nimmt ein Chat-Tool oder Automatisierungsendpunkt mit eigenem JSON-Format die Daten direkt an, ohne Middleware dazwischen.
 
 Zustellungen kommen nicht garantiert in Reihenfolge an. Zwei Änderungen am selben Kontakt im Abstand weniger Millisekunden können vertauscht eintreffen. Deduplizieren Sie deshalb anhand der Event-`id`, ordnen Sie über `typeId` und `recordId` zu und nutzen Sie `timestamp` und Datensatzversion im Payload.
@@ -105,11 +105,11 @@ Zustellungen kommen nicht garantiert in Reihenfolge an. Zwei Änderungen am selb
 ## So senden Sie den ersten API-Aufruf
 
 <Steps>
-  <Step title="Key anlegen">Öffnen Sie **Einstellungen → API-Schlüssel**, klicken Sie auf **Hinzufügen**, wählen Sie **Standard-API-Key**, vergeben Sie einen Namen wie `ERP-Sync, Produktion` und kopieren Sie den Key. Er wird nur einmal angezeigt. Ablauf und Rotation erklärt die [Anleitung zu API-Keys](/docs/api-keys).</Step>
+  <Step title="Key anlegen">Öffnen Sie **Einstellungen → API-Schlüssel & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie **Standard-API-Key**, vergeben Sie einen Namen wie `ERP-Sync, Produktion` und kopieren Sie den Key. Er wird nur einmal angezeigt. Ablauf und Rotation erklärt die [Anleitung zu API-Keys](/docs/api-keys).</Step>
   <Step title="Schema laden">Rufen Sie `/api/v1/openapi` unter Ihrer Workspace-Adresse ab und importieren Sie das Dokument in Postman, Insomnia oder einen Client-Generator. Senden Sie danach `POST /api/v1/model/discover` mit `{"search":"deal"}`, um die `typeId` Ihrer Deals zu erhalten, und `POST /api/v1/model/read` mit `{"typeIds":["<deal-type-id>"]}`, um Felder, Phasen-Optionen und Schema-`revision` zu sehen.</Step>
   <Step title="Abfragen">Senden Sie `POST /api/v1/records/query` mit dem Header `x-api-key` und einem Body wie `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}`. Die Antwort enthält alle Deals, die in den letzten sieben Tagen geändert wurden.</Step>
   <Step title="Schreiben">Setzen Sie einen Deal mit `POST /api/v1/records/mutate` in eine andere Phase: `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. Was Ihr Nutzer in der App darf, darf der Key auch über die API.</Step>
-  <Step title="Abonnieren">Legen Sie einen Webhook für **Datensatz aktualisiert** auf der Liste Deals mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter **Zustellungen**.</Step>
+  <Step title="Abonnieren">Legen Sie einen Webhook für **Datensatz aktualisiert** auf der Liste Deals mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter **Webhook-Protokoll**.</Step>
 </Steps>
 
 Ein falscher, abgelaufener oder gelöschter Key erhält HTTP `401`. Ein Key, dessen Besitzer auf **Inaktiv** steht, erhält `403`.

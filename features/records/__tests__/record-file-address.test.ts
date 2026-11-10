@@ -437,6 +437,31 @@ describe("type changes", () => {
     expect(change("text", "address")).toEqual([]);
     expect(change("address", "text")).toEqual([]);
   });
+
+  it("adds a select option without recalculating the list's records, but recalculates a changed option", () => {
+    const option = (id: string, attributes: Array<{ key: string; value: RecordScalar }> = []) => ({
+      id,
+      label: id,
+      color: null,
+      attributes,
+    });
+    const select = (options: RecordField["options"]) => model([field(TEXT, "select", { options })]);
+    const before = select([option("call"), option("mail")]);
+    const changes = (after: RecordModel) => configurationTypeChanges(before, after, undefined, []);
+    expect(changes(select([option("call"), option("mail"), option("feed-lead")]))).toMatchObject({
+      changedTypes: new Set(),
+      viewTypes: new Set([TYPE]),
+    });
+    expect(
+      changes(
+        select([
+          option("call"),
+          option("mail", [{ key: "probability", value: { kind: "decimal", value: "0.5", currency: null } }]),
+        ]),
+      ).changedTypes,
+    ).toEqual(new Set([TYPE]));
+    expect(changes(select([option("call")])).changedTypes).toEqual(new Set([TYPE]));
+  });
 });
 
 describe("filters, sorting and editor values", () => {

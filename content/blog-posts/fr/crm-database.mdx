@@ -103,13 +103,13 @@ C’est le problème de conception le plus courant, et il y a quatre réponses h
 1. **Cela décrit un enregistrement existant.** Une date de fin de contrat, un segment de client, une URL LinkedIn. Ajoutez un champ personnalisé typé à ce type d’enregistrement.
 2. **C’est quelque chose que vous vendez.** Mettez-le dans le catalogue de produits ou de services et liez-le aux affaires, afin que la valeur de l’affaire découle de son contenu.
 3. **C’est du texte que vous lisez mais ne filtrez jamais.** Notes de réunion, contexte, préférences. Utilisez le champ de notes.
-4. **Cela a son propre cycle de vie et ses propres relations.** Biens immobiliers, véhicules, candidats, évènements. C’est un objet personnalisé. HubSpot les propose sur Enterprise, Salesforce sur sa plateforme, et les bases no-code comme Airtable sont construites autour d’eux. Dans Customermates, vous l’ajoutez comme votre propre liste dans Configurer, avec ses propres champs et relations.
+4. **Cela a son propre cycle de vie et ses propres relations.** Biens immobiliers, véhicules, candidats, évènements. C’est un objet personnalisé. HubSpot les propose sur Enterprise, Salesforce sur sa plateforme, et les bases no-code comme Airtable sont construites autour d’eux. Dans Customermates, vous l’ajoutez comme votre propre liste dans Modèle de données, avec ses propres champs et relations.
 
 ## Exemple chiffré : une base de données CRM pour un cabinet de conseil de quatre personnes
 
 Voici la même conception dans Customermates, mise en place comme le produit fonctionne aujourd’hui. Customermates est un CRM open source et IA natif conçu en Allemagne pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes, le pipeline et le tableau de bord, et les étapes ci-dessous fonctionnent aussi à la main dans Configurer.
 
-**Listes.** Dans Configurer, ouvrez Contacts et changez **Nom** et **Nom au pluriel** sous **Général** en Client et Clients, puis renommez Affaires en Projets de la même façon. N’importe quel nom convient. Organisations, Services et Tâches gardent leur nom.
+**Listes.** Dans Modèle de données, ouvrez Contacts et changez **Nom** et **Nom au pluriel** sous **Général** en Client et Clients, puis renommez Affaires en Projets de la même façon. N’importe quel nom convient. Organisations, Services et Tâches gardent leur nom.
 
 **Champs.** Chaque champ a un type : Texte, Texte enrichi, Nombre, Montant, Oui ou non, Date, Date et heure, Période, Période avec heures, Choix unique, Choix multiple, Adresse web, Membre, Adresse, Fichier ou Téléphone, e-mail et réseaux sociaux.
 
@@ -124,7 +124,7 @@ Voici la même conception dans Customermates, mise en place comme le produit fon
 
 **Relations.** Un client peut être lié à plusieurs organisations, et un projet à plusieurs clients, organisations et utilisateurs assignés. La valeur d’un projet est la somme de ses lignes, chacune étant le prix d’un service multiplié par sa quantité : « Atelier stratégique » à un prix et « Suivi mensuel » multiplié par six s’additionnent tout seuls.
 
-**Étapes.** Les étapes ne sont pas prédéfinies : vous ajoutez un champ Étape (par exemple Prospection, Qualification, Démo, Proposition, Négociation, Gagnée, Perdue) et vous définissez des probabilités de gain par étape dans Configurer. Le pipeline pondéré est l’arithmétique simple de ces pourcentages, pas une prévision.
+**Étapes.** Les étapes ne sont pas prédéfinies : vous ajoutez un champ Étape (par exemple Prospection, Qualification, Démo, Proposition, Négociation, Gagnée, Perdue) et vous définissez des probabilités de gain par étape dans Modèle de données. Le pipeline pondéré est l’arithmétique simple de ces pourcentages, pas une prévision.
 
 **Clé unique.** Les adresses e-mail vont dans le champ Coordonnées du client, qui rattache les messages entrants à l’enregistrement. Une même adresse peut appartenir à plusieurs enregistrements : supprimez donc les doublons avant d’importer. La recherche globale (Cmd/Ctrl+K) retrouve un client par son nom ou par n’importe quelle adresse e-mail ou numéro de téléphone de ses coordonnées.
 

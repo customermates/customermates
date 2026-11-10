@@ -791,7 +791,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Stage and status are Single choice fields.",
-        "To edit the stages or their probabilities, open the field on the configure page of the list in Configure",
+        "To edit the stages or their probabilities, open the field on the configure page of the list in Data model",
         "Drag the card to another column on the board of your deals or tasks list",
       ],
     },
@@ -801,7 +801,7 @@ describe("complete record procedures in bounded classifier evidence", () => {
       anchor: "how-do-i-change-a-deal-stage-or-a-task-status-on-the-board",
       controls: [
         "Phase und Status sind Felder vom Typ Einzelauswahl.",
-        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld auf der Konfigurationsseite der Liste unter Konfigurieren",
+        "Um Phasen oder ihre Wahrscheinlichkeiten zu bearbeiten, öffnen Sie das Feld auf der Konfigurationsseite der Liste unter Datenmodell",
         "Ziehen Sie die Karte auf dem Board Ihrer Deal- oder Aufgabenliste in eine andere Spalte",
       ],
     },
@@ -1020,7 +1020,9 @@ describe("matching opening instructions in a full classifier pool", () => {
     }));
     const [question] = docsRankSpec(candidates, "docs", "Wie erstelle ich einen API-Schlüssel?").questions;
     const evidence = optionEvidence(question.options.s0);
-    expect(evidence).toContain("Öffnen Sie in den Einstellungen API-Schlüssel und klicken Sie auf Hinzufügen.");
+    expect(evidence).toContain(
+      "Öffnen Sie in den Einstellungen API-Schlüssel & Konnektoren und klicken Sie auf Hinzufügen.",
+    );
     expect(evidence).toContain("klicken Sie auf API-Key erstellen");
     expect(evidence.indexOf("Öffnen Sie in den Einstellungen")).toBeLessThan(
       evidence.indexOf("klicken Sie auf API-Key erstellen"),

@@ -8,7 +8,8 @@ import type { TenantUser } from "@/features/user/user.schema";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { interactorFailureCodes, interactorFailureStatus } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordInvariant } from "../record-invariant";
 import { PrismaBillingUsageRepo } from "@/features/billing-usage/prisma-billing-usage.repository";
 
@@ -303,7 +304,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     });
   });
 
-  it("lets the grant manager change only grants and keeps grants and summaries away from the schema manager", async () => {
+  it("keeps grants the grant manager does not hold, and grants and summaries, away from the schema manager", async () => {
     const grantDeal = (expectedRevision: number): ConfigurationChange => ({
       expectedRevision,
       idempotencyKey: randomUUID(),
@@ -331,7 +332,13 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
       ],
     });
 
-    const granted = await runWithTenant(actors.grants, async () => apply.invoke(grantDeal(await revision())));
+    const exceeding = await runWithTenant(actors.grants, async () => apply.invoke(grantDeal(await revision())));
+    expect(!exceeding.ok && interactorFailureCodes(exceeding.error), JSON.stringify(exceeding)).toEqual([
+      CustomErrorCode.roleExceedsOwnPermissions,
+    ]);
+    expect((await modelFor(actors.restricted)).types.map((type) => type.id)).not.toContain(id("deal"));
+
+    const granted = await runWithTenant(actors.admin, async () => apply.invoke(grantDeal(await revision())));
     expect(granted, JSON.stringify(granted)).toMatchObject({ ok: true, data: { status: "completed" } });
     expect((await modelFor(actors.restricted)).types.map((type) => type.id).sort()).toEqual(
       [id("deal"), id("lineItem")].sort(),

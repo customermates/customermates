@@ -32,7 +32,7 @@ export function configureListCard(page: Page, label: string) {
 }
 
 export async function backToConfigureGraph(page: Page) {
-  await configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
+  await configureTopBar(page).getByRole("link", { name: "Data model", exact: true }).click();
   await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
 }
 

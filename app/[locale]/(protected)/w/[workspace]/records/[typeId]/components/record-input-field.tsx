@@ -52,6 +52,7 @@ export const RecordInputField = observer(function RecordInputField({
   onDatePicked,
   onSelectOpenChange,
   collapsibleText = false,
+  multilineText = false,
   flush = false,
 }: {
   field: RecordFieldView;
@@ -63,6 +64,7 @@ export const RecordInputField = observer(function RecordInputField({
   onDatePicked?: () => void;
   onSelectOpenChange?: (open: boolean) => void;
   collapsibleText?: boolean;
+  multilineText?: boolean;
   flush?: boolean;
 }) {
   const t = useTranslations();
@@ -227,9 +229,11 @@ export const RecordInputField = observer(function RecordInputField({
       typeof value === "string" && value.trim() ? (
         <ContactValueActions action={field.format?.onClick ?? "open"} kind={field.valueType} value={value} />
       ) : undefined;
+    if (multilineText) return <FormTextarea {...shared} ariaLabel={field.label} endContent={endContent} rows={1} />;
     if (collapsibleText)
       return <FormTextarea {...shared} collapsible ariaLabel={field.label} endContent={endContent} />;
     return <FormInput {...shared} className="pr-14" endContent={endContent} />;
   }
+  if (multilineText) return <FormTextarea {...shared} ariaLabel={field.label} rows={1} />;
   return collapsibleText ? <FormTextarea {...shared} collapsible ariaLabel={field.label} /> : <FormInput {...shared} />;
 });

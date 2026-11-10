@@ -94,7 +94,7 @@ export const manageConnectedAccountsTool = {
   name: "manage_connected_accounts",
   title: "Manage connected accounts",
   description:
-    "Use this when the user wants to change the settings of a connected email or chat account, as on the Channels settings page. " +
+    "Use this when the user wants to change the settings of a connected email or chat account, as on the Channels & calendars settings page. " +
     "list returns your connected accounts with status, owner, sharing, email folders, the folder ids that sync, the signature and emailSettings. " +
     "Changes apply only to accounts you own: set_folders replaces the synced folder ids, and newly enabled folders sync in the background; " +
     "set_signature changes the signature text, emailSettings or both (settings is the complete object; an omitted field keeps its stored value); set_sharing shares all conversations of the account with every member who can read the Inbox, or makes it private again (Business or Enterprise); " +

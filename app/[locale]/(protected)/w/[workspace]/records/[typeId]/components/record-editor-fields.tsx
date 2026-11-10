@@ -198,7 +198,7 @@ export const RecordEditorField = observer(function RecordEditorField({
             files={store.record.files}
             members={store.record.memberUsers}
             result={result}
-            wrap={field.valueType === "address"}
+            wrap={field.valueType === "address" || field.valueType === "text"}
           />
         }
       />

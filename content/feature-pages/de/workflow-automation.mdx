@@ -115,7 +115,7 @@ Ein unbeaufsichtigter Lauf darf ohne Rückfrage Datensätze anlegen und ändern,
 Customermates schickt keine Benachrichtigungen, und Aufgaben haben kein Fälligkeitsdatum. Eine Erinnerung ist hier deshalb eine Aufgabe, die eine Routine aus einem Datum anlegt, das Sie selbst pflegen. Die Routine läuft jeden Morgen, findet Deals mit verstrichenem Datum und legt pro Deal eine Aufgabe in der Aufgabenliste an. Dafür brauchen Sie ein Feld vom Typ **Datum** wie „Nächster Kontakt“ an den Deals; wie Sie es anlegen und passende Ansichten speichern, zeigt der [Leitfaden zum Nachfassen](/features/follow-up).
 
 <Steps>
-  <Step title="Datumsfeld anlegen">Fügen Sie unter **Konfigurieren** den **Deals** ein Feld vom Typ **Datum** mit dem Namen „Nächster Kontakt“ hinzu und tragen Sie es bei den Deals ein, die Sie nachfassen wollen.</Step>
+  <Step title="Datumsfeld anlegen">Fügen Sie unter **Datenmodell** den **Deals** ein Feld vom Typ **Datum** mit dem Namen „Nächster Kontakt“ hinzu und tragen Sie es bei den Deals ein, die Sie nachfassen wollen.</Step>
   <Step title="Routine anlegen">Öffnen Sie **Routinen**, klicken Sie auf **Hinzufügen** und nennen Sie die Routine „Nachfassen“.</Step>
   <Step title="Auslöser festlegen">Wählen Sie **Nach Zeitplan**, dann unter **Wiederholung** den Wert **Täglich**, 8:00 Uhr. Nur an Werktagen? Bitten Sie Mate, einen eigenen Zeitplan zu setzen.</Step>
   <Step title="Anweisung einfügen">Übernehmen Sie den Text unten mit Ihren eigenen Phasennamen und speichern Sie.</Step>
@@ -135,7 +135,7 @@ Credit-Verbrauch: Ein täglicher Zeitplan sind 30 oder 31 Läufe im Monat, und j
 Dafür brauchen Sie den [einheitlichen Posteingang](/features/unified-inbox), der ab Pro verfügbar ist.
 
 <Steps>
-  <Step title="Postfach verbinden">Verbinden Sie Gmail, Outlook oder IMAP unter **Einstellungen › Kanäle**.</Step>
+  <Step title="Postfach verbinden">Verbinden Sie Gmail, Outlook oder IMAP unter **Einstellungen › Kanäle & Kalender**.</Step>
   <Step title="Routine anlegen">Wählen Sie **Wenn sich etwas ändert** und das Ereignis **E-Mail empfangen**. Für WhatsApp oder LinkedIn nehmen Sie **Nachricht empfangen**.</Step>
   <Step title="Anweisung einfügen">Übernehmen Sie den Text unten und speichern Sie.</Step>
   <Step title="Entwürfe prüfen">Setzen Sie im Posteingang den Filter **Entwurf** auf **hat welche**. Bearbeiten Sie einen Entwurf und klicken Sie auf **Entwurf senden**, oder verwerfen Sie ihn.</Step>
@@ -155,7 +155,7 @@ Customermates sendet für jeden von [[derived.webhooks.events.total]] Ereignisty
   <Step title="Auslöser in n8n anlegen">Fügen Sie einen Webhook-Node hinzu und kopieren Sie seine URL. Mit dem Community-Node ab Version 2 legt ein Customermates-Trigger-Node das Abonnement beim Aktivieren des Workflows selbst an; dann entfällt der nächste Schritt.</Step>
   <Step title="In Customermates abonnieren">Klicken Sie unter **Einstellungen › Webhooks** auf **Hinzufügen**, fügen Sie die URL ein, wählen Sie **Datensatz erstellt**, unter **Datensätze aus** die Liste **Deals** und setzen Sie ein **Secret**.</Step>
   <Step title="Prüfen und Dubletten vermeiden">Prüfen Sie den Header `X-Webhook-Signature`, eine HMAC-SHA256-Signatur über den Rohtext der Anfrage. Zustellungen können in anderer Reihenfolge oder doppelt eintreffen; deduplizieren Sie deshalb über die Ereignis-`id`.</Step>
-  <Step title="Deal lesen">Legen Sie unter **Einstellungen › API-Schlüssel** einen API-Key an und hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Namen `x-api-key`. Ein HTTP-Request-Node ruft dann `POST /api/v1/records/read` mit `typeId` und `recordId` aus `data.record.ref` auf.</Step>
+  <Step title="Deal lesen">Legen Sie unter **Einstellungen › API-Schlüssel & Konnektoren** einen API-Key an und hinterlegen Sie ihn in n8n als Header-Auth-Credential mit dem Namen `x-api-key`. Ein HTTP-Request-Node ruft dann `POST /api/v1/records/read` mit `typeId` und `recordId` aus `data.record.ref` auf.</Step>
   <Step title="In den Kanal posten">Nehmen Sie den Slack-Node von n8n oder einen HTTP-Request-Node an die Incoming-Webhook-URL des Kanals, mit Name, Wert und Eigentümer des Deals. Customermates hat keine native Slack-Integration; der Weg führt über n8n.</Step>
   <Step title="Workflow aktivieren">Wartezeiten, Zeitpläne, Logs und Ausführungslimits liegen bei n8n. Customermates speichert die Datensätze und das Zustellungsprotokoll.</Step>
 </Steps>
@@ -164,14 +164,14 @@ Soll auch die erste Aufgabe entstehen, fügen Sie einen HTTP-Request-Node hinzu,
 
 Brauchen Sie nur die Chat-Nachricht, lassen Sie n8n weg: Ein Webhook kann ohne n8n direkt an eine Incoming-Webhook-URL von Slack oder Discord posten, mit einer Body-Vorlage wie `{ "text": "{{event}} for {{data.record.ref.recordId}}" }`. Das sendet Ereignisname und Datensatz-ID; eine Nachricht aus Datensatzwerten zusammenzusetzen ist in n8n einfacher.
 
-Zustellungen werden bei Zeitüberschreitungen und Serverfehlern automatisch wiederholt, mit bis zu 10 Versuchen insgesamt, und unter **Zustellungen** protokolliert; eine fehlgeschlagene lässt sich dort erneut senden. Die [REST-API](/features/api) unter `/api/v1` deckt jede Liste ab, die Sie anlegen, und `updateMany`, `deleteMany` und der Import nehmen bis zu 100 Datensätze pro Anfrage.
+Zustellungen werden bei Zeitüberschreitungen und Serverfehlern automatisch wiederholt, mit bis zu 10 Versuchen insgesamt, und unter **Webhook-Protokoll** protokolliert; eine fehlgeschlagene lässt sich dort erneut senden. Die [REST-API](/features/api) unter `/api/v1` deckt jede Liste ab, die Sie anlegen, und `updateMany`, `deleteMany` und der Import nehmen bis zu 100 Datensätze pro Anfrage.
 
 ## Wie kann ein KI-Client Datensätze über MCP aktualisieren?
 
 Der MCP-Server stellt KI-Clients wie Claude oder ChatGPT [[derived.mcp.tools.total]] Tools für dieselben Daten bereit, in jedem Tarif und auch beim Self-Hosting. Die Modellnutzung bezahlen Sie bei Ihrem KI-Anbieter. Das ist der Weg für Änderungen, die Sie in normaler Sprache anfordern, etwa die Nachbereitung eines Gesprächs.
 
 <Steps>
-  <Step title="Client verbinden">Claude und ChatGPT verbinden sich über einen Custom Connector mit OAuth, ein Key ist dafür nicht nötig. CLI- und Editor-Clients nutzen einen API-Key aus **Einstellungen › API-Schlüssel**. Die Einrichtung je Client steht in der [MCP-Referenz](/docs/mcp).</Step>
+  <Step title="Client verbinden">Claude und ChatGPT verbinden sich über einen Custom Connector mit OAuth, ein Key ist dafür nicht nötig. CLI- und Editor-Clients nutzen einen API-Key aus **Einstellungen › API-Schlüssel & Konnektoren**. Die Einrichtung je Client steht in der [MCP-Referenz](/docs/mcp).</Step>
   <Step title="Tools eingrenzen">Hängen Sie optional `?toolsets=records` an die Endpunkt-URL, damit der Client nur die Datensatz-Tools sowie `search` und `fetch` sieht.</Step>
   <Step title="Änderung anfordern">Sagen Sie dem Client, was passiert ist, zum Beispiel mit dem Prompt unten. Er sucht Liste und Feld-IDs, findet den Deal, liest dessen aktuelle Version und schreibt die Änderung mit `mutate_crm_record`.</Step>
   <Step title="Ergebnis prüfen">Öffnen Sie den Aktivitätsverlauf des Deals. Änderungen über MCP zählen wie Änderungen in der App: Ein abonnierter Webhook erhält ein `record.updated`-Ereignis, und Ereignis-Routinen können darauf anspringen.</Step>

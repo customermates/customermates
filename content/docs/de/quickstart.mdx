@@ -21,13 +21,13 @@ Fügen Sie einen Custom Connector hinzu:
 - **Claude** (Web, Desktop, Mobile): **Settings → Connectors → Add custom connector**.
 - **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, mit **Authentication** auf OAuth.
 
-Fügen Sie die MCP-URL Ihres Workspace ein, die Customermates im Onboarding-Schritt **KI verbinden** und unter [API-Schlüssel](app:settings/api-keys) mit einer Kopierschaltfläche zeigt, melden Sie sich an und klicken Sie auf dem Zustimmungsbildschirm auf **Zulassen**. Die Adresse, unter der Sie Customermates öffnen, gefolgt von `/api/v1/mcp` funktioniert ebenfalls und fragt auf dem Zustimmungsbildschirm nach dem Workspace. Alle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector#the-url).
+Fügen Sie die MCP-URL Ihres Workspace ein, die Customermates im Onboarding-Schritt **KI verbinden** und unter [API-Schlüssel & Konnektoren](app:settings/api-keys) mit einer Kopierschaltfläche zeigt, melden Sie sich an und klicken Sie auf dem Zustimmungsbildschirm auf **Zulassen**. Die Adresse, unter der Sie Customermates öffnen, gefolgt von `/api/v1/mcp` funktioniert ebenfalls und fragt auf dem Zustimmungsbildschirm nach dem Workspace. Alle Schritte: [Mit einem Custom Connector verbinden](/docs/connect-custom-connector#the-url).
 
 Beim Verbinden brieft der Server den Client über seine Tools und Ihren Workspace. In Clients mit MCP-Prompts, etwa Claude, ergänzt der eingebaute `get-started`-Prompt einen persönlichen Start: Ihr Name, Ihre Rolle und eine erste Zusammenfassung Ihres Workspace.
 
 ## Wie verbinde ich ein CLI oder einen Editor? [#how-do-i-connect-a-cli-or-editor]
 
-Öffnen Sie [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) und wählen Sie **Standard-API-Key**, oder wählen Sie Ihren Client unter **Schnellverbindungen**, um den Key zusammen mit seinem Setup-Snippet zu erhalten. Kopieren Sie den Key sofort: Er wird nur einmal angezeigt. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**; die Rolle **Admin** hat es. Details: [API-Keys](/docs/api-keys). Dann folgen Sie den Schritten Ihres Clients:
+Öffnen Sie [API-Schlüssel & Konnektoren](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) und wählen Sie **Standard-API-Key**, oder wählen Sie Ihren Client unter **Schnellverbindungen**, um den Key zusammen mit seinem Setup-Snippet zu erhalten. Kopieren Sie den Key sofort: Er wird nur einmal angezeigt. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**; die Rolle **Admin** hat es. Details: [API-Keys](/docs/api-keys). Dann folgen Sie den Schritten Ihres Clients:
 
 - [Claude Code](/docs/connect-cli#claude-code): ein Terminal-Befehl
 - [Cursor](/docs/connect-cli#cursor): Settings-UI, zwei Klicks
@@ -47,7 +47,7 @@ Der Agent meldet, was er getan und was sich geändert hat. Deal-Phasen und ander
 
 Optional, um andere Tools bei Änderungen im CRM zu benachrichtigen: Öffnen Sie [Webhooks](app:settings/webhooks) und klicken Sie auf [Hinzufügen](app:settings/webhooks?focus=add). Tragen Sie unter **URL** einen Einweg-Endpoint von [webhook.site](https://webhook.site) ein, wählen Sie unter **Ereignisse** **Datensatz erstellt** und **Datensatz aktualisiert**, wählen Sie die zu beobachtenden Listen und klicken Sie auf **Speichern**. Zum Anlegen eines Webhooks braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, wie bei API-Keys.
 
-Legen Sie jetzt in einer dieser Listen einen Datensatz an oder ändern Sie einen. Innerhalb von Sekunden kommt die Zustellung mit voller Payload auf webhook.site an und erscheint unter [Zustellungen](app:settings/webhook-deliveries). Mehr unter [Webhooks](/docs/webhooks).
+Legen Sie jetzt in einer dieser Listen einen Datensatz an oder ändern Sie einen. Innerhalb von Sekunden kommt die Zustellung mit voller Payload auf webhook.site an und erscheint unter [Webhook-Protokoll](app:settings/webhook-deliveries). Mehr unter [Webhooks](/docs/webhooks).
 
 ## Weiter [#next]
 

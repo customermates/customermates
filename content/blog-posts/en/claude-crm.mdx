@@ -124,7 +124,7 @@ The steps are the same for any CRM with a remote MCP server; the ranked table gi
 
 ### Claude Code, including Pipedrive
 
-Claude Code adds remote MCP servers from the terminal. For Customermates, create a key under **Settings › API keys** (**Add**, then **Standard API key**; the key is shown once) and run:
+Claude Code adds remote MCP servers from the terminal. For Customermates, create a key under **Settings › API keys & connectors** (**Add**, then **Standard API key**; the key is shown once) and run:
 
 ```bash
 claude mcp add --transport http customermates https://<your-customermates-address>/api/v1/mcp \
@@ -145,7 +145,7 @@ Customermates connects as a custom connector, which works on every Claude plan (
 
 <Steps>
   <Step title="Copy the workspace URL">
-    In Customermates, open **Settings › API keys**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. The dialog shows the URL of your current workspace with a copy button. Connecting needs **Read access All** on the **API & Webhooks** row of your role, as the [API keys](/docs/api-keys) page does; the built-in Admin role has it.
+    In Customermates, open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. The dialog shows the URL of your current workspace with a copy button. Connecting needs **Read access All** on the **API & Webhooks** row of your role, as the [API keys](/docs/api-keys) page does; the built-in Admin role has it.
   </Step>
   <Step title="Add the connector in Claude">
     Open **Customize › Connectors**, click **+**, choose **Add custom connector**, name it and paste the URL. Leave authentication on OAuth: there is no key to copy. The **Add to Claude** button in the same dialog opens Claude's form with the URL filled in (Claude web and Team only).

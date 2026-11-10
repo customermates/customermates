@@ -114711,7 +114711,7 @@
       "get": {
         "operationId": "listWorkspaceWebhookDeliveries",
         "summary": "List deliveries across all webhooks",
-        "description": "Lists the deliveries of every webhook in the workspace newest first, as the Deliveries page shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
+        "description": "Lists the deliveries of every webhook in the workspace newest first, as the Webhook log page in Settings shows them, with status, response code and the delivered body. searchTerm matches url and event name. The deliveries of a single webhook come from `GET /v1/webhooks/{id}/deliveries`. Requires: read all permission on the API.",
         "tags": [
           "webhooks"
         ],
@@ -117629,7 +117629,7 @@
       "post": {
         "operationId": "createConnectLink",
         "summary": "Create a link to connect a messaging channel",
-        "description": "Creates a secure link that connects a messaging channel to the inbox of the key's owner, as Connect on the Channels settings page and the MCP connect_messaging_account tool do. The connection cannot be completed over the API: open the url in a browser and finish there, by scanning the QR code for WhatsApp or signing in for email and LinkedIn; the new account then appears in GET /v1/messaging/connected-accounts. The link works once and expires after 30 minutes. Each member gets a number of connected accounts from the plan: Pro 1, Business 3, Enterprise unlimited, Starter none. Without a free slot or without a plan that includes messaging the request answers 400. Requires: Inbox messages Create and a plan that includes messaging.",
+        "description": "Creates a secure link that connects a messaging channel to the inbox of the key's owner, as Connect on the Channels & calendars settings page and the MCP connect_messaging_account tool do. The connection cannot be completed over the API: open the url in a browser and finish there, by scanning the QR code for WhatsApp or signing in for email and LinkedIn; the new account then appears in GET /v1/messaging/connected-accounts. The link works once and expires after 30 minutes. Each member gets a number of connected accounts from the plan: Pro 1, Business 3, Enterprise unlimited, Starter none. Without a free slot or without a plan that includes messaging the request answers 400. Requires: Inbox messages Create and a plan that includes messaging.",
         "tags": [
           "messaging"
         ],
@@ -142951,6 +142951,7 @@
                         "roleAssignedCannotDelete",
                         "roleNameTaken",
                         "roleSelfEditForbidden",
+                        "roleExceedsOwnPermissions",
                         "roleSystemImmutable",
                         "roleAccessPresetInUse",
                         "routineAdminRequired",

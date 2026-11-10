@@ -894,6 +894,21 @@
     "labels": {
       "addRole": "Añadir rol",
       "addWebhook": "Añadir webhook",
+      "connect": {
+        "claude": "Conectar Claude",
+        "cursor": "Conectar Cursor",
+        "gemini": "Conectar Gemini",
+        "google": "Conectar Google (Gmail y Calendar)",
+        "imap": "Conectar un buzón IMAP",
+        "instagram": "Conectar Instagram",
+        "linkedin": "Conectar LinkedIn",
+        "linkedinRecruiter": "Conectar LinkedIn Recruiter",
+        "linkedinSalesNavigator": "Conectar LinkedIn Sales Navigator",
+        "openai": "Conectar ChatGPT y Codex",
+        "outlook": "Conectar Microsoft (Outlook y Calendario)",
+        "telegram": "Conectar Telegram",
+        "whatsapp": "Conectar WhatsApp"
+      },
       "connectChannel": "Conectar un canal",
       "createApiKey": "Crear clave de API",
       "switchWorkspace": "Cambiar de espacio de trabajo…",
@@ -926,21 +941,35 @@
         "themeSystem": "tema automático, seguir el sistema"
       },
       "page": {
-        "configure": "modelo de datos, esquema, listas, campos, relaciones",
-        "dashboard": "inicio, resumen, widgets, gráficos",
+        "calendar": "planificador, citas, reuniones, eventos, agenda, programación",
+        "configure": "modelo de datos, esquema, listas, campos, relaciones, Configurar, campos personalizados, objetos",
+        "dashboard": "inicio, resumen, widgets, gráficos, informes, análisis, KPI, métricas",
         "documentation": "docs, ayuda, guía, manual",
-        "inbox": "mensajes, correo, email, conversaciones, chats",
-        "knowledgeBase": "wiki, notas, páginas, artículos",
-        "routines": "automatizaciones, programaciones, tareas recurrentes",
+        "inbox": "mensajes, correo, email, conversaciones, chats, bandeja unificada, mensajes directos, mensajes de LinkedIn, WhatsApp",
+        "knowledgeBase": "wiki, notas, páginas, artículos, documentación, playbook, manual, procedimientos, información de la empresa",
+        "routines": "automatizaciones, programaciones, tareas recurrentes, flujos de trabajo, disparadores, reglas de automatización",
         "settings": "preferencias, opciones, cuenta, espacio de trabajo",
         "trash": "elementos eliminados, papelera, restaurar, deshacer eliminación"
       },
       "setting": {
         "apiKeys": {
-          "create": "nueva clave de API, generar token"
+          "claude": "Claude, Anthropic, Claude Code, Claude Desktop, MCP, conector, IA",
+          "create": "nueva clave de API, generar token",
+          "cursor": "Cursor, MCP, conector, IA, editor",
+          "gemini": "Gemini, Google Gemini, Gemini CLI, MCP, conector, IA",
+          "openai": "ChatGPT, Codex, OpenAI, MCP, conector, IA"
         },
         "channels": {
-          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp"
+          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp",
+          "google": "Google Calendar, Calendario de Google, Gmail, Google Workspace, correo, calendario",
+          "imap": "correo, servidor de correo, dominio propio, buzón",
+          "instagram": "mensajes de Instagram, Meta, red social",
+          "linkedin": "mensajes de LinkedIn, red social, mensajes directos",
+          "linkedinRecruiter": "Recruiter, LinkedIn, contratación",
+          "linkedinSalesNavigator": "Sales Navigator, LinkedIn, prospección",
+          "outlook": "Microsoft, Microsoft 365, Office 365, calendario de Outlook, Exchange, correo, calendario",
+          "telegram": "chat de Telegram, mensajería",
+          "whatsapp": "WhatsApp Business, chat, mensajería"
         },
         "profile": {
           "avatarUrl": "foto de perfil, foto, imagen",
@@ -958,16 +987,16 @@
         }
       },
       "settings": {
-        "activity": "registro de auditoría, historial, cambios",
-        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso",
-        "billing": "plan, suscripción, facturas, pago, precios",
-        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones",
+        "activity": "registro de auditoría, historial, cambios, Actividad, registro de auditoría, quién cambió qué",
+        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso, conectores, Claude, ChatGPT, Codex, Gemini, Cursor, IA, servidor MCP, n8n, integración",
+        "billing": "plan, suscripción, facturas, pago, precios, mejorar plan, recibo, factura",
+        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones, Google, Google Calendar, Gmail, Microsoft, Outlook, Instagram, Telegram, calendarios, sincronización de bandeja, sincronización de calendario, sincronización de correo, SMTP, IMAP, Office 365, Sales Navigator",
         "general": "nombre del espacio de trabajo, renombrar espacio de trabajo, salir del espacio de trabajo",
-        "members": "equipo, usuarios, personas, compañeros",
+        "members": "equipo, usuarios, personas, compañeros, invitar, asientos, licencias",
         "profile": "mi perfil, cuenta, preferencias, personal",
-        "roles": "permisos, acceso, derechos",
-        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados",
-        "webhooks": "integraciones, callbacks, eventos, HTTP",
+        "roles": "permisos, acceso, derechos, admin, conjuntos de permisos",
+        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados, Entregas, registro de webhooks, webhooks fallidos, reenviar",
+        "webhooks": "integraciones, callbacks, eventos, HTTP, Zapier, Make, n8n",
         "workspaces": "mis espacios de trabajo, membresías, empresas, cambiar de espacio de trabajo, salir de un espacio de trabajo"
       }
     }
@@ -1247,6 +1276,7 @@
       "recordWritePaused": "El modelo de datos se está actualizando. Tu borrador se conserva; inténtalo cuando termine.",
       "roleAccessPresetInUse": "Una plantilla de acceso utiliza este rol. Actualiza la plantilla antes de eliminar el rol.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
+      "roleExceedsOwnPermissions": "Solo puedes conceder, asignar o gestionar permisos y accesos a registros que tenga tu propio rol. Solo un administrador puede asignar el rol de administrador.",
       "roleNameTaken": "Ya existe un rol con este nombre.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
@@ -1285,7 +1315,7 @@
       "trashChanged": "La papelera ha cambiado mientras tanto. Revisa lo que se eliminará e inténtalo de nuevo.",
       "trashItemNotFound": "Este elemento ya no está en la papelera.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
-      "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales antes de poder usarlo de nuevo.",
+      "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales y calendarios antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
       "unipileInvalidRequest": "El proveedor rechazó la solicitud por no ser válida. Comprueba los identificadores y los parámetros.",
       "unipileProviderError": "El proveedor está teniendo problemas ahora mismo. Inténtalo de nuevo en breve.",
@@ -1813,6 +1843,7 @@
     "checkpointToastTitle": "Error de verificación",
     "connectAccount": "Conectar un canal",
     "connectedAt": "Conectada",
+    "connectedNote": "Conectado",
     "connectedToastDescription": "Tu historial se está importando en segundo plano. Puede tardar unos minutos, puedes seguir trabajando.",
     "connectedToastTitle": "Canal conectado",
     "description": "Conecta los canales de los que se nutre tu bandeja de entrada, como el correo, WhatsApp y LinkedIn. Los canales son privados de forma predeterminada y pueden compartirse con tu espacio de trabajo. Al conectar uno, nos autorizas a tratar sus mensajes, contactos y calendario en tu nombre. Consulta nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>, nuestros <subprocessorsLink>subencargados</subprocessorsLink> y nuestros <termsOfServiceLink>Términos</termsOfServiceLink>.",
@@ -2288,6 +2319,8 @@
     "share": {
       "descriptionDashboard": "Tu equipo ve los mismos widgets y la misma disposición. Cada cifra se calcula con su propio acceso, así que nadie ve registros que su rol oculta.",
       "descriptionList": "Tu equipo ve tus filtros, columnas y disposición. Cada persona solo ve los registros y campos que su rol permite.",
+      "duplicateToEdit": "Duplicar para editar",
+      "duplicateToEditLabel": "Duplicar {name} para editar tu propia copia",
       "hidden": "Oculta en tus pestañas",
       "hide": "Ocultar de mis pestañas",
       "link": "Enlace",
@@ -2317,6 +2350,7 @@
         "saveToCreate": "Guarda para crear el enlace.",
         "workspaceDisabled": "Los enlaces públicos están desactivados para este espacio de trabajo en Ajustes, General."
       },
+      "readOnly": "Compartida por {name} · solo lectura",
       "roles": "Roles seleccionados",
       "rolesDescription": "Solo la ven los miembros con estos roles.",
       "rolesLabel": "Roles",
@@ -2502,7 +2536,7 @@
     "ariaStartThread": "Redactar un mensaje de {provider}",
     "ariaUnlink": "Desvincular {provider}",
     "compose": {
-      "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
+      "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Ajustes › Canales y calendarios."
     },
     "emptyHint": "Aún no hay datos de contacto. Números de teléfono, direcciones de correo y perfiles sociales que asocian los mensajes con este registro.",
     "groups": {
@@ -2519,7 +2553,7 @@
   "EntityDetail": {
     "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
-    "editInConfigure": "Editar en Configurar",
+    "editInConfigure": "Editar en Modelo de datos",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
     "fieldMoved": "Se ha movido {field} a {target}.",
@@ -2815,7 +2849,7 @@
     "previewVoice": "🎙️ Mensaje de voz",
     "rateLimited": "Este canal ha alcanzado su límite de frecuencia. Puedes reintentar {retryAfter, select, later {más tarde} other {{retryAfter}}}.",
     "refreshDone": "Bandeja de entrada actualizada.",
-    "refreshNeedsReconnect": "{count, plural, one {# canal debe} other {# canales deben}} volver a conectarse antes de sincronizarse. Abre Canales para reconectarlos.",
+    "refreshNeedsReconnect": "{count, plural, one {# canal debe} other {# canales deben}} volver a conectarse antes de sincronizarse. Abre Canales y calendarios para reconectarlos.",
     "refreshPartial": "{count, plural, one {No se pudo actualizar # canal} other {No se pudieron actualizar # canales}}. La bandeja muestra lo último sincronizado.",
     "refreshRateLimited": "Algunos canales han alcanzado su límite de frecuencia. Inténtalo de nuevo en unos minutos.",
     "resyncThread": "Resincronizar la conversación",
@@ -2894,7 +2928,7 @@
       "add": "Añadir un registro o una lista",
       "askMate": "Preguntar a Mate",
       "close": "Cerrar el diálogo o panel superior",
-      "goConfigure": "Configurar",
+      "goConfigure": "Modelo de datos",
       "goDashboard": "Panel",
       "goInbox": "Bandeja de entrada",
       "goKnowledgeBase": "Base de conocimientos",
@@ -2939,7 +2973,7 @@
     "stepsEyebrow": "Cómo funciona",
     "stepsTitle": "{name} en {count} pasos.",
     "switch": {
-      "connectDescription": "Desde Pro, conecta LinkedIn, Gmail, Outlook o WhatsApp en Ajustes, Canales. Cada conversación aparece en el contacto vinculado.",
+      "connectDescription": "Desde Pro, conecta LinkedIn, Gmail, Outlook o WhatsApp en Ajustes, Canales y calendarios. Cada conversación aparece en el contacto vinculado.",
       "connectTitle": "Conecta LinkedIn y el correo",
       "eyebrow": "El cambio",
       "importDescription": "Exporta contactos y oportunidades de tu CRM actual en Excel o CSV y usa Añadir desde archivo, una lista tras otra.",
@@ -3032,7 +3066,7 @@
     "current": "Espacio de trabajo actual",
     "fixed": {
       "hint": "{client} solo accede a {workspace}. Cada espacio de trabajo tiene su propia URL de MCP, así que puedes conectar otros como conexiones independientes.",
-      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o copia la URL de MCP de tu propio espacio de trabajo en Ajustes → Claves de API.",
+      "notMember": "Esta URL de MCP pertenece a un espacio de trabajo del que no eres miembro. Inicia sesión con la cuenta que usas allí o copia la URL de MCP de tu propio espacio de trabajo en Ajustes → Claves de API y conectores.",
       "unavailable": {
         "inactive": "Tu acceso a {workspace} está desactivado. Pide a un administrador del espacio de trabajo que lo reactive.",
         "pending": "Tu solicitud para unirte a {workspace} sigue esperando aprobación. Vuelve a conectar cuando un administrador la haya aprobado.",
@@ -3889,7 +3923,7 @@
     "moreOverdue": "{count, plural, one {# registro vencido más} other {# registros vencidos más}}",
     "nextDays": "{count, plural, one {Hoy} other {Próximos # días}}",
     "nextMonth": "Mostrar el mes siguiente",
-    "noDateField": "{list} todavía no tiene un campo de tipo Fecha, Fecha y hora, Intervalo de fechas o Intervalo de fechas y horas. Añade uno en Configurar o elige otra lista.",
+    "noDateField": "{list} todavía no tiene un campo de tipo Fecha, Fecha y hora, Intervalo de fechas o Intervalo de fechas y horas. Añade uno en Modelo de datos o elige otra lista.",
     "noUpcoming": "{count, plural, one {No hay registros hoy.} other {No hay registros en los próximos # días.}}",
     "overdue": "Vencidos",
     "overdueBy": "{count, plural, one {Vencido hace # día} other {Vencido hace # días}}",
@@ -3913,7 +3947,7 @@
     "label": "Mapa de {name}",
     "loading": "Cargando el mapa…",
     "mixed": "Mixto",
-    "noAddressField": "{list} todavía no tiene un campo de tipo Dirección. Añade uno en Configurar o elige otra lista.",
+    "noAddressField": "{list} todavía no tiene un campo de tipo Dirección. Añade uno en Modelo de datos o elige otra lista.",
     "noPoints": "Todavía no hay registros con ubicación.",
     "openRecord": "Abrir el registro",
     "point": "{name}, {address}",
@@ -4224,7 +4258,7 @@
       },
       "moved": "Movido a la Papelera"
     },
-    "configure": "Configurar",
+    "configure": "Modelo de datos",
     "configureList": "Configurar {list}",
     "connectionType": "Conexión",
     "constant": "Valor fijo",
@@ -4446,6 +4480,7 @@
     },
     "iconSearch": "Buscar iconos",
     "identityChannels": "Datos de contacto",
+    "inlineEditHint": "Intro guarda · Mayús+Intro añade una línea",
     "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
     "lineFields": {
       "amount": "Importe",
@@ -4755,7 +4790,7 @@
   },
   "RoleModal": {
     "create": "Crear",
-    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Configurar.",
+    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Modelo de datos.",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
@@ -4960,11 +4995,11 @@
   },
   "SettingsNav": {
     "account": "Cuenta",
-    "activity": "Actividad",
-    "apiKeys": "Claves de API",
+    "activity": "Registro de auditoría",
+    "apiKeys": "Claves de API y conectores",
     "billing": "Facturación",
-    "channels": "Canales",
-    "deliveries": "Entregas",
+    "channels": "Canales y calendarios",
+    "deliveries": "Registro de webhooks",
     "general": "General",
     "members": "Miembros",
     "profile": "Perfil y preferencias",

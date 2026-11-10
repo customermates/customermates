@@ -183,6 +183,12 @@ async function workspace(viewName: string) {
   return { companyId: seed.company.id, admin, member, id, view, policy, createOrganization };
 }
 
+async function indexUntilDone(service: { indexPending: () => Promise<{ remaining: boolean }> }) {
+  let result = await service.indexPending();
+  for (let step = 1; step < 10 && result.remaining; step += 1) result = await service.indexPending();
+  return result;
+}
+
 function indexer(embeddings: WikiEmbeddingService) {
   return new SearchCatalogIndexService(catalogRepo, repo, views, embeddings, usage);
 }
@@ -218,10 +224,10 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     const second = await workspace("Renewals");
     await first.createOrganization("Secret Customer Holdings");
     const firstEmbeddings = fakeEmbeddings();
-    expect(await runWithTenant(first.admin, () => indexer(firstEmbeddings.service).indexPending())).toEqual({
+    expect(await runWithTenant(first.admin, () => indexUntilDone(indexer(firstEmbeddings.service)))).toEqual({
       remaining: false,
     });
-    await runWithTenant(second.admin, () => indexer(fakeEmbeddings().service).indexPending());
+    await runWithTenant(second.admin, () => indexUntilDone(indexer(fakeEmbeddings().service)));
 
     const catalog = await staticSearchCatalog();
     const stored = await runWithoutTenant(

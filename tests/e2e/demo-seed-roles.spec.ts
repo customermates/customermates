@@ -41,7 +41,7 @@ async function expectSidebarLists(page: Page, visible: string[]) {
       visible.includes(list) ? 1 : 0,
     );
   }
-  await expect(items.filter({ has: page.getByText("Configure", { exact: true }) })).toHaveCount(0);
+  await expect(items.filter({ has: page.getByText("Data model", { exact: true }) })).toHaveCount(0);
 }
 
 /** Configure opens as a read-only map for members: no list or field can be added and no list has actions. */
@@ -203,7 +203,7 @@ test("the admin sees every list and can change the configuration", async ({ page
   await openSidebar(page);
   for (const list of LISTS)
     await expect(page.locator("[data-sidebar-item]").getByText(list, { exact: true })).toBeVisible();
-  await expect(page.locator("[data-sidebar-item]").getByText("Configure", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-sidebar-item]").getByText("Data model", { exact: true })).toBeVisible();
   await page.waitForLoadState("networkidle");
   await page.goto(appPath(DEMO_SLUG, "/configure"));
   await expect(page.getByRole("button", { name: "Add to Deals", exact: true })).toBeVisible();

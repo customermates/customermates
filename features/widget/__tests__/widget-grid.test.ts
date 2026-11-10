@@ -140,6 +140,17 @@ describe("placing a widget", () => {
     });
   });
 
+  it("keeps a widget at its unchanged position when a widget below it would float into the slot", () => {
+    const stacked = [chart("a", { x: 0, y: 0, w: 12, h: 4 }), chart("b", { x: 0, y: 4, w: 6, h: 4 })];
+    expect(placeWidget({ id: "a", kind: "chart", requested: { x: 0, y: 0, w: 12, h: 4 }, widgets: stacked })).toEqual({
+      ok: true,
+      placement: { x: 0, y: 0, w: 12, h: 4 },
+    });
+    expect(placeWidget({ id: "a", kind: "chart", requested: { x: 0, y: 0, w: 12, h: 3 }, widgets: stacked }).ok).toBe(
+      true,
+    );
+  });
+
   it("enforces the number widget minimum height of two rows", () => {
     const requested = { x: 0, y: 6, w: 3, h: 1 };
     expect(placeWidget({ id: "new", kind: "chart", displayType: DisplayType.number, requested, widgets })).toEqual({

@@ -20,7 +20,7 @@ export const createConnectLinkOperation: ZodOpenApiOperationObject = {
   operationId: "createConnectLink",
   summary: "Create a link to connect a messaging channel",
   description:
-    "Creates a secure link that connects a messaging channel to the inbox of the key's owner, as Connect on the Channels settings page and the MCP connect_messaging_account tool do. The connection cannot be completed over the API: open the url in a browser and finish there, by scanning the QR code for WhatsApp or signing in for email and LinkedIn; the new account then appears in GET /v1/messaging/connected-accounts. The link works once and expires after 30 minutes. Each member gets a number of connected accounts from the plan: Pro 1, Business 3, Enterprise unlimited, Starter none. Without a free slot or without a plan that includes messaging the request answers 400. Requires: Inbox messages Create and a plan that includes messaging.",
+    "Creates a secure link that connects a messaging channel to the inbox of the key's owner, as Connect on the Channels & calendars settings page and the MCP connect_messaging_account tool do. The connection cannot be completed over the API: open the url in a browser and finish there, by scanning the QR code for WhatsApp or signing in for email and LinkedIn; the new account then appears in GET /v1/messaging/connected-accounts. The link works once and expires after 30 minutes. Each member gets a number of connected accounts from the plan: Pro 1, Business 3, Enterprise unlimited, Starter none. Without a free slot or without a plan that includes messaging the request answers 400. Requires: Inbox messages Create and a plan that includes messaging.",
   tags: ["messaging"],
   security: [{ apiKeyAuth: [] }],
   requestBody: {

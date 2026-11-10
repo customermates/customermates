@@ -7,7 +7,7 @@ API keys authenticate Model Context Protocol (MCP) and REST clients against your
 
 ## How do I create an API key? [#how-do-i-create-an-api-key]
 
-Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). The **Add an API key** dialog offers two routes:
+Open [API keys & connectors](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). The **Add an API key** dialog offers two routes:
 
 - **Standard API key**: enter a **Name** that says where the key is used, for example `Claude Desktop, personal laptop` (up to 255 characters), optionally pick a date under **Expires in**, and click **Save**. The key is shown once under **API key created successfully**; copy it before you close the dialog.
 - **Quick connections**: pick **Claude**, **ChatGPT & Codex**, **Cursor** or **Gemini**, then the setup that matches where you use it. For a local setup (**Claude Code or Desktop**, then **Claude Code** or **Claude Desktop**; **Codex CLI or IDE**; Cursor or Gemini), click **Create API key**: the dialog creates the key and shows that client's setup snippet with the key already filled in. **Claude account** and **ChatGPT App** connect through OAuth instead and create no key. Click **Done** when you are finished.
@@ -18,20 +18,20 @@ Keys belong to the user who created them and inherit that user's permissions. Ea
 
 ## Who can create and see API keys? [#who-can-create-and-see-api-keys]
 
-The API keys page follows the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under [Roles](app:settings/roles):
+The API keys & connectors page follows the **API & Webhooks** row of your role, which a member with **Edit** on **Users & Roles** sets under [Roles](app:settings/roles):
 
 - **Read access** **All** shows API keys in Settings and lists your own keys. With **None**, the entry is hidden and the page cannot be opened.
 - **Create** adds the **Add** button, and **Delete** lets you delete keys. Without them, you can see keys you already have but cannot create or delete any.
 
 A new role starts with no checkbox ticked and **Read access** **None**, so out of the box only members with the built-in **Admin** role can create API keys. The same row also opens [Webhooks](app:settings/webhooks) and its deliveries, so granting it for API keys also lets the member see every webhook of the workspace and, with **Create**, **Edit** or **Delete**, change them.
 
-Everyone sees only their own keys, and only those of the current workspace; switch workspaces to see or delete a key of another one. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
+Everyone sees only their own keys, and only those of the current workspace; switch workspaces to see or delete a key of another one. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys & connectors page, and the hosted assistant can at most open it for you.
 
 The custom connector for Claude and ChatGPT signs in over OAuth and needs no API key. Like every MCP connection, it needs **Read access** **All** on **API & Webhooks** ([MCP endpoint](/docs/mcp#the-endpoint)). See [Connect with a custom connector](/docs/connect-custom-connector).
 
 ## Which permission does each API key action need? [#which-permission-does-each-api-key-action-need]
 
-Every way of managing keys checks the **API & Webhooks** row of your role: creating a key needs **Create**, changing one **Edit**, deleting one **Delete**, and reading or listing your keys **Read access** **All**. A member whose **Status** is **Inactive** cannot manage keys. Keys are managed only on the API keys page; the underlying `/api/auth/api-key/` endpoints answer `404` to direct requests, so every key belongs to the workspace it was created in. These checks cover managing keys only; what a call made with a key may do follows its owner's role, see [What permissions does a key have](#what-permissions-does-a-key-have).
+Every way of managing keys checks the **API & Webhooks** row of your role: creating a key needs **Create**, changing one **Edit**, deleting one **Delete**, and reading or listing your keys **Read access** **All**. A member whose **Status** is **Inactive** cannot manage keys. Keys are managed only on the API keys & connectors page; the underlying `/api/auth/api-key/` endpoints answer `404` to direct requests, so every key belongs to the workspace it was created in. These checks cover managing keys only; what a call made with a key may do follows its owner's role, see [What permissions does a key have](#what-permissions-does-a-key-have).
 
 ## How do I use a key, and which header does it go in? [#how-do-i-use-a-key]
 
@@ -85,7 +85,7 @@ A **Standard API key** expires only if you pick a date under **Expires in**; the
 
 ## How do I revoke, delete or rotate a key? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-On [API keys](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
+On [API keys & connectors](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete one client without breaking the others; the activity log still names the user, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 

@@ -1,6 +1,6 @@
 import type { DeletionBlocker, DeletionCleanup, DeletionReference } from "./configuration.schema";
 import type { ModelIssue } from "./record-model-validation";
-import type { RecordModel } from "./record-model.schema";
+import type { RecordField, RecordModel } from "./record-model.schema";
 import type { ConfigurationConsumerCleanup, RecordRepo } from "./record.repo";
 import type { DroppedViewReferences } from "@/features/trash/trash.schema";
 
@@ -59,6 +59,15 @@ export async function* recordPages<T>(
   }
 }
 
+function onlyAddsOptions(before: RecordField, field: RecordField) {
+  const kept = field.options.filter((option) => before.options.some((existing) => existing.id === option.id));
+  return (
+    kept.length === before.options.length &&
+    kept.length < field.options.length &&
+    fieldValueDefinition({ ...field, options: kept }) === fieldValueDefinition(before)
+  );
+}
+
 export function configurationTypeChanges(
   current: RecordModel,
   model: RecordModel,
@@ -97,6 +106,10 @@ export function configurationTypeChanges(
       });
     }
     if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
+    if (before && onlyAddsOptions(before, field)) {
+      schemaOnlyTypes.add(field.typeId);
+      continue;
+    }
     if (field.valueType === "channels") {
       channelTypes.add(field.typeId);
       continue;

@@ -135,7 +135,7 @@ An integration that only handles the happy path will create duplicates within we
 
 This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work in a self-hosted installation and on Customermates Cloud: the REST API on every plan, webhooks on every paid plan. The receiver in the middle is yours: an n8n workflow or a small service.
 
-**Fields.** In **Configure**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and make ERP ownership an explicit rule in your adapter. Customermates has list and role permissions, not field-level permissions that reserve this field for the integration.
+**Fields.** In **Data model**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and make ERP ownership an explicit rule in your adapter. Customermates has list and role permissions, not field-level permissions that reserve this field for the integration.
 
 **Trigger.** This assumes your deals list has a Stage Single choice field with a "Won" option (stages are not preset). Under **Settings → Webhooks**, subscribe a URL to `record.updated` for the Deals list, optionally with Stage under **Changed fields**, and set a secret. Each delivery is signed with HMAC-SHA256 in the `X-Webhook-Signature` header, and for update events `data.record.fields` lists each changed field with its `before` and `after` value. Your receiver acts only when the stage changed to "Won".
 
@@ -145,7 +145,7 @@ This is the setup in Customermates for the first flow above. It uses the [REST A
 
 **Write-back.** After the ERP accepts the order, send an `update` mutation for the deal to `POST /api/v1/records/mutate` with the new "ERP order no." and the deal's current version. Fields you leave out stay unchanged.
 
-**Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Settings → Deliveries**, where you can resend it after fixing the cause.
+**Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Settings → Webhook log**, where you can resend it after fixing the cause.
 
 **Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. Share it with the person who handles integration failures, or with the whole team. Anything that shows up there was missed by the event flow.
 
