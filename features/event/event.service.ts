@@ -2,6 +2,7 @@ import type { DomainEventMap, DomainEvent } from "./domain-events";
 import type { DomainEventListener } from "./domain-event.listener";
 import type { EventLogRepo } from "./event-log.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
+import type { EventVia } from "./event-via";
 
 import { UserAccessor } from "@/core/base/user-accessor";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
@@ -34,24 +35,26 @@ export class EventService extends UserAccessor {
     const system = opts?.systemCompanyId !== undefined;
     const companyId = opts?.systemCompanyId ?? this.user.companyId;
     const userId = system ? (opts?.systemUserId ?? null) : this.user.id;
+    const via = system ? null : (this.user.via ?? null);
     const eventData = { ...data, userId, companyId } as DomainEventMap[E];
     const matchingListeners = system ? [] : this.eventListeners.filter((l) => l.handles(event));
 
     const [, logged] = await Promise.all([
       Promise.all(matchingListeners.map((listener) => listener.handle(event, eventData))),
-      this.log(event, eventData),
+      this.log(event, eventData, via),
     ]);
 
     this.trace(event, `listeners=${matchingListeners.length} logged=${logged}`);
   }
 
-  private async log(event: DomainEvent, data: DomainEventMap[DomainEvent]): Promise<boolean> {
+  private async log(event: DomainEvent, data: DomainEventMap[DomainEvent], via: EventVia | null): Promise<boolean> {
     const subscribable = WebhookEventSchema.options.some((option) => option === event);
     if (subscribable && !(await this.eventLog.hasSubscribersUnscoped(data.companyId, event))) return false;
     await this.eventLog.appendUnscoped(data.companyId, {
       kind: event,
       subjectId: data.entityId,
       actorId: data.userId,
+      via,
       payload: data.payload,
       delivered: !subscribable,
     });

@@ -19,6 +19,7 @@ import {
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { RecordJournal } from "@/features/records/record-journal";
+import { recordCauseBy } from "@/features/records/record-event-cause";
 import { RenameRecordFileSchema } from "./record-file.schema";
 import { recordFileDto } from "./record-file-dto";
 import { renamedRecordFileName } from "./record-file-name";
@@ -79,10 +80,12 @@ export class RenameRecordFileInteractor extends AuthenticatedInteractor<RenameRe
           model.revision,
         );
         await this.files.renameFileCompanyWide(file.id, renamed);
-        await journal.flush(model, this.userId, `record-file-rename:${file.id}:${record.version}`, {
-          kind: "mutation",
-          routineDepth: currentRoutineContext()?.causationDepth,
-        });
+        await journal.flush(
+          model,
+          this.userId,
+          `record-file-rename:${file.id}:${record.version}`,
+          recordCauseBy(this.user, { kind: "mutation", routineDepth: currentRoutineContext()?.causationDepth }),
+        );
         return { ok: true, data: recordFileDto({ ...file, name: renamed }) };
       },
       { timeout: 20000, companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },

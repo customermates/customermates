@@ -2580,7 +2580,8 @@
       "configuration": "Configuration",
       "messages": "Messages",
       "record": "Record changes"
-    }
+    },
+    "viaCredential": "via {name}"
   },
   "ErrorCard": {
     "contactSupport": "Please try again. If the problem continues, contact support.",

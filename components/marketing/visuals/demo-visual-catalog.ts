@@ -3,185 +3,185 @@ export const DEMO_VISUAL_PERSON_ROLES = ["contact", "member", "messaging-partici
 export type DemoVisualPersonRole = (typeof DEMO_VISUAL_PERSON_ROLES)[number];
 
 export const DEMO_VISUAL_PEOPLE = {
-  "leon-becker": {
-    asset: "/demo/avatars/photos/leon-becker.png",
-    name: "Leon Becker",
+  "hannah-kessler": {
+    asset: "/demo/avatars/people/smb--hannah.jpg",
+    name: "Hannah Kessler",
+    roles: ["contact"],
+  },
+  "james-finch": {
+    asset: "/demo/avatars/people/smb--james.jpg",
+    name: "James Finch",
     roles: ["contact", "messaging-participant"],
   },
-  "tim-wagner": {
-    asset: "/demo/avatars/photos/tim-wagner.png",
-    name: "Tim Wagner",
-    roles: ["contact"],
-  },
-  "lucio-ball": {
-    asset: "/demo/avatars/photos/lucio-ball.png",
-    name: "Lucio Ball",
-    roles: ["contact"],
-  },
-  "mara-bauer": {
-    asset: "/demo/avatars/photos/mara-bauer.png",
-    name: "Mara Bauer",
-    roles: ["contact"],
-  },
-  "max-schmidt": {
-    asset: "/demo/avatars/photos/max-schmidt.png",
-    name: "Max Schmidt",
-    roles: ["contact"],
-  },
-  "sophie-hoffmann": {
-    asset: "/demo/avatars/photos/sophie-hoffmann.png",
-    name: "Sophie Hoffmann",
-    roles: ["contact"],
-  },
-  "jonas-weber": {
-    asset: "/demo/avatars/photos/jonas-weber.png",
-    name: "Jonas Weber",
+  "chloe-bennett": {
+    asset: "/demo/avatars/people/smb--chloe.jpg",
+    name: "Chloe Bennett",
     roles: ["contact", "messaging-participant"],
   },
-  "amin-hassan": {
-    asset: "/demo/avatars/photos/amin-hassan.png",
-    name: "Amin Hassan",
+  "sophie-turner": {
+    asset: "/demo/avatars/people/smb--sophie.jpg",
+    name: "Sophie Turner",
     roles: ["contact", "messaging-participant"],
   },
-  "lea-bauer": {
-    asset: "/demo/avatars/photos/lea-bauer.png",
-    name: "Lea Bauer",
-    roles: ["contact"],
-  },
-  "maxine-zoll": {
-    asset: "/demo/avatars/photos/maxine-zoll.png",
-    name: "Maxine Zoll",
-    roles: ["contact"],
-  },
-  "lina-alvarez": {
-    asset: "/demo/avatars/photos/lina-alvarez.png",
-    name: "Lina Alvarez",
-    roles: ["contact"],
-  },
-  "felix-koch": {
-    asset: "/demo/avatars/photos/felix-koch.png",
-    name: "Felix Koch",
-    roles: ["contact"],
-  },
-  "omar-khalil": {
-    asset: "/demo/avatars/photos/omar-khalil.png",
-    name: "Omar Khalil",
-    roles: ["contact"],
-  },
-  "tim-weber": {
-    asset: "/demo/avatars/photos/tim-weber.png",
-    name: "Tim Weber",
-    roles: ["contact"],
-  },
-  "kian-rahimi": {
-    asset: "/demo/avatars/photos/kian-rahimi.png",
-    name: "Kian Rahimi",
-    roles: ["member"],
-  },
-  "leila-chen": {
-    asset: "/demo/avatars/photos/leila-chen.png",
-    name: "Leila Chen",
-    roles: ["contact"],
-  },
-  "mia-schneider": {
-    asset: "/demo/avatars/photos/mia-schneider.png",
-    name: "Mia Schneider",
-    roles: ["contact"],
-  },
-  "laura-fischer": {
-    asset: "/demo/avatars/photos/laura-fischer.png",
-    name: "Laura Fischer",
-    roles: ["member"],
-  },
-  "amir-haddad": {
-    asset: "/demo/avatars/photos/amir-haddad.png",
-    name: "Amir Haddad",
-    roles: ["contact"],
-  },
-  "sophie-wagner": {
-    asset: "/demo/avatars/photos/sophie-wagner.png",
-    name: "Sophie Wagner",
+  "megan-hughes": {
+    asset: "/demo/avatars/people/smb--megan.jpg",
+    name: "Megan Hughes",
     roles: ["contact", "messaging-participant"],
   },
-  "reinhold-mertens": {
-    asset: "/demo/avatars/photos/reinhold-mertens.png",
-    name: "Reinhold Mertens",
-    roles: ["contact"],
-  },
-  "alexej-sofr": {
-    asset: "/demo/avatars/photos/alexej-sofr.png",
-    name: "Alexej Sofr",
-    roles: ["contact"],
-  },
-  "anna-mueller": {
-    asset: "/demo/avatars/photos/anna-mueller.png",
-    name: "Anna Müller",
+  "lucas-grant": {
+    asset: "/demo/avatars/people/smb--lucas.jpg",
+    name: "Lucas Grant",
     roles: ["contact", "messaging-participant"],
   },
-  "yasmin-farouk": {
-    asset: "/demo/avatars/photos/yasmin-farouk.png",
-    name: "Yasmin Farouk",
+  "helen-ashworth": {
+    asset: "/demo/avatars/people/consultants--helen.jpg",
+    name: "Helen Ashworth",
+    roles: ["contact"],
+  },
+  "martin-pryce": {
+    asset: "/demo/avatars/people/consultants--martin.jpg",
+    name: "Martin Pryce",
+    roles: ["contact"],
+  },
+  "laura-bennett": {
+    asset: "/demo/avatars/people/consultants--laura.jpg",
+    name: "Laura Bennett",
+    roles: ["contact"],
+  },
+  "rachel-donovan": {
+    asset: "/demo/avatars/people/agencies--rachel.jpg",
+    name: "Rachel Donovan",
+    roles: ["contact"],
+  },
+  "michael-sutton": {
+    asset: "/demo/avatars/people/agencies--michael.jpg",
+    name: "Michael Sutton",
+    roles: ["contact"],
+  },
+  "ben-carlisle": {
+    asset: "/demo/avatars/people/agencies--ben.jpg",
+    name: "Ben Carlisle",
+    roles: ["contact"],
+  },
+  "sam-whitaker": {
+    asset: "/demo/avatars/people/freelancers--sam.jpg",
+    name: "Sam Whitaker",
+    roles: ["contact"],
+  },
+  "nina-castillo": {
+    asset: "/demo/avatars/people/freelancers--nina.jpg",
+    name: "Nina Castillo",
     roles: ["contact", "messaging-participant"],
   },
-  "lukas-fischer": {
-    asset: "/demo/avatars/photos/lukas-fischer.png",
-    name: "Lukas Fischer",
+  "dan-okafor": {
+    asset: "/demo/avatars/people/freelancers--dan.jpg",
+    name: "Dan Okafor",
     roles: ["contact"],
   },
-  "felix-schneider": {
-    asset: "/demo/avatars/photos/felix-schneider.png",
-    name: "Felix Schneider",
-    roles: ["contact"],
-  },
-  "rashid-malik": {
-    asset: "/demo/avatars/photos/rashid-malik.png",
-    name: "Rashid Malik",
+  "diane-harlow": {
+    asset: "/demo/avatars/people/startups--precisionCeo.jpg",
+    name: "Diane Harlow",
     roles: ["contact", "messaging-participant"],
   },
-  "paul-koch": {
-    asset: "/demo/avatars/photos/paul-koch.png",
-    name: "Paul Koch",
+  "elena-marsh": {
+    asset: "/demo/avatars/people/startups--seedPartner.jpg",
+    name: "Elena Marsh",
     roles: ["contact"],
   },
-  "nia-johnson": {
-    asset: "/demo/avatars/photos/nia-johnson.png",
-    name: "Nia Johnson",
+  "greg-holloway": {
+    asset: "/demo/avatars/people/startups--pumpsIt.jpg",
+    name: "Greg Holloway",
     roles: ["contact"],
   },
-  "paul-fischer": {
-    asset: "/demo/avatars/photos/paul-fischer.png",
-    name: "Paul Fischer",
+  "diane-mercer": {
+    asset: "/demo/avatars/people/client-management--diane.jpg",
+    name: "Diane Mercer",
+    roles: ["contact"],
+  },
+  "patrick-quinn": {
+    asset: "/demo/avatars/people/client-management--patrick.jpg",
+    name: "Patrick Quinn",
+    roles: ["contact"],
+  },
+  "karen-doyle": {
+    asset: "/demo/avatars/people/client-management--karen.jpg",
+    name: "Karen Doyle",
+    roles: ["contact"],
+  },
+  "peter-nolan": {
+    asset: "/demo/avatars/people/sales-pipeline--peter.jpg",
+    name: "Peter Nolan",
+    roles: ["contact"],
+  },
+  "helen-carver": {
+    asset: "/demo/avatars/people/sales-pipeline--helen.jpg",
+    name: "Helen Carver",
+    roles: ["contact"],
+  },
+  "rachel-dawson": {
+    asset: "/demo/avatars/people/linkedin-crm--rachel.jpg",
+    name: "Rachel Dawson",
+    roles: ["contact", "messaging-participant"],
+  },
+  "george-lamb": {
+    asset: "/demo/avatars/people/linkedin-crm--george.jpg",
+    name: "George Lamb",
+    roles: ["contact", "messaging-participant"],
+  },
+  "kate-morrison": {
+    asset: "/demo/avatars/people/linkedin-crm--kate.jpg",
+    name: "Kate Morrison",
+    roles: ["contact"],
+  },
+  "claire-donovan": {
+    asset: "/demo/avatars/people/whatsapp-crm--claire.jpg",
+    name: "Claire Donovan",
+    roles: ["contact", "messaging-participant"],
+  },
+  "tom-marlowe": {
+    asset: "/demo/avatars/people/whatsapp-crm--tom.jpg",
+    name: "Tom Marlowe",
     roles: ["contact"],
   },
   "max-bergmann": {
-    asset: "/demo/avatars/photos/max-bergmann.png",
+    asset: "/demo/avatars/people/team--max-bergmann.jpg",
     name: "Max Bergmann",
     roles: ["member"],
   },
   "sofia-rossi": {
-    asset: "/demo/avatars/photos/sofia-rossi.png",
+    asset: "/demo/avatars/people/team--sofia-rossi.jpg",
     name: "Sofia Rossi",
     roles: ["member"],
   },
   "elena-hoffmann": {
-    asset: "/demo/avatars/photos/elena-hoffmann.png",
+    asset: "/demo/avatars/people/team--elena-hoffmann.jpg",
     name: "Elena Hoffmann",
     roles: ["member"],
   },
+  "kian-rahimi": {
+    asset: "/demo/avatars/people/team--kian-rahimi.jpg",
+    name: "Kian Rahimi",
+    roles: ["member"],
+  },
+  "laura-fischer": {
+    asset: "/demo/avatars/people/team--laura-fischer.jpg",
+    name: "Laura Fischer",
+    roles: ["member"],
+  },
   "clara-neumann": {
-    asset: "/demo/avatars/photos/clara-neumann.png",
+    asset: "/demo/avatars/people/team--clara-neumann.jpg",
     name: "Clara Neumann",
     roles: ["member", "messaging-participant"],
   },
   "marco-silva": {
-    asset: "/demo/avatars/photos/marco-silva.png",
+    asset: "/demo/avatars/people/team--marco-silva.jpg",
     name: "Marco Silva",
     roles: ["member", "messaging-participant"],
   },
 } as const satisfies Record<
   string,
   {
-    asset: `/demo/avatars/photos/${string}.png`;
+    asset: `/demo/avatars/people/${string}.jpg`;
     name: string;
     roles: readonly DemoVisualPersonRole[];
   }
@@ -216,12 +216,12 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Riverton HVAC Service - Enterprise 213 - Neu",
-      en: "Riverton HVAC Service - Enterprise 213 - New",
+      de: "Riverton HVAC Service - Jahreswartung",
+      en: "Riverton HVAC Service - yearly maintenance",
     },
-    name: "Riverton HVAC Service - Enterprise 213 - New",
+    name: "Riverton HVAC Service - yearly maintenance",
     status: "deal-lost",
-    totalValue: 213931.6,
+    totalValue: 8400,
     weightedValue: 0,
   },
   "deal-oakridge-climate-systems": {
@@ -229,79 +229,79 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Oakridge Climate Systems - Professional 140 - Neu",
-      en: "Oakridge Climate Systems - Professional 140 - New",
+      de: "Oakridge Climate Systems - Wartungsplan Wärmepumpe",
+      en: "Oakridge Climate Systems - heat pump service plan",
     },
-    name: "Oakridge Climate Systems - Professional 140 - New",
+    name: "Oakridge Climate Systems - heat pump service plan",
     status: "deal-open",
-    totalValue: 86704,
-    weightedValue: 26011.2,
+    totalValue: 6720,
+    weightedValue: 2016,
   },
   "deal-moorfield-property-management": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Moorfield Property Management - Enterprise 373 - Neu",
-      en: "Moorfield Property Management - Enterprise 373 - New",
+      de: "Moorfield Property Management - Jahresprüfungen",
+      en: "Moorfield Property Management - yearly inspections",
     },
-    name: "Moorfield Property Management - Enterprise 373 - New",
+    name: "Moorfield Property Management - yearly inspections",
     status: "deal-won",
-    totalValue: 347243.6,
-    weightedValue: 347243.6,
+    totalValue: 14400,
+    weightedValue: 14400,
   },
   "deal-altmark-heating-cooling": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Altmark Heating and Cooling - Enterprise 343 - Neu",
-      en: "Altmark Heating and Cooling - Enterprise 343 - New",
+      de: "Altmark Heating and Cooling - Servicevertrag",
+      en: "Altmark Heating and Cooling - service agreement",
     },
-    name: "Altmark Heating and Cooling - Enterprise 343 - New",
+    name: "Altmark Heating and Cooling - service agreement",
     status: "deal-won",
-    totalValue: 282331.2,
-    weightedValue: 282331.2,
+    totalValue: 9600,
+    weightedValue: 9600,
   },
   "deal-mainbrueck-solar": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Mainbrück Solar - Professional 120 - Neu",
-      en: "Mainbrück Solar - Professional 120 - New",
+      de: "Mainbrück Solar - Wechselrichter-Tausch",
+      en: "Mainbrück Solar - inverter replacement",
     },
-    name: "Mainbrück Solar - Professional 120 - New",
+    name: "Mainbrück Solar - inverter replacement",
     status: "deal-open",
-    totalValue: 80532,
-    weightedValue: 24159.6,
+    totalValue: 4800,
+    weightedValue: 1440,
   },
   "deal-sonnenhof-fire-safety": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Sonnenhof Fire and Safety - Enterprise 377 - Neu",
-      en: "Sonnenhof Fire and Safety - Enterprise 377 - New",
+      de: "Sonnenhof Fire and Safety - Jahresinspektion",
+      en: "Sonnenhof Fire and Safety - annual inspections",
     },
-    name: "Sonnenhof Fire and Safety - Enterprise 377 - New",
+    name: "Sonnenhof Fire and Safety - annual inspections",
     projectPeriod: ["2026-10-19", "2027-10-18"],
     status: "deal-open",
-    totalQuantity: 382,
-    totalValue: 310616.8,
-    weightedValue: 93185.04,
+    totalQuantity: 24,
+    totalValue: 7200,
+    weightedValue: 2160,
   },
   "deal-ironvale-pump-service": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Ironvale Pump Service - Professional 141 - Neu",
-      en: "Ironvale Pump Service - Professional 141 - New",
+      de: "Ironvale Pump Service - Pumpenrevision",
+      en: "Ironvale Pump Service - pump overhaul",
     },
-    name: "Ironvale Pump Service - Professional 141 - New",
+    name: "Ironvale Pump Service - pump overhaul",
     status: "deal-lost",
-    totalValue: 92262.6,
+    totalValue: 12600,
     weightedValue: 0,
   },
   "deal-hansen-building-services": {
@@ -309,25 +309,25 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Hansen Building Services - Professional 159 - Neu",
-      en: "Hansen Building Services - Professional 159 - New",
+      de: "Hansen Building Services - Wartungs-Retainer",
+      en: "Hansen Building Services - maintenance retainer",
     },
-    name: "Hansen Building Services - Professional 159 - New",
+    name: "Hansen Building Services - maintenance retainer",
     status: "deal-won",
-    totalValue: 110867.4,
-    weightedValue: 110867.4,
+    totalValue: 18000,
+    weightedValue: 18000,
   },
   "deal-brightwater-fire-safety": {
     assignee: "max-bergmann",
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Brightwater Fire and Safety - Professional 116 - Neu",
-      en: "Brightwater Fire and Safety - Professional 116 - New",
+      de: "Brightwater Fire and Safety - Brandschutztür-Prüfung",
+      en: "Brightwater Fire and Safety - fire door checks",
     },
-    name: "Brightwater Fire and Safety - Professional 116 - New",
+    name: "Brightwater Fire and Safety - fire door checks",
     status: "deal-abandoned",
-    totalValue: 78997.6,
+    totalValue: 3900,
     weightedValue: 0,
   },
   "deal-lowell-property-care": {
@@ -335,13 +335,13 @@ export const DEMO_VISUAL_DEALS = {
     currency: "EUR",
     kind: "deal",
     localizedName: {
-      de: "Lowell Property Care - Professional 144 - Neu",
-      en: "Lowell Property Care - Professional 144 - New",
+      de: "Lowell Property Care - Saisonservice",
+      en: "Lowell Property Care - seasonal service",
     },
-    name: "Lowell Property Care - Professional 144 - New",
+    name: "Lowell Property Care - seasonal service",
     status: "deal-won",
-    totalValue: 98038.4,
-    weightedValue: 98038.4,
+    totalValue: 5400,
+    weightedValue: 5400,
   },
 } as const satisfies Record<
   string,
@@ -365,7 +365,7 @@ export const DEMO_VISUAL_CONVERSATIONS = {
       de: "Nächste Schritte für den Rollout",
       en: "Next steps for the rollout",
     },
-    person: "anna-mueller",
+    person: "nina-castillo",
     provider: "gmail",
     state: "open",
     subject: "Next steps for the rollout",
@@ -382,10 +382,10 @@ export const DEMO_VISUAL_CONVERSATIONS = {
 >;
 
 export const DEMO_VISUAL_PROVIDER_PERSON_PAIRINGS = {
-  gmail: ["anna-mueller", "amin-hassan", "clara-neumann", "yasmin-farouk"],
-  instagram: ["yasmin-farouk"],
-  linkedin: ["leon-becker", "rashid-malik"],
-  outlook: ["amin-hassan"],
-  telegram: ["jonas-weber"],
-  whatsapp: ["sophie-wagner", "jonas-weber", "marco-silva"],
+  gmail: ["nina-castillo", "james-finch", "clara-neumann", "diane-harlow"],
+  instagram: ["megan-hughes"],
+  linkedin: ["rachel-dawson", "george-lamb"],
+  outlook: ["chloe-bennett"],
+  telegram: ["lucas-grant"],
+  whatsapp: ["sophie-turner", "claire-donovan", "marco-silva"],
 } as const satisfies Record<string, readonly (keyof typeof DEMO_VISUAL_PEOPLE)[]>;

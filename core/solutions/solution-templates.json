@@ -13,7 +13,13 @@
       "Next steps this month",
       "Retainer MRR by client"
     ],
-    "knowledgeBase": ["Operating Guide", "Pitch process", "After a pitch presentation", "Retainer renewal checklist"],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Pitch process",
+      "After a pitch presentation",
+      "Retainer renewal checklist",
+      "How our agents work with this CRM"
+    ],
     "lists": [
       {
         "fields": [
@@ -95,7 +101,8 @@
       "Operating Guide",
       "What a complete client record holds",
       "Moving clients from a spreadsheet",
-      "Yearly review"
+      "Yearly review",
+      "How our agents work with this CRM"
     ],
     "lists": [
       {
@@ -167,7 +174,8 @@
       "Operating Guide",
       "How engagements move",
       "Prepare a relationship brief",
-      "Day rates and fee options"
+      "Day rates and fee options",
+      "How our agents work with this CRM"
     ],
     "lists": [
       {
@@ -228,7 +236,13 @@
       "Open tasks this month",
       "Project fees by client"
     ],
-    "knowledgeBase": ["Operating Guide", "Stages of an inquiry", "After a first call", "My rates and terms"],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Stages of an inquiry",
+      "After a first call",
+      "My rates and terms",
+      "How our agents work with this CRM"
+    ],
     "lists": [
       {
         "fields": [
@@ -295,7 +309,8 @@
       "Operating Guide",
       "Opportunity stages",
       "Linking a LinkedIn conversation",
-      "Connection requests and first messages"
+      "Connection requests and first messages",
+      "How our agents work with this CRM"
     ],
     "lists": [
       {
@@ -351,7 +366,13 @@
       "Closing this month",
       "Accounts on the map"
     ],
-    "knowledgeBase": ["Operating Guide", "Sales stages", "After a site visit", "Discount and approval rules"],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Sales stages",
+      "After a site visit",
+      "Discount and approval rules",
+      "How our agents work with this CRM"
+    ],
     "lists": [
       {
         "fields": [
@@ -407,7 +428,13 @@
       "Appointments this month",
       "Customers on the map"
     ],
-    "knowledgeBase": ["Operating Guide", "Sales Process", "Follow-up after a site visit", "Price list and discounts"],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Sales Process",
+      "Follow-up after a site visit",
+      "Price list and discounts",
+      "How our agents work with this CRM"
+    ],
     "lists": [
       {
         "fields": [
@@ -464,7 +491,8 @@
       "Operating Guide",
       "Founder Sales Process",
       "After a demo",
-      "Using the CRM from your AI client (MCP)"
+      "Using the CRM from your AI client (MCP)",
+      "How our agents work with this CRM"
     ],
     "lists": [
       {
@@ -531,7 +559,13 @@
       "Next steps this month",
       "Lead time by project type (days)"
     ],
-    "knowledgeBase": ["Operating Guide", "Sales Process", "From WhatsApp chat to project", "Site visit checklist"],
+    "knowledgeBase": [
+      "Operating Guide",
+      "Sales Process",
+      "From WhatsApp chat to project",
+      "Site visit checklist",
+      "How our agents work with this CRM"
+    ],
     "lists": [
       {
         "fields": [

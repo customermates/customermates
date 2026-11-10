@@ -31,6 +31,7 @@ import {
 } from "./mcp-authorization-code";
 import { requestedWorkspaceSlug } from "@/core/navigation/workspace-request-header";
 import { SESSION_HINT_COOKIE_NAME } from "./session-hint";
+import { eventVia, type EventVia } from "@/features/event/event-via";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { env } from "@/env";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
@@ -145,6 +146,28 @@ export class AuthService {
       sessionId: session.session.id,
       workspaceSlug: requestedWorkspaceSlug(requestHeaders),
     };
+  }
+
+  async getCredentialVia(session: AuthenticatedSession, headersList?: Headers): Promise<EventVia | null> {
+    const requestHeaders = headersList ?? (await headers());
+
+    if (requestHeaders.has("x-api-key")) {
+      const key = await prisma.apikey.findUnique({
+        where: { id: session.session.id },
+        select: { name: true, referenceId: true },
+      });
+      return key?.referenceId === session.user.id ? eventVia("apiKey", key.name) : null;
+    }
+
+    if (this.hasBearerToken(requestHeaders)) {
+      const token = await prisma.oauthAccessToken.findUnique({
+        where: { accessToken: session.session.token },
+        select: { userId: true, oauthapplication: { select: { name: true } } },
+      });
+      return token?.userId === session.user.id ? eventVia("oauthApplication", token.oauthapplication.name) : null;
+    }
+
+    return null;
   }
 
   async revokeMembershipCredentials(authUserId: string, companyId: string): Promise<number> {

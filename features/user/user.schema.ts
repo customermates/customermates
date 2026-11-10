@@ -1,4 +1,5 @@
 import type { Data } from "@/core/validation/validation.utils";
+import type { EventVia } from "@/features/event/event-via";
 
 import { z } from "zod";
 import { Status, Locale, Theme } from "@/generated/prisma";
@@ -41,4 +42,4 @@ export const TenantUserSchema = UserDtoSchema.extend({
   company: z.object({ slug: z.string() }).optional(),
 });
 
-export type TenantUser = Data<typeof TenantUserSchema>;
+export type TenantUser = Data<typeof TenantUserSchema> & { via?: EventVia | null };

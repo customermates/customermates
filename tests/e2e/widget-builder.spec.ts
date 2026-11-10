@@ -386,3 +386,60 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
     });
   }
 }
+
+test("previews a full-width number widget as a scaled miniature and keeps the dashboard's bottom padding", async ({
+  page,
+  database,
+  companyId,
+  isMobile,
+}) => {
+  test.skip(isMobile, "The editor preview and the grid padding are asserted on the desktop grid");
+  test.setTimeout(180000);
+  const errors = collectPageErrors(page);
+  const dialog = page.getByRole("dialog");
+  await page.goto(pagePath(page, "/dashboard"));
+  await page.locator("#dashboard-add-widget").click();
+  await dialog.locator("#widget-starter-number").click();
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Overdue follow-ups");
+  await dialog.locator("#widget-modal-save").click();
+  await expect(dialog).toHaveCount(0);
+  const saved = await database.query<{ id: string; layout: Record<string, unknown> }>(
+    'SELECT id, layout FROM "Widget" WHERE "companyId"=$1 AND name=$2',
+    [companyId, "Overdue follow-ups"],
+  );
+  const widget = saved.rows[0];
+  if (!widget) throw new Error("The widget was not saved");
+  await database.query('UPDATE "Widget" SET layout = $1 WHERE id = $2 AND "companyId" = $3', [
+    { ...widget.layout, lg: { x: 0, y: 0, w: 12, h: 2 } },
+    widget.id,
+    companyId,
+  ]);
+  await page.reload();
+  await openWidgetForEdit(page, "Overdue follow-ups", widget.id);
+
+  const preview = dialog.locator('[data-slot="widget-preview"]');
+  await expect(preview).toHaveAttribute("data-preview-height", String(2 * 54 + 12));
+  const box = await preview.boundingBox();
+  const value = await preview.locator('[data-slot="widget-number-value"]').boundingBox();
+  if (!box || !value) throw new Error("The preview or its number is not rendered");
+  expect(value.y).toBeGreaterThanOrEqual(box.y);
+  expect(value.y + value.height).toBeLessThanOrEqual(box.y + box.height + 1);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+
+  await page.setViewportSize({ width: 1280, height: 520 });
+  const gap = await page.evaluate(() => {
+    const grid = document.querySelector<HTMLElement>(".react-grid-layout");
+    const host = grid?.parentElement;
+    if (!grid || !host) return null;
+    const items = [...grid.querySelectorAll<HTMLElement>(".react-grid-item")];
+    const lowest = Math.max(...items.map((item) => item.getBoundingClientRect().bottom));
+    const side = items.length
+      ? Math.min(...items.map((item) => item.getBoundingClientRect().left)) - host.getBoundingClientRect().left
+      : 0;
+    return { bottom: host.getBoundingClientRect().bottom - lowest, side };
+  });
+  expect(gap).not.toBeNull();
+  expect(Math.abs((gap?.bottom ?? 0) - (gap?.side ?? 0))).toBeLessThanOrEqual(1);
+  expect(errors).toEqual([]);
+});

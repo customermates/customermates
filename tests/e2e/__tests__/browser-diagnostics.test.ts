@@ -330,7 +330,7 @@ describe("browser diagnostics", () => {
     const failed = (source: string, text = "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT") =>
       isSandboxedResourceFailure({ kind: "console", text, source });
     expect(failed("https://flagcdn.com/w40/de.png")).toBe(true);
-    expect(failed("https://customermates.com/demo/avatars/photos/a.png")).toBe(true);
+    expect(failed("https://customermates.com/demo/avatars/people/a.jpg")).toBe(true);
     expect(failed(`${BASE}/api/v1/records/query`, NOT_FOUND)).toBe(false);
     expect(failed(`${BASE}/_next/static/chunks/app.js`)).toBe(false);
     expect(failed("http://localhost:4464/en/dashboard")).toBe(false);

@@ -388,6 +388,30 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
+  async listSharedAccountsForCompanyUnscoped(companyId: string) {
+    return this.prisma.connectedAccount.findMany({
+      where: { companyId, shared: true, status: { not: ConnectedAccountStatus.deleted } },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        provider: true,
+        displayName: true,
+        emailAddress: true,
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async makeAccountPrivateUnscoped(companyId: string, accountId: string) {
+    const result = await this.prisma.connectedAccount.updateMany({
+      where: { id: accountId, companyId, shared: true },
+      data: { shared: false },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
   async findConnectedAccountIdsForExpiredTrialsUnscoped() {
     const before = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const rows = await this.prisma.connectedAccount.findMany({

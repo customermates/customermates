@@ -65,7 +65,7 @@ describe("zx.secureUrl", () => {
     });
 
     it.each([
-      ["/demo/avatars/photos/max-bergmann.png"],
+      ["/demo/avatars/people/team--max-bergmann.jpg"],
       ["/evil"],
       ["/internal/report.pdf"],
       ["/a/b/c.png?v=2"],
@@ -92,7 +92,7 @@ describe("zx.secureUrl", () => {
     });
 
     it("never rewrites a relative value into a different host", () => {
-      for (const input of ["/evil", "/demo/avatars/photos/max-bergmann.png", "//example.com/x.png"])
+      for (const input of ["/evil", "/demo/avatars/people/team--max-bergmann.jpg", "//example.com/x.png"])
         expect(zx.secureUrl().safeParse(input).success).toBe(false);
     });
 

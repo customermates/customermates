@@ -6,13 +6,14 @@ import {
   day,
   defineSolution,
   phoneNumber,
-  photo,
   rangeAt,
   type AddressInput,
   type FileSpec,
   type MessagingProvider,
   type RecordSpec,
 } from "../define-solution";
+import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
+import { inboxThreads, type InboxThreadPlan } from "../inbox-threads";
 
 /**
  * Small businesses: a small IT service company that sells support contracts and projects to local offices. The
@@ -408,7 +409,7 @@ const en = {
         "## Working rules",
         "- Every open deal has a next step and a next step date.",
         "- Prices come from the Services list. Ask Max before giving a discount; the page Price list and discounts has the rules.",
-        "- Three routines help Mate prepare the day: a morning pipeline briefing, a check for stale deals and reply drafts for new emails. They prepare drafts and tasks and never send anything.",
+        "- Five routines help Mate prepare the day: a morning pipeline briefing, a check for stale deals, reply drafts for new emails, follow-up drafts for deals due today and a Friday wrap-up in the deal notes. They prepare drafts, tasks and notes and never send anything.",
         "- Accounting, booking and hardware ordering stay in their own tools.",
       ],
     },
@@ -483,6 +484,23 @@ const en = {
       failure:
         "I could not reach the model provider on this attempt, so I stopped before reading or changing anything. Nothing was modified. The next email will start a new run.",
     },
+    followUpDue: {
+      name: "Every morning, draft follow-ups for deals due today",
+      task: 'Every weekday morning, read the open deals (every stage except Won and Lost) whose Next step date is today or earlier. For each deal read the company, the linked contacts, the services on the deal and the last linked email conversation. When the customer wrote last in an email conversation and no reply draft exists yet, save one short reply draft with save_message_draft that answers the question, uses prices from the Services list and never promises a discount. Preserve an existing draft. When the deal has no email conversation, create one ordinary task named "Follow up: <deal name>" due today unless a task with that name is already linked. Never send a message and change no other field. Report the deals and what you prepared for each.',
+      runs: [
+        "3 deals were due: saved a reply draft for Kessler Dental and created follow-up tasks for Riverside Physio and Willow Street Bakery, whose conversations run on WhatsApp and Instagram.",
+        "No deal was due today; nothing was drafted or created.",
+        "Saved a reply draft for Maple & Finch about the second access point; the Kessler Dental deal already had a follow-up task.",
+      ],
+    },
+    weeklyNotes: {
+      name: "Friday wrap-up notes on open deals",
+      task: "Every Friday afternoon, find the open deals (every stage except Won and Lost) that had a linked email or chat conversation this week. For each one, read the conversation and append one dated paragraph to the deal's Notes: what the customer asked, what we promised and the next step. Keep the existing notes and write in the first person plural. Skip deals without a new conversation and never add a second paragraph for the same week. Change no other field, create no task and send no message.",
+      runs: [
+        "Added a dated paragraph to 5 deals, among them Kessler Dental, Maple & Finch and Harbourview Hotel.",
+        "Added paragraphs to 4 deals; Oakridge Property had no new conversation that week.",
+      ],
+    },
   },
   webhooks: {
     accounting: {
@@ -531,11 +549,11 @@ const en = {
     },
     harbourviewIntro: {
       letter:
-        '<html><head><style>.wrap{font-family:Georgia,\'Times New Roman\',serif;color:#2b2b2b}.band{background:#0f4c5c;color:#ffffff;padding:14px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}.card{border:1px solid #d9e2e5;padding:18px 20px}.meta td{padding:4px 12px 4px 0;font-size:13px;color:#5b6b70}.meta td.value{color:#1d2b30;font-weight:bold}.note{font-size:12px;color:#7a868a;padding-top:12px}</style></head><body><div class="wrap"><div class="band">Harbourview Hotel &middot; Guest services</div><div class="card"><p style="margin:0 0 12px;font-size:15px">Dear Max,</p><p style="margin:0 0 12px;font-size:15px">A colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year. Would you have time for an introductory call?</p><table class="meta" role="presentation"><tr><td>Rooms</td><td class="value">40</td></tr><tr><td>Front desk</td><td class="value">Open around the clock</td></tr><tr><td>Contact</td><td class="value">Chloe Bennett, General manager</td></tr></table><p class="note">Harbourview Hotel, Astoria. This message was sent from our guest services mailbox.</p></div></div></body></html>',
+        '<html><head><style>.wrap{font-family:Georgia,\'Times New Roman\',serif;color:#2b2b2b}.band{background:#0f4c5c;color:#ffffff;padding:14px 20px;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}.card{border:1px solid #d9e2e5;padding:18px 20px}.meta td{padding:4px 12px 4px 0;font-size:13px;color:#5b6b70}.meta td.value{color:#1d2b30;font-weight:bold}.note{font-size:12px;color:#7a868a;padding-top:12px}</style></head><body><div class="wrap"><div class="band">Harbourview Hotel &middot; Guest services</div><div class="card"><p style="margin:0 0 12px;font-size:15px">Hi Max,</p><p style="margin:0 0 12px;font-size:15px">A colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year. Would you have time for an introductory call?</p><table class="meta" role="presentation"><tr><td>Rooms</td><td class="value">40</td></tr><tr><td>Front desk</td><td class="value">Open around the clock</td></tr><tr><td>Contact</td><td class="value">Chloe Bennett, General manager</td></tr></table><p class="note">Harbourview Hotel, Astoria. This message was sent from our guest services mailbox.</p></div></div></body></html>',
       subject: "Introduction – IT support for the hotel",
       messages: [
-        "Dear Max,\n\nA colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year.\n\nWould you have time for an introductory call?\n\nKind regards,\nChloe Bennett",
-        "Dear Chloe,\n\nThank you for reaching out. I would be glad to. How about Monday at 2 pm? I will call the front desk number.\n\nBest regards,\nMax",
+        "Hi Max,\n\nA colleague at Alder Accounting recommended you. We are a 40-room hotel with a small office and the front desk. Our current provider is retiring at the end of the year.\n\nWould you have time for an introductory call?\n\nKind regards,\nChloe Bennett",
+        "Hi Chloe,\n\nThank you for reaching out. I would be glad to. How about Monday at 2 pm? I will call the front desk number.\n\nBest regards,\nMax",
       ],
     },
     willowInquiry: {
@@ -547,7 +565,7 @@ const en = {
     },
     cobaltFindings: {
       messages: [
-        "Max, did you finish the security review? Lucas wants to discuss it in Friday's team meeting.",
+        "Max, did you finish the security review? We want to go through it in Friday's team meeting.",
         "Almost. The report will be with you on Thursday: three quick fixes and one bigger item about shared passwords.",
         "Perfect. Could you add a short summary for the whole team? Not everyone will read the full report.",
       ],
@@ -654,6 +672,113 @@ const en = {
       "I read Quote HL-2026-014 on the deal: office network setup $3,200, now with the second access point for the meeting room, plus one on-site day $750, total $3,950, valid for 30 days. Here is a draft for James:\n\nHi James,\n\nAs promised, the revised quote HL-2026-014 now includes the second access point and the cabling to the meeting room. The total is $3,950: the network setup at $3,200 and one installation day on site at $750. We can install on a Friday so the office is not disturbed. Shall I agree a date with Grace?\n\nBest,\nMax\n\nI have not sent anything; the draft is for you to review.",
     ],
   },
+  inbox: {
+    alderInvoice: {
+      subject: "Question about the last invoice",
+      messages: [
+        "Hi Max,\n\nI am closing the month and have a question about the last invoice. It lists an on-site day on the 3rd that I cannot place. Could you check what it was for?\n\nThanks,\nDaniel",
+        "Hi Daniel,\n\nThanks for flagging it. I am checking with Laura, who prepared the invoice, and will come back to you by Friday.\n\nBest,\nMax",
+        "Thanks. I have to close the books on Monday, so the sooner the better.",
+        "Hi Daniel,\n\nLaura found it: the day was the restore test of your backup after the email migration, which you asked for by phone. I will send you the report of that day in a separate mail. If anything still looks off, tell me and we will correct the invoice.\n\nBest,\nMax",
+      ],
+    },
+    oakridgeInquiry: {
+      subject: "IT support for our three offices",
+      messages: [
+        "Hi Max,\n\nI found you through your website. Oakridge Property Management has three small offices with 16 workstations in total, and our IT person leaves in March. Roughly what would managed support cost per year? We have a budget meeting next Wednesday.\n\nBest,\nAmelia",
+        "Hi Amelia,\n\nThanks for getting in touch. Managed support is $480 per workstation and year, so $7,680 a year for 16 workstations. I would like to see the three offices before we fix anything, mainly the network and the backups. I can quote that visit separately.\n\nBest,\nMax",
+        "That helps, thank you. Does managed support also cover the printers and the shared mailboxes, or only the workstations?",
+        "Hi Amelia,\n\nIt covers the workstations, the office network, the printers and email, including shared mailboxes. Phones are not part of it. Shall we look at the three offices together first?\n\nBest,\nMax",
+        "Yes, please. Thursday afternoon at our Lake Oswego office works best for me, and I can show you the other two the same day.",
+      ],
+    },
+    pinecrestMailboxes: {
+      subject: "Mailboxes for the migration",
+      messages: [
+        "Hi Emma,\n\nBefore I come by next week, could you count the mailboxes, including shared ones like reception? It helps me plan the migration weekend.\n\nBest,\nMax",
+        "Hi Max,\n\nI counted 12: ten staff mailboxes plus reception and billing. The reception one is huge because it holds years of client emails. Does that change the quote?\n\nEmma",
+        "Hi Emma,\n\nThanks, that helps. The migration is a fixed price per project, so 12 mailboxes is fine. A big reception mailbox only means the transfer takes longer, so I will plan it for a weekend and check the real sizes when I am on site.\n\nBest,\nMax",
+        "Great. One more question: our practice software sends appointment emails from the old address. Will that keep working after the move?",
+        "Hi Emma,\n\nYes. The practice software sends through the old mail server today, so I will point it to the new mailboxes during the migration weekend and send a test appointment email on Monday morning. You do not have to change anything in the software.\n\nBest,\nMax",
+      ],
+    },
+    brookfieldWorkstations: {
+      subject: "Two new workstations",
+      messages: [
+        "Hi Max,\n\nThe email migration went smoothly, thank you. Isla says nobody lost a message. Two new colleagues start on the 1st, so we need two more workstations on the support contract. What changes on the invoice?\n\nOlivia",
+        "Hi Olivia,\n\nGreat to hear. The two new workstations come at the same $480 per workstation and year for the rest of the current term, so $960 for the two. I will add them to the contract today.\n\nBest,\nMax",
+        "Thanks. Could Isla set up the laptops herself with your instructions, or would you come by?",
+        "Hi Olivia,\n\nIsla can do it with a short checklist from me, but I would rather set both laptops up on site in one day so they match the others. That is one on-site day at $750. Shall I plan it for the 1st, before your colleagues arrive?\n\nBest,\nMax",
+      ],
+    },
+    noahLinkedin: {
+      messages: [
+        "Max, Ethan told me you are walking his warehouse next week. Thanks for taking him on, the dead zone behind the racks is a real thing :)",
+        "Thanks, Noah! And thanks again for the introduction. Ethan is easy to work with.",
+        "He is. By the way, our guest Wi-Fi in the waiting room has been slow since Monday. Could you take a look when you are here for the restore test?",
+        "Sure, I will add it to that visit. Which router do you have in the waiting room?",
+        "Just the grey box from our old provider. I will send you a photo.",
+        "Good idea, I will bring a spare access point just in case.",
+      ],
+    },
+    owenLinkedin: {
+      messages: [
+        "Hi Max, we have run IT ourselves since the summer and it takes more of my time than I expected. Would you be open to a call about a smaller support package, mostly for the printers and backups?",
+        "Hi Owen, good to hear from you. Happy to talk, and a smaller package is easy to price. Would a short call this week work?",
+        "Thursday afternoon works for me. I will write down what we still run ourselves so you can price it.",
+      ],
+    },
+    harbourviewInstagram: {
+      messages: [
+        "Hi Max! Loved your post about the Willow Street shop. Our guests complain about the Wi-Fi on the second floor. Is that something you can fix in a hotel too?",
+        "Hi Chloe, thank you! Yes, it is mostly about coverage: usually one access point per floor and a separate guest network. I will look at the second floor during the walkthrough.",
+        "Perfect. Ryan from facilities can show you the rooms with the worst signal.",
+        "Great, I will get in touch with him. See you Wednesday!",
+      ],
+    },
+    harbourviewTelegram: {
+      messages: [
+        "Hi Max, Ryan from Harbourview. Chloe asked me to line up the walkthrough with you. The patch cabinet is in the basement and I have the key.",
+        "Hi Ryan, great, thanks. Wednesday at 2 pm works for me. I would like to see the cabinet, the front desk and the rooms with the worst Wi-Fi.",
+        "Wednesday 2 pm is fine. The basement door is next to the loading ramp, I will wait for you there.",
+        "Perfect, see you at the ramp. I will bring a laptop and a network tester.",
+      ],
+    },
+  },
+  notes: {
+    kesslerSupport:
+      "Summary by Claude after the renewal review:\nDavid confirmed 14 workstations: the 12 from the inventory plus the two for the fourth treatment room.\nHannah signs once she has the renewal summary with last year's price per workstation.\nOpen: change the next step of this deal from confirming the count to sending the summary.\nPromised: the summary goes to Hannah this week.",
+    cobaltSecurity:
+      "Draft by ChatGPT from the findings report, as a one-page summary for Cobalt's whole team:\nThree quick fixes: turn on two-factor sign-in, remove two old accounts, check the backup once a month.\nOne bigger item: stop sharing passwords in chat and move them into a password manager.\nLucas forwarded the summary to the team before the team meeting.",
+    willowSetup:
+      "Options drafted by ChatGPT from Megan's message:\nOption A: network setup plus two on-site days ($4,700), shop and office in one go before the opening.\nOption B: network setup plus one on-site day ($3,950), the office laptop follows after the opening.\nThe card terminals come from her payment provider, we only connect them.\nBoth options need the keys to the shop by the end of March.",
+    james:
+      "Merged by Codex (script run on the CSV export of the old address book):\nThe duplicate contact James Finch (duplicate) was moved to Trash.\nEmail and mobile number were identical, so nothing was overwritten.\nDeals and conversations stay linked to this record.",
+    invoiceQuestion:
+      "Created by Claude from Daniel's email about the last invoice:\nHe cannot place the on-site day on the 3rd.\nBlocked until Laura confirms in the invoicing tool what the day was for.\nA reply draft is waiting in the Inbox.",
+  },
+  agents: {
+    company: "Harbor Lane IT",
+    records: "companies, contacts, deals and tasks",
+    mate: "It answers questions about the pipeline, drafts replies to customer emails and creates tasks when we ask.",
+    claude:
+      "Max uses it after a customer call to write a summary into the deal notes and to look across the whole pipeline.",
+    chatgpt:
+      "We use it to turn a technical findings report into a short summary that a customer's whole team can read.",
+    codex:
+      "It runs scripts on exports from our old systems, for example to merge duplicate contacts, and writes what it changed into the notes.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for deals due today" runs every weekday at 8:00 and belongs to Max. For every open deal whose next step date is today or earlier it saves a reply draft for the last customer email or, when the conversation runs on WhatsApp, Instagram or Telegram, a follow-up task. The drafts wait in the Inbox until a person has read them; the routine never sends anything.',
+  },
+  mateChatWalkthrough: {
+    title: "Walkthrough at Harbourview",
+    messages: [
+      "Chloe at Harbourview confirmed the front desk walkthrough for Wednesday at 2 pm. Create a task for it, linked to the deal and to her, and set the deal's next step date to the same day.",
+      "Done. I created the task **Walk through the front desk setup at Harbourview** (Medium priority, owner Max, scheduled Wednesday from 2:00 to 3:30 pm) and linked it to **Harbourview Hotel – managed support** and Chloe Bennett. I also set the deal's next step date to Wednesday. I changed nothing else and sent no message.",
+      "Which other deals have a next step today?",
+      "Two: **Riverside Physio – backup and recovery** (agree on the restore test date) and **Willow Street Bakery – shop and office setup** (reply to Megan with two setup options). Megan's last message is still unanswered, and the options ChatGPT drafted are in the deal notes. I only read these records, nothing was changed.",
+    ],
+  },
 };
 
 type Strings = typeof en;
@@ -666,8 +791,8 @@ const de: Strings = {
     mobile: { templates: ["+49 30 23125 0##"], start: 0 },
     office: { templates: ["+49 30 23125 4##"], start: 0 },
   },
-  accounts: ["google", "linkedin", "whatsapp"],
-  threadAccounts: { harbourview: "google", willow: "whatsapp", cobalt: "whatsapp" },
+  accounts: ["google", "linkedin", "whatsapp", "instagram", "telegram", "outlook"],
+  threadAccounts: { harbourview: "outlook", willow: "instagram", cobalt: "telegram" },
   archivedFields: [],
   selfTitle: "Geschäftsführer",
   money: (amount: number) => `${groupDigits(amount, ".", ",")} €`,
@@ -945,7 +1070,7 @@ const de: Strings = {
         "## Arbeitsregeln",
         "- Jeder offene Deal hat einen nächsten Schritt mit Datum.",
         "- Preise kommen aus der Liste der Leistungen. Rabatte vorher mit Max abstimmen; die Regeln stehen auf der Seite „Preisliste und Rabatte“.",
-        "- Drei Routinen helfen Mate beim Tagesstart: ein Pipeline-Briefing am Morgen, eine Prüfung liegengebliebener Deals und Antwortentwürfe für neue E-Mails. Sie bereiten Entwürfe und Aufgaben vor und senden nie etwas.",
+        "- Fünf Routinen helfen Mate beim Tagesstart: ein Pipeline-Briefing am Morgen, eine Prüfung liegengebliebener Deals, Antwortentwürfe für neue E-Mails, Nachfass-Entwürfe für heute fällige Deals und ein Wochenabschluss in den Notizen der Deals. Sie bereiten Entwürfe, Aufgaben und Notizen vor und senden nie etwas.",
         "- Buchhaltung, Terminbuchung und Hardwarebestellung bleiben in ihren eigenen Programmen.",
       ],
     },
@@ -1020,6 +1145,23 @@ const de: Strings = {
       failure:
         "Der Modellanbieter war bei diesem Versuch nicht erreichbar, deshalb habe ich vor dem Lesen und Ändern abgebrochen. Nichts wurde verändert. Die nächste E-Mail startet einen neuen Lauf.",
     },
+    followUpDue: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Deals",
+      task: "Lies jeden Werktagmorgen die offenen Deals (alle Phasen außer Gewonnen und Verloren), deren Datum nächster Schritt heute oder früher ist. Lies zu jedem Deal die Firma, die verknüpften Kontakte, die Leistungen im Deal und das letzte verknüpfte E-Mail-Gespräch. Hat zuletzt der Kunde in einem E-Mail-Gespräch geschrieben und liegt noch kein Antwortentwurf vor, speichere mit save_message_draft einen kurzen Antwortentwurf, der die Frage beantwortet, Preise aus der Liste der Leistungen nutzt und nie einen Rabatt zusagt. Einen vorhandenen Entwurf nicht überschreiben. Hat der Deal kein E-Mail-Gespräch, lege eine normale Aufgabe „Nachfassen: <Dealname>“ mit Fälligkeit heute an, sofern nicht schon eine Aufgabe mit diesem Namen verknüpft ist. Sende nie eine Nachricht und ändere kein weiteres Feld. Nenne die Deals und was du für jeden vorbereitet hast.",
+      runs: [
+        "3 Deals waren fällig: Antwortentwurf für die Zahnarztpraxis Keller gespeichert und Aufgaben zum Nachfassen für Physiotherapie am Fluss und Bäckerei Weidengasse angelegt, deren Gespräche über WhatsApp und Instagram laufen.",
+        "Heute war kein Deal fällig; nichts entworfen oder angelegt.",
+        "Antwortentwurf für Kanzlei Mahler & Fink zum zweiten Access Point gespeichert; beim Deal der Zahnarztpraxis Keller gab es schon eine Aufgabe zum Nachfassen.",
+      ],
+    },
+    weeklyNotes: {
+      name: "Wochenabschluss: Notizen zu offenen Deals",
+      task: "Finde jeden Freitagnachmittag die offenen Deals (alle Phasen außer Gewonnen und Verloren), zu denen es diese Woche ein verknüpftes E-Mail- oder Chat-Gespräch gab. Lies zu jedem das Gespräch und ergänze in den Notizen des Deals einen datierten Absatz: was der Kunde gefragt hat, was wir zugesagt haben und der nächste Schritt. Behalte die vorhandenen Notizen und schreibe in der Wir-Form. Überspringe Deals ohne neues Gespräch und ergänze nie einen zweiten Absatz für dieselbe Woche. Ändere kein weiteres Feld, lege keine Aufgabe an und sende keine Nachricht.",
+      runs: [
+        "An 5 Deals einen datierten Absatz ergänzt, darunter Zahnarztpraxis Keller, Kanzlei Mahler & Fink und Hotel Seeblick.",
+        "An 4 Deals Absätze ergänzt; die Eichenhain Hausverwaltung hatte in der Woche kein neues Gespräch.",
+      ],
+    },
   },
   webhooks: {
     accounting: {
@@ -1084,7 +1226,7 @@ const de: Strings = {
     },
     cobaltFindings: {
       messages: [
-        "Max, ist die Sicherheitsprüfung fertig? Lukas möchte sie im Teammeeting am Freitag besprechen.",
+        "Max, ist die Sicherheitsprüfung fertig? Wir wollen sie am Freitag im Teammeeting besprechen.",
         "Fast. Der Bericht kommt am Donnerstag: drei schnelle Verbesserungen und ein größerer Punkt zu gemeinsam genutzten Passwörtern.",
         "Super. Können Sie noch eine kurze Zusammenfassung fürs ganze Team ergänzen? Den vollen Bericht lesen nicht alle.",
       ],
@@ -1189,6 +1331,113 @@ const de: Strings = {
       "Drei Punkte fallen auf.\n\n1. **Überfälliger nächster Schritt:** Für die Verlängerung bei der Zahnarztpraxis Keller (6.720 €, Angebot gesendet) fehlt noch die bestätigte Zahl der Arbeitsplätze von Herrn Möller.\n2. **Überfällige Aufgaben:** die Prüfung der Sicherungsprotokolle für die Physiotherapie am Fluss und die Rückfrage des Steuerbüros Erlenhof zur Projektrechnung, die blockiert ist.\n3. **Einsätze vor Ort:** die neue Filiale der Bäckerei Weidengasse, die Rezeption im Hotel Seeblick und die zweite Lagerbegehung bei Nordtor stehen im Kalender „Einsätze vor Ort“.\n\nDas Netzwerkangebot für Mahler & Fink (3.950 €) hat seinen nächsten Schritt in zwei Tagen, deshalb würde ich zuerst das überarbeitete Angebot schicken.",
       "Entwirf das Nachfassen zum Angebot für Mahler & Fink",
       "Ich habe das Angebot LH-2026-014 am Deal gelesen: Einrichtung Büronetzwerk 3.200 €, jetzt mit dem zweiten Access Point für den Besprechungsraum, dazu ein Einsatztag vor Ort für 750 €, zusammen 3.950 €, gültig 30 Tage. Hier ein Entwurf für Herrn Fink:\n\nHallo Herr Fink,\n\nwie besprochen enthält das überarbeitete Angebot LH-2026-014 jetzt den zweiten Access Point samt Verkabelung zum Besprechungsraum. Die Summe beträgt 3.950 €: Netzwerkeinrichtung 3.200 € und ein Installationstag vor Ort 750 €. Die Installation können wir an einem Freitag machen, damit der Kanzleibetrieb nicht gestört wird. Soll ich mit Frau Mahler einen Termin abstimmen?\n\nViele Grüße\nMax Bergmann\n\nIch habe nichts gesendet; der Entwurf liegt zur Prüfung bereit.",
+    ],
+  },
+  inbox: {
+    alderInvoice: {
+      subject: "Rückfrage zur letzten Rechnung",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich schließe gerade den Monat ab und habe eine Frage zur letzten Rechnung. Dort steht ein Einsatztag am 3., den ich nicht zuordnen kann. Können Sie nachsehen, wofür der war?\n\nVielen Dank\nDaniel Richter",
+        "Hallo Herr Richter,\n\ndanke für den Hinweis. Ich kläre das mit Laura, die die Rechnung vorbereitet hat, und melde mich bis Freitag.\n\nViele Grüße\nMax Bergmann",
+        "Danke. Ich muss am Montag abschließen, früher ist also besser.",
+        "Hallo Herr Richter,\n\nLaura hat es gefunden: Der Tag war der Wiederherstellungstest Ihrer Datensicherung nach dem E-Mail-Umzug, den Sie telefonisch beauftragt hatten. Den Bericht zu diesem Tag schicke ich Ihnen in einer eigenen E-Mail. Wenn trotzdem etwas nicht stimmt, sagen Sie es mir, dann korrigieren wir die Rechnung.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    oakridgeInquiry: {
+      subject: "IT-Betreuung für unsere drei Büros",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich habe Sie über Ihre Website gefunden. Die Eichenhain Hausverwaltung hat drei kleine Büros mit zusammen 16 Arbeitsplätzen, und unser IT-Betreuer verlässt uns im März. Was würde die IT-Betreuung ungefähr pro Jahr kosten? Nächsten Mittwoch haben wir unsere Budgetrunde.\n\nViele Grüße\nAmelie Roth",
+        "Hallo Frau Roth,\n\nvielen Dank für Ihre Nachricht. Die IT-Betreuung kostet 480 € pro Arbeitsplatz und Jahr, bei 16 Arbeitsplätzen also 7.680 € im Jahr, jeweils zuzüglich MwSt. Ich würde mir die drei Büros gern ansehen, bevor wir etwas festlegen, vor allem Netzwerk und Datensicherung. Diesen Termin kalkuliere ich Ihnen gesondert.\n\nViele Grüße\nMax Bergmann",
+        "Das hilft, danke. Gehören auch die Drucker und die gemeinsamen Postfächer dazu oder nur die Arbeitsplätze?",
+        "Hallo Frau Roth,\n\ndazu gehören die Arbeitsplätze, das Büronetzwerk, die Drucker und die E-Mail einschließlich gemeinsamer Postfächer. Handys gehören nicht dazu. Sollen wir uns zuerst die drei Büros gemeinsam ansehen?\n\nViele Grüße\nMax Bergmann",
+        "Ja, gern. Donnerstagnachmittag in unserem Büro in Isernhagen passt mir am besten, die anderen beiden zeige ich Ihnen am selben Tag.",
+      ],
+    },
+    pinecrestMailboxes: {
+      subject: "Postfächer für den Umzug",
+      messages: [
+        "Hallo Frau Wolf,\n\nbevor ich nächste Woche vorbeikomme: Können Sie die Postfächer zählen, auch gemeinsame wie die Anmeldung? Das hilft mir, das Umzugswochenende zu planen.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nich habe 12 gezählt: zehn Postfächer der Mitarbeitenden plus Anmeldung und Abrechnung. Das der Anmeldung ist riesig, weil dort seit Jahren die Praxis-E-Mails liegen. Ändert das etwas am Angebot?\n\nEmma Wolf",
+        "Hallo Frau Wolf,\n\nvielen Dank, das hilft. Der Umzug hat einen Festpreis pro Projekt, 12 Postfächer sind also in Ordnung. Ein großes Postfach an der Anmeldung heißt nur, dass die Übertragung länger dauert. Ich plane das deshalb für ein Wochenende und prüfe die echten Größen vor Ort.\n\nViele Grüße\nMax Bergmann",
+        "Prima. Noch eine Frage: Unsere Praxissoftware verschickt Termin-E-Mails von der alten Adresse. Funktioniert das nach dem Umzug weiter?",
+        "Hallo Frau Wolf,\n\nja. Die Praxissoftware versendet heute über den alten Mailserver. Ich stelle sie am Umzugswochenende auf die neuen Postfächer um und schicke am Montagmorgen eine Test-E-Mail zum Termin. In der Software müssen Sie nichts ändern.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    brookfieldWorkstations: {
+      subject: "Zwei neue Arbeitsplätze",
+      messages: [
+        "Hallo Herr Bergmann,\n\nder E-Mail-Umzug lief reibungslos, vielen Dank. Frau Martens sagt, es ist keine Nachricht verloren gegangen. Zum 1. fangen zwei neue Mitarbeitende an, wir brauchen also zwei Arbeitsplätze mehr im Betreuungsvertrag. Was ändert sich auf der Rechnung?\n\nOlivia Brandt",
+        "Hallo Frau Brandt,\n\nschön zu hören. Die zwei neuen Arbeitsplätze kosten dasselbe wie bisher, 480 € pro Arbeitsplatz und Jahr, für den Rest der laufenden Laufzeit also 960 €. Ich nehme sie heute in den Vertrag auf.\n\nViele Grüße\nMax Bergmann",
+        "Danke. Kann Frau Martens die Laptops mit Ihrer Anleitung selbst einrichten, oder kommen Sie vorbei?",
+        "Hallo Frau Brandt,\n\nFrau Martens kann das mit einer kurzen Checkliste von mir übernehmen, ich würde beide Laptops aber lieber an einem Tag vor Ort einrichten, damit sie zu den anderen passen. Das ist ein Einsatztag für 750 €. Soll ich ihn für den 1. einplanen, bevor die neuen Mitarbeitenden anfangen?\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    noahLinkedin: {
+      messages: [
+        "Hallo Herr Bergmann, Erik Claasen sagt, Sie begehen nächste Woche sein Lager. Danke, dass Sie ihn übernehmen, der Funkschatten hinter den Regalen ist wirklich real :)",
+        "Danke, Herr Hansen! Und nochmals danke für die Empfehlung. Mit Herrn Claasen arbeitet es sich gut.",
+        "Das stimmt. Übrigens: Unser Gäste-WLAN im Wartebereich ist seit Montag langsam. Könnten Sie sich das ansehen, wenn Sie für den Wiederherstellungstest hier sind?",
+        "Gern, ich nehme es in den Besuch mit auf. Welcher Router hängt im Wartebereich?",
+        "Nur der graue Kasten von unserem alten Anbieter. Ich schicke Ihnen ein Foto.",
+        "Gute Idee, ich bringe zur Sicherheit einen Ersatz-Access-Point mit.",
+      ],
+    },
+    owenLinkedin: {
+      messages: [
+        "Hallo Herr Bergmann, wir betreuen die IT seit dem Sommer selbst, und das kostet mich mehr Zeit als gedacht. Wären Sie offen für ein Gespräch über ein kleineres Betreuungspaket, vor allem für Drucker und Datensicherung?",
+        "Hallo Herr Friedrich, schön, von Ihnen zu hören. Gern, und ein kleineres Paket ist leicht zu kalkulieren. Würde Ihnen ein kurzes Telefonat diese Woche passen?",
+        "Donnerstagnachmittag passt. Ich schreibe auf, was wir noch selbst betreiben, dann können Sie es kalkulieren.",
+      ],
+    },
+    harbourviewInstagram: {
+      messages: [
+        "Hallo Max! Ihr Beitrag über die Bäckerei Weidengasse hat uns gefallen. Unsere Gäste beschweren sich über das WLAN im zweiten Stock. Lässt sich das in einem Hotel auch lösen?",
+        "Hallo Frau Becker, danke! Ja, vor allem eine Frage der Abdeckung: meist ein Access Point pro Etage und ein eigenes Gästenetz. Den zweiten Stock sehe ich mir bei der Begehung an.",
+        "Perfekt. Herr Peters von der Haustechnik zeigt Ihnen die Zimmer mit dem schlechtesten Empfang.",
+        "Prima, ich melde mich bei ihm. Bis Mittwoch!",
+      ],
+    },
+    harbourviewTelegram: {
+      messages: [
+        "Hallo Herr Bergmann, Ruben Peters vom Hotel Seeblick. Frau Becker hat mich gebeten, die Begehung mit Ihnen abzustimmen. Der Verteilerschrank steht im Keller, ich habe den Schlüssel.",
+        "Hallo Herr Peters, prima, danke. Mittwoch um 14 Uhr passt mir. Ich möchte mir den Schrank, die Rezeption und die Zimmer mit dem schlechtesten WLAN ansehen.",
+        "Mittwoch 14 Uhr ist in Ordnung. Die Kellertür ist neben der Laderampe, ich warte dort auf Sie.",
+        "Perfekt, bis dann an der Rampe. Ich bringe einen Laptop und ein Netzwerk-Messgerät mit.",
+      ],
+    },
+  },
+  notes: {
+    kesslerSupport:
+      "Zusammenfassung von Claude nach dem Verlängerungsgespräch:\nDavid Möller hat 14 Arbeitsplätze bestätigt: die 12 aus dem Inventar plus zwei für das vierte Behandlungszimmer.\nHanna Keller unterschreibt, sobald sie die Zusammenfassung zur Verlängerung mit dem Vorjahrespreis pro Arbeitsplatz hat.\nOffen: den nächsten Schritt dieses Deals von der Bestätigung der Anzahl auf den Versand der Zusammenfassung ändern.\nZugesagt: Die Zusammenfassung geht noch diese Woche an Frau Keller.",
+    cobaltSecurity:
+      "Entwurf von ChatGPT aus dem Prüfbericht, als einseitige Zusammenfassung für das ganze Team der Kobalt Werbeagentur:\nDrei schnelle Verbesserungen: Zwei-Faktor-Anmeldung einschalten, zwei alte Konten entfernen, die Datensicherung einmal im Monat prüfen.\nEin größerer Punkt: Passwörter nicht mehr im Chat teilen, sondern in einem Passwortmanager ablegen.\nLukas Graf hat die Zusammenfassung vor dem Teammeeting an alle weitergeleitet.",
+    willowSetup:
+      "Varianten entworfen von ChatGPT nach der Nachricht von Melanie Hoffmann:\nVariante A: Netzwerkeinrichtung plus zwei Einsatztage (4.700 €), Filiale und Büro in einem Zug vor der Eröffnung.\nVariante B: Netzwerkeinrichtung plus ein Einsatztag (3.950 €), der Büro-Laptop folgt nach der Eröffnung.\nDie Kartenterminals kommen vom Zahlungsanbieter, wir verbinden sie nur.\nBeide Varianten brauchen die Schlüssel der Filiale bis Ende März.",
+    james:
+      "Zusammengeführt von Codex (Skriptlauf auf dem CSV-Export des alten Adressbuchs):\nDer doppelte Kontakt Jakob Fink (Duplikat) wurde in den Papierkorb verschoben.\nE-Mail und Handynummer waren identisch, es wurde nichts überschrieben.\nDeals und Gespräche bleiben mit diesem Datensatz verknüpft.",
+    invoiceQuestion:
+      "Angelegt von Claude aus der E-Mail von Daniel Richter zur letzten Rechnung:\nEr kann den Einsatztag am 3. nicht zuordnen.\nBlockiert, bis Laura im Rechnungsprogramm bestätigt, wofür der Tag war.\nEin Antwortentwurf liegt im Posteingang.",
+  },
+  agents: {
+    company: "Lindenhof IT-Service",
+    records: "Firmen, Kontakte, Deals und Aufgaben",
+    mate: "Der Assistent beantwortet Fragen zur Pipeline, entwirft Antworten auf Kundenmails und legt Aufgaben an, wenn wir darum bitten.",
+    claude:
+      "Max setzt Claude nach einem Kundengespräch ein, um eine Zusammenfassung in die Notizen des Deals zu schreiben und die ganze Pipeline zu überblicken.",
+    chatgpt:
+      "Wir setzen ChatGPT ein, um aus einem technischen Prüfbericht eine kurze Zusammenfassung zu machen, die das ganze Team des Kunden lesen kann.",
+    codex:
+      "Codex lässt Skripte auf Exporten aus unseren alten Systemen laufen, zum Beispiel um doppelte Kontakte zusammenzuführen, und schreibt in die Notizen, was geändert wurde.",
+    followUp:
+      "Die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Deals“ läuft werktags um 8:00 Uhr und gehört Max. Für jeden offenen Deal, dessen Datum nächster Schritt heute oder früher ist, speichert sie einen Antwortentwurf zur letzten Kundenmail oder, wenn das Gespräch über WhatsApp, Instagram oder Telegram läuft, eine Aufgabe zum Nachfassen. Die Entwürfe warten im Posteingang, bis eine Person sie gelesen hat; die Routine sendet nie etwas.",
+  },
+  mateChatWalkthrough: {
+    title: "Begehung im Hotel Seeblick",
+    messages: [
+      "Clara Becker vom Hotel Seeblick hat die Begehung der Rezeption für Mittwoch um 14 Uhr bestätigt. Leg eine Aufgabe dafür an, verknüpft mit dem Deal und mit ihr, und setze das Datum des nächsten Schritts im Deal auf denselben Tag.",
+      "Erledigt. Ich habe die Aufgabe **Rezeption im Hotel Seeblick gemeinsam durchgehen** angelegt (mittlere Priorität, Verantwortlicher Max, geplant Mittwoch von 14:00 bis 15:30 Uhr) und mit **Hotel Seeblick – IT-Betreuung** und Clara Becker verknüpft. Außerdem habe ich das Datum des nächsten Schritts im Deal auf Mittwoch gesetzt. Sonst habe ich nichts geändert und keine Nachricht gesendet.",
+      "Welche anderen Deals haben heute einen nächsten Schritt?",
+      "Zwei: **Physiotherapie am Fluss – Datensicherung** (Termin für den Wiederherstellungstest abstimmen) und **Bäckerei Weidengasse – Filiale und Büro einrichten** (Melanie zwei Varianten schicken). Die letzte Nachricht von Melanie Hoffmann ist noch unbeantwortet, und die Varianten, die ChatGPT entworfen hat, stehen in den Notizen des Deals. Ich habe diese Datensätze nur gelesen, nichts wurde geändert.",
     ],
   },
 };
@@ -1313,17 +1562,15 @@ const CONTACT_FACTS: Record<
     whatsapp?: boolean;
     instagram?: string;
     telegram?: string;
-    avatar?: Parameters<typeof photo>[0];
   }
 > = {
-  hannah: { organization: "kessler", role: "decisionMaker", createdDaysAgo: 515, avatar: "anna-mueller" },
-  david: { organization: "kessler", role: "influencer", createdDaysAgo: 515, phone: "01", avatar: "tim-wagner" },
+  hannah: { organization: "kessler", role: "decisionMaker", createdDaysAgo: 515 },
+  david: { organization: "kessler", role: "influencer", createdDaysAgo: 515, phone: "01" },
   olivia: {
     organization: "brookfield",
     role: "decisionMaker",
     createdDaysAgo: 478,
     linkedin: true,
-    avatar: "mia-schneider",
   },
   james: {
     organization: "maple",
@@ -1331,15 +1578,13 @@ const CONTACT_FACTS: Record<
     createdDaysAgo: 118,
     phone: "05",
     whatsapp: true,
-    avatar: "felix-koch",
   },
-  grace: { organization: "maple", role: "user", createdDaysAgo: 118, phone: "04", whatsapp: true, avatar: "lea-bauer" },
+  grace: { organization: "maple", role: "user", createdDaysAgo: 118, phone: "04", whatsapp: true },
   ethan: {
     organization: "northgate",
     role: "decisionMaker",
     createdDaysAgo: 38,
     linkedin: true,
-    avatar: "leon-becker",
   },
   sophie: {
     organization: "riverside",
@@ -1347,11 +1592,15 @@ const CONTACT_FACTS: Record<
     createdDaysAgo: 398,
     phone: "02",
     whatsapp: true,
-    avatar: "sophie-wagner",
   },
-  daniel: { organization: "alder", role: "influencer", createdDaysAgo: 296, avatar: "paul-koch" },
-  chloe: { organization: "harbourview", role: "decisionMaker", createdDaysAgo: 11, avatar: "lina-alvarez" },
-  ryan: { organization: "harbourview", role: "user", createdDaysAgo: 11 },
+  daniel: { organization: "alder", role: "influencer", createdDaysAgo: 296 },
+  chloe: {
+    organization: "harbourview",
+    role: "decisionMaker",
+    createdDaysAgo: 11,
+    instagram: "harbourview.hotel",
+  },
+  ryan: { organization: "harbourview", role: "user", createdDaysAgo: 11, telegram: "ryan_harbourview" },
   megan: {
     organization: "willow",
     role: "decisionMaker",
@@ -1359,7 +1608,6 @@ const CONTACT_FACTS: Record<
     phone: "06",
     whatsapp: true,
     instagram: "willowstreet.bakery",
-    avatar: "maxine-zoll",
   },
   lucas: {
     organization: "cobalt",
@@ -1368,13 +1616,12 @@ const CONTACT_FACTS: Record<
     phone: "03",
     whatsapp: true,
     telegram: "lucas_cobalt",
-    avatar: "lukas-fischer",
   },
-  emma: { organization: "pinecrest", role: "decisionMaker", createdDaysAgo: 74, avatar: "leila-chen" },
-  noah: { organization: "riverside", role: "user", createdDaysAgo: 390, linkedin: true, avatar: "omar-khalil" },
+  emma: { organization: "pinecrest", role: "decisionMaker", createdDaysAgo: 74 },
+  noah: { organization: "riverside", role: "user", createdDaysAgo: 390, linkedin: true },
   isla: { organization: "brookfield", role: "user", createdDaysAgo: 470 },
-  owen: { organization: "summit", role: "influencer", createdDaysAgo: 355 },
-  amelia: { organization: "oakridge", role: "decisionMaker", createdDaysAgo: 29, avatar: "yasmin-farouk" },
+  owen: { organization: "summit", role: "influencer", createdDaysAgo: 355, linkedin: true },
+  amelia: { organization: "oakridge", role: "decisionMaker", createdDaysAgo: 29 },
   liam: { organization: "kessler", role: "user", createdDaysAgo: 200 },
 };
 
@@ -1460,7 +1707,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     lines: [["backupSetup", 1]],
     createdDaysAgo: 24,
     close: 20,
-    next: 9,
+    next: 0,
     owner: "claraNeumann",
   },
   willowSetup: {
@@ -1474,7 +1721,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     createdDaysAgo: 18,
     close: 75,
-    next: 7,
+    next: 0,
     owner: "marcoSilva",
   },
   cobaltSecurity: {
@@ -1770,7 +2017,7 @@ const TASK_FACTS: Record<
   followUpWillow: {
     status: "open",
     priority: "high",
-    due: 1,
+    due: 0,
     deal: "willowSetup",
     contact: "megan",
     owner: "marcoSilva",
@@ -1810,6 +2057,84 @@ const TASK_FACTS: Record<
   },
 };
 
+const INBOX_PLANS: InboxThreadPlan[] = [
+  {
+    key: "alderInvoice",
+    account: "outlook",
+    with: ["daniel"],
+    state: "open",
+    latestMinutesAgo: 480,
+    speakers: ["daniel", "self", "daniel", "self"],
+    draft: true,
+    links: ["deal:alderSupport", "organization:alder"],
+  },
+  {
+    key: "oakridgeInquiry",
+    account: "outlook",
+    with: ["amelia"],
+    state: "open",
+    latestMinutesAgo: 1320,
+    speakers: ["amelia", "self", "amelia", "self", "amelia"],
+    links: ["deal:oakridgeSupport", "organization:oakridge"],
+  },
+  {
+    key: "pinecrestMailboxes",
+    account: "google",
+    with: ["emma"],
+    state: "unread",
+    latestMinutesAgo: 110,
+    speakers: ["self", "emma", "self", "emma", "self"],
+    draft: true,
+    links: ["deal:pinecrestMigration", "organization:pinecrest"],
+  },
+  {
+    key: "brookfieldWorkstations",
+    account: "google",
+    with: ["olivia"],
+    state: "open",
+    latestMinutesAgo: 1800,
+    speakers: ["olivia", "self", "olivia", "self"],
+    draft: true,
+    links: ["deal:brookfieldRenewal", "organization:brookfield"],
+  },
+  {
+    key: "harbourviewTelegram",
+    account: "telegram",
+    with: ["ryan"],
+    state: "open",
+    latestMinutesAgo: 2160,
+    speakers: ["ryan", "self", "ryan", "self"],
+    links: ["deal:harbourviewSupport"],
+  },
+  {
+    key: "harbourviewInstagram",
+    account: "instagram",
+    with: ["chloe"],
+    state: "open",
+    latestMinutesAgo: 2640,
+    speakers: ["chloe", "self", "chloe", "self"],
+    links: ["deal:harbourviewSupport", "organization:harbourview"],
+  },
+  {
+    key: "owenLinkedin",
+    account: "linkedin",
+    with: ["owen"],
+    state: "open",
+    latestMinutesAgo: 4300,
+    speakers: ["owen", "self", "owen"],
+    links: ["deal:summitRenewal", "organization:summit"],
+  },
+  {
+    key: "noahLinkedin",
+    account: "linkedin",
+    with: ["noah"],
+    state: "open",
+    latestMinutesAgo: 11520,
+    speakers: ["noah", "self", "noah", "self", "noah", "self"],
+    links: ["deal:riversideBackup", "organization:riverside"],
+  },
+];
+
 function mailbox(name: string): string {
   return name
     .toLowerCase()
@@ -1824,6 +2149,14 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:kesslerSupport": "Claude Desktop",
+  "task:invoiceQuestion": "Claude Desktop",
+  "deal:cobaltSecurity": "ChatGPT",
+  "deal:willowSetup": "ChatGPT",
+  "contact:james": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "smb",
   strings: { en, de },
@@ -1831,7 +2164,9 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/Los_Angeles" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
+    const noted = (key: string): Record<string, string> =>
+      key in t.notes ? { notes: t.notes[key as keyof typeof t.notes] } : {};
     const phone = (suffix: string) => phoneNumber(t.phones.mobile, Number(suffix));
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["new", "qualified", "conversation", "proposal"];
@@ -1869,7 +2204,7 @@ export default defineSolution<Strings>({
       const mobile = facts.phone ? phone(facts.phone) : undefined;
       return {
         key,
-        values: { firstName, lastName, jobTitle, decisionRole: facts.role },
+        values: { firstName, lastName, jobTitle, decisionRole: facts.role, ...noted(key) },
         links: { "contact.organizations": facts.organization },
         owner: ORGANIZATION_FACTS[facts.organization].owner,
         channels: {
@@ -1884,7 +2219,6 @@ export default defineSolution<Strings>({
           ...(facts.instagram ? { instagram: facts.instagram } : {}),
           ...(facts.telegram ? { telegram: facts.telegram } : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -1901,6 +2235,7 @@ export default defineSolution<Strings>({
         key,
         values: {
           name,
+          ...noted(key),
           stage: facts.stage,
           source: facts.source,
           closeDate: day(facts.close),
@@ -1929,6 +2264,7 @@ export default defineSolution<Strings>({
         key,
         values: {
           name: t.tasks[key],
+          ...noted(key),
           status: facts.status,
           priority: facts.priority,
           dueDate: day(facts.due),
@@ -2087,7 +2423,7 @@ export default defineSolution<Strings>({
         { key: "won", label: t.stages.won, color: "success", probability: 100 },
         { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
       ],
-      records: { organization, contact, service, deal, task },
+      records: agentEdited({ organization, contact, service, deal, task }, AGENT_EDITS),
       views: [
         {
           key: "pipeline",
@@ -2245,6 +2581,7 @@ export default defineSolution<Strings>({
           markdown: t.wiki.followUp.markdown,
         },
         { key: "priceList", kind: "knowledge", title: t.wiki.priceList.title, markdown: t.wiki.priceList.markdown },
+        agentsPage(locale, t.agents),
       ],
       routines: [
         {
@@ -2329,7 +2666,61 @@ export default defineSolution<Strings>({
             },
           ],
         },
+        {
+          key: "followUpDue",
+          name: t.routines.followUpDue.name,
+          task: t.routines.followUpDue.task,
+          owner: "maxBergmann",
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 6,
+              durationSeconds: 74,
+              credits: 12,
+              summary: t.routines.followUpDue.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 78,
+              durationSeconds: 19,
+              credits: 3,
+              summary: t.routines.followUpDue.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 102,
+              durationSeconds: 58,
+              credits: 10,
+              summary: t.routines.followUpDue.runs[2],
+            },
+          ],
+        },
+        {
+          key: "weeklyNotes",
+          name: t.routines.weeklyNotes.name,
+          task: t.routines.weeklyNotes.task,
+          owner: "claraNeumann",
+          trigger: { kind: "schedule", cron: "0 16 * * 5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 94,
+              durationSeconds: 96,
+              credits: 15,
+              summary: t.routines.weeklyNotes.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 262,
+              durationSeconds: 83,
+              credits: 13,
+              summary: t.routines.weeklyNotes.runs[1],
+            },
+          ],
+        },
       ],
+      apiKeys: agentApiKeys([75, 38, 14]),
       webhooks: [
         {
           key: "accounting",
@@ -2368,6 +2759,14 @@ export default defineSolution<Strings>({
           title: t.mateChat.title,
           endedHoursAgo: 3,
           messages: t.mateChat.messages.map((text, index) => ({
+            role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+            text,
+          })),
+        },
+        {
+          title: t.mateChatWalkthrough.title,
+          endedHoursAgo: 30,
+          messages: t.mateChatWalkthrough.messages.map((text, index) => ({
             role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
             text,
           })),
@@ -2479,6 +2878,7 @@ export default defineSolution<Strings>({
             ],
             links: ["deal:mapleNetwork"],
           },
+          ...inboxThreads(INBOX_PLANS, t.inbox),
         ],
         calendar: {
           name: t.calendar.name,

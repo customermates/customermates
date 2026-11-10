@@ -22,7 +22,7 @@ describe("demo Knowledge Base fixtures", () => {
         workspace.slug,
       ).toHaveLength(1);
       expect(pages.length, workspace.slug).toBeGreaterThanOrEqual(2);
-      expect(pages.length, workspace.slug).toBeLessThanOrEqual(4);
+      expect(pages.length, workspace.slug).toBeLessThanOrEqual(5);
       expect(new Set(pages.map(({ sortOrder }) => sortOrder)).size).toBe(pages.length);
       for (const { kind, title, whenToUse } of pages) {
         if (kind === "procedure") expect(whenToUse, title).toMatch(/^(When|Wenn) .{40,}\.$/u);

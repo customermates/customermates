@@ -32,6 +32,7 @@ import { recordDto } from "@/features/records/record-dto";
 import { untrustedRecordText } from "@/features/mcp-tools/untrusted-record-content";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordJournal } from "@/features/records/record-journal";
+import { recordCauseBy } from "@/features/records/record-event-cause";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import { sameRecordResult } from "@/features/records/record-write.service";
 import { mergeRecordWriteWarnings } from "@/features/records/record-address-warnings";
@@ -314,9 +315,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarke
           unlinked += 1;
         }
         await writer.recalculateWrites(model, writes);
-        await journal.flush(model, this.userId, input.idempotencyKey, {
-          kind: "mutation",
-        });
+        await journal.flush(model, this.userId, input.idempotencyKey, recordCauseBy(this.user, { kind: "mutation" }));
         const warnings = mergeRecordWriteWarnings(writes.map((write) => write.warnings));
         const data: ImportRecordsResult = {
           created: input.mode === "create" ? document.records.length : 0,

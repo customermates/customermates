@@ -163,7 +163,7 @@ A workspace without a trial whose paid plan expired, a workspace that stays **Un
 
 ### What happens to connected accounts when the plan changes? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels & calendars](app:settings/channels). Routines above the allowance are kept, because the allowance applies only when a routine is created.
+When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels & calendars](app:settings/channels). Routines above the allowance are kept, because the allowance applies only when a routine is created. When the new plan has no shared accounts (anything below Business), every channel shared with the workspace becomes **Private** again for its owner, and a later upgrade does not share it again.
 
 ### How does an Enterprise workspace differ? [#how-does-an-enterprise-workspace-differ]
 
@@ -181,7 +181,7 @@ On Starter, the [Inbox](app:inbox) and [Channels & calendars](app:settings/chann
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
 - **Configuration**: lists, fields, relationships and record access by role. Only roles with **Data model** **Edit** or **Users & Roles** **Edit** see these entries.
 
-Reading it needs **Activity log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
+Reading it needs **Activity log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save views as on lists. A change made through an API key or an AI agent connected over MCP names the key or application after the person, for example "Max Bergmann via Claude Desktop". Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
 
 ## Webhooks [#webhooks-tab]
 

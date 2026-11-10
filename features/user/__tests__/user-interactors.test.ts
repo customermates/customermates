@@ -1053,7 +1053,7 @@ describe("own profile for a member whose role has no Users & Roles access", () =
 });
 
 describe("avatar schemas require an absolute URL", () => {
-  const SEEDED_AVATAR = "https://customermates.com/demo/avatars/photos/max-bergmann.png";
+  const SEEDED_AVATAR = "https://customermates.com/demo/avatars/people/team--max-bergmann.jpg";
 
   it("keeps the seeded absolute avatar verbatim on the self-update schema", () => {
     expect(UpdateUserDetailsSchema.safeParse({ avatarUrl: SEEDED_AVATAR })).toMatchObject({
@@ -1075,7 +1075,7 @@ describe("avatar schemas require an absolute URL", () => {
     expect(result).toMatchObject({ success: true, data: { avatarUrl: SEEDED_AVATAR } });
   });
 
-  it.each([["/demo/avatars/photos/max-bergmann.png"], ["//cdn.example.com/a.png"]])(
+  it.each([["/demo/avatars/people/team--max-bergmann.jpg"], ["//cdn.example.com/a.png"]])(
     "rejects the relative avatar %j rather than resolving it to another host",
     (avatarUrl) => {
       expect(UpdateUserDetailsSchema.safeParse({ avatarUrl }).success).toBe(false);

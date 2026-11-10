@@ -19,6 +19,7 @@ import { canViewAccountMessages, limitMessageFolderIds, redactMessageBcc } from 
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { systemActorProcess } from "./system-actor-process";
+import { storedEventVia } from "@/features/event/event-via";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
 import { RecordModelSchema } from "@/features/records/record-model.schema";
 import { historicalRecordModel, historicalRevisionChange } from "@/features/records/historical-record-model";
@@ -76,7 +77,10 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
       },
     });
     const actor = await this.actorsCompanyWide(events.map((event) => event.actorId));
-    return events.map((event) => ({ ...event, actor: actor(event.actorId) }));
+    return events.map((event) => {
+      const via = storedEventVia(event.via);
+      return { ...event, actor: { ...actor(event.actorId), ...(via ? { via } : {}) } };
+    });
   }
 
   async configurationsCompanyWide(ids: string[]) {
@@ -109,7 +113,7 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
     return {
       revisions: parsed.map(({ actorId, ...revision }) => ({
         ...revision,
-        actor: actor(actorId),
+        actor: { ...actor(actorId), ...(revision.change.via ? { via: revision.change.via } : {}) },
         models: [revision.revision, revision.revision - 1].flatMap((key) => {
           const model = snapshots.get(key);
           return model ? [model] : [];

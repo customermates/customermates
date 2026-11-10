@@ -1,24 +1,25 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
+import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
 import {
   groupDigits,
   address,
   day,
   defineSolution,
-  photo,
   rangeAt,
   type AddressInput,
   type FileSpec,
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
+import { inboxThreads, type InboxThreadPlan } from "../inbox-threads";
 
 /**
  * Sales pipeline: a four-person B2B sales team that sells compressed-air systems, dryers and service contracts to
  * mid-sized manufacturers. The first view is the opportunity board by stage with value, weighted value (value times
  * stage probability), account, next step date and owner; the value comes from the products on the opportunity. Next
- * steps and tasks are ordinary date fields; nobody is reminded automatically. Email threads belong to an opportunity
- * only because someone linked them.
+ * steps and tasks are ordinary date fields; nobody is reminded automatically. Email and LinkedIn conversations belong
+ * to an opportunity only because someone linked them.
  */
 
 const ORGANIZATIONS = [
@@ -132,6 +133,20 @@ const TASKS = [
   "northgateSurvey",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+const INBOX = [
+  "pembertonNoise",
+  "haldenReadings",
+  "brookfieldQuote",
+  "lakemontPressure",
+  "ashbyContract",
+  "fairhavenBudget",
+  "whitcombeEnergy",
+  "ashbyEarlyShift",
+  "northgateCertificate",
+  "redfernProposal",
+  "castlefordCatchUp",
+] as const;
+type InboxKey = (typeof INBOX)[number];
 
 const en = {
   company: "Brightwater Air Systems",
@@ -503,7 +518,7 @@ const en = {
         "- The **weighted value** is the value multiplied by the probability of the stage (New 10 %, Qualified 25 %, Discovery 40 %, Proposal sent 60 %, Negotiation 80 %). It helps to compare opportunities; it is not a prediction.",
         "- The **sales cycle** is calculated from the first contact to the expected close date.",
         "- **Next step** and **Next step date** are ordinary fields, and so are the due dates of **Tasks**. Nobody is reminded automatically: check the Next steps view and Tasks due soon every morning. Site surveys and air audits carry a Scheduled time and appear in the Site visits calendar.",
-        "- An email belongs to an opportunity or account only when someone links it there.",
+        "- An email or LinkedIn conversation belongs to an opportunity or account only when someone links it there.",
         "",
         "## Working rules",
         "- Every open opportunity has an owner, a next step and a next step date.",
@@ -641,6 +656,23 @@ const en = {
         "Created the task Sales report: Eastbrook clean-room air moved to Negotiation, no opportunity was lost.",
       ],
     },
+    followUp: {
+      name: "Every morning, draft follow-ups for opportunities due today",
+      task: 'Every weekday morning, find open opportunities (stage New, Qualified, Discovery, Proposal sent or Negotiation) whose Next step date is today or earlier and that have a linked email conversation. For each one, read the opportunity, its contacts, its notes and the last messages of the linked conversation. If the last message is not already a draft, save one short follow-up draft in that conversation with save_message_draft, in Max\'s voice, that refers to the last topic and proposes one concrete next step. Skip opportunities without a linked email conversation and those that already have a draft. Append one dated line "Follow-up drafted" to the opportunity notes. Do not change the stage, products, value or Next step date, and never send a message. Report the opportunities and the drafts.',
+      runs: [
+        "Drafted 3 follow-ups for opportunities due today: Brookfield desiccant dryer, Redfern heat recovery and Fairhaven compressor. The drafts wait in the Inbox for review; nothing was sent.",
+        "Drafted 2 follow-ups: Ashby service contract and Corwin dryers. Halden compressor was skipped because it already has a draft.",
+        "No opportunity had a Next step date due; nothing was drafted.",
+      ],
+    },
+    replyTask: {
+      name: "Turn price and date questions into tasks",
+      task: 'Review the new email identified by routine_trigger. Continue only when the sender matches a contact through identity channels, the conversation is linked to an open opportunity (not Won or Lost) and the email asks for a price, a delivery date, a drawing or a document. Create one ordinary task named "Reply: <opportunity name>" for the opportunity\'s owner, Open status, High priority in Negotiation or Proposal sent and Medium otherwise, due the next working day, linked to the opportunity, its account and the contact, with a one-sentence summary of the request in its notes. If an open task with that name is already linked, skip it. Do not change the opportunity, do not save a draft and never send a message.',
+      runs: [
+        'Created the task "Reply: Ashby Bakeries – service contract for both sites" for Marcus: Mike asks for one contract, one invoice and an early first visit.',
+        "The email came from a supplier with no matching contact, so no task was created.",
+      ],
+    },
   },
   files: {
     quote: {
@@ -698,7 +730,156 @@ const en = {
     title: "Which opportunities close this month without a next step?",
     messages: [
       "Which opportunities close this month without a next step?",
-      "Two open opportunities with an expected close date around now have no current next step:\n\n| Opportunity | Stage | Value | Next step date |\n| --- | --- | --- | --- |\n| Brookfield Coatings – desiccant dryer for the paint shop | Proposal sent | $17,400 | two days overdue |\n| Redfern Furniture – heat recovery unit | Proposal sent | $23,000 | not set |\n\nBoth expected close dates passed four days ago, so the date or the stage needs an update. Jenna owns Brookfield and is waiting for Grace; Marcus owns Redfern, where Laura has not answered since the proposal went out. I would call Laura first and set new close dates after both calls. Every other opportunity closing in the next four weeks has a dated next step.",
+      "Two open opportunities with an expected close date around now have no current next step:\n\n| Opportunity | Stage | Value | Next step date |\n| --- | --- | --- | --- |\n| Brookfield Coatings – desiccant dryer for the paint shop | Proposal sent | $17,400 | two days overdue |\n| Redfern Furniture – heat recovery unit | Proposal sent | $23,000 | four days overdue |\n\nBoth expected close dates passed four days ago, so the date or the stage needs an update. Jenna owns Brookfield and is waiting for Grace; Marcus owns Redfern, where Laura has not answered since the proposal went out. I would call Laura first and set new close dates after both calls. Every other opportunity closing in the next four weeks has a dated next step.",
+    ],
+  },
+  inbox: {
+    pembertonNoise: {
+      messages: [
+        "Hi Max, George Ellis from Pemberton Print Works. I filled in your form last week. Our old compressor has started to make a noise I don't like. Can someone call me?",
+        "Hi George, thanks for reaching out. I planned to call you today anyway. Is it still running normally, or does it shut down?",
+        "It runs, just loud and hot. I'm at the press until 11, after that I'm free.",
+      ],
+    },
+    haldenReadings: {
+      subject: "Trial sensor: pressure readings",
+      messages: [
+        "Hi Max,\n\nI went through the graph from the trial sensor. Line 2 drops by about 10 psi every morning around 6:30. Is that the old compressor or something else?\n\nRachel",
+        "Hi Rachel,\n\nIt looks like the old fixed-speed compressor loading up when the shifts start. I want to check the logger data before I say more. Can I show you the readings on Thursday?\n\nBest,\nMax",
+        "Thursday is fine. Tom would like to join, he knows the history of that header.",
+      ],
+    },
+    brookfieldQuote: {
+      subject: "Desiccant dryer proposal: your questions",
+      messages: [
+        "Hi Max,\n\nGrace asked me to compare your proposal for the paint shop dryer with the one from Kessler. Is your quote still valid, and for how long?\n\nEthan Cole",
+        "Hi Ethan,\n\nYes, it is valid for 30 days from the date on the quote, so for about three more weeks. Tell me if Kessler's offer differs in scope and I'll compare it line by line.\n\nBest,\nMax",
+        "Hi Max,\n\nKessler is about 8 % under your price, but their dryer only reaches a -4 °F dew point. Grace says the powder coating needs -40. Can you confirm in writing that yours holds that at full flow, and is there any room on the price?\n\nEthan",
+        "Hi Ethan,\n\nthanks for being open about it. I confirm in writing: the desiccant dryer holds a -40 °F pressure dew point at full flow, and I attach the data sheet with the test curve. On price I can take 5 % off if you order before the quote expires; anything beyond that I would have to clear internally. Would that help you decide by Friday?\n\nBest,\nMax",
+      ],
+    },
+    lakemontPressure: {
+      messages: [
+        "Nina, thanks again for the tour of the compressor room. I'm putting the retrofit numbers together, with heat recovery as a separate option.",
+        "Thanks Max. Olivia noticed the pressure drops when both injection presses start. Does that change anything for the proposal?",
+        "Good catch. It points to undersized piping more than the compressor, so I'll add a pressure drop reading at the presses. Could Olivia and I do that on Tuesday?",
+        "Tuesday works. One question from our facilities guy: can the heat recovery run without a new heating pump?",
+      ],
+    },
+    ashbyContract: {
+      subject: "Service contract for both sites",
+      messages: [
+        "Hi Mike,\n\nhere is the service proposal for both bakeries: two visits a year per site, with the contract price fixed for three years. Tell me if anything is unclear.\n\nBest,\nMax",
+        "Hi Max,\n\nThanks. Our finance team asks for one contract and one invoice instead of one per site. Is that possible, and does the price change?\n\nMike",
+        "Hi Mike,\n\nYes, one contract with two site schedules and one invoice a year. The price stays the same. I'll send the updated proposal today.\n\nBest,\nMax",
+        "Perfect. Can the first visit at the main bakery happen before the holiday rush in November?",
+      ],
+    },
+    fairhavenBudget: {
+      subject: "Compressor replacement: budget and timing",
+      messages: [
+        "Hi Alan,\n\nI noticed that Fairhaven runs three shifts on the weaving floor. Mills like yours often lose up to a quarter of their compressed air to leaks. Would a 20-minute call be useful to see whether that applies to you?\n\nBest,\nMax",
+        "Hi Max,\n\nWe are replacing the compressor next year, probably in Q2. The budget is not set yet, our owner decides in January. Sean can show you the compressor room.\n\nAlan",
+        "Hi Alan,\n\nthanks, that helps. I suggest a short air demand check this quarter, so the budget request in January rests on real numbers. Sean could show me the room next week; would a morning work for him?\n\nBest,\nMax",
+      ],
+    },
+    whitcombeEnergy: {
+      subject: "Variable-speed compressor: energy comparison",
+      messages: [
+        "Hi Max,\n\nYou mentioned an energy comparison between a variable-speed compressor and our current fixed-speed unit. Diane wants numbers before the budget meeting.\n\nPaul",
+        "Hi Paul,\n\nI'll base it on your running hours from the walk-through: three shifts, five days. You will have it on one page by Wednesday.\n\nBest,\nMax",
+        "Great. Please use our rate of 11 cents per kWh, not the national average.",
+      ],
+    },
+    ashbyEarlyShift: {
+      subject: "Air demand survey: early shift logistics",
+      messages: [
+        "Hi Max,\n\nThe survey starts at 5:30 so you catch the dough line at full load. Use gate B, the night guard knows you are coming. Do you need anything switched off?\n\nKaren",
+        "Hi Karen,\n\nThanks. Nothing needs to be switched off. I have to clamp the flow meter onto the main header before the first mixer starts. Could someone from maintenance open the compressor room?\n\nBest,\nMax",
+        "Our maintenance lead will be there from 5. He also asks whether you can read the hour meter on the second compressor.",
+        "Hi Karen,\n\nYes, I'll note both hour meters and the filter pressure drop and send you the numbers on Friday.\n\nBest,\nMax",
+      ],
+    },
+    northgateCertificate: {
+      subject: "Oil-free compressor: air quality for the filler",
+      messages: [
+        "Hi Max,\n\nOur filler supplier requires ISO 8573-1 class 1 for oil. Can the 45 kW oil-free unit certify that, and does it need extra filtration?\n\nOwen Hartley",
+        "Hi Owen,\n\nThe oil-free unit is certified for class 0, so class 1 is covered without extra filters. I'll send the certificate and the dryer data sheet.\n\nBest,\nMax",
+        "Good. Please send both before the site survey, our quality manager wants to sign off first.",
+        "Hi Owen,\n\nBoth are attached. For the dryer I added the dew point curve. See you at the survey.\n\nBest,\nMax",
+      ],
+    },
+    redfernProposal: {
+      subject: "Heat recovery proposal: any questions?",
+      messages: [
+        "Hi Laura,\n\nhere is the proposal for the two heat recovery units. They feed the compressors' waste heat into the heating loop of the finishing hall; the savings estimate is on the second page.\n\nBest,\nMax",
+        "Hi Laura,\n\nI wanted to check that the proposal reached you and whether anything is unclear. If it helps, I can walk your facilities team through the numbers on site; 20 minutes is enough.\n\nBest,\nMax",
+      ],
+    },
+    castlefordCatchUp: {
+      messages: [
+        "Victor, hope the new station is running well. No hard feelings about the decision. If your air demand grows, I'm happy to look again.",
+        "Thanks Max, appreciated. Your survey was the more thorough one, honestly. Kessler's price won it, but their service is slower than they promised.",
+        "Good to know, thanks for telling me. Our monitoring kit works with any compressor if you want to keep an eye on pressure. I'll send a one-pager, no strings attached.",
+      ],
+    },
+  },
+  dealNotes: {
+    lakemontRetrofit: [
+      "Summary by Claude from Max's voice notes after the site visit:",
+      "- One 37 kW compressor feeds both injection presses; pressure drops to 84 psi when both start.",
+      "- Olivia suspects the 2-inch piping, about 280 ft from the compressor room to the presses.",
+      "- Nina wants heat recovery priced as a separate option.",
+      "Next step: pressure drop reading at the presses, then the proposal with two options.",
+    ],
+    brookfieldDryer: [
+      "Draft by ChatGPT from Kessler's quote and our data sheet:",
+      "- Kessler is about 8 % cheaper, around $16,000 against our $17,400.",
+      "- Their dryer reaches a -4 °F dew point; Grace says powder coating needs -40 °F.",
+      "- Our reply: confirm -40 °F at full flow in writing and offer 5 % for an order before the quote expires.",
+      "- More than 5 % needs Max, per the discount rules.",
+    ],
+    haldenMonitoring: [
+      "Analysis by Codex (script run on the trial sensor log export):",
+      "- 14 days, one reading per minute on the main header.",
+      "- Line 2 drops 9 to 11 psi every weekday between 6:25 and 6:40, when the old compressor loads up.",
+      "- Line 1 stays within 2 psi all day.",
+      "Next step: show Rachel the two charts.",
+    ],
+    whitcombeService: [
+      "Summary by Claude of Diane's emails on the renewal:",
+      "- Last winter a technician needed two days to arrive; Diane wants a response within one working day guaranteed.",
+      "- Max offered a next-working-day response; the effect on the price still has to be calculated (see the task on response times).",
+      "- Paul joins the call, Diane decides.",
+      "- The leak survey stays in the package.",
+    ],
+  },
+  taskNotes: {
+    tradeShowList: [
+      "Cleaned up by Codex (script run on the trade show export):",
+      "- 212 rows, 38 duplicates removed.",
+      "- 27 visitors matched to existing contacts, among them Brian Doyle and Owen Hartley.",
+      "- 147 new prospects saved to trade-show-new.csv, tagged Trade show, for import after review.",
+      "Max still has to review the 147 before the import.",
+    ],
+  },
+  agents: {
+    company: "Brightwater Air Systems",
+    records: "accounts, opportunities, products and tasks",
+    mate: "Ask it which opportunities close this month without a next step, or have it turn a site visit into notes and tasks.",
+    claude:
+      "Max uses it to turn voice notes from a customer visit into the opportunity's notes and to prepare the Friday pipeline review.",
+    chatgpt:
+      "Jenna compares a competitor's quote with ours in it and drafts the reply, which then goes through the Inbox like any other draft.",
+    codex: "Marcus runs scripts through it, for example cleaning the trade show visitor list before it is imported.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for opportunities due today" runs on weekday mornings at 8. It finds open opportunities whose next step date is today or earlier, reads the linked conversation and saves one short follow-up draft per opportunity. The drafts wait in the Inbox: Max or the account owner reads them, changes them and sends them. The routine never sends anything and never changes the stage, the value or a date.',
+  } satisfies AgentsPageText,
+  mateChatLog: {
+    title: "Log the Northgate call and update the opportunity",
+    messages: [
+      "Owen at Northgate confirmed the survey of the filling hall and asked for the oil-free certificate before it. Update the opportunity and create a task for it.",
+      'Done. Here is what I changed:\n\n- **Northgate Bottling – oil-free compressor for the filling hall** (Qualified): the next step is now "Send Owen the oil-free certificate and the dryer data sheet", with the date set to Thursday. I added a dated line to the notes: Owen confirmed the site survey and needs the ISO 8573-1 certificate before it.\n- New task **Send the oil-free certificate to Owen**, High priority, due Thursday, owner Marcus, linked to the opportunity and to Owen Hartley.\n\nThe stage stays Qualified, and the survey is already in the Site visits calendar. I did not send anything. If you want a short cover mail for the certificate, I can save it as a draft in the Outlook thread with Owen for you to review.',
     ],
   },
 };
@@ -1056,7 +1237,7 @@ const de: Strings = {
         "- Der **gewichtete Wert** ist der Wert mal der Wahrscheinlichkeit der Phase (Neu 10 %, Qualifiziert 25 %, Bedarfsanalyse 40 %, Angebot gesendet 60 %, Verhandlung 80 %). Er hilft beim Vergleichen von Verkaufschancen und ist keine Vorhersage.",
         "- Der **Verkaufszyklus** wird vom Erstkontakt bis zum erwarteten Abschluss berechnet.",
         "- **Nächster Schritt** und **Datum nächster Schritt** sind normale Felder, ebenso das Fälligkeitsdatum der **Aufgaben**. Niemand wird automatisch benachrichtigt: Jeden Morgen die Ansichten „Nächste Schritte“ und „Bald fällige Aufgaben“ prüfen. Besichtigungen und Druckluftmessungen haben einen Termin vor Ort und erscheinen im Kalender „Termine vor Ort“.",
-        "- Eine E-Mail gehört nur dann zu einer Verkaufschance oder einem Firmenkunden, wenn jemand sie dort verknüpft.",
+        "- Eine E-Mail oder LinkedIn-Unterhaltung gehört nur dann zu einer Verkaufschance oder einem Firmenkunden, wenn jemand sie dort verknüpft.",
         "",
         "## Arbeitsregeln",
         "- Jede offene Verkaufschance hat eine verantwortliche Person und einen nächsten Schritt mit Datum.",
@@ -1195,6 +1376,23 @@ const de: Strings = {
         "Aufgabe Vertriebsbericht angelegt: Reinraum-Druckluft bei Ostbrück ist in Verhandlung, keine Verkaufschance ging verloren.",
       ],
     },
+    followUp: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen",
+      task: "Suche jeden Werktagmorgen offene Verkaufschancen (Phase Neu, Qualifiziert, Bedarfsanalyse, Angebot gesendet oder Verhandlung), deren Datum nächster Schritt heute oder früher liegt und die eine verknüpfte E-Mail-Unterhaltung haben. Lies je Verkaufschance die Verkaufschance, ihre Kontakte, ihre Notizen und die letzten Nachrichten der verknüpften Unterhaltung. Ist die letzte Nachricht nicht schon ein Entwurf, speichere mit save_message_draft einen kurzen Nachfass-Entwurf in dieser Unterhaltung, in Max' Stil, der das letzte Thema aufgreift und einen konkreten nächsten Schritt vorschlägt. Überspringe Verkaufschancen ohne verknüpfte E-Mail-Unterhaltung und solche, die schon einen Entwurf haben. Ergänze in den Notizen der Verkaufschance eine datierte Zeile „Nachfassen vorbereitet“. Ändere weder Phase, Produkte, Wert noch Datum nächster Schritt und verschicke nie eine Nachricht. Berichte die Verkaufschancen und die Entwürfe.",
+      runs: [
+        "3 Nachfass-Entwürfe für heute fällige Verkaufschancen vorbereitet: Adsorptionstrockner bei Bachfeld, Wärmerückgewinnung bei Rotfeld und Kompressor bei Fahrenholz. Die Entwürfe warten zur Prüfung im Posteingang; nichts wurde gesendet.",
+        "2 Nachfass-Entwürfe vorbereitet: Wartungsvertrag Eschenbach und Kältetrockner Korwin. Kompressor Haldenwerk wurde übersprungen, weil dort schon ein Entwurf liegt.",
+        "Bei keiner Verkaufschance war ein nächster Schritt fällig; nichts vorbereitet.",
+      ],
+    },
+    replyTask: {
+      name: "Preis- und Terminfragen in Aufgaben verwandeln",
+      task: "Prüfe die neue E-Mail aus routine_trigger. Mache nur weiter, wenn der Absender über Identitätskanäle zu einem Kontakt passt, die Unterhaltung mit einer offenen Verkaufschance (nicht Gewonnen oder Verloren) verknüpft ist und die E-Mail nach Preis, Liefertermin, Zeichnung oder Dokument fragt. Lege genau eine normale Aufgabe „Antworten: <Name der Verkaufschance>“ für die verantwortliche Person der Verkaufschance an: Status Offen, Priorität Hoch in Verhandlung oder Angebot gesendet, sonst Mittel, fällig am nächsten Werktag, verknüpft mit Verkaufschance, Firmenkunde und Kontakt, mit einer Zusammenfassung der Anfrage in einem Satz in den Notizen. Ist bereits eine offene Aufgabe mit diesem Namen verknüpft, überspringe sie. Ändere die Verkaufschance nicht, speichere keinen Entwurf und verschicke nie eine Nachricht.",
+      runs: [
+        "Aufgabe „Antworten: Bäckerei Eschenbach – Wartungsvertrag für beide Standorte“ für Jonas angelegt: Herr Seidel möchte einen Vertrag, eine Rechnung und einen frühen ersten Besuch.",
+        "Die E-Mail kam von einem Lieferanten ohne passenden Kontakt, deshalb entstand keine Aufgabe.",
+      ],
+    },
   },
   files: {
     quote: {
@@ -1252,7 +1450,157 @@ const de: Strings = {
     title: "Welche Verkaufschancen schließen diesen Monat ohne nächsten Schritt?",
     messages: [
       "Welche Verkaufschancen schließen diesen Monat ohne nächsten Schritt?",
-      "Zwei offene Verkaufschancen mit erwartetem Abschluss um diese Zeit haben keinen aktuellen nächsten Schritt:\n\n| Verkaufschance | Phase | Wert | Datum nächster Schritt |\n| --- | --- | --- | --- |\n| Bachfeld Beschichtungen – Adsorptionstrockner für die Lackiererei | Angebot gesendet | 17.400 € | seit zwei Tagen überfällig |\n| Rotfeld Möbelwerkstätten – Wärmerückgewinnung | Angebot gesendet | 23.000 € | nicht gesetzt |\n\nBeide erwarteten Abschlusstermine liegen vier Tage zurück, also braucht entweder das Datum oder die Phase ein Update. Lena betreut Bachfeld und wartet auf Frau Wolff; Jonas betreut Rotfeld, wo Frau Engel seit dem Angebot nicht geantwortet hat. Ich würde zuerst Frau Engel anrufen und nach beiden Telefonaten neue Abschlusstermine setzen. Alle anderen Verkaufschancen mit Abschluss in den nächsten vier Wochen haben einen datierten nächsten Schritt.",
+      "Zwei offene Verkaufschancen mit erwartetem Abschluss um diese Zeit haben keinen aktuellen nächsten Schritt:\n\n| Verkaufschance | Phase | Wert | Datum nächster Schritt |\n| --- | --- | --- | --- |\n| Bachfeld Beschichtungen – Adsorptionstrockner für die Lackiererei | Angebot gesendet | 17.400 € | seit zwei Tagen überfällig |\n| Rotfeld Möbelwerkstätten – Wärmerückgewinnung | Angebot gesendet | 23.000 € | seit vier Tagen überfällig |\n\nBeide erwarteten Abschlusstermine liegen vier Tage zurück, also braucht entweder das Datum oder die Phase ein Update. Lena betreut Bachfeld und wartet auf Frau Wolff; Jonas betreut Rotfeld, wo Frau Engel seit dem Angebot nicht geantwortet hat. Ich würde zuerst Frau Engel anrufen und nach beiden Telefonaten neue Abschlusstermine setzen. Alle anderen Verkaufschancen mit Abschluss in den nächsten vier Wochen haben einen datierten nächsten Schritt.",
+    ],
+  },
+  inbox: {
+    pembertonNoise: {
+      messages: [
+        "Guten Tag Herr Bergmann, Georg Pfeiffer von der Druckerei Pfeiffer. Ich habe letzte Woche Ihr Formular ausgefüllt. Unser alter Kompressor macht seit Kurzem ein Geräusch, das mir nicht gefällt. Kann mich jemand anrufen?",
+        "Guten Tag Herr Pfeiffer, danke für Ihre Nachricht. Ich wollte Sie heute ohnehin anrufen. Läuft er noch normal oder schaltet er ab?",
+        "Er läuft, ist nur laut und heiß. Ich bin bis 11 Uhr an der Maschine, danach habe ich Zeit.",
+      ],
+    },
+    haldenReadings: {
+      subject: "Testsensor: Druckverlauf",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich habe mir den Verlauf des Testsensors angesehen. Auf Linie 2 fällt der Druck jeden Morgen gegen 6:30 Uhr um etwa 0,7 bar. Ist das der alte Kompressor oder etwas anderes?\n\nRebekka Sommer",
+        "Hallo Frau Sommer,\n\ndas sieht nach dem alten Festdrehzahl-Kompressor aus, der beim Schichtbeginn auf Last geht. Ich möchte erst die Logger-Daten prüfen, bevor ich mehr sage. Darf ich Ihnen die Messwerte am Donnerstag zeigen?\n\nViele Grüße\nMax Bergmann",
+        "Donnerstag passt. Herr Kühn möchte dabei sein, er kennt die Geschichte dieser Leitung.",
+      ],
+    },
+    brookfieldQuote: {
+      subject: "Adsorptionstrockner, Angebot: Ihre Fragen",
+      messages: [
+        "Hallo Herr Bergmann,\n\nFrau Wolff hat mich gebeten, Ihr Angebot für den Trockner der Lackiererei mit dem von Kessler zu vergleichen. Gilt Ihr Angebot noch, und wie lange?\n\nErik Brandt",
+        "Hallo Herr Brandt,\n\nja, es gilt 30 Tage ab dem Datum auf dem Angebot, also noch gut drei Wochen. Sagen Sie mir, wenn das Angebot von Kessler im Umfang abweicht, dann vergleiche ich Position für Position.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nKessler liegt etwa 8 % unter Ihrem Preis, aber deren Trockner erreicht nur einen Taupunkt von -20 °C. Frau Wolff sagt, die Pulverbeschichtung braucht -40 °C. Können Sie schriftlich bestätigen, dass Ihrer das bei vollem Volumenstrom hält, und gibt es beim Preis Spielraum?\n\nErik Brandt",
+        "Hallo Herr Brandt,\n\nvielen Dank für Ihre Offenheit. Ich bestätige schriftlich: Der Adsorptionstrockner hält bei vollem Volumenstrom einen Drucktaupunkt von -40 °C, das Datenblatt mit der Prüfkurve hänge ich an. Beim Preis kann ich 5 % nachlassen, wenn Sie vor Ablauf des Angebots bestellen; alles darüber müsste ich intern klären. Hilft Ihnen das, bis Freitag zu entscheiden?\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    lakemontPressure: {
+      messages: [
+        "Hallo Frau Schuster, nochmals danke für die Führung durch die Kompressorstation. Ich stelle gerade die Zahlen für die Modernisierung zusammen, die Wärmerückgewinnung als eigene Option.",
+        "Danke, Herr Bergmann. Frau Reuter ist aufgefallen, dass der Druck einbricht, wenn beide Spritzgussmaschinen anlaufen. Ändert das etwas am Angebot?",
+        "Gut beobachtet. Das spricht eher für zu knapp bemessene Leitungen als für den Kompressor, deshalb nehme ich an den Maschinen eine Druckabfallmessung dazu. Könnten Frau Reuter und ich das am Dienstag machen?",
+        "Dienstag passt. Eine Frage von unserem Haustechniker: Läuft die Wärmerückgewinnung auch ohne neue Heizungspumpe?",
+      ],
+    },
+    ashbyContract: {
+      subject: "Wartungsvertrag für beide Standorte",
+      messages: [
+        "Hallo Herr Seidel,\n\nhier das Wartungsangebot für beide Bäckereien: zwei Besuche pro Jahr und Standort, der Vertragspreis ist drei Jahre fest. Sagen Sie mir, wenn etwas unklar ist.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\ndanke. Unsere Buchhaltung wünscht einen Vertrag und eine Rechnung statt einer je Standort. Ist das möglich, und ändert sich der Preis?\n\nMichael Seidel",
+        "Hallo Herr Seidel,\n\nja, ein Vertrag mit zwei Standortplänen und einer Rechnung im Jahr. Der Preis bleibt gleich. Das überarbeitete Angebot schicke ich Ihnen heute.\n\nViele Grüße\nMax Bergmann",
+        "Perfekt. Kann der erste Besuch in der Hauptbäckerei noch vor dem Weihnachtsgeschäft im November stattfinden?",
+      ],
+    },
+    fairhavenBudget: {
+      subject: "Kompressortausch: Budget und Zeitplan",
+      messages: [
+        "Hallo Herr Wittig,\n\nmir ist aufgefallen, dass Fahrenholz Textil in drei Schichten webt. Betriebe wie Ihrer verlieren oft bis zu einem Viertel der Druckluft durch Leckagen. Wäre ein 20-minütiges Gespräch hilfreich, um zu sehen, ob das auch bei Ihnen zutrifft?\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nwir tauschen den Kompressor nächstes Jahr aus, voraussichtlich im zweiten Quartal. Das Budget steht noch nicht, unser Inhaber entscheidet im Januar. Herr Albers kann Ihnen den Kompressorraum zeigen.\n\nArne Wittig",
+        "Hallo Herr Wittig,\n\ndanke, das hilft mir weiter. Ich schlage eine kurze Druckluftbedarfsmessung noch in diesem Quartal vor, damit der Budgetantrag im Januar auf echten Zahlen beruht. Herr Albers könnte mir den Raum nächste Woche zeigen; passt ihm ein Vormittag?\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    whitcombeEnergy: {
+      subject: "Drehzahlgeregelter Kompressor: Energievergleich",
+      messages: [
+        "Hallo Herr Bergmann,\n\nSie hatten einen Energievergleich zwischen einem drehzahlgeregelten Kompressor und unserer jetzigen Festdrehzahlanlage erwähnt. Frau Förster möchte vor der Budgetsitzung Zahlen sehen.\n\nPaul Henke",
+        "Hallo Herr Henke,\n\nich lege Ihre Laufzeiten aus der Begehung zugrunde: drei Schichten, fünf Tage. Sie bekommen den Vergleich bis Mittwoch auf einer Seite.\n\nViele Grüße\nMax Bergmann",
+        "Prima. Bitte rechnen Sie mit unserem Strompreis von 22 Cent je kWh, nicht mit dem Durchschnitt.",
+      ],
+    },
+    ashbyEarlyShift: {
+      subject: "Luftbedarfsmessung: Ablauf der Frühschicht",
+      messages: [
+        "Hallo Herr Bergmann,\n\ndie Messung beginnt um 5:30 Uhr, damit Sie die Teiglinie unter Volllast erfassen. Bitte nutzen Sie Tor B, der Nachtwächter weiß Bescheid. Muss etwas abgeschaltet werden?\n\nKarin Ludwig",
+        "Hallo Frau Ludwig,\n\ndanke. Es muss nichts abgeschaltet werden. Ich muss den Durchflussmesser an der Hauptleitung anklemmen, bevor der erste Kneter startet. Könnte jemand aus der Instandhaltung den Kompressorraum aufschließen?\n\nViele Grüße\nMax Bergmann",
+        "Unser Instandhaltungsleiter ist ab 5 Uhr da. Er fragt außerdem, ob Sie den Betriebsstundenzähler des zweiten Kompressors ablesen können.",
+        "Hallo Frau Ludwig,\n\nja, ich notiere beide Betriebsstundenzähler und den Druckabfall am Filter und schicke Ihnen die Werte am Freitag.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    northgateCertificate: {
+      subject: "Ölfreier Kompressor: Luftqualität für den Füller",
+      messages: [
+        "Hallo Herr Bergmann,\n\nunser Lieferant des Füllers verlangt für Öl die Klasse 1 nach ISO 8573-1. Kann der ölfreie Kompressor mit 45 kW das zertifizieren, und braucht er zusätzliche Filter?\n\nOle Hansen",
+        "Hallo Herr Hansen,\n\nder ölfreie Kompressor ist für Klasse 0 zertifiziert, damit ist Klasse 1 ohne zusätzliche Filter abgedeckt. Das Zertifikat und das Datenblatt des Trockners schicke ich Ihnen.\n\nViele Grüße\nMax Bergmann",
+        "Gut. Bitte senden Sie beides vor der Begehung, unser Qualitätsmanager möchte vorher freigeben.",
+        "Hallo Herr Hansen,\n\nbeides finden Sie im Anhang. Für den Trockner habe ich die Taupunktkurve ergänzt. Wir sehen uns bei der Begehung.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    redfernProposal: {
+      subject: "Angebot Wärmerückgewinnung: noch Fragen?",
+      messages: [
+        "Hallo Frau Engel,\n\nhier das Angebot für die beiden Wärmerückgewinnungsmodule. Sie speisen die Abwärme der Kompressoren in den Heizkreis der Endmontage ein; die Einsparschätzung steht auf Seite 2.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Frau Engel,\n\nich wollte nachfragen, ob das Angebot bei Ihnen angekommen ist und ob etwas unklar ist. Wenn es hilft, gehe ich die Zahlen mit Ihrer Haustechnik vor Ort durch; 20 Minuten reichen.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    castlefordCatchUp: {
+      messages: [
+        "Hallo Herr Lang, ich hoffe, die neue Station läuft gut. Nichts für ungut wegen der Entscheidung. Falls Ihr Druckluftbedarf wächst, schaue ich gern noch einmal.",
+        "Danke, Herr Bergmann, das weiß ich zu schätzen. Ehrlich gesagt war Ihre Messung die gründlichere. Den Ausschlag gab der Preis von Kessler, aber deren Service ist langsamer als versprochen.",
+        "Gut zu wissen, danke, dass Sie das sagen. Unser Drucküberwachungs-Set funktioniert mit jedem Kompressor, falls Sie den Druck im Blick behalten wollen. Ich schicke Ihnen ein Datenblatt, ganz unverbindlich.",
+      ],
+    },
+  },
+  dealNotes: {
+    lakemontRetrofit: [
+      "Zusammenfassung von Claude aus Max' Sprachnotizen nach der Besichtigung:",
+      "- Ein Kompressor mit 37 kW versorgt beide Spritzgussmaschinen; der Druck fällt auf 5,8 bar, wenn beide anlaufen.",
+      "- Frau Reuter vermutet die 2-Zoll-Leitung, rund 85 m vom Kompressorraum zu den Maschinen.",
+      "- Frau Schuster möchte die Wärmerückgewinnung als eigene Option kalkuliert haben.",
+      "Nächster Schritt: Druckabfallmessung an den Maschinen, danach das Angebot mit zwei Optionen.",
+    ],
+    brookfieldDryer: [
+      "Entwurf von ChatGPT aus dem Kessler-Angebot und unserem Datenblatt:",
+      "- Kessler ist etwa 8 % günstiger, rund 16.000 € gegenüber unseren 17.400 €.",
+      "- Deren Trockner erreicht einen Taupunkt von -20 °C; Frau Wolff sagt, die Pulverbeschichtung braucht -40 °C.",
+      "- Unsere Antwort: -40 °C bei vollem Volumenstrom schriftlich bestätigen und 5 % bei Bestellung vor Ablauf des Angebots anbieten.",
+      "- Mehr als 5 % braucht Max, laut den Rabattregeln.",
+    ],
+    haldenMonitoring: [
+      "Auswertung von Codex (Skriptlauf auf dem Export der Testsensor-Daten):",
+      "- 14 Tage, ein Messwert pro Minute an der Hauptleitung.",
+      "- Auf Linie 2 fällt der Druck an jedem Werktag zwischen 6:25 und 6:40 Uhr um 0,6 bis 0,8 bar, wenn der alte Kompressor auf Last geht.",
+      "- Auf Linie 1 bleibt der Druck den ganzen Tag innerhalb von 0,15 bar.",
+      "Nächster Schritt: Frau Sommer die beiden Diagramme zeigen.",
+    ],
+    whitcombeService: [
+      "Zusammenfassung von Claude zu den E-Mails von Frau Förster zur Verlängerung:",
+      "- Im letzten Winter dauerte es zwei Tage, bis ein Techniker kam; Frau Förster verlangt eine zugesicherte Reaktion innerhalb eines Werktags.",
+      "- Max hat die Reaktion am nächsten Werktag angeboten; die Auswirkung auf den Preis ist noch zu berechnen (siehe Aufgabe zu den Reaktionszeiten).",
+      "- Herr Henke ist beim Telefonat dabei, Frau Förster entscheidet.",
+      "- Die Leckageortung bleibt im Paket.",
+    ],
+  },
+  taskNotes: {
+    tradeShowList: [
+      "Bereinigt von Codex (Skriptlauf auf dem Messe-Export):",
+      "- 212 Zeilen, 38 Dubletten entfernt.",
+      "- 27 Besucher mit vorhandenen Kontakten abgeglichen, darunter Bernd Vogt und Ole Hansen.",
+      "- 147 neue Interessenten in messe-neu.csv gespeichert, mit dem Etikett Messe, zum Import nach der Prüfung.",
+      "Max muss die 147 vor dem Import noch prüfen.",
+    ],
+  },
+  agents: {
+    company: "Weserluft Drucklufttechnik",
+    records: "Firmenkunden, Verkaufschancen, Produkte und Aufgaben",
+    mate: "Man fragt sie zum Beispiel, welche Verkaufschancen diesen Monat ohne nächsten Schritt schließen, oder lässt sie aus einer Besichtigung Notizen und Aufgaben machen.",
+    claude:
+      "Max macht damit aus Sprachnotizen eines Kundenbesuchs die Notizen der Verkaufschance und bereitet die Pipeline-Runde am Freitag vor.",
+    chatgpt:
+      "Lena vergleicht damit das Angebot eines Wettbewerbers mit unserem und entwirft die Antwort, die danach wie jeder andere Entwurf durch den Posteingang geht.",
+    codex:
+      "Jonas lässt damit Skripte laufen, zum Beispiel um die Besucherliste von der Messe vor dem Import zu bereinigen.",
+    followUp:
+      "Die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen“ läuft werktags um 8 Uhr. Sie sucht offene Verkaufschancen, deren Datum nächster Schritt heute oder früher liegt, liest die verknüpfte Unterhaltung und speichert pro Verkaufschance einen kurzen Nachfass-Entwurf. Die Entwürfe warten im Posteingang: Max oder die betreuende Person liest sie, ändert sie und sendet sie ab. Die Routine sendet nie etwas und ändert weder Phase, Wert noch Termine.",
+  },
+  mateChatLog: {
+    title: "Anruf bei Nordtor erfassen und Verkaufschance aktualisieren",
+    messages: [
+      "Ole Hansen bei Nordtor hat die Begehung der Abfüllhalle bestätigt und vorher das Zertifikat für ölfreie Luft angefragt. Aktualisiere die Verkaufschance und lege eine Aufgabe dafür an.",
+      "Erledigt. Das habe ich geändert:\n\n- **Nordtor Getränkeabfüllung – ölfreier Kompressor für die Abfüllhalle** (Qualifiziert): Der nächste Schritt lautet jetzt „Zertifikat für ölfreie Luft und Datenblatt des Trockners an Herrn Hansen senden“, das Datum ist auf Donnerstag gesetzt. In den Notizen steht eine datierte Zeile: Herr Hansen hat die Begehung bestätigt und braucht vorher das Zertifikat nach ISO 8573-1.\n- Neue Aufgabe **Zertifikat für ölfreie Luft an Herrn Hansen senden**, Priorität Hoch, fällig am Donnerstag, zuständig Jonas, verknüpft mit der Verkaufschance und mit Ole Hansen.\n\nDie Phase bleibt Qualifiziert, und die Begehung steht schon im Kalender „Termine vor Ort“. Ich habe nichts gesendet. Wenn eine kurze Begleitmail zum Zertifikat gewünscht ist, speichere ich sie als Entwurf im Outlook-Verlauf mit Herrn Hansen, damit sie vor dem Senden geprüft wird.",
     ],
   },
 };
@@ -1376,26 +1724,26 @@ const ACCOUNT_OWNERS: Record<OrganizationKey, Member> = {
 
 const CONTACT_FACTS: Record<
   ContactKey,
-  { organization: OrganizationKey; role: string; createdDaysAgo: number; avatar?: Parameters<typeof photo>[0] }
+  { organization: OrganizationKey; role: string; createdDaysAgo: number; linkedin?: boolean }
 > = {
-  rachel: { organization: "halden", role: "decisionMaker", createdDaysAgo: 418, avatar: "mia-schneider" },
-  tom: { organization: "halden", role: "technical", createdDaysAgo: 418, avatar: "tim-wagner" },
+  rachel: { organization: "halden", role: "decisionMaker", createdDaysAgo: 418 },
+  tom: { organization: "halden", role: "technical", createdDaysAgo: 418 },
   brian: { organization: "corwin", role: "decisionMaker", createdDaysAgo: 378 },
-  peter: { organization: "corwin", role: "purchasing", createdDaysAgo: 75, avatar: "felix-koch" },
-  karen: { organization: "ashby", role: "technical", createdDaysAgo: 158, avatar: "anna-mueller" },
+  peter: { organization: "corwin", role: "purchasing", createdDaysAgo: 75 },
+  karen: { organization: "ashby", role: "technical", createdDaysAgo: 158 },
   mike: { organization: "ashby", role: "purchasing", createdDaysAgo: 40 },
-  nina: { organization: "lakemont", role: "decisionMaker", createdDaysAgo: 21 },
-  george: { organization: "pemberton", role: "decisionMaker", createdDaysAgo: 4 },
+  nina: { organization: "lakemont", role: "decisionMaker", createdDaysAgo: 21, linkedin: true },
+  george: { organization: "pemberton", role: "decisionMaker", createdDaysAgo: 4, linkedin: true },
   laura: { organization: "redfern", role: "technical", createdDaysAgo: 88 },
-  sam: { organization: "stoneleigh", role: "technical", createdDaysAgo: 30, avatar: "jonas-weber" },
+  sam: { organization: "stoneleigh", role: "technical", createdDaysAgo: 30 },
   paul: { organization: "whitcombe", role: "user", createdDaysAgo: 298 },
-  diane: { organization: "whitcombe", role: "decisionMaker", createdDaysAgo: 60, avatar: "sophie-hoffmann" },
-  helen: { organization: "marlow", role: "technical", createdDaysAgo: 168, avatar: "lea-bauer" },
-  victor: { organization: "castleford", role: "decisionMaker", createdDaysAgo: 148 },
+  diane: { organization: "whitcombe", role: "decisionMaker", createdDaysAgo: 60 },
+  helen: { organization: "marlow", role: "technical", createdDaysAgo: 168 },
+  victor: { organization: "castleford", role: "decisionMaker", createdDaysAgo: 148, linkedin: true },
   julia: { organization: "eastbrook", role: "technical", createdDaysAgo: 113 },
-  mark: { organization: "eastbrook", role: "purchasing", createdDaysAgo: 100, avatar: "paul-fischer" },
+  mark: { organization: "eastbrook", role: "purchasing", createdDaysAgo: 100 },
   alan: { organization: "fairhaven", role: "decisionMaker", createdDaysAgo: 7 },
-  owen: { organization: "northgate", role: "decisionMaker", createdDaysAgo: 16, avatar: "omar-khalil" },
+  owen: { organization: "northgate", role: "decisionMaker", createdDaysAgo: 16 },
   grace: { organization: "brookfield", role: "technical", createdDaysAgo: 48 },
   ethan: { organization: "brookfield", role: "purchasing", createdDaysAgo: 30 },
   olivia: { organization: "lakemont", role: "technical", createdDaysAgo: 15 },
@@ -1430,7 +1778,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     competitor: "nordwind",
     createdDaysAgo: 90,
     close: 10,
-    next: 3,
+    next: 0,
     history: [
       { daysAgo: 75, stage: "qualified" },
       { daysAgo: 55, stage: "discovery" },
@@ -1489,7 +1837,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "pneumatec",
     createdDaysAgo: 35,
-    close: -12,
+    close: 35,
     next: 6,
     history: [
       { daysAgo: 22, stage: "qualified" },
@@ -1532,7 +1880,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     lines: [["compressorVsd", 1]],
     createdDaysAgo: 3,
     close: 75,
-    next: 2,
+    next: 0,
   },
   fairhavenCompressor: {
     organization: "fairhaven",
@@ -1579,6 +1927,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     lines: [["heatRecovery", 2]],
     createdDaysAgo: 60,
     close: -4,
+    next: -4,
     history: [
       { daysAgo: 45, stage: "qualified" },
       { daysAgo: 30, stage: "discovery" },
@@ -1685,7 +2034,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     ],
     competitor: "pneumatec",
     createdDaysAgo: 110,
-    close: -8,
+    close: 12,
     next: 2,
     history: [
       { daysAgo: 95, stage: "qualified" },
@@ -1826,7 +2175,7 @@ const TASK_FACTS: Record<
   haldenSchedule: {
     status: "inProgress",
     priority: "high",
-    due: 1,
+    due: 0,
     deal: "haldenCompressor",
     contact: "tom",
     createdDaysAgo: 4,
@@ -1941,6 +2290,100 @@ const TASK_FACTS: Record<
   },
 };
 
+const INBOX_FACTS: Record<InboxKey, Omit<InboxThreadPlan, "key">> = {
+  pembertonNoise: {
+    account: "linkedin",
+    with: ["george"],
+    speakers: ["george", "self", "george"],
+    state: "unread",
+    latestMinutesAgo: 15,
+    links: ["deal:pembertonCompressor", "organization:pemberton"],
+  },
+  haldenReadings: {
+    account: "google",
+    with: ["rachel"],
+    speakers: ["rachel", "self", "rachel"],
+    state: "unread",
+    latestMinutesAgo: 70,
+    links: ["deal:haldenMonitoring", "organization:halden"],
+  },
+  brookfieldQuote: {
+    account: "outlook",
+    with: ["ethan"],
+    speakers: ["ethan", "self", "ethan", "self"],
+    draft: true,
+    state: "open",
+    latestMinutesAgo: 4 * 60,
+    links: ["deal:brookfieldDryer", "organization:brookfield"],
+  },
+  lakemontPressure: {
+    account: "linkedin",
+    with: ["nina"],
+    speakers: ["self", "nina", "self", "nina"],
+    state: "open",
+    latestMinutesAgo: 9 * 60,
+    links: ["deal:lakemontRetrofit", "organization:lakemont"],
+  },
+  ashbyContract: {
+    account: "outlook",
+    with: ["mike"],
+    speakers: ["self", "mike", "self", "mike"],
+    state: "open",
+    latestMinutesAgo: 20 * 60,
+    links: ["deal:ashbyService", "organization:ashby"],
+  },
+  fairhavenBudget: {
+    account: "google",
+    with: ["alan"],
+    speakers: ["self", "alan", "self"],
+    draft: true,
+    state: "open",
+    latestMinutesAgo: 30 * 60,
+    links: ["deal:fairhavenCompressor", "organization:fairhaven"],
+  },
+  whitcombeEnergy: {
+    account: "outlook",
+    with: ["paul"],
+    speakers: ["paul", "self", "paul"],
+    state: "open",
+    latestMinutesAgo: 2 * 24 * 60,
+    links: ["deal:whitcombeUpgrade", "organization:whitcombe"],
+  },
+  ashbyEarlyShift: {
+    account: "google",
+    with: ["karen"],
+    speakers: ["karen", "self", "karen", "self"],
+    state: "open",
+    latestMinutesAgo: 60 * 60,
+    links: ["deal:ashbyOilFree", "organization:ashby"],
+  },
+  northgateCertificate: {
+    account: "outlook",
+    with: ["owen"],
+    speakers: ["owen", "self", "owen", "self"],
+    state: "open",
+    latestMinutesAgo: 84 * 60,
+    links: ["deal:northgateCompressor", "organization:northgate"],
+  },
+  redfernProposal: {
+    account: "google",
+    with: ["laura"],
+    speakers: ["self", "self"],
+    draft: true,
+    state: "open",
+    latestMinutesAgo: 4 * 24 * 60,
+    links: ["deal:redfernHeat", "organization:redfern"],
+  },
+  castlefordCatchUp: {
+    account: "linkedin",
+    with: ["victor"],
+    speakers: ["self", "victor", "self"],
+    state: "open",
+    latestMinutesAgo: 6 * 24 * 60,
+    links: ["deal:castlefordLine", "organization:castleford"],
+  },
+};
+
 function mailbox(name: string): string {
   return name
     .toLowerCase()
@@ -1955,6 +2398,14 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:lakemontRetrofit": "Claude Desktop",
+  "deal:whitcombeService": "Claude Desktop",
+  "deal:brookfieldDryer": "ChatGPT",
+  "deal:haldenMonitoring": "Codex CLI",
+  "task:tradeShowList": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "sales-pipeline",
   strings: { en, de },
@@ -1962,13 +2413,15 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["new", "qualified", "discovery", "proposal", "negotiation"];
     const wonLastYear = [
       { field: "stage", in: ["won"] },
       { field: "closeDate", withinDays: 365 },
     ];
+    const noted = <K extends string>(key: string, notes: Record<K, string[]>): { notes?: string[] } =>
+      key in notes ? { notes: notes[key as K] } : {};
     const label = <K extends string>(
       options: Record<K, string>,
       colors: Record<K, "default" | "secondary" | "destructive" | "success" | "warning" | "info">,
@@ -1996,13 +2449,19 @@ export default defineSolution<Strings>({
       const facts = CONTACT_FACTS[key];
       const [firstName, lastName, jobTitle] = t.contacts[key];
       const domain = ORGANIZATION_FACTS[facts.organization].domain;
+      const handle = `${mailbox(firstName)}-${mailbox(lastName)}`;
       return {
         key,
         values: { firstName, lastName, jobTitle, decisionRole: facts.role },
         links: { "contact.organizations": facts.organization },
         owner: ACCOUNT_OWNERS[facts.organization],
-        channels: { email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`, phone: office(index) },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
+        channels: {
+          email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
+          phone: office(index),
+          ...(facts.linkedin
+            ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
+            : {}),
+        },
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -2027,6 +2486,7 @@ export default defineSolution<Strings>({
           nextStep,
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
+          ...noted(key, t.dealNotes),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
         lines: facts.lines,
@@ -2054,6 +2514,7 @@ export default defineSolution<Strings>({
           priority: facts.priority,
           dueDate: day(facts.due),
           ...(facts.visit ? { scheduled: rangeAt(...facts.visit) } : {}),
+          ...noted(key, t.taskNotes),
         },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
@@ -2218,7 +2679,7 @@ export default defineSolution<Strings>({
         { key: "won", label: t.stages.won, color: "success", probability: 100 },
         { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
       ],
-      records: { organization, contact, service, deal, task },
+      records: agentEdited({ organization, contact, service, deal, task }, AGENT_EDITS),
       views: [
         {
           key: "pipeline",
@@ -2424,6 +2885,7 @@ export default defineSolution<Strings>({
           markdown: t.wiki.siteVisit.markdown,
         },
         { key: "discounts", kind: "knowledge", title: t.wiki.discounts.title, markdown: t.wiki.discounts.markdown },
+        agentsPage(locale, t.agents),
       ],
       files: [
         quote("haldenCompressor", 9),
@@ -2463,9 +2925,17 @@ export default defineSolution<Strings>({
             text,
           })),
         },
+        {
+          title: t.mateChatLog.title,
+          endedHoursAgo: 150,
+          messages: t.mateChatLog.messages.map((text, index) => ({
+            role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+            text,
+          })),
+        },
       ],
       messaging: {
-        accounts: ["google"],
+        accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads: [
@@ -2512,6 +2982,10 @@ export default defineSolution<Strings>({
             state: "open",
             latestMinutesAgo: 5 * 24 * 60,
           },
+          ...inboxThreads(
+            INBOX.map((key) => ({ key, ...INBOX_FACTS[key] })),
+            t.inbox,
+          ),
         ],
         calendar: {
           name: t.calendar.name,
@@ -2543,14 +3017,13 @@ export default defineSolution<Strings>({
           ],
         },
       },
-      members: (["colleagueA", "colleagueB"] as const).map((key, index) => {
+      members: (["colleagueA", "colleagueB"] as const).map((key) => {
         const [firstName, lastName] = t.members[key];
         return {
           key,
           firstName,
           lastName,
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${new URL(t.website).hostname}`,
-          avatar: photo(index === 0 ? "maxine-zoll" : "lukas-fischer"),
         };
       }),
       webhooks: [
@@ -2564,6 +3037,7 @@ export default defineSolution<Strings>({
           deliveries: 12,
         },
       ],
+      apiKeys: agentApiKeys([75, 41, 14]),
       routines: [
         {
           key: "stale",
@@ -2616,6 +3090,64 @@ export default defineSolution<Strings>({
               durationSeconds: 84,
               credits: 14,
               summary: t.routines.report.runs[1],
+            },
+          ],
+        },
+        {
+          key: "followUp",
+          name: t.routines.followUp.name,
+          task: t.routines.followUp.task,
+          owner: "maxBergmann",
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 5,
+              durationSeconds: 74,
+              credits: 12,
+              summary: t.routines.followUp.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 29,
+              durationSeconds: 63,
+              credits: 10,
+              summary: t.routines.followUp.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 101,
+              durationSeconds: 21,
+              credits: 3,
+              summary: t.routines.followUp.runs[2],
+            },
+          ],
+        },
+        {
+          key: "replyTask",
+          name: t.routines.replyTask.name,
+          task: t.routines.replyTask.task,
+          owner: "colleagueB",
+          trigger: {
+            kind: "event",
+            events: ["messaging.email.received"],
+            debounceSeconds: 300,
+            sample: { thread: 10 },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 21,
+              durationSeconds: 38,
+              credits: 6,
+              summary: t.routines.replyTask.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 70,
+              durationSeconds: 17,
+              credits: 3,
+              summary: t.routines.replyTask.runs[1],
             },
           ],
         },

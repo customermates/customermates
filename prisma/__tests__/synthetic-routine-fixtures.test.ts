@@ -24,10 +24,10 @@ const scheduled = ALL_ROUTINES.filter((routine) => routine.trigger.kind === "sch
 const evented = ALL_ROUTINES.filter((routine) => routine.trigger.kind === "event");
 
 describe("synthetic routine fixtures", () => {
-  it("gives every demo workspace two or three routines with both trigger kinds across the demo", () => {
+  it("gives every demo workspace two to five routines with both trigger kinds across the demo", () => {
     for (const { workspace, routines } of perWorkspace) {
       expect(routines.length, workspace.slug).toBeGreaterThanOrEqual(2);
-      expect(routines.length, workspace.slug).toBeLessThanOrEqual(3);
+      expect(routines.length, workspace.slug).toBeLessThanOrEqual(5);
       expect(new Set(routines.map((routine) => routine.name)).size, workspace.slug).toBe(routines.length);
     }
     expect(scheduled.length).toBeGreaterThan(0);
@@ -53,14 +53,21 @@ describe("synthetic routine fixtures", () => {
       "Morning pipeline briefing",
       "Follow up on stale deals",
       "Draft replies to new emails",
+      "Every morning, draft follow-ups for deals due today",
+      "Friday wrap-up notes on open deals",
     ]);
     const names = (solution: string) =>
       perWorkspace
         .filter(({ workspace }) => workspace.solution.id === solution && workspace.locale === "en")
         .flatMap(({ routines }) => routines.map(({ name }) => name));
-    expect(names("linkedin-crm")).toEqual(["Research new LinkedIn connections", "Find similar prospects on LinkedIn"]);
+    expect(names("linkedin-crm")).toEqual([
+      "Research new LinkedIn connections",
+      "Find similar prospects on LinkedIn",
+      "Every morning, draft follow-ups for opportunities due today",
+      "Turn LinkedIn questions into tasks",
+    ]);
     expect(names("whatsapp-crm")).toContain("Flag messages from unknown contacts");
-    expect(ALL_ROUTINES.every((routine) => routine.name.length <= 45)).toBe(true);
+    expect(ALL_ROUTINES.every((routine) => routine.name.length <= 60)).toBe(true);
   });
 
   it("stays inside every field limit the schema enforces", () => {

@@ -33,6 +33,7 @@ export class PrismaEventLogRepo
         subjectKind: subjectKindOf(entry.kind),
         subjectId: entry.subjectId,
         actorId: entry.actorId,
+        via: entry.via ?? undefined,
         kind: entry.kind,
         payload: (entry.payload ?? Prisma.JsonNull) as Prisma.InputJsonValue,
         createdAt: now,
@@ -124,6 +125,7 @@ export class PrismaEventLogRepo
         subjectId: event.ref.recordId,
         actorId: event.actorId,
         causeId: event.causeId,
+        via: event.via ?? undefined,
         kind: event.kind,
         payload: event.payload,
       },
@@ -141,6 +143,7 @@ export class PrismaEventLogRepo
         subjectId: event.ref.recordId,
         actorId: event.actorId,
         causeId: event.causeId,
+        via: event.via ?? undefined,
         kind: event.kind,
         payload: event.payload,
       })),
@@ -159,9 +162,9 @@ export class PrismaEventLogRepo
 
   async publishStagedRecordEventsCompanyWide(companyId: string, operationId: string): Promise<void> {
     await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
+      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", via, kind, payload, "createdAt", attempts, "nextAttemptAt")
       SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
-        stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
+        stage.payload->>'actorId', stage.payload->>'causeId', CASE WHEN jsonb_typeof(stage.payload->'via') = 'object' THEN stage.payload->'via' END, stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
       FROM "RecordStageRow" stage WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'event'
     `);
   }

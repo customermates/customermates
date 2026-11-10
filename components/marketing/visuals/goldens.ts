@@ -41,14 +41,14 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     accentTarget: "customer-record",
     copy: {
       de: {
-        body: "Eine Gmail-Unterhaltung von Anna Müller wird mit ihrem Kundendatensatz verknüpft; LinkedIn und WhatsApp bleiben als weitere unterstützte Quellen ruhig.",
+        body: "Eine Gmail-Unterhaltung von Nina Castillo wird mit ihrem Kundendatensatz verknüpft; LinkedIn und WhatsApp bleiben als weitere unterstützte Quellen ruhig.",
         focalLabel: "Datensatz",
         headline: "Unterhaltungen gehören zu Kundendatensätzen",
         semanticLabels: [],
         takeaway: "Jede Unterhaltung landet bei dem Datensatz, zu dem sie gehört.",
       },
       en: {
-        body: "A Gmail conversation from Anna Müller is associated with her customer record while LinkedIn and WhatsApp remain quiet supported sources.",
+        body: "A Gmail conversation from Nina Castillo is associated with her customer record while LinkedIn and WhatsApp remain quiet supported sources.",
         focalLabel: "Record",
         headline: "Conversations belong to customer records",
         semanticLabels: [],
@@ -58,7 +58,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     depictionKind: "relationship",
     factReference: "product:conversation-record-association",
     focalSubject: {
-      fixtures: { person: "anna-mueller" },
+      fixtures: { person: "nina-castillo" },
       form: "record",
       id: "customer-record",
     },
@@ -66,7 +66,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     pathway: "converge",
     supportingSubjects: [
       {
-        fixtures: { person: "anna-mueller", provider: "gmail" },
+        fixtures: { person: "nina-castillo", provider: "gmail" },
         form: "channel-mark",
         id: "mail-source",
       },
@@ -86,14 +86,14 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     accentTarget: "quiet-signal",
     copy: {
       de: {
-        body: "Max Bergmann prüft Moorfield Property Management - Enterprise 373 - Neu, das auf Won steht; Oakridge Climate Systems - Professional 140 - Neu bleibt auf Open und Riverton HVAC Service - Enterprise 213 - Neu auf Lost im ruhigen Kontext.",
+        body: "Max Bergmann prüft Moorfield Property Management - Jahresprüfungen, das auf Won steht; Oakridge Climate Systems - Wartungsplan Wärmepumpe bleibt auf Open und Riverton HVAC Service - Jahreswartung auf Lost im ruhigen Kontext.",
         focalLabel: "Signal",
         headline: "Ein relevantes Signal tritt hervor",
         semanticLabels: ["Prüfer"],
         takeaway: "Ein leises Signal wird klar genug, um zu handeln.",
       },
       en: {
-        body: "Max Bergmann inspects Moorfield Property Management - Enterprise 373 - New, which is Won, while Oakridge Climate Systems - Professional 140 - New stays Open and Riverton HVAC Service - Enterprise 213 - New stays Lost in the quiet context.",
+        body: "Max Bergmann inspects Moorfield Property Management - yearly inspections, which is Won, while Oakridge Climate Systems - heat pump service plan stays Open and Riverton HVAC Service - yearly maintenance stays Lost in the quiet context.",
         focalLabel: "Signal",
         headline: "A relevant signal comes into focus",
         semanticLabels: ["Inspector"],
@@ -136,14 +136,14 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     accentTarget: "human-action",
     copy: {
       de: {
-        body: "ChatGPT bereitet einen LinkedIn-Entwurf für Leon Becker vor; Max Bergmann prüft und sendet ihn.",
+        body: "ChatGPT bereitet einen LinkedIn-Entwurf für Rachel Dawson vor; Max Bergmann prüft und sendet ihn.",
         focalLabel: "Entwurf",
         headline: "Der Mensch behält den letzten Schritt",
         semanticLabels: ["Senden"],
         takeaway: "ChatGPT entwirft; der Mensch sendet.",
       },
       en: {
-        body: "ChatGPT prepares a LinkedIn draft for Leon Becker; Max Bergmann reviews and sends it.",
+        body: "ChatGPT prepares a LinkedIn draft for Rachel Dawson; Max Bergmann reviews and sends it.",
         focalLabel: "Draft",
         headline: "The human keeps the final step",
         semanticLabels: ["Send"],
@@ -153,7 +153,7 @@ const GOLDEN_DEFINITIONS: Record<VisualPathway, GoldenDefinition> = {
     depictionKind: "change",
     factReference: "product:human-send-boundary",
     focalSubject: {
-      fixtures: { person: "leon-becker", provider: "linkedin" },
+      fixtures: { person: "rachel-dawson", provider: "linkedin" },
       form: "draft",
       id: "message-draft",
     },

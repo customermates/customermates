@@ -4,12 +4,13 @@ import {
   address,
   day,
   defineSolution,
-  photo,
   type FieldInput,
   type FileSpec,
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
+import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
+import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 
 /**
  * Consultants: an independent, relationship-led consulting practice that advises mid-sized B2B companies on strategy
@@ -89,8 +90,21 @@ const TASKS = [
   "briefDiane",
   "rivertonNotes",
   "lunchGeorge",
+  "mergerReferences",
+  "ellisonMarginData",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+type InboxKey =
+  | "brightwaterScope"
+  | "brightwaterInterim"
+  | "stanmoreRoundtable"
+  | "marlowReferences"
+  | "kestrelVenue"
+  | "rivertonNotes"
+  | "calderPlants"
+  | "ellisonMargins"
+  | "kestrelPlanning"
+  | "greyfriarsCall";
 type StoryStage = "introduction" | "discovery" | "scoping" | "proposal" | "decision";
 
 const en = {
@@ -283,6 +297,8 @@ const en = {
     briefDiane: "Prepare a relationship brief for the first meeting with Diane",
     rivertonNotes: "Write up the Riverton discovery call",
     lunchGeorge: "Suggest two lunch dates to George",
+    mergerReferences: "Send Diane two merger references",
+    ellisonMarginData: "Read Nina's margin data and prepare three questions",
   } satisfies Record<TaskKey, string>,
   views: {
     pipeline: "Engagement pipeline",
@@ -381,9 +397,9 @@ const en = {
     fairhavenDecision: {
       subject: "Proposal: operating model review",
       messages: [
-        "Dear Helen,\n\nThank you for the open conversation last week. As agreed, the proposal has two scope options: option A covers the operations review on its own, option B adds two workshop days with your leadership team.\n\nI am happy to walk Martin and Rachel through it before your leadership meeting.\n\nBest regards,\nMax",
-        "Dear Max,\n\nThank you, we will decide in Monday's leadership meeting. Martin and Rachel would like to go through option B with you first. Could you also tell us how the fee changes if we start with two of the three plants?\n\nBest,\nHelen",
-        "Dear Helen,\n\nThank you. Option B is 16 days at our day rate of £1,850. Starting with two plants takes it to 12 days; the two workshop days stay the same.\n\nThursday at 10 works for the walkthrough with Martin and Rachel, and I will bring the interview summary. And good luck to your son in the regional final on Saturday!\n\nWarm regards,\nMax",
+        "Hi Helen,\n\nThank you for the open conversation last week. As agreed, the proposal has two scope options: option A covers the operations review on its own, option B adds two workshop days with your leadership team.\n\nI am happy to walk Martin and Rachel through it before your leadership meeting.\n\nBest regards,\nMax",
+        "Hi Max,\n\nThank you, we will decide in Monday's leadership meeting. Martin and Rachel would like to go through option B with you first. Could you also tell us how the fee changes if we start with two of the three plants?\n\nBest,\nHelen",
+        "Hi Helen,\n\nThank you. Option B is 16 days at our day rate of £1,850. Starting with two plants takes it to 12 days; the two workshop days stay the same.\n\nThursday at 10 works for the walkthrough with Martin and Rachel, and I will bring the interview summary. And good luck to your son in the regional final on Saturday!\n\nWarm regards,\nMax",
       ],
     },
     martinLinkedin: {
@@ -426,7 +442,7 @@ const en = {
     northwoldQuestions: {
       subject: "Depot network review – proposal",
       messages: [
-        "Dear Tom,\n\nAs promised, here is the proposal for the depot network review: a three-week discovery sprint followed by three workshop days with your depot managers.\n\nI am happy to discuss any part of it.\n\nBest regards,\nMax",
+        "Hi Tom,\n\nAs promised, here is the proposal for the depot network review: a three-week discovery sprint followed by three workshop days with your depot managers.\n\nI am happy to discuss any part of it.\n\nBest regards,\nMax",
         "Hi Max,\n\nThanks for the proposal. Two questions before we decide: could the depot visits happen in the first two weeks, and would Claire be part of the workshops?\n\nRegards,\nTom",
       ],
     },
@@ -520,9 +536,9 @@ const en = {
         "A three-week discovery sprint with visits to all depots, followed by three workshop days with the depot managers.",
         "## Fee",
         "| Phase | Days | Fee |",
-        "| Discovery sprint | 15 | £27,750 |",
+        "| Discovery sprint | 11 | £20,350 |",
         "| Workshops | 3 | £5,550 |",
-        "| Total | 18 | £33,300 |",
+        "| Total | 14 | £25,900 |",
         "## Outcome",
         "Three depot consolidation scenarios with their effect on delivery times and cost.",
       ],
@@ -577,7 +593,161 @@ const en = {
         "Created 1 task for Ian Pollard; the other quiet contacts already had an open task.",
       ],
     },
+    followUps: {
+      name: "Every morning, draft follow-ups for engagements due today",
+      task: "Every weekday morning, find the engagements in Introduction, Discovery, Scoping, Proposal sent or Decision whose Next step date is today or earlier, and the email conversations linked to an engagement or client where the client wrote last and nobody has replied. For at most three of them, read the engagement's notes and the latest linked conversation and save one short reply draft with save_message_draft in that conversation that answers the open question and proposes the next step. Preserve an existing draft and skip conversations where the workspace owner wrote last. The drafts are for the owner's review; never send them and do not change any record.",
+      runs: [
+        "Prepared 1 reply draft for the engagement due today: Brightwater Software, the two scope options for Sarah Kemp. Skipped Fairhaven Components, whose reply already ends in a draft, and Northwold Logistics, where Tom's questions already have a call task.",
+        "Prepared a reply draft to Richard Hale at Hale & Stanmore about the talk at the partner roundtable. No engagement was due that day; the conversation ended with Richard's question.",
+        "Prepared a reply draft to George Barlow at Calder Packaging with a proposal for the plants and the interviews. Nothing was sent.",
+      ],
+    },
+    taskFromEmail: {
+      name: "New client email: create a task for the ask",
+      task: "Review the new email identified by routine_trigger. Continue only when the sender matches a contact through its identity channels and the contact is linked to an open engagement. Read the email and the engagement's open tasks. If the email asks for something that no open task covers, create one task with mutate_crm_record: a short name that states the ask, a due date that matches any date the sender names (otherwise three days from today), Medium priority, linked to the engagement and the contact, with one sentence about the ask in its notes. Do not create a task when an open task already covers the ask. Do not reply, save drafts, send messages or change anything else.",
+      runs: [
+        'Created the task "Read Nina\'s margin data and prepare three questions" for the Ellison engagement, due before the discovery call.',
+        'The email from Sarah Kemp asked for scope options; the open task "Write two scope options for Brightwater" already covered it, so no task was created.',
+      ],
+    },
   },
+  agentNotes: {
+    fairhaven: [
+      "Summary by Claude after the call with Helen last week:",
+      "Helen cares most about one planning rhythm across the three plants and about the answer on starting with two plants.",
+      "She signs off only after the leadership meeting; Martin and Rachel want to go through option B first.",
+      "Open: which two plants would come first.",
+      "Next step: walk Martin and Rachel through option B on Thursday.",
+    ],
+    brightwater: [
+      "Draft by ChatGPT from Sarah's email and the ticket analysis:",
+      "Option 1: ticket analysis and a new escalation path, 8 days, £14,800.",
+      "Option 2: option 1 plus the support model and two workshop days with the team leads, 12 days, £22,200. Recommended, and the fee on this engagement.",
+      "Sarah wants the January interim days kept as a separate agreement.",
+      "Adam needs the day count per option for the management meeting.",
+    ],
+    ellison: [
+      "Cleaned up by Codex (script run on the margin export Nina sent):",
+      "Removed 14 duplicate rows and merged three spellings of the product group names.",
+      "Gross margin by product group over three years: pumps from 33% to 24%, seals from 29% to 26%, spare parts flat at 41%.",
+      "Volumes grew 12% in the same period, so the drop comes from price and mix, not from demand.",
+      "The cleaned table is ready for Thursday's discovery call.",
+    ],
+    kestrelInterim: [
+      "Summary by Claude after the steering committee:",
+      "The new sales lead runs the weekly pipeline review on her own since last month.",
+      "Decision: keep two interim days a month until the end of the block; Simon chairs the next committee.",
+      "Open: Laura asked whether the depot consolidation in the south-west changes the field sales territories.",
+    ],
+    riverton: [
+      "Draft by ChatGPT from the call recording:",
+      "Strong interest in the Netherlands and Poland; Emily wants Sweden checked as well.",
+      "Nobody owns export sales today; the assessment should say whether to hire an export manager.",
+      "Open: sales figures by country for the last three years, which Emily sends next week.",
+    ],
+  },
+  agents: {
+    company: "Ashcombe Advisory",
+    records: "clients, engagements and tasks",
+    mate: "It prepares the meeting briefs every morning, answers questions about clients and engagements and creates tasks when Max asks in the chat.",
+    claude:
+      "Max asks it to summarise a call and append the summary to the engagement's notes, or to compare the fee options of two proposals.",
+    chatgpt:
+      "It drafts scope options and proposal paragraphs from a client's email and saves them as a note or a message draft.",
+    codex:
+      "It cleans up exports and imports from the terminal, for example a margin spreadsheet a client sent, and writes the result as a note.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for engagements due today" runs every weekday morning. It looks for engagements whose next step date is today or earlier and for email conversations where the client wrote last, and saves at most three reply drafts in those conversations. The drafts wait in the Inbox until Max has read, edited and sent them; the routine never sends anything and skips a conversation that already ends in a draft.',
+  },
+  mateReferences: {
+    title: "Merger references for Marlow",
+    question: "Diane Marsh at Marlow wants two merger references for her board. Create a task for me.",
+    answer:
+      "Done. I created the task **Send Diane two merger references**: High priority, due in three days, linked to Diane Marsh and the Marlow integration engagement.\n\nFrom your LinkedIn thread with Diane: she asked for two companies you supported through a merger, and your answer promising names by Friday is already sent.\n\nI cannot name merger references from the records: no earlier engagement is about a merger. The closest are Calder Packaging (operating model review, completed) and Hale & Stanmore (partner strategy day, completed), both with strong contacts. Please decide whom you can ask before you promise Diane any names.\n\nNothing was sent to anyone and I contacted nobody; I only created the task.",
+  },
+  inbox: {
+    brightwaterScope: {
+      subject: "Scope options for scaling customer operations",
+      messages: [
+        "Hi Max,\n\nAdam and I would like to see the two scope options before Friday's management meeting. Could you send them today? Adam mainly wants to know how many days each option needs.\n\nThanks,\nSarah",
+        "Hi Sarah,\n\nYes, they are on my desk for this afternoon. In short: option 1 covers the ticket analysis and a new escalation path, option 2 adds the support model and two workshop days with your team leads. Does Adam need anything beyond the day count?\n\nBest,\nMax",
+        "Hi Max,\n\nA rough fee per option would help him. And can we keep the interim days in January separate from this?\n\nSarah",
+        "Hi Sarah,\n\nHere are the two options. Option 1: 8 days, £14,800, ticket analysis and escalation path. Option 2: 12 days, £22,200, adding the support model and two workshop days with your team leads. All at our day rate of £1,850.\n\nThe interim days in January stay a separate agreement, as we discussed. I recommend option 2, and I am happy to walk Adam through both on Thursday.\n\nBest,\nMax",
+      ],
+    },
+    brightwaterInterim: {
+      subject: "Interim head of operations: invoicing",
+      messages: [
+        "Hi Max,\n\nSarah says the interim role is 20 days at £1,350, starting in three weeks. For our budget planning: can we pay monthly in arrears rather than in two instalments? And does the day rate include your travel to Manchester?\n\nAdam",
+        "Hi Adam,\n\nMonthly in arrears works for me. Travel to Manchester is billed at cost and is not part of the day rate, as with our other engagements. I will put both points into the statement of work.\n\nBest,\nMax",
+        "Thanks, Max. Please send the statement of work to Sarah and me before Friday so we can sign it in the management meeting.",
+      ],
+    },
+    stanmoreRoundtable: {
+      subject: "Partner roundtable next month",
+      messages: [
+        "Hi Max,\n\nOur partners meet for the client roundtable next month. Several of them asked about the strategy day you ran for us, and I would like you to talk for 20 minutes about how we prepared it. Would you be free?\n\nRichard",
+        "Hi Richard,\n\nThat is kind of you, and I would be glad to. Twenty minutes works; I would show how we turned the interviews into the agenda for the day. Which date do you have in mind?\n\nBest,\nMax",
+        "The second Thursday of the month, 5 pm, at our office on King Street. Drinks afterwards, and our managing partner would like to meet you too.\n\nRichard",
+        "Hi Richard,\n\nThe second Thursday at 5 pm suits me. I will send you the three slides I would use by the end of next week, so you can check that they fit the evening.\n\nThank you again for thinking of me.\n\nBest,\nMax",
+      ],
+    },
+    marlowReferences: {
+      messages: [
+        "Max, thank you for the time last week. Our board would like to hear from two companies you supported through a merger. Could you put us in touch?",
+        "Of course, Diane. I will ask two former clients today and send you their names and a time to talk by Friday.",
+        "Great, thank you. Could one of them be a company of about our size, around 450 people? The board would like that.",
+        "Good point, Diane, I will keep that in mind when I ask.",
+      ],
+    },
+    kestrelVenue: {
+      subject: "Venue for the leadership offsite",
+      messages: [
+        "Hi Max,\n\nI looked at two venues for the offsite: a hotel near Bath with a big workshop room, and the training centre at our Bristol site. The hotel costs more but gets everyone out of the office. Which would you pick?\n\nSimon",
+        "Hi Simon,\n\nI would pick the hotel. Two days away from the daily pipeline calls are the point of the offsite, and the workshop room matters more than the price difference. I would also plan a working lunch with the regional sales managers on day one. Can you check availability for the dates we pencilled in, three weeks from now?\n\nBest,\nMax",
+        "Laura agrees with the hotel but wants to confirm after Thursday's budget meeting. I will let you know on Friday.\n\nSimon",
+        "Hi Simon,\n\nThat is fine. I have kept both days free and will hold the working lunch idea until the venue is confirmed.\n\nBest,\nMax",
+      ],
+    },
+    rivertonNotes: {
+      subject: "First notes and export markets",
+      messages: [
+        "Hi Emily,\n\nThank you for the open call last week. Here are my first notes: strong demand in the Netherlands and Poland, but no clear owner for export sales yet. The full discovery summary follows next week; please tell me if I misread anything.\n\nBest,\nMax",
+        "Hi Max,\n\nThis is spot on, thank you. Two questions for the summary: could you also look at Sweden, and could the assessment include a view on whether we should hire an export manager?\n\nEmily",
+      ],
+    },
+    calderPlants: {
+      subject: "Plants and interviews for the planning follow-up",
+      messages: [
+        "Hi George,\n\nThank you for the lunch idea, and for thinking of me for the planning follow-up. To scope it properly I would like to know which plants you want to start with and who I should interview there.\n\nBest,\nMax",
+        "Hi Max,\n\nLet us start with the Bradford plant and the one in Wakefield. I would suggest the two plant managers and the heads of planning and purchasing. We can add the others later.\n\nGeorge",
+        "Hi George,\n\nThank you, that is clear. I propose six interviews of 45 minutes across the two plants in the second and third week, and a short walk through the production lines on the first day. I will send a one-page scope for the planning follow-up (8 days) before the end of the week.\n\nBest,\nMax",
+      ],
+    },
+    ellisonMargins: {
+      subject: "Margin data for Thursday",
+      messages: [
+        "Hi Max,\n\nAlan asked me to send you what we have on margins by product group, so you have it before Thursday's call. It is three years of data and not as tidy as it should be.\n\nNina",
+        "Hi Nina,\n\nThank you, that helps a lot. Untidy is fine; I mostly want to see where the margin drops. I will read it tonight and bring two or three questions on Thursday.\n\nBest,\nMax",
+        "Great. Alan and I will both be on the call; the Teams link is in the invite.",
+        "Perfect, see you both on Thursday.",
+      ],
+    },
+    kestrelPlanning: {
+      messages: [
+        "Max, thanks for the steering committee. Our new sales lead asked to join the offsite planning with Laura and me.",
+        "Gladly, Simon. The more of the sales team shapes the agenda, the better the offsite works. I will add her to the invite once Laura has confirmed the venue.",
+      ],
+    },
+    greyfriarsCall: {
+      subject: "Introduction from Richard Hale",
+      messages: [
+        "Dear Max,\n\nRichard Hale gave me your email address. I am considering handing Greyfriars to the next generation and would like to talk to someone who listens first. Would you have time for a call in the next week or two?\n\nKind regards,\nPaul Gregson",
+        "Dear Paul,\n\nThank you for writing, and thank you to Richard. I would be glad to talk. How about a first call of 30 minutes the week after next, say Tuesday at 11? It is only a conversation, with no obligations.\n\nKind regards,\nMax",
+        "Tuesday at 11 suits me. I will tell my daughter; she may join for the second half.",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
 };
 
 type Strings = typeof en;
@@ -797,6 +967,8 @@ const de: Strings = {
     briefDiane: "Beziehungsbriefing für das erste Treffen mit Frau Merkle vorbereiten",
     rivertonNotes: "Gespräch zur Bedarfsklärung mit Uferhof zusammenfassen",
     lunchGeorge: "Georg zwei Termine für ein Mittagessen vorschlagen",
+    mergerReferences: "Frau Merkle zwei Referenzen zu Fusionen schicken",
+    ellisonMarginData: "Margendaten von Frau Engel lesen und drei Fragen vorbereiten",
   },
   views: {
     pipeline: "Mandatspipeline",
@@ -1034,9 +1206,9 @@ const de: Strings = {
         "Ein dreiwöchiger Analysesprint mit Besuchen an allen Standorten, danach drei Workshoptage mit den Standortleitern.",
         "## Honorar",
         "| Phase | Tage | Honorar |",
-        "| Analysesprint | 15 | 27.750 € |",
+        "| Analysesprint | 11 | 20.350 € |",
         "| Workshops | 3 | 5.550 € |",
-        "| Gesamt | 18 | 33.300 € |",
+        "| Gesamt | 14 | 25.900 € |",
         "## Ergebnis",
         "Drei Szenarien zur Lagerkonsolidierung mit ihrer Wirkung auf Lieferzeiten und Kosten.",
       ],
@@ -1091,6 +1263,161 @@ const de: Strings = {
         "1 Aufgabe für Ingo Pohl angelegt; die anderen ruhigen Kontakte hatten bereits eine offene Aufgabe.",
       ],
     },
+    followUps: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Mandate",
+      task: "Suche an jedem Werktag morgens die Mandate in den Phasen Kennenlernen, Bedarfsklärung, Auftragsklärung, Angebot gesendet oder Entscheidung, deren Datum für den nächsten Schritt heute oder früher liegt, und die mit einem Mandat oder Kunden verknüpften E-Mail-Gespräche, in denen zuletzt der Kunde geschrieben hat und noch niemand geantwortet hat. Lies für höchstens drei davon die Notizen des Mandats und das jüngste verknüpfte Gespräch und speichere mit save_message_draft in diesem Gespräch einen kurzen Antwortentwurf, der die offene Frage beantwortet und den nächsten Schritt vorschlägt. Behalte einen vorhandenen Entwurf und überspringe Gespräche, in denen zuletzt die Inhaberin oder der Inhaber des Arbeitsbereichs geschrieben hat. Die Entwürfe sind zur Prüfung für die Inhaberin oder den Inhaber gedacht; sende sie nie und ändere keine Datensätze.",
+      runs: [
+        "Einen Antwortentwurf für das heute fällige Mandat vorbereitet: Klarwasser Software, die zwei Varianten für Sabine Kern. Übersprungen: Falkenried Komponenten, dessen Antwort schon mit einem Entwurf endet, und Nordwald Logistik, wo die Fragen von Herrn Wendt bereits eine Anrufaufgabe haben.",
+        "Antwortentwurf an Richard Haller bei Haller & Stein zum Vortrag in der Partnerrunde vorbereitet. An dem Tag war kein Mandat fällig; das Gespräch endete mit Richards Frage.",
+        "Antwortentwurf an Georg Brenner bei Kalder Verpackungen mit einem Vorschlag zu Werken und Interviews vorbereitet. Nichts wurde gesendet.",
+      ],
+    },
+    taskFromEmail: {
+      name: "Neue Kundenmail: Aufgabe zur Bitte anlegen",
+      task: "Prüfe die neue E-Mail, die routine_trigger nennt. Mache nur weiter, wenn der Absender über seine Identitätskanäle zu einem Kontakt passt und dieser Kontakt mit einem offenen Mandat verknüpft ist. Lies die E-Mail und die offenen Aufgaben des Mandats. Wenn die E-Mail etwas verlangt, das keine offene Aufgabe abdeckt, lege mit mutate_crm_record eine Aufgabe an: ein kurzer Name, der die Bitte nennt, ein Fälligkeitsdatum passend zu einem vom Absender genannten Datum (sonst in drei Tagen), Priorität Mittel, verknüpft mit Mandat und Kontakt, mit einem Satz zur Bitte in den Notizen. Lege keine Aufgabe an, wenn eine offene Aufgabe die Bitte schon abdeckt. Antworte nicht, speichere keine Entwürfe, sende keine Nachrichten und ändere nichts anderes.",
+      runs: [
+        "Aufgabe „Margendaten von Frau Engel lesen und drei Fragen vorbereiten“ für das Mandat bei Ellwanger angelegt, fällig vor dem Erstgespräch.",
+        "Die E-Mail von Sabine Kern bat um Varianten für den Umfang; die offene Aufgabe „Zwei Varianten für den Umfang bei Klarwasser ausarbeiten“ deckte das schon ab, deshalb wurde keine Aufgabe angelegt.",
+      ],
+    },
+  },
+  agentNotes: {
+    fairhaven: [
+      "Zusammenfassung von Claude nach dem Gespräch mit Frau Albrecht in der vergangenen Woche:",
+      "Frau Albrecht ist ein gemeinsamer Planungsrhythmus für die drei Werke am wichtigsten, dazu die Antwort zum Start mit zwei Werken.",
+      "Sie unterschreibt erst nach der Sitzung der Geschäftsleitung; Herr Pfeiffer und Frau Decker möchten vorher Variante B durchgehen.",
+      "Offen: Welche zwei Werke zuerst kommen.",
+      "Nächster Schritt: Variante B am Donnerstag mit Herrn Pfeiffer und Frau Decker durchgehen.",
+    ],
+    brightwater: [
+      "Entwurf von ChatGPT aus der Mail von Frau Kern und der Ticketanalyse:",
+      "Variante 1: Ticketanalyse und neuer Eskalationsweg, 8 Tage, 14.800 €.",
+      "Variante 2: Variante 1 plus Supportmodell und zwei Workshoptage mit den Teamleitern, 12 Tage, 22.200 €. Empfohlen und das Honorar dieses Mandats.",
+      "Frau Kern möchte die Interimstage im Januar als eigene Vereinbarung behalten.",
+      "Herr Lorenz braucht für die Sitzung der Geschäftsleitung die Tage je Variante.",
+    ],
+    ellison: [
+      "Bereinigt von Codex (Skriptlauf auf dem Margenexport von Frau Engel):",
+      "14 doppelte Zeilen entfernt und drei Schreibweisen der Produktgruppen zusammengeführt.",
+      "Bruttomarge je Produktgruppe über drei Jahre: Pumpen von 33 % auf 24 %, Dichtungen von 29 % auf 26 %, Ersatzteile unverändert bei 41 %.",
+      "Die Absatzmengen wuchsen im selben Zeitraum um 12 %, der Rückgang kommt also aus Preis und Mix, nicht aus der Nachfrage.",
+      "Die bereinigte Tabelle liegt für das Erstgespräch am Donnerstag bereit.",
+    ],
+    kestrelInterim: [
+      "Zusammenfassung von Claude nach dem Lenkungskreis:",
+      "Die neue Vertriebsleiterin führt die wöchentliche Pipelinerunde seit letztem Monat selbst.",
+      "Beschluss: zwei Interimstage pro Monat bis zum Ende des Blocks; Herr Hartl leitet den nächsten Lenkungskreis.",
+      "Offen: Frau Brandl fragt, ob die Lagerkonsolidierung im Süden die Vertriebsgebiete im Außendienst verändert.",
+    ],
+    riverton: [
+      "Entwurf von ChatGPT aus der Gesprächsaufzeichnung:",
+      "Großes Interesse an den Niederlanden und Polen; Frau Rößler möchte auch Schweden prüfen lassen.",
+      "Den Export verantwortet derzeit niemand; die Bewertung soll sagen, ob eine Exportleitung eingestellt werden sollte.",
+      "Offen: Umsätze nach Ländern der letzten drei Jahre, die Frau Rößler nächste Woche schickt.",
+    ],
+  },
+  agents: {
+    company: "Kronfeld Beratung",
+    records: "Kunden, Mandate und Aufgaben",
+    mate: "Es bereitet jeden Morgen die Briefings für Termine vor, beantwortet Fragen zu Kunden und Mandaten und legt Aufgaben an, wenn Max im Chat darum bittet.",
+    claude:
+      "Max lässt es ein Gespräch zusammenfassen und die Zusammenfassung an die Notizen des Mandats anhängen oder die Honorarvarianten zweier Angebote vergleichen.",
+    chatgpt:
+      "Es entwirft Varianten für den Umfang und Absätze für Angebote aus der Mail eines Kunden und speichert sie als Notiz oder Nachrichtenentwurf.",
+    codex:
+      "Es bereinigt Exporte und Importe im Terminal, zum Beispiel eine Margentabelle, die ein Kunde geschickt hat, und schreibt das Ergebnis als Notiz.",
+    followUp:
+      "Die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Mandate“ läuft an jedem Werktag am Morgen. Sie sucht Mandate, deren Datum für den nächsten Schritt heute oder früher liegt, und E-Mail-Gespräche, in denen zuletzt der Kunde geschrieben hat, und speichert höchstens drei Antwortentwürfe in diesen Gesprächen. Die Entwürfe warten im Posteingang, bis Max sie gelesen, angepasst und gesendet hat; die Routine sendet nie etwas und überspringt Gespräche, die schon mit einem Entwurf enden.",
+  },
+  mateReferences: {
+    title: "Fusionsreferenzen für Marbach",
+    question:
+      "Doris Merkle von Marbach möchte zwei Referenzen zu Fusionen für ihren Aufsichtsrat. Leg eine Aufgabe für mich an.",
+    answer:
+      "Erledigt. Ich habe die Aufgabe **Frau Merkle zwei Referenzen zu Fusionen schicken** angelegt: Priorität Hoch, fällig in drei Tagen, verknüpft mit Doris Merkle und dem Mandat zur Begleitung der Integration bei Marbach Gebäudeservice.\n\nAus Ihrem LinkedIn-Gespräch mit Frau Merkle: Sie hat nach zwei Unternehmen gefragt, die Sie bei einer Fusion begleitet haben, und Ihre Antwort mit der Zusage von Namen bis Freitag ist schon gesendet.\n\nReferenzen zu Fusionen kann ich aus den Datensätzen nicht nennen: Kein früheres Mandat dreht sich um eine Fusion. Am nächsten kommen Kalder Verpackungen (Überprüfung des Betriebsmodells, abgeschlossen) und Haller & Stein (Strategietag der Partner, abgeschlossen), beide mit engen Kontakten. Bitte entscheiden Sie, wen Sie fragen können, bevor Sie Frau Merkle Namen zusagen.\n\nIch habe niemanden kontaktiert und nichts gesendet; ich habe nur die Aufgabe angelegt.",
+  },
+  inbox: {
+    brightwaterScope: {
+      subject: "Varianten für den Umfang: Kundenbetrieb skalieren",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\nHerr Lorenz und ich würden die beiden Varianten gern vor der Sitzung der Geschäftsleitung am Freitag sehen. Können Sie sie uns heute schicken? Herr Lorenz interessiert vor allem, wie viele Tage jede Variante braucht.\n\nViele Grüße\nSabine Kern",
+        "Guten Tag Frau Kern,\n\nja, sie liegen heute Nachmittag bei Ihnen. Kurz gesagt: Variante 1 umfasst die Ticketanalyse und einen neuen Eskalationsweg, Variante 2 zusätzlich das Supportmodell und zwei Workshoptage mit Ihren Teamleitern. Braucht Herr Lorenz außer den Tagen noch etwas?\n\nViele Grüße\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\nein grobes Honorar je Variante würde ihm helfen. Und können wir die Interimstage im Januar davon getrennt halten?\n\nSabine Kern",
+        "Guten Tag Frau Kern,\n\nhier die beiden Varianten. Variante 1: 8 Tage, 14.800 €, Ticketanalyse und Eskalationsweg. Variante 2: 12 Tage, 22.200 €, zusätzlich das Supportmodell und zwei Workshoptage mit Ihren Teamleitern. Alles zu unserem Tagessatz von 1.850 €.\n\nDie Interimstage im Januar bleiben, wie besprochen, eine eigene Vereinbarung. Ich empfehle Variante 2 und gehe beide Varianten am Donnerstag gern mit Herrn Lorenz durch.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    brightwaterInterim: {
+      subject: "Interimsleitung Betrieb: Abrechnung",
+      messages: [
+        "Hallo Herr Bergmann,\n\nFrau Kern sagt, die Interimsleitung umfasst 20 Tage zu 1.350 € und beginnt in drei Wochen. Für unsere Budgetplanung: Können wir monatlich im Nachhinein zahlen statt in zwei Raten? Und sind die Reisen nach Karlsruhe im Tagessatz enthalten?\n\nViele Grüße\nAchim Lorenz",
+        "Hallo Herr Lorenz,\n\nmonatlich im Nachhinein ist für mich in Ordnung. Reisekosten nach Karlsruhe rechne ich nach Aufwand ab, sie sind nicht Teil des Tagessatzes, wie bei unseren anderen Mandaten. Beides nehme ich in die Leistungsbeschreibung auf.\n\nViele Grüße\nMax Bergmann",
+        "Danke, Herr Bergmann. Bitte schicken Sie die Leistungsbeschreibung vor Freitag an Frau Kern und mich, damit wir sie in der Sitzung der Geschäftsleitung unterzeichnen können.",
+      ],
+    },
+    stanmoreRoundtable: {
+      subject: "Partnerrunde im nächsten Monat",
+      messages: [
+        "Hallo Max,\n\nunsere Partner treffen sich im nächsten Monat zur Kundenrunde. Mehrere haben nach dem Strategietag gefragt, den du bei uns gemacht hast, und ich würde mich freuen, wenn du 20 Minuten erzählst, wie wir ihn vorbereitet haben. Hast du Zeit?\n\nRichard",
+        "Hallo Richard,\n\nsehr gern, das ehrt mich. 20 Minuten passen; ich würde zeigen, wie wir aus den Interviews die Agenda des Tages gebaut haben. An welchen Termin denkst du?\n\nViele Grüße\nMax",
+        "Am zweiten Donnerstag des Monats um 17 Uhr bei uns in der Königstraße. Danach gibt es etwas zu trinken, und unser geschäftsführender Partner möchte dich auch kennenlernen.\n\nRichard",
+        "Hallo Richard,\n\nder zweite Donnerstag um 17 Uhr passt mir. Die drei Folien, die ich zeigen würde, schicke ich dir bis Ende nächster Woche, damit du prüfen kannst, ob sie zum Abend passen.\n\nNoch einmal danke, dass du an mich gedacht hast.\n\nViele Grüße\nMax",
+      ],
+    },
+    marlowReferences: {
+      messages: [
+        "Herr Bergmann, danke für die Zeit in der vergangenen Woche. Unser Aufsichtsrat würde gern mit zwei Unternehmen sprechen, die Sie bei einer Fusion begleitet haben. Können Sie uns in Kontakt bringen?",
+        "Sehr gern, Frau Merkle. Ich frage heute zwei frühere Kunden und schicke Ihnen bis Freitag Namen und einen Gesprächstermin.",
+        "Wunderbar, danke. Könnte eines der Unternehmen in etwa unsere Größe haben, rund 450 Mitarbeitende? Das wäre dem Aufsichtsrat wichtig.",
+        "Guter Hinweis, Frau Merkle, das behalte ich beim Fragen im Kopf.",
+      ],
+    },
+    kestrelVenue: {
+      subject: "Tagungsort für die Klausur",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich habe zwei Tagungsorte für die Klausur angesehen: ein Hotel bei Reutlingen mit großem Workshopraum und das Schulungszentrum an unserem Standort in Tübingen. Das Hotel ist teurer, bringt aber alle aus dem Büro. Wofür würden Sie sich entscheiden?\n\nStefan Hartl",
+        "Hallo Herr Hartl,\n\nich würde das Hotel nehmen. Zwei Tage abseits der täglichen Pipeline-Termine sind der Sinn der Klausur, und der Workshopraum zählt mehr als der Preisunterschied. Ich würde außerdem am ersten Tag ein Arbeitsmittagessen mit den Regionalleitern einplanen. Können Sie prüfen, ob an den vorgesehenen Tagen in drei Wochen etwas frei ist?\n\nViele Grüße\nMax Bergmann",
+        "Frau Brandl ist mit dem Hotel einverstanden, möchte aber nach der Budgetrunde am Donnerstag bestätigen. Ich melde mich am Freitag.\n\nStefan Hartl",
+        "Hallo Herr Hartl,\n\nkein Problem. Ich habe beide Tage freigehalten und hebe mir die Idee mit dem Arbeitsmittagessen auf, bis der Tagungsort feststeht.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    rivertonNotes: {
+      subject: "Erste Notizen und Exportmärkte",
+      messages: [
+        "Guten Tag Frau Rößler,\n\nvielen Dank für das offene Gespräch in der vergangenen Woche. Hier meine ersten Notizen: starke Nachfrage in den Niederlanden und in Polen, aber noch niemand, der den Export verantwortet. Die vollständige Zusammenfassung der Bedarfsklärung folgt nächste Woche; sagen Sie mir bitte, wenn ich etwas falsch verstanden habe.\n\nViele Grüße\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\ndas trifft es genau, danke. Zwei Fragen für die Zusammenfassung: Könnten Sie auch Schweden ansehen, und könnte die Bewertung eine Einschätzung enthalten, ob wir eine Exportleitung einstellen sollten?\n\nEva Rößler",
+      ],
+    },
+    calderPlants: {
+      subject: "Werke und Interviews für das Folgeprojekt",
+      messages: [
+        "Hallo Georg,\n\ndanke für den Vorschlag zum Mittagessen und dafür, dass du an mich für die Werksplanung gedacht hast. Damit ich den Umfang sauber abstecken kann: Mit welchen Werken möchtest du beginnen, und wen soll ich dort interviewen?\n\nViele Grüße\nMax",
+        "Hallo Max,\n\nlass uns mit Pforzheim und dem Werk in Mühlacker anfangen. Ich würde die beiden Werkleiter und die Leiter von Planung und Einkauf vorschlagen. Die anderen können wir später dazunehmen.\n\nGeorg",
+        "Hallo Georg,\n\ndanke, das ist klar. Ich schlage sechs Interviews à 45 Minuten in beiden Werken vor, in der zweiten und dritten Woche, und am ersten Tag einen kurzen Rundgang durch die Fertigung. Eine Seite zum Umfang des Folgeprojekts (8 Tage) schicke ich dir noch diese Woche.\n\nViele Grüße\nMax",
+      ],
+    },
+    ellisonMargins: {
+      subject: "Margendaten für Donnerstag",
+      messages: [
+        "Hallo Herr Bergmann,\n\nHerr Fenske hat mich gebeten, Ihnen vor dem Gespräch am Donnerstag zu schicken, was wir zu den Margen je Produktgruppe haben. Es sind drei Jahre Daten, und sie sind nicht so ordentlich, wie sie sein sollten.\n\nNina Engel",
+        "Hallo Frau Engel,\n\nvielen Dank, das hilft sehr. Unordentlich ist kein Problem; ich möchte vor allem sehen, wo die Marge fällt. Ich lese die Daten heute Abend und bringe am Donnerstag zwei, drei Fragen mit.\n\nViele Grüße\nMax Bergmann",
+        "Gut. Herr Fenske und ich sind beide im Gespräch dabei; den Teams-Link finden Sie in der Einladung.",
+        "Perfekt, bis Donnerstag.",
+      ],
+    },
+    kestrelPlanning: {
+      messages: [
+        "Herr Bergmann, danke für den Lenkungskreis. Unsere neue Vertriebsleiterin möchte bei der Planung der Klausur mit Frau Brandl und mir dabei sein.",
+        "Sehr gern, Herr Hartl. Je mehr vom Vertriebsteam die Agenda mitprägt, desto besser wird die Klausur. Ich nehme sie in die Einladung auf, sobald Frau Brandl den Tagungsort bestätigt hat.",
+      ],
+    },
+    greyfriarsCall: {
+      subject: "Empfehlung von Richard Haller",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nRichard Haller hat mir Ihre Mailadresse gegeben. Ich überlege, Grauhof Großhandel an die nächste Generation zu übergeben, und möchte mit jemandem sprechen, der erst zuhört. Hätten Sie in den nächsten ein bis zwei Wochen Zeit für ein Telefonat?\n\nMit freundlichen Grüßen\nPeter Grauhof",
+        "Sehr geehrter Herr Grauhof,\n\nvielen Dank für Ihre Nachricht, und danke an Richard. Sehr gern. Wie wäre es in der übernächsten Woche mit einem ersten Telefonat von 30 Minuten, etwa am Dienstag um 11 Uhr? Es bleibt ein Gespräch ohne Verpflichtungen.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Dienstag um 11 Uhr passt. Ich sage meiner Tochter Bescheid; sie kann in der zweiten Hälfte dazukommen.",
+      ],
+    },
   },
 };
 
@@ -1121,7 +1448,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: number;
     createdDaysAgo: number;
     linkedin?: boolean;
-    avatar?: Parameters<typeof photo>[0];
   }
 > = {
   helen: {
@@ -1130,7 +1456,6 @@ const CONTACT_FACTS: Record<
     strength: "strong",
     lastMeeting: -5,
     createdDaysAgo: 54,
-    avatar: "anna-mueller",
   },
   martin: {
     organization: "fairhaven",
@@ -1139,7 +1464,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -12,
     createdDaysAgo: 50,
     linkedin: true,
-    avatar: "felix-koch",
   },
   rachel: { organization: "fairhaven", role: "dayToDay", strength: "warm", lastMeeting: -12, createdDaysAgo: 40 },
   tom: {
@@ -1149,7 +1473,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -9,
     createdDaysAgo: 36,
     linkedin: true,
-    avatar: "leon-becker",
   },
   claire: { organization: "northwold", role: "dayToDay", strength: "early", lastMeeting: -20, createdDaysAgo: 28 },
   sarah: {
@@ -1159,7 +1482,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -6,
     createdDaysAgo: 258,
     linkedin: true,
-    avatar: "mia-schneider",
   },
   adam: { organization: "brightwater", role: "signsOff", strength: "warm", lastMeeting: -25, createdDaysAgo: 240 },
   george: {
@@ -1177,7 +1499,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -15,
     createdDaysAgo: 17,
     linkedin: true,
-    avatar: "tim-wagner",
   },
   nina: { organization: "ellison", role: "dayToDay", strength: "early", lastMeeting: -15, createdDaysAgo: 15 },
   paul: { organization: "greyfriars", role: "signsOff", strength: "early", lastMeeting: -3, createdDaysAgo: 5 },
@@ -1187,9 +1508,15 @@ const CONTACT_FACTS: Record<
     strength: "strong",
     lastMeeting: -10,
     createdDaysAgo: 198,
-    avatar: "lea-bauer",
   },
-  simon: { organization: "kestrel", role: "dayToDay", strength: "warm", lastMeeting: -10, createdDaysAgo: 120 },
+  simon: {
+    organization: "kestrel",
+    role: "dayToDay",
+    strength: "warm",
+    lastMeeting: -10,
+    createdDaysAgo: 120,
+    linkedin: true,
+  },
   diane: {
     organization: "marlow",
     role: "signsOff",
@@ -1206,7 +1533,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -4,
     createdDaysAgo: 13,
     linkedin: true,
-    avatar: "sophie-wagner",
   },
   richard: {
     organization: "stanmore",
@@ -1215,7 +1541,6 @@ const CONTACT_FACTS: Record<
     lastMeeting: -14,
     createdDaysAgo: 420,
     linkedin: true,
-    avatar: "paul-koch",
   },
   kevin: { organization: "wexford", role: "signsOff", strength: "warm", lastMeeting: -105, createdDaysAgo: 165 },
 };
@@ -1264,7 +1589,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "proposal",
     source: "event",
     rate: 1850,
-    days: 18,
+    days: 14,
     createdDaysAgo: 34,
     decision: 14,
     start: 28,
@@ -1285,7 +1610,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     days: 12,
     createdDaysAgo: 21,
     decision: 30,
-    next: 7,
+    next: 0,
     moves: [
       { daysAgo: 16, from: "introduction" },
       { daysAgo: 6, from: "discovery" },
@@ -1297,7 +1622,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "decision",
     source: "existingClient",
     rate: 1350,
-    days: 40,
+    days: 20,
     createdDaysAgo: 30,
     decision: 5,
     start: 21,
@@ -1455,6 +1780,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     start: -40,
     end: 6,
     delivery: "wrappingUp",
+    next: 0,
     moves: [
       { daysAgo: 175, from: "proposal" },
       { daysAgo: 150, from: "decision" },
@@ -1472,6 +1798,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     start: 18,
     end: 19,
     delivery: "notStarted",
+    next: 5,
     moves: [
       { daysAgo: 40, from: "proposal" },
       { daysAgo: 30, from: "decision" },
@@ -1500,12 +1827,13 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "won",
     source: "existingClient",
     rate: 1350,
-    days: 24,
+    days: 18,
     createdDaysAgo: 110,
     decision: -100,
     start: -90,
     end: 30,
     delivery: "inDelivery",
+    next: 9,
     moves: [
       { daysAgo: 104, from: "proposal" },
       { daysAgo: 100, from: "decision" },
@@ -1555,7 +1883,7 @@ const TASK_FACTS: Record<
   kickoffAgenda: {
     status: "inProgress",
     priority: "high",
-    due: 1,
+    due: 0,
     deal: "fairhavenReview",
     contact: "martin",
     createdDaysAgo: 2,
@@ -1618,7 +1946,119 @@ const TASK_FACTS: Record<
     contact: "george",
     createdDaysAgo: 6,
   },
+  mergerReferences: {
+    status: "open",
+    priority: "high",
+    due: 3,
+    deal: "marlowIntegration",
+    contact: "diane",
+    createdDaysAgo: 4,
+  },
+  ellisonMarginData: {
+    status: "open",
+    priority: "medium",
+    due: 2,
+    deal: "ellisonPricing",
+    contact: "nina",
+    createdDaysAgo: 1,
+  },
 };
+
+const INBOX_PLANS: ReadonlyArray<InboxThreadPlan & { key: InboxKey }> = [
+  {
+    key: "brightwaterScope",
+    account: "google",
+    with: ["sarah"],
+    state: "unread",
+    latestMinutesAgo: 70,
+    speakers: ["sarah", "self", "sarah", "self"],
+    draft: true,
+    links: ["deal:brightwaterScaling", "organization:brightwater"],
+  },
+  {
+    key: "brightwaterInterim",
+    account: "outlook",
+    with: ["adam"],
+    state: "open",
+    latestMinutesAgo: 22 * 60,
+    speakers: ["adam", "self", "adam"],
+    links: ["deal:brightwaterInterim", "organization:brightwater"],
+  },
+  {
+    key: "stanmoreRoundtable",
+    account: "outlook",
+    with: ["richard"],
+    state: "open",
+    latestMinutesAgo: 5 * 24 * 60 + 300,
+    speakers: ["richard", "self", "richard", "self"],
+    draft: true,
+    links: ["organization:stanmore"],
+  },
+  {
+    key: "marlowReferences",
+    account: "linkedin",
+    with: ["diane"],
+    state: "open",
+    latestMinutesAgo: 4 * 24 * 60 + 190,
+    speakers: ["diane", "self", "diane", "self"],
+    links: ["deal:marlowIntegration", "organization:marlow"],
+  },
+  {
+    key: "kestrelVenue",
+    account: "google",
+    with: ["simon"],
+    state: "open",
+    latestMinutesAgo: 3500,
+    speakers: ["simon", "self", "simon", "self"],
+    links: ["deal:kestrelOffsite"],
+  },
+  {
+    key: "rivertonNotes",
+    account: "google",
+    with: ["emily"],
+    state: "unread",
+    latestMinutesAgo: 200,
+    speakers: ["self", "emily"],
+    links: ["deal:rivertonExport", "organization:riverton"],
+  },
+  {
+    key: "calderPlants",
+    account: "google",
+    with: ["george"],
+    state: "open",
+    latestMinutesAgo: 7 * 24 * 60 + 600,
+    speakers: ["self", "george", "self"],
+    draft: true,
+    links: ["deal:calderPlanning", "organization:calder"],
+  },
+  {
+    key: "ellisonMargins",
+    account: "outlook",
+    with: ["nina"],
+    state: "open",
+    latestMinutesAgo: 30 * 60,
+    speakers: ["nina", "self", "nina", "self"],
+    links: ["deal:ellisonPricing"],
+  },
+  {
+    key: "kestrelPlanning",
+    account: "linkedin",
+    with: ["simon"],
+    state: "open",
+    latestMinutesAgo: 3000,
+    speakers: ["simon", "self"],
+    links: ["deal:kestrelOffsite", "organization:kestrel"],
+  },
+  {
+    key: "greyfriarsCall",
+    account: "google",
+    with: ["paul"],
+    state: "open",
+    latestMinutesAgo: 4620,
+    speakers: ["paul", "self", "paul"],
+    links: ["deal:greyfriarsSuccession", "organization:greyfriars"],
+  },
+];
 
 function mailbox(name: string): string {
   return name
@@ -1634,6 +2074,14 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:fairhavenReview": "Claude Desktop",
+  "deal:kestrelInterim": "Claude Desktop",
+  "deal:brightwaterScaling": "ChatGPT",
+  "deal:rivertonExport": "ChatGPT",
+  "deal:ellisonPricing": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "consultants",
   strings: { en, de },
@@ -1641,7 +2089,7 @@ export default defineSolution<Strings>({
     en: { currency: "GBP", timeZone: "Europe/London" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["introduction", "discovery", "scoping", "proposal", "decision"];
     const wonLastYear = [
@@ -1702,14 +2150,20 @@ export default defineSolution<Strings>({
             ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
             : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
+    const agentNotes: Partial<Record<DealKey, readonly string[]>> = {
+      brightwaterScaling: t.agentNotes.brightwater,
+      ellisonPricing: t.agentNotes.ellison,
+      kestrelInterim: t.agentNotes.kestrelInterim,
+      rivertonExport: t.agentNotes.riverton,
+    };
     const deal: RecordSpec[] = DEALS.map((key) => {
       const facts = DEAL_FACTS[key];
       const [name, nextStep] = t.deals[key];
       const story = key === "fairhavenReview";
+      const notes = story ? [...t.fairhavenNotes, "", ...t.agentNotes.fairhaven] : agentNotes[key];
       return {
         key,
         values: {
@@ -1725,7 +2179,7 @@ export default defineSolution<Strings>({
           nextStep,
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
-          ...(story ? { notes: t.fairhavenNotes } : {}),
+          ...(notes ? { notes } : {}),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
         createdDaysAgo: facts.createdDaysAgo,
@@ -1899,7 +2353,7 @@ export default defineSolution<Strings>({
         { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
       ],
       dealValue: { kind: "product", left: "deal.dayRate", right: "deal.daysEstimated" },
-      records: { organization, contact, deal, task },
+      records: agentEdited({ organization, contact, deal, task }, AGENT_EDITS),
       views: [
         {
           key: "pipeline",
@@ -2061,9 +2515,11 @@ export default defineSolution<Strings>({
           markdown: t.wiki.brief.markdown,
         },
         { key: "rates", kind: "knowledge", title: t.wiki.rates.title, markdown: t.wiki.rates.markdown },
+        agentsPage(locale, t.agents),
       ],
+      apiKeys: agentApiKeys([74, 36, 11]),
       messaging: {
-        accounts: ["google", "linkedin"],
+        accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads: [
@@ -2136,6 +2592,7 @@ export default defineSolution<Strings>({
             latestMinutesAgo: 6 * 24 * 60,
             messages: thread("georgeCatchUp", ["self", "george", "self"]),
           },
+          ...inboxThreads(INBOX_PLANS, t.inbox),
         ],
         calendar: {
           name: t.calendar.name,
@@ -2217,6 +2674,62 @@ export default defineSolution<Strings>({
             },
           ],
         },
+        {
+          key: "followUps",
+          name: t.routines.followUps.name,
+          task: t.routines.followUps.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 1,
+              durationSeconds: 77,
+              credits: 12,
+              summary: t.routines.followUps.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 125,
+              durationSeconds: 64,
+              credits: 10,
+              summary: t.routines.followUps.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 173,
+              durationSeconds: 69,
+              credits: 11,
+              summary: t.routines.followUps.runs[2],
+            },
+          ],
+        },
+        {
+          key: "taskFromEmail",
+          name: t.routines.taskFromEmail.name,
+          task: t.routines.taskFromEmail.task,
+          trigger: {
+            kind: "event",
+            events: ["messaging.email.received"],
+            debounceSeconds: 300,
+            sample: { thread: 15 },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 29,
+              durationSeconds: 38,
+              credits: 6,
+              summary: t.routines.taskFromEmail.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 76,
+              durationSeconds: 31,
+              credits: 5,
+              summary: t.routines.taskFromEmail.runs[1],
+            },
+          ],
+        },
       ],
       files: [
         file("proposal", "fairhavenReview", "pdf", 7),
@@ -2247,6 +2760,14 @@ export default defineSolution<Strings>({
           messages: [
             { role: "user", text: t.mate.question },
             { role: "assistant", text: t.mate.answer },
+          ],
+        },
+        {
+          title: t.mateReferences.title,
+          endedHoursAgo: 100,
+          messages: [
+            { role: "user", text: t.mateReferences.question },
+            { role: "assistant", text: t.mateReferences.answer },
           ],
         },
       ],

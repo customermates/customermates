@@ -576,10 +576,13 @@ export async function seedSolutionWorkspace(
   data.values.push(...solutionFileValues(workspace, content, data));
   const counts = await writeRecords(prisma, workspace, content, model, data);
   await seedSolutionFiles(prisma, workspace, content, data);
-  const events = await prisma.eventLog.count({
-    where: { companyId, id: { startsWith: `${SOLUTION_RECORD_EVENT_PREFIX}-` } },
-  });
-  if (counts.changed || events !== data.history.length) {
+  const eventScope = { companyId, id: { startsWith: `${SOLUTION_RECORD_EVENT_PREFIX}-` } };
+  const [events, viaEvents] = await Promise.all([
+    prisma.eventLog.count({ where: eventScope }),
+    prisma.eventLog.count({ where: { ...eventScope, via: { not: Prisma.DbNull } } }),
+  ]);
+  const expectedViaEvents = data.history.filter((entry) => entry.via).length;
+  if (counts.changed || events !== data.history.length || viaEvents !== expectedViaEvents) {
     await calculateSyntheticRecords(prisma, companyId);
     await writeSyntheticRecordHistory(prisma, companyId, model, data.history, SOLUTION_RECORD_EVENT_PREFIX);
   }

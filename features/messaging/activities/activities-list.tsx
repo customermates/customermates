@@ -24,6 +24,7 @@ import {
   ProviderAvatar,
   TimelineRow,
   TypeBadge,
+  useActorViaLabel,
   useSystemActorLabel,
 } from "./activities-row";
 import { activityEntryKey } from "./activity-entry-key";
@@ -50,6 +51,7 @@ type Props = {
 export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
   const systemActorLabel = useSystemActorLabel();
+  const actorViaLabel = useActorViaLabel();
   const columnLabel = useCanonicalColumnLabel();
   const { timelineDetailModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
@@ -236,6 +238,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                 subtitle={fields || eventLabel(t, entry.event)}
                 time={time}
                 title={actorName}
+                titleSuffix={actorViaLabel(entry.actor)}
                 onClick={() => timelineDetailModalStore.openWith({ entry })}
               />
             );
@@ -276,6 +279,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
               subtitle={fields || eventLabel(t, entry.event)}
               time={time}
               title={actorName}
+              titleSuffix={actorViaLabel(entry.actor)}
               onClick={() => timelineDetailModalStore.openWith({ entry })}
             />
           );

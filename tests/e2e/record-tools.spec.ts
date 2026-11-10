@@ -1,9 +1,11 @@
 import { recordItem } from "./record-rows";
 import { randomUUID } from "node:crypto";
-import type { Request } from "@playwright/test";
+import type { APIRequestContext, Request } from "@playwright/test";
+import { request as playwrightRequest } from "@playwright/test";
 import { z } from "zod";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { presetId } from "../../features/records/crm-preset";
 import { ProviderConfigurationChangeSchema } from "../../features/records/configuration-provider.schema";
 import {
   RecordDtoSchema,
@@ -363,5 +365,107 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
   } finally {
     await client.close();
     await database.query('DELETE FROM "Apikey" WHERE id=$1', [credential.id]);
+  }
+});
+
+test("shows the API key a record was changed through next to the person in its history, over MCP and REST", async ({
+  page,
+  database,
+  workspace,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const errors = collectPageErrors(page);
+  const { baseUrl } = localE2eEnvironment();
+  const mcpKey = await mintApiKey(database, workspace, "Claude Desktop");
+  const restKey = await mintApiKey(database, workspace, "Zapier sync");
+  const typeId = presetId(companyId, "organization");
+  const fieldId = presetId(companyId, "organization.name");
+  const client = new Client({ name: "history-attribution", version: "1.0.0" });
+  const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
+    requestInit: { headers: { "x-api-key": mcpKey.key } },
+  });
+  const rest: APIRequestContext = await playwrightRequest.newContext({
+    baseURL: baseUrl,
+    extraHTTPHeaders: { "x-api-key": restKey.key },
+  });
+  const change = (expectedRevision: number, mutation: Record<string, unknown>) => ({
+    expectedRevision,
+    idempotencyKey: randomUUID(),
+    mutation,
+  });
+  const rename = (expectedRevision: number, recordId: string, expectedVersion: number, name: string) =>
+    change(expectedRevision, {
+      action: "update",
+      ref: { typeId, recordId },
+      expectedVersion,
+      fields: [{ fieldId, value: { kind: "text", value: name } }],
+    });
+  try {
+    const model = await rest.post("/api/v1/model/read", { data: { typeIds: [typeId] } });
+    expect(model.status()).toBe(200);
+    const { revision } = (await model.json()) as { revision: number };
+
+    const created = await rest.post("/api/v1/records/mutate", {
+      data: change(revision, {
+        action: "create",
+        typeId,
+        fields: [{ fieldId, value: { kind: "text", value: "Attributed history" } }],
+      }),
+    });
+    expect(created.status(), await created.text()).toBe(200);
+    const { refs } = (await created.json()) as { refs: Array<{ typeId: string; recordId: string }> };
+    const recordId = refs.find((ref) => ref.typeId === typeId)?.recordId ?? "";
+    expect(recordId).not.toBe("");
+
+    await client.connect(transport);
+    const viaMcp = await client.callTool({
+      name: "mutate_crm_record",
+      arguments: rename(revision, recordId, 1, "Attributed history over MCP"),
+    });
+    expect(viaMcp.isError).not.toBe(true);
+
+    const viaRest = await rest.post("/api/v1/records/mutate", {
+      data: rename(revision, recordId, 2, "Attributed history over REST"),
+    });
+    expect(viaRest.status(), await viaRest.text()).toBe(200);
+
+    const stored = await database.query<{ kind: string; via: { kind: string; name: string } }>(
+      'SELECT kind,via FROM "EventLog" WHERE "companyId"=$1 AND "subjectId"=$2 ORDER BY "createdAt","id"',
+      [companyId, recordId],
+    );
+    expect(stored.rows).toEqual([
+      { kind: "record.created", via: { kind: "apiKey", name: "Zapier sync" } },
+      { kind: "record.updated", via: { kind: "apiKey", name: "Claude Desktop" } },
+      { kind: "record.updated", via: { kind: "apiKey", name: "Zapier sync" } },
+    ]);
+    expect(JSON.stringify(stored.rows)).not.toContain(mcpKey.key);
+    expect(JSON.stringify(stored.rows)).not.toContain(restKey.key);
+
+    await page.goto(companyPath(companyId, `/records/${typeId}/${recordId}`));
+    const history = page.locator('main [data-detail-panel="activities"]');
+    if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+    await expect(history).toBeVisible();
+    await expect(history.getByRole("button", { name: /via Zapier sync/ })).toHaveCount(2);
+    const agent = history.getByRole("button", { name: /via Claude Desktop/ });
+    await expect(agent).toHaveCount(1);
+    await expect(agent.locator("h3")).toContainText("via Claude Desktop");
+    await history.screenshot({ path: testInfo.outputPath("record-history-via.png"), animations: "disabled" });
+
+    await agent.click();
+    const detail = page.getByRole("dialog");
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText("via Claude Desktop");
+    await expect(detail).toContainText("Attributed history over MCP");
+    await page.keyboard.press("Escape");
+
+    await page.goto(companyPath(companyId, "/settings/activity"));
+    await expect(page.getByRole("button", { name: /via Claude Desktop/ }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /via Zapier sync/ }).first()).toBeVisible();
+    expect(errors).toEqual([]);
+  } finally {
+    await client.close();
+    await rest.dispose();
+    await database.query('DELETE FROM "Apikey" WHERE id=ANY($1)', [[mcpKey.id, restKey.id]]);
   }
 });

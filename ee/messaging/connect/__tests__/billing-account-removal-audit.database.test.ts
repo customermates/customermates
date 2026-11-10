@@ -151,4 +151,68 @@ describeDatabase("a billing-driven account removal leaves an audit trail", { tim
     expect(await auditRows()).toHaveLength(0);
     expect(removedAtProvider).toEqual([]);
   });
+  it("sets accounts shared with the workspace back to private on a plan without shared accounts and audits each one", async () => {
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.updateMany({ where: { companyId: company }, data: { shared: true } }),
+    );
+
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "pro" });
+
+    const accounts = await runWithoutTenant(() =>
+      prisma.connectedAccount.findMany({ where: { companyId: company }, orderBy: { createdAt: "asc" } }),
+    );
+    expect(accounts.map((row) => [row.id, row.status, row.shared])).toEqual([
+      [olderAccount, "ok", false],
+      [newerAccount, "deleted", true],
+    ]);
+
+    const updated = (await auditRows()).filter((row) => row.kind === "connected_account.updated");
+    expect(updated).toHaveLength(1);
+    expect(updated[0].subjectId).toBe(olderAccount);
+    expect(updated[0].actorId).toBe(owner);
+    expect(updated[0].payload).toMatchObject({
+      connectedAccount: { provider: "linkedin", displayName: "Older Account" },
+      changes: { visibility: { previous: "shared", current: "private" } },
+    });
+  });
+
+  it("does not share the account again when the plan moves back to one with shared accounts", async () => {
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.update({ where: { id: olderAccount }, data: { shared: true } }),
+    );
+
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "pro" });
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "business" });
+
+    const older = await runWithoutTenant(() =>
+      prisma.connectedAccount.findUniqueOrThrow({ where: { id: olderAccount } }),
+    );
+    expect(older.shared).toBe(false);
+  });
+
+  it("keeps shared accounts shared on a plan with shared accounts", async () => {
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.update({ where: { id: olderAccount }, data: { shared: true } }),
+    );
+
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "business" });
+
+    const older = await runWithoutTenant(() =>
+      prisma.connectedAccount.findUniqueOrThrow({ where: { id: olderAccount } }),
+    );
+    expect(older.shared).toBe(true);
+    expect(await auditRows()).toHaveLength(0);
+  });
+
+  it("audits a made-private account once when the downgrade is delivered twice", async () => {
+    await runWithoutTenant(() =>
+      prisma.connectedAccount.update({ where: { id: olderAccount }, data: { shared: true } }),
+    );
+
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "business" });
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "pro" });
+    await getDeleteAccountsForPlanInteractor().invoke({ companyId: company, plan: "pro" });
+
+    expect((await auditRows()).filter((row) => row.kind === "connected_account.updated")).toHaveLength(1);
+  });
 });

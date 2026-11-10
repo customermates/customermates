@@ -5,7 +5,14 @@ import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.sche
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory, useSystemActorLabel } from "./activities-row";
+import {
+  DetailHeader,
+  IdentityAvatar,
+  TypeBadge,
+  auditCategory,
+  useActorViaLabel,
+  useSystemActorLabel,
+} from "./activities-row";
 import { actorDisplayName } from "./activity-row-labels";
 import { auditChangeKind, ChangeRow, ChangeValue, FieldChangeRow } from "./change-value";
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
@@ -29,6 +36,7 @@ type Entry = Omit<Extract<ActivityEntryDto, { kind: "record" }>, "event" | "kind
 export function RecordAuditDetail({ entry }: { entry: Entry }) {
   const t = useTranslations();
   const systemActorLabel = useSystemActorLabel();
+  const actorViaLabel = useActorViaLabel();
   const intl = useHydratedIntlStore();
   const category = auditCategory(entry.event);
   const kind = auditChangeKind(entry.event);
@@ -72,6 +80,7 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
         records={entry.records}
         subtitle={`${eventLabel(t, entry.event)} · ${intl.formatNumericalShortDateTime(entry.at)}`}
         title={actorDisplayName(entry.actor, systemActorLabel)}
+        titleSuffix={actorViaLabel(entry.actor)}
       />
 
       <AppCardBody className="flex flex-col gap-4">

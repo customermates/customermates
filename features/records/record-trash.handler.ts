@@ -11,6 +11,7 @@ import { Prisma } from "@/generated/prisma";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordJournal } from "./record-journal";
+import { recordCauseBy } from "./record-event-cause";
 import type { RecordTrashService } from "./record-trash.service";
 import { recordInvariant } from "./record-invariant";
 
@@ -90,7 +91,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
     const journal = new RecordJournal(this.records, model);
     const stored = await this.records.getRecordTrashItemsCompanyWide({ ids: items.map((item) => item.id) });
     const result = await this.recordTrash.restore(stored, model, policy, journal);
-    await journal.flush(model, this.userId, randomUUID(), { kind: "mutation" });
+    await journal.flush(model, this.userId, randomUUID(), recordCauseBy(this.user, { kind: "mutation" }));
     return result;
   }
 
@@ -103,7 +104,11 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
       userId: this.userId,
       kind: "restore",
       expectedRevision: state.revision,
-      request: { itemIds: items.map((item) => item.id), idempotencyKey: operationId },
+      request: {
+        itemIds: items.map((item) => item.id),
+        idempotencyKey: operationId,
+        ...(this.user.via ? { via: this.user.via } : {}),
+      },
     });
     await this.background.dispatch("record-operation", { operationId, ownerUserId: this.userId });
     return operationId;
@@ -135,7 +140,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
       model,
       actorId,
       randomUUID(),
-      { kind: actorId ? "mutation" : "system" },
+      actorId ? recordCauseBy(this.user, { kind: "mutation" }) : { kind: "system" },
     );
   }
 }

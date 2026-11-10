@@ -7,6 +7,7 @@ import {
   RecordValueTypeSchema,
 } from "./record-model.schema";
 import { RecordIdentitySchema } from "./record-identity.schema";
+import { EventViaSchema } from "@/features/event/event-via";
 
 export const RECORD_EVENT_KINDS = [
   "record.created",
@@ -81,17 +82,21 @@ export const RecordJournalEntrySchema = z
   })
   .strict();
 
+const RecordEventCauseSchema = z
+  .object({
+    kind: z.enum(["mutation", "configuration", "system"]),
+    operationId: z.uuid().optional(),
+    routineDepth: z.number().int().nonnegative().optional(),
+  })
+  .strict();
+
+export const RecordOperationCauseSchema = RecordEventCauseSchema.extend({ via: EventViaSchema.optional() }).strict();
+
 export const RecordEventPayloadSchema = z
   .object({
     ref: RecordRefSchema,
     schemaRevision: z.number().int().positive(),
-    cause: z
-      .object({
-        kind: z.enum(["mutation", "configuration", "system"]),
-        operationId: z.uuid().optional(),
-        routineDepth: z.number().int().nonnegative().optional(),
-      })
-      .strict(),
+    cause: RecordEventCauseSchema,
     beforeVersion: z.number().int().positive().nullable(),
     afterVersion: z.number().int().positive().nullable(),
     changedFieldIds: z.array(z.uuid()),
@@ -114,6 +119,7 @@ export type RecordHistoryValue = z.infer<typeof RecordHistoryValueSchema>;
 export type RecordHistorySnapshot = z.infer<typeof RecordHistorySnapshotSchema>;
 export type RecordJournalEntry = z.infer<typeof RecordJournalEntrySchema>;
 export type RecordEventPayload = z.infer<typeof RecordEventPayloadSchema>;
+export type RecordOperationCause = z.infer<typeof RecordOperationCauseSchema>;
 
 export const RecordHistoryDisplayValueSchema = RecordHistoryValueSchema.pick({
   fieldId: true,

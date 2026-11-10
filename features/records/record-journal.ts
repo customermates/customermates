@@ -3,7 +3,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordEventAppend, RecordRepo } from "./record.repo";
 import { recordChannelsField } from "./record-channels";
 import type { RecordField, RecordModel, RecordRef } from "./record-model.schema";
-import type { RecordEventPayload, RecordHistorySnapshot, RecordJournalEntry } from "./record-event.schema";
+import type {
+  RecordEventPayload,
+  RecordHistorySnapshot,
+  RecordJournalEntry,
+  RecordOperationCause,
+} from "./record-event.schema";
 
 import { RecordJournalEntrySchema } from "./record-event.schema";
 import { compareRecordKey } from "./record-json";
@@ -12,6 +17,7 @@ import { expressionFieldDependencies } from "./record-model-validation";
 import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { decodeRecordValue } from "./record-storage";
 import { recordInvariant } from "./record-invariant";
+import { splitRecordCause } from "./record-event-cause";
 
 export function historyPublications(field: RecordField, model: RecordModel) {
   const publications = new Map<string, { fieldId: string; dependencyHash: string }>();
@@ -428,9 +434,10 @@ export class RecordJournal {
     model: RecordModel,
     actorId: string | null,
     causeId: string,
-    cause: RecordEventPayload["cause"],
+    operationCause: RecordOperationCause,
   ): Promise<void> {
     if (this.staging) throw new Error("Staged deletion matches are captured during publication");
+    const { cause, via } = splitRecordCause(operationCause);
     for (const ref of refs) await this.capture(ref);
     for (const ref of refs) {
       const links = await this.records.getLinksCompanyWide(ref, this.limit * 4 + 1);
@@ -442,17 +449,12 @@ export class RecordJournal {
       if (!entry) throw new Error("A deletion requires its original record snapshot");
       const event = recordEventChanges(entry, null, model, cause);
       if (!event) continue;
-      await this.records.appendEvent(ref, actorId, causeId, event.kind, event.payload, true);
+      await this.records.appendEvent(ref, actorId, causeId, event.kind, event.payload, true, true, via);
       this.emittedDeletions.add(recordKey(ref));
     }
   }
 
-  async flush(
-    model: RecordModel,
-    actorId: string | null,
-    causeId: string,
-    cause: RecordEventPayload["cause"],
-  ): Promise<void> {
+  async flush(model: RecordModel, actorId: string | null, causeId: string, cause: RecordOperationCause): Promise<void> {
     await this.emitAll([...this.entries.values()], model, actorId, causeId, cause);
   }
 
@@ -460,7 +462,7 @@ export class RecordJournal {
     model: RecordModel,
     actorId: string | null,
     causeId: string,
-    cause: RecordEventPayload["cause"],
+    cause: RecordOperationCause,
     afterKey: string | undefined,
     take: number,
   ): Promise<{ count: number; afterKey: string | undefined }> {
@@ -481,8 +483,9 @@ export class RecordJournal {
     model: RecordModel,
     actorId: string | null,
     causeId: string,
-    cause: RecordEventPayload["cause"],
+    operationCause: RecordOperationCause,
   ): Promise<void> {
+    const { cause, via } = splitRecordCause(operationCause);
     const pending = entries.filter((entry) => !this.emittedDeletions.has(recordKey(entry.ref)));
     const after =
       pending.length > 1
@@ -506,6 +509,7 @@ export class RecordJournal {
         ref: entry.ref,
         actorId,
         causeId,
+        via,
         kind: event.kind,
         payload: event.payload,
         publish: event.kind !== "record.updated" || cause.kind !== "configuration",

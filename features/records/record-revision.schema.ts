@@ -6,6 +6,7 @@ import {
 } from "./configuration.schema";
 import { RecordGrantSchema } from "./record-model.schema";
 import { DroppedViewReferencesSchema } from "@/features/trash/trash.schema";
+import { EventViaSchema } from "@/features/event/event-via";
 
 export const RecordRevisionChangeSchema = z
   .object({
@@ -16,6 +17,7 @@ export const RecordRevisionChangeSchema = z
       z.object({ kind: z.literal("initialization") }).strict(),
     ]),
     causeId: z.string().min(1).max(200),
+    via: EventViaSchema.optional(),
     expectedRevision: z.number().int().nonnegative(),
     configuration: ConfigurationChangeSchema.optional(),
     deletions: z

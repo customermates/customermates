@@ -63,4 +63,34 @@ describe("demo record history", () => {
       }
     }
   });
+  it("marks a change made through a named API key with that key, and only updates", () => {
+    const attributed = histories.flatMap(({ workspace, data }) =>
+      data.history.filter((entry) => entry.via).map((entry) => ({ workspace, entry })),
+    );
+
+    expect(attributed.length).toBeGreaterThan(0);
+    for (const { workspace, entry } of attributed) {
+      expect(entry.kind, workspace.slug).toBe("record.updated");
+      expect(entry.via, workspace.slug).toEqual({ kind: "apiKey", name: expect.stringMatching(/\S/) });
+    }
+    for (const { data } of histories) {
+      for (const entry of data.history.filter((candidate) => candidate.kind === "record.created"))
+        expect(entry.via).toBeNull();
+    }
+  });
+  it("attributes the agent-written records to Max, through the keys on his profile, in every locale of a workspace", () => {
+    const counts = new Map<string, number>();
+    for (const { workspace, content, data } of histories) {
+      const attributed = data.history.filter((entry) => entry.via);
+      counts.set(workspace.solution.id, (counts.get(workspace.solution.id) ?? 0) + attributed.length);
+      const keys = (content.apiKeys ?? []).map((key) => key.name);
+      for (const entry of attributed) {
+        expect(entry.actorId, workspace.slug).toBe(workspace.memberId);
+        expect(keys, workspace.slug).toContain(entry.via?.name);
+      }
+    }
+    const perSolution = [...counts.values()].filter((count) => count > 0);
+    expect(perSolution.length).toBeGreaterThanOrEqual(9);
+    for (const count of perSolution) expect(count % 2, "every locale carries the same entries").toBe(0);
+  });
 });

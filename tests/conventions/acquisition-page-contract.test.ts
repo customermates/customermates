@@ -287,12 +287,12 @@ describe("approved acquisition page contract", () => {
       expect(conversation, locale).toMatchObject({
         fixtures: {
           conversation: "gmail-rollout-next-steps",
-          person: "anna-mueller",
+          person: "nina-castillo",
         },
         form: "record",
       });
       expect(contact, locale).toMatchObject({
-        fixtures: { person: "anna-mueller" },
+        fixtures: { person: "nina-castillo" },
       });
     }
   });

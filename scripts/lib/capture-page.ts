@@ -1,11 +1,15 @@
 import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 
 import { captureNavigationUrl } from "./capture-solutions-options";
+import { isPathInside } from "./path-boundary";
 
 import { solutionDataLocaleForUiLocale, type SolutionId } from "@/core/solutions/solution-catalog";
 import { formattingTagFor, isLocaleCode } from "@/i18n/locale-registry";
+import { SYNTHETIC_AVATAR_ORIGIN } from "@/prisma/seeds/avatars";
 import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
 
 const READY_TIMEOUT_MS = 60_000;
@@ -14,6 +18,8 @@ const STABLE_SAMPLE_INTERVAL_MS = 400;
 const NAVIGATION_TIMEOUT_MS = 90_000;
 const CAPTURE_ATTEMPTS = 3;
 const HIDE_DEV_OVERLAY_CSS = "nextjs-portal { display: none !important; }";
+const PUBLIC_ROOT = join(process.cwd(), "public");
+const AVATAR_ROOT = join(PUBLIC_ROOT, "demo", "avatars");
 
 export type CaptureViewport = { deviceScaleFactor: number; height: number; width: number };
 
@@ -62,6 +68,12 @@ export async function newCaptureContext(
     viewport: { height: viewport.height, width: viewport.width },
   });
   await context.addInitScript((theme) => window.localStorage.setItem("theme", theme), look.theme);
+  await context.route(`${SYNTHETIC_AVATAR_ORIGIN}/demo/avatars/**`, async (route) => {
+    const file = join(PUBLIC_ROOT, new URL(route.request().url()).pathname);
+    if (isPathInside(AVATAR_ROOT, file) && existsSync(file))
+      await route.fulfill({ contentType: "image/jpeg", path: file });
+    else await route.fulfill({ status: 404 });
+  });
   return context;
 }
 

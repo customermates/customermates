@@ -18,6 +18,7 @@ import { readOnceInTransaction } from "@/core/decorators/read-once-in-transactio
 import { readStoredState, readStoredPersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { deletionReference, targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
 import type { ConfigurationTarget } from "./configuration.schema";
+import type { EventVia } from "@/features/event/event-via";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 
 import { randomUUID } from "node:crypto";
@@ -68,6 +69,7 @@ import type { MeasureRow } from "./record-measure";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { tenantStorage } from "@/core/decorators/tenant-context";
 import { wakeEventOutbox } from "@/features/event/event-outbox.repo";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { CalculatedValueSchema, RecordModelSchema } from "./record-model.schema";
@@ -1037,13 +1039,17 @@ export class PrismaRecordRepo
       create: { companyId, revision: model.revision },
       update: { companyId, revision: model.revision },
     });
+    const user = tenantStorage.getStore()?.user;
+    const via = change?.via ?? (user?.id === actorId ? user.via : null);
     await this.prisma.recordSchemaRevision.create({
       data: {
         companyId,
         revision: model.revision,
         actorId,
         snapshot: recordJson(model),
-        ...(change ? { change: recordJson(RecordRevisionChangeSchema.parse(change)) } : {}),
+        ...(change
+          ? { change: recordJson(RecordRevisionChangeSchema.parse({ ...change, ...(via ? { via } : {}) })) }
+          : {}),
       },
     });
     if (change) await this.syncConfigurationTrash(model, actorId, change);
@@ -2254,6 +2260,7 @@ export class PrismaRecordRepo
     payload: unknown,
     beforeDeletion = false,
     publish = true,
+    via: EventVia | null = null,
   ): Promise<void> {
     const id = randomUUID();
     await this.owners.events.appendRecordEventCompanyWide(this.companyId, {
@@ -2261,6 +2268,7 @@ export class PrismaRecordRepo
       ref,
       actorId,
       causeId,
+      via,
       kind,
       payload: recordJson(payload),
     });
@@ -2280,6 +2288,7 @@ export class PrismaRecordRepo
           ref: event.ref,
           actorId: event.actorId,
           causeId: event.causeId,
+          via: event.via ?? null,
           kind: event.kind,
           payload: recordJson(event.payload),
         })),

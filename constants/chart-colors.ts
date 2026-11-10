@@ -39,7 +39,7 @@ const CHIP_HUES: Record<ChipColor, Hue> = {
   destructive: "danger",
   success: "success",
   warning: "warning",
-  info: "secondary",
+  info: "info",
 };
 
 export function chipChartColor(color: ChipColor): ChartColor {

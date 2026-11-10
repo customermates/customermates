@@ -191,7 +191,7 @@ function hueAngle(lab: Lab): number {
 }
 
 export function brandAccent(color: ChartColor): ChartColor {
-  return color === ChartColor.warning1 ? ChartColor.violet1 : color;
+  return color === ChartColor.warning1 ? ChartColor.secondary1 : color;
 }
 
 export function nearestChartColor(hex: string): ChartColor {

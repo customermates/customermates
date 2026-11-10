@@ -1,16 +1,17 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
+import { agentApiKeys, agentEdited, agentsPage, type AgentKeyName } from "../agent-native";
 import {
   address,
   at,
   day,
   defineSolution,
-  photo,
   range,
   type FileSpec,
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
+import { inboxThreads, type InboxThreadPlan } from "../inbox-threads";
 
 /**
  * Agencies: a brand and content agency team wins pitches, turns them into projects and retainers, and sees the monthly
@@ -385,6 +386,23 @@ const en = {
         "Saved a follow-up draft to Laura Kim on the Meridian proposal thread for review.",
       ],
     },
+    dailyFollowUp: {
+      name: "Every morning, draft follow-ups for pitches due today",
+      task: "Every weekday morning, read the Pitches list with its configured Stage, Next step, Next step date, client and contacts. Take the pitches whose Stage is Inquiry, Briefing, Pitch preparation, Proposal sent or Negotiation and whose Next step date is today or earlier. For each one, find the latest email thread with the pitch's contacts using the messaging tools. If the thread has no reply draft yet, save one short draft with save_message_draft that answers the contact's last question or names the next step, written as Max would write it. If a pitch has no email thread, create one ordinary task \"Follow up: <pitch name>\" due today for the pitch's owner. Skip threads that already have a draft and pitches that already have such a task. Never send a message and never change a pitch. Report the drafts and tasks you created.",
+      runs: [
+        "Two pitches were due: saved a reply draft for Pinewood Foundation (annual report timeline) and a follow-up draft for Harlow Outdoor (spring collection presentation). Both wait in the Inbox for review.",
+        "One pitch was due, Copperleaf Hotels events brochure. The latest message in the thread is ours, so I created no draft and no task.",
+        "No pitch had a next step date today or earlier; nothing to draft.",
+      ],
+    },
+    mondayDigest: {
+      name: "Monday pitch digest",
+      task: "Every Monday morning, write one read-only summary of the pitch board. Read the Pitches list with Stage, Value, Next step date and Pitch presentation, and the Retainers list with Status and Renewal date. Count the open pitches by stage and add up their value, list the pitch presentations of the next 14 days, name every open pitch whose Next step date has passed and every retainer with the status Renewal due. Keep it under 250 words and put overdue items first. Do not change any record, draft or setting.",
+      runs: [
+        "Listed 10 open pitches worth $214,500, 1 overdue next step (Copperleaf Hotels events brochure) and 1 retainer with Renewal due (Bramble & Rye – social media). The next presentation is Lumen Robotics in 8 days.",
+        "Listed 9 open pitches worth $199,500 and no overdue next step. The next presentation was Tidewell Insurance in 16 days.",
+      ],
+    },
   },
   wiki: {
     guide: {
@@ -512,7 +530,7 @@ const en = {
         "A new visual identity, a tone of voice that sounds calm and plain in every letter and claim email, and a new website.",
         "## Budget and timing",
         "| Item | Detail |",
-        "| Budget range | $80,000–$90,000 in the first year, website included |",
+        "| Budget range | $30,000–$40,000 in the first year, website included |",
         "| Presentation | 60 minutes including questions |",
         "| Launch | Before the spring renewal season |",
         "## Who decides",
@@ -527,10 +545,10 @@ const en = {
         "Insurance that talks like a neighbor: a tone of voice built from real claim conversations, carried into the identity and the website.",
         "## Scope and fees",
         "| Phase | Work | Fee |",
-        "| 1 | Brand strategy and tone of voice | $18,000 |",
-        "| 2 | Visual identity and guidelines | $32,000 |",
-        "| 3 | Website design and build | $35,000 |",
-        "| Total | First year | $85,000 |",
+        "| 1 | Brand strategy and tone of voice | $8,000 |",
+        "| 2 | Visual identity and guidelines | $14,000 |",
+        "| 3 | Website design and build | $14,000 |",
+        "| Total | First year | $36,000 |",
         "## Timeline",
         "Twelve weeks from kickoff to the new website, with the tone of voice ready for the claim letters after four weeks.",
       ],
@@ -542,10 +560,10 @@ const en = {
         "Six clinics, one brand. Prepared for Laura Kim and Greg Holt.",
         "## Scope",
         "| Phase | Work | Fee |",
-        "| 1 | Brand strategy, tone of voice and identity | $26,000 |",
-        "| 2 | Signage for the three downtown clinics | $11,000 |",
-        "| 3 | Signage for the other three clinics | $11,000 |",
-        "| Total | | $48,000 |",
+        "| 1 | Brand strategy, tone of voice and identity | $16,000 |",
+        "| 2 | Signage for the three downtown clinics | $7,000 |",
+        "| 3 | Signage for the other three clinics | $7,000 |",
+        "| Total | | $30,000 |",
         "Phase 3 can move to next year without changing the fees of phases 1 and 2.",
       ],
     },
@@ -606,7 +624,147 @@ const en = {
     title: "Tidewell brief and open questions",
     question: "Summarize the Tidewell brief and list open questions for Thursday's presentation.",
     answer:
-      '**Tidewell brief (Tidewell – client brief.pdf, on the pitch Tidewell Insurance – brand identity and website):**\n- Tidewell sells home and small-business insurance in the Midwest. Customers trust them after a claim, but the brand looks like every other insurer.\n- They ask for a new visual identity, a tone of voice that sounds calm and plain in letters and claim emails, and a new website.\n- Budget range: $80,000–$90,000 in the first year, website included. Our proposal is $85,000, the value on the pitch.\n- 60 minutes including questions; three agencies are invited. Launch before the spring renewal season.\n- Diane Foster\'s email adds that the CEO and Kevin Lowe from procurement join the presentation.\n\n**Open questions for Thursday:**\n1. Which claim letters and emails should the new tone of voice cover first?\n2. Does the website have to launch together with the identity, or can it follow after the twelve weeks?\n3. Which payment and contract terms will Kevin Lowe expect?\n4. Who signs off the tone of voice: Diane Foster or the CEO?\n\nThe tasks "Finish the pitch deck for Tidewell" and "Rehearse the Tidewell presentation with the team" are still open.',
+      '**Tidewell brief (Tidewell – client brief.pdf, on the pitch Tidewell Insurance – brand identity and website):**\n- Tidewell sells home and small-business insurance in the Midwest. Customers trust them after a claim, but the brand looks like every other insurer.\n- They ask for a new visual identity, a tone of voice that sounds calm and plain in letters and claim emails, and a new website.\n- Budget range: $30,000–$40,000 in the first year, website included. Our proposal is $36,000, the value on the pitch.\n- 60 minutes including questions; three agencies are invited. Launch before the spring renewal season.\n- Diane Foster\'s email adds that the CEO and Kevin Lowe from procurement join the presentation.\n\n**Open questions for Thursday:**\n1. Which claim letters and emails should the new tone of voice cover first?\n2. Does the website have to launch together with the identity, or can it follow after the twelve weeks?\n3. Which payment and contract terms will Kevin Lowe expect?\n4. Who signs off the tone of voice: Diane Foster or the CEO?\n\nThe tasks "Finish the pitch deck for Tidewell" and "Rehearse the Tidewell presentation with the team" are still open.',
+  },
+  inbox: {
+    priyaCases: {
+      messages: [
+        "Hi Priya, great call yesterday. I'll send the positioning questions by Friday. Is there anything you want covered first?",
+        "Thanks Max! Before our board meets on Thursday, could you send two launch examples from hardware companies? They like to see real work.",
+        "Of course. I'll send a sensor maker and a drone company tonight, each with the website that carried the launch.",
+        "Perfect. They will also ask how long the website takes and roughly what it costs per phase.",
+      ],
+    },
+    kevinTerms: {
+      subject: "Vendor registration before the Tidewell presentation",
+      messages: [
+        "Hi Max,\n\nBefore the presentation, procurement needs every invited agency in our vendor system. Please send a W-9, your certificate of insurance and your standard payment terms.\n\nThanks,\nKevin Lowe",
+        "Hi Kevin,\n\nHappy to. I'll send the W-9 and the certificate this afternoon. Our standard terms are 50 percent at kickoff and the rest on delivery, net 30. Does that work for procurement?\n\nBest,\nMax",
+        "Thanks. Net 30 is fine, but we pay 45 days after receiving the invoice. Please also confirm that no subcontractor will touch our customer data. Our legal team asks every agency.\n\nKevin",
+      ],
+    },
+    pinewoodTimeline: {
+      subject: "Annual report 2026: timeline and format",
+      messages: [
+        "Hello Max,\n\nWe would like help designing our annual report for 2026. The board meets in April and the printed copies must be ready by May 10. What would the timeline look like?\n\nKind regards,\nMelissa Cho\nPinewood Schools Foundation",
+        "Hi Melissa,\n\nThank you for reaching out. To plan the timeline, could you tell me how many pages last year's report had and whether the numbers are final by February?\n\nBest,\nMax",
+        "Last year's report had 48 pages and 2,000 printed copies. The financial figures are final at the end of February, the texts come in March.",
+        "Hi Melissa,\n\nThanks, that helps. With the figures in late February and the texts in March, I suggest: layout concept by March 6, full draft by April 3 for the board meeting, print files by April 24. That leaves two weeks for printing before May 10. Shall we talk it through in a 20-minute call this week?\n\nBest,\nMax",
+      ],
+    },
+    gregCfo: {
+      messages: [
+        "Hi Greg, good to connect. Laura has our brand refresh proposal. I'm happy to walk you through the two phases whenever it suits you.",
+        "Thanks Max, I read it last night. I like starting with the downtown clinics. Could you join a short call with our CFO before Friday? He will want to see the numbers.",
+      ],
+    },
+    erinPrint: {
+      subject: "Events brochure: print run and paper",
+      messages: [
+        "Hi Max,\n\nThe print vendor quoted 3,000 copies of the events brochure. Which paper should we confirm with them?\n\nThanks,\nErin Doyle",
+        "Hi Erin,\n\nI would go with 120 gsm uncoated for the inside and 300 gsm for the cover, the same stock as the sample you liked. I'll also ask for a price on a soft-touch laminate for the cover.\n\nBest,\nMax",
+        "Soft-touch looks great, please ask. The vendor needs the final PDFs a week from Monday and then sends a proof for our sign-off. Can you confirm the date by Thursday?\n\nErin",
+        "Hi Erin,\n\nConfirmed: the final PDFs go to the vendor a week from Monday. I'll send you the soft-touch price tomorrow, so you can decide before the files go out, and forward the proof for your sign-off as soon as it arrives.\n\nBest,\nMax",
+      ],
+    },
+    michaelDates: {
+      messages: [
+        "Max, quick one: can the first shoot be at our Lakeshore hotel? The general manager wants a say in the dates.",
+        "Lakeshore works well, the light in the lobby is great. Which two weeks are quiet for the GM?",
+        "Second half of November, before the holiday bookings start. I'll check the weekdays.",
+        "Perfect. I'll hold the photographer for two days in the second half of November until you confirm the dates.",
+      ],
+    },
+    claireCatalogue: {
+      messages: [
+        "Hi Claire, thanks again for the feedback call. If the museum ever needs an outside designer for a smaller project, I'd be glad to help.",
+        "Thanks Max, it was a close call for the board. Our team is busy with the spring catalogue, so a print job for the members' magazine may come up. May I send you the brief in September?",
+      ],
+    },
+    alexPlan: {
+      subject: "First month content plan: Saturday ride post",
+      messages: [
+        "Hi Max,\n\nThe content plan for the first month looks great. One change: could the group ride post move from Saturday to Friday evening? Most riders sign up on Friday.\n\nAlex",
+        "Hi Alex,\n\nGood point. I'll move it to Friday at 6 pm and prepare the graphic with the route map.\n\nBest,\nMax",
+        "Perfect. Ben also wants a short line about the shop opening hours in every post this month. Is that OK?\n\nAlex",
+        "Hi Alex,\n\nYes, easy. I'll add the opening hours as a fixed line and send you the updated plan on Monday.\n\nBest,\nMax",
+      ],
+    },
+    quarryLabels: {
+      subject: "Seasonal labels: how many designs",
+      messages: [
+        "Hi Max,\n\nI looked at the label directions. We would love all six, but the budget only stretches to four. Could we do four designs now and add two next season?\n\nJake",
+        "Hi Jake,\n\nFour designs now and two next season works. I would start with the winter stout and the spiced ale, since those sell the most. The fee for the first four would be $10,500.\n\nBest,\nMax",
+        "Sounds good. Can the can sleeve for the winter stout be included in that price?\n\nJake",
+        "Hi Jake,\n\nYes, the sleeve is part of the design, only printing is separate. I'll update the proposal today.\n\nBest,\nMax",
+      ],
+    },
+    wexfordReturn: {
+      subject: "Catalogue layout: are you still taking projects?",
+      messages: [
+        "Hi Max,\n\nOur in-house designer left last month, and the new catalogue is due in January. I know we ended the retainer, but would you take on the layout as a one-off project?\n\nBest regards,\nPaul Hendricks\nWexford Furniture",
+        "Hi Paul,\n\nGood to hear from you. A one-off project works for us. How many pages is the catalogue, and are the product photos ready?\n\nBest,\nMax",
+        "About 96 pages, and the photos are done. We would need the first layout in four weeks.",
+        "Hi Paul,\n\nThanks. For 96 pages with finished photos, four weeks is realistic. I can send a fixed quote by Friday and would like a short call this week to go through the structure. Does Wednesday afternoon suit you?\n\nBest,\nMax",
+      ],
+    },
+    tomShoot: {
+      subject: "Trail shoot: models and locations",
+      messages: [
+        "Hi Max,\n\nHere is the list for the trail shoot: eight customers who agreed to be photographed, plus two locations near Palos Park. How much time do you need with each person?\n\nTom",
+        "Hi Tom,\n\nThanks, that is a great list. Plan 45 minutes per person and a break after four. Each location needs a full day, so two shooting days in total.\n\nBest,\nMax",
+        "Two days is fine. Rachel wants the photographer to bring a second lens for the close-ups. Can you make a note of that?\n\nTom",
+        "Hi Tom,\n\nNoted, it goes on the shot list. I'll send the schedule once the weather forecast looks stable.\n\nBest,\nMax",
+      ],
+    },
+  },
+  notes: {
+    tidewellDeal: [
+      "Summary by Claude after the briefing call on Tuesday:",
+      "- Budget range $30,000 to $40,000 in the first year, website included. Our proposal is $36,000.",
+      "- Diane Foster owns the brief, the CEO decides with her, Kevin Lowe checks terms and the vendor registration.",
+      "- They want a tone of voice built from real claim conversations: calm and plain.",
+      "- Open: does the website launch with the identity or follow after the twelve weeks?",
+      "Next step: present the pitch to Diane and the board.",
+    ],
+    harlowDeal: [
+      "Draft by ChatGPT from the client brief (Spring collection brief.docx):",
+      "- Idea: trail portraits of real customers, shot on two days at two locations. Newsletter first, Instagram a week later.",
+      "- Content: eight portraits, product details and one short film of about 45 seconds for the shop page.",
+      "- Estimate: two shooting days, editing and the film, about $22,000, the value on this pitch.",
+      "To review before it goes to Rachel and Tom.",
+    ],
+    wexfordOrganization: [
+      "Cleaned up by Codex (script run on the CSV export of the old contact list):",
+      "- Merged two duplicate records of this client and kept the oldest contact details.",
+      "- Set the relationship to Former client after the retainer ended.",
+      "- Normalized the website address. No other field changed.",
+    ],
+    meridianTask: [
+      "Created by Claude from Laura Kim's email on Monday:",
+      "- Greg Holt asked to start with the three downtown clinics and do the rest next year.",
+      "- Her question: does the fee change? Phases 1 and 2 stay at $16,000 and $7,000, phase 3 ($7,000) can move to next year.",
+      "- Due today: answer Laura and offer a call with the CFO.",
+    ],
+  },
+  agents: {
+    company: "Fernhill Creative",
+    records: "pitches, clients, projects and retainers",
+    mate: "We ask it for the state of a pitch, let it create tasks and save reply drafts, and our routines run through it.",
+    claude:
+      "After a call it reads the pitch, the client and the linked emails and writes the summary into the pitch notes.",
+    chatgpt: "It turns a client brief into a first outline of the pitch and writes it into the pitch notes for review.",
+    codex:
+      "It runs scripts against the CRM: cleaning up imported contacts, merging duplicates and exporting the numbers for the monthly report.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for pitches due today" runs every weekday morning. It reads the pitches whose next step date is today or earlier, finds the latest email thread with their contacts and saves one short reply draft if there is none yet. The drafts wait in the Inbox for Max or Hannah to review and send; the routine never sends and never changes a pitch.',
+  },
+  mateOrchard: {
+    title: "Intro call task for Orchard Street Dental",
+    question:
+      "Samantha from Orchard Street Dental wants a 30-minute intro call. Add a task for it, set the pitch's next step to the call and tell me what is still open on the pitch.",
+    answer:
+      'Done. I made two changes:\n\n- **Created the task** "Intro call with Samantha at Orchard Street Dental", due in two days, Medium priority, linked to the pitch Orchard Street Dental – new website and to Samantha Reyes.\n- **Updated the pitch:** the next step is now "Intro call with Samantha", with the same date as the task. The stage stays at Inquiry.\n\n**Still open on this pitch:**\n- The value of $14,000 is still your estimate.\n- The email thread with Samantha is not linked to the pitch yet. Open it in the Inbox and link it.\n- The presentation date 12 days out is a placeholder until the intro call.\n\nI did not send anything. Your reply to Samantha stays with you.',
   },
   calendar: {
     name: "Pitch dates",
@@ -907,6 +1065,23 @@ const de: Strings = {
         "Einen Nachfass-Entwurf an Laura Kühn im Verlauf zum Meridian-Angebot zur Prüfung gespeichert.",
       ],
     },
+    dailyFollowUp: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Pitches",
+      task: "Lies jeden Werktagmorgen die Liste Pitches mit den konfigurierten Feldern Phase, Nächster Schritt, Datum nächster Schritt, Kunde und Kontakte. Nimm die Pitches, deren Phase Anfrage, Briefing, Pitch-Vorbereitung, Angebot gesendet oder Verhandlung ist und deren Datum für den nächsten Schritt heute oder früher liegt. Suche für jeden mit den Messaging-Werkzeugen den neuesten E-Mail-Verlauf mit den Kontakten des Pitches. Wenn der Verlauf noch keinen Antwortentwurf hat, speichere mit save_message_draft einen kurzen Entwurf, der die letzte Frage des Kontakts beantwortet oder den nächsten Schritt nennt, so geschrieben, wie Max schreiben würde. Hat ein Pitch keinen E-Mail-Verlauf, lege eine gewöhnliche Aufgabe „Nachfassen: <Pitch-Name>“ an, heute fällig, für den Verantwortlichen des Pitches. Überspringe Verläufe mit Entwurf und Pitches, die schon eine solche Aufgabe haben. Sende nie eine Nachricht und ändere nie einen Pitch. Berichte, welche Entwürfe und Aufgaben du angelegt hast.",
+      runs: [
+        "Zwei Pitches waren fällig: Antwortentwurf für die Bildungsstiftung Waldblick (Zeitplan Jahresbericht) und Nachfass-Entwurf für Hartmann Outdoor (Präsentation Frühjahrskollektion) gespeichert. Beide warten im Posteingang auf die Prüfung.",
+        "Ein Pitch war fällig: Kupferblatt Hotels, Veranstaltungsbroschüre. Die letzte Nachricht im Verlauf stammt von uns, deshalb habe ich weder einen Entwurf noch eine Aufgabe angelegt.",
+        "Kein Pitch hatte heute oder früher ein Datum für den nächsten Schritt; nichts zu entwerfen.",
+      ],
+    },
+    mondayDigest: {
+      name: "Montags-Übersicht zum Pitch-Board",
+      task: "Schreibe jeden Montagmorgen eine reine Leseübersicht des Pitch-Boards. Lies die Liste Pitches mit Phase, Wert, Datum nächster Schritt und Präsentationstermin sowie die Liste Retainer mit Status und Verlängerung am. Zähle die offenen Pitches je Phase und addiere ihren Wert, nenne die Präsentationstermine der nächsten 14 Tage, jeden offenen Pitch, dessen Datum für den nächsten Schritt verstrichen ist, und jeden Retainer mit dem Status Verlängerung fällig. Halte dich unter 250 Wörtern und nenne Überfälliges zuerst. Ändere keinen Datensatz, keinen Entwurf und keine Einstellung.",
+      runs: [
+        "10 offene Pitches im Wert von 214.500 €, 1 überfälliger nächster Schritt (Kupferblatt Hotels – Veranstaltungsbroschüre) und 1 Retainer mit Verlängerung fällig (Backhaus Brombeere – Social Media) aufgelistet. Die nächste Präsentation ist Lumen Robotik in 8 Tagen.",
+        "9 offene Pitches im Wert von 199.500 € und keinen überfälligen nächsten Schritt aufgelistet. Die nächste Präsentation war die Gezeiten Versicherung in 16 Tagen.",
+      ],
+    },
   },
   wiki: {
     guide: {
@@ -1036,7 +1211,7 @@ const de: Strings = {
         "Ein neues Erscheinungsbild, eine Tonalität, die in jedem Brief und jeder Schadenmail ruhig und klar klingt, und eine neue Website.",
         "## Budget und Zeitplan",
         "| Punkt | Angabe |",
-        "| Budgetrahmen | 80.000–90.000 € im ersten Jahr, Website inklusive |",
+        "| Budgetrahmen | 30.000–40.000 € im ersten Jahr, Website inklusive |",
         "| Präsentation | 60 Minuten einschließlich Fragen |",
         "| Start | Vor der Verlängerungssaison im Frühjahr |",
         "## Entscheidung",
@@ -1051,10 +1226,10 @@ const de: Strings = {
         "Eine Versicherung, die spricht wie ein guter Nachbar: eine Tonalität aus echten Schadengesprächen, getragen von Erscheinungsbild und Website.",
         "## Umfang und Honorar",
         "| Phase | Leistung | Honorar |",
-        "| 1 | Markenstrategie und Tonalität | 18.000 € |",
-        "| 2 | Erscheinungsbild und Gestaltungsrichtlinien | 32.000 € |",
-        "| 3 | Gestaltung und Umsetzung der Website | 35.000 € |",
-        "| Gesamt | Erstes Jahr | 85.000 € |",
+        "| 1 | Markenstrategie und Tonalität | 8.000 € |",
+        "| 2 | Erscheinungsbild und Gestaltungsrichtlinien | 14.000 € |",
+        "| 3 | Gestaltung und Umsetzung der Website | 14.000 € |",
+        "| Gesamt | Erstes Jahr | 36.000 € |",
         "## Zeitplan",
         "Zwölf Wochen vom Kick-off bis zur neuen Website; die Tonalität für die Schadenbriefe steht nach vier Wochen.",
       ],
@@ -1066,10 +1241,10 @@ const de: Strings = {
         "Sechs Standorte, eine Marke. Erstellt für Laura Kühn und Gerd Holtmann.",
         "## Umfang",
         "| Phase | Leistung | Honorar |",
-        "| 1 | Markenstrategie, Tonalität und Erscheinungsbild | 26.000 € |",
-        "| 2 | Beschilderung der drei Standorte in der Innenstadt | 11.000 € |",
-        "| 3 | Beschilderung der übrigen drei Standorte | 11.000 € |",
-        "| Gesamt | | 48.000 € |",
+        "| 1 | Markenstrategie, Tonalität und Erscheinungsbild | 16.000 € |",
+        "| 2 | Beschilderung der drei Standorte in der Innenstadt | 7.000 € |",
+        "| 3 | Beschilderung der übrigen drei Standorte | 7.000 € |",
+        "| Gesamt | | 30.000 € |",
         "Phase 3 kann ins nächste Jahr wandern, ohne dass sich das Honorar der Phasen 1 und 2 ändert.",
       ],
     },
@@ -1130,7 +1305,147 @@ const de: Strings = {
     title: "Gezeiten-Briefing und offene Fragen",
     question: "Fasse das Gezeiten-Briefing zusammen und liste offene Fragen für die Präsentation am Donnerstag auf.",
     answer:
-      "**Gezeiten-Briefing (Gezeiten – Briefing.pdf, am Pitch „Gezeiten Versicherung – Markenauftritt und Website“):**\n- Gezeiten versichert Haushalte und kleine Betriebe in Sachsen und Thüringen. Nach einem Schaden vertrauen die Kunden der Versicherung, aber die Marke sieht aus wie jede andere.\n- Gewünscht sind ein neues Erscheinungsbild, eine Tonalität, die in Briefen und Schadenmails ruhig und klar klingt, und eine neue Website.\n- Budgetrahmen: 80.000–90.000 € im ersten Jahr, Website inklusive. Unser Angebot liegt bei 85.000 €, dem Wert am Pitch.\n- 60 Minuten einschließlich Fragen; drei Agenturen sind eingeladen. Start vor der Verlängerungssaison im Frühjahr.\n- Laut der Mail von Dagmar Fuchs sind der Vorstandsvorsitzende und Kevin Lorenz aus dem Einkauf bei der Präsentation dabei.\n\n**Offene Fragen für Donnerstag:**\n1. Welche Schadenbriefe und Mails soll die neue Tonalität zuerst abdecken?\n2. Muss die Website zusammen mit dem Erscheinungsbild starten, oder darf sie nach den zwölf Wochen folgen?\n3. Welche Zahlungs- und Vertragskonditionen erwartet Herr Lorenz?\n4. Wer gibt die Tonalität frei: Frau Fuchs oder der Vorstandsvorsitzende?\n\nDie Aufgaben „Pitch-Präsentation für die Gezeiten Versicherung fertigstellen“ und „Präsentation für die Gezeiten Versicherung mit dem Team proben“ sind noch offen.",
+      "**Gezeiten-Briefing (Gezeiten – Briefing.pdf, am Pitch „Gezeiten Versicherung – Markenauftritt und Website“):**\n- Gezeiten versichert Haushalte und kleine Betriebe in Sachsen und Thüringen. Nach einem Schaden vertrauen die Kunden der Versicherung, aber die Marke sieht aus wie jede andere.\n- Gewünscht sind ein neues Erscheinungsbild, eine Tonalität, die in Briefen und Schadenmails ruhig und klar klingt, und eine neue Website.\n- Budgetrahmen: 30.000–40.000 € im ersten Jahr, Website inklusive. Unser Angebot liegt bei 36.000 €, dem Wert am Pitch.\n- 60 Minuten einschließlich Fragen; drei Agenturen sind eingeladen. Start vor der Verlängerungssaison im Frühjahr.\n- Laut der Mail von Dagmar Fuchs sind der Vorstandsvorsitzende und Kevin Lorenz aus dem Einkauf bei der Präsentation dabei.\n\n**Offene Fragen für Donnerstag:**\n1. Welche Schadenbriefe und Mails soll die neue Tonalität zuerst abdecken?\n2. Muss die Website zusammen mit dem Erscheinungsbild starten, oder darf sie nach den zwölf Wochen folgen?\n3. Welche Zahlungs- und Vertragskonditionen erwartet Herr Lorenz?\n4. Wer gibt die Tonalität frei: Frau Fuchs oder der Vorstandsvorsitzende?\n\nDie Aufgaben „Pitch-Präsentation für die Gezeiten Versicherung fertigstellen“ und „Präsentation für die Gezeiten Versicherung mit dem Team proben“ sind noch offen.",
+  },
+  inbox: {
+    priyaCases: {
+      messages: [
+        "Guten Tag Frau Rademacher, vielen Dank für das Gespräch gestern. Die Rückfragen zur Positionierung schicke ich Ihnen bis Freitag. Soll ich zuerst etwas Bestimmtes beantworten?",
+        "Danke, Herr Bergmann! Bevor unser Beirat am Donnerstag tagt: Könnten Sie uns zwei Beispiele für Markteinführungen von Hardware-Unternehmen schicken? Der Beirat sieht gern echte Arbeiten.",
+        "Sehr gern. Ich schicke Ihnen heute Abend ein Beispiel eines Sensorherstellers und eines Drohnenunternehmens, jeweils mit der Website, die den Start getragen hat.",
+        "Perfekt. Der Beirat wird auch fragen, wie lange die Website dauert und was sie ungefähr pro Phase kostet.",
+      ],
+    },
+    kevinTerms: {
+      subject: "Lieferantenregistrierung vor der Präsentation bei Gezeiten",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nvor der Präsentation müssen alle eingeladenen Agenturen in unserem Lieferantensystem angelegt sein. Bitte senden Sie uns einen Handelsregisterauszug, den Nachweis Ihrer Betriebshaftpflichtversicherung und Ihre üblichen Zahlungsbedingungen.\n\nVielen Dank\nKevin Lorenz",
+        "Sehr geehrter Herr Lorenz,\n\ngern. Handelsregisterauszug und Versicherungsnachweis schicke ich Ihnen heute Nachmittag. Unsere üblichen Zahlungsbedingungen: 50 Prozent zum Kick-off, der Rest bei Abnahme, zahlbar innerhalb von 30 Tagen. Passt das für den Einkauf?\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Vielen Dank. 30 Tage sind in Ordnung, wir zahlen allerdings 45 Tage nach Rechnungseingang. Bitte bestätigen Sie außerdem, dass kein Subunternehmer Zugriff auf Kundendaten erhält. Das fragt unsere Rechtsabteilung bei jeder Agentur.\n\nKevin Lorenz",
+      ],
+    },
+    pinewoodTimeline: {
+      subject: "Jahresbericht 2026: Zeitplan und Format",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\nwir möchten den Jahresbericht 2026 gestalten lassen. Der Vorstand tagt im April, die gedruckten Exemplare müssen bis zum 10. Mai vorliegen. Wie sähe der Zeitplan aus?\n\nMit freundlichen Grüßen\nMiriam Scholz\nBildungsstiftung Waldblick",
+        "Guten Tag Frau Scholz,\n\nvielen Dank für Ihre Nachricht. Für die Zeitplanung wäre hilfreich zu wissen, wie viele Seiten der letzte Bericht hatte und ob die Zahlen bis Februar feststehen.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Der letzte Bericht hatte 48 Seiten und 2.000 gedruckte Exemplare. Die Finanzzahlen stehen Ende Februar fest, die Texte kommen im März.",
+        "Guten Tag Frau Scholz,\n\nvielen Dank, das hilft. Mit den Zahlen Ende Februar und den Texten im März schlage ich vor: Gestaltungskonzept bis 6. März, vollständiger Entwurf bis 3. April für die Vorstandssitzung, Druckdaten bis 24. April. Dann bleiben zwei Wochen für den Druck bis 10. Mai. Wollen wir das diese Woche in einem kurzen Telefonat von 20 Minuten besprechen?\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+    gregCfo: {
+      messages: [
+        "Guten Tag Herr Holtmann, schön, dass wir uns vernetzt haben. Frau Kühn hat unser Angebot zur Markenauffrischung. Ich gehe die beiden Phasen gern mit Ihnen durch, wann immer es Ihnen passt.",
+        "Danke, Herr Bergmann, ich habe es gestern Abend gelesen. Der Start mit den Standorten in der Innenstadt gefällt mir. Können Sie vor Freitag kurz mit unserem Finanzleiter telefonieren? Er möchte die Zahlen sehen.",
+      ],
+    },
+    erinPrint: {
+      subject: "Veranstaltungsbroschüre: Auflage und Papier",
+      messages: [
+        "Hallo Herr Bergmann,\n\ndie Druckerei hat 3.000 Exemplare der Veranstaltungsbroschüre angeboten. Welches Papier sollen wir dort bestätigen?\n\nViele Grüße\nElif Demir",
+        "Hallo Frau Demir,\n\nich würde 120 g/m² ungestrichen für den Innenteil und 300 g/m² für den Umschlag nehmen, wie bei dem Muster, das Ihnen gefallen hat. Zusätzlich frage ich nach dem Preis für eine Softtouch-Folie auf dem Umschlag.\n\nViele Grüße\nMax Bergmann",
+        "Softtouch klingt gut, bitte fragen Sie an. Die Druckerei braucht die finalen PDFs am Montag in einer Woche und schickt danach einen Andruck zur Freigabe. Können Sie uns den Termin bis Donnerstag bestätigen?\n\nElif Demir",
+        "Hallo Frau Demir,\n\nbestätigt: Die finalen PDFs gehen am Montag in einer Woche an die Druckerei. Den Preis für die Softtouch-Folie schicke ich Ihnen morgen, damit Sie vor der Datenabgabe entscheiden können, und den Andruck leite ich Ihnen zur Freigabe weiter, sobald er da ist.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    michaelDates: {
+      messages: [
+        "Herr Bergmann, kurze Frage: Kann das erste Shooting in unserem Haus an der Elbe stattfinden? Die Hoteldirektorin möchte bei den Terminen mitreden.",
+        "Das passt gut, das Licht in der Lobby ist hervorragend. In welchen zwei Wochen ist bei der Direktorin am wenigsten los?",
+        "Zweite Novemberhälfte, bevor die Buchungen für die Feiertage anziehen. Ich prüfe die Wochentage.",
+        "Prima. Ich merke zwei Tage in der zweiten Novemberhälfte vor und buche den Fotografen, sobald Sie die Termine bestätigen.",
+      ],
+    },
+    claireCatalogue: {
+      messages: [
+        "Guten Tag Frau Benz, nochmals vielen Dank für das Feedbackgespräch. Falls die Kunsthalle einmal einen externen Gestalter für ein kleineres Projekt braucht, helfe ich gern.",
+        "Danke, Herr Bergmann, die Entscheidung im Vorstand war knapp. Unser Team ist mit dem Frühjahrskatalog ausgelastet, daher kommt vielleicht ein Printauftrag für das Mitgliedermagazin. Darf ich Ihnen das Briefing im September schicken?",
+      ],
+    },
+    alexPlan: {
+      subject: "Redaktionsplan erster Monat: Beitrag zur Ausfahrt am Samstag",
+      messages: [
+        "Hallo Herr Bergmann,\n\nder Redaktionsplan für den ersten Monat gefällt uns sehr. Eine Änderung: Kann der Beitrag zur Gruppenausfahrt vom Samstag auf den Freitagabend verschoben werden? Die meisten melden sich freitags an.\n\nAlexandra Ritter",
+        "Hallo Frau Ritter,\n\ngute Idee. Ich verschiebe ihn auf Freitag, 18 Uhr, und bereite die Grafik mit der Streckenkarte vor.\n\nViele Grüße\nMax Bergmann",
+        "Perfekt. Herr Kaiser möchte außerdem in jedem Beitrag dieses Monats eine kurze Zeile zu den Öffnungszeiten des Ladens. Ist das in Ordnung?\n\nAlexandra Ritter",
+        "Hallo Frau Ritter,\n\nja, das ist einfach. Ich nehme die Öffnungszeiten als feste Zeile auf und schicke Ihnen den aktualisierten Plan am Montag.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    quarryLabels: {
+      subject: "Etiketten für die Saisonbiere: Zahl der Entwürfe",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich habe mir die Richtungen für die Etiketten angesehen. Wir hätten gern alle sechs, aber das Budget reicht nur für vier. Können wir jetzt vier Entwürfe machen und zwei in der nächsten Saison ergänzen?\n\nJakob Morgenstern",
+        "Hallo Herr Morgenstern,\n\nvier Entwürfe jetzt und zwei in der nächsten Saison ist in Ordnung. Ich würde mit dem Winter-Stout und dem Gewürzbier beginnen, die laufen am besten. Das Honorar für die ersten vier läge bei 10.500 €.\n\nViele Grüße\nMax Bergmann",
+        "Klingt gut. Ist das Dosen-Sleeve für das Winter-Stout in dem Preis enthalten?\n\nJakob Morgenstern",
+        "Hallo Herr Morgenstern,\n\nja, das Sleeve gehört zum Entwurf, nur der Druck kommt separat. Ich passe das Angebot heute an.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    wexfordReturn: {
+      subject: "Katalogsatz: Übernehmen Sie noch Projekte?",
+      messages: [
+        "Hallo Herr Bergmann,\n\nunsere Designerin hat im letzten Monat gekündigt, und der neue Katalog erscheint im Januar. Ich weiß, dass wir den Retainer beendet haben, aber würden Sie den Satz als einmaliges Projekt übernehmen?\n\nMit freundlichen Grüßen\nPeter Weber\nMöbelwerk Weber",
+        "Hallo Herr Weber,\n\nschön, von Ihnen zu hören. Ein einmaliges Projekt ist möglich. Wie viele Seiten hat der Katalog, und liegen die Produktfotos schon vor?\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Etwa 96 Seiten, die Fotos sind fertig. Wir bräuchten das erste Layout in vier Wochen.",
+        "Hallo Herr Weber,\n\nvielen Dank. Bei 96 Seiten mit fertigen Fotos sind vier Wochen realistisch. Ein Festpreisangebot schicke ich Ihnen bis Freitag und würde gern diese Woche kurz mit Ihnen die Struktur durchgehen. Passt Ihnen Mittwochnachmittag?\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+    tomShoot: {
+      subject: "Trail-Shooting: Models und Locations",
+      messages: [
+        "Hallo Herr Bergmann,\n\nhier die Liste für das Trail-Shooting: acht Kundinnen und Kunden, die sich fotografieren lassen, und zwei Locations im Leipziger Auwald. Wie viel Zeit brauchen Sie pro Person?\n\nTobias Wendt",
+        "Hallo Herr Wendt,\n\ndanke, das ist eine tolle Liste. Wir planen 45 Minuten pro Person und nach vier Personen eine Pause. Jede Location braucht einen ganzen Tag, also zwei Drehtage insgesamt.\n\nViele Grüße\nMax Bergmann",
+        "Zwei Tage sind in Ordnung. Frau Vogt möchte, dass der Fotograf für die Nahaufnahmen ein zweites Objektiv mitbringt. Können Sie das notieren?\n\nTobias Wendt",
+        "Hallo Herr Wendt,\n\nnotiert, das kommt auf die Shotlist. Den Zeitplan schicke ich, sobald die Wetterprognose stabil ist.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+  },
+  notes: {
+    tidewellDeal: [
+      "Zusammenfassung von Claude nach dem Briefinggespräch am Dienstag:",
+      "- Budgetrahmen 30.000 bis 40.000 € im ersten Jahr, Website inklusive. Unser Angebot liegt bei 36.000 €.",
+      "- Dagmar Fuchs verantwortet das Briefing, der Vorstandsvorsitzende entscheidet mit ihr, Kevin Lorenz prüft Konditionen und Lieferantenregistrierung.",
+      "- Gewünscht ist eine Tonalität aus echten Schadengesprächen: ruhig und klar.",
+      "- Offen: Startet die Website mit dem Erscheinungsbild oder erst nach den zwölf Wochen?",
+      "Nächster Schritt: Pitch vor Frau Fuchs und dem Vorstand präsentieren.",
+    ],
+    harlowDeal: [
+      "Entwurf von ChatGPT aus dem Kundenbriefing (Briefing Frühjahrskollektion.docx):",
+      "- Idee: Trail-Porträts echter Kundinnen und Kunden, an zwei Tagen an zwei Locations. Zuerst der Newsletter, eine Woche später Instagram.",
+      "- Inhalte: acht Porträts, Produktdetails und ein kurzer Film von etwa 45 Sekunden für die Shopseite.",
+      "- Schätzung: zwei Drehtage, Bearbeitung und Film, etwa 22.000 €, der Wert dieses Pitches.",
+      "Zur Prüfung, bevor er an Frau Vogt und Herrn Wendt geht.",
+    ],
+    wexfordOrganization: [
+      "Bereinigt von Codex (Skriptlauf auf dem CSV-Export der alten Kontaktliste):",
+      "- Zwei Dubletten dieses Kunden zusammengeführt und die ältesten Kontaktdaten behalten.",
+      "- Die Beziehung nach dem Ende des Retainers auf Ehemaliger Kunde gesetzt.",
+      "- Die Website-Adresse vereinheitlicht. Kein anderes Feld geändert.",
+    ],
+    meridianTask: [
+      "Angelegt von Claude aus der E-Mail von Laura Kühn am Montag:",
+      "- Gerd Holtmann möchte mit den drei Standorten in der Innenstadt beginnen und den Rest im nächsten Jahr machen.",
+      "- Ihre Frage: Ändert sich das Honorar? Phase 1 und 2 bleiben bei 16.000 € und 7.000 €, Phase 3 (7.000 €) kann ins nächste Jahr wandern.",
+      "- Heute fällig: Frau Kühn antworten und ein Gespräch mit dem Finanzleiter anbieten.",
+    ],
+  },
+  agents: {
+    company: "Kranich Kommunikation",
+    records: "Pitches, Kunden, Projekte und Retainer",
+    mate: "Wir fragen nach dem Stand eines Pitches, lassen Aufgaben anlegen und Antwortentwürfe speichern; auch unsere Routinen laufen über Mate.",
+    claude:
+      "Nach einem Kundentermin liest Claude Pitch, Kunde und verknüpfte E-Mails und schreibt die Zusammenfassung in die Notizen des Pitches.",
+    chatgpt: "Aus einem Kundenbriefing entsteht ein erster Pitch-Entwurf, der zur Prüfung in den Notizen landet.",
+    codex:
+      "Dabei führt Codex Skripte gegen das CRM aus: importierte Kontakte bereinigen, Dubletten zusammenführen und Zahlen für den Monatsbericht exportieren.",
+    followUp:
+      "Die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Pitches“ läuft an jedem Werktagmorgen. Sie liest die Pitches, deren Datum für den nächsten Schritt heute oder früher liegt, sucht den neuesten E-Mail-Verlauf mit den Kontakten und speichert einen kurzen Antwortentwurf, wenn es noch keinen gibt. Die Entwürfe warten im Posteingang darauf, dass Max oder Mia sie prüfen und senden; die Routine sendet nie und ändert keinen Pitch.",
+  },
+  mateOrchard: {
+    title: "Aufgabe für das Kennenlerngespräch mit dem Zahnzentrum",
+    question:
+      "Frau Reuter vom Zahnzentrum am Obstmarkt möchte ein Kennenlerngespräch von 30 Minuten. Lege eine Aufgabe dafür an, setze den nächsten Schritt des Pitches auf das Gespräch und sag mir, was am Pitch noch offen ist.",
+    answer:
+      "Erledigt. Ich habe zwei Änderungen gemacht:\n\n- **Aufgabe angelegt:** „Kennenlerngespräch mit Frau Reuter vom Zahnzentrum“, in zwei Tagen fällig, Priorität Mittel, verknüpft mit dem Pitch „Zahnzentrum am Obstmarkt – neue Website“ und mit Sabine Reuter.\n- **Pitch aktualisiert:** Der nächste Schritt lautet jetzt „Kennenlerngespräch mit Frau Reuter“, mit demselben Datum wie die Aufgabe. Die Phase bleibt bei Anfrage.\n\n**Am Pitch noch offen:**\n- Der Wert von 14.000 € ist weiterhin deine Schätzung.\n- Der E-Mail-Verlauf mit Frau Reuter ist noch nicht mit dem Pitch verknüpft. Öffne ihn im Posteingang und verknüpfe ihn.\n- Der Präsentationstermin in 12 Tagen ist ein Platzhalter bis zum Kennenlerngespräch.\n\nIch habe nichts gesendet. Deine Antwort an Frau Reuter bleibt bei dir.",
   },
   calendar: {
     name: "Pitch-Termine",
@@ -1163,27 +1478,24 @@ const ORGANIZATION_FACTS: Record<
   greenmile: { industry: "retail", relationship: "client", employees: 18, createdDaysAgo: 85 },
 };
 
-const CONTACT_FACTS: Record<
-  ContactKey,
-  { organization: OrganizationKey; role: string; createdDaysAgo: number; avatar?: Parameters<typeof photo>[0] }
-> = {
-  rachel: { organization: "harlow", role: "decisionMaker", createdDaysAgo: 418, avatar: "lea-bauer" },
-  tom: { organization: "harlow", role: "influencer", createdDaysAgo: 400, avatar: "tim-weber" },
-  nina: { organization: "bramble", role: "decisionMaker", createdDaysAgo: 258, avatar: "nia-johnson" },
-  laura: { organization: "meridian", role: "influencer", createdDaysAgo: 74, avatar: "sophie-hoffmann" },
+const CONTACT_FACTS: Record<ContactKey, { organization: OrganizationKey; role: string; createdDaysAgo: number }> = {
+  rachel: { organization: "harlow", role: "decisionMaker", createdDaysAgo: 418 },
+  tom: { organization: "harlow", role: "influencer", createdDaysAgo: 400 },
+  nina: { organization: "bramble", role: "decisionMaker", createdDaysAgo: 258 },
+  laura: { organization: "meridian", role: "influencer", createdDaysAgo: 74 },
   greg: { organization: "meridian", role: "decisionMaker", createdDaysAgo: 60 },
   jake: { organization: "quarry", role: "decisionMaker", createdDaysAgo: 538 },
-  diane: { organization: "tidewell", role: "decisionMaker", createdDaysAgo: 29, avatar: "anna-mueller" },
+  diane: { organization: "tidewell", role: "decisionMaker", createdDaysAgo: 29 },
   kevin: { organization: "tidewell", role: "buyer", createdDaysAgo: 20 },
   samantha: { organization: "orchard", role: "decisionMaker", createdDaysAgo: 3 },
-  michael: { organization: "copperleaf", role: "decisionMaker", createdDaysAgo: 93, avatar: "max-schmidt" },
+  michael: { organization: "copperleaf", role: "decisionMaker", createdDaysAgo: 93 },
   erin: { organization: "copperleaf", role: "influencer", createdDaysAgo: 90 },
-  priya: { organization: "lumen", role: "decisionMaker", createdDaysAgo: 21, avatar: "leila-chen" },
+  priya: { organization: "lumen", role: "decisionMaker", createdDaysAgo: 21 },
   jordan: { organization: "lumen", role: "influencer", createdDaysAgo: 21 },
   paul: { organization: "wexford", role: "decisionMaker", createdDaysAgo: 690 },
   claire: { organization: "northshore", role: "decisionMaker", createdDaysAgo: 108 },
   melissa: { organization: "pinewood", role: "decisionMaker", createdDaysAgo: 8 },
-  ben: { organization: "greenmile", role: "decisionMaker", createdDaysAgo: 84, avatar: "jonas-weber" },
+  ben: { organization: "greenmile", role: "decisionMaker", createdDaysAgo: 84 },
   alex: { organization: "greenmile", role: "influencer", createdDaysAgo: 30 },
 };
 
@@ -1210,7 +1522,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "proposal",
     source: "referral",
     services: ["strategy", "identity", "print"],
-    value: 48000,
+    value: 30000,
     competitors: 2,
     pitch: -9,
     createdDaysAgo: 72,
@@ -1228,7 +1540,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "pitchPreparation",
     source: "invitation",
     services: ["strategy", "identity", "website"],
-    value: 85000,
+    value: 36000,
     competitors: 3,
     pitch: 9,
     createdDaysAgo: 28,
@@ -1264,7 +1576,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     stage: "briefing",
     source: "inbound",
     services: ["strategy", "website"],
-    value: 42000,
+    value: 24000,
     pitch: 8,
     createdDaysAgo: 20,
     close: 45,
@@ -1457,7 +1769,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     pitch: -12,
     createdDaysAgo: 38,
     close: 21,
-    next: 4,
+    next: -2,
     history: [
       { daysAgo: 30, stage: "briefing" },
       { daysAgo: 11, stage: "proposal" },
@@ -1723,7 +2035,7 @@ const TASK_FACTS: Record<
   meridianFollowUp: {
     status: "open",
     priority: "high",
-    due: 1,
+    due: 0,
     deal: "meridianBrand",
     contact: "laura",
     createdDaysAgo: 2,
@@ -1800,6 +2112,119 @@ const TASK_FACTS: Record<
 
 const OWNER: Member = "maxBergmann";
 
+const LINKEDIN_CONTACTS: readonly ContactKey[] = ["priya", "michael", "claire", "greg"];
+
+const NOTES = {
+  deal: { tidewellIdentity: "tidewellDeal", harlowSpring: "harlowDeal" },
+  organization: { wexford: "wexfordOrganization" },
+  task: { meridianFollowUp: "meridianTask" },
+} as const satisfies Record<string, Record<string, keyof Strings["notes"]>>;
+
+const INBOX_PLANS: readonly InboxThreadPlan[] = [
+  {
+    key: "priyaCases",
+    account: "linkedin",
+    with: ["priya"],
+    state: "unread",
+    latestMinutesAgo: 15,
+    speakers: ["self", "priya", "self", "priya"],
+    links: ["deal:lumenLaunch", "organization:lumen"],
+  },
+  {
+    key: "kevinTerms",
+    account: "outlook",
+    with: ["kevin"],
+    state: "unread",
+    latestMinutesAgo: 105,
+    speakers: ["kevin", "self", "kevin"],
+    links: ["deal:tidewellIdentity", "organization:tidewell"],
+  },
+  {
+    key: "pinewoodTimeline",
+    account: "google",
+    with: ["melissa"],
+    state: "open",
+    latestMinutesAgo: 6 * 60,
+    speakers: ["melissa", "self", "melissa", "self"],
+    draft: true,
+    links: ["deal:pinewoodReport", "organization:pinewood"],
+  },
+  {
+    key: "gregCfo",
+    account: "linkedin",
+    with: ["greg"],
+    state: "open",
+    latestMinutesAgo: 5 * 60,
+    speakers: ["self", "greg"],
+    links: ["deal:meridianBrand"],
+  },
+  {
+    key: "erinPrint",
+    account: "outlook",
+    with: ["erin"],
+    state: "open",
+    latestMinutesAgo: 32 * 60,
+    speakers: ["erin", "self", "erin", "self"],
+    draft: true,
+    links: ["deal:copperleafEvents", "organization:copperleaf"],
+  },
+  {
+    key: "michaelDates",
+    account: "linkedin",
+    with: ["michael"],
+    state: "open",
+    latestMinutesAgo: 50 * 60,
+    speakers: ["michael", "self", "michael", "self"],
+    links: ["deal:copperleafContent"],
+  },
+  {
+    key: "claireCatalogue",
+    account: "linkedin",
+    with: ["claire"],
+    state: "open",
+    latestMinutesAgo: 8 * 24 * 60,
+    speakers: ["self", "claire"],
+    links: ["deal:northshoreExhibition", "organization:northshore"],
+  },
+  {
+    key: "alexPlan",
+    account: "google",
+    with: ["alex"],
+    state: "open",
+    latestMinutesAgo: 60 * 60,
+    speakers: ["alex", "self", "alex", "self"],
+    links: ["organization:greenmile", "project:greenmileRollout"],
+  },
+  {
+    key: "quarryLabels",
+    account: "google",
+    with: ["jake"],
+    state: "open",
+    latestMinutesAgo: 4.5 * 24 * 60,
+    speakers: ["jake", "self", "jake", "self"],
+    links: ["deal:quarryLabels", "organization:quarry"],
+  },
+  {
+    key: "wexfordReturn",
+    account: "outlook",
+    with: ["paul"],
+    state: "open",
+    latestMinutesAgo: 6 * 24 * 60,
+    speakers: ["paul", "self", "paul", "self"],
+    draft: true,
+    links: ["organization:wexford", "retainer:wexfordRetainer"],
+  },
+  {
+    key: "tomShoot",
+    account: "google",
+    with: ["tom"],
+    state: "open",
+    latestMinutesAgo: 3 * 24 * 60,
+    speakers: ["tom", "self", "tom", "self"],
+    links: ["deal:harlowSpring", "organization:harlow"],
+  },
+];
+
 function mailbox(name: string): string {
   return name
     .toLowerCase()
@@ -1814,6 +2239,13 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:tidewellIdentity": "Claude Desktop",
+  "task:meridianFollowUp": "Claude Desktop",
+  "deal:harlowSpring": "ChatGPT",
+  "organization:wexford": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "agencies",
   strings: { en, de },
@@ -1821,7 +2253,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/Chicago" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["inquiry", "briefing", "pitchPreparation", "proposal", "negotiation"];
     const label = <K extends string>(
@@ -1829,6 +2261,10 @@ export default defineSolution<Strings>({
       colors: Record<K, "default" | "secondary" | "destructive" | "success" | "warning" | "info">,
     ) => (Object.keys(options) as K[]).map((key) => ({ key, label: options[key], color: colors[key] }));
     const domainOf = (key: OrganizationKey) => t.organizations[key][2];
+    const noteOf = (list: keyof typeof NOTES, key: string): Record<string, readonly string[]> => {
+      const noteKey = (NOTES[list] as Record<string, keyof Strings["notes"]>)[key];
+      return noteKey ? { notes: t.notes[noteKey] } : {};
+    };
 
     const organization: RecordSpec[] = ORGANIZATIONS.map((key) => {
       const facts = ORGANIZATION_FACTS[key];
@@ -1851,6 +2287,7 @@ export default defineSolution<Strings>({
           }),
           website: `https://${domain}`,
           employees: facts.employees,
+          ...noteOf("organization", key),
         },
         owner: ORGANIZATION_OWNERS[key] ?? OWNER,
         channels: { email: `hello@${domain}` },
@@ -1860,6 +2297,7 @@ export default defineSolution<Strings>({
     const contact: RecordSpec[] = CONTACTS.map((key, index) => {
       const facts = CONTACT_FACTS[key];
       const [firstName, lastName, jobTitle] = t.contacts[key];
+      const handle = `${mailbox(firstName)}-${mailbox(lastName)}`;
       return {
         key,
         values: { firstName, lastName, jobTitle, decisionRole: facts.role },
@@ -1868,8 +2306,10 @@ export default defineSolution<Strings>({
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domainOf(facts.organization)}`,
           phone: office(index),
+          ...(LINKEDIN_CONTACTS.includes(key)
+            ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
+            : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -1893,6 +2333,7 @@ export default defineSolution<Strings>({
             : { pitchPresentation: at(facts.pitch, facts.pitch > 0 ? "10:00" : "14:00") }),
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
+          ...noteOf("deal", key),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
         owner: DEAL_OWNERS[key] ?? OWNER,
@@ -1972,7 +2413,13 @@ export default defineSolution<Strings>({
       const organizationKey = organizationOf(facts);
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        values: {
+          name: t.tasks[key],
+          status: facts.status,
+          priority: facts.priority,
+          dueDate: day(facts.due),
+          ...noteOf("task", key),
+        },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
@@ -2190,7 +2637,7 @@ export default defineSolution<Strings>({
           targetCardinality: "many",
         },
       ],
-      records: { organization, contact, deal, project, retainer, task },
+      records: agentEdited({ organization, contact, deal, project, retainer, task }, AGENT_EDITS),
       views: [
         {
           key: "pitchBoard",
@@ -2383,13 +2830,13 @@ export default defineSolution<Strings>({
           whenToUse: t.wiki.renewal.whenToUse,
           markdown: t.wiki.renewal.markdown,
         },
+        agentsPage(locale, t.agents),
       ],
-      members: (["colleagueA", "colleagueB"] as const).map((key, index) => ({
+      members: (["colleagueA", "colleagueB"] as const).map((key) => ({
         key,
         firstName: t.members[key][0],
         lastName: t.members[key][1],
         email: t.members[key][2],
-        avatar: photo(index === 0 ? "mia-schneider" : "felix-koch"),
       })),
       routines: [
         {
@@ -2451,9 +2898,62 @@ export default defineSolution<Strings>({
             },
           ],
         },
+        {
+          key: "dailyFollowUp",
+          name: t.routines.dailyFollowUp.name,
+          task: t.routines.dailyFollowUp.task,
+          owner: "colleagueA",
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 6,
+              durationSeconds: 71,
+              credits: 9,
+              summary: t.routines.dailyFollowUp.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 30,
+              durationSeconds: 38,
+              credits: 6,
+              summary: t.routines.dailyFollowUp.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 54,
+              durationSeconds: 9,
+              credits: 2,
+              summary: t.routines.dailyFollowUp.runs[2],
+            },
+          ],
+        },
+        {
+          key: "mondayDigest",
+          name: t.routines.mondayDigest.name,
+          task: t.routines.mondayDigest.task,
+          trigger: { kind: "schedule", cron: "30 8 * * 1" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 25,
+              durationSeconds: 47,
+              credits: 7,
+              summary: t.routines.mondayDigest.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 193,
+              durationSeconds: 44,
+              credits: 7,
+              summary: t.routines.mondayDigest.runs[1],
+            },
+          ],
+        },
       ],
+      apiKeys: agentApiKeys([62, 33, 11]),
       messaging: {
-        accounts: ["google"],
+        accounts: ["google", "outlook", "linkedin"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads: [
@@ -2515,6 +3015,7 @@ export default defineSolution<Strings>({
             messages: thread("greenmileKickoff", ["ben", "self"]),
             links: ["organization:greenmile"],
           },
+          ...inboxThreads(INBOX_PLANS, t.inbox),
         ],
         calendar: {
           name: t.calendar.name,
@@ -2570,6 +3071,14 @@ export default defineSolution<Strings>({
           messages: [
             { role: "user", text: t.mate.question },
             { role: "assistant", text: t.mate.answer },
+          ],
+        },
+        {
+          title: t.mateOrchard.title,
+          endedHoursAgo: 30,
+          messages: [
+            { role: "user", text: t.mateOrchard.question },
+            { role: "assistant", text: t.mateOrchard.answer },
           ],
         },
       ],

@@ -11,4 +11,6 @@ export type ActiveAccount = {
 
 export abstract class DeleteAccountsForPlanConnectedAccountRepo {
   abstract listActiveAccountsForCompanyUnscoped(companyId: string): Promise<ActiveAccount[]>;
+  abstract listSharedAccountsForCompanyUnscoped(companyId: string): Promise<ActiveAccount[]>;
+  abstract makeAccountPrivateUnscoped(companyId: string, accountId: string): Promise<boolean>;
 }

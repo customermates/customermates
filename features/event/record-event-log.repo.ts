@@ -1,11 +1,13 @@
 import type { Prisma } from "@/generated/prisma";
 import type { RecordRef } from "@/features/records/record-model.schema";
+import type { EventVia } from "./event-via";
 
 export type RecordEventWrite = {
   id: string;
   ref: RecordRef;
   actorId: string | null;
   causeId: string;
+  via?: EventVia | null;
   kind: string;
   payload: Prisma.InputJsonValue;
 };

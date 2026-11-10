@@ -371,7 +371,7 @@ describe("marketing visual brief", () => {
     const sourceIndependentSubjects =
       sourceIndependent.supportingSubjects as Array<Record<string, unknown>>;
     sourceIndependentSubjects[0].fixtures = {
-      person: "amin-hassan",
+      person: "james-finch",
       provider: "gmail",
     };
     sourceIndependentSubjects[1].fixtures = { provider: "instagram" };
@@ -380,13 +380,13 @@ describe("marketing visual brief", () => {
     const unknownSubjects = unknown.supportingSubjects as Array<
       Record<string, unknown>
     >;
-    unknownSubjects[0].fixtures = { person: "anna-mueller", provider: "x" };
+    unknownSubjects[0].fixtures = { person: "nina-castillo", provider: "x" };
     const wrongPair = clone(base);
     const wrongPairSubjects = wrongPair.supportingSubjects as Array<
       Record<string, unknown>
     >;
     wrongPairSubjects[0].fixtures = {
-      person: "leon-becker",
+      person: "rachel-dawson",
       provider: "gmail",
     };
     const unmappedPair = clone(base);
@@ -394,7 +394,7 @@ describe("marketing visual brief", () => {
       Record<string, unknown>
     >;
     unmappedPairSubjects[0].fixtures = {
-      person: "anna-mueller",
+      person: "nina-castillo",
       provider: "outlook",
     };
     const duplicate = clone(base);
@@ -406,7 +406,7 @@ describe("marketing visual brief", () => {
     expect(validateVisualBrief(sourceIndependent)).toMatchObject({
       id: "golden.converge",
       supportingSubjects: [
-        { fixtures: { person: "amin-hassan", provider: "gmail" } },
+        { fixtures: { person: "james-finch", provider: "gmail" } },
         { fixtures: { provider: "instagram" } },
         { fixtures: { provider: "telegram" } },
       ],
@@ -433,7 +433,7 @@ describe("marketing visual brief", () => {
     expect(
       VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"],
     ).toMatchObject({
-      person: "anna-mueller",
+      person: "nina-castillo",
       provider: "gmail",
     });
     expect(VISUAL_DEAL_BOARD_FIXTURES["demo-status-board"].statuses).toEqual([
@@ -467,7 +467,7 @@ describe("marketing visual brief", () => {
     providerSet.focalSubject = {
       fixtures: {
         conversation: "gmail-rollout-next-steps",
-        person: "anna-mueller",
+        person: "nina-castillo",
       },
       form: "record",
       id: "customer-record",
@@ -500,7 +500,7 @@ describe("marketing visual brief", () => {
     >;
     wrongConversationFocal.fixtures = {
       conversation: "gmail-rollout-next-steps",
-      person: "leon-becker",
+      person: "rachel-dawson",
     };
     expect(invalid(wrongConversation)).toThrow(/seeded participant binding/u);
 
@@ -657,7 +657,7 @@ describe("marketing visual brief", () => {
     const wrongHumanSubjects = wrongHumanAction.supportingSubjects as Array<
       Record<string, unknown>
     >;
-    wrongHumanSubjects[1].fixtures = { person: "anna-mueller" };
+    wrongHumanSubjects[1].fixtures = { person: "nina-castillo" };
 
     const wrongDraft = clone(getGoldenVisualBrief("handoff", "en"));
     const wrongDraftFocal = wrongDraft.focalSubject as Record<string, unknown>;
@@ -739,8 +739,8 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     expect(markup).toContain('data-native-provider="gmail"');
     expect(markup).toContain('data-native-provider="linkedin"');
     expect(markup).toContain('data-native-provider="whatsapp"');
-    expect(markup).toContain('data-native-person="anna-mueller"');
-    expect(markup).toContain("Anna Müller");
+    expect(markup).toContain('data-native-person="nina-castillo"');
+    expect(markup).toContain("Nina Castillo");
     expect(markup).not.toMatch(/lucide-(?:mail|message-circle|share2|users)/u);
     expect(markup.match(/data-active-source="true"/gu)).toHaveLength(1);
     expect(markup).toContain('data-visual-subject="mail-source"');
@@ -754,16 +754,16 @@ describe("GoldenStoryVisual benchmark renderer", () => {
 
     expect(handoff).toContain('data-native-provider="linkedin"');
     expect(handoff).toContain('data-native-agent-provider="chatgpt"');
-    expect(handoff).toContain('data-native-person="leon-becker"');
+    expect(handoff).toContain('data-native-person="rachel-dawson"');
     expect(handoff).toContain('data-native-person="max-bergmann"');
-    expect(handoff).toContain("Leon Becker");
+    expect(handoff).toContain("Rachel Dawson");
     expect(handoff).toContain("Max Bergmann");
     expect(handoff).toContain("ChatGPT");
     expect(handoff).not.toContain("lucide-sparkles");
     expect(focus).toContain('data-native-record="deal-moorfield-property-management"');
     expect(focus).toContain('data-native-status="deal-won"');
     expect(focus).toContain('data-variant="success"');
-    expect(focus).toContain("Moorfield Property Management - Enterprise 373 - New");
+    expect(focus).toContain("Moorfield Property Management - yearly inspections");
   });
 
   it("recomposes fixture detail from essential to context to full density", () => {
@@ -798,7 +798,7 @@ describe("GoldenStoryVisual benchmark renderer", () => {
         'data-native-agent-provider="chatgpt"',
       );
       expect(handoff[placement]).toContain('data-native-provider="linkedin"');
-      expect(handoff[placement]).toContain('data-native-person="leon-becker"');
+      expect(handoff[placement]).toContain('data-native-person="rachel-dawson"');
       expect(handoff[placement]).toContain('data-native-person="max-bergmann"');
       expect(handoff[placement]).toContain(">Send<");
     }
@@ -1294,10 +1294,10 @@ describe("marketing visual boundaries", () => {
       "telegram",
       "whatsapp",
     ]);
-    expect(VISUAL_PERSON_FIXTURES["anna-mueller"].name).toBe("Anna Müller");
+    expect(VISUAL_PERSON_FIXTURES["nina-castillo"].name).toBe("Nina Castillo");
     expect(VISUAL_RECORD_FIXTURES["deal-moorfield-property-management"]).toMatchObject({
       kind: "deal",
-      name: "Moorfield Property Management - Enterprise 373 - New",
+      name: "Moorfield Property Management - yearly inspections",
       status: "deal-won",
     });
     expect(

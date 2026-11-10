@@ -3708,6 +3708,31 @@
                                       "trash",
                                       "other"
                                     ]
+                                  },
+                                  "via": {
+                                    "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "apiKey",
+                                          "oauthApplication"
+                                        ],
+                                        "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 100,
+                                        "description": "The name of the API key or OAuth application when the change was made"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
                                   }
                                 },
                                 "required": [
@@ -6186,6 +6211,31 @@
                                       "trash",
                                       "other"
                                     ]
+                                  },
+                                  "via": {
+                                    "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "apiKey",
+                                          "oauthApplication"
+                                        ],
+                                        "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 100,
+                                        "description": "The name of the API key or OAuth application when the change was made"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
                                   }
                                 },
                                 "required": [
@@ -6514,6 +6564,31 @@
                                       "trash",
                                       "other"
                                     ]
+                                  },
+                                  "via": {
+                                    "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "apiKey",
+                                          "oauthApplication"
+                                        ],
+                                        "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 100,
+                                        "description": "The name of the API key or OAuth application when the change was made"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "name"
+                                    ],
+                                    "additionalProperties": false
                                   }
                                 },
                                 "required": [
@@ -19100,6 +19175,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -21578,6 +21678,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -21906,6 +22031,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -32999,6 +33149,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -35477,6 +35652,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -35805,6 +36005,31 @@
                                                   "trash",
                                                   "other"
                                                 ]
+                                              },
+                                              "via": {
+                                                "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                "type": "object",
+                                                "properties": {
+                                                  "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                      "apiKey",
+                                                      "oauthApplication"
+                                                    ],
+                                                    "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                  },
+                                                  "name": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 100,
+                                                    "description": "The name of the API key or OAuth application when the change was made"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "kind",
+                                                  "name"
+                                                ],
+                                                "additionalProperties": false
                                               }
                                             },
                                             "required": [
@@ -87089,6 +87314,31 @@
                                                         "trash",
                                                         "other"
                                                       ]
+                                                    },
+                                                    "via": {
+                                                      "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "kind": {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "apiKey",
+                                                            "oauthApplication"
+                                                          ],
+                                                          "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                        },
+                                                        "name": {
+                                                          "type": "string",
+                                                          "minLength": 1,
+                                                          "maxLength": 100,
+                                                          "description": "The name of the API key or OAuth application when the change was made"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "kind",
+                                                        "name"
+                                                      ],
+                                                      "additionalProperties": false
                                                     }
                                                   },
                                                   "required": [
@@ -89567,6 +89817,31 @@
                                                         "trash",
                                                         "other"
                                                       ]
+                                                    },
+                                                    "via": {
+                                                      "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "kind": {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "apiKey",
+                                                            "oauthApplication"
+                                                          ],
+                                                          "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                        },
+                                                        "name": {
+                                                          "type": "string",
+                                                          "minLength": 1,
+                                                          "maxLength": 100,
+                                                          "description": "The name of the API key or OAuth application when the change was made"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "kind",
+                                                        "name"
+                                                      ],
+                                                      "additionalProperties": false
                                                     }
                                                   },
                                                   "required": [
@@ -89895,6 +90170,31 @@
                                                         "trash",
                                                         "other"
                                                       ]
+                                                    },
+                                                    "via": {
+                                                      "description": "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+                                                      "type": "object",
+                                                      "properties": {
+                                                        "kind": {
+                                                          "type": "string",
+                                                          "enum": [
+                                                            "apiKey",
+                                                            "oauthApplication"
+                                                          ],
+                                                          "description": "The credential the change came through: an API key, or an OAuth application such as an MCP client"
+                                                        },
+                                                        "name": {
+                                                          "type": "string",
+                                                          "minLength": 1,
+                                                          "maxLength": 100,
+                                                          "description": "The name of the API key or OAuth application when the change was made"
+                                                        }
+                                                      },
+                                                      "required": [
+                                                        "kind",
+                                                        "name"
+                                                      ],
+                                                      "additionalProperties": false
                                                     }
                                                   },
                                                   "required": [

@@ -56,9 +56,9 @@ const CONTRACT_ROWS = [
 ];
 
 const NATIVE_CONVERSATION_EXAMPLES = [
-  { person: "anna-mueller", provider: "gmail" },
-  { person: "leon-becker", provider: "linkedin" },
-  { person: "sophie-wagner", provider: "whatsapp" },
+  { person: "nina-castillo", provider: "gmail" },
+  { person: "rachel-dawson", provider: "linkedin" },
+  { person: "sophie-turner", provider: "whatsapp" },
 ] as const;
 
 const NATIVE_AGENT_PROVIDER_EXAMPLES = Object.keys(VISUAL_AGENT_PROVIDER_FIXTURES) as Array<

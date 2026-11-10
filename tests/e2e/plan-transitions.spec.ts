@@ -1045,7 +1045,7 @@ test.describe("plans on Customermates Cloud", () => {
     }
   });
 
-  test("an account shared on Business stays shared on Pro, and its owner can stop sharing it but not start again", async ({
+  test("an account shared on Business is private on Pro, and its owner can share it again after upgrading to Business", async ({
     page,
     browser,
     request,
@@ -1072,31 +1072,27 @@ test.describe("plans on Customermates Cloud", () => {
 
       await moveTo(request, paid, { plan: "pro", quantity: 2 });
       expect(await sharedAccounts(database, workspace.companyId)).toEqual([
-        { address: "shared@synthetic.test", shared: true },
+        { address: "shared@synthetic.test", shared: false },
       ]);
       await page.goto(appPath(slug, "/settings/channels"));
       await channelCard(page, "shared@synthetic.test").click();
       const dialog = page.getByRole("dialog");
       const visibility = dialog.locator("#connected-account-visibility");
-      await expect(visibility).toBeChecked();
-      await expect(visibility).toBeEnabled();
-      await expect(dialog).toContainText("Shared");
-      await visibility.click();
-      await expect(page.getByText(englishMessages.ConnectedAccountsCard.sharedOffToast)).toBeVisible();
       await expect(visibility).not.toBeChecked();
       await expect(visibility).toBeDisabled();
       await expect(dialog).toContainText("Private");
       await expect(dialog.locator('[data-upsell-notice="shared-accounts"]')).toContainText("Upgrade to Business");
-      expect(await sharedAccounts(database, workspace.companyId)).toEqual([
-        { address: "shared@synthetic.test", shared: false },
-      ]);
       await teammate.page.goto(appPath(slug, "/settings/channels"));
       await expect(channelCard(teammate.page, "shared@synthetic.test")).toHaveCount(0);
 
       await moveTo(request, paid, { plan: "business", quantity: 2 });
+      expect(await sharedAccounts(database, workspace.companyId)).toEqual([
+        { address: "shared@synthetic.test", shared: false },
+      ]);
       await page.goto(appPath(slug, "/settings/channels"));
       await channelCard(page, "shared@synthetic.test").click();
       await expect(page.getByRole("dialog").locator("#connected-account-visibility")).toBeEnabled();
+      await expect(page.getByRole("dialog").locator("#connected-account-visibility")).not.toBeChecked();
       await page.getByRole("dialog").locator("#connected-account-visibility").click();
       await expect(page.getByText(englishMessages.ConnectedAccountsCard.sharedOnToast)).toBeVisible();
       expect(await sharedAccounts(database, workspace.companyId)).toEqual([
@@ -1109,21 +1105,28 @@ test.describe("plans on Customermates Cloud", () => {
     }
   });
 
-  test.fail(
-    "a downgrade to a plan without shared accounts leaves no account shared with the workspace",
-    async ({ request, database, workspace }) => {
-      const owner = { companyId: workspace.companyId, userId: workspace.userId };
-      const paid = await subscribe(request, workspace, "business", 1);
-      const shared = await connectAccount(database, owner, "google", "still-shared@synthetic.test", 30);
-      await shareAccount(database, shared.id);
+  test("a downgrade to a plan without shared accounts leaves no account shared with the workspace", async ({
+    request,
+    database,
+    workspace,
+  }) => {
+    const owner = { companyId: workspace.companyId, userId: workspace.userId };
+    const paid = await subscribe(request, workspace, "business", 1);
+    const shared = await connectAccount(database, owner, "google", "still-shared@synthetic.test", 30);
+    await shareAccount(database, shared.id);
 
-      await moveTo(request, paid, { plan: "pro" });
+    await moveTo(request, paid, { plan: "pro" });
 
-      expect(await sharedAccounts(database, workspace.companyId)).toEqual([
-        { address: "still-shared@synthetic.test", shared: false },
-      ]);
-    },
-  );
+    expect(await sharedAccounts(database, workspace.companyId)).toEqual([
+      { address: "still-shared@synthetic.test", shared: false },
+    ]);
+
+    await moveTo(request, paid, { plan: "business" });
+
+    expect(await sharedAccounts(database, workspace.companyId)).toEqual([
+      { address: "still-shared@synthetic.test", shared: false },
+    ]);
+  });
 
   test("the Free plan answers the 31st MCP tool call of a minute and the 201st of a day with a result an agent can act on, and counts nothing else", async ({
     page,

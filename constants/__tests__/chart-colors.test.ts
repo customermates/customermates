@@ -25,34 +25,34 @@ const RAMPS: Record<string, Record<Theme, string[]> & { text: Record<Theme, stri
     text: { light: "#27272a", dark: "#f4f4f5" },
   },
   primary: {
-    light: ["#18181b", "#71717a", "#d4d4d8"],
-    dark: ["#ededf0", "#a1a1aa", "#3f3f46"],
-    text: { light: "#0a0a0b", dark: "#fafafa" },
+    light: ["#2563eb", "#789ef3", "#c2d3f9"],
+    dark: ["#6b9cff", "#4b6aa8", "#2f3d5b"],
+    text: { light: "#1e3a8a", dark: "#dbe7ff" },
   },
   info: {
-    light: ["#4a4a52", "#8b8b94", "#dcdce0"],
-    dark: ["#b4b4bb", "#8a8a92", "#38383e"],
-    text: { light: "#27272a", dark: "#ededf0" },
+    light: ["#0891c9", "#66bbde", "#bae0f0"],
+    dark: ["#4cc3f0", "#38829f", "#274857"],
+    text: { light: "#0c4a6e", dark: "#d6f1fc" },
   },
   violet: {
-    light: ["#7a7a83", "#a6a6ae", "#e2e2e6"],
-    dark: ["#8c8c94", "#6a6a72", "#323238"],
-    text: { light: "#3f3f46", dark: "#e4e4e7" },
+    light: ["#0f9488", "#6abdb5", "#bce1de"],
+    dark: ["#34d0c0", "#298a81", "#204c49"],
+    text: { light: "#134e4a", dark: "#d2f7f2" },
   },
   secondary: {
-    light: ["#a8a8b0", "#c6c6cc", "#e9e9ec"],
-    dark: ["#66666e", "#4a4a51", "#2c2c31"],
-    text: { light: "#52525b", dark: "#d4d4d8" },
+    light: ["#e8693c", "#f1a286", "#f9d5c8"],
+    dark: ["#ff9268", "#a7644b", "#593a31"],
+    text: { light: "#7c2d12", dark: "#ffe2d6" },
   },
   success: {
-    light: ["#2f9e6a", "#6cc196", "#b0dfc6"],
-    dark: ["#3fbf85", "#2d8c62", "#1f5e43"],
-    text: { light: "#17543a", dark: "#d3f2e3" },
+    light: ["#2f9e5f", "#7ec39c", "#c5e4d2"],
+    dark: ["#55cf8b", "#3e8960", "#294b3a"],
+    text: { light: "#14532d", dark: "#d4f7e3" },
   },
   warning: {
-    light: ["#d8901f", "#e9b765", "#f3d7a6"],
-    dark: ["#e8a83c", "#b07f2e", "#735522"],
-    text: { light: "#6b4308", dark: "#fbebcf" },
+    light: ["#d99316", "#e7bc6f", "#f4e1be"],
+    dark: ["#f5c04a", "#a18038", "#564728"],
+    text: { light: "#713f12", dark: "#fdf0cc" },
   },
   danger: {
     light: ["#d5534e", "#e68d89", "#f1c1be"],
@@ -108,7 +108,7 @@ const COLORS = Object.values(ChartColor);
 const THEME_NAMES: Theme[] = ["light", "dark"];
 
 describe("chart colors", () => {
-  it("resolve to the neutral and semantic fills, strokes and label colors in both themes", () => {
+  it("resolve to the categorical fills, strokes and label colors in both themes", () => {
     for (const theme of THEME_NAMES) {
       for (const color of COLORS) {
         const ramp = RAMPS[color.replace(/\d$/, "")];
@@ -164,24 +164,50 @@ describe("chart colors", () => {
     }
   });
 
-  it("use no violet or other accent hue outside the semantic colours", () => {
+  it("use no violet in any chart colour", () => {
     for (const theme of THEME_NAMES) {
-      for (const hue of ["default", "primary", "info", "violet", "secondary"]) {
+      for (const hue of Object.keys(RAMPS)) {
         for (const step of [1, 2, 3]) {
           const hex = resolve(`var(--chart-${hue}-${step})`, theme);
-          const [r, g, b] = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16));
-          expect(Math.max(r, g, b) - Math.min(r, g, b), `${hue}-${step} ${theme}`).toBeLessThanOrEqual(12);
+          const [r, g, b] = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255);
+          const max = Math.max(r, g, b);
+          const chroma = max - Math.min(r, g, b);
+          if (chroma < 0.08) continue;
+          const angle =
+            max === r
+              ? (((g - b) / chroma) % 6) * 60
+              : max === g
+                ? ((b - r) / chroma + 2) * 60
+                : ((r - g) / chroma + 4) * 60;
+          const degrees = (angle + 360) % 360;
+          expect(degrees >= 255 && degrees <= 330, `${hue}-${step} ${theme} hue ${degrees.toFixed(0)}`).toBe(false);
         }
       }
     }
   });
 
-  it("keep the neutral series ramp distinguishable from each other and from cards in both themes", () => {
+  it("keep the series of one chart distinct in hue and visible on cards in both themes", () => {
     const cards: Record<Theme, string> = { light: "#ffffff", dark: "#151518" };
+    const hueOf = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255);
+      const max = Math.max(r, g, b);
+      const chroma = max - Math.min(r, g, b);
+      const angle =
+        max === r
+          ? (((g - b) / chroma) % 6) * 60
+          : max === g
+            ? ((b - r) / chroma + 2) * 60
+            : ((r - g) / chroma + 4) * 60;
+      return (angle + 360) % 360;
+    };
     for (const theme of THEME_NAMES) {
       const series = getChartMatchedColors(ChartColor.primary1, [4, 3, 2, 1]).map((fill) => resolve(fill, theme));
-      for (let index = 1; index < series.length; index++)
-        expect(contrast(series[index], series[index - 1]), `${theme} ${index}`).toBeGreaterThanOrEqual(1.6);
+      for (let left = 0; left < series.length; left++) {
+        for (let right = left + 1; right < series.length; right++) {
+          const gap = Math.abs(hueOf(series[left]) - hueOf(series[right]));
+          expect(Math.min(gap, 360 - gap), `${theme} ${left} ${right}`).toBeGreaterThanOrEqual(15);
+        }
+      }
 
       for (const fill of series) expect(contrast(fill, cards[theme])).toBeGreaterThanOrEqual(2);
     }
@@ -217,14 +243,14 @@ describe("chart colors", () => {
     }
   });
 
-  it("map every option colour to a chart colour: semantic chips keep their hue, the others join the neutral ramp", () => {
+  it("map every option colour to a chart colour of its own hue", () => {
     expect(CHIP_COLORS.map(chipChartColor)).toEqual([
       ChartColor.primary1,
       ChartColor.default1,
       ChartColor.danger1,
       ChartColor.success1,
       ChartColor.warning1,
-      ChartColor.secondary1,
+      ChartColor.info1,
     ]);
     for (const theme of THEME_NAMES) {
       expect(resolve(getChartColors()[chipChartColor("default")], theme)).toBe(
@@ -249,7 +275,7 @@ describe("chart colors", () => {
   it("keep the shared chart tokens on the strongest step of each hue", () => {
     for (const theme of THEME_NAMES) {
       expect([1, 2, 3, 4, 5].map((index) => resolve(`var(--chart-${index})`, theme))).toEqual(
-        ["primary", "secondary", "success", "warning", "danger"].map((hue) => RAMPS[hue][theme][0]),
+        ["primary", "violet", "warning", "secondary", "success"].map((hue) => RAMPS[hue][theme][0]),
       );
     }
   });

@@ -2,6 +2,7 @@ import type { CalendarWidgetQuery } from "@/features/widget/record-calendar-widg
 import type { MapWidgetQuery } from "@/features/widget/record-map-widget.schema";
 import type { RecordIdentityProvider } from "@/generated/prisma";
 import type { RecordActivityQuery } from "@/ee/messaging/activities/record-activities.schema";
+import type { EventVia } from "@/features/event/event-via";
 import type { DataViewState } from "@/core/data-view/data-view-state.schema";
 import type {
   Action,
@@ -118,6 +119,7 @@ export type RecordEventAppend = {
   ref: RecordRef;
   actorId: string | null;
   causeId: string;
+  via?: EventVia | null;
   kind: string;
   payload: unknown;
   publish: boolean;
@@ -355,6 +357,7 @@ export interface RecordRepo {
     payload: unknown,
     beforeDeletion?: boolean,
     publish?: boolean,
+    via?: EventVia | null,
   ): Promise<void>;
   appendEvents(events: RecordEventAppend[]): Promise<void>;
   createOperation(request: {
