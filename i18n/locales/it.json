@@ -1315,7 +1315,7 @@
       "trashChanged": "Il cestino è cambiato nel frattempo. Controlla cosa verrà eliminato e riprova.",
       "trashItemNotFound": "Questo elemento non è più nel cestino.",
       "unipileAccountRestricted": "Il provider ha limitato questo canale. Ricollegarlo non risolve; risolvi prima la limitazione con il provider.",
-      "unipileDisconnectedAccount": "Il canale è disconnesso. Il proprietario deve ricollegarlo in Canali prima che possa essere usato di nuovo.",
+      "unipileDisconnectedAccount": "Il canale è disconnesso. Il proprietario deve ricollegarlo in Canali e calendari prima che possa essere usato di nuovo.",
       "unipileFeatureUnavailable": "Non è disponibile su questo canale. Riprovare non servirà; il team è stato avvisato.",
       "unipileInvalidRequest": "Il provider ha rifiutato la richiesta come non valida. Controlla gli identificativi e i parametri.",
       "unipileProviderError": "Il provider sta riscontrando problemi in questo momento. Riprova tra poco.",
@@ -2534,7 +2534,7 @@
     "ariaStartThread": "Scrivi un messaggio {provider}",
     "ariaUnlink": "Scollega {provider}",
     "compose": {
-      "noAccount": "Nessun account {provider} utilizzabile è collegato. Collegane uno nella sezione Il mio profilo."
+      "noAccount": "Nessun account {provider} utilizzabile è collegato. Collegane uno in Impostazioni › Canali e calendari."
     },
     "emptyHint": "Ancora nessun recapito. Numeri di telefono, indirizzi e-mail e profili social che associano i messaggi a questo record.",
     "groups": {
@@ -2551,7 +2551,7 @@
   "EntityDetail": {
     "configureField": "Modifica campo {field}",
     "donePersonalizing": "Fine",
-    "editInConfigure": "Modifica in Configura",
+    "editInConfigure": "Modifica in Modello dati",
     "fieldCancelled": "Spostamento di {field} annullato.",
     "fieldDropped": "Campo {field} posizionato.",
     "fieldMoved": "Campo {field} spostato su {target}.",
@@ -2847,7 +2847,7 @@
     "previewVoice": "🎙️ Messaggio vocale",
     "rateLimited": "Questo canale ha raggiunto il limite di frequenza. Puoi riprovare {retryAfter, select, later {più tardi} other {{retryAfter}}}.",
     "refreshDone": "Posta in arrivo aggiornata.",
-    "refreshNeedsReconnect": "{count, plural, one {# canale deve} other {# canali devono}} essere ricollegati prima di potersi sincronizzare. Apri Canali per ricollegarli.",
+    "refreshNeedsReconnect": "{count, plural, one {# canale deve} other {# canali devono}} essere ricollegati prima di potersi sincronizzare. Apri Canali e calendari per ricollegarli.",
     "refreshPartial": "{count, plural, one {Non è stato possibile aggiornare # canale} other {Non è stato possibile aggiornare # canali}}. La posta in arrivo mostra l’ultima sincronizzazione.",
     "refreshRateLimited": "Alcuni canali hanno raggiunto il limite di frequenza. Riprova tra qualche minuto.",
     "resyncThread": "Risincronizza la conversazione",
@@ -2971,7 +2971,7 @@
     "stepsEyebrow": "Come funziona",
     "stepsTitle": "{name} in {count} passaggi.",
     "switch": {
-      "connectDescription": "Da Pro, collega LinkedIn, Gmail, Outlook o WhatsApp in Impostazioni, Canali. Ogni conversazione compare sul contatto collegato.",
+      "connectDescription": "Da Pro, collega LinkedIn, Gmail, Outlook o WhatsApp in Impostazioni, Canali e calendari. Ogni conversazione compare sul contatto collegato.",
       "connectTitle": "Collega LinkedIn e l’email",
       "eyebrow": "Il passaggio",
       "importDescription": "Esporta contatti e trattative dal tuo CRM attuale in Excel o CSV e usa Aggiungi da file, un elenco alla volta.",
@@ -3064,7 +3064,7 @@
     "current": "Spazio di lavoro attuale",
     "fixed": {
       "hint": "{client} accede solo a {workspace}. Ogni spazio di lavoro ha il proprio URL MCP, quindi puoi collegarne altri come connessioni separate.",
-      "notMember": "Questo URL MCP appartiene a uno spazio di lavoro di cui non fai parte. Accedi con l'account che usi lì oppure copia l'URL MCP del tuo spazio di lavoro da Impostazioni → Chiavi API.",
+      "notMember": "Questo URL MCP appartiene a uno spazio di lavoro di cui non fai parte. Accedi con l'account che usi lì oppure copia l'URL MCP del tuo spazio di lavoro da Impostazioni → Chiavi API e connettori.",
       "unavailable": {
         "inactive": "Il tuo accesso a {workspace} è disattivato. Chiedi a un amministratore dello spazio di lavoro di riattivarlo.",
         "pending": "La tua richiesta di unirti a {workspace} è ancora in attesa di approvazione. Collegati di nuovo quando un amministratore l'avrà approvata.",
@@ -3921,7 +3921,7 @@
     "moreOverdue": "{count, plural, one {# altro record scaduto} other {altri # record scaduti}}",
     "nextDays": "{count, plural, one {Oggi} other {Prossimi # giorni}}",
     "nextMonth": "Mostra il mese successivo",
-    "noDateField": "{list} non ha ancora un campo di tipo Data, Data e ora, Intervallo di date o Intervallo di date e ore. Aggiungine uno in Configura o scegli un altro elenco.",
+    "noDateField": "{list} non ha ancora un campo di tipo Data, Data e ora, Intervallo di date o Intervallo di date e ore. Aggiungine uno in Modello dati o scegli un altro elenco.",
     "noUpcoming": "{count, plural, one {Nessun record oggi.} other {Nessun record nei prossimi # giorni.}}",
     "overdue": "Scaduti",
     "overdueBy": "{count, plural, one {Scaduto da # giorno} other {Scaduto da # giorni}}",
@@ -3945,7 +3945,7 @@
     "label": "Mappa di {name}",
     "loading": "Caricamento della mappa…",
     "mixed": "Misto",
-    "noAddressField": "{list} non ha ancora un campo di tipo Indirizzo. Aggiungine uno in Configura o scegli un altro elenco.",
+    "noAddressField": "{list} non ha ancora un campo di tipo Indirizzo. Aggiungine uno in Modello dati o scegli un altro elenco.",
     "noPoints": "Ancora nessun record con una posizione.",
     "openRecord": "Apri il record",
     "point": "{name}, {address}",
@@ -4788,7 +4788,7 @@
   },
   "RoleModal": {
     "create": "Crea",
-    "dataModelNote": "Creare e modificare elenchi, campi e relazioni in Configura.",
+    "dataModelNote": "Creare e modificare elenchi, campi e relazioni in Modello dati.",
     "edit": "Modifica",
     "manageAccess": "Gestione",
     "ownRoleAlert": "Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.",

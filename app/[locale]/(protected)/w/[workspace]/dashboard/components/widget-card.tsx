@@ -102,17 +102,19 @@ export const WidgetCard = observer(({ widget, onInspect, onInspectDay, readOnly 
   return (
     <ItemActions label={t("RecordModel.moreActions", { name: widget.name })} menu={menu}>
       <div className={cn(ITEM_REVEAL_GROUP_CLASS, "relative h-full [&_[data-slot=card-header]]:pr-10")}>
-        <button
-          aria-label={
-            onInspect
-              ? t("RecordWidgets.dataTitle", { name: widget.name })
-              : t("Dashboard.widgetEditor.editTitle", { name: widget.name })
-          }
-          className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
-          data-slot="widget-card-open"
-          type="button"
-          onClick={() => (onInspect ? onInspect(null, null) : readOnly ? undefined : edit())}
-        />
+        {(onInspect || !readOnly) && (
+          <button
+            aria-label={
+              onInspect
+                ? t("RecordWidgets.dataTitle", { name: widget.name })
+                : t("Dashboard.widgetEditor.editTitle", { name: widget.name })
+            }
+            className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 outline-none focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50"
+            data-slot="widget-card-open"
+            type="button"
+            onClick={() => (onInspect ? onInspect(null, null) : edit())}
+          />
+        )}
 
         {card}
 

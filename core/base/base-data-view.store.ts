@@ -477,7 +477,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   get canSaveAsView(): boolean {
     if (!this.isReady || !this.canSaveQuery) return false;
-    if (this.isActiveViewShared) return this.isFilterModified || this.hasSessionSearch;
+    if (this.isActiveViewShared) return this.isViewModified || this.hasSessionSearch;
     if (this.activeViewKey !== ALL_VIEW_KEY) return false;
     if (this.proposal) return this.proposal.isNew && !this.proposal.name;
 

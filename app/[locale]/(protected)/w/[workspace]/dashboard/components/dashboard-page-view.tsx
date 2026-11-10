@@ -241,7 +241,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
               <Button size="sm" variant="secondary" onClick={() => router.push("/configure?create=true")}>
                 {t("RecordModel.createList")}
               </Button>
-            ) : (
+            ) : readOnlyView ? undefined : (
               <AgentStarterActions
                 fallback={
                   canAddWidget ? (

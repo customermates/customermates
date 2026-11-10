@@ -1315,7 +1315,7 @@
       "trashChanged": "Trash changed in the meantime. Review what will be deleted and try again.",
       "trashItemNotFound": "This item is no longer in Trash.",
       "unipileAccountRestricted": "The provider has restricted this channel. Reconnecting won't fix it; resolve the restriction with the provider first.",
-      "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels before it can be used again.",
+      "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels & calendars before it can be used again.",
       "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
       "unipileInvalidRequest": "The provider rejected the request as invalid. Check the identifiers and parameters.",
       "unipileProviderError": "The provider is having issues right now. Please try again shortly.",
@@ -2534,7 +2534,7 @@
     "ariaStartThread": "Compose {provider} message",
     "ariaUnlink": "Unlink {provider}",
     "compose": {
-      "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
+      "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels & calendars."
     },
     "emptyHint": "No contact details yet. Phone numbers, email addresses and social profiles that match messages to this record.",
     "groups": {
@@ -2551,7 +2551,7 @@
   "EntityDetail": {
     "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
-    "editInConfigure": "Edit in Configure",
+    "editInConfigure": "Edit in Data model",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
     "fieldMoved": "Moved {field} to {target}.",
@@ -2847,7 +2847,7 @@
     "previewVoice": "🎙️ Voice message",
     "rateLimited": "This channel hit its rate limit. You can try again {retryAfter, select, later {later} other {{retryAfter}}}.",
     "refreshDone": "Inbox refreshed.",
-    "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels to reconnect.",
+    "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels & calendars to reconnect.",
     "refreshPartial": "{count, plural, one {# channel} other {# channels}} couldn't be refreshed. The inbox shows what was synced before.",
     "refreshRateLimited": "Some channels hit their rate limit. Try again in a few minutes.",
     "resyncThread": "Resync thread",
@@ -2971,7 +2971,7 @@
     "stepsEyebrow": "How it works",
     "stepsTitle": "{name} in {count} steps.",
     "switch": {
-      "connectDescription": "From Pro, connect LinkedIn, Gmail, Outlook or WhatsApp under Settings, Channels. Each conversation shows on the linked contact.",
+      "connectDescription": "From Pro, connect LinkedIn, Gmail, Outlook or WhatsApp under Settings, Channels & calendars. Each conversation shows on the linked contact.",
       "connectTitle": "Connect LinkedIn and email",
       "eyebrow": "Switching over",
       "importDescription": "Export contacts and deals from your current CRM as Excel or CSV, then use Add from file, one list at a time.",
@@ -3064,7 +3064,7 @@
     "current": "Current workspace",
     "fixed": {
       "hint": "{client} only reaches {workspace}. Every workspace has its own MCP URL, so you can connect others as separate connections.",
-      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or copy your own workspace's MCP URL from Settings → API keys.",
+      "notMember": "This MCP URL belongs to a workspace you are not a member of. Sign in with the account you use there, or copy your own workspace's MCP URL from Settings → API keys & connectors.",
       "unavailable": {
         "inactive": "Your access to {workspace} is deactivated. Ask a workspace administrator to reactivate it.",
         "pending": "Your request to join {workspace} is still waiting for approval. Connect again once an administrator has approved it.",
@@ -3921,7 +3921,7 @@
     "moreOverdue": "{count, plural, one {# more overdue record} other {# more overdue records}}",
     "nextDays": "{count, plural, one {Today} other {Next # days}}",
     "nextMonth": "Show next month",
-    "noDateField": "{list} does not have a Date, Date and time, Date range or Date and time range field yet. Add one in Configure or choose another list.",
+    "noDateField": "{list} does not have a Date, Date and time, Date range or Date and time range field yet. Add one in Data model or choose another list.",
     "noUpcoming": "{count, plural, one {No records today.} other {No records in the next # days.}}",
     "overdue": "Overdue",
     "overdueBy": "{count, plural, one {Overdue # day} other {Overdue # days}}",
@@ -3945,7 +3945,7 @@
     "label": "Map of {name}",
     "loading": "Loading map…",
     "mixed": "Mixed",
-    "noAddressField": "{list} does not have an Address field yet. Add one in Configure or choose another list.",
+    "noAddressField": "{list} does not have an Address field yet. Add one in Data model or choose another list.",
     "noPoints": "No records with a location yet.",
     "openRecord": "Open record",
     "point": "{name}, {address}",
@@ -4788,7 +4788,7 @@
   },
   "RoleModal": {
     "create": "Create",
-    "dataModelNote": "Create and change lists, fields and relationships in Configure.",
+    "dataModelNote": "Create and change lists, fields and relationships in Data model.",
     "edit": "Edit",
     "manageAccess": "Manage",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
