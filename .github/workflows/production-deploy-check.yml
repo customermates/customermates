@@ -1,0 +1,35 @@
+name: Production deploy check
+
+# Vercel's Git integration builds every push to main into production. If Vercel misses the push (it did for #299 on
+# 2026-11-10), production silently keeps the previous commit. This waits ten minutes for a production deployment of
+# the pushed commit and starts one itself only when none exists. A newer push cancels the wait for an older one.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy-check
+  cancel-in-progress: true
+
+jobs:
+  ensure-production-deploy:
+    if: github.repository == 'customermates/customermates'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: preview-domain-control
+      deployment: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - name: Deploy the pushed commit if Vercel did not
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: bash scripts/ensure-production-deploy.sh
