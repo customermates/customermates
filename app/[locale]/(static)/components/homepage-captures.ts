@@ -32,16 +32,16 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 2500, width: 1950 },
   },
   "homepage-draft": {
-    de: { height: 1164, width: 1588 },
-    en: { height: 1120, width: 1588 },
+    de: { height: 1252, width: 1588 },
+    en: { height: 1208, width: 1588 },
   },
   "homepage-pipeline-board": {
     de: { height: 848, width: 2456 },
     en: { height: 932, width: 2456 },
   },
   "homepage-routines-table": {
-    de: { height: 298, width: 1450 },
-    en: { height: 298, width: 1392 },
+    de: { height: 454, width: 1544 },
+    en: { height: 454, width: 1582 },
   },
   "homepage-usecase-draft": {
     de: { height: 588, width: 1000 },
@@ -52,8 +52,8 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1168, width: 1040 },
   },
   "homepage-usecase-calendar": {
-    de: { height: 724, width: 1000 },
-    en: { height: 724, width: 1000 },
+    de: { height: 656, width: 1000 },
+    en: { height: 656, width: 1000 },
   },
   "homepage-usecase-contacts": {
     de: { height: 818, width: 920 },
@@ -96,8 +96,8 @@ export const HOMEPAGE_CAPTURES = {
     en: { height: 1688, width: 780 },
   },
   "homepage-routines-mobile": {
-    de: { height: 1688, width: 856 },
-    en: { height: 1688, width: 702 },
+    de: { height: 1688, width: 1022 },
+    en: { height: 1688, width: 1034 },
   },
   "homepage-configure-mobile": {
     de: { height: 1688, width: 780 },

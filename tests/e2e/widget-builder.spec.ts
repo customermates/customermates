@@ -410,7 +410,7 @@ test("previews a full-width number widget as a scaled miniature and keeps the da
   const widget = saved.rows[0];
   if (!widget) throw new Error("The widget was not saved");
   await database.query('UPDATE "Widget" SET layout = $1 WHERE id = $2 AND "companyId" = $3', [
-    { ...widget.layout, lg: { x: 0, y: 0, w: 12, h: 2 } },
+    { ...widget.layout, lg: { ...(widget.layout.lg as Record<string, unknown>), x: 0, y: 0, w: 12, h: 2 } },
     widget.id,
     companyId,
   ]);
@@ -427,19 +427,34 @@ test("previews a full-width number widget as a scaled miniature and keeps the da
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
 
+  await database.query('UPDATE "Widget" SET layout = $1 WHERE id = $2 AND "companyId" = $3', [
+    { ...widget.layout, lg: { ...(widget.layout.lg as Record<string, unknown>), x: 0, y: 0, w: 12, h: 12 } },
+    widget.id,
+    companyId,
+  ]);
   await page.setViewportSize({ width: 1280, height: 520 });
+  await page.reload();
+  await expect(page.locator(`[data-focus-target="widget:${widget.id}"]`)).toBeVisible();
   const gap = await page.evaluate(() => {
     const grid = document.querySelector<HTMLElement>(".react-grid-layout");
     const host = grid?.parentElement;
     if (!grid || !host) return null;
+    let scroller: HTMLElement | null = host;
+    while (
+      scroller &&
+      !(scroller.scrollHeight > scroller.clientHeight + 1 && /(auto|scroll)/.test(getComputedStyle(scroller).overflowY))
+    )
+      scroller = scroller.parentElement;
+    scroller?.scrollTo(0, scroller.scrollHeight);
     const items = [...grid.querySelectorAll<HTMLElement>(".react-grid-item")];
     const lowest = Math.max(...items.map((item) => item.getBoundingClientRect().bottom));
     const side = items.length
       ? Math.min(...items.map((item) => item.getBoundingClientRect().left)) - host.getBoundingClientRect().left
       : 0;
-    return { bottom: host.getBoundingClientRect().bottom - lowest, side };
+    return { bottom: host.getBoundingClientRect().bottom - lowest, scrolled: Boolean(scroller), side };
   });
   expect(gap).not.toBeNull();
+  expect(gap?.scrolled).toBe(true);
   expect(Math.abs((gap?.bottom ?? 0) - (gap?.side ?? 0))).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
