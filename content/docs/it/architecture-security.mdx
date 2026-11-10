@@ -1,0 +1,124 @@
+---
+title: "Sicurezza del CRM: isolamento dei tenant e registro attività"
+description: "Come è costruito Customermates, come si isolano i dati, come si autenticano chiavi API e OAuth MCP, cosa registra il registro attività, come segnalare falle."
+---
+
+Ogni azienda è un tenant isolato in un database PostgreSQL condiviso. Ogni record appartiene a un’azienda, le chiavi API e le connessioni OAuth agiscono come l’utente che le ha create o autorizzate, e gli agenti IA vedono solo ciò che quell’utente può vedere. Un solo accesso può appartenere a più spazi di lavoro, e ogni sessione, chiave API e connessione OAuth agisce in uno solo di essi; vedere [Spazi di lavoro](/docs/app-workspaces).
+
+## Qual è lo stack tecnologico? [#what-is-the-stack]
+
+- **Next.js 16** (App Router, Turbopack): app web, API REST ed endpoint MCP.
+- **PostgreSQL**: archivio dati principale. JSONB contiene opzioni e formati dei campi, note, impostazioni di viste e widget, intestazioni dei webhook, payload delle consegne dei webhook e voci di audit.
+- **Prisma**: ORM e migrazioni.
+- **better-auth**: sessioni, accesso con Google e Microsoft, chiavi API, OAuth MCP.
+- **mcp-handler**: endpoint del Model Context Protocol.
+- **Workflow**: job in background come le consegne dei webhook; in un’istanza self-hosted la sua coda risiede nello stesso database PostgreSQL.
+- **TypeScript** da un capo all’altro, con validazione Zod a ogni confine.
+
+## Come fa la multi-tenancy a mantenere isolato ogni tenant? [#how-does-multi-tenancy-keep-each-tenant-isolated]
+
+Tutte le aziende condividono un database e ogni record porta l’ID della propria azienda. L’isolamento è garantito su tre livelli:
+
+1. **Interactor**: ogni operazione di business viene eseguita come l’utente connesso e filtra per l’azienda di quell’utente.
+2. **Query guard**: un’estensione di Prisma genera un errore quando una query su una tabella dello spazio di lavoro non ha l’ID dell’azienda corrente nel filtro o ne nomina un’altra, e quando una nuova riga porta l’ID di un’altra azienda. Sono esentate solo le tabelle di autenticazione (identità di accesso, account di accesso, sessioni, token di verifica, chiavi API e client, token e consensi OAuth di MCP), e poche operazioni di sistema esplicitamente contrassegnate aggirano la protezione.
+3. **`@TenantInteractor`**: risolve l’utente attivo, rifiuta i membri inattivi, verifica il permesso del ruolo e apre il contesto tenant che il query guard legge.
+
+Un’istanza self-hosted può contenere più spazi di lavoro affiancati con lo stesso isolamento. Le letture tra tenant non sono possibili attraverso la superficie pubblica. Sul cloud gestito una console operatore del fornitore può leggere tra tenant per l’assistenza; è limitata a un account operatore in una lista di consentiti, si rifiuta di caricarsi fuori dalla modalità cloud e registra ogni lettura e scrittura in un registro interno separato. Un’installazione self-hosted non ha una simile console. L’assistente ospitato Mate opera nello stesso ambito: può leggere e modificare solo ciò che può l’utente che lo interpella.
+
+## Come si autenticano i client? [#how-do-clients-authenticate]
+
+Tre modi, che portano tutti allo stesso contesto di utente e azienda:
+
+- **Cookie di sessione** (browser): firmato, http-only, `Secure` con HTTPS. Si accede con e-mail e password, oppure con Google o Microsoft dove l’istanza ha configurato quei provider. Un nuovo account può essere usato per 24 ore prima che il suo indirizzo e-mail debba essere confermato. Ogni richiesta verifica la sessione nel database, quindi dopo la disconnessione o una sessione revocata il cookie smette subito di funzionare, e uno stato **Inattivo** blocca subito lo spazio di lavoro in cui è impostato. La sessione contiene anche lo spazio di lavoro scelto, così un altro browser può lavorare in uno spazio di lavoro diverso.
+- **Chiave API**: token di 64 caratteri di lettere ASCII (`a-z`, `A-Z`) emesso dal plugin per chiavi API di better-auth, memorizzato solo come hash, legato a un utente e allo spazio di lavoro in cui è stato creato, con scadenza facoltativa. Inviata nell’intestazione `x-api-key`. Vedere [Chiavi API](/docs/api-keys).
+- **OAuth 2.1** (MCP): i client MCP remoti si autorizzano tramite better-auth con PKCE e inviano un token Bearer al posto di una chiave API. I token di accesso durano un’ora, i token di aggiornamento trenta giorni. Una connessione è legata allo spazio di lavoro scelto nella schermata di consenso, e così lo sono i token che rinnova.
+
+## Customermates supporta SSO o SAML? [#does-customermates-support-sso-or-saml]
+
+No. Il single sign-on aziendale con un proprio provider di identità tramite SAML o OIDC non è implementato, né nel cloud né in self-hosting. I membri accedono con e-mail e password, oppure con un account Google o Microsoft dove l’istanza ha configurato quei provider; su un’istanza self-hosted li si configura in proprio, vedere [Self-hosting](/docs/self-hosting). Per terminare l’accesso di un membro, lo si apre in [Membri](app:settings/members) e si imposta **Stato** su **Inattivo**.
+
+## Come viene deciso il livello di autorizzazione? [#how-is-authorization-decided]
+
+Un ruolo in [Ruoli](app:settings/roles) concede **Crea**, **Modifica**, **Elimina** e **Accesso in lettura** **Tutti**, **Assegnati** o **Nessuno** separatamente per ogni lista, comprese le liste create da te. Modificare ed eliminare richiedono sia il permesso dell’azione sia l’accesso al record. I permessi dello spazio di lavoro usano le stesse colonne, con un trattino dove un’azione non si applica. **Modifica** su **Modello dati** è separato dall’accesso ai record e dall’amministrazione dei ruoli: chi gestisce lo schema non può ampliare i permessi senza **Modifica** su **Utenti e ruoli**. Il ruolo integrato **Amministratore** ha ogni permesso. Le scritture di record e configurazione ricontrollano permessi e revisioni all’interno della transazione dello spazio di lavoro. Le chiavi API ereditano i permessi attuali del loro proprietario; non esiste un ambito per singola chiave.
+
+## Come blocco le chiavi API di un ex membro? [#how-do-i-stop-the-api-keys-of-a-former-member]
+
+Il permesso **API e webhook** controlla le pagine [Chiavi API e connettori](app:settings/api-keys), [Webhook](app:settings/webhooks) e [Log dei webhook](app:settings/webhook-deliveries) e le operazioni su chiavi e webhook che stanno dietro. Anche le connessioni MCP e le chiamate REST, con una chiave o un token OAuth, richiedono il suo **Accesso in lettura** **Tutti**; l’uso dell’app web con accesso effettuato no. Ogni chiamata viene verificata rispetto ai permessi del proprietario sui record che tocca. Togliere **API e webhook** a un ruolo nasconde quindi le chiavi dei suoi membri e le blocca sia per MCP sia per REST.
+
+Per bloccare le chiavi di un membro, si apre il membro in [Membri](app:settings/members), si imposta **Stato** su **Inattivo** e si fa clic su **Salva**. Servono **Modifica** e **Accesso in lettura** **Tutti** su **Utenti e ruoli**; non è possibile disattivare se stessi, e l’ultimo membro attivo con il ruolo **Amministratore** non può essere disattivato. Ogni chiamata con le chiavi di un membro inattivo che legge o modifica dati dello spazio di lavoro viene rifiutata. Nessuno può elencare o eliminare le chiavi di un altro membro.
+
+## Come funziona l’accesso IA esterno? [#how-does-external-ai-access-work]
+
+Le richieste MCP usano lo stesso percorso di autenticazione e autorizzazione:
+
+- L’agente chiama `<BASE_URL>/api/v1/mcp` con una chiave API o un token Bearer OAuth.
+- Il server risolve utente e azienda dalla credenziale.
+- Ogni chiamata a uno strumento viene eseguita dentro un contesto limitato al tenant.
+- Gli errori di validazione restituiscono messaggi strutturati con suggerimenti di correzione e non rivelano dettagli interni dello schema. Gli errori imprevisti restituiscono solo un messaggio generico.
+
+La superficie MCP aggiunge protezioni sull’input:
+
+- Una scrittura modifica un solo record o una sola relazione tipizzati, oppure fino a 100 record nominati insieme tramite `updateMany` (una patch condivisa) e `deleteMany`, ciascuno applicato in modo atomico. Ogni riferimento contiene sia un ID di tipo sia un ID di record; collegare e scollegare nominano la definizione della relazione. I campi omessi restano invariati, mentre `null` svuota esplicitamente un campo di input facoltativo. I campi calcolati non si possono scrivere direttamente.
+- Il backend controlla tipo, spazio di lavoro, permessi sui record, versione e revisione della configurazione durante la transazione di scrittura. Un riferimento a un altro tipo o spazio di lavoro non può reindirizzare un aggiornamento.
+- L’eliminazione, compreso `deleteMany`, nomina ogni record tramite riferimento e versione attuale; non esiste una scorciatoia per eliminare tramite filtro. Un hash facoltativo dell’anteprima dell’impatto fa fallire l’eliminazione quando i suoi effetti a cascata sono cambiati dopo l’anteprima.
+
+Vedere il [catalogo degli strumenti MCP](/docs/mcp#tool-catalog) per l’elenco completo.
+
+## Come sono protetti i dati a riposo e in transito, come vengono memorizzate le password e dove sono ospitati i dati? [#how-is-data-protected-at-rest-and-in-transit]
+
+- La cifratura di Postgres a riposo dipende dal provider. Sul cloud gestito i dati risiedono in una regione UE e sono cifrati a riposo a livello di disco.
+- Password e chiavi API sono memorizzate solo come hash.
+- HTTPS ovunque sul cloud gestito. In self-hosting il TLS lo si fornisce in proprio; vedere [self-hosting](/docs/self-hosting) per l’esempio con Caddy. I cookie di accesso sono contrassegnati come Secure quando il `BASE_URL` dell’istanza usa `https://`.
+- I segreti dei webhook e i valori delle intestazioni personalizzate sono memorizzati in modo recuperabile, perché le richieste in uscita ne hanno bisogno; vedere [Come vengono protetti i segreti e le destinazioni dei webhook?](#how-are-webhook-secrets-and-destinations-secured).
+
+## Dove sono memorizzati i dati dei clienti e le credenziali degli account collegati? [#where-are-customer-data-and-credentials-stored]
+
+- **Customermates Cloud:** il database di produzione principale è configurato in AWS Francoforte (`eu-central-1`). Si tratta di un’impostazione di prodotto scelta, non di una garanzia contrattuale che ogni servizio o trasferimento resti in quella regione. L’hosting dell’applicazione (Vercel), il provider del database gestito e gli altri sub-responsabili del trattamento, alcuni dei quali negli Stati Uniti, sono elencati con scopo e ubicazione nell’[elenco dei sub-responsabili](/subprocessors). Sul cloud gestito i dati a riposo sono cifrati a livello di disco e il traffico usa HTTPS. Password e chiavi API sono memorizzate solo come hash.
+- **Account collegati** (Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram, Telegram): si accede tramite un flusso di autenticazione ospitato del provider di trasporto Unipile (UNIPILE SAS, Francia). Customermates non riceve né le password del provider né i token OAuth; conserva solo un identificatore opaco dell’account e metadati dell’account non segreti. Unipile dichiara che i dati degli account collegati sono memorizzati nell’UE (Francia); il suo accordo sul trattamento dei dati consente comunque trasferimenti al di fuori dell’UE dove si applicano le garanzie del Capo V del GDPR. Conversazioni, messaggi, partecipanti e dati di calendario sincronizzati sono memorizzati nel database di Customermates. Quando si scollega un account, Customermates elimina le conversazioni, i messaggi, i partecipanti e i dati di calendario memorizzati di quell’account e chiede a Unipile di rimuovere l’account.
+- **Self-hosting:** su un’istanza propria il database e la sua cifratura a riposo sono propri; la [sezione precedente](#how-is-data-protected-at-rest-and-in-transit) spiega che la cifratura a riposo dipende dal provider. Un’istanza self-hosted non ha una posta in arrivo con account collegati (ha il set di funzioni Starter), quindi non sono coinvolte credenziali dei canali. Vedere [self-hosting](/docs/self-hosting).
+
+I dettagli e il testo vincolante sono nell’[accordo sul trattamento dei dati](/dpa) e nell’[elenco dei sub-responsabili](/subprocessors).
+
+## I log o le segnalazioni di errore contengono segreti? [#do-logs-or-error-reports-contain-secrets]
+
+L’applicazione scrive log semplici sul proprio standard output. I valori dell’ambiente, come i segreti in `.env`, non vengono scritti nei log, ma non esiste un filtro che mascheri i segreti nelle righe di log. Le segnalazioni di errore vanno allo stesso output e non includono mai cookie, intestazioni o corpi delle richieste. Gli errori imprevisti negli strumenti MCP e dell’assistente raggiungono il client solo come messaggio generico, come «The operation could not be completed».
+
+L’immagine self-hosted pubblicata disattiva la telemetria di Next.js e Prisma. Su un’istanza self-hosted gli errori dell’app compaiono solo in `docker compose logs app`. Un’e-mail che il provider ha rifiutato o a cui non ha risposto in tempo viene registrata con il suo oggetto, il dominio del destinatario e il motivo del provider, mai con l’indirizzo completo.
+
+## Come vengono protetti i segreti e le destinazioni dei webhook? [#how-are-webhook-secrets-and-destinations-secured]
+
+- I segreti dei webhook e i valori delle intestazioni personalizzate sono memorizzati in Postgres senza hash, perché devono essere recuperabili per firmare e inviare le richieste in uscita. L’API REST e MCP non li restituiscono mai, il registro attività li oscura e un webhook aperto li mostra solo al ruolo **Amministratore** e ai ruoli con **Modifica** su **API e webhook**; un ruolo con solo **Accesso in lettura** **Tutti** vede al loro posto `********`. Per conservarli altrove, si usa il self-hosting con un proprio gestore di segreti.
+- Usa un endpoint HTTPS. Le intestazioni personalizzate richiedono HTTPS, tranne HTTP su `localhost`, `127.0.0.1` o `::1` quando le destinazioni private sono consentite. Il controllo avviene al salvataggio e di nuovo prima di ogni consegna.
+- Cloud e demo consentono solo destinazioni di webhook pubbliche. Gli indirizzi privati letterali e i nomi host locali vengono rifiutati al salvataggio; ogni consegna controlla tutte le risposte DNS e vincola la connessione a quegli indirizzi convalidati. I reindirizzamenti non vengono mai seguiti. Le installazioni self-hosted consentono per impostazione predefinita le destinazioni private; `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true` applica la regola del Cloud. Dai **Crea** e **Modifica** su **API e webhook** solo a ruoli fidati.
+
+I webhook si gestiscono in [Webhook](app:settings/webhooks); vedere [Webhook](/docs/webhooks).
+
+## Che cosa registra il registro attività? [#what-does-the-audit-log-record]
+
+[Registro attività](app:settings/activity) è il registro degli eventi dello spazio di lavoro. Ogni modifica vi viene scritta con il suo autore, il suo tipo, l’elemento interessato e il suo payload, nella stessa transazione della modifica stessa. Le modifiche ai record riportano i valori precedenti e attuali a livello di campo; gli aggiornamenti di ruoli, webhook, routine e account collegati riportano una differenza a livello di campo, e creazioni, eliminazioni e salvataggi dei membri riportano un’istantanea. Le modifiche di configurazione del modello dati e dell’accesso ai record per ruolo vengono conservate con la revisione della configurazione che hanno prodotto. Vengono registrati anche le registrazioni degli utenti, le esportazioni di record e i documenti legali accettati. L’autore viene conservato anche dopo la rimozione dell’utente, e le modifiche automatiche vengono registrate come sistema o come proprietario della routine. Una scrittura fallita non lascia alcuna voce. Il registro attività è incluso in ogni piano cloud e nell’edizione self-hosted allo stesso modo.
+
+## Che cosa non c’è nel registro attività? [#what-is-not-in-the-audit-log]
+
+Gli eventi di messaggistica non fanno parte del registro attività; vengono conservati solo come voci di consegna finché un webhook o una routine su evento vi si abbona. Non vengono registrati nemmeno eventi di autenticazione come gli accessi, il ciclo di vita delle chiavi API, le modifiche dell’abbonamento, le viste salvate, i widget, le conversazioni con gli agenti e le azioni degli operatori del fornitore. I segreti dei webhook e i valori delle intestazioni sono oscurati nelle voci dei webhook. Una voce scritta da un processo automatico, come la rimozione di un account collegato al termine di una prova, nomina l’utente interessato e non qualcuno che l’ha eseguita.
+
+## Chi può leggere il registro attività e dove? [#who-can-read-the-audit-log-and-where]
+
+Si apre [Registro attività](app:settings/activity); vedere [Registro attività](/docs/app-company#activity-tab). L’accesso richiede **Accesso in lettura** **Tutti** sulla riga **Registro attività** del ruolo, che non offre **Crea**, **Modifica** né **Elimina**; il ruolo **Amministratore** ce l’ha sempre. La pagina mostra modifiche ai record, eventi di amministrazione e di sistema e modifiche di configurazione, e si può filtrare per tipo. Le modifiche ai record seguono l’accesso ai record di chi legge. Lo stesso permesso mostra il registro attività nella vista **Attività** di un record.
+
+## Per quanto tempo vengono conservate le voci del registro attività e si possono esportare? [#how-long-are-audit-entries-kept-and-can-i-export-them]
+
+Le voci non vengono eliminate automaticamente; vengono conservate finché esiste lo spazio di lavoro. [Registro attività](app:settings/activity) non ha un’azione di esportazione. La cronologia delle attività, il suo endpoint REST e il suo strumento MCP restituiscono le stesse voci con lo stesso permesso.
+
+## Dove segnalo una vulnerabilità? [#where-do-i-report-a-vulnerability]
+
+Scrivi a `mail@customermates.com`. Puntiamo a rispondere entro un giorno lavorativo. Non esiste un programma di bug bounty.
+
+## Per gli agenti [#for-agents]
+
+Le scritture di record tramite MCP passano da `mutate_crm_record`, le operazioni sui webhook da `manage_webhooks`, e le voci di audit si leggono con `get_activities`.
+
+## Passi successivi [#next]
+
+- [Self-hosting](/docs/self-hosting): gestire Customermates in proprio.
+- [Chiavi API](/docs/api-keys): regole di igiene per le chiavi.
+- [MCP](/docs/mcp): come è strutturata la superficie IA.

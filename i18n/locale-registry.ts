@@ -57,8 +57,8 @@ export const LOCALE_REGISTRY = {
   it: {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
-    hasPublishedContent: false,
-    marketingPaths: [],
+    hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "it-IT",
     flagCode: "it",
     validationTag: "it",

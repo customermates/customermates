@@ -1,0 +1,91 @@
+---
+title: "Collegare n8n a Customermates: webhook e API REST"
+heading: "Creare workflow Customermates in n8n"
+description: "Creare workflow visuali in n8n a partire dagli eventi dei record del CRM e dall’API dei record: nodo Webhook, richieste HTTP, MCP e attività pianificate."
+---
+
+Collega n8n con un nodo Webhook per le modifiche del CRM e con nodi HTTP Request per l’API REST di Customermates; l’endpoint MCP è pensato per i client JSON-RPC. Il [nodo community di Customermates](https://github.com/customermates/n8n-nodes-crm) (`@customermates/n8n-nodes-crm`) supporta l’API dei record configurabile dalla versione 2.0.0; aggiorna le installazioni più vecchie prima di usarne le operazioni sul CRM.
+
+## Quando è adatto n8n? [#when-does-n8n-fit]
+
+n8n è adatto quando il team preferisce i flussi visuali al codice, quando gli eventi dei record vanno trasformati prima di arrivare a un altro servizio, oppure quando n8n è già in uso per altre automazioni. Per il lavoro conversazionale sul CRM conviene usare [MCP](/docs/mcp), in aggiunta o in alternativa.
+
+## Come avvio n8n dalle modifiche del CRM? [#how-do-i-trigger-n8n-from-crm-changes]
+
+<Steps>
+<Step title="Aggiungi un nodo Webhook in n8n">
+Copia l’URL che genera.
+</Step>
+<Step title="Iscriviti in Customermates">
+Apri [Webhook](app:settings/webhooks), fai clic su [Aggiungi](app:settings/webhooks?focus=add) e incolla l’URL. In **Eventi** seleziona **Record creato**, **Record aggiornato** o **Record spostato nel cestino**, poi scegli la lista e gli eventuali filtri da osservare. Aggiungi un **Segreto** e fai clic su **Salva**. Per creare un webhook serve **Crea** su **API e webhook**.
+</Step>
+<Step title="Gestisci il payload">
+Verifica la firma, poi usa l’ID dell’evento e il riferimento stabile `typeId`/`recordId` del payload dell’evento sul record nei passaggi successivi.
+</Step>
+</Steps>
+
+Con il [nodo community di Customermates](https://github.com/customermates/n8n-nodes-crm), il suo **Customermates Trigger** crea per te questa iscrizione al webhook quando il workflow viene attivato (pubblicato).
+
+[Webhook](/docs/webhooks) documenta payload, nuovi tentativi e verifica della firma. Le consegne possono arrivare in ordine diverso o ripetersi; elimina i duplicati in base all’ID dell’evento.
+
+## Da quando un trigger inizia a ricevere eventi? [#when-does-a-trigger-start-receiving-events]
+
+Da n8n 2.x l’attivazione termina prima che n8n abbia finito di preparare il trigger. L’iscrizione di solito esiste entro un secondo, e le modifiche fatte prima di allora non vengono consegnate in seguito. Se qualcosa attiva un workflow e crea subito dei record, attendi prima che `GET /rest/workflows/{id}/publication-status` di n8n riporti `published`, oppure che l’iscrizione compaia in [Webhook](app:settings/webhooks). Un n8n self-hosted può ripristinare l’attivazione con attesa con `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false`.
+
+## Come creo, leggo, aggiorno o elimino record da n8n? [#how-do-i-write-to-customermates-from-n8n]
+
+Usa un nodo **HTTP Request** con una credenziale `x-api-key` e un JSON conforme alla [specifica OpenAPI](/docs/openapi). Le route dei record funzionano per ogni lista dello spazio di lavoro:
+
+| Obiettivo | Metodo e percorso |
+|---|---|
+| Trovare le liste per nome | `POST /api/v1/model/discover` |
+| Leggere campi, relazioni e ID stabili | `POST /api/v1/model/read` |
+| Interrogare o cercare record | `POST /api/v1/records/query` oppure `POST /api/v1/records/search` |
+| Leggere un record | `POST /api/v1/records/read` |
+| Creare, aggiornare, eliminare, collegare o scollegare | `POST /api/v1/records/mutate` |
+| Vedere in anteprima un’eliminazione | `POST /api/v1/records/preview-deletion` |
+| Esportare (JSON o XLSX) o importare | `POST /api/v1/records/export` oppure `POST /api/v1/records/import` |
+| Elencare, ripristinare o eliminare definitivamente gli elementi del Cestino | `POST /api/v1/trash/query`, `POST /api/v1/trash/restore`, `POST /api/v1/trash/preview`, `POST /api/v1/trash/delete-permanently` oppure `POST /api/v1/trash/empty` |
+| Vedere in anteprima o applicare una modifica di configurazione | `POST /api/v1/model/preview` oppure `POST /api/v1/model/apply` |
+| Aggregare valori per un report | `POST /api/v1/reports/query` |
+| Seguire, annullare o riprendere un’operazione in sospeso | `POST /api/v1/operations/status`, `POST /api/v1/operations/cancel` oppure `POST /api/v1/operations/resume` |
+
+**Modifica incompatibile:** queste route hanno sostituito i precedenti endpoint specifici per entità, che sono stati rimossi. Aggiorna i nodi HTTP Request che chiamano ancora un endpoint di contatti, organizzazioni, trattative, servizi o attività.
+
+**Modifica incompatibile:** e-mail e telefono non sono più tipi di campo. Quando viene installato l’aggiornamento dei recapiti, ogni ex campo e-mail o telefono confluisce nel campo dei recapiti della sua lista (il tipo di campo Telefono, e-mail e social, con tipo di valore `channels`): il vecchio ID del campo scompare da record, modello dei record, esportazioni ed eventi webhook, e i suoi indirizzi e numeri si leggono e si scrivono come `identities` del record, con `provider` `mail` o `phone` e l’indirizzo o il numero come `value`. Aggiorna i workflow n8n, i nodi HTTP Request e gli altri client REST che leggono, filtrano o scrivono i vecchi ID dei campi: invia `identities` dentro la mutazione `create` o `update` di `POST /api/v1/records/mutate`, con le identità da mantenere, e leggile da `identities` nelle risposte dei record e da `data.record.identities` negli eventi webhook. Un campo che non è stato possibile spostare resta un campo Testo con il suo ID, per esempio uno citato dal modello del corpo di un webhook.
+
+L’URL di base è l’indirizzo con cui apri Customermates. Una mutazione contiene un `typeId` stabile, una chiave di idempotenza e la revisione di configurazione attesa; aggiornamenti ed eliminazioni contengono anche il riferimento al record e la versione attesa. I campi sono assegnazioni tipizzate e i collegamenti indicano la definizione di una relazione. Un’eliminazione può richiedere l’hash di un’anteprima d’impatto aggiornata. Per le forme delle query vedi la [sintassi dei filtri](/docs/filter-syntax).
+
+## Come chiamo gli strumenti MCP da n8n? [#how-do-i-call-mcp-tools-from-n8n]
+
+Invia `POST <BASE_URL>/api/v1/mcp` con `Content-Type: application/json`, `Accept: application/json, text/event-stream` e la credenziale `x-api-key`. Per esempio, per scoprire i tipi di record:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
+```
+
+Il risultato può arrivare come server-sent event; analizzare la riga `data:` del JSON-RPC. Un rifiuto dello strumento ha `result.isError: true`, e gli argomenti fuori dallo schema di uno strumento vengono respinti prima dell’esecuzione. Usa `get_record_model` per leggere gli ID, `query_crm_records` per interrogare e `mutate_crm_record` per modificare un record o un collegamento. Vedi il [catalogo MCP](/docs/mcp#tool-catalog).
+
+## Come eseguo attività pianificate? [#how-do-i-run-scheduled-jobs]
+
+Il trigger di pianificazione di n8n, insieme all’API dei record, può trovare i record che corrispondono a una query salvata, esportarli o applicare una mutazione validata. Una [routine di Customermates](/docs/app-routines) può invece eseguire Mate su una pianificazione all’interno del prodotto. Le fasi delle trattative, le priorità delle attività e le liste proprie sono configurazione dello spazio di lavoro; scoprine gli ID prima di filtrare o scrivere.
+
+## Come funziona l’autenticazione? [#how-does-authentication-work]
+
+Apri [Chiavi API e connettori](app:settings/api-keys) e crea una chiave con [Aggiungi](app:settings/api-keys?focus=generate). Salvala come credenziale **Header Auth** di n8n con il nome `x-api-key` e riutilizza quella credenziale in tutti i nodi. La chiave agisce con i permessi del suo proprietario. Una chiave errata, scaduta o eliminata genera un errore di autenticazione, e una chiave il cui proprietario è inattivo non può agire. Vedi [Chiavi API](/docs/api-keys).
+
+## Quali sono i problemi più comuni? [#what-are-the-common-gotchas]
+
+- **Relazioni:** usa `mutate_crm_record` con `link` o `unlink`; non inviare array obsoleti come `organizationIds`.
+- **Nuovi tentativi:** riutilizza la stessa chiave di idempotenza per lo stesso identico payload di mutazione. Un payload modificato richiede una chiave nuova.
+- **Webhook:** le consegne non sono rigorosamente ordinate né avvengono esattamente una volta. Elimina i duplicati in base all’ID dell’evento e usa il timestamp del payload per l’ordine.
+
+## n8n funziona con il piano Free? [#n8n-on-the-free-plan]
+
+Il trigger di n8n richiede un webhook, quindi non funziona finché uno spazio di lavoro su Customermates Cloud è sul piano Free: la creazione dell’iscrizione viene rifiutata con il prezzo di Starter nel messaggio, e un trigger esistente non riceve nulla finché lo spazio di lavoro non sceglie un piano a pagamento. Le azioni che leggono o scrivono record passano dall’API REST e contano nel limite di richieste del piano Free, pari a [[commercial.limit.free.apiRequestsPerMinute]] al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno. Le installazioni self-hosted non hanno alcun limite di questo tipo.
+
+## Prossimi passi [#next]
+
+- [Webhook](/docs/webhooks): payload degli eventi e consegna.
+- [OpenAPI](/docs/openapi): contratti REST.
+- [MCP](/docs/mcp): chiamate di IA e di strumenti.

@@ -1,0 +1,57 @@
+---
+title: "Ricerca globale in Customermates (Cmd/Ctrl+K)"
+description: "Cercare in ogni lista leggibile da qualsiasi pagina con Cmd/Ctrl+K: che cosa trova, dove si apre un risultato e dove cercare invece i messaggi della posta."
+---
+
+La ricerca globale si apre sopra la pagina in cui ci si trova, da qualsiasi punto dell’app: si preme Cmd/Ctrl+K, si preme / quando nessun campo ha il focus, oppure si fa clic su **Cerca** nella barra laterale.
+
+## Che cosa trova la ricerca globale e quali campi dei contatti confronta? [#what-does-global-search-find]
+
+La ricerca scorre i record di ogni lista che si può leggere, comprese le liste create dallo spazio di lavoro, e raggruppa i risultati per lista. Confronta i titoli dei record e i valori dei campi ricercabili, trova i contatti tramite qualsiasi indirizzo e-mail o numero di telefono nei loro **Recapiti** e trova i record tramite i nomi e il testo dei loro [file allegati](#does-search-look-inside-files). I valori che non si ha il permesso di vedere non vengono cercati. Se il ruolo legge una lista solo con **Assegnati**, si ottengono solo i record assegnati a te. **Carica altro** recupera altri risultati.
+
+Prima di digitare, **Aperti di recente** mostra le ultime scelte fatte dalla ricerca, memorizzate solo in questo browser; **Cancella** lo svuota. **Suggerimenti** sotto offre ciò che si adatta alla pagina in cui ci si trova, per esempio aggiungere un record alla lista aperta. I tasti freccia scorrono i risultati e Invio ne apre uno. Selezionare un record lo apre nel pannello dei dettagli.
+
+## La ricerca guarda dentro i file allegati? [#does-search-look-inside-files]
+
+Sì. Poco dopo che un file è stato allegato a un record, il suo testo viene estratto: il livello di testo di un PDF, i documenti Word (.docx), ogni foglio di una cartella di lavoro Excel (.xlsx) e i file CSV, di testo semplice, Markdown, JSON e HTML. La ricerca trova allora il record quando tutte le parole compaiono nello stesso passaggio di uno dei suoi file, comprese le forme flesse in inglese, tedesco, spagnolo, francese e italiano, e l’ultima parola può essere l’inizio di una più lunga. Viene cercato anche il nome del file. I PDF scansionati e le immagini non vengono cercati per contenuto, perché non c’è riconoscimento del testo (OCR), e vengono indicizzati solo i primi 500.000 caratteri di un file, dalle prime 1.000 pagine al massimo di un PDF. I file Word ed Excel che una volta decompressi superano i 128 MB non vengono letti.
+
+Il contenuto di un file viene cercato solo dove si può leggere il record e il campo che lo contiene. Un file rimosso dal suo record, un record nel [Cestino](/docs/app-trash) e un campo eliminato non vengono più trovati. La casella di ricerca in una lista trova i record in base al testo dei loro file allo stesso modo, e i client IA collegati tramite [MCP](/docs/mcp#file-contents) possono cercare e leggere il testo dei file che si possono leggere.
+
+## Come passo a una lista, una vista, una pagina o un’impostazione? [#how-do-i-jump-to-a-page-or-setting]
+
+Si digita il suo nome o l’inizio delle sue parole; le parole di riempimento come «apri», «vai a» o «imposta» vengono ignorate, e un piccolo errore di battitura in una sola parola più lunga viene perdonato. La ricerca trova anche ogni lista e le sue viste salvate, le pagine dell’app, ogni impostazione in [Profilo e preferenze](app:settings/profile) e nelle altre pagine delle impostazioni, e azioni come cambiare il tema o invitare membri, anche con parole di uso comune come «modalità scura» o «team». L’obiettivo più probabile compare come **Miglior risultato** in alto, e Invio lo apre. Una lista mostra le sue viste salvate rientrate sotto di essa: Invio apre la lista, freccia giù sceglie una vista. Un’impostazione apre la sua pagina con l’impostazione evidenziata. Le azioni mostrano a destra la loro scorciatoia da tastiera.
+
+Per restringere la ricerca, si inizia con una lettera e uno spazio: **l** liste, **v** viste, **s** impostazioni, **d** documentazione e **r** record, per esempio «v trattative aperte».
+
+## Come modifico il record che ho aperto? [#how-do-i-change-the-open-record]
+
+Con un record aperto nel pannello laterale o nella sua pagina, la ricerca offre azioni per esso: **Modifica** un campo a scelta, sì/no o membro, **Assegna a**, **Aggiungi a** una lista correlata ed **Elimina**. Sceglierne una apre le sue opzioni dentro la casella di ricerca; Esc torna indietro di un passo. Una modifica viene salvata subito, ed Elimina chiede conferma come di consueto. Queste azioni compaiono solo quando si può modificare il record e questo non ha modifiche non salvate.
+
+I messaggi non si cercano qui; la [Posta in arrivo](app:inbox) ha una propria ricerca. Per un elenco filtrato o ordinato di record, si usa invece una lista, per esempio la lista dei contatti con **Filtri** nella sua barra degli strumenti. Per aggiungere un record, vedere [Record del CRM](/docs/app-records#how-do-i-add-a-record).
+
+## Come abbina la ricerca per significato e che cosa viene inviato? [#how-does-search-match-by-meaning]
+
+La ricerca abbina anche per significato e tra lingue: «Sprache» trova **Lingua dell'interfaccia**, «night mode» trova il tema scuro, e le parole che si userebbero per una lista o una vista la trovano anche quando il suo nome è diverso. Fino a tre sezioni corrispondenti di questa documentazione compaiono sotto **Documentazione**, fino a otto quando si inizia con **d**; ciascuna apre il punto dell’app che descrive, oppure la pagina della documentazione. I record vengono abbinati solo per le loro parole: un ID di record trova quel record, una frase tra virgolette doppie, come «Acme Corp», corrisponde solo così com’è scritta, e quando nulla corrisponde compaiono i record con un titolo scritto in modo simile.
+
+La ricerca abbina per significato solo quando nulla corrisponde per nome: quando nessuna pagina, impostazione, azione, lista o vista è un chiaro **Miglior risultato** e nessun record corrisponde alle parole. Solo allora un modello di embedding gestito da Google tramite il Vercel AI Gateway riceve il testo cercato, usando una piccola quantità di crediti IA. Riceve anche i nomi delle pagine, delle impostazioni, delle azioni, delle liste, delle viste e dei campi dello spazio di lavoro, inviati di nuovo solo quando cambiano, mai il contenuto dei record. Se il servizio è lento o non disponibile, la ricerca mostra subito le corrispondenze per nome. Senza IA, per esempio in un’installazione self-hosted, la ricerca abbina solo per nome.
+
+## Come apro una lista filtrata descrivendola? [#how-do-i-describe-what-to-open]
+
+Quando nessun risultato è una corrispondenza chiara, la prima riga riporta **Vai a «…»** con le parole inserite. Premendo Invio, un piccolo modello IA trasforma la richiesta in un solo punto: una lista con filtri, una sua vista, una pagina, un’impostazione o un’azione. Per esempio, in uno spazio di lavoro con una lista di trattative, «trattative vinte in chiusura questo mese» apre quella lista mostrando solo le trattative vinte che si chiudono questo mese. I filtri non vengono salvati: la vista risulta modificata, e **Salva** o **Reimposta** in **Filtri** li conserva o li scarta. Se la richiesta non corrisponde a nulla, va invece a [Mate](/docs/app-assistant).
+
+Il modello riceve le parole inserite e i nomi di liste, viste, campi e scelte, mai il contenuto dei record, e usa una piccola quantità di crediti IA. Non chiude mai la sessione né modifica, assegna o elimina un record; queste azioni restano nei risultati della ricerca.
+
+## Per gli agenti [#which-stable-ids-does-it-have]
+
+Mate può indicare **Cerca** nella barra laterale ma non può aprire la casella di ricerca né scrivervi. Per ricerche filtrate, ordinate o aggregate usa invece gli strumenti di interrogazione dei record, non la ricerca globale.
+
+## Domande frequenti [#frequently-asked-questions]
+
+<Faq>
+<FaqItem question="Qual è la scorciatoia da tastiera?">
+Cmd+K su Mac, Ctrl+K su Windows e Linux, da qualsiasi punto dell’app, oppure / quando nessun campo di testo ha il focus. Si scrive una domanda e si preme Tab per passarla invece a [Mate](/docs/app-assistant); **Chiedi a Mate** è anche l’ultima riga dei risultati. **Cerca** nella barra laterale mostra il tasto per il proprio computer e apre la stessa ricerca. Tutte le scorciatoie sono elencate in [Quali scorciatoie da tastiera ci sono?](/docs/app-dashboard#keyboard-shortcuts).
+</FaqItem>
+<FaqItem question="Dove si aprono i risultati?">
+Nel pannello dei dettagli del record, sopra la pagina in cui ci si trovava. Da lì si può aprire la pagina completa del record, descritta in [Record del CRM](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
+</FaqItem>
+</Faq>
