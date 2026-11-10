@@ -1,0 +1,226 @@
+---
+title: "Previsione delle vendite: metodi, formule ed esempio"
+description: "Previsione delle vendite: stima i ricavi che il team chiuderà in un periodo con pipeline ponderata, win rate e run-rate su un esempio, più i campi del CRM."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Previsione delle vendite: come prevedere i ricavi dalla tua pipeline"
+  description: "Un esempio svolto con otto trattative, tre metodi di previsione a confronto, le formule per ricostruirlo in un foglio di calcolo e i campi della trattativa di cui un CRM ha bisogno perché la previsione sia affidabile."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Previsione delle vendite
+    - Pipeline di vendita
+    - Processo di vendita
+---
+
+# Previsione delle vendite: come prevedere i ricavi dalla tua pipeline
+
+La previsione delle vendite (in inglese sales forecasting) è la stima di quanti ricavi il tuo team chiuderà in un periodo futuro, di solito il mese o il trimestre successivo, a partire dalle trattative in pipeline e dai tuoi risultati finora. Per un piccolo team B2B il metodo pratico è una pipeline ponderata: moltiplica l’importo di ogni trattativa aperta per la probabilità di vittoria della sua fase, somma le trattative che dovrebbero chiudersi nel periodo e aggiungi ciò che hai già vinto.
+
+Questa guida lo calcola su otto trattative di esempio, confronta il risultato con un metodo basato sul win rate e con uno basato sul run-rate, ed elenca i campi di cui un record di trattativa ha bisogno per ricostruire la previsione in qualsiasi foglio di calcolo. Customermates pubblica questa guida; la sezione sulla previsione in Customermates è indicata come nostra e dice con chiarezza cosa il prodotto non fa.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Definizione">Una previsione di vendita è la tua stima migliore dei ricavi che chiuderai in un periodo. Un obiettivo è ciò che vuoi chiudere. Sono numeri diversi.</SummaryItem>
+  <SummaryItem label="Formula di base">Valore ponderato = importo della trattativa × probabilità della fase. Previsione = già vinto finora + valore ponderato delle trattative aperte la cui data di chiusura prevista cade nel periodo.</SummaryItem>
+  <SummaryItem label="Non affidarti a un solo metodo">Calcola la pipeline ponderata, un valore basato sul win rate e uno basato sul run-rate, poi pubblica un intervallo e spiega ogni scarto tra i metodi.</SummaryItem>
+  <SummaryItem label="Campi di cui ogni trattativa ha bisogno">Importo, fase, data di chiusura prevista, responsabile e, quando una trattativa è chiusa, la data in cui è stata vinta o persa.</SummaryItem>
+</ArticleSummary>
+
+Una previsione vale quanto la pipeline che la sostiene. Se le tue fasi non hanno ancora condizioni di ingresso, parti dalla guida a [come costruire e rivedere una pipeline di vendita](/blog/sales-pipeline), poi torna qui. Per il lato dell’obiettivo nel confronto, il [modello di piano di vendita a 90 giorni](/blog/sales-plan-template) trasforma un obiettivo di ricavi in account, responsabili e date di revisione.
+
+## Che cos’è la previsione delle vendite e in cosa si distingue da un obiettivo o da un piano?
+
+Una previsione dice cosa succederà probabilmente. Un obiettivo dice cosa vuoi che succeda. Un piano dice cosa farai per colmare la differenza. Confonderli è un modo comune per far sbagliare una previsione: un numero spinto verso l’obiettivo non è più una previsione.
+
+Il manuale di previsione di Rob J Hyndman e George Athanasopoulos lo dice nello stesso modo: prevedere significa anticipare il futuro nel modo più accurato possibile date le informazioni disponibili, gli obiettivi sono ciò che vorresti accadesse e la pianificazione è la risposta alle previsioni e agli obiettivi ([sezione 1.2](https://otexts.com/fpp3/planning.html)). In un team di vendita questo dà tre numeri separati.
+
+| Termine | Domanda a cui risponde | Esempio tratto dall’esempio svolto qui sotto |
+|---|---|---|
+| Previsione | Cosa chiuderemo probabilmente questo trimestre? | 94.400 (metodo della pipeline ponderata) |
+| Obiettivo | Cosa vogliamo chiudere questo trimestre? | 110.000 |
+| Piano | Cosa facciamo per colmare la differenza? | Nuovo outreach e una spinta per anticipare una trattativa grande |
+
+**Cosa conta la previsione.** Questa guida prevede il valore delle trattative vinte: l’importo delle trattative che chiudi nel periodo, indicato al netto delle imposte e in un’unica valuta. Non sono ricavi contabilizzati né fatturati. Quelli seguono le regole contabili e le date delle fatture, e un record di trattativa del CRM non li sostituisce.
+
+## Quali sono i 7 passi della previsione?
+
+Non esiste un elenco standard di sette. Il manuale citato indica cinque passi di base per qualsiasi compito di previsione: definizione del problema, raccolta di informazioni, analisi preliminare, scelta e adattamento dei modelli, uso e valutazione del modello ([sezione 1.6](https://otexts.com/fpp3/basic-steps.html)). Le guide di vendita contano in modo diverso. Per una previsione basata sulla pipeline usiamo questi sette:
+
+<Steps>
+  <Step title="Definisci il periodo e cosa conta">Dai un nome al periodo (per esempio dal 1° ottobre al 31 dicembre) e decidi che conti il valore delle trattative vinte, al netto delle imposte, in un’unica valuta.</Step>
+  <Step title="Pulisci la pipeline">Sposta ogni trattativa nella fase che ha davvero raggiunto e chiudi le trattative che nessuno tocca da settimane. Le trattative ferme gonfiano in silenzio una previsione.</Step>
+  <Step title="Controlla quattro dati su ogni trattativa aperta">Importo, fase, data di chiusura prevista e responsabile. Una trattativa a cui ne manca uno resta fuori dalla previsione e finisce in un elenco da correggere, invece di essere tirata a indovinare.</Step>
+  <Step title="Imposta le probabilità delle fasi dal tuo storico">Usa le tue trattative vinte e perse. Finché non ne hai abbastanza, parti da valori provvisori e indicali come ipotesi.</Step>
+  <Step title="Calcola in due modi">La pipeline ponderata per le trattative in scadenza nel periodo e un controllo incrociato dal win rate o dal run-rate.</Step>
+  <Step title="Pubblica un intervallo, non un punto">Indica un minimo, un valore atteso e un caso migliore, e nomina le due o tre trattative più grandi che spostano il risultato.</Step>
+  <Step title="Confronta con il risultato effettivo">Alla fine del periodo, registra di quanto la previsione ha sbagliato e correggi le probabilità.</Step>
+</Steps>
+
+## Qual è un esempio di previsione delle vendite?
+
+Eccone uno che puoi ricostruire in un foglio di calcolo in dieci minuti. Ogni numero è inventato. Le ipotesi:
+
+- La previsione è fatta il 9 novembre 2026 per il trimestre che termina il 31 dicembre 2026.
+- L’importo è il valore totale del contratto, al netto delle imposte, in dollari.
+- Le probabilità delle fasi sono Qualificazione 20%, Demo 40%, Proposta 60% e Negoziazione 80%: i valori di partenza della nostra [guida alla pipeline di vendita](/blog/sales-pipeline). Sostituiscili con i tuoi appena puoi.
+- 38.000 sono già stati vinti in questo trimestre. L’obiettivo è 110.000.
+- Contano solo le trattative la cui data di chiusura prevista cade nel trimestre.
+
+| Trattativa | Fase | Importo | Chiusura prevista | Probabilità | Valore ponderato | Conta in questo trimestre? |
+|---|---|---|---|---|---|---|
+| A: azienda di logistica, contratto di servizio di 12 mesi | Negoziazione | 24.000 | 27 nov | 80% | 19.200 | Sì |
+| B: gruppo odontoiatrico, rollout | Proposta | 12.000 | 4 dic | 60% | 7.200 | Sì |
+| C: studio di design, retainer | Negoziazione | 6.000 | 10 dic | 80% | 4.800 | Sì |
+| D: studio di ingegneria, progetto di piattaforma | Proposta | 30.000 | 15 dic | 60% | 18.000 | Sì |
+| E: studio legale, pilota | Demo | 9.000 | 18 dic | 40% | 3.600 | Sì |
+| F: produttore alimentare, serie di workshop | Qualificazione | 18.000 | 22 dic | 20% | 3.600 | Sì |
+| G: fornitore di macchinari, pacchetto di assistenza | Qualificazione | 15.000 | 20 gen 2027 | 20% | 3.000 | No |
+| H: rete di cliniche, più sedi | Demo | 45.000 | 15 feb 2027 | 40% | 18.000 | No |
+| **In scadenza nel trimestre (da A a F)** | | **99.000** | | | **56.400** | |
+
+La pipeline ponderata del trimestre è 56.400. Aggiungi i 38.000 già vinti e la previsione è **94.400**, cioè 15.600 sotto l’obiettivo di 110.000.
+
+Le trattative G e H sono pipeline vera, per 60.000 di importo e 21.000 ponderati, ma dovrebbero chiudersi dopo il 31 dicembre. Tralasciare la regola della data avrebbe aggiunto 21.000 e dato una previsione di 115.400, sopra l’obiettivo per il motivo sbagliato.
+
+Nota quanto una sola trattativa sposta il numero. La trattativa D pesa 18.000 su 94.400, circa un quinto. Se slitta a gennaio, la previsione scende a 76.400 con una sola modifica. Un valore ponderato è una media su molte trattative; nessuna trattativa si chiude mai al 60%. Si chiude oppure no.
+
+**Il foglio di calcolo.** Metti le otto trattative nelle righe da 2 a 9, con l’importo nella colonna C, la chiusura prevista nella colonna D, la probabilità nella colonna E e il valore ponderato nella colonna F.
+
+```text
+Valore ponderato (F2, da copiare in basso)   =C2*E2
+Pipeline ponderata del trimestre             =SOMMA.PIÙ.SE(F2:F9;D2:D9;">="&DATA(2026;10;1);D2:D9;"<="&DATA(2026;12;31))
+Importo aperto del trimestre                 =SOMMA.PIÙ.SE(C2:C9;D2:D9;">="&DATA(2026;10;1);D2:D9;"<="&DATA(2026;12;31))
+Previsione                                   =38000+(pipeline ponderata del trimestre)
+```
+
+Le formule funzionano in Excel e in Google Fogli. Tieni il valore già vinto finora in una cella a parte e aggiornalo dal CRM prima di ogni revisione.
+
+## Qual è il miglior modello per la previsione delle vendite?
+
+Non esiste un modello migliore, solo quello che si adatta ai dati che hai. Questi sono i metodi che un piccolo team può usare davvero, con il punto debole di ciascuno.
+
+| Metodo | Come si calcola | Cosa serve | Punto debole |
+|---|---|---|---|
+| Commit (minimo) | Già vinto + trattative nell’ultima fase aperta a valore pieno. È una nostra definizione, non uno standard | Una fase che significa che l’acquirente sta decidendo | Ignora tutto ciò che sta prima nella pipeline |
+| Pipeline ponderata | Già vinto + importo × probabilità della fase, per le trattative in scadenza nel periodo | Probabilità delle fasi e date di chiusura previste | Le probabilità sono ipotesi finché non sono calibrate; poche trattative grandi dominano |
+| Win rate × pipeline | Già vinto + importo aperto in scadenza nel periodo × win rate per valore | Un anno circa di trattative vinte e perse | Tratta allo stesso modo una trattativa alla prima chiamata e una in negoziazione |
+| Run-rate storico | Valore medio vinto negli ultimi quattro periodi | Quattro o più periodi confrontabili | Cieco rispetto alla pipeline attuale e alla crescita |
+| Modelli statistici (serie temporali, regressione) | Adattati ai risultati passati da un software | Molti periodi di storico stabile | La maggior parte dei piccoli team chiude troppe poche trattative per adattarne uno |
+
+Per confrontare i primi quattro sull’esempio, aggiungi altri due dati inventati. Negli ultimi dodici mesi il team ha vinto 360.000 e perso 540.000 per valore, un win rate di 360.000 ÷ (360.000 + 540.000) = 40%. Negli ultimi quattro trimestri ha vinto 78.000, 88.000, 99.000 e 95.000.
+
+| Metodo | Calcolo | Previsione Q4 | Rispetto all’obiettivo di 110.000 |
+|---|---|---|---|
+| Commit (minimo) | 38.000 + 24.000 + 6.000 | 68.000 | 42.000 sotto |
+| Win rate × pipeline | 38.000 + 40% × 99.000 | 77.600 | 32.400 sotto |
+| Run-rate storico | (78.000 + 88.000 + 99.000 + 95.000) ÷ 4 | 90.000 | 20.000 sotto |
+| Pipeline ponderata | 38.000 + 56.400 | 94.400 | 15.600 sotto |
+| Caso migliore | 38.000 + 99.000 | 137.000 | 27.000 sopra |
+
+Tre cose da leggere:
+
+1. **Il divario è reale.** Ogni valore atteso è sotto l’obiettivo. Se un metodo dicesse 115.000 e gli altri da 80.000 a 94.000, sospetteresti di quell’unico metodo, non festeggeresti.
+2. **I metodi differiscono per un motivo.** Il win rate fisso del 40% è una media su tutte le trattative dal primo contatto, mentre le trattative aperte qui sono per lo più in fase avanzata. Il valore ponderato implica che il 57% dell’importo aperto venga vinto (56.400 ÷ 99.000). O le trattative sono insolitamente avanzate, o le probabilità delle fasi sono troppo generose. Solo il confronto con i risultati reali, qui sotto, dice quale delle due.
+3. **Il run-rate ignora del tutto la pipeline.** È un controllo di buon senso, non una previsione. Qui sta tra gli altri valori, il che rassicura ma non prova nulla.
+
+Quale mettere in primo piano dipende dal tuo storico. Un team con solo una manciata di trattative chiuse dovrebbe mostrare i valori commit e ponderato e dire che le probabilità sono ipotesi. Un team con un anno o più di trattative dovrebbe partire da una pipeline ponderata calibrata e tenere win rate e run-rate come controlli incrociati. Quando due metodi divergono molto, scopri perché prima di presentare un numero.
+
+## Quali sono i quattro tipi di previsione?
+
+Le fonti raggruppano i metodi di previsione in modi diversi, quindi non esiste un elenco ufficiale di quattro. Questo raggruppamento è quello che troviamo utile per un team di vendita:
+
+1. **Giudizio:** la valutazione del venditore o del responsabile su ogni trattativa. È l’unica opzione quando non hai uno storico.
+2. **Basata sulla pipeline:** ponderazione per fase e commit, come sopra.
+3. **Storica:** run-rate, win rate e andamenti stagionali dei periodi passati.
+4. **Modelli statistici:** modelli di serie temporali e di regressione adattati da un software.
+
+Il capitolo del manuale sulle [previsioni basate sul giudizio](https://otexts.com/fpp3/judgmental.html) descrive in termini generali la stessa divisione: il solo giudizio quando non ci sono dati, previsioni statistiche corrette dal giudizio quando ci sono, oppure entrambe prodotte separatamente e combinate. In pratica la combinazione utile per un piccolo team è un numero calcolato più una nota del responsabile sulle trattative che non rientrano nell’aritmetica.
+
+## Come mantenere accurato il forecast vendite?
+
+- **Salva un’istantanea e verifica a posteriori.** Nello stesso giorno di ogni mese, salva la previsione e l’elenco delle trattative che la sostiene. Alla fine del periodo, confronta: errore = (effettivo − previsione) ÷ previsione. Per esempio, una previsione di 92.000 contro un effettivo di 95.000 è +3,3%. Se l’errore pende nella stessa direzione per tre periodi di fila, cambia le probabilità invece di dare la colpa alla sorte.
+- **Calibra ogni fase.** La probabilità di una fase è il valore vinto delle trattative che l’hanno mai raggiunta, diviso per il valore di tutte le trattative che l’hanno raggiunta. Se 220.000 su 400.000 sono stati vinti dalla fase Proposta, la probabilità di Proposta è 55%. Nell’esempio, questo abbasserebbe le trattative B e D e toglierebbe 2.100 al valore ponderato del trimestre.
+- **Tieni oneste le date di chiusura.** Una trattativa la cui data di chiusura prevista è nel passato non rientra nella previsione di questo periodo finché qualcuno non le dà una nuova data. Sposta le date quando gli acquirenti slittano e conta quanto spesso succede.
+- **Osserva la concentrazione.** Elenca le tre trattative più grandi accanto al totale. Se una trattativa è un quinto del numero, dillo.
+- **Rivedi ogni settimana.** La revisione di 30 minuti nella [guida alla pipeline di vendita](/blog/sales-pipeline) è anche il momento in cui si correggono date di chiusura e passi successivi.
+
+## Quali campi del CRM servono a una trattativa per la previsione vendite?
+
+Ogni numero qui sopra viene da una manciata di campi. Se il tuo CRM li conserva come campi strutturati invece che come note, una previsione è un filtro e una somma.
+
+| Campo | Tipo | Cosa fa per la previsione | Regola |
+|---|---|---|---|
+| Importo | Importo | La base di ogni calcolo | Al netto delle imposte, una sola valuta e lo stesso significato su ogni trattativa (per esempio il valore del contratto del primo anno) |
+| Fase | Scelta singola | Decide la probabilità | Una condizione di ingresso verificabile per fase |
+| Probabilità della fase | Percentuale su ogni fase | Trasforma l’importo in valore ponderato | Rivista ogni trimestre rispetto ai risultati reali |
+| Valore ponderato | Calcolato | Importo × probabilità ÷ 100 | Mai digitato a mano |
+| Data di chiusura prevista | Data | Mette la trattativa in un periodo | Obbligatoria dalla fase di proposta in poi; spostata quando slitta |
+| Responsabile | Persona | Chi risponde della trattativa; previsione per persona | Uno solo |
+| Chiusa il | Data | Quando una trattativa è stata vinta o persa; alimenta già vinto, win rate e run-rate | Impostata quando la fase diventa Vinta o Persa |
+| Motivo della perdita | Scelta singola | Mostra perché il win rate si muove | Obbligatorio su ogni trattativa persa |
+| Fonte del lead | Scelta singola | Win rate per fonte | Facoltativa, ma economica da registrare alla creazione |
+| Prossimo passo e relativa data | Testo e data | Trova le trattative ferme prima che gonfino il numero | Una trattativa senza prossimo passo resta fuori dal Commit |
+| Organizzazione e contatto | Collegamenti ad altri record | Contesto e storico delle conversazioni dietro la trattativa | Collega ogni trattativa a entrambi |
+
+Un dodicesimo campo facoltativo è una categoria di previsione (Commit, Caso migliore, Pipeline) che registra la valutazione del responsabile, tenuta separata dalla probabilità della fase. Aggiungilo solo se il tuo team lo userà davvero per scavalcare la logica delle fasi.
+
+## Come fare la previsione delle vendite in Customermates
+
+Questa sezione descrive il nostro prodotto. Customermates è un [CRM open source per team di vendita](/blog/crm-for-sales), realizzato in Germania. Calcola una pipeline ponderata e la mostra in un grafico; non fa previsioni. Ecco la configurazione per l’esempio svolto.
+
+<Steps>
+  <Step title="Imposta le probabilità delle fasi">In **Modello dati**, apri Trattative e il campo **Fase**, e imposta **Probabilità %** su ogni opzione. Un’anteprima mostra l’effetto sulle trattative e sui widget esistenti prima di salvare. Il valore ponderato è un campo calcolato sulle trattative: **Valore** × probabilità ÷ 100. Se la tua lista è stata configurata a mano, controlla che esista e aggiungilo se manca. I [concetti di base](/docs/concepts#how-does-a-weighted-pipeline-work) spiegano il calcolo.</Step>
+  <Step title="Aggiungi i campi data">Con **Aggiungi › Campo** aggiungi un campo Data «Chiusura prevista» e un campo Data «Chiusa il». Aggiungi anche un campo Scelta singola «Motivo della perdita». Un grafico può raggruppare e filtrare solo ciò che registri.</Step>
+  <Step title="Costruisci i widget del trimestre">Nella **Dashboard**, con **Aggiungi widget**: un Grafico a barre che somma il **Valore ponderato** raggruppato per Fase, filtrato su Fase diversa da Vinta o Persa e Chiusura prevista tra il primo e l’ultimo giorno del trimestre; un widget Numero che somma il **Valore** per Fase uguale a Vinta e Chiusa il nel trimestre (già vinto finora); un widget Numero che somma il **Valore** delle stesse trattative aperte (l’importo aperto). Un grafico Area nel tempo con un **Intervallo di tempo** mensile, raggruppato per Chiusura prevista, mostra quando scade il valore ponderato.</Step>
+  <Step title="Salva un’istantanea quando pubblichi">Dalla lista delle trattative, apri **Altre azioni** e scegli **Esporta come Excel (.xlsx)**. L’esportazione mantiene filtri e ordinamento, contiene fino a 5.000 record e ha una colonna per ogni campo che puoi leggere. Salvala con la data nel nome del file. È la tua istantanea per la verifica a posteriori e il tuo input per win rate e run-rate in un foglio di calcolo.</Step>
+</Steps>
+
+Il win rate per valore richiede due totali dalle tue trattative chiuse: la somma di **Valore** per Vinta e per Persa, ciascuna filtrata per Chiusa il. Puoi leggere entrambe da widget Numero. In Customermates Cloud puoi anche chiedere a Mate di calcolarle, usando crediti IA ospitati; con un tuo client IA sul [server MCP](/docs/mcp) i totali arrivano dallo strumento `query_crm_measure`. In ogni caso è aritmetica sulle tue trattative chiuse, non una previsione.
+
+Un grafico conta solo le trattative che il tuo ruolo può leggere, quindi chi pubblica la previsione ha bisogno dell’accesso in lettura a tutte. La [guida alla dashboard](/docs/app-dashboard) documenta ogni opzione dei widget, e la [pagina sui report del CRM](/features/reporting) elenca gli altri report che un piccolo team costruisce. Le trattative stesse stanno nella [bacheca della pipeline](/features/pipeline).
+
+**Quanto costa.** I widget a grafico, la pipeline ponderata e l’esportazione in Excel sono in ogni piano, a partire da Starter a [[commercial.price.starter.monthly]] per utente al mese con fatturazione mensile. Anche l’edizione self-hosted li include. La [pagina dei prezzi](/pricing) ha i dettagli.
+
+<AcquisitionCallout title="Dove Customermates è la scelta sbagliata per la previsione" variant="boundary">
+Customermates moltiplica i valori delle trattative per le probabilità delle fasi che imposti e somma il risultato. Non prevede quali trattative si chiuderanno, non suggerisce probabilità di vittoria e non adatta un modello statistico al tuo storico. Mostra le trattative come sono adesso e non ha un report dei totali passati della pipeline, quindi salva un’esportazione il giorno in cui pubblichi una previsione. Non ha quote né un riepilogo delle previsioni per i responsabili; un campo di categoria che aggiungi può essere mostrato in un grafico, ma nulla lo controlla né lo riepiloga. Non ha preventivi né fatturazione, quindi vinta significa il valore della trattativa che inserisci, non ricavi fatturati o contabilizzati. Se ti servono previsioni predittive, previsioni inviate da ogni venditore o modelli a scenari, usa uno strumento di previsione dedicato.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Che cos’è la previsione delle vendite?">
+La previsione delle vendite è la stima dei ricavi che un team chiuderà in un periodo futuro, come un mese o un trimestre, a partire dalle trattative aperte e dai risultati passati. È diversa da un obiettivo, che è ciò che vuoi chiudere.
+</FaqItem>
+
+<FaqItem question="Come si calcola una previsione di vendita?">
+Moltiplica l’importo di ogni trattativa aperta per la probabilità della sua fase, somma i valori ponderati delle trattative che dovrebbero chiudersi nel periodo e aggiungi i ricavi già vinti in quel periodo. Controlla il risultato con un valore basato sul win rate (importo aperto × il tuo win rate per valore) e uno basato sul run-rate (la media degli ultimi quattro periodi).
+</FaqItem>
+
+<FaqItem question="Qual è il miglior modello per la previsione delle vendite?">
+Non ce n’è uno adatto a ogni team. Una pipeline ponderata funziona per i piccoli team con regole per le fasi e date di chiusura. Win rate e run-rate richiedono uno storico di trattative chiuse. I modelli statistici richiedono molti periodi di risultati stabili. Calcolane almeno due e pubblica un intervallo.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra una previsione di vendita e un obiettivo di vendita?">
+Una previsione è la stima di ciò che probabilmente chiuderai, calcolata dalla pipeline. Un obiettivo è il numero che vuoi raggiungere. Il piano è ciò che fai per colmare il divario tra i due.
+</FaqItem>
+
+<FaqItem question="Quanto è accurata una previsione di vendita?">
+Non esiste un valore universale onesto, perché dipende dalle dimensioni delle tue trattative, dalla durata del ciclo e dalla disciplina. Misura il tuo: confronta ogni previsione con il risultato effettivo e segui l’errore su più periodi. Un errore costante in una direzione si può correggere; uno casuale significa che i dati di partenza non sono affidabili.
+</FaqItem>
+
+<FaqItem question="Customermates può fare previsioni di vendita?">
+Calcola una pipeline ponderata: valore della trattativa per la probabilità che imposti sulla fase, mostrata nei grafici della dashboard ed esportabile in Excel. Non prevede le chiusure, non suggerisce probabilità né modella il tuo storico. Per questo usa uno strumento di previsione dedicato.
+</FaqItem>
+</Faq>
+
+Fonti di terze parti verificate il 9 novembre 2026: Hyndman e Athanasopoulos, *Forecasting: Principles and Practice*, 3ª edizione, [sezione 1.2](https://otexts.com/fpp3/planning.html), [sezione 1.6](https://otexts.com/fpp3/basic-steps.html) e [capitolo 6](https://otexts.com/fpp3/judgmental.html). Tutti gli importi delle trattative, i win rate e i risultati trimestrali dell’esempio svolto sono inventati a scopo illustrativo.

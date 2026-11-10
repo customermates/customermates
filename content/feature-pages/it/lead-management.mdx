@@ -1,0 +1,170 @@
+---
+title: "Lead management: software per la gestione dei lead"
+description: "Lead management: segui ogni lead dal primo messaggio alla trattativa vinta con fase, origine, viste salvate e conversazioni. Niente scoring né moduli."
+featureName: Gestione dei lead
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/unified-inbox
+  - /features/workflow-automation
+  - /blog/client-qualification
+
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "Siamo una piccola impresa di servizi B2B. Tieni clienti, preventivi e conversazioni in un unico posto e mostraci sulla dashboard chi dobbiamo richiamare."
+  steps:
+    items:
+      - title: "Dai ai lead il loro nome"
+        description: "In Modello dati, apri Contatti e rinominali in Lead sotto Generale se il tuo team parla così. La modifica vale per l’intero spazio di lavoro."
+      - title: "Aggiungi due campi ai contatti"
+        description: "Origine (Scelta singola: Segnalazione, Sito web, LinkedIn, Evento, Partner) e Idoneità (Scelta singola: Forte, Incerta, Scarsa). Tieni poche opzioni, così i filtri restano utili."
+      - title: "Salva due viste"
+        description: "«Nuovi e non assegnati»: Pipeline di vendita è Nuovo e Assegnato a non ne ha nessuno. «I miei lead aperti»: Assegnato a sei tu e Pipeline di vendita è Contatto, Qualificato o In corso, ordinati per Aggiornato il, dal più vecchio."
+      - title: "Lavora la board"
+        description: "Passa «I miei lead aperti» alla board, raggruppata per Pipeline di vendita, e trascina una scheda quando la conversazione avanza."
+      - title: "Apri una trattativa quando si fa sul serio"
+        description: "Quando un lead chiede una proposta, crea una trattativa, collega il contatto e la sua organizzazione e aggiungi una voce per ogni servizio che venderesti. Il valore della trattativa è la somma delle sue voci, ciascuna servizio per quantità."
+  highlights:
+    title: "In sintesi"
+    capture: homepage-pipeline
+    items:
+      - title: "Ogni piano"
+        description: "Contatti con un campo fase già pronto, campi personalizzati per origine e idoneità, viste salvate che puoi condividere, tabella o board, importazione Excel, REST e MCP, più webhook sui piani a pagamento. Self-hosted incluso."
+      - title: "Pro e superiori"
+        description: "Conversazioni di e-mail, LinkedIn, WhatsApp, Instagram e Telegram sul lead. Solo Customermates Cloud."
+      - title: "Non incluso"
+        description: "Nessun lead scoring, arricchimento, modulo web, assegnazione automatica, sequenza di e-mail o promemoria."
+
+hero:
+  title: "Lead management: fai follow up su ogni lead"
+  description: "Tieni ogni lead come contatto con una fase, un’origine e ogni messaggio di e-mail, LinkedIn o WhatsApp accanto. Vedi quali lead aspettano te e lascia che Mate prepari il follow up per la tua revisione. Niente scoring, niente moduli."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito richiesta ✓ Primi [[commercial.trial.days]] giorni gratis"
+
+cta:
+  action: Metti questa settimana i tuoi lead aperti in un’unica lista
+  description: Importa la tua lista di lead come cartella di lavoro .xlsx, aggiungi un campo Origine, salva due viste e verifica entro [[commercial.trial.days]] giorni se meno lead restano in silenzio.
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito richiesta ✓ Primi [[commercial.trial.days]] giorni gratis"
+---
+
+Il software di lead management tiene ogni potenziale cliente in un’unica lista, mostra a che punto è ciascuno e chi se ne occupa, e registra come ti ha trovato. Customermates lo fa per i piccoli team a contatto con i clienti: un lead è un contatto con un campo fase, un campo origine e un collega assegnato, e quando è qualificato apri per lui una trattativa nella [pipeline](/features/pipeline).
+
+**Dove i lead restano in silenzio.** Un lead si ferma quando l’ultimo messaggio resta senza risposta o nessuno ha impostato il prossimo passo. Con la conversazione sul lead vedi che cosa è stato detto per ultimo, e una vista salvata ordinata per **Aggiornato il**, dal più vecchio, elenca i lead che nessuno ha toccato. Mate in Customermates Cloud può preparare il follow up nella conversazione del lead, perché tu lo rivedi prima che venga inviato qualsiasi cosa.
+
+Conta altrettanto ciò che resta fuori. Customermates non assegna punteggi ai lead, non arricchisce i record, non ospita moduli web e non smista nulla a rotazione. Se i tuoi lead arrivano a centinaia da annunci e moduli, ti servono quei motori, e la tabella più sotto indica strumenti che li hanno.
+
+## Che cosa copre la gestione dei lead, e quali parti copre Customermates
+
+| Passo | In Customermates | Richiede un altro strumento |
+|---|---|---|
+| Acquisizione | Inserimento manuale, importazione Excel, collegamento di una conversazione della posta in arrivo a un nuovo contatto, REST, MCP | Moduli web, widget di chat, moduli lead degli annunci |
+| Tracciamento | Un campo fase sui contatti, fasi delle trattative con pesi fissi, cronologia delle modifiche | |
+| Qualifica | I tuoi criteri come campi personalizzati, compilati da persone, da Mate o dal tuo client IA | Punteggi automatici e dati firmografici |
+| Assegnazione | Utenti assegnati su ogni contatto e trattativa, impostati a mano o da un’istruzione | Smistamento a rotazione o per territorio |
+| Follow up | Risposte dal canale del contatto stesso, bozze di Mate in Customermates Cloud | Sequenze di e-mail in più passaggi |
+| Misurazione | Grafici della dashboard che contano i lead e sommano il valore delle trattative per qualsiasi campo a scelta singola | Tracciamento della conversione nel tempo e attribuzione multi-touch |
+
+Per una società di consulenza, un’agenzia o un fondatore che riceve qualche decina di richieste al mese, la colonna di sinistra di solito è tutto il lavoro. Quella di destra riguarda i team di marketing con un alto volume in entrata.
+
+## Come i lead entrano in Customermates
+
+- **A mano.** **Aggiungi** nella lista dei contatti, qualche campo, fatto.
+- **Da una conversazione (Pro e superiori).** Quando un indirizzo sconosciuto scrive alla tua posta in arrivo collegata, apri **Impostazioni della conversazione**, clicca su **Collega** accanto alla persona e scegli **Crea "…"**. Ogni messaggio successivo da quell’indirizzo compare sul nuovo contatto. Vedi la [posta in arrivo unificata](/features/unified-inbox).
+- **Da un foglio di calcolo.** Salva la tua lista come cartella di lavoro .xlsx e usa **Altre azioni › Aggiungi da file**. Importa prima le organizzazioni, poi i contatti. Una lista di lead acquistata da un’agenzia esterna di lead generation, o costruita da lei, entra allo stesso modo.
+- **Da un modulo del sito che già usi.** Il tuo strumento per i moduli o un [flusso di lavoro n8n](/features/workflow-automation) separato chiama l’API REST e crea il contatto con il valore dell’origine. Customermates non ha un costruttore di moduli proprio.
+- **Dal tuo client IA.** Claude, ChatGPT o un altro client MCP possono creare contatti da una firma e-mail incollata o da un elenco di evento, con [[derived.mcp.tools.total]] strumenti a disposizione.
+
+## Come si imposta: una società di consulenza di tre persone
+
+Un nuovo spazio di lavoro parte senza liste né campi. Crea in **Modello dati** una lista di contatti con un campo a scelta singola **Pipeline di vendita** (per esempio Nuovo, Contatto, Qualificato, In corso, Acquisito e Perso) e una lista di trattative con un campo **Fase**, oppure lascia che la configurazione con l’IA li costruisca nel cloud. Puoi rinominarli entrambi o modificarne le opzioni più tardi. Se il tuo team distingue i lead dai potenziali clienti, [la differenza tra prospect e lead](/blog/prospect-vs-lead) mostra come definire ogni fase.
+
+Condividi «Nuovi e non assegnati» con tutto il team o con ruoli selezionati, così tutti vedono gli stessi nuovi lead; «I miei lead aperti» resta una tua vista. La [guida ai record](/docs/app-records) documenta filtri, raggruppamenti e importazione.
+
+## Tracciare i lead dopo la prima risposta
+
+Un lead e la sua trattativa sono record separati. Non c’è un pulsante di conversione: il contatto resta nella lista con tutta la sua cronologia, e la trattativa porta il denaro.
+
+Dai a ogni fase della trattativa un peso, per esempio 10, 20, 40, 60 e 80 percento da Prospezione a Negoziazione, 100 per Vinta e 0 per Persa. Con questi, ogni trattativa ha un valore ponderato, e un grafico della dashboard che somma **Valore** o **Valore ponderato** per fase mostra la pipeline. Sono pesi di fase fissi che imposti tu, non una previsione.
+
+Nella dashboard, un grafico sui contatti raggruppati per **Origine** mostra quanti lead ha portato ogni canale. Lo stesso grafico sulle trattative, con un campo Origine sulle trattative e la somma di **Valore**, mostra quali canali portano denaro. Un grafico a **Imbuto** mostra i record correnti per fase con la conversione da un passaggio all’altro; la conversione nel tempo non viene tracciata, quindi esporta la lista in Excel se la vuoi.
+
+Per seguire i lead in altri sistemi man mano che cambiano, i webhook scattano su `record.created` e `record.updated` per le liste Contatti e Trattative, tra [[derived.webhooks.events.total]] eventi. Un messaggio Slack su un nuovo lead passa da n8n o dal tuo endpoint; non esiste un’integrazione Slack nativa. Ogni modifica a un lead finisce nella sua cronologia, che i ruoli con accesso in lettura al **Registro attività** possono vedere.
+
+## Mate e routine sui nuovi lead (Customermates Cloud)
+
+In Customermates Cloud, Mate, l’assistente ospitato, usa crediti IA ospitati e lavora sui lead in linguaggio naturale: «Mostrami ogni lead con Origine LinkedIn e Pipeline di vendita Contatto aggiornato l’ultima volta più di due settimane fa, e prepara un breve follow up nella conversazione di ciascun lead. Non inviare nulla.»
+
+Una [routine](/docs/app-routines) esegue da sola un’istruzione salvata. Imposta l’attivatore su **Quando qualcosa cambia** con l’evento **Record creato** per i Contatti, e dalle un’istruzione come questa:
+
+```text
+È stato appena creato un nuovo lead. Leggi il contatto e l'eventuale conversazione collegata. Se Origine è vuota e la conversazione mostra da dove arrivano, imposta Origine. Imposta Idoneità su Incerta se è vuota. Prepara una risposta nella conversazione ma non inviarla. Non modificare Assegnato a.
+```
+
+La routine viene eseguita come il suo proprietario e vede ciò che vede quella persona. Mate invia i messaggi senza chiedere approvazione quando un’istruzione glielo dice, quindi una routine che deve solo preparare bozze deve dirlo, come fa questa. Starter include [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per utente, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+
+Con il self-hosting non c’è Mate. Il tuo client IA fa la stessa lettura e scrittura tramite MCP, con costi a carico del tuo provider IA.
+
+## Che cosa non fa
+
+- Nessun lead scoring e nessun arricchimento dei dati. Un campo Idoneità contiene ciò che decide il tuo team.
+- Nessun modulo web incorporato né widget di chat.
+- Nessuna regola di assegnazione automatica. Una routine può seguire una tua regola scritta («assegna i lead da Evento a Jana»), ma è un’istruzione, non un motore di smistamento.
+- Nessuna sequenza di e-mail, campagne a goccia né e-mail di massa. I follow up sono messaggi singoli.
+- Nessun promemoria né scadenza sulle attività. Metti una data in un campo personalizzato e filtra su di essa.
+- Nessuna app mobile. L’app web funziona sugli schermi stretti.
+
+## Quale tipo di strumento fa per te
+
+Customermates pubblica questa pagina. I dettagli sui fornitori sono stati verificati l’8 ottobre 2026 sulle pagine ufficiali collegate in fondo.
+
+| La tua situazione | Guarda |
+|---|---|
+| Un volume in entrata abbastanza alto da richiedere punteggi per i lead | HubSpot Sales Hub, che elenca il lead scoring nella sua pagina dei prezzi, o Zoho CRM, con regole di punteggio dall’edizione Standard |
+| Lead da distribuire automaticamente | HubSpot Sales Hub, che elenca lo smistamento dei moduli lead nella sua pagina dei prezzi, o Zoho CRM, con regole di assegnazione dall’edizione Professional |
+| Lead non qualificati tenuti separati dalle trattative, con un passaggio di conversione | Leads Inbox di Pipedrive |
+| Un inizio gratuito fino a 3 utenti, con moduli web | L’edizione gratuita di Zoho CRM, fino a 5.000 record |
+| Un’agenzia di lead generation che consegna lead ai suoi clienti | noCRM, che trasferisce i lead qualificati nelle pipeline dei clienti |
+| Un piccolo team i cui lead arrivano come conversazioni e che vuole IA e open source | Customermates |
+
+## Quanto costa
+
+Un [consulente autonomo](/for/freelancers) con Starter paga [[commercial.price.starter.monthly]] al mese, senza la posta in arrivo. Tre persone con Pro pagano [[commercial.price.pro.monthly.seats.3]] al mese e ottengono le conversazioni sul lead, con [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente. La fatturazione è mensile e per utente, mai per lead o per contatto. Ogni piano Cloud a pagamento include crediti IA ospitati mensili per ogni utente attivo; vedi i [prezzi](/pricing).
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Che cos’è un software di lead management?">
+Un software che tiene ogni potenziale cliente in un unico posto con il suo stato, la sua origine, il suo responsabile e la sua cronologia, così nessuno viene dimenticato tra il primo contatto e il contratto firmato. Le suite più grandi aggiungono scoring, moduli, smistamento e campagne di nurturing.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra lead tracking e lead management?">
+Il lead tracking registra da dove viene un lead e a che punto è ora. La gestione dei lead copre anche acquisizione, qualifica, assegnazione e follow up. In Customermates entrambi avvengono sul contatto: l’Origine risponde alla prima domanda, il campo fase alla seconda.
+</FaqItem>
+
+<FaqItem question="Qual è il miglior CRM per la gestione dei lead?">
+Dipende dal volume. Con centinaia di lead da moduli al mese contano scoring e smistamento, e li offrono HubSpot Sales Hub o le edizioni a pagamento di Zoho CRM. Con qualche decina di richieste che diventano conversazioni contano di più la fase, l’origine e la cronologia dei messaggi, ed è attorno a questo che è costruito Customermates.
+</FaqItem>
+
+<FaqItem question="Customermates può integrare il tracciamento dei lead con il mio sito o i miei annunci?">
+Tramite l’API REST, n8n o il webhook del tuo strumento per i moduli, sì: creano il contatto e scrivono valori UTM o di campagna in campi personalizzati. Customermates non ha un costruttore di moduli né un collegamento proprio con le piattaforme pubblicitarie.
+</FaqItem>
+
+<FaqItem question="Posso importare lead da un fornitore esterno di lead generation?">
+Sì. Salva la lista consegnata come cartella di lavoro .xlsx e importala, oppure lascia che il fornitore crei i contatti tramite l’API. Customermates non genera né acquista lead.
+</FaqItem>
+
+<FaqItem question="Esiste un software gratuito per la gestione dei lead?">
+Gli strumenti CRM gratuiti di HubSpot consentono 2 utenti e 1.000 contatti, l’edizione gratuita di Zoho CRM 3 utenti e 5.000 record. Customermates Cloud ha un piano gratuito per [[commercial.limit.free.maxMembers]] persona e [[commercial.limit.free.maxRecords]] record, senza posta in arrivo, Mate né routine, e il suo nucleo AGPL gira [in self-hosting](/features/self-hosted) senza costi di licenza, senza posta in arrivo e senza Mate.
+</FaqItem>
+</Faq>
+
+Dettagli di terze parti verificati l’8 ottobre 2026: [prezzi di HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), [prezzi di HubSpot CRM](https://www.hubspot.com/pricing/crm), [Leads Inbox di Pipedrive](https://support.pipedrive.com/en/article/leads-inbox), [edizione gratuita di Zoho CRM](https://www.zoho.com/crm/free-crm.html), [confronto delle edizioni di Zoho CRM](https://www.zoho.com/crm/complete-feature-list.html), [noCRM per le agenzie di lead generation](https://www.nocrm.io/de/solutions/leadgenerierung).

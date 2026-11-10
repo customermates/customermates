@@ -1,0 +1,236 @@
+---
+title: "CRM Google Sheets: modello gratuito e guida"
+description: "CRM Google Sheets: modello gratuito con cinque schede, menu a discesa, formule QUERY, e-mail giornaliera con Apps Script e quando un foglio non basta."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/free-crm
+  - /features/simple-crm
+  - /docs/app-records
+
+hero:
+  title: "CRM Google Sheets: modello gratuito, formule e il punto in cui smette di funzionare"
+  description: "Schede, colonne, menu a discesa e formule per un CRM su foglio di calcolo che da una a tre persone possono gestire in Google Sheets, un breve Apps Script che ti scrive ogni mattina e un percorso pulito verso un CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2025-12-22
+  updated: 2026-10-08
+  tags:
+    - Google Sheets
+    - Modello CRM
+    - CRM su foglio di calcolo
+    - CRM gratuito
+---
+
+# CRM Google Sheets: un modello gratuito, le formule e il punto in cui smette di funzionare
+
+Sì, un CRM in Google Sheets (in italiano Fogli Google) funziona per un team da una a tre persone. Dai a ogni tipo di record la sua scheda (contatti, trattative, attività), trasforma ogni valore fisso in un menu a discesa e lascia che una scheda Dashboard conti e sommi il resto con QUERY e COUNTIFS. Google non vende un CRM: il suo [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) ne elenca di terzi come Copper, Pipedrive, Streak e Zoho CRM, e Gmail, Moduli e Apps Script sono i pezzi che colleghi tu.
+
+Customermates pubblica questa guida ed è il CRM dell’esempio di migrazione in fondo. Tutto ciò che precede quella sezione richiede solo un account Google.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Cosa costruisci">Cinque schede: Liste, Contatti, Trattative, Attività e una Dashboard con tabelle in tempo reale di follow-up e pipeline.</SummaryItem>
+  <SummaryItem label="Cosa aggiunge Google">Risposte dei moduli che arrivano da sole nel foglio, avvisi di modifica via e-mail e Apps Script per un’e-mail mattutina con i prossimi passi scaduti.</SummaryItem>
+  <SummaryItem label="A chi si adatta">Da una a tre persone, un solo processo di vendita, conversazioni soprattutto via e-mail.</SummaryItem>
+  <SummaryItem label="Dove si rompe">L’accesso è per file, non per riga. I collegamenti tra le schede sono testo semplice, e i thread di LinkedIn o WhatsApp non arrivano mai nel foglio se qualcuno non li scrive a mano.</SummaryItem>
+  <SummaryItem label="Come passare a un CRM">Scarica come .xlsx e importa una scheda alla volta: aziende, poi contatti, poi trattative.</SummaryItem>
+</ArticleSummary>
+
+Usa il [modello di elenco contatti](/blog/contact-list-template) per una piccola rubrica condivisa con un responsabile e un prossimo passo indicati, prima di decidere se trasferirla in un CRM.
+
+## Quattro regole per impostare il foglio
+
+1. **Una riga di intestazione, una riga per record.** Niente celle unite, niente righe vuote, niente subtotali tra i record.
+2. **Trasforma ogni scheda di dati in una tabella.** Seleziona l’intervallo e scegli Formato › Converti in tabella. La [guida alle tabelle](https://support.google.com/docs/answer/14239833) di Google ti permette di impostare un tipo per ogni colonna: Menu a discesa, Data, Valuta, Chip persona e altri. Una colonna Data segnala allora con un avviso un «martedì prossimo», cosa che conta quando le formule confrontano le date.
+3. **Trasforma ogni valore fisso in un menu a discesa.** Inserisci › Menu a discesa, oppure Dati › Convalida dei dati con «Menu a discesa (da un intervallo)» che punta alla scheda Liste. Secondo la [guida ai menu a discesa](https://support.google.com/docs/answer/186103) di Google, i valori non validi vengono rifiutati per impostazione predefinita. Lascialo così: «Proposta» e «proposta inviata» sono due fasi diverse per ogni formula.
+4. **Collega per nome.** L’azienda di un contatto è il nome esatto dell’azienda, il contatto di una trattativa è il nome completo della persona. I nomi sono leggibili, e le importazioni nei CRM, Customermates compreso, abbinano i collegamenti per nome.
+
+## Il modello, scheda per scheda
+
+### Liste
+
+| Intervallo | Valori |
+| --- | --- |
+| A: Fase, B: Probabilità | Prospezione 10%, Qualificazione 20%, Demo 40%, Proposta 60%, Negoziazione 80%, Vinta 100%, Persa 0% |
+| D: Tipo di contatto | Lead, Cliente, Partner, Ex cliente |
+| E: Fonte | Segnalazione, Sito web, LinkedIn, Evento, Modulo web |
+| F: Tipo di attività | Chiamata, E-mail, Riunione, LinkedIn, WhatsApp |
+| G: Team | Nome completo di chi possiede dei record |
+
+Queste fasi e probabilità sono un esempio. Customermates non ha fasi predefinite: crea le stesse opzioni nel campo Fase della tua lista di trattative nel Modello dati (oppure lascia che la configurazione con IA le crei nel cloud), e la colonna Fase si trasferisce più avanti senza dover rinominare nulla. Sostituisci le percentuali quando avrai qualche mese di trattative vinte e perse da contare.
+
+### Contatti
+
+Colonne da A a J: Nome, Cognome, Azienda, E-mail, Telefono, URL LinkedIn, Tipo di contatto, Fonte, Responsabile, Note. Tieni separati nome e cognome; la maggior parte dei CRM ha bisogno di entrambi per creare una persona. Se vendi ad aziende, aggiungi una scheda Aziende con Azienda, Sito web, Settore e Città, e fai puntare a lei il menu a discesa della colonna Azienda.
+
+### Trattative
+
+| Colonna | Contenuto | Esempio |
+| --- | --- | --- |
+| A Trattativa | Testo | Verifica della sicurezza Brookfield Architects |
+| B Azienda | Menu a discesa | Brookfield Architects |
+| C Contatto | Nome completo | Sarah Okafor |
+| D Valore | Numero | 18000 |
+| E Fase | Menu a discesa da Liste!A | Proposta |
+| F Probabilità | Formula | 60% |
+| G Ponderato | Formula | 10800 |
+| H Responsabile | Menu a discesa da Liste!G | Anna Berg |
+| I Prossimo passo | Una frase | Inviare l’ambito rivisto |
+| J Data prossimo passo | Data | 2025-12-04 |
+| K Chiusa il | Data, compilata quando è Vinta o Persa | |
+
+Inseriscile nella riga 2 e trascinale verso il basso. Tutte le formule di questa pagina usano i nomi di funzione inglesi e il punto e virgola come separatore, come richiede un foglio con impostazioni locali italiane (File › Impostazioni):
+
+```
+F2  =IFERROR(VLOOKUP(E2;Liste!A:B;2;FALSE);0)
+G2  =D2*F2
+```
+
+### Attività
+
+Una riga per ogni conversazione che ha contato: Data, Contatto, Trattativa, Tipo, Responsabile, Riepilogo e Prossimo passo. È l’unica scheda che risponde a «cosa gli abbiamo detto l’ultima volta?», quindi compilala subito dopo la chiamata o non lo farà nessuno.
+
+### Dashboard
+
+Quattro numeri:
+
+```
+Pipeline aperta       =SUMIFS(Trattative!D2:D;Trattative!E2:E;"<>Vinta";Trattative!E2:E;"<>Persa";Trattative!A2:A;"<>")
+Pipeline ponderata    =SUMIFS(Trattative!G2:G;Trattative!E2:E;"<>Vinta";Trattative!E2:E;"<>Persa";Trattative!A2:A;"<>")
+Tasso di vittoria     =COUNTIF(Trattative!E2:E;"Vinta")/MAX(1;COUNTIF(Trattative!E2:E;"Vinta")+COUNTIF(Trattative!E2:E;"Persa"))
+Prossimi passi scaduti =COUNTIFS(Trattative!J2:J;"<"&TODAY();Trattative!E2:E;"<>Vinta";Trattative!E2:E;"<>Persa")
+```
+
+Due funzioni rendono la versione Google migliore di quella Excel. [QUERY](https://support.google.com/docs/answer/3093343) costruisce la pipeline per fase come una tabella che si aggiorna da sola. La query tra virgolette resta in inglese:
+
+```
+=QUERY(Trattative!A1:K;"select E, count(A), sum(D) where E is not null and E <> 'Vinta' and E <> 'Persa' group by E label count(A) 'Trattative', sum(D) 'Valore'";1)
+```
+
+E FILTER ti dà un elenco di follow-up in tempo reale, con ogni trattativa aperta la cui data del prossimo passo è passata:
+
+```
+=FILTER(Trattative!A2:J;Trattative!J2:J<>"";TODAY()>Trattative!J2:J;Trattative!E2:E<>"Vinta";Trattative!E2:E<>"Persa")
+```
+
+Metti ciascuna in un proprio blocco della Dashboard e lascia spazio sotto, perché entrambe si espandono verso il basso.
+
+## Cosa aggiunge Google attorno al foglio
+
+**Acquisizione di lead con Moduli Google.** Collega un modulo al foglio di calcolo da Risposte › Seleziona destinazione delle risposte, e la [guida di Moduli](https://support.google.com/docs/answer/2917686) di Google dice che ogni nuova risposta viene aggiunta automaticamente. Lascia la scheda delle risposte così com’è e copia a mano i [lead qualificati](/features/lead-management) in Contatti. Modificare o riordinare le sue colonne è il modo più rapido per rompere il collegamento con il modulo.
+
+**Avvisi di modifica.** Strumenti › Impostazioni di notifica › Modifica notifiche invia un’e-mail quando qualcuno modifica il file, subito o come riepilogo giornaliero. Secondo la [guida alle notifiche](https://support.google.com/docs/answer/91588) di Google, riguarda solo le modifiche degli altri. Ti dice che Anna ha modificato Trattative. Non ti dice che una data del prossimo passo è passata.
+
+**Un’e-mail mattutina con Apps Script.** Per questo, apri Estensioni › Apps Script e incolla:
+
+```js
+function mailPastNextSteps() {
+  const rows = SpreadsheetApp.getActive().getSheetByName('Trattative').getDataRange().getValues();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = rows.slice(1).filter(r =>
+    r[9] instanceof Date && r[9] < today && r[4] !== 'Vinta' && r[4] !== 'Persa');
+  if (due.length) {
+    MailApp.sendEmail(Session.getEffectiveUser().getEmail(),
+      due.length + ' prossimi passi scaduti',
+      due.map(r => r[0] + ': ' + r[8]).join('\n'));
+  }
+}
+```
+
+Poi aggiungi un trigger (icona dell’orologio › Aggiungi trigger), origine evento «Basato sul tempo», tipo «Timer giornaliero», dalle 7 alle 8. La colonna J è l’indice 9 perché l’array parte da 0. Le [quote di Apps Script](https://developers.google.com/apps-script/guides/services/quotas) di Google limitano un account Gmail gratuito a 100 destinatari di e-mail e 90 minuti di esecuzione dei trigger al giorno; gli account Workspace ottengono 1.500 destinatari e 6 ore. Un’e-mail al giorno è molto al di sotto di entrambi i limiti.
+
+**Visualizzazioni filtro al posto dei filtri.** Un filtro normale cambia la vista per tutti coloro che hanno accesso. Dati › Visualizzazioni filtro › Crea nuova visualizzazione filtro salva un filtro che cambia solo la tua vista, come spiega la [guida ai filtri](https://support.google.com/docs/answer/3540681) di Google. Dai a ogni persona una visualizzazione filtro «Le mie trattative aperte» su Responsabile e Fase.
+
+## Dove un CRM in Google Sheets smette di funzionare
+
+La dimensione è raramente il problema. Google consente fino a 20 milioni di celle per foglio di calcolo nei suoi [limiti dei file di Drive](https://support.google.com/drive/answer/37603), molte più di quante ne riempia un piccolo team. Questi limiti emergono per primi:
+
+- **Tutti vedono tutto.** La condivisione funziona per file. Gli intervalli protetti impediscono le modifiche, ma la [guida alla protezione](https://support.google.com/docs/answer/1218656) di Google dice chiaramente che le persone possono comunque copiare ed esportare un foglio di calcolo protetto, e che la protezione non va usata come misura di sicurezza. Una freelance che aggiungi per aggiornare due trattative può leggere l’intero elenco dei clienti.
+- **I collegamenti sono testo.** Rinomina un’azienda e ogni contatto e ogni trattativa che usava il vecchio nome non punta più a nulla finché non esegui Trova e sostituisci.
+- **Le conversazioni restano altrove.** I thread di Gmail, i messaggi di LinkedIn e le chat di WhatsApp arrivano nel foglio solo quando qualcuno li riassume in Attività.
+- **I dati personali si moltiplicano.** Ogni download, copia e «crea una copia per me» è un altro posto in cui vivono i dati di una persona. Quando qualcuno esercita i suoi diritti previsti dal [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj) per vedere i propri dati (articolo 15) o farli cancellare (articolo 17), devi trovarli tutti.
+
+## Restare su Sheets, aggiungere uno strumento o cambiare?
+
+| Se ti riconosci in questo | Fai così |
+| --- | --- |
+| Una persona, qualche centinaio di contatti, soprattutto e-mail | Tieni il modello qui sopra e l’e-mail di Apps Script |
+| Due o tre persone, un elenco di trattative condiviso, tutti possono vedere tutto | Tieni il foglio, aggiungi visualizzazioni filtro per ogni persona e regole di notifica |
+| Vuoi funzioni da CRM ma il tuo team si rifiuta di lasciare Sheets | Guarda i componenti aggiuntivi CRM del Google Workspace Marketplace, che funzionano dentro Sheets o Gmail |
+| Più persone condividono le trattative, i follow-up slittano o le trattative avanzano nei thread di LinkedIn e WhatsApp | Passa a un CRM, partendo dall’importazione qui sotto |
+| Usi Excel o Microsoft 365 invece di Google | Usa il [modello CRM in Excel](/blog/excel-crm-template), che ha lo stesso schema più un tracker settimanale per ogni venditore |
+
+Una semplice regola pratica: quando due persone modificano le stesse trattative ogni settimana e un follow-up è slittato, passa. Prima di allora, il foglio va bene.
+
+## Trasferire un CRM di Google Sheets in Customermates
+
+Customermates importa cartelle di lavoro Excel (.xlsx) e file CSV, una lista alla volta, quindi un foglio Google passa prima da un download. Non c’è sincronizzazione in tempo reale con Google Sheets. La [documentazione sull’importazione](/docs/app-records#how-do-i-import-or-export-records) contiene tutte le regole, e la [guida al modello Excel](/blog/excel-crm-template#moving-the-template-into-customermates) associa ogni colonna di questo schema a un campo. Un foglio fa follow-up solo quando qualcuno si ricorda di aprirlo. In Customermates, le conversazioni di ogni cliente stanno nella scheda del cliente (su Customermates Cloud dal piano Pro), Mate o il tuo agente IA scrive la bozza della risposta e del passo successivo, e la data del prossimo passo alimenta la tua dashboard invece di un filtro che devi controllare.
+
+<Steps>
+  <Step title="Ripulisci le schede">Usa Dati › Pulizia dei dati › Rimuovi duplicati su Contatti e Trattative, e correggi ogni valore che un menu a discesa segnala. Ogni fase e ogni tipo deve essere esattamente uno dei valori di Liste.</Step>
+  <Step title="Crea i campi personalizzati">In Customermates, apri la lista in **Modello dati** e scegli **Aggiungi**, poi **Campo**. Per ogni colonna con menu a discesa (Tipo di contatto, Fonte, Settore), aggiungi un campo **Scelta singola** con etichette delle opzioni identiche a quelle della tua scheda Liste. Usa campi Data per Data prossimo passo e Chiusa il. Il campo Fase delle trattative esiste già con le fasi indicate sopra.</Step>
+  <Step title="Scarica la cartella di lavoro">Scegli File › Scarica › Microsoft Excel (.xlsx). La procedura guidata ti chiede quale scheda importare, quindi lo stesso file serve per ogni importazione.</Step>
+  <Step title="Importa nell’ordine delle dipendenze">Aziende in **Organizzazioni**, poi Contatti, poi Trattative. Su ogni lista, apri **Altre azioni**, scegli **Aggiungi da file** e abbina ogni colonna a un campo, per esempio gli indirizzi e-mail al campo **Recapiti** del contatto. I collegamenti sono abbinati per nome, senza distinguere maiuscole e minuscole, quindi un’azienda deve esistere prima che un contatto possa puntare a lei. Il Responsabile va in **Assegnato a**, abbinato al nome completo del membro del team.</Step>
+  <Step title="Prova con dieci righe">Il controllo elenca ogni riga problematica prima che venga aggiunto qualcosa, e puoi saltare quelle righe. Un’importazione non si può annullare, quindi prova prima con un file piccolo. Porta dalle Attività solo i prossimi passi aperti, come attività da svolgere; la storia più vecchia può andare nelle Note di una trattativa o restare nel foglio archiviato.</Step>
+</Steps>
+
+I valori delle trattative funzionano in modo diverso: in Customermates il valore di una trattativa è la somma delle sue voci, ciascuna un servizio per la quantità. I [passi di importazione](/blog/excel-crm-template#moving-the-template-into-customermates) della guida Excel mostrano come portare prima il tuo listino.
+
+### Cosa sostituisce la Dashboard e l’Apps Script
+
+- **QUERY per fase** diventa la lista Trattative come board raggruppata per Fase, con valore totale e ponderato per colonna, mostrata nella [vista pipeline](/features/pipeline).
+- **L’elenco di follow-up con FILTER** diventa una vista salvata delle trattative filtrate sulla data del prossimo passo, ordinate dalla più vecchia. Si può condividere con il team.
+- **L’e-mail mattutina** può diventare una routine in Customermates Cloud. Customermates non ha promemoria né notifiche, ma una routine impostata per girare ogni giorno alle 08:00 può seguire un’istruzione come questa, usando crediti IA ospitati:
+
+> Elenca le mie trattative aperte la cui Data del prossimo passo è oggi o precedente. Per ciascuna, crea un’attività collegata alla trattativa, assegnata a me, chiamata «Follow-up» più il nome della trattativa. Non inviare né scrivere bozze di messaggi.
+
+Una routine gira come il suo proprietario, e Mate invia messaggi quando glielo dici, quindi l’ultima frase conta. Starter include [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per utente e Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; la [documentazione sulle routine](/docs/app-routines) contiene i limiti di esecuzione.
+
+- **La scheda Attività** lascia il posto, dal piano Pro in su, alla [posta in arrivo unificata](/features/unified-inbox), dove i thread di Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram stanno insieme al contatto. Starter non ha la posta in arrivo.
+
+Se vuoi comunque una copia per i report in Google Sheets, i webhook possono inviare le modifiche ai record a un’istanza [n8n](/docs/n8n) gestita separatamente, che le scrive in un foglio.
+
+## Quanto costa e quando Customermates è il passo sbagliato
+
+| Team | Piano | Al mese |
+| --- | --- | --- |
+| 3 persone, CRM senza posta in arrivo | Starter, [[commercial.price.starter.monthly]] per utente | [[commercial.price.starter.monthly.seats.3]] |
+| 3 persone, con la posta in arrivo unificata | Pro, [[commercial.price.pro.monthly]] per utente | [[commercial.price.pro.monthly.seats.3]] |
+| Il tuo server | Nucleo AGPL self-hosted | Nessun costo di licenza, più l’hosting; REST, webhook e MCP, ma niente posta in arrivo e niente Mate |
+
+La fatturazione è mensile, e la prova ospitata dura [[commercial.trial.days]] giorni su Pro senza carta di credito: [avvia la tua prova](/auth/signup?job=followup) e importa una scheda per vedere lì le tue trattative. Ogni piano ospitato a pagamento include crediti IA ospitati ogni mese per utente attivo; vedi i [prezzi](/pricing).
+
+Customermates è il passo sbagliato se il tuo processo vive nelle formule: non ha campi con formula, quindi i calcoli personalizzati restano in un foglio di calcolo tramite l’esportazione. Lo è anche se ti serve un dialer telefonico, campagne e-mail o un’app nativa per il telefono. Customermates non ha nulla di tutto questo, quindi cerca un CRM che li offra. E se l’esigenza reale è «restare dentro Google Sheets», un componente aggiuntivo del Marketplace si adatta meglio di qualsiasi CRM separato.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Si può usare Google Sheets come CRM?">
+Sì, per un team da una a tre persone con un solo processo di vendita. Lo schema a cinque schede qui sopra copre contatti, trattative, attività e una dashboard, e Apps Script può inviarti ogni mattina un’e-mail con i prossimi passi scaduti. Non può limitare chi vede quali righe, mantenere intatti i collegamenti quando un nome cambia, né portare dentro le conversazioni di Gmail, LinkedIn o WhatsApp.
+</FaqItem>
+
+<FaqItem question="Google ha uno strumento CRM?">
+No. Google Workspace ha Sheets, Gmail, Contatti e Moduli, ma nessun CRM proprio. La [categoria Sales & CRM](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) del Workspace Marketplace elenca CRM di terzi che si collegano a Google, tra cui Copper, Pipedrive, Streak e Zoho CRM.
+</FaqItem>
+
+<FaqItem question="Esiste un modello CRM gratuito per Google Sheets?">
+Lo schema di questa pagina è gratuito: copia le intestazioni in un foglio di calcolo vuoto, aggiungi i menu a discesa e incolla le formule. Se scarichi un modello altrove, controlla che mantenga un record per riga, i contatti separati dalle aziende e nessuna cella unita. Un modello che non supera questi controlli è difficile da importare in un CRM più avanti.
+</FaqItem>
+
+<FaqItem question="Quanti contatti può gestire un CRM in Google Sheets?">
+Un foglio di calcolo contiene fino a 20 milioni di celle, secondo i [limiti dei file](https://support.google.com/drive/answer/37603) di Google. Il limite pratico sono le persone, non le righe: l’accesso condiviso e i follow-up che slittano diventano un problema molto prima che il file si riempia. Customermates oggi legge fino a 5.000 righe per file di importazione, quindi dividi le schede più grandi.
+</FaqItem>
+
+<FaqItem question="Posso collegare un elenco di Google Sheets a un CRM?">
+Alcuni CRM offrono un componente aggiuntivo per Sheets; il Workspace Marketplace elenca per esempio Copper CRM for Google Sheets. Customermates no: importa file Excel e CSV ed esporta file .xlsx, una lista alla volta, senza sincronizzazione in tempo reale. Puoi esportare una lista, modificarla in Sheets, scaricarla come .xlsx e importarla di nuovo come **Record esistenti**; la sua colonna ID record aggiorna i record esistenti invece di creare duplicati.
+</FaqItem>
+
+<FaqItem question="Si può creare un CRM in Excel?">
+Sì. Il [modello CRM in Excel](/blog/excel-crm-template) usa la stessa struttura con tabelle Excel, XLOOKUP e un tracker settimanale per ogni venditore. Scegli lo strumento in cui il tuo team condivide già i file.
+</FaqItem>
+</Faq>
+
+Dettagli su Google verificati l’8 ottobre 2026 sulle pagine di aiuto di Google su [tabelle](https://support.google.com/docs/answer/14239833), [menu a discesa](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [risposte di Moduli](https://support.google.com/docs/answer/2917686), [notifiche](https://support.google.com/docs/answer/91588), [visualizzazioni filtro](https://support.google.com/docs/answer/3540681), [intervalli protetti](https://support.google.com/docs/answer/1218656), [limiti dei file di Drive](https://support.google.com/drive/answer/37603), le [quote di Apps Script](https://developers.google.com/apps-script/guides/services/quotas) e il [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).

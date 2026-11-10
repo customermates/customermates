@@ -1,0 +1,255 @@
+---
+title: "CRM automation: routine, webhook, n8n e MCP"
+description: "CRM automation con routine IA, webhook, n8n o MCP: quattro esempi svolti con passaggi, limiti dei piani e ciò che Customermates non automatizza."
+featureName: Automazione dei workflow
+
+relatedHrefs:
+  - /docs/app-routines
+  - /features/unified-inbox
+  - /features/integrations
+  - /features/api
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Aggiungi la routine"
+        description: "Apri Routine, clicca su Aggiungi e chiamala «Controllo della pipeline del lunedì»."
+      - title: "Imposta l’attivatore"
+        description: "Scegli Secondo una pianificazione, poi Ripetizione: Ogni settimana, lunedì, 08:00."
+      - title: "Incolla l’istruzione"
+        description: "Incolla la tua istruzione con i nomi delle tue fasi e salva."
+      - title: "Provala una volta"
+        description: "Clicca su Testa l'attivazione. Dettagli dell'esecuzione mostra la risposta di Mate, i record che ha letto e i crediti che ha usato."
+  highlights:
+    title: "In breve"
+    capture: homepage-routines
+    items:
+      - title: "Due motori"
+        description: "Le routine per il lavoro che richiede lettura e giudizio. Webhook più n8n o il tuo codice per le regole fisse."
+      - title: "Piani"
+        description: "Routine in ogni piano Cloud a pagamento: [[commercial.entitlement.starter.includedRoutinesPerUser]] per utente su Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] su Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] su Business. REST e MCP in ogni piano; webhook in ogni piano a pagamento, self-hosted compreso."
+      - title: "Costo"
+        description: "Un’esecuzione di una routine usa i crediti IA ospitati mensili del suo proprietario e si ferma a 10 crediti. n8n fattura i propri piani."
+      - title: "Non incluso"
+        description: "Nessun builder visuale né ramificazioni dentro il CRM, nessuna sequenza e-mail e nessun promemoria delle attività."
+
+hero:
+  title: "CRM automation: workflow con routine IA e webhook aperti"
+  description: "Le routine in Customermates Cloud eseguono Mate a orari fissi o quando arriva un’e-mail, così le bozze di risposta aspettano la tua revisione. REST e MCP collegano qualsiasi strumento in ogni piano; webhook e n8n sono inclusi in ogni piano a pagamento e nel self-hosting."
+  buttonLeftText: "Inizia la tua prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Leggi la guida alle routine
+  buttonRightHref: /docs/app-routines
+  hint: "✓ Nessuna carta di credito richiesta ✓ Primi [[commercial.trial.days]] giorni gratis"
+
+cta:
+  action: "Automatizza il tuo controllo del follow up del lunedì"
+  description: "Imposta il controllo della pipeline del lunedì durante la prova e lascia che una routine prepari i follow up. Collega n8n per le regole che devono scattare sempre allo stesso modo."
+  buttonLeftText: "Inizia la tua prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Collega n8n
+  buttonRightHref: /docs/n8n
+  hint: "✓ Nessuna carta di credito richiesta ✓ Primi [[commercial.trial.days]] giorni gratis"
+---
+
+La CRM automation (l’automazione del CRM) significa che un passo ricorrente del CRM avviene senza che nessuno debba ricordarsene: una trattativa viene vinta e le attività di onboarding esistono già, un cliente scrive un’e-mail e una bozza di risposta è lì ad aspettare. In Customermates la costruisci con le **routine** (Mate, l’assistente ospitato, esegue un’istruzione salvata a orari fissi o quando un record cambia, solo Cloud), con **webhook, API REST e n8n** per le regole che devono comportarsi sempre allo stesso modo, oppure con il tuo client IA tramite **MCP**.
+
+Il confine è facile da dire. Customermates automatizza il lavoro sui singoli record. Non ha sequenze e-mail, campagne a goccia né outreach di massa, non ha lead scoring, né moduli web, né un builder visuale di workflow con ramificazioni dentro il CRM; quella parte sta in n8n, un prodotto separato. Se per te «automazione del CRM» significa marketing automation, la sezione successiva mostra dove passa la linea.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Tre strade">Routine per il lavoro che richiede lettura e giudizio. Webhook più n8n o il tuo codice per le regole fisse. Il tuo client IA tramite MCP per gli aggiornamenti dei record che chiedi tu.</SummaryItem>
+  <SummaryItem label="Piani">Routine in ogni piano Cloud a pagamento: [[commercial.entitlement.starter.includedRoutinesPerUser]] per utente su Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] su Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] su Business. REST e MCP in ogni piano; webhook in ogni piano a pagamento, self-hosted compreso.</SummaryItem>
+  <SummaryItem label="Costo">Un’esecuzione di una routine usa i crediti IA ospitati mensili del suo proprietario e si ferma a 10 crediti. n8n fattura i propri piani.</SummaryItem>
+  <SummaryItem label="Non incluso">Nessun builder visuale né ramificazioni dentro il CRM, nessuna sequenza e-mail, nessun promemoria delle attività, nessun lead scoring.</SummaryItem>
+</ArticleSummary>
+
+## Che cos’è l’automazione del CRM e quale tipo copre Customermates?
+
+L’automazione CRM copre due compiti diversi. I **workflow sui record** agiscono su una trattativa, un contatto o una conversazione quando succede qualcosa; di solito è questo che si intende con gestione dei workflow del CRM. La **marketing automation** invia messaggi a tempo a elenchi di contatti. Customermates è costruito per il primo.
+
+| Tipo di automazione | Esempi tipici | In Customermates |
+|---|---|---|
+| Workflow sui record | Creare attività quando una trattativa viene vinta, pubblicare in un canale del team quando viene creata una trattativa, elencare le trattative che nessuno ha toccato | Sì: routine, webhook, REST, n8n e MCP |
+| Lavoro dell’IA sui record | Aggiornare una trattativa dalle note di una chiamata, preparare la risposta a un cliente | Sì: Mate in chat, routine (Cloud), il tuo client IA tramite MCP |
+| Marketing automation | Sequenze e-mail, campagne a goccia, outreach di massa, lead scoring, moduli web | No. Usa uno strumento separato e porta i suoi risultati dentro con REST o n8n |
+
+Una bozza di risposta è un messaggio in una conversazione, non una sequenza. Se ti serve la terza riga, tieni uno strumento dedicato e usa Customermates come sistema di registrazione dietro di esso.
+
+## Quali workflow del CRM si adattano a una routine, a un webhook o a un client IA?
+
+| Compito | Usa | Piano |
+|---|---|---|
+| Promemoria di follow up: un’attività per ogni trattativa la cui data di prossimo contatto è passata | Routine pianificata | Qualsiasi piano Cloud a pagamento |
+| Bozza di risposta quando un cliente scrive un’e-mail | Routine su **E-mail ricevuta** | Cloud, Pro e superiori |
+| Attività di onboarding quando una trattativa viene vinta | Routine su **Record aggiornato** per Trattative, o un webhook verso n8n | Routine: Cloud a pagamento. Webhook: piani a pagamento |
+| Messaggio in una chat del team quando viene creata una trattativa | Webhook verso n8n, o un webhook con un modello di corpo | Piani a pagamento |
+| Flusso con ramificazioni, attese e altre app | n8n su webhook e REST | Piani a pagamento, più n8n |
+| Aggiornare una trattativa dalle note di una chiamata incollate | Chat con Mate, o il tuo client IA tramite MCP | Mate: Cloud a pagamento. MCP: ogni piano |
+
+La nostra regola pratica: se un passo deve comportarsi in modo identico ogni volta, come creare le stesse attività per ogni trattativa vinta, usa un webhook e n8n. Una routine è un’esecuzione dell’IA che legge, decide e scrive, quindi il suo output varia un po’ e ogni esecuzione costa crediti. Usala dove la lettura è il punto.
+
+I cambi di fase mostrano entrambe le strade. Una routine su **Record aggiornato** per Trattative, con **Campi modificati** impostato su **Fase** e un filtro sui record per Vinta, può creare attività di onboarding, assegnarle alle stesse persone della trattativa e collegarle alla trattativa. In n8n lo stesso lavoro non costa crediti e non varia mai: il webhook consegna un evento `record.updated` con il valore `before` e `after` di ogni campo cambiato, un nodo IF controlla la nuova fase e un nodo HTTP Request crea le attività. Scegli la routine quando le attività dipendono da ciò che è stato concordato nelle e-mail, e n8n quando sono sempre le stesse.
+
+## Come automatizzano le routine il lavoro del CRM a orari fissi o su un evento di un record?
+
+Le routine esistono solo in Customermates Cloud. Una routine è un nome, un’istruzione fino a 5.000 caratteri e un attivatore. Quando l’attivatore scatta, Mate avvia una nuova conversazione con quell’istruzione e lavora da solo, come proprietario della routine: vede ciò che vede il proprietario e spende i crediti del proprietario. Le modifiche fatte da una routine non attivano mai altre routine, quindi non possono andare in ciclo. La [guida alle routine](/docs/app-routines) tratta ogni opzione.
+
+- **Secondo una pianificazione:** ogni 15 o 30 minuti, ogni ora, ogni giorno, ogni settimana o ogni mese. Mate può anche impostare una pianificazione cron personalizzata, per esempio nei giorni feriali alle 09:00.
+- **Quando qualcosa cambia:** qualsiasi evento di un record su qualsiasi elenco, da contatti, organizzazioni, trattative, servizi e attività fino ai tuoi elenchi, più gli eventi della posta in arrivo tranne le e-mail e le chat eliminate e le eliminazioni definitive. **Campi modificati** restringe un attivatore di aggiornamento a campi come la **Fase** della trattativa, e **Filtri sui record** a record come le trattative assegnate a te.
+
+| Limite | Valore attuale |
+|---|---|
+| Esecuzioni per routine e ora | 4 |
+| Crediti per esecuzione | 10, poi l’esecuzione si ferma come Parziale |
+| Intervallo minimo di pianificazione | 15 minuti |
+| Esecuzioni fallite di fila prima che la routine vada in pausa | 3 |
+| Debounce dopo l’avvio di un’esecuzione | 300 secondi di default; Mate o MCP possono impostare da 0 a 86.400 |
+| Cronologia delle esecuzioni conservata | 90 giorni |
+
+Un’esecuzione senza supervisione può creare e aggiornare record, aggiungere note, creare attività e salvare bozze senza chiedere. Può anche inviare e-mail e messaggi di chat. Tutto ciò che in una chat chiede un’approvazione viene rifiutato, perché non c’è nessuno che approvi: eliminazioni, ridenominazione di elenchi, inviti al team, nuovi invii dei webhook e richieste di assistenza. Se vuoi bozze e nient’altro, scrivilo nell’istruzione.
+
+## Come creo una routine di promemoria per il follow up?
+
+Customermates non invia notifiche di promemoria e le attività non hanno una scadenza, quindi qui un promemoria è un’attività che una routine crea a partire da una data che gestisci tu. La routine viene eseguita ogni mattina, trova le trattative la cui data è passata e mette un’attività per trattativa nell’elenco delle attività. Serve un campo **Data** come «Prossimo contatto» sulle Trattative; la [guida al follow up](/features/follow-up) mostra come aggiungerlo e come salvare le viste corrispondenti.
+
+<Steps>
+  <Step title="Aggiungi il campo data">In **Modello dati**, aggiungi alle **Trattative** un campo di tipo **Data** chiamato «Prossimo contatto» e impostalo sulle trattative che vuoi seguire.</Step>
+  <Step title="Aggiungi la routine">Apri **Routine**, clicca su **Aggiungi** e chiamala «Promemoria di follow up».</Step>
+  <Step title="Imposta l’attivatore">Scegli **Secondo una pianificazione**, poi **Ripetizione**: **Ogni giorno**, 08:00. Solo per i giorni feriali, chiedi a Mate di impostare una pianificazione personalizzata.</Step>
+  <Step title="Incolla l’istruzione">Usa il testo qui sotto con i nomi delle tue fasi e salva.</Step>
+  <Step title="Provala una volta">Clicca su **Testa l'attivazione**. È un’esecuzione reale e crea attività reali, quindi controlla l’elenco delle attività dopo. **Dettagli dell'esecuzione** mostra con quale identità ha agito l’esecuzione e la quota della disponibilità mensile che ha usato; il proprietario può aprire anche la trascrizione completa.</Step>
+</Steps>
+
+```text
+Trova ogni trattativa che non è in Vinta o Persa e la cui data Prossimo contatto è oggi o precedente. Per ciascuna crea un'attività chiamata "Follow up: <nome trattativa>, <data Prossimo contatto>", collegala alla trattativa, assegnala agli utenti assegnati alla trattativa e metti l'ultima nota della trattativa nelle note dell'attività. Se esiste già un'attività con esattamente quel nome, salta la trattativa. Non inviare nulla e non modificare nessuna trattativa. Concludi con una riga per trattativa: nome, fase, data.
+```
+
+La data nel nome dell’attività impedisce alla routine di creare due volte la stessa attività. Quando la persona sposta la data di Prossimo contatto, la scadenza successiva ottiene una propria attività.
+
+Uso dei crediti: una pianificazione giornaliera sono 30 o 31 esecuzioni al mese e ogni esecuzione si ferma a 10 crediti, quindi il tetto è circa 300 crediti al mese. Controlla la quota mensile del tuo piano nella [pagina dei prezzi](/pricing) prima di eseguirla ogni giorno; una pianificazione settimanale ha un tetto di 50. Un credito è un centesimo di dollaro statunitense di costo misurato del fornitore. Nessuno viene avvisato: le attività aspettano nell’elenco delle attività. Se ti serve un messaggio push nella chat del tuo team quando una data passa, esegui quel controllo dall’attivatore pianificato di n8n sull’API REST.
+
+## Come preparo le risposte quando un cliente scrive un’e-mail?
+
+Serve la [Posta in arrivo unificata](/features/unified-inbox), che parte da Pro.
+
+<Steps>
+  <Step title="Collega una casella di posta">Collega Gmail, Outlook o IMAP in **Impostazioni › Canali e calendari**.</Step>
+  <Step title="Aggiungi la routine">Scegli **Quando qualcosa cambia** e l’evento **E-mail ricevuta**. Per WhatsApp o LinkedIn, scegli **Messaggio ricevuto**.</Step>
+  <Step title="Incolla l’istruzione">Usa il testo qui sotto e salva.</Step>
+  <Step title="Rivedi le bozze">Nella posta in arrivo, imposta il filtro **Bozza** su **ne ha almeno uno**. Modifica una bozza e clicca su **Invia la bozza**, oppure scartala.</Step>
+</Steps>
+
+```text
+Leggi il thread e-mail di questo evento. Se è una newsletter, un avviso automatico o spam, fermati e non fare nulla. Altrimenti trova il contatto del mittente, l'organizzazione e le trattative aperte. Salva nello stesso thread una bozza di risposta che risponde alla domanda e propone un passo successivo. Non inviare mai l'e-mail. Aggiungi alle note del contatto una riga con ciò che ha chiesto il cliente.
+```
+
+Uso dei crediti: ogni esecuzione che parte usa crediti, comprese quelle in cui Mate decide che non c’è nulla da fare. Con quattro esecuzioni all’ora da non più di 10 crediti ciascuna, il tetto è 40 crediti all’ora. A causa del debounce, una seconda e-mail entro cinque minuti dall’avvio di un’esecuzione non ottiene un’esecuzione propria, anche un’e-mail che arriva mentre un’esecuzione è ancora in corso viene saltata, e dopo quattro esecuzioni in un’ora le altre e-mail di quell’ora vengono scartate. Puoi chiedere a Mate di accorciare il debounce, fino a zero, ma il limite di quattro esecuzioni all’ora resta. Considera le bozze un aiuto per la maggior parte delle e-mail, non una promessa per ognuna.
+
+## Come invio una nuova trattativa a n8n, Slack o un altro strumento?
+
+Customermates invia una POST JSON per ciascuno dei [[derived.webhooks.events.total]] tipi di evento: [[derived.webhooks.events.records]] eventi dei record e [[derived.webhooks.events.messaging]] eventi della posta in arrivo. Gli eventi dei record coprono ogni elenco, compresi i tuoi. La **Fase** della trattativa è un campo a scelta singola configurabile, quindi un cambio di fase arriva come `record.updated` per l’elenco Trattative, e una nuova trattativa come `record.created`. Il [riferimento sui webhook](/docs/webhooks) elenca ogni payload.
+
+<Steps>
+  <Step title="Aggiungi l’attivatore in n8n">Aggiungi un nodo Webhook e copia il suo URL. Con il nodo della community, versione 2 o successiva, un nodo Customermates Trigger crea la sottoscrizione per te quando il workflow viene attivato, e puoi saltare il passo successivo.</Step>
+  <Step title="Iscriviti in Customermates">In **Impostazioni › Webhook**, clicca su **Aggiungi**, incolla l’URL, scegli **Record creato**, seleziona **Trattative** in **Record da** e imposta un **Segreto**.</Step>
+  <Step title="Verifica e deduplica">Controlla l’intestazione `X-Webhook-Signature`, un HMAC-SHA256 del corpo grezzo. Le consegne possono arrivare fuori ordine o due volte, quindi deduplica sull’`id` dell’evento.</Step>
+  <Step title="Leggi la trattativa">Crea una chiave API in **Impostazioni › Chiavi API e connettori** e salvala in n8n come credenziale Header Auth chiamata `x-api-key`. Un nodo HTTP Request chiama poi `POST /api/v1/records/read` con il `typeId` e il `recordId` di `data.record.ref`.</Step>
+  <Step title="Pubblica nel canale">Usa il nodo Slack di n8n, oppure un nodo HTTP Request verso l’URL del webhook in entrata del canale, con nome, valore e responsabile della trattativa. Customermates non ha un’integrazione nativa con Slack, quindi la strada è n8n.</Step>
+  <Step title="Attiva il workflow">Attese, pianificazioni, log e limiti di esecuzione appartengono a n8n. Customermates conserva i record e il registro delle consegne.</Step>
+</Steps>
+
+Per creare anche la prima attività, aggiungi un nodo HTTP Request che chiama `POST /api/v1/records/mutate` e collega la nuova attività alla trattativa. Riusa la stessa chiave di idempotenza quando riprovi lo stesso payload identico. La [guida a n8n](/docs/n8n) ha gli endpoint e gli errori più comuni, e il [tutorial su n8n](/blog/n8n-for-beginners-build-your-first-workflow) accompagna un primo workflow con webhook.
+
+Se ti serve solo il messaggio in chat, salta n8n: un webhook può pubblicare direttamente su un URL di webhook in entrata di Slack o Discord con un modello di corpo come `{ "text": "{{event}} for {{data.record.ref.recordId}}" }`. Invia il nome dell’evento e l’ID del record; comporre un messaggio dai valori del record è più semplice in n8n.
+
+Le consegne vengono ritentate automaticamente in caso di timeout ed errori del server, fino a 10 tentativi in totale, e registrate in **Log dei webhook**, dove una consegna fallita può essere inviata di nuovo. L’[API REST](/features/api) sotto `/api/v1` copre ogni elenco che crei, e `updateMany`, `deleteMany` e l’importazione accettano fino a 100 record per richiesta.
+
+## Come può un client IA aggiornare i record del CRM tramite MCP?
+
+Il server MCP dà a client IA come Claude o ChatGPT [[derived.mcp.tools.total]] strumenti sugli stessi dati, in ogni piano e anche in self-hosting. Il tuo fornitore di IA fattura l’uso del modello. È la strada per gli aggiornamenti che chiedi in linguaggio naturale, come scrivere il resoconto di una chiamata.
+
+<Steps>
+  <Step title="Collega il client">Claude e ChatGPT si collegano tramite un connettore personalizzato con OAuth, quindi non c’è nessuna chiave da gestire. I client CLI e degli editor usano una chiave API da **Impostazioni › Chiavi API e connettori**. La configurazione per ogni client è nel [riferimento MCP](/docs/mcp).</Step>
+  <Step title="Restringi gli strumenti">Facoltativamente aggiungi `?toolsets=records` all’URL dell’endpoint, così il client vede solo gli strumenti per i record più `search` e `fetch`.</Step>
+  <Step title="Chiedi l’aggiornamento">Di’ al client cosa è successo, per esempio con il prompt qui sotto. Cerca gli ID dell’elenco e dei campi, trova la trattativa, legge la sua versione attuale e scrive la modifica con `mutate_crm_record`.</Step>
+  <Step title="Controlla il risultato">Apri la cronologia delle attività della trattativa. Le modifiche via MCP contano come quelle fatte nell’app: un webhook sottoscritto riceve un evento `record.updated`, e le routine su evento possono attivarsi.</Step>
+</Steps>
+
+```text
+Trova la trattativa "Rinnovo Acme". Aggiungi alle sue note queste note della chiamata: il cliente vuole un preventivo rivisto con due utenti in meno. Imposta Prossimo contatto a 14 giorni da oggi e crea un'attività "Inviare il preventivo rivisto" collegata alla trattativa. Mostrami cosa hai cambiato.
+```
+
+Aggiungere a un campo note non sovrascrive mai ciò che c’è, e non va in conflitto con una modifica più recente di un collega. In Customermates Cloud, Mate fa lo stesso da una chat, e la sua policy chiede la tua approvazione prima di azioni protette come l’eliminazione di record; l’invio di un’e-mail o di un messaggio di chat non è protetto, quindi chiedi una bozza quando il testo deve essere rivisto.
+
+Le chiamate MCP esterne funzionano diversamente. Il server controlla autorizzazione e validazione ma non chiede conferma; il consiglio di confermare prima di eliminare o inviare spetta al client. Una chiave API porta i permessi dell’utente che l’ha creata, senza limitazioni per singola chiave. Creala con un utente il cui ruolo si adatta al compito e controlla come il tuo client gestisce le approvazioni prima di concedere l’accesso in scrittura.
+
+## Esiste un CRM open source con un builder di workflow?
+
+Customermates è open source e non ha un builder di workflow dentro il CRM. Quel ruolo lo svolge [n8n](https://n8n.io/). Le sue caratteristiche che qui contano sono un builder visuale, JavaScript o Python in qualsiasi passaggio e nodi già pronti per app come Slack, e si collega a Customermates tramite webhook e API REST. Puoi installare in autonomia la sua Community Edition con la [Sustainable Use License](https://github.com/n8n-io/n8n/blob/master/LICENSE.md), che consente l’uso solo per le tue finalità aziendali interne o per uso non commerciale o personale, oppure abbonarti a n8n Cloud, [con prezzi in base alle esecuzioni mensili dei workflow](https://n8n.io/pricing/). Customermates non include né un runtime di n8n né un abbonamento.
+
+Il nodo della community [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) offre nodi CRM dedicati se li preferisci ai nodi HTTP Request. Usa la versione 2 o successiva: la versione 1.x punta a endpoint che l’API non ha più, quindi i suoi workflow falliscono finché non aggiorni.
+
+<AcquisitionCallout title="Se vuoi il builder dentro il CRM" variant="fit">
+  Se il tuo team vuole costruire workflow con ramificazioni dentro il CRM senza gestire n8n, guarda i CRM con un editor di workflow nativo. HubSpot Sales Hub indica fino a 50 workflow con attivatori e azioni limitati su Starter, e fino a 300 workflow completamente personalizzabili su Professional. Pipedrive include l’automazione dei workflow da Growth in su, con condizioni if/else. Customermates pubblica questa pagina; i dettagli sui fornitori sono stati verificati l’8 novembre 2026 sulla [pagina dei prezzi di HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) e nel [centro assistenza di Pipedrive](https://support.pipedrive.com/en/article/workflow-automation).
+</AcquisitionCallout>
+
+## Cosa si aggiorna da solo e cosa richiede ancora una persona?
+
+- **Senza IA:** ogni modifica finisce nella cronologia delle attività del record e raggiunge ogni webhook iscritto a quell’evento, e i valori ponderati della pipeline seguono i pesi delle tue fasi. Da Pro in su, una volta che colleghi un indirizzo e-mail o un nome utente a un contatto, ogni conversazione con esso compare nella cronologia di quel contatto.
+- **Con l’IA, quando lo chiedi:** incolla le note di una chiamata in Mate, o nel tuo client IA tramite MCP, e chiedi di aggiornare la trattativa, aggiungere le note e creare attività di follow up.
+- **Con l’IA, senza supervisione:** routine, come sopra.
+
+Il nostro consiglio: lascia che una routine proponga un cambio di fase in una nota e che sia la persona assegnata alla trattativa a farlo. Le fasi determinano la pipeline ponderata, e uno spostamento sbagliato fatto da un’esecuzione senza supervisione è facile da non notare.
+
+## Cosa non automatizza Customermates?
+
+- Nessun builder visuale di workflow, ramificazioni o attese dentro il CRM. Usa n8n o uno strumento simile.
+- Nessuna sequenza e-mail, campagna a goccia né e-mail di massa. Una bozza di risposta è un messaggio in una conversazione.
+- Nessuna scadenza delle attività, promemoria o centro notifiche. Un campo data personalizzato sulla trattativa più la routine di follow up qui sopra ti dà un elenco da cui lavorare, come nei [follow up](/features/follow-up).
+- Nessun lead scoring, arricchimento dei dati o modulo web. Invia le voci dei moduli tramite REST o n8n.
+- Nessuna routine, Mate o posta in arrivo in [Customermates self-hosted](/features/self-hosted). Webhook, REST e MCP funzionano lì.
+- Nessuna garanzia che una routine venga eseguita: il limite orario, il debounce o un proprietario senza crediti possono far saltare un’esecuzione. I passi che devono essere eseguiti per ogni evento appartengono a un webhook, dove le consegne fallite vengono ritentate e si possono inviare di nuovo.
+
+## Quanto costa a un piccolo team?
+
+Tre persone su Starter pagano [[commercial.price.starter.monthly.seats.3]] al mese. Ognuna ha [[commercial.entitlement.starter.includedRoutinesPerUser]] routine, abbastanza per i promemoria di follow up, più webhook, REST e MCP. Starter non ha la posta in arrivo, quindi le bozze di risposta richiedono Pro.
+
+Cinque persone su Pro pagano [[commercial.price.pro.monthly.seats.5]] al mese. Ognuna ha [[commercial.entitlement.pro.includedRoutinesPerUser]] routine e [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato della posta in arrivo. Le esecuzioni attingono ai crediti IA ospitati del proprietario; la quota mensile per utente attivo è nella [pagina dei prezzi](/pricing). n8n si aggiunge: un piccolo server per la Community Edition, oppure un piano n8n Cloud.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Che cos’è la CRM workflow automation?">
+È un passo del CRM che viene eseguito da solo quando succede qualcosa o a orari fissi: creare le attività di onboarding per una trattativa vinta, pubblicare in un canale del team quando viene creata una trattativa, preparare una risposta quando un cliente scrive, oppure elencare le trattative la cui data di follow up è passata. In Customermates, i passi fissi girano su webhook e n8n, i passi che richiedono lettura girano come routine in Customermates Cloud, e gli aggiornamenti che chiedi tu girano tramite Mate o il tuo client IA con MCP.
+</FaqItem>
+
+<FaqItem question="Quali sono esempi di automazione dei workflow del CRM?">
+Quattro sono impostati passo per passo qui sopra: una routine di promemoria per il follow up, una bozza di risposta quando un cliente scrive un’e-mail, una nuova trattativa inviata a n8n e Slack e un resoconto di chiamata che aggiorna una trattativa tramite MCP. I passi fissi come il terzo si adattano a webhook e n8n. I passi che richiedono lettura, come i primi due, si adattano alle routine in Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Customermates ha un builder visuale di workflow?">
+No. Non c’è un builder drag-and-drop né regole con ramificazioni dentro Customermates. Le routine prendono invece un’istruzione in linguaggio naturale, e i flussi visuali con ramificazioni girano in n8n, collegato tramite webhook e API REST.
+</FaqItem>
+
+<FaqItem question="Un CRM può aggiornarsi da solo in automatico?">
+In parte. Cronologia delle attività, eventi dei webhook e valori ponderati della pipeline si aggiornano da soli, e da Pro in su un indirizzo e-mail collegato porta le conversazioni successive nella cronologia del contatto. Scrivere note o cambiare trattative in base a ciò che è stato detto richiede l’IA: Mate quando lo chiedi, una routine su un attivatore, o il tuo client IA tramite MCP.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra CRM workflow automation e marketing automation?">
+La marketing automation invia campagne a elenchi di contatti secondo un calendario. La CRM workflow automation agisce su singoli record, come una trattativa o una conversazione. Customermates non ha sequenze e-mail, campagne a goccia né e-mail di massa, quindi tieni uno strumento di marketing se ti servono.
+</FaqItem>
+
+<FaqItem question="Cosa succede alle trattative quando i follow up dopo gli incontri vengono dimenticati?">
+Restano nella loro fase finché qualcuno non ci inciampa, e continuano a contare nella pipeline ponderata. Customermates non sollecita nessuno: non ci sono scadenze delle attività né notifiche. Aiuta un campo Data personalizzato «Prossimo contatto» sulla trattativa più la routine di follow up qui sopra, che crea un’attività per ogni trattativa la cui data è passata.
+</FaqItem>
+
+<FaqItem question="Le routine funzionano in self-hosting?">
+No. Le routine richiedono Mate e i crediti IA ospitati, che esistono solo in Customermates Cloud. In self-hosting costruisci lavori comparabili con webhook, REST e n8n, o con il tuo client IA tramite MCP.
+</FaqItem>
+
+<FaqItem question="Quanto costa l’automazione dei workflow in Customermates?">
+REST e MCP sono inclusi in ogni piano e i webhook in ogni piano a pagamento, senza costi di Customermates per workflow. Le routine sono incluse per utente, da [[commercial.entitlement.starter.includedRoutinesPerUser]] su Starter a [[commercial.entitlement.business.includedRoutinesPerUser]] su Business, e ogni esecuzione usa al massimo 10 crediti IA ospitati del proprietario. n8n fattura a parte.
+</FaqItem>
+</Faq>

@@ -1,0 +1,241 @@
+---
+title: "CRM self hosted con Docker e PostgreSQL"
+description: "CRM self hosted: esegui l’applicazione Customermates e PostgreSQL sulla tua infrastruttura con Docker Compose. Core AGPL, MCP, REST e webhook inclusi."
+featureName: CRM self hosted
+
+acquisition:
+  locale: it
+  slug: self-hosted
+  clusterId: open-source-self-hosted
+  role: hub
+  primaryIntent: Distribuzione di un CRM self hosted
+  metadata:
+    title: "CRM self hosted con Docker e PostgreSQL"
+    description: "CRM self hosted: esegui l’applicazione Customermates e PostgreSQL sulla tua infrastruttura con Docker Compose. Core AGPL, MCP, REST e webhook inclusi."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: "Ti serve anche il follow-up su LinkedIn ed e-mail? Prova prima il cloud"
+    description: "Il self-hosting copre i record dei clienti, REST, webhook e MCP. Per le conversazioni LinkedIn ed e-mail su ogni cliente e le risposte in bozza di Mate, prova Customermates Cloud gratis per [[commercial.trial.days]] giorni su Pro, senza carta di credito. La strada self-hosted resta aperta."
+    buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: "Leggi la guida all’installazione"
+    buttonRightHref: /docs/self-hosting
+    hint: "Chi gestisce il sistema è responsabile di infrastruttura, aggiornamenti, backup e fornitori collegati."
+  relatedHrefs:
+    - /docs/self-hosting
+    - /blog/open-source-crm
+    - /features/open-source-crm
+    - /features/unified-inbox
+  visual:
+    id: acquisition.self-hosted.it
+    locale: it
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM self hosted: record dei clienti e prossimi passi sui tuoi server"
+      body: "Esegui l’applicazione Customermates e PostgreSQL su un’infrastruttura che controlli, con MCP per il tuo client IA. La Posta in arrivo per le conversazioni LinkedIn ed e-mail e le bozze di risposta di Mate richiedono Customermates Cloud."
+      checksum: fnv1a-6964395d
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "L’applicazione e PostgreSQL girano insieme su un’infrastruttura che controlli."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "L’applicazione e PostgreSQL girano insieme su un’infrastruttura che controlli."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:mcp-tools
+    focalLabel:
+      locale: it
+      text: Applicazione
+    semanticLabels:
+      - locale: it
+        text: PostgreSQL
+      - locale: it
+        text: Client MCP
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: postgresql
+        form: context-card
+      - id: mcp-client
+        form: agent-cue
+        agentProvider: claude
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Come valutare la distribuzione"
+    items:
+      - title: "Esamina la distribuzione esatta"
+        description: "Leggi la guida al self-hosting e controlla il file Compose attuale nel repository."
+      - title: "Verifica il confine dell’edizione"
+        description: "Conferma che il set di funzioni di Starter copra i record, le viste e le interfacce di cui il tuo flusso di lavoro ha bisogno."
+      - title: "Mappa i servizi esterni"
+        description: "Elenca ogni fornitore SMTP, OAuth, di monitoraggio, di flussi di lavoro o di IA che pensi di configurare e i dati che ciascuno riceve."
+      - title: "Progetta la gestione"
+        description: "Definisci backup, ripristino testato, aggiornamenti, TLS, monitoraggio e controllo degli accessi per il tuo ambiente."
+      - title: "Prova senza dati dei clienti"
+        description: "Esegui il flusso di lavoro completo in un ambiente non di produzione prima che il sistema gestisca record reali."
+  highlights:
+    title: "In breve"
+    capture: homepage-configure
+    items:
+      - title: "Gira sulla tua infrastruttura"
+        description: "L’applicazione Customermates e PostgreSQL 16 girano come due servizi nella distribuzione Docker Compose tracciata."
+      - title: "Superficie di prodotto inclusa"
+        description: "Record CRM di base, campi personalizzati e viste, REST, webhook e MCP con il set di funzioni di Starter."
+      - title: "Gestisci tu"
+        description: "Accesso di rete, TLS, aggiornamenti, backup, test di ripristino, monitoraggio e ogni fornitore esterno configurato."
+      - title: "Confine solo cloud"
+        description: "Messaggistica collegata, Posta in arrivo unificata, calendario collegato, Mate ospitato e crediti IA ospitati restano fuori dal self-hosting."
+
+hero:
+  title: "CRM self hosted: record dei clienti e prossimi passi sui tuoi server"
+  description: "Esegui l’applicazione Customermates e PostgreSQL su un’infrastruttura che controlli, con MCP per il tuo client IA. La Posta in arrivo per le conversazioni LinkedIn ed e-mail e le bozze di risposta di Mate richiedono Customermates Cloud."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Leggi la guida all’installazione"
+  buttonRightHref: /docs/self-hosting
+  hint: "Core AGPL • Docker Compose • PostgreSQL 16"
+
+cta:
+  action: "Ti serve anche il follow-up su LinkedIn ed e-mail? Prova prima il cloud"
+  description: "Il self-hosting copre i record dei clienti, REST, webhook e MCP. Per le conversazioni LinkedIn ed e-mail su ogni cliente e le risposte in bozza di Mate, prova Customermates Cloud gratis per [[commercial.trial.days]] giorni su Pro, senza carta di credito. La strada self-hosted resta aperta."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Leggi la guida all’installazione"
+  buttonRightHref: /docs/self-hosting
+  hint: "Chi gestisce il sistema è responsabile di infrastruttura, aggiornamenti, backup e fornitori collegati."
+---
+
+Customermates è un **CRM self hosted** che puoi eseguire come due servizi Docker Compose: l’applicazione e PostgreSQL 16. Fa al caso tuo quando il tuo team vuole gestire da sé l’infrastruttura del proprio CRM e usare un core open source. Non è l’edizione self-hosted di ogni funzione di Customermates Cloud.
+
+Un CRM self-hosted (o CRM on premise) gira su server che controlli tu invece che nel cloud del fornitore: decidi dove vivono l’applicazione e il database e ti occupi di aggiornamenti, backup e sicurezza. Se il codice sia open source è una questione a parte, sui diritti di licenza, trattata nella [guida ai CRM open source](/blog/open-source-crm). Questa pagina tratta il lato operativo per Customermates.
+
+**Dove sta il follow-up.** Il self-hosting tiene sui tuoi server i record dei clienti, le date dei prossimi passi, le dashboard e MCP, così il tuo client IA può leggerli e aggiornarli. Non ha la Posta in arrivo che mette sul cliente le conversazioni LinkedIn ed e-mail e non ha Mate, che scrive le bozze di risposta. Se il motivo per cui vuoi il CRM è il follow-up in bozza sulle conversazioni, parti da Customermates Cloud; il self-hosting calza meglio quando conta di più il controllo su dove girano i dati.
+
+<ProofRail label="Fatti verificati sul CRM self-hosted">
+  <ProofItem label="Distribuzione">Docker Compose</ProofItem>
+  <ProofItem label="Database">PostgreSQL 16</ProofItem>
+  <ProofItem label="Core del CRM">Liste configurabili, create nel Modello dati</ProofItem>
+  <ProofItem label="Interfacce">REST, webhook e MCP</ProofItem>
+  <ProofItem label="Diritti">Base Starter</ProofItem>
+</ProofRail>
+
+## Cosa gira nella tua infrastruttura?
+
+La distribuzione tracciata contiene:
+
+- l’immagine dell’applicazione Customermates;
+- un database PostgreSQL 16;
+- i record di base per contatti, organizzazioni, trattative, servizi e attività, più le liste che aggiungi; e
+- REST, webhook e [accesso MCP per client IA esterni](/docs/mcp).
+
+Il file Compose non include n8n, un modello IA, un fornitore per l’invio delle e-mail né un worker separato. Le e-mail di autenticazione richiedono comunque il servizio di invio esterno configurato. Se colleghi un fornitore, gestisci quell’integrazione separatamente e dovresti controllare i dati che riceve.
+
+<AcquisitionCallout
+  title="Il confine della distribuzione è più piccolo del confine dell’intero sistema"
+  variant="proof"
+>
+  L’applicazione e il database possono girare sulla tua infrastruttura mentre
+  SMTP, OAuth, monitoraggio, strumenti di flusso di lavoro e IA esterna restano
+  servizi separati ogni volta che li configuri. Mappa quei fornitori prima di
+  scegliere il modello di distribuzione.
+</AcquisitionCallout>
+
+## Cosa è incluso e cosa è escluso?
+
+| Funzione                                           | Customermates self-hosted |
+| -------------------------------------------------- | ------------------------- |
+| Contatti, organizzazioni, trattative, servizi e attività | Incluso             |
+| Campi personalizzati, viste a tabella e Kanban     | Incluso                   |
+| API REST, webhook e MCP                            | Incluso                   |
+| Base dei diritti                                   | Starter                   |
+| Assistente Mate ospitato e crediti IA ospitati     | Non incluso               |
+| Posta in arrivo unificata e account di messaggistica collegati | Non inclusa   |
+| Vista del calendario collegato in sola lettura     | Non inclusa               |
+| Account collegati condivisi                        | Non inclusi               |
+
+La [Posta in arrivo unificata del CRM](/features/unified-inbox) è una funzione del cloud gestito da Pro in su. Il self-hosting resta concentrato sul core open source del CRM e sui client MCP esterni.
+
+## Confini tra codice open source e commerciale
+
+Il materiale di prima parte fuori da `ee/` è con licenza AGPL-3.0-only. Dentro `ee/`, il materiale è con licenza commerciale, tranne le immagini, i font, il CSS e il JavaScript lato client indicati come AGPL Client Material nella Sezione 6 di `ee/LICENSE.md`. Leggi entrambe le licenze prima di modificare, ridistribuire o usare il software per il tuo caso.
+
+Questa distinzione conta quando confronti un [CRM open source](/blog/open-source-crm): un repository pubblico da solo non ti dice quale codice puoi usare a quali condizioni. Se stai valutando altri progetti ospitabili da sé, i confronti con [EspoCRM](/compare/espocrm-alternative) e [Twenty](/compare/twenty-alternative) mostrano come differiscono i loro confini di distribuzione e di licenza.
+
+## Che controllo offre il self-hosting?
+
+Scegli dove girano l’applicazione e PostgreSQL e come configuri accesso di rete, backup, conservazione e aggiornamenti. È un controllo significativo sull’infrastruttura, ma non è una garanzia automatica di conformità, sicurezza o isolamento dalla rete.
+
+I servizi collegati restano confini di trattamento separati. Fornitori OAuth, SMTP, monitoraggio, strumenti di flusso di lavoro e fornitori di IA esterni ricevono ciò che la tua configurazione invia loro. La diagnostica degli errori resta sul tuo server; le notifiche dell’operatore usano il destinatario e il fornitore di e-mail che configuri. Non è una promessa generale di assenza di telemetria.
+
+## Self-hosted o cloud gestito?
+
+| Scegli il self-hosting quando…               | Scegli il cloud gestito quando…                                   |
+| -------------------------------------------- | ----------------------------------------------------------------- |
+| il tuo team sa gestire Docker e PostgreSQL   | vuoi che Customermates gestisca l’applicazione e il database      |
+| il confine delle funzioni di Starter va bene | ti serve la Posta in arrivo unificata o la vista del calendario collegato |
+| vuoi che client IA esterni usino MCP         | vuoi i diritti dei piani cloud e gli account collegati gestiti    |
+| ti occuperai di aggiornamenti, backup e ripristino | preferisci un abbonamento con gestione inclusa              |
+
+Se vuoi provare Customermates prima di gestire un tuo server, la pagina sul [CRM open source nel cloud o self-hosted](/features/open-source-crm) mette affiancate le due strade, con la prova cloud gratuita come avvio più rapido.
+
+I record si spostano tra installazioni o da un altro CRM come cartelle di lavoro XLSX, un tipo di record alla volta e entro i limiti di righe, oppure tramite l’API REST, che può anche caricare file nei campi File. Un’importazione XLSX non porta con sé allegati e non esiste un trasferimento completo dell’account, quindi pianifica uno spostamento più grande come un progetto di migrazione che convalidi.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Customermates è interamente open source?">
+Il materiale di prima parte fuori da `ee/` è AGPL-3.0-only. Dentro `ee/`, anche il materiale lato client indicato nella Sezione 6 di `ee/LICENSE.md` è AGPL-3.0-only; il resto del materiale di prima parte usa la licenza commerciale. Leggi entrambi i file di licenza per il confine esatto.
+</FaqItem>
+
+<FaqItem question="Il self-hosting include la Posta in arrivo unificata?">
+  No. Le installazioni self-hosted usano il set di funzioni di Starter, che non
+  ha account di messaggistica, Posta in arrivo unificata, account condivisi né
+  vista del calendario collegato. Queste funzioni appartengono ai piani del
+  cloud gestito da Pro in su.
+</FaqItem>
+
+<FaqItem question="Posso usare l’IA con il CRM self-hosted?">
+  Sì, tramite [MCP](/docs/mcp) e un client e un provider IA esterni che scegli e
+  finanzi tu, per esempio Claude come descritto nella [guida al CRM con
+  Claude](/blog/claude-crm). L’assistente Mate, disponibile solo nel cloud, e i
+  crediti IA ospitati non fanno parte del self-hosting.
+</FaqItem>
+
+<FaqItem question="Il self-hosting rende il CRM conforme al GDPR?">
+  Nessun modello di distribuzione crea conformità da solo. Il self-hosting ti
+  permette di scegliere dove stanno l’applicazione e il database, ma la tua
+  organizzazione resta responsabile di configurazione, fornitori, contratti,
+  controlli di sicurezza, conservazione e valutazione legale.
+</FaqItem>
+
+<FaqItem question="Cosa contiene lo stack Docker Compose ufficiale?">
+Contiene l’applicazione Customermates e PostgreSQL 16. n8n, modelli IA, SMTP, provider di identità e servizi di monitoraggio sono separati quando scegli di collegarli.
+</FaqItem>
+</Faq>

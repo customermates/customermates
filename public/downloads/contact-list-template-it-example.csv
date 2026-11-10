@@ -1,0 +1,3 @@
+﻿ID contatto,Nome,Azienda,E-mail,Telefono,Responsabile,Relazione,Ultimo contatto,Prossimo passo,Data prossimo passo,Fonte,Data di verifica
+C001,Alex Esempio,Studio Esempio,alex@example.com,,Sam,Potenziale cliente,2026-11-05,Inviare il brief richiesto,2026-11-06,Richiesta del 2026-11-05,2026-12-04
+C002,Robin Modello,Officina Modello,robin@example.org,,Jo,Cliente,2026-11-04,Confermare i dettagli della consegna,2026-11-09,Richiesta del cliente del 2026-11-04,2026-12-04

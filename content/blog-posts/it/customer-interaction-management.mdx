@@ -1,0 +1,178 @@
+---
+title: "Gestione delle interazioni con i clienti per piccoli team"
+description: "Gestione delle interazioni con i clienti: cosa comprende, come si distingue da CRM e CCM e un’impostazione per piccoli team con canali, responsabili e stati."
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /blog/key-account-management
+  - /blog/complaint-management
+  - /blog/customer-journey
+
+hero:
+  title: "Gestione delle interazioni con i clienti: ogni conversazione sulla scheda giusta"
+  description: "Cosa significa CIM in pratica, dove finisce e dove iniziano il CRM, la gestione delle comunicazioni con i clienti o un help desk, e un’impostazione che un piccolo team può gestire con una sola verifica a settimana."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-04-10
+  updated: 2026-10-08
+  tags:
+    - Gestione delle interazioni con i clienti
+    - Comunicazione con i clienti
+    - Posta in arrivo unificata
+    - CRM
+---
+
+# Gestione delle interazioni con i clienti: ogni conversazione sulla scheda giusta
+
+La gestione delle interazioni con i clienti (customer interaction management, CIM) significa collegare ogni conversazione con un cliente alla scheda giusta: il canale su cui è arrivato un messaggio, il cliente e la trattativa a cui si riferisce, la persona che risponde e se una risposta è ancora dovuta. Fatta bene, permette a chiunque nel team di aprire un cliente e leggere tutta la cronologia prima di rispondere. Per un team sotto le venti persone, di solito significa un CRM che contiene le conversazioni, non un prodotto CIM separato.
+
+Il resto di questa guida separa il CIM dai termini con cui viene confuso, mostra quale tipo di software si adatta a quale situazione e percorre un’impostazione concreta. Customermates pubblica questa guida e l’esempio svolto usa Customermates; i passi valgono in qualsiasi CRM con una posta in arrivo.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Definizione">Raccogliere, assegnare e rispondere alle conversazioni con i clienti su più canali, con la cronologia collegata alla scheda del cliente.</SummaryItem>
+  <SummaryItem label="CIM e CRM">Il CRM contiene chi è il cliente e cosa gli vendi. Il CIM è lo strato delle conversazioni sopra. I piccoli team usano entrambi in un unico strumento.</SummaryItem>
+  <SummaryItem label="Non è la stessa cosa del CCM">Il software di customer communication management compone documenti regolamentati ad alto volume, come estratti conto e lettere di polizza.</SummaryItem>
+  <SummaryItem label="Impostazione minima">Ogni canale in un unico elenco, ogni mittente collegato a un contatto, uno stato condiviso per conversazione, un responsabile indicato per nome, una verifica a settimana.</SummaryItem>
+  <SummaryItem label="Esempio svolto">Un’agenzia di cinque persone su Customermates Pro: un account collegato per persona, due viste salvate della posta in arrivo e una routine che prepara solo bozze.</SummaryItem>
+</ArticleSummary>
+
+## CIM, CRM, CCM e CSM: quattro termini, quattro compiti
+
+I risultati di ricerca per «customer interaction management» mescolano software per contact center, guide al CRM e piattaforme documentali per grandi aziende. Wikipedia definisce il CIM come un software aziendale che gestisce l’interazione tra un’organizzazione e i suoi clienti tramite e-mail, SMS, telefono, messaggistica istantanea, posta cartacea scansionata e social media ([fonte](https://en.wikipedia.org/wiki/Customer_interaction_management)). In una piccola azienda la stessa idea è un insieme di abitudini più lo strumento che contiene le conversazioni.
+
+| Termine | Cosa gestisce | Acquirente tipico | Strumenti tipici |
+| --- | --- | --- | --- |
+| Customer interaction management (CIM) | Conversazioni a due vie e chi risponde | Qualsiasi team che parla con i clienti | CRM con posta in arrivo, help desk, contact center |
+| Customer relationship management (CRM) | Contatti, aziende, trattative e la loro cronologia | Vendite, gestione degli account, fondatori | CRM |
+| Customer communication management (CCM) | Documenti in uscita basati su modelli, spesso regolamentati | Assicurazioni, banche, aziende di servizi pubblici, enti pubblici | Quadient Inspire, OpenText Communications (Exstream), SmartCOMM |
+| Customer service management (CSM) | Casi di assistenza, assegnazione agli operatori, livelli di servizio | Team di assistenza con volumi di ticket | Zendesk, Freshdesk, ServiceNow CSM |
+
+La riga CCM è quella che causa acquisti sbagliati. Quadient descrive Inspire come un software per «creare, personalizzare, distribuire e governare le comunicazioni con i clienti su canali cartacei e digitali» ([Quadient](https://www.quadient.com/en-us/customer-communications)). OpenText descrive OpenText Communications, in precedenza Exstream, come un software CCM per comunicazioni personalizzate e conformi su una varietà di canali ([OpenText](https://www.opentext.com/products/customer-communications-management)), e Smart Communications definisce la sua piattaforma una piattaforma CCM pensata per le grandi aziende regolamentate ([Smart Communications](https://www.smartcommunications.com/)). Questi prodotti producono output da uno a molti. Se il tuo problema è «nessuno sa cosa ha scritto per ultimo il cliente su WhatsApp», una piattaforma CCM non lo risolve.
+
+Il CSM è l’altro termine vicino. In ServiceNow, il record di interazione del CSM permette agli operatori di accettare e rispondere a chat dal vivo, chiamate, e-mail e SMS ([documentazione di ServiceNow](https://www.servicenow.com/docs/r/xanadu/customer-service-management/csm-interaction-record-page.html)). È CIM per un servizio di assistenza con code e operatori. Una società di consulenza o un’agenzia con qualche centinaio di conversazioni con i clienti al mese raramente ha bisogno di code; ha bisogno delle conversazioni accanto al cliente e alla trattativa.
+
+## Cosa deve chiarire un’impostazione CIM che funziona
+
+Metti alla prova qualsiasi impostazione con quattro domande. Scegli un cliente a caso e prova a rispondere entro un minuto:
+
+1. **Cosa è stato detto per ultimo, su qualsiasi canale?** L’e-mail di martedì e il messaggio WhatsApp di giovedì stanno in un’unica cronologia.
+2. **Chi risponde adesso?** Una persona indicata per nome, non «chi l’ha visto».
+3. **C’è qualcosa che aspetta una nostra risposta?** Un elenco delle conversazioni in cui il cliente ha scritto per ultimo e nessuno ha risposto.
+4. **Di cosa si tratta dal punto di vista commerciale?** La trattativa aperta, la sua fase e chi la segue.
+
+Se una risposta richiede di accedere a un secondo strumento o di chiedere a un collega, è quella la lacuna da colmare per prima. La maggior parte dei piccoli team inciampa sulla terza domanda, perché i messaggi senza risposta vivono nelle caselle personali e nei telefoni.
+
+## Quale software si adatta a quale situazione
+
+| La tua situazione | Guarda | Perché |
+| --- | --- | --- |
+| Meno di circa 20 persone, conversazioni uno a uno con clienti e potenziali clienti | Un CRM con Posta in arrivo unificata | Le conversazioni stanno sulla scheda del cliente accanto alle trattative; nessun secondo sistema |
+| Un team di assistenza risponde a molte richieste simili e ha bisogno dell’assegnazione in base alla capacità degli operatori | Un help desk o un contact center | L’instradamento omnicanale di Zendesk assegna i ticket di e-mail, messaggistica e chiamate in base alla disponibilità e alla capacità degli operatori ([assistenza di Zendesk](https://support.zendesk.com/hc/en-us/articles/4409149119514-About-omnichannel-routing)) |
+| Invii migliaia di documenti regolamentati a scadenze fisse | Una piattaforma CCM | Governance dei modelli, stampa e tracciamento di cosa è andato a chi |
+| Gestisci newsletter o campagne | Uno strumento di email marketing collegato al CRM | L’invio in blocco è un lavoro diverso dal rispondere a singole persone |
+
+Molte aziende combinano due righe. Il collegamento conta più del marchio: un help desk che non scrive mai sulla scheda del cliente ricostruisce la frammentazione che il CIM doveva eliminare. Freshdesk, per esempio, offre e-mail, chat, telefono e messaggistica nel suo prodotto Omni ed elenca integrazioni con strumenti come HubSpot ([Freshworks](https://www.freshworks.com/freshdesk/omni/)); verifica che l’integrazione porti la conversazione, non solo il contatto.
+
+## Come impostare la gestione delle interazioni con i clienti
+
+<Steps>
+  <Step title="Elenca ogni canale e a chi appartiene">
+    Scrivi ogni casella di posta e ogni account di messaggistica che usano i clienti: caselle condivise, Gmail o Outlook personali, LinkedIn, WhatsApp sul telefono di qualcuno. Annota chi possiede ogni account e se i colleghi devono vederlo.
+  </Step>
+  <Step title="Porta i canali in un unico elenco">
+    Collegali a un solo strumento, così i nuovi messaggi compaiono in un unico posto, dal più recente, e le risposte partono sul canale originale.
+  </Step>
+  <Step title="Collega ogni mittente a un contatto">
+    Un messaggio da un indirizzo sconosciuto è quello che si perde. Collega il mittente a un contatto esistente o creane uno, così la conversazione compare nella cronologia del contatto e, tramite il contatto, accanto all’organizzazione e alle sue trattative.
+  </Step>
+  <Step title="Concorda pochi stati condivisi">
+    Non letta, aperta, chiusa bastano. Concorda cosa significa «chiusa», per esempio «risposto e nulla promesso».
+  </Step>
+  <Step title="Indica un responsabile per cliente">
+    Assegna ogni cliente e ogni trattativa aperta a una persona. Quella persona risponde o passa la mano in modo esplicito.
+  </Step>
+  <Step title="Controlla l’elenco di attesa una volta a settimana">
+    Trenta minuti: conversazioni in cui il cliente ha scritto per ultimo, conversazioni con mittenti non collegati, trattative senza contatti recenti.
+  </Step>
+</Steps>
+
+## Esempio svolto: un’agenzia di cinque persone in Customermates
+
+L’agenzia ha due fondatori, due responsabili di progetto e un responsabile vendite. I clienti scrivono via e-mail, WhatsApp e LinkedIn. L’impostazione qui sotto gira su Customermates Cloud con il piano Pro, perché la [Posta in arrivo unificata](/features/unified-inbox) richiede Pro o superiore; Starter non ha la posta in arrivo. Lo scopo dell’impostazione è il follow up: le conversazioni con i clienti stanno sulla scheda del cliente quando i recapiti coincidono o li colleghi tu, Mate o il tuo agente IA prepara la risposta, e tu la rivedi e la invii, così puoi rispondere a tutto ciò che un cliente ha scritto.
+
+**Canali.** Ogni persona collega il proprio account in **Impostazioni › Canali e calendari**. La posta in arrivo accetta Gmail, Outlook o IMAP per l’e-mail, più LinkedIn, WhatsApp, Instagram e Telegram. Pro include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente, quindi l’agenzia li ripartisce: i due responsabili di progetto e un fondatore collegano le loro caselle di posta, l’altro fondatore collega il numero WhatsApp che usano i clienti e il responsabile vendite collega LinkedIn. Chi ha bisogno di una casella di posta e di un account di messaggistica insieme ha bisogno di Business, che include [[commercial.entitlement.business.includedAccountsPerUser]] per utente. Un nuovo canale è privato per il suo proprietario. Una singola conversazione può essere condivisa con il team da **Impostazioni della conversazione**; condividere un intero account con tutti richiede Business.
+
+**Collegamento.** In **Impostazioni della conversazione**, ogni partecipante viene collegato a un contatto o creato come nuovo. L’indirizzo o il nome utente viene poi aggiunto al contatto, così ogni conversazione successiva con quella persona finisce sullo stesso contatto. Il blocco **Recapiti** del contatto ha un link che apre nella posta in arrivo tutte le conversazioni con quel contatto. I contatti sono collegati a organizzazioni e trattative, quindi il responsabile di progetto vede la trattativa e gli utenti assegnati dalla stessa scheda. Le basi del modello dei record sono nella pagina sulla [gestione dei contatti](/features/contact-management).
+
+**Stati.** Ogni conversazione è **Non letta**, **Aperta**, **Chiusa** o **Spam**. Lo stato è condiviso, non per persona, e un nuovo messaggio in arrivo lo riporta a **Non letta**, così un thread chiuso non può nascondere una domanda nuova.
+
+**Due viste salvate nella posta in arrivo.** I filtri della posta in arrivo si salvano come viste, e puoi condividere una vista con il team. Una vista elenca solo le conversazioni che la persona che la apre può vedere: i suoi canali più ciò che i colleghi hanno condiviso. Su Pro, quindi, un elenco di attesa per tutto il team dipende dalla condivisione delle conversazioni una per una; su Business, gli account condivisi lo rendono automatico.
+
+| Vista | Filtri | Risponde a |
+| --- | --- | --- |
+| In attesa di una nostra risposta | Stato è Aperta, Ultimo messaggio è Ricevuto, Data ultimo messaggio più vecchio di 2 giorni | C’è qualcosa che aspetta una nostra risposta? |
+| Persone non collegate | Partecipanti: non completamente collegato | Quali conversazioni non sono ancora su una scheda cliente? |
+
+**Una routine (solo Customermates Cloud, usa crediti IA ospitati).** Una routine esegue Mate, l’assistente dell’app, a orari fissi o a seguito di un evento. Il responsabile vendite ne crea una con l’evento e-mail ricevuta e questa istruzione:
+
+> Quando arriva una nuova e-mail da un contatto collegato a una trattativa aperta, leggi il thread e la trattativa, poi salva una risposta come bozza nel thread. Non inviare nulla. Aggiungi una riga alle note della trattativa che riassuma cosa ha chiesto il cliente.
+
+L’istruzione dice «bozza» di proposito. Mate può inviare messaggi senza una nuova approvazione quando glielo si chiede, e una routine viene eseguita come il suo proprietario con i canali di quel proprietario, quindi vede solo le e-mail che arrivano ai canali del responsabile vendite, propri o condivisi. Le routine hanno anche limiti di esecuzioni e di crediti, e le e-mail che arrivano mentre un’esecuzione è in corso o dopo il limite orario non avviano alcuna esecuzione, quindi la routine aiuta ma non sostituisce la verifica settimanale. La [documentazione sulle routine](/docs/app-routines) elenca i limiti.
+
+**Quanto costa.** Cinque utenti su Pro costano [[commercial.price.pro.monthly.seats.5]] al mese; su Business, con account condivisi e più account collegati, [[commercial.price.business.monthly.seats.5]]. Entrambi includono crediti IA ospitati mensili per utente attivo, vedi i [prezzi](/pricing). La fatturazione è mensile.
+
+Se preferisci un tuo client IA, Claude, ChatGPT e altri client MCP possono leggere i thread, salvare bozze e aggiornare i record tramite il [server MCP](/docs/mcp). Il server MCP non impone una conferma prima dell’invio; se il client chieda prima dipende dal client.
+
+## Misurare la qualità delle interazioni senza un contact center
+
+I contact center riportano i tempi di gestione e i livelli di servizio. Un piccolo team ha bisogno di meno numeri, da leggere ogni settimana:
+
+| Metrica | Come ottenerla in un piccolo team |
+| --- | --- |
+| Conversazioni in attesa da più di due giorni | Conteggio della vista «In attesa di una nostra risposta» |
+| Conversazioni non collegate | Conteggio della vista «Persone non collegate» |
+| Trattative aperte che nessuno ha toccato di recente | Una vista salvata delle trattative ordinata per ultimo aggiornamento, dalla più vecchia (un indicatore approssimativo, perché conta qualsiasi modifica) |
+| Come il cliente giudica il servizio | Chiedilo nella revisione trimestrale; i sondaggi CSAT o NPS richiedono uno strumento di sondaggio a parte |
+
+Customermates non calcola il tempo di prima risposta né il tempo di risoluzione, e non ha una coda di ticket con timer sui livelli di servizio. Se questi numeri contano per contratto, un help desk è più adatto. Per i clienti insoddisfatti in particolare, il [processo di gestione dei reclami](/blog/complaint-management) dà a ogni reclamo un responsabile, un livello di triage e un percorso di escalation.
+
+<AcquisitionCallout title="Dove si ferma Customermates" variant="boundary">
+  Niente telefonia né SMS, niente widget di chat per il sito né moduli web, niente code di ticket, niente campagne né invii in blocco: la messaggistica è uno a uno. Non è una piattaforma CCM e non compone documenti da stampare. Le installazioni self-hosted includono il CRM di base con REST, webhook e MCP, ma non la posta in arrivo né Mate.
+</AcquisitionCallout>
+
+## Privacy: cosa definire prima di centralizzare le conversazioni
+
+Portare ogni conversazione in un unico sistema concentra i dati personali. Con il GDPR ti serve una base giuridica per conservarli, un accordo sul trattamento dei dati con ogni fornitore e una regola su quanto a lungo tieni le conversazioni degli ex clienti. Decidi chi può vedere quali account prima di collegare quelli personali. In Customermates Cloud il database di produzione principale è configurato nella regione AWS di Francoforte, una configurazione scelta e non una garanzia contrattuale di residenza; i fornitori, comprese aziende statunitensi, sono elencati nella [pagina dei sub-responsabili del trattamento](/subprocessors), e il [DPA](/dpa) è pubblico. I team che hanno bisogno dei dati sui propri server possono installare in autonomia il CRM di base, senza la posta in arrivo.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Che cos’è la gestione delle interazioni con i clienti in parole semplici?">
+Significa tenere ogni conversazione con i clienti, su ogni canale, collegata al cliente giusto, con una persona indicata per nome responsabile della prossima risposta. Il test: chiunque nel team può aprire un cliente e vedere cosa è stato detto per ultimo e se c’è qualcosa in attesa.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra CIM e CRM?">
+Un CRM conserva chi è il cliente, a quale azienda appartiene e quali trattative sono aperte. Il CIM riguarda le conversazioni con lui e chi risponde. Nei piccoli team un CRM con una posta in arrivo integrata fa entrambe le cose; le grandi organizzazioni spesso affiancano al CRM un contact center e collegano i due.
+</FaqItem>
+
+<FaqItem question="Che differenza c’è tra CSM e CRM?">
+CSM di solito significa customer service management: casi di assistenza, code e assegnazione agli operatori, come in ServiceNow CSM o in un help desk. Alcuni team usano CSM per customer success management, il lavoro di mantenere i clienti dopo la vendita. Il CRM è l’archivio di clienti e trattative su cui entrambi si basano.
+</FaqItem>
+
+<FaqItem question="La customer communication management è la stessa cosa?">
+No. Il software di customer communication management (CCM) come Quadient Inspire o OpenText Communications (Exstream) compone e distribuisce documenti basati su modelli, spesso regolamentati, su canali cartacei e digitali. Si adatta ad assicurazioni, banche e aziende di servizi pubblici. I team il cui problema è rispondere a singoli clienti tra e-mail e chat hanno bisogno invece di un CRM con posta in arrivo o di un help desk.
+</FaqItem>
+
+<FaqItem question="Quale software usano le piccole imprese per la gestione delle interazioni con i clienti?">
+La maggior parte usa un CRM con una posta in arrivo che collega i propri account di e-mail e di messaggistica. Le attività con molta assistenza aggiungono un help desk come Zendesk o Freshdesk. Customermates porta e-mail, LinkedIn, WhatsApp, Instagram e Telegram in un’unica posta in arrivo accanto ai record del CRM su Customermates Cloud dal piano Pro.
+</FaqItem>
+
+<FaqItem question="L’IA può gestire le interazioni con i clienti?">
+L’IA può leggere un thread, riassumerlo e preparare una risposta. Per le conversazioni con i clienti, tieni una persona che controlla la bozza e preme invia, a meno che il caso sia di routine. In Customermates Cloud, Mate prepara le risposte ed esegue le routine usando crediti IA ospitati; i client IA esterni si collegano tramite MCP.
+</FaqItem>
+</Faq>
+
+Per provare l’impostazione, [inizia la tua prova](/auth/signup?job=followup): [[commercial.trial.days]] giorni di Pro con la posta in arrivo e senza carta di credito. Collega un canale per persona e costruisci per prima la vista «In attesa di una nostra risposta». La [guida alla posta in arrivo](/docs/app-inbox) elenca ogni filtro e ogni permesso.

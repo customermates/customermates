@@ -1,0 +1,152 @@
+---
+title: "CRM Outlook: e-mail, cartelle e calendario nel CRM"
+description: "CRM Outlook per fare follow-up: thread sul contatto giusto, bozze di Mate, spostamenti di cartella che arrivano nella tua casella. Nessun add-in. Da Pro."
+featureName: Integrazione con Outlook
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/outlook-crm-integration
+  - /features/contact-management
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Controlla il piano"
+        description: "Usa Customermates Cloud su Pro o superiore, oppure una prova. Il tuo ruolo deve avere Crea su Messaggi della posta in arrivo per collegare un canale."
+      - title: "Collega Outlook"
+        description: "Apri Impostazioni › Canali e calendari, fai clic su Collega un canale e scegli Outlook. La scheda passa a una pagina di connessione sicura in cui accedi. La cronologia viene poi importata in background, di solito in pochi minuti e fino a un’ora per una casella grande. Se il tuo tenant Microsoft 365 blocca il consenso degli utenti alle app di terze parti, prima un amministratore deve approvare il collegamento."
+      - title: "Scegli le cartelle"
+        description: "Apri la scheda Cartelle dell’account e attiva le cartelle che vuoi nel CRM, per esempio una cartella di archivio, oppure disattiva le newsletter."
+      - title: "Imposta la firma"
+        description: "Nella scheda E-mail, attiva Aggiungi una firma e scrivila una sola volta. Non incollarla anche nei messaggi."
+      - title: "Collega i primi contatti"
+        description: "Filtra la posta in arrivo per Partecipanti: non completamente collegato, poi collega ogni mittente a un contatto o creane uno."
+  highlights:
+    title: "In breve"
+    capture: homepage-inbox
+    items:
+      - title: "Cosa si collega"
+        description: "L’e-mail del tuo account Outlook, in entrambe le direzioni, più gli eventi del suo calendario come voci in sola lettura. La scheda del canale mostra se sono collegati e-mail, calendario o entrambi."
+      - title: "Piano"
+        description: "Customermates Cloud, Pro o superiore. Pro include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter e le installazioni self-hosted non hanno la Posta in arrivo."
+      - title: "Come funziona"
+        description: "Nessun add-in o barra laterale in Outlook. Customermates legge e invia tramite l’account collegato, quindi funziona con qualunque app di Outlook usi per scrivere."
+      - title: "Non incluso"
+        description: "Nessuna sincronizzazione dei contatti della rubrica di Outlook, nessuna creazione o prenotazione di eventi del calendario, nessuna e-mail di massa."
+
+hero:
+  title: "CRM Outlook: ogni thread di Outlook sul suo cliente, senza add-in"
+  description: "Collega Outlook una volta e i suoi thread di e-mail arrivano sul contatto corrispondente. Vedi chi aspetta una tua risposta, fai preparare la risposta a Mate e inviala dal CRM o da Outlook. Il calendario è in sola lettura. Cloud da Pro, [[commercial.price.pro.monthly]] per utente al mese."
+  buttonLeftText: "Avvia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito ✓ I primi [[commercial.trial.days]] giorni gratis"
+
+cta:
+  action: "Collega un account Outlook e vedi chi aspetta una risposta"
+  description: "Avvia la prova, collega Outlook in Impostazioni › Canali e calendari e verifica se i tuoi thread, le tue cartelle e i tuoi contatti si allineano a come lavora il tuo team."
+  buttonLeftText: "Avvia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo dal vivo
+  buttonRightHref: https://demo.customermates.com/it/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito ✓ I primi [[commercial.trial.days]] giorni gratis"
+---
+
+Il CRM Outlook di Customermates si collega a Outlook lato server: accedi una volta al tuo account Outlook e i suoi thread di e-mail compaiono nella [Posta in arrivo unificata](/features/unified-inbox) del CRM, abbinati ai contatti tramite l’indirizzo e-mail. Puoi rispondere dal CRM o continuare a scrivere in Outlook, perché la posta inviata da Outlook arriva nello stesso thread. Spostare un’e-mail in una cartella in Customermates la sposta anche nella tua casella reale. Gli eventi del calendario arrivano in sola lettura. Non c’è nulla da installare in Outlook, e l’integrazione richiede Customermates Cloud su Pro o superiore.
+
+**Dove ti aiuta nel follow-up.** Un’e-mail di un cliente letta il venerdì e che volevi rispondere il lunedì è il modo in cui i follow-up scivolano. Con Outlook collegato, il thread sta sul contatto, un filtro della posta in arrivo elenca i thread in cui hai scritto per ultimo senza ricevere risposta e Mate può salvare nel thread una bozza di risposta da rivedere. La invii dal CRM o da Outlook; in entrambi i casi resta in un unico thread.
+
+## Tre tipi di integrazione CRM per Outlook
+
+«CRM per Outlook» copre tre soluzioni diverse. Decidi quale vuoi prima di confrontare i fornitori. Customermates pubblica questa pagina; gli esempi di fornitori qui sotto vengono dalla documentazione di ciascuno, verificata l’8 ottobre 2026.
+
+| Soluzione | Dove lavori | Esempio | Sceglila se |
+| --- | --- | --- | --- |
+| Add-in in Outlook | In Outlook, con un pannello CRM accanto all’e-mail | [Add-in HubSpot Sales Office 365](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) (traccia e registra le e-mail in Outlook per Windows, Mac e web); [Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview) (collega e-mail e appuntamenti ai record, può sincronizzare i contatti con Exchange) | Il tuo team vive in Outlook tutto il giorno e vuole i dati del CRM accanto a ogni e-mail |
+| CRM dentro Outlook | Outlook è l’interfaccia del CRM | [eWay-CRM](https://www.eway-crm.com/), che si descrive come un modo per trasformare Outlook in un CRM | Non vuoi alcuna seconda app e il tuo team lavora in Outlook |
+| Casella collegata al CRM | Nel CRM, con Outlook che continua a funzionare accanto | Customermates | Parli con i clienti anche su LinkedIn o WhatsApp, o vuoi che un assistente IA legga e prepari bozze dagli stessi thread |
+
+Se ti serve la sincronizzazione dei contatti di Outlook in entrambe le direzioni, o un pannello CRM dentro Outlook, Customermates non è adatto. Guarda invece un CRM basato su add-in. Il [confronto dei CRM per Outlook](/blog/outlook-crm-integration) passa in rassegna altre opzioni.
+
+## Cosa fa la connessione con Outlook
+
+**Thread di e-mail nella posta in arrivo.** La posta inviata e ricevuta dell’account collegato compare come thread nella Posta in arrivo, con l’attività più recente per prima, accanto alle conversazioni di LinkedIn, WhatsApp, Instagram e Telegram se le colleghi. La ricerca copre oggetto, testo dei messaggi e nomi o indirizzi dei partecipanti, e un filtro restringe l’elenco a una cartella di posta.
+
+**Cartelle, in entrambe le direzioni.** La scheda **Cartelle** del canale ha un interruttore per ogni cartella di Outlook. Per impostazione predefinita tutte le cartelle sono attive tranne cestino, posta indesiderata, bozze e la cartella di tutta la posta. In un thread di Outlook puoi spostare una sola e-mail o l’intera conversazione in un’altra cartella, e lo spostamento avviene nella tua casella reale. Gli account Gmail non possono farlo; funziona per Outlook e IMAP.
+
+**Contatti collegati tramite indirizzo.** L’indirizzo e-mail di un contatto lo collega a ogni thread con quell’indirizzo. Per un mittente non ancora collegato, apri **Impostazioni della conversazione**, fai clic su **Collega** e scegli un contatto o creane uno dal nome. L’indirizzo viene poi aggiunto a quel contatto, così tutti i thread precedenti e successivi con esso compaiono sul contatto. I thread arrivano a trattative e organizzazioni tramite il contatto; per archiviare un thread su una trattativa, usa **Collega record** sotto **Record della conversazione**.
+
+**Risposte e nuove e-mail dal CRM.** Rispondi nell’editor del thread, con A, Cc e Ccn, formattazione Markdown e file allegati. Avvia una nuova e-mail dal blocco **Recapiti** di un contatto. Ogni account Outlook ha il proprio carattere, il proprio colore dei link e la propria firma nella scheda **E-mail**. Una volta attivata, la firma viene aggiunta a ogni e-mail inviata da quell’account, sia dalla posta in arrivo sia dall’API o da MCP.
+
+**Calendario, in sola lettura.** Gli eventi del calendario Outlook collegato compaiono nella categoria **Account e calendario** dei widget della cronologia delle attività, e i client IA li leggono tramite MCP con `get_calendars`. Compaiono anche nella pagina Calendario accanto alle date dei tuoi record. Customermates non crea, modifica né prenota mai eventi in Outlook.
+
+## Configurazione
+
+Microsoft documenta le impostazioni di consenso in [Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent): per impostazione predefinita gli utenti possono dare il consenso alle app per i permessi che non richiedono il consenso di un amministratore, e gli amministratori possono limitarlo. Se la tua casella non riesce ad accedere tramite l’opzione Outlook, l’opzione IMAP collega altri account e-mail tramite IMAP e SMTP.
+
+## Chi vede quali e-mail
+
+Un nuovo canale è privato: solo tu vedi i suoi thread e nessun ruolo, Amministratore compreso, può leggere i thread privati di un collega. Puoi condividere una conversazione da **Impostazioni della conversazione**. Su Business ed Enterprise puoi condividere l’intero account, per esempio un indirizzo di team che una persona ha collegato, e ogni membro il cui ruolo può leggere la posta in arrivo vede allora tutti i suoi thread. Ogni account Outlook può essere collegato una sola volta per spazio di lavoro, quindi condividilo invece di collegarlo due volte.
+
+## L’IA sui tuoi thread di Outlook
+
+**Mate, in Customermates Cloud.** Mate può riassumere un thread, preparare una risposta, archiviare un’e-mail in una cartella o inviarla quando glielo chiedi. Mate usa crediti IA ospitati; ogni piano a pagamento include crediti IA ospitati mensili per utente attivo, vedi i [prezzi](/pricing). Mate invia senza un’ulteriore conferma quando gli chiedi di inviare, quindi scrivi «bozza» quando vuoi solo una bozza.
+
+**Routine, in Customermates Cloud.** Una routine può partire dall’evento **E-mail ricevuta**. Istruzione di esempio: «Quando arriva un’e-mail da un contatto collegato a una trattativa aperta, crea su quella trattativa un’attività assegnata a me con un riassunto di due righe e salva una bozza di risposta nel thread. Non inviare nulla.» La routine viene eseguita come il suo proprietario e vede solo i thread che quella persona può vedere. I limiti sono nella [guida alle routine](/docs/app-routines).
+
+**Il tuo client IA, tramite MCP.** Claude, ChatGPT e altri client MCP possono leggere i thread, salvare bozze e inviare e-mail tramite il [server MCP](/docs/mcp), usando il tuo abbonamento IA invece dei crediti ospitati. Il fatto che il client chieda conferma prima di inviare dipende dal client.
+
+## Quanto costa
+
+L’integrazione con Outlook non ha un prezzo separato. È inclusa nel piano:
+
+| Team | Piano | Al mese |
+| --- | --- | --- |
+| 3 persone, un account Outlook ciascuna | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| 3 persone, Outlook più LinkedIn o WhatsApp ciascuna | Business | [[commercial.price.business.monthly.seats.3]] |
+
+Il punto decisivo è la dotazione di account: Pro include [[commercial.entitlement.pro.includedAccountsPerUser]] account collegato per utente, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Se qualcuno ha bisogno di Outlook e LinkedIn nella stessa posta in arrivo, quella persona ha bisogno di Business. La fatturazione è mensile.
+
+## Limiti da conoscere
+
+- Nessun add-in, barra laterale o pulsante della barra multifunzione in Outlook. I dettagli del CRM si consultano in Customermates.
+- I contatti della rubrica di Outlook non vengono sincronizzati in nessuna direzione. I contatti si creano in Customermates, collegando un mittente, a mano o con l’[importazione XLSX](/docs/app-records).
+- I dati del calendario sono in sola lettura. Nessuna prenotazione di riunioni, nessuna scrittura di eventi.
+- Nessuna e-mail di massa né sequenze. Ogni e-mail viene scritta e inviata singolarmente.
+- Scollegare un account elimina in modo permanente i thread, i messaggi e gli eventi del calendario che Customermates ha importato da esso.
+- I provider limitano la velocità con cui la posta può essere letta e inviata; i budget attuali sono nei [limiti di frequenza della messaggistica](/docs/messaging-rate-limits).
+- Customermates self-hosted non ha la Posta in arrivo, quindi nessuna connessione con Outlook. Solo Customermates Cloud ce l’ha.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Devo installare un add-in di Outlook?">
+No. La connessione funziona tra Customermates e il tuo account, quindi non c’è nulla da installare in Outlook e nulla da aggiornare su ogni computer. Il compromesso: vedi i dati del CRM in Customermates, non in un pannello di Outlook.
+</FaqItem>
+
+<FaqItem question="Posso continuare a inviare e-mail da Outlook?">
+Sì. La posta che invii da Outlook finisce nello stesso thread in Customermates, e le risposte vi si aggiungono. Usa l’app che hai a portata di mano.
+</FaqItem>
+
+<FaqItem question="Customermates sincronizza i miei contatti o il mio calendario di Outlook?">
+Contatti: no, in nessuna direzione. I thread vengono invece abbinati ai contatti del CRM tramite l’indirizzo e-mail. Calendario: gli eventi vengono letti in Customermates in sola lettura; nulla viene riscritto in Outlook.
+</FaqItem>
+
+<FaqItem question="L’intero team può vedere la posta Outlook degli altri?">
+Solo ciò che è condiviso. I thread privati restano privati, Amministratori compresi. Le singole conversazioni si possono condividere su qualsiasi piano con la Posta in arrivo; gli account interi si possono condividere su Business ed Enterprise.
+</FaqItem>
+
+<FaqItem question="Microsoft Outlook è un CRM?">
+Outlook gestisce e-mail, calendario e rubrica, ma non ha trattative, fasi di pipeline né record cliente condivisi. La linea CRM di Microsoft è Dynamics 365, che si collega a Outlook tramite la Dynamics 365 App for Outlook. Customermates lascia Outlook come tuo client di posta e aggiunge quei record accanto ai tuoi thread.
+</FaqItem>
+
+<FaqItem question="Dove vengono trattati i dati?">
+In Customermates Cloud il database dell’applicazione è configurato nella regione AWS di Francoforte. Gli account collegati vengono trasportati da Unipile. Ogni sub-responsabile, compresi i fornitori statunitensi, è nella [pagina dei sub-responsabili](/subprocessors) ed è disponibile un [DPA](/dpa).
+</FaqItem>
+</Faq>
+
+Dettagli sui fornitori verificati l’8 ottobre 2026 su [Microsoft Learn](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), [la knowledge base di HubSpot](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) ed [eWay-CRM](https://www.eway-crm.com/).
