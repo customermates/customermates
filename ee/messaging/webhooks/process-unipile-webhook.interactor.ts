@@ -18,11 +18,15 @@ import {
 import { UnipileRequestError } from "../unipile-request-error";
 
 export type UnipileWebhookHandlerMap = Partial<
-  Record<string, { invoke(envelope: UnipileWebhookEnvelope): Promise<void> }>
+  Record<string, { invoke(envelope: UnipileWebhookEnvelope & { receivedAt?: Date }): Promise<void> }>
 >;
 
 const Schema = z.object({ id: z.uuid() });
 type ProcessUnipileWebhookPayload = z.infer<typeof Schema>;
+
+function isUnipileApiRateLimit(err: unknown): boolean {
+  return err instanceof UnipileRequestError && err.status === 429 && !err.errorType?.startsWith("provider/");
+}
 
 function isRetryableUnipileWebhookError(err: unknown): boolean {
   return err instanceof UnipileRequestError && (err.status === 429 || isUnipileTransientError(err));
@@ -36,9 +40,9 @@ export class ProcessUnipileWebhookInteractor {
   ) {}
 
   @Enforce(Schema)
-  async invoke({ id }: ProcessUnipileWebhookPayload): Promise<void> {
+  async invoke({ id }: ProcessUnipileWebhookPayload): Promise<{ rateLimited: boolean }> {
     const row = await this.events.findWebhookEventByIdOrThrowUnscoped(id);
-    if (row.processed) return;
+    if (row.processed) return { rateLimited: false };
 
     const parsed = UnipileWebhookEnvelopeSchema.safeParse(row.payload);
 
@@ -46,7 +50,7 @@ export class ProcessUnipileWebhookInteractor {
       ErrorReporter.captureException(parsed.error, { tags: { webhookEventId: id } });
       await this.events.markWebhookEventFailedUnscoped({ id, error: parsed.error.message, terminal: true });
 
-      return;
+      return { rateLimited: false };
     }
 
     const envelope = parsed.data;
@@ -61,12 +65,13 @@ export class ProcessUnipileWebhookInteractor {
         terminal: true,
       });
 
-      return;
+      return { rateLimited: false };
     }
 
     try {
-      await handler.invoke(envelope);
+      await handler.invoke({ ...envelope, receivedAt: row.receivedAt });
       await this.events.markWebhookEventProcessedUnscoped(id);
+      return { rateLimited: false };
     } catch (err) {
       if (err instanceof UnmappableWebhookPayloadError) {
         await this.events.markWebhookEventFailedUnscoped({
@@ -76,25 +81,25 @@ export class ProcessUnipileWebhookInteractor {
           unipileMessageId: err.unipileMessageId,
         });
 
-        return;
+        return { rateLimited: false };
       }
 
       if (err instanceof DeferredWebhookError) {
         await this.markRetryableFailure({ id, eventType: envelope.type, err });
 
-        return;
+        return { rateLimited: false };
       }
 
       if (isUnipileDisconnectedAccount(err)) {
         await this.events.markWebhookEventFailedUnscoped({ id, error: err.message, terminal: true });
 
-        return;
+        return { rateLimited: false };
       }
 
       if (isUnipileTimeout(err) || isUnipileProviderUnprocessable(err) || isRetryableUnipileWebhookError(err)) {
         await this.markRetryableFailure({ id, eventType: envelope.type, err });
 
-        return;
+        return { rateLimited: isUnipileApiRateLimit(err) };
       }
 
       ErrorReporter.captureException(err, { tags: { webhookEventId: id, eventType: envelope.type } });
@@ -103,6 +108,8 @@ export class ProcessUnipileWebhookInteractor {
         error: err instanceof Error ? err.message : String(err),
         terminal: err instanceof z.ZodError,
       });
+
+      return { rateLimited: false };
     }
   }
 

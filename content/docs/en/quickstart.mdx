@@ -21,13 +21,13 @@ Add a custom connector:
 - **Claude** (web, desktop, mobile): **Settings → Connectors → Add custom connector**.
 - **ChatGPT**: **Settings → Connectors → Add connector → Custom connector (MCP)**, with **Authentication** set to OAuth.
 
-Paste your workspace's MCP URL, which Customermates shows with a copy button in the onboarding step **Connect your AI** and under [API keys](app:settings/api-keys), sign in, and click **Approve** on the consent screen. The address you open Customermates at followed by `/api/v1/mcp` works too and asks for the workspace on the consent screen. Full steps: [Connect with a custom connector](/docs/connect-custom-connector#the-url).
+Paste your workspace's MCP URL, which Customermates shows with a copy button in the onboarding step **Connect your AI** and under [API keys & connectors](app:settings/api-keys), sign in, and click **Approve** on the consent screen. The address you open Customermates at followed by `/api/v1/mcp` works too and asks for the workspace on the consent screen. Full steps: [Connect with a custom connector](/docs/connect-custom-connector#the-url).
 
 On connect the server briefs the client on its tools and your workspace. In clients that support MCP prompts, such as Claude, the built-in `get-started` prompt adds a personal start: your name, your role and a first summary of your workspace.
 
 ## How do I connect a CLI or editor? [#how-do-i-connect-a-cli-or-editor]
 
-Open [API keys](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate) and choose **Standard API key**, or pick your client under **Quick connections** to get the key together with its setup snippet. Copy the key now: it is shown only once. Creating a key needs **Create** on the **API & Webhooks** row of your role; the **Admin** role has it. Details: [API keys](/docs/api-keys). Then follow your client's steps:
+Open [API keys & connectors](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate) and choose **Standard API key**, or pick your client under **Quick connections** to get the key together with its setup snippet. Copy the key now: it is shown only once. Creating a key needs **Create** on the **API & Webhooks** row of your role; the **Admin** role has it. Details: [API keys](/docs/api-keys). Then follow your client's steps:
 
 - [Claude Code](/docs/connect-cli#claude-code): one terminal command
 - [Cursor](/docs/connect-cli#cursor): Settings UI, two clicks
@@ -47,7 +47,7 @@ The agent reports what it did and what changed. Deal stages and other fields dif
 
 Optional, to notify other tools when the CRM changes: open [Webhooks](app:settings/webhooks) and click [Add](app:settings/webhooks?focus=add). Set **URL** to a throwaway endpoint from [webhook.site](https://webhook.site), select **Record created** and **Record updated** under **Events**, choose the lists to watch and click **Save**. Adding a webhook needs **Create** on the **API & Webhooks** row, as for API keys.
 
-Now create or change a record in one of those lists. Within seconds the delivery arrives at webhook.site with the full payload and shows up under [Deliveries](app:settings/webhook-deliveries). More in [Webhooks](/docs/webhooks).
+Now create or change a record in one of those lists. Within seconds the delivery arrives at webhook.site with the full payload and shows up under [Webhook log](app:settings/webhook-deliveries). More in [Webhooks](/docs/webhooks).
 
 ## Next [#next]
 

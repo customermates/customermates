@@ -7,7 +7,7 @@ Workspace settings cover everything that affects the whole workspace rather than
 
 ## Where are the workspace settings? [#what-lives-on-the-company-screen]
 
-Click the workspace name at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:settings/profile), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [General](app:settings/general), [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Activity](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** at the top of the nav returns to the page you came from.
+Click the workspace name at the top of the sidebar to open the workspace menu and choose **Settings**, or press G then S. Settings opens on [Profile & preferences](app:settings/profile), and the sidebar switches to the settings nav: your own pages under **Account**, the workspace pages under **Workspace**: [General](app:settings/general), [Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing) (Cloud only), [Audit log](app:settings/activity) and [Webhooks](app:settings/webhooks). **Back** at the top of the nav returns to the page you came from.
 
 The workspace menu lists the workspaces you belong to, to switch between them, and offers **Create workspace** ([Workspaces](/docs/app-workspaces)). It also holds **Invite members** (needs **Users & Roles** **Create**), **Members**, **Settings**, **Billing** with the plan chip (Cloud only) and, for Customermates operators only, **Operator Console**.
 
@@ -17,7 +17,7 @@ Your role decides what you see. A page your role cannot read is missing from the
 |---|---|
 | Members, Roles | **Users & Roles** read access **All** (**Assigned** shows Members with only your own row) |
 | Billing | Every member; billing controls need **Company** **Edit** |
-| Activity | **Activity log** read access **All** |
+| Audit log | **Activity log** read access **All** |
 | Webhooks | **API & Webhooks** read access **All** |
 
 On Cloud, when the Terms or the DPA change, members see **Legal documents updated** with **Review Terms and DPA** and the date by which to accept. Only a member with the **Admin** role can accept, by ticking the checkbox and clicking **Accept and continue**; everyone else sees "A company administrator must accept by" that date. If nobody accepts in time, every page opens this screen until an Admin accepts.
@@ -48,7 +48,7 @@ In [Members](app:settings/members), click the member's row to open the **User** 
 - Edits you make here apply to the member in this workspace only; what members change in their own Profile & preferences applies in every workspace they belong to. Members can also leave a workspace themselves, see [How do I leave a workspace?](/docs/app-workspaces#how-do-i-leave-a-workspace).
 - The workspace always keeps at least one **Active** member with the **Admin** role; a save that would remove the last one fails with "At least one user must be a system administrator."
 
-Every save is recorded in [Activity](app:settings/activity).
+Every save is recorded in [Audit log](app:settings/activity).
 
 ## Roles [#roles-tab]
 
@@ -71,7 +71,7 @@ Every row has **Create**, **Edit** and **Delete** checkboxes (under **Manage** o
 | **Company** | **Edit** only: uses billing on [Billing](app:settings/billing). |
 | **Data model** | **Edit** only: configures lists, fields, relationships and calculations, without record access or role administration. |
 | **Knowledge Base** | **Create**, **Edit** (and move), **Delete** pages; ticking any of them forces **All**. |
-| **Activity log** | Read only: [Activity](app:settings/activity) and the change history on records. |
+| **Activity log** | Read only: [Audit log](app:settings/activity) and the change history on records. |
 | **Inbox messages** (Cloud) | **Create** connects accounts and sends, drafts and starts conversations; **Edit** changes accounts, threads, conversation state and record links; **Delete** disconnects accounts and discards drafts. Also limited by the plan. |
 | **Routines** (Cloud) | **Create**, **Edit** (and run or test now), **Delete**; deleting a routine or pausing someone else's also needs the **Admin** role. **All** or **Assigned** (own routines). |
 | **Public links** | **Create**: publish your own dashboard and list views by public link ([Dashboard](/docs/app-dashboard#public-links)). |
@@ -86,7 +86,7 @@ Every workspace starts with one built-in role, **Admin**, given to the person wh
 
 - You cannot edit your own role: its editor shows "This role is assigned to you and cannot be edited. Ask another administrator to change it."
 - **Delete** appears only for a custom role no member has, inactive members included. Move everyone to another role and remove the role from access presets first.
-- Changes apply to every member with the role on their next page load or API call and are recorded in [Activity](app:settings/activity).
+- Changes apply to every member with the role on their next page load or API call and are recorded in [Audit log](app:settings/activity).
 
 ## Billing [#subscription-tab]
 
@@ -163,7 +163,7 @@ A workspace without a trial whose paid plan expired, a workspace that stays **Un
 
 ### What happens to connected accounts when the plan changes? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels](app:settings/channels). Routines above the allowance are kept, because the allowance applies only when a routine is created.
+When Lemon Squeezy reports a different plan, Customermates removes each user's newest connected accounts beyond the new allowance. Starter includes [[commercial.entitlement.starter.includedAccountsPerUser]] per user, so every account is removed; the first checkout from the trial counts as a change from Pro. Members with the **Admin** role get an email listing the removed accounts; the rest stay in [Channels & calendars](app:settings/channels). Routines above the allowance are kept, because the allowance applies only when a routine is created.
 
 ### How does an Enterprise workspace differ? [#how-does-an-enterprise-workspace-differ]
 
@@ -171,11 +171,11 @@ Enterprise is set up with Customermates and billed by invoice. Billing shows onl
 
 ### Where do upgrade buttons lead? [#where-do-upgrade-buttons-lead]
 
-On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's usage notice. All open [Billing](app:settings/billing), where only roles with **Company** **Edit** can act.
+On Starter, the [Inbox](app:inbox) and [Channels & calendars](app:settings/channels) show **Upgrade to unlock messaging** with **Upgrade your plan**. At the connected-account limit, Pro users see **Upgrade to connect more accounts** with **View plans**, as does the hosted assistant's usage notice. All open [Billing](app:settings/billing), where only roles with **Company** **Edit** can act.
 
-## Activity: where do I find the audit log and change history? [#activity-tab]
+## Audit log: where do I find the change history? [#activity-tab]
 
-[Activity](app:settings/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, such as a contact's, the dashboard activity widget and in Mate. Filter by kind:
+[Audit log](app:settings/activity) is the workspace's event log: who changed which record, setting or configuration, and when, newest first. Each entry shows the previous and the current value inline; the same entries appear on a record's **Activities** view, such as a contact's, the dashboard activity widget and in Mate. Filter by kind:
 
 - **Record changes**: creates, updates and deletes of records with field values.
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
@@ -191,19 +191,19 @@ Click [Add](app:settings/webhooks?focus=add), or a row to edit. The **Webhook** 
 
 ### Where do I see webhook deliveries? [#deliveries-tab]
 
-[Deliveries](app:settings/webhook-deliveries), directly below **Webhooks** in the settings navigation, lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, **Sending**, **Delivered** or **Failed**), status code, response message and payload. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) creates a new delivery with the webhook's current URL, secret, headers and body template. A record event is read again with the webhook owner's current access, and only that owner or an administrator can resend it; details are on [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
+[Webhook log](app:settings/webhook-deliveries), directly below **Webhooks** in the settings navigation, lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, **Sending**, **Delivered** or **Failed**), status code, response message and payload. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) creates a new delivery with the webhook's current URL, secret, headers and body template. A record event is read again with the webhook owner's current access, and only that owner or an administrator can resend it; details are on [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
 
 ## Where is the currency set? [#where-is-the-currency-set]
 
-There is no workspace currency: every money field carries its own. Open [Configure](app:configure), open the list and the money field, and pick **Currency**. The AI workspace setup creates money fields in the currency you choose in its questions; a money field you add yourself starts in EUR. Changing a field's currency does not convert stored amounts, and totals that mix currencies show a currency mismatch instead of a sum. Configuring fields needs **Data model** **Edit**.
+There is no workspace currency: every money field carries its own. Open [Data model](app:configure), open the list and the money field, and pick **Currency**. The AI workspace setup creates money fields in the currency you choose in its questions; a money field you add yourself starts in EUR. Changing a field's currency does not convert stored amounts, and totals that mix currencies show a currency mismatch instead of a sum. Configuring fields needs **Data model** **Edit**.
 
 ### How do stage probabilities and totals work? [#how-do-stage-probabilities-and-totals-work]
 
-In [Configure](app:configure), open your deals list, open its stage field and set **Probability %** on each option; the AI workspace setup fills these in from the win chance of each stage. A weighted value field multiplies the deal value by the stage probability divided by 100; zero gives zero, no probability leaves it empty. Changes show a dependency preview and recalculate affected records. For pipeline totals, add a chart widget on the [Dashboard](app:dashboard) that sums the deal value or the weighted value, grouped by stage if you like. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+In [Data model](app:configure), open your deals list, open its stage field and set **Probability %** on each option; the AI workspace setup fills these in from the win chance of each stage. A weighted value field multiplies the deal value by the stage probability divided by 100; zero gives zero, no probability leaves it empty. Changes show a dependency preview and recalculate affected records. For pipeline totals, add a chart widget on the [Dashboard](app:dashboard) that sums the deal value or the weighted value, grouped by stage if you like. See [weighted pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
 
 ### How do I rename a list such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open the list in [Configure](app:configure), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Trash**, where you can **Restore** it for 30 days or **Delete permanently**.
+Open the list in [Data model](app:configure), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Trash**, where you can **Restore** it for 30 days or **Delete permanently**.
 
 ## For agents [#tips-for-agents]
 

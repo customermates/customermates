@@ -1,8 +1,6 @@
 "use client";
 
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
-import type { ConnectChannel } from "@/ee/messaging/connect/connect-channels";
-import type { MessagingProvider } from "@/generated/prisma";
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
@@ -16,12 +14,7 @@ import { Alert } from "@/components/shared/alert";
 import { AppChip } from "@/components/chip/app-chip";
 import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfoRow } from "@/components/shared/info-row";
 import { AppLink } from "@/components/shared/app-link";
@@ -32,13 +25,15 @@ import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons"
 import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { PageState } from "@/components/page-state/page-state";
 import { resolveResourcePageState, type ResourcePageState } from "@/components/page-state/resource-page-state";
-import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { accountStatusChipColor, getProviderDisplayLabel } from "./account-status-color";
 import { ConnectedAccountsPageSkeleton } from "./profile-resource-page-skeleton";
 import { PROFILE_RESOURCE_CARD_GRID_CLASS_NAME } from "./profile-resource-page-geometry";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { CONNECT_INTENT_CHANNELS } from "@/components/keyboard/connect-intent";
+import { ConnectMenuItems, ConnectProviderStack } from "@/components/channels/connect-channel-menu";
+import { useConnectIntent } from "@/components/keyboard/use-connect-intent";
 
 type Props = {
   accounts: ConnectedAccountDto[];
@@ -46,94 +41,6 @@ type Props = {
 };
 
 type ConnectedAccountsPageState = ResourcePageState | "locked";
-
-const CONNECT_CHANNEL_OPTIONS: {
-  key: ConnectChannel;
-  icon: MessagingProvider;
-  labelKey: string;
-}[] = [
-  { key: "google", icon: "google", labelKey: "Common.providers.google" },
-  { key: "outlook", icon: "outlook", labelKey: "Common.providers.outlook" },
-  {
-    key: "imap",
-    icon: "mail",
-    labelKey: "ConnectedAccountsCard.channels.imap",
-  },
-  { key: "whatsapp", icon: "whatsapp", labelKey: "Common.providers.whatsapp" },
-  {
-    key: "linkedin",
-    icon: "linkedin",
-    labelKey: "ConnectedAccountsCard.channels.linkedinClassic",
-  },
-  {
-    key: "linkedin_sales_navigator",
-    icon: "linkedin",
-    labelKey: "ConnectedAccountsCard.channels.linkedinSalesNavigator",
-  },
-  {
-    key: "linkedin_recruiter",
-    icon: "linkedin",
-    labelKey: "ConnectedAccountsCard.channels.linkedinRecruiter",
-  },
-  {
-    key: "instagram",
-    icon: "instagram",
-    labelKey: "Common.providers.instagram",
-  },
-  { key: "telegram", icon: "telegram", labelKey: "Common.providers.telegram" },
-];
-
-const FEATURED_PROVIDERS: MessagingProvider[] = ["whatsapp", "linkedin", "google"];
-
-const ConnectProviderStack = ({ onPrimary }: { onPrimary: boolean }) => {
-  const overflowCount = new Set(CONNECT_CHANNEL_OPTIONS.map((option) => option.icon)).size - FEATURED_PROVIDERS.length;
-
-  return (
-    <span className="-space-x-1.5 flex items-center">
-      {FEATURED_PROVIDERS.map((provider) => {
-        const ChannelIcon = getProviderIcon(provider);
-        return (
-          <ChannelIcon
-            key={provider}
-            className={cn("size-5 rounded-full ring-2", onPrimary ? "ring-primary" : "ring-secondary")}
-          />
-        );
-      })}
-
-      {overflowCount > 0 && (
-        <span
-          className={cn(
-            "flex size-5 items-center justify-center rounded-full text-[10px] font-medium ring-2",
-            onPrimary
-              ? "bg-primary-foreground text-primary ring-primary"
-              : "bg-background text-muted-foreground ring-secondary",
-          )}
-        >
-          +{overflowCount}
-        </span>
-      )}
-    </span>
-  );
-};
-
-const ConnectMenuItems = observer(() => {
-  const t = useTranslations();
-  const { connectedAccountsStore } = useRootStore();
-
-  return CONNECT_CHANNEL_OPTIONS.map((option) => {
-    const ChannelIcon = getProviderIcon(option.icon);
-    return (
-      <DropdownMenuItem
-        key={option.key}
-        onClick={() => runUserAction(() => connectedAccountsStore.connectAccount(option.key))}
-      >
-        <ChannelIcon className="size-4" />
-
-        {t(option.labelKey)}
-      </DropdownMenuItem>
-    );
-  });
-});
 
 const ConnectTopBarAction = () => {
   const t = useTranslations();
@@ -207,6 +114,9 @@ const ConnectedAccountsPageViewContent = observer(({ accounts, locked = false }:
   const { connectedAccountsStore, connectedAccountModalStore, userStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
   const canConnect = userStore.can(Resource.inboxMessages, Action.create);
+  useConnectIntent(CONNECT_INTENT_CHANNELS, canConnect && !locked, (channel) =>
+    runUserAction(() => connectedAccountsStore.connectAccount(channel)),
+  );
 
   useLayoutEffect(() => connectedAccountsStore.setItems({ items: accounts }), [accounts, connectedAccountsStore]);
 

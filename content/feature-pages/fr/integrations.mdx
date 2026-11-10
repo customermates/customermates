@@ -21,7 +21,7 @@ sections:
       - title: "Rédigez le modèle de corps"
         description: "Saisissez {\"text\" : \"New deal : {{data.record.ref.recordId}}\"}. Tout chemin sous {{data}} fonctionne comme variable."
       - title: "Testez et vérifiez le journal"
-        description: "Créez une affaire de test et ouvrez Livraisons. Un code de statut 2xx signifie que Slack l’a acceptée."
+        description: "Créez une affaire de test et ouvrez le Journal des webhooks. Un code de statut 2xx signifie que Slack l’a acceptée."
 
 hero:
   title: "Des interfaces ouvertes pour que vos outils et vos agents travaillent sur la même fiche client"
@@ -79,7 +79,7 @@ Les détails qui comptent quand vous construisez dessus :
 
 - **Signatures.** Définissez un secret et chaque livraison porte une signature HMAC-SHA256 du corps de la requête, pour que le destinataire puisse rejeter les appels falsifiés.
 - **Nouvelles tentatives.** Les délais dépassés, les erreurs réseau, les réponses 5xx et 408, 425 et 429 sont retentés automatiquement, jusqu’à 10 tentatives au total. Les autres réponses 4xx ne le sont pas.
-- **Journal des livraisons.** **Paramètres → Livraisons** affiche chaque livraison avec son code de statut et sa charge utile, et vous pouvez en renvoyer une depuis là.
+- **Journal des livraisons.** **Paramètres → Journal des webhooks** affiche chaque livraison avec son code de statut et sa charge utile, et vous pouvez en renvoyer une depuis là.
 - **En-têtes personnalisés et modèles de corps.** Les en-têtes permettent de vous authentifier auprès du destinataire. Un modèle de corps remplace l’enveloppe JSON standard par la forme qu’attend le destinataire, avec des variables comme `{{event}}` et `{{data.record.ref.recordId}}`.
 - **Changements uniquement.** Un évènement `record.updated` liste chaque champ modifié avec sa valeur `before` et `after`, et une écriture qui ne change rien n’envoie aucun évènement.
 

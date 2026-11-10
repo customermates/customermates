@@ -26,7 +26,7 @@ export class PrismaUnipileWebhookRepo extends TenantRepository implements Webhoo
   async findWebhookEventByIdOrThrowUnscoped(id: string) {
     return this.prisma.messagingInboundEvent.findUniqueOrThrow({
       where: { id },
-      select: { id: true, payload: true, processed: true },
+      select: { id: true, payload: true, processed: true, receivedAt: true },
     });
   }
 

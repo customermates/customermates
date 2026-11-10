@@ -5,7 +5,7 @@ description: "La boîte de réception réunit e-mail, LinkedIn, WhatsApp, Instag
 
 ## Qu’est-ce que la boîte de réception ? [#what-is-the-inbox]
 
-La [Boîte de réception](app:inbox) est la messagerie unifiée de Customermates Cloud : conversations e-mail, LinkedIn, WhatsApp, Instagram et Telegram dans une seule liste, l’activité la plus récente en premier. Cliquez sur une conversation pour la lire à côté de la liste ; sur les écrans étroits, la liste et la conversation s’affichent tour à tour. Depuis une conversation, vous répondez sur son canal d’origine, définissez son état, déplacez un e-mail vers un autre dossier, la partagez avec votre équipe et associez ses participants à des enregistrements. Mate, ou votre propre agent IA via [MCP](/docs/mcp), peut laisser une réponse en brouillon dans la conversation ; vous la relisez, la modifiez et l’envoyez (voir [brouillons](#how-do-drafts-and-attachments-work)). Vous connectez les comptes eux-mêmes sur [Canaux](app:settings/channels), voir [Guide de l’application, Profil](/docs/app-profile).
+La [Boîte de réception](app:inbox) est la messagerie unifiée de Customermates Cloud : conversations e-mail, LinkedIn, WhatsApp, Instagram et Telegram dans une seule liste, l’activité la plus récente en premier. Cliquez sur une conversation pour la lire à côté de la liste ; sur les écrans étroits, la liste et la conversation s’affichent tour à tour. Depuis une conversation, vous répondez sur son canal d’origine, définissez son état, déplacez un e-mail vers un autre dossier, la partagez avec votre équipe et associez ses participants à des enregistrements. Mate, ou votre propre agent IA via [MCP](/docs/mcp), peut laisser une réponse en brouillon dans la conversation ; vous la relisez, la modifiez et l’envoyez (voir [brouillons](#how-do-drafts-and-attachments-work)). Vous connectez les comptes eux-mêmes sur [Canaux et agendas](app:settings/channels), voir [Guide de l’application, Profil](/docs/app-profile).
 
 ## Qui peut utiliser la boîte de réception, et pourquoi est-elle verrouillée sur Starter ou absente de la version auto-hébergée ? [#who-can-use-the-inbox]
 
@@ -26,7 +26,7 @@ Pas pour ouvrir la boîte de réception : sans canal à vous, vous voyez quand 
 
 La liste combine les canaux que vous avez connectés, les canaux qu’un collègue a partagés avec tout l’espace de travail, et les conversations isolées qu’un collègue a partagées depuis un canal privé. Les conversations privées d’un collègue n’apparaissent jamais, quel que soit votre rôle, **Administrateur** compris.
 
-Pour les comptes e-mail, seuls les dossiers activés dans l’onglet **Dossiers** du compte sur [Canaux](app:settings/channels) apparaissent. Par défaut, tous les dossiers sont activés sauf la corbeille, les indésirables ou le spam, les brouillons et le dossier de tous les messages ; si du courrier d’une archive manque, vérifiez son interrupteur. Une conversation sans aucun message n’apparaît que tant qu’elle contient un brouillon enregistré.
+Pour les comptes e-mail, seuls les dossiers activés dans l’onglet **Dossiers** du compte sur [Canaux et agendas](app:settings/channels) apparaissent. Par défaut, tous les dossiers sont activés sauf la corbeille, les indésirables ou le spam, les brouillons et le dossier de tous les messages ; si du courrier d’une archive manque, vérifiez son interrupteur. Une conversation sans aucun message n’apparaît que tant qu’elle contient un brouillon enregistré.
 
 ## De quelles autorisations la boîte de réception a-t-elle besoin ? [#which-permissions-does-the-inbox-need]
 
@@ -50,7 +50,7 @@ La barre du haut de la [Boîte de réception](app:inbox) contient :
 
 - **Filtres** recherche et filtre : saisissez du texte et choisissez l’entrée **contient** pour trouver des conversations par objet, texte des messages, nom de la conversation, et noms ou adresses des participants (F l’ouvre). Il propose aussi **État**, **Fiches liées**, **Participants** (**pas entièrement lié** trouve les conversations avec quelqu’un qui n’a aucun enregistrement correspondant que vous pouvez lire), **Fournisseur**, **Canal**, **Dossier de messagerie**, **Brouillon** (**en a au moins un** trouve les conversations avec un brouillon enregistré), **Dernier message** (**Envoyé** ou **Reçu**), **Date du dernier message** et **Dernière activité**.
 - **Actualiser** récupère immédiatement les nouveaux messages (**Boîte de réception actualisée.**) et signale les canaux qui ont atteint une limite de débit, doivent être reconnectés ou n’ont pas pu être actualisés. Exige **Modifier**.
-- **Canaux** ouvre [Canaux](app:settings/channels), avec un nombre quand des canaux demandent de l’attention. Exige **Créer**.
+- **Canaux** ouvre [Canaux et agendas](app:settings/channels), avec un nombre quand des canaux demandent de l’attention. Exige **Créer**.
 
 **Dossier de messagerie** regroupe les dossiers sous leur compte, de sorte que des dossiers de même nom restent distincts ; **parmi** trouve les conversations avec un message visible dans l’un des dossiers sélectionnés, **hors de** les exclut. **Dernier message** et **Date du dernier message** utilisent le dernier vrai message envoyé ou reçu ; les brouillons, les messages supprimés et les évènements système ne comptent pas. Pour le courrier d’il y a trois à sept jours, ajoutez deux conditions **Date du dernier message** : **Plus ancien que…** 3 jours et **7 jours**. **Dernière activité** inclut les brouillons enregistrés. Tous les filtres respectent le partage des comptes et les dossiers activés.
 
@@ -99,7 +99,7 @@ Vous pouvez continuer à travailler pendant le déplacement. Les messages dépla
 
 Cliquez sur **Conversation privée** ou **Conversation partagée** dans l’en-tête pour ouvrir **Paramètres de la conversation**. L’interrupteur **Partager avec l’équipe** partage uniquement cette conversation avec toutes les personnes dont le rôle peut lire la boîte de réception (**Partagée vers le CRM**) ; le désactiver affiche **La conversation est désormais privée**. Seul le propriétaire du canal peut l’utiliser, avec une formule avec messagerie et **Modifier**. Les collègues peuvent alors lire la conversation, changer son état et la resynchroniser, mais pas la déplacer, et vous seul pouvez répondre tant que le canal lui-même est privé.
 
-Pour partager toutes les conversations d’un canal, activez **Visibilité** dans l’onglet **Détails** du canal sur [Canaux](app:settings/channels) (Business, Max ou Enterprise). L’interrupteur par conversation reste alors activé et verrouillé.
+Pour partager toutes les conversations d’un canal, activez **Visibilité** dans l’onglet **Détails** du canal sur [Canaux et agendas](app:settings/channels) (Business, Max ou Enterprise). L’interrupteur par conversation reste alors activé et verrouillé.
 
 ## Comment lier des participants et des enregistrements ? [#how-do-i-link-a-participant]
 
@@ -129,7 +129,7 @@ Pour cela, chaque brouillon envoyé laisse un enregistrement d’envoi : ses id
 
 ## Comment définir une signature d’e-mail ? [#how-do-i-set-an-email-signature]
 
-La signature appartient à chaque compte e-mail que vous possédez : sur [Canaux](app:settings/channels), ouvrez le compte Gmail, Outlook ou IMAP et utilisez son onglet **E-mail**. Réglez la police, la taille et le style des liens, activez **Ajouter une signature**, choisissez une mise en page avec ou sans logo et rédigez le texte en Markdown. Tant qu’elle est activée, elle est ajoutée sous chaque e-mail envoyé depuis ce compte, depuis la boîte de réception, l’API REST ou MCP : ne la collez donc pas dans le message ; l’éditeur en affiche un aperçu. Tous les champs : [Apparence des e-mails et signature](/docs/app-profile#email-appearance-and-signature).
+La signature appartient à chaque compte e-mail que vous possédez : sur [Canaux et agendas](app:settings/channels), ouvrez le compte Gmail, Outlook ou IMAP et utilisez son onglet **E-mail**. Réglez la police, la taille et le style des liens, activez **Ajouter une signature**, choisissez une mise en page avec ou sans logo et rédigez le texte en Markdown. Tant qu’elle est activée, elle est ajoutée sous chaque e-mail envoyé depuis ce compte, depuis la boîte de réception, l’API REST ou MCP : ne la collez donc pas dans le message ; l’éditeur en affiche un aperçu. Tous les champs : [Apparence des e-mails et signature](/docs/app-profile#email-appearance-and-signature).
 
 ## Pour les agents [#tips-for-agents]
 

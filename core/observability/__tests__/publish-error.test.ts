@@ -36,6 +36,13 @@ describe("errorFingerprint", () => {
       ),
     ).toBe(base);
     expect(errorFingerprint(report({ name: "RangeError" }))).not.toBe(base);
+    const limited = (seconds: number, requestId: string) =>
+      errorFingerprint(
+        report({
+          message: `Unipile v2 request failed: 429 {"title":"Retry in ${seconds} seconds.","req_id":"${requestId}"}`,
+        }),
+      );
+    expect(limited(19, "req-wuuv")).toBe(limited(4, "req-sqef"));
     expect(errorFingerprint(report({ frames: [{ file: "/app/features/other.ts", function: "load" }] }))).not.toBe(base);
   });
 });

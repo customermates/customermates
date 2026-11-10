@@ -14,6 +14,12 @@ export const EventEnvelopeSchema = z
 
 export type EventEnvelope = z.infer<typeof EventEnvelopeSchema>;
 
+const ActorIdSchema = z.uuid();
+
+export function envelopeActorId(actorId: string | null): string | null {
+  return actorId !== null && ActorIdSchema.safeParse(actorId).success ? actorId : null;
+}
+
 export function subjectKindOf(kind: string): string {
   return kind.slice(0, kind.indexOf("."));
 }
@@ -26,7 +32,7 @@ export function eventEnvelope(event: EventLog): EventEnvelope {
     id: event.id,
     timestamp: event.createdAt.toISOString(),
     companyId: event.companyId,
-    actorId: event.actorId,
+    actorId: envelopeActorId(event.actorId),
     data: { entityId: event.subjectId, ...payload },
   };
 }

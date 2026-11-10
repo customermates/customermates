@@ -90,13 +90,13 @@ describe("unified documentation search", () => {
       "en",
       "How is the weighted pipeline value calculated?",
       "Weighted deal value = deal value × stage probability / 100",
-      "[Configure](http://localhost:4000/dashboard?open=%2Fconfigure)",
+      "[Data model](http://localhost:4000/dashboard?open=%2Fconfigure)",
     ],
     [
       "de",
       "Wie wird der gewichtete Pipeline-Wert berechnet?",
       "Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100",
-      "[Konfigurieren](http://localhost:4000/dashboard?open=%2Fconfigure)",
+      "[Datenmodell](http://localhost:4000/dashboard?open=%2Fconfigure)",
     ],
   ] as const)(
     "fetches the complete pipeline formula and section app link in %s",
@@ -151,7 +151,7 @@ describe("unified documentation search", () => {
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown).toContain("Stage and status are **Single choice** fields");
     expect(markdown).toContain(
-      "To edit the stages or their probabilities, open the field on the configure page of the list in [Configure](http://localhost:4000/dashboard?open=%2Fconfigure)",
+      "To edit the stages or their probabilities, open the field on the configure page of the list in [Data model](http://localhost:4000/dashboard?open=%2Fconfigure)",
     );
     expect(markdown).toContain("Drag the card to another column on the board of your deals or tasks list");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
@@ -858,7 +858,7 @@ describe("authoritative action and condition excerpts", () => {
         "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
         "erneuert sich im Hintergrund",
         "ohne diese Berechtigung fügen Sie die URL wie oben ein",
-        "[API-Schlüssel](http://localhost:4000/dashboard?open=%2Fsettings%2Fapi-keys)",
+        "[API-Schlüssel & Konnektoren](http://localhost:4000/dashboard?open=%2Fsettings%2Fapi-keys)",
       ],
     },
     {

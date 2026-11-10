@@ -30,9 +30,9 @@ Customermates ist Open Core. Code außerhalb von `ee/` und Material in `ee/`, da
 
 Jede Self-Hosted-Installation umfasst den Funktionsumfang von Starter. Diese Cloud-Funktionen bleiben ausgeschaltet, auch wenn Sie zusätzlich einen Cloud-Tarif bezahlen: verbundene Messaging-Konten (E-Mail, LinkedIn, WhatsApp, Instagram, Telegram), der einheitliche Posteingang, verbundene Kalender und ihre Ereignisse, der gehostete Assistent Mate mit seinen gehosteten KI-Credits, Routinen, die Mate ausführt, und die KI-Einrichtung im Onboarding, daher startet ein neuer Workspace ohne Listen. Externe KI-Clients funktionieren weiterhin über MCP mit Ihrem eigenen KI-Anbieter. Enterprise-SSO (SAML) und White-Labeling sind in keiner Variante implementiert.
 
-Die App blendet aus, was nicht gilt: Die Seitenleiste zeigt weder Posteingang noch Routinen, die Einstellungen haben keine Seiten Abrechnung und Kanäle, und der Rolleneditor blendet die Zeilen **Inbox-Nachrichten** und **Routinen** aus. Wer eine dieser Seiten per URL öffnet, landet wieder auf dem Dashboard.
+Die App blendet aus, was nicht gilt: Die Seitenleiste zeigt weder Posteingang noch Routinen, die Einstellungen haben keine Seiten Abrechnung und Kanäle & Kalender, und der Rolleneditor blendet die Zeilen **Inbox-Nachrichten** und **Routinen** aus. Wer eine dieser Seiten per URL öffnet, landet wieder auf dem Dashboard.
 
-Alles andere funktioniert wie in der Cloud: Listen und Ansichten, Excel-Import und -Export, Konfigurieren, Dashboard-Widgets, Mitglieder und Rollen, das Aktivitätsprotokoll, REST, Webhooks und MCP.
+Alles andere funktioniert wie in der Cloud: Listen und Ansichten, Excel-Import und -Export, Datenmodell, Dashboard-Widgets, Mitglieder und Rollen, das Aktivitätsprotokoll, REST, Webhooks und MCP.
 
 ## Wie installiere und hoste ich Customermates selbst mit Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
 
@@ -124,7 +124,7 @@ Kommen E-Mails nicht an, prüfen Sie das Log der App und ob die Absender-Domain 
 
 ## Wie lege ich das erste Konto auf meiner Instanz an? [#how-do-i-create-the-first-account-on-my-instance]
 
-Öffnen Sie `<BASE_URL>/auth/signup` und registrieren Sie sich mit E-Mail und Passwort über **Konto erstellen**, oder mit Google oder Microsoft, falls Sie diese eingerichtet haben. Wählen Sie im nächsten Schritt **Neuen Workspace erstellen**. Der erste Schritt des Wizards fragt nach Vorname, Nachname und Anzeigesprache und legt den Workspace an; die übrigen Schritte können Sie überspringen und den Wizard mit **Fertig** schließen. Das Konto, das den Workspace anlegt, erhält die eingebaute Rolle **Admin** mit allen Berechtigungen. Der neue Workspace hat noch keine Listen: Legen Sie die benötigten unter [Konfigurieren](app:configure) an oder mit **Liste erstellen** auf dem leeren Dashboard; siehe [Kernkonzepte](/docs/concepts#which-five-record-types-exist).
+Öffnen Sie `<BASE_URL>/auth/signup` und registrieren Sie sich mit E-Mail und Passwort über **Konto erstellen**, oder mit Google oder Microsoft, falls Sie diese eingerichtet haben. Wählen Sie im nächsten Schritt **Neuen Workspace erstellen**. Der erste Schritt des Wizards fragt nach Vorname, Nachname und Anzeigesprache und legt den Workspace an; die übrigen Schritte können Sie überspringen und den Wizard mit **Fertig** schließen. Das Konto, das den Workspace anlegt, erhält die eingebaute Rolle **Admin** mit allen Berechtigungen. Der neue Workspace hat noch keine Listen: Legen Sie die benötigten unter [Datenmodell](app:configure) an oder mit **Liste erstellen** auf dem leeren Dashboard; siehe [Kernkonzepte](/docs/concepts#which-five-record-types-exist).
 
 Klicken Sie den Bestätigungslink in der E-Mail innerhalb von 24 Stunden an. Ein Konto, das 24 Stunden nach der Registrierung noch nicht bestätigt ist, wird auf **E-Mail-Verifizierung** festgehalten, wo **Verifizierungs-E-Mail erneut senden** einen neuen Link schickt.
 
@@ -148,7 +148,7 @@ Entfernen Sie in `.env` das `#` vor den Zeilen der Anbieter, die Sie nutzen, tra
 
 Der MCP-Endpunkt ist `<BASE_URL>/api/v1/mcp`, zum Beispiel `https://crm.example.com/api/v1/mcp`. Es gibt zwei Wege der Authentifizierung:
 
-- **API-Key** im Header `x-api-key`, für Clients auf Ihrem Rechner: Claude Code, Claude Desktop, Codex, Cursor und Gemini CLI. Legen Sie den Key mit [Hinzufügen](app:settings/api-keys?focus=generate) unter [API-Schlüssel](app:settings/api-keys) an; **Schnellverbindungen** zeigt dort den Einrichtungsausschnitt mit der Adresse, unter der Sie die App geöffnet haben. Der Client muss die URL nur erreichen, eine Adresse im lokalen Netz funktioniert also. Siehe [CLI- und Editor-Clients verbinden](/docs/connect-cli).
+- **API-Key** im Header `x-api-key`, für Clients auf Ihrem Rechner: Claude Code, Claude Desktop, Codex, Cursor und Gemini CLI. Legen Sie den Key mit [Hinzufügen](app:settings/api-keys?focus=generate) unter [API-Schlüssel & Konnektoren](app:settings/api-keys) an; **Schnellverbindungen** zeigt dort den Einrichtungsausschnitt mit der Adresse, unter der Sie die App geöffnet haben. Der Client muss die URL nur erreichen, eine Adresse im lokalen Netz funktioniert also. Siehe [CLI- und Editor-Clients verbinden](/docs/connect-cli).
 - **OAuth-Anmeldung**, für Clients, die sich aus der Cloud ihres Anbieters verbinden, etwa ein benutzerdefinierter Connector in Claude. Diese brauchen eine `BASE_URL`, die aus dem Internet über HTTPS erreichbar ist. Siehe [Claude und ChatGPT verbinden](/docs/connect-custom-connector).
 
 Der gehostete In-App-Assistent ist nur in der Cloud verfügbar: Mate gibt es auf Self-Hosted-Instanzen nicht. Externes MCP nutzt Ihren eigenen KI-Anbieter. Enterprise-SSO und White-Labeling sind in keiner Variante implementiert.

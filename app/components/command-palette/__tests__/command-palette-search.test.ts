@@ -215,7 +215,7 @@ describe("reviewer queries (F22r2)", async () => {
 
   it("matches word prefixes and synonyms", () => {
     expect(labels("dark mode")).toContain("Switch to dark theme");
-    expect(labels("api key")).toContain("API keys");
+    expect(labels("api key")).toContain("API keys & connectors");
     expect(labels("lang")).toContain("Display Language");
   });
 

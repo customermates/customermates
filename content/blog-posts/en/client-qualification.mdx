@@ -152,9 +152,9 @@ Let the model fill the fields and let a person decide. Never let it reject a lea
 
 ## Setting up lead qualification in Customermates
 
-Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the people, organizations and deals lists and a pipeline, and you change any of it in **Configure**. For a quick status before a deal exists, add a single choice field to the contacts list. If your team says "opportunities", rename Deals in **Configure**: open the list and change **Name** and **Plural name** under **General**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
+Customermates has no separate lead record. A new inquiry is a contact, linked to an organization, plus a deal that carries the qualification fields. A new workspace starts without lists: on Customermates Cloud, describe your business in one sentence and Mate builds the people, organizations and deals lists and a pipeline, and you change any of it in **Data model**. For a quick status before a deal exists, add a single choice field to the contacts list. If your team says "opportunities", rename Deals in **Data model**: open the list and change **Name** and **Plural name** under **General**; records and links stay as they are. The [lead management page](/features/lead-management) shows the same model from the contact side.
 
-Create the fields in **Configure** for Deals with **Add** › **Field**:
+Create the fields in **Data model** for Deals with **Add** › **Field**:
 
 | Field | Type | Options |
 | --- | --- | --- |
@@ -166,7 +166,7 @@ Create the fields in **Configure** for Deals with **Add** › **Field**:
 | Disqualification reason | Single choice | Wrong fit, No need, No access, Budget, Timing, Duplicate |
 | Look again on | Date | Set for parked deals |
 
-Add a Source field (Single choice: Referral, Website, LinkedIn, Event, Outbound) on contacts, so the monthly review can count by source. The percentages are stage probabilities, set as **Probability %** on each option of the **Stage** field in Configure for Deals. They drive the weighted [pipeline](/features/pipeline) value, and Parked at 0% keeps parked deals out of that total.
+Add a Source field (Single choice: Referral, Website, LinkedIn, Event, Outbound) on contacts, so the monthly review can count by source. The percentages are stage probabilities, set as **Probability %** on each option of the **Stage** field in Data model for Deals. They drive the weighted [pipeline](/features/pipeline) value, and Parked at 0% keeps parked deals out of that total.
 
 Then save three views on the Deals list. Share them with the team or with selected roles:
 

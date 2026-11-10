@@ -21,7 +21,7 @@ sections:
       - title: "Body-Vorlage schreiben"
         description: "Tragen Sie {\"text\": \"Neuer Deal: {{data.record.ref.recordId}}\"} ein. Jeder Pfad unter {{data}} funktioniert als Platzhalter."
       - title: "Testen und Protokoll prüfen"
-        description: "Legen Sie einen Test-Deal an und öffnen Sie Zustellungen. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat."
+        description: "Legen Sie einen Test-Deal an und öffnen Sie das Webhook-Protokoll. Ein 2xx-Statuscode heißt, dass Slack die Nachricht angenommen hat."
 
 hero:
   title: "Offene Schnittstellen, damit Ihre Tools und Agenten mit demselben Kundendatensatz arbeiten"
@@ -79,7 +79,7 @@ Worauf es beim Aufbau ankommt:
 
 - **Signaturen.** Mit einem **Secret** trägt jede Zustellung eine HMAC-SHA256-Signatur über den Request-Body. Der Empfänger kann gefälschte Aufrufe so abweisen.
 - **Wiederholungen.** Timeouts, Netzwerkfehler, 5xx-Antworten sowie 408, 425 und 429 werden automatisch wiederholt, mit bis zu 10 Versuchen insgesamt. Andere 4xx-Antworten nicht.
-- **Zustellprotokoll.** **Einstellungen → Zustellungen** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
+- **Zustellprotokoll.** **Einstellungen → Webhook-Protokoll** zeigt jede Zustellung mit Statuscode und Payload. Von dort lässt sie sich erneut senden.
 - **Eigene Header und Body-Vorlagen.** Header authentifizieren Sie beim Empfänger. Eine **Body-Vorlage** ersetzt den Standard-JSON-Umschlag durch das Format, das der Empfänger erwartet, mit Platzhaltern wie `{{event}}` und `{{data.record.ref.recordId}}`.
 - **Nur echte Änderungen.** Ein `record.updated`-Ereignis enthält jedes geänderte Feld mit seinem Wert `before` und `after`. Ein Speichervorgang ohne Änderung löst kein Ereignis aus.
 

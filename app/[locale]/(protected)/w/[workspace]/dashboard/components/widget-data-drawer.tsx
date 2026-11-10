@@ -50,20 +50,28 @@ export const LEAD_FRAME_CLASS = "flex shrink-0 flex-col px-6 pb-4";
 export function WidgetDataDrawer({
   open,
   selection,
+  readOnly = false,
   onClose,
   onSelect,
   onSelectDay,
 }: {
   open: boolean;
   selection: WidgetDataSelection;
+  readOnly?: boolean;
   onClose: () => void;
   onSelect: (group: RecordContributionGroup | null, label: string | null) => void;
   onSelectDay: (date: CalendarDate, label: string) => void;
 }) {
   return selection.kind === "calendarDay" ? (
-    <CalendarDayDataDrawer open={open} selection={selection} onClose={onClose} onSelectDay={onSelectDay} />
+    <CalendarDayDataDrawer
+      open={open}
+      readOnly={readOnly}
+      selection={selection}
+      onClose={onClose}
+      onSelectDay={onSelectDay}
+    />
   ) : (
-    <MeasureDataDrawer open={open} selection={selection} onClose={onClose} onSelect={onSelect} />
+    <MeasureDataDrawer open={open} readOnly={readOnly} selection={selection} onClose={onClose} onSelect={onSelect} />
   );
 }
 
@@ -89,11 +97,13 @@ function useRecordCount() {
 
 function CalendarDayDataDrawer({
   open,
+  readOnly,
   selection,
   onClose,
   onSelectDay,
 }: {
   open: boolean;
+  readOnly: boolean;
   selection: Extract<WidgetDataSelection, { kind: "calendarDay" }>;
   onClose: () => void;
   onSelectDay: (date: CalendarDate, label: string) => void;
@@ -120,7 +130,7 @@ function CalendarDayDataDrawer({
   return (
     <ScopedRecordsSheet
       persistAppearance
-      actions={[editAction]}
+      actions={readOnly ? [] : [editAction]}
       emptyTitle={t("Diagrams.noData")}
       filter={filter}
       idPrefix="widget-data"
@@ -152,11 +162,13 @@ function CalendarDayDataDrawer({
 
 function MeasureDataDrawer({
   open,
+  readOnly,
   selection,
   onClose,
   onSelect,
 }: {
   open: boolean;
+  readOnly: boolean;
   selection: Extract<WidgetDataSelection, { kind: "measure" }>;
   onClose: () => void;
   onSelect: (group: RecordContributionGroup | null, label: string | null) => void;
@@ -196,7 +208,7 @@ function MeasureDataDrawer({
   return (
     <ScopedRecordsSheet
       persistAppearance
-      actions={[editAction]}
+      actions={readOnly ? [] : [editAction]}
       emptyTitle={t("Diagrams.noData")}
       filter={filter}
       idPrefix="widget-data"

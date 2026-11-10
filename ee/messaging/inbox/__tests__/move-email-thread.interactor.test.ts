@@ -57,9 +57,12 @@ function setup(overrides: {
       provider: overrides.provider ?? "mail",
       companyId: "company-1",
       unipileAccountId: "unipile-acct-1",
+      emailAddress: "mail@example.test",
+      sentFolderIds: ["sent"],
     }),
     listThreadMovableMessages: vi.fn().mockResolvedValue(overrides.messages ?? []),
     moveEmailMessageUnscoped: vi.fn().mockResolvedValue({ id: "row-1" }),
+    ingestMessageUnscoped: vi.fn().mockResolvedValue({ isEcho: false, isDuplicate: true }),
   };
   const accountRepo = {
     listAccountOwnersByIds: vi.fn(),
@@ -70,7 +73,8 @@ function setup(overrides: {
   };
   const moveEmail = vi.fn();
   for (const result of overrides.moveResults ?? []) moveEmail.mockResolvedValueOnce(result);
-  const messagingService = { moveEmail };
+  const getEmail = vi.fn();
+  const messagingService = { moveEmail, getEmail };
 
   return { repo, accountRepo, messagingService };
 }
@@ -346,6 +350,51 @@ describe("MoveEmailThreadInteractor safety", () => {
 
     expect(parts.messagingService.moveEmail).not.toHaveBeenCalled();
     if (result.ok) expect(result.data.skippedCount).toBe(1);
+  });
+
+  it("re-imports a moved email whose local row a provider webhook already removed", async () => {
+    const parts = setup({
+      messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }],
+      moveResults: [{ ok: true, data: { id: "new-a", folderIds: ["archive"] } }],
+    });
+    parts.repo.moveEmailMessageUnscoped.mockResolvedValueOnce(null);
+    parts.messagingService.getEmail.mockResolvedValueOnce({
+      id: "new-a",
+      account_id: "unipile-acct-1",
+      date: "2026-11-05T09:45:00.000Z",
+      subject: "Support Agreement",
+      body: "<p>Attached</p>",
+      body_plain: "Attached",
+      from_attendee: { identifier: "sender@example.test", display_name: "Sender" },
+      to_attendees: [{ identifier: "mail@example.test", display_name: "" }],
+      folders: ["archive"],
+      message_id: "<rfc822@example.test>",
+    });
+
+    const result = await invoke(parts);
+
+    expect(result.ok && result.data.movedCount).toBe(1);
+    expect(parts.messagingService.getEmail).toHaveBeenCalledWith({ accountId: "unipile-acct-1", emailId: "new-a" });
+    expect(parts.repo.ingestMessageUnscoped).toHaveBeenCalledWith({
+      companyId: "company-1",
+      connectedAccountId: "acct-1",
+      message: expect.objectContaining({ unipileMessageId: "new-a", folderIds: ["archive"] }),
+      backfill: true,
+    });
+  });
+
+  it("still counts the move when the moved email cannot be re-imported", async () => {
+    const parts = setup({
+      messages: [{ id: "a", unipileMessageId: "old-a", folderIds: ["inbox"] }],
+      moveResults: [{ ok: true, data: { id: "new-a", folderIds: ["archive"] } }],
+    });
+    parts.repo.moveEmailMessageUnscoped.mockResolvedValueOnce(null);
+    parts.messagingService.getEmail.mockRejectedValueOnce(new Error("provider unavailable"));
+
+    const result = await invoke(parts);
+
+    expect(result.ok && result.data.movedCount).toBe(1);
+    expect(parts.repo.ingestMessageUnscoped).not.toHaveBeenCalled();
   });
 
   it("counts an email the provider moved as moved even when the local write fails", async () => {

@@ -1,6 +1,5 @@
-import type { LucideIcon } from "lucide-react";
 import type { ShortcutId } from "@/components/keyboard/shortcut-registry";
-import type { CommandActionId, CommandEnvironment } from "@/components/keyboard/command-registry";
+import type { CommandActionId, CommandEnvironment, CommandIcon } from "@/components/keyboard/command-registry";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
 import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
 import type { RecordFieldView, RecordRelationship } from "@/features/records/record-model.schema";
@@ -16,6 +15,7 @@ import {
   staticCommand,
 } from "@/components/keyboard/command-registry";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
+import { CONNECT_INTENT_PARAM } from "@/components/keyboard/connect-intent";
 import { focusHref } from "@/components/focus/focus-href";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 
@@ -28,7 +28,7 @@ type PaletteRun =
   | { kind: "switchWorkspace"; companyId: string };
 
 export type PaletteEntry = PaletteCandidate & {
-  icon: LucideIcon;
+  icon: CommandIcon;
   subtitle?: string;
   shortcut?: ShortcutId;
   destructive?: boolean;
@@ -221,4 +221,15 @@ export function recordEntries(t: PaletteTranslator, context: PaletteRecordContex
       ]
     : [];
   return [...changes, ...assign, ...links, ...deletion];
+}
+
+export function markConnectedEntries(entries: PaletteEntry[], connected: ReadonlySet<string>, note: string) {
+  if (!connected.size) return entries;
+  return entries.map((entry) => {
+    if (entry.run.kind !== "href") return entry;
+    const query = entry.run.href.split("?")[1] ?? "";
+    const target = new URLSearchParams(query).get(CONNECT_INTENT_PARAM);
+    if (!target || !connected.has(target)) return entry;
+    return { ...entry, subtitle: entry.subtitle ? `${entry.subtitle} · ${note}` : note };
+  });
 }

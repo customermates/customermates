@@ -1,4 +1,5 @@
 import type { RecordRepo } from "./record.repo";
+import { envelopeActorId } from "@/features/event/event-envelope";
 import { recordAccessForActor } from "./record-access";
 import { RecordHistoryReader } from "./record-history-reader";
 import { RecordEventPayloadSchema } from "./record-event.schema";
@@ -101,7 +102,7 @@ export class RecordRecipientReader {
           id: event.id,
           timestamp: event.createdAt.toISOString(),
           companyId,
-          actorId: event.actorId,
+          actorId: envelopeActorId(event.actorId),
           data: { causeId: event.causeId, cause: payload.cause, record },
         });
       },

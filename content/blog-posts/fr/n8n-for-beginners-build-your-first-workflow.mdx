@@ -143,7 +143,7 @@ La version utile du premier workflow enregistre la demande là où votre équipe
 
 <Steps>
   <Step title="Créez une clé API">
-    Dans Customermates, ouvrez **Paramètres → Clés API**, cliquez sur **Ajouter** et choisissez **Clé API standard**. La clé agit avec les autorisations de l’utilisateur qui l’a créée : créez-la donc avec un utilisateur autorisé à créer des contacts. Les détails sont dans [Clés API](/docs/api-keys).
+    Dans Customermates, ouvrez **Paramètres → Clés API et connecteurs**, cliquez sur **Ajouter** et choisissez **Clé API standard**. La clé agit avec les autorisations de l’utilisateur qui l’a créée : créez-la donc avec un utilisateur autorisé à créer des contacts. Les détails sont dans [Clés API](/docs/api-keys).
   </Step>
   <Step title="Enregistrez-la comme credential n8n">
     Dans n8n, créez un credential **Header Auth** avec le nom d’en-tête `x-api-key` et la clé comme valeur. Tous les nœuds qui parlent au CRM le réutilisent, si bien qu’une clé renouvelée se change à un seul endroit.

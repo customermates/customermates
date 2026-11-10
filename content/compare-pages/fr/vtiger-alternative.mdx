@@ -192,7 +192,7 @@ Si deux de ces points ou plus font le travail quotidien de votre équipe, restez
 
 ## Migrer depuis Vtiger
 
-La plupart des données de vente de Vtiger ont une place directe. Dans Configurer, vous pouvez renommer les organisations en « Comptes » et les affaires en « Opportunités », afin que votre équipe garde son vocabulaire.
+La plupart des données de vente de Vtiger ont une place directe. Dans Modèle de données, vous pouvez renommer les organisations en « Comptes » et les affaires en « Opportunités », afin que votre équipe garde son vocabulaire.
 
 | Dans Vtiger | Dans Customermates |
 |---|---|
@@ -204,12 +204,12 @@ La plupart des données de vente de Vtiger ont une place directe. Dans Configure
 | Tâches | Tâches, plus un champ date personnalisé pour les échéances |
 | Cas, devis, factures, projets, campagnes | Pas d’équivalent ; gardez Vtiger ou un outil dédié pour eux |
 
-Dans Customermates, les étapes ne sont pas prédéfinies : ajoutez un champ à choix unique Étape à votre liste d’affaires dans Configurer (dans le cloud, la configuration IA peut le créer), avec une option par étape Vtiger, et définissez une **Probabilité %** sur chaque option.
+Dans Customermates, les étapes ne sont pas prédéfinies : ajoutez un champ à choix unique Étape à votre liste d’affaires dans Modèle de données (dans le cloud, la configuration IA peut le créer), avec une option par étape Vtiger, et définissez une **Probabilité %** sur chaque option.
 
 <Steps>
   <Step title="Exporter depuis Vtiger">Dans la vue en liste de chaque module, choisissez Export et exportez toutes les données. Vtiger exporte des fichiers CSV, pas Excel.</Step>
   <Step title="Garder chaque fichier en CSV">Customermates importe directement les fichiers CSV : il n’y a donc rien à convertir.</Step>
-  <Step title="Préparer l’espace de travail">Renommez les listes dans Configurer, créez des champs personnalisés pour les champs Vtiger que vous gardez, et définissez les noms d’étapes et les probabilités.</Step>
+  <Step title="Préparer l’espace de travail">Renommez les listes dans Modèle de données, créez des champs personnalisés pour les champs Vtiger que vous gardez, et définissez les noms d’étapes et les probabilités.</Step>
   <Step title="Importer une liste à la fois">Utilisez Plus d’actions, puis Ajouter depuis un fichier : d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de lien sont rapprochées par nom d’enregistrement : la colonne d’organisation d’un contact retrouve donc l’organisation importée avant. La [documentation des enregistrements](/docs/app-records) liste les limites.</Step>
   <Step title="Connecter les canaux et l’IA">Sur Pro ou pendant l’essai, connectez une messagerie, LinkedIn ou WhatsApp, puis mettez en place une routine ou connectez votre propre client IA.</Step>
 </Steps>

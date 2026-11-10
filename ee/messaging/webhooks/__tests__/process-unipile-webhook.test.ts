@@ -46,14 +46,18 @@ beforeEach(() => vi.clearAllMocks());
 
 describe("ProcessUnipileWebhookInteractor classification", () => {
   it("marks processed and clears nothing else when the handler succeeds", async () => {
+    const receivedAt = new Date("2026-11-08T18:05:00.000Z");
     const handler = { invoke: vi.fn().mockResolvedValue(undefined) };
-    const { interactor, events } = build(row({ type: "message.new", account_id: "acc_1", payload: {} }), {
-      "message.new": handler,
-    });
+    const { interactor, events } = build(
+      row({ type: "message.new", account_id: "acc_1", payload: {} }, { receivedAt }),
+      {
+        "message.new": handler,
+      },
+    );
 
     await invoke(interactor);
 
-    expect(handler.invoke).toHaveBeenCalledOnce();
+    expect(handler.invoke).toHaveBeenCalledWith(expect.objectContaining({ type: "message.new", receivedAt }));
     expect(events.markWebhookEventProcessedUnscoped).toHaveBeenCalledWith(EVENT_ID);
     expect(events.markWebhookEventFailedUnscoped).not.toHaveBeenCalled();
     expect(ErrorReporter.captureException).not.toHaveBeenCalled();
@@ -131,6 +135,7 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
 
   it.each([
     [429, "api/too_many_requests"],
+    [429, "provider/rate_limited"],
     [500, "api/internal_error"],
     [502, null],
     [503, "provider/service_unavailable"],
@@ -141,8 +146,9 @@ describe("ProcessUnipileWebhookInteractor classification", () => {
       "email.folder.update": handler,
     });
 
-    await invoke(interactor);
+    const result = await invoke(interactor);
 
+    expect(result).toEqual({ rateLimited: errorType === "api/too_many_requests" });
     expect(ErrorReporter.captureException).not.toHaveBeenCalled();
     expect(events.markWebhookEventFailedUnscoped).toHaveBeenCalledWith({
       id: EVENT_ID,

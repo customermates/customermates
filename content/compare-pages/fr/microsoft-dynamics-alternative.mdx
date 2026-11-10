@@ -191,7 +191,7 @@ Prenons un cabinet de conseil de cinq personnes sur Sales Professional. Trois as
 
 | Dans Dynamics 365 Sales | Dans Customermates |
 |---|---|
-| Comptes | Organisations, renommées « Comptes » dans Configurer |
+| Comptes | Organisations, renommées « Comptes » dans Modèle de données |
 | Contacts | Contacts |
 | Prospects | Contacts avec un champ Choix unique « Statut du prospect » : Nouveau, Contacté, Qualifié, Disqualifié |
 | Opportunités | Affaires, renommées « Opportunités » |
@@ -199,7 +199,7 @@ Prenons un cabinet de conseil de cinq personnes sur Sales Professional. Trois as
 | Tâches | Tâches avec des personnes assignées ; ajoutez un champ date « Échéance », car les tâches n’en ont pas d’intégré |
 | E-mail dans Outlook | La boîte Outlook connectée dans la boîte de réception unifiée |
 
-Les étapes ne sont pas préréglées : ajoutez un champ Choix unique Étape à votre liste d’opportunités dans Configurer (dans le cloud, la configuration IA peut le créer), avec une option par étape Dynamics et une **Probabilité %** sur chacune. Customermates multiplie la valeur de chaque opportunité par la probabilité de son étape, et un widget graphique du tableau de bord additionne les valeurs pondérées.
+Les étapes ne sont pas préréglées : ajoutez un champ Choix unique Étape à votre liste d’opportunités dans Modèle de données (dans le cloud, la configuration IA peut le créer), avec une option par étape Dynamics et une **Probabilité %** sur chacune. Customermates multiplie la valeur de chaque opportunité par la probabilité de son étape, et un widget graphique du tableau de bord additionne les valeurs pondérées.
 
 Avec un compte chacun, l’équipe fonctionne sur Pro à [[commercial.price.pro.monthly.seats.5]] par mois. Si un collaborateur a besoin d’Outlook et de LinkedIn côte à côte, l’espace de travail passe à Business à [[commercial.price.business.monthly.seats.5]]. Chacun enregistre un Board des opportunités ouvertes regroupées par étape ; l’associé gérant garde un tableau regroupé par utilisateur assigné.
 
@@ -211,9 +211,9 @@ Chaque associé possède une routine dans Customermates Cloud. Elle s’exécute
 
 <Steps>
   <Step title="Exporter vos vues vers Excel">Dans Dynamics, ouvrez une table comme Comptes, choisissez une vue contenant toutes les colonnes que vous voulez garder, et sélectionnez Exporter vers Excel dans la barre de commandes. Vous obtenez un classeur .xlsx. Si un export expire, Microsoft suggère de le faire par lots plus petits, avec des filtres plus serrés ou moins de colonnes.</Step>
-  <Step title="Préparer l’espace de travail">Dans Configurer, renommez les listes (Comptes, Opportunités, Produits) sous Général, définissez les étapes et leurs probabilités, et créez des champs personnalisés pour les colonnes que vous gardez.</Step>
+  <Step title="Préparer l’espace de travail">Dans Modèle de données, renommez les listes (Comptes, Opportunités, Produits) sous Général, définissez les étapes et leurs probabilités, et créez des champs personnalisés pour les colonnes que vous gardez.</Step>
   <Step title="Importer une liste à la fois">Ouvrez Plus d’actions sur chaque liste, puis Ajouter depuis un fichier : les comptes d’abord, puis les contacts, puis les opportunités, car les colonnes de lien retrouvent les enregistrements par nom. Les nouveaux contacts ont besoin d’un prénom et d’un nom. Réglez toute colonne d’identifiant Dynamics sur Ne pas ajouter. Le [guide des enregistrements](/docs/app-records) indique les limites de fichier.</Step>
-  <Step title="Connecter Outlook">Avec Pro ou pendant l’essai, connectez votre boîte sous Paramètres, Canaux, et liez les participants aux contacts au fil des conversations.</Step>
+  <Step title="Connecter Outlook">Avec Pro ou pendant l’essai, connectez votre boîte sous Paramètres, Canaux et agendas, et liez les participants aux contacts au fil des conversations.</Step>
   <Step title="Ajouter des vues et de l’IA">Enregistrez vos Boards et vos tableaux, puis configurez une routine pour Mate ou connectez votre propre client d’IA via MCP. L’historique d’activité ne passe pas : gardez donc Dynamics en lecture seule jusqu’à la fin de la durée de la licence.</Step>
 </Steps>
 

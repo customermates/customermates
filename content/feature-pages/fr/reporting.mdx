@@ -18,9 +18,9 @@ sections:
     title: "Mettre en place un tableau de bord hebdomadaire du pipeline"
     items:
       - title: "Vérifiez les probabilités d’étape"
-        description: "Dans Configurer, ouvrez Affaires et le champ Étape, et ajustez la Probabilité % de chaque option. Un aperçu montre l’effet sur les affaires et les widgets."
+        description: "Dans Modèle de données, ouvrez Affaires et le champ Étape, et ajustez la Probabilité % de chaque option. Un aperçu montre l’effet sur les affaires et les widgets."
       - title: "Ajoutez les champs dont vos questions ont besoin"
-        description: "Dans Configurer, ouvrez Affaires et utilisez Ajouter › Champ pour un champ Choix unique « Source du lead » (Recommandation, LinkedIn, Site web, Évènement), un champ Choix unique « Motif de perte » et un champ Date « Clôturée le ». Un graphique ne peut regrouper que ce que vous enregistrez."
+        description: "Dans Modèle de données, ouvrez Affaires et utilisez Ajouter › Champ pour un champ Choix unique « Source du lead » (Recommandation, LinkedIn, Site web, Évènement), un champ Choix unique « Motif de perte » et un champ Date « Clôturée le ». Un graphique ne peut regrouper que ce que vous enregistrez."
       - title: "Créez le premier graphique"
         description: "Sur le Tableau de bord, appuyez sur Ajouter un widget et choisissez Diagramme en barres. Sous Données, choisissez Affaires comme source, additionnez la Valeur pondérée et regroupez par Étape. Excluez Gagnée et Perdue dans les filtres, puis appuyez sur Enregistrer."
       - title: "Ajoutez-en trois autres"
@@ -69,7 +69,7 @@ Chaque graphique prend une liste comme source, une agrégation et un regroupemen
 
 Le **Regroupement** est **Aucun regroupement** (un seul total), un champ comme Étape ou Source du lead, chaque enregistrement, **Attribué à**, ou un champ atteint par une relation. Cela vous donne « valeur des affaires par étape », « valeur des affaires par organisation » ou « montants des lignes par service ». Regroupez par un champ de date, **Créé le** ou **Mis à jour le**, et choisissez un **Intervalle de temps** pour obtenir une valeur par jour, semaine, mois, trimestre ou année.
 
-La **Valeur pondérée** est un champ calculé des affaires : la valeur de l’affaire multipliée par la **Probabilité %** de son étape, que vous définissez sur chaque option du champ Étape dans **Configurer**. Une fois les probabilités définies, elle fonctionne dès la première affaire.
+La **Valeur pondérée** est un champ calculé des affaires : la valeur de l’affaire multipliée par la **Probabilité %** de son étape, que vous définissez sur chaque option du champ Étape dans **Modèle de données**. Une fois les probabilités définies, elle fonctionne dès la première affaire.
 
 Les **Filtres** restreignent ce qu’un graphique compte, avec n’importe quel champ, dates comprises ; les champs liés apparaissent sous la forme **Liste › Champ**. C’est ainsi que vous représentez la « valeur des affaires gagnées par organisation » : les affaires comme source, un filtre Étape est Gagnée, regroupé par organisation.
 

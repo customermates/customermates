@@ -1,10 +1,9 @@
 "use client";
 
 import type { RecordSearchHit } from "@/features/records/record-search.schema";
-import type { CommandActionId, CommandEnvironment } from "@/components/keyboard/command-registry";
+import type { CommandActionId, CommandEnvironment, CommandIcon } from "@/components/keyboard/command-registry";
 import type { ListGroup } from "./command-palette/command-palette-search";
 import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./command-palette/palette-entries";
-import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles, WandSparkles } from "lucide-react";
@@ -29,6 +28,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
+import { Action, Resource } from "@/generated/prisma";
+import { connectedChannels } from "@/components/keyboard/connect-intent";
 import { workspaceListName } from "@/app/components/workspaces/workspace-identity";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -51,6 +52,7 @@ import {
 import { encodeGetParams } from "@/core/utils/get-params";
 import {
   recordEntries,
+  markConnectedEntries,
   staticEntries,
   workspaceEntries,
   workspaceSwitchEntries,
@@ -64,7 +66,7 @@ const SECTION_LIMIT = 8;
 type PaletteRowData = {
   key: string;
   label: string;
-  icon?: LucideIcon;
+  icon?: CommandIcon;
   subtitle?: string;
   entry?: PaletteEntry;
   hit?: RecordSearchHit;
@@ -159,8 +161,14 @@ export const GlobalSearchModal = observer(() => {
       t("Workspaces.unnamedCreated", { name: workspaceFallback, date }),
     ),
   }));
+  const canConnectChannels =
+    rootStore.appMode !== "self-hosted" && userStore.can(Resource.inboxMessages, Action.create);
+  useEffect(() => {
+    if (isOpen && canConnectChannels) void rootStore.connectedAccountsStore.ensureLoaded().catch(() => undefined);
+  }, [isOpen, canConnectChannels, rootStore]);
+  const connected = canConnectChannels ? connectedChannels(rootStore.connectedAccountsStore.items) : new Set<string>();
   const entries = [
-    ...staticEntries(translate, environment),
+    ...markConnectedEntries(staticEntries(translate, environment), connected, t("ConnectedAccountsCard.connectedNote")),
     ...workspaceEntries(translate, navigation, globalSearchModalStore.catalog),
     ...workspaceSwitchEntries(translate, otherWorkspaces),
     ...contextEntries,

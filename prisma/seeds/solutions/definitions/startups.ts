@@ -384,7 +384,7 @@ const en = {
       "Customermates has an MCP endpoint, so an AI client we already use can read and update this workspace. Max works from Claude Desktop; everyone else can connect their own client the same way.",
       "",
       "## How Max connected Claude Desktop",
-      "- Max created a personal API key named Claude Desktop under Settings, API keys, and put it into the client's configuration. Clients with a custom connector can sign in with OAuth instead, without a key.",
+      "- Max created a personal API key named Claude Desktop under Settings, API keys & connectors, and put it into the client's configuration. Clients with a custom connector can sign in with OAuth instead, without a key.",
       "- The key acts as Max in this workspace only. It can see and change exactly what his role allows, nothing more.",
       "- The client uses our own AI provider, which bills the model use.",
       "",

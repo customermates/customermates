@@ -27,10 +27,12 @@ const Schema = z.object({
     email: z.looseObject({ id: z.string() }),
     folder_id: z.string().nullish(),
   }),
+  receivedAt: z.date().optional(),
 });
 type Payload = z.infer<typeof Schema>;
 
 const BURST_WINDOW_MS = 60_000;
+const RETRY_MIN_AGE_MS = 60_000;
 const BURST_LIMIT = 10;
 const SEARCH_WINDOW_MS = 1_000;
 const RELOCATION_GRACE_MS = 8_000;
@@ -76,7 +78,8 @@ export class ProcessEmailDeleteWebhookInteractor {
     });
     if (!existing) return;
 
-    const burst = await this.isDeleteBurst(account);
+    const isRetry = envelope.receivedAt !== undefined && Date.now() - envelope.receivedAt.getTime() > RETRY_MIN_AGE_MS;
+    const burst = !isRetry && (await this.isDeleteBurst(account));
     if (burst) {
       await this.waitForRelocation();
 
@@ -155,7 +158,7 @@ export class ProcessEmailDeleteWebhookInteractor {
 
     const folders = parseFolderCatalog(account.folders);
     const originFolderId = envelope.payload.folder_id ?? null;
-    const candidates = await this.listCandidates(account.unipileAccountId, sentAt, folders, originFolderId, burst);
+    const candidates = await this.listCandidates(account.unipileAccountId, sentAt, folders, burst);
     if (!candidates) return { status: "unsearchable" };
 
     const catalogById = new Map(folders.map((folder) => [folder.id, folder]));
@@ -163,12 +166,15 @@ export class ProcessEmailDeleteWebhookInteractor {
     for (const candidate of candidates) {
       if (candidate.email.message_id?.trim() !== providerMessageId) continue;
 
-      const remainingFolderIds = candidate.folderIds.filter((id) => id !== originFolderId);
+      const rekeyed = candidate.email.id !== envelope.payload.email.id;
+      const remainingFolderIds = rekeyed
+        ? candidate.folderIds
+        : candidate.folderIds.filter((id) => id !== originFolderId);
       const visibleFolderIds = remainingFolderIds.filter((id) => {
         const folder = catalogById.get(id);
         return !folder || !isSkippedEmailFolder(folder);
       });
-      if (visibleFolderIds.length === 0) return { status: "absent" };
+      if (visibleFolderIds.length === 0) continue;
 
       return { status: "relocated", email: candidate.email, folderIds: remainingFolderIds };
     }
@@ -180,7 +186,6 @@ export class ProcessEmailDeleteWebhookInteractor {
     unipileAccountId: string,
     sentAt: Date,
     folders: EmailFolder[],
-    originFolderId: string | null,
     burst: boolean,
   ): Promise<Candidate[] | null> {
     const after = new Date(sentAt.getTime() - SEARCH_WINDOW_MS).toISOString();
@@ -204,7 +209,7 @@ export class ProcessEmailDeleteWebhookInteractor {
 
     const candidates: Candidate[] = [];
     for (const folder of folders) {
-      if (folder.id === originFolderId || isSkippedEmailFolder(folder)) continue;
+      if (isSkippedEmailFolder(folder)) continue;
 
       const page = await this.messagingService.listFolderEmails({
         accountId: unipileAccountId,

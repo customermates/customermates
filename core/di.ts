@@ -1339,6 +1339,7 @@ export const getAdminUpdateUserDetailsInteractor = () =>
     getCompanyRepo(),
     getUserRepo(),
     getReleaseOwnerRoutinesInteractor(),
+    getRecordAccessPolicy(),
     getPlanLimitsService(),
   );
 
@@ -1416,6 +1417,7 @@ export const getRemoveWorkspaceMemberInteractor = () =>
     getWorkspaceDepartureService(),
     getCompanyRepo(),
     getEmailService(),
+    getRecordAccessPolicy(),
   );
 
 export const getGetMemberRemovalInteractor = () => new GetMemberRemovalInteractor(getUserRepo(), getRoleRepo());
