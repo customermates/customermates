@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/hubspot-vs-salesforce
   - /blog/salesforce-pricing
 
+sections:
+  reasons:
+    - title: "Conversations next to the deal"
+      description: "From Pro, the unified inbox puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list linked to your contacts, and you reply on the original channel."
+    - title: "Replies drafted, records updated"
+      description: "In Customermates Cloud, Mate summarizes threads, drafts replies and updates records for you to review. Your own Claude or ChatGPT can work through MCP."
+    - title: "Open source"
+      description: "The AGPL-3.0 core runs on your own server with Docker Compose, including REST, webhooks and MCP, but without the inbox and Mate."
+  switchSteps: true
+
 hero:
-  title: "Pipedrive vs Salesforce: Which CRM Fits a Small Sales Team?"
-  description: "Pipedrive is a sales CRM sold in four plans, built around the pipeline and the next activity. Salesforce is a platform sold in editions, from a free suite for two users up to Max at $550 per user. Prices and limits below come from both vendors' own pages, checked on 8 October 2026. Customermates publishes this comparison."
-  buttonLeftText: Start for free
+  title: "Pipedrive vs Salesforce: Which CRM Fits Your Team?"
+  description: "Pipedrive or Salesforce for a small sales team? Pipedrive has four plans; Salesforce runs from a free suite for two users to Max at $550 per user. Checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -33,7 +43,7 @@ comparison:
       competitor: Monthly or yearly; yearly saves up to 42%
       competitor2: Starter Suite monthly or annually; Pro Suite and up billed annually, Pro Suite with a contract
     - name: Free plan
-      source: false
+      source: "[[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records, no inbox or Mate"
       competitor: false
       competitor2: Free Suite, up to 2 users
     - name: Free trial
@@ -55,7 +65,7 @@ comparison:
       competitor: Forecast reports from Growth
       competitor2: Forecasting from Pro Suite
     - name: Leads and deals
-      source: No plan-based cap
+      source: No cap on paid plans
       competitor: 2,500 to 20,000 per seat by plan, up to 300,000
       competitor2: Data storage of 10 GB per org up to Pro Suite
     - name: Email sequences or campaigns
@@ -97,7 +107,7 @@ comparison:
 cta:
   action: Want a third option on your shortlist?
   description: "Start a Customermates trial, import one XLSX export of your deals and connect a mailbox or WhatsApp. Within [[commercial.trial.days]] days you will see whether your pipeline and your conversations fit."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -182,20 +192,20 @@ Pipedrive [hosts on AWS](https://support.pipedrive.com/en/article/how-secure-is-
 
 ## A third option: Customermates
 
-Customermates publishes this page, so read this section as a vendor describing its own product. Customermates is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies and founders, built in Germany. In scope it is closer to Pipedrive than to Salesforce: a new workspace starts without lists, you create the lists and fields you need (contacts, organizations, deals or your own), and there are no plan-based record caps. It differs from both in four ways:
+Customermates publishes this page, so read this section as a vendor describing its own product. Customermates is an open-source, AI-native CRM for small client-facing teams such as consultants, agencies and founders, built in Germany and made to follow up on every client conversation: from Pro they sit on the client record, and Mate or your own AI agent drafts the reply and the next step. In scope it is closer to Pipedrive than to Salesforce: a new workspace starts without lists, you create the lists and fields you need (contacts, organizations, deals or your own), and paid plans have no record caps. It differs from both in four ways:
 
 - **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) puts Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram into one list linked to your contacts, and you reply on the original channel. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter has no inbox.
 - **AI that does the CRM work.** In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. It uses hosted AI credits, a monthly allowance per active user listed on the [pricing page](/pricing). Routines run a saved instruction on a schedule or when a record changes. Claude, ChatGPT or another client can use the [MCP server](/docs/mcp) with [[derived.mcp.tools.total]] tools on every plan, billed by your own AI provider.
 - **Open source.** The AGPL-3.0 core [runs on your own server](/features/self-hosted) with Docker Compose, including REST, webhooks and MCP, but without the inbox and Mate. In Customermates Cloud the database is configured in the AWS Frankfurt region, other providers, including US ones, are listed on the [subprocessors page](/subprocessors), and a [DPA](/dpa) is available.
 - **Monthly prices per user.** Monthly is the only billing cycle. Five people pay [[commercial.price.starter.monthly.seats.5]] a month on Starter or [[commercial.price.pro.monthly.seats.5]] on Pro.
 
-A five-person consultancy would set it up like this. Create the offerings as services first, because a deal's value is the sum of its line items, each a service times its quantity. In Data model for Deals, open the Stage field and give its options probabilities such as Lead 10%, Proposal sent 50%, Negotiation 75%, Won 100% and Lost 0%; Customermates then shows each deal's weighted value, and a chart widget on the Dashboard can sum them. That is arithmetic on your own numbers and does not predict anything. Add a single choice field "Source" with Referral, LinkedIn and Website. Each person saves a board of their assigned deals grouped by stage, and a board view can be shared with the team. In Customermates Cloud, each partner can own a routine like this one, which runs as its owner and uses hosted AI credits:
+A five-person consultancy would set it up like this. Create the offerings as services first, because a deal's value is the sum of its line items, each a service times its quantity. In Data model for Deals, open the Stage field and give its options probabilities such as Lead 10%, Proposal sent 50%, Negotiation 75%, Won 100% and Lost 0%; Customermates then shows each deal's weighted value, and a chart widget on the Dashboard can sum them. That is arithmetic on your own numbers and does not predict anything. Add a single choice field "Source" with Referral, LinkedIn and Website. Each person saves a board of their assigned deals grouped by stage and can share it with the team. In Customermates Cloud, each partner can own a routine like this one, which runs as its owner and uses hosted AI credits:
 
 > Every Monday at 8:00, list my open deals in "Proposal sent" that nobody has updated for 10 days, with the last message from each contact. Save a short follow-up draft in that conversation. Do not send anything.
 
 Moving in works one list at a time from XLSX, XLS or CSV files: organizations, then contacts, then deals. Pipedrive exports Excel directly; from Salesforce, export a report as .xlsx with the Details Only option. A CSV file can be imported as it is. The [records documentation](/docs/app-records) covers the import wizard.
 
-Customermates has no activity reminders or task due dates, no email sequences or campaigns, and no quoting, revenue forecasting or lead scoring. It has no telephony, no single sign-on and no native mobile apps. If you need those, Pipedrive or Salesforce covers them. There is no free plan either, only a [[commercial.trial.days]]-day trial.
+Customermates has no activity reminders or task due dates, no email sequences or campaigns, and no quoting, revenue forecasting or lead scoring. It has no telephony, no single sign-on and no native mobile apps. If you need those, Pipedrive or Salesforce covers them. The free plan stops at [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox or Mate; the [[commercial.trial.days]]-day trial shows the full product.
 
 ## Frequently asked questions
 

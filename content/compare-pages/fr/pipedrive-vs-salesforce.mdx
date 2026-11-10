@@ -9,9 +9,19 @@ relatedHrefs:
   - /compare/hubspot-vs-salesforce
   - /blog/salesforce-pricing
 
+sections:
+  reasons:
+    - title: "Les conversations à côté de l’affaire"
+      description: "À partir de Pro, la boîte de réception unifiée réunit les messageries Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram dans une seule liste liée à vos contacts, et vous répondez sur le canal d’origine."
+    - title: "Réponses rédigées, enregistrements mis à jour"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses et met à jour les enregistrements, à relire. Votre propre Claude ou ChatGPT travaille via MCP."
+    - title: "Open source"
+      description: "Le noyau AGPL-3.0 fonctionne sur votre propre serveur avec Docker Compose, REST, webhooks et MCP compris, mais sans la boîte de réception ni Mate."
+  switchSteps: true
+
 hero:
-  title: "Pipedrive vs Salesforce : quel CRM pour une petite équipe commerciale ?"
-  description: "Pipedrive est un CRM commercial vendu en quatre formules, construit autour du pipeline et de la prochaine activité. Salesforce est une plateforme vendue en éditions, d’une suite gratuite pour deux utilisateurs jusqu’à Max à 550 $ par utilisateur. Les prix et les limites ci-dessous viennent des pages des deux éditeurs, vérifiées le 8 octobre 2026. Customermates publie cette comparaison."
+  title: "Pipedrive vs Salesforce : lequel pour votre équipe ?"
+  description: "Pipedrive ou Salesforce pour votre équipe ? Pipedrive a quatre formules, Salesforce va d’une suite gratuite pour deux utilisateurs à Max à 550 $ par utilisateur. Vérifié le 8 octobre 2026."
   buttonLeftText: Commencer l’essai gratuit
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
@@ -33,7 +43,7 @@ comparison:
       competitor: Au mois ou à l’année ; l’année fait économiser jusqu’à 42 %
       competitor2: Starter Suite au mois ou à l’année ; Pro Suite et au-delà facturés annuellement, Pro Suite avec un contrat
     - name: Formule gratuite
-      source: false
+      source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
       competitor: false
       competitor2: Free Suite, jusqu’à 2 utilisateurs
     - name: Essai gratuit
@@ -55,7 +65,7 @@ comparison:
       competitor: Rapports de prévision à partir de Growth
       competitor2: Prévisions à partir de Pro Suite
     - name: Leads et affaires
-      source: Aucun plafond selon la formule
+      source: Aucun plafond sur les formules payantes
       competitor: De 2 500 à 20 000 par licence selon la formule, jusqu’à 300 000
       competitor2: Stockage de 10 Go par organisation jusqu’à Pro Suite
     - name: Séquences ou campagnes d’e-mails
@@ -182,20 +192,20 @@ Pipedrive [héberge sur AWS](https://support.pipedrive.com/en/article/how-secure
 
 ## Une troisième option : Customermates
 
-Customermates publie cette page : lisez cette section comme celle d’un éditeur qui décrit son propre produit. Customermates est un CRM open source et IA native pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs, développé en Allemagne. Par son périmètre, il est plus proche de Pipedrive que de Salesforce : un nouvel espace de travail démarre sans listes, vous créez les listes et les champs dont vous avez besoin (contacts, organisations, affaires ou les vôtres), et il n’y a pas de plafonds d’enregistrements selon la formule. Il se distingue des deux sur quatre points :
+Customermates publie cette page : lisez cette section comme celle d’un éditeur qui décrit son propre produit. Customermates est un CRM open source et IA native pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs, développé en Allemagne et conçu pour relancer chaque conversation client : dès Pro, elles sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape. Par son périmètre, il est plus proche de Pipedrive que de Salesforce : un nouvel espace de travail démarre sans listes, vous créez les listes et les champs dont vous avez besoin (contacts, organisations, affaires ou les vôtres), et les formules payantes n’ont pas de plafond d’enregistrements. Il se distingue des deux sur quatre points :
 
 - **Les conversations à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit les messageries Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram dans une seule liste liée à vos contacts, et vous répondez sur le canal d’origine. Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter n’a pas de boîte de réception.
 - **Une IA qui fait le travail du CRM.** Dans Customermates Cloud, Mate résume des fils, rédige des réponses et met à jour des enregistrements. Il utilise des crédits IA hébergés, une allocation mensuelle par utilisateur actif indiquée sur la [page des tarifs](/pricing). Les routines exécutent une consigne enregistrée selon un planning ou lorsqu’un enregistrement change. Claude, ChatGPT ou un autre client peut utiliser le [serveur MCP](/docs/mcp) avec [[derived.mcp.tools.total]] outils sur toutes les formules, facturés par votre propre fournisseur d’IA.
 - **Open source.** Le noyau AGPL-3.0 [fonctionne sur votre propre serveur](/features/self-hosted) avec Docker Compose, REST, webhooks et MCP compris, mais sans la boîte de réception ni Mate. Dans Customermates Cloud, la base de données est configurée dans la région AWS de Francfort, d’autres prestataires, dont des prestataires américains, sont listés sur la [page des sous-traitants](/subprocessors), et un [accord de traitement des données](/dpa) est disponible.
 - **Des prix mensuels par utilisateur.** Le mensuel est le seul cycle de facturation. Cinq personnes paient [[commercial.price.starter.monthly.seats.5]] par mois avec Starter ou [[commercial.price.pro.monthly.seats.5]] avec Pro.
 
-Un cabinet de cinq personnes le configurerait ainsi. Créez d’abord les prestations comme des services, car la valeur d’une affaire est la somme de ses lignes, chacune étant un service multiplié par sa quantité. Dans Modèle de données, pour les affaires, ouvrez le champ Étape et donnez à ses options des probabilités comme Lead 10 %, Proposition envoyée 50 %, Négociation 75 %, Gagnée 100 % et Perdue 0 % ; Customermates affiche alors la valeur pondérée de chaque affaire, et un widget graphique du tableau de bord peut les additionner. C’est de l’arithmétique sur vos propres chiffres, et cela ne prédit rien. Ajoutez un champ Choix unique « Source » avec Recommandation, LinkedIn et Site web. Chacun enregistre un board de ses affaires assignées regroupées par étape, et une vue board peut être partagée avec l’équipe. Dans Customermates Cloud, chaque associé peut posséder une routine comme celle-ci, qui s’exécute au nom de son propriétaire et utilise des crédits IA hébergés :
+Un cabinet de cinq personnes le configurerait ainsi. Créez d’abord les prestations comme des services, car la valeur d’une affaire est la somme de ses lignes, chacune étant un service multiplié par sa quantité. Dans Modèle de données, pour les affaires, ouvrez le champ Étape et donnez à ses options des probabilités comme Lead 10 %, Proposition envoyée 50 %, Négociation 75 %, Gagnée 100 % et Perdue 0 % ; Customermates affiche alors la valeur pondérée de chaque affaire, et un widget graphique du tableau de bord peut les additionner. C’est de l’arithmétique sur vos propres chiffres, et cela ne prédit rien. Ajoutez un champ Choix unique « Source » avec Recommandation, LinkedIn et Site web. Chacun enregistre un board de ses affaires assignées regroupées par étape et peut le partager avec l’équipe. Dans Customermates Cloud, chaque associé peut posséder une routine comme celle-ci, qui s’exécute au nom de son propriétaire et utilise des crédits IA hébergés :
 
 > Chaque lundi à 8:00, lister mes affaires ouvertes à l’étape « Proposition envoyée » que personne n’a mises à jour depuis 10 jours, avec le dernier message de chaque contact. Enregistrer un court brouillon de relance dans cette conversation. Ne rien envoyer.
 
 La migration se fait liste par liste à partir de fichiers XLSX, XLS ou CSV : organisations, puis contacts, puis affaires. Pipedrive exporte directement en Excel ; depuis Salesforce, exportez un rapport en .xlsx avec l’option Details Only. Un fichier CSV s’importe tel quel. La [documentation des enregistrements](/docs/app-records) couvre l’assistant d’import.
 
-Customermates n’a ni rappels d’activité ni échéances de tâches, ni séquences ou campagnes d’e-mails, ni devis, prévisions du chiffre d’affaires ou scoring des leads. Il n’a ni téléphonie, ni authentification unique, ni applications mobiles natives. Si vous en avez besoin, Pipedrive ou Salesforce les couvre. Il n’y a pas non plus de formule gratuite, seulement un essai de [[commercial.trial.days]] jours.
+Customermates n’a ni rappels d’activité ni échéances de tâches, ni séquences ou campagnes d’e-mails, ni devis, prévisions du chiffre d’affaires ou scoring des leads. Il n’a ni téléphonie, ni authentification unique, ni applications mobiles natives. Si vous en avez besoin, Pipedrive ou Salesforce les couvre. La formule gratuite s’arrête à [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate ; l’essai de [[commercial.trial.days]] jours montre le produit complet.
 
 ## Questions fréquentes
 

@@ -47,7 +47,7 @@ export function AddressValue({
           <TooltipTrigger asChild>
             <span
               aria-label={t("RecordModel.addressVerified")}
-              className="inline-flex shrink-0 text-success"
+              className="inline-flex shrink-0 text-success-soft-foreground"
               role="img"
             >
               <BadgeCheck aria-hidden className="size-3.5" />

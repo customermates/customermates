@@ -9,20 +9,51 @@ relatedHrefs:
   - /features/workflow-automation
   - /docs/app-dashboard
 
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Nous sommes un cabinet de conseil en stratégie de quatre personnes. Suis nos clients, missions et propositions, et aide-nous à relancer nos prospects sur LinkedIn."
+  steps:
+    title: "Mettre en place un tableau de bord hebdomadaire du pipeline"
+    items:
+      - title: "Vérifiez les probabilités d’étape"
+        description: "Dans Modèle de données, ouvrez Affaires et le champ Étape, et ajustez la Probabilité % de chaque option. Un aperçu montre l’effet sur les affaires et les widgets."
+      - title: "Ajoutez les champs dont vos questions ont besoin"
+        description: "Dans Modèle de données, ouvrez Affaires et utilisez Ajouter › Champ pour un champ Choix unique « Source du lead » (Recommandation, LinkedIn, Site web, Évènement), un champ Choix unique « Motif de perte » et un champ Date « Clôturée le ». Un graphique ne peut regrouper que ce que vous enregistrez."
+      - title: "Créez le premier graphique"
+        description: "Sur le Tableau de bord, appuyez sur Ajouter un widget et choisissez Diagramme en barres. Sous Données, choisissez Affaires comme source, additionnez la Valeur pondérée et regroupez par Étape. Excluez Gagnée et Perdue dans les filtres, puis appuyez sur Enregistrer."
+      - title: "Ajoutez-en trois autres"
+        description: "La valeur des affaires gagnées par Source du lead, la valeur des affaires gagnées par organisation, et un nombre d’affaires perdues par Motif de perte. Faites-les glisser et redimensionnez-les ; la disposition est enregistrée pour vous."
+      - title: "Partagez le tableau de bord avec l’équipe"
+        description: "Placez les graphiques dans une vue de tableau de bord nommée, par exemple « Pipeline de la semaine » (Nouvelle vue au-dessus des widgets), puis choisissez Partager… dans son menu. Tout l’espace de travail ou les rôles choisis voient les mêmes graphiques en lecture seule, et chaque chiffre est calculé avec leurs propres accès."
+  highlights:
+    title: "En bref"
+    capture: homepage-dashboard
+    items:
+      - title: "Ce que vous obtenez"
+        description: "Des widgets de graphique qui comptent les enregistrements ou additionnent des champs comme la valeur et la valeur pondérée des affaires, regroupés par un champ, par enregistrement ou dans le temps, plus un widget de chronologie d’activité."
+      - title: "Formules"
+        description: "Les tableaux de bord et le pipeline pondéré font partie de toutes les formules, à partir de Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois, et de l’édition auto-hébergée."
+      - title: "IA"
+        description: "Dans Customermates Cloud, Mate répond aux questions qui demandent un calcul sur de nombreux enregistrements, avec des crédits IA hébergés. Votre propre client IA lit les mêmes données via MCP."
+      - title: "Non inclus"
+        description: "Pas de suivi de conversion dans le temps, de temps par étape, d’objectifs, de prévision prédictive ni d’e-mails de rapports planifiés, et pas de tableau de bord que toute l’équipe modifie ensemble (un tableau de bord partagé est en lecture seule pour vos collègues)."
+
 hero:
-  title: "Du reporting CRM pour les petites équipes qui veulent des chiffres clairs, pas un projet de BI"
-  description: "Construisez un tableau de bord à partir de graphiques sur vos affaires, contacts, organisations, services et tâches. Voyez le pipeline total et pondéré par étape et, dans Customermates Cloud, demandez à Mate les chiffres qu’un graphique ne peut pas montrer, comme une médiane ou un classement."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "Voyez ce qui est à relancer et ce que vaut votre pipeline"
+  description: "Un tableau de bord avec les affaires par étape, le pipeline pondéré et une liste À venir de ce qui arrive à échéance ou est en retard, partagé avec l’équipe. Dans Customermates Cloud, Mate fournit les chiffres qu’un graphique ne montre pas."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 
 cta:
-  action: Créez votre premier graphique de pipeline pendant l’essai
-  description: Définissez vos probabilités d’étape, ajoutez deux champs personnalisés et créez un graphique de pipeline pondéré en quelques minutes. Les tableaux de bord sont inclus à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois.
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  action: "Mettez relances et pipeline sur un seul tableau de bord"
+  description: "Ajoutez pendant l’essai un champ date pour la prochaine étape, un widget À venir et un graphique de pipeline pondéré. Les tableaux de bord sont inclus à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
@@ -31,13 +62,6 @@ cta:
 Le reporting CRM consiste à compter et à additionner ce qui se trouve déjà dans votre CRM, pour que des questions comme « que contient le pipeline ? » ou « quels clients ont rapporté le plus de chiffre d’affaires ? » trouvent une réponse sans tableur. Dans Customermates, cela se passe à trois endroits : les graphiques du tableau de bord, les listes regroupées par un champ, et la valeur pondérée de chaque affaire. Tout ce qui demande un vrai calcul sur de nombreux enregistrements, comme la taille médiane des affaires ou un classement, passe par Mate dans Customermates Cloud, par votre propre client IA via MCP, ou par Excel après un export.
 
 Il est volontairement réduit. Si vous avez besoin du suivi de conversion dans le temps, du temps passé dans chaque étape, de quotas ou de prévisions de chiffre d’affaires, la section sur les limites nomme des outils qui le font.
-
-<ArticleSummary title="En bref">
-  <SummaryItem label="Ce que vous obtenez">Des widgets de graphique qui comptent les enregistrements ou additionnent des champs comme la valeur et la valeur pondérée des affaires, regroupés par un champ, par enregistrement ou dans le temps, plus un widget de chronologie d’activité.</SummaryItem>
-  <SummaryItem label="Formules">Les tableaux de bord et le pipeline pondéré font partie de toutes les formules, à partir de Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois, et de l’édition auto-hébergée.</SummaryItem>
-  <SummaryItem label="IA">Dans Customermates Cloud, Mate répond aux questions qui demandent un calcul sur de nombreux enregistrements, avec des crédits IA hébergés. Votre propre client IA lit les mêmes données via MCP.</SummaryItem>
-  <SummaryItem label="Non inclus">Pas de suivi de conversion dans le temps, de temps par étape, d’objectifs, de prévision prédictive ni d’e-mails de rapports planifiés.</SummaryItem>
-</ArticleSummary>
 
 ## Ce qu’un widget de graphique peut calculer
 
@@ -69,7 +93,9 @@ Ces recettes supposent une liste d’affaires avec un champ Choix unique Étape,
 
 Les tâches n’ont pas d’échéance intégrée. Le champ Statut de la dernière ligne est un champ Choix unique que vous ajoutez à votre liste de tâches, et vous pouvez le renommer, le modifier ou le supprimer comme n’importe quel autre champ.
 
-Deux questions trouvent une meilleure réponse dans une liste que dans un graphique. **Qui travaille sur quelles affaires ?** Passez la liste des affaires en board et regroupez-la par **Assignés** : chaque personne a une colonne avec son nombre d’affaires et ses totaux. **Combien d’affaires avons-nous ouvertes par mois ?** Regroupez le tableau des affaires par date de création, par mois. Enregistrées comme vues, les deux restent à un clic, et vous pouvez partager une vue avec l’équipe.
+Deux questions trouvent une meilleure réponse dans une liste que dans un graphique. **Qui travaille sur quelles affaires ?** Passez la liste des affaires en board et regroupez-la par **Assignés** : chaque personne a une colonne avec son nombre d’affaires et ses totaux. **Combien d’affaires avons-nous ouvertes par mois ?** Regroupez le tableau des affaires par date de création, par mois. Enregistrées comme vues, les deux restent à un clic, et vous pouvez les partager avec l’équipe.
+
+Une troisième question concerne la relance : **Qu’est-ce qui arrive à échéance ?** Ajoutez un widget **À venir** sur un champ date comme Prochaine étape. Il liste les enregistrements à échéance dans les 14 prochains jours, avec une section **En retard** pour les dates passées, de sorte que les prochaines étapes soient sur votre tableau de bord dès la connexion. Excluez les enregistrements terminés pour que seuls les ouverts comptent comme en retard.
 
 ## Quelle formule vous faut-il
 
@@ -80,19 +106,7 @@ Deux questions trouvent une meilleure réponse dans une liste que dans un graphi
 | Business | Pro plus une chronologie commune à l’équipe sur tous les canaux | [[commercial.price.business.monthly]] par utilisateur et par mois |
 | Auto-hébergé | Graphiques, pipeline pondéré, export, REST et MCP sur votre propre serveur ; sans boîte de réception, Mate ni routines | Aucun frais de licence |
 
-Mate utilise des crédits IA hébergés, inclus par utilisateur actif et par mois dans toutes les formules Cloud ; la [page des tarifs](/pricing) indique les montants. Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois, et une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]]. Il n’y a ni option de reporting ni frais par rapport.
-
-## Mettre en place un tableau de bord hebdomadaire du pipeline
-
-<Steps>
-  <Step title="Vérifiez les probabilités d’étape">Dans **Modèle de données**, ouvrez Affaires et le champ **Étape**, et ajustez la **Probabilité %** de chaque option. Un aperçu montre l’effet sur les affaires et les widgets.</Step>
-  <Step title="Ajoutez les champs dont vos questions ont besoin">Dans **Modèle de données**, ouvrez Affaires et utilisez **Ajouter › Champ** pour un champ Choix unique « Source du lead » (Recommandation, LinkedIn, Site web, Évènement), un champ Choix unique « Motif de perte » et un champ Date « Clôturée le ». Un graphique ne peut regrouper que ce que vous enregistrez.</Step>
-  <Step title="Créez le premier graphique">Sur le **Tableau de bord**, appuyez sur **Ajouter un widget** et choisissez **Diagramme en barres**. Sous **Données**, choisissez Affaires comme source, additionnez la **Valeur pondérée** et regroupez par Étape. Excluez Gagnée et Perdue dans les filtres, puis appuyez sur **Enregistrer**.</Step>
-  <Step title="Ajoutez-en trois autres">La valeur des affaires gagnées par Source du lead, la valeur des affaires gagnées par organisation, et un nombre d’affaires perdues par Motif de perte. Faites-les glisser et redimensionnez-les ; la disposition est enregistrée pour vous.</Step>
-  <Step title="Partagez le tableau de bord ou la configuration">Choisissez **Partager…** dans le menu d’une vue de tableau de bord nommée pour la montrer en lecture seule à tout l’espace de travail ou à des rôles sélectionnés. Ou activez **Partager comme modèle** pour un graphique : un collègue le choisit sous **Partir d’un modèle** et obtient sa propre copie. Dans les deux cas, les chiffres ne comptent que les enregistrements que le rôle de la personne peut lire.</Step>
-</Steps>
-
-Le [guide du tableau de bord](/docs/app-dashboard) documente toutes les options de l’éditeur de widgets.
+Mate utilise des crédits IA hébergés, inclus par utilisateur actif et par mois dans toutes les formules Cloud payantes ; la [page des tarifs](/pricing) indique les montants. Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois, et une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]]. Il n’y a ni option de reporting ni frais par rapport.
 
 ## Ce que le reporting de Customermates ne fait pas, et quoi utiliser à la place
 
@@ -103,7 +117,7 @@ Customermates publie cette page. Les informations sur les éditeurs ont été v�
 | Prévision de chiffre d’affaires au-delà des poids d’étape | Non disponible. Le pipeline pondéré multiplie la valeur de chaque affaire par la probabilité que vous avez définie pour son étape, rien de plus. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional et Enterprise incluent la prévision ; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) propose une vue de prévision |
 | Un constructeur de rapports personnalisés avec taux de conversion, objectifs et nombreux types de rapports | Non disponible. Les graphiques comptent et agrègent ; un graphique en entonnoir montre la conversion d’une étape à l’autre des enregistrements actuels, mais il n’y a ni objectifs ni conversion dans le temps. | HubSpot Sales Hub Professional (rapports personnalisés) ; Pipedrive Insights (rapports personnalisés, tableaux de bord et objectifs) |
 | Votre propre BI sur les données brutes | Aucun connecteur intégré vers un outil de BI | En auto-hébergement : vos données se trouvent dans votre propre PostgreSQL, que [Metabase](https://www.metabase.com/docs/latest/databases/connecting) prend en charge ; son édition Open Source est gratuite et auto-hébergée. Utilisez un utilisateur de base de données en lecture seule et attendez-vous à ajuster les requêtes après une mise à niveau, car les tables sont le schéma interne du produit. |
-| Un tableau de bord que toute l’équipe modifie | Non disponible. Un tableau de bord partagé est en lecture seule pour les collègues et seul son propriétaire le modifie ; le dupliquer ou partir d’un modèle donne à chacun une copie modifiable. | |
+| Un tableau de bord que toute l’équipe modifie | Non disponible. Un tableau de bord partagé est en lecture seule pour vos collègues : seule la personne qui l’a créé modifie les widgets, et **Dupliquer comme nouvelle vue** donne à chacun une copie modifiable. | |
 | Des e-mails de rapport planifiés | Non intégré | Une routine dans Customermates Cloud, ou n8n, tous deux décrits plus bas |
 
 Pour une analyse ponctuelle, exportez la liste sous forme de classeur Excel depuis le menu **Plus d’actions** de la liste des affaires. L’export reprend les colonnes visibles, les filtres et le tri, et un [tableau croisé dynamique](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data) fait le reste. L’export traite un type d’enregistrement à la fois ; le [guide des enregistrements](/docs/app-records) liste les limites.
@@ -136,7 +150,7 @@ Pas au sens prédictif. Il calcule un pipeline pondéré : la valeur de chaque 
 </FaqItem>
 
 <FaqItem question="Mon équipe peut-elle partager un seul tableau de bord ?">
-Oui, sous forme de vue de tableau de bord nommée. Son propriétaire choisit **Partager…** pour la montrer à tout l’espace de travail ou à des rôles sélectionnés ; les collègues la voient en lecture seule et chaque chiffre est calculé avec leurs propres accès : deux personnes peuvent donc voir des chiffres différents dans le même graphique. Le tableau de bord principal ne peut pas être partagé, et chaque widget reste à son propriétaire : **Partager comme modèle** permet à un collègue de partir de sa propre copie. Une vue de tableau de bord peut aussi être publiée comme lien public en lecture seule, ce qui demande **Créer** sur la ligne **Liens publics** du rôle.
+Oui. Dans une vue de tableau de bord nommée dont vous êtes l’auteur, choisissez **Partager…**, puis tout l’espace de travail ou des rôles sélectionnés. Vos collègues voient les mêmes widgets et la même disposition, en lecture seule, et chaque chiffre est calculé avec leurs propres accès : deux personnes peuvent donc voir des chiffres différents dans le même graphique. Vous seul modifiez les widgets ; **Dupliquer comme nouvelle vue** donne à un collègue une copie modifiable. Le tableau de bord principal ne peut pas être partagé : placez les graphiques dans une vue nommée. Un graphique isolé peut aussi être transmis avec **Partager comme modèle**. Pour les personnes extérieures à l’espace de travail, une vue de tableau de bord peut être publiée par lien public, en lecture seule et sans connexion, si votre rôle le permet et que l’espace de travail autorise les liens publics.
 </FaqItem>
 
 <FaqItem question="Puis-je exporter les rapports CRM vers Excel ?">
@@ -144,7 +158,7 @@ Vous exportez des enregistrements, pas des graphiques. Toute liste s’exporte v
 </FaqItem>
 
 <FaqItem question="Quels rapports sont inclus dans la formule Starter ?">
-Tous les widgets de graphique, le pipeline pondéré, les listes regroupées, la chronologie d’activité des modifications d’enregistrements et l’export XLSX sont dans Starter. Pro ajoute les messages et les évènements de calendrier à la chronologie. L’analyse de Mate exige Customermates Cloud et des crédits IA hébergés, que toutes les formules Cloud incluent.
+Tous les widgets de graphique, le pipeline pondéré, les listes regroupées, la chronologie d’activité des modifications d’enregistrements et l’export XLSX sont dans Starter. Pro ajoute les messages et les évènements de calendrier à la chronologie. L’analyse de Mate exige Customermates Cloud et des crédits IA hébergés, que toutes les formules Cloud payantes incluent.
 </FaqItem>
 
 <FaqItem question="Puis-je construire des rapports avec ChatGPT ou Claude à la place ?">

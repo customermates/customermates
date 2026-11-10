@@ -1,29 +1,7 @@
 import type { Hero } from "@/core/fumadocs/schemas/automation";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHero } from "@/components/marketing/landing-hero";
 
-type Props = Hero;
-
-export function AutomationHero({
-  buttonLeftHref,
-  buttonLeftText,
-  buttonRightHref,
-  buttonRightText,
-  startFree,
-  subtitle,
-  title,
-  titleAccent,
-}: Props) {
-  return (
-    <PageHero
-      buttonLeftHref={buttonLeftHref}
-      buttonLeftText={buttonLeftText}
-      buttonRightHref={buttonRightHref}
-      buttonRightText={buttonRightText}
-      description={subtitle}
-      hint={startFree}
-      title={title}
-      titleAccent={titleAccent}
-    />
-  );
+export function AutomationHero({ startFree, subtitle, ...hero }: Hero) {
+  return <LandingHero hero={{ ...hero, description: subtitle, hint: startFree }} />;
 }

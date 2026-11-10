@@ -1,5 +1,7 @@
 import type { PublicLinkSettingsRepo } from "@/features/public-link/public-link-settings.repo";
 import type { WorkspaceSetup } from "@/features/user/register/register-user-company.repo";
+import type { PlanInviteRepo } from "@/ee/subscription/plan-invite.repo";
+import type { RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
@@ -31,6 +33,7 @@ import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { workspaceDeletionMarkerCutoff } from "@/features/workspace/workspace-deletion-marker";
 import { claimWorkspaceSlug } from "@/features/workspace/workspace-slug";
 import { env } from "@/env";
+import { effectivePlanId } from "@/ee/subscription/entitlements";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -70,7 +73,8 @@ export class PrismaCompanyRepo
     UpsertRoutineSubscriptionRepo,
     RegisterUserCompanyRepo,
     WorkspaceDeletionRepo,
-    WorkspaceSlugRepo
+    WorkspaceSlugRepo,
+    PlanInviteRepo
 {
   constructor(private readonly billingUsage: BillingUsageRepo) {
     super();
@@ -295,11 +299,14 @@ export class PrismaCompanyRepo
   async findFileStoragePlan() {
     const subscription = await this.prisma.subscription.findUnique({
       where: { companyId: this.companyId },
-      select: { plan: true, enterpriseFileStorageBytesPerUser: true },
+      select: { plan: true, status: true, trialEndDate: true, enterpriseFileStorageBytesPerUser: true },
     });
     if (!subscription) return null;
     const bytes = subscription.enterpriseFileStorageBytesPerUser;
-    return { plan: subscription.plan, enterpriseFileStorageBytesPerUser: bytes === null ? null : Number(bytes) };
+    return {
+      plan: env.APP_MODE === "cloud" ? effectivePlanId(subscription) : subscription.plan,
+      enterpriseFileStorageBytesPerUser: bytes === null ? null : Number(bytes),
+    };
   }
 
   @BypassTenantGuard
@@ -375,6 +382,12 @@ export class PrismaCompanyRepo
       where: { id: companyId },
       data: { tags },
     });
+  }
+
+  @BypassTenantGuard
+  async deleteInviteTokensUnscoped(companyId: string): Promise<number> {
+    const { count } = await this.prisma.inviteToken.deleteMany({ where: { companyId } });
+    return count;
   }
 
   @BypassTenantGuard
@@ -519,6 +532,10 @@ export class PrismaCompanyRepo
     await this.prisma.conversionEvent.create({
       data: { companyId, type: ConversionEventType.signup, occurredAt },
     });
+  }
+
+  async recordSignupSource(companyId: string, source: RegistrationSignupSource) {
+    await this.prisma.companySignupSource.createMany({ data: [{ companyId, ...source }], skipDuplicates: true });
   }
 
   @BypassTenantGuard

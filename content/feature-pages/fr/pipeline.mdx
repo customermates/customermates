@@ -9,20 +9,49 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/sales-pipeline
 
+sections:
+  visual:
+    kind: stage
+    solution: agencies
+    prompt: "Nous sommes une agence de design. Suis les pitchs, les contrats récurrents et les projets, et transmets chaque nouveau client de la vente à la production."
+  steps:
+    title: "Du board à la prochaine étape"
+    items:
+      - title: "Voir les opportunités par étape"
+        description: "Ouvrez la vue board de vos opportunités et parcourez les totaux des colonnes."
+      - title: "Examiner une affaire"
+        description: "Ouvrez une carte pour voir le compte, les contacts, les tâches et les notes qui lui sont liés."
+      - title: "Noter la prochaine action"
+        description: "Renseignez un champ date comme Prochaine étape et ajoutez une tâche. Customermates n’a pas de rappels intégrés : une vue enregistrée filtrée sur les dates dépassées remplit ce rôle."
+      - title: "Adapter les champs et les étapes"
+        description: "Ajoutez les champs sur lesquels vous triez, comme Clôture prévue (date) ou Motif de perte (choix unique), et ajustez les probabilités quand votre expérience change."
+      - title: "Laisser l’IA aider là où c’est permis"
+        description: "Demandez à Mate sur le cloud, ou à votre propre client IA via MCP, de mettre à jour une étape ou de lister les affaires sans prochaine étape."
+  highlights:
+    title: "En bref"
+    capture: homepage-pipeline-board
+    items:
+      - title: "Toutes les offres"
+        description: "Board d’opportunités groupé par étape, probabilités d’étape, valeur et valeur pondérée par colonne, vues enregistrées partageables, widgets de tableau de bord, import et export Excel, REST et MCP, plus les webhooks avec les formules payantes. Auto-hébergement compris."
+      - title: "Cloud uniquement"
+        description: "Mate, l’assistant hébergé, et les routines dans la limite des crédits IA de votre offre. La boîte de réception unifiée à partir de Pro."
+      - title: "Non inclus"
+        description: "Pas de prévision prédictive, pas d’analyse de vitesse du pipeline ni de conversion par étape, pas de mise en évidence des affaires en sommeil, pas de droits au niveau du champ."
+
 hero:
-  title: "Un logiciel de pipeline commercial pour les petites équipes fondées sur la relation"
-  description: "Voyez chaque opportunité par étape, avec la probabilité de l’étape, la valeur et la valeur pondérée, et ouvrez le client concerné en un clic. Vous configurez les étapes vous-même. La valeur pondérée est votre valeur multipliée par votre probabilité, pas une prévision, et une vue enregistrée peut être partagée avec l’équipe."
-  buttonLeftText: "Commencer l’essai gratuit"
-  buttonLeftHref: /auth/signup
+  title: "Pipeline commercial où chaque opportunité ouverte a sa prochaine étape"
+  description: "Voyez chaque opportunité par étape, avec valeur et valeur pondérée, ouvrez la conversation client qui s’y rattache et notez une prochaine étape datée. Vous configurez les étapes. La valeur pondérée, c’est valeur fois probabilité, pas une prévision."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/sales-pipeline/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: "Mettez vos opportunités ouvertes sur un board"
-  description: "Configurez vos étapes et leurs probabilités, importez vos opportunités depuis un classeur Excel et vérifiez en [[commercial.trial.days]] jours si votre équipe tient le board à jour. Les offres démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
-  buttonLeftText: "Commencer l’essai gratuit"
-  buttonLeftHref: /auth/signup
+  action: "Mettez vos opportunités ouvertes sur un board, chacune avec sa prochaine étape"
+  description: "Configurez vos étapes, importez vos opportunités depuis un classeur Excel et ajoutez un champ date Prochaine étape. Vérifiez en [[commercial.trial.days]] jours si moins d’affaires s’éteignent. Les offres démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/sales-pipeline/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
@@ -30,11 +59,7 @@ cta:
 
 Un logiciel de pipeline commercial met vos opportunités ouvertes sur un board, une colonne par étape : vous voyez ce qui est en jeu, ce que cela vaut et quelle affaire a besoin de la prochaine étape. Customermates est un logiciel de CRM pour les petites équipes commerciales dont les affaires dépendent des conversations : cabinets de conseil, agences, entreprises de services et fondateurs qui vendent eux-mêmes. Il est open source, IA native et conçu en Allemagne.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Toutes les offres">Board d’opportunités groupé par étape, probabilités d’étape, valeur et valeur pondérée par colonne, vues enregistrées partageables, widgets de tableau de bord, import et export Excel, REST, webhooks et MCP. Auto-hébergement compris.</SummaryItem>
-  <SummaryItem label="Cloud uniquement">Mate, l’assistant hébergé, et les routines dans la limite des crédits IA de votre offre. La boîte de réception unifiée à partir de Pro.</SummaryItem>
-  <SummaryItem label="Non inclus">Pas de prévision prédictive, pas d’analyse de vitesse du pipeline ni de conversion par étape, pas de mise en évidence des affaires en sommeil, pas de droits au niveau du champ.</SummaryItem>
-</ArticleSummary>
+**Où les affaires s’enlisent.** Une affaire s’enlise quand personne n’a noté la suite. Sur la carte, vous voyez le compte, les contacts et, dès Pro, les conversations avec eux ; un champ date comme Prochaine étape inscrit la relance sur la fiche. Une vue enregistrée ou un widget À venir sur le tableau de bord liste ensuite les affaires à échéance ou en retard.
 
 ## Découvrir un exemple d’espace de travail
 
@@ -67,16 +92,6 @@ Ce total pondère vos propres chiffres. Il ne prédit ni le chiffre d’affaires
 
 **La vue tableau.** Passez à **Tableau** et gardez le regroupement : les étapes deviennent des groupes de lignes avec leurs propres nombres et sommes, et vous pouvez trier par valeur ou par valeur pondérée.
 
-## Du board à la prochaine étape
-
-<Steps>
-  <Step title="Voir les opportunités par étape">Ouvrez la vue board de vos opportunités et parcourez les totaux des colonnes.</Step>
-  <Step title="Examiner une affaire">Ouvrez une carte pour voir le compte, les contacts, les tâches et les notes qui lui sont liés.</Step>
-  <Step title="Noter la prochaine action">Renseignez un champ date comme **Prochaine étape** et ajoutez une tâche. Customermates n’a pas de rappels intégrés : une vue enregistrée filtrée sur les dates dépassées remplit ce rôle.</Step>
-  <Step title="Adapter les champs et les étapes">Ajoutez les champs sur lesquels vous triez, comme **Clôture prévue** (date) ou **Motif de perte** (choix unique), et ajustez les probabilités quand votre expérience change.</Step>
-  <Step title="Laisser l’IA aider là où c’est permis">Demandez à Mate sur le cloud, ou à votre propre client IA via MCP, de mettre à jour une étape ou de lister les affaires sans prochaine étape.</Step>
-</Steps>
-
 ## Le contexte client à côté de l’affaire
 
 Une opportunité est reliée à son compte et à ses contacts : les personnes et l’historique sont à un clic. Sur Customermates Cloud, Pro et au-dessus ajoutent la [boîte de réception unifiée](/features/unified-inbox) pour Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram et Telegram. Un participant est associé à un contact par l’identité figurant dans son champ Coordonnées. Une conversation n’est rattachée à une opportunité ou à un compte que lorsque vous ou un agent le faites explicitement ; rien n’est classé automatiquement sur une affaire.
@@ -90,7 +105,7 @@ Limites de la boîte de réception selon l’offre : Starter et l’auto-héber
 **Une routine hebdomadaire (cloud uniquement).** Une [routine](/docs/app-routines) exécute Mate selon un planning ou quand un enregistrement change ; elle appartient à un utilisateur, voit ce que cet utilisateur voit, et consomme les crédits IA de son propriétaire :
 
 ```text
-Find opportunities in Proposal sent or Negotiation that were not updated in the last 14 days. For each one, create a task "Check in: [name]", link it to the opportunity and assign it to its owner. Do not send any messages.
+Trouvez les opportunités à l’étape Proposal sent ou Negotiation qui n’ont pas été mises à jour depuis 14 jours. Pour chacune, créez une tâche « Relance : [nom] », liez-la à l’opportunité et assignez-la à son responsable. N’envoyez aucun message.
 ```
 
 Mate crée et modifie des enregistrements et envoie des messages dès qu’on le lui demande : précisez donc dans la consigne ce qu’il ne doit pas faire. Les suppressions, les imports et les changements d’accès attendent une approbation, et une routine sans surveillance les refuse. Mate n’est pas disponible en auto-hébergement.
@@ -101,6 +116,7 @@ Mate crée et modifie des enregistrements et envoie des messages dès qu’on le
 
 Toute personne dont le rôle lit toutes les opportunités voit les mêmes affaires ; avec l’accès en lecture **Assignés**, une personne ne voit que les siennes. Une vue board que vous enregistrez reste privée tant que vous ne la partagez pas avec l’espace de travail ou des rôles sélectionnés ; les collègues la voient en lecture seule. Deux limites comptent pour les équipes :
 
+- Une vue partagée est en lecture seule pour vos collègues. Partagez un board avec toute l’équipe ou avec des rôles choisis et chacun travaille avec le même, mais vous seul le modifiez, et chaque personne ne voit que les enregistrements que son rôle autorise.
 - Les autorisations s’appliquent à des listes entières. Il n’y a pas de droits au niveau du champ : une personne qui peut lire les opportunités voit donc tous leurs champs.
 - Le partage d’une boîte de réception entière commence avec Business. Avec Pro, les collègues partagent des fils isolés.
 
@@ -140,7 +156,7 @@ Non. La valeur pondérée multiplie la valeur de chaque opportunité par la prob
 </FaqItem>
 
 <FaqItem question="Toute mon équipe peut-elle travailler à partir du même board ?">
-Toute personne ayant l’accès en lecture à toutes les opportunités voit les mêmes affaires. Une vue board enregistrée reste privée tant que vous ne la partagez pas avec l’équipe. Il n’y a pas de droits au niveau du champ.
+Toute personne ayant l’accès en lecture à toutes les opportunités voit les mêmes affaires. Partagez une vue de board enregistrée avec toute l’équipe ou avec des rôles choisis et chacun travaille avec le même board ; chaque personne ne voit toujours que les enregistrements que son rôle autorise. Il n’y a pas de droits au niveau du champ.
 </FaqItem>
 
 <FaqItem question="Puis-je avoir plusieurs pipelines ?">

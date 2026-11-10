@@ -75,6 +75,21 @@ describe("starting and completing file uploads from the browser", () => {
     expect(notice.notifyWorkspaceChanged).not.toHaveBeenCalled();
   });
 
+  it("passes the code of a refusal on so a full storage can offer the next plan", async () => {
+    respond(409, {
+      error: {
+        kind: "conflict",
+        issues: [{ message: "The workspace storage is full.", customCode: CustomErrorCode.storageQuotaExceeded }],
+      },
+    });
+
+    expect(await startChatFileUpload(new File(["x"], "x.txt"))).toEqual({
+      ok: false,
+      message: "The workspace storage is full.",
+      code: "storageQuotaExceeded",
+    });
+  });
+
   it("reports a switched workspace instead of an upload failure", async () => {
     respond(409, {
       error: { kind: "conflict", issues: [{ customCode: CustomErrorCode.workspaceChanged, message: "x" }] },

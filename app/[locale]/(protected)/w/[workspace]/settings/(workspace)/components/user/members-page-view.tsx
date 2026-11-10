@@ -6,9 +6,9 @@ import type { RoleDto } from "@/features/role/get-roles.interactor";
 import type { MemberDto } from "@/features/user/user.schema";
 
 import { observer } from "mobx-react-lite";
-import { useCallback, useLayoutEffect, useMemo } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { UserMinus } from "lucide-react";
+import { ArrowLeftRight, UserMinus } from "lucide-react";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
@@ -25,6 +25,7 @@ import { Status } from "@/generated/prisma";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { MembersPageSkeleton } from "./members-page-skeleton";
+import { SeatSwapDialog } from "./seat-swap-dialog";
 import { memberName, useMemberRemovalConfirmation } from "./user-modal";
 import { useMemberColumns } from "./use-member-columns";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -35,8 +36,11 @@ type Props = {
 };
 
 const MembersPageViewContent = observer(function MembersPageView({ initialRoles, initialUsers }: Props) {
-  const { companyInviteModalStore, rolesStore, userModalStore, usersStore } = useRootStore();
+  const { companyInviteModalStore, rolesStore, subscriptionStore, userModalStore, usersStore, userStore } =
+    useRootStore();
   const confirmRemoval = useMemberRemovalConfirmation();
+  const [swapTarget, setSwapTarget] = useState<MemberDto | null>(null);
+  const canSwapSeat = Boolean(subscriptionStore.subscription?.onFreePlan && userStore.user?.role?.isSystemRole);
 
   useDataViewSync(usersStore, initialUsers);
   const columns = useMemberColumns();
@@ -113,6 +117,11 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
           columns={columns}
           rowActions={(user) => (
             <RowActions
+              contextAction={
+                canSwapSeat && user.pausedByPlanAt && !user.leftAt
+                  ? { label: t("PlanPause.swapAction"), icon: ArrowLeftRight, onSelect: () => setSwapTarget(user) }
+                  : undefined
+              }
               deleteIcon={UserMinus}
               deleteLabel={t("MemberRemoval.action")}
               name={memberName(user)}
@@ -153,6 +162,12 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
       store={usersStore}
     >
       {body}
+
+      <SeatSwapDialog
+        isAdmin={Boolean(swapTarget && rolesStore.items.find((role) => role.id === swapTarget.roleId)?.isSystemRole)}
+        target={swapTarget}
+        onClose={() => setSwapTarget(null)}
+      />
     </DataViewLayout>
   );
 });

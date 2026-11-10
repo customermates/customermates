@@ -1,6 +1,6 @@
 ---
-title: "Logiciel de relance client dans un CRM open source"
-description: "Suivez qui relancer avec une date de prochain contact, une vue des fils sans réponse et, dans Customermates Cloud, des brouillons IA. Sans rappels."
+title: "Logiciel de relance client : relancez chaque proposition"
+description: "Donnez suite à chaque proposition : fils LinkedIn et e-mail sur la fiche client, une étape datée à chaque fois, et Mate rédige la relance à relire et envoyer."
 featureName: CRM de relance
 
 relatedHrefs:
@@ -10,30 +10,131 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: Un logiciel de relance client qui montre qui vous attend
-  description: Gardez une date de prochain contact sur chaque client, voyez les fils d’e-mail, de LinkedIn et de WhatsApp où vous avez écrit en dernier sans réponse, et laissez Mate préparer les brouillons de relance dans Customermates Cloud. Vous décidez du moment où ils partent.
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "Relance client : voyez qui vous attend"
+  description: "Fixez une date de prochain contact pour chaque client et voyez où votre dernier message est resté sans réponse. Dans Customermates Cloud, Mate prépare les relances, vous décidez de l’envoi."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Lire le guide de l’automatisation
   buttonRightHref: /features/workflow-automation
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 
+landing:
+  solution: consultants
+  hero:
+    eyebrow: Logiciel de relance pour les équipes proches du client
+    title: Le logiciel de relance client. Relancez chaque proposition et chaque réponse.
+    description: "Les fils LinkedIn et e-mail sont rattachés au client, chaque conversation ouverte reçoit une prochaine étape datée, et Mate rédige la relance que vous relisez et envoyez dans la conversation."
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Parler à Ben, 15 minutes
+      href: /contact
+  facts: Sans carte bancaire · Gardez vos outils actuels · Pro dès [[commercial.price.pro.monthly]] par personne/mois
+  generator:
+    eyebrow: À partir d’une seule description
+    title: Décrivez comment vous gagnez vos clients. Votre poste de relance est prêt.
+    description: "La configuration IA pose quelques questions et construit vos clients, votre pipeline et votre guide de relance. Voici l’exemple de cabinet de conseil ; explorez-le."
+    promptLabel: Votre description pour Mate
+    arrowLabel: est devenue cet espace
+    prompt: Nous sommes un cabinet de conseil en stratégie de quatre personnes. Suis nos clients, missions et propositions, et aide-nous à relancer nos prospects sur LinkedIn.
+  followUp:
+    eyebrow: Une réponse du vendredi, traitée
+    title: Le prospect demande une proposition révisée. Elle est sur la liste de mardi.
+    description: La conversation LinkedIn est rattachée au client. Mate rédige la réponse à partir de votre guide, date la prochaine étape et laisse le brouillon à relire.
+    desk:
+      label: Scène de relance dans un cabinet de conseil
+      workspace: Lindqvist Conseil
+      conversation:
+        label: LinkedIn
+        name: Jonas Weber
+        company: Halden & Co.
+        time: ven. 16:42
+        message: Ça me va. Pouvez-vous m’envoyer la proposition révisée la semaine prochaine ? Je la présenterai à notre direction.
+      agent:
+        name: Mate
+        intent: Rédige une réponse à partir de votre guide de propositions
+        done: Brouillon enregistré. Prochaine étape ajoutée à votre tableau de bord.
+      draft:
+        badge: Brouillon, en attente de votre relecture
+        text: Bonjour Jonas, merci. Je vous envoie la proposition révisée mardi, avec les deux options d’atelier dont nous avons parlé. Bien à vous, Anna
+        edit: Modifier
+        send: Envoyer le brouillon
+      today:
+        title: Tableau de bord
+        date: mardi
+        addedBy: Ajouté par Mate
+        assign: Attribuer
+        sections:
+          - title: Prochaines étapes à traiter
+            items:
+              - title: Envoyer la proposition révisée
+                meta: Halden & Co. · à faire aujourd’hui
+                owner: AL
+                state: added
+              - title: Relancer pour la signature
+                meta: Norrland Studio · en retard de 2 jours
+                owner: AL
+                state: overdue
+          - title: Propositions sans réponse
+            items:
+              - title: Proposition Norrland Studio
+                meta: envoyée il y a 5 jours
+                owner: AL
+                state: due
+  beforeAfter:
+    eyebrow: Ce qui change
+    title: Avant et après. Les mêmes clients, plus de fils muets.
+    before:
+      label: Avant
+      points:
+        - Des relances suivies dans un tableur ou dans votre tête
+        - Des réponses dispersées entre LinkedIn et l’e-mail
+        - Des propositions oubliées quand la semaine est chargée
+    after:
+      label: Avec Customermates
+      points:
+        - Chaque conversation ouverte a une prochaine étape avec une date et un responsable
+        - Le fil est rattaché au client, avec un brouillon prêt
+        - Votre tableau de bord montre ce qui est à faire, rien de plus
+  steps:
+    eyebrow: Pour commencer
+    title: Trois étapes. Jusqu’à votre première relance.
+    items:
+      - title: Décrivez votre façon de travailler
+        description: La configuration IA construit vos listes, votre pipeline et votre guide de relance à partir d’une description et de quelques réponses.
+      - title: Connectez LinkedIn ou l’e-mail
+        description: Les conversations arrivent sur le client dont l’adresse e-mail ou le profil LinkedIn correspond. Sur Pro, un compte connecté par personne.
+      - title: Relisez les relances depuis votre tableau de bord
+        description: Mate rédige la réponse et date la prochaine étape, quand vous le demandez ou via une routine. Vous modifiez, envoyez ou ignorez.
+  plan:
+    eyebrow: Tarifs
+    title: Pro suffit. [[commercial.price.pro.monthly]] par personne et par mois.
+    description: La boîte de réception et les comptes LinkedIn et e-mail connectés nécessitent Customermates Cloud dès Pro. Si des collègues répondent depuis un compte partagé, il vous faut Business à [[commercial.price.business.monthly]].
+    limits: Ne convient pas si vous avez besoin de séquences d’e-mails, d’enrichissement de contacts ou d’envois en masse. Mate n’envoie que si vous le demandez ou si une routine que vous avez configurée le fait.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Comparer toutes les offres
+      href: /pricing
+
 cta:
-  action: Construisez votre liste de relances en dix minutes
-  description: Ajoutez une colonne de date Prochain contact, enregistrez deux vues et, avec Pro, une vue de la boîte de réception des fils sans réponse. Laissez ensuite une routine du lundi rédiger les messages.
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  action: "Construisez votre liste de relances pendant l’essai"
+  description: "Ajoutez un champ date Prochain contact, un widget À venir et deux vues enregistrées, et avec Pro une vue de la boîte de réception pour les fils sans réponse. Laissez ensuite une routine du lundi rédiger les messages."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Découvrir les tâches
   buttonRightHref: /features/task-management
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 ---
 
-Un logiciel de relance client a un seul travail : s’assurer que le prochain contact avec un client a lieu, et que la personne qui le fait sait ce qui a été dit en dernier. Dans Customermates, cela passe par des listes que vous ouvrez, pas par des notifications que vous recevez. Vous gardez une date de prochain contact sur le contact ou l’affaire, une vue enregistrée trie tout le monde selon cette date, et à partir de Pro, une vue de la boîte de réception montre chaque conversation où vous avez envoyé le dernier message sans obtenir de réponse.
+Un logiciel de relance client a un seul travail : s’assurer que le prochain contact avec un client a lieu, et que la personne qui le fait sait ce qui a été dit en dernier. Dans Customermates, cela passe par des listes et un tableau de bord que vous ouvrez, pas par des notifications que vous recevez. Vous gardez une date de prochain contact sur le contact ou l’affaire, une vue enregistrée trie tout le monde selon cette date, et à partir de Pro, une vue de la boîte de réception montre chaque conversation où vous avez envoyé le dernier message sans obtenir de réponse.
 
 Dans Customermates Cloud, Mate peut aussi écrire la relance pour vous et une routine peut lancer ce contrôle chaque lundi, avec des crédits IA hébergés. Ce que Customermates n’a pas : notifications de rappel, échéances de tâches, alertes de retard ou séquences d’e-mails automatisées. Si votre équipe en dépend, un CRM avec activités et séquences intégrées convient mieux, et le tableau plus bas en nomme deux.
 
 <ArticleSummary title="En bref">
-  <SummaryItem label="Comment ça marche">Un champ Date personnalisé comme « Prochain contact », des vues enregistrées triées selon ce champ et un filtre de boîte de réception pour les fils dont vous attendez la réponse.</SummaryItem>
+  <SummaryItem label="Comment ça marche">Un champ Date personnalisé comme « Prochain contact », des vues enregistrées triées selon ce champ, un widget À venir sur le tableau de bord et un filtre de boîte de réception pour les fils dont vous attendez la réponse.</SummaryItem>
   <SummaryItem label="Formules">Colonnes de date et vues enregistrées sur toutes les formules, auto-hébergement compris. La boîte de réception demande Pro ou supérieur. Mate et les routines ne fonctionnent que dans Customermates Cloud.</SummaryItem>
   <SummaryItem label="Aide de l’IA">Mate rédige des relances à partir de l’enregistrement et de l’historique de conversation. Une routine peut le faire selon un planning ou quand une affaire change.</SummaryItem>
   <SummaryItem label="Non inclus">Ni notifications, ni échéances sur les tâches, ni séquences, ni envoi en masse. Vous ouvrez la liste ; rien ne sonne.</SummaryItem>
@@ -56,12 +157,13 @@ La ligne de la boîte de réception couvre la relance que vous devez après avoi
 <Steps>
   <Step title="Ajoutez une date Prochain contact">Dans **Modèle de données**, ajoutez un champ de type **Date** à **Contacts** ou à **Affaires** et appelez-le « Prochain contact ». Si vous voulez savoir pourquoi vous relancez, ajoutez un champ **Choix unique** « Motif de relance » avec des options comme Proposition envoyée, Point de contact, Renouvellement. Les tâches n’ont pas d’échéance intégrée : le même champ Date y fonctionne donc aussi.</Step>
   <Step title="Enregistrez la liste de la semaine">Ouvrez **Apparence**, réglez **Trier par** sur Prochain contact, **Croissant**, puis cliquez sur **Nouvelle vue** et nommez-la « Relances ». Les dates les plus anciennes sont en haut. Les filtres de date personnalisés prennent des dates fixes (**Avant…**, **Jusqu’au…**) : c’est donc le tri qui garde cette liste à jour sans modifier le filtre chaque semaine.</Step>
+  <Step title="Affichez-la sur votre tableau de bord">Sur le **Tableau de bord**, cliquez sur **Ajouter un widget** et choisissez **À venir**. Choisissez la liste et le champ **Prochain contact** et excluez les enregistrements terminés, par exemple les affaires gagnées et perdues. Le widget liste ce qui échoit dans les 14 prochains jours et place les dates passées dans une section **En retard**, pour que les prochaines étapes soient sous vos yeux dès la connexion.</Step>
   <Step title="Enregistrez une vue des affaires en sommeil">Sur **Affaires**, filtrez **Mis à jour le** avec **Plus ancien que…** 14 jours et excluez Gagnée et Perdue dans le champ **Étape**. Cela repère les affaires que personne n’a touchées, qu’une date ait été définie ou non.</Step>
   <Step title="Enregistrez une vue « en attente de réponse » (Pro et supérieur)">Dans la [boîte de réception unifiée](/features/unified-inbox), filtrez **Dernier message** = **Envoyé** et **Date du dernier message** **Plus ancien que…** 3 jours. Enregistrez-la sous « En attente de réponse ». La fenêtre en jours se déplace avec le calendrier : la vue reste donc exacte.</Step>
   <Step title="Consignez le résultat">Après chaque contact, écrivez ce qui s’est passé dans les notes de l’enregistrement et déplacez la date Prochain contact. L’historique de l’enregistrement conserve les messages liés et les modifications.</Step>
 </Steps>
 
-Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+Choisissez **Partager…** dans le menu de la vue « Relances » pour la montrer à tout l’espace de travail ou à des rôles choisis. Toute l’équipe travaille alors avec une même liste à jour des relances à faire, et chaque personne ne voit toujours que les enregistrements que son rôle autorise.
 
 ## Laissez Mate rédiger les relances (Customermates Cloud)
 
@@ -76,7 +178,7 @@ La consigne « N’envoie rien » compte. Mate envoie des messages sans redema
 Un exemple d’évènement : une routine réglée sur **Quand quelque chose change** pour les mises à jour d’affaires, avec l’instruction « Si l’étape est passée à Proposition, règle Prochain contact à cinq jours ouvrés à partir d’aujourd’hui et crée une tâche « Relancer la proposition » attribuée aux utilisateurs attribués de l’affaire. » Les modifications faites par une routine ne lancent jamais d’autres routines : cela ne peut donc pas boucler.
 
 <AcquisitionCallout title="Ce que la relance dans Customermates n’inclut pas" variant="boundary">
-  Ni notifications ni e-mails de rappel, ni échéance intégrée ni état de retard sur les tâches, ni tâches récurrentes. Ni séquences d’e-mails, ni campagnes goutte-à-goutte, ni envoi en masse ; chaque message est écrit et envoyé un à la fois. Les installations auto-hébergées n’ont ni boîte de réception, ni Mate, ni routines.
+  Ni notifications ni e-mails de rappel, ni échéance intégrée ni état de retard sur les tâches, ni tâches récurrentes. Ni séquences d’e-mails, ni campagnes goutte-à-goutte, ni envoi en masse ; chaque message est écrit et envoyé un à la fois. Une vue que vous partagez est en lecture seule pour vos collègues. Les installations auto-hébergées n’ont ni boîte de réception, ni Mate, ni routines.
 </AcquisitionCallout>
 
 ## Comment cela s’articule avec le reste
@@ -93,13 +195,13 @@ Customermates publie cette page : lisez donc la comparaison en gardant cela en 
 |---|---|---|
 | Relances par e-mail automatisées en plusieurs étapes qui peuvent s’arrêter quand le contact répond | Les séquences de HubSpot Sales Hub | HubSpot documente les séquences comme une série de modèles d’e-mails programmés avec des tâches de rappel facultatives, et les contacts peuvent être désinscrits automatiquement quand ils répondent ou réservent une réunion |
 | Des activités avec échéances et un compteur de retards | Pipedrive | Les activités de Pipedrive portent une échéance, et l’icône des activités compte les activités en retard et celles dues aujourd’hui |
-| Des listes de relances, des vues de fils sans réponse et des brouillons IA que vous approuvez | Customermates | Vues et filtres de la boîte de réception comme décrit ci-dessus ; Mate et les routines dans Customermates Cloud |
+| Des listes de relances, des vues de fils sans réponse et des brouillons IA que vous relisez et envoyez | Customermates | Vues et filtres de la boîte de réception comme décrit ci-dessus ; Mate et les routines dans Customermates Cloud |
 
 Informations sur les concurrents vérifiées le 8 octobre 2026 sur la [documentation des séquences de HubSpot](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), l’[article de Pipedrive sur les activités](https://support.pipedrive.com/en/article/activities) et l’[article de Pipedrive sur le compteur de retards](https://support.pipedrive.com/en/article/what-is-the-red-number-on-the-activities-icon).
 
 ## Ce que cela coûte
 
-Les vues enregistrées et les colonnes de date sont incluses dans Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La vue « en attente de réponse » demande la boîte de réception, qui commence avec Pro à [[commercial.price.pro.monthly]] par utilisateur et par mois ; une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]] par mois. Chaque formule Cloud inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate et les routines, voir les [tarifs](/pricing). Pro inclut [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. La facturation est mensuelle.
+Les vues enregistrées et les colonnes de date sont incluses dans Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La vue « en attente de réponse » demande la boîte de réception, qui commence avec Pro à [[commercial.price.pro.monthly]] par utilisateur et par mois ; une équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5]] par mois. Chaque formule Cloud payante inclut des crédits IA hébergés mensuels par utilisateur actif pour Mate et les routines, voir les [tarifs](/pricing). Pro inclut [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. La facturation est mensuelle.
 
 ## FAQ
 
@@ -111,7 +213,7 @@ Cela dépend de votre façon de relancer. Si vous envoyez la même série d’e-
 Customermates n’envoie pas de rappels. Dans Customermates Cloud, une routine déclenchée par un e-mail entrant peut demander à Mate de vérifier si la conversation appartient à une affaire existante, de mettre à jour cette affaire et de définir sa date Prochain contact, dans les limites des routines décrites dans le [guide des routines](/docs/app-routines#what-are-the-limits). L’affaire apparaît alors dans votre vue de relances. Le filtre de la boîte de réception pour les fils où vous avez écrit en dernier couvre le reste.
 </FaqItem>
 <FaqItem question="Customermates a-t-il des rappels de relance ou des échéances ?">
-Non. Il n’y a pas de notifications, et les tâches n’ont pas d’échéance intégrée. Ajoutez un champ Date personnalisé et triez une vue enregistrée selon ce champ. Si vous avez besoin d’une notification push, n8n ou un autre planificateur peut lire cette date via l’API et vous prévenir.
+Non. Il n’y a pas de notifications, et les tâches n’ont pas d’échéance intégrée. Ajoutez un champ Date personnalisé, triez une vue enregistrée selon ce champ et affichez-le dans un widget À venir sur votre tableau de bord. Si vous avez besoin d’une notification push, n8n ou un autre planificateur peut lire cette date via l’API et vous prévenir.
 </FaqItem>
 <FaqItem question="Puis-je automatiser les e-mails de relance ?">
 Pas sous forme de séquence. Une routine dans Customermates Cloud peut écrire des brouillons individuels selon un planning, et vous les envoyez après relecture. Elle peut aussi envoyer si l’instruction le dit, un message par conversation. Les cadences en masse ou en plusieurs étapes demandent un outil de séquençage dédié.

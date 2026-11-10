@@ -1,12 +1,9 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import {
-  FEATURE_PRODUCT_DEMOS,
-  INDUSTRY_PRODUCT_DEMOS,
-} from "@/components/marketing/product-demo-config";
+import { INDUSTRY_PRODUCT_DEMOS } from "@/components/marketing/product-demo-config";
 import {
   DEMO_RECORD_LIST_PATHS,
   PRODUCT_DEMO_PATHS,
@@ -142,56 +139,11 @@ describe("seeded public product demo", () => {
     );
   });
 
-  it("maps every localized feature page to one relevant reviewed demo surface", () => {
-    const englishSlugs = walkFiles(
-      join(REPO_ROOT, "content", "feature-pages", "en"),
-      (path) => path.endsWith(".mdx"),
-    )
-      .map((path) =>
-        relative(
-          join(REPO_ROOT, "content", "feature-pages", "en"),
-          path,
-        ).replace(/\.mdx$/u, ""),
-      )
-      .sort();
-    const germanSlugs = walkFiles(
-      join(REPO_ROOT, "content", "feature-pages", "de"),
-      (path) => path.endsWith(".mdx"),
-    )
-      .map((path) =>
-        relative(
-          join(REPO_ROOT, "content", "feature-pages", "de"),
-          path,
-        ).replace(/\.mdx$/u, ""),
-      )
-      .sort();
-
-    expect(germanSlugs).toStrictEqual(englishSlugs);
-    expect(Object.keys(FEATURE_PRODUCT_DEMOS).sort()).toStrictEqual(
-      englishSlugs,
-    );
-    expect(
-      Object.values(FEATURE_PRODUCT_DEMOS).every(({ path }) =>
-        PRODUCT_DEMO_PATHS.includes(path),
-      ),
-    ).toBe(true);
-    expect(FEATURE_PRODUCT_DEMOS["self-hosted"].hostedBoundary).toBe(true);
-    expect(FEATURE_PRODUCT_DEMOS["workflow-automation"]).toStrictEqual({
-      path: "/settings/webhooks",
-    });
-    for (const slug of [
-      "integrations",
-      "linkedin-integration",
-      "outlook-integration",
-      "unified-inbox",
-    ] as const) {
-      expect(FEATURE_PRODUCT_DEMOS[slug].hostedBoundary, slug).toBe(true);
-    }
+  it("maps every industry page to its reviewed demo surface and builds feature pages from signature visuals", () => {
     for (const solution of SOLUTION_CATALOG) {
       const slug = solution.landingPath.split("/").at(-1)!;
-      const demo = solution.landingPath.startsWith("/for/")
-        ? INDUSTRY_PRODUCT_DEMOS[slug]
-        : FEATURE_PRODUCT_DEMOS[slug as keyof typeof FEATURE_PRODUCT_DEMOS];
+      if (!solution.landingPath.startsWith("/for/")) continue;
+      const demo = INDUSTRY_PRODUCT_DEMOS[slug];
       expect(demo, solution.landingPath).toMatchObject({
         path: solution.previewRoute,
         solutionId: solution.id,
@@ -212,17 +164,11 @@ describe("seeded public product demo", () => {
 
     const featureRoute = read("app/[locale]/(static)/features/[slug]/page.tsx");
     const industryRoute = read("app/[locale]/(static)/for/[industry]/page.tsx");
-    const demoSection = read("components/marketing/product-demo-section.tsx");
-    expect(featureRoute).toContain("productDemoForFeature(slug)");
-    expect(featureRoute.indexOf("<ProductDemoSection")).toBeLessThan(
-      featureRoute.indexOf("<LandingArticle"),
-    );
+    expect(featureRoute.indexOf("<LandingVisual")).toBeGreaterThan(-1);
+    expect(featureRoute.indexOf("<LandingVisual")).toBeLessThan(featureRoute.indexOf("<LandingArticle"));
     expect(industryRoute).toContain("productDemoForIndustry(industry)");
-    expect(industryRoute.indexOf("<ProductDemoSection")).toBeLessThan(
-      industryRoute.indexOf("<LandingArticle"),
-    );
-    expect(demoSection).toContain('containerSize="wide"');
-    expect(demoSection).toContain('presentation="standalone"');
+    expect(industryRoute.indexOf("<SolutionStageSection")).toBeLessThan(industryRoute.indexOf("<LandingArticle"));
+    expect(existsSync(join(REPO_ROOT, "components/marketing/product-demo-section.tsx"))).toBe(false);
   });
 
   it("keeps long-form blog demos inline and disclosed", () => {

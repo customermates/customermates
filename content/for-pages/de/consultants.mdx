@@ -1,6 +1,6 @@
 ---
-title: "CRM für Berater: Kunden und Beratungsmandate"
-description: "CRM für Einzelberater und kleine Beratungen: Kunden, Mandate mit Tagen mal Tagessatz und der Kontext aus E-Mail und LinkedIn an einem Ort."
+title: "CRM für Berater: Jedes Angebot nachfassen"
+description: "CRM für Berater: Kunden, Mandate und Angebote neben den LinkedIn- und E-Mail-Gesprächen, und Mate entwirft jedes Nachfassen, das Sie prüfen und senden."
 industryName: "Berater"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/coaches
 
 hero:
-  title: "CRM für Berater: Kundenbeziehungen und Anfragen zusammenführen"
-  description: "Für Einzelberater und kleine Beratungen, deren Aufträge aus Empfehlungen und Gesprächen entstehen. Sie verfolgen Kunden, Ansprechpartner und Mandate vom Kennenlernen bis zur Entscheidung und durch die Umsetzung. E-Mail und LinkedIn im Posteingang gibt es in Customermates Cloud ab Pro; Zeiterfassung, Rechnungen und Angebotsdokumente bleiben in Ihren anderen Tools."
-  buttonLeftText: Kostenlos testen
-  buttonLeftHref: /auth/signup
+  title: "CRM für Berater: nachfassen, bevor ein Angebot verstummt"
+  description: "Angebote verstummen, während Sie liefern. LinkedIn- und E-Mail-Verläufe liegen beim Kunden, Mate entwirft die Antwort und den nächsten Schritt, und Sie prüfen und senden sie. Zeiterfassung und Rechnungen bleiben in Ihren Tools."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/beratung/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+landing:
+  hero:
+    eyebrow: Für Beratungen und selbstständige Berater
+    title: Das CRM für Berater, das jedes Angebot in Bewegung hält.
+    description: Kunden, Mandate und Angebote mit den LinkedIn- und E-Mail-Gesprächen dahinter. Mate entwirft das Nachfassen aus Ihrem Angebotsleitfaden, und Sie prüfen und senden es.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihre bisherigen Tools bleiben · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihre Beratung, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Mandate, Angebote, Ihre Pipeline und Ihren Leitfaden. Das ist das Beratungsbeispiel; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir sind eine Strategieberatung mit vier Personen. Verwalte Kunden, Mandate und Angebote und hilf uns, Interessenten auf LinkedIn nachzufassen.
+  followUp:
+    eyebrow: Eine Freitagsantwort, erledigt
+    title: Der Interessent will das überarbeitete Angebot. Das Nachfassen hat ein Datum.
+    description: Der LinkedIn-Verlauf liegt beim Kunden. Mate entwirft die Antwort aus Ihrem Angebotsleitfaden und setzt „Angebot senden“ auf die Liste für Dienstag.
+    desk:
+      label: Beispielszene zum Nachfassen mit Demodaten
+      workspace: Lindqvist Beratung
+      conversation:
+        label: LinkedIn
+        name: Jonas Weber
+        company: Halden & Co.
+        time: Fr 16:42
+        message: Klingt gut. Können Sie mir nächste Woche das überarbeitete Angebot schicken? Dann nehme ich es mit in die Geschäftsführung.
+      agent:
+        name: Mate
+        intent: Entwirft eine Antwort aus Ihrem Angebotsleitfaden
+        done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Herr Weber, vielen Dank. Ich schicke Ihnen das überarbeitete Angebot am Dienstag, mit den zwei Workshop-Varianten, über die wir gesprochen haben. Viele Grüße, Anna Lindqvist
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Dienstag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Überarbeitetes Angebot senden
+                meta: Halden & Co. · heute fällig
+                owner: AL
+                state: added
+              - title: Unterschriebenes Angebot nachfassen
+                meta: Norrland Studio · 2 Tage überfällig
+                owner: AL
+                state: overdue
+          - title: Angebote ohne Antwort
+            items:
+              - title: Angebot Norrland Studio
+                meta: vor 5 Tagen gesendet
+                owner: AL
+                state: due
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, weniger lose Enden.
+    before:
+      label: Vorher
+      points:
+        - Angebote in einer Tabelle
+        - Antworten verteilt auf LinkedIn und E-Mail
+        - Nachfassen nur im Kopf
+    after:
+      label: Mit Customermates
+      points:
+        - Jedes Mandat hat einen nächsten Schritt mit Datum und Zuständigkeit
+        - Das Gespräch liegt beim Kunden, mit fertigem Entwurf
+        - Ihr Dashboard zeigt, was fällig ist, und sonst nichts
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zum ersten Nachfassen.
+    items:
+      - title: Beratung beschreiben
+        description: Die KI-Einrichtung baut Kunden, Mandate, Angebote und Ihren Leitfaden aus einer Beschreibung und ein paar Antworten.
+      - title: LinkedIn oder E-Mail verbinden
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Nachfassen im Dashboard prüfen
+        description: Mate entwirft die Antwort und terminiert den nächsten Schritt. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Pro reicht dafür. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Wenn Kolleginnen und Kollegen aus einem gemeinsamen Konto antworten, brauchen Sie Business für [[commercial.price.business.monthly]]. Ihr eigenes Claude- oder ChatGPT-Abo bleibt beim Anbieter.
+    limits: Nicht geeignet, wenn Sie Zeiterfassung, Abrechnung, Angebotsdokumente oder E-Mail-Sequenzen brauchen. Dafür bleiben Ihre anderen Tools.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
 
 cta:
-  action: Jedes Mandat und die Beziehung dahinter an einem Ort
-  description: Sehen Sie sich den Beispiel-Workspace für Beratungen mit Beispieldaten an und starten Sie dann Ihren eigenen. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatliche Zahlung.
-  buttonLeftText: Kostenlos testen
-  buttonLeftHref: /auth/signup
+  action: Wissen, welches Angebot heute ein Nachfassen braucht
+  description: Sehen Sie sich den Beispiel-Workspace für Beratungen mit Beispieldaten an und starten Sie dann Ihren eigenen, mit einem Kanal und einem Kunden. Ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatliche Zahlung.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/beratung/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+useCases:
+  eyebrow: "So können Sie es nutzen"
+  title: "Für Berater. Drei Aufgaben, ein Workspace."
+  items:
+    - title: "Jedes Angebot nach dem Termin nachfassen"
+      description: "Jedes Mandat läuft vom Kennenlernen bis zur Entscheidung mit einem terminierten nächsten Schritt, damit Sie jedes Angebot nachfassen können."
+      href: /features/pipeline
+      linkLabel: "Zur Pipeline"
+      visual: proposal
+    - title: "Dort nachfassen, wo der Kunde schrieb"
+      description: "LinkedIn- und E-Mail-Verläufe liegen am Mandat, und Mate entwirft das Nachfassen aus Ihrem Angebotsleitfaden, das Sie prüfen und senden."
+      href: /features/follow-up
+      linkLabel: "Zum Nachfassen"
+      visual: conversation
+    - title: "Den Leitfaden einmal schreiben"
+      description: "Angebotsschritte, Preise und Ihre Arbeitsweise stehen in der Wissensdatenbank, und Mate entwirft aus den Seiten, die es lesen darf."
+      href: /features/knowledge-base
+      linkLabel: "Zur Wissensdatenbank"
+      visual: playbook
 ---
 
-Ein **CRM für Berater** soll Ihnen zeigen, welche Kundenbeziehungen und offenen Mandate diese Woche Ihre Aufmerksamkeit brauchen, und Ihnen den Kontext dazu liefern. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es führt Kunden, deren Ansprechpartner, jedes Mandat und in Customermates Cloud ab dem Tarif Pro auch die Gespräche per E-Mail und LinkedIn zusammen. Es deckt die Akquise ab. Zeiterfassung, Rechnungsstellung, das Schreiben von Angeboten und Projektabwicklung bleiben in anderen Tools.
+Ein Angebot geht raus, der Kunde meldet sich nicht, und die nächste Nachricht landet auf LinkedIn, während Sie mitten in der Umsetzung stecken. Ein **CRM für Berater** hält dann Kunde, Ansprechpartner und Mandat an einem Datensatz zusammen, damit Sie sehen, welche Beziehung diese Woche eine Antwort braucht. Customermates ist ein Open-Source-KI-CRM aus Deutschland. In Customermates Cloud ab dem Tarif Pro liegen die E-Mail- und LinkedIn-Verläufe beim Kunden. Mate, oder Ihr eigener KI-Agent über MCP, entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Es deckt die Akquise ab. Zeiterfassung, Rechnungsstellung, das Schreiben von Angeboten und Projektabwicklung bleiben in anderen Tools.
 
 Sie suchen eher eine CRM-Beratung, also jemanden, der ein CRM in Ihrem Unternehmen auswählt und einführt? Dann ist unser [Leitfaden zur CRM-Einführung](/blog/crm-implementation) der bessere Einstieg. Für Finanzberater gibt es eine eigene Seite: [CRM für Finanzberater](/for/financial-advisors).
 
@@ -61,6 +181,19 @@ Viele Tools, die als Berater-CRM verkauft werden, bündeln die Pipeline mit Stun
 - **Gespräche laufen über mehrere Kanäle.** Die Empfehlung kommt über LinkedIn, die Auftragsklärung läuft per E-Mail. Eine Kontaktliste sieht davon nichts.
 - **Frühere Kunden geraten im Projekt aus dem Blick.** Dabei kommt von ihnen am ehesten das nächste Mandat.
 - **Kundenkorrespondenz ist vertraulich.** Sobald freie Mitarbeiter dazukommen, zählt, wer welche Konversation lesen darf.
+
+## Bestes CRM für Berater: sechs Optionen im Vergleich
+
+Die Reihenfolge folgt einer Aufgabe: in einer kleinen Beratung jedes Kundengespräch nachfassen. Customermates veröffentlicht diese Seite, prüfen Sie jede Zeile daher auf der Website des Anbieters. Die Preise wurden am 9. November 2026 auf der jeweiligen Preisseite geprüft; ein Aktionspreis ist als solcher genannt.
+
+| # | CRM | Passt zu | Preis |
+|---|---|---|---|
+| 1 | Customermates | Beratern, die Angebote nachfassen und die LinkedIn- und E-Mail-Konversationen am Kunden haben wollen, mit einem Antwortentwurf, den Sie prüfen und senden. Stunden und Rechnungen bleiben in Ihren anderen Tools. | Pro [[commercial.price.pro.monthly]] pro Nutzer und Monat, monatlich abgerechnet |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | Akquise über LinkedIn. Die eigenen Seiten beschreiben einen gemeinsamen Posteingang für E-Mail, LinkedIn, WhatsApp und Telegram sowie einen MCP-Server für Claude. | Ab 49 $ pro Platz und Monat bei monatlicher Zahlung; zwei verbundene Konten pro Platz |
+| 3 | [Attio](https://attio.com/pricing) | Ein flexibles Datenmodell mit E-Mail- und Kalender-Sync für Gmail und Microsoft 365. | Kostenlos für bis zu 3 Plätze; Plus 31 € pro Nutzer und Monat bei jährlicher Zahlung |
+| 4 | [HubSpot](https://www.hubspot.com/pricing/crm) | Ein kostenloser Start für ein bis zwei Personen, mit angebundenem Gmail und Outlook. | Kostenlos für bis zu 2 Nutzer; Starter 7 € pro Platz und Monat bei jährlicher Zahlung, ein befristeter Preis |
+| 5 | [Pipedrive](https://www.pipedrive.com/de/pricing) | Eine Beratung, die in Pipelines denkt und vom Smartphone aus arbeitet: native Apps für iOS und Android in jedem Plan. | Lite 14 € pro Platz und Monat bei jährlicher Zahlung; Zwei-Wege-E-Mail-Sync beginnt mit Growth |
+| 6 | [Twenty](https://twenty.com/pricing) | Technische Gründer, die ein Open-Source-CRM mit eigenen Objekten wollen und das Datenmodell selbst pflegen. | Pro 9 $ pro Nutzer und Monat bei jährlicher Zahlung; den Kern selbst zu hosten ist kostenlos |
 
 ## Ein Mandat im Beispiel-Workspace
 
@@ -119,7 +252,7 @@ Konversationen aus Ihren eigenen Konten bleiben privat, bis Sie sie teilen. Das 
 
 ## Gesprächsvorbereitung und Entwürfe mit Mate
 
-Mate ist der Assistent in Customermates Cloud. Er nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält, und steht in selbst gehosteten Installationen nicht zur Verfügung. Vor einem Termin bitten Sie im Chat um eine Zusammenfassung des Mandats: Phase, letzte E-Mails und LinkedIn-Nachrichten, Datum des nächsten Schritts. Nach dem Termin aktualisiert Mate auf Ihre Bitte die Phase und speichert eine kurze Nachfassnachricht als Entwurf in der Konversation.
+Mate ist der Assistent in Customermates Cloud. Er nutzt gehostete KI-Credits, die jeder bezahlte Cloud-Tarif pro aktivem Nutzer enthält, und steht in selbst gehosteten Installationen nicht zur Verfügung. Vor einem Termin bitten Sie im Chat um eine Zusammenfassung des Mandats: Phase, letzte E-Mails und LinkedIn-Nachrichten, Datum des nächsten Schritts. Nach dem Termin aktualisiert Mate auf Ihre Bitte die Phase und speichert eine kurze Nachfassnachricht als Entwurf in der Konversation.
 
 Mate sendet, wenn Sie ihn zum Senden auffordern. Bitten Sie deshalb um einen Entwurf, wenn Sie vorher lesen möchten. Löschungen, Importe und Änderungen an Zugriffsrechten warten immer auf Ihre Freigabe. Eine [Routine](/docs/app-routines) lässt Mate nach Zeitplan oder bei einer Änderung an einem Datensatz arbeiten, zum Beispiel jeden Montag: Mandate in „Angebot gesendet“ suchen, deren Datum für den nächsten Schritt überschritten ist, und zu jedem einen Antwortentwurf speichern. Der Beispiel-Workspace hat zwei: Eine ergänzt vor jedem Kalendertermin des Tages ein kurzes Briefing im Mandat, die andere legt eine Aufgabe für enge Kontakte an, die Sie seit zwei Monaten nicht getroffen haben. Eine Routine gehört einem Nutzer und sieht, was dieser Nutzer sieht. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
@@ -129,6 +262,7 @@ Lieber mit dem eigenen KI-Client? Verbinden Sie Claude, ChatGPT oder einen ander
 
 Customermates passt zu einer kleinen Beratung. Diese Grenzen sollten Sie kennen, bevor Sie ein Team einladen:
 
+- **Geteilte Ansichten sind nur lesbar.** Teilen Sie eine Ansicht mit der ganzen Kanzlei oder mit ausgewählten Rollen, und alle arbeiten mit denselben Filtern; ändern kann sie nur, wer sie angelegt hat.
 - **Keine Berechtigungen auf Feldebene.** Rollen regeln den Zugriff auf Listen und Datensätze. Eine eigene Rolle mit dem Lesezugriff „Zugewiesen“ beschränkt freie Mitarbeiter auf die ihnen zugewiesenen Datensätze, ein einzelnes Feld wie den Tagessatz können Sie aber nicht ausblenden.
 - **Ganze Postfächer freigeben erst ab Business.** In Pro teilen Sie Konversationen einzeln.
 - Das Audit-Log hält fest, wer welchen Datensatz geändert hat.
@@ -159,7 +293,7 @@ Bewährt hat sich eine Aufteilung in zwei Systeme: Customermates für Beziehunge
 
 ## Was es kostet
 
-Die Preise gelten pro Nutzer und Monat, gezahlt wird monatlich. Jeder Tarif enthält REST, Webhooks und MCP. Starter für [[commercial.price.starter.monthly]] umfasst Listen und Pipeline ohne verbundene Nachrichtenkonten. Pro für [[commercial.price.pro.monthly]] ergänzt Ihre eigenen Konten und einzeln geteilte Konversationen. Business für [[commercial.price.business.monthly]] ergänzt die Freigabe ganzer Konten und mehr verbundene Konten pro Nutzer. Die gehosteten KI-Credits für Mate wachsen mit dem Tarif; die Mengen stehen auf der [Preisseite](/pricing). Den Open-Source-Kern können Sie ohne Lizenzgebühr [selbst hosten](/features/self-hosted), dann mit dem Funktionsumfang von Starter: ohne Posteingang, ohne Mate und ohne KI-Einrichtung.
+Die Preise gelten pro Nutzer und Monat, gezahlt wird monatlich. Jeder bezahlte Tarif enthält REST, Webhooks und MCP. Starter für [[commercial.price.starter.monthly]] umfasst Listen und Pipeline ohne verbundene Nachrichtenkonten. Pro für [[commercial.price.pro.monthly]] ergänzt Ihre eigenen Konten und einzeln geteilte Konversationen. Business für [[commercial.price.business.monthly]] ergänzt die Freigabe ganzer Konten und mehr verbundene Konten pro Nutzer. Die gehosteten KI-Credits für Mate wachsen mit dem Tarif; die Mengen stehen auf der [Preisseite](/pricing). Den Open-Source-Kern können Sie ohne Lizenzgebühr [selbst hosten](/features/self-hosted), dann mit dem Funktionsumfang von Starter: ohne Posteingang, ohne Mate und ohne KI-Einrichtung.
 
 ## Kundendaten und Vertraulichkeit
 
@@ -182,7 +316,7 @@ Bei Customermates zahlt ein Einzelberater [[commercial.price.starter.monthly]] i
 </FaqItem>
 
 <FaqItem question="Können Mitarbeiter Ansichten teilen und nur bestimmte Felder sehen?">
-Ansichten ja, einzelne Felder nein. Wer eine gespeicherte Ansicht anlegt, kann sie allen im Workspace oder ausgewählten Rollen zeigen; Mitarbeiter sehen sie nur lesend und nur die Datensätze, die ihre Rolle erlaubt. Berechtigungen gelten für Listen und Datensätze, nicht für einzelne Felder. Eine Rolle mit Lesezugriff „Zugewiesen“ beschränkt eine Person auf die ihr zugewiesenen Datensätze.
+Ansichten ja, Felder nein. Teilen Sie eine Ansicht mit dem ganzen Team oder mit ausgewählten Rollen; Kolleginnen und Kollegen sehen sie nur lesend, ändern kann sie nur, wer sie angelegt hat. Berechtigungen gelten für Listen und Datensätze, nicht für einzelne Felder. Eine Rolle mit Lesezugriff „Zugewiesen“ beschränkt eine Person auf die ihr zugewiesenen Datensätze.
 </FaqItem>
 
 <FaqItem question="Landen E-Mails automatisch beim Mandat?">
@@ -200,4 +334,16 @@ Ob Ihr Einsatz die DSGVO erfüllt, hängt davon ab, wie Sie als Verantwortlicher
 <FaqItem question="Sendet Mate Nachrichten ohne mich?">
 Mate sendet, wenn Sie ihn zum Senden auffordern. Bitten Sie um einen Entwurf, wenn Sie vorher lesen möchten. Mate gibt es nur in Customermates Cloud im Rahmen der KI-Credits Ihres Tarifs. Löschungen, Importe und Änderungen an Zugriffsrechten warten immer auf Ihre Freigabe.
 </FaqItem>
+<FaqItem question="Welches ist das beste CRM für Berater?">
+Das hängt von der Aufgabe ab. Für das Nachfassen von Angeboten und Kundengesprächen in einer kleinen Beratung steht Customermates in der Tabelle oben auf Platz 1, weil die E-Mail- und LinkedIn-Konversationen am Kunden liegen und ein Antwortentwurf auf Ihre Prüfung wartet. Danach folgen Breakcold, Attio, HubSpot, Pipedrive und Twenty. Brauchen Sie vor allem Zeiterfassung, Rechnungen oder Angebote, übernimmt das ein Tool wie MOCO, BigTime oder HoneyBook. Customermates veröffentlicht diese Seite, prüfen Sie jede Zeile daher auf der Website des Anbieters.
+</FaqItem>
+
+<FaqItem question="Was leistet ein Beratungs-CRM?">
+Ein Beratungs-CRM führt jeden Kunden, die Personen dort und jedes Mandat in einem Datensatz, zeigt den nächsten Schritt mit Datum und legt die E-Mail- und LinkedIn-Konversationen daneben. Abwicklung, Stunden und Rechnungen liegen meist in anderen Tools.
+</FaqItem>
+
+<FaqItem question="Reicht ein kostenloses CRM für Einzelberater?">
+Zum Start oft ja: HubSpot ist für bis zu 2 Nutzer kostenlos, Attio für bis zu 3 Plätze (Stand 9. November 2026). Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Wer die Konversationen am Kunden haben will, braucht Pro.
+</FaqItem>
+
 </Faq>

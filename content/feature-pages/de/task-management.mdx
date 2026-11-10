@@ -9,20 +9,48 @@ relatedHrefs:
   - /features/workflow-automation
   - /docs/app-records
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Klären, was ein Datum bedeutet"
+        description: "Aufgaben haben kein Fälligkeitsfeld. Legen Sie unter Datenmodell bei Aufgaben ein Feld vom Typ Datum an und benennen Sie es nach dem, was Sie meinen, etwa „Zieldatum“. Arbeitet Ihr Team eine Liste nach Priorität ab, lassen Sie das Datum weg."
+      - title: "Status-Feld anpassen"
+        description: "Öffnen Sie unter Datenmodell das Feld Status der Liste Aufgaben und bearbeiten Sie die Optionen. Einem kleinen Team reichen oft Offen, Wartet auf Kunde und Erledigt. Eine Einzelauswahl Priorität hilft, wenn Sie nach Wichtigkeit statt nach Datum sortieren."
+      - title: "Aufgaben dort anlegen, wo die Arbeit entsteht"
+        description: "Klicken Sie unter Aufgaben auf Hinzufügen oder verknüpfen Sie eine Aufgabe direkt auf der Seite des Deals, Kontakts oder der Organisation. Weisen Sie sie zu und verknüpfen Sie jeden betroffenen Datensatz, damit sie überall erscheint."
+      - title: "Offene Aufgaben speichern"
+        description: "Filtern Sie Zugewiesen auf sich selbst und Status auf alles außer Erledigt und Archiviert, sortieren Sie aufsteigend nach Zieldatum und speichern Sie das als Ansicht „Meine offenen Aufgaben“. Die Ansicht gehört Ihnen; für eine gemeinsame Liste des Teams, etwa „Aufgaben dieser Woche“, teilen Sie eine Ansicht mit allen im Workspace oder mit ausgewählten Rollen."
+      - title: "Deals ohne nächsten Schritt finden"
+        description: "Filtern Sie unter Deals das Feld Aufgaben mit „hat keine“ und schließen Sie gewonnene und verlorene Phasen aus. Speichern Sie die Ansicht als „Deals ohne nächsten Schritt“. Diese Liste ist der eigentliche Grund, Aufgaben im CRM statt in einer separaten To-do-App zu führen."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-record
+    items:
+      - title: "Was eine Aufgabe hat"
+        description: "Name, Notizen, eine oder mehrere zugewiesene Personen, Verknüpfungen zu Kontakten, Organisationen, Deals und Services sowie eigene Felder."
+      - title: "Tarife"
+        description: "Aufgaben gehören zu jedem Tarif, von Starter bis Self-Hosting. Mate und Routinen gibt es nur in Customermates Cloud, sie verbrauchen gehostete KI-Credits."
+      - title: "Ansichten"
+        description: "Tabelle oder Board, gruppiert nach einem Auswahlfeld wie Status, mit teilbaren gespeicherten Ansichten."
+      - title: "Nicht enthalten"
+        description: "Keine Fälligkeitsdaten, Erinnerungen, Benachrichtigungen, wiederkehrenden Aufgaben, Abhängigkeiten, Zeiterfassung oder Gantt-Diagramme."
+
 hero:
-  title: Aufgabenverwaltung im CRM, bei der jede Aufgabe beim richtigen Kunden liegt
-  description: Legen Sie eine Aufgabe an, weisen Sie sie einer oder mehreren Personen zu und verknüpfen Sie sie mit dem Kontakt, der Organisation, dem Deal oder Service, um den es geht. Eigene Felder, Tabelle oder Board, und auf Wunsch legen Mate oder Ihr eigener KI-Client Aufgaben für Sie an.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Jedes Versprechen an einen Kunden als Aufgabe am Datensatz"
+  description: "Legen Sie für jedes zugesagte Nachfassen eine Aufgabe an, verknüpfen Sie sie mit Kontakt und Deal und weisen Sie sie zu. Dann listen Sie die Deals ohne Aufgabe. Eigenes Datumsfeld möglich; Mate oder Ihr KI-Client legt Aufgaben aus einem Gespräch an."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Aufgabenliste einrichten
-  description: Legen Sie ein Feld „Zieldatum" an und speichern Sie die Ansichten „Meine offenen Aufgaben" und „Deals ohne nächsten Schritt". Danach entscheiden Sie, ob Sie eine Routine brauchen.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Finden Sie jeden Deal ohne nächsten Schritt"
+  description: "Legen Sie ein Feld „Zieldatum“ an und speichern Sie die Ansichten „Meine offenen Aufgaben“ und „Deals ohne nächsten Schritt“. Danach entscheiden Sie, ob eine Routine die Nachfass-Nachrichten entwerfen soll."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -30,14 +58,9 @@ cta:
 
 Aufgabenverwaltung im CRM heißt: Die Aufgabe liegt am Kundendatensatz. „Überarbeitetes Angebot schicken" hängt am Deal und am Ansprechpartner, und wer einen der beiden öffnet, sieht, was offen ist und wer es erledigt. In Customermates sind Aufgaben eine eigene Liste mit Name, Notizen, zugewiesenen Personen, Verknüpfungen zu Kontakten, Organisationen, Deals und Services sowie beliebigen eigenen Feldern. Mehr Felder hat eine Aufgabe nicht.
 
-Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig Erinnerungen, Überfälligkeitshinweise oder wiederkehrende Aufgaben. Eine klassische Wiedervorlage mit Benachrichtigung bietet Customermates also nicht. Ein Feld **Status** bei Aufgaben ist ein normales Feld vom Typ **Einzelauswahl**, das Sie anlegen, umbenennen oder ersetzen. Für ein Team, das seine Woche über Erinnerungen und Termine plant, ist Customermates nicht gemacht. Dort passt ein CRM mit geplanten Aktivitäten besser; die Tabelle weiter unten nennt zwei. Wenn Sie Aufgaben wollen, die den Kundenkontext mitbringen und die eine KI anlegen und pflegen kann, lesen Sie weiter.
+**Wo Ihnen das beim Nachfassen hilft.** Was Sie im Gespräch zugesagt haben, steckt in einem Kopf, bis es eine Aufgabe ist. Als Aufgabe am Deal und am Kontakt erscheint es an beiden Datensätzen, und eine gespeicherte Ansicht der Deals ohne jede Aufgabe listet alle Kunden, deren nächsten Schritt niemand festgehalten hat.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Was eine Aufgabe hat">Name, Notizen, eine oder mehrere zugewiesene Personen, Verknüpfungen zu Kontakten, Organisationen, Deals und Services sowie eigene Felder.</SummaryItem>
-  <SummaryItem label="Tarife">Aufgaben gehören zu jedem Tarif, von Starter bis Self-Hosting. Mate und Routinen gibt es nur in Customermates Cloud, sie verbrauchen gehostete KI-Credits.</SummaryItem>
-  <SummaryItem label="Ansichten">Tabelle oder Board, gruppiert nach einem Auswahlfeld wie Status, mit teilbaren gespeicherten Ansichten.</SummaryItem>
-  <SummaryItem label="Nicht enthalten">Keine Fälligkeitsdaten, Erinnerungen, Benachrichtigungen, wiederkehrenden Aufgaben, Abhängigkeiten, Zeiterfassung oder Gantt-Diagramme.</SummaryItem>
-</ArticleSummary>
+Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig Erinnerungen, Überfälligkeitshinweise oder wiederkehrende Aufgaben. Eine klassische Wiedervorlage mit Benachrichtigung bietet Customermates also nicht. Ein Feld **Status** bei Aufgaben ist ein normales Feld vom Typ **Einzelauswahl**, das Sie anlegen, umbenennen oder ersetzen. Für ein Team, das seine Woche über Erinnerungen und Termine plant, ist Customermates nicht gemacht. Dort passt ein CRM mit geplanten Aktivitäten besser; die Tabelle weiter unten nennt zwei. Wenn Sie Aufgaben wollen, die den Kundenkontext mitbringen und die eine KI anlegen und pflegen kann, lesen Sie weiter.
 
 ## Was eine Aufgabe in Customermates ist
 
@@ -53,14 +76,6 @@ Ein eingebautes Fälligkeitsdatum gibt es nicht, ebenso wenig Erinnerungen, Übe
 Aufgaben ist eine gewöhnliche Liste: Sie können sie umbenennen, ihre Felder ändern oder sie löschen und aus dem Papierkorb wiederherstellen wie jede andere. Wer über den Einladungslink Ihres Workspace beitritt, wartet unter **Einstellungen > Mitglieder** auf die Genehmigung, und das Workspace-Menü zählt diese Personen für alle, die Mitglieder genehmigen dürfen. Die [Anleitung zu Datensätzen](/docs/app-records) beschreibt alle Listen-, Filter- und Board-Funktionen.
 
 ## Aufgabenverwaltung einrichten
-
-<Steps>
-  <Step title="Klären, was ein Datum bedeutet">Aufgaben haben kein Fälligkeitsfeld. Legen Sie unter **Datenmodell** bei **Aufgaben** ein Feld vom Typ **Datum** an und benennen Sie es nach dem, was Sie meinen, etwa „Zieldatum". Arbeitet Ihr Team eine Liste nach Priorität ab, lassen Sie das Datum weg.</Step>
-  <Step title="Status-Feld anpassen">Öffnen Sie unter **Datenmodell** das Feld **Status** der Liste Aufgaben und bearbeiten Sie die Optionen. Einem kleinen Team reichen oft Offen, Wartet auf Kunde und Erledigt. Eine Einzelauswahl **Priorität** hilft, wenn Sie nach Wichtigkeit statt nach Datum sortieren.</Step>
-  <Step title="Aufgaben dort anlegen, wo die Arbeit entsteht">Klicken Sie unter **Aufgaben** auf **Hinzufügen** oder verknüpfen Sie eine Aufgabe direkt auf der Seite des Deals, Kontakts oder der Organisation. Weisen Sie sie zu und verknüpfen Sie jeden betroffenen Datensatz, damit sie überall erscheint.</Step>
-  <Step title="Persönliche Liste speichern">Filtern Sie **Zugewiesen** auf sich selbst und **Status** auf alles außer Erledigt und Archiviert, sortieren Sie aufsteigend nach Zieldatum und speichern Sie das als Ansicht „Meine offenen Aufgaben". Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person im Team legt ihre eigene an.</Step>
-  <Step title="Deals ohne nächsten Schritt finden">Filtern Sie unter **Deals** das Feld **Aufgaben** mit „hat keine" und schließen Sie gewonnene und verlorene Phasen aus. Speichern Sie die Ansicht als „Deals ohne nächsten Schritt". Diese Liste ist der eigentliche Grund, Aufgaben im CRM statt in einer separaten To-do-App zu führen.</Step>
-</Steps>
 
 Sie kommen aus Excel oder einem anderen Tool? Aufgaben lassen sich aus einer XLSX-Arbeitsmappe oder CSV-Datei importieren, mit Spalten für Name, Notizen, zugewiesene Personen und verknüpfte Datensätze. Importieren Sie zuerst Kontakte, Organisationen und Deals, damit die Verknüpfungen aufgelöst werden.
 

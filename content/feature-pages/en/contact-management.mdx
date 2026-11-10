@@ -1,6 +1,6 @@
 ---
-title: "Contact Management Software for Client Relationships"
-description: "Contact and client management software for small teams: connect clients, contacts, opportunities and supported conversations. From [[commercial.price.starter.monthly]] per user a month."
+title: "Client Tracker and Client Management Software"
+description: "A client tracker that replaces the spreadsheet: import your client list, then see each client's conversations and next step on one record."
 featureName: Contact Management
 
 relatedHrefs:
@@ -11,18 +11,112 @@ relatedHrefs:
 
 hero:
   title: "Contact and client management with the full relationship in context"
-  description: For small teams that look after clients, not just phone numbers. Customermates links each client to its people, opportunities, tasks and, on Pro and higher in the cloud, supported conversations. You shape the lists and fields yourself. There are no tags, and an import cannot be undone.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  description: "Keep each client's people, opportunities and tasks in one place and, on Pro and higher in the cloud, the conversations too, so you know who spoke to them last and what happens next. You shape the lists and fields yourself."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/client-management/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
+landing:
+  hero:
+    eyebrow: Customer database for small teams
+    title: "The client tracker that replaces your spreadsheet and shows who to contact next."
+    description: "Import your client list once. Then, in Customermates Cloud, Mate can file new contacts, notes and the next step on the right client from the conversations you connect."
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Talk to Ben, 15 minutes
+      href: /contact
+  facts: No credit card · Import from Excel · Pro from [[commercial.price.pro.monthly]] per person/month
+  generator:
+    eyebrow: Start from one description
+    title: Your client list, described once. Built for you.
+    description: AI setup asks a few questions and builds clients, contacts, contracts and the fields you track. This is the client management example; click around.
+    promptLabel: Your description to Mate
+    arrowLabel: became this workspace
+    prompt: We supply offices with coffee machines and breakroom supplies. Replace our client spreadsheet with clients, contacts and contracts per site, and show us who we haven't spoken to lately.
+  followUp:
+    eyebrow: A client email, filed
+    title: "A client names a new contact. The record is updated, the reply drafted."
+    description: The email lands on the client whose address matches. Ask Mate, or let a routine run, and the new contact, the site and the next step are on the client, with a reply drafted for you.
+    desk:
+      label: Client record update scene
+      workspace: Hollis Office Services
+      conversation:
+        label: Email
+        name: Emma Clarke
+        company: Brightwell Studios
+        time: Wed 10:12
+        message: Quick update. From next month Sara Lind takes over purchasing from me. Could you also add our new Leeds site to the contract?
+      agent:
+        name: Mate
+        intent: Updating the client record from this email
+        done: Sara Lind added as a contact. Draft and next step saved.
+      draft:
+        badge: Draft, waiting for your review
+        text: Hi Emma, thanks for letting us know. I've noted Sara as your purchasing contact and will send the updated contract with the Leeds site by Thursday. Best, Daniel
+        edit: Edit
+        send: Send draft
+      today:
+        title: Dashboard
+        date: Wednesday
+        addedBy: Added by Mate
+        assign: Assign
+        sections:
+          - title: Next steps due
+            items:
+              - title: Send updated contract with Leeds site
+                meta: Brightwell Studios · due Thursday
+                owner: DM
+                state: added
+              - title: Yearly review with Harbor Legal
+                meta: Harbor Legal · 2 days overdue
+                owner: DM
+                state: overdue
+  beforeAfter:
+    eyebrow: What changes
+    title: Before and after. Same clients, one current record.
+    before:
+      label: Before
+      points:
+        - A client spreadsheet nobody keeps up to date
+        - Contacts and notes spread across inboxes
+        - Nobody knows who spoke to the client last
+    after:
+      label: With Customermates
+      points:
+        - Each client with its people, contracts and conversations
+        - Mate updates records when you ask, or on a routine you set
+        - Last contact and next step visible on every client
+  steps:
+    eyebrow: How you start
+    title: Three steps. From spreadsheet to current records.
+    items:
+      - title: Import your spreadsheet
+        description: AI setup builds the lists and fields. Save your sheet as an Excel workbook and map each column to a field.
+      - title: Connect email or LinkedIn
+        description: Threads land on the client whose email address or LinkedIn profile matches. On Pro, one connected account per person.
+      - title: Let Mate keep it current
+        description: Ask Mate, or set a routine, to add new contacts, notes and next steps from the latest conversations.
+  plan:
+    eyebrow: Pricing
+    title: Start on Pro. [[commercial.price.pro.monthly]] per person per month.
+    description: Starter at [[commercial.price.starter.monthly]] covers the client database without connected accounts. Connected email and LinkedIn start at Pro in Customermates Cloud.
+    limits: Not a fit if you need contact enrichment, tags or an undo for imports. Check your column mapping before you import.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Compare all plans
+      href: /pricing
+
 cta:
   action: Bring your client list over during the trial
-  description: Save your spreadsheet as an Excel workbook, map the columns to your fields and check within [[commercial.trial.days]] days whether your team finds clients and their context faster.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  description: "Save your spreadsheet as an Excel workbook, map the columns to your fields, connect one email or LinkedIn account and check within [[commercial.trial.days]] days whether you can see each client's last contact and next step."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/client-management/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -30,8 +124,10 @@ cta:
 
 Contact management software keeps every person and company you work with in one shared place, together with what is going on with them. Client management software goes one step further: it answers who the client is, who you talk to there, what is open and what happens next. Customermates covers both for small client-facing teams. It is an open-source, AI-native CRM made in Germany.
 
+**Where this helps you follow up.** A client falls through when nobody can see who spoke to them last or what was promised. A client record holds the people, the contracts or deals and, from Pro in the cloud, the email and LinkedIn conversations with them, plus a date field for the next action. A saved view sorted by that date, or an Upcoming widget on the dashboard, lists who to contact next.
+
 <ArticleSummary title="At a glance">
-  <SummaryItem label="Every plan">Configurable lists for clients, contacts and opportunities, typed fields, relationships, filters, saved views you can share, table, board or calendar, roles, Excel import and export, REST, webhooks and MCP. Self-hosted included.</SummaryItem>
+  <SummaryItem label="Every plan">Configurable lists for clients, contacts and opportunities, typed fields, relationships, filters, saved views you can share, table, board or calendar, roles, Excel import and export, REST and MCP, plus webhooks on paid plans. Self-hosted included.</SummaryItem>
   <SummaryItem label="Pro and higher, cloud only">Email, LinkedIn, WhatsApp, Instagram and Telegram conversations beside the people they involve.</SummaryItem>
   <SummaryItem label="Not included">No tags (use a multiple-choice field), no import undo, no address-book sync, no merge function, no reminders.</SummaryItem>
 </ArticleSummary>
@@ -66,7 +162,7 @@ Where a spreadsheet keeps one row per person and repeats the company name, Custo
   <Step title="Create or check the lists">Let the AI workspace setup build them on Customermates Cloud, or create Clients, Contacts and Opportunities in **Data model** with relationships between them.</Step>
   <Step title="Add the fields you sort by">For example **Relationship** (single choice), **Role** on contacts (Decision maker, Day-to-day, Accounting) and **Next action** (date).</Step>
   <Step title="Import your list">Import clients first, then contacts, so the company column links up. Details below.</Step>
-  <Step title="Save views">"My active clients", "Next action this week" or "No client yet" for clean-up after the import. A saved view stays private until you share it, so each colleague can save their own or you share one with the team.</Step>
+  <Step title="Save views">"My active clients", "Next action this week" or "No client yet" for clean-up after the import. Share the ones the whole team needs, such as "Next action this week", with everyone in the workspace or with selected roles.</Step>
   <Step title="Decide who sees what">In the role editor, set read access per list to **All**, **Assigned** or **None**, plus create, edit and delete rights. Permissions apply to whole lists, not single fields.</Step>
 </Steps>
 

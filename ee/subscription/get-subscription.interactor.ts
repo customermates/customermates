@@ -7,6 +7,7 @@ import {
 
 import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
+import type { FreePlanMemberRepo } from "./free-plan-member.repo";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -14,6 +15,8 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { GetSubscriptionRepo } from "./get-subscription.repo";
 import { CHECKOUT_STATES, checkoutStateOf, type CheckoutState } from "./checkout-state";
+import { isOnFreePlan } from "./entitlements";
+import { env } from "@/env";
 
 const OutputSchema = z.object({
   status: z.enum(SubscriptionStatusEnum),
@@ -25,6 +28,8 @@ const OutputSchema = z.object({
   hasBillingPortal: z.boolean(),
   hasActiveSubscription: z.boolean(),
   checkout: z.enum(CHECKOUT_STATES),
+  onFreePlan: z.boolean(),
+  pausedMembers: z.number(),
 });
 
 export type SubscriptionDto = {
@@ -37,6 +42,8 @@ export type SubscriptionDto = {
   hasBillingPortal: boolean;
   hasActiveSubscription: boolean;
   checkout: CheckoutState;
+  onFreePlan: boolean;
+  pausedMembers: number;
 };
 
 @AllowInDemoMode
@@ -45,6 +52,7 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
   constructor(
     private repo: GetSubscriptionRepo,
     private userRepo: CountActiveUsersRepo,
+    private pauses?: Pick<FreePlanMemberRepo, "countPlanPausedMembersUnscoped">,
   ) {
     super();
   }
@@ -55,6 +63,10 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
       this.repo.getSubscriptionOrThrow(),
       this.userRepo.countActiveUsers(),
     ]);
+
+    const onFreePlan = env.APP_MODE === "cloud" && isOnFreePlan(subscription);
+    const pausedMembers =
+      onFreePlan && this.pauses ? await this.pauses.countPlanPausedMembersUnscoped(this.companyId) : 0;
 
     return {
       ok: true,
@@ -68,6 +80,8 @@ export class GetSubscriptionInteractor extends AuthenticatedInteractor<void, Sub
         hasBillingPortal: subscription.plan !== SubscriptionPlanEnum.enterprise && Boolean(subscription.lemonSqueezyId),
         hasActiveSubscription: Boolean(subscription.lemonSqueezyId),
         checkout: checkoutStateOf(subscription.checkoutStartedAt),
+        onFreePlan,
+        pausedMembers,
       },
     };
   }

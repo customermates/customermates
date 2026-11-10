@@ -19,11 +19,16 @@ import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES, solutionDataLocales } from "@/
 import {
   SOLUTION_STAGE_CAPTURE_VIEWPORT,
   SOLUTION_STAGE_IMAGE_SIZE,
+  SOLUTION_STAGE_PHONE_IMAGE_SIZE,
+  SOLUTION_STAGE_PHONE_VIEWPORT,
   type SolutionStageCaptureEntry,
   type SolutionStageCaptures,
+  type SolutionStagePhoneCaptures,
   type SolutionStagePlanItem,
   type SolutionStageRoutes,
   checkSolutionStageCaptures,
+  checkSolutionStagePhoneCaptures,
+  solutionStagePhonePlan,
   solutionStagePlan,
 } from "@/core/solutions/solution-stage";
 
@@ -32,6 +37,9 @@ const PUBLIC_ROOT = join(ROOT, "public");
 const STAGE_PATH = join(ROOT, "core", "solutions", "solution-stage-captures.json");
 const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest.json");
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
+const PHONE_PATH = join(ROOT, "core", "solutions", "solution-stage-phone-captures.json");
+const PHONE_WEBP_QUALITY = 60;
+const PHONE_MIN_WEBP_QUALITY = 30;
 const WEBP_QUALITY = 72;
 const MIN_WEBP_QUALITY = 46;
 const QUALITY_STEP = 6;
@@ -137,15 +145,41 @@ function plannedFiles(options: CaptureSolutionStageOptions): string[] {
   return [...main, ...stage, "core/solutions/solution-stage-captures.json"];
 }
 
-async function encode(png: Buffer, cap: number): Promise<{ data: Buffer; quality: number }> {
+type CaptureVariant = {
+  image: { height: number; width: number };
+  minQuality: number;
+  quality: number;
+  viewport: typeof SOLUTION_STAGE_CAPTURE_VIEWPORT | typeof SOLUTION_STAGE_PHONE_VIEWPORT;
+};
+
+const DESKTOP_VARIANT: CaptureVariant = {
+  image: SOLUTION_STAGE_IMAGE_SIZE,
+  minQuality: MIN_WEBP_QUALITY,
+  quality: WEBP_QUALITY,
+  viewport: SOLUTION_STAGE_CAPTURE_VIEWPORT,
+};
+
+const PHONE_VARIANT: CaptureVariant = {
+  image: SOLUTION_STAGE_PHONE_IMAGE_SIZE,
+  minQuality: PHONE_MIN_WEBP_QUALITY,
+  quality: PHONE_WEBP_QUALITY,
+  viewport: SOLUTION_STAGE_PHONE_VIEWPORT,
+};
+
+function readPhone(): SolutionStagePhoneCaptures {
+  if (!existsSync(PHONE_PATH)) return { capturedOn: null, entries: [], environment: null, sourceRevision: null };
+  return readJson<SolutionStagePhoneCaptures>(PHONE_PATH);
+}
+
+async function encode(png: Buffer, cap: number, variant: CaptureVariant): Promise<{ data: Buffer; quality: number }> {
   const { default: sharp } = await import("sharp");
-  let quality = WEBP_QUALITY;
+  let quality = variant.quality;
   for (;;) {
     const data = await sharp(png)
-      .resize(SOLUTION_STAGE_IMAGE_SIZE.width, SOLUTION_STAGE_IMAGE_SIZE.height)
+      .resize(variant.image.width, variant.image.height)
       .webp({ effort: 6, quality })
       .toBuffer();
-    if (data.byteLength <= cap || quality - QUALITY_STEP < MIN_WEBP_QUALITY) return { data, quality };
+    if (data.byteLength <= cap || quality - QUALITY_STEP < variant.minQuality) return { data, quality };
     quality -= QUALITY_STEP;
   }
 }
@@ -155,27 +189,28 @@ async function captureItem(
   baseUrl: string,
   item: SolutionStagePlanItem,
   cap: number,
+  variant: CaptureVariant = DESKTOP_VARIANT,
 ): Promise<SolutionStageCaptureEntry> {
   const context = await newCaptureContext(
     browser,
     { ...item, timeZone: workspaceTimeZone(item.solution.id, item.locale) },
-    SOLUTION_STAGE_CAPTURE_VIEWPORT,
+    variant.viewport,
   );
   try {
     const page = await openReadyPage(context, baseUrl, item.key, item.route);
     const png = await page.screenshot({ animations: "disabled", caret: "hide", type: "png" });
-    const { data, quality } = await encode(png, cap);
+    const { data, quality } = await encode(png, cap, variant);
     mkdirSync(dirname(publicFile(item.src)), { recursive: true });
     writeFileSync(publicFile(item.src), new Uint8Array(data));
     console.log(`captured ${item.key} ${data.byteLength} bytes (webp q${quality})`);
     return {
       bytes: data.byteLength,
-      height: SOLUTION_STAGE_IMAGE_SIZE.height,
+      height: variant.image.height,
       key: item.key,
       route: item.route,
       sha256: sha256(data),
       src: item.src,
-      width: SOLUTION_STAGE_IMAGE_SIZE.width,
+      width: variant.image.width,
     };
   } finally {
     await context.close();
@@ -194,10 +229,47 @@ function refreshRoutes(): SolutionStageCaptures {
   return next;
 }
 
+function stageBytes(): number {
+  return checkSolutionStageCaptures(readStage(), { baseBytes: 0, readFile: readFacts, requireAll: false }).totalBytes;
+}
+
+async function capturePhone(options: CaptureSolutionStageOptions, dirty: string): Promise<void> {
+  const { routes } = readStage();
+  const fullPlan = solutionStagePhonePlan(routes);
+  const plan = options.only.length === 0 ? fullPlan : fullPlan.filter((item) => options.only.includes(item.solution.id));
+  const cap = Math.floor((SOLUTION_CAPTURE_BUDGET_BYTES - mainCaptureBytes() - stageBytes()) / fullPlan.length);
+  const phone = readPhone();
+  const entries = new Map(phone.entries.map((entry) => [entry.key, entry]));
+  const order = fullPlan.map((item) => item.key);
+  const revision = `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`;
+  const persist = () =>
+    writeJson(PHONE_PATH, {
+      capturedOn: new Date().toISOString().slice(0, 10),
+      entries: order.flatMap((key) => entries.get(key) ?? []),
+      environment: "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright, 390 px wide",
+      sourceRevision: revision,
+    } satisfies SolutionStagePhoneCaptures);
+
+  console.log(`per-image cap ${cap} bytes for ${fullPlan.length} phone stage captures`);
+  const browser = await chromium.launch();
+  try {
+    for (const item of plan) {
+      const entry = await withRetries(item.key, () => captureItem(browser, options.baseUrl, item, cap, PHONE_VARIANT));
+      entries.set(item.key, entry);
+      persist();
+    }
+  } finally {
+    await browser.close();
+  }
+  check({ ...options, requireAll: options.only.length === 0 });
+}
+
 async function capture(options: CaptureSolutionStageOptions): Promise<void> {
   const dirty = git(["status", "--porcelain", "--untracked-files=no"]);
   if (dirty && !options.allowDirty)
     throw new Error("Commit or stash tracked changes before capturing (or pass --allow-dirty)");
+
+  if (options.phone) return capturePhone(options, dirty);
 
   if (options.withMain) {
     const args = ["tsx", "scripts/capture-solutions.ts", "--base-url", options.baseUrl, "--allow-dirty"];
@@ -242,6 +314,7 @@ async function capture(options: CaptureSolutionStageOptions): Promise<void> {
 }
 
 function check(options: CaptureSolutionStageOptions): void {
+  if (options.phone) return checkPhone(options);
   const baseBytes = mainCaptureBytes();
   const result = checkSolutionStageCaptures(readStage(), {
     baseBytes,
@@ -251,6 +324,20 @@ function check(options: CaptureSolutionStageOptions): void {
   for (const problem of result.problems) console.error(problem);
   console.log(
     `${result.missing.length} stage tabs still on their fallback poster, ${result.totalBytes} stage bytes + ${baseBytes} main bytes of ${SOLUTION_CAPTURE_BUDGET_BYTES}, ${result.problems.length} problems`,
+  );
+  if (result.problems.length > 0) process.exitCode = 1;
+}
+
+function checkPhone(options: CaptureSolutionStageOptions): void {
+  const baseBytes = mainCaptureBytes() + stageBytes();
+  const result = checkSolutionStagePhoneCaptures(readPhone(), readStage().routes, {
+    baseBytes,
+    readFile: readFacts,
+    requireAll: options.requireAll,
+  });
+  for (const problem of result.problems) console.error(problem);
+  console.log(
+    `${result.missing.length} phone stage tabs missing, ${result.totalBytes} phone bytes + ${baseBytes} other bytes of ${SOLUTION_CAPTURE_BUDGET_BYTES}, ${result.problems.length} problems`,
   );
   if (result.problems.length > 0) process.exitCode = 1;
 }

@@ -4,7 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
-import { formatCommercialAmount, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { formatCommercialAmount, FREE_PLAN_USAGE_LIMITS, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 type CardConfig = {
   badgeKey?: string;
@@ -27,7 +27,7 @@ const CARDS: CardConfig[] = [
     badgeKey: "badge",
     compareHref: "/pricing",
     compareTextKey: "compareText",
-    featureKeys: ["featureStarter", "featurePro", "featureBusiness"],
+    featureKeys: ["featureFree", "featureStarter", "featurePro", "featureBusiness"],
     href: "/auth/signup",
     periodKey: "period",
     titleKey: "cloud",
@@ -69,7 +69,7 @@ export async function HomepagePricing() {
                   <h3 className="text-lg font-medium">{t(`HomepagePricing.${card.titleKey}.title`)}</h3>
 
                   {card.badgeKey ? (
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary-soft-foreground">
+                    <span className="rounded-full bg-foreground/[0.06] px-2.5 py-1 text-[10px] font-medium text-foreground">
                       {t(`HomepagePricing.${card.titleKey}.${card.badgeKey}`)}
                     </span>
                   ) : null}
@@ -117,7 +117,7 @@ export async function HomepagePricing() {
                 >
                   {card.featureKeys.map((featureKey) => (
                     <li key={featureKey} className="flex items-start gap-2 px-6 py-3 text-xs leading-relaxed">
-                      <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-primary" strokeWidth={2.25} />
+                      <Check aria-hidden className="mt-0.5 size-3.5 shrink-0 text-foreground" strokeWidth={2.25} />
 
                       <span>
                         {t(`HomepagePricing.${card.titleKey}.${featureKey}`, {
@@ -125,6 +125,8 @@ export async function HomepagePricing() {
                             featureKey === "featurePro"
                               ? PLAN_CATALOG.pro.entitlements.includedAccountsPerUser
                               : PLAN_CATALOG.business.entitlements.includedAccountsPerUser,
+                          members: FREE_PLAN_USAGE_LIMITS.maxMembers,
+                          records: FREE_PLAN_USAGE_LIMITS.maxRecords,
                         })}
                       </span>
                     </li>

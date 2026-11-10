@@ -49,10 +49,10 @@ describe("file badges", () => {
 
   it("colours each kind from the theme tokens", () => {
     expect(FILE_KIND_TONE_CLASS.pdf).toBe("bg-destructive/15 text-destructive");
-    expect(FILE_KIND_TONE_CLASS.spreadsheet).toBe("bg-success/15 text-success");
-    expect(FILE_KIND_TONE_CLASS.document).toBe("bg-info/15 text-info");
-    expect(FILE_KIND_TONE_CLASS.csv).toBe("bg-chart-2/15 text-chart-2");
-    expect(FILE_KIND_TONE_CLASS.json).toBe("bg-warning/15 text-warning");
+    expect(FILE_KIND_TONE_CLASS.spreadsheet).toBe("bg-success/15 text-success-soft-foreground");
+    expect(FILE_KIND_TONE_CLASS.document).toBe("bg-info/15 text-info-soft-foreground");
+    expect(FILE_KIND_TONE_CLASS.csv).toBe("bg-success/15 text-success-soft-foreground");
+    expect(FILE_KIND_TONE_CLASS.json).toBe("bg-warning/15 text-warning-soft-foreground");
     expect(FILE_KIND_TONE_CLASS.markdown).toBe("bg-primary/15 text-primary");
     expect(FILE_KIND_TONE_CLASS.text).toBe("bg-foreground/5 text-muted-foreground");
     expect(Object.values(FILE_KIND_TONE_CLASS).join(" ")).not.toMatch(/#[0-9a-f]{3,6}/iu);

@@ -16,6 +16,7 @@ const STYLEGUIDE_ROOT = join(
   "styleguide",
 );
 const CHAPTER_ANCHOR_SOURCES = {
+  "building-blocks": [join(STYLEGUIDE_ROOT, "building-blocks", "page.tsx")],
   foundations: [join(STYLEGUIDE_ROOT, "foundations", "page.tsx")],
   overview: [join(STYLEGUIDE_ROOT, "page.tsx")],
   patterns: [join(STYLEGUIDE_ROOT, "components", "section-patterns.tsx")],
@@ -28,10 +29,11 @@ function routeFile(href: string): string {
 }
 
 describe("style guide chapter registry", () => {
-  it("authors the four static chapters in their intended order", () => {
+  it("authors the five static chapters in their intended order", () => {
     expect(STYLEGUIDE_CHAPTERS.map((chapter) => chapter.id)).toEqual([
       "overview",
       "foundations",
+      "building-blocks",
       "patterns",
       "visuals",
     ]);

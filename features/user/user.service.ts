@@ -4,6 +4,7 @@ import type { FindUserRepo } from "./find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { ActiveWorkspaceService } from "@/features/workspace/active-workspace.service";
 import type { WorkspacePlanService } from "@/ee/subscription/workspace-plan.service";
+import type { IntegrationRequestLimiter } from "@/ee/subscription/integration-request-limiter";
 
 import * as ErrorReporter from "@/core/observability/server";
 
@@ -31,6 +32,7 @@ export class UserService {
     private repo: FindUserRepo,
     private workspaces: ActiveWorkspaceService,
     private plans: Pick<WorkspacePlanService, "canUseIntegrations">,
+    private requestLimits: Pick<IntegrationRequestLimiter, "admit"> = { admit: () => Promise.resolve() },
   ) {}
 
   async getUserOrThrow() {
@@ -63,6 +65,7 @@ export class UserService {
 
     if (!canUseApiKeys(user.role)) throw new ApiKeyAccessDeniedError();
     if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();
+    await this.requestLimits.admit(user.companyId);
 
     return user;
   }

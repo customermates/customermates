@@ -29,7 +29,7 @@ export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retr
         <AppCardHeader className="text-center flex-col gap-2">
           <Image
             alt={title}
-            className="inline-block rounded-lg object-contain select-none shadow-[0_0_10px_0] shadow-primary/10 dark:hidden"
+            className="inline-block rounded-lg object-contain select-none dark:hidden"
             height={48}
             src="/images/light/customermates-square.svg"
             width={48}
@@ -37,7 +37,7 @@ export function ErrorPageView({ title, subtitle, body, backHref, backLabel, retr
 
           <Image
             alt={title}
-            className="hidden rounded-lg object-contain select-none shadow-[0_0_10px_0] dark:inline-block dark:shadow-primary/20"
+            className="hidden rounded-lg object-contain select-none dark:inline-block"
             height={48}
             src="/images/dark/customermates-square.svg"
             width={48}

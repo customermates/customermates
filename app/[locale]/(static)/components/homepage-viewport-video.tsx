@@ -7,12 +7,13 @@ import { HOMEPAGE_MOTION_VISIBILITY_AMOUNT } from "./homepage-motion";
 type Props = {
   ariaLabel: string;
   className?: string;
+  poster?: string;
   src: string;
 };
 
 const AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT;
 
-export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
+export function HomepageViewportVideo({ ariaLabel, className, poster, src }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isMeaningfullyVisibleRef = useRef(false);
   const automaticPlaybackRef = useRef(false);
@@ -27,8 +28,12 @@ export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
     if (!video || typeof IntersectionObserver === "undefined") return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+    let pageSettled = false;
 
     const canStartAutomatically = () =>
+      pageSettled &&
+      !saveData &&
       isMeaningfullyVisibleRef.current &&
       document.visibilityState === "visible" &&
       !reducedMotion.matches &&
@@ -85,11 +90,25 @@ export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
       updatePlaybackForVisibility();
     };
 
+    const settle = () => {
+      pageSettled = true;
+      updatePlaybackForVisibility();
+    };
+    const idle = (callback: () => void) => {
+      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(callback, { timeout: 2000 });
+      else setTimeout(callback, 200);
+    };
+    const onLoad = () => idle(settle);
+
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad, { once: true });
+
     observer.observe(video);
     document.addEventListener("visibilitychange", updatePlaybackForVisibility);
     reducedMotion.addEventListener("change", handleReducedMotionChange);
 
     return () => {
+      window.removeEventListener("load", onLoad);
       observer.disconnect();
       document.removeEventListener("visibilitychange", updatePlaybackForVisibility);
       reducedMotion.removeEventListener("change", handleReducedMotionChange);
@@ -105,7 +124,8 @@ export function HomepageViewportVideo({ ariaLabel, className, src }: Props) {
       aria-label={ariaLabel}
       className={className}
       data-autoplay-when-visible="35-percent"
-      preload="metadata"
+      poster={poster}
+      preload="none"
       src={src}
       onEnded={() => {
         automaticPlaybackRef.current = false;

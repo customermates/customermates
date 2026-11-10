@@ -14,7 +14,7 @@ const iconContainerVariants = cva("rounded-lg flex items-center justify-center",
       lg: "size-11",
     },
     color: {
-      primary: "bg-primary/15 shadow-[0_0_10px_0] shadow-primary/15 dark:bg-primary/20 dark:shadow-primary/20",
+      primary: "bg-primary/8",
       muted: "bg-muted",
       accent: "bg-accent",
     },
@@ -40,7 +40,7 @@ export function IconContainer({
   size = "md",
   color = "primary",
 }: Props) {
-  const iconColorClass = color === "primary" ? "text-primary dark:text-primary" : "text-foreground";
+  const iconColorClass = "text-foreground";
 
   return (
     <div aria-hidden className={cn(iconContainerVariants({ size, color }), className)}>

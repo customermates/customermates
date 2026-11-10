@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Salesforce Agentforce: Wie die KI-Agenten arbeiten und was sie kosten"
-  description: "Agentforce ist die Plattform von Salesforce für KI-Agenten, die Kunden antworten und mit Salesforce-Daten arbeiten. Hier lesen Sie, wie ein Agent aufgebaut ist, was die Preismodelle in der Praxis kosten, was aus Einstein geworden ist und wie Sie Agentforce mit einem einzigen Anwendungsfall einführen."
+  description: "Agentforce ist die Plattform von Salesforce für KI-Agenten, die mit Salesforce-Daten arbeiten. Aufbau eines Agenten, Kosten der Preismodelle, was aus Einstein wurde und wie der Einstieg gelingt."
 
 blogPost:
   author: Benjamin Wagner
@@ -148,7 +148,7 @@ In diesem Abschnitt geht es um Customermates, den Herausgeber dieses Leitfadens.
 |---|---|---|
 | Agenten und Aktionen | Mate, der Assistent in Customermates Cloud, der gehostete KI-Credits verbraucht, dazu [Routinen](/docs/app-routines): gespeicherte Anweisungen, die nach Zeitplan oder bei einer Datensatzänderung laufen | Ein Assistent, kein Agenten-Baukasten, keine Sprache. Löschungen und einige Admin-Aktionen warten auf Ihre Freigabe |
 | Agentforce Data Library | Die Wissensdatenbank, von Hand geschrieben oder von Mate aus Ihrer Website importiert | Mate nennt die Seiten, die er genutzt hat |
-| Flex Credits | Monatliche gehostete KI-Credits pro aktivem Nutzer, im Cloud-Tarif enthalten | Kein Preis pro Aktion; siehe [Preise](/pricing) |
+| Flex Credits | Monatliche gehostete KI-Credits pro aktivem Nutzer, in jedem kostenpflichtigen Tarif enthalten | Kein Preis pro Aktion; siehe [Preise](/pricing) |
 | Eigenes Modell | Claude, ChatGPT und andere Clients verbinden sich über den [MCP-Server](/docs/mcp) und seine [[derived.mcp.tools.total]] Tools, mit Ihrem eigenen KI-Abo | In jedem Tarif und bei Self-Hosting |
 | Einstein Trust Layer | Freigabekarten für Löschungen, Teameinladungen und einige weitere Aktionen | Keine Datenmaskierung, keine Toxizitätswerte |
 | Service-Agenten für Kunden | Keine | Kein Website-Chat, kein Sprachagent, keine Telefonie |
@@ -164,9 +164,9 @@ Unterhaltung. Nichts senden.
 Zum Schluss die gespeicherten Entwürfe auflisten.
 ```
 
-Eine Routine läuft als ihr Eigentümer, mit dessen verbundenen Kanälen und Berechtigungen, und lehnt alles ab, was eine Freigabe bräuchte. Mate versendet Nachrichten, wenn man ihn darum bittet. Deshalb steht in der Anweisung „Nichts senden“.
+Eine Routine läuft als ihr Eigentümer, mit dessen verbundenen Kanälen und Berechtigungen, und lehnt alles ab, was eine Freigabe bräuchte. Mate versendet Nachrichten, wenn man ihn darum bittet. Deshalb steht in der Anweisung „Nichts senden“. Jeden Morgen ausgeführt, ist diese Routine das Nachfassen im Kleinen: Bei jedem Kunden, der zuletzt geschrieben hat, wartet ein Antwortentwurf im Verlauf, und Sie prüfen, bearbeiten und senden ihn.
 
-Für dieselben 10 Personen kostet Pro [[commercial.price.pro.monthly.seats.10]] pro Monat. Darin enthalten sind der [einheitliche Posteingang](/features/unified-inbox) mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer (E-Mail, LinkedIn, WhatsApp, Instagram oder Telegram), bis zu [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer und monatliche gehostete KI-Credits pro aktivem Nutzer. Starter kostet [[commercial.price.starter.monthly.seats.10]] pro Monat, mit Mate und MCP, aber ohne Posteingang. Bezahlt wird monatlich. Self-Hosting liefert den AGPL-Kern mit REST, Webhooks und MCP, ohne Posteingang, Mate und Routinen.
+Für dieselben 10 Personen kostet Pro [[commercial.price.pro.monthly.seats.10]] pro Monat. Darin enthalten sind der [einheitliche Posteingang](/features/unified-inbox) mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer (E-Mail, LinkedIn, WhatsApp, Instagram oder Telegram), bis zu [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer und monatliche gehostete KI-Credits pro aktivem Nutzer. Starter kostet [[commercial.price.starter.monthly.seats.10]] pro Monat, mit Mate und MCP, aber ohne Posteingang. Bezahlt wird monatlich. Self-Hosting liefert den AGPL-Kern mit REST, Webhooks und MCP, ohne Posteingang, Mate und Routinen. Die Routine für Antwortentwürfe braucht den Posteingang, und der beginnt mit Pro. [Testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup), um sie an Ihren eigenen Gesprächen auszuprobieren, ohne Kreditkarte.
 
 Customermates hat keinen Service-Agenten für große Ticketmengen, keinen Sprachagenten und keine prädiktive KI für große Vertriebsteams. Brauchen Sie das, oder hat Ihr Unternehmen seine Abläufe bereits in Salesforce aufgebaut, ist Agentforce der kürzere Weg. Wenn Sie einen Wechsel abwägen, hilft der [Vergleich der Salesforce-Alternativen](/compare/salesforce-alternative).
 

@@ -3,7 +3,7 @@ import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
 import type { TrashRestoreBlockerSource } from "@/features/trash/trash-restore-blocker-source";
 import type { UpsertRoutineSubscriptionRepo } from "./upsert-routine-subscription.repo";
 
-import { getEntitlements } from "@/ee/subscription/entitlements";
+import { effectivePlanId, getEntitlements } from "@/ee/subscription/entitlements";
 
 type RoutineAllowanceReader = {
   trashedRoutineOwners(ids: string[]): Promise<Array<{ id: string; ownerUserId: string }>>;
@@ -24,7 +24,9 @@ export class RoutineTrashBlockers implements TrashRestoreBlockerSource {
       ]),
     );
     if (!owners.size) return [];
-    const limit = getEntitlements((await this.subscriptions.getSubscriptionOrThrow()).plan).includedRoutinesPerUser;
+    const limit = getEntitlements(
+      effectivePlanId(await this.subscriptions.getSubscriptionOrThrow()),
+    ).includedRoutinesPerUser;
     if (limit === "unlimited") return [];
     const active = await this.routines.countActiveRoutinesByOwner([...new Set(owners.values())]);
     const blocked: TrashRestoreBlocker[] = [];

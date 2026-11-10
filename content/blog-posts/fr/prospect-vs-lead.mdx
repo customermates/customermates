@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Qu’est-ce qu’un prospect ? Prospect vs lead, définition et étapes"
-  description: "Une réponse claire à la question du prospect et du lead, un jeu de définitions cohérent du contact au client avec le critère d’entrée, le responsable et la prochaine action de chaque étape, la façon de constituer une liste de prospects et un exemple de suivi dans un CRM."
+  description: "Une réponse claire sur prospect et lead : des définitions cohérentes du contact au client avec critère d’entrée, responsable et prochaine action par étape, et un exemple de suivi dans un CRM."
 
 blogPost:
   author: Benjamin Wagner
@@ -141,9 +141,11 @@ Comment traiter une opposition et préparer une campagne d’appels, le guide de
 
 Customermates est notre produit. Il n’a ni fiche lead ou prospect distincte ni conversion automatique : une personne reste une même fiche contact du premier message à l’affaire signée, et l’étape est un champ que vous, Mate ou votre client IA modifiez. Une opportunité est une affaire liée à ce contact.
 
+L’étape compte parce qu’elle décide de la prochaine relance. Avec LinkedIn et l’e-mail connectés dans Customermates Cloud à partir de Pro, l’échange se range sur ce même contact, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez et envoyez, et les prochaines étapes apparaissent sur votre tableau de bord.
+
 <Steps>
   <Step title="Ajoutez un champ Cycle de vie aux contacts">Dans **Modèle de données**, ouvrez Contacts, choisissez **Ajouter**, puis **Champ**, et créez un champ **Choix unique** « Cycle de vie » avec les options Contact, Lead, Prospect, Client et Disqualifié. Ajoutez un second champ à choix unique « Source » (Recommandation, Site web, LinkedIn, Évènement, Prospection sortante). Un nouvel espace de travail démarre sans listes ; sur Customermates Cloud, la configuration IA peut créer la liste de contacts pour vous.</Step>
-  <Step title="Passez la liste en board">Dans **Apparence**, choisissez **Board** et regroupez par « Cycle de vie ». Chaque étape devient une colonne ; faites glisser une carte quand l’étape change. Enregistrez la configuration comme vue, par exemple « Personnes par étape ». Une vue enregistrée reste privée tant que vous ne la partagez pas : chacun peut enregistrer les siennes, ou vous partagez une vue avec l’équipe. Le [guide des enregistrements](/docs/app-records) décrit les boards, le regroupement et les vues.</Step>
+  <Step title="Passez la liste en board">Dans **Apparence**, choisissez **Board** et regroupez par « Cycle de vie ». Chaque étape devient une colonne ; faites glisser une carte quand l’étape change. Enregistrez la configuration comme vue, par exemple « Personnes par étape ». Partagez-la avec l’équipe pour que tous travaillent avec le même board par étape. Le [guide des enregistrements](/docs/app-records) décrit les boards, le regroupement et les vues.</Step>
   <Step title="Donnez une prochaine action à chaque lead et prospect">Une liste de tâches n’a ni échéance ni statut en standard. Ajoutez un champ **Date** « Échéance » et un champ **Choix unique** « Statut » (Ouverte, Terminée), et liez chaque tâche à son contact. Enregistrez une vue des tâches avec Statut Ouverte, triée par « Échéance », ou affichez-la en calendrier. Customermates n’a pas de rappels : la vue est l’endroit où vous regardez chaque matin. Plus sur ce principe dans les pages sur la [gestion des tâches](/features/task-management) et le [suivi des relances](/features/follow-up).</Step>
   <Step title="Ouvrez une affaire quand le prospect a un périmètre et une valeur">Créez une affaire, liez le contact et l’organisation, et laissez l’étape et la valeur pondérée fonctionner comme le décrit la page sur le [pipeline](/features/pipeline). Quand l’affaire est gagnée, passez le cycle de vie du contact à Client.</Step>
   <Step title="Comptez les étapes">Ajoutez au tableau de bord un widget en diagramme en barres qui compte les contacts par « Cycle de vie ». Il montre où en sont les personnes aujourd’hui ; il ne suit pas la conversion dans le temps.</Step>
@@ -167,6 +169,8 @@ Sur Customermates Cloud, Mate, l’assistant hébergé, utilise des crédits d�
 > Montre-moi tous les contacts au cycle de vie Lead que j’ai créés il y a plus de 14 jours et qui n’ont aucune tâche ouverte. Ne modifie rien pour l’instant.
 
 Avec votre propre client IA, comme Claude ou ChatGPT, le [serveur MCP](/blog/what-is-an-mcp-server) donne accès aux mêmes fiches, facturé par votre fournisseur d’IA. Une installation auto-hébergée n’a pas de Mate ; les champs, le board, les tâches et MCP fonctionnent de la même façon.
+
+Pour l’essayer sur vos propres leads, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 <AcquisitionCallout title="Ce que Customermates ne fait pas ici" variant="boundary">
   Pas de scoring de leads, pas d’enrichissement de données ni de base de leads : Customermates ne trouve pas de prospects et ne les note pas à votre place. Pas de formulaires web pour capter des leads (un outil de formulaires que vous utilisez déjà peut créer des contacts via l’API REST ou un workflow n8n), pas de transmission MQL automatique ni de changement d’étape automatique, pas de séquences d’e-mails et pas de rappels. Si vous traitez des centaines de leads web par mois et avez besoin de scores, de formulaires et de règles de répartition, une plateforme d’automatisation marketing ou une suite CRM plus large convient mieux. Customermates convient à une petite équipe dont les leads arrivent sous forme de conversations et qui veut voir l’étape, la prochaine action et l’historique sur une seule fiche.

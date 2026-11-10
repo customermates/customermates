@@ -101,7 +101,11 @@ Everything its owner can do in the key's workspace, and nothing more. There is n
 
 A key, like an MCP OAuth token, also works only while its owner's role has **Read access** **All** on **API & Webhooks**, checked on every call, including for tokens refreshed later. Without it, MCP answers `403` with `error: insufficient_permissions`, and REST answers `403` with `kind` `authorization` and `customCode` `insufficientPermissions`. Signed-in use of the web app is not affected.
 
-On Customermates Cloud, a workspace that is still waiting for its first plan, such as an additional workspace created without a trial, refuses its keys and OAuth tokens: MCP answers `403` with `error: plan_required`, and REST answers `403` with `kind` `authorization` and `customCode` `workspacePlanRequired`. Creating a key needs a usable plan as well. Once an admin chooses a plan, the existing keys work again. A workspace whose trial ended or whose paid subscription lapsed keeps its existing keys and connections working until its members are set **Inactive**, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+On Customermates Cloud, a workspace that is still waiting for its first plan, such as an additional workspace created without a trial, refuses its keys and OAuth tokens: MCP answers `403` with `error: plan_required`, and REST answers `403` with `kind` `authorization` and `customCode` `workspacePlanRequired`. Creating a key needs a usable plan as well. Once an admin chooses a plan, the existing keys work again. A workspace that had the trial moves to the Free plan when the trial or a later paid plan ends and keeps its keys working; any other workspace whose paid subscription lapsed keeps its existing keys and connections working until its members are set **Inactive**, see [What happens when the trial ends?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+### Is there a request limit on the Free plan? [#is-there-a-request-limit-on-the-free-plan]
+
+Yes. On the Free plan, REST and MCP requests together are limited to [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace. Beyond that, a request gets HTTP `429` with a `Retry-After` header: REST answers with `kind` `rate_limit` and `customCode` `apiRateLimitReached`, MCP with `error: rate_limited`. The error message names Starter, the plan that removes the limit. Paid plans and self-hosted installs have no request limit.
 
 ## Next [#next]
 

@@ -1,7 +1,8 @@
 ---
-title: "Pricing: The Agentic Open-Source CRM"
-titleAccent: simple, honest, European.
-description: "Monthly per-seat pricing for the open-source CRM, from [[commercial.price.starter.monthly]] per user. Core CRM, REST, webhooks and MCP on every plan; the cloud inbox from Pro."
+title: "Customermates Pricing: Simple Per-Seat Plans"
+heading: "One price per person."
+titleAccent: "Start with Pro for [[commercial.trial.days]] days."
+description: "Free plan for one person, paid plans from [[commercial.price.starter.monthly]] per user a month, billed monthly. Try Pro free for [[commercial.trial.days]] days, no card needed. Compare every plan side by side."
 
 pricing:
   ariaLabelSlider: Number of users
@@ -10,105 +11,126 @@ pricing:
   footnote: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Starter has no connected accounts. On Pro you share individual threads; sharing a whole account with the team starts on Business. Prices are per seat, billed monthly in euros."
   totalSuffixSingular: "/month total for {count} user"
   totalSuffixPlural: "/month total for {count} users"
+  moreTitle: "More usage or a custom setup"
+  selfHost:
+    text: "Prefer to run it yourself? The open-source edition is free to self-host."
+    linkLabel: "Self-hosting guide"
+    href: /docs/self-hosting
   pricingCards:
+  - plan: free
+    title: Free
+    description: "Try it alone, free: [[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records."
+    buttonText: "How Free works"
+    buttonHref: "#faq"
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - "[[commercial.limit.free.fileStorageBytes]] file storage per workspace"
+      - "API and MCP with [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day"
+      - "No inbox, Mate, routines, webhooks or n8n triggers"
   - plan: starter
     title: Starter
-    description: Core CRM & MCP
-    buttonText: Start free trial
+    description: "Your CRM and your own AI"
+    buttonText: "Start [[commercial.trial.days]]-day Pro trial"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
-      - Contacts, organizations, deals, services & tasks
-      - "MCP access: connect an external AI client such as Claude, ChatGPT, or Gemini"
-      - REST API, webhooks & interfaces for your own n8n
-      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user: let Mate work on a schedule or when a record changes"
-      - "Mate usage: 1x per active user, the base allowance (usable when Mate is enabled)"
-      - No inbox or connected messaging accounts
-      - "Self-hosting: the Starter feature set without Mate, routines or AI setup"
+      - Contacts, companies, deals and tasks
+      - "Connect your own AI over MCP: Claude, ChatGPT or Gemini"
+      - REST API, webhooks and your own n8n
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user: Mate works on a schedule or when a record changes"
+      - "Mate usage: 1x per active user, the base allowance"
+    missingFeatures:
+      - Unified inbox for LinkedIn and email
+      - Mate drafting replies to your conversations
   - plan: pro
     title: Pro
-    description: CRM + unified inbox. Includes your [[commercial.trial.days]]-day free trial.
-    badge: "[[commercial.trial.days]]-day free trial"
-    buttonText: Start free trial
-    buttonHref: /auth/signup
-    buttonColor: default
-    buttonVariant: bordered
-    features:
-      - Everything in Starter
-      - "Unified inbox for your own accounts: Email, LinkedIn, WhatsApp, Instagram, Telegram"
-      - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
-      - Share individual threads with teammates
-      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user: let Mate work on a schedule or when a record changes"
-      - Read-only calendar access & LinkedIn Sales Navigator
-      - "Mate usage: 3x Starter per active user (usable when Mate is enabled)"
-  - plan: business
-    title: Business
-    description: For teams
-    badge: Recommended
+    badge: "Best for follow-up"
     featured: true
-    buttonText: Start free trial
+    description: "Follow up from LinkedIn and email"
+    buttonText: "Start [[commercial.trial.days]]-day Pro trial"
     buttonHref: /auth/signup
     buttonColor: primary
     buttonVariant: shadow
-    shadow: md
-    cardClassName: border-2 border-primary shadow-[0_0_24px] shadow-primary/20 dark:bg-content2
+    features:
+      - "Your LinkedIn, email, WhatsApp, Instagram and Telegram in one inbox"
+      - Mate drafts replies from your playbook for you to review and send
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user included"
+      - Share individual threads with teammates
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user: Mate works on a schedule or when a record changes"
+      - Read-only calendar access and LinkedIn Sales Navigator
+      - "Mate usage: 3x Starter per active user"
+      - Everything in Starter
+  - plan: business
+    title: Business
+    badge: "For teams"
+    description: "Teams that share inboxes"
+    buttonText: "Start [[commercial.trial.days]]-day Pro trial"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
     features:
       - Everything in Pro
       - "[[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user included"
-      - "Routines per user: [[commercial.entitlement.business.includedRoutinesPerUser]] (fair use)"
       - "Whole-account sharing: share a connected account with the team"
+      - "Routines per user: [[commercial.entitlement.business.includedRoutinesPerUser]] (fair use)"
       - Priority support
-      - "Mate usage: 10x Starter per active user, the most usage per euro (usable when Mate is enabled)"
+      - "Mate usage: 10x Starter per active user, the most usage per euro"
   - plan: max
     title: Max
-    description: For heavy Mate users
-    buttonText: Start free trial
+    description: "For heavy Mate use"
+    buttonText: "Start [[commercial.trial.days]]-day Pro trial"
     buttonHref: /auth/signup
     buttonColor: default
     buttonVariant: bordered
     features:
       - Everything in Business
+      - "Mate usage: 20x Starter per active user"
       - "[[commercial.entitlement.max.includedAccountsPerUser]] connected accounts per user included"
-      - "Mate usage: 20x Starter per active user (usable when Mate is enabled)"
-      - Priority support
-      - Early access to beta features
+      - Priority support and early access to beta features
   - plan: enterprise
     title: Enterprise
-    description: Custom scope & support
+    description: Custom scope and support
     buttonText: Contact sales
     buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
     buttonColor: primary
     buttonVariant: solid
     features:
       - Everything in Business
-      - Contracted custom-agent or lead-data workflows (not built in)
       - Done-for-you setup
+      - Contracted custom-agent or lead-data workflows (not built in)
+      - Dedicated support and custom terms
       - "Connected accounts per user: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (fair use); SSO & white-label are not implemented and require contracted work"
-      - Dedicated support & custom terms
-      - "Mate usage: custom, contract-configured per active user/month (usable when Mate is enabled)"
+      - "Mate usage: custom, contract-configured per active user/month"
 
 comparison:
+  apiLimitValue: "{perMinute}/min, {perDay}/day"
   customValue: Custom
-  header: Plans
+  header: "Compare every feature"
   unlimitedValue: Unlimited (fair use)
+  workspaceStorageValue: "{size} per workspace"
   plans:
+    free:
+      name: Free
+      button: "Start [[commercial.trial.days]]-day Pro trial"
+      buttonHref: /auth/signup
     starter:
       name: Starter
-      button: Start free trial
+      button: "Start [[commercial.trial.days]]-day Pro trial"
       buttonHref: /auth/signup
     pro:
       name: Pro
-      button: Start free trial
-      buttonHref: /auth/signup
-    business:
-      name: Business
-      button: Start free trial
+      button: "Start [[commercial.trial.days]]-day Pro trial"
       buttonHref: /auth/signup
       featured: true
+    business:
+      name: Business
+      button: "Start [[commercial.trial.days]]-day Pro trial"
+      buttonHref: /auth/signup
     max:
       name: Max
-      button: Start free trial
+      button: "Start [[commercial.trial.days]]-day Pro trial"
       buttonHref: /auth/signup
     enterprise:
       name: Enterprise
@@ -121,6 +143,10 @@ comparison:
         catalogFact: monthlyPrice
       - label: Mate usage per active user (multiple of Starter)
         catalogFact: hostedAiUsage
+      - label: "People per workspace"
+        catalogFact: maxMembers
+      - label: "Records"
+        catalogFact: maxRecords
   - title: Messaging
     rows:
       - label: Unified inbox
@@ -130,24 +156,28 @@ comparison:
       - label: Whole-account sharing
         catalogFact: sharedAccounts
       - label: Share individual threads
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Read-only calendar access
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Social post tracking
+        free: false
         starter: false
         pro: true
         business: true
         max: true
         enterprise: true
       - label: LinkedIn Sales Navigator
+        free: false
         starter: false
         pro: true
         business: true
@@ -159,37 +189,47 @@ comparison:
         catalogFact: includedRoutinesPerUser
       - label: File storage per user, shared in the workspace
         catalogFact: fileStoragePerActiveUser
+      - label: "API and MCP requests per workspace"
+        catalogFact: apiRequestLimit
       - label: Contacts, organizations, deals, services & tasks
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Custom fields, roles & permissions
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
       - label: Linked records & notes
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: REST API & webhooks
+      - label: "REST API"
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
+      - label: "Webhooks and the n8n trigger"
+        catalogFact: webhooks
       - label: MCP access for an external AI client
+        free: true
         starter: true
         pro: true
         business: true
         max: true
         enterprise: true
-      - label: Interfaces for an external n8n instance
+      - label: n8n actions that read and write records
+        free: true
         starter: true
         pro: true
         business: true
@@ -198,36 +238,42 @@ comparison:
   - title: Enterprise
     rows:
       - label: Single Sign-On (not yet built, by agreement)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "On request"
       - label: White-label (not yet built, by agreement)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "On request"
       - label: Contracted custom-agent workflow (not built in)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "On request"
       - label: Contracted lead-data workflow (not built in)
+        free: false
         starter: false
         pro: false
         business: false
         max: false
         enterprise: "On request"
       - label: Support
+        free: "Community & email"
         starter: "Community & email"
         pro: "Community & email"
         business: "Priority"
         max: "Priority"
         enterprise: "Dedicated"
       - label: Early access to beta features
+        free: false
         starter: false
         pro: false
         business: false
@@ -251,7 +297,7 @@ faq:
     content: "A new workspace starts without lists. On Customermates Cloud, AI setup builds lists, stages, a dashboard and Knowledge Base pages from your description once at onboarding, within a credit cap, and you can skip it to start with an empty workspace. Otherwise people with Data model rights create lists and fields in Data model and import records from an Excel workbook."
   - id: pricing-faq-5
     title: What is not included in any plan?
-    content: "Customermates does not include sequences or mass outreach, quotes or invoicing, telephony or SMS, web forms or native mobile apps. The inbox works through supported provider integrations, not the official WhatsApp Business API or LinkedIn CRM Sync. SSO and white-label are not built and are only available as contracted Enterprise work."
+    content: "Customermates does not include sequences or mass outreach, quotes or invoicing, telephony or SMS, web forms, or native mobile apps. The inbox works through supported provider integrations, not the official WhatsApp Business API or LinkedIn CRM Sync. SSO and white-label are not built and are only available as contracted Enterprise work."
   - id: pricing-faq-6
     title: What counts as a connected account?
     content: "A connected account is one linked mailbox, LinkedIn, WhatsApp, Instagram, or Telegram profile that belongs to a single user. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business includes [[commercial.entitlement.business.includedAccountsPerUser]] per user, Max includes [[commercial.entitlement.max.includedAccountsPerUser]] per user, and Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] under fair use. If you need more than [[commercial.entitlement.max.includedAccountsPerUser]] accounts per user, Enterprise is the right plan. Starter and self-hosted instances have no connected accounts. On Pro, each person works in their own accounts and can share individual threads; sharing a whole connected account with the team needs Business, Max or Enterprise."
@@ -260,7 +306,7 @@ faq:
     content: "You pay per active user. When you add or remove users, the change is prorated on your next invoice. Plan upgrades apply immediately with a prorated charge for the remainder of the billing period, and downgrades apply immediately with the unused portion credited."
   - id: pricing-faq-8
     title: How does Mate usage work?
-    content: "Every cloud plan includes a Mate entitlement and a monthly Mate usage allowance per active user, stated as a multiple of the Starter allowance: Starter 1x, Pro 3x, Business 10x, Max 20x, and Enterprise as contracted. Business gives the most usage per euro. Usage counts only when Mate is enabled in the hosted environment: hosted AI processing in Customermates then counts toward it. Usage follows the actual provider cost, including model calls and server-side semantic retrieval, so a simple question uses a small share and a multi-step request more. In the app, the Mate meter shows how much of the monthly allowance is used as a percentage. Paid allowances reset monthly; unused usage does not roll over. Every active trial user has the Pro allowance of 3x. Active members’ allowances form the shared workspace pool; each member also has an individual allocation. New paid seats receive an exact prorated allowance for the remaining billing period. Upgrades increase the current allowance immediately; downgrades reduce it immediately. External MCP clients use your own AI provider for model calls. Server-side semantic retrieval can count toward Mate usage, including through MCP. Mate is cloud-only. There are no top-ups or automatic overage charges."
+    content: "Every paid cloud plan includes a Mate entitlement and a monthly Mate usage allowance per active user, stated as a multiple of the Starter allowance: Starter 1x, Pro 3x, Business 10x, Max 20x, and Enterprise as contracted. Business gives the most usage per euro. Usage counts only when Mate is enabled in the hosted environment: hosted AI processing in Customermates then counts toward it. Usage follows the actual provider cost, including model calls and server-side semantic retrieval, so a simple question uses a small share and a multi-step request more. In the app, the Mate meter shows how much of the monthly allowance is used as a percentage. Paid allowances reset monthly; unused usage does not roll over. Every active trial user has the Pro allowance of 3x. Active members’ allowances form the shared workspace pool; each member also has an individual allocation. New paid seats receive an exact prorated allowance for the remaining billing period. Upgrades increase the current allowance immediately; downgrades reduce it immediately. External MCP clients use your own AI provider for model calls. Server-side semantic retrieval can count toward Mate usage, including through MCP. Mate is cloud-only. There are no top-ups or automatic overage charges."
   - id: pricing-faq-9
     title: Can one login use several workspaces?
     content: "Yes. One login can belong to several fully separate workspaces, for example one for sales and one for bookkeeping, and switch between them. Each workspace has its own plan, subscription and invoices, and seats count per workspace: a person who is active in two workspaces is a paid seat in both. The first workspace you create includes the [[commercial.trial.days]]-day free trial; every additional workspace starts by choosing a plan. A self-hosted instance runs any number of workspaces without billing."
@@ -270,13 +316,19 @@ faq:
   - id: pricing-faq-11
     title: Where are my data and connected-account credentials stored?
     content: "The cloud database runs in AWS Frankfurt, and connected accounts sign in through Unipile's hosted flow, so Customermates never receives provider passwords or OAuth tokens. The full answer is in the docs: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
+  - id: pricing-faq-12
+    title: "What is the Free plan?"
+    content: "Your first Cloud workspace starts with the [[commercial.trial.days]]-day Pro trial, no credit card; every further workspace starts by choosing a plan. If the trial ends without a paid plan, the workspace moves to Free instead of being locked, and nothing is deleted. Free is for trying Customermates on your own: [[commercial.limit.free.maxMembers]] person, up to [[commercial.limit.free.maxRecords]] records and [[commercial.limit.free.fileStorageBytes]] file storage per workspace. It has no inbox or connected accounts, no Mate, no routines, no webhooks and no n8n trigger. The REST API and MCP are included with up to [[commercial.limit.free.apiRequestsPerMinute]] requests per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace, so you can bring your own Claude or ChatGPT. Records and files above a limit stay; only adding more is refused. You can move to a paid plan at any time. A self-hosted instance stays free without these limits."
+  - id: pricing-faq-13
+    title: "What happens to my team when a workspace moves to Free?"
+    content: "Free keeps [[commercial.limit.free.maxMembers]] active person per workspace: the person who created the workspace, or else the earliest admin. Everyone else is paused, not removed. Paused people cannot open the workspace, and their records, notes and history stay. Open invitations and join requests are cancelled, routines are paused and existing webhooks stop sending. An admin can hand the active seat to another admin. As soon as the workspace chooses any paid plan, every paused person is back automatically and counts as a paid seat again, and routines and webhooks resume."
 
 cta:
-  action: Ready to get started?
-  description: Explore an example small-business workspace with sample data, or start your own trial on Customermates Cloud with Pro features.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
-  buttonRightText: Explore the workspace
-  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
-  hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+  action: "Ready to follow up on every client?"
+  description: "Start with one channel and one client: [[commercial.trial.days]] days on Pro, no credit card. Or talk to Ben for 15 minutes first."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Talk to Ben, 15 minutes"
+  buttonRightHref: /contact
+  hint: "No credit card · Cancel anytime · Made in Germany"
 ---

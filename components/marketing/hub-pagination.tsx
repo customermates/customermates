@@ -14,7 +14,7 @@ type Props = {
 };
 
 const pageClassName =
-  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
+  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
 export function HubPagination({ basePath, label, nextLabel, page, pageCount, previousLabel }: Props) {
   if (pageCount < 2) return null;
@@ -52,7 +52,7 @@ export function HubPagination({ basePath, label, nextLabel, page, pageCount, pre
                   <span
                     aria-current="page"
                     aria-label={String(number)}
-                    className={cn(pageClassName, "border-primary font-medium text-primary")}
+                    className={cn(pageClassName, "border-foreground font-medium text-foreground")}
                   >
                     {number}
                   </span>

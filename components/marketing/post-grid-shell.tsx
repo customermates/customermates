@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import type { Hero } from "@/core/fumadocs/schemas/common";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHeroView } from "@/components/marketing/landing-hero";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 type Props = {
@@ -13,10 +13,10 @@ type Props = {
 export function PostGridShell({ children, hero }: Props) {
   return (
     <div className="flex w-full flex-col items-center" data-marketing-flow="continuous">
-      <PageHero {...hero} />
+      <LandingHeroView hero={hero} />
 
-      <MarketingSection className="py-14 sm:py-18 lg:py-20" tone="canvas">
-        <div className="grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3" data-hub-results="">
+      <MarketingSection className="mk-section-tight pt-6 sm:pt-8">
+        <div className="grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-hub-results="">
           {children}
         </div>
       </MarketingSection>

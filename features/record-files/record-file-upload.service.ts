@@ -12,6 +12,9 @@ import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeRecordFileMimeType, sanitizeRecordFileName } from "./record-file-name";
 import { fileSizeLabel } from "@/core/utils/format-bytes";
+import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { getTranslator } from "@/i18n/get-translator";
+import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 import { exceedsFileStorageQuota } from "./record-file-quota";
 
 export type RecordFileUploadLimits = { maxBytes: number; driver: FileStorageDriverName };
@@ -61,12 +64,9 @@ export class RecordFileUploadService extends UserAccessor {
     const name = sanitizeRecordFileName(input.name);
     if (!name) throw unwindFailure(CustomErrorCode.recordFileNameInvalid, "validation", ["name"]);
     const usage = await this.quota.usage();
-    if (exceedsFileStorageQuota(usage.usedBytes, input.size, usage.limitBytes)) {
-      throw unwindFailure(CustomErrorCode.storageQuotaExceeded, "conflict", ["size"], {
-        used: fileSizeLabel(usage.usedBytes, locale),
-        limit: fileSizeLabel(usage.limitBytes ?? 0, locale),
-      });
-    }
+    if (exceedsFileStorageQuota(usage.usedBytes, input.size, usage.limitBytes))
+      throw await this.storageFailure(usage.usedBytes, usage.limitBytes ?? 0, locale);
+
     const id = randomUUID();
     const file: PendingRecordFile = {
       id,
@@ -79,5 +79,21 @@ export class RecordFileUploadService extends UserAccessor {
     };
     await this.files.createPendingFile(file);
     return file;
+  }
+
+  private async storageFailure(usedBytes: number, limitBytes: number, locale: string): Promise<Error> {
+    const used = fileSizeLabel(usedBytes, locale);
+    const limit = fileSizeLabel(limitBytes, locale);
+    const upgradePlan = await this.quota.upgradePlan();
+    if (!upgradePlan)
+      return unwindFailure(CustomErrorCode.storageQuotaExceededTopPlan, "conflict", ["size"], { used, limit });
+    const perUser = PLAN_CATALOG[upgradePlan].entitlements.fileStorageBytesPerActiveUser;
+    const t = await getTranslator(isAppLocale(locale) ? locale : DEFAULT_LOCALE);
+    return unwindFailure(CustomErrorCode.storageQuotaExceeded, "conflict", ["size"], {
+      used,
+      limit,
+      plan: t(`Subscription.planNames.${upgradePlan}`),
+      size: typeof perUser === "number" ? fileSizeLabel(perUser, locale) : "",
+    });
   }
 }

@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/gmail-crm-integration
 
 hero:
-  title: "Outlook CRM Integration: The Three Ways a CRM Connects to Outlook, and Which One Fits Your Team"
-  description: "What an Outlook add-in does and what server-side sync does, what HubSpot, Microsoft Dynamics 365, Salesforce and Pipedrive offer for Outlook, why the new Outlook for Windows matters, and how to test an integration before you roll it out."
+  title: "Outlook CRM Integration: Three Ways to Connect and Which Fits"
+  description: "What an Outlook add-in does and what server-side sync does, what HubSpot, Dynamics 365, Salesforce and Pipedrive offer for Outlook, why the new Outlook for Windows matters, and how to test it."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,6 +107,8 @@ The [inbox guide](/docs/app-inbox) covers permissions, drafts and filters in det
 
 ### Let Mate or your own AI client do the follow-up
 
+The reason to bring Outlook into Customermates is follow-up: each client email sits on the client record, Mate or your own AI agent drafts the reply and the next step, you review and send, and the next steps appear on your dashboard.
+
 In Customermates Cloud, Mate can summarise a thread or draft a reply, and it uses hosted AI credits. A routine runs a saved instruction when something happens. For Outlook mail, create a routine with the trigger **When something changes**, pick the event **Email Received**, and write instructions like these:
 
 > When an email arrives from a contact who has an open deal assigned to me, read the thread and the deal. Save a reply draft in the thread that answers the open question. Do not send anything. If the email asks for a meeting, say so in the draft instead of proposing times.
@@ -116,6 +118,8 @@ The "do not send" sentence matters. A routine runs as its owner with the owner's
 ### What it costs
 
 A five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]] per month. Each user gets [[commercial.entitlement.pro.includedAccountsPerUser]] connected account, enough for one Outlook mailbox per person. Sharing a whole team mailbox needs Business, which is [[commercial.price.business.monthly.seats.5]] per month for the same five people and includes [[commercial.entitlement.business.includedAccountsPerUser]] accounts per user. Starter at [[commercial.price.starter.monthly]] per user has no inbox and no Outlook connection. See [pricing](/pricing) for the monthly hosted AI credits per active user.
+
+To try it with your own Outlook, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 <AcquisitionCallout title="Where Customermates is not the right fit" variant="boundary">
 There is no Outlook add-in, so CRM details are looked up in Customermates, not in an Outlook side panel. Outlook contacts and tasks do not sync, and calendar events are read-only. Customermates has no email sequences or mass email. A self-hosted installation has no inbox and no Outlook connection at all; it offers REST, webhooks and MCP. If your team must stay inside Outlook, or needs two-way contact sync with the Exchange address book, choose a CRM with a web add-in and server-side sync from the table above.

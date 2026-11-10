@@ -1,4 +1,4 @@
-export type StyleguideChapterId = "overview" | "foundations" | "patterns" | "visuals";
+export type StyleguideChapterId = "overview" | "foundations" | "building-blocks" | "patterns" | "visuals";
 
 export type StyleguideSection = {
   id: string;
@@ -17,29 +17,31 @@ export type StyleguideChapter = {
 export const STYLEGUIDE_CHAPTERS = [
   {
     description:
-      "Start with the message, decide whether it earns a visual, and move into the chapter that owns the decision.",
+      "How Customermates looks, moves and sells: the principles taken from Attio, Linear and Apple, the one colour rule and the selling checklist every page passes.",
     href: "/styleguide",
     id: "overview",
     label: "Overview",
     sections: [
-      { id: "orientation", label: "How to use the guide" },
+      { id: "principles", label: "Principles" },
+      { id: "references", label: "What we take from each reference" },
+      { id: "selling", label: "Selling checklist" },
       { id: "decision-tree", label: "Visual decision tree" },
       { id: "chapter-map", label: "Chapter map" },
     ],
-    title: "Marketing visual system",
+    title: "Customermates design system",
   },
   {
-    description: "The tokens, type, geometry and responsive constraints shared by every public marketing surface.",
+    description: "The tokens, type scale, depth, motion and responsive rules shared by every public page.",
     href: "/styleguide/foundations",
     id: "foundations",
     label: "Foundations",
     sections: [
       { id: "surfaces", label: "Surfaces" },
       { id: "edges-washes", label: "Edges and washes" },
-      { id: "signals", label: "Accent and signal" },
-      { id: "typography", label: "Typography" },
+      { id: "signals", label: "Ink and signal colours" },
+      { id: "typography", label: "Type scale" },
       { id: "geometry", label: "Geometry" },
-      { id: "heading-gradient", label: "Display gradient" },
+      { id: "depth", label: "Depth" },
       { id: "glass", label: "Glass and floating surfaces" },
       { id: "product-framing", label: "Product framing" },
       { id: "motion-rules", label: "Motion" },
@@ -47,6 +49,26 @@ export const STYLEGUIDE_CHAPTERS = [
       { id: "prohibitions", label: "Global prohibitions" },
     ],
     title: "Foundations",
+  },
+  {
+    description:
+      "The reusable pieces every page is built from, shown live: buttons, headers, heroes, cards, badges, chips, links, the closing panel, the product film and the use-case cards.",
+    href: "/styleguide/building-blocks",
+    id: "building-blocks",
+    label: "Building blocks",
+    sections: [
+      { id: "buttons", label: "Buttons" },
+      { id: "section-header", label: "Section header" },
+      { id: "hero", label: "Hero" },
+      { id: "cards", label: "Cards" },
+      { id: "badges-chips", label: "Badges and chips" },
+      { id: "links", label: "Links and icon tiles" },
+      { id: "closing", label: "Closing panel" },
+      { id: "film", label: "Product film" },
+      { id: "use-cases", label: "Ways you can use it" },
+      { id: "signature-visuals", label: "Signature visuals" },
+    ],
+    title: "Building blocks",
   },
   {
     description:

@@ -73,7 +73,8 @@ import {
   GRAPH_VISIBLE_FIELDS,
 } from "./configure-graph-layout";
 import { ACCOUNTS_NODE_ID, configureGraphData } from "./configure-graph-model";
-import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { billingHref, settingsHref } from "@/app/components/navigation/settings-routes";
+import { MESSAGING_UPSELL_PLAN } from "@/app/components/upsell/plan-upsell-highlights";
 import { recordFieldTypeKey } from "@/features/records/record-input-value";
 import { ConfigureListAddItems } from "./configure-add-menu";
 import { SublistSentence } from "./sublist-sentence";
@@ -402,7 +403,10 @@ function PromptNodeView({ data: { state } }: NodeProps<PromptNode>) {
 
       <div className="px-3.5 pt-2 pb-3">
         <Button asChild className="nodrag" size="xs" variant="secondary">
-          <AppLink appearance="unstyled" href={state === "locked" ? settingsHref("billing") : CONNECTED_ACCOUNTS_HREF}>
+          <AppLink
+            appearance="unstyled"
+            href={state === "locked" ? billingHref(MESSAGING_UPSELL_PLAN) : CONNECTED_ACCOUNTS_HREF}
+          >
             {state === "locked" ? t("MessagingUpsell.cta") : t("ConnectedAccountsCard.connectAccount")}
           </AppLink>
         </Button>

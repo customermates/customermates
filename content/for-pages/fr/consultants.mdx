@@ -1,6 +1,6 @@
 ---
-title: "CRM pour consultants : clients et missions de conseil"
-description: "CRM pour consultants indépendants et petits cabinets : clients, missions chiffrées en jours × tarif journalier, e-mail et LinkedIn réunis sur une fiche."
+title: "CRM pour consultants : relancez chaque proposition"
+description: "CRM pour consultants : clients, missions et propositions à côté des échanges LinkedIn et e-mail, avec Mate qui rédige chaque relance à relire et envoyer."
 industryName: "Consultants"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/coaches
 
 hero:
-  title: "CRM pour consultants : gardez la relation derrière chaque mission"
-  description: "Pour les consultants indépendants et les petits cabinets de conseil qui décrochent leurs missions par recommandation et par la conversation. Suivez clients, contacts et missions, de la première prise de contact à la décision puis à la réalisation. Le contexte e-mail et LinkedIn demande Customermates Cloud à partir de Pro ; le suivi du temps, la facturation et les propositions restent dans vos autres outils."
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  title: "CRM pour consultants : relancez avant qu’une proposition ne retombe"
+  description: "Les propositions retombent pendant que vous réalisez la mission. Les fils LinkedIn et e-mail sont rattachés au client, Mate rédige la réponse et la prochaine étape, et vous relisez et envoyez. Suivi du temps et facturation restent dans vos outils."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/consultants/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+landing:
+  hero:
+    eyebrow: Pour les cabinets de conseil et les consultants indépendants
+    title: Le CRM pour consultants qui fait avancer chaque proposition.
+    description: Clients, missions et propositions avec les conversations LinkedIn et e-mail associées. Mate rédige la relance à partir de votre guide de propositions, et vous la relisez et l’envoyez.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Parler à Ben, 15 minutes
+      href: /contact
+  facts: Sans carte bancaire · Gardez vos outils actuels · Pro dès [[commercial.price.pro.monthly]] par personne/mois
+  generator:
+    eyebrow: À partir d’une seule description
+    title: Votre cabinet, décrit une fois. Construit pour vous.
+    description: La configuration IA pose quelques questions et construit clients, missions, propositions, votre pipeline et votre guide. Voici l’exemple de cabinet de conseil ; explorez-le.
+    promptLabel: Votre description pour Mate
+    arrowLabel: est devenue cet espace
+    prompt: Nous sommes un cabinet de conseil en stratégie de quatre personnes. Suis nos clients, missions et propositions, et aide-nous à relancer nos prospects sur LinkedIn.
+  followUp:
+    eyebrow: Une réponse du vendredi, traitée
+    title: Le prospect demande une proposition révisée. La relance a une date.
+    description: La conversation LinkedIn est rattachée au client. Mate rédige la réponse à partir de votre guide et inscrit « Envoyer la proposition révisée » sur la liste de mardi.
+    desk:
+      label: Scène de suivi client avec des données de démonstration
+      workspace: Lindqvist Conseil
+      conversation:
+        label: LinkedIn
+        name: Jonas Weber
+        company: Halden & Co.
+        time: ven. 16:42
+        message: Ça me va. Pouvez-vous m’envoyer la proposition révisée la semaine prochaine ? Je la présenterai à notre direction.
+      agent:
+        name: Mate
+        intent: Rédige une réponse à partir de votre guide de propositions
+        done: Brouillon enregistré. Prochaine étape ajoutée à votre tableau de bord.
+      draft:
+        badge: Brouillon, en attente de votre relecture
+        text: Bonjour Jonas, merci. Je vous envoie la proposition révisée mardi, avec les deux options d’atelier dont nous avons parlé. Bien à vous, Anna
+        edit: Modifier
+        send: Envoyer le brouillon
+      today:
+        title: Tableau de bord
+        date: mardi
+        addedBy: Ajouté par Mate
+        assign: Attribuer
+        sections:
+          - title: Prochaines étapes à traiter
+            items:
+              - title: Envoyer la proposition révisée
+                meta: Halden & Co. · à faire aujourd’hui
+                owner: AL
+                state: added
+              - title: Relancer pour la signature
+                meta: Norrland Studio · en retard de 2 jours
+                owner: AL
+                state: overdue
+          - title: Propositions sans réponse
+            items:
+              - title: Proposition Norrland Studio
+                meta: envoyée il y a 5 jours
+                owner: AL
+                state: due
+  beforeAfter:
+    eyebrow: Ce qui change
+    title: Avant et après. Les mêmes clients, moins d’oublis.
+    before:
+      label: Avant
+      points:
+        - Des propositions suivies dans un tableur
+        - Des réponses dispersées entre LinkedIn et l’e-mail
+        - Des relances qui ne vivent que dans votre tête
+    after:
+      label: Avec Customermates
+      points:
+        - Chaque mission a une prochaine étape avec une date et un responsable
+        - La conversation est rattachée au client, avec un brouillon prêt
+        - Votre tableau de bord montre ce qui est à faire, rien de plus
+  steps:
+    eyebrow: Pour commencer
+    title: Trois étapes. Jusqu’à votre première relance.
+    items:
+      - title: Décrivez votre cabinet
+        description: La configuration IA construit clients, missions, propositions et votre guide à partir d’une description et de quelques réponses.
+      - title: Connectez LinkedIn ou l’e-mail
+        description: Les conversations arrivent sur le client dont l’adresse e-mail ou le profil LinkedIn correspond. Sur Pro, un compte connecté par personne.
+      - title: Relisez les relances depuis votre tableau de bord
+        description: Mate rédige la réponse et date la prochaine étape. Vous modifiez, envoyez ou ignorez.
+  plan:
+    eyebrow: Tarifs
+    title: Pro suffit. [[commercial.price.pro.monthly]] par personne et par mois.
+    description: Si des collègues répondent depuis un compte partagé, il vous faut Business à [[commercial.price.business.monthly]]. Votre abonnement Claude ou ChatGPT reste chez son fournisseur.
+    limits: Ne convient pas si vous avez besoin de suivi du temps, de facturation, de documents de proposition ou de séquences d’e-mails. Vos autres outils restent là pour ces besoins.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Comparer toutes les offres
+      href: /pricing
 
 cta:
-  action: Gardez au même endroit chaque mission et la relation qui la porte
-  description: Explorez l’espace de travail d’exemple pour le conseil, avec des données d’exemple, puis lancez le vôtre. Les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  action: Sachez quelle proposition demande une relance aujourd’hui
+  description: Explorez l’espace de travail d’exemple pour le conseil, avec des données d’exemple, puis lancez le vôtre avec un canal et un client. Les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturées au mois.
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explorer l’espace de travail
   buttonRightHref: https://demo.customermates.com/fr/w/consultants/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+useCases:
+  eyebrow: "Comment l’utiliser"
+  title: "Pour les consultants. Trois besoins, un seul espace."
+  items:
+    - title: "Relancer chaque proposition après l’appel"
+      description: "Chaque mission avance de l’introduction à la décision avec une prochaine étape datée, pour relancer chaque proposition."
+      href: /features/pipeline
+      linkLabel: "Voir le pipeline"
+      visual: proposal
+    - title: "Relancer là où le client a écrit"
+      description: "Les échanges LinkedIn et e-mail sont rattachés à la mission, et Mate rédige la relance à partir de votre guide de proposition, à relire et envoyer."
+      href: /features/follow-up
+      linkLabel: "Voir le suivi client"
+      visual: conversation
+    - title: "Écrire votre guide une seule fois"
+      description: "Étapes de proposition, tarifs et méthode de travail vivent dans la base de connaissances, et Mate rédige à partir des pages autorisées."
+      href: /features/knowledge-base
+      linkLabel: "Voir la base de connaissances"
+      visual: playbook
 ---
 
-Un **CRM pour consultants** a une seule mission : vous dire quelles relations clients et quelles missions ouvertes ont besoin de vous cette semaine, et vous donner le contexte pour agir. Customermates est un CRM open source et IA native, développé en Allemagne. Il réunit au même endroit les clients, les personnes qui les composent, chaque mission et, dans Customermates Cloud à partir de la formule Pro, les conversations e-mail et LinkedIn qui les entourent. Il couvre la conquête des missions. Le suivi du temps, la facturation, la rédaction des propositions et la réalisation des projets restent dans d’autres outils.
+Une proposition part, le client ne répond plus, et le message suivant arrive sur LinkedIn pendant que vous êtes pris par la réalisation. Un **CRM pour consultants** a sa place là : il garde le client, ses interlocuteurs et chaque mission sur une seule fiche, pour que vous voyiez quelle relation demande une réponse cette semaine. Customermates est un CRM open source et IA native, développé en Allemagne. Dans Customermates Cloud à partir de la formule Pro, les fils e-mail et LinkedIn sont rattachés au client. Mate, ou votre propre agent IA via MCP, rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez. Il couvre la conquête des missions. Le suivi du temps, la facturation, la rédaction des propositions et la réalisation des projets restent dans d’autres outils.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Convient à">
@@ -48,8 +168,7 @@ Un **CRM pour consultants** a une seule mission : vous dire quelles relations c
   </SummaryItem>
   <SummaryItem label="Non inclus">
     Suivi du temps, facturation, rédaction de propositions, réalisation de
-    projets, portail client et permissions au niveau
-    des champs.
+    projets, portail client et permissions au niveau des champs.
   </SummaryItem>
 </ArticleSummary>
 
@@ -62,6 +181,19 @@ Beaucoup d’outils vendus comme des CRM pour consultants regroupent le pipeline
 - **Les conversations sont dispersées.** L’introduction arrive sur LinkedIn, le cadrage se fait par e-mail. Une liste de contacts ne voit ni l’un ni l’autre.
 - **Les anciens clients se font discrets pendant que vous travaillez.** Ils sont la source la plus probable de la prochaine mission et la première chose qui glisse pendant un projet chargé.
 - **La correspondance avec les clients est confidentielle.** Dès que des collaborateurs rejoignent l’équipe, il importe de savoir qui peut lire quelle conversation.
+
+## Meilleur CRM pour consultants : six options comparées
+
+Le classement suit une seule tâche : relancer chaque conversation client dans un petit cabinet de conseil. Customermates publie cette page ; vérifiez donc chaque ligne sur le site de l’éditeur. Les prix ont été vérifiés le 9 novembre 2026 sur la page de tarifs de chaque éditeur, et un prix promotionnel est indiqué comme tel.
+
+| # | CRM | Convient à | Prix |
+|---|---|---|---|
+| 1 | Customermates | Aux consultants qui relancent leurs propositions et veulent les fils LinkedIn et e-mail sur la fiche client, avec une réponse rédigée à relire et envoyer. Les heures et les factures restent dans vos autres outils. | Pro [[commercial.price.pro.monthly]] par utilisateur et par mois, facturé mensuellement |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | À la prospection sur LinkedIn. Ses propres pages décrivent une boîte de réception unique pour l’e-mail, LinkedIn, WhatsApp et Telegram, et un serveur MCP pour Claude. | À partir de 49 $ par poste et par mois, facturé mensuellement ; deux comptes connectés par poste |
+| 3 | [Attio](https://attio.com/pricing) | Un modèle de données flexible avec synchronisation des e-mails et de l’agenda pour Gmail et Microsoft 365. | Gratuit jusqu’à 3 postes ; Plus 31 € par utilisateur et par mois en facturation annuelle |
+| 4 | [HubSpot](https://www.hubspot.com/pricing/crm) | Un départ gratuit pour une ou deux personnes, avec Gmail et Outlook connectés. | Gratuit jusqu’à 2 utilisateurs ; Starter 7 € par poste et par mois en facturation annuelle, un prix limité dans le temps |
+| 5 | [Pipedrive](https://www.pipedrive.com/fr/pricing) | Un cabinet qui pense en pipeline et travaille depuis son téléphone : applications natives iOS et Android dans chaque formule. | Lite 14 € par poste et par mois en facturation annuelle ; la synchronisation e-mail bidirectionnelle commence avec Growth |
+| 6 | [Twenty](https://twenty.com/pricing) | Un fondateur technique qui veut un CRM open source avec des objets personnalisés et qui entretient le modèle de données. | Pro 9 $ par utilisateur et par mois en facturation annuelle ; l’auto-hébergement du noyau est gratuit |
 
 ## Une mission dans l’espace de travail d’exemple
 
@@ -121,7 +253,7 @@ Les conversations de vos propres comptes restent privées tant que vous ne les p
 
 ## Préparation des rendez-vous et brouillons de relance avec Mate
 
-Mate est l’assistant intégré à Customermates Cloud. Il fonctionne avec des crédits IA hébergés inclus par utilisateur actif dans chaque formule cloud, et n’est pas disponible dans les installations auto-hébergées. Avant un appel, demandez dans la conversation un résumé d’une mission : son étape, les derniers messages e-mail et LinkedIn et la date de prochaine étape. Après l’appel, demandez-lui de mettre à jour l’étape et d’enregistrer une courte relance comme brouillon dans la conversation.
+Mate est l’assistant intégré à Customermates Cloud. Il fonctionne avec des crédits IA hébergés inclus par utilisateur actif dans chaque formule cloud payante, et n’est pas disponible dans les installations auto-hébergées. Avant un appel, demandez dans la conversation un résumé d’une mission : son étape, les derniers messages e-mail et LinkedIn et la date de prochaine étape. Après l’appel, demandez-lui de mettre à jour l’étape et d’enregistrer une courte relance comme brouillon dans la conversation.
 
 Mate peut envoyer des messages quand vous lui dites d’envoyer : demandez des brouillons quand vous voulez relire d’abord. Les suppressions, les imports et les changements d’accès s’arrêtent toujours pour votre approbation. Une [routine](/docs/app-routines) fait travailler Mate selon un planning ou quand une fiche change : par exemple, chaque lundi, lister les missions à l’étape Proposal sent dont la date de prochaine étape est passée et enregistrer un brouillon de réponse pour chacune. L’espace de travail d’exemple en contient deux : l’une ajoute un court brief à la mission avant chaque réunion de la journée dans l’agenda, l’autre crée une tâche pour les contacts proches que vous n’avez pas rencontrés depuis deux mois. Une routine appartient à un utilisateur et voit ce que cet utilisateur voit. Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur et Pro en inclut [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
@@ -131,6 +263,7 @@ Vous préférez votre propre client IA ? Connectez Claude, ChatGPT ou un autre 
 
 Customermates convient à un petit cabinet, avec des limites à connaître avant d’inviter une équipe :
 
+- **Les vues partagées sont en lecture seule.** Partagez une vue avec tout le cabinet ou avec des rôles choisis et chacun travaille avec les mêmes filtres, mais seul son auteur la modifie.
 - **Pas de permissions au niveau des champs.** Les rôles contrôlent l’accès aux listes et aux fiches. Un rôle personnalisé avec l’accès en lecture Assignés limite un collaborateur ou un sous-traitant aux fiches qui lui sont attribuées, mais vous ne pouvez pas masquer un seul champ comme un tarif journalier.
 - **Le partage de comptes entiers de la boîte de réception commence à Business.** Sur Pro, les fils se partagent un par un.
 - Le journal d’audit enregistre qui a modifié quelle fiche.
@@ -161,7 +294,7 @@ Une répartition réaliste utilise deux systèmes : Customermates pour les rela
 
 ## Ce que cela coûte
 
-Les prix sont par utilisateur et par mois, facturés mensuellement. Chaque formule inclut REST, les webhooks et MCP. Starter à [[commercial.price.starter.monthly]] couvre les listes et le pipeline sans comptes de boîte de réception connectés. Pro à [[commercial.price.pro.monthly]] ajoute vos propres comptes connectés et les fils partagés individuellement. Business à [[commercial.price.business.monthly]] ajoute le partage de comptes entiers et davantage de comptes connectés par utilisateur. Les crédits IA hébergés de Mate augmentent avec la formule ; les montants figurent sur la [page des tarifs](/pricing). Le cœur open source peut être [auto-hébergé](/features/self-hosted) sans frais de licence, avec les fonctions de Starter : ni boîte de réception, ni Mate, ni configuration IA.
+Les prix sont par utilisateur et par mois, facturés mensuellement. Toutes les formules payantes incluent REST, les webhooks et MCP. Starter à [[commercial.price.starter.monthly]] couvre les listes et le pipeline sans comptes de boîte de réception connectés. Pro à [[commercial.price.pro.monthly]] ajoute vos propres comptes connectés et les fils partagés individuellement. Business à [[commercial.price.business.monthly]] ajoute le partage de comptes entiers et davantage de comptes connectés par utilisateur. Les crédits IA hébergés de Mate augmentent avec la formule ; les montants figurent sur la [page des tarifs](/pricing). Le cœur open source peut être [auto-hébergé](/features/self-hosted) sans frais de licence, avec les fonctions de Starter : ni boîte de réception, ni Mate, ni configuration IA.
 
 ## Données clients et confidentialité
 
@@ -184,7 +317,7 @@ Un tableur fonctionne tant que vous pouvez retenir chaque mission ouverte. Il ce
 </FaqItem>
 
 <FaqItem question="Mes collaborateurs peuvent-ils partager des vues et ne voir que certains champs ?">
-Des vues, oui ; des champs isolés, non. Le propriétaire d’une vue enregistrée peut la partager avec tout l’espace de travail ou des rôles sélectionnés ; les collaborateurs la voient en lecture seule et seulement avec les fiches que leur rôle autorise. Les permissions portent sur les listes et les fiches, pas sur des champs isolés. Un rôle avec l’accès en lecture Assignés limite une personne aux fiches qui lui sont attribuées.
+Des vues oui, des champs non. Partagez une vue avec tout le cabinet ou avec des rôles choisis ; vos collègues la voient en lecture seule et seul son auteur la modifie. Les permissions portent sur les listes et les fiches, pas sur des champs isolés. Un rôle avec l’accès en lecture Assignés limite une personne aux fiches qui lui sont attribuées.
 </FaqItem>
 
 <FaqItem question="Les e-mails sont-ils consignés automatiquement sur la mission ?">
@@ -198,4 +331,16 @@ Non. Gardez les heures et la facturation dans votre outil de suivi du temps ou d
 <FaqItem question="Mate enverra-t-il des messages sans moi ?">
 Mate envoie quand vous lui demandez d’envoyer : demandez donc un brouillon quand vous voulez relire d’abord. Il n’est disponible que dans Customermates Cloud, dans la limite des crédits IA de votre formule. Les suppressions, les imports et les changements d’accès attendent toujours votre approbation.
 </FaqItem>
+<FaqItem question="Quel est le meilleur CRM pour consultants ?">
+Cela dépend de la tâche. Pour relancer les propositions et les conversations clients dans un petit cabinet, le tableau ci-dessus place Customermates en premier, parce que les fils e-mail et LinkedIn sont sur la fiche client et qu’une réponse rédigée attend votre relecture. Breakcold, Attio, HubSpot, Pipedrive et Twenty suivent. Si votre besoin principal est le suivi du temps, la facturation ou les propositions, un outil comme MOCO, BigTime ou HoneyBook s’en charge. Customermates publie cette page ; vérifiez donc chaque ligne sur le site de l’éditeur.
+</FaqItem>
+
+<FaqItem question="À quoi sert un CRM de conseil ?">
+Un CRM de conseil garde chaque client, les personnes qui en font partie et chaque mission sur une seule fiche, montre la prochaine étape avec une date et place les conversations e-mail et LinkedIn à côté. La réalisation, les heures et les factures se trouvent en général dans d’autres outils.
+</FaqItem>
+
+<FaqItem question="Un CRM gratuit suffit-il à un consultant indépendant ?">
+Pour démarrer, souvent oui : HubSpot est gratuit jusqu’à 2 utilisateurs et Attio jusqu’à 3 postes (vérifié le 9 novembre 2026). Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Si vous voulez les conversations sur la fiche client, il vous faut Pro.
+</FaqItem>
+
 </Faq>

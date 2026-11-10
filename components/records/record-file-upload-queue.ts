@@ -12,6 +12,7 @@ export type RecordFileUpload = {
   progress: number;
   phase: "uploading" | "reading" | "failed";
   failure: string | null;
+  failureCode?: string;
 };
 
 type RecordFileUploadRequest<Result> = {
@@ -84,11 +85,12 @@ export class RecordFileUploadQueue {
 
   private async run<Result>(key: string, file: File, generation: number, request: RecordFileUploadRequest<Result>) {
     const current = () => generation === this.generation && this.uploads.some((upload) => upload.key === key);
-    const fail = (message: string | null) => this.change(key, { phase: "failed", failure: message || request.failure });
+    const fail = (message: string | null, failureCode?: string) =>
+      this.change(key, { phase: "failed", failure: message || request.failure, failureCode });
     try {
       const started = await request.start(file);
       if (!current()) return;
-      if (!started.ok) return fail(started.message);
+      if (!started.ok) return fail(started.message, started.code);
       const transfer = sendRecordFileBytes(started.data.upload, file, (loaded, total) =>
         this.change(key, { progress: total ? loaded / total : 0 }),
       );

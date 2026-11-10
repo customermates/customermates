@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/cobra-alternative
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "A small sales model"
+      description: "A new workspace starts without lists: you create the lists you need (contacts, organizations, deals or your own) with fields and calculated fields in Data model, or let AI setup build them in the cloud."
+    - title: "LinkedIn and WhatsApp next to email"
+      description: "From Pro, Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram arrive in one list, linked to the client."
+    - title: "Replies drafted, invoices stay put"
+      description: "In Customermates Cloud, Mate summarizes threads, drafts replies and updates records. Quotes and invoices stay in the accounting tool you already use."
+  switchSteps: true
+
 hero:
   title: "weclapp Alternative: Customermates and weclapp Compared"
-  description: "weclapp is a cloud ERP from Kitzingen whose CRM module starts with the ERP Dienstleistung package at €86 per user per month on an annual contract. Customermates is an open-source CRM for small client-facing teams, from [[commercial.price.starter.monthly]] per user per month, with email, LinkedIn and WhatsApp in one inbox from Pro. Your invoices stay in your accounting tool."
-  buttonLeftText: Start for free
+  description: "weclapp's CRM module starts at €86 per user per month on an annual contract. Customermates is the CRM alone, billed monthly: from Pro, LinkedIn, email and WhatsApp threads sit on the client and Mate drafts the reply. Invoices stay in your accounting tool."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -82,7 +92,7 @@ comparison:
         source: Every plan
         competitor: From ERP Dienstleistung
       - name: Webhooks
-        source: "[[derived.webhooks.events.total]] event types, every plan"
+        source: "[[derived.webhooks.events.total]] event types, every paid plan"
         competitor: Create, update and delete events per entity
   - title: Licence, Hosting & Security
     features:
@@ -105,7 +115,7 @@ comparison:
 cta:
   action: Comparing weclapp and Customermates?
   description: "Start a trial, import one contact export from weclapp and set up your deal stages. Within the trial you will see whether a CRM next to your accounting tool covers your sales work."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -172,9 +182,9 @@ The rows do not buy the same things. weclapp's price includes quotes, invoicing,
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM built in Germany for consultants, agencies, other relationship-driven service businesses and founders. It covers everything up to the signed deal and does not write invoices.
+weclapp runs quotes, invoices and accounting. Customermates follows up with clients until the deal is signed and does not write invoices: from Pro, conversations sit on the client record, and Mate or your own AI agent drafts the reply and the next step for you to review, edit and send.
 
-**A small sales model.** A new workspace starts without lists: you create the lists you need (contacts, organizations, deals or your own) with fields and calculated fields in Data model, or let AI setup build them in the cloud. The deal stage is a field with a probability per stage, shown as a board, and a chart widget on the Dashboard can sum the weighted deal values. Saved views can be shared with the team. Dashboards, roles and an audit log are on every plan.
+**A small sales model.** A new workspace starts without lists: you create the lists you need (contacts, organizations, deals or your own) with fields and calculated fields in Data model, or let AI setup build them in the cloud. The deal stage is a field with a probability per stage, shown as a board, and a chart widget on the Dashboard can sum the weighted deal values. Dashboards, roles and an audit log are on every plan.
 
 **Conversations next to the deal.** From Pro, Gmail, Outlook and IMAP mailboxes, LinkedIn, WhatsApp, Instagram and Telegram arrive in one list. You reply on the original channel, and threads with a linked contact show on that contact's timeline.
 
@@ -195,7 +205,7 @@ Customermates is an open-source, AI-native CRM built in Germany for consultants,
 
 The usual setup after leaving an ERP: Customermates up to the won deal, your accounting tool for everything after it. There are two ways to hand over.
 
-**With webhooks, on any plan.** Customermates sends a `record.updated` event for the Deals list when a deal changes, including its stage. A workflow in your own n8n instance, which runs separately, checks for the Won stage and calls your accounting tool. Lexware Office, for example, has a public REST API with endpoints for contacts and invoices. The [webhook documentation](/docs/webhooks) lists every event.
+**With webhooks, on any paid plan.** Customermates sends a `record.updated` event for the Deals list when a deal changes, including its stage. A workflow in your own n8n instance, which runs separately, checks for the Won stage and calls your accounting tool. Lexware Office, for example, has a public REST API with endpoints for contacts and invoices. The [webhook documentation](/docs/webhooks) lists every event.
 
 **With a routine, in Customermates Cloud.** A routine runs a saved instruction when a record changes, uses hosted AI credits and runs as its owner. Under Events pick Deal Updated, add the stage field under Changed fields, set a record filter on Won and save an instruction like this:
 
@@ -218,7 +228,7 @@ Mate can send messages without asking again, so the last sentence matters if the
   <Step title="Export before the contract ends">weclapp deletes your data after cancellation, so export first. Each overview table exports with its visible columns and filters as an XLS file; admins can also use the Import/Export wizard under Global settings. Customermates reads .xls files, so they can be imported as they are.</Step>
   <Step title="Prepare the workspace">Set up the stage field with your opportunity stages and a probability for each. Create single choice fields for region and qualification status.</Step>
   <Step title="Import one list at a time">Import organizations first, then contacts, then deals, so link columns can find the organization by name. The [records documentation](/docs/app-records) lists the required columns and limits.</Step>
-  <Step title="Rebuild lists as saved views">Turn each weclapp list into a saved view with a filter. Views stay private until you share them, so share the ones the whole team uses.</Step>
+  <Step title="Rebuild lists as saved views">Turn each weclapp list into a saved view with a filter. Share the ones the whole team needs from the view's **Share…** menu.</Step>
   <Step title="Connect channels and AI">On Pro or during the trial, connect a mailbox, LinkedIn or WhatsApp under Settings, Channels & calendars. Then set up the hand-over to your accounting tool.</Step>
 </Steps>
 

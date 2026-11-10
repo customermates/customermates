@@ -49,7 +49,7 @@ export const AccountFolders = observer(({ account, editable = false, onToggle }:
                   onCheckedChange={(next) => onToggle(folder.id, next)}
                 />
               ) : (
-                <span className={cn("shrink-0 text-[11px]", on ? "text-success" : "text-subdued")}>
+                <span className={cn("shrink-0 text-[11px]", on ? "text-success-soft-foreground" : "text-subdued")}>
                   {on ? t("ConnectedAccountsCard.folderSynced") : t("ConnectedAccountsCard.folderHidden")}
                 </span>
               )}

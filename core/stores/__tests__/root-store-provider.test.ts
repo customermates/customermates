@@ -102,6 +102,8 @@ const initialState: RootStoreInitialState = {
     hasBillingPortal: false,
     hasActiveSubscription: true,
     checkout: "none",
+    onFreePlan: false,
+    pausedMembers: 0,
   },
   sidebarLayout: { sections: [] } as unknown as NonNullable<RootStoreInitialState["sidebarLayout"]>,
   workspaces: [

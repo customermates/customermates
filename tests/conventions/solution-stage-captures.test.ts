@@ -8,6 +8,7 @@ import { REPO_ROOT } from "./walk";
 
 import manifest from "@/core/solutions/solution-capture-manifest.json";
 import provenance from "@/core/solutions/solution-capture-provenance.json";
+import phone from "@/core/solutions/solution-stage-phone-captures.json";
 import stage from "@/core/solutions/solution-stage-captures.json";
 import {
   type SolutionCaptureManifest,
@@ -15,7 +16,12 @@ import {
   checkSolutionCaptureManifest,
 } from "@/core/solutions/solution-captures";
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES } from "@/core/solutions/solution-catalog";
-import { type SolutionStageCaptures, checkSolutionStageCaptures } from "@/core/solutions/solution-stage";
+import {
+  type SolutionStageCaptures,
+  type SolutionStagePhoneCaptures,
+  checkSolutionStageCaptures,
+  checkSolutionStagePhoneCaptures,
+} from "@/core/solutions/solution-stage";
 import { solutionNavRouteForPlanItem, solutionTargetPath } from "@/scripts/lib/solution-nav-routes";
 
 function readFacts(src: string) {
@@ -52,6 +58,21 @@ describe("solution stage captures", () => {
       baseBytes: main.totalBytes,
       readFile: readFacts,
       requireAll: false,
+    });
+    expect(result.problems, result.problems.join("\n")).toEqual([]);
+  });
+
+  it("ships a phone capture for every stage tab within the same budget", () => {
+    const main = checkSolutionCaptureManifest(
+      manifest as SolutionCaptureManifest,
+      provenance as SolutionCaptureProvenance,
+      { allowPlaceholders: true, navRoute: solutionNavRouteForPlanItem, readFile: readFacts },
+    );
+    const desktop = checkSolutionStageCaptures(captures, { baseBytes: 0, readFile: readFacts, requireAll: false });
+    const result = checkSolutionStagePhoneCaptures(phone as SolutionStagePhoneCaptures, captures.routes, {
+      baseBytes: main.totalBytes + desktop.totalBytes,
+      readFile: readFacts,
+      requireAll: true,
     });
     expect(result.problems, result.problems.join("\n")).toEqual([]);
   });

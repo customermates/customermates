@@ -10,7 +10,9 @@ Legen Sie einen Account an, verbinden Sie einen KI-Client und legen Sie los. Cla
 
 [Registrieren Sie sich](/auth/signup) ohne Kreditkarte. Die ersten [[commercial.trial.days]] Tage sind eine kostenlose Testphase des Pro-Tarifs.
 
-Damit Sie nach der Testphase weiter Zugriff haben, wählen Sie vor ihrem Ende einen Tarif unter [Abrechnung](app:settings/billing?focus=plan-picker) in den Einstellungen; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) und [welche Tarife es gibt](/docs/app-company#which-plans-are-there). Zum Wählen eines Tarifs braucht Ihre Rolle **Bearbeiten** in der Zeile **Unternehmen**. Die Rolle **Admin**, die erhält, wer den Workspace anlegt, hat es. Eine [selbst gehostete](/docs/self-hosting) Instanz hat keine Testphase und keinen Tarif.
+In Customermates Cloud fragt das Onboarding danach, womit Sie beginnen möchten. **Workspace für meine Kunden einrichten** braucht eine Beschreibung Ihres Geschäfts und ein paar Antworten: Mate entwirft Ihre Listen, Pipeline, Dashboard und Wissensdatenbank-Seiten und baut sie, sobald Sie den Plan bestätigen. **Bei Kundengesprächen nachfassen** schreibt ein Playbook für Ihre Art der Arbeit in Ihre Wissensdatenbank und öffnet Kanäle, um LinkedIn oder E-Mail zu verbinden, damit Mate Antworten entwerfen kann, die Sie prüfen und senden. Details: [Onboarding-Wizard](/docs/app-onboarding).
+
+Endet die Testphase, wechselt der Workspace in den kostenlosen Free-Tarif für eine Person; alle anderen darin sind pausiert, bis Sie einen Tarif wählen. Damit Sie die Pro-Funktionen behalten, wählen Sie vor ihrem Ende einen Tarif unter [Abrechnung](app:settings/billing?focus=plan-picker) in den Einstellungen; siehe [was passiert, wenn die Testphase endet](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails) und [welche Tarife es gibt](/docs/app-company#which-plans-are-there). Zum Wählen eines Tarifs braucht Ihre Rolle **Bearbeiten** in der Zeile **Unternehmen**. Die Rolle **Admin**, die erhält, wer den Workspace anlegt, hat es. Eine [selbst gehostete](/docs/self-hosting) Instanz hat keine Testphase und keinen Tarif.
 
 ## Wie verbinde ich Claude oder ChatGPT? [#how-do-i-connect-claude-or-chatgpt]
 
@@ -37,8 +39,9 @@ Beim Verbinden brieft der Server den Client über seine Tools und Ihren Workspac
 - *"Setze den Status des Acme-Deals auf Won und füge eine Notiz hinzu, dass der Vertrag heute unterschrieben wurde."*
 - *"Hol die letzten zehn Kontakte, die ich angelegt habe. Welche haben keine E-Mail-Adresse?"*
 - *"Leg einen Kontakt für Jane Doe bei Initech an, verknüpf ihn mit der Organisation Initech und starte einen Deal über 12 Stunden Beratung."*
+- *„Welche Kundengespräche warten auf meine Antwort? Entwirf eine Antwort auf das älteste und speichere sie als Entwurf.“*
 
-Der Agent meldet, was er getan und was sich geändert hat. Deal-Phasen und andere Felder sind je Workspace verschieden; der Agent liest Ihre, bevor er schreibt.
+Der Agent meldet, was er getan und was sich geändert hat. Deal-Phasen und andere Felder sind je Workspace verschieden; der Agent liest Ihre, bevor er schreibt. Der Antwort-Prompt braucht einen verbundenen Kanal in Customermates Cloud ab Pro; der Entwurf wartet in der Konversation, bis Sie ihn prüfen und senden.
 
 ## Wie teste ich einen Webhook? [#how-do-i-test-a-webhook]
 

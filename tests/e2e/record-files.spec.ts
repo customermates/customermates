@@ -523,7 +523,7 @@ test("uploads, shows, downloads and removes record files and refuses uploads ove
     const refused = editor.locator('[data-record-file-upload="failed"]');
     await expect(refused).toContainText("large.bin");
     await expect(refused).toContainText(
-      /Your workspace uses .+ of its 1 KB file storage\./,
+      /Your workspace uses .+ of its 1 KB file storage, the most this plan includes\./,
     );
     await quotaRefusal;
     await editor

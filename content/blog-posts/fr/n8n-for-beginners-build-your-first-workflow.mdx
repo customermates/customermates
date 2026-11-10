@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "n8n pour débutants : créez votre premier workflow d’automatisation"
-  description: "Lancez n8n, créez un workflow à deux nœuds, testez-le avec des données réelles et publiez-le. Créez ensuite un second workflow qui transforme une demande reçue sur votre site web en contact CRM, avec la gestion des erreurs dès le premier jour."
+  description: "Lancez n8n, créez un workflow à deux nœuds, testez-le avec des données réelles et publiez-le. Un second workflow transforme ensuite une demande de votre site en contact CRM, avec gestion des erreurs."
 
 blogPost:
   author: Benjamin Wagner
@@ -186,9 +186,11 @@ Il existe aussi un nœud communautaire Customermates, `@customermates/n8n-nodes-
 
 ## La place de Customermates, et ses limites
 
-n8n est un produit distinct. Il n’est inclus dans aucune formule Customermates ; vous l’exploitez vous-même ou vous vous abonnez à n8n Cloud. REST, les webhooks et MCP fonctionnent sur toutes les formules Customermates Cloud, à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois (voir les [tarifs](/pricing)), et dans l’édition open source auto-hébergée.
+n8n est un produit distinct. Il n’est inclus dans aucune formule Customermates ; vous l’exploitez vous-même ou vous vous abonnez à n8n Cloud. REST et MCP fonctionnent sur toutes les formules Customermates Cloud, les webhooks sur toutes les formules payantes, qui commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois (voir les [tarifs](/pricing)), et les trois dans l’édition open source auto-hébergée.
 
 Toutes les automatisations CRM n’ont pas besoin de n8n. Si la tâche est « chaque lundi, passer en revue les affaires qui n’ont pas avancé et rédiger une note pour chacune », il faut plus de jugement que de câblage. Dans Customermates Cloud, une [routine](/docs/app-routines) lance Mate, l’assistant intégré, selon un planning ou un évènement d’enregistrement avec une consigne enregistrée, et utilise des crédits IA hébergés. Si vous préférez que votre propre client IA travaille dans le CRM, connectez-le via [MCP](/docs/mcp). Utilisez n8n quand le travail est déterministe et traverse plusieurs systèmes : formulaire, CRM, tableur, messagerie d’équipe.
+
+Ce que n8n ne fait pas, c’est la relance elle-même. Une fois la demande devenue un contact, l’échange avec cette personne peut se trouver sur la même fiche : connectez LinkedIn et l’e-mail dans Customermates Cloud à partir de Pro, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape, que vous relisez et envoyez. Pour l’essayer sur vos propres demandes, [lancez votre essai](/auth/signup?job=followup) : [[commercial.trial.days]] jours de Pro, sans carte bancaire.
 
 Si vous n’avez besoin que de contacts dans un tableur et d’un e-mail par demande, vous n’avez pas du tout besoin d’un CRM pour ce tutoriel. Un nœud Google Sheets sur la branche true fait l’affaire.
 

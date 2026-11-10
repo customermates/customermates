@@ -9,20 +9,51 @@ relatedHrefs:
   - /features/workflow-automation
   - /docs/app-dashboard
 
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "We're a four-person strategy consultancy. Track clients, engagements and proposals, and help us follow up with prospects on LinkedIn."
+  steps:
+    title: "Set up a weekly pipeline dashboard"
+    items:
+      - title: "Check the stage probabilities"
+        description: "In Data model, open Deals and the Stage field, and adjust the Probability % of each option. A preview shows the effect on deals and widgets."
+      - title: "Add the fields your questions need"
+        description: "In Data model, open Deals and use Add › Field for a Single choice \"Lead source\" (Referral, LinkedIn, Website, Event), a Single choice \"Lost reason\" and a Date field \"Closed on\". A chart can only group by what you record."
+      - title: "Create the first chart"
+        description: "On the Dashboard, press Add widget and pick Bar chart. Under Data, choose Deals as the source, sum Weighted value and group by Stage. Exclude Won and Lost in the filters, then press Save."
+      - title: "Add three more"
+        description: "Won deal value by Lead source, won deal value per organization, and a count of lost deals by Lost reason. Drag and resize them; the layout is saved for you."
+      - title: "Share the dashboard with your team"
+        description: "Put the charts on a named dashboard view such as \"Weekly pipeline\" (New view above the widgets), then choose Share… in its menu. Everyone in the workspace or the roles you pick see the same charts, read-only, and every number is calculated with their own access."
+  highlights:
+    title: "At a glance"
+    capture: homepage-dashboard
+    items:
+      - title: "What you get"
+        description: "Chart widgets that count records or sum fields such as deal value and weighted value, grouped by a field, by record or over time, plus an activity timeline widget."
+      - title: "Plans"
+        description: "Dashboards and the weighted pipeline are part of every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, and of the self-hosted edition."
+      - title: "AI"
+        description: "In Customermates Cloud, Mate answers questions that need calculation across many records, using hosted AI credits. Your own AI client reads the same data through MCP."
+      - title: "Not included"
+        description: "No conversion tracking over time, time in stage, goals, predictive forecasting or scheduled report emails, and no dashboard that the whole team edits together (a shared dashboard is read-only for colleagues)."
+
 hero:
-  title: CRM reporting for small teams that need clear numbers, not a BI project
-  description: Build a dashboard from charts over your deals, contacts, organizations, services and tasks. See total and weighted pipeline by stage, and in Customermates Cloud ask Mate for figures a chart cannot show, such as a median or a ranking.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "See which follow-ups are due and what your pipeline is worth"
+  description: "Build a dashboard with deals by stage, weighted pipeline and an Upcoming list of what is due and overdue, and share it with your team. In Customermates Cloud, ask Mate for the figures a chart cannot show."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Build your first pipeline chart during the trial
-  description: Set your stage probabilities, add two custom fields and create a weighted pipeline chart in a few minutes. Dashboards are included from [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Put follow-ups and pipeline on one dashboard"
+  description: "Add a date field for the next step, an Upcoming widget and a weighted pipeline chart during the trial. Dashboards are included from [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -31,13 +62,6 @@ cta:
 CRM reporting means counting and summing what is already in your CRM, so questions like "what is in the pipeline?" or "which clients brought the most revenue?" get an answer without a spreadsheet. In Customermates, that happens in three places: dashboard charts, lists grouped by a field, and the weighted value on every deal. Anything that needs real arithmetic over many records, such as a median deal size or a ranking, goes to Mate in Customermates Cloud, to your own AI client through MCP, or to Excel after an export.
 
 It is deliberately small. If you need conversion tracking over time, time in stage, quotas or revenue forecasts, the section on limits names tools that do that.
-
-<ArticleSummary title="At a glance">
-  <SummaryItem label="What you get">Chart widgets that count records or sum fields such as deal value and weighted value, grouped by a field, by record or over time, plus an activity timeline widget.</SummaryItem>
-  <SummaryItem label="Plans">Dashboards and the weighted pipeline are part of every plan, from Starter at [[commercial.price.starter.monthly]] per user per month, and of the self-hosted edition.</SummaryItem>
-  <SummaryItem label="AI">In Customermates Cloud, Mate answers questions that need calculation across many records, using hosted AI credits. Your own AI client reads the same data through MCP.</SummaryItem>
-  <SummaryItem label="Not included">No conversion tracking over time, time in stage, goals, predictive forecasting or or scheduled report emails.</SummaryItem>
-</ArticleSummary>
 
 ## What a chart widget can calculate
 
@@ -69,7 +93,9 @@ These recipes assume a deals list with a Stage single choice field plus two more
 
 Tasks have no built-in due date. The Status field in the last row is a single choice field you add to your tasks list, and you can rename, change or delete it like any other field.
 
-Two questions are better answered by a list than by a chart. **Who is working on which deals?** Switch the deals list to the board and group it by **Assigned**: each person gets a column with their deal count and totals. **How many deals did we open per month?** Group the deals table by created date, bucketed by month. Saved as views, both stay one click away, and you can share a view with the team.
+Two questions are better answered by a list than by a chart. **Who is working on which deals?** Switch the deals list to the board and group it by **Assigned**: each person gets a column with their deal count and totals. **How many deals did we open per month?** Group the deals table by created date, bucketed by month. Saved as views, both stay one click away, and you can share them with the team.
+
+A third question is about follow-up: **What is due next?** Add an **Upcoming** widget on a date field such as Next step. It lists the records due in the next 14 days, with an **Overdue** section for earlier dates, so the next steps are on your dashboard when you sign in. Filter out finished records so that only open ones count as overdue.
 
 ## Which plan you need
 
@@ -80,19 +106,7 @@ Two questions are better answered by a list than by a chart. **Who is working on
 | Business | Pro plus one team-wide timeline across every channel | [[commercial.price.business.monthly]] per user per month |
 | Self-hosted | Charts, weighted pipeline, export, REST and MCP on your own server; no inbox, Mate or routines | No licence fee |
 
-Mate uses hosted AI credits, included per active user and month on every Cloud plan; the [pricing page](/pricing) lists the amounts. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month, and a five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]]. There is no reporting add-on and no per-report charge.
-
-## Set up a weekly pipeline dashboard
-
-<Steps>
-  <Step title="Check the stage probabilities">In **Data model**, open Deals and the **Stage** field, and adjust the **Probability %** of each option. A preview shows the effect on deals and widgets.</Step>
-  <Step title="Add the fields your questions need">In **Data model**, open Deals and use **Add › Field** for a Single choice "Lead source" (Referral, LinkedIn, Website, Event), a Single choice "Lost reason" and a Date field "Closed on". A chart can only group by what you record.</Step>
-  <Step title="Create the first chart">On the **Dashboard**, press **Add widget** and pick **Bar chart**. Under **Data**, choose Deals as the source, sum **Weighted value** and group by Stage. Exclude Won and Lost in the filters, then press **Save**.</Step>
-  <Step title="Add three more">Won deal value by Lead source, won deal value per organization, and a count of lost deals by Lost reason. Drag and resize them; the layout is saved for you.</Step>
-  <Step title="Share the dashboard or the setup">Choose **Share…** in the menu of a named dashboard view to show it read-only to the workspace or to selected roles. Or switch on **Share as a template** for a chart, so a teammate picks it under **Start from a template** and gets their own copy. Either way, the numbers count only the records the viewer's role can read.</Step>
-</Steps>
-
-The [dashboard guide](/docs/app-dashboard) documents every option in the widget editor.
+Mate uses hosted AI credits, included per active user and month on every paid Cloud plan; the [pricing page](/pricing) lists the amounts. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month, and a five-person team on Pro pays [[commercial.price.pro.monthly.seats.5]]. There is no reporting add-on and no per-report charge.
 
 ## What Customermates reporting does not do, and what to use instead
 
@@ -103,7 +117,7 @@ Customermates publishes this page. Vendor details were checked on 8 October 2026
 | Revenue forecasting beyond stage weights | Not available. The weighted pipeline multiplies each deal's value by the probability you set for its stage, nothing more. | [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional and Enterprise include forecasting; [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) offers a forecast view |
 | A custom report builder with conversion rates, goals and many report types | Not available. Charts count and aggregate; a Funnel chart shows step-to-step conversion of the current records, but there are no goals or conversion over time. | HubSpot Sales Hub Professional (custom reports); Pipedrive Insights (custom reports, dashboards and goals) |
 | Your own BI on the raw data | No built-in connector to a BI tool | Self-hosted: your data sits in your own PostgreSQL, which [Metabase](https://www.metabase.com/docs/latest/databases/connecting) supports; its Open Source edition is free and self-hosted. Use a read-only database user, and expect to adjust queries after an upgrade, because the tables are the product's internal schema. |
-| A dashboard the whole team edits | Not available. A shared dashboard view is read-only for teammates and only its owner changes it; duplicating it or starting from a template gives each person an editable copy. | |
+| A dashboard the whole team edits | Not available. A shared dashboard is read-only for colleagues: only its owner changes the widgets, and **Duplicate as new view** gives each person an editable copy. | |
 | Report emails on a schedule | Not built in | A routine in Customermates Cloud, or n8n, both described below |
 
 For a one-off analysis, export the list as an Excel workbook from the deals list's **More actions** menu. The export takes the visible columns, filters and sort, and a [PivotTable](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data) does the rest. Export runs one record type at a time; the [records guide](/docs/app-records) lists the limits.
@@ -136,7 +150,7 @@ Not in the predictive sense. It calculates a weighted pipeline: each deal's valu
 </FaqItem>
 
 <FaqItem question="Can my team share one dashboard?">
-Yes, as a named dashboard view. Its owner chooses **Share…** to show it to everyone in the workspace or to selected roles; teammates see it read-only, and every number is calculated with their own access, so two people can see different numbers in the same chart. The main dashboard cannot be shared, and individual widgets stay with their owner: **Share as a template** lets a teammate start their own copy. A dashboard view can also be published as a read-only public link, which needs the Create permission on Public links.
+Yes. In a named dashboard view you own, choose **Share…** and pick everyone in the workspace or selected roles. Teammates see the same widgets and layout, read-only, and every number is calculated with their own access, so two people can see different numbers in the same chart. Only you change the widgets; **Duplicate as new view** gives a teammate an editable copy. The main dashboard cannot be shared, so put the charts on a named view. A single chart can also go out with **Share as a template**. For people outside the workspace, a dashboard view can be published by public link, read-only and without sign-in, if your role may publish and the workspace allows public links.
 </FaqItem>
 
 <FaqItem question="Can I export CRM reports to Excel?">
@@ -144,7 +158,7 @@ You export records, not charts. Any list exports to an Excel workbook with its c
 </FaqItem>
 
 <FaqItem question="Which reports are included on the Starter plan?">
-All chart widgets, the weighted pipeline, grouped lists, the activity timeline of record changes and XLSX export are on Starter. Pro adds messages and calendar events to the timeline. Mate's analysis needs Customermates Cloud and hosted AI credits, which every Cloud plan includes.
+All chart widgets, the weighted pipeline, grouped lists, the activity timeline of record changes and XLSX export are on Starter. Pro adds messages and calendar events to the timeline. Mate's analysis needs Customermates Cloud and hosted AI credits, which every paid Cloud plan includes.
 </FaqItem>
 
 <FaqItem question="Can I build reports with ChatGPT or Claude instead?">

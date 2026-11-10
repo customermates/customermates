@@ -2,6 +2,7 @@ import type { Validated, Data } from "@/core/validation/validation.utils";
 import type { EmailService } from "@/features/email/email.service";
 import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
 import type { GetCompanyRepo } from "@/features/company/get-company.repo";
+import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 
 import { z } from "zod";
 
@@ -18,6 +19,8 @@ import CompanyInvite from "@/components/emails/company-invite";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
 import { invitationLink } from "@/features/company/invitation-link";
+import { failConflict } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export const InviteUsersByEmailSchema = z.object({
   emails: z.array(z.email()).min(1).max(20),
@@ -41,6 +44,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     private readonly emailService: EmailService,
     private readonly getOrCreateInviteToken: GetOrCreateInviteTokenInteractor,
     private readonly companyRepo: GetCompanyRepo,
+    private readonly seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
   ) {
     super();
   }
@@ -48,6 +52,10 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
   @Validate(InviteUsersByEmailSchema)
   @ValidateOutput(InviteUsersByEmailResultSchema)
   async invoke(data: InviteUsersByEmailData): Validated<InviteUsersByEmailResult> {
+    const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
+    const refused = await this.seats.admitMembers(uniqueEmails.length);
+    if (refused) return failConflict(CustomErrorCode.planMemberLimitReached, ["emails"], refused);
+
     const user = this.user;
     const tokenResult = await this.getOrCreateInviteToken.invoke();
 
@@ -67,8 +75,6 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const cta = t("CompanyInvite.cta");
     const fallback = t("CompanyInvite.fallback");
     const layoutCopy = await getEmailLayoutCopy(locale);
-
-    const uniqueEmails = Array.from(new Set(data.emails.map((e) => e.toLowerCase())));
 
     const accepted = await Promise.all(
       uniqueEmails.map((email) =>

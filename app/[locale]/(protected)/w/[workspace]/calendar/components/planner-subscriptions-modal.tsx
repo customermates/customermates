@@ -7,6 +7,7 @@ import type { TypedActionResult } from "@/core/utils/action-result";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, Link, Trash2 } from "lucide-react";
+import { Alert } from "@/components/shared/alert";
 import { AppModal, AppModalTitle } from "@/components/modal/app-modal";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -104,9 +105,7 @@ export function PlannerSubscriptionsModal({
           <p className="text-sm text-muted-foreground">{t("Planner.syncDescription")}</p>
 
           {truncated && (
-            <p className="rounded-md bg-warning/10 px-3 py-2 text-xs text-warning" role="status">
-              {t("Planner.truncated")}
-            </p>
+            <Alert className="px-3 py-2 text-xs" description={t("Planner.truncated")} role="status" variant="warning" />
           )}
 
           {personalAvailable && (

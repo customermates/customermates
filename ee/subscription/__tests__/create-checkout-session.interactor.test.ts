@@ -113,6 +113,23 @@ describe("CreateCheckoutSessionInteractor", () => {
     });
   });
 
+  it("charges for every seat when a Free workspace with paused members upgrades", async () => {
+    const subscriptionService = makeSubscriptionService();
+    const pauses = { countPlanPausedMembersUnscoped: vi.fn().mockResolvedValue(2) };
+    const interactor = new CreateCheckoutSessionInteractor(
+      subscriptionService as never,
+      makeCheckoutRepo() as never,
+      { countActiveUsers: vi.fn().mockResolvedValue(1) } as never,
+      makeCompanyRepo() as never,
+      pauses as never,
+    );
+
+    await interactor.invoke({ plan: "starter", cadence: "monthly" } as never);
+
+    expect(pauses.countPlanPausedMembersUnscoped).toHaveBeenCalledWith(COMPANY_ID);
+    expect(subscriptionService.createCheckoutOrThrow).toHaveBeenCalledWith(expect.objectContaining({ quantity: 3 }));
+  });
+
   it("names the checkout after the workspace so the payer can tell its subscriptions apart", async () => {
     const subscriptionService = makeSubscriptionService();
     const companyRepo = makeCompanyRepo("  Steuern 2026 ");

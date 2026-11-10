@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/linkedin-integration
 
+sections:
+  reasons:
+    - title: "Conversations you link on purpose"
+      description: "From Pro, the unified inbox brings your Gmail, Outlook or IMAP mailbox, LinkedIn, WhatsApp, Instagram and Telegram into one list. You decide which contact a thread belongs to, and you reply on the original channel."
+    - title: "Replies drafted by Mate"
+      description: "In Customermates Cloud, Mate summarizes threads, drafts replies, creates and updates records and builds views. Your own Claude or ChatGPT can do the same through MCP."
+    - title: "Team basics from Starter"
+      description: "Roles set permissions per list and action, and dashboards, your own lists and fields and the REST API come with Starter. Salesflare puts user permissions and custom dashboards on Pro."
+  switchSteps: true
+
 hero:
-  title: "Salesflare Alternative: Customermates and Salesflare Compared"
-  description: "Salesflare is a B2B sales CRM that fills itself from your email and meetings and tracks emails and website visits. Customermates is an open-source CRM built in Germany: email, LinkedIn, WhatsApp, Instagram and Telegram sit next to your deals from Pro, roles and dashboards come with every plan, and Mate or your own AI client does the CRM work. Salesflare details checked on 8 October 2026."
-  buttonLeftText: Start for free
+  title: "Salesflare Alternative: Customermates Compared"
+  description: "Salesflare fills itself from your email, and LinkedIn messages arrive as notes you copy in. Customermates works the other way round: you link each person on purpose, and from Pro LinkedIn, email and WhatsApp threads sit on the client with a drafted reply. Salesflare details checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -101,7 +111,7 @@ comparison:
 cta:
   action: Comparing Salesflare and Customermates?
   description: "Start a trial, connect one mailbox or your LinkedIn account, and import a contacts export from Salesflare. A few days with your real conversations show whether linking people on purpose suits your team better than automatic capture."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -164,7 +174,7 @@ The rows do not buy the same things, so read them in pairs:
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
+Salesflare fills itself from your email. Customermates works the other way round: you decide which conversations belong to which client, and from Pro, Mate or your own AI agent drafts the reply and the next step for you to review, edit and send.
 
 **Conversations you link on purpose.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, [LinkedIn](/features/linkedin-integration) (including Sales Navigator and Recruiter), WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. Nothing lands on a contact by itself. You open a conversation's participants, click Link and pick a contact or create one. That address or handle is then added to the contact's contact details, and conversations with it show on the contact's timeline. Starter has no inbox.
 
@@ -172,7 +182,7 @@ Customermates is an open-source, AI-native CRM for small client-facing teams: co
 
 Prefer Claude, ChatGPT or another client you already pay for? Connect it to the [MCP server](/docs/mcp), which offers [[derived.mcp.tools.total]] tools on every plan and on self-hosted installs. Its model calls then run on your own AI provider.
 
-**Team basics from Starter.** Roles set permissions per list and action. Dashboards, your own lists and fields, calculated fields, the REST API and [[derived.webhooks.events.total]] webhook event types come with every plan.
+**Team basics from Starter.** Roles set permissions per list and action. Dashboards, your own lists and fields, calculated fields, the REST API and [[derived.webhooks.events.total]] webhook event types come with every paid plan.
 
 **Open source, with a hosting choice.** The core is AGPL-3.0 and runs on your own server with Docker Compose and PostgreSQL 16, including REST, webhooks and MCP. A [self-hosted install](/features/self-hosted) has no inbox, no Mate and no hosted credits, and it has no subscription or seat fees either: you pay for your own infrastructure. In Customermates Cloud the database is configured in the AWS Frankfurt region, a [DPA](/dpa) is available, and the [subprocessors](/subprocessors), including US providers, are listed. Customermates holds no compliance certification.
 
@@ -182,8 +192,8 @@ Besides the gaps in the table above (no automatic capture, no tracking, no campa
 
 - **No enrichment and no sequences.** Contacts come from your team, an import, Mate or your own AI client, and outreach goes one message at a time, written by you or drafted by Mate.
 - **No task due dates and no reminders.** Tasks have assignees, a status, links to records and notes. A follow-up date is a custom date field you sort by.
-- **Coarser permissions.** Permissions apply per list and action, not per field.
-- **No free cloud plan.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
+- **Coarser permissions.** Permissions apply per list and action, not per field, and a shared view is read-only for colleagues.
+- **A small free cloud plan.** Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a consultancy moving from Salesflare
 
@@ -234,7 +244,7 @@ Per user per month, Growth costs €39 on monthly billing or €29 billed yearly
 </FaqItem>
 
 <FaqItem question="Is there a free alternative to Salesflare?">
-Capsule CRM has a free plan for two users and 250 contacts; Salesflare's pricing page shows no free plan. Customermates has no free cloud plan, but its open-source core can be self-hosted without subscription or seat fees. You pay for the server and get the CRM, REST, webhooks and MCP, without the inbox and Mate.
+Capsule CRM has a free plan for two users and 250 contacts; Salesflare's pricing page shows no free plan. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, and its open-source core can be self-hosted without subscription or seat fees. You pay for the server and get the CRM, REST, webhooks and MCP, without the inbox and Mate.
 </FaqItem>
 
 <FaqItem question="Does Salesflare work with WhatsApp and LinkedIn messages?">

@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM Examples: Seven Real Workflows, the Software Behind Them and What They Cost"
-  description: "What a CRM looks like in use for a freelancer, an agency, a sales team and a large company, which tools those teams pick, whether a spreadsheet is enough, and list prices with the date they were checked. Customermates publishes this guide and appears in its own labelled section."
+  description: "What a CRM looks like for a freelancer, an agency, a sales team and a large company, which tools they pick, whether a spreadsheet is enough, and dated list prices. Customermates publishes this guide."
 
 blogPost:
   author: Benjamin Wagner
@@ -141,7 +141,7 @@ List prices per user per month, before tax, in the currency the vendor's page sh
 | Pipedrive | None | Lite €14 (annual) | Growth €39, Premium €59 (annual) | Ultimate €79 (annual) | 8 Oct 2026 |
 | Salesforce | Free Suite | Starter Suite $25 | Pro Suite $100 | up to Max $550 | 8 Oct 2026 |
 | Microsoft Dynamics 365 Sales | None | Sales Professional $65 | Sales Enterprise $105 | Sales Premium $150 | 8 Oct 2026 |
-| Customermates | None, [[commercial.trial.days]]-day trial | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Billed monthly |
+| Customermates | [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, after a [[commercial.trial.days]]-day Pro trial | Starter [[commercial.price.starter.monthly]] | Pro [[commercial.price.pro.monthly]] | Business [[commercial.price.business.monthly]] | Billed monthly |
 
 So in October 2026, a paid CRM cost between €14 and $65 per user per month at entry level, $23 to $105 in the middle tiers and up to $550 at the top. HubSpot also charges a one-time onboarding fee on Professional and Enterprise. Budget separately for setup time, data migration and training; [the CRM cost guide](/blog/crm-cost) works through a three-year example.
 
@@ -151,9 +151,9 @@ Here is the agency-style workflow taken all the way down to the columns. It uses
 
 <Steps>
   <Step title="Set up the lists">Clients go in **Organizations**, people in **Contacts**, and each engagement you are trying to win in **Deals**. Your standard offers go in **Services** with a price each (for example "Strategy workshop" and "Monthly retainer"). Configure line items so quantity times unit price gives each line amount and their sum gives deal value. Without offerings, a deal can instead hold a manual money value.</Step>
-  <Step title="Rename the deal stages">The deal **Stage** is a Single choice field. Replace the defaults with Inquiry, Discovery call, Proposal sent, Won and Lost. Configure a probability per option and a weighted-value calculation if you need pipeline weighting.</Step>
+  <Step title="Rename the deal stages">Create the deal **Stage** as a Single choice field (in the cloud, AI setup can create it) with the options Inquiry, Discovery call, Proposal sent, Won and Lost. Configure a probability per option and a weighted-value calculation if you need pipeline weighting.</Step>
   <Step title="Add three custom fields">On deals: "Engagement type" (Single choice: Project, Retainer, Workshop), "Lead source" (Single choice: Referral, LinkedIn, Website, Event) and "Expected start" (Date). Use Single choice for one category or Multiple choice for several labels; both are configurable fields.</Step>
-  <Step title="Save a view">On **Deals**, filter Stage = Proposal sent and assigned users = you, sort by updated date and save it with **New view** as "My open proposals". A saved view stays private until you share it, so each colleague can save the same filters as their own, or you share one with the team.</Step>
+  <Step title="Save a view">On **Deals**, filter Stage = Proposal sent and assigned users = you, sort by updated date and save it with **New view** as "My open proposals". Each colleague saves their own, and a view the whole team needs can be shared with everyone in the workspace or with selected roles.</Step>
   <Step title="Import existing clients">Export your client list to an Excel workbook (.xlsx) and import organizations first, then contacts, one list at a time. See [records, import and views](/docs/app-records) for the column matching.</Step>
   <Step title="Connect the inbox (Pro or higher)">Each consultant connects their mailbox or LinkedIn account in the [unified inbox](/features/unified-inbox). Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user and Business [[commercial.entitlement.business.includedAccountsPerUser]], so a consultant who wants email, LinkedIn and WhatsApp side by side needs Business. Starter has no inbox.</Step>
 </Steps>
@@ -165,6 +165,8 @@ Here is the agency-style workflow taken all the way down to the columns. It uses
 The last sentence matters. A routine runs as its owner and may send messages without asking, so an instruction that should only draft has to say so. Actions that require approval in Mate chat are declined in an unattended routine; Knowledge Base changes become proposals for review. Create it paused while reviewing its configuration. Try the draft-only instruction in a normal Mate chat on fictional records first. To test the scheduled routine itself, enable it and use **Test trigger**, which performs a real run. Check the drafts and pause it again if needed. Limits and run statuses are on the [routines documentation](/docs/app-routines). If you prefer your own AI client, Claude, ChatGPT and other MCP clients can read and update the same records through the Customermates MCP server, using your own AI provider for model calls; search by meaning can still count toward Mate usage.
 
 Four consultants on Pro cost [[commercial.price.pro.monthly.seats.4]] per month ([[commercial.price.pro.monthly]] per user), which includes the inbox and monthly hosted AI credits per active user. Without the inbox, Starter costs [[commercial.price.starter.monthly.seats.4]] per month. The full feature list is on [all features](/features/all).
+
+That setup is follow-up in practice: every proposal has a dated next step, the thread sits on the client, and the weekly routine leaves the drafts waiting for you. To build it on your own clients, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 ## Where Customermates does not fit
 

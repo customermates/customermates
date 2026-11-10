@@ -202,15 +202,15 @@ describe("CreateAuthLinkInteractor", () => {
     expect(messagingService.createAuthLink).toHaveBeenCalledTimes(1);
   });
 
-  it("blocks an expired trial with paidSubscriptionRequired", async () => {
+  it("blocks an expired trial, which moved to Free, with messagingRequiresPro", async () => {
     const repo = makeRepo({ status: "trial", trialEndDate: TRIAL_EXPIRED, plan: "pro" });
     const { interactor, messagingService } = makeInteractor(repo);
 
     const result: any = await interactor.invoke({ channel: "google" });
 
     expect(result.ok).toBe(false);
-    expect(result.error.issues[0].message).toBe("ConnectedAccountsCard.paidSubscriptionRequired");
-    expect(result.code).toBe("paidSubscriptionRequired");
+    expect(result.error.issues[0].message).toBe("ConnectedAccountsCard.messagingRequiresPro");
+    expect(result.code).toBe("messagingRequiresPro");
     expect(messagingService.createAuthLink).not.toHaveBeenCalled();
   });
 

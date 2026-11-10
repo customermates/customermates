@@ -7,6 +7,7 @@ import {
   Blocks,
   BookOpen,
   Check,
+  Compass,
   Languages,
   Link2,
   Mail,
@@ -27,8 +28,15 @@ import { cn } from "@/core/utils/cn";
 
 import type { WizardStep } from "./onboarding-wizard.store";
 
-type SceneStep = Exclude<WizardStep, "setup">;
-const STEP_ICONS = { profile: UserRound, setup: Blocks, invite: UsersRound, ai: Sparkles };
+type SceneStep = Exclude<WizardStep, "setup" | "goal" | "playbook">;
+const STEP_ICONS = {
+  profile: UserRound,
+  goal: Compass,
+  playbook: BookOpen,
+  setup: Blocks,
+  invite: UsersRound,
+  ai: Sparkles,
+};
 
 const NARROW_CONNECTOR = "M40 32C68 32 68 56 96 56";
 const SOURCE_PAIR_CONNECTOR = "M40 32C76 32 76 64 112 64M40 96C76 96 76 64 112 64M112 64H144";
@@ -203,7 +211,7 @@ function StepScene({ step }: { step: SceneStep }) {
 
 export function OnboardingArtwork({ step }: { step: SceneStep }) {
   return (
-    <VisualArtboard aria-hidden="true" className="h-36 shrink-0 rounded-xl sm:h-40" role="presentation">
+    <VisualArtboard aria-hidden="true" className="h-36 shrink-0 rounded-xl sm:h-40" role="presentation" tone="ink">
       <GridPattern className="opacity-45" density="compact" />
 
       <div

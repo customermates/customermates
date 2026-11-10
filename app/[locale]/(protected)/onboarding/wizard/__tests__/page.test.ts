@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   resolveOnboardingIntent: vi.fn(),
   getProgress: vi.fn(),
   listWorkspaces: vi.fn(),
+  getJobChoice: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -23,6 +24,7 @@ vi.mock("@/core/di", () => ({
   getGetOnboardingWizardProgressInteractor: () => ({ invoke: mocks.getProgress }),
   getGetWorkspaceSetupStatusInteractor: () => ({ invoke: mocks.getSetupStatus }),
   getListMyWorkspacesInteractor: () => ({ invoke: mocks.listWorkspaces }),
+  getGetOnboardingJobChoiceInteractor: () => ({ invoke: mocks.getJobChoice }),
 }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
@@ -41,6 +43,10 @@ describe("OnboardingWizardPage authentication detours", () => {
     vi.clearAllMocks();
     mocks.getSetupStatus.mockResolvedValue({ ok: true, data: { available: true, setup: null } });
     mocks.getProgress.mockResolvedValue({ ok: true, data: { step: "invite", inviteTab: "link" } });
+    mocks.getJobChoice.mockResolvedValue({
+      ok: true,
+      data: { selectedJob: null, signupJob: "agent", preselectedJob: "agent" },
+    });
   });
 
   it("passes the saved AI setup and owner identity to a fresh wizard render", async () => {
@@ -168,6 +174,26 @@ describe("OnboardingWizardPage authentication detours", () => {
       user: { companyId: "company-a", role: { isSystemRole: true }, onboardingWikiStepCompletedAt },
     });
   }
+
+  it("reads what the owner wants to do first while the setup step is open", async () => {
+    registeredOwner(null);
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({
+      setupStepCompleted: false,
+      jobChoice: { selectedJob: null, signupJob: "agent", preselectedJob: "agent" },
+    });
+  });
+
+  it("does not ask what to do first once the setup step is completed", async () => {
+    registeredOwner(new Date("2026-01-01T00:00:00.000Z"));
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props.jobChoice).toBeUndefined();
+    expect(mocks.getJobChoice).not.toHaveBeenCalled();
+  });
 
   it("skips the setup step only after the owner completed it", async () => {
     registeredOwner(new Date("2026-01-01T00:00:00.000Z"));

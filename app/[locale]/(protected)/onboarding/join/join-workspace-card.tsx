@@ -1,13 +1,13 @@
 import { Mail, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Alert } from "@/components/shared/alert";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { Step, Steps } from "@/components/marketing/process-steps";
 import { CopyableText } from "@/components/shared/copyable-text";
-import { IconContainer } from "@/components/shared/icon-container";
 import { Button } from "@/components/ui/button";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -65,15 +65,13 @@ export function JoinWorkspaceCard({ email }: Props) {
           </Steps>
         </section>
 
-        <div className="flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
-          <IconContainer className="shrink-0" icon={ShieldCheck} size="sm" />
-
-          <div className="space-y-1">
-            <h2 className="text-sm font-medium">{t("JoinWorkspace.safeTitle")}</h2>
-
-            <p className="text-xs leading-relaxed text-muted-foreground">{t("JoinWorkspace.safeBody")}</p>
-          </div>
-        </div>
+        <Alert
+          description={t("JoinWorkspace.safeBody")}
+          icon={<ShieldCheck />}
+          role="note"
+          title={t("JoinWorkspace.safeTitle")}
+          variant="neutral"
+        />
       </AppCardBody>
 
       <AppCardFooter>

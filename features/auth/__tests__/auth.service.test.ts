@@ -168,7 +168,7 @@ describe("AuthService", () => {
       locale: "it",
       layoutCopy: {
         country: "Germania",
-        tagline: "Il CRM agentico open source",
+        tagline: "Il CRM open source per seguire ogni cliente",
       },
     });
   });
@@ -184,7 +184,7 @@ describe("AuthService", () => {
       locale: "fr",
       layoutCopy: {
         country: "Allemagne",
-        tagline: "Le CRM agentique open source",
+        tagline: "Le CRM open source pour relancer vos clients",
       },
     });
   });

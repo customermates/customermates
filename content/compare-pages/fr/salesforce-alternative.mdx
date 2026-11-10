@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/zoho-vs-salesforce
   - /compare/microsoft-dynamics-alternative
 
+sections:
+  reasons:
+    - title: "Des canaux de messagerie sans Service Cloud"
+      description: "Sur la page de tarifs de Salesforce, Digital Channels relève de Service Cloud. Dès Pro, Customermates réunit e-mail, LinkedIn, WhatsApp, Instagram et Telegram dans une boîte de réception, à côté du client."
+    - title: "Un brouillon de réponse, pas un module en plus"
+      description: "Dans Customermates Cloud, Mate rédige des réponses, résume les fils et met à jour contacts et affaires, avec des crédits IA hébergés. Ou connectez votre propre Claude ou ChatGPT via MCP."
+    - title: "Au mois, en open source"
+      description: "La facturation est mensuelle, sans engagement annuel, et le cœur AGPL-3.0 tourne sur votre propre serveur avec Docker Compose et PostgreSQL 16, API REST, webhooks et MCP compris."
+  switchSteps: true
+
 hero:
-  title: "Une alternative à Salesforce pour les petites équipes en contact avec leurs clients"
-  description: "Customermates est un CRM open source et IA native conçu en Allemagne pour les consultants, les agences et les fondateurs. Il facture au mois, place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires dès Pro, et laisse Mate (Customermates Cloud, crédits d’IA hébergée) ou votre propre client IA aider à tenir les enregistrements à jour."
-  buttonLeftText: Commencer gratuitement
+  title: "Une alternative à Salesforce pour équipes en contact client"
+  description: "Salesforce demande quelqu’un pour l’administrer et, au-delà de Starter Suite, un contrat annuel. Pour un petit cabinet de conseil ou une petite agence, Customermates est la voie plus légère pour relancer : facturé au mois, conversations sur la fiche client dès Pro, réponses rédigées par Mate. Informations sur Salesforce vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Mensuelle uniquement
         competitor: Starter Suite au mois ou à l’année ; Pro Suite et supérieures à l’année
       - name: Offre gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: Free Suite, 2 licences utilisateur
       - name: Essai gratuit
         source: "[[commercial.trial.days]] jours, sans carte bancaire"
@@ -67,7 +77,7 @@ comparison:
         source: Mate dans Customermates Cloud, utilise des crédits d’IA hébergée
         competitor: Module Agentforce for Sales à partir de 125 $ par utilisateur et par mois ; inclus dans Max
       - name: API et événements
-        source: "API REST et [[derived.webhooks.events.total]] évènements de webhook sur chaque offre"
+        source: "API REST et [[derived.webhooks.events.total]] évènements de webhook sur chaque offre payante"
         competitor: "Web Services API : module à 25 $ par utilisateur et par mois dans Pro Suite, inclus à partir de Core"
       - name: Place de marché d’applications
         source: Non ; nœud communautaire n8n (n8n fonctionne séparément)
@@ -90,7 +100,7 @@ comparison:
 cta:
   action: Envie de tester avec vos propres enregistrements ?
   description: "Exportez quelques comptes, contacts et opportunités depuis Salesforce, importez-les pendant l’essai et connectez une boîte aux lettres. Vos propres données montrent en une semaine si le modèle de Customermates vous convient."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -159,11 +169,11 @@ Comment le lire :
 - **Si l’e-mail est votre seul canal, Starter Suite coûte moins cher que Customermates Pro.** Customermates Starter est encore moins cher, mais n’a aucune boîte de réception. Pro, à [[commercial.price.pro.monthly]] par poste, justifie son prix quand les clients écrivent aussi sur LinkedIn, WhatsApp, Instagram ou Telegram.
 - **Pro Suite achète ce qui manque à Customermates.** Les devis et les prévisions sont fournis avec. Si vous les utilisez, les 6 000 € par an sont le prix de ces fonctions, pas des frais généraux.
 - **Plusieurs canaux par personne, c’est Business.** Chaque utilisateur Pro connecte [[commercial.entitlement.pro.includedAccountsPerUser]] compte, chaque utilisateur Business [[commercial.entitlement.business.includedAccountsPerUser]].
-- **L’IA est tarifée autrement.** Chaque offre Customermates Cloud inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate, voir la [page des tarifs](/pricing). Agentforce for Sales pour cinq postes commence à 625 $ par mois.
+- **L’IA est tarifée autrement.** Chaque offre payante Customermates Cloud inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate, voir la [page des tarifs](/pricing). Agentforce for Sales pour cinq postes commence à 625 $ par mois.
 
 ## Où Customermates trouve sa place
 
-Customermates est un CRM open source et IA native pour les petites équipes en contact direct avec leurs clients : consultants, agences, autres prestataires de services fondés sur la relation et fondateurs.
+Un petit cabinet de conseil ou une petite agence a rarement besoin de toute la plateforme Salesforce pour relancer ses clients. Customermates garde la tâche simple : dès Pro, les conversations sur la fiche client, une réponse et une prochaine étape rédigées par Mate ou votre propre agent IA, et vous relisez, modifiez et envoyez.
 
 **Les conversations à côté de l’affaire.** Dès Pro, la [boîte de réception unifiée](/features/unified-inbox) réunit dans une seule liste les boîtes Gmail, Outlook et IMAP, LinkedIn (y compris Sales Navigator et Recruiter), WhatsApp, Instagram et Telegram. Vous liez les personnes d’un fil à des contacts et vous répondez sur le canal d’origine. Un fil reste privé jusqu’à ce que son propriétaire le partage avec le CRM ; partager un compte connecté entier demande Business.
 
@@ -180,7 +190,7 @@ Vous payez déjà Claude ou ChatGPT ? Connectez-le plutôt au [serveur MCP](/do
 - **Ni marketing, ni help desk.** Il n’y a ni campagnes, ni séquences, ni formulaires web, ni dossiers, ni tickets.
 - **Des tâches simples.** Les tâches ont des responsables, des relations, des notes et des champs personnalisés. Elles n’ont ni échéances ni rappels.
 - **Ni application mobile native, ni authentification unique, ni droits au niveau des champs.** Les rôles décident, par liste, si quelqu’un voit tous les enregistrements, seulement les siens, ou aucun.
-- **Ni offre gratuite, ni certification.** Il y a un essai de [[commercial.trial.days]] jours, puis une offre payante.
+- **Une petite formule gratuite, pas de certification.** Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Un exemple concret : un cabinet de conseil qui quitte Starter Suite
 
@@ -226,7 +236,7 @@ Customermates publie cette liste. Les informations viennent des pages de chaque 
 
 <Faq>
 <FaqItem question="Existe-t-il une alternative gratuite à Salesforce ?">
-Pour deux utilisateurs, la Free Suite de Salesforce ne coûte rien tant que quelqu’un se connecte tous les 60 jours. Le CRM gratuit de HubSpot couvre aussi deux utilisateurs, l’édition gratuite de Zoho CRM trois. SuiteCRM, Twenty et le noyau AGPL-3.0 de Customermates peuvent être auto-hébergés sans frais de licence ; Customermates auto-hébergé n’a ni boîte de réception ni Mate. Customermates Cloud a un essai de [[commercial.trial.days]] jours et pas d’offre gratuite.
+Pour deux utilisateurs, la Free Suite de Salesforce ne coûte rien tant que quelqu’un se connecte tous les 60 jours. Le CRM gratuit de HubSpot couvre aussi deux utilisateurs, l’édition gratuite de Zoho CRM trois. SuiteCRM, Twenty et le noyau AGPL-3.0 de Customermates peuvent être auto-hébergés sans frais de licence ; Customermates auto-hébergé n’a ni boîte de réception ni Mate. Customermates Cloud a un essai de [[commercial.trial.days]] jours et une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines.
 </FaqItem>
 
 <FaqItem question="Quelle est une bonne alternative open source à Salesforce ?">

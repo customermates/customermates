@@ -25,10 +25,10 @@ acquisition:
   cta:
     action: Evaluate agentic CRM with a bounded workflow
     description: Compare the hosted Mate capability with external MCP clients, review their control boundaries and test one bounded CRM workflow.
-    buttonLeftText: Read the MCP guide
-    buttonLeftHref: /docs/mcp
-    buttonRightText: Start the Pro trial
-    buttonRightHref: /auth/signup
+    buttonLeftText: Start your [[commercial.trial.days]]-day trial
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Read the MCP guide
+    buttonRightHref: /docs/mcp
     hint: "When enabled, Mate uses hosted plan credits; external MCP clients use the customer's model provider."
   relatedHrefs:
     - /docs/mcp
@@ -105,7 +105,7 @@ blogPost:
 
 An **AI-native CRM** exposes structured customer data and typed actions that AI can use. An **agentic CRM** lets an AI client or assistant carry out supported work with those interfaces: reading context, creating or updating records, preparing a draft, or completing a workflow. The terms overlap, but one describes architecture while the other describes behavior.
 
-Customermates supports both operating models. Every cloud plan includes a Mate entitlement and a monthly hosted-AI credit allowance per active user; whether Mate is live in a hosted environment depends on that environment's current configuration. Cloud and self-hosted deployments can also connect external AI clients through MCP, with the customer selecting and funding that separate client and model provider.
+Customermates supports both operating models. Every paid plan includes a Mate entitlement and a monthly hosted-AI credit allowance per active user; whether Mate is live in a hosted environment depends on that environment's current configuration. Cloud and self-hosted deployments can also connect external AI clients through MCP, with the customer selecting and funding that separate client and model provider. For a small client-facing team, the point of both is follow-up: a client writes, the AI drafts the reply and the next step on the client record, and a person reviews, edits and sends it.
 
 For a fixed integration and an AI client, compare [MCP versus API on the same customer-record task](/blog/mcp-vs-api). Tool discovery changes how the client finds an operation; authentication and permissions still apply.
 
@@ -198,7 +198,7 @@ On entitled cloud accounts, MCP also exposes supported messaging work for the [u
 
 Agentic does not mean permissionless. The MCP server instructions tell clients to request explicit confirmation before every delete or outbound `send_*` action. That is client guidance, not a second server-side approval gate: once an authorized client calls the MCP tool, the server executes the permitted action. Verify that your chosen client shows the exact side effect and waits for approval.
 
-When enabled, Mate has separate, enforced per-call approval gates for destructive actions, sends and resends, invitations, support escalation, and changes to external or social accounts. Every cloud plan includes the entitlement and monthly credit allowance, while live availability depends on the hosted environment's current configuration.
+When enabled, Mate has separate, enforced per-call approval gates for destructive actions, resending webhook deliveries, member invitations, support escalation, and changes to external or social accounts. Every paid plan includes the entitlement and monthly credit allowance, while live availability depends on the hosted environment's current configuration.
 
 ## Cloud and self-hosted boundaries
 
@@ -252,10 +252,12 @@ For buyers, the practical questions matter more than the label:
 </Steps>
 
 <AcquisitionCallout title="Evaluate the current integration" variant="fit">
-  [Read the MCP guide](/docs/mcp) for the current connection path. You can also
-  [start a cloud trial](/auth/signup) to evaluate the managed CRM and, when
-  Mate is enabled in that environment, one bounded assistant workflow before
-  granting broader permissions.
+  [Read the MCP guide](/docs/mcp) for the current connection path. To see
+  follow-up end to end, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup):
+  connect LinkedIn or email and, when Mate is enabled in that environment, let
+  Mate or your own AI client draft the reply and the next step on the client
+  record. You review, edit and send it, and one bounded workflow is enough
+  before you grant broader permissions.
 </AcquisitionCallout>
 
 ## Frequently asked questions
@@ -276,7 +278,7 @@ AI-native describes the architecture: structured data and typed actions AI can u
 </FaqItem>
 
 <FaqItem question="Is Mate available in every Customermates Cloud environment?">
-  Every cloud plan includes a Mate entitlement and monthly hosted-AI allowance
+  Every paid plan includes a Mate entitlement and monthly hosted-AI allowance
   per active user. Live availability depends on the hosted
   environment's current configuration, so it is not a universal availability
   promise. Self-hosted deployments use external AI clients through MCP.

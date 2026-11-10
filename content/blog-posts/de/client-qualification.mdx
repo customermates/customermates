@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Leadqualifizierung: So entscheiden Sie, welche Leads Ihre Zeit bekommen"
-  description: "Die vier Kriterien hinter jedem Modell, wann BANT, CHAMP, MEDDIC oder SPICED passt, Fragen mit Warnsignalen, eine schriftliche Übergabe von Marketing an Vertrieb und ein CRM-Aufbau, der die Antworten jedes Mal gleich erfasst."
+  description: "Die vier Kriterien hinter jedem Modell, wann BANT, CHAMP, MEDDIC oder SPICED passt, Fragen mit Warnsignalen, eine schriftliche Übergabe an den Vertrieb und ein CRM-Aufbau, der Antworten gleich erfasst."
 
 blogPost:
   author: Benjamin Wagner
@@ -152,13 +152,13 @@ Lassen Sie das Modell die Felder befüllen und einen Menschen entscheiden. Lasse
 
 ## Leadqualifizierung in Customermates einrichten
 
-Customermates hat keinen eigenen Lead-Datensatz. Eine neue Anfrage ist ein Kontakt, verknüpft mit einer Organisation, dazu ein Deal, der die Qualifizierungsfelder trägt. Kontakte haben ab Werk das Feld Vertriebsphase (Neu, Kontaktiert, Qualifiziert, In Bearbeitung, Gewonnen, Verloren) für einen schnellen Status, bevor es einen Deal gibt. Wenn Ihr Team von „Opportunities" spricht, benennen Sie Deals im **Datenmodell** um: Liste öffnen und **Name** und **Pluralname** unter **Allgemein** ändern; Datensätze und Verknüpfungen bleiben, wie sie sind. Die Seite zum [Leadmanagement](/features/lead-management) zeigt dasselbe Modell aus Sicht der Kontakte.
+Customermates hat keinen eigenen Lead-Datensatz. Eine neue Anfrage ist ein Kontakt, verknüpft mit einer Organisation, dazu ein Deal, der die Qualifizierungsfelder trägt. Ein neuer Workspace startet ohne Listen: In Customermates Cloud beschreiben Sie Ihr Geschäft in einem Satz, und Mate baut die Listen für Personen, Organisationen und Deals samt Pipeline; alles ändern Sie im **Datenmodell**. Für einen schnellen Status, bevor es einen Deal gibt, legen Sie in der Kontaktliste ein Einzelauswahlfeld an. Wenn Ihr Team von „Opportunities“ spricht, benennen Sie Deals im **Datenmodell** um: Liste öffnen und **Name** und **Pluralname** unter **Allgemein** ändern; Datensätze und Verknüpfungen bleiben, wie sie sind. Die Seite zum [Leadmanagement](/features/lead-management) zeigt dasselbe Modell aus Sicht der Kontakte.
 
 Legen Sie die Felder im **Datenmodell** für Deals über **Hinzufügen** › **Feld** an:
 
 | Feld | Typ | Optionen |
 | --- | --- | --- |
-| Phase | Einzelauswahl, in jedem neuen Workspace vorhanden | Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %; ergänzen Sie Zurückgestellt mit 0 % |
+| Phase | Einzelauswahl, von der KI-Einrichtung oder von Ihnen angelegt | Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 %, Verloren 0 %; ergänzen Sie Zurückgestellt mit 0 % |
 | Bedarf | Einzelauswahl | Bestätigt, Vage, Keiner, Unbekannt |
 | Entscheider | Einzelauswahl | Im Gespräch mit Entscheider, Entscheider erreichbar, Kein Zugang, Unbekannt |
 | Budget | Einzelauswahl | In unserem Rahmen, Unter unserem Rahmen, Unbekannt |
@@ -168,7 +168,7 @@ Legen Sie die Felder im **Datenmodell** für Deals über **Hinzufügen** › **F
 
 Ergänzen Sie an Kontakten ein Feld Quelle (Einzelauswahl: Empfehlung, Website, LinkedIn, Veranstaltung, Kaltakquise), damit die monatliche Auswertung nach Quelle zählen kann. Die Prozentwerte sind Phasenwahrscheinlichkeiten, die Sie im Datenmodell für Deals als **Wahrscheinlichkeit %** an jeder Option des Felds **Phase** setzen. Sie bestimmen den gewichteten Wert Ihrer [Pipeline](/features/pipeline), und Zurückgestellt mit 0 % hält zurückgestellte Deals aus dieser Summe heraus.
 
-Speichern Sie dann drei Ansichten in der Deal-Liste. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann ihre eigenen anlegen, oder Sie teilen eine mit dem Team:
+Speichern Sie dann drei Ansichten in der Deal-Liste. Teilen Sie sie mit dem Team oder mit ausgewählten Rollen:
 
 - **Zu qualifizieren:** Phase ist Akquise oder Qualifizierung, sortiert nach Erstellungsdatum, älteste zuerst.
 - **Fehlende Antworten:** derselbe Filter als Board, gruppiert nach Entscheider. Die Spalte Unbekannt zeigt, wo noch Gespräche nötig sind.
@@ -199,7 +199,9 @@ Was das pro Monat kostet:
 | 2 Personen, Felder, Phasen, Ansichten und Mate, ohne Posteingang | Starter, [[commercial.price.starter.monthly]] pro Nutzer | [[commercial.price.starter.monthly.seats.2]] |
 | 3 Personen, mit Mate und Posteingang | Pro, [[commercial.price.pro.monthly]] pro Nutzer | [[commercial.price.pro.monthly.seats.3]] |
 
-Jeder gehostete Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Die Testphase dauert [[commercial.trial.days]] Tage.
+Jeder kostenpflichtige Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, siehe [Preise](/pricing). Ihr erster Workspace startet [[commercial.trial.days]] Tage kostenlos mit Pro, ohne Kreditkarte.
+
+Qualifizieren endet in einem nächsten Schritt. Mit dem Posteingang in Pro liegen die Verläufe, die Bedarf, Entscheider, Budget und Zeitpunkt zeigen, am Kontakt des Deals, Mate füllt die Felder und entwirft die Antwort, und Sie entscheiden. Um es an Ihren nächsten Anfragen auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup).
 
 ## Messen, ob die Qualifizierung funktioniert
 

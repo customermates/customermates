@@ -1,6 +1,6 @@
 ---
 title: "LinkedIn CRM Integration: Conversations and Sales Navigator"
-description: "Connect supported LinkedIn conversations to contacts and opportunities in the cloud inbox from Pro. Explore the workflow and check plan limits. No CRM Sync."
+description: "Bring LinkedIn and Sales Navigator chats into your CRM: each conversation on its contact and deal, Mate drafts the reply, you send it. Cloud inbox from Pro."
 featureName: LinkedIn CRM Integration
 
 acquisition:
@@ -11,7 +11,7 @@ acquisition:
   primaryIntent: LinkedIn CRM integration for messages and Sales Navigator workflows
   metadata:
     title: "LinkedIn CRM Integration: Conversations and Sales Navigator"
-    description: "Connect supported LinkedIn conversations to contacts and opportunities in the cloud inbox from Pro. Explore the workflow and check plan limits. No CRM Sync."
+    description: "Bring LinkedIn and Sales Navigator chats into your CRM: each conversation on its contact and deal, Mate drafts the reply, you send it. Cloud inbox from Pro."
   proof:
     factReferences:
       - product:cloud-only-unified-inbox
@@ -27,10 +27,10 @@ acquisition:
       - claim:no-native-linkedin-enrichment-monitoring
       - claim:no-linkedin-bulk-import
   cta:
-    action: Test your LinkedIn workflow with real CRM context
-    description: Explore the example LinkedIn sales workspace, then connect one LinkedIn account in a Pro trial and check a real conversation against your own records.
-    buttonLeftText: Start a Pro trial
-    buttonLeftHref: /auth/signup
+    action: "Test your LinkedIn follow-up with real CRM context"
+    description: "Explore the example LinkedIn sales workspace, then connect one LinkedIn account during the [[commercial.trial.days]]-day trial and check a real conversation against your own records."
+    buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Explore the workspace
     buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales/dashboard
     hint: "LinkedIn messaging and Sales Navigator require Cloud Pro or above and the relevant LinkedIn subscription."
@@ -44,9 +44,9 @@ acquisition:
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "LinkedIn conversations in your CRM relationship context"
-      body: "For founders, consultants and small sales teams who sell through LinkedIn: keep each supported conversation next to the prospect and opportunity it belongs to. Customermates Cloud from Pro, not Starter or self-hosted. No LinkedIn CRM Sync, enrichment feed or bulk import."
-      checksum: fnv1a-3c906e51
+      headline: "Follow up on every LinkedIn conversation from your CRM"
+      body: "For founders and small sales teams selling on LinkedIn: each conversation sits on its prospect and deal, Mate or your own AI client drafts the reply, and you review, edit and send. Cloud only, from Pro. No CRM Sync, enrichment feed or bulk import."
+      checksum: fnv1a-1606f414
     kind: none
     reason: "The early disclosed inbox demo is route-specific proof; a separate hero illustration would duplicate it."
     selection: explicit
@@ -56,21 +56,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "We're a four-person strategy consultancy. Track clients, engagements and proposals, and help us follow up with prospects on LinkedIn."
+  steps:
+    items:
+      - title: "Connect an entitled account"
+        description: "Use Customermates Cloud Pro or above and connect the LinkedIn product that your user is entitled to operate."
+      - title: "Open one known conversation"
+        description: "Start with a real thread with a prospect you already know, not a bulk list or an automated sequence."
+      - title: "Match the participant"
+        description: "Add the person's LinkedIn identity to the Contact details field of the right prospect record, or create the record from the conversation."
+      - title: "Link the opportunity"
+        description: "Under Conversation records, use Link record to attach this conversation to the opportunity or organization it belongs to."
+      - title: "Draft and send one reply"
+        description: "Check the recipient, content and connected LinkedIn identity before a user or authorized client sends the individual message."
+  highlights:
+    title: "At a glance"
+    capture: homepage-thread-linkedin
+    items:
+      - title: "Outcome"
+        description: "Keep an individual LinkedIn conversation next to the contact, organization and opportunity your team already tracks, with email alongside."
+      - title: "Availability"
+        description: "Customermates Cloud from Pro. Starter and self-hosted installations have no connected messaging accounts. The LinkedIn subscription remains separate."
+      - title: "Record links"
+        description: "Participants are matched to records by their LinkedIn identity. Linking a conversation to an opportunity or organization is an explicit step by a user or agent, never automatic."
+      - title: "Important boundary"
+        description: "No official CRM Sync, embedded LinkedIn profile, lead feed, bundled continuous enrichment, scraping, bulk import, bulk invites, sequences or mass messaging."
+
 hero:
-  title: LinkedIn conversations in your CRM relationship context
-  description: "For founders, consultants and small sales teams who sell through LinkedIn: keep each supported conversation next to the prospect and opportunity it belongs to. Customermates Cloud from Pro, not Starter or self-hosted. No LinkedIn CRM Sync, enrichment feed or bulk import."
-  buttonLeftText: Start a Pro trial
-  buttonLeftHref: /auth/signup
+  title: "Follow up on every LinkedIn conversation from your CRM"
+  description: "For founders and small sales teams selling on LinkedIn: each conversation sits on its prospect and deal, Mate or your own AI client drafts the reply, and you review, edit and send. Cloud only, from Pro. No CRM Sync, enrichment feed or bulk import."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales/dashboard
-  hint: "Cloud only • Pro or above • LinkedIn subscriptions remain separate"
+  hint: "No credit card required • Cloud only, from Pro • LinkedIn subscriptions stay separate"
   showOpenSourceBadge: false
 
 cta:
-  action: Test your LinkedIn workflow with real CRM context
-  description: Explore the example LinkedIn sales workspace, then connect one LinkedIn account in a Pro trial and check a real conversation against your own records.
-  buttonLeftText: Start a Pro trial
-  buttonLeftHref: /auth/signup
+  action: "Test your LinkedIn follow-up with real CRM context"
+  description: "Explore the example LinkedIn sales workspace, then connect one LinkedIn account during the [[commercial.trial.days]]-day trial and check a real conversation against your own records."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/linkedin-sales/dashboard
   hint: "LinkedIn messaging and Sales Navigator require Cloud Pro or above and the relevant LinkedIn subscription."
@@ -78,26 +108,7 @@ cta:
 
 If you sell through LinkedIn conversations, the hard part is rarely the message itself. It is remembering who the person is, which opportunity the conversation belongs to and what was agreed by email. In Customermates, a **LinkedIn CRM integration** means three bounded things: supported LinkedIn conversations and InMail in the managed-cloud inbox, next to your CRM records; on-demand profile, post and connection-request operations; and Sales Navigator search and list operations through REST or MCP. It is not LinkedIn CRM Sync, and it does not enrich, scrape or bulk import profiles.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="Outcome">
-    Keep an individual LinkedIn conversation next to the contact, organization
-    and opportunity your team already tracks, with email alongside.
-  </SummaryItem>
-  <SummaryItem label="Availability">
-    Customermates Cloud from Pro. Starter and self-hosted installations have no
-    connected messaging accounts. The LinkedIn subscription remains separate.
-  </SummaryItem>
-  <SummaryItem label="Record links">
-    Participants are matched to records by their LinkedIn identity. Linking a
-    conversation to an opportunity or organization is an explicit step by a
-    user or agent, never automatic.
-  </SummaryItem>
-  <SummaryItem label="Important boundary">
-    No official CRM Sync, embedded LinkedIn profile, lead feed, bundled
-    continuous enrichment, scraping, bulk import, bulk invites, sequences or
-    mass messaging.
-  </SummaryItem>
-</ArticleSummary>
+**How this helps you follow up.** A LinkedIn conversation goes quiet when nobody remembers what was promised in it. With the thread on the prospect's record, you can read the earlier exchange, see the deal it belongs to, and have Mate or your own AI client save a reply draft in the thread. You edit it and send it from the connected LinkedIn account. Customermates sends individual messages only and runs no sequences or bulk invites.
 
 <ProofRail label="Verified LinkedIn CRM integration capabilities">
   <ProofItem label="Inbox">LinkedIn conversations</ProofItem>
@@ -118,29 +129,6 @@ These lists and stages are an example. A new workspace starts without lists: on 
 ## Follow a known prospect conversation
 
 An entitled cloud account can connect supported LinkedIn Classic, Sales Navigator or Recruiter variants. The [unified inbox](/features/unified-inbox) then shows supported conversations beside email and other connected channels. A teammate can read a thread, keep a draft, reply, or start an individual chat. Sales Navigator and Recruiter InMail use the subject and signature fields required by the connected product.
-
-<Steps>
-  <Step title="Connect an entitled account">
-    Use Customermates Cloud Pro or above and connect the LinkedIn product that
-    your user is entitled to operate.
-  </Step>
-  <Step title="Open one known conversation">
-    Start with a real thread with a prospect you already know, not a bulk list
-    or an automated sequence.
-  </Step>
-  <Step title="Match the participant">
-    Add the person's LinkedIn identity to the Contact details field of the right
-    prospect record, or create the record from the conversation.
-  </Step>
-  <Step title="Link the opportunity">
-    Under **Conversation records**, use **Link record** to attach this
-    conversation to the opportunity or organization it belongs to.
-  </Step>
-  <Step title="Draft and send one reply">
-    Check the recipient, content and connected LinkedIn identity before a user
-    or authorized client sends the individual message.
-  </Step>
-</Steps>
 
 Matching works through the Contact details field: the email addresses and social identities that connect messages to a record. A conversation reaches an opportunity or organization only when a user or an agent links it explicitly. Customermates never logs a LinkedIn conversation to a deal automatically, and the inbox is not a social-listening or campaign product.
 
@@ -198,6 +186,19 @@ Customermates instead connects supported messages and exposes customer-authorize
   Gen Forms, audience synchronization or background activity writeback.
   On-demand profile reads and mapped CRM writes remain separate operations.
 </AcquisitionCallout>
+
+## Customermates, folk and Breakcold for LinkedIn conversations
+
+Two tools that people compare for LinkedIn conversations are folk and Breakcold. Customermates publishes this comparison, and the folk and Breakcold rows quote each vendor's own pages, checked on 9 November 2026.
+
+| | Customermates | folk | Breakcold |
+| --- | --- | --- | --- |
+| How the messages arrive | Supported LinkedIn conversations and InMail from a connected account appear in the cloud inbox from Pro | folk's [help article](https://help.folk.app/en/articles/7177488-track-linkedin-interactions) describes the folkX Chrome extension: you open a LinkedIn thread, click folkX and log its messages as interactions, one thread at a time | Its [LinkedIn page](https://www.breakcold.com/crm/crm-for-linkedin) says LinkedIn DMs, InMails, connection requests and Sales Navigator threads sync on their own |
+| Link to the deal | A person or an agent links a conversation to an opportunity on purpose | You add the contact to a group, then log the messages | The same page says threads land on the right record on their own |
+| Replying | In the inbox, from the connected account, with a draft from Mate or your own AI client to review and send | The article describes logging messages, not replying | The same page says you reply from Breakcold and the prospect sees the message in LinkedIn |
+| Price | Pro [[commercial.price.pro.monthly]] per user per month, billed monthly | See [folk's pricing page](https://www.folk.app/pricing) | From $49 per seat per month billed monthly, with two connected accounts per seat ([pricing](https://www.breakcold.com/pricing)) |
+
+Pick Breakcold when matching LinkedIn threads to records without a person linking them is the point. Pick folk when you are happy to log LinkedIn conversations from the browser, one thread at a time. Pick Customermates when you want LinkedIn beside email, WhatsApp, Instagram and Telegram on the client record, with a drafted reply that you review and send.
 
 ## Plans, accounts and inbox sharing
 

@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Individuelles CRM: Was sich anpassen lässt und wann Sie selbst bauen sollten"
-  description: "Die meisten kleinen Teams brauchen ein CRM, dessen Felder, Phasen und Ansichten sie selbst gestalten, kein von Grund auf programmiertes System. So erkennen Sie den Unterschied, so ziehen die Anbieter die Grenze, und so sieht eine konkrete Einrichtung aus."
+  description: "Die meisten kleinen Teams brauchen ein CRM, dessen Felder, Phasen und Ansichten sie selbst gestalten, kein programmiertes System. So erkennen Sie den Unterschied und so sieht eine Einrichtung aus."
 
 blogPost:
   author: Benjamin Wagner
@@ -103,7 +103,7 @@ So würde eine Beratung mit fünf Personen Customermates an ihren Ablauf anpasse
     An Projekten: **Auftragsart** (Einzelauswahl: Retainer, Festpreis, Workshop), **Tagessatz** (Geldbetrag), **Vertragsverlängerung** (Datum). An Kunden: **Quelle** (Einzelauswahl) und **Büroadresse** (Adresse); Telefonnummern und E-Mail-Adressen gehören in das Feld Kontaktdaten. Sechzehn Feldtypen und berechnete Felder stehen zur Wahl, aufgelistet in der [Dokumentation zum Datenmodell](/docs/concepts#what-are-custom-columns).
   </Step>
   <Step title="Ansichten für jede Person speichern">
-    Ein Board der Projekte nach Phase gruppiert, eine Tabelle der Retainer nach **Vertragsverlängerung** sortiert, eine Kundenliste nach **Quelle** gruppiert. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann ihre eigene anlegen, oder Sie teilen eine mit dem Team.
+    Ein Board der Projekte nach Phase gruppiert, eine Tabelle der Retainer nach **Vertragsverlängerung** sortiert, eine Kundenliste nach **Quelle** gruppiert. Teilen Sie das Projekt-Board mit dem ganzen Team oder mit ausgewählten Rollen, damit alle mit derselben Pipeline arbeiten.
   </Step>
   <Step title="Bestehende Daten übernehmen">
     Exportieren Sie jede Tabelle aus Ihrem alten Werkzeug als Excel-Arbeitsmappe und importieren Sie eine Liste nach der anderen, erst Kunden, dann Projekte. Dabei ordnen Sie die Spalten Ihren neuen Feldern zu. Die Dateigrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records#how-do-i-import-or-export-records).
@@ -115,11 +115,14 @@ So würde eine Beratung mit fünf Personen Customermates an ihren Ablauf anpasse
 
 Verbundene E-Mail-, LinkedIn- und WhatsApp-Unterhaltungen erscheinen ab Pro im [einheitlichen Posteingang](/features/unified-inbox) neben diesen Datensätzen. Starter hat keinen Posteingang. Arbeiten Sie mit Claude, ChatGPT oder einem anderen KI-Client, liest und schreibt dieser dieselben Datensätze samt Ihrer eigenen Felder über [MCP](/docs/mcp) mit [[derived.mcp.tools.total]] Tools.
 
+Der Sinn des angepassten Modells ist das Nachfassen bei jedem Kundengespräch. Ist der Posteingang verbunden, stehen die Verläufe jedes Kunden am Kundendatensatz, Mate oder Ihr eigener KI-Agent entwirft die Antwort und den nächsten Schritt, Sie prüfen und senden, und die Datumsfelder, die Sie angelegt haben, etwa Vertragsverlängerung oder ein Datum für den nächsten Schritt, zeigen auf Ihrem Dashboard, was fällig ist.
+
 ## Was sich in Customermates nicht anpassen lässt
 
 Diese Grenzen sollten Sie beim Vergleich kennen:
 
 - **Rechte enden bei der Liste.** Rollen regeln Erstellen, Lesen, Bearbeiten und Löschen pro Liste, auch „nur mir zugewiesene Datensätze". Feldbezogene Rechte gibt es nicht.
+- **Geteilte Ansichten sind nur lesbar.** Kolleginnen und Kollegen können eine geteilte Ansicht filtern oder als eigene Kopie speichern, ändern kann sie aber nur, wer sie angelegt hat.
 - **Keine Schlagworte.** Nutzen Sie stattdessen ein Einzelauswahl-Feld, das hält die Werte auch einheitlich.
 - **Aufgaben haben kein eingebautes Fälligkeitsdatum.** Legen Sie ein Datumsfeld an und sortieren Sie danach; eine Benachrichtigung bei Ablauf gibt es nicht.
 - **Import und Export laufen pro Liste**, als Excel-Arbeitsmappe oder JSON, bis zu 5.000 Datensätze pro Export. Einen Export des gesamten Kontos gibt es nicht.
@@ -135,7 +138,9 @@ Customermates wird pro Nutzer und Monat abgerechnet, ausschließlich monatlich. 
 | Starter | [[commercial.price.starter.monthly.seats.5]] | Eigene Felder, Phasen, Ansichten, Import, API, Webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer |
 | Pro | [[commercial.price.pro.monthly.seats.5]] | Alles davon, dazu der einheitliche Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer und [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer |
 
-Ein Jahr Pro für fünf Personen ergibt [[commercial.price.pro.monthly.seats.5.months.12]]. Jeder Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, siehe [Preise](/pricing). Für den selbst gehosteten Open-Source-Kern fällt keine Lizenzgebühr an. Sie zahlen Ihren eigenen Server und die Zeit für den Betrieb.
+Ein Jahr Pro für fünf Personen ergibt [[commercial.price.pro.monthly.seats.5.months.12]]. Jeder bezahlte Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate, siehe [Preise](/pricing). Für den selbst gehosteten Open-Source-Kern fällt keine Lizenzgebühr an. Sie zahlen Ihren eigenen Server und die Zeit für den Betrieb.
+
+Um Ihren eigenen Workspace zu gestalten, [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 ## Damit das angepasste CRM nutzbar bleibt
 

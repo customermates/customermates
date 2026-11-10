@@ -4,7 +4,7 @@ description: "Ein KI-CRM liest Kontakte, Deals und Nachrichten, pflegt Datensät
 
 hero:
   title: "KI-CRM: Was ein KI-natives CRM leistet und wie Sie es prüfen"
-  description: "Was KI im CRM heute tatsächlich erledigt, was ein KI-natives CRM von aufgesetzter KI unterscheidet, wie die großen Anbieter KI verpacken und bepreisen, und acht Fragen, mit denen Sie Produkte schnell einordnen."
+  description: "Was KI im CRM heute tatsächlich erledigt, was ein KI-natives CRM von aufgesetzter KI unterscheidet, wie große Anbieter KI bepreisen, und acht Fragen, mit denen Sie Produkte einordnen."
 
 blogPost:
   author: Benjamin Wagner
@@ -121,7 +121,7 @@ Customermates ist ein Open-Source-CRM aus Deutschland für kleine Teams mit viel
 
 | | Mate | Ihr eigener KI-Client über MCP | Selbst gehostet |
 |---|---|---|---|
-| Wo es läuft | Customermates Cloud, jeder Tarif | Customermates Cloud in jedem Tarif und selbst gehostet | Ihr Server, mit dem AGPL-Kern |
+| Wo es läuft | Customermates Cloud, jeder kostenpflichtige Tarif | Customermates Cloud in jedem Tarif und selbst gehostet | Ihr Server, mit dem AGPL-Kern |
 | Wer das Modell bezahlt | Monatliche gehostete KI-Credits pro aktivem Nutzer | Ihr eigenes KI-Abo oder Ihr KI-Anbieter; Clients sind etwa Claude, ChatGPT, Cursor, Codex und Gemini CLI | Ihr eigener KI-Anbieter, über MCP |
 | Posteingang | Ab Pro | Messaging-Werkzeuge ab Pro, nur in der Cloud | Kein Posteingang |
 | Unbeaufsichtigte Läufe | Routinen | Nur, wenn Ihr Client sie plant | Kein Mate und keine Routinen |
@@ -134,7 +134,7 @@ Ihr eigener KI-Client verbindet sich mit dem [MCP-Server](/docs/mcp): Claude und
 
 - **Phasen der Deals:** Lead (10 %), Qualifiziert (30 %), Angebot gesendet (60 %), Gewonnen (100 %), Verloren (0 %). Die Prozentwerte sind Phasenwahrscheinlichkeiten und bestimmen die gewichtete Pipeline.
 - **Eigenes Feld an Deals:** Quelle, ein Feld vom Typ Einzelauswahl mit Empfehlung, LinkedIn, Website und Veranstaltung.
-- **Gespeicherte Ansicht:** „Meine offenen Angebote“, gefiltert auf die Phase „Angebot gesendet“ und auf Deals, bei denen ich unter „Zugewiesen“ stehe, sortiert nach Wert. Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Beraterin und jeder Berater kann die eigene anlegen, oder Sie teilen eine mit dem Team.
+- **Gespeicherte Ansicht:** „Meine offenen Angebote“, gefiltert auf die Phase „Angebot gesendet“ und auf Deals, bei denen ich unter „Zugewiesen“ stehe, sortiert nach Wert. Jede Beraterin und jeder Berater legt die eigene an oder teilt eine Ansicht mit dem ganzen Team.
 - **Posteingang:** Auf Pro verbindet jede Person [[commercial.entitlement.pro.includedAccountsPerUser]] Konto, meist das geschäftliche E-Mail-Postfach oder LinkedIn.
 
 Dazu legt jede Person zwei [Routinen](/docs/app-routines) an. Beide laufen in Customermates Cloud und nutzen gehostete KI-Credits.
@@ -163,6 +163,8 @@ Notizen des Deals ergänzen. Bei jeder anderen Phase nichts tun.
 Eine Routine läuft als ihre Eigentümerin oder ihr Eigentümer, mit deren Kanälen und Rechten. Ein unbeaufsichtigter Lauf lehnt alles ab, was eine Freigabe bräuchte, und Änderungen durch eine Routine lösen keine weitere Routine aus. Mate sendet Nachrichten, wenn man ihn darum bittet; deshalb steht in der ersten Anweisung „Nichts senden“.
 
 **Was es kostet:** Auf Pro zahlt dieses Team [[commercial.price.pro.monthly.seats.5]] pro Monat für den Posteingang, [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto und bis zu [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Person, einschließlich monatlicher gehosteter KI-Credits pro aktivem Nutzer für Mate und die Routinen (siehe [Preise](/pricing)). Starter kostet dasselbe Team [[commercial.price.starter.monthly.seats.5]] pro Monat und umfasst Mate, MCP und [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Person, aber keinen Posteingang; die Nachfass-Routine hätte dann keine Verläufe zum Lesen. Bezahlt wird monatlich.
+
+Dieser Aufbau ist Nachfassen in der Praxis: LinkedIn- und E-Mail-Verläufe am Kunden, ein Entwurf jeden Morgen für jedes Angebot, das still geworden ist, und eine Kick-off-Aufgabe in dem Moment, in dem ein Deal gewonnen ist. Um die erste Routine an Ihren eigenen Angeboten aufzubauen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup). Ohne Kreditkarte.
 
 ### Was Customermates nicht kann
 

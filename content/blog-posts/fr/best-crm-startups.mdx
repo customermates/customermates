@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Meilleur CRM pour startups : lequel convient à votre stade"
-  description: "Une sélection sourcée pour les équipes du pré-amorçage à la série A : quel CRM convient à un budget nul, à une vente portée par les fondateurs, à la prospection par téléphone ou à une levée de fonds, et ce que coûtent les remises startup une fois épuisées."
+  description: "Une sélection sourcée du pré-amorçage à la série A : quel CRM pour un budget nul, une vente portée par les fondateurs, le phoning ou une levée de fonds, et le coût des remises startup épuisées."
 
 blogPost:
   author: Benjamin Wagner
@@ -49,7 +49,7 @@ La plupart des listes du « meilleur CRM » classent les outils selon des fonc
 | Vente B2B portée par les fondateurs, un à cinq commerciaux | Pipedrive, Attio | Pipedrive se présente comme un CRM de pipeline commercial ; Attio propose une offre gratuite pour 3 licences | Les séquences de Pipedrive commencent avec Growth |
 | Prospection sortante par téléphone | Close | Appels et SMS dans toutes les offres | Le Power Dialer et les workflows automatisés commencent avec Growth |
 | Investisseurs, partenaires, communauté | folk | Accent sur la vente de proximité, extension LinkedIn dans toutes les offres | Les affaires et les séquences d’e-mails commencent avec Premium |
-| Startup de services (agence, cabinet de conseil, studio) dont les affaires avancent dans des fils d’e-mail, LinkedIn et WhatsApp | Customermates (éditeur) | Boîte de réception unifiée à partir de Pro ; Mate dans Customermates Cloud (crédits IA hébergés) ou votre propre client IA via MCP ; cœur open source | Pas de téléphonie, pas de séquences, pas d’application mobile, pas d’offre hébergée gratuite |
+| Startup de services (agence, cabinet de conseil, studio) dont les affaires avancent dans des fils d’e-mail, LinkedIn et WhatsApp | Customermates (éditeur) | Boîte de réception unifiée à partir de Pro ; Mate dans Customermates Cloud (crédits IA hébergés) ou votre propre client IA via MCP ; cœur open source | Pas de téléphonie, pas de séquences, pas d’application mobile, formule hébergée gratuite seulement pour [[commercial.limit.free.maxMembers]] personne |
 
 Si deux lignes vous décrivent, choisissez celle qui décrit la façon dont se concluront vos dix prochaines affaires, pas celle que vous espérez voir se réaliser dans deux ans.
 
@@ -112,7 +112,7 @@ Avant de vous engager, testez un contact, une organisation, une affaire, une tâ
 
 *Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native développé en Allemagne pour les petites équipes au contact des clients : cabinets de conseil, agences et autres entreprises de services, ainsi que les fondateurs qui vendent par la conversation. Les contacts, les organisations, les affaires et les tâches vivent dans le même espace de travail que les fils des comptes connectés d’e-mail, LinkedIn, WhatsApp, Instagram et Telegram, réunis dans une [boîte de réception unifiée](/features/unified-inbox). La boîte de réception demande Pro ou une offre supérieure ; Starter n’en a pas.
 
-Dans Customermates Cloud, Mate prépare des résumés et des brouillons de réponse à partir de crédits IA hébergés, et les routines exécutent des instructions enregistrées selon un planning ou quand un enregistrement change. Si vous préférez utiliser Claude, ChatGPT ou un autre client, celui-ci travaille avec le CRM via [MCP](/docs/mcp), et les appels au modèle passent alors par votre propre fournisseur d’IA.
+Dans Customermates Cloud, Mate prépare des résumés et des brouillons de réponse à partir de crédits IA hébergés, et les routines exécutent des instructions enregistrées selon un planning ou quand un enregistrement change. Si vous préférez utiliser Claude, ChatGPT ou un autre client, celui-ci travaille avec le CRM via [MCP](/docs/mcp), et les appels au modèle passent alors par votre propre fournisseur d’IA. Pour une startup pilotée par ses fondateurs, l’enjeu est qu’aucune conversation avec un prospect ou un investisseur ne s’éteigne : les fils restent sur le contact, un brouillon de réponse et une prochaine étape sont prêts à relire, et vous envoyez vous-même.
 
 ### Configuration détaillée : un pipeline clients et un pipeline investisseurs depuis votre boîte de réception
 
@@ -134,7 +134,7 @@ Un nouvel espace de travail démarre sans listes. Créez d’abord les listes de
     Les nouvelles affaires démarrent à la première étape, Prospection. Sur les affaires investisseurs, réglez Type d’affaire sur Investisseur, videz **Étape** pour qu’elles ne comptent pas comme Prospection, et indiquez le montant dans Montant du ticket. La valeur d’une affaire provient de ses lignes ; les affaires investisseurs sans lignes n’ajoutent donc rien au pipeline commercial total ou pondéré, et un board des ventes filtré sur le type d’affaire Client ne les affiche pas.
   </Step>
   <Step title="Enregistrer deux vues">
-    Sur **Affaires**, créez une vue avec **Nouvelle vue**, filtrez Type d’affaire sur Investisseur, ouvrez **Apparence**, choisissez **Board** et regroupez par Phase du tour : faire glisser une carte fait désormais passer un investisseur à l’étape suivante. Une seconde vue trie toutes les affaires par Prochain contact, par ordre croissant. Une vue reste privée tant que vous ne la partagez pas : votre cofondateur peut enregistrer la sienne avec les mêmes filtres, ou vous partagez la vôtre.
+    Sur **Affaires**, créez une vue avec **Nouvelle vue**, filtrez Type d’affaire sur Investisseur, ouvrez **Apparence**, choisissez **Board** et regroupez par Phase du tour : faire glisser une carte fait désormais passer un investisseur à l’étape suivante. Une seconde vue trie toutes les affaires par Prochain contact, par ordre croissant. Les vues sont personnelles : votre cofondateur enregistre les siennes avec les mêmes filtres.
   </Step>
   <Step title="Suivre les engagements sous forme de tâches liées">
     Pour « envoyer le deck mis à jour à l’associé », créez une tâche liée à l’affaire et au contact, et attribuez-la. Les tâches n’ont ni échéance ni rappel intégrés ; ajoutez donc un champ Date aux tâches si vous voulez les trier.
@@ -148,7 +148,7 @@ Un nouvel espace de travail démarre sans listes. Créez d’abord les listes de
 La dernière phrase est une consigne, pas une validation technique imposée avant envoi. Mate et les routines peuvent envoyer immédiatement des e-mails et des messages de chat sans demander. Relisez les brouillons enregistrés dans la messagerie avant envoi ; ce fonctionnement dépend du respect de votre consigne. Chaque exécution a aussi un plafond de crédits ; une exécution qui l’atteint s’arrête avec le statut **Partielle**, gardez donc la liste courte. Starter inclut [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur et Pro en inclut [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon choix" variant="boundary">
-  Customermates n’a ni base de données d’investisseurs, ni analyse de deck, ni table de capitalisation, ni data room. Il n’a pas de séquences d’e-mails ni de prospection en masse, pas de téléphonie, pas d’application mobile native, pas de formulaires web pour la capture de leads et pas d’offre hébergée gratuite. Si vous vendez par téléphone, regardez Close. Si vous avez besoin de séquences, Pipedrive Growth et folk Premium en incluent, et LeadBooster de Pipedrive, dans Premium et Ultimate, inclut des formulaires web.
+  Customermates n’a ni base de données d’investisseurs, ni analyse de deck, ni table de capitalisation, ni data room. Il n’a pas de séquences d’e-mails ni de prospection en masse, pas de téléphonie, pas d’application mobile native, pas de formulaires web pour la capture de leads, et la formule hébergée gratuite s’arrête à [[commercial.limit.free.maxMembers]] personne. Si vous vendez par téléphone, regardez Close. Si vous avez besoin de séquences, Pipedrive Growth et folk Premium en incluent, et LeadBooster de Pipedrive, dans Premium et Ultimate, inclut des formulaires web.
 </AcquisitionCallout>
 
 ### Ce que cela coûte
@@ -160,7 +160,7 @@ La dernière phrase est une consigne, pas une validation technique imposée avan
 | Cinq personnes, CRM et MCP sans boîte de réception | Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] |
 | Cinq personnes avec la boîte de réception | Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 
-Chaque formule cloud inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing). L’essai dure [[commercial.trial.days]] jours. Si vous préférez exploiter vous-même le logiciel, le cœur AGPL peut être [auto-hébergé](/features/self-hosted) avec Docker Compose et PostgreSQL et conserve REST, les webhooks et MCP. En auto-hébergement, il n’y a ni boîte de réception, ni Mate, ni crédits hébergés : les étapes de boîte de réception ci-dessus demandent donc Customermates Cloud.
+Chaque formule payante inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing). Votre premier espace de travail démarre avec Pro gratuit pendant [[commercial.trial.days]] jours, sans carte bancaire : [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup) avec un canal et vos cinq prochaines conversations. Si vous préférez exploiter vous-même le logiciel, le cœur AGPL peut être [auto-hébergé](/features/self-hosted) avec Docker Compose et PostgreSQL et conserve REST, les webhooks et MCP. En auto-hébergement, il n’y a ni boîte de réception, ni Mate, ni crédits hébergés : les étapes de boîte de réception ci-dessus demandent donc Customermates Cloud.
 
 Pour une vérification RGPD : dans le cloud, la base de données de production principale est configurée dans la région AWS de Francfort. C’est un paramètre choisi, pas une garantie contractuelle de résidence des données. Les [sous-traitants](/subprocessors), fournisseurs américains compris, sont listés publiquement, et un [accord de traitement des données](/dpa) est disponible.
 
@@ -178,7 +178,7 @@ Passer d’un tableur à Customermates se fait liste par liste. Importez la feui
 
 <Faq>
 <FaqItem question="Quel est le meilleur CRM gratuit pour une startup ?">
-Pour deux fondateurs, HubSpot Free Tools couvre jusqu’à 2 utilisateurs à 0 $. L’édition gratuite de Zoho CRM et Attio Free en couvrent chacun jusqu’à 3. Vérifiez le chemin de montée en gamme avant de prendre des habitudes avec l’un d’eux : l’offre payante dont vous aurez besoin après la première embauche est le vrai prix. Customermates n’a pas d’offre hébergée gratuite ; son cœur AGPL peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate.
+Pour deux fondateurs, HubSpot Free Tools couvre jusqu’à 2 utilisateurs à 0 $. L’édition gratuite de Zoho CRM et Attio Free en couvrent chacun jusqu’à 3. Vérifiez le chemin de montée en gamme avant de prendre des habitudes avec l’un d’eux : l’offre payante dont vous aurez besoin après la première embauche est le vrai prix. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; son cœur AGPL peut être auto-hébergé sans frais de licence, sans la boîte de réception ni Mate.
 </FaqItem>
 
 <FaqItem question="Quel CRM les startups utilisent-elles ?">

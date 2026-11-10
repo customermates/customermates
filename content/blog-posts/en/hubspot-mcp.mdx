@@ -4,7 +4,7 @@ description: "How the HubSpot MCP server works: the Claude and ChatGPT connector
 
 hero:
   title: "HubSpot MCP Server: Which Route to Use, What It Can Do, Where It Stops"
-  description: "HubSpot connects AI clients to your CRM through a hosted MCP server at mcp.hubspot.com and a local developer server. This guide shows which connection route fits your client, what the server reads and writes, the limits HubSpot documents, and a rollout checklist."
+  description: "HubSpot connects AI clients to your CRM through a hosted MCP server and a local developer server. Which route fits, what it reads and writes, the limits HubSpot documents, and a rollout checklist."
 
 blogPost:
   author: Benjamin Wagner
@@ -141,7 +141,9 @@ If you are choosing a CRM rather than connecting an existing one, an MCP server 
 
 Being able to delete and send cuts both ways. The Customermates server tells connected clients to ask for confirmation before deleting or sending, but that is guidance to the client, not a gate in the server: once an authorized client calls a tool, it runs. Check how your client handles tool approvals, and start with reads and drafts, the same as with HubSpot.
 
-Cost works differently too. MCP is included from Starter at [[commercial.price.starter.monthly]] per user per month; the inbox tools need Pro at [[commercial.price.pro.monthly]]. An external AI client uses your own AI subscription, not Customermates credits. Customermates Cloud also has Mate, an in-app assistant that uses hosted AI credits, if you'd rather not connect an outside client at all ([Mate documentation](/docs/app-assistant)).
+Cost works differently too. MCP is included on every plan, the free plan too with a rate limit; paid plans start at [[commercial.price.starter.monthly]] per user per month, and the inbox tools need Pro at [[commercial.price.pro.monthly]]. An external AI client uses your own AI subscription, not Customermates credits. Customermates Cloud also has Mate, an in-app assistant that uses hosted AI credits, if you'd rather not connect an outside client at all ([Mate documentation](/docs/app-assistant)).
+
+What your own agent does with it is follow-up. With LinkedIn and email connected on Customermates Cloud from Pro, client conversations sit on the client record when the contact details match or you link them, and Claude, ChatGPT or Mate drafts the reply and the next step for you to review and send. To try it, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 Customermates is the wrong pick if you rely on HubSpot's marketing tools, help desk or revenue objects; it has none of them. If you stay on HubSpot, use HubSpot's server. If you are weighing a switch, the [HubSpot alternative comparison](/compare/hubspot-alternative) covers the trade-offs, and the [Salesforce MCP guide](/blog/salesforce-mcp) explains the equivalent servers on Salesforce.
 

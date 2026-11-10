@@ -81,13 +81,13 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
         )}
       </div>
 
-      {stopReason && <Alert color="warning" description={stopReason} />}
+      {stopReason && <Alert description={stopReason} variant="warning" />}
 
       {run.wikiProposalCount > 0 && (
         <Alert
-          color="primary"
           data-routine-run-wiki-proposals=""
           description={t("RoutineDetail.wikiProposals", { count: run.wikiProposalCount })}
+          variant="info"
         >
           <Button asChild className="mt-2" size="sm" variant="secondary">
             <IntlLink href="/wiki?proposals=open">{t("RoutineDetail.reviewWikiProposals")}</IntlLink>
@@ -102,7 +102,7 @@ export const RoutineRunDetail = observer(({ run, scrollContainerRef, store }: Pr
           <Spinner aria-label={t("PageState.loading")} />
         </div>
       ) : transcriptFailed ? (
-        <Alert color="danger" description={t("AgentChat.errors.turnFailed")}>
+        <Alert description={t("AgentChat.errors.turnFailed")} variant="destructive">
           <Button
             className="mt-2"
             size="sm"

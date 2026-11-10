@@ -1,6 +1,6 @@
 ---
-title: "CRM for Freelancers and Solopreneurs With B2B Clients"
-description: "A freelancer CRM for solo B2B work: clients, conversations and new work opportunities in one configurable workspace. Explore an example freelance workspace."
+title: "CRM for Freelancers and Solopreneurs: Follow Up on Clients"
+description: "A CRM for freelancers with B2B clients: conversations on the client, Mate drafts the reply and next step, you review and send. See an example workspace."
 industryName: "Freelancers"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/personal
 
 hero:
-  title: "CRM for freelancers with ongoing B2B client relationships"
-  description: "For freelancers and solopreneurs whose work comes from clients they know: keep clients, contacts, open work and the next step in one place. Customermates has no invoicing, time tracking, booking pages, web forms or mobile app, so those stay in the tools you already use."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "CRM for freelancers: keep clients warm while you deliver"
+  description: For freelancers whose work comes from clients they know. Conversations sit on the client, Mate or your own AI client drafts the reply and the next step, and you review and send it. No invoicing, time tracking, booking pages, web forms or mobile app.
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/freelancers/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+landing:
+  hero:
+    eyebrow: For freelancers and solo B2B specialists
+    title: The CRM for freelancers that follows up while you deliver.
+    description: Clients, open work and the next step in one workspace, with the email and LinkedIn conversations behind them. Mate drafts the reply from your playbook, and you review and send it.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Talk to Ben, 15 minutes
+      href: /contact
+  facts: No credit card · Keep your invoicing tool · Pro from [[commercial.price.pro.monthly]] per person/month
+  generator:
+    eyebrow: Start from one description
+    title: Your freelance business, described once. Built for you.
+    description: AI setup asks a few questions and builds clients, inquiries, projects, your pipeline and your playbook. This is the freelance example; click around.
+    promptLabel: Your description to Mate
+    arrowLabel: became this workspace
+    prompt: I'm a freelance developer. Track clients, projects and follow-ups, so no lead goes cold while I'm busy delivering.
+  followUp:
+    eyebrow: A repeat client, answered
+    title: A past client wants to start again in March. The reply is drafted and dated.
+    description: The email thread sits on the client. Mate drafts the reply from your playbook, dates the next step and leaves the draft for your review.
+    desk:
+      label: Follow-up scene for a freelancer
+      workspace: Keller Development
+      conversation:
+        label: Email
+        name: Sofia Lindgren
+        company: Nordhaven Agency
+        time: Wed 09:20
+        message: We would like to pick up the API work again in March. Are you free, and could you outline the first phase?
+      agent:
+        name: Mate
+        intent: Drafting a reply from your client playbook
+        done: Draft saved. Next step added to your dashboard.
+      draft:
+        badge: Draft, waiting for your review
+        text: Hi Sofia, good to hear from you. I have room from the first week of March. I will send a short outline of the first phase on Thursday. Best, Marta
+        edit: Edit
+        send: Send draft
+      today:
+        title: Dashboard
+        date: Thursday
+        addedBy: Added by Mate
+        assign: Assign
+        sections:
+          - title: Next steps due
+            items:
+              - title: Send the phase-one outline
+                meta: Nordhaven Agency · due today
+                owner: MK
+                state: added
+              - title: Check in on the open proposal
+                meta: Brightside Labs · 3 days overdue
+                owner: MK
+                state: overdue
+          - title: Proposals waiting for an answer
+            items:
+              - title: Brightside Labs proposal
+                meta: sent 6 days ago
+                owner: MK
+                state: due
+  beforeAfter:
+    eyebrow: What changes
+    title: Before and after. Same clients, fewer cold leads.
+    before:
+      label: Before
+      points:
+        - Open proposals tracked in your head
+        - Client messages spread across email and LinkedIn
+        - Past clients go quiet while you deliver
+    after:
+      label: With Customermates
+      points:
+        - Every client has a next step with a date
+        - The conversation sits on the client, with a draft ready
+        - Your dashboard shows what is due, nothing more
+  steps:
+    eyebrow: How you start
+    title: Three steps. To your first follow-up.
+    items:
+      - title: Describe your freelance work
+        description: AI setup builds clients, inquiries, projects and your playbook from one description and a few answers.
+      - title: Connect email or LinkedIn
+        description: Threads land on the client whose email address or LinkedIn profile matches. On Pro, one connected account per person.
+      - title: Review follow-ups from your dashboard
+        description: Mate drafts the reply and dates the next step, when you ask or on a routine you set. You edit, send or skip.
+  plan:
+    eyebrow: Pricing
+    title: Pro covers it. [[commercial.price.pro.monthly]] per person per month.
+    description: Starter at [[commercial.price.starter.monthly]] has no inbox. Pro adds one connected account for your email or LinkedIn. Your own Claude or ChatGPT subscription stays with its provider.
+    limits: Not a fit if you need invoicing, time tracking, booking pages or web forms. Those stay in your other tools.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Compare all plans
+      href: /pricing
 
 cta:
-  action: See whether a freelance workspace fits your clients
+  action: See how a repeat client's message becomes a dated next step
   description: "Open the example workspace with sample data first. A new workspace of your own starts without lists: on Customermates Cloud the AI workspace setup builds them from your description, or you create them in Data model and import an Excel workbook."
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/freelancers/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: Ways you can use it
+  title: For freelancers. Three jobs, one workspace.
+  items:
+    - title: Follow up with repeat clients
+      description: A client who asked to talk again in March sits on the record with a dated next step, so the follow-up is on your list.
+      href: /features/follow-up
+      linkLabel: See follow-up
+      visual: calendar
+    - title: Answer from the thread
+      description: From Pro, email and LinkedIn threads sit on the client. Mate or your own AI client drafts a reply from the records it may read, and you decide what goes out.
+      href: /features/unified-inbox
+      linkLabel: See the unified inbox
+      visual: conversation
+    - title: Track new work
+      description: Open work and the next step for each client in one place.
+      href: /features/pipeline
+      linkLabel: See the pipeline
+      visual: pipeline
 ---
 
-A freelancer CRM earns its place when your work depends on relationships: a former client who comes back every spring, a referral from an agency you delivered for, a proposal that waits while you are busy on another project. Customermates is an open-source, AI-native CRM made in Germany. For a one-person B2B business it keeps clients, the people you work with, open work opportunities and your next step together, and on Customermates Cloud from Pro it adds the conversations around them. It is not a booking tool and not a billing tool. If your day starts with appointments, invoices or a client portal, the section on what it does not do names tools built for that.
+A freelancer CRM earns its place when your work depends on relationships: a former client who comes back every spring, a referral from an agency you delivered for, a proposal that waits while you are busy on another project. Customermates is an open-source, AI-native CRM made in Germany. For a one-person B2B business it keeps clients, the people you work with, open work opportunities and your next step together, and on Customermates Cloud from Pro it adds the email and LinkedIn conversations around them. Mate, or your own AI agent through MCP, drafts the reply and the next step, and you review, edit and send. It is not a booking tool and not a billing tool. If your day starts with appointments, invoices or a client portal, the section on what it does not do names tools built for that.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -121,7 +241,7 @@ On Customermates Cloud, the [unified inbox](/features/unified-inbox) brings emai
 
 Participants are matched to contacts by their email address, phone number or LinkedIn identity. A conversation is linked to a client or opportunity only when you, or an agent you ask, links it. Nothing is filed to an opportunity automatically. Messages inside freelance marketplaces are not an inbox channel.
 
-Mate, the assistant in Customermates Cloud, can read a client record and its linked conversation and draft a reply for you to check. It runs on every cloud plan within your plan's hosted AI credits and is not available in self-hosting. Mate creates, updates and sends as soon as you ask; only deletions, imports, access changes and destructive data-model changes stop for your approval. Ask for a draft, and it waits in the conversation until you edit or send it. A [routine](/docs/app-routines) lets Mate run a saved instruction on a schedule or when a record changes, for example a Monday list of opportunities whose Next action date has passed. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate, the assistant in Customermates Cloud, can read a client record and its linked conversation and draft a reply for you to check. It runs on every paid cloud plan within your plan's hosted AI credits and is not available in self-hosting. Mate creates, updates and sends as soon as you ask; only deletions, imports, access changes and destructive data-model changes stop for your approval. Ask for a draft, and it waits in the conversation until you edit or send it. A [routine](/docs/app-routines) lets Mate run a saved instruction on a schedule or when a record changes, for example a Monday list of opportunities whose Next action date has passed. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 If you prefer your own AI client, connect Claude, ChatGPT or another client through [MCP](/docs/mcp). It works on every plan, including self-hosted, and your AI provider bills the model use.
 
@@ -148,7 +268,7 @@ If you are coming from a spreadsheet, our [Excel CRM template guide](/blog/excel
 
 ## Pricing and ownership
 
-Prices are per user per month, billed monthly. There is a [[commercial.trial.days]]-day trial on Customermates Cloud without a credit card, and no free hosted plan.
+Prices are per user per month, billed monthly. There is a [[commercial.trial.days]]-day trial on Customermates Cloud without a credit card, and a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines.
 
 | Setup | Plan | Per month |
 |---|---|---|
@@ -156,7 +276,7 @@ Prices are per user per month, billed monthly. There is a [[commercial.trial.day
 | Your own mailbox or one chat account in the inbox | Pro | [[commercial.price.pro.monthly]] |
 | More connected accounts and Mate usage | Business | [[commercial.price.business.monthly]] |
 
-Every plan includes the REST API, webhooks and MCP. Hosted AI usage for Mate grows with the plan; the [pricing page](/pricing) has the details. The open-source core runs on your own server without a licence fee, but a [self-hosted installation](/features/self-hosted) has the Starter feature set: no inbox, no Mate and no AI workspace setup.
+Every paid plan includes the REST API, webhooks and MCP. Hosted AI usage for Mate grows with the plan; the [pricing page](/pricing) has the details. The open-source core runs on your own server without a licence fee, but a [self-hosted installation](/features/self-hosted) has the Starter feature set: no inbox, no Mate and no AI workspace setup.
 
 On Customermates Cloud the primary database is in the AWS Frankfurt region. Subprocessors, US providers among them, are on the [subprocessors page](/subprocessors), and a [data processing agreement](/dpa) is available. Customermates holds no certification such as ISO 27001, and whether your use meets GDPR depends on how you process your clients' data. Each list exports as an Excel workbook or JSON; there is no whole-account export.
 
@@ -184,7 +304,7 @@ No. A new workspace starts without lists. On Customermates Cloud the AI workspac
 </FaqItem>
 
 <FaqItem question="Is there a free CRM for freelancers?">
-HubSpot's free CRM covers up to two users and 1,000 contacts, and CentralStationCRM has a free plan for 3 users and 200 contacts (checked on 8 October 2026). Customermates has no free hosted plan: it has a [[commercial.trial.days]]-day trial, Starter at [[commercial.price.starter.monthly]] per month, and an open-source core you can host yourself. Our [free CRM guide](/blog/free-crm) compares the options.
+HubSpot's free CRM covers up to two users and 1,000 contacts, and CentralStationCRM has a free plan for 3 users and 200 contacts (checked on 8 October 2026). Customermates has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines, a [[commercial.trial.days]]-day trial, Starter at [[commercial.price.starter.monthly]] per month, and an open-source core you can host yourself. Our [free CRM guide](/blog/free-crm) compares the options.
 </FaqItem>
 </Faq>
 

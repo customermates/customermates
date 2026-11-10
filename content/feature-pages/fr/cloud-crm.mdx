@@ -29,10 +29,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-self-hosted-inbox
   cta:
-    action: "Évaluez Customermates Cloud avec votre propre processus"
-    description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours, créez un petit pipeline et testez les enregistrements, les vues et les intégrations dont votre équipe a vraiment besoin."
-    buttonLeftText: "Commencer l’essai Pro"
-    buttonLeftHref: /auth/signup
+    action: "Essayez Customermates Cloud sur vos propres relances clients"
+    description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours, connectez un compte e-mail ou LinkedIn et voyez si les conversations et la prochaine étape de chaque client sont plus faciles à suivre qu’aujourd’hui."
+    buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Comparer les formules
     buttonRightHref: /pricing
     hint: "Sans carte bancaire. L’auto-hébergement s’évalue séparément et reprend les fonctions de Starter."
@@ -46,9 +46,9 @@ acquisition:
     locale: fr
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "CRM cloud avec un cœur open source que vous pouvez aussi auto-héberger"
-      body: "Customermates Cloud est un CRM géré, accessible depuis le navigateur, pour les contacts, organisations, affaires, services et tâches, avec REST, des webhooks et MCP. Le cœur open source peut aussi être auto-hébergé avec Docker. Comparez les deux options et apprenez à choisir un CRM cloud."
-      checksum: fnv1a-906710b0
+      headline: "Un CRM cloud pour relancer chaque client"
+      body: "Sur Customermates Cloud dès Pro, les conversations LinkedIn et e-mail sont sur la fiche de chaque client et Mate rédige les réponses à relire et envoyer. Base cloud à Francfort, cœur AGPL auto-hébergeable."
+      checksum: fnv1a-fe11e27d
     kind: none
     reason: "La démo du tableau de bord, signalée en début de page, prouve directement le produit ; une illustration en en-tête est superflue."
     selection: explicit
@@ -58,20 +58,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "Nous sommes une petite entreprise de services B2B. Garde clients, devis et conversations au même endroit, et montre-nous sur le tableau de bord qui rappeler."
+  steps:
+    title: "Comment une équipe évalue Customermates Cloud"
+    items:
+      - title: "Créer un petit espace de travail"
+        description: "Démarrez l’essai Pro et n’invitez que les collègues nécessaires à la première évaluation."
+      - title: "Modéliser un vrai pipeline"
+        description: "Ajoutez quelques contacts, organisations et affaires de test fictifs ou approuvés, puis configurez les étapes et les champs que votre équipe utilise vraiment."
+      - title: "Tester les vues de travail"
+        description: "Comparez les vues Tableau, cartes et Board et vérifiez les relations et les permissions qui sous-tendent le processus."
+      - title: "Ne connecter que le nécessaire"
+        description: "N’ajoutez un compte de messagerie inclus dans la formule, un webhook, une intégration REST ou un client MCP qu’une fois compris le périmètre de ses données et de ses permissions."
+      - title: "Exporter, puis décider"
+        description: "Exportez une liste en Excel ou en JSON et réimportez-la. Décidez ensuite si le service géré convient, ou si la limite de Starter et le travail d’exploitation de l’auto-hébergement sont préférables."
+  highlights:
+    title: "En bref"
+    capture: homepage-dashboard
+    items:
+      - title: "Définition"
+        description: "Le fournisseur exploite les serveurs, les mises à jour et les sauvegardes. Vous vous connectez depuis un navigateur et payez un abonnement, en général par utilisateur et par mois."
+      - title: "Cloud ou auto-hébergement"
+        description: "Le cloud supprime le travail d’exploitation et cède un peu de contrôle. L’auto-hébergement garde serveurs et données entre vos mains et ajoute l’exploitation."
+      - title: "Customermates"
+        description: "Cloud géré avec des formules mensuelles par utilisateur, ou cœur open source sur vos propres serveurs avec les fonctions de Starter : sans boîte de réception, sans calendrier connecté, sans Mate hébergé."
+      - title: "Avant d’acheter"
+        description: "Vérifiez l’emplacement des données et l’accord de traitement, les formats d’export, l’API, le prix par utilisateur et l’engagement de disponibilité, puis testez un export avec de vrais enregistrements."
+
 hero:
-  title: "CRM cloud avec un cœur open source que vous pouvez aussi auto-héberger"
-  description: "Customermates Cloud est un CRM géré, accessible depuis le navigateur, pour les contacts, organisations, affaires, services et tâches, avec REST, des webhooks et MCP. Le cœur open source peut aussi être auto-hébergé avec Docker. Comparez les deux options et apprenez à choisir un CRM cloud."
-  buttonLeftText: "Commencer l’essai Pro"
-  buttonLeftHref: /auth/signup
+  title: "Un CRM cloud pour relancer chaque client"
+  description: "Sur Customermates Cloud dès Pro, les conversations LinkedIn et e-mail sont sur la fiche de chaque client et Mate rédige les réponses à relire et envoyer. Base cloud à Francfort, cœur AGPL auto-hébergeable."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Comparer les formules
   buttonRightHref: /pricing
-  hint: "Cloud géré • Formules mensuelles • Option d’auto-hébergement distincte"
+  hint: "Sans carte bancaire • Formules mensuelles • Option d’auto-hébergement distincte"
 
 cta:
-  action: "Évaluez Customermates Cloud avec votre propre processus"
-  description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours, créez un petit pipeline et testez les enregistrements, les vues et les intégrations dont votre équipe a vraiment besoin."
-  buttonLeftText: "Commencer l’essai Pro"
-  buttonLeftHref: /auth/signup
+  action: "Essayez Customermates Cloud sur vos propres relances clients"
+  description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours, connectez un compte e-mail ou LinkedIn et voyez si les conversations et la prochaine étape de chaque client sont plus faciles à suivre qu’aujourd’hui."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Comparer les formules
   buttonRightHref: /pricing
   hint: "Sans carte bancaire. L’auto-hébergement s’évalue séparément et reprend les fonctions de Starter."
@@ -79,28 +110,7 @@ cta:
 
 Un **CRM cloud** (aussi appelé logiciel CRM cloud, CRM en ligne ou CRM hébergé) est un logiciel de gestion de la relation client que le fournisseur héberge et exploite : votre équipe l’utilise dans un navigateur et n’installe, ne met à jour et ne sauvegarde rien elle-même. Customermates en est un : la base de données de production principale est configurée à Francfort, et son cœur open source peut aussi être auto-hébergé avec Docker.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Définition">
-    Le fournisseur exploite les serveurs, les mises à jour et les sauvegardes.
-    Vous vous connectez depuis un navigateur et payez un abonnement, en général
-    par utilisateur et par mois.
-  </SummaryItem>
-  <SummaryItem label="Cloud ou auto-hébergement">
-    Le cloud supprime le travail d’exploitation et cède un peu de contrôle.
-    L’auto-hébergement garde serveurs et données entre vos mains et ajoute
-    l’exploitation.
-  </SummaryItem>
-  <SummaryItem label="Customermates">
-    Cloud géré avec des formules mensuelles par utilisateur, ou cœur open source
-    sur vos propres serveurs avec les fonctions de Starter : sans boîte de
-    réception, sans calendrier connecté, sans Mate hébergé.
-  </SummaryItem>
-  <SummaryItem label="Avant d’acheter">
-    Vérifiez l’emplacement des données et l’accord de traitement, les formats
-    d’export, l’API, le prix par utilisateur et l’engagement de disponibilité,
-    puis testez un export avec de vrais enregistrements.
-  </SummaryItem>
-</ArticleSummary>
+**Ce que le cloud change pour la relance.** Quand le CRM tourne dans le cloud, vos conversations LinkedIn et e-mail peuvent se trouver sur la fiche du client, et Mate peut y rédiger la réponse. Sur Customermates Cloud, cela commence avec Pro, et l’essai gratuit dure [[commercial.trial.days]] jours sur Pro. Un cœur auto-hébergé garde les fiches clients et MCP mais n’a ni boîte de réception ni Mate : la relance rédigée est donc une fonction du cloud.
 
 <ProofRail label="Capacités vérifiées de Customermates Cloud">
   <ProofItem label="Enregistrements">Listes configurables, créées dans Modèle de données</ProofItem>
@@ -235,37 +245,9 @@ La facturation est mensuelle, par utilisateur et en euros ; il n’existe pas d
 
 ### IA et automatisation
 
-Chaque formule du cloud géré comprend un droit à Mate et un forfait mensuel de crédits d’IA hébergés propre à la formule, par utilisateur actif. La disponibilité effective de Mate dépend de la configuration actuelle de l’environnement hébergé. Lorsqu’il est activé, Mate travaille dans le CRM, utilise les permissions de l’utilisateur courant et applique des contrôles de confirmation distincts aux actions sensibles.
+Chaque formule payante du cloud géré comprend un droit à Mate et un forfait mensuel de crédits d’IA hébergés propre à la formule, par utilisateur actif. La disponibilité effective de Mate dépend de la configuration actuelle de l’environnement hébergé. Lorsqu’il est activé, Mate travaille dans le CRM, utilise les permissions de l’utilisateur courant et applique des contrôles de confirmation distincts aux actions sensibles.
 
 Les clients IA externes peuvent utiliser le [serveur MCP de Customermates](/docs/mcp) avec un fournisseur de modèle et un abonnement de votre choix, dans toutes les formules et aussi en auto-hébergement. Ils utilisent votre fournisseur plutôt que les crédits hébergés. Pour l’automatisation, les équipes peuvent appeler REST, recevoir des webhooks, utiliser MCP ou connecter un outil de workflow exploité séparément comme n8n. Customermates n’inclut ni l’environnement d’exécution de n8n, ni ses connecteurs tiers.
-
-### Comment une équipe évalue Customermates Cloud
-
-<Steps>
-  <Step title="Créer un petit espace de travail">
-    Démarrez l’essai Pro et n’invitez que les collègues nécessaires à la
-    première évaluation.
-  </Step>
-  <Step title="Modéliser un vrai pipeline">
-    Ajoutez quelques contacts, organisations et affaires de test fictifs ou
-    approuvés, puis configurez les étapes et les champs que votre équipe
-    utilise vraiment.
-  </Step>
-  <Step title="Tester les vues de travail">
-    Comparez les vues Tableau, cartes et Board et vérifiez les relations et les
-    permissions qui sous-tendent le processus.
-  </Step>
-  <Step title="Ne connecter que le nécessaire">
-    N’ajoutez un compte de messagerie inclus dans la formule, un webhook, une
-    intégration REST ou un client MCP qu’une fois compris le périmètre de ses
-    données et de ses permissions.
-  </Step>
-  <Step title="Exporter, puis décider">
-    Exportez une liste en Excel ou en JSON et réimportez-la. Décidez ensuite si
-    le service géré convient, ou si la limite de Starter et le travail
-    d’exploitation de l’auto-hébergement sont préférables.
-  </Step>
-</Steps>
 
 ## Quand Customermates n’est-il pas le bon choix ?
 
@@ -339,7 +321,7 @@ Customermates Cloud convient aux équipes qui veulent un CRM géré, accessible 
 </FaqItem>
 
 <FaqItem question="Customermates Cloud inclut-il l’IA ?">
-  Chaque formule cloud comprend un droit à Mate et un forfait mensuel d’IA
+  Chaque formule cloud payante comprend un droit à Mate et un forfait mensuel d’IA
   hébergée par utilisateur actif. La disponibilité effective de Mate dépend de
   la configuration actuelle de l’environnement hébergé. Les clients IA
   externes peuvent aussi utiliser MCP avec leur propre fournisseur et ne

@@ -1,3 +1,4 @@
+import type { PurchasablePlanId } from "@/core/commercial/plan-catalog";
 import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-context";
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
@@ -284,6 +285,7 @@ export class AgentChatStore extends BaseStore {
   isOpen = false;
   isExpanded = false;
   enabled: boolean | null = null;
+  upgradePlan: PurchasablePlanId | null = null;
   usage: AgentUsageView | null = null;
   counts: AgentDataCounts | null = null;
   conversationId: string | null = null;
@@ -374,6 +376,7 @@ export class AgentChatStore extends BaseStore {
       isOpen: observable,
       isExpanded: observable,
       enabled: observable,
+      upgradePlan: observable,
       usage: observable.ref,
       counts: observable.ref,
       conversationId: observable,
@@ -1297,6 +1300,7 @@ export class AgentChatStore extends BaseStore {
       if (!response.data.enabled) {
         runInAction(() => {
           this.enabled = false;
+          this.upgradePlan = ("upgradePlan" in response.data ? response.data.upgradePlan : null) ?? null;
         });
         return "disabled";
       }
@@ -1314,6 +1318,7 @@ export class AgentChatStore extends BaseStore {
           updatedAt: new Date(conversation.updatedAt),
         }));
         this.enabled = true;
+        this.upgradePlan = null;
         this.usage = config.usage;
         this.counts = config.counts;
         if (preserveExactHistory) {

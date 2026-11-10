@@ -9,6 +9,7 @@ import type { RecordEventPayload } from "./record-event.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordCalculationService } from "./record-calculation.service";
+import type { RecordCreationGate } from "./record-write.service";
 import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 
@@ -68,6 +69,7 @@ export class RecordTrashService {
   constructor(
     private records: RecordRepo,
     private calculations: RecordCalculationService,
+    private creations: RecordCreationGate = { admitRecords: () => Promise.resolve(null) },
   ) {}
 
   async accessible(item: RecordTrashItem, model: RecordModel, policy: Policy): Promise<RecordRestoreBlocker | null> {
@@ -159,6 +161,9 @@ export class RecordTrashService {
         );
         if (result.restoredRecords + refs.length > limit)
           throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
+        const listed = refs.filter((ref) => !model.types.find((type) => type.id === ref.typeId)?.embedded).length;
+        const refused = listed ? await this.creations.admitRecords(listed) : null;
+        if (refused) throw unwindFailure(CustomErrorCode.planRecordLimitReached, "conflict", [], refused);
         result.droppedLinks += (await this.restoreRecords(refs, model, journal, limit)) + droppedLinksOf(current);
         await journal.repository.removeTrashItems([item.id]);
         result.restoredItemIds.push(item.id);

@@ -34,7 +34,7 @@ This guide lists what a digital rolodex should hold, compares six ways to keep o
   <SummaryItem label="Most people">The contacts app of your phone, kept in sync by your Apple or Google account. It is already installed, and a second system is rarely worth the effort.</SummaryItem>
   <SummaryItem label="Own columns">A spreadsheet or a Notion template, when you want fields your phone does not offer and you are the only editor.</SummaryItem>
   <SummaryItem label="A CRM">When the people are clients, prospects or partners and you need notes, next-step dates and conversations per person, shared with a team.</SummaryItem>
-  <SummaryItem label="Customermates">Configurable lists, a Contact details field for phones, emails and social profiles, notes, dates and Excel or CSV import. No phone app, no address-book sync, no business-card scanning. Cloud from [[commercial.price.starter.monthly]] per user per month, [[commercial.trial.days]]-day trial, self-hostable.</SummaryItem>
+  <SummaryItem label="Customermates">Configurable lists, a Contact details field for phones, emails and social profiles, notes, dates and Excel or CSV import. No phone app, no address-book sync, no business-card scanning. Free for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, paid plans from [[commercial.price.starter.monthly]] per user per month, [[commercial.trial.days]]-day trial of Pro, self-hostable.</SummaryItem>
   <SummaryItem label="Disclosure">Customermates publishes this guide. The other options are described by fit, not ranked.</SummaryItem>
 </ArticleSummary>
 
@@ -82,7 +82,7 @@ Six options cover almost every case. The Customermates row is our own product; t
 | Spreadsheet (Excel, Google Sheets) | The software you already use | One shared file; copies drift when several people edit | Whatever columns you add; history is what you write in a cell | CSV and workbook files in and out |
 | Notion template | Free for one person; a team on the Free plan gets a limited number of blocks and moves to a paid per-member plan | Share pages with other members | Notes and properties as the template defines them | Depends on the template; test an export first |
 | Personal CRM app (Dex) | Paid subscription | Built around one person's network; Dex also lists a Team plan | Notes, custom fields, groups, reminders, interaction timeline | Pulls contacts from email, calendar, LinkedIn, WhatsApp and phone contacts |
-| Business CRM (Customermates) | Cloud per user per month, billed monthly; self-hosted core without a licence fee | Everyone in the workspace works on the same records, roles decide who sees which list | Notes, linked companies, dates, files; conversations from Pro | Import from Excel, CSV or JSON; export to Excel or JSON |
+| Business CRM (Customermates) | Free for one person with a record limit; paid cloud plans per user per month, billed monthly; self-hosted core without a licence fee | Everyone in the workspace works on the same records, roles decide who sees which list | Notes, linked companies, dates, files; conversations from Pro | Import from Excel, CSV or JSON; export to Excel or JSON |
 
 Google's help pages name two limits for Google Contacts: do not import more than 3,000 contacts at once, and an account has a limit of 25,000 contacts. Notion's pricing page describes Free as the plan for individuals. Checked on 7 November 2026 against [Google Contacts import](https://support.google.com/contacts/answer/15147365), [Google Contacts export](https://support.google.com/contacts/answer/7199294), [Google Contacts labels](https://support.google.com/contacts/answer/30970), [Notion pricing](https://www.notion.com/pricing) and [Dex](https://getdex.com/).
 
@@ -113,7 +113,7 @@ A CRM is more than you need when:
 
 - you are the only user and the list is names, numbers and emails;
 - you mostly look people up on your phone, because Customermates has no native app;
-- you want birthday or keep-in-touch alerts, because Customermates sends no reminders;
+- you want birthday or keep-in-touch alerts, because Customermates has no built-in reminders;
 - the list is a one-off, such as wedding guests or a club, and not an ongoing relationship.
 
 You have outgrown the phone book when:
@@ -131,16 +131,20 @@ Customermates is an open-source, AI-native CRM built in Germany. A new workspace
 
 - **Contact details:** this field holds several phone numbers, email addresses and social profiles per person. Search finds a person by any of them, and a phone number there can be called.
 - **Notes, dates and groups:** add a Formatted text field for notes, a Date field such as Next check-in, and a Multiple choice field for groups. Customermates has no record tags; a multiple choice field is the equivalent.
-- **Who is due:** save a view sorted by Next check-in, and one with Updated at older than 90 days for people who went quiet. A list with a Date field also shows as a calendar.
+- **Who is due:** save a view sorted by Next check-in, and one with Updated at older than 90 days for people who went quiet. Share a view with the team from its **Share…** menu, or keep it to yourself. The **Upcoming** widget on the dashboard lists who is due in the coming days and who is overdue. A list with a Date field also shows as a calendar.
 - **Addresses:** an Address field is checked against the country's address format when saved. The cloud has no address search, so you type the address.
-- **Conversations (Pro and higher, cloud):** conversations from a connected email or LinkedIn account appear on the person's record in the [unified inbox](/features/unified-inbox) when their address or profile matches.
+- **Conversations (Pro and higher, cloud):** conversations from a connected email, LinkedIn, WhatsApp, Instagram or Telegram account appear on the person's record in the [unified inbox](/features/unified-inbox) when their address, number or profile matches.
 - **Moving in and out:** import Excel or CSV, export Excel or JSON. The [personal CRM setup](/for/personal) walks through a full network in Customermates.
 
-Customermates Cloud has no free plan. It starts with a [[commercial.trial.days]]-day trial of Pro, then plans from [[commercial.price.starter.monthly]] per user per month, billed monthly; see the [pricing page](/pricing). The open-source core can be [self-hosted](/features/self-hosted) with no licence fee, without the unified inbox and Mate.
+A rolodex tells you who someone is. The follow-up starts when they write back: a contact you met last month answers on LinkedIn, and the reply needs a date. On Customermates Cloud from Pro you connect LinkedIn and email, the conversation sits on the person's record, Mate or your own AI agent drafts the reply and the next step, and you review, edit and send. The next step appears on your dashboard, so a name on your list becomes a conversation you keep up.
+
+Customermates Cloud has a Free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Your first workspace starts with a [[commercial.trial.days]]-day trial of Pro and then moves to Free unless you choose a paid plan, and every further workspace starts by choosing a plan; paid plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly. See the [pricing page](/pricing). The open-source core can be [self-hosted](/features/self-hosted) with no licence fee, without the unified inbox and Mate.
 
 <AcquisitionCallout title="Where Customermates is the wrong digital rolodex" variant="boundary">
-  There is no native iPhone or Android app and no sync with phone, Google or Outlook address books, so it will not replace the contacts app on your phone. It does not scan business cards, sends no reminders or birthday alerts, and has no merge function; one email address can belong to several records, so search before you add someone. If a phone address book or a spreadsheet does the job, use that. For reminders on your phone, look at a personal CRM app.
+  There is no native iPhone or Android app and no sync with phone, Google or Outlook address books, so it will not replace the contacts app on your phone. It does not scan business cards, has no built-in reminders or birthday alerts and no merge function; one email address can belong to several records, so search before you add someone. If a phone address book or a spreadsheet does the job, use that. For reminders on your phone, look at a personal CRM app.
 </AcquisitionCallout>
+
+To try it with your own contacts, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card. Import ten rows first, then connect one channel.
 
 ## Common questions about the digital rolodex
 
@@ -155,7 +159,7 @@ Some keep a physical card file, but most people now keep the list in a phone, an
 It is the brand name of a rotating card file, a portmanteau of "rolling" and "index", first patented in 1956 according to the Columbia Journalism Review. Rolodex is still a trademark.
 </FaqItem>
 <FaqItem question="Is there a free digital address book?">
-Yes. The contacts app on your phone and Google Contacts come with the phone and the account. A spreadsheet works too, and a Notion workspace is free for one person. Customermates Cloud has no free plan, only a [[commercial.trial.days]]-day trial, and its self-hosted core has no licence fee.
+Yes. The contacts app on your phone and Google Contacts come with the phone and the account. A spreadsheet works too, and a Notion workspace is free for one person. Customermates Cloud has a Free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, and its self-hosted core has no licence fee.
 </FaqItem>
 <FaqItem question="Can I share a digital rolodex with my team?">
 Yes, but not every option is built for it. Phone contacts and personal CRM apps follow one person's account. A shared spreadsheet drifts into copies. A business CRM gives everyone the same records with roles, which is what Customermates does in a workspace.

@@ -101,7 +101,7 @@ export function TopBarPrimaryButton({
       <span className="hidden sm:inline">{label}</span>
 
       {count ? (
-        <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning tabular-nums">
+        <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-warning/25 px-1.5 text-[11px] font-medium text-warning-soft-foreground tabular-nums">
           {count}
         </span>
       ) : null}

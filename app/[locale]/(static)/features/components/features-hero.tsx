@@ -1,9 +1,7 @@
 import type { Hero } from "@/core/fumadocs/schemas/features";
 
-import { PageHero } from "@/components/marketing/page-hero";
+import { LandingHero } from "@/components/marketing/landing-hero";
 
-type Props = Hero;
-
-export function FeaturesHero(props: Props) {
-  return <PageHero {...props} />;
+export function FeaturesHero(hero: Hero) {
+  return <LandingHero hero={hero} />;
 }

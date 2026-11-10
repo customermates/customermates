@@ -6,26 +6,20 @@ import { getLocale } from "next-intl/server";
 import { Footer } from "../../components/footer";
 
 import { HomepageHero } from "./components/homepage-hero";
-import { HomepageStatsRow } from "./components/homepage-stats-row";
-import { HomepageWalkthrough } from "./components/homepage-walkthrough";
-import { HomepageHowItWorks } from "./components/homepage-how-it-works";
-import { HomepageBenefits, HomepageFacts } from "./components/homepage-benefits";
-import { HomepagePricing } from "./components/homepage-pricing";
-import { HomepagePipeline } from "./components/homepage-pipeline";
+import { HomepagePlans } from "./components/homepage-plans";
 import { HomepageClosing, HomepageFaq } from "./components/homepage-closing";
-import { HomepageProductProof } from "./components/homepage-product-proof";
-import { HomepageRoutines } from "./components/homepage-routines";
-import { HomepageStory } from "./components/homepage-story";
+import { HomepageIntegrations } from "./components/homepage-integrations";
+import { HomepagePillars } from "./components/homepage-pillars";
+import { HomepageProofPartners } from "./components/homepage-proof-partners";
+import { HomepageFollowUp } from "./components/homepage-follow-up";
+import { HomepageWorkspaceGenerator } from "./components/homepage-workspace-generator";
+import { ProductFilm } from "@/components/marketing/product-film";
+import { UseCasesSection } from "@/components/marketing/use-cases-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { homepageSource } from "@/core/fumadocs/source";
 import { buildHomepageMetadata } from "@/core/seo/homepage-metadata";
 import { organizationSchema, softwareApplicationSchema } from "@/core/seo/schemas";
-import {
-  appLocaleOrDefault,
-  contentLocaleOrDefault,
-  isMarketingPathPublished,
-  marketingLocalesForPath,
-} from "@/i18n/locale-registry";
+import { isMarketingPathPublished, marketingLocalesForPath } from "@/i18n/locale-registry";
 import { enableMarketingLocale, type StaticLocaleProps } from "@/i18n/static-locale";
 
 type Props = {
@@ -60,21 +54,8 @@ export default async function HomePage({ params }: StaticLocaleProps) {
 
   if (!homepagePage) notFound();
 
-  const contentLocale = contentLocaleOrDefault(locale);
-  const liveLabel = homepagePage.data.hero.stage.live.prompt;
-  const {
-    benefits,
-    closingEyebrow,
-    cta,
-    faq,
-    flow,
-    hero,
-    howItWorks,
-    pipelineStory,
-    productProof,
-    routines,
-    walkthrough,
-  } = homepagePage.data;
+  const { closingEyebrow, cta, faq, followUp, generator, hero, pillars, plansTeaser, proofAndPartners, useCases } =
+    homepagePage.data;
 
   return (
     <div
@@ -91,38 +72,23 @@ export default async function HomePage({ params }: StaticLocaleProps) {
         })}
       />
 
-      <HomepageHero demoLocale={appLocaleOrDefault(locale)} heroSection={hero} locale={contentLocale} />
+      <HomepageHero heroSection={hero} />
 
-      <HomepageFacts benefitsSection={benefits} />
+      <ProductFilm />
 
-      <HomepageProductProof proof={productProof} />
+      <UseCasesSection useCases={useCases} />
 
-      <HomepageStory flow={flow} />
+      <HomepageIntegrations />
 
-      <HomepageStatsRow />
+      <HomepageWorkspaceGenerator generator={generator} locale={locale} />
 
-      {walkthrough ? (
-        <HomepageWalkthrough liveLabel={liveLabel} locale={contentLocale} walkthrough={walkthrough} />
-      ) : null}
+      <HomepageFollowUp followUp={followUp} />
 
-      {howItWorks ? (
-        <HomepageHowItWorks
-          eyebrow={howItWorks.eyebrow}
-          handoff={howItWorks.handoff}
-          liveLabel={liveLabel}
-          locale={contentLocale}
-          steps={howItWorks.steps}
-          title={howItWorks.title}
-        />
-      ) : null}
+      <HomepagePillars pillars={pillars} />
 
-      <HomepagePipeline liveLabel={liveLabel} locale={contentLocale} story={pipelineStory} />
+      <HomepageProofPartners content={proofAndPartners} />
 
-      <HomepageRoutines liveLabel={liveLabel} locale={contentLocale} routines={routines} />
-
-      <HomepageBenefits benefitsSection={benefits} />
-
-      <HomepagePricing />
+      <HomepagePlans plans={plansTeaser} />
 
       <HomepageFaq {...faq} />
 

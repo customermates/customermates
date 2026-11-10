@@ -16,7 +16,9 @@ import {
   getPlanDefinition,
   GIB,
   isPlanId,
+  MIB,
   totalPriceAmountMinor,
+  type PlanUsageLimits,
 } from "./plan-catalog";
 
 const TOKEN_PATTERN = /\[\[commercial\.([^\]]+)\]\]/g;
@@ -117,8 +119,32 @@ function resolveStorageToken(parts: string[], locale: string): string {
   return `${new Intl.NumberFormat(locale).format(bytes / GIB)} GB`;
 }
 
+const USAGE_LIMITS = [
+  "maxMembers",
+  "maxRecords",
+  "fileStorageBytes",
+  "apiRequestsPerMinute",
+  "apiRequestsPerDay",
+] as const satisfies readonly (keyof PlanUsageLimits)[];
+
+function isUsageLimit(value: string): value is (typeof USAGE_LIMITS)[number] {
+  return (USAGE_LIMITS as readonly string[]).includes(value);
+}
+
+function resolveLimitToken(parts: string[], locale: string): string {
+  const [, rawPlan, limit] = parts;
+  if (parts.length !== 3 || !rawPlan || !isPlanId(rawPlan) || !limit || !isUsageLimit(limit))
+    throw new Error(`Invalid commercial limit token: ${parts.join(".")}`);
+  const limits = getPlanDefinition(rawPlan).entitlements.usageLimits;
+  if (!limits) throw new Error(`Plan has no usage limits: ${parts.join(".")}`);
+  const value = limits[limit];
+  if (limit === "fileStorageBytes") return `${new Intl.NumberFormat(locale).format(value / MIB)} MB`;
+  return new Intl.NumberFormat(locale).format(value);
+}
+
 function resolveCommercialToken(token: string, locale: string): string {
   const parts = token.split(".");
+  if (parts[0] === "limit") return resolveLimitToken(parts, locale);
   if (parts[0] === "storage") return resolveStorageToken(parts, locale);
   if (parts[0] === "price") return resolvePriceToken(parts, locale);
   if (token === "trial.days") return String(CLOUD_TRIAL.days);

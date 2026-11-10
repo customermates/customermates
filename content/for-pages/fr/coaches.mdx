@@ -1,6 +1,6 @@
 ---
-title: "CRM pour coachs : clients, forfaits et relances"
-description: "Un CRM pour coachs qui vendent des forfaits : demandes, entretiens, renouvellements et messages clients au même endroit, avec brouillons de relance par Mate."
+title: "CRM pour coachs : relancer demandes et renouvellements"
+description: "Une demande sans réponse, un forfait qui se termine ? Les échanges sont sur la fiche client, Mate rédige la réponse et la suite, vous relisez et envoyez."
 industryName: "Coachs"
 
 relatedHrefs:
@@ -10,27 +10,45 @@ relatedHrefs:
   - /for/recruiting
 
 hero:
-  title: "Le CRM des coachs qui se développent grâce aux recommandations et aux renouvellements"
-  description: "Suivez chaque demande du premier message au forfait signé, voyez quels forfaits se terminent bientôt et, à partir de la formule Pro, gardez les conversations e-mail ou WhatsApp de vos clients à côté de leur fiche. Dans Customermates Cloud, l’assistant Mate utilise des crédits IA hébergés pour préparer des brouillons de relance que vous relisez et envoyez. La réservation, les paiements et la réalisation des séances restent dans votre plateforme de coaching."
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
-  buttonRightText: Voir la démo en direct
+  title: "Après l’entretien découverte, le silence. Relancez chaque demande et chaque renouvellement."
+  description: "Les fils e-mail ou WhatsApp sont sur la fiche client ; Mate ou votre propre agent IA rédige la réponse et la prochaine étape, vous relisez et envoyez. Boîte de réception dès Pro sur Customermates Cloud, paiements dans votre plateforme de coaching."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: Réunissez votre pipeline de coaching au même endroit
-  description: Importez votre liste de clients depuis Excel, définissez vos étapes et enregistrez les vues que vous consultez chaque lundi. Les formules commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
-  buttonRightText: Voir la démo en direct
+  action: "Relancez chaque demande et chaque renouvellement"
+  description: "Importez votre liste de clients depuis Excel, ajoutez une date « Fin du forfait » et connectez un canal dès Pro. Les formules commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés mensuellement."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
+
+useCases:
+  eyebrow: "Comment l’utiliser"
+  title: "Pour les coachs. Trois besoins, un seul espace."
+  items:
+    - title: "Relancer après chaque entretien découverte"
+      description: "La date de fin du forfait et des prochaines étapes datées sont sur la fiche client, pour reprendre contact avant qu’une demande refroidisse ou qu’un forfait expire."
+      href: /features/follow-up
+      linkLabel: "Voir le suivi client"
+      visual: calendar
+    - title: "E-mail et WhatsApp sur la fiche, réponse en brouillon"
+      description: "Dès Pro, les fils e-mail et WhatsApp sont sur la fiche client. Mate ou votre propre agent rédige la réponse, vous relisez et envoyez."
+      href: /features/whatsapp-integration
+      linkLabel: "Voir WhatsApp dans la boîte"
+      visual: conversation
+    - title: "Du premier message au forfait signé"
+      description: "Suivez chaque demande jusqu’au forfait signé, les paiements restent dans votre plateforme de coaching."
+      href: /features/pipeline
+      linkLabel: "Voir le pipeline"
+      visual: pipeline
 ---
 
-Un coach a besoin d’un CRM quand les demandes, les entretiens découverte et les renouvellements de forfaits ne tiennent plus dans sa tête ou dans un tableur. Un CRM pour coachs suit le côté commercial d’une activité : qui a demandé, qui hésite encore, dont le forfait se termine le mois prochain et qui a recommandé qui. La réservation, les paiements, les notes de séance et un portail client sont un autre travail, généralement assuré par une plateforme de coaching.
-
-Customermates est un CRM open source et IA native développé en Allemagne pour ce second travail. Il contient les contacts, les entreprises commanditaires, chaque forfait que vous vendez et, à partir de la formule Pro, les conversations de vos comptes e-mail, WhatsApp ou Instagram connectés. Le nombre de comptes que vous pouvez connecter dépend de la formule. Il ne réserve pas de séances et n’encaisse pas de paiements : beaucoup de coachs l’associeront donc à un outil de réalisation. Le tableau plus bas en nomme quelques-uns.
+Après un entretien découverte, la vente tient souvent à qui relance, et à quelle vitesse. Les demandes se taisent, et un forfait se termine sans que personne lance la conversation de renouvellement. Customermates garde ces moments sous les yeux. Les fils e-mail et WhatsApp sont sur la fiche client, chaque forfait a une date de fin et des prochaines étapes datées, et Mate ou votre propre agent IA (Claude, ChatGPT ou tout client compatible MCP) rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez. La boîte de réception demande Customermates Cloud dès Pro ; le nombre de comptes connectés dépend de la formule. Il ne réserve pas de séances et n’encaisse pas de paiements : beaucoup de coachs l’associent donc à un outil de réalisation, que le tableau plus bas nomme.
 
 <ArticleSummary title="En bref">
   <SummaryItem label="Convient à">
@@ -44,9 +62,7 @@ Customermates est un CRM open source et IA native développé en Allemagne pour 
     séances, plus un champ date « Fin du forfait ».
   </SummaryItem>
   <SummaryItem label="IA">
-    Dans Customermates Cloud, Mate résume l’historique d’un client et enregistre
-    des brouillons de réponse, avec des crédits IA hébergés. Ou connectez votre
-    propre client IA via MCP.
+    Mate (dans Customermates Cloud, avec des crédits IA hébergés) ou votre propre agent (Claude, ChatGPT ou tout client compatible MCP) rédige la réponse et la prochaine étape. Vous relisez et envoyez.
   </SummaryItem>
   <SummaryItem label="Non inclus">
     Réservation, paiements, contrats, portail client, diffusion de cours et
@@ -91,17 +107,17 @@ La valeur d’une affaire est la somme de ses lignes, chacune étant un service 
 3. **Prescripteurs :** contacts avec le Rôle Prescripteur, triés par dernière mise à jour, pour voir quelles personnes vous n’avez pas encore remerciées.
 4. **Clients en entreprise :** organisations avec la Relation Actif ou Passé, triées par dernière mise à jour.
 
-Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+Si vous travaillez avec un assistant ou un second coach, partagez une vue comme **Prescripteurs** depuis son menu : vous voyez tous deux la même liste, toujours à jour.
 
 ### Messages clients dans une seule boîte de réception (Pro et au-delà)
 
-Dans Customermates Cloud avec Pro, Business et Enterprise, la [boîte de réception unifiée](/features/unified-inbox) réunit l’e-mail de Gmail, Outlook ou IMAP avec WhatsApp, Instagram, LinkedIn et Telegram. Vous répondez sur le canal d’origine. Liez un expéditeur à un contact une fois, et chaque conversation avec lui apparaît dans la chronologie du contact.
+Dans Customermates Cloud, la [boîte de réception unifiée](/features/unified-inbox) réunit dès Pro l’e-mail de Gmail, Outlook ou IMAP avec WhatsApp, Instagram, LinkedIn et Telegram. Vous répondez sur le canal d’origine. Ajoutez une fois l’adresse ou le numéro d’un expéditeur à un contact, et chaque conversation avec lui apparaît sur le contact.
 
 Vérifiez le nombre de comptes avant de choisir une formule. Pro inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur : un coach qui veut une messagerie et WhatsApp dans la boîte de réception a donc besoin de Business, qui en inclut [[commercial.entitlement.business.includedAccountsPerUser]]. Les conversations de vos propres comptes restent privées : vos collègues ne voient un fil qu’après que vous l’avez partagé.
 
 ### Contrôle hebdomadaire des renouvellements avec Mate (Customermates Cloud)
 
-Mate est l’assistant intégré à Customermates Cloud. Il fonctionne avec des crédits IA hébergés que chaque formule cloud inclut par utilisateur actif ; lire les conversations de la boîte de réception exige Pro ou une formule supérieure. Avant une séance, demandez dans le chat :
+Mate est l’assistant intégré à Customermates Cloud. Il fonctionne avec des crédits IA hébergés que chaque formule cloud payante inclut par utilisateur actif ; lire les conversations de la boîte de réception exige Pro ou une formule supérieure. Avant une séance, demandez dans le chat :
 
 > Résumer mon historique avec Anna Weber : son forfait, les trois dernières conversations et tout ce qu’elle m’a demandé de lui envoyer.
 
@@ -151,7 +167,7 @@ Une répartition qui fonctionne consiste à avoir deux systèmes : une platefor
 
 ## Ce que cela coûte
 
-Les prix s’entendent par utilisateur actif et par mois, facturés mensuellement. Toutes les formules incluent REST, webhooks et MCP.
+Les prix s’entendent par utilisateur actif et par mois, facturés mensuellement. Toutes les formules payantes incluent REST, webhooks et MCP.
 
 | Activité | Formule | Par mois |
 |---|---|---|
@@ -160,7 +176,7 @@ Les prix s’entendent par utilisateur actif et par mois, facturés mensuellemen
 | Coach indépendant, messagerie plus WhatsApp et Instagram | Business | [[commercial.price.business.monthly]] |
 | Trois coachs, une messagerie chacun | Pro | [[commercial.price.pro.monthly.seats.3]] |
 
-Chaque formule ajoute chaque mois des crédits IA hébergés par utilisateur actif pour Mate ; les montants figurent sur la [page des tarifs](/pricing). Exploiter le noyau open source sur votre propre serveur ne coûte aucun frais de licence, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception, ni Mate, ni routines.
+Chaque formule payante ajoute chaque mois des crédits IA hébergés par utilisateur actif pour Mate ; les montants figurent sur la [page des tarifs](/pricing). Exploiter le noyau open source sur votre propre serveur ne coûte aucun frais de licence, mais une [installation auto-hébergée](/features/self-hosted) n’a ni boîte de réception, ni Mate, ni routines.
 
 ## Passer d’un tableur
 
@@ -194,7 +210,7 @@ Les conversations de coaching sont personnelles. Décidez de ce qui a sa place d
 
 - Dans Customermates Cloud, la base de données de production principale est configurée dans la région AWS de Francfort. L’hébergement et les autres sous-traitants, dont des prestataires américains et les fournisseurs d’IA de Mate, figurent sur la [page des sous-traitants](/subprocessors), et un [accord de traitement des données](/dpa) est disponible.
 - Un rôle personnalisé avec accès en lecture Assignés limite un coach associé aux clients qui lui sont assignés.
-- Le journal d’audit consigne qui a modifié quel enregistrement, dans toutes les formules.
+- Le journal d’activité consigne qui a modifié quel enregistrement.
 - Customermates ne détient aucune certification comme ISO 27001 ou SOC 2.
 
 ## Questions fréquentes

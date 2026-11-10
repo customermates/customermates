@@ -93,12 +93,12 @@ export default async function OpenApiOverviewPage({ params }: StaticLocaleProps)
       <PageContainer className="relative">
         <DocsPageHeader description={page.data.description} mcpUrl={`${env.BASE_URL}/api/v1/mcp`} title={headline} />
 
-        <Alert color="warning">
+        <Alert variant="warning">
           <p className="text-x-sm">{t("DocsPage.liveDataAlert")}</p>
         </Alert>
 
         {locale !== DEFAULT_LOCALE && (
-          <Alert color="primary">
+          <Alert variant="info">
             <p className="text-x-sm">{t("DocsPage.englishOnlyAlert")}</p>
           </Alert>
         )}

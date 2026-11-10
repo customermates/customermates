@@ -23,6 +23,7 @@ import {
   resolveWorkspaceOwners,
 } from "./operator-list-filters";
 import { workspaceLabelFor } from "./workspace-label";
+import { signupSourceSummary } from "./signup-source-summary";
 
 type WorkspaceAggregate = {
   companyId: string;
@@ -135,6 +136,10 @@ export class PrismaOperatorWorkspacesRepo
           },
         },
         adAttributions: { select: { provider: true }, orderBy: { clickedAt: "desc" }, take: 1 },
+        signupSource: {
+          select: { job: true, landingPath: true, referrerHost: true, utmSource: true, utmMedium: true },
+        },
+        funnelEvents: { select: { type: true }, orderBy: { occurredAt: "asc" } },
       },
     });
 
@@ -178,6 +183,9 @@ export class PrismaOperatorWorkspacesRepo
         lemonSqueezyId: company.subscription?.lemonSqueezyId ?? null,
         subscriptionUpdatedAt: company.subscription?.updatedAt ?? null,
         adProvider: company.adAttributions[0]?.provider ?? null,
+        signupJob: company.signupSource?.job ?? null,
+        signupSource: company.signupSource ? signupSourceSummary(company.signupSource) : null,
+        funnelEvents: company.funnelEvents.map((event) => event.type),
         tags: company.tags,
         createdAt: company.createdAt,
       };

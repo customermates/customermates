@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/zoho-crm-alternative
   - /compare/weclapp-alternative
 
+sections:
+  reasons:
+    - title: "WhatsApp et LinkedIn sans application Enterprise"
+      description: "Dans Odoo, WhatsApp est une application distincte qui ne fonctionne qu’avec Enterprise. Dès Pro, Customermates réunit WhatsApp, LinkedIn, Instagram, Telegram et l’e-mail dans une boîte de réception, à côté du client."
+    - title: "Mate rédige la réponse"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses, met à jour les enregistrements et construit des vues, avec des crédits IA hébergés. Vous relisez, modifiez et envoyez."
+    - title: "API et MCP dès la formule d’entrée"
+      description: "Le serveur MCP offre [[derived.mcp.tools.total]] outils sur toutes les formules et sur les installations auto-hébergées, et l’API REST va avec. Odoo ne liste son API externe que sur Custom."
+  switchSteps: true
+
 hero:
   title: "Alternative à Odoo CRM : Customermates et Odoo comparés"
-  description: "Odoo est une suite d’applications d’entreprise, et son CRM partage une base de données avec les ventes, la comptabilité et le stock. Customermates est un CRM open source conçu en Allemagne pour les petites équipes en contact avec les clients : à partir de Pro, il place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos affaires, et Mate dans Customermates Cloud ou votre propre client d’IA via MCP garde les enregistrements à jour. Les détails sur Odoo viennent d’odoo.com, vérifiés le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  description: "Si Odoo ne sert que de CRM, vous portez toute une suite pour un pipeline, et WhatsApp y est une application distincte réservée à Enterprise. Customermates est un CRM ciblé : dès Pro, LinkedIn, e-mail et WhatsApp sont sur la fiche client et Mate rédige la réponse. Informations sur Odoo vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -42,7 +52,7 @@ comparison:
   - title: Tarifs
     features:
       - name: Formule cloud gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: One App Free, une application avec un nombre illimité d’utilisateurs
       - name: Essai gratuit
         source: "[[commercial.trial.days]] jours de Pro, sans carte bancaire"
@@ -108,7 +118,7 @@ comparison:
         source: Mate dans Customermates Cloud, utilise des crédits IA hébergés
         competitor: Application IA avec un agent Ask AI ; IA agentique listée avec Custom
       - name: Interfaces pour les outils externes
-        source: "API REST, webhooks et serveur MCP ([[derived.mcp.tools.total]] outils) dans toutes les formules"
+        source: "API REST, webhooks et serveur MCP ([[derived.mcp.tools.total]] outils) dans toutes les formules payantes"
         competitor: API externe (JSON-2, XML-RPC et JSON-RPC hérités) avec la formule Custom
       - name: Automatisation
         source: Routines dans Customermates Cloud ; webhooks et nœud communautaire n8n
@@ -117,7 +127,7 @@ comparison:
 cta:
   action: Vous sortez votre pipeline d’Odoo ?
   description: "Démarrez un essai, exportez vos opportunités Odoo vers Excel et importez-les comme affaires, puis connectez une boîte mail ou WhatsApp. Votre comptabilité peut rester dans Odoo."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -135,7 +145,7 @@ cta:
 | Vous qualifiez beaucoup de prospects entrants ou en générez de nouveaux par secteur et par taille d’entreprise | Restez sur Odoo | Customermates n’a ni scoring de prospects ni base de prospects |
 | Vos clients écrivent sur WhatsApp, LinkedIn, Instagram ou Telegram autant que par e-mail | Customermates Pro ou Business | Tous arrivent dans une seule boîte de réception, classés avec le contact lié |
 | Un assistant doit rédiger des relances et mettre à jour des enregistrements selon un planning | Customermates Cloud | Mate et les routines y fonctionnent avec des crédits IA hébergés |
-| n8n, des scripts ou un client d’IA doivent travailler avec le CRM sur une formule d’entrée | Customermates, toute formule ou auto-hébergé | REST, webhooks et MCP sont inclus dans toutes les formules ; Odoo liste son API externe avec Custom |
+| n8n, des scripts ou un client d’IA doivent travailler avec le CRM sur une formule d’entrée | Customermates, toute formule payante ou auto-hébergé | REST, webhooks et MCP sont inclus dans toutes les formules payantes ; Odoo liste son API externe avec Custom |
 | Vous voulez auto-héberger un CRM open source, pas une suite | Customermates, Frappe CRM ou Twenty | Odoo Community comprend aussi le CRM, au sein de la suite plus large |
 
 ## Pour qui Odoo CRM est un bon choix
@@ -175,14 +185,14 @@ Prix vérifiés le 8 octobre 2026 sur la [page de tarifs d’Odoo](https://www.o
 
 Les lignes n’achètent pas les mêmes choses :
 
-- **Pour un pipeline seul, la formule gratuite d’Odoo gagne sur le prix.** Customermates n’a pas de formule cloud gratuite. Starter est le CRM de base avec Mate sur des crédits IA hébergés et sans boîte de réception.
+- **Pour un pipeline seul, la formule gratuite d’Odoo gagne sur le prix.** Customermates Free s’arrête à [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements. Starter est le CRM de base avec Mate sur des crédits IA hébergés et sans boîte de réception.
 - **Odoo Standard et Customermates Pro résolvent des problèmes différents.** Standard inclut toutes les applications Odoo, de la comptabilité au stock. Pro ajoute la boîte de réception unifiée : chaque utilisateur connecte [[commercial.entitlement.pro.includedAccountsPerUser]] compte, qui peut être une boîte mail, LinkedIn, WhatsApp, Instagram ou Telegram.
 - **Chez Odoo, les intégrations vous font monter d’une formule.** Si des outils extérieurs doivent appeler un Odoo hébergé, cinq utilisateurs paient de 179,50 € à 284,50 € par mois avec Custom. Chez Customermates, REST, webhooks et MCP sont inclus dès Starter.
 - **Aucun des deux prix ne couvre tout.** Odoo exclut la mise en œuvre et les crédits d’achat in-app pour les SMS, l’autocomplétion des contacts et la génération de prospects. Avec Customermates, vous payez séparément votre propre instance n8n et l’usage du modèle d’un client d’IA que vous connectez via MCP.
 
 ## Où se place Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes en contact avec les clients, conçu en Allemagne : consultants, agences, autres entreprises de services fondées sur la relation, et fondateurs.
+Si Odoo ne sert que pour votre pipeline, Customermates est l’outil le plus ciblé : dès Pro, les fils LinkedIn, e-mail, WhatsApp, Instagram et Telegram sont sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape. Vous relisez, modifiez et envoyez, et votre comptabilité peut rester dans Odoo.
 
 **Les conversations à côté de l’affaire.** À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) rassemble en une seule liste les boîtes Gmail, Outlook et IMAP, LinkedIn, WhatsApp, Instagram et Telegram, et vous répondez sur le canal d’origine. Liez un participant à un contact une fois, et chaque conversation avec cette adresse apparaît dans la chronologie du contact. Starter n’a pas de boîte de réception.
 
@@ -222,7 +232,7 @@ Les étapes ne sont pas préréglées : ajoutez un champ à choix unique **Éta
   <Step title="Exporter depuis Odoo">Dans chaque vue en liste, sélectionnez les enregistrements, ouvrez Action et choisissez Exporter, au format Excel ou CSV. L’assistant d’import de Customermates lit les fichiers .xlsx, .xls et .csv : le fichier peut donc être importé tel quel.</Step>
   <Step title="Préparer l’espace de travail">Dans **Modèle de données**, renommez vos listes, ajoutez des champs pour les colonnes Odoo que vous gardez, et définissez les options d’étape et leurs probabilités.</Step>
   <Step title="Importer une liste à la fois">Les organisations d’abord, puis les contacts, puis les affaires. Les colonnes de lien rapprochent les enregistrements par nom : la colonne société d’un contact retrouve donc l’organisation que vous avez importée avant. La [documentation des enregistrements](/docs/app-records) indique les limites d’import.</Step>
-  <Step title="Reconstruire votre vue de pipeline">Créez un Board des affaires regroupées par Étape, filtré sur les affaires où vous figurez dans Assignés, et enregistrez-le comme vue. Une vue reste privée tant que vous ne la partagez pas : chacun peut enregistrer la sienne.</Step>
+  <Step title="Reconstruire votre vue de pipeline">Créez un Board des affaires regroupées par Étape, filtré sur les affaires où vous figurez dans Assignés, et enregistrez-le comme vue. Chacun peut enregistrer la sienne, ou vous en partagez une avec toute l’équipe depuis le menu **Partager…** de la vue.</Step>
   <Step title="Connecter les canaux et ajouter une routine">Avec Pro ou pendant l’essai, connectez une boîte mail, LinkedIn ou WhatsApp, puis configurez dans Customermates Cloud une routine comme celle ci-dessous.</Step>
 </Steps>
 
@@ -241,11 +251,11 @@ Customermates publie cette liste. Les détails viennent du site de chaque édite
 
 <Faq>
 <FaqItem question="Odoo CRM est-il gratuit ?">
-Pour une application, oui. One App Free vous donne le CRM avec un nombre illimité d’utilisateurs sur Odoo Online, et l’édition Community avec le CRM s’auto-héberge gratuitement sous LGPLv3. Une deuxième application sur Odoo Online suppose de payer Standard : à partir de 19,90 € par utilisateur et par mois la première année et de 24,90 € ensuite, plus la mise en œuvre et les crédits d’achat in-app quand vous en avez besoin. Customermates n’a pas de formule cloud gratuite mais un essai de [[commercial.trial.days]] jours, et son noyau auto-hébergé est gratuit sous AGPL-3.0.
+Pour une application, oui. One App Free vous donne le CRM avec un nombre illimité d’utilisateurs sur Odoo Online, et l’édition Community avec le CRM s’auto-héberge gratuitement sous LGPLv3. Une deuxième application sur Odoo Online suppose de payer Standard : à partir de 19,90 € par utilisateur et par mois la première année et de 24,90 € ensuite, plus la mise en œuvre et les crédits d’achat in-app quand vous en avez besoin. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines et un essai de [[commercial.trial.days]] jours, et son noyau auto-hébergé est gratuit sous AGPL-3.0.
 </FaqItem>
 
 <FaqItem question="Odoo CRM a-t-il une API ?">
-Oui. Odoo 19 documente une API JSON-2 en plus des anciens points d’accès XML-RPC et JSON-RPC, mais dans les formules par abonnement d’Odoo, l’accès à l’API externe n’est listé qu’avec Custom. Customermates inclut son API REST, ses [[derived.webhooks.events.total]] évènements de webhook et le serveur MCP dans toutes les formules.
+Oui. Odoo 19 documente une API JSON-2 en plus des anciens points d’accès XML-RPC et JSON-RPC, mais dans les formules par abonnement d’Odoo, l’accès à l’API externe n’est listé qu’avec Custom. Customermates inclut son API REST, ses [[derived.webhooks.events.total]] évènements de webhook et le serveur MCP dans toutes les formules payantes.
 </FaqItem>
 
 <FaqItem question="Qui est le meilleur, ERPNext ou Odoo ?">

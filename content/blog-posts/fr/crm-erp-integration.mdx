@@ -41,7 +41,7 @@ Pour un workflow n8n, le [comparatif des connexions n8n MCP avec un exemple vers
   <SummaryItem label="Méthodes">Connecteur natif, plateforme d’automatisation (iPaaS ou n8n), intégration directe par API, ou middleware. Ou une seule suite dont l’ERP inclut une application CRM.</SummaryItem>
   <SummaryItem label="À décider d’abord">Un système propriétaire par champ, une stratégie d’identifiants stables, et ce qui se passe quand un évènement arrive deux fois ou échoue.</SummaryItem>
   <SummaryItem label="Vérifiez votre ERP">Si son API est incluse dans votre formule, s’il envoie des webhooks, et ses limites de débit. Elles diffèrent beaucoup d’un éditeur à l’autre.</SummaryItem>
-  <SummaryItem label="Customermates">API REST et webhooks sur toutes les formules Cloud et en auto-hébergement. Les références de l’ERP vivent dans des champs Texte personnalisés.</SummaryItem>
+  <SummaryItem label="Customermates">API REST sur toutes les formules Cloud, webhooks sur toutes les formules payantes, les deux en auto-hébergement. Les références de l’ERP vivent dans des champs Texte personnalisés.</SummaryItem>
 </ArticleSummary>
 
 ## Quel système détient chaque champ dans l’architecture d’intégration ?
@@ -133,7 +133,7 @@ Une intégration qui ne gère que le cas heureux créera des doublons en quelque
 
 ## Exemple : de l’affaire gagnée à la commande ERP avec Customermates
 
-Voici la configuration dans Customermates pour le premier flux ci-dessus. Elle utilise l’[API REST](/features/api) et les [webhooks](/docs/webhooks), qui fonctionnent sur toutes les formules Customermates Cloud et dans une installation auto-hébergée. Le récepteur au milieu est le vôtre : un workflow n8n ou un petit service.
+Voici la configuration dans Customermates pour le premier flux ci-dessus. Elle utilise l’[API REST](/features/api) et les [webhooks](/docs/webhooks), qui fonctionnent en auto-hébergement et sur Customermates Cloud : l’API REST sur toutes les formules, les webhooks sur toutes les formules payantes. Le récepteur au milieu est le vôtre : un workflow n8n ou un petit service.
 
 **Champs.** Dans **Modèle de données**, ajoutez des champs personnalisés de type Texte : « N° client ERP » sur les organisations, « N° de commande ERP » sur les affaires et « N° d’article ERP » sur les services. Chaque ligne d’une affaire contient un service et une quantité : les lignes et les numéros d’article de leurs services deviennent les lignes de commande. Si les responsables de comptes ont besoin de l’état de la livraison ou du paiement, ajoutez un champ Choix unique comme « Statut ERP » sur les affaires et faites de la propriété de l’ERP une règle explicite dans votre adaptateur. Customermates a des droits par liste et par rôle, pas de droits au niveau du champ qui réserveraient ce champ à l’intégration.
 
@@ -147,7 +147,7 @@ Voici la configuration dans Customermates pour le premier flux ci-dessus. Elle u
 
 **Échecs.** Customermates rejoue automatiquement une livraison échouée en cas de délai dépassé, d’erreur réseau, de réponse 5xx et de réponses 408, 425 et 429. Les autres réponses 4xx ne sont pas rejouées, car elles échoueraient de la même façon. Chaque livraison apparaît sous **Paramètres → Journal des webhooks**, où vous pouvez la renvoyer après avoir corrigé la cause.
 
-**Rapprochement planifié.** Enregistrez une vue d’affaires filtrée sur Étape « Gagnée » et « N° de commande ERP » vide. Une vue enregistrée reste privée tant que vous ne la partagez pas : c’est donc la personne qui traite les échecs d’intégration qui la garde, et elle la partage avec l’équipe si d’autres en ont besoin. Tout ce qui y apparaît a été manqué par le flux d’évènements.
+**Rapprochement planifié.** Enregistrez une vue d’affaires filtrée sur Étape « Gagnée » et « N° de commande ERP » vide. Partagez-la avec la personne qui traite les échecs d’intégration, ou avec toute l’équipe. Tout ce qui y apparaît a été manqué par le flux d’évènements.
 
 **Le sens inverse.** Si votre ERP envoie des webhooks, dirigez-les vers le même récepteur, retrouvez l’affaire par « N° de commande ERP » et renseignez « Statut ERP ». Sinon, interrogez régulièrement l’ERP selon un planning. Le [guide n8n](/docs/n8n) liste les appels REST dont a besoin un workflow n8n ; un nœud communautaire existe aussi.
 
@@ -183,7 +183,9 @@ Aucun test comparatif honnête ne couvre toutes les intégrations CRM et ERP ; 
 - les limites de débit et le volume ;
 - qui exploite la plateforme d’automatisation ou le service, et qui répond à ses alertes.
 
-Côté CRM, l’API et les webhooks ne demandent aucune formule Customermates particulière. Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois. La boîte de réception unifiée, qui amène les conversations par e-mail, LinkedIn et WhatsApp sur les mêmes enregistrements, commence avec Pro ([[commercial.price.pro.monthly]] par utilisateur et par mois).
+Côté CRM, l’API REST ne demande aucune formule Customermates particulière et les webhooks sont inclus dans toutes les formules payantes. Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois. La boîte de réception unifiée, qui amène les conversations par e-mail, LinkedIn et WhatsApp sur les mêmes enregistrements, commence avec Pro ([[commercial.price.pro.monthly]] par utilisateur et par mois).
+
+Avant qu’une affaire gagnée ne devienne une commande ERP, la conversation qui l’a gagnée est sur la fiche du client, avec une réponse et une prochaine étape rédigées par Mate ou votre propre client IA, que vous relisez et envoyez. Pour voir cette partie sur vos propres clients, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 
 ## Erreurs courantes
 

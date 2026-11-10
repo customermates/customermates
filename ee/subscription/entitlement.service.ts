@@ -6,7 +6,7 @@ import type { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
 import { createZodError } from "@/core/validation/validation.utils";
-import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
+import { effectivePlanId, getEntitlements, isOnFreePlan, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { env } from "@/env";
@@ -58,8 +58,10 @@ export class EntitlementService {
 
     const subscription = await this.repo.findSubscription();
 
-    if (!subscription || !isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired");
-    if (!getEntitlements(subscription.plan)[feature]) return this.denial(t, FEATURE_DENIALS[feature].plan);
+    if (!subscription) return this.denial(t, "paidSubscriptionRequired");
+    const free = isOnFreePlan(subscription);
+    if (!free && !isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired");
+    if (!getEntitlements(effectivePlanId(subscription))[feature]) return this.denial(t, FEATURE_DENIALS[feature].plan);
 
     return null;
   }

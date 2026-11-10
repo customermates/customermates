@@ -25,10 +25,10 @@ acquisition:
   cta:
     action: Agentic CRM anhand eines klar begrenzten Workflows prüfen
     description: Vergleichen Sie die gehostete Mate-Funktion mit externen MCP-Clients, prüfen Sie die Kontrollgrenzen und testen Sie einen begrenzten CRM-Ablauf.
-    buttonLeftText: MCP-Anleitung lesen
-    buttonLeftHref: /docs/mcp
-    buttonRightText: Pro-Testphase starten
-    buttonRightHref: /auth/signup
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: MCP-Anleitung lesen
+    buttonRightHref: /docs/mcp
     hint: "Wenn Mate aktiviert ist, nutzt die Funktion gehostete Tarif-Credits; externe MCP-Clients verwenden den Modellanbieter des Kunden."
   relatedHrefs:
     - /docs/mcp
@@ -41,8 +41,8 @@ acquisition:
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
       headline: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-      body: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem bestehenden Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
-      checksum: fnv1a-6be63092
+      body: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
+      checksum: fnv1a-1fae5521
     kind: brand-illustration
     pathway: handoff
     placements:
@@ -87,7 +87,7 @@ acquisition:
 
 hero:
   title: "Agentisches & KI-natives CRM: MCP, Mate und sichere Aktionen"
-  description: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem bestehenden Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
+  description: "Ein klar begrenztes Beispiel: Ein externer MCP-Client speichert in einem Inbox-Thread einen Entwurf, den ein Mensch prüft und sendet; autorisierte Versand-Tools erhalten keine zweite Serverfreigabe."
 
 blogPost:
   author: Benjamin Wagner
@@ -105,7 +105,7 @@ blogPost:
 
 Ein **KI-natives CRM** stellt strukturierte Kundendaten und klar definierte Aktionen für KI bereit. Ein **agentisches CRM** lässt einen KI-Client oder Assistenten damit unterstützte Arbeit ausführen: Kontext lesen, Datensätze anlegen oder aktualisieren, einen Entwurf vorbereiten oder einen Ablauf abschließen. Die Begriffe überschneiden sich, beschreiben aber unterschiedliche Ebenen: Architektur und Verhalten.
 
-Customermates unterstützt beide Betriebsmodelle. Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Ob Mate in einer gehosteten Umgebung live verfügbar ist, hängt von deren aktueller Konfiguration ab. Cloud- und Self-Hosted-Installationen können zusätzlich externe KI-Clients über MCP verbinden; Auswahl und Kosten für diesen separaten Client und Modellanbieter liegen beim Kunden.
+Customermates unterstützt beide Betriebsmodelle. Alle kostenpflichtigen Tarife umfassen eine Mate-Berechtigung und ein monatliches Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Ob Mate in einer gehosteten Umgebung live verfügbar ist, hängt von deren aktueller Konfiguration ab. Cloud- und Self-Hosted-Installationen können zusätzlich externe KI-Clients über MCP verbinden; Auswahl und Kosten für diesen separaten Client und Modellanbieter liegen beim Kunden. Für ein kleines Team mit Kundenkontakt zielen beide auf das Nachfassen: Ein Kunde schreibt, die KI entwirft die Antwort und den nächsten Schritt am Kundendatensatz, und eine Person prüft, bearbeitet und sendet sie.
 
 Für eine feste Integration und einen KI-Client zeigt der [Vergleich MCP vs API am selben Kundendatensatz](/blog/mcp-vs-api), wie sich die Wahl auswirkt. Die Werkzeugerkennung verändert, wie der Client einen Aufruf findet. Anmeldung und Berechtigungen gelten weiterhin.
 
@@ -183,7 +183,7 @@ Bei berechtigten Cloud-Konten umfasst MCP außerdem unterstützte Messaging-Aufg
 
 Agentisch bedeutet nicht grenzenlos. Die MCP-Serveranweisungen fordern Clients auf, vor jedem Löschen und jeder ausgehenden `send_*`-Aktion eine ausdrückliche Bestätigung einzuholen. Das ist eine Vorgabe für den Client, keine zweite serverseitige Freigabe: Ruft ein autorisierter Client das MCP-Tool auf, führt der Server die zulässige Aktion aus. Prüfen Sie deshalb, ob der gewählte Client die genaue Wirkung anzeigt und auf Freigabe wartet.
 
-Wenn Mate aktiviert ist, erzwingt die Funktion bei jedem Tool-Aufruf eine eigene Freigabe für destruktive Aktionen, Versand und erneuten Versand, Einladungen, Support-Eskalation sowie Änderungen an externen oder Social-Media-Konten. Alle Cloud-Tarife umfassen die Berechtigung und das monatliche Credit-Kontingent; die Live-Verfügbarkeit hängt von der aktuellen Konfiguration der gehosteten Umgebung ab.
+Wenn Mate aktiviert ist, erzwingt die Funktion bei jedem Tool-Aufruf eine eigene Freigabe für destruktive Aktionen, das erneute Senden von Webhook-Zustellungen, Einladungen von Mitgliedern, Support-Eskalation sowie Änderungen an externen oder Social-Media-Konten. Alle kostenpflichtigen Tarife umfassen die Berechtigung und das monatliche Credit-Kontingent; die Live-Verfügbarkeit hängt von der aktuellen Konfiguration der gehosteten Umgebung ab.
 
 ## Grenzen von Cloud und Self-Hosted
 
@@ -236,9 +236,11 @@ Für Käufer sind die praktischen Fragen wichtiger als das Etikett:
 
 <AcquisitionCallout title="Die aktuelle Integration bewerten" variant="fit">
   [Lesen Sie die MCP-Anleitung](/docs/mcp) für den aktuellen Verbindungsweg.
-  Zusätzlich können Sie [eine Cloud-Testphase starten](/auth/signup), um das
-  verwaltete CRM und, sofern Mate in dieser Umgebung aktiviert ist, einen
-  begrenzten Assistenten-Ablauf zu prüfen, bevor Sie umfassendere
+  Um das Nachfassen von Anfang bis Ende zu sehen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup):
+  Verbinden Sie LinkedIn oder E-Mail und lassen Sie, sofern Mate in dieser
+  Umgebung aktiviert ist, Mate oder Ihren eigenen KI-Client die Antwort und den
+  nächsten Schritt am Kundendatensatz entwerfen. Sie prüfen, bearbeiten und
+  senden selbst, und ein begrenzter Ablauf genügt, bevor Sie umfassendere
   Berechtigungen vergeben.
 </AcquisitionCallout>
 
@@ -251,8 +253,16 @@ Halten Sie Betriebsleitfaden und belegte Firmeninformationen beim Kundendatensat
 Es ist ein CRM, dessen strukturierte Datensätze und Aktionen von einem autorisierten KI-Client oder Assistenten bedient werden können. Bei einer verantwortungsvollen Umsetzung bleiben serverseitige Berechtigungen bestehen; für externe MCP-Clients muss das Bestätigungsverhalten gesondert geprüft werden.
 </FaqItem>
 
+<FaqItem question="Was ist ein KI-natives CRM?">
+Ein KI-natives CRM stellt seine Datensätze und Aktionen von Anfang an über typisierte Schnittstellen für KI bereit, wendet auf KI-Clients dieselben Berechtigungen an wie auf Personen und enthält den KI-Zugang im Produkt statt als separates Add-on. Customermates tut das über seinen MCP-Server, mit [[derived.mcp.tools.total]] Tools in jedem Tarif und jeder Installation.
+</FaqItem>
+
+<FaqItem question="Was unterscheidet ein KI-natives CRM von einem agentischen CRM?">
+KI-nativ beschreibt die Architektur: strukturierte Daten und typisierte Aktionen, die KI nutzen kann. Agentisch beschreibt das Verhalten: Ein KI-Client oder Assistent erledigt mit diesen Aktionen mehrstufige Aufgaben. Ein agentisches CRM braucht ein KI-natives Fundament.
+</FaqItem>
+
 <FaqItem question="Ist Mate in jeder Customermates-Cloud-Umgebung verfügbar?">
-  Alle Cloud-Tarife umfassen eine Mate-Berechtigung und ein monatliches
+  Alle kostenpflichtigen Tarife umfassen eine Mate-Berechtigung und ein monatliches
   Kontingent an gehosteten KI-Credits pro aktivem Nutzer. Die Live-Verfügbarkeit
   hängt von der aktuellen Konfiguration der gehosteten Umgebung ab und ist
   deshalb keine allgemeine Verfügbarkeitszusage. Self-Hosted-Installationen

@@ -86,7 +86,7 @@ export function AppLink(props: Props) {
         ? undefined
         : appearance === "inline"
           ? "inline-link"
-          : "text-primary underline-offset-4 hover:underline transition-colors",
+          : "text-primary underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary",
       inheritSize && "[font-size:inherit]",
       className,
     ) || undefined;

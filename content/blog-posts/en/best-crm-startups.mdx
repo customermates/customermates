@@ -49,7 +49,7 @@ Most "best CRM" lists rank tools on features a two-person team will never open. 
 | Founder-led B2B sales, one to five sellers | Pipedrive, Attio | Pipedrive calls itself a sales-pipeline CRM; Attio has a free plan for 3 seats | Pipedrive's sequences start on Growth |
 | Outbound by phone | Close | Calling and SMS on every plan | Power Dialer and automated workflows start on Growth |
 | Investors, partners, community | folk | Focus on high-touch sales, LinkedIn extension on every plan | Deals and email sequences start on Premium |
-| Service startup (agency, consultancy, studio) with deals in email, LinkedIn and WhatsApp threads | Customermates (publisher) | Unified inbox on Pro and higher; Mate in Customermates Cloud (hosted AI credits) or your own AI client through MCP; open-source core | No telephony, no sequences, no mobile app, no free hosted plan |
+| Service startup (agency, consultancy, studio) with deals in email, LinkedIn and WhatsApp threads | Customermates (publisher) | Unified inbox on Pro and higher; Mate in Customermates Cloud (hosted AI credits) or your own AI client through MCP; open-source core | No telephony, no sequences, no mobile app, free hosted plan only for [[commercial.limit.free.maxMembers]] person |
 
 If two rows describe you, pick the one that describes how your next ten deals will close, not the one you hope will be true in two years.
 
@@ -112,7 +112,7 @@ Test with one contact, one organization, one deal, a linked task and an attachme
 
 *Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultancies, agencies and other service businesses, plus founders who sell through conversations. Contacts, organizations, deals and tasks live in the same workspace as the threads from connected email, LinkedIn, WhatsApp, Instagram and Telegram accounts, which come together in a [unified inbox](/features/unified-inbox). The inbox needs Pro or higher; Starter has no inbox.
 
-In Customermates Cloud, Mate prepares summaries and reply drafts using hosted AI credits, and Routines run saved instructions on a schedule or when a record changes. If you would rather use Claude, ChatGPT or another client, that client works with the CRM through [MCP](/docs/mcp), and model calls then run on your own AI provider.
+In Customermates Cloud, Mate prepares summaries and reply drafts using hosted AI credits, and Routines run saved instructions on a schedule or when a record changes. If you would rather use Claude, ChatGPT or another client, that client works with the CRM through [MCP](/docs/mcp), and model calls then run on your own AI provider. For a founder-led startup the point is that no lead or investor conversation goes quiet: threads sit on the contact, a reply draft and a next step are ready for you to review, and you send them yourself.
 
 ### Worked setup: a customer pipeline and an investor pipeline from your inbox
 
@@ -132,7 +132,7 @@ This is how a two-founder team could run sales and a seed round in one workspace
     New deals start in the first stage, Prospecting. On investor deals, set Deal type to Investor, clear **Stage** so they do not count as Prospecting, and put the amount in Ticket size. A deal's value comes from its line items, so investor deals without line items add nothing to the total or weighted sales pipeline, and a sales board filtered to Deal type Customer does not show them.
   </Step>
   <Step title="Save two views">
-    On **Deals**, create a view with **New view**, filter Deal type to Investor, open **Appearance**, choose **Board** and group by Round stage: dragging a card now moves an investor to the next stage. A second view sorts all deals by Next touch, ascending. A view stays private until you share it, so your co-founder can save their own with the same filters, or you share yours.
+    On **Deals**, create a view with **New view**, filter Deal type to Investor, open **Appearance**, choose **Board** and group by Round stage: dragging a card now moves an investor to the next stage. A second view sorts all deals by Next touch, ascending. Share them with your co-founder so you both work from the same filters.
   </Step>
   <Step title="Track commitments as linked tasks">
     For "send the updated deck to the partner", create a task linked to the deal and the contact, and assign it. Tasks have no built-in due date or reminder, so add a Date field on tasks if you want to sort them.
@@ -146,7 +146,7 @@ This is how a two-founder team could run sales and a seed round in one workspace
 Keep the last sentence as an instruction, not a technical approval gate. Mate and routines can send emails and chat messages immediately without asking. Review saved drafts in the inbox before sending; draft-first behaviour depends on following your instruction. Each run also has a credit cap; a run that reaches it stops with the status **Partial**, so keep the list short. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 <AcquisitionCallout title="Where Customermates is the wrong pick" variant="boundary">
-  Customermates has no investor database, deck analytics, cap table or data room. It has no email sequences or bulk outreach, no telephony, no native mobile app, no web forms for lead capture and no free hosted plan. If you sell by phone, look at Close. If you need sequences, Pipedrive Growth and folk Premium include them, and Pipedrive's LeadBooster on Premium and Ultimate includes web forms.
+  Customermates has no investor database, deck analytics, cap table or data room. It has no email sequences or bulk outreach, no telephony, no native mobile app, no web forms for lead capture, and its free hosted plan stops at [[commercial.limit.free.maxMembers]] person. If you sell by phone, look at Close. If you need sequences, Pipedrive Growth and folk Premium include them, and Pipedrive's LeadBooster on Premium and Ultimate includes web forms.
 </AcquisitionCallout>
 
 ### What it costs
@@ -158,7 +158,7 @@ Keep the last sentence as an instruction, not a technical approval gate. Mate an
 | Five people, CRM and MCP without the inbox | Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] |
 | Five people with the inbox | Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 
-Every cloud plan includes monthly hosted AI credits per active user; see [pricing](/pricing). The trial runs [[commercial.trial.days]] days. If you would rather run the software yourself, the AGPL core [self-hosts](/features/self-hosted) with Docker Compose and PostgreSQL and keeps REST, webhooks and MCP. Self-hosted, there is no inbox, no Mate and no hosted credits, so the inbox steps above need Customermates Cloud.
+Every paid plan includes monthly hosted AI credits per active user; see [pricing](/pricing). Your first workspace starts with Pro free for [[commercial.trial.days]] days with no credit card, so [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup) with one channel and your next five conversations. If you would rather run the software yourself, the AGPL core [self-hosts](/features/self-hosted) with Docker Compose and PostgreSQL and keeps REST, webhooks and MCP. Self-hosted, there is no inbox, no Mate and no hosted credits, so the inbox steps above need Customermates Cloud.
 
 For a GDPR check: in the cloud, the primary production database is configured in the AWS Frankfurt region. That is a chosen setting, not a contractual residency guarantee. The [subprocessors](/subprocessors), US providers included, are listed publicly, and a [data processing agreement](/dpa) is available.
 
@@ -176,7 +176,7 @@ Moving from a spreadsheet into Customermates works one list at a time. Import th
 
 <Faq>
 <FaqItem question="What is the best free CRM for startups?">
-For two founders, HubSpot Free Tools covers up to 2 users at $0. Zoho CRM's free edition and Attio Free each cover up to 3. Check the upgrade path before you build habits around one: the paid tier you need after the first hire is the real price. Customermates has no free hosted plan; its AGPL core can be self-hosted without a licence fee, without the inbox and Mate.
+For two founders, HubSpot Free Tools covers up to 2 users at $0. Zoho CRM's free edition and Attio Free each cover up to 3. Check the upgrade path before you build habits around one: the paid tier you need after the first hire is the real price. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; its AGPL core can be self-hosted without a licence fee, without the inbox and Mate.
 </FaqItem>
 
 <FaqItem question="What CRM do startups use?">

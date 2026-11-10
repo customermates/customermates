@@ -289,7 +289,7 @@ const WikiPageViewContent = observer(function WikiPageView({
           >
             <div className="mx-auto w-full max-w-3xl min-w-0 space-y-6 @min-[58rem]/wiki:mx-0">
               {store.conflict && (
-                <Alert color="warning">
+                <Alert variant="warning">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <p>{t("Wiki.conflict")}</p>
 
@@ -447,7 +447,7 @@ const WikiPageViewContent = observer(function WikiPageView({
 
             {setupFailed && (
               <div className="mx-auto w-full max-w-6xl px-6 pt-3 md:px-10">
-                <Alert color={hasPages ? "warning" : "danger"} description={setupFailedBody} />
+                <Alert description={setupFailedBody} variant={hasPages ? "warning" : "destructive"} />
               </div>
             )}
 

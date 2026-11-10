@@ -273,6 +273,44 @@ describeDatabase("registration against a real database", () => {
     ).resolves.toEqual({ onboardingWizardCompletedAt: null });
   });
 
+  it("stores the first-touch signup source with the new company in the same transaction", async () => {
+    const capturedAt = new Date("2026-11-06T08:00:00.000Z");
+    const owner = await runWithoutTenant(() =>
+      createTestWorkspaceRegistration().createCompanyAndUser({
+        email: `signup-source-${Date.now()}@example.com`,
+        firstName: "Signup",
+        lastName: "Source",
+        agreeToTerms: true,
+        avatarUrl: null,
+        signupSource: {
+          job: "followup",
+          landingPath: "/en/consultants",
+          referrerHost: null,
+          utmSource: null,
+          utmMedium: null,
+          utmCampaign: null,
+          marketingConsentedAt: null,
+          capturedAt,
+        },
+      }),
+    );
+    companyIds.push(owner.companyId);
+
+    await expect(
+      runWithoutTenant(() =>
+        prisma.companySignupSource.findMany({
+          where: { companyId: owner.companyId },
+          select: { job: true, landingPath: true, referrerHost: true, utmSource: true, capturedAt: true },
+        }),
+      ),
+    ).resolves.toEqual([
+      { job: "followup", landingPath: "/en/consultants", referrerHost: null, utmSource: null, capturedAt },
+    ]);
+    await expect(
+      runWithoutTenant(() => prisma.conversionEvent.count({ where: { companyId: owner.companyId } })),
+    ).resolves.toBe(0);
+  });
+
   it("atomically creates a new cloud company and its initial legal audit evidence", async () => {
     const registrationEmail = `legal-registration-${Date.now()}@example.com`;
     const authUserId = `auth-${Date.now()}`;

@@ -18,7 +18,7 @@ type Props = {
 
 export function FeatureSection({ badge, features, subtitle, title }: Props) {
   return (
-    <MarketingSection id="features" tone="canvas">
+    <MarketingSection id="features">
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-eyebrow">{badge}</p>
 

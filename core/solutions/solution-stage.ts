@@ -194,3 +194,120 @@ export function checkSolutionStageCaptures(
 
   return { missing, problems, totalBytes };
 }
+
+export const SOLUTION_STAGE_PHONE_VIEWPORT = { deviceScaleFactor: 2, height: 640, width: 390 } as const;
+
+export const SOLUTION_STAGE_PHONE_IMAGE_SIZE = { height: 960, width: 585 } as const;
+
+export const SOLUTION_STAGE_PHONE_PUBLIC_DIR = "/captures/solutions/stage/phone";
+
+export type SolutionStagePhoneCaptures = Omit<SolutionStageCaptures, "routes">;
+
+export function solutionStagePhoneCaptureKey(
+  solution: SolutionId,
+  tab: SolutionStageTabId,
+  locale: string,
+  theme: SolutionCaptureTheme,
+): string {
+  return `${solutionStageCaptureKey(solution, tab, locale, theme)}:phone`;
+}
+
+export function solutionStagePhoneCaptureSrc(
+  solution: SolutionId,
+  tab: SolutionStageTabId,
+  locale: string,
+  theme: SolutionCaptureTheme,
+): string {
+  return `${SOLUTION_STAGE_PHONE_PUBLIC_DIR}/${theme}/${solution}-${tab}-${locale}.webp`;
+}
+
+export function solutionStagePhonePlan(
+  routes: SolutionStageRoutes,
+  catalog: readonly SolutionCatalogEntry[] = SOLUTION_CATALOG,
+): SolutionStagePlanItem[] {
+  return catalog.flatMap((solution) =>
+    solution.stage.flatMap((tab) =>
+      solutionDataLocales(solution).flatMap((locale) =>
+        SOLUTION_CAPTURE_THEMES.map(
+          (theme): SolutionStagePlanItem => ({
+            key: solutionStagePhoneCaptureKey(solution.id, tab.id, locale, theme),
+            locale,
+            route: solutionStageRoute(routes, solution, tab.id, locale) ?? "",
+            solution,
+            src: solutionStagePhoneCaptureSrc(solution.id, tab.id, locale, theme),
+            tab: tab.id,
+            theme,
+          }),
+        ),
+      ),
+    ),
+  );
+}
+
+export function solutionStagePhonePoster(
+  captures: SolutionStagePhoneCaptures,
+  solution: SolutionId,
+  tab: SolutionStageTabId,
+  locale: string,
+): SolutionStagePoster | null {
+  const find = (theme: SolutionCaptureTheme) =>
+    captures.entries.find(
+      (entry) =>
+        entry.key === solutionStagePhoneCaptureKey(solution, tab, solutionDataLocaleForUiLocale(locale), theme),
+    );
+  const light = find("light");
+  const dark = find("dark");
+  if (!light || !dark) return null;
+  const asset = ({ bytes, height, src, width }: SolutionStageCaptureEntry) => ({ bytes, height, src, width });
+  return { dark: asset(dark), light: asset(light) };
+}
+
+export function checkSolutionStagePhoneCaptures(
+  captures: SolutionStagePhoneCaptures,
+  routes: SolutionStageRoutes,
+  options: SolutionStageCheckOptions,
+): SolutionStageCheckResult {
+  const plan = new Map(solutionStagePhonePlan(routes, options.catalog).map((item) => [item.key, item]));
+  const problems: string[] = [];
+  const seen = new Set<string>();
+  let totalBytes = 0;
+
+  for (const entry of captures.entries) {
+    const item = plan.get(entry.key);
+    if (!item) {
+      problems.push(`${entry.key}: not a published stage tab`);
+      continue;
+    }
+    if (seen.has(entry.key)) problems.push(`${entry.key}: listed twice`);
+    seen.add(entry.key);
+    if (entry.src !== item.src) problems.push(`${entry.key}: captured file must live at ${item.src}`);
+    if (entry.route !== item.route) problems.push(`${entry.key}: captured ${entry.route}, expected ${item.route}`);
+    if (
+      entry.width !== SOLUTION_STAGE_PHONE_IMAGE_SIZE.width ||
+      entry.height !== SOLUTION_STAGE_PHONE_IMAGE_SIZE.height
+    )
+      problems.push(`${entry.key}: ${entry.width}x${entry.height}, expected the phone stage image size`);
+
+    const facts = options.readFile(entry.src);
+    if (!facts) {
+      problems.push(`${entry.key}: missing file ${entry.src}`);
+      continue;
+    }
+    if (facts.bytes !== entry.bytes)
+      problems.push(`${entry.key}: ${entry.src} is ${facts.bytes} bytes, listed ${entry.bytes}`);
+    if (facts.sha256 !== entry.sha256) problems.push(`${entry.key}: ${entry.src} sha256 differs from the listing`);
+    totalBytes += facts.bytes;
+  }
+
+  const missing = [...plan.keys()].filter((key) => !seen.has(key));
+  if (options.requireAll) for (const key of missing) problems.push(`${key}: missing phone stage capture`);
+
+  const budget = options.budgetBytes ?? SOLUTION_CAPTURE_BUDGET_BYTES;
+  if (options.baseBytes + totalBytes > budget) {
+    problems.push(
+      `solution captures use ${options.baseBytes + totalBytes} bytes with the phone stage, over the ${budget}-byte budget`,
+    );
+  }
+
+  return { missing, problems, totalBytes };
+}

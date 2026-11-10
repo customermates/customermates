@@ -58,10 +58,14 @@ import { useAccountActions } from "./navigation/use-account-actions";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
+import { FreePlanSidebarCardWithUsage, TrialSidebarCardWithFit } from "./navigation/plan-sidebar-cards";
+import { trialCardVisible } from "./navigation/trial-sidebar-card";
+import { FREE_PLAN_ID } from "@/core/commercial/plan-catalog";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
-import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
+import { effectivePlanId, getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
+import { MESSAGING_UPSELL_PLAN } from "@/app/components/upsell/plan-upsell-highlights";
 
 const UNREAD_REFRESH_INTERVAL_MS = 10000;
 
@@ -155,12 +159,17 @@ const FullAppSidebar = observer(
     const inboxAvailable =
       inboxVisible &&
       subscription !== null &&
-      getEntitlements(subscription.plan).messaging &&
+      getEntitlements(effectivePlanId(subscription)).messaging &&
       isSubscriptionUsable(subscription);
     const currentUnreadThreadCount = inboxAvailable
       ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount)
       : 0;
     const onInbox = intlPathname === "/inbox";
+    const inboxUpsellPlanName = t(`Subscription.planNames.${MESSAGING_UPSELL_PLAN}`);
+    const inboxPlanTag =
+      inboxVisible && subscription !== null && !getEntitlements(effectivePlanId(subscription)).messaging
+        ? { plan: inboxUpsellPlanName, label: t("Upsell.availableOn", { plan: inboxUpsellPlanName }) }
+        : undefined;
 
     const { isMobile, setOpenMobile } = useSidebar();
     const { theme, changeTheme, signOut, inviteMembers, sendFeedback } = useAccountActions(restricted);
@@ -233,6 +242,7 @@ const FullAppSidebar = observer(
               icon: Inbox,
               visible: canAccess(Resource.inboxMessages) && rootStore.appMode !== "self-hosted",
               badge: currentUnreadThreadCount,
+              planTag: inboxPlanTag,
             },
             {
               key: "routines",
@@ -374,7 +384,7 @@ const FullAppSidebar = observer(
     const planChip = resolvePlanChip(
       {
         status: isCloudHosted ? subscriptionStatus : null,
-        plan: isCloudHosted ? subscriptionPlan : null,
+        plan: isCloudHosted ? (subscription?.onFreePlan ? FREE_PLAN_ID : subscriptionPlan) : null,
         trialDaysLeft,
       },
       t,
@@ -385,6 +395,33 @@ const FullAppSidebar = observer(
       </AppChip>
     ) : undefined;
     const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+    const trialCard =
+      subscription &&
+      trialDaysLeft !== null &&
+      trialCardVisible({
+        appMode: rootStore.appMode,
+        restricted,
+        subscription,
+        trialDaysLeft,
+        onBillingPage: intlPathname === settingsHref("billing"),
+        canOpenBilling: canAccess(Resource.company),
+      }) ? (
+        <TrialSidebarCardWithFit
+          daysLeft={trialDaysLeft}
+          planName={t(`Subscription.planNames.${subscription.plan}`)}
+          workspaceKey={workspacesStore.current?.companyId ?? "workspace"}
+          onNavigate={() => closeMobileSidebar()}
+        />
+      ) : subscription?.onFreePlan &&
+        rootStore.appMode === "cloud" &&
+        !restricted &&
+        intlPathname !== settingsHref("billing") &&
+        canAccess(Resource.company) ? (
+        <FreePlanSidebarCardWithUsage
+          workspaceKey={workspacesStore.current?.companyId ?? "workspace"}
+          onNavigate={() => closeMobileSidebar()}
+        />
+      ) : null;
     const workspaceRoutes = visibleSubroutes("workspace", rootStore.appMode, canAccess).map(
       (subroute) => subroute.slug,
     );
@@ -589,6 +626,8 @@ const FullAppSidebar = observer(
           </SidebarContent>
 
           <SidebarFooter>
+            {trialCard}
+
             <NavUser
               customizable={!area}
               docsHref="/docs"

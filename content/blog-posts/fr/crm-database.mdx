@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Base de données CRM : ce que c’est et comment en bâtir une qui reste propre"
-  description: "Une base de données CRM est un ensemble d’enregistrements liés sur les personnes avec qui vous travaillez, les entreprises auxquelles elles appartiennent et les affaires et tâches qui vous relient. Voici comment les grands CRM la structurent, comment concevoir et importer la vôtre, et quelles règles la gardent exacte."
+  description: "Une base CRM relie les personnes, entreprises, affaires et tâches. Comment les grands CRM la structurent, comment concevoir et importer la vôtre et quelles règles la gardent exacte."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,7 +107,7 @@ C’est le problème de conception le plus courant, et il y a quatre réponses h
 
 ## Exemple chiffré : une base de données CRM pour un cabinet de conseil de quatre personnes
 
-Voici la même conception dans Customermates, mise en place comme le produit fonctionne aujourd’hui. Customermates est un CRM open source et IA natif conçu en Allemagne pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs.
+Voici la même conception dans Customermates, mise en place comme le produit fonctionne aujourd’hui. Customermates est un CRM open source et IA natif conçu en Allemagne pour les petites équipes en contact direct avec leurs clients, comme les consultants, les agences et les fondateurs. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes, le pipeline et le tableau de bord, et les étapes ci-dessous fonctionnent aussi à la main dans Configurer.
 
 **Listes.** Dans Modèle de données, ouvrez Contacts et changez **Nom** et **Nom au pluriel** sous **Général** en Client et Clients, puis renommez Affaires en Projets de la même façon. N’importe quel nom convient. Organisations, Services et Tâches gardent leur nom.
 
@@ -130,15 +130,17 @@ Voici la même conception dans Customermates, mise en place comme le produit fon
 
 **Import.** Utilisez Plus d’actions › Ajouter depuis un fichier avec un classeur .xlsx ou un fichier .csv, une liste à la fois, dans l’ordre organisations, clients, projets. Les colonnes de lien sont rapprochées par nom d’enregistrement. Un fichier CSV peut être importé directement, sans conversion. La [documentation des enregistrements](/docs/app-records) donne toutes les règles d’import.
 
-**Vues.** Enregistrez « Sans mise à jour depuis 90 jours » en filtrant Mis à jour le avec Plus ancien que… 90 jours, et « Clients sans organisation ». Une vue enregistrée reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+**Vues.** Enregistrez « Sans mise à jour depuis 90 jours » en filtrant Mis à jour le avec Plus ancien que… 90 jours, et « Clients sans organisation ». Partagez « Sans mise à jour depuis 90 jours » avec toute l’équipe ou avec des rôles choisis, pour que chacun travaille avec la même liste.
 
-**Coût.** Quatre personnes sur Starter paient [[commercial.price.starter.monthly.seats.4]] par mois. Sur Pro, qui ajoute la [boîte de réception unifiée](/features/unified-inbox) pour que le compte d’e-mail, LinkedIn ou WhatsApp connecté de chaque utilisateur affiche ses conversations à côté du client, c’est [[commercial.price.pro.monthly.seats.4]] par mois. La facturation est mensuelle, et l’essai dure [[commercial.trial.days]] jours. L’auto-hébergement du cœur open source n’a pas de frais de licence, mais ni boîte de réception ni Mate.
+**Coût.** Quatre personnes sur Starter paient [[commercial.price.starter.monthly.seats.4]] par mois. Sur Pro, qui ajoute la [boîte de réception unifiée](/features/unified-inbox) pour que le compte d’e-mail, LinkedIn ou WhatsApp connecté de chaque utilisateur affiche ses conversations à côté du client, c’est [[commercial.price.pro.monthly.seats.4]] par mois. La facturation est mensuelle, et votre premier espace de travail démarre avec Pro gratuit pendant [[commercial.trial.days]] jours, sans carte bancaire. L’auto-hébergement du cœur open source n’a pas de frais de licence, mais ni boîte de réception ni Mate.
 
 **Une routine pour la qualité des données (Customermates Cloud).** Mate, l’assistant de Customermates Cloud, utilise des crédits IA hébergés. Une routine exécute des instructions enregistrées selon un calendrier ou sur un évènement d’enregistrement, au nom de la personne qui en est propriétaire ; Pro comprend [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur. Une routine hebdomadaire pourrait porter cette instruction :
 
 > Chaque lundi, listez les clients créés ces 7 derniers jours qui n’ont aucune organisation liée ou aucune adresse e-mail, et listez les organisations sans valeur de Segment. Donnez les listes dans le résumé de l’exécution. Ne modifiez aucun enregistrement et n’envoyez aucun message.
 
 La dernière phrase compte. Mate peut envoyer des messages quand une instruction le demande : une routine destinée uniquement à faire un rapport doit donc le préciser. Si vous préférez votre propre client IA, Claude, ChatGPT et d’autres clients MCP peuvent interroger les mêmes enregistrements via [[derived.mcp.tools.total]] [outils MCP](/docs/mcp), sur Cloud et en auto-hébergement.
+
+Une base se rentabilise quand chaque enregistrement a une prochaine étape. Avec Pro, les fils rejoignent la fiche du client, Mate ou votre propre client IA rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez. Pour l’essayer sur vos propres enregistrements, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup).
 
 ## Garder une base de données CRM propre
 

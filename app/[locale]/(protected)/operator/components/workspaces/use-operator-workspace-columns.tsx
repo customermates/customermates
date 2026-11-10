@@ -20,8 +20,20 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
 
-  return useMemo<ColumnDef<OperatorWorkspaceRowDto>[]>(
-    () => [
+  return useMemo<ColumnDef<OperatorWorkspaceRowDto>[]>(() => {
+    const jobLabels = {
+      workspace: t("OperatorWorkspaces.signup.jobs.workspace"),
+      followup: t("OperatorWorkspaces.signup.jobs.followup"),
+      agent: t("OperatorWorkspaces.signup.jobs.agent"),
+    };
+    const eventLabels = {
+      jobSelected: t("OperatorWorkspaces.signup.events.jobSelected"),
+      setupCompleted: t("OperatorWorkspaces.signup.events.setupCompleted"),
+      channelConnected: t("OperatorWorkspaces.signup.events.channelConnected"),
+      agentConnected: t("OperatorWorkspaces.signup.events.agentConnected"),
+    };
+
+    return [
       {
         id: "name",
         header: t("Common.table.columns.workspace"),
@@ -104,7 +116,7 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
           return (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className={awaitingContract ? "text-sm text-warning" : "text-sm"}>{label}</span>
+                <span className={awaitingContract ? "text-sm text-warning-soft-foreground" : "text-sm"}>{label}</span>
               </TooltipTrigger>
 
               <TooltipContent className="max-w-72">{explanation}</TooltipContent>
@@ -120,6 +132,36 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
           if (!provider || !isAdProvider(provider)) return <span className="text-sm">-</span>;
 
           return <span className="truncate text-sm">{adProviderDisplayName(provider)}</span>;
+        },
+      },
+      {
+        id: "signupSource",
+        header: t("Common.table.columns.signupSource"),
+        cell: ({ row }) => {
+          const { signupJob, signupSource } = row.original;
+          if (!signupJob && !signupSource) return <span className="text-sm">-</span>;
+
+          return (
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-sm">{signupJob ? jobLabels[signupJob] : "-"}</span>
+
+              {signupSource ? <span className="truncate text-xs text-muted-foreground">{signupSource}</span> : null}
+            </span>
+          );
+        },
+      },
+      {
+        id: "firstValue",
+        header: t("Common.table.columns.firstValue"),
+        cell: ({ row }) => {
+          const events = row.original.funnelEvents;
+          if (events.length === 0) return <span className="text-sm">-</span>;
+
+          return (
+            <span className="block whitespace-normal text-sm">
+              {events.map((event) => eventLabels[event]).join(", ")}
+            </span>
+          );
         },
       },
       {
@@ -141,7 +183,6 @@ export function useOperatorWorkspaceColumns(): ColumnDef<OperatorWorkspaceRowDto
           <span className="text-sm">{intlStore.formatNumericalShortDateTime(row.original.createdAt)}</span>
         ),
       },
-    ],
-    [intlStore, t],
-  );
+    ];
+  }, [intlStore, t]);
 }

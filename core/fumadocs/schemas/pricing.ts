@@ -6,6 +6,7 @@ import { PLAN_IDS } from "@/core/commercial/plan-catalog";
 
 const manualPricingRowSchema = z.object({
   label: z.string(),
+  free: z.union([z.boolean(), z.string()]),
   starter: z.union([z.boolean(), z.string()]),
   pro: z.union([z.boolean(), z.string()]),
   business: z.union([z.boolean(), z.string()]),
@@ -23,6 +24,10 @@ const catalogPricingRowSchema = z.object({
     "includedRoutinesPerUser",
     "sharedAccounts",
     "fileStoragePerActiveUser",
+    "maxMembers",
+    "maxRecords",
+    "webhooks",
+    "apiRequestLimit",
   ]),
 });
 
@@ -43,6 +48,7 @@ const pricingCardSchema = z.object({
   buttonColor: z.enum(["default", "primary"]),
   buttonVariant: z.enum(["bordered", "shadow", "solid"]),
   features: z.array(z.string()),
+  missingFeatures: z.array(z.string()).optional(),
   featured: z.boolean().optional(),
   cardClassName: z.string().optional(),
   shadow: z.enum(["sm", "md"]).optional(),
@@ -54,6 +60,14 @@ export const pricingDataSchema = z
     ariaLabelSlider: z.string(),
     customPrice: z.string(),
     footnote: z.string().optional(),
+    moreTitle: z.string().optional(),
+    selfHost: z
+      .object({
+        href: z.string(),
+        linkLabel: z.string(),
+        text: z.string(),
+      })
+      .optional(),
     pricingCards: z.array(pricingCardSchema),
     users: z.string(),
     totalSuffixSingular: z.string().optional(),
@@ -81,6 +95,7 @@ const comparisonTablePlanSchema = z.object({
 });
 
 const comparisonTablePlansSchema = z.object({
+  free: comparisonTablePlanSchema,
   starter: comparisonTablePlanSchema,
   pro: comparisonTablePlanSchema,
   business: comparisonTablePlanSchema,
@@ -89,9 +104,11 @@ const comparisonTablePlansSchema = z.object({
 });
 
 export const comparisonTableSchema = z.object({
+  apiLimitValue: z.string(),
   customValue: z.string(),
   header: z.string(),
   unlimitedValue: z.string(),
+  workspaceStorageValue: z.string(),
   plans: comparisonTablePlansSchema,
   sections: z.array(pricingTableRowSchema),
 });
@@ -102,6 +119,7 @@ export const pricingSchema = frontmatterSchema.extend({
   cta: ctaSchema,
   description: z.string(),
   faq: faqSchema,
+  heading: z.string().optional(),
   pricing: pricingDataSchema,
   title: z.string(),
   titleAccent: z.string().optional(),

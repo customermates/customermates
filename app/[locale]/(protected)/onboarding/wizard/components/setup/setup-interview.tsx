@@ -168,11 +168,11 @@ const SetupWebsiteContext = observer(function SetupWebsiteContext() {
 
   return (
     <Alert
-      color="primary"
       description={t("WorkspaceSetup.website.hint")}
       icon={<Globe />}
       role="note"
       title={t("WorkspaceSetup.website.title")}
+      variant="info"
     >
       <div className="mt-2 flex gap-2">
         <Input
@@ -253,14 +253,14 @@ export const SetupInterview = observer(function SetupInterview() {
     <section ref={section} aria-busy={store.isBusy} className="flex flex-col gap-6">
       <SetupWebsiteContext />
 
-      {store.adjusting ? <Alert color="primary" description={t("WorkspaceSetup.interview.adjusting")} /> : null}
+      {store.adjusting ? <Alert description={t("WorkspaceSetup.interview.adjusting")} variant="info" /> : null}
 
       {store.prefillRunning && !store.adjusting ? (
         <Alert
-          color="primary"
           description={t("WorkspaceSetup.interview.prefillPending")}
           icon={<Globe />}
           role="status"
+          variant="info"
         />
       ) : null}
 

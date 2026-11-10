@@ -75,7 +75,11 @@ export const WebhookModal = observer(() => {
 
           <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {webhookModalStore.form.pausedReason === "triggerFieldDeleted" && (
-              <Alert color="warning" data-webhook-paused="" description={t("WebhookModal.pausedTriggerFieldDeleted")} />
+              <Alert
+                data-webhook-paused=""
+                description={t("WebhookModal.pausedTriggerFieldDeleted")}
+                variant="warning"
+              />
             )}
 
             <div className="space-y-1.5">

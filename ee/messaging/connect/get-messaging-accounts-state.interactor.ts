@@ -10,7 +10,7 @@ import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { env } from "@/env";
-import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
+import { effectivePlanId, getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitlements";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -42,7 +42,7 @@ export class GetMessagingAccountsStateInteractor extends AuthenticatedInteractor
       return { ok: true as const, data: { state: "unavailable" } };
     const subscription = await this.subscriptions.findSubscription();
     if (!subscription) return { ok: true as const, data: { state: "locked", reason: "subscription" } };
-    if (!getEntitlements(subscription.plan).messaging)
+    if (!getEntitlements(effectivePlanId(subscription)).messaging)
       return { ok: true as const, data: { state: "locked", reason: "plan" } };
     if (!isSubscriptionUsable(subscription))
       return { ok: true as const, data: { state: "locked", reason: "subscription" } };

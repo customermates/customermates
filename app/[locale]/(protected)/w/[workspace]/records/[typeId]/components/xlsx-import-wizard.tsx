@@ -378,7 +378,9 @@ const XlsxResultStep = observer(function XlsxResultStep({ store }: { store: Xlsx
         </li>
 
         {summary.warned.length > 0 && (
-          <li className="text-warning">{t("DataTransfer.xlsxImport.warned", { count: summary.warned.length })}</li>
+          <li className="text-warning-soft-foreground">
+            {t("DataTransfer.xlsxImport.warned", { count: summary.warned.length })}
+          </li>
         )}
       </ul>
 

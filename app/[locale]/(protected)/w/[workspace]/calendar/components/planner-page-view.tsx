@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type { CalendarDate } from "@/features/record-calendar/calendar-date";
+import { Alert } from "@/components/shared/alert";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -392,15 +393,23 @@ const PlannerPageViewContent = observer(function PlannerPageView({ options }: { 
         </div>
 
         {result.sources.some((source) => source.status === "unavailable") && (
-          <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
-            {t("Planner.sourceUnavailable")}
-          </p>
+          <Alert
+            className="text-xs"
+            description={t("Planner.sourceUnavailable")}
+            layout="banner"
+            role="status"
+            variant="warning"
+          />
         )}
 
         {plannerIsTruncated(result) && (
-          <p className="border-b bg-warning/10 px-4 py-2 text-xs text-warning" role="status">
-            {t("Planner.truncated")}
-          </p>
+          <Alert
+            className="text-xs"
+            description={t("Planner.truncated")}
+            layout="banner"
+            role="status"
+            variant="warning"
+          />
         )}
 
         {failed && !data ? (

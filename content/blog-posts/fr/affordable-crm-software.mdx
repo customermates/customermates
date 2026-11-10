@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "CRM abordable : prix d’entrée, forfaits et frais qui s’y ajoutent"
-  description: "Ce que paient cinq utilisateurs en un an sur la formule d’entrée de chaque éditeur, quels CRM facturent un seul prix pour toute l’équipe, et les conditions de facturation qui transforment une formule bon marché en formule coûteuse. Les prix viennent de la page tarifs de chaque éditeur."
+  description: "Ce que paient cinq utilisateurs par an sur la formule d’entrée, quels CRM facturent un prix unique à l’équipe et les conditions qui rendent une formule bon marché coûteuse. Prix des éditeurs."
 
 blogPost:
   author: Benjamin Wagner
@@ -128,19 +128,21 @@ Un forfait est le moins cher quand votre équipe remplit sa tranche, et le plus 
 
 ## La place de Customermates
 
-*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients : cabinets de conseil, agences, autres entreprises de services qui vivent de la relation, et fondateurs. Il est tarifé par utilisateur actif et facturé mensuellement : [[commercial.price.starter.monthly]] sur Starter, [[commercial.price.pro.monthly]] sur Pro et [[commercial.price.business.monthly]] sur Business. Il n’y a ni formule annuelle ni formule hébergée gratuite. L’essai dure [[commercial.trial.days]] jours sans carte bancaire, et les prix complets figurent sur la [page des tarifs](/pricing).
+*Transparence : Customermates publie ce guide.* Customermates est un CRM open source et IA native, développé en Allemagne pour les petites équipes en contact avec les clients : cabinets de conseil, agences, autres entreprises de services qui vivent de la relation, et fondateurs. Il est tarifé par utilisateur actif et facturé mensuellement : [[commercial.price.starter.monthly]] sur Starter, [[commercial.price.pro.monthly]] sur Pro et [[commercial.price.business.monthly]] sur Business. Il n’y a pas de formule annuelle, et la formule hébergée gratuite s’arrête à [[commercial.limit.free.maxMembers]] personne. Votre premier espace de travail démarre avec Pro gratuit pendant [[commercial.trial.days]] jours, sans carte bancaire, et les prix complets figurent sur la [page des tarifs](/pricing).
 
 **Starter** comprend les contacts, les organisations, les affaires, les services et les tâches, les champs personnalisés, les rôles et les droits, l’import et l’export Excel (`.xlsx`), REST, les webhooks et MCP. Il n’a pas de boîte de réception : les e-mails et les messages ne sont pas connectés avec Starter.
 
 **Pro** ajoute la [boîte de réception unifiée](/features/unified-inbox) pour l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram, avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, ainsi que l’accès en lecture seule au calendrier et LinkedIn Sales Navigator. Business inclut [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur et des comptes partagés.
 
-Dans Customermates Cloud, l’assistant Mate prépare des résumés et des brouillons de réponse et met à jour des enregistrements, en consommant des crédits IA hébergés. Chaque formule cloud inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les tarifs. Les routines exécutent des instructions enregistrées selon un planning ou quand un enregistrement change : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur sur Starter et [[commercial.entitlement.pro.includedRoutinesPerUser]] sur Pro.
+Dans Customermates Cloud, l’assistant Mate prépare des résumés et des brouillons de réponse et met à jour des enregistrements, en consommant des crédits IA hébergés. Chaque formule payante inclut des crédits IA hébergés mensuels par utilisateur actif ; voir les tarifs. Les routines exécutent des instructions enregistrées selon un planning ou quand un enregistrement change : [[commercial.entitlement.starter.includedRoutinesPerUser]] par utilisateur sur Starter et [[commercial.entitlement.pro.includedRoutinesPerUser]] sur Pro.
 
 | Équipe | Starter par mois | Starter, 12 mois | Pro par mois | Pro, 12 mois |
 | --- | --- | --- | --- | --- |
 | 3 personnes | [[commercial.price.starter.monthly.seats.3]] | [[commercial.price.starter.monthly.seats.3.months.12]] | [[commercial.price.pro.monthly.seats.3]] | [[commercial.price.pro.monthly.seats.3.months.12]] |
 | 5 personnes | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 | 10 personnes | [[commercial.price.starter.monthly.seats.10]] | [[commercial.price.starter.monthly.seats.10.months.12]] | [[commercial.price.pro.monthly.seats.10]] | [[commercial.price.pro.monthly.seats.10.months.12]] |
+
+Pour une équipe en contact avec les clients, une licence se juge à ce qu’elle empêche de tomber dans l’oubli. Avec Pro, les fils LinkedIn et e-mail restent sur la fiche du client, Mate rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez. Starter donne les enregistrements et votre propre client IA via MCP, sans boîte de réception. Pour mesurer la différence sur de vraies conversations, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup) : Pro, sans carte bancaire.
 
 ### Les façons les moins chères de l’utiliser
 
@@ -149,7 +151,7 @@ Dans Customermates Cloud, l’assistant Mate prépare des résumés et des broui
 - **Auto-héberger le noyau open source.** Il fonctionne avec Docker Compose et PostgreSQL, ne compte aucune licence et ne facture rien. Vous payez le serveur et un compte d’envoi d’e-mails, et vous gérez vous-même les mises à jour et les sauvegardes. En auto-hébergement, il n’y a ni boîte de réception, ni Mate, ni routines, ni crédits hébergés ; REST, les webhooks et MCP restent disponibles. Le [guide d’auto-hébergement](/docs/self-hosting) décrit l’installation.
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon choix" variant="boundary">
-  Si vous cherchez un CRM à 0 $ exploité par l’éditeur, commencez par les outils gratuits de HubSpot ou l’édition gratuite de Zoho CRM ; Customermates n’a pas de formule hébergée gratuite. Customermates n’a ni téléphonie, ni séquences d’e-mails ou envoi d’e-mails en masse, ni formulaires web, ni application mobile native, et il ne crée ni devis ni factures. Une équipe qui téléphone beaucoup devrait choisir un CRM avec appels intégrés, et une équipe qui a besoin de séquences en trouvera dans Pipedrive à partir de Growth.
+  Si vous cherchez un CRM à 0 $ exploité par l’éditeur, commencez par les outils gratuits de HubSpot ou l’édition gratuite de Zoho CRM ; Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Customermates n’a ni téléphonie, ni séquences d’e-mails ou envoi d’e-mails en masse, ni formulaires web, ni application mobile native, et il ne crée ni devis ni factures. Une équipe qui téléphone beaucoup devrait choisir un CRM avec appels intégrés, et une équipe qui a besoin de séquences en trouvera dans Pipedrive à partir de Growth.
 </AcquisitionCallout>
 
 ## FAQ

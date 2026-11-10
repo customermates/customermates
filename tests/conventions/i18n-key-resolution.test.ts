@@ -49,6 +49,7 @@ import {
   WebhookDeliveryStatus,
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { PLAN_IDS } from "@/core/commercial/plan-catalog";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
 import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
@@ -268,6 +269,8 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.expiresAt",
   "Common.table.columns.firstName",
   "Common.table.columns.adProvider",
+  "Common.table.columns.signupSource",
+  "Common.table.columns.firstValue",
   "Common.table.columns.isSystemRole",
   "Common.table.columns.lastName",
   "Common.table.columns.lastRequest",
@@ -319,12 +322,13 @@ const CONNECTED_ACCOUNT_STATUS_KEYS = Object.values(ConnectedAccountStatus).map(
 const SIGNATURE_TEMPLATE_KEYS = Object.values(SignatureTemplate).map(
   (template) => `ConnectedAccountsCard.signatureTemplates.${template}`,
 );
-const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
+const SUBSCRIPTION_PLAN_KEYS = PLAN_IDS.map((plan) => `Subscription.planNames.${plan}`);
 const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
 const BILLING_SOURCE_KEYS = BILLING_SOURCES.map((billing) => `OperatorUsage.billing.${billing}`);
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
+const SUBSCRIPTION_TAGLINE_KEYS = SELECTABLE_SUBSCRIPTION_PLANS.map((plan) => `Subscription.picker.taglines.${plan}`);
 const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key) =>
   SELECTABLE_SUBSCRIPTION_PLANS.some((plan) => key.startsWith(`Subscription.picker.features.${plan}.`)),
 );
@@ -349,6 +353,7 @@ const HOMEPAGE_PRICING_VARIABLE_KEYS = [
   "HomepagePricing.cloud.badge",
   "HomepagePricing.cloud.compareText",
   "HomepagePricing.cloud.featureBusiness",
+  "HomepagePricing.cloud.featureFree",
   "HomepagePricing.cloud.featurePro",
   "HomepagePricing.cloud.featureStarter",
   "HomepagePricing.cloud.period",
@@ -385,10 +390,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.title`,
 );
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "goal", "playbook", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -612,6 +617,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
   ["Wiki.kind.${*}", WIKI_PAGE_KIND_KEYS],
   ["Subscription.picker.features.${*}", SUBSCRIPTION_FEATURE_KEYS],
+  ["Subscription.picker.taglines.${*}", SUBSCRIPTION_TAGLINE_KEYS],
   ["Subscription.planNames.${*}", SUBSCRIPTION_PLAN_KEYS],
   ["Subscription.status.${*}", SUBSCRIPTION_STATUS_KEYS],
   ["OperatorUsage.billing.${*}", BILLING_SOURCE_KEYS],
@@ -670,7 +676,29 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
-  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/plan-picker.tsx :: t :: Subscription.picker.taglines.${plan}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(account)/components/connect-upsell-modal.tsx :: t :: Subscription.planNames.${form.plan}",
+  "app/components/upsell/upsell-plan-price.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/app-sidebar.tsx :: t :: Subscription.planNames.${subscription.plan}",
+  "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${planKey}",
+  "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${keepPlan}",
+  "app/components/upsell/storage-failure-action.tsx :: t :: Subscription.planNames.${next}",
+  "app/components/upsell/storage-upsell-note.tsx :: t :: Subscription.planNames.${next}",
+  "app/components/upsell/upsell-cta.tsx :: t :: Subscription.planNames.${plan}",
+  "features/record-files/record-file-upload.service.ts :: t :: Subscription.planNames.${upgradePlan}",
+  "app/components/navigation/trial-sidebar-card.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
+  "app/components/upsell/free-plan-feature-overlay.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/plan-paused-banner.tsx :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(public)/auth/paused/plan-paused-card.tsx :: t :: Subscription.planNames.${FREE_PLAN_UPGRADE_PLAN}",
+  "app/components/upsell/plan-usage-card.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/teams-need-plan-panel.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/plan-limit-notice.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/plan-upsell-notice.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/payment-failed-banner.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/upsell/routine-allowance-notice.tsx :: t :: Subscription.planNames.${plan}",
+  "app/components/app-sidebar.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
+  "app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/contact-compose-popover.tsx :: t :: Subscription.planNames.${MESSAGING_UPSELL_PLAN}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
   "app/[locale]/(protected)/w/[workspace]/settings/(workspace)/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",

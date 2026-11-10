@@ -5,6 +5,7 @@ import type { SetupCrawlSource, SetupCrawlState, WorkspaceSetupRepo } from "./wo
 import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "./workspace-setup.schema";
 import type { GetSetupKnowledgeProgressRepo } from "@/features/wiki/get-setup-knowledge-progress.repo";
 import type { WikiSynthesisTopicProgress } from "@/features/wiki/wiki-crawl-progress.schema";
+import type { OnboardingFunnelRepo } from "@/features/onboarding-funnel/onboarding-funnel.repo";
 
 import { Prisma } from "@/generated/prisma";
 
@@ -99,7 +100,10 @@ export class PrismaWorkspaceSetupRepo
   extends TenantRepository
   implements WorkspaceSetupRepo, GetSetupKnowledgeProgressRepo
 {
-  constructor(private readonly crawls: WikiWebsiteCrawlControlRepo) {
+  constructor(
+    private readonly crawls: WikiWebsiteCrawlControlRepo,
+    private readonly funnel: Pick<OnboardingFunnelRepo, "recordFunnelEvent">,
+  ) {
     super();
   }
 
@@ -176,6 +180,8 @@ export class PrismaWorkspaceSetupRepo
       await this.prisma.workspaceSetup.updateMany({ where: { id, companyId: this.companyId }, data: patchData(patch) });
       const next = await this.get(id);
       if (!next) throw new Error("Workspace setup disappeared during an update.");
+      if (current.status !== "completed" && next.status === "completed")
+        await this.funnel.recordFunnelEvent({ type: "setupCompleted", occurredAt: next.finishedAt ?? new Date() });
       return { setup: next, changed: true };
     });
   }

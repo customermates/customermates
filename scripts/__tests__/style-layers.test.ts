@@ -44,7 +44,7 @@ describe("route stylesheet behavior", () => {
           });
       });
     }
-    expect(colors["--color-fd-primary"]).toBe("#5e4ae3");
+    expect(colors["--color-fd-primary"]).toBe("#fafafa");
     expect(colors["--color-fd-background"]).toBe("#0e0e10");
   });
 

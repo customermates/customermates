@@ -51,7 +51,8 @@ describe("DraftConflictBar", () => {
 
     const status = container.querySelector('[role="status"]');
     expect(status?.textContent).toContain("Inbox.compose.draftChangedNotice");
-    expect(status?.className).toContain("bg-warning/10");
+    expect(status?.getAttribute("data-variant")).toBe("warning");
+    expect(status?.getAttribute("data-layout")).toBe("banner");
     expect(container.querySelector('[role="alert"]')).toBeNull();
 
     act(() => button(container, "Inbox.compose.loadLatestDraft").click());

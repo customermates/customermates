@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/pipeline
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "Le pipeline est un champ, pas un chantier de formules"
+      description: "Les étapes ne sont pas prédéfinies : vous ajoutez à votre liste d’affaires un champ à choix unique Étape et définissez une probabilité par option dans Configurer."
+    - title: "Les conversations arrivent sur la fiche"
+      description: "Au lieu de copier des messages dans une base, connectez dès Pro votre boîte mail, LinkedIn ou WhatsApp, et chaque fil apparaît sur la fiche client. Vous répondez sur le canal d’origine."
+    - title: "Des réponses rédigées, des enregistrements mis à jour"
+      description: "Dans Customermates Cloud, Mate résume les fils, rédige des réponses, met à jour les enregistrements et construit des vues, avec des crédits IA hébergés et une enveloppe mensuelle par utilisateur actif (voir les tarifs)."
+  switchSteps: true
+
 hero:
-  title: "Alternative à Notion CRM : quand sortir votre pipeline de Notion"
-  description: "Notion permet de construire un CRM à partir de bases de données, de formules et d’automatisations. Customermates est un CRM open source conçu en Allemagne qui démarre avec un pipeline d’affaires pondéré, place l’e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté de vos enregistrements dès Pro, et laisse Mate ou votre propre client IA les tenir à jour. Les informations sur Notion proviennent de notion.com, vérifiées le 8 octobre 2026."
-  buttonLeftText: Commencer gratuitement
+  title: "Alternative à Notion CRM : quitter Notion pour le pipeline"
+  description: "Un CRM construit dans Notion prend du retard dès que les échanges avec les clients se passent ailleurs. Customermates range les fils e-mail, LinkedIn et WhatsApp sur la fiche client dès Pro, et Mate rédige la réponse. Informations sur Notion vérifiées le 8 octobre 2026."
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Facturation mensuelle uniquement
         competitor: "Plus 10 $ (9,50 €), Business 20 $ (19,50 €)"
       - name: Formule gratuite
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] personne, [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception ni Mate"
         competitor: Oui ; limite de blocs dès que l’espace de travail compte 2 membres ou plus
   - title: Modèle de données CRM
     features:
@@ -96,7 +106,7 @@ comparison:
 cta:
   action: Votre CRM Notion devient-il difficile à maintenir ?
   description: "Démarrez un essai, importez une base Notion enregistrée comme classeur Excel, et connectez la messagerie ou le compte WhatsApp sur lequel écrivent vos clients. Vous verrez vite si votre pipeline convient au modèle de Customermates."
-  buttonLeftText: Commencer gratuitement
+  buttonLeftText: Essai gratuit de [[commercial.trial.days]] jours
   buttonLeftHref: /auth/signup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
@@ -152,7 +162,7 @@ Les lignes n’achètent pas les mêmes choses :
 
 ## La place de Customermates
 
-Customermates est un CRM open source et IA native pour les petites équipes en contact avec leurs clients : consultants, agences, autres entreprises de services et fondateurs. Il est conçu en Allemagne.
+Dans Notion, vous construisez le CRM vous-même et y collez les conversations. Dans Customermates, elles arrivent dès Pro sur la fiche client, et Mate ou votre propre agent IA rédige la réponse et la prochaine étape, que vous relisez, modifiez et envoyez.
 
 **Le pipeline est un champ, pas un projet de formules.** Les étapes ne sont pas prédéfinies : vous ajoutez à votre liste d’affaires un champ Choix unique Étape et vous définissez une probabilité par option dans Modèle de données (dans le cloud, la configuration IA peut le créer), par exemple Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 %, Perdue 0 %. La valeur d’une affaire est la somme de ses lignes, chacune étant le prix d’un service multiplié par la quantité, et Customermates la multiplie par la probabilité de l’étape pour obtenir une valeur pondérée par affaire, qu’un graphique du tableau de bord peut additionner en [total du pipeline](/features/pipeline). C’est un calcul sur vos chiffres, pas une prédiction.
 
@@ -166,7 +176,7 @@ Customermates est un CRM open source et IA native pour les petites équipes en c
 
 - **Pas de documents ni de wiki.** Chaque enregistrement a un seul champ de notes en texte enrichi, qui peut contenir des images et des tableaux. Les propositions et les manuels restent dans Notion.
 - **Pas de rappels ni d’échéances de tâches.** Ajoutez un champ Date et triez une vue enregistrée dessus, ou laissez une routine le vérifier.
-- **Pas d’applications mobiles natives, de SSO ni de formule gratuite.** Customermates fonctionne dans le navigateur du téléphone, et un essai de [[commercial.trial.days]] jours mène à une formule payante.
+- **Pas d’applications mobiles natives ni de SSO.** Customermates fonctionne dans le navigateur du téléphone. Free couvre [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines ; au-delà, une formule payante après l’essai de [[commercial.trial.days]] jours.
 
 ## Une configuration concrète : un cabinet de conseil de quatre personnes qui quitte Notion
 
@@ -197,7 +207,7 @@ Chaque consultant enregistre un board de ses propres affaires regroupées par é
   <Step title="Préparez le fichier">Customermates lit les fichiers CSV : il n’y a donc rien à convertir. Séparez les noms en prénom et nom, car les nouveaux contacts exigent les deux.</Step>
   <Step title="Préparez l’espace de travail">Renommez les listes dans Modèle de données, ajustez les options et les probabilités d’Étape, et ajoutez les champs du tableau ci-dessus.</Step>
   <Step title="Importez une liste à la fois">Sous Plus d’actions, choisissez Ajouter depuis un fichier : les organisations d’abord, puis les contacts, les services et les affaires. Les colonnes de lien associent les enregistrements par nom, sans tenir compte de la casse. Associez les adresses e-mail et les numéros de téléphone au champ Coordonnées du contact. Le [guide des enregistrements](/docs/app-records) liste les limites des fichiers.</Step>
-  <Step title="Reprenez les notes et les vues">Les notes de réunion se trouvent dans les fichiers Markdown, pas dans le tableau. Collez celles dont vous avez besoin dans les notes de chaque enregistrement, ou faites-les écrire par un client IA via MCP. Reconstruisez ensuite vos vues et partagez celles que toute l’équipe utilise.</Step>
+  <Step title="Reprenez les notes et les vues">Les notes de réunion se trouvent dans les fichiers Markdown, pas dans le tableau. Collez celles dont vous avez besoin dans les notes de chaque enregistrement, ou faites-les écrire par un client IA via MCP. Reconstruisez ensuite vos vues et partagez celles dont toute l’équipe a besoin.</Step>
 </Steps>
 
 ## Autres alternatives à Notion CRM à regarder
@@ -205,7 +215,7 @@ Chaque consultant enregistre un board de ses propres affaires regroupées par é
 Customermates publie cette liste. Les informations viennent de la page de tarifs de chaque éditeur, vérifiées le 8 octobre 2026.
 
 - **Attio** est le CRM le plus proche de la manière dont Notion modélise les données, avec des objets, des attributs de relation et de formule, la synchronisation e-mail et agenda, et l’enrichissement automatique, que Customermates ne propose pas. D’après la [page de tarifs d’Attio](https://attio.com/pricing), Free couvre jusqu’à 3 postes et 50 000 enregistrements ; Plus coûte 39 € par utilisateur et par mois (31 € facturés à l’année) et Pro 93 € (74 €), avec un essai de Pro de 14 jours. Voir la [comparaison avec Attio](/compare/attio-alternative).
-- **Twenty** est un CRM open source avec des objets personnalisés illimités : un schéma Notion peut donc être reconstruit de près et hébergé par vous-même. Chaque espace de travail cloud a un serveur MCP. Sur la [page de tarifs de Twenty](https://twenty.com/pricing), Cloud Pro coûte 9 $ par utilisateur et par mois facturés à l’année et Organization 19 $, après un essai de 30 jours.
+- **Twenty** est un CRM open source avec des objets personnalisés illimités : un schéma Notion peut donc être reconstruit de près et hébergé par vous-même. Chaque espace de travail cloud a un serveur MCP. Sur la [page de tarifs de Twenty](https://twenty.com/pricing), Cloud Pro coûte 9 $ par utilisateur et par mois facturés à l’année et Organization 39 $, après un essai de 30 jours (vérifié le 9 novembre 2026).
 - **Airtable** convient aux équipes qui veulent continuer à construire leur propre système, avec des bases de données relationnelles, des interfaces et des automatisations. D’après la [page de tarifs d’Airtable](https://airtable.com/pricing), Team coûte 20 $ et Business 45 $ par utilisateur et par mois, facturés à l’année ; Free ne coûte rien.
 
 ## Questions fréquentes

@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/pipedrive-alternative
   - /compare/salesmate-alternative
 
+sections:
+  reasons:
+    - title: "Conversations where your clients write"
+      description: "From Pro, LinkedIn (including Sales Navigator and Recruiter), WhatsApp, Instagram, Telegram and your Gmail, Outlook or IMAP mailbox sit in one inbox, and you reply on the original channel."
+    - title: "Mate drafts, you send"
+      description: "In Customermates Cloud, Mate summarizes conversations, drafts replies and updates records, using hosted AI credits. Ask for a draft when you want to read it before it goes out."
+    - title: "Open source, with the cloud database in Frankfurt"
+      description: "The core is AGPL-3.0 and runs on your own server with Docker Compose and PostgreSQL 16, including REST, webhooks and MCP. The Freshsales pricing page lists no self-hosted edition."
+  switchSteps: true
+
 hero:
-  title: "Freshsales Alternative: Customermates and Freshsales Compared"
-  description: "Freshsales is the sales CRM from Freshworks, with a built-in phone, sales sequences, Freddy AI and a free plan for up to three users. Customermates is an open-source CRM built in Germany that puts email, LinkedIn, WhatsApp, Instagram and Telegram next to your deals from Pro, and lets Mate or your own AI client do the CRM work. Freshsales details are from freshworks.com, checked on 8 October 2026."
-  buttonLeftText: Start for free
+  title: "Freshsales Alternative: Customermates Compared"
+  description: "Freshsales is built around the phone, email and website chat. If your clients write on LinkedIn or Telegram more than they call, Customermates keeps those threads on the client record from Pro and Mate drafts the reply. Freshsales details checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Monthly billing only
         competitor: "Growth $9, Pro $39, Enterprise $59"
       - name: Free plan
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records, no inbox or Mate"
         competitor: Up to 3 users
       - name: Free trial
         source: "[[commercial.trial.days]] days, no credit card"
@@ -88,7 +98,7 @@ comparison:
         source: Routines run saved AI instructions on a schedule or record event (Customermates Cloud)
         competitor: "Workflows: 20 on Growth, 50 basic and 50 advanced on Pro, 100 each on Enterprise"
       - name: REST API
-        source: Every plan and self-hosted, plus webhooks
+        source: Every plan and self-hosted; webhooks on paid plans
         competitor: From Growth; not on Free
   - title: Licence, Hosting & Access
     features:
@@ -114,7 +124,7 @@ comparison:
 cta:
   action: Comparing Freshsales and Customermates?
   description: "Start a trial, connect the mailbox or LinkedIn account your clients write to, and import one Freshsales export. You will see quickly whether your own data and conversations fit the Customermates model."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -179,7 +189,7 @@ Every Customermates Cloud plan includes monthly hosted AI credits per active use
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
+Freshsales starts from the call. Customermates starts from the client's last message: from Pro, LinkedIn, email, WhatsApp, Instagram and Telegram threads sit on the client record, and Mate or your own AI agent drafts the reply and the next step. You review, edit and send.
 
 **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn (including Sales Navigator and Recruiter), WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. Link a participant to a contact once, and every conversation with that address or handle appears on the contact's timeline.
 
@@ -196,7 +206,7 @@ Check these before you start a trial:
 - **No chat widget and no web forms.** Leads from your website reach Customermates through the REST API or a workflow in an n8n instance you run yourself.
 - **No scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
 - **No field-level permissions.** Permissions apply per list and action.
-- **No native mobile apps and no free plan.** Customermates runs in the phone's browser, and after a [[commercial.trial.days]]-day trial you choose a paid plan.
+- **No native mobile apps and a small free plan.** Customermates runs in the phone's browser. Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a consultancy moving from Freshsales Growth
 
@@ -251,11 +261,11 @@ It depends on why you are leaving. If you want follow-up cadences and sales fore
 </FaqItem>
 
 <FaqItem question="Is there a free alternative to Freshsales?">
-Yes, with limits. Zoho CRM is free for up to three users, HubSpot's free tools for up to two, and CentralStationCRM's Starter package for three users and 200 contacts. Customermates Cloud has no free plan. A self-hosted Customermates install has no subscription, so you pay only for your own server and providers, but it has no inbox and no Mate.
+Yes, with limits. Zoho CRM is free for up to three users, HubSpot's free tools for up to two, and CentralStationCRM's Starter package for three users and 200 contacts. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. A self-hosted Customermates install has no subscription, so you pay only for your own server and providers, but it has no inbox and no Mate.
 </FaqItem>
 
 <FaqItem question="Does Freshsales have an API?">
-Yes, from the Growth plan; the Free plan has no API access. Customermates includes the REST API, webhooks and the MCP server on every plan and on self-hosted installs.
+Yes, from the Growth plan; the Free plan has no API access. Customermates includes the REST API, webhooks and the MCP server on every paid plan and on self-hosted installs.
 </FaqItem>
 
 <FaqItem question="Where does Freshsales store data, and is it GDPR compliant?">

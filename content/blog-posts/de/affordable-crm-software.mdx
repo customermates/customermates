@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Günstiges CRM: Einstiegspreise, Pauschaltarife und die Kosten danach"
-  description: "Was fünf Nutzer im Einstiegstarif ein Jahr lang zahlen, welche CRMs einen Preis für das ganze Team verlangen und welche Zahlungsbedingungen aus einem günstigen Tarif einen teuren machen. Alle Preise stammen von den Preisseiten der Anbieter."
+  description: "Was fünf Nutzer im Einstiegstarif jährlich zahlen, welche CRMs einen Preis fürs ganze Team verlangen und welche Zahlungsbedingungen einen günstigen Tarif teuer machen. Preise von den Anbieterseiten."
 
 blogPost:
   author: Benjamin Wagner
@@ -130,19 +130,21 @@ Bei zehn oder zwanzig Personen ist ein passendes Paket deutlich günstiger als e
 
 ## Wo Customermates passt
 
-*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister, deren Geschäft von Beziehungen lebt, und Gründer. Berechnet wird pro aktivem Nutzer und Monat: [[commercial.price.starter.monthly]] im Tarif Starter, [[commercial.price.pro.monthly]] in Pro und [[commercial.price.business.monthly]] in Business. Einen Jahrestarif gibt es nicht, einen kostenlosen Cloud-Tarif ebenso wenig. Die Testphase dauert [[commercial.trial.days]] Tage ohne Kreditkarte, alle Preise stehen auf der [Preisseite](/pricing).
+*Offenlegung: Customermates veröffentlicht diesen Leitfaden.* Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit Kundenkontakt: Beratungen, Agenturen, andere Dienstleister, deren Geschäft von Beziehungen lebt, und Gründer. Berechnet wird pro aktivem Nutzer und Monat: [[commercial.price.starter.monthly]] im Tarif Starter, [[commercial.price.pro.monthly]] in Pro und [[commercial.price.business.monthly]] in Business. Einen Jahrestarif gibt es nicht, und der kostenlose Cloud-Tarif endet bei [[commercial.limit.free.maxMembers]] Person. Ihr erster Workspace startet [[commercial.trial.days]] Tage kostenlos mit Pro, ohne Kreditkarte, alle Preise stehen auf der [Preisseite](/pricing).
 
 **Starter** enthält Kontakte, Organisationen, Deals, Services und Aufgaben, eigene Felder, Rollen und Berechtigungen, Excel-Import und -Export (`.xlsx`), REST, Webhooks und MCP. Einen Posteingang hat Starter nicht: E-Mails und Nachrichten werden in diesem Tarif nicht verbunden.
 
 **Pro** ergänzt den [einheitlichen Posteingang](/features/unified-inbox) für E-Mail, LinkedIn, WhatsApp, Instagram und Telegram mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenen Konto pro Nutzer, dazu Lesezugriff auf den Kalender und LinkedIn Sales Navigator. Business enthält [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer und geteilte Konten.
 
-In Customermates Cloud erstellt der Assistent Mate Zusammenfassungen und Antwortentwürfe und pflegt Datensätze; dafür verbraucht er gehostete KI-Credits. Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, Details auf der Preisseite. Routinen führen gespeicherte Anweisungen nach Zeitplan oder bei Änderungen an Datensätzen aus: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro.
+In Customermates Cloud erstellt der Assistent Mate Zusammenfassungen und Antwortentwürfe und pflegt Datensätze; dafür verbraucht er gehostete KI-Credits. Jeder kostenpflichtige Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer, Details auf der Preisseite. Routinen führen gespeicherte Anweisungen nach Zeitplan oder bei Änderungen an Datensätzen aus: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro.
 
 | Team | Starter pro Monat | Starter, 12 Monate | Pro pro Monat | Pro, 12 Monate |
 | --- | --- | --- | --- | --- |
 | 3 Personen | [[commercial.price.starter.monthly.seats.3]] | [[commercial.price.starter.monthly.seats.3.months.12]] | [[commercial.price.pro.monthly.seats.3]] | [[commercial.price.pro.monthly.seats.3.months.12]] |
 | 5 Personen | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
 | 10 Personen | [[commercial.price.starter.monthly.seats.10]] | [[commercial.price.starter.monthly.seats.10.months.12]] | [[commercial.price.pro.monthly.seats.10]] | [[commercial.price.pro.monthly.seats.10.months.12]] |
+
+Für ein Team mit Kundenkontakt zählt bei einem Platz, was er vor dem Liegenbleiben bewahrt. In Pro liegen LinkedIn- und E-Mail-Verläufe am Kundendatensatz, Mate entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Starter bietet die Datensätze und Ihren eigenen KI-Client über MCP, ohne Posteingang. Um den Unterschied an echten Gesprächen zu testen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup): mit Pro, ohne Kreditkarte.
 
 ### So bleibt Customermates am günstigsten
 
@@ -151,7 +153,7 @@ In Customermates Cloud erstellt der Assistent Mate Zusammenfassungen und Antwort
 - **Den Open-Source-Kern selbst hosten.** Er läuft mit Docker Compose und PostgreSQL, zählt keine Nutzer und stellt nichts in Rechnung. Sie zahlen für den Server und ein Konto für den E-Mail-Versand und kümmern sich selbst um Updates und Backups. Selbst gehostet gibt es keinen Posteingang, kein Mate, keine Routinen und keine gehosteten Credits; REST, Webhooks und MCP bleiben. Die [Anleitung zum Self-Hosting](/docs/self-hosting) beschreibt die Einrichtung.
 
 <AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
-  Wenn Sie ein CRM für 0 € suchen, das ein Anbieter für Sie betreibt, beginnen Sie mit den kostenlosen Tools von HubSpot oder der kostenlosen Edition von Zoho CRM; Customermates hat keinen kostenlosen Cloud-Tarif. Customermates hat keine Telefonie, keine E-Mail-Sequenzen und keinen Massenversand, keine Webformulare und keine native Mobile-App, und es erstellt keine Angebote oder Rechnungen. Ein Team, das viel telefoniert, wählt besser ein CRM mit eingebauter Telefonie. Wer Sequenzen braucht, findet sie bei Pipedrive ab Growth.
+  Wenn Sie ein CRM für 0 € suchen, das ein Anbieter für Sie betreibt, beginnen Sie mit den kostenlosen Tools von HubSpot oder der kostenlosen Edition von Zoho CRM; Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Customermates hat keine Telefonie, keine E-Mail-Sequenzen und keinen Massenversand, keine Webformulare und keine native Mobile-App, und es erstellt keine Angebote oder Rechnungen. Ein Team, das viel telefoniert, wählt besser ein CRM mit eingebauter Telefonie. Wer Sequenzen braucht, findet sie bei Pipedrive ab Growth.
 </AcquisitionCallout>
 
 ## Häufige Fragen

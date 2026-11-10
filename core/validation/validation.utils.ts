@@ -98,6 +98,10 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.workspaceSetupNotFound,
 ]);
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.planWebhooksNotIncluded,
+  CustomErrorCode.planSeatSwapUnavailable,
+  CustomErrorCode.planMemberLimitReached,
+  CustomErrorCode.planRecordLimitReached,
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.draftAlreadySent,
   CustomErrorCode.draftChanged,
@@ -110,6 +114,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.roleSystemImmutable,
   CustomErrorCode.roleAccessPresetInUse,
   CustomErrorCode.storageQuotaExceeded,
+  CustomErrorCode.storageQuotaExceededTopPlan,
   CustomErrorCode.unipileProviderRejected,
   CustomErrorCode.unipileDisconnectedAccount,
   CustomErrorCode.unipileAccountRestricted,
@@ -123,6 +128,7 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.workspaceSetupConflict,
 ]);
 const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.apiRateLimitReached,
   CustomErrorCode.serviceBusy,
   CustomErrorCode.unipileRateLimit,
 ]);

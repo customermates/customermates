@@ -9,7 +9,7 @@ relatedHrefs:
   - /blog/gmail-crm-integration
 
 hero:
-  title: "Calendly CRM Integration: Which CRMs Connect Natively and How to Wire Up the Rest"
+  title: "Calendly CRM Integration: Native CRMs and How to Wire the Rest"
   description: "What Calendly's HubSpot, Salesforce and Dynamics 365 integrations do and which Calendly plan each needs, how to connect any other CRM, and how to handle reschedules, repeat bookers and no-shows."
 
 blogPost:
@@ -37,7 +37,7 @@ Customermates, an AI-native CRM, publishes this guide. Customermates has no Cale
   <SummaryItem label="Every other CRM">A marketplace app, a connector platform such as Zapier, Zoho Flow or n8n, or your own webhook receiver.</SummaryItem>
   <SummaryItem label="Webhooks">Not on Calendly's Free plan, and created through the API. The core events are invitee.created, invitee.canceled and routing_form_submission.created.</SummaryItem>
   <SummaryItem label="Main trap">A reschedule fires a cancellation and a new booking. Check the rescheduled flag before you close a deal as cancelled.</SummaryItem>
-  <SummaryItem label="Customermates">REST API and webhooks on every plan. On Pro and higher in Customermates Cloud, the booked meeting also arrives through the host's connected Google or Outlook calendar.</SummaryItem>
+  <SummaryItem label="Customermates">REST API on every plan, webhooks on every paid plan. On Pro and higher in Customermates Cloud, the booked meeting also arrives through the host's connected Google or Outlook calendar.</SummaryItem>
 </ArticleSummary>
 
 ## What Calendly's native CRM integrations do
@@ -139,6 +139,8 @@ Calendly runs an MCP server at `https://mcp.calendly.com/` with tools that list 
 
 - **Webhook route on Starter:** [[commercial.price.starter.monthly.seats.3]] per month for Customermates, plus a Calendly plan that includes webhooks and wherever n8n runs.
 - **Calendar route on Pro:** [[commercial.price.pro.monthly.seats.3]] per month. That includes the [unified inbox](/features/unified-inbox) and [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user. Routine runs draw on the monthly hosted AI credits per active user; see [pricing](/pricing).
+
+A booking is where follow-up starts. With the calendar route on Pro, a routine you set up can put the booked meeting on the client record beside their email and LinkedIn threads, and Mate can draft the confirmation or the prep note for you to review and send, with the next step dated on the deal. To try it on your own Calendly bookings, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 <AcquisitionCallout title="Where Customermates is not the right fit" variant="boundary">
 There is no Calendly connector, so every route needs either a workflow you run or the calendar plus a routine. On Pro, the Gmail or Outlook mailbox is the user's [[commercial.entitlement.pro.includedAccountsPerUser]] included connected account; Business includes [[commercial.entitlement.business.includedAccountsPerUser]]. Tasks have no due dates or reminders, so put the follow-up date in a date field on the deal. Customermates does no lead scoring; store routing-form answers in single choice fields and filter by them. A self-hosted installation has REST, webhooks and MCP, but no calendar, inbox, Mate or routines. If you want Calendly to pick the host from the CRM owner at the moment of booking, that is a Calendly feature for HubSpot and Salesforce.

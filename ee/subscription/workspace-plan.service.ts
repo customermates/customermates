@@ -2,7 +2,7 @@ import type { WorkspacePlanRepo } from "./workspace-plan.repo";
 
 import { env } from "@/env";
 
-import { isAwaitingFirstPlan, isSubscriptionExpired } from "./entitlements";
+import { isAwaitingFirstPlan, isSubscriptionLocked } from "./entitlements";
 
 export class WorkspacePlanService {
   constructor(private readonly repo: WorkspacePlanRepo) {}
@@ -18,6 +18,6 @@ export class WorkspacePlanService {
     if (env.APP_MODE !== "cloud") return true;
 
     const plan = await this.repo.findWorkspacePlanUnscoped(companyId);
-    return plan !== null && !isSubscriptionExpired(plan);
+    return plan !== null && !isSubscriptionLocked(plan);
   }
 }

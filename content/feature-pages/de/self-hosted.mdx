@@ -25,12 +25,12 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Möchten Sie Self-Hosting prüfen?
-    description: Prüfen Sie Deployment-Anforderungen und Produktgrenzen, bevor Sie das CRM auf Ihrer Infrastruktur betreiben.
-    buttonLeftText: Setup-Anleitung lesen
-    buttonLeftHref: /docs/self-hosting
-    buttonRightText: Quellcode ansehen
-    buttonRightHref: https://github.com/customermates/customermates
+    action: "Auch LinkedIn und E-Mail nachfassen? Testen Sie zuerst die Cloud"
+    description: "Self-Hosting umfasst Kundendatensätze, REST, Webhooks und MCP. Für LinkedIn- und E-Mail-Gespräche beim Kunden und die Antwortentwürfe von Mate testen Sie Customermates Cloud [[commercial.trial.days]] Tage kostenlos auf Pro, ohne Kreditkarte. Der Self-Hosted-Weg bleibt offen."
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: "Setup-Anleitung lesen"
+    buttonRightHref: /docs/self-hosting
     hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
   relatedHrefs:
     - /docs/self-hosting
@@ -42,9 +42,9 @@ acquisition:
     locale: de
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "Self-Hosted CRM mit Docker und PostgreSQL"
-      body: "Betreiben Sie die Customermates-Anwendung und PostgreSQL auf Ihrer Infrastruktur. Die Self-Hosted-Edition enthält das Kern-CRM und MCP, aber nicht den gehosteten Posteingang oder Mate."
-      checksum: fnv1a-bd5d4e92
+      headline: "Self-Hosted CRM: Kundendaten und nächste Schritte auf Ihren eigenen Servern"
+      body: "Betreiben Sie die Customermates-Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit MCP für Ihren eigenen KI-Client. Der Posteingang für LinkedIn- und E-Mail-Gespräche und die Antwortentwürfe von Mate brauchen Customermates Cloud."
+      checksum: fnv1a-747727dd
     kind: brand-illustration
     pathway: converge
     placements:
@@ -84,45 +84,59 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "So prüfen Sie das Deployment"
+    items:
+      - title: "Deployment prüfen"
+        description: "Lesen Sie die Self-Hosting-Anleitung und prüfen Sie die aktuelle Compose-Datei im Repository."
+      - title: "Editionsgrenze prüfen"
+        description: "Stellen Sie sicher, dass der Funktionsumfang von Starter die benötigten Datensätze, Ansichten und Schnittstellen abdecken."
+      - title: "Externe Dienste erfassen"
+        description: "Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und KI-Anbieter sowie deren Datenzugriff auf."
+      - title: "Betrieb entwerfen"
+        description: "Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS, Monitoring und Zugriffskontrollen."
+      - title: "Ohne Kundendaten testen"
+        description: "Prüfen Sie den vollständigen Ablauf in einer Nicht-Produktionsumgebung, bevor echte Datensätze verarbeitet werden."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-configure
+    items:
+      - title: "Auf Ihrer Infrastruktur"
+        description: "Customermates-Anwendung und PostgreSQL 16 laufen als zwei Dienste im versionierten Docker-Compose-Deployment."
+      - title: "Enthaltener Umfang"
+        description: "Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP im Funktionsumfang von Starter."
+      - title: "Ihr Betrieb"
+        description: "Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring und konfigurierte externe Anbieter."
+      - title: "Cloud-Grenze"
+        description: "Messaging, einheitlicher Posteingang, verbundener Kalender, gehostetes Mate und KI-Credits bleiben außerhalb des Self-Hostings."
+
 hero:
-  title: Self-Hosted CRM mit Docker und PostgreSQL
-  description: Betreiben Sie die Customermates-Anwendung und PostgreSQL auf Ihrer Infrastruktur. Die Self-Hosted-Edition enthält das Kern-CRM und MCP, aber nicht den gehosteten Posteingang oder Mate.
-  buttonLeftText: Setup-Anleitung lesen
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: Quellcode ansehen
-  buttonRightHref: https://github.com/customermates/customermates
+  title: "Self-Hosted CRM: Kundendaten und nächste Schritte auf Ihren eigenen Servern"
+  description: "Betreiben Sie die Customermates-Anwendung und PostgreSQL auf Ihrer Infrastruktur, mit MCP für Ihren eigenen KI-Client. Der Posteingang für LinkedIn- und E-Mail-Gespräche und die Antwortentwürfe von Mate brauchen Customermates Cloud."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Setup-Anleitung lesen"
+  buttonRightHref: /docs/self-hosting
   hint: "AGPL-Kern • Docker Compose • PostgreSQL 16"
 
 cta:
-  action: Möchten Sie Self-Hosting prüfen?
-  description: Prüfen Sie Deployment-Anforderungen und Produktgrenzen, bevor Sie das CRM auf Ihrer Infrastruktur betreiben.
-  buttonLeftText: Setup-Anleitung lesen
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: Quellcode ansehen
-  buttonRightHref: https://github.com/customermates/customermates
+  action: "Auch LinkedIn und E-Mail nachfassen? Testen Sie zuerst die Cloud"
+  description: "Self-Hosting umfasst Kundendatensätze, REST, Webhooks und MCP. Für LinkedIn- und E-Mail-Gespräche beim Kunden und die Antwortentwürfe von Mate testen Sie Customermates Cloud [[commercial.trial.days]] Tage kostenlos auf Pro, ohne Kreditkarte. Der Self-Hosted-Weg bleibt offen."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Setup-Anleitung lesen"
+  buttonRightHref: /docs/self-hosting
   hint: "Der Betreiber ist für Infrastruktur, Updates, Backups und eingebundene Drittanbieter verantwortlich."
 ---
 
 Customermates ist ein **selbst gehostetes CRM**, das aus zwei Docker-Compose-Diensten besteht: der Anwendung und PostgreSQL 16. Es passt zu Teams, die ihre CRM-Infrastruktur selbst betreiben und einen quelloffenen Kern nutzen möchten. Es ist nicht die Self-Hosted-Ausgabe sämtlicher Customermates-Cloud-Funktionen.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Auf Ihrer Infrastruktur">
-    Customermates-Anwendung und PostgreSQL 16 laufen als zwei Dienste im
-    versionierten Docker-Compose-Deployment.
-  </SummaryItem>
-  <SummaryItem label="Enthaltener Umfang">
-    Kern-CRM, eigene Felder und Ansichten, REST, Webhooks und MCP im
-    Funktionsumfang von Starter.
-  </SummaryItem>
-  <SummaryItem label="Ihr Betrieb">
-    Netzwerkzugriff, TLS, Updates, Backups, Wiederherstellungstests, Monitoring
-    und konfigurierte externe Anbieter.
-  </SummaryItem>
-  <SummaryItem label="Cloud-Grenze">
-    Messaging, einheitlicher Posteingang, verbundener Kalender, gehostetes Mate
-    und KI-Credits bleiben außerhalb des Self-Hostings.
-  </SummaryItem>
-</ArticleSummary>
+Ein selbst gehostetes CRM läuft auf Servern, die Sie kontrollieren, statt in der Cloud des Anbieters: Sie entscheiden, wo Anwendung und Datenbank liegen, und übernehmen Updates, Backups und Sicherheit. Ob der Code Open Source ist, ist eine eigene Frage der Lizenzrechte, die der [Leitfaden zum Open-Source-CRM](/blog/open-source-crm) behandelt. Diese Seite behandelt die betriebliche Seite für Customermates.
+
+**Wo das Nachfassen hineinpasst.** Self-Hosting hält Kundendatensätze, Termine für nächste Schritte, Dashboards und MCP auf Ihren eigenen Servern, sodass Ihr eigener KI-Client sie lesen und aktualisieren kann. Es gibt dort nicht den Posteingang, der LinkedIn- und E-Mail-Gespräche beim Kunden ablegt, und nicht Mate, das die Antworten entwirft. Wenn Sie das CRM vor allem für entworfene Nachfass-Nachrichten wollen, starten Sie in Customermates Cloud; Self-Hosting passt besser, wenn die Kontrolle darüber, wo die Daten laufen, wichtiger ist.
 
 <ProofRail label="Fakten zum Self-Hosted CRM">
   <ProofItem label="Deployment">Docker Compose</ProofItem>
@@ -193,31 +207,6 @@ Wenn Sie Customermates zuerst ohne eigenen Server ausprobieren möchten, zeigt d
 
 Datensätze wechseln zwischen Installationen oder aus einem anderen CRM als XLSX-Arbeitsmappen (jeweils ein Datensatztyp, innerhalb der Zeilenlimits) oder über die REST-API, über die sich auch Dateien in Felder vom Typ Datei hochladen lassen. Ein XLSX-Import übernimmt keine Anhänge, und eine vollständige Kontoübertragung gibt es nicht. Planen Sie einen größeren Umzug daher als Migrationsprojekt, das Sie selbst prüfen.
 
-## So prüfen Sie das Deployment
-
-<Steps>
-  <Step title="Deployment prüfen">
-    Lesen Sie die [Self-Hosting-Anleitung](/docs/self-hosting) und prüfen Sie
-    die aktuelle Compose-Datei im Repository.
-  </Step>
-  <Step title="Editionsgrenze prüfen">
-    Stellen Sie sicher, dass der Funktionsumfang von Starter die benötigten Datensätze,
-    Ansichten und Schnittstellen abdecken.
-  </Step>
-  <Step title="Externe Dienste erfassen">
-    Listen Sie alle geplanten SMTP-, OAuth-, Monitoring-, Workflow- und
-    KI-Anbieter sowie deren Datenzugriff auf.
-  </Step>
-  <Step title="Betrieb entwerfen">
-    Definieren Sie Backups, getestete Wiederherstellung, Updates, TLS,
-    Monitoring und Zugriffskontrollen.
-  </Step>
-  <Step title="Ohne Kundendaten testen">
-    Prüfen Sie den vollständigen Ablauf in einer Nicht-Produktionsumgebung,
-    bevor echte Datensätze verarbeitet werden.
-  </Step>
-</Steps>
-
 ## Häufig gestellte Fragen
 
 <Faq>
@@ -233,7 +222,8 @@ Der von Customermates selbst entwickelte Code außerhalb von `ee/` steht ausschl
 
 <FaqItem question="Kann ich KI mit dem selbst gehosteten CRM nutzen?">
   Ja, über [MCP](/docs/mcp) sowie einen externen KI-Client und Anbieter, den Sie
-  auswählen und bezahlen. Der cloudbasierte Mate-Assistent und gehostete
+  auswählen und bezahlen, zum Beispiel Claude wie im [Claude-CRM-Leitfaden](/blog/claude-crm)
+  beschrieben. Der cloudbasierte Mate-Assistent und gehostete
   KI-Credits gehören nicht zum Self-Hosting.
 </FaqItem>
 

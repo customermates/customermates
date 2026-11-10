@@ -34,7 +34,7 @@ Ce guide dit ce qu’un carnet d’adresses professionnel doit contenir, compare
   <SummaryItem label="La plupart des gens">L’application Contacts de votre téléphone, synchronisée par votre compte Apple ou Google. Elle est déjà installée, et un second système vaut rarement l’effort.</SummaryItem>
   <SummaryItem label="Vos propres colonnes">Un tableur ou un modèle Notion, quand vous voulez des champs que votre téléphone ne propose pas et que vous êtes seul à modifier.</SummaryItem>
   <SummaryItem label="Un CRM">Quand les personnes sont des clients, des prospects ou des partenaires et qu’il vous faut des notes, des dates de prochaine action et des conversations par personne, partagées avec une équipe.</SummaryItem>
-  <SummaryItem label="Customermates">Listes configurables, un champ Coordonnées pour téléphones, e-mails et profils sociaux, notes, dates et import Excel ou CSV. Pas d’application mobile, pas de synchronisation avec les carnets d’adresses, pas de lecture de cartes de visite. Cloud à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois, essai de [[commercial.trial.days]] jours, auto-hébergement possible.</SummaryItem>
+  <SummaryItem label="Customermates">Listes configurables, un champ Coordonnées pour téléphones, e-mails et profils sociaux, notes, dates et import Excel ou CSV. Pas d’application mobile, pas de synchronisation avec les carnets d’adresses, pas de lecture de cartes de visite. Gratuit pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, formules payantes à partir de [[commercial.price.starter.monthly]] par utilisateur et par mois, essai de [[commercial.trial.days]] jours sur Pro, auto-hébergement possible.</SummaryItem>
   <SummaryItem label="Transparence">Customermates publie ce guide. Les autres options sont décrites selon leur adéquation, sans classement.</SummaryItem>
 </ArticleSummary>
 
@@ -80,7 +80,7 @@ Le meilleur logiciel gratuit est souvent celui que vous avez déjà : l’appli
 | Tableur (Excel, Google Sheets) | Le logiciel que vous utilisez déjà | Un fichier partagé ; les copies divergent quand plusieurs personnes modifient | Les colonnes que vous ajoutez ; l’historique, c’est ce que vous écrivez dans les cellules | Fichiers CSV et classeurs, en entrée et en sortie |
 | Modèle Notion | Gratuit pour une personne ; une équipe sur la formule Free a un nombre limité de blocs puis passe à une formule payante par membre | Partage de pages avec d’autres membres | Notes et propriétés selon le modèle | Dépend du modèle ; testez un export avant |
 | Application de suivi relationnel (Dex) | Abonnement payant | Conçue pour le réseau d’une personne ; Dex indique aussi une formule Team | Notes, champs personnalisés, groupes, rappels, historique des interactions | Récupère des contacts depuis e-mail, agenda, LinkedIn, WhatsApp et contacts du téléphone |
-| CRM d’entreprise (Customermates) | Cloud par utilisateur et par mois, facturé mensuellement ; cœur auto-hébergé sans frais de licence | Tout l’espace de travail travaille sur les mêmes fiches, les rôles décident qui voit quelle liste | Notes, entreprises liées, dates, fichiers ; conversations à partir de Pro | Import depuis Excel, CSV ou JSON ; export en Excel ou JSON |
+| CRM d’entreprise (Customermates) | Gratuit pour une personne avec une limite d’enregistrements ; formules cloud payantes par utilisateur et par mois, facturées mensuellement ; cœur auto-hébergé sans frais de licence | Tout l’espace de travail travaille sur les mêmes fiches, les rôles décident qui voit quelle liste | Notes, entreprises liées, dates, fichiers ; conversations à partir de Pro | Import depuis Excel, CSV ou JSON ; export en Excel ou JSON |
 
 Google indique deux limites pour Google Contacts : ne pas importer plus de 3 000 contacts à la fois, et un maximum de 25 000 contacts. Notion décrit sur sa page de tarifs la formule Free comme celle des particuliers. Vérifié le 7 novembre 2026 sur [l’import Google Contacts](https://support.google.com/contacts/answer/15147365?hl=fr), [l’export Google Contacts](https://support.google.com/contacts/answer/7199294?hl=fr), [les libellés Google Contacts](https://support.google.com/contacts/answer/30970?hl=fr), [les tarifs Notion](https://www.notion.com/fr/pricing) et [Dex](https://getdex.com/).
 
@@ -113,7 +113,7 @@ Un CRM en fait plus que nécessaire quand :
 
 - vous êtes seul et que la liste se limite à des noms, des numéros et des e-mails ;
 - vous consultez surtout vos contacts sur le téléphone, car Customermates n’a pas d’application native ;
-- vous voulez des alertes d’anniversaire ou de prise de nouvelles, car Customermates n’envoie pas de rappels ;
+- vous voulez des alertes d’anniversaire ou de prise de nouvelles, car Customermates n’a pas de rappels intégrés ;
 - la liste est ponctuelle, par exemple des invités de mariage ou une association, et non une relation durable.
 
 Le carnet du téléphone est devenu trop petit quand :
@@ -131,16 +131,20 @@ Customermates est un CRM open source et IA native, conçu en Allemagne. Un nouve
 
 - **Coordonnées :** ce champ contient plusieurs numéros de téléphone, adresses e-mail et profils sociaux par personne. La recherche retrouve une personne par n’importe lequel, et un numéro de téléphone saisi ici peut être appelé.
 - **Notes, dates et groupes :** ajoutez un champ Texte enrichi pour les notes, un champ Date comme Prochaine prise de nouvelles et un champ Choix multiple pour les groupes. Customermates n’a pas d’étiquettes sur les fiches ; un champ à choix multiple en tient lieu.
-- **Qui est à relancer :** enregistrez une vue triée par Prochaine prise de nouvelles, et une vue dont le filtre Mis à jour le est Plus ancien que… 90 jours pour les personnes sans nouvelles. Une liste avec un champ Date s’affiche aussi en calendrier.
+- **Qui est à relancer :** enregistrez une vue triée par Prochaine prise de nouvelles, et une vue dont le filtre Mis à jour le est Plus ancien que… 90 jours pour les personnes sans nouvelles. Partagez une vue avec l’équipe depuis son menu **Partager…**, ou gardez-la pour vous. Le widget **À venir** du tableau de bord liste qui est à relancer dans les prochains jours et qui est en retard. Une liste avec un champ Date s’affiche aussi en calendrier.
 - **Adresses postales :** un champ Adresse est vérifié selon le format d’adresse du pays à l’enregistrement. Le cloud n’a pas de recherche d’adresse, vous saisissez donc l’adresse vous-même.
-- **Conversations (à partir de Pro, cloud) :** les conversations d’un compte e-mail ou LinkedIn connecté apparaissent sur la fiche de la personne dans la [boîte de réception unifiée](/features/unified-inbox) quand son adresse ou son profil correspond.
+- **Conversations (à partir de Pro, cloud) :** les conversations d’un compte e-mail, LinkedIn, WhatsApp, Instagram ou Telegram connecté apparaissent sur la fiche de la personne dans la [boîte de réception unifiée](/features/unified-inbox) quand son adresse, son numéro ou son profil correspond.
 - **Entrer et sortir :** import Excel ou CSV, export Excel ou JSON. Le [CRM personnel](/for/personal) montre à quoi ressemble tout un réseau dans Customermates.
 
-Le cloud n’a pas de formule gratuite. Il commence par un essai de [[commercial.trial.days]] jours avec le périmètre de Pro, puis les formules démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturé mensuellement ; toutes les formules figurent sur la [page des tarifs](/pricing). Le cœur open source peut être [auto-hébergé](/features/self-hosted) sans frais de licence, sans boîte de réception unifiée ni Mate.
+Un carnet d’adresses dit qui est une personne. La relance commence quand elle répond : un contact rencontré le mois dernier répond sur LinkedIn, et la réponse demande une date. Dans Customermates Cloud, à partir de Pro, vous connectez LinkedIn et l’e-mail, la conversation se range sur la fiche de la personne, Mate ou votre propre agent IA rédige la réponse et la prochaine étape, et vous relisez, modifiez et envoyez. La prochaine étape apparaît sur votre tableau de bord : un nom dans votre liste devient une conversation que vous entretenez.
+
+Le cloud a une formule Free pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, ni Mate, ni routines. Votre premier espace de travail commence par un essai de [[commercial.trial.days]] jours avec le périmètre de Pro, puis passe à Free si vous ne choisissez pas de formule payante, et chaque espace de travail suivant commence par le choix d’une formule ; les formules payantes démarrent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturé mensuellement ; toutes les formules figurent sur la [page des tarifs](/pricing). Le cœur open source peut être [auto-hébergé](/features/self-hosted) sans frais de licence, sans boîte de réception unifiée ni Mate.
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon carnet d’adresses" variant="boundary">
-  Il n’y a ni application native pour iPhone ou Android, ni synchronisation avec les carnets d’adresses du téléphone, de Google ou d’Outlook : il ne remplace donc pas l’application Contacts de votre téléphone. Il ne lit pas les cartes de visite, n’envoie ni rappels ni alertes d’anniversaire et n’a pas de fonction de fusion ; une même adresse e-mail peut appartenir à plusieurs fiches, cherchez donc avant d’ajouter quelqu’un. Si un carnet d’adresses de téléphone ou un tableur fait l’affaire, utilisez-le. Pour des rappels sur le téléphone, regardez une application de suivi relationnel.
+  Il n’y a ni application native pour iPhone ou Android, ni synchronisation avec les carnets d’adresses du téléphone, de Google ou d’Outlook : il ne remplace donc pas l’application Contacts de votre téléphone. Il ne lit pas les cartes de visite, n’a ni rappels intégrés ni alertes d’anniversaire et pas de fonction de fusion ; une même adresse e-mail peut appartenir à plusieurs fiches, cherchez donc avant d’ajouter quelqu’un. Si un carnet d’adresses de téléphone ou un tableur fait l’affaire, utilisez-le. Pour des rappels sur le téléphone, regardez une application de suivi relationnel.
 </AcquisitionCallout>
+
+Pour l’essayer avec vos propres contacts, [lancez votre essai de [[commercial.trial.days]] jours](/auth/signup?job=followup) : Pro, sans carte bancaire. Importez d’abord dix lignes, puis connectez un canal.
 
 ## Questions fréquentes sur le carnet d’adresses numérique
 
@@ -149,7 +153,7 @@ Le cloud n’a pas de formule gratuite. Il commence par un essai de [[commercial
 Un carnet d’adresses consultable dans une application ou un fichier : noms, entreprises, coordonnées et notes, retrouvables par n’importe quel détail. Il remplit le rôle de l’ancien fichier rotatif, avec recherche, synchronisation et sauvegarde.
 </FaqItem>
 <FaqItem question="Existe-t-il un carnet d’adresses gratuit ?">
-Oui. L’application Contacts de votre téléphone et Google Contacts sont fournies avec l’appareil et le compte. Un tableur fonctionne aussi, et un espace Notion est gratuit pour une personne. Customermates Cloud n’a pas de formule gratuite, seulement un essai de [[commercial.trial.days]] jours, et son cœur auto-hébergé n’a pas de frais de licence.
+Oui. L’application Contacts de votre téléphone et Google Contacts sont fournies avec l’appareil et le compte. Un tableur fonctionne aussi, et un espace Notion est gratuit pour une personne. Customermates Cloud a une formule Free pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, et son cœur auto-hébergé n’a pas de frais de licence.
 </FaqItem>
 <FaqItem question="Que veut dire Rolodex ?">
 C’est le nom de marque d’un fichier de fiches rotatif, un mot-valise formé de « rolling » et « index », breveté pour la première fois en 1956 selon la Columbia Journalism Review. Rolodex reste une marque.

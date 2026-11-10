@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/workflow-automation
 
+sections:
+  visual:
+    kind: film
+  steps:
+    items:
+      - title: "Adjust the stages"
+        description: "In Configure, open Deals and the Stage field. Rename the options to match how you sell, for example \"Discovery call\" and \"Proposal sent\", and check each option's Probability %."
+      - title: "Import what you already have"
+        description: "Use Add from file with an Excel workbook or a CSV file, one record type at a time: organizations first, then contacts, then deals. Link columns are matched by record name, so an organization must exist before a deal can point to it."
+      - title: "Save two views"
+        description: "\"My open deals\": Assigned is you, Stage is not Won or Lost, sorted by value, shown as a board. \"Closing soon\": a filter on Expected close, shown as a table."
+      - title: "Connect your inbox (Pro and higher)"
+        description: "Under Settings › Channels, connect the mailbox or LinkedIn account you sell from."
+  highlights:
+    title: "At a glance"
+    capture: homepage-pipeline
+    items:
+      - title: "What you get"
+        description: "Deals linked to contacts, organizations, services and tasks, a stage board, a weighted pipeline, saved views you can share and dashboard charts."
+      - title: "Plans"
+        description: "Pipeline and dashboards from Starter at [[commercial.price.starter.monthly]] per user per month. The unified inbox starts on Pro at [[commercial.price.pro.monthly]]."
+      - title: "AI"
+        description: "In Customermates Cloud, Mate prepares summaries, reply drafts and deal updates using hosted AI credits. Your own AI client works on every plan through MCP."
+      - title: "Not included"
+        description: "No sequences or mass email, no telephony, no lead scoring, no quotes or invoices, no predictive forecasting and no mobile app."
+
 hero:
-  title: Sales CRM software for small teams that sell through relationships
-  description: Keep every open deal, the people involved and the latest conversation in one place. Customermates lays out your pipeline by stage, weights it by win probability and, on Pro and higher, shows the client's emails and LinkedIn or WhatsApp messages on the contacts linked to each deal.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  title: "Sales CRM for small teams: every open deal with its next step"
+  description: "Every open deal, the people involved and the latest conversation in one place. From Pro, LinkedIn and email threads sit on the contact, and Mate drafts the follow-up for you to review and send."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
   action: Set up your pipeline during the trial
-  description: Rename the stages, check their win probabilities and import your open deals from an Excel workbook. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  description: "Rename the stages, import your open deals and connect LinkedIn or email, so every deal has its conversation next to it. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -32,13 +58,6 @@ Sales CRM software is where a team records every open deal with its value, its s
 
 It is not an outbound machine. If your team books meetings by volume, the table of alternatives further down is the more useful part of this page.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="What you get">Deals linked to contacts, organizations, services and tasks, a stage board, a weighted pipeline, saved views you can share and dashboard charts.</SummaryItem>
-  <SummaryItem label="Plans">Pipeline and dashboards from Starter at [[commercial.price.starter.monthly]] per user per month. The unified inbox starts on Pro at [[commercial.price.pro.monthly]].</SummaryItem>
-  <SummaryItem label="AI">In Customermates Cloud, Mate prepares summaries, reply drafts and deal updates using hosted AI credits. Your own AI client works on every plan through MCP.</SummaryItem>
-  <SummaryItem label="Not included">No sequences or mass email, no telephony, no lead scoring, no quotes or invoices, no predictive forecasting and no mobile app.</SummaryItem>
-</ArticleSummary>
-
 ## What the sales side of Customermates does
 
 **Deals and their value.** A deal links to contacts, organizations, assigned users, tasks and, through its line items, the services you sell. Its value is calculated rather than typed: the sum of its line items, each a service times its quantity. Two workshop days at 1,500 plus ten coaching hours at 150 give a deal value of 4,500.
@@ -47,9 +66,9 @@ It is not an outbound machine. If your team books meetings by volume, the table 
 
 **The board.** Switch the deals list to the board, grouped by Stage, and drag a card to move a deal. Each column header shows the number of deals and the sums you choose for the grouping, such as **Value** and **Weighted value**. Group the same board by **Assigned** and every person gets a column with their own count and totals; that board is read-only. The [pipeline page](/features/pipeline) shows the board in more detail.
 
-**Saved views.** Filters, sort, grouping and layout save together as a named view, such as "My open deals by value". A view stays private until you share it, so each colleague can save the same filters as their own view, or you share one view with the team.
+**Saved views.** Filters, sort, grouping and layout save together as a named view, such as "My open deals by value". Share a view with the whole team or with selected roles and everyone works from the same filters; each person still sees only the records their role allows.
 
-**Dashboard charts.** A chart counts deals or sums **Value** or **Weighted value**, grouped by a field such as Stage or Lead source. Charts belong to the person who made them, and **Share as a template** lets teammates start their own copy.
+**Dashboard charts.** A chart counts deals or sums **Value** or **Weighted value**, grouped by a field such as Stage or Lead source. Charts belong to the person who made them. Share a named dashboard view with the team to show everyone the same charts, or use **Share as a template** so teammates start their own copy.
 
 **Conversations on the contact (Pro and higher).** Connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram in the [unified inbox](/features/unified-inbox). Once a contact carries the email address or handle, every conversation with it shows on that contact's timeline. Messages link to contacts, and a single conversation can also be linked to a deal; from a deal the latest conversation is one click away, on the linked contact.
 
@@ -64,7 +83,7 @@ It is not an outbound machine. If your team books meetings by volume, the table 
 | Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts and one team-wide timeline across every channel | [[commercial.price.business.monthly]] per user per month |
 | Self-hosted | The Starter feature set on your own server, without inbox, Mate or routines | No licence fee; you pay for your own infrastructure |
 
-Billing is monthly. Each Cloud plan includes monthly hosted AI credits per active user for Mate; the [pricing page](/pricing) lists the amounts.
+Billing is monthly. Each paid Cloud plan includes monthly hosted AI credits per active user for Mate; the [pricing page](/pricing) lists the amounts.
 
 ## Set up a sales pipeline in Customermates
 
@@ -116,7 +135,7 @@ Customermates publishes this page. Vendor details were checked on 8 October 2026
 | Web forms, lead scoring, enrichment | Not available. Send form entries in through the REST API. | Pipedrive Premium, which includes LeadBooster with web forms, and custom scoring and enrichment |
 | Calls from the CRM | No telephony or SMS | A CRM with a built-in dialer |
 | Quotes and invoices | Not available | Your invoicing tool |
-| A free plan | No free Cloud plan; a [[commercial.trial.days]]-day trial, or self-hosting without a licence fee | HubSpot Sales Hub Free for up to 2 users; Zoho CRM Free edition for up to 3 users |
+| A free plan | Free Cloud plan for [[commercial.limit.free.maxMembers]] person, without the inbox or Mate; a [[commercial.trial.days]]-day Pro trial, or self-hosting without a licence fee | HubSpot Sales Hub Free for up to 2 users; Zoho CRM Free edition for up to 3 users |
 | An app on the phone | No native mobile app; Customermates runs in the browser | A CRM with native iOS and Android apps |
 
 Tasks have no due dates or reminders either. Put a date field on the deal and keep a saved view of what is due, as described under [follow-ups](/features/follow-up).
@@ -149,7 +168,7 @@ No, not in the predictive sense. It calculates a weighted pipeline: each deal's 
 </FaqItem>
 
 <FaqItem question="Is there a free version?">
-There is no free Cloud plan. You can try Customermates Cloud for [[commercial.trial.days]] days without a credit card. [Self-hosting](/features/self-hosted) the open-source core has no licence fee: it runs the Starter feature set on your own server, without the inbox, Mate or routines.
+Yes. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Your first workspace starts with Pro for [[commercial.trial.days]] days without a credit card; every further workspace starts by choosing a plan. [Self-hosting](/features/self-hosted) the open-source core has no licence fee: it runs the Starter feature set on your own server, without the inbox, Mate or routines.
 </FaqItem>
 
 <FaqItem question="Can I see each salesperson's pipeline?">

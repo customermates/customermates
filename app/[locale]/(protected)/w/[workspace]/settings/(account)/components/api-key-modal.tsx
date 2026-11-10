@@ -242,7 +242,7 @@ export const ApiKeyModal = observer(() => {
                 ) : null}
               </div>
             ) : createdKey ? (
-              <Alert hideIcon className="mb-4" color="success">
+              <Alert hideIcon className="mb-4" variant="success">
                 <div className="flex flex-col gap-2">
                   <p className="text-x-md">{t("ApiKeyModal.keyCreated")}</p>
 

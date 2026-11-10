@@ -30,6 +30,7 @@ export type PublicNavPreview = {
 
 type PublicNavLinkBase = {
   activeMatch?: boolean;
+  description?: string;
   footer?: boolean;
   href: string;
   preview?: PublicNavPreview;
@@ -288,6 +289,40 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
     );
   }
 
+  function renderRichLink(group: PublicNavGroup, link: PublicNavLink, expanded: boolean) {
+    const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
+    const LinkIcon = link.icon;
+
+    return (
+      <AppLink
+        appearance="unstyled"
+        aria-current={linkActive ? "page" : undefined}
+        className={cn(
+          "group/link flex items-start gap-3 rounded-lg p-2.5 outline-none transition-colors duration-150 hover:bg-foreground/[0.04] focus-visible:bg-foreground/[0.04] motion-reduce:transition-none",
+          linkActive && "bg-foreground/[0.04]",
+        )}
+        data-public-nav-link={link.href}
+        href={link.href}
+        tabIndex={expanded ? undefined : -1}
+        onKeyDown={(event) => handlePanelLinkKeyDown(event, group.id)}
+        onNavigate={navigate}
+      >
+        <span
+          aria-hidden
+          className="grid size-8 shrink-0 place-items-center rounded-lg bg-background text-subdued shadow-[0_0_0_1px_color-mix(in_oklab,var(--foreground)_9%,transparent)] transition-[color,box-shadow] duration-150 group-hover/link:text-foreground group-hover/link:shadow-[0_0_0_1px_color-mix(in_oklab,var(--foreground)_18%,transparent),0_6px_14px_-8px_rgb(0_0_0/0.3)] motion-reduce:transition-none"
+        >
+          {LinkIcon ? <LinkIcon className="size-4" strokeWidth={1.75} /> : null}
+        </span>
+
+        <span className="grid min-w-0 gap-1 pt-0.5">
+          <span className="truncate text-[13px] leading-4 font-medium text-foreground">{link.title}</span>
+
+          <span className="line-clamp-2 text-xs leading-4 text-muted-foreground">{link.description}</span>
+        </span>
+      </AppLink>
+    );
+  }
+
   function renderLinkList(
     group: PublicNavGroup,
     links: PublicNavLink[],
@@ -307,6 +342,31 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
   }
 
   function renderGridPanel(group: PublicNavGroup, expanded: boolean) {
+    const richLinks = group.links.filter((link) => link.description);
+
+    if (richLinks.length > 0) {
+      return (
+        <div>
+          <ul className="grid grid-cols-2 gap-1">
+            {richLinks.map((link) => (
+              <li key={link.href} className="min-w-0">
+                {renderRichLink(group, link, expanded)}
+              </li>
+            ))}
+          </ul>
+
+          <div data-public-nav-footer className="mt-1.5 border-t border-border pt-1.5">
+            {renderLinkList(
+              group,
+              group.links.filter((link) => !link.description),
+              expanded,
+              group.columns === 3 ? "grid-cols-3 gap-x-1" : "grid-cols-2 gap-x-1",
+            )}
+          </div>
+        </div>
+      );
+    }
+
     return renderLinkList(
       group,
       group.links,

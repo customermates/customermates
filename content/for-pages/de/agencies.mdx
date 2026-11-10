@@ -1,6 +1,6 @@
 ---
-title: "CRM für Agenturen: Pitches und Kunden im Blick"
-description: "CRM für Agenturen: Anfragen, Pitches, Retainer und Kundengespräche in einem konfigurierbaren Workspace verfolgen. Sehen Sie sich einen Beispiel-Workspace an."
+title: "CRM für Agenturen: Kunden sauber an die Umsetzung übergeben"
+description: "CRM für Agenturen mit 2 bis 10 Personen: Pitches, Retainer und Kundengespräche an einem Ort, geteilter Posteingang in Business, ein Workspace pro Kunde."
 industryName: Agenturen
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: CRM für Agenturen
   metadata:
-    title: "CRM für Agenturen: Pitches und Kunden im Blick"
-    description: "CRM für Agenturen: Anfragen, Pitches, Retainer und Kundengespräche in einem konfigurierbaren Workspace verfolgen. Sehen Sie sich einen Beispiel-Workspace an."
+    title: "CRM für Agenturen: Kunden sauber an die Umsetzung übergeben"
+    description: "CRM für Agenturen mit 2 bis 10 Personen: Pitches, Retainer und Kundengespräche an einem Ort, geteilter Posteingang in Business, ein Workspace pro Kunde."
   proof:
     factReferences:
       - product:core-crm-records
@@ -27,10 +27,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-time-tracking
   cta:
-    action: Erst das Pitch-Board ansehen, dann den eigenen Workspace aufbauen
-    description: Sehen Sie sich den Beispiel-Workspace für Agenturen mit Beispieldaten an, starten Sie dann die Testphase und bauen Sie Listen, die zu Ihrem Neugeschäft passen.
-    buttonLeftText: Pro-Testphase starten
-    buttonLeftHref: /auth/signup
+    action: Sehen Sie, wie ein unterschriebener Kunde an die Umsetzung übergeben wird
+    description: Sehen Sie sich den Beispiel-Workspace für Agenturen mit Beispieldaten an, starten Sie dann die Testphase und verbinden Sie ein erstes Kundengespräch.
+    buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Workspace ansehen
     buttonRightHref: https://demo.customermates.com/de/w/agenturen/dashboard
     hint: "Projektabwicklung, Angebote, Zeiterfassung und Abrechnung bleiben in Ihren Agentur-Tools."
@@ -44,9 +44,9 @@ acquisition:
     locale: de
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "CRM für Agenturen: Pitches und Kundenbeziehungen im Blick"
-      body: "Für Marketing-, Kreativ- und Digitalagenturen, die Kunden über Pitches und Beziehungen gewinnen. Sie verfolgen Anfragen, Briefings, Pitches und Retainer mit dem Kundenkontext daneben. Berechtigungen auf Feldebene gibt es nicht; Umsetzung, Abrechnung und Kampagnen bleiben in Ihren Agentur-Tools."
-      checksum: fnv1a-ef3440ab
+      headline: "CRM für Agenturen: jeden Pitch nachfassen, jeden Kunden übergeben"
+      body: "Pitches bleiben liegen, während Sie für andere Kunden liefern. Ab Pro liegen E-Mail- und LinkedIn-Verläufe beim Kunden, Mate entwirft die Antwort und den nächsten Schritt, und die Umsetzung sieht, was der Vertrieb zugesagt hat. Projektplanung und Abrechnung bleiben in Ihren Agentur-Tools."
+      checksum: fnv1a-66758973
     kind: brand-illustration
     pathway: focus
     placements:
@@ -89,26 +89,145 @@ acquisition:
     faqFromRenderedContent: true
 
 hero:
-  title: "CRM für Agenturen: Pitches und Kundenbeziehungen im Blick"
-  description: "Für Marketing-, Kreativ- und Digitalagenturen, die Kunden über Pitches und Beziehungen gewinnen. Sie verfolgen Anfragen, Briefings, Pitches und Retainer mit dem Kundenkontext daneben. Berechtigungen auf Feldebene gibt es nicht; Umsetzung, Abrechnung und Kampagnen bleiben in Ihren Agentur-Tools."
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  title: "CRM für Agenturen: jeden Pitch nachfassen, jeden Kunden übergeben"
+  description: "Pitches bleiben liegen, während Sie für andere Kunden liefern. Ab Pro liegen E-Mail- und LinkedIn-Verläufe beim Kunden, Mate entwirft die Antwort und den nächsten Schritt, und die Umsetzung sieht, was der Vertrieb zugesagt hat. Projektplanung und Abrechnung bleiben in Ihren Agentur-Tools."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/agenturen/dashboard
   hint: "Keine Kreditkarte • [[commercial.trial.days]] Tage Pro testen"
   showOpenSourceBadge: false
 
+landing:
+  hero:
+    eyebrow: Für Agenturen mit 2 bis 10 Personen und VA-Teams
+    title: Das CRM für Agenturen, das jeden Kunden vom Vertrieb an die Umsetzung übergibt.
+    description: Pitches, Retainer und Kundengespräche in einem Workspace. Wenn ein Kunde unterschreibt, sieht die Umsetzung, was der Vertrieb zugesagt hat, antwortet aus demselben gemeinsamen Posteingang und übernimmt den nächsten Schritt.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihre Projekttools bleiben · Business ab [[commercial.price.business.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihre Agentur, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Pitches, Retainer, Projekte und Ihren Übergabe-Leitfaden. Das ist das Agenturbeispiel; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir sind eine Designagentur. Verwalte Pitches, Retainer und Projekte und übergib jeden neuen Kunden vom Vertrieb an die Umsetzung.
+  followUp:
+    eyebrow: Ein neuer Kunde, sauber übergeben
+    title: Der Vertrieb hat einen Termin zugesagt. Die Umsetzung kennt ihn ab Tag eins.
+    description: Der E-Mail-Verlauf liegt beim Kunden. Mate entwirft die Begrüßung aus Ihrem Übergabe-Leitfaden und setzt den Kickoff auf die Liste der Projektleitung.
+    desk:
+      label: Szene zur Kundenübergabe in einer Agentur
+      workspace: Fjordline Studio
+      conversation:
+        label: E-Mail
+        name: Maren Koch
+        company: Bergkaffee
+        time: Do 17:05
+        message: Unterschrieben und zurückgeschickt. Wie mit Herrn Brandt besprochen, brauchen wir die ersten Entwürfe vor unserer Messe am 14. März. Wer ist ab jetzt unser Ansprechpartner?
+      agent:
+        name: Mate
+        intent: Entwirft eine Begrüßung aus Ihrem Übergabe-Leitfaden
+        done: Entwurf gespeichert. Kickoff steht in Leas nächsten Schritten.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Frau Koch, vielen Dank, schön, dass Sie dabei sind. Ab jetzt leitet Lea Sommer Ihr Projekt, der 14. März ist bei ihr notiert. Sie schickt Ihnen morgen Terminvorschläge für den Kickoff. Viele Grüße, Tom Brandt
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Freitag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Kickoff mit Bergkaffee
+                meta: Bergkaffee · heute fällig
+                owner: LS
+                state: added
+              - title: Retainer-Bericht senden
+                meta: Nordwerk · 1 Tag überfällig
+                owner: TB
+                state: overdue
+          - title: Antworten ohne Zuständige
+            items:
+              - title: Frage zur zweiten Pitch-Runde
+                meta: LinkedIn · Halden Hotels
+                state: reply
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, saubere Übergaben.
+    before:
+      label: Vorher
+      points:
+        - Zusagen aus dem Pitch stecken im Postfach einer Person
+        - Die Umsetzung fragt den Kunden, was schon vereinbart war
+        - Die Daten aller Kunden in einer einzigen Liste
+    after:
+      label: Mit Customermates
+      points:
+        - Gespräch und Zusage liegen beim Kunden
+        - Die Umsetzung antwortet in Business aus demselben gemeinsamen Posteingang
+        - Ein Workspace pro Kunde, wenn Sie für mehrere arbeiten
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zur ersten sauberen Übergabe.
+    items:
+      - title: Agentur beschreiben
+        description: Die KI-Einrichtung baut Kunden, Pitches, Retainer, Projekte und Ihren Übergabe-Leitfaden aus einer Beschreibung und ein paar Antworten.
+      - title: Posteingang verbinden und teilen
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Business teilen Sie ein ganzes verbundenes Konto mit dem Team.
+      - title: Mit dem nächsten Schritt übergeben
+        description: Mate entwirft die Antwort und terminiert den nächsten Schritt für die Person, die umsetzt. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Business deckt das Team ab. [[commercial.price.business.monthly]] pro Person und Monat.
+    description: Pro für [[commercial.price.pro.monthly]] umfasst ein verbundenes Konto pro Person. Business ergänzt das Teilen ganzer Konten, sodass Vertrieb und Umsetzung aus demselben Posteingang antworten. Bis zu [[commercial.workspaces.creationLimit]] Workspaces pro Login, einer pro Kunde.
+    limits: Nicht geeignet, wenn Sie Projektplanung, Zeiterfassung, Rechnungen, Angebotsdokumente oder E-Mail-Sequenzen brauchen. Dafür bleiben Ihre Agentur-Tools.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
+
 cta:
-  action: Erst das Pitch-Board ansehen, dann den eigenen Workspace aufbauen
-  description: Sehen Sie sich den Beispiel-Workspace für Agenturen mit Beispieldaten an, starten Sie dann die Testphase und bauen Sie Listen, die zu Ihrem Neugeschäft passen.
-  buttonLeftText: Pro-Testphase starten
-  buttonLeftHref: /auth/signup
+  action: Sehen Sie, wie ein unterschriebener Kunde an die Umsetzung übergeben wird
+  description: Sehen Sie sich den Beispiel-Workspace für Agenturen mit Beispieldaten an, starten Sie dann die Testphase und verbinden Sie ein erstes Kundengespräch.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/agenturen/dashboard
   hint: "Projektabwicklung, Angebote, Zeiterfassung und Abrechnung bleiben in Ihren Agentur-Tools."
+
+useCases:
+  eyebrow: "So können Sie es nutzen"
+  title: "Für Agenturen. Drei Aufgaben, ein Workspace."
+  items:
+    - title: "Jeden Pitch auf einem Board"
+      description: "Anfragen, Briefings und Pitches laufen über ein Board, mit dem Kundenkontext daneben."
+      href: /features/pipeline
+      linkLabel: "Zur Pipeline"
+      visual: pipeline
+    - title: "Jeden Kunden an die Umsetzung übergeben"
+      description: "Teilen Sie ein verbundenes Postfach mit dem Team, damit die Umsetzung sieht, was der Vertrieb zugesagt hat, und aus demselben Konto antwortet."
+      href: /features/unified-inbox
+      linkLabel: "Zum CRM-Posteingang"
+      visual: team
+    - title: "Die eigene KI anbinden"
+      description: "Mate entwirft Antworten aus Ihrem Agentur-Leitfaden, und Ihr eigener KI-Client verbindet sich über MCP."
+      href: /features/integrations
+      linkLabel: "Agenten verbinden"
+      visual: agent
 ---
 
-Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches und Beziehungen gewinnen: Marketing-, Kreativ- und Digitalagenturen. Kunden und Interessenten, ihre Ansprechpartner, jeder Pitch, unterschriebene Retainer und der nächste Schritt bleiben verbunden, bis gewonnene Arbeit an die Tools für die Umsetzung übergeht. Customermates ist ein Open-Source-CRM mit KI, entwickelt in Deutschland. Es deckt Neugeschäft und Kundenbeziehungen ab, nicht Projektplanung, Kampagnen oder Rechnungen.
+Ein Pitch geht raus, die Briefing-Notizen liegen im Postfach einer Person, und der Kunde, der letzte Woche unterschrieben hat, fragt, wer sein Ansprechpartner ist. Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches und Beziehungen gewinnen: Marketing-, Kreativ- und Digitalagenturen. Kunden und Interessenten, ihre Ansprechpartner, jeder Pitch, unterschriebene Retainer und der nächste Schritt bleiben an einem Datensatz verbunden, bis gewonnene Arbeit an die Tools für die Umsetzung übergeht, sodass die Umsetzung sieht, was der Vertrieb zugesagt hat. In Customermates Cloud ab Pro liegen die E-Mail- und LinkedIn-Verläufe beim Kunden, und Mate oder Ihr eigener KI-Agent über MCP entwirft die Antwort und den nächsten Schritt, die Sie prüfen, bearbeiten und senden. Customermates ist ein Open-Source-KI-CRM aus Deutschland. Es deckt Neugeschäft und Kundenbeziehungen ab, nicht Projektplanung, Kampagnen oder Rechnungen.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -116,12 +235,13 @@ Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches
     Pitches und mehrere Ansprechpartner pro Kunde gewinnen.
   </SummaryItem>
   <SummaryItem label="Kernaufgabe">
-    New Business und Kundenberatung sehen zu jedem Kunden den offenen Pitch
-    und den nächsten Schritt.
+    Jeden Pitch nachfassen und jeden unterschriebenen Kunden mit Gespräch und
+    nächstem Schritt am Kundendatensatz an die Umsetzung übergeben.
   </SummaryItem>
   <SummaryItem label="Grenzen im Team">
-    Berechtigungen auf Feldebene gibt es nicht, und ganze Postfächer
-    lassen sich erst ab Business freigeben.
+    Eine geteilte Ansicht ist für Kolleginnen und Kollegen nur lesbar,
+    Berechtigungen auf Feldebene gibt es nicht, und ganze Postfächer lassen
+    sich erst ab Business freigeben.
   </SummaryItem>
   <SummaryItem label="Systemgrenze">
     Projektabwicklung, Angebote, Zeiterfassung, Rechnungen und
@@ -136,6 +256,19 @@ Customermates ist ein **CRM für Agenturen**, die Kunden über Anfragen, Pitches
   <ProofItem label="Nachfassen">Aufgaben am Datensatz</ProofItem>
   <ProofItem label="Gespräche">Cloud-Posteingang ab Pro</ProofItem>
 </ProofRail>
+
+## Bestes CRM für kleine Marketingagenturen: sechs Optionen im Vergleich
+
+Die Reihenfolge folgt einer Aufgabe: in einer Agentur mit 2 bis 10 Personen jeden Pitch und jedes Kundengespräch nachfassen. Customermates veröffentlicht diese Seite, prüfen Sie jede Zeile daher auf der Website des Anbieters. Die Preise wurden am 9. November 2026 auf der jeweiligen Preisseite geprüft; ein Aktionspreis ist als solcher genannt.
+
+| # | CRM | Passt zu | Preis |
+|---|---|---|---|
+| 1 | Customermates | Kleinen Agenturen, die pitchen und Retainer gewinnen und die E-Mail-, LinkedIn- und WhatsApp-Konversationen neben dem Kunden haben wollen, mit geteiltem Postfach in Business. Projektplanung, Zeiterfassung und Rechnungen bleiben in Ihrem Agentur-Stack. | Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]] pro Nutzer und Monat, monatlich abgerechnet |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | Agenturen, die über LinkedIn akquirieren. Die eigenen Seiten beschreiben einen eigenen Workspace pro Kunde und einen gemeinsamen Posteingang für E-Mail, LinkedIn, WhatsApp und Telegram. | Ab 49 $ pro Platz und Monat bei monatlicher Zahlung; ein Workspace inklusive, weitere Workspaces 10 $ pro Monat |
+| 3 | [HubSpot](https://www.hubspot.com/pricing/crm) | Ein kostenloser Start für Gründer und Partner, mit gezielten E-Mail-Kampagnen im bezahlten Starter-Plan. | Kostenlos für bis zu 2 Nutzer; Starter 7 € pro Platz und Monat bei jährlicher Zahlung, ein befristeter Preis |
+| 4 | [Pipedrive](https://www.pipedrive.com/de/pricing) | Ein Neugeschäftsteam, das in Pipelines denkt und vom Smartphone aus arbeitet: native Apps für iOS und Android in jedem Plan. | Lite 14 € pro Platz und Monat bei jährlicher Zahlung; Zwei-Wege-E-Mail-Sync beginnt mit Growth |
+| 5 | [Attio](https://attio.com/pricing) | Eine Agentur, die Kunden, Projekte und Retainer in einem eigenen Datenmodell abbilden will, mit E-Mail-Sync für Gmail und Microsoft 365. | Kostenlos für bis zu 3 Plätze; Plus 31 € pro Nutzer und Monat bei jährlicher Zahlung |
+| 6 | [Twenty](https://twenty.com/pricing) | Eine technische Agentur, die ein Open-Source-CRM mit eigenen Objekten will und das Datenmodell selbst pflegt. | Pro 9 $ pro Nutzer und Monat bei jährlicher Zahlung; den Kern selbst zu hosten ist kostenlos |
 
 ## Das Pitch-Board im Beispiel-Workspace
 
@@ -211,14 +344,15 @@ Wie weit der Posteingang reicht, hängt vom Tarif ab:
 
 ## KI und Anbindungen
 
-Mate, der Assistent in Customermates Cloud, fasst vor einem Pitch-Termin den Kunden zusammen, verschiebt einen Pitch in die nächste Phase und speichert einen Nachfassentwurf in der Konversation. Mate nutzt gehostete KI-Credits, die jeder Cloud-Tarif pro aktivem Nutzer enthält, und steht selbst gehostet nicht zur Verfügung. Mate sendet, wenn Sie ihn zum Senden auffordern; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) lässt Mate nach Zeitplan oder bei einer Änderung arbeiten. Der Beispiel-Workspace hat zwei: Jeden Montag setzt eine Prüfung Retainer, die in den nächsten 60 Tagen verlängert werden, auf „Verlängerung fällig“ und legt eine Aufgabe an, und wechselt ein Pitch auf „Angebot gesendet“, speichert Mate einen Nachfassentwurf zur Prüfung.
+Mate, der Assistent in Customermates Cloud, fasst vor einem Pitch-Termin den Kunden zusammen, verschiebt einen Pitch in die nächste Phase und speichert einen Nachfassentwurf in der Konversation. Mate nutzt gehostete KI-Credits, die jeder bezahlte Cloud-Tarif pro aktivem Nutzer enthält, und steht selbst gehostet nicht zur Verfügung. Mate sendet, wenn Sie ihn zum Senden auffordern; bitten Sie um einen Entwurf, wenn Sie vorher prüfen möchten. Eine [Routine](/docs/app-routines) lässt Mate nach Zeitplan oder bei einer Änderung arbeiten. Der Beispiel-Workspace hat zwei: Jeden Montag setzt eine Prüfung Retainer, die in den nächsten 60 Tagen verlängert werden, auf „Verlängerung fällig“ und legt eine Aufgabe an, und wechselt ein Pitch auf „Angebot gesendet“, speichert Mate einen Nachfassentwurf zur Prüfung.
 
-Jeder Tarif, auch selbst gehostet, bietet eine [REST-API mit Webhooks](/features/api) und [MCP](/docs/mcp) für externe KI-Clients wie Claude oder ChatGPT, die Datensätze im Rahmen Ihrer Rolle lesen oder ändern. Ein separat betriebener [n8n-Workflow](/features/workflow-automation) kann einen gewonnenen Pitch an Ihr Projekt-Tool übergeben.
+Jeder Tarif, auch selbst gehostet, bietet eine [REST-API](/features/api) und [MCP](/docs/mcp) für externe KI-Clients wie Claude oder ChatGPT, die Datensätze im Rahmen Ihrer Rolle lesen oder ändern; Webhooks gehören zu jedem bezahlten Tarif und zum Self-Hosting. Ein separat betriebener [n8n-Workflow](/features/workflow-automation) kann einen gewonnenen Pitch an Ihr Projekt-Tool übergeben.
 
 ## Als Agenturteam arbeiten
 
 Bevor Sie die ganze Agentur einladen, sollten Sie die Grenzen kennen:
 
+- **Geteilte Ansichten sind nur lesbar.** Teilen Sie eine Pitch-Board-Ansicht mit der ganzen Agentur oder mit ausgewählten Rollen, und alle arbeiten mit denselben Filtern; ändern kann sie nur, wer sie angelegt hat.
 - **Keine Berechtigungen auf Feldebene.** Rollen regeln den Zugriff auf Listen und Datensätze. Eine Rolle mit Lesezugriff „Zugewiesen“ beschränkt Freelancer auf ihre eigenen Pitches, ein einzelnes Feld wie das Honorar lässt sich aber nicht vor jemandem verbergen, der den Datensatz lesen darf.
 - **Ganze Postfächer freigeben erst ab Business.** In Pro teilen Sie Konversationen einzeln.
 - **Keine Unterkonten für Kunden und keine White-Label-Workspaces.** Customermates ist das CRM Ihrer Agentur, kein Portal, das Sie an Kunden weitergeben.
@@ -249,7 +383,7 @@ Nein. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die K
 </FaqItem>
 
 <FaqItem question="Kann das Team eine Ansicht des Pitch-Boards teilen?">
-Ja. **Teilen…** im Menü der Ansicht zeigt sie allen im Workspace oder ausgewählten Rollen. Teammitglieder sehen sie nur lesend und können sie als eigene Ansicht duplizieren; nur der Eigentümer ändert sie. Jede Person sieht nur die Pitches und Phasen, die ihre eigene Rolle erlaubt.
+Ja. Teilen Sie eine gespeicherte Ansicht mit der ganzen Agentur oder mit ausgewählten Rollen, und alle arbeiten mit denselben Filtern auf dem Pitch-Board. Kolleginnen und Kollegen sehen sie nur lesend, ändern kann sie nur, wer sie angelegt hat. Jede Person sieht nur die Datensätze, die ihre Rolle erlaubt.
 </FaqItem>
 
 <FaqItem question="Können wir ein New-Business-Postfach mit dem Team teilen?">
@@ -263,4 +397,16 @@ Aufgaben lassen sich mit Kunden, Kontakten und Pitches verknüpfen. Ein eingebau
 <FaqItem question="Können wir Kunden einen eigenen White-Label-Workspace geben?">
 Nein. Es gibt keine Unterkonten für Kunden, keine Kundenportale und keine White-Label-Workspaces.
 </FaqItem>
+<FaqItem question="Welches ist das beste CRM für Marketingagenturen?">
+Das hängt von der Aufgabe ab. Für das Nachfassen von Pitches und Kundengesprächen in einer kleinen Marketingagentur steht Customermates in der Tabelle oben auf Platz 1, weil E-Mail-, LinkedIn- und WhatsApp-Konversationen neben dem Kunden liegen und ein Antwortentwurf auf Ihre Prüfung wartet. Danach folgen Breakcold, HubSpot, Pipedrive, Attio und Twenty. Projektpläne, Zeiterfassung und Rechnungen bleiben in den Tools, die dafür gebaut sind. Customermates veröffentlicht diese Seite, prüfen Sie jede Zeile daher auf der Website des Anbieters.
+</FaqItem>
+
+<FaqItem question="Was sollte ein CRM für eine kleine Marketingagentur leisten?">
+Es führt jeden Kunden, die Personen dahinter und jeden Pitch oder Retainer in einem Datensatz, zeigt, wer den nächsten Schritt verantwortet, und legt die Konversationen des Kunden daneben. So sehen die Person, die den Auftrag verkauft hat, und die Person, die ihn umsetzt, dieselbe Historie.
+</FaqItem>
+
+<FaqItem question="Reicht ein kostenloses CRM für eine Agentur mit zwei Personen?">
+Zum Start oft ja: HubSpot ist für bis zu 2 Nutzer kostenlos, Attio für bis zu 3 Plätze (Stand 9. November 2026). Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Wer die Konversationen des Kunden neben dem Pitch haben will, braucht Pro.
+</FaqItem>
+
 </Faq>

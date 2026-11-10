@@ -175,7 +175,38 @@ describe("resolvePublicNavGroups", () => {
 
     expect(solutions.links.filter((link) => link.footer).map((link) => [link.section, link.href])).toEqual([
       ["team", "/for/professional-services"],
-      ["workflow", "/for"],
+      ["team", "/for"],
+    ]);
+  });
+
+  it("leads the product menu with the four pillars", () => {
+    const product = groups.find((group) => group.id === "product");
+
+    expect(product?.links.map((link) => link.href)).toEqual([
+      "/features/knowledge-base",
+      "/features/contact-management",
+      "/features/unified-inbox",
+      "/features/integrations",
+      "/docs/mcp",
+      "/features/open-source-crm",
+      "/features/self-hosted",
+      "/features/all",
+    ]);
+  });
+
+  it("lists solutions by job first, then by team", () => {
+    const solutions = groups.find((group) => group.id === "solutions");
+
+    expect(solutions?.sections?.map((section) => section.id)).toEqual(["job", "team"]);
+    expect(solutions?.links.filter((link) => !link.footer).map((link) => [link.section, link.href])).toEqual([
+      ["job", "/features/follow-up"],
+      ["job", "/for/agencies"],
+      ["job", "/features/contact-management"],
+      ["job", "/features/linkedin-integration"],
+      ["team", "/for/consultants"],
+      ["team", "/for/agencies"],
+      ["team", "/for/smb"],
+      ["team", "/for/freelancers"],
     ]);
   });
 });

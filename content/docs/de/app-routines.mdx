@@ -25,6 +25,8 @@ Mitglieder mit der Rolle **Admin** können jede Routine pausieren (**Routine pau
 
 Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] und Business, Max sowie Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Eine Routine zu pausieren gibt keinen Platz frei; sie in den [Papierkorb](/docs/app-trash) zu verschieben gibt ihren Platz sofort frei. Am Limit wird eine neue Routine mit einem Hinweis auf ein Upgrade unter [Abrechnung](app:settings/billing) abgelehnt, und eine Routine, die Sie aus dem Papierkorb wiederherstellen, bleibt dort mit dem Hinweis, dass ihr Eigentümer bereits alle Routinen seines Tarifs nutzt; verschieben Sie zuerst eine andere Routine dieses Eigentümers in den Papierkorb. Über REST und MCP führt das Ergebnis der Wiederherstellung sie unter `blocked` mit dem Grund `routineLimitReached` und dem `limit` des Tarifs. Das Limit wird nur beim Anlegen und Wiederherstellen geprüft, deshalb bleiben Routinen über dem Limit eines kleineren Tarifs nach einem Downgrade erhalten. Das Kontingent, aus dem die Läufe schöpfen, steht unter [Tarife und Mate-Nutzung](/docs/app-assistant#plans-and-credits).
 
+Im Free-Tarif sind Routinen nicht enthalten: Vorhandene Routinen bleiben erhalten, zeigen **Pausiert, Free-Tarif** und laufen nicht, und das Anlegen oder Aktivieren wird mit dem Starter-Preis abgelehnt. Sobald der Workspace einen bezahlten Tarif wählt, laufen sie von selbst weiter.
+
 ## Welche Limits gelten, etwa für Läufe pro Stunde und Nutzung pro Lauf? [#what-are-the-limits]
 
 | Limit | Wert | Am Limit |

@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Qualification des leads : comment décider à quels leads consacrer votre temps"
-  description: "Les quatre critères que toute méthode vérifie, quand utiliser BANT, CHAMP, MEDDIC ou SPICED, des questions avec leurs signaux d’alerte, un passage de relais écrit entre marketing et ventes, et une configuration CRM qui enregistre les réponses toujours de la même façon."
+  description: "Les quatre critères de toute méthode, quand utiliser BANT, CHAMP, MEDDIC ou SPICED, des questions avec signaux d’alerte, un relais écrit marketing-ventes et une configuration CRM cohérente."
 
 blogPost:
   author: Benjamin Wagner
@@ -152,13 +152,13 @@ Laissez le modèle remplir les champs et laissez une personne décider. Ne le la
 
 ## Configurer la qualification des leads dans Customermates
 
-Customermates n’a pas de fiche de lead distincte. Une nouvelle demande est un contact, lié à une organisation, plus une affaire qui porte les champs de qualification. Les contacts disposent d’un champ Pipeline commercial (Nouveau, Contact, Qualifié, En cours, Gagné, Perdu) pour un statut rapide avant l’existence d’une affaire. Si votre équipe dit « opportunités », renommez Affaires dans **Modèle de données** : ouvrez la liste et modifiez **Nom** et **Nom au pluriel** sous **Général** ; les enregistrements et les liens restent tels quels. La [page de gestion des leads](/features/lead-management) montre le même modèle du côté du contact.
+Customermates n’a pas de fiche de lead distincte. Une nouvelle demande est un contact, lié à une organisation, plus une affaire qui porte les champs de qualification. Un nouvel espace de travail démarre sans listes : sur Customermates Cloud, vous décrivez votre activité en une phrase et Mate construit les listes des personnes, des organisations et des affaires ainsi que le pipeline ; vous modifiez tout dans **Modèle de données**. Pour un statut rapide avant l’existence d’une affaire, ajoutez un champ à choix unique à la liste des contacts. Si votre équipe dit « opportunités », renommez Affaires dans **Modèle de données** : ouvrez la liste et modifiez **Nom** et **Nom au pluriel** sous **Général** ; les enregistrements et les liens restent tels quels. La [page de gestion des leads](/features/lead-management) montre le même modèle du côté du contact.
 
 Créez les champs dans **Modèle de données** pour Affaires avec **Ajouter** › **Champ** :
 
 | Champ | Type | Options |
 | --- | --- | --- |
-| Étape | Choix unique, présent dans chaque nouvel espace de travail | Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 %, Perdue 0 % ; ajoutez En attente à 0 % |
+| Étape | Choix unique, créé par la configuration IA ou par vous | Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 %, Perdue 0 % ; ajoutez En attente à 0 % |
 | Besoin | Choix unique | Confirmé, Vague, Aucun, Inconnu |
 | Décideur | Choix unique | En contact avec le décideur, Décideur accessible, Aucun accès, Inconnu |
 | Budget | Choix unique | Dans notre fourchette, Sous notre fourchette, Inconnu |
@@ -168,7 +168,7 @@ Créez les champs dans **Modèle de données** pour Affaires avec **Ajouter** �
 
 Ajoutez un champ Source (Choix unique : Recommandation, Site web, LinkedIn, Évènement, Prospection sortante) sur les contacts, afin que le point mensuel puisse compter par source. Les pourcentages sont des probabilités d’étape, définies avec **Probabilité %** sur chaque option du champ **Étape** dans Modèle de données pour Affaires. Ils déterminent la valeur pondérée du [pipeline](/features/pipeline), et En attente à 0 % garde les affaires en attente hors de ce total.
 
-Enregistrez ensuite trois vues sur la liste des Affaires. Une vue enregistrée reste privée tant que vous ne la partagez pas : chacun peut enregistrer les siennes, ou vous partagez une vue avec l’équipe.
+Enregistrez ensuite trois vues sur la liste des Affaires. Partagez-les avec l’équipe ou avec des rôles choisis.
 
 - **À qualifier :** Étape égale à Prospection ou Qualification, triée par date de création, la plus ancienne d’abord.
 - **Réponses manquantes :** le même filtre, en vue Board regroupée par Décideur, pour que la colonne Inconnu montre où des appels sont nécessaires.
@@ -199,7 +199,9 @@ Ce que ça coûte, facturé au mois :
 | 2 personnes, champs, étapes, vues et Mate, sans boîte de réception | Starter, [[commercial.price.starter.monthly]] par utilisateur | [[commercial.price.starter.monthly.seats.2]] |
 | 3 personnes, avec Mate et la boîte de réception | Pro, [[commercial.price.pro.monthly]] par utilisateur | [[commercial.price.pro.monthly.seats.3]] |
 
-Chaque formule hébergée comprend des crédits IA hébergés mensuels par utilisateur actif, voir les [tarifs](/pricing). L’essai dure [[commercial.trial.days]] jours.
+Chaque formule payante comprend des crédits IA hébergés mensuels par utilisateur actif, voir les [tarifs](/pricing). Votre premier espace de travail démarre avec Pro gratuit pendant [[commercial.trial.days]] jours, sans carte bancaire.
+
+La qualification se termine par une prochaine étape. Avec la boîte de réception sur Pro, les fils qui montrent le besoin, le décideur, le budget et l’échéance sont sur le contact de l’affaire, Mate remplit les champs et rédige la réponse, et vous décidez. Pour l’essayer sur vos prochaines demandes, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup).
 
 ## Mesurer si la qualification fonctionne
 

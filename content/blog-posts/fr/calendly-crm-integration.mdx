@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/gmail-crm-integration
 
 hero:
-  title: "Intégration Calendly et CRM : quels CRM se connectent nativement et comment brancher les autres"
-  description: "Ce que font les intégrations de Calendly avec HubSpot, Salesforce et Dynamics 365 et la formule Calendly qu’elles exigent, comment connecter tout autre CRM, et comment gérer les replanifications, les clients qui reviennent et les absences."
+  title: "Intégration Calendly et CRM : quels CRM et comment brancher les autres"
+  description: "Ce que font les intégrations Calendly avec HubSpot, Salesforce et Dynamics 365 et la formule exigée, comment connecter tout autre CRM et comment gérer les replanifications et les absences."
 
 blogPost:
   author: Benjamin Wagner
@@ -37,7 +37,7 @@ Customermates, un CRM IA natif, publie ce guide. Customermates n’a pas de conn
   <SummaryItem label="Tout autre CRM">Une application de place de marché, une plateforme de connecteurs comme Zapier, Zoho Flow ou n8n, ou votre propre récepteur de webhooks.</SummaryItem>
   <SummaryItem label="Webhooks">Pas sur la formule Free de Calendly, et créés par l’API. Les évènements principaux sont invitee.created, invitee.canceled et routing_form_submission.created.</SummaryItem>
   <SummaryItem label="Principal piège">Une replanification déclenche une annulation et une nouvelle réservation. Vérifiez l’indicateur de replanification avant de clore une affaire comme annulée.</SummaryItem>
-  <SummaryItem label="Customermates">API REST et webhooks sur toutes les formules. À partir de Pro dans Customermates Cloud, le rendez-vous réservé arrive aussi par le calendrier Google ou Outlook connecté de l’organisateur.</SummaryItem>
+  <SummaryItem label="Customermates">API REST sur toutes les formules, webhooks sur toutes les formules payantes. À partir de Pro dans Customermates Cloud, le rendez-vous réservé arrive aussi par le calendrier Google ou Outlook connecté de l’organisateur.</SummaryItem>
 </ArticleSummary>
 
 ## Ce que font les intégrations CRM natives de Calendly
@@ -139,6 +139,8 @@ Calendly exploite un serveur MCP à l’adresse `https://mcp.calendly.com/` avec
 
 - **Voie webhooks sur Starter :** [[commercial.price.starter.monthly.seats.3]] par mois pour Customermates, plus une formule Calendly qui inclut les webhooks et l’endroit où n8n s’exécute.
 - **Voie calendrier sur Pro :** [[commercial.price.pro.monthly.seats.3]] par mois. Cela comprend la [boîte de réception unifiée](/features/unified-inbox) et [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur. Les exécutions de routines puisent dans les crédits IA hébergés mensuels par utilisateur actif ; voir les [tarifs](/pricing).
+
+C’est avec une réservation que le suivi commence. Avec la voie calendrier sur Pro, une routine que vous configurez peut déposer le rendez-vous réservé sur la fiche du client à côté de ses fils e-mail et LinkedIn, et Mate peut rédiger la confirmation ou la note de préparation que vous relisez et envoyez, avec la prochaine étape datée sur l’affaire. Pour l’essayer sur vos propres réservations Calendly, [lancez l’essai gratuit de [[commercial.trial.days]] jours](/auth/signup?job=followup). Sans carte bancaire.
 
 <AcquisitionCallout title="Quand Customermates n’est pas le bon choix" variant="boundary">
 Il n’y a pas de connecteur Calendly : chaque voie demande donc soit un workflow que vous exploitez, soit le calendrier plus une routine. Sur Pro, la messagerie Gmail ou Outlook est le compte connecté inclus de l’utilisateur ([[commercial.entitlement.pro.includedAccountsPerUser]] par utilisateur) ; Business en inclut [[commercial.entitlement.business.includedAccountsPerUser]]. Les tâches n’ont ni échéance ni rappel : mettez donc la date de relance dans un champ date de l’affaire. Customermates ne fait pas de scoring de leads ; enregistrez les réponses des formulaires de routage dans des champs à choix unique et filtrez dessus. Une installation auto-hébergée dispose de REST, des webhooks et de MCP, mais ni calendrier, ni boîte de réception, ni Mate, ni routines. Si vous voulez que Calendly choisisse l’organisateur d’après le propriétaire dans le CRM au moment de la réservation, c’est une fonction de Calendly pour HubSpot et Salesforce.

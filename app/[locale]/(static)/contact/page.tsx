@@ -49,16 +49,16 @@ export default async function ContactPage({ params }: StaticLocaleProps) {
           visual={<ContactForm />}
         />
 
-        <MarketingSection divider flush className="border-b border-border !py-0">
-          <ul className="grid grid-cols-1 divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
+        <MarketingSection className="mk-section-tight pt-0">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {highlights.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="flex gap-4 px-5 py-8 sm:px-6 lg:px-8 lg:py-10">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground">
+              <li key={title} data-reveal className="mk-card flex gap-4 p-6">
+                <span aria-hidden className="mk-icon-tile size-9 text-muted-foreground">
                   <Icon aria-hidden className="size-4" />
                 </span>
 
                 <div className="min-w-0">
-                  <p className="text-base font-medium tracking-tight">{title}</p>
+                  <p className="text-base font-semibold tracking-tight">{title}</p>
 
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
                 </div>

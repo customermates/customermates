@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/zoho-vs-salesforce
   - /compare/microsoft-dynamics-alternative
 
+sections:
+  reasons:
+    - title: "Chat channels without Service Cloud"
+      description: "On Salesforce's pricing page, Digital Channels belongs to Service Cloud. From Pro, Customermates brings email, LinkedIn, WhatsApp, Instagram and Telegram into one inbox beside the client."
+    - title: "A drafted reply, not an add-on"
+      description: "In Customermates Cloud, Mate drafts replies, summarizes threads and updates contacts and deals, using hosted AI credits. Or connect your own Claude or ChatGPT over MCP."
+    - title: "Month-to-month, open source"
+      description: "Billing is monthly with no yearly commitment, and the AGPL-3.0 core runs on your own server with Docker Compose and PostgreSQL 16, including the REST API, webhooks and MCP."
+  switchSteps: true
+
 hero:
-  title: "A Salesforce Alternative for Small Client-Facing Teams"
-  description: "Customermates is an open-source, AI-native CRM built in Germany for consultants, agencies and founders. It bills monthly, puts email, LinkedIn, WhatsApp, Instagram and Telegram next to your deals from Pro, and lets Mate (Customermates Cloud, hosted AI credits) or your own AI client help keep the records current."
-  buttonLeftText: Start for free
+  title: "A Salesforce Alternative for Client-Facing Teams"
+  description: "Salesforce needs an owner and, beyond Starter Suite, a yearly contract. For a small consultancy or agency, Customermates is the lighter way to follow up: billed monthly, conversations on the client from Pro, replies drafted by Mate. Salesforce details checked 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Monthly only
         competitor: Starter Suite monthly or annually; Pro Suite and above annually
       - name: Free plan
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records, no inbox or Mate"
         competitor: Free Suite, 2 user licences
       - name: Free trial
         source: "[[commercial.trial.days]] days, no credit card"
@@ -67,7 +77,7 @@ comparison:
         source: Mate in Customermates Cloud, uses hosted AI credits
         competitor: Agentforce for Sales add-on from $125 / user / month; included in Max
       - name: APIs and events
-        source: "REST API and [[derived.webhooks.events.total]] webhook events on every plan"
+        source: "REST API and [[derived.webhooks.events.total]] webhook events on every paid plan"
         competitor: "Web Services API: $25 / user / month add-on in Pro Suite, included from Core"
       - name: App marketplace
         source: No; n8n community node (n8n runs separately)
@@ -90,7 +100,7 @@ comparison:
 cta:
   action: Want to test it with your own records?
   description: "Export a few accounts, contacts and opportunities from Salesforce, import them during the trial and connect one mailbox. Your own data shows within a week whether the Customermates model fits."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -163,7 +173,7 @@ How to read it:
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other relationship-driven service businesses and founders.
+A small consultancy or agency rarely needs the whole Salesforce platform to follow up with clients. Customermates keeps the job small: from Pro, conversations on the client record, a reply and next step drafted by Mate or your own AI agent, and you review, edit and send.
 
 **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) brings Gmail, Outlook and IMAP mailboxes, LinkedIn (including Sales Navigator and Recruiter), WhatsApp, Instagram and Telegram into one list. You link the people in a thread to contacts and reply on the original channel. A thread stays private until its owner shares it with the CRM; sharing a whole connected account needs Business.
 
@@ -180,7 +190,7 @@ Already pay for Claude or ChatGPT? Connect it to the [MCP server](/docs/mcp) ins
 - **No marketing or help desk.** There are no campaigns, sequences, web forms, cases or tickets.
 - **Simple tasks.** Tasks have assignees, relations, notes and custom fields. They have no due dates or reminders.
 - **No native mobile app, single sign-on or field-level permissions.** Roles decide per list whether someone sees all records, only their own, or none.
-- **No free plan and no certification.** There is a [[commercial.trial.days]]-day trial, then a paid plan.
+- **A small free plan and no certification.** Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a consultancy leaving Starter Suite
 
@@ -226,7 +236,7 @@ Customermates publishes this list. Details come from each vendor's own pages, ch
 
 <Faq>
 <FaqItem question="Is there a free alternative to Salesforce?">
-For two users, Salesforce's own Free Suite costs nothing as long as someone logs in every 60 days. HubSpot's free CRM also covers two users, Zoho CRM's free edition three. SuiteCRM, Twenty and the AGPL-3.0 core of Customermates can be self-hosted without a licence fee; self-hosted Customermates has no inbox and no Mate. Customermates Cloud has a [[commercial.trial.days]]-day trial and no free plan.
+For two users, Salesforce's own Free Suite costs nothing as long as someone logs in every 60 days. HubSpot's free CRM also covers two users, Zoho CRM's free edition three. SuiteCRM, Twenty and the AGPL-3.0 core of Customermates can be self-hosted without a licence fee; self-hosted Customermates has no inbox and no Mate. Customermates Cloud has a [[commercial.trial.days]]-day trial and a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines.
 </FaqItem>
 
 <FaqItem question="What is a good open-source alternative to Salesforce?">

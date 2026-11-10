@@ -76,7 +76,7 @@ function Comparison({ label, current, proposed }: { label: string; current: Reac
           {current}
         </div>
 
-        <div className="min-w-0 rounded-md border border-primary/40 p-3" data-wiki-proposal-side="proposed">
+        <div className="min-w-0 rounded-md border border-border-strong p-3" data-wiki-proposal-side="proposed">
           <p className="text-subdued mb-1 text-xs">{t("Wiki.proposals.proposed")}</p>
 
           {proposed}
@@ -101,10 +101,10 @@ const ProposalPreview = observer(({ proposal }: { proposal: WikiPageProposalRevi
   return (
     <div className="grid gap-4" data-wiki-proposal-preview={proposal.id}>
       {proposal.stale && (
-        <Alert color="warning" description={page ? t("Wiki.proposals.stale") : t("Wiki.proposals.pageMissing")} />
+        <Alert description={page ? t("Wiki.proposals.stale") : t("Wiki.proposals.pageMissing")} variant="warning" />
       )}
 
-      {proposal.action === "delete" && !proposal.stale && <Alert color="danger" description={deleted} />}
+      {proposal.action === "delete" && !proposal.stale && <Alert description={deleted} variant="destructive" />}
 
       <Comparison
         current={<ComparedText empty={currentEmpty} value={page?.title ?? null} />}
@@ -159,7 +159,7 @@ const ProposalList = observer(({ store }: { store: WikiProposalsStore }) => {
 
   if (store.items.length === 0 && store.requestState === "failed") {
     return (
-      <Alert color="danger" description={t("Wiki.proposals.loadFailed")}>
+      <Alert description={t("Wiki.proposals.loadFailed")} variant="destructive">
         <Button className="mt-2" size="sm" variant="secondary" onClick={() => runUserAction(store.load)}>
           {t("ErrorCard.retry")}
         </Button>

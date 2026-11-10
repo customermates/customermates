@@ -4,7 +4,7 @@ description: "Salesforce MCP erklärt: welcher Server was kann, wie Admins ihn a
 
 hero:
   title: "Salesforce MCP erklärt: Welcher Server was kann und was er kostet"
-  description: "Salesforce betreibt mehrere MCP-Server für unterschiedliche Aufgaben. Dieser Leitfaden erklärt die gehosteten Server für CRM-Daten, den DX-Server für Entwickler, MuleSoft und Heroku, die Einrichtung, das neue Abrechnungsmodell und wann ein CRM mit eingebautem MCP-Server die einfachere Wahl ist."
+  description: "Salesforce betreibt mehrere MCP-Server: gehostete Server für CRM-Daten, den DX-Server für Entwickler, MuleSoft und Heroku. Einrichtung, Abrechnungsmodell und wann ein eingebauter Server reicht."
 
 blogPost:
   author: Benjamin Wagner
@@ -166,6 +166,8 @@ Die Verbindung funktioniert auf zwei Wegen, wie die [MCP-Dokumentation](/docs/mc
 Die Kosten lassen sich leicht überschlagen. Ein Team mit fünf Personen zahlt im Tarif Starter [[commercial.price.starter.monthly.seats.5]] pro Monat und bekommt den vollen CRM-Werkzeugsatz über MCP. Die Posteingangs-Werkzeuge brauchen Pro, also [[commercial.price.pro.monthly.seats.5]] pro Monat für dasselbe Team. Das Abo des KI-Clients kommt hinzu, bei Anthropic, OpenAI oder dem Anbieter Ihrer Wahl. Aktuelle Preise stehen auf der [Preisseite](/pricing).
 
 Ein Unterschied bei der Kontrolle ist wichtig. Der Customermates-MCP-Server weist Clients an, vor dem Löschen oder Senden die Bestätigung des Nutzers einzuholen, doch diese Bestätigung findet im Client statt. Ruft ein berechtigter Client ein Werkzeug auf, führt der Server es aus. Prüfen Sie, wie Ihr Client Freigaben handhabt, und beginnen Sie mit Lesen und Entwürfen.
+
+Für ein kundennahes Team liegt der Sinn von MCP im Nachfassen: Sind in Customermates Cloud ab Pro LinkedIn und E-Mail verbunden, liest Ihr eigenes Claude oder ChatGPT das Gespräch am Kundendatensatz und entwirft die Antwort und den nächsten Schritt, die Sie prüfen und senden. Zum Ausprobieren [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 **Wann Customermates nicht passt.** Betreiben Sie Salesforce bereits mit eigenen Objekten, Apex-Logik, Territorien oder Freigabemodellen und Sicherheit auf Feldebene, bleiben Sie bei Salesforce und nutzen Sie die gehosteten Server: Ein Wechsel kostet mehr, als er bringt. Customermates kennt außerdem keine eigenen Werkzeugdefinitionen und keine Rechte auf Feldebene. Es passt zu Beratungen, Agenturen und gründergeführten Teams, die ihr erstes richtiges CRM wählen oder ein großes verlassen. Der [Vergleich mit Salesforce](/compare/salesforce-alternative) behandelt diese Entscheidung, der [Leitfaden zum HubSpot-MCP-Server](/blog/hubspot-mcp) den Remote-Server von HubSpot.
 

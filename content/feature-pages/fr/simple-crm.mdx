@@ -9,26 +9,47 @@ relatedHrefs:
   - /blog/excel-crm-template
   - /blog/crm-for-small-business
 
+sections:
+  visual:
+    kind: stage
+    solution: freelancers
+    prompt: "Je suis développeur indépendant. Suis mes clients, projets et relances, pour qu’aucun prospect ne refroidisse pendant que je suis pris par mes projets."
+  steps:
+    title: "Mettez-le en place en une séance"
+    items:
+      - title: "Créer l’espace de travail"
+        description: "Inscrivez-vous et terminez l’étape du profil. Sur Customermates Cloud, décrivez votre activité à la configuration IA de l’espace de travail, ou choisissez Commencer avec un espace de travail vide pour la passer."
+      - title: "Façonner les listes selon votre activité"
+        description: "Ouvrez Modèle de données et créez ou renommez des listes sous Général pour qu’elles utilisent les mots de votre équipe, puis modifiez les options d’étape et les probabilités sur votre liste d’affaires. Un cabinet de conseil pourrait utiliser Projets avec les étapes Demande, Cadrage, Proposition envoyée, Gagné et Perdu."
+      - title: "Importer un type d’enregistrement"
+        description: "Utilisez Plus d’actions › Ajouter depuis un fichier sur la liste des contacts et associez les colonnes du tableur aux champs. L’assistant lit les fichiers .xlsx, .xls et .csv ; enregistrez d’abord les autres formats de tableur dans l’un d’eux. Importez les organisations avant les contacts et les affaires, pour que les liens puissent être rapprochés par nom. Notre guide du modèle CRM Excel montre une disposition de feuille qui s’associe proprement."
+      - title: "Ajouter le champ qui vous manquera"
+        description: "Les tâches n’ont pas d’échéance intégrée. Si vous travaillez avec des dates de relance, ajoutez un champ Date comme « Prochaine étape » aux affaires ou aux tâches dans Modèle de données avec Ajouter › Champ, puis enregistrez une vue triée dessus."
+      - title: "Inviter l’équipe"
+        description: "Envoyez des invitations depuis Paramètres › Membres. Les nouveaux membres attendent une approbation jusqu’à ce qu’un administrateur, ou un membre dont le rôle peut gérer les utilisateurs, leur attribue un rôle et les passe en actif."
+
 hero:
-  title: Un CRM simple que vous façonnez autour de votre travail
-  description: "Un nouvel espace de travail Customermates démarre sans listes. Sur Customermates Cloud, la configuration IA de l’espace de travail construit listes, étapes et tableau de bord à partir de votre description, ou vous les créez vous-même dans Modèle de données. Renommez ce qui ne convient pas, importez votre tableur et mettez-vous au travail."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "Un CRM simple pour relancer chaque échange client"
+  description: "Un nouvel espace démarre sans listes. Sur Customermates Cloud, la configuration IA construit listes, étapes et tableau de bord depuis votre description, ou vous les créez. Puis importez votre tableur et, dès Pro, connectez LinkedIn et l’e-mail pour que les conversations de chaque client soient sur sa fiche."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: Prêt à essayer un CRM plus simple ?
-  description: "Démarrez l’essai, configurez vos listes, importez un type d’enregistrement depuis un classeur XLSX et voyez si le pipeline convient à votre travail avant d’inviter l’équipe."
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  action: "Essayez un CRM qui garde chaque échange client en vue"
+  description: "Démarrez l’essai, configurez vos listes, importez un type d’enregistrement depuis un classeur XLSX et voyez si le pipeline convient à votre travail avant d’inviter l’équipe. Connectez un compte e-mail ou LinkedIn pour voir les conversations d’un client sur sa fiche."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 ---
 
 Un CRM simple est un CRM que votre équipe continue à mettre à jour parce qu’il y a peu à apprendre et que la structure correspond à votre façon de travailler. Customermates y parvient avec un petit modèle de données : des listes comme les contacts, les organisations, les affaires, les services et les tâches, des champs que vous choisissez, et un pipeline d’affaires dont vous nommez les étapes. Il convient aux petites équipes en contact avec leurs clients, comme les consultants, les agences et les fondateurs, et il coûte [[commercial.price.starter.monthly]] par utilisateur et par mois sur Starter. Cette page traite de la facilité d’utilisation et de la mise en place ; si vous évaluez Customermates pour une petite entreprise de services, la page [CRM pour PME](/for/smb) montre le tableau commercial et un espace de travail d’exemple.
+
+**Ce que simple veut dire pour la relance.** Le petit modèle de données garde la relance là où vous regardez déjà : la fiche client porte les interlocuteurs, l’affaire et, dès Pro, les conversations, et un champ date comme Prochaine étape avec une vue enregistrée indique qui contacter ensuite.
 
 Simple veut aussi dire que certaines choses manquent volontairement. Les limites sont listées plus bas, pour que vous puissiez écarter Customermates rapidement si vous en avez besoin.
 
@@ -42,7 +63,7 @@ Ce qui garde la mise en place courte :
 
 - **Vos propres mots pour les enregistrements.** Dans **Modèle de données**, vous renommez librement n’importe quelle liste, par exemple Clients au lieu de Contacts, Projets ou Missions au lieu d’Affaires, Relances au lieu de Tâches, et vous pouvez ajouter vos propres listes. Les enregistrements et les relations restent connectés.
 - **Une seule surface de liste pour tout.** Chaque liste s’ouvre en tableau ou en board, avec recherche, filtres, regroupement et tri sous la même barre d’outils. Voir les [enregistrements dans l’application](/docs/app-records).
-- **Les vues retiennent votre configuration.** Filtres, tri, disposition, regroupement et colonnes s’enregistrent ensemble comme une vue nommée qui apparaît sous forme de puce. Les changements restent temporaires tant que vous ne les enregistrez pas dans la vue. Une vue reste privée pour son créateur tant qu’il ne la partage pas avec l’espace de travail ou des rôles sélectionnés.
+- **Les vues retiennent votre configuration.** Filtres, tri, disposition, regroupement et colonnes s’enregistrent ensemble comme une vue nommée qui apparaît sous forme de puce. Les changements restent temporaires tant que vous ne les enregistrez pas dans la vue. Une vue reste la vôtre tant que vous ne la partagez pas avec toute l’équipe ou avec des rôles choisis.
 
 ## Quelle formule il vous faut
 
@@ -53,27 +74,7 @@ Ce qui garde la mise en place courte :
 | Plus de comptes connectés par personne, partage d’un compte connecté entier avec l’équipe | Business, [[commercial.price.business.monthly]] par utilisateur et par mois, [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur |
 | Exploiter le cœur open source sur votre propre serveur | [Auto-hébergé](/features/self-hosted), fonctions de Starter, sans boîte de réception ni Mate |
 
-Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois. La même équipe sur Pro paie [[commercial.price.pro.monthly.seats.3]] par mois. La facturation est mensuelle ; chaque formule cloud comprend des crédits IA hébergés mensuels par utilisateur actif pour Mate, voir les [tarifs](/pricing). L’essai de [[commercial.trial.days]] jours se déroule sur Pro et ne demande pas de carte bancaire.
-
-## Mettez-le en place en une séance
-
-<Steps>
-<Step title="Créer l’espace de travail">
-Inscrivez-vous et terminez l’étape du profil. Sur Customermates Cloud, décrivez votre activité à la configuration IA de l’espace de travail, ou choisissez **Commencer avec un espace de travail vide** pour la passer.
-</Step>
-<Step title="Façonner les listes selon votre activité">
-Ouvrez **Modèle de données** et créez ou renommez des listes sous **Général** pour qu’elles utilisent les mots de votre équipe, puis modifiez les options d’étape et les probabilités sur votre liste d’affaires. Un cabinet de conseil pourrait utiliser Projets avec les étapes Demande, Cadrage, Proposition envoyée, Gagné et Perdu.
-</Step>
-<Step title="Importer un type d’enregistrement">
-Utilisez **Plus d’actions › Ajouter depuis un fichier** sur la liste des contacts et associez les colonnes du tableur aux champs. L’assistant lit les fichiers `.xlsx`, `.xls` et `.csv` ; enregistrez d’abord les autres formats de tableur dans l’un d’eux. Importez les organisations avant les contacts et les affaires, pour que les liens puissent être rapprochés par nom. Notre [guide du modèle CRM Excel](/blog/excel-crm-template) montre une disposition de feuille qui s’associe proprement.
-</Step>
-<Step title="Ajouter le champ qui vous manquera">
-Les tâches n’ont pas d’échéance intégrée. Si vous travaillez avec des dates de relance, ajoutez un champ Date comme « Prochaine étape » aux affaires ou aux tâches dans **Modèle de données** avec **Ajouter › Champ**, puis enregistrez une vue triée dessus.
-</Step>
-<Step title="Inviter l’équipe">
-Envoyez des invitations depuis **Paramètres › Membres**. Les nouveaux membres attendent une approbation jusqu’à ce qu’un administrateur, ou un membre dont le rôle peut gérer les utilisateurs, leur attribue un rôle et les passe en actif.
-</Step>
-</Steps>
+Une équipe de trois personnes sur Starter paie [[commercial.price.starter.monthly.seats.3]] par mois. La même équipe sur Pro paie [[commercial.price.pro.monthly.seats.3]] par mois. La facturation est mensuelle ; chaque formule cloud payante comprend des crédits IA hébergés mensuels par utilisateur actif pour Mate, voir les [tarifs](/pricing). L’essai de [[commercial.trial.days]] jours se déroule sur Pro et ne demande pas de carte bancaire.
 
 ## Ce que ce CRM simple laisse de côté
 
@@ -99,7 +100,7 @@ Customermates publie cette page. Le tableau décrit chaque outil d’après ce q
 
 ## Comment il se connecte quand il vous en faut plus
 
-Le départ simple ne verrouille rien. L’API REST et les webhooks sont sur toutes les formules, et votre propre client IA (Claude, ChatGPT et d’autres) peut lire et mettre à jour les enregistrements par [MCP](/docs/mcp). Dans Customermates Cloud, Mate prépare des synthèses et des brouillons de réponse et utilise des crédits IA hébergés. La base de données cloud est configurée dans la région AWS de Francfort ; la page des [sous-traitants](/subprocessors) liste les fournisseurs concernés, dont des fournisseurs américains, et un [DPA](/dpa) est disponible.
+Le départ simple ne verrouille rien. L’API REST est sur toutes les formules et les webhooks sur toutes les formules payantes, et votre propre client IA (Claude, ChatGPT et d’autres) peut lire et mettre à jour les enregistrements par [MCP](/docs/mcp). Dans Customermates Cloud, Mate prépare des synthèses et des brouillons de réponse et utilise des crédits IA hébergés. La base de données cloud est configurée dans la région AWS de Francfort ; la page des [sous-traitants](/subprocessors) liste les fournisseurs concernés, dont des fournisseurs américains, et un [DPA](/dpa) est disponible.
 
 ## Questions fréquentes
 
@@ -109,7 +110,7 @@ Le plus facile est celui dont la structure correspond déjà à votre travail. C
 </FaqItem>
 
 <FaqItem question="Existe-t-il une version gratuite de Customermates ?">
-Il n’y a pas de formule cloud gratuite. Le cloud a un essai de [[commercial.trial.days]] jours sans carte bancaire. Le cœur open source sous AGPL-3.0 peut être auto-hébergé sans frais de licence, avec les fonctions de Starter et sans la boîte de réception ni Mate. Si vous avez aussi besoin d’un hébergement gratuit, HubSpot et CentralStationCRM proposent des formules gratuites avec des limites d’utilisateurs et de contacts.
+Le cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Il a aussi un essai de [[commercial.trial.days]] jours sans carte bancaire. Le cœur open source sous AGPL-3.0 peut être auto-hébergé sans frais de licence, avec les fonctions de Starter et sans la boîte de réception ni Mate. Si vous avez aussi besoin d’un hébergement gratuit, HubSpot et CentralStationCRM proposent des formules gratuites avec des limites d’utilisateurs et de contacts.
 </FaqItem>
 
 <FaqItem question="Puis-je passer d’Excel à Customermates ?">

@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "n8n für Anfänger: Ihren ersten Automatisierungs-Workflow bauen"
-  description: "Starten Sie n8n, bauen Sie einen Workflow aus drei Nodes, testen Sie ihn mit echten Daten und veröffentlichen Sie ihn. Danach folgt ein zweiter Workflow, der eine Website-Anfrage als Kontakt im CRM anlegt, mit Fehlerbehandlung von Anfang an."
+  description: "Starten Sie n8n, bauen Sie einen Workflow aus zwei Nodes, testen und veröffentlichen Sie ihn. Danach legt ein zweiter Workflow Website-Anfragen als CRM-Kontakt an, mit Fehlerbehandlung."
 
 blogPost:
   author: Benjamin Wagner
@@ -188,9 +188,11 @@ Es gibt außerdem einen Community Node von Customermates, `@customermates/n8n-no
 
 ## Wo Customermates passt und wo nicht
 
-n8n ist ein eigenständiges Produkt und in keinem Customermates-Tarif enthalten. Sie betreiben es selbst oder buchen n8n Cloud. REST-API, Webhooks und MCP funktionieren in jedem Tarif von Customermates Cloud, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat (siehe [Preise](/pricing)), und in der selbst gehosteten Open-Source-Version.
+n8n ist ein eigenständiges Produkt und in keinem Customermates-Tarif enthalten. Sie betreiben es selbst oder buchen n8n Cloud. REST-API und MCP funktionieren in jedem Tarif von Customermates Cloud, Webhooks in jedem bezahlten Tarif, der bei [[commercial.price.starter.monthly]] pro Nutzer und Monat beginnt (siehe [Preise](/pricing)), und alle drei in der selbst gehosteten Open-Source-Version.
 
 Nicht jede CRM-Automatisierung braucht n8n. Lautet die Aufgabe „jeden Montag die Deals durchsehen, die sich nicht bewegt haben, und zu jedem eine Notiz entwerfen“, ist eher Urteilsvermögen gefragt als Verkabelung. In Customermates Cloud führt eine [Routine](/docs/app-routines) Mate, den Assistenten in der App, nach Zeitplan oder bei einem Datensatz-Ereignis mit einer gespeicherten Anweisung aus und verbraucht dabei gehostete KI-Credits. Soll lieber Ihr eigener KI-Client im CRM arbeiten, verbinden Sie ihn über [MCP](/docs/mcp). n8n ist die richtige Wahl, wenn die Aufgabe fest geregelt ist und mehrere Systeme berührt: Formular, CRM, Tabelle, Team-Chat.
+
+Was n8n nicht übernimmt, ist das Nachfassen selbst. Sobald die Anfrage ein Kontakt ist, kann das Gespräch mit dieser Person am selben Datensatz stehen: Verbinden Sie in Customermates Cloud ab Pro LinkedIn und E-Mail, und Mate oder Ihr eigener KI-Agent entwirft die Antwort und den nächsten Schritt, die Sie prüfen und senden. Um das an Ihren eigenen Anfragen auszuprobieren, [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 Brauchen Sie nur eine Kontaktliste in einer Tabelle und eine E-Mail pro Anfrage, benötigen Sie für dieses Tutorial gar kein CRM. Ein Google-Sheets-Node am true-Zweig erledigt das.
 

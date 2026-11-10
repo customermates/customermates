@@ -15,6 +15,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
 import { InviteByEmailForm } from "./invite-by-email-form";
+import { TeamsNeedPlanPanel } from "@/app/components/upsell/teams-need-plan-panel";
 
 export const CompanyInviteModal = observer(() => {
   const t = useTranslations();
@@ -43,35 +44,39 @@ export const CompanyInviteModal = observer(() => {
         </AppCardHeader>
 
         <AppCardBody>
-          <SegmentedControl
-            idPrefix="invite-modal"
-            items={[
-              { value: "link", label: t("OnboardingWizard.invite.tabs.link") },
-              { value: "email", label: t("OnboardingWizard.invite.tabs.email") },
-            ]}
-            label={t("CompanyInviteModal.title")}
-            value={method}
-            onValueChange={setMethod}
-          >
-            <SegmentedControlPanel value="link">
-              <div className="space-y-1.5">
-                <FormLabel>{t("CompanyInviteModal.label")}</FormLabel>
+          {companyInviteModalStore.teamsNeedPlan ? (
+            <TeamsNeedPlanPanel onNavigate={() => companyInviteModalStore.close()} />
+          ) : (
+            <SegmentedControl
+              idPrefix="invite-modal"
+              items={[
+                { value: "link", label: t("OnboardingWizard.invite.tabs.link") },
+                { value: "email", label: t("OnboardingWizard.invite.tabs.email") },
+              ]}
+              label={t("CompanyInviteModal.title")}
+              value={method}
+              onValueChange={setMethod}
+            >
+              <SegmentedControlPanel value="link">
+                <div className="space-y-1.5">
+                  <FormLabel>{t("CompanyInviteModal.label")}</FormLabel>
 
-                <CopyableCode
-                  anchorId="invite-modal-copy-link"
-                  disabled={isLoading}
-                  id="invite-modal-link"
-                  value={isLoading ? t("CompanyInviteModal.generating") : form.inviteLink}
-                />
+                  <CopyableCode
+                    anchorId="invite-modal-copy-link"
+                    disabled={isLoading}
+                    id="invite-modal-link"
+                    value={isLoading ? t("CompanyInviteModal.generating") : form.inviteLink}
+                  />
 
-                <p className="text-subdued text-xs">{getDescription()}</p>
-              </div>
-            </SegmentedControlPanel>
+                  <p className="text-subdued text-xs">{getDescription()}</p>
+                </div>
+              </SegmentedControlPanel>
 
-            <SegmentedControlPanel value="email">
-              <InviteByEmailForm />
-            </SegmentedControlPanel>
-          </SegmentedControl>
+              <SegmentedControlPanel value="email">
+                <InviteByEmailForm />
+              </SegmentedControlPanel>
+            </SegmentedControl>
+          )}
         </AppCardBody>
       </AppCard>
     </AppModal>

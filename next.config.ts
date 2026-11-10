@@ -157,6 +157,12 @@ const nextConfig: NextConfig = {
         source: "/maps/v1/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      ...["/customermates-film.mp4", "/customermates-film-poster.jpg", "/images/:path*", "/icons/:path*"].map(
+        (source) => ({
+          source,
+          headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+        }),
+      ),
     ]);
   },
 };

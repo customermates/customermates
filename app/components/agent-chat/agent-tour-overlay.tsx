@@ -85,7 +85,7 @@ export const AgentTourOverlay = observer(function AgentTourOverlay() {
     <>
       {rect && (
         <div
-          className={cn("pointer-events-none fixed rounded-lg border-2 border-primary", OVERLAY_TOPMOST_LAYER_CLASS)}
+          className={cn("pointer-events-none fixed rounded-lg border-2 border-foreground", OVERLAY_TOPMOST_LAYER_CLASS)}
           style={{
             top: rect.top - 4,
             left: rect.left - 4,

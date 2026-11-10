@@ -9,10 +9,20 @@ relatedHrefs:
   - /features/unified-inbox
   - /blog/zoho-crm-pricing
 
+sections:
+  reasons:
+    - title: "WhatsApp without a business number"
+      description: "WhatsApp connects the account you already use: you scan a QR code instead of registering a business number. From Pro, LinkedIn, Instagram, Telegram and your mailbox sit in the same inbox."
+    - title: "Replies drafted by Mate"
+      description: "In Customermates Cloud, Mate summarizes conversations, drafts replies, updates records and builds saved views, using hosted AI credits. You review, edit and send."
+    - title: "Open source, the cloud database in Frankfurt, or your own server"
+      description: "Zoho offers no self-hosted edition. The Customermates core is AGPL-3.0 and runs with Docker Compose and PostgreSQL 16, including REST, webhooks and MCP."
+  switchSteps: true
+
 hero:
   title: "Zoho CRM Alternative: Customermates and Zoho CRM Compared"
-  description: "Zoho CRM spreads its features across a free edition and four paid editions, from forecasting on Standard to Zia's analyses and recommendations on Enterprise, and runs in Zoho's own data centres. Customermates is an open-source CRM built in Germany that puts email, LinkedIn, WhatsApp, Instagram and Telegram next to your deals from Pro, and lets Mate or your own AI client keep the records current. Zoho prices are from zoho.com, checked on 30 October 2026; other Zoho details were checked on 8 October 2026."
-  buttonLeftText: Start for free
+  description: "Zoho CRM adds features edition by edition, and its WhatsApp integration needs a registered business number. If you mostly track contacts, deals and conversations, Customermates is narrower: from Pro, LinkedIn, email and WhatsApp sit on the client and Mate drafts the reply. Zoho prices checked on 30 October 2026, other details on 8 October 2026."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -31,7 +41,7 @@ comparison:
         source: Monthly billing only
         competitor: "Standard $14 or €14, Professional $23 or €23, Enterprise $40 or €40, Ultimate €52 (not listed on Zoho's US page)"
       - name: Free plan
-        source: false
+        source: "[[commercial.limit.free.maxMembers]] person, [[commercial.limit.free.maxRecords]] records, no inbox or Mate"
         competitor: Free edition for up to 3 users
       - name: Free trial
         source: "[[commercial.trial.days]] days, no credit card"
@@ -79,13 +89,13 @@ comparison:
         source: "MCP server on every plan and self-hosted, [[derived.mcp.tools.total]] tools"
         competitor: Zoho MCP, a separate Zoho service that supports Zoho CRM
       - name: Rule-based automation
-        source: No rule builder; webhooks and REST on every plan, n8n run separately
+        source: No rule builder; webhooks and REST on every paid plan, n8n run separately
         competitor: Workflow rules on every edition; process management from Professional; approval processes on Enterprise
       - name: AI automation
         source: Routines run saved instructions on a schedule or record event (Customermates Cloud)
         competitor: AI agents listed on the paid editions
       - name: REST API
-        source: Every plan and self-hosted, plus webhooks
+        source: Every plan and self-hosted; webhooks on paid plans
         competitor: Every edition; Free has 5,000 API calls a day
   - title: Licence, Hosting & Data
     features:
@@ -108,7 +118,7 @@ comparison:
 cta:
   action: Comparing Zoho CRM and Customermates?
   description: "Start a trial, export one Zoho module as an XLSX file and import it, then connect the mailbox or LinkedIn account your clients write to. You will see quickly whether your own data and conversations fit the Customermates model."
-  buttonLeftText: Start for free
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
   buttonLeftHref: /auth/signup
   buttonRightText: Watch live demo
   buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
@@ -180,7 +190,7 @@ Every Customermates Cloud plan includes monthly hosted AI credits per active use
 
 ## Where Customermates fits
 
-Customermates is an open-source, AI-native CRM for small client-facing teams: consultants, agencies, other service businesses and founders. It is built in Germany.
+Zoho CRM is a large product with editions. Customermates is narrower: from Pro, LinkedIn, email, WhatsApp, Instagram and Telegram threads sit on the client record, and Mate or your own AI agent drafts the reply and the next step. You review, edit and send.
 
 **Conversations next to the deal.** From Pro, the [unified inbox](/features/unified-inbox) puts Gmail, Outlook and IMAP mailboxes, LinkedIn (including Sales Navigator and Recruiter), WhatsApp, Instagram and Telegram into one list, and you reply on the original channel. WhatsApp connects the account you already use: you scan a QR code instead of registering a business number. Link a participant to a contact once, and every conversation with that address or handle appears on the contact's timeline.
 
@@ -197,7 +207,7 @@ Check these before you start a trial:
 - **No telephony, no mass email and no sequences.** Calls happen on your own phone system, and messages go out one at a time, written by you or drafted by Mate.
 - **No web forms, scoring, enrichment or AI forecasting.** The weighted pipeline multiplies each deal's value by its stage probability. That is arithmetic on your own numbers, and it does not predict anything.
 - **No field-level permissions.** Permissions apply per list and action, not per field.
-- **No native mobile apps and no free plan.** Customermates runs in the phone's browser, and after a [[commercial.trial.days]]-day trial you choose a paid plan.
+- **No native mobile apps and a small free plan.** Customermates runs in the phone's browser. Free covers [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; more needs a paid plan after the [[commercial.trial.days]]-day trial.
 
 ## A worked setup: a web agency leaving Zoho CRM Standard
 
@@ -216,7 +226,7 @@ Take a three-person web agency. The founder finds new clients on LinkedIn, and t
 | Tags | A single choice field, since records have no tags |
 | Workflow rules | Routines in Customermates Cloud, or webhooks to your own n8n |
 
-The founder edits the Stage field's options to Brief received, Proposal sent, Negotiation, Won and Lost, and in Data model for Deals gives them win probabilities of 20%, 50%, 75%, 100% and 0%. She saves a board of all open deals grouped by Stage. Each account manager saves a table of their own deals grouped by organization; a saved view stays private until it is shared, so each person builds their own.
+The founder edits the Stage field's options to Brief received, Proposal sent, Negotiation, Won and Lost, and in Data model for Deals gives them win probabilities of 20%, 50%, 75%, 100% and 0%. She saves a board of all open deals grouped by Stage and shares it with the whole team. Each account manager saves a table of their own deals grouped by organization.
 
 Each person connects one account, LinkedIn for the founder and Gmail for the other two, so Pro fits at [[commercial.price.pro.monthly.seats.3]] a month for the team. If the founder also wants WhatsApp next to LinkedIn, the workspace moves to Business at [[commercial.price.business.monthly.seats.3]].
 
@@ -246,7 +256,7 @@ Customermates publishes this list. Details come from each vendor's own pages, ch
 
 <Faq>
 <FaqItem question="Is Zoho CRM still free?">
-Yes. The Free edition is free with no time limit for up to three users. It includes workflow automation, standard reports, up to 10 email templates, spreadsheet import and export, 5,000 API calls a day and the mobile app. A fourth user means moving to a paid edition. Customermates Cloud has no free plan; a self-hosted Customermates install has no subscription, but also no inbox and no Mate.
+Yes. The Free edition is free with no time limit for up to three users. It includes workflow automation, standard reports, up to 10 email templates, spreadsheet import and export, 5,000 API calls a day and the mobile app. A fourth user means moving to a paid edition. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines; a self-hosted Customermates install has no subscription, but also no inbox and no Mate.
 </FaqItem>
 
 <FaqItem question="What is the difference between Bigin and Zoho CRM?">

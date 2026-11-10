@@ -43,7 +43,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { SIDEBAR_SECTION_NAME_MAX } from "@/features/p13n/sidebar-layout.schema";
 
-import { NAV_ITEM_ACTION_PADDING, NavBadge, NavMainParent } from "./nav-main";
+import { NAV_ITEM_ACTION_PADDING, NavBadge, NavMainParent, NavPlanTag } from "./nav-main";
 import { NavLinkPendingIcon } from "./nav-link-pending-icon";
 import {
   CUSTOM_SECTION_PREFIX,
@@ -295,6 +295,8 @@ function SortableNavItem({
             <span className="min-w-0 truncate">{item.title}</span>
 
             <NavBadge count={item.badge ?? 0} />
+
+            <NavPlanTag tag={item.planTag} />
           </AppLink>
         </SidebarMenuButton>
 

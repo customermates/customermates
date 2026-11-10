@@ -9,8 +9,8 @@ relatedHrefs:
   - /docs/app-records
 
 hero:
-  title: "Google Sheets CRM: A Free Template, Formulas and the Point Where It Stops Working"
-  description: "Tabs, columns, dropdowns and formulas for a spreadsheet CRM that one to three people can run in Google Sheets, a short Apps Script that emails you each morning, and a clean path into a CRM once the sheet is shared by too many people."
+  title: "Google Sheets CRM: Free Template, Formulas and Where It Stops"
+  description: "Tabs, columns, dropdowns and formulas for a spreadsheet CRM that one to three people can run in Google Sheets, a short Apps Script that emails you each morning, and a clean path into a CRM."
 
 blogPost:
   author: Benjamin Wagner
@@ -167,7 +167,7 @@ A simple rule of thumb: once two people edit the same deals every week and one f
 
 ## Moving a Google Sheets CRM into Customermates
 
-Customermates imports Excel workbooks (.xlsx) and CSV files, one list at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field.
+Customermates imports Excel workbooks (.xlsx) and CSV files, one list at a time, so a Google Sheet goes through a download first. There is no live sync with Google Sheets. The [import documentation](/docs/app-records#how-do-i-import-or-export-records) has the full rules, and the [Excel template guide](/blog/excel-crm-template#moving-the-template-into-customermates) maps every column of this layout to a field. A sheet only follows up when someone remembers to open it. In Customermates, each client's conversations sit on the client record (on Customermates Cloud from Pro), Mate or your own AI agent drafts the reply and the next step, and the next-step date feeds your dashboard instead of a filter you have to check.
 
 <Steps>
   <Step title="Clean the tabs">Use Data › Data cleanup › Remove duplicates on Contacts and Deals, and fix any value that a dropdown flags. Every stage and type should be exactly one of the Lists values.</Step>
@@ -182,7 +182,7 @@ Deal values work differently: in Customermates a deal's value is the sum of its 
 ### What replaces the Dashboard and the Apps Script
 
 - **QUERY by stage** becomes the Deals list as a board grouped by Stage, with total and weighted value per column, shown in the [pipeline view](/features/pipeline).
-- **The FILTER follow-up list** becomes a saved view of deals filtered on Next step date, sorted oldest first.
+- **The FILTER follow-up list** becomes a saved view of deals filtered on Next step date, sorted oldest first. It can be shared with the team.
 - **The morning email** can become a routine in Customermates Cloud. Customermates has no reminders or notifications, but a routine set to run daily at 08:00 can follow an instruction like this one, using hosted AI credits:
 
 > List my open deals whose Next step date is today or earlier. For each one, create a task linked to the deal, assigned to me, named "Follow up" plus the deal name. Do not send or draft any messages.
@@ -201,7 +201,7 @@ If you still want a reporting copy in Google Sheets, webhooks can send record ch
 | 3 people, with the unified inbox | Pro, [[commercial.price.pro.monthly]] per user | [[commercial.price.pro.monthly.seats.3]] |
 | Your own server | Self-hosted AGPL core | No licence fee, plus hosting; REST, webhooks and MCP, but no inbox and no Mate |
 
-Billing is monthly, and the hosted trial runs [[commercial.trial.days]] days. Each hosted plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
+Billing is monthly, and the hosted trial runs [[commercial.trial.days]] days on Pro with no credit card: [start your trial](/auth/signup?job=followup) and import one tab to see your own deals there. Each paid hosted plan includes monthly hosted AI credits per active user; see [pricing](/pricing).
 
 Customermates is the wrong step if your process lives in formulas: it has no formula fields, so custom calculations stay in a spreadsheet through the export. It is also wrong if you need a phone dialer, email campaigns or a native phone app. Customermates has none of those, so look for a CRM that ships them. And if the real requirement is "stay inside Google Sheets", a Marketplace add-on fits better than any separate CRM.
 

@@ -87,7 +87,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                     <XIcon className="size-3" />
                   </button>
                 }
-                variant="default"
+                variant="ink"
                 onClick={() => search.apply(undefined)}
               >
                 <span className="truncate text-[11px]">
@@ -123,7 +123,7 @@ export const PaletteRootList = observer(function PaletteRootList({
                       <XIcon className="size-3" />
                     </button>
                   }
-                  variant="default"
+                  variant="ink"
                   onClick={pickable ? () => onPickFilter(index) : undefined}
                 >
                   <span className="truncate text-[11px]">

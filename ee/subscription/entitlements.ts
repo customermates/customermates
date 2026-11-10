@@ -1,8 +1,8 @@
-import type { PlanEntitlements } from "@/core/commercial/plan-catalog";
+import type { PlanEntitlements, PlanId } from "@/core/commercial/plan-catalog";
 import type { AppMode } from "@/core/config/environment";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import { PLAN_CATALOG } from "@/core/commercial/plan-catalog";
+import { FREE_PLAN_ID, PLAN_CATALOG } from "@/core/commercial/plan-catalog";
 
 export type EntitlementFeature = "agentChat" | "messaging" | "sharedAccounts";
 
@@ -12,7 +12,13 @@ const LIVE_SUBSCRIPTION_STATUSES = new Set<SubscriptionStatus>([
   SubscriptionStatus.pastDue,
 ]);
 
-export function getEntitlements(plan: SubscriptionPlan): PlanEntitlements {
+type PlanSubscription = {
+  status: SubscriptionStatus;
+  plan: SubscriptionPlan;
+  trialEndDate: Date | null;
+};
+
+export function getEntitlements(plan: PlanId): PlanEntitlements {
   return PLAN_CATALOG[plan].entitlements;
 }
 
@@ -40,6 +46,21 @@ export function isSubscriptionExpired(subscription: {
       subscription.trialEndDate !== null &&
       subscription.trialEndDate < new Date())
   );
+}
+
+export function isOnFreePlan(subscription: PlanSubscription, now: Date = new Date()): boolean {
+  if (subscription.plan === SubscriptionPlan.enterprise || subscription.trialEndDate === null) return false;
+  if (subscription.status === SubscriptionStatus.expired) return true;
+
+  return subscription.status === SubscriptionStatus.trial && subscription.trialEndDate < now;
+}
+
+export function effectivePlanId(subscription: PlanSubscription, now: Date = new Date()): PlanId {
+  return isOnFreePlan(subscription, now) ? FREE_PLAN_ID : subscription.plan;
+}
+
+export function isSubscriptionLocked(subscription: PlanSubscription): boolean {
+  return isSubscriptionExpired(subscription) && !isOnFreePlan(subscription);
 }
 
 export function isSubscriptionUsable(subscription: { status: SubscriptionStatus; trialEndDate: Date | null }): boolean {

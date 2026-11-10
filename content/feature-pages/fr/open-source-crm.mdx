@@ -29,10 +29,10 @@ acquisition:
       - claim:no-hosted-ai-self-hosted
       - claim:no-invoicing
   cta:
-    action: Testez le CRM open source avec votre propre processus
-    description: Démarrez l’essai Pro de [[commercial.trial.days]] jours dans le cloud, laissez la configuration IA préparer votre espace de travail et testez-le avec de vrais contacts et de vraies affaires. La voie auto-hébergée avec Docker reste ouverte en parallèle.
-    buttonLeftText: "Essayer gratuitement pendant [[commercial.trial.days]] jours"
-    buttonLeftHref: /auth/signup
+    action: "Testez le CRM open source sur vos propres relances clients"
+    description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours dans le cloud, connectez un compte e-mail ou LinkedIn et laissez la configuration IA préparer votre espace de travail. La voie auto-hébergée avec Docker reste ouverte en parallèle."
+    buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Auto-héberger avec Docker
     buttonRightHref: /features/self-hosted
     hint: "Sans carte bancaire. L’auto-hébergement couvre les fonctions de Starter, sans boîte de réception hébergée et sans Mate."
@@ -46,9 +46,9 @@ acquisition:
     locale: fr
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "CRM open source : démarrez dans le cloud ou auto-hébergez-le"
-      body: "Customermates est un CRM open source conçu en Allemagne, avec un cœur AGPL et un code source public. Essayez gratuitement le cloud géré avec les fonctions Pro, sans carte bancaire, ou exploitez vous-même le cœur avec Docker Compose et PostgreSQL."
-      checksum: fnv1a-0bb7f70d
+      headline: "CRM open source pour relancer vos clients : cloud ou auto-hébergement"
+      body: "Customermates est un CRM open source conçu en Allemagne, cœur AGPL et code source public. Essayez le cloud avec les fonctions Pro, où les conversations LinkedIn et e-mail sont sur chaque client et où Mate rédige les réponses, ou auto-hébergez le cœur avec Docker Compose."
+      checksum: fnv1a-86e37df7
     kind: none
     reason: "La démo du tableau de bord, placée tôt dans la page, est la preuve produit directe ; une image d’en-tête supplémentaire n’apporte rien."
     selection: explicit
@@ -58,20 +58,49 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Comment essayer Customermates dans le cloud"
+    items:
+      - title: "Créez un compte"
+        description: "Inscrivez-vous et créez votre premier espace de travail. Il bénéficie de [[commercial.trial.days]] jours de fonctions Pro, sans carte bancaire."
+      - title: "Décrivez votre espace de travail"
+        description: "Répondez à quelques questions sur vos clients, vos ventes et vos chiffres, ou faites lire votre site web. La configuration IA présente un plan avec listes, étapes du pipeline, champs, tableau de bord et pages de la base de connaissances, que vous validez ou ajustez."
+      - title: "Apportez vos propres données"
+        description: "Importez un classeur Excel (XLSX) ou démarrez avec des données d’exemple pour vérifier les vues et le pipeline."
+      - title: "Connectez votre propre IA"
+        description: "Connectez Claude, ChatGPT ou un autre client MCP si vous le souhaitez. Mate travaille dans l’espace de travail avec les permissions de l’utilisateur, et les suppressions, les imports et les changements d’accès nécessitent votre validation."
+      - title: "Choisissez une formule"
+        description: "Si Customermates vous convient, choisissez une formule. Rien n’est facturé sans validation du paiement ; après l’essai, l’espace de travail passe à la formule gratuite Free jusqu’au choix d’une formule."
+  highlights:
+    title: "En bref"
+    capture: homepage-record
+    items:
+      - title: "Open source"
+        description: "Le code propre à Customermates en dehors de ee/ est sous AGPL-3.0-only. Le code source se trouve dans le dépôt public."
+      - title: "Démarrage le plus rapide"
+        description: "Cloud géré avec [[commercial.trial.days]] jours de fonctions Pro, sans carte bancaire. La configuration IA prépare les listes, le pipeline, le tableau de bord et la base de connaissances."
+      - title: "Auto-hébergé"
+        description: "Deux conteneurs avec Docker Compose : l’application et PostgreSQL 16, avec les fonctions de Starter et sans facturation."
+      - title: "Limite"
+        description: "La boîte de réception, les calendriers connectés, Mate et la configuration par IA sont réservés au cloud. Factures, devis et téléphonie manquent dans les deux cas."
+
 hero:
-  title: "CRM open source : démarrez dans le cloud ou auto-hébergez-le"
-  description: "Customermates est un CRM open source conçu en Allemagne, avec un cœur AGPL et un code source public. Essayez gratuitement le cloud géré avec les fonctions Pro, sans carte bancaire, ou exploitez vous-même le cœur avec Docker Compose et PostgreSQL."
-  buttonLeftText: "Essayer gratuitement pendant [[commercial.trial.days]] jours"
-  buttonLeftHref: /auth/signup
+  title: "CRM open source pour relancer vos clients : cloud ou auto-hébergement"
+  description: "Customermates est un CRM open source conçu en Allemagne, cœur AGPL et code source public. Essayez le cloud avec les fonctions Pro, où les conversations LinkedIn et e-mail sont sur chaque client et où Mate rédige les réponses, ou auto-hébergez le cœur avec Docker Compose."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Auto-héberger avec Docker
   buttonRightHref: /features/self-hosted
   hint: "Sans carte bancaire • Cloud ensuite dès [[commercial.price.starter.monthly]] par utilisateur et par mois • Auto-hébergement sans facturation"
 
 cta:
-  action: Testez le CRM open source avec votre propre processus
-  description: Démarrez l’essai Pro de [[commercial.trial.days]] jours dans le cloud, laissez la configuration IA préparer votre espace de travail et testez-le avec de vrais contacts et de vraies affaires. La voie auto-hébergée avec Docker reste ouverte en parallèle.
-  buttonLeftText: "Essayer gratuitement pendant [[commercial.trial.days]] jours"
-  buttonLeftHref: /auth/signup
+  action: "Testez le CRM open source sur vos propres relances clients"
+  description: "Démarrez l’essai Pro de [[commercial.trial.days]] jours dans le cloud, connectez un compte e-mail ou LinkedIn et laissez la configuration IA préparer votre espace de travail. La voie auto-hébergée avec Docker reste ouverte en parallèle."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Auto-héberger avec Docker
   buttonRightHref: /features/self-hosted
   hint: "Sans carte bancaire. L’auto-hébergement couvre les fonctions de Starter, sans boîte de réception hébergée et sans Mate."
@@ -79,26 +108,7 @@ cta:
 
 **Customermates est un CRM open source** pour les petites équipes : contacts, organisations, affaires et tâches dans des listes que vous configurez vous-même, avec REST, des webhooks et MCP pour les agents IA. Le cœur est publié sous licence AGPL-3.0 et public sur GitHub. Démarrez dans le cloud géré avec un essai Pro gratuit et sans carte bancaire, ou exploitez le cœur en auto-hébergement avec Docker Compose et PostgreSQL.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Open source">
-    Le code propre à Customermates en dehors de `ee/` est sous AGPL-3.0-only.
-    Le code source se trouve dans le dépôt public.
-  </SummaryItem>
-  <SummaryItem label="Démarrage le plus rapide">
-    Cloud géré avec [[commercial.trial.days]] jours de fonctions Pro, sans carte
-    bancaire. La configuration IA prépare les listes, le pipeline, le
-    tableau de bord et la base de connaissances.
-  </SummaryItem>
-  <SummaryItem label="Auto-hébergé">
-    Deux conteneurs avec Docker Compose : l’application et PostgreSQL 16, avec
-    les fonctions de Starter et sans facturation.
-  </SummaryItem>
-  <SummaryItem label="Limite">
-    La boîte de réception, les calendriers connectés, Mate et la configuration
-    par IA sont réservés au cloud. Factures, devis et téléphonie manquent dans
-    les deux cas.
-  </SummaryItem>
-</ArticleSummary>
+**Pourquoi la relance est une fonction du cloud.** Le travail de relance, les conversations LinkedIn et e-mail sur chaque client et les réponses rédigées par Mate, tourne sur Customermates Cloud dès Pro. Le cœur auto-hébergé est le même CRM open source avec enregistrements, vues, REST, webhooks et MCP pour votre propre client IA, sans boîte de réception et sans Mate. Essayez d’abord le cloud si ce sont les relances rédigées qui vous intéressent, et auto-hébergez quand le contrôle de l’endroit où tournent les données compte davantage.
 
 <ProofRail label="Faits sur le CRM open source">
   <ProofItem label="Licence">Cœur AGPL-3.0</ProofItem>
@@ -139,38 +149,6 @@ L’auto-hébergement convient si votre équipe sait exploiter Docker et Postgre
   complet et un import ne reprend pas les pièces jointes. Une formule cloud
   achetée ne débloque rien dans une installation auto-hébergée.
 </AcquisitionCallout>
-
-## Comment essayer Customermates dans le cloud
-
-<Steps>
-  <Step title="Créez un compte">
-    [Inscrivez-vous](/auth/signup) et créez votre premier espace de travail. Il
-    bénéficie de [[commercial.trial.days]] jours de fonctions Pro, sans carte
-    bancaire.
-  </Step>
-  <Step title="Décrivez votre espace de travail">
-    Répondez à quelques questions sur vos clients, vos ventes et vos chiffres,
-    ou faites lire votre site web. La configuration IA présente un plan avec
-    listes, étapes du pipeline, champs, tableau de bord et pages de la base de
-    connaissances, que vous validez ou ajustez.
-  </Step>
-  <Step title="Apportez vos propres données">
-    Importez un classeur Excel (XLSX) ou démarrez avec des données d’exemple
-    pour vérifier les vues et le pipeline.
-  </Step>
-  <Step title="Connectez votre propre IA">
-    Connectez Claude, ChatGPT ou un autre client MCP si vous le souhaitez. Mate
-    travaille dans l’espace de travail avec les permissions de l’utilisateur, et
-    les actions sensibles nécessitent votre validation.
-  </Step>
-  <Step title="Choisissez une formule">
-    Si Customermates vous convient, choisissez une formule. Rien n’est facturé
-    sans validation du paiement ; après l’essai, l’espace de travail est mis en pause
-    jusqu’au choix d’une formule.
-  </Step>
-</Steps>
-
-Les formules et leur contenu sont présentés sur la page [tarifs](/pricing).
 
 ## Comment exploiter Customermates en auto-hébergement
 

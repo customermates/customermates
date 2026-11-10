@@ -11,7 +11,7 @@ import {
   PLAN_CATALOG,
   PLAN_IDS,
   PURCHASABLE_PLAN_IDS,
-  RECOMMENDED_PLAN_ID,
+  TEAM_PLAN_ID,
 } from "@/core/commercial/plan-catalog";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN } from "@/ee/routines/routine-run-limits";
 import { AGENT_MICROCENTS_PER_USD, agentCreditsToMicrocents } from "@/core/commercial/agent-credits";
@@ -58,7 +58,7 @@ describe("hosted AI pricing contract", () => {
     const multipliers = Object.fromEntries(
       PLAN_IDS.map((plan) => [plan, PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier]),
     );
-    expect(multipliers).toEqual({ starter: 1, pro: 3, business: 10, max: 20, enterprise: "contract" });
+    expect(multipliers).toEqual({ free: null, starter: 1, pro: 3, business: 10, max: 20, enterprise: "contract" });
     for (const plan of PURCHASABLE_PLAN_IDS) {
       expect(PLAN_CATALOG[plan].entitlements.hostedAiCreditsPerActiveUser).toBe(
         HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier,
@@ -67,7 +67,7 @@ describe("hosted AI pricing contract", () => {
     expect(CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER).toBe(PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier);
   });
 
-  it("keeps Business the best usage per euro and recommends it", () => {
+  it("keeps Business the best usage per euro, labels it for teams in the app and features Pro for follow-up everywhere", () => {
     const usagePerEuro = PURCHASABLE_PLAN_IDS.map((plan) => ({
       plan,
       value:
@@ -75,16 +75,20 @@ describe("hosted AI pricing contract", () => {
     })).sort((left, right) => right.value - left.value);
 
     expect(usagePerEuro.map(({ plan }) => plan)).toEqual(["business", "max", "pro", "starter"]);
-    expect(RECOMMENDED_PLAN_ID).toBe("business");
+    expect(TEAM_PLAN_ID).toBe("business");
     for (const pricing of [pricingEn, pricingDe]) {
+      const pro = pricing.slice(pricing.indexOf("  - plan: pro"), pricing.indexOf("  - plan: business"));
       const business = pricing.slice(pricing.indexOf("  - plan: business"), pricing.indexOf("  - plan: max"));
-      expect(business).toMatch(/badge: (Recommended|Empfohlen)\n/);
-      expect(business).toContain("featured: true");
+      expect(pro).toMatch(/badge: "(Best for follow-up|Ideal zum Nachfassen)"\n/);
+      expect(pro).toContain("featured: true");
+      expect(business).toMatch(/badge: "(For teams|Für Teams)"\n/);
+      expect(business).not.toContain("featured: true");
       expect(pricing).not.toMatch(/Most popular|Beliebteste Wahl|Am beliebtesten/);
     }
     for (const source of Object.values(localeFiles)) {
       const picker = (JSON.parse(source) as { Subscription: { picker: Record<string, unknown> } }).Subscription.picker;
-      expect(picker).toHaveProperty("recommended");
+      expect(picker).toHaveProperty("forTeams");
+      expect(picker).not.toHaveProperty("recommended");
       expect(picker).not.toHaveProperty("mostPopular");
     }
   });

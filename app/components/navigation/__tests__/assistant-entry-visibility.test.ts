@@ -4,7 +4,7 @@ import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
 import { assistantEntryVisible } from "../assistant-entry-visibility";
 
-const active = { status: SubscriptionStatus.active, plan: SubscriptionPlan.pro, trialEndDate: null };
+const active = { status: SubscriptionStatus.active, plan: SubscriptionPlan.pro, trialEndDate: null, onFreePlan: false };
 
 describe("sidebar assistant entry", () => {
   it("reserves the entry before the assistant configuration loads when the plan includes it", () => {
@@ -31,8 +31,29 @@ describe("sidebar assistant entry", () => {
         agentChatEnabled: true,
         restricted: false,
         configEnabled: null,
-        subscription: { status: SubscriptionStatus.expired, plan: SubscriptionPlan.pro, trialEndDate: null },
+        subscription: {
+          status: SubscriptionStatus.unPaid,
+          plan: SubscriptionPlan.pro,
+          trialEndDate: null,
+          onFreePlan: false,
+        },
       }),
     ).toBe(false);
+  });
+
+  it("shows the entry on the Free plan so Mate can show its upgrade prompt", () => {
+    expect(
+      assistantEntryVisible({
+        agentChatEnabled: true,
+        restricted: false,
+        configEnabled: false,
+        subscription: {
+          status: SubscriptionStatus.expired,
+          plan: SubscriptionPlan.pro,
+          trialEndDate: null,
+          onFreePlan: true,
+        },
+      }),
+    ).toBe(true);
   });
 });

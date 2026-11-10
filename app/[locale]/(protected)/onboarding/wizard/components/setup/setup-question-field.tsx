@@ -564,7 +564,7 @@ export function SetupQuestionField({ descriptor, fromWebsite = false, ...props }
         {fromWebsite ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="inline-flex animate-page-result-in text-primary motion-reduce:animate-none">
+              <span className="inline-flex animate-page-result-in text-muted-foreground motion-reduce:animate-none">
                 <Sparkles aria-hidden className="size-3.5" />
 
                 <span className="sr-only">{t("WorkspaceSetup.actions.fromWebsite")}</span>

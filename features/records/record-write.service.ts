@@ -43,6 +43,12 @@ import { isBlockingAddressIssue } from "@/features/addresses/address-check";
 import { addressWarnings, mergeRecordWriteWarnings, type FieldAddressIssues } from "./record-address-warnings";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
+
+export type RecordCreationGate = {
+  admitRecords(adding: number): Promise<Record<string, string | number> | null>;
+};
+
+const OPEN_RECORD_CREATION_GATE: RecordCreationGate = { admitRecords: () => Promise.resolve(null) };
 function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",
@@ -189,6 +195,7 @@ export class RecordWriteService {
       attach: () => Promise.reject(new Error("File values need a file attacher")),
     },
     private addressChecker: Pick<AddressCheckService, "check"> = new AddressCheckService(),
+    private creations: RecordCreationGate = OPEN_RECORD_CREATION_GATE,
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
@@ -199,6 +206,7 @@ export class RecordWriteService {
       this.addresses,
       this.files,
       this.addressChecker,
+      this.creations,
     );
   }
 
@@ -695,6 +703,10 @@ export class RecordWriteService {
       if (!policy.allowed(mutation.typeId, "create")) reject(CustomErrorCode.permissionDenied, "authorization");
       const assignees = definition.parentRelationshipId ? [] : (mutation.assignedUserIds ?? [policy.actor.id]);
       await this.requireAssignable(policy, assignees, ["mutation", "assignedUserIds"]);
+      if (!definition.embedded) {
+        const refused = await this.creations.admitRecords(1);
+        if (refused) reject(CustomErrorCode.planRecordLimitReached, "conflict", [], refused);
+      }
       const ref = {
         typeId: mutation.typeId,
         recordId: options.createRecordId ?? randomUUID(),

@@ -92,7 +92,7 @@ function controlOf(html: string, id: string): string {
 }
 
 function restingTabs(html: string): string[] {
-  return tabs(html).filter((tab) => !classesOf(tab).includes("bg-primary/20"));
+  return tabs(html).filter((tab) => !classesOf(tab).includes("bg-primary/10"));
 }
 
 const ANCHOR_IDS = ["global-data-views", "global-data-views-all", "global-data-views-menu", "global-data-views-new"];
@@ -180,11 +180,11 @@ describe("data view rail", () => {
     expect(countOf(html, "<a ")).toBe(4);
     expect(countOf(html, 'aria-current="page"')).toBe(1);
     expect(html).toMatch(/<a[^>]*aria-current="page"[^>]*>(?:(?!<\/a>).)*Open deals/s);
-    const selected = tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/20"));
+    const selected = tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/10"));
     expect(selected).toHaveLength(1);
     expect(selected[0]).toContain('aria-current="page"');
     expect(classesOf(selected[0])).toContain("text-primary-soft-foreground");
-    expect(classesOf(selected[0])).toContain("border-primary/40");
+    expect(classesOf(selected[0])).toContain("border-primary/25");
     expect(classesOf(selected[0])).not.toContain("text-muted-foreground");
     expect(tabs(html).filter((tab) => classesOf(tab).includes("text-muted-foreground"))).toHaveLength(3);
     const unselected = restingTabs(html);
@@ -233,9 +233,9 @@ describe("data view rail", () => {
 
   it("holds the active tab's soft primary fill, rim and label through hover", () => {
     const html = render(store({ activeViewKey: "v-b", views: THREE_VIEWS }));
-    const active = classesOf(tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/20"))[0] ?? "");
+    const active = classesOf(tabs(html).filter((tab) => classesOf(tab).includes("bg-primary/10"))[0] ?? "");
 
-    expect(active).toContain("hover:bg-primary/20");
+    expect(active).toContain("hover:bg-primary/10");
     expect(active).toContain("hover:text-primary-soft-foreground");
     expect(active).not.toContain("hover:bg-accent");
     expect(active).not.toContain("hover:text-foreground");

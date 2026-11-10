@@ -192,17 +192,17 @@ export const RoleModal = observer(({ store }: Props) => {
 
           <AppCardBody className="pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
             {store.loadFailed && (
-              <Alert color="danger" description={t("ErrorCard.title")}>
+              <Alert description={t("ErrorCard.title")} variant="destructive">
                 <Button size="sm" variant="secondary" onClick={() => runUserAction(store.loadContext)}>
                   {t("ErrorCard.retry")}
                 </Button>
               </Alert>
             )}
 
-            {isSystemRole && <Alert color="primary" description={t("RoleModal.systemAlert")} />}
+            {isSystemRole && <Alert description={t("RoleModal.systemAlert")} variant="info" />}
 
             {!isSystemRole && isOwnRole && canManage && (
-              <Alert color="warning" description={t("RoleModal.ownRoleAlert")} />
+              <Alert description={t("RoleModal.ownRoleAlert")} variant="warning" />
             )}
 
             {isSystemRole ? (

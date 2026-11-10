@@ -1,7 +1,7 @@
 ---
-title: "Follow-up CRM: Nachfassen mit Ansichten und KI"
-description: "Nachfassen im CRM: Datum für den nächsten Kontakt, Posteingang-Ansicht für unbeantwortete Nachrichten und in Customermates Cloud KI-Entwürfe."
-featureName: Follow-Up CRM
+title: "Software zum Nachfassen: Jedes Angebot im Blick"
+description: "Bei jedem Angebot nachfassen: LinkedIn- und E-Mail-Verläufe am Kunden, je ein datierter nächster Schritt, und Mate entwirft Nachrichten zum Prüfen und Senden."
+featureName: Software zum Nachfassen
 
 relatedHrefs:
   - /features/unified-inbox
@@ -10,30 +10,131 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: Follow-up CRM, das zeigt, wer auf Ihre Antwort wartet und bei wem Sie nachfassen sollten
-  description: Halten Sie für jeden Kunden ein Datum für den nächsten Kontakt fest, sehen Sie E-Mail-, LinkedIn- und WhatsApp-Verläufe, in denen Sie zuletzt geschrieben und keine Antwort bekommen haben, und lassen Sie in Customermates Cloud Mate die Nachfass-Entwürfe schreiben. Wann sie versendet werden, entscheiden Sie.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Follow-up-CRM: sehen, bei wem Sie nachfassen sollten"
+  description: "Setzen Sie bei jedem Kunden ein Datum für den nächsten Kontakt und sehen Sie, wo Ihre letzte Nachricht unbeantwortet blieb. In Customermates Cloud entwirft Mate Nachfass-Entwürfe, Sie senden."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Automatisierungsanleitung lesen
   buttonRightHref: /features/workflow-automation
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
+landing:
+  solution: consultants
+  hero:
+    eyebrow: Software zum Nachfassen für kundennahe Teams
+    title: Software zum Nachfassen bei Kunden. Fassen Sie bei jedem Angebot und jeder Antwort nach.
+    description: LinkedIn- und E-Mail-Verläufe liegen beim Kunden, jedes offene Gespräch bekommt einen datierten nächsten Schritt, und Mate entwirft das Nachfassen, das Sie im Gespräch prüfen und senden.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihre bisherigen Tools bleiben · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Beschreiben Sie, wie Sie Kunden gewinnen. Ihr Workspace zum Nachfassen entsteht.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Pipeline und Ihren Leitfaden zum Nachfassen. Das ist das Beratungsbeispiel; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Wir sind eine Strategieberatung mit vier Personen. Verwalte Kunden, Mandate und Angebote und hilf uns, Interessenten auf LinkedIn nachzufassen.
+  followUp:
+    eyebrow: Eine Freitagsantwort, erledigt
+    title: Der Interessent will das überarbeitete Angebot. Es steht auf der Liste für Dienstag.
+    description: Der LinkedIn-Verlauf liegt beim Kunden. Mate entwirft die Antwort aus Ihrem Leitfaden, terminiert den nächsten Schritt und legt den Entwurf zur Prüfung ab.
+    desk:
+      label: Szene zum Nachfassen in einer Beratung
+      workspace: Lindqvist Beratung
+      conversation:
+        label: LinkedIn
+        name: Jonas Weber
+        company: Halden & Co.
+        time: Fr 16:42
+        message: Klingt gut. Können Sie mir nächste Woche das überarbeitete Angebot schicken? Dann nehme ich es mit in die Geschäftsführung.
+      agent:
+        name: Mate
+        intent: Entwirft eine Antwort aus Ihrem Angebotsleitfaden
+        done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Herr Weber, vielen Dank. Ich schicke Ihnen das überarbeitete Angebot am Dienstag, mit den zwei Workshop-Varianten, über die wir gesprochen haben. Viele Grüße, Anna Lindqvist
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Dienstag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Überarbeitetes Angebot senden
+                meta: Halden & Co. · heute fällig
+                owner: AL
+                state: added
+              - title: Unterschriebenes Angebot nachfassen
+                meta: Norrland Studio · 2 Tage überfällig
+                owner: AL
+                state: overdue
+          - title: Angebote ohne Antwort
+            items:
+              - title: Angebot Norrland Studio
+                meta: vor 5 Tagen gesendet
+                owner: AL
+                state: due
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, keine stillen Verläufe.
+    before:
+      label: Vorher
+      points:
+        - Nachfassen in einer Tabelle oder nur im Kopf
+        - Antworten verteilt auf LinkedIn und E-Mail
+        - Angebote bleiben liegen, wenn die Woche voll ist
+    after:
+      label: Mit Customermates
+      points:
+        - Jedes offene Gespräch hat einen nächsten Schritt mit Datum und Zuständigkeit
+        - Der Verlauf liegt beim Kunden, mit fertigem Entwurf
+        - Ihr Dashboard zeigt, was fällig ist, und sonst nichts
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zum ersten Nachfassen.
+    items:
+      - title: Arbeitsweise beschreiben
+        description: Die KI-Einrichtung baut Listen, Pipeline und Ihren Leitfaden zum Nachfassen aus einer Beschreibung und ein paar Antworten.
+      - title: LinkedIn oder E-Mail verbinden
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Nachfassen im Dashboard prüfen
+        description: Mate entwirft die Antwort und terminiert den nächsten Schritt, wenn Sie darum bitten oder per Routine. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Pro reicht dafür. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Posteingang und verbundenes LinkedIn und E-Mail brauchen Customermates Cloud ab Pro. Wenn Kolleginnen und Kollegen aus einem gemeinsamen Konto antworten, brauchen Sie Business für [[commercial.price.business.monthly]].
+    limits: Nicht geeignet, wenn Sie E-Mail-Sequenzen, Datenanreicherung oder Massenversand brauchen. Mate sendet nur, wenn Sie darum bitten oder eine von Ihnen eingerichtete Routine es tut.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
+
 cta:
-  action: Ihre Nachfass-Liste in zehn Minuten
-  description: Legen Sie eine Datumsspalte „Nächster Kontakt" an, speichern Sie zwei Ansichten und ab Pro eine Posteingang-Ansicht für offene Antworten. Den Rest entwirft eine Routine am Montag.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Bauen Sie Ihre Nachfass-Liste in der Testphase auf"
+  description: "Legen Sie ein Datumsfeld „Nächster Kontakt“ an, dazu ein Widget „Anstehend“ und zwei gespeicherte Ansichten, ab Pro außerdem eine Posteingang-Ansicht für offene Antworten. Den Rest entwirft eine Routine am Montag."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Aufgaben entdecken
   buttonRightHref: /features/task-management
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Ein Follow-up CRM soll sicherstellen, dass Sie bei Kunden und Interessenten rechtzeitig nachfassen und dabei wissen, was zuletzt besprochen wurde. In Customermates geschieht das über Listen, die Sie öffnen, nicht über Hinweise, die Sie bekommen. Sie pflegen am Kontakt oder Deal ein Datum für den nächsten Kontakt, eine gespeicherte Ansicht sortiert alle danach, und ab Pro zeigt eine Ansicht im Posteingang jedes Gespräch, in dem Ihre Nachricht die letzte war und keine Antwort kam.
+Eine Software zum Nachfassen soll sicherstellen, dass Sie bei Kunden und Interessenten rechtzeitig nachfassen und dabei wissen, was zuletzt besprochen wurde. In Customermates geschieht das über Listen und ein Dashboard, die Sie öffnen, nicht über Hinweise, die Sie bekommen. Sie pflegen am Kontakt oder Deal ein Datum für den nächsten Kontakt, eine gespeicherte Ansicht sortiert alle danach, und ab Pro zeigt eine Ansicht im Posteingang jedes Gespräch, in dem Ihre Nachricht die letzte war und keine Antwort kam.
 
 In Customermates Cloud schreibt Mate auf Wunsch die Nachfass-Nachricht, und eine Routine kann diese Prüfung jeden Montag ausführen. Beides verbraucht gehostete KI-Credits. Was es nicht gibt: Benachrichtigungen, Fälligkeitsdaten an Aufgaben, Überfällig-Hinweise oder automatische E-Mail-Sequenzen. Wenn Ihr Vertrieb darauf angewiesen ist, passt ein CRM mit eingebauten Aktivitäten und Sequenzen besser; die Tabelle weiter unten nennt zwei.
 
 <ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Prinzip">Ein eigenes Feld vom Typ Datum wie „Nächster Kontakt", danach sortierte Ansichten und ein Posteingang-Filter für Gespräche, in denen Sie auf Antwort warten.</SummaryItem>
+  <SummaryItem label="Prinzip">Ein eigenes Feld vom Typ Datum wie „Nächster Kontakt“, danach sortierte Ansichten, ein Widget „Anstehend“ auf dem Dashboard und ein Posteingang-Filter für Gespräche, in denen Sie auf Antwort warten.</SummaryItem>
   <SummaryItem label="Tarife">Datumsspalten und gespeicherte Ansichten in jedem Tarif, auch selbst gehostet. Der Posteingang braucht Pro oder höher. Mate und Routinen gibt es nur in Customermates Cloud.</SummaryItem>
   <SummaryItem label="KI-Hilfe">Mate entwirft Nachfass-Nachrichten aus Notizen und Gesprächsverlauf. Eine Routine erledigt das nach Zeitplan oder wenn sich ein Deal ändert.</SummaryItem>
   <SummaryItem label="Nicht enthalten">Keine Benachrichtigungen, kein Fälligkeitsdatum an Aufgaben, keine Sequenzen und kein Massenversand. Sie öffnen die Liste; nichts meldet sich von selbst.</SummaryItem>
@@ -56,12 +157,13 @@ Die Posteingang-Zeile zeigt, wo Sie nach Ihrer eigenen letzten Nachricht nachfas
 <Steps>
   <Step title="Datum für den nächsten Kontakt anlegen">Fügen Sie unter **Datenmodell** den **Kontakten** oder **Deals** ein Feld vom Typ **Datum** hinzu und nennen Sie es „Nächster Kontakt". Wenn Sie den Anlass festhalten möchten, ergänzen Sie ein Feld vom Typ **Einzelauswahl** „Anlass" mit Optionen wie Angebot verschickt, Kontaktpflege, Verlängerung. Aufgaben haben kein eingebautes Fälligkeitsdatum; dasselbe Datumsfeld funktioniert dort ebenso.</Step>
   <Step title="Wochenliste speichern">Öffnen Sie **Darstellung**, wählen Sie bei **Sortieren nach** die Spalte Nächster Kontakt und **Aufsteigend**, klicken Sie auf **Neue Ansicht** und nennen Sie sie „Nachfassen". Die ältesten Daten stehen oben. Filter auf eigenen Datumsspalten arbeiten mit festen Daten (**Vor…**, **Bis…**); die Sortierung hält die Liste aktuell, ohne dass Sie den Filter jede Woche anpassen.</Step>
+  <Step title="Auf dem Dashboard anzeigen">Klicken Sie auf dem **Dashboard** auf **Widget hinzufügen** und wählen Sie **Anstehend**. Wählen Sie die Liste und das Feld **Nächster Kontakt** und filtern Sie erledigte Datensätze heraus, zum Beispiel gewonnene und verlorene Deals. Das Widget listet, was in den nächsten 14 Tagen ansteht, und zeigt frühere Daten im Abschnitt **Überfällig**. So liegen die nächsten Schritte vor Ihnen, sobald Sie sich anmelden.</Step>
   <Step title="Ansicht für eingeschlafene Deals speichern">Filtern Sie unter **Deals** auf **Aktualisiert am** mit **Älter als…** 14 Tage und schließen Sie im Feld **Phase** Gewonnen und Verloren aus. So finden Sie Deals, die niemand angefasst hat, auch wenn kein Datum gepflegt wurde.</Step>
   <Step title="Ansicht „Wartet auf Antwort“ speichern (ab Pro)">Filtern Sie im [einheitlichen Posteingang](/features/unified-inbox) auf **Letzte Nachricht** = **Gesendet** und **Letzte Nachricht am** **Älter als…** 3 Tage und speichern Sie das als „Wartet auf Antwort". Das Zeitfenster wandert mit dem Kalender, die Ansicht bleibt also richtig.</Step>
   <Step title="Ergebnis festhalten">Notieren Sie nach jedem Kontakt in den Notizen des Datensatzes, was besprochen wurde, und verschieben Sie das Datum für den nächsten Kontakt. Der Verlauf des Datensatzes zeigt verknüpfte Nachrichten und Änderungen.</Step>
 </Steps>
 
-Eine gespeicherte Ansicht bleibt privat, bis Sie sie teilen: Jede Person kann mit denselben Filtern ihre eigene Ansicht anlegen, oder Sie teilen eine Ansicht mit dem Team.
+Wählen Sie im Menü der Ansicht „Nachfassen“ **Teilen…**, um sie allen im Workspace oder ausgewählten Rollen zu zeigen. Das ganze Team arbeitet dann mit einer gemeinsamen, aktuellen Liste der fälligen Follow-ups, und jede Person sieht trotzdem nur die Datensätze, die ihre Rolle erlaubt.
 
 ## Nachfass-Entwürfe mit Mate (Customermates Cloud)
 
@@ -76,7 +178,7 @@ Der Satz „Nichts senden" ist wichtig. Mate sendet Nachrichten ohne erneute Rü
 Ein Beispiel mit Ereignis: eine Routine mit **Wenn sich etwas ändert** für Deal-Aktualisierungen und der Anweisung „Wenn die Phase auf Angebot gewechselt ist: Nächster Kontakt auf fünf Werktage ab heute setzen und eine Aufgabe ‚Angebot nachfassen' anlegen, zugewiesen an die zugewiesenen Personen des Deals." Änderungen durch eine Routine lösen keine anderen Routinen aus, eine Schleife entsteht also nicht.
 
 <AcquisitionCallout title="Was Nachfassen in Customermates nicht umfasst" variant="boundary">
-  Keine Benachrichtigungen oder Erinnerungs-E-Mails, kein Fälligkeitsdatum, kein Überfällig-Zustand und keine wiederkehrenden Aufgaben. Keine E-Mail-Sequenzen, keine Drip-Kampagnen und kein Massenversand; jede Nachricht wird einzeln geschrieben und gesendet. Selbst gehostete Installationen haben keinen Posteingang, kein Mate und keine Routinen.
+  Keine Benachrichtigungen oder Erinnerungs-E-Mails, kein eingebautes Fälligkeitsdatum und kein Überfällig-Zustand an Aufgaben, keine wiederkehrenden Aufgaben. Keine E-Mail-Sequenzen, keine Drip-Kampagnen und kein Massenversand; jede Nachricht wird einzeln geschrieben und gesendet. Eine Ansicht, die Sie teilen, ist für Ihre Kolleginnen und Kollegen nur lesbar. Selbst gehostete Installationen haben keinen Posteingang, kein Mate und keine Routinen.
 </AcquisitionCallout>
 
 ## Wie das mit dem Rest zusammenhängt
@@ -93,13 +195,13 @@ Diese Seite stammt von Customermates; lesen Sie den Vergleich mit diesem Wissen.
 |---|---|---|
 | Automatische mehrstufige Nachfass-E-Mails, die bei einer Antwort enden können | HubSpot Sales Hub mit Sequenzen | HubSpot beschreibt Sequenzen als Folge zeitlich gesteuerter E-Mail-Vorlagen mit optionalen Erinnerungsaufgaben; Kontakte lassen sich bei einer Antwort oder Terminbuchung automatisch austragen |
 | Aktivitäten mit Fälligkeitsdatum und Überfällig-Zähler | Pipedrive | Pipedrive-Aktivitäten haben ein Fälligkeitsdatum, und das Aktivitäten-Symbol zählt überfällige und heute fällige Aktivitäten |
-| Nachfass-Listen, Ansicht unbeantworteter Gespräche und KI-Entwürfe zur Freigabe | Customermates | Ansichten und Posteingang-Filter wie oben beschrieben; Mate und Routinen in Customermates Cloud |
+| Nachfass-Listen, Ansicht unbeantworteter Gespräche und KI-Entwürfe zum Prüfen und Senden | Customermates | Ansichten und Posteingang-Filter wie oben beschrieben; Mate und Routinen in Customermates Cloud |
 
 Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand der [HubSpot-Dokumentation zu Sequenzen](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), des [Pipedrive-Artikels zu Aktivitäten](https://support.pipedrive.com/en/article/activities) und des [Pipedrive-Artikels zum Überfällig-Zähler](https://support.pipedrive.com/en/article/what-is-the-red-number-on-the-activities-icon).
 
 ## Was es kostet
 
-Gespeicherte Ansichten und Datumsspalten gibt es ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat. Die Ansicht „Wartet auf Antwort" braucht den Posteingang, der mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat beginnt; ein Team mit fünf Personen zahlt auf Pro [[commercial.price.pro.monthly.seats.5]] im Monat. Jeder Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate und Routinen, siehe [Preise](/pricing). Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. Abgerechnet wird monatlich.
+Gespeicherte Ansichten und Datumsspalten gibt es ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat. Die Ansicht „Wartet auf Antwort“ braucht den Posteingang, der mit Pro für [[commercial.price.pro.monthly]] pro Nutzer und Monat beginnt; ein Team mit fünf Personen zahlt auf Pro [[commercial.price.pro.monthly.seats.5]] im Monat. Jeder bezahlte Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate und Routinen, siehe [Preise](/pricing). Pro enthält [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer, Starter [[commercial.entitlement.starter.includedRoutinesPerUser]]. Abgerechnet wird monatlich.
 
 ## FAQ
 
@@ -111,7 +213,7 @@ Follow-up heißt Nachfassen: der nächste Kontakt nach einem Gespräch, einem An
 Das hängt davon ab, wie Sie nachfassen. Wer vielen Leads dieselbe Abfolge aus drei E-Mails schickt, braucht ein Tool mit Sequenzen. Wer einige Dutzend Kunden persönlich über E-Mail, LinkedIn und WhatsApp betreut, braucht eine Liste, wer gerade wartet, und den Gesprächsverlauf daneben. Für den zweiten Fall ist Customermates gebaut.
 </FaqItem>
 <FaqItem question="Hat Customermates Erinnerungen oder Fälligkeitsdaten?">
-Nein. Es gibt keine Benachrichtigungen, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie ein eigenes Datumsfeld an und sortieren Sie eine gespeicherte Ansicht danach. Wenn Sie eine Push-Benachrichtigung brauchen, kann n8n oder ein anderer zeitgesteuerter Dienst das Datum über die API lesen und Sie benachrichtigen.
+Nein. Es gibt keine Benachrichtigungen, und Aufgaben haben kein eingebautes Fälligkeitsdatum. Legen Sie ein eigenes Datumsfeld an, sortieren Sie eine gespeicherte Ansicht danach und zeigen Sie es in einem Widget „Anstehend“ auf Ihrem Dashboard an. Wenn Sie eine Push-Benachrichtigung brauchen, kann n8n oder ein anderer zeitgesteuerter Dienst das Datum über die API lesen und Sie benachrichtigen.
 </FaqItem>
 <FaqItem question="Wie kann ich das Nachfassen im Vertrieb automatisieren?">
 Nicht als Sequenz. Eine Routine in Customermates Cloud schreibt nach Zeitplan einzelne Entwürfe, die Sie nach dem Lesen senden. Sie kann auch selbst senden, wenn die Anweisung das sagt, dann eine Nachricht pro Gespräch. Mehrstufige oder massenhafte Abfolgen brauchen ein eigenes Sequenz-Tool.

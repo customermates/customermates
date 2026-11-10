@@ -1,6 +1,6 @@
 ---
 title: "WhatsApp CRM Integration: Chats Next to Customer Records"
-description: "Connect a WhatsApp account to the Customermates Cloud inbox from Pro, reply to chats and match contacts by phone number. Not the WhatsApp Business API."
+description: "Connect WhatsApp to the Customermates Cloud inbox from Pro: each chat on its contact by phone number, replies drafted for you. Not the WhatsApp Business API."
 featureName: WhatsApp CRM Integration
 
 relatedHrefs:
@@ -9,21 +9,51 @@ relatedHrefs:
   - /features/linkedin-integration
   - /features/contact-management
 
+sections:
+  visual:
+    kind: stage
+    solution: smb
+    prompt: "We're a small B2B service business. Keep customers, quotes and conversations in one place, and show us on the dashboard who to call back."
+  steps:
+    items:
+      - title: "Check the plan"
+        description: "Use Customermates Cloud on Pro or above, or a trial. Your role needs Create on Inbox messages to connect a channel."
+      - title: "Connect WhatsApp"
+        description: "Open Settings › Channels & calendars, choose Connect channel and WhatsApp, then scan the QR code with the WhatsApp app on your phone."
+      - title: "Match your contacts"
+        description: "Add each customer's WhatsApp number to the Contact details field of their contact record, or link the sender from the chat's Thread settings."
+      - title: "Link the chat to a deal"
+        description: "When a chat belongs to an open deal or organization, use Link record under Conversation records. Customermates does not do this for you."
+      - title: "Reply and triage"
+        description: "Answer in the chat, keep a draft if you need to check something first, and set the state to open or closed as the conversation moves on."
+  highlights:
+    title: "At a glance"
+    capture: homepage-inbox
+    items:
+      - title: "What connects"
+        description: "One WhatsApp account per connected-account slot, linked by QR code through the messaging provider. Individual and group chats come into the inbox."
+      - title: "Plan"
+        description: "Customermates Cloud from Pro. Pro includes [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user. Starter and self-hosted installations have no connected messaging accounts."
+      - title: "CRM context"
+        description: "Contacts are matched by the phone number in their Contact details field. Linking a chat to a deal or organization is an explicit step by a user or agent."
+      - title: "Not included"
+        description: "No official WhatsApp Business API, message templates, campaigns, broadcasts, sequences, chatbots, bulk sending or automation."
+
 hero:
-  title: WhatsApp chats next to the customer record
-  description: "For small teams whose customers write on WhatsApp: connect a WhatsApp account through our messaging provider, answer chats in the CRM inbox and match each contact by phone number. This is not the official WhatsApp Business API, so there are no templates, broadcasts or chatbots. Customermates Cloud from Pro, not Starter or self-hosted."
-  buttonLeftText: Start a Pro trial
-  buttonLeftHref: /auth/signup
+  title: "Don't let a customer's WhatsApp chat go unanswered"
+  description: "Each WhatsApp chat sits on the contact with that phone number, so you see which chats wait for an answer, have Mate draft the reply and send it from the CRM. Not the WhatsApp Business API. Cloud only, from Pro."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/whatsapp/dashboard
-  hint: "Cloud only • Pro or above • Not the WhatsApp Business API"
+  hint: "No credit card required • Cloud only, from Pro • Not the WhatsApp Business API"
   showOpenSourceBadge: false
 
 cta:
-  action: Check WhatsApp against your own customer conversations
-  description: Explore the example WhatsApp workspace, then connect your WhatsApp account in a Pro trial and see whether your chats and contacts line up the way your team works.
-  buttonLeftText: Start a Pro trial
-  buttonLeftHref: /auth/signup
+  action: "Follow up on your next WhatsApp chat from the customer record"
+  description: "Explore the example WhatsApp workspace, then connect your WhatsApp account during the [[commercial.trial.days]]-day trial on Pro and see whether your chats and contacts line up the way your team works."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/whatsapp/dashboard
   hint: "WhatsApp in the inbox requires Customermates Cloud Pro or above. Starter and self-hosted have no connected messaging accounts."
@@ -31,26 +61,7 @@ cta:
 
 Many small businesses agree appointments, quotes and changes with customers on WhatsApp, while the customer record lives somewhere else. A **WhatsApp CRM integration** in Customermates puts those chats into the [unified inbox](/features/unified-inbox) on Customermates Cloud, next to the contact they belong to. You connect a WhatsApp account through our messaging provider by QR code. It is not the official WhatsApp Business API, and it is built for individual conversations, not for campaigns or automated messaging.
 
-<ArticleSummary title="At a glance">
-  <SummaryItem label="What connects">
-    One WhatsApp account per connected-account slot, linked by QR code through
-    the messaging provider. Individual and group chats come into the inbox.
-  </SummaryItem>
-  <SummaryItem label="Plan">
-    Customermates Cloud from Pro. Pro includes
-    [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per
-    user. Starter and self-hosted installations have no connected messaging
-    accounts.
-  </SummaryItem>
-  <SummaryItem label="CRM context">
-    Contacts are matched by the phone number in their Contact details field. Linking a
-    chat to a deal or organization is an explicit step by a user or agent.
-  </SummaryItem>
-  <SummaryItem label="Not included">
-    No official WhatsApp Business API, message templates, campaigns, broadcasts,
-    sequences, chatbots, bulk sending or automation.
-  </SummaryItem>
-</ArticleSummary>
+**Where this helps you follow up.** A chat that waits for your answer is easy to miss between site visits and calls. With the chat on the contact, you can filter the inbox for conversations where the last message is the customer's, or keep a Chat status field on the contact and run a board of the chats still open. Mate, or your own AI client over MCP, can save a reply draft in the chat for you to review and send. Mate sends without a further approval when you ask it to, so ask for a draft when you want to read the wording first.
 
 ## The example workspace: WhatsApp customer contact with sample data
 
@@ -69,29 +80,6 @@ These lists are an example. A new workspace starts without lists: on Customermat
 **Contacts matched by phone number.** A phone number in a record's Contact details field connects that record to the WhatsApp chats with that number. The same number can also be called from the record. For a sender who has no record yet, open **Thread settings** and link the number to an existing contact or create one.
 
 **State kept in Customermates.** Mark a chat unread, open, closed or spam to organize the inbox. This state lives only in Customermates: closing a chat here does not archive or change it in WhatsApp.
-
-<Steps>
-  <Step title="Check the plan">
-    Use Customermates Cloud on Pro or above, or a trial. Your role needs Create
-    on Inbox messages to connect a channel.
-  </Step>
-  <Step title="Connect WhatsApp">
-    Open Settings › Channels & calendars, choose Connect channel and WhatsApp, then scan the
-    QR code with the WhatsApp app on your phone.
-  </Step>
-  <Step title="Match your contacts">
-    Add each customer's WhatsApp number to the Contact details field of their contact
-    record, or link the sender from the chat's Thread settings.
-  </Step>
-  <Step title="Link the chat to a deal">
-    When a chat belongs to an open deal or organization, use Link record under
-    Conversation records. Customermates does not do this for you.
-  </Step>
-  <Step title="Reply and triage">
-    Answer in the chat, keep a draft if you need to check something first, and
-    set the state to open or closed as the conversation moves on.
-  </Step>
-</Steps>
 
 ## What this WhatsApp CRM is not
 

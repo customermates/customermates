@@ -24,6 +24,7 @@ import {
   EmailVerificationRequiredError,
 } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
 import { WorkspaceChangedError } from "@/core/errors/workspace-changed-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
@@ -36,6 +37,26 @@ function structured(result: unknown) {
 }
 
 describe("handleError", () => {
+  it("answers the Free plan request limit with 429, Retry-After and the Starter upgrade", () => {
+    const error = new ApiRateLimitExceededError("day", 2_000, 3_600, { plan: "Starter", price: "€12" });
+    const result = handleError(error) as unknown as Result;
+
+    expect(result.status).toBe(429);
+    expect(result.headers).toEqual({ "retry-after": "3600" });
+    expect(structured(result).error).toEqual({
+      kind: "rate_limit",
+      issues: [
+        {
+          code: "custom",
+          path: [],
+          message:
+            "This workspace is on the Free plan, which allows 2,000 API and MCP requests per day. Wait and retry, or upgrade to Starter (€12 per user per month) to remove the request limit.",
+          customCode: CustomErrorCode.apiRateLimitReached,
+        },
+      ],
+    });
+  });
+
   it.each([
     ["AuthError", new AuthError(), 401, "authentication", CustomErrorCode.notAuthenticated, "Not authenticated"],
     ["ForbiddenError", new ForbiddenError(), 403, "authorization", CustomErrorCode.permissionDenied, "Not authorized"],

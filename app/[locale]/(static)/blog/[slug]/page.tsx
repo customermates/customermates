@@ -1,3 +1,4 @@
+import { WorkspaceGeneratorSection } from "../../components/workspace-generator-section";
 import type { Metadata } from "next";
 
 import { notFound } from "next/navigation";
@@ -11,8 +12,8 @@ import { HeadingText } from "@/components/marketing/heading-text";
 import { LandingArticle } from "@/components/marketing/landing-article";
 import { MarketingContainer } from "@/components/marketing/marketing-container";
 import { PageEnding } from "@/components/marketing/page-ending";
+import { ProductFilm } from "@/components/marketing/product-film";
 import { Icon } from "@/components/shared/icon";
-import { GridPattern } from "@/components/shared/grid-pattern";
 import { Badge } from "@/components/ui/badge";
 import { JsonLd } from "@/components/seo/json-ld";
 import { generateMetadataFromMeta } from "@/core/fumadocs/metadata";
@@ -59,7 +60,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { backToBlog, date, by, tags } = blogPost;
   const lastModified = resolvePageLastModified(page.data);
   const updated = lastModified && lastModified.getTime() > new Date(date).getTime() ? lastModified : undefined;
-  const dateFormat = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" } as const;
+  const dateFormat = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  } as const;
   const components = getMDXComponents({
     h1: ({ children, id }) => (
       <span aria-hidden="true" className="sr-only" id={id}>
@@ -103,73 +109,75 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
         ])}
       />
 
-      <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
-        <GridPattern className="z-0" fade="bottom" />
+      <section className="relative isolate w-full overflow-hidden bg-background">
+        <div aria-hidden className="mk-hero-light" data-align="start" />
 
         <MarketingContainer className="relative z-10">
-          <header className="py-14 sm:py-18 lg:py-24">
-            <IntlLink className="text-meta inline-flex items-center hover:text-foreground" href="/blog">
-              <Icon className="mr-2" icon={ChevronLeft} size="sm" />
+          <header className="pt-14 pb-6 sm:pt-18 sm:pb-8 lg:grid lg:grid-cols-[minmax(0,96ch)_15rem] lg:justify-center lg:gap-6 lg:pt-24 lg:text-sm">
+            <div className="min-w-0">
+              <IntlLink className="text-meta inline-flex items-center hover:text-foreground" href="/blog">
+                <Icon className="mr-2" icon={ChevronLeft} size="sm" />
 
-              {backToBlog}
-            </IntlLink>
+                {backToBlog}
+              </IntlLink>
 
-            <div className="mt-8 max-w-5xl">
-              <div>
-                <h1 className="text-display m-0">
-                  <HeadingText text={hero.title} />
-                </h1>
+              <div className="mt-8 max-w-5xl">
+                <div>
+                  <h1 className="mk-display m-0 max-w-[48rem]">
+                    <HeadingText text={hero.title} />
+                  </h1>
 
-                <p className="text-lede mt-6">{hero.description}</p>
+                  <p className="mk-lede mt-6">{hero.description}</p>
 
-                <div className="mt-7 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
-                  <time className="flex items-center gap-2 whitespace-nowrap" dateTime={new Date(date).toISOString()}>
-                    <Icon icon={Calendar} size="md" />
+                  <div className="mt-7 flex flex-col gap-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+                    <time className="flex items-center gap-2 whitespace-nowrap" dateTime={new Date(date).toISOString()}>
+                      <Icon icon={Calendar} size="md" />
 
-                    {new Date(date).toLocaleDateString(formattingTagFor(locale), dateFormat)}
-                  </time>
+                      {new Date(date).toLocaleDateString(formattingTagFor(locale), dateFormat)}
+                    </time>
 
-                  {updated ? (
-                    <>
-                      <span aria-hidden className="hidden sm:inline">
-                        •
-                      </span>
+                    {updated ? (
+                      <>
+                        <span aria-hidden className="hidden sm:inline">
+                          •
+                        </span>
 
-                      <time className="whitespace-nowrap" dateTime={new Date(updated).toISOString()}>
-                        {t("Common.updatedOn", {
-                          date: new Date(updated).toLocaleDateString(formattingTagFor(locale), dateFormat),
-                        })}
-                      </time>
-                    </>
-                  ) : null}
+                        <time className="whitespace-nowrap" dateTime={new Date(updated).toISOString()}>
+                          {t("Common.updatedOn", {
+                            date: new Date(updated).toLocaleDateString(formattingTagFor(locale), dateFormat),
+                          })}
+                        </time>
+                      </>
+                    ) : null}
 
-                  <span aria-hidden className="hidden sm:inline">
-                    •
-                  </span>
+                    <span aria-hidden className="hidden sm:inline">
+                      •
+                    </span>
 
-                  <span className="flex items-center gap-2 whitespace-nowrap">
-                    <AppImage
-                      alt="Benjamin Wagner"
-                      className="size-4.5 min-h-4.5 min-w-4.5 shrink-0 rounded-full"
-                      height={800}
-                      sizes="18px"
-                      src="benjamin-wagner.png"
-                      width={800}
-                    />
+                    <span className="flex items-center gap-2 whitespace-nowrap">
+                      <AppImage
+                        alt="Benjamin Wagner"
+                        className="size-4.5 min-h-4.5 min-w-4.5 shrink-0 rounded-full"
+                        height={800}
+                        sizes="18px"
+                        src="benjamin-wagner.png"
+                        width={800}
+                      />
 
-                    {by}
-                  </span>
-                </div>
-
-                {tags.length > 0 ? (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {tags.map((tag: string) => (
-                      <Badge key={tag} className="h-[22px] rounded-md px-1.5 py-0.5 text-[11px]" variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
+                      {by}
+                    </span>
                   </div>
-                ) : null}
+
+                  {tags.length > 0 ? (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {tags.map((tag: string) => (
+                        <Badge key={tag} className="h-[22px] rounded-md px-1.5 py-0.5 text-[11px]" variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </header>
@@ -179,6 +187,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
       <LandingArticle founderContact items={page.data.toc}>
         <MDX components={components} />
       </LandingArticle>
+
+      <WorkspaceGeneratorSection locale={locale} />
+
+      <ProductFilm />
 
       <PageEnding
         cta={page.data.acquisition?.cta ?? blog.data.cta}

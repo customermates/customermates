@@ -86,31 +86,13 @@ const BADGES: Badge[] = [
     width: 270,
     height: 20,
   },
-];
-
-type ListingBadge = {
-  name: string;
-  platform: string;
-  href: string;
-  src: string;
-  width: number;
-  height: number;
-};
-
-const LISTING_BADGES: ListingBadge[] = [
-  {
-    name: "open-source-alternatives",
-    platform: "Open Source Alternatives",
-    href: "https://www.opensourcealternatives.to",
-    src: "/images/brand/open-source-alternatives-badge.svg",
-    width: 270,
-    height: 20,
-  },
   {
     name: "1000-tools",
     platform: "1000 Tools",
+    kind: "featured",
     href: "https://1000tools.best/projects/customermates?utm_source=badge",
-    src: "/images/brand/1000-tools-badge.svg",
+    light: "/images/brand/1000-tools-badge.svg",
+    dark: "/images/brand/1000-tools-badge.svg",
     width: 150,
     height: 44,
   },
@@ -211,21 +193,6 @@ export function FooterBadges() {
             )}
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-6 border-t border-border py-4">
-        {LISTING_BADGES.map((badge) => (
-          <a key={badge.name} className={BADGE_LINK_CLASS} href={badge.href} rel="noopener noreferrer" target="_blank">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt={t("Footer.featuredOnPlatform", { platform: badge.platform })}
-              height={badge.height}
-              loading="lazy"
-              src={badge.src}
-              width={badge.width}
-            />
-          </a>
-        ))}
       </div>
     </>
   );

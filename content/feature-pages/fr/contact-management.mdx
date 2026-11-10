@@ -1,6 +1,6 @@
 ---
-title: "Logiciel de gestion de contacts et de la relation client"
-description: "Logiciel de gestion de contacts et de clients pour petites équipes : clients, contacts, opportunités et échanges. Dès [[commercial.price.starter.monthly]] par utilisateur et par mois."
+title: "Logiciel de gestion client : remplacez votre tableur"
+description: "Le logiciel de gestion client qui remplace le tableur : importez vos clients, puis voyez échanges et prochaine étape de chaque client sur une fiche."
 featureName: "Gestion des contacts"
 
 relatedHrefs:
@@ -10,19 +10,113 @@ relatedHrefs:
   - /features/simple-crm
 
 hero:
-  title: "Gestion des contacts et des clients, avec toute la relation en contexte"
-  description: "Pour les petites équipes qui suivent des clients, pas seulement des numéros de téléphone. Customermates relie chaque client à ses interlocuteurs, à ses opportunités, à ses tâches et, avec Pro et au-dessus sur le cloud, aux échanges pris en charge. Vous façonnez vous-même les listes et les champs. Il n’y a pas d’étiquettes, et un import ne peut pas être annulé."
-  buttonLeftText: "Commencer l’essai gratuit"
-  buttonLeftHref: /auth/signup
+  title: "Gestion des contacts et clients, toute la relation en contexte"
+  description: "Gardez au même endroit les interlocuteurs, les opportunités et les tâches de chaque client et, dès Pro sur le cloud, les conversations aussi : vous savez qui lui a parlé en dernier et ce qui suit. Vous façonnez vous-même listes et champs."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/client-management/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
+landing:
+  hero:
+    eyebrow: Logiciel de gestion client pour petites équipes
+    title: "Le logiciel de gestion client qui remplace votre tableur et montre qui contacter ensuite."
+    description: "Importez votre fichier client une fois. Ensuite, dans Customermates Cloud, Mate peut ranger nouveaux contacts, notes et prochaine étape sur le bon client, à partir des conversations que vous connectez."
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Parler à Ben, 15 minutes
+      href: /contact
+  facts: Sans carte bancaire · Import depuis Excel · Pro dès [[commercial.price.pro.monthly]] par personne/mois
+  generator:
+    eyebrow: À partir d’une seule description
+    title: Votre fichier client, décrit une fois. Construit pour vous.
+    description: "La configuration IA pose quelques questions et construit clients, contacts, contrats et les champs que vous suivez. Voici l’exemple de gestion client ; explorez-le."
+    promptLabel: Votre description pour Mate
+    arrowLabel: est devenue cet espace
+    prompt: Nous équipons des bureaux en machines à café et fournitures de salle de pause. Remplace notre tableur clients par des clients, contacts et contrats par site, et montre-nous à qui nous n’avons pas parlé depuis longtemps.
+  followUp:
+    eyebrow: Un e-mail client, rangé
+    title: "Un client désigne un nouveau contact. La fiche est mise à jour, la réponse rédigée."
+    description: L’e-mail arrive sur le client dont l’adresse correspond. Demandez-le à Mate ou laissez tourner une routine, et le nouveau contact, le site et la prochaine étape sont sur le client, avec une réponse rédigée pour vous.
+    desk:
+      label: Scène de mise à jour d’une fiche client
+      workspace: Hollis Services de bureau
+      conversation:
+        label: E-mail
+        name: Emma Clarke
+        company: Brightwell Studios
+        time: mer. 10:12
+        message: "Petite mise à jour. Le mois prochain, Sara Lind reprend les achats. Pouvez-vous aussi ajouter notre nouveau site de Lyon au contrat ?"
+      agent:
+        name: Mate
+        intent: Met à jour la fiche client à partir de cet e-mail
+        done: Sara Lind ajoutée comme contact. Brouillon et prochaine étape enregistrés.
+      draft:
+        badge: Brouillon, en attente de votre relecture
+        text: Bonjour Emma, merci de nous prévenir. J’ai noté Sara comme contact pour les achats et je vous envoie jeudi le contrat mis à jour avec le site de Lyon. Bien à vous, Daniel
+        edit: Modifier
+        send: Envoyer le brouillon
+      today:
+        title: Tableau de bord
+        date: mercredi
+        addedBy: Ajouté par Mate
+        assign: Attribuer
+        sections:
+          - title: Prochaines étapes à traiter
+            items:
+              - title: Envoyer le contrat mis à jour avec le site de Lyon
+                meta: Brightwell Studios · à faire jeudi
+                owner: DM
+                state: added
+              - title: Bilan annuel avec Harbor Legal
+                meta: Harbor Legal · en retard de 2 jours
+                owner: DM
+                state: overdue
+  beforeAfter:
+    eyebrow: Ce qui change
+    title: Avant et après. Les mêmes clients, une fiche à jour.
+    before:
+      label: Avant
+      points:
+        - Un tableur clients que personne ne tient à jour
+        - Des contacts et des notes dispersés dans les boîtes mail
+        - Personne ne sait qui a parlé au client en dernier
+    after:
+      label: Avec Customermates
+      points:
+        - Chaque client avec ses contacts, ses contrats et ses conversations
+        - Mate met à jour les fiches quand vous le demandez ou via une routine
+        - Dernier contact et prochaine étape visibles sur chaque client
+  steps:
+    eyebrow: Pour commencer
+    title: Trois étapes. Du tableur à des fiches à jour.
+    items:
+      - title: Importez votre tableur
+        description: La configuration IA construit les listes et les champs. Enregistrez votre tableur au format Excel et associez chaque colonne à un champ.
+      - title: Connectez l’e-mail ou LinkedIn
+        description: Les conversations arrivent sur le client dont l’adresse e-mail ou le profil LinkedIn correspond. Sur Pro, un compte connecté par personne.
+      - title: Laissez Mate tenir tout à jour
+        description: Demandez à Mate, ou configurez une routine, d’ajouter nouveaux contacts, notes et prochaines étapes à partir des dernières conversations.
+  plan:
+    eyebrow: Tarifs
+    title: Commencez avec Pro. [[commercial.price.pro.monthly]] par personne et par mois.
+    description: Starter à [[commercial.price.starter.monthly]] couvre le fichier client sans comptes connectés. L’e-mail et LinkedIn connectés commencent avec Pro sur Customermates Cloud.
+    limits: Ne convient pas si vous avez besoin d’enrichissement de contacts, d’étiquettes ou d’un import annulable. Vérifiez l’association des colonnes avant d’importer.
+    primaryCta:
+      label: Essai gratuit de [[commercial.trial.days]] jours
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Comparer toutes les offres
+      href: /pricing
+
 cta:
   action: "Rassemblez votre fichier client pendant l’essai"
-  description: "Enregistrez votre tableur au format Excel, associez les colonnes à vos champs et vérifiez en [[commercial.trial.days]] jours si votre équipe retrouve plus vite les clients et leur contexte."
-  buttonLeftText: "Commencer l’essai gratuit"
-  buttonLeftHref: /auth/signup
+  description: "Enregistrez votre tableur au format Excel, associez les colonnes à vos champs, connectez un compte e-mail ou LinkedIn et vérifiez en [[commercial.trial.days]] jours si vous voyez le dernier contact et la prochaine étape de chaque client."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=workspace
   buttonRightText: "Explorer l’espace de travail"
   buttonRightHref: https://demo.customermates.com/fr/w/client-management/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
@@ -30,8 +124,10 @@ cta:
 
 Un logiciel de gestion de contacts garde chaque personne et chaque entreprise avec qui vous travaillez dans un même lieu partagé, avec ce qui se passe avec elles. Un logiciel de gestion client va un cran plus loin : il répond à qui est le client, à qui vous parlez chez lui, à ce qui est en cours et à ce qui se passe ensuite. Customermates couvre les deux pour les petites équipes au contact des clients. C’est un CRM open source et IA native, conçu en Allemagne.
 
+**Ce que cela change pour la relance.** Un client passe entre les mailles quand personne ne voit qui lui a parlé en dernier ni ce qui a été promis. Une fiche client réunit les interlocuteurs, les contrats ou affaires et, dès Pro sur le cloud, les conversations e-mail et LinkedIn avec eux, plus un champ date pour la prochaine action. Une vue enregistrée triée selon cette date, ou un widget À venir sur le tableau de bord, liste qui contacter ensuite.
+
 <ArticleSummary title="En bref">
-  <SummaryItem label="Toutes les offres">Listes configurables pour les clients, les contacts et les opportunités, champs typés, relations, filtres, vues enregistrées partageables, tableau, board ou calendrier, rôles, import et export Excel, REST, webhooks et MCP. Auto-hébergement compris.</SummaryItem>
+  <SummaryItem label="Toutes les offres">Listes configurables pour les clients, les contacts et les opportunités, champs typés, relations, filtres, vues enregistrées partageables, tableau, board ou calendrier, rôles, import et export Excel, REST et MCP, plus les webhooks avec les formules payantes. Auto-hébergement compris.</SummaryItem>
   <SummaryItem label="Pro et au-dessus, cloud uniquement">Les conversations par e-mail, LinkedIn, WhatsApp, Instagram et Telegram à côté des personnes concernées.</SummaryItem>
   <SummaryItem label="Non inclus">Pas d’étiquettes (utilisez un champ à choix multiple), pas d’annulation d’import, pas de synchronisation du carnet d’adresses, pas de fonction de fusion, pas de rappels.</SummaryItem>
 </ArticleSummary>
@@ -66,7 +162,7 @@ Là où un tableur garde une ligne par personne et répète le nom de l’entrep
   <Step title="Créer ou vérifier les listes">Laissez la configuration IA de l’espace de travail les construire sur Customermates Cloud, ou créez Clients, Contacts et Opportunités dans **Modèle de données** avec des relations entre elles.</Step>
   <Step title="Ajouter les champs sur lesquels vous triez">Par exemple **Relation** (choix unique), **Rôle** sur les contacts (Décideur, Quotidien, Comptabilité) et **Prochaine action** (date).</Step>
   <Step title="Importer votre liste">Importez d’abord les clients, puis les contacts, afin que la colonne de l’entreprise se relie. Détails plus bas.</Step>
-  <Step title="Enregistrer des vues">« Mes clients actifs », « Prochaine action cette semaine » ou « Sans client » pour faire le ménage après l’import. Une vue enregistrée reste privée tant que vous ne la partagez pas : chacun peut enregistrer les siennes, ou vous partagez une vue avec l’équipe.</Step>
+  <Step title="Enregistrer des vues">« Mes clients actifs », « Prochaine action cette semaine » ou « Sans client » pour faire le ménage après l’import. Partagez celles dont toute l’équipe a besoin, comme « Prochaine action cette semaine », avec tout l’espace de travail ou des rôles choisis.</Step>
   <Step title="Décider qui voit quoi">Dans l’éditeur de rôles, réglez l’accès en lecture par liste sur **Tous**, **Assignés** ou **Aucun**, plus les droits de création, de modification et de suppression. Les autorisations s’appliquent à des listes entières, pas à des champs isolés.</Step>
 </Steps>
 
@@ -98,7 +194,7 @@ Les limites de l’offre s’appliquent. Starter et l’auto-hébergement n’on
 Sur Customermates Cloud, Mate, l’assistant hébergé, travaille sur les enregistrements en langage courant dans la limite des crédits IA de votre offre :
 
 ```text
-Create contacts for everyone in this email signature and link them to the client Hartmann Consulting. Check first whether any of them already exist.
+Créez des contacts pour toutes les personnes de cette signature d’e-mail et rattachez-les au client Hartmann Consulting. Vérifiez d’abord si l’une d’elles existe déjà.
 ```
 
 Mate voit ce que vous avez le droit de voir. Il crée et modifie des enregistrements et envoie des messages dès que vous le lui demandez ; les suppressions, les imports et les changements d’accès attendent chaque fois votre approbation. Mate n’est pas disponible en auto-hébergement.

@@ -56,6 +56,12 @@ describe("hosted AI plan entitlements", () => {
     ).toBeNull();
   });
 
+  it("keeps webhooks on every self-hosted install and every paid plan, and only Free leaves them out", () => {
+    expect(getEffectiveEntitlements({ appMode: "self-hosted", plan: SubscriptionPlan.pro }).webhooks).toBe(true);
+    expect(getEntitlements("free").webhooks).toBe(false);
+    expect(getEntitlements(SubscriptionPlan.starter).webhooks).toBe(true);
+  });
+
   it("pools file storage per active user in the cloud and leaves self-hosted storage unlimited", () => {
     expect(getEntitlements(SubscriptionPlan.starter).fileStorageBytesPerActiveUser).toBe(1024 ** 3);
     expect(getEntitlements(SubscriptionPlan.pro).fileStorageBytesPerActiveUser).toBe(5 * 1024 ** 3);

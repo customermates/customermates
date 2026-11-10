@@ -65,15 +65,17 @@ export function getChartRankShades(color: ChartColor, values: number[], neutral:
   });
 }
 
+const NEUTRAL_RAMP: Hue[] = ["primary", "info", "violet", "secondary"];
+
 const MATCHED_HUES: Record<Hue, Hue[]> = {
-  primary: ["primary", "info", "secondary", "default"],
-  info: ["info", "secondary", "violet", "default"],
-  violet: ["violet", "info", "secondary", "default"],
-  secondary: ["secondary", "info", "primary", "default"],
-  success: ["success", "info", "primary", "default"],
-  warning: ["warning", "danger", "primary", "default"],
-  danger: ["danger", "warning", "primary", "default"],
-  default: ["default", "primary", "info", "secondary"],
+  primary: NEUTRAL_RAMP,
+  info: ["info", "violet", "secondary", "primary"],
+  violet: ["violet", "secondary", "primary", "info"],
+  secondary: ["secondary", "primary", "info", "violet"],
+  success: ["success", "primary", "violet", "secondary"],
+  warning: ["warning", "danger", "primary", "violet"],
+  danger: ["danger", "warning", "primary", "violet"],
+  default: NEUTRAL_RAMP,
 };
 
 export function getChartMatchedColors(color: ChartColor, values: number[], neutral: boolean[] = []): string[] {

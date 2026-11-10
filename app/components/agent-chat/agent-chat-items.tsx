@@ -106,14 +106,14 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "turn_interrupted") {
     return (
-      <Alert color="warning" data-testid="agent-turn-interrupted" description={t("AgentChat.ui.turnInterrupted")} />
+      <Alert data-testid="agent-turn-interrupted" description={t("AgentChat.ui.turnInterrupted")} variant="warning" />
     );
   }
 
   if (item.kind === "turn_error") {
     const copy = chatUiCopy(t);
     return (
-      <Alert color="danger" description={copy.turnFailed}>
+      <Alert description={copy.turnFailed} variant="destructive">
         {!readOnly && (
           <Button
             className="mt-2"

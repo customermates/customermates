@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/integrations
   - /features/api
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Add the routine"
+        description: "Open Routines, click Add and name it \"Monday pipeline check\"."
+      - title: "Set the trigger"
+        description: "Choose On a schedule, then Repeats: Every week, Monday, 08:00."
+      - title: "Paste the instruction"
+        description: "Paste your instruction with your own stage names, and save."
+      - title: "Test it once"
+        description: "Click Test trigger. Run details shows Mate's answer, the records it read and the credits it used."
+  highlights:
+    title: "At a glance"
+    capture: homepage-routines
+    items:
+      - title: "Two engines"
+        description: "Routines for work that needs reading and judgment. Webhooks plus n8n or your own code for fixed rules."
+      - title: "Plans"
+        description: "Routines on every paid Cloud plan: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business. REST and MCP on every plan; webhooks on every paid plan, self-hosted included."
+      - title: "Cost"
+        description: "A routine run uses its owner's monthly hosted AI credits and stops at 10 credits. n8n bills its own plans."
+      - title: "Not included"
+        description: "No visual builder or branching inside the CRM, no email sequences and no task reminders."
+
 hero:
   title: CRM workflow automation with AI routines and open webhooks
-  description: Routines in Customermates Cloud run a saved instruction through Mate on a schedule or when a record changes, using hosted AI credits. Webhooks, the REST API, n8n and MCP connect every plan, self-hosted installs included, to the automation tool or AI client you run.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  description: "Routines in Customermates Cloud run Mate on a schedule or when an email arrives, so reply drafts are waiting for your review. REST and MCP connect any tool on every plan; webhooks and n8n come with every paid plan and self-hosting."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Read the routines guide
   buttonRightHref: /docs/app-routines
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Automate one recurring job this week
-  description: Build the follow-up reminder routine during the trial, then connect n8n for the rules that must fire the same way every time.
-  buttonLeftText: Start for free
-  buttonLeftHref: /auth/signup
+  action: "Automate your Monday follow-up check"
+  description: "Set up the Monday pipeline check during the trial and let a routine draft the follow-ups. Connect n8n for the rules that must fire the same way every time."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Connect n8n
   buttonRightHref: /docs/n8n
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
@@ -34,7 +60,7 @@ The boundary is easy to state. Customermates automates work on single records. I
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Three routes">Routines for work that needs reading and judgment. Webhooks plus n8n or your own code for fixed rules. Your own AI client over MCP for record updates you ask for.</SummaryItem>
-  <SummaryItem label="Plans">Routines on every Cloud plan: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business. Webhooks, REST and MCP on every plan, self-hosted included.</SummaryItem>
+  <SummaryItem label="Plans">Routines on every paid Cloud plan: [[commercial.entitlement.starter.includedRoutinesPerUser]] per user on Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] on Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] on Business. REST and MCP on every plan; webhooks on every paid plan, self-hosted included.</SummaryItem>
   <SummaryItem label="Cost">A routine run uses its owner's monthly hosted AI credits and stops at 10 credits. n8n bills its own plans.</SummaryItem>
   <SummaryItem label="Not included">No visual builder or branching inside the CRM, no email sequences, no task reminders, no lead scoring.</SummaryItem>
 </ArticleSummary>
@@ -55,12 +81,12 @@ A reply draft is one message in one conversation, not a sequence. If you need th
 
 | Job | Use | Plan |
 |---|---|---|
-| Follow-up reminder: a task for every deal whose next-contact date has passed | Routine on a schedule | Any Cloud plan |
+| Follow-up reminder: a task for every deal whose next-contact date has passed | Routine on a schedule | Any paid Cloud plan |
 | Reply draft when a client emails | Routine on **Email Received** | Cloud, Pro and higher |
-| Onboarding tasks when a deal is won | Routine on **Record updated** for Deals, or a webhook into n8n | Routine: Cloud. Webhook: every plan |
-| Message in a team chat when a deal is created | Webhook into n8n, or a webhook with a body template | Every plan |
-| Flow with branches, waits and other apps | n8n on webhooks and REST | Every plan, plus n8n |
-| Update a deal from pasted call notes | Mate chat, or your own AI client over MCP | Mate: Cloud. MCP: every plan |
+| Onboarding tasks when a deal is won | Routine on **Record updated** for Deals, or a webhook into n8n | Routine: paid Cloud. Webhook: paid plans |
+| Message in a team chat when a deal is created | Webhook into n8n, or a webhook with a body template | Paid plans |
+| Flow with branches, waits and other apps | n8n on webhooks and REST | Paid plans, plus n8n |
+| Update a deal from pasted call notes | Mate chat, or your own AI client over MCP | Mate: paid Cloud. MCP: every plan |
 
 Our rule of thumb: if a step must behave identically every time, such as creating the same tasks for every won deal, use a webhook and n8n. A routine is an AI run that reads, decides and writes, so its output varies a little and every run costs credits. Use it where the reading is the point.
 
@@ -123,7 +149,7 @@ Credit use: every run that starts uses credits, including runs where Mate decide
 
 ## How do I send a new deal to n8n, Slack or another tool?
 
-Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Record events cover every list, your own included, on every plan. Deal **Stage** is a configurable single choice field, so a stage change arrives as `record.updated` for the Deals list, and a new deal as `record.created`. The [webhook reference](/docs/webhooks) lists every payload.
+Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] event types: [[derived.webhooks.events.records]] record events and [[derived.webhooks.events.messaging]] inbox events. Record events cover every list, your own included. Deal **Stage** is a configurable single choice field, so a stage change arrives as `record.updated` for the Deals list, and a new deal as `record.created`. The [webhook reference](/docs/webhooks) lists every payload.
 
 <Steps>
   <Step title="Add the trigger in n8n">Add a Webhook node and copy its URL. With the community node, version 2 or later, a Customermates Trigger node creates the subscription for you when the workflow is activated, and you can skip the next step.</Step>
@@ -224,6 +250,6 @@ No. Routines need Mate and hosted AI credits, which exist only in Customermates 
 </FaqItem>
 
 <FaqItem question="How much does workflow automation cost in Customermates?">
-Webhooks, REST and MCP come with every plan, with no Customermates charge per workflow. Routines are included per user, from [[commercial.entitlement.starter.includedRoutinesPerUser]] on Starter to [[commercial.entitlement.business.includedRoutinesPerUser]] on Business, and each run uses at most 10 of the owner's hosted AI credits. n8n bills separately.
+REST and MCP come with every plan and webhooks with every paid plan, with no Customermates charge per workflow. Routines are included per user, from [[commercial.entitlement.starter.includedRoutinesPerUser]] on Starter to [[commercial.entitlement.business.includedRoutinesPerUser]] on Business, and each run uses at most 10 of the owner's hosted AI credits. n8n bills separately.
 </FaqItem>
 </Faq>

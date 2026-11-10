@@ -41,7 +41,7 @@ For an n8n workflow, the [n8n MCP route comparison and version-pinned example](/
   <SummaryItem label="Methods">Native connector, automation platform (iPaaS or n8n), direct API integration, or middleware. Or one suite whose ERP includes a CRM app.</SummaryItem>
   <SummaryItem label="Decide first">One owning system per field, a stable ID strategy, and what happens when an event arrives twice or fails.</SummaryItem>
   <SummaryItem label="Check your ERP">Whether its API is in your plan, whether it sends webhooks, and its rate limits. They differ a lot between vendors.</SummaryItem>
-  <SummaryItem label="Customermates">REST API and webhooks on every Cloud plan and when self-hosted. ERP references live in custom Text fields.</SummaryItem>
+  <SummaryItem label="Customermates">REST API on every Cloud plan, webhooks on every paid plan, and both when self-hosted. ERP references live in custom Text fields.</SummaryItem>
 </ArticleSummary>
 
 ## Which system owns each field in the integration architecture?
@@ -133,7 +133,7 @@ An integration that only handles the happy path will create duplicates within we
 
 ## Example: won deal to ERP order with Customermates
 
-This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work on every Customermates Cloud plan and in a self-hosted installation. The receiver in the middle is yours: an n8n workflow or a small service.
+This is the setup in Customermates for the first flow above. It uses the [REST API](/features/api) and [webhooks](/docs/webhooks), which work in a self-hosted installation and on Customermates Cloud: the REST API on every plan, webhooks on every paid plan. The receiver in the middle is yours: an n8n workflow or a small service.
 
 **Fields.** In **Data model**, add custom fields of type Text: "ERP customer no." on organizations, "ERP order no." on deals, and "ERP item no." on services. A deal's line items each hold a service and a quantity, so the line items and their services' item numbers become the order lines. If account managers need delivery or payment state, add a Single choice field such as "ERP status" on deals and make ERP ownership an explicit rule in your adapter. Customermates has list and role permissions, not field-level permissions that reserve this field for the integration.
 
@@ -147,7 +147,7 @@ This is the setup in Customermates for the first flow above. It uses the [REST A
 
 **Failures.** Customermates retries a failed delivery automatically for timeouts, network errors, 5xx responses and 408, 425 and 429. Other 4xx responses are not retried, because they would fail the same way. Every delivery appears under **Settings → Webhook log**, where you can resend it after fixing the cause.
 
-**Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. A saved view stays private until you share it, so the person who handles integration failures keeps it and shares it with the team if others need it. Anything that shows up there was missed by the event flow.
+**Reconciliation.** Save a deal view filtered to Stage "Won" and "ERP order no." empty. Share it with the person who handles integration failures, or with the whole team. Anything that shows up there was missed by the event flow.
 
 **The reverse direction.** If your ERP sends webhooks, point them at the same receiver, look up the deal by "ERP order no." and set "ERP status". If it does not, poll the ERP on a schedule. The [n8n guide](/docs/n8n) lists the REST calls an n8n workflow needs; a community node also exists.
 
@@ -183,7 +183,9 @@ No honest benchmark covers all CRM ERP integrations; a one-way event between two
 - rate limits and volume;
 - who runs the automation platform or service, and who answers its alerts.
 
-On the CRM side, the API and webhooks need no particular Customermates plan. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month. The unified inbox, which brings email, LinkedIn and WhatsApp conversations to the same records, starts with Pro ([[commercial.price.pro.monthly]] per user per month).
+On the CRM side, the REST API needs no particular Customermates plan and webhooks come with every paid plan. A three-person team on Starter pays [[commercial.price.starter.monthly.seats.3]] per month. The unified inbox, which brings email, LinkedIn and WhatsApp conversations to the same records, starts with Pro ([[commercial.price.pro.monthly]] per user per month).
+
+Before a won deal becomes an ERP order, the conversation that won it sits on the client record, with a reply and a next step drafted by Mate or your own AI client for you to review and send. To see that part on your own clients, [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup). No credit card.
 
 ## Common mistakes
 

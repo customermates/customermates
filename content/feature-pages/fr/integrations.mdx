@@ -1,6 +1,6 @@
 ---
 title: "Intégrations CRM : API REST, webhooks, MCP et n8n"
-description: "Reliez Customermates à vos outils : REST, webhooks signés, MCP pour clients IA et n8n. Toutes les formules, auto-hébergement compris, limites annoncées."
+description: "Reliez Customermates : REST et MCP avec toutes les formules, webhooks signés et n8n avec les formules payantes et en auto-hébergement, limites annoncées."
 featureName: Intégrations CRM
 
 relatedHrefs:
@@ -9,37 +9,53 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/crm-erp-integration
 
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Créez le webhook entrant Slack"
+        description: "Dans Slack, créez une application, activez les webhooks entrants, ajoutez un webhook à votre espace de travail et choisissez le canal. Copiez l’URL et gardez-la secrète."
+      - title: "Ajoutez le webhook Customermates"
+        description: "Sous Paramètres → Webhooks → Ajouter, collez l’URL Slack, sélectionnez Enregistrement créé et choisissez Affaires sous Enregistrements de."
+      - title: "Rédigez le modèle de corps"
+        description: "Saisissez {\"text\" : \"New deal : {{data.record.ref.recordId}}\"}. Tout chemin sous {{data}} fonctionne comme variable."
+      - title: "Testez et vérifiez le journal"
+        description: "Créez une affaire de test et ouvrez le Journal des webhooks. Un code de statut 2xx signifie que Slack l’a acceptée."
+
 hero:
-  title: Des intégrations CRM par des interfaces ouvertes, pas par une place de marché
-  description: Customermates se connecte aux autres logiciels grâce à une API REST documentée, [[derived.webhooks.events.total]] évènements de webhook, un point de terminaison MCP pour les clients IA comme Claude et ChatGPT, et un nœud communautaire pour n8n. Tout fonctionne avec toutes les formules et sur les installations auto-hébergées. L’e-mail, LinkedIn, WhatsApp, Instagram et Telegram se connectent nativement via la boîte de réception unifiée à partir de Pro.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  title: "Des interfaces ouvertes pour que vos outils et vos agents travaillent sur la même fiche client"
+  description: "Connectez vos logiciels via API REST, [[derived.webhooks.events.total]] évènements webhook, MCP pour Claude et ChatGPT et un nœud communautaire n8n. REST et MCP sont sur toutes les formules, les webhooks et les déclencheurs n8n sur les formules payantes et en auto-hébergement. Dès Pro, les conversations LinkedIn et e-mail sont sur le client et REST comme MCP peuvent les lire."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 
 cta:
-  action: Connectez votre premier outil
-  description: Créez une clé API ou un webhook pendant l’essai et envoyez un vrai évènement CRM au système qui en a besoin.
-  buttonLeftText: Commencer l’essai gratuit
-  buttonLeftHref: /auth/signup
+  action: "Envoyez votre premier évènement client à un autre outil"
+  description: "Créez une clé API ou un webhook pendant l’essai et envoyez un vrai évènement CRM, par exemple un nouveau message ou une affaire modifiée, au système qui en a besoin."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ Les [[commercial.trial.days]] premiers jours offerts"
 ---
 
-Une intégration CRM transfère des données ou des déclencheurs entre votre CRM et un autre système, pour que personne ne recopie une affaire d’un écran à l’autre. Customermates le fait par quatre interfaces ouvertes plutôt que par une place de marché d’applications : une API REST, des webhooks sortants, un point de terminaison MCP pour les clients IA et un nœud communautaire pour n8n. Elles sont disponibles avec toutes les formules, installations auto-hébergées comprises.
+Une intégration CRM transfère des données ou des déclencheurs entre votre CRM et un autre système, pour que personne ne recopie une affaire d’un écran à l’autre. Customermates le fait par quatre interfaces ouvertes plutôt que par une place de marché d’applications : une API REST, des webhooks sortants, un point de terminaison MCP pour les clients IA et un nœud communautaire pour n8n. L’API REST et MCP sont disponibles avec toutes les formules. Les webhooks, et les déclencheurs n8n qui en dépendent, sont inclus dans toutes les formules payantes. Les installations auto-hébergées ont les quatre.
 
 Ce choix a un coût qu’il faut connaître d’emblée. Il n’y a pas de catalogue d’applications en un clic. Si vous voulez que Customermates dialogue avec Slack, votre outil de comptabilité ou un générateur de formulaires, vous pointez un webhook vers cet outil, vous appelez l’API depuis votre propre code, ou vous construisez le flux dans un outil d’automatisation comme n8n, Make ou Zapier.
+
+**Ce que cela change pour la relance.** La relance d’une conversation client finit souvent dans un autre système : un message dans le chat d’équipe quand une réponse arrive, une fiche dans l’outil de projet. Un webhook sur les évènements de messagerie, un flux n8n ou votre propre client IA via MCP peut s’en charger, pour que la prochaine étape ne dépende pas de quelqu’un qui la recopie.
 
 ## Les cinq types de connexion en un coup d’œil
 
 | Connexion | Sens | À quoi elle sert | Formule |
 |---|---|---|---|
-| Webhooks | Du CRM vers votre système | Envoie un évènement quand un enregistrement de n’importe quelle liste est créé, mis à jour, placé dans la corbeille, restauré ou supprimé définitivement, ou quand un message arrive dans la boîte de réception | Toutes les formules, auto-hébergement compris |
+| Webhooks | Du CRM vers votre système | Envoie un évènement quand un enregistrement de n’importe quelle liste est créé, mis à jour, placé dans la corbeille, restauré ou supprimé définitivement, ou quand un message arrive dans la boîte de réception | Formules payantes et auto-hébergement, pas Free |
 | API REST | De votre système vers le CRM | Créer, lire, rechercher, mettre à jour et supprimer des enregistrements depuis du code ou un outil d’automatisation | Toutes les formules, auto-hébergement compris |
 | MCP | Du client IA vers le CRM | Laisser Claude, ChatGPT, Cursor, Codex ou Gemini CLI lire et écrire des enregistrements en conversation | Toutes les formules, auto-hébergement compris |
-| Nœud communautaire n8n | Dans les deux sens | Nœuds Customermates dédiés dans une instance n8n exploitée séparément | Toutes les formules ; n8n est facturé par n8n |
+| Nœud communautaire n8n | Dans les deux sens | Nœuds Customermates dédiés dans une instance n8n exploitée séparément | Actions : toutes les formules ; déclencheurs : formules payantes et auto-hébergement ; n8n est facturé par n8n |
 | Boîte de réception unifiée | Des canaux vers le CRM | Conversations Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram et Telegram à côté de l’enregistrement, plus agendas Google et Microsoft en lecture seule | Customermates Cloud, Pro ou supérieure |
 
 Webhooks, REST et MCP sont inclus dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La [boîte de réception unifiée](/features/unified-inbox) commence avec Pro à [[commercial.price.pro.monthly]] par utilisateur et par mois et inclut [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur ; Business en inclut [[commercial.entitlement.business.includedAccountsPerUser]] par utilisateur ainsi que les comptes partagés. Les installations auto-hébergées disposent de REST, des webhooks et de MCP mais pas de boîte de réception : les évènements de messagerie n’y sont donc jamais déclenchés.
@@ -103,13 +119,6 @@ Customermates n’a ni application Slack, ni canal Slack dans la boîte de réce
 
 **Voie 1, webhook seul.** Les [webhooks entrants](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) de Slack acceptent un POST JSON comme `{"text": "Hello"}` et le publient dans un canal. Un modèle de corps Customermates produit exactement cela :
 
-<Steps>
-  <Step title="Créez le webhook entrant Slack">Dans Slack, créez une application, activez les webhooks entrants, ajoutez un webhook à votre espace de travail et choisissez le canal. Copiez l’URL et gardez-la secrète.</Step>
-  <Step title="Ajoutez le webhook Customermates">Sous **Paramètres → Webhooks → Ajouter**, collez l’URL Slack, sélectionnez **Enregistrement créé** et choisissez Affaires sous **Enregistrements de**.</Step>
-  <Step title="Rédigez le modèle de corps">Saisissez `{"text": "New deal: {{data.record.ref.recordId}}"}`. Tout chemin sous `{{data}}` fonctionne comme variable.</Step>
-  <Step title="Testez et vérifiez le journal">Créez une affaire de test et ouvrez **Journal des webhooks**. Un code de statut 2xx signifie que Slack l’a acceptée.</Step>
-</Steps>
-
 **Voie 2, n8n.** Utilisez n8n quand le message demande de la logique : n’alerter que lorsque l’**Étape** de l’affaire atteint une certaine valeur, publier un récapitulatif hebdomadaire du pipeline à partir d’un `POST /api/v1/records/query` planifié, ou transformer un raccourci Slack en nouveau contact via l’API. Les conversations Slack n’apparaissent de toute façon jamais dans la boîte de réception de Customermates.
 
 ## Ce qui n’est pas inclus
@@ -130,7 +139,7 @@ Des connexions qui transfèrent des données ou des déclencheurs entre un CRM e
 </FaqItem>
 
 <FaqItem question="Customermates a-t-il une API ouverte et des webhooks ?">
-Oui, avec toutes les formules et dans les installations auto-hébergées. L’API REST est documentée avec OpenAPI et utilise un en-tête `x-api-key`. Les webhooks couvrent [[derived.webhooks.events.total]] évènements, avec signatures HMAC, nouvelles tentatives automatiques et journal des livraisons.
+Oui : l’API avec toutes les formules et dans les installations auto-hébergées, les webhooks avec toutes les formules payantes et en auto-hébergement. L’API REST est documentée avec OpenAPI et utilise un en-tête `x-api-key`. Les webhooks couvrent [[derived.webhooks.events.total]] évènements, avec signatures HMAC, nouvelles tentatives automatiques et journal des livraisons.
 </FaqItem>
 
 <FaqItem question="Existe-t-il une intégration Slack native ?">

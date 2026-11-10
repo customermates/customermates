@@ -304,7 +304,7 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
           <span className="mt-2 grid gap-1.5">
             {copy.guidedTasks[path].map((task, index) => (
               <span key={task} className="flex items-start gap-2 text-xs leading-5 text-foreground/80">
-                <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-primary/10 text-[9px] font-medium text-primary">
+                <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-foreground/[0.07] text-[9px] font-medium text-foreground">
                   {index + 1}
                 </span>
 

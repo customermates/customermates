@@ -1,6 +1,6 @@
 ---
-title: "CRM for Consultants: Clients and Engagements"
-description: "A consulting CRM for independent consultants and small firms: clients, engagements priced as days times day rate, and email or LinkedIn context in one record."
+title: "CRM for Consultants: Follow Up on Every Proposal"
+description: "A consulting CRM for small firms: clients, engagements and proposals beside LinkedIn and email threads, with Mate drafting each follow-up for you to send."
 industryName: "Consultants"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/coaches
 
 hero:
-  title: "CRM for consultants: keep the relationship behind every engagement"
-  description: "For independent consultants and small consulting firms who win work through referrals and conversations. Track clients, contacts and engagements from introduction to decision and through delivery. Email and LinkedIn context needs Customermates Cloud from Pro; time tracking, billing and proposal documents stay in your other tools."
-  buttonLeftText: Start free trial
-  buttonLeftHref: /auth/signup
+  title: "CRM for consultants: follow up before a proposal goes quiet"
+  description: "Proposals go quiet while you deliver. LinkedIn and email threads sit on the client, Mate drafts the reply and the next step, and you review and send it. Time tracking and billing stay in your tools."
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/consultants/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+landing:
+  hero:
+    eyebrow: For consultancies and independent consultants
+    title: The CRM for consultants that keeps every proposal moving.
+    description: Clients, engagements and proposals with the LinkedIn and email conversations behind them. Mate drafts the follow-up from your proposal playbook, and you review and send it.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Talk to Ben, 15 minutes
+      href: /contact
+  facts: No credit card · Keep your current tools · Pro from [[commercial.price.pro.monthly]] per person/month
+  generator:
+    eyebrow: Start from one description
+    title: Your consultancy, described once. Built for you.
+    description: AI setup asks a few questions and builds clients, engagements, proposals, your pipeline and your playbook. This is the consulting example; click around.
+    promptLabel: Your description to Mate
+    arrowLabel: became this workspace
+    prompt: We're a four-person strategy consultancy. Track clients, engagements and proposals, and help us follow up with prospects on LinkedIn.
+  followUp:
+    eyebrow: A Friday reply, handled
+    title: The prospect says yes to a revised scope. The follow-up has a date.
+    description: The LinkedIn thread sits on the client. Mate drafts the reply from your proposal playbook and puts "Send revised scope" on Tuesday's list.
+    desk:
+      label: Example follow-up scene with demo data
+      workspace: Lindqvist Advisory
+      conversation:
+        label: LinkedIn
+        name: Jonas Weber
+        company: Halden & Co.
+        time: Fri 16:42
+        message: Sounds good. Could you send the revised scope next week? Then I can take it to our board.
+      agent:
+        name: Mate
+        intent: Drafting a reply from your proposal playbook
+        done: Draft saved. Next step added to your dashboard.
+      draft:
+        badge: Draft, waiting for your review
+        text: Hi Jonas, thank you. I'll send the revised scope on Tuesday, with the two workshop options we discussed. Best, Anna
+        edit: Edit
+        send: Send draft
+      today:
+        title: Dashboard
+        date: Tuesday
+        addedBy: Added by Mate
+        assign: Assign
+        sections:
+          - title: Next steps due
+            items:
+              - title: Send revised scope
+                meta: Halden & Co. · due today
+                owner: AL
+                state: added
+              - title: Chase the signed proposal
+                meta: Norrland Studio · 2 days overdue
+                owner: AL
+                state: overdue
+          - title: Proposals waiting for an answer
+            items:
+              - title: Norrland Studio proposal
+                meta: sent 5 days ago
+                owner: AL
+                state: due
+  beforeAfter:
+    eyebrow: What changes
+    title: Before and after. Same clients, fewer loose ends.
+    before:
+      label: Before
+      points:
+        - Proposals tracked in a spreadsheet
+        - Replies spread across LinkedIn and email
+        - Follow-ups live in your head
+    after:
+      label: With Customermates
+      points:
+        - Every engagement has a next step with a date and an owner
+        - The conversation sits on the client, with a draft ready
+        - Your dashboard shows what is due, nothing more
+  steps:
+    eyebrow: How you start
+    title: Three steps. To your first follow-up.
+    items:
+      - title: Describe your consultancy
+        description: AI setup builds clients, engagements, proposals and your playbook from one description and a few answers.
+      - title: Connect LinkedIn or email
+        description: Threads land on the client whose email address or LinkedIn profile matches. On Pro, one connected account per person.
+      - title: Review follow-ups from your dashboard
+        description: Mate drafts the reply and dates the next step. You edit, send or skip.
+  plan:
+    eyebrow: Pricing
+    title: Pro covers it. [[commercial.price.pro.monthly]] per person per month.
+    description: Associates answering from a shared account need Business at [[commercial.price.business.monthly]]. Your own Claude or ChatGPT subscription stays with its provider.
+    limits: Not a fit if you need time tracking, billing, proposal documents or email sequences. Those stay in your other tools.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Compare all plans
+      href: /pricing
 
 cta:
-  action: Keep every engagement and the relationship behind it in one place
-  description: Explore the example consulting workspace with sample data, then start your own. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
-  buttonLeftText: Start free trial
-  buttonLeftHref: /auth/signup
+  action: Know which proposal needs a follow-up today
+  description: Explore the example consulting workspace with sample data, then start your own with one channel and one client. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly.
+  buttonLeftText: Start your [[commercial.trial.days]]-day trial
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/consultants/dashboard
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "For consultants. Three jobs, one workspace."
+  items:
+    - title: "Follow up on every proposal after the call"
+      description: "Each engagement moves from introduction to decision with a dated next step, so you can follow up on every proposal."
+      href: /features/pipeline
+      linkLabel: "See the pipeline"
+      visual: proposal
+    - title: "Follow up where the client wrote"
+      description: "LinkedIn and email threads sit on the engagement, and Mate drafts the follow-up from your proposal playbook for you to review and send."
+      href: /features/follow-up
+      linkLabel: "See follow-up"
+      visual: conversation
+    - title: "Write your playbook once"
+      description: "Proposal steps, prices and how you work live in the knowledge base, and Mate drafts from the pages it may read."
+      href: /features/knowledge-base
+      linkLabel: "See the knowledge base"
+      visual: playbook
 ---
 
-A **CRM for consultants** has one job: tell you which client relationships and open engagements need you this week, and give you the context to act. Customermates is an open-source, AI-native CRM made in Germany. It keeps clients, the people in them, each engagement and, in Customermates Cloud from the Pro plan, the email and LinkedIn conversations around them in one place. It covers winning the work. Time tracking, billing, writing proposals and project delivery stay in other tools.
+A proposal goes out, the client goes quiet, and the next message lands on LinkedIn while you are deep in delivery. A **CRM for consultants** earns its place there: it keeps the client, the people in it and each engagement on one record, so you can see which relationship needs a reply this week. Customermates is an open-source, AI-native CRM made in Germany. In Customermates Cloud from the Pro plan, the email and LinkedIn threads sit on the client. Mate, or your own AI agent through MCP, drafts the reply and the next step, and you review, edit and send. It covers winning the work. Time tracking, billing, writing proposals and project delivery stay in other tools.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -59,6 +179,19 @@ Many tools sold as consultant CRMs bundle the pipeline with timesheets and billi
 - **Conversations are spread out.** The introduction arrives on LinkedIn, scoping runs by email. A contact list sees neither.
 - **Past clients go quiet while you deliver.** They are the most likely source of the next engagement and the first thing to slip during a busy project.
 - **Client correspondence is confidential.** Once associates join, it matters who can read which conversation.
+
+## Best CRM for consultants: six options compared
+
+The ranking follows one job: following up on every client conversation in a small consulting practice. Customermates publishes this page, so check each line on the vendor's own site. Prices were checked on 9 November 2026 on each vendor's pricing page, and a promotional price is named as one.
+
+| # | CRM | Fits | Price |
+|---|---|---|---|
+| 1 | Customermates | Consultants who follow up on proposals and want the LinkedIn and email threads on the client, with a drafted reply to review and send. Hours and invoices stay in your other tools. | Pro [[commercial.price.pro.monthly]] per user per month, billed monthly |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | Selling on LinkedIn. Its own pages describe one inbox for email, LinkedIn, WhatsApp and Telegram, and an MCP server for Claude. | From $49 per seat per month billed monthly; two connected accounts per seat |
+| 3 | [Attio](https://attio.com/pricing) | A flexible data model with email and calendar sync for Gmail and Microsoft 365. | Free for up to 3 seats; Plus €31 per user per month billed yearly |
+| 4 | [HubSpot](https://www.hubspot.com/pricing/crm) | A free start for one or two people, with Gmail and Outlook connected. | Free for up to 2 users; Starter €7 per seat per month billed annually, a limited-time price |
+| 5 | [Pipedrive](https://www.pipedrive.com/en/pricing) | A practice that thinks in a deal pipeline and works from the phone: native iOS and Android apps on every plan. | Lite €14 per seat per month billed yearly; two-way email sync starts on Growth |
+| 6 | [Twenty](https://twenty.com/pricing) | A technical founder who wants an open-source CRM with custom objects and keeps the data model tidy. | Pro $9 per user per month billed yearly; self-hosting the core is free |
 
 ## One engagement in the example workspace
 
@@ -115,7 +248,7 @@ Conversations from your own accounts stay private until you share them. That sui
 
 ## Meeting prep and follow-up drafts with Mate
 
-Mate is the assistant inside Customermates Cloud. It runs on hosted AI credits included per active user on every cloud plan, and is not available in self-hosted installations. Before a call, ask in the chat for a summary of an engagement: its stage, the latest email and LinkedIn messages and the next-step date. After the call, ask it to update the stage and save a short follow-up as a draft in the conversation.
+Mate is the assistant inside Customermates Cloud. It runs on hosted AI credits included per active user on every paid cloud plan, and is not available in self-hosted installations. Before a call, ask in the chat for a summary of an engagement: its stage, the latest email and LinkedIn messages and the next-step date. After the call, ask it to update the stage and save a short follow-up as a draft in the conversation.
 
 Mate can send messages when you tell it to send, so ask for drafts when you want to read first. Deletions, imports and access changes always stop for your approval. A [routine](/docs/app-routines) runs Mate on a schedule or when a record changes: for example every Monday, list engagements in Proposal sent whose next-step date has passed and save a draft reply for each. The example workspace has two: one adds a short brief to the engagement before each of the day's calendar meetings, the other creates a task for close contacts you have not met in two months. A routine belongs to one user and sees what that user sees. Starter includes [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user and Pro includes [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
@@ -125,6 +258,7 @@ Prefer your own AI client? Connect Claude, ChatGPT or another client through [MC
 
 Customermates fits a small firm, with limits worth knowing before you invite a team:
 
+- **Shared views are read-only.** Share a view with the whole firm or with selected roles and everyone works from the same filters, but only its owner changes it.
 - **No field-level permissions.** Roles control access to lists and records. A custom role with Assigned read access limits an associate or subcontractor to the records assigned to them, but you cannot hide a single field such as a day rate.
 - **Whole-account inbox sharing starts at Business.** On Pro, threads are shared one at a time.
 - The audit log records who changed which record.
@@ -155,7 +289,7 @@ A workable split is two systems: Customermates for relationships and engagements
 
 ## What it costs
 
-Prices are per user per month, billed monthly. Every plan includes REST, webhooks and MCP. Starter at [[commercial.price.starter.monthly]] covers the lists and pipeline without connected inbox accounts. Pro at [[commercial.price.pro.monthly]] adds your own connected accounts and individually shared threads. Business at [[commercial.price.business.monthly]] adds whole-account sharing and more connected accounts per user. Hosted AI credits for Mate grow with the plan; the amounts are on the [pricing page](/pricing). The open-source core can be [self-hosted](/features/self-hosted) without a licence fee, with the Starter feature set: no inbox, no Mate and no AI setup.
+Prices are per user per month, billed monthly. Every paid plan includes REST, webhooks and MCP. Starter at [[commercial.price.starter.monthly]] covers the lists and pipeline without connected inbox accounts. Pro at [[commercial.price.pro.monthly]] adds your own connected accounts and individually shared threads. Business at [[commercial.price.business.monthly]] adds whole-account sharing and more connected accounts per user. Hosted AI credits for Mate grow with the plan; the amounts are on the [pricing page](/pricing). The open-source core can be [self-hosted](/features/self-hosted) without a licence fee, with the Starter feature set: no inbox, no Mate and no AI setup.
 
 ## Client data and confidentiality
 
@@ -178,7 +312,7 @@ A spreadsheet works while you can remember every open engagement. It stops worki
 </FaqItem>
 
 <FaqItem question="Can my associates share views and see only some fields?">
-Views yes, single fields no. The owner of a saved view can share it with everyone in the workspace or with selected roles; associates see it read-only and only the records their role allows. Permissions work on lists and records, not on single fields. A role with Assigned read access limits someone to the records assigned to them.
+Views yes, fields no. Share a view with the whole firm or with selected roles; colleagues see it read-only and only its owner changes it. Permissions work on lists and records, not on single fields. A role with Assigned read access limits someone to the records assigned to them.
 </FaqItem>
 
 <FaqItem question="Are emails logged to the engagement automatically?">
@@ -192,4 +326,16 @@ No. Keep hours and invoicing in your time tracker or accounting tool. If you wan
 <FaqItem question="Will Mate send messages without me?">
 Mate sends when you ask it to send, so ask for a draft when you want to read first. It is available only in Customermates Cloud, within your plan's AI credits. Deletions, imports and access changes always wait for your approval.
 </FaqItem>
+<FaqItem question="What is the best CRM for consultants?">
+It depends on the job. For following up on proposals and client conversations in a small practice, the table above ranks Customermates first, because the email and LinkedIn threads sit on the client and a drafted reply waits for your review. Breakcold, Attio, HubSpot, Pipedrive and Twenty follow. If your main need is time tracking, billing or proposals, a tool such as MOCO, BigTime or HoneyBook covers that. Customermates publishes this page, so check each line on the vendor's own site.
+</FaqItem>
+
+<FaqItem question="What does a consulting CRM do?">
+A consulting CRM keeps each client, the people in it and each engagement on one record, shows the next step with a date, and puts the email and LinkedIn conversations beside it. Delivery, hours and invoices usually live in other tools.
+</FaqItem>
+
+<FaqItem question="Is a free CRM enough for a solo consultant?">
+To start, often yes: HubSpot is free for up to 2 users and Attio for up to 3 seats (checked on 9 November 2026). Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. If you want the conversations on the client, you need Pro.
+</FaqItem>
+
 </Faq>

@@ -9,10 +9,20 @@ relatedHrefs:
   - /blog/crm-and-erp
   - /features/self-hosted
 
+sections:
+  reasons:
+    - title: "Outlook bleibt, und der Kunde bekommt die Gespräche"
+      description: "Ab Pro verbinden Sie ein Outlook-Postfach oder Gmail, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram, und der einheitliche Posteingang zeigt jedes Gespräch in einer Liste, verknüpft mit dem Kunden."
+    - title: "KI-Entwürfe ohne Tarifsprung"
+      description: "In Customermates Cloud gehört Mate zu jedem kostenpflichtigen Tarif, innerhalb eines monatlichen Kontingents gehosteter KI-Credits. Mate entwirft die Antwort, fasst den Verlauf zusammen und aktualisiert den Datensatz."
+    - title: "Open Source, mit Wahl beim Hosting"
+      description: "Der AGPL-3.0-Kern läuft mit Docker Compose und PostgreSQL 16 auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP. In der Cloud ist die Datenbank in Frankfurt konfiguriert."
+  switchSteps: true
+
 hero:
-  title: "Microsoft Dynamics 365 Alternative: Customermates und Dynamics 365 Sales im Vergleich"
-  description: "Dynamics 365 Sales wird pro Nutzer lizenziert und jährlich bezahlt, mit Copilot und Vertriebs-Agents rund um Microsoft 365. Customermates ist ein Open-Source-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt: monatliche Abrechnung, ab Pro Outlook, LinkedIn und WhatsApp neben Ihren Deals, und die CRM-Arbeit erledigt Mate in der Customermates Cloud oder Ihr eigener KI-Client. Angaben zu Microsoft geprüft am 8. Oktober 2026."
-  buttonLeftText: Kostenlos starten
+  title: "Microsoft-Dynamics-Alternative: Customermates im Vergleich"
+  description: "Dynamics 365 Sales beginnt bei 65 $ pro Nutzer und Monat bei jährlicher Zahlung, Copilot gibt es erst eine Stufe höher. Customermates rechnet monatlich ab, legt Outlook-, LinkedIn- und WhatsApp-Gespräche ab Pro beim Kunden ab, und Mate entwirft die Antwort. Stand 8. Oktober 2026."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -93,7 +103,7 @@ comparison:
 cta:
   action: Sie wollen von Dynamics 365 Sales wechseln?
   description: "Starten Sie eine Testphase, exportieren Sie eine Dynamics-Ansicht nach Excel und importieren Sie sie als Accounts oder Chancen. Verbinden Sie Ihr Outlook-Postfach und prüfen Sie mit Ihren eigenen Daten, ob Customermates passt, bevor Sie den Rest umziehen."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -156,11 +166,11 @@ Die Tarife enthalten nicht dasselbe:
 
 ## Wo Customermates passt
 
-Customermates ist ein KI-CRM mit offenem Quellcode für kleine Teams mit viel Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer. Entwickelt wird es in Deutschland.
+Ein kleines Team, das Kunden nachfassen will, braucht dafür keine Business-Plattform. Ab Pro behält Customermates Outlook als Postfach, ergänzt LinkedIn, WhatsApp, Instagram und Telegram, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt. Sie prüfen, bearbeiten und senden.
 
 **Outlook bleibt, das CRM bekommt die Gespräche.** Ab Pro verbinden Sie ein Outlook-Postfach oder Gmail, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram, und der [einheitliche Posteingang](/features/unified-inbox) zeigt alle Gespräche in einer Liste. Sie antworten über den ursprünglichen Kanal. Verknüpfen Sie einen Teilnehmer einmal mit einem Kontakt, erscheint das Gespräch bei diesem Kontakt. Termine aus dem verbundenen Konto sehen Sie nur lesend. Teams ist kein Kanal im Posteingang.
 
-**KI, die die CRM-Arbeit erledigt.** In der Customermates Cloud fasst Mate Gespräche zusammen, entwirft Antworten und aktualisiert Datensätze. Mate nutzt gehostete KI-Credits: Jeder Tarif enthält ein monatliches Kontingent pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Vor jedem Löschen fragt Mate nach Ihrer Freigabe. Bitten Sie Mate dagegen, eine Nachricht zu senden, sendet es ohne weitere Rückfrage; wer erst lesen will, lässt Entwürfe speichern. [Routinen](/docs/app-routines) führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus, und zwar als ihr Besitzer: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business.
+**KI, die die CRM-Arbeit erledigt.** In der Customermates Cloud fasst Mate Gespräche zusammen, entwirft Antworten und aktualisiert Datensätze. Mate nutzt gehostete KI-Credits: Jeder bezahlte Tarif enthält ein monatliches Kontingent pro aktivem Nutzer, das auf der [Preisseite](/pricing) steht. Vor jedem Löschen fragt Mate nach Ihrer Freigabe. Bitten Sie Mate dagegen, eine Nachricht zu senden, sendet es ohne weitere Rückfrage; wer erst lesen will, lässt Entwürfe speichern. [Routinen](/docs/app-routines) führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Änderung an einem Datensatz aus, und zwar als ihr Besitzer: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business.
 
 Sie nutzen lieber Claude, ChatGPT oder einen anderen Client, den Sie ohnehin bezahlen? Verbinden Sie ihn per API-Schlüssel oder OAuth mit dem [MCP-Server](/docs/mcp). Er bietet [[derived.mcp.tools.total]] Tools in jedem Tarif und bei selbst gehosteten Installationen, und die Modellaufrufe laufen über Ihren eigenen KI-Anbieter.
 
@@ -173,7 +183,7 @@ Sie nutzen lieber Claude, ChatGPT oder einen anderen Client, den Sie ohnehin bez
 - **Feine Sicherheitsregeln.** Rollen regeln Rechte pro Liste und Aktion. Es gibt keine Sicherheit auf Feldebene und kein SSO.
 - **Contact Center oder Customer Service.** Microsoft verkauft beide als eigene Dynamics-365-Apps. Customermates hat keine Telefonie, keine Fälle und keine Tickets.
 - **Die Vertriebswerkzeuge, die Dynamics mitbringt.** Keine Smartphone-App, keine Gesprächsaufzeichnung, keine Datenanreicherung, kein Lead-Scoring, weder E-Mail-Sequenzen noch Massenversand. Die gewichtete Pipeline ist Rechnen mit Phasenwahrscheinlichkeiten, keine Prognose.
-- **Ein kostenloser Tarif.** Es gibt eine Testphase von [[commercial.trial.days]] Tagen, danach einen bezahlten Tarif.
+- **Ein großer kostenloser Tarif.** Free umfasst [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen; mehr braucht nach [[commercial.trial.days]] Tagen Testphase einen bezahlten Tarif.
 
 ## Beispiel: Eine Beratung verlässt Sales Professional
 
@@ -224,7 +234,7 @@ Beides, als getrennte Apps. Microsoft führt Sales, Customer Insights, Customer 
 </FaqItem>
 
 <FaqItem question="Ist Microsoft Dynamics kostenlos?">
-Nein. Dynamics 365 Sales lässt sich 30 Tage testen, danach kosten die Tarife in Deutschland 56,30 € bis 130,00 € pro Nutzer und Monat zzgl. MwSt., bei jährlicher Zahlung. Kostenlose Tarife mit Grenzen bei Nutzern, Funktionen oder Apps haben Salesforce (kostenlose Suite), HubSpot, Zoho CRM und Odoo. Customermates hat keinen kostenlosen Tarif, aber eine Testphase von [[commercial.trial.days]] Tagen, und der Open-Source-Kern kostet selbst gehostet keine Lizenzgebühr, dann ohne Posteingang und Mate.
+Nein. Dynamics 365 Sales lässt sich 30 Tage testen, danach kosten die Tarife in Deutschland 56,30 € bis 130,00 € pro Nutzer und Monat zzgl. MwSt., bei jährlicher Zahlung. Kostenlose Tarife mit Grenzen bei Nutzern, Funktionen oder Apps haben Salesforce (kostenlose Suite), HubSpot, Zoho CRM und Odoo. Customermates hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, eine Testphase von [[commercial.trial.days]] Tagen, und der Open-Source-Kern kostet selbst gehostet keine Lizenzgebühr, dann ohne Posteingang und Mate.
 </FaqItem>
 
 <FaqItem question="Was ist der Nachfolger von Microsoft Dynamics CRM?">

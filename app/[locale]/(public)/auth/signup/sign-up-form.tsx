@@ -23,6 +23,7 @@ import { Reveal } from "@/components/shared/reveal";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import type { SignupJourneyInput } from "@/features/acquisition/signup-source";
 
 type Props = {
   invitationIntent?: string;
@@ -78,7 +79,7 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
               </p>
             </Alert>
           ) : appMode === "cloud" ? (
-            <Alert className="mb-4" color="primary">
+            <Alert className="mb-4" variant="info">
               <p className="text-x-sm">{t("SignUpForm.accountSubtitle")}</p>
             </Alert>
           ) : null}
@@ -167,4 +168,17 @@ const SignUpFormContent = observer(({ invitationIntent, inviterName, socialProvi
   );
 });
 
-export const SignUpForm = serverRenderedClient(SignUpFormContent);
+function SignUpFormWithJourney({ signupJourney, ...props }: Props & { signupJourney?: SignupJourneyInput }) {
+  const { signUpStore } = useRootStore();
+  useState(() => {
+    if (signupJourney) signUpStore.setSignupJourney(signupJourney);
+  });
+
+  useEffect(() => {
+    if (signupJourney || signUpStore.signupJourney) signUpStore.setSignupJourney(signupJourney ?? null);
+  }, [signupJourney, signUpStore]);
+
+  return <SignUpFormContent {...props} />;
+}
+
+export const SignUpForm = serverRenderedClient(SignUpFormWithJourney);

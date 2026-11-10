@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { appRedirectHref } from "@/features/auth/next/app-redirect";
 import { z } from "zod";
 
-import { getGetRecordPresentationInteractor, getQueryTrashInteractor } from "@/core/di";
+import { getGetPlanUsageInteractor, getGetRecordPresentationInteractor, getQueryTrashInteractor } from "@/core/di";
+import { PlanLimitNotice } from "@/app/components/upsell/plan-limit-notice";
 import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
@@ -68,8 +69,18 @@ export default async function RecordsPage({
   const presentation = await unwrapPage(Promise.resolve(outcome));
   if (query.viewId !== undefined && presentation.result.activeViewKey !== query.viewId)
     redirect(await appRedirectHref(`/records/${typeId}${withoutView(raw)}`));
+  const usage = await unwrapPage(getGetPlanUsageInteractor().invoke());
   return (
     <PageContainer padded={false}>
+      {usage.limits ? (
+        <PlanLimitNotice
+          className="mx-4 mt-3 w-auto md:mx-6"
+          kind="records"
+          limit={usage.limits.maxRecords}
+          used={usage.usage.records}
+        />
+      ) : null}
+
       <RecordsPageView key={typeId} presentation={presentation} />
     </PageContainer>
   );

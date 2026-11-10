@@ -1,6 +1,6 @@
 ---
 title: "CRM mit API: REST-Schnittstelle, Webhooks und MCP"
-description: "Customermates bietet eine REST-API mit OpenAPI-3.1-Spezifikation, Bulk-Endpunkten, signierten Webhooks und MCP in jedem Tarif, auch beim Self-Hosting."
+description: "Customermates hat eine REST-API mit OpenAPI-3.1-Spezifikation und MCP in jedem Tarif, signierte Webhooks in bezahlten Tarifen und beim Self-Hosting."
 featureName: CRM API
 
 relatedHrefs:
@@ -9,35 +9,58 @@ relatedHrefs:
   - /features/integrations
   - /blog/what-is-an-mcp-server
 
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Key anlegen"
+        description: "Öffnen Sie Einstellungen → API-Schlüssel, klicken Sie auf Hinzufügen, wählen Sie Standard-API-Key, vergeben Sie einen Namen wie ERP-Sync, Produktion und kopieren Sie den Key. Er wird nur einmal angezeigt."
+      - title: "Schema laden"
+        description: "Rufen Sie /api/v1/openapi unter Ihrer Workspace-Adresse ab und importieren Sie das Dokument in Postman, Insomnia oder einen Client-Generator."
+      - title: "Abfragen"
+        description: "Senden Sie POST /api/v1/records/query mit dem Header x-api-key. Die Antwort enthält alle Deals, die in den letzten sieben Tagen geändert wurden."
+      - title: "Schreiben"
+        description: "Setzen Sie einen Deal mit POST /api/v1/records/mutate in eine andere Phase. Was Ihr Nutzer in der App darf, darf der Key auch über die API."
+      - title: "Abonnieren"
+        description: "Legen Sie einen Webhook für Datensatz aktualisiert auf der Liste Deals mit Secret an, richten Sie ihn auf Ihren Endpunkt und prüfen Sie die erste Zustellung unter Zustellungen."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-configure
+    items:
+      - title: "Schnittstellen"
+        description: "REST unter /api/v1, OpenAPI-3.1-Spezifikation, [[derived.webhooks.events.total]] Webhook-Events und [[derived.mcp.tools.total]] MCP-Tools."
+      - title: "Tarife"
+        description: "REST und MCP in jedem Cloud-Tarif, Webhooks in jedem bezahlten Tarif, alle drei beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist."
+      - title: "Authentifizierung"
+        description: "Ein API-Key pro Client im Header x-api-key. Ein Key hat genau die Rechte der Rolle seines Besitzers."
+      - title: "Grenzen"
+        description: "Bulk-Schreibvorgänge nehmen bis zu 100 Datensätze pro Anfrage. Kein ODER zwischen Filterregeln, keine Scopes pro Key."
+
 hero:
-  title: Ein CRM mit REST-API, Webhooks und MCP in jedem Tarif
-  description: Lesen und schreiben Sie Kontakte, Organisationen, Deals, Services, Aufgaben und eigene Listen über eine dokumentierte REST-API, reagieren Sie per Webhook auf Änderungen und lassen Sie Ihren eigenen KI-Client über MCP im CRM arbeiten. Alle drei Schnittstellen gibt es in jedem Cloud-Tarif und in der selbst gehosteten Open-Source-Version.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Lassen Sie Ihren KI-Agenten und Ihre Tools aus denselben Kundendatensätzen nachfassen"
+  description: "Ihr KI-Client liest den Datensatz eines Kunden und aktualisiert den nächsten Schritt über MCP. Ihre anderen Systeme lesen und schreiben dieselben Datensätze über REST und signierte Webhooks. Dieselben Rechte; REST und MCP in jedem Tarif, Webhooks in bezahlten Tarifen und selbst gehostet."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Senden Sie heute Ihren ersten API-Aufruf
-  description: Legen Sie in der Testphase einen API-Key an, laden Sie die OpenAPI-Spezifikation und schicken Sie eine Suchanfrage an Ihren eigenen Workspace.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Verbinden Sie Ihren eigenen Agenten mit Ihren Kundendatensätzen"
+  description: "Legen Sie in der Testphase einen API-Key an oder fügen Sie den Claude- oder ChatGPT-Connector hinzu und fragen Sie Ihren Agenten nach einem Kundendatensatz und dem nächsten Schritt. Oder lesen Sie die OpenAPI-Spezifikation und schicken Sie eine Suchanfrage."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=agent
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Customermates ist ein CRM mit offener REST-Schnittstelle in jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und in der kostenlosen selbst gehosteten Version. Sie authentifizieren sich mit einem API-Key im Header `x-api-key`, das vollständige Schema liegt als OpenAPI-3.1-Dokument unter `/api/v1/openapi`, und [[derived.webhooks.events.total]] Webhook-Events melden Ihren Systemen jede Änderung. Einen eigenen Entwicklertarif oder ein kostenpflichtiges API-Add-on gibt es nicht.
+Customermates ist ein CRM mit offener REST-Schnittstelle in jedem Tarif, ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat, und in der kostenlosen selbst gehosteten Version. Sie authentifizieren sich mit einem API-Key im Header `x-api-key`, das vollständige Schema liegt als OpenAPI-3.1-Dokument unter `/api/v1/openapi`, und in bezahlten Tarifen und selbst gehostet melden [[derived.webhooks.events.total]] Webhook-Events Ihren Systemen jede Änderung. Einen eigenen Entwicklertarif oder ein kostenpflichtiges API-Add-on gibt es nicht.
 
 Customermates ist ein Open-Source-KI-CRM aus Deutschland für kleine Teams mit viel Kundenkontakt. Die API ist für zwei Gruppen interessant: Entwickler, die das CRM mit ERP, Buchhaltung oder Data-Warehouse verbinden wollen, und Teams, die einen KI-Client wie Claude oder ChatGPT Datensätze pflegen lassen wollen. Die erste Gruppe nutzt REST und Webhooks, die zweite den MCP-Endpunkt. Beide laufen über dieselben Berechtigungen.
 
-<ArticleSummary title="Auf einen Blick">
-  <SummaryItem label="Schnittstellen">REST unter `/api/v1`, OpenAPI-3.1-Spezifikation, [[derived.webhooks.events.total]] Webhook-Events und [[derived.mcp.tools.total]] MCP-Tools.</SummaryItem>
-  <SummaryItem label="Tarife">REST, Webhooks und MCP in jedem Cloud-Tarif sowie beim Self-Hosting. Inbox-Endpunkte brauchen ein verbundenes Konto, das in Customermates Cloud ab Pro verfügbar ist.</SummaryItem>
-  <SummaryItem label="Authentifizierung">Ein API-Key pro Client im Header `x-api-key`. Ein Key hat genau die Rechte der Rolle seines Besitzers.</SummaryItem>
-  <SummaryItem label="Grenzen">Bulk-Schreibvorgänge nehmen bis zu 100 Datensätze pro Anfrage. Kein ODER zwischen Filterregeln, keine Scopes pro Key.</SummaryItem>
-</ArticleSummary>
+**Warum das für das Nachfassen zählt.** Eine Kundenantwort geht unter, wenn die Fakten, die man dafür braucht, in einem anderen System liegen. Über MCP liest Ihr eigener KI-Client, etwa Claude oder ChatGPT, den Datensatz eines Kunden und in Customermates Cloud ab Pro auch die Gespräche mit ihm und kann einen Antwortentwurf speichern, den Sie prüfen und senden. Über REST und Webhooks bekommen Ihre anderen Tools dieselben Datensätze und erfahren, wenn sich einer ändert.
 
 ## Was die REST-API abdeckt
 

@@ -303,6 +303,13 @@ test("publishes a list view by public link with only its visible columns, read-o
       await expect(outsider.page.locator("#public-link-badge")).toContainText(publicPage.upsell.badge);
       await expect(async () => {
         const badgeBox = await outsider.page.locator("#public-link-badge").boundingBox();
+        const viewport = outsider.page.viewportSize();
+        if (viewport && viewport.width >= 1024) {
+          expect(badgeBox).not.toBeNull();
+          expect(badgeBox!.y + badgeBox!.height).toBeLessThanOrEqual(viewport.height);
+          expect(viewport.width - (badgeBox!.x + badgeBox!.width)).toBeLessThanOrEqual(64);
+          return;
+        }
         const listBox = await table.boundingBox();
         expect(badgeBox && listBox && badgeBox.y - (listBox.y + listBox.height)).toBeGreaterThanOrEqual(0);
       }).toPass();

@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/integrations
   - /features/api
 
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Routine anlegen"
+        description: "Öffnen Sie Routinen, klicken Sie auf Hinzufügen und nennen Sie die Routine „Pipeline-Check Montag“."
+      - title: "Auslöser festlegen"
+        description: "Wählen Sie Nach Zeitplan, dann unter Wiederholung den Wert Wöchentlich, Montag, 8:00 Uhr."
+      - title: "Anweisung einfügen"
+        description: "Fügen Sie Ihre Anweisung mit Ihren eigenen Phasennamen ein und speichern Sie."
+      - title: "Einmal testen"
+        description: "Klicken Sie auf Auslöser testen. Unter Details zum Lauf sehen Sie Mates Antwort, die gelesenen Datensätze und die verbrauchten Credits."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-routines
+    items:
+      - title: "Zwei Wege"
+        description: "Routinen für Arbeit, bei der gelesen und abgewogen werden muss. Webhooks mit n8n oder eigenem Code für feste Regeln."
+      - title: "Tarife"
+        description: "Routinen in jedem bezahlten Cloud-Tarif: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business. REST und MCP in jedem Tarif, Webhooks in jedem bezahlten Tarif, auch selbst gehostet."
+      - title: "Kosten"
+        description: "Ein Routinenlauf verbraucht die monatlichen gehosteten KI-Credits seines Eigentümers und stoppt bei 10 Credits. n8n wird separat abgerechnet."
+      - title: "Nicht enthalten"
+        description: "Kein visueller Workflow-Editor und keine Verzweigungen im CRM, keine E-Mail-Sequenzen und keine Erinnerungen an Aufgaben."
+
 hero:
   title: Vertriebsautomatisierung im CRM mit KI-Routinen und offenen Webhooks
-  description: Routinen in Customermates Cloud führen eine gespeicherte Anweisung mit Mate nach Zeitplan oder bei einer Datensatzänderung aus und verbrauchen dabei gehostete KI-Credits. Webhooks, REST-API, n8n und MCP verbinden jeden Tarif, auch die selbst gehostete Version, mit dem Automatisierungstool oder KI-Client, den Sie betreiben.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  description: "Routinen in Customermates Cloud führen Mate nach Zeitplan oder bei einer eingehenden E-Mail aus, sodass Antwortentwürfe zur Prüfung bereitliegen. REST und MCP verbinden in jedem Tarif jedes Tool; Webhooks und n8n gehören zu jedem bezahlten Tarif und zum Self-Hosting."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Anleitung zu Routinen
   buttonRightHref: /docs/app-routines
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Automatisieren Sie diese Woche eine wiederkehrende Aufgabe
-  description: Bauen Sie im Testzeitraum die Nachfass-Routine und verbinden Sie danach n8n für Regeln, die jedes Mal gleich laufen müssen.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Automatisieren Sie Ihren Nachfass-Check am Montag"
+  description: "Richten Sie im Testzeitraum den Pipeline-Check am Montag ein und lassen Sie eine Routine das Nachfassen entwerfen. Verbinden Sie n8n für Regeln, die jedes Mal gleich laufen müssen."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: n8n verbinden
   buttonRightHref: /docs/n8n
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -34,7 +60,7 @@ Die Grenze ist schnell gezogen. Customermates automatisiert Arbeit an einzelnen 
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Drei Wege">Routinen für Arbeit, bei der gelesen und abgewogen werden muss. Webhooks mit n8n oder eigenem Code für feste Regeln. Ihr eigener KI-Client über MCP für Datensatzänderungen, die Sie anfordern.</SummaryItem>
-  <SummaryItem label="Tarife">Routinen in jedem Cloud-Tarif: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business. Webhooks, REST und MCP in jedem Tarif, auch selbst gehostet.</SummaryItem>
+  <SummaryItem label="Tarife">Routinen in jedem bezahlten Cloud-Tarif: [[commercial.entitlement.starter.includedRoutinesPerUser]] pro Nutzer in Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] in Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] in Business. REST und MCP in jedem Tarif, Webhooks in jedem bezahlten Tarif, auch selbst gehostet.</SummaryItem>
   <SummaryItem label="Kosten">Ein Routinenlauf verbraucht die monatlichen gehosteten KI-Credits seines Eigentümers und stoppt bei 10 Credits. n8n wird separat abgerechnet.</SummaryItem>
   <SummaryItem label="Nicht enthalten">Kein visueller Workflow-Editor und keine Verzweigungen im CRM, keine E-Mail-Sequenzen, keine Erinnerungen an Aufgaben, kein Lead-Scoring.</SummaryItem>
 </ArticleSummary>
@@ -55,12 +81,12 @@ Ein Antwortentwurf ist eine Nachricht in einer Konversation, keine Sequenz. Brau
 
 | Aufgabe | Lösung | Tarif |
 |---|---|---|
-| Nachfass-Erinnerung: eine Aufgabe für jeden Deal, dessen Datum für den nächsten Kontakt verstrichen ist | Routine nach Zeitplan | Jeder Cloud-Tarif |
+| Nachfass-Erinnerung: eine Aufgabe für jeden Deal, dessen Datum für den nächsten Kontakt verstrichen ist | Routine nach Zeitplan | Jeder bezahlte Cloud-Tarif |
 | Antwortentwurf, wenn ein Kunde per E-Mail schreibt | Routine auf **E-Mail empfangen** | Cloud, ab Pro |
-| Onboarding-Aufgaben bei gewonnenem Deal | Routine auf **Datensatz aktualisiert** für Deals oder Webhook an n8n | Routine: Cloud. Webhook: jeder Tarif |
-| Nachricht im Team-Chat bei neuem Deal | Webhook an n8n oder Webhook mit Body-Vorlage | Jeder Tarif |
-| Ablauf mit Verzweigungen, Wartezeiten und anderen Apps | n8n auf Webhooks und REST | Jeder Tarif, plus n8n |
-| Deal aus eingefügten Gesprächsnotizen aktualisieren | Mate-Chat oder Ihr eigener KI-Client über MCP | Mate: Cloud. MCP: jeder Tarif |
+| Onboarding-Aufgaben bei gewonnenem Deal | Routine auf **Datensatz aktualisiert** für Deals oder Webhook an n8n | Routine: bezahlte Cloud. Webhook: bezahlte Tarife |
+| Nachricht im Team-Chat bei neuem Deal | Webhook an n8n oder Webhook mit Body-Vorlage | Bezahlte Tarife |
+| Ablauf mit Verzweigungen, Wartezeiten und anderen Apps | n8n auf Webhooks und REST | Bezahlte Tarife, plus n8n |
+| Deal aus eingefügten Gesprächsnotizen aktualisieren | Mate-Chat oder Ihr eigener KI-Client über MCP | Mate: bezahlte Cloud. MCP: jeder Tarif |
 
 Unsere Faustregel: Muss ein Schritt jedes Mal exakt gleich ablaufen, etwa dieselben Aufgaben für jeden gewonnenen Deal, nehmen Sie einen Webhook und n8n. Eine Routine ist ein KI-Lauf, der liest, entscheidet und schreibt; das Ergebnis schwankt leicht, und jeder Lauf kostet Credits. Sie lohnt sich dort, wo es auf das Lesen und Einordnen ankommt.
 
@@ -123,7 +149,7 @@ Credit-Verbrauch: Jeder gestartete Lauf verbraucht Credits, auch wenn Mate entsc
 
 ## Wie schicke ich einen neuen Deal an n8n, Slack oder ein anderes Tool?
 
-Customermates sendet für jeden von [[derived.webhooks.events.total]] Ereignistypen einen JSON-POST: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Posteingangsereignisse. Datensatzereignisse gibt es für jede Liste, auch Ihre eigenen, in jedem Tarif. Die Deal-**Phase** ist ein konfigurierbares Einzelauswahl-Feld; ein Phasenwechsel kommt deshalb als `record.updated` für die Liste Deals an, ein neuer Deal als `record.created`. Die [Webhook-Referenz](/docs/webhooks) zeigt jeden Payload.
+Customermates sendet für jeden von [[derived.webhooks.events.total]] Ereignistypen einen JSON-POST: [[derived.webhooks.events.records]] Datensatzereignisse und [[derived.webhooks.events.messaging]] Posteingangsereignisse. Datensatzereignisse gibt es für jede Liste, auch Ihre eigenen. Die Deal-**Phase** ist ein konfigurierbares Einzelauswahl-Feld; ein Phasenwechsel kommt deshalb als `record.updated` für die Liste Deals an, ein neuer Deal als `record.created`. Die [Webhook-Referenz](/docs/webhooks) zeigt jeden Payload.
 
 <Steps>
   <Step title="Auslöser in n8n anlegen">Fügen Sie einen Webhook-Node hinzu und kopieren Sie seine URL. Mit dem Community-Node ab Version 2 legt ein Customermates-Trigger-Node das Abonnement beim Aktivieren des Workflows selbst an; dann entfällt der nächste Schritt.</Step>
@@ -224,6 +250,6 @@ Nein. Routinen brauchen Mate und gehostete KI-Credits, und beides gibt es nur in
 </FaqItem>
 
 <FaqItem question="Was kostet CRM-Automatisierung mit Customermates?">
-Webhooks, REST und MCP sind in jedem Tarif enthalten, ohne Gebühr pro Workflow. Routinen sind pro Nutzer inklusive, von [[commercial.entitlement.starter.includedRoutinesPerUser]] in Starter bis [[commercial.entitlement.business.includedRoutinesPerUser]] in Business, und jeder Lauf verbraucht höchstens 10 gehostete KI-Credits des Eigentümers. n8n rechnet separat ab.
+REST und MCP sind in jedem Tarif enthalten, Webhooks in jedem bezahlten Tarif, ohne Gebühr pro Workflow. Routinen sind pro Nutzer inklusive, von [[commercial.entitlement.starter.includedRoutinesPerUser]] in Starter bis [[commercial.entitlement.business.includedRoutinesPerUser]] in Business, und jeder Lauf verbraucht höchstens 10 gehostete KI-Credits des Eigentümers. n8n rechnet separat ab.
 </FaqItem>
 </Faq>

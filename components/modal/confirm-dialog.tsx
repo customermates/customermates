@@ -32,7 +32,7 @@ type ConfirmDialogProps = {
   children?: ReactNode;
   confirmLabel?: ReactNode;
   cancelLabel?: ReactNode;
-  confirmVariant?: "default" | "destructive";
+  confirmVariant?: "default" | "destructive" | "ink";
   confirmDisabled?: boolean;
   confirmationText?: string;
   busy?: boolean;

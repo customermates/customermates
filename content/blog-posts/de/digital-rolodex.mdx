@@ -34,7 +34,7 @@ Der Beitrag sagt, was in eine Adressverwaltung gehört, vergleicht sechs Wege, s
   <SummaryItem label="Die meisten">Das Adressbuch Ihres Smartphones, abgeglichen über Ihr Apple- oder Google-Konto. Es ist schon installiert, und ein zweites System lohnt selten den Aufwand.</SummaryItem>
   <SummaryItem label="Eigene Spalten">Eine Tabelle oder eine Notion-Vorlage, wenn Sie Felder wollen, die Ihr Telefon nicht bietet, und allein bearbeiten.</SummaryItem>
   <SummaryItem label="Ein CRM">Wenn die Personen Kunden, Interessenten oder Partner sind und Sie Notizen, Termine für den nächsten Schritt und Gespräche pro Person brauchen, gemeinsam mit einem Team.</SummaryItem>
-  <SummaryItem label="Customermates">Frei konfigurierbare Listen, ein Feld Kontaktdaten für Telefonnummern, E-Mail-Adressen und Social-Media-Profile, Notizen, Datumsfelder und Excel- oder CSV-Import. Keine Smartphone-App, kein Abgleich mit Adressbüchern, kein Einlesen von Visitenkarten. Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, [[commercial.trial.days]] Tage Testphase, auch selbst hostbar.</SummaryItem>
+  <SummaryItem label="Customermates">Frei konfigurierbare Listen, ein Feld Kontaktdaten für Telefonnummern, E-Mail-Adressen und Social-Media-Profile, Notizen, Datumsfelder und Excel- oder CSV-Import. Keine Smartphone-App, kein Abgleich mit Adressbüchern, kein Einlesen von Visitenkarten. Kostenlos für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, bezahlte Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, [[commercial.trial.days]] Tage Testphase auf Pro, auch selbst hostbar.</SummaryItem>
   <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Beitrag. Die anderen Möglichkeiten werden nach Eignung beschrieben, nicht gerankt.</SummaryItem>
 </ArticleSummary>
 
@@ -82,7 +82,7 @@ Der Suchbegriff mischt Programme sehr verschiedener Art. Sechs Möglichkeiten de
 | Tabelle (Excel, Google Tabellen) | Die Software, die Sie ohnehin nutzen | Eine gemeinsame Datei; bei mehreren Bearbeitern laufen Kopien auseinander | Die Spalten, die Sie anlegen; der Verlauf steht in den Zellen, die Sie pflegen | CSV und Arbeitsmappe hinein und heraus |
 | Notion-Vorlage | Für eine Person kostenlos; ein Team im Free-Tarif hat eine begrenzte Zahl Blöcke und wechselt in einen bezahlten Tarif pro Mitglied | Seiten mit anderen Mitgliedern teilen | Notizen und Eigenschaften, wie die Vorlage sie vorgibt | Hängt von der Vorlage ab; Export vorher testen |
 | App für persönliche Kontaktpflege (Dex) | Bezahltes Abonnement | Auf das Netzwerk einer Person ausgelegt; Dex nennt auch einen Team-Tarif | Notizen, eigene Felder, Gruppen, Erinnerungen, Zeitleiste der Interaktionen | Übernimmt Kontakte aus E-Mail, Kalender, LinkedIn, WhatsApp und Telefonkontakten |
-| CRM für Unternehmen (Customermates) | Cloud pro Nutzer und Monat, monatlich bezahlt; selbst gehosteter Kern ohne Lizenzkosten | Alle im Workspace arbeiten an denselben Datensätzen, Rollen bestimmen, wer welche Liste sieht | Notizen, verknüpfte Unternehmen, Daten, Dateien; Gespräche ab Pro | Import aus Excel, CSV oder JSON; Export als Excel oder JSON |
+| CRM für Unternehmen (Customermates) | Kostenlos für eine Person mit Datensatz-Limit; bezahlte Cloud-Tarife pro Nutzer und Monat, monatlich bezahlt; selbst gehosteter Kern ohne Lizenzkosten | Alle im Workspace arbeiten an denselben Datensätzen, Rollen bestimmen, wer welche Liste sieht | Notizen, verknüpfte Unternehmen, Daten, Dateien; Gespräche ab Pro | Import aus Excel, CSV oder JSON; Export als Excel oder JSON |
 
 Google nennt auf seinen Hilfeseiten zwei Grenzen für Google Kontakte: nicht mehr als 3.000 Kontakte auf einmal importieren und höchstens 25.000 Kontakte. Notion beschreibt auf seiner Preisseite den Free-Tarif als Tarif für Einzelpersonen. Geprüft am 7. November 2026 anhand von [Google Kontakte: Import](https://support.google.com/contacts/answer/15147365?hl=de), [Google Kontakte: Export](https://support.google.com/contacts/answer/7199294?hl=de), [Google Kontakte: Labels](https://support.google.com/contacts/answer/30970?hl=de), [Notion Preise](https://www.notion.com/de/pricing) und [Dex](https://getdex.com/).
 
@@ -115,7 +115,7 @@ Ein CRM ist mehr, als Sie brauchen, wenn:
 
 - Sie allein arbeiten und die Liste aus Namen, Nummern und E-Mail-Adressen besteht;
 - Sie Personen vor allem am Telefon nachschlagen, denn Customermates hat keine native App;
-- Sie Geburtstags- oder Kontaktpflege-Erinnerungen wollen, denn Customermates verschickt keine Erinnerungen;
+- Sie Geburtstags- oder Kontaktpflege-Erinnerungen wollen, denn Customermates hat keine eingebauten Erinnerungen;
 - die Liste einmalig ist, etwa Hochzeitsgäste oder ein Verein, und keine dauerhafte Beziehung.
 
 Das Telefonbuch ist zu klein geworden, wenn:
@@ -133,18 +133,22 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland. Ein neuer Workspace st
 
 - **Kontaktdaten:** Dieses Feld nimmt mehrere Telefonnummern, E-Mail-Adressen und Social-Media-Profile pro Person auf. Die Suche findet eine Person über jede davon, und eine Telefonnummer dort lässt sich anrufen.
 - **Notizen, Daten und Gruppen:** Legen Sie ein Feld Formatierter Text für Notizen an, ein Datumsfeld wie Nächster Kontakt und ein Feld Mehrfachauswahl für Gruppen. Customermates hat keine Tags an Datensätzen; ein Mehrfachauswahlfeld ist das Gegenstück.
-- **Wer ist dran:** Speichern Sie eine Ansicht, sortiert nach Nächster Kontakt, und eine mit Aktualisiert am älter als 90 Tage für Personen, die lange still waren. Eine Liste mit Datumsfeld zeigt sich auch als Kalender.
+- **Wer ist dran:** Speichern Sie eine Ansicht, sortiert nach Nächster Kontakt, und eine mit Aktualisiert am älter als 90 Tage für Personen, die lange still waren. Teilen Sie eine Ansicht über ihr Menü **Teilen…** mit dem Team oder behalten Sie sie für sich. Das Widget **Anstehend** auf dem Dashboard listet, wer in den nächsten Tagen dran oder überfällig ist. Eine Liste mit Datumsfeld zeigt sich auch als Kalender.
 - **Anschriften:** Ein Adressfeld wird beim Speichern gegen das Adressformat des Landes geprüft. Die Cloud hat keine Adresssuche, Sie tippen die Anschrift selbst.
-- **Gespräche (ab Pro, Cloud):** Gespräche aus einem verbundenen E-Mail- oder LinkedIn-Konto erscheinen im [einheitlichen Posteingang](/features/unified-inbox) am Datensatz der Person, wenn Adresse oder Profil passen.
+- **Gespräche (ab Pro, Cloud):** Gespräche aus einem verbundenen E-Mail-, LinkedIn-, WhatsApp-, Instagram- oder Telegram-Konto erscheinen im [einheitlichen Posteingang](/features/unified-inbox) am Datensatz der Person, wenn Adresse, Nummer oder Profil passen.
 - **Hinein und heraus:** Import aus Excel oder CSV, Export als Excel oder JSON. Das [persönliche CRM](/for/personal) zeigt, wie ein ganzes Netzwerk in Customermates aussieht.
 
-Die Cloud hat keinen Gratis-Tarif. Sie beginnt mit [[commercial.trial.days]] Tagen Testphase mit dem Umfang von Pro, danach kosten die Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich bezahlt; alle Tarife stehen auf der [Preisseite](/pricing). Der Open-Source-Kern lässt sich ohne Lizenzkosten [selbst hosten](/features/self-hosted), ohne einheitlichen Posteingang und ohne Mate.
+Eine Adressverwaltung sagt Ihnen, wer jemand ist. Das Nachfassen beginnt, wenn die Person zurückschreibt: Ein Kontakt vom letzten Monat antwortet auf LinkedIn, und die Antwort braucht einen Termin. In Customermates Cloud verbinden Sie ab Pro LinkedIn und E-Mail, das Gespräch liegt am Datensatz der Person, Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt, und Sie prüfen, bearbeiten und senden. Der nächste Schritt erscheint auf Ihrem Dashboard, aus einem Namen in der Liste wird ein Gespräch, das Sie weiterführen.
+
+Die Cloud hat einen Free-Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Ihr erster Workspace beginnt mit [[commercial.trial.days]] Tagen Testphase mit dem Umfang von Pro und wechselt danach in Free, wenn Sie keinen bezahlten Tarif wählen, und jeder weitere Workspace beginnt mit der Wahl eines Tarifs; die bezahlten Tarife kosten ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich bezahlt, alle Tarife stehen auf der [Preisseite](/pricing). Der Open-Source-Kern lässt sich ohne Lizenzkosten [selbst hosten](/features/self-hosted), ohne einheitlichen Posteingang und ohne Mate.
 
 Zum Datenschutz: Ein Cloud-Anbieter, der Ihre Adressen speichert, ist Auftragsverarbeiter, und [Art. 28 Abs. 3 DSGVO](https://eur-lex.europa.eu/eli/reg/2016/679/oj) verlangt dafür einen Vertrag oder ein anderes Rechtsinstrument. Customermates Cloud hat die primäre Datenbank in der AWS-Region Frankfurt konfiguriert; das ist eine Produkteinstellung und keine vertraglich garantierte Datenresidenz. Die Unterauftragsverarbeiter, auch solche aus den USA, stehen in der [Liste der Unterauftragsverarbeiter](/subprocessors), der [AVV](/dpa) ist öffentlich.
 
 <AcquisitionCallout title="Wo Customermates als Adressverwaltung die falsche Wahl ist" variant="boundary">
-  Es gibt keine native App für iPhone oder Android und keinen Abgleich mit Telefon-, Google- oder Outlook-Adressbüchern; die Kontakte-App Ihres Telefons ersetzt es also nicht. Es liest keine Visitenkarten, verschickt keine Erinnerungen oder Geburtstagshinweise und hat keine Zusammenführen-Funktion; dieselbe E-Mail-Adresse kann zu mehreren Datensätzen gehören, suchen Sie also, bevor Sie jemanden anlegen. Die Dokumentation beschreibt keine Etiketten- oder Serienbrieffunktion. Reicht ein Telefon-Adressbuch oder eine Tabelle, nehmen Sie das. Für Erinnerungen auf dem Telefon schauen Sie sich eine App für persönliche Kontaktpflege an.
+  Es gibt keine native App für iPhone oder Android und keinen Abgleich mit Telefon-, Google- oder Outlook-Adressbüchern; die Kontakte-App Ihres Telefons ersetzt es also nicht. Es liest keine Visitenkarten, hat keine eingebauten Erinnerungen oder Geburtstagshinweise und keine Zusammenführen-Funktion; dieselbe E-Mail-Adresse kann zu mehreren Datensätzen gehören, suchen Sie also, bevor Sie jemanden anlegen. Die Dokumentation beschreibt keine Etiketten- oder Serienbrieffunktion. Reicht ein Telefon-Adressbuch oder eine Tabelle, nehmen Sie das. Für Erinnerungen auf dem Telefon schauen Sie sich eine App für persönliche Kontaktpflege an.
 </AcquisitionCallout>
+
+Um es mit Ihren eigenen Kontakten auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup): Pro, ohne Kreditkarte. Importieren Sie zuerst zehn Zeilen und verbinden Sie dann einen Kanal.
 
 ## Häufige Fragen zur Adressverwaltung
 
@@ -153,7 +157,7 @@ Zum Datenschutz: Ein Cloud-Anbieter, der Ihre Adressen speichert, ist Auftragsve
 Ein durchsuchbares Adressbuch in einer App oder Datei: Namen, Firmen, Kontaktdaten und Notizen, auffindbar über jedes Detail. Sie übernimmt die Aufgabe der alten drehbaren Kartei, mit Suche, Abgleich und Sicherung.
 </FaqItem>
 <FaqItem question="Gibt es eine kostenlose Adressverwaltung?">
-Ja. Die Kontakte-App Ihres Telefons und Google Kontakte gehören zum Gerät und zum Konto. Eine Tabelle funktioniert ebenfalls, und ein Notion-Workspace ist für eine Person kostenlos. Customermates Cloud hat keinen Gratis-Tarif, nur [[commercial.trial.days]] Tage Testphase, der selbst gehostete Kern hat keine Lizenzkosten.
+Ja. Die Kontakte-App Ihres Telefons und Google Kontakte gehören zum Gerät und zum Konto. Eine Tabelle funktioniert ebenfalls, und ein Notion-Workspace ist für eine Person kostenlos. Customermates Cloud hat einen Free-Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, der selbst gehostete Kern hat keine Lizenzkosten.
 </FaqItem>
 <FaqItem question="Wofür steht der Name Rolodex?">
 Es ist der Markenname einer drehbaren Kartei, ein Kofferwort aus „rolling“ und „index“, laut Columbia Journalism Review 1956 erstmals patentiert. Rolodex ist weiterhin eine Marke.

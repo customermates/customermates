@@ -1,4 +1,5 @@
 import type { LemonSqueezySubscription, SubscriptionService } from "./subscription.service";
+import type { FreePlanPauseService } from "./free-plan-pause.service";
 import type { ProcessLemonSqueezyWebhookRepo, WorkspaceBilling } from "./process-lemon-squeezy-webhook.repo";
 import type { DeleteAccountsForPlanInteractor } from "@/ee/messaging/connect/delete-accounts-for-plan.interactor";
 import type { EmailService } from "@/features/email/email.service";
@@ -59,6 +60,7 @@ export class ProcessLemonSqueezyWebhookInteractor {
     private subscriptionService: SubscriptionService,
     private deleteAccountsForPlan: DeleteAccountsForPlanInteractor,
     private emailService: EmailService,
+    private freePlan?: Pick<FreePlanPauseService, "syncUnscoped">,
   ) {}
 
   async invoke(event: LemonSqueezyWebhookEvent): Promise<LemonSqueezyWebhookOutcome> {
@@ -150,6 +152,9 @@ export class ProcessLemonSqueezyWebhookInteractor {
     await announce?.();
     if (synced.changedPlan)
       await this.deleteAccountsForPlan.invoke({ companyId: synced.companyId, plan: synced.changedPlan });
+    await this.freePlan?.syncUnscoped(synced.companyId).catch((error: unknown) => {
+      ErrorReporter.captureException(error, { tags: { kind: "free-plan-pause-sync", companyId: synced.companyId } });
+    });
 
     return "applied" as const;
   }

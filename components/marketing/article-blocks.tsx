@@ -53,12 +53,12 @@ const CALLOUT_STYLES = {
     iconClass: "text-warning",
   },
   fit: {
-    icon: ALERT_ICONS.primary,
-    shell: "border-primary/30 bg-primary/7",
-    iconClass: "text-primary",
+    icon: ALERT_ICONS.info,
+    shell: "border-border bg-foreground/[0.03]",
+    iconClass: "text-foreground",
   },
   proof: {
-    icon: ALERT_ICONS.default,
+    icon: ALERT_ICONS.neutral,
     shell: "border-border-strong bg-background",
     iconClass: "text-foreground",
   },

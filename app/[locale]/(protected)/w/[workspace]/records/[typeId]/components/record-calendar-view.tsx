@@ -14,6 +14,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { Alert } from "@/components/shared/alert";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { CalendarEntryTooltip, useCalendarEntryDateLabel } from "@/components/records/calendar-entry-tooltip";
 import { Button } from "@/components/ui/button";
@@ -727,12 +728,17 @@ export const RecordCalendarView = observer(function RecordCalendarView({
         )}
 
         {range?.truncated && rangeMatches && (
-          <p className="shrink-0 border-b bg-warning/10 px-4 py-1.5 text-xs text-warning" data-calendar-truncated="">
-            {t("DataView.calendar.truncated", {
+          <Alert
+            className="shrink-0 py-1.5 text-xs"
+            data-calendar-truncated=""
+            description={t("DataView.calendar.truncated", {
               shown: store.items.length,
               total: range.total,
             })}
-          </p>
+            layout="banner"
+            role="status"
+            variant="warning"
+          />
         )}
 
         <div className={cn("flex min-h-0 flex-1 flex-col overflow-auto", refreshing && "opacity-70")}>

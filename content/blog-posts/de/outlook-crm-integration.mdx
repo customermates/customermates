@@ -9,8 +9,8 @@ relatedHrefs:
   - /blog/gmail-crm-integration
 
 hero:
-  title: "Outlook und CRM verbinden: drei Wege der Integration und welcher zu Ihrem Team passt"
-  description: "Was ein Outlook-Add-in leistet und was die serverseitige Synchronisierung, was HubSpot, Microsoft Dynamics 365, Salesforce und Pipedrive für Outlook anbieten, warum das neue Outlook für Windows wichtig ist und wie Sie eine Integration vor dem Einsatz prüfen."
+  title: "Outlook und CRM verbinden: drei Wege und welcher zu Ihnen passt"
+  description: "Was ein Outlook-Add-in und was die serverseitige Synchronisierung leistet, was HubSpot, Dynamics 365, Salesforce und Pipedrive bieten, warum das neue Outlook für Windows zählt und wie Sie testen."
 
 blogPost:
   author: Benjamin Wagner
@@ -107,6 +107,8 @@ Berechtigungen, Entwürfe und Filter beschreibt die [Anleitung zum Posteingang](
 
 ### Nachfassen mit Mate oder Ihrem eigenen KI-Client
 
+Der Grund, Outlook in Customermates einzubinden, ist das Nachfassen: Jede Kunden-E-Mail steht am Kundendatensatz, Mate oder Ihr eigener KI-Agent entwirft die Antwort und den nächsten Schritt, Sie prüfen und senden, und die nächsten Schritte erscheinen auf Ihrem Dashboard.
+
 In Customermates Cloud fasst Mate eine Konversation zusammen oder entwirft eine Antwort und nutzt dafür gehostete KI-Credits. Eine Routine führt eine gespeicherte Anweisung aus, wenn etwas passiert. Für Outlook-Mails legen Sie eine Routine mit dem Auslöser **Wenn sich etwas ändert** an, wählen das Ereignis **E-Mail empfangen** und schreiben Anweisungen wie diese:
 
 > Bei jeder eingehenden E-Mail von einem Kontakt mit einem offenen Deal, bei dem ich zugewiesen bin: Konversation und Deal lesen. In der Konversation einen Antwortentwurf speichern, der die offene Frage beantwortet. Nichts senden. Fragt die E-Mail nach einem Termin, das im Entwurf vermerken, statt Zeiten vorzuschlagen.
@@ -116,6 +118,8 @@ Der Satz „Nichts senden“ ist wichtig. Eine Routine läuft im Namen ihres Bes
 ### Was es kostet
 
 Ein Team mit fünf Personen zahlt mit Pro [[commercial.price.pro.monthly.seats.5]] im Monat. Jede Person bekommt [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenes Konto, genug für ein Outlook-Postfach pro Person. Ein ganzes Teampostfach zu teilen erfordert Business, für dieselben fünf Personen [[commercial.price.business.monthly.seats.5]] im Monat mit [[commercial.entitlement.business.includedAccountsPerUser]] Konten pro Person. Starter für [[commercial.price.starter.monthly]] pro Person hat keinen Posteingang und keine Outlook-Anbindung. Die monatlichen gehosteten KI-Credits pro aktivem Nutzer stehen unter [Preise](/pricing).
+
+Um es mit Ihrem eigenen Outlook auszuprobieren, [starten Sie Ihre Testphase](/auth/signup?job=followup): [[commercial.trial.days]] Tage Pro ohne Kreditkarte.
 
 <AcquisitionCallout title="Wann Customermates nicht passt" variant="boundary">
 Es gibt kein Outlook-Add-in, CRM-Daten schlagen Sie also in Customermates nach, nicht in einem Seitenbereich in Outlook. Outlook-Kontakte und -Aufgaben werden nicht synchronisiert, Kalendertermine sind nur lesbar. Serienmails oder Massenversand bietet Customermates nicht. Eine selbst gehostete Installation hat weder Posteingang noch Outlook-Anbindung, sondern REST, Webhooks und MCP. Wenn Ihr Team in Outlook bleiben muss oder die Kontakte mit dem Exchange-Adressbuch in beide Richtungen abgleichen will, wählen Sie ein CRM mit Web-Add-in und serverseitiger Synchronisierung aus der Tabelle oben.

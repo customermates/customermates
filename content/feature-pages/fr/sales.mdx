@@ -9,20 +9,46 @@ relatedHrefs:
   - /features/unified-inbox
   - /features/workflow-automation
 
+sections:
+  visual:
+    kind: film
+  steps:
+    items:
+      - title: "Ajuster les étapes"
+        description: "Dans Configurer, ouvrez Affaires et le champ Étape. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la Probabilité % de chaque option."
+      - title: "Importer ce que vous avez déjà"
+        description: "Utilisez Ajouter depuis un fichier avec un classeur Excel ou un fichier CSV, un type d’enregistrement à la fois : d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de liens sont associées par le nom de l’enregistrement : une organisation doit donc exister avant qu’une affaire puisse la désigner."
+      - title: "Enregistrer deux vues"
+        description: "« Mes affaires ouvertes » : Attribué à est vous, Étape n’est pas Gagnée ni Perdue, trié par valeur, affiché en board. « À clôturer bientôt » : un filtre sur Clôture prévue, affiché en tableau."
+      - title: "Connecter votre boîte de réception (Pro et supérieures)"
+        description: "Sous Paramètres › Canaux, connectez la boîte aux lettres ou le compte LinkedIn depuis lequel vous vendez."
+  highlights:
+    title: "En bref"
+    capture: homepage-pipeline
+    items:
+      - title: "Ce que vous obtenez"
+        description: "Des affaires liées aux contacts, aux organisations, aux services et aux tâches, un board par étape, un pipeline pondéré, des vues enregistrées partageables et des graphiques de tableau de bord."
+      - title: "Offres"
+        description: "Pipeline et tableaux de bord dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La boîte de réception unifiée commence avec Pro à [[commercial.price.pro.monthly]]."
+      - title: "IA"
+        description: "Dans Customermates Cloud, Mate prépare des résumés, des brouillons de réponse et des mises à jour d’affaires avec des crédits d’IA hébergée. Votre propre client IA fonctionne sur chaque offre via MCP."
+      - title: "Non inclus"
+        description: "Ni séquences ni e-mailing en masse, ni téléphonie, ni scoring de prospects, ni devis ni factures, ni prévisions prédictives, ni application mobile."
+
 hero:
-  title: Un logiciel CRM de vente pour les petites équipes qui vendent par la relation
-  description: Gardez chaque affaire ouverte, les personnes concernées et la dernière conversation au même endroit. Customermates présente votre pipeline par étape, le pondère par la probabilité de gain et, dès Pro, affiche les e-mails et les messages LinkedIn ou WhatsApp du client sur les contacts liés à chaque affaire.
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  title: "CRM de vente pour petites équipes : chaque affaire ouverte avec sa prochaine étape"
+  description: "Chaque affaire, les personnes concernées et la dernière conversation au même endroit. Dès Pro, les fils LinkedIn et e-mail sont sur le contact et Mate rédige la relance que vous relisez et envoyez."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 
 cta:
   action: Configurez votre pipeline pendant l’essai
-  description: Renommez les étapes, vérifiez leurs probabilités de gain et importez vos affaires ouvertes depuis un classeur Excel. Les offres commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois.
-  buttonLeftText: Commencer gratuitement
-  buttonLeftHref: /auth/signup
+  description: "Renommez les étapes, importez vos affaires ouvertes et connectez LinkedIn ou l’e-mail, pour que chaque affaire ait sa conversation à côté. Les offres commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
   buttonRightHref: https://demo.customermates.com/fr/w/small-business/dashboard
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
@@ -32,13 +58,6 @@ Un logiciel CRM de vente est l’endroit où une équipe enregistre chaque affai
 
 Ce n’est pas une machine de prospection sortante. Si votre équipe décroche des rendez-vous au volume, le tableau des alternatives plus bas est la partie la plus utile de cette page.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Ce que vous obtenez">Des affaires liées aux contacts, aux organisations, aux services et aux tâches, un board par étape, un pipeline pondéré, des vues enregistrées partageables et des graphiques de tableau de bord.</SummaryItem>
-  <SummaryItem label="Offres">Pipeline et tableaux de bord dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La boîte de réception unifiée commence avec Pro à [[commercial.price.pro.monthly]].</SummaryItem>
-  <SummaryItem label="IA">Dans Customermates Cloud, Mate prépare des résumés, des brouillons de réponse et des mises à jour d’affaires avec des crédits d’IA hébergée. Votre propre client IA fonctionne sur chaque offre via MCP.</SummaryItem>
-  <SummaryItem label="Non inclus">Ni séquences ni e-mailing en masse, ni téléphonie, ni scoring de prospects, ni devis ni factures, ni prévisions prédictives, ni application mobile.</SummaryItem>
-</ArticleSummary>
-
 ## Ce que fait le côté vente de Customermates
 
 **Les affaires et leur valeur.** Une affaire est liée à des contacts, à des organisations, à des utilisateurs attribués, à des tâches et, par ses lignes, aux services que vous vendez. Sa valeur est calculée plutôt que saisie : la somme de ses lignes, chacune étant un service multiplié par sa quantité. Deux journées d’atelier à 1 500 plus dix heures de coaching à 150 donnent une valeur d’affaire de 4 500.
@@ -47,9 +66,9 @@ Ce n’est pas une machine de prospection sortante. Si votre équipe décroche d
 
 **Le board.** Passez la liste des affaires en board, groupée par Étape, et faites glisser une carte pour déplacer une affaire. L’en-tête de chaque colonne affiche le nombre d’affaires et les sommes que vous choisissez pour le groupement, comme **Valeur** et **Valeur pondérée**. Groupez le même board par **Attribué à** et chaque personne obtient une colonne avec son propre décompte et ses propres totaux ; ce board est en lecture seule. La [page du pipeline](/features/pipeline) présente le board plus en détail.
 
-**Les vues enregistrées.** Les filtres, le tri, le groupement et la disposition s’enregistrent ensemble sous forme de vue nommée, comme « Mes affaires ouvertes par valeur ». Une vue reste privée tant que vous ne la partagez pas : chaque collègue peut enregistrer les mêmes filtres comme sa propre vue, ou vous partagez une vue avec l’équipe.
+**Les vues enregistrées.** Les filtres, le tri, le groupement et la disposition s’enregistrent ensemble sous forme de vue nommée, comme « Mes affaires ouvertes par valeur ». Partagez une vue avec toute l’équipe ou avec des rôles choisis et chacun travaille avec les mêmes filtres ; chaque personne ne voit toujours que les enregistrements que son rôle autorise.
 
-**Les graphiques du tableau de bord.** Un graphique compte les affaires ou additionne la **Valeur** ou la **Valeur pondérée**, groupées par un champ comme l’Étape ou la Source du prospect. Les graphiques appartiennent à la personne qui les a créés, et **Partager comme modèle** permet à ses collègues de démarrer leur propre copie.
+**Les graphiques du tableau de bord.** Un graphique compte les affaires ou additionne la **Valeur** ou la **Valeur pondérée**, groupées par un champ comme l’Étape ou la Source du prospect. Les graphiques appartiennent à la personne qui les a créés. Partagez une vue de tableau de bord nommée avec l’équipe pour que chacun voie les mêmes graphiques, ou utilisez **Partager comme modèle** pour que vos collègues démarrent leur propre copie.
 
 **Les conversations sur le contact (Pro et supérieures).** Connectez Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram dans la [boîte de réception unifiée](/features/unified-inbox). Dès qu’un contact porte l’adresse e-mail ou l’identifiant, chaque conversation avec lui apparaît dans la chronologie de ce contact. Les messages se lient aux contacts, et une conversation peut aussi être liée à une affaire ; depuis une affaire, la dernière conversation est à un clic, sur le contact lié.
 
@@ -64,7 +83,7 @@ Ce n’est pas une machine de prospection sortante. Si votre équipe décroche d
 | Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur, comptes partagés et une chronologie commune à toute l’équipe sur tous les canaux | [[commercial.price.business.monthly]] par utilisateur et par mois |
 | Auto-hébergé | L’ensemble de fonctionnalités Starter sur votre propre serveur, sans boîte de réception, Mate ni routines | Aucun frais de licence ; vous payez votre propre infrastructure |
 
-La facturation est mensuelle. Chaque offre Cloud inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate ; la [page des tarifs](/pricing) indique les montants.
+La facturation est mensuelle. Chaque offre Cloud payante inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate ; la [page des tarifs](/pricing) indique les montants.
 
 ## Mettre en place un pipeline de vente dans Customermates
 
@@ -116,7 +135,7 @@ Customermates publie cette page. Les informations sur les éditeurs ont été v�
 | Formulaires web, scoring de prospects, enrichissement | Non disponible. Envoyez les saisies de formulaires via l’API REST. | Pipedrive Premium, qui inclut LeadBooster avec formulaires web, ainsi que le scoring personnalisé et l’enrichissement |
 | Appels depuis le CRM | Ni téléphonie ni SMS | Un CRM avec numéroteur intégré |
 | Devis et factures | Non disponible | Votre outil de facturation |
-| Une offre gratuite | Pas d’offre Cloud gratuite ; un essai de [[commercial.trial.days]] jours, ou l’auto-hébergement sans frais de licence | HubSpot Sales Hub Free jusqu’à 2 utilisateurs ; édition gratuite de Zoho CRM jusqu’à 3 utilisateurs |
+| Une offre gratuite | Formule Cloud gratuite pour [[commercial.limit.free.maxMembers]] personne, sans boîte de réception ni Mate ; un essai Pro de [[commercial.trial.days]] jours, ou l’auto-hébergement sans frais de licence | HubSpot Sales Hub Free jusqu’à 2 utilisateurs ; édition gratuite de Zoho CRM jusqu’à 3 utilisateurs |
 | Une application sur le téléphone | Pas d’application mobile native ; Customermates fonctionne dans le navigateur | Un CRM avec des applications natives iOS et Android |
 
 Les tâches n’ont pas non plus d’échéances ni de rappels. Placez un champ date sur l’affaire et gardez une vue enregistrée de ce qui arrive à échéance, comme décrit sous les [relances](/features/follow-up).
@@ -149,7 +168,7 @@ Non, pas au sens prédictif. Il calcule un pipeline pondéré : la valeur de ch
 </FaqItem>
 
 <FaqItem question="Existe-t-il une version gratuite ?">
-Il n’y a pas d’offre Cloud gratuite. Vous pouvez essayer Customermates Cloud pendant [[commercial.trial.days]] jours sans carte bancaire. L’[auto-hébergement](/features/self-hosted) du noyau open source n’a aucun frais de licence : il fournit l’ensemble de fonctionnalités Starter sur votre propre serveur, sans la boîte de réception, Mate ni les routines.
+Oui. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Votre premier espace de travail commence par [[commercial.trial.days]] jours de Pro sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. L’[auto-hébergement](/features/self-hosted) du noyau open source n’a aucun frais de licence : il fournit l’ensemble de fonctionnalités Starter sur votre propre serveur, sans la boîte de réception, Mate ni les routines.
 </FaqItem>
 
 <FaqItem question="Puis-je voir le pipeline de chaque commercial ?">

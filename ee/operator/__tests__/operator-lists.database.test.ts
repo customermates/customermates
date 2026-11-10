@@ -136,7 +136,7 @@ async function seedWorkspace(args: {
           clickedAt,
           capturedAt: clickedAt,
           consentedAt: clickedAt,
-          consentNoticeVersion: "2026-09-02",
+          consentNoticeVersion: "2026-11-09",
           expiresAt: new Date("2026-11-28T10:00:00.000Z"),
         },
       });

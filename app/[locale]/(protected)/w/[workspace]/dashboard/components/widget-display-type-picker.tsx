@@ -18,7 +18,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
   if (type === DisplayType.number) {
     return (
       <div className={cn("flex flex-col items-center justify-center gap-1.5", className)}>
-        <span className="h-6 w-16 rounded-sm bg-primary" />
+        <span className="h-6 w-16 rounded-sm bg-chart-1" />
 
         <span className="h-1.5 w-10 rounded-full bg-border-strong" />
       </div>
@@ -28,7 +28,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
   if (type === DisplayType.areaChart) {
     return (
       <div className={cn("flex items-end justify-center", className)}>
-        <svg aria-hidden className="h-full w-24 text-primary" preserveAspectRatio="none" viewBox="0 0 96 56">
+        <svg aria-hidden className="h-full w-24 text-chart-1" preserveAspectRatio="none" viewBox="0 0 96 56">
           <path d="M0 44 L20 30 L40 36 L60 16 L80 22 L96 8 L96 56 L0 56 Z" fill="currentColor" fillOpacity={0.25} />
 
           <path d="M0 44 L20 30 L40 36 L60 16 L80 22 L96 8" fill="none" stroke="currentColor" strokeWidth={3} />
@@ -45,7 +45,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
             <span className="h-1.5 w-2 rounded-full bg-border-strong" />
 
             <span className="flex-1">
-              <span className={cn("block h-2 rounded-sm bg-primary", width, index > 0 && "bg-primary/55")} />
+              <span className={cn("block h-2 rounded-sm bg-chart-1", width, index > 0 && "bg-chart-1/55")} />
             </span>
 
             <span className="h-1.5 w-4 rounded-full bg-border-strong" />
@@ -59,7 +59,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
     return (
       <div className={cn("flex flex-col items-center justify-center gap-1", className)}>
         {["w-full", "w-4/5", "w-3/5", "w-2/5"].map((width, index) => (
-          <span key={width} className={cn("h-2.5 rounded-sm bg-primary", width, index % 2 === 1 && "bg-primary/55")} />
+          <span key={width} className={cn("h-2.5 rounded-sm bg-chart-1", width, index % 2 === 1 && "bg-chart-1/55")} />
         ))}
       </div>
     );
@@ -68,7 +68,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
   if (type === DisplayType.doughnutChart) {
     return (
       <div className={cn("flex items-center justify-center", className)}>
-        <div className="size-12 rounded-full border-[9px] border-primary/20 border-r-primary border-t-primary" />
+        <div className="size-12 rounded-full border-[9px] border-chart-1/20 border-r-chart-1 border-t-chart-1" />
       </div>
     );
   }
@@ -76,7 +76,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
   if (type === DisplayType.radarChart) {
     return (
       <div className={cn("flex items-center justify-center", className)}>
-        <Radar aria-hidden className="size-14 stroke-[1.4] text-primary" />
+        <Radar aria-hidden className="size-14 stroke-[1.4] text-chart-1" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
           <div key={width} className="flex items-center gap-1.5">
             {withLabels && <span className="h-1.5 w-5 rounded-full bg-border-strong" />}
 
-            <span className={cn("h-2.5 min-w-0 shrink rounded-sm bg-primary", width, index === 1 && "bg-primary/55")} />
+            <span className={cn("h-2.5 min-w-0 shrink rounded-sm bg-chart-1", width, index === 1 && "bg-chart-1/55")} />
           </div>
         ))}
       </div>
@@ -103,7 +103,7 @@ export function ChartTypeIllustration({ className, type }: IllustrationProps) {
     <div className={cn("flex items-end justify-center gap-2", className)}>
       {["h-2/5", "h-4/5", "h-3/5", "h-full"].map((height, index) => (
         <div key={height} className="flex h-full flex-col items-center justify-end gap-1">
-          <span className={cn("w-3 rounded-sm bg-primary", height, index === 2 && "bg-primary/55")} />
+          <span className={cn("w-3 rounded-sm bg-chart-1", height, index === 2 && "bg-chart-1/55")} />
 
           {withLabels && <span className="h-1 w-3 rounded-full bg-border-strong" />}
         </div>

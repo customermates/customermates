@@ -1,6 +1,6 @@
 ---
-title: "CRM for Marketing Agencies: Pitches and Clients"
-description: "A CRM for marketing agencies: track inquiries, pitches, retainers and client conversations in one configurable workspace. Explore an example workspace."
+title: "CRM for Marketing Agencies: Hand Every Client to Delivery"
+description: "CRM for marketing agencies of 2 to 10 people: pitches, retainers and client conversations in one place, a shared inbox on Business, a workspace per client."
 industryName: Agencies
 
 acquisition:
@@ -10,8 +10,8 @@ acquisition:
   role: support
   primaryIntent: CRM for marketing agencies
   metadata:
-    title: "CRM for Marketing Agencies: Pitches and Clients"
-    description: "A CRM for marketing agencies: track inquiries, pitches, retainers and client conversations in one configurable workspace. Explore an example workspace."
+    title: "CRM for Marketing Agencies: Hand Every Client to Delivery"
+    description: "CRM for marketing agencies of 2 to 10 people: pitches, retainers and client conversations in one place, a shared inbox on Business, a workspace per client."
   proof:
     factReferences:
       - product:core-crm-records
@@ -27,10 +27,10 @@ acquisition:
       - claim:no-predictive-sales-analytics
       - claim:no-time-tracking
   cta:
-    action: See the pitch board before you set up your own
-    description: Explore the example agency workspace with sample data, then start a trial and build lists that match how your agency wins clients.
-    buttonLeftText: Start the Pro trial
-    buttonLeftHref: /auth/signup
+    action: See a signed client handed to delivery
+    description: Explore the example agency workspace with sample data, then start a trial and connect one client conversation.
+    buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+    buttonLeftHref: /auth/signup?job=followup
     buttonRightText: Explore the workspace
     buttonRightHref: https://demo.customermates.com/en/w/agencies/dashboard
     hint: "Project delivery, proposals, time tracking and billing stay in your agency tools."
@@ -44,9 +44,9 @@ acquisition:
     locale: en
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "CRM for agencies: follow the pitch from first conversation to decision"
-      body: "For marketing and creative agencies that win clients through pitches and relationships. Track inquiries, briefings, pitches and retainers with the client context beside them. There are no field-level permissions; delivery, billing and campaigns stay in your agency tools."
-      checksum: fnv1a-0a6782af
+      headline: "CRM for agencies: follow up every pitch, hand over every client"
+      body: "Pitches stall while you deliver for other clients. From Pro, email and LinkedIn threads sit on the client, Mate drafts the reply and the next step, and delivery sees what sales agreed. Delivery planning and billing stay in your agency tools."
+      checksum: fnv1a-69a76be8
     kind: brand-illustration
     pathway: focus
     placements:
@@ -89,26 +89,140 @@ acquisition:
     faqFromRenderedContent: true
 
 hero:
-  title: "CRM for agencies: follow the pitch from first conversation to decision"
-  description: "For marketing and creative agencies that win clients through pitches and relationships. Track inquiries, briefings, pitches and retainers with the client context beside them. There are no field-level permissions; delivery, billing and campaigns stay in your agency tools."
-  buttonLeftText: Start the Pro trial
-  buttonLeftHref: /auth/signup
+  title: "CRM for agencies: follow up every pitch, hand over every client"
+  description: "Pitches stall while you deliver for other clients. From Pro, email and LinkedIn threads sit on the client, Mate drafts the reply and the next step, and delivery sees what sales agreed. Delivery planning and billing stay in your agency tools."
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/agencies/dashboard
   hint: "No credit card required • [[commercial.trial.days]]-day Pro trial"
   showOpenSourceBadge: false
 
+landing:
+  hero:
+    eyebrow: For agencies of 2 to 10 people and VA teams
+    title: The CRM for marketing agencies that hands every client to delivery.
+    description: Pitches, retainers and client conversations in one workspace. When a client signs, delivery sees what sales promised, answers from the same shared inbox and picks up the next step.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Talk to Ben, 15 minutes
+      href: /contact
+  facts: No credit card · Keep your delivery tools · Business from [[commercial.price.business.monthly]] per person/month
+  generator:
+    eyebrow: Start from one description
+    title: Your agency, described once. Built for you.
+    description: AI setup asks a few questions and builds clients, pitches, retainers, projects and your handover playbook. This is the agency example; click around.
+    promptLabel: Your description to Mate
+    arrowLabel: became this workspace
+    prompt: We're a design agency. Track pitches, retainers and projects, and hand every new client from sales to delivery.
+  followUp:
+    eyebrow: A signed client, handed over
+    title: Sales promised a date. Delivery knows it on day one.
+    description: The email thread sits on the client. Mate drafts the welcome reply from your handover playbook and puts the kickoff on the project lead's list.
+    desk:
+      label: Follow-up scene for an agency handover
+      workspace: Fjordline Studio
+      conversation:
+        label: Email
+        name: Maren Koch
+        company: Bergkaffee
+        time: Thu 17:05
+        message: Signed and sent back. As agreed with Tom, we need the first designs before our trade fair on 14 March. Who is our contact from now on?
+      agent:
+        name: Mate
+        intent: Drafting a welcome reply from your handover playbook
+        done: Draft saved. Kickoff added to Lea's next steps.
+      draft:
+        badge: Draft, waiting for your review
+        text: Hi Maren, thank you, great to have you on board. Lea leads your project from here and already has the 14 March date. She will send kickoff times tomorrow. Best, Tom
+        edit: Edit
+        send: Send draft
+      today:
+        title: Dashboard
+        date: Friday
+        addedBy: Added by Mate
+        assign: Assign
+        sections:
+          - title: Next steps due
+            items:
+              - title: Kickoff call with Bergkaffee
+                meta: Bergkaffee · due today
+                owner: LS
+                state: added
+              - title: Send the retainer report
+                meta: Nordwerk · 1 day overdue
+                owner: TB
+                state: overdue
+  beforeAfter:
+    eyebrow: What changes
+    title: Before and after. Same clients, cleaner handovers.
+    before:
+      label: Before
+      points:
+        - Promises from the pitch live in one person's inbox
+        - Delivery asks the client what was already agreed
+        - Every client's records mixed into one list
+    after:
+      label: With Customermates
+      points:
+        - The conversation and the promise sit on the client
+        - Delivery answers from the same shared inbox on Business
+        - One workspace per client when you work for several
+  steps:
+    eyebrow: How you start
+    title: Three steps. To your first clean handover.
+    items:
+      - title: Describe your agency
+        description: AI setup builds clients, pitches, retainers, projects and your handover playbook from one description and a few answers.
+      - title: Connect and share the inbox
+        description: Threads land on the client whose email address or LinkedIn profile matches. On Business, share a whole connected account with the team.
+      - title: Hand over with the next step
+        description: Mate drafts the reply and dates the next step for the person who delivers. You edit, send or skip.
+  plan:
+    eyebrow: Pricing
+    title: Business covers the team. [[commercial.price.business.monthly]] per person per month.
+    description: Pro at [[commercial.price.pro.monthly]] covers one connected account per person. Business adds whole-account sharing, so sales and delivery answer from the same inbox. Up to [[commercial.workspaces.creationLimit]] workspaces per login, one per client.
+    limits: Not a fit if you need project planning, time tracking, invoicing, proposal documents or email sequences. Those stay in your agency tools.
+    primaryCta:
+      label: Start your [[commercial.trial.days]]-day trial
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Compare all plans
+      href: /pricing
+
 cta:
-  action: See the pitch board before you set up your own
-  description: Explore the example agency workspace with sample data, then start a trial and build lists that match how your agency wins clients.
-  buttonLeftText: Start the Pro trial
-  buttonLeftHref: /auth/signup
+  action: See a signed client handed to delivery
+  description: Explore the example agency workspace with sample data, then start a trial and connect one client conversation.
+  buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Explore the workspace
   buttonRightHref: https://demo.customermates.com/en/w/agencies/dashboard
   hint: "Project delivery, proposals, time tracking and billing stay in your agency tools."
+
+useCases:
+  eyebrow: "Ways you can use it"
+  title: "For agencies. Three jobs, one workspace."
+  items:
+    - title: "Run every pitch on one board"
+      description: "Inquiries, briefings and pitches move across one board, with the client context beside them."
+      href: /features/pipeline
+      linkLabel: "See the pipeline"
+      visual: pipeline
+    - title: "Hand every client to delivery"
+      description: "Share a connected inbox with the team, so delivery sees what sales agreed and answers from the same account."
+      href: /features/unified-inbox
+      linkLabel: "See the unified inbox"
+      visual: team
+    - title: "Bring your own AI"
+      description: "Mate drafts replies from your agency playbook, and your own AI client connects through MCP."
+      href: /features/integrations
+      linkLabel: "Connect your agent"
+      visual: agent
 ---
 
-Customermates is a **CRM for marketing agencies** and creative studios that win clients through inquiries, pitches and relationships. Clients and prospects, their contacts, each pitch, signed retainers and the next action stay connected until won work is handed to the tools that run delivery. It is an open-source, AI-native CRM made in Germany, and it covers new business and client relationships, not delivery planning, campaigns or invoicing.
+A pitch goes out, the briefing notes sit in one person's inbox, and a client who signed last week asks who their contact is. Customermates is a **CRM for marketing agencies** and creative studios that win clients through inquiries, pitches and relationships. Clients and prospects, their contacts, each pitch, signed retainers and the next action stay on one record until won work is handed to the tools that run delivery, so delivery sees what sales agreed. From Pro on Customermates Cloud, the email and LinkedIn threads sit on the client, and Mate or your own AI agent through MCP drafts the reply and the next step for you to review, edit and send. It is an open-source, AI-native CRM made in Germany, and it covers new business and client relationships, not delivery planning, campaigns or invoicing.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Fits">
@@ -116,12 +230,12 @@ Customermates is a **CRM for marketing agencies** and creative studios that win 
     pitches and several stakeholders per client.
   </SummaryItem>
   <SummaryItem label="Core job">
-    Give new business and account leads one view of each client, open pitch
-    and next step.
+    Follow up each pitch and hand every signed client to delivery, with the
+    conversation and the next step on the client record.
   </SummaryItem>
   <SummaryItem label="Team limits">
-    There are no field-level permissions, and whole-account inbox sharing
-    starts at Business.
+    A shared view is read-only for colleagues, there are no field-level
+    permissions, and whole-account inbox sharing starts at Business.
   </SummaryItem>
   <SummaryItem label="System boundary">
     Project delivery, proposals, time tracking, invoicing and campaign tools
@@ -136,6 +250,19 @@ Customermates is a **CRM for marketing agencies** and creative studios that win 
   <ProofItem label="Follow-up">Tasks linked to records</ProofItem>
   <ProofItem label="Conversation">Cloud inbox from Pro</ProofItem>
 </ProofRail>
+
+## Best CRM for small marketing agencies: six options compared
+
+The ranking follows one job: following up on every pitch and client conversation in an agency of 2 to 10 people. Customermates publishes this page, so check each line on the vendor's own site. Prices were checked on 9 November 2026 on each vendor's pricing page, and a promotional price is named as one.
+
+| # | CRM | Fits | Price |
+|---|---|---|---|
+| 1 | Customermates | Small agencies that pitch and win retainers and want the email, LinkedIn and WhatsApp threads beside the client, with a shared mailbox on Business. Delivery plans, time tracking and invoices stay in your agency stack. | Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]] per user per month, billed monthly |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | Agencies that sell through LinkedIn. Its own pages describe a separate workspace per client and one inbox for email, LinkedIn, WhatsApp and Telegram. | From $49 per seat per month billed monthly; one workspace included, extra workspaces $10 per month |
+| 3 | [HubSpot](https://www.hubspot.com/pricing/crm) | A free start for a founder and one partner, with targeted email campaigns in the paid Starter plan. | Free for up to 2 users; Starter €7 per seat per month billed annually, a limited-time price |
+| 4 | [Pipedrive](https://www.pipedrive.com/en/pricing) | A new-business team that thinks in a deal pipeline and works from the phone: native iOS and Android apps on every plan. | Lite €14 per seat per month billed yearly; two-way email sync starts on Growth |
+| 5 | [Attio](https://attio.com/pricing) | An agency that wants to model clients, projects and retainers in its own data model, with email sync for Gmail and Microsoft 365. | Free for up to 3 seats; Plus €31 per user per month billed yearly |
+| 6 | [Twenty](https://twenty.com/pricing) | A technical agency that wants an open-source CRM with custom objects and keeps the data model tidy. | Pro $9 per user per month billed yearly; self-hosting the core is free |
 
 ## The pitch board in the example workspace
 
@@ -208,14 +335,15 @@ The plan decides how far the inbox reaches:
 
 ## AI help and connections
 
-Mate, the assistant in Customermates Cloud, can summarize a client before a pitch meeting, move a pitch to its next stage and save a follow-up draft in the conversation. It runs on hosted AI credits included per active user on every cloud plan and is not available self-hosted. Mate sends when you tell it to send, so ask for a draft when you want to review first. A [routine](/docs/app-routines) can run Mate on a schedule or when a record changes. The example workspace has two: every Monday a renewal check marks retainers renewing within 60 days as Renewal due and creates a task, and when a pitch moves to Proposal sent Mate saves a follow-up draft for review.
+Mate, the assistant in Customermates Cloud, can summarize a client before a pitch meeting, move a pitch to its next stage and save a follow-up draft in the conversation. It runs on hosted AI credits included per active user on every paid cloud plan and is not available self-hosted. Mate sends when you tell it to send, so ask for a draft when you want to review first. A [routine](/docs/app-routines) can run Mate on a schedule or when a record changes. The example workspace has two: every Monday a renewal check marks retainers renewing within 60 days as Renewal due and creates a task, and when a pitch moves to Proposal sent Mate saves a follow-up draft for review.
 
-Every plan, self-hosted included, has a [REST API and webhooks](/features/api) and [MCP](/docs/mcp) for external AI clients such as Claude or ChatGPT, which can read or update the records your role permits. A separately operated [n8n workflow](/features/workflow-automation) can pass a won pitch to your project tool.
+Every plan, self-hosted included, has a [REST API](/features/api) and [MCP](/docs/mcp) for external AI clients such as Claude or ChatGPT, which can read or update the records your role permits; webhooks come with every paid plan and self-hosting. A separately operated [n8n workflow](/features/workflow-automation) can pass a won pitch to your project tool.
 
 ## Working as an agency team
 
 Before you invite the whole agency, know the limits:
 
+- **Shared views are read-only.** Share a pitch board view with the whole agency or with selected roles and everyone works from the same filters; only its owner changes it.
 - **No field-level permissions.** Roles control access to lists and records, so a role with Assigned read access can limit a freelancer to their own pitches, but you cannot hide one field such as a fee from someone who can read the record.
 - **Whole-account inbox sharing starts at Business.** On Pro, threads are shared one at a time.
 - **No client sub-accounts or white-label workspaces.** Customermates is your agency's own CRM, not a portal you resell to clients.
@@ -246,7 +374,7 @@ No. A new workspace starts without lists. In Customermates Cloud the AI workspac
 </FaqItem>
 
 <FaqItem question="Can the team share a pitch board view?">
-Yes. In the view's menu, **Share…** shows it to everyone in the workspace or to selected roles. Teammates see it read-only and can duplicate it as their own; only the owner changes it. Each person sees only the pitches and stages their own role allows.
+Yes. Share a saved view with the whole agency or with selected roles, and everyone works from the same pitch board filters. Colleagues see it read-only and only its owner changes it. Each person sees only the records their role allows.
 </FaqItem>
 
 <FaqItem question="Can we share a new-business mailbox with the team?">
@@ -260,4 +388,16 @@ Tasks can be linked to clients, contacts and pitches. They have no built-in due 
 <FaqItem question="Can we give clients their own white-label workspace?">
 No. There are no client sub-accounts, client portals or white-label workspaces.
 </FaqItem>
+<FaqItem question="What is the best CRM for marketing agencies?">
+It depends on the job. For following up on pitches and client conversations in a small marketing agency, the table above ranks Customermates first, because email, LinkedIn and WhatsApp threads sit beside the client and a drafted reply waits for your review. Breakcold, HubSpot, Pipedrive, Attio and Twenty follow. Project plans, time tracking and invoicing stay in the tools built for them. Customermates publishes this page, so check each line on the vendor's own site.
+</FaqItem>
+
+<FaqItem question="What should a CRM for a small marketing agency do?">
+It keeps each client, the people behind it and each pitch or retainer on one record, shows who owns the next step, and puts the client's conversations beside it, so the person who sold the work and the person who delivers it see the same history.
+</FaqItem>
+
+<FaqItem question="Is a free CRM enough for a two-person marketing agency?">
+To start, often yes: HubSpot is free for up to 2 users and Attio for up to 3 seats (checked on 9 November 2026). Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. If you want client conversations beside the pitch, you need Pro.
+</FaqItem>
+
 </Faq>

@@ -80,6 +80,10 @@ Open [API keys & connectors](app:settings/api-keys) and create a key with [Add](
 - **Retries:** reuse the same idempotency key for the exact same mutation payload. A changed payload needs a new key.
 - **Webhooks:** deliveries are not strictly ordered or exactly once. Deduplicate by event ID and use the payload timestamp for ordering.
 
+## Does n8n work on the Free plan? [#n8n-on-the-free-plan]
+
+The n8n trigger needs a webhook, so it does not work while a workspace on Customermates Cloud is on Free: creating the subscription is refused with the Starter price in the message, and an existing trigger receives nothing until the workspace chooses a paid plan. Actions that read or write records go through the REST API and count toward the Free request limit of [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day. Self-hosted installs have no such limit.
+
 ## Next [#next]
 
 - [Webhooks](/docs/webhooks): event payloads and delivery.

@@ -25,9 +25,10 @@ import {
 const cookieRepo = new NextAdAttributionCookieRepo();
 const writePublicAdAttributionCookie = (value: PublicAdAttributionCookie) => cookieRepo.writeCookie(value);
 import { PUBLIC_AD_ATTRIBUTION_COOKIE_NAME, type PublicAdAttributionCookie } from "../ad-attribution.schema";
+import { AD_ATTRIBUTION_NOTICE_VERSION } from "@/constants/legal-documents";
 
 const SIGNING_SECRET = "ad-attribution:v1:test-secret";
-const CURRENT_NOTICE = "2026-09-02";
+const CURRENT_NOTICE = AD_ATTRIBUTION_NOTICE_VERSION;
 
 const cookie: PublicAdAttributionCookie = {
   version: 1,
@@ -90,7 +91,7 @@ describe("signed ad attribution cookie", () => {
         clickedAt: new Date("2026-08-31T10:00:00.000Z"),
         capturedAt: new Date("2026-08-31T10:00:00.000Z"),
         consentedAt: new Date("2026-08-31T10:00:00.000Z"),
-        consentNoticeVersion: "2026-09-02",
+        consentNoticeVersion: CURRENT_NOTICE,
         expiresAt: new Date("2026-11-28T10:00:00.000Z"),
       },
       {
@@ -100,7 +101,7 @@ describe("signed ad attribution cookie", () => {
         clickedAt: new Date("2026-08-31T10:00:00.000Z"),
         capturedAt: new Date("2026-08-31T10:00:00.000Z"),
         consentedAt: new Date("2026-08-31T10:00:00.000Z"),
-        consentNoticeVersion: "2026-09-02",
+        consentNoticeVersion: CURRENT_NOTICE,
         expiresAt: new Date("2026-09-30T10:00:00.000Z"),
       },
     ]);

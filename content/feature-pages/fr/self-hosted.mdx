@@ -25,12 +25,12 @@ acquisition:
       - claim:no-self-hosted-inbox
       - claim:no-hosted-ai-self-hosted
   cta:
-    action: Prêt à évaluer l’auto-hébergement ?
-    description: Examinez les prérequis de déploiement et les limites du produit avant d’installer le CRM sur votre infrastructure.
-    buttonLeftText: Lire le guide d’installation
-    buttonLeftHref: /docs/self-hosting
-    buttonRightText: Voir le code source
-    buttonRightHref: https://github.com/customermates/customermates
+    action: "Besoin aussi de relancer LinkedIn et l’e-mail ? Essayez d’abord le cloud"
+    description: "L’auto-hébergement couvre les fiches clients, REST, les webhooks et MCP. Pour les conversations LinkedIn et e-mail sur chaque client et les réponses rédigées par Mate, essayez Customermates Cloud gratuitement pendant [[commercial.trial.days]] jours sur Pro, sans carte bancaire. La voie auto-hébergée reste ouverte."
+    buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: "Lire le guide d’installation"
+    buttonRightHref: /docs/self-hosting
     hint: "L’exploitant gère l’infrastructure, les mises à jour, les sauvegardes et les fournisseurs connectés."
   relatedHrefs:
     - /docs/self-hosting
@@ -42,9 +42,9 @@ acquisition:
     locale: fr
     referenceSystemVersion: customermates-marketing-visuals@8
     source:
-      headline: "CRM auto-hébergé avec Docker et PostgreSQL"
-      body: "Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez. L’édition auto-hébergée inclut le CRM de base et MCP, mais pas la boîte de réception hébergée ni Mate."
-      checksum: fnv1a-f6d76666
+      headline: "CRM auto-hébergé : fiches clients et prochaines étapes sur vos propres serveurs"
+      body: "Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez, avec MCP pour votre propre client IA. La boîte de réception pour les conversations LinkedIn et e-mail et les brouillons de Mate demandent Customermates Cloud."
+      checksum: fnv1a-5f6a626c
     kind: brand-illustration
     pathway: converge
     placements:
@@ -84,22 +84,51 @@ acquisition:
       - FAQPage
     faqFromRenderedContent: true
 
+sections:
+  visual:
+    kind: os
+  steps:
+    title: "Comment évaluer le déploiement"
+    items:
+      - title: "Examinez le déploiement exact"
+        description: "Lisez le guide d’auto-hébergement et examinez le fichier Compose actuel dans le dépôt."
+      - title: "Vérifiez la limite de l’édition"
+        description: "Confirmez que le jeu de fonctionnalités Starter couvre les enregistrements, les vues et les interfaces dont votre workflow a besoin."
+      - title: "Cartographiez les services externes"
+        description: "Listez chaque fournisseur SMTP, OAuth, de supervision, de workflow ou d’IA que vous prévoyez de configurer et les données que chacun reçoit."
+      - title: "Concevez l’exploitation"
+        description: "Définissez les sauvegardes, la restauration testée, les mises à niveau, le TLS, la supervision et le contrôle d’accès de votre environnement."
+      - title: "Testez sans données clients"
+        description: "Exécutez le workflow complet dans un environnement hors production avant que le système traite de vrais enregistrements."
+  highlights:
+    title: "En bref"
+    capture: homepage-configure
+    items:
+      - title: "Tourne sur votre infrastructure"
+        description: "L’application Customermates et PostgreSQL 16 s’exécutent comme deux services dans le déploiement Docker Compose suivi."
+      - title: "Surface produit incluse"
+        description: "Enregistrements CRM de base, champs personnalisés et vues, REST, webhooks et MCP avec le jeu de fonctionnalités Starter."
+      - title: "Vous exploitez"
+        description: "L’accès réseau, le TLS, les mises à jour, les sauvegardes, les tests de restauration, la supervision et chaque fournisseur externe configuré."
+      - title: "Limite réservée au cloud"
+        description: "La messagerie connectée, la boîte de réception unifiée, le calendrier connecté, Mate hébergé et les crédits IA hébergés restent hors de l’auto-hébergement."
+
 hero:
-  title: CRM auto-hébergé avec Docker et PostgreSQL
-  description: Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez. L’édition auto-hébergée inclut le CRM de base et MCP, mais pas la boîte de réception hébergée ni Mate.
-  buttonLeftText: Lire le guide d’installation
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: Voir le code source
-  buttonRightHref: https://github.com/customermates/customermates
+  title: "CRM auto-hébergé : fiches clients et prochaines étapes sur vos propres serveurs"
+  description: "Exécutez l’application Customermates et PostgreSQL sur une infrastructure que vous contrôlez, avec MCP pour votre propre client IA. La boîte de réception pour les conversations LinkedIn et e-mail et les brouillons de Mate demandent Customermates Cloud."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Lire le guide d’installation"
+  buttonRightHref: /docs/self-hosting
   hint: "Noyau AGPL • Docker Compose • PostgreSQL 16"
 
 cta:
-  action: Prêt à évaluer l’auto-hébergement ?
-  description: Examinez les prérequis de déploiement et les limites du produit avant d’installer le CRM sur votre infrastructure.
-  buttonLeftText: Lire le guide d’installation
-  buttonLeftHref: /docs/self-hosting
-  buttonRightText: Voir le code source
-  buttonRightHref: https://github.com/customermates/customermates
+  action: "Besoin aussi de relancer LinkedIn et l’e-mail ? Essayez d’abord le cloud"
+  description: "L’auto-hébergement couvre les fiches clients, REST, les webhooks et MCP. Pour les conversations LinkedIn et e-mail sur chaque client et les réponses rédigées par Mate, essayez Customermates Cloud gratuitement pendant [[commercial.trial.days]] jours sur Pro, sans carte bancaire. La voie auto-hébergée reste ouverte."
+  buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Lire le guide d’installation"
+  buttonRightHref: /docs/self-hosting
   hint: "L’exploitant gère l’infrastructure, les mises à jour, les sauvegardes et les fournisseurs connectés."
 ---
 
@@ -107,25 +136,7 @@ Customermates est un **CRM auto-hébergé** que vous pouvez exécuter sous forme
 
 Un CRM auto-hébergé s’exécute sur des serveurs que vous contrôlez plutôt que dans le cloud de l’éditeur : vous décidez où vivent l’application et la base de données, et vous prenez en charge les mises à jour, les sauvegardes et la sécurité. Savoir si le code est open source est une autre question, celle des droits de licence, traitée dans le [guide du CRM open source](/blog/open-source-crm). Cette page traite du côté opérationnel pour Customermates.
 
-<ArticleSummary title="En bref">
-  <SummaryItem label="Tourne sur votre infrastructure">
-    L’application Customermates et PostgreSQL 16 s’exécutent comme deux
-    services dans le déploiement Docker Compose suivi.
-  </SummaryItem>
-  <SummaryItem label="Surface produit incluse">
-    Enregistrements CRM de base, champs personnalisés et vues, REST, webhooks et
-    MCP avec le jeu de fonctionnalités Starter.
-  </SummaryItem>
-  <SummaryItem label="Vous exploitez">
-    L’accès réseau, le TLS, les mises à jour, les sauvegardes, les tests de
-    restauration, la supervision et chaque fournisseur externe configuré.
-  </SummaryItem>
-  <SummaryItem label="Limite réservée au cloud">
-    La messagerie connectée, la boîte de réception unifiée, le calendrier
-    connecté, Mate hébergé et les crédits IA hébergés restent hors de
-    l’auto-hébergement.
-  </SummaryItem>
-</ArticleSummary>
+**Où se place la relance.** L’auto-hébergement garde les fiches clients, les dates de prochaine étape, les tableaux de bord et MCP sur vos propres serveurs : votre propre client IA peut les lire et les mettre à jour. Il n’a pas la boîte de réception qui rattache les conversations LinkedIn et e-mail au client, ni Mate qui rédige les réponses. Si ce sont les relances rédigées qui vous intéressent, commencez sur Customermates Cloud ; l’auto-hébergement convient mieux quand le contrôle de l’endroit où tournent les données compte davantage.
 
 <ProofRail label="Faits vérifiés sur le CRM auto-hébergé">
   <ProofItem label="Déploiement">Docker Compose</ProofItem>
@@ -195,31 +206,6 @@ Les services connectés restent des périmètres de traitement distincts. Les fo
 Si vous voulez essayer Customermates avant d’exploiter votre propre serveur, la page [CRM open source dans le cloud ou auto-hébergé](/features/open-source-crm) présente les deux voies côte à côte, avec l’essai cloud gratuit comme démarrage le plus rapide.
 
 Les enregistrements passent d’une installation à l’autre, ou depuis un autre CRM, sous forme de classeurs XLSX, un type d’enregistrement à la fois et dans les limites de lignes, ou via l’API REST, qui peut aussi téléverser des fichiers dans les champs Fichier. Un import XLSX ne transporte aucune pièce jointe et il n’existe pas de transfert complet du compte : prévoyez donc un déménagement plus important comme un projet de migration que vous validez.
-
-## Comment évaluer le déploiement
-
-<Steps>
-  <Step title="Examinez le déploiement exact">
-    Lisez le [guide d’auto-hébergement](/docs/self-hosting) et examinez le
-    fichier Compose actuel dans le dépôt.
-  </Step>
-  <Step title="Vérifiez la limite de l’édition">
-    Confirmez que le jeu de fonctionnalités Starter couvre les enregistrements,
-    les vues et les interfaces dont votre workflow a besoin.
-  </Step>
-  <Step title="Cartographiez les services externes">
-    Listez chaque fournisseur SMTP, OAuth, de supervision, de workflow ou d’IA
-    que vous prévoyez de configurer et les données que chacun reçoit.
-  </Step>
-  <Step title="Concevez l’exploitation">
-    Définissez les sauvegardes, la restauration testée, les mises à niveau, le
-    TLS, la supervision et le contrôle d’accès de votre environnement.
-  </Step>
-  <Step title="Testez sans données clients">
-    Exécutez le workflow complet dans un environnement hors production avant que
-    le système traite de vrais enregistrements.
-  </Step>
-</Steps>
 
 ## Questions fréquentes
 

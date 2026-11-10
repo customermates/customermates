@@ -80,6 +80,10 @@ Ouvrez [Clés API et connecteurs](app:settings/api-keys) et créez une clé avec
 - **Nouvelles tentatives :** réutilisez la même clé d’idempotence pour exactement la même charge utile de mutation. Une charge utile modifiée exige une nouvelle clé.
 - **Webhooks :** les envois ne sont ni strictement ordonnés ni exactement uniques. Dédoublonnez par ID d’évènement et utilisez l’horodatage de la charge utile pour l’ordre.
 
+## n8n fonctionne-t-il sur la formule Free ? [#n8n-on-the-free-plan]
+
+Le déclencheur n8n a besoin d’un webhook ; il ne fonctionne donc pas tant qu’un espace de travail sur Customermates Cloud est en Free : la création de l’abonnement est refusée avec le prix de Starter dans le message, et un déclencheur existant ne reçoit rien jusqu’à ce que l’espace de travail choisisse une formule payante. Les actions qui lisent ou écrivent des enregistrements passent par l’API REST et comptent dans la limite Free de [[commercial.limit.free.apiRequestsPerMinute]] requêtes par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour. Les installations auto-hébergées n’ont pas cette limite.
+
 ## Suite [#next]
 
 - [Webhooks](/docs/webhooks) : charges utiles des évènements et livraison.

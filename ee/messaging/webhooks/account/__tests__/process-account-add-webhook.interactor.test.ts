@@ -40,27 +40,34 @@ function build(accountRepoOverrides: Partial<Record<string, unknown>> = {}) {
   const messagingService = makeMessagingService();
   const backgroundTaskService = makeBackgroundTaskService();
   const eventService = makeEventService();
+  const funnel = { recordFunnelEventUnscoped: vi.fn().mockResolvedValue(true) };
   const interactor = new ProcessAccountAddWebhookInteractor(
     messagingService as never,
     accountRepo as never,
     userRepo as never,
     backgroundTaskService as never,
     eventService as never,
+    funnel,
   );
 
-  return { interactor, accountRepo, userRepo, messagingService, backgroundTaskService, eventService };
+  return { interactor, accountRepo, userRepo, messagingService, backgroundTaskService, eventService, funnel };
 }
 
 beforeEach(() => vi.clearAllMocks());
 
 describe("ProcessAccountAddWebhookInteractor", () => {
   it("creates a fresh row when there is no existing account", async () => {
-    const { interactor, accountRepo, backgroundTaskService, eventService } = build();
+    const { interactor, accountRepo, backgroundTaskService, eventService, funnel } = build();
     const state = signHostedAuthState(USER.id);
 
     await interactor.invoke({ type: "account.add", account_id: "acc_new", state, payload: null });
 
     expect(accountRepo.createAccountUnscoped).toHaveBeenCalledTimes(1);
+    expect(funnel.recordFunnelEventUnscoped).toHaveBeenCalledWith({
+      companyId: USER.companyId,
+      type: "channelConnected",
+      occurredAt: expect.any(Date),
+    });
     expect(eventService.publish).toHaveBeenCalledWith(
       "connected_account.created",
       expect.objectContaining({ entityId: "new-row-id" }),

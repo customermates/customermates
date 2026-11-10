@@ -146,11 +146,11 @@ export function fileBadgeText(kind: FileKind, name?: string | null): string {
 
 export const FILE_KIND_TONE_CLASS: Record<FileKind, string> = {
   pdf: "bg-destructive/15 text-destructive",
-  spreadsheet: "bg-success/15 text-success",
-  csv: "bg-chart-2/15 text-chart-2",
-  document: "bg-info/15 text-info",
-  presentation: "bg-warning/15 text-warning",
-  json: "bg-warning/15 text-warning",
+  spreadsheet: "bg-success/15 text-success-soft-foreground",
+  csv: "bg-success/15 text-success-soft-foreground",
+  document: "bg-info/15 text-info-soft-foreground",
+  presentation: "bg-warning/15 text-warning-soft-foreground",
+  json: "bg-warning/15 text-warning-soft-foreground",
   markdown: "bg-primary/15 text-primary",
   html: "bg-foreground/5 text-muted-foreground",
   text: "bg-foreground/5 text-muted-foreground",

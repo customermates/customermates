@@ -1,4 +1,5 @@
 import { failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { UNLIMITED_PLAN_LIMITS, type PlanLimitsService } from "@/ee/subscription/plan-limits.service";
 import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
 import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -30,6 +31,7 @@ import {
   RegistrationAdAttributionSchema,
   type RegistrationAdAttribution,
 } from "@/features/acquisition/ad-attribution.schema";
+import { RegistrationSignupSourceSchema, type RegistrationSignupSource } from "@/features/acquisition/signup-source";
 import { startsWithTrial } from "@/features/workspace/workspace-trial-policy";
 import { workspaceCreationLimit } from "@/features/workspace/workspace-creation-limit";
 import { WorkspaceNameSchema } from "@/features/workspace/workspace.schema";
@@ -73,12 +75,14 @@ export type RegistrationTarget = Data<typeof RegistrationTargetSchema>;
 const RegistrationSchema = RegisterUserSchema.extend({
   sessionUserId: z.string().min(1),
   adAttribution: z.array(RegistrationAdAttributionSchema),
+  signupSource: RegistrationSignupSourceSchema.nullable(),
   target: RegistrationTargetSchema,
 });
 type RegistrationData = Data<typeof RegistrationSchema>;
 
 type RegistrationContext = {
   adAttribution?: RegistrationAdAttribution[];
+  signupSource?: RegistrationSignupSource | null;
   target: RegistrationTarget;
 };
 
@@ -91,6 +95,7 @@ export class RegisterUserInteractor {
     private routeGuardService: RouteGuardService,
     private companyRepo: RegisterUserCompanyRepo,
     private registration: Pick<WorkspaceRegistrationService, "createCompanyAndUser">,
+    private seats: Pick<PlanLimitsService, "admitMembers"> = UNLIMITED_PLAN_LIMITS,
   ) {}
 
   async invoke(
@@ -106,6 +111,7 @@ export class RegisterUserInteractor {
       email: resolution.sessionUser.email,
       sessionUserId: resolution.sessionUser.id,
       adAttribution: context.adAttribution ?? [],
+      signupSource: context.signupSource ?? null,
       target: context.target,
     });
   }
@@ -130,7 +136,7 @@ export class RegisterUserInteractor {
     data: RegistrationData,
     plannedCompanyId: string | null | undefined,
   ): Promise<Awaited<Validated<RegisterUserResult>> | Redirect> {
-    const { sessionUserId, adAttribution, target, workspaceName, ...registrationData } = data;
+    const { sessionUserId, adAttribution, signupSource, target, workspaceName, ...registrationData } = data;
     if (plannedCompanyId && !(await this.companyRepo.existsUnscoped(plannedCompanyId)))
       return redirectTo(target.type === "invitation" ? "/auth/error?type=invalidInviteLink" : "/onboarding");
 
@@ -172,6 +178,10 @@ export class RegisterUserInteractor {
         ? adAttribution.filter((attribution) => attribution.expiresAt.getTime() > Date.now())
         : [];
 
+    if (target.type === "invitation") {
+      const refused = await this.seats.admitMembers(1, target.companyId);
+      if (refused) return failConflict(CustomErrorCode.planMemberLimitReached, [], refused);
+    }
     if (companyId && (await this.repo.hasLeftMembershipUnscoped(registrationData.email, companyId)))
       await this.authService.revokeMembershipCredentials(sessionUserId, companyId);
     const tenantUser = companyId
@@ -182,6 +192,7 @@ export class RegisterUserInteractor {
       : await this.registration.createCompanyAndUser({
           ...registrationData,
           adAttribution: eligibleAdAttribution,
+          signupSource: env.APP_MODE === "cloud" ? signupSource : null,
           workspace: {
             name: workspaceName ?? null,
             createdByAuthUserId: sessionUserId,

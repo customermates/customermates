@@ -21,8 +21,8 @@ describe("cloud-only pages on a self-hosted instance", () => {
   it.each([
     ["Inbox", () => import("../inbox/page"), { searchParams }],
     ["Routines", () => import("../routines/page"), { searchParams }],
-    ["Billing", () => import("../settings/(workspace)/billing/page"), undefined],
-    ["Channels", () => import("../settings/(account)/channels/page"), undefined],
+    ["Billing", () => import("../settings/(workspace)/billing/page"), { searchParams }],
+    ["Channels", () => import("../settings/(account)/channels/page"), { searchParams }],
   ] as const)(
     "send %s to the Dashboard in the locale of the request",
     async (_page, load, props) => {

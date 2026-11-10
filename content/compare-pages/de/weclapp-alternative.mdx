@@ -9,10 +9,20 @@ relatedHrefs:
   - /compare/cobra-alternative
   - /features/unified-inbox
 
+sections:
+  reasons:
+    - title: "Ein kleines Vertriebsmodell"
+      description: "Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) mit Feldern und berechneten Feldern im Datenmodell an oder lassen die KI-Einrichtung sie in der Cloud aufbauen."
+    - title: "LinkedIn und WhatsApp neben der E-Mail"
+      description: "Ab Pro kommen Postfächer von Gmail, Outlook und per IMAP, LinkedIn, WhatsApp, Instagram und Telegram in einer Liste an, verknüpft mit dem Kunden."
+    - title: "Antworten entworfen, Rechnungen bleiben dort"
+      description: "In Customermates Cloud fasst Mate Verläufe zusammen, entwirft Antworten und aktualisiert Datensätze. Angebote und Rechnungen bleiben im Buchhaltungswerkzeug, das Sie schon nutzen."
+  switchSteps: true
+
 hero:
-  title: "weclapp Alternative: Customermates und weclapp im Vergleich"
-  description: "weclapp ist ein Cloud-ERP aus Kitzingen. Das CRM-Modul beginnt mit dem Paket ERP Dienstleistung für 86 € pro Nutzer und Monat bei jährlicher Laufzeit. Customermates ist ein Open-Source-CRM für kleine Teams mit viel Kundenkontakt, ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, mit E-Mail, LinkedIn und WhatsApp in einem Posteingang ab Pro. Ihre Rechnungen bleiben in Ihrer Buchhaltungssoftware."
-  buttonLeftText: Kostenlos starten
+  title: "weclapp-Alternative: Customermates im Vergleich"
+  description: "Das CRM-Modul von weclapp beginnt bei 86 € pro Nutzer und Monat im Jahresvertrag. Customermates ist nur das CRM, monatlich abgerechnet: Ab Pro liegen LinkedIn-, E-Mail- und WhatsApp-Verläufe beim Kunden, Mate entwirft die Antwort. Rechnungen bleiben in Ihrer Buchhaltung."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -82,7 +92,7 @@ comparison:
         source: In jedem Tarif
         competitor: Ab ERP Dienstleistung
       - name: Webhooks
-        source: "[[derived.webhooks.events.total]] Ereignistypen, in jedem Tarif"
+        source: "[[derived.webhooks.events.total]] Ereignistypen, in jedem bezahlten Tarif"
         competitor: Ereignisse für Anlegen, Ändern und Löschen je Entität
   - title: Lizenz, Hosting & Sicherheit
     features:
@@ -105,7 +115,7 @@ comparison:
 cta:
   action: Sie vergleichen weclapp und Customermates?
   description: "Starten Sie den Test, importieren Sie einen Kontaktexport aus weclapp und legen Sie Ihre Deal-Phasen an. In der Testphase sehen Sie, ob ein CRM neben Ihrer Buchhaltungssoftware für Ihren Vertrieb reicht."
-  buttonLeftText: Kostenlos starten
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup
   buttonRightText: Live-Demo ansehen
   buttonRightHref: https://demo.customermates.com/de/w/kleine-unternehmen/dashboard
@@ -172,9 +182,9 @@ Die Zeilen kaufen nicht dasselbe. Im Preis von weclapp stecken Angebote, Rechnun
 
 ## Wo Customermates passt
 
-Customermates ist ein Open-Source-KI-CRM aus Deutschland für Beratungen, Agenturen, andere beziehungsgetriebene Dienstleister und Gründer. Es deckt alles bis zum unterschriebenen Deal ab und schreibt keine Rechnungen.
+weclapp führt Angebote, Rechnungen und Buchhaltung. Customermates fasst bei Kunden nach, bis der Deal unterschrieben ist, und schreibt keine Rechnungen: Ab Pro liegen Gespräche beim Kunden, und Mate oder Ihr eigener KI-Agent entwirft Antwort und nächsten Schritt, die Sie prüfen, bearbeiten und senden.
 
-**Ein schlankes Vertriebsmodell.** Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) mit Feldern und berechneten Feldern unter Datenmodell an, oder die KI-Einrichtung baut sie in der Cloud. Die Deal-Phase ist ein Feld mit einer Wahrscheinlichkeit je Phase, dargestellt als Board, und ein Diagramm-Widget auf dem Dashboard kann die gewichteten Deal-Werte summieren. Gespeicherte Ansichten lassen sich mit dem Team teilen. Dashboards, Rollen und ein Audit-Log gibt es in jedem Tarif.
+**Ein schlankes Vertriebsmodell.** Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) mit Feldern und berechneten Feldern unter Datenmodell an, oder die KI-Einrichtung baut sie in der Cloud. Die Deal-Phase ist ein Feld mit einer Wahrscheinlichkeit je Phase, dargestellt als Board, und ein Diagramm-Widget auf dem Dashboard kann die gewichteten Deal-Werte summieren. Dashboards, Rollen und ein Audit-Log gibt es in jedem Tarif.
 
 **Gespräche neben dem Deal.** Ab Pro kommen Postfächer von Gmail, Outlook und IMAP, LinkedIn, WhatsApp, Instagram und Telegram in einer Liste zusammen. Sie antworten auf dem ursprünglichen Kanal, und Unterhaltungen mit verknüpftem Kontakt erscheinen in dessen Zeitleiste.
 
@@ -195,7 +205,7 @@ Customermates ist ein Open-Source-KI-CRM aus Deutschland für Beratungen, Agentu
 
 Die übliche Aufteilung nach dem Abschied vom ERP: Customermates bis zum gewonnenen Deal, Ihre Buchhaltungssoftware für alles danach. Für die Übergabe gibt es zwei Wege.
 
-**Mit Webhooks, in jedem Tarif.** Customermates sendet das Ereignis `record.updated` für die Liste Deals, wenn sich ein Deal ändert, auch seine Phase. Ein Workflow in Ihrer eigenen, separat betriebenen n8n-Instanz prüft auf die Phase „Gewonnen“ und ruft Ihre Buchhaltungssoftware auf. Lexware Office etwa hat eine öffentliche REST-API mit Endpunkten für Kontakte und Rechnungen. Die [Webhook-Dokumentation](/docs/webhooks) listet alle Ereignisse.
+**Mit Webhooks, in jedem bezahlten Tarif.** Customermates sendet das Ereignis `record.updated` für die Liste Deals, wenn sich ein Deal ändert, auch seine Phase. Ein Workflow in Ihrer eigenen, separat betriebenen n8n-Instanz prüft auf die Phase „Gewonnen“ und ruft Ihre Buchhaltungssoftware auf. Lexware Office etwa hat eine öffentliche REST-API mit Endpunkten für Kontakte und Rechnungen. Die [Webhook-Dokumentation](/docs/webhooks) listet alle Ereignisse.
 
 **Mit einer Routine, in Customermates Cloud.** Eine Routine führt eine gespeicherte Anweisung aus, wenn sich ein Datensatz ändert, nutzt gehostete KI-Credits und läuft mit Identität und Zugriffsrechten der Person, der sie gehört. Wählen Sie unter „Ereignisse“ „Deal aktualisiert“, tragen Sie unter „Geänderte Felder“ das Phasenfeld ein, setzen Sie einen Datensatzfilter auf „Gewonnen“ und speichern Sie eine Anweisung wie diese:
 
@@ -218,7 +228,7 @@ Mate kann Nachrichten ohne erneute Rückfrage senden. Der letzte Satz ist deshal
   <Step title="Vor dem Vertragsende exportieren">Nach einer Kündigung löscht weclapp Ihre Daten, exportieren Sie also vorher. Jede Übersichtstabelle lässt sich mit den sichtbaren Spalten und Filtern als XLS-Datei exportieren; Administratoren nutzen alternativ den Import-/Export-Wizard unter Globale Einstellungen. Customermates liest .xls-Dateien, Sie können sie also unverändert importieren.</Step>
   <Step title="Den Workspace vorbereiten">Legen Sie im Phasenfeld Ihre Chancen-Phasen mit je einer Phasenwahrscheinlichkeit an. Erstellen Sie Einzelauswahl-Felder für Region und Qualifizierungsstatus.</Step>
   <Step title="Eine Liste nach der anderen importieren">Importieren Sie zuerst Organisationen, dann Kontakte, dann Deals, damit Verknüpfungsspalten die Organisation über den Namen finden. Pflichtspalten und Grenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
-  <Step title="Listen als Ansichten nachbauen">Machen Sie aus jeder Liste in weclapp eine gespeicherte Ansicht mit Filter. Ansichten bleiben privat, bis Sie sie teilen; teilen Sie die, die das ganze Team nutzt.</Step>
+  <Step title="Listen als Ansichten nachbauen">Machen Sie aus jeder Liste in weclapp eine gespeicherte Ansicht mit Filter. Die Ansichten, die das ganze Team braucht, teilen Sie über das Menü **Teilen…** der Ansicht.</Step>
   <Step title="Kanäle und KI verbinden">Verbinden Sie ab Pro oder in der Testphase ein Postfach, LinkedIn oder WhatsApp unter Einstellungen › Kanäle & Kalender. Richten Sie danach die Übergabe an Ihre Buchhaltungssoftware ein.</Step>
 </Steps>
 

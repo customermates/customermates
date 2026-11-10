@@ -64,7 +64,7 @@ Den Zugriff legt die Zeile **API & Webhooks** einer Rolle unter [Rollen](app:set
 | **Lesen** **Alle** plus **Bearbeiten** | Webhooks bearbeiten und gespeicherte Werte von **Secret** und **Eigene Header** sehen. |
 | **Lesen** **Alle** plus **Löschen** | Webhooks löschen. |
 
-Dieselbe Zeile steuert auch [API-Schlüssel & Konnektoren](app:settings/api-keys). Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen. Die Rolle **Admin** darf alles. Webhooks sind an keinen Tarif gebunden und funktionieren in jedem Cloud-Tarif sowie selbstgehostet. Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und in Mate; dort fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
+Dieselbe Zeile steuert auch [API-Schlüssel & Konnektoren](app:settings/api-keys). Eine Rolle, die eigene API-Keys anlegen oder löschen darf, darf also auch jeden Webhook im Workspace anlegen oder löschen. Die Rolle **Admin** darf alles. Webhooks funktionieren in jedem bezahlten Cloud-Tarif, während der Testphase und selbstgehostet, nicht aber im Free-Tarif ([Details](#webhooks-on-the-free-plan)). Dieselben Berechtigungen gelten für `manage_webhooks` über MCP und in Mate; dort fragt das Löschen eines Webhooks oder das erneute Senden einer Zustellung vorher nach Ihrer Freigabe.
 
 ## Wie sieht der Payload aus? [#what-does-the-payload-look-like]
 
@@ -324,6 +324,10 @@ Messaging-Ereignisse feuern bei eingehender Provider-Aktivität auf verbundenen 
 | `messaging.calendar.changed` | Ein verbundener Kalender ändert sich |
 | `messaging.calendar_event.changed` | Ein Kalender-Event ändert sich |
 | `messaging.relation.created` | Eine neue Provider-Relation wird erstellt |
+
+## Funktionieren Webhooks im Free-Tarif? [#webhooks-on-the-free-plan]
+
+Nein. In Customermates Cloud gibt es Webhooks und den n8n-Trigger ab Starter. Solange ein Workspace Free nutzt, wird das Anlegen eines Webhooks in den Einstellungen, per REST (`409` mit `customCode` `planWebhooksNotIncluded`) und per MCP abgelehnt, mit dem Starter-Preis in der Meldung. Vorher angelegte Webhooks bleiben in der Liste, senden aber nichts, solange der Workspace Free nutzt; Ereignisse aus dieser Zeit werden nicht nachgeliefert. Sobald der Workspace einen bezahlten Tarif wählt, liefern sie wieder. Selbst gehostete Installationen haben diese Grenze nicht.
 
 ## Weiter [#next]
 

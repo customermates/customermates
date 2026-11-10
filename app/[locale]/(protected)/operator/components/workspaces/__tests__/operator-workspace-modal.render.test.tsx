@@ -111,6 +111,9 @@ const WORKSPACE: OperatorWorkspaceRowDto = {
   lemonSqueezyId: null,
   subscriptionUpdatedAt: new Date("2026-10-01T00:00:00.000Z"),
   adProvider: null,
+  signupJob: null,
+  signupSource: null,
+  funnelEvents: [],
   tags: [],
   createdAt: new Date("2026-09-01T00:00:00.000Z"),
 };

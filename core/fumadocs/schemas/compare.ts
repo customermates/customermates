@@ -2,6 +2,7 @@ import { frontmatterSchema } from "fumadocs-mdx/config";
 import { z } from "zod";
 
 import { ctaSchema, heroSchema, relatedHrefsSchema } from "./common";
+import { compareSectionsSchema } from "./landing-sections";
 
 const comparisonFeatureSchema = z.object({
   name: z.string(),
@@ -30,6 +31,7 @@ export const compareSchema = frontmatterSchema.extend({
   description: z.string(),
   hero: heroSchema,
   relatedHrefs: relatedHrefsSchema,
+  sections: compareSectionsSchema,
   competitorName: z.string(),
   title: z.string(),
 });

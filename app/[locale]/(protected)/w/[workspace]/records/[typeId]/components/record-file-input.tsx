@@ -29,6 +29,7 @@ import { ItemActions, ItemActionsTrigger, ITEM_ACTIONS_TRIGGER_CLASS } from "@/c
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
+import { isStorageQuotaFailure, StorageFailureAction } from "@/app/components/upsell/storage-failure-action";
 import { INLINE_RECORD_FILE_TYPES } from "@/features/record-files/record-file-response";
 import { MAX_RECORD_FILES } from "@/features/records/record-model.schema";
 
@@ -194,6 +195,7 @@ const RecordFileRow = observer(function RecordFileRow({
 function UploadRow({ entry, onRemove }: { entry: RecordFileUpload; onRemove: () => void }) {
   const t = useTranslations();
   const failed = entry.phase === "failed";
+  const storageFailure = failed && isStorageQuotaFailure(entry.failureCode);
   const progress = t("RecordModel.fileUploading", { progress: entry.progress });
   return (
     <li
@@ -208,9 +210,11 @@ function UploadRow({ entry, onRemove }: { entry: RecordFileUpload; onRemove: () 
         </p>
 
         {failed ? (
-          <p className="truncate text-xs text-destructive" data-record-file-meta="">
-            {entry.failure}
-          </p>
+          <div data-record-file-meta="">
+            <p className={cn("text-xs text-destructive", !storageFailure && "truncate")}>{entry.failure}</p>
+
+            {storageFailure ? <StorageFailureAction /> : null}
+          </div>
         ) : (
           <>
             <p className="text-xs text-muted-foreground tabular-nums">{progress}</p>

@@ -1,6 +1,6 @@
 ---
-title: "CRM für Freelancer und Selbstständige"
-description: "CRM für Selbstständige im B2B-Geschäft: Kunden, Gespräche und neue Aufträge in einem anpassbaren Workspace. Mit Beispiel-Workspace zum Ausprobieren."
+title: "CRM für Freelancer und Selbstständige: Kunden nachfassen"
+description: "CRM für Selbstständige im B2B: Gespräche beim Kunden, Mate entwirft Antwort und nächsten Schritt, Sie prüfen und senden. Mit Beispiel-Workspace."
 industryName: "Freiberufler"
 
 relatedHrefs:
@@ -10,25 +10,145 @@ relatedHrefs:
   - /for/personal
 
 hero:
-  title: "CRM für Selbstständige: Kunden und nächste Schritte organisieren"
-  description: "Für Freelancer und Selbstständige, deren Aufträge von bekannten Geschäftskunden kommen: Kunden, Ansprechpartner, offene Aufträge und der nächste Schritt an einem Ort. Rechnungen, Zeiterfassung, Terminbuchung, Webformulare und eine mobile App gibt es nicht, diese Aufgaben bleiben in Ihren bestehenden Tools."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "CRM für Selbstständige: Kunden warm halten, während Sie liefern"
+  description: Für Freelancer, deren Aufträge von bekannten Geschäftskunden kommen. Gespräche liegen beim Kunden, Mate oder Ihr eigener KI-Client entwirft die Antwort und den nächsten Schritt, und Sie prüfen und senden sie. Ohne Rechnungen, Zeiterfassung, Buchungsseiten, Webformulare und App.
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/selbststaendige/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+landing:
+  hero:
+    eyebrow: Für Freelancer und selbstständige B2B-Spezialisten
+    title: Das CRM für Freelancer, das nachfasst, während Sie liefern.
+    description: Kunden, offene Aufträge und der nächste Schritt in einem Workspace, mit den E-Mail- und LinkedIn-Gesprächen dahinter. Mate entwirft die Antwort aus Ihrem Leitfaden, und Sie prüfen und senden sie.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: 15 Minuten mit Ben sprechen
+      href: /contact
+  facts: Keine Kreditkarte · Ihr Rechnungstool bleibt · Pro ab [[commercial.price.pro.monthly]] pro Person/Monat
+  generator:
+    eyebrow: Aus einer einzigen Beschreibung
+    title: Ihr Freelance-Geschäft, einmal beschrieben. Für Sie gebaut.
+    description: Die KI-Einrichtung stellt ein paar Fragen und baut Kunden, Anfragen, Projekte, Ihre Pipeline und Ihren Leitfaden. Das ist das Freelancer-Beispiel; klicken Sie sich durch.
+    promptLabel: Ihre Beschreibung für Mate
+    arrowLabel: daraus wurde dieser Workspace
+    prompt: Ich bin freiberuflicher Entwickler. Verwalte Kunden, Projekte und Nachfassungen, damit kein Kontakt kalt wird, während ich liefere.
+  followUp:
+    eyebrow: Ein Stammkunde, beantwortet
+    title: Ein früherer Kunde will im März wieder starten. Die Antwort ist entworfen und terminiert.
+    description: Der E-Mail-Verlauf liegt beim Kunden. Mate entwirft die Antwort aus Ihrem Leitfaden, terminiert den nächsten Schritt und lässt den Entwurf zur Prüfung liegen.
+    desk:
+      label: Beispielszene zum Nachfassen mit Demodaten
+      workspace: Keller Entwicklung
+      conversation:
+        label: E-Mail
+        name: Sofia Lindgren
+        company: Nordhaven Agentur
+        time: Mi 09:20
+        message: Wir würden die API-Arbeit gern im März wieder aufnehmen. Haben Sie Kapazität, und könnten Sie die erste Phase kurz skizzieren?
+      agent:
+        name: Mate
+        intent: Entwirft eine Antwort aus Ihrem Kunden-Leitfaden
+        done: Entwurf gespeichert. Nächster Schritt steht auf Ihrem Dashboard.
+      draft:
+        badge: Entwurf, wartet auf Ihre Prüfung
+        text: Hallo Frau Lindgren, schön, von Ihnen zu hören. Ab der ersten Märzwoche habe ich Kapazität. Eine kurze Skizze der ersten Phase schicke ich Ihnen am Donnerstag. Viele Grüße, Marta Keller
+        edit: Bearbeiten
+        send: Entwurf senden
+      today:
+        title: Dashboard
+        date: Donnerstag
+        addedBy: Von Mate angelegt
+        assign: Zuweisen
+        sections:
+          - title: Fällige nächste Schritte
+            items:
+              - title: Skizze der ersten Phase senden
+                meta: Nordhaven Agentur · heute fällig
+                owner: MK
+                state: added
+              - title: Beim offenen Angebot nachfassen
+                meta: Brightside Labs · 3 Tage überfällig
+                owner: MK
+                state: overdue
+          - title: Angebote ohne Antwort
+            items:
+              - title: Angebot Brightside Labs
+                meta: vor 6 Tagen gesendet
+                owner: MK
+                state: due
+  beforeAfter:
+    eyebrow: Was sich ändert
+    title: Vorher und nachher. Dieselben Kunden, weniger kalte Kontakte.
+    before:
+      label: Vorher
+      points:
+        - Offene Angebote nur im Kopf
+        - Kundennachrichten verteilt auf E-Mail und LinkedIn
+        - Frühere Kunden werden still, während Sie liefern
+    after:
+      label: Mit Customermates
+      points:
+        - Jeder Kunde hat einen nächsten Schritt mit Datum
+        - Das Gespräch liegt beim Kunden, mit fertigem Entwurf
+        - Ihr Dashboard zeigt, was fällig ist, und sonst nichts
+  steps:
+    eyebrow: So starten Sie
+    title: Drei Schritte. Bis zum ersten Nachfassen.
+    items:
+      - title: Freelance-Geschäft beschreiben
+        description: Die KI-Einrichtung baut Kunden, Anfragen, Projekte und Ihren Leitfaden aus einer Beschreibung und ein paar Antworten.
+      - title: E-Mail oder LinkedIn verbinden
+        description: Verläufe landen beim Kunden, dessen E-Mail-Adresse oder LinkedIn-Profil passt. In Pro ein verbundenes Konto pro Person.
+      - title: Nachfassen im Dashboard prüfen
+        description: Mate entwirft die Antwort und terminiert den nächsten Schritt, wenn Sie es verlangen oder in einer Routine, die Sie einrichten. Sie bearbeiten, senden oder überspringen.
+  plan:
+    eyebrow: Preise
+    title: Pro reicht dafür. [[commercial.price.pro.monthly]] pro Person und Monat.
+    description: Starter für [[commercial.price.starter.monthly]] hat keinen Posteingang. Pro bringt ein verbundenes Konto für Ihre E-Mail oder LinkedIn. Ihr eigenes Claude- oder ChatGPT-Abo bleibt beim Anbieter.
+    limits: Nicht geeignet, wenn Sie Rechnungsstellung, Zeiterfassung, Buchungsseiten oder Webformulare brauchen. Dafür bleiben Ihre anderen Tools.
+    primaryCta:
+      label: "[[commercial.trial.days]] Tage kostenlos testen"
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Alle Tarife vergleichen
+      href: /pricing
 
 cta:
-  action: Prüfen Sie, ob ein Freelancer-Workspace zu Ihren Kunden passt
+  action: Sehen Sie, wie aus der Nachricht eines Stammkunden ein terminierter nächster Schritt wird
   description: "Sehen Sie sich zuerst den Beispiel-Workspace mit Beispieldaten an. Ihr eigener Workspace startet ohne Listen: In Customermates Cloud legt die KI-Einrichtung sie nach Ihrer Beschreibung an, alternativ erstellen Sie sie unter Datenmodell und importieren eine Excel-Arbeitsmappe."
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/selbststaendige/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
+
+useCases:
+  eyebrow: So können Sie es nutzen
+  title: Für Freiberufler. Drei Aufgaben, ein Workspace.
+  items:
+    - title: Stammkunden nachfassen
+      description: Ein Kunde, der sich im März wieder melden wollte, steht mit einem terminierten nächsten Schritt am Datensatz, so landet das Nachfassen auf Ihrer Liste.
+      href: /features/follow-up
+      linkLabel: Zum Nachfassen
+      visual: calendar
+    - title: Direkt aus dem Verlauf antworten
+      description: Ab Pro liegen E-Mail- und LinkedIn-Verläufe beim Kunden. Mate oder Ihr eigener KI-Client entwirft eine Antwort aus den Datensätzen, die er lesen darf, und Sie entscheiden, was rausgeht.
+      href: /features/unified-inbox
+      linkLabel: Zum CRM-Posteingang
+      visual: conversation
+    - title: Neue Aufträge verfolgen
+      description: Offene Aufträge und der nächste Schritt für jeden Kunden an einem Ort.
+      href: /features/pipeline
+      linkLabel: Zur Pipeline
+      visual: pipeline
 ---
 
-Als Selbstständiger im B2B-Geschäft leben Sie von Beziehungen: dem früheren Kunden, der jedes Frühjahr wieder anfragt, der Empfehlung einer Agentur, für die Sie geliefert haben, dem Angebot, das liegen bleibt, während Sie im nächsten Projekt stecken. Ein CRM für Freelancer hilft, wenn diese Fäden nicht mehr in den Kopf passen. Customermates ist ein Open-Source-CRM mit KI aus Deutschland. Für ein Ein-Personen-Unternehmen hält es Kunden, Ansprechpartner, offene Aufträge und den nächsten Schritt zusammen, und in Customermates Cloud ab Pro auch die Gespräche dazu. Ein Buchungs- oder Abrechnungstool ist es nicht. Wenn Ihr Alltag mit Terminen, Rechnungen oder einem Kundenportal beginnt, nennt der Abschnitt zu den Grenzen passendere Tools.
+Als Selbstständiger im B2B-Geschäft leben Sie von Beziehungen: dem früheren Kunden, der jedes Frühjahr wieder anfragt, der Empfehlung einer Agentur, für die Sie geliefert haben, dem Angebot, das liegen bleibt, während Sie im nächsten Projekt stecken. Ein CRM für Freelancer hilft, wenn diese Fäden nicht mehr in den Kopf passen. Customermates ist ein Open-Source-CRM mit KI aus Deutschland. Für ein Ein-Personen-Unternehmen hält es Kunden, Ansprechpartner, offene Aufträge und den nächsten Schritt zusammen, und in Customermates Cloud ab Pro auch die E-Mail- und LinkedIn-Gespräche dazu. Mate, oder Ihr eigener KI-Agent über MCP, entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Ein Buchungs- oder Abrechnungstool ist es nicht. Wenn Ihr Alltag mit Terminen, Rechnungen oder einem Kundenportal beginnt, nennt der Abschnitt zu den Grenzen passendere Tools.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Passt zu">
@@ -121,7 +241,7 @@ In Customermates Cloud bündelt der [gemeinsame Posteingang](/features/unified-i
 
 Gesprächsteilnehmer werden über E-Mail-Adresse, Telefonnummer oder LinkedIn-Identität einem Kontakt zugeordnet. Mit einem Kunden oder einer Auftragschance verknüpft wird ein Gespräch nur, wenn Sie oder ein von Ihnen beauftragter Agent es verknüpfen. Automatisch landet nichts bei einer Auftragschance. Nachrichten innerhalb von Freelancer-Plattformen sind kein Kanal des Posteingangs.
 
-Mate, der Assistent in Customermates Cloud, kann einen Kunden und das verknüpfte Gespräch lesen und eine Antwort entwerfen, die Sie prüfen. Mate läuft in jedem Cloud-Tarif im Rahmen der gehosteten KI-Credits Ihres Tarifs und steht beim Self-Hosting nicht zur Verfügung. Mate legt an, ändert und sendet, sobald Sie darum bitten; nur Löschungen, Importe, Änderungen an Zugriffsrechten und destruktive Änderungen am Datenmodell warten auf Ihre Freigabe. Bitten Sie um einen Entwurf, bleibt er im Gespräch, bis Sie ihn bearbeiten oder senden. Mit einer [Routine](/docs/app-routines) führt Mate eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus, etwa eine Liste aller Auftragschancen, deren Datum für die nächste Aktion verstrichen ist, jeden Montag. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate, der Assistent in Customermates Cloud, kann einen Kunden und das verknüpfte Gespräch lesen und eine Antwort entwerfen, die Sie prüfen. Mate läuft in jedem bezahlten Cloud-Tarif im Rahmen der gehosteten KI-Credits Ihres Tarifs und steht beim Self-Hosting nicht zur Verfügung. Mate legt an, ändert und sendet, sobald Sie darum bitten; nur Löschungen, Importe, Änderungen an Zugriffsrechten und destruktive Änderungen am Datenmodell warten auf Ihre Freigabe. Bitten Sie um einen Entwurf, bleibt er im Gespräch, bis Sie ihn bearbeiten oder senden. Mit einer [Routine](/docs/app-routines) führt Mate eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus, etwa eine Liste aller Auftragschancen, deren Datum für die nächste Aktion verstrichen ist, jeden Montag. Starter enthält [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Lieber mit dem eigenen KI-Client? Verbinden Sie Claude, ChatGPT oder einen anderen Client über [MCP](/docs/mcp). Das funktioniert in jedem Tarif und auch beim Self-Hosting, die Modellnutzung rechnet Ihr KI-Anbieter ab.
 
@@ -148,7 +268,7 @@ Wenn Sie bisher mit einer Tabelle arbeiten, zeigt unser [Leitfaden zur Excel-CRM
 
 ## Preise und Datenhoheit
 
-Die Preise gelten pro Nutzer und Monat bei monatlicher Abrechnung. In Customermates Cloud testen Sie [[commercial.trial.days]] Tage ohne Kreditkarte; einen kostenlosen gehosteten Tarif gibt es nicht.
+Die Preise gelten pro Nutzer und Monat bei monatlicher Abrechnung. In Customermates Cloud testen Sie [[commercial.trial.days]] Tage ohne Kreditkarte, und es gibt einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen.
 
 | Einsatz | Tarif | Pro Monat |
 |---|---|---|
@@ -156,7 +276,7 @@ Die Preise gelten pro Nutzer und Monat bei monatlicher Abrechnung. In Customerma
 | Eigenes Postfach oder ein Chatkonto im Posteingang | Pro | [[commercial.price.pro.monthly]] |
 | Mehr verbundene Konten und mehr Mate-Nutzung | Business | [[commercial.price.business.monthly]] |
 
-REST-API, Webhooks und MCP sind in jedem Tarif enthalten. Die gehostete KI-Nutzung für Mate wächst mit dem Tarif; Details stehen auf der [Preisseite](/pricing). Den Open-Source-Kern betreiben Sie ohne Lizenzgebühr auf Ihrem eigenen Server, eine [selbst gehostete Installation](/features/self-hosted) hat aber den Funktionsumfang von Starter: keinen Posteingang, kein Mate und keine KI-Einrichtung.
+REST-API, Webhooks und MCP sind in jedem bezahlten Tarif enthalten. Die gehostete KI-Nutzung für Mate wächst mit dem Tarif; Details stehen auf der [Preisseite](/pricing). Den Open-Source-Kern betreiben Sie ohne Lizenzgebühr auf Ihrem eigenen Server, eine [selbst gehostete Installation](/features/self-hosted) hat aber den Funktionsumfang von Starter: keinen Posteingang, kein Mate und keine KI-Einrichtung.
 
 In Customermates Cloud liegt die primäre Datenbank in der AWS-Region Frankfurt. Unterauftragsverarbeiter, darunter Anbieter aus den USA, stehen auf der [Seite zu Unterauftragsverarbeitern](/subprocessors), ein [Auftragsverarbeitungsvertrag](/dpa) ist verfügbar. Customermates hat keine Zertifizierung wie ISO 27001, und ob Ihre Nutzung der DSGVO entspricht, hängt davon ab, wie Sie die Daten Ihrer Kunden verarbeiten. Jede Liste lässt sich als Excel-Arbeitsmappe oder JSON exportieren; einen Gesamtexport des Kontos gibt es nicht.
 
@@ -184,7 +304,7 @@ Nein. Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die K
 </FaqItem>
 
 <FaqItem question="Gibt es ein kostenloses CRM für Freelancer?">
-Das kostenlose CRM von HubSpot deckt bis zu zwei Nutzer und 1.000 Kontakte ab, CentralStationCRM hat einen kostenlosen Tarif für 3 Nutzer und 200 Kontakte (Stand 8. Oktober 2026). Customermates hat keinen kostenlosen gehosteten Tarif, sondern eine Testphase von [[commercial.trial.days]] Tagen, Starter für [[commercial.price.starter.monthly]] im Monat und einen Open-Source-Kern zum Selbstbetrieb. Unser [Ratgeber zu kostenlosen CRMs](/blog/free-crm) vergleicht die Möglichkeiten.
+Das kostenlose CRM von HubSpot deckt bis zu zwei Nutzer und 1.000 Kontakte ab, CentralStationCRM hat einen kostenlosen Tarif für 3 Nutzer und 200 Kontakte (Stand 8. Oktober 2026). Customermates hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen, eine Testphase von [[commercial.trial.days]] Tagen, Starter für [[commercial.price.starter.monthly]] im Monat und einen Open-Source-Kern zum Selbstbetrieb. Unser [Ratgeber zu kostenlosen CRMs](/blog/free-crm) vergleicht die Möglichkeiten.
 </FaqItem>
 </Faq>
 

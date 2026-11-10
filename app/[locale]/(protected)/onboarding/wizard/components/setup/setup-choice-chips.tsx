@@ -13,11 +13,11 @@ import { toggleVariants } from "@/components/ui/toggle";
 import { cn } from "@/core/utils/cn";
 
 export const SETUP_CHIP_CLASS =
-  "px-3 data-[state=on]:border-primary/40 data-[state=on]:bg-primary/20 data-[state=on]:text-primary-soft-foreground data-[state=on]:hover:bg-primary/25 data-[state=on]:hover:text-primary-soft-foreground";
+  "px-3 data-[state=on]:border-primary/25 data-[state=on]:bg-primary/10 data-[state=on]:text-primary-soft-foreground data-[state=on]:hover:bg-primary/15 data-[state=on]:hover:text-primary-soft-foreground";
 
 const SETUP_CHOICE_CLASS = cn(
   toggleVariants({ variant: "outline", size: "sm" }),
-  "px-3 aria-checked:border-primary/40 aria-checked:bg-primary/20 aria-checked:text-primary-soft-foreground aria-checked:hover:bg-primary/25 aria-checked:hover:text-primary-soft-foreground",
+  "px-3 aria-checked:border-primary/25 aria-checked:bg-primary/10 aria-checked:text-primary-soft-foreground aria-checked:hover:bg-primary/15 aria-checked:hover:text-primary-soft-foreground",
 );
 
 type ChoiceGroupProps = {

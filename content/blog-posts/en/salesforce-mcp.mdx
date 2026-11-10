@@ -4,7 +4,7 @@ description: "Salesforce MCP explained: which server does what, how admins turn 
 
 hero:
   title: "Salesforce MCP Explained: Which Server Does What and What It Costs"
-  description: "Salesforce runs several MCP servers for different jobs. This guide covers the hosted servers for CRM data, the DX server for developers, MuleSoft and Heroku, the setup steps, the new billing model, and when a CRM with a built-in MCP server is the simpler choice."
+  description: "Salesforce runs several MCP servers: hosted CRM-data servers, the DX server for developers, MuleSoft and Heroku. Setup steps, the new billing model, and when a built-in MCP server is simpler."
 
 blogPost:
   author: Benjamin Wagner
@@ -166,6 +166,8 @@ Connection works two ways, as the [MCP documentation](/docs/mcp) describes. Clau
 The cost arithmetic is plain. A five-person team on Starter pays [[commercial.price.starter.monthly.seats.5]] per month and gets the full CRM tool set over MCP. The inbox tools need Pro, [[commercial.price.pro.monthly.seats.5]] per month for the same team. The AI client's own subscription comes on top, from Anthropic, OpenAI or whichever provider you use. Current prices are on the [pricing page](/pricing).
 
 One control difference matters. The Customermates MCP server tells clients to get the user's confirmation before deleting or sending, but that confirmation happens in the client. Once an authorized client calls a tool, the server executes it. Check how your client handles approvals, and start with reads and drafts.
+
+For a client-facing team, the point of MCP is follow-up: with LinkedIn and email connected on Customermates Cloud from Pro, your own Claude or ChatGPT reads the conversation on the client record and drafts the reply and the next step for you to review and send. To try it, [start your trial](/auth/signup?job=followup): [[commercial.trial.days]] days of Pro with no credit card.
 
 **Where Customermates is the wrong choice.** If you already run Salesforce with custom objects, Apex logic, territory or sharing models and field-level security, stay on Salesforce and use the hosted servers: moving loses more than it gains. Customermates also has no custom tool definitions and no field-level permissions. It fits a consultancy, agency or founder-led team choosing its first real CRM, or leaving a large one. The [Salesforce alternative comparison](/compare/salesforce-alternative) covers that decision, and the [HubSpot MCP guide](/blog/hubspot-mcp) covers HubSpot's remote server.
 

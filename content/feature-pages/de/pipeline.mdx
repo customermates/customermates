@@ -9,20 +9,49 @@ relatedHrefs:
   - /features/workflow-automation
   - /blog/sales-pipeline
 
+sections:
+  visual:
+    kind: stage
+    solution: agencies
+    prompt: "Wir sind eine Designagentur. Verwalte Pitches, Retainer und Projekte und übergib jeden neuen Kunden vom Vertrieb an die Umsetzung."
+  steps:
+    title: "Vom Board zum nächsten Schritt"
+    items:
+      - title: "Chancen nach Phase sehen"
+        description: "Öffnen Sie das Board Ihrer Verkaufschancen und lesen Sie die Summen der Spalten."
+      - title: "Einen Deal prüfen"
+        description: "Ein Klick auf die Karte zeigt Account, Ansprechpartner, Aufgaben und Notizen."
+      - title: "Nächsten Schritt festhalten"
+        description: "Tragen Sie ein Datum in ein Feld wie Nächster Schritt ein und legen Sie eine Aufgabe an. Eingebaute Erinnerungen gibt es nicht, eine gespeicherte Ansicht mit verstrichenen Daten übernimmt diese Rolle."
+      - title: "Felder und Phasen anpassen"
+        description: "Ergänzen Sie Felder wie Erwarteter Abschluss (Datum) oder Verlustgrund (Einzelauswahl) und passen Sie Wahrscheinlichkeiten an, wenn Ihre Erfahrung sich ändert."
+      - title: "KI im erlaubten Rahmen nutzen"
+        description: "Bitten Sie Mate in der Cloud oder Ihren eigenen KI-Client über MCP, eine Phase zu ändern oder Deals ohne nächsten Schritt aufzulisten."
+  highlights:
+    title: "Auf einen Blick"
+    capture: homepage-pipeline-board
+    items:
+      - title: "In jedem Plan"
+        description: "Board nach Phasen, Abschlusswahrscheinlichkeit je Phase, Wert und gewichteter Wert pro Spalte, teilbare Ansichten, Dashboard-Widgets, Excel-Import und -Export, REST und MCP, dazu Webhooks in bezahlten Tarifen. Auch selbst gehostet."
+      - title: "Nur in der Cloud"
+        description: "Mate, der gehostete Assistent, und Routinen im Rahmen der KI-Credits Ihres Plans. Der einheitliche Posteingang ab Pro."
+      - title: "Nicht enthalten"
+        description: "Keine Umsatzprognose, keine Auswertung von Pipeline-Geschwindigkeit oder Konversion je Phase, keine Markierung liegengebliebener Deals, keine Rechte auf Feldebene."
+
 hero:
-  title: "Vertriebspipeline: Chancen und nächste Schritte im Blick"
-  description: Sehen Sie jede Verkaufschance nach Phase, mit Abschlusswahrscheinlichkeit, Wert und gewichtetem Wert, und öffnen Sie mit einem Klick den Kunden dahinter. Die Phasen legen Sie selbst fest. Der gewichtete Wert ist Ihr Wert mal Ihre Wahrscheinlichkeit, keine Prognose, und eine gespeicherte Ansicht lässt sich mit dem Team teilen.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  title: "Vertriebspipeline, in der jede offene Chance einen nächsten Schritt hat"
+  description: "Sehen Sie jede Chance nach Phase mit Wert und gewichtetem Wert, öffnen Sie das Kundengespräch dahinter und halten Sie einen datierten nächsten Schritt fest. Phasen legen Sie selbst fest. Gewichtet heißt Wert mal Wahrscheinlichkeit, keine Prognose."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/vertriebspipeline/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Bringen Sie Ihre offenen Verkaufschancen aufs Board
-  description: Legen Sie Phasen und Wahrscheinlichkeiten fest, importieren Sie Ihre Verkaufschancen aus einer Excel-Arbeitsmappe und prüfen Sie in [[commercial.trial.days]] Tagen, ob Ihr Team das Board aktuell hält. Pläne ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet.
-  buttonLeftText: Kostenlos starten
-  buttonLeftHref: /auth/signup
+  action: "Bringen Sie Ihre offenen Verkaufschancen aufs Board, jede mit nächstem Schritt"
+  description: "Legen Sie Phasen fest, importieren Sie Ihre Verkaufschancen aus einer Excel-Arbeitsmappe und ergänzen Sie ein Datumsfeld „Nächster Schritt“. Prüfen Sie in [[commercial.trial.days]] Tagen, ob weniger Chancen einschlafen. Pläne ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet."
+  buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
+  buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Workspace ansehen
   buttonRightHref: https://demo.customermates.com/de/w/vertriebspipeline/dashboard
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
@@ -67,16 +96,6 @@ Diese Summe gewichtet Ihre eigenen Zahlen. Umsätze oder Abschlusstermine sagt s
 
 **Die Tabelle.** Wechseln Sie zu **Tabelle** und behalten Sie die Gruppierung bei: Die Phasen werden zu Zeilengruppen mit eigener Anzahl und Summe, und Sie sortieren nach Wert oder gewichtetem Wert.
 
-## Vom Board zum nächsten Schritt
-
-<Steps>
-  <Step title="Chancen nach Phase sehen">Öffnen Sie das Board Ihrer Verkaufschancen und lesen Sie die Summen der Spalten.</Step>
-  <Step title="Einen Deal prüfen">Ein Klick auf die Karte zeigt Account, Ansprechpartner, Aufgaben und Notizen.</Step>
-  <Step title="Nächsten Schritt festhalten">Tragen Sie ein Datum in ein Feld wie **Nächster Schritt** ein und legen Sie eine Aufgabe an. Eingebaute Erinnerungen gibt es nicht, eine gespeicherte Ansicht mit verstrichenen Daten übernimmt diese Rolle.</Step>
-  <Step title="Felder und Phasen anpassen">Ergänzen Sie Felder wie **Erwarteter Abschluss** (Datum) oder **Verlustgrund** (Einzelauswahl) und passen Sie Wahrscheinlichkeiten an, wenn Ihre Erfahrung sich ändert.</Step>
-  <Step title="KI im erlaubten Rahmen nutzen">Bitten Sie Mate in der Cloud oder Ihren eigenen KI-Client über MCP, eine Phase zu ändern oder Deals ohne nächsten Schritt aufzulisten.</Step>
-</Steps>
-
 ## Der Kundenkontext neben dem Deal
 
 Eine Verkaufschance ist mit ihrem Account und ihren Ansprechpartnern verknüpft, Personen und Verlauf sind also einen Klick entfernt. In Customermates Cloud kommt ab Pro der [einheitliche Posteingang](/features/unified-inbox) für Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram und Telegram hinzu. Eine beteiligte Person wird über die Adresse im Feld Kontaktdaten einem Ansprechpartner zugeordnet. Mit einer Verkaufschance oder einem Account wird ein Gespräch nur verknüpft, wenn Sie oder ein Agent das ausdrücklich tun. Automatisch landet nichts bei einem Deal.
@@ -101,6 +120,7 @@ Datensätze anlegen, ändern und Nachrichten senden erledigt Mate direkt, schrei
 
 Wer alle Verkaufschancen lesen darf, sieht dieselben Deals; mit Leserecht **Zugewiesen** sieht jemand nur die eigenen. Eine Board-Ansicht, die Sie speichern, bleibt privat, bis Sie sie mit dem Workspace oder ausgewählten Rollen teilen; Teammitglieder sehen sie nur lesend. Für Teams zählen zwei Grenzen:
 
+- Eine geteilte Ansicht ist für Kolleginnen und Kollegen nur lesbar. Teilen Sie ein Board mit dem ganzen Team oder mit ausgewählten Rollen, und alle arbeiten mit demselben Board; ändern können es nur Sie, und jede Person sieht nur die Datensätze, die ihre Rolle erlaubt.
 - Rechte gelten für ganze Listen. Rechte auf Feldebene gibt es nicht: Wer Verkaufschancen lesen darf, sieht alle ihre Felder.
 - Ganze Konten im Posteingang teilen Sie ab Business. In Pro teilen Kolleginnen und Kollegen einzelne Gespräche.
 
@@ -140,7 +160,7 @@ Nein. Der gewichtete Wert multipliziert den Wert jeder Verkaufschance mit der Wa
 </FaqItem>
 
 <FaqItem question="Kann mein Team mit demselben Board arbeiten?">
-Wer alle Verkaufschancen lesen darf, sieht dieselben Deals. Eine gespeicherte Board-Ansicht bleibt privat, bis Sie sie mit dem Team teilen. Rechte auf Feldebene gibt es nicht.
+Wer alle Verkaufschancen lesen darf, sieht dieselben Deals. Teilen Sie eine gespeicherte Board-Ansicht mit dem ganzen Team oder mit ausgewählten Rollen, und alle arbeiten mit demselben Board; jede Person sieht trotzdem nur die Datensätze, die ihre Rolle erlaubt. Rechte auf Feldebene gibt es nicht.
 </FaqItem>
 
 <FaqItem question="Kann ich mehrere Pipelines führen?">

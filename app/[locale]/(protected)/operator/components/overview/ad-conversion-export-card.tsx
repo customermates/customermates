@@ -117,7 +117,7 @@ export function AdConversionExportCard() {
               </span>
 
               {exported.withoutColumnCount > 0 ? (
-                <span className="text-xs text-warning">
+                <span className="text-xs text-warning-soft-foreground">
                   {t("OperatorOverview.adConversions.withoutColumnCount", { count: exported.withoutColumnCount })}
                 </span>
               ) : null}
@@ -134,7 +134,7 @@ export function AdConversionExportCard() {
             ? uploadMessages(upload).map((message) => (
                 <span
                   key={message.text}
-                  className={message.warning ? "text-xs text-warning" : "text-xs text-muted-foreground"}
+                  className={message.warning ? "text-xs text-warning-soft-foreground" : "text-xs text-muted-foreground"}
                 >
                   {message.text}
                 </span>
