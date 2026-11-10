@@ -1,5 +1,6 @@
 "use client";
 
+import { ConnectChannelButton } from "@/components/channels/connect-channel-menu";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewRequestState } from "@/core/base/base-data-view.store";
@@ -14,7 +15,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { ForbiddenError } from "@/core/errors/app-errors";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
-import { IntlLink as Link, useRouter, usePathname } from "@/i18n/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/core/utils/cn";
@@ -214,13 +215,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
             <AgentStarterActions
               fallback={
                 canConnect ? (
-                  <Button asChild size="sm" variant="secondary">
-                    <Link href={settingsHref("channels")}>
-                      <Cable className="size-3.5" />
-
-                      {t("ConnectedAccountsCard.title")}
-                    </Link>
-                  </Button>
+                  <ConnectChannelButton id="inbox-connect-channel" label={t("ConnectedAccountsCard.connectAccount")} />
                 ) : undefined
               }
               pageId="inbox"

@@ -16,7 +16,7 @@ sections:
     - title: "Antworten entworfen, Sie prüfen und senden"
       description: "In Customermates Cloud entwirft Mate Antworten, fasst Verläufe zusammen und aktualisiert Datensätze. Oder verbinden Sie Claude, ChatGPT oder einen anderen Client über MCP und nutzen das Abo, das Sie schon haben."
     - title: "Ein konfigurierbares Modell, selbst hostbar"
-      description: "Ein neuer Workspace startet ohne Listen: Sie legen die benötigten in Konfigurieren an oder lassen die KI-Einrichtung sie in der Cloud aufbauen. Der AGPL-3.0-Kern läuft auf Ihrem eigenen Server."
+      description: "Ein neuer Workspace startet ohne Listen: Sie legen die benötigten im Datenmodell an oder lassen die KI-Einrichtung sie in der Cloud aufbauen. Der AGPL-3.0-Kern läuft auf Ihrem eigenen Server."
   switchSteps: true
 
 hero:
@@ -172,7 +172,7 @@ cobra CRM deckt Newsletter, Veranstaltungen und Serienbriefe ab. Customermates d
 
 **KI-Unterstützung bei der CRM-Pflege, in der Customermates Cloud.** In der Customermates Cloud fasst Mate Unterhaltungen zusammen, entwirft Antworten, aktualisiert Datensätze und baut Ansichten. Mate nutzt gehostete KI-Credits mit einem monatlichen Kontingent pro aktivem Nutzer, siehe [Preisseite](/pricing). Routinen führen eine gespeicherte Anweisung nach Zeitplan oder bei einer Datensatzänderung aus. Arbeiten Sie lieber mit Claude, ChatGPT oder einem anderen Client, verbinden Sie ihn mit dem [MCP-Server](/docs/mcp): [[derived.mcp.tools.total]] Tools in jedem Tarif und auf selbst gehosteten Installationen.
 
-**Ein konfigurierbares Datenmodell.** Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) unter Konfigurieren an, oder die KI-Einrichtung baut sie in der Cloud. Listen haben Felder, Beziehungen und berechnete Felder, dazu Tabellen- und Board-Ansicht, Dashboards, Rollen und ein Audit-Log in jedem Tarif. Die Oberfläche gibt es auf Deutsch, Englisch, Französisch, Italienisch und Spanisch.
+**Ein konfigurierbares Datenmodell.** Ein neuer Workspace startet ohne Listen: Sie legen die benötigten Listen (Kontakte, Organisationen, Deals oder eigene) unter Datenmodell an, oder die KI-Einrichtung baut sie in der Cloud. Listen haben Felder, Beziehungen und berechnete Felder, dazu Tabellen- und Board-Ansicht, Dashboards, Rollen und ein Audit-Log in jedem Tarif. Die Oberfläche gibt es auf Deutsch, Englisch, Französisch, Italienisch und Spanisch.
 
 **Open Source mit freier Wahl beim Betrieb.** Der AGPL-3.0-Kern läuft mit Docker Compose und PostgreSQL auf Ihrem eigenen Server, inklusive REST, Webhooks und MCP. Eine [selbst gehostete Installation](/features/self-hosted) hat keinen Posteingang, kein Mate und keine gehosteten Credits. In der Customermates Cloud ist die primäre Datenbank in der AWS-Region Frankfurt konfiguriert (eine gewählte Einstellung, keine vertragliche Garantie), ein [Auftragsverarbeitungsvertrag (AVV)](/dpa) liegt vor, und die Unterauftragsverarbeiter, auch aus den USA, stehen in den Rechtstexten.
 
@@ -192,7 +192,7 @@ Ein Beispiel: eine Beratung mit fünf Personen auf cobra CRM Cloud Essential, di
 
 | In cobra | In Customermates |
 |---|---|
-| Firmenadressen | Organisationen, in Konfigurieren umbenannt in „Unternehmen“ |
+| Firmenadressen | Organisationen, im Datenmodell umbenannt in „Unternehmen“ |
 | Ansprechpartner | Kontakte, verknüpft mit ihrem Unternehmen |
 | Verkaufschancen | Deals, umbenannt in „Chancen“ |
 | Stichwörter und Verteiler | Ein Einzelauswahl-Feld je Stichwortgruppe, dazu eine gespeicherte Ansicht mit Filter |
@@ -203,10 +203,10 @@ Die Phasen der Verkaufschancen werden zu einem Phasenfeld mit Wahrscheinlichkeit
 
 <Steps>
   <Step title="Aus cobra exportieren">Laut Preisseite können Sie in allen Cloud-Tarifen beliebige Daten als Excel exportieren. Exportieren Sie Firmen, Ansprechpartner und Verkaufschancen als getrennte Arbeitsmappen und speichern Sie sie als .xlsx-Dateien. Bei cobra One fragen Sie Ihren cobra-Partner, welchen Export Ihre Version bietet.</Step>
-  <Step title="Workspace vorbereiten">Öffnen Sie in Konfigurieren jede Liste, die Sie umbenennen möchten, und ändern Sie Name und Pluralname unter Allgemein. Legen Sie je Stichwortgruppe ein Einzelauswahl-Feld an und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
+  <Step title="Workspace vorbereiten">Öffnen Sie im Datenmodell jede Liste, die Sie umbenennen möchten, und ändern Sie Name und Pluralname unter Allgemein. Legen Sie je Stichwortgruppe ein Einzelauswahl-Feld an und richten Sie das Phasenfeld mit seinen Wahrscheinlichkeiten ein.</Step>
   <Step title="Eine Liste nach der anderen importieren">Zuerst Organisationen, dann Kontakte, dann Deals. Eine Verknüpfungsspalte findet das zuvor importierte Unternehmen über den Namen. Eine Arbeitsmappe fasst derzeit bis zu 10.000 Zeilen, teilen Sie größere Adressbestände also auf. Neue Kontakte brauchen Vor- und Nachnamen, und eine Spalte „Notizen“ landet in den Notizen des Datensatzes. Details stehen in der [Dokumentation zu Datensätzen](/docs/app-records).</Step>
   <Step title="Listen als Ansichten anlegen">Machen Sie aus jeder cobra-Liste eine gespeicherte Ansicht mit Filter. Die Ansichten, die das ganze Team braucht, teilen Sie über das Menü **Teilen…** der Ansicht.</Step>
-  <Step title="Kanäle und KI verbinden">Ab Pro oder während der Testphase verbinden Sie unter Einstellungen › Kanäle ein Postfach, LinkedIn oder WhatsApp. Danach richten Sie eine Routine für Mate ein oder verbinden Ihren eigenen KI-Client über MCP.</Step>
+  <Step title="Kanäle und KI verbinden">Ab Pro oder während der Testphase verbinden Sie unter Einstellungen › Kanäle & Kalender ein Postfach, LinkedIn oder WhatsApp. Danach richten Sie eine Routine für Mate ein oder verbinden Ihren eigenen KI-Client über MCP.</Step>
 </Steps>
 
 Danach kann jede Person im Team eine eigene Routine für das wöchentliche Nachfassen anlegen. Eine Routine läuft im Namen der Person, der sie gehört, und mit deren Kanälen. Sie läuft in der Customermates Cloud und nutzt gehostete KI-Credits:

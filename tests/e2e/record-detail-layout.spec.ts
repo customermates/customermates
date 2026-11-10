@@ -284,7 +284,8 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]');
   await expect(editor).toContainText("Last name");
-  await editor.locator("input").first().fill("Pinned");
+  await expect(editor.locator("textarea")).toHaveCount(1);
+  await editor.locator("textarea").fill("Pinned");
   await page.keyboard.press("Escape");
   await expect(lastName.locator("[data-placeholder-chip]")).toHaveCount(0);
   await expect(lastName).toContainText("Pinned");

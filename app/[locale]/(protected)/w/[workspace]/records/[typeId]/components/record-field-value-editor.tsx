@@ -118,9 +118,19 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   const value = store.form.value;
   const inputId = useId();
   const flush = label === null && editsFlush(store.field);
+  const multilineText = store.field.valueType === "text";
   return (
     <AppForm store={store}>
-      <div className={cn(!flush && "space-y-3")}>
+      <div
+        className={cn(!flush && "space-y-3")}
+        role="presentation"
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+          if (!multilineText || !(event.target instanceof HTMLTextAreaElement)) return;
+          event.preventDefault();
+          runUserAction(() => store.apply(false));
+        }}
+      >
         {label === null && (
           <label className="sr-only" htmlFor={inputId}>
             {store.field.label}
@@ -135,6 +145,7 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
           inputId={inputId}
           label={label}
           members={members}
+          multilineText={multilineText}
           onDatePicked={saveOnDatePick && !flush ? () => runUserAction(() => store.apply(false)) : undefined}
         />
 

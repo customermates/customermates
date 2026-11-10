@@ -8,7 +8,7 @@ Löschen verschiebt ein Element in Customermates in den [Papierkorb](app:trash),
 ## Was landet im Papierkorb? [#what-goes-to-trash]
 
 - Datensätze aller Listen, zum Beispiel ein Kontakt oder ein Deal. Zeilen einer Unterliste und die Verknüpfungen des Datensatzes gehen mit ihm und kommen mit ihm zurück.
-- Listen, Felder, Beziehungen und Kontaktdaten-Felder, die in [Konfigurieren](app:configure) gelöscht werden.
+- Listen, Felder, Beziehungen und Kontaktdaten-Felder, die im [Datenmodell](app:configure) gelöscht werden.
 - Gespeicherte Ansichten, Dashboard-Ansichten und Dashboard-Widgets.
 - Routinen und Seiten der [Wissensdatenbank](app:wiki).
 
@@ -26,7 +26,7 @@ Alle finden **Papierkorb** in der Seitenleiste. Sie sehen die Elemente, die Sie 
 
 Wenn eine andere Änderung im Workspace die Schreibsperre hält, antwortet die Wiederherstellung nach etwa fünf Sekunden mit einem Auslastungshinweis und ändert den Papierkorb-Eintrag nicht. Versuchen Sie es erneut, sobald die andere Änderung abgeschlossen ist.
 
-Wenn Sie in [Konfigurieren](app:configure) ein Feld löschen, entfernt Customermates Filter, Spalten, Sortierung und Gruppierung gespeicherter Ansichten, die es verwenden. Vorschau und Ergebnis der Löschung nennen betroffene Ansichten und Widgets. Das Wiederherstellen des Felds bringt diese Einstellungen nicht zurück. Wenn Sie danach eine gespeicherte Ansicht wiederherstellen, nennt `droppedViewReferences` die entfernten Einstellungen; die Papierkorbmeldung zeigt ihre Anzahl. Legen Sie die Einstellungen nach dem Wiederherstellen des Felds erneut an.
+Wenn Sie im [Datenmodell](app:configure) ein Feld löschen, entfernt Customermates Filter, Spalten, Sortierung und Gruppierung gespeicherter Ansichten, die es verwenden. Vorschau und Ergebnis der Löschung nennen betroffene Ansichten und Widgets. Das Wiederherstellen des Felds bringt diese Einstellungen nicht zurück. Wenn Sie danach eine gespeicherte Ansicht wiederherstellen, nennt `droppedViewReferences` die entfernten Einstellungen; die Papierkorbmeldung zeigt ihre Anzahl. Legen Sie die Einstellungen nach dem Wiederherstellen des Felds erneut an.
 
 Ein wiederhergestelltes berechnetes Feld erhält seine Werte neu aus den aktuellen Werten und Verknüpfungen jedes Datensatzes, einschließlich der Änderungen, während es im Papierkorb lag; ein Feld, das seinen Wert zu einem Zeitpunkt speichert, etwa beim Anlegen des Datensatzes, behält die zuvor gespeicherten Werte. Ein berechnetes Feld bleibt im Papierkorb, solange ein Feld, eine Beziehung oder eine Liste, die es liest, noch dort liegt, ebenso ein Element, das nicht mehr zur aktuellen Einrichtung oder zu den Daten passt, etwa ein Pflichtfeld, das inzwischen angelegte Datensätze leer lassen. Wählen Sie ein berechnetes Feld zusammen mit dem aus, was es liest, und stellen Sie beides in einem Schritt wieder her, in beliebiger Reihenfolge. Muss die Wiederherstellung viele Datensätze neu berechnen, läuft sie im Hintergrund, und Datensätze, Ansichten oder andere mit ihr ausgewählte Elemente bleiben im Papierkorb, bis sie fertig ist; stellen Sie diese danach erneut wieder her.
 

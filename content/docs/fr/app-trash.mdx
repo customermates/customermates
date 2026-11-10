@@ -8,7 +8,7 @@ Supprimer dans Customermates place l’élément dans la [Corbeille](app:trash) 
 ## Qu’est-ce qui va dans la corbeille ? [#what-goes-to-trash]
 
 - Les enregistrements de toutes les listes, par exemple un contact ou une affaire. Les lignes d’une sous-liste et les liens de l’enregistrement partent avec lui et reviennent avec lui.
-- Les listes, champs, relations et champs Coordonnées supprimés dans [Configurer](app:configure).
+- Les listes, champs, relations et champs Coordonnées supprimés dans [Modèle de données](app:configure).
 - Les vues enregistrées, les vues du tableau de bord et les widgets du tableau de bord.
 - Les routines et les pages de la [Base de connaissances](app:wiki).
 
@@ -26,7 +26,7 @@ Ouvrez la [Corbeille](app:trash), survolez la ligne et cliquez sur **Restaurer**
 
 Si une autre modification de l’espace de travail détient le verrou d’écriture, la restauration renvoie une réponse « occupé » après environ cinq secondes, sans modifier l’élément de la corbeille. Réessayez une fois cette modification terminée.
 
-Supprimer un champ dans [Configurer](app:configure) retire les filtres, colonnes, tris et regroupements des vues enregistrées qui l’utilisent. L’aperçu de la suppression et son résultat nomment les vues et les widgets concernés. Restaurer le champ ne recrée pas ces réglages. Si vous restaurez une vue enregistrée après la suppression de son champ, `droppedViewReferences` indique ce qui a été retiré ; le message de la corbeille affiche les nombres. Recréez les réglages après avoir restauré le champ.
+Supprimer un champ dans [Modèle de données](app:configure) retire les filtres, colonnes, tris et regroupements des vues enregistrées qui l’utilisent. L’aperçu de la suppression et son résultat nomment les vues et les widgets concernés. Restaurer le champ ne recrée pas ces réglages. Si vous restaurez une vue enregistrée après la suppression de son champ, `droppedViewReferences` indique ce qui a été retiré ; le message de la corbeille affiche les nombres. Recréez les réglages après avoir restauré le champ.
 
 Un champ calculé restauré retrouve ses valeurs à partir des valeurs et des liens actuels de chaque enregistrement, y compris les changements faits pendant son séjour dans la corbeille ; un champ qui enregistre sa valeur à un moment donné, comme à la création de l’enregistrement, conserve les valeurs qu’il avait enregistrées auparavant. Un champ calculé reste dans la corbeille tant qu’un champ, une relation ou une liste qu’il lit s’y trouve encore, tout comme un élément qui ne correspond plus à la configuration ou aux données actuelles, par exemple un champ obligatoire que les enregistrements créés entre-temps laissent vide. Sélectionnez un champ calculé avec ce qu’il lit et restaurez-les en une seule étape, dans n’importe quel ordre. Quand la restauration recalcule de nombreux enregistrements, elle s’exécute en arrière-plan, et les enregistrements, vues ou autres éléments sélectionnés avec elle restent dans la corbeille jusqu’à la fin ; restaurez-les à nouveau ensuite.
 

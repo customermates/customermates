@@ -20,11 +20,11 @@ sections:
       - title: "Workspace anlegen"
         description: "Registrieren Sie sich und füllen Sie den Profilschritt aus. In Customermates Cloud beschreiben Sie anschließend Ihr Unternehmen für die KI-Einrichtung oder wählen Mit einem leeren Workspace starten."
       - title: "Listen an Ihr Geschäft anpassen"
-        description: "Legen Sie unter Konfigurieren Listen an oder benennen Sie sie unter Allgemein mit den Begriffen Ihres Teams um, und passen Sie in Ihrer Deal-Liste die Phasen und Wahrscheinlichkeiten an Ihren Vertriebsablauf an. Eine Unternehmensberatung arbeitet zum Beispiel mit Projekten und den Phasen Anfrage, Abstimmung, Angebot verschickt, Gewonnen und Verloren."
+        description: "Legen Sie unter Datenmodell Listen an oder benennen Sie sie unter Allgemein mit den Begriffen Ihres Teams um, und passen Sie in Ihrer Deal-Liste die Phasen und Wahrscheinlichkeiten an Ihren Vertriebsablauf an. Eine Unternehmensberatung arbeitet zum Beispiel mit Projekten und den Phasen Anfrage, Abstimmung, Angebot verschickt, Gewonnen und Verloren."
       - title: "Einen Datensatztyp importieren"
         description: "Öffnen Sie in der Kontaktliste Weitere Aktionen › Aus Datei hinzufügen und ordnen Sie die Spalten Ihrer Tabelle den Feldern zu. Der Assistent liest .xlsx-, .xls- und .csv-Dateien; andere Tabellenformate speichern Sie vorher in einem davon. Importieren Sie Organisationen vor Kontakten und Deals, damit Verknüpfungen über den Namen zugeordnet werden. Unsere Excel-Vorlage für ein CRM zeigt einen Tabellenaufbau, der sich sauber zuordnen lässt."
       - title: "Das eine Feld ergänzen, das Sie vermissen werden"
-        description: "Aufgaben haben kein eingebautes Fälligkeitsdatum. Wenn Sie mit Folgeterminen arbeiten, legen Sie unter Konfigurieren über Hinzufügen › Feld ein Datumsfeld wie „Nächster Schritt“ an Deals oder Aufgaben an und speichern Sie eine danach sortierte Ansicht."
+        description: "Aufgaben haben kein eingebautes Fälligkeitsdatum. Wenn Sie mit Folgeterminen arbeiten, legen Sie unter Datenmodell über Hinzufügen › Feld ein Datumsfeld wie „Nächster Schritt“ an Deals oder Aufgaben an und speichern Sie eine danach sortierte Ansicht."
       - title: "Das Team einladen"
         description: "Einladungen verschicken Sie unter Einstellungen › Mitglieder. Neue Mitglieder warten auf Freigabe, bis ein Admin oder ein Mitglied mit Rechten zur Benutzerverwaltung ihnen eine Rolle zuweist und sie aktiv setzt."
 
@@ -55,13 +55,13 @@ Einfach heißt auch: Manches fehlt bewusst. Die Grenzen stehen weiter unten, dam
 
 ## Was ein neuer Workspace enthält
 
-Viele Seiten zum Thema „einfaches CRM“ versprechen eine schnelle Einrichtung. Hier steht, was nach der Registrierung tatsächlich passiert. Ein neuer Workspace startet ohne Listen. In Customermates Cloud fragt die KI-Einrichtung nach Ihrem Unternehmen und baut aus Ihren Antworten Listen, Felder, Deal-Phasen, ein Dashboard und Seiten der Wissensdatenbank. Sie läuft einmal beim Onboarding, im Rahmen eines Credit-Limits. Mit **Mit einem leeren Workspace starten** überspringen Sie sie und legen alles selbst an. Selbst gehostete Installationen haben keine KI-Einrichtung; dort legen Sie die Listen unter **Konfigurieren** an. Dafür brauchen Sie die Admin-Rolle oder **Bearbeiten** in der Zeile **Datenmodell**.
+Viele Seiten zum Thema „einfaches CRM“ versprechen eine schnelle Einrichtung. Hier steht, was nach der Registrierung tatsächlich passiert. Ein neuer Workspace startet ohne Listen. In Customermates Cloud fragt die KI-Einrichtung nach Ihrem Unternehmen und baut aus Ihren Antworten Listen, Felder, Deal-Phasen, ein Dashboard und Seiten der Wissensdatenbank. Sie läuft einmal beim Onboarding, im Rahmen eines Credit-Limits. Mit **Mit einem leeren Workspace starten** überspringen Sie sie und legen alles selbst an. Selbst gehostete Installationen haben keine KI-Einrichtung; dort legen Sie die Listen unter **Datenmodell** an. Dafür brauchen Sie die Admin-Rolle oder **Bearbeiten** in der Zeile **Datenmodell**.
 
-Was dabei entsteht, ist ein Ausgangspunkt und keine feste Vorlage. Phasen sind Optionen eines Felds vom Typ Einzelauswahl: Sie können sie umbenennen, ergänzen oder löschen. Jede Phase kann eine Abschlusswahrscheinlichkeit tragen, die Sie unter **Konfigurieren** als **Wahrscheinlichkeit %** am Feld setzen. Daraus berechnet Customermates einen gewichteten Wert je Deal und die gewichtete Pipeline. Das sind feste Gewichte, die Sie selbst setzen, keine Vorhersage.
+Was dabei entsteht, ist ein Ausgangspunkt und keine feste Vorlage. Phasen sind Optionen eines Felds vom Typ Einzelauswahl: Sie können sie umbenennen, ergänzen oder löschen. Jede Phase kann eine Abschlusswahrscheinlichkeit tragen, die Sie unter **Datenmodell** als **Wahrscheinlichkeit %** am Feld setzen. Daraus berechnet Customermates einen gewichteten Wert je Deal und die gewichtete Pipeline. Das sind feste Gewichte, die Sie selbst setzen, keine Vorhersage.
 
 Was die Einrichtung außerdem kurz hält:
 
-- **Ihre eigenen Begriffe.** Unter **Konfigurieren** benennen Sie jede Liste frei um, zum Beispiel Kunden statt Kontakte, Projekte oder Aufträge statt Deals, Follow-ups statt Aufgaben, und Sie können eigene Listen anlegen. Datensätze und Beziehungen bleiben verbunden.
+- **Ihre eigenen Begriffe.** Unter **Datenmodell** benennen Sie jede Liste frei um, zum Beispiel Kunden statt Kontakte, Projekte oder Aufträge statt Deals, Follow-ups statt Aufgaben, und Sie können eigene Listen anlegen. Datensätze und Beziehungen bleiben verbunden.
 - **Eine Listenansicht für alles.** Jede Liste öffnet sich als Tabelle oder Board, mit Suche, Filtern, Gruppierung und Sortierung in derselben Werkzeugleiste. Mehr dazu unter [Datensätze in der App](/docs/app-records).
 - **Ansichten merken sich Ihre Einstellung.** Filter, Sortierung, Darstellung, Gruppierung und Spalten werden zusammen als benannte Ansicht gespeichert und erscheinen als Chip. Änderungen bleiben vorläufig, bis Sie sie in der Ansicht speichern. Eine Ansicht gehört Ihnen, bis Sie sie mit dem ganzen Team oder mit ausgewählten Rollen teilen.
 

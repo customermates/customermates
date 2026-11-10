@@ -59,7 +59,7 @@ test("edits General in place, guards unsaved edits and saves from the shared bot
   await expect(pane.getByRole("button", { name: "Reset", exact: true })).toHaveCount(0);
   await expect(pane.locator("[data-slot='form-footer-actions']")).toHaveCount(0);
 
-  const leaveDeals = () => configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
+  const leaveDeals = () => configureTopBar(page).getByRole("link", { name: "Data model", exact: true }).click();
   await leaveDeals();
   const guard = page.getByRole("alertdialog");
   await expect(guard).toBeVisible();

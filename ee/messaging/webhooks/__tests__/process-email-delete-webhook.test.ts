@@ -27,6 +27,8 @@ const account = {
   folders: [
     { id: "F_INBOX", name: "INBOX", role: "INBOX", totalCount: null, unreadCount: null },
     { id: "F_ARCHIVE", name: "Archive", role: "ARCHIVE", totalCount: null, unreadCount: null },
+    { id: "F_SENT", name: "Sent Mail", role: "SENT", totalCount: null, unreadCount: null },
+    { id: "F_REFERENZ", name: "Referenz", role: null, totalCount: null, unreadCount: null },
     { id: "F_TRASH", name: "Trash", role: "TRASH", totalCount: null, unreadCount: null },
   ],
 } as any;
@@ -130,7 +132,7 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     await interactor.invoke(envelope);
 
     const sweptFolders = messagingService.listFolderEmails.mock.calls.map(([input]) => input.folderId);
-    expect(sweptFolders).toEqual(["F_ARCHIVE"]);
+    expect(sweptFolders).toEqual(["F_INBOX", "F_ARCHIVE", "F_SENT", "F_REFERENZ"]);
     expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
       expect.objectContaining({ newUnipileMessageId: "NEW_ID_ARCHIVE", folderIds: ["F_ARCHIVE"] }),
     );
@@ -169,10 +171,11 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     });
     events.countRecentEmailDeletesUnscoped.mockResolvedValueOnce(50).mockResolvedValueOnce(1);
 
-    const run = interactor.invoke(envelope).catch((err: unknown) => err);
+    const run = interactor.invoke({ ...envelope, receivedAt: new Date() }).catch((err: unknown) => err);
     await vi.runAllTimersAsync();
     await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
 
+    expect(events.countRecentEmailDeletesUnscoped).toHaveBeenCalled();
     expect(messagingService.listEmails).not.toHaveBeenCalled();
     expect(messagingService.listFolderEmails).not.toHaveBeenCalled();
     expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
@@ -265,6 +268,136 @@ describe("ProcessEmailDeleteWebhookInteractor", () => {
     await interactor.invoke(envelope);
 
     expect(ingest.moveEmailMessageUnscoped).not.toHaveBeenCalled();
+    expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
+    expect(eventService.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps an email re-keyed under a new id in the origin folder (imap)", async () => {
+    const { interactor, ingest, eventService } = build({
+      listEmails: () => Promise.resolve({ data: [{ ...relocatedEmail, id: "NEW_ID_INBOX", folders: ["F_INBOX"] }] }),
+    });
+
+    await interactor.invoke(envelope);
+
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+  });
+
+  it("finds an email re-keyed in the origin folder in the per-folder sweep", async () => {
+    const { interactor, ingest, messagingService } = build({
+      listEmails: () => Promise.reject(new UnipileRequestError(501, "api/not_implemented", "")),
+      listFolderEmails: ({ folderId }) =>
+        Promise.resolve({
+          data: folderId === "F_INBOX" ? [{ ...relocatedEmail, id: "NEW_ID_INBOX", folders: undefined }] : [],
+        }),
+    });
+
+    await interactor.invoke(envelope);
+
+    expect(messagingService.listFolderEmails.mock.calls.map(([input]) => input.folderId)).toEqual([
+      "F_INBOX",
+      "F_ARCHIVE",
+      "F_SENT",
+      "F_REFERENZ",
+    ]);
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("keeps INBOX emails a re-ingest re-keyed in place, after the delete burst (forward email over imap)", async () => {
+    vi.useFakeTimers();
+    const inboxEmails = ["9f583266", "c87619bc", "040cddaa", "dc64489a"].map((key) => ({
+      envelope: { ...envelope, payload: { email: { id: `OLD_${key}` }, folder_id: "F_INBOX" } },
+      row: { ...existingRow, id: key, providerMessageId: `<${key}@example.com>` },
+      email: { ...relocatedEmail, id: `NEW_${key}`, message_id: `<${key}@example.com>`, folders: ["F_INBOX"] },
+    }));
+    const { interactor, ingest, eventService, events } = build({
+      listEmails: () => Promise.resolve({ data: inboxEmails.map(({ email }) => email) }),
+    });
+    events.countRecentEmailDeletesUnscoped.mockResolvedValue(50);
+    for (const { row } of inboxEmails)
+      ingest.findMessageByUnipileIdUnscoped.mockResolvedValueOnce(row).mockResolvedValueOnce(row);
+
+    for (const item of inboxEmails) {
+      const run = interactor.invoke(item.envelope).catch((err: unknown) => err);
+      await vi.runAllTimersAsync();
+      await expect(run).resolves.toBeInstanceOf(DeferredWebhookError);
+    }
+    vi.useRealTimers();
+
+    events.countRecentEmailDeletesUnscoped.mockResolvedValue(1);
+    for (const { row, envelope: retry } of inboxEmails) {
+      ingest.findMessageByUnipileIdUnscoped.mockResolvedValueOnce(row);
+      await interactor.invoke(retry);
+    }
+
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+    expect(eventService.publish).not.toHaveBeenCalled();
+    expect(
+      ingest.moveEmailMessageUnscoped.mock.calls.map(([args]) => [args.newUnipileMessageId, args.folderIds]),
+    ).toEqual(inboxEmails.map(({ email }) => [email.id, ["F_INBOX"]]));
+  });
+
+  it.each(["F_SENT", "F_REFERENZ", "F_ARCHIVE"])("keeps an email re-keyed in place in %s", async (folderId) => {
+    const { interactor, ingest } = build({
+      listEmails: () => Promise.resolve({ data: [{ ...relocatedEmail, id: `NEW_${folderId}`, folders: [folderId] }] }),
+    });
+
+    await interactor.invoke({ ...envelope, payload: { email: { id: `OLD_${folderId}` }, folder_id: folderId } });
+
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: `NEW_${folderId}`, folderIds: [folderId] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("relocates past a stale origin entry of the old id to its new id", async () => {
+    const { interactor, ingest } = build({
+      listEmails: () =>
+        Promise.resolve({
+          data: [
+            { ...relocatedEmail, id: "OLD_ID_INBOX", folders: ["F_INBOX"] },
+            { ...relocatedEmail, id: "NEW_ID_INBOX", folders: ["F_INBOX"] },
+          ],
+        }),
+    });
+
+    await interactor.invoke(envelope);
+
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("searches instead of deferring again when a deferred delete is retried during a continuing burst", async () => {
+    const { interactor, ingest, events } = build({
+      recentDeletes: 50,
+      listEmails: () => Promise.resolve({ data: [{ ...relocatedEmail, id: "NEW_ID_INBOX", folders: ["F_INBOX"] }] }),
+    });
+
+    await interactor.invoke({ ...envelope, receivedAt: new Date(Date.now() - 6 * 60_000) });
+
+    expect(events.countRecentEmailDeletesUnscoped).not.toHaveBeenCalled();
+    expect(ingest.moveEmailMessageUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ newUnipileMessageId: "NEW_ID_INBOX", folderIds: ["F_INBOX"] }),
+    );
+    expect(ingest.deleteMessageUnscoped).not.toHaveBeenCalled();
+  });
+
+  it("deletes a retried burst row without an rfc822 message id, like outside a burst", async () => {
+    const { interactor, ingest, eventService } = build({
+      existing: { ...existingRow, providerMessageId: null },
+      recentDeletes: 50,
+    });
+
+    await interactor.invoke({ ...envelope, receivedAt: new Date(Date.now() - 6 * 60_000) });
+
     expect(ingest.deleteMessageUnscoped).toHaveBeenCalled();
     expect(eventService.publish).toHaveBeenCalledTimes(1);
   });

@@ -95,7 +95,7 @@ Bei einer selbst gehosteten Installation ist `<ihre-customermates-adresse>` die 
 
 <Steps>
   <Step title="Workspace-URL kopieren">
-    Öffnen Sie in Customermates **Einstellungen › API-Schlüssel**, klicken Sie auf **Hinzufügen**, wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**. Der Dialog zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche. Für die Verbindung braucht Ihre Rolle **Lesen** **Alle** in der Zeile **API & Webhooks**, wie es die Seite [API-Schlüssel](/docs/api-keys) verlangt; die eingebaute Rolle Admin hat dieses Recht.
+    Öffnen Sie in Customermates **Einstellungen › API-Schlüssel & Konnektoren**, klicken Sie auf **Hinzufügen**, wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**. Der Dialog zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche. Für die Verbindung braucht Ihre Rolle **Lesen** **Alle** in der Zeile **API & Webhooks**, wie es die Seite [API-Schlüssel](/docs/api-keys) verlangt; die eingebaute Rolle Admin hat dieses Recht.
   </Step>
   <Step title="Connector in Claude hinzufügen">
     Öffnen Sie **Customize › Connectors**, klicken Sie auf **+**, wählen Sie **Add custom connector**, vergeben Sie einen Namen und fügen Sie die URL ein. Lassen Sie die Authentifizierung auf OAuth: Es gibt keinen Key zu kopieren. Die Schaltfläche **Zu Claude hinzufügen** im selben Dialog öffnet das Formular von Claude mit eingetragener URL (nur Claude im Web und Team).
@@ -112,7 +112,7 @@ Um Claude weniger Tools zu geben, hängen Sie `?toolsets=records,messaging` an d
 
 ### Claude Code: MCP-Server hinzufügen, auch Pipedrive
 
-Claude Code fügt Remote-MCP-Server im Terminal hinzu. Für Customermates legen Sie unter **Einstellungen › API-Schlüssel** einen Key an (**Hinzufügen**, dann **Standard-API-Key**; er wird nur einmal angezeigt) und führen aus:
+Claude Code fügt Remote-MCP-Server im Terminal hinzu. Für Customermates legen Sie unter **Einstellungen › API-Schlüssel & Konnektoren** einen Key an (**Hinzufügen**, dann **Standard-API-Key**; er wird nur einmal angezeigt) und führen aus:
 
 ```bash
 claude mcp add --transport http customermates https://<ihre-customermates-adresse>/api/v1/mcp \

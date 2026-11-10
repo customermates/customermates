@@ -115,7 +115,7 @@ An unattended run may create and update records, append notes, create tasks and 
 Customermates sends no reminder notifications and tasks have no due date, so here a reminder is a task that a routine creates from a date you keep yourself. The routine runs every morning, finds deals whose date has passed and puts one task per deal in the task list. This needs a **Date** field such as "Next contact" on Deals; the [follow-up guide](/features/follow-up) shows how to add it and how to save the matching views.
 
 <Steps>
-  <Step title="Add the date field">In **Configure**, add a field of type **Date** called "Next contact" to **Deals**, and set it on the deals you want to follow up.</Step>
+  <Step title="Add the date field">In **Data model**, add a field of type **Date** called "Next contact" to **Deals**, and set it on the deals you want to follow up.</Step>
   <Step title="Add the routine">Open **Routines**, click **Add** and name it "Follow-up reminders".</Step>
   <Step title="Set the trigger">Choose **On a schedule**, then **Repeats**: **Every day**, 08:00. For weekdays only, ask Mate to set a custom schedule.</Step>
   <Step title="Paste the instruction">Use the text below with your own stage names, and save.</Step>
@@ -135,7 +135,7 @@ Credit use: a daily schedule is 30 or 31 runs a month and each run stops at 10 c
 This needs the [unified inbox](/features/unified-inbox), which starts on Pro.
 
 <Steps>
-  <Step title="Connect a mailbox">Connect Gmail, Outlook or IMAP under **Settings › Channels**.</Step>
+  <Step title="Connect a mailbox">Connect Gmail, Outlook or IMAP under **Settings › Channels & calendars**.</Step>
   <Step title="Add the routine">Choose **When something changes** and the event **Email Received**. For WhatsApp or LinkedIn, pick **Message Received**.</Step>
   <Step title="Paste the instruction">Use the text below and save.</Step>
   <Step title="Review the drafts">In the inbox, set the **Draft** filter to **has some**. Edit a draft and click **Send draft**, or discard it.</Step>
@@ -155,7 +155,7 @@ Customermates sends a JSON POST for each of [[derived.webhooks.events.total]] ev
   <Step title="Add the trigger in n8n">Add a Webhook node and copy its URL. With the community node, version 2 or later, a Customermates Trigger node creates the subscription for you when the workflow is activated, and you can skip the next step.</Step>
   <Step title="Subscribe in Customermates">Under **Settings › Webhooks**, click **Add**, paste the URL, pick **Record created**, choose **Deals** under **Records from** and set a **Secret**.</Step>
   <Step title="Verify and deduplicate">Check the `X-Webhook-Signature` header, an HMAC-SHA256 of the raw body. Deliveries can arrive out of order or twice, so deduplicate on the event `id`.</Step>
-  <Step title="Read the deal">Create an API key under **Settings › API keys** and store it in n8n as a Header Auth credential named `x-api-key`. An HTTP Request node then calls `POST /api/v1/records/read` with the `typeId` and `recordId` from `data.record.ref`.</Step>
+  <Step title="Read the deal">Create an API key under **Settings › API keys & connectors** and store it in n8n as a Header Auth credential named `x-api-key`. An HTTP Request node then calls `POST /api/v1/records/read` with the `typeId` and `recordId` from `data.record.ref`.</Step>
   <Step title="Post to the channel">Use n8n's Slack node, or an HTTP Request node to the channel's incoming webhook URL, with the deal's name, value and owner. Customermates has no native Slack integration, so n8n is the route.</Step>
   <Step title="Activate the workflow">Waits, schedules, logs and execution limits belong to n8n. Customermates keeps the records and the delivery log.</Step>
 </Steps>
@@ -164,14 +164,14 @@ To create the first task as well, add an HTTP Request node that calls `POST /api
 
 If you only need the chat message, skip n8n: a webhook can post straight to a Slack or Discord incoming webhook URL with a body template such as `{ "text": "{{event}} for {{data.record.ref.recordId}}" }`. That sends the event name and record ID; composing a message from record values is easier in n8n.
 
-Deliveries are retried automatically on timeouts and server errors, up to 10 attempts in total, and logged under **Deliveries**, where a failed one can be resent. The [REST API](/features/api) under `/api/v1` covers every list you create, and `updateMany`, `deleteMany` and import take up to 100 records per request.
+Deliveries are retried automatically on timeouts and server errors, up to 10 attempts in total, and logged under **Webhook log**, where a failed one can be resent. The [REST API](/features/api) under `/api/v1` covers every list you create, and `updateMany`, `deleteMany` and import take up to 100 records per request.
 
 ## How can an AI client update CRM records over MCP?
 
 The MCP server gives AI clients such as Claude or ChatGPT [[derived.mcp.tools.total]] tools on the same data, on every plan and when self-hosting. Your own AI provider bills the model use. This is the route for updates you ask for in plain language, such as writing up a call.
 
 <Steps>
-  <Step title="Connect the client">Claude and ChatGPT connect through a custom connector with OAuth, so there is no key to manage. CLI and editor clients use an API key from **Settings › API keys**. Setup per client is in the [MCP reference](/docs/mcp).</Step>
+  <Step title="Connect the client">Claude and ChatGPT connect through a custom connector with OAuth, so there is no key to manage. CLI and editor clients use an API key from **Settings › API keys & connectors**. Setup per client is in the [MCP reference](/docs/mcp).</Step>
   <Step title="Narrow the tools">Optionally append `?toolsets=records` to the endpoint URL so the client sees only the record tools plus `search` and `fetch`.</Step>
   <Step title="Ask for the update">Tell the client what happened, for example the prompt below. It looks up the list and field IDs, finds the deal, reads its current version and writes the change with `mutate_crm_record`.</Step>
   <Step title="Check the result">Open the deal's activity history. Changes over MCP count like changes in the app: a subscribed webhook receives a `record.updated` event, and event routines can trigger on it.</Step>

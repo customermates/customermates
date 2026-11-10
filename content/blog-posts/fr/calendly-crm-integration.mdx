@@ -100,10 +100,10 @@ Elle fonctionne sur toutes les formules Customermates et sur une installation au
 
 <Steps>
 <Step title="Créer une clé API">
-Dans Customermates, ouvrez **Paramètres › Clés API**, cliquez sur **Ajouter** et choisissez **Clé API standard**. La clé agit avec vos droits. Dans n8n, enregistrez-la comme identifiant Header Auth avec le nom d’en-tête `x-api-key`. Voir [Clés API](/docs/api-keys).
+Dans Customermates, ouvrez **Paramètres › Clés API et connecteurs**, cliquez sur **Ajouter** et choisissez **Clé API standard**. La clé agit avec vos droits. Dans n8n, enregistrez-la comme identifiant Header Auth avec le nom d’en-tête `x-api-key`. Voir [Clés API](/docs/api-keys).
 </Step>
 <Step title="Préparer les champs de l’affaire">
-Ouvrez Affaires dans **Configurer** et ajoutez une option « Appel réservé » et une option « Annulée » au champ **Étape**, qui est un champ **Choix unique**. Ajoutez un champ **Date et heure** « Réunion », un champ **Choix unique** « Source du lead » avec une option par type d’évènement, et un champ **Texte** « Réservation Calendly ». `POST /api/v1/model/discover` retrouve les identifiants de type des Contacts et des Affaires, et `POST /api/v1/model/read` renvoie la révision du schéma ainsi que les identifiants de champs, d’options et de relations que l’API attend. Ces identifiants restent valables quand quelqu’un renomme une liste ou un champ.
+Ouvrez Affaires dans **Modèle de données** et ajoutez une option « Appel réservé » et une option « Annulée » au champ **Étape**, qui est un champ **Choix unique**. Ajoutez un champ **Date et heure** « Réunion », un champ **Choix unique** « Source du lead » avec une option par type d’évènement, et un champ **Texte** « Réservation Calendly ». `POST /api/v1/model/discover` retrouve les identifiants de type des Contacts et des Affaires, et `POST /api/v1/model/read` renvoie la révision du schéma ainsi que les identifiants de champs, d’options et de relations que l’API attend. Ces identifiants restent valables quand quelqu’un renomme une liste ou un champ.
 </Step>
 <Step title="Recevoir la réservation">
 Ajoutez le Calendly Trigger de n8n avec « Event created » et « Event canceled ». Vous pouvez aussi utiliser un nœud Webhook et abonner son URL par l’API de Calendly.
@@ -123,7 +123,7 @@ Customermates ne bloque pas un second contact avec la même adresse, car un mêm
 
 ### Voie 2 : le calendrier, à partir de Pro dans Customermates Cloud
 
-Si Calendly est réglé pour envoyer des **Calendar Invitations**, le calendrier Google ou Outlook de l’organisateur crée l’évènement et ajoute l’invité comme participant. Connectez ce même compte dans Customermates sous **Paramètres › Canaux** avec **Connecter un canal**, et le rendez-vous arrive sans aucun outil de workflow. Les évènements du calendrier apparaissent dans une [chronologie d’activité](/docs/app-dashboard), et sur la fiche d’un contact dont l’e-mail correspond à un participant. Customermates ne fait que lire le calendrier. Il ne réserve ni ne modifie jamais de rendez-vous.
+Si Calendly est réglé pour envoyer des **Calendar Invitations**, le calendrier Google ou Outlook de l’organisateur crée l’évènement et ajoute l’invité comme participant. Connectez ce même compte dans Customermates sous **Paramètres › Canaux et agendas** avec **Connecter un canal**, et le rendez-vous arrive sans aucun outil de workflow. Les évènements du calendrier apparaissent dans une [chronologie d’activité](/docs/app-dashboard), et sur la fiche d’un contact dont l’e-mail correspond à un participant. Customermates ne fait que lire le calendrier. Il ne réserve ni ne modifie jamais de rendez-vous.
 
 Pour transformer les réservations en enregistrements, une routine peut balayer le calendrier. Les routines ne s’exécutent que dans Customermates Cloud et utilisent les crédits IA hébergés du forfait mensuel de leur propriétaire. Choisissez **Selon un planning**, réglez **Répétition** sur **Toutes les heures**, et donnez-lui des instructions comme celles-ci :
 

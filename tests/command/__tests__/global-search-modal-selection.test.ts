@@ -32,6 +32,7 @@ vi.mock("@/app/[locale]/(protected)/w/[workspace]/records/[typeId]/components/us
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     appMode: "cloud",
+    connectedAccountsStore: { items: [], ensureLoaded: () => Promise.resolve() },
     globalSearchModalStore: harness.globalSearchModalStore,
     recordWorkspaceStore: { open: harness.openEntity, activeEditor: null, navigation: harness.navigation },
     addPickerStore: { openFrom: vi.fn() },

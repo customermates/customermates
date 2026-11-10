@@ -276,7 +276,7 @@ test("edits every field type inline in rows and on board cards, with validation,
     await row.hover();
     await row.getByRole("button", { name: `Edit ${label}`, exact: true }).click();
     await expect(inPlace).toBeVisible();
-    const input = inPlace.locator("input").first();
+    const input = inPlace.locator("input, textarea").first();
     await expect(input).toBeFocused();
     return input;
   };
@@ -305,6 +305,10 @@ test("edits every field type inline in rows and on board cards, with validation,
   expect(await textEdit.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(idleShadow);
   await expect(row.locator("[data-inline-edit]:not(:has([data-empty-target])) svg.lucide-pencil")).toHaveCount(0);
   await expect(row.locator("[data-read-only-field]")).toHaveCount(0);
+  await openInPlace("Text");
+  await expect(inPlace.locator("[data-inline-edit-hint]")).toHaveText("Enter saves · Shift+Enter adds a line");
+  await page.keyboard.press("Escape");
+  await expect(inPlace).toHaveCount(0);
   await enterValue("Text", "Inline text", "Inline text");
   await enterValue("Number", "12.5", "12.5");
   await enterValue("Money", "99.95", "€99.95");
@@ -352,6 +356,24 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(inPlace).toHaveCount(0);
   await expect(row).toContainText("Tabbed text");
   await expect(row).not.toContainText("Never saved");
+
+  const long = "A longer note that wraps across several lines while it is edited in the table cell";
+  const multiline = await openInPlace("Text");
+  expect(await multiline.evaluate((element) => element.tagName)).toBe("TEXTAREA");
+  await multiline.fill(long);
+  await expect
+    .poll(() => multiline.evaluate((element) => element.scrollHeight > element.clientHeight || element.clientHeight > 40))
+    .toBe(true);
+  await page.keyboard.press("Shift+Enter");
+  await page.keyboard.type("Second line");
+  await expect(inPlace).toBeVisible();
+  await expect(multiline).toHaveValue(`${long}\nSecond line`);
+  await page.keyboard.press("Enter");
+  await expect(inPlace).toHaveCount(0);
+  const multilineValue = row.locator("[data-multiline-value]");
+  await expect(multilineValue).toHaveText(`${long} …`);
+  await multilineValue.hover();
+  await expect(page.getByRole("tooltip")).toContainText("Second line");
 
   await row.getByRole("switch", { name: "Edit Done" }).click();
   await expect(row.getByRole("switch", { name: "Edit Done" })).toHaveAttribute("data-state", "checked");
@@ -488,8 +510,12 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Website", "Websites", "Contacts"]);
   await page.getByRole("menuitem", { name: "Text", exact: true }).click();
   await expect(editor).toContainText("Text");
-  await editor.locator("input").first().fill("Card text");
-  await editor.locator("input").first().press("Enter");
+  const cardText = editor.locator("textarea");
+  await cardText.fill("Card");
+  await cardText.press("Shift+Enter");
+  await expect(editor).toBeVisible();
+  await cardText.fill("Card text");
+  await cardText.press("Enter");
   await expect(editor).toHaveCount(0);
   await expect(chip("Text")).toHaveText("Card text");
   await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}\\?`));

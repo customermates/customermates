@@ -477,7 +477,7 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     key: "configure-records",
     route: "/configure",
     description:
-      "Sidebar link to Configure, where schema managers edit lists, fields, calculations, relationships and the map of lists",
+      "Sidebar link to Data model, where schema managers edit lists, fields, calculations, relationships and the map of lists",
     labelKeys: ["RecordModel.configure"],
   },
   {
@@ -519,15 +519,16 @@ export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
   profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
   workspaces:
     "Settings link to Workspaces, every workspace the person belongs to with role, status and plan, and Switch, Leave and Create workspace",
-  channels: "Settings link to Channels, the connected accounts for email, LinkedIn, WhatsApp, Instagram and Telegram",
-  "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
+  channels:
+    "Settings link to Channels & calendars, the connected accounts for email, calendars, LinkedIn, WhatsApp, Instagram and Telegram",
+  "api-keys": "Settings link to API keys & connectors for the REST API, MCP clients and AI connectors",
   general: "Settings link to General, the workspace name and Leave workspace",
   members: "Settings link to Members, the team members of the workspace and their roles",
   roles: "Settings link to Roles and their permissions",
   billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
-  activity: "Settings link to Activity, the audit log of changes in the workspace",
+  activity: "Settings link to Audit log, the log of changes in the workspace",
   webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
-  "webhook-deliveries": "Settings link to Deliveries, the sent webhook deliveries, directly below Webhooks",
+  "webhook-deliveries": "Settings link to Webhook log, the sent webhook deliveries, directly below Webhooks",
 };
 
 function settingsNavKeys(section: SettingsSection): string[] {

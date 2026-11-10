@@ -62,7 +62,7 @@ Ce n’est pas une machine de prospection sortante. Si votre équipe décroche d
 
 **Les affaires et leur valeur.** Une affaire est liée à des contacts, à des organisations, à des utilisateurs attribués, à des tâches et, par ses lignes, aux services que vous vendez. Sa valeur est calculée plutôt que saisie : la somme de ses lignes, chacune étant un service multiplié par sa quantité. Deux journées d’atelier à 1 500 plus dix heures de coaching à 150 donnent une valeur d’affaire de 4 500.
 
-**Des étapes avec des probabilités de gain.** L’étape est un champ à choix unique, généralement appelé Étape. Les étapes ne sont pas préconfigurées : vous ajoutez le champ à votre liste d’affaires dans Configurer (dans le cloud, la configuration IA peut le créer), par exemple avec Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 % et Perdue 0 %. Vous pouvez renommer, ajouter et réordonner les étapes, et définir les probabilités sous **Probabilité %** sur chaque option du champ Étape dans **Configurer**. La valeur pondérée de chaque affaire est sa valeur multipliée par la probabilité de son étape actuelle.
+**Des étapes avec des probabilités de gain.** L’étape est un champ à choix unique, généralement appelé Étape. Les étapes ne sont pas préconfigurées : vous ajoutez le champ à votre liste d’affaires dans Modèle de données (dans le cloud, la configuration IA peut le créer), par exemple avec Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 % et Perdue 0 %. Vous pouvez renommer, ajouter et réordonner les étapes, et définir les probabilités sous **Probabilité %** sur chaque option du champ Étape dans **Modèle de données**. La valeur pondérée de chaque affaire est sa valeur multipliée par la probabilité de son étape actuelle.
 
 **Le board.** Passez la liste des affaires en board, groupée par Étape, et faites glisser une carte pour déplacer une affaire. L’en-tête de chaque colonne affiche le nombre d’affaires et les sommes que vous choisissez pour le groupement, comme **Valeur** et **Valeur pondérée**. Groupez le même board par **Attribué à** et chaque personne obtient une colonne avec son propre décompte et ses propres totaux ; ce board est en lecture seule. La [page du pipeline](/features/pipeline) présente le board plus en détail.
 
@@ -88,13 +88,13 @@ La facturation est mensuelle. Chaque offre Cloud payante inclut des crédits d�
 ## Mettre en place un pipeline de vente dans Customermates
 
 <Steps>
-  <Step title="Ajuster les étapes">Dans **Configurer**, ouvrez Affaires et le champ **Étape**. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la **Probabilité %** de chaque option.</Step>
+  <Step title="Ajuster les étapes">Dans **Modèle de données**, ouvrez Affaires et le champ **Étape**. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la **Probabilité %** de chaque option.</Step>
   <Step title="Créer vos services">Ajoutez ce que vous vendez sous **Services**, chacun avec un prix : un contrat récurrent, une journée d’atelier, une licence. Les lignes des affaires, et donc leurs valeurs, sont construites à partir de ceux-ci.</Step>
   <Step title="Ajouter trois champs personnalisés aux affaires">Un champ Date « Clôture prévue », un Choix unique « Source du prospect » avec Recommandation, LinkedIn, Site web et Évènement, et un Choix unique « Motif de perte » avec Prix, Calendrier, A choisi un concurrent et Pas de décision.</Step>
   <Step title="Importer ce que vous avez déjà">Utilisez **Ajouter depuis un fichier** avec un classeur Excel ou un fichier CSV, un type d’enregistrement à la fois : d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de liens sont associées par le nom de l’enregistrement : une organisation doit donc exister avant qu’une affaire puisse la désigner.</Step>
   <Step title="Enregistrer deux vues">« Mes affaires ouvertes » : Attribué à est vous, Étape n’est pas Gagnée ni Perdue, trié par valeur, affiché en board. « À clôturer bientôt » : un filtre sur Clôture prévue, affiché en tableau.</Step>
   <Step title="Ajouter deux graphiques de tableau de bord">La somme de la Valeur pondérée groupée par Étape, et la somme de la Valeur groupée par Source du prospect avec un filtre sur Étape défini sur Gagnée.</Step>
-  <Step title="Connecter votre boîte de réception (Pro et supérieures)">Sous **Paramètres › Canaux**, connectez la boîte aux lettres ou le compte LinkedIn depuis lequel vous vendez.</Step>
+  <Step title="Connecter votre boîte de réception (Pro et supérieures)">Sous **Paramètres › Canaux et agendas**, connectez la boîte aux lettres ou le compte LinkedIn depuis lequel vous vendez.</Step>
 </Steps>
 
 Le [guide des enregistrements](/docs/app-records) couvre pas à pas l’import, les vues et le board.
@@ -160,7 +160,7 @@ Cela dépend de votre façon de vendre. Les équipes de prospection sortante qui
 </FaqItem>
 
 <FaqItem question="Un CRM de vente est-il difficile à prendre en main ?">
-Pas si vous gardez la première version petite. Un nouvel espace de travail démarre sans listes, mais une liste d’affaires avec un champ Étape se crée en quelques minutes dans Configurer, et dans le cloud la configuration IA peut la construire pour vous. Le vrai travail consiste à s’accorder sur les noms d’étapes et sur trois ou quatre champs personnalisés, puis à importer ce qui se trouve aujourd’hui dans votre tableur.
+Pas si vous gardez la première version petite. Un nouvel espace de travail démarre sans listes, mais une liste d’affaires avec un champ Étape se crée en quelques minutes dans Modèle de données, et dans le cloud la configuration IA peut la construire pour vous. Le vrai travail consiste à s’accorder sur les noms d’étapes et sur trois ou quatre champs personnalisés, puis à importer ce qui se trouve aujourd’hui dans votre tableur.
 </FaqItem>
 
 <FaqItem question="Customermates peut-il prévoir le chiffre d’affaires ?">

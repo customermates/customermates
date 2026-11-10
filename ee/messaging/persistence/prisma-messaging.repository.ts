@@ -2102,13 +2102,13 @@ export class PrismaMessagingRepo
         connectedAccountId: true,
         provider: true,
         companyId: true,
-        connectedAccount: { select: { unipileAccountId: true } },
+        connectedAccount: { select: { unipileAccountId: true, emailAddress: true, sentFolderIds: true } },
       },
     });
 
     const { connectedAccount, ...rest } = row;
 
-    return { ...rest, unipileAccountId: connectedAccount.unipileAccountId };
+    return { ...rest, ...connectedAccount };
   }
 
   async listThreadMovableMessages(threadId: string) {

@@ -2,6 +2,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { GetCompanyRepo } from "@/features/company/get-company.repo";
 import type { EmailService } from "@/features/email/email.service";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
+import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { MemberRemovalRefusal } from "./member-removal-refusal";
 import type { RemovableWorkspaceMember, RemoveWorkspaceMemberRepo } from "./remove-workspace-member.repo";
 import type { WorkspaceDepartureService } from "./workspace-departure.service";
@@ -27,6 +28,7 @@ import {
   failNotFound,
   unwoundFailure,
 } from "@/core/validation/interactor-failure-server";
+import { roleExceedsCaller } from "@/features/role/role-ceiling";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
@@ -64,6 +66,7 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
     private readonly departure: WorkspaceDepartureService,
     private readonly companyRepo: GetCompanyRepo,
     private readonly emailService: EmailService,
+    private readonly access: RecordAccessPolicy,
   ) {
     super();
   }
@@ -83,6 +86,11 @@ export class RemoveWorkspaceMemberInteractor extends AuthenticatedInteractor<
 
         const refusal = await memberRemovalRefusal(member, this.userId, { members: this.repo, roles: this.roleRepo });
         if (refusal) return refuse(refusal, path);
+
+        const policy = await this.access.load();
+        const role = !policy.isAdmin && member.roleId ? await this.roleRepo.findRoleById(member.roleId) : null;
+        if (role && roleExceedsCaller(policy, role))
+          return failAuthorization(CustomErrorCode.roleExceedsOwnPermissions, path);
 
         if (!(await this.repo.leaveCompanyWide(member.id))) return refuse("left", path);
         try {

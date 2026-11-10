@@ -8,6 +8,8 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { findAgentUiTarget } from "@/ee/agent-chat/ui-targets";
 import { commandAvailable, STATIC_COMMANDS, staticCommand, type CommandEnvironment } from "../command-registry";
 import { SHORTCUTS } from "../shortcut-registry";
+import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const LOCALES = CONTENT_LOCALES;
 
@@ -115,5 +117,19 @@ describe("command registry", () => {
     expect(commandAvailable(createWorkspace, { ...everything, otherWorkspaces: false })).toBe(true);
     expect(commandAvailable(createWorkspace, { ...everything, appMode: "self-hosted" })).toBe(true);
     expect(commandAvailable(createWorkspace, { ...everything, appMode: "demo" })).toBe(false);
+  });
+});
+
+describe("sidebar coverage", () => {
+  it("makes every fixed sidebar page and every settings page findable in the search", () => {
+    const sidebar = readFileSync(join(process.cwd(), "app/components/app-sidebar.tsx"), "utf8");
+    const fixedPages = [...sidebar.matchAll(/href: "(\/[a-z-]+)"/g)].map((match) => match[1]);
+    expect(fixedPages).toEqual(expect.arrayContaining(["/dashboard", "/calendar", "/inbox", "/configure", "/trash"]));
+    const targets = new Set(STATIC_COMMANDS.flatMap((entry) => ("href" in entry.target ? [entry.target.href] : [])));
+    for (const href of fixedPages) expect(targets.has(href), `${href} has no search entry`).toBe(true);
+    for (const section of Object.values(SETTINGS_SECTIONS)) {
+      for (const page of section)
+        expect(targets.has(settingsHref(page.slug)), `settings ${page.slug} has no search entry`).toBe(true);
+    }
   });
 });

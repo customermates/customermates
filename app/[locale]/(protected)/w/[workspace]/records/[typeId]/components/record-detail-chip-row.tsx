@@ -407,6 +407,7 @@ const DetailChip = observer(function DetailChip({
         inputId={inputId}
         label={null}
         members={row.memberUsers}
+        multilineText={column.field.valueType === "text" && column.field.id !== store.type?.primaryFieldId}
         onDatePicked={() => setOpen(false)}
         onSelectOpenChange={(next) => {
           if (!next) setOpen(false);

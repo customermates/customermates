@@ -30,9 +30,9 @@ Customermates is open core. Code outside `ee/`, and material in `ee/` that is se
 
 Every self-hosted installation uses the Starter feature set. These cloud-only features stay off, even if you also pay for a cloud plan: connected messaging accounts (email, LinkedIn, WhatsApp, Instagram, Telegram), the unified Inbox, connected calendars and their events, the hosted assistant Mate with its hosted AI credits, Routines, which Mate runs, and the AI workspace setup in onboarding, so a new workspace starts with no lists. External AI clients still work through MCP with your own AI provider. Enterprise SSO (SAML) and white-labeling are not implemented in either deployment model.
 
-The app hides what does not apply: the sidebar shows no Inbox or Routines, Settings has no Billing or Channels page, and the role editor hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
+The app hides what does not apply: the sidebar shows no Inbox or Routines, Settings has no Billing or Channels & calendars page, and the role editor hides the **Inbox messages** and **Routines** rows. Opening one of those pages by URL returns you to the Dashboard.
 
-Everything else works as in the cloud: lists and views, Excel import and export, Configure, dashboard widgets, members and roles, the Activity log, REST, webhooks and MCP.
+Everything else works as in the cloud: lists and views, Excel import and export, Data model, dashboard widgets, members and roles, the Activity log, REST, webhooks and MCP.
 
 ## How do I install and self-host Customermates with Docker Compose? [#how-do-i-install-customermates-with-docker-compose]
 
@@ -124,7 +124,7 @@ If emails are not arriving, check the app log, check that the sender domain is v
 
 ## How do I create the first account on my instance? [#how-do-i-create-the-first-account-on-my-instance]
 
-Open `<BASE_URL>/auth/signup` and register with email and password under **Create account**, or with Google or Microsoft if you configured them. On the next screen choose **Create a new workspace**. The wizard's first step asks for your first name, last name and display language and creates the workspace; you can skip the remaining steps and close the wizard with **Finish**. The account that creates the workspace gets the built-in **Admin** role, which has every permission. The new workspace has no lists yet: create the ones you need in [Configure](app:configure), or with **Create list** on the empty Dashboard; see [Core concepts](/docs/concepts#which-five-record-types-exist).
+Open `<BASE_URL>/auth/signup` and register with email and password under **Create account**, or with Google or Microsoft if you configured them. On the next screen choose **Create a new workspace**. The wizard's first step asks for your first name, last name and display language and creates the workspace; you can skip the remaining steps and close the wizard with **Finish**. The account that creates the workspace gets the built-in **Admin** role, which has every permission. The new workspace has no lists yet: create the ones you need in [Data model](app:configure), or with **Create list** on the empty Dashboard; see [Core concepts](/docs/concepts#which-five-record-types-exist).
 
 Click the verification link in the email within 24 hours. An account that is still unverified 24 hours after registering is held on **Email Verification**, where **Resend verification email** sends a fresh link.
 
@@ -148,7 +148,7 @@ In `.env`, remove the `#` in front of the lines for the providers you use, fill 
 
 The MCP endpoint is `<BASE_URL>/api/v1/mcp`, for example `https://crm.example.com/api/v1/mcp`. There are two ways to authenticate:
 
-- **API key** in the `x-api-key` header, for clients that run on your machine: Claude Code, Claude Desktop, Codex, Cursor and Gemini CLI. Create the key with [Add](app:settings/api-keys?focus=generate) on [API keys](app:settings/api-keys); **Quick connections** there shows the setup snippet with the address you opened the app under. The client only has to reach the URL, so a local network address works. See [Connect CLI and editor clients](/docs/connect-cli).
+- **API key** in the `x-api-key` header, for clients that run on your machine: Claude Code, Claude Desktop, Codex, Cursor and Gemini CLI. Create the key with [Add](app:settings/api-keys?focus=generate) on [API keys & connectors](app:settings/api-keys); **Quick connections** there shows the setup snippet with the address you opened the app under. The client only has to reach the URL, so a local network address works. See [Connect CLI and editor clients](/docs/connect-cli).
 - **OAuth sign-in**, for clients that connect from their provider's cloud, such as a Claude custom connector. These need a `BASE_URL` that is reachable from the internet over HTTPS. See [Connect Claude and ChatGPT](/docs/connect-custom-connector).
 
 The hosted in-app Assistant is cloud-only: Mate is not available on self-hosted instances. External MCP uses your own AI provider. Enterprise SSO and white-labeling are not implemented in either deployment model.

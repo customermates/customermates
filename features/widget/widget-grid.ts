@@ -169,12 +169,16 @@ export function placeWidget(args: {
 }): PlacementResult {
   const others = occupiedGrid(args.widgets.filter((widget) => widget.id !== args.id));
   if (args.requested) {
+    const requested = args.requested as GridRect;
     const minimum = widgetMinimumSize(args.kind, args.displayType);
-    if (args.requested.w < minimum.w || args.requested.h < minimum.h) return { ok: false, reason: "tooSmall" };
-    const conflict = others.find((rect) => rectsOverlap(rect, args.requested as GridRect));
-    return conflict
-      ? { ok: false, reason: "overlap", conflictId: conflict.id }
-      : { ok: true, placement: floatUp({ ...args.requested }, others) };
+    if (requested.w < minimum.w || requested.h < minimum.h) return { ok: false, reason: "tooSmall" };
+    const shown = occupiedGrid(args.widgets).filter((rect) => rect.id !== args.id);
+    for (const grid of [shown, others]) {
+      if (!grid.some((rect) => rectsOverlap(rect, requested)))
+        return { ok: true, placement: floatUp({ ...requested }, grid) };
+    }
+    const conflict = others.find((rect) => rectsOverlap(rect, requested));
+    return { ok: false, reason: "overlap", conflictId: conflict?.id };
   }
   const size = widgetDefaultSize(args.kind, args.displayType);
   return { ok: true, placement: { ...firstFreeSpot(others, WIDGET_GRID_COLUMNS, size.w, size.h), ...size } };

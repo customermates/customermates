@@ -124,6 +124,41 @@ function everyWordPrefixes(query: readonly string[], candidates: readonly string
   return query.every((word) => candidates.some((candidate) => candidate.startsWith(word)));
 }
 
+const TYPO_MIN_LENGTH = 5;
+const COMPOUND_MIN_LENGTH = 8;
+const COMPOUND_PART_MIN_LENGTH = 4;
+const TOLERANT_LABEL_SCORE = 0.75;
+const TOLERANT_SCORE = 0.7;
+
+function editDistance(a: string, b: string, limit: number): number {
+  if (Math.abs(a.length - b.length) > limit) return limit + 1;
+  const rows: number[][] = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j += 1) rows[0][j] = j;
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      rows[i][j] = Math.min(rows[i - 1][j] + 1, rows[i][j - 1] + 1, rows[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        rows[i][j] = Math.min(rows[i][j], rows[i - 2][j - 2] + 1);
+    }
+  }
+  return rows[a.length][b.length];
+}
+
+function tolerantWordMatch(query: string, candidate: string): boolean {
+  if (query.length >= TYPO_MIN_LENGTH && candidate.length >= TYPO_MIN_LENGTH) {
+    const limit = query.length >= 8 ? 2 : 1;
+    if (editDistance(query, candidate, limit) <= limit) return true;
+    if (candidate.length > query.length && editDistance(query, candidate.slice(0, query.length), 1) <= 1) return true;
+  }
+  return (
+    query.length >= COMPOUND_MIN_LENGTH &&
+    candidate.length >= COMPOUND_PART_MIN_LENGTH &&
+    candidate.length < query.length &&
+    (query.startsWith(candidate) || query.endsWith(candidate))
+  );
+}
+
 function candidateScore(term: string, candidate: PaletteCandidate): number {
   const query = significantWords(term);
   if (!query.length) return 0;
@@ -136,6 +171,10 @@ function candidateScore(term: string, candidate: PaletteCandidate): number {
   const keywords = candidate.keywords.map((keyword) => words(keyword));
   if (keywords.some((keyword) => keyword.join(" ") === phrase)) return 0.9;
   if (everyWordPrefixes(query, [...labelWords, ...keywords.flat()])) return 0.85;
+  const matchesAll = (known: readonly string[]) =>
+    query.every((word) => known.some((candidate) => candidate.startsWith(word) || tolerantWordMatch(word, candidate)));
+  if (matchesAll(labelWords)) return TOLERANT_LABEL_SCORE;
+  if (matchesAll([...labelWords, ...keywords.flat()])) return TOLERANT_SCORE;
   if (query.length > 1 || phrase.length < FUZZY_MIN_LENGTH) return 0;
   const fuzzy = commandScore(
     label,

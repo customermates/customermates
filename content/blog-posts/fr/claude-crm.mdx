@@ -124,7 +124,7 @@ Les étapes sont les mêmes pour tout CRM doté d’un serveur MCP distant ; le
 
 ### Claude Code, y compris avec Pipedrive
 
-Claude Code ajoute des serveurs MCP distants depuis le terminal. Pour Customermates, créez une clé sous **Paramètres › Clés API** (**Ajouter**, puis **Clé API standard** ; la clé n’est affichée qu’une fois) et exécutez :
+Claude Code ajoute des serveurs MCP distants depuis le terminal. Pour Customermates, créez une clé sous **Paramètres › Clés API et connecteurs** (**Ajouter**, puis **Clé API standard** ; la clé n’est affichée qu’une fois) et exécutez :
 
 ```bash
 claude mcp add --transport http customermates https://<your-customermates-address>/api/v1/mcp \
@@ -145,7 +145,7 @@ Customermates se connecte comme connecteur personnalisé, ce qui fonctionne sur 
 
 <Steps>
   <Step title="Copier l’URL de l’espace de travail">
-    Dans Customermates, ouvrez **Paramètres › Clés API**, cliquez sur **Ajouter**, choisissez **Claude** sous **Connexions rapides**, puis **Compte Claude**. La boîte de dialogue affiche l’URL de votre espace de travail courant avec un bouton de copie. La connexion demande **Accès en lecture** **Tous** sur la ligne **API et webhooks** de votre rôle, comme la page [Clés API](/docs/api-keys) ; le rôle intégré Administrateur l’a.
+    Dans Customermates, ouvrez **Paramètres › Clés API et connecteurs**, cliquez sur **Ajouter**, choisissez **Claude** sous **Connexions rapides**, puis **Compte Claude**. La boîte de dialogue affiche l’URL de votre espace de travail courant avec un bouton de copie. La connexion demande **Accès en lecture** **Tous** sur la ligne **API et webhooks** de votre rôle, comme la page [Clés API](/docs/api-keys) ; le rôle intégré Administrateur l’a.
   </Step>
   <Step title="Ajouter le connecteur dans Claude">
     Ouvrez **Customize › Connectors**, cliquez sur **+**, choisissez **Add custom connector**, donnez-lui un nom et collez l’URL. Laissez l’authentification sur OAuth : il n’y a pas de clé à copier. Le bouton **Ajouter à Claude** de la même boîte de dialogue ouvre le formulaire de Claude avec l’URL déjà renseignée (Claude web et Team uniquement).

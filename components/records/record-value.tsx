@@ -1,5 +1,6 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -207,5 +208,22 @@ export const RecordValue = observer(function RecordValue({
     const member = members.find((user) => user.id === value.value);
     return member ? <MemberChip member={member} /> : <AppChip>{t("RecordModel.member")}</AppChip>;
   }
-  return <span className={wrap ? "whitespace-pre-wrap break-words" : "truncate"}>{value.value}</span>;
+  if (wrap) return <span className="whitespace-pre-wrap break-words">{value.value}</span>;
+  const text = String(value.value);
+  const [firstLine, ...more] = text.split(/\r?\n/);
+  const hasMore = more.some((line) => line.trim());
+  if (!hasMore) return <span className="truncate">{text}</span>;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="truncate" data-multiline-value="">
+          {`${firstLine.trimEnd()} …`}
+        </span>
+      </TooltipTrigger>
+
+      <TooltipContent className="max-w-sm whitespace-pre-wrap break-words" data-multiline-value-full="">
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  );
 });

@@ -18,9 +18,9 @@ sections:
     title: "Set up a weekly pipeline dashboard"
     items:
       - title: "Check the stage probabilities"
-        description: "In Configure, open Deals and the Stage field, and adjust the Probability % of each option. A preview shows the effect on deals and widgets."
+        description: "In Data model, open Deals and the Stage field, and adjust the Probability % of each option. A preview shows the effect on deals and widgets."
       - title: "Add the fields your questions need"
-        description: "In Configure, open Deals and use Add › Field for a Single choice \"Lead source\" (Referral, LinkedIn, Website, Event), a Single choice \"Lost reason\" and a Date field \"Closed on\". A chart can only group by what you record."
+        description: "In Data model, open Deals and use Add › Field for a Single choice \"Lead source\" (Referral, LinkedIn, Website, Event), a Single choice \"Lost reason\" and a Date field \"Closed on\". A chart can only group by what you record."
       - title: "Create the first chart"
         description: "On the Dashboard, press Add widget and pick Bar chart. Under Data, choose Deals as the source, sum Weighted value and group by Stage. Exclude Won and Lost in the filters, then press Save."
       - title: "Add three more"
@@ -69,7 +69,7 @@ Every chart takes one list as its source, an aggregation and a grouping. The agg
 
 **Grouping** is **No grouping** (one total), a field such as Stage or Lead source, each record, **Assigned to**, or a field reached through a relationship. That gives you "deal value by stage", "deal value per organization" or "line item amounts by service". Group by a date field, **Created at** or **Updated at** and pick a **Time interval** to get one value per day, week, month, quarter or year.
 
-**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Configure**. Once the probabilities are set, it works from the first deal.
+**Weighted value** is a calculated field on deals: the deal's value times the **Probability %** of its stage, which you set on each option of the Stage field in **Data model**. Once the probabilities are set, it works from the first deal.
 
 **Filters** narrow what a chart counts, using any field, including dates; linked fields appear as **List › Field**. That is how you chart "won deal value per organization": deals as the source, a filter on Stage is Won, grouped by organization.
 

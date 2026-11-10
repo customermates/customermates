@@ -17,7 +17,7 @@ Jeder Workspace hat eine eigene MCP-URL:
 <BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>
 ```
 
-`<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz, und `<WORKSPACE_ID>` benennt den Workspace. Zusammensetzen müssen Sie sie nicht: Customermates zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche unter [API-Schlüssel](app:settings/api-keys), wenn Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) klicken und **Claude** und dann **Claude-Konto** wählen (oder **ChatGPT & Codex** und dann **ChatGPT-App**), sowie im Onboarding-Schritt **KI verbinden**. Wechseln Sie den Workspace, um die URL eines anderen zu kopieren.
+`<BASE_URL>` ist die Adresse, unter der Sie Customermates öffnen, in der Cloud oder auf Ihrer eigenen Instanz, und `<WORKSPACE_ID>` benennt den Workspace. Zusammensetzen müssen Sie sie nicht: Customermates zeigt die URL Ihres aktuellen Workspace mit einer Kopierschaltfläche unter [API-Schlüssel & Konnektoren](app:settings/api-keys), wenn Sie auf [Hinzufügen](app:settings/api-keys?focus=generate) klicken und **Claude** und dann **Claude-Konto** wählen (oder **ChatGPT & Codex** und dann **ChatGPT-App**), sowie im Onboarding-Schritt **KI verbinden**. Wechseln Sie den Workspace, um die URL eines anderen zu kopieren.
 
 Weil jeder Workspace seine eigene URL hat, können Sie mehrere Workspaces gleichzeitig zu Claude hinzufügen, einen Connector pro Workspace. Claude lehnt einen zweiten Connector mit einer URL ab, die es schon kennt ("A connector with this URL already exists in your organization"), daher braucht ein zweiter Workspace seine eigene URL.
 
@@ -46,7 +46,7 @@ Zurück in Claude erscheint Customermates mit seinen Tools.
 
 Einmal hinzufügen, und es synchronisiert zu Claude auf Web, Desktop und Mobile. Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät, und erneuert sich im Hintergrund.
 
-Noch schneller: Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit der URL des aktuellen Workspace und einem Connector-Namen, der den Workspace-Namen enthält (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
+Noch schneller: Öffnen Sie in Customermates [API-Schlüssel & Konnektoren](app:settings/api-keys), klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate), wählen Sie unter **Schnellverbindungen** **Claude** und dann **Claude-Konto**, und klicken Sie auf **Zu Claude hinzufügen**. Das öffnet den Add-Connector-Dialog von Claude, vorausgefüllt mit der URL des aktuellen Workspace und einem Connector-Namen, der den Workspace-Namen enthält (nur Claude Web und Teams). Der Onboarding-Schritt **KI verbinden** bietet dieselbe Schaltfläche. **Hinzufügen** braucht **Erstellen** auf **API & Webhooks**; ohne diese Berechtigung fügen Sie die URL wie oben ein.
 
 ## Wie verbinde ich ChatGPT? [#chatgpt]
 
@@ -64,7 +64,7 @@ Ja. Fügen Sie den Connector genauso hinzu, aber authentifizieren Sie sich per H
 
 <Steps>
 <Step title="Key anlegen">
-Öffnen Sie in Customermates [API-Schlüssel](app:settings/api-keys), klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
+Öffnen Sie in Customermates [API-Schlüssel & Konnektoren](app:settings/api-keys), klicken Sie auf **Hinzufügen** und wählen Sie **Standard-API-Key**. Der 64-Zeichen-Key wird **einmal** angezeigt, also sofort kopieren. Zum Anlegen eines Keys braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite selbst braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
 </Step>
 <Step title="Per Header authentifizieren">
 Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, **Header value:** Ihr Key.
@@ -134,7 +134,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | "A connector with this URL already exists in your organization" (Claude) | Diese URL ist schon verbunden, eventuell für einen anderen Workspace | Fügen Sie den anderen Workspace mit seiner eigenen URL hinzu, kopiert, während dieser Workspace geöffnet ist |
 | Die URL eines Workspace antwortet mit HTTP `401` und `error="invalid_token"` | Die Verbindung wurde für einen anderen Workspace freigegeben | Neu verbinden; der Client meldet sich erneut für den Workspace der URL an |
 | Die URL eines Workspace antwortet mit HTTP `403` und `error: workspace_mismatch` (Key im Header) | Der API-Key gehört zu einem anderen Workspace | Nutzen Sie die URL des Workspace, zu dem der Key gehört, oder legen Sie in diesem Workspace einen Key an |
-| Der Connector listet keine Tools, und der Server antwortet mit HTTP `401` (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
+| Der Connector listet keine Tools, und der Server antwortet mit HTTP `401` (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel & Konnektoren](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
 | Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:settings/members) wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | ChatGPT braucht einen bezahlten Plan; Claude Free erlaubt einen Custom Connector, entfernen Sie also zuerst einen anderen. Siehe [die CLI-Methode](/docs/connect-cli) |
 | Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |

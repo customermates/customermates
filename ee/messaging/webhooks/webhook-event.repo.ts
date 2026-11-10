@@ -3,7 +3,7 @@ import { type MessagingInboundEvent, MessagingInboundEventSource } from "@/gener
 export const WEBHOOK_INBOUND_SOURCE = MessagingInboundEventSource.webhook;
 export const WEBHOOK_REPROCESS_MAX_ATTEMPTS = 10;
 
-type InboundEventRow = Pick<MessagingInboundEvent, "id" | "payload" | "processed">;
+type InboundEventRow = Pick<MessagingInboundEvent, "id" | "payload" | "processed" | "receivedAt">;
 
 export abstract class WebhookEventRepo {
   abstract createWebhookEventUnscoped(args: {

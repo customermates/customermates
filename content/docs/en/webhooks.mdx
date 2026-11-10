@@ -24,7 +24,7 @@ Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=
 | **Body template** | Optional JSON document that replaces the standard envelope. |
 | **Enabled** | On by default. A disabled webhook receives nothing and keeps its configuration, so you can pause it without deleting it. |
 
-To change a webhook, click its row, edit and click **Save**. To remove it, click **Delete** at the top of the dialog and confirm; its past deliveries stay on the [Deliveries](app:settings/webhook-deliveries) page. To see the deliveries of one webhook, choose **Show deliveries** in the row's **More actions** menu: [Deliveries](app:settings/webhook-deliveries) opens filtered to that webhook's URL, and you can remove the filter like any other. The list shows **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. In [Filter](app:settings/webhooks?focus=filter), searching matches the URL and filters cover the creation and update dates.
+To change a webhook, click its row, edit and click **Save**. To remove it, click **Delete** at the top of the dialog and confirm; its past deliveries stay on the [Webhook log](app:settings/webhook-deliveries) page. To see the deliveries of one webhook, choose **Show deliveries** in the row's **More actions** menu: [Webhook log](app:settings/webhook-deliveries) opens filtered to that webhook's URL, and you can remove the filter like any other. The list shows **URL**, **Description**, **Events**, **Status** (**Enabled** or **Disabled**), **Created at** and **Updated at**. In [Filter](app:settings/webhooks?focus=filter), searching matches the URL and filters cover the creation and update dates.
 
 Use an HTTPS endpoint. Custom headers require HTTPS, except for HTTP on `localhost`, `127.0.0.1` or `::1` when private destinations are allowed. This is checked when you save and again before every delivery.
 
@@ -64,7 +64,7 @@ Access comes from the **API & Webhooks** row of a role in [Roles](app:settings/r
 | **Read access** **All** plus **Edit** | Edit webhooks and see saved **Secret** and **Custom headers** values. |
 | **Read access** **All** plus **Delete** | Delete webhooks. |
 
-The same row also controls [API keys](app:settings/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks work on every paid Cloud plan, during the trial and when self-hosted, but not on the Free plan ([details](#webhooks-on-the-free-plan)). The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
+The same row also controls [API keys & connectors](app:settings/api-keys), so a role that may create or delete its own API keys may also create or delete every webhook in the workspace. The **Admin** role can do everything. Webhooks work on every paid Cloud plan, during the trial and when self-hosted, but not on the Free plan ([details](#webhooks-on-the-free-plan)). The same permissions apply to `manage_webhooks` through MCP and in Mate, where deleting a webhook or resending a delivery asks for your approval first.
 
 ## What does the payload look like? [#what-does-the-payload-look-like]
 
@@ -242,13 +242,13 @@ Retries run inside the same delivery, so they add no records: each record shows 
 
 ## Where do I see past deliveries? [#where-do-i-see-past-deliveries]
 
-Every delivery is recorded on the [Deliveries](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`; over REST, `GET /api/v1/webhooks/deliveries` lists the deliveries of every webhook and `GET /api/v1/webhooks/{id}/deliveries` those of one webhook, newest first. Delivery records are kept as long as the workspace exists.
+Every delivery is recorded on the [Webhook log](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`; over REST, `GET /api/v1/webhooks/deliveries` lists the deliveries of every webhook and `GET /api/v1/webhooks/{id}/deliveries` those of one webhook, newest first. Delivery records are kept as long as the workspace exists.
 
 Click a row to open **Event Details**: the status (**Pending**, **Sending**, **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. A messaging event's payload is shown as it was sent. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
 
 ## How do I resend a delivery? [#how-do-i-resend-a-delivery]
 
-To resend, click **Resend** at the top of **Event Details**. It appears once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**; through MCP, use `manage_webhooks` with `action: "resend_delivery"` and the delivery id, and over REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. A resend creates a new delivery record with the webhook's current URL, secret, headers and template; the original stays unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access, only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; deliveries of retired type-specific events cannot be resent. The Webhooks and Deliveries pages show such an event with **(legacy)**, for example **Contact created (legacy)**.
+To resend, click **Resend** at the top of **Event Details**. It appears once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**; through MCP, use `manage_webhooks` with `action: "resend_delivery"` and the delivery id, and over REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. A resend creates a new delivery record with the webhook's current URL, secret, headers and template; the original stays unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access, only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; deliveries of retired type-specific events cannot be resent. The Webhooks and Webhook log pages show such an event with **(legacy)**, for example **Contact created (legacy)**.
 
 ## Are deliveries ordered, and do they arrive in the right order? [#are-deliveries-ordered]
 
@@ -266,7 +266,7 @@ The value of a Formatted text field in payloads is a `richText` value whose `doc
 
 ## How do I debug a delivery? [#how-do-i-debug-a-delivery]
 
-- Find the delivery under [Deliveries](app:settings/webhook-deliveries) and open it to see **Event Details**.
+- Find the delivery under [Webhook log](app:settings/webhook-deliveries) and open it to see **Event Details**.
 - Use [webhook.site](https://webhook.site) as a throwaway receiver while testing.
 - `manage_webhooks` with `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` and `GET /api/v1/webhooks/{id}/deliveries` support `searchTerm` on URL and event name.
 - Customermates stores only the HTTP status code and status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. Without a response, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
@@ -307,7 +307,7 @@ Fifteen type-specific identifiers are retired. They stay only so older webhooks 
 
 ### Messaging events [#messaging-events]
 
-Messaging events fire on inbound provider activity on connected accounts. **Events** offers them in every workspace, but they fire only where [Channels](app:settings/channels) are connected, which requires Cloud and a plan that includes messaging. `actorId` is `null`. `data` references provider records by id (`entityId` for the affected message, thread, calendar, calendar event or relation, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` and similar) rather than embedding CRM records. A messaging event is kept only while a webhook or an event routine subscribes to it.
+Messaging events fire on inbound provider activity on connected accounts. **Events** offers them in every workspace, but they fire only where [Channels & calendars](app:settings/channels) are connected, which requires Cloud and a plan that includes messaging. `actorId` is `null`. `data` references provider records by id (`entityId` for the affected message, thread, calendar, calendar event or relation, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` and similar) rather than embedding CRM records. A messaging event is kept only while a webhook or an event routine subscribes to it.
 
 | Event | When it fires |
 | --- | --- |

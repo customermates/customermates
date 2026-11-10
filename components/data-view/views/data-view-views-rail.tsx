@@ -407,6 +407,25 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         )}
       </OverflowRail>
 
+      {store.isReady && activeView?.sharedBy && !proposedName && (
+        <div className="flex shrink-0 items-center gap-1.5" data-shared-view-notice="">
+          <span className="hidden text-xs text-muted-foreground lg:inline">
+            {t("DataView.share.readOnly", { name: activeView.sharedBy.name.split(" ")[0] ?? "" })}
+          </span>
+
+          <Button
+            aria-label={t("DataView.share.duplicateToEditLabel", { name: activeView.name })}
+            className={cn("h-7 text-xs", joinsTopBar && "h-7")}
+            id="global-data-views-duplicate-to-edit"
+            size="sm"
+            variant="secondary"
+            onClick={() => commands.duplicate(activeView)}
+          >
+            {t("DataView.share.duplicateToEdit")}
+          </Button>
+        </div>
+      )}
+
       {actions}
 
       {store.isReady && store.canSaveAsView && (

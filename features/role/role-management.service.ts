@@ -19,6 +19,7 @@ import { unwindFailure } from "@/core/validation/failure-unwind";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
+import { roleExceedsCaller } from "./role-ceiling";
 
 const storedResult = RoleMutationResultSchema.extend({
   role: RolePermissionsDtoSchema.extend({ createdAt: z.coerce.date(), updatedAt: z.coerce.date() }),
@@ -100,6 +101,14 @@ export class RoleManagementService extends UserAccessor {
         if (input.id === policy.actor.role?.id)
           throw unwindFailure(CustomErrorCode.roleSelfEditForbidden, "authorization");
         if (previous?.isSystemRole) throw unwindFailure(CustomErrorCode.roleSystemImmutable, "conflict");
+        const proposed = {
+          permissions: input.permissions.flatMap(({ resource, actions }) =>
+            actions.map((action) => ({ resource, action })),
+          ),
+          recordGrants: input.recordGrants,
+        };
+        if (roleExceedsCaller(policy, proposed, previous))
+          throw unwindFailure(CustomErrorCode.roleExceedsOwnPermissions, "authorization");
         if (input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded)))
           throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
         if (await this.roles.isRoleNameTaken(input.name, input.id))

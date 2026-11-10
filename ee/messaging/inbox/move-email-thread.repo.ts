@@ -1,11 +1,14 @@
 import type { MessagingProvider } from "@/generated/prisma";
+import type { IngestMessage } from "../messaging.schema";
 
-type MoveThread = {
+export type MoveThread = {
   id: string;
   connectedAccountId: string;
   provider: MessagingProvider;
   companyId: string;
   unipileAccountId: string;
+  emailAddress: string | null;
+  sentFolderIds: string[];
 };
 
 type MovableMessage = {
@@ -24,4 +27,10 @@ export abstract class MoveEmailThreadRepo {
     newUnipileMessageId: string;
     folderIds: string[];
   }): Promise<{ id: string } | null>;
+  abstract ingestMessageUnscoped(args: {
+    companyId: string;
+    connectedAccountId: string;
+    message: IngestMessage;
+    backfill?: boolean;
+  }): Promise<unknown>;
 }
