@@ -14,6 +14,10 @@ vi.mock("next-intl", () => ({
 
 import { DetailHeader, TimelineRow, useActorViaLabel } from "../activities-row";
 
+function visibleText(markup: string): string {
+  return markup.split(/<[^>]*>/).join("");
+}
+
 const ROW = { avatar: null, subtitle: "Name", time: "now", isFirst: true, isLast: true } as const;
 
 describe("who an activity came through", () => {
@@ -26,14 +30,14 @@ describe("who an activity came through", () => {
     );
 
     expect(row).toContain("Max Bergmann");
-    expect(row.replace(/<[^>]+>/g, "")).toContain("Max Bergmann via Claude Desktop");
-    expect(header.replace(/<[^>]+>/g, "")).toContain("Max Bergmann via ChatGPT");
+    expect(visibleText(row)).toContain("Max Bergmann via Claude Desktop");
+    expect(visibleText(header)).toContain("Max Bergmann via ChatGPT");
   });
 
   it("shows nothing next to a person who worked in the app", () => {
     const row = renderToStaticMarkup(createElement(TimelineRow, { ...ROW, title: "Max Bergmann" }));
 
-    expect(row.replace(/<[^>]+>/g, "")).not.toContain("via");
+    expect(visibleText(row)).not.toContain("via");
   });
 
   it("builds the label from the name of the API key or application", () => {

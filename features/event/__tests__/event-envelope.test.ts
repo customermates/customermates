@@ -10,6 +10,7 @@ const base = {
   subjectKind: "record",
   subjectTypeId: null,
   causeId: null,
+  via: null,
   payload: {},
   createdAt: new Date("2026-11-09T19:25:38.000Z"),
   deliveredAt: null,
