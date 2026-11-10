@@ -113,7 +113,7 @@ describe("commercial plan catalog", () => {
         maxMembers: 1,
         maxRecords: 250,
         fileStorageBytes: 100 * 1024 ** 2,
-        apiRequestsPerMinute: 10,
+        apiRequestsPerMinute: 30,
         apiRequestsPerDay: 200,
       },
     });

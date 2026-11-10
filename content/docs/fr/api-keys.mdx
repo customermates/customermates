@@ -105,7 +105,7 @@ Sur Customermates Cloud, un espace de travail qui attend encore sa première off
 
 ### Y a-t-il une limite de requêtes sur la formule Free ? [#is-there-a-request-limit-on-the-free-plan]
 
-Oui. Sur la formule Free, les requêtes REST et MCP sont limitées ensemble à [[commercial.limit.free.apiRequestsPerMinute]] par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour par espace de travail. Au-delà, une requête reçoit un HTTP `429` avec un en-tête `Retry-After` : REST répond avec `kind` `rate_limit` et `customCode` `apiRateLimitReached`, MCP avec `error: rate_limited`. Le message d’erreur nomme Starter, la formule qui supprime la limite. Les formules payantes et les installations auto-hébergées n’ont pas de limite de requêtes.
+Oui. Sur la formule Free, les requêtes REST et MCP sont limitées ensemble à [[commercial.limit.free.apiRequestsPerMinute]] par minute et [[commercial.limit.free.apiRequestsPerDay]] par jour par espace de travail. Au-delà, une requête reçoit un HTTP `429` avec un en-tête `Retry-After` : REST répond avec `kind` `rate_limit` et `customCode` `apiRateLimitReached`, les appels d’outils MCP avec une erreur d’outil qui porte `error: rate_limited` (les autres requêtes MCP avec `429`). Seuls les appels d’outils MCP comptent, pas la connexion ni la liste des outils. Le message indique que l’espace de travail est sur Free et nomme Starter, son prix et le lien de facturation, pour qu’un agent puisse le transmettre à l’utilisateur. Les formules payantes et les installations auto-hébergées n’ont pas de limite de requêtes.
 
 ## Suite [#next]
 

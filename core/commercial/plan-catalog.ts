@@ -114,7 +114,7 @@ export const PLAN_CATALOG = {
         maxMembers: 1,
         maxRecords: 250,
         fileStorageBytes: 100 * MIB,
-        apiRequestsPerMinute: 10,
+        apiRequestsPerMinute: 30,
         apiRequestsPerDay: 200,
       },
     },

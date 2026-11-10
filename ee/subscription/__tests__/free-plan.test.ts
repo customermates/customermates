@@ -70,7 +70,7 @@ describe("Free plan after the trial", () => {
       includedRoutinesPerUser: 0,
       hostedAiCreditsPerActiveUser: null,
       webhooks: false,
-      usageLimits: { maxMembers: 1, maxRecords: 250, apiRequestsPerMinute: 10, apiRequestsPerDay: 200 },
+      usageLimits: { maxMembers: 1, maxRecords: 250, apiRequestsPerMinute: 30, apiRequestsPerDay: 200 },
     });
   });
 });

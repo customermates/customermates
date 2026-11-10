@@ -41,6 +41,7 @@ export async function ProductFilm() {
             <HomepageViewportVideo
               ariaLabel={t("title")}
               className="absolute inset-0 size-full object-cover"
+              playLabel={t("play")}
               src={PRODUCT_FILM_SRC}
             />
           </div>

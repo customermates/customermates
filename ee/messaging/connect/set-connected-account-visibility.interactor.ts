@@ -44,10 +44,12 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
     return runInTransaction(async () => {
       const existing = await this.repo.getAccountByIdOrThrow(data.id);
-      const denied = await this.entitlements.require("sharedAccounts");
-      if (denied) return denied;
-
       if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
+
+      if (data.shared) {
+        const denied = await this.entitlements.require("sharedAccounts");
+        if (denied) return denied;
+      }
 
       const updated = await this.repo.setAccountSharedOrThrow({
         id: data.id,

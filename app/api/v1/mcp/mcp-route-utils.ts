@@ -13,6 +13,7 @@ import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-error
 import { EmailVerificationRequiredError } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
 import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
+import { exemptCurrentRequestFromIntegrationLimit } from "@/ee/subscription/integration-request-limiter";
 import { MCP_ENDPOINT_PATH, mcpProtectedResourceMetadataUrl } from "@/features/auth/mcp-resource";
 import { AGENT_RECORD_WRITE_TOOLS } from "@/features/onboarding-funnel/record-agent-connected.interactor";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
@@ -200,16 +201,57 @@ function planRequired(message: string) {
   });
 }
 
-function rateLimited(error: ApiRateLimitExceededError) {
-  return new Response(JSON.stringify({ error: "rate_limited", message: error.message }), {
-    status: 429,
-    headers: {
-      "Content-Type": "application/json",
-      "Retry-After": String(error.retryAfterSeconds),
-      "Access-Control-Expose-Headers": "Retry-After",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
+type McpRpcCall = { method?: unknown; id?: unknown };
+
+export type McpToolCallInfo = { toolCall: boolean; singleToolCallId: string | number | null };
+
+export async function readMcpToolCall(request: Request): Promise<McpToolCallInfo> {
+  if (request.method !== "POST") return { toolCall: false, singleToolCallId: null };
+  let body: unknown;
+  try {
+    body = await request.clone().json();
+  } catch {
+    return { toolCall: false, singleToolCallId: null };
+  }
+  const calls = (Array.isArray(body) ? body : [body]).filter(
+    (call): call is McpRpcCall => typeof call === "object" && call !== null,
+  );
+  const toolCalls = calls.filter((call) => call.method === "tools/call");
+  const only = calls.length === 1 ? toolCalls[0] : undefined;
+  const id = only && (typeof only.id === "string" || typeof only.id === "number") ? only.id : null;
+  return { toolCall: toolCalls.length > 0, singleToolCallId: id };
+}
+
+const RATE_LIMIT_HEADERS = (error: ApiRateLimitExceededError) => ({
+  "Content-Type": "application/json",
+  "Retry-After": String(error.retryAfterSeconds),
+  "Access-Control-Expose-Headers": "Retry-After",
+  "Access-Control-Allow-Origin": "*",
+});
+
+function rateLimitUpgrade(error: ApiRateLimitExceededError) {
+  return { plan: error.upgrade.plan.toLowerCase(), price: error.upgrade.price, url: error.upgrade.url };
+}
+
+function rateLimitedToolResult(error: ApiRateLimitExceededError, id: string | number) {
+  const structuredContent = {
+    error: "rate_limited",
+    plan: "free",
+    window: error.window,
+    limit: error.limit,
+    retryAfterSeconds: error.retryAfterSeconds,
+    upgrade: rateLimitUpgrade(error),
+  };
+  return new Response(
+    JSON.stringify({ jsonrpc: "2.0", id, result: { ...createTextContent(error.message, true), structuredContent } }),
+    { status: 200, headers: RATE_LIMIT_HEADERS(error) },
+  );
+}
+
+function rateLimited(error: ApiRateLimitExceededError, toolCall: McpToolCallInfo) {
+  if (toolCall.singleToolCallId !== null) return rateLimitedToolResult(error, toolCall.singleToolCallId);
+  const body = { error: "rate_limited", message: error.message, plan: "free", upgrade: rateLimitUpgrade(error) };
+  return new Response(JSON.stringify(body), { status: 429, headers: RATE_LIMIT_HEADERS(error) });
 }
 
 function inactiveUser(message: string) {
@@ -226,7 +268,7 @@ function emailNotVerified(message: string) {
   });
 }
 
-async function mcpAccessRefusal(resourceMetadataUrl: string): Promise<Response | null> {
+async function mcpAccessRefusal(resourceMetadataUrl: string, toolCall: McpToolCallInfo): Promise<Response | null> {
   const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
   try {
     await getAuthorizeMcpConnectionInteractor().invoke();
@@ -234,7 +276,7 @@ async function mcpAccessRefusal(resourceMetadataUrl: string): Promise<Response |
   } catch (error) {
     if (error instanceof AuthError) return unauthorizedChallenge(resourceMetadataUrl);
     if (error instanceof WorkspacePlanRequiredError) return planRequired(error.message);
-    if (error instanceof ApiRateLimitExceededError) return rateLimited(error);
+    if (error instanceof ApiRateLimitExceededError) return rateLimited(error, toolCall);
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
     if (error instanceof EmailVerificationRequiredError) return emailNotVerified(error.message);
@@ -334,7 +376,9 @@ export function createMcpRoute(
       const foreign = await workspaceCredentialRefusal(request, workspaceId, resourceMetadataUrl);
       if (foreign) return foreign;
     } else if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge(resourceMetadataUrl);
-    const refused = await mcpAccessRefusal(resourceMetadataUrl);
+    const toolCall = await readMcpToolCall(request);
+    if (!toolCall.toolCall) await exemptCurrentRequestFromIntegrationLimit();
+    const refused = await mcpAccessRefusal(resourceMetadataUrl, toolCall);
     if (refused) return refused;
     const toolsets = resolveToolsetKey(request, knownKeys);
     if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);

@@ -84,7 +84,7 @@ describe("plan limits service", () => {
         maxMembers: 1,
         maxRecords: 250,
         fileStorageBytes: 100 * 1024 ** 2,
-        apiRequestsPerMinute: 10,
+        apiRequestsPerMinute: 30,
         apiRequestsPerDay: 200,
       },
       usage: { members: 1, pausedMembers: 2, records: 248, storageBytes: 1024, apiRequestsToday: 37 },

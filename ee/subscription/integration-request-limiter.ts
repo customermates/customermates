@@ -4,6 +4,9 @@ import { headers } from "next/headers";
 
 import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
 import { FREE_PLAN_UPGRADE_PLAN } from "@/core/commercial/plan-catalog";
+import { billingHref } from "@/app/components/navigation/settings-routes";
+import { workspaceEntryHref } from "@/core/navigation/workspace-paths";
+import { env } from "@/env";
 import { upgradeOfferPrice } from "./plan-upgrade-offer";
 
 const admittedRequests = new WeakSet<object>();
@@ -14,6 +17,17 @@ async function currentRequest(): Promise<object | null> {
   } catch {
     return null;
   }
+}
+
+export async function exemptCurrentRequestFromIntegrationLimit(
+  request: () => Promise<object | null> = currentRequest,
+): Promise<void> {
+  const current = await request();
+  if (current) admittedRequests.add(current);
+}
+
+export function integrationUpgradeUrl(): string {
+  return `${env.BASE_URL}${workspaceEntryHref(billingHref(FREE_PLAN_UPGRADE_PLAN))}`;
 }
 
 export class IntegrationRequestLimiter {
@@ -33,6 +47,7 @@ export class IntegrationRequestLimiter {
     throw new ApiRateLimitExceededError(refused.window, refused.limit, refused.retryAfterSeconds, {
       plan: FREE_PLAN_UPGRADE_PLAN.charAt(0).toUpperCase() + FREE_PLAN_UPGRADE_PLAN.slice(1),
       price: upgradeOfferPrice(FREE_PLAN_UPGRADE_PLAN, "en"),
+      url: integrationUpgradeUrl(),
     });
   }
 }
