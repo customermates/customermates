@@ -510,8 +510,12 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await expect(page.getByRole("menuitem")).toHaveText(["Text", "Date", "Owner", "Done", "Website", "Websites", "Contacts"]);
   await page.getByRole("menuitem", { name: "Text", exact: true }).click();
   await expect(editor).toContainText("Text");
-  await editor.locator("input").first().fill("Card text");
-  await editor.locator("input").first().press("Enter");
+  const cardText = editor.locator("textarea");
+  await cardText.fill("Card");
+  await cardText.press("Shift+Enter");
+  await expect(editor).toBeVisible();
+  await cardText.fill("Card text");
+  await cardText.press("Enter");
   await expect(editor).toHaveCount(0);
   await expect(chip("Text")).toHaveText("Card text");
   await expect(page).toHaveURL(companyUrlPattern(companyId, `/records/${typeId}\\?`));
