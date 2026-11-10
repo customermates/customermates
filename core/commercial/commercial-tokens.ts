@@ -29,7 +29,12 @@ const UNLIMITED_LABEL = { translationKey: "Common.unlimited" } as const;
 
 const CONTRACT_LABEL = { translationKey: "Common.unlimitedByContract" } as const;
 
-const MARKETING_MESSAGES: Record<MarketingLocale, unknown> = { de: deMessages, en: enMessages, fr: frMessages, it: itMessages };
+const MARKETING_MESSAGES: Record<MarketingLocale, unknown> = {
+  de: deMessages,
+  en: enMessages,
+  fr: frMessages,
+  it: itMessages,
+};
 
 function catalogText(messages: unknown, key: string): string {
   const value = key
