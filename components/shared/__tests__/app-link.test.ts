@@ -22,11 +22,11 @@ import { AppLink, contentHrefForLocale, fallbackLanguageOfContentHref, protected
 
 describe("contentHrefForLocale", () => {
   it("forces a document navigation to the default content locale from an app-only locale", () => {
-    expect(contentHrefForLocale("/pricing", "it")).toBe("/en/pricing");
-    expect(contentHrefForLocale("/docs?tab=api#oauth", "it")).toBe("/en/docs?tab=api#oauth");
+    expect(contentHrefForLocale("/pricing", "es")).toBe("/en/pricing");
+    expect(contentHrefForLocale("/docs?tab=api#oauth", "es")).toBe("/en/docs?tab=api#oauth");
     expect(contentHrefForLocale("/fr/blog", "es")).toBe("/fr/blog");
     expect(contentHrefForLocale("/blog", "es")).toBe("/en/blog");
-    expect(contentHrefForLocale("/de/terms", "it")).toBe("/de/terms");
+    expect(contentHrefForLocale("/de/terms", "es")).toBe("/de/terms");
     expect(contentHrefForLocale("/contact", "es")).toBe("/en/contact");
   });
 
@@ -39,15 +39,17 @@ describe("contentHrefForLocale", () => {
     expect(contentHrefForLocale("/contact", "fr")).toBeNull();
     expect(contentHrefForLocale("/for/consultants", "fr")).toBeNull();
     expect(contentHrefForLocale("/fr/blog", "de")).toBe("/fr/blog");
+    expect(contentHrefForLocale("/pricing", "it")).toBeNull();
+    expect(contentHrefForLocale("/docs/app-records", "it")).toBeNull();
   });
 
   it("sends an app-only locale to the default content locale without a partial-locale language mark", () => {
-    routeState.locale = "it";
+    routeState.locale = "es";
     routeState.pathname = "/pricing";
     const fallback = renderToStaticMarkup(createElement(AppLink, { href: "/docs/app-records" }, "Fiches"));
     expect(fallback).toContain('href="/en/docs/app-records"');
     expect(fallback).not.toContain("hrefLang");
-    expect(fallbackLanguageOfContentHref("/docs/app-records", "it")).toBeNull();
+    expect(fallbackLanguageOfContentHref("/docs/app-records", "es")).toBeNull();
     expect(fallbackLanguageOfContentHref("/docs/app-records", "fr")).toBeNull();
 
     routeState.locale = "fr";
@@ -69,7 +71,7 @@ describe("contentHrefForLocale", () => {
   });
 
   it("renders a native anchor only when changing from an app-only locale to content", () => {
-    routeState.locale = "it";
+    routeState.locale = "es";
     routeState.pathname = "/dashboard";
     const hardNavigation = renderToStaticMarkup(
       createElement(AppLink, { href: "/docs?tab=api#oauth", prefetch: true }, "Docs"),
