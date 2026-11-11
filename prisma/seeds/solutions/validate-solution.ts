@@ -267,10 +267,11 @@ export function validateSolutionDefinition(
       if (
         page.kind === "procedure" &&
         !/^(When|Wenn|Cuando|Quando|Gdy|Kiedy|Wanneer|Als) .{40,}\.$/u.test(page.whenToUse ?? "")
-      )
+      ) {
         problems.push(
           `${locale}: procedure ${page.key} needs whenToUse starting "When", "Wenn" or the locale's word (Cuando, Quando, Gdy, Wanneer) and ending "." (40+ characters)`,
         );
+      }
       if (page.kind !== "procedure" && page.whenToUse) problems.push(`${locale}: only procedures have whenToUse`);
       if (page.kind === "guide" && new TextEncoder().encode(markdown).byteLength > WIKI_GUIDE_CONTEXT_MAX_BYTES)
         problems.push(`${locale}: the guide exceeds ${WIKI_GUIDE_CONTEXT_MAX_BYTES} bytes`);
