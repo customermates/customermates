@@ -15,8 +15,10 @@ import {
   executeMcpTool,
   expectedMcpToolFailure,
   validationError,
+  type McpTool,
   type McpToolExecutionResult,
 } from "@/features/mcp-tools/mcp-tool";
+import { TOOL_GUIDANCE } from "@/features/mcp-tools/tool-guidance";
 import { RequestSupportSchema } from "@/features/mcp-tools/support.mcp-tools";
 import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS, MCP_TOOL_GROUPS } from "@/features/mcp-tools/tool-registry";
 import { encodeToToon } from "@/features/mcp-tools/utils";
@@ -605,6 +607,11 @@ function hostedMcpTool(
   };
 }
 
+function describedWithGuidance(mcp: Pick<McpTool, "name" | "description">): string {
+  const guidance = TOOL_GUIDANCE[mcp.name];
+  return guidance ? `${mcp.description}\n\n${guidance}` : mcp.description;
+}
+
 function crmTool(
   mcp: (typeof ALL_MCP_TOOLS)[number],
   deps: AgentToolDeps,
@@ -613,7 +620,7 @@ function crmTool(
 ) {
   const resultMaxChars = deps.resultMaxChars;
   return tool({
-    description: mcp.description,
+    description: describedWithGuidance(mcp),
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const configurationApply =

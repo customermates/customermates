@@ -25,7 +25,7 @@ export const MapWidgetQuerySchema = z
       .uuid()
       .nullable()
       .default(null)
-      .describe("Optional field shown in a pin's popover next to the record name and address."),
+      .describe("Optional field shown in a pin's popover beside the record name and address."),
   })
   .strict();
 export type MapWidgetQuery = z.infer<typeof MapWidgetQuerySchema>;

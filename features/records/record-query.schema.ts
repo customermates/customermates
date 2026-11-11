@@ -20,7 +20,9 @@ export const RecordReadSchema = RecordRefSchema.extend({
     .array(RecordRelationshipSelectionSchema)
     .max(32)
     .optional()
-    .describe("Relationship summaries to return in relationships, as in query_crm_records. Omitted returns none."),
+    .describe(
+      "Relationship summaries to return in relationships, selected the same way as the relationships of a record query. Omitted returns none.",
+    ),
   includePaths: z
     .array(RecordPathSelectionSchema)
     .max(32)
@@ -64,7 +66,7 @@ const ExpectedImpactHashSchema = z
   );
 
 const RECORD_MUTATION_DESCRIPTION =
-  "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action. Phone numbers, email addresses and social profiles are not fields: create and update carry them as identities inside this mutation object (with fields: [] when nothing else changes), and the list replaces the record's contact details, so include the ones to keep.";
+  "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends cannot conflict with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Only the fields of that action are allowed. Phone numbers, email addresses and social profiles are not fields: create and update carry them as identities inside this mutation object (with fields: [] when nothing else changes), and the list replaces the record's contact details, so it includes the ones to keep.";
 
 const ValidatedRecordMutationSchema = z.discriminatedUnion("action", [
   z
@@ -263,9 +265,7 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
       warnings: z
         .array(RecordWriteWarningSchema)
         .optional()
-        .describe(
-          "Address values were saved but look incomplete or implausible; correct them with another update where the user agrees.",
-        ),
+        .describe("Address values were saved but look incomplete or implausible."),
     })
     .strict(),
   z

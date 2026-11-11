@@ -14,12 +14,12 @@ export const manageCalendarTool = {
   name: "manage_calendar",
   title: "Manage the personal Calendar page",
   description:
-    "Read, change or reset the caller's personal Calendar page, which combines dated records of several lists with the caller's connected calendars. " +
-    "Call options first for the lists with date fields, their select colorFields and, when the plan and role allow it, the caller's own connected calendars, all by stable ID. " +
+    "Reads, changes or resets the caller's personal Calendar page, which combines dated records of several lists with the caller's connected calendars. " +
+    "options returns the lists with date fields, their select colorFields and, when the plan and role allow it, the caller's own connected calendars, all by stable ID. " +
     "read returns the configuration; while saved is false the caller sees a default with the first single date field of each list (else its first date range), up to twelve lists. " +
-    "Call read immediately before update and send only the config keys the user asked to change: sources and calendarIds each replace the whole list, so start from the current one and keep the id of a source you keep. Source filters use the filter fields of manage_data_views config for surfaceKey records:<typeId>. " +
-    "Set timeZone with the first update, because the default is UTC, and verify the returned configuration. reset removes the personal configuration, so the default applies again. " +
-    "These actions never change records, calendar events or another user's Calendar page. subscriptions lists the caller's calendar subscription URLs; revoke permanently disables one and calendar apps subscribed to it stop updating.",
+    "update changes only the config keys it receives: sources and calendarIds each replace the whole list, so a submitted list carries the current entries, including the id of every source that is kept. Source filters use the same filter fields as the saved views of the surface records:<typeId>. " +
+    "The default timeZone is UTC; update returns the resulting configuration. reset removes the personal configuration, so the default applies again. " +
+    "These actions leave records, calendar events and other users' Calendar pages unchanged. subscriptions lists the caller's calendar subscription URLs; revoke permanently disables one and calendar apps subscribed to it stop updating.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,

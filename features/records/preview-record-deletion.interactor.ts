@@ -31,15 +31,15 @@ const ValidatedDeletionPreviewSchema = z.union([
 ]);
 export const PreviewRecordDeletionRequestSchema = z
   .object({
-    ref: RecordRefSchema.optional().describe("The record to delete. Send with expectedVersion; omit targets."),
+    ref: RecordRefSchema.optional().describe("The record to delete. Requires expectedVersion and excludes targets."),
     targets: RecordMutationTargetsSchema.optional().describe(
-      "The selection for an atomic deleteMany preview. Omit ref and expectedVersion.",
+      "The selection for an atomic deleteMany preview. Excludes ref and expectedVersion.",
     ),
     expectedRevision: z
       .number()
       .int()
       .nonnegative()
-      .describe("The data model revision from discover_record_types or get_record_model."),
+      .describe("The current data model revision, as reported with the record types and the record model."),
     expectedVersion: z.number().int().positive().optional().describe("The latest version of ref."),
   })
   .strict();

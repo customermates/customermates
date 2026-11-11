@@ -452,7 +452,7 @@ describe("workspace-context Wiki discovery", () => {
 
   it("describes only the catalog fields, not a retrieval path for one audience", () => {
     expect(getWorkspaceContextTool.inputSchema.shape).not.toHaveProperty("wikiQuery");
-    expect(getWorkspaceContextTool.description).toContain("Pass wiki.nextPage as wikiPage");
+    expect(getWorkspaceContextTool.description).toContain("wiki.nextPage is the wikiPage value");
     expect(getWorkspaceContextTool.description).not.toMatch(/Mate|fetch|manage_wiki_pages|preview|wikiQuery/);
   });
 

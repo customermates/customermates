@@ -43,20 +43,20 @@ const ManageWidgetsSchema = z
       .int()
       .nonnegative()
       .optional()
-      .describe("Required for create and update: the configuration revision returned by get_record_model."),
+      .describe("Required for create and update: the current record model configuration revision."),
     expectedVersion: z
       .number()
       .int()
       .positive()
       .optional()
-      .describe("Required for update: the saved widget version returned by get or list. Omit on create."),
+      .describe("Required for update: the saved widget version as returned by get or list; not accepted on create."),
     idempotencyKey: z
       .string()
       .min(8)
       .max(200)
       .optional()
       .describe(
-        "Required for create and update: a stable retry key. Reuse it for the same request; use a new key for a different change.",
+        "Required for create and update: a stable retry key; the same request repeats the same key and a different change takes a new key.",
       ),
     measure: RecordMeasureSchema.optional().describe(
       "Count or aggregate records at source.typeId. Field and relationship references are stable IDs. Group paths and assignee groups use full attribution; the separate overall total counts each source record once. groupBy.dateInterval buckets a date grouping into calendar periods for time series.",
@@ -78,14 +78,14 @@ const ManageWidgetsSchema = z
       ),
     layout: WidgetPlacementSchema.optional(),
     window: CalendarWidgetWindowSchema.optional().describe(
-      "get only, calendar widgets: read these days instead of the widget's own range.",
+      "get only, calendar widgets: the days to read in place of the widget's own range.",
     ),
     viewId: z
       .uuid()
       .nullable()
       .optional()
       .describe(
-        "Dashboard view (manage_data_views surfaceKey dashboard) that holds the widget, or null for the main dashboard. Omit it to use the caller's current dashboard view on create or to keep the widget's view on update.",
+        "Dashboard view (a saved view of the dashboard surface) that holds the widget, or null for the main dashboard. Omitted: the caller's current dashboard view on create, the widget's own view on update.",
       ),
   })
   .strict()
@@ -120,7 +120,17 @@ export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. Calendar widgets use kind calendar and calendarQuery: layout upcoming lists the records of the next days (days, today included) with an overdue section for earlier dates (showOverdue; filter out finished records so only open ones count) and an optional amount column; layout month shows each day of the current month as a heat grid with a count, or the sum of amountFieldId with aggregation sum. dateFieldId must be a date, date-time, date range or date-time range field of the source list; a range puts each record on the day it starts and counts as overdue once it has ended; timeZone sets today and the day of date-time values. get with a calendar widget also accepts window {from, to} (at most 42 days) to read another month or one day. Map widgets use kind map and mapQuery: each record appears at the location stored with its address field (the building after an address lookup, otherwise the centre of its postal code), colorFieldId colors pins by a single-choice field, sizeFieldId sizes them by a number or currency field, detailFieldId adds a field to the popover; results report records without a location. Both read the same filters as chart sources and return only records and values the viewer may read. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 54 px with 12 px gaps) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. Dashboard views are saved views of manage_data_views surface dashboard; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and moves the widget to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never touches its source records.",
+    "Reads, creates, changes and deletes dashboard widgets. A created widget stays on the dashboard. " +
+    "list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. " +
+    "A chart is created with name, measure, displayOptions, expectedRevision and idempotencyKey. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. " +
+    "A chart is updated with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. " +
+    "Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. " +
+    "Calendar widgets use kind calendar and calendarQuery: layout upcoming lists the records of the coming days (days, today included) with an overdue section for earlier dates (showOverdue) and an optional amount column; layout month shows each day of the current month as a heat grid with a count, or the sum of amountFieldId with aggregation sum. dateFieldId must be a date, date-time, date range or date-time range field of the source list; a range puts each record on the day it starts and counts as overdue once it has ended; timeZone sets today and the day of date-time values. get with a calendar widget also accepts window {from, to} (at most 42 days) to read another month or one day. " +
+    "Map widgets use kind map and mapQuery: each record appears at the location stored with its address field (the building after an address lookup, otherwise the centre of its postal code), colorFieldId colors pins by a single-choice field, sizeFieldId sizes them by a number or currency field, detailFieldId adds a field to the popover; results report records without a location. Both read the same filters as chart sources and return only records and values the viewer may read. " +
+    "isTemplate controls sharing of configuration; viewers still need access to the underlying data. " +
+    "Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 54 px with 12 px gaps) is optional on create and update; without it a new widget is auto-placed in the first free spot with a size that fits its display type, and an existing widget keeps its place. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. " +
+    "Dashboard views are saved views of the dashboard surface; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. " +
+    "Delete requires id and moves the widget to Trash, where it is deleted permanently after 30 days; the returned trashBatchId identifies the Trash batch it can be restored from, and the source records stay untouched.",
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWidgetsSchema,
   outputSchema: z.looseObject({

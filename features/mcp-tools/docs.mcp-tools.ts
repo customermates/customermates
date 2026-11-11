@@ -36,9 +36,7 @@ const DocsSearchHitSchema = z.object({
   title: z.string(),
   url: z.string(),
   section: z.string().describe("Heading path of the best matching section, joined by ' > '"),
-  anchor: z
-    .string()
-    .describe("Heading anchor of that section; pass a nonempty anchor unchanged to get_docs_page as anchor"),
+  anchor: z.string().describe("Heading anchor of that section; empty for the opening text before the first heading"),
   snippet: z.string(),
 });
 const DocsSearchOutputSchema = z.object({
@@ -103,12 +101,11 @@ export const searchDocsTool = {
   name: "search_docs",
   title: "Search documentation",
   description:
-    "Use this when you need to search the Customermates documentation (product guides and REST API reference). " +
+    "Searches the Customermates documentation (product guides and REST API reference). " +
     "Matches the query's words in full text and, with AI credits, also by meaning. " +
     `Required: query. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api, all; default docs). ` +
     "Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. " +
-    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. " +
-    "Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -138,10 +135,10 @@ export const getDocsPageTool = {
   name: "get_docs_page",
   title: "Get documentation page",
   description:
-    "Use this when you need one Customermates documentation page as markdown, with its canonical URL. " +
-    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. " +
-    `Required: slug (from search_docs). Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs). ` +
-    "Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. " +
+    "Returns one Customermates documentation page as markdown, with its canonical URL. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace. " +
+    `Required: slug. Optional: locale (one of: ${docsLocaleList}; default ${DEFAULT_LOCALE}), source (one of: docs, api; default docs), anchor, query. ` +
+    "A nonempty section anchor returns that section, and query then focuses its content. Without anchor and query the full page is returned; query alone returns a bounded excerpt focused on that detail. " +
     "An unknown slug returns the valid slugs.",
   annotations: {
     readOnlyHint: true,
@@ -159,7 +156,7 @@ export const getDocsPageTool = {
       .max(200)
       .optional()
       .describe(
-        "Exact nonempty section anchor returned by search_docs; pins that section while query focuses its content",
+        "Exact nonempty section anchor, as returned in the anchor of a documentation search hit; pins that section while query focuses its content",
       ),
     query: z
       .string()

@@ -30,7 +30,7 @@ const addressPart = (max: number) => zx.nulFreeText().max(max).nullish();
 export const VerifyAddressSchema = z
   .object({
     street: addressPart(200).describe("Street with house number, as written in the country."),
-    line2: addressPart(200).describe("Apartment, floor or c/o; kept as entered and never checked."),
+    line2: addressPart(200).describe("Apartment, floor or c/o; kept as entered and not checked."),
     postalCode: addressPart(20),
     city: addressPart(200),
     region: addressPart(200),
@@ -44,7 +44,7 @@ export const AddressCandidateSchema = z
     candidateToken: z
       .string()
       .describe(
-        'Valid for 24 hours in this workspace: write {"kind":"address","candidateToken":"…"} to an address field to store this address as verified.',
+        'Valid for 24 hours in this workspace; the address field value {"kind":"address","candidateToken":"…"} stores this address as verified.',
       ),
     name: z.string().nullable().describe("Name of the matched place, such as a business or building, or null."),
     address: RecordAddressSchema,
@@ -57,12 +57,12 @@ export const AddressLookupResultSchema = z
     available: z
       .boolean()
       .describe(
-        "False when address lookup is off on this server; then write the address parts, which stay unverified.",
+        "False when address lookup is off on this server; candidates is then empty and written address parts stay unverified.",
       ),
     attribution: z
       .string()
       .nullable()
-      .describe("Source credit to show with the candidates, such as © OpenStreetMap contributors."),
+      .describe("Source credit for the candidates, such as © OpenStreetMap contributors."),
     candidates: z.array(AddressCandidateSchema),
   })
   .strict();

@@ -15,10 +15,8 @@ export const requestSupportTool = {
   name: "request_support",
   title: "Request support",
   description:
-    "Email a support request to the Customermates team. SIDE EFFECT: sends a real email. " +
-    "Use when the user has a question, bug report, or request that needs a human. " +
-    "Include all relevant context in the description. The Customermates team replies to the email address " +
-    "on the user's account. Returns confirmation only after the email provider accepts the request.",
+    "Emails a support request with a subject and a full description to the Customermates team. SIDE EFFECT: sends a real email. " +
+    "The Customermates team replies to the email address on the user's account. Returns confirmation only after the email provider accepts the request.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,

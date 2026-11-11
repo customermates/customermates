@@ -18,9 +18,7 @@ export const RecordOperationStatusSchema = z
       .int()
       .positive()
       .nullable()
-      .describe(
-        "Wait this many milliseconds before polling a pending or staging operation again; null for a terminal state.",
-      ),
+      .describe("Milliseconds to wait before polling a pending or staging operation again; null for a terminal state."),
   })
   .strict();
 export type RecordOperationStatus = z.infer<typeof RecordOperationStatusSchema>;

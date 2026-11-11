@@ -54,7 +54,7 @@ export const RecordMeasureSchema = z
             "Bucket a date or dateTime field, system:createdAt or system:updatedAt into calendar periods. Rejected for any other grouping. Weeks start on Monday (ISO). Each group label is the bucket start as a date (YYYY-MM-DD); groups are returned in chronological order and only periods with records appear. Records without a date form the missing group. Every bucket counts toward groupLimit; raise it up to 1000 for long daily series.",
           ),
         timeZone: TimeZoneSchema.optional().describe(
-          "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and never shift.",
+          "IANA time zone that dateTime values and system timestamps are bucketed in. Requires dateInterval; defaults to UTC. Date-only values are calendar dates and stay on their date.",
         ),
         filter: RecordMeasureGroupFilterSchema.optional().describe(
           "Limit the terminal records that appear as groups using the same validated filters as record queries. Every path step requires access. Overall totals still use source filters; repeat relevant filters there to limit both contributions and groups.",
@@ -69,7 +69,7 @@ export const RecordMeasureSchema = z
       .max(RECORD_MEASURE_MAX_GROUP_LIMIT)
       .default(RECORD_MEASURE_DEFAULT_GROUP_LIMIT)
       .describe(
-        "Maximum number of groups, including the missing group. A measure with more groups fails instead of truncating.",
+        "Maximum number of groups, including the missing group. A measure with more groups fails rather than truncating.",
       ),
   })
   .strict();

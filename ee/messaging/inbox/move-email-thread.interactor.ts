@@ -24,9 +24,12 @@ import type { MoveEmailThreadAccountRepo } from "./move-email-thread-account.rep
 import type { MoveEmailThreadRepo, MoveThread } from "./move-email-thread.repo";
 
 export const MoveEmailThreadSchema = z.object({
-  threadId: z.uuid().describe("Email thread id from get_messaging_threads.items[].id"),
+  threadId: z.uuid().describe("Id of the email thread, as listed in the inbox"),
   messageId: z.uuid().optional().describe("Email message id in this thread. Omit to move all eligible emails"),
-  folderId: z.string().min(1).describe("Target id from thread.folder.moveTargets; never a folder name"),
+  folderId: z
+    .string()
+    .min(1)
+    .describe("Id of the target folder, taken from the thread's folder.moveTargets; a folder name is not accepted"),
 });
 export type MoveEmailThreadData = Data<typeof MoveEmailThreadSchema>;
 
