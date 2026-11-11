@@ -1,6 +1,6 @@
 ---
-title: "Vertriebssoftware für kleine Teams: Deals und Pipeline"
-description: "Vertriebssoftware für kleine Teams: Deals auf dem Phasen-Board, gewichtete Pipeline und Kundengespräche am Kontakt. Tarife, Einrichtung, Grenzen, Kosten."
+title: "Vertriebssteuerung und Vertriebssoftware für kleine Teams"
+description: "Vertriebssteuerung für kleine Teams: welche Felder und Kennzahlen zählen, eine Wochenrunde mit Rechenbeispiel und die Einrichtung in Customermates."
 featureName: Vertriebssoftware
 
 relatedHrefs:
@@ -15,11 +15,13 @@ sections:
   steps:
     items:
       - title: "Phasen anpassen"
-        description: "Öffnen Sie unter Konfigurieren die Deals und das Feld Phase. Benennen Sie die Optionen so, wie Sie verkaufen, zum Beispiel „Erstgespräch“ und „Angebot verschickt“, und prüfen Sie die Wahrscheinlichkeit % jeder Option."
+        description: "Öffnen Sie unter Datenmodell die Deals und das Feld Phase. Benennen Sie die Optionen so, wie Sie verkaufen, zum Beispiel „Erstgespräch“ und „Angebot verschickt“, und prüfen Sie die Wahrscheinlichkeit % jeder Option."
+      - title: "Steuerungsfelder anlegen"
+        description: "Legen Sie unter Datenmodell bei den Deals über Hinzufügen › Feld Voraussichtlicher Abschluss, Nächster Schritt und Abgeschlossen am (Datum) sowie Leadquelle und Verlustgrund (Einzelauswahl) an. Jede Kennzahl der Wochenrunde braucht eines davon."
       - title: "Bestehende Daten importieren"
         description: "Nutzen Sie Aus Datei hinzufügen mit einer Excel-Arbeitsmappe oder CSV-Datei, immer ein Datensatztyp nach dem anderen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungen werden über den Namen des Datensatzes zugeordnet, eine Organisation muss also existieren, bevor ein Deal auf sie verweisen kann."
-      - title: "Zwei Ansichten speichern"
-        description: "„Meine offenen Deals“: Zugewiesen sind Sie, Phase ist nicht Gewonnen oder Verloren, sortiert nach Wert, als Board. „Bald abschließen“: ein Filter auf das Feld „Voraussichtlicher Abschluss“, als Tabelle."
+      - title: "Ansichten für die Wochenrunde speichern"
+        description: "„Meine offenen Deals“ als Board, „Bald abschließen“, „Ohne nächsten Schritt“ und „Liegengeblieben“ (Aktualisiert am älter als 14 Tage). Teilen Sie sie mit dem Team, damit alle dieselben Deals besprechen."
       - title: "Posteingang verbinden (ab Pro)"
         description: "Verbinden Sie unter Einstellungen › Kanäle das Postfach oder LinkedIn-Konto, aus dem Sie verkaufen."
   highlights:
@@ -27,17 +29,17 @@ sections:
     capture: homepage-pipeline
     items:
       - title: "Was Sie bekommen"
-        description: "Deals mit Kontakten, Organisationen, Services und Aufgaben, ein Phasen-Board, eine gewichtete Pipeline, teilbare gespeicherte Ansichten und Dashboard-Diagramme."
+        description: "Deals mit Kontakten, Organisationen, Services und Aufgaben, ein Phasen-Board, eine gewichtete Pipeline, teilbare gespeicherte Ansichten und Dashboard-Widgets für die Kennzahlen der Woche."
       - title: "Tarife"
         description: "Pipeline und Dashboards ab Starter für [[commercial.price.starter.monthly]] pro Nutzer und Monat. Der einheitliche Posteingang beginnt mit Pro für [[commercial.price.pro.monthly]]."
       - title: "KI"
         description: "In Customermates Cloud bereitet Mate Zusammenfassungen, Antwortentwürfe und Deal-Updates vor und verbraucht dabei gehostete KI-Credits. Ihr eigener KI-Client arbeitet in jedem Tarif über MCP."
       - title: "Nicht enthalten"
-        description: "Keine Sequenzen oder Massenmails, keine Telefonie, kein Lead-Scoring, keine Angebote oder Rechnungen, keine prädiktive Umsatzprognose und keine Mobile-App."
+        description: "Keine Vertriebsziele oder Quoten, keine Sequenzen oder Massenmails, keine Telefonie, kein Lead-Scoring, keine Angebote oder Rechnungen, keine prädiktive Umsatzprognose und keine Mobile-App."
 
 hero:
-  title: "Vertriebssoftware für kleine Teams: jeder offene Deal mit nächstem Schritt"
-  description: "Offene Deals, beteiligte Personen und das letzte Gespräch an einem Ort. Ab Pro liegen LinkedIn- und E-Mail-Verläufe am Kontakt, und Mate entwirft das Nachfassen, das Sie prüfen und senden."
+  title: "Vertriebssteuerung für kleine Teams: jeder offene Deal mit nächstem Schritt"
+  description: "Erfassen Sie Wert, Phase, Zuständigkeit und einen datierten nächsten Schritt an jedem Deal und prüfen Sie jede Woche dieselben wenigen Kennzahlen. Ab Pro liegen LinkedIn- und E-Mail-Verläufe am Kontakt, und Mate entwirft das Nachfassen, das Sie prüfen und senden."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
@@ -45,8 +47,8 @@ hero:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 
 cta:
-  action: Richten Sie Ihre Pipeline in der Testphase ein
-  description: "Phasen umbenennen, offene Deals importieren und LinkedIn oder E-Mail verbinden, damit jeder Deal sein Gespräch neben sich hat. Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet."
+  action: Richten Sie Ihre Vertriebssteuerung in der Testphase ein
+  description: "Phasen umbenennen, Steuerungsfelder anlegen, offene Deals importieren und die Ansichten für die Wochenrunde speichern, damit jeder Deal seinen nächsten Schritt und sein Gespräch neben sich hat. Tarife ab [[commercial.price.starter.monthly]] pro Nutzer und Monat, monatlich abgerechnet."
   buttonLeftText: "[[commercial.trial.days]] Tage kostenlos testen"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Live-Demo ansehen
@@ -54,107 +56,145 @@ cta:
   hint: "✓ Keine Kreditkarte benötigt ✓ Erste [[commercial.trial.days]] Tage kostenlos"
 ---
 
-Vertriebssoftware im Sinne eines Vertriebs-CRM hält fest, welche Deals offen sind, was sie wert sind, in welcher Phase sie stehen und wer auf Kundenseite beteiligt ist. So sieht jeder im Team den nächsten Schritt, nicht nur die Person, die zuletzt telefoniert hat. Customermates ist ein KI-CRM für kleine Teams mit direktem Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer, die selbst verkaufen. Deals liegen nach Phasen auf einem Board, jede Phase mit eigener Abschlusswahrscheinlichkeit, und ab dem Tarif Pro erscheinen E-Mails sowie LinkedIn-, WhatsApp-, Instagram- und Telegram-Nachrichten beim passenden Kontakt.
+Vertriebssteuerung heißt, jeden Deal mit Wert, Phase, Zuständigkeit, voraussichtlichem Abschluss und nächstem Schritt an einem Ort festzuhalten und an einem festen Tag immer dieselben wenigen Kennzahlen anzusehen. Eine Vertriebssoftware im Sinne eines CRM liefert dafür die Liste und die Auswertung. Customermates ist ein KI-CRM für kleine Teams mit direktem Kundenkontakt: Beratungen, Agenturen, andere Dienstleister und Gründer, die selbst verkaufen. Deals liegen nach Phasen auf einem Board, jede Phase mit eigener Abschlusswahrscheinlichkeit, und ab dem Tarif Pro erscheinen E-Mails sowie LinkedIn-, WhatsApp-, Instagram- und Telegram-Nachrichten beim passenden Kontakt. Diese Seite nennt, was Sie erfassen und auswerten sollten, zeigt die Felder und Ansichten hinter jeder Kennzahl und rechnet eine Wochenrunde an Beispieldaten durch.
 
 Für Kaltakquise in großer Stückzahl ist Customermates nicht gebaut. Wenn Ihr Team Termine vor allem über viele Kontaktversuche gewinnt, ist die Tabelle mit Alternativen weiter unten der nützlichere Teil dieser Seite.
 
 Noch ein Hinweis zum Begriff: Manche meinen mit „Vertriebssoftware“ Programme für Warenwirtschaft, Lager und Auslieferung. Das leistet ein ERP- oder Warenwirtschaftssystem, kein CRM. Wie beides zusammenspielt, steht im Beitrag [CRM und ERP](/blog/crm-and-erp).
 
-## CRM im Vertrieb: was ein CRM im kleinen Vertriebsteam leistet
+## Was braucht die Vertriebssteuerung in einem kleinen Team?
+
+Zwölf Kennzahlen decken die meisten Entscheidungen eines Teams mit einigen Dutzend offenen Deals ab: sieben für die Wochenrunde, fünf zum Monatsende. Zu jeder steht, wie sie berechnet wird und wo sie in Customermates liegt.
+
+**Jede Woche: Ist die Pipeline gesund?**
+
+| Was Sie erfassen | So wird es berechnet | Wo es in Customermates liegt |
+|---|---|---|
+| Wert der offenen Pipeline | Summe von **Wert** bei Deals, deren Phase nicht Gewonnen oder Verloren ist | Ein Widget **Kennzahl** (Summe von Wert, gefiltert nach Phase) oder die Spaltensummen auf dem Phasen-Board |
+| Gewichtete Pipeline | Dieselben Deals, Summe von **Gewichteter Wert**: Wert mal **Wahrscheinlichkeit %** der Phase | Dasselbe Widget mit Gewichteter Wert oder ein Balkendiagramm von Gewichteter Wert nach Phase |
+| Deals pro Phase | Anzahl der offenen Deals je Phase | Ein **Trichter**-Diagramm oder die Anzahl je Boardspalte. Der Trichter zeigt die aktuellen Deals, keine Konversion im Zeitverlauf. |
+| Abschluss in 30 Tagen | Offene Deals, deren **Voraussichtlicher Abschluss** in den nächsten 30 Tagen liegt | Ein Widget **Anstehend** auf Voraussichtlicher Abschluss, auf 30 Tage gestellt, oder eine gespeicherte Ansicht, nach Voraussichtlicher Abschluss sortiert |
+| Ohne nächsten Schritt | Offene Deals, bei denen **Nächster Schritt** leer ist | Eine gespeicherte Ansicht: Nächster Schritt ist leer, Phase ist nicht Gewonnen oder Verloren |
+| Liegengebliebene Deals | Offene Deals, die seit 14 Tagen niemand bearbeitet hat | Eine gespeicherte Ansicht: **Aktualisiert am** älter als 14 Tage, Phase ist nicht Gewonnen oder Verloren. Sie sieht Änderungen am Deal, keine Nachrichten. |
+| Deals pro Person | Anzahl, Wert und gewichteter Wert je zuständiger Person | Das Deal-Board, nach **Zugewiesen** gruppiert. Es ist schreibgeschützt, und ein Deal mit zwei zugewiesenen Personen erscheint bei beiden. |
+
+**Jeden Monat: Was haben wir gewonnen, und warum?**
+
+| Was Sie erfassen | So wird es berechnet | Wo es in Customermates liegt |
+|---|---|---|
+| Gewonnen im Monat | Anzahl und Summe von Wert bei Deals mit der Phase Gewonnen und **Abgeschlossen am** im Monat | Zwei Widgets **Kennzahl** mit Filter auf Abgeschlossen am oder ein Diagramm **Fläche im Zeitverlauf** von Wert, nach Abgeschlossen am gruppiert, Zeitintervall Monat |
+| Abschlussquote | Gewonnen geteilt durch (Gewonnen plus Verloren) bei den im Zeitraum abgeschlossenen Deals | Zwei Widgets **Kennzahl**, Anzahl Gewonnen und Anzahl Verloren für denselben Zeitraum, von Hand geteilt. In Customermates Cloud kann Mate sie berechnen. |
+| Durchschnittlicher Gewinn-Deal | Durchschnitt von Wert, wenn die Phase Gewonnen ist | Ein Widget **Kennzahl** mit der Aggregation Durchschnitt |
+| Woher Gewinne kommen | Wert gewonnener Deals nach **Leadquelle** | Ein Balkendiagramm oder **Ring**, nach Leadquelle gruppiert und auf die Phase Gewonnen gefiltert |
+| Warum Deals verloren gehen | Anzahl verlorener Deals nach **Verlustgrund** | Eine **Rangliste**, nach Verlustgrund gruppiert und auf die Phase Verloren gefiltert |
+
+Abgeschlossen am ist ein Datumsfeld, das Sie selbst anlegen. Tragen Sie es ein, wenn Sie einen Deal auf Gewonnen oder Verloren setzen, oder bitten Sie Mate oder Ihren eigenen KI-Client, es zusammen mit der Phase zu setzen. Die Abschlussquote zählt hier Deals und gewichtet sie nicht nach Wert.
+
+Und die Vertriebsaktivität? Das Widget **Aktivitätsverlauf** listet Datensatzänderungen und ab Pro die Nachrichten und Termine verbundener Konten; Sie können es nach verknüpften Datensätzen filtern, etwa alles, was bei Ihren fünf größten Deals passiert ist. Es ist ein Verlauf zum Lesen, kein Zähler für Anrufe oder E-Mails pro Person, und Telefonie gibt es nicht.
+
+## Welche Felder braucht eine Deal-Liste für die Vertriebssteuerung?
+
+Eine Liste ist nur so gut wie ihre Spalten. Diese elf braucht eine Deal-Liste, damit jede Kennzahl oben berechnet werden kann.
+
+| Spalte | Feldtyp in Customermates | Speist |
+|---|---|---|
+| Name des Deals | Name | Jede Ansicht |
+| Organisation und Kontakte | Verknüpfungen zu Ihren Organisationen und Kontakten | Die Gespräche am Kontakt |
+| Phase | Einzelauswahl, jede Option mit einer **Wahrscheinlichkeit %** | Pipeline, gewichtete Pipeline, Trichter |
+| Wert | Währung oder berechnet aus Positionen, jeweils Service mal Menge | Wert der Pipeline, durchschnittlicher Gewinn-Deal |
+| Gewichteter Wert | Berechnet: Wert mal Wahrscheinlichkeit % der Phase | Gewichtete Pipeline |
+| Zuständigkeit | **Zugewiesen**, ein Nutzer oder mehrere | Deals pro Person |
+| Voraussichtlicher Abschluss | Datum | Abschluss in 30 Tagen |
+| Nächster Schritt | Datum, dazu eine Aufgabe oder Notiz, die sagt, was es ist | Ohne nächsten Schritt, Widget Anstehend |
+| Leadquelle | Einzelauswahl: Empfehlung, LinkedIn, Website, Veranstaltung | Woher Gewinne kommen |
+| Abgeschlossen am | Datum | Gewonnen im Monat, Abschlussquote |
+| Verlustgrund | Einzelauswahl: Preis, Zeitpunkt, Wettbewerber, Keine Entscheidung | Warum Deals verloren gehen |
+
+Ein neuer Workspace startet ohne Listen. In Customermates Cloud kann die KI-Einrichtung eine Deal-Liste aus Ihrer Beschreibung aufbauen; sonst legen Sie die Felder im Datenmodell an, was beim Self-Hosting auch der einzige Weg ist. Voraussichtlicher Abschluss, Nächster Schritt, Leadquelle, Abgeschlossen am und Verlustgrund sind gewöhnliche eigene Felder; Namen und Optionen ändern Sie, sobald sich Ihr Vertriebsprozess ändert. Der Wert eines Deals kann die Summe seiner Positionen sein: Zwei Workshoptage zu je 1.500 und zehn Coachingstunden zu je 150 ergeben einen Deal-Wert von 4.500.
+
+## Wie richte ich die Vertriebssteuerung in Customermates ein?
+
+<Steps>
+  <Step title="Phasen anpassen">Öffnen Sie unter **Datenmodell** die Deals und das Feld **Phase**. Benennen Sie die Optionen so, wie Sie verkaufen, zum Beispiel „Erstgespräch“ und „Angebot verschickt“, und legen Sie die **Wahrscheinlichkeit %** jeder Option fest: etwa Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Eine Vorschau zeigt vor dem Speichern die Auswirkung auf Berechnungen und Widgets.</Step>
+  <Step title="Services anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis: ein Retainer, ein Workshoptag, eine Lizenz. Daraus setzen sich die Positionen und damit die Deal-Werte zusammen.</Step>
+  <Step title="Die fünf Steuerungsfelder anlegen">Legen Sie bei den Deals über **Hinzufügen › Feld** an: Voraussichtlicher Abschluss, Nächster Schritt und Abgeschlossen am (Datum), Leadquelle (Einzelauswahl mit Empfehlung, LinkedIn, Website und Veranstaltung) sowie Verlustgrund (Einzelauswahl mit Preis, Zeitpunkt, Wettbewerber und Keine Entscheidung).</Step>
+  <Step title="Bestehende Daten importieren">Nutzen Sie **Aus Datei hinzufügen** mit einer Excel-Arbeitsmappe oder CSV-Datei, immer ein Datensatztyp nach dem anderen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungen werden über den Namen des Datensatzes zugeordnet, eine Organisation muss also existieren, bevor ein Deal auf sie verweisen kann.</Step>
+  <Step title="Ansichten für die Wochenrunde speichern">„Meine offenen Deals“: Zugewiesen sind Sie, Phase ist nicht Gewonnen oder Verloren, sortiert nach Wert, als Board. „Bald abschließen“: Phase ist nicht Gewonnen oder Verloren, nach Voraussichtlicher Abschluss sortiert, als Tabelle. „Ohne nächsten Schritt“ und „Liegengeblieben“ wie in der Tabelle oben. Filterregeln werden mit UND verknüpft: Eine Ansicht mit beiden Regeln zeigt nur Deals, die liegen geblieben sind und zugleich keinen nächsten Schritt haben. Legen Sie deshalb zwei Ansichten an. Teilen Sie die Ansichten mit dem ganzen Team oder mit ausgewählten Rollen.</Step>
+  <Step title="Dashboard-Widgets anlegen">Ein Widget **Kennzahl** für die gewichtete Pipeline, ein Balkendiagramm von Gewichteter Wert nach Phase, ein Widget **Anstehend** auf Nächster Schritt und ein Diagramm des Werts gewonnener Deals nach Leadquelle.</Step>
+  <Step title="Posteingang verbinden (ab Pro)">Verbinden Sie unter **Einstellungen › Kanäle & Kalender** das Postfach oder LinkedIn-Konto, aus dem Sie verkaufen.</Step>
+</Steps>
+
+Import, Ansichten und Board erklärt die [Anleitung zu Datensätzen](/docs/app-records) Schritt für Schritt, und die [Anleitung zum Dashboard](/docs/app-dashboard) listet jedes Widget mit seinen Optionen. Die [Pipeline-Seite](/features/pipeline) zeigt das Board genauer.
+
+## Wie sieht eine wöchentliche Vertriebsrunde aus?
+
+Nehmen wir fünf offene Deals einer kleinen Beratung. Die Zahlen sind für das Beispiel erfunden und stammen nicht von einem Kunden.
+
+| Deal | Phase (Wahrscheinlichkeit) | Wert | Gewichteter Wert | Nächster Schritt gesetzt | Abschluss in | Zuletzt bearbeitet |
+|---|---|---|---|---|---|---|
+| Nord Retainer | Verhandlung (80 %) | 12.000 | 9.600 | Ja | 9 Tagen | vor 1 Tag |
+| Bauer Website-Relaunch | Angebot (60 %) | 6.000 | 3.600 | Ja | 19 Tagen | vor 2 Tagen |
+| Lindner Coaching | Angebot (60 %) | 2.400 | 1.440 | Nein | 24 Tagen | vor 16 Tagen |
+| Keller Workshopreihe | Demo (40 %) | 4.500 | 1.800 | Nein | 34 Tagen | vor 19 Tagen |
+| Meyer Markensprint | Qualifizierung (20 %) | 3.000 | 600 | Ja | 80 Tagen | vor 6 Tagen |
+| **Summe** | | **27.900** | **17.040** | | | |
+
+Gehen Sie in dieser Reihenfolge vor:
+
+1. **Pipeline-Wert.** Die offene Pipeline liegt bei 27.900, die gewichtete bei 17.040. Allein der Nord Retainer trägt 9.600 des gewichteten Werts, 56 Prozent, ein verlorenes Verhandlungsgespräch verändert also das Bild. Er bekommt die ersten Minuten der Runde.
+2. **Abschluss in 30 Tagen.** Nord, Bauer und Lindner stehen innerhalb von 30 Tagen an: 20.400 Wert, gewichtet 14.640. Keller mit 34 Tagen liegt außerhalb des Fensters.
+3. **Ohne nächsten Schritt.** Lindner und Keller.
+4. **Liegengebliebene Deals.** Lindner (16 Tage) und Keller (19 Tage).
+5. **Entscheiden.** Lindner steht auf beiden Listen und soll in 24 Tagen abschließen. Setzen Sie diese Woche einen datierten nächsten Schritt, korrigieren Sie Voraussichtlicher Abschluss und Phase auf das, was stimmt, oder schließen Sie den Deal mit einem Grund als Verloren. Keller braucht einen nächsten Schritt oder einen späteren Abschlusstermin. Ein Deal, der still ist, keinen nächsten Schritt hat und bald fällig wäre, ist die Stelle, an der eine Pipeline-Summe die Wirklichkeit am meisten überzeichnet.
+
+Angenommen, im Monat wurden vier Deals gewonnen und sechs verloren: Die Abschlussquote ist 4 geteilt durch 10, also 40 Prozent, und das Diagramm nach Verlustgrund zeigt, auf welchen Einwand Sie sich vorbereiten sollten. Die Definitionen der Phasen hinter dem Board stehen im [Leitfaden zur Sales-Pipeline](/blog/sales-pipeline), und wie aus einer gewichteten Pipeline eine Quartalszahl wird, im Beitrag zur [Umsatzprognose im Vertrieb](/blog/sales-forecasting).
+
+## Reicht für die Vertriebssteuerung eine Excel-Liste?
+
+Für eine Person mit einer Handvoll Deals oft schon. Die Frage ist, was die Tabelle nicht mehr leistet, sobald mehr Menschen und mehr Gespräche beteiligt sind.
+
+| Frage | Excel-Liste | Customermates |
+|---|---|---|
+| Wer hält sie aktuell? | Die Person, die jeden Deal einträgt | Mehrere Personen, jede mit den Datensätzen, die ihre Rolle erlaubt |
+| Woher kommen die Summen? | Formeln, die Sie schreiben und intakt halten | Spaltensummen auf dem Board und ein Gewichteter Wert, der aus den Phasenwahrscheinlichkeiten berechnet wird |
+| Wo liegt das Gespräch? | Im Postfach und in LinkedIn, abseits der Zeile | Ab Pro am Kontakt, einen Klick vom Deal entfernt |
+| Was hat sich am Deal geändert? | Sie erinnern sich oder vergleichen Versionen | Der Änderungsverlauf des Deals |
+| Wie fange ich an? | Mit einer leeren Tabelle | Sie importieren Ihre Tabelle als XLSX oder CSV |
+
+Unsere [Excel-CRM-Vorlage](/blog/excel-crm-template) enthält ein geprüftes Tabellenlayout, und ihre Checkliste nennt den Zeitpunkt zum Umstieg. Eine Tabelle, die Sie heute führen, lässt sich als XLSX oder CSV importieren, immer ein Datensatztyp nach dem anderen.
+
+## Was ist Vertriebssoftware, und was leistet ein CRM im Vertrieb?
 
 Ein CRM im Vertrieb beantwortet in einem kleinen Team vier Fragen: Wer ist die Person, und zu welchem Unternehmen gehört sie? Welche Deals sind offen, und in welcher Phase stehen sie? Was wurde zuletzt besprochen, und auf welchem Kanal? Und was ist der nächste Schritt, wer macht ihn? In kleinen Teams scheitert der Vertrieb selten an der Grafik zur Pipeline, sondern am Nachfassen: Das Angebot ist raus, der Kunde antwortet auf LinkedIn, die Zusage steht in einer E-Mail, und niemand sieht beides.
 
-Customermates hält das Gespräch deshalb dort, wo der Deal liegt. Ab Pro erscheinen E-Mails sowie LinkedIn-, WhatsApp-, Instagram- und Telegram-Nachrichten beim passenden Kontakt. In Customermates Cloud liest Mate den Deal und das Gespräch und entwirft die Antwort; Sie prüfen, ändern und senden sie selbst. So wird aus „CRM im Vertrieb“ ein konkretes Versprechen: Sie fassen bei jedem Kundengespräch nach.
-
-| Aufgabe im Vertrieb | Was ein CRM dafür festhält | In Customermates |
+| Aufgabe im Vertrieb | Was eine Vertriebssoftware dafür festhält | In Customermates |
 |---|---|---|
 | Deals und Phasen | Wert, Phase und Zuständigkeit | Phasen-Board mit Abschlusswahrscheinlichkeit und gewichtetem Wert |
 | Gespräche | Verlauf pro Kontakt | Ab Pro im einheitlichen Posteingang beim Kontakt |
 | Nachfassen | Antwort und nächster Schritt | Entwurf von Mate oder Ihrem eigenen KI-Client, den Sie prüfen und senden |
 
-## Was Customermates im Vertrieb leistet
+## Wie passen Gespräche und Mate in die Vertriebssteuerung?
 
-**Deals und ihr Wert.** Ein Deal ist mit Kontakten, Organisationen, zugewiesenen Nutzern, Aufgaben und über seine Positionen mit den Services verknüpft, die Sie verkaufen. Seinen Wert tippen Sie nicht ein, er ist die Summe seiner Positionen, jeweils Service mal Menge. Zwei Workshoptage zu je 1.500 und zehn Coachingstunden zu je 150 ergeben einen Deal-Wert von 4.500.
+**Gespräche beim Kontakt (ab Pro).** Verbinden Sie Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram im [einheitlichen Posteingang](/features/unified-inbox). Sobald ein Kontakt die E-Mail-Adresse oder das Profil trägt, erscheint jedes Gespräch damit in seinem Verlauf, und „Was ist bei diesem Deal passiert?“ ist einen Klick vom Deal entfernt. Nachrichten hängen am Kontakt, und eine einzelne Unterhaltung lässt sich auch mit einem Deal verknüpfen; nichts wird automatisch einem Deal zugeordnet.
 
-**Phasen mit Abschlusswahrscheinlichkeit.** Die Phase ist ein Einzelauswahl-Feld, meist Phase genannt. Phasen sind nicht vorgegeben: Sie legen das Feld unter **Datenmodell** an Ihrer Deal-Liste an (in der Cloud kann die KI-Einrichtung es anlegen), zum Beispiel mit Akquise 10 %, Qualifizierung 20 %, Demo 40 %, Angebot 60 %, Verhandlung 80 %, Gewonnen 100 % und Verloren 0 %. Sie können Phasen umbenennen, ergänzen und neu ordnen und die Wahrscheinlichkeiten als **Wahrscheinlichkeit %** an jeder Option des Felds Phase unter **Datenmodell** ändern. Der gewichtete Wert eines Deals ist sein Wert mal der Wahrscheinlichkeit seiner aktuellen Phase.
-
-**Das Board.** Stellen Sie die Deal-Liste auf das Board um, gruppiert nach Phase, und ziehen Sie eine Karte in die nächste Spalte. Jeder Spaltenkopf zeigt die Zahl der Deals und die Summen, die Sie für die Gruppierung wählen, etwa **Wert** und **Gewichteter Wert**. Gruppieren Sie dasselbe Board nach **Zugewiesen**, bekommt jede Person eine eigene Spalte mit Anzahl und Summen; dieses Board ist schreibgeschützt. Die [Pipeline-Seite](/features/pipeline) zeigt das Board genauer.
-
-**Gespeicherte Ansichten.** Filter, Sortierung, Gruppierung und Layout speichern Sie gemeinsam als benannte Ansicht, etwa „Meine offenen Deals nach Wert“. Teilen Sie eine Ansicht mit dem ganzen Team oder mit ausgewählten Rollen, und alle arbeiten mit denselben Filtern; jede Person sieht trotzdem nur die Datensätze, die ihre Rolle erlaubt.
-
-**Dashboard-Diagramme.** Ein Diagramm zählt Deals oder summiert **Wert** oder **Gewichteter Wert**, gruppiert nach einem Feld wie Phase oder Leadquelle. Diagramme gehören der Person, die sie angelegt hat. Teilen Sie eine benannte Dashboard-Ansicht mit dem Team, damit alle dieselben Diagramme sehen, oder legen Sie mit **Als Vorlage freigeben** fest, dass andere eine eigene Kopie davon anlegen können.
-
-**Gespräche beim Kontakt (ab Pro).** Verbinden Sie Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram oder Telegram im [einheitlichen Posteingang](/features/unified-inbox). Sobald ein Kontakt die E-Mail-Adresse oder das Profil trägt, erscheint jedes Gespräch damit in seinem Verlauf. Nachrichten hängen am Kontakt, und eine einzelne Unterhaltung lässt sich auch mit einem Deal verknüpfen; vom Deal aus ist das letzte Gespräch einen Klick entfernt, beim verknüpften Kontakt.
-
-**Hilfe durch KI.** In Customermates Cloud liest Mate einen Deal, seine Notizen und die Gespräche mit seinen Kontakten und schreibt eine Zusammenfassung, einen Antwortentwurf oder das Update, um das Sie bitten. Dafür verbraucht Mate gehostete KI-Credits. Ihr eigener KI-Client, etwa Claude oder ChatGPT, erledigt dieselbe Arbeit über MCP mit [[derived.mcp.tools.total]] Tools, in jedem Tarif und auch beim Self-Hosting.
-
-## Welcher Tarif passt
-
-| Tarif | Funktionen für den Vertrieb | Preis |
-|---|---|---|
-| Starter | Deals, Phasen-Board, gewichtete Pipeline, gespeicherte Ansichten, Dashboard-Diagramme, XLSX-Import und -Export, REST, Webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer | [[commercial.price.starter.monthly]] pro Nutzer und Monat |
-| Pro | Starter plus einheitlicher Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer, LinkedIn Sales Navigator, Lesezugriff auf den Kalender, [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer | [[commercial.price.pro.monthly]] pro Nutzer und Monat |
-| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer, geteilte Konten und ein teamweiter Verlauf über alle Kanäle | [[commercial.price.business.monthly]] pro Nutzer und Monat |
-| Self-Hosting | Der Funktionsumfang von Starter auf Ihrem eigenen Server, ohne Posteingang, Mate und Routinen | Keine Lizenzgebühr; Sie zahlen Ihre eigene Infrastruktur |
-
-Abgerechnet wird monatlich. Jeder bezahlte Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate; die Mengen stehen auf der [Preisseite](/pricing).
-
-## Vertriebspipeline in Customermates einrichten
-
-<Steps>
-  <Step title="Phasen anpassen">Öffnen Sie unter **Datenmodell** die Deals und das Feld **Phase**. Benennen Sie die Optionen so, wie Sie verkaufen, zum Beispiel „Erstgespräch“ und „Angebot verschickt“, und prüfen Sie die **Wahrscheinlichkeit %** jeder Option.</Step>
-  <Step title="Services anlegen">Legen Sie unter **Services** an, was Sie verkaufen, jeweils mit Preis: ein Retainer, ein Workshoptag, eine Lizenz. Daraus setzen sich die Positionen und damit die Deal-Werte zusammen.</Step>
-  <Step title="Drei eigene Felder für Deals anlegen">Ein Feld vom Typ Datum „Voraussichtlicher Abschluss“, eine Einzelauswahl „Leadquelle“ mit Empfehlung, LinkedIn, Website und Veranstaltung sowie eine Einzelauswahl „Verlustgrund“ mit Preis, Zeitpunkt, Wettbewerber und Keine Entscheidung.</Step>
-  <Step title="Bestehende Daten importieren">Nutzen Sie **Aus Datei hinzufügen** mit einer Excel-Arbeitsmappe oder CSV-Datei, immer ein Datensatztyp nach dem anderen: zuerst Organisationen, dann Kontakte, dann Deals. Verknüpfungen werden über den Namen des Datensatzes zugeordnet, eine Organisation muss also existieren, bevor ein Deal auf sie verweisen kann.</Step>
-  <Step title="Zwei Ansichten speichern">„Meine offenen Deals“: Zugewiesen sind Sie, Phase ist nicht Gewonnen oder Verloren, sortiert nach Wert, als Board. „Bald abschließen“: ein Filter auf das Feld „Voraussichtlicher Abschluss“, als Tabelle.</Step>
-  <Step title="Zwei Diagramme anlegen">Die Summe von Gewichteter Wert nach Phase sowie die Summe von Wert nach Leadquelle, gefiltert auf die Phase Gewonnen.</Step>
-  <Step title="Posteingang verbinden (ab Pro)">Verbinden Sie unter **Einstellungen › Kanäle & Kalender** das Postfach oder LinkedIn-Konto, aus dem Sie verkaufen.</Step>
-</Steps>
-
-Import, Ansichten und Board erklärt die [Anleitung zu Datensätzen](/docs/app-records) Schritt für Schritt.
-
-## Vertrieb verfolgen ohne Excel-Liste
-
-Typische Fragen im wöchentlichen Vertriebsmeeting, und wo Sie nach der Einrichtung oben die Antwort finden:
-
-| Frage | Wo die Antwort steht |
-|---|---|
-| Was liegt in der Pipeline, und was ist sie gewichtet wert? | Die Spaltensummen auf dem Phasen-Board oder ein Dashboard-Diagramm, das **Wert** oder **Gewichteter Wert** nach Phase summiert |
-| Wer arbeitet an welchen Deals? | Das Deal-Board, gruppiert nach **Zugewiesen**. Ein Deal mit zwei zugewiesenen Personen erscheint bei beiden. |
-| Welche Deals sollten bald abschließen? | Die Ansicht „Bald abschließen“ |
-| Woher kommen gewonnene Deals? | Das Diagramm „Wert gewonnener Deals nach Leadquelle“ |
-| Warum verlieren wir? | Ein Diagramm, das verlorene Deals nach Verlustgrund zählt |
-| Was ist bei diesem Deal passiert? | Seine Notizen, sein Änderungsverlauf und ab Pro die Gespräche bei seinen Kontakten |
-
-Abschlussraten, Vertriebsgeschwindigkeit oder Verweildauer pro Phase berechnet Customermates nicht. In Customermates Cloud ermittelt Mate eine solche Zahl, etwa die Abschlussrate jeder Person, aus Ihren Datensätzen, mit einem Analysewerkzeug, das nur liest und nichts ändert, und verbraucht dafür gehostete KI-Credits. Ansonsten exportieren Sie die Deals als XLSX oder lesen sie über die REST-API aus. Die Diagrammoptionen beschreibt die Seite zum [Reporting](/features/reporting).
-
-## Deals mit Mate aktualisieren (Customermates Cloud)
-
-Fügen Sie nach einem Kundentermin Ihre Notizen in Mate ein, zusammen mit einer Anweisung wie dieser:
+**Deals mit Mate aktualisieren (Customermates Cloud).** Fügen Sie nach einem Kundentermin Ihre Notizen in Mate ein, zusammen mit einer Anweisung wie dieser:
 
 ```text
 Notizen zum heutigen Gespräch mit der Bauer Consulting GmbH, siehe unten. Bitte den Deal „Bauer Website-Relaunch“ aktualisieren: Phase auf Angebot setzen, Voraussichtlicher Abschluss auf den 30. November setzen, Notizen anhängen. Eine Aufgabe für mich anlegen, das Angebot zu verschicken, und mit dem Deal verknüpfen. Keine Nachrichten senden.
 ```
 
-Mate führt diese Änderungen direkt aus, und sie erscheinen im Verlauf des Deals. Bitten Sie Mate, eine E-Mail zu senden, sendet Mate ohne weitere Rückfrage; schreiben Sie also „Entwurf“, wenn Sie den Text vorher lesen wollen. Löschungen brauchen immer Ihre Freigabe. Ihr eigener KI-Client kann dieselbe Anweisung über MCP ausführen. Abläufe nach Zeitplan oder bei Änderungen an Deals beschreibt die Seite zur [Workflow-Automatisierung](/features/workflow-automation).
+Mate führt diese Änderungen direkt aus, und sie erscheinen im Verlauf des Deals. Bitten Sie Mate, eine E-Mail zu senden, sendet Mate ohne weitere Rückfrage; schreiben Sie also „Entwurf“, wenn Sie den Text vorher lesen wollen. Löschungen brauchen immer Ihre Freigabe. Mate verbraucht gehostete KI-Credits. Ihr eigener KI-Client, etwa Claude oder ChatGPT, führt dieselbe Anweisung über MCP mit [[derived.mcp.tools.total]] Tools aus, in jedem Tarif und auch beim Self-Hosting. Abläufe nach Zeitplan oder bei Änderungen an Deals beschreibt die Seite zur [Workflow-Automatisierung](/features/workflow-automation).
 
-## Was Customermates nicht kann, und was stattdessen passt
+## Welcher Tarif passt, und was kostet er?
 
-Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbietern wurden am 8. Oktober 2026 auf deren eigenen Seiten geprüft; die Links stehen am Ende.
-
-| Sie brauchen | In Customermates | Wo Sie suchen sollten |
+| Tarif | Funktionen für die Vertriebssteuerung | Preis |
 |---|---|---|
-| E-Mail-Sequenzen | Nicht vorhanden. Mate entwirft eine Nachricht in einem Gespräch. | HubSpot Sales Hub Professional oder Enterprise; Pipedrive ab dem Tarif Growth |
-| Umsatzprognose über Phasengewichte hinaus | Nicht vorhanden. Die gewichtete Pipeline nutzt die festen Wahrscheinlichkeiten, die Sie eintragen. | HubSpot Sales Hub Professional; Pipedrive Growth („Forecast view and reports“); Salesforce Pro Suite („Sales Quoting and Forecasting“) |
-| Webformulare, Lead-Scoring, Datenanreicherung | Nicht vorhanden. Formulareinträge kommen über die REST-API ins CRM. | Pipedrive Premium mit LeadBooster samt Webformularen sowie eigenem Scoring und Anreicherung |
-| Telefonieren aus dem CRM | Keine Telefonie und keine SMS | Ein CRM mit integrierter Telefonie |
-| Angebote und Rechnungen | Nicht vorhanden | Ihr Rechnungsprogramm |
-| Einen kostenlosen Tarif | Kostenloser Cloud-Tarif für [[commercial.limit.free.maxMembers]] Person, ohne Posteingang und Mate; [[commercial.trial.days]] Tage Pro-Testphase oder Self-Hosting ohne Lizenzgebühr | HubSpot Sales Hub Free für bis zu 2 Nutzer; Zoho CRM in der kostenlosen Edition für bis zu 3 Nutzer |
-| Eine App fürs Smartphone | Keine native Mobile-App; Customermates läuft im Browser | Ein CRM mit nativen Apps für iOS und Android |
+| Starter | Deals, Phasen-Board, gewichtete Pipeline, gespeicherte Ansichten, Dashboard-Widgets, XLSX-Import und -Export, REST, Webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] Routine pro Nutzer | [[commercial.price.starter.monthly]] pro Nutzer und Monat |
+| Pro | Starter plus einheitlicher Posteingang mit [[commercial.entitlement.pro.includedAccountsPerUser]] verbundenem Konto pro Nutzer, LinkedIn Sales Navigator, Lesezugriff auf den Kalender, [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen pro Nutzer | [[commercial.price.pro.monthly]] pro Nutzer und Monat |
+| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] verbundene Konten pro Nutzer, geteilte Konten und ein teamweiter Verlauf über alle Kanäle | [[commercial.price.business.monthly]] pro Nutzer und Monat |
+| Self-Hosting | Der Funktionsumfang von Starter auf Ihrem eigenen Server, ohne Posteingang, Mate und Routinen | Keine Lizenzgebühr; Sie zahlen Ihre eigene Infrastruktur |
 
-Auch eine Wiedervorlage mit Erinnerung gibt es nicht, denn Aufgaben haben kein Fälligkeitsdatum. Legen Sie stattdessen ein Datumsfeld am Deal an und speichern Sie eine Ansicht der fälligen Deals, wie unter [Follow-ups](/features/follow-up) beschrieben.
-
-## Was kostet ein CRM-System im Monat?
+Abgerechnet wird monatlich. Jeder bezahlte Cloud-Tarif enthält monatliche gehostete KI-Credits pro aktivem Nutzer für Mate; die Mengen stehen auf der [Preisseite](/pricing). Drei Beispiele:
 
 | Team | Tarif | Pro Monat |
 |---|---|---|
@@ -164,21 +204,47 @@ Auch eine Wiedervorlage mit Erinnerung gibt es nicht, denn Aufgaben haben kein F
 
 Über zwölf Monate zahlt das fünfköpfige Pro-Team [[commercial.price.pro.monthly.seats.5.months.12]].
 
-Zum Vergleich die Listenpreise, geprüft am 8. Oktober 2026: Salesforce Starter Suite kostet 25 US-Dollar pro Nutzer und Monat bei monatlicher oder jährlicher Zahlung, für fünf Nutzer also 125 US-Dollar im Monat. HubSpot Sales Hub Professional, die kleinste HubSpot-Stufe mit Umsatzprognose, kostet 100 US-Dollar pro Nutzerlizenz und Monat bei monatlicher Zahlung oder 90 US-Dollar mit Jahresbindung, für fünf Lizenzen bei monatlicher Zahlung also 500 US-Dollar im Monat, dazu ein verpflichtendes einmaliges Professional-Onboarding für 1.500 US-Dollar. Das sind Listenpreise für Nutzerlizenzen; was sonst anfällt, zeigt die Preisseite des jeweiligen Anbieters.
+Zum Vergleich die Listenpreise, geprüft am 11. November 2026: Salesforce Starter Suite kostet 25 US-Dollar pro Nutzer und Monat bei monatlicher oder jährlicher Zahlung, für fünf Nutzer also 125 US-Dollar im Monat. Salesforce Pro Suite, die „Sales Quoting and Forecasting“ aufführt, kostet 100 US-Dollar pro Nutzer und Monat bei ausschließlich jährlicher Zahlung. HubSpot Sales Hub Professional, die kleinste HubSpot-Stufe mit Umsatzprognose, kostet 100 US-Dollar pro Nutzerlizenz und Monat bei monatlicher Zahlung oder 90 US-Dollar mit Jahresbindung, für fünf Lizenzen bei monatlicher Zahlung also 500 US-Dollar im Monat, dazu ein verpflichtendes einmaliges Professional-Onboarding für 1.500 US-Dollar. Das sind Listenpreise für Nutzerlizenzen; was sonst anfällt, zeigt die Preisseite des jeweiligen Anbieters.
+
+## Was erfasst Customermates nicht, und was passt stattdessen?
+
+Diese Seite wird von Customermates veröffentlicht. Die Angaben zu anderen Anbietern wurden am 11. November 2026 auf deren eigenen Seiten geprüft; die Links stehen am Ende.
+
+| Sie brauchen | In Customermates | Wo Sie suchen sollten |
+|---|---|---|
+| Konversionsraten im Zeitverlauf, Vertriebsgeschwindigkeit, Verweildauer pro Phase | Nicht vorhanden. Der Trichter zeigt die aktuellen Deals je Phase; in Customermates Cloud kann Mate eine Zahl wie die Abschlussquote jeder Person aus Ihren Datensätzen berechnen. | Die Deals als XLSX exportieren oder über die REST-API auslesen und dort rechnen |
+| Vertriebsziele und Quoten | Nicht vorhanden. Vergleichen Sie die gewichtete Pipeline von Hand mit Ihrem eigenen Ziel. | Ein Vertriebswerkzeug mit eingebauten Zielen |
+| Umsatzprognose über Phasengewichte hinaus | Nicht vorhanden. Die gewichtete Pipeline nutzt die festen Wahrscheinlichkeiten, die Sie eintragen. | HubSpot Sales Hub Professional; Salesforce Pro Suite („Sales Quoting and Forecasting“) |
+| E-Mail-Sequenzen | Nicht vorhanden. Mate entwirft eine Nachricht in einem Gespräch. | HubSpot Sales Hub Professional oder Enterprise |
+| Webformulare, Lead-Scoring, Datenanreicherung | Nicht vorhanden. Formulareinträge kommen über die REST-API ins CRM. | Ein CRM mit eingebauten Formularen und Scoring |
+| Telefonieren aus dem CRM | Keine Telefonie und keine SMS | Ein CRM mit integrierter Telefonie |
+| Angebote und Rechnungen | Nicht vorhanden | Ihr Rechnungsprogramm |
+| Einen kostenlosen Tarif | Kostenloser Cloud-Tarif für [[commercial.limit.free.maxMembers]] Person, ohne Posteingang und Mate; [[commercial.trial.days]] Tage Pro-Testphase oder Self-Hosting ohne Lizenzgebühr | HubSpot Sales Hub Free für bis zu 2 Nutzer; Zoho CRM in der kostenlosen Edition für bis zu 3 Nutzer |
+| Eine App fürs Smartphone | Keine native Mobile-App; Customermates läuft im Browser | Ein CRM mit nativen Apps für iOS und Android |
+
+Auch eine Wiedervorlage mit Erinnerung gibt es nicht, denn Aufgaben haben kein Fälligkeitsdatum. Das Datum Nächster Schritt am Deal und das Widget Anstehend übernehmen diese Aufgabe, wie unter [Follow-ups](/features/follow-up) beschrieben. Alle Diagrammoptionen beschreibt die Seite zum [Reporting](/features/reporting).
 
 ## Häufige Fragen
 
 <Faq>
+<FaqItem question="Was ist Vertriebssteuerung?">
+Vertriebssteuerung heißt, den Vertrieb laufend anhand weniger Zahlen zu führen: Was liegt in der Pipeline, was ist sie wert, was ist als Nächstes fällig, und was haben wir gewonnen oder verloren? Dafür braucht ein kleines Team eine Deal-Liste mit Phase, Wert, Zuständigkeit, voraussichtlichem Abschluss und nächstem Schritt sowie eine feste Runde, in der es dieselben Kennzahlen ansieht. In Customermates läuft diese Runde über gespeicherte Ansichten und Dashboard-Widgets.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen Vertriebssteuerung und Vertriebscontrolling?">
+Die Begriffe überschneiden sich. Vertriebssteuerung meint das laufende Führen des Vertriebs, Vertriebscontrolling das Messen und Auswerten mit Kennzahlen und Zielen. Customermates deckt für kleine Teams die Kennzahlen ab, die sich aus Deals ergeben, etwa Pipeline, gewichtete Pipeline, Abschlussquote und Verlustgründe. Ziele, Quoten und ein Soll-Ist-Vergleich sind nicht eingebaut.
+</FaqItem>
+
 <FaqItem question="Welche Vertriebssoftware ist die beste?">
-Das hängt davon ab, wie Sie verkaufen. Ein Team, das über viele Kaltakquise-Kontakte gewinnt, braucht E-Mail-Sequenzen und Umsatzprognosen; beides bieten HubSpot Sales Hub Professional und Pipedrive Growth. Ein Team, das über Beziehungen verkauft, mit einigen Dutzend offenen Deals und der eigentlichen Arbeit in E-Mail- und LinkedIn-Gesprächen, braucht Deal und Gespräch an einem Ort. Für diesen zweiten Fall ist Customermates gebaut.
+Das hängt davon ab, wie Sie verkaufen. Ein Team, das über viele Kaltakquise-Kontakte gewinnt, braucht E-Mail-Sequenzen und Umsatzprognosen; beides bietet HubSpot Sales Hub Professional. Ein Team, das über Beziehungen verkauft, mit einigen Dutzend offenen Deals und der eigentlichen Arbeit in E-Mail- und LinkedIn-Gesprächen, braucht Deal und Gespräch an einem Ort. Für diesen zweiten Fall ist Customermates gebaut.
+</FaqItem>
+
+<FaqItem question="Wie oft sollte ich Vertriebskennzahlen prüfen?">
+Die Gesundheit der Pipeline wöchentlich: offene und gewichtete Pipeline, Deals mit Abschluss in 30 Tagen, Deals ohne nächsten Schritt und liegengebliebene Deals. Die Ergebnisse monatlich: gewonnener Wert, Abschlussquote, Leadquellen und Verlustgründe. Ein kleines Team schließt in einer Woche selten genug Deals ab, damit diese Ergebnisse etwas aussagen.
 </FaqItem>
 
 <FaqItem question="Gibt es Vertriebssoftware kostenlos?">
-Ja, etwa HubSpot Sales Hub Free für bis zu 2 Nutzer oder die kostenlose Edition von Zoho CRM für bis zu 3 Nutzer. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Ihr erster Workspace startet mit [[commercial.trial.days]] Tagen Pro ohne Kreditkarte, jeder weitere mit der Wahl eines Tarifs. Das [Self-Hosting](/features/self-hosted) des Open-Source-Kerns kostet keine Lizenzgebühr: Es bietet den Funktionsumfang von Starter auf Ihrem eigenen Server, ohne Posteingang, Mate und Routinen.
-</FaqItem>
-
-<FaqItem question="Welche KI-Tools eignen sich für den Vertrieb?">
-Für die Arbeit an einzelnen Deals eignen sich Assistenten, die das CRM lesen und ändern dürfen. In Customermates Cloud ist das Mate, das Zusammenfassungen, Antwortentwürfe und Deal-Updates vorbereitet und dabei gehostete KI-Credits verbraucht. Alternativ verbinden Sie Ihren eigenen KI-Client wie Claude oder ChatGPT über MCP.
+Ja, mit Grenzen. Customermates Cloud hat einen kostenlosen Tarif für [[commercial.limit.free.maxMembers]] Person und [[commercial.limit.free.maxRecords]] Datensätze, ohne Posteingang, Mate und Routinen. Ihr erster Workspace startet mit [[commercial.trial.days]] Tagen Pro ohne Kreditkarte, jeder weitere mit der Wahl eines Tarifs. Das [Self-Hosting](/features/self-hosted) des Open-Source-Kerns kostet keine Lizenzgebühr: Es bietet den Funktionsumfang von Starter auf Ihrem eigenen Server. HubSpot Sales Hub Free deckt bis zu 2 Nutzer ab und die kostenlose Edition von Zoho CRM bis zu 3.
 </FaqItem>
 
 <FaqItem question="Kann Customermates den Umsatz prognostizieren?">
@@ -190,4 +256,4 @@ Ja. Gruppieren Sie das Deal-Board nach **Zugewiesen**, dann bekommt jede Person 
 </FaqItem>
 </Faq>
 
-Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 auf den Preisseiten von [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), [Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) und [Zoho CRM](https://www.zoho.com/de/crm/zohocrm-pricing.html), in [HubSpots Dokumentation zu Sequenzen](https://knowledge.hubspot.com/sequences/create-and-edit-sequences) und in [Pipedrives Tarifübersicht](https://support.pipedrive.com/en/article/new-pipedrive-plans).
+Angaben zu anderen Anbietern geprüft am 11. November 2026 auf den Preisseiten von [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), [Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) und [Zoho CRM](https://www.zoho.com/de/crm/zohocrm-pricing.html) sowie in [HubSpots Dokumentation zu Sequenzen](https://knowledge.hubspot.com/sequences/create-and-edit-sequences).
