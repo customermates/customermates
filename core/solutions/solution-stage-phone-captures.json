@@ -488,20 +488,20 @@
       "width": 585
     },
     {
-      "bytes": 18520,
+      "bytes": 18120,
       "height": 960,
       "key": "consultants:dashboard:pt:light:phone",
       "route": "/pt/w/consultores/dashboard",
-      "sha256": "6666c711e60ed835f57978c3dc1ad384ae895e532a6603f5a33d6550803f42b8",
+      "sha256": "020b949f055ae4765f140dd2afecf2128200e6792bc945b036b3c209dd64015e",
       "src": "/captures/solutions/stage/phone/light/consultants-dashboard-pt.webp",
       "width": 585
     },
     {
-      "bytes": 17958,
+      "bytes": 17462,
       "height": 960,
       "key": "consultants:dashboard:pt:dark:phone",
       "route": "/pt/w/consultores/dashboard",
-      "sha256": "b7c7a42a52c7d873812f0b0f4e0809a475c13fef8f7b81b1ceb43ca6af88b04e",
+      "sha256": "65f6c7839138699906231d31d94d089c1577bea33b10e4ea1416f0a1c9bb7dfc",
       "src": "/captures/solutions/stage/phone/dark/consultants-dashboard-pt.webp",
       "width": 585
     },
@@ -3638,11 +3638,11 @@
       "width": 585
     },
     {
-      "bytes": 24834,
+      "bytes": 24818,
       "height": 960,
       "key": "whatsapp-crm:inbox:pl:light:phone",
       "route": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
-      "sha256": "64a67818ae289871c19942218a6cee73e260cd38097d40cfbb691d7d1e57dbe9",
+      "sha256": "cd534ae5e57c873a771003457204fca6bc85e6c3b284ee528dbc1bf33e88b67b",
       "src": "/captures/solutions/stage/phone/light/whatsapp-crm-inbox-pl.webp",
       "width": 585
     },
@@ -3854,11 +3854,11 @@
       "width": 585
     },
     {
-      "bytes": 30114,
+      "bytes": 28442,
       "height": 960,
       "key": "whatsapp-crm:calendar:pl:light:phone",
       "route": "/pl/w/whatsapp-klienci/calendar",
-      "sha256": "85da04171e939c779ebfc091e0efeca73174737803e801118641adf2be3bfb3e",
+      "sha256": "f2a4badf1a990635687c7f3b75a3284842106ef0aaf43c06d13ba23332bf283c",
       "src": "/captures/solutions/stage/phone/light/whatsapp-crm-calendar-pl.webp",
       "width": 585
     },
@@ -3891,5 +3891,5 @@
     }
   ],
   "environment": "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright, 390 px wide",
-  "sourceRevision": "edf88e66d-dirty"
+  "sourceRevision": "329dcb73c-dirty"
 }

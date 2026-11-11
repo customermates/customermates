@@ -129,14 +129,14 @@
     },
     {
       "key": "consultants:pt:light",
-      "mainSha256": "af59e1ca4f478ae5dafbfcf265cd052f0124f9982d334af62e1be747ec45a0dd",
+      "mainSha256": "2e1aead4787edbb19823de6e16b1d07bf4c711978314da22be5d59dfeb691001",
       "navRoute": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
       "navSha256": "50d34354a628a9f6429823945e0bd57f7193c706f30076b90b776b73605979bf",
       "route": "/pt/w/consultores/dashboard"
     },
     {
       "key": "consultants:pt:dark",
-      "mainSha256": "62cdc366a0b0a956c2351f5f12c50ac6a9a473eadf422e710cbdd87ad7d9db3c",
+      "mainSha256": "d3cfaff80e18931303922eb895f1d03d97f5f89448a1823677ead77f4d605d01",
       "navRoute": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
       "navSha256": "e907a3fc9fc10d8a0471a61a879a6227b33a62aaf319506ceead42931985beca",
       "route": "/pt/w/consultores/dashboard"
@@ -731,16 +731,16 @@
     },
     {
       "key": "whatsapp-crm:pl:light",
-      "mainSha256": "875ba0151ed0b595aff8caa9a5369617c6a9edd52875ed01a381b40b6c2f5ff1",
+      "mainSha256": "b097fd245ca80b669c120d657bca8ccb3aae8dcdf3e526f9c3483222ae7a0a9b",
       "navRoute": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
-      "navSha256": "57375b8aaa551157a17a279e01b673cf16f4bdb679ffdd228d8097f03dc900c1",
+      "navSha256": "d016fc2858a63cfaddb0c3d40bb293aa87aa0734676f37a0bd516833bac5e5f7",
       "route": "/pl/w/whatsapp-klienci/dashboard"
     },
     {
       "key": "whatsapp-crm:pl:dark",
-      "mainSha256": "98574d6e28a043125e2d7cbb3a3f471e6a0c1cabe3f6602afc26a01a5ad829a9",
+      "mainSha256": "646f3f7a92cb11e9ec57bfaa914b3d3510448bcec78c7c4e6d6fa2e9f8101513",
       "navRoute": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
-      "navSha256": "2d6e11012f712f4351899e4af2b4bed46973c7082b2b2ea36238e8c109ef8b36",
+      "navSha256": "93a7bfb78bf85b2ae2c76aad0def3483b9650eccaf9f26de63ec1307e8d5e976",
       "route": "/pl/w/whatsapp-klienci/dashboard"
     },
     {
@@ -771,14 +771,14 @@
       "width": 960
     },
     "sidebarWidth": 208,
-    "sourceRevision": "edf88e66d-dirty",
+    "sourceRevision": "329dcb73c-dirty",
     "viewport": {
       "deviceScaleFactor": 2,
       "height": 900,
       "width": 1440
     }
   },
-  "sourceRevision": "edf88e66d-dirty",
+  "sourceRevision": "329dcb73c-dirty",
   "viewport": {
     "deviceScaleFactor": 2,
     "height": 900,

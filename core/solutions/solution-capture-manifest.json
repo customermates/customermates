@@ -327,7 +327,7 @@
     {
       "locale": "pt",
       "main": {
-        "bytes": 157654,
+        "bytes": 157470,
         "height": 1800,
         "src": "/captures/solutions/light/consultants-pt.webp",
         "width": 2880
@@ -345,7 +345,7 @@
     {
       "locale": "pt",
       "main": {
-        "bytes": 155424,
+        "bytes": 155286,
         "height": 1800,
         "src": "/captures/solutions/dark/consultants-pt.webp",
         "width": 2880
@@ -1875,13 +1875,13 @@
     {
       "locale": "pl",
       "main": {
-        "bytes": 142130,
+        "bytes": 142382,
         "height": 1800,
         "src": "/captures/solutions/light/whatsapp-crm-pl.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 52184,
+        "bytes": 51962,
         "height": 600,
         "src": "/captures/solutions/light/whatsapp-crm-pl-nav.webp",
         "width": 960
@@ -1893,13 +1893,13 @@
     {
       "locale": "pl",
       "main": {
-        "bytes": 141174,
+        "bytes": 141480,
         "height": 1800,
         "src": "/captures/solutions/dark/whatsapp-crm-pl.webp",
         "width": 2880
       },
       "nav": {
-        "bytes": 52128,
+        "bytes": 51864,
         "height": 600,
         "src": "/captures/solutions/dark/whatsapp-crm-pl-nav.webp",
         "width": 960

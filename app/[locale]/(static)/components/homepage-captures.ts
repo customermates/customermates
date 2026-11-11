@@ -78,10 +78,10 @@ export const HOMEPAGE_CAPTURES = {
   "homepage-routines-table": {
     de: { height: 454, width: 1544 },
     en: { height: 454, width: 1582 },
-    es: { height: 454, width: 2002 },
-    nl: { height: 454, width: 1858 },
-    pl: { height: 454, width: 1844 },
-    pt: { height: 454, width: 1914 },
+    es: { height: 454, width: 1644 },
+    nl: { height: 454, width: 1602 },
+    pl: { height: 454, width: 1644 },
+    pt: { height: 454, width: 1784 },
   },
   "homepage-usecase-draft": {
     de: { height: 588, width: 1000 },
@@ -190,10 +190,10 @@ export const HOMEPAGE_CAPTURES = {
   "homepage-routines-mobile": {
     de: { height: 1688, width: 1022 },
     en: { height: 1688, width: 1034 },
-    es: { height: 1688, width: 1438 },
-    nl: { height: 1688, width: 1310 },
-    pl: { height: 1688, width: 1282 },
-    pt: { height: 1688, width: 1248 },
+    es: { height: 1688, width: 1080 },
+    nl: { height: 1688, width: 1054 },
+    pl: { height: 1688, width: 1082 },
+    pt: { height: 1688, width: 1118 },
   },
   "homepage-configure-mobile": {
     de: { height: 1688, width: 780 },
