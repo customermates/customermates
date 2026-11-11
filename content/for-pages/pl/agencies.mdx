@@ -292,14 +292,14 @@ Agencja reklamowa lub kreatywna z kilkoma osobami zwykle zaczyna od planu darmow
 
 ## Tablica pitchów w przykładowej przestrzeni roboczej
 
-[Przestrzeń robocza agencji](https://demo.customermates.com/pl/w/agencje/dashboard) to przykład z danymi przykładowymi, a nie konto klienta. Interfejs jest po polsku, rekordy przykładowe są po angielsku. Ma sześć list: **Clients**, **Contacts**, **Pitches**, **Projects**, **Retainers** i **Tasks**. Pitche przechodzą przez **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** i **Lost**.
+[Przestrzeń robocza agencji](https://demo.customermates.com/pl/w/agencje/dashboard) to przykład z danymi przykładowymi, a nie konto klienta. Interfejs i rekordy przykładowe są po polsku. Ma sześć list: **Klienci**, **Kontakty**, **Pitche**, **Projekty**, **Retainery** i **Zadania**. Pitche przechodzą przez **Zapytanie**, **Briefing**, **Przygotowanie pitchu**, **Oferta wysłana**, **Negocjacje**, **Wygrana** i **Przegrana**.
 
 Tablica pitchów pokazuje każdy otwarty pitch jako kartę na jego etapie, z właścicielem i szacowaną wartością. Każdy etap ma prawdopodobieństwo wygranej, więc tablica pokazuje też wartość ważoną każdego pitchu. To ważenie pipeline'u na Twoich własnych prawdopodobieństwach, a nie prognoza.
 
 Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
 
 - **Osoby:** szefowa marketingu, która przekazała Ci briefing, dyrektor zarządzający, który podpisuje, osoba z zakupów.
-- **Pitche:** bieżący na etapie Pitch preparation i wcześniejsze, które zostały wygrane. Pitch trzyma brief klienta i ofertę jako pliki PDF w polu Plik oraz datę i godzinę prezentacji.
+- **Pitche:** bieżący na etapie Przygotowanie pitchu i wcześniejsze, które zostały wygrane. Pitch trzyma brief klienta i ofertę jako pliki PDF w polu Plik oraz datę i godzinę prezentacji.
 - **Projekty:** wygrana praca jako rekordy ze statusem, budżetem, budżetem godzin i wykorzystanymi godzinami; pozostałe godziny wylicza się z tych dwóch. Widok kalendarza pokazuje miesiąc po miesiącu okno produkcji każdego projektu.
 - **Retainer:** rekord z polami takimi jak opłata miesięczna, okres, data rozpoczęcia i data odnowienia. Wartość umowy to opłata miesięczna razy okres, a klient pokazuje swój MRR z retainerów. Opisuje ustalenie i trzyma podpisaną umowę jako PDF; nie tworzy faktur ani rozliczeń cyklicznych.
 - **Rozmowa:** wątek e-mail z szefową marketingu, powiązany z pitchem. Kontakt dopasowano po adresie e-mail w polu Dane kontaktowe; powiązanie z pitchem ustawiła wprost osoba, nigdy automat.
@@ -309,7 +309,7 @@ Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
 <Steps>
   <Step title="Zapisz zapytanie">
     Dodaj osobę oraz klienta lub potencjalnego klienta i otwórz pitch na
-    etapie Inquiry. Zanotuj źródło, na przykład polecenie albo obecnego
+    etapie Zapytanie. Zanotuj źródło, na przykład polecenie albo obecnego
     klienta, w polu.
   </Step>
   <Step title="Przyjmij briefing">
@@ -317,7 +317,7 @@ Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
     przypisz właściciela.
   </Step>
   <Step title="Przygotuj i wyślij pitch">
-    Przejdź przez Pitch preparation i Proposal sent. Powiązane zadania i
+    Przejdź przez Przygotowanie pitchu i Oferta wysłana. Powiązane zadania i
     pole daty kolejnego kroku pokazują, co jest do zrobienia i kto za to
     odpowiada.
   </Step>
@@ -326,7 +326,7 @@ Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
     szkic na podstawie rekordu klienta i rozmowy, a potem go przeczytaj i wyślij.
   </Step>
   <Step title="Zapisz wynik">
-    Przesuń pitch do Won lub Lost. Dla wygranej pracy utwórz rekord projektu
+    Przesuń pitch do etapu Wygrana lub Przegrana. Dla wygranej pracy utwórz rekord projektu
     lub retainera, a plany realizacji, ewidencję czasu pracy i rozliczenia
     zostaw w narzędziach do projektów i finansów.
   </Step>
@@ -343,7 +343,7 @@ Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
 | Kampanie | Nic | Platformy reklamowe, e-mail marketing i raportowanie dla klientów |
 
 <AcquisitionCallout
-  title="Etap „Proposal sent” to wciąż tylko etap"
+  title="Etap „Oferta wysłana” to wciąż tylko etap"
   variant="boundary"
 >
   Tablica pokazuje, na którym etapie jest pitch. Nie generuje oferty, umowy
@@ -363,7 +363,7 @@ Plan decyduje, jak daleko sięga skrzynka odbiorcza:
 
 ## Pomoc AI i połączenia
 
-Mate, asystent w Customermates Cloud, potrafi podsumować klienta przed spotkaniem pitchowym, przesunąć pitch na kolejny etap i zapisać szkic follow-upu w rozmowie. Działa na kredytach hostowanej AI wliczonych na aktywnego użytkownika w każdym płatnym planie chmurowym i nie jest dostępny w wersji self-hosted. Mate wysyła, gdy mu to polecisz, więc poproś o szkic, gdy chcesz najpierw sprawdzić. [Rutyna](/docs/app-routines) może uruchamiać Mate według harmonogramu albo przy zmianie rekordu. Przykładowa przestrzeń robocza ma dwie: w każdy poniedziałek kontrola odnowień oznacza retainery odnawiane w ciągu 60 dni jako Renewal due i tworzy zadanie, a gdy pitch przechodzi na Proposal sent, Mate zapisuje szkic follow-upu do sprawdzenia.
+Mate, asystent w Customermates Cloud, potrafi podsumować klienta przed spotkaniem pitchowym, przesunąć pitch na kolejny etap i zapisać szkic follow-upu w rozmowie. Działa na kredytach hostowanej AI wliczonych na aktywnego użytkownika w każdym płatnym planie chmurowym i nie jest dostępny w wersji self-hosted. Mate wysyła, gdy mu to polecisz, więc poproś o szkic, gdy chcesz najpierw sprawdzić. [Rutyna](/docs/app-routines) może uruchamiać Mate według harmonogramu albo przy zmianie rekordu. Przykładowa przestrzeń robocza ma dwie: w każdy poniedziałek kontrola odnowień oznacza retainery odnawiane w ciągu 60 dni jako Do odnowienia i tworzy zadanie, a gdy pitch przechodzi na etap Oferta wysłana, Mate zapisuje szkic follow-upu do sprawdzenia.
 
 Każdy plan, także self-hosted, ma [REST API](/features/api) i [MCP](/docs/mcp) dla zewnętrznych klientów AI, takich jak Claude czy ChatGPT, które mogą czytać lub aktualizować rekordy dozwolone dla Twojej roli; webhooki są w każdym płatnym planie i w samodzielnym hostingu. Osobno prowadzony [przepływ n8n](/features/workflow-automation) może przekazać wygrany pitch do Twojego narzędzia do projektów.
 
@@ -378,7 +378,7 @@ Zanim zaprosisz całą agencję, poznaj ograniczenia:
 
 ## Konfiguracja własnej przestrzeni roboczej
 
-Nowa przestrzeń robocza zaczyna bez list. Pitches, Projects i Retainers to przykładowe listy z dema, a nie to, co zawiera każde konto. W Customermates Cloud konfiguracja przestrzeni z pomocą AI pyta, do czego ma służyć przestrzeń, i z Twoich odpowiedzi buduje listy, etapy, pulpit i strony Bazy wiedzy. Uruchamia się raz przy wdrożeniu, w ramach ograniczonej puli kredytów AI, a możesz ją pominąć przez **Zacznij od pustej przestrzeni roboczej** (zobacz [wdrożenie](/docs/app-onboarding)).
+Nowa przestrzeń robocza zaczyna bez list. Pitche, Projekty i Retainery to przykładowe listy z dema, a nie to, co zawiera każde konto. W Customermates Cloud konfiguracja przestrzeni z pomocą AI pyta, do czego ma służyć przestrzeń, i z Twoich odpowiedzi buduje listy, etapy, pulpit i strony Bazy wiedzy. Uruchamia się raz przy wdrożeniu, w ramach ograniczonej puli kredytów AI, a możesz ją pominąć przez **Zacznij od pustej przestrzeni roboczej** (zobacz [wdrożenie](/docs/app-onboarding)).
 
 W przeciwnym razie osoby z uprawnieniami do Modelu danych tworzą listy, pola i etapy w Modelu danych oraz importują istniejących klientów i kontakty ze skoroszytu Excela. Import jest nieodwracalny, więc najpierw wypróbuj go na kilku wierszach.
 
@@ -390,14 +390,14 @@ Listy, pola, tablica pitchów, zadania, REST, webhooki i MCP działają w Custom
 
 <Faq>
 <FaqItem question="Czy Customermates zarządza projektami lub kampaniami agencji?">
-Nie jako narzędzie do projektów. Przykładowa przestrzeń robocza ma prostą listę Projects ze statusem, budżetem i wykorzystanymi godzinami, wpisywanymi ręcznie, żeby wygrana praca leżała obok klienta. Plany realizacji, moce przerobowe, ewidencja czasu pracy i kampanie należą do narzędzi do zarządzania projektami, PSA i marketingu.
+Nie jako narzędzie do projektów. Przykładowa przestrzeń robocza ma prostą listę Projekty ze statusem, budżetem i wykorzystanymi godzinami, wpisywanymi ręcznie, żeby wygrana praca leżała obok klienta. Plany realizacji, moce przerobowe, ewidencja czasu pracy i kampanie należą do narzędzi do zarządzania projektami, PSA i marketingu.
 </FaqItem>
 
 <FaqItem question="Czy może tworzyć oferty, umowy lub faktury?">
 Nie. Pitch może mieć etap, wartość i link do dokumentu oferty, ale Customermates nie ma obiegu ofert, umów ani faktur. Retainery to rekordy, a nie faktury cykliczne.
 </FaqItem>
 
-<FaqItem question="Czy nowa przestrzeń robocza ma listy Pitches, Projects i Retainers?">
+<FaqItem question="Czy nowa przestrzeń robocza ma listy Pitche, Projekty i Retainery?">
 Nie. Nowa przestrzeń robocza zaczyna bez list. W Customermates Cloud konfiguracja z pomocą AI może raz przy wdrożeniu zbudować listy i etapy na podstawie Twojego opisu. W przeciwnym razie osoby z uprawnieniami do Modelu danych tworzą je i importują rekordy z Excela.
 </FaqItem>
 

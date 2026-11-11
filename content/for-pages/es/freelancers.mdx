@@ -156,7 +156,7 @@ Un **CRM para autónomos** se gana su sitio cuando tu trabajo depende de las rel
     independientes con clientes B2B, trabajo recurrente y recomendaciones.
   </SummaryItem>
   <SummaryItem label="Espacio de trabajo de ejemplo">
-    Clients, Contacts, Inquiries, Projects y Tasks, con datos de muestra. Tu
+    Clientes, Contactos, Consultas, Proyectos y Tareas, con datos de muestra. Tu
     propio espacio de trabajo empieza sin listas.
   </SummaryItem>
   <SummaryItem label="Bandeja de entrada e IA">
@@ -190,21 +190,21 @@ No encaja con un negocio que funciona con reservas y pagos. No hay página de re
 
 ## El espacio de trabajo freelance de ejemplo
 
-La demo abre un espacio de trabajo de ejemplo con datos de muestra, no la cuenta de un cliente. La interfaz está en español y los registros de ejemplo, en inglés. Tiene cinco listas:
+La demo abre un espacio de trabajo de ejemplo con datos de muestra, no la cuenta de un cliente. La interfaz y los registros de ejemplo están en español. Tiene cinco listas:
 
-- **Clients**: las empresas para las que trabajas o quieres trabajar.
-- **Contacts**: las personas de esos clientes y las personas que te recomiendan.
-- **Inquiries**: cada consulta o posible proyecto, con su etapa.
-- **Projects**: el trabajo que acordaste hacer, con una tarifa diaria, un número de días y unos honorarios calculados a partir de ambos.
-- **Tasks**: siguientes pasos concretos, vinculados a un cliente o a una consulta.
+- **Clientes**: las empresas para las que trabajas o quieres trabajar.
+- **Contactos**: las personas de esos clientes y las personas que te recomiendan.
+- **Consultas**: cada consulta o posible proyecto, con su etapa.
+- **Proyectos**: el trabajo que acordaste hacer, con una tarifa diaria, un número de días y unos honorarios calculados a partir de ambos.
+- **Tareas**: siguientes pasos concretos, vinculados a un cliente o a una consulta.
 
-Las consultas pasan por Inquiry, First call, Proposal sent, Won y Lost; el trabajo ganado continúa como un proyecto con un estado que va de Planned a Billed. Billed es solo una etiqueta: la facturación sigue en tu herramienta de facturación. Abre la lista de clientes y después un cliente: la página de detalle muestra los contactos vinculados, el proyecto en curso con sus honorarios calculados, la consulta abierta, las notas recientes y el contexto de las conversaciones, y una fecha **Next action**. Esa fecha es un campo configurado en este espacio de trabajo, no un recordatorio integrado. Las tareas de Customermates no tienen fechas de vencimiento, estados ni recordatorios integrados, así que el ejemplo añade un campo de fecha y una vista guardada ordenada por él. Los proyectos guardan sus archivos, como el PDF de la propuesta o los resultados de las pruebas, en un campo de tipo Archivo, y una vista **Project calendar** muestra cada proyecto desde el inicio hasta la fecha límite. La página Calendario añade las siguientes acciones y las llamadas del calendario de Google conectado, y el panel enumera las siguientes acciones de las próximas dos semanas.
+Las consultas pasan por Consulta, Primera llamada, Propuesta enviada, Ganada y Perdida; el trabajo ganado continúa como un proyecto con un estado que va de Planificado a Facturado. Facturado es solo una etiqueta: la facturación sigue en tu herramienta de facturación. Abre la lista de clientes y después un cliente: la página de detalle muestra los contactos vinculados, el proyecto en curso con sus honorarios calculados, la consulta abierta, las notas recientes y el contexto de las conversaciones, y una **Fecha del próximo paso**. Esa fecha es un campo configurado en este espacio de trabajo, no un recordatorio integrado. Las tareas de Customermates no tienen fechas de vencimiento, estados ni recordatorios integrados, así que el ejemplo añade un campo de fecha y una vista guardada ordenada por él. Los proyectos guardan sus archivos, como el PDF de la propuesta o los resultados de las pruebas, en un campo de tipo Archivo, y una vista **Calendario de proyectos** muestra cada proyecto desde el inicio hasta la fecha límite. La página Calendario añade las siguientes acciones y las llamadas del calendario de Google conectado, y el panel enumera las siguientes acciones de las próximas dos semanas.
 
 <ProofRail label="Espacio de trabajo freelance en la demo">
   <ProofItem label="Relación">Clientes con contactos vinculados</ProofItem>
   <ProofItem label="Trabajo nuevo">Consultas por etapa</ProofItem>
   <ProofItem label="Trabajo en curso">Proyectos con honorarios calculados</ProofItem>
-  <ProofItem label="Siguiente paso">Fecha Next action configurada</ProofItem>
+  <ProofItem label="Siguiente paso">Fecha del próximo paso configurada</ProofItem>
   <ProofItem label="Contexto">Notas y conversaciones compatibles</ProofItem>
 </ProofRail>
 
@@ -218,7 +218,7 @@ Los campos vienen en los tipos que esperarías: texto, texto con formato, númer
 
 Una consulta es un posible trabajo con un cliente; cuando se gana, el trabajo continúa como un proyecto. El [tablero del pipeline](/features/pipeline) muestra cada etapa como una columna, y arrastras una tarjeta cuando algo cambia. Cada opción de etapa puede llevar una probabilidad de cierre, así que el tablero puede mostrar el valor de una oportunidad junto a su valor ponderado. Eso es ponderar con tus propios porcentajes, no una previsión.
 
-Unas pocas vistas guardadas cubren una revisión semanal: oportunidades abiertas en Proposal sent ordenadas por la última actualización, clientes ordenados por Next action y clientes anteriores con los que llevas tiempo sin hablar. Una vista guardada almacena juntos los filtros, el orden y las columnas. La [documentación de registros](/docs/app-records) explica las vistas, los campos y la importación.
+Unas pocas vistas guardadas cubren una revisión semanal: oportunidades abiertas en Propuesta enviada ordenadas por la última actualización, clientes ordenados por la fecha del próximo paso y clientes anteriores con los que llevas tiempo sin hablar. Una vista guardada almacena juntos los filtros, el orden y las columnas. La [documentación de registros](/docs/app-records) explica las vistas, los campos y la importación.
 
 <Steps>
   <Step title="Un cliente se pone en contacto">
@@ -231,15 +231,15 @@ Unas pocas vistas guardadas cubren una revisión semanal: oportunidades abiertas
     conversaciones que coinciden al registro.
   </Step>
   <Step title="Abre una consulta">
-    Créala en el cliente, pon la etapa en Inquiry y rellena un campo de valor
+    Créala en el cliente, pon la etapa en Consulta y rellena un campo de valor
     si tu espacio de trabajo lo tiene.
   </Step>
   <Step title="Fija la siguiente acción">
-    Rellena la fecha Next action y, si te sirve, una tarea vinculada a la
+    Rellena la fecha del próximo paso y, si te sirve, una tarea vinculada a la
     oportunidad.
   </Step>
   <Step title="Revísalo una vez por semana">
-    Abre la vista ordenada por Next action, mueve las tarjetas en el tablero y
+    Abre la vista ordenada por la fecha del próximo paso, mueve las tarjetas en el tablero y
     cierra o marca como perdido lo que se ha quedado callado.
   </Step>
 </Steps>
@@ -254,7 +254,7 @@ En Customermates Cloud, la [bandeja de entrada unificada](/features/unified-inbo
 
 Los participantes se asocian a los contactos por su dirección de correo, su número de teléfono o su identidad de LinkedIn. Una conversación se vincula a un cliente o a una oportunidad solo cuando la vinculas tú, o un agente al que se lo pides. Nada se archiva en una oportunidad de forma automática. Los mensajes dentro de los marketplaces freelance no son un canal de la bandeja de entrada.
 
-Mate, el asistente de Customermates Cloud, puede leer el registro de un cliente y su conversación vinculada y redactar una respuesta para que la compruebes. Funciona en todos los planes de pago de la nube dentro de los créditos de IA alojados de tu plan y no está disponible en el autoalojamiento. Mate crea, actualiza y envía en cuanto se lo pides; solo las eliminaciones, las importaciones, los cambios de acceso y los cambios destructivos del modelo de datos se detienen a la espera de tu aprobación. Pide un borrador y esperará en la conversación hasta que lo edites o lo envíes. Una [rutina](/docs/app-routines) permite a Mate ejecutar una instrucción guardada según un horario o cuando cambia un registro, por ejemplo una lista de los lunes con las oportunidades cuya fecha Next action ya pasó. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate, el asistente de Customermates Cloud, puede leer el registro de un cliente y su conversación vinculada y redactar una respuesta para que la compruebes. Funciona en todos los planes de pago de la nube dentro de los créditos de IA alojados de tu plan y no está disponible en el autoalojamiento. Mate crea, actualiza y envía en cuanto se lo pides; solo las eliminaciones, las importaciones, los cambios de acceso y los cambios destructivos del modelo de datos se detienen a la espera de tu aprobación. Pide un borrador y esperará en la conversación hasta que lo edites o lo envíes. Una [rutina](/docs/app-routines) permite a Mate ejecutar una instrucción guardada según un horario o cuando cambia un registro, por ejemplo una lista de los lunes con las oportunidades cuya fecha del próximo paso ya pasó. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Si prefieres tu propio cliente de IA, conecta Claude, ChatGPT u otro cliente mediante [MCP](/docs/mcp). Funciona en todos los planes, también en el autoalojamiento, y tu proveedor de IA factura el uso del modelo.
 

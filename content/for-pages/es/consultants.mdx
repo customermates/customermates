@@ -209,34 +209,34 @@ Si dudas entre varios, la guía para [elegir un CRM](/blog/how-to-choose-crm) or
 
 ## Un encargo en el espacio de trabajo de ejemplo
 
-El [espacio de trabajo de consultoría](https://demo.customermates.com/es/w/consultoria/dashboard) es un ejemplo con datos de muestra, no una cuenta de cliente. La interfaz está en español y los registros de ejemplo, en inglés. Tiene cuatro listas: **Clients**, **Contacts**, **Engagements** y **Tasks**. Los encargos pasan por **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** y **Lost**. Después, los encargos ganados pasan a un segundo tablero, **Active engagements**, por **Not started**, **In delivery**, **Wrapping up** y **Completed**.
+El [espacio de trabajo de consultoría](https://demo.customermates.com/es/w/consultoria/dashboard) es un ejemplo con datos de muestra, no una cuenta de cliente. La interfaz y los registros de ejemplo están en español. Tiene cuatro listas: **Clientes**, **Contactos**, **Encargos** y **Tareas**. Los encargos pasan por **Primer contacto**, **Diagnóstico**, **Alcance**, **Propuesta enviada**, **Decisión**, **Ganado** y **Perdido**. Después, los encargos ganados pasan a un segundo tablero, **Encargos activos**, por **Sin empezar**, **En ejecución**, **En cierre** y **Completado**.
 
-Abre un encargo en Proposal sent y verás lo que una consultora revisa antes de la siguiente llamada:
+Abre un encargo en Propuesta enviada y verás lo que una consultora revisa antes de la siguiente llamada:
 
 - **El cliente** con sus contactos y su papel en el encargo: el patrocinador, el contacto del día a día y la persona que da el visto bueno final.
 - **Los honorarios**, calculados a partir de dos campos que rellenas tú: los días estimados por la tarifa diaria. Cada etapa tiene una probabilidad de cierre, y el valor ponderado es esa probabilidad aplicada a los honorarios. Es una ponderación del pipeline, no una previsión. Un campo de duración cuenta los días desde el inicio previsto hasta el final.
 - **Las conversaciones.** Un hilo de correo y una conversación de LinkedIn con el patrocinador, vinculados a este encargo. Los contactos se asocian a las conversaciones por su dirección de correo o su identidad de LinkedIn en el campo Datos de contacto; el vínculo de una conversación con el encargo o el cliente lo hizo una persona de forma explícita, nunca de forma automática.
 - **Una fecha de siguiente paso** en un campo de fecha normal, anotada a mano después de la última llamada. Las tareas no tienen fechas de vencimiento ni recordatorios integrados, así que la fecha vive en un campo que configuras tú y una vista guardada ordena por ella.
-- **La propuesta** como PDF en el campo Documents del encargo, un campo de tipo Archivo. La búsqueda encuentra el texto que contiene, y Mate puede leerlo antes de una llamada.
+- **La propuesta** como PDF en el campo Documentos del encargo, un campo de tipo Archivo. La búsqueda encuentra el texto que contiene, y Mate puede leerlo antes de una llamada.
 
-«Proposal sent» es una etapa, no un documento: escribes la propuesta en tu propia herramienta y añades el PDF al encargo.
+«Propuesta enviada» es una etapa, no un documento: escribes la propuesta en tu propia herramienta y añades el PDF al encargo.
 
-Los encargos ganados aparecen también en una vista **Delivery calendar**, cada uno extendido entre su fecha de inicio y la de fin. La página Calendario muestra en una sola línea de tiempo los periodos de los encargos, las fechas de siguiente paso y las reuniones del calendario de Google conectado, y el panel enumera los siguientes pasos de los próximos 14 días.
+Los encargos ganados aparecen también en una vista **Calendario de ejecución**, cada uno extendido entre su fecha de inicio y la de fin. La página Calendario muestra en una sola línea de tiempo los periodos de los encargos, las fechas de siguiente paso y las reuniones del calendario de Google conectado, y el panel enumera los siguientes pasos de los próximos 14 días.
 
 ## De la presentación a la decisión
 
 <Steps>
   <Step title="Registra la presentación">
-    Añade a la persona y a su cliente, y abre un encargo en Introduction.
+    Añade a la persona y a su cliente, y abre un encargo en Primer contacto.
     Anota en un campo quién te recomendó.
   </Step>
   <Step title="Diagnóstico y alcance">
-    Mueve el encargo por Discovery y Scoping a medida que el problema y el
+    Mueve el encargo por Diagnóstico y Alcance a medida que el problema y el
     presupuesto se aclaran. Introduce la tarifa diaria y los días estimados, y
     los honorarios se calculan.
   </Step>
   <Step title="Envía la propuesta">
-    Pásalo a Proposal sent y fija la fecha de decisión y la del siguiente paso
+    Pásalo a Propuesta enviada y fija la fecha de decisión y la del siguiente paso
     en tus propios campos de fecha. Añade al encargo el PDF de la propuesta.
   </Step>
   <Step title="Da seguimiento en persona">
@@ -245,7 +245,7 @@ Los encargos ganados aparecen también en una vista **Delivery calendar**, cada 
     conversación, y después léelo y envíalo.
   </Step>
   <Step title="Registra la decisión">
-    Pasa el encargo a Won o Lost. Un encargo ganado sigue por las etapas de
+    Pasa el encargo a Ganado o Perdido. Un encargo ganado sigue por las etapas de
     entrega; las horas y la facturación quedan en las herramientas pensadas
     para eso.
   </Step>
@@ -265,7 +265,7 @@ Las conversaciones de tus propias cuentas siguen siendo privadas hasta que las c
 
 Mate es el asistente de Customermates Cloud. Funciona con créditos de IA alojados incluidos por usuario activo en todos los planes de pago de la nube y no está disponible en las instalaciones autoalojadas. Antes de una llamada, pide en el chat un resumen de un encargo: su etapa, los últimos mensajes de correo y LinkedIn y la fecha del siguiente paso. Después de la llamada, pídele que actualice la etapa y guarde un seguimiento breve como borrador en la conversación.
 
-Mate puede enviar mensajes cuando le dices que los envíe, así que pide borradores cuando quieras leer antes. Las eliminaciones, las importaciones y los cambios de acceso siempre se detienen a la espera de tu aprobación. Una [rutina](/docs/app-routines) ejecuta Mate según un horario o cuando cambia un registro: por ejemplo, cada lunes, enumerar los encargos en Proposal sent cuya fecha de siguiente paso ya pasó y guardar un borrador de respuesta para cada uno. El espacio de trabajo de ejemplo tiene dos: una añade un resumen breve al encargo antes de cada reunión del día en el calendario, y la otra crea una tarea para los contactos cercanos con los que no te has visto en dos meses. Una rutina pertenece a un usuario y ve lo que ese usuario ve. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro incluye [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate puede enviar mensajes cuando le dices que los envíe, así que pide borradores cuando quieras leer antes. Las eliminaciones, las importaciones y los cambios de acceso siempre se detienen a la espera de tu aprobación. Una [rutina](/docs/app-routines) ejecuta Mate según un horario o cuando cambia un registro: por ejemplo, cada lunes, enumerar los encargos en Propuesta enviada cuya fecha de siguiente paso ya pasó y guardar un borrador de respuesta para cada uno. El espacio de trabajo de ejemplo tiene dos: una añade un resumen breve al encargo antes de cada reunión del día en el calendario, y la otra crea una tarea para los contactos cercanos con los que no te has visto en dos meses. Una rutina pertenece a un usuario y ve lo que ese usuario ve. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro incluye [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 ¿Prefieres tu propio cliente de IA? Conecta Claude, ChatGPT u otro cliente mediante [MCP](/docs/mcp). Funciona en todos los planes y en las instalaciones autoalojadas, con el uso del modelo facturado por tu proveedor de IA, y puede leer o actualizar los registros que permite tu rol.
 
@@ -282,7 +282,7 @@ Customermates encaja en una consultora pequeña, con límites que conviene conoc
 
 Un espacio de trabajo nuevo empieza sin listas. Las listas de consultoría de arriba son un ejemplo, no lo que contiene cada cuenta. En Customermates Cloud, la configuración del espacio de trabajo con IA pregunta para qué sirve el espacio y crea listas, etapas, un panel y páginas de la base de conocimientos a partir de tus respuestas. Se ejecuta una sola vez durante la incorporación, usa una cantidad limitada de créditos de IA y puedes omitirla con **Empezar con un espacio de trabajo vacío** (consulta el [onboarding](/docs/app-onboarding)).
 
-Si no, quienes tienen derechos sobre el modelo de datos crean las listas, los campos y las etapas en Modelo de datos y después importan los registros desde un libro de Excel (.xlsx, hasta 5000 filas por archivo). Importa primero los clientes, luego los contactos y después los encargos abiertos. Una importación no se puede deshacer, así que pruébala con unas pocas filas. Si un miembro del equipo necesita renombrar una lista, por ejemplo Engagements a Encargos, eso también es un ajuste en Modelo de datos.
+Si no, quienes tienen derechos sobre el modelo de datos crean las listas, los campos y las etapas en Modelo de datos y después importan los registros desde un libro de Excel (.xlsx, hasta 5000 filas por archivo). Importa primero los clientes, luego los contactos y después los encargos abiertos. Una importación no se puede deshacer, así que pruébala con unas pocas filas. Si un miembro del equipo necesita renombrar una lista, por ejemplo Oportunidades a Encargos, eso también es un ajuste en Modelo de datos.
 
 ## Lo que Customermates no hace por las consultoras
 
@@ -354,7 +354,7 @@ No hay una respuesta única, y esta página no afirma ninguna cuota de mercado. 
 </FaqItem>
 
 <FaqItem question="¿Cómo hacen los consultores el seguimiento de propuestas en un CRM?">
-Pon cada propuesta en un encargo o una oportunidad con una etapa, añade el documento y dale una fecha de siguiente paso: el día en que prometiste dar seguimiento. En Customermates, el encargo pasa a Proposal sent, el PDF de la propuesta va a un campo de tipo Archivo y la fecha del siguiente paso es un campo de fecha normal por el que ordena una vista guardada. Nada te lo recuerda, así que abres esa vista o el widget Próximos del panel. Mate puede redactar la respuesta a partir de la conversación y tú la envías. La redacción del mensaje se trata en [cómo escribir un correo de seguimiento de ventas](/blog/sales-follow-up-email), y la configuración en la [página de la función de seguimiento](/features/follow-up).
+Pon cada propuesta en un encargo o una oportunidad con una etapa, añade el documento y dale una fecha de siguiente paso: el día en que prometiste dar seguimiento. En Customermates, el encargo pasa a Propuesta enviada, el PDF de la propuesta va a un campo de tipo Archivo y la fecha del siguiente paso es un campo de fecha normal por el que ordena una vista guardada. Nada te lo recuerda, así que abres esa vista o el widget Próximos del panel. Mate puede redactar la respuesta a partir de la conversación y tú la envías. La redacción del mensaje se trata en [cómo escribir un correo de seguimiento de ventas](/blog/sales-follow-up-email), y la configuración en la [página de la función de seguimiento](/features/follow-up).
 </FaqItem>
 
 <FaqItem question="¿Puedo usar mensajes de LinkedIn en un CRM?">

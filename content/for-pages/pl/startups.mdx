@@ -163,7 +163,7 @@ We wczesnym startupie B2B założyciele są zespołem sprzedaży. Transakcje zac
     jednej rozmowie, od dwóch założycieli po pierwszego handlowca.
   </SummaryItem>
   <SummaryItem label="Przykładowa przestrzeń robocza">
-    Companies, Contacts, Opportunities, Investors i Tasks, z danymi
+    Firmy, Kontakty, Szanse sprzedaży, Inwestorzy i Zadania, z danymi
     przykładowymi. Twoja własna przestrzeń robocza zaczyna bez list.
   </SummaryItem>
   <SummaryItem label="AI">
@@ -198,17 +198,17 @@ Na wczesnym etapie liczą się inne rzeczy niż w dużej firmie sprzedażowej. P
 
 ## Przykładowa przestrzeń robocza sprzedaży założyciela
 
-Demo otwiera przykładową przestrzeń roboczą z danymi przykładowymi, a nie konto klienta. Interfejs jest po polsku, a przykładowe rekordy są po angielsku. Zaczyna od kompaktowego pulpitu sprzedaży i tablicy szans sprzedaży. Listy:
+Demo otwiera przykładową przestrzeń roboczą z danymi przykładowymi, a nie konto klienta. Interfejs i przykładowe rekordy są po polsku. Zaczyna od kompaktowego pulpitu sprzedaży i tablicy szans sprzedaży. Listy:
 
-- **Companies**: firmy, którym sprzedajesz.
-- **Contacts**: osoby popierające zakup, decydenci i osoby, które Cię poleciły.
-- **Opportunities**: każda potencjalna transakcja, przechodząca przez Identified, Conversation, Demo, Pilot, Decision, Won i Lost. Jej wartość jest obliczana z liczby linii produkcyjnych razy cena za linię i rok, czyli rocznego przychodu cyklicznego, jeśli transakcja dojdzie do skutku.
-- **Investors**: aniołowie biznesu i fundusze, z którymi rozmawiasz o rundzie seed, trzymani jako zwykłe rekordy z wielkością ticketu i statusem rundy, pokazani na osobnej tablicy Seed round.
-- **Tasks**: konkretne zobowiązania, takie jak „wysłać kwestionariusz bezpieczeństwa”, powiązane z szansą sprzedaży.
+- **Firmy**: firmy, którym sprzedajesz.
+- **Kontakty**: rzecznicy zakupu, decydenci i osoby, które Cię poleciły.
+- **Szanse sprzedaży**: każda potencjalna transakcja, przechodząca przez Zidentyfikowana, Rozmowa, Demo, Pilotaż, Decyzja, Wygrana i Przegrana. Jej wartość jest obliczana z liczby linii produkcyjnych razy cena za linię i rok, czyli rocznego przychodu cyklicznego, jeśli transakcja dojdzie do skutku.
+- **Inwestorzy**: aniołowie biznesu i fundusze, z którymi rozmawiasz o rundzie seed, trzymani jako zwykłe rekordy z wielkością ticketu i statusem rundy, pokazani na osobnej tablicy Runda seed.
+- **Zadania**: konkretne zobowiązania, takie jak „wysłać kwestionariusz bezpieczeństwa”, powiązane z szansą sprzedaży.
 
 Inwestorzy to lista jak każda inna. Nie są platformą do pozyskiwania kapitału, bazą inwestorów ani wyszukiwaniem transakcji i nie mają tabeli kapitalizacji (cap table) ani data roomu. Trzymanie ich na osobnej liście sprawia, że nigdy nie mieszają się z liczbami sprzedaży na tablicy.
 
-Szanse sprzedaży i inwestorzy trzymają swoje dokumenty, takie jak umowa pilotażowa lub wstępny term sheet, w polu Plik. Widok kalendarza **Pilots** pokazuje każdy okres pilotażu, strona Kalendarz umieszcza spotkania z inwestorami, okresy pilotaży i oczekiwane zamknięcia w jednym miesiącu, a pulpit wypisuje spotkania z inwestorami z najbliższych 14 dni.
+Szanse sprzedaży i inwestorzy trzymają swoje dokumenty, takie jak umowa pilotażowa lub wstępny term sheet, w polu Plik. Widok kalendarza **Pilotaże** pokazuje każdy okres pilotażu, strona Kalendarz umieszcza spotkania z inwestorami, okresy pilotaży i oczekiwane zamknięcia w jednym miesiącu, a pulpit wypisuje spotkania z inwestorami z najbliższych 14 dni.
 
 <ProofRail label="Przestrzeń robocza sprzedaży założyciela w demo">
   <ProofItem label="Pipeline">Szanse sprzedaży według etapu</ProofItem>
@@ -248,7 +248,7 @@ Przed rozmową otwórz firmę: jej kontakty, otwartą szansę sprzedaży i jej e
 
 Customermates ma punkt końcowy [MCP](/docs/mcp) w każdym planie, także w instalacjach self-hosted. Podłącz Claude, ChatGPT, Gemini, Cursora lub innego klienta, a użyje Twojego własnego dostawcy AI, który rozlicza użycie modelu.
 
-Typowe zastosowanie dla założyciela: w Claude zapytaj, na jakim etapie jest Twoja szansa sprzedaży z danym potencjalnym klientem i kto jest osobą popierającą zakup. Klient odczytuje szansę sprzedaży i powiązany kontakt przez MCP. Po rozmowie poproś go o przesunięcie szansy sprzedaży na Pilot i dodanie notatki z ustalonym kolejnym krokiem. Klient aktualizuje ten rekord, a Ty widzisz zmianę w Customermates.
+Typowe zastosowanie dla założyciela: w Claude zapytaj, na jakim etapie jest Twoja szansa sprzedaży z danym potencjalnym klientem i kto jest rzecznikiem zakupu. Klient odczytuje szansę sprzedaży i powiązany kontakt przez MCP. Po rozmowie poproś go o przesunięcie szansy sprzedaży na etap Pilotaż i dodanie notatki z ustalonym kolejnym krokiem. Klient aktualizuje ten rekord, a Ty widzisz zmianę w Customermates.
 
 To, co klient może zrobić, ogranicza Twoja rola i uprawnienia: widzi i zmienia tylko to, co możesz zobaczyć i zmienić w aplikacji ze swoją rolą. Traktuj go jak każde narzędzie z dostępem do zapisu. Klient MCP może poprosić o potwierdzenie przed usunięciem lub wysłaniem, ale to zachowanie klienta, a nie kontrola w Customermates, więc sprawdzaj, o co go prosisz. Usunięte rekordy trafiają do Kosza na 30 dni; inne zmiany nie są cofane automatycznie.
 
@@ -328,7 +328,7 @@ Gdy z klientami rozmawia druga osoba albo gdy po raz pierwszy follow-up ginie w 
 </FaqItem>
 
 <FaqItem question="Czy możemy śledzić inwestorów w tym samym CRM?">
-Tak, jako zwykłe rekordy. Przykładowa przestrzeń robocza trzyma inwestorów na osobnej liście z tablicą Seed round, oddzielnie od szans sprzedaży. Customermates nie jest platformą do pozyskiwania kapitału: nie ma bazy inwestorów, tabeli kapitalizacji, data roomu ani analityki prezentacji.
+Tak, jako zwykłe rekordy. Przykładowa przestrzeń robocza trzyma inwestorów na osobnej liście z tablicą Runda seed, oddzielnie od szans sprzedaży. Customermates nie jest platformą do pozyskiwania kapitału: nie ma bazy inwestorów, tabeli kapitalizacji, data roomu ani analityki prezentacji.
 </FaqItem>
 
 <FaqItem question="Co może zrobić klient AI przez MCP?">

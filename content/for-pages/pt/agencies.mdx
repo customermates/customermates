@@ -267,14 +267,14 @@ O ranking segue uma única tarefa: acompanhar cada pitch e cada conversa com cli
 
 ## O quadro de pitches no espaço de trabalho de exemplo
 
-O [espaço de trabalho da agência](https://demo.customermates.com/pt/w/agencias-criativas/dashboard) é um exemplo com dados de exemplo, não uma conta de cliente. A interface está em português; os registros de exemplo estão em inglês. Ele tem seis listas: **Clients**, **Contacts**, **Pitches**, **Projects**, **Retainers** e **Tasks**. Os pitches passam por **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** e **Lost**.
+O [espaço de trabalho da agência](https://demo.customermates.com/pt/w/agencias-criativas/dashboard) é um exemplo com dados de exemplo, não uma conta de cliente. A interface e os registros de exemplo estão em português. Ele tem seis listas: **Clientes**, **Contatos**, **Pitches**, **Projetos**, **Retainers** e **Tarefas**. Os pitches passam por **Solicitação**, **Briefing**, **Preparação do pitch**, **Proposta enviada**, **Negociação**, **Ganho** e **Perdido**.
 
 O quadro de pitches mostra cada pitch aberto como um cartão na sua etapa, com o responsável e o valor estimado. Cada etapa tem uma probabilidade de ganho, então o quadro também mostra um valor ponderado por pitch. É uma ponderação do pipeline com as suas próprias probabilidades, não uma previsão.
 
 Abra um cliente a partir de um cartão e o relacionamento inteiro está em um só lugar:
 
 - **As pessoas:** quem de marketing passou o briefing, a diretoria que assina, o contato de compras.
-- **Os pitches:** o atual em Pitch preparation e os anteriores que foram ganhos. Um pitch guarda o briefing do cliente e a proposta como PDFs em um campo Arquivo, além da data e da hora da apresentação.
+- **Os pitches:** o atual em Preparação do pitch e os anteriores que foram ganhos. Um pitch guarda o briefing do cliente e a proposta como PDFs em um campo Arquivo, além da data e da hora da apresentação.
 - **Os projetos:** o trabalho ganho como registros com status, orçamento, orçamento de horas e horas usadas; as horas restantes são calculadas a partir dos dois. Uma visualização de calendário mostra, por mês, a janela de produção de cada projeto.
 - **O retainer:** um registro com campos como mensalidade, prazo, data de início e data de renovação. O valor do contrato é calculado como mensalidade vezes o prazo, e o cliente mostra o seu MRR de retainer. Ele descreve o acordo e guarda o acordo assinado como PDF; não cria faturas nem cobrança recorrente.
 - **A conversa:** uma conversa por e-mail com quem de marketing passou o briefing, vinculada ao pitch. O contato foi associado pelo endereço de e-mail no campo Dados de contato; o vínculo com o pitch foi definido explicitamente por uma pessoa, nunca automaticamente.
@@ -283,7 +283,7 @@ Abra um cliente a partir de um cartão e o relacionamento inteiro está em um s�
 
 <Steps>
   <Step title="Registre o contato inicial">
-    Adicione a pessoa e o cliente ou prospect, e abra um pitch em Inquiry.
+    Adicione a pessoa e o cliente ou prospect, e abra um pitch em Solicitação.
     Anote a origem, como uma indicação ou um cliente atual, em um campo.
   </Step>
   <Step title="Receba o briefing">
@@ -291,7 +291,7 @@ Abra um cliente a partir de um cartão e o relacionamento inteiro está em um s�
     atribua um responsável.
   </Step>
   <Step title="Prepare e envie o pitch">
-    Percorra Pitch preparation e Proposal sent. Tarefas vinculadas e um campo
+    Percorra Preparação do pitch e Proposta enviada. Tarefas vinculadas e um campo
     de data do próximo passo mostram o que vence e quem é o responsável.
   </Step>
   <Step title="Faça follow-up e negocie">
@@ -300,7 +300,7 @@ Abra um cliente a partir de um cartão e o relacionamento inteiro está em um s�
     envie.
   </Step>
   <Step title="Registre o resultado">
-    Mova o pitch para Won ou Lost. Para o trabalho ganho, crie o registro do
+    Mova o pitch para Ganho ou Perdido. Para o trabalho ganho, crie o registro do
     projeto ou do retainer e mantenha planos de entrega, controle de horas e
     faturamento nas suas ferramentas de projeto e de finanças.
   </Step>
@@ -317,7 +317,7 @@ Abra um cliente a partir de um cartão e o relacionamento inteiro está em um s�
 | Campanhas | Nada | Plataformas de anúncios, e-mail marketing e relatórios para clientes |
 
 <AcquisitionCallout
-  title="Uma etapa chamada Proposal sent continua sendo só uma etapa"
+  title="Uma etapa chamada Proposta enviada continua sendo só uma etapa"
   variant="boundary"
 >
   O quadro mostra em que ponto um pitch está. Ele não gera proposta, contrato
@@ -338,7 +338,7 @@ O plano define até onde a caixa de entrada chega:
 
 ## Ajuda da IA e conexões
 
-O Mate, o assistente do Customermates Cloud, pode resumir um cliente antes de uma reunião de pitch, mover um pitch para a próxima etapa e salvar na conversa um rascunho de follow-up. Ele roda com créditos de IA hospedados, incluídos por usuário ativo em todo plano pago na nuvem, e não está disponível com hospedagem própria. O Mate envia quando você manda enviar, então peça um rascunho quando quiser revisar antes. Uma [rotina](/docs/app-routines) pode executar o Mate em um agendamento ou quando um registro muda. O espaço de trabalho de exemplo tem duas: toda segunda-feira uma verificação de renovações marca como Renewal due os retainers que renovam em até 60 dias e cria uma tarefa, e quando um pitch passa para Proposal sent o Mate salva um rascunho de follow-up para revisão.
+O Mate, o assistente do Customermates Cloud, pode resumir um cliente antes de uma reunião de pitch, mover um pitch para a próxima etapa e salvar na conversa um rascunho de follow-up. Ele roda com créditos de IA hospedados, incluídos por usuário ativo em todo plano pago na nuvem, e não está disponível com hospedagem própria. O Mate envia quando você manda enviar, então peça um rascunho quando quiser revisar antes. Uma [rotina](/docs/app-routines) pode executar o Mate em um agendamento ou quando um registro muda. O espaço de trabalho de exemplo tem duas: toda segunda-feira uma verificação de renovações marca como A renovar os retainers que renovam em até 60 dias e cria uma tarefa, e quando um pitch passa para Proposta enviada o Mate salva um rascunho de follow-up para revisão.
 
 Todo plano, inclusive com hospedagem própria, tem uma [API REST](/features/api) e [MCP](/docs/mcp) para clientes de IA externos, como o Claude ou o ChatGPT, que podem ler ou atualizar os registros que a sua função permite; os webhooks vêm com todo plano pago e com a hospedagem própria. Um [fluxo do n8n](/features/workflow-automation) operado separadamente pode passar um pitch ganho para a sua ferramenta de projetos.
 
@@ -346,7 +346,7 @@ Todo plano, inclusive com hospedagem própria, tem uma [API REST](/features/api)
 
 O cliente novo costuma se perder no intervalo entre assinar e começar. O Customermates não tem sequências de onboarding automáticas, mas dá para montar o repasse com o que existe:
 
-- **Ao ganhar o pitch:** mova-o para Won, crie o registro do projeto ou do retainer e uma tarefa de kickoff atribuída a quem lidera a entrega.
+- **Ao ganhar o pitch:** mova-o para Ganho, crie o registro do projeto ou do retainer e uma tarefa de kickoff atribuída a quem lidera a entrega.
 - **A resposta de boas-vindas:** o Mate redige a mensagem a partir do seu playbook de repasse e salva como rascunho; você lê, edita e envia.
 - **Os lembretes:** as tarefas não têm lembretes embutidos, então use um campo de data com uma visualização salva, ou uma [rotina](/docs/app-routines) que o Mate executa toda segunda-feira e que cria as tarefas por você, como a verificação de renovações do espaço de exemplo.
 
@@ -361,7 +361,7 @@ Antes de convidar a agência inteira, conheça os limites:
 
 ## Configurando o seu próprio espaço de trabalho
 
-Um novo espaço de trabalho começa sem listas. Pitches, Projects e Retainers são listas de exemplo da demonstração, não o que toda conta contém. No Customermates Cloud, a configuração do espaço de trabalho com IA pergunta para que serve o espaço de trabalho e monta listas, etapas, um painel e páginas da Base de conhecimento a partir das suas respostas. Ela roda uma única vez no onboarding, dentro de um valor limitado de crédito de IA, e você pode pulá-la com **Começar com um espaço de trabalho vazio** (veja o [onboarding](/docs/app-onboarding)).
+Um novo espaço de trabalho começa sem listas. Pitches, Projetos e Retainers são listas de exemplo da demonstração, não o que toda conta contém. No Customermates Cloud, a configuração do espaço de trabalho com IA pergunta para que serve o espaço de trabalho e monta listas, etapas, um painel e páginas da Base de conhecimento a partir das suas respostas. Ela roda uma única vez no onboarding, dentro de um valor limitado de crédito de IA, e você pode pulá-la com **Começar com um espaço de trabalho vazio** (veja o [onboarding](/docs/app-onboarding)).
 
 Caso contrário, quem tem permissão de Modelo de dados cria as listas, os campos e as etapas em Modelo de dados e importa clientes e contatos existentes de uma pasta de trabalho do Excel. Uma importação não pode ser desfeita, então teste com poucas linhas primeiro.
 
@@ -373,14 +373,14 @@ Listas, campos, o quadro de pitches, tarefas, REST, webhooks e MCP funcionam no 
 
 <Faq>
 <FaqItem question="O Customermates gerencia projetos ou campanhas de agência?">
-Não como ferramenta de projetos. O espaço de trabalho de exemplo mantém uma lista simples de Projects com status, orçamento e horas usadas, lançadas à mão, para que o trabalho ganho fique ao lado do cliente. Planos de entrega, capacidade, controle de horas e campanhas pertencem a ferramentas de gestão de projetos, PSA e marketing.
+Não como ferramenta de projetos. O espaço de trabalho de exemplo mantém uma lista simples de Projetos com status, orçamento e horas usadas, lançadas à mão, para que o trabalho ganho fique ao lado do cliente. Planos de entrega, capacidade, controle de horas e campanhas pertencem a ferramentas de gestão de projetos, PSA e marketing.
 </FaqItem>
 
 <FaqItem question="Ele cria propostas, contratos ou faturas?">
 Não. Um pitch pode guardar a etapa, o valor e o link do documento da proposta, mas o Customermates não tem fluxo de proposta, contrato ou fatura. Retainers são registros, não faturas recorrentes.
 </FaqItem>
 
-<FaqItem question="Um novo espaço de trabalho já vem com Pitches, Projects e Retainers?">
+<FaqItem question="Um novo espaço de trabalho já vem com Pitches, Projetos e Retainers?">
 Não. Um novo espaço de trabalho começa sem listas. No Customermates Cloud, a configuração do espaço de trabalho com IA pode montar listas e etapas a partir da sua descrição, uma única vez no onboarding. Caso contrário, quem tem permissão de Modelo de dados as cria e importa registros do Excel.
 </FaqItem>
 

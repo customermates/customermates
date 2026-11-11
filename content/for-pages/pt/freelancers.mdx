@@ -156,7 +156,7 @@ Um **CRM para freelancers** se justifica quando o seu trabalho depende de relaci
     clientes B2B, trabalho recorrente e indicações.
   </SummaryItem>
   <SummaryItem label="Espaço de exemplo">
-    Clients, Contacts, Inquiries, Projects e Tasks, com dados de exemplo. O seu
+    Clientes, Contatos, Solicitações, Projetos e Tarefas, com dados de exemplo. O seu
     próprio espaço de trabalho começa sem listas.
   </SummaryItem>
   <SummaryItem label="Caixa de entrada e IA">
@@ -182,28 +182,28 @@ Ele não serve a um negócio que vive de reservas e pagamentos. Não há página
 Antes de escolher, compare cada ferramenta com a mesma régua. Cinco pontos pesam mais para quem trabalha sozinho, com o que o Customermates cobre e o que não cobre:
 
 - **Leads e funil.** Dá para ver cada pedido por etapa e saber o que está parado? Aqui, os pedidos passam por etapas no [quadro do pipeline](/features/pipeline), cada uma com a sua probabilidade de ganho.
-- **Lembretes e automação.** As tarefas não têm lembretes embutidos. A data de Next action em uma visualização salva, ou uma [rotina](/docs/app-routines) que o Mate executa toda segunda-feira, faz esse papel. Não há sequências de e-mail.
+- **Lembretes e automação.** As tarefas não têm lembretes embutidos. A data do próximo passo em uma visualização salva, ou uma [rotina](/docs/app-routines) que o Mate executa toda segunda-feira, faz esse papel. Não há sequências de e-mail.
 - **Propostas e faturas.** O PDF da proposta fica em um campo Arquivo no pedido ou no projeto, mas você a escreve na sua ferramenta. Faturas, cobranças e a emissão de nota fiscal ficam no seu sistema de faturamento.
 - **Acesso pelo celular.** Não há app nativo. Se você responde aos clientes pelo celular o dia todo, pese isso na decisão.
 - **Custo e controle dos dados.** Há um plano gratuito, um teste e um núcleo de código aberto que você mesmo pode hospedar; nosso [guia de CRM gratuito](/blog/free-crm) compara as opções.
 
 ## O espaço de trabalho freelancer de exemplo
 
-A demo abre um espaço de trabalho de exemplo com dados de exemplo, não a conta de um cliente. A interface está em português e os registros de exemplo estão em inglês. Ele tem cinco listas:
+A demo abre um espaço de trabalho de exemplo com dados de exemplo, não a conta de um cliente. A interface e os registros de exemplo estão em português. Ele tem cinco listas:
 
-- **Clients**: as empresas para as quais você trabalha ou quer trabalhar.
-- **Contacts**: as pessoas nesses clientes e as pessoas que indicam você.
-- **Inquiries**: cada pedido ou possível projeto, com a sua etapa.
-- **Projects**: o trabalho que você combinou de fazer, com um valor de diária, um número de dias e os honorários calculados a partir dos dois.
-- **Tasks**: próximos passos concretos, vinculados a um cliente ou a um pedido.
+- **Clientes**: as empresas para as quais você trabalha ou quer trabalhar.
+- **Contatos**: as pessoas nesses clientes e as pessoas que indicam você.
+- **Solicitações**: cada pedido ou possível projeto, com a sua etapa.
+- **Projetos**: o trabalho que você combinou de fazer, com um valor de diária, um número de dias e os honorários calculados a partir dos dois.
+- **Tarefas**: próximos passos concretos, vinculados a um cliente ou a um pedido.
 
-Os pedidos passam por Inquiry, First call, Proposal sent, Won e Lost; o trabalho ganho continua como um projeto com um status de Planned a Billed. Billed é só um rótulo: o faturamento continua na sua ferramenta de faturamento. Abra a lista de clientes e depois um cliente: a página de detalhe mostra os contatos vinculados, o projeto em andamento com os honorários calculados, o pedido em aberto, as notas recentes e o contexto das conversas, e uma data **Next action**. Essa data é um campo configurado neste espaço de trabalho, não um lembrete embutido. As tarefas no Customermates não têm prazos, status nem lembretes embutidos, então o exemplo acrescenta um campo de data e uma visualização salva ordenada por ele. Os projetos guardam seus arquivos, como o PDF da proposta ou os resultados de testes, em um campo Arquivo, e uma visualização **Project calendar** mostra cada projeto do início ao prazo. A página Calendário acrescenta as próximas ações e as reuniões do Google Agenda conectado, e o painel lista as próximas ações das duas semanas seguintes.
+As solicitações passam por Solicitação, Primeira ligação, Proposta enviada, Ganho e Perdido; o trabalho ganho continua como um projeto com um status de Planejado a Faturado. Faturado é só um rótulo: o faturamento continua na sua ferramenta de faturamento. Abra a lista de clientes e depois um cliente: a página de detalhe mostra os contatos vinculados, o projeto em andamento com os honorários calculados, o pedido em aberto, as notas recentes e o contexto das conversas, e uma **Data do próximo passo**. Essa data é um campo configurado neste espaço de trabalho, não um lembrete embutido. As tarefas no Customermates não têm prazos, status nem lembretes embutidos, então o exemplo acrescenta um campo de data e uma visualização salva ordenada por ele. Os projetos guardam seus arquivos, como o PDF da proposta ou os resultados de testes, em um campo Arquivo, e uma visualização **Calendário de projetos** mostra cada projeto do início ao prazo. A página Calendário acrescenta as próximas ações e as reuniões do Google Agenda conectado, e o painel lista as próximas ações das duas semanas seguintes.
 
 <ProofRail label="Espaço de trabalho freelancer na demo">
   <ProofItem label="Relacionamento">Clientes com contatos vinculados</ProofItem>
   <ProofItem label="Trabalho novo">Pedidos por etapa</ProofItem>
   <ProofItem label="Trabalho em andamento">Projetos com honorários calculados</ProofItem>
-  <ProofItem label="Próximo passo">Data de Next action configurada</ProofItem>
+  <ProofItem label="Próximo passo">Data do próximo passo configurada</ProofItem>
   <ProofItem label="Contexto">Notas e conversas compatíveis</ProofItem>
 </ProofRail>
 
@@ -217,7 +217,7 @@ Os campos vêm nos tipos que você esperaria: texto, texto formatado, número, d
 
 Um pedido é um possível trabalho com um cliente; quando é ganho, o trabalho continua como um projeto. O [quadro do pipeline](/features/pipeline) mostra cada etapa como uma coluna, e você arrasta um cartão quando algo muda. Cada opção de etapa pode ter uma probabilidade de ganho, então o quadro pode mostrar o valor de uma oportunidade ao lado do valor ponderado dela. Isso é ponderação com as suas próprias porcentagens, não uma previsão.
 
-Algumas visualizações salvas cobrem uma conferência semanal: oportunidades abertas em Proposal sent ordenadas pela última atualização, clientes ordenados por Next action e ex-clientes com quem você não fala há algum tempo. Uma visualização salva guarda filtros, ordenação e colunas juntos. A [documentação de registros](/docs/app-records) explica visualizações, campos e importação.
+Algumas visualizações salvas cobrem uma conferência semanal: oportunidades abertas em Proposta enviada ordenadas pela última atualização, clientes ordenados pela data do próximo passo e ex-clientes com quem você não fala há algum tempo. Uma visualização salva guarda filtros, ordenação e colunas juntos. A [documentação de registros](/docs/app-records) explica visualizações, campos e importação.
 
 <Steps>
   <Step title="Um cliente entra em contato">
@@ -230,15 +230,15 @@ Algumas visualizações salvas cobrem uma conferência semanal: oportunidades ab
     conversas correspondentes para o registro.
   </Step>
   <Step title="Abra um pedido">
-    Crie-o no cliente, defina a etapa como Inquiry e preencha um campo de
+    Crie-o no cliente, defina a etapa como Solicitação e preencha um campo de
     valor, se o seu espaço de trabalho tiver um.
   </Step>
   <Step title="Defina a próxima ação">
-    Preencha a data de Next action e, se for útil, uma tarefa vinculada à
+    Preencha a data do próximo passo e, se for útil, uma tarefa vinculada à
     oportunidade.
   </Step>
   <Step title="Confira uma vez por semana">
-    Abra a visualização ordenada por Next action, mova os cartões no quadro e
+    Abra a visualização ordenada pela data do próximo passo, mova os cartões no quadro e
     encerre ou marque como perdido o que esfriou.
   </Step>
 </Steps>
@@ -253,7 +253,7 @@ No Customermates Cloud, a [caixa de entrada unificada](/features/unified-inbox) 
 
 Os participantes são associados aos contatos pelo endereço de e-mail, pelo número de telefone ou pela identidade do LinkedIn. Uma conversa só é vinculada a um cliente ou a uma oportunidade quando você, ou um agente que você pede, faz o vínculo. Nada é arquivado em uma oportunidade automaticamente. As mensagens dentro de marketplaces de freelancers não são um canal da caixa de entrada.
 
-O Mate, o assistente do Customermates Cloud, pode ler o registro de um cliente e a conversa vinculada e redigir uma resposta para você conferir. Ele roda em todo plano cloud pago, dentro dos créditos de IA hospedados do seu plano, e não está disponível na hospedagem própria. O Mate cria, atualiza e envia assim que você pede; só exclusões, importações, mudanças de acesso e alterações destrutivas no modelo de dados param para a sua aprovação. Peça um rascunho, e ele espera na conversa até você editar ou enviar. Uma [rotina](/docs/app-routines) permite que o Mate execute uma instrução salva em um horário programado ou quando um registro muda, por exemplo uma lista de segunda-feira com as oportunidades cuja data de Next action já passou. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+O Mate, o assistente do Customermates Cloud, pode ler o registro de um cliente e a conversa vinculada e redigir uma resposta para você conferir. Ele roda em todo plano cloud pago, dentro dos créditos de IA hospedados do seu plano, e não está disponível na hospedagem própria. O Mate cria, atualiza e envia assim que você pede; só exclusões, importações, mudanças de acesso e alterações destrutivas no modelo de dados param para a sua aprovação. Peça um rascunho, e ele espera na conversa até você editar ou enviar. Uma [rotina](/docs/app-routines) permite que o Mate execute uma instrução salva em um horário programado ou quando um registro muda, por exemplo uma lista de segunda-feira com as oportunidades cuja data do próximo passo já passou. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Se você prefere o seu próprio cliente de IA, conecte o Claude, o ChatGPT ou outro cliente via [MCP](/docs/mcp). Funciona em todos os planos, inclusive na hospedagem própria, e o seu provedor de IA cobra o uso do modelo.
 

@@ -198,35 +198,35 @@ Waar een andere tool de betere keuze is: OnePageCRM als je herinneringen en een 
 
 ## Eén opdracht in de voorbeeldwerkruimte
 
-De [werkruimte voor consultancy](https://demo.customermates.com/nl/w/advies/dashboard) is een voorbeeld met voorbeelddata, geen klantaccount. De interface is Nederlandstalig, de voorbeeldrecords zijn Engelstalig. Er zijn vier lijsten: **Clients**, **Contacts**, **Engagements** en **Tasks**. Opdrachten doorlopen **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** en **Lost**. Gewonnen opdrachten gaan daarna over op een tweede bord, **Active engagements**, via **Not started**, **In delivery**, **Wrapping up** en **Completed**.
+De [werkruimte voor consultancy](https://demo.customermates.com/nl/w/advies/dashboard) is een voorbeeld met voorbeelddata, geen klantaccount. De interface en de voorbeeldrecords zijn Nederlandstalig. Er zijn vier lijsten: **Klanten**, **Contactpersonen**, **Opdrachten** en **Taken**. Opdrachten doorlopen **Kennismaking**, **Verkenning**, **Afbakening**, **Offerte verstuurd**, **Besluit**, **Gewonnen** en **Verloren**. Gewonnen opdrachten gaan daarna over op een tweede bord, **Lopende opdrachten**, via **Niet gestart**, **In uitvoering**, **Afronding** en **Afgerond**.
 
-Open een opdracht in Proposal sent en je ziet wat een consultant controleert voor het volgende gesprek:
+Open een opdracht in Offerte verstuurd en je ziet wat een consultant controleert voor het volgende gesprek:
 
 - **De klant** met zijn contactpersonen en hun rol in de opdracht: de opdrachtgever, de dagelijkse contactpersoon en degene die tekent.
 - **Het honorarium**, berekend uit twee velden die je zelf invult: de geschatte dagen maal het dagtarief. Elke fase heeft een kans op winst, en de gewogen waarde is die kans toegepast op het honorarium. Het is een weging van de pipeline, geen prognose. Een duurveld telt de dagen van de geplande start tot het einde.
 - **De gesprekken.** Een e-mailthread en een LinkedIn-gesprek met de opdrachtgever, gekoppeld aan deze opdracht. Contactpersonen worden aan gesprekken gekoppeld via hun e-mailadres of LinkedIn-identiteit in het veld Contactgegevens; de koppeling van een gesprek aan de opdracht of de klant is bewust door een persoon gelegd, nooit automatisch.
 - **Een datum voor de volgende stap** in een gewoon datumveld, na het laatste gesprek met de hand ingevuld. Taken hebben geen ingebouwde deadlines of herinneringen, dus de datum staat in een veld dat je zelf instelt en een opgeslagen weergave sorteert erop.
 
-- **Het voorstel** als pdf in het veld Documents van de opdracht, een veld van het type Bestand. Zoeken vindt de tekst erin, en Mate kan het vóór een gesprek lezen.
+- **Het voorstel** als pdf in het veld Documenten van de opdracht, een veld van het type Bestand. Zoeken vindt de tekst erin, en Mate kan het vóór een gesprek lezen.
 
-"Proposal sent" is een fase, geen document: je schrijft het voorstel in je eigen tool en voegt de pdf toe aan de opdracht.
+"Offerte verstuurd" is een fase, geen document: je schrijft het voorstel in je eigen tool en voegt de pdf toe aan de opdracht.
 
-Gewonnen opdrachten verschijnen ook in een weergave **Delivery calendar**, elk met zijn start- en einddatum. De pagina Agenda toont de periodes van de opdrachten, de data van de volgende stappen en de afspraken uit de gekoppelde Google-agenda op één tijdlijn, en het dashboard toont de volgende stappen van de komende 14 dagen.
+Gewonnen opdrachten verschijnen ook in een weergave **Uitvoeringsagenda**, elk met zijn start- en einddatum. De pagina Agenda toont de periodes van de opdrachten, de data van de volgende stappen en de afspraken uit de gekoppelde Google-agenda op één tijdlijn, en het dashboard toont de volgende stappen van de komende 14 dagen.
 
 ## Van kennismaking tot besluit
 
 <Steps>
   <Step title="Leg de kennismaking vast">
-    Voeg de persoon en zijn klant toe en open een opdracht in Introduction.
+    Voeg de persoon en zijn klant toe en open een opdracht in Kennismaking.
     Noteer in een veld wie je heeft aanbevolen.
   </Step>
   <Step title="Verkenning en scoping">
-    Verplaats de opdracht door Discovery en Scoping naarmate het probleem en het
+    Verplaats de opdracht door Verkenning en Afbakening naarmate het probleem en het
     budget duidelijk worden. Vul het dagtarief en de geschatte dagen in, dan
     wordt het honorarium berekend.
   </Step>
   <Step title="Stuur het voorstel">
-    Verplaats de opdracht naar Proposal sent en vul de beslisdatum en de datum
+    Verplaats de opdracht naar Offerte verstuurd en vul de beslisdatum en de datum
     voor de volgende stap in je eigen datumvelden in. Voeg de voorstel-pdf toe
     aan de opdracht.
   </Step>
@@ -236,7 +236,7 @@ Gewonnen opdrachten verschijnen ook in een weergave **Delivery calendar**, elk m
     lees het na en verstuur het.
   </Step>
   <Step title="Leg het besluit vast">
-    Verplaats de opdracht naar Won of Lost. Een gewonnen opdracht gaat daarna
+    Verplaats de opdracht naar Gewonnen of Verloren. Een gewonnen opdracht gaat daarna
     door de uitvoeringsfases; uren en facturen blijven in de tools die daarvoor
     gebouwd zijn.
   </Step>
@@ -256,7 +256,7 @@ Gesprekken van je eigen accounts blijven privé tot je ze deelt. Dat past bij kl
 
 Mate is de assistent in Customermates Cloud. Hij draait op gehoste AI-credits die elk betaald cloudabonnement per actieve gebruiker bevat, en is niet beschikbaar in self-hosted installaties. Vraag vóór een gesprek in de chat om een samenvatting van een opdracht: de fase, de laatste e-mail- en LinkedIn-berichten en de datum van de volgende stap. Vraag na het gesprek om de fase bij te werken en een korte opvolging als concept in het gesprek op te slaan.
 
-Mate kan berichten versturen als je zegt dat hij moet versturen, dus vraag om concepten als je eerst wilt lezen. Verwijderingen, imports en wijzigingen in toegang wachten altijd op je goedkeuring. Een [routine](/docs/app-routines) laat Mate werken volgens een schema of wanneer een record verandert: bijvoorbeeld elke maandag de opdrachten in Proposal sent opsommen waarvan de datum voor de volgende stap is verstreken en voor elk een conceptantwoord opslaan. De voorbeeldwerkruimte heeft er twee: de ene voegt voor elke agenda-afspraak van de dag een korte briefing toe aan de opdracht, de andere maakt een taak aan voor goede contacten die je al twee maanden niet hebt gesproken. Een routine hoort bij één gebruiker en ziet wat die gebruiker ziet. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate kan berichten versturen als je zegt dat hij moet versturen, dus vraag om concepten als je eerst wilt lezen. Verwijderingen, imports en wijzigingen in toegang wachten altijd op je goedkeuring. Een [routine](/docs/app-routines) laat Mate werken volgens een schema of wanneer een record verandert: bijvoorbeeld elke maandag de opdrachten in Offerte verstuurd opsommen waarvan de datum voor de volgende stap is verstreken en voor elk een conceptantwoord opslaan. De voorbeeldwerkruimte heeft er twee: de ene voegt voor elke agenda-afspraak van de dag een korte briefing toe aan de opdracht, de andere maakt een taak aan voor goede contacten die je al twee maanden niet hebt gesproken. Een routine hoort bij één gebruiker en ziet wat die gebruiker ziet. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Liever je eigen AI-client? Koppel Claude, ChatGPT of een andere client via [MCP](/docs/mcp). Dat werkt in elk abonnement en op self-hosted installaties, met modelgebruik dat je AI-aanbieder in rekening brengt, en de client kan de records lezen of bijwerken die je rol toestaat.
 
@@ -341,7 +341,7 @@ Er is geen eenduidig antwoord en deze pagina claimt geen marktaandeel. De tabel 
 </FaqItem>
 
 <FaqItem question="Hoe volgen consultants voorstellen en opvolging op in een CRM?">
-Zet elk voorstel op een opdracht of deal met een fase, voeg het document toe en geef het een datum voor de volgende stap: de dag waarop je beloofde op te volgen. In Customermates gaat de opdracht naar Proposal sent, komt de voorstel-pdf in een Bestand-veld en is de datum voor de volgende stap een gewoon datumveld waarop een opgeslagen weergave sorteert. Niets herinnert je eraan, dus open je die weergave of de widget Aankomend van het dashboard. Mate kan het antwoord uit het gesprek als concept schrijven en jij verstuurt het. De formulering van het bericht staat in [hoe je een sales-opvolgmail schrijft](/blog/sales-follow-up-email), en de inrichting op de [pagina over opvolging](/features/follow-up).
+Zet elk voorstel op een opdracht of deal met een fase, voeg het document toe en geef het een datum voor de volgende stap: de dag waarop je beloofde op te volgen. In Customermates gaat de opdracht naar Offerte verstuurd, komt de voorstel-pdf in een Bestand-veld en is de datum voor de volgende stap een gewoon datumveld waarop een opgeslagen weergave sorteert. Niets herinnert je eraan, dus open je die weergave of de widget Aankomend van het dashboard. Mate kan het antwoord uit het gesprek als concept schrijven en jij verstuurt het. De formulering van het bericht staat in [hoe je een sales-opvolgmail schrijft](/blog/sales-follow-up-email), en de inrichting op de [pagina over opvolging](/features/follow-up).
 </FaqItem>
 
 <FaqItem question="Kan ik LinkedIn-berichten in een CRM gebruiken?">

@@ -199,34 +199,34 @@ Onde outra ferramenta é a melhor escolha: o OnePageCRM se você quer lembretes 
 
 ## Um projeto no espaço de trabalho de exemplo
 
-O [espaço de trabalho de consultoria](https://demo.customermates.com/pt/w/consultores/dashboard) é um exemplo com dados de exemplo, não uma conta de cliente. A interface está em português e os registros de exemplo estão em inglês. Ele tem quatro listas: **Clients**, **Contacts**, **Engagements** e **Tasks**. Os projetos passam por **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** e **Lost**. Os projetos ganhos seguem então para um segundo quadro, **Active engagements**, por **Not started**, **In delivery**, **Wrapping up** e **Completed**.
+O [espaço de trabalho de consultoria](https://demo.customermates.com/pt/w/consultores/dashboard) é um exemplo com dados de exemplo, não uma conta de cliente. A interface e os registros de exemplo estão em português. Ele tem quatro listas: **Clientes**, **Contatos**, **Projetos** e **Tarefas**. Os projetos passam por **Apresentação**, **Diagnóstico**, **Escopo**, **Proposta enviada**, **Decisão**, **Ganho** e **Perdido**. Os projetos ganhos seguem então para um segundo quadro, **Projetos em andamento**, por **Não iniciado**, **Em execução**, **Em finalização** e **Concluído**.
 
-Abra um projeto em Proposal sent e você vê o que um consultor confere antes da próxima reunião:
+Abra um projeto em Proposta enviada e você vê o que um consultor confere antes da próxima reunião:
 
 - **O cliente** com seus contatos e o papel de cada um no projeto: o patrocinador, o contato do dia a dia e quem dá a aprovação final.
 - **Os honorários**, calculados a partir de dois campos que você preenche: os dias estimados vezes o valor da diária. Cada etapa tem uma probabilidade de ganho, e o valor ponderado é essa probabilidade aplicada aos honorários. É uma ponderação do pipeline, não uma previsão. Um campo de duração conta os dias do início previsto até o fim.
 - **As conversas.** Uma conversa de e-mail e uma do LinkedIn com o patrocinador, vinculadas a este projeto. Os contatos são associados às conversas pelo endereço de e-mail ou pela identidade do LinkedIn no campo Dados de contato; o vínculo de uma conversa com o projeto ou o cliente foi feito explicitamente por uma pessoa, nunca automaticamente.
 - **Uma data de próximo passo** em um campo de data comum, registrada à mão depois da última reunião. As tarefas não têm prazos nem lembretes embutidos, então a data fica em um campo que você configura e uma visualização salva ordena por ela.
-- **A proposta** como PDF no campo Documents do projeto, um campo do tipo Arquivo. A busca encontra o texto dentro dele, e o Mate pode lê-lo antes de uma reunião.
+- **A proposta** como PDF no campo Documentos do projeto, um campo do tipo Arquivo. A busca encontra o texto dentro dele, e o Mate pode lê-lo antes de uma reunião.
 
-"Proposal sent" é uma etapa, não um documento: você escreve a proposta na sua própria ferramenta e adiciona o PDF ao projeto.
+"Proposta enviada" é uma etapa, não um documento: você escreve a proposta na sua própria ferramenta e adiciona o PDF ao projeto.
 
-Os projetos ganhos também aparecem em uma visualização **Delivery calendar**, cada um estendido entre a data de início e a de fim. A página Calendário mostra em uma só linha do tempo os períodos dos projetos, as datas dos próximos passos e as reuniões do Google Agenda conectado, e o painel lista os próximos passos dos 14 dias seguintes.
+Os projetos ganhos também aparecem em uma visualização **Calendário de execução**, cada um estendido entre a data de início e a de fim. A página Calendário mostra em uma só linha do tempo os períodos dos projetos, as datas dos próximos passos e as reuniões do Google Agenda conectado, e o painel lista os próximos passos dos 14 dias seguintes.
 
 ## Da apresentação à decisão
 
 <Steps>
   <Step title="Registre a apresentação">
-    Adicione a pessoa e o cliente dela, e abra um projeto em Introduction.
+    Adicione a pessoa e o cliente dela, e abra um projeto em Apresentação.
     Anote em um campo quem indicou você.
   </Step>
   <Step title="Diagnóstico e definição de escopo">
-    Mova o projeto por Discovery e Scoping conforme o problema e o orçamento
+    Mova o projeto por Diagnóstico e Escopo conforme o problema e o orçamento
     ficam claros. Informe o valor da diária e os dias estimados, e os
     honorários são calculados.
   </Step>
   <Step title="Envie a proposta">
-    Mova-o para Proposal sent e defina a data da decisão e a data do próximo
+    Mova-o para Proposta enviada e defina a data da decisão e a data do próximo
     passo nos seus campos de data. Adicione o PDF da proposta ao projeto.
   </Step>
   <Step title="Faça o follow-up pessoalmente">
@@ -235,7 +235,7 @@ Os projetos ganhos também aparecem em uma visualização **Delivery calendar**,
     e envie.
   </Step>
   <Step title="Registre a decisão">
-    Mova o projeto para Won ou Lost. Um projeto ganho segue pelas etapas de
+    Mova o projeto para Ganho ou Perdido. Um projeto ganho segue pelas etapas de
     entrega; horas e faturamento ficam nas ferramentas feitas para isso.
   </Step>
 </Steps>
@@ -254,7 +254,7 @@ As conversas das suas próprias contas ficam privadas até você compartilhá-la
 
 O Mate é o assistente dentro do Customermates Cloud. Ele roda com créditos de IA hospedados, incluídos por usuário ativo em todo plano cloud pago, e não está disponível em instalações de hospedagem própria. Antes de uma reunião, peça no chat um resumo de um projeto: a etapa, as últimas mensagens de e-mail e LinkedIn e a data do próximo passo. Depois da reunião, peça que ele atualize a etapa e salve um follow-up curto como rascunho na conversa.
 
-O Mate pode enviar mensagens quando você manda enviar, então peça rascunhos quando quiser ler antes. Exclusões, importações e mudanças de acesso sempre param para a sua aprovação. Uma [rotina](/docs/app-routines) executa o Mate em um horário programado ou quando um registro muda: por exemplo, toda segunda-feira, listar os projetos em Proposal sent cuja data de próximo passo já passou e salvar um rascunho de resposta para cada um. O espaço de trabalho de exemplo tem duas: uma adiciona um breve resumo ao projeto antes de cada reunião do dia no calendário, a outra cria uma tarefa para os contatos próximos que você não encontra há dois meses. Uma rotina pertence a um usuário e vê o que esse usuário vê. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro inclui [[commercial.entitlement.pro.includedRoutinesPerUser]].
+O Mate pode enviar mensagens quando você manda enviar, então peça rascunhos quando quiser ler antes. Exclusões, importações e mudanças de acesso sempre param para a sua aprovação. Uma [rotina](/docs/app-routines) executa o Mate em um horário programado ou quando um registro muda: por exemplo, toda segunda-feira, listar os projetos em Proposta enviada cuja data de próximo passo já passou e salvar um rascunho de resposta para cada um. O espaço de trabalho de exemplo tem duas: uma adiciona um breve resumo ao projeto antes de cada reunião do dia no calendário, a outra cria uma tarefa para os contatos próximos que você não encontra há dois meses. Uma rotina pertence a um usuário e vê o que esse usuário vê. O Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário e o Pro inclui [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Prefere o seu próprio cliente de IA? Conecte o Claude, o ChatGPT ou outro cliente via [MCP](/docs/mcp). Funciona em todos os planos e em instalações de hospedagem própria, com o uso do modelo cobrado pelo seu provedor de IA, e pode ler ou atualizar os registros que a sua função permite.
 
@@ -271,7 +271,7 @@ O Customermates serve a uma pequena consultoria, com limites que vale conhecer a
 
 Um espaço de trabalho novo começa sem listas. As listas de consultoria acima são um exemplo, não o que toda conta contém. No Customermates Cloud, a configuração do espaço de trabalho com IA pergunta para que ele serve e monta listas, etapas, um painel e páginas da Base de conhecimento a partir das suas respostas. Ela roda uma única vez no onboarding, usa uma quantidade limitada de créditos de IA, e você pode pulá-la com **Começar com um espaço de trabalho vazio** (veja o [onboarding](/docs/app-onboarding)).
 
-Caso contrário, quem tem direitos sobre o Modelo de dados cria as listas, os campos e as etapas em Modelo de dados e depois importa os registros de uma pasta de trabalho do Excel (.xlsx, até 5.000 linhas por arquivo). Importe primeiro os clientes, depois os contatos, depois os projetos em aberto. Uma importação não pode ser desfeita, então teste com poucas linhas. Se alguém da equipe precisar renomear uma lista, por exemplo Engagements para Projetos, isso também é uma configuração em Modelo de dados.
+Caso contrário, quem tem direitos sobre o Modelo de dados cria as listas, os campos e as etapas em Modelo de dados e depois importa os registros de uma pasta de trabalho do Excel (.xlsx, até 5.000 linhas por arquivo). Importe primeiro os clientes, depois os contatos, depois os projetos em aberto. Uma importação não pode ser desfeita, então teste com poucas linhas. Se alguém da equipe precisar renomear uma lista, por exemplo Negócios para Projetos, isso também é uma configuração em Modelo de dados.
 
 ## O que o Customermates não faz para consultores
 
@@ -340,7 +340,7 @@ Não há uma resposta única, e esta página não afirma participação de merca
 </FaqItem>
 
 <FaqItem question="Como os consultores acompanham propostas e follow-ups em um CRM?">
-Coloque cada proposta em um projeto ou negócio com uma etapa, adicione o documento e dê a ele uma data de próximo passo: o dia em que você prometeu fazer o follow-up. No Customermates, o projeto vai para Proposal sent, o PDF da proposta entra em um campo Arquivo e a data do próximo passo é um campo de data comum pelo qual uma visualização salva ordena. Nada avisa você, então abra essa visualização ou o widget Próximos do painel. O Mate pode redigir a resposta a partir da conversa e você envia. A redação da mensagem está em [como escrever um e-mail de follow-up de vendas](/blog/sales-follow-up-email), e a configuração, na [página da função de follow-up](/features/follow-up).
+Coloque cada proposta em um projeto ou negócio com uma etapa, adicione o documento e dê a ele uma data de próximo passo: o dia em que você prometeu fazer o follow-up. No Customermates, o projeto vai para Proposta enviada, o PDF da proposta entra em um campo Arquivo e a data do próximo passo é um campo de data comum pelo qual uma visualização salva ordena. Nada avisa você, então abra essa visualização ou o widget Próximos do painel. O Mate pode redigir a resposta a partir da conversa e você envia. A redação da mensagem está em [como escrever um e-mail de follow-up de vendas](/blog/sales-follow-up-email), e a configuração, na [página da função de follow-up](/features/follow-up).
 </FaqItem>
 
 <FaqItem question="Posso usar mensagens do LinkedIn em um CRM?">

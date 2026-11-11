@@ -156,7 +156,7 @@ CRM dla freelancerów zdaje egzamin, gdy Twoja praca zależy od relacji: dawny k
     stałymi zleceniami i poleceniami.
   </SummaryItem>
   <SummaryItem label="Przykładowa przestrzeń robocza">
-    Clients, Contacts, Inquiries, Projects i Tasks, z danymi demonstracyjnymi.
+    Klienci, Kontakty, Zapytania, Projekty i Zadania, z danymi demonstracyjnymi.
     Twoja własna przestrzeń zaczyna się bez list.
   </SummaryItem>
   <SummaryItem label="Skrzynka i AI">
@@ -178,21 +178,21 @@ Nie pasuje do firmy, która działa na rezerwacjach i płatnościach. Nie ma str
 
 ## Przykładowa przestrzeń robocza freelancera
 
-Demo otwiera przykładową przestrzeń roboczą z danymi demonstracyjnymi, a nie konto klienta. Interfejs jest po polsku, a rekordy przykładowe po angielsku. Ma pięć list:
+Demo otwiera przykładową przestrzeń roboczą z danymi demonstracyjnymi, a nie konto klienta. Interfejs i rekordy przykładowe są po polsku. Ma pięć list:
 
-- **Clients**: firmy, dla których pracujesz lub chcesz pracować.
-- **Contacts**: osoby w tych firmach i osoby, które Cię polecają.
-- **Inquiries**: każde zapytanie lub możliwy projekt, z etapem.
-- **Projects**: uzgodnione prace, ze stawką dzienną, liczbą dni i honorarium wyliczonym z obu.
-- **Tasks**: konkretne kolejne kroki, powiązane z klientem lub zapytaniem.
+- **Klienci**: firmy, dla których pracujesz lub chcesz pracować.
+- **Kontakty**: osoby w tych firmach i osoby, które Cię polecają.
+- **Zapytania**: każde zapytanie lub możliwy projekt, z etapem.
+- **Projekty**: uzgodnione prace, ze stawką dzienną, liczbą dni i honorarium wyliczonym z obu.
+- **Zadania**: konkretne kolejne kroki, powiązane z klientem lub zapytaniem.
 
-Zapytania przechodzą przez Inquiry, First call, Proposal sent, Won i Lost; wygrana praca trwa dalej jako projekt ze statusem od Planned do Billed. Billed to tylko etykieta: fakturowanie zostaje w Twoim narzędziu do fakturowania. Otwórz listę klientów, a potem jednego klienta: strona szczegółów pokazuje powiązane kontakty, trwający projekt z wyliczonym honorarium, otwarte zapytanie, ostatnie notatki i kontekst rozmów oraz datę **Next action**. Ta data to pole skonfigurowane w tej przestrzeni roboczej, a nie wbudowane przypomnienie. Zadania w Customermates nie mają wbudowanych terminów, statusów ani przypomnień, więc przykład dodaje pole daty i zapisany widok posortowany po nim. Projekty trzymają swoje pliki, takie jak PDF oferty czy wyniki testów, w polu typu Plik, a widok **Project calendar** pokazuje każdy projekt od startu do terminu. Strona Kalendarz dodaje kolejne działania i rozmowy z połączonego kalendarza Google, a pulpit wymienia kolejne działania na najbliższe dwa tygodnie.
+Zapytania przechodzą przez Zapytanie, Pierwsza rozmowa, Oferta wysłana, Wygrane i Przegrane; wygrana praca trwa dalej jako projekt ze statusem od Zaplanowany do Rozliczony. Rozliczony to tylko etykieta: fakturowanie zostaje w Twoim narzędziu do fakturowania. Otwórz listę klientów, a potem jednego klienta: strona szczegółów pokazuje powiązane kontakty, trwający projekt z wyliczonym honorarium, otwarte zapytanie, ostatnie notatki i kontekst rozmów oraz pole **Data następnego kroku**. Ta data to pole skonfigurowane w tej przestrzeni roboczej, a nie wbudowane przypomnienie. Zadania w Customermates nie mają wbudowanych terminów, statusów ani przypomnień, więc przykład dodaje pole daty i zapisany widok posortowany po nim. Projekty trzymają swoje pliki, takie jak PDF oferty czy wyniki testów, w polu typu Plik, a widok **Kalendarz projektów** pokazuje każdy projekt od startu do terminu. Strona Kalendarz dodaje kolejne działania i rozmowy z połączonego kalendarza Google, a pulpit wymienia kolejne działania na najbliższe dwa tygodnie.
 
 <ProofRail label="Przestrzeń robocza freelancera w demo">
-  <ProofItem label="Relacja">Clients z powiązanymi kontaktami</ProofItem>
-  <ProofItem label="Nowe zlecenia">Inquiries według etapu</ProofItem>
-  <ProofItem label="Realizowane prace">Projects z wyliczonym honorarium</ProofItem>
-  <ProofItem label="Kolejny krok">Skonfigurowana data Next action</ProofItem>
+  <ProofItem label="Relacja">Klienci z powiązanymi kontaktami</ProofItem>
+  <ProofItem label="Nowe zlecenia">Zapytania według etapu</ProofItem>
+  <ProofItem label="Realizowane prace">Projekty z wyliczonym honorarium</ProofItem>
+  <ProofItem label="Kolejny krok">Skonfigurowana data następnego kroku</ProofItem>
   <ProofItem label="Kontekst">Notatki i obsługiwane rozmowy</ProofItem>
 </ProofRail>
 
@@ -206,7 +206,7 @@ Pola występują w typach, jakich się spodziewasz: tekst, tekst sformatowany, l
 
 Zapytanie to jedna możliwa praca dla jednego klienta; gdy zostanie wygrana, praca trwa dalej jako projekt. [Tablica pipeline'u](/features/pipeline) pokazuje każdy etap jako kolumnę, a kartę przeciągasz, gdy coś się zmienia. Każda opcja etapu może mieć prawdopodobieństwo wygranej, więc tablica może pokazać wartość szansy obok jej wartości ważonej. To ważenie Twoimi własnymi procentami, nie prognoza.
 
-Kilka zapisanych widoków wystarcza do cotygodniowej kontroli: otwarte szanse w etapie Proposal sent posortowane po ostatniej aktualizacji, klienci posortowani po Next action oraz dawni klienci, z którymi od jakiegoś czasu nie było kontaktu. Zapisany widok przechowuje razem filtry, sortowanie i kolumny. [Dokumentacja rekordów](/docs/app-records) wyjaśnia widoki, pola i import.
+Kilka zapisanych widoków wystarcza do cotygodniowej kontroli: otwarte szanse w etapie Oferta wysłana posortowane po ostatniej aktualizacji, klienci posortowani po dacie następnego kroku oraz dawni klienci, z którymi od jakiegoś czasu nie było kontaktu. Zapisany widok przechowuje razem filtry, sortowanie i kolumny. [Dokumentacja rekordów](/docs/app-records) wyjaśnia widoki, pola i import.
 
 <Steps>
   <Step title="Klient się odzywa">
@@ -219,15 +219,15 @@ Kilka zapisanych widoków wystarcza do cotygodniowej kontroli: otwarte szanse w 
     do rekordu.
   </Step>
   <Step title="Otwórz zapytanie">
-    Utwórz je przy kliencie, ustaw etap Inquiry i wypełnij pole wartości,
+    Utwórz je przy kliencie, ustaw etap Zapytanie i wypełnij pole wartości,
     jeśli Twoja przestrzeń robocza je ma.
   </Step>
   <Step title="Ustaw kolejne działanie">
-    Wypełnij datę Next action i, jeśli to przydatne, zadanie powiązane z
+    Wypełnij datę następnego kroku i, jeśli to przydatne, zadanie powiązane z
     szansą.
   </Step>
   <Step title="Sprawdzaj raz w tygodniu">
-    Otwórz widok posortowany po Next action, przesuwaj karty na tablicy i
+    Otwórz widok posortowany po dacie następnego kroku, przesuwaj karty na tablicy i
     zamykaj albo oznaczaj jako przegrane to, co ucichło.
   </Step>
 </Steps>
@@ -242,7 +242,7 @@ W Customermates Cloud [ujednolicona skrzynka odbiorcza](/features/unified-inbox)
 
 Uczestnicy są dopasowywani do kontaktów po adresie e-mail, numerze telefonu lub tożsamości na LinkedInie. Rozmowa jest powiązana z klientem lub szansą tylko wtedy, gdy Ty albo agent, którego o to poprosisz, ją powiąże. Nic nie jest automatycznie przypisywane do szansy. Wiadomości na platformach dla freelancerów nie są kanałem skrzynki.
 
-Mate, asystent w Customermates Cloud, może czytać rekord klienta i powiązaną z nim rozmowę oraz przygotować odpowiedź do Twojego sprawdzenia. Działa w każdym płatnym planie chmurowym w ramach hostowanych kredytów AI Twojego planu i nie jest dostępny w self-hostingu. Mate tworzy, aktualizuje i wysyła, gdy tylko o to poprosisz; tylko usunięcia, importy, zmiany dostępu i destrukcyjne zmiany modelu danych czekają na Twoją zgodę. Poproś o szkic, a poczeka w rozmowie, aż go poprawisz lub wyślesz. [Rutyna](/docs/app-routines) pozwala Mate wykonywać zapisaną instrukcję według harmonogramu albo po zmianie rekordu, na przykład poniedziałkową listę szans, których data Next action minęła. Liczba rutyn w cenie na użytkownika: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate, asystent w Customermates Cloud, może czytać rekord klienta i powiązaną z nim rozmowę oraz przygotować odpowiedź do Twojego sprawdzenia. Działa w każdym płatnym planie chmurowym w ramach hostowanych kredytów AI Twojego planu i nie jest dostępny w self-hostingu. Mate tworzy, aktualizuje i wysyła, gdy tylko o to poprosisz; tylko usunięcia, importy, zmiany dostępu i destrukcyjne zmiany modelu danych czekają na Twoją zgodę. Poproś o szkic, a poczeka w rozmowie, aż go poprawisz lub wyślesz. [Rutyna](/docs/app-routines) pozwala Mate wykonywać zapisaną instrukcję według harmonogramu albo po zmianie rekordu, na przykład poniedziałkową listę szans, których data następnego kroku minęła. Liczba rutyn w cenie na użytkownika: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Jeśli wolisz własnego klienta AI, podłącz Claude, ChatGPT lub innego klienta przez [MCP](/docs/mcp). Działa w każdym planie, także w self-hostingu, a zużycie modelu rozlicza Twój dostawca AI.
 

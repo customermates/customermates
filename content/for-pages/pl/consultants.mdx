@@ -199,34 +199,34 @@ Gdzie lepszym wyborem jest inne narzędzie: OnePageCRM, jeśli chcesz przypomnie
 
 ## Jedno zlecenie w przykładowej przestrzeni roboczej
 
-[Przestrzeń robocza dla konsultingu](https://demo.customermates.com/pl/w/doradztwo/dashboard) to przykład z danymi demonstracyjnymi, a nie konto klienta. Interfejs jest po polsku, a rekordy przykładowe po angielsku. Ma cztery listy: **Clients**, **Contacts**, **Engagements** i **Tasks**. Zlecenia przechodzą przez **Introduction**, **Discovery**, **Scoping**, **Proposal sent**, **Decision**, **Won** i **Lost**. Wygrane zlecenia trafiają potem na drugą tablicę, **Active engagements**, przez **Not started**, **In delivery**, **Wrapping up** i **Completed**.
+[Przestrzeń robocza dla konsultingu](https://demo.customermates.com/pl/w/doradztwo/dashboard) to przykład z danymi demonstracyjnymi, a nie konto klienta. Interfejs i rekordy przykładowe są po polsku. Ma cztery listy: **Klienci**, **Kontakty**, **Zlecenia** i **Zadania**. Zlecenia przechodzą przez **Zapoznanie**, **Rozpoznanie**, **Ustalenie zakresu**, **Oferta wysłana**, **Decyzja**, **Wygrana** i **Przegrana**. Wygrane zlecenia trafiają potem na drugą tablicę, **Aktywne zlecenia**, przez **Nie rozpoczęte**, **W realizacji**, **Finalizacja** i **Zakończone**.
 
-Otwórz jedno zlecenie w etapie Proposal sent, a zobaczysz to, co konsultant sprawdza przed kolejną rozmową:
+Otwórz jedno zlecenie w etapie Oferta wysłana, a zobaczysz to, co konsultant sprawdza przed kolejną rozmową:
 
 - **Klient** z jego kontaktami i ich rolą w zleceniu: sponsor, osoba na co dzień i ta, która akceptuje.
 - **Honorarium**, liczone z dwóch pól, które wypełniasz: szacowana liczba dni razy stawka dzienna. Każdy etap ma prawdopodobieństwo wygranej, a wartość ważona to to prawdopodobieństwo zastosowane do honorarium. To ważenie pipeline'u, nie prognoza. Pole czasu trwania liczy dni od planowanego startu do końca.
 - **Rozmowy.** Wątek e-mail i rozmowa na LinkedInie ze sponsorem, powiązane z tym zleceniem. Kontakty są dopasowywane do rozmów po adresie e-mail lub tożsamości na LinkedInie w polu Dane kontaktowe; powiązanie rozmowy ze zleceniem lub klientem zawsze robi człowiek, nigdy nie dzieje się to automatycznie.
 - **Data kolejnego kroku** w zwykłym polu daty, wpisana ręcznie po ostatniej rozmowie. Zadania nie mają wbudowanych terminów ani przypomnień, więc data żyje w polu, które konfigurujesz, a zapisany widok sortuje po niej.
-- **Oferta** jako PDF w polu Documents zlecenia, czyli w polu typu Plik. Wyszukiwarka znajduje tekst w jego środku, a Mate może go przeczytać przed rozmową.
+- **Oferta** jako PDF w polu Dokumenty zlecenia, czyli w polu typu Plik. Wyszukiwarka znajduje tekst w jego środku, a Mate może go przeczytać przed rozmową.
 
-„Proposal sent” to etap, a nie dokument: ofertę piszesz we własnym narzędziu i dodajesz PDF do zlecenia.
+„Oferta wysłana” to etap, a nie dokument: ofertę piszesz we własnym narzędziu i dodajesz PDF do zlecenia.
 
-Wygrane zlecenia pojawiają się też w widoku **Delivery calendar**, każde rozciągnięte od daty startu do końca. Strona Kalendarz pokazuje okresy zleceń, daty kolejnych kroków i spotkania z połączonego kalendarza Google na jednej osi czasu, a pulpit wymienia kolejne kroki na najbliższe 14 dni.
+Wygrane zlecenia pojawiają się też w widoku **Kalendarz realizacji**, każde rozciągnięte od daty startu do końca. Strona Kalendarz pokazuje okresy zleceń, daty kolejnych kroków i spotkania z połączonego kalendarza Google na jednej osi czasu, a pulpit wymienia kolejne kroki na najbliższe 14 dni.
 
 ## Od pierwszego kontaktu do decyzji
 
 <Steps>
   <Step title="Zapisz pierwszy kontakt">
-    Dodaj osobę i jej klienta oraz otwórz zlecenie w etapie Introduction.
+    Dodaj osobę i jej klienta oraz otwórz zlecenie w etapie Zapoznanie.
     Zanotuj w polu, kto Cię polecił.
   </Step>
   <Step title="Rozpoznanie potrzeb i zakres">
-    Przesuwaj zlecenie przez Discovery i Scoping, gdy problem i budżet stają się
+    Przesuwaj zlecenie przez Rozpoznanie i Ustalenie zakresu, gdy problem i budżet stają się
     jasne. Wpisz stawkę dzienną i szacowaną liczbę dni, a honorarium zostanie
     policzone.
   </Step>
   <Step title="Wyślij ofertę">
-    Przenieś zlecenie do Proposal sent i ustaw datę decyzji oraz datę kolejnego kroku
+    Przenieś zlecenie do etapu Oferta wysłana i ustaw datę decyzji oraz datę kolejnego kroku
     we własnych polach daty. Dodaj do zlecenia PDF oferty.
   </Step>
   <Step title="Zrób follow-up osobiście">
@@ -235,7 +235,7 @@ Wygrane zlecenia pojawiają się też w widoku **Delivery calendar**, każde roz
     go i wyślij.
   </Step>
   <Step title="Zapisz decyzję">
-    Przenieś zlecenie do Won lub Lost. Wygrane zlecenie przechodzi dalej przez
+    Przenieś zlecenie do etapu Wygrana lub Przegrana. Wygrane zlecenie przechodzi dalej przez
     etapy realizacji; godziny i fakturowanie zostają w narzędziach do tego
     stworzonych.
   </Step>
@@ -255,7 +255,7 @@ Rozmowy z Twoich własnych kont pozostają prywatne, dopóki ich nie udostępnis
 
 Mate to asystent wewnątrz Customermates Cloud. Działa na hostowanych kredytach AI wliczonych w cenę na aktywnego użytkownika w każdym płatnym planie chmurowym i nie jest dostępny w instalacjach self-hosted. Przed rozmową poproś w czacie o podsumowanie zlecenia: jego etap, najnowsze wiadomości e-mail i z LinkedIna oraz datę kolejnego kroku. Po rozmowie poproś o aktualizację etapu i zapisanie krótkiego follow-upu jako szkicu w rozmowie.
 
-Mate może wysyłać wiadomości, gdy każesz mu wysłać, więc proś o szkice, gdy chcesz najpierw przeczytać. Usunięcia, importy i zmiany dostępu zawsze czekają na Twoją zgodę. [Rutyna](/docs/app-routines) uruchamia Mate według harmonogramu albo po zmianie rekordu: na przykład w każdy poniedziałek wypisz zlecenia w etapie Proposal sent, których data kolejnego kroku minęła, i zapisz szkic odpowiedzi do każdego. Przykładowa przestrzeń robocza ma dwie: jedna dodaje krótką notatkę do zlecenia przed każdym spotkaniem z kalendarza na dany dzień, druga tworzy zadanie dla bliskich kontaktów, z którymi nie było spotkania od dwóch miesięcy. Rutyna należy do jednego użytkownika i widzi to, co widzi on. Liczba rutyn w cenie na użytkownika: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate może wysyłać wiadomości, gdy każesz mu wysłać, więc proś o szkice, gdy chcesz najpierw przeczytać. Usunięcia, importy i zmiany dostępu zawsze czekają na Twoją zgodę. [Rutyna](/docs/app-routines) uruchamia Mate według harmonogramu albo po zmianie rekordu: na przykład w każdy poniedziałek wypisz zlecenia w etapie Oferta wysłana, których data kolejnego kroku minęła, i zapisz szkic odpowiedzi do każdego. Przykładowa przestrzeń robocza ma dwie: jedna dodaje krótką notatkę do zlecenia przed każdym spotkaniem z kalendarza na dany dzień, druga tworzy zadanie dla bliskich kontaktów, z którymi nie było spotkania od dwóch miesięcy. Rutyna należy do jednego użytkownika i widzi to, co widzi on. Liczba rutyn w cenie na użytkownika: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Wolisz własnego klienta AI? Podłącz Claude, ChatGPT lub innego klienta przez [MCP](/docs/mcp). Działa w każdym planie i w instalacjach self-hosted, a zużycie modelu rozlicza Twój dostawca AI; może czytać i aktualizować rekordy, na które pozwala Twoja rola.
 
@@ -272,7 +272,7 @@ Customermates pasuje do małej firmy, ale warto znać ograniczenia, zanim zapros
 
 Nowa przestrzeń robocza zaczyna się bez list. Powyższe listy konsultingowe to przykład, a nie to, co zawiera każde konto. W Customermates Cloud konfiguracja przestrzeni z AI pyta, do czego służy przestrzeń, i buduje listy, etapy, pulpit i strony Bazy wiedzy z Twoich odpowiedzi. Uruchamia się raz przy wdrożeniu, zużywa ograniczoną ilość kredytów AI i możesz ją pominąć przyciskiem **Zacznij od pustej przestrzeni roboczej** (zobacz [wdrożenie](/docs/app-onboarding)).
 
-W przeciwnym razie osoby z uprawnieniami do Modelu danych tworzą listy, pola i etapy w Modelu danych, a potem importują rekordy z arkusza Excel (.xlsx, do 5000 wierszy na plik). Najpierw zaimportuj klientów, potem kontakty, na końcu otwarte zlecenia. Importu nie da się cofnąć, więc przetestuj go na kilku wierszach. Jeśli ktoś z zespołu potrzebuje zmienić nazwę listy, na przykład Engagements na Mandaty, to także ustawienie w Modelu danych.
+W przeciwnym razie osoby z uprawnieniami do Modelu danych tworzą listy, pola i etapy w Modelu danych, a potem importują rekordy z arkusza Excel (.xlsx, do 5000 wierszy na plik). Najpierw zaimportuj klientów, potem kontakty, na końcu otwarte zlecenia. Importu nie da się cofnąć, więc przetestuj go na kilku wierszach. Jeśli ktoś z zespołu potrzebuje zmienić nazwę listy, na przykład Szanse sprzedaży na Zlecenia, to także ustawienie w Modelu danych.
 
 ## Czego Customermates nie robi dla konsultantów
 
@@ -341,7 +341,7 @@ Nie ma jednej odpowiedzi, a ta strona nie podaje żadnego udziału w rynku. Tabe
 </FaqItem>
 
 <FaqItem question="Jak konsultanci śledzą oferty i follow-upy w CRM?">
-Wpisz każdą ofertę przy zleceniu lub szansie sprzedaży z etapem, dodaj do niej dokument i nadaj jej datę kolejnego kroku: dzień obiecanego follow-upu. W Customermates zlecenie przechodzi do Proposal sent, PDF oferty trafia do pola typu Plik, a data kolejnego kroku to zwykłe pole daty, po którym sortuje zapisany widok. Nic Ci nie przypomina, więc otwierasz ten widok albo widżet Nadchodzące na pulpicie. Mate może przygotować odpowiedź na podstawie rozmowy, a Ty ją wysyłasz. Samo brzmienie wiadomości omawia [jak napisać e-mail z follow-upem sprzedażowym](/blog/sales-follow-up-email), a konfigurację [strona funkcji follow-up](/features/follow-up).
+Wpisz każdą ofertę przy zleceniu lub szansie sprzedaży z etapem, dodaj do niej dokument i nadaj jej datę kolejnego kroku: dzień obiecanego follow-upu. W Customermates zlecenie przechodzi do etapu Oferta wysłana, PDF oferty trafia do pola typu Plik, a data kolejnego kroku to zwykłe pole daty, po którym sortuje zapisany widok. Nic Ci nie przypomina, więc otwierasz ten widok albo widżet Nadchodzące na pulpicie. Mate może przygotować odpowiedź na podstawie rozmowy, a Ty ją wysyłasz. Samo brzmienie wiadomości omawia [jak napisać e-mail z follow-upem sprzedażowym](/blog/sales-follow-up-email), a konfigurację [strona funkcji follow-up](/features/follow-up).
 </FaqItem>
 
 <FaqItem question="Czy mogę używać wiadomości z LinkedIna w CRM?">

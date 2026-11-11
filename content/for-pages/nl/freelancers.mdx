@@ -158,7 +158,7 @@ Op Customermates Cloud vanaf Pro komen de e-mail- en LinkedIn-gesprekken erbij. 
     terugkerend werk en doorverwijzingen.
   </SummaryItem>
   <SummaryItem label="Voorbeeldwerkruimte">
-    Clients, Contacts, Inquiries, Projects en Tasks, met voorbeelddata. Je eigen
+    Klanten, Contactpersonen, Aanvragen, Projecten en Taken, met voorbeelddata. Je eigen
     werkruimte begint zonder lijsten.
   </SummaryItem>
   <SummaryItem label="Inbox en AI">
@@ -190,21 +190,21 @@ Het past niet bij een bedrijf dat draait op boekingen en betalingen. Er is geen 
 
 ## De voorbeeldwerkruimte voor freelancers
 
-De demo opent een voorbeeldwerkruimte met voorbeelddata, niet het account van een klant. De interface is Nederlandstalig, de voorbeeldrecords zijn Engelstalig. Er zijn vijf lijsten:
+De demo opent een voorbeeldwerkruimte met voorbeelddata, niet het account van een klant. De interface en de voorbeeldrecords zijn Nederlandstalig. Er zijn vijf lijsten:
 
-- **Clients**: de bedrijven waarvoor je werkt of wilt werken.
-- **Contacts**: de mensen bij die klanten en de mensen die je doorverwijzen.
-- **Inquiries**: elke aanvraag of mogelijk project, met de fase.
-- **Projects**: werk waarmee je hebt ingestemd, met een dagtarief, een aantal dagen en een honorarium dat uit beide wordt berekend.
-- **Tasks**: concrete volgende stappen, gekoppeld aan een klant of aanvraag.
+- **Klanten**: de bedrijven waarvoor je werkt of wilt werken.
+- **Contactpersonen**: de mensen bij die klanten en de mensen die je doorverwijzen.
+- **Aanvragen**: elke aanvraag of mogelijk project, met de fase.
+- **Projecten**: werk waarmee je hebt ingestemd, met een dagtarief, een aantal dagen en een honorarium dat uit beide wordt berekend.
+- **Taken**: concrete volgende stappen, gekoppeld aan een klant of aanvraag.
 
-Inquiries doorlopen Inquiry, First call, Proposal sent, Won en Lost; gewonnen werk gaat verder als project met een status van Planned tot Billed. Billed is alleen een label: facturatie blijft in je facturatietool. Open de klantenlijst en dan één klant: de detailpagina toont de gekoppelde contactpersonen, het lopende project met zijn berekende honorarium, de openstaande aanvraag, recente notities en gesprekscontext, en een datum **Next action**. Die datum is een veld dat in deze werkruimte is ingesteld, geen ingebouwde herinnering. Taken in Customermates hebben geen ingebouwde deadlines, statussen of herinneringen, dus het voorbeeld voegt een datumveld en een opgeslagen weergave toe die erop sorteert. Projecten bewaren hun bestanden, zoals de voorstel-pdf of testbevindingen, in een Bestand-veld, en een weergave **Project calendar** toont elk project van start tot deadline. De pagina Agenda voegt de volgende acties en de gesprekken uit de gekoppelde Google-agenda toe, en het dashboard toont de volgende acties van de komende twee weken.
+Aanvragen doorlopen de fases Aanvraag, Eerste gesprek, Offerte verstuurd, Gewonnen en Verloren; gewonnen werk gaat verder als project met een status van Gepland tot Gefactureerd. Gefactureerd is alleen een label: facturatie blijft in je facturatietool. Open de klantenlijst en dan één klant: de detailpagina toont de gekoppelde contactpersonen, het lopende project met zijn berekende honorarium, de openstaande aanvraag, recente notities en gesprekscontext, en een veld **Datum volgende stap**. Die datum is een veld dat in deze werkruimte is ingesteld, geen ingebouwde herinnering. Taken in Customermates hebben geen ingebouwde deadlines, statussen of herinneringen, dus het voorbeeld voegt een datumveld en een opgeslagen weergave toe die erop sorteert. Projecten bewaren hun bestanden, zoals de voorstel-pdf of testbevindingen, in een Bestand-veld, en een weergave **Projectagenda** toont elk project van start tot deadline. De pagina Agenda voegt de volgende acties en de gesprekken uit de gekoppelde Google-agenda toe, en het dashboard toont de volgende acties van de komende twee weken.
 
 <ProofRail label="Werkruimte voor freelancers in de demo">
   <ProofItem label="Relatie">Klanten met gekoppelde contactpersonen</ProofItem>
   <ProofItem label="Nieuw werk">Aanvragen per fase</ProofItem>
   <ProofItem label="Lopend werk">Projecten met een berekend honorarium</ProofItem>
-  <ProofItem label="Volgende stap">Ingestelde datum Next action</ProofItem>
+  <ProofItem label="Volgende stap">Ingestelde datum volgende stap</ProofItem>
   <ProofItem label="Context">Notities en ondersteunde gesprekken</ProofItem>
 </ProofRail>
 
@@ -220,7 +220,7 @@ Velden komen in de typen die je verwacht: tekst, opgemaakte tekst, getal, geldbe
 
 Een aanvraag is één mogelijk stuk werk bij één klant; zodra het is gewonnen, gaat het werk verder als project. Het [pipelinebord](/features/pipeline) toont elke fase als kolom en je sleept een kaart als er iets verandert. Elke fase-optie kan een kans op winst hebben, zodat het bord de waarde van een kans naast de gewogen waarde kan tonen. Dat is wegen met je eigen percentages, geen prognose.
 
-Een paar opgeslagen weergaven dekken een wekelijkse controle: openstaande kansen in Proposal sent gesorteerd op laatste wijziging, klanten gesorteerd op Next action, en eerdere klanten met wie je een tijd niet hebt gesproken. Een opgeslagen weergave bewaart filters, sortering en kolommen samen. De [documentatie over records](/docs/app-records) legt weergaven, velden en import uit.
+Een paar opgeslagen weergaven dekken een wekelijkse controle: openstaande kansen in Offerte verstuurd gesorteerd op laatste wijziging, klanten gesorteerd op de datum van de volgende stap, en eerdere klanten met wie je een tijd niet hebt gesproken. Een opgeslagen weergave bewaart filters, sortering en kolommen samen. De [documentatie over records](/docs/app-records) legt weergaven, velden en import uit.
 
 <Steps>
   <Step title="Een klant neemt contact op">
@@ -233,15 +233,15 @@ Een paar opgeslagen weergaven dekken een wekelijkse controle: openstaande kansen
     Contactgegevens bijpassende gesprekken naar het record.
   </Step>
   <Step title="Open een aanvraag">
-    Maak die aan bij de klant, zet de fase op Inquiry en vul een waardeveld in
+    Maak die aan bij de klant, zet de fase op Aanvraag en vul een waardeveld in
     als je werkruimte er een heeft.
   </Step>
   <Step title="Stel de volgende actie in">
-    Vul de datum Next action in en, als het helpt, een taak gekoppeld aan de
+    Vul de datum van de volgende stap in en, als het helpt, een taak gekoppeld aan de
     kans.
   </Step>
   <Step title="Controleer het één keer per week">
-    Open de weergave gesorteerd op Next action, verplaats kaarten op het bord en
+    Open de weergave gesorteerd op de datum van de volgende stap, verplaats kaarten op het bord en
     sluit af of markeer als verloren wat stil is geworden.
   </Step>
 </Steps>
@@ -256,7 +256,7 @@ Op Customermates Cloud brengt de [gecombineerde inbox](/features/unified-inbox) 
 
 Deelnemers worden aan contactpersonen gekoppeld via hun e-mailadres, telefoonnummer of LinkedIn-identiteit. Een gesprek wordt alleen aan een klant of kans gekoppeld als jij, of een agent die je erom vraagt, dat doet. Niets wordt automatisch aan een kans gekoppeld. Berichten binnen freelancemarktplaatsen zijn geen inboxkanaal.
 
-Mate, de assistent in Customermates Cloud, kan een klantrecord en het gekoppelde gesprek lezen en een antwoord schrijven dat jij kunt nakijken. Hij draait op elk betaald cloudabonnement binnen de gehoste AI-credits van je abonnement en is niet beschikbaar bij self-hosting. Mate maakt aan, werkt bij en verstuurt zodra je erom vraagt; alleen verwijderingen, imports, wijzigingen in toegang en destructieve wijzigingen in het datamodel wachten op je goedkeuring. Vraag om een concept en het wacht in het gesprek tot je het bewerkt of verstuurt. Een [routine](/docs/app-routines) laat Mate een opgeslagen instructie uitvoeren volgens een schema of wanneer een record verandert, bijvoorbeeld een maandaglijst van kansen waarvan de datum Next action is verstreken. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
+Mate, de assistent in Customermates Cloud, kan een klantrecord en het gekoppelde gesprek lezen en een antwoord schrijven dat jij kunt nakijken. Hij draait op elk betaald cloudabonnement binnen de gehoste AI-credits van je abonnement en is niet beschikbaar bij self-hosting. Mate maakt aan, werkt bij en verstuurt zodra je erom vraagt; alleen verwijderingen, imports, wijzigingen in toegang en destructieve wijzigingen in het datamodel wachten op je goedkeuring. Vraag om een concept en het wacht in het gesprek tot je het bewerkt of verstuurt. Een [routine](/docs/app-routines) laat Mate een opgeslagen instructie uitvoeren volgens een schema of wanneer een record verandert, bijvoorbeeld een maandaglijst van kansen waarvan de datum van de volgende stap is verstreken. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en Pro [[commercial.entitlement.pro.includedRoutinesPerUser]].
 
 Gebruik je liever je eigen AI-client, koppel dan Claude, ChatGPT of een andere client via [MCP](/docs/mcp). Het werkt in elk abonnement, ook self-hosted, en je AI-aanbieder rekent het modelgebruik af.
 

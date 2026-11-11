@@ -266,14 +266,14 @@ De ranglijst volgt één taak: elke pitch en elk klantgesprek opvolgen in een ag
 
 ## Het pitchbord in de voorbeeldwerkruimte
 
-De [werkruimte van de agency](https://demo.customermates.com/nl/w/bureaus/dashboard) is een voorbeeld met voorbeeldgegevens, geen klantaccount. De interface is Nederlandstalig, de voorbeeldrecords zijn Engelstalig. Er zijn zes lijsten: **Clients**, **Contacts**, **Pitches**, **Projects**, **Retainers** en **Tasks**. Pitches doorlopen **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** en **Lost**.
+De [werkruimte van de agency](https://demo.customermates.com/nl/w/bureaus/dashboard) is een voorbeeld met voorbeeldgegevens, geen klantaccount. De interface en de voorbeeldrecords zijn Nederlandstalig. Er zijn zes lijsten: **Klanten**, **Contactpersonen**, **Pitches**, **Projecten**, **Retainers** en **Taken**. Pitches doorlopen **Aanvraag**, **Briefing**, **Pitchvoorbereiding**, **Voorstel verzonden**, **Onderhandeling**, **Gewonnen** en **Verloren**.
 
 Het pitchbord toont elke open pitch als kaart in zijn fase, met de eigenaar en de geschatte waarde. Elke fase heeft een winkans, dus het bord toont ook een gewogen waarde per pitch. Dat is pipelineweging op basis van je eigen kansen, geen voorspelling.
 
 Open een klant vanaf een kaart en de relatie staat op één plek:
 
 - **De mensen:** de marketinglead die je briefte, de directeur die tekent, de contactpersoon bij inkoop.
-- **De pitches:** de huidige in Pitch preparation en eerdere die zijn gewonnen. Een pitch bewaart de klantbrief en het voorstel als pdf in een veld Bestand, en de datum en tijd van de presentatie.
+- **De pitches:** de huidige in Pitchvoorbereiding en eerdere die zijn gewonnen. Een pitch bewaart de klantbrief en het voorstel als pdf in een veld Bestand, en de datum en tijd van de presentatie.
 - **De projecten:** gewonnen werk als records met status, budget, urenbudget en bestede uren; de resterende uren worden berekend uit die twee. Een agendaweergave toont per maand het productievenster van elk project.
 - **De retainer:** een record met velden als maandbedrag, looptijd, startdatum en verlengingsdatum. De contractwaarde wordt berekend als maandbedrag maal looptijd, en de klant toont zijn retainer-MRR. Het beschrijft de afspraak en bewaart de getekende overeenkomst als pdf; het maakt geen facturen of terugkerende facturering aan.
 - **Het gesprek:** een e-mailthread met de marketinglead, gekoppeld aan de pitch. De contactpersoon is gevonden op e-mailadres in het veld Contactgegevens; de koppeling met de pitch is expliciet door een persoon gelegd, nooit automatisch.
@@ -282,7 +282,7 @@ Open een klant vanaf een kaart en de relatie staat op één plek:
 
 <Steps>
   <Step title="Leg de aanvraag vast">
-    Voeg de persoon en de klant of prospect toe en open een pitch in Inquiry.
+    Voeg de persoon en de klant of prospect toe en open een pitch in Aanvraag.
     Noteer de bron, zoals een aanbeveling of een bestaande klant, in een veld.
   </Step>
   <Step title="Neem de briefing af">
@@ -290,7 +290,7 @@ Open een klant vanaf een kaart en de relatie staat op één plek:
     wijs een eigenaar toe.
   </Step>
   <Step title="Bereid de pitch voor en verstuur hem">
-    Doorloop Pitch preparation en Proposal sent. Gekoppelde taken en een
+    Doorloop Pitchvoorbereiding en Voorstel verzonden. Gekoppelde taken en een
     datumveld voor de volgende stap tonen wat aan de beurt is en wie het
     oppakt.
   </Step>
@@ -300,7 +300,7 @@ Open een klant vanaf een kaart en de relatie staat op één plek:
     verstuur het.
   </Step>
   <Step title="Leg de uitkomst vast">
-    Zet de pitch op Won of Lost. Maak voor gewonnen werk het project- of
+    Zet de pitch op Gewonnen of Verloren. Maak voor gewonnen werk het project- of
     retainerrecord aan en houd uitvoeringsplannen, urenregistratie en
     facturatie in je project- en financiële tools.
   </Step>
@@ -317,7 +317,7 @@ Open een klant vanaf een kaart en de relatie staat op één plek:
 | Campagnes | Niets | Advertentieplatforms, e-mailmarketing en klantrapportage |
 
 <AcquisitionCallout
-  title="Een fase met de naam Proposal sent blijft alleen een fase"
+  title="Een fase met de naam Voorstel verzonden blijft alleen een fase"
   variant="boundary"
 >
   Het bord toont waar een pitch staat. Het maakt geen voorstel, contract of
@@ -337,7 +337,7 @@ Het abonnement bepaalt hoe ver de inbox reikt:
 
 ## AI-hulp en koppelingen
 
-Mate, de assistent in Customermates Cloud, kan een klant samenvatten voor een pitchgesprek, een pitch naar de volgende fase zetten en een opvolgconcept in het gesprek bewaren. Mate draait op gehoste AI-credits die per actieve gebruiker in elk betaald cloudabonnement zitten en is niet beschikbaar bij zelf hosten. Mate verstuurt wanneer jij zegt dat het moet versturen, dus vraag om een concept als je eerst wilt nakijken. Een [routine](/docs/app-routines) kan Mate volgens een schema of bij een wijziging van een record laten draaien. De voorbeeldwerkruimte heeft er twee: elke maandag markeert een verlengingscheck retainers die binnen 60 dagen verlengd worden als Renewal due en maakt een taak aan, en als een pitch naar Proposal sent gaat, bewaart Mate een opvolgconcept ter beoordeling.
+Mate, de assistent in Customermates Cloud, kan een klant samenvatten voor een pitchgesprek, een pitch naar de volgende fase zetten en een opvolgconcept in het gesprek bewaren. Mate draait op gehoste AI-credits die per actieve gebruiker in elk betaald cloudabonnement zitten en is niet beschikbaar bij zelf hosten. Mate verstuurt wanneer jij zegt dat het moet versturen, dus vraag om een concept als je eerst wilt nakijken. Een [routine](/docs/app-routines) kan Mate volgens een schema of bij een wijziging van een record laten draaien. De voorbeeldwerkruimte heeft er twee: elke maandag markeert een verlengingscheck retainers die binnen 60 dagen verlengd worden als Verlenging aanstaande en maakt een taak aan, en als een pitch naar Voorstel verzonden gaat, bewaart Mate een opvolgconcept ter beoordeling.
 
 Elk abonnement, zelf gehost inbegrepen, heeft een [REST API](/features/api) en [MCP](/docs/mcp) voor externe AI-clients zoals Claude of ChatGPT, die de records mogen lezen of bijwerken die jouw rol toestaat; webhooks zijn er bij elk betaald abonnement en bij zelf hosten. Een apart beheerde [n8n-workflow](/features/workflow-automation) kan een gewonnen pitch doorgeven aan je projecttool.
 
@@ -352,7 +352,7 @@ Weet de grenzen voordat je de hele agency uitnodigt:
 
 ## Je eigen werkruimte inrichten
 
-Een nieuwe werkruimte start zonder lijsten. Pitches, Projects en Retainers zijn voorbeeldlijsten uit de demo, niet wat elk account bevat. In Customermates Cloud vraagt de AI-setup van de werkruimte waarvoor de werkruimte dient en bouwt ze op basis van je antwoorden lijsten, fases, een dashboard en Kennisbankpagina's. Ze draait één keer tijdens de onboarding, binnen een beperkt aantal AI-credits, en je kunt haar overslaan met **Beginnen met een lege werkruimte** (zie [onboarding](/docs/app-onboarding)).
+Een nieuwe werkruimte start zonder lijsten. Pitches, Projecten en Retainers zijn voorbeeldlijsten uit de demo, niet wat elk account bevat. In Customermates Cloud vraagt de AI-setup van de werkruimte waarvoor de werkruimte dient en bouwt ze op basis van je antwoorden lijsten, fases, een dashboard en Kennisbankpagina's. Ze draait één keer tijdens de onboarding, binnen een beperkt aantal AI-credits, en je kunt haar overslaan met **Beginnen met een lege werkruimte** (zie [onboarding](/docs/app-onboarding)).
 
 Anders maken mensen met rechten voor het datamodel de lijsten, velden en fases aan in Datamodel en importeren ze bestaande klanten en contactpersonen uit een Excel-werkmap. Een import kun je niet ongedaan maken, dus probeer hem eerst met een paar rijen.
 
@@ -364,14 +364,14 @@ Lijsten, velden, het pitchbord, taken, REST, webhooks en MCP werken in Customerm
 
 <Faq>
 <FaqItem question="Beheert Customermates agencyprojecten of campagnes?">
-Niet als projecttool. De voorbeeldwerkruimte heeft een eenvoudige lijst Projects met status, budget en bestede uren, met de hand ingevoerd, zodat gewonnen werk naast de klant staat. Uitvoeringsplannen, capaciteit, urenregistratie en campagnes horen thuis in tools voor projectbeheer, PSA en marketing.
+Niet als projecttool. De voorbeeldwerkruimte heeft een eenvoudige lijst Projecten met status, budget en bestede uren, met de hand ingevoerd, zodat gewonnen werk naast de klant staat. Uitvoeringsplannen, capaciteit, urenregistratie en campagnes horen thuis in tools voor projectbeheer, PSA en marketing.
 </FaqItem>
 
 <FaqItem question="Kan het voorstellen, contracten of facturen maken?">
 Nee. Bij een pitch kun je de fase, de waarde en de link naar het voorstelsdocument bewaren, maar Customermates heeft geen workflow voor voorstellen, contracten of facturen. Retainers zijn records, geen terugkerende facturen.
 </FaqItem>
 
-<FaqItem question="Bevat een nieuwe werkruimte Pitches, Projects en Retainers?">
+<FaqItem question="Bevat een nieuwe werkruimte Pitches, Projecten en Retainers?">
 Nee. Een nieuwe werkruimte start zonder lijsten. In Customermates Cloud kan de AI-setup van de werkruimte lijsten en fases bouwen op basis van je beschrijving, één keer tijdens de onboarding. Anders maken mensen met rechten voor het datamodel ze aan en importeren ze records uit Excel.
 </FaqItem>
 
