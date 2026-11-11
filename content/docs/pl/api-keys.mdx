@@ -1,0 +1,113 @@
+---
+title: "Klucze API dla klientów MCP i REST"
+description: "Jak utworzyć klucz API w Ustawieniach, jakiego uprawnienia roli wymaga, nagłówek x-api-key, kiedy klucze wygasają oraz jak usunąć lub wymienić klucz."
+---
+
+Klucze API uwierzytelniają klientów Model Context Protocol (MCP) i REST w twoim CRM Customermates. Utwórz jeden klucz dla każdego klienta, przechowuj go w zmiennej środowiskowej i usuń, gdy urządzenie albo osoba z zespołu, która go miała, przestanie z niego korzystać.
+
+## Jak utworzyć klucz API? [#how-do-i-create-an-api-key]
+
+Otwórz w Ustawieniach [Klucze API i konektory](app:settings/api-keys) i kliknij [Dodaj](app:settings/api-keys?focus=generate). Okno **Dodaj klucz API** oferuje dwie drogi:
+
+- **Standardowy klucz API**: wpisz **Nazwa**, która mówi, gdzie klucz jest używany, na przykład `Claude Desktop, laptop prywatny` (do 255 znaków), opcjonalnie wybierz datę w polu **Wygasa za** i kliknij **Zapisz**. Klucz pojawia się tylko raz pod komunikatem **Klucz API został utworzony**; skopiuj go, zanim zamkniesz okno.
+- **Szybkie połączenia**: wybierz **Claude**, **ChatGPT & Codex**, **Cursor** lub **Gemini**, a potem konfigurację, która pasuje do miejsca, w którym korzystasz z AI. Przy konfiguracji lokalnej (**Claude Code lub Desktop**, potem **Claude Code** lub **Claude Desktop**; **Codex CLI lub IDE**; Cursor lub Gemini) kliknij **Utwórz klucz API**: okno tworzy klucz i pokazuje fragment konfiguracji tego klienta z już wstawionym kluczem. **Konto Claude** i **Aplikacja ChatGPT** łączą się przez OAuth i nie tworzą żadnego klucza. Gdy skończysz, kliknij **Gotowe**.
+
+Klucz utworzony w **Szybkich połączeniach** nosi nazwę swojego klienta (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` lub `Gemini`) i wygasa 365 dni po utworzeniu; nie możesz tam wybrać innej nazwy ani daty. Okno pokazuje termin ważności pod fragmentem konfiguracji. Krok AI w kreatorze wdrożenia tworzy swoje klucze tak samo. Nazwy i terminu ważności klucza nie można zmienić po jego utworzeniu.
+
+Klucze należą do użytkownika, który je utworzył, i dziedziczą jego uprawnienia. Każdy klucz należy też do przestrzeni roboczej, w której powstał, i działa wyłącznie w niej, również klucze utworzone w czasie, gdy jedno konto nie mogło jeszcze należeć do kilku przestrzeni roboczych; zobacz [Przestrzenie robocze](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+
+## Kto może tworzyć i widzieć klucze API? [#who-can-create-and-see-api-keys]
+
+Strona Klucze API i konektory zależy od wiersza **API i webhooki** w twojej roli, który członek z uprawnieniem **Edycja** w zasobie **Użytkownicy i role** ustawia w [Role](app:settings/roles):
+
+- **Dostęp do odczytu** **Wszystkie** pokazuje klucze API w Ustawieniach i wyświetla twoje własne klucze. Przy **Brak** pozycja jest ukryta, a strony nie da się otworzyć.
+- **Tworzenie** dodaje przycisk **Dodaj**, a **Usuń** pozwala usuwać klucze. Bez nich widzisz klucze, które już masz, ale nie możesz żadnego utworzyć ani usunąć.
+
+Nowa rola zaczyna bez zaznaczonego pola wyboru i z **Dostęp do odczytu** **Brak**, więc domyślnie klucze API mogą tworzyć tylko członkowie z wbudowaną rolą **Administrator**. Ten sam wiersz otwiera też [Webhooki](app:settings/webhooks) i ich dostarczenia, więc nadanie go dla kluczy API pozwala członkowi widzieć również wszystkie webhooki przestrzeni roboczej i, z uprawnieniem **Tworzenie**, **Edycja** lub **Usuń**, je zmieniać.
+
+Każda osoba widzi tylko własne klucze i tylko te z bieżącej przestrzeni roboczej; aby zobaczyć lub usunąć klucz z innej, przełącz przestrzeń roboczą. Nikt, nawet rola **Administrator**, nie może wyświetlić ani usunąć kluczy innego członka. Żadne narzędzie asystenta ani MCP nie tworzy, nie wyświetla i nie usuwa kluczy API; zarządza się nimi wyłącznie na stronie Klucze API i konektory, a hostowany asystent może co najwyżej ją dla ciebie otworzyć.
+
+Własny konektor dla Claude i ChatGPT loguje się przez OAuth i nie potrzebuje klucza API. Jak każde połączenie MCP, wymaga uprawnienia **Dostęp do odczytu** **Wszystkie** w zasobie **API i webhooki** ([endpoint MCP](/docs/mcp#the-endpoint)). Zobacz [Połączenie przez własny konektor](/docs/connect-custom-connector).
+
+## Jakiego uprawnienia wymaga każda czynność na kluczach API? [#which-permission-does-each-api-key-action-need]
+
+Każdy sposób zarządzania kluczami sprawdza wiersz **API i webhooki** twojej roli: utworzenie klucza wymaga **Tworzenie**, zmiana **Edycja**, usunięcie **Usuń**, a odczyt lub wyświetlenie twoich kluczy **Dostęp do odczytu** **Wszystkie**. Członek ze statusem **Nieaktywny** nie może zarządzać kluczami. Kluczami zarządza się wyłącznie na stronie Klucze API i konektory; wewnętrzne endpointy `/api/auth/api-key/` odpowiadają `404` na bezpośrednie żądania, dzięki czemu każdy klucz należy do przestrzeni roboczej, w której został utworzony. Te kontrole dotyczą tylko zarządzania kluczami; to, co może zrobić wywołanie wykonane kluczem, zależy od roli jego właściciela, zobacz [Jakie uprawnienia ma klucz](#what-permissions-does-a-key-have).
+
+## Jak używać klucza i w którym nagłówku go przesłać? [#how-do-i-use-a-key]
+
+Przesyłaj go w nagłówku `x-api-key` w każdym żądaniu, tutaj do endpointu MCP `<BASE_URL>/api/v1/mcp`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     <BASE_URL>/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Nagłówek `Accept: application/json, text/event-stream` jest wymagany przez transport strumieniowy HTTP protokołu MCP; bez niego endpoint zwraca `406 Not Acceptable`. W klientach MCP klucz trafia do konfiguracji klienta, zobacz [Klienci wiersza poleceń i edytory](/docs/connect-cli) oraz [ChatGPT z kluczem API](/docs/connect-custom-connector#chatgpt).
+
+REST API przyjmuje ten sam nagłówek. To wywołanie wyświetla typy rekordów, do których masz dostęp:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Każda operacja REST wraz z żądaniem i odpowiedzią jest opisana w [dokumentacji API](/docs/openapi).
+
+## Co zwraca nieudane wywołanie REST? [#what-does-a-failed-rest-call-return]
+
+Każdy endpoint REST odpowiada na odrzucone wywołanie tym samym ciałem JSON: obiektem `error` z polami `kind` i `issues`, które MCP zwraca w `_meta.failure` (zobacz [gdy wywołanie zostaje odrzucone](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+Status HTTP wynika z `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 i `rate_limit` 429. Każdy wpis wskazuje `path` pola, którego dotyczy, a tam, gdzie to możliwe, stały `customCode`. `error.retryable` ma wartość `true`, gdy dostawca komunikatora odrzucił wywołanie, które może się udać później bez zmian; `429` bez tego pola też można ponowić, zobacz [następną sekcję](#what-should-a-client-do-on-429). Opieraj logikę na `kind` i `customCode`, a nie na `message`, który jest tekstem dla ludzi. Nieoczekiwany błąd serwera odpowiada kodem 500 bez tego ciała.
+
+## Co powinien zrobić klient, gdy wywołanie zwróci 429? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) oznacza, że wywołanie nie mogło się teraz wykonać i może się udać później bez zmian. Kanał komunikacji, który osiągnął limit swojego dostawcy, odpowiada z `customCode` `unipileRateLimit` i podaje, kiedy spróbować ponownie ([limity częstotliwości komunikatorów](/docs/messaging-rate-limits)). Gdy sam Customermates jest przeciążony, na przykład gdy przekroczony zostanie czas transakcji bazy danych lub puli połączeń albo zapis czeka dłużej niż kilka sekund za inną zmianą w przestrzeni roboczej, taką jak duży import, wywołanie odpowiada `429` bez `customCode` i komunikatem `The service is busy. Retry the request shortly.`. Narzędzia MCP zwracają ten sam rodzaj `rate_limit` w `_meta.failure`, a aplikacja pokazuje, że przestrzeń robocza jest zajęta, więc można spróbować ponownie.
+
+REST `429` zawiera nagłówek `Retry-After` z liczbą sekund do odczekania: zastosuj się do niego w pierwszej kolejności i nie ponawiaj wcześniej. Gdy go nie ma, ponów po przerwie, która rośnie z każdą próbą, na przykład 1, 2, 4 i 8 sekund plus odrobina losowego rozrzutu, i zrezygnuj po kilku próbach. Nie ponawiaj w ciasnej pętli ani nie wysyłaj więcej wywołań równolegle, bo to utrzymuje obciążenie usługi. Zapis wyślij ponownie z tym samym `idempotencyKey`, żeby zmiana, która już przeszła, nie została zastosowana dwa razy.
+
+## Jak długo działa klucz i czy klucze wygasają? [#do-keys-expire]
+
+**Standardowy klucz API** wygasa tylko wtedy, gdy wybierzesz datę w polu **Wygasa za**; domyślne **Nigdy nie wygasa** zachowuje go ważnym, dopóki go nie usuniesz. Data musi przypadać od 1 do 365 dni w przód. Klucz z **Szybkich połączeń** (klucz szybkiego połączenia), także z kreatora wdrożenia, jest ważny 365 dni: zawsze wygasa 365 dni po utworzeniu. Terminu nie można przedłużyć: zanim minie, utwórz nowy klucz i zaktualizuj klienta. Karta każdego klucza pokazuje **Utworzono**, **Wygasa** (**Nigdy**, gdy nie ustawiono) i **Ostatnio użyto**.
+
+## Jak unieważnić, usunąć lub wymienić klucz? [#how-do-i-revoke-delete-or-rotate-a-key]
+
+Na stronie [Klucze API i konektory](app:settings/api-keys) kliknij kartę klucza i wybierz **Usuń**; po potwierdzeniu klucz przestaje działać natychmiast. Usuwanie wymaga uprawnienia **Usuń** w zasobie **API i webhooki**. Nie ma osobnej czynności unieważnienia ani rotacji: aby wymienić klucz, utwórz nowy, zaktualizuj każdego klienta, który używał starego, a potem usuń stary klucz.
+
+Wymień klucz, gdy urządzenie, które go przechowywało, zostanie zgubione lub przejęte, gdy odchodzi osoba z zespołu z dostępem albo gdy podejrzewasz wyciek klucza. Jeden klucz na klienta pozwala usunąć jednego klienta bez psucia pozostałych; dziennik aktywności wskazuje użytkownika, nie klucz. Trzymaj klucze w zmiennej środowiskowej lub menedżerze haseł, nigdy w pliku konfiguracyjnym, który trafia do repozytorium.
+
+Klucz może usunąć tylko jego właściciel. Aby zatrzymać klucze odchodzącego członka, otwórz [Członkowie](app:settings/members), otwórz tego członka, ustaw **Status** na **Nieaktywny** i kliknij **Zapisz**. Wymaga to uprawnienia **Edycja** i dostępu do odczytu **Wszystkie** w zasobie **Użytkownicy i role**; nie możesz dezaktywować samego siebie ani ostatniego aktywnego **Administratora**. Każde wywołanie kluczami tego członka, które odczytuje lub zmienia dane przestrzeni roboczej, jest wtedy odrzucane. Odebranie jego roli uprawnienia **Dostęp do odczytu** **Wszystkie** w zasobie **API i webhooki** również zatrzymuje jego klucze, zarówno dla MCP, jak i REST; zobacz [Jakie uprawnienia ma klucz](#what-permissions-does-a-key-have). **Usuń z przestrzeni roboczej** w [Członkowie](app:settings/members) także od razu unieważnia klucze i połączenia MCP członka w tej przestrzeni roboczej ([Jak zatwierdzić, edytować, dezaktywować lub usunąć członka?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), a członek, który sam opuszcza przestrzeń roboczą, od razu traci swoje klucze do niej ([opuszczanie przestrzeni roboczej](/docs/app-workspaces#how-do-i-leave-a-workspace)).
+
+## Jaki jest format klucza i jak długa może być jego nazwa? [#what-is-the-key-format]
+
+**Nazwa** klucza ma od 1 do 255 znaków. Klucze składają się z 64 znaków ASCII, liter (`a-z A-Z`), są generowane przez wtyczkę kluczy API better-auth i przechowywane w postaci zahaszowanej. Pełny klucz jest pokazywany tylko podczas tworzenia i nie można go wyświetlić ponownie.
+
+## Jakie uprawnienia ma klucz i czy mogę ograniczyć go do samego odczytu? [#what-permissions-does-a-key-have]
+
+Wszystko, co może jego właściciel w przestrzeni roboczej klucza, i nic więcej. Nie ma uprawnień przypisywanych pojedynczym kluczom, więc klucza nie da się ograniczyć do samego odczytu. Każde wywołanie jest sprawdzane względem aktualnej roli właściciela, więc zmiana tej roli, na przykład przeniesienie członka z roli **Administrator** do własnej roli z mniejszymi uprawnieniami, obowiązuje jego klucze od następnego wywołania. Jeśli **Status** właściciela to **Nieaktywny**, każde wywołanie jego kluczami, które odczytuje lub zmienia dane przestrzeni roboczej, jest odrzucane.
+
+Klucz, podobnie jak token OAuth dla MCP, działa też tylko wtedy, gdy rola jego właściciela ma **Dostęp do odczytu** **Wszystkie** w zasobie **API i webhooki**; sprawdzane jest to przy każdym wywołaniu, także dla tokenów odświeżonych później. Bez tego MCP odpowiada `403` z `error: insufficient_permissions`, a REST odpowiada `403` z `kind` `authorization` i `customCode` `insufficientPermissions`. Korzystanie z aplikacji webowej po zalogowaniu nie jest tym objęte.
+
+W Customermates Cloud przestrzeń robocza, która wciąż czeka na swój pierwszy plan, na przykład dodatkowa przestrzeń utworzona bez okresu próbnego, odrzuca swoje klucze i tokeny OAuth: MCP odpowiada `403` z `error: plan_required`, a REST odpowiada `403` z `kind` `authorization` i `customCode` `workspacePlanRequired`. Utworzenie klucza także wymaga używalnego planu. Gdy administrator wybierze plan, istniejące klucze znów działają. Przestrzeń robocza, która miała okres próbny, przechodzi na plan Free, gdy okres próbny lub późniejszy plan płatny się skończy, i jej klucze nadal działają; każda inna przestrzeń robocza, której płatna subskrypcja wygasła, zachowuje działające dotychczasowe klucze i połączenia, dopóki jej członkowie nie zostaną ustawieni jako **Nieaktywny**, zobacz [Co się dzieje, gdy kończy się okres próbny?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+### Czy w planie Free obowiązuje limit żądań? [#is-there-a-request-limit-on-the-free-plan]
+
+Tak. W planie Free żądania REST i MCP łącznie są ograniczone do [[commercial.limit.free.apiRequestsPerMinute]] na minutę i [[commercial.limit.free.apiRequestsPerDay]] na dobę na przestrzeń roboczą. Po przekroczeniu żądanie dostaje HTTP `429` z nagłówkiem `Retry-After`: REST odpowiada z `kind` `rate_limit` i `customCode` `apiRateLimitReached`, wywołania narzędzi MCP błędem narzędzia z `error: rate_limited` (pozostałe żądania MCP kodem `429`). Liczą się tylko wywołania narzędzi MCP, nie łączenie ani wyświetlanie listy narzędzi. Komunikat mówi, że przestrzeń robocza jest w planie Free, i podaje plan Starter, jego cenę oraz link do rozliczeń, żeby agent mógł przekazać to użytkownikowi. Plany płatne i instalacje samodzielnie hostowane nie mają limitu żądań.
+
+## Dalej [#next]
+
+- [Szybki start](/docs/quickstart): pierwsze uruchomienie od początku do końca.
+- [Przegląd MCP](/docs/mcp): co odblokowuje klucz.

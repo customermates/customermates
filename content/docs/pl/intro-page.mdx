@@ -1,0 +1,62 @@
+---
+title: "Dokumentacja CRM Customermates"
+description: "Otwartoźródłowy CRM do obsługi klientów: rozmowy przy rekordzie klienta, odpowiedzi szkicowane przez Mate lub agenta AI przez MCP, do sprawdzenia i wysłania."
+demo:
+  src: https://demo.customermates.com/pl/w/small-business/dashboard?agentChat=closed
+  title: Demo Customermates
+---
+
+Customermates to otwartoźródłowy CRM dla małych zespołów pracujących z klientami. W Customermates Cloud od planu Pro łączysz pocztę e-mail i LinkedIn oraz WhatsApp, Instagram i Telegram, a rozmowy trafiają do rekordu klienta, gdy dane kontaktowe się zgadzają albo gdy sam je powiążesz. Mate, asystent wbudowany w Customermates Cloud, lub twój własny agent AI przygotowuje odpowiedź i kolejny krok; ty je sprawdzasz, poprawiasz i wysyłasz. Claude, ChatGPT, Cursor i każdy inny klient obsługujący Model Context Protocol odczytują i zapisują twój CRM bezpośrednio przez natywny endpoint MCP, bez kopiowania i wklejania, w każdym planie oraz w instancjach hostowanych samodzielnie.
+
+## Wybierz swojego klienta i zacznij [#pick-your-client-and-start]
+
+| Twoje AI | Pełna konfiguracja na jednej stronie |
+| --- | --- |
+| Claude i ChatGPT (własny konektor) | [Połączenie przez własny konektor](/docs/connect-custom-connector) |
+| Claude Code | [Połącz Claude Code](/docs/connect-cli#claude-code) |
+| Cursor | [Połącz Cursor](/docs/connect-cli#cursor) |
+| Dowolny klient MCP | [Przegląd MCP](/docs/mcp) |
+
+Każda strona zawiera kroki połączenia i twoje pierwsze polecenia, a serwer wprowadza twojego klienta w CRM zaraz po połączeniu. Jeśli wolisz przewodnik z webhookiem i pierwszą interakcją z AI, zobacz [Szybki start](/docs/quickstart).
+
+## Czym jest Customermates [#what-customermates-is]
+
+CRM z konfigurowalnymi listami, polami, relacjami i obliczeniami, widokami tabeli i tablicy oraz pulpitami. W Customermates Cloud opisujesz swój biznes, odpowiadasz na kilka pytań, a Mate projektuje twoje listy, lejek sprzedaży, pulpit i strony Bazy wiedzy, które sprawdzasz, zanim cokolwiek zostanie zbudowane; możesz zmienić wszystko i dodać własne listy. Poza tym:
+
+- **Natywny endpoint MCP** pod `/api/v1/mcp`: klient MCP odkrywa operacje CRM i je wywołuje bez żadnej wtyczki.
+- **Otwarty kod** na licencji AGPLv3; komponenty enterprise podlegają osobnej licencji komercyjnej. Hostuj samodzielnie albo korzystaj z zarządzanej chmury.
+- **Zarządzana chmura** z bazą danych w regionie AWS Frankfurt, [umową DPA](/dpa) i listą wszystkich podprocesorów, także z USA, na [stronie podprocesorów](/subprocessors).
+- **Webhooki** z opcjonalnie podpisanymi ładunkami, ponowieniami i dziennikiem dostaw.
+- **Specyfikacja OpenAPI 3.1** dla całego interfejsu REST pod `/api/v1/openapi`.
+- **Mate**, asystent AI w aplikacji Customermates Cloud: bez zewnętrznego klienta AI i konfiguracji, korzysta z kredytów wliczonych w twój plan. Poproś o odpowiedź, a zapisze szkic w rozmowie, który sprawdzasz i wysyłasz. Zobacz [Asystent](/docs/app-assistant).
+- **Rutyny**, które uruchamiają Mate według harmonogramu albo po zmianie rekordu, w Customermates Cloud. Zobacz [Rutyny](/docs/app-routines).
+- **Skrzynka odbiorcza** na pocztę e-mail oraz połączone konta LinkedIn, WhatsApp, Instagram i Telegram, w Customermates Cloud od planu Pro. Zobacz [Skrzynka odbiorcza](/docs/app-inbox).
+- **Role**, które dla każdej listy decydują, kto może czytać wszystkie rekordy, tylko przypisane albo żadnych, oraz kto może je tworzyć, edytować lub usuwać. Zobacz [Firma](/docs/app-company).
+
+## Cztery sposoby połączenia Customermates z twoim stosem [#four-ways-customermates-connects-to-your-stack]
+
+| Chcę | Użyj |
+| --- | --- |
+| Aby klient MCP aktualizował CRM w trakcie rozmowy | [MCP](/docs/mcp) |
+| Zbudować własną integrację w kodzie | [OpenAPI](/docs/openapi) |
+| Reagować na zmiany w CRM w Slacku, narzędziu do sekwencji, BI lub hurtowni danych | [Webhooki](/docs/webhooks) |
+| Składać workflow wizualnie, bez kodu | [n8n](/docs/n8n) |
+
+MCP, OpenAPI i n8n uwierzytelniają się kluczem API; klienci MCP, tacy jak Claude i ChatGPT, mogą też łączyć się przez OAuth, bez klucza. Zobacz [Klucze API](/docs/api-keys). Webhooki działają w drugą stronę: Customermates wysyła każdą dostawę na twój adres URL i, jeśli webhook ma sekret, podpisuje ją, więc twój odbiorca sprawdza ten podpis albo własny nagłówek ustawiony w webhooku.
+
+## Założenia projektowe [#design-approach]
+
+Customermates traktuje klienta AI jak pełnoprawnego użytkownika. Narzędzia mają nazwy w trybie rozkazującym, błędy mówią, co zrobić, relacje zmieniają się stopniowo, a powierzchnia MCP pozostaje mała (jeden endpoint, wszystkie narzędzia domyślnie włączone), dzięki czemu nawet mniejsze modele poruszają się po niej niezawodnie.
+
+## Jak zorganizowana jest dokumentacja [#how-the-docs-are-organized]
+
+- **Pierwsze kroki**: [Szybki start](/docs/quickstart), [Podstawowe pojęcia](/docs/concepts).
+- **Połącz swoje AI**: [Własny konektor](/docs/connect-custom-connector), [CLI i edytory](/docs/connect-cli), [Limity częstotliwości](/docs/messaging-rate-limits).
+- **Przewodnik po aplikacji**: [Asystent](/docs/app-assistant), [Pulpit](/docs/app-dashboard), [Skrzynka odbiorcza](/docs/app-inbox), [Rekordy](/docs/app-records), [Rutyny](/docs/app-routines), [Profil](/docs/app-profile), [Wyszukiwanie globalne](/docs/app-search), [Kreator wdrożenia](/docs/app-onboarding), [Firma](/docs/app-company), [Klucze API](/docs/api-keys) i [Składnia filtrów](/docs/filter-syntax). Miejsca w aplikacji są linkami: w aplikacji otwierają stronę i podświetlają element, który nazywają.
+- **Integracje**: [MCP](/docs/mcp), [Webhooki](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
+- **Samodzielny hosting**: [Uruchomienie i zarządzanie](/docs/self-hosting), [Architektura i bezpieczeństwo](/docs/architecture-security).
+- **Źródła**: [Katalog narzędzi MCP](/docs/mcp#tool-catalog), [Składnia filtrów](/docs/filter-syntax), [Klucze API](/docs/api-keys).
+
+## Wypróbuj [#try-it]
+
+Wbudowane demo na tej stronie to działająca instancja tylko do odczytu z przykładowymi danymi. Możesz ją przeglądać i przeszukiwać; tworzenie, zmiana lub usuwanie rekordów oraz pytania do Mate pokazują komunikat, że ta czynność nie jest dostępna w trybie demo. [Rozpocznij bezpłatny okres próbny](/auth/signup) ([[commercial.trial.days]] dni, bez karty kredytowej), aby pracować na własnych danych.

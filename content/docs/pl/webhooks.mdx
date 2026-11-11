@@ -1,0 +1,334 @@
+---
+title: "Webhooki: podpisy, ponowne próby i katalog zdarzeń"
+heading: "Odbieraj zdarzenia CRM przez webhooki"
+description: "Subskrybuj zdarzenia CRM, weryfikuj podpisy, sprawdzaj nieudane dostawy i znajdź pełny katalog zdarzeń w jednym miejscu: webhooki Customermates krok po kroku."
+---
+
+Customermates wysyła żądanie POST z JSON na twój endpoint za każdym razem, gdy zmieniają się subskrybowane dane. Ty wybierasz zdarzenia i adres URL. Jeśli ustawisz tajny klucz, każda dostawa jest podpisywana algorytmem HMAC-SHA256 na surowej treści żądania. Nieudane dostawy są ponawiane automatycznie i możesz je wysłać ponownie ręcznie. Katalog zdarzeń znajdziesz na końcu tej strony.
+
+## Do czego służą webhooki? [#what-are-webhooks-for]
+
+Webhooki pozwalają innym systemom reagować na zmiany w CRM bez odpytywania, na przykład żeby przekazać nowe kontakty do sekwencera e-maili, otworzyć zgłoszenie w obsłudze klienta, gdy szansa sprzedaży zmieni stan, uruchomić proces finansowy po zamknięciu szansy sprzedaży albo prawie w czasie rzeczywistym synchronizować rekordy z hurtownią danych.
+
+## Jak utworzyć webhook? [#how-do-i-create-a-webhook]
+
+Otwórz [Webhooki](app:settings/webhooks), kliknij [Dodaj](app:settings/webhooks?focus=add), wypełnij okno **Webhook**, wpisz **URL** i kliknij **Zapisz**.
+
+| Pole | Co robi |
+| --- | --- |
+| **URL** | Wymagane. Endpoint HTTP lub HTTPS z prawidłowym hostem, bez nazwy użytkownika i hasła, dostaje `POST` dla każdego subskrybowanego zdarzenia. Adres URL bez schematu jest zapisywany z `https://` na początku. Międzynarodowe nazwy hostów i ścieżki są zapisywane w postaci ASCII adresu URL. Inne schematy URL, takie jak `mailto:` i `tel:`, są odrzucane. |
+| **Opis** | Opcjonalny, do 500 znaków. Wyświetlany na liście. |
+| **Zdarzenia** | Wymagane. Jedno lub więcej zdarzeń z [katalogu](#which-events-exist). |
+| **Tajny klucz** | Opcjonalny, od 1 do 256 znaków. Podpisuje każdą dostawę (zobacz [Jak zweryfikować podpis?](#how-do-i-verify-the-signature)). |
+| **Niestandardowe nagłówki** | Opcjonalne. Jeden `Nazwa: wartość` w wierszu (zobacz [Niestandardowe nagłówki i szablony treści](#custom-headers-and-body-templates)). |
+| **Szablon treści** | Opcjonalny dokument JSON, który zastępuje standardowy envelope. |
+| **Włączony** | Domyślnie włączony. Wyłączony webhook niczego nie dostaje i zachowuje konfigurację, więc możesz go wstrzymać bez usuwania. |
+
+Aby zmienić webhook, kliknij jego wiersz, edytuj go i kliknij **Zapisz**. Aby go usunąć, kliknij **Usuń** u góry okna i potwierdź; jego dotychczasowe dostawy zostają na stronie [Dziennik webhooków](app:settings/webhook-deliveries). Aby zobaczyć dostawy jednego webhooka, wybierz **Pokaż dostawy** w menu **Więcej działań** w wierszu: [Dziennik webhooków](app:settings/webhook-deliveries) otwiera się przefiltrowany po adresie URL tego webhooka, a filtr możesz usunąć jak każdy inny. Lista pokazuje **URL**, **Opis**, **Zdarzenia**, **Status** (**Włączony** lub **Wyłączony**), **Utworzono** i **Zaktualizowano**. W sekcji [Filtry](app:settings/webhooks?focus=filter) wyszukiwanie dopasowuje adres URL, a filtry obejmują daty utworzenia i aktualizacji.
+
+Używaj endpointu HTTPS. Niestandardowe nagłówki wymagają HTTPS, z wyjątkiem HTTP na `localhost`, `127.0.0.1` lub `::1`, gdy dozwolone są adresy prywatne. Jest to sprawdzane przy zapisie i jeszcze raz przed każdą dostawą.
+
+Customermates Cloud i demo wymagają adresów publicznych. Dosłowne adresy prywatne, pętli zwrotnej i link-local oraz lokalne nazwy hostów są odrzucane przy zapisie. Przed każdą dostawą wszystkie odpowiedzi DNS muszą być publiczne, a połączenie korzysta wyłącznie z tych zweryfikowanych adresów. Zablokowany cel kończy się statusem 422 i komunikatem `Destination not allowed`, bez nawiązywania połączenia. Instalacje hostowane samodzielnie domyślnie dopuszczają adresy prywatne; ustaw `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true`, aby zastosować regułę z Cloud. Dla lokalnego odbiornika deweloperskiego `WEBHOOK_ALLOW_PRIVATE_DESTINATIONS=true` znosi blokadę; jawna blokada ma pierwszeństwo. Oba ustawienia przyjmują tylko `true` lub `false`.
+
+Przez MCP użyj `manage_webhooks` z `action: "create"` oraz `url`, `events[]` i opcjonalnymi `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Przez REST `POST /api/v1/webhooks` tworzy webhook z tymi samymi polami, a `GET /api/v1/webhooks` wyświetla je wszystkie; `GET`, `PATCH` i `DELETE /api/v1/webhooks/{id}` odczytują, aktualizują i usuwają jeden webhook, a aktualizacja zmienia tylko pola, które wyślesz. Identyfikator, który nie istnieje lub należy do innej przestrzeni roboczej, zwraca 404 ze strukturalnym błędem `not_found`.
+
+## Które rekordy uruchamiają webhook i czyj dostęp wykorzystuje dostawa? [#record-event-sources]
+
+Gdy wybierzesz zdarzenie rekordu, okno pokazuje źródło rekordów: wybierz listę w polu **Rekordy z** (lub **Wszystkie dostępne typy**), a potem opcjonalnie **Zmienione pola**, **Szukaj rekordów** i **Filtry rekordów** dla pól i relacji. Dostawy korzystają z dostępu do rekordów, jaki ma **Właściciel dostępu do rekordów**, domyślnie członek, który tworzy webhook; innego właściciela może wybrać tylko administrator. Starsze, zmigrowane webhooki mogą zachować kilka źródeł, pokazanych jako chipy.
+
+Przez MCP subskrypcje rekordów w `manage_webhooks` wymagają też `expectedSchemaRevision` z `get_record_model`. `recordTrigger` zawiera zapytanie ze stabilnymi identyfikatorami typu i pól oraz opcjonalne `changedFieldIds`; `null` wybiera wszystkie dostępne typy. `recordOwnerUserId` opcjonalnie ustawia właściciela dostawy. Przy aktualizacji pomiń te ustawienia, aby je zachować; zmiana wyzwalacza lub właściciela wymaga bieżącej wersji schematu. Webhook, który obserwuje kilka list, używa `recordSources` zamiast `recordTrigger`: do 50 źródeł, każde z własnymi `query`, `changedFieldIds` i `events`; nie można ich łączyć, a `null` czyści źródła. REST API przyjmuje te same ustawienia.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
+  "secret": "use-a-random-string-from-a-password-manager",
+  "enabled": true
+}
+```
+
+## Kto może przeglądać i zmieniać webhooki? [#who-can-see-and-change-webhooks]
+
+Dostęp wynika z wiersza **API i webhooki** roli w sekcji [Role](app:settings/roles).
+
+| Ustawienie roli w wierszu **API i webhooki** | Co mogą robić członkowie z tą rolą |
+| --- | --- |
+| **Dostęp do odczytu** **Brak** (domyślnie dla nowej roli) | Webhooki są ukryte; bezpośrednie otwarcie strony prowadzi do Pulpitu. |
+| **Dostęp do odczytu** **Wszystkie**, bez zaznaczonego pola wyboru | Otwierać Webhooki i ich dostawy, otwierać każdy webhook tylko do odczytu i otwierać **Szczegóły zdarzenia** każdej dostawy. Zapisany **Tajny klucz** i każda wartość w **Niestandardowe nagłówki** wyświetlają się jako `********`; nazwy nagłówków pozostają widoczne. |
+| **Dostęp do odczytu** **Wszystkie** plus **Tworzenie** | Dodawać webhooki i wysyłać dostawy ponownie. |
+| **Dostęp do odczytu** **Wszystkie** plus **Edycja** | Edytować webhooki i widzieć zapisane wartości w polach **Tajny klucz** i **Niestandardowe nagłówki**. |
+| **Dostęp do odczytu** **Wszystkie** plus **Usuń** | Usuwać webhooki. |
+
+Ten sam wiersz steruje też sekcją [Klucze API i konektory](app:settings/api-keys), więc rola, która może tworzyć lub usuwać własne klucze API, może też tworzyć lub usuwać każdy webhook w przestrzeni roboczej. Rola **Administrator** może wszystko. Webhooki działają w każdym płatnym planie Cloud, w okresie próbnym i przy hostowaniu samodzielnym, ale nie w planie Free ([szczegóły](#webhooks-on-the-free-plan)). Te same uprawnienia obowiązują dla `manage_webhooks` przez MCP i w Mate, gdzie usunięcie webhooka lub ponowne wysłanie dostawy najpierw prosi o twoją zgodę.
+
+## Jak wygląda ładunek? [#what-does-the-payload-look-like]
+
+Każda dostawa to `POST` z `Content-Type: application/json` i tym samym envelope:
+
+```json
+{
+  "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<who-triggered-it>",
+  "data": {
+    /* event-specific */
+  }
+}
+```
+
+`id` identyfikuje zdarzenie: ponowne wysłanie i każda ponowna próba mają ten sam `id`, więc użyj go do deduplikacji. `actorId` to użytkownik, który spowodował zapis, w tym użytkownik działający przez klucz API lub rutyna uruchomiona przez swojego właściciela. Zdarzenia wiadomości pochodzą z przychodzącej aktywności dostawcy, więc ich `actorId` to `null`.
+
+W zdarzeniach rekordów `data.record` zawiera odwołanie do rekordu (`typeId` i `recordId`, jednoznaczne nawet po zmianie nazwy) oraz zmiany, `data.cause` przyczynę zapisu, a `data.causeId` jest wspólne dla wszystkich zdarzeń tego samego zapisu.
+
+Przykład, `record.updated` dla kontaktu, bez niezwiązanych pól:
+
+```json
+{
+  "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<actor-user-id>",
+  "data": {
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<first-name-field-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
+    }
+  }
+}
+```
+
+Rzeczywista zmiana rekordu zawiera też przypisania, tożsamości, zmiany powiązań i rekordy powiązane. Wpisy pól zawierają metadane wyświetlania i zamiast wartości mogą pokazywać `missing`, `restricted` lub `error`. Znajdź listę przez `POST /api/v1/model/discover` i rozwiąż jej stabilne identyfikatory pól przez `POST /api/v1/model/read` albo użyj narzędzia MCP `get_record_model`.
+
+## Zmienione pola w `data.record.fields` [#the-changes-object]
+
+`data.record.fields` wyświetla zmienione pola z wartościami `before` i `after`; `data.record.links`, `data.record.assignments` i `data.record.identities` opisują inne zmienione powiązania. `data.record.beforeVersion` i `data.record.afterVersion` identyfikują wersje rekordu. Brakujące lub ograniczone pole to nie to samo co zero.
+
+Aktualizacje, które niczego nie zmieniają, nie generują zdarzenia `record.updated`. Zmiany modelu danych mogą przeliczać zapisane wartości w wielu rekordach; takie uzupełnienia konfiguracji pozostają w historii rekordu, ale nie generują dostaw webhooków dla poszczególnych rekordów ani nie uruchamiają rutyn zdarzeniowych. Późniejsza edycja rekordu przez użytkownika lub API generuje zwykłe zdarzenie. Ładunek jest redagowany według bieżącego dostępu właściciela webhooka do rekordów i pól obliczanych w chwili dostawy.
+
+## Niestandardowe nagłówki i szablony treści [#custom-headers-and-body-templates]
+
+Dwa opcjonalne ustawienia obsługują odbiorniki, które nie przyjmują standardowej dostawy. Webhook, który nie ustawia żadnego z nich, wysyła [standardowy envelope](#what-does-the-payload-look-like).
+
+**Niestandardowe nagłówki** są wysyłane z każdą dostawą, dla endpointów z własnym uwierzytelnianiem. Wpisuj je po jednym w wierszu jako `Nazwa: wartość` (wiersz bez dwukropka jest ignorowany, a puste pole usuwa wszystkie nagłówki) albo przekaż obiekt `headers` przez MCP i API. Siedem nazw jest zarezerwowanych i odrzucanych: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding`, `X-Webhook-Signature` i `X-Customermates-Delivery-Id`. Nazwy muszą być prawidłowymi tokenami HTTP, a wartości tekstem Latin-1 bez podziałów wiersza. Webhook może mieć do 20 nagłówków, z nazwami do 128 znaków, wartościami do 2048 znaków i łącznie do 8192 znaków. Webhook z nagłówkami musi używać HTTPS; zwykłe HTTP jest dozwolone tylko dla `localhost`, `127.0.0.1` i `::1`, gdy dozwolone są adresy prywatne.
+
+REST API i MCP nigdy nie zwracają wartości nagłówków ani tajnego klucza; raportują `headerNames` i `hasSecret`. Okno pokazuje wartości wyłącznie roli **Administrator** i rolom z uprawnieniem **Edycja** w wierszu **API i webhooki**, a tajny klucz jest zamaskowany, dopóki nie klikniesz ikony oka. Aktualizacja przez API lub MCP, która pomija `headers`, zachowuje zapisane wartości; `null` je czyści.
+
+**Szablon treści** zastępuje standardowy envelope dla endpointów, które oczekują stałego kształtu. Napisz dokument JSON z symbolami zastępczymi:
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Symbole zastępcze to `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` i dowolna ścieżka pod `{{data}}`, taka jak `{{data.record.ref.recordId}}` dla zdarzenia rekordu lub `{{data.entityId}}` dla zdarzenia wiadomości. Symbol zastępczy musi znajdować się wewnątrz ciągu JSON; `{"count": {{data.count}}}` jest odrzucany. Wartość obiektu jest wstawiana jako ciąg JSON, a brakująca ścieżka jako pusty ciąg. Wstawiane wartości są escapowane, więc treść rekordu nie może zmienić struktury dokumentu.
+
+Szablon może mieć do 8192 znaków, musi tworzyć obiekt JSON i jest sprawdzany przy zapisie. Dostawa, której szablon się nie renderuje albo której wyrenderowana treść przekracza 131 072 znaki, jest zapisywana jako nieudana bez wysyłania i nie jest ponawiana. Podpis jest liczony na treści faktycznie wysłanej, więc weryfikuj go względem wyrenderowanej treści.
+
+**Usuwanie tajnego klucza lub szablonu.** Okno nie pozwala zapisać pustego pola **Tajny klucz** ani **Szablon treści**, gdy już zostały ustawione. Zaktualizuj webhook przez `manage_webhooks` lub `PATCH /api/v1/webhooks/{id}` z `secret: null` lub `bodyTemplate: null`, albo usuń go i utwórz ponownie.
+
+Dostawy są zapisywane z ładunkiem zdarzenia, a nie z wyrenderowaną treścią, więc **Szczegóły zdarzenia** pokazują zdarzenie, które zostało uruchomione, a nie dokładne wysłane bajty.
+
+## Jak wysyłać do Slacka, Discorda lub n8n? [#how-do-i-send-to-slack-discord-or-n8n]
+
+Każdy przepis podaje adres URL, niestandardowe nagłówki i szablon treści do wpisania po kliknięciu [Dodaj](app:settings/webhooks?focus=add) w Webhookach. W każdym przypadku ustaw tajny klucz; odbiornik, który nie potrafi go zweryfikować, ignoruje nagłówek.
+
+### Rutyny Claude Code [#claude-code-routines]
+
+Uruchom rutynę Claude Code, gdy rekord się zmieni. Najpierw utwórz rutynę na [claude.ai/code/routines](https://claude.ai/code/routines).
+
+<Steps>
+  <Step title="Dodaj wyzwalacz API">
+    Otwórz rutynę, kliknij **Add another trigger**, wybierz **API**, a potem **Generate token**. Skopiuj adres URL i
+    token; token jest wyświetlany raz i nie można go później odzyskać.
+  </Step>
+  <Step title="Utwórz webhook">Wklej adres URL, wybierz zdarzenia i dodaj poniższe nagłówki oraz szablon.</Step>
+  <Step title="Odwołaj się do ładunku w prompcie rutyny">
+    Tekst przychodzi opakowany w blok `routine-fire-payload`, który rutyna traktuje jako dane niezaufane. Sam prompt
+    rutyny musi się do niego odwołać, na przykład „działaj na podstawie zdarzenia opisanego w bloku
+    routine-fire-payload”, inaczej tekst jest ignorowany.
+  </Step>
+</Steps>
+
+Adres URL to `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, a identyfikator rutyny ma prefiks `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Endpoint czyta tylko `text`, więc szablon jest wymagany; bez niego rutyna startuje bez kontekstu. Każda dostawa i każda ponowna próba uruchamia osobne wykonanie na poczet limitu twojej rutyny, więc subskrybuj tyle zdarzeń, ile potrzeba do zadania.
+
+### Slack [#slack]
+
+Publikuj na kanale przez przychodzący webhook z **Slack → Apps → Incoming Webhooks**. Adres URL zawiera uwierzytelnienie, więc niestandardowe nagłówki nie są potrzebne.
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### Discord [#discord]
+
+Użyj adresu URL webhooka z **Channel → Edit Channel → Integrations → Webhooks**. Ten sam kształt, inny klucz:
+
+```json
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### n8n [#n8n]
+
+Węzeł Webhook w n8n przyjmuje standardowy envelope, więc zostaw oba ustawienia puste, chyba że węzeł używa uwierzytelniania nagłówkiem. Jeśli tak, dodaj nagłówek, którego oczekuje, i zostaw szablon pusty:
+
+```
+X-N8N-Header-Auth: <value>
+```
+
+Pełny wzorzec znajdziesz w [n8n](/docs/n8n).
+
+### Każdy inny odbiornik [#anything-else]
+
+Odbiornik, który nie potrzebuje ani własnego uwierzytelniania, ani stałej treści, nie potrzebuje żadnego z tych ustawień. Zostaw oba puste i [zweryfikuj podpis](#how-do-i-verify-the-signature).
+
+## Jak zweryfikować podpis? [#how-do-i-verify-the-signature]
+
+Jeśli webhook ma **Tajny klucz**, każde żądanie zawiera:
+
+```
+X-Webhook-Signature: <hex>
+```
+
+`<hex>` to `HMAC-SHA256(secret, rawRequestBody)`, małe litery szesnastkowo, bez prefiksu. Oblicz go ponownie po swojej stronie i porównaj w stałym czasie.
+
+Przykład w Node.js:
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Jak działają ponowne próby i nieudane dostawy? [#how-do-retries-and-failed-deliveries-work]
+
+Dostawa kończy się niepowodzeniem, gdy status HTTP jest spoza zakresu 2xx, upłynie limit czasu żądania (po 5 sekundach) albo nie nadejdzie żadna odpowiedź. Customermates automatycznie ponawia przekroczenia czasu, błędy sieci, odpowiedzi 5xx oraz 408, 425 i 429, łącznie do 10 prób. Pierwsza ponowna próba następuje 10 sekund po nieudanej, a każda przerwa się podwaja (20 sekund, 40 sekund i tak dalej, maksymalnie do godziny), więc ostatnia próba przypada około 1,5 godziny po pierwszej; potem dostawa pozostaje w stanie **Niepowodzenie** i możesz [wysłać ją ponownie](#how-do-i-resend-a-delivery) ręcznie. Inne odpowiedzi 4xx, takie jak 400, 401, 403, 404 i 422, nie są ponawiane, bo powtórzenie zakończyłoby się tak samo. Dostawa kończy się też niepowodzeniem, zanim wyślemy jakiekolwiek żądanie, ze statusem 422, gdy nagłówki trafiłyby pod adres, który ich nie dopuszcza, albo gdy nie można wyrenderować szablonu treści.
+
+Przekierowania nie są śledzone: odpowiedź 3xx jest zapisywana jako `Redirect not followed` i nie jest ponawiana. Użyj docelowego adresu URL endpointu. Zablokowane cele również kończą się niepowodzeniem przed połączeniem, ze statusem 422.
+
+Ponowne próby odbywają się w ramach tej samej dostawy, więc nie dodają rekordów: każdy rekord pokazuje ostatni wynik i może pokazywać **Niepowodzenie**, gdy ponowne próby jeszcze trwają, a potem zmienić się na **Dostarczono**, gdy któraś się powiedzie.
+
+## Gdzie zobaczę minione dostawy? [#where-do-i-see-past-deliveries]
+
+Każda dostawa jest zapisywana na stronie [Dziennik webhooków](app:settings/webhook-deliveries), od najnowszej, z kolumnami **URL**, **Zdarzenie**, **Element** (dotknięty rekord), **Status**, **Kod statusu** i **Utworzono**. W sekcji [Filtry](app:settings/webhook-deliveries?focus=filter) wyszukiwanie dopasowuje zdarzenie i adres URL, a filtry obejmują zdarzenie, adres URL i datę utworzenia. Przez MCP użyj `manage_webhooks` z `action: "list_deliveries"`; przez REST `GET /api/v1/webhooks/deliveries` wyświetla dostawy wszystkich webhooków, a `GET /api/v1/webhooks/{id}/deliveries` dostawy jednego webhooka, od najnowszej. Rekordy dostaw są przechowywane tak długo, jak istnieje przestrzeń robocza.
+
+Kliknij wiersz, aby otworzyć **Szczegóły zdarzenia**: status (**Oczekuje**, **Wysyłanie**, **Dostarczono** lub **Niepowodzenie**), **URL**, **Zdarzenie**, **Element**, **Data utworzenia**, **Kod statusu**, **Komunikat odpowiedzi** i **Dane zdarzenia**. Ładunek zdarzenia wiadomości jest pokazany tak, jak został wysłany. Ładunek zdarzenia rekordu jest odczytywany ponownie z twoim bieżącym dostępem: wartości, których nie możesz odczytać, pojawiają się jako ograniczone, a ładunek pozostaje pusty, gdy nie możesz odczytać rekordu.
+
+## Jak wysłać dostawę ponownie? [#how-do-i-resend-a-delivery]
+
+Aby wysłać ponownie, kliknij **Wyślij ponownie** u góry **Szczegóły zdarzenia**. Przycisk pojawia się, gdy dostawa ma status **Dostarczono** lub **Niepowodzenie**, dla ról z uprawnieniem **Tworzenie** w wierszu **API i webhooki**; przez MCP użyj `manage_webhooks` z `action: "resend_delivery"` i identyfikatorem dostawy, a przez REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. Ponowne wysłanie tworzy nowy rekord dostawy z bieżącym adresem URL, tajnym kluczem, nagłówkami i szablonem webhooka; oryginał pozostaje bez zmian. Zdarzenie wiadomości jest wysyłane ponownie z zapisanego zdarzenia. Zdarzenie rekordu jest odczytywane ponownie z bieżącym dostępem właściciela webhooka, ponownie wysłać je może tylko ten właściciel lub administrator, a ponowne wysłanie jest odrzucane, gdy źródła rekordów webhooka zmieniły się od pierwotnej dostawy. Webhook musi nadal istnieć, być włączony i subskrybować to zdarzenie; dostaw wycofanych zdarzeń właściwych dla typu nie można wysłać ponownie. Strony Webhooki i Dziennik webhooków pokazują takie zdarzenie z dopiskiem **(starsza wersja)**, na przykład **Kontakt utworzony (starsza wersja)**.
+
+## Czy dostawy są uporządkowane i czy docierają we właściwej kolejności? [#are-deliveries-ordered]
+
+Nie. Dwa zdarzenia `record.updated` oddzielone milisekundami mogą dotrzeć w odwrotnej kolejności. Użyj `timestamp` i wersji rekordu, aby ustalić kolejność, albo traktuj dostawy jako idempotentne wiadomości identyfikowane przez `typeId`, `recordId` i identyfikator zdarzenia.
+
+## Dlaczego tekst sformatowany jest w ładunkach JSON Tiptap? [#formatted-text-is-json-not-markdown]
+
+Wartość pola Tekst sformatowany w ładunkach to wartość `richText`, której `documentJson` jest JSON Tiptap, czyli strukturą zapisywaną przez edytor. Przepuść ją przez serializer zgodny z Tiptap, aby dostać markdown. Ścieżki rekordów REST zwracają ten sam `documentJson`. Narzędzia rekordów MCP zwracają Tekst sformatowany jako Markdown, oznaczony jako treść niezaufana; zobacz [MCP](/docs/mcp#how-the-tool-surface-is-shaped).
+
+## Co zawierają ładunki usunięcia? [#what-do-delete-payloads-contain]
+
+`record.deleted` jest uruchamiane, gdy rekord trafia do Kosza. `data.record` zawiera kwalifikowane `ref`, autoryzowane wartości sprzed zmiany i relacje, które rekord pozostawia; `afterVersion` jest null. Filtry źródeł dopasowują się tuż przed przeniesieniem, a bieżący dostęp właściciela jest sprawdzany jeszcze raz przed dostawą. `record.restored` jest uruchamiane, gdy rekord wraca z Kosza, i zawiera wartości po zmianie, tak jak `record.created`.
+
+`record.deletedPermanently` jest uruchamiane, gdy rekord zostaje usunięty na stałe, ręcznie lub po 30 dniach od przeniesienia do Kosza. Jego `data.record` zawiera tylko `ref`: wartości są wymazywane, a wcześniejsze zdarzenia rekordu również tracą wartości pól, zachowując informację, kto go zmienił i kiedy. Trafia do każdego webhooka listy rekordu, który je wybrał i którego właściciel może odczytać tę listę, bez filtrów źródeł.
+
+## Jak debugować dostawę? [#how-do-i-debug-a-delivery]
+
+- Znajdź dostawę w sekcji [Dziennik webhooków](app:settings/webhook-deliveries) i otwórz ją, aby zobaczyć **Szczegóły zdarzenia**.
+- Podczas testów używaj [webhook.site](https://webhook.site) jako tymczasowego odbiornika.
+- `manage_webhooks` z `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` i `GET /api/v1/webhooks/{id}/deliveries` obsługują `searchTerm` dla adresu URL i nazwy zdarzenia.
+- Customermates zapisuje tylko kod statusu HTTP i tekst statusu, które zwrócił twój odbiornik (na przykład `404` i `Not Found`), pokazane jako **Kod statusu** i **Komunikat odpowiedzi** w **Szczegóły zdarzenia**. Treść odpowiedzi nie jest zapisywana, więc loguj ją po stronie odbiorcy. Bez odpowiedzi **Kod statusu** pokazuje myślnik (kolumna listy pozostaje pusta), a **Komunikat odpowiedzi** podaje przyczynę, na przykład przekroczenie czasu.
+
+## Jakie zdarzenia istnieją? [#which-events-exist]
+
+Webhook może subskrybować [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów i [[derived.webhooks.events.messaging]] zdarzeń wiadomości. Dla webhooka CRM wybierz **Rekord utworzony**, **Rekord zaktualizowany**, **Rekord przeniesiony do Kosza**, **Rekord przywrócony** lub **Rekord usunięty na stałe** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) i ustaw jego [źródło rekordów](#record-event-sources); obejmuje to także własne listy. Wszystkie używają [standardowego envelope](#what-does-the-payload-look-like). Rutyny mogą być uruchamiane przez te same zdarzenia, z wyjątkiem **Rekord usunięty na stałe** (`record.deletedPermanently`), **E-mail usunięty** (`messaging.email.deleted`) i **Czat usunięty** (`messaging.chat.deleted`); **Wiadomość usunięta** (`messaging.message.deleted`) uruchamia rutyny. Zobacz [Rutyny](/docs/app-routines#how-do-event-triggers-work).
+
+### Zdarzenia rekordów [#record-events]
+
+| Zdarzenie | Kiedy jest uruchamiane | `data` |
+| --- | --- | --- |
+| `record.created` | Powstaje rekord skonfigurowanego typu źródłowego | zmiana rekordu z wartościami po zmianie |
+| `record.updated` | Zmienia się pole, przypisanie, tożsamość lub powiązanie w skonfigurowanym typie źródłowym | zmiana rekordu z wartościami przed i po zmianie |
+| `record.deleted` | Rekord skonfigurowanego typu źródłowego trafia do Kosza | zmiana rekordu z wartościami sprzed zmiany |
+| `record.restored` | Rekord skonfigurowanego typu źródłowego zostaje przywrócony z Kosza | zmiana rekordu z wartościami po zmianie |
+| `record.deletedPermanently` | Rekord listy zostaje usunięty na stałe | tylko `ref`; wartości są wymazane |
+
+Piętnaście identyfikatorów właściwych dla typu jest wycofanych. Zostają tylko po to, by starsze webhooki i rekordy dostaw nadal były czytelne: nie można ich wybrać dla webhooka ani rutyny i nic ich nie emituje. Zastąp je zdarzeniem ogólnym i źródłem rekordów.
+
+| Dawne zdarzenie | Znaczenie historyczne | Dawny `payload` |
+| --- | --- | --- |
+| `contact.created` | Kontakt powstaje przez interfejs, API, MCP lub import | cały kontakt |
+| `contact.updated` | Zmienia się dowolne pole kontaktu | `contact`, `changes` |
+| `contact.deleted` | Kontakt zostaje usunięty | cały kontakt |
+| `organization.created` | Powstaje organizacja | cała organizacja |
+| `organization.updated` | Zmienia się dowolne pole organizacji | `organization`, `changes` |
+| `organization.deleted` | Organizacja zostaje usunięta | cała organizacja |
+| `deal.created` | Powstaje szansa sprzedaży | cała szansa sprzedaży |
+| `deal.updated` | Zmienia się dowolne pole szansy sprzedaży | `deal`, `changes` |
+| `deal.deleted` | Szansa sprzedaży zostaje usunięta | cała szansa sprzedaży |
+| `service.created` | Powstaje usługa | cała usługa |
+| `service.updated` | Zmienia się dowolne pole usługi | `service`, `changes` |
+| `service.deleted` | Usługa zostaje usunięta | cała usługa |
+| `task.created` | Powstaje zadanie | całe zadanie |
+| `task.updated` | Zmienia się dowolne pole zadania | `task`, `changes` |
+| `task.deleted` | Zadanie zostaje usunięte | całe zadanie |
+
+### Zdarzenia wiadomości [#messaging-events]
+
+Zdarzenia wiadomości są uruchamiane przez przychodzącą aktywność dostawcy na połączonych kontach. Pole **Zdarzenia** oferuje je w każdej przestrzeni roboczej, ale uruchamiają się tylko tam, gdzie połączono [Kanały i kalendarze](app:settings/channels), co wymaga Cloud i planu z wiadomościami. `actorId` to `null`. `data` odwołuje się do rekordów dostawcy przez identyfikator (`entityId` dla dotkniętej wiadomości, wątku, kalendarza, wydarzenia kalendarza lub relacji, a także `connectedAccountId`, `provider`, `providerMessageId`, `threadId` i podobne), zamiast osadzać rekordy CRM. Zdarzenie wiadomości jest przechowywane tylko tak długo, jak subskrybuje je webhook lub rutyna zdarzeniowa.
+
+| Zdarzenie | Kiedy jest uruchamiane |
+| --- | --- |
+| `messaging.message.received` | Zostaje zaimportowana wiadomość czatu lub e-mail |
+| `messaging.message.updated` | Zaimportowana wiadomość zostaje zaktualizowana |
+| `messaging.message.deleted` | Zaimportowana wiadomość zostaje usunięta |
+| `messaging.message.reaction` | Do wiadomości zostaje dodana reakcja |
+| `messaging.email.received` | Zostaje zaimportowany e-mail |
+| `messaging.email.deleted` | Zaimportowany e-mail zostaje usunięty |
+| `messaging.chat.updated` | Wątek czatu zostaje zaktualizowany |
+| `messaging.chat.deleted` | Wątek czatu zostaje usunięty |
+| `messaging.calendar.changed` | Zmienia się połączony kalendarz |
+| `messaging.calendar_event.changed` | Zmienia się wydarzenie kalendarza |
+| `messaging.relation.created` | Powstaje nowa relacja dostawcy |
+
+## Czy webhooki działają w planie Free? [#webhooks-on-the-free-plan]
+
+Nie. W Customermates Cloud webhooki i wyzwalacz n8n zaczynają się od planu Starter. Gdy przestrzeń robocza jest na planie Free, utworzenie webhooka jest odrzucane w Ustawieniach, przez REST (`409` z `customCode` `planWebhooksNotIncluded`) i przez MCP, z ceną planu Starter w komunikacie. Webhooki utworzone wcześniej zostają na liście, ale nic nie wysyłają, dopóki przestrzeń robocza jest na planie Free; zdarzenia z tego czasu nie są dostarczane później. Gdy przestrzeń robocza wybierze plan płatny, dostarczają znowu. Instalacje hostowane samodzielnie nie mają takiego limitu.
+
+## Dalej [#next]
+
+- [Katalog narzędzi MCP](/docs/mcp#tool-catalog): programistyczne zarządzanie webhookami.
+- [Dokumentacja API](/docs/openapi): endpointy REST webhooków i ładunki wszystkich zdarzeń.
+- [Integracja z n8n](/docs/n8n): wpinaj webhooki w wizualne przepływy.

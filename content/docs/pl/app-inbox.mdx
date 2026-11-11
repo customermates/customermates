@@ -1,0 +1,143 @@
+---
+title: "Skrzynka odbiorcza Customermates CRM: wątki i odpowiedzi"
+description: "Skrzynka odbiorcza zbiera e-maile i rozmowy z LinkedIn, WhatsApp, Instagrama i Telegrama w jednej liście: czytaj, odpowiadaj, porządkuj i łącz z rekordami."
+---
+
+## Czym jest Skrzynka odbiorcza? [#what-is-the-inbox]
+
+[Skrzynka odbiorcza](app:inbox) to ujednolicona komunikacja w Customermates Cloud: rozmowy z e-maila, LinkedIn, WhatsApp, Instagrama i Telegrama w jednej liście, od ostatniej aktywności. Kliknij rozmowę, aby przeczytać ją obok listy; na wąskich ekranach lista i rozmowa pokazują się na zmianę. Z poziomu rozmowy odpowiadasz na jej pierwotnym kanale, ustawiasz jej stan, przenosisz e-mail do innego folderu, udostępniasz ją zespołowi i dopasowujesz jej uczestników do rekordów. Mate albo twój własny agent AI przez [MCP](/docs/mcp) może zostawić odpowiedź jako szkic w rozmowie; ty go przeglądasz, edytujesz i wysyłasz (zobacz [szkice](#how-do-drafts-and-attachments-work)). Same konta łączysz w [Kanały i kalendarze](app:settings/channels), zobacz [Przewodnik po aplikacji, Profil](/docs/app-profile).
+
+## Kto może używać Skrzynki odbiorczej i dlaczego jest zablokowana w planie Starter lub nie ma jej w wersji samodzielnie hostowanej? [#who-can-use-the-inbox]
+
+Muszą być spełnione wszystkie cztery warunki:
+
+- **Customermates Cloud.** Instalacje samodzielnie hostowane nie mają Skrzynki odbiorczej: pozycja na pasku bocznym jest ukryta, a jej otwarcie prowadzi na Pulpit.
+- **Plan z wiadomościami:** Pro, Business, Max, Enterprise lub okres próbny. W planie Starter Skrzynka odbiorcza zostaje na pasku bocznym, ale pokazuje „Ulepsz plan, aby odblokować wiadomości”, a **Ulepsz plan** otwiera [Rozliczenia](app:settings/billing).
+- **Używalna subskrypcja:** status **Aktywna** albo okres próbny, który się nie skończył. Gdy status to **Po terminie płatności** lub **Anulowana**, Skrzynka odbiorcza jest zablokowana tak samo.
+- **Twoja rola:** **Wiadomości w skrzynce odbiorczej** z **Dostęp do odczytu** ustawionym na **Wszystkie**. Przy **Brak** pozycja na pasku bocznym jest ukryta, a otwarcie Skrzynki odbiorczej prowadzi na Pulpit. Rola **Administrator** ma dostęp zawsze.
+
+Gdy plan lub subskrypcja blokuje Skrzynkę odbiorczą, komunikat o ulepszeniu pozostaje widoczny, a odświeżanie wątków i liczników nieprzeczytanych w tle się zatrzymuje. Gdy dostęp wraca, ponowne otwarcie Skrzynki odbiorczej ładuje rozmowy od nowa. Rozmowy prywatne zachowują przez cały czas swoje ustawienia widoczności.
+
+## Czy potrzebuję połączonego kanału? [#do-i-need-a-connected-channel]
+
+Aby otworzyć Skrzynkę odbiorczą, nie: bez własnego kanału nadal widzisz to, co udostępniają współpracownicy. Aby wysyłać i odbierać na własnych kontach, kanał jest potrzebny. Pusta Skrzynka odbiorcza pokazuje **Jeszcze nic tu nie ma**; członkowie z uprawnieniem **Tworzenie** w **Wiadomości w skrzynce odbiorczej** dostają pod spodem przycisk **Kanały** (gdy Mate jest dostępny, zamiast niego pojawiają się podpowiedzi startowe). Dodaj konto e-mail, LinkedIn, WhatsApp, Instagram lub Telegram przez [Połącz kanał](app:settings/channels?focus=connect), zobacz [Jak połączyć kanał?](/docs/app-profile#how-do-i-connect-a-channel). Kanały na członka: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; okres próbny liczy się jak Pro.
+
+## Które rozmowy widzę i czy administrator może czytać moje prywatne? [#which-conversations-do-i-see]
+
+Lista łączy kanały połączone przez ciebie, kanały udostępnione przez współpracownika całej przestrzeni roboczej oraz pojedyncze rozmowy udostępnione przez współpracownika z kanału prywatnego. Prywatne rozmowy współpracownika nigdy się nie pojawiają, bez względu na twoją rolę, także **Administrator**.
+
+W kontach e-mail pojawiają się tylko foldery włączone na karcie **Foldery** konta w [Kanały i kalendarze](app:settings/channels). Domyślnie włączone są wszystkie foldery z wyjątkiem kosza, spamu, szkiców i folderu ze wszystkimi wiadomościami; jeśli brakuje poczty z archiwum, sprawdź przełącznik tego folderu. Rozmowa bez żadnej wiadomości pojawia się tylko wtedy, gdy zawiera zapisany szkic.
+
+## Jakich uprawnień potrzebuje Skrzynka odbiorcza? [#which-permissions-does-the-inbox-need]
+
+Role edytuje się w [Role](app:settings/roles). Skrzynka odbiorcza korzysta z wiersza **Wiadomości w skrzynce odbiorczej**: **Tworzenie**, **Edycja**, **Usuń** oraz **Dostęp do odczytu** **Brak** lub **Wszystkie**.
+
+| Aby to zrobić | Rola potrzebuje |
+| --- | --- |
+| Zobaczyć Skrzynkę odbiorczą i czytać rozmowy | **Wiadomości w skrzynce odbiorczej**: **Dostęp do odczytu** **Wszystkie** |
+| Odpowiadać, zapisywać lub wysyłać szkice, rozpocząć rozmowę z kontaktu | **Wiadomości w skrzynce odbiorczej**: **Tworzenie** |
+| Odrzucić szkic | **Wiadomości w skrzynce odbiorczej**: **Usuń** |
+| Zmienić stan, przenieść e-mail, **Odśwież**, **Zsynchronizuj wątek ponownie**, wczytać starsze wiadomości, udostępnić rozmowę | **Wiadomości w skrzynce odbiorczej**: **Edycja** |
+| Dopasować adres uczestnika do rekordu lub utworzyć z niego rekord | Dostęp do odczytu i edycji tego rekordu; dostęp do tworzenia dla nowego rekordu |
+| Powiązać rekord z jedną tą rozmową | **Wiadomości w skrzynce odbiorczej**: **Edycja** oraz dostęp do odczytu i edycji rekordu |
+| Dodać pole Dane kontaktowe do listy | **Model danych** |
+
+Bez **Tworzenie** pole odpowiedzi jest ukryte. Bez **Edycja** akcja przeniesienia jest ukryta, stan jest plakietką tylko do odczytu, a otwarcie nieprzeczytanej rozmowy pozostawia ją jako **Nieprzeczytane**. Udostępnienie pojedynczej rozmowy wymaga też bycia właścicielem jej kanału.
+
+## Jak przeszukiwać, filtrować i odświeżać Skrzynkę odbiorczą? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+Górny pasek [Skrzynka odbiorcza](app:inbox) zawiera:
+
+- **Filtry** służą do wyszukiwania i filtrowania: wpisz tekst i wybierz pozycję **zawiera**, aby znaleźć rozmowy według tematu, treści wiadomości, nazwy rozmowy oraz nazw lub adresów uczestników (F je otwiera). Oferują też **Stan**, **Powiązane rekordy**, **Uczestnicy** (**nie w pełni powiązane** znajduje rozmowy z kimś, kto nie ma pasującego rekordu, który możesz odczytać), **Dostawca**, **Kanał**, **Folder e-mail**, **Szkic** (**ma co najmniej jeden** znajduje rozmowy z zapisanym szkicem), **Ostatnia wiadomość** (**Wysłane** lub **Odebrane**), **Data ostatniej wiadomości** i **Ostatnia aktywność**.
+- **Odśwież** od razu pobiera nowe wiadomości („Skrzynka odbiorcza odświeżona.”) i zgłasza kanały, które osiągnęły limit, wymagają ponownego połączenia lub nie dały się odświeżyć. Wymaga **Edycja**.
+- **Kanały** otwiera [Kanały i kalendarze](app:settings/channels), z liczbą, gdy kanały wymagają uwagi. Wymaga **Tworzenie**.
+
+**Folder e-mail** grupuje foldery pod ich kontem, więc foldery o tej samej nazwie pozostają rozdzielone; **jest jednym z** znajduje rozmowy z widoczną wiadomością w którymkolwiek z wybranych folderów, **nie jest jednym z** je wyklucza. **Ostatnia wiadomość** i **Data ostatniej wiadomości** używają najnowszej prawdziwej wiadomości wysłanej lub odebranej; szkice, usunięte wiadomości i zdarzenia systemowe się nie liczą. Aby znaleźć pocztę sprzed trzech do siedmiu dni, dodaj dwa warunki **Data ostatniej wiadomości**: **Starsze niż…** 3 dni i **7 dni**. **Ostatnia aktywność** obejmuje zapisane szkice. Wszystkie filtry respektują udostępnianie kont i włączone foldery.
+
+Wiersz widoków zaczyna się od **Wszystkie rozmowy**, a po nim są twoje zapisane widoki i widoki udostępnione ci przez współpracowników; kliknij **Wszystkie rozmowy**, aby opuścić widok. Lista pokazuje 25 rozmów na stronę (5, 10, 25 lub 100). Pozycja na pasku bocznym pokazuje, ile widocznych dla ciebie rozmów jest **Nieprzeczytane**.
+
+## Jak otworzyć konkretną rozmowę? [#how-do-i-open-a-specific-conversation]
+
+Kliknij jej wiersz. Adres w przeglądarce wskazuje wtedy tę rozmowę, więc możesz dodać ją do zakładek lub wysłać współpracownikowi, który może ją zobaczyć; adres, którego nie możesz otworzyć, przenosi cię z powrotem do Skrzynki odbiorczej. Aby znaleźć rozmowy jednego rekordu, wybierz go w filtrze **Powiązane rekordy**: dopasowanie używa danych kontaktowych rekordu i nadal sprawdza twój dostęp do każdej rozmowy. Mate nie otwiera za ciebie pojedynczej rozmowy: otwiera Skrzynkę odbiorczą i podaje nazwę rozmowy.
+
+Z uprawnieniem **Edycja** w **Wiadomości w skrzynce odbiorczej** przewinięcie do góry rozmowy pobiera starsze wiadomości od dostawcy, raz na rozmowę, aż do ponownego załadowania. **Zsynchronizuj wątek ponownie** w nagłówku pobiera całą rozmowę jeszcze raz.
+
+## Co jest w nagłówku rozmowy? [#what-is-in-the-conversation-header]
+
+Obok nazwy rozmowy, od lewej do prawej:
+
+| Kontrolka | Co robi |
+| --- | --- |
+| **Przenieś rozmowę do folderu…** (IMAP i Outlook) | Umieszcza rozmowę w innym folderze; wymaga **Edycja** |
+| **Zsynchronizuj wątek ponownie** | Pobiera rozmowę jeszcze raz; wymaga **Edycja** |
+| Plakietka **Wątek prywatny** lub **Wątek udostępniony** | Otwiera **Ustawienia wątku** |
+| **Niektórzy uczestnicy nie mają powiązanego rekordu, który możesz odczytać** | Otwiera **Ustawienia wątku**; pokazywana, gdy możesz tworzyć lub edytować rekordy na liście z polem Dane kontaktowe |
+| Plakietka stanu | **Nieprzeczytane**, **Otwarte**, **Zamknięte** lub **Spam** |
+
+Na wąskich ekranach plakietki pokazują same ikony.
+
+Wiadomości przychodzące są po lewej, wychodzące po prawej. Kompaktowy nagłówek e-maila pokazuje nadawcę, czas i pierwszego adresata; **Szczegóły** (także w **Akcje e-maila**) pokazują **Od**, **Do**, **DW** i **UDW**. UDW jest widoczne tylko w poczcie wychodzącej, dla właściciela konta i współpracowników z dostępem do całego konta; udostępnienie pojedynczej rozmowy nigdy go nie ujawnia. Kliknij adres, aby go skopiować. Przycisk folderu pod adresatami pokazuje, gdzie ten e-mail jest zapisany. E-maile napisane w Customermates i e-maile w czystym tekście używają kolorów i czcionki aplikacji oraz podążają za twoim jasnym lub ciemnym motywem. Odebrany HTML, który ma własny tryb ciemny, jest pokazywany w twoim motywie; inny odebrany HTML zachowuje układ i kolory nadawcy na jasnym tle. Obrazy zewnętrzne ładują się dopiero po **Wczytaj obrazy zewnętrzne**.
+
+## Co oznaczają stany wątku? [#what-do-the-thread-states-mean]
+
+| Stan | Znaczenie |
+| --- | --- |
+| **Nieprzeczytane** | Nowa lub przyszła nowa wiadomość |
+| **Otwarte** | Przeczytana, nadal wymaga uwagi |
+| **Zamknięte** | Załatwiona |
+| **Spam** | Oznaczona jako spam |
+
+Otwarcie nieprzeczytanej rozmowy ustawia ją na **Otwarte** (tylko z uprawnieniem **Edycja**). Stan jest wspólny dla wszystkich, którzy widzą rozmowę. Nowa wiadomość przychodząca ustawia go z powrotem na **Nieprzeczytane**, nawet z **Zamknięte** lub **Spam**. **Spam** to tylko etykieta: nie ukrywa rozmowy, nie blokuje nadawcy i niczego nie zgłasza dostawcy; użyj filtra **Stan**, aby trzymać go poza widokiem. Ustawienie stanu niczego nie wysyła.
+
+## Jak przenieść e-mail do innego folderu? [#how-do-i-move-an-email-to-another-folder]
+
+W rozmowach IMAP i Outlook kliknij przycisk folderu e-maila i wybierz miejsce docelowe w **Przenieś ten e-mail do…**, aby przenieść tylko ten e-mail, albo użyj **Przenieś rozmowę do folderu…** w nagłówku, aby umieścić całą rozmowę. Wiadomości przenoszą się też w prawdziwej skrzynce pocztowej. Wysłane i Szkice nigdy nie są celami, a znajdujące się w nich wiadomości zostają na miejscu. Rozmowy Gmail, członkowie bez **Edycja** i współpracownicy, którzy widzą rozmowę udostępnioną z kanału prywatnego, mogą czytać nazwy folderów, ale nie dostają opcji przenoszenia; porządkuje je tylko właściciel kanału.
+
+Możesz pracować dalej, gdy przenoszenie trwa. Wiadomości przeniesione do folderu, który jest wyłączony na karcie **Foldery** konta, znikają z rozmowy; gdy nie zostaje nic widocznego, potwierdzenie mówi, że nie pojawia się już w twojej Skrzynce odbiorczej. Jeśli dostawca w połowie nałoży limit, komunikat o tym informuje i resztę możesz przenieść później.
+
+## Jak udostępnić pojedynczą rozmowę? [#how-do-i-share-a-single-conversation]
+
+Kliknij **Wątek prywatny** lub **Wątek udostępniony** w nagłówku, aby otworzyć **Ustawienia wątku**. Przełącznik **Udostępnij zespołowi** udostępnia tylko tę rozmowę wszystkim, których rola może odczytać Skrzynkę odbiorczą (**Udostępniono w CRM**); jego wyłączenie pokazuje **Rozmowa jest teraz prywatna**. Może go użyć tylko właściciel kanału, w planie z wiadomościami i z uprawnieniem **Edycja**. Współpracownicy mogą wtedy czytać rozmowę, zmieniać jej stan i synchronizować ją ponownie, ale nie mogą jej przenosić, a odpowiadać możesz tylko ty, dopóki sam kanał jest prywatny.
+
+Aby udostępnić każdą rozmowę kanału, włącz **Widoczność** na karcie **Szczegóły** kanału w [Kanały i kalendarze](app:settings/channels) (Business, Max lub Enterprise). Przełącznik przy pojedynczej rozmowie pozostaje wtedy włączony i zablokowany.
+
+## Jak powiązać uczestników i rekordy? [#how-do-i-link-a-participant]
+
+Wiadomości są dopasowywane do rekordów przez dane kontaktowe: rekord, którego pole Dane kontaktowe zawiera adres e-mail, numer telefonu lub profil, pokazuje każdą rozmowę z tym adresem. Numer telefonu dopasowuje też czaty WhatsApp z tego samego numeru. Otwórz **Ustawienia wątku**. W sekcji **Osoby** każdy uczestnik pokazuje jako plakietki rekordy, które możesz zobaczyć i które pasują do jego adresu. **Powiąż** otwiera wyszukiwanie, które dodaje adres do danych kontaktowych rekordu na dowolnej liście mającej pole Dane kontaktowe; **✕** na plakietce usuwa tylko to dopasowanie. Jeden adres może należeć do kilku rekordów, na przykład kontaktu i organizacji, a każda inna rozmowa z tym samym adresem podąża za nim. Zwykłe pola tekstowe nigdy nie służą do dopasowywania.
+
+W sekcji **Rekordy rozmowy** selektor pola (**Powiąż rekord**) dołącza do rekordu tylko tę rozmowę, na przykład szansę sprzedaży na liście bez pola Dane kontaktowe; inne rozmowy z uczestnikiem pozostają osobne. Powiązanie nigdy nie nadaje dostępu do prywatnych wiadomości ani do rekordów z ograniczonym dostępem.
+
+## Jak odpowiedzieć na rozmowę? [#how-do-i-reply-to-a-conversation]
+
+Kliknij **Napisz odpowiedź...** (e-mail) lub **Wpisz wiadomość...** (czat) pod rozmową. Odpowiedzi e-mail pokazują **Temat** i **Do**, wypełnione z rozmowy; **DW/UDW** dodaje te pola, a każda kombinacja działa, o ile jest jeden prawidłowy adresat. E-mail piszesz w edytorze Markdown, a twój podpis, jeśli jest włączony, jest dodawany przy wysyłaniu. Adresaci UDW nigdy nie są przenoszeni do odpowiedzi. Odpowiedzi na czacie to zwykły tekst. Użyj **Dołącz pliki** i **Wstaw emoji** w razie potrzeby, a potem **Wyślij** lub Cmd/Ctrl+Enter; **Więcej opcji wysyłania** zawiera **Zapisz jako szkic**.
+
+Jeśli wysyłanie się nie powiedzie, **Spróbuj ponownie** pojawia się tylko wtedy, gdy ponowna próba może pomóc (limit, chwilowa awaria). Gdy dostawca odrzuci wiadomość, najpierw ją zmień; po przekroczeniu czasu sprawdź rozmowę, bo wiadomość mogła już wyjść. Kanał, który wymaga ponownego połączenia, jest zgłaszany, zanim cokolwiek zostanie wysłane, a ponownie połączyć go może tylko jego właściciel. Odpowiedzi wychodzą z własnego kanału rozmowy, więc odpowiadać możesz tylko na kanałach, których jesteś właścicielem lub które są udostępnione przestrzeni roboczej.
+
+## Jak rozpocząć nową rozmowę lub napisać nowy e-mail do kontaktu? [#how-do-i-start-a-new-conversation]
+
+Skrzynka odbiorcza nie ma przycisku nowej rozmowy. Otwórz rekord osoby, na przykład na liście kontaktów, i kliknij ikonę **Nowa wiadomość** obok adresu e-mail lub uchwytu w jej danych kontaktowych. Gdy może wysyłać kilka twoich kanałów, wybierz jeden w **Od**; dla LinkedIn z Sales Navigator lub Recruiter **Wyślij jako** pozwala wybrać **Classic**, **Sales Navigator InMail** lub **Recruiter InMail**. Po **Wyślij** wiadomość wychodzi w tle („Wysyłanie wiadomości”, potem „Wiadomość wysłana.”). Wymaga to Customermates Cloud i uprawnienia **Tworzenie** w **Wiadomości w skrzynce odbiorczej**.
+
+## Jak działają szkice i załączniki? [#how-do-drafts-and-attachments-work]
+
+**Zapisz jako szkic** zachowuje wiadomość bez wysyłania; gdy edytujesz zapisany szkic, przycisk brzmi **Zaktualizuj szkic**. Szkic odpowiedzi leży w swojej rozmowie z przyciskami **Wyślij szkic**, **Edytuj** i **Odrzuć**. Szkic nowej rozmowy pojawia się na liście jako własna rozmowa („Szkic zapisany. Znajdziesz go w skrzynce odbiorczej.”), także gdy masz już szkic do tych samych osób; filtr **Szkic** z **ma co najmniej jeden** wyświetla je wszystkie. Rozmowa ma jeden szkic. Nowego InMail na LinkedIn nie można zapisać jako szkicu. Odrzucenia nie można cofnąć. Aplikacja, REST API i MCP korzystają z tych samych szkiców.
+
+Każda zapisana wersja szkicu jest wysyłana najwyżej raz. Jeśli szkic zmienił się po jego otwarciu, na przykład w innej karcie, przez Mate lub przez agenta, **Wyślij** zachowuje twój tekst i oferuje **Wczytaj najnowszą wersję** lub **Wyślij moją**. Jeśli wysłania nie udało się potwierdzić, szkic nie jest wysyłany ponownie: najpierw sprawdź rozmowę, w przypadku e-maila także folder Wysłane, a potem edytuj i zaktualizuj szkic, aby mimo to go wysłać. W przypadku e-maila, gdy tylko z twojej skrzynki dotrze wysłana kopia tamtego wcześniejszego wysłania, szkic liczy się jako wysłany i opuszcza skrzynkę odbiorczą; nie jest wtedy wysyłany ponownie, nawet po edycji.
+
+Dlatego każdy wysłany szkic zostawia rekord wysłania: jego identyfikatory, jego stan i skróty wysłanej treści, nigdy samą treść. W przypadku e-maila skróty obejmują Do, DW, temat, tekst i nazwy załączników, a dla dokładnego wysłania także UDW i zawartość załączników; w przypadku czatu obejmują tekst i załączniki. Rekord jest usuwany 30 dni po ostatniej zmianie, gdy jego szkicu już nie ma. Dopóki szkic nadal istnieje, na przykład po wysłaniu, którego nie udało się potwierdzić, rekord pozostaje, więc szkic nie może wyjść dwa razy. Odłączenie kanału usuwa jego rekordy.
+
+**Dołącz pliki** dodaje do 20 plików na wiadomość, razem do 15 MB. Szkice nie mogą zachować załączników („Usuń załączniki, zanim zapiszesz ten szkic.”). W odebranych wiadomościach obsługiwane media otwierają się w treści, inne pliki są pobierane, a nieobsługiwane elementy pokazują **Nieobsługiwany**.
+
+## Jak ustawić podpis e-mail? [#how-do-i-set-an-email-signature]
+
+Podpis należy do każdego konta e-mail, którego jesteś właścicielem: w [Kanały i kalendarze](app:settings/channels) otwórz konto Gmail, Outlook lub IMAP i użyj jego karty **E-mail**. Ustaw czcionkę, rozmiar i styl linków, włącz **Dodaj podpis**, wybierz układ z logo lub bez i napisz tekst w Markdown. Gdy jest włączony, jest dodawany pod każdym e-mailem wysłanym z tego konta, ze Skrzynki odbiorczej, REST API lub MCP, więc nie wklejaj go do wiadomości; edytor pokazuje jego podgląd. Wszystkie pola: [Wygląd e-maili i podpis](/docs/app-profile#email-appearance-and-signature).
+
+## Dla agentów [#tips-for-agents]
+
+Preferuj narzędzia [MCP](/docs/mcp) zamiast klikania: `get_messaging_threads` odczytuje rozmowy, `update_messaging_thread` ustawia stan (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` umieszcza e-mail w folderze (REST `POST /api/v1/messaging/threads/{id}/move`; kończy się błędem dla rozmowy udostępnionej z cudzego kanału prywatnego), `send_email` i `send_chat_message` rozpoczynają rozmowy, a `save_message_draft` (REST `POST /api/v1/messaging/drafts`) przygotowuje jedną do przeglądu; szkic wyślij lub odrzuć za pomocą identyfikatora jego wiadomości i bieżącego `draftRevision`. `resolve_record_identifiers` znajduje rekordy pasujące do adresu, `manage_conversation_records` odczytuje i zmienia rekordy powiązane z jedną rozmową, a `mutate_crm_record` zmienia dane kontaktowe rekordu.
+
+**Zmiana niekompatybilna:** wysyłanie zapisanych szkiców przez REST API się zmieniło. `POST /api/v1/messaging/send-email` odpowiada `200`, a `POST /api/v1/messaging/threads/{id}/messages` i `POST /api/v1/messaging/start-chat` odpowiadają `201`, gdy wysłana wiadomość jest zapisana, także wtedy, gdy wywołanie powtarza wcześniejsze wysłanie tej samej rewizji szkicu; takie powtórzenie zawiera `repeated: true` i niczego nie wysyła. Odpowiadają `202` z potwierdzeniem odbioru tylko do czasu, aż wysłana wiadomość zostanie zapisana. Nieaktualne `draftRevision` lub zmienieni adresaci odpowiadają `409` z customCode `draftChanged` lub `draftRecipientsChanged` zamiast `404`, a `DELETE /api/v1/messaging/drafts/{id}` z nieaktualnym `draftRevision` odpowiada `409` z customCode `draftChanged` zamiast `404`. `POST /api/v1/messaging/drafts`, podobnie jak `save_message_draft` z `connectedAccountId`, tworzy przy każdym wywołaniu nową rozmowę; zapisany szkic aktualizuj przez jego rozmowę za pomocą `POST /api/v1/messaging/threads/{id}/drafts` lub `threadId`.
+
+## Powiązane [#related]
+
+- [Przewodnik po aplikacji, Profil](/docs/app-profile): połącz konta, które zasilają Skrzynkę odbiorczą.
+- [Limity częstotliwości](/docs/messaging-rate-limits): budżety na odczyty i wysyłki dla każdego dostawcy.

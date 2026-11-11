@@ -1,0 +1,120 @@
+---
+title: "Widżety pulpitu i oś czasu aktywności"
+heading: "Skonfiguruj pulpit swojego CRM"
+description: "Ekran po zalogowaniu: widżety wykresów, osi czasu, kalendarza i mapy nad danymi CRM, widoki pulpitu, edytor widżetów oraz wszystkie skróty klawiszowe."
+---
+
+## Co pokazuje Pulpit i czy mogę udostępniać widżety zespołowi? [#what-does-the-dashboard-show]
+
+[Pulpit](app:dashboard) to miejsce, w którym lądujesz po zalogowaniu. Pokazuje widżety nad twoimi danymi CRM: lejki sprzedaży, liczby zadań, ostatnią aktywność, cokolwiek skonfigurujesz. Każdy widżet należy do ciebie. Współpracownicy widzą go dopiero wtedy, gdy w jego edytorze włączysz **Udostępnij jako szablon**, a wtedy zaczynają od niego własną kopię. Dodawanie widżetów nie wymaga uprawnienia roli, ale wykres liczy tylko rekordy, które twoja rola może odczytać, więc kopia współpracownika może pokazywać inne liczby. [Dodaj widżet](app:dashboard?focus=add-widget) pojawia się tylko wtedy, gdy twoja rola może odczytać co najmniej jedną listę. W przestrzeni roboczej bez list Pulpit mówi o tym i oferuje osobom zarządzającym modelem danych **Utwórz listę**.
+
+## Czy mogę mieć kilka pulpitów? [#dashboard-views]
+
+Tak. Plakietki widoków nad widżetami przełączają na twoje własne nazwane pulpity, na przykład po jednym na zespół lub cel; bez wybranego widoku widzisz główny pulpit, a ponowne kliknięcie wybranego widoku do niego wraca. **Nowy widok** dodaje kolejny, a V otwiera wybór widoku, tak jak na liście. Każdy widok zachowuje własne widżety i ich układ, nowy widżet ląduje w widoku, na który patrzysz, a link do widoku otwiera dla ciebie ten pulpit. Widoki i ich widżety są twoje, dopóki ich nie udostępnisz: **Udostępnij…** w menu widoku pokazuje go wszystkim w przestrzeni roboczej lub wybranym rolom, tak jak na liście. Współpracownicy znajdują go wtedy po własnych widokach jako plakietkę z twoim zdjęciem i widzą te same widżety i ten sam układ, tylko do odczytu; każda liczba jest obliczana z ich własnym dostępem. Widżety możesz zmieniać tylko ty; **Duplikuj jako nowy widok** daje współpracownikowi własną kopię ze wszystkimi widżetami i ich układem, którą może swobodnie zmieniać, nie ruszając twojej. Duplikowanie jednego z twoich własnych widoków kopiuje jego widżety w ten sam sposób. Głównego pulpitu nie można udostępnić; udostępnij zamiast niego nazwany widok. Osoba, która otworzy link do widoku, który nie jest jej udostępniony, widzi swój własny pulpit. Usunięcie widoku przenosi go do [Kosz](/docs/app-trash) razem z jego widżetami, a potwierdzenie je wymienia; **Cofnij** lub **Przywróć** przywraca oba.
+
+## Czy mogę udostępnić pulpit osobom spoza przestrzeni roboczej? [#public-links]
+
+Tak, przez link publiczny. W widoku pulpitu, którego jesteś właścicielem, otwórz **Udostępnij…**, wybierz **Każdy, kto ma link** i kliknij **Zapisz**; link zostaje utworzony i skopiowany, a widok widzą też wszyscy w przestrzeni roboczej. Każdy, kto ma link, widzi wtedy wykresy i liczby tego widoku na żywo, tylko do odczytu i bez logowania, pod adresem kończącym się na `/p/…`; strona pokazuje nazwę widoku i nazwę twojej przestrzeni roboczej. Liczby są obliczane z twoim dostępem, więc link publiczny nigdy nie pokazuje więcej, niż widzisz ty. Kliknięcie słupka lub liczby otwiera rekordy, które za nią stoją, tylko do odczytu i z twoim dostępem, pokazując nazwę rekordu i pola, według których wykres grupuje lub które sumuje; odwiedzający mogą w panelu wyszukiwać, filtrować, sortować i dostosowywać kolumny, ale tylko wśród pokazanych kolumn, i nic nie jest zapisywane; niczego nie można zmienić, a rekordy nie otwierają się na własnych stronach. Listy, kalendarze, mapy i osie czasu aktywności są pominięte. Każdy, kto ma link, widzi te wykresy i rekordy, więc publikuj tylko tablice, które chcesz pokazać. **Kopiuj** kopiuje link ponownie w dowolnym momencie, **Ostatni dzień, w którym link działa (UTC)** ustawia opcjonalną datę końcową, a okno pokazuje, jak często link był otwierany. Wybranie innej opcji i zapisanie od razu zatrzymuje link; ponowne wybranie **Każdy, kto ma link** tworzy nowy adres. Zapisane widoki list można publikować w ten sam sposób ([Listy](/docs/app-records#public-list-links)). Gdy link jest włączony, plakietka twojego widoku pokazuje globus.
+
+Publikowanie wymaga uprawnienia **Tworzenie** w wierszu **Linki publiczne** twojej roli; ma je rola **Administrator**. **Zezwalaj na linki publiczne** w [Ogólne](app:settings/general) wyłącza i ponownie włącza wszystkie linki publiczne przestrzeni roboczej; gdy są wyłączone, każdy link pokazuje **Link niedostępny**. Link przestaje też działać, gdy wygaśnie, gdy widok trafi do Kosza albo gdy jego twórca straci uprawnienie, zostanie dezaktywowany lub opuści przestrzeń roboczą. Utworzenie i wyłączenie linku widać w [Dziennik audytu](app:settings/activity). Głównego pulpitu nie można opublikować; opublikuj nazwany widok. Mate i inni klienci MCP publikują przez `manage_data_views` z akcją `publish`, a punkt końcowy REST to `POST /api/v1/data-views/publish`; publikacja tam pokazuje też widok wszystkim w przestrzeni roboczej, a udostępnienie go prywatnie lub rolom wyłącza link.
+
+## Jakie typy widżetów istnieją i jakie wykresy mogą pokazywać? [#which-widget-types-exist]
+
+Kliknij [Dodaj widżet](app:dashboard?focus=add-widget), aby otworzyć **Wybierz widżet**. Na początku jest **Zacznij od zera**, z jedną kartą na każdy styl wykresu (**Liczba**, **Wykres słupkowy**, **Słupki poziome**, **Obszar w czasie**, **Tabela rankingowa**, **Pierścień**, **Lejek** i **Radar**) oraz **Oś czasu aktywności**, **Nadchodzące**, **Przegląd miesiąca** i **Mapa**; karta otwiera edytor z już wybranym stylem, a ty wybierasz dane. **Zacznij od szablonu** wyświetla widżety udostępnione przez współpracowników. Aby widżet zbudował się za ciebie, opisz go przez **Zapytaj Mate** w edytorze widżetu.
+
+- Wykres agreguje jedną listę: liczbę, sumę, średnią, minimum lub maksimum pola liczbowego. Grupuj według pola, według każdego rekordu, według **Przypisano do** (rekord z dwiema osobami przypisanymi liczy się dla obu) albo przez relację, na przykład wartość szans sprzedaży według etapu lub kwoty pozycji według usługi. Każdy rekord źródłowy liczy się raz na grupę, więc szansa sprzedaży powiązana z dwiema organizacjami liczy się w pełni dla obu. Aby przedstawić szereg czasowy, grupuj według pola daty, **Utworzono** lub **Zaktualizowano** i wybierz **Przedział czasu** (dzień, tydzień zaczynający się w poniedziałek, miesiąc, kwartał lub rok). Czas jest przypisywany do przedziałów w strefie czasowej przeglądarki, która zapisała widżet; wartości z samą datą nigdy się nie przesuwają, a rekordy bez daty są liczone pod wykresem.
+- **Oś czasu aktywności** to kanał zmian, wiadomości i aktywności kanałów, od najnowszych. Jej filtry należą do tego widżetu, więc kilka osi czasu może pokazywać różne rzeczy, nie wpływając na siebie ani na widok Aktywności rekordu.
+- **Nadchodzące** wyświetla rekordy jednej listy według pola daty lub daty z godziną na najbliższe dni (domyślnie 14, do 90), z sekcją **Po terminie** dla wcześniejszych dat i opcjonalną kolumną kwoty. Odfiltruj zakończone rekordy, na przykład wykonane zadania, aby po terminie liczyły się tylko otwarte.
+- **Przegląd miesiąca** koloruje każdy dzień miesiąca według liczby rekordów, które na niego przypadają, albo według sumy pola liczbowego lub walutowego. Strzałki zmieniają miesiąc, a dzień otwiera listę swoich rekordów.
+- **Mapa** umieszcza rekordy jednej listy w pozycji zapisanej w polu adresu i grupuje rekordy leżące blisko siebie w ponumerowane skupiska. Pole jednokrotnego wyboru koloruje pinezki w kolorach swoich opcji, tak samo jak na wykresach, pole liczbowe lub walutowe ustala ich wielkość, a pinezka otwiera kartę z nazwą, adresem, opcjonalnym polem szczegółów i **Otwórz rekord**. Skupisko przyjmuje kolor ponad połowy swoich rekordów; bez takiej większości jest bezbarwnym pierścieniem, który legenda wymienia jako **Mieszane**.
+
+W sekcji **Wygląd** wykres może być pionowym lub poziomym wykresem słupkowym (z etykietami lub bez), pierścieniem albo wykresem radarowym, lub jednym z poniższych:
+
+| Styl | Co pokazuje | Czego wymaga |
+| --- | --- | --- |
+| **Liczba** | Jedną ogólną wartość | **Bez grupowania** |
+| **Obszar w czasie** | Wartość na okres; puste okresy to zero dla liczb i sum, a w innych przypadkach przerwa | Przedział czasu |
+| **Tabela rankingowa** | Grupy według wartości z ich udziałem w sumie, dziesięć najwyższych plus reszta | Grupowanie |
+| **Lejek** | Każdą opcję po kolei z konwersją z kroku na krok; etap z prawdopodobieństwem 0, na przykład Utracone, jest wymieniony poniżej | Pole jednokrotnego wyboru, na przykład etap |
+
+Styl, który nie pasuje do grupowania, jest wyłączony z podpowiedzią. Wartości obliczane wymagają dostępu do swoich danych wejściowych.
+
+### Co może pokazywać oś czasu aktywności, w tym wydarzenia kalendarza? [#what-can-an-activity-timeline-show]
+
+Oś czasu pokazuje te same wpisy co [Dziennik audytu](app:settings/activity): zmiany rekordów z ich poprzednimi i bieżącymi wartościami, zmiany administracyjne i konfiguracyjne, wiadomości, aktywność kanałów, taką jak zaakceptowane zaproszenia na LinkedIn, oraz spotkania z kalendarza połączonego konta Gmail lub Outlook (układ kalendarza na liście i widżety kalendarza pokazują rekordy według ich pól dat, a nie spotkania). Filtruj ją według **Typ aktywności**, **Dostawca**, **Kanał**, **Rozmowa** lub **Powiązane rekordy** i ogranicz do typów rekordów lub rekordów albo do daty **Od** i **Do**. Powiązane rekordy używają **Zawiera dowolne z**, **Wyklucza wszystkie z**, **Ma powiązany rekord** i **Nie ma powiązanego rekordu**. Różne filtry muszą pasować wszystkie; kilka wartości w jednym filtrze pasuje, gdy pasuje którakolwiek z nich.
+
+**Wczytaj starsze** pokazuje następną stronę. Wiersz może łączyć jeden rekord główny i do trzech rekordów powiązanych, a wiadomość może otworzyć swój wątek w Skrzynce odbiorczej. Wiersze bez rekordu pozostają widoczne bez linku.
+
+### Jak widżety kalendarza traktują daty i strefy czasowe? [#calendar-widgets]
+
+Pole z samą datą to dzień kalendarzowy i nigdy się nie przesuwa. Pole daty z godziną jest umieszczane w dniu, na który przypada w strefie czasowej widżetu, czyli strefie czasowej przeglądarki, która utworzyła widżet; „dzisiaj” i **Po terminie** podążają za tą samą strefą czasową. Polem daty może być też zakres dat lub zakres dat z godziną: rekord pojawia się w dniu, w którym zaczyna się jego zakres, i liczy się jako po terminie, gdy jego zakres się skończył. **Nadchodzące** pokazuje do 100 rekordów i do 20 rekordów po terminie wraz z ich łączną liczbą. **Przegląd miesiąca** liczy lub sumuje każdy rekord miesiąca, a dzień wyświetla do 100 swoich rekordów. Oba używają tych samych filtrów, dostępu do rekordów i uprawnień do pól co wykresy, więc kopia udostępnionego szablonu u współpracownika pokazuje tylko to, co ten współpracownik może odczytać.
+
+### Skąd pochodzi mapa i których rekordów na niej brakuje? [#map-widget]
+
+Mapa pokazuje granice państw, regiony i miasta z [Natural Earth](https://www.naturalearthdata.com/) (domena publiczna). Te pliki map są dostarczane z Customermates i serwowane przez twój własny serwer Customermates, więc otwarcie mapy nie wysyła żadnego żądania do zewnętrznej usługi map, kafelków, czcionek ani geokodowania, a serwer samodzielnie hostowany pokazuje mapy bez dostępu do internetu. Pliki map ładują się tylko wtedy, gdy widżet mapy jest na ekranie.
+
+Rekord pojawia się tam, gdzie jego pole adresu przechowuje pozycję: w środku obszaru kodu pocztowego, gdy katalog kodów pocztowych zna ten kod, albo w budynku po wyszukaniu adresu na serwerze samodzielnie hostowanym z Photon (zobacz [Jak wpisać adres?](/docs/app-records#how-do-i-enter-an-address)). Rekordy bez adresu, bez zapisanej pozycji lub z adresem, którego nie możesz odczytać, są zamiast tego policzone w podpowiedzi pod mapą. Mapa pokazuje najwyżej 2000 rekordów; zawęź filtry, jeśli widżet mówi, że pokazuje tylko ich część. Powiększaj przyciskami, klawiaturą (+ i -, strzałki do przesuwania, 0 do zresetowania) lub kółkiem myszy przy wciśniętym Cmd/Ctrl; po zaznaczeniu mapy kółko powiększa bez tego klawisza. Na ekranie dotykowym jeden palec przewija stronę, a dwa palce przesuwają i powiększają mapę. Wybierz skupisko, aby je przybliżyć.
+
+### Kto co widzi na osi czasu? [#who-sees-what-in-a-timeline]
+
+| Dostęp | Widoczna zawartość |
+| --- | --- |
+| Tylko dziennik aktywności | Dozwolone zmiany |
+| Tylko wiadomości w skrzynce odbiorczej, w planie z wiadomościami | Dozwolone wiadomości, aktywność kanałów i spotkania |
+| Oba | Jedna połączona oś czasu |
+| Żaden | Komunikat, że żadna aktywność nie jest dostępna |
+
+Te dwa uprawnienia to wiersze **Dziennik aktywności** i **Wiadomości w skrzynce odbiorczej** roli członka w [Role](app:settings/roles), każdy z **Dostęp do odczytu** **Wszystkie**. Wiadomości, aktywność kanałów i spotkania wymagają też Customermates Cloud i planu z wiadomościami (Pro i wyższe); zmiany pozostają widoczne bez niego. Usunięta lub niedostępna już wartość filtra przestaje pasować i pokazuje się jako **Filtr niedostępny** na plakietce i **Wybór niedostępny** w selektorze, więc możesz ją usunąć.
+
+## Jak utworzyć lub edytować widżet wykresu albo osi czasu w edytorze widżetów? [#how-does-the-widget-editor-work]
+
+Wybierz styl wykresu, **Oś czasu aktywności**, **Nadchodzące**, **Przegląd miesiąca**, **Mapa** lub szablon w **Wybierz widżet**; wszystkie otwierają ten sam edytor. Nadaj widżetowi nazwę, a potem przełączaj się między **Dane** i **Wygląd**. **Dane** zawierają źródło i to, co liczyć; filtry i grupowanie to rozwijane sekcje wewnątrz, a po zgrupowaniu **Filtry grup** ogranicza, które rekordy pojawiają się jako grupy. Obie sekcje filtrów pokazują tę samą paletę Filtry z wyszukiwaniem co lista, a powiązane pola pojawiają się jako **Lista › Pole**. **Wygląd** zawiera styl wykresu, kolory, legendę, **Pokaż metrykę i filtry** oraz **Udostępnij jako szablon**. **Podgląd na żywo** nad ustawieniami pokazuje widżet z prawdziwymi danymi i aktualizuje się w trakcie zmian; wybierz **Rozmiar na pulpicie**, aby zobaczyć go w proporcjach, jakie przyjmuje na pulpicie. Kliknij **Zapisz** w stopce.
+
+Kliknij wykres lub jeden z jego słupków, aby otworzyć panel jego danych: wykres pozostaje u góry, a poniżej pojawiają się rekordy składowe, ze zwykłymi filtrami listy i paginacją. Wybranie innej grupy zmienia rekordy. **Otwórz na liście** otwiera zwykły przegląd z tym samym wyborem i dowolnymi dodatkowymi filtrami; zapytanie obejmuje pełne pasujące dane, a nie próbkę identyfikatorów rekordów. Kliknięcie wiersza otwiera jego rekord. Aby edytować widżet, użyj ołówka widocznego po najechaniu lub przy fokusie klawiatury albo wybierz **Edytuj** z jego menu lokalnego (dostępnego też po kliknięciu prawym przyciskiem). Kliknięcie plakietki filtra otwiera edytor przy tym filtrze. **Resetuj** przywraca zapisane wartości po wprowadzeniu zmian, a ikona kosza w nagłówku edytora po potwierdzeniu przenosi widżet do [Kosz](/docs/app-trash). Nowy widżet zajmuje pierwsze wolne miejsce. Przeciągnij widżet, aby go przenieść, i przeciągnij krawędź lub róg, aby zmienić rozmiar (przenoszenie jest wyłączone na urządzeniach dotykowych); układ jest zapisywany tylko dla ciebie. Wysokość dopasowuje się do wierszy po 54 px; widżety wykresów i **Liczba** mają co najmniej dwa wiersze wysokości, **Oś czasu aktywności** co najmniej sześć wierszy wysokości i dwie kolumny szerokości, widżet kalendarza co najmniej pięć wierszy wysokości i dwie kolumny szerokości, a **Mapa** co najmniej pięć wierszy wysokości i trzy kolumny szerokości.
+
+## Jakie kontrolki dodaje pasek boczny? [#which-controls-does-the-sidebar-add]
+
+Pasek boczny zawiera twoją pracę i wygląda tak samo na każdym ekranie. Na górze są **Szukaj** (Cmd/Ctrl+K, zobacz [Wyszukiwanie globalne](/docs/app-search)), **Zapytaj Mate** (Cmd/Ctrl+J, zobacz [asystent](/docs/app-assistant)) i **Dodaj** (C). Niżej jest **Przegląd** z pozycjami [Pulpit](app:dashboard), [Baza wiedzy](app:wiki), [Kalendarz](app:calendar), [Skrzynka odbiorcza](app:inbox) i [Rutyny](app:routines), potem **Dane** z twoimi listami, a następnie twoje sekcje osobiste. Pozycje, których twoja rola nie może otworzyć, są ukryte. **Skrzynka odbiorcza** zlicza nieprzeczytane rozmowy.
+
+Pasek boczny jest twój: przeciągnij pozycję, aby zmienić jej kolejność lub przenieść ją do innej sekcji, albo użyj jej menu **…** z opcjami **Przesuń w górę**, **Przesuń w dół**, **Przenieś do sekcji** (w tym **Nowa sekcja**) i **Ukryj na pasku bocznym**. Kliknij tytuł sekcji, aby ją zwinąć; jej menu **…** (lub kliknięcie prawym przyciskiem) oferuje **Przesuń w górę** i **Przesuń w dół**, a w utworzonych przez ciebie sekcjach także **Zmień nazwę** i **Usuń sekcję**. Usunięcie sekcji przenosi jej pozycje z powrotem na domyślne miejsce; ukryte pozycje pozostają ukryte. **Dostosuj pasek boczny** w menu osobistym otwiera okno z przełącznikiem przy każdej pozycji, aby ją pokazać lub ukryć, z **Nowa sekcja** i, po wprowadzeniu zmian, **Przywróć domyślne**, które po potwierdzeniu przywraca standardowy układ. Nikt inny nie widzi twoich zmian.
+
+Nazwa przestrzeni roboczej u góry otwiera menu przestrzeni roboczej: przestrzenie robocze, do których należysz, do przełączania między nimi, **Utwórz przestrzeń roboczą**, **Zaproś członków** (jeśli możesz zapraszać), [Członkowie](app:settings/members), **Ustawienia**, [Rozliczenia](app:settings/billing) z plakietką twojego planu i jego statusu oraz, dla operatorów Customermates, **Konsola operatora**. Twój awatar otwiera menu osobiste: [Profil i preferencje](app:settings/profile), **Motyw** (Systemowy, Jasny lub Ciemny), **Język**, **Skróty klawiszowe**, **Dokumentacja**, **Wyślij opinię**, **Dostosuj pasek boczny** i **Wyloguj się**. **Ustawienia** oraz G, a potem S otwierają Profil i preferencje, a pasek boczny przełącza się na nawigację ustawień z sekcjami Konto ([Profil i preferencje](app:settings/profile), [Przestrzenie robocze](app:settings/workspaces), [Kanały i kalendarze](app:settings/channels), [Klucze API i konektory](app:settings/api-keys)) i Przestrzeń robocza ([Ogólne](app:settings/general), [Członkowie](app:settings/members), [Role](app:settings/roles), [Rozliczenia](app:settings/billing), [Dziennik audytu](app:settings/activity), [Webhooki](app:settings/webhooks)); **Wstecz** u jej góry wraca do strony otwartej wcześniej. **Dostosuj pasek boczny** nie jest oferowane, gdy widać nawigację ustawień. Dopóki nie potwierdzisz swojego adresu, twój awatar i pozycja Profil i preferencje pokazują **Adres e-mail niezweryfikowany**.
+
+## Jakie są skróty klawiszowe? [#keyboard-shortcuts]
+
+Naciśnij ? lub wybierz **Skróty klawiszowe** w menu osobistym, aby zobaczyć każdy skrót z klawiszami twojego komputera (⌘ na Macu, Ctrl gdzie indziej), pogrupowane i z wyszukiwaniem. Skróty z Cmd/Ctrl i Esc działają wszędzie, nawet podczas pisania. Pojedyncze klawisze i sekwencje G działają tylko wtedy, gdy żadne pole tekstowe nie ma fokusu i nie jest otwarte żadne menu ani okno.
+
+| Grupa | Klawisze | Co robi |
+| --- | --- | --- |
+| Ogólne | Cmd/Ctrl+K lub / | Wyszukiwanie; wpisz pytanie i naciśnij Tab, aby zamiast tego zapytać Mate |
+| Ogólne | Cmd/Ctrl+J | Zapytaj Mate (otwiera lub zamyka asystenta) |
+| Ogólne | ? | Pokaż skróty klawiszowe |
+| Ogólne | Cmd/Ctrl+\ | Pokaż lub ukryj pasek boczny |
+| Nawigacja | G, a potem D, I, K, R, C | Pulpit, Skrzynka odbiorcza, Baza wiedzy, Rutyny, Model danych |
+| Nawigacja | G, a potem S | Ustawienia |
+| Nawigacja | G, a potem W | Przełącz przestrzeń roboczą, gdy należysz do więcej niż jednej |
+| Tworzenie | C | Dodaj rekord lub listę |
+| Listy i widoki | G, a potem 1 do 9 | Listy według ich pozycji na twoim pasku bocznym; ukryte listy są pomijane |
+| Listy i widoki | V | Przełącz widok na liście lub Pulpicie |
+| Listy i widoki | F | Otwórz wyszukiwanie i filtry na liście |
+| Formularze | Cmd/Ctrl+Enter | Zapisz otwarty formularz |
+| Formularze | Esc | Zamknij najwyższe okno lub panel |
+
+Po G masz około sekundy na drugi klawisz; podpowiedź pokazuje, że aplikacja czeka. Skróty do stron, których twoja rola nie może otworzyć, są pomijane. Wyszukiwanie wyświetla te same polecenia z ich klawiszami: **Zapytaj Mate** na górze, widoki listy, na której jesteś, strony, **Dodaj** i, gdy masz więcej niż jedną przestrzeń roboczą, **Przełącz przestrzeń roboczą…**. Jeśli używasz wprowadzania głosowego albo przypadkowo naciskasz klawisze, wyłącz **Skróty jednoklawiszowe** na dole okna skrótów; skróty z Cmd/Ctrl nadal działają. Ustawienie jest osobiste i podąża za tobą na każde urządzenie.
+
+## Co dzieje się przy pierwszym uruchomieniu? [#what-happens-on-first-run]
+
+Nowe konta przechodzą przez [kreator wdrożenia](/docs/app-onboarding), zanim zobaczą Pulpit: twój profil, Baza wiedzy, zaproszenia zespołu i połączenie klienta AI. Właściciel może pominąć import strony internetowej, zaproszenia i połączenie AI; zaproszeni członkowie widzą tylko swój profil.
+
+## Dla agentów [#tips-for-agents]
+
+Twórz i zmieniaj widżety przez `manage_widgets` zamiast sterować edytorem; obsługuje te same opcje co aplikacja. Odczytaj widżet przed aktualizacją, ponieważ podany obiekt `measure` lub `displayOptions` zastępuje cały obiekt, i przekaż aktualne `expectedRevision`, `idempotencyKey` oraz, przy aktualizacjach, `expectedVersion`. Szereg czasowy ustawia `groupBy.dateInterval` i strefę IANA `groupBy.timeZone`; osie czasu używają `activityQuery`, widżety kalendarza `calendarQuery` (`layout` `upcoming` lub `month`, pole daty, strefa IANA `timeZone`), a mapy `mapQuery` (pole adresu plus opcjonalne pola koloru, wielkości i szczegółów). `get` odczytuje widżet kalendarza dla innego `window` do 42 dni, takiego jak jeden miesiąc lub jeden dzień. Rodzaju widżetu nie można zmienić. Opcjonalny `layout` umieszcza widżet w tym samym wywołaniu: `x` i `w` liczą kolumny 12-kolumnowej siatki, `y` i `h` liczą wiersze po 54 px. Widżety wykresów i Liczba wymagają `h` co najmniej 2, oś czasu aktywności `w` co najmniej 2 i `h` co najmniej 6, kalendarz `w` co najmniej 2 i `h` co najmniej 5, mapa `w` co najmniej 3 i `h` co najmniej 5, a nakładające się pozycje są odrzucane. Puste wiersze między widżetami są dozwolone; pulpit przesuwa widżety w górę, w ich miejsce. `get_calendars` odczytuje wydarzenia kalendarza. Dokładne schematy są w [katalogu MCP](/docs/mcp#tool-catalog).
+
+## Które punkty końcowe REST zarządzają widżetami? [#widget-rest-endpoints]
+
+Przez REST `POST /api/v1/widgets/list` zwraca każdy widżet ze wszystkich twoich widoków pulpitu wraz z jego `viewId` i układem, `POST /api/v1/widgets/save` tworzy lub aktualizuje jeden, `POST /api/v1/widgets/layout` przesuwa i zmienia rozmiar kilku naraz, a `POST /api/v1/widgets/delete` przenosi jeden do Kosza. Aby utworzyć oś czasu, kalendarz lub mapę przez `widgets/save`, wyślij `kind: "activityTimeline"`, `"calendar"` lub `"map"`; bez `kind` nowy widżet jest wykresem, aktualizacja może pominąć ustawienia, które pozostają bez zmian, a inny `kind` przy aktualizacji jest odrzucany z `widgetKindImmutable`. `POST /api/v1/widgets/read` zwraca jeden widżet z jego bieżącymi wynikami; dla widżetu kalendarza przyjmuje też `window` z `from` i `to`. Widoki pulpitu to zapisane widoki powierzchni `dashboard` pod `/api/v1/data-views/`.
+
+## Powiązane [#related]
+
+- [Szybki start](/docs/quickstart)
+- [Przewodnik po aplikacji, Rekordy](/docs/app-records)

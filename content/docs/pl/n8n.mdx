@@ -1,0 +1,91 @@
+---
+title: "Połącz n8n z Customermates: webhooki i REST API"
+heading: "Twórz workflow Customermates w n8n"
+description: "Twórz w n8n wizualne workflow na podstawie zdarzeń rekordów CRM i API rekordów: węzeł Webhook, żądania HTTP, MCP oraz zadania według harmonogramu."
+---
+
+Połącz n8n z węzłem Webhook dla zmian w CRM i z węzłami HTTP Request dla REST API Customermates; endpoint MCP jest przeznaczony dla klientów JSON-RPC. [Węzeł społeczności Customermates](https://github.com/customermates/n8n-nodes-crm) (`@customermates/n8n-nodes-crm`) obsługuje konfigurowalne API rekordów od wersji 2.0.0; zaktualizuj starsze instalacje, zanim zaczniesz używać jego operacji CRM.
+
+## Kiedy sprawdza się n8n? [#when-does-n8n-fit]
+
+n8n sprawdza się, gdy twój zespół woli wizualne przepływy od kodu, gdy zdarzenia rekordów trzeba przekształcić, zanim trafią do innej usługi, albo gdy n8n już działa u ciebie przy innych automatyzacjach. Do konwersacyjnej pracy z CRM użyj [MCP](/docs/mcp) obok n8n albo zamiast niego.
+
+## Jak uruchomić n8n po zmianach w CRM? [#how-do-i-trigger-n8n-from-crm-changes]
+
+<Steps>
+<Step title="Dodaj węzeł Webhook w n8n">
+Skopiuj wygenerowany adres URL.
+</Step>
+<Step title="Zasubskrybuj w Customermates">
+Otwórz [Webhooki](app:settings/webhooks), kliknij [Dodaj](app:settings/webhooks?focus=add) i wklej adres URL. W sekcji **Zdarzenia** wybierz **Rekord utworzony**, **Rekord zaktualizowany** lub **Rekord przeniesiony do Kosza**, a potem wskaż listę i opcjonalne filtry do obserwowania. Dodaj **Tajny klucz** i kliknij **Zapisz**. Utworzenie webhooka wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki**.
+</Step>
+<Step title="Obsłuż ładunek">
+Zweryfikuj podpis, a potem w kolejnych krokach używaj identyfikatora zdarzenia i stabilnego odwołania `typeId`/`recordId` z ładunku zdarzenia rekordu.
+</Step>
+</Steps>
+
+W [węźle społeczności Customermates](https://github.com/customermates/n8n-nodes-crm) jego **Customermates Trigger** tworzy tę subskrypcję webhooka za ciebie, gdy workflow zostaje aktywowany (opublikowany).
+
+[Webhooki](/docs/webhooks) opisują ładunki, ponowienia i weryfikację podpisu. Dostawy mogą docierać w innej kolejności lub się powtarzać; deduplikuj według identyfikatora zdarzenia.
+
+## Od kiedy wyzwalacz zaczyna odbierać zdarzenia? [#when-does-a-trigger-start-receiving-events]
+
+Od n8n 2.x aktywacja kończy się, zanim n8n skończy konfigurować wyzwalacz. Subskrypcja zwykle istnieje w ciągu sekundy, a zmiany wykonane wcześniej nie są dostarczane później. Jeśli coś aktywuje workflow i od razu tworzy rekordy, poczekaj najpierw, aż `GET /rest/workflows/{id}/publication-status` w n8n zwróci `published`, albo aż subskrypcja pojawi się w [Webhooki](app:settings/webhooks). Samodzielnie hostowane n8n może przywrócić aktywację z oczekiwaniem przez `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false`.
+
+## Jak tworzyć, odczytywać, aktualizować lub usuwać rekordy z n8n? [#how-do-i-write-to-customermates-from-n8n]
+
+Użyj węzła **HTTP Request** z poświadczeniem `x-api-key` i JSON zgodnym ze [specyfikacją OpenAPI](/docs/openapi). Trasy rekordów działają dla każdej listy w twojej przestrzeni roboczej:
+
+| Cel | Metoda i ścieżka |
+|---|---|
+| Znajdź listy po nazwie | `POST /api/v1/model/discover` |
+| Odczytaj pola, relacje i stabilne identyfikatory | `POST /api/v1/model/read` |
+| Zapytaj o rekordy lub je wyszukaj | `POST /api/v1/records/query` lub `POST /api/v1/records/search` |
+| Odczytaj jeden rekord | `POST /api/v1/records/read` |
+| Utwórz, zaktualizuj, usuń, powiąż lub rozłącz | `POST /api/v1/records/mutate` |
+| Wyświetl podgląd usunięcia | `POST /api/v1/records/preview-deletion` |
+| Eksportuj (JSON lub XLSX) albo importuj | `POST /api/v1/records/export` lub `POST /api/v1/records/import` |
+| Wyświetl, przywróć lub trwale usuń elementy Kosza | `POST /api/v1/trash/query`, `POST /api/v1/trash/restore`, `POST /api/v1/trash/preview`, `POST /api/v1/trash/delete-permanently` lub `POST /api/v1/trash/empty` |
+| Wyświetl podgląd zmiany konfiguracji lub ją zastosuj | `POST /api/v1/model/preview` lub `POST /api/v1/model/apply` |
+| Zagreguj wartości do raportu | `POST /api/v1/reports/query` |
+| Śledź, anuluj lub wznów oczekującą operację | `POST /api/v1/operations/status`, `POST /api/v1/operations/cancel` lub `POST /api/v1/operations/resume` |
+
+**Zmiana niezgodna wstecz:** te trasy zastąpiły dawne endpointy przypisane do poszczególnych encji, które zostały usunięte. Zaktualizuj węzły HTTP Request, które nadal wywołują endpoint kontaktu, organizacji, szansy sprzedaży, usługi lub zadania.
+
+**Zmiana niezgodna wstecz:** e-mail i telefon nie są już typami pól. Po zainstalowaniu aktualizacji danych kontaktowych każde dawne pole E-mail lub Telefon trafia do pola danych kontaktowych swojej listy (typ pola Telefon, e-mail i social media, typ wartości `channels`): stary identyfikator pola znika z rekordów, modelu rekordów, eksportów i zdarzeń webhooków, a jego adresy i numery są odczytywane i zapisywane jako `identities` rekordu, z `provider` równym `mail` lub `phone` oraz adresem lub numerem jako `value`. Zaktualizuj workflow n8n, węzły HTTP Request i innych klientów REST, które odczytują, filtrują lub zapisują stare identyfikatory pól: wysyłaj `identities` w mutacji `create` lub `update` trasy `POST /api/v1/records/mutate`, z tożsamościami do zachowania, a odczytuj je z `identities` w odpowiedziach z rekordami i z `data.record.identities` w zdarzeniach webhooków. Pole, którego nie udało się przenieść, pozostaje polem Tekst ze swoim identyfikatorem, na przykład takie, które wymienia szablon treści webhooka.
+
+Bazowy adres URL to adres, pod którym otwierasz Customermates. Mutacja zawiera stabilny `typeId`, klucz idempotentności i oczekiwaną rewizję konfiguracji; aktualizacje i usunięcia zawierają też odwołanie do rekordu i oczekiwaną wersję. Pola są typowanymi przypisaniami, a powiązania wskazują definicję relacji. Usunięcie może wymagać skrótu aktualnego podglądu skutków. Kształty zapytań znajdziesz w [składni filtrów](/docs/filter-syntax).
+
+## Jak wywoływać narzędzia MCP z n8n? [#how-do-i-call-mcp-tools-from-n8n]
+
+Wyślij `POST <BASE_URL>/api/v1/mcp` z `Content-Type: application/json`, `Accept: application/json, text/event-stream` i swoim poświadczeniem `x-api-key`. Na przykład, aby odkryć typy rekordów:
+
+```json
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"discover_record_types","arguments":{}}}
+```
+
+Wynik może nadejść jako zdarzenie wysyłane przez serwer (server-sent event); przetwórz linię `data:` z JSON-RPC. Odmowa narzędzia ma `result.isError: true`, a argumenty spoza schematu narzędzia są odrzucane przed wykonaniem. Użyj `get_record_model`, aby odczytać identyfikatory, `query_crm_records`, aby zapytać o rekordy, i `mutate_crm_record`, aby zmienić rekord lub powiązanie. Zobacz [katalog MCP](/docs/mcp#tool-catalog).
+
+## Jak uruchamiać zadania według harmonogramu? [#how-do-i-run-scheduled-jobs]
+
+Wyzwalacz harmonogramu w n8n razem z API rekordów może znaleźć rekordy pasujące do zapisanego zapytania, wyeksportować je albo zastosować zweryfikowaną mutację. [Rutyna Customermates](/docs/app-routines) może natomiast uruchamiać Mate według harmonogramu wewnątrz produktu. Etapy szans sprzedaży, priorytety zadań i twoje własne listy to konfiguracja przestrzeni roboczej; odkryj ich identyfikatory, zanim zaczniesz filtrować lub zapisywać.
+
+## Jak działa uwierzytelnianie? [#how-does-authentication-work]
+
+Otwórz [Klucze API i konektory](app:settings/api-keys) i utwórz klucz przez [Dodaj](app:settings/api-keys?focus=generate). Zapisz go jako poświadczenie **Header Auth** w n8n o nazwie `x-api-key` i używaj tego poświadczenia we wszystkich węzłach. Klucz działa z uprawnieniami swojego właściciela. Błędny, wygasły lub usunięty klucz kończy się błędem uwierzytelniania, a klucz nieaktywnego właściciela nie może działać. Zobacz [Klucze API](/docs/api-keys).
+
+## Jakie są najczęstsze pułapki? [#what-are-the-common-gotchas]
+
+- **Relacje:** użyj `mutate_crm_record` z `link` lub `unlink`; nie wysyłaj starszych tablic, takich jak `organizationIds`.
+- **Ponowienia:** użyj tego samego klucza idempotentności dla dokładnie tego samego ładunku mutacji. Zmieniony ładunek wymaga nowego klucza.
+- **Webhooki:** dostawy nie są ściśle uporządkowane ani dostarczane dokładnie raz. Deduplikuj według identyfikatora zdarzenia, a do ustalenia kolejności użyj znacznika czasu z ładunku.
+
+## Czy n8n działa w planie Free? [#n8n-on-the-free-plan]
+
+Wyzwalacz n8n potrzebuje webhooka, więc nie działa, dopóki przestrzeń robocza w Customermates Cloud jest w planie Free: utworzenie subskrypcji jest odrzucane z ceną planu Starter w komunikacie, a istniejący wyzwalacz nic nie otrzymuje, dopóki przestrzeń robocza nie wybierze planu płatnego. Akcje, które odczytują lub zapisują rekordy, przechodzą przez REST API i wliczają się do limitu żądań planu Free wynoszącego [[commercial.limit.free.apiRequestsPerMinute]] na minutę i [[commercial.limit.free.apiRequestsPerDay]] na dobę. Instalacje hostowane samodzielnie nie mają takiego limitu.
+
+## Dalej [#next]
+
+- [Webhooki](/docs/webhooks): ładunki zdarzeń i dostarczanie.
+- [OpenAPI](/docs/openapi): kontrakty REST.
+- [MCP](/docs/mcp): wywołania AI i narzędzi.

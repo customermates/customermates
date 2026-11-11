@@ -1,0 +1,99 @@
+---
+title: "Składnia filtrów dla zapytań o rekordy CRM"
+description: "Typowane filtry pól i relacji dla konfigurowalnego modelu rekordów CRM, z operatorami, przykładami zapytań oraz zastosowaniem w MCP i w REST."
+---
+
+Listy CRM, zapisane widoki, widżety, zapytania REST i narzędzie MCP `query_crm_records` używają tego samego modelu zapytań o rekordy. Typ znajdziesz za pomocą `discover_record_types`, a jego stabilne identyfikatory pól i relacji odczytasz przez `get_record_model`. Każda lista ma ten sam kształt zapytania, niezależnie od tego, czy utworzyło ją AI podczas konfiguracji przestrzeni roboczej, czy człowiek. Narzędzia wiadomości mają osobne filtry.
+
+## Gdzie działają filtry? [#where-do-filters-apply]
+
+Zapytanie o rekordy wskazuje jeden `typeId`. Jego `filters` sprawdzają pola tego typu; `relationships` sprawdzają powiązane rekordy; `relatedFilters` idą ścieżką zadeklarowanej relacji. Reguły w każdej tablicy są łączone przez AND. `search` szuka tekstu we wszystkich czytelnych polach, które można przeszukiwać. Backend stosuje do każdego zapytania i każdej ścieżki relacji uprawnienia przestrzeni roboczej i rekordów.
+
+## Jak przefiltrować listę w aplikacji? [#how-do-i-filter-a-list-in-the-app]
+
+Otwórz listę, na przykład listę szans sprzedaży, i kliknij **Filtry** na jej pasku narzędzi. Wybierz pole w sekcji **Filtruj według** albo wpisz jego nazwę w **Dodaj filtr…**; są tam też listy powiązane, takie jak lista organizacji. Wybierz warunek, potem wartości, a lista od razu się odświeży. Aktywne filtry pojawiają się na górze jako chipy; usuń jeden za pomocą jego ×, a wszystkie przyciskiem **Wyczyść**. **Zapytaj Mate** w tym samym oknie zamienia opis napisany własnymi słowami na filtry. Każda lista działa tak samo, a zapisany widok pokazuje te same rekordy, zamiast ich kopiować.
+
+## Jak wygląda reguła filtru i czy mogę łączyć reguły przez OR? [#what-does-a-filter-rule-look-like]
+
+Każdy filtr pola ma stabilne `fieldId`, `operator`, typowaną skalarną wartość `value` (lub `null`) oraz opcjonalnie `values` dla operatorów zbioru lub zakresu. Na przykład:
+
+```json
+{
+  "typeId": "00000000-0000-4000-8000-000000000001",
+  "filters": [
+    {
+      "fieldId": "00000000-0000-4000-8000-000000000002",
+      "operator": "contains",
+      "value": { "kind": "text", "value": "Acme" }
+    }
+  ]
+}
+```
+
+Użyj `in`, aby dopasować dowolną z kilku wartości jednego pola. Aby wyrazić OR między różnymi polami, uruchom osobne zapytania albo użyj odpowiedniego zapytania o powiązane rekordy; zwykła tablica filtrów jest łączona przez AND. Zapytanie przyjmuje do 50 reguł pól i 500 znaków w `search`.
+
+## Jakie operatory istnieją? [#which-operators-exist]
+
+Kontrakt zapytania o rekordy obsługuje 16 operatorów pól. O tym, które z nich są dozwolone, decydują typ i zachowanie pola; backend odrzuca niezgodne kombinacje.
+
+| Operatory | Znaczenie |
+|---|---|
+| `eq`, `ne` | Równe lub różne od jednej typowanej wartości |
+| `contains`, `startsWith` | Dopasowanie tekstu bez rozróżniania wielkości liter; `contains` sprawdza też, czy data mieści się w zakresie |
+| `gt`, `gte`, `lt`, `lte` | Porównanie uporządkowane dla obsługiwanych liczb i dat |
+| `in`, `notIn` | Przynależność do `values`, co najwyżej 100 typowanych wartości |
+| `all` | Tylko pola wielokrotnego wyboru: rekord zawiera każdą opcję z `values` |
+| `between` | Domknięty przedział dat podany jako dwie wartości |
+| `inLastDays`, `notInLastDays` | Okno względne z dodatnią, całkowitą liczbą dni; `notInLastDays` dopasowuje wartości ściśle wcześniejsze niż to okno |
+| `empty`, `notEmpty` | Brak wartości lub jej obecność; `value` to `null` |
+
+`eq` na tekście jest dokładne; `contains` i `startsWith` ignorują wielkość liter. Porównania walut wymagają zgodnej waluty. Wartości brakujące, zerowe, ograniczone i z błędem obliczeń to różne przypadki; ograniczony wynik nie pozwala wnioskować o ukrytych danych wejściowych przez filtrowanie ani sortowanie.
+
+### Jakie operatory dat istnieją, na przykład dla ostatnich 7 dni? [#which-date-operators-exist]
+
+Pola daty i daty z godziną obsługują odpowiednie porównania uporządkowane oraz `between`. Daty systemowe używają `system:createdAt` i `system:updatedAt` jako identyfikatorów pól. `inLastDays` i `notInLastDays` przyjmują skalar dziesiętny bez waluty, na przykład `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` obejmuje wartości od północy UTC sprzed N dni względem zegara zapytania; `notInLastDays` (**Starsze niż…** w aplikacji) dopasowuje wartości ściśle wcześniejsze niż ta granica, więc `notInLastDays` 3 razem z `inLastDays` 7 znajdzie wartości sprzed od trzech do siedmiu dni. Okna względne używają zegara zapytania; zapisane obliczenia nie zmieniają się po cichu wraz z upływem czasu.
+
+### Jakie operatory działają na polach tekstowych? [#which-operators-work-on-text-fields]
+
+Pola tekstowe i URL obsługują operatory tekstowe odpowiednie dla ich typu wartości. Numery telefonów i adresy e-mail znajdują się w polu danych kontaktowych listy (typ wartości `channels`, w aplikacji **Telefon, e-mail i social media**), które obsługuje `contains`, `startsWith`, `empty` i `notEmpty` na swoich identyfikatorach, ale nie można go sortować ani grupować; wyszukiwanie na liście też je przeszukuje, więc wpisanie numeru lub adresu znajduje jego rekord. Pole przechowujące wiele wartości jest przeszukiwane element po elemencie. W terminach wyszukiwania znaki procentu i podkreślenia są traktowane dosłownie, a nie jak symbole wieloznaczne SQL.
+
+### Jakie operatory relacji istnieją, na przykład aby znaleźć kontakty bez organizacji? [#which-relationship-operators-exist]
+
+Filtry relacji są oddzielone od filtrów pól. Podaj `relationId`, `direction` (`outgoing` lub `incoming`), `operator` (`any` lub `none`) i `recordIds`. Ustaw `recordIds` na `null`, aby objąć dowolny dostępny powiązany rekord, albo na konkretne identyfikatory, aby sprawdzić wybrane rekordy. Filtr `none` z `recordIds: null` znajduje rekordy bez dostępnego powiązania w tej relacji. Definicja relacji określa typy końców i krotność.
+
+### Jak filtrować po polu własnym i jakie operatory na nim działają? [#which-operators-work-on-custom-columns]
+
+Użyj identyfikatora pola z `get_record_model`, nigdy jego edytowalnej etykiety. Pole wejściowe, formuły, wyszukiwania (lookup) lub zestawienia (rollup) można filtrować, gdy jego typ wartości obsługuje dany operator, a czytający ma dostęp do wartości. Filtry pól wyboru używają stabilnych identyfikatorów opcji. Pole wielokrotnego wyboru przyjmuje `in` (ma którąkolwiek z opcji), `all` (ma wszystkie), `notIn` (nie ma żadnej, łącznie z rekordami bez wartości), `empty` i `notEmpty`; nie można go sortować. Ta sama zasada dotyczy pól każdej listy.
+
+## Jakich nazw pól mogę używać? [#which-field-names-can-i-use]
+
+Używaj stabilnych identyfikatorów pól z `get_record_model`. Klucze systemowe `system:createdAt`, `system:updatedAt` i `system:assignedTo` są dostępne tam, gdzie są obsługiwane. Relacje używają w `relationships` identyfikatorów swoich definicji, a nie nazw takich jak `organizationIds`. Pole, typ lub relacja po zmianie nazwy zachowują swój identyfikator, więc zapisane widoki i zapytania AI nadal działają.
+
+Listy skrzynki odbiorczej udostępniają też `connectedAccountId`, zależny od konta `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` i `lastMessageAt`. Najpierw wywołaj `get_messaging_threads` bez filtrów (albo `manage_data_views` z `action: "config"`, powierzchnią Skrzynka odbiorcza i `section: "filters"`), a potem skopiuj dokładną wartość `filterableFields.options[].value` dla konta lub folderu. `emailFolder` przyjmuje `in` i `notIn`; każde odwołanie do folderu zawiera jego konto. Opcje folderów dostarczają `groupKey` (tożsamość konta) i `groupLabel` (nagłówek), dzięki czemu powstają osobne grupy nawet wtedy, gdy dwa konta mają tę samą nazwę wyświetlaną. `lastMessageDirection` przyjmuje `inbound`/`outbound` z `in`/`notIn` i pomija szkice, ukryte lub usunięte wiadomości oraz zdarzenia systemowe. `lastMessageSentAt` stosuje filtry dat do tej samej ostatniej faktycznej wiadomości. Połącz na tym polu `notInLastDays` z wartością 3 i `inLastDays` z wartością 7, aby znaleźć wiadomości sprzed od trzech do siedmiu dni; można je łączyć z filtrami konta, folderu i kierunku. `lastMessageAt` filtruje ostatnią aktywność i obejmuje aktywność związaną ze szkicami. Zobacz [filtry skrzynki odbiorczej](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
+
+## Przykłady [#examples]
+
+Kontakty powiązane z określoną organizacją:
+
+```json
+{
+  "relationships": [{
+    "relationId": "00000000-0000-4000-8000-000000000003",
+    "direction": "outgoing",
+    "operator": "any",
+    "recordIds": ["00000000-0000-4000-8000-000000000004"]
+  }]
+}
+```
+
+Rekordy bez żadnego dostępnego powiązania w tej relacji używają `"operator":"none"` i `"recordIds":null`. Dla pola daty sprzed lipca 2024 użyj typowanej wartości `date` z `lt`. Dla pola wyboru użyj `in` i identyfikatorów jego opcji w `values`. Połącz te warunki w jednym zapytaniu, aby wymagać obu.
+
+## Użyć searchTerm (wyszukiwania pełnotekstowego) czy filtru? [#free-text-search-or-a-filter]
+
+Użyj `search`, gdy fraza może znajdować się w dowolnym czytelnym polu tekstowym, które można przeszukiwać. Obecne zapytanie o rekordy nazywa tę właściwość `search`; starsze API encji nazywały ją `searchTerm`. Użyj `filters`, gdy liczy się dokładne pole lub porównanie. Wyszukiwanie i filtry są łączone przez AND. Dane kontaktowe mogą brać udział w wyszukiwaniu tylko w typie z chronioną funkcją tożsamości osoby i przy odpowiednim dostępie czytającego.
+
+## Dalej [#next]
+
+- [Podstawowe pojęcia](/docs/concepts): skonfigurowane pola i relacje.
+- [Katalog narzędzi MCP](/docs/mcp#tool-catalog): `query_crm_records` i odkrywanie schematu.
+- [Rekordy CRM](/docs/app-records): filtry list i zapisane widoki.
