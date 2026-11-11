@@ -212,6 +212,9 @@ describe("hosted AI pricing contract", () => {
       es: "El uso de Mate se indica como múltiplo de la asignación de Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) y se renueva cada mes; el uso no consumido no se acumula. Cada consulta cuenta su coste exacto del proveedor. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden contar para el uso de Mate.",
       fr: "L’usage Mate est exprimé en multiple de l’allocation Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) et se renouvelle chaque mois\u00a0; l’usage non consommé n’est pas reporté. Chaque demande compte son coût exact chez le fournisseur. Les clients MCP externes facturent les modèles via votre propre fournisseur d’IA. Les recherches sémantiques côté serveur peuvent compter dans l’usage Mate.",
       it: "L'utilizzo di Mate è espresso come multiplo della dotazione Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e si rinnova ogni mese; l'utilizzo non consumato non viene trasferito al mese successivo. Ogni richiesta conta il suo costo esatto presso il provider. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono contare nell'utilizzo di Mate.",
+      pt: "O uso do Mate é exibido como múltiplo da cota do Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) e é renovado todo mês; o uso não consumido não é acumulado. Cada solicitação conta pelo custo exato do provedor. Clientes MCP externos cobram o uso do modelo por meio do seu próprio provedor de IA. Buscas semânticas no servidor podem contar para o uso do Mate.",
+      pl: "Użycie Mate jest pokazywane jako wielokrotność puli planu Starter (Starter 1x, Pro 3x, Business 10x, Max 20x) i odnawia się co miesiąc; niewykorzystane użycie nie przechodzi na kolejny okres. Każde zapytanie liczy się według dokładnego kosztu u dostawcy. Zewnętrzni klienci MCP rozliczają użycie modeli przez Twojego własnego dostawcę AI. Wyszukiwania semantyczne po stronie serwera mogą wliczać się do użycia Mate.",
+      nl: "Mate-gebruik wordt getoond als een veelvoud van het Starter-tegoed (Starter 1x, Pro 3x, Business 10x, Max 20x) en wordt maandelijks vernieuwd; ongebruikt tegoed wordt niet overgedragen. Elk verzoek telt mee met de exacte kosten van de provider. Externe MCP-clients rekenen het modelgebruik af via je eigen AI-provider. Semantische zoekopdrachten aan de serverkant kunnen meetellen voor het Mate-gebruik.",
     });
     const catalogMultipliers = PURCHASABLE_PLAN_IDS.map(
       (plan) => `${PLAN_CATALOG_NAMES[plan]} ${PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier}x`,
@@ -220,7 +223,7 @@ describe("hosted AI pricing contract", () => {
     expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/annual(?:ly)? billing|billed annually/i);
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/jährliche(?:n|r)? Abrechnung/i);
     expect(Object.values(subscriptionCreditNotes).join("\n")).not.toMatch(
-      /annual(?:ly)? billing|billed annually|jährliche(?:n|r)? Abrechnung|facturación anual|facturation annuelle|fatturazione annuale/i,
+      /annual(?:ly)? billing|billed annually|jährliche(?:n|r)? Abrechnung|facturación anual|facturation annuelle|fatturazione annuale|cobrança anual|faturamento anual|rozliczenie roczne|roczne rozliczenie|jaarlijkse facturering/i,
     );
     expect(`${pricingEn}\n${assistantEn}`).not.toMatch(/billing[- ]anniversary/i);
     expect(`${pricingDe}\n${assistantDe}`).not.toMatch(/Abrechnungs(?:stichtag|jubiläum)/i);

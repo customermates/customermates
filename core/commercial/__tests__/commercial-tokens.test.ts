@@ -73,7 +73,7 @@ describe("commercial content tokens", () => {
       "Invalid",
     );
     expect(() => resolveCommercialTokens("[[commercial.price.pro.monthly", "en")).toThrow("Malformed");
-    expect(() => contentLocaleFromPath("content/pricing/es/pricing.mdx")).toThrow("Cannot resolve");
+    expect(() => contentLocaleFromPath("content/pricing/ja/pricing.mdx")).toThrow("Cannot resolve");
   });
 
   it("derives the content locale from localized source paths", () => {

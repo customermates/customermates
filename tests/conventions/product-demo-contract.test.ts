@@ -81,6 +81,54 @@ const INLINE_PAGE_DEMOS: readonly PageDemo[] = [
     precedingCopy: "## Dove si colloca Customermates",
     hostedBoundary: true,
   },
+  {
+    file: "content/blog-posts/es/open-source-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Dónde encaja Customermates",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/es/free-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Dónde encaja Customermates",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/pt/open-source-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Onde o Customermates se encaixa",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/pt/free-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Onde o Customermates se encaixa",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/pl/open-source-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Gdzie pasuje Customermates",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/pl/free-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Gdzie pasuje Customermates",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/nl/open-source-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Waar Customermates past",
+    hostedBoundary: true,
+  },
+  {
+    file: "content/blog-posts/nl/free-crm.mdx",
+    path: "/dashboard",
+    precedingCopy: "## Waar Customermates past",
+    hostedBoundary: true,
+  },
 ];
 
 function read(relativePath: string): string {

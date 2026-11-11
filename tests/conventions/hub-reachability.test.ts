@@ -530,8 +530,14 @@ describe("hub pagination and rendered reachability", () => {
         hubModule.generateStaticParams({ params: { locale: "en" } }),
         `${hubPath} static params`,
       ).toEqual(hubPageStaticParams(pageCount));
+      for (const locale of CONTENT_LOCALES) {
+        expect(
+          hubModule.generateStaticParams({ params: { locale } }),
+          `${hubPath} ${locale} content locale`,
+        ).toEqual(hubPageStaticParams(pageCount));
+      }
       expect(
-        hubModule.generateStaticParams({ params: { locale: "es" } }),
+        hubModule.generateStaticParams({ params: { locale: "ja" } }),
         `${hubPath} app-only locale`,
       ).toEqual([]);
       await expect(

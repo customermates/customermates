@@ -202,8 +202,12 @@ describe("alternate languages", () => {
     expect(buildAlternateLanguages("/blog?page=2", CONTENT_LOCALES, BASE_URL)).toEqual({
       de: `${BASE_URL}/de/blog?page=2`,
       en: `${BASE_URL}/en/blog?page=2`,
+      es: `${BASE_URL}/es/blog?page=2`,
       fr: `${BASE_URL}/fr/blog?page=2`,
       it: `${BASE_URL}/it/blog?page=2`,
+      nl: `${BASE_URL}/nl/blog?page=2`,
+      pl: `${BASE_URL}/pl/blog?page=2`,
+      pt: `${BASE_URL}/pt/blog?page=2`,
       "x-default": `${BASE_URL}/en/blog?page=2`,
     });
   });

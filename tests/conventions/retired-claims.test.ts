@@ -30,7 +30,7 @@ type RetiredClaim = {
 };
 
 const DENIED =
-  /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine)|non|nessun\w*|senza)\b/iu;
+  /\b(?:no|not|without|does not|do not|has no|is not|isn['’]t|weder|kein\w*|keine\w*|nicht|ohne|gibt es (?:nicht|keine)|non|nessun\w*|senza|sin|ning[uú]n\w*|ninguna?|sem|n[ãa]o|nenhum\w*|bez|nie|brak|geen|niet|zonder)\b/iu;
 const EXTERNAL =
   /\b(?:external|separate|customer[- ]run|customer[- ]operated|extern\w*|separat\w*|kundenseitig|selbst betrieben)\b/iu;
 const CONTRASTED =
@@ -640,6 +640,16 @@ describe("retired claims stay retired", () => {
         "Customermates has no native Slack integration; connect it through webhooks.",
       ),
     ).toEqual([]);
+  });
+
+  it.each([
+    ["es", "Sin integración nativa con Slack ni reserva de calendario.", "Integración nativa con Slack incluida."],
+    ["pt", "Não há integração nativa com o Slack.", "Integração nativa com o Slack incluída."],
+    ["pl", "Plików Google Sheets nie importujesz bezpośrednio.", "Import z Google Sheets jest dostępny."],
+    ["nl", "Er is geen native Slack-integratie, dus n8n is de route.", "Native integratie met Slack is inbegrepen."],
+  ])("accepts a denial of a retired claim in %s and still flags an affirmative one", (locale, denied, affirmed) => {
+    expect(findViolationsInSource(`content/features/${locale}/example.mdx`, denied)).toEqual([]);
+    expect(findViolationsInSource(`content/features/${locale}/example.mdx`, affirmed)).toHaveLength(1);
   });
 
   it("attributes mixed prose and tables only to Customermates", () => {

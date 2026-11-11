@@ -1066,7 +1066,7 @@
       "inAYear": "Over een jaar",
       "next7Days": "Volgende 7 dagen",
       "next30Days": "Volgende 30 dagen",
-      "nextMonth": "Volgende maand",
+      "nextMonth": "Komende maand",
       "startTime": "Starttijd",
       "thisMonth": "Deze maand",
       "today": "Vandaag"
@@ -2276,7 +2276,7 @@
     "boardMoveTarget": "Record verplaatsen naar {group}.",
     "boardPickedUp": "Record opgepakt.",
     "calendar": {
-      "colorField": "Kleur op basis van",
+      "colorField": "Kleur per",
       "createOn": "Nieuw record op {date}",
       "dateField": "Datumveld",
       "emptyRange": "Er staat niets gepland in deze periode.",
@@ -4663,7 +4663,7 @@
     "sublistColumns": "Kolommen voor {list}",
     "sublistColumnsSection": "Kolommen",
     "sublistSentence": "Sublijst van {list} · elk item hoort bij één {parent}, deelt de toegang ervan en wordt er samen mee verwijderd.",
-    "suggestedAttribute": "Voorgesteld",
+    "suggestedAttribute": "Suggestie",
     "summaryAggregation": "Berekening",
     "summaryApprovalRequired": "Deze samenvatting is gepubliceerd. Een beheerder moet wijzigingen in de invoer van de berekening goedkeuren.",
     "summaryField": "Samenvattingsveld",

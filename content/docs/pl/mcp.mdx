@@ -408,19 +408,19 @@ Członkowie zespołu z id, name, email, roleId i status. Gdy rola wywołującego
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Odkrywa, przegląda, tworzy, aktualizuje, wybiera, resetuje i usuwa Twoje zapisane widoki, udostępnia jeden tylko do odczytu przestrzeni roboczej lub wybranym rolom oraz publikuje przez link publiczny pulpit lub widok listy, który należy do ciebie; wymaga to uprawnienia Linki publiczne i zezwolenia na linki publiczne w przestrzeni roboczej. Najpierw odkryj surfaceKey; ogólne powierzchnie rekordów używają stabilnych identyfikatorów typów. Aktualizacje zmieniają tylko podane ustawienia; grupowanie może mieć do 8 podsumowań (suma, średnia, minimum lub maksimum pola liczbowego lub walutowego). Listy rekordów z polem daty oferują też układ kalendarza: viewMode calendar z polami daty, opcjonalnej daty końca i koloru oraz trybem miesiąca, tygodnia lub agendy. Reset usuwa Twoje nadpisania, więc lista pokazuje wszystkie pola w skonfigurowanej kolejności jako tabelę bez grupowania, bez zmiany rekordów. Usunięcie widoku wymaga jego dokładnej bieżącej nazwy i identyfikatora; niezgodność zwraca konkretny błąd, a nieznany identyfikator zwraca not found. Usunięcie przenosi go do Kosza (widok pulpitu zabiera ze sobą swoje widżety), nigdy jego rekordy. Listy konfiguracji i widoków są stronicowane i przeszukiwalne.
+Odkrywa, przegląda, tworzy, aktualizuje, wybiera, resetuje i usuwa twoje zapisane widoki, udostępnia jeden tylko do odczytu przestrzeni roboczej lub wybranym rolom oraz publikuje przez link publiczny pulpit lub widok listy, który należy do ciebie; wymaga to uprawnienia Linki publiczne i zezwolenia na linki publiczne w przestrzeni roboczej. Najpierw odkryj surfaceKey; ogólne powierzchnie rekordów używają stabilnych identyfikatorów typów. Aktualizacje zmieniają tylko podane ustawienia; grupowanie może mieć do 8 podsumowań (suma, średnia, minimum lub maksimum pola liczbowego lub walutowego). Listy rekordów z polem daty oferują też układ kalendarza: viewMode calendar z polami daty, opcjonalnej daty końca i koloru oraz trybem miesiąca, tygodnia lub agendy. Reset usuwa twoje nadpisania, więc lista pokazuje wszystkie pola w skonfigurowanej kolejności jako tabelę bez grupowania, bez zmiany rekordów. Usunięcie widoku wymaga jego dokładnej bieżącej nazwy i identyfikatora; niezgodność zwraca konkretny błąd, a nieznany identyfikator zwraca not found. Usunięcie przenosi go do Kosza (widok pulpitu zabiera ze sobą swoje widżety), nigdy jego rekordy. Listy konfiguracji i widoków są stronicowane i przeszukiwalne.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `visibility`, `roleIds`, `public`, `expiresAt`, `state`.
 
 #### `manage_record_detail_layout`
 
-Czyta, zapisuje lub resetuje Twój osobisty układ szczegółów rekordu ze stabilnymi identyfikatorami typów i pól. Read zwraca dostępne wybory pól, przypięte pola, ukryte pola, kolejność pól i wersję konfiguracji. Save wymaga kompletnego układu, expectedRevision i idempotencyKey. Reset usuwa Twój układ: każde pole pokazuje się w skonfigurowanej kolejności i żadne nie jest przypięte. Nie zmienia rekordów ani preferencji innych użytkowników.
+Czyta, zapisuje lub resetuje twój osobisty układ szczegółów rekordu ze stabilnymi identyfikatorami typów i pól. Read zwraca dostępne wybory pól, przypięte pola, ukryte pola, kolejność pól i wersję konfiguracji. Save wymaga kompletnego układu, expectedRevision i idempotencyKey. Reset usuwa twój układ: każde pole pokazuje się w skonfigurowanej kolejności i żadne nie jest przypięte. Nie zmienia rekordów ani preferencji innych użytkowników.
 
 Wymagane: `typeId`, `action`. Opcjonalne: `expectedRevision`, `idempotencyKey`, `layout`.
 
 #### `manage_calendar`
 
-Czyta i zmienia Twój osobisty kalendarz: options wyświetla listy z polami dat i Twoje połączone kalendarze, read zwraca konfigurację i informację, czy nadal obowiązuje domyślna (pierwsze pole pojedynczej daty każdej listy, a w razie braku jej pierwszy zakres dat, do 12 list), update przyjmuje config tylko z kluczami do zmiany i sprawdza każdą listę, pole, filtr i kalendarz, a reset wraca do domyślnej. subscriptions wyświetla adresy URL subskrypcji Twojego kalendarza, a revoke wyłącza jeden z nich na stałe według identyfikatora. Rekordy, wydarzenia kalendarza i kalendarze innych użytkowników nigdy się nie zmieniają.
+Czyta i zmienia twój osobisty kalendarz: options wyświetla listy z polami dat i twoje połączone kalendarze, read zwraca konfigurację i informację, czy nadal obowiązuje domyślna (pierwsze pole pojedynczej daty każdej listy, a w razie braku jej pierwszy zakres dat, do 12 list), update przyjmuje config tylko z kluczami do zmiany i sprawdza każdą listę, pole, filtr i kalendarz, a reset wraca do domyślnej. subscriptions wyświetla adresy URL subskrypcji twojego kalendarza, a revoke wyłącza jeden z nich na stałe według identyfikatora. Rekordy, wydarzenia kalendarza i kalendarze innych użytkowników nigdy się nie zmieniają.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `config`, `id`.
 {/* /mcp-catalog */}
@@ -462,7 +462,7 @@ Trzy tryby: list: "calendars" (domyślny) wyświetla kalendarze dostępnych poł
 
 #### `send_chat_message`
 
-Dostarcza natychmiast. Z threadId odpowiada w istniejącym czacie albo wysyła szkic rozmowy, która istnieje tylko jako szkic; z connectedAccountId oraz attendeeIdentifiers rozpoczyna nowy czat (opcjonalne chatName nadaje nazwę grupie). Aby wysłać zapisany szkic, przekaż draftMessageId i draftRevision; każda wersja szkicu jest wysyłana najwyżej raz, a powtórzenie wywołania zwraca pierwszy wynik z `repeated: true`. Nowe czaty LinkedIn domyślnie używają Classic; ustaw linkedinProduct na sales_navigator lub recruiter, aby wysłać InMail (wymaga inmailSubject), albo inmail:true, aby wysłać InMail do kogoś spoza Twojej sieci w Classic.
+Dostarcza natychmiast. Z threadId odpowiada w istniejącym czacie albo wysyła szkic rozmowy, która istnieje tylko jako szkic; z connectedAccountId oraz attendeeIdentifiers rozpoczyna nowy czat (opcjonalne chatName nadaje nazwę grupie). Aby wysłać zapisany szkic, przekaż draftMessageId i draftRevision; każda wersja szkicu jest wysyłana najwyżej raz, a powtórzenie wywołania zwraca pierwszy wynik z `repeated: true`. Nowe czaty LinkedIn domyślnie używają Classic; ustaw linkedinProduct na sales_navigator lub recruiter, aby wysłać InMail (wymaga inmailSubject), albo inmail:true, aby wysłać InMail do kogoś spoza twojej sieci w Classic.
 
 Wymagane: `text`. Opcjonalne: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
@@ -510,7 +510,7 @@ Wymagane: `channel`.
 
 #### `manage_connected_accounts`
 
-Wyświetla Twoje połączone konta z folderami i ustawieniami e-mail oraz zmienia konto, które należy do ciebie: wybierz synchronizowane foldery e-mail, ustaw podpis i wygląd e-maili, udostępnij konto przestrzeni roboczej albo uczyń je prywatnym, zsynchronizuj je ponownie lub rozłącz. Rozłączenia nie można cofnąć. Wymaga uprawnienia Edycja w wierszu Wiadomości w skrzynce odbiorczej, a do rozłączenia uprawnienia Usuń.
+Wyświetla twoje połączone konta z folderami i ustawieniami e-mail oraz zmienia konto, które należy do ciebie: wybierz synchronizowane foldery e-mail, ustaw podpis i wygląd e-maili, udostępnij konto przestrzeni roboczej albo uczyń je prywatnym, zsynchronizuj je ponownie lub rozłącz. Rozłączenia nie można cofnąć. Wymaga uprawnienia Edycja w wierszu Wiadomości w skrzynce odbiorczej, a do rozłączenia uprawnienia Usuń.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
 {/* /mcp-catalog */}
@@ -540,7 +540,7 @@ Profil osoby lub firmy. Dla osoby użyj `profileType=person` z `me`, `get_messag
 
 #### `manage_social_relations`
 
-Zaproszenia do kontaktów: wyświetla zaproszenia (domyślnie otrzymane, albo Twoje wysłane przez direction), zaprasza przez `get_social_profile.id` (wysyła prawdziwe zaproszenie), akceptuje lub anuluje według invitationId.
+Zaproszenia do kontaktów: wyświetla zaproszenia (domyślnie otrzymane, albo twoje wysłane przez direction), zaprasza przez `get_social_profile.id` (wysyła prawdziwe zaproszenie), akceptuje lub anuluje według invitationId.
 
 Wymagane: `action`, `connectedAccountId`. Opcjonalne: `identifier`, `message`, `invitationId`, `direction`, `cursor`, `offset`, `limit`.
 
@@ -570,7 +570,7 @@ Znajduje firmy przez LinkedIn Sales Navigator: z wklejonego adresu URL wyszukiwa
 
 #### `linkedin_get_sales_search_parameters`
 
-Rozwiązuje identyfikatory kryjące się za danymi wejściowymi wyszukiwania LinkedIn Sales Navigator według typu (lokalizacje, branże, stanowiska, funkcje, firmy, szkoły, grupy i inne), a także Twoje listy leadów i kont oraz zapisane i ostatnie wyszukiwania; słowo kluczowe jest opcjonalne, więc sam typ wylicza całą rodzinę.
+Rozwiązuje identyfikatory kryjące się za danymi wejściowymi wyszukiwania LinkedIn Sales Navigator według typu (lokalizacje, branże, stanowiska, funkcje, firmy, szkoły, grupy i inne), a także twoje listy leadów i kont oraz zapisane i ostatnie wyszukiwania; słowo kluczowe jest opcjonalne, więc sam typ wylicza całą rodzinę.
 
 **Tylko odczyt.** Wymagane: `connectedAccountId`, `type`. Opcjonalne: `keywords`, `offset`, `limit`.
 
@@ -699,7 +699,7 @@ Jedno narzędzie z przełącznikiem `action`: list, get, create, update, delete,
 {/* mcp-catalog:admin */}
 #### `update_my_profile`
 
-Zmienia Twoje imię i nazwisko, awatar, motyw, język wyświetlania i ustawienia regionalne formatowania.
+Zmienia twoje imię i nazwisko, awatar, motyw, język wyświetlania i ustawienia regionalne formatowania.
 
 Opcjonalne: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 

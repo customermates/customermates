@@ -1066,7 +1066,7 @@
       "inAYear": "Za rok",
       "next7Days": "Następne 7 dni",
       "next30Days": "Następne 30 dni",
-      "nextMonth": "Następny miesiąc",
+      "nextMonth": "Przyszły miesiąc",
       "startTime": "Czas rozpoczęcia",
       "thisMonth": "Ten miesiąc",
       "today": "Dzisiaj"
@@ -2276,7 +2276,7 @@
     "boardMoveTarget": "Przenieś rekord do: {group}.",
     "boardPickedUp": "Rekord podniesiony.",
     "calendar": {
-      "colorField": "Koloruj według",
+      "colorField": "Kolor według",
       "createOn": "Nowy rekord w dniu {date}",
       "dateField": "Pole daty",
       "emptyRange": "W tym okresie nic nie zaplanowano.",
@@ -3103,7 +3103,7 @@
       "credentials": "Klucze API i połączenia MCP tej osoby dla tej przestrzeni roboczej przestaną działać.",
       "notified": "Ta osoba dostanie e-mail o usunięciu.",
       "records": "Rekordy tej osoby i ich historia pozostaną.",
-      "rejoin": "Aby wrócić, może ponownie poprosić o dołączenie przez link z zaproszeniem. Administrator musi zatwierdzić prośbę."
+      "rejoin": "Aby wrócić, może ponownie poprosić o dołączenie przez link zaproszenia. Administrator musi zatwierdzić prośbę."
     },
     "ownHint": "Aby opuścić tę przestrzeń roboczą, użyj opcji Opuść przestrzeń roboczą w sekcji <generalLink>Ogólne</generalLink>.",
     "pendingDescription": "{name} czeka na zatwierdzenie. Usunięcie tej osoby odrzuca prośbę.",
@@ -3755,7 +3755,7 @@
     "subtitle": "Administrator rozpatruje Twoją prośbę o dołączenie do przestrzeni roboczej {workspace}",
     "title": "Oczekiwanie na zatwierdzenie",
     "withdraw": "Wycofaj prośbę",
-    "withdrawConfirmDescription": "Administratorzy nie zobaczą już Twojej prośby. Aby dołączyć później, możesz poprosić ponownie przez link z zaproszeniem, a administrator będzie musiał ją zatwierdzić.",
+    "withdrawConfirmDescription": "Administratorzy nie zobaczą już Twojej prośby. Aby dołączyć później, możesz poprosić ponownie przez link zaproszenia, a administrator będzie musiał ją zatwierdzić.",
     "withdrawConfirmTitle": "Wycofać prośbę o dołączenie do przestrzeni roboczej {name}?",
     "withdrawShort": "Wycofaj"
   },
@@ -4532,7 +4532,7 @@
     "operationPending": "Zmiany są przygotowywane. Istniejące dane pozostają dostępne.",
     "operationProgress": "Przygotowano {processed} z {total}",
     "operators": {
-      "add": "Dodaj",
+      "add": "Zsumuj",
       "and": "Wszystkie warunki",
       "coalesce": "Pierwsza dostępna wartość",
       "concat": "Połącz tekst",
@@ -4663,7 +4663,7 @@
     "sublistColumns": "Kolumny listy {list}",
     "sublistColumnsSection": "Kolumny",
     "sublistSentence": "Podlista listy {list} · każdy wpis znajduje się wewnątrz jednego rekordu typu {parent}, ma ten sam dostęp i jest usuwany razem z nim.",
-    "suggestedAttribute": "Sugerowane",
+    "suggestedAttribute": "Sugestia",
     "summaryAggregation": "Obliczenie",
     "summaryApprovalRequired": "To podsumowanie jest opublikowane. Administrator musi zatwierdzić zmiany jego danych wejściowych do obliczeń.",
     "summaryField": "Pole podsumowania",
@@ -5628,7 +5628,7 @@
   },
   "WorkspaceMembership": {
     "left": "Opuścił(a)",
-    "leftNotice": "{name} opuścił(a) tę przestrzeń roboczą. Ta osoba może poprosić o ponowne dołączenie za pomocą linku z zaproszeniem, a administrator musi zatwierdzić prośbę."
+    "leftNotice": "{name} opuścił(a) tę przestrzeń roboczą. Ta osoba może poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić prośbę."
   },
   "WorkspaceMenu": {
     "inviteMembers": "Zaproś członków",
@@ -5644,7 +5644,7 @@
     "cta": "Zaloguj się",
     "greeting": "Cześć {firstName},",
     "otherWorkspaces": "Twoje konto i pozostałe przestrzenie robocze pozostają bez zmian, więc możesz logować się jak zwykle.",
-    "rejoin": "Jeśli potrzebujesz ponownie dostępu, możesz poprosić o dołączenie do „{workspace}” za pomocą linku z zaproszeniem. Administrator musi zatwierdzić Twoją prośbę.",
+    "rejoin": "Jeśli potrzebujesz ponownie dostępu, możesz poprosić o dołączenie do „{workspace}” przez link zaproszenia. Administrator musi zatwierdzić Twoją prośbę.",
     "subject": "Usunięto cię z „{workspace}”",
     "title": "Dostęp do przestrzeni roboczej wygasł"
   },
@@ -5675,7 +5675,7 @@
       "title": "Wybierz plan dla {name}"
     },
     "leave": "Opuść przestrzeń roboczą",
-    "leaveConfirmDescription": "Tracisz dostęp do jej rekordów, Bazy wiedzy i połączeń, a Twoje klucze API i połączenia MCP dla niej przestają działać. Aby wrócić, możesz poprosić o ponowne dołączenie za pomocą linku z zaproszeniem, a administrator musi zatwierdzić Twoją prośbę.",
+    "leaveConfirmDescription": "Tracisz dostęp do jej rekordów, Bazy wiedzy i połączeń, a Twoje klucze API i połączenia MCP dla niej przestają działać. Aby wrócić, możesz poprosić o ponowne dołączenie przez link zaproszenia, a administrator musi zatwierdzić Twoją prośbę.",
     "leaveConfirmTitle": "Opuścić {name}?",
     "leaveDescription": "Usuń siebie z tej przestrzeni roboczej. Twoje pozostałe przestrzenie robocze pozostają bez zmian.",
     "leaveShort": "Opuść",

@@ -93,6 +93,84 @@ const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
 };
 
 const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
+  "i18n-parity.test.ts#ALLOWED_LOCALIZED_NUMBERS: pl:AgentChat.activity.consequence.recordsDelete":
+    "unresolved C09: Polish declines the sentence in four plural branches, each carrying the 30 days",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:AgentChat.activity.countedRecordInResource":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:AgplGithubBadge.label":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Common.filters.palette.appliedCount":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ConnectedAccountsCard.channels.linkedinClassic":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ConnectedAccountsCard.channels.linkedinRecruiter":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ConnectedAccountsCard.channels.linkedinSalesNavigator":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ConnectedAccountsCard.emailFontFamilies.monospace":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ConnectedAccountsCard.emailLogoPlaceholder":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:ContactPage.form.founderName":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:DataView.views.recordCount":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:DocsSidebar.openapi":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:NavigationBar.public.linkedinCrm":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:NavigationBar.public.openSourceCrm":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:NavigationBar.public.providerSlack":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:NavigationBar.public.whatsappCrm":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:OnboardingPlaybooks.pages.toneOfVoice":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:OnboardingWizard.ai.choices.claudeDesktop":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:OnboardingWizard.ai.choices.openai":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Planner.filterCount":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:RecordCalendarWidgets.dayLabelWithSum":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:RecordModel.graph.accountUnit":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:RecordModel.graph.recordUnit":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:RecordWidgets.numberRecords":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Trash.kindInList":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: nl:Trash.permanentRecords":
+    "unresolved C09: Dutch uses the English loanword or unit (record, filter, tone of voice)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:AgplGithubBadge.label":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:ConnectedAccountsCard.channels.linkedinClassic":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:ConnectedAccountsCard.emailLogoPlaceholder":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:ContactPage.form.founderName":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:DocsSidebar.openapi":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:OnboardingWizard.ai.choices.claudeDesktop":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pl:OnboardingWizard.ai.choices.openai":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:ConnectedAccountsCard.channels.linkedinClassic":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:ConnectedAccountsCard.emailLogoPlaceholder":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:ContactPage.form.founderName":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:DocsSidebar.openapi":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:OnboardingWizard.ai.choices.claudeDesktop":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: pt:OnboardingWizard.ai.choices.openai":
+    "unresolved C09: product or brand name, URL or person name identical in every language (locale launch)",
   "design-system.test.ts#COLOR_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx":
     "unresolved C01: third-party brand mark in its own brand colors",
   "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-settings.ts":

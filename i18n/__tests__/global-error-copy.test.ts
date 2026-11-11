@@ -49,7 +49,8 @@ describe("global error fallback", () => {
   });
 
   it("falls back through canonical browser languages and then the default", () => {
-    expect(resolveGlobalErrorLocale("/dashboard", ["pt-BR", "fr-FR"])).toBe("fr");
+    expect(resolveGlobalErrorLocale("/dashboard", ["ja-JP", "fr-FR"])).toBe("fr");
+    expect(resolveGlobalErrorLocale("/dashboard", ["pt-BR", "fr-FR"])).toBe("pt");
     expect(resolveGlobalErrorLocale("/dashboard", ["not-a-locale"])).toBe("en");
   });
 
