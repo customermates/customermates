@@ -21,8 +21,6 @@ export const SOLUTION_NAV_CAPTURE_CLIP = { height: 720, width: 1152 } as const;
 
 export const SOLUTION_NAV_IMAGE_SIZE = { height: 600, width: 960 } as const;
 
-// every solution view and stage still of every asset locale together: 8.5 MiB for each locale (en and de use 7.5 MiB
-// each, es, pt, pl and nl 8.4 MiB each)
 export const SOLUTION_CAPTURE_BUDGET_BYTES = 8.5 * 1024 * 1024 * ASSET_LOCALES.length;
 
 export const SOLUTION_CAPTURE_PUBLIC_DIR = "/captures/solutions";

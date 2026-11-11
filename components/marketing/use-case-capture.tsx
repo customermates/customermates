@@ -68,12 +68,10 @@ const INBOX_THREADS: Crop = {
   y: 246,
 };
 
-// the same crop of every asset locale's capture: the product screens share one layout in every locale
 function sameCrop(crop: Crop): Record<AssetLocale, Crop> {
   return Object.fromEntries(ASSET_LOCALES.map((locale) => [locale, crop])) as Record<AssetLocale, Crop>;
 }
 
-// the whole capture of each locale, at that locale's own width
 function wholeCapture(capture: HomepageCaptureName, channel?: MarkedChannel): Record<AssetLocale, Crop> {
   return Object.fromEntries(
     ASSET_LOCALES.map((locale) => [

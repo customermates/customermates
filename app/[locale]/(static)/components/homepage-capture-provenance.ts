@@ -9,15 +9,10 @@ export const HOMEPAGE_CAPTURE_PROVENANCE = {
   environment:
     "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed, small-business demo workspace (kleine-unternehmen for German)",
   productRef: "9a65f3f93",
-  // Spanish, Portuguese, Polish and Dutch were captured in their own run, on the demo stories written for them: their own
-  // workspace slugs, people, companies and wording, in the scenarios listed per capture (the people of the two named
-  // scenarios: WhatsApp thread Sonia Ramírez, Simone Gonçalves, Zofia Wójcik, Sophie Dekker; contact record Jaime Ferrer,
-  // João Fonseca, Jakub Wieczorek, Jeroen Fennema)
   localeRun: {
     capturedOn: "2026-11-11",
-    locales: ["es", "nl", "pl", "pt"],
+    note: "Spanish, Portuguese, Polish and Dutch captured in their own run on the demo stories written for them (workspaces pymes, pequenas-empresas, male-firmy, kleine-bedrijven), with their own people, companies and wording",
     productRef: "edf88e66d",
-    workspaces: { es: "pymes", nl: "kleine-bedrijven", pl: "male-firmy", pt: "pequenas-empresas" },
   },
   renderer:
     "Chromium via Playwright (scripts/capture-homepage.ts) in the page locale and the workspace time zone, device scale factor 2 or 2.5, theme set through next-themes",

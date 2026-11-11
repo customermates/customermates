@@ -51,67 +51,59 @@ const IMPORT_EMAIL_HEADER = "E-Mail";
 const PARTNER_ROW = 6;
 const GUTTER = 12;
 
-// The words the scenarios look for in the interface, as the message catalogs and the seeded stories spell them in
-// every asset locale; a locale missing here fails to type-check instead of failing halfway through a capture run.
+// The words the scenarios look for in the interface, in every asset locale's spelling (message catalogs and seeded stories).
 const LABELS = {
-  add: { de: "hinzufügen", en: "add", es: "añadir", nl: "toevoegen", pl: "dodaj", pt: "adicionar" },
-  addFromFile: {
-    de: "aus datei hinzufügen",
-    en: "add from file",
-    es: "añadir desde archivo",
-    nl: "toevoegen uit bestand",
-    pl: "dodaj z pliku",
-    pt: "adicionar de um arquivo",
-  },
-  contactDetails: {
-    de: "kontaktdaten",
-    en: "contact details",
-    es: "datos de contacto",
-    nl: "contactgegevens",
-    pl: "dane kontaktowe",
-    pt: "dados de contato",
-  },
-  dayRates: {
-    de: "tagessätze",
-    en: "day rates",
-    es: "tarifas diarias",
-    nl: "dagtarieven",
-    pl: "stawki dzienne",
-    pt: "diárias",
-  },
-  decisionRole: {
-    de: "rolle in der entscheidung",
-    en: "decision role",
-    es: "papel en la decisión",
-    nl: "rol in de beslissing",
-    pl: "rola w decyzji",
-    pt: "papel na decisão",
-  },
-  firstName: { de: "vorname", en: "first name", es: "nombre", nl: "voornaam", pl: "imię", pt: "nome" },
-  jobTitle: { de: "position", en: "job title", es: "cargo", nl: "functie", pl: "stanowisko", pt: "cargo" },
-  lastName: { de: "nachname", en: "last name", es: "apellidos", nl: "achternaam", pl: "nazwisko", pt: "sobrenome" },
-  lastRun: {
-    de: "letzter lauf",
-    en: "last run",
-    es: "última ejecución",
-    nl: "laatste uitvoering",
-    pl: "ostatnie uruchomienie",
-    pt: "última execução",
-  },
-  next: { de: "weiter", en: "next", es: "siguiente", nl: "volgende", pl: "dalej", pt: "próximo" },
-  sendDraft: {
-    de: "entwurf senden",
-    en: "send draft",
-    es: "enviar el borrador",
-    nl: "concept versturen",
-    pl: "wyślij szkic",
-    pt: "enviar rascunho",
-  },
-} satisfies Record<string, Record<AssetLocale, string>>;
+  add: ["hinzufügen", "add", "añadir", "toevoegen", "dodaj", "adicionar"],
+  addFromFile: [
+    "aus datei hinzufügen",
+    "add from file",
+    "añadir desde archivo",
+    "toevoegen uit bestand",
+    "dodaj z pliku",
+    "adicionar de um arquivo",
+  ],
+  contactDetails: [
+    "kontaktdaten",
+    "contact details",
+    "datos de contacto",
+    "contactgegevens",
+    "dane kontaktowe",
+    "dados de contato",
+  ],
+  dayRates: ["tagessätze", "day rates", "tarifas diarias", "dagtarieven", "stawki dzienne", "diárias"],
+  decisionRole: [
+    "rolle in der entscheidung",
+    "decision role",
+    "papel en la decisión",
+    "rol in de beslissing",
+    "rola w decyzji",
+    "papel na decisão",
+  ],
+  firstName: ["vorname", "first name", "nombre", "voornaam", "imię", "nome"],
+  jobTitle: ["position", "job title", "cargo", "functie", "stanowisko", "cargo"],
+  lastName: ["nachname", "last name", "apellidos", "achternaam", "nazwisko", "sobrenome"],
+  lastRun: [
+    "letzter lauf",
+    "last run",
+    "última ejecución",
+    "laatste uitvoering",
+    "ostatnie uruchomienie",
+    "última execução",
+  ],
+  next: ["weiter", "next", "siguiente", "volgende", "dalej", "próximo"],
+  sendDraft: [
+    "entwurf senden",
+    "send draft",
+    "enviar el borrador",
+    "concept versturen",
+    "wyślij szkic",
+    "enviar rascunho",
+  ],
+} satisfies Record<string, string[]>;
 
 // any locale's spelling of one label; the scenarios run in a known locale, but the route alone keeps them locale-free
 const label = (name: keyof typeof LABELS, { exact = false }: { exact?: boolean } = {}): RegExp => {
-  const alternatives = Object.values(LABELS[name]).join("|");
+  const alternatives = LABELS[name].join("|");
   return new RegExp(exact ? `^\\s*(${alternatives})\\s*$` : alternatives, "iu");
 };
 
