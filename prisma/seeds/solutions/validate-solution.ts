@@ -28,7 +28,10 @@ export const UNSUPPORTED_CLAIM_PATTERN =
   /\b(invoic|reminder|forecast|commission|sequence|campaign|enrich|chatbot|template|bulk|automat|rechnung|erinnerung|prognose|provision|sequenz|kampagne|anreicherung|vorlage|massen)/i;
 
 const RESERVED_HOST = /(^|\.)example(\.(com|org|net))?$/;
-const FICTIONAL_PHONE = /^\+(1 \d{3} 555 01\d\d|49 30 23125 \d{3}|44 20 7946 0\d{3})$/;
+/** Reserved or unallocated blocks: US 555-01xx, Berlin 030 23125, Ofcom drama range, and for es/pt/pl/nl blocks the
+ * national plans do not hand out (subscriber numbers starting with 0, mobile 06-0 and 9 0000). */
+const FICTIONAL_PHONE =
+  /^\+(1 \d{3} 555 01\d\d|49 30 23125 \d{3}|44 20 7946 0\d{3}|34 (91 000 0|600 000 )\d{3}|55 11 (3000|90000)-0\d{3}|48 (22 000 0|500 000 )\d{3}|31 (20 000 0|6 0000 0)\d{3})$/;
 
 export const SOLUTION_RECORD_BOUNDS = { min: 30, max: 160 } as const;
 
@@ -261,8 +264,14 @@ export function validateSolutionDefinition(
         problems.push(`${locale}: wiki page ${page.key} must open with a paragraph, a blank line and a ## heading`);
       if (wikiExcerpt(markdown).length <= 70)
         problems.push(`${locale}: wiki page ${page.key} needs a longer opening paragraph`);
-      if (page.kind === "procedure" && !/^(When|Wenn) .{40,}\.$/u.test(page.whenToUse ?? ""))
-        problems.push(`${locale}: procedure ${page.key} needs whenToUse "When ... ." or "Wenn ... ." (40+ characters)`);
+      if (
+        page.kind === "procedure" &&
+        !/^(When|Wenn|Cuando|Quando|Gdy|Kiedy|Wanneer|Als) .{40,}\.$/u.test(page.whenToUse ?? "")
+      ) {
+        problems.push(
+          `${locale}: procedure ${page.key} needs whenToUse starting "When", "Wenn" or the locale's word (Cuando, Quando, Gdy, Wanneer) and ending "." (40+ characters)`,
+        );
+      }
       if (page.kind !== "procedure" && page.whenToUse) problems.push(`${locale}: only procedures have whenToUse`);
       if (page.kind === "guide" && new TextEncoder().encode(markdown).byteLength > WIKI_GUIDE_CONTEXT_MAX_BYTES)
         problems.push(`${locale}: the guide exceeds ${WIKI_GUIDE_CONTEXT_MAX_BYTES} bytes`);

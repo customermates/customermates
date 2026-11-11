@@ -1,0 +1,68 @@
+---
+title: Limieten voor berichtenkanalen per provider
+description: Waarom gekoppelde kanalen een limiet hebben, welke lees- en verzendlimieten per provider gelden en wat er gebeurt als je een limiet bereikt, met wachttijden.
+---
+
+Gekoppelde kanalen (LinkedIn, WhatsApp, e-mail enzovoort) praten via Unipile met hun provider. Elke provider hanteert eigen limieten voor verzoeken, en wie die overschrijdt, riskeert dat het account wordt afgeremd of geblokkeerd. Customermates past daarom per kanaal een voorzichtig verzoekbudget toe en pauzeert voordat een provider zou ingrijpen. Een gepauzeerde synchronisatie is normaal: ze houdt het account binnen de limieten van de provider en gaat vanzelf weer verder.
+
+## Hoe werken de limieten? [#how-do-the-limits-work]
+
+Limieten worden ingesteld in het Unipile-dashboard en door Unipile afgedwongen. Ze gelden **per gekoppeld account** op drie niveaus tegelijk:
+
+- **Per endpoint:** een plafond voor elke afzonderlijke bewerking (chats ophalen, berichten lezen) over een voortschrijdende minuut en dag. Dit zijn de leeslimieten hieronder.
+- **Per gevoelige methode:** een strenger plafond voor riskantere bewerkingen (profielen opzoeken, een bericht of verbindingsverzoek versturen). Dit zijn de gevoelige limieten hieronder.
+- **Per account:** een totaalplafond over alle aanroepen van het account.
+
+Zodra een venster vol is, worden verdere aanroepen geweigerd totdat het venster verschuift.
+
+## Wat zijn de leeslimieten per provider? [#what-are-the-read-limits-per-provider]
+
+Lezen synchroniseert de geschiedenis. De limieten liggen hoger dan bij schrijven, omdat lezen zelden tot een blokkade door de provider leidt.
+
+| Provider | Leesacties / minuut | Leesacties / dag |
+| --- | --- | --- |
+| LinkedIn | 20 | 300 |
+| WhatsApp | 30 | 510 |
+| Instagram | 50 | 510 |
+| Telegram | 50 | geen |
+| Gmail / Google | 100 | geen |
+| Outlook | 100 | geen |
+| IMAP | 100 | geen |
+
+LinkedIn blijft het voorzichtigst, omdat de detectie van geautomatiseerde activiteit daar het strengst is. Sommige waarden volgen de eigen plafonds van de provider: bij socialmediakanalen is de leeslimiet per minuut maximaal 50, bij e-mailkanalen maximaal 100, en de daglimiet verandert in stappen van 30 (een doel van 500 wordt dus als 510 toegepast). Telegram en de e-mailproviders hebben geen aparte daglimiet voor lezen.
+
+## Wat zijn de limieten voor verzenden en profielen opzoeken? [#what-are-the-limits-for-sending-and-profile-lookups]
+
+Profielen opzoeken (wat providers als gevoelig voor scraping beschouwen) en elke verzendactie blijven voorzichtig, ongeacht het leesbudget.
+
+| Provider | Actie | Limiet |
+| --- | --- | --- |
+| LinkedIn | Bedrijfsprofiel ophalen | 1 / seconde |
+| LinkedIn | Gebruikersprofiel ophalen | 1 / seconde |
+| LinkedIn | Verbindingsverzoek versturen | 50 / dag, 1 / 10 seconden |
+| WhatsApp | Chat starten | 3 / minuut, 30 / dag |
+| Telegram | Chat starten | 3 / minuut, 30 / dag |
+| Instagram | Chat starten | 3 / minuut, 30 / dag |
+| Gmail / Google | E-mail versturen | 300 / dag |
+| Outlook | E-mail versturen | 300 / dag |
+| IMAP | E-mail versturen | 300 / dag |
+
+Bewerkingen zonder rij in deze tabel, zoals het versturen van een LinkedIn-bericht of InMail en zoekopdrachten in LinkedIn Sales Navigator, vallen nog steeds onder de plafonds per endpoint en per account en geven dezelfde limietmelding wanneer een venster vol is.
+
+## Wat gebeurt er als een limiet is bereikt? [#what-happens-when-a-limit-is-reached]
+
+Verdere aanroepen voor dat account worden geweigerd totdat het venster verschuift, en de actie vertelt je hoe lang je moet wachten. Bij het versturen van een bericht of het starten van een gesprek zie je:
+
+> Dit kanaal heeft voorlopig zijn limiet bereikt. Je kunt het over 2 minuten opnieuw proberen. Meer informatie op `https://customermates.com/docs/messaging-rate-limits`.
+
+Andere acties formuleren het anders:
+
+- **Gesprek opnieuw synchroniseren**, oudere berichten die bovenaan een gesprek laden en media in een bericht: "Dit kanaal heeft zijn limiet bereikt. Je kunt het over 2 minuten opnieuw proberen." met **Meer informatie**.
+- **Vernieuwen** in de [Inbox](app:inbox): "Sommige kanalen hebben hun limiet bereikt. Probeer het over een paar minuten opnieuw."
+- Een e-mail naar een andere map verplaatsen: "Het ordenen in `{folder}` is gestopt omdat de provider het aantal verzoeken beperkt." met de wachttijd voor de rest.
+
+De wachttijd komt uit de waarde `Retry-After` van het limietantwoord dat Unipile teruggeeft; zonder die waarde staat er in de melding "later" in plaats van een wachttijd. Customermates probeert de actie niet voor je opnieuw: probeer het opnieuw zodra het venster voorbij is. Intussen gaat er niets verloren. Via de REST API en MCP mislukt de aanroep met dezelfde melding: de REST API antwoordt met HTTP-status 429 en een `Retry-After`-header van 30 seconden, en MCP geeft een fout van het soort `rate_limit` terug, waarvan het issue in `_meta.failure` `customCode: "unipileRateLimit"` heeft.
+
+## Wordt de geschiedenisimport vanzelf hervat? [#does-the-history-import-resume-by-itself]
+
+Ja. Het importeren van een volledige berichtgeschiedenis kan ruwweg één verzoek per gesprek kosten. Wordt halverwege de import een limiet bereikt, dan **pauzeert de importer op de achtergrond en gaat hij automatisch verder** zodra het venster weer vrij is; bij een wachttijd van meer dan tien minuten wordt de import uitgesteld tot een latere ronde. Met **Bewerken** op **Inboxberichten** haal je oudere berichten bij de provider op door naar het begin van een gesprek te scrollen of op **Gesprek opnieuw synchroniseren** te drukken; beide tellen mee voor dezelfde limieten. Nieuwe activiteit komt in realtime binnen via webhooks.

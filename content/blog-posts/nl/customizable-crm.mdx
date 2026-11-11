@@ -1,0 +1,200 @@
+---
+title: "CRM op maat: aanpassen, laten maken of zelf bouwen?"
+description: "CRM op maat: wat je zonder code aanpast, in welk abonnement leveranciers custom objects bieden en wanneer laten maken loont. Met checklist en voorbeeld."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
+
+hero:
+  title: "CRM op maat: wat je kunt aanpassen en wanneer je zelf een CRM bouwt"
+  description: "De meeste kleine teams hebben een CRM nodig waarvan ze velden, fases en weergaven zelf kunnen vormgeven, geen CRM dat vanaf nul is geschreven. Hoe je beide uit elkaar houdt, waar leveranciers de grens trekken en hoe een uitgewerkte opzet eruitziet."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-04-27
+  updated: 2026-10-28
+  tags:
+    - Aanpasbaar CRM
+    - CRM op maat
+    - Aangepaste velden
+    - Open-source CRM
+---
+
+# CRM op maat: wat je kunt aanpassen en wanneer je zelf een CRM bouwt
+
+Een CRM op maat krijg je in de praktijk door een aanpasbaar CRM te nemen: een kant-en-klaar CRM waarin je het datamodel, de pipeline en de weergaven zelf verandert, zonder code te schrijven. Voor de meeste kleine teams is dat genoeg: aangepaste velden, je eigen dealfases en opgeslagen weergaven dekken hoe een adviesbureau, een creatief bureau of een dienstverlener echt werkt. Zelf een CRM bouwen loont alleen als je recordtypen nodig hebt die geen product biedt, en dan zijn de realistische opties een CRM met custom objects of een no-code database, en geen code die vanaf nul is geschreven.
+
+De beslissende vraag is smal. Heb je nieuwe soorten records nodig, of nieuwe velden op de gebruikelijke? De rest van deze pagina helpt je die te beantwoorden voordat je voor een abonnement betaalt.
+
+Customermates publiceert dit artikel en is een van de producten die erin worden beschreven.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Aanpasbaar versus maatwerk">Aanpasbaar betekent dat je een af product configureert. Maatwerk betekent dat je het systeem zelf bouwt en onderhoudt, met code of een no-code platform.</SummaryItem>
+  <SummaryItem label="Waar de grens ligt">Aangepaste velden zijn standaard. Custom objects (nieuwe recordtypen) zijn waar leveranciers per abonnement verschillen: HubSpot vraagt een Enterprise-abonnement, Zoho CRM bevat custom modules in elke betaalde editie, met een limiet per editie.</SummaryItem>
+  <SummaryItem label="Customermates">Begint zonder lijsten: je maakt je eigen lijsten, met vrij hernoemen, 16 veldtypen, relaties, berekende velden, je eigen fases met gewichten, opgeslagen weergaven die je kunt delen, REST, webhooks en MCP.</SummaryItem>
+  <SummaryItem label="Zelf bouwen">Loont als je records niet op contactpersonen, bedrijven en deals passen. Anders neem je authenticatie, rechten, e-mailsynchronisatie en import op je voor weinig winst.</SummaryItem>
+</ArticleSummary>
+
+Kijk eerst naar hoe jouw team werkt: [CRM voor kleine bedrijven](/for/smb) en [CRM voor bureaus](/for/agencies) laten twee verschillende manieren zien om het werk te organiseren. Gaat een assistent die records gebruiken, controleer dan de rechten in de [gids over AI-CRM](/blog/ai-crm); gebruik de [CRM-vergelijking](/compare) als de gewenste aanpassing buiten het bereik van een product valt.
+
+## Wat "aanpasbaar" omvat, laag voor laag
+
+Leveranciers gebruiken het woord voor heel verschillende diepten. Splits het in lagen en test elke laag in een proefperiode:
+
+| Laag | Wat het betekent | Zo test je het in een proefperiode |
+|---|---|---|
+| Aangepaste velden | Nieuwe velden op bestaande records: een datum, een geldbedrag, een keuzelijst | Voeg de vijf velden toe die je echt zou invullen. Controleer of filteren en sorteren erop werken. |
+| Pipeline en fases | Je eigen fasenamen, meer dan één pipeline, kansen per fase | Bouw je huidige verkoopstappen na. Kijk of een fase een vast systeemveld is of iets wat je zelf bepaalt. |
+| Benaming | Deals "Projecten" noemen of contactpersonen "Klanten" | Hernoem en controleer of het nieuwe label in lijsten, formulieren en exports verschijnt. |
+| Weergaven | Opgeslagen filters, sortering, groepering, bord of tabel | Sla drie weergaven op. Zoek uit of collega's ze kunnen zien of alleen jij. |
+| Custom objects | Nieuwe recordtypen met eigen velden en relaties, zoals "Pand" of "Contract" | Vraag welk abonnement ze bevat en hoeveel. Dit is de meest voorkomende upsell. |
+| Automatisering en toegang | Triggers bij veldwijzigingen, API, webhooks, rollen | Laat een webhook afgaan bij een gewijzigd veld. Lees en schrijf één record via de API. |
+
+Twee lagen bepalen de meeste aankopen: aangepaste velden en custom objects. Veldtypen tellen zwaarder dan aantallen velden. Een keuzelijst houdt gegevens consistent; vrije tekst loopt uit de pas zodra meerdere mensen erin typen.
+
+## Waar leveranciers custom objects neerzetten
+
+Custom objects zijn de duidelijkste scheidslijn tussen abonnementen. Dit zijn de eigen verklaringen van de leveranciers:
+
+| Product | Custom objects | Bron |
+|---|---|---|
+| HubSpot | Beschikbaar met Enterprise-abonnementen (Sales Hub, Marketing Hub, Service Hub en andere Enterprise-hubs) | [HubSpot-kennisbank](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Custom modules in elke betaalde editie: 10 bij Standard, 25 bij Professional, 200 bij Enterprise, 500 bij Ultimate; geen bij Free | [Zoho CRM-vergelijking van edities](https://www.zoho.com/crm/complete-feature-list.html) |
+| Attio | Free tot 3, Plus tot 5, Pro tot 12, Enterprise onbeperkt | [Attio-prijzen](https://attio.com/pricing) |
+| Twenty | Onbeperkt bij Pro, Organization en Enterprise; de open-sourcekern kun je zelf hosten | [Twenty-prijzen](https://twenty.com/pricing) |
+| EspoCRM | Entity Manager maakt eigen entiteiten, velden en relaties; open source | [EspoCRM-functies](https://www.espocrm.com/features/) |
+| Pipedrive | De aangehaalde helppagina behandelt aangepaste velden bij leads, deals, personen, organisaties, producten en projecten; het aantal velden hangt van het abonnement af | [Pipedrive-support](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | Je eigen lijsten met velden, relaties en berekende velden; een nieuwe werkruimte begint zonder lijsten | [Datamodel van Customermates](/docs/concepts) |
+
+Leveranciersgegevens gecontroleerd op 8 oktober 2026 bij de gelinkte officiële pagina's, Zoho CRM nog eens op 28 oktober 2026. Abonnementen veranderen, dus bevestig het niveau dat je nodig hebt op de site van de leverancier voordat je koopt.
+
+Heb je een record "Pand" nodig dat aan meerdere eigenaren en huurders is gekoppeld, of een record "Contract" met een eigen levenscyclus, kies dan een product dat custom objects bevat in het abonnement dat je kunt betalen. Bestaat je bedrijf uit mensen, bedrijven, kansen en de diensten die je verkoopt, dan zijn custom objects meestal een abonnementsupgrade die je niet nodig hebt.
+
+## Een CRM aanpassen, een no-code bouwer gebruiken of maatwerk CRM bouwen
+
+| Kies | Wanneer | Wat je op je neemt |
+|---|---|---|
+| Een aanpasbaar CRM | Je werk bestaat uit mensen, bedrijven, deals en opvolging, plus velden die bij je vak horen | Leven met het recordmodel van de leverancier en de grenzen van zijn abonnementen |
+| Een CRM met custom objects | Je hebt een of twee extra recordtypen met relaties nodig, zoals panden of contracten | Bij de meeste leveranciers een hoger abonnement; meer inrichting en meer om netjes te houden |
+| Een no-code database (Airtable, Knack, Caspio en vergelijkbare) | Je datamodel is echt ongewoon en verandert vaak | Jij ontwerpt en onderhoudt alles: rechten, het vastleggen van e-mail, import en de weergaven die je team gebruikt |
+| Code vanaf nul | Het CRM is je product, of moet diep in je eigen software zitten | Authenticatie, rollen, e-mail- en agendasynchronisatie, zoeken, auditgeschiedenis, import en export, back-ups en beveiligingsupdates, zolang het draait |
+
+Niemand kan je zonder specificatie een eerlijke vaste prijs geven voor CRM maatwerk. De kosten die mensen onderschatten zijn niet de eerste versie; het zijn de jaren onderhoud, want elke functie die een gehuurd CRM uitbrengt, wordt jouw achterstand. Schrijf voordat je een bouwopdracht geeft op welke recordtypen je huidige tool niet kan weergeven. Is de lijst leeg, dan heb je een beter ingericht CRM nodig, geen nieuw CRM.
+
+Er is een middenweg ontstaan: begin met een CRM met een volledige API en laat een AI-client het maatwerk daartegen doen. Met een open-source CRM dat REST, webhooks en een MCP-server biedt, kan een klein script of een AI-client de ene workflow dekken die specifiek voor jou is, terwijl de leverancier al het andere onderhoudt.
+
+## CRM op maat laten maken: wat je een softwarebureau vraagt [#crm-laten-maken]
+
+Kies je toch voor maatwerk, bijvoorbeeld omdat geen product je recordtypen kan weergeven, dan bepaalt de voorbereiding of de opdracht goed afloopt. Een softwarebureau of freelancer kan alleen een zinnige offerte maken als jij het probleem scherp hebt. Neem deze punten mee in het gesprek:
+
+- **Een specificatie in recordtypen en velden.** Som op welke soorten records je hebt (bijvoorbeeld Pand, Eigenaar, Contract), hoe ze aan elkaar hangen en welke vragen het systeem moet beantwoorden. Een lijst van twintig wensen zonder datamodel is geen specificatie.
+- **Eerst een klein werkend geheel.** Vraag om een eerste versie met één proces dat je echt gebruikt, en breid pas uit als je team ermee werkt. Zo zie je na weken wat het oplevert, niet pas na maanden.
+- **Eigendom en uitstap.** Spreek af wie de broncode en de gegevens bezit, in welk formaat je alles kunt exporteren en wat er gebeurt als je van bureau wisselt.
+- **Onderhoud en support.** Wie verhelpt fouten, wie installeert beveiligingsupdates, wat gebeurt er bij een storing en wat kost dat per jaar? Vraag het in de offerte apart uit.
+- **Hosting en privacy.** Waar staan de gegevens, wie heeft toegang en is er een verwerkersovereenkomst? Dat is algemene AVG-hygiëne bij elke leverancier die klantgegevens verwerkt, en geen juridisch advies.
+- **Koppelingen.** Noem vooraf welke systemen (boekhouding, e-mail, agenda) het CRM moet kunnen lezen of schrijven. Elke koppeling is werk dat je later niet gratis krijgt.
+
+Twijfel je of maatwerk nodig is, probeer dan eerst of een aanpasbaar CRM je records kan weergeven. Hoe je een systeem kiest en invoert, staat in de [gids over een CRM kiezen](/blog/how-to-choose-crm) en de [gids over CRM implementeren](/blog/crm-implementation).
+
+## Een uitgewerkte opzet in Customermates
+
+Zo zou een adviesbureau van vijf mensen Customermates naar zijn proces vormen. Elke stap is configuratie, geen code.
+
+<Steps>
+  <Step title="Hernoem de lijsten">
+    Open in **Datamodel** een lijst en wijzig **Naam** en **Meervoudsnaam** onder **Algemeen**: Contactpersonen worden **Klanten**, Deals worden **Projecten**, Diensten worden **Pakketten**. Elke naam werkt, en records, koppelingen, weergaven en API-verwijzingen blijven verbonden; zie de [documentatie over werkruimte-instellingen](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+  </Step>
+  <Step title="Bepaal het faseveld">
+    Fases zijn niet voorgeprogrammeerd. Voeg in Datamodel voor Deals een veld **Fase** van het type Enkele keuze toe (in de cloud kan de AI-inrichting het aanmaken) met opties die bij je verkoopstappen passen, bijvoorbeeld Aanvraag, Verkennend gesprek, Offerte verstuurd, Getekend, Verloren. Stel **Waarschijnlijkheid %** in bij elke optie, en elke deal krijgt een gewogen waarde uit die vaste percentages; een grafiekwidget op het Dashboard die **Gewogen waarde** per fase optelt, toont het gewogen pipelinetotaal.
+  </Step>
+  <Step title="Voeg aangepaste velden toe waar ze een beslissing aansturen">
+    Bij Projecten: **Soort opdracht** (Enkele keuze: retainer, vast bereik, workshop), **Dagtarief** (Geldbedrag), **Contractverlenging** (Datum). Bij Klanten: **Bron** (Enkele keuze) en **Kantooradres** (Adres); telefoonnummers en e-mailadressen komen in het veld Contactgegevens. Zestien veldtypen en berekende velden zijn beschikbaar, opgesomd in de [documentatie over het datamodel](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Sla de weergaven op waarmee iedereen werkt">
+    Een bord van Projecten gegroepeerd op Fase, een tabel van retainers gesorteerd op **Contractverlenging** en een lijst van Klanten gegroepeerd op **Bron**. Deel het bord van Projecten met het hele team of met geselecteerde rollen, zodat iedereen vanuit dezelfde pipeline werkt.
+  </Step>
+  <Step title="Haal bestaande gegevens binnen">
+    Exporteer elk blad uit je oude tool als Excel-werkmap en importeer één lijst tegelijk, eerst Klanten, dan Projecten, waarbij je kolommen aan je nieuwe aangepaste velden koppelt. De [documentatie over records](/docs/app-records#how-do-i-import-or-export-records) noemt de bestandslimieten.
+  </Step>
+  <Step title="Automatiseer één stap (Customermates Cloud)">
+    Een Routine op de gebeurtenis **Record bijgewerkt** voor Projecten, die alleen het veld **Fase** in de gaten houdt en gefilterd is op Offerte verstuurd: "Schrijf een korte opvolging aan de hoofdcontactpersoon van de klant met verwijzing naar de offerte. Sla het op als concept, verstuur niet." Routines laten Mate draaien, gebruiken gehoste AI-tegoeden en draaien als hun eigenaar. Zonder de regel "verstuur niet" kan een routine het bericht zelf versturen. Zie [Routines](/docs/app-routines).
+  </Step>
+</Steps>
+
+Gekoppelde e-mail-, LinkedIn- en WhatsApp-gesprekken verschijnen naast deze records in de [gecombineerde inbox](/features/unified-inbox) op Pro en hoger. Starter heeft geen inbox. Werk je met Claude, ChatGPT of een andere AI-client, dan leest en schrijft die dezelfde records, inclusief je aangepaste velden, via [MCP](/docs/mcp) met [[derived.mcp.tools.total]] tools.
+
+Het doel van het vormgeven van het model is opvolging van elk klantgesprek. Met de inbox gekoppeld staan de gesprekken van elke klant op het klantrecord, schrijft Mate of je eigen AI-agent het antwoord en de volgende stap als concept, lees jij na en verstuur je, en zetten de datumvelden die je toevoegde, zoals Contractverlenging of een datum voor de volgende stap, wat aan de beurt is op je dashboard.
+
+## Wat Customermates je niet laat aanpassen
+
+Deze grenzen tellen als je aanpasbare CRM's vergelijkt:
+
+- **Rechten stoppen bij de lijst.** Rollen bepalen aanmaken, lezen, bewerken en verwijderen per lijst, inclusief "alleen records die aan mij zijn toegewezen". Er zijn geen rechten op veldniveau.
+- **Gedeelde weergaven zijn alleen-lezen.** Collega's kunnen een gedeelde weergave filteren of een eigen kopie bewaren, maar alleen de eigenaar wijzigt hem.
+- **Geen tags.** Gebruik in plaats daarvan een veld van het type Enkele keuze, dat ook de waarden consistent houdt.
+- **Taken hebben geen ingebouwde deadline.** Voeg een veld Datum toe en sorteer erop; niets waarschuwt je als die datum verstrijkt.
+- **Import en export draaien per lijst**, als Excel-werkmappen of JSON, tot 5.000 records per export. Er is geen export van het hele account.
+
+Bij zelf hosten bevat de open-sourcekern records, aangepaste velden, weergaven, rollen, REST, [webhooks](/docs/webhooks) en MCP. De inbox, Mate en Routines bestaan alleen in de cloud. Details staan op de [pagina over zelf hosten](/features/self-hosted).
+
+## Wat het kost om te draaien
+
+Customermates wordt gefactureerd per gebruiker en per maand, alleen maandelijks. Voor het adviesbureau van vijf mensen hierboven:
+
+| Abonnement | Vijf gebruikers per maand | Wat de opzet hierboven gebruikt |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Aangepaste velden, fases, weergaven, import, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Alles hierboven, plus de gecombineerde inbox met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker en [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker |
+
+Een jaar Pro voor vijf mensen komt op [[commercial.price.pro.monthly.seats.5.months.12]]. Elk betaald abonnement bevat maandelijkse gehoste AI-tegoeden per actieve gebruiker voor Mate; zie [prijzen](/pricing). Zelf hosten kent geen licentiekosten voor de open-sourcekern; je betaalt voor je eigen server en de tijd om hem te laten draaien.
+
+Wil je je eigen werkruimte vormgeven, [start je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
+
+## Een aangepast CRM bruikbaar houden
+
+Aanpassen mislukt vaker door te veel velden dan door te weinig. Drie regels helpen:
+
+1. Voeg een veld alleen toe als iemand erop filtert, sorteert of beslist. Velden die "misschien nuttig" zijn, blijven leeg.
+2. Geef de voorkeur aan Enkele keuze boven vrije tekst voor alles waarop je later groepeert.
+3. Verwijder elk kwartaal velden die niemand heeft ingevuld. In Customermates blijft een verwijderd veld 30 dagen in de Prullenbak staan en verliest het daarna definitief zijn waarden, dus exporteer eerst als je twijfelt.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is het verschil tussen een aanpasbaar CRM en een CRM op maat?">
+Een aanpasbaar CRM is een af product dat je aanpast met velden, fases, weergaven en automatisering, en de leverancier onderhoudt het. Een CRM op maat is software die voor je wordt gebouwd, met code of een no-code platform, en die onderhoud je zelf. Aanpasbaar is voor de meeste kleine teams sneller en goedkoper; maatwerk loont alleen als geen product je records kan weergeven.
+</FaqItem>
+
+<FaqItem question="Kan ik mijn eigen CRM bouwen?">
+Ja. Een no-code database als Airtable, Knack of Caspio kan je snel een werkende eerste versie geven als je proces duidelijk is. Er een vanaf nul programmeren is een lang project, omdat je ook inloggen, rollen, e-mailsynchronisatie, zoeken, import en back-ups bouwt. Zijn je records mensen, bedrijven en deals, dan kom je met het configureren van een bestaand CRM verder voor minder.
+</FaqItem>
+
+<FaqItem question="Wat is een goedkoper CRM-pakket?">
+Een af product met abonnementsprijzen per gebruiker is bijna altijd goedkoper dan maatwerk, omdat de leverancier de ontwikkeling en het onderhoud over alle klanten verdeelt. Vergelijk pakketten op wat je werkelijk gebruikt, niet op de laagste prijs: aangepaste velden, je eigen fases en een API zitten niet overal in het goedkoopste abonnement. Een overzicht staat in de [gids over betaalbare CRM-software](/blog/affordable-crm-software) en de [gids over CRM-kosten](/blog/crm-cost).
+</FaqItem>
+
+<FaqItem question="Wat is de beste CRM voor een klein team dat veel wil aanpassen?">
+Er is geen beste CRM voor iedereen; het hangt af van je records en je budget. Bestaat je werk uit mensen, bedrijven en deals, dan is een aanpasbaar CRM met eigen velden en fases genoeg. Heb je extra recordtypen nodig, kijk dan naar de custom objects in de tabel hierboven. De [gids over de beste CRM-software](/blog/best-crm-software) vergelijkt de keuzes.
+</FaqItem>
+
+<FaqItem question="Hoeveel kost een CRM op maat?">
+Dat hangt van de specificatie af, dus wees op je hoede voor elk vast bedrag. Tel het onderhoud mee, niet alleen de eerste bouw: beveiligingsupdates, hosting, back-ups en elke functie die je anders van een leverancier zou krijgen. Ter vergelijking: vijf gebruikers op Customermates Pro kosten [[commercial.price.pro.monthly.seats.5]] per maand, of [[commercial.price.pro.monthly.seats.5.months.12]] over twaalf maanden, en andere leveranciers publiceren hun prijzen op hun prijspagina's.
+</FaqItem>
+
+<FaqItem question="Kan ik een CRM in Excel bouwen?">
+Voor één persoon en een paar honderd contacten wel. Het loopt vast als meerdere mensen tegelijk bewerken, als je koppelingen tussen klanten en projecten nodig hebt of als gesprekken naast het record moeten staan. Onze [gids over een Excel-CRM-sjabloon](/blog/excel-crm-template) toont een werkbare indeling en wanneer je moet doorstappen. Customermates importeert Excel-werkmappen, één lijst tegelijk.
+</FaqItem>
+
+<FaqItem question="Welk CRM biedt het flexibelste datamodel voor custom objects?">
+Van de hier gecontroleerde producten bevat Twenty onbeperkt custom objects in de abonnementen Pro, Organization en Enterprise, staat Attio er tot 12 toe op Pro en onbeperkt op Enterprise, maakt EspoCRM eigen entiteiten in zijn Entity Manager, reserveert HubSpot custom objects voor Enterprise-niveaus en staat Zoho CRM tussen 10 en 500 custom modules toe, afhankelijk van de betaalde editie. In Customermates voeg je in Datamodel je eigen lijsten met velden en relaties toe.
+</FaqItem>
+
+<FaqItem question="Kan ik mijn CRM-gegevens op mijn eigen server houden?">
+Ja, met een CRM dat je zelf kunt hosten. Customermates, Twenty en EspoCRM kunnen allemaal op je eigen infrastructuur draaien. Bij Customermates draait de zelf gehoste versie met Docker Compose en bevat die aangepaste velden, weergaven, REST, webhooks en MCP, maar niet de inbox, Mate of Routines. Zie de [gids over open-source CRM](/blog/open-source-crm) voor de afwegingen.
+</FaqItem>
+</Faq>

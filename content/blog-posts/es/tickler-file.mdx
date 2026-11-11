@@ -1,0 +1,171 @@
+---
+title: "Tickler file: qué es, cómo funciona y versión digital"
+description: "Tickler file o archivo de recordatorios: qué es, cómo funciona el sistema de 43 carpetas, un ejemplo con fechas y cómo llevarlo en digital en un CRM."
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /blog/digital-rolodex
+
+hero:
+  title: "Tickler file: cómo funciona el sistema del 1 al 31 y una versión digital"
+  description: "Tickler file: qué es, cómo funciona el sistema de 43 carpetas y cómo llevar un archivo de recordatorios digital en un CRM con fecha, vista y widget."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - Seguimiento
+    - Gestión del tiempo
+    - Tickler file
+---
+
+# Tickler file: cómo funciona el sistema del 1 al 31 y una versión digital
+
+Un tickler file, o archivo de recordatorios por fecha (en español también archivo tickler o archivo de seguimiento), es un juego de carpetas con etiqueta de fecha, 31 para los días del mes y 12 para los meses, que te pone delante un papel, una factura o un seguimiento el día en que toca y no antes. Un tickler file digital mantiene la idea en una lista: cada elemento tiene una fecha, la lista se ordena por esa fecha y una vista muestra lo que vence hoy. En Customermates eso es un campo «Fecha del siguiente paso», una vista guardada ordenada por él y el widget «Próximos» del panel.
+
+Esta guía explica qué es un tickler file, recorre el sistema de 43 carpetas con un ejemplo, compara el papel, un indicador de seguimiento de Outlook, una hoja de cálculo y un CRM, y configura la versión digital en Customermates paso a paso. Customermates la publica y aparece en sus propias secciones señaladas, también donde es la opción equivocada. Los datos de terceros se comprobaron el 11 de noviembre de 2026; las fuentes están enlazadas donde se usan.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="La idea">Archiva cada elemento bajo la fecha en la que necesitas volver a verlo y abre solo la carpeta de hoy cada mañana. El archivo se encarga de recordar hasta que llega el día.</SummaryItem>
+  <SummaryItem label="Papel">43 carpetas: 31 numeradas para los días del mes y 12 con el nombre de los meses. Los elementos de meses posteriores esperan en una carpeta de mes y pasan a las carpetas de día cuando empieza ese mes.</SummaryItem>
+  <SummaryItem label="Outlook">Un indicador de seguimiento en un solo correo, con fecha de inicio y de vencimiento y un recordatorio opcional. Sigue a un mensaje, no al cliente que hay detrás.</SummaryItem>
+  <SummaryItem label="Customermates">Un campo Fecha, una vista ordenada por él y el widget «Próximos» con una sección «Vencidos». Funciona en todos los planes, también autoalojado. No envía recordatorios: la lista es el recordatorio.</SummaryItem>
+  <SummaryItem label="Transparencia">Customermates publica esta guía. Las demás opciones se describen según para qué encajan, sin ordenarlas.</SummaryItem>
+</ArticleSummary>
+
+## ¿Qué es un tickler file?
+
+Un tickler file es un sistema de recordatorios hecho de carpetas con etiqueta de fecha. Archivas un papel o una nota bajo la fecha en la que tienes que ocuparte de él, y cada día abres la carpeta de ese día. También se conoce como sistema de las 43 carpetas (43 Folders), y Wikipedia describe su estructura como 31 carpetas diarias más 12 mensuales ([Wikipedia: Tickler file](https://en.wikipedia.org/wiki/Tickler_file)). El nombre viene de que el archivo «hace cosquillas» a tu memoria justo cuando el asunto importa.
+
+La idea es más antigua que los libros de productividad. Wikipedia señala que los despachos de abogados de principios del siglo XX, y quizá antes, archivaban fichas tickler por fecha para que el abogado recibiera la ficha al acercarse un plazo, por ejemplo la renovación de una marca o la presentación de un escrito. David Allen, cuyo libro Getting Things Done trata este sistema, lo describe en su sitio como «como tener tu propia oficina de correos para que te devuelvan las cosas a tu atención y a tu conciencia», y dice que solo exige un segundo al día de comportamiento nuevo ([Getting Things Done: Be your own post office](https://gettingthingsdone.com/2009/11/be-your-own-post-office/)).
+
+Cabe todo lo que quieras volver a ver un día concreto: una factura, una entrada, un formulario, una nota para llamar a alguien. En un negocio, lo más útil son las conversaciones que esperan una fecha: una propuesta que enviaste, un prospecto que te pidió que lo llamaras después de un evento, una renovación que quieres abrir con tiempo.
+
+## ¿Cómo funciona el tickler file de 43 carpetas?
+
+<Steps>
+  <Step title="Etiqueta 43 carpetas">Etiqueta 12 carpetas para los meses y 31 para los posibles días del mes, que es como Allen describe el juego.</Step>
+  <Step title="Archiva cada elemento por fecha">Lo que necesitas ver más adelante este mes va a la carpeta de ese día. Lo que es para un mes posterior va a la carpeta de ese mes.</Step>
+  <Step title="Abre la carpeta de hoy cada mañana">Saca todo y ocúpate de ello: haz la tarea, envía el mensaje, paga la factura o vuelve a archivarlo bajo una fecha posterior.</Step>
+  <Step title="Pasa la carpeta vacía al final">Wikipedia describe así el ritmo diario: la carpeta del día se vacía y se coloca al final del juego, de modo que la carpeta de mañana queda delante.</Step>
+  <Step title="Vacía el mes nuevo en las carpetas de día">El primer día de un mes, abre la carpeta de ese mes y reparte sus elementos en las carpetas de día. Nada necesita una segunda mirada antes de su día.</Step>
+</Steps>
+
+Aquí va un ejemplo. Es inventado y empieza el miércoles 11 de noviembre de 2026.
+
+| Elemento | Volver a verlo el | Tickler de papel | Tickler digital |
+| --- | --- | --- | --- |
+| Hoy salió una propuesta; el cliente dijo que decidiría antes del miércoles 18 de noviembre | 18 de noviembre | Carpeta 18 | Siguiente paso «Pedir la decisión», Fecha del siguiente paso 18 de noviembre |
+| Un prospecto dijo «llámame después de nuestra feria del 3 de diciembre» | 3 de diciembre | Carpeta de diciembre, pasada a la carpeta 3 el 1 de diciembre | Siguiente paso «Llamar por la propuesta», Fecha del siguiente paso 3 de diciembre; entra en el widget «Próximos» cuando la fecha cae dentro de su ventana de días por delante |
+| Necesitas el precio de un proveedor antes de poder responder a un cliente; lo prometió para el viernes 13 de noviembre | 13 de noviembre | Carpeta 13 | Siguiente paso «Reclamar el precio al proveedor», Fecha del siguiente paso 13 de noviembre |
+| El contrato de un cliente termina en enero y quieres abrir la conversación de renovación en diciembre | 1 de diciembre | Carpeta de diciembre | Siguiente paso «Iniciar la conversación de renovación», Fecha del siguiente paso 1 de diciembre |
+
+La versión digital elimina la rotación de carpetas. Nadie pasa una carpeta al final, porque el orden de la lista lo hace, y las carpetas de mes desaparecen porque una fecha de marzo simplemente espera en la lista hasta que entra en tu campo de visión.
+
+## ¿Qué relación hay entre el tickler file y GTD? [#tickler-file-y-gtd]
+
+El tickler file se hizo conocido fuera de los despachos con *Getting Things Done* (GTD), el método de organización personal de David Allen. Allen lo describe como tu propia oficina de correos, algo que te devuelve el asunto a la atención cuando toca. En GTD sirve para lo que no puedes hacer hoy pero no quieres olvidar: una llamada que prometiste para dentro de dos semanas, un aviso para revisar una propuesta, una idea que quizá retomes en marzo.
+
+Todo el sistema depende de un hábito: abrir la carpeta de hoy cada día, sin saltarte ninguno. Si un día no lo abres, los asuntos de ese día se quedan sin ver y deja de ser de fiar. Por eso, en ventas, la versión que funciona es la que se abre sola en tu rutina: la lista de «Próximos» del panel o una vista guardada que miras cada mañana.
+
+## ¿Qué tickler file te conviene: papel, un indicador de Outlook, una hoja de cálculo o un CRM?
+
+Cuatro formas cubren casi todos los casos. La fila de Customermates es nuestro propio producto; las demás se describen por lo que hacen.
+
+| Opción | Cómo funciona la fecha | ¿Te avisa? | Qué hay junto al elemento | Encaja cuando |
+| --- | --- | --- | --- | --- |
+| Papel, 43 carpetas | Una carpeta por día y por mes | No. Abres la carpeta de hoy cada mañana | El propio papel | Gestionas correo físico, facturas, entradas y formularios |
+| Indicador de seguimiento de Outlook | Un indicador en un mensaje con Hoy, Mañana, Esta semana, La próxima semana, Sin fecha o una fecha de inicio y vencimiento personalizadas | Agregar recordatorio crea un aviso; los mensajes marcados aparecen en la Barra de tareas pendientes, en Tareas y en la lista de tareas diarias del Calendario | Un mensaje de correo | El seguimiento parte de un correo en Outlook |
+| Hoja de cálculo | Una columna de fecha que ordenas | No, salvo que lo construyas tú | Una columna de notas | Una persona con una lista corta |
+| Campo Fecha en un CRM (Customermates) | Un campo Fecha en el cliente o en la oportunidad | No. Customermates no envía ninguno; una vista ordenada y el widget «Próximos» son el recordatorio | El registro con notas, contactos y empresas vinculados y, desde Pro, conversaciones de LinkedIn y correo | Clientes y oportunidades con historial, para una persona o un equipo |
+
+Microsoft documenta las opciones del indicador para Outlook para Microsoft 365, Outlook 2024 y Outlook 2021, y señala que con una cuenta IMAP no puedes cambiar el texto del indicador ni fijar fechas de inicio y vencimiento. Comprobado el 11 de noviembre de 2026 en [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/office/flag-email-messages-for-follow-up-9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).
+
+Las aplicaciones de tareas con fecha de vencimiento, un calendario con recordatorios o una aplicación de notas con una nota por día siguen la misma lógica: un elemento, una fecha y una lista que abres cada mañana. Lo que decide cuál usar es dónde vive la conversación con el cliente, no la herramienta.
+
+Cómo elegir:
+
+- **Papeles que debes conservar físicamente:** el tickler de papel. Nada digital guarda la carta original.
+- **Un seguimiento que parte de un solo correo, y vives en Outlook:** el indicador es el camino más corto.
+- **Una lista personal corta:** basta una hoja de cálculo. La [guía de la plantilla de CRM en Excel](/blog/excel-crm-template) muestra dónde empieza a quedarse corta una hoja.
+- **Seguimiento de clientes entre LinkedIn y correo, con un historial que leer antes de llamar:** un CRM, porque la fecha está en el registro donde está la conversación. Desde Pro, la [bandeja de entrada unificada](/features/unified-inbox) pone esas conversaciones en el cliente.
+
+## ¿Cómo se usa un tickler file para el seguimiento comercial?
+
+Cinco reglas convierten las carpetas en un hábito de ventas:
+
+- **Una fecha real por conversación abierta.** Usa el día que prometiste, no «en una semana», para que el seguimiento llegue cuando el cliente lo espera.
+- **Escribe la acción junto a la fecha.** «Enviar el alcance revisado» es mejor que «hacer seguimiento».
+- **Tras cada contacto, cambia la fecha o bórrala.** Una oportunidad sin fecha es la que se pierde de vista.
+- **Abre la lista a la misma hora cada día** y empieza por lo vencido.
+- **Una vez a la semana, busca registros sin fecha.** Es la fuga que un tickler no puede mostrarte por sí solo.
+
+Un [rolodex digital](/blog/digital-rolodex) te dice quién es alguien; el tickler te dice cuándo escribirle. Para la redacción del mensaje, lee [cómo escribir un correo de seguimiento de ventas](/blog/sales-follow-up-email). La página del [software de seguimiento de clientes](/features/follow-up) muestra el mismo siguiente paso con fecha, con las conversaciones de LinkedIn y de correo en el registro del cliente.
+
+## ¿Cómo se configura un tickler file digital en Customermates?
+
+Primero, cómo se corresponden las partes del papel con Customermates:
+
+| En el tickler de papel | En Customermates |
+| --- | --- |
+| 31 carpetas de día | Un campo Fecha «Fecha del siguiente paso». El widget «Próximos» lista hoy y los días siguientes, 14 de forma predeterminada y hasta 90 |
+| 12 carpetas de mes | Nada que mantener. Un registro con fecha en marzo espera en tu vista ordenada hasta que su fecha entra en la ventana del widget |
+| Abrir la carpeta de hoy | Abrir el panel: los registros de hoy y la sección «Vencidos» |
+| Pasar la carpeta al final | Cambiar la fecha de cada registro después de actuar, o borrarla |
+| El papel de la carpeta | El registro: notas, contactos y empresas vinculados, archivos y, desde Pro, conversaciones |
+| Acordarte de abrir el cajón | Sigue siendo tu hábito. Customermates no envía recordatorios |
+
+<Steps>
+  <Step title="Añade dos campos">En **Modelo de datos**, añade un campo de tipo **Fecha** llamado «Fecha del siguiente paso» y un campo de tipo **Texto** llamado «Siguiente paso» a **Contactos** o a **Oportunidades**, o a ambos si tus leads viven en las oportunidades. En un plan con Mate, puedes pedirle que los añada. Las tareas no tienen fecha de vencimiento integrada, así que el mismo campo Fecha sirve también ahí; la [gestión de tareas](/features/task-management) muestra cómo se vinculan las tareas con los clientes.</Step>
+  <Step title="Guarda la vista tickler">Abre **Apariencia**, muestra **Siguiente paso** y **Fecha del siguiente paso**, usa **Ordenar por** con la Fecha del siguiente paso, **Ascendente**, haz clic en **Nueva vista** y ponle el nombre «Tickler». Las fechas más antiguas quedan arriba. Los filtros de fecha personalizados toman fechas fijas, así que es la ordenación lo que mantiene la lista al día sin editar un filtro cada semana. Elige **Compartir…** en el menú de la vista para mostrarla a todo el espacio de trabajo o a roles concretos.</Step>
+  <Step title="Añade el widget Próximos">En el **Panel**, pulsa **Añadir widget** y elige **Próximos**. Elige la lista y el campo **Fecha del siguiente paso**, y filtra los registros terminados, por ejemplo las oportunidades Ganada y Perdida. El widget lista los registros que vencen en los próximos días y tiene una sección **Vencidos** para las fechas anteriores.</Step>
+  <Step title="Guarda una vista sin fecha">En la misma lista, filtra **Fecha del siguiente paso** con **está vacío** y excluye Ganada y Perdida en el campo **Etapa**. Lo que aparezca aquí se ha salido de tu tickler.</Step>
+  <Step title="Trabaja la lista cada mañana">Empieza por **Vencidos** y sigue con hoy. Haz el paso, escribe una línea en las notas del registro y mueve la **Fecha del siguiente paso** al siguiente día prometido, o bórrala cuando no quede nada pendiente. Cambia la vista a **Calendario** sobre la misma fecha si prefieres días a filas, y arrastra un registro a otro día para mover su fecha.</Step>
+</Steps>
+
+Los campos Fecha, las vistas guardadas y el widget «Próximos» no tienen límite de plan: funcionan en Free, en los planes de pago y autoalojados. Para ver las mismas fechas en otra aplicación de calendario, crea una URL de suscripción en el calendario: es un feed privado de solo lectura, y tu aplicación de calendario decide cada cuánto se actualiza. La [guía del panel](/docs/app-dashboard) cubre las opciones del widget y la [guía del calendario](/docs/app-calendar) cubre el feed.
+
+<AcquisitionCallout title="Dónde Customermates no es el tickler file adecuado" variant="boundary">
+  Customermates no envía recordatorios ni notificaciones, no tiene tareas recurrentes y no da a las tareas una fecha de vencimiento integrada, así que la lista solo te recuerda algo cuando la abres. No guarda papel (un escaneo en un campo Archivo se almacena y se muestra, pero su texto no se lee), no tiene app móvil nativa y no tiene sincronización bidireccional con los calendarios de Outlook o Google; el feed del calendario es unidireccional y de solo lectura. Tampoco es un calendario de plazos legales: un campo de fecha es información, no un plazo judicial. Si necesitas un aviso que te encuentre a ti, usa un indicador de Outlook con recordatorio o tu aplicación de calendario, o deja que un programador de tareas como n8n lea la fecha a través de la API.
+</AcquisitionCallout>
+
+Customermates Cloud tiene un plan Free para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros, sin bandeja de entrada, Mate ni rutinas. Tu primer espacio de trabajo empieza con una prueba de [[commercial.trial.days]] días de Pro y después pasa a Free salvo que elijas un plan de pago; los planes de pago empiezan en [[commercial.price.starter.monthly]] por usuario al mes, con facturación mensual, consulta la [página de precios](/pricing). El núcleo de código abierto se puede [autoalojar](/features/self-hosted) sin cuota de licencia, sin bandeja de entrada ni Mate. Para probar el tickler con tus propios clientes, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup): Pro, sin tarjeta de crédito. Añade primero los dos campos a Oportunidades.
+
+## Preguntas frecuentes sobre el tickler file
+
+<Faq>
+<FaqItem question="¿Qué es un tickler file?">
+Un sistema de recordatorios hecho de carpetas con etiqueta de fecha: 31 para los días del mes y 12 para los meses. Archivas un elemento bajo la fecha en la que lo necesitas, y cada mañana abres la carpeta de ese día. También se llama sistema de las 43 carpetas.
+</FaqItem>
+<FaqItem question="¿Por qué se llama tickler file?">
+Porque le hace cosquillas a tu memoria en el momento justo. El archivo guarda el elemento hasta su día, así que no tienes que llevarlo en la cabeza.
+</FaqItem>
+<FaqItem question="¿Cómo se dice tickler file en español?">
+No hay un nombre fijo: se usan «archivo tickler», «archivo de recordatorios» y «archivo de seguimiento», además del sistema de las 43 carpetas (43 Folders). Wikipedia nombra también las fichas tickler para la versión de despacho de abogados de la misma idea. En una oficina o en un CRM, un seguimiento o siguiente paso con fecha es lo mismo en otro contenedor.
+</FaqItem>
+<FaqItem question="¿Qué es el tickler file en GTD?">
+En Getting Things Done es el archivo de fechas donde dejas lo que no puedes hacer hoy pero no quieres olvidar, para que te lo devuelva el día en que toca. David Allen lo describe como tener tu propia oficina de correos. La clave es abrirlo cada día.
+</FaqItem>
+<FaqItem question="¿Qué significa tickler en los negocios?">
+Un recordatorio con fecha que te devuelve un asunto cuando vence. En el trabajo jurídico es una ficha o una entrada que hace aflorar un plazo; en ventas es el siguiente paso con fecha en un cliente o una oportunidad.
+</FaqItem>
+<FaqItem question="¿Cómo hago un tickler file?">
+Etiqueta 31 carpetas del 1 al 31 y 12 carpetas de enero a diciembre. Archiva cada elemento bajo el día, o el mes, en que necesitas volver a verlo. Abre la carpeta de hoy cada mañana y, el primer día de cada mes, reparte la carpeta de ese mes en las carpetas de día.
+</FaqItem>
+<FaqItem question="¿Existe un tickler file digital?">
+Sí. Sirve cualquier lista con una columna de fecha que ordenes y abras a diario: un indicador de seguimiento de Outlook para correos, una hoja de cálculo para una lista personal corta, o un campo Fecha en un CRM con una vista guardada y un widget de panel para el seguimiento de clientes.
+</FaqItem>
+<FaqItem question="¿Es lo mismo un tickler file que un calendario?">
+No exactamente. Un calendario guarda citas a una hora. Un tickler guarda elementos que quieres volver a ver un día, con el elemento o su contexto adjunto. Una lista ordenada con fecha hace los dos trabajos, y Customermates también puede mostrar las mismas fechas en su Calendario.
+</FaqItem>
+<FaqItem question="¿Envía Customermates recordatorios del tickler?">
+No. No hay notificaciones y las tareas no tienen fecha de vencimiento integrada. Añades un campo Fecha, ordenas una vista guardada por él y lo muestras en el widget «Próximos»; la lista es el recordatorio. Si necesitas un aviso push, puede enviarlo un indicador de Outlook con recordatorio o un programador de tareas que lea la fecha a través de la API.
+</FaqItem>
+</Faq>
+
+Datos de terceros comprobados el 11 de noviembre de 2026 en [Wikipedia sobre el tickler file](https://en.wikipedia.org/wiki/Tickler_file), [el sitio Getting Things Done de David Allen](https://gettingthingsdone.com/2009/11/be-your-own-post-office/) y [Microsoft Support sobre marcar mensajes para seguimiento](https://support.microsoft.com/en-us/office/flag-email-messages-for-follow-up-9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).

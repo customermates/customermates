@@ -123,7 +123,7 @@ describe("agent client-visible output safety", () => {
     for (const href of [
       `to:/wiki?page=${id}&other=true`,
       `to:https://example.com/wiki?page=${id}`,
-      `to:/pt/wiki?page=${id}`,
+      `to:/ja/wiki?page=${id}`,
     ]) {
       const result = sanitizeAgentVisibleText(`[Page](${href})`, wikiBaseUrl);
       expect(result).toBe("Page");
@@ -139,7 +139,7 @@ describe("agent client-visible output safety", () => {
       [`https://example.com/path)/wiki?page=${id}`, id],
       [`/other-/wiki?page=${id}`, id],
       [`//example.com/wiki?page=${id}`, id],
-      [`/pt/wiki?page=${id}`, id],
+      [`/ja/wiki?page=${id}`, id],
       [`/settings/webhooks?id=${id}`, id],
       [`/wiki?page=${id}&other=true`, id],
       [`/wiki?page=${id}#fragment`, id],

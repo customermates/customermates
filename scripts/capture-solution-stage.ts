@@ -16,6 +16,7 @@ import {
   checkSolutionCaptureManifest,
 } from "@/core/solutions/solution-captures";
 import { SOLUTION_CATALOG, SOLUTION_DATA_LOCALES, solutionDataLocales } from "@/core/solutions/solution-catalog";
+import { ASSET_LOCALES } from "@/i18n/locale-registry";
 import {
   SOLUTION_STAGE_CAPTURE_VIEWPORT,
   SOLUTION_STAGE_IMAGE_SIZE,
@@ -38,7 +39,7 @@ const STAGE_PATH = join(ROOT, "core", "solutions", "solution-stage-captures.json
 const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest.json");
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
 const PHONE_PATH = join(ROOT, "core", "solutions", "solution-stage-phone-captures.json");
-const PHONE_STAGE_RESERVE_BYTES = 2_800_000;
+const PHONE_STAGE_RESERVE_BYTES = 1_400_000 * ASSET_LOCALES.length;
 const PHONE_WEBP_QUALITY = 60;
 const PHONE_MIN_WEBP_QUALITY = 30;
 const WEBP_QUALITY = 72;
@@ -115,30 +116,46 @@ function mainCaptureBytes(): number {
   ).totalBytes;
 }
 
-function selectedPlan(routes: SolutionStageRoutes, only: readonly string[]): SolutionStagePlanItem[] {
-  const plan = solutionStagePlan(routes);
+function narrowPlan(
+  full: SolutionStagePlanItem[],
+  only: readonly string[],
+  locales: readonly string[] = [],
+): SolutionStagePlanItem[] {
+  const unknownLocales = locales.filter((code) => !full.some((item) => item.locale === code));
+  if (unknownLocales.length > 0) throw new Error(`Unknown locales: ${unknownLocales.join(", ")}`);
+  const plan = locales.length === 0 ? full : full.filter((item) => locales.includes(item.locale));
   if (only.length === 0) return plan;
   const unknown = only.filter((id) => !plan.some((item) => item.solution.id === id));
   if (unknown.length > 0) throw new Error(`Unknown solution ids: ${unknown.join(", ")}`);
   return plan.filter((item) => only.includes(item.solution.id));
 }
 
-function mainCaptureFiles(only: readonly string[]): string[] {
+function selectedPlan(
+  routes: SolutionStageRoutes,
+  only: readonly string[],
+  locales: readonly string[] = [],
+): SolutionStagePlanItem[] {
+  return narrowPlan(solutionStagePlan(routes), only, locales);
+}
+
+function mainCaptureFiles(only: readonly string[], locales: readonly string[]): string[] {
   return SOLUTION_CATALOG.filter((solution) => only.length === 0 || only.includes(solution.id)).flatMap((solution) =>
-    solutionDataLocales(solution).flatMap((locale) =>
-      ["light", "dark"].flatMap((theme) => [
-        `public/captures/solutions/${theme}/${solution.id}-${locale}.webp`,
-        `public/captures/solutions/${theme}/${solution.id}-${locale}-nav.webp`,
-      ]),
-    ),
+    solutionDataLocales(solution)
+      .filter((locale) => locales.length === 0 || locales.includes(locale))
+      .flatMap((locale) =>
+        ["light", "dark"].flatMap((theme) => [
+          `public/captures/solutions/${theme}/${solution.id}-${locale}.webp`,
+          `public/captures/solutions/${theme}/${solution.id}-${locale}-nav.webp`,
+        ]),
+      ),
   );
 }
 
 function plannedFiles(options: CaptureSolutionStageOptions): string[] {
-  const stage = selectedPlan(readStage().routes, options.only).map((item) => `public${item.src}`);
+  const stage = selectedPlan(readStage().routes, options.only, options.locales).map((item) => `public${item.src}`);
   const main = options.withMain
     ? [
-        ...mainCaptureFiles(options.only),
+        ...mainCaptureFiles(options.only, options.locales),
         "core/solutions/solution-capture-manifest.json",
         "core/solutions/solution-capture-provenance.json",
       ]
@@ -237,7 +254,7 @@ function stageBytes(): number {
 async function capturePhone(options: CaptureSolutionStageOptions, dirty: string): Promise<void> {
   const { routes } = readStage();
   const fullPlan = solutionStagePhonePlan(routes);
-  const plan = options.only.length === 0 ? fullPlan : fullPlan.filter((item) => options.only.includes(item.solution.id));
+  const plan = narrowPlan(fullPlan, options.only, options.locales);
   const cap = Math.floor((SOLUTION_CAPTURE_BUDGET_BYTES - mainCaptureBytes() - stageBytes()) / fullPlan.length);
   const phone = readPhone();
   const entries = new Map(phone.entries.map((entry) => [entry.key, entry]));
@@ -262,7 +279,7 @@ async function capturePhone(options: CaptureSolutionStageOptions, dirty: string)
   } finally {
     await browser.close();
   }
-  check({ ...options, requireAll: options.only.length === 0 });
+  check({ ...options, requireAll: options.only.length === 0 && options.locales.length === 0 });
 }
 
 async function capture(options: CaptureSolutionStageOptions): Promise<void> {
@@ -275,11 +292,12 @@ async function capture(options: CaptureSolutionStageOptions): Promise<void> {
   if (options.withMain) {
     const args = ["tsx", "scripts/capture-solutions.ts", "--base-url", options.baseUrl, "--allow-dirty"];
     if (options.only.length > 0) args.push("--only", options.only.join(","));
+    if (options.locales.length > 0) args.push("--locales", options.locales.join(","));
     execFileSync("npx", args, { cwd: ROOT, stdio: "inherit" });
   }
 
   const stage = refreshRoutes();
-  const plan = selectedPlan(stage.routes, options.only);
+  const plan = selectedPlan(stage.routes, options.only, options.locales);
   const fullPlan = solutionStagePlan(stage.routes);
   const cap = Math.floor(
     (SOLUTION_CAPTURE_BUDGET_BYTES - mainCaptureBytes() - PHONE_STAGE_RESERVE_BYTES) / fullPlan.length,
@@ -313,7 +331,7 @@ async function capture(options: CaptureSolutionStageOptions): Promise<void> {
 
   console.log(`\nWrote ${written.length} stage captures and core/solutions/solution-stage-captures.json:`);
   for (const file of written) console.log(`  ${file}`);
-  check({ ...options, requireAll: options.only.length === 0 });
+  check({ ...options, requireAll: options.only.length === 0 && options.locales.length === 0 });
 }
 
 function check(options: CaptureSolutionStageOptions): void {

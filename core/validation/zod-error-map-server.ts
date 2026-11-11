@@ -18,6 +18,9 @@ const localeLoaders = new Map<string, () => Promise<typeof ZodLocaleModule>>([
   ["fr", () => import("zod/v4/locales/fr.js")],
   ["it", () => import("zod/v4/locales/it.js")],
   ["es", () => import("zod/v4/locales/es.js")],
+  ["pt", () => import("zod/v4/locales/pt.js")],
+  ["pl", () => import("zod/v4/locales/pl.js")],
+  ["nl", () => import("zod/v4/locales/nl.js")],
 ]);
 
 async function localization(): Promise<{ appLocale: AppLocale; messages: MessageReader }> {

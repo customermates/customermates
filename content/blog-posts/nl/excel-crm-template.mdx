@@ -1,0 +1,312 @@
+---
+title: "Excel CRM template gratis: 6 sheets, formules, dropdowns"
+description: "Excel CRM template gratis: zes sheets met dropdowns, formules en een wekelijkse tracker per verkoper, zo gebouwd dat je ze later in een CRM importeert."
+
+relatedHrefs:
+  - /blog/google-sheets-crm
+  - /features/simple-crm
+  - /blog/digital-rolodex
+  - /blog/contact-list-template
+
+hero:
+  title: "Excel CRM template: een gratis layout met zes sheets die je later kunt importeren"
+  description: "Elke kolom, dropdown en formule voor een spreadsheet-CRM dat een tot drie mensen kunnen draaien, met een wekelijkse tracker per verkoper en layoutregels zodat elke sheet zonder overtypen naar een CRM verhuist."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2025-12-25
+  updated: 2026-11-06
+  tags:
+    - Excel
+    - CRM template
+    - Spreadsheet CRM
+    - Sales tracking
+---
+
+# Excel CRM template: een gratis layout met zes sheets die je later kunt importeren
+
+Een Excel CRM template ondersteunt klantrelatiebeheer met één sheet per soort record (bedrijven, contacten, deals, activiteiten) en één sheet die ze telt en optelt. De layout hieronder is gratis te kopiëren: typ de kopjes in een lege werkmap, voeg de dropdowns toe en plak de formules. Hij houdt het vol voor een tot drie mensen die één kopie van het bestand bijhouden, en elke sheet is zo ingericht dat hij later als import in een CRM kan, zonder één rij opnieuw te typen.
+
+Customermates publiceert deze gids en is de CRM in het importvoorbeeld. De werkmap zelf heeft niets nodig behalve een actuele versie van Excel.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Wat je bouwt">Zes sheets: Lists, Companies, Contacts, Deals, Activities en een Dashboard met een wekelijkse tracker per verkoper.</SummaryItem>
+  <SummaryItem label="Bestandsformaat">Sla op als .xlsx. Het oude .xls-formaat houdt op bij 65.536 rijen, en samenwerken in Excel vraagt om .xlsx, .xlsm of .xlsb in OneDrive of SharePoint.</SummaryItem>
+  <SummaryItem label="Voor wie">Een tot drie mensen, één verkoopproces, een paar honderd actieve contacten.</SummaryItem>
+  <SummaryItem label="Tijd om over te stappen">Twee mensen werken aan dezelfde deals, een follow-up viel weg omdat niemand de datumkolom filterde, of deals lopen via LinkedIn- en WhatsApp-gesprekken die nooit in de sheet komen.</SummaryItem>
+  <SummaryItem label="Zo stap je over">Eén sheet per import: eerst diensten en bedrijven, dan contacten, dan deals.</SummaryItem>
+</ArticleSummary>
+
+Gebruik de [contactenlijst template](/blog/contact-list-template) voor een kleine, gedeelde lijst met een benoemde eigenaar en volgende stap, voordat je beslist of je die in een CRM onderbrengt.
+
+Een CRM systeem op basis van Excel heeft dezelfde werkafspraken nodig als een speciaal hulpmiddel: één eigenaar per rij, stabiele identifiers en een duidelijke volgende stap. Een sheet-layout alleen dwingt die regels niet af.
+
+## Waar kan ik de gecontroleerde CRM-werkmap downloaden?
+
+Download de [gratis Excel CRM-werkmap in het Engels](/templates/crm-template-en.xlsx) of de [Duitse CRM-werkmap](/templates/crm-template-de.xlsx). Het is een origineel, compact voorbeeld met zes werkende sheets plus een Readme: Companies, Contacts, Deals, Activities, Dashboard en Lists. Het staat los van de uitgebreidere layout per kolom hieronder; plak de formules hieronder niet in de download zonder de kolomverwijzingen te controleren.
+
+Het voorbeeld houdt **één klant en twee opdrachten** bij elkaar met stabiele bron-ID's. Zowel `JOB-001` als `JOB-002` verwijst naar `C-001`, ook als je de klant hernoemt. De datums zijn datumcellen, de statussen gebruiken dropdowns en de klantopzoeking gebruikt het bron-ID. Het dashboard bevat 9.000 EUR aan voorbeeldkansen en 4.050 EUR gewogen waarde: 7.200 × 50% plus 1.800 × 25%. De twee openstaande volgende stappen blijven aparte activiteiten.
+
+Gecontroleerd op 29 oktober 2026: we hebben beide XLSX-bestanden met ExcelJS geschreven en weer geopend, sheetnamen, datumcellen, opzoekverwijzingen en opgeslagen formuleresultaten gecontroleerd en nagegaan dat ze geen macro's of externe werkmapverbindingen bevatten. We hebben geen visuele sessie in Microsoft Excel of LibreOffice gedaan. Open je kopie in je spreadsheetprogramma, herbereken hem en bevestig de twee voorbeeldtotalen voordat je de fictieve rijen vervangt. Tel geen meerdere valuta's op in één totaal zonder een duidelijke omrekenregel.
+
+### Wat overleefde de lokale CRM-importcontrole?
+
+We hebben het Engelse voorbeeld omgezet naar schemabewuste JSON en geïmporteerd via het echte Customermates MCP-eindpunt in een synthetische lokale werkruimte. Dit was een JSON/API-test, **geen test van de native XLSX-wizard in de browser**. Een aparte voorbeeldlijst bewaarde een handmatig bedrag en een handmatige kans; die verving de standaardberekening van de dealwaarde niet stilletjes.
+
+| Bronwaarde | Controle van de opgeslagen staat |
+| --- | --- |
+| `C-001`, `JOB-001`, `JOB-002` | Bewaard in Tekst-velden voor het bron-ID en in een koppeltabel van bron-ID naar record-ID |
+| Eén klant, twee opdrachten | Beide opgeslagen relaties wezen naar hetzelfde klantrecord |
+| `Example owner` | Omgezet naar het werkelijke ID van het synthetische lid; doe dit voor je eigen leden |
+| Proposal / Qualified | Gekoppeld aan de werkelijke ID's van de keuzeopties |
+| 7.200 / 1.800 EUR en 20 november / 4 december 2026 | Bedrag, valuta en datum kwamen overeen na teruglezen en export |
+| 50% / 25% | Decimale kansen kwamen overeen na export |
+
+Dezelfde import opnieuw afspelen met zijn idempotentiesleutel gaf hetzelfde resultaat zonder twee extra opdrachten toe te voegen. Lees voor een echte overstap eerst de ID's van je huidige lijst, velden en opties uit en volg dan het [JSON-importcontract](/docs/app-records#bulk-import-over-the-api). Bewaar een koppeling van bron-ID's in de werkmap naar record-ID's in de CRM, lees de opgeslagen records terug en archiveer de oorspronkelijke werkmap. Dit is geen migratie van bijlagen, geen ongedaanmaakfunctie en geen doorlopende synchronisatie.
+
+## Zo gebruik je de Excel CRM template in de praktijk [#zo-gebruik-je-de-template]
+
+Een template werkt pas als er een vaste routine omheen zit. Zo houd je hem bij:
+
+1. **Kopieer de layout of download de werkmap** en sla hem op als .xlsx op een plek met automatische back-up, bijvoorbeeld OneDrive.
+2. **Vervang de voorbeeldrijen door je eigen gegevens.** Begin met de deals die nu lopen, niet met je hele oude adreslijst. Een kleine, kloppende sheet wordt gebruikt; een grote, vervuilde niet.
+3. **Leg elk gesprek meteen vast** in Activities en zet bij elke deal een volgende stap met een echte datum.
+4. **Loop elke week het dashboard door.** Sorteer Deals op de datum van de volgende stap, werk bij wat te laat is en kijk welke deals al twee weken stilstaan.
+5. **Controleer elke maand dubbelen en maak een back-up** met de datum in de bestandsnaam.
+
+Merk je dat stap 3 of 4 een keer per week mislukt omdat niemand tijd heeft, dan is dat het eerste teken van de grens die de checklist verderop beschrijft.
+
+## Vier layoutregels vóór de eerste rij
+
+1. **Eén kopregel, één rij per record.** Geen samengevoegde cellen, geen lege rijen, geen subtotalen tussen de gegevens.
+2. **Maak van elke sheet een Excel-tabel.** Selecteer het bereik, druk op Ctrl+T en geef de tabel een naam onder Tabelontwerp › Tabelnaam: `Companies`, `Contacts`, `Deals`, `Activities`. De formules hieronder gebruiken die namen, en tabellen groeien mee met nieuwe rijen.
+3. **Geef elke vaste lijst een dropdown.** Gebruik Gegevens › Gegevensvalidatie, Toestaan: Lijst, met een tabel op de sheet Lists als bron. De [uitleg over keuzelijsten](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list) van Microsoft merkt op dat dropdowns op basis van een tabel zichzelf bijwerken als je items toevoegt of verwijdert.
+4. **Bewaar naast leesbare namen ook een stabiel bron-ID.** De layout hieronder gebruikt exacte namen voor de native koppeling van XLSX-links. De compacte download bewaart daarnaast bron-ID's voor opzoekingen en een latere JSON/API-koppeling. Namen helpen mensen een record te kiezen; bewaar de koppeling van bron naar record-ID als namen veranderen.
+
+## De template, sheet voor sheet
+
+De namen van sheets, tabellen en kolommen, de namen van fases en activiteitstypen blijven hier Engels, omdat de formules en de te downloaden werkmap ze gebruiken; vertaal je ze, pas dan de formules aan. De formules zijn geschreven met Engelse functienamen en komma's als scheidingsteken. Een Nederlandse versie van Excel toont en vraagt vertaalde functienamen en puntkomma's (bijvoorbeeld SOMMEN.ALS voor SUMIFS, AANTALLEN.ALS voor COUNTIFS, X.ZOEKEN voor XLOOKUP, VANDAAG voor TODAY).
+
+### Lists
+
+Kleine tabellen die de dropdowns voeden. De tabel met fases heeft ook een winkans, die de sheet Deals opzoekt.
+
+| Tabel | Kolommen | Startwaarden |
+| --- | --- | --- |
+| `Stages` | Stage, Probability | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
+| `ContactTypes` | Contact type | Lead, Klant, Partner, Voormalige klant |
+| `Sources` | Source | Aanbeveling, Website, LinkedIn, Evenement, Outbound |
+| `ActivityTypes` | Type | Call, Email, Meeting, LinkedIn, WhatsApp |
+| `Team` | Name | Volledige naam van iedereen die records beheert |
+
+Deze fases en kansen zijn een voorbeeld. Customermates heeft geen vooraf ingestelde fases: maak dezelfde opties aan op het veld Fase van je dealslijst in Datamodel (of laat in de cloud de AI-installatie ze bouwen), en de kolom Stage importeert later zonder hernoemen. Zie de percentages als een eerste gok en vervang ze zodra je een paar maanden gewonnen en verloren deals hebt om te tellen.
+
+### Companies
+
+Kolommen: Company (unieke naam), Industry (dropdown), Website, City, Country, Owner (dropdown uit `Team`), Notes. Besluit één keer of je "B.V." of "BV" schrijft en blijf daarbij. Twee schrijfwijzen zijn voor elke opzoeking en elke importer twee bedrijven.
+
+### Contacts
+
+| Kolom | Inhoud | Voorbeeld |
+| --- | --- | --- |
+| A First name | Tekst | Sarah |
+| B Last name | Tekst | Okafor |
+| C Company | Dropdown uit de kolom Company van `Companies` | Brookfield Architects |
+| D Email | Tekst | sarah@brookfield-architects.example |
+| E Phone | Opgeslagen als tekst, zodat het plusteken behouden blijft | +44 113 496 0000 |
+| F LinkedIn | Profiel-URL | linkedin.com/in/sarahokafor |
+| G Contact type | Dropdown uit `ContactTypes` | Klant |
+| H Source | Dropdown uit `Sources` | Aanbeveling |
+| I Owner | Dropdown uit `Team` | Anna Visser |
+| J Last contact | Datum | 28-11-2025 |
+| K Notes | Korte tekst | Wil liefst voor 10:00 gebeld worden |
+
+Houd voor- en achternaam gescheiden: de meeste CRM's hebben allebei nodig om een persoon aan te maken.
+
+### Deals
+
+| Kolom | Inhoud | Voorbeeld |
+| --- | --- | --- |
+| A Deal | Tekst | Beveiligingsreview Brookfield Architects |
+| B Company | Dropdown uit `Companies` | Brookfield Architects |
+| C Contact | Volledige naam van de contactpersoon | Sarah Okafor |
+| D Value | Getal | 18.000 |
+| E Stage | Dropdown uit `Stages` | Proposal |
+| F Probability | Formule | 60% |
+| G Weighted | Formule | 10.800 |
+| H Expected close | Datum | 31-01-2026 |
+| I Owner | Dropdown uit `Team` | Anna Visser |
+| J Next step | Één zin | Herziene scope sturen |
+| K Next step date | Datum | 04-12-2025 |
+| L Closed on | Datum, ingevuld bij Won of Lost | |
+| M Loss reason | Dropdown: Prijs, Timing, Concurrent, Geen beslissing | |
+
+Voer de twee formules één keer in op de eerste gegevensrij; de tabel vult ze naar beneden aan:
+
+```
+F  Probability   =XLOOKUP([@Stage],Stages[Stage],Stages[Probability],0)
+G  Weighted      =[@Value]*[@Probability]
+```
+
+In een Nederlandse Excel typ je dezelfde formules met vertaalde functienamen en puntkomma's:
+
+```
+F  Probability   =X.ZOEKEN([@Stage];Stages[Stage];Stages[Probability];0)
+Open pipeline    =SOMMEN.ALS(Deals[Value];Deals[Stage];"<>Won";Deals[Stage];"<>Lost")
+```
+
+XLOOKUP (X.ZOEKEN) vraagt om Excel voor Microsoft 365, 2021 of 2024. De [XLOOKUP-referentie](https://support.microsoft.com/en-us/excel/functions/xlookup-function) van Microsoft zegt dat de functie niet beschikbaar is in Excel 2016 en 2019, waar `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` hetzelfde doet.
+
+Om verstreken datums van de volgende stap rood te kleuren, selecteer je de gegevensrijen van kolom K en voeg je een regel toe onder Start › Voorwaardelijke opmaak › Nieuwe regel › "Een formule gebruiken om te bepalen welke cellen worden opgemaakt": `=AND($K2<>"",TODAY()>$K2)`. De kleur ziet alleen wie het bestand opent. De werkmap zelf waarschuwt niemand.
+
+### Activities
+
+Eén rij per contactmoment dat telde: Date, Contact (volledige naam), Deal (naam, of leeg), Type (dropdown uit `ActivityTypes`), Owner, Summary (een of twee zinnen over wat er is gezegd en afgesproken) en Next step. Het is de enige sheet die antwoord geeft op "wat hebben we ze het laatst verteld?", dus vul hem meteen na het gesprek in.
+
+### Dashboard
+
+Vijf pipelinecijfers:
+
+```
+Open pipeline      =SUMIFS(Deals[Value],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Weighted pipeline  =SUMIFS(Deals[Weighted],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Win rate           =COUNTIFS(Deals[Stage],"Won")/MAX(1,COUNTIFS(Deals[Stage],"Won")+COUNTIFS(Deals[Stage],"Lost"))
+Won this month     =SUMIFS(Deals[Value],Deals[Stage],"Won",Deals[Closed on],">="&EOMONTH(TODAY(),-1)+1)
+Past next steps    =COUNTIFS(Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Voor de pipeline per fase voeg je een draaitabel in vanuit `Deals`, met Stage in Rijen en Value in Waarden, en zet je er een staafdiagram op. Ververs hem na elke wijziging.
+
+Zodra twee of meer mensen verkopen, voeg je een tracker per verkoper toe. Zet de maandag van de week in B1 en één naam per rij vanaf A4, en kopieer dan deze formules uit rij 4 naar beneden:
+
+```
+Calls            =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Call",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Meetings         =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Meeting",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Open pipeline    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Won this week    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"Won",Deals[Closed on],">="&$B$1,Deals[Closed on],"<"&$B$1+7)
+Past next steps  =COUNTIFS(Deals[Owner],$A4,Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Veel gesprekken bij een vlakke pipeline wijzen op een kwalificatieprobleem. Een stijgend aantal verstreken volgende stappen wijst op een opvolgprobleem. Gebruik de tracker om te coachen, niet als openbare ranglijst, want dan worden de activiteitsaantallen opgeblazen.
+
+## Excel, Google Sheets of een CRM?
+
+| Als dit op jou lijkt | Gebruik | Let op |
+| --- | --- | --- |
+| Eén persoon, een paar honderd contacten, de meeste gesprekken per e-mail | Deze Excel template op je eigen computer | Houd één kopie bij en maak wekelijks een back-up |
+| Twee of drie mensen op Microsoft 365 die hetzelfde bestand bewerken | De werkmap in OneDrive of SharePoint met [samenwerken](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring) | Vraagt een Microsoft 365-abonnement en .xlsx, .xlsm of .xlsb |
+| Een team dat in Google Workspace werkt | Dezelfde layout in Google Sheets, zie de [gids over Google Sheets als CRM](/blog/google-sheets-crm) | Controleer elke formule opnieuw nadat je hem hebt nagebouwd |
+| Meerdere mensen delen deals, follow-ups lopen weg, deals lopen via LinkedIn- of WhatsApp-chats | Een CRM | Plan de import hieronder voordat je er een kiest |
+
+## Waar een spreadsheet-CRM ophoudt te werken
+
+Omvang is zelden de reden; deze grenzen komen het eerst naar boven.
+
+- **Koppelingen zijn tekst.** Hernoem je een bedrijf, dan wijst elk contact, elke deal en elke opzoeking die de oude naam gebruikte nergens meer naartoe totdat je Zoeken en vervangen over de werkmap laat lopen.
+- **Het bestand wacht op jou.** Een rode datum helpt alleen wie de sheet opent, en berichten uit e-mail, LinkedIn of WhatsApp komen alleen binnen als iemand een samenvatting typt.
+- **Toegang is alles of niets.** Iedereen die de werkmap kan openen, kan elke sheet lezen.
+- **Persoonsgegevens verspreiden zich over kopieën.** Onder de [AVG](https://eur-lex.europa.eu/eli/reg/2016/679/oj) mag een persoon vragen welke gegevens je over die persoon bewaart (artikel 15) en die laten wissen (artikel 17). Bij een werkmap betekent dat elke kopie op elke laptop en in elke map met verzonden berichten.
+
+## Wanneer overstappen: een checklist
+
+- Twee of meer mensen werken in een gewone week dezelfde deals bij.
+- Een [follow-up](/features/follow-up) viel weg omdat de datum in een kolom stond die niemand filterde.
+- Je kopieert berichten uit LinkedIn of WhatsApp naar de sheet, of je bent er stilletjes mee gestopt.
+- Het Dashboard repareren kost meer tijd dan het lezen.
+- Iemand vraagt wie de klantenlijst kan zien, en het eerlijke antwoord is "iedereen met het bestand".
+
+Gelden er twee hiervan, dan zou ik overstappen. Eén alleen is meestal binnen de werkmap op te lossen.
+
+## De template naar Customermates verplaatsen [#de-template-naar-customermates-verplaatsen]
+
+Customermates importeert Excel-werkmappen (.xlsx of .xls) en CSV-bestanden, één lijst tegelijk. De [importdocumentatie](/docs/app-records#how-do-i-import-or-export-records) bevat alle regels. Een spreadsheet volgt alleen op als iemand eraan denkt hem te openen. Zodra de sheet in Customermates staat, staan de gesprekken van elke klant op het klantrecord (in Customermates Cloud vanaf Pro), stelt Mate of je eigen AI-agent het antwoord en de volgende stap op, en voedt de datum van de volgende stap je dashboard in plaats van een rode cel. Hier landen de kolommen van de template:
+
+| Kolom in de template | Veld in Customermates |
+| --- | --- |
+| Company | Naam van de organisatie |
+| First name, Last name | Voornaam en Achternaam |
+| Company van een contact of deal | Organisaties, gekoppeld op naam |
+| Contact van een deal | Contactpersonen, gekoppeld op volledige naam |
+| Email, Phone, LinkedIn | Contactgegevens van de contactpersoon |
+| Industry, Contact type, Source, Loss reason | Aangepaste velden van het type Enkele keuze |
+| Website; City, Country, Next step | Aangepast veld Webadres; aangepaste velden Tekst |
+| Last contact, Expected close, Next step date, Closed on | Aangepaste velden Datum |
+| Stage | Het veld Fase van de deal |
+| Value | Regelitems, zie stap 2 |
+| Probability, Weighted | Weggelaten: de kans van de fase bepaalt de gewogen waarde |
+| Owner | Toegewezen, gekoppeld op de volledige naam van het teamlid |
+| Notes | Notities |
+| Open next steps from Activities | Taken |
+
+<Steps>
+  <Step title="Maak eerst de aangepaste velden aan">Open in **Datamodel** de lijst en kies **Toevoegen**, daarna **Veld**. Maak voor elke dropdownkolom een veld Enkele keuze waarvan de optielabels precies overeenkomen met je sheet Lists; de import markeert elke cel die geen optie is. Bekijk het fasenveld en de kansen in je werkruimte; de AI-installatie en bestaande werkruimtes kunnen andere lijsten en opties gebruiken. Maak de benodigde opties aan of pas ze aan in Datamodel in plaats van aan te nemen dat ze overeenkomen met dit voorbeeld.</Step>
+  <Step title="Bepaal hoe dealwaardes binnenkomen">De waarde van een deal in Customermates is de som van zijn regelitems, elk een dienstprijs maal aantal. Importeer eerst je prijslijst in **Diensten** (Naam en Prijs zijn verplicht) en voeg dan regelitems met hun aantallen toe aan elke deal. Heeft elke deal een eigen prijs, dan kan een invoerveld Geldbedrag het getal bewaren. Het vervangt de bestaande berekening met regelitems niet automatisch; een schemabeheerder moet de configuratie van waarde en weging in een voorbeeld bekijken en bewust wijzigen als dat het bedoelde model is.</Step>
+  <Step title="Importeer in volgorde van afhankelijkheid">Diensten, dan bedrijven naar Organisaties, dan contacten, dan deals. Koppelingen worden op naam gekoppeld, zonder onderscheid tussen hoofdletters en kleine letters, dus een bedrijf moet bestaan voordat een contact ernaar kan verwijzen, en een naam die bij geen of bij meerdere records past, wordt gemarkeerd. Een komma scheidt namen binnen een cel, dus een kantoor met de naam "Van Dijk, Bakker en Partners" moet vóór de import worden hernoemd of achteraf een handmatig gezette koppeling krijgen.</Step>
+  <Step title="Start de wizard">Open op elke lijst **Meer acties**, kies **Toevoegen uit bestand** en kies het bestand. De wizard vraagt welke sheet je importeert, dus de werkmap mag zijn andere sheets houden; sla hem op als .xlsx. Een bestand mag momenteel maximaal 10 MB en 5.000 rijen bevatten. Koppel elke kolom aan een veld; e-mailadressen, telefoonnummers en LinkedIn-profielen komen in het veld Contactgegevens van de contactpersoon.</Step>
+  <Step title="Los probleemrijen op of sla ze over">De controle toont elk probleem per rij voordat er iets wordt toegevoegd. Herstel de cellen in Excel en controleer opnieuw, of importeer de rest en sla die rijen over. Een import kan niet ongedaan worden gemaakt, dus draai eerst tien rijen.</Step>
+  <Step title="Maak van open volgende stappen taken">Neem uit Activities alleen open volgende stappen over, als taken die aan de deal en de contactpersoon zijn gekoppeld en aan de eigenaar zijn toegewezen. Taken hebben geen veld voor een vervaldatum, dus voeg een aangepast veld Datum toe voor de datum. Oudere geschiedenis kan in de Notities van de deal of in de gearchiveerde werkmap blijven.</Step>
+</Steps>
+
+### Wat het dashboard en de rode cellen vervangt
+
+- **De pipeline** wordt de lijst Deals als bord gegroepeerd op Fase, met totale en gewogen waarde per kolom; de [pipeline-weergave](/features/pipeline) laat dat zien.
+- **Verstreken volgende stappen** worden een opgeslagen weergave van deals met een datum voor de volgende stap, oudste eerst. Filter voor deals die niemand heeft aangeraakt **Bijgewerkt op** met **Ouder dan…** en 14 dagen.
+- **De ochtendcheck** kan draaien in Customermates Cloud. Customermates heeft geen herinneringen of meldingen, maar een routine die elke dag om 08:00 draait, kan een instructie als deze afwerken, met gehoste AI-credits:
+
+> Toon mijn open deals waarvan de datum van de volgende stap vandaag of eerder is. Maak voor elke deal een taak aan die aan de deal is gekoppeld, aan mij is toegewezen en "Follow up" plus de naam van de deal heet. Verstuur of schrijf geen berichten.
+
+Een routine handelt met de toegang van haar eigenaar, en Mate verstuurt berichten als dat wordt gevraagd, dus de instructie moet vastleggen wat er niet mag gebeuren. Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker en Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; de [routinesdocumentatie](/docs/app-routines) noemt de uitvoeringslimieten.
+
+- **De sheet Activities** maakt, op Pro en hoger, plaats voor de [gecombineerde inbox](/features/unified-inbox), die e-mail-, LinkedIn-, WhatsApp-, Instagram- en Telegram-gesprekken bij de contactpersoon bewaart. Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter heeft geen inbox.
+
+## Wat het kost, en wanneer Customermates de verkeerde stap is
+
+| Team | Abonnement | Per maand |
+| --- | --- | --- |
+| 3 personen, CRM zonder inbox | Starter, [[commercial.price.starter.monthly]] per gebruiker | [[commercial.price.starter.monthly.seats.3]] |
+| 3 personen, met de gecombineerde inbox | Pro, [[commercial.price.pro.monthly]] per gebruiker | [[commercial.price.pro.monthly.seats.3]] |
+| Je eigen server | Zelf gehoste AGPL-kern | Geen licentiekosten, plus je eigen hosting; REST, webhooks en MCP, maar geen inbox en geen Mate |
+
+De facturering is maandelijks en de gehoste proefperiode duurt [[commercial.trial.days]] dagen met Pro, zonder creditcard: [start je proefperiode](/auth/signup?job=followup) en importeer één sheet om je eigen deals daar te zien. Elk betaald gehost abonnement bevat maandelijkse gehoste AI-credits per actieve gebruiker; zie [prijzen](/pricing).
+
+Customermates heeft [berekende velden](/docs/concepts#how-do-i-build-a-calculated-field), ook met waarden uit hetzelfde record en totalen over gekoppelde records. Het is de verkeerde stap als je een algemene spreadsheet met willekeurige celformules en werkmaplayouts nodig hebt; houd die analyse in Excel via de export. Het is ook de verkeerde stap als je team een telefoonkiezer of e-mailcampagnes nodig heeft, of een native app op de telefoon: Customermates heeft geen mobiele app, geen telefonie en geen campagnetool. Zoek een CRM dat die levert.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Hoe gebruik je een Excel CRM template?">
+Kopieer de layout of download de werkmap, vervang de voorbeeldrijen door je lopende deals, leg elk gesprek vast in Activities en zet bij elke deal een volgende stap met datum. Loop elke week het dashboard door en maak een back-up. De stappen staan in het gedeelte "Zo gebruik je de Excel CRM template in de praktijk".
+</FaqItem>
+
+<FaqItem question="Is er een Excel CRM template in het Nederlands?">
+De downloadbare werkmappen zijn er in het Engels en het Duits; de layout in dit artikel gebruikt Engelse sheet- en kolomnamen, omdat de formules ze gebruiken. Je kunt alles hernoemen, maar pas dan de formules aan. Een Nederlandse Excel toont de formules met vertaalde functienamen en puntkomma's, zoals hierboven staat.
+</FaqItem>
+
+<FaqItem question="Wat zijn de nadelen van een CRM in Excel?">
+Koppelingen tussen bedrijven, contacten en deals zijn tekst en breken als een naam verandert, het bestand waarschuwt niemand, toegang is alles of niets en persoonsgegevens verspreiden zich over kopieën. Het gedeelte "Waar een spreadsheet-CRM ophoudt te werken" werkt deze grenzen uit.
+</FaqItem>
+
+<FaqItem question="Kun je een CRM in Excel bouwen?">
+Ja, voor een klein team. De layout met zes sheets hierboven dekt bedrijven, contacten, deals, activiteiten en een dashboard. Wat Excel zelf niet kan, is iemand waarschuwen, koppelingen intact houden als een naam verandert, of gesprekken binnenhalen. Excel is een spreadsheet, geen CRM; Microsoft verkoopt zijn CRM apart als [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
+</FaqItem>
+
+<FaqItem question="Is er een gratis Excel CRM template?">
+De layout in dit artikel en het downloadbare XLSX-voorbeeld hierboven zijn gratis en hebben niets nodig behalve een compatibel spreadsheetprogramma. Download je elders een template, controleer dan drie dingen voordat je gegevens invoert: één record per rij, contacten gescheiden van bedrijven en geen samengevoegde cellen. Een template die daaraan niet voldoet, is later moeilijk in een CRM te importeren.
+</FaqItem>
+
+<FaqItem question="Hoeveel contacten kan een Excel CRM aan?">
+Een werkblad bevat 1.048.576 rijen volgens de [Excel-specificaties](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits) van Microsoft, en een Google Sheets-bestand maximaal 20 miljoen cellen volgens de [bestandslimieten van Google](https://support.google.com/drive/answer/37603). De praktische grens zijn mensen, geen rijen: de checklist hierboven geldt ruim voordat het bestand vol is. Customermates leest momenteel maximaal 5.000 rijen per importbestand, dus splits grotere sheets.
+</FaqItem>
+
+<FaqItem question="Kan een CRM synchroon blijven met mijn Excel-bestand?">
+Customermates niet. Import en export zijn bestandsoverdrachten, één lijst tegelijk, zonder live synchronisatie en zonder CSV-export. Een heen-en-weer-rondje werkt wel: exporteer een lijst naar .xlsx (tot 5.000 records), bewerk hem in Excel en importeer hem opnieuw als **Bestaande records**, en de kolom Record-ID werkt die records bij in plaats van duplicaten te maken.
+</FaqItem>
+
+<FaqItem question="Wat moet een spreadsheet voor het volgen van verkopers bevatten?">
+Eén rij per verkoper per week: gesprekken, meetings, open pipeline, gewonnen omzet en het aantal deals met een verstreken volgende stap. Bereken elke cel uit de sheets Deals en Activities met COUNTIFS en SUMIFS, zoals in de tracker hierboven, zodat niemand getallen intypt die van de gegevens afdrijven.
+</FaqItem>
+</Faq>
+
+Verificatie van de gegevens over Excel en Google Sheets op 8 oktober 2026 aan de hand van de pagina's van Microsoft over [Excel-specificaties en -limieten](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits), [Excel met eerdere versies](https://support.microsoft.com/en-us/excel/use-excel-with-earlier-versions-of-excel), [samenwerken](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring), [keuzelijsten](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list), [XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) en [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales), en de [bestandslimieten van Google Drive](https://support.google.com/drive/answer/37603).

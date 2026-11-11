@@ -1,0 +1,330 @@
+---
+title: "Melhores CRM open source em 2026: como comparar"
+description: "Melhores CRM open source: compare licença, implantação, operação e integrações, veja prós e contras e o limite exato do Customermates com hospedagem própria."
+
+acquisition:
+  locale: pt
+  slug: open-source-crm
+  clusterId: open-source-self-hosted
+  role: support
+  primaryIntent: Comparação de CRM open source
+  metadata:
+    title: "Melhores CRM open source em 2026: como comparar"
+    description: "Melhores CRM open source: compare licença, implantação, operação e integrações, veja prós e contras e o limite exato do Customermates com hospedagem própria."
+  proof:
+    factReferences:
+      - product:agpl-community-core
+      - product:docker-postgresql-deployment
+      - product:self-hosted-starter-entitlements
+      - product:core-crm-records
+      - product:custom-fields-and-views
+      - product:mcp-tools
+      - product:rest-and-webhooks
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-hosted-ai-self-hosted
+  cta:
+    action: Avalie o Customermates como CRM open source
+    description: Acompanhe cada conversa com clientes no CRM em nuvem gerenciado, ou avalie a edição com hospedagem própria, com núcleo AGPL, Docker e PostgreSQL. A hospedagem própria usa os recursos do Starter e não inclui a caixa de entrada hospedada nem o Mate.
+    buttonLeftText: Comece seu teste de [[commercial.trial.days]] dias
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Conheça a hospedagem própria
+    buttonRightHref: /features/self-hosted
+    hint: "Sem cartão de crédito • Teste de [[commercial.trial.days]] dias • Hospedagem própria: recursos do Starter, sem caixa de entrada hospedada e sem Mate"
+  relatedHrefs:
+    - /features/open-source-crm
+    - /features/self-hosted
+    - /docs/self-hosting
+    - /compare/twenty-alternative
+  visual:
+    id: acquisition.open-source-crm.pt
+    locale: pt
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Melhores CRM open source: compare o que você realmente consegue rodar"
+      body: "Uma boa comparação começa por licença, limites entre edições, implantação, esforço de operação e escopo do produto, e não por uma tabela de recursos copiada das páginas dos fornecedores."
+      checksum: fnv1a-34c9787a
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "O aplicativo com hospedagem própria e o PostgreSQL formam um único limite de implantação que você pode operar."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "O aplicativo com hospedagem própria e o PostgreSQL formam um único limite de implantação que você pode operar."
+    factReferences:
+      - product:self-hosted-deployment
+      - product:agpl-community-core
+    focalLabel:
+      locale: pt
+      text: App self-hosted
+    semanticLabels:
+      - locale: pt
+        text: Núcleo AGPL
+      - locale: pt
+        text: PostgreSQL
+    focalSubject:
+      id: self-hosted-app
+      form: context-card
+    supportingSubjects:
+      - id: source-code
+        form: context-card
+      - id: postgresql
+        form: context-card
+    accentTarget: self-hosted-app
+  structuredData:
+    types:
+      - Article
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "Melhores CRM open source: compare o que você realmente consegue rodar"
+  description: "Uma boa comparação começa por licença, limites entre edições, implantação, esforço de operação e escopo do produto, e não por uma tabela de recursos copiada das páginas dos fornecedores."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-03-01
+  updated: 2026-10-16
+  tags:
+    - Código aberto
+    - CRM
+    - Hospedagem própria
+    - Docker
+---
+
+# Melhores CRM open source: compare o que você realmente consegue rodar
+
+Os **melhores CRM open source** são aqueles cuja licença, caminho de hospedagem própria, esforço de operação e escopo de CRM combinam com a sua equipe. “Source available”, “open core” e “open source” não são intercambiáveis, e uma lista longa de recursos diz pouco sobre o que você pode rodar legalmente ou manter na prática.
+
+Este guia usa um método de avaliação duradouro, em vez de ranquear projetos por preços que mudam, número de estrelas ou afirmações de recursos sem fonte. Transparência: o Customermates publica esta comparação e é um dos produtos tratados abaixo.
+
+<ArticleSummary title="Resumo rápido">
+  <SummaryItem label="Comece por">
+    A licença e o limite da edição para o código exato que você pretende rodar,
+    não o rótulo do repositório.
+  </SummaryItem>
+  <SummaryItem label="Depois verifique">
+    Um caminho de implantação mantido, o modelo de CRM, as interfaces, o caminho
+    de migração e o trabalho de operação que a sua equipe vai assumir.
+  </SummaryItem>
+  <SummaryItem label="Trate como desconhecido">
+    Qualquer recurso que não conste da documentação oficial atual nem de um
+    fluxo que você mesmo testou.
+  </SummaryItem>
+  <SummaryItem label="Transparência">
+    O Customermates publica este guia. As afirmações sobre o próprio produto
+    ficam separadas do mapa de fontes dos outros projetos.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Dimensões de comparação de CRM open source">
+  <ProofItem label="Licença">Direitos e obrigações</ProofItem>
+  <ProofItem label="Edição">Limite entre aberto e comercial</ProofItem>
+  <ProofItem label="Implantação">Caminho executável e mantido</ProofItem>
+  <ProofItem label="Operação">Backups, atualizações e recuperação</ProofItem>
+  <ProofItem label="Aderência ao produto">Registros, fluxos e interfaces</ProofItem>
+</ProofRail>
+
+## Comece pela licença, não pela página inicial
+
+Antes de comparar recursos, identifique:
+
+- a licença do código exato de servidor e de cliente de que você precisa;
+- os diretórios ou módulos regidos por uma licença comercial separada;
+- as obrigações que surgem ao modificar o software ou ao oferecê-lo pela rede;
+- as restrições de marca, que são separadas da licença do software; e
+- se o repositório é a edição completa e executável ou apenas uma parte dela.
+
+Um repositório público não concede automaticamente direitos de código aberto sobre todos os arquivos. Leia os arquivos de licença da versão que você pretende implantar e consulte um advogado quando as obrigações importarem para a sua organização.
+
+## Sete critérios para comparar CRM open source
+
+| Critério | O que verificar |
+| --- | --- |
+| Limite da licença | Qual código é de código aberto, qual é comercial e quais obrigações se aplicam? |
+| Implantação | Existe um caminho documentado e mantido para a edição exata de que você precisa? |
+| Operação | Quem cuida de atualizações, backups, restauração, monitoramento, TLS e resposta a incidentes? |
+| Modelo de CRM | Ele cobre os contatos, organizações, oportunidades, serviços e tarefas que você de fato usa? |
+| Interfaces | REST, webhooks ou interfaces para agentes estão disponíveis para o seu fluxo? |
+| Diferença entre edições | Quais recursos de nuvem ou enterprise desaparecem na hospedagem própria? |
+| Migração | Há um caminho real de importação e exportação, ou você precisa desenhar um por APIs ou pelo banco de dados? |
+
+Trate um recurso não medido ou não documentado como desconhecido, não como incluído.
+
+## Uma lista de CRM open source sem ranking de mentira
+
+As buscas por CRM open source trazem projetos de escopos muito diferentes. Customermates, SuiteCRM, EspoCRM e Twenty são bons pontos de partida para uma lista curta guiada pelo código-fonte. Odoo Community e CiviCRM podem ser relevantes quando o contexto de uma suíte de gestão mais ampla ou de associados faz parte da necessidade. Verifique a licença oficial atual, o limite entre edições, a documentação de implantação e o estado de manutenção antes de decidir. Nas buscas em português também aparecem Vtiger CRM, Odoo CRM e Atomic CRM; aplique a eles os mesmos sete critérios e confira a licença e a edição atuais. Comparações lado a lado: [SuiteCRM](/compare/suitecrm-alternative), [EspoCRM](/compare/espocrm-alternative) e [Twenty](/compare/twenty-alternative).
+
+Para ver em detalhe dois deles, consulte as comparações [alternativa ao EspoCRM](/compare/espocrm-alternative) e [alternativa ao Twenty](/compare/twenty-alternative), que listam licença, stack, preços, canais e suporte a MCP a partir das páginas oficiais de cada projeto.
+
+A abrangência pretendida de cada um é diferente. Alguns focam em CRM, outros fazem parte de uma suíte de gestão mais ampla e outros são moldados para fluxos de entidades sem fins lucrativos ou de associados. Por isso um “melhor CRM open source” universal serve menos do que uma lista curta pontuada pelos seus próprios requisitos.
+
+### Mapa das fontes oficiais, verificado em 28 de agosto de 2026
+
+| Projeto | Evidência oficial atual para inspecionar | O que esta fonte sustenta |
+| --- | --- | --- |
+| Customermates | [Licença do núcleo AGPL](https://github.com/customermates/customermates/blob/main/LICENSE), [limite entre material comercial e material de cliente AGPL](https://github.com/customermates/customermates/blob/main/ee/LICENSE.md) e [implantação com Compose](https://github.com/customermates/customermates/blob/main/docker-compose.yml) | As licenças exatas do repositório e a implantação rastreada de aplicação mais PostgreSQL |
+| SuiteCRM | [Licenciamento AGPL](https://docs.suitecrm.com/admin/licensing/) e [guia de instalação](https://docs.suitecrm.com/admin/installation-guide/downloading-installing/) | A documentação indica AGPLv3 e traz um caminho de instalação mantido para administradores |
+| EspoCRM | [Repositório e licença](https://github.com/espocrm/espocrm) e [instalação com Docker](https://docs.espocrm.com/administration/docker/installation/) | Uma licença de código público e um caminho oficial de implantação com Docker |
+| Twenty | [Licença](https://github.com/twentyhq/twenty/blob/main/LICENSE) e [guia do Docker Compose](https://docs.twenty.com/developers/self-host/capabilities/docker-compose) | Uma licença de código público e um caminho oficial de hospedagem própria com Docker Compose |
+
+Esta tabela é um mapa de fontes, não um ranking de produtos nem uma afirmação de que os projetos têm edições equivalentes. Abra cada fonte de licença e de implantação na versão que você está avaliando.
+
+<AcquisitionCallout
+  title="Um repositório público é evidência, não a resposta completa"
+  variant="boundary"
+>
+  Confirme a licença de cada diretório necessário, a edição exata que pode ser
+  executada e as dependências de operação. Só ter acesso ao código não
+  estabelece que todos os arquivos são de código aberto nem que todos os recursos da
+  nuvem podem ser hospedados por conta própria.
+</AcquisitionCallout>
+
+## Onde o Customermates se encaixa
+
+O Customermates é um CRM open core para relacionamento com clientes e funis de vendas, feito na Alemanha. O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o material tem licença comercial, exceto o material de cliente identificado como AGPL-3.0-only na Seção 6 de `ee/LICENSE.md`.
+
+A implantação oficial do [CRM com hospedagem própria](/features/self-hosted) contém a aplicação e o PostgreSQL 16. A edição com hospedagem própria tem os recursos do Starter.
+
+| Recurso do Customermates com hospedagem própria | Situação |
+| --- | --- |
+| Contatos, organizações, negócios, serviços e tarefas | Incluído |
+| Campos personalizados, visualizações em tabela e Kanban | Incluído |
+| REST, webhooks e MCP | Incluído |
+| Clientes de IA externos por MCP | Incluído; o cliente e o provedor ficam por sua conta |
+| Caixa de entrada unificada e contas de mensagens | Não incluído |
+| Assistente Mate, só da nuvem, e créditos hospedados | Não incluído |
+| Visualização de calendário conectado, somente leitura | Não incluído |
+| Importação de registros por Excel ou CSV, exportação em XLSX | Incluído, uma lista por vez |
+
+Isso faz do Customermates uma boa escolha quando você quer um CRM focado, implantação com Docker/PostgreSQL e uma interface MCP aberta. Não serve quando a hospedagem própria precisa incluir a caixa de entrada da nuvem gerenciada, ou quando você precisa de uma suíte de PSA, faturamento ou controle de horas.
+
+Se o trabalho é acompanhar as conversas com clientes, a nuvem gerenciada acrescenta o que a hospedagem própria deixa de fora: a partir do Pro, as conversas de LinkedIn e e-mail ficam no registro do cliente, e o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo para você revisar e enviar. A hospedagem própria mantém o CRM e o MCP para o seu próprio cliente de IA.
+
+Para testar o Customermates você mesmo, [comece seu teste](/auth/signup?job=followup) na nuvem gerenciada ([[commercial.trial.days]] dias de Pro, sem cartão de crédito) ou use hospedagem própria com Docker; veja a página do produto [CRM de código aberto: nuvem ou hospedagem própria](/features/open-source-crm).
+
+<ProductDemo hostedBoundary path="/dashboard" />
+
+## Código aberto não é o mesmo que hospedagem própria
+
+Os dois termos (em inglês, open source e self-hosted) costumam ser buscados juntos, mas respondem a perguntas diferentes. **Código aberto** trata de direitos: o que a licença permite inspecionar, alterar e redistribuir. **Hospedagem própria** trata de operação: de quem são os servidores que rodam a aplicação e o banco de dados. Um projeto pode ser de código aberto e mesmo assim ser usado principalmente como serviço em nuvem, e um produto com hospedagem própria pode ser proprietário. Este guia cobre as questões de licença e de lista curta; a página do [CRM com hospedagem própria](/features/self-hosted) cobre a implantação do Customermates em si, e o [guia de CRM agêntico](/blog/agentic-crm) mostra como clientes de IA trabalham com ele por MCP.
+
+## Quais são os prós e contras de um CRM open source? [#pros-e-contras-crm-open-source]
+
+| A favor | Contra |
+| --- | --- |
+| Você pode inspecionar o código e entender o que o sistema faz com os dados | A licença pode cobrir só parte do produto: várias edições são open core, com recursos comerciais à parte |
+| Em geral dá para escolher onde o sistema roda, inclusive no seu próprio servidor | Quem hospeda cuida de atualizações, backups, segurança e disponibilidade |
+| Menos dependência de um único fornecedor, desde que haja exportação e um caminho de migração | Os recursos da nuvem do fornecedor podem não existir na edição com hospedagem própria |
+| Interfaces abertas (REST, webhooks, MCP) facilitam integrações e automações | O suporte pode depender da comunidade ou de um contrato à parte, e a manutenção do projeto varia |
+| Não há assinatura de software obrigatória, quando a licença permite | Infraestrutura, tempo de operação e serviços externos continuam custando |
+
+O ponto principal é o último da coluna da esquerda: "sem assinatura" não é o mesmo que "sem custo". Compare o custo do sistema todo, como no checklist abaixo.
+
+## A hospedagem própria muda quem opera o sistema
+
+O código aberto dá as permissões definidas pela licença; a hospedagem própria dá a responsabilidade pela infraestrutura. Nenhum dos dois é uma promessa automática de segurança, conformidade, portabilidade ou baixo custo.
+
+A sua equipe precisa decidir quem vai cuidar de:
+
+- atualizações da aplicação e do banco de dados;
+- backups e restauração testada;
+- controles de rede, TLS e segredos;
+- monitoramento e resposta a incidentes;
+- planejamento de capacidade e disponibilidade; e
+- cada provedor conectado e o seu fluxo de dados.
+
+Se quiser detalhes de implantação específicos do Customermates, use o [guia de hospedagem própria](/docs/self-hosting). Não copie para a produção um runbook genérico de Docker tirado de um artigo de comparação.
+
+## CRM em nuvem versus hospedagem própria
+
+Escolha a nuvem gerenciada quando quiser que o fornecedor opere a aplicação e quando os recursos exclusivos da nuvem forem essenciais. Escolha a hospedagem própria quando a licença, o limite de recursos do Starter e a responsabilidade de operação servirem à sua equipe.
+
+No Customermates, a distinção é explícita: o CRM central, o REST, os webhooks e o MCP podem ter hospedagem própria; a caixa de entrada unificada, a visualização de calendário conectado, o Mate hospedado e os créditos hospedados, não.
+
+## O que uma equipe brasileira deve checar além da licença? [#crm-open-source-no-brasil]
+
+- **Onde ficam os dados.** Se os servidores, seus ou do fornecedor, ficam fora do Brasil, a LGPD tem regras específicas para a transferência internacional de dados pessoais. Peça a lista de operadores e as regiões e confirme o caso com um profissional jurídico; isto é contexto geral, não orientação jurídica.
+- **Canais de conversa.** Muitas equipes no Brasil falam com clientes pelo WhatsApp. No Customermates, as conversas de WhatsApp, LinkedIn e e-mail ficam na caixa de entrada unificada da nuvem gerenciada, a partir do Pro, e a edição com hospedagem própria não a inclui. Em qualquer produto, confira se o canal de que você precisa existe na edição que vai rodar.
+- **Notas fiscais, boletos e cobranças.** Esses documentos costumam ficar em um sistema de faturamento ou ERP. O Customermates não faz faturamento; se você precisa disso dentro do CRM, verifique o que cada candidato cobre ou planeje uma integração.
+- **Idioma e suporte.** Veja se a interface e a documentação estão em português e quem responde quando algo quebra: a comunidade, o fornecedor ou você mesmo.
+
+## Um checklist prático de avaliação
+
+<Steps>
+  <Step title="Defina o trabalho">
+    Anote os registros, as visualizações, as integrações e as restrições de
+    implantação que o CRM precisa atender.
+  </Step>
+  <Step title="Inspecione o limite legal">
+    Leia a licença exata e o limite entre edições de cada finalista e versão.
+  </Step>
+  <Step title="Rode o caminho oficial">
+    Siga o guia de implantação mantido em um ambiente isolado.
+  </Step>
+  <Step title="Teste a operação">
+    Verifique autenticação, permissões, backups, restauração e atualizações, em
+    vez de deduzi-los do texto de marketing.
+  </Step>
+  <Step title="Calcule o custo do sistema todo">
+    Estime juntos a infraestrutura, os serviços externos e o tempo de quem opera.
+  </Step>
+  <Step title="Planeje a migração à parte">
+    Desenhe e valide um procedimento de migração se o produto não tiver um
+    fluxo próprio de importação ou exportação.
+  </Step>
+</Steps>
+
+[Veja o limite exato da hospedagem própria do Customermates](/features/self-hosted) ou [inspecione o repositório](https://github.com/customermates/customermates) antes de incluí-lo na sua lista curta.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Quais são os melhores CRM open source?">
+Não existe um ranking único, porque a resposta depende da licença, do esforço de operação e do escopo de que a sua equipe precisa. Uma lista curta para avaliar inclui Customermates, SuiteCRM, EspoCRM e Twenty, mais Odoo Community ou CiviCRM quando o contexto pede uma suíte maior ou um fluxo de associados. Aplique os sete critérios deste guia e teste o caminho oficial de implantação de cada finalista.
+</FaqItem>
+<FaqItem question="Qual é o CRM mais usado do mundo e quais são os 5 melhores?">
+Os rankings mudam conforme a fonte e o critério (receita, número de usuários, downloads), por isso este guia não cita um número. Para a sua decisão, o que pesa é o que cabe na equipe: o modelo de CRM, os canais, o custo do primeiro ano e, no caso de código aberto, a licença e o trabalho de operação. Para uma visão de custos, veja o [guia de custos de CRM](/blog/crm-cost).
+</FaqItem>
+<FaqItem question="Qual é o melhor CRM do Brasil ou o melhor CRM gratuito?">
+Nenhum é o melhor para todos. Para uma equipe brasileira, compare onde os dados ficam, os canais de conversa (como o WhatsApp), se você precisa de faturamento dentro do CRM e quem dá suporte. "Gratuito" costuma significar sem assinatura de software; o custo de operar, na hospedagem própria, continua existindo. O [guia para escolher um CRM](/blog/how-to-choose-crm) traz um método de teste e pontuação.
+</FaqItem>
+<FaqItem question="Quais são os prós e contras de um CRM open source?">
+A favor: código inspecionável, liberdade para escolher onde rodar e integrações por interfaces abertas. Contra: você opera a infraestrutura, a licença pode ser open core e os recursos da nuvem do fornecedor podem faltar na edição com hospedagem própria. A tabela de prós e contras acima detalha cada ponto.
+</FaqItem>
+<FaqItem question="O que significa CRM open source?">
+Significa que o código do CRM é oferecido sob uma licença de código aberto, que concede direitos definidos de usar, inspecionar, modificar e redistribuir, sujeitos a essa licença. Confira os arquivos e a edição exatos: um repositório também pode conter código com licença separada.
+</FaqItem>
+
+<FaqItem question="Todo CRM open source é gratuito de operar?">
+  Não. Uma licença pode não cobrar assinatura de software, mas infraestrutura,
+  backups, atualizações, monitoramento, trabalho de segurança e provedores
+  externos continuam custando dinheiro e tempo de quem opera.
+</FaqItem>
+
+<FaqItem question="Código aberto garante controle dos dados ou conformidade com o GDPR?">
+  Não. A hospedagem própria pode dar controle sobre a aplicação e sobre onde fica o
+  banco de dados, mas a conformidade e os fluxos de dados dependem da
+  configuração, dos provedores conectados, dos contratos, das políticas e da
+  operação.
+</FaqItem>
+
+<FaqItem question="Todo o código do Customermates é AGPL-3.0?">
+  Não. O material próprio fora de `ee/` é AGPL-3.0-only. Dentro de `ee/`, o
+  material de cliente identificado na Seção 6 de `ee/LICENSE.md` também é
+  AGPL-3.0-only; o restante do material próprio usa a licença comercial.
+  Consulte os dois arquivos de licença para ver o limite exato.
+</FaqItem>
+
+<FaqItem question="Posso importar ou exportar registros do CRM no Customermates com hospedagem própria?">
+Sim. Os registros entram como planilhas Excel ou arquivos CSV e saem como planilhas XLSX, uma lista por vez, limitados ao acesso de leitura do usuário e à visualização atual, com limites de linhas nos dois sentidos. Para qualquer coisa além disso, como anexos ou uma transferência completa de conta, desenhe uma migração pela API REST.
+</FaqItem>
+</Faq>

@@ -1,0 +1,113 @@
+---
+title: "Claves de API para clientes MCP y REST"
+description: "Cómo crear una clave de API en Ajustes, el permiso de rol que necesita, la cabecera x-api-key, cuándo caducan las claves y cómo eliminarlas o rotarlas."
+---
+
+Las claves de API autentican a los clientes del Model Context Protocol (MCP) y de REST en tu CRM de Customermates. Crea una clave por cliente, guárdala en una variable de entorno y elimínala cuando el dispositivo o la persona del equipo que la tenía deje de usarla.
+
+## ¿Cómo creo una clave de API? [#how-do-i-create-an-api-key]
+
+Abre [Claves de API y conectores](app:settings/api-keys) en Ajustes y haz clic en [Añadir](app:settings/api-keys?focus=generate). El cuadro **Añadir una clave de API** ofrece dos caminos:
+
+- **Clave de API estándar**: escribe un **Nombre** que indique dónde se usa la clave, por ejemplo `Claude Desktop, personal laptop` (hasta 255 caracteres), si quieres elige una fecha en **Caduca en** y haz clic en **Guardar**. La clave se muestra una sola vez bajo **Clave de API creada**: cópiala antes de cerrar el cuadro.
+- **Conexiones rápidas**: elige **Claude**, **ChatGPT & Codex**, **Cursor** o **Gemini** y, después, la configuración que corresponda a dónde la usas. Para una configuración local (**Claude Code o Desktop** y luego **Claude Code** o **Claude Desktop**; **Codex CLI o IDE**; Cursor o Gemini), haz clic en **Crear clave de API**: el cuadro crea la clave y muestra el fragmento de configuración de ese cliente con la clave ya incluida. **Cuenta de Claude** y **Aplicación ChatGPT** se conectan mediante OAuth y no crean ninguna clave. Haz clic en **Listo** cuando termines.
+
+Una clave creada con **Conexiones rápidas** lleva el nombre de su cliente (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` o `Gemini`) y caduca 365 días después de crearse; ahí no puedes elegir otro nombre ni otra fecha. El cuadro muestra la caducidad debajo del fragmento de configuración. El paso de IA del asistente de bienvenida crea sus claves del mismo modo. El nombre y la caducidad de una clave no se pueden cambiar una vez creada.
+
+Las claves pertenecen al usuario que las creó y heredan sus permisos. Además, cada clave pertenece al espacio de trabajo en el que se creó y solo actúa en él, incluidas las claves creadas cuando un mismo inicio de sesión aún no podía pertenecer a varios espacios de trabajo; consulta [Espacios de trabajo](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+
+## ¿Quién puede crear y ver las claves de API? [#who-can-create-and-see-api-keys]
+
+La página Claves de API y conectores sigue la fila **API y webhooks** de tu rol, que un miembro con **Editar** en **Usuarios y roles** configura en [Roles](app:settings/roles):
+
+- **Acceso de lectura** **Todos** muestra las claves de API en Ajustes y lista tus propias claves. Con **Ninguno**, la entrada se oculta y la página no se puede abrir.
+- **Crear** añade el botón **Añadir**, y **Eliminar** permite eliminar claves. Sin ellos, ves las claves que ya tienes, pero no puedes crear ni eliminar ninguna.
+
+Un rol nuevo empieza sin ninguna casilla marcada y con **Acceso de lectura** **Ninguno**, así que, de entrada, solo los miembros con el rol integrado **Administrador** pueden crear claves de API. La misma fila abre también los [Webhooks](app:settings/webhooks) y sus entregas, de modo que concederla para las claves de API permite además que el miembro vea todos los webhooks del espacio de trabajo y, con **Crear**, **Editar** o **Eliminar**, los modifique.
+
+Cada persona ve solo sus propias claves, y solo las del espacio de trabajo actual; cambia de espacio de trabajo para ver o eliminar una clave de otro. Nadie, ni siquiera el rol **Administrador**, puede listar ni eliminar las claves de otro miembro. Ninguna herramienta del asistente ni de MCP crea, lista o elimina claves de API: se gestionan únicamente en la página Claves de API y conectores, y el asistente alojado, como mucho, puede abrírtela.
+
+El conector personalizado para Claude y ChatGPT inicia sesión mediante OAuth y no necesita clave de API. Como toda conexión MCP, requiere **Acceso de lectura** **Todos** en **API y webhooks** ([endpoint MCP](/docs/mcp#the-endpoint)). Consulta [Conectar con un conector personalizado](/docs/connect-custom-connector).
+
+## ¿Qué permiso necesita cada acción sobre las claves de API? [#which-permission-does-each-api-key-action-need]
+
+Cualquier forma de gestionar claves comprueba la fila **API y webhooks** de tu rol: crear una clave requiere **Crear**, modificarla **Editar**, eliminarla **Eliminar**, y leer o listar tus claves **Acceso de lectura** **Todos**. Un miembro cuyo **Estado** es **Inactivo** no puede gestionar claves. Las claves se gestionan solo en la página Claves de API y conectores; los endpoints internos `/api/auth/api-key/` responden `404` a las solicitudes directas, de modo que cada clave pertenece al espacio de trabajo en el que se creó. Estas comprobaciones afectan solo a la gestión de claves; lo que puede hacer una llamada realizada con una clave depende del rol de su propietario, consulta [Qué permisos tiene una clave](#what-permissions-does-a-key-have).
+
+## ¿Cómo se usa una clave y en qué cabecera va? [#how-do-i-use-a-key]
+
+Se envía en la cabecera `x-api-key` en cada solicitud; aquí, al endpoint MCP `<BASE_URL>/api/v1/mcp`, donde `<BASE_URL>` es la dirección en la que abres Customermates:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     <BASE_URL>/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+La cabecera `Accept: application/json, text/event-stream` es obligatoria en el transporte HTTP en streaming de MCP; sin ella, el endpoint devuelve `406 Not Acceptable`. En los clientes MCP, la clave va en la configuración del cliente; consulta [Clientes de línea de comandos y editores](/docs/connect-cli) y [ChatGPT con una clave de API](/docs/connect-custom-connector#chatgpt).
+
+La API REST acepta la misma cabecera. Esta llamada lista los tipos de registro a los que tienes acceso:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Todas las operaciones REST, con su solicitud y su respuesta, están en la [referencia de la API](/docs/openapi).
+
+## ¿Qué devuelve una llamada REST fallida? [#what-does-a-failed-rest-call-return]
+
+Cada endpoint REST responde a una llamada rechazada con el mismo cuerpo JSON: un objeto `error` que contiene el `kind` y los `issues` que MCP devuelve en `_meta.failure` (consulta [cuando se rechaza una llamada](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+El estado HTTP sigue a `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 y `rate_limit` 429. Cada issue indica el `path` del campo al que se refiere y, cuando corresponde, un `customCode` estable. `error.retryable` es `true` cuando un proveedor de mensajería rechazó una llamada que puede funcionar más tarde sin cambios; una `429` sin ese campo también se puede reintentar, consulta [la sección siguiente](#what-should-a-client-do-on-429). Basa tu lógica en `kind` y `customCode`, no en `message`, que es un texto para personas. Un error inesperado del servidor responde 500 sin este cuerpo.
+
+## ¿Qué debe hacer un cliente cuando una llamada devuelve 429? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) significa que la llamada no pudo ejecutarse ahora y puede funcionar más tarde sin cambios. Un canal de mensajería que alcanzó el límite de su proveedor responde con el `customCode` `unipileRateLimit` e indica cuándo reintentar ([límites de frecuencia de la mensajería](/docs/messaging-rate-limits)). Cuando es el propio Customermates el que está sobrecargado, por ejemplo cuando una transacción de la base de datos o el pool de conexiones agota el tiempo de espera, o una escritura espera más de unos segundos detrás de otro cambio en el espacio de trabajo, como una importación grande, la llamada responde `429` sin `customCode` y con el mensaje `The service is busy. Retry the request shortly.`. Las herramientas MCP devuelven el mismo tipo `rate_limit` en `_meta.failure`, y la app avisa de que el espacio de trabajo está ocupado para que puedas volver a intentarlo.
+
+Una `429` de REST incluye una cabecera `Retry-After` con los segundos que hay que esperar: respétala primero y no reintentes antes. Si no la hay, reintenta tras una pausa que crezca con cada intento, por ejemplo 1, 2, 4 y 8 segundos más un poco de jitter aleatorio, y desiste tras unos pocos intentos. No reintentes en un bucle sin pausa ni envíes más llamadas en paralelo, porque eso mantiene el servicio ocupado. Vuelve a enviar una escritura con el mismo `idempotencyKey`, para que un cambio que sí se aplicó no se aplique dos veces.
+
+## ¿Cuánto dura una clave y caducan las claves? [#do-keys-expire]
+
+Una **Clave de API estándar** solo caduca si eliges una fecha en **Caduca en**; el valor predeterminado, **Nunca caduca**, la mantiene válida hasta que la eliminas. La fecha debe estar entre 1 y 365 días a partir de hoy. Una clave de **Conexiones rápidas** (una clave de conexión rápida), incluidas las del asistente de bienvenida, es válida durante 365 días: siempre caduca 365 días después de crearse. La caducidad no se puede ampliar: antes de que llegue, crea una clave nueva y actualiza el cliente. Cada tarjeta de clave muestra **Creado el**, **Caduca el** (**Nunca** si no se definió) y **Último uso**.
+
+## ¿Cómo se revoca, se elimina o se rota una clave? [#how-do-i-revoke-delete-or-rotate-a-key]
+
+En [Claves de API y conectores](app:settings/api-keys), haz clic en la tarjeta de la clave y elige **Eliminar**; tras confirmar, la clave deja de funcionar de inmediato. Eliminar requiere **Eliminar** en **API y webhooks**. No hay una acción independiente de rotar ni de revocar: para rotar una clave, crea una nueva, actualiza todos los clientes que usaban la anterior y elimina después la antigua.
+
+Conviene rotar la clave cuando se pierde o se compromete un dispositivo que la tenía, cuando se va alguien del equipo con acceso o cuando sospechas que la clave se ha filtrado. Una clave por cliente te permite eliminar una sin romper las demás; el registro de actividad sigue nombrando al usuario, no a la clave. Guarda las claves en una variable de entorno o en un gestor de contraseñas, nunca en un archivo de configuración que subas al repositorio.
+
+Solo el propietario puede eliminar una clave. Para frenar las claves de un miembro que se va, abre [Miembros](app:settings/members), abre al miembro, cambia **Estado** a **Inactivo** y haz clic en **Guardar**. Esto requiere **Editar** y acceso de lectura **Todos** en **Usuarios y roles**; no puedes desactivarte a ti mismo ni al último **Administrador** activo. A partir de ahí, toda llamada con las claves de ese miembro que lea o cambie datos del espacio de trabajo se rechaza. Quitar de su rol **Acceso de lectura** **Todos** en **API y webhooks** también detiene sus claves, tanto en MCP como en REST; consulta [Qué permisos tiene una clave](#what-permissions-does-a-key-have). **Quitar del espacio de trabajo** en [Miembros](app:settings/members) también revoca al instante las claves y las conexiones MCP del miembro en este espacio de trabajo ([¿Cómo apruebo, edito, desactivo o quito a un miembro?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), y un miembro que abandona por sí mismo un espacio de trabajo pierde sus claves en él de inmediato ([abandonar un espacio de trabajo](/docs/app-workspaces#how-do-i-leave-a-workspace)).
+
+## ¿Qué formato tiene la clave y qué longitud puede tener su nombre? [#what-is-the-key-format]
+
+El **Nombre** de una clave tiene entre 1 y 255 caracteres. Las claves son 64 caracteres de letras ASCII (`a-z A-Z`), generadas por el plugin de claves de API de better-auth y almacenadas como hash. La clave completa solo se muestra al crearla y no se puede volver a ver.
+
+## ¿Qué permisos tiene una clave y puedo limitar su alcance a solo lectura? [#what-permissions-does-a-key-have]
+
+Todo lo que su propietario puede hacer en el espacio de trabajo de la clave, y nada más. No hay un alcance de permisos por clave, así que una clave no se puede limitar a solo lectura. Cada llamada se comprueba con el rol actual del propietario, de modo que un cambio en ese rol, por ejemplo pasar al miembro del rol **Administrador** a un rol personalizado con menos derechos, se aplica a sus claves desde la llamada siguiente. Si el **Estado** del propietario es **Inactivo**, se rechaza toda llamada con sus claves que lea o cambie datos del espacio de trabajo.
+
+Una clave, igual que un token OAuth de MCP, también funciona solo mientras el rol de su propietario tenga **Acceso de lectura** **Todos** en **API y webhooks**, algo que se comprueba en cada llamada, incluso con tokens renovados más tarde. Sin él, MCP responde `403` con `error: insufficient_permissions`, y REST responde `403` con `kind` `authorization` y `customCode` `insufficientPermissions`. El uso de la app web con sesión iniciada no se ve afectado.
+
+En Customermates Cloud, un espacio de trabajo que aún espera su primer plan, como un espacio de trabajo adicional creado sin prueba, rechaza sus claves y sus tokens OAuth: MCP responde `403` con `error: plan_required`, y REST responde `403` con `kind` `authorization` y `customCode` `workspacePlanRequired`. Para crear una clave también hace falta un plan utilizable. Cuando un administrador elige un plan, las claves existentes vuelven a funcionar. Un espacio de trabajo que tenía la prueba pasa al plan Free cuando termina la prueba o un plan de pago posterior, y conserva sus claves en funcionamiento; cualquier otro espacio de trabajo cuya suscripción de pago caducó mantiene en funcionamiento sus claves y conexiones existentes hasta que sus miembros pasan a **Inactivo**; consulta [¿Qué pasa cuando termina la prueba?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+### ¿Hay un límite de solicitudes en el plan Free? [#is-there-a-request-limit-on-the-free-plan]
+
+Sí. En el plan Free, las solicitudes REST y MCP juntas están limitadas a [[commercial.limit.free.apiRequestsPerMinute]] por minuto y [[commercial.limit.free.apiRequestsPerDay]] por día y espacio de trabajo. Superado el límite, una solicitud recibe HTTP `429` con una cabecera `Retry-After`: REST responde con `kind` `rate_limit` y `customCode` `apiRateLimitReached`, y las llamadas a herramientas MCP con un error de herramienta que lleva `error: rate_limited` (las demás solicitudes MCP, con `429`). Solo cuentan las llamadas a herramientas MCP, no conectarse ni listar las herramientas. El mensaje indica que el espacio de trabajo está en Free y nombra Starter, su precio y el enlace de facturación, para que un agente pueda transmitírselo al usuario. Los planes de pago y las instalaciones autoalojadas no tienen límite de solicitudes.
+
+## Siguientes pasos [#next]
+
+- [Guía rápida](/docs/quickstart): la primera ejecución de principio a fin.
+- [Resumen de MCP](/docs/mcp): qué desbloquea una clave.

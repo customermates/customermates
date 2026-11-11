@@ -13,6 +13,9 @@ const REPRESENTATIVE_NAMES = {
   es: { de: "Alemania", fr: "Francia", ci: "Côte d’Ivoire", us: "Estados Unidos" },
   fr: { de: "Allemagne", fr: "France", ci: "Côte d’Ivoire", us: "États-Unis" },
   it: { de: "Germania", fr: "Francia", ci: "Costa d’Avorio", us: "Stati Uniti" },
+  nl: { de: "Duitsland", fr: "Frankrijk", ci: "Ivoorkust", us: "Verenigde Staten" },
+  pl: { de: "Niemcy", fr: "Francja", ci: "Côte d’Ivoire", us: "Stany Zjednoczone" },
+  pt: { de: "Alemanha", fr: "França", ci: "Costa do Marfim", us: "Estados Unidos" },
 } satisfies Record<AppLocale, Record<RepresentativeCountry, string>>;
 
 describe("countryOptionsForLocale", () => {

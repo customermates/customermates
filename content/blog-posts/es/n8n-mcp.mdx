@@ -1,0 +1,243 @@
+---
+title: "n8n MCP: cómo conectarlo, qué ruta elegir y ejemplo de CRM"
+description: "n8n MCP: qué ruta elegir (servidor, trigger o client), cómo conectar un cliente de IA y un ejemplo de CRM probado con n8n 2.45.5 y límites de prueba claros."
+
+hero:
+  title: "n8n MCP: elige una ruta y prueba una tarea de CRM"
+  description: "n8n MCP: qué ruta elegir (servidor, trigger o client), cómo conectar un cliente de IA y un ejemplo de CRM probado con n8n 2.45.5 y límites de prueba claros."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-05
+  tags:
+    - n8n
+    - MCP
+    - CRM
+
+relatedHrefs:
+  - /blog/n8n-for-beginners-build-your-first-workflow
+  - /features/api
+  - /docs/mcp
+  - /blog/mcp-vs-api
+---
+
+# n8n MCP: elige una ruta y prueba una tarea de CRM
+
+n8n MCP puede significar que un cliente de IA llame a n8n o que un workflow de n8n llame a las herramientas de otra aplicación. Para una búsqueda de cliente y una tarea interna en Customermates encaja la segunda dirección: el ejemplo probado de abajo usa el MCP Client independiente de n8n, sin ningún modelo.
+
+MCP es el protocolo de conexión; n8n es la aplicación de workflows. Empieza por la dirección de la llamada y después elige el nodo o el servidor. La [guía de n8n para principiantes](/blog/n8n-for-beginners-build-your-first-workflow) cubre el editor visual; esta guía cubre la elección de MCP y una ruta concreta, fechada y ejecutada.
+
+## ¿Qué es n8n MCP? La respuesta corta [#respuesta-corta]
+
+«n8n MCP» agrupa cuatro cosas distintas. Elige la tuya por lo que quieres lograr:
+
+- **Que Claude, Cursor u otro cliente de IA use n8n** (por ejemplo, para crear y ejecutar workflows): el MCP a nivel de instancia de n8n. Si no conoces el protocolo, empieza por [qué es un servidor MCP](/blog/what-is-an-mcp-server).
+- **Que un cliente externo llame a las herramientas de un solo workflow:** el nodo MCP Server Trigger.
+- **Que un agente de n8n use herramientas de otras aplicaciones:** el subnodo MCP Client Tool.
+- **Que un workflow normal llame a un servidor MCP externo, sin modelo:** el nodo MCP Client independiente, que es el que probamos en esta guía.
+
+## ¿Qué ruta de n8n MCP encaja con tu trabajo?
+
+La tabla separa a quien mantiene la ruta de la persona cuyas credenciales autorizan el trabajo. Un nombre de producto conocido no basta para identificar una conexión.
+
+| Ruta y dirección | Quién la mantiene | Identidad que actúa y autenticación | Límite de versión |
+| --- | --- | --- | --- |
+| MCP a nivel de instancia: cliente externo → n8n | n8n | Usuario de n8n mediante OAuth o token de acceso MCP | Creación de workflows desde la 2.13.0; diseño de los ajustes desde la 2.33.0 |
+| MCP Server Trigger: cliente externo → herramientas de un solo workflow | n8n | Credencial bearer o de encabezado configurada, o n8n User Auth | User Auth requiere nodo v2 o superior; la salida de usuario requiere v2.1 o superior |
+| MCP Client Tool: n8n AI Agent → servidor MCP externo | n8n | Credencial del servicio externo | Subnodo del agente; no es el nodo probado abajo |
+| MCP Client independiente: workflow normal → servidor MCP externo | n8n | Credencial del servicio externo | Ejecutado aquí: n8n 2.45.5, nodo typeVersion 1.1 |
+| Comunitario `czlonkowski/n8n-mcp`: cliente de programación → servicio MCP aparte | Mantenedores de un proyecto independiente | Depende del despliegue; acceso a la API de n8n si se configura | Fija la versión de ese proyecto por separado |
+
+La [documentación oficial de MCP a nivel de instancia](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/) distingue el acceso a la instancia del Server Trigger de un workflow. Activar MCP no expone todos los workflows. La visibilidad depende del acceso del usuario y de los ajustes de exposición de MCP. Su [referencia de herramientas](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/mcp-server-tools-reference/) incluye crear y editar workflows y tablas de datos. Describir el servidor MCP de n8n actual como un servidor que solo ejecuta es incompleto.
+
+La [referencia del MCP Server Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/) describe un punto de entrada de servidor. La [referencia del MCP Client Tool](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/) describe las herramientas externas de un agente. La [referencia del MCP Client independiente](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcpclient/) cubre las llamadas explícitas en un workflow normal.
+
+El [repositorio n8n-mcp](https://github.com/czlonkowski/n8n-mcp), independiente, ofrece ayuda para crear workflows. Es un proyecto aparte, no el nombre de todas las funciones MCP nativas. No necesitas instalarlo para la receta del cliente independiente de abajo.
+
+## ¿Cómo conectas un cliente de IA al servidor MCP de n8n? [#conectar-cliente-mcp-n8n]
+
+Es la primera ruta de la tabla: un cliente externo → n8n. Antes de empezar necesitas:
+
+- **Una instancia de n8n** (n8n Cloud o autoalojada) con una versión que admita lo que quieres hacer: crear workflows desde la 2.13.0 y los ajustes de diseño desde la 2.33.0.
+- **Un usuario de n8n** con acceso a los workflows que quieres usar: el cliente actúa con sus permisos.
+- **Un cliente MCP** que pueda autenticarse por OAuth o con un token de acceso MCP.
+
+Los pasos, según la [documentación oficial de MCP a nivel de instancia](https://docs.n8n.io/connect/connect-to-n8n-mcp-server/):
+
+1. **Activa el acceso MCP** en la instancia. En una instalación autoalojada también puedes desactivarlo del todo.
+2. **Conecta el cliente** con OAuth o con un token de acceso MCP, según lo que admita tu cliente. Revisa la documentación de n8n sobre la autenticación recomendada antes de elegir.
+3. **Elige qué workflows expones.** Activar MCP no expone todos: la visibilidad depende del acceso del usuario y de los ajustes de exposición de MCP, y la documentación describe cómo exponer workflows concretos.
+4. **Pruébalo con una lectura.** Pídele al cliente que liste tus workflows antes de dejarle crear o ejecutar nada, y vuelve a comprobar el resultado en n8n.
+
+Para que un workflow sea una herramienta concreta con su propia credencial, usa el MCP Server Trigger de la tabla. Si quieres ver cómo trabaja Claude con un CRM por MCP, la [guía de Claude con un CRM](/blog/claude-crm) lo muestra. El [repositorio comunitario n8n-mcp](https://github.com/czlonkowski/n8n-mcp) es un proyecto aparte con su propia instalación y su propia versión: no lo mezcles con esta ruta nativa.
+
+## ¿Qué se ejecutó exactamente y con qué versiones?
+
+**Ejecutado el 28 de octubre de 2026, de las 23:10:03 a las 23:10:15 UTC:** un workflow manual en n8n **2.45.5**, con `@n8n/n8n-nodes-langchain.mcpClient` **typeVersion 1.1**. La imagen estaba fijada a este digest:
+
+```text
+docker.n8n.io/n8nio/n8n@sha256:9f6d0a5987ab5a297c4b0b38fbf1a22285dd1364551478e93f03d506908fa74c
+```
+
+La fuente de Customermates fue `86212781f845d0ccdc1dfa3ddd78fa38fa2b8912`. Todos los registros eran ficticios, en una base de datos local aislada. Un relé solo de loopback entregó a `/api/v1/mcp` una clave de API desechable, guardada en memoria. No intervino ninguna cuenta externa, ni llamadas a modelos, ni envíos de mensajes.
+
+Esta es una receta para esa ruta y esa sintaxis exactas que se probaron, revisada el 5 de noviembre de 2026. No es una ejecución nueva de n8n en esa fecha. La autenticación del relé, los ID fijos de los datos de prueba y la revisión del esquema son propios de la prueba. No se probaron OAuth, n8n Cloud, las programaciones, el Server Trigger ni la selección de herramientas de un AI Agent.
+
+## ¿Cómo montas el workflow manual de cinco llamadas?
+
+Crea un Manual Trigger seguido de cinco nodos **MCP Client independientes**, conectados por sus salidas normales. Mantén el workflow sin publicar mientras validas una tarea interna en un espacio de trabajo desechable. El diagrama muestra la secuencia ejecutada, con la solicitud duplicada a propósito:
+
+```text
+Manual Trigger
+  → get_workspace_context
+  → get_record_model
+  → query_crm_records
+  → mutate_crm_record
+  → mutate_crm_record (identical payload and key)
+```
+
+En el workflow conservado, cada nodo cliente usó la siguiente estructura de parámetros. Es la dirección histórica del relé local, no un endpoint público ni una configuración de CRM sin autenticación:
+
+```json
+{
+  "serverTransport": "httpStreamable",
+  "endpointUrl": "http://127.0.0.1:4053/mcp",
+  "authentication": "none",
+  "tool": {
+    "__rl": true,
+    "value": "get_workspace_context",
+    "mode": "id"
+  },
+  "inputMode": "json",
+  "jsonInput": {},
+  "options": {
+    "timeout": 60000,
+    "convertToBinary": false
+  }
+}
+```
+
+En cada nodo siguiente, cambia `tool.value` y `jsonInput` según los pasos de abajo; conserva Streamable HTTP, la entrada JSON y el tiempo de espera de 60 segundos. La secuencia fija no pasa de forma dinámica los resultados del descubrimiento a los nodos posteriores.
+
+1. **Confirma el espacio de trabajo.** Llama a `get_workspace_context` con `{}`. Comprueba el usuario y el espacio de trabajo devueltos antes de permitir una escritura.
+2. **Lee el esquema.** Llama a `get_record_model` con `{}`. El entorno de prueba había resuelto los tipos Tarea y Organización, sus campos principales y la relación saliente antes de construir el workflow. La mutación registrada usó la revisión de configuración `2`.
+3. **Encuentra al cliente.** Llama a `query_crm_records` con el JSON registrado de abajo. En tu propio espacio de trabajo, resuelve sus ID de nuevo y revisa el resultado antes de elegir un cliente. La referencia del registro conocido de los datos de prueba se fijó en el nodo siguiente; no fue una prueba de coincidencia automática de entidades.
+
+```json
+{
+  "typeId": "51d5e8d2-9468-8718-852d-aad6d1964282",
+  "fields": [
+    "b8b511f4-5de8-81ce-887f-880d80b0062c"
+  ],
+  "search": "Example organization",
+  "page": 1,
+  "pageSize": 25
+}
+```
+
+4. **Crea la tarea interna.** Llama a `mutate_crm_record` con exactamente esta carga registrada. Todos los UUID son identificadores de datos de prueba, incluido el usuario asignado. La relación vincula la tarea con la organización ficticia; no envía nada a esa organización.
+
+```json
+{
+  "expectedRevision": 2,
+  "idempotencyKey": "seo-run340-n8n-mcp-manual-next-task-v1",
+  "mutation": {
+    "action": "create",
+    "typeId": "0d70aff9-0fa9-8ce2-8e75-8bdddf0fdfd1",
+    "assignedUserIds": [
+      "eed148ca-b816-4db2-acac-186ca6f03043"
+    ],
+    "fields": [
+      {
+        "fieldId": "02960cb0-8976-81b2-82ce-6194a5bc90e3",
+        "value": {
+          "kind": "text",
+          "value": "Fictional n8n manual proof: check the handover field list"
+        }
+      }
+    ],
+    "links": [
+      {
+        "relationId": "2f82adb2-ca57-8190-85ae-230cde69ff06",
+        "direction": "outgoing",
+        "record": {
+          "typeId": "51d5e8d2-9468-8718-852d-aad6d1964282",
+          "recordId": "16d88ab1-a440-4e42-b698-99a284940191"
+        }
+      }
+    ]
+  }
+}
+```
+
+5. **Repite la solicitud idéntica.** El último nodo usó los mismos argumentos de `mutate_crm_record`, un JSON equivalente byte por byte y la misma clave de idempotencia. Un reintento del mismo evento de negocio debe conservar tanto la carga como la clave. Un evento o una carga distintos necesitan una clave nueva.
+
+La prueba original importó el workflow con ID `seoRun340McpProof` y lo ejecutó por ID dentro del entorno fijado:
+
+```bash
+n8n import:workflow --input /proof/workflow.json
+n8n execute --id seoRun340McpProof --rawOutput
+```
+
+Estos comandos suponen que el workflow conservado y el relé ya existen. Un intento anterior con `execute --file` devolvió el código de salida cero sin ejecutar el workflow. La prueba lo rechazó porque no se había hecho ninguna llamada a herramientas. Un código de salida o un archivo JSON importable no bastan, por sí solos, como prueba de que una conexión funciona.
+
+## ¿Qué resultado debes comprobar antes de adaptarlo?
+
+La ejecución corregida registró cinco llamadas reales a herramientas originadas en n8n: tres lecturas y dos mutaciones idénticas. Tanto la importación como la ejecución terminaron con éxito. Después, una lectura posterior independiente con el SDK verificó la tarea `8f3bd9eb-0696-4505-9c09-e12620648cc1` en la versión `1`, con el responsable asignado y la relación con el cliente intactos. El entorno de prueba también repitió la mutación con el SDK. La lectura posterior quedó fuera del workflow de cinco nodos.
+
+| Comprobación | Resultado registrado |
+| --- | --- |
+| Tráfico MCP real desde n8n | Cinco llamadas a herramientas |
+| Tarea interna asignada | Responsable leído de nuevo |
+| Relación con el cliente | Vínculo leído de nuevo |
+| Clave de mutación repetida | Mismo registro, todavía en la versión 1 |
+| Acciones externas | Sin envíos ni llamadas a modelos |
+
+Una prueba de producto aparte, del **5 de noviembre de 2026**, con la fuente `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`, ejercitó lecturas y escrituras por REST y MCP, la repetición idempotente y un rechazo de permisos. Su cliente MCP era el SDK **1.24.0**, no n8n. Respalda esas observaciones actuales del producto; no actualiza el resultado fechado de compatibilidad con n8n.
+
+## ¿En qué se diferencian las credenciales y la puesta en producción?
+
+Para una conexión directa con Customermates, usa `<BASE_URL>/api/v1/mcp` y una credencial Header Auth de n8n cuyo nombre de encabezado sea `x-api-key`. Guarda la clave en las credenciales, nunca en el JSON exportado del workflow. La [guía de claves de API de Customermates](/docs/api-keys) explica la vinculación con el espacio de trabajo y los permisos heredados del usuario. Header Auth directo es una configuración documentada; la ejecución conservada de n8n usó el relé.
+
+Consulta el [contrato MCP de Customermates](/docs/mcp) para ver las herramientas y los esquemas vigentes. Sustituye los ID de los datos de prueba y la revisión por los valores de tu espacio de trabajo, añade una comprobación de que la coincidencia del cliente no es ambigua y vuelve a leer la tarea resultante. Revisa los errores de las herramientas además del estado del workflow. No conviertas una escritura fallida en una clave de idempotencia nueva sin entender el resultado.
+
+Un cliente MCP externo actúa como el usuario conectado. Las instrucciones de preguntar antes de enviar o eliminar son una guía para el cliente, no una barrera de aprobación aplicada desde el servidor. Implementa tu propio límite de revisión para las acciones con consecuencias. La política de aprobación de Mate es aparte; este workflow ni invoca a Mate ni demuestra un proceso de aprobación.
+
+Si tu tarea es una sincronización fija de CRM, quizá te resulte más sencilla la [guía de integración de Customermates con n8n](/docs/n8n): el nodo de la comunidad `@customermates/n8n-nodes-crm` v2, que es independiente, usa la API genérica de registros. Sus workflows v1 apuntan a endpoints eliminados. REST y los webhooks también son opciones; compara los contratos en [MCP vs API](/blog/mcp-vs-api).
+
+Customermates autoalojado ofrece el núcleo del CRM Starter, REST y acceso MCP externo. Mate alojado y la bandeja de entrada en la nube no están incluidos. Customermates no incluye un entorno de ejecución ni una suscripción de n8n, ni n8n alojado gratis, ni secuencias salientes. Si solo necesitas conectar un CRM que ya tienes, Customermates no es un intermediario obligatorio.
+
+Un workflow como este crea el siguiente paso. La respuesta al cliente es la otra mitad: con LinkedIn y el correo conectados en Customermates Cloud desde Pro, la conversación vive en el registro del cliente, y Mate o tu propio agente de IA redacta la respuesta para que la revises y la envíes. Para ver las dos cosas juntas, [empieza tu prueba](/auth/signup?job=followup): [[commercial.trial.days]] días de Pro sin tarjeta de crédito.
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Cómo activo el servidor MCP de n8n?">
+Activa el acceso MCP a nivel de instancia en n8n (Cloud o autoalojado), conecta tu cliente con OAuth o con un token de acceso MCP y elige qué workflows expones: activar MCP no los expone todos. Los pasos y las opciones vigentes están en la documentación oficial de n8n.
+</FaqItem>
+<FaqItem question="¿Puedo crear workflows de n8n desde Claude o Cursor?">
+Con el MCP a nivel de instancia, sí: n8n admite la creación de workflows desde la versión 2.13.0 y sus herramientas incluyen crear y editar workflows y tablas de datos. Como el cliente actúa con los permisos del usuario conectado, revisa cada cambio antes de publicarlo.
+</FaqItem>
+<FaqItem question="¿Qué es el nodo MCP Client de n8n?">
+Es el nodo con el que un workflow normal llama a las herramientas de un servidor MCP externo, sin un modelo de lenguaje por medio. Es distinto del subnodo MCP Client Tool, que usan los agentes de IA de n8n. Esta guía prueba el nodo independiente.
+</FaqItem>
+<FaqItem question="¿n8n-mcp es lo mismo que el servidor MCP nativo de n8n?">
+No. El repositorio comunitario con ese nombre lo mantiene un proyecto independiente. El MCP nativo a nivel de instancia y los nodos integrados pertenecen a n8n; comprueba el paquete exacto y la dirección antes de instalar nada.
+</FaqItem>
+<FaqItem question="¿Cuándo uso MCP Client Tool en lugar de MCP Server Trigger?">
+Usa Client Tool cuando un n8n AI Agent deba llamar a herramientas externas. Usa Server Trigger cuando un cliente externo deba llamar a herramientas que expone tu workflow. Para llamadas fijas sin un modelo, usa el MCP Client independiente.
+</FaqItem>
+<FaqItem question="¿Puede un mismo workflow de n8n ser cliente y servidor a la vez?">
+Los dos papeles pueden convivir en un diseño, pero siguen siendo conexiones distintas con credenciales distintas. El ejemplo ejecutado aquí probó solo la ruta saliente del cliente independiente.
+</FaqItem>
+<FaqItem question="¿MCP exige aprobación automática antes de cada acción?">
+No. Una conexión por protocolo no establece tu política de aprobación. Mantén los permisos, la prevención de duplicados y la revisión humana como partes explícitas del workflow.
+</FaqItem>
+<FaqItem question="¿Necesito MCP si el nodo de Customermates cubre mi tarea?">
+No. Un nodo de la comunidad o un workflow con HTTP Request pueden bastar para operaciones conocidas. Elige MCP cuando su interfaz de herramientas sirva a tu tarea real.
+</FaqItem>
+</Faq>
+
+Documentación de terceros comprobada el 5 de noviembre de 2026 en las referencias oficiales de n8n y en el repositorio comunitario enlazados arriba. El ejemplo de n8n ejecutado sigue fechado el 28 de octubre de 2026.

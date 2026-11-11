@@ -1,0 +1,95 @@
+---
+title: "Werkruimtes: aanmaken, wisselen, deelnemen en verlaten"
+description: "Eén login, meerdere gescheiden werkruimtes: aanmaken, wisselen, deelnemen, verlaten, en hoe sleutels, MCP, facturering en proefperiode per werkruimte werken."
+---
+
+Een werkruimte is het CRM van één bedrijf in Customermates. Met één login, je e-mailadres, kun je bij meerdere werkruimtes horen, een beetje zoals je lid kunt zijn van meerdere bedrijven, en je wisselt er in de app tussen. Elke werkruimte is volledig gescheiden van de andere.
+
+## Wat is een werkruimte en wat houdt die gescheiden? [#what-is-a-workspace]
+
+Een werkruimte is een apart CRM met eigen lijsten en datamodel, records, [Kennisbank](app:wiki), leden, rollen, abonnement en facturering, API-sleutels, MCP-verbindingen (Claude, ChatGPT en elke andere connector), webhooks, routines, Mate-chats en gehoste AI-tegoeden. Niets wordt gedeeld of is doorzoekbaar tussen werkruimtes: zoeken, Mate, MCP en de REST API werken altijd binnen één werkruimte, en een id uit een andere werkruimte wordt behandeld als niet gevonden.
+
+### Wat is in elke werkruimte hetzelfde? [#what-is-the-same-in-every-workspace]
+
+Je persoonlijke profiel: voor- en achternaam, avatar, weergavetaal, opmaaklocale en thema. Als je dat wijzigt in [Profiel & voorkeuren](app:settings/profile), wordt het bijgewerkt in elke werkruimte waar je bij hoort; een wijziging met een API-sleutel of een MCP-verbinding geldt alleen in de werkruimte van die sleutel of verbinding. Je rol, je status en je plek worden per werkruimte ingesteld, dus je kunt in de ene werkruimte de rol **Beheerder** hebben en in een andere een beperkte rol. Als een lid met **Bewerken** op **Gebruikers & rollen** een ander lid wijzigt bij [Leden](app:settings/members), geldt de wijziging alleen in die werkruimte.
+
+## Hoe maak ik een werkruimte aan? [#how-do-i-create-a-workspace]
+
+Open het werkruimtemenu bovenaan de zijbalk en kies **Werkruimte aanmaken**. Vul een naam van 1 tot 80 tekens in en ga op Customermates Cloud akkoord met de Voorwaarden. Iedereen die is ingelogd kan werkruimtes aanmaken, ongeacht de rol in de huidige werkruimte; de publieke demo biedt dit niet aan. Op Customermates Cloud kan één login maximaal [[commercial.workspaces.creationLimit]] werkruimtes aanmaken; neem contact op met support als je er meer nodig hebt.
+
+In de nieuwe werkruimte krijg je de ingebouwde rol **Beheerder**, en deze browsersessie wisselt ernaartoe. De werkruimte begint met dezelfde lijsten als elke nieuwe werkruimte ([met welke recordtypen een werkruimte begint](/docs/concepts#which-five-record-types-exist)) en zonder de gegevens van je andere werkruimtes. De [onboardingwizard](/docs/app-onboarding) opent voor deze werkruimte zonder de profielstap, omdat je profiel al bestaat: de stappen voor Kennisbank, uitnodigen en AI blijven over. Op Cloud heeft alleen de eerste werkruimte die je aanmaakt een gratis proefperiode; zie [Welke werkruimte krijgt de gratis proefperiode?](#which-workspace-gets-the-free-trial).
+
+## Hoe wissel ik tussen werkruimtes? [#how-do-i-switch-workspaces]
+
+Het werkruimtemenu bovenaan de zijbalk toont elke werkruimte waar je bij hoort; kies er een om ernaartoe te wisselen. Het opdrachtenpalet biedt dezelfde lijst onder **Van werkruimte wisselen…**, dat je rechtstreeks opent met G en dan W, en als je in het zoekveld de naam van een werkruimte typt, biedt het **Wisselen naar …** aan. De keuze geldt voor deze browsersessie, dus een andere browser of een ander apparaat kan tegelijk in een andere werkruimte zijn. Andere tabbladen van dezelfde browser tonen "Je hebt in een ander tabblad van werkruimte gewisseld" met **Opnieuw laden**, zodat er niets in de verkeerde werkruimte wordt opgeslagen. De werkruimte waarnaar je bent gewisseld, wordt onthouden als je laatst gebruikte en opent bij je volgende login. Terwijl een werkruimte wacht op jouw goedkeuring of jouw toegang ertoe niet actief is, noemt de pagina de naam van de werkruimte, en het werkruimtemenu toont nog steeds je andere werkruimtes om naartoe te wisselen.
+
+[Werkruimtes](app:settings/workspaces) onder **Account** in Instellingen toont dezelfde werkruimtes met je rol, je status en het abonnement van elk, met **Wisselen** voor de andere, **Verlaten** voor de huidige en **Werkruimte aanmaken**.
+
+## Hoe wijzig ik de naam van een werkruimte? [#how-do-i-rename-a-workspace]
+
+Open [Algemeen](app:settings/general) onder **Werkruimte** in Instellingen en wijzig de naam van de werkruimte, 1 tot 80 tekens. Voor het hernoemen heb je **Bewerken** nodig op de rij **Bedrijf** van je rol; de rol **Beheerder** heeft dat. Een werkruimte zonder naam, omdat hij is aangemaakt voordat werkruimtes een naam hadden of omdat de naam in de onboardingwizard leeg is gelaten, verschijnt als **Werkruimte** totdat iemand hem hernoemt.
+
+## Hoe neem ik met mijn bestaande account deel aan een werkruimte? [#how-do-i-join-with-an-existing-account]
+
+Uitnodigingen werken zoals voor nieuwe mensen: een lid deelt de uitnodigingslink of stuurt hem per e-mail, zie [Hoe nodig ik mensen uit?](/docs/app-company#how-do-invitations-work). Open de link terwijl je bent ingelogd bij Customermates: **Deelnemen aan …** toont wie je heeft uitgenodigd, met **Deelnemen aan werkruimte** en **Ander account gebruiken**. Vink op Customermates Cloud eerst het selectievakje aan om akkoord te gaan met de Voorwaarden en te bevestigen dat je de verwerkersovereenkomst (DPA) en het Privacybeleid hebt gelezen, en klik dan op **Deelnemen aan werkruimte**. Je neemt deel met het profiel dat je al hebt en komt op **Wachten op goedkeuring**, dat de werkruimte noemt, totdat iemand met **Bewerken** op **Gebruikers & rollen** je goedkeurt bij [Leden](app:settings/members). Ondertussen schakelt het werkruimtemenu terug naar je andere werkruimtes, en met **Verzoek intrekken** trek je het verzoek in; wil je later alsnog deelnemen, vraag het dan opnieuw met een uitnodigingslink.
+
+Als je al bij die werkruimte hoort, biedt de pagina **Werkruimte openen** aan, waarmee je ernaartoe wisselt; als je daar op **Inactief** bent gezet, staat er **Je toegang is gedeactiveerd**. Als je de werkruimte hebt verlaten, eruit bent verwijderd of je verzoek hebt ingetrokken, open dan opnieuw een uitnodigingslink van die werkruimte om te vragen of je mag deelnemen: de pagina biedt dan weer **Deelnemen aan werkruimte** aan, en iemand met **Bewerken** op **Gebruikers & rollen** moet het nieuwe verzoek goedkeuren.
+
+## Hoe verlaat ik een werkruimte? [#how-do-i-leave-a-workspace]
+
+Open [Algemeen](app:settings/general) onder **Werkruimte** in Instellingen en klik op **Werkruimte verlaten**, of klik op **Verlaten** bij de huidige werkruimte in [Werkruimtes](app:settings/workspaces). Verlaten:
+
+- zet je status in die werkruimte op **Inactief**,
+- trekt je API-sleutels en MCP-verbindingen voor die werkruimte in,
+- ontkoppelt de kanalen die je erin hebt verbonden, zoals mailboxen en LinkedIn-accounts,
+- zet je routines erin op pauze,
+- verwijdert op Cloud je plek uit de facturering van die werkruimte.
+
+Pagina's van die werkruimte die nog open staan in een ander tabblad of op een ander apparaat, stoppen met opslaan en vragen je opnieuw te laden, waarna je laatst gebruikte werkruimte opent. Je account en je andere werkruimtes blijven onaangetast. Het laatste actieve lid met de rol **Beheerder** kan niet vertrekken: beide knoppen zijn uitgeschakeld, en als je op een knop wijst, zie je "Je bent de enige beheerder van deze werkruimte. Maak een ander actief lid beheerder voordat je vertrekt." Maak dus eerst een ander actief lid beheerder. De laatste platformoperator van Customermates kan niet vertrekken uit de enige werkruimte waarin zijn account actief is. Om terug te komen open je een uitnodigingslink van de werkruimte en vraag je opnieuw of je mag deelnemen; iemand met **Bewerken** op **Gebruikers & rollen** moet het verzoek goedkeuren. Wil je de werkruimte voor iedereen verwijderen, zie dan [Hoe verwijder ik een werkruimte?](/docs/app-workspaces#how-do-i-delete-a-workspace).
+
+## Hoe verwijder ik een werkruimte? [#how-do-i-delete-a-workspace]
+
+Open [Algemeen](app:settings/general) onder **Werkruimte** in Instellingen, klik op **Werkruimte verwijderen** in de **Gevarenzone** en typ de naam van de werkruimte ter bevestiging. Op Customermates Cloud biedt een werkruimte zonder abonnement, of met een beëindigd abonnement, **Werkruimte verwijderen** ook aan op het scherm **Kies een abonnement voor …**. Verwijderen is permanent en kan niet ongedaan worden gemaakt:
+
+- alle records, de Kennisbank, routines, webhooks, dashboards, rollen en de prullenbak van de werkruimte worden verwijderd,
+- elk lid verliest de toegang, en alle API-sleutels en MCP-verbindingen voor de werkruimte werken niet meer,
+- de mailboxen en LinkedIn-accounts die erin zijn verbonden, worden ontkoppeld,
+- pagina's van de werkruimte die nog open staan in een tabblad of op een ander apparaat, van jou of van een ander lid, stoppen met opslaan en vragen om opnieuw te laden, waarna een andere werkruimte van die persoon opent.
+
+Je komt terecht in een andere werkruimte van jou, of op het scherm om er een aan te maken als er geen meer over is. Op Customermates Cloud kan alleen de beheerder die de werkruimte heeft aangemaakt hem verwijderen, en alleen zolang er geen abonnement van is dat nog kan worden gefactureerd of hervat: zeg een betaald abonnement op bij [Facturering](app:settings/billing) en verwijder de werkruimte zodra de betaalde periode is afgelopen, of neem contact op met support voor een werkruimte met een Enterprise-abonnement op factuur. Een werkruimte in de gratis proefperiode zonder betaling kun je op elk moment verwijderen, maar daarmee krijg je geen nieuwe proefperiode. Een werkruimte die het enige actieve account van de laatste platformoperator van Customermates bevat, kan hier niet worden verwijderd. Als je een werkruimte niet kunt verwijderen, is de knop uitgeschakeld, en als je erop wijst, of op een telefoon naar de tekst eronder kijkt, zie je waarom. Als je zelf host, kan elk lid met de rol **Beheerder** een werkruimte verwijderen.
+
+## Wat gebeurt er als iemand mij uit een werkruimte verwijdert? [#what-happens-when-removed]
+
+Een lid met **Bewerken** op **Gebruikers & rollen** kan je verwijderen bij [Leden](app:settings/members), zie [Hoe keur ik een lid goed, bewerk, deactiveer of verwijder ik het?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). Voor jou werkt het als verlaten: je API-sleutels en MCP-verbindingen voor die werkruimte werken niet meer, de kanalen die je erin hebt verbonden worden ontkoppeld, en de werkruimte verdwijnt uit je werkruimtemenu. Je krijgt een e-mail die de werkruimte noemt en een link om in te loggen bevat. Pagina's van die werkruimte die nog open staan in een tabblad of op een ander apparaat, stoppen met opslaan en vragen je opnieuw te laden, waarna je laatst gebruikte andere werkruimte opent. Als je wachtte op goedkeuring, wijst de verwijdering je verzoek af, zonder e-mail. Om terug te komen open je een uitnodigingslink van de werkruimte en vraag je opnieuw of je mag deelnemen; iemand met **Bewerken** op **Gebruikers & rollen** moet het verzoek goedkeuren.
+
+## Welke werkruimte gebruiken API-sleutels en MCP-verbindingen? [#which-workspace-do-api-keys-and-connections-use]
+
+Een API-sleutel hoort bij precies één werkruimte: een sleutel die in een werkruimte is aangemaakt, werkt alleen in die werkruimte, met jouw rol daar. [API-sleutels & connectoren](app:settings/api-keys) toont en verwijdert alleen de sleutels van de huidige werkruimte, dus wissel naar een andere werkruimte om de sleutels daarvan te zien of te verwijderen. Sleutels die zijn aangemaakt toen één login nog bij meerdere werkruimtes kon horen, blijven gebonden aan de werkruimte waarin ze zijn aangemaakt.
+
+Een MCP-verbinding via OAuth, zoals de Claude- of ChatGPT-connector, krijgt ook precies één werkruimte. Elke werkruimte heeft een eigen MCP-URL, met een kopieerknop getoond in [API-sleutels & connectoren](app:settings/api-keys) onder **Snelle koppelingen** en in de onboarding; een verbinding die je daarmee toevoegt, krijgt die werkruimte, en het toestemmingsscherm toont hem zonder keuze. Een verbinding die je toevoegt met `<BASE_URL>/api/v1/mcp` toont op het toestemmingsscherm **Kies een werkruimte** als je bij meerdere werkruimtes hoort: je huidige werkruimte is vooraf geselecteerd, en je kunt een andere kiezen waar je **Actief** bent, je rol **Leestoegang** **Alle** heeft op **API en webhooks**, de werkruimte een bruikbaar abonnement heeft en er geen bijgewerkte voorwaarden wachten op acceptatie. Werkruimtes die je niet kunt kiezen, zijn grijs weergegeven met de reden. De verbinding, inclusief de tokens die ze later vernieuwt, blijft gebonden aan die werkruimte. Wil je vanuit één AI-client, zoals één Claude-account, in meerdere werkruimtes werken, voeg dan per werkruimte één connector toe met de URL van die werkruimte; zie [Verbinden met een eigen connector](/docs/connect-custom-connector#the-url).
+
+Kanalen die je verbindt in [Kanalen & agenda's](app:settings/channels), zoals een mailbox of een LinkedIn-account, horen bij de werkruimte waarin je ze hebt verbonden.
+
+## Hoe wordt elke werkruimte gefactureerd en hoe worden plekken geteld? [#how-is-each-workspace-billed]
+
+Op Customermates Cloud heeft elke werkruimte een eigen abonnement, eigen facturen en een eigen pool met gehoste AI-tegoeden bij [Facturering](app:settings/billing), beheerd door de leden met **Bewerken** op **Bedrijf**; abonnementswijzigingen, facturen en opzeggen zijn alleen beschikbaar voor de beheerder die voor de werkruimte betaalt, zie [Hoe zeg ik op, wijzig ik de betaalmethode of haal ik facturen op?](/docs/app-company#how-do-i-cancel-change-the-payment-method-or-get-invoices). Iemand die in meerdere werkruimtes **Actief** is, is in elk daarvan een gefactureerde plek; zie [Hoe worden plekken geteld en gefactureerd?](/docs/app-company#how-are-seats-counted-and-billed).
+
+### Welke werkruimte krijgt de gratis proefperiode? [#which-workspace-gets-the-free-trial]
+
+Alleen de eerste werkruimte die een login aanmaakt, krijgt de gratis proefperiode van [[commercial.trial.days]] dagen. Elke extra werkruimte begint zonder proefperiode: de beheerder kiest een abonnement op het scherm **Kies een abonnement voor …** voordat de werkruimte kan worden gebruikt (de lijst Werkruimtes toont tot dan **Geen abonnement**), en tot dan worden ook de API-sleutels en MCP-verbindingen ervan geweigerd, zie [Wat gebeurt er als de proefperiode afloopt?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Deelnemen aan de werkruimte van iemand anders gebruikt geen proefperiode op en geeft er ook geen. Als je de werkruimte met de proefperiode verwijdert, krijg je geen nieuwe.
+
+## Hoe werken werkruimtes als je zelf host? [#how-do-workspaces-work-when-self-hosting]
+
+Als je Customermates zelf draait, kan het een willekeurig aantal werkruimtes bevatten, zonder facturering en zonder proefperiode: elke werkruimte begint actief. Elke geregistreerde gebruiker kan extra werkruimtes aanmaken, en elk lid met de rol **Beheerder** kan er een verwijderen, zie [Hoe verwijder ik een werkruimte?](/docs/app-workspaces#how-do-i-delete-a-workspace). Zie [Wie kan zich aanmelden op mijn instantie?](/docs/self-hosting#who-can-sign-up-on-my-instance).
+
+## Voor agents [#for-agents]
+
+Elke MCP- en REST-aanroep werkt in precies één werkruimte: die waarin de API-sleutel is aangemaakt of waarvoor de OAuth-verbinding is goedgekeurd. `get_workspace_context` geeft die werkruimte terug als `company` (id en naam), en een id uit een andere werkruimte levert `not_found` op. Geen enkele MCP-tool of REST-endpoint toont, maakt, wisselt, hernoemt, verlaat of verwijdert werkruimtes; verwijs de gebruiker naar het werkruimtemenu. Om een ander lid te verwijderen gebruik je `manage_team` met `remove_member` of `POST /api/v1/members/remove`. Om in een andere werkruimte te werken, verbindt de gebruiker daar een aparte sleutel of verbinding.
+
+## Gerelateerd [#related]
+
+- [App-gids, Bedrijf](/docs/app-company): leden, rollen en facturering van één werkruimte.
+- [App-gids, Profiel](/docs/app-profile): het profiel dat in elke werkruimte hetzelfde is.
+- [API-sleutels](/docs/api-keys): sleutels aanmaken, gebruiken en verwijderen.
+- [Verbinden met een eigen connector](/docs/connect-custom-connector): Claude en ChatGPT verbinden via OAuth.
+- [Onboardingwizard](/docs/app-onboarding): de stappen nadat je een werkruimte hebt aangemaakt.

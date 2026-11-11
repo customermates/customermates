@@ -1,0 +1,34 @@
+﻿Seção,Item,Responsável,Valor planejado,Unidade,Premissa ou cálculo,Data de revisão,Valor realizado,Próxima ação
+Período,Dados de planejamento fictícios; não são resultados reais; recalcule depois de editar; sem fórmulas ativas,,,,,,,
+Período,2027-01-04 / 2027-04-03,Rafael,90,dias corridos,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Premissas,Cliente-alvo e oferta,Rafael,Projeto de melhoria operacional para pequenas empresas de serviços,texto,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Meta de contratos,Rafael,36000,EUR,6 × 6000,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Valor do contrato por projeto,Rafael,6000,EUR,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Ganhos necessários,Rafael,6,contratos,36000 ÷ 6000,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Taxa de ganho das propostas,Rafael,50,por cento,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Taxa de reunião para proposta,Rafael,40,por cento,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Taxa de conta para reunião,Rafael,25,por cento,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Propostas necessárias,Rafael,12,propostas,"6 ÷ 0,50",2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Reuniões necessárias,Rafael,30,reuniões,"12 ÷ 0,40",2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Contas necessárias,Rafael,120,empresas,"30 ÷ 0,25",2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Prazo de decisão após a proposta,Rafael,30,dias corridos,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Premissas,Orçamento adicional em dinheiro,Rafael,0,EUR,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,empresas,Marcos,60,empresas,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,reuniões qualificadas,Rafael,20,reuniões qualificadas,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,propostas,Rafael,8,propostas,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,contratos,Rafael,0,contratos,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,Novos contratos assinados sem impostos,Rafael,0,EUR,,2027-02-02,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,empresas,Marcos,100,empresas,,2027-03-04,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,reuniões qualificadas,Rafael,27,reuniões qualificadas,,2027-03-04,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,propostas,Rafael,12,propostas,,2027-03-04,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,contratos,Rafael,4,contratos,,2027-03-04,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,Novos contratos assinados sem impostos,Rafael,24000,EUR,,2027-03-04,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,empresas,Marcos,120,empresas,,2027-04-03,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,reuniões qualificadas,Rafael,30,reuniões qualificadas,,2027-04-03,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,propostas,Rafael,12,propostas,,2027-04-03,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,contratos,Rafael,6,contratos,,2027-04-03,,Registre o valor realizado; confirme a próxima ação
+Marcos cumulativos,Novos contratos assinados sem impostos,Rafael,36000,EUR,,2027-04-03,,Registre o valor realizado; confirme a próxima ação
+Ações,empresas,Marcos,,,Registre o valor realizado; confirme a próxima ação,2027-01-08,,
+Ações,reuniões qualificadas,Rafael,,,Registre o valor realizado; confirme a próxima ação,2027-01-15,,
+Ações,propostas,Rafael,,,Registre o valor realizado; confirme a próxima ação,2027-03-04,,
+Ações,Entrega,Juliana,,,Registre o valor realizado; confirme a próxima ação,2027-04-03,,

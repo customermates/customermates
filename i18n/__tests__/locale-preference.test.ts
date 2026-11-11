@@ -19,7 +19,10 @@ describe("locale preferences", () => {
   it("matches complete browser tags before falling back to their base language", () => {
     expect(browserAppLocale(["invalid", "fr-CA", "de-DE"])).toBe("fr");
     expect(browserAppLocale(["IT-it"])).toBe("it");
-    expect(browserAppLocale(["pt-BR"])).toBe("en");
+    expect(browserAppLocale(["pt-BR"])).toBe("pt");
+    expect(browserAppLocale(["pl-PL"])).toBe("pl");
+    expect(browserAppLocale(["nl-BE"])).toBe("nl");
+    expect(browserAppLocale(["ja-JP"])).toBe("en");
   });
 
   it("navigates System through locale negotiation and explicit preferences through their locale", () => {

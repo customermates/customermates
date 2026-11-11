@@ -1,0 +1,99 @@
+---
+title: "Filtersyntaxis voor queries op CRM-records"
+description: "Getypeerde veld- en relatiefilters voor het configureerbare recordmodel, met voorbeelden voor MCP en REST: operatoren, datumvensters en vrij zoeken."
+---
+
+CRM-lijsten, opgeslagen weergaven, widgets, REST-queries en de MCP-tool `query_crm_records` gebruiken hetzelfde querymodel voor records. Ontdek het type met `discover_record_types` en lees de stabiele veld- en relatie-ID's ervan met `get_record_model`. Elke lijst gebruikt dezelfde queryvorm, of de lijst nu door de AI-setup of door een persoon is aangemaakt. Voor berichttools gelden aparte filters.
+
+## Waar gelden filters? [#where-do-filters-apply]
+
+Een recordquery wijst één `typeId` aan. De `filters` ervan testen velden van dat type; `relationships` testen gekoppelde records; `relatedFilters` volgen een gedeclareerd relatiepad. Regels binnen elke array worden gecombineerd met AND. `search` zoekt tekst in alle leesbare, doorzoekbare velden. De backend past werkruimte- en recordrechten toe op elke query en elk gerelateerd pad.
+
+## Hoe filter ik een lijst in de app? [#how-do-i-filter-a-list-in-the-app]
+
+Open de lijst, bijvoorbeeld je dealslijst, en klik in de werkbalk op **Filters**. Kies een veld onder **Filteren op** of typ de naam in **Filter toevoegen…**; gekoppelde lijsten, zoals een lijst met organisaties, staan daar ook. Kies de voorwaarde en daarna de waarden, en de lijst wordt direct bijgewerkt. Actieve filters verschijnen als chips bovenaan; verwijder er één met het kruisje ×, of alle met **Wissen**. **Vraag het aan Mate** in hetzelfde venster zet een beschrijving in je eigen woorden om in filters. Elke lijst werkt op dezelfde manier, en een opgeslagen weergave toont dezelfde records in plaats van ze te kopiëren.
+
+## Hoe ziet een filterregel eruit, en kan ik regels combineren met OR? [#what-does-a-filter-rule-look-like]
+
+Elk veldfilter heeft een stabiel `fieldId`, een `operator`, een getypeerde scalaire `value` (of `null`) en optioneel `values` voor verzamelings- of bereikoperatoren. Bijvoorbeeld:
+
+```json
+{
+  "typeId": "00000000-0000-4000-8000-000000000001",
+  "filters": [
+    {
+      "fieldId": "00000000-0000-4000-8000-000000000002",
+      "operator": "contains",
+      "value": { "kind": "text", "value": "Acme" }
+    }
+  ]
+}
+```
+
+Gebruik `in` om te matchen op een van meerdere waarden van één veld. Voor OR over verschillende velden voer je afzonderlijke queries uit of gebruik je een geschikte query op gerelateerde records; de gewone filterarray wordt met AND gecombineerd. Een query accepteert maximaal 50 veldregels en 500 tekens `search`.
+
+## Welke operatoren zijn er? [#which-operators-exist]
+
+Het querycontract voor records ondersteunt 16 veldoperatoren. Het type en het gedrag van een veld bepalen welke geldig zijn; de backend weigert niet-passende combinaties.
+
+| Operatoren | Betekenis |
+|---|---|
+| `eq`, `ne` | Gelijk aan of ongelijk aan één getypeerde waarde |
+| `contains`, `startsWith` | Hoofdletterongevoelige tekstvergelijking; `contains` test ook of een datum binnen een bereik valt |
+| `gt`, `gte`, `lt`, `lte` | Geordende vergelijking op ondersteunde getallen en datums |
+| `in`, `notIn` | Lidmaatschap van `values`, maximaal 100 getypeerde waarden |
+| `all` | Alleen voor meerkeuzevelden: het record bevat elke optie in `values` |
+| `between` | Inclusief datuminterval, opgegeven als twee waarden |
+| `inLastDays`, `notInLastDays` | Relatief venster met een positief aantal hele dagen; `notInLastDays` matcht waarden die strikt vóór dat venster liggen |
+| `empty`, `notEmpty` | Ontbrekende versus aanwezige waarde; `value` is `null` |
+
+`eq` op tekst is exact; `contains` en `startsWith` negeren hoofdletters. Valutavergelijkingen vereisen een overeenkomende valuta. Ontbrekende waarden, nul, beperkte waarden en rekenfouten zijn verschillende toestanden; uit een beperkt resultaat kun je via filteren of sorteren geen verborgen invoer afleiden.
+
+### Welke datumoperatoren zijn er, bijvoorbeeld voor de laatste 7 dagen? [#which-date-operators-exist]
+
+Datum- en datumtijdvelden ondersteunen passende geordende vergelijkingen en `between`. Systeemdatums gebruiken `system:createdAt` en `system:updatedAt` als veld-ID's. `inLastDays` en `notInLastDays` nemen een decimale scalaire waarde zonder valuta, zoals `{"kind":"decimal","value":"7","currency":null}`. `inLastDays` omvat waarden op of na UTC-middernacht N dagen vóór de queryklok; `notInLastDays` (**Ouder dan…** in de app) matcht waarden die strikt vóór die grens liggen, dus `notInLastDays` 3 plus `inLastDays` 7 vindt waarden van drie tot zeven dagen geleden. Relatieve vensters gebruiken de queryklok; opgeslagen berekeningen veranderen niet stilzwijgend met de tijd mee.
+
+### Welke operatoren werken op tekstvelden? [#which-operators-work-on-text-fields]
+
+Tekst- en URL-velden ondersteunen de tekstoperatoren die bij hun waardetype passen. Telefoonnummers en e-mailadressen staan in het veld voor contactgegevens van een lijst (waardetype `channels`, **Telefoon, e-mail en social media** in de app), dat `contains`, `startsWith`, `empty` en `notEmpty` ondersteunt op zijn identifiers maar niet kan worden gesorteerd of gegroepeerd; de lijstzoekopdracht doorzoekt het ook, dus wie op een nummer of adres zoekt, vindt het bijbehorende record. Een veld dat meerdere waarden opslaat, wordt element voor element doorzocht. Zoektermen behandelen procenttekens en underscores als letterlijke tekens, niet als SQL-jokertekens.
+
+### Welke relatieoperatoren zijn er, bijvoorbeeld om contacten zonder organisatie te vinden? [#which-relationship-operators-exist]
+
+Relatiefilters staan los van veldfilters. Geef `relationId`, `direction` (`outgoing` of `incoming`), `operator` (`any` of `none`) en `recordIds` op. Zet `recordIds` op `null` voor elk toegankelijk gekoppeld record, of op expliciete ID's om bepaalde records te testen. Een `none`-filter met `recordIds: null` vindt records zonder toegankelijke koppeling van die relatie. De relatiedefinitie levert de eindpunttypen en de kardinaliteit.
+
+### Hoe filter ik op een eigen veld, en welke operatoren werken daarop? [#which-operators-work-on-custom-columns]
+
+Gebruik het ID van het veld uit `get_record_model`, nooit het bewerkbare label. Een invoer-, formule-, opzoek- of rollupveld kan worden gefilterd wanneer het waardetype de operator ondersteunt en de lezer toegang heeft tot de waarde. Selectiefilters gebruiken stabiele optie-ID's. Een meerkeuzeveld accepteert `in` (heeft een van de opties), `all` (heeft alle opties), `notIn` (heeft geen van de opties, inclusief records zonder waarde), `empty` en `notEmpty`; het kan niet worden gesorteerd. Dezelfde regel geldt voor de velden van elke lijst.
+
+## Welke veldnamen kan ik gebruiken? [#which-field-names-can-i-use]
+
+Gebruik stabiele veld-ID's uit `get_record_model`. De systeemsleutels `system:createdAt`, `system:updatedAt` en `system:assignedTo` zijn beschikbaar waar ze worden ondersteund. Relaties gebruiken hun definitie-ID's in `relationships` in plaats van namen zoals `organizationIds`. Een veld, type of relatie dat een nieuwe naam krijgt, behoudt zijn ID, dus opgeslagen weergaven en AI-queries blijven geldig.
+
+Inboxlijsten bieden ook `connectedAccountId`, accountspecifiek `emailFolder`, `lastMessageDirection`, `lastMessageSentAt` en `lastMessageAt`. Roep eerst `get_messaging_threads` aan zonder filters (of `manage_data_views` met `action: "config"`, het onderdeel Inbox en `section: "filters"`) en kopieer dan de exacte `filterableFields.options[].value` voor een account of map. `emailFolder` accepteert `in` en `notIn`; elke mapverwijzing bevat het bijbehorende account. Mapopties leveren `groupKey` (accountidentiteit) en `groupLabel` (kop), zodat er aparte groepen ontstaan, ook wanneer twee accounts dezelfde weergavenaam hebben. `lastMessageDirection` accepteert `inbound`/`outbound` met `in`/`notIn` en negeert concepten, verborgen of verwijderde berichten en systeemgebeurtenissen. `lastMessageSentAt` past datumfilters toe op datzelfde laatste daadwerkelijke bericht. Combineer `notInLastDays` met waarde 3 en `inLastDays` met waarde 7 op dit veld voor berichten van drie tot zeven dagen oud; die kun je combineren met account-, map- en richtingsfilters. `lastMessageAt` filtert op laatste activiteit en telt ook activiteit van concepten mee. Zie [Inboxfilters](/docs/app-inbox#how-do-i-search-filter-or-refresh-the-inbox).
+
+## Voorbeelden [#examples]
+
+Contacten gekoppeld aan een bepaalde organisatie:
+
+```json
+{
+  "relationships": [{
+    "relationId": "00000000-0000-4000-8000-000000000003",
+    "direction": "outgoing",
+    "operator": "any",
+    "recordIds": ["00000000-0000-4000-8000-000000000004"]
+  }]
+}
+```
+
+Records zonder toegankelijke koppeling via die relatie gebruiken `"operator":"none"` en `"recordIds":null`. Gebruik voor een datumveld vóór juli 2024 een getypeerde `date`-waarde met `lt`. Gebruik voor een selectieveld `in` en de optie-ID's in `values`. Combineer deze in dezelfde query om beide voorwaarden te eisen.
+
+## Gebruik ik searchTerm (vrij zoeken) of een filter? [#free-text-search-or-a-filter]
+
+Gebruik `search` wanneer elk leesbaar, doorzoekbaar tekstveld de zin kan bevatten. De huidige recordquery noemt deze eigenschap `search`; oudere entiteits-API's noemden hem `searchTerm`. Gebruik `filters` wanneer het exacte veld of de exacte vergelijking ertoe doet. Zoeken en filters worden met AND gecombineerd. Contactgegevens doen alleen mee aan het zoeken bij een type met de beschermde functie voor persoonsidentiteit en met de toepasselijke toegang van de lezer.
+
+## Volgende stappen [#next]
+
+- [Kernconcepten](/docs/concepts): geconfigureerde velden en relaties.
+- [MCP-toolcatalogus](/docs/mcp#tool-catalog): `query_crm_records` en schema-ontdekking.
+- [CRM-records](/docs/app-records): lijstfilters en opgeslagen weergaven.

@@ -1,0 +1,306 @@
+---
+title: "Agentic CRM en AI-native CRM: tools en veilige acties"
+description: "Agentic CRM en AI-native CRM uitgelegd: gehoste Mate met beschikbaarheid per omgeving, MCP voor externe AI-clients en duidelijke controles op acties."
+
+acquisition:
+  locale: nl
+  slug: agentic-crm
+  clusterId: ai-agentic-mcp
+  role: hub
+  primaryIntent: Agentic CRM en AI-native CRM via Mate en MCP
+  metadata:
+    title: "Agentic CRM en AI-native CRM: tools en veilige acties"
+    description: "Agentic CRM en AI-native CRM uitgelegd: gehoste Mate met beschikbaarheid per omgeving, MCP voor externe AI-clients en duidelijke controles op acties."
+  proof:
+    factReferences:
+      - product:mcp-tools
+      - product:hosted-mate-capability
+      - product:core-crm-records
+      - product:unified-inbox-channels
+      - product:weighted-deal-values
+    excludedClaims:
+      - claim:no-hosted-ai-self-hosted
+      - claim:no-predictive-sales-analytics
+      - claim:no-unsupported-channels
+  cta:
+    action: Agentic CRM beoordelen met een afgebakende workflow
+    description: Vergelijk het gehoste Mate met externe MCP-clients, bekijk hun controlegrenzen en test één afgebakende CRM-workflow.
+    buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Lees de MCP-gids
+    buttonRightHref: /docs/mcp
+    hint: "Als Mate is ingeschakeld, gebruikt het de gehoste credits van je abonnement; externe MCP-clients gebruiken de modelaanbieder van de klant."
+  relatedHrefs:
+    - /docs/mcp
+    - /features/unified-inbox
+    - /blog/ai-sales-agent
+    - /blog/ai-in-sales
+  visual:
+    id: acquisition.agentic-crm.nl
+    locale: nl
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "Agentic CRM en AI-native CRM: MCP, Mate en veilige acties"
+      body: "Een afgebakend voorbeeld: een externe MCP-client slaat een concept op in een bestaande Inbox-thread, dat een mens nakijkt en verstuurt; geautoriseerde verzendtools krijgen geen tweede goedkeuring van de server."
+      checksum: fnv1a-3daad5b7
+    kind: brand-illustration
+    pathway: handoff
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "In een bestaande Inbox-thread slaat een externe AI-client een concept op dat een mens nakijkt en verstuurt."
+    depiction:
+      kind: change
+      productBehavior: true
+      statement: "In een bestaande Inbox-thread slaat een externe AI-client een concept op dat een mens nakijkt en verstuurt."
+    factReferences:
+      - product:human-send-boundary
+    focalLabel:
+      locale: nl
+      text: Concept
+    semanticLabels:
+      - locale: nl
+        text: Nakijken en versturen
+    focalSubject:
+      id: reviewable-draft
+      form: draft
+      fixtures:
+        person: rachel-dawson
+        provider: linkedin
+    supportingSubjects:
+      - id: external-ai-client
+        form: agent-cue
+        agentProvider: claude
+      - id: human-action
+        form: human-action
+        fixtures:
+          person: max-bergmann
+    accentTarget: human-action
+  structuredData:
+    types:
+      - Article
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "Agentic CRM en AI-native CRM: MCP, Mate en veilige acties"
+  description: "Een afgebakend voorbeeld: een externe MCP-client slaat een concept op in een bestaande Inbox-thread, dat een mens nakijkt en verstuurt; geautoriseerde verzendtools krijgen geen tweede goedkeuring van de server."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-05-01
+  tags:
+    - agentic-crm
+    - MCP
+    - AI agents
+    - CRM
+---
+
+# Agentic CRM en AI-native CRM: MCP, Mate en veilige acties
+
+Een **AI-native CRM** biedt gestructureerde klantgegevens en getypeerde acties die AI kan gebruiken. Een **agentic CRM** laat een AI-client of assistent ondersteund werk uitvoeren via die interfaces: context lezen, records aanmaken of bijwerken, een concept voorbereiden of een workflow afronden. De termen overlappen, maar de ene beschrijft de architectuur en de andere het gedrag.
+
+Customermates ondersteunt beide werkwijzen. Elk betaald abonnement geeft recht op Mate en bevat een maandelijks tegoed aan gehoste AI per actieve gebruiker; of Mate in een gehoste omgeving live staat, hangt af van de huidige configuratie van die omgeving. Cloud en zelf gehoste installaties kunnen daarnaast externe AI-clients koppelen via MCP, waarbij de klant die aparte client en modelaanbieder kiest en betaalt. Voor een klein team dat met klanten werkt draait het in beide gevallen om opvolging: een klant schrijft, de AI stelt het antwoord en de volgende stap op het klantrecord op, en een mens kijkt na, past aan en verstuurt.
+
+Wil je voor een vaste integratie en een AI-client kiezen, vergelijk dan [MCP en API op dezelfde klantrecordtaak](/blog/mcp-vs-api). Tooldiscovery verandert hoe de client een bewerking vindt; authenticatie en rechten blijven gelden.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="AI-native architectuur">
+    Gestructureerde CRM-records en getypeerde acties geven een geautoriseerde
+    AI-client iets betrouwbaars om mee te werken.
+  </SummaryItem>
+  <SummaryItem label="Agentic gedrag">
+    De client kan ondersteunde leesacties en acties combineren tot een
+    workflow in plaats van alleen tekst te genereren.
+  </SummaryItem>
+  <SummaryItem label="Twee werkwijzen">
+    Cloudabonnementen geven recht op het gehoste Mate. De live beschikbaarheid
+    hangt af van de gehoste omgeving; externe AI-clients koppelen via MCP in
+    cloud en zelf gehoste installaties met hun eigen modelaanbieder.
+  </SummaryItem>
+  <SummaryItem label="Waar de controle ligt">
+    Serverrechten autoriseren de actie. Het bevestigingsgedrag voor externe MCP
+    zit in de gekozen client; Mate past aparte goedkeuringen per aanroep toe.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Geverifieerde bouwstenen van agentic CRM">
+  <ProofItem label="Context">CRM-records en relaties</ProofItem>
+  <ProofItem label="Acties">Getypeerde MCP-tools</ProofItem>
+  <ProofItem label="Autorisatie">Gebruikersrechten op de server</ProofItem>
+  <ProofItem label="Bevestiging">Per client bij externe MCP</ProofItem>
+  <ProofItem label="Implementatie">MCP in cloud en zelf gehost</ProofItem>
+</ProofRail>
+
+## Wat is een AI-native CRM?
+
+Een **AI-native CRM** is zo ontworpen dat AI er als volwaardige gebruiker mee kan werken, niet als toevoeging die op schermen voor mensen is vastgeschroefd. In de praktijk betekent dat drie eigenschappen:
+
+- **Getypeerde interfaces voor elke kernactie.** Records lezen, aanmaken, bijwerken en koppelen zijn beschikbaar als tools met schema's, niet alleen als knoppen.
+- **Dezelfde rechten voor mensen en AI.** Een AI-client handelt als een bepaalde gebruiker en ziet precies wat die gebruiker mag zien.
+- **AI waar het werk gebeurt.** Een assistent in het product, een open interface voor externe AI-clients, of allebei.
+
+Veel gevestigde CRM's voegen AI achteraf toe: een apart AI-abonnement, een assistent die tot samenvattingen beperkt is, of een MCP-server die naast het product staat en een eigen installatie vraagt. De gidsen over [Salesforce MCP](/blog/salesforce-mcp) en [HubSpot MCP](/blog/hubspot-mcp) laten zien hoe twee grote aanbieders het aanpakken. Een AI-native CRM levert de interface mee als onderdeel van het product, op elk abonnement.
+
+| Vraag                               | AI toegevoegd aan een bestaand CRM           | AI-native CRM                                  |
+| ----------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Waar AI kan handelen                | Geselecteerde functies of een aparte server  | Elk kernrecord en elke kernactie via getypeerde tools |
+| Installatie voor een externe AI-client | Vaak een beheerdersproject                | Het endpoint koppelen en inloggen              |
+| Prijs                               | Vaak een apart AI-abonnement of een add-on   | Onderdeel van het abonnement                   |
+| Rechten                             | Hangt af van de add-on                       | De rol van de gekoppelde gebruiker, afgedwongen op de server |
+
+## Wat maakt een CRM agentic?
+
+Een bruikbare agentic CRM, ofwel een CRM met AI agents, heeft vier dingen nodig:
+
+1. **Gestructureerde context:** contacten, organisaties, deals, diensten en taken die de client betrouwbaar kan aanspreken.
+2. **Getypeerde acties:** tools die ondersteunde records aanmaken, lezen, bijwerken of anderszins bewerken.
+3. **Rechten:** elke actie blijft beperkt door de toegang van de gebruiker die erom vraagt.
+4. **Controlepunten:** de gekozen client, de serverrechten en eventuele goedkeuringsstappen van de assistent moeten elk afzonderlijk worden begrepen.
+
+Dat is iets anders dan een chatbot die alleen tekst schrijft. Het is ook iets anders dan autonome leadscoring, verrijking, prognoses of outreach beloven die het product niet biedt.
+
+## Een concrete, afgebakende agentic workflow
+
+Een externe client kan de context van een contact lezen, gerelateerde CRM-records bekijken en met getypeerde tools een concept of een recordwijziging voorbereiden. De server valideert het verzoek nog steeds en past de rechten van de gebruiker toe die erom vraagt. Voordat je een destructieve actie of uitgaande verzending inschakelt, moet de beheerder nagaan hoe de gekozen client dat effect laat zien en laat bevestigen.
+
+<AcquisitionCallout
+  title="Autorisatie is niet hetzelfde als bevestiging"
+  variant="boundary"
+>
+  CRM-rechten bepalen of de gebruiker een actie mag uitvoeren. De
+  MCP-instructies vragen compatibele clients om bevestiging bij verzenden en
+  verwijderen, maar de server voegt geen tweede goedkeuring toe nadat een
+  geautoriseerde client de tool aanroept. Behandel die twee tijdens de
+  beoordeling als aparte controles.
+</AcquisitionCallout>
+
+## Twee AI-routes in Customermates
+
+| Route                          | Waar het draait          | Model en credits                                     | Beschikbaarheid                |
+| ------------------------------ | ------------------------ | ---------------------------------------------------- | ------------------------------ |
+| Externe AI-client via MCP      | Cloud of zelf gehost     | De klant kiest en betaalt de externe aanbieder       | Open integratie                |
+| Mate, de assistent in de app   | Alleen Customermates Cloud | Gehost maandtegoed van het abonnement per actieve gebruiker | Inbegrepen in het abonnement; per omgeving geconfigureerd |
+
+De [MCP-documentatie](/docs/mcp) is de bron voor de installatie en voor de catalogus met tools, die verandert. Customermates registreert momenteel [[derived.mcp.tools.total]] MCP-tools; deze pagina herhaalt hun namen niet omdat de catalogus zich blijft ontwikkelen.
+
+## Waar een AI-client mee kan werken
+
+De MCP-koppeling dekt ondersteund werk rond contacten, organisaties, deals, diensten, taken, aangepaste velden, dashboards, webhooks en aanverwante CRM-bronnen. Een externe client kan die getypeerde tools combineren tot een workflow, terwijl het CRM de recordvalidatie en de rechten op de server houdt.
+
+Op cloudaccounts met het juiste recht biedt MCP ook ondersteund berichtenwerk voor de [gecombineerde inbox](/features/unified-inbox), zoals threads lezen, concepten opslaan, gesprekken sorteren en antwoorden versturen. De inbox ondersteunt koppelingen met e-mail, LinkedIn, WhatsApp, Instagram en Telegram, niet met sms of telefonie.
+
+## Goedkeuringsgrenzen verschillen tussen MCP en Mate
+
+Agentic betekent niet zonder rechten. De instructies van de MCP-server vragen clients om vóór elke verwijdering of uitgaande `send_*`-actie om uitdrukkelijke bevestiging te vragen. Dat is richtlijn voor de client, geen tweede goedkeuringspoort op de server: zodra een geautoriseerde client de MCP-tool aanroept, voert de server de toegestane actie uit. Controleer dat je gekozen client het precieze effect toont en op goedkeuring wacht.
+
+Als Mate is ingeschakeld, heeft het aparte, afgedwongen goedkeuringspoorten per aanroep voor destructieve acties, het opnieuw versturen van webhookleveringen, uitnodigingen van leden, escalatie naar support en wijzigingen aan externe of social accounts. Elk betaald abonnement bevat het recht en het maandelijkse tegoed, terwijl de live beschikbaarheid afhangt van de huidige configuratie van de gehoste omgeving.
+
+## Grenzen van cloud en zelf gehost
+
+| Mogelijkheid                | Customermates Cloud               | Zelf gehoste Customermates |
+| --------------------------- | --------------------------------- | -------------------------- |
+| Kern-CRM                    | Ja                                | Ja                         |
+| MCP voor externe AI-clients | Ja                                | Ja                         |
+| Gecombineerde inbox            | Pro en hoger                      | Nee                        |
+| Gehoste Mate-assistent      | Inbegrepen in het abonnement; per omgeving geconfigureerd | Nee |
+| Gehoste AI-credits          | Tegoed van het abonnement; bruikbaar als Mate is ingeschakeld | Nee |
+
+Zelf hosten gebruikt de functies van Starter. Het blijft een sterke optie voor teams die een [zelf gehoste CRM met een open-sourcekern](/features/self-hosted) willen en liever hun eigen AI-client en aanbieder via MCP koppelen.
+
+## Agentic CRM en AI-native CRM
+
+"AI-native CRM" beschrijft meestal de architectuur: het CRM biedt gestructureerde gegevens en acties die AI kan gebruiken. "Agentic CRM" beschrijft het gedrag: een AI-systeem kan ondersteund werk uitvoeren. Een product kan door AI bestuurbaar zijn zonder te doen alsof elk proces autonoom verloopt.
+
+Wil je Claude specifiek koppelen, dan loopt de [gids over Claude CRM](/blog/claude-crm) door de mogelijkheden: zelf bouwen, koppelen of de native route. Wil je het CRM en zijn MCP-endpoint op je eigen servers draaien, bekijk dan de vergelijking van [open-source CRM](/blog/open-source-crm) en de grenzen van [zelf gehost CRM](/features/self-hosted). Voor AI die aan klantgesprekken werkt, zie [klantcontact](/blog/customer-interaction-management).
+
+Voor kopers zijn de praktische vragen belangrijker dan het etiket:
+
+- Welke records en acties zijn beschikbaar?
+- Welke rechten worden op de server gecontroleerd?
+- Welke acties vragen om bevestiging?
+- Wie kiest de modelaanbieder en betaalt voor het gebruik?
+- Welke functies verschillen tussen de cloud- en de zelf gehoste editie?
+- Kun je de exacte tooldocumentatie bekijken voordat je toegang geeft?
+
+## Zo begin je met MCP
+
+<Steps>
+  <Step title="Bekijk de huidige tools">
+    Raadpleeg de [MCP-verbindings- en toolgids](/docs/mcp) in plaats van te
+    vertrouwen op een gekopieerde toollijst.
+  </Step>
+  <Step title="Kies de externe aanbieders">
+    Kies een AI-client en modelaanbieder die passen bij je gegevensbeleid en
+    je operationele eisen.
+  </Step>
+  <Step title="Beperk de rechten">
+    Geef alleen de CRM-rechten die de eerste workflow nodig heeft.
+  </Step>
+  <Step title="Begin met omkeerbaar werk">
+    Begin met lezen, samenvattingen en concepten voordat je schrijven,
+    verwijderen of uitgaande verzending inschakelt.
+  </Step>
+  <Step title="Controleer de besturing van de client">
+    Bevestig hoe de exacte client effecten toont en op goedkeuring wacht
+    voordat je de toegang uitbreidt.
+  </Step>
+</Steps>
+
+<AcquisitionCallout title="Beoordeel de huidige integratie" variant="fit">
+  [Lees de MCP-gids](/docs/mcp) voor de huidige koppelroute. Om opvolging van
+  begin tot eind te zien, [start je de proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup):
+  koppel LinkedIn of e-mail en laat, als Mate in die omgeving is ingeschakeld,
+  Mate of je eigen AI-client het antwoord en de volgende stap op het
+  klantrecord opstellen. Jij kijkt na, past aan en verstuurt, en één
+  afgebakende workflow is genoeg voordat je bredere rechten geeft.
+</AcquisitionCallout>
+
+## Veelgestelde vragen
+
+Bewaar de werkinstructies en brongegevens naast het klantrecord in de [AI-kennisbank](/features/knowledge-base).
+
+<Faq>
+<FaqItem question="Wat is een agentic CRM?">
+Het is een CRM waarvan de gestructureerde records en acties door een geautoriseerde AI-client of assistent kunnen worden bediend. Een verantwoorde implementatie houdt rechten op de server en uitdrukkelijke goedkeuringsgrenzen voor destructieve of externe acties.
+</FaqItem>
+
+<FaqItem question="Wat is een AI-native CRM?">
+Een AI-native CRM biedt zijn records en acties vanaf het begin via getypeerde interfaces aan AI aan, past op AI-clients dezelfde rechten toe als op mensen en levert AI-toegang mee in het product in plaats van als aparte add-on. Customermates doet dat via zijn MCP-server, met [[derived.mcp.tools.total]] tools op elk abonnement en elke installatie.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een AI-native CRM en een agentic CRM?">
+AI-native beschrijft de architectuur: gestructureerde gegevens en getypeerde acties die AI kan gebruiken. Agentic beschrijft het gedrag: een AI-client of assistent voert meerstapswerk uit met die acties. Een agentic CRM heeft een AI-native fundament nodig.
+</FaqItem>
+
+<FaqItem question="Is Mate beschikbaar in elke Customermates Cloud-omgeving?">
+  Elk betaald abonnement geeft recht op Mate en bevat een maandelijks tegoed aan
+  gehoste AI per actieve gebruiker. De live beschikbaarheid hangt af van de
+  huidige configuratie van de gehoste omgeving, dus het is geen algemene
+  beschikbaarheidsbelofte. Zelf gehoste installaties gebruiken externe
+  AI-clients via MCP.
+</FaqItem>
+
+<FaqItem question="Kan ik een externe AI-client gebruiken met zelf gehoste Customermates?">
+  Ja. MCP is beschikbaar in zelf gehoste installaties. Je kiest en betaalt de
+  externe client en modelaanbieder; gehoste Mate en gehoste AI-credits zijn
+  niet inbegrepen.
+</FaqItem>
+
+<FaqItem question="Waar wordt bevestiging afgedwongen?">
+  MCP-instructies vragen compatibele clients om bevestiging bij verzenden en
+  verwijderen, maar de MCP-server voegt geen tweede goedkeuringspoort toe nadat
+  de client een toegestane tool aanroept. Mate gebruikt aparte, afgedwongen
+  goedkeuringspoorten per aanroep. Controleer het gedrag van de exacte client
+  en route die je inschakelt.
+</FaqItem>
+
+<FaqItem question="Bevat een agentic CRM voorspellende leadscoring of prognoses?">
+Niet in Customermates. Het CRM kan deterministische gewogen dealwaarden berekenen uit ingestelde faseprobabiliteiten, maar levert geen voorspellende afsluitscores, verrijking of autonome omzetprognoses.
+</FaqItem>
+</Faq>

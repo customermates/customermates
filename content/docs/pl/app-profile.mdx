@@ -1,0 +1,125 @@
+---
+title: "Ustawienia profilu użytkownika w CRM Customermates"
+description: "Twoje osobiste ustawienia w Customermates: imię i nazwisko, język, formaty, motyw i skróty, kanały zasilające skrzynkę odbiorczą oraz klucze API."
+---
+
+## Co należy do Ciebie, a nie do przestrzeni roboczej? [#what-lives-on-the-profile-screen]
+
+Część Konto w Ustawieniach ma cztery strony: [Profil i preferencje](app:settings/profile) (imię i nazwisko, awatar, język, formaty, motyw), [Przestrzenie robocze](app:settings/workspaces) (przestrzenie robocze, do których należysz), [Kanały i kalendarze](app:settings/channels) (konta zasilające [Skrzynkę odbiorczą](/docs/app-inbox)) oraz [Klucze API i konektory](app:settings/api-keys) (klucze dla klientów MCP i REST). Kliknij swój awatar na dole paska bocznego i wybierz **Profil i preferencje**, albo wybierz **Ustawienia** w menu przestrzeni roboczej (nazwa przestrzeni roboczej na górze paska bocznego) lub naciśnij G, a potem S; każda z tych dróg otwiera Profil i preferencje, a pozostałe strony znajdziesz w nawigacji ustawień. **Wstecz** na górze tej nawigacji wraca do poprzedniego miejsca. Zmiany tutaj dotyczą tylko Ciebie, z wyjątkiem kanału, który współdzielisz z przestrzenią roboczą. Twój profil jest taki sam w każdej przestrzeni roboczej, do której należysz, a kanały i klucze API należą do przestrzeni roboczej, w której je połączono lub utworzono; zobacz [Przestrzenie robocze](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+
+Profil i preferencje widzi każdy członek. Kanały i kalendarze wymagają ustawienia **Dostęp do odczytu** na **Wszystkie** w wierszu **Wiadomości w skrzynce odbiorczej** Twojej roli i istnieją tylko w Customermates Cloud. Klucze API i konektory wymagają ustawienia **Dostęp do odczytu** na **Wszystkie** w wierszu **API i webhooki**. Nowa rola niestandardowa zaczyna z ustawieniem **Brak** w obu wierszach; role edytujesz w sekcji [Role](app:settings/roles), zobacz [Przewodnik po aplikacji, Firma](/docs/app-company).
+
+## Profil i preferencje [#settings-tab]
+
+Zmień dowolne pole w [Profil i preferencje](app:settings/profile) i kliknij **Zapisz**, co zapisuje cały formularz. Gdy coś się zmieni, pływający pasek **Niezapisane zmiany** oferuje **Anuluj**, które odrzuca Twoje zmiany, oraz **Zapisz**.
+
+### Jak zmienić imię i nazwisko, awatar, język lub motyw? [#how-do-i-change-my-name-avatar-language-or-theme]
+
+| Pole | Zasady i skutek |
+|---|---|
+| **Imię**, **Nazwisko** | Wymagane, do 255 znaków; Twoje imię i nazwisko w każdej przestrzeni roboczej, do której należysz |
+| **URL awatara** | Opcjonalny link do publicznego obrazu (bez przesyłania pliku; `https://` jest dodawane); puste pole pokazuje Twoje inicjały |
+| [Język wyświetlania](app:settings/profile?focus=display-language) | **Angielski**, **Niemiecki**, **Francuski**, **Włoski**, **Hiszpański**, **Portugalski**, **Polski**, **Niderlandzki** albo **System** (język przeglądarki, a w razie jego braku angielski). Używają go interfejs i Mate, a także e-maile z powiadomieniami (po angielsku przy ustawieniu **System**). Zapisanie przeładowuje aplikację |
+| [Format regionalny](app:settings/profile?focus=formatting-locale) | Te same opcje; określa, jak zapisywane są liczby, daty i kwoty, niezależnie od języka wyświetlania. **System** podąża za językiem wyświetlania |
+| [Motyw](app:settings/profile?focus=theme) | **System**, **Ciemny** albo **Jasny** |
+
+**Motyw** i **Język** można też przełączać w menu osobistym. Nagłówek nad formularzem pokazuje Twój adres e-mail, status weryfikacji, status członka i rolę; tutaj są tylko do odczytu. Rolę i status, a także imię i nazwisko oraz awatar może ustawić też członek z uprawnieniem **Edycja** w zasobie **Użytkownicy i role** w sekcji [Członkowie](app:settings/members); taka zmiana obowiązuje tylko w tej przestrzeni roboczej.
+
+### Jak wyłączyć skróty jednoklawiszowe? [#keyboard-shortcut-preferences]
+
+Wyłącz **Skróty jednoklawiszowe** w oknie **Skróty klawiszowe** (naciśnij ? albo wybierz **Skróty klawiszowe** w menu osobistym). Wyłącza to C, /, V, ? i sekwencje z G, co pomaga przy wprowadzaniu głosowym albo przypadkowych naciśnięciach klawiszy. Skróty z Cmd/Ctrl oraz Esc nadal działają. Pełna lista jest w [Skrótach klawiszowych](/docs/app-dashboard#keyboard-shortcuts).
+
+### Jak zweryfikować adres e-mail albo ponownie wysłać e-mail weryfikacyjny? [#how-do-i-verify-my-email-address]
+
+Dopóki adres nie jest zweryfikowany, Twój awatar na pasku bocznym i pozycja **Profil i preferencje** w menu osobistym pokazują **Adres e-mail niezweryfikowany**; Profil i preferencje oferują wtedy [Wyślij ponownie e-mail weryfikacyjny](app:settings/profile?focus=verify-email). Nowe konto działa 24 godziny bez weryfikacji; potem każda strona prowadzi do ekranu weryfikacji, dopóki nie potwierdzisz linku z e-maila.
+
+### Czego nie można tu zmienić, na przykład hasła? [#what-can-i-not-change-here]
+
+Nie ma ustawienia hasła, adresu e-mail, strefy czasowej, powiadomień ani usuwania konta. Aby ustawić nowe hasło, wyloguj się i użyj **Nie pamiętasz hasła?** na stronie logowania. Podpisy e-mail należą do poszczególnych kanałów e-mail, zobacz [wygląd e-maili i podpis](#email-appearance-and-signature).
+
+## Klucze API i konektory [#api--connectors-tab]
+
+[Klucze API i konektory](app:settings/api-keys) wymieniają tylko Twoje własne klucze z bieżącej przestrzeni roboczej, a każdy klucz działa wyłącznie w przestrzeni roboczej, w której został utworzony. Kliknij [Dodaj](app:settings/api-keys?focus=generate) (wymaga uprawnienia **Tworzenie** w zasobie **API i webhooki**), aby otworzyć **Dodaj klucz API**:
+
+- **Standardowy klucz API**: **Nazwa** i opcjonalna data **Wygasa za** od 1 do 365 dni naprzód (domyślnie **Nigdy nie wygasa**). Klucz jest pokazywany tylko raz, więc skopiuj go od razu.
+- **Szybkie połączenia**: kafelki **Claude**, **ChatGPT & Codex**, **Cursor** i **Gemini**. Konfiguracje lokalne (Claude Code lub Desktop, Codex, Cursor, Gemini) tworzą klucz nazwany po kliencie, który wygasa po 365 dniach, i pokazują fragment konfiguracji z wstawionym kluczem. Metody z kontem Claude i aplikacją ChatGPT korzystają z hostowanego konektora i nie tworzą klucza.
+
+Karta klucza pokazuje **Utworzono**, **Wygasa** i **Ostatnio użyto**; otwórz ją, aby usunąć klucz przyciskiem **Usuń** (wymaga uprawnienia **Usuń**), co natychmiast go zatrzymuje. Aby wymienić klucz, utwórz nowy, zaktualizuj klienta, a potem usuń stary. Jeśli rola traci ustawienie **Dostęp do odczytu** **Wszystkie** w zasobie **API i webhooki**, klucze jej członków przestają działać zarówno dla MCP, jak i REST; ustawienie członka jako **Nieaktywny** w sekcji [Członkowie](app:settings/members) również zatrzymuje wszystkie jego klucze. Pełne zasady: [Klucze API](/docs/api-keys).
+
+## Kanały i kalendarze [#channels-tab]
+
+[Kanały i kalendarze](app:settings/channels) wymieniają najpierw Twoje konta e-mail, LinkedIn, WhatsApp, Instagram i Telegram, a potem każdy kanał udostępniony przez współpracownika. Gdy kanały pokazują **Wymagane ponowne połączenie**, **Problem z uprawnieniami** albo **Błąd**, pozycja Kanały i kalendarze pokazuje ich liczbę. Kliknięcie karty otwiera okno kanału z zakładkami **Szczegóły** (dostawca, status, **Widoczność**, właściciel, foldery, połączono i ostatnia synchronizacja), **E-mail** i **Foldery**. Niezależnie od roli możesz zmieniać tylko kanały, których jesteś właścicielem. Każdy kanał należy do przestrzeni roboczej, w której go połączono.
+
+### Kto może korzystać z Kanałów i kalendarzy? [#who-can-use-channels]
+
+Aby zobaczyć stronę, potrzebne jest ustawienie **Dostęp do odczytu** **Wszystkie** w zasobie **Wiadomości w skrzynce odbiorczej**; łączenie wymaga uprawnienia **Tworzenie**, zmiana, ponowna aktywacja i ponowna synchronizacja wymagają uprawnienia **Edycja**, a rozłączanie uprawnienia **Usuń**. Plan musi obejmować wiadomości (Pro, Business, Max, Enterprise albo okres próbny); w planie Starter strona pokazuje **Ulepsz plan**, co otwiera [Rozliczenia](app:settings/billing). Każda czynność poza rozłączaniem wymaga też aktywnej subskrypcji albo trwającego okresu próbnego. Instalacje self-hosted nie mają strony Kanały i kalendarze.
+
+### Jak połączyć kanał? [#how-do-i-connect-a-channel]
+
+Kliknij [Połącz kanał](app:settings/channels?focus=connect) i wybierz pozycję:
+
+| Pozycja | Łączy |
+|---|---|
+| **Gmail**, **Outlook** | E-mail, kalendarz albo oba; pole **Dostawca** na karcie pokazuje, co jest połączone |
+| **IMAP** | Dowolne inne konto e-mail przez IMAP i SMTP |
+| **WhatsApp** | Twoje konto WhatsApp, kodem QR |
+| **LinkedIn (Classic)**, **LinkedIn (Classic i Sales Navigator)**, **LinkedIn (Classic i Recruiter)** | Twoje konto LinkedIn, opcjonalnie z Sales Navigator albo Recruiter |
+| **Instagram**, **Telegram** | Twoje konto na Instagramie albo w Telegramie |
+
+Bieżąca karta przechodzi na bezpieczną stronę połączenia (masz 30 minut na dokończenie), a potem wraca do Kanały i kalendarze z wynikiem. **Kanał połączony** uruchamia import historii w tle (**Synchronizacja w tle**, zwykle kilka minut, w dużych kontach do godziny). **Konto jest już połączone** oznacza, że członek przestrzeni roboczej już je połączył; poproś go o udostępnienie. Przy każdym innym błędzie zacznij od nowa od **Połącz kanał**.
+
+### Ile kanałów mogę połączyć? [#how-many-channels-can-i-connect]
+
+Na członka: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; okres próbny liczy się jak Pro. Każdy kanał, którego jesteś właścicielem, liczy się, dopóki go nie rozłączysz, z wyjątkiem kanałów **Usunięte**; kanały współpracowników udostępnione Tobie nigdy się nie liczą. Przy limicie w planie Pro **Połącz kanał** oferuje **Zobacz plany**, co otwiera [Rozliczenia](app:settings/billing). Po obniżeniu planu najnowsze kanały każdego członka ponad limit zmieniają status na **Usunięte**, a członkowie z rolą **Administrator** dostają e-mail.
+
+### Co oznacza każdy status kanału? [#what-does-each-status-mean]
+
+| Status | Znaczenie i działanie |
+|---|---|
+| **Połączone** | Działa; **Zsynchronizuj ponownie** importuje historię od nowa |
+| **Łączenie** | Konfiguracja jeszcze trwa; dostępne jest **Zsynchronizuj ponownie** |
+| **Wymagane ponowne połączenie**, **Problem z uprawnieniami**, **Błąd**, **Zatrzymane** | Dostawca zgłasza problem z logowaniem, uprawnieniami albo inny problem, lub wstrzymał konto; właściciel klika **Aktywuj ponownie** |
+| **Usunięte** | Usunięty u dostawcy albo automatycznie (po obniżeniu planu, dzień po zakończeniu okresu próbnego, trzy dni po tym, jak płatna subskrypcja stała się **Nieopłacona** albo **Wygasła**, albo gdy właściciel został ustawiony jako **Nieaktywny**); zostaje tylko **Rozłącz** |
+
+### Jak udostępnić kanał współpracownikom albo zachować go jako prywatny? [#private-or-shared]
+
+Nowy kanał, na przykład skrzynka e-mail, ma widoczność **Prywatne**. Właściciel przełącza **Widoczność** na zakładce **Szczegóły** na **Udostępnione**; wtedy kanał wraz ze wszystkimi rozmowami pokazuje się każdemu członkowi z dostępem do odczytu w zasobie **Wiadomości w skrzynce odbiorczej**, a członkowie z uprawnieniem **Tworzenie** mogą z niego odpowiadać. Udostępnianie wymaga planu Business, Max albo Enterprise, uprawnienia **Edycja** w zasobie **Wiadomości w skrzynce odbiorczej** i aktywnej subskrypcji. Współpracownicy mogą otworzyć szczegóły i foldery udostępnionego kanału, ale nie mogą go zmieniać. Jeśli przestrzeń robocza przejdzie na plan niższy niż Business, każdy udostępniony kanał znów ma widoczność **Prywatne**, a jego właściciel musi po ulepszeniu planu przełączyć **Widoczność** z powrotem na **Udostępnione**. Pojedyncze rozmowy można udostępniać ze [Skrzynki odbiorczej](/docs/app-inbox).
+
+### Za co odpowiada zakładka Foldery? [#what-does-the-folders-tab-control]
+
+Dla kont e-mail, które zgłaszają foldery, zakładka **Foldery** ma jeden przełącznik na folder: wyłączony ukrywa wiadomości tego folderu w Skrzynce odbiorczej dla wszystkich, którzy widzą kanał, bez ich usuwania. Domyślnie wszystkie foldery są włączone poza koszem, spamem, szkicami i folderem ze wszystkimi wiadomościami. Włączenie któregoś z nich importuje jego historię. Przełączać może tylko właściciel z uprawnieniem **Edycja**; pozostali widzą **Zsynchronizowany** albo **Ukryty**.
+
+### Jak zmienić czcionkę, kolor linków i podpis wychodzących e-maili? [#email-appearance-and-signature]
+
+Zakładka **E-mail** pojawia się przy kontach Gmail, Outlook i IMAP, których jesteś właścicielem (do edycji potrzebujesz uprawnienia **Edycja**), a zapisuje się ją przyciskiem **Zapisz ustawienia e-maila**.
+
+| Pole | Opcje (domyślnie) |
+|---|---|
+| **Krój czcionki** | **Bezszeryfowa (Arial)**, **Szeryfowa (Georgia)**, **Stałej szerokości (Courier New)** (Bezszeryfowa) |
+| **Rozmiar czcionki** | 10 do 20 (13) |
+| **Kolor linku** | Wartość szesnastkowa z próbnikiem koloru (`#7161e8`); poniżej kontrastu 3:1 pojawia się ostrzeżenie |
+| **Styl linku** | **Podkreślony**, **Bez podkreślenia** (Podkreślony) |
+
+Wygląd dotyczy e-maili w czystym tekście i Markdown, czyli wszystkiego, co napisano w Skrzynce odbiorczej; jawna treść HTML zachowuje własne style. Włącz **Dodaj podpis**, aby go edytować: **Układ** **Tylko tekst**, **Logo powyżej** (domyślnie) albo **Logo obok**; układy z logo wymagają publicznego adresu HTTPS w polu **Adres URL logo** (zastępuje ikonę Customermates) i oferują **Rozmiar logo**, **Separator** oraz **Odstępy**. **Treść podpisu** to Markdown do 2 000 znaków, z podglądem w polu **Podgląd**. Gdy podpis jest włączony, jest dodawany pod każdym e-mailem z tego konta, ze Skrzynki odbiorczej, przez REST lub MCP, także w wiadomościach HTML.
+
+### Jak ponownie aktywować, zsynchronizować albo rozłączyć kanał? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
+
+Otwórz kanał, którego jesteś właścicielem:
+
+- **Aktywuj ponownie** (dla **Wymagane ponowne połączenie**, **Problem z uprawnieniami**, **Błąd**, **Zatrzymane**): przechodzi na stronę połączenia dla tego samego konta i wraca.
+- **Zsynchronizuj ponownie** (dla **Połączone**, **Łączenie**): importuje historię od nowa, zwykle w 1 do 3 minut.
+- **Rozłącz**: po potwierdzeniu usuwa konto i trwale kasuje zaimportowane z niego rozmowy, wiadomości, kalendarze i wydarzenia, także u współpracowników, jeśli było udostępnione.
+
+**Aktywuj ponownie** i **Zsynchronizuj ponownie** wymagają uprawnienia **Edycja** w zasobie **Wiadomości w skrzynce odbiorczej**, a **Rozłącz** wymaga uprawnienia **Usuń**.
+
+## Dla agentów [#tips-for-agents]
+
+Przez MCP i w Mate `update_my_profile` zmienia wyłącznie Twoje imię, nazwisko, URL awatara, motyw, język wyświetlania i format regionalny; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) tworzy link do połączenia przy tych samych zasadach dotyczących planu, uprawnień i limitu. `manage_connected_accounts` wymienia Twoje kanały i, dla kanału, którego jesteś właścicielem, ustawia foldery, podpis i wygląd, widoczność (z zatwierdzeniem), synchronizuje go ponownie albo rozłącza (z zatwierdzeniem); REST używa `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) oraz jego operacji `folders`, `signature`, `sharing` i `resync`. Identyfikator, który nie należy do kanału, którego jesteś właścicielem, odpowiada `not_found` (REST `404`) przed jakimkolwiek sprawdzeniem planu. Skróty, ponowna aktywacja i klucze API są ustawiane tylko w aplikacji. Nie powtarzaj podpisu kanału w treści wiadomości. Nowy klucz API jest pokazywany tylko raz. Przez REST `GET /api/v1/users/me` odczytuje Twój profil, a `PATCH /api/v1/users/me` zmienia te same pola co `update_my_profile`; pominięte pola zachowują swoje wartości.
+
+## Powiązane [#related]
+
+- [Klucze API](/docs/api-keys): tworzenie, używanie, wygaszanie i usuwanie kluczy.
+- [Przewodnik po aplikacji, Skrzynka odbiorcza](/docs/app-inbox): ekran, który zasilają Twoje kanały.
+- [Przewodnik po aplikacji, Firma](/docs/app-company): członkowie, role i rozliczenia.
+- [Przestrzenie robocze](/docs/app-workspaces): co jest wspólne dla każdej przestrzeni roboczej, a co osobne.
+- [CLI i edytory](/docs/connect-cli): gdzie trafia wygenerowany klucz dla Claude Code, Codex i Cursor.

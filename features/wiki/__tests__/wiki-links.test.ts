@@ -11,7 +11,7 @@ import {
   workspaceWikiPagePath,
 } from "../wiki-links";
 import { externalizeWikiPageLinks, extractWikiPageLinks, hasInvalidWikiPageLinks } from "../wiki-markdown-links";
-import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { CONTENT_LOCALES, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
 const ID = "10000000-0000-4000-8000-000000000001";
 const LINKED_ID = "10000000-0000-4000-8000-000000000002";
@@ -83,7 +83,7 @@ describe("Wiki deep-link contract", () => {
     `/WIKI?page=${ID}`,
     `/wiki?PAGE=${ID}`,
     `/EN/wiki?page=${ID}`,
-    `/pt/wiki?page=${ID}`,
+    `/ja/wiki?page=${ID}`,
     `//app.customermates.com/wiki?page=${ID}`,
     `\\app.customermates.com\\wiki?page=${ID}`,
     `/wiki?page=not-a-uuid`,
@@ -116,7 +116,7 @@ describe("Wiki deep-link contract", () => {
 describe("Wiki Markdown links", () => {
   it.each([
     "/wiki?page=...",
-    `/pt/wiki?page=${ID}`,
+    `/ja/wiki?page=${ID}`,
     `/wiki?page=${ID}&other=true`,
     `/wiki?page=${ID}#section`,
     `${BASE_URL}/wiki?page=...`,
@@ -134,6 +134,7 @@ describe("Wiki Markdown links", () => {
       `[Support](/en/wiki?page=${ID})`,
       `[Support](${BASE_URL}/wiki?page=${ID})`,
       `[Support](/en/w/${SLUG}/wiki?page=${ID})`,
+      ...CONTENT_LOCALES.map((locale) => `[Support](/${locale}/wiki?page=${ID})`),
       "[External](https://other.example/wiki?page=...)",
       "[All pages](/wiki)",
       "`[Example](/wiki?page=...)`",

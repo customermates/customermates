@@ -1,0 +1,11 @@
+﻿Sekcja,Pozycja,Właściciel,Wartość planowana,Jednostka,Założenie lub obliczenie,Data przeglądu,Wartość rzeczywista,Następne działanie
+Okres,Fikcyjne dane planistyczne; to nie są wyniki rzeczywiste; po edycji przelicz wartości; bez działających formuł,,,,,,,
+Działania,Pakiet badania konta i kontaktu,Tomek,60,godzin,120 × 0.5,2027-04-03,,
+Działania,Kwalifikowane spotkanie z przygotowaniem i notatkami,Marta,45,godzin,30 × 1.5,2027-04-03,,
+Działania,Przygotowanie oferty,Marta,48,godzin,12 × 4,2027-04-03,,
+Działania,Pakiet follow-upu po ofercie,Ola,24,godzin,12 × 2,2027-04-03,,
+Działania,Cotygodniowy przegląd zespołu,Marta / Tomek / Ola,18,godzin,12 × 1.5,2027-04-03,,
+Sprzedaż,Planowane obciążenie sprzedażowe,Marta,195,godzin,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Sprzedaż,Marta,Marta,99,godzin,99 / 120,2027-04-03,,
+Sprzedaż,Tomek,Tomek,66,godzin,66 / 96,2027-04-03,,
+Sprzedaż,Ola,Ola,30,godzin,30 / 48,2027-04-03,,

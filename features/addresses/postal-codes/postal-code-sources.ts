@@ -46,24 +46,20 @@ export function postalCodeCityChecked(countryCode: string): boolean {
   return !WITHOUT_CITY_CHECK.has(countryCode);
 }
 
+const firstThreeCharacters = (key: string): string | null => (key.length > 3 ? key.slice(0, 3) : null);
+
+const AREA_KEY_BY_COUNTRY = new Map<string, (key: string) => string | null>([
+  ["us", (key) => (/^\d{9}$/u.test(key) ? key.slice(0, 5) : null)],
+  ["nl", (key) => (/^\d{4}[A-Z]{2}$/u.test(key) ? key.slice(0, 4) : null)],
+  ["ca", firstThreeCharacters],
+  ["ie", firstThreeCharacters],
+  ["gb", (key) => (key.length >= 5 ? key.slice(0, -3) : null)],
+  ["mt", (key) => (/^[A-Z]{3}\d+$/u.test(key) ? key.slice(0, 3) : null)],
+  ["ar", (key) => /\d{4}/u.exec(key)?.[0] ?? null],
+]);
+
 function areaKey(countryCode: string, key: string): string | null {
-  switch (countryCode) {
-    case "us":
-      return /^\d{9}$/u.test(key) ? key.slice(0, 5) : null;
-    case "nl":
-      return /^\d{4}[A-Z]{2}$/u.test(key) ? key.slice(0, 4) : null;
-    case "ca":
-    case "ie":
-      return key.length > 3 ? key.slice(0, 3) : null;
-    case "gb":
-      return key.length >= 5 ? key.slice(0, -3) : null;
-    case "mt":
-      return /^[A-Z]{3}\d+$/u.test(key) ? key.slice(0, 3) : null;
-    case "ar":
-      return /\d{4}/u.exec(key)?.[0] ?? null;
-    default:
-      return null;
-  }
+  return AREA_KEY_BY_COUNTRY.get(countryCode)?.(key) ?? null;
 }
 
 export function postalCodeLookupKeys(countryCode: string, postalCode: string): PostalCodeLookupKeys {

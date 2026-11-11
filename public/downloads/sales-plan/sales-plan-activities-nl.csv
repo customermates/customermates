@@ -1,0 +1,11 @@
+﻿Sectie,Onderdeel,Eigenaar,Geplande waarde,Eenheid,Aanname of berekening,Reviewdatum,Werkelijke waarde,Volgende actie
+Periode,Fictieve planningsinvoer; geen werkelijke resultaten; bereken opnieuw na elke wijziging; geen live formules,,,,,,,
+Acties,Accountonderzoek en contactbundel,Sanne,60,uren,"120 × 0,5",2027-04-03,,
+Acties,Gekwalificeerd gesprek inclusief voorbereiding en notities,Daan,45,uren,"30 × 1,5",2027-04-03,,
+Acties,Offertevoorbereiding,Daan,48,uren,12 × 4,2027-04-03,,
+Acties,Bundel offerte-opvolging,Joost,24,uren,12 × 2,2027-04-03,,
+Acties,Wekelijkse teamreview,Daan / Sanne / Joost,18,uren,"12 × 1,5",2027-04-03,,
+Verkoop,Geplande verkoopwerklast,Daan,195,uren,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Verkoop,Daan,Daan,99,uren,99 / 120,2027-04-03,,
+Verkoop,Sanne,Sanne,66,uren,66 / 96,2027-04-03,,
+Verkoop,Joost,Joost,30,uren,30 / 48,2027-04-03,,

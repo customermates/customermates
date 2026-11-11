@@ -60,7 +60,10 @@ function readJson<T>(path: string): T {
 }
 
 function selectedPlan(options: CaptureSolutionsOptions): SolutionCapturePlanItem[] {
-  const plan = solutionCapturePlan();
+  const full = solutionCapturePlan();
+  const unknownLocales = options.locales.filter((code) => !full.some((item) => item.locale === code));
+  if (unknownLocales.length > 0) throw new Error(`Unknown locales: ${unknownLocales.join(", ")}`);
+  const plan = options.locales.length === 0 ? full : full.filter((item) => options.locales.includes(item.locale));
   if (options.only.length === 0) return plan;
   const unknown = options.only.filter((id) => !plan.some((item) => item.solution.id === id));
   if (unknown.length > 0) throw new Error(`Unknown solution ids: ${unknown.join(", ")}`);

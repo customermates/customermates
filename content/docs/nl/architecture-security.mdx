@@ -1,0 +1,124 @@
+---
+title: "CRM-beveiliging: tenantisolatie en activiteitenlog"
+description: "De opbouw van Customermates, isolatie van werkruimtegegevens, authenticatie met API-sleutels en MCP OAuth, het activiteitenlog en hoe je een lek meldt."
+---
+
+Elk bedrijf is een geïsoleerde tenant in een gedeelde PostgreSQL-database. Elk record hoort bij één bedrijf, API-sleutels en OAuth-verbindingen handelen als de gebruiker die ze heeft aangemaakt of geautoriseerd, en AI-agents zien alleen wat die gebruiker mag zien. Eén login kan bij meerdere werkruimtes horen, en elke sessie, API-sleutel en OAuth-verbinding werkt in precies één ervan; zie [Werkruimtes](/docs/app-workspaces).
+
+## Wat is de stack? [#what-is-the-stack]
+
+- **Next.js 16** (App Router, Turbopack): webapp, REST API en MCP-endpoint.
+- **PostgreSQL**: primaire gegevensopslag. JSONB bevat veldopties en -formaten, notities, instellingen van weergaven en widgets, webhookheaders, webhookleveringsberichten en auditvermeldingen.
+- **Prisma**: ORM en migraties.
+- **better-auth**: sessies, inloggen met Google en Microsoft, API-sleutels, MCP OAuth.
+- **mcp-handler**: Model Context Protocol-endpoint.
+- **Workflow**: achtergrondtaken zoals webhookleveringen; op een zelf gehoste instantie staat de wachtrij in dezelfde PostgreSQL-database.
+- **TypeScript** van begin tot eind, met Zod-validatie aan elke grens.
+
+## Hoe houdt multi-tenancy elke tenant geïsoleerd? [#how-does-multi-tenancy-keep-each-tenant-isolated]
+
+Alle bedrijven delen één database, en elk record draagt het id van zijn bedrijf. Isolatie wordt in drie lagen afgedwongen:
+
+1. **Interactors**: elke bedrijfsbewerking draait als de ingelogde gebruiker en filtert op het bedrijf van die gebruiker.
+2. **Query guard**: een Prisma-extensie geeft een fout wanneer een query op een werkruimtetabel het huidige bedrijfs-id niet in zijn filter heeft of een ander bedrijf noemt, en wanneer een nieuwe rij het id van een ander bedrijf draagt. Alleen de authenticatietabellen zijn uitgezonderd (inlogidentiteiten, inlogaccounts, sessies, verificatietokens, API-sleutels en de MCP OAuth-clients, -tokens en -toestemmingen), en een paar uitdrukkelijk gemarkeerde systeembewerkingen omzeilen de guard.
+3. **`@TenantInteractor`**: bepaalt de actieve gebruiker, weigert inactieve leden, controleert het rolrecht en opent de tenantcontext die de query guard leest.
+
+Een zelf gehoste instantie kan meerdere werkruimtes naast elkaar bevatten met dezelfde isolatie. Lezen over tenants heen is niet mogelijk via het publieke oppervlak. In de beheerde cloud kan een operatorconsole van de leverancier voor support over tenants heen lezen; die is beperkt tot een operatoraccount op een toegestane lijst, weigert te laden buiten de cloudmodus en legt elke leesactie en schrijfactie vast in een apart intern log. Een zelf gehoste omgeving heeft zo'n console niet. De gehoste assistent Mate werkt binnen dezelfde scope: hij kan alleen lezen en wijzigen wat de gebruiker die ernaar vraagt ook mag.
+
+## Hoe authenticeren clients? [#how-do-clients-authenticate]
+
+Op drie manieren, die allemaal uitkomen bij dezelfde gebruiker en bedrijfscontext:
+
+- **Sessiecookie** (browser): ondertekend, alleen via http en `Secure` onder HTTPS. Mensen loggen in met e-mail en wachtwoord, of met Google of Microsoft waar de instantie die providers heeft ingesteld. Een nieuw account kan 24 uur worden gebruikt voordat het e-mailadres moet worden bevestigd. Elke aanvraag controleert de sessie in de database, dus na uitloggen of een ingetrokken sessie werkt de cookie meteen niet meer, en een status **Inactief** blokkeert de werkruimte waarvoor die is ingesteld onmiddellijk. De sessie bevat ook de werkruimte waarnaar je bent gewisseld, zodat een andere browser in een andere werkruimte kan werken.
+- **API-sleutel**: token van 64 tekens uit ASCII-letters (`a-z`, `A-Z`), uitgegeven door de better-auth-plug-in voor API-sleutels, alleen als hash opgeslagen, gekoppeld aan een gebruiker en de werkruimte waarin hij is aangemaakt, optioneel verlopend. Wordt verstuurd in de header `x-api-key`. Zie [API-sleutels](/docs/api-keys).
+- **OAuth 2.1** (MCP): externe MCP-clients autoriseren via better-auth met PKCE en sturen een Bearer-token in plaats van een API-sleutel. Toegangstokens gelden een uur, verversingstokens dertig dagen. Een verbinding is gebonden aan de werkruimte die op het toestemmingsscherm is gekozen, en de tokens die ze vernieuwt ook.
+
+## Ondersteunt Customermates SSO of SAML? [#does-customermates-support-sso-or-saml]
+
+Nee. Enterprise single sign-on met je eigen identiteitsprovider via SAML of OIDC is niet geïmplementeerd, niet in de cloud en niet zelf gehost. Leden loggen in met e-mail en wachtwoord, of met een Google- of Microsoft-account waar de instantie die providers heeft ingesteld; op een zelf gehoste instantie stel je ze zelf in, zie [Zelf hosten](/docs/self-hosting). Om de toegang van een lid te beëindigen open je het lid in [Leden](app:settings/members) en zet je **Status** op **Inactief**.
+
+## Hoe wordt autorisatie bepaald? [#how-is-authorization-decided]
+
+Een rol in [Rollen](app:settings/roles) geeft **Aanmaken**, **Bewerken**, **Verwijderen** en **Leestoegang** **Alle**, **Toegewezen** of **Geen**, apart voor elke lijst, ook voor lijsten die je zelf hebt aangemaakt. Bewerken en verwijderen vereisen zowel het actierecht als toegang tot het record. Werkruimterechten gebruiken dezelfde kolommen, met een streepje waar een actie niet van toepassing is. **Bewerken** op **Gegevensmodel** staat los van recordtoegang en rolbeheer: wie het schema beheert, kan geen rechten uitbreiden zonder **Bewerken** op **Gebruikers & rollen**. De ingebouwde rol **Beheerder** heeft elk recht. Bij schrijfacties op records en configuratie worden rechten en revisies opnieuw gecontroleerd binnen de werkruimtetransactie. API-sleutels erven de actuele rechten van hun eigenaar; er is geen scoping per sleutel.
+
+## Hoe stop ik de API-sleutels van een voormalig lid? [#how-do-i-stop-the-api-keys-of-a-former-member]
+
+Het recht **API en webhooks** bepaalt de pagina's [API-sleutels & connectoren](app:settings/api-keys), [Webhooks](app:settings/webhooks) en [Webhooklog](app:settings/webhook-deliveries) en de sleutel- en webhookbewerkingen erachter. MCP-verbindingen en REST-aanroepen, met een sleutel of een OAuth-token, vereisen ook **Leestoegang** **Alle** erop; ingelogd gebruik van de webapp niet. Elke aanroep wordt gecontroleerd op de rechten van de eigenaar op de records die hij aanraakt. Als je **API en webhooks** bij een rol weghaalt, verbergt dat dus de sleutels van de leden ervan en stopt het ze voor MCP en REST.
+
+Om de sleutels van een lid te stoppen open je het lid in [Leden](app:settings/members), zet je **Status** op **Inactief** en klik je op **Opslaan**. Hiervoor heb je **Bewerken** en **Leestoegang** **Alle** nodig op **Gebruikers & rollen**; je kunt jezelf niet deactiveren, en het laatste actieve lid met de rol **Beheerder** kan niet worden gedeactiveerd. Elke aanroep met de sleutels van een inactief lid die werkruimtegegevens leest of wijzigt, wordt geweigerd. Niemand kan de sleutels van een ander lid tonen of verwijderen.
+
+## Hoe werkt externe AI-toegang? [#how-does-external-ai-access-work]
+
+MCP-aanvragen gebruiken hetzelfde pad voor authenticatie en autorisatie:
+
+- De agent roept `<BASE_URL>/api/v1/mcp` aan met een API-sleutel of een OAuth Bearer-token.
+- De server bepaalt gebruiker en bedrijf uit de inloggegevens.
+- Elke toolaanroep draait binnen een tenantgebonden context.
+- Validatiefouten geven gestructureerde meldingen terug met tips om ze te verhelpen en lekken geen interne schemadetails. Onverwachte fouten geven alleen een algemene melding terug.
+
+Het MCP-oppervlak voegt invoerbeveiligingen toe:
+
+- Een schrijfactie wijzigt één getypeerd record of één relatie, of tot 100 benoemde records tegelijk via `updateMany` (één gedeelde patch) en `deleteMany`, elk atomair toegepast. Elke verwijzing bevat zowel een type-id als een record-id; koppelen en ontkoppelen noemen de relatiedefinitie. Weggelaten velden blijven ongewijzigd, terwijl `null` een optioneel invoerveld uitdrukkelijk leegmaakt. Berekende velden kunnen niet rechtstreeks worden geschreven.
+- De backend controleert het type, de werkruimte, de recordrechten, de versie en de configuratierevisie tijdens de schrijftransactie. Een verwijzing naar een ander type of een andere werkruimte kan een update niet omleiden.
+- Verwijderen, ook `deleteMany`, noemt elk record met verwijzing en actuele versie; er is geen snelkoppeling om op filter te verwijderen. Een optionele hash van de impactvoorvertoning laat het verwijderen mislukken als de doorwerkende effecten ervan sinds de voorvertoning zijn veranderd.
+
+Zie de [MCP-toolcatalogus](/docs/mcp#tool-catalog) voor de volledige lijst.
+
+## Hoe worden gegevens beschermd in rust en tijdens verzending, hoe worden wachtwoorden opgeslagen en waar worden gegevens gehost? [#how-is-data-protected-at-rest-and-in-transit]
+
+- Postgres-versleuteling in rust hangt af van je provider. In de beheerde cloud staan gegevens in een EU-regio en zijn ze in rust versleuteld op schijfniveau.
+- Wachtwoorden en API-sleutels worden alleen als hash opgeslagen.
+- Overal HTTPS in de beheerde cloud. Bij zelf hosten zorg je zelf voor TLS; zie [zelf hosten](/docs/self-hosting) voor het Caddy-voorbeeld. Inlogcookies worden als Secure gemarkeerd wanneer de `BASE_URL` van de instantie `https://` gebruikt.
+- Webhookgeheimen en waarden van eigen headers worden opvraagbaar opgeslagen, omdat uitgaande aanvragen ze nodig hebben; zie [Hoe worden webhookgeheimen en bestemmingen beveiligd?](#how-are-webhook-secrets-and-destinations-secured).
+
+## Waar worden klantgegevens en inloggegevens van gekoppelde accounts opgeslagen? [#where-are-customer-data-and-credentials-stored]
+
+- **Customermates Cloud:** de primaire productiedatabase is geconfigureerd in AWS Frankfurt (`eu-central-1`). Dat is een gekozen productinstelling, geen contractuele garantie dat elke dienst of overdracht in die regio blijft. Applicatiehosting (Vercel), de beheerde databaseprovider en de andere subverwerkers, sommige in de VS, staan met doel en locatie in de [lijst met subverwerkers](/subprocessors). In de beheerde cloud zijn gegevens in rust versleuteld op schijfniveau en gebruikt het verkeer HTTPS. Wachtwoorden en API-sleutels worden alleen als hash opgeslagen.
+- **Gekoppelde accounts** (Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram, Telegram): je logt in via een gehoste authenticatiestroom van de transportprovider Unipile (UNIPILE SAS, Frankrijk). Customermates ontvangt noch de wachtwoorden van de provider noch OAuth-tokens; het bewaart alleen een ondoorzichtige account-identifier en niet-geheime accountmetadata. Unipile geeft aan dat gegevens van gekoppelde accounts in de EU (Frankrijk) worden opgeslagen; de verwerkersovereenkomst staat overdrachten buiten de EU nog steeds toe waar de waarborgen van hoofdstuk V AVG gelden. Gesynchroniseerde gesprekken, berichten, deelnemers en agendagegevens worden opgeslagen in de eigen database van Customermates. Als je een account ontkoppelt, verwijdert Customermates de opgeslagen gesprekken, berichten, deelnemers en agendagegevens van dat account en vraagt het Unipile het account te verwijderen.
+- **Zelf hosten:** op je eigen instantie zijn de database en de versleuteling in rust van jou; de [sectie hierboven](#how-is-data-protected-at-rest-and-in-transit) legt uit dat versleuteling in rust van je provider afhangt. Een zelf gehoste instantie heeft geen inbox voor gekoppelde accounts (ze heeft de functieset van Starter), dus er zijn geen kanaalinloggegevens bij betrokken. Zie [zelf hosten](/docs/self-hosting).
+
+Details en de bindende formulering staan in de [verwerkersovereenkomst](/dpa) en de [lijst met subverwerkers](/subprocessors).
+
+## Bevatten logs of foutrapporten geheimen? [#do-logs-or-error-reports-contain-secrets]
+
+De applicatie schrijft logs in platte tekst naar haar standaarduitvoer. Omgevingswaarden, zoals de geheimen in `.env`, worden niet in de logs geschreven, maar er is geen filter dat geheimen in logregels maskeert. Foutrapporten gaan naar dezelfde uitvoer en bevatten nooit cookies, headers of body's van aanvragen. Onverwachte fouten in MCP- en assistenttools bereiken de client alleen als een algemene melding zoals "De bewerking kon niet worden voltooid".
+
+De gepubliceerde zelf gehoste image schakelt telemetrie van Next.js en Prisma uit. Op een zelf gehoste instantie verschijnen de fouten van de app alleen in `docker compose logs app`. Een e-mail die de provider heeft geweigerd of niet op tijd heeft beantwoord, wordt gelogd met onderwerp, het domein van de ontvanger en de reden van de provider, nooit met het volledige adres.
+
+## Hoe worden webhookgeheimen en bestemmingen beveiligd? [#how-are-webhook-secrets-and-destinations-secured]
+
+- Webhookgeheimen en waarden van eigen headers worden zonder hashing in Postgres opgeslagen, omdat ze opvraagbaar moeten zijn om uitgaande aanvragen te ondertekenen en te versturen. De REST API en MCP geven ze nooit terug, het activiteitenlog maskeert ze, en een geopende webhook toont ze alleen aan de rol **Beheerder** en aan rollen met **Bewerken** op **API en webhooks**; een rol met alleen **Leestoegang** **Alle** ziet er `********` voor in de plaats. Wil je ze elders bewaren, host dan zelf met je eigen geheimenbeheer.
+- Gebruik een HTTPS-endpoint. Eigen headers vereisen HTTPS, behalve HTTP op `localhost`, `127.0.0.1` of `::1` wanneer privébestemmingen zijn toegestaan. Dit wordt gecontroleerd als je opslaat en opnieuw vóór elke levering.
+- Cloud en demo staan alleen openbare webhookbestemmingen toe. Letterlijke privéadressen en lokale hostnamen worden bij het opslaan geweigerd; elke levering controleert alle DNS-antwoorden en bindt de verbinding aan die gevalideerde adressen. Redirects worden nooit gevolgd. Zelf gehoste installaties staan standaard privébestemmingen toe; `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true` past de regel van Cloud toe. Geef **Aanmaken** en **Bewerken** op **API en webhooks** alleen aan vertrouwde rollen.
+
+Je beheert webhooks in [Webhooks](app:settings/webhooks); zie [Webhooks](/docs/webhooks).
+
+## Wat legt het activiteitenlog vast? [#what-does-the-audit-log-record]
+
+[Auditlog](app:settings/activity) is het activiteitenlog van de werkruimte. Elke wijziging wordt erin vastgelegd met de actor, de soort, het betrokken element en de payload, in dezelfde transactie als de wijziging zelf. Recordwijzigingen bevatten vorige en huidige waarden per veld; updates van rollen, webhooks, routines en gekoppelde accounts bevatten een verschil per veld, en aanmaken, verwijderen en opslaan van leden bevatten een momentopname. Configuratiewijzigingen van het datamodel en van recordtoegang per rol worden bewaard met de configuratierevisie die ze hebben opgeleverd. Gebruikersregistraties, recordexports en geaccepteerde juridische documenten worden ook vastgelegd. De actor blijft bewaard, ook nadat de gebruiker is verwijderd, en geautomatiseerde wijzigingen worden vastgelegd als systeem of als de eigenaar van de routine. Een mislukte schrijfactie laat geen vermelding achter. Het activiteitenlog zit in elk cloudabonnement en in de zelf gehoste editie.
+
+## Wat staat er niet in het activiteitenlog? [#what-is-not-in-the-audit-log]
+
+Berichtgebeurtenissen horen niet bij het activiteitenlog; ze worden alleen bewaard als leveringsvermeldingen zolang een webhook of een gebeurtenisroutine erop geabonneerd is. Authenticatiegebeurtenissen zoals inloggen, de levenscyclus van API-sleutels, abonnementswijzigingen, opgeslagen weergaven, widgets, agentgesprekken en acties van leverancieroperators worden ook niet vastgelegd. Webhookgeheimen en headerwaarden worden gemaskeerd in webhookvermeldingen. Een vermelding die door een geautomatiseerd proces is geschreven, zoals het verwijderen van een gekoppeld account wanneer een proefperiode afloopt, noemt de gebruiker die erdoor is geraakt in plaats van iemand die de handeling heeft uitgevoerd.
+
+## Wie kan het activiteitenlog lezen, en waar? [#who-can-read-the-audit-log-and-where]
+
+Open [Auditlog](app:settings/activity); zie [Auditlog](/docs/app-company#activity-tab). Voor toegang heb je **Leestoegang** **Alle** nodig op de rij **Activiteitenlog** van je rol, die geen **Aanmaken**, **Bewerken** of **Verwijderen** biedt; de rol **Beheerder** heeft die altijd. De pagina toont recordwijzigingen, beheer- en systeemgebeurtenissen en configuratiewijzigingen, en kan op soort worden gefilterd. Recordwijzigingen volgen de recordtoegang van de lezer. Hetzelfde recht toont het activiteitenlog in de weergave **Activiteiten** van een record.
+
+## Hoe lang blijven vermeldingen in het activiteitenlog bewaard, en kan ik ze exporteren? [#how-long-are-audit-entries-kept-and-can-i-export-them]
+
+Vermeldingen worden niet automatisch verwijderd; ze blijven bewaard zolang de werkruimte bestaat. [Auditlog](app:settings/activity) heeft geen exportactie. De activiteitentijdlijn, het REST-endpoint ervan en de MCP-tool ervan geven dezelfde vermeldingen terug onder hetzelfde recht.
+
+## Waar meld ik een kwetsbaarheid? [#where-do-i-report-a-vulnerability]
+
+Schrijf naar `mail@customermates.com`. We streven ernaar binnen één werkdag te bevestigen. Er is geen bugbountyprogramma.
+
+## Voor agents [#for-agents]
+
+Recordschrijfacties via MCP lopen via `mutate_crm_record`, webhookbewerkingen via `manage_webhooks`, en auditvermeldingen worden gelezen met `get_activities`.
+
+## Volgende [#next]
+
+- [Zelf hosten](/docs/self-hosting): Customermates zelf draaien.
+- [API-sleutels](/docs/api-keys): regels voor veilig sleutelgebruik.
+- [MCP](/docs/mcp): hoe het AI-oppervlak is opgebouwd.

@@ -1,0 +1,217 @@
+---
+title: "CRM Gmail: 3 typy integracji i porównanie 8 CRM do Gmaila"
+description: "CRM Gmail: trzy typy integracji (panel boczny, synchronizacja, BCC), funkcje do sprawdzenia i porównanie 8 CRM do Gmaila z planami. Stan na 3 listopada 2026."
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /blog/outlook-crm-integration
+  - /docs/app-inbox
+  - /blog/customer-interaction-management
+
+hero:
+  title: "CRM Gmail: trzy typy integracji i jak wybrać CRM do Gmaila"
+  description: "Panel boczny, synchronizacja skrzynki albo BCC: co każde rozwiązanie synchronizuje, co Google pozwala mu czytać, jak popularne CRM łączą się z Gmailem, lista kontrolna wyboru i przykładowa konfiguracja w Customermates."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: "autor: Benjamin Wagner"
+  date: 2025-12-13
+  updated: 2026-11-03
+  tags:
+    - Integracja Gmaila z CRM
+    - CRM do Gmaila
+    - CRM Google Workspace
+    - Integracja e-mail
+---
+
+# CRM Gmail: trzy typy integracji i jak wybrać CRM do Gmaila
+
+Integracja CRM Gmail łączy Twoje konto Gmail z CRM na jeden z trzech sposobów: rozszerzenie w panelu bocznym w Gmailu, synchronizacja skrzynki, która sprowadza Twoją pocztę do skrzynki odbiorczej CRM, albo adres BCC lub do przekazywania, który kopiuje pojedyncze e-maile. Najlepszy CRM do Gmaila to ten, którego typ pasuje do miejsca, w którym pracuje Twój zespół, więc ten poradnik porównuje typy, pokazuje, jak łączą się popularne CRM do Gmaila, i daje listę kontrolną wyboru.
+
+Dwie rzeczy kontrolowane przez Google dotyczą każdej opcji, która łączy się z Twoim kontem Google: czytanie poczty wymaga ograniczonego zakresu Gmaila (restricted scope), który dostawca musiał zweryfikować, a administrator Workspace może aplikację w ogóle zablokować. Niezależnie od wybranego typu poczta wysyłana z Twojego konta wlicza się do dziennego limitu wysyłki Gmaila.
+
+Customermates, CRM natywnie oparty na AI, publikuje ten poradnik. Korzysta z synchronizacji skrzynki i nie ma panelu bocznego w Gmailu, co opisuje sekcja o Customermates poniżej. Każdy fakt o dostawcach i Google w tym poradniku sprawdzono 3 listopada 2026 na podstawowych stronach podlinkowanych w tekście.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Panel boczny">CRM jest obok otwartego e-maila. Dobry do logowania i wyszukiwania podczas pisania. Oferują go Streak, HubSpot, Copper, Zoho CRM, Nutshell i Pipedrive.</SummaryItem>
+  <SummaryItem label="Synchronizacja skrzynki">CRM czyta konto i pokazuje każdy zsynchronizowany wątek przy kontakcie, także pocztę, której nikt nie zalogował. Tak działają Sales Inbox w Pipedrive, Nutshell, folk i skrzynka odbiorcza Customermates.</SummaryItem>
+  <SummaryItem label="BCC lub przekazywanie">Bez instalacji i bez dostępu do skrzynki: kopiujesz pojedyncze e-maile na adres. Oferują to HubSpot i Pipedrive. Loguje tylko to, co pamiętasz skopiować.</SummaryItem>
+  <SummaryItem label="Zasady Google">Czytanie poczty wymaga ograniczonych zakresów i weryfikacji Google. Administratorzy Workspace mogą oznaczyć aplikację jako zaufaną, ograniczoną lub zablokowaną.</SummaryItem>
+  <SummaryItem label="Customermates">Gmail to kanał ujednoliconej skrzynki odbiorczej w Customermates Cloud od Pro. Nie ma panelu bocznego w Gmailu, a instalacje self-hosted nie mają skrzynki odbiorczej.</SummaryItem>
+</ArticleSummary>
+
+## Jakie są trzy typy integracji Gmaila z CRM?
+
+| | Panel boczny lub rozszerzenie w Gmailu | Synchronizacja skrzynki ze skrzynką odbiorczą CRM | Adres BCC lub do przekazywania |
+|---|---|---|---|
+| Konfiguracja | Zainstaluj rozszerzenie Chrome lub dodatek do Gmaila, zaloguj się do CRM i do Google | Autoryzuj konto Gmail raz; CRM czyta je na swoim serwerze | Bez instalacji: dodaj adres CRM do pola UDW (Bcc) przy wysyłaniu, odpowiedzi przekazuj ręcznie |
+| Co się synchronizuje | To, co rozszerzenie loguje, albo to, co dodasz kliknięciem, często pocztę, którą wysyłasz lub otwierasz | Wysłane i odebrane wątki z zsynchronizowanych folderów lub etykiet, dopasowane do kontaktów; odpowiedzi wychodzą przez Gmail | Tylko e-maile, które kopiujesz, jeden po drugim; odpowiedzi docierają tylko wtedy, gdy je przekażesz |
+| Prywatność i uprawnienia | Uprawnienia rozszerzenia przeglądarki lub zgoda Google; dodatek Pipedrive do Gmaila prosi o przyznanie mu pełnego dostępu do Twojego konta Google | CRM czyta Twoją skrzynkę na swoim serwerze, co wymaga ograniczonego zakresu Google, który dostawca zweryfikował; zasady udostępniania różnią się w zależności od produktu | CRM widzi tylko to, co wyślesz na jego adres; ceną jest ręczna praca i luki |
+| Typowe narzędzia | Streak, rozszerzenie HubSpot Sales, Copper, dodatek Pipedrive, Zoho CRM for Gmail, Nutshell, folkX | Synchronizacja poczty Pipedrive, Nutshell, Copper, folk, Keap, Customermates | Adresy BCC i do przekazywania HubSpot, Pipedrive Smart Bcc |
+
+**Panel boczny.** Wyszukujesz nadawcę, logujesz wiadomość albo tworzysz rekord, nie wychodząc z Gmaila. Sprawdź, czy logowanie jest automatyczne, czy wiadomość po wiadomości, i jakiej przeglądarki wymaga rozszerzenie: rozszerzenie HubSpot jest zbudowane dla Chrome, Streak obsługuje Chrome, Safari i Edge, a rozszerzenie Zoho działa w Chrome.
+
+**Synchronizacja skrzynki.** CRM czyta wątki z konta na swoim serwerze, więc poczta, której nikt nie zalogował, nadal pojawia się przy kontakcie. Odpowiedzi wychodzą z tego samego konta Gmail i pojawiają się w folderze Wysłane. „Dwukierunkowa” znaczy, że poczta przychodzi, a odpowiedzi wychodzą; to, czy etykieta albo zmiana stanu wraca do Gmaila, różni się w zależności od produktu. Sprawdź, które foldery lub etykiety się synchronizują, kto jeszcze może czytać zsynchronizowany wątek i jak wątki są dopasowywane do kontaktów.
+
+**BCC lub przekazywanie.** HubSpot loguje e-mail, gdy dodasz jego adres BCC do wiersza BCC, tworzy kontakt, jeśli żaden nie pasuje, i loguje odpowiedź, gdy przekażesz ją na jego adres do przekazywania; łączny rozmiar jest ograniczony do 40 MB. Smart Bcc Pipedrive działa w każdym planie, daje każdej szansie sprzedaży własny adres i wymaga przekazywania odpowiedzi klientów na ten sam adres; wiadomości muszą być mniejsze niż 20 MB. Działa z każdym kontem Gmail i niczego nie żąda od Google, ale zapisuje tylko to, co pamiętasz skopiować.
+
+## Jak wybrać CRM do Gmaila?
+
+Przejdź przez te pytania razem z osobami, które będą używać CRM codziennie:
+
+1. **Gdzie pracuje zespół?** Osoby, które żyją w Gmailu, są najszczęśliwsze z panelem bocznym. Osoby, które zaczynają od rekordu klienta, chcą synchronizacji skrzynki.
+2. **Ile osób dzieli klientów?** Jedna osoba może żyć z BCC lub darmowym panelem bocznym. Gdy klientów dzielą dwie lub więcej osób, synchronizacja utrzymuje pełną historię bez klikania „zaloguj”.
+3. **Czy potrzebujesz poczty, której nikt nie zalogował?** Tylko synchronizacja (albo panel boczny, który loguje automatycznie) ją przechwytuje. BCC nigdy.
+4. **Które foldery lub etykiety się synchronizują?** Archiwum, spam i folder Wszystkie wiadomości zachowują się różnie w różnych produktach.
+5. **Kto może czytać zsynchronizowany wątek?** Domyślnie prywatny, udostępniany wątek po wątku, czy otwarty dla całej przestrzeni roboczej?
+6. **Jak wątki są dopasowywane do kontaktów?** Po adresie, po domenie czy ręcznie?
+7. **Skąd wychodzą odpowiedzi?** Z Twojego prawdziwego adresu Gmail i podpisu czy przez przekaźnik?
+8. **Czego żąda od Google?** Przeczytaj ekran zgody. Administrator Workspace może zablokować aplikację, więc zapytaj dział IT, zanim kupisz.
+9. **Co robi z Kalendarzem Google i Kontaktami?** Pokazuje wydarzenia, czy też je tworzy?
+10. **Co się dzieje po rozłączeniu?** Czy zaimportowana poczta zostaje w CRM, czy jest usuwana?
+11. **Który plan odblokowuje część Gmail i dla ilu miejsc?** Kilku dostawców umieszcza synchronizację lub szablony w wyższym planie niż panel boczny.
+12. **Czy klienci piszą też na WhatsAppie lub LinkedInie?** Wtedy CRM z jedną skrzynką dla wszystkich kanałów oszczędza drugie narzędzie.
+
+Krótki sposób czytania odpowiedzi: cały dzień w Gmailu z jednym zespołem, wybierz CRM z panelem bocznym, taki jak Streak lub Copper. Masz już konto HubSpot albo chcesz zacząć za darmo, użyj jego rozszerzenia lub adresu BCC. Najpierw pipeline, z e-mailem w CRM, spójrz na synchronizację poczty Pipedrive. Kilka osób, kilka kanałów i rekord jako ekran startowy, wybierz CRM oparty na synchronizacji ze skrzynką odbiorczą, i tu mieści się Customermates.
+
+## Jakich funkcji szukać w CRM do Gmaila? [#funkcje-crm-do-gmaila]
+
+System CRM służy do tego, żeby cała historia kontaktu z klientem, od pierwszego e-maila po ostatnią ofertę, leżała w jednym rekordzie i żeby zespół wiedział, jaki jest następny krok. W połączeniu z Gmailem liczą się cztery grupy funkcji; sprawdź, które naprawdę wykorzystasz:
+
+- **Logowanie e-maili.** Czy wiadomości trafiają do rekordu automatycznie (synchronizacja), po kliknięciu (panel boczny) czy po skopiowaniu (BCC)? To ustala, ile historii zobaczy zespół.
+- **Śledzenie e-maili.** Informacja, czy odbiorca otworzył wiadomość albo kliknął link. Oferują ją na przykład Streak (śledzenie e-maili i linków w planie bezpłatnym) i rozszerzenie HubSpot Sales. Traktuj takie dane jako sygnał, a nie dowód, że ktoś przeczytał wiadomość.
+- **Szablony i sekwencje.** Szablony skracają powtarzalne odpowiedzi, a sekwencje wysyłają kolejne wiadomości automatycznie. Nutshell udostępnia szablony e-maili w edytorze Gmaila od planu Business, a Streak daje korespondencję seryjną do 50 dziennie w planie bezpłatnym. Customermates nie ma sekwencji ani korespondencji seryjnej: wiadomości przygotowujesz pojedynczo, a Mate lub Twój agent AI pisze szkic, który sprawdzasz i wysyłasz.
+- **Zadania i następne kroki.** Rozmowa bez daty następnego kroku ucicha, więc CRM powinien pozwalać przypisać do każdej szansy sprzedaży termin i osobę, a nie tylko zapisać wiadomość.
+- **Kalendarz i kontakty.** Czy CRM tylko pokazuje wydarzenia z Kalendarza Google i dane kontaktów, czy też je tworzy? Customermates pokazuje wydarzenia, ale ich nie zapisuje.
+
+Ceny zależą od planu częściej niż od liczby użytkowników: kilku dostawców umieszcza synchronizację albo szablony w wyższym planie niż panel boczny, dlatego tabela poniżej podaje, który plan odblokowuje część Gmail.
+
+## Które CRM działają z Gmailem i jak się łączą?
+
+Ta tabela opisuje podejście każdego produktu do Gmaila na jego własnych stronach, tylko dla Gmaila. To nie ranking, a zamiast ceny podaje plan, który odblokowuje część Gmail, bo ceny różnią się w zależności od regionu i okresu rozliczeniowego. Customermates pojawia się jako jedna pozycja, bo publikuje ten poradnik. Sprawdzono 3 listopada 2026.
+
+| CRM | Jak łączy się z Gmailem | Plan potrzebny do części Gmail | Źródło |
+|---|---|---|---|
+| Streak | Działa w Gmailu jako rozszerzenie przeglądarki dla Chrome, Safari lub Edge, konfigurowane w przeglądarce na komputerze. | Plan bezpłatny ma śledzenie e-maili i linków oraz korespondencję seryjną do 50 dziennie, ale bez pipeline'ów CRM. Pipeline'y zaczynają się od Pro. | [Cennik Streak](https://www.streak.com/pricing), [Streak](https://www.streak.com/) |
+| HubSpot | Rozszerzenie HubSpot Sales dla Chrome śledzi i loguje e-maile wysłane z Gmaila oraz otwiera narzędzia HubSpot w skrzynce. Adresy BCC i do przekazywania logują pojedyncze e-maile. | Rozszerzenie jest wymienione dla wszystkich produktów i planów. Darmowy CRM HubSpot jest bezpłatny dla maksymalnie 2 użytkowników. | [Rozszerzenie HubSpot Sales](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-chrome-extension), [BCC i przekazywanie](https://knowledge.hubspot.com/connected-email/log-email-in-your-crm-with-the-bcc-or-forwarding-address), [cennik HubSpot](https://www.hubspot.com/pricing/crm) |
+| Copper | Rozszerzenie Chrome wprowadza Copper do Gmaila i Kalendarza Google na komputerze, z synchronizacją e-maili, kontaktów i plików z Gmaila. | Nie podano stałego planu bezpłatnego, tylko darmowy start bez karty kredytowej. Strona z cennikiem wymienia synchronizację Gmaila i rozszerzenie Chrome w każdym planie (sprawdzono 10 listopada 2026). | [Cennik Copper](https://www.copper.com/pricing) |
+| Pipedrive | Panel boczny dodatku do Gmaila z Google Workspace Marketplace pokazuje szanse sprzedaży nadawcy i pozwala dodać szansę. Synchronizacja poczty umieszcza rozmowy z Gmaila w Sales Inbox. Smart Bcc loguje pojedyncze e-maile. | Synchronizacja poczty wymaga planu Growth lub wyższego. Smart Bcc jest w każdym planie. | [Dodatek do Gmaila](https://support.pipedrive.com/en/article/pipedrive-gmail-add-on), [synchronizacja poczty](https://support.pipedrive.com/en/article/email-sync), [Smart Bcc](https://support.pipedrive.com/en/article/smart-email-bcc) |
+| Zoho CRM | Zoho CRM for Gmail and Inbox to rozszerzenie Chrome: twórz leady i kontakty z e-maila i dodawaj notatki, zadania, rozmowy i wydarzenia. Strona pomocy nie opisuje synchronizacji poczty. | Strona pomocy nie podaje wymaganej edycji. Strona z cennikiem Zoho wymienia darmową edycję dla maksymalnie 3 użytkowników. | [Pomoc Zoho](https://help.zoho.com/portal/en/kb/crm/integrations/google/google-workspace/articles/gmail-inbox-crm-integration), [cennik Zoho](https://www.zoho.com/crm/zohocrm-pricing.html) |
+| Nutshell | Gmail synchronizuje się z Nutshell i z powrotem, a rozszerzenie Chrome dodaje panel boczny z kontaktami, zadaniami i notatkami. Możesz synchronizować całą pocztę albo tylko wątki, które oznaczysz etykietą. | Synchronizacja Gmaila i rozszerzenie są w każdym planie. Szablony e-maili w edytorze Gmaila wymagają planu Business lub wyższego. | [Synchronizacja Gmaila](https://support.nutshell.com/en/articles/8428897-how-to-sync-your-gmail-with-nutshell), [integracja z Gmailem](https://www.nutshell.com/integrations/gmail-and-google-calendar) |
+| folk | Rozszerzenie Chrome folkX importuje kontakty i dodaje notatki ze skrzynki, a folk synchronizuje rozmowy z Gmaila do CRM i łączy je z kontaktami. | Strona o Gmailu nie podaje planu. Strona z cennikiem folk wymienia 2-tygodniowy okres próbny i brak planu bezpłatnego. | [folk dla Gmaila](https://www.folk.app/crm-for-x/gmail), [cennik folk](https://www.folk.app/pricing) |
+| Customermates | Gmail synchronizuje się do ujednoliconej skrzynki odbiorczej obok Outlooka, IMAP, LinkedIna, WhatsAppa, Instagrama i Telegrama. Bez panelu bocznego w Gmailu. | Customermates Cloud w planie Pro lub wyższym albo okres próbny. Starter i instalacje self-hosted nie mają skrzynki odbiorczej. | [Ujednolicona skrzynka odbiorcza](/features/unified-inbox) |
+
+Jeśli Gmail jest jedynym kanałem i nikt nie chce opuszczać okna Gmaila, prostszym wyborem jest produkt z panelem bocznym. CRM oparty na synchronizacji opłaca się, gdy klientów dzieli kilka osób albo gdy połowa rozmowy toczy się na WhatsAppie lub LinkedInie.
+
+**Keap Max Classic.** Keap dokumentuje połączenie z Gmailem jako synchronizację poczty, którą uruchamiasz w Edit My Profile, Mail Accounts, Sync Email Account, a jego [strona integracji z Gmailem](https://keap.com/integrations/gmail) mówi, że wcześniejsze wiadomości się nie synchronizują. Ta strona nie wymienia Max Classic, więc potwierdź z Keap, który plan to obejmuje. Połączenie Gmaila i Arkuszy Google z Keap Max Classic to inne zadanie: automatyzacja między API Gmaila, Arkuszami i API Keap, droga „zrób to sam” opisana niżej, a nie coś, co robi synchronizacja skrzynki.
+
+## Jakie zasady Google obowiązują każdą integrację z Gmailem?
+
+**Zakresy.** Google wymienia `gmail.readonly`, `gmail.modify`, pełny dostęp `https://mail.google.com/`, `gmail.compose`, `gmail.metadata` i `gmail.insert` jako [zakresy ograniczone (restricted)](https://developers.google.com/workspace/gmail/api/auth/scopes). Dostęp tylko do wysyłania (`gmail.send`) i zakresy dodatku do Gmaila dla otwartej wiadomości są wrażliwe (sensitive), a `gmail.labels` jest niewrażliwy. Aplikacja, która przechowuje lub przesyła dane z zakresów ograniczonych na serwerach, musi według [weryfikacji zakresów ograniczonych](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification) Google przejść też ocenę bezpieczeństwa, odnawianą co najmniej co 12 miesięcy. Synchronizacja skrzynki leży po tej ograniczonej stronie, więc zapytaj dostawcę, czy przeszedł weryfikację. Jeśli budujesz własną integrację, zaplanuj to, zanim napiszesz kod.
+
+**Kontrola administratora.** W Google Workspace administrator decyduje dla każdej aplikacji, czy jest [zaufana, ograniczona czy zablokowana](https://knowledge.workspace.google.com/admin/apps/control-which-apps-access-google-workspace-data). Aplikacja ograniczona może używać tylko nieograniczonych usług Google, a administratorzy mogą też ograniczyć predefiniowaną listę zakresów Gmaila wysokiego ryzyka. Gdy połączenie działa u jednego współpracownika, a u innego nie, sprawdź te ustawienia, zanim zaczniesz debugować CRM.
+
+**Limity wysyłki.** Google Workspace pozwala na 2000 wiadomości na użytkownika dziennie i 1500 dla korespondencji seryjnej, a konta próbne na 500 dziennie, z maksymalnie 500 zewnętrznymi odbiorcami na wiadomość, według [strony Google o limitach wysyłki](https://knowledge.workspace.google.com/admin/gmail/gmail-sending-limits-in-google-workspace). Limity obowiązują w przesuwanym oknie 24 godzin. Osobiste konto Gmail osiąga limit przy ponad 500 e-mailach dziennie, według [Pomocy Gmaila](https://support.google.com/mail/answer/22839?hl=en). Poczta, którą Twój CRM wysyła przez konto, też się liczy.
+
+## Jak działa integracja z Gmailem w Customermates?
+
+Gmail to jeden z kanałów [ujednoliconej skrzynki odbiorczej](/features/unified-inbox) w Customermates Cloud. Wymaga planu z wiadomościami: Pro, Business, Max, Enterprise albo okresu próbnego. Liczba kont podłączanych przez każdego członka to [[commercial.entitlement.pro.includedAccountsPerUser]] w Pro, do [[commercial.entitlement.business.includedAccountsPerUser]] w Business i do [[commercial.entitlement.max.includedAccountsPerUser]] w Max; Starter nie ma skrzynki odbiorczej. Szczegóły są na [stronie z cennikiem](/pricing). Powodem, by podłączyć tu Gmaila, jest follow-up: każdy e-mail od klienta ląduje w rekordzie klienta, Mate albo Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, Ty go sprawdzasz i wysyłasz, a następny krok pojawia się na Twoim pulpicie.
+
+<Steps>
+  <Step title="Połącz konto">Otwórz **Ustawienia › Kanały i kalendarze**, kliknij **Połącz kanał** i wybierz **Gmail**. Logujesz się do Google na bezpiecznej stronie połączenia i wracasz do **Kanały i kalendarze**. Karta pokazuje, czy podłączono e-mail, kalendarz, czy oba, a Twoja historia importuje się w tle. Wpisu **IMAP** używaj tylko dla kont pocztowych, które nie są Gmailem ani Outlookiem.</Step>
+  <Step title="Wybierz foldery">Na karcie **Foldery** konta każdy folder jest włączony oprócz kosza, wiadomości-śmieci lub spamu, szkiców i folderu wszystkich wiadomości. Włącz folder archiwum, jeśli te rozmowy mają się pojawiać.</Step>
+  <Step title="Powiąż uczestników z kontaktami">Otwórz **Ustawienia wątku** z chipa w nagłówku rozmowy i kliknij **Powiąż** obok każdego uczestnika. Wybierz istniejący kontakt albo utwórz nowy. Adres jest dodawany do kontaktu, więc każda rozmowa z nim ląduje na osi czasu tego kontaktu.</Step>
+  <Step title="Zdecyduj, kto co widzi">Twoje rozmowy są domyślnie prywatne; administratorzy też ich nie czytają. Udostępnij pojedynczą rozmowę przełącznikiem w **Ustawieniach wątku** albo, w planach Business, Max i Enterprise, całe konto w sekcji **Widoczność** na jego karcie **Szczegóły**.</Step>
+  <Step title="Ustaw podpis i odpowiedź">Ustaw podpis na karcie **E-mail** konta; jest dodawany do każdego e-maila z tego konta. Odpowiadaj w rozmowie albo zacznij nowy e-mail ikoną **Nowa wiadomość** obok adresu kontaktu.</Step>
+</Steps>
+
+Kilka szczegółów dotyczących Gmaila z [poradnika o skrzynce odbiorczej](/docs/app-inbox):
+
+- **Etykiety są tylko do odczytu.** Rozmowy z Outlooka i IMAP można przenieść do innego folderu z poziomu CRM. Rozmowa z Gmaila pokazuje swoje etykiety, ale nie ma opcji przenoszenia.
+- **Stan jest wspólny.** **Nieprzeczytane**, **Otwarte**, **Zamknięte** i **Spam** to jedna wartość dla wszystkich, którzy widzą rozmowę. Ustawienie **Spam** niczego nie zgłasza do Google.
+- **Jeden szkic na rozmowę.** **Zapisz jako szkic** w sekcji **Więcej opcji wysyłania** zachowuje wiadomość na później. Szkice nie mogą zawierać plików, więc dołącz je przy wysyłaniu.
+- **Wspólny adres jest podłączany raz.** Jeśli współpracownik już podłączył `sales@` w Twojej przestrzeni roboczej, drugie połączenie jest odrzucane z komunikatem **Konto jest już połączone**. Zamiast tego udostępnia je właściciel.
+- **Wysyłka jest ograniczona.** Customermates pozwala na 300 wysłanych e-maili dziennie na podłączone konto Gmail, zgodnie z [limitami wiadomości](/docs/messaging-rate-limits). To poniżej własnych limitów Google.
+- **Rozłączenie usuwa import.** **Rozłącz** usuwa konto i trwale usuwa rozmowy, wiadomości i wydarzenia kalendarza, które Customermates z niego zaimportował. Wspólne konto znika też dla Twoich współpracowników.
+
+<AcquisitionCallout title="Gdzie Customermates to zły wybór dla Gmaila" variant="boundary">
+  Nie ma panelu bocznego w Gmailu ani rozszerzenia Chrome, ani adresu BCC lub do przekazywania: poczta trafia do Customermates tylko przez podłączone konto. Jeśli Twój zespół chce mieć CRM w oknie Gmaila, wybierz CRM z panelem bocznym z tabeli powyżej. Dane kalendarza są pokazywane, nigdy zapisywane: Customermates nie tworzy, nie zmienia ani nie rezerwuje wydarzeń. Wiadomości są pisane pojedynczo, więc nie ma korespondencji seryjnej ani wysyłki kampanii. Instalacje self-hosted nie mają skrzynki odbiorczej; tam Gmail to przepływ, który budujesz na REST API i webhookach.
+</AcquisitionCallout>
+
+### Przykład: trzyosobowa firma doradcza
+
+Trzej konsultanci łączą swoje adresy Google Workspace w planie Pro. Kosztuje to [[commercial.price.pro.monthly.seats.3]] miesięcznie dla zespołu. Każdy konsultant trzyma pocztę klientów jako prywatną i udostępnia rozmowy, które musi zobaczyć współpracownik. Każdy kontakt klienta jest powiązany raz, więc strona kontaktu pokazuje pełną historię e-maili obok otwartych szans sprzedaży.
+
+W Customermates Cloud każdy konsultant może dodać rutynę, która działa, gdy klient napisze. Rutyny wydają hostowane kredyty AI z miesięcznego limitu właściciela, a w Pro liczba rutyn na użytkownika to [[commercial.entitlement.pro.includedRoutinesPerUser]]. W sekcji **Rutyny** kliknij **Dodaj**, wybierz **Gdy coś się zmieni** i zaznacz zdarzenie **E-mail odebrany**. Potem napisz instrukcję:
+
+> Gdy przyjdzie e-mail od kontaktu powiązanego z otwartą szansą sprzedaży, dodaj dwuzdaniowe podsumowanie do notatek tej szansy. Zapisz odpowiedź jako szkic i nie wysyłaj jej. Ignoruj newslettery i pocztę automatyczną.
+
+Ostatnie dwa zdania mają znaczenie. Rutyna działa jako jej właściciel z kanałami właściciela, a Mate może wysłać e-mail bez pytania. Jeśli chcesz tylko szkiców, instrukcja musi to mówić. Szkic czeka w rozmowie, aż konsultant go wyśle. Limity uruchomień i kredytów opisuje [poradnik o rutynach](/docs/app-routines).
+
+Aby wypróbować to na własnym Gmailu, [rozpocznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni Pro bez karty kredytowej, tyle, by podłączyć jedno konto i powiązać pierwszych klientów.
+
+## Jak zbudować własną integrację Gmaila z CRM?
+
+Jeśli żaden produkt nie pasuje, łączysz API Gmaila z API lub webhookami CRM za pomocą narzędzia takiego jak n8n albo własnego kodu. Zmiana etapu może wysłać wiadomość; przychodzący e-mail może utworzyć rekord; wiersz w Arkuszach Google może uruchomić jedno i drugie. Ty odpowiadasz za aplikację OAuth, obsługę błędów i weryfikację Google, a typową porażką jest przepływ, który zawodzi po cichu, więc ustaw alerty na błędy. Jeśli Twoje leady nadal żyją w arkuszu, [Arkusze Google jako CRM](/blog/google-sheets-crm) opisują, kiedy to wystarcza.
+
+W Customermates, jeśli używasz Claude, ChatGPT lub innego klienta AI, podłącz go przez [MCP](/docs/mcp). Może czytać rozmowy z Gmaila, zapisać szkic do sprawdzenia i wysłać e-mail, z tymi samymi uprawnieniami co Twoje konto. Serwer każe klientom potwierdzać przed wysłaniem, ale ta kontrola odbywa się w kliencie, nie na serwerze. Przetestuj najpierw na szkicu, jak Twój klient to obsługuje. Zewnętrzni klienci używają Twojego własnego dostawcy AI, nie hostowanych kredytów.
+
+Do deterministycznej automatyzacji [webhooki](/docs/webhooks) raportują [[derived.webhooks.events.total]] typów zdarzeń, w tym [[derived.webhooks.events.messaging]] zdarzeń związanych z wiadomościami, takich jak przyjęty e-mail. Osobno uruchomiona instancja n8n może je konsumować przez [węzeł społecznościowy n8n](/docs/n8n), na przykład by wysłać wiadomość gdzie indziej, gdy klient odpowie. n8n nie wchodzi w skład Customermates.
+
+## Czy można używać Gmaila jako CRM?
+
+Dla jednej osoby i kilkudziesięciu klientów etykiety, gwiazdki i Kontakty Google mogą wystarczyć. Gmail nie ma etapów szans sprzedaży, wartości szans ani rekordu, który współpracownik mógłby otworzyć, by zobaczyć [pełną historię z klientem](/blog/customer-interaction-management). [Google Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) wymienia aplikacje CRM innych dostawców w kategorii Sales & CRM, na przykład Streak, Zoho CRM i Insightly. Gdy klientów zaczyna dzielić z Tobą druga osoba, zostaw Gmaila do wysyłania i odbierania, a [rekordy kontaktów i szans sprzedaży](/features/contact-management) niech trzyma CRM. Szerszą krótką listę poza Gmailem znajdziesz w poradniku [jak wybrać CRM](/blog/how-to-choose-crm).
+
+## Najczęściej zadawane pytania
+
+<Faq>
+<FaqItem question="Do czego służy system CRM w połączeniu z Gmailem?">
+CRM trzyma e-maile, notatki, szanse sprzedaży i następne kroki przy rekordzie klienta, żeby cały zespół widział pełną historię, a nie tylko własną skrzynkę. Gmail zostaje narzędziem do wysyłania i odbierania, a CRM miejscem, w którym wiadomo, kto ma co zrobić dalej.
+</FaqItem>
+<FaqItem question="Jaki jest najlepszy CRM do Gmaila?">
+To zależy od typu, którego potrzebujesz. Streak i Copper są zbudowane wokół pracy w Gmailu, HubSpot oferuje darmowy CRM i rozszerzenie, Pipedrive i Nutshell synchronizują Gmaila z CRM, a Customermates wprowadza Gmaila do ujednoliconej skrzynki odbiorczej obok innych kanałów. Tabela porównawcza powyżej wymienia plan potrzebny każdemu do części Gmail.
+</FaqItem>
+
+<FaqItem question="Czy jest darmowy CRM do Gmaila?">
+Darmowy CRM HubSpot jest bezpłatny dla maksymalnie 2 użytkowników, a jego rozszerzenie Sales dla Chrome jest wymienione dla wszystkich planów. Streak ma plan bezpłatny ze śledzeniem e-maili, ale bez pipeline'ów CRM, a Zoho CRM wymienia darmową edycję dla maksymalnie 3 użytkowników. Customermates łączy Gmaila w planie Pro i wyższych; możesz to przetestować w [[commercial.trial.days]]-dniowym okresie próbnym. Wersja self-hosted jest darmowa na licencji AGPL, ale nie ma skrzynki odbiorczej.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje CRM do Gmaila?">
+Zależy od typu i planu, a ceny różnią się w zależności od regionu i okresu rozliczeniowego, więc tabela porównawcza podaje plan, który odblokowuje część Gmail. Darmowy CRM HubSpot jest bezpłatny dla maksymalnie 2 użytkowników, a trzyosobowy zespół w Customermates Pro płaci [[commercial.price.pro.monthly.seats.3]] miesięcznie. Sprawdź cennik dostawcy w dniu zakupu.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje Gmail dla firm?">
+Firmowy Gmail to Google Workspace, płatny za użytkownika, a cena zależy od wybranego planu i regionu, więc sprawdź ją na stronie Google. Dla integracji z CRM ważniejsze są limity wysyłki: 2000 wiadomości na użytkownika dziennie w płatnym Workspace i 500 na koncie próbnym.
+</FaqItem>
+
+<FaqItem question="Czy CRM loguje moje e-maile z Gmaila automatycznie?">
+Synchronizacja skrzynki tak: czyta podłączone konto na serwerze CRM i dopasowuje wątki do kontaktów. Panel boczny loguje to, co śledzi rozszerzenie, albo to, co klikniesz, zależnie od produktu. BCC lub przekazywanie loguje tylko e-maile, które skopiujesz ręcznie.
+</FaqItem>
+
+<FaqItem question="Jak połączyć Gmaila z Customermates?">
+W Customermates Cloud z planem Pro, Business, Max, Enterprise albo w okresie próbnym otwórz **Ustawienia › Kanały i kalendarze**, kliknij **Połącz kanał**, wybierz **Gmail** i zaloguj się do Google. Rozmowy z folderów włączonych dla tego konta pojawią się wtedy w Skrzynce odbiorczej.
+</FaqItem>
+
+<FaqItem question="Czy potrzebuję IMAP lub POP3, żeby połączyć Gmaila?">
+Nie. W Customermates wybierasz wpis **Gmail** i logujesz się do Google. Wpis **IMAP** jest dla innych kont pocztowych, a Customermates nie oferuje POP3.
+</FaqItem>
+
+<FaqItem question="Czy Customermates ma panel boczny w Gmailu albo rozszerzenie Chrome?">
+Nie. Customermates wprowadza rozmowy z Gmaila do CRM zamiast umieszczać CRM w Gmailu. Czytasz, odpowiadasz i powiązujesz wątki z kontaktami w skrzynce odbiorczej Customermates.
+</FaqItem>
+
+<FaqItem question="Czy mój zespół może czytać moje rozmowy z Gmaila?">
+Domyślnie nie. Twoje rozmowy pozostają prywatne, dopóki nie udostępnisz pojedynczej rozmowy albo, w planach Business, Max i Enterprise, całego konta. Prywatne rozmowy współpracownika nigdy nie pojawiają się u nikogo innego, także u administratorów.
+</FaqItem>
+
+<FaqItem question="Czy integracja synchronizuje Kalendarz Google?">
+Podłączone konto Google może też wprowadzać wydarzenia z kalendarza do Customermates w planie Pro i wyższych, tylko do wyświetlania. Customermates nie tworzy, nie zmienia ani nie rezerwuje wydarzeń.
+</FaqItem>
+
+<FaqItem question="Ile e-maili mogę wysłać przez Gmaila dziennie?">
+Google Workspace pozwala na 2000 wiadomości na użytkownika dziennie na kontach płatnych i 500 na kontach próbnych. Osobiste konta Gmail osiągają limit powyżej 500 dziennie. Poczta, którą wysyłasz przez dowolny CRM ze swojego konta Gmail, wlicza się do tych limitów, a Customermates dodaje własny limit 300 wysłanych e-maili dziennie na konto Gmail.
+</FaqItem>
+</Faq>
+
+Outlook działa w Customermates tak samo; [poradnik o integracji CRM z Outlookiem](/blog/outlook-crm-integration) opisuje stronę Microsoft 365.

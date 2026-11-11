@@ -16,6 +16,9 @@ const samples = {
   fr: "Les clients peuvent contacter notre équipe pour obtenir des informations sur leur abonnement. Nous expliquons les différentes possibilités et les prochaines étapes. Le client peut demander un remboursement dans les trente jours suivant la souscription annuelle.",
   it: "I clienti possono contattare il nostro servizio di assistenza per informazioni sul loro abbonamento. Spieghiamo le opzioni disponibili e i passi successivi. Il cliente può richiedere un rimborso entro trenta giorni dalla sottoscrizione annuale.",
   es: "Los clientes pueden contactar con nuestro equipo de atención para obtener información sobre su suscripción. Explicamos las opciones disponibles y los pasos siguientes. El cliente puede solicitar un reembolso dentro de los treinta días posteriores a la suscripción anual.",
+  pt: "Os clientes podem entrar em contato com a nossa equipe de atendimento sempre que tiverem dúvidas sobre a assinatura. Explicamos as opções disponíveis e as próximas etapas. O cliente pode solicitar o reembolso em até trinta dias após a contratação da assinatura anual.",
+  pl: "Klienci mogą skontaktować się z naszym zespołem obsługi, gdy mają pytania dotyczące swojej subskrypcji. Wyjaśniamy dostępne opcje i kolejne kroki. Klient może poprosić o zwrot pieniędzy w ciągu trzydziestu dni od zakupu rocznej subskrypcji.",
+  nl: "Onze klanten kunnen contact opnemen met de klantenservice wanneer zij vragen hebben over hun abonnement. Wij leggen de beschikbare mogelijkheden uit en geven duidelijke informatie over de volgende stappen. Een klant kan binnen dertig dagen na aankoop van het jaarlijkse abonnement een terugbetaling aanvragen.",
 };
 
 describe("Wiki content language", () => {
@@ -60,8 +63,8 @@ describe("Wiki content language", () => {
 
   it("does not force unsupported languages into a supported language", () => {
     const text =
-      "Onze klanten kunnen contact opnemen met de klantenservice wanneer zij vragen hebben over hun abonnement. Wij leggen de beschikbare mogelijkheden uit en geven duidelijke informatie over de volgende stappen. Een klant kan binnen dertig dagen na aankoop van het jaarlijkse abonnement een terugbetaling aanvragen.";
-    expect(detectedWikiLanguage(text)).toBe("nld");
+      "Våra kunder kan kontakta kundtjänst när de har frågor om sin prenumeration. Vi förklarar de tillgängliga alternativen och ger tydlig information om nästa steg. Kunden kan begära återbetalning inom trettio dagar efter köpet av den årliga prenumerationen.";
+    expect(detectedWikiLanguage(text)).toBe("swe");
     expect(wikiLanguageConflicts(text, "en")).toBe(true);
     expect(dominantWikiLanguage([text, text, samples.en])).toBeNull();
   });

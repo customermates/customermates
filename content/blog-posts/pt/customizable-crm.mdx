@@ -1,0 +1,211 @@
+---
+title: "CRM personalizado: o que mudar, quando criar e quanto custa"
+description: "CRM personalizado: o que um CRM personalizável permite mudar, onde os fornecedores colocam objetos personalizados, quando criar o seu e quanto custa manter."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
+
+hero:
+  title: "CRM personalizado: o que você pode mudar e quando criar o seu próprio"
+  description: "A maioria das equipes pequenas precisa de um CRM cujos campos, etapas e visualizações elas possam remodelar, não de um escrito do zero. Como distinguir os dois, onde os fornecedores traçam a linha e como é uma configuração prática."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-04-27
+  updated: 2026-10-28
+  tags:
+    - CRM personalizado
+    - CRM sob medida
+    - Campos personalizados
+    - CRM de código aberto
+---
+
+# CRM personalizado: o que você pode mudar e quando criar o seu próprio
+
+Um CRM personalizado (também chamado de CRM personalizável ou customizável) é um CRM pronto em que você mesmo muda o modelo de dados, o pipeline e as visualizações, sem escrever código. Para a maioria das equipes pequenas isso basta: campos personalizados, etapas de negócio próprias e visualizações salvas cobrem como uma consultoria, uma agência ou um negócio de serviços realmente trabalha. Criar o seu próprio CRM só compensa quando você precisa de tipos de registro que nenhum produto oferece, e aí as opções realistas são um CRM com objetos personalizados ou um banco de dados no-code, em vez de código escrito do zero.
+
+A pergunta decisiva é estreita. Você precisa de novos tipos de registro ou de novos campos nos de sempre? O resto desta página ajuda a responder isso antes de você pagar por um plano.
+
+O Customermates publica este artigo e é um dos produtos que ele descreve.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="Personalizável x sob medida">Personalizável significa que você configura um produto pronto. Sob medida significa que você mesmo constrói e mantém o sistema, com código ou uma plataforma no-code.</SummaryItem>
+  <SummaryItem label="Onde fica a linha">Campos personalizados são o padrão. Objetos personalizados (novos tipos de registro) são onde os fornecedores se separam por plano: a HubSpot exige uma assinatura Enterprise, o Zoho CRM inclui módulos personalizados em toda edição paga, com um limite por edição.</SummaryItem>
+  <SummaryItem label="Customermates">Começa sem listas: você cria as suas, com renomeação livre, 16 tipos de campo, relacionamentos, campos calculados, etapas próprias com pesos, visualizações salvas que podem ser compartilhadas, REST, webhooks e MCP.</SummaryItem>
+  <SummaryItem label="Criar o seu próprio">Vale a pena quando os seus registros não se encaixam em contatos, empresas e negócios. Caso contrário, você assume autenticação, permissões, sincronização de e-mail e importação por pouco ganho.</SummaryItem>
+</ArticleSummary>
+
+Comece pelo fluxo de trabalho com o cliente: o [CRM para pequenas empresas](/for/smb) e o [CRM para agências](/for/agencies) mostram duas formas diferentes de organizar o trabalho. Se um assistente for usar esses registros, confira as permissões no [guia de CRM com IA](/blog/ai-crm); use a [comparação de CRMs](/compare) quando a mudança necessária ultrapassar o alcance de um produto.
+
+## O que "personalizável" cobre, camada por camada
+
+Os fornecedores usam a palavra para profundidades muito diferentes. Separe em camadas e teste cada uma num período de teste:
+
+| Camada | O que significa | Como testar num período de teste |
+|---|---|---|
+| Campos personalizados | Novos campos em registros existentes: uma data, um valor em dinheiro, uma lista suspensa | Adicione os cinco campos que você realmente preencheria. Confira se filtros e ordenação funcionam neles. |
+| Pipeline e etapas | Nomes de etapa próprios, mais de um pipeline, probabilidades por etapa | Reconstrua as suas etapas de venda atuais. Veja se uma etapa é um campo fixo do sistema ou algo que você define. |
+| Nomenclatura | Chamar negócios de "Projetos" ou contatos de "Clientes" | Renomeie e confira se o novo rótulo aparece em listas, formulários e exportações. |
+| Visualizações | Filtros salvos, ordenação, agrupamento, quadro ou tabela | Salve três visualizações. Descubra se os colegas as veem ou só você. |
+| Objetos personalizados | Novos tipos de registro com campos e relações próprios, como "Imóvel" ou "Contrato" | Pergunte qual plano os inclui e quantos. É o upsell mais comum. |
+| Painéis e relatórios | Gráficos e totais que você monta com os seus próprios campos, como receita por origem ou negócios por etapa | Monte o relatório que você hoje faz à mão. Confira se ele usa os campos personalizados e se dá para compartilhá-lo. |
+| Automação e acesso | Gatilhos em mudanças de campo, API, webhooks, funções | Dispare um webhook numa mudança de campo. Leia e grave um registro pela API. |
+
+Duas camadas decidem a maioria das compras: campos personalizados e objetos personalizados. Os tipos de campo importam mais do que a quantidade de campos. Uma lista suspensa mantém os dados consistentes; o texto livre se desvia assim que várias pessoas digitam nele.
+
+## Onde os fornecedores colocam os objetos personalizados
+
+Os objetos personalizados são a linha divisória mais clara entre os planos. Estas são as afirmações dos próprios fornecedores:
+
+| Produto | Objetos personalizados | Fonte |
+|---|---|---|
+| HubSpot | Disponíveis com assinaturas Enterprise (Sales Hub, Marketing Hub, Service Hub e outros hubs Enterprise) | [Base de conhecimento da HubSpot](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Módulos personalizados em toda edição paga: 10 no Standard, 25 no Professional, 200 no Enterprise, 500 no Ultimate; nenhum no Free | [Comparação de edições do Zoho CRM](https://www.zoho.com/crm/complete-feature-list.html) |
+| Attio | Free até 3, Plus até 5, Pro até 12, Enterprise ilimitado | [Preços da Attio](https://attio.com/pricing) |
+| Twenty | Ilimitados no Pro, Organization e Enterprise; o núcleo de código aberto pode ser hospedado por conta própria | [Preços da Twenty](https://twenty.com/pricing) |
+| EspoCRM | O Entity Manager cria entidades, campos e relacionamentos personalizados; código aberto | [Recursos do EspoCRM](https://www.espocrm.com/features/) |
+| Pipedrive | A página de ajuda citada cobre campos personalizados em leads, negócios, pessoas, organizações, produtos e projetos; o número de campos depende do plano | [Suporte do Pipedrive](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | Listas próprias com campos, relacionamentos e campos calculados; um espaço de trabalho novo começa sem listas | [Modelo de dados do Customermates](/docs/concepts) |
+
+Detalhes dos fornecedores verificados em 8 de outubro de 2026 nas páginas oficiais linkadas, o Zoho CRM de novo em 28 de outubro de 2026. Os planos mudam, então confirme o nível de que você precisa no site do fornecedor antes de comprar.
+
+Se você precisa de um registro "Imóvel" que se liga a vários proprietários e inquilinos, ou de um registro "Contrato" com ciclo de vida próprio, escolha um produto que inclua objetos personalizados no plano que você pode pagar. Se o seu negócio é pessoas, empresas, oportunidades e os serviços que você vende, os objetos personalizados costumam ser uma mudança de plano de que você não precisa.
+
+## Quando mudar o seu CRM: os sinais de alerta [#sinais-de-alerta]
+
+Antes de pensar em trocar ou construir, veja se o seu CRM atual já mostra estes sinais:
+
+- **Existe uma planilha paralela.** O "CRM de verdade" mora num arquivo, porque o sistema não tem os campos de que a equipe precisa.
+- **A informação importante está em texto livre.** Tipo de contrato, data de renovação ou origem do cliente escritos em anotações não dá para filtrar nem somar.
+- **A equipe usa outro vocabulário.** O CRM diz "negócio", todo mundo fala "projeto" ou "caso" e ninguém reconhece as próprias etapas na tela.
+- **Alguém monta um relatório à mão toda semana.** Se um painel com os seus campos resolveria, o problema é de configuração.
+- **O mesmo dado é digitado em dois lugares.** É um sinal para importar, integrar ou conectar por API.
+- **O pipeline não bate com o seu processo.** Etapas que não existem no mundo real ou etapas que faltam.
+
+Se os sinais são de campos, etapas, nomes e visualizações, o caminho é reconfigurar o que você já tem ou subir um plano. Só quando você precisa de tipos de registro que nenhum produto oferece faz sentido olhar para as opções abaixo.
+
+## Adaptar um produto, usar um construtor no-code ou criar um CRM sob medida
+
+| Escolha | Quando | O que você assume |
+|---|---|---|
+| Um CRM personalizável | O seu trabalho é pessoas, empresas, negócios e follow-up, mais campos específicos do seu ofício | Conviver com o modelo de registros do fornecedor e com os limites dos planos dele |
+| Um CRM com objetos personalizados | Você precisa de um ou dois tipos de registro extras com relações, como imóveis ou contratos | Um plano mais alto na maioria dos fornecedores; mais configuração e mais coisas para manter em ordem |
+| Um banco de dados no-code (Airtable, Knack, Caspio e similares) | O seu modelo de dados é realmente incomum e muda com frequência | Você projeta e mantém tudo: permissões, captura de e-mail, importação, as visualizações que a sua equipe usa |
+| Código do zero | O CRM é o seu produto, ou precisa ficar bem dentro do seu próprio software | Autenticação, funções, sincronização de e-mail e agenda, busca, histórico de auditoria, importação e exportação, backups, atualizações de segurança, enquanto ele rodar |
+
+Ninguém consegue dar um preço fixo honesto para um CRM sob medida sem uma especificação. O custo que as pessoas subestimam não é a primeira versão; são os anos de manutenção, porque cada funcionalidade que um CRM alugado entrega vira o seu backlog. Antes de encomendar uma construção, anote os tipos de registro que a sua ferramenta atual não consegue representar. Se a lista estiver vazia, você precisa de um CRM melhor configurado, não de um novo.
+
+### Como criar um CRM próprio: cinco passos [#como-criar-um-crm-proprio]
+
+Se a lista de tipos de registro que faltam não está vazia, o caminho mais curto e seguro é:
+
+1. **Escreva o modelo de dados:** os tipos de registro (por exemplo clientes, projetos, contratos), os campos de cada um e como eles se ligam.
+2. **Teste primeiro um produto pronto:** reconstrua o modelo num período de teste e anote onde ele realmente não cabe.
+3. **Se não couber, faça um protótipo no-code** com dez registros reais, não com dados de exemplo.
+4. **Decida quem mantém:** permissões, backups, importação e quem corrige quando algo quebra.
+5. **Planeje a saída:** garanta que dá para exportar os dados, para que a ferramenta não vire uma prisão.
+
+Abriu-se um caminho do meio: partir de um CRM com uma API completa e deixar um cliente de IA fazer o trabalho personalizado em cima dele. Com um CRM de código aberto que expõe REST, webhooks e um servidor MCP, um pequeno script ou um cliente de IA pode cobrir o único fluxo de trabalho específico do seu caso, enquanto o fornecedor mantém todo o resto.
+
+## Uma configuração prática no Customermates
+
+Veja como uma consultoria de cinco pessoas moldaria o Customermates ao seu processo. Cada passo é configuração, sem código.
+
+<Steps>
+  <Step title="Renomeie as listas">
+    Em **Modelo de dados**, abra uma lista e altere **Nome** e **Nome no plural** em **Geral**: os Contatos viram **Clientes**, os Negócios viram **Projetos**, os Serviços viram **Pacotes**. Qualquer nome serve, e registros, vínculos, visualizações e referências da API continuam conectados; veja a [documentação das configurações do espaço de trabalho](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+  </Step>
+  <Step title="Defina o campo de etapa">
+    As etapas não vêm predefinidas. No Modelo de dados dos Negócios, adicione um campo de escolha única **Etapa** (na nuvem, a configuração por IA pode criá-lo) com opções que correspondam às suas etapas de venda, por exemplo Solicitação, Reunião de escopo, Proposta enviada, Assinado, Perdido. Defina **Probabilidade %** em cada opção, e cada negócio recebe um valor ponderado a partir dessas porcentagens fixas; um widget de gráfico do Painel que soma o **Valor ponderado** por etapa mostra o total ponderado do pipeline.
+  </Step>
+  <Step title="Adicione campos personalizados onde eles orientam uma decisão">
+    Em Projetos: **Tipo de contratação** (Escolha única: retainer, escopo fechado, workshop), **Tarifa diária** (Dinheiro), **Renovação do contrato** (Data). Em Clientes: **Origem** (Escolha única) e **Endereço do escritório** (Endereço); números de telefone e endereços de e-mail vão no campo Dados de contato. Estão disponíveis dezesseis tipos de campo e campos calculados, listados na [documentação do modelo de dados](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Salve as visualizações com que cada pessoa trabalha">
+    Um quadro de Projetos agrupado por Etapa, uma tabela de retainers ordenada por **Renovação do contrato** e uma lista de Clientes agrupada por **Origem**. Compartilhe o quadro de Projetos com a equipe toda ou com funções selecionadas para que todos trabalhem a partir do mesmo pipeline.
+  </Step>
+  <Step title="Traga os dados existentes">
+    Exporte cada planilha da sua ferramenta antiga como uma pasta de trabalho do Excel e importe uma lista por vez, primeiro os Clientes, depois os Projetos, associando as colunas aos seus novos campos personalizados. A [documentação de registros](/docs/app-records#how-do-i-import-or-export-records) lista os limites dos arquivos.
+  </Step>
+  <Step title="Automatize um passo (Customermates Cloud)">
+    Uma Rotina no evento **Registro atualizado** de Projetos, observando só o campo **Etapa** e filtrada em Proposta enviada: "Escreva um breve follow-up para o principal contato do cliente citando a proposta. Salve como rascunho, não envie." As rotinas executam o Mate, usam créditos de IA hospedada e rodam como o seu dono. Sem a linha "não envie", uma rotina pode enviar a mensagem por conta própria. Veja [Rotinas](/docs/app-routines).
+  </Step>
+</Steps>
+
+As conversas conectadas de e-mail, LinkedIn e WhatsApp aparecem junto desses registros na [caixa de entrada unificada](/features/unified-inbox) no Pro e acima. O Starter não tem caixa de entrada. Se você trabalha com o Claude, o ChatGPT ou outro cliente de IA, ele lê e grava os mesmos registros, incluindo os seus campos personalizados, pelo [MCP](/docs/mcp) com [[derived.mcp.tools.total]] ferramentas.
+
+O objetivo de moldar o modelo é fazer follow-up de cada conversa com clientes. Com a caixa de entrada conectada, as conversas de cada cliente ficam no registro dele, o Mate ou o seu próprio agente de IA prepara a resposta e o próximo passo, você revisa e envia, e os campos de data que você adicionou, como Renovação do contrato ou uma data de próximo passo, colocam no seu painel o que está vencendo.
+
+## O que o Customermates não deixa você personalizar
+
+Estes limites importam se você está comparando CRMs personalizáveis:
+
+- **As permissões param na lista.** As funções controlam criar, ler, editar e excluir por lista, incluindo "somente registros atribuídos a mim". Não há permissões em nível de campo.
+- **As visualizações compartilhadas são somente leitura.** Os colegas podem filtrar uma visualização compartilhada ou manter a própria cópia, mas só o dono dela a altera.
+- **Sem tags.** Use um campo de escolha única, que também mantém os valores consistentes.
+- **As tarefas não têm prazo integrado.** Adicione um campo Data e ordene por ele; nada avisa quando essa data passa.
+- **A importação e a exportação funcionam por lista**, como pastas de trabalho do Excel ou JSON, até 5.000 registros por exportação. Não existe exportação da conta inteira.
+
+Para a hospedagem própria, o núcleo de código aberto inclui registros, campos personalizados, visualizações, funções, REST, [webhooks](/docs/webhooks) e MCP. A caixa de entrada, o Mate e as Rotinas existem só na nuvem. Os detalhes estão na [página da hospedagem própria](/features/self-hosted).
+
+## Quanto custa manter
+
+O Customermates é cobrado por usuário e por mês, somente mensal. Para a consultoria de cinco pessoas acima:
+
+| Plano | Cinco usuários por mês | O que a configuração acima usa |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Campos personalizados, etapas, visualizações, importação, API, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Tudo o que está acima, mais a caixa de entrada unificada com [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário e [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário |
+
+Um ano de Pro para cinco pessoas sai a [[commercial.price.pro.monthly.seats.5.months.12]]. Cada plano pago inclui créditos mensais de IA hospedada por usuário ativo para o Mate; veja os [preços](/pricing). A hospedagem própria não tem taxa de licença para o núcleo de código aberto; você paga o seu próprio servidor e o tempo para operá-lo.
+
+Para moldar o seu próprio espaço de trabalho, [comece o seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+
+## Como manter um CRM personalizado utilizável
+
+A personalização falha mais por campos demais do que por campos de menos. Três regras ajudam:
+
+1. Adicione um campo só quando alguém filtra, ordena ou decide com base nele. Campos "que podem ser úteis" ficam vazios.
+2. Prefira escolha única a texto livre para tudo o que você vai agrupar depois.
+3. A cada trimestre, exclua os campos que ninguém preencheu. No Customermates, um campo excluído fica na Lixeira por 30 dias e depois perde os valores de vez, então exporte antes se tiver dúvida.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Qual é a diferença entre um CRM personalizável e um CRM sob medida?">
+Um CRM personalizável é um produto pronto que você adapta com campos, etapas, visualizações e automação, e o fornecedor o mantém. Um CRM sob medida é um software construído para você, com código ou uma plataforma no-code, e você o mantém. O personalizável é mais rápido e mais barato para a maioria das equipes pequenas; o sob medida só compensa quando nenhum produto consegue representar os seus registros.
+</FaqItem>
+
+<FaqItem question="Quais são os 4 tipos de CRM?">
+A classificação clássica tem três tipos: operacional (automatiza o dia a dia de vendas, marketing e atendimento), analítico (analisa os dados dos clientes) e colaborativo (compartilha as informações entre as áreas). Algumas listas acrescentam um quarto, o estratégico (ou de campanha), mas o nome muda de fonte para fonte. Na prática, os CRMs para equipes pequenas misturam os três primeiros; o que decide a escolha são os campos, as etapas e as conversas que você precisa ter num só lugar. Veja a [comparação de CRMs](/compare) e o [guia para escolher um CRM](/blog/how-to-choose-crm).
+</FaqItem>
+
+<FaqItem question="Quanto custa um CRM por mês?">
+Depende do número de usuários, do plano e dos recursos, e a maioria dos fornecedores cobra por usuário e por mês. O guia sobre o [custo de um CRM](/blog/crm-cost) mostra o que entra na conta além da mensalidade. Como referência, cinco usuários no Pro do Customermates custam [[commercial.price.pro.monthly.seats.5]] por mês.
+</FaqItem>
+
+<FaqItem question="Posso criar o meu próprio CRM?">
+Pode. Um banco de dados no-code como o Airtable, o Knack ou o Caspio pode dar uma primeira versão funcional rapidamente se o seu processo estiver claro. Programar um do zero é um projeto longo, porque você também constrói login, funções, sincronização de e-mail, busca, importação e backups. Se os seus registros são pessoas, empresas e negócios, configurar um CRM existente leva você mais longe por menos.
+</FaqItem>
+
+<FaqItem question="Quanto custa um CRM sob medida?">
+Depende da especificação, então desconfie de qualquer valor fixo. Conte a manutenção, não só a primeira construção: atualizações de segurança, hospedagem, backups e cada funcionalidade que você receberia de um fornecedor. Para comparar, cinco usuários no Customermates Pro custam [[commercial.price.pro.monthly.seats.5]] por mês, ou [[commercial.price.pro.monthly.seats.5.months.12]] em doze meses, e outros fornecedores publicam os preços nas suas páginas de preços.
+</FaqItem>
+
+<FaqItem question="Posso montar um CRM no Excel?">
+Para uma pessoa e algumas centenas de contatos, sim. Ele quebra quando várias pessoas editam ao mesmo tempo, quando você precisa de vínculos entre clientes e projetos ou quando as conversas deveriam ficar junto do registro. O nosso [guia de modelo de CRM em Excel](/blog/excel-crm-template) mostra um layout viável e quando seguir em frente. O Customermates importa pastas de trabalho do Excel, uma lista por vez.
+</FaqItem>
+
+<FaqItem question="Qual CRM flexível oferece mais liberdade no modelo de dados para objetos personalizados?">
+Entre os produtos verificados aqui, a Twenty inclui objetos personalizados ilimitados nos planos Pro, Organization e Enterprise, a Attio permite até 12 no Pro e ilimitados no Enterprise, o EspoCRM cria entidades personalizadas no Entity Manager, a HubSpot reserva os objetos personalizados para os níveis Enterprise, e o Zoho CRM permite de 10 a 500 módulos personalizados conforme a edição paga. No Customermates, você adiciona as suas próprias listas com campos e relacionamentos no Modelo de dados.
+</FaqItem>
+
+<FaqItem question="Posso manter os dados do meu CRM no meu próprio servidor?">
+Pode, com um CRM que você hospeda por conta própria. O Customermates, a Twenty e o EspoCRM podem rodar na sua própria infraestrutura. No Customermates, a versão com hospedagem própria roda com Docker Compose e inclui campos personalizados, visualizações, REST, webhooks e MCP, mas não a caixa de entrada, o Mate nem as Rotinas. Veja o [guia de CRM de código aberto](/blog/open-source-crm) para conhecer as compensações.
+</FaqItem>
+</Faq>

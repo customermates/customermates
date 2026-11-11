@@ -13,6 +13,7 @@ describe("capture-solutions options", () => {
       allowDirty: false,
       allowPlaceholders: false,
       baseUrl: DEFAULT_CAPTURE_BASE_URL,
+      locales: [],
       mode: "capture",
       navOnly: false,
       only: [],

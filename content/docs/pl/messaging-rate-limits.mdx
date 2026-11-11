@@ -1,0 +1,68 @@
+---
+title: Limity częstotliwości wiadomości i kanałów
+description: "Dlaczego połączone kanały mają limity częstotliwości, jakie limity odczytu i wysyłania obowiązują u dostawców i co się dzieje po osiągnięciu któregoś z nich."
+---
+
+Połączone kanały (LinkedIn, WhatsApp, e-mail i inne) komunikują się ze swoim dostawcą przez Unipile. Każdy dostawca stosuje własne limity żądań, a ich przekroczenie może skutkować ograniczeniem lub zawieszeniem konta. Dlatego Customermates stosuje dla każdego kanału ostrożny budżet żądań i robi przerwę, zanim dostawca zacznie odrzucać żądania. Wstrzymana synchronizacja to normalna sytuacja: utrzymuje konto w granicach limitów dostawcy i sama się wznawia.
+
+## Jak działają limity? [#how-do-the-limits-work]
+
+Limity są konfigurowane w panelu Unipile i egzekwowane przez Unipile. Obowiązują **dla każdego połączonego konta** na trzech poziomach jednocześnie:
+
+- **Na endpoint:** limit dla każdej pojedynczej operacji (lista czatów, odczyt wiadomości) w kroczącym oknie minuty i doby. To limity odczytu podane niżej.
+- **Na metodę wrażliwą:** surowszy limit dla bardziej ryzykownych operacji (sprawdzanie profili, wysyłanie wiadomości lub zaproszenia do kontaktów). To limity wrażliwe podane niżej.
+- **Na konto:** ogólny limit wszystkich wywołań konta.
+
+Gdy okno jest pełne, kolejne wywołania są odrzucane, dopóki okno się nie odświeży.
+
+## Jakie są limity odczytu u poszczególnych dostawców? [#what-are-the-read-limits-per-provider]
+
+Odczyty synchronizują historię. Są ustawione wyżej niż zapisy, ponieważ odczyty rzadko powodują blokadę ze strony dostawcy.
+
+| Dostawca | Odczyty / minutę | Odczyty / dzień |
+| --- | --- | --- |
+| LinkedIn | 20 | 300 |
+| WhatsApp | 30 | 510 |
+| Instagram | 50 | 510 |
+| Telegram | 50 | brak |
+| Gmail / Google | 100 | brak |
+| Outlook | 100 | brak |
+| IMAP | 100 | brak |
+
+LinkedIn pozostaje najbardziej zachowawczy, ponieważ jego wykrywanie automatycznej aktywności jest najsurowsze. Niektóre wartości wynikają z własnych pułapów dostawców: kanały społecznościowe ograniczają odczyty na minutę do 50, kanały e-mail do 100, a limit dobowy rośnie skokami co 30 (dlatego cel 500 jest stosowany jako 510). Telegram i dostawcy poczty nie mają osobnego dobowego limitu odczytu.
+
+## Jakie są limity wysyłania i sprawdzania profili? [#what-are-the-limits-for-sending-and-profile-lookups]
+
+Sprawdzanie profili (które dostawcy uznają za wrażliwe na scraping) i każda akcja wysyłania pozostają ostrożne, niezależnie od budżetu odczytu.
+
+| Dostawca | Akcja | Limit |
+| --- | --- | --- |
+| LinkedIn | Pobranie profilu firmy | 1 / sekundę |
+| LinkedIn | Pobranie profilu użytkownika | 1 / sekundę |
+| LinkedIn | Wysłanie zaproszenia do kontaktów | 50 / dzień, 1 / 10 sekund |
+| WhatsApp | Rozpoczęcie czatu | 3 / minutę, 30 / dzień |
+| Telegram | Rozpoczęcie czatu | 3 / minutę, 30 / dzień |
+| Instagram | Rozpoczęcie czatu | 3 / minutę, 30 / dzień |
+| Gmail / Google | Wysłanie e-maila | 300 / dzień |
+| Outlook | Wysłanie e-maila | 300 / dzień |
+| IMAP | Wysłanie e-maila | 300 / dzień |
+
+Operacje bez wiersza w tej tabeli, takie jak wysłanie wiadomości LinkedIn lub InMail oraz wyszukiwania w LinkedIn Sales Navigator, nadal podlegają limitom na endpoint i na konto i zwracają ten sam komunikat o limicie, gdy okno jest pełne.
+
+## Co się dzieje po osiągnięciu limitu? [#what-happens-when-a-limit-is-reached]
+
+Kolejne wywołania dla tego konta są odrzucane, dopóki okno się nie odświeży, a akcja podaje, jak długo czekać. Wysłanie wiadomości lub rozpoczęcie rozmowy pokazuje:
+
+> Ten kanał na razie osiągnął swój limit. Możesz spróbować ponownie za 2 minuty. Więcej informacji: `https://customermates.com/docs/messaging-rate-limits`.
+
+Inne akcje formułują to inaczej:
+
+- **Zsynchronizuj wątek ponownie**, wczytywanie starszych wiadomości na górze rozmowy i pliki multimedialne w wiadomości: „Ten kanał osiągnął limit zapytań. Możesz spróbować ponownie za 2 minuty.” z linkiem **Dowiedz się więcej**.
+- **Odśwież** w [Skrzynce odbiorczej](app:inbox): „Niektóre kanały osiągnęły limit zapytań. Spróbuj ponownie za kilka minut.”
+- Przenoszenie e-maila do innego folderu: „Przenoszenie do `{folder}` zatrzymano, ponieważ dostawca ogranicza liczbę zapytań.” wraz z czasem oczekiwania dla pozostałych.
+
+Czas oczekiwania pochodzi z wartości `Retry-After` w odpowiedzi o przekroczeniu limitu, którą zwraca Unipile; gdy jej brak, komunikat mówi „później” zamiast podawać czas oczekiwania. Customermates nie ponawia akcji za Ciebie: spróbuj ponownie, gdy okno minie. W międzyczasie nic nie ginie. Przez REST API i MCP wywołanie kończy się tym samym komunikatem: REST API odpowiada statusem HTTP 429 i nagłówkiem `Retry-After` o wartości 30 sekund, a MCP zwraca błąd rodzaju `rate_limit`, którego opis problemu w `_meta.failure` zawiera `customCode: "unipileRateLimit"`.
+
+## Czy import historii wznawia się sam? [#does-the-history-import-resume-by-itself]
+
+Tak. Import pełnej historii wiadomości może wymagać mniej więcej jednego żądania na rozmowę. Jeśli limit zostanie osiągnięty w trakcie importu, importer działający w tle **robi przerwę i wznawia pracę automatycznie**, gdy okno się zwolni; oczekiwanie dłuższe niż dziesięć minut odkłada import do późniejszego przebiegu. Przy uprawnieniu **Edycja** do **Wiadomości w skrzynce odbiorczej** przewinięcie na początek rozmowy lub kliknięcie **Zsynchronizuj wątek ponownie** pobiera starsze wiadomości od dostawcy, a obie czynności wliczają się do tych samych limitów. Nowa aktywność dociera w czasie rzeczywistym przez webhooki.

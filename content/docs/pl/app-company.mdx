@@ -1,0 +1,217 @@
+---
+title: "Ustawienia: członkowie, role, rozliczenia, webhooki"
+description: "Administracja przestrzenią roboczą w Customermates: zapraszanie członków i zarządzanie nimi, role, plan i rozliczenia, dziennik audytu oraz webhooki."
+---
+
+Ustawienia przestrzeni roboczej obejmują wszystko, co dotyczy całej przestrzeni, a nie pojedynczego rekordu: zespół i jego uprawnienia, plan, dziennik aktywności i wychodzące webhooki.
+
+## Gdzie są ustawienia przestrzeni roboczej? [#what-lives-on-the-company-screen]
+
+Kliknij nazwę przestrzeni roboczej u góry paska bocznego, aby otworzyć jej menu, i wybierz **Ustawienia** albo naciśnij G, a potem S. Ustawienia otwierają się na stronie [Profil i preferencje](app:settings/profile), a pasek boczny przełącza się na nawigację ustawień: Twoje własne strony w sekcji **Konto**, strony przestrzeni roboczej w sekcji **Przestrzeń robocza**: [Ogólne](app:settings/general), [Członkowie](app:settings/members), [Role](app:settings/roles), [Rozliczenia](app:settings/billing) (tylko w chmurze), [Dziennik audytu](app:settings/activity) i [Webhooki](app:settings/webhooks). **Wstecz** u góry nawigacji wraca do strony otwartej wcześniej.
+
+Menu przestrzeni roboczej wyświetla przestrzenie, do których należysz, i pozwala między nimi przełączać; oferuje też **Utwórz przestrzeń roboczą** ([Przestrzenie robocze](/docs/app-workspaces)). Zawiera również **Zaproś członków** (wymaga **Użytkownicy i role** **Tworzenie**), **Członkowie**, **Ustawienia**, **Rozliczenia** z plakietką planu (tylko w chmurze) oraz, wyłącznie dla operatorów Customermates, **Konsola operatora**.
+
+To, co widzisz, zależy od Twojej roli. Strona, której Twoja rola nie może odczytać, nie pojawia się w nawigacji, a bezpośrednie jej otwarcie prowadzi na [Pulpit](app:dashboard). Na stronie, którą możesz odczytać, ale nie zmieniać, nie ma przycisków **Dodaj**, **Zapisz** i **Usuń**, a okna otwierają się w trybie tylko do odczytu. Zmiany ról obowiązują od następnego załadowania strony lub wywołania API przez członka. Wbudowana rola **Administrator** widzi i zmienia wszystko.
+
+| Strona | Co jest potrzebne, aby ją otworzyć |
+|---|---|
+| Członkowie, Role | **Użytkownicy i role** dostęp do odczytu **Wszystkie** (**Przypisane** pokazuje stronę Członkowie tylko z Twoim własnym wierszem) |
+| Rozliczenia | Każdy członek; kontrolki rozliczeń wymagają **Firma** **Edycja** |
+| Dziennik audytu | **Dziennik aktywności** dostęp do odczytu **Wszystkie** |
+| Webhooki | **API i webhooki** dostęp do odczytu **Wszystkie** |
+
+W chmurze, gdy zmieni się Regulamin lub DPA, członkowie widzą **Zaktualizowano dokumenty prawne** z przyciskiem **Sprawdź Regulamin i DPA** oraz terminem, do którego trzeba je zaakceptować. Zaakceptować może tylko członek z rolą **Administrator**, zaznaczając pole wyboru i klikając **Zaakceptuj i kontynuuj**; pozostali widzą „Administrator firmy musi zaakceptować do” z tą datą. Jeśli nikt nie zaakceptuje w terminie, każda strona otwiera ten ekran, dopóki administrator nie zaakceptuje.
+
+## Członkowie [#members-tab]
+
+[Członkowie](app:settings/members) wyświetla wszystkich w przestrzeni roboczej z kolumnami **Nazwa**, **E-mail**, **Rola**, **Status**, **Zaktualizowano** i **Utworzono**. Wyszukuj i filtruj według statusu i dat w [Filtry](app:settings/members?focus=filter). Zapraszanie wymaga **Użytkownicy i role** **Tworzenie**; zatwierdzanie i edytowanie innych osób wymaga **Użytkownicy i role** **Edycja** z dostępem do odczytu **Wszystkie**.
+
+### Jak zapraszać ludzi i kiedy wygasa link zaproszenia? [#how-do-invitations-work]
+
+Kliknij [Dodaj](app:settings/members?focus=add) na stronie Członkowie (albo **Zaproś członków** w menu przestrzeni roboczej). Okno **Zaproś użytkownika** ma dwie karty:
+
+- **Udostępnij link** pokazuje jeden **Link zaproszenia** dla całej przestrzeni roboczej z przyciskiem kopiowania. Jest ważny 7 dni („Wygasa” z datą) i do tego czasu używany ponownie; przy pierwszym otwarciu okna po wygaśnięciu powstaje nowy link. Każdy, kto ma link, może się zarejestrować, a wcześniejsze unieważnienie linku nie jest możliwe.
+- **Wyślij e-maile** przyjmuje od 1 do 20 adresów, oddzielonych przecinkiem lub Enterem. **Wyślij zaproszenia** wysyła na każdy adres link do przestrzeni roboczej jednorazowo i potwierdza komunikatem „Wysłano 3 zaproszenia.” (z faktyczną liczbą). W planie Free okno zamiast tego pokazuje **Zespoły są dostępne od planu Starter** wraz z ceną, ponieważ Free ma miejsce na jedną aktywną osobę.
+
+Osoby, które się zarejestrują, dołączają ze statusem **Czeka na zatwierdzenie** i bez roli, a do czasu zatwierdzenia widzą **Oczekiwanie na zatwierdzenie**. Zatwierdzasz je na stronie [Członkowie](app:settings/members); dla każdego z uprawnieniem **Użytkownicy i role** **Edycja** menu przestrzeni roboczej, jego pozycja **Członkowie** i **Członkowie** w Ustawieniach pokazują, ile osób czeka. Rejestracja nie tworzy rekordu na żadnej liście. Wygasły lub zmieniony link pokazuje błąd z prośbą o nowy. Osoba, która ma już konto w Customermates, dołącza tym samym linkiem po zalogowaniu i tak samo czeka na zatwierdzenie; zobacz [dołączanie z istniejącym kontem](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
+
+### Jak zatwierdzić, edytować, dezaktywować lub usunąć członka? [#how-do-i-approve-deactivate-or-edit-a-member]
+
+W [Członkowie](app:settings/members) kliknij wiersz członka, aby otworzyć okno **Użytkownik**: **E-mail** (tylko do odczytu), **Imię**, **Nazwisko** i **Rola** (wymagana), **URL awatara** (opcjonalnie, publicznie dostępny obraz) oraz **Status**.
+
+- **Zatwierdzenie:** wybierz **Rola**, ustaw **Status** na **Aktywny** i kliknij **Zapisz**. Członek może od razu się zalogować i liczy się jako rozliczana licencja.
+- **Dezaktywacja:** ustaw **Status** na **Nieaktywny**. To blokuje jego dostęp do tej przestrzeni roboczej (widzi **Twój dostęp do … jest nieaktywny** z nazwą przestrzeni, a jego pozostałe przestrzenie robocze nadal są dostępne z menu przestrzeni roboczej), jego klucze API i połączenia MCP dla niej, usuwa jego licencję z rozliczeń, wstrzymuje jego rutyny, a codzienne zadanie usuwa jego połączone konta komunikacyjne. Ponowne ustawienie **Aktywny** go reaktywuje. **Czeka na zatwierdzenie** nie można wybrać; ustawia je tylko zaproszenie.
+- **Dostęp wstrzymany (plan Free):** członek wstrzymany przez plan Free. Tego statusu nie ustawisz samodzielnie; członek wraca, gdy przestrzeń robocza wybierze plan płatny, zobacz [co się dzieje, gdy kończy się okres próbny](#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+- **Usuń z przestrzeni roboczej:** kliknij **Usuń z przestrzeni roboczej** u góry okna albo w menu **Więcej działań** wiersza i potwierdź. Działa dla członków **Aktywny**, **Nieaktywny** i **Czeka na zatwierdzenie**; w przypadku członka oczekującego na zatwierdzenie odrzuca prośbę, a prośba znika z listy. Każdy inny usunięty członek jest widoczny jako **Opuścił(a)** i traci dostęp na każdym urządzeniu: jego klucze API i połączenia MCP dla tej przestrzeni roboczej zostają unieważnione, skrzynki pocztowe i konta LinkedIn, które tu połączył, zostają odłączone, jego rutyny są wstrzymywane, a licencja aktywnego członka zostaje zwolniona. Dostaje e-mail o usunięciu; odrzucona prośba żadnego nie wysyła. Rekordy tej osoby i ich historia pozostają. Członka, który odszedł, nie można reaktywować; aby wrócić, otwiera link zaproszenia i ponownie prosi o dołączenie, a ktoś z uprawnieniem **Użytkownicy i role** **Edycja** zatwierdza nową prośbę. Nie możesz usunąć siebie (zamiast tego opuść przestrzeń roboczą), jedynego aktywnego konta ostatniego operatora platformy Customermates ani ostatniego aktywnego członka z rolą **Administrator**: czynność jest wtedy niedostępna albo wyłączona z podaniem powodu.
+- Twój własny wiersz otwiera się tylko do odczytu: zmień swoje imię i nazwisko w [Profil i preferencje](app:settings/profile) i poproś innego członka z uprawnieniem **Użytkownicy i role** **Edycja** o zmianę Twojej roli lub statusu.
+- Zmiany, które tu wprowadzasz, dotyczą członka wyłącznie w tej przestrzeni roboczej; to, co członkowie zmieniają w swoim Profil i preferencje, obowiązuje w każdej przestrzeni roboczej, do której należą. Członkowie mogą też sami opuścić przestrzeń roboczą, zobacz [Jak opuścić przestrzeń roboczą?](/docs/app-workspaces#how-do-i-leave-a-workspace).
+- Przestrzeń robocza zawsze zachowuje co najmniej jednego członka **Aktywny** z rolą **Administrator**; zapis, który usunąłby ostatniego, kończy się błędem „Co najmniej jeden użytkownik musi być administratorem systemu.”
+
+Każdy zapis jest rejestrowany w [Dziennik audytu](app:settings/activity).
+
+## Role [#roles-tab]
+
+Rola to zestaw uprawnień, który dostaje każdy członek z tą rolą. [Role](app:settings/roles) wyświetla je z kolumnami **Nazwa**, **Typ** (**Systemowa** dla wbudowanej roli **Administrator**, **Niestandardowa** dla wszystkich pozostałych) i **Opis**. Tworzenie wymaga **Użytkownicy i role** **Tworzenie**, edycja **Edycja**, usuwanie **Usuń**. Bez **Użytkownicy i role** **Edycja** strona wyświetla tylko Twoją własną rolę, a jej dostęp do rekordów pokazuje tylko listy, które możesz odczytać. Każda rola może odczytać przestrzeń roboczą, jej plan i jej model danych, niezależnie od tego, jak rola została zapisana.
+
+### Jak utworzyć rolę niestandardową, na przykład aby ograniczyć członka do przypisanych rekordów? [#how-does-the-role-editor-work]
+
+Kliknij [Dodaj](app:settings/roles?focus=add) albo kliknij wiersz, aby edytować. Edytor **Rola** ma trzy karty; karta z nieprawidłowym polem ma czerwoną kropkę:
+
+- **Ogólne**: **Nazwa** (wymagana, do 255 znaków) i **Opis** (wymagany, do 500 znaków).
+- **Przestrzeń robocza**: jeden wiersz na każde uprawnienie przestrzeni roboczej w kolumnie **Zasób**.
+- **Typy rekordów**: jeden wiersz na każdą listę, pod jej aktualną nazwą. Listy w **Koszu** się nie pojawiają. Nowe role zaczynają bez dostępu do rekordów; nadaj tylko te listy, których potrzebują. Podlisty, takie jak Pozycje, dzielą dostęp swojego rekordu nadrzędnego i nie mają własnego wiersza.
+
+Każdy wiersz ma pola wyboru **Tworzenie**, **Edycja** i **Usuń** (pod **Zarządzanie** na wąskich ekranach) oraz **Dostęp do odczytu**: **Wszystkie** (wszystko, co obejmuje wiersz), **Przypisane** (rekordy przypisane członkowi albo jego własny wiersz członka lub rutyny) lub **Brak**. Komórka, która nie ma zastosowania, pokazuje myślnik. Edycja lub usunięcie rekordu wymaga też dostępu do tego rekordu.
+
+| Wiersz przestrzeni roboczej | Co kontroluje |
+|---|---|
+| **API i webhooki** | **Tworzenie** tworzy klucze API i webhooki oraz ponownie wysyła dostarczenia; **Edycja** edytuje webhooki i pokazuje ich tajny klucz; **Usuń** usuwa klucze i webhooki; **Wszystkie** pokazuje klucze, webhooki i dostarczenia. |
+| **Użytkownicy i role** | **Tworzenie** zaprasza członków i tworzy role (z ich początkowym dostępem do rekordów); **Edycja** edytuje i zatwierdza członków oraz edytuje role, w tym dostęp do rekordów i gotowe zestawy dostępu; **Usuń** usuwa role. **Wszystkie** pokazuje każdego członka i role, **Przypisane** tylko Twój własny wiersz członka, **Brak** ukrywa obie strony. |
+| **Firma** | Tylko **Edycja**: obsługuje rozliczenia na stronie [Rozliczenia](app:settings/billing). |
+| **Model danych** | Tylko **Edycja**: konfiguruje listy, pola, relacje i obliczenia, bez dostępu do rekordów i administrowania rolami. |
+| **Baza wiedzy** | **Tworzenie**, **Edycja** (i przenoszenie), **Usuń** stron; zaznaczenie któregokolwiek wymusza **Wszystkie**. |
+| **Dziennik aktywności** | Tylko odczyt: [Dziennik audytu](app:settings/activity) i historia zmian na rekordach. |
+| **Wiadomości w skrzynce odbiorczej** (chmura) | **Tworzenie** łączy konta oraz wysyła wiadomości, tworzy szkice i rozpoczyna rozmowy; **Edycja** zmienia konta, wątki, stan rozmów i powiązania z rekordami; **Usuń** odłącza konta i odrzuca szkice. Dodatkowo ograniczone planem. |
+| **Rutyny** (chmura) | **Tworzenie**, **Edycja** (oraz uruchamianie lub testowanie od razu), **Usuń**; usunięcie rutyny lub wstrzymanie cudzej wymaga też roli **Administrator**. **Wszystkie** lub **Przypisane** (własne rutyny). |
+| **Linki publiczne** | **Tworzenie**: publikowanie własnych widoków pulpitu i list przez link publiczny ([Pulpit](/docs/app-dashboard#public-links)). |
+
+Zapisanie nowej roli, webhooka lub rutyny wymaga **Tworzenie**, istniejącej **Edycja**. Gotowe zestawy dostępu definiują członkowie z uprawnieniem **Użytkownicy i role** **Edycja**; osoba zarządzająca Modelem danych może zastosować taki zestaw tylko przy tworzeniu listy, a rozszerzanie uprawnień na istniejących listach wymaga **Użytkownicy i role** **Edycja**. Wiadomości w skrzynce odbiorczej i Rutyny są ukryte w instalacjach samodzielnie hostowanych.
+
+### Czym jest rola Administrator? [#what-is-the-admin-role]
+
+Każda przestrzeń robocza zaczyna z jedną wbudowaną rolą, **Administrator**, nadaną osobie, która ją utworzyła. Przechodzi każdą kontrolę uprawnień, a jej edytor otwiera się tylko do odczytu z komunikatem „To jest rola systemowa i nie można jej edytować ani usunąć.” Przestrzeń robocza musi zachować co najmniej jednego członka **Aktywny** z tą rolą, a tylko jej członkowie mogą usuwać rutyny lub wstrzymywać cudze.
+
+### Jakie są zasady edycji ról? [#what-are-the-rules-for-editing-roles]
+
+- Nie możesz edytować własnej roli: jej edytor pokazuje „Ta rola jest przypisana do Ciebie i nie można jej edytować. Poproś innego administratora o zmianę.”
+- **Usuń** pojawia się tylko dla roli niestandardowej, której nie ma żaden członek, łącznie z nieaktywnymi. Najpierw przenieś wszystkich do innej roli i usuń rolę z gotowych zestawów dostępu.
+- Zmiany obowiązują każdego członka z tą rolą od jego następnego załadowania strony lub wywołania API i są rejestrowane w [Dziennik audytu](app:settings/activity).
+
+## Rozliczenia [#subscription-tab]
+
+[Rozliczenia](app:settings/billing) pokazują plan, status, licencje i płatności przestrzeni roboczej w chmurze; instalacje samodzielnie hostowane nie mają planu, a strona przekierowuje na Pulpit. Customermates rozlicza przez Lemon Squeezy, który obsługuje płatność i portal klienta. Każda przestrzeń robocza ma własny plan, subskrypcję, faktury i pulę kredytów hostowanej AI; zobacz [jak rozliczana jest każda przestrzeń robocza](/docs/app-workspaces#how-is-each-workspace-billed).
+
+| Pole | Co pokazuje |
+|---|---|
+| **Plan** | **Starter**, **Pro**, **Business**, **Max** lub **Enterprise** z plakietką statusu, synchronizowany z rozliczeń |
+| **Okres próbny kończy się** | Koniec bezpłatnego okresu próbnego, tylko gdy status to **Okres próbny** |
+| **Bieżący okres kończy się** | Data odnowienia, a po anulowaniu data zakończenia subskrypcji |
+| **Aktywne licencje** | Rozliczane licencje; przed pierwszą płatnością liczba członków **Aktywny** |
+| **Miejsce na pliki** | Miejsce zajmowane przez pliki w polach plikowych na tle limitu przestrzeni roboczej, na przykład **1,2 GB z 20 GB** |
+
+Pozycja **Rozliczenia** w menu przestrzeni roboczej pokazuje plan wraz ze statusem, na przykład **Pro · Okres próbny · zostały 3 dni** (tylko nazwę planu, gdy status to **Aktywna**), i otwiera Rozliczenia.
+
+### Kto może zarządzać rozliczeniami? [#who-can-manage-billing]
+
+Na stronie [Rozliczenia](app:settings/billing) role z uprawnieniem **Firma** **Edycja** oraz rola **Administrator** widzą wybór planu, **Zarządzaj w Lemon Squeezy** i **Odśwież**. Pozostali widzą wartości tylko do odczytu z podpowiedzią, aby poprosić administratora przestrzeni roboczej. Wiersz **Firma** ustawiasz w [Role](app:settings/roles). Pełny portal klienta Lemon Squeezy dostaje tylko administrator, który płaci za przestrzeń roboczą; zobacz [Jak anulować subskrypcję, zmienić metodę płatności lub pobrać faktury?](#how-do-i-cancel-change-the-payment-method-or-get-invoices).
+
+### Co oznacza każdy status subskrypcji? [#what-does-each-subscription-status-mean]
+
+Aplikacja ustawia **Okres próbny**, gdy konto tworzy swoją pierwszą przestrzeń roboczą w chmurze. Każda kolejna przestrzeń robocza utworzona przez to konto zaczyna bez okresu próbnego i pokazuje **Wybierz plan dla …**, dopóki plan nie zostanie wybrany ([która przestrzeń robocza dostaje bezpłatny okres próbny](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Każdy inny status pochodzi z Lemon Squeezy lub od pomocy technicznej Customermates.
+
+| Status | Skutek |
+|---|---|
+| **Okres próbny** | [[commercial.trial.days]] dni z funkcjami planu Pro; wszystko działa do daty **Okres próbny kończy się** |
+| **Aktywna** | Opłacona; działa wszystko, co obejmuje plan |
+| **Po terminie płatności**, **Anulowana** | Strony pozostają otwarte, ale Skrzynka odbiorcza i wiadomości, łączenie kanałów, współdzielone konta i hostowany asystent są odrzucane, a limit Mate spada do 0 |
+| **Nieopłacona**, **Wygasła** | Każda strona pokazuje **Wymagana subskrypcja** |
+
+Okres próbny po dacie zakończenia bez płatności jest traktowany jako wygasły. Odrzucone czynności na kanałach pokazują „Łączenie kanałów wymaga aktywnej subskrypcji lub okresu próbnego, który nie wygasł.”
+
+### Jakie są plany i ile kosztują? [#which-plans-are-there]
+
+| Plan | Cena za licencję miesięcznie | Połączone konta na użytkownika | Rutyny na użytkownika | Skrzynka odbiorcza i wiadomości | Współdzielone konta |
+|---|---|---|---|---|---|
+| Free | Bezpłatnie | [[commercial.entitlement.free.includedAccountsPerUser]] | [[commercial.entitlement.free.includedRoutinesPerUser]] | Nie | Nie |
+| Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | Nie | Nie |
+| Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Tak | Nie |
+| Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Tak | Tak |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Tak | Tak |
+| Enterprise | Na zapytanie | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Tak | Tak |
+
+Każdy plan płatny obejmuje pełne CRM, dziennik aktywności, API, serwer MCP i hostowanego asystenta. Free jest przypisany do przestrzeni roboczej i przeznaczony do samodzielnego wypróbowania Customermates: limit aktywnych osób to [[commercial.limit.free.maxMembers]], do [[commercial.limit.free.maxRecords]] rekordów i miejsce na pliki: [[commercial.limit.free.fileStorageBytes]], a API i MCP są ograniczone do [[commercial.limit.free.apiRequestsPerMinute]] żądań na minutę i [[commercial.limit.free.apiRequestsPerDay]] na dobę; nie ma skrzynki odbiorczej, hostowanego asystenta, rutyn, webhooków ani wyzwalacza n8n. Starter, Pro, Business i Max są rozliczane miesięcznie za licencję w euro; innego okresu rozliczeniowego nie ma. Hostowane kredyty AI na aktywnego użytkownika i miesiąc, pokazywane jako użycie Mate i jako wielokrotność limitu Starter: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise zgodnie z umową, 3x w okresie próbnym. Business daje najwięcej użycia za euro. Aplikacja pokazuje użycie jako procent Twojego miesięcznego limitu; zobacz [Plany i użycie Mate](/docs/app-assistant#plans-and-credits). Miejsce na pliki na aktywnego użytkownika, wspólne w przestrzeni roboczej: Starter [[commercial.storage.starter]], Pro [[commercial.storage.pro]], Business [[commercial.storage.business]], Max [[commercial.storage.max]], Enterprise zgodnie z umową, [[commercial.storage.pro]] w okresie próbnym. Po przekroczeniu limitu, na przykład po przejściu na niższy plan, nowe wgrania są odrzucane, a żaden plik nie jest usuwany; zobacz [Jak dołączyć pliki do rekordu?](/docs/app-records#how-do-i-attach-files-to-a-record).
+
+### Jak wybrać lub zmienić plan? [#how-do-i-choose-or-change-a-plan]
+
+Przed pierwszą płatnością (w praktyce w okresie próbnym) [wybór planu](app:settings/billing?focus=plan-picker) pokazuje karty **Starter**, **Pro** (**Najlepszy do follow-upów**), **Business** (**Dla zespołów**) i **Max** z ceną, funkcjami, połączonymi kontami, rutynami i użyciem Mate na użytkownika jako wielokrotnością Starter. Każda karta ma własny przycisk, na przykład **Wybierz Pro**, który otwiera płatność w Lemon Squeezy dla tylu licencji, ilu jest członków **Aktywny**; link do płatności wygasa po 15 minutach. Rozliczanie zaczyna się w momencie płatności, nawet gdy zostały dni okresu próbnego. Po zapłacie wracasz do Rozliczeń: dopóki Lemon Squeezy nie potwierdzi, do 15 minut, każdy administrator przestrzeni roboczej widzi „Płatność jest przetwarzana” zamiast kart, strona odświeża się sama, a druga płatność jest odrzucana. Link **Nie dokończono płatności** od razu przywraca karty; po 15 minutach, gdy link do płatności już wygasł, wracają one z komunikatem „Płatność jeszcze nie dotarła? Skontaktuj się z pomocą techniczną” na dobę.
+
+Po pierwszej płatności wybór planu już nie wraca: plan zmienia administrator, który płaci za przestrzeń roboczą, przez [Zarządzaj w Lemon Squeezy](app:settings/billing?focus=manage). Przestrzenie robocze Enterprise nigdy nie widzą wyboru planu.
+
+### Jak anulować subskrypcję, zmienić metodę płatności lub pobrać faktury? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
+
+Kliknij [Zarządzaj w Lemon Squeezy](app:settings/billing?focus=manage). Przycisk pojawia się, gdy przestrzeń robocza ma subskrypcję samoobsługową (nie w okresie próbnym przed płatnością, nigdy w Enterprise) i otwiera Lemon Squeezy w tej samej karcie. To, co się otworzy, zależy od tego, kto płaci za przestrzeń roboczą:
+
+- Administrator, który płaci, czyli ten, którego e-mail w Customermates jest adresem klienta subskrypcji Lemon Squeezy tej przestrzeni roboczej, dostaje pełny portal klienta: zmiana planu, aktualizacja metody płatności, pobieranie faktur i anulowanie.
+- Każdy inny członek, który może zarządzać rozliczeniami, dostaje tylko stronę danych płatniczych subskrypcji tej przestrzeni roboczej, aby zaktualizować kartę i dane rozliczeniowe.
+
+Aby anulować subskrypcję, zmienić plan lub pobrać faktury, poproś administratora, który płaci, o otwarcie portalu. Jeśli Lemon Squeezy nie ma takiej strony dla subskrypcji, Rozliczenia pokazują „Portal rozliczeń jest niedostępny dla tej przestrzeni roboczej. Skontaktuj się z pomocą techniczną, aby wprowadzić zmiany.”
+
+Zmiany w portalu trafiają do Customermates automatycznie. Jeśli Rozliczenia nadal pokazują stare wartości, [Odśwież](app:settings/billing?focus=refresh) ponownie odczytuje status, plan, licencje i daty („Subskrypcja została odświeżona”). Anulowanie jest widoczne jako **Anulowana**, z tymi samymi ograniczeniami co **Po terminie płatności**.
+
+### Jak liczone i rozliczane są licencje? [#how-are-seats-counted-and-billed]
+
+Licencja to członek ze statusem **Aktywny**; członkowie **Czeka na zatwierdzenie** i **Nieaktywny** nie są rozliczani. Licencje liczą się osobno w każdej przestrzeni roboczej: osoba **Aktywny** w kilku przestrzeniach roboczych jest rozliczaną licencją w każdej z nich, a opuszczenie przestrzeni roboczej zwalnia tam licencję. Płatność przyjmuje liczbę z tego momentu, a każda późniejsza zmiana statusu na stronie [Członkowie](app:settings/members) od razu wysyła nową liczbę do Lemon Squeezy: „Płacisz za każdego aktywnego użytkownika. Zmiany liczby licencji są rozliczane proporcjonalnie na następnej fakturze.” Aby obniżyć rachunek, ustaw członków, którzy nie potrzebują już dostępu, jako **Nieaktywny**. Licencje Enterprise nie są synchronizowane. Członkowie wstrzymani przez plan Free nie są rozliczani; gdy płatny plan ich przywraca, znów liczą się jako licencje, a nowa liczba trafia do Lemon Squeezy.
+
+### Co się dzieje, gdy kończy się okres próbny lub płatność się nie powiedzie? [#what-happens-when-the-trial-ends-or-a-payment-fails]
+
+Gdy status to **Nieopłacona** lub **Wygasła**, każda strona pokazuje **Wymagana subskrypcja** („Dostęp do przestrzeni roboczej jest wstrzymany”). Role z uprawnieniem **Firma** **Edycja** dostają wybór planu, aby rozpocząć nową płatność (Enterprise: informację o ręcznych rozliczeniach), który po płatności pokazuje „Płatność jest przetwarzana” tak samo jak Rozliczenia; pozostali widzą „Administrator firmy musi przywrócić subskrypcję”. **Skontaktuj się z pomocą** wysyła e-mail do pomocy technicznej, **Spróbuj ponownie** przeładowuje stronę. Gdy subskrypcja znów jest używalna, trafiasz na Rozliczenia.
+
+Gdy okres próbny kończy się bez płatności albo plan płatny kupiony po jego wygaśnięciu wygasa, przestrzeń robocza, która miała okres próbny, przechodzi na plan Free zamiast zostać wstrzymana, a nic nie jest usuwane. Free zachowuje limit aktywnych osób: [[commercial.limit.free.maxMembers]]; jest to członek, który utworzył przestrzeń roboczą, w przeciwnym razie członek, którego e-mail za nią płaci, a w przeciwnym razie najwcześniejszy administrator. Każdy inny aktywny członek jest widoczny w [Członkowie](app:settings/members) jako **Dostęp wstrzymany (plan Free)** i dostaje jeden e-mail. Wstrzymany członek nie może otworzyć przestrzeni roboczej i widzi „Ta przestrzeń robocza jest w planie Free” z nazwą osoby, do której ma się zwrócić, a jego rekordy i historia zostają, a pozostałe przestrzenie robocze nadal są dostępne. Otwarte linki zaproszeń i prośby o dołączenie są anulowane, rutyny pokazują **Wstrzymana, plan Free**, istniejące webhooki przestają wysyłać, a połączone konta są usuwane, ponieważ Free nie ma skrzynki odbiorczej. Istniejące dane ponad limit Free zostają; odrzucane jest tylko dodawanie kolejnych. W planie Free Rozliczenia pokazują wykorzystanie na tle limitów (osoby, rekordy, miejsce na pliki i limity API) oraz ile osób jest wstrzymanych, a administratorzy widzą baner w rodzaju „2 osoby są wstrzymane. Wybierz plan Starter, aby przywrócić ich dostęp.” Administrator może oddać aktywne miejsce wstrzymanemu administratorowi przez **Przekaż aktywne miejsce** w menu **Więcej działań** tego członka, co wstrzymuje administratora, który to robi; aby przekazać je komuś bez roli **Administrator**, najpierw nadaj mu tę rolę. Gdy tylko przestrzeń robocza wybierze dowolny plan płatny, każdy wstrzymany członek znów jest aktywny, rutyny wznawiają działanie, a webhooki znów dostarczają. Członkowie ustawieni przez administratora jako **Nieaktywny** pozostają nieaktywni.
+
+Przestrzeń robocza bez okresu próbnego, której plan płatny wygasł, przestrzeń robocza, która pozostaje **Nieopłacona**, lub wygasła przestrzeń Enterprise ma wszystkich członków ustawionych jako **Nieaktywny** po 3 dniach, a ich połączone konta są usuwane. Do tego czasu wstrzymana jest tylko aplikacja webowa: klucze API i połączenia MCP nadal działają, a webhooki nadal są wysyłane, natomiast wiadomości, kanały i hostowany asystent przestają działać natychmiast.
+
+### Co dzieje się z połączonymi kontami, gdy zmienia się plan? [#what-happens-to-connected-accounts-when-the-plan-changes]
+
+Gdy Lemon Squeezy zgłasza inny plan, Customermates usuwa najnowsze połączone konta każdego użytkownika ponad nowy limit. Starter obejmuje [[commercial.entitlement.starter.includedAccountsPerUser]] na użytkownika, więc każde konto zostaje usunięte; pierwsza płatność po okresie próbnym liczy się jako zmiana z planu Pro. Członkowie z rolą **Administrator** dostają e-mail z listą usuniętych kont; pozostałe zostają w [Kanały i kalendarze](app:settings/channels). Rutyny ponad limit są zachowywane, ponieważ limit obowiązuje tylko przy tworzeniu rutyny. Gdy nowy plan nie ma współdzielonych kont (każdy poniżej Business), każdy kanał udostępniony przestrzeni roboczej znów staje się **Prywatne** dla swojego właściciela, a późniejsze przejście na wyższy plan nie udostępnia go ponownie.
+
+### Czym różni się przestrzeń robocza Enterprise? [#how-does-an-enterprise-workspace-differ]
+
+Enterprise jest konfigurowany z Customermates i rozliczany fakturą. Rozliczenia pokazują tylko **Plan** i „Ta przestrzeń robocza korzysta z planu Enterprise rozliczanego fakturą. Skontaktuj się ze swoim opiekunem konta, aby wprowadzić zmiany.” Samoobsługowa płatność jest odrzucana, a zmiany statusu członków nie są wysyłane do rozliczeń.
+
+### Dokąd prowadzą przyciski ulepszenia planu? [#where-do-upgrade-buttons-lead]
+
+W planie Starter [Skrzynka odbiorcza](app:inbox) i [Kanały i kalendarze](app:settings/channels) pokazują „Ulepsz plan, aby odblokować wiadomości” z przyciskiem **Ulepsz plan**. Przy limicie połączonych kont użytkownicy planu Pro widzą **Przejdź na wyższy plan, aby połączyć więcej kont** z przyciskiem **Zobacz plany**, tak samo jak komunikat o użyciu hostowanego asystenta. Wszystkie otwierają [Rozliczenia](app:settings/billing), gdzie działać mogą tylko role z uprawnieniem **Firma** **Edycja**.
+
+## Dziennik audytu: gdzie znajdę historię zmian? [#activity-tab]
+
+[Dziennik audytu](app:settings/activity) to dziennik zdarzeń przestrzeni roboczej: kto zmienił który rekord, ustawienie lub konfigurację i kiedy, od najnowszych. Każdy wpis pokazuje poprzednią i bieżącą wartość w tekście; te same wpisy pojawiają się w widoku **Aktywności** rekordu, na przykład kontaktu, w widżecie aktywności na pulpicie i w Mate. Filtruj według rodzaju:
+
+- **Zmiany rekordów**: tworzenie, aktualizacje i usunięcia rekordów z wartościami pól.
+- **Administracja i system**: członkowie, role, webhooki, rutyny, połączone konta, strony Bazy wiedzy, informacje prawne i eksporty. Tajne klucze webhooków i wartości nagłówków są zredagowane.
+- **Konfiguracja**: listy, pola, relacje i dostęp do rekordów według ról. Te wpisy widzą tylko role z uprawnieniem **Model danych** **Edycja** lub **Użytkownicy i role** **Edycja**.
+
+Odczyt wymaga **Dziennik aktywności** dostępu do odczytu **Wszystkie**. Zmiany rekordów podlegają Twojemu dostępowi do rekordów, a wpisy Bazy wiedzy wymagają dostępu do odczytu Bazy wiedzy. Kliknij wpis, aby zobaczyć szczegóły; zapisuj widoki tak jak na listach. Zmiana wykonana przez klucz API lub agenta AI połączonego przez MCP wymienia klucz lub aplikację po osobie, na przykład „Max Bergmann przez Claude Desktop”. Wpisy są przechowywane bezterminowo, wiadomości nigdy się tu nie pojawiają, a historia zaczyna się od przejścia na konfigurowalne rekordy. Dostępne w każdym planie i w instalacjach samodzielnie hostowanych.
+
+## Webhooki [#webhooks-tab]
+
+[Webhooki](app:settings/webhooks) wysyłają zdarzenia przestrzeni roboczej do Twoich systemów; dane, podpisy i ponowienia opisuje strona [Webhooki](/docs/webhooks). Otwarcie wymaga **API i webhooki** dostępu do odczytu **Wszystkie**; dodawanie wymaga **Tworzenie**, edycja **Edycja**, usuwanie **Usuń**. Dostępne w każdym planie płatnym i w instalacjach samodzielnie hostowanych, nie w planie Free.
+
+Kliknij [Dodaj](app:settings/webhooks?focus=add) albo wiersz, aby edytować. Okno **Webhook** zawiera **URL**, **Opis**, **Zdarzenia**, **Tajny klucz**, **Niestandardowe nagłówki**, **Szablon treści** i **Włączony**. Dla zdarzeń rekordów wybierasz też listy i filtry oraz **Właściciel dostępu do rekordów**: dostarczenia używają bieżących uprawnień tego członka, a kogoś innego może wybrać tylko administrator. Wyczyszczenie **Włączony** wstrzymuje dostarczanie bez usuwania webhooka. Bez **Edycja** tajny klucz i wartości nagłówków pokazują się jako `********`. **Usuń** prosi o potwierdzenie; wcześniejsze dostarczenia zostają. Wyszukiwanie w [Filtry](app:settings/webhooks?focus=filter) dopasowuje URL.
+
+### Gdzie zobaczę dostarczenia webhooków? [#deliveries-tab]
+
+[Dziennik webhooków](app:settings/webhook-deliveries), bezpośrednio pod pozycją **Webhooki** w nawigacji ustawień, wyświetla po jednym wierszu na dostarczenie, od najnowszych, z kolumnami **URL**, **Zdarzenie**, **Element**, **Status**, **Kod statusu** i **Utworzono**. Kliknij wiersz, aby zobaczyć **Szczegóły zdarzenia**: status (**Oczekuje**, **Wysyłanie**, **Dostarczono** lub **Niepowodzenie**), kod statusu, komunikat odpowiedzi i dane. Dane zdarzenia rekordu są odczytywane ponownie z Twoim bieżącym dostępem: wartości, których nie możesz odczytać, pojawiają się jako ograniczone, a gdy nie możesz odczytać rekordu, dane pozostają puste. **Wyślij ponownie** (dostarczenia zakończone powodzeniem lub niepowodzeniem, **API i webhooki** **Tworzenie**) tworzy nowe dostarczenie z bieżącym URL, tajnym kluczem, nagłówkami i szablonem treści webhooka. Zdarzenie rekordu jest odczytywane ponownie z bieżącym dostępem właściciela webhooka i tylko ten właściciel lub administrator może je wysłać ponownie; szczegóły są na stronie [Webhooki](/docs/webhooks#how-do-i-resend-a-delivery).
+
+## Gdzie ustawia się walutę? [#where-is-the-currency-set]
+
+Nie ma waluty przestrzeni roboczej: każde pole kwotowe ma własną. Otwórz [Model danych](app:configure), otwórz listę i pole kwotowe, a następnie wybierz **Waluta**. Konfiguracja przestrzeni roboczej z pomocą AI tworzy pola kwotowe w walucie wybranej w jej pytaniach; pole kwotowe dodane przez Ciebie zaczyna w EUR. Zmiana waluty pola nie przelicza zapisanych kwot, a sumy mieszające waluty pokazują niezgodność walut zamiast sumy. Konfigurowanie pól wymaga **Model danych** **Edycja**.
+
+### Jak działają prawdopodobieństwa etapów i sumy? [#how-do-stage-probabilities-and-totals-work]
+
+W [Model danych](app:configure) otwórz listę szans sprzedaży, otwórz jej pole etapu i ustaw **Prawdopodobieństwo %** przy każdej opcji; konfiguracja przestrzeni roboczej z pomocą AI wypełnia je na podstawie szansy wygranej na każdym etapie. Pole wartości ważonej mnoży wartość szansy sprzedaży przez prawdopodobieństwo etapu podzielone przez 100; zero daje zero, brak prawdopodobieństwa zostawia pole puste. Zmiany pokazują podgląd zależności i przeliczają dotknięte rekordy. Aby zobaczyć sumy pipeline'u, dodaj widżet wykresu na [Pulpit](app:dashboard), który sumuje wartość szansy sprzedaży lub wartość ważoną, w razie potrzeby pogrupowane według etapu. Zobacz [pipeline ważony](/docs/concepts#how-does-a-weighted-pipeline-work).
+
+### Jak zmienić nazwę listy, na przykład Szanse sprzedaży? [#how-do-i-rename-record-types-in-the-data-model]
+
+Otwórz listę w [Model danych](app:configure), zmień **Nazwa** i **Nazwa w liczbie mnogiej** w sekcji **Ogólne** i kliknij **Zapisz**. Nazwę można zmienić na każdej liście; rekordy, powiązania, widoki, widżety i odwołania API pozostają połączone. Nazwy list muszą być unikalne, bez względu na wielkość liter i znaki diakrytyczne. Usunięcie listy przenosi ją do **Kosz**, skąd przez 30 dni możesz ją przywrócić przyciskiem **Przywróć** lub usunąć za pomocą **Usuń trwale**.
+
+## Dla agentów [#tips-for-agents]
+
+Preferuj narzędzia [MCP](/docs/mcp): `manage_team` zaprasza przez e-mail lub zwraca link zaproszenia (`invite_link`), oba z zatwierdzeniem, aktualizuje członków (`update_member`, identyfikacja przez `userId` lub `email` (oba muszą się zgadzać, jeśli podano oba); z zatwierdzeniem, gdy zmienia rolę lub status; dla **Czeka na zatwierdzenie** przekaż `roleId` i status `active`) i usuwa ich z przestrzeni roboczej (`remove_member`, przez `userId` lub `email`, z zatwierdzeniem), `list_users` odczytuje członków, `manage_roles` odczytuje i zapisuje role z bieżącą rewizją (zasoby `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; akcje `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` zarządza webhookami i dostarczeniami, `get_activities` z pustym zakresem odczytuje dziennik aktywności, a `get_record_model` i `configure_record_model` zmieniają listy, waluty i obliczenia. Przez REST `POST /api/v1/members/invite` wysyła zaproszenia (1 do 20 adresów), `POST /api/v1/members/invite-link` zwraca link zaproszenia i jego termin ważności, `POST /api/v1/members/update` zmienia rolę i status innego członka; wskaż członka przez `userId` lub `email` i wyślij pola do zmiany; pominięte pola zachowują wartości. `POST /api/v1/members/remove` usuwa innego członka z przestrzeni roboczej, wskazanego w ten sam sposób. `POST /api/v1/roles/list` wyświetla role z ich uprawnieniami; bez **Użytkownicy i role** **Edycja** zwraca tylko Twoją własną rolę. Rozliczenia i klucze API zostają w aplikacji z założenia: żadne narzędzie nie odczytuje ani nie zmienia planu; skieruj użytkownika do [Rozliczenia](app:settings/billing).
+
+## Powiązane [#related]
+
+- [Webhooki](/docs/webhooks)
+- [Przewodnik po aplikacji, Profil](/docs/app-profile)
+- [Przestrzenie robocze](/docs/app-workspaces)
+- [Plany i użycie Mate](/docs/app-assistant#plans-and-credits)

@@ -17,6 +17,9 @@ const EXPECTED_LAYOUT_COPY = {
   es: { country: "Alemania", tagline: "El CRM de código abierto para el seguimiento de clientes" },
   fr: { country: "Allemagne", tagline: "Le CRM open source pour relancer vos clients" },
   it: { country: "Germania", tagline: "Il CRM open source per seguire ogni cliente" },
+  nl: { country: "Duitsland", tagline: "De open-source CRM voor het opvolgen van klanten" },
+  pl: { country: "Niemcy", tagline: "CRM open source do pilnowania kontaktu z klientami" },
+  pt: { country: "Alemanha", tagline: "O CRM de código aberto para o acompanhamento de clientes" },
 } satisfies Record<AppLocale, { country: string; tagline: string }>;
 
 const verifyEmailCopy = {

@@ -1,0 +1,435 @@
+---
+title: "Customermates: het open source CRM voor klantopvolging"
+description: "Customermates open source CRM: elk klantgesprek opvolgen met LinkedIn en e-mail bij de klant, een volgende stap met datum en concepten van Mate."
+rootMetadata:
+  defaultTitle: "Customermates: elke klant opvolgen | Open source AI-CRM"
+  defaultDescription: "Elk klantgesprek opvolgen: LinkedIn- en e-mailthreads bij de klant, een volgende stap met datum en concepten van Mate die jij nakijkt en verstuurt."
+
+hero:
+  title: Volg elk klantgesprek op.
+  subtitle: Koppel LinkedIn en e-mail. Mate of je eigen AI-agent schrijft elk antwoord en de volgende stap, en jij leest ze na en verstuurt ze op één plek.
+  primaryCta:
+    label: Start je proefperiode van [[commercial.trial.days]] dagen
+    href: /auth/signup?job=followup
+  secondaryCta:
+    label: Bekijk de film (70 s)
+    href: "#film"
+  assurance: Geen creditcard · Open source (AGPL) · Database in Frankfurt · Werkt met je Claude of ChatGPT
+
+generator:
+  eyebrow: Begin met één beschrijving
+  title: Eén beschrijving. Een werkruimte die je agent bouwde.
+  description: Zo bouwt de setup een werkruimte uit één zin. Voorbeeldgegevens, het echte product.
+  promptLabel: Je beschrijving aan Mate
+  arrowLabel: werd deze werkruimte
+  steps:
+    - title: "Beschrijf je bedrijf"
+      description: "Eén zin over je team, je klanten en hoe je verkoopt."
+    - title: "Mate bouwt het"
+      description: "Mate stelt een paar vragen en maakt dan de lijsten, pipeline, dashboard en playbook."
+    - title: "Ga ermee aan de slag"
+      description: "Koppel LinkedIn en e-mail. Klik hieronder door een afgewerkt voorbeeld."
+  items:
+    - solution: consultants
+      label: Consultancy
+      prompt: We zijn een strategisch adviesbureau van vier personen. Houd klanten, opdrachten en voorstellen bij en help ons om prospects op LinkedIn op te volgen.
+      href: /for/consultants
+      linkLabel: Customermates voor consultancy
+    - solution: agencies
+      label: Agency
+      prompt: We zijn een designbureau. Houd pitches, retainers en projecten bij en draag elke nieuwe klant over van sales naar delivery.
+      href: /for/agencies
+      linkLabel: Customermates voor agencies
+    - solution: smb
+      label: Klein bedrijf
+      prompt: We zijn een klein B2B-dienstverlenend bedrijf. Bewaar klanten, offertes en gesprekken op één plek en laat ons op het dashboard zien wie we terug moeten bellen.
+      href: /for/smb
+      linkLabel: Customermates voor het mkb
+    - solution: freelancers
+      label: Zzp'er
+      prompt: Ik ben freelance developer. Houd klanten, projecten en opvolgmomenten bij, zodat geen lead koud wordt terwijl ik aan het opleveren ben.
+      href: /for/freelancers
+      linkLabel: Customermates voor zzp'ers
+    - solution: startups
+      label: Founder-led sales
+      prompt: We zijn twee founders die onze software zelf verkopen. Houd leads, demo's en proefperiodes bij en help ons na elk gesprek op te volgen.
+      href: /for/startups
+      linkLabel: Customermates voor startups
+    - solution: linkedin-crm
+      label: Verkopen via LinkedIn
+      prompt: Ik verkoop via LinkedIn. Zet elk gesprek naast de bijbehorende deal, schrijf mijn follow-ups en laat zien wie op een antwoord wacht.
+      href: /features/linkedin-integration
+      linkLabel: LinkedIn CRM-koppeling
+
+followUp:
+  eyebrow: Elk antwoord afgehandeld
+  title: "Daarna loopt het met je mee. Antwoorden als concept, volgende stappen op je dashboard."
+  description: "Als een klant schrijft, stelt Mate het antwoord op volgens je playbook en zet de volgende stap op je dashboard. Jij leest na, past aan en verstuurt."
+  desk:
+    label: Voorbeeldscène van opvolging met demogegevens
+    workspace: Lindqvist Advisory
+    conversation:
+      label: LinkedIn
+      name: Jonas Weber
+      company: Halden & Co.
+      time: vr 16:42
+      message: Klinkt goed. Kun je volgende week de aangepaste scope sturen? Dan neem ik die mee naar ons bestuur.
+    agent:
+      name: Mate
+      intent: Schrijft een antwoord op basis van je voorstel-playbook
+      done: Concept opgeslagen. Volgende stap toegevoegd aan je dashboard.
+    draft:
+      badge: Concept, wacht op jouw beoordeling
+      text: Hoi Jonas, bedankt. Dinsdag stuur ik de aangepaste scope, met de twee workshopopties die we bespraken. Groet, Anna
+      edit: Bewerken
+      send: Concept versturen
+    today:
+      title: Dashboard
+      date: dinsdag
+      addedBy: Toegevoegd door Mate
+      assign: Toewijzen
+      sections:
+        - title: Volgende stappen die aan de beurt zijn
+          items:
+            - title: Aangepaste scope sturen
+              meta: Halden & Co. · vandaag aan de beurt
+              owner: AL
+              state: added
+            - title: Getekend voorstel navragen
+              meta: Norrland Studio · 2 dagen te laat
+              owner: AL
+              state: overdue
+        - title: Voorstellen die op antwoord wachten
+          items:
+            - title: Voorstel Norrland Studio
+              meta: 5 dagen geleden verstuurd
+              owner: AL
+              state: due
+
+pillars:
+  eyebrow: Zo werkt het
+  title: Alles wat je opvolging nodig heeft, op één plek. Vier onderdelen die samenwerken.
+  description: Je kennis, je klantgegevens en je gesprekken staan bij elkaar, zodat elke agent die je helpt met dezelfde feiten werkt.
+  knowledge:
+    title: Kennis
+    description: Playbooks, prijzen en hoe je werkt, één keer opgeschreven. Mate en gekoppelde agents gebruiken de pagina's die hun rechten toestaan.
+    plan: Elk abonnement
+    doc:
+      title: Voorstel-playbook
+      lines:
+        - Stuur binnen twee werkdagen een aangepaste scope.
+        - Bied altijd twee workshopopties aan.
+        - Onderteken met de voornaam van de consultant.
+      usedBy: Gebruikt voor het concept aan Jonas Weber
+  data:
+    title: Data
+    description: Klanten, deals en elke lijst die je bedrijf nodig heeft, met je eigen velden, fases en weergaven.
+    plan: Elk abonnement
+    lists:
+      - Klanten
+      - Opdrachten
+      - Voorstellen
+    record:
+      name: Halden & Co.
+      fields:
+        - label: Fase
+          value: Voorstel verstuurd
+        - label: Waarde
+          value: € 18.400
+        - label: Volgende stap
+          value: Aangepaste scope sturen · di
+        - label: Eigenaar
+          value: Anna Lindqvist
+  inbox:
+    title: Inbox
+    description: E-mail en LinkedIn, plus WhatsApp, Instagram en Telegram, naast de klant waar elk gesprek bij hoort.
+    plan: Cloud, vanaf Pro
+    thread:
+      name: Jonas Weber
+      preview: Klinkt goed. Kun je volgende week de aangepaste scope sturen?
+      linkedTo: Gekoppeld aan Halden & Co.
+  agents:
+    title: Agents
+    description: Mate is ingebouwd. Of koppel de AI die je al betaalt, en die werkt met dezelfde records en regels.
+    plan: Elk abonnement, Mate in betaalde Cloud-abonnementen
+    clients:
+      - name: Mate
+        detail: Ingebouwd, in Customermates Cloud
+      - name: Claude
+        detail: Aangepaste connector
+      - name: ChatGPT
+        detail: Aangepaste connector
+      - name: Cursor, Codex, Gemini CLI
+        detail: API-sleutel
+
+proofAndPartners:
+  proof:
+    eyebrow: Gebouwd op ons eigen werk
+    title: We draaien onze eigen sales op Customermates.
+    description: Onze prospects, partners en gesprekken staan in een Customermates-werkruimte. AI-agents die via MCP gekoppeld zijn, bereiden de antwoorden en opvolgingen voor. We keuren elke nieuwe soort bericht één keer goed, en vergelijkbare berichten volgen de regels die we goedkeurden.
+    steps:
+      - Er komt een antwoord binnen op LinkedIn of per e-mail
+      - Een agent schrijft het antwoord en de volgende stap
+      - Een nieuwe soort bericht wacht op onze goedkeuring
+    note: Hetzelfde product waarmee jij vandaag begint.
+  partners:
+    eyebrow: Voor VA's, agencies en automatiseringsbouwers
+    title: Doe de opvolging voor je klanten.
+    description: Zet per klant één werkruimte op, koppel hun kanalen en laat agents het werk voorbereiden dat jij aflevert.
+    points:
+      - Tot [[commercial.workspaces.creationLimit]] werkruimtes per login, één per klant
+      - Je eigen agents en recepten via MCP
+      - 35% commissie op betalingen van kwalificerende abonnementen
+    cta:
+      label: Bekijk het partnerprogramma
+      href: /affiliate
+
+plansTeaser:
+  eyebrow: Prijzen
+  title: Eenvoudige prijzen per gebruiker. Begin met [[commercial.trial.days]] dagen Pro.
+  description: Eén maandprijs per persoon, in euro. Je eigen Claude- of ChatGPT-abonnement blijft bij de aanbieder.
+  perSeat: per persoon/maand
+  cta: Start je proefperiode van [[commercial.trial.days]] dagen
+  ctaHref: /auth/signup?job=followup
+  compareLabel: Alle abonnementen vergelijken
+  compareHref: /pricing
+  items:
+    - name: Starter
+      price: "[[commercial.price.starter.monthly]]"
+      job: Je werkruimte en je eigen AI
+      points:
+        - Lijsten, pipeline, dashboards en Kennisbank
+        - MCP voor Claude, ChatGPT en Cursor
+        - Geen inbox of gekoppelde accounts
+    - name: Pro
+      price: "[[commercial.price.pro.monthly]]"
+      job: Volg op vanuit LinkedIn en e-mail
+      badge: Beste voor opvolging
+      points:
+        - Gecombineerde inbox, [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per persoon
+        - Mate schrijft antwoorden, 3x het gebruik van Starter
+        - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per persoon"
+    - name: Business
+      price: "[[commercial.price.business.monthly]]"
+      job: Teams die inboxen delen
+      points:
+        - "[[commercial.entitlement.business.includedAccountsPerUser]] gekoppelde accounts per persoon"
+        - Deel een heel account met het team
+        - 10x het gebruik van Starter, prioritaire support
+
+flow:
+  eyebrow: Zo werkt het
+  title: Minder overtypen in het CRM. Meer context erin.
+  steps:
+    - title: Richt de records in die je nodig hebt
+      description: Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt AI-setup lijsten, fases, een dashboard en Kennisbank-pagina's uit je beschrijving, binnen de creditlimiet. Of maak lijsten en velden in het Datamodel en importeer een Excel-werkmap.
+    - title: Gesprekken naast de contactpersoon
+      description: In Customermates Cloud vanaf Pro verschijnen threads uit e-mail, LinkedIn, WhatsApp, Instagram en Telegram bij de contactpersoon van wie het e-mailadres, telefoonnummer of LinkedIn-profiel overeenkomt. Jij of Mate koppelt een thread aan een deal of organisatie als hij daar hoort.
+    - title: AI bereidt de volgende stap voor
+      description: Mate, binnen de credits van je abonnement op Customermates Cloud, of je eigen AI-client via MCP beantwoordt vragen en schrijft antwoorden, en Mate voert ook routines uit. Concepten wachten in het gesprek op jouw beoordeling; als je Mate vraagt te versturen, verstuurt Mate zonder aparte bevestiging.
+
+howItWorks:
+  eyebrow: Je eigen AI
+  title: Gebruik Claude of ChatGPT met je CRM.
+  handoff:
+    eyebrow: Menselijke controle
+    title: Antwoorden als concept, klaar voor jouw beoordeling.
+    description: Een concept wacht in het gesprek tot jij het aanpast of verstuurt. In Customermates Cloud kan een routine elke ochtend concepten klaarzetten, zodat antwoorden klaarstaan als je de inbox opent.
+    alt: E-mailthread met Jeroen Fennema die eindigt in een opgeslagen conceptantwoord met een knop Concept versturen, met demogegevens
+  steps:
+    - n: "01"
+      title: Log in met Google of e-mail
+      description: Eén klik. Geen gedoe met verificatiemails. Je zit meteen in Customermates.
+    - n: "02"
+      title: Voeg Customermates toe aan Claude of ChatGPT
+      description: Voeg een aangepaste connector toe, plak de URL van het MCP-endpoint van Customermates en log in. De client en het model hebben hun eigen setup, abonnement en gegevensverwerking.
+    - n: "03"
+      title: Of gebruik een API-sleutel in opdrachtregel- en editorclients
+      description: Maak voor clients zoals Claude Code, Codex of Cursor een API-sleutel in Customermates, houd die geheim en voeg een kort JSON-blok toe aan de MCP-configuratie van de client.
+    - n: "04"
+      title: Stel je AI-client vragen over je CRM-gegevens
+      description: "De client gebruikt de MCP-tools die Customermates aanbiedt, binnen jouw rechten, in elk abonnement en op zelf gehoste instanties. Controleer de wijzigingen in het CRM; of de client eerst vraagt voordat hij iets doet, hangt van de client af."
+
+walkthrough:
+  badge: Gecombineerde inbox
+  title: Elk kanaal,
+  titleAccent: één klantverhaal.
+  alt: De inbox van Customermates met gesprekken uit e-mail, LinkedIn, WhatsApp, Instagram en Telegram naast één open thread, met demogegevens
+  bullets:
+    - title: Ondersteunde kanalen, één inbox
+      description: E-mail via Gmail, Outlook of IMAP, LinkedIn inclusief ondersteunde chats van Sales Navigator en Recruiter, WhatsApp, Instagram en Telegram. In Customermates Cloud vanaf Pro; Starter en zelf gehoste instanties hebben geen gekoppelde accounts.
+    - title: Gekoppeld aan de juiste persoon
+      description: Een thread verschijnt bij de contactpersoon van wie het e-mailadres, telefoonnummer of LinkedIn-profiel overeenkomt. Hem koppelen aan een deal of organisatie is een bewuste stap, door jou of door Mate.
+    - title: Gedeeld zoals je team werkt
+      description: Op Pro werkt iedereen in de eigen accounts en kan losse threads delen. Business en hoger kunnen een heel gekoppeld account met het team delen.
+
+pipelineStory:
+  eyebrow: Pipeline en rapportage
+  title: Zie de echte waarde achter elke stap.
+  description: Met deals, notities en gekoppelde gesprekken op dezelfde records blijven de pipeline en het dashboard dicht bij hoe het er echt voor staat.
+  points:
+    - Weergaven als tabel en kanban
+    - Dealwaarde en gewogen waarde op basis van de kans per fase
+    - Dashboards op basis van je eigen gegevens
+  capture:
+    title: Pipeline.
+    alt: Dealbord met de fases Nieuw, Gekwalificeerd, In gesprek en Offerte verstuurd, met demogegevens
+
+routines:
+  eyebrow: Routines
+  title: Terugkerend werk, klaar voordat je begint.
+  description: In Customermates Cloud laten routines Mate op een schema draaien of wanneer er iets verandert, zoals een pipelineoverzicht op maandag, conceptantwoorden op nieuwe e-mails of een controle op dubbele records. Elke uitvoering gebruikt gehoste AI-credits uit het tegoed van je abonnement, en routines zijn niet beschikbaar op zelf gehoste instanties.
+  points:
+    - Op een schema, zoals elke maandag om 8:00
+    - Of wanneer een record of bericht verandert
+    - Elke routine draait als zijn eigenaar, binnen diens rechten
+  alt: Lijst met routines met eigenaars, schema's, triggers en laatste uitvoeringen, met demogegevens
+
+benefits:
+  badge: Waarom Customermates
+  title: Wat de werkruimte dekt
+  subtitle: Configureerbare klantrecords, ondersteunde gesprekken en open interfaces. De inbox en Mate draaien op Customermates Cloud; de CRM-kern kun je ook zelf hosten.
+  groups:
+    - title: Klantcontext
+      description: Ondersteunde gesprekken naast contactpersonen, gekoppelde records en notities.
+    - title: Flexibele werkprocessen
+      description: Lijsten, velden en weergaven die je zelf inricht.
+    - title: Externe AI
+      description: Externe AI-clients werken via toegestane MCP-acties.
+    - title: Rapportage
+      description: CRM-gegevens als dashboards, widgets en gegroepeerde weergaven.
+    - title: Open interfaces
+      description: REST, webhooks en je eigen, apart beheerde n8n.
+    - title: Beheer en hosting
+      description: Rollen, beheerde cloud of een zelf gehoste kern.
+  metrics:
+    - figure: "5"
+      label: kanaalsoorten in de inbox · Cloud, vanaf Pro
+    - figure: MCP
+      label: externe AI-clients voeren toegestane CRM-acties uit
+    - figure: AGPL-3.0
+      label: open source CRM-kern
+    - figure: EU
+      label: regio van de clouddatabase (AWS Frankfurt)
+    - figure: DE
+      label: Gemaakt in Duitsland
+  benefits:
+    - icon: Sparkles
+      title: Externe AI-clients bedienen het CRM
+      description: Ondersteunde externe clients kunnen in elk abonnement toegestane CRM-acties uitvoeren via MCP. Hun modellen, abonnementen, verbruik en gegevensverwerking door de aanbieder staan daar los van.
+    - icon: Inbox
+      title: Gecombineerde inbox
+      description: Ondersteunde berichten uit e-mail, LinkedIn, WhatsApp, Instagram en Telegram in één inbox op Customermates Cloud. Pro dekt je eigen accounts en gedeelde threads; Business en hoger delen hele accounts.
+    - icon: Users
+      title: Contactpersonen en organisaties
+      description: Beheer mensen, bedrijven en hun gesprekken en deals op één plek.
+    - icon: Briefcase
+      title: Deals
+      description: Volg kansen door fases die je zelf bepaalt, van eerste contact tot afsluiting.
+    - icon: LayoutGrid
+      title: Pipeline-weergaven
+      description: Werk in pipeline-weergaven als tabel en kanban.
+    - icon: Bell
+      title: Taken en eigen datums
+      description: Bewaar taken als records en voeg eigen datum- of statusvelden toe als je werkproces daarom vraagt.
+    - icon: Filter
+      title: Filters en segmenten
+      description: Sla filters en weergaven op over gedeelde CRM-records en deel ze met het hele team of met geselecteerde rollen.
+    - icon: Table
+      title: Aangepaste velden
+      description: Voeg getypeerde velden toe, zoals keuze, valuta, datum, lid of kanalen, plus berekende velden, om te filteren, te groeperen en te rapporteren.
+    - icon: BarChart3
+      title: Rapportage en statistieken
+      description: Maak van CRM-gegevens dashboards, widgets en gegroepeerde weergaven.
+    - icon: Play
+      title: Webhooks en events
+      description: Start vervolgsystemen vanuit gebeurtenissen in de levenscyclus van het CRM.
+    - icon: Code2
+      title: API-toegang
+      description: Bouw eigen integraties op het CRM-model.
+    - icon: Zap
+      title: Koppel je eigen n8n-instantie
+      description: Gebruik REST, webhooks of de gepubliceerde community node met een n8n die je zelf beheert of apart afneemt.
+    - icon: ShieldCheck
+      title: Rechten
+      description: Beheer de toegang tot de werkruimte met rollen en rechten.
+    - icon: FileText
+      title: Gekoppelde CRM-records
+      description: Koppel contactpersonen, organisaties, deals, diensten, taken en je eigen lijsten via relaties.
+    - icon: Server
+      title: Beheerde cloud en database in Frankfurt
+      description: Gebruik de beheerde cloud met de database in de AWS-regio Frankfurt, of host de AGPL-CRM-kern en PostgreSQL zelf met de functies van Starter.
+    - icon: Terminal
+      title: Open source kern en zelf hosten
+      description: Host de AGPL-CRM-kern en PostgreSQL zelf; de gecombineerde inbox, de kalenderweergave, AI-setup, Mate en routines blijven functies van de beheerde cloud. MCP met je eigen AI-client werkt in beide.
+    - icon: Download
+      title: Toegang tot de REST API
+      description: Lees en schrijf CRM-records via de API voor migraties en externe werkprocessen.
+
+automationExplanation: "Customermates biedt REST, [[derived.webhooks.events.total]] webhook-eventtypen, MCP en een gepubliceerde community node voor externe automatisering die je zelf beheert. n8n, Zapier, Make en andere diensten blijven aparte producten met eigen abonnementen, limieten, inloggegevens, gegevensverwerking en kosten."
+
+pricingTitle:
+  title: Transparante prijzen voor moderne teams
+  subtitle: Elke CRM-kernfunctie zit vanaf Starter in het abonnement. De inbox begint bij Pro en het delen van hele accounts bij Business. Eén maandprijs per gebruiker in euro; de beheerde database draait in de AWS-regio Frankfurt.
+
+faq:
+  title: Veelgestelde vragen
+  faqs:
+    - id: faq-keep-crm
+      title: Moet ik mijn CRM vervangen?
+      content: "Nee. Je kunt beginnen met het koppelen van LinkedIn of e-mail en Customermates gebruiken voor gesprekken, concepten en volgende stappen, terwijl je huidige CRM de pipeline houdt. Importeer contactpersonen wanneer je wilt uit een Excel-werkmap en koppel andere tools via de REST API, webhooks of n8n. Er is geen ingebouwde tweerichtingssynchronisatie met andere CRM's."
+    - id: faq-mate-send
+      title: Verstuurt Mate zelf berichten?
+      content: "Mate slaat conceptantwoorden op die je in het gesprek kunt nalezen. Mate verstuurt wanneer je dat vraagt, of wanneer je een routine instelt die verstuurt. Je eigen AI-client volgt de rechten van het account waarmee hij verbinding maakt."
+    - id: faq-free
+      title: Is er een gratis abonnement?
+      content: "Ja, om het alleen uit te proberen: Customermates Cloud is gratis voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records. Je eerste werkruimte begint met Pro, [[commercial.trial.days]] dagen gratis zonder creditcard, en gaat daarna over naar Free, tenzij je een betaald abonnement kiest; elke volgende werkruimte begint met het kiezen van een abonnement. Free heeft geen inbox, Mate of routines. Je kunt de open source kern ook gratis zelf hosten met de functies van Starter."
+    - id: faq-who
+      title: Voor wie is Customermates?
+      content: "Voor kleine teams met klantcontact: kleine bedrijven, consultants, agencies, zzp'ers en startups. Het past ook per werkproces: klantbeheer, een salespipeline, LinkedIn-gesprekken of WhatsApp-klantcontact. Elk daarvan heeft een eigen pagina onder Oplossingen en een voorbeeldwerkruimte met voorbeeldgegevens die je kunt verkennen. De voorbeeldlijsten laten één manier zien om Customermates in te richten; je eigen werkruimte begint leeg en bevat de lijsten die je zelf maakt."
+    - id: faq-1
+      title: Waarin verschilt Customermates van andere CRM's?
+      content: "Het past niet bij iedereen, maar het verschilt op punten die voor kleine teams met klantcontact tellen. Externe AI-clients zoals Claude, ChatGPT of Cursor bedienen het CRM rechtstreeks via MCP met [[derived.mcp.tools.total]] tools. In Customermates Cloud staan vanaf Pro gesprekken uit e-mail, LinkedIn, WhatsApp, Instagram en Telegram naast de contactpersoon in één gecombineerde inbox. De kern is open source (AGPL-3.0) en kan zelf gehost worden, en de database van de beheerde cloud draait in de AWS-regio Frankfurt. Heb je marketingautomatisering, sequenties, offertes of facturatie nodig, dan past een grotere suite beter."
+    - id: faq-plans
+      title: Welke functies horen bij welk abonnement?
+      content: "CRM-kern, MCP en de REST API zitten in elk abonnement, ook Free en zelf hosten; webhooks en de n8n-node horen bij elk betaald abonnement en bij zelf hosten. De inbox zit in Customermates Cloud vanaf Pro: op Pro koppel je je eigen accounts en deel je losse threads; een heel gekoppeld account met het team delen vraagt Business, Max of Enterprise. Mate, routines en AI-setup draaien alleen op Customermates Cloud, binnen de credits van elk betaald abonnement. Een zelf gehoste instantie heeft de functies van Starter zonder inbox, Mate of AI-setup."
+    - id: faq-4
+      title: Waar worden mijn gegevens opgeslagen?
+      content: De beheerde database draait in de AWS-regio Frankfurt, terwijl applicatiehosting en andere aanbieders, ook Amerikaanse, op onze pagina met subverwerkers staan. Je kunt de AGPL-CRM-applicatie en PostgreSQL zelf hosten met de functies van Starter; de gecombineerde inbox, de kalenderweergave, AI-setup, Mate en routines blijven functies van de beheerde cloud, en gekoppelde aanbieders blijven apart.
+
+closingEyebrow: Customermates
+
+cta:
+  action: Klaar om elke klant op te volgen?
+  description: Begin met één kanaal en één klant. Je proefperiode loopt [[commercial.trial.days]] dagen op Pro zonder creditcard, of ontdek eerst een demowerkruimte voor een consultancybureau.
+  buttonLeftText: Start je proefperiode van [[commercial.trial.days]] dagen
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de demo
+  buttonRightHref: https://demo.customermates.com/nl/w/advies/dashboard
+  hint: Geen creditcard · Altijd opzegbaar · Gemaakt in Duitsland
+
+useCases:
+  eyebrow: "Zo kun je het gebruiken"
+  title: "Kies de taak. De werkruimte volgt."
+  items:
+    - title: "Volg LinkedIn-gesprekken op"
+      description: "LinkedIn- en e-mailthreads staan bij de klant. Mate schrijft het antwoord en zet een datum op de volgende stap, en jij leest het na en verstuurt het in het gesprek."
+      href: /features/linkedin-integration
+      linkLabel: "Bekijk LinkedIn in de inbox"
+      visual: conversation
+    - title: "Volg elk voorstel op na het gesprek"
+      description: "Klanten, opdrachten en voorstellen met de gesprekken erachter, en bij elk een volgende stap met datum."
+      href: /for/consultants
+      linkLabel: "CRM voor consultancy"
+      visual: proposal
+    - title: "Houd de volgende stappen van klanten op één dashboard"
+      description: "Elke klant krijgt een volgende stap met datum en je dashboard toont wat er bij al die klanten aan de beurt is."
+      href: /features/follow-up
+      linkLabel: "Bekijk opvolging"
+      visual: dashboard
+    - title: "Laat je eigen Claude of ChatGPT in je CRM werken"
+      description: "Koppel Claude, ChatGPT, Cursor of een andere MCP-client. Die leest en werkt je werkruimte bij binnen jouw rechten."
+      href: /features/integrations
+      linkLabel: "Koppel je agent"
+      visual: agent
+---

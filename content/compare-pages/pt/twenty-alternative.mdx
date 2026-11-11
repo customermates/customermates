@@ -1,0 +1,256 @@
+---
+title: "Alternativa ao Twenty CRM: Customermates vs Twenty"
+description: "Alternativa ao Twenty CRM comparada: objetos personalizados, preço por usuário, WhatsApp e LinkedIn em uma só caixa de entrada, MCP e hospedagem própria."
+competitorName: Twenty
+
+relatedHrefs:
+  - /compare/attio-alternative
+  - /compare/espocrm-alternative
+  - /features/unified-inbox
+  - /features/self-hosted
+
+sections:
+  reasons:
+    - title: "Clientes que escrevem por mais do que e-mail"
+      description: "A partir do Pro, caixas do Gmail, Outlook e IMAP, LinkedIn (inclusive Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram ficam em uma só lista, e cada conversa abre a partir da página do cliente."
+    - title: "Respostas redigidas pelo Mate"
+      description: "No Customermates Cloud, o Mate resume conversas em todos os canais, redige respostas, atualiza registros e monta visualizações. Você revisa, edita e envia."
+    - title: "O seu próprio cliente de IA via MCP"
+      description: "O servidor MCP oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e nas instalações de hospedagem própria, para que o Claude ou o ChatGPT possam ler e atualizar o CRM dentro das suas permissões."
+  switchSteps: true
+
+hero:
+  title: "Alternativa ao Twenty CRM: Customermates e Twenty comparados"
+  description: "O Twenty também é de código aberto, e o próprio guia dele cobre a sincronização de e-mail e calendário. O Customermates acrescenta LinkedIn, WhatsApp, Instagram e Telegram no registro do cliente a partir do Pro, e o Mate redige a resposta. Detalhes do Twenty verificados em 8 de outubro de 2026."
+  buttonLeftText: Comece seu teste de [[commercial.trial.days]] dias
+  buttonLeftHref: /auth/signup
+  buttonRightText: Assistir à demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/pequenas-empresas/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+
+comparison:
+  competitorName: Twenty
+  title: "Customermates vs. Twenty: comparação de recursos"
+  sections:
+  - title: Licença e hospedagem
+    features:
+      - name: Licença de código aberto
+        source: Núcleo AGPL-3.0; ee/ sob uma licença comercial separada
+        competitor: Majoritariamente AGPL-3.0; arquivos marcados como Enterprise sob uma licença comercial
+      - name: Hospedagem própria
+        source: Docker Compose com o app e o PostgreSQL 16 (sem caixa de entrada, sem Mate)
+        competitor: Docker Compose com servidor, worker, PostgreSQL e Redis
+      - name: Nuvem gerenciada
+        source: true
+        competitor: true
+  - title: Preços
+    features:
+      - name: Preço da nuvem por usuário / mês
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: Pro US$ 9, Organization US$ 39 (cobrança anual); Enterprise a partir de US$ 50 mil por ano
+      - name: Cobrança
+        source: Somente mensal
+        competitor: Mensal ou anual (o anual aparece com 25% de desconto)
+      - name: Teste gratuito
+        source: "[[commercial.trial.days]] dias, sem cartão de crédito"
+        competitor: 30 dias, sem cartão de crédito
+  - title: Modelo de dados
+    features:
+      - name: Registros padrão
+        source: Contatos, organizações, negócios, serviços, tarefas
+        competitor: Pessoas, empresas, oportunidades
+      - name: Objetos personalizados
+        source: As suas próprias listas, com campos e relações
+        competitor: Ilimitados em todos os planos
+      - name: Campos personalizados
+        source: Dezesseis tipos de campo, inclusive escolha única, além de campos calculados
+        competitor: Ilimitados
+      - name: Tipos de visualização
+        source: Tabela e quadro
+        competitor: Tabela, Kanban, calendário
+      - name: Importação e exportação de planilhas
+        source: Importação de XLSX, XLS, CSV ou JSON, exportação como XLSX ou JSON, uma lista por vez
+        competitor: CSV, até 20.000 registros por exportação
+  - title: Conversas
+    features:
+      - name: E-mail
+        source: Gmail, Outlook e IMAP na caixa de entrada unificada (Pro+)
+        competitor: Contas Google, Microsoft e IMAP/SMTP
+      - name: Contas por usuário
+        source: "Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]]"
+        competitor: Contas de e-mail e de calendário ilimitadas
+      - name: Calendário
+        source: Somente leitura (Pro+)
+        competitor: Google, Microsoft e CalDAV
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Caixa de entrada unificada (Pro+)
+        competitor: Não constam na documentação do Twenty; um parceiro oferece uma integração de WhatsApp para fluxos de trabalho
+  - title: IA e acesso
+    features:
+      - name: Servidor MCP
+        source: "Todos os planos e hospedagem própria, [[derived.mcp.tools.total]] ferramentas"
+        competitor: Todo espaço de trabalho Cloud, conectado por OAuth
+      - name: IA dentro do app
+        source: Mate e rotinas (Customermates Cloud, créditos de IA hospedados)
+        competitor: Agentes de IA e fluxos de trabalho
+      - name: API
+        source: REST (OpenAPI) e webhooks
+        competitor: REST, GraphQL e webhooks
+      - name: Permissões
+        source: Funções por lista (todos os registros, os atribuídos ou nenhum)
+        competitor: Por campo e por linha no Organization
+      - name: Login único (SAML/OIDC)
+        source: false
+        competitor: Plano Organization
+
+cta:
+  action: Está comparando Twenty e Customermates?
+  description: "Comece um teste, conecte uma caixa de e-mail ou o seu WhatsApp e importe uma visualização que você exportou do Twenty. Você logo vê se seus dados e conversas se encaixam no modelo do Customermates."
+  buttonLeftText: Comece seu teste de [[commercial.trial.days]] dias
+  buttonLeftHref: /auth/signup
+  buttonRightText: Assistir à demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/pequenas-empresas/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+> O principal motivo para escolher o Customermates como alternativa ao Twenty CRM é onde os seus clientes escrevem. A documentação do próprio Twenty cobre a sincronização de e-mail e calendário; o Customermates reúne caixas do Gmail, Outlook e IMAP, LinkedIn, WhatsApp, Instagram e Telegram em uma só caixa de entrada a partir do Pro, ao lado do negócio. Se o seu processo depende de login único, permissões por linha ou GraphQL, o Twenty é o melhor produto. O Customermates publica esta comparação. Cada detalhe do Twenty vem de twenty.com, da documentação do Twenty e do repositório dele no GitHub, verificados em 8 de outubro de 2026.
+
+## Qual CRM serve para qual equipe
+
+| Sua situação | Melhor opção | Por quê |
+|---|---|---|
+| Seu processo precisa de tipos de registro próprios, como imóveis, investimentos ou fundos | Twenty ou Customermates | Objetos personalizados ilimitados em todos os planos do Twenty; o Customermates começa sem listas e você cria as suas (contatos, negócios ou qualquer outra coisa) |
+| Você precisa de login único SAML/OIDC ou de permissões por linha | Twenty Organization | O Customermates não tem login único, e as funções dele valem por lista |
+| Desenvolvedores vão estender o CRM em TypeScript ou consultá-lo por GraphQL | Twenty | O framework de Apps e a API GraphQL existem para isso; o Customermates oferece REST, webhooks e MCP |
+| Cada pessoa sincroniza várias caixas de e-mail e calendários | Twenty | Contas de e-mail e de calendário ilimitadas por usuário em todos os planos |
+| Você quer o menor preço de nuvem por licença | Twenty Pro | US$ 9 por usuário por mês na cobrança anual |
+| Os clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram além do e-mail | Customermates Pro ou Business | Todos esses canais ficam em uma só caixa de entrada, e você responde no canal de origem |
+| Você quer um assistente que leia conversas de WhatsApp, LinkedIn e e-mail e redija as respostas | Customermates Cloud | O Mate e as rotinas trabalham com registros e conversas da caixa de entrada, usando créditos de IA hospedados |
+
+## Para quem o Twenty é uma boa escolha
+
+O Twenty se apresenta como “the open alternative to Salesforce, designed for AI” (a alternativa aberta ao Salesforce, pensada para IA) e diz no GitHub que oferece às equipes técnicas os blocos de construção de um CRM sob medida.
+
+**Um modelo de dados que você desenha.** Objetos, campos e visualizações personalizados são ilimitados em todos os planos, e você os cria nas configurações, sem código. As visualizações vêm como tabela, Kanban ou calendário. Os desenvolvedores podem ir além com o framework de Apps (`npx create-twenty-app`) e publicar objetos, lógica de servidor, componentes React e habilidades de IA em TypeScript.
+
+**E-mail e calendário como camada de conversa.** O Twenty conecta contas Google e Microsoft diretamente e qualquer outro provedor por IMAP, SMTP e CalDAV, com contas ilimitadas por usuário. Cada conta escolhe o que os colegas veem: só metadados, assunto e metadados ou o conteúdo completo.
+
+**Controle de acesso para equipes em crescimento.** O Organization (US$ 39 por usuário por mês, cobrança anual) acrescenta permissões por campo e por linha, login único SAML/OIDC, um domínio próprio e suporte prioritário. O Enterprise começa em US$ 50.000 por ano e acrescenta isolamento single-tenant, lista de IPs permitidos e provisionamento SCIM.
+
+**IA e APIs.** Fluxos de trabalho e agentes de IA vêm em todos os planos. Todo espaço de trabalho Cloud traz um servidor MCP ao qual Claude, ChatGPT ou Cursor se conectam por OAuth. APIs REST e GraphQL e webhooks estão incluídos.
+
+**Licença e hospedagem.** O repositório é majoritariamente AGPLv3; arquivos marcados com `/* @license Enterprise */` ficam sob uma licença comercial, e alguns pacotes, como os SDKs, são MIT. Hospedar o núcleo de código aberto por conta própria é gratuito. O Twenty Cloud roda na AWS em Frankfurt, e o FAQ legal do Twenty informa conformidade com SOC 2.
+
+Se a maior parte disso combina com o seu jeito de trabalhar, o Twenty é a melhor opção e trocar custaria mais do que economizaria.
+
+## Por que equipes buscam uma alternativa ao Twenty
+
+**Clientes que escrevem por mais do que e-mail.** O guia de e-mail e calendário do Twenty lista contas Google, Microsoft e IMAP/SMTP/CalDAV e nenhum canal de chat. Uma parceira do Twenty, a Next Page Technologies, publicou uma integração de código aberto de WhatsApp para fluxos de trabalho do Twenty, construída sobre a WhatsApp Cloud API da Meta. Ela envia mensagens como uma etapa do fluxo. Para LinkedIn, Instagram e Telegram, a documentação do Twenty não lista nenhum canal. Para consultores e agências cujos clientes respondem no WhatsApp ou no LinkedIn, essa lacuna decide a escolha.
+
+**Alguém precisa ser dono do modelo.** A flexibilidade do Twenty significa que uma pessoa da sua equipe desenha os objetos, campos, visualizações e fluxos de trabalho e os mantém em ordem. Uma equipe de serviços de cinco pessoas sem essa pessoa pode preferir um modelo que já vem pronto para usar e só precisa ser ampliado onde o trabalho dela é diferente.
+
+## Quanto cinco pessoas pagam por mês
+
+Preços verificados em 9 de novembro de 2026 na [página de preços do Twenty](https://twenty.com/pricing). O Twenty lista dólares americanos e mostra a cobrança anual como 25% mais barata que a mensal. O Customermates cobra mensalmente, em euros.
+
+| Plano para cinco pessoas | Por mês |
+|---|---|
+| Twenty Pro, cobrança anual | US$ 45 |
+| Twenty Organization, cobrança anual | US$ 195 |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] |
+
+Estas linhas não compram as mesmas coisas:
+
+- **O Twenty Pro dá mais por menos do que o Customermates Starter.** O Starter não tem caixa de entrada e não sincroniza e-mail nenhum. O Twenty Pro inclui sincronização de e-mail e calendário e objetos personalizados.
+- **O Customermates Pro é onde a comparação começa.** Cada usuário conecta [[commercial.entitlement.pro.includedAccountsPerUser]] conta, que pode ser uma caixa de e-mail, LinkedIn, WhatsApp, Instagram ou Telegram.
+- **E-mail e WhatsApp lado a lado significam Business.** O Business tem [[commercial.entitlement.business.includedAccountsPerUser]] contas por usuário e contas compartilhadas.
+- **A hospedagem própria é gratuita dos dois lados.** O Twenty com hospedagem própria roda quatro serviços e pede pelo menos 2 GB de RAM. O Customermates com hospedagem própria roda dois, o app e o PostgreSQL 16, sem a caixa de entrada e o Mate.
+
+## Onde o Customermates se encaixa
+
+O Twenty e o Customermates são ambos de código aberto, então a diferença está na conversa. A partir do Pro, o Customermates coloca as conversas de e-mail, LinkedIn, WhatsApp, Instagram e Telegram no registro do cliente, e o Mate ou o seu próprio agente de IA redige a resposta e o próximo passo. Você revisa, edita e envia.
+
+**Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) coloca caixas do Gmail, Outlook e IMAP, LinkedIn (inclusive Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram em uma só lista. Você responde no canal de origem, vincula um participante a um contato uma vez e abre todas as conversas com esse contato a partir da página dele.
+
+**O Mate no Customermates Cloud.** O Mate resume conversas em todos os canais, redige respostas, atualiza registros e monta visualizações. Ele usa créditos de IA hospedados, com uma franquia mensal por usuário ativo indicada na [página de preços](/pricing). Exclusões e algumas ações de administração esperam uma nova aprovação todas as vezes; o envio de uma mensagem, não, então peça ao Mate que salve rascunhos quando quiser ler antes. As rotinas executam uma instrução salva em um horário definido ou quando um registro muda, e cada uma roda como o seu dono, com os canais dele.
+
+**O seu próprio cliente de IA via MCP.** O [servidor MCP](/docs/mcp) oferece [[derived.mcp.tools.total]] ferramentas em todos os planos e nas instalações de hospedagem própria. O Claude, o ChatGPT ou outro cliente MCP roda então no seu próprio provedor de IA.
+
+**Código aberto com escolha de hospedagem.** O núcleo é AGPL-3.0 e roda no seu próprio servidor com Docker Compose, incluindo REST, webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um DPA disponível e os subprocessadores, inclusive provedores dos EUA, estão listados nas páginas legais.
+
+## Onde o Customermates é a escolha errada
+
+- **Sem login único e sem permissões por campo.** As funções decidem, por lista, se um membro vê todos os registros, só os atribuídos a ele ou nenhum.
+- **Sem GraphQL e sem framework de apps.** As integrações usam REST, webhooks, MCP ou n8n, que roda separadamente.
+- **O calendário é somente leitura.** O Customermates não cria nem agenda eventos de calendário.
+- **Sem certificação de conformidade.** O Twenty informa conformidade com SOC 2; o Customermates não tem nenhuma.
+- **Um plano gratuito pequeno.** O Free cobre [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas; para ter mais, é preciso um plano pago depois do teste de [[commercial.trial.days]] dias.
+
+## Como migrar do Twenty: o que vai para onde
+
+Imagine uma consultoria de cinco pessoas que roda em Pessoas, Empresas e Oportunidades do Twenty, mais um objeto personalizado para os projetos contratados.
+
+| No Twenty | No Customermates |
+|---|---|
+| Pessoas | Contatos |
+| Empresas | Organizações |
+| Oportunidades | Negócios, renomeados para “Oportunidades” em Modelo de dados para que a sua equipe mantenha as palavras dela |
+| Etapas do pipeline | Um campo de etapa (escolha única) com uma probabilidade por etapa |
+| Um objeto personalizado, como Projetos | A sua própria lista “Projetos”, relacionada às oportunidades |
+| Tarefas | Tarefas; se você acompanha um prazo, adicione um campo de data personalizado, porque as tarefas não têm prazo nativo |
+| Caixas de e-mail conectadas | Reconecte-as em Configurações, Canais e calendários (Pro); o histórico delas é importado em segundo plano |
+| Fluxos de trabalho | Rotinas no Customermates Cloud ou webhooks para o n8n |
+
+Com as etapas Lead 10%, Qualificado 30%, Proposta 50%, Negociação 70%, Ganho 100% e Perdido 0%, o Customermates mostra o valor ponderado de cada oportunidade, e um widget de gráfico no Painel soma tudo: valor vezes a probabilidade da etapa, não uma previsão.
+
+Cada uma das cinco pessoas é responsável por uma rotina de follow-up de segunda-feira. Ela roda no Customermates Cloud e usa créditos de IA hospedados:
+
+> Toda segunda-feira às 8h, encontre as minhas oportunidades em “Proposta” em que o contato não escreve há dez dias. Para cada uma, salve um rascunho curto de follow-up na minha última conversa com esse contato. Não envie nada. Liste as oportunidades no resumo da execução.
+
+<Steps>
+  <Step title="Exporte cada visualização do Twenty">Abra Pessoas, Empresas e Oportunidades, mostre todos os campos que quer manter e escolha Export view no menu ⋮. O Twenty gera um CSV das colunas visíveis e dos registros filtrados, até 20.000 registros por exportação, sem anexos nem imagens. O guia dele não diz se notas ou tarefas vêm junto, então confira com uma exportação de teste.</Step>
+  <Step title="Mantenha os arquivos como estão">O Customermates aceita arquivos CSV, então não há nada para converter. Um arquivo aceita hoje até 10 MB e uma planilha até 5.000 linhas, então divida uma exportação maior.</Step>
+  <Step title="Prepare o espaço de trabalho">Renomeie negócios para Oportunidades em Modelo de dados, crie campos personalizados para as propriedades que você mantém e configure o campo de etapa com as probabilidades.</Step>
+  <Step title="Importe uma lista por vez">Escolha Mais ações e depois Adicionar de um arquivo. Importe primeiro as organizações, depois os contatos, depois as oportunidades. As colunas de vínculo associam os registros pelo nome, os novos contatos precisam de nome e sobrenome, e uma coluna de notas preenche as notas do registro. O [guia de registros](/docs/app-records) cobre todas as regras.</Step>
+  <Step title="Conecte canais e IA">No Pro ou durante o teste, conecte uma caixa de e-mail, o LinkedIn ou o WhatsApp em Configurações, Canais e calendários. Depois configure rotinas para o Mate ou conecte o seu próprio cliente de IA via MCP.</Step>
+</Steps>
+
+## Outras alternativas ao Twenty CRM que valem a pena conhecer
+
+O Customermates publica esta lista. Preços e recursos vêm das páginas de cada fornecedor, verificadas em 8 de outubro de 2026.
+
+- **EspoCRM** serve para equipes que querem um CRM de código aberto com hospedagem própria e entidades personalizadas. É licenciado sob AGPLv3, roda em PHP com MySQL, MariaDB ou PostgreSQL e se instala com Docker ou um script. Os planos hospedados começam em € 12,90 por usuário por mês, com mínimo de três usuários. Veja o [EspoCRM comparado ao Customermates](/compare/espocrm-alternative).
+- **Attio** serve para equipes que querem objetos personalizados em um produto hospedado. Os planos dele limitam o número de objetos: até 3 no Free, 5 no Plus, 12 no Pro e ilimitados no Enterprise. O plano gratuito cobre três licenças. O Plus custa € 39 e o Pro € 93 por usuário por mês na cobrança mensal. Veja a [comparação com o Attio](/compare/attio-alternative).
+- **folk** serve para equipes baseadas em relacionamento que prospectam no LinkedIn. O Standard custa US$ 30 por membro por mês, ou US$ 24 na cobrança anual, e inclui uma extensão do LinkedIn, sincronização de e-mail, calendário e WhatsApp, enriquecimento e campanhas de e-mail. Objetos personalizados e negócios exigem o Premium, a US$ 60, ou US$ 48 na cobrança anual. Veja o [folk comparado ao Customermates](/compare/folk).
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O Twenty CRM é gratuito?">
+Hospedar o núcleo de código aberto por conta própria é gratuito. O Twenty Cloud começa com o Pro, a US$ 9 por usuário por mês na cobrança anual, e o Organization custa US$ 39; os dois vêm com um teste de 30 dias sem cartão de crédito. Como alternativa gratuita ao Twenty CRM, o Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas, um teste de [[commercial.trial.days]] dias e um núcleo com hospedagem própria sem taxas de licença.
+</FaqItem>
+
+<FaqItem question="O Twenty é um bom CRM para uma equipe pequena?">
+Sim, se alguém da equipe gosta de moldar o modelo de dados ou se um desenvolvedor ajuda. Se os seus clientes escrevem sobretudo no WhatsApp ou no LinkedIn e ninguém quer montar o CRM, um produto com esses canais na caixa de entrada exige menos configuração.
+</FaqItem>
+
+<FaqItem question="O Twenty tem suporte a mensagens do WhatsApp ou do LinkedIn?">
+Não na documentação do próprio Twenty, que cobre e-mail e calendário. Um parceiro oferece uma integração de código aberto de WhatsApp que envia mensagens a partir de fluxos de trabalho do Twenty pela WhatsApp Cloud API da Meta. O Customermates tem WhatsApp, LinkedIn, Instagram e Telegram na caixa de entrada unificada do Customermates Cloud, a partir do Pro.
+</FaqItem>
+
+<FaqItem question="O Twenty tem um servidor MCP?">
+Sim. O Twenty diz que todo espaço de trabalho Cloud traz um servidor MCP nativo, ao qual você se conecta por OAuth. O Customermates inclui um servidor MCP com [[derived.mcp.tools.total]] ferramentas em todos os planos e nas instalações de hospedagem própria.
+</FaqItem>
+
+<FaqItem question="Qual é a melhor alternativa de código aberto ao Twenty?">
+Depende do que você sente falta no Twenty. O EspoCRM é um CRM de código aberto com hospedagem própria que também aceita entidades personalizadas. O Customermates é a opção de código aberto quando canais de chat e um assistente de IA pesam mais; a caixa de entrada e o Mate dele rodam apenas no Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Onde os meus dados ficam no Twenty e no Customermates?">
+O Twenty Cloud roda em servidores da AWS em Frankfurt, segundo o FAQ legal do Twenty. O banco de dados do Customermates Cloud também é configurado na região AWS de Frankfurt, e os dois fornecedores oferecem um DPA e listam seus subprocessadores. Com a hospedagem própria de qualquer um dos produtos, os dados ficam no seu próprio servidor.
+</FaqItem>
+</Faq>
+
+Detalhes do concorrente verificados em 8 de outubro de 2026 na [página de preços](https://twenty.com/pricing), no [guia de e-mail e calendário](https://docs.twenty.com/user-guide/calendar-emails/overview), no [guia de exportação](https://docs.twenty.com/user-guide/data-migration/how-tos/export-your-data), no [guia do Docker Compose](https://docs.twenty.com/developers/self-host/capabilities/docker-compose), no [FAQ legal](https://docs.twenty.com/user-guide/legal/how-tos/legal-faq), na [licença](https://github.com/twentyhq/twenty/blob/main/LICENSE), no [repositório do GitHub](https://github.com/twentyhq/twenty) e no [perfil da parceira Next Page Technologies](https://twenty.com/partners/profile/next-page-technologies-pvt-ltd) do Twenty, e nos [preços](https://www.espocrm.com/cloud/) e no [repositório](https://github.com/espocrm/espocrm) do EspoCRM, nos [preços do Attio](https://attio.com/pricing) e nos [preços do folk](https://www.folk.app/pricing).

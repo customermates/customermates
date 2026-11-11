@@ -1,0 +1,263 @@
+---
+title: "Alternativa ao Salesforce: CRM de código aberto para equipes"
+description: "Alternativa ao Salesforce para equipes pequenas: quanto custa o Sales Cloud, qual CRM serve para cada motivo de saída e como migrar contas e oportunidades."
+competitorName: Salesforce
+
+relatedHrefs:
+  - /blog/salesforce-pricing
+  - /compare/hubspot-vs-salesforce
+  - /compare/zoho-vs-salesforce
+  - /compare/microsoft-dynamics-alternative
+
+sections:
+  reasons:
+    - title: "Canais de chat sem o Service Cloud"
+      description: "Na página de preços do Salesforce, Digital Channels pertence ao Service Cloud. A partir do Pro, o Customermates reúne e-mail, LinkedIn, WhatsApp, Instagram e Telegram em uma só caixa de entrada, ao lado do cliente."
+    - title: "Uma resposta redigida, não um complemento"
+      description: "No Customermates Cloud, o Mate redige respostas, resume conversas e atualiza contatos e negócios, com créditos de IA hospedados. Ou conecte o seu próprio Claude ou ChatGPT via MCP."
+    - title: "Mês a mês e código aberto"
+      description: "A cobrança é mensal, sem compromisso anual, e o núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose e PostgreSQL 16, incluindo a API REST, webhooks e MCP."
+  switchSteps: true
+
+hero:
+  title: "Uma alternativa ao Salesforce para equipes que atendem clientes"
+  description: "O Salesforce precisa de um responsável e, além do Starter Suite, de um contrato anual. Para uma consultoria ou agência pequena, o Customermates é o jeito mais leve de acompanhar clientes: cobrança mensal, conversas no cliente a partir do Pro e respostas redigidas pelo Mate. Detalhes do Salesforce verificados em 8 de outubro de 2026."
+  buttonLeftText: Comece seu teste de [[commercial.trial.days]] dias
+  buttonLeftHref: /auth/signup
+  buttonRightText: Veja a demonstração ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/pequenas-empresas/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+
+comparison:
+  competitorName: Salesforce
+  title: "Customermates vs. Salesforce Sales Cloud"
+  sections:
+  - title: Preços e planos
+    features:
+      - name: Preço por usuário / mês
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Starter Suite US$ 25, Pro Suite US$ 100, Core US$ 195, Advanced US$ 395, Max US$ 550"
+      - name: Cobrança
+        source: Somente mensal
+        competitor: Starter Suite mensal ou anual; Pro Suite e acima, anual
+      - name: Plano gratuito
+        source: "[[commercial.limit.free.maxMembers]] pessoa, [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada nem Mate"
+        competitor: Free Suite, 2 licenças de usuário
+      - name: Teste gratuito
+        source: "[[commercial.trial.days]] dias, sem cartão de crédito"
+        competitor: 30 dias, sem cartão de crédito
+  - title: CRM
+    features:
+      - name: Contas, contatos e oportunidades
+        source: Organizações, contatos e negócios; todas as listas podem ser renomeadas
+        competitor: Gestão de leads, contas, contatos e oportunidades
+      - name: Processos de aprovação
+        source: false
+        competitor: A partir do Core
+      - name: Cotações e previsão de vendas
+        source: Não; apenas pipeline ponderado a partir das probabilidades das etapas
+        competitor: A partir do Pro Suite
+      - name: Campos personalizados
+        source: 16 tipos de campo e campos calculados em todos os planos
+        competitor: true
+      - name: Construtor visual de fluxos de trabalho
+        source: Não; rotinas (Customermates Cloud), webhooks, REST, n8n
+        competitor: Flow Builder, a partir do Pro Suite
+  - title: Conversas
+    features:
+      - name: E-mail
+        source: Gmail, Outlook e IMAP na caixa de entrada unificada (Pro e Business)
+        competitor: Sincronização de e-mails, eventos e contatos a partir do Starter Suite
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: Caixa de entrada unificada (Pro e Business)
+        competitor: "Service Cloud Digital Channels: disponível para compra no Core e no Advanced, incluído no Max"
+  - title: IA e integrações
+    features:
+      - name: Assistente de IA
+        source: Mate no Customermates Cloud, usa créditos de IA hospedados
+        competitor: Complemento Agentforce for Sales a partir de US$ 125 / usuário / mês; incluído no Max
+      - name: APIs e eventos
+        source: "API REST e [[derived.webhooks.events.total]] eventos de webhook em todos os planos pagos"
+        competitor: "Web Services API: complemento de US$ 25 / usuário / mês no Pro Suite, incluída a partir do Core"
+      - name: Marketplace de apps
+        source: Não; nó da comunidade do n8n (o n8n roda separado)
+        competitor: AppExchange, a partir do Pro Suite
+  - title: Licença e hospedagem
+    features:
+      - name: Licença de código aberto
+        source: Núcleo AGPL-3.0
+        competitor: false
+      - name: Hospedagem própria
+        source: Docker Compose (sem caixa de entrada nem Mate)
+        competitor: false
+      - name: Localização dos dados na UE
+        source: Banco de dados da nuvem configurado na região AWS de Frankfurt
+        competitor: Hyperforce EU Operating Zone para produtos selecionados
+      - name: Aplicativo móvel nativo
+        source: false
+        competitor: A partir do Starter Suite
+
+cta:
+  action: Quer testar com os seus próprios registros?
+  description: "Exporte algumas contas, contatos e oportunidades do Salesforce, importe-os durante o teste e conecte uma caixa de e-mail. Em uma semana, os seus próprios dados mostram se o modelo do Customermates se encaixa."
+  buttonLeftText: Comece seu teste de [[commercial.trial.days]] dias
+  buttonLeftHref: /auth/signup
+  buttonRightText: Veja a demonstração ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/pequenas-empresas/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+> Uma boa alternativa ao Salesforce depende de qual parte do Salesforce você sentiria falta. Se você depende de previsão de vendas, cotações, fluxos de aprovação ou apps do AppExchange, fique, ou compare com o HubSpot e o Zoho CRM. Se você quer um software de código aberto no seu próprio servidor, olhe o SuiteCRM, o Twenty ou o Customermates. Se você é uma consultoria ou agência pequena, cujos clientes escrevem no WhatsApp e no LinkedIn tanto quanto por e-mail, e prefere pagar mês a mês a assinar por um ano, o Customermates foi feito para esse caso. O Customermates publica esta comparação; cada detalhe do Salesforce vem de salesforce.com e foi verificado em 8 de outubro de 2026.
+
+## Qual alternativa serve para qual motivo
+
+| Seu motivo para sair | Olhe para | Por quê |
+|---|---|---|
+| Vocês são duas pessoas com um pipeline simples | Salesforce Free Suite, CRM gratuito do HubSpot | Os dois são gratuitos para dois usuários. A edição gratuita do Zoho CRM cobre três |
+| O preço por licença e o contrato anual do Pro Suite | Zoho CRM, HubSpot, Customermates | Compare os planos deles com o Pro Suite. O Customermates cobra mensalmente |
+| Você quer código aberto ou o seu próprio servidor | SuiteCRM, Twenty, Customermates | Os três podem ser hospedados por conta própria |
+| Os clientes escrevem no WhatsApp, LinkedIn, Instagram ou Telegram | Customermates Pro ou Business | Esses canais caem em uma só caixa de entrada, ao lado do negócio |
+| Você usa previsão de vendas, cotações, territórios ou fluxos de aprovação | Continue no Salesforce | O Customermates não tem nenhum deles |
+| Você está substituindo o Service Cloud | Uma ferramenta de help desk | O Customermates não tem casos nem tickets |
+
+## Para quem o Salesforce é uma boa escolha
+
+O Salesforce vende o Sales Cloud como suítes para empresas menores e edições para equipes de vendas maiores. O Free Suite vem com duas licenças de usuário e cobre leads, oportunidades, casos de clientes e e-mail marketing simples. Ele continua gratuito enquanto você entrar pelo menos uma vez a cada 60 dias. O Starter Suite acrescenta fluxos de vendas, distribuição de leads e sincronização automática de e-mails, eventos e contatos. O Pro Suite acrescenta cotações e previsão de vendas, Flow Builder (cinco fluxos por org) e AppExchange.
+
+O Core, o Advanced e o Max acrescentam ainda mais: Slack Business+, Tableau Next, processos de aprovação e territórios de vendas a partir do Core, produtos de segurança e backup a partir do Advanced, e Agentforce for Sales, Sales Planning e Salesforce Maps no Max.
+
+Se a sua equipe usa vários desses recursos e alguém cuida da configuração, um CRM menor não vai substituí-lo. A troca custaria mais do que economizaria.
+
+## Por que equipes buscam uma alternativa ao Salesforce
+
+**A maioria das edições é cobrada anualmente.** O Starter Suite custa US$ 25 por usuário por mês, na cobrança mensal ou anual. Pro Suite, Core, Advanced e Max são cobrados apenas anualmente.
+
+**O passo depois do Starter Suite é grande.** O Pro Suite custa quatro vezes mais por licença, e o Core quase dobra isso de novo. O Agentforce for Sales é um complemento a partir de US$ 125 por usuário por mês, a menos que você esteja no Max.
+
+**Os canais de chat ficam no Service Cloud.** O Sales Cloud sincroniza e-mail. Na página de preços do Service Cloud, o Digital Channels está “disponível para compra” no Core e no Advanced e incluído no Max; Starter e Pro Suite não o listam. Nenhum preço é informado.
+
+**A plataforma precisa de um responsável.** Flow Builder, processos de aprovação, tipos de registro e layouts de página dão ao administrador muito controle. Alguém precisa montar e manter tudo isso, e em uma empresa de cinco pessoas esse alguém costuma ser o fundador.
+
+**É hospedado somente pelo Salesforce.** O Sales Cloud é uma assinatura proprietária. Para residência de dados na UE, a Hyperforce EU Operating Zone processa e armazena dados de clientes na UE e na Suíça, com suporte baseado na UE, para um conjunto selecionado de produtos. A página não informa preço.
+
+## Quanto custa o Salesforce, e quanto cinco pessoas pagam
+
+Preços verificados em 8 de outubro de 2026 na [página de preços do Salesforce](https://www.salesforce.com/sales/pricing/). A [página de preços em alemão](https://www.salesforce.com/de/sales/pricing/) lista os mesmos valores em euros.
+
+| Edição do Sales Cloud | Por usuário / mês | Cobrança |
+|---|---|---|
+| Free Suite | US$ 0, dois usuários | Gratuito |
+| Starter Suite | US$ 25 / € 25 | Mensal ou anual |
+| Pro Suite | US$ 100 / € 100 | Anual |
+| Core | US$ 195 / € 195 | Anual |
+| Advanced | US$ 395 / € 395 | Anual |
+| Max | US$ 550 / € 550 | Anual |
+| Complemento Agentforce for Sales | A partir de US$ 125 | Complemento |
+
+Para uma equipe de cinco pessoas, em euros, porque o Customermates cobra em euros:
+
+| Plano para cinco pessoas | Por mês | Em 12 meses |
+|---|---|---|
+| Salesforce Starter Suite | € 125 | € 1.500 |
+| Salesforce Pro Suite | € 500 | € 6.000, cobrados anualmente |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] | [[commercial.price.starter.monthly.seats.5.months.12]] |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | [[commercial.price.pro.monthly.seats.5.months.12]] |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] | [[commercial.price.business.monthly.seats.5.months.12]] |
+
+Como ler a tabela:
+
+- **Se o e-mail é o seu único canal, o Starter Suite custa menos que o Customermates Pro.** O Customermates Starter é ainda mais barato, mas não tem caixa de entrada nenhuma. O Pro, a [[commercial.price.pro.monthly]] por licença, compensa quando os clientes também escrevem no LinkedIn, WhatsApp, Instagram ou Telegram.
+- **O Pro Suite compra coisas que o Customermates não tem.** Cotações e previsão de vendas vêm com ele. Se você as usa, os € 6.000 por ano são o preço desses recursos, não custo extra.
+- **Vários canais por pessoa significam Business.** Cada usuário do Pro conecta [[commercial.entitlement.pro.includedAccountsPerUser]] conta, cada usuário do Business [[commercial.entitlement.business.includedAccountsPerUser]].
+- **A IA tem outro preço.** Todo plano do Customermates Cloud inclui créditos de IA hospedados por mês, por usuário ativo, para o Mate; veja a [página de preços](/pricing). O Agentforce for Sales em cinco licenças começa em US$ 625 por mês.
+
+## Onde o Customermates se encaixa
+
+Uma consultoria ou agência pequena raramente precisa da plataforma Salesforce inteira para acompanhar os clientes. O Customermates mantém o trabalho enxuto: a partir do Pro, conversas no registro do cliente, uma resposta e um próximo passo redigidos pelo Mate ou pelo seu próprio agente de IA, e você revisa, edita e envia.
+
+**Conversas ao lado do negócio.** A partir do Pro, a [caixa de entrada unificada](/features/unified-inbox) reúne caixas do Gmail, Outlook e IMAP, LinkedIn (inclusive Sales Navigator e Recruiter), WhatsApp, Instagram e Telegram em uma só lista. Você vincula as pessoas de uma conversa a contatos e responde no canal de origem. Uma conversa continua privada até o dono compartilhá-la com o CRM; compartilhar uma conta conectada inteira exige o Business.
+
+**IA que mantém os registros atualizados.** No Customermates Cloud, o Mate resume conversas, redige respostas e atualiza contatos e negócios, usando créditos de IA hospedados. Ele pede uma nova aprovação antes de excluir, mas envia uma mensagem sem aprovação quando você pede o envio, então peça rascunhos quando quiser ler antes. As rotinas executam uma instrução salva em um horário definido ou quando um registro muda, como o seu dono: [[commercial.entitlement.starter.includedRoutinesPerUser]] por usuário no Starter, [[commercial.entitlement.pro.includedRoutinesPerUser]] no Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] no Business.
+
+Já paga o Claude ou o ChatGPT? Conecte-o ao [servidor MCP](/docs/mcp). As chamadas de modelo dele rodam no seu próprio provedor de IA, não em créditos hospedados.
+
+**Código aberto, com escolha de hospedagem.** O núcleo AGPL-3.0 roda no seu próprio servidor com Docker Compose e PostgreSQL 16, incluindo a [API REST](/features/api), webhooks e MCP. Uma [instalação com hospedagem própria](/features/self-hosted) não tem caixa de entrada, Mate nem créditos hospedados. No Customermates Cloud, o banco de dados é configurado na região AWS de Frankfurt, há um [DPA](/dpa) disponível e os [subprocessadores](/subprocessors), inclusive provedores dos EUA, estão listados.
+
+## Onde o Customermates é a escolha errada
+
+- **Sem previsão de vendas, cotações nem territórios.** O pipeline ponderado multiplica o valor de cada negócio pela probabilidade da etapa. Ele não prevê nada.
+- **Sem construtor de fluxos de trabalho nem processos de aprovação.** A automação passa por rotinas, webhooks, a API REST e um n8n operado separadamente.
+- **Sem marketing nem help desk.** Não há campanhas, sequências, formulários web, casos ou tickets.
+- **Tarefas simples.** As tarefas têm responsáveis, relações, notas e campos personalizados. Não têm prazos nem lembretes.
+- **Sem aplicativo móvel nativo, login único nem permissões por campo.** As funções decidem, por lista, se alguém vê todos os registros, só os próprios ou nenhum.
+- **Um plano gratuito pequeno e nenhuma certificação.** O Free cobre [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas; para ter mais, é preciso um plano pago depois do teste de [[commercial.trial.days]] dias.
+
+## Um exemplo prático: uma consultoria saindo do Starter Suite
+
+Imagine uma consultoria de cinco pessoas. Dois sócios fecham trabalhos por e-mail e LinkedIn; três consultores falam com os clientes no WhatsApp.
+
+| No Salesforce | No Customermates |
+|---|---|
+| Contas | Organizações, renomeadas para “Contas” nas configurações da empresa |
+| Contatos e leads | Contatos, mais um campo de escolha única “Status do lead” e uma visualização salva “Leads abertos” |
+| Oportunidades | Negócios, renomeados para “Oportunidades” |
+| Etapa e probabilidade | O campo de etapa, uma escolha única com uma probabilidade por opção |
+| Produtos e valor | Serviços vinculados ao negócio com uma quantidade; a soma deles é o valor do negócio |
+| Proprietário da oportunidade | Usuários atribuídos ao negócio |
+| Listas de opções | Campos personalizados de escolha única |
+| Data de fechamento | Um campo de data personalizado |
+
+Não existe uma etapa de conversão de lead: um lead vira cliente quando você muda o status dele. O valor de um negócio é a soma dos itens dele, então uma oportunidade que só tem um valor precisa de um item com um serviço, como “Diária de consultoria”, e a quantidade certa. Mantenha os nomes e as probabilidades das suas etapas e você vê o valor ponderado de cada negócio; um widget de gráfico no Painel soma tudo em um total de pipeline ponderado.
+
+Os sócios querem e-mail e LinkedIn lado a lado, então a empresa escolhe o Business, a [[commercial.price.business.monthly.seats.5]] por mês. Com uma conta por pessoa, o Pro, a [[commercial.price.pro.monthly.seats.5]], seria suficiente. Cada sócio é dono de uma rotina no Customermates Cloud, que usa créditos de IA hospedados:
+
+> Toda segunda-feira às 8h, encontre as minhas oportunidades em “Proposta enviada” em que o contato não escreve há dez dias. Para cada uma, salve um rascunho curto de acompanhamento na minha última conversa com esse contato. Não envie nada. Liste as oportunidades no resumo da execução.
+
+## Como sair do Salesforce
+
+<Steps>
+  <Step title="Exporte do Salesforce">Em Setup, digite Data Export em Quick Find e escolha Export Now. O Salesforce envia por e-mail um link para um arquivo zip e o mantém por 48 horas. Em um contrato anual, confira antes a data de renovação.</Step>
+  <Step title="Confira os arquivos">O Customermates importa arquivos .xlsx, .xls e .csv, então as exportações de contas, contatos, leads e oportunidades não precisam de conversão. Uma planilha comporta hoje até 5.000 linhas, então divida as maiores.</Step>
+  <Step title="Prepare o espaço de trabalho">Renomeie as listas em Modelo de dados, dê ao campo de etapa uma opção por etapa do Salesforce, com a probabilidade dela, e crie campos de escolha única para as listas de opções que você mantém.</Step>
+  <Step title="Importe uma lista por vez">Comece pelas contas, depois os contatos, depois as oportunidades, para que os vínculos com registros existentes sejam resolvidos. O [guia de registros](/docs/app-records) explica o mapeamento de colunas.</Step>
+  <Step title="Conecte canais e IA">Conecte uma caixa de e-mail, o LinkedIn ou o WhatsApp e depois configure uma rotina ou o seu próprio cliente de IA via MCP. O histórico de atividades não vem junto, então mantenha o Salesforce somente leitura até a equipe ter feito a mudança.</Step>
+</Steps>
+
+## Outras alternativas ao Salesforce que valem a pena conhecer
+
+O Customermates publica esta lista. Os detalhes vêm das páginas de cada fornecedor, verificadas em 8 de outubro de 2026.
+
+- **HubSpot** é gratuito para até dois usuários, sem cartão de crédito. Serve para equipes que querem começar de graça e crescer para ferramentas de marketing. Veja [HubSpot vs Salesforce](/compare/hubspot-vs-salesforce).
+- **Zoho CRM** tem uma edição gratuita para até três usuários e quatro edições pagas, do Standard ao Ultimate. Serve para equipes que querem uma suíte ampla. Veja [Zoho vs Salesforce](/compare/zoho-vs-salesforce).
+- **Twenty** se apresenta como “the open alternative to Salesforce, designed for AI” (a alternativa aberta ao Salesforce, pensada para IA). O núcleo de código aberto é gratuito para hospedar por conta própria com Docker Compose, todos os planos de nuvem incluem objetos personalizados ilimitados, e o plano Organization acrescenta login único SAML/OIDC e permissões por linha. Serve para equipes que querem modelar os próprios objetos.
+- **SuiteCRM** é publicado sob AGPLv3 e construído em PHP, Symfony e MySQL. Você o hospeda por conta própria ou usa o SuiteCRM Hosted. Cobre vendas com cotações, marketing e atendimento, e serve para equipes que querem um conjunto amplo de módulos nos próprios servidores.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Existe uma alternativa gratuita ao Salesforce?">
+Para dois usuários, o próprio Free Suite do Salesforce não custa nada, desde que alguém entre a cada 60 dias. O CRM gratuito do HubSpot também cobre dois usuários, e a edição gratuita do Zoho CRM, três. SuiteCRM, Twenty e o núcleo AGPL-3.0 do Customermates podem ser hospedados por conta própria sem taxa de licença; o Customermates com hospedagem própria não tem caixa de entrada nem Mate. O Customermates Cloud tem um teste de [[commercial.trial.days]] dias e um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem caixa de entrada, Mate nem rotinas.
+</FaqItem>
+
+<FaqItem question="Qual é uma boa alternativa de código aberto ao Salesforce?">
+O SuiteCRM tem o conjunto de módulos mais amplo, com marketing, atendimento e cotações. O Twenty serve para equipes que querem os próprios objetos. O Customermates começa sem listas, deixa você criar as que precisa e se concentra em conversas com clientes e IA: o núcleo roda com Docker Compose, e a versão em nuvem acrescenta a caixa de entrada unificada e o Mate. O [guia de CRM de código aberto](/blog/open-source-crm) compara mais opções.
+</FaqItem>
+
+<FaqItem question="Quanto custa o Salesforce por mês?">
+De US$ 0 para dois usuários no Free Suite a US$ 550 por usuário no Max. O Starter Suite custa US$ 25 por usuário, na cobrança mensal ou anual; Pro Suite (US$ 100), Core (US$ 195), Advanced (US$ 395) e Max são cobrados anualmente. Cinco pessoas no Pro Suite pagam € 500 por mês, € 6.000 por ano, antes dos complementos. O [guia de preços do Salesforce](/blog/salesforce-pricing) detalha as edições.
+</FaqItem>
+
+<FaqItem question="Qual CRM é o melhor para uma pequena empresa?">
+O que combina com a forma como você conquista trabalho. Se você vende com previsões e cotações, o Salesforce Pro Suite tem as duas; compare os planos pagos do HubSpot e do Zoho CRM com a mesma lista. Se vocês são duas ou três pessoas e querem começar de graça, HubSpot ou Zoho CRM. Se o trabalho com clientes passa por e-mail, LinkedIn e WhatsApp e ninguém quer manter registros à mão, Customermates.
+</FaqItem>
+
+<FaqItem question="Existe um CRM melhor que o Salesforce?">
+Nenhum que seja melhor para todas as equipes. Se você usa a previsão de vendas, os territórios, os fluxos de aprovação e o AppExchange do Salesforce, ele é difícil de substituir. Uma equipe menor, que usa só uma fração dele, costuma ser mais bem atendida por um CRM que consiga configurar sozinha e pagar mês a mês.
+</FaqItem>
+
+<FaqItem question="O Salesforce armazena dados na UE?">
+Pode armazenar. A Hyperforce EU Operating Zone mantém o processamento e o armazenamento na UE e na Suíça, com suporte baseado na UE, para um conjunto selecionado de produtos; a página não informa preço. O Customermates Cloud tem o banco de dados configurado na região AWS de Frankfurt e lista seus subprocessadores, inclusive provedores dos EUA.
+</FaqItem>
+</Faq>
+
+Detalhes do concorrente verificados em 8 de outubro de 2026 no [preço do Sales Cloud](https://www.salesforce.com/sales/pricing/), no [preço em alemão](https://www.salesforce.com/de/sales/pricing/), no [Free Suite](https://www.salesforce.com/crm/free-crm/), no [teste gratuito](https://www.salesforce.com/sales/), no [preço do Service Cloud](https://www.salesforce.com/service/pricing/), na [Hyperforce EU Operating Zone](https://www.salesforce.com/platform/public-cloud-infrastructure/operating-zone/) e na [unidade sobre exportação de dados](https://trailhead.salesforce.com/content/learn/modules/lex_implementation_data_management/lex_implementation_data_export) do Salesforce, e nos [preços do HubSpot](https://www.hubspot.com/pricing/crm), nos [preços do Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html), nos [preços do Twenty](https://twenty.com/pricing), no [repositório do Twenty](https://github.com/twentyhq/twenty), no [SuiteCRM](https://suitecrm.com/) e no [repositório do SuiteCRM](https://github.com/SuiteCRM/SuiteCRM-Core).

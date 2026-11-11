@@ -95,7 +95,7 @@ sections:
       - title: "Check the edition boundary"
         description: "Confirm that the Starter feature set covers the records, views and interfaces your workflow needs."
       - title: "Map external services"
-        description: "List every SMTP, OAuth, monitoring, workflow or AI provider you plan to configure and the data each one receives."
+        description: "List every email (Resend), OAuth, monitoring, workflow or AI provider you plan to configure and the data each one receives."
       - title: "Design operations"
         description: "Define backups, tested restoration, upgrades, TLS, monitoring and access control for your environment."
       - title: "Test without customer data"
@@ -161,7 +161,7 @@ The Compose file does not bundle n8n, an AI model, an email-delivery provider or
   title="The deployment boundary is smaller than the complete system boundary"
   variant="proof"
 >
-  The application and database can run on your infrastructure while SMTP, OAuth,
+  The application and database can run on your infrastructure while email delivery through Resend, OAuth,
   monitoring, workflow tools and external AI remain separate services whenever
   you configure them. Map those providers before choosing the deployment model.
 </AcquisitionCallout>
@@ -191,7 +191,7 @@ That distinction matters when comparing an [open-source CRM](/blog/open-source-c
 
 You choose where the application and PostgreSQL run and how you configure network access, backups, retention and updates. That is meaningful infrastructure control, but it is not an automatic compliance, security or air-gap guarantee.
 
-Connected services remain separate processing boundaries. OAuth providers, SMTP, monitoring, workflow tools and external AI providers receive whatever your configuration sends to them. Error diagnostics remain on your server; operator notifications use the recipient and email provider you configure. This is not a blanket no-telemetry promise.
+Connected services remain separate processing boundaries. OAuth providers, Resend for email, monitoring, workflow tools and external AI providers receive whatever your configuration sends to them. Error diagnostics remain on your server; operator notifications use the recipient and email provider you configure. This is not a blanket no-telemetry promise.
 
 ## Self-hosted or managed cloud?
 
@@ -234,6 +234,6 @@ First-party material outside `ee/` is AGPL-3.0-only. Inside `ee/`, the client ma
 </FaqItem>
 
 <FaqItem question="What does the official Docker Compose stack contain?">
-It contains the Customermates application and PostgreSQL 16. n8n, AI models, SMTP, identity providers and monitoring services are separate when you choose to connect them.
+It contains the Customermates application and PostgreSQL 16. Email goes out through Resend with your own API key. n8n, AI models, identity providers and monitoring services are separate when you choose to connect them.
 </FaqItem>
 </Faq>

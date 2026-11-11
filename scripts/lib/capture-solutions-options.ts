@@ -4,6 +4,8 @@ export type CaptureSolutionsOptions = {
   allowDirty: boolean;
   allowPlaceholders: boolean;
   baseUrl: string;
+  // data locales to capture; every published one when empty
+  locales: string[];
   mode: CaptureSolutionsMode;
   navOnly: boolean;
   only: string[];
@@ -34,6 +36,7 @@ export function parseCaptureSolutionsArgs(args: readonly string[]): CaptureSolut
     allowDirty: false,
     allowPlaceholders: false,
     baseUrl: DEFAULT_CAPTURE_BASE_URL,
+    locales: [],
     mode: "capture",
     navOnly: false,
     only: [],
@@ -50,6 +53,7 @@ export function parseCaptureSolutionsArgs(args: readonly string[]): CaptureSolut
     else if (arg === "--nav-only") options.navOnly = true;
     else if (arg === "--base-url") options.baseUrl = valueAfter(args, index++, arg).replace(/\/+$/u, "");
     else if (arg === "--only") options.only = valueAfter(args, index++, arg).split(",").filter(Boolean);
+    else if (arg === "--locales") options.locales = valueAfter(args, index++, arg).split(",").filter(Boolean);
     else throw new Error(`Unknown argument ${arg}`);
   }
 

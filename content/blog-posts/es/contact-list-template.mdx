@@ -1,0 +1,128 @@
+---
+title: "Lista de clientes en Excel: plantilla CSV gratis y pasos"
+description: "Lista de clientes en Excel: cómo crearla paso a paso, qué campos incluir y dos plantillas CSV gratis (en blanco y de ejemplo) para asignar responsables."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/google-sheets-crm
+  - /features/contact-management
+  - /blog/digital-rolodex
+
+hero:
+  title: "Lista de clientes en Excel: CSV en blanco y un ejemplo completo"
+  description: "Lista de clientes en Excel: descarga una plantilla CSV en blanco y otra de ejemplo, impórtalas en Excel, conserva los campos útiles y asigna un responsable."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-06
+  updated: 2026-11-06
+  tags:
+    - Gestión de contactos
+    - Plantillas
+---
+
+# Lista de clientes en Excel: CSV en blanco y un ejemplo completo
+
+Esta lista de clientes en Excel da a un equipo pequeño un único lugar para los nombres, los datos de contacto profesionales y el siguiente paso acordado. Descarga el CSV en blanco o el ejemplo ficticio de abajo, impórtalo en tu hoja de cálculo y pasa a Customermates cuando cuidar las relaciones y los seguimientos requiera algo más que un archivo compartido.
+
+En resumen, para hacer una lista de clientes en Excel: pon los encabezados en la primera fila, una persona por fila, conviértela en tabla y añade siempre un responsable y la fecha del siguiente paso. Los pasos completos están en la sección siguiente.
+
+## ¿Cómo hacer una lista de clientes en Excel paso a paso? [#como-hacer-lista-clientes-excel]
+
+«Lista de clientes», «cartera de clientes», «base de datos de clientes» y «ficha de cliente» describen lo mismo a distinta escala: la lista son las filas, la cartera es el conjunto de personas y empresas que atiendes y la ficha reúne los datos de una sola persona. Con un equipo pequeño, una hoja bien hecha cubre las tres cosas.
+
+1. **Escribe los encabezados en la primera fila.** Usa los campos de la tabla de más abajo; menos es más.
+2. **Una persona por fila.** Dos contactos de la misma empresa son dos filas, cada una con su ID de contacto.
+3. **Conviértela en tabla.** Selecciona los datos y elige Insertar > Tabla (o Ctrl+T). Así los filtros y el orden se aplican a toda la lista y las filas nuevas heredan el formato.
+4. **Limita las opciones de «Relación».** En Datos > Validación de datos, elige Lista e indica las opciones permitidas (por ejemplo Prospecto, Cliente, Proveedor) para que nadie escriba tres variantes de la misma palabra.
+5. **Filtra por fecha del siguiente paso.** Usa el filtro de la columna para ver lo que vence hoy o ya venció, y ordena de la fecha más antigua a la más reciente.
+6. **Guarda la lista como libro de Excel (.xlsx)** cuando añadas tablas y filtros; el CSV no conserva ese formato.
+
+Si tu equipo es de dos o tres personas, añade un paso más: decidid quién es el único responsable de mantener el archivo maestro.
+
+## ¿Qué lista de contactos conviene descargar?
+
+- [CSV de lista de contactos en blanco](/downloads/contact-list-template-es-blank.csv): solo los encabezados, listo para tus propios registros.
+- [CSV de lista de contactos con ejemplo](/downloads/contact-list-template-es-example.csv): dos contactos profesionales ficticios que muestran el responsable y los siguientes pasos.
+
+Son descargas originales y gratuitas, sin registro. Ambas usan UTF-8 con marca de orden de bytes y comas como separador. Son datos simples, no libros de Excel con formato: sin fórmulas, listas desplegables, recordatorios ni sincronización automática. Es una lista de contactos profesionales, no una agenda de emergencias ni una libreta de direcciones para imprimir. Para una estructura de libro más amplia, con oportunidades incluidas, consulta la [guía de la plantilla de CRM en Excel](/blog/excel-crm-template).
+
+Si la lista se queda pequeña para una hoja de cálculo, nuestra guía para elegir una [agenda digital de contactos](/blog/digital-rolodex) compara los contactos del móvil, las plantillas y los CRM.
+
+## ¿Qué campos debe tener una plantilla de lista de contactos en Excel?
+
+Una persona por fila. Dos personas de la misma empresa necesitan ID de contacto distintos; no pongas las dos direcciones de correo en una sola celda.
+
+| Campo | Cómo usarlo |
+| --- | --- |
+| ID de contacto | Referencia estable como C001; consérvala aunque cambie el nombre. |
+| Nombre, Empresa | Identifican a la persona y su contexto profesional. |
+| Correo electrónico, Teléfono | Conserva solo los canales necesarios; se admiten celdas vacías. |
+| Responsable | Un compañero responsable del siguiente paso. |
+| Relación | Un pequeño vocabulario compartido, como Prospecto o Cliente. |
+| Último contacto | Fecha real de la última conversación, no la fecha de edición del archivo. |
+| Siguiente paso, Fecha del siguiente paso | Una acción acordada y una fecha límite real; en blanco si no existe. |
+| Origen | De dónde salieron los datos; no es prueba de consentimiento para marketing. |
+| Fecha de revisión | La fecha que eliges para comprobar la exactitud y la necesidad de seguir conservando el dato, no un plazo de borrado automático. |
+
+El ejemplo deja a propósito vacíos los teléfonos. Añade una dirección, un cumpleaños o notas sensibles solo si el trabajo de verdad los necesita. No conviertas un directorio útil en una colección de todo lo que puedas encontrar.
+
+## ¿Cómo importas el CSV en Excel o en Google Sheets?
+
+En Excel, usa Datos > Desde texto/CSV en lugar de fiarte del doble clic. Con la configuración regional de España, que usa el punto y coma como separador de listas, un CSV con comas se abre con todo en una sola columna al hacer doble clic; en otras configuraciones puede abrirse bien, así que no lo des por hecho. Selecciona UTF-8 y la coma como delimitador, y revisa la vista previa. Antes de cargar, define ID de contacto, Correo electrónico y Teléfono como texto; la conversión automática puede estropear los ceros iniciales y los números internacionales. Las fechas usan el formato AAAA-MM-DD: confirma cómo se interpretan antes de usar filtros por fecha. Microsoft explica las vías disponibles en su [guía de importación de texto y CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files).
+
+En Google Sheets, importa el archivo en una hoja nueva y revisa el separador y las opciones de conversión. Comprueba que los encabezados ocupen columnas distintas y que los nombres con tildes se conserven. Si todo acaba en una sola columna, elige la coma de forma explícita. Después de añadir filtros o formato, guarda un libro de Excel o conserva la hoja nativa de Google; un CSV no conserva la presentación de un libro. Revisa de nuevo cualquier exportación CSV posterior, porque la configuración regional puede cambiar los separadores.
+
+Borra las filas de ejemplo ficticias antes de añadir personas reales. Prueba primero con dos registros y compara cada columna con el archivo original. No actives nunca fórmulas a partir de valores importados que no conozcas.
+
+## ¿Cómo pueden dos compañeros convertir la lista en seguimientos?
+
+Este es un equipo de servicios ficticio el 6 de noviembre de 2026. Lucía se encarga de la solicitud de un briefing de Marta; Diego se encarga de la pregunta de Pablo sobre la entrega. El ejemplo registra las fechas reales de este escenario en lugar de repartir las tareas de forma pareja a lo largo de la semana.
+
+1. Al empezar el día, filtra Fecha del siguiente paso por hoy y anteriores. Lucía encuentra C001, revisa la solicitud y envía el briefing tras repasarlo.
+2. Lucía fija Último contacto en 2026-11-06. Si Marta no ha acordado otro paso, Lucía borra la acción antigua y la fecha en lugar de inventar un plazo. Un seguimiento elegido aparte debe tener un motivo claro.
+3. Diego deja C002 con vencimiento el 2026-11-09 porque esa es la comprobación de entrega acordada en este ejemplo. Una fecha futura no es prueba de que el trabajo esté terminado.
+4. Antes de traspasar, cada persona busca acciones abiertas sin Responsable o sin fecha. Revisa a mano los correos duplicados antes de fusionar; un buzón compartido puede representar a personas distintas.
+
+Mantén un único archivo maestro con acceso limitado al equipo que lo necesita. Varias copias enviadas por correo dificultan saber qué siguiente paso es el vigente. La columna de fechas no avisa a nadie: el equipo debe hacer esa comprobación. La [descripción de la gestión de contactos](/features/contact-management) explica la alternativa de un CRM cuando el directorio se convierte en trabajo de relación.
+
+## ¿Cómo mantienes la lista proporcionada y privada?
+
+Para los tratamientos cubiertos por el RGPD, la Comisión Europea describe la limitación de la finalidad, la minimización de datos, la exactitud y la limitación del plazo de conservación en sus [principios de protección de datos](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Elige la finalidad y la base jurídica adecuada antes de usar datos personales reales. Una plantilla descargada no ofrece ni consentimiento ni permiso para enviar marketing.
+
+Usa los datos profesionales necesarios para esa finalidad, limita el acceso compartido, revisa las entradas obsoletas y elimina los datos innecesarios, sin perjuicio de las obligaciones de conservación aplicables. Evita comentarios privados o datos personales sensibles en las celdas de texto libre. La Fecha de revisión es un recordatorio para tu propia decisión, no un plazo legal de conservación válido para todos. No publiques el archivo completado con un enlace para compartir sin restricciones.
+
+## ¿Cuándo conviene pasar la lista a Customermates?
+
+Quédate con la hoja de cálculo si una persona puede mantenerla de forma fiable y la revisión diaria funciona. Valora un CRM cuando cambian los responsables, o cuando el historial de contactos o las empresas vinculadas se vuelven difíciles de mantener. Customermates admite importaciones en CSV, XLSX, XLS y JSON a través del flujo de importación de listas de registros. Usa la [documentación sobre la importación de registros](/docs/app-records) para comprobar la asignación de columnas y la vista previa antes de importar el archivo completo.
+
+Crea o elige la lista de destino y asigna las columnas con criterio. En este CSV, los nombres de los responsables y de las empresas son texto, no compañeros ni organizaciones vinculados de forma automática. Configura tú los campos de fecha del siguiente paso y de relación; son campos normales, no vencimientos ni estados de tarea integrados. Prueba con dos filas y revisa los registros guardados antes de continuar. Importar un archivo no es una sincronización en directo con una hoja de cálculo.
+
+Lo que añade el cambio es la conversación. La fecha del siguiente paso vive en la ficha del cliente junto al hilo (en Pro, LinkedIn y correo), tu panel muestra lo que vence y Mate puede redactar la respuesta para que tú la revises y la envíes. Nada te avisa; abres el panel. Para probarlo con tus propios contactos, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup). Sin tarjeta de crédito.
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Puedo descargar gratis esta plantilla de lista de contactos para Excel?">
+Sí. Las dos descargas en CSV son gratuitas y no requieren registro. Impórtalas en Excel y añade tu propio formato; no se incluyen ni un libro XLSX ni fórmulas.
+</FaqItem>
+<FaqItem question="¿Cómo hacer seguimiento de clientes en Excel?">
+Añade a la lista un responsable, el último contacto y una fecha del siguiente paso, y cada mañana filtra por las fechas de hoy y anteriores. Funciona mientras una persona mantenga la hoja; el archivo no avisa a nadie, así que la comprobación es parte de tu rutina.
+</FaqItem>
+<FaqItem question="¿Sirve esta plantilla para una lista de proveedores?">
+Sí, la estructura es la misma: cambia las opciones de «Relación» (por ejemplo, Proveedor) y añade las columnas que necesites, como el producto o las condiciones de pago. Sigue siendo una lista de contactos profesionales, sin fórmulas ni control de pagos.
+</FaqItem>
+<FaqItem question="¿Puedo imprimirla o usarla en Word?">
+Para imprimir, impórtala primero en una hoja de cálculo, selecciona solo las columnas que necesites y define el área de impresión. La descarga no es un documento de Word, ni un PDF, ni una hoja con formato listo para imprimir.
+</FaqItem>
+<FaqItem question="¿La fecha del siguiente paso envía recordatorios?">
+No. Es un valor para filtrar durante la revisión diaria. Ninguno de los dos CSV envía mensajes ni crea recordatorios.
+</FaqItem>
+<FaqItem question="¿Conservar una dirección de correo permite hacer marketing?">
+No. El origen registra de dónde salió un dato, no un permiso para hacer marketing. Comprueba por separado las reglas aplicables y tu base para contactar con la persona.
+</FaqItem>
+</Faq>
+
+Orientación externa comprobada el 6 de noviembre de 2026. El ejemplo es ficticio; no incluye ningún dato de clientes.

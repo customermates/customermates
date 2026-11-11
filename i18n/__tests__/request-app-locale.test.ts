@@ -21,7 +21,7 @@ describe("getRequestAppLocale", () => {
   });
 
   it("falls back when the request locale is outside the application domain", async () => {
-    request.locale = "nl";
+    request.locale = "ja";
 
     await expect(getRequestAppLocale()).resolves.toBe(DEFAULT_LOCALE);
   });

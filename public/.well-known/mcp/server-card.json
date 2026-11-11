@@ -3023,7 +3023,10 @@
               "de",
               "fr",
               "it",
-              "es"
+              "es",
+              "pt",
+              "pl",
+              "nl"
             ]
           },
           "fields": {
@@ -12759,7 +12762,10 @@
                   "de",
                   "fr",
                   "it",
-                  "es"
+                  "es",
+                  "pt",
+                  "pl",
+                  "nl"
                 ]
               },
               "includeIdentities": {
@@ -38469,7 +38475,7 @@
     {
       "name": "search_docs",
       "title": "Search documentation",
-      "description": "Use this when you need to search the Customermates documentation (product guides and REST API reference). Matches the query's words in full text and, with AI credits, also by meaning. Required: query. Optional: locale (one of: en, de, fr, it; default en), source (one of: docs, api, all; default docs). Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
+      "description": "Use this when you need to search the Customermates documentation (product guides and REST API reference). Matches the query's words in full text and, with AI credits, also by meaning. Required: query. Optional: locale (one of: en, de, fr, it, es, pt, pl, nl; default en), source (one of: docs, api, all; default docs). Returns ranked pages with the best section of each (slug#anchor), then the best page's url and its snippet in text, plus up to 5 full matches as structured content. Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. Then read the best page with get_docs_page, passing its nonempty returned anchor as anchor and the original question as query to preserve both the section and the requested detail; omit anchor and query for an empty anchor. If it does not answer, read the next page.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -38490,7 +38496,11 @@
               "en",
               "de",
               "fr",
-              "it"
+              "it",
+              "es",
+              "pt",
+              "pl",
+              "nl"
             ]
           },
           "source": {
@@ -38580,7 +38590,7 @@
     {
       "name": "get_docs_page",
       "title": "Get documentation page",
-      "description": "Use this when you need one Customermates documentation page as markdown, with its canonical URL. Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. Required: slug (from search_docs). Optional: locale (one of: en, de, fr, it; default en), source (one of: docs, api; default docs). Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. An unknown slug returns the valid slugs.",
+      "description": "Use this when you need one Customermates documentation page as markdown, with its canonical URL. Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged. Required: slug (from search_docs). Optional: locale (one of: en, de, fr, it, es, pt, pl, nl; default en), source (one of: docs, api; default docs). Pass the nonempty anchor returned by search_docs as anchor and the original question as query to read the selected section without losing the requested detail. For an empty anchor, omit anchor and query to read the full page. Otherwise pass query with the exact detail you need to get a bounded excerpt. An unknown slug returns the valid slugs.",
       "execution": {
         "taskSupport": "forbidden"
       },
@@ -38613,7 +38623,11 @@
               "en",
               "de",
               "fr",
-              "it"
+              "it",
+              "es",
+              "pt",
+              "pl",
+              "nl"
             ]
           },
           "source": {
@@ -38754,7 +38768,10 @@
                       "de",
                       "fr",
                       "it",
-                      "es"
+                      "es",
+                      "pt",
+                      "pl",
+                      "nl"
                     ]
                   },
                   "includeIdentities": {
@@ -41152,7 +41169,10 @@
                       "de",
                       "fr",
                       "it",
-                      "es"
+                      "es",
+                      "pt",
+                      "pl",
+                      "nl"
                     ]
                   },
                   "includeIdentities": {
@@ -42178,7 +42198,10 @@
                       "de",
                       "fr",
                       "it",
-                      "es"
+                      "es",
+                      "pt",
+                      "pl",
+                      "nl"
                     ]
                   },
                   "includeIdentities": {
@@ -47945,6 +47968,9 @@
               "fr",
               "it",
               "es",
+              "pt",
+              "pl",
+              "nl",
               "system"
             ]
           },
@@ -47957,6 +47983,9 @@
               "fr",
               "it",
               "es",
+              "pt",
+              "pl",
+              "nl",
               "system"
             ]
           }

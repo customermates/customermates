@@ -1,0 +1,102 @@
+---
+title: "Rotinas: execuções do Mate agendadas ou por evento"
+description: "As rotinas executam o Mate em um horário ou quando um registro muda, com a cota mensal do proprietário, limites, status de execução e aprovações."
+---
+
+Uma rotina é uma instrução salva mais um gatilho. Quando o gatilho dispara, o Customermates abre uma nova conversa com o assistente, envia a sua instrução e deixa o Mate trabalhar sozinho. As rotinas existem apenas no Customermates Cloud, porque usam a cota mensal do Mate do proprietário.
+
+Quem vê as rotinas depende da linha **Rotinas** da própria função em [Funções](app:settings/roles): **Acesso de leitura** **Todos** mostra todas as rotinas do espaço de trabalho, **Atribuídos** só as da própria pessoa, e **Nenhum** oculta [Rotinas](app:routines). Criar exige **Criar**, e editar a própria rotina exige **Editar**. Todos que podem ver uma rotina veem os resumos das execuções dela; a transcrição completa fica com a pessoa como a qual a execução rodou.
+
+## Como crio uma rotina ou automação? [#how-do-i-create-a-routine]
+
+Abra [Rotinas](app:routines) e clique em [Adicionar](app:routines?focus=add). Informe um **Nome** e as **Instruções**, escolha um gatilho e clique em **Salvar**. A rotina é salva como **Ativa**, a menos que você a mude antes para **Pausada**. Você também pode pedir ao Mate que crie uma; o Mate a salva pausada, a menos que você peça que ela fique ativa. Encontre as rotinas existentes pesquisando ou filtrando em [Filtros](app:routines?focus=filter) e alterne entre tabela e quadro em [Aparência](app:routines?focus=display-options).
+
+## Do que uma rotina é feita? [#what-is-a-routine-made-of]
+
+- **Nome**: obrigatório, até 120 caracteres.
+- **Instruções**: o que o Mate recebe em cada execução, até 5.000 caracteres. Escreva como pediria no chat.
+- **Gatilho**: **Em uma programação**, ou **Quando algo muda** para um ou mais eventos, como um negócio ser atualizado.
+
+Quem cria se torna o proprietário. Só o proprietário pode alterar as instruções ou o gatilho, alternar a rotina entre **Ativa** e **Pausada** ou usar **Testar gatilho**, porque cada execução usa a identidade, o acesso e a cota do Mate do proprietário. Os demais veem a rotina somente para leitura.
+
+Membros com a função **Administrador** podem pausar (**Pausar rotina**) ou excluir a rotina de qualquer pessoa, mas não podem editar, testar nem executar a de outra pessoa. Excluir exige **Administrador** até para a sua própria rotina, move a rotina para a [Lixeira](/docs/app-trash), onde ela deixa de ser executada até ser restaurada, e é recusado enquanto uma execução está em andamento (**Aguarde a execução ativa terminar antes de excluir esta rotina.**). Excluí-la permanentemente da Lixeira também remove o histórico de execuções dela. Quando um proprietário é definido como **Inativo** em [Membros](app:settings/members), as rotinas dele são pausadas na hora, as execuções na fila ou em andamento terminam como **Bloqueada**, e as rotinas continuam pausadas e somente para leitura até um administrador excluí-las ou o proprietário voltar a ficar ativo e ligá-las de novo.
+
+## Quantas rotinas meu plano inclui? [#how-many-routines-does-my-plan-include]
+
+Cada usuário tem a própria cota: o Starter inclui [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário, o Pro [[commercial.entitlement.pro.includedRoutinesPerUser]], e o Business, o Max e o Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Pausar uma rotina não libera uma vaga; movê-la para a [Lixeira](/docs/app-trash) libera a vaga na hora. No limite, uma nova rotina é recusada com um convite para fazer upgrade em [Faturamento](app:settings/billing), e restaurar uma rotina da Lixeira a mantém lá, com o aviso de que o proprietário dela já tem todas as rotinas que o plano inclui; mova antes outra rotina do proprietário para a Lixeira. Pelo REST e pelo MCP, o resultado da restauração a lista em `blocked` com o motivo `routineLimitReached` e o `limit` do plano. O limite só é verificado quando uma rotina é criada ou restaurada, então as rotinas acima do limite de um plano menor são mantidas após um downgrade. A cota de que as execuções se valem é descrita em [Planos e uso do Mate](/docs/app-assistant#plans-and-credits).
+
+No plano Free, as rotinas não estão incluídas: as rotinas existentes são mantidas, mostram **Pausada, plano Free** e não são executadas, e criar ou ativar uma é recusado com o preço do Starter. Elas voltam a rodar por conta própria quando o espaço de trabalho escolhe um plano pago.
+
+## Quais são os limites, como execuções por hora e uso por execução? [#what-are-the-limits]
+
+| Limite | Valor | No limite |
+| --- | --- | --- |
+| Execuções por rotina e por hora | 4 | Um evento correspondente é descartado sem registro de execução; uma execução agendada que venceu ou uma execução de **Testar gatilho** é registrada como **Ignorada** |
+| Uso por execução | 10% de uma cota do Starter, em todos os planos | A execução para e é registrada como **Parcial** |
+| Execuções seguidas com falha | 3 | A rotina se pausa sozinha e mostra o motivo; o proprietário a liga de novo depois de corrigir a causa |
+| Menor intervalo de programação | 15 minutos | Uma programação mais frequente é rejeitada ao salvar |
+| Histórico de execuções | 90 dias | As execuções mais antigas são removidas |
+| Tempo de espera dos eventos (debounce) | 300 segundos por padrão, de 0 a 86.400, definido apenas pelo Mate, pelo MCP ou pela API REST | Outros eventos correspondentes dentro da janela, depois que uma execução começa, são ignorados |
+
+As execuções ignoradas não contam para o limite por hora.
+
+Toda execução de rotina começa com as ferramentas principais do CRM e carrega outros conjuntos de ferramentas quando necessário. Isso mantém descrições de ferramentas sem relação fora do contexto do modelo. Se, mesmo após a compactação, o contexto ainda exceder o orçamento do provedor, a execução para e o histórico dela informa o motivo do limite de contexto.
+
+## Programações: como executo uma rotina toda manhã ou toda segunda-feira? [#how-do-schedules-work]
+
+Em [Rotinas](app:routines), abra uma rotina ou clique em [Adicionar](app:routines?focus=add) e, em **Repetição**, escolha **A cada 15 minutos**, **A cada 30 minutos**, **A cada hora**, **Todos os dias**, **Toda semana** ou **Todo mês**, além do dia da semana, do dia do mês (1 a 28) ou do horário em intervalos de cinco minutos, quando necessário. O padrão é todos os dias às 09:00. Para as predefinições por hora e mais longas, a programação aparece por extenso abaixo, seguida de **Os horários são exibidos em** e o fuso horário, que vem do navegador em que a rotina foi criada (UTC se for desconhecido).
+
+Uma programação que não se encaixa em nenhuma predefinição, por exemplo só em dias úteis, e um fuso horário diferente só podem ser definidos pelo Mate, por um cliente MCP ou pela API REST; a caixa de diálogo então mostra **Esta rotina usa uma programação personalizada** com **Mudar para uma predefinição**. O agendador verifica a cada cinco minutos, então uma execução pode começar com alguns minutos de atraso, e uma execução ainda na fila depois de dois minutos é despachada de novo.
+
+## Como funcionam os gatilhos por evento, por exemplo para executar uma rotina quando um negócio muda? [#how-do-event-triggers-work]
+
+Em **Eventos**, escolha um ou mais eventos: todo evento de registro e de mensagens a que um [webhook](/docs/webhooks#which-events-exist) pode se inscrever, exceto Registro excluído permanentemente, E-mail excluído e Chat excluído. Alterações feitas no aplicativo, em um chat do Mate, pela API ou pelo MCP disparam rotinas; alterações que uma execução de rotina faz nunca disparam, então as rotinas não podem se encadear nem entrar em loop.
+
+Dois controles opcionais evitam que uma rotina gaste a cota em casos que não interessam:
+
+- **Campos alterados** (somente eventos de atualização): a rotina só roda quando um destes campos realmente mudou. Ele fica oculto quando nenhum evento de atualização está selecionado.
+- **Filtros de registros**: só os registros correspondentes contam. Criações e atualizações são comparadas com o resultado salvo, exclusões com o registro completo logo antes da remoção, inclusive seus relacionamentos.
+
+Deixe os dois vazios para rodar a cada evento correspondente. Um evento só inicia uma execução para um registro ou uma conversa que o proprietário pode ver, então, com acesso de leitura **Atribuídos**, os registros de outras pessoas nunca a disparam. Um evento também é ignorado, sem registro de execução, quando uma execução dessa rotina já está na fila ou em andamento, dentro do tempo de espera ou acima do limite por hora. Quando a execução começa, o acesso do proprietário e os filtros são verificados de novo.
+
+O Mate é informado do que aconteceu antes das suas instruções: o evento, o tipo de registro e o ID dele, os campos alterados em uma atualização e, em um evento da caixa de entrada, a conversa. Ele pode ler o registro a partir daí, mas não recebe os valores anteriores.
+
+## O que significam as execuções e os status delas? [#what-do-the-runs-and-their-statuses-mean]
+
+Abra uma rotina para ver as **Execuções** dela, da mais recente para a mais antiga: ao lado da configuração em uma tela larga, ou atrás da alternância **Detalhes** e **Execuções** em uma tela estreita. Clique em uma execução para ver **Detalhes da execução**: **Executada como** com o nome do proprietário, a parcela da cota mensal do Mate do proprietário que foi usada (custo exato do provedor, mostrado como porcentagem), o gatilho (**Registro**, **Campos alterados**, **Conversa**) e, quando parou antes da hora, o motivo. Quando a execução propôs alterações na Base de conhecimento, ela informa quantas e oferece **Revisar**. Só a pessoa como a qual ela rodou pode abrir a transcrição completa e, depois que a execução termina, responder abaixo dela para continuar a conversa com o Mate, o que usa a cota dessa pessoa.
+
+| Status | Significado |
+| --- | --- |
+| **Na fila** | Esperando o agendador |
+| **Em execução** | O Mate está trabalhando |
+| **Bem-sucedida** | A execução cumpriu a instrução |
+| **Parcial** | Parou antes da hora, por exemplo no limite por execução ou quando uma política recusou uma ação |
+| **Com falha** | Terminou com um erro ou sem um resultado utilizável |
+| **Ignorada** | Estava na fila mas não começou: a rotina foi pausada, o limite por hora foi atingido, o registro deixou de corresponder aos filtros ou ao acesso do proprietário, o gatilho mudou, a execução foi interrompida ou o assistente estava ocupado com outra execução |
+| **Bloqueada** | O Mate não pôde começar porque o Customermates pausou o trabalho de IA, a cota do proprietário acabou ou o proprietário estava inativo, ou outra verificação de admissão falhou. A execução inclui um motivo em `error`, como `platformPaused` ou `agentLimitReached`. Administradores do espaço de trabalho não podem retomar uma pausa do Customermates. Um administrador do espaço de trabalho pode pausar uma rotina separadamente; esse motivo é `adminPaused`. |
+
+Uma execução que para no limite por execução de 10% de uma cota do Starter informa isso no resumo e em **Detalhes da execução**; esse limite é separado da cota mensal do proprietário. A execução para antes de uma rodada do modelo quando o uso já contabilizado mais o máximo que essa rodada pode custar, reservado como descrito em [como uma solicitação é cobrada](/docs/app-assistant#credits), ultrapassaria esse limite.
+
+**Testar gatilho** inicia uma execução real imediatamente. Ele está disponível para o proprietário de uma rotina agendada ativa sem alterações não salvas, usa a cota do Mate e pode alterar dados. As execuções de teste manuais têm `triggerKind: schedule`, o tipo da rotina que testam. Um teste é recusado antes de uma execução entrar na fila quando o trabalho de IA está pausado, o proprietário está inativo ou a cota do proprietário acabou. As rotinas por evento precisam de um evento real correspondente, então ele fica desativado para elas.
+
+## O que uma rotina pode fazer sem aprovação [#what-a-routine-may-do-without-approval]
+
+Uma execução sem supervisão pode fazer tudo o que o Mate faz sem aprovação em um chat, exceto que as alterações na Base de conhecimento viram [propostas](#knowledge-base-proposals): ler o espaço de trabalho; criar ou atualizar registros e vínculos de registros; salvar e descartar rascunhos; enviar e-mails e mensagens de chat; triar a caixa de entrada; alterar campos, widgets, webhooks e configurações do espaço de trabalho, exceto nomes de listas; gerar links de conexão de canais; criar, atualizar, pausar e executar rotinas; e, em uma conta conectada, enviar pedidos de conexão e alterar listas do Sales Navigator.
+
+Toda ação que pede aprovação em um chat é recusada, porque não há ninguém para responder: excluir registros, campos, widgets, webhooks ou rotinas, renomear listas, convidar membros, alterar a função ou o status de um membro, reenviar entregas de webhook e enviar solicitações de suporte. A execução registra a recusa; a lista completa está na [página do assistente](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Ações de interface, como destacar um elemento, ficam indisponíveis, porque nenhum navegador está conectado.
+
+Quando o proprietário pode ler a [Base de conhecimento](/docs/mcp#shared-workspace-wiki) e ela tem páginas, cada execução começa com um catálogo curto das páginas dela; a rotina pesquisa e lê as páginas relevantes e aplica os fatos delas, mas uma instrução dentro de uma página não pode iniciar outro trabalho nem ampliar as permissões da rotina. Mantenha ali os fatos, o tom e os processos compartilhados em vez de repeti-los em cada rotina. Propor uma alteração de página exige **Criar** ou **Editar** do proprietário na Base de conhecimento.
+
+Uma execução pode pesquisar na web pública, no máximo 2 pesquisas pagas por execução, como descrito em [O Mate pode pesquisar na web?](/docs/app-assistant#web-search). Uma execução pode navegar ou alterar dados, nunca os dois: depois que uma pesquisa retorna resultados, toda gravação é recusada, e depois que uma gravação é bem-sucedida, a pesquisa na web é retirada. A leitura da Base de conhecimento e dos dados do CRM continua disponível. As pesquisas contam para o limite por execução.
+
+### Propostas da Base de conhecimento [#knowledge-base-proposals]
+
+Quando uma execução cria, edita ou exclui uma página da Base de conhecimento, nada muda ainda: a execução salva uma proposta, e o Mate informa que ela aguarda revisão em vez de concluída. Um gerente a revisa em **Propostas** na Base de conhecimento, compara com a página atual e a aprova ou rejeita; veja [Revisar as propostas do Mate](/docs/mcp#review-proposals). A entrada da execução na lista de execuções e os **Detalhes da execução** mostram quantas alterações ela propôs, e os **Detalhes da execução** levam à revisão.
+
+## Como o Mate gerencia rotinas? [#how-does-mate-manage-routines]
+
+Em um chat, o Mate pode listar rotinas, ler o histórico de execuções, criar, atualizar e pausar rotinas e iniciar uma execução agora, sem pedir antes. Ele também pode definir o que a caixa de diálogo não permite: uma programação personalizada, como dias úteis às 09:00, o fuso horário e o tempo de espera dos eventos. Excluir uma rotina pede a sua aprovação e, como no aplicativo, exige a função **Administrador**.
+
+## Para agentes [#tips-for-agents]
+
+Use `manage_routines`. Uma programação personalizada é uma expressão cron de cinco campos, por exemplo `0 9 * * 1-5`. Os status de execução voltam como `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` e `blocked`. A ação `pause` exige a função **Administrador** mesmo na sua própria rotina; um proprietário sem ela pausa atualizando com `enabled: false`. Os nomes de evento são os nomes de evento de webhook, sem `record.deletedPermanently`, `messaging.email.deleted` e `messaging.chat.deleted`. Os filtros de registros vão em `recordTrigger.query.filters`; uma rotina que acompanha várias listas usa `recordSources` no lugar, até 50 fontes, cada uma com os próprios `query`, `changedFieldIds` e `events`, e não pode combiná-lo com `recordTrigger`. A antiga configuração `triggerFilters` não existe mais. Pelo REST, as rotinas ficam em `/api/v1/routines/`: `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` e `delete`. Toda operação sobre uma rotina recebe o `id` dela, e `runs` responde `404` para uma rotina que não existe ou pertence a outro espaço de trabalho.

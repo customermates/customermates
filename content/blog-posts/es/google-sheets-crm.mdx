@@ -1,0 +1,263 @@
+---
+title: "CRM Google Sheets: plantilla gratis, cómo montarlo y límites"
+description: "CRM Google Sheets: plantilla gratis de cinco pestañas con listas desplegables y fórmulas, cómo montarlo, ventajas y límites, y cuándo pasar a un CRM."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/free-crm
+  - /features/simple-crm
+  - /docs/app-records
+
+hero:
+  title: "CRM Google Sheets: plantilla gratis, fórmulas y dónde deja de funcionar"
+  description: "Pestañas, columnas, listas desplegables y fórmulas para un CRM en hoja de cálculo que de una a tres personas pueden llevar en Google Sheets, un Apps Script corto que te escribe cada mañana y un camino limpio hacia un CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2025-12-22
+  updated: 2026-10-08
+  tags:
+    - Google Sheets
+    - Plantilla de CRM
+    - CRM en hoja de cálculo
+    - CRM gratis
+---
+
+# CRM Google Sheets: plantilla gratis, fórmulas y dónde deja de funcionar
+
+Un CRM en Google Sheets es una hoja de cálculo con una pestaña por tipo de registro, que sirve para llevar a los clientes y el seguimiento de ventas sin comprar un programa de CRM. Sí, funciona para equipos de una a tres personas. Dale a cada tipo de registro su propia pestaña (contactos, oportunidades, actividades), convierte cada valor fijo en una lista desplegable y deja que una pestaña Panel cuente y sume el resto con QUERY y COUNTIFS. Google no vende un CRM: su [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) lista CRM de terceros como Copper, Pipedrive, Streak y Zoho CRM, y Gmail, Formularios y Apps Script son las piezas que conectas tú.
+
+Customermates publica esta guía y es el CRM del ejemplo de migración del final. Todo lo anterior a esa sección solo necesita una cuenta de Google.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="Qué construyes">Cinco pestañas: Listas, Contactos, Oportunidades, Actividades y un Panel con tablas en vivo de seguimientos y pipeline.</SummaryItem>
+  <SummaryItem label="Qué añade Google">Respuestas de formulario que llegan solas a la hoja, avisos de cambios por correo y Apps Script para un correo matinal con los siguientes pasos vencidos.</SummaryItem>
+  <SummaryItem label="A quién le sirve">A una a tres personas, con un solo proceso de venta y conversaciones sobre todo por correo.</SummaryItem>
+  <SummaryItem label="Dónde se rompe">El acceso es por archivo, no por fila. Los vínculos entre pestañas son texto plano, y los hilos de LinkedIn o WhatsApp nunca llegan a la hoja si nadie los escribe a mano.</SummaryItem>
+  <SummaryItem label="Cómo pasar a un CRM">Descarga como .xlsx e importa una pestaña cada vez: empresas, luego contactos, luego oportunidades.</SummaryItem>
+</ArticleSummary>
+
+Usa la [plantilla de lista de contactos](/blog/contact-list-template) para tener un directorio pequeño y compartido, con responsable y siguiente paso a la vista, antes de decidir si lo pasas a un CRM.
+
+## ¿Cómo se hace un CRM en Google Sheets? [#como-hacer-crm-google-sheets]
+
+En seis pasos; los detalles de cada uno están más abajo.
+
+1. **Escribe tu objetivo en una frase**, por ejemplo «saber a quién llamar esta semana y qué oportunidades siguen abiertas». Decide qué columnas necesitas.
+2. **Crea una pestaña por tipo de registro:** Contactos, Oportunidades y Actividades, más una pestaña Listas con los valores fijos.
+3. **Convierte cada pestaña en una tabla** (Formato › Convertir en tabla) y pon un menú desplegable en las columnas de valor fijo.
+4. **Define las etapas de tu proceso de venta** en la pestaña Listas, las que sigues de verdad, de la primera conversación al cierre.
+5. **Añade el Panel**, con QUERY y COUNTIFS, para ver los siguientes pasos vencidos y el pipeline abierto.
+6. **Comparte con cabeza y revisa cada semana:** una vista de filtro por persona, una copia de seguridad y un repaso de las fechas vencidas.
+
+## Cuatro reglas para preparar la hoja
+
+1. **Una fila de encabezado y una fila por registro.** Sin celdas combinadas, sin filas vacías, sin subtotales entre registros.
+2. **Convierte cada pestaña de datos en una tabla.** Selecciona el rango y elige Formato › Convertir en tabla. La [guía de tablas](https://support.google.com/docs/answer/14239833) de Google te deja fijar un tipo por columna: Menú desplegable, Fecha, Moneda, Chip de persona y otros. Una columna de fecha avisa entonces cuando escribes «el próximo martes», algo que importa en cuanto las fórmulas comparan fechas.
+3. **Haz que cada valor fijo sea una lista desplegable.** Insertar › Menú desplegable, o Datos › Validación de datos con «Menú desplegable (de un intervalo)» apuntando a la pestaña Listas. Según la [ayuda de menús desplegables](https://support.google.com/docs/answer/186103) de Google, los valores no válidos se rechazan de forma predeterminada. Déjalo así: para cualquier fórmula, «Propuesta» y «propuesta enviada» son dos etapas distintas.
+4. **Vincula por nombre.** La empresa de un contacto es el nombre exacto de la empresa, y el contacto de una oportunidad es el nombre completo de la persona. Los nombres se leen bien, y las importaciones de los CRM, Customermates incluido, enlazan los vínculos por nombre.
+
+## La plantilla, pestaña por pestaña
+
+Las plantillas de CRM para Google Sheets que verás por ahí suelen ser de cinco tipos: de contactos, de embudo de ventas, de seguimiento de leads, de actividades y tareas, y de informes. Este diseño las reúne en una sola hoja: Contactos y Oportunidades cubren las tres primeras, Actividades la cuarta y el Panel la quinta. Una sola hoja con pestañas vinculadas por nombre es más fácil de mantener que cinco archivos sueltos.
+
+### Listas
+
+| Rango | Valores |
+| --- | --- |
+| A: Etapa, B: Probabilidad | Prospección 10 %, Cualificación 20 %, Demo 40 %, Propuesta 60 %, Negociación 80 %, Ganada 100 %, Perdida 0 % |
+| D: Tipo de contacto | Lead, Cliente, Partner, Excliente |
+| E: Origen | Recomendación, Sitio web, LinkedIn, Evento, Formulario web |
+| F: Tipo de actividad | Llamada, Correo, Reunión, LinkedIn, WhatsApp |
+| G: Equipo | Nombre completo de cada persona que tiene registros |
+
+Estas etapas y probabilidades son un ejemplo. Customermates no trae etapas predefinidas: crea las mismas opciones en el campo Etapa de tu lista de oportunidades en Modelo de datos (o deja que la configuración con IA las cree en la nube), y la columna Etapa pasará después sin cambiar de nombre. Sustituye los porcentajes cuando tengas unos meses de oportunidades ganadas y perdidas que contar.
+
+### Contactos
+
+Columnas de la A a la J: Nombre, Apellidos, Empresa, Correo, Teléfono, URL de LinkedIn, Tipo de contacto, Origen, Responsable, Notas. Mantén nombre y apellidos separados; la mayoría de los CRM necesitan ambos para crear una persona. Si vendes a empresas, añade una pestaña Empresas con Empresa, Sitio web, Sector y Ciudad, y haz que la lista desplegable de la columna Empresa apunte a ella.
+
+### Oportunidades
+
+| Columna | Contenido | Ejemplo |
+| --- | --- | --- |
+| A Oportunidad | Texto | Revisión de seguridad de Brookfield Architects |
+| B Empresa | Lista desplegable | Brookfield Architects |
+| C Contacto | Nombre completo | Sarah Okafor |
+| D Valor | Número | 18000 |
+| E Etapa | Lista desplegable de Listas!A | Propuesta |
+| F Probabilidad | Fórmula | 60 % |
+| G Ponderado | Fórmula | 10800 |
+| H Responsable | Lista desplegable de Listas!G | Anna Berg |
+| I Siguiente paso | Una frase | Enviar el alcance revisado |
+| J Fecha del siguiente paso | Fecha | 2025-12-04 |
+| K Cerrada el | Fecha, se rellena al pasar a Ganada o Perdida | |
+
+Ponlas en la fila 2 y arrástralas hacia abajo. Las fórmulas de esta página usan los nombres de función en inglés y la coma como separador; si tu hoja tiene una configuración regional que usa punto y coma, cambia las comas por punto y coma:
+
+```
+F2  =IFERROR(VLOOKUP(E2,Listas!A:B,2,FALSE),0)
+G2  =D2*F2
+```
+
+### Actividades
+
+Una fila por cada conversación que importó: Fecha, Contacto, Oportunidad, Tipo, Responsable, Resumen y Siguiente paso. Es la única pestaña que responde a «¿qué les dijimos la última vez?», así que rellénala justo después de la llamada o no lo hará nadie.
+
+### Panel
+
+Cuatro números:
+
+```
+Pipeline abierto          =SUMIFS(Oportunidades!D2:D,Oportunidades!E2:E,"<>Ganada",Oportunidades!E2:E,"<>Perdida",Oportunidades!A2:A,"<>")
+Pipeline ponderado        =SUMIFS(Oportunidades!G2:G,Oportunidades!E2:E,"<>Ganada",Oportunidades!E2:E,"<>Perdida",Oportunidades!A2:A,"<>")
+Tasa de éxito             =COUNTIF(Oportunidades!E2:E,"Ganada")/MAX(1,COUNTIF(Oportunidades!E2:E,"Ganada")+COUNTIF(Oportunidades!E2:E,"Perdida"))
+Siguientes pasos vencidos =COUNTIFS(Oportunidades!J2:J,"<"&TODAY(),Oportunidades!E2:E,"<>Ganada",Oportunidades!E2:E,"<>Perdida")
+```
+
+Dos funciones hacen que la versión de Google sea mejor que la de Excel. [QUERY](https://support.google.com/docs/answer/3093343) construye el pipeline por etapa como una tabla que se actualiza sola. La consulta entre comillas se queda en inglés:
+
+```
+=QUERY(Oportunidades!A1:K,"select E, count(A), sum(D) where E is not null and E <> 'Ganada' and E <> 'Perdida' group by E label count(A) 'Oportunidades', sum(D) 'Valor'",1)
+```
+
+Y FILTER te da una lista de seguimientos en vivo, con cada oportunidad abierta cuya fecha del siguiente paso ya pasó:
+
+```
+=FILTER(Oportunidades!A2:J,Oportunidades!J2:J<>"",TODAY()>Oportunidades!J2:J,Oportunidades!E2:E<>"Ganada",Oportunidades!E2:E<>"Perdida")
+```
+
+Pon cada una en su propio bloque del Panel y deja espacio debajo, porque las dos se expanden hacia abajo.
+
+## Qué añade Google alrededor de la hoja
+
+**Captación de leads con Formularios de Google.** Vincula un formulario a la hoja de cálculo en Respuestas › Seleccionar destino de las respuestas, y la [ayuda de Formularios](https://support.google.com/docs/answer/2917686) de Google indica que cada respuesta nueva se añade automáticamente. Deja la pestaña de respuestas tal como está y copia a mano los [leads cualificados](/features/lead-management) a Contactos. Editar o reordenar sus columnas es la forma más rápida de romper el vínculo con el formulario.
+
+**Avisos de cambios.** Herramientas › Configuración de notificaciones › Editar notificaciones envía un correo cuando alguien modifica el archivo, al instante o como resumen diario. Según la [ayuda de notificaciones](https://support.google.com/docs/answer/91588) de Google, solo cubre las ediciones de otras personas. Te dice que Anna editó Oportunidades. No te dice que una fecha de siguiente paso ya pasó.
+
+**Un correo matinal con Apps Script.** Para eso, abre Extensiones › Apps Script y pega:
+
+```js
+function mailPastNextSteps() {
+  const rows = SpreadsheetApp.getActive().getSheetByName('Oportunidades').getDataRange().getValues();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = rows.slice(1).filter(r =>
+    r[9] instanceof Date && r[9] < today && r[4] !== 'Ganada' && r[4] !== 'Perdida');
+  if (due.length) {
+    MailApp.sendEmail(Session.getEffectiveUser().getEmail(),
+      due.length + ' siguientes pasos vencidos',
+      due.map(r => r[0] + ': ' + r[8]).join('\n'));
+  }
+}
+```
+
+Después añade un activador (icono del reloj › Añadir activador), origen del evento «Basado en tiempo», tipo «Temporizador de día», de 7 a 8 h. La columna J es el índice 9 porque el array empieza en 0. Las [cuotas de Apps Script](https://developers.google.com/apps-script/guides/services/quotas) de Google limitan una cuenta de Gmail gratuita a 100 destinatarios de correo y 90 minutos de ejecución de activadores al día; las cuentas de Workspace tienen 1500 destinatarios y 6 horas. Un correo al día queda muy por debajo de ambos límites.
+
+**Vistas de filtro en lugar de filtros.** Un filtro normal cambia la vista de todas las personas con acceso. Datos › Vistas de filtro › Crear nueva vista de filtro guarda un filtro que cambia solo tu propia vista, como explica la [ayuda de filtros](https://support.google.com/docs/answer/3540681) de Google. Dale a cada persona una vista de filtro «Mis oportunidades abiertas» por Responsable y Etapa.
+
+## Ventajas de usar Google Sheets como CRM [#ventajas-google-sheets-crm]
+
+- **Ya lo tienes.** Basta una cuenta de Google; no hay que dar de alta a nadie ni aprender un programa nuevo.
+- **Varias personas a la vez.** Todos editan el mismo archivo, con comentarios y menciones, sin pasarse versiones por correo.
+- **Tú decides las columnas.** Añades el campo propio de tu oficio sin pedir nada a un proveedor.
+- **Conecta con el resto de Google.** Los Formularios llevan los leads a la hoja y Apps Script te manda cada mañana un correo con lo vencido.
+- **Es fácil de llevarse.** Una pestaña con una fila por registro se descarga como .xlsx y se importa después a un CRM.
+
+Esas ventajas son reales mientras el equipo sea pequeño. Las limitaciones de abajo explican cuándo dejan de serlo.
+
+## Dónde deja de funcionar un CRM en Google Sheets
+
+El tamaño casi nunca es el problema. Google permite hasta 20 millones de celdas por hoja de cálculo en sus [límites de archivos de Drive](https://support.google.com/drive/answer/37603), muchísimas más de las que llena un equipo pequeño. Estos límites aparecen primero:
+
+- **Todo el mundo lo ve todo.** Compartir funciona por archivo. Los rangos protegidos impiden editar, pero la [ayuda de protección](https://support.google.com/docs/answer/1218656) de Google dice con claridad que las personas aún pueden copiar y exportar una hoja protegida, y que la protección «no debe usarse como medida de seguridad». Un freelance al que añades para actualizar dos oportunidades puede leer toda la lista de clientes.
+- **Los vínculos son texto.** Cambia el nombre de una empresa y cada contacto y cada oportunidad que usaba el nombre antiguo deja de apuntar a nada hasta que ejecutas Buscar y reemplazar.
+- **Las conversaciones se quedan fuera.** Los hilos de Gmail, los mensajes de LinkedIn y los chats de WhatsApp llegan a la hoja solo cuando alguien los resume en Actividades.
+- **Los datos personales se multiplican.** Cada descarga, copia y «hacer una copia para mí» es otro lugar donde viven los datos de una persona. Cuando alguien ejerce sus derechos del [RGPD](https://eur-lex.europa.eu/eli/reg/2016/679/oj) para ver sus datos (artículo 15) o para que se borren (artículo 17), tienes que encontrarlos todos.
+
+## ¿Quedarte en Sheets, añadir una herramienta o cambiar?
+
+| Si esto te describe | Haz esto |
+| --- | --- |
+| Una persona, unos cientos de contactos, sobre todo por correo | Quédate con la plantilla de arriba y el correo de Apps Script |
+| Dos o tres personas, una lista de oportunidades compartida, todo el mundo puede verlo todo | Quédate con la hoja y añade vistas de filtro por persona y reglas de notificación |
+| Quieres funciones de CRM, pero tu equipo se niega a dejar Sheets | Mira los complementos de CRM del Google Workspace Marketplace, que funcionan dentro de Sheets o Gmail |
+| Varias personas comparten oportunidades, los seguimientos se retrasan o los tratos avanzan en hilos de LinkedIn y WhatsApp | Pasa a un CRM, empezando por la importación de más abajo |
+| Usas Excel o Microsoft 365 en lugar de Google | Usa la [plantilla de CRM en Excel](/blog/excel-crm-template), con el mismo diseño y un seguimiento semanal por vendedor |
+
+Una regla sencilla: cuando dos personas editan las mismas oportunidades cada semana y un seguimiento se ha retrasado, cambia. Antes de eso, la hoja va bien.
+
+## Cómo pasar un CRM con Google Sheets a Customermates
+
+Customermates importa libros de Excel (.xlsx) y archivos CSV, una lista cada vez, así que una hoja de Google pasa primero por una descarga. No hay sincronización en vivo con Google Sheets. La [documentación de importación](/docs/app-records#how-do-i-import-or-export-records) tiene todas las reglas, y la [guía de la plantilla de Excel](/blog/excel-crm-template#moving-the-template-into-customermates) asigna cada columna de este diseño a un campo. Una hoja solo hace seguimiento cuando alguien se acuerda de abrirla. En Customermates, las conversaciones de cada cliente están en la ficha del cliente (en Customermates Cloud desde Pro), Mate o tu propio agente de IA redacta la respuesta y el siguiente paso, y la fecha del siguiente paso alimenta tu panel en lugar de un filtro que tienes que revisar.
+
+<Steps>
+  <Step title="Limpia las pestañas">Usa Datos › Limpieza de datos › Quitar duplicados en Contactos y Oportunidades, y corrige cualquier valor que marque una lista desplegable. Cada etapa y cada tipo debe ser exactamente uno de los valores de Listas.</Step>
+  <Step title="Crea los campos personalizados">En Customermates, abre la lista en **Modelo de datos** y elige **Añadir** y después **Campo**. Para cada columna con lista desplegable (Tipo de contacto, Origen, Sector), añade un campo **Selección única** con etiquetas de opción idénticas a las de tu pestaña Listas. Usa campos de Fecha para Fecha del siguiente paso y Cerrada el. El campo Etapa de las oportunidades ya existe con las etapas de arriba.</Step>
+  <Step title="Descarga el libro">Elige Archivo › Descargar › Microsoft Excel (.xlsx). El asistente te pregunta qué pestaña importar, así que el mismo archivo sirve para todas las importaciones.</Step>
+  <Step title="Importa en orden de dependencias">Empresas en **Organizaciones**, luego Contactos y luego Oportunidades. En cada lista, abre **Más acciones**, elige **Añadir desde archivo** y asigna cada columna a un campo, por ejemplo las direcciones de correo al campo **Datos de contacto** del contacto. Los vínculos se enlazan por nombre, sin distinguir mayúsculas y minúsculas, así que una empresa debe existir antes de que un contacto pueda apuntar a ella. El Responsable va en **Asignado a**, enlazado por el nombre completo del miembro del equipo.</Step>
+  <Step title="Prueba con diez filas">La comprobación enumera cada fila con problemas antes de añadir nada, y puedes omitir esas filas. Una importación no se puede deshacer, así que prueba primero con un archivo pequeño. Trae de Actividades solo los siguientes pasos abiertos, como tareas; el historial más antiguo puede ir en las Notas de una oportunidad o quedarse en la hoja archivada.</Step>
+</Steps>
+
+Los valores de las oportunidades funcionan de otra manera: en Customermates el valor de una oportunidad es la suma de sus líneas, cada una un servicio por una cantidad. Los [pasos de importación](/blog/excel-crm-template#moving-the-template-into-customermates) de la guía de Excel muestran cómo traer primero tu lista de precios.
+
+### Qué sustituye al Panel y al Apps Script
+
+- **QUERY por etapa** pasa a ser la lista Oportunidades como tablero agrupado por Etapa, con el valor total y el ponderado por columna, que se ve en la [vista de pipeline](/features/pipeline).
+- **La lista de seguimientos con FILTER** pasa a ser una vista guardada de oportunidades filtradas por la fecha del siguiente paso, ordenadas de la más antigua a la más reciente. Se puede compartir con el equipo.
+- **El correo matinal** puede pasar a ser una rutina en Customermates Cloud. Customermates no tiene recordatorios ni notificaciones, pero una rutina programada para ejecutarse a diario a las 08:00 puede seguir una instrucción como esta, con créditos de IA alojados:
+
+> Enumera mis oportunidades abiertas cuya Fecha del siguiente paso sea hoy o anterior. Para cada una, crea una tarea vinculada a la oportunidad, asignada a mí, con el nombre «Seguimiento» más el nombre de la oportunidad. No envíes ni redactes ningún mensaje.
+
+Una rutina se ejecuta como su propietario, y Mate envía mensajes cuando se lo pides, así que la última frase importa. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; la [documentación de rutinas](/docs/app-routines) tiene los límites de ejecución.
+
+- **La pestaña Actividades** deja paso, en Pro y superiores, a la [bandeja de entrada unificada](/features/unified-inbox), donde los hilos de Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram están junto al contacto. Starter no tiene bandeja de entrada.
+
+Si aun así quieres una copia para informes en Google Sheets, los webhooks pueden enviar los cambios de los registros a una instancia de [n8n](/docs/n8n) que gestiones aparte, y esta los escribe en una hoja.
+
+## Cuánto cuesta y cuándo Customermates no es el paso adecuado
+
+| Equipo | Plan | Al mes |
+| --- | --- | --- |
+| 3 personas, CRM sin bandeja de entrada | Starter, [[commercial.price.starter.monthly]] por usuario | [[commercial.price.starter.monthly.seats.3]] |
+| 3 personas, con la bandeja de entrada unificada | Pro, [[commercial.price.pro.monthly]] por usuario | [[commercial.price.pro.monthly.seats.3]] |
+| Tu propio servidor | Núcleo AGPL autoalojado | Sin coste de licencia, más el alojamiento; REST, webhooks y MCP, pero sin bandeja de entrada ni Mate |
+
+La facturación es mensual, y la prueba alojada dura [[commercial.trial.days]] días en Pro sin tarjeta de crédito: [empieza tu prueba](/auth/signup?job=followup) e importa una pestaña para ver allí tus propias oportunidades. Cada plan alojado de pago incluye créditos de IA alojados al mes por usuario activo; consulta los [precios](/pricing).
+
+Customermates no es el paso adecuado si tu proceso vive en fórmulas: no tiene campos de fórmula, así que los cálculos personalizados se quedan en una hoja de cálculo mediante la exportación. Tampoco lo es si necesitas un marcador telefónico, campañas de correo o una app nativa para el móvil. Customermates no tiene nada de eso, así que busca un CRM que lo incluya. Y si el requisito real es «quedarme dentro de Google Sheets», un complemento del Marketplace encaja mejor que cualquier CRM aparte.
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Se puede usar Google Sheets como CRM?">
+Sí, para una a tres personas con un solo proceso de venta. El diseño de cinco pestañas de arriba cubre contactos, oportunidades, actividades y un panel, y Apps Script puede enviarte cada mañana un correo con los siguientes pasos vencidos. No puede limitar quién ve qué filas, mantener los vínculos intactos cuando cambia un nombre ni traer las conversaciones de Gmail, LinkedIn o WhatsApp.
+</FaqItem>
+
+<FaqItem question="¿Google tiene una herramienta de CRM?">
+No. Google Workspace tiene Sheets, Gmail, Contactos y Formularios, pero ningún CRM propio. La [categoría Sales & CRM](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) del Workspace Marketplace lista CRM de terceros que se conectan con Google, entre ellos Copper, Pipedrive, Streak y Zoho CRM.
+</FaqItem>
+
+<FaqItem question="¿Cuál es la diferencia entre un CRM en Google Sheets y un CRM para Google Workspace?">
+Un CRM en Google Sheets es una hoja que tú mantienes. Un CRM para Google Workspace, como los de la categoría Sales & CRM del Marketplace, es un producto de otro fabricante que se conecta a Gmail, Calendar y Contactos para registrar los correos y las reuniones. La [guía de CRM para Gmail y Google Workspace](/blog/gmail-crm-integration) explica las tres formas de conectarlos y cómo elegir. Si buscas un CRM Google gratis, compara los planes de la [guía de CRM gratis](/blog/free-crm).
+</FaqItem>
+
+<FaqItem question="¿Hay una plantilla de CRM gratis para Google Sheets?">
+El diseño de esta página es gratis: copia los encabezados en una hoja de cálculo en blanco, añade las listas desplegables y pega las fórmulas. Si descargas una plantilla de CRM para Google Sheets en otro sitio, comprueba que mantenga un registro por fila, los contactos aparte de las empresas y ninguna celda combinada. Una plantilla que no pasa esas comprobaciones es difícil de importar después a un CRM. Si prefieres partir de un archivo, el libro de Excel gratuito de la [guía de CRM en Excel](/blog/excel-crm-template) se puede abrir en Google Sheets con Archivo › Importar; revisa las fórmulas después, porque los nombres de las funciones cambian entre programas.
+</FaqItem>
+
+<FaqItem question="¿Cuántos contactos aguanta un CRM en Google Sheets?">
+Una hoja de cálculo admite hasta 20 millones de celdas, según los [límites de archivos](https://support.google.com/drive/answer/37603) de Google. El límite práctico son las personas, no las filas: el acceso compartido y los seguimientos que se retrasan se vuelven un problema mucho antes de que el archivo se llene. Customermates lee actualmente hasta 5000 filas por archivo de importación, así que divide las pestañas más grandes.
+</FaqItem>
+
+<FaqItem question="¿Puedo conectar una lista de Google Sheets a un CRM?">
+Algunos CRM traen un complemento para Sheets; el Workspace Marketplace lista Copper CRM for Google Sheets, por ejemplo. Customermates no: importa archivos de Excel y CSV y exporta archivos .xlsx, una lista cada vez, sin sincronización en vivo. Puedes exportar una lista, editarla en Sheets, descargarla como .xlsx e importarla de nuevo como **Registros existentes**; su columna ID del registro actualiza los registros que ya existen en lugar de crear duplicados.
+</FaqItem>
+
+<FaqItem question="¿Se puede crear un CRM en Excel en su lugar?">
+Sí. La [plantilla de CRM en Excel](/blog/excel-crm-template) usa la misma estructura con tablas de Excel, XLOOKUP y un seguimiento semanal por vendedor. Elige la herramienta en la que tu equipo ya comparte archivos.
+</FaqItem>
+</Faq>
+
+Datos de Google comprobados el 8 de octubre de 2026 en las páginas de ayuda de Google sobre [tablas](https://support.google.com/docs/answer/14239833), [menús desplegables](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [respuestas de Formularios](https://support.google.com/docs/answer/2917686), [notificaciones](https://support.google.com/docs/answer/91588), [vistas de filtro](https://support.google.com/docs/answer/3540681), [rangos protegidos](https://support.google.com/docs/answer/1218656), [límites de archivos de Drive](https://support.google.com/drive/answer/37603), las [cuotas de Apps Script](https://developers.google.com/apps-script/guides/services/quotas) y el [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).

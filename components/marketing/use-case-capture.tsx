@@ -10,7 +10,7 @@ import {
   homepageCaptureSrc,
 } from "@/app/[locale]/(static)/components/homepage-captures";
 import { Linkedin, Whatsapp } from "@/components/icons/channel-icon";
-import { type AssetLocale, assetLocaleFor, contentLocaleOrDefault } from "@/i18n/locale-registry";
+import { ASSET_LOCALES, type AssetLocale, assetLocaleFor, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
 export type UseCaseChannel = "email" | "linkedin" | "whatsapp";
 
@@ -68,32 +68,36 @@ const INBOX_THREADS: Crop = {
   y: 246,
 };
 
-function wholeCapture(capture: HomepageCaptureName, channel?: MarkedChannel): Record<AssetLocale, Crop> {
-  const { de, en } = HOMEPAGE_CAPTURES[capture];
+function sameCrop(crop: Crop): Record<AssetLocale, Crop> {
+  return Object.fromEntries(ASSET_LOCALES.map((locale) => [locale, crop])) as Record<AssetLocale, Crop>;
+}
 
-  return {
-    de: { capture, channel, width: de.width, x: 0, y: 0 },
-    en: { capture, channel, width: en.width, x: 0, y: 0 },
-  };
+function wholeCapture(capture: HomepageCaptureName, channel?: MarkedChannel): Record<AssetLocale, Crop> {
+  return Object.fromEntries(
+    ASSET_LOCALES.map((locale) => [
+      locale,
+      { capture, channel, width: HOMEPAGE_CAPTURES[capture][locale].width, x: 0, y: 0 },
+    ]),
+  ) as Record<AssetLocale, Crop>;
 }
 
 export const CONVERSATION_CROPS: Record<UseCaseChannel, Record<AssetLocale, Crop>> = {
-  email: { de: NEUTRAL_THREAD, en: NEUTRAL_THREAD },
-  linkedin: { de: LINKEDIN_DRAFT, en: LINKEDIN_DRAFT },
+  email: sameCrop(NEUTRAL_THREAD),
+  linkedin: sameCrop(LINKEDIN_DRAFT),
   whatsapp: wholeCapture("homepage-usecase-whatsapp", "whatsapp"),
 };
 
 export const CAPTURED_USE_CASE_CROPS: Record<UseCaseVisual, Record<AssetLocale, Crop>> = {
-  agent: { de: AI_CONNECTIONS, en: AI_CONNECTIONS },
+  agent: sameCrop(AI_CONNECTIONS),
   calendar: wholeCapture("homepage-usecase-calendar"),
   contacts: wholeCapture("homepage-usecase-contacts"),
   conversation: CONVERSATION_CROPS.linkedin,
-  dashboard: { de: DASHBOARD_NEXT_STEPS, en: DASHBOARD_NEXT_STEPS },
+  dashboard: sameCrop(DASHBOARD_NEXT_STEPS),
   import: wholeCapture("homepage-usecase-import"),
-  inbox: { de: INBOX_THREADS, en: INBOX_THREADS },
-  pipeline: { de: PIPELINE_BOARD, en: PIPELINE_BOARD },
+  inbox: sameCrop(INBOX_THREADS),
+  pipeline: sameCrop(PIPELINE_BOARD),
   playbook: wholeCapture("homepage-usecase-playbook"),
-  proposal: { de: PIPELINE_PROPOSALS, en: PIPELINE_PROPOSALS },
+  proposal: sameCrop(PIPELINE_PROPOSALS),
   search: wholeCapture("homepage-usecase-search"),
   team: wholeCapture("homepage-usecase-team"),
 };

@@ -1,11 +1,11 @@
 import type { Day, FirstWeekContainsDate, Locale } from "date-fns";
 import type { Formatters } from "react-day-picker";
 
-import { de, enUS, es, fr, it } from "react-day-picker/locale";
+import { de, enUS, es, fr, it, nl, pl, ptBR } from "react-day-picker/locale";
 
 import type { AppLocale } from "@/i18n/locale-registry";
 
-export const DAY_PICKER_LOCALES = { de, en: enUS, es, fr, it } satisfies Record<AppLocale, Locale>;
+export const DAY_PICKER_LOCALES = { de, en: enUS, es, fr, it, pt: ptBR, pl, nl } satisfies Record<AppLocale, Locale>;
 
 type LocaleWeekInfo = { firstDay: number; minimalDays: number };
 

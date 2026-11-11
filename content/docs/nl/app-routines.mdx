@@ -1,0 +1,102 @@
+---
+title: "Routines: geplande en gebeurtenisgestuurde Mate-runs"
+description: "Routines laten Mate op een schema of bij een gewijzigd record draaien, met het tegoed van de eigenaar, limieten, uitvoeringsstatussen en goedkeuringen."
+---
+
+Een routine is een opgeslagen instructie plus een trigger. Wanneer de trigger afgaat, opent Customermates een nieuw assistentgesprek, stuurt je instructie mee en laat Mate zelfstandig aan het werk gaan. Routines bestaan alleen in Customermates Cloud, omdat ze het maandelijkse Mate-tegoed van de eigenaar gebruiken.
+
+Wie routines ziet, hangt af van de rij **Routines** van hun rol in [Rollen](app:settings/roles): **Leestoegang** **Alle** toont elke routine in de werkruimte, **Toegewezen** alleen hun eigen routines, en **Geen** verbergt [Routines](app:routines). Aanmaken vraagt **Aanmaken**, je eigen routines bewerken vraagt **Bewerken**. Iedereen die een routine kan zien, ziet de samenvattingen van de uitvoeringen; het volledige transcript blijft bij de persoon als wie de uitvoering is gedraaid.
+
+## Hoe maak ik een routine of automatisering aan? [#how-do-i-create-a-routine]
+
+Open [Routines](app:routines) en klik op [Toevoegen](app:routines?focus=add). Vul een **Naam** en **Instructies** in, kies een trigger en klik op **Opslaan**. De routine wordt **Actief** opgeslagen, tenzij je hem eerst op **Gepauzeerd** zet. Je kunt Mate ook vragen er een aan te maken; Mate slaat hem gepauzeerd op, tenzij je vraagt of hij actief moet zijn. Bestaande routines vind je door te zoeken of te filteren onder [Filters](app:routines?focus=filter), en je wisselt tussen tabel en bord onder [Weergave](app:routines?focus=display-options).
+
+## Waaruit bestaat een routine? [#what-is-a-routine-made-of]
+
+- **Naam**: verplicht, maximaal 120 tekens.
+- **Instructies**: wat Mate bij elke uitvoering krijgt, maximaal 5.000 tekens. Schrijf het zoals je het in een chat zou vragen.
+- **Trigger**: **Volgens schema**, of **Wanneer er iets verandert** voor een of meer gebeurtenissen, zoals een bijgewerkte deal.
+
+De maker wordt de eigenaar. Alleen de eigenaar kan de instructies of de trigger wijzigen, de routine wisselen tussen **Actief** en **Gepauzeerd** of **Trigger testen** gebruiken, omdat elke uitvoering de identiteit, de toegang en het Mate-tegoed van de eigenaar gebruikt. Anderen zien de routine alleen-lezen.
+
+Leden met de rol **Beheerder** kunnen de routine van iedereen pauzeren (**Routine pauzeren**) of verwijderen, maar die van iemand anders niet bewerken, testen of uitvoeren. Verwijderen vraagt **Beheerder**, ook voor je eigen routine, verplaatst de routine naar de [Prullenbak](/docs/app-trash), waar hij stopt met draaien totdat hij wordt hersteld, en wordt geweigerd zolang er een uitvoering loopt (**Wacht tot de actieve uitvoering klaar is voordat je deze routine verwijdert.**). Definitief verwijderen uit de Prullenbak wist ook de uitvoeringsgeschiedenis. Wordt een eigenaar op **Inactief** gezet bij [Leden](app:settings/members), dan worden zijn routines meteen gepauzeerd, eindigen uitvoeringen in de wachtrij of lopende uitvoeringen als **Geblokkeerd**, en blijven de routines gepauzeerd en alleen-lezen totdat een beheerder ze verwijdert of de eigenaar weer actief is en ze weer aanzet.
+
+## Hoeveel routines bevat mijn abonnement? [#how-many-routines-does-my-plan-include]
+
+Elke gebruiker heeft een eigen contingent: Starter bevat [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker, Pro [[commercial.entitlement.pro.includedRoutinesPerUser]] en Business, Max en Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Een routine pauzeren maakt geen plek vrij; hem naar de [Prullenbak](/docs/app-trash) verplaatsen maakt zijn plek meteen vrij. Bij de limiet wordt een nieuwe routine geweigerd met het verzoek te upgraden onder [Facturering](app:settings/billing), en een routine uit de Prullenbak herstellen laat hem daar staan met de melding dat de eigenaar al alle routines van zijn abonnement heeft; verplaats eerst een andere routine van de eigenaar naar de Prullenbak. Via REST en MCP staat de routine in het herstelresultaat onder `blocked` met de reden `routineLimitReached` en de `limit` van het abonnement. De limiet wordt alleen gecontroleerd wanneer een routine wordt aangemaakt of hersteld, dus routines boven de limiet van een lager abonnement blijven na een downgrade behouden. Het tegoed waaruit uitvoeringen putten, staat beschreven onder [Abonnementen en Mate-gebruik](/docs/app-assistant#plans-and-credits).
+
+In het Free-abonnement zijn routines niet inbegrepen: bestaande routines blijven behouden, tonen **Gepauzeerd, Free-abonnement** en draaien niet, en het aanmaken of activeren van een routine wordt geweigerd met de prijs van Starter. Ze hervatten vanzelf zodra de werkruimte een betaald abonnement kiest.
+
+## Wat zijn de limieten, zoals uitvoeringen per uur en gebruik per uitvoering? [#what-are-the-limits]
+
+| Limiet | Waarde | Bij de limiet |
+| --- | --- | --- |
+| Uitvoeringen per routine en uur | 4 | Een passende gebeurtenis wordt overgeslagen zonder vermelding in de uitvoeringen; een geplande uitvoering of een uitvoering met **Trigger testen** die aan de beurt is, wordt vastgelegd als **Overgeslagen** |
+| Gebruik per uitvoering | 10% van een Starter-tegoed, in elk abonnement | De uitvoering stopt en wordt vastgelegd als **Gedeeltelijk** |
+| Opeenvolgende mislukte uitvoeringen | 3 | De routine pauzeert zichzelf en toont de reden; de eigenaar zet hem weer aan nadat de oorzaak is verholpen |
+| Kortste interval van een schema | 15 minuten | Een frequenter schema wordt bij het opslaan afgewezen |
+| Uitvoeringsgeschiedenis | 90 dagen | Oudere uitvoeringen worden verwijderd |
+| Debounce van gebeurtenissen | Standaard 300 seconden, 0 tot 86.400, alleen in te stellen via Mate, MCP of de REST API | Verdere passende gebeurtenissen binnen het venster nadat een uitvoering is gestart, worden genegeerd |
+
+Overgeslagen uitvoeringen tellen niet mee voor het uurlimiet.
+
+Elke routine-uitvoering begint met de kern-CRM-tools en laadt andere toolsets wanneer dat nodig is. Zo blijven niet-gerelateerde toolbeschrijvingen buiten de context van het model. Past de context na compactie nog steeds niet binnen het budget van de aanbieder, dan stopt de uitvoering en noemt de geschiedenis de reden: de contextlimiet.
+
+## Schema's: hoe laat ik een routine elke ochtend of elke maandag draaien? [#how-do-schedules-work]
+
+Open in [Routines](app:routines) een routine of klik op [Toevoegen](app:routines?focus=add) en kies dan onder **Herhaalt** **Elke 15 minuten**, **Elke 30 minuten**, **Elk uur**, **Elke dag**, **Elke week** of **Elke maand**, plus waar nodig de weekdag, de dag van de maand (1 tot 28) of de tijd in stappen van vijf minuten. Standaard is dat elke dag om 09:00. Voor de voorinstellingen per uur en langer staat het schema eronder uitgeschreven, gevolgd door **Tijden worden getoond in** en de tijdzone, die komt uit de browser waarin de routine is aangemaakt (UTC als die onbekend is).
+
+Een schema dat bij geen enkele voorinstelling past, bijvoorbeeld alleen op werkdagen, en een andere tijdzone kun je alleen instellen via Mate, een MCP-client of de REST API; het dialoogvenster toont dan **Deze routine gebruikt een aangepast schema** met **Overschakelen naar een voorinstelling**. De planner controleert elke vijf minuten, dus een uitvoering kan een paar minuten te laat starten, en een uitvoering die na twee minuten nog in de wachtrij staat, wordt opnieuw verzonden.
+
+## Hoe werken gebeurtenistriggers, bijvoorbeeld om een routine te draaien als een deal verandert? [#how-do-event-triggers-work]
+
+Kies onder **Gebeurtenissen** een of meer gebeurtenissen: elke record- en berichtgebeurtenis waarop een [webhook](/docs/webhooks#which-events-exist) zich kan abonneren, behalve Record definitief verwijderd, E-mail verwijderd en Chat verwijderd. Wijzigingen in de app, in een Mate-chat, via de API of via MCP laten routines draaien; wijzigingen die een routine-uitvoering zelf maakt nooit, zodat routines elkaar niet kunnen aanroepen of in een lus terechtkomen.
+
+Twee optionele instellingen voorkomen dat een routine tegoed besteedt aan gevallen die je niet interesseren:
+
+- **Gewijzigde velden** (alleen bij bijwerkgebeurtenissen): de routine draait alleen als een van deze velden daadwerkelijk is gewijzigd. Het is verborgen zolang er geen bijwerkgebeurtenis is geselecteerd.
+- **Recordfilters**: alleen passende records tellen mee. Aanmaken en bijwerken worden vergeleken met het opgeslagen resultaat, verwijderen met het volledige record vlak voor het verwijderen, inclusief de relaties.
+
+Laat je beide leeg, dan draait de routine bij elke passende gebeurtenis. Een gebeurtenis start alleen een uitvoering voor een record of gesprek dat de eigenaar kan zien, dus met leestoegang **Toegewezen** laten records van anderen de routine nooit afgaan. Een gebeurtenis wordt ook overgeslagen, zonder vermelding in de uitvoeringen, als er al een uitvoering van die routine in de wachtrij staat of loopt, binnen het debouncevenster valt of boven de uurlimiet zit. Wanneer de uitvoering start, worden de toegang van de eigenaar en de filters opnieuw gecontroleerd.
+
+Mate krijgt vóór je instructies te horen wat er is gebeurd: de gebeurtenis, het soort record en de ID ervan, bij een update de gewijzigde velden en bij een inboxgebeurtenis de thread. Mate kan het record vanaf daar lezen, maar krijgt de vorige waarden niet.
+
+## Wat betekenen de uitvoeringen en hun statussen? [#what-do-the-runs-and-their-statuses-mean]
+
+Open een routine om zijn **Uitvoeringen** te zien, de nieuwste eerst: naast de configuratie op een breed scherm, of achter de schakelaar **Details** en **Uitvoeringen** op een smal scherm. Klik op een uitvoering voor **Details van de uitvoering**: **Uitgevoerd als** met de naam van de eigenaar, het aandeel van het maandelijkse Mate-tegoed van de eigenaar dat is gebruikt (exacte kosten van de aanbieder, als percentage getoond), de trigger (**Record**, **Gewijzigde velden**, **Gesprek**) en, als de uitvoering vroegtijdig stopte, de reden. Heeft de uitvoering wijzigingen in de Kennisbank voorgesteld, dan staat daar hoeveel en biedt de pagina **Beoordelen** aan. Alleen de persoon als wie de uitvoering draaide, kan het volledige transcript openen, en zodra de uitvoering klaar is, kan die persoon eronder antwoorden om het gesprek met Mate voort te zetten, wat zijn tegoed gebruikt.
+
+| Status | Betekenis |
+| --- | --- |
+| **In wachtrij** | Wacht op de planner |
+| **Bezig** | Mate is aan het werk |
+| **Geslaagd** | De uitvoering heeft haar instructie afgerond |
+| **Gedeeltelijk** | Vroegtijdig gestopt, bijvoorbeeld bij de limiet per uitvoering of omdat een beleidsregel een actie weigerde |
+| **Mislukt** | Eindigde met een fout of zonder bruikbaar resultaat |
+| **Overgeslagen** | In de wachtrij, maar niet gestart: de routine was gepauzeerd, de uurlimiet was bereikt, het record voldeed niet meer aan de filters of aan de toegang van de eigenaar, de trigger was gewijzigd, de uitvoering was gestopt of de assistent was bezig met een andere uitvoering |
+| **Geblokkeerd** | Mate kon niet starten omdat Customermates AI-werk had gepauzeerd, het tegoed van de eigenaar op was of de eigenaar inactief was, of omdat een andere toelatingscontrole mislukte. De uitvoering bevat een `error`-reden zoals `platformPaused` of `agentLimitReached`. Beheerders van de werkruimte kunnen een pauze van Customermates niet opheffen. Een beheerder van de werkruimte kan een routine los daarvan pauzeren; die reden is `adminPaused`. |
+
+Een uitvoering die stopt bij haar limiet per uitvoering van 10% van een Starter-tegoed, zegt dat in haar samenvatting en in **Details van de uitvoering**; die limiet staat los van het maandelijkse tegoed van de eigenaar. De uitvoering stopt vóór een modelronde wanneer het al getelde gebruik plus het maximum dat die ronde kan kosten, gereserveerd zoals beschreven onder [hoe een verzoek wordt afgerekend](/docs/app-assistant#credits), die limiet zou overschrijden.
+
+**Trigger testen** start meteen een echte uitvoering. Het is beschikbaar voor de eigenaar van een actieve geplande routine zonder niet-opgeslagen wijzigingen, gebruikt Mate-tegoed en kan gegevens wijzigen. Handmatige testuitvoeringen hebben `triggerKind: schedule`, het soort van de routine die ze testen. Een test wordt geweigerd voordat er een uitvoering in de wachtrij komt als AI-werk is gepauzeerd, de eigenaar inactief is of het tegoed van de eigenaar op is. Gebeurtenisroutines hebben een echte passende gebeurtenis nodig, dus voor hen is het uitgeschakeld.
+
+## Wat mag een routine zonder goedkeuring doen? [#what-a-routine-may-do-without-approval]
+
+Een uitvoering zonder toezicht mag alles doen wat Mate in een chat zonder goedkeuring doet, behalve dat wijzigingen in de Kennisbank [voorstellen](#knowledge-base-proposals) worden: de werkruimte lezen; records en recordkoppelingen aanmaken of bijwerken; concepten opslaan en weggooien; e-mails en chatberichten versturen; de inbox triëren; velden, widgets, webhooks en werkruimte-instellingen wijzigen, behalve lijstnamen; koppellinks voor kanalen genereren; routines aanmaken, bijwerken, pauzeren en uitvoeren; en, op een gekoppeld account, verbindingsverzoeken versturen en Sales Navigator-lijsten wijzigen.
+
+Elke actie waarvoor in een chat goedkeuring wordt gevraagd, wordt geweigerd, omdat er niemand is om te antwoorden: records, velden, widgets, webhooks of routines verwijderen, lijsten hernoemen, leden uitnodigen, de rol of status van een lid wijzigen, webhookleveringen opnieuw versturen en supportverzoeken versturen. De uitvoering legt de weigering vast; de volledige lijst staat op de [assistentpagina](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Interface-acties zoals markeren zijn niet beschikbaar, omdat er geen browser is gekoppeld.
+
+Kan de eigenaar de [Kennisbank](/docs/mcp#shared-workspace-wiki) lezen en bevat die pagina's, dan begint elke uitvoering met een korte catalogus van die pagina's; de routine zoekt en leest relevante pagina's en past hun feiten toe, maar een instructie in een pagina kan geen ander werk starten en de rechten van de routine niet uitbreiden. Bewaar gedeelde feiten, tone of voice en processen daar in plaats van ze in elke routine te herhalen. Een paginawijziging voorstellen vraagt dat de eigenaar **Aanmaken** of **Bewerken** heeft op de Kennisbank.
+
+Een uitvoering mag op het openbare web zoeken, maximaal 2 betaalde zoekopdrachten per uitvoering, zoals beschreven onder [Kan Mate op het web zoeken?](/docs/app-assistant#web-search). Een uitvoering kan gegevens doorzoeken of wijzigen, nooit allebei: nadat een zoekopdracht resultaten oplevert, wordt elke schrijfactie geweigerd, en nadat een schrijfactie is gelukt, wordt zoeken op het web ingetrokken. Het lezen van de Kennisbank en van CRM-gegevens blijft beschikbaar. Zoekopdrachten tellen mee voor de limiet per uitvoering.
+
+### Voorstellen voor de Kennisbank [#knowledge-base-proposals]
+
+Wanneer een uitvoering een Kennisbank-pagina aanmaakt, bewerkt of verwijdert, verandert er nog niets: de uitvoering slaat een voorstel op, en Mate meldt het als wachtend op beoordeling in plaats van als klaar. Een beheerder beoordeelt het onder **Voorstellen** in de Kennisbank, vergelijkt het met de huidige pagina en keurt het goed of af; zie [De voorstellen van Mate beoordelen](/docs/mcp#review-proposals). De vermelding van de uitvoering in de lijst met uitvoeringen en haar **Details van de uitvoering** laten zien hoeveel wijzigingen ze heeft voorgesteld, en **Details van de uitvoering** verwijst naar de beoordeling.
+
+## Hoe beheert Mate routines? [#how-does-mate-manage-routines]
+
+In een chat kan Mate routines tonen, de uitvoeringsgeschiedenis lezen, routines aanmaken, bijwerken en pauzeren en direct een uitvoering starten, zonder eerst te vragen. Mate kan ook instellen wat het dialoogvenster niet kan: een aangepast schema zoals werkdagen om 09:00, de tijdzone en de debounce van gebeurtenissen. Een routine verwijderen vraagt je goedkeuring en vraagt, net als in de app, de rol **Beheerder**.
+
+## Voor agents [#tips-for-agents]
+
+Gebruik `manage_routines`. Een aangepast schema is een cron-expressie met vijf velden, bijvoorbeeld `0 9 * * 1-5`. Uitvoeringsstatussen komen terug als `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` en `blocked`. De actie `pause` vraagt de rol **Beheerder**, ook voor je eigen routine; een eigenaar zonder die rol pauzeert door bij te werken met `enabled: false`. Gebeurtenisnamen zijn de namen van webhookgebeurtenissen, zonder `record.deletedPermanently`, `messaging.email.deleted` en `messaging.chat.deleted`. Recordfilters horen in `recordTrigger.query.filters`; een routine die meerdere lijsten volgt, gebruikt in plaats daarvan `recordSources`, tot 50 bronnen, elk met een eigen `query`, `changedFieldIds` en `events`, en kan dat niet combineren met `recordTrigger`. De vroegere instelling `triggerFilters` bestaat niet meer. Via REST staan routines onder `/api/v1/routines/`: `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` en `delete`. Elke bewerking op één routine neemt zijn `id`, en `runs` antwoordt met `404` voor een routine die niet bestaat of bij een andere werkruimte hoort.

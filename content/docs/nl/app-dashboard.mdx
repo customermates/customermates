@@ -1,0 +1,120 @@
+---
+title: "Dashboardwidgets en de activiteitentijdlijn"
+heading: "Je CRM-dashboard configureren"
+description: "Het startscherm na het inloggen: grafiek-, tijdlijn-, agenda- en kaartwidgets over je CRM-gegevens, dashboardweergaven, de widgeteditor en alle sneltoetsen."
+---
+
+## Wat toont het Dashboard en kan ik widgets met mijn team delen? [#what-does-the-dashboard-show]
+
+Het [Dashboard](app:dashboard) is waar je na het inloggen terechtkomt. Het toont widgets over je CRM-gegevens: pipelines, taakaantallen, recente activiteit, wat je maar instelt. Elke widget is van jou. Teamgenoten zien hem pas nadat je in de editor **Delen als sjabloon** aanzet, en beginnen dan met hun eigen kopie ervan. Widgets toevoegen vraagt geen rolrecht, maar een grafiek telt alleen de records die jouw rol mag lezen, dus de kopie van een teamgenoot kan andere cijfers tonen. [Widget toevoegen](app:dashboard?focus=add-widget) verschijnt alleen als je rol minstens één lijst mag lezen. In een werkruimte zonder lijsten zegt het Dashboard dat en biedt het **Lijst maken** aan mensen die het datamodel beheren.
+
+## Kan ik meerdere dashboards hebben? [#dashboard-views]
+
+Ja. De weergavechips boven de widgets wisselen naar je eigen benoemde dashboards, bijvoorbeeld één per team of doel; als er geen is geselecteerd, zie je het hoofddashboard, en opnieuw klikken op de geselecteerde weergave brengt je daarheen terug. **Nieuwe weergave** voegt er een toe en V opent de weergavekiezer, net als bij een lijst. Elke weergave bewaart zijn eigen widgets en indeling, een nieuwe widget komt op de weergave waar je naar kijkt en een link naar een weergave opent dat dashboard voor jou. Weergaven en hun widgets zijn van jou totdat je ze deelt: **Delen…** in het menu van een weergave toont hem aan iedereen in de werkruimte of aan geselecteerde rollen, net als bij een lijst. Teamgenoten vinden hem dan na hun eigen weergaven als chip met jouw foto en zien dezelfde widgets en indeling, alleen-lezen; elk cijfer wordt berekend met hun eigen toegang. Alleen jij kunt de widgets wijzigen; **Dupliceren als nieuwe weergave** geeft een teamgenoot een eigen kopie met alle widgets en hun indeling, die hij vrij kan wijzigen zonder die van jou aan te raken. Een van je eigen weergaven dupliceren kopieert zijn widgets op dezelfde manier. Het hoofddashboard kan niet worden gedeeld; deel in plaats daarvan een benoemde weergave. Een collega die de link opent van een weergave die niet met hem is gedeeld, ziet zijn eigen dashboard. Een weergave verwijderen verplaatst hem samen met zijn widgets naar de [Prullenbak](/docs/app-trash), en de bevestiging noemt ze; **Ongedaan maken** of **Herstellen** brengt beide terug.
+
+## Kan ik een dashboard delen met mensen buiten de werkruimte? [#public-links]
+
+Ja, met een openbare link. Open in een dashboardweergave die van jou is **Delen…**, kies **Iedereen met de link** en klik op **Opslaan**; de link wordt gemaakt en gekopieerd, en iedereen in de werkruimte ziet de weergave ook. Iedereen met de link ziet dan de grafieken en cijfers van die weergave live, alleen-lezen en zonder in te loggen, op een adres dat eindigt op `/p/…`; de pagina toont de naam van de weergave en de naam van je werkruimte. De cijfers worden berekend met jouw toegang, dus een openbare link toont nooit meer dan je zelf kunt zien. Klikken op een balk of een getal opent de records erachter, alleen-lezen en met jouw toegang, met de recordnaam en de velden waarop de grafiek groepeert of optelt; bezoekers kunnen in het paneel zoeken, filteren, sorteren en kolommen aanpassen, maar alleen op de getoonde kolommen, en er wordt niets opgeslagen; er kan niets worden gewijzigd en records openen niet op hun eigen pagina's. Lijsten, agenda's, kaarten en activiteitentijdlijnen blijven buiten beschouwing. Iedereen met de link ziet die grafieken en records, dus publiceer alleen borden die je graag laat zien. **Kopiëren** kopieert de link op elk moment opnieuw, **Laatste dag dat de link werkt (UTC)** stelt een optionele einddatum in en het venster toont hoe vaak de link is geopend. Een andere optie kiezen en opslaan stopt de link direct; opnieuw **Iedereen met de link** kiezen maakt een nieuw adres. Opgeslagen lijstweergaven kunnen op dezelfde manier worden gepubliceerd ([Lijsten](/docs/app-records#public-list-links)). Zolang de link aanstaat, toont de chip van je weergave een wereldbol.
+
+Publiceren vraagt **Aanmaken** op de rij **Openbare links** van je rol; de rol **Beheerder** heeft dat. **Openbare links toestaan** in [Algemeen](app:settings/general) zet alle openbare links van de werkruimte uit en weer aan; zolang het uitstaat, toont elke link **Link niet beschikbaar**. Een link werkt ook niet meer als hij verloopt, als de weergave naar de Prullenbak gaat of als zijn maker het recht verliest, wordt gedeactiveerd of de werkruimte verlaat. Het aanmaken en uitzetten van een link verschijnen in het [Auditlog](app:settings/activity). Het hoofddashboard kan niet worden gepubliceerd; publiceer een benoemde weergave. Mate en andere MCP-clients publiceren met `manage_data_views` actie `publish` en het REST-endpoint is `POST /api/v1/data-views/publish`; publiceren daar toont de weergave ook aan iedereen in de werkruimte, en privé of met rollen delen zet de link uit.
+
+## Welke widgettypes zijn er en welke grafieken kunnen ze tonen? [#which-widget-types-exist]
+
+Klik op [Widget toevoegen](app:dashboard?focus=add-widget) om **Kies een widget** te openen. **Helemaal opnieuw beginnen** staat bovenaan, met één kaart per grafiekstijl (**Getal**, **Staafdiagram**, **Horizontale balken**, **Vlakdiagram in de tijd**, **Ranglijst**, **Donut**, **Trechter** en **Radar**) plus **Activiteitentijdlijn**, **Aankomend**, **Maandoverzicht** en **Kaart**; een kaart opent de editor met die stijl al gekozen en jij kiest de gegevens. **Beginnen met een sjabloon** toont widgets die teamgenoten hebben gedeeld. Laat je een widget voor je bouwen door hem te beschrijven met **Vraag het aan Mate** in de widgeteditor.
+
+- Een grafiek aggregeert één lijst: aantal, som, gemiddelde, minimum of maximum van een getalveld. Groepeer op een veld, op elk record, op **Toegewezen aan** (een record met twee toegewezen personen telt voor beide) of via een relatie, bijvoorbeeld dealwaarde per fase of regelbedragen per dienst. Elk bronrecord telt één keer per groep, dus een deal die aan twee organisaties is gekoppeld, telt volledig voor beide. Om een tijdreeks te tekenen, groepeer je op een datumveld, **Aangemaakt op** of **Bijgewerkt op** en kies je een **Tijdsinterval** (dag, week die op maandag begint, maand, kwartaal of jaar). Tijden worden ingedeeld in de tijdzone van de browser die de widget heeft opgeslagen; waarden met alleen een datum verschuiven nooit en records zonder datum worden onder de grafiek geteld.
+- **Activiteitentijdlijn** is een feed van wijzigingen, berichten en kanaalactiviteit, nieuwste eerst. De filters horen bij die widget, dus meerdere tijdlijnen kunnen verschillende dingen tonen zonder elkaar of de weergave Activiteiten van een record te beïnvloeden.
+- **Aankomend** toont de records van één lijst op een datum- of datumtijdveld voor de komende dagen (standaard 14, tot 90), met een sectie **Achterstallig** voor eerdere datums en een optionele bedragkolom. Filter afgeronde records weg, bijvoorbeeld taken die klaar zijn, zodat alleen openstaande records als achterstallig tellen.
+- **Maandoverzicht** kleurt elke dag van een maand naar het aantal records dat erop valt of naar de som van een getal- of valutaveld. De pijlen wisselen van maand en een dag opent een lijst met zijn records.
+- **Kaart** zet de records van één lijst op de positie die bij een adresveld is opgeslagen en groepeert records die dicht bij elkaar liggen in genummerde clusters. Een keuzeveld met één keuze kleurt de pins in de kleuren van zijn opties, net als bij grafieken, een getal- of valutaveld bepaalt hun grootte en een pin opent een kaart met de naam, het adres, een optioneel detailveld en **Record openen**. Een cluster neemt de kleur aan van meer dan de helft van zijn records; zonder zo'n meerderheid is het een ongekleurde ring, die de legenda vermeldt als **Gemengd**.
+
+Onder **Weergave** kan een grafiek een verticaal of horizontaal staafdiagram zijn (met of zonder labels), een donut of een radargrafiek, of een van deze:
+
+| Stijl | Toont | Vereist |
+| --- | --- | --- |
+| **Getal** | Eén totaalwaarde | **Geen groepering** |
+| **Vlakdiagram in de tijd** | Een waarde per periode; lege periodes zijn nul bij aantallen en sommen en anders een gat | Een tijdsinterval |
+| **Ranglijst** | Groepen op waarde met hun aandeel in het totaal, top tien plus de rest | Een groepering |
+| **Trechter** | Elke optie op volgorde met de conversie van stap naar stap; een fase met kans 0, zoals Verloren, staat eronder | Een keuzeveld met één keuze, zoals een fase |
+
+Een stijl die niet bij de groepering past, is uitgeschakeld met een hint. Berekende waarden vragen toegang tot hun invoer.
+
+### Wat kan een activiteitentijdlijn tonen, inclusief agenda-afspraken? [#what-can-an-activity-timeline-show]
+
+Een tijdlijn toont dezelfde vermeldingen als het [Auditlog](app:settings/activity): recordwijzigingen met hun vorige en huidige waarden, beheer- en configuratiewijzigingen, berichten, kanaalactiviteit zoals geaccepteerde LinkedIn-verbindingen, en afspraken uit de agenda van een gekoppeld Gmail- of Outlook-account (de agendaweergave van een lijst en de agendawidgets tonen records op hun datumvelden, geen afspraken). Filter op **Activiteitstype**, **Provider**, **Kanaal**, **Gesprek** of **Gerelateerde records** en beperk hem tot recordtypes of records, of tot een datum **Vanaf** en **Tot**. Gerelateerde records gebruiken **Bevat een van**, **Sluit alle uit**, **Heeft een gekoppeld record** en **Heeft geen gekoppeld record**. Verschillende filters moeten allemaal overeenkomen; meerdere waarden in één filter komen overeen met een van hen.
+
+**Oudere laden** toont de volgende pagina. Een rij kan één primair record en maximaal drie gerelateerde records koppelen en een bericht kan zijn Inbox-thread openen. Rijen zonder record blijven zichtbaar zonder link.
+
+### Hoe gaan agendawidgets om met datums en tijdzones? [#calendar-widgets]
+
+Een veld met alleen een datum is een kalenderdag en verschuift nooit. Een datumtijdveld wordt geplaatst op de dag waarop het valt in de tijdzone van de widget, de tijdzone van de browser die de widget heeft gemaakt; "vandaag" en **Achterstallig** volgen dezelfde tijdzone. Het datumveld mag ook een datumbereik of datumtijdbereik zijn: het record verschijnt op de dag waarop zijn bereik begint en telt als achterstallig zodra zijn bereik is afgelopen. **Aankomend** toont maximaal 100 records en maximaal 20 achterstallige met hun totaal. **Maandoverzicht** telt of sommeert elk record van de maand en een dag toont maximaal 100 van zijn records. Beide gebruiken dezelfde filters, recordtoegang en veldrechten als grafieken, dus de kopie van een teamgenoot van een gedeeld sjabloon toont alleen wat die teamgenoot mag lezen.
+
+### Waar komt de kaart vandaan en welke records ontbreken erop? [#map-widget]
+
+De kaart toont landsgrenzen, regio's en steden van [Natural Earth](https://www.naturalearthdata.com/) (publiek domein). Deze kaartbestanden worden met Customermates meegeleverd en door je eigen Customermates-server geserveerd, dus het openen van een kaart stuurt geen verzoek naar een externe kaart-, tegel-, lettertype- of geocodeerservice en een zelf gehoste server toont kaarten zonder internettoegang. De kaartbestanden laden alleen als een kaartwidget in beeld is.
+
+Een record verschijnt waar zijn adresveld een positie opslaat: het midden van het postcodegebied zodra de postcodelijst de code kent, of het gebouw na een adreszoekopdracht op een zelf gehoste server met Photon (zie [Hoe voer ik een adres in?](/docs/app-records#how-do-i-enter-an-address)). Records zonder adres, zonder opgeslagen positie of waarvan je het adres niet mag lezen, worden in plaats daarvan geteld in de hint onder de kaart. Een kaart toont maximaal 2.000 records; verfijn de filters als de widget zegt dat hij maar een deel toont. Zoom met de knoppen, het toetsenbord (+ en -, pijltoetsen om te verplaatsen, 0 om te resetten) of het muiswiel terwijl je Cmd/Ctrl ingedrukt houdt; zodra je de kaart hebt geselecteerd, zoomt het wiel zonder toets. Op een touchscreen scrolt één vinger de pagina en verplaatsen en zoomen twee vingers de kaart. Selecteer een cluster om erop in te zoomen.
+
+### Wie ziet wat in een tijdlijn? [#who-sees-what-in-a-timeline]
+
+| Toegang | Zichtbare inhoud |
+| --- | --- |
+| Alleen Activiteitenlog | Toegestane wijzigingen |
+| Alleen Inboxberichten, in een abonnement met berichten | Toegestane berichten, kanaalactiviteit en afspraken |
+| Beide | Eén samengevoegde tijdlijn |
+| Geen van beide | Een melding dat er geen activiteit beschikbaar is |
+
+De twee rechten zijn de rijen **Activiteitenlog** en **Inboxberichten** van de rol van het lid bij [Rollen](app:settings/roles), elk met **Leestoegang** **Alle**. Berichten, kanaalactiviteit en afspraken vragen ook Customermates Cloud en een abonnement met berichten (Pro en hoger); wijzigingen blijven ook zonder zichtbaar. Een verwijderde of niet meer toegankelijke filterwaarde komt niet meer overeen en verschijnt als **Filter niet beschikbaar** op de chip en **Selectie niet beschikbaar** in de kiezer, zodat je hem kunt verwijderen.
+
+## Hoe maak of bewerk ik een grafiek- of tijdlijnwidget in de widgeteditor? [#how-does-the-widget-editor-work]
+
+Kies een grafiekstijl, **Activiteitentijdlijn**, **Aankomend**, **Maandoverzicht**, **Kaart** of een sjabloon in **Kies een widget**; ze openen allemaal dezelfde editor. Geef de widget een naam en schakel dan tussen **Gegevens** en **Weergave**. **Gegevens** bevat de bron en wat je telt; filters en groepering zijn inklapbare secties daarbinnen en zodra je groepeert, beperkt **Groepsfilters** welke records als groepen verschijnen. Beide filtersecties tonen hetzelfde doorzoekbare Filters-palet als een lijst en gekoppelde velden verschijnen als **Lijst › Veld**. **Weergave** bevat de grafiekstijl, kleuren, de legenda, **Metriek en filters tonen** en **Delen als sjabloon**. Het **Live voorbeeld** boven de instellingen toont de widget met echte gegevens en wordt bijgewerkt terwijl je dingen wijzigt; selecteer **Dashboardgrootte** om hem te zien in de verhoudingen die hij op het dashboard krijgt. Klik op **Opslaan** in de voettekst.
+
+Klik op een grafiek of een van zijn balken om het gegevenspaneel te openen: de grafiek blijft bovenaan staan en de bijdragende records verschijnen eronder, met de gewone lijstfilters en paginering. Een andere groep selecteren wijzigt de records. **Openen in lijst** opent het gewone overzicht met dezelfde selectie en eventuele extra filters; het bevraagt de volledige overeenkomende gegevens in plaats van een steekproef van record-ID's. Klikken op een rij opent zijn record. Om een widget te bewerken, gebruik je het potlood dat verschijnt bij aanwijzen of toetsenbordfocus, of kies je **Bewerken** in het lokale menu (ook beschikbaar met rechtsklikken). Klikken op een filterchip opent de editor bij dat filter. **Resetten** herstelt de opgeslagen waarden zodra je iets hebt gewijzigd en het prullenbakpictogram in de kop van de editor verplaatst de widget na een bevestiging naar de [Prullenbak](/docs/app-trash). Een nieuwe widget neemt de eerste vrije plek. Sleep een widget om hem te verplaatsen en sleep een rand of hoek om hem te vergroten of verkleinen (verplaatsen staat uit op touchapparaten); de indeling wordt alleen voor jou opgeslagen. Hoogtes springen naar rijen van 54 px; grafiek- en **Getal**-widgets zijn minstens twee rijen hoog, een **Activiteitentijdlijn** minstens zes rijen hoog en twee kolommen breed, een agendawidget minstens vijf rijen hoog en twee kolommen breed, en een **Kaart** minstens vijf rijen hoog en drie kolommen breed.
+
+## Welke bediening voegt de zijbalk toe? [#which-controls-does-the-sidebar-add]
+
+De zijbalk bevat je werk en ziet er op elk scherm hetzelfde uit. Bovenaan staan **Zoeken** (Cmd/Ctrl+K, zie [Globaal zoeken](/docs/app-search)), **Vraag het aan Mate** (Cmd/Ctrl+J, zie [de assistent](/docs/app-assistant)) en **Toevoegen** (C). Daaronder staat **Overzicht** met het [Dashboard](app:dashboard), de [Kennisbank](app:wiki), de [Agenda](app:calendar), de [Inbox](app:inbox) en [Routines](app:routines), dan **Data** met je lijsten, en dan je persoonlijke secties. Onderdelen die je rol niet kan openen, zijn verborgen. **Inbox** telt ongelezen gesprekken.
+
+De zijbalk is van jou: sleep een onderdeel om het te herordenen of naar een andere sectie te verplaatsen, of gebruik het **…**-menu voor **Omhoog verplaatsen**, **Omlaag verplaatsen**, **Verplaatsen naar sectie** (inclusief **Nieuwe sectie**) en **Verbergen in zijbalk**. Klik op een sectietitel om hem in te klappen; het **…**-menu (of een rechtsklik) biedt **Omhoog verplaatsen** en **Omlaag verplaatsen**, en bij secties die je zelf hebt gemaakt ook **Hernoemen** en **Sectie verwijderen**. Een sectie verwijderen zet zijn onderdelen terug op hun standaardplek; verborgen onderdelen blijven verborgen. **Zijbalk aanpassen** in het persoonlijke menu opent een dialoogvenster met een schakelaar per onderdeel om het te tonen of te verbergen, **Nieuwe sectie** en, zodra je iets hebt gewijzigd, **Standaard herstellen**, dat na een bevestiging de standaardindeling terugzet. Niemand anders ziet je wijzigingen.
+
+De werkruimtenaam bovenaan opent het werkruimtemenu: de werkruimtes waartoe je behoort, om ertussen te wisselen, **Werkruimte aanmaken**, **Leden uitnodigen** (als je mag uitnodigen), [Leden](app:settings/members), **Instellingen**, [Facturering](app:settings/billing) met een chip voor je abonnement en zijn status, en, voor Customermates-operators, **Operatorconsole**. Je avatar opent het persoonlijke menu: [Profiel & voorkeuren](app:settings/profile), **Thema** (Systeem, Licht of Donker), **Taal**, **Sneltoetsen**, **Documentatie**, **Feedback sturen**, **Zijbalk aanpassen** en **Uitloggen**. **Instellingen** en G en dan S openen Profiel & voorkeuren en de zijbalk schakelt over naar de instellingennavigatie met Account ([Profiel & voorkeuren](app:settings/profile), [Werkruimtes](app:settings/workspaces), [Kanalen & agenda's](app:settings/channels), [API-sleutels & connectoren](app:settings/api-keys)) en Werkruimte ([Algemeen](app:settings/general), [Leden](app:settings/members), [Rollen](app:settings/roles), [Facturering](app:settings/billing), [Auditlog](app:settings/activity), [Webhooks](app:settings/webhooks)); **Terug** bovenaan brengt je terug naar de pagina waar je vandaan kwam. **Zijbalk aanpassen** wordt niet aangeboden zolang de instellingennavigatie wordt getoond. Totdat je je adres bevestigt, tonen je avatar en het onderdeel Profiel & voorkeuren **E-mailadres niet geverifieerd**.
+
+## Welke sneltoetsen zijn er? [#keyboard-shortcuts]
+
+Druk op ? of kies **Sneltoetsen** in het persoonlijke menu om elke sneltoets te zien met de toetsen van je computer (⌘ op een Mac, Ctrl elders), gegroepeerd en doorzoekbaar. Cmd/Ctrl-sneltoetsen en Esc werken overal, ook terwijl je typt. Enkele toetsen en G-reeksen werken alleen als geen tekstveld focus heeft en er geen menu of dialoogvenster open is.
+
+| Groep | Toetsen | Wat het doet |
+| --- | --- | --- |
+| Algemeen | Cmd/Ctrl+K of / | Zoeken; typ een vraag en druk op Tab om in plaats daarvan Mate te vragen |
+| Algemeen | Cmd/Ctrl+J | Mate iets vragen (opent of sluit de assistent) |
+| Algemeen | ? | Sneltoetsen tonen |
+| Algemeen | Cmd/Ctrl+\ | Zijbalk tonen of verbergen |
+| Navigatie | G en dan D, I, K, R, C | Dashboard, Inbox, Kennisbank, Routines, Datamodel |
+| Navigatie | G en dan S | Instellingen |
+| Navigatie | G en dan W | Van werkruimte wisselen, als je bij meer dan één werkruimte hoort |
+| Aanmaken | C | Een record of lijst toevoegen |
+| Lijsten en weergaven | G en dan 1 tot 9 | Lijsten op hun positie in je zijbalk; verborgen lijsten worden overgeslagen |
+| Lijsten en weergaven | V | Weergave van een lijst of het Dashboard wisselen |
+| Lijsten en weergaven | F | Zoeken en filters van een lijst openen |
+| Formulieren | Cmd/Ctrl+Enter | Het geopende formulier opslaan |
+| Formulieren | Esc | Bovenste dialoogvenster of paneel sluiten |
+
+Na G heb je ongeveer een seconde voor de tweede toets; een hint laat zien dat de app wacht. Sneltoetsen voor pagina's die je rol niet kan openen, worden weggelaten. Zoeken toont dezelfde opdrachten met hun toetsen: **Vraag het aan Mate** bovenaan, de weergaven van de lijst waarop je zit, de pagina's, **Toevoegen** en, bij meer dan één werkruimte, **Van werkruimte wisselen…**. Als je spraakinvoer gebruikt of per ongeluk op toetsen drukt, zet je **Sneltoetsen met één toets** onderaan in het sneltoetsenvenster uit; Cmd/Ctrl-sneltoetsen blijven werken. De instelling is persoonlijk en volgt je naar elk apparaat.
+
+## Wat gebeurt er bij de eerste keer? [#what-happens-on-first-run]
+
+Nieuwe accounts doorlopen de [onboardingwizard](/docs/app-onboarding) voordat ze het Dashboard zien: je profiel, de Kennisbank, teamuitnodigingen en het koppelen van een AI-client. De eigenaar kan het importeren van de website, uitnodigingen en de AI-koppeling overslaan; uitgenodigde leden zien alleen hun profiel.
+
+## Voor agents [#tips-for-agents]
+
+Maak en wijzig widgets met `manage_widgets` in plaats van de editor te bedienen; het ondersteunt dezelfde opties als de app. Lees een widget voordat je hem bijwerkt, want een meegegeven `measure`- of `displayOptions`-object vervangt het hele object, en geef de huidige `expectedRevision`, een `idempotencyKey` en, bij updates, `expectedVersion` mee. Een tijdreeks zet `groupBy.dateInterval` en een IANA-`groupBy.timeZone`; tijdlijnen gebruiken `activityQuery`, agendawidgets `calendarQuery` (`layout` `upcoming` of `month`, het datumveld, een IANA-`timeZone`) en kaarten `mapQuery` (het adresveld plus optionele kleur-, grootte- en detailvelden). `get` leest een agendawidget voor een ander `window` van maximaal 42 dagen, zoals één maand of één dag. Het widgettype kan niet veranderen. Een optionele `layout` plaatst een widget in dezelfde aanroep: `x` en `w` tellen kolommen van het raster met 12 kolommen, `y` en `h` tellen rijen van 54 px. Grafiek- en Getal-widgets vragen een `h` van minstens 2, een activiteitentijdlijn een `w` van minstens 2 en een `h` van minstens 6, een agenda een `w` van minstens 2 en een `h` van minstens 5, een kaart een `w` van minstens 3 en een `h` van minstens 5, en overlappende posities worden geweigerd. Lege rijen tussen widgets zijn toegestaan; het dashboard schuift widgets omhoog naar die rijen. `get_calendars` leest agenda-afspraken. De exacte schema's staan in de [MCP-catalogus](/docs/mcp#tool-catalog).
+
+## Welke REST-endpoints beheren widgets? [#widget-rest-endpoints]
+
+Via REST geeft `POST /api/v1/widgets/list` elke widget van al je dashboardweergaven terug met zijn `viewId` en indeling, maakt of wijzigt `POST /api/v1/widgets/save` er een, verplaatst en vergroot of verkleint `POST /api/v1/widgets/layout` er meerdere tegelijk en verplaatst `POST /api/v1/widgets/delete` er een naar de Prullenbak. Om een tijdlijn, agenda of kaart te maken met `widgets/save`, stuur je `kind: "activityTimeline"`, `"calendar"` of `"map"`; zonder `kind` is een nieuwe widget een grafiek, mag een update instellingen weglaten die gelijk blijven en wordt een ander `kind` bij een update geweigerd met `widgetKindImmutable`. `POST /api/v1/widgets/read` geeft één widget terug met zijn huidige resultaten; voor een agendawidget accepteert het ook een `window` met `from` en `to`. Dashboardweergaven zijn opgeslagen weergaven van het `dashboard`-oppervlak onder `/api/v1/data-views/`.
+
+## Gerelateerd [#related]
+
+- [Snelstart](/docs/quickstart)
+- [Appgids, Records](/docs/app-records)

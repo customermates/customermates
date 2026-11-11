@@ -1,0 +1,143 @@
+---
+title: "Bandeja de entrada del CRM Customermates: hilos y respuestas"
+description: "La bandeja de entrada reúne correo, LinkedIn, WhatsApp, Instagram y Telegram en una lista: lee, responde, ordena, comparte y vincula los hilos con registros."
+---
+
+## ¿Qué es la bandeja de entrada? [#what-is-the-inbox]
+
+La [bandeja de entrada](app:inbox) es la mensajería unificada de Customermates Cloud: conversaciones de correo, LinkedIn, WhatsApp, Instagram y Telegram en una sola lista, con la actividad más reciente primero. Haz clic en una conversación para leerla junto a la lista; en pantallas estrechas, la lista y la conversación se turnan. Desde una conversación respondes en su canal de origen, defines su estado, mueves un correo a otra carpeta, la compartes con tu equipo y vinculas a sus participantes con registros. Mate, o tu propio agente de IA mediante [MCP](/docs/mcp), puede dejar una respuesta como borrador en la conversación; tú la revisas, la editas y la envías (consulta [borradores](#how-do-drafts-and-attachments-work)). Las cuentas en sí las conectas en [Canales y calendarios](app:settings/channels), consulta [Guía de la aplicación, Perfil](/docs/app-profile).
+
+## ¿Quién puede usar la bandeja de entrada y por qué está bloqueada en Starter o falta en la versión autoalojada? [#who-can-use-the-inbox]
+
+Deben cumplirse las cuatro condiciones:
+
+- **Customermates Cloud.** Las instalaciones autoalojadas no tienen bandeja de entrada: la entrada de la barra lateral está oculta y, si la abres, te lleva al Panel.
+- **Un plan con mensajería:** Pro, Business, Max, Enterprise o una prueba. En Starter, la bandeja de entrada sigue en la barra lateral pero muestra **Mejora tu plan para desbloquear la mensajería**, y **Mejora tu plan** abre [Facturación](app:settings/billing).
+- **Una suscripción utilizable:** estado **Activa** o una prueba que no ha terminado. Mientras el estado es **Pago vencido** o **Cancelada**, la bandeja de entrada queda bloqueada del mismo modo.
+- **Tu rol:** **Mensajes de la bandeja de entrada** con **Acceso de lectura** en **Todos**. Con **Ninguno**, la entrada de la barra lateral está oculta y, si abres la bandeja de entrada, te lleva al Panel. El rol **Administrador** siempre tiene acceso.
+
+Mientras el plan o la suscripción bloquean la bandeja de entrada, el aviso de mejora sigue visible y se detienen las actualizaciones en segundo plano de los hilos y del contador de no leídos. Cuando vuelve el acceso, al reabrir la bandeja de entrada se cargan de nuevo las conversaciones. Las conversaciones privadas conservan sus ajustes de visibilidad en todo momento.
+
+## ¿Necesito un canal conectado? [#do-i-need-a-connected-channel]
+
+Para abrir la bandeja de entrada no: sin un canal propio sigues viendo lo que comparten tus compañeros. Para enviar y recibir en tus propias cuentas necesitas uno. Una bandeja de entrada vacía dice **Aún no hay nada aquí**; los miembros con **Crear** en **Mensajes de la bandeja de entrada** ven debajo un botón **Canales** (cuando Mate está disponible, en su lugar aparecen prompts de inicio). Añade una cuenta de correo, LinkedIn, WhatsApp, Instagram o Telegram con [Conectar un canal](app:settings/channels?focus=connect), consulta [¿Cómo conecto un canal?](/docs/app-profile#how-do-i-connect-a-channel). Canales por miembro: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; una prueba cuenta como Pro.
+
+## ¿Qué conversaciones veo y puede un administrador leer las mías privadas? [#which-conversations-do-i-see]
+
+La lista combina los canales que conectaste, los canales que un compañero compartió con todo el espacio de trabajo y las conversaciones sueltas que un compañero compartió desde un canal privado. Las conversaciones privadas de un compañero nunca aparecen, sea cual sea tu rol, **Administrador** incluido.
+
+En las cuentas de correo, solo aparecen las carpetas activadas en la pestaña **Carpetas** de la cuenta en [Canales y calendarios](app:settings/channels). Por defecto, todas las carpetas están activadas salvo la papelera, el correo no deseado o spam, los borradores y la carpeta de todo el correo; si falta correo de un archivo, comprueba su interruptor. Una conversación sin ningún mensaje aparece solo mientras contiene un borrador guardado.
+
+## ¿Qué permisos necesita la bandeja de entrada? [#which-permissions-does-the-inbox-need]
+
+Los roles se editan en [Roles](app:settings/roles). La bandeja de entrada usa la fila **Mensajes de la bandeja de entrada**: **Crear**, **Editar**, **Eliminar** y **Acceso de lectura** **Ninguno** o **Todos**.
+
+| Para hacer esto | El rol necesita |
+|---|---|
+| Ver la bandeja de entrada y leer conversaciones | **Mensajes de la bandeja de entrada**: **Acceso de lectura** **Todos** |
+| Responder, guardar o enviar borradores, iniciar una conversación desde un contacto | **Mensajes de la bandeja de entrada**: **Crear** |
+| Descartar un borrador | **Mensajes de la bandeja de entrada**: **Eliminar** |
+| Cambiar el estado, mover un correo, **Actualizar**, **Resincronizar la conversación**, cargar mensajes más antiguos, compartir una conversación | **Mensajes de la bandeja de entrada**: **Editar** |
+| Vincular la dirección de un participante con un registro, o crear un registro a partir de ella | Acceso de lectura y de edición a ese registro; acceso de creación para un registro nuevo |
+| Vincular un registro a esta conversación concreta | **Mensajes de la bandeja de entrada**: **Editar**, además de acceso de lectura y de edición al registro |
+| Añadir un campo de datos de contacto a una lista | **Modelo de datos** |
+
+Sin **Crear**, el cuadro de respuesta está oculto. Sin **Editar**, la acción de mover está oculta, el estado es una etiqueta de solo lectura y al abrir una conversación sin leer esta sigue **Sin leer**. Compartir una conversación concreta también requiere que seas el propietario de su canal.
+
+## ¿Cómo busco, filtro o actualizo la bandeja de entrada? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+La barra superior de la [bandeja de entrada](app:inbox) contiene:
+
+- **Filtros** sirve para buscar y filtrar: escribe texto y elige la entrada **contiene** para encontrar conversaciones por asunto, texto de los mensajes, nombre de la conversación y nombres o direcciones de los participantes (F lo abre). También ofrece **Estado**, **Registros vinculados**, **Participantes** (**no totalmente vinculado** encuentra conversaciones con alguien que no tiene ningún registro coincidente que puedas ver), **Proveedor**, **Canal**, **Carpeta de correo**, **Borrador** (**tiene alguno** encuentra conversaciones con un borrador guardado), **Último mensaje** (**Enviado** o **Recibido**), **Fecha del último mensaje** y **Última actividad**.
+- **Actualizar** trae los mensajes nuevos al instante (**Bandeja de entrada actualizada.**) e informa de los canales que alcanzaron un límite de frecuencia, necesitan reconectarse o no se pudieron actualizar. Requiere **Editar**.
+- **Canales** abre [Canales y calendarios](app:settings/channels), con un número cuando hay canales que requieren atención. Requiere **Crear**.
+
+**Carpeta de correo** agrupa las carpetas bajo su cuenta, de modo que las carpetas con el mismo nombre quedan separadas; **es uno de** encuentra conversaciones con un mensaje visible en cualquiera de las carpetas seleccionadas, **no es uno de** las excluye. **Último mensaje** y **Fecha del último mensaje** usan el último mensaje real enviado o recibido; los borradores, los mensajes eliminados y los eventos del sistema no cuentan. Para el correo de hace entre tres y siete días, añade dos condiciones de **Fecha del último mensaje**: **Más antiguo que…** 3 días y **7 días**. **Última actividad** incluye los borradores guardados. Todos los filtros respetan el uso compartido de cuentas y las carpetas activadas.
+
+La fila de vistas empieza con **Todas las conversaciones**, seguida de tus vistas guardadas y de las vistas que te han compartido tus compañeros; haz clic en **Todas las conversaciones** para salir de una vista. La lista muestra 25 conversaciones por página (5, 10, 25 o 100). La entrada de la barra lateral indica cuántas de las conversaciones que puedes ver están **Sin leer**.
+
+## ¿Cómo abro una conversación concreta? [#how-do-i-open-a-specific-conversation]
+
+Haz clic en su fila. La dirección del navegador apunta entonces a esa conversación, así que puedes guardarla como marcador o enviarla a un compañero que pueda verla; una dirección que no puedes abrir te devuelve a la bandeja de entrada. Para encontrar las conversaciones de un registro, elígelo en el filtro **Registros vinculados**: la coincidencia usa los datos de contacto del registro y sigue comprobando tu acceso a cada conversación. Mate no abre por ti una conversación concreta: abre la bandeja de entrada y nombra la conversación.
+
+Con **Editar** en **Mensajes de la bandeja de entrada**, al desplazarte al principio de una conversación se traen del proveedor los mensajes más antiguos, una vez por conversación hasta que recargues. **Resincronizar la conversación**, en el encabezado, trae de nuevo toda la conversación.
+
+## ¿Qué hay en el encabezado de la conversación? [#what-is-in-the-conversation-header]
+
+Junto al nombre de la conversación, de izquierda a derecha:
+
+| Control | Qué hace |
+|---|---|
+| **Mover la conversación a una carpeta…** (IMAP y Outlook) | Archiva la conversación en otra carpeta; requiere **Editar** |
+| **Resincronizar la conversación** | Trae de nuevo la conversación; requiere **Editar** |
+| Etiqueta **Conversación privada** o **Conversación compartida** | Abre **Ajustes de la conversación** |
+| **Algunos participantes no tienen ningún registro vinculado que puedas ver** | Abre **Ajustes de la conversación**; se muestra cuando puedes crear o editar registros en una lista con un campo de datos de contacto |
+| Etiqueta de estado | **Sin leer**, **Abierta**, **Cerrada** o **Spam** |
+
+En pantallas estrechas, las etiquetas muestran solo iconos.
+
+Los mensajes entrantes están a la izquierda y los salientes a la derecha. El encabezado compacto de un correo muestra el remitente, la hora y el primer destinatario; **Detalles** (también en **Acciones del correo**) muestra **De**, **Para**, **Cc** y **Cco**. Cco solo es visible en el correo saliente, para el propietario de la cuenta y para los compañeros con acceso a toda la cuenta; compartir una conversación concreta nunca lo revela. Haz clic en una dirección para copiarla. Un botón de carpeta debajo de los destinatarios muestra dónde está archivado ese correo. Los correos escritos en Customermates y los correos de texto plano usan los colores y la fuente de la app y siguen tu tema claro u oscuro. El HTML recibido que trae su propio modo oscuro se muestra en tu tema; el resto del HTML recibido conserva la disposición y los colores del remitente sobre un fondo claro. Las imágenes remotas se cargan solo después de **Cargar las imágenes remotas**.
+
+## ¿Qué significan los estados de una conversación? [#what-do-the-thread-states-mean]
+
+| Estado | Significado |
+|---|---|
+| **Sin leer** | Nueva, o ha llegado un mensaje nuevo |
+| **Abierta** | Leída, aún necesita atención |
+| **Cerrada** | Terminada |
+| **Spam** | Marcada como spam |
+
+Al abrir una conversación sin leer, pasa a **Abierta** (solo con **Editar**). El estado lo comparten todos los que ven la conversación. Un mensaje entrante nuevo la devuelve a **Sin leer**, incluso desde **Cerrada** o **Spam**. **Spam** es solo una etiqueta: no oculta la conversación, no bloquea al remitente ni informa de nada al proveedor; usa el filtro **Estado** para mantenerla fuera de la vista. Definir un estado nunca envía nada.
+
+## ¿Cómo muevo un correo a otra carpeta? [#how-do-i-move-an-email-to-another-folder]
+
+En las conversaciones de IMAP y de Outlook, haz clic en el botón de carpeta de un correo y elige un destino en **Mover este correo a…** para mover solo ese correo, o usa **Mover la conversación a una carpeta…** en el encabezado para archivar toda la conversación. Los mensajes también se mueven en el buzón real. Enviados y Borradores nunca son destinos, y los mensajes que están en ellos se quedan donde están. Las conversaciones de Gmail, los miembros sin **Editar** y los compañeros que ven una conversación compartida desde un canal privado pueden leer los nombres de las carpetas pero no tienen opciones para mover; solo el propietario del canal las archiva.
+
+Puedes seguir trabajando mientras se hace el movimiento. Los mensajes movidos a una carpeta que está desactivada en la pestaña **Carpetas** de la cuenta desaparecen de la conversación; cuando no queda nada visible, la confirmación indica que ya no aparece en tu bandeja de entrada. Si el proveedor aplica un límite de frecuencia a mitad del proceso, un mensaje lo indica y puedes mover el resto más tarde.
+
+## ¿Cómo comparto una conversación concreta? [#how-do-i-share-a-single-conversation]
+
+Haz clic en **Conversación privada** o **Conversación compartida** en el encabezado para abrir **Ajustes de la conversación**. El interruptor **Compartir con el equipo** comparte solo esta conversación con todos los que tienen un rol que puede leer la bandeja de entrada (**Compartida con el CRM**); al desactivarlo aparece **La conversación ahora es privada**. Solo puede usarlo el propietario del canal, en un plan con mensajería y con **Editar**. Los compañeros pueden entonces leer la conversación, cambiar su estado y resincronizarla, pero no moverla, y solo tú puedes responder mientras el propio canal sea privado.
+
+Para compartir todas las conversaciones de un canal, activa **Visibilidad** en la pestaña **Detalles** del canal en [Canales y calendarios](app:settings/channels) (Business, Max o Enterprise). El interruptor de cada conversación queda entonces activado y bloqueado.
+
+## ¿Cómo vinculo participantes y registros? [#how-do-i-link-a-participant]
+
+Los mensajes se vinculan a registros mediante sus datos de contacto: un registro cuyo campo de datos de contacto contiene una dirección de correo, un número de teléfono o un perfil muestra todas las conversaciones con esa dirección. Un número de teléfono también coincide con los chats de WhatsApp del mismo número. Abre **Ajustes de la conversación**. En **Personas**, cada participante muestra como etiquetas los registros que puedes ver y que coinciden con su dirección. **Vincular** abre una búsqueda que añade la dirección a los datos de contacto de un registro de cualquier lista que tenga un campo de datos de contacto; la **✕** de una etiqueta quita solo esa coincidencia. Una misma dirección puede pertenecer a varios registros, por ejemplo un contacto y una organización, y todas las demás conversaciones con la misma dirección la siguen. Los campos de texto normales nunca se usan para la coincidencia.
+
+En **Registros de la conversación**, el selector del campo (**Vincular registro**) vincula solo esta conversación a un registro, por ejemplo una oportunidad en una lista sin campo de datos de contacto; las demás conversaciones con el participante quedan aparte. Vincular nunca concede acceso a mensajes privados ni a registros restringidos.
+
+## ¿Cómo respondo a una conversación? [#how-do-i-reply-to-a-conversation]
+
+Haz clic en **Escribe una respuesta...** (correo) o **Escribe un mensaje...** (chat) debajo de la conversación. Las respuestas por correo muestran **Asunto** y **Para**, rellenados a partir de la conversación; **Cc/Cco** añade esos campos, y vale cualquier combinación mientras haya un destinatario válido. El correo se escribe en un editor de Markdown, y tu firma, si está activada, se añade al enviar. Los destinatarios en Cco nunca se trasladan a una respuesta. Las respuestas por chat son texto plano. Usa **Adjuntar archivos** e **Insertar un emoji** cuando lo necesites, y después **Enviar** o Cmd/Ctrl+Intro; **Más opciones de envío** contiene **Guardar como borrador**.
+
+Si el envío falla, **Reintentar** aparece solo cuando volver a intentarlo puede ayudar (límite de frecuencia, caída temporal). Cuando el proveedor rechaza un mensaje, cámbialo primero; tras un tiempo de espera agotado, revisa la conversación, porque puede que el mensaje ya haya salido. Un canal que necesita reconectarse se indica antes de enviar nada, y solo su propietario puede reconectarlo. Las respuestas salen del propio canal de la conversación, así que solo puedes responder en los canales que son tuyos o que están compartidos con el espacio de trabajo.
+
+## ¿Cómo inicio una conversación nueva o escribo un correo nuevo a un contacto? [#how-do-i-start-a-new-conversation]
+
+La bandeja de entrada no tiene un botón para una conversación nueva. Abre el registro de la persona, por ejemplo en tu lista de contactos, y haz clic en el icono **Mensaje nuevo** junto a una dirección de correo o a un identificador en sus datos de contacto. Cuando varios de tus canales pueden enviar, elige uno en **De**; en LinkedIn con Sales Navigator o con Recruiter, **Enviar como** elige **Classic**, **InMail de Sales Navigator** o **InMail de Recruiter**. Después de **Enviar**, el mensaje sale en segundo plano (**Enviando mensaje**, y luego **Mensaje enviado.**). Esto requiere Customermates Cloud y **Crear** en **Mensajes de la bandeja de entrada**.
+
+## ¿Cómo funcionan los borradores y los archivos adjuntos? [#how-do-drafts-and-attachments-work]
+
+**Guardar como borrador** conserva un mensaje sin enviarlo; mientras editas un borrador guardado, el botón dice **Actualizar el borrador**. Un borrador de respuesta está en su conversación con **Enviar el borrador**, **Editar** y **Descartar**. Un borrador para una conversación nueva aparece en la lista como su propia conversación («Borrador guardado. Lo encontrarás en la bandeja de entrada.»), también cuando ya tienes un borrador para las mismas personas; el filtro **Borrador** con **tiene alguno** los lista todos. Una conversación tiene un solo borrador. Un InMail nuevo de LinkedIn no se puede guardar como borrador. Descartar no se puede deshacer. La app, la API REST y MCP comparten los mismos borradores.
+
+Cada versión guardada de un borrador se envía como máximo una vez. Si el borrador cambió después de que lo abrieras, por ejemplo en otra pestaña, por Mate o por un agente, **Enviar** conserva tu texto y ofrece **Cargar la versión más reciente** o **Enviar la mía**. Si no se pudo confirmar el envío, el borrador no se vuelve a enviar: revisa primero la conversación, y en el correo también tu carpeta de enviados, y después edita y actualiza el borrador para enviarlo de todos modos. En el correo, en cuanto llega desde tu buzón la copia enviada de ese envío anterior, el borrador cuenta como enviado y sale de la bandeja de entrada; después no se vuelve a enviar, ni siquiera tras una edición.
+
+Para ello, cada borrador enviado deja un registro de envío: sus ID, su estado y los hashes del contenido enviado, nunca el contenido en sí. En el correo, los hashes cubren Para, Cc, el asunto, el texto y los nombres de los archivos adjuntos, y para el envío exacto también Cco y el contenido de los adjuntos; en el chat cubren el texto y los adjuntos. El registro se elimina 30 días después de su último cambio, una vez que su borrador ya no existe. Mientras el borrador sigue existiendo, por ejemplo tras un envío que no se pudo confirmar, el registro se conserva, de modo que el borrador no pueda salir dos veces. Al desconectar el canal se eliminan sus registros.
+
+**Adjuntar archivos** añade hasta 20 archivos por mensaje, 15 MB en total. Los borradores no pueden conservar archivos adjuntos («Elimina los archivos adjuntos antes de guardar este borrador.»). En los mensajes recibidos, los medios compatibles se abren en línea, los demás archivos se descargan y los elementos no compatibles muestran **No compatible**.
+
+## ¿Cómo configuro una firma de correo? [#how-do-i-set-an-email-signature]
+
+La firma pertenece a cada cuenta de correo que es tuya: en [Canales y calendarios](app:settings/channels), abre la cuenta de Gmail, Outlook o IMAP y usa su pestaña **Correo**. Define la fuente, el tamaño y el estilo de los enlaces, activa **Añadir una firma**, elige un diseño con o sin logo y escribe el texto en Markdown. Mientras está activada, se añade debajo de todos los correos enviados desde esa cuenta, ya sea desde la bandeja de entrada, la API REST o MCP, así que no la pegues en el mensaje; el editor la muestra en vista previa. Todos los campos: [Apariencia y firma del correo](/docs/app-profile#email-appearance-and-signature).
+
+## Para agentes [#tips-for-agents]
+
+Prefiere las herramientas de [MCP](/docs/mcp) a hacer clic: `get_messaging_threads` lee conversaciones, `update_messaging_thread` define el estado (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` archiva un correo (REST `POST /api/v1/messaging/threads/{id}/move`; falla para una conversación compartida desde el canal privado de otra persona), `send_email` y `send_chat_message` inician conversaciones, y `save_message_draft` (REST `POST /api/v1/messaging/drafts`) prepara una para su revisión; envía o descarta un borrador con su ID de mensaje y el `draftRevision` actual. `resolve_record_identifiers` encuentra los registros que coinciden con una dirección, `manage_conversation_records` lee y cambia los registros vinculados a una conversación, y `mutate_crm_record` cambia los datos de contacto de un registro.
+
+**Cambio incompatible:** ha cambiado el envío de borradores guardados a través de la API REST. `POST /api/v1/messaging/send-email` responde `200`, y `POST /api/v1/messaging/threads/{id}/messages` y `POST /api/v1/messaging/start-chat` responden `201`, una vez que el mensaje enviado queda registrado, también cuando la llamada repite un envío anterior de la misma revisión del borrador; una repetición así lleva `repeated: true` y no envía nada. Responden `202` con un acuse solo mientras el mensaje enviado aún no está registrado. Un `draftRevision` obsoleto o unos destinatarios cambiados responden `409` con customCode `draftChanged` o `draftRecipientsChanged` en lugar de `404`, y `DELETE /api/v1/messaging/drafts/{id}` con un `draftRevision` obsoleto responde `409` con customCode `draftChanged` en lugar de `404`. `POST /api/v1/messaging/drafts`, igual que `save_message_draft` con `connectedAccountId`, crea una conversación nueva en cada llamada; actualiza un borrador guardado a través de su conversación con `POST /api/v1/messaging/threads/{id}/drafts` o `threadId`.
+
+## Relacionado [#related]
+
+- [Guía de la aplicación, Perfil](/docs/app-profile): conecta las cuentas que alimentan la bandeja de entrada.
+- [Límites de frecuencia](/docs/messaging-rate-limits): los presupuestos por proveedor para lecturas y envíos.

@@ -38,8 +38,12 @@ describe("homepage metadata", () => {
         languages: {
           de: `${BASE_URL}/de`,
           en: `${BASE_URL}/en`,
+          es: `${BASE_URL}/es`,
           fr: `${BASE_URL}/fr`,
           it: `${BASE_URL}/it`,
+          nl: `${BASE_URL}/nl`,
+          pl: `${BASE_URL}/pl`,
+          pt: `${BASE_URL}/pt`,
           "x-default": `${BASE_URL}/en`,
         },
       },

@@ -14,6 +14,10 @@ import {
 } from "../define-solution";
 import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
+import { es } from "./locales/client-management.es";
+import { pt } from "./locales/client-management.pt";
+import { pl } from "./locales/client-management.pl";
+import { nl } from "./locales/client-management.nl";
 
 /**
  * Client management: an office coffee, breakroom and catering service that looks after many ongoing client
@@ -815,7 +819,7 @@ const en = {
   },
 };
 
-type Strings = typeof en;
+export type Strings = typeof en;
 
 const de: Strings = {
   company: "Bohnenhaus Büroservice",
@@ -2293,6 +2297,9 @@ function mailbox(name: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z]/g, "");
 }
 
@@ -2311,10 +2318,14 @@ const AGENT_EDITS: Record<string, AgentKeyName> = {
 
 export default defineSolution<Strings>({
   id: "client-management",
-  strings: { en, de },
+  strings: { en, de, es, pt, pl, nl },
   story: {
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
+    es: { currency: "EUR", timeZone: "Europe/Madrid" },
+    pt: { currency: "BRL", timeZone: "America/Sao_Paulo" },
+    pl: { currency: "PLN", timeZone: "Europe/Warsaw" },
+    nl: { currency: "EUR", timeZone: "Europe/Amsterdam" },
   },
   build: (t, locale) => {
     const mobile = (suffix: string) => phoneNumber(t.phones.mobile, Number(suffix));

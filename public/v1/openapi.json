@@ -48828,7 +48828,10 @@
                       "de",
                       "fr",
                       "it",
-                      "es"
+                      "es",
+                      "pt",
+                      "pl",
+                      "nl"
                     ]
                   },
                   "fields": {
@@ -107419,6 +107422,9 @@
                         "fr",
                         "it",
                         "es",
+                        "pt",
+                        "pl",
+                        "nl",
                         "system"
                       ]
                     },
@@ -107430,6 +107436,9 @@
                         "fr",
                         "it",
                         "es",
+                        "pt",
+                        "pl",
+                        "nl",
                         "system"
                       ]
                     },
@@ -107614,6 +107623,9 @@
                       "fr",
                       "it",
                       "es",
+                      "pt",
+                      "pl",
+                      "nl",
                       "system"
                     ]
                   },
@@ -107625,6 +107637,9 @@
                       "fr",
                       "it",
                       "es",
+                      "pt",
+                      "pl",
+                      "nl",
                       "system"
                     ]
                   }
@@ -107682,6 +107697,9 @@
                         "fr",
                         "it",
                         "es",
+                        "pt",
+                        "pl",
+                        "nl",
                         "system"
                       ]
                     },
@@ -107693,6 +107711,9 @@
                         "fr",
                         "it",
                         "es",
+                        "pt",
+                        "pl",
+                        "nl",
                         "system"
                       ]
                     }
@@ -140679,7 +140700,10 @@
               "de",
               "fr",
               "it",
-              "es"
+              "es",
+              "pt",
+              "pl",
+              "nl"
             ]
           },
           "includeIdentities": {
@@ -152549,7 +152573,10 @@
               "de",
               "fr",
               "it",
-              "es"
+              "es",
+              "pt",
+              "pl",
+              "nl"
             ]
           },
           "includeIdentities": {

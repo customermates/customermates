@@ -55,6 +55,7 @@ vi.mock("@/components/forms/form-autocomplete-currency", () => ({
 import { followUpDescriptor, partDescriptor } from "../setup-question-descriptor";
 import { SetupQuestionField } from "../setup-question-field";
 import { type SetupQuestionPart, setupPart } from "@/features/workspace-setup/setup-interview";
+import { APP_LOCALES } from "@/i18n/locale-registry";
 
 let container: HTMLDivElement;
 let root: Root;
@@ -193,7 +194,8 @@ describe("SetupQuestionField", () => {
 
   it("offers every interface language as chips", () => {
     render(descriptorOf("language"), null);
-    expect(container.querySelectorAll('[role="radio"]')).toHaveLength(5);
+    expect(container.querySelectorAll('[role="radio"]')).toHaveLength(APP_LOCALES.length);
+    expect(APP_LOCALES).toHaveLength(8);
   });
 
   it("toggles multiple choice chips and adds an own entry", () => {

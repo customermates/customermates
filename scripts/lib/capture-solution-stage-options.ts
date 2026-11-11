@@ -5,6 +5,8 @@ export type CaptureSolutionStageMode = "capture" | "check" | "list" | "routes";
 export type CaptureSolutionStageOptions = {
   allowDirty: boolean;
   baseUrl: string;
+  // data locales to capture; every published one when empty
+  locales: string[];
   mode: CaptureSolutionStageMode;
   only: string[];
   phone: boolean;
@@ -22,6 +24,7 @@ export function parseCaptureSolutionStageArgs(args: readonly string[]): CaptureS
   const options: CaptureSolutionStageOptions = {
     allowDirty: false,
     baseUrl: DEFAULT_CAPTURE_BASE_URL,
+    locales: [],
     mode: "capture",
     only: [],
     phone: false,
@@ -40,6 +43,7 @@ export function parseCaptureSolutionStageArgs(args: readonly string[]): CaptureS
     else if (arg === "--phone") options.phone = true;
     else if (arg === "--base-url") options.baseUrl = valueAfter(args, index++, arg).replace(/\/+$/u, "");
     else if (arg === "--only") options.only = valueAfter(args, index++, arg).split(",").filter(Boolean);
+    else if (arg === "--locales") options.locales = valueAfter(args, index++, arg).split(",").filter(Boolean);
     else throw new Error(`Unknown argument ${arg}`);
   }
 

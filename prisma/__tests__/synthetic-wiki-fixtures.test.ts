@@ -25,10 +25,13 @@ describe("demo Knowledge Base fixtures", () => {
       expect(pages.length, workspace.slug).toBeLessThanOrEqual(5);
       expect(new Set(pages.map(({ sortOrder }) => sortOrder)).size).toBe(pages.length);
       for (const { kind, title, whenToUse } of pages) {
-        if (kind === "procedure") expect(whenToUse, title).toMatch(/^(When|Wenn) .{40,}\.$/u);
+        if (kind === "procedure")
+          expect(whenToUse, title).toMatch(/^(When|Wenn|Cuando|Quando|Gdy|Kiedy|Wanneer|Als) .{40,}\.$/u);
         else expect(whenToUse, title).toBeNull();
       }
-      expect(pages[0].markdown, workspace.slug).toMatch(/demo data|Demodaten/u);
+      expect(pages[0].markdown, workspace.slug).toMatch(
+        /demo data|Demodaten|datos de demostración|dados de demonstração|dane demonstracyjne|demodata|demogegevens/u,
+      );
     }
     expect(new Set(wikis.flatMap(({ pages }) => pages.map(({ id }) => id))).size).toBe(
       wikis.reduce((count, { pages }) => count + pages.length, 0),

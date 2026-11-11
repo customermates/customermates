@@ -1,0 +1,261 @@
+---
+title: "ChatGPT voor sales: prompts, CRM-opzet en dataregels"
+description: "ChatGPT voor sales: prompts per dealfase, gespreksnotities samenvatten, welk abonnement veilig is voor klantgegevens en hoe je het aan je CRM koppelt."
+
+relatedHrefs:
+  - /blog/ai-in-sales
+  - /docs/connect-custom-connector
+  - /blog/sales-follow-up-email
+  - /blog/claude-crm
+
+hero:
+  title: "ChatGPT voor sales: prompts, gespreksnotities en de CRM-koppeling"
+  description: "Waar ChatGPT tijd bespaart in een salesproces, welke prompts je per dealfase bewaart, hoe je gespreksnotities omzet in een CRM-registratie, welk abonnement veilig is voor klantgegevens en wat er nodig is om je CRM bij te werken."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-05-07
+  updated: 2026-10-08
+  tags:
+    - ChatGPT voor sales
+    - AI in sales
+    - Sales-prompts
+    - Gespreksnotities
+    - CRM
+---
+
+# ChatGPT voor sales: prompts, gespreksnotities en de CRM-koppeling
+
+ChatGPT voor sales werkt goed bij het schrijf- en denkwerk rond een verkoop: accountonderzoek, eerste conceptmails, discovery-vragen, bezwaarbehandeling en rommelige gespreksnotities omzetten in een nette samenvatting. ChatGPT is alleen zo goed als de feiten die je meegeeft, en houdt zelf je pipeline niet bij, onthoudt niet wat een collega een klant heeft beloofd en verstuurt niets. Teams halen er het meeste uit met opgeslagen prompts in een Project, een zakelijk abonnement voor alles wat klantgegevens bevat en, als ChatGPT ook records moet bijwerken, een CRM dat via MCP is gekoppeld.
+
+Deze gids behandelt prompts per dealfase, een werkwijze voor gespreksnotities, de dataregels per ChatGPT-abonnement en wat OpenAI op dit moment vraagt voordat ChatGPT naar een CRM kan schrijven. Customermates publiceert deze gids en komt er alleen in voor in één gemarkeerde sectie vlak voor het eind.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Kort antwoord">Gebruik ChatGPT voor onderzoek, concepten en samenvattingen. Laat de beslissing, de verstuurknop en het leidende record bij mensen en het CRM.</SummaryItem>
+  <SummaryItem label="Opzet">Zet je aanbod, ideale klant en toon één keer in een Project of custom GPT, zodat elke prompt met die context begint. OpenAI noemt Projects bij elk persoonlijk abonnement, Free inbegrepen.</SummaryItem>
+  <SummaryItem label="Klantgegevens">Zet bij persoonlijke abonnementen "Improve the model for everyone" uit. Bij Business en Enterprise traint OpenAI standaard niet op zakelijke gegevens en biedt het een verwerkersovereenkomst (DPA).</SummaryItem>
+  <SummaryItem label="Schrijven naar het CRM">Volledige MCP-apps met schrijfacties zijn een bèta voor ChatGPT Business, Enterprise en Edu, alleen op het web. Pro kan MCP-servers koppelen om te lezen.</SummaryItem>
+  <SummaryItem label="Transparantie">Customermates publiceert deze gids. De gegevens van OpenAI zijn op 8 oktober 2026 gecontroleerd op de eigen pagina's van OpenAI.</SummaryItem>
+</ArticleSummary>
+
+## Waar ChatGPT helpt bij sales en waar niet
+
+| Taak | Wat ChatGPT goed doet | Let op |
+| --- | --- | --- |
+| Accountonderzoek voor een gesprek | Structureert wat je plakt of wat webzoeken vindt in een briefing van één pagina | Onjuiste of verouderde gegevens over mensen. Controleer namen, functies en datums zelf |
+| Eerste mail of LinkedIn-bericht | Een concreet eerste concept in seconden als je een echte aanleiding geeft | Met alleen een naam en een URL schrijft het een algemene mail die persoonlijk klinkt |
+| Discovery-vragen | Open vragen op maat van functie en branche | Vragen die je in je eigen stem nooit zou stellen |
+| Bezwaarbehandeling | Meerdere invalshoeken op één bezwaar, uit je eigen argumenten | Verzonnen bewijs. Zeg dat het alleen de cases mag gebruiken die je aanlevert |
+| Gespreksnotities naar CRM-registratie | Samenvatting, besluiten en vervolgstappen in een vast format | Eigenaren of datums die het heeft geraden. Vraag om "niet vermeld" te schrijven |
+| Pipelinereview | Patronen in een dealoverzicht dat je plakt of koppelt | Het ziet alleen de velden die je geeft, niet de relatie |
+| Versturen en opvolgen | Zelf helemaal niet | Versturen en cadences vragen je inbox of een speciale outboundtool |
+
+De regel die uit de tabel volgt: ChatGPT bereidt voor, jij beslist en verstuurt. Een onjuist feit in een interne notitie kost een minuut. Een onjuist feit in een mail aan een koper kan de deal kosten.
+
+## Eenmalig instellen: een Project voor sales
+
+Geef ChatGPT vóór de prompts de context waar het anders elke keer om zou vragen. Voeg in een Project of een custom GPT toe:
+
+- je aanbod in vijf zinnen, met prijzen als je ze noemt;
+- je ideale klant: branche, omvang, de functie die koopt, het probleem dat een aankoop in gang zet;
+- twee of drie korte klantverhalen die je mag noemen;
+- de bezwaren die je het vaakst hoort en hoe je erop antwoordt;
+- toonregels, bijvoorbeeld: "Korte zinnen. Geen 'ik hoop dat het goed met je gaat'. Eén vraag per mail."
+
+De prijzenpagina van OpenAI noemt Projects bij elk persoonlijk abonnement, Free inbegrepen, en custom GPT's onder de Plus-functies. Houd één Project voor outbound en één voor accountwerk, want een Project waar alles in zit geeft vagere antwoorden.
+
+## Prompts per dealfase
+
+Vervang de haakjes door echte feiten. Hoe specifieker de invoer, hoe minder de uitvoer op een sjabloon lijkt.
+
+**Onderzoeksbriefing voor een eerste gesprek**
+
+```
+Ik heb een eerste gesprek met [naam], [functie] bij [bedrijf], [omvang], [branche].
+Dit heb ik gevonden: [plak de about-sectie van LinkedIn, bedrijfspagina, recent nieuws].
+Geef me: 3 waarschijnlijke problemen die ons aanbod oplost, 3 open vragen
+voor de eerste 10 minuten en het ene klantverhaal uit dit Project dat het best past.
+Markeer alles wat je raadt als gok.
+```
+
+**Eerste mail**
+
+```
+Schrijf een eerste mail aan [naam] bij [bedrijf]. Aanleiding: [nieuwe medewerker, financiering, post, evenement].
+Waar die persoon om geeft: [plak]. Onze relevantie in één regel: [regel].
+Maximaal 90 woorden, gewone taal, aan het eind één concrete vraag.
+Geen complimenten, geen "even bellen", geen beweringen over resultaten die we je niet hebben gegeven.
+```
+
+**Reactie op een bezwaar**
+
+```
+De prospect schreef: "[exacte woorden]".
+Ons gebruikelijke antwoord: [plak]. Feiten die we kunnen gebruiken: [plak].
+Geef me drie reacties van minder dan 80 woorden: een die vraagt wat er achter het bezwaar zit,
+een die het direct beantwoordt, een die een kleinere eerste stap voorstelt.
+Gebruik alleen de feiten hierboven.
+```
+
+**Opvolging na een gesprek**
+
+```
+Hier zijn mijn notities van het gesprek van vandaag met [naam] bij [bedrijf]: [plak].
+Stel een opvolgmail op van minder dan 150 woorden: bedank in één regel, herhaal de twee of drie
+punten waarover we het eens zijn geworden, som de vervolgstappen op met eigenaar en datum zoals in de notities,
+en sluit af met de volgende afspraak. Ontbreekt een eigenaar of datum, schrijf dan [ontbreekt].
+```
+
+**Pipelinereview**
+
+```
+Hier zijn mijn open deals met fase, waarde, datum van de laatste activiteit en volgende stap: [plak].
+Som de deals op zonder activiteit gedurende meer dan 14 dagen, de deals zonder volgende stap
+en geef bij elke deal één vraag die ik vóór de review van maandag moet beantwoorden.
+Schat geen slagingskansen in.
+```
+
+De [gids over opvolgmails voor sales](/blog/sales-follow-up-email) bevat meer opvolgstructuren als jouw deals bij die stap vastlopen.
+
+## Van gespreksnotities naar een CRM-registratie
+
+Gespreksnotities samenvatten is het meest voorkomende dagelijkse gebruik, en daar loont een vast uitvoerformaat. Plak een transcript of je eigen notities en vraag om velden die bij je CRM passen:
+
+```
+Vat deze gespreksnotities samen voor het CRM. Geef precies deze velden terug:
+- Samenvatting: 3 zinnen (context, wat is besloten, wat er nu gebeurt)
+- Pijnpunten: lijst met opsommingstekens
+- Genoemde beslissers: namen en functies
+- Vervolgstappen: actie, eigenaar, datum
+- Fasevoorstel: een van [Prospectie, Kwalificatie, Demo, Voorstel, Onderhandeling]
+Staat iets niet in de notities, schrijf dan "niet vermeld". Voeg geen feiten toe.
+
+Notities:
+[plak]
+```
+
+**Voor:** "Gesprek met Hanneke Roth, Roth Administratiekantoor. 6 mensen, klantenlijst in Excel, wordt rommelig. Wil WhatsApp en e-mail met klanten op één plek. Moet het volgende week afstemmen met haar partner. Voorstel versturen uiterlijk dinsdag."
+
+**Na:**
+
+> - Samenvatting: Hanneke Roth (Roth Administratiekantoor, 6 mensen) vervangt een klantenlijst in Excel en wil e-mail- en WhatsApp-gesprekken naast de klantrecords. Ze bespreekt het volgende week met haar partner. Wij sturen uiterlijk dinsdag een voorstel.
+> - Pijnpunten: Excel-lijst lastig actueel te houden; klantgesprekken verspreid over kanalen.
+> - Genoemde beslissers: Hanneke Roth; haar partner (naam niet vermeld).
+> - Vervolgstappen: voorstel versturen, wij, dinsdag; interne bespreking, Hanneke Roth, volgende week.
+> - Fasevoorstel: Voorstel.
+
+Drie gewoontes maken de samenvattingen betrouwbaar. Label sprekers in transcripten ("Verkoper:", "Klant:"), want de toewijzing van actiepunten hangt daarvan af. Zet cijfers en datums in je notities op een eigen regel. En lees het resultaat voordat je het in het record plakt, want een model vult gaten op als je niets anders zegt.
+
+Neemt een vergadertool je gesprekken al op, dan is de eigen samenvatting daarvan meestal algemeen. Plak het transcript in de prompt hierboven om de velden te krijgen die je CRM gebruikt.
+
+## Klantgegevens: welk ChatGPT-abonnement gebruik je
+
+De meeste salesprompts bevatten persoonsgegevens: namen, functies, wat iemand in een gesprek zei. Wat daarmee gebeurt, hangt af van het abonnement.
+
+| Soort abonnement | Training op je gesprekken | Wat je moet doen |
+| --- | --- | --- |
+| Free, Go, Plus, Pro (persoonlijk) | Bepaald door de instelling "Improve the model for everyone" | Zet hem uit onder Settings, Data controls, voordat je klantgegevens plakt |
+| Business, Enterprise | OpenAI traint standaard niet op zakelijke gegevens, ook niet op gegevens die via apps worden benaderd | Teken het Data Processing Addendum van OpenAI; beheerders stellen de bewaartermijn in |
+
+OpenAI biedt de DPA voor ChatGPT Business, ChatGPT Enterprise en de API. De consumentenvoorwaarden voor Europa bevatten een apart addendum voor zakelijk gebruik, dus ChatGPT commercieel gebruiken is toegestaan; de vraag voor een bedrijf is welke voorwaarden gelden en welke gegevens je erin stopt.
+
+Onder de AVG levert dat een korte checklist op voor een salesteam:
+
+- Gebruik een zakelijk abonnement met een getekende DPA voor alles wat klantgegevens bevat.
+- Plak het gesprek, niet het hele klantrecord. Laat telefoonnummers en adressen weg die de taak niet nodig heeft.
+- Vertel je team welk abonnement en welke Projects zijn goedgekeurd, en welke niet.
+- Noem AI-verwerking in je privacyverklaring als je gegevens van prospects zo verwerkt.
+
+Dit is een werkchecklist, geen juridisch advies. Je functionaris voor gegevensbescherming beslist over de details.
+
+## ChatGPT alleen of een speciale salestool?
+
+| Jouw situatie | Wat past |
+| --- | --- |
+| Eén persoon, een handvol actieve deals, notities in een document | ChatGPT met een Project volstaat. Kopieer resultaten naar waar je je deals bewaart |
+| Een team dat klanten deelt en moet weten wie wat heeft gezegd | Een CRM als leidend record, met ChatGPT of een andere AI-client eraan gekoppeld |
+| Outbound op volume met cadences in meerdere stappen | Een salesengagement-tool met sequenties en controle over bezorging. ChatGPT stelt concepten op, het verstuurt geen cadences |
+| Gesprekken die automatisch worden opgenomen en getranscribeerd | Een vergaderrecorder plus de prompt voor gespreksnotities hierboven, of een automatisering die beide doet |
+
+ChatGPT vervangt geen systeem dat de dealgeschiedenis bewaart. Het geheugen is van één gebruiker, en een chatgeschiedenis kan een collega niet oppakken als jij op vakantie bent. Wil je een AI meer zelfstandig laten werken, lees dan wat [AI sales agents](/blog/ai-sales-agent) wel en niet betrouwbaar doen.
+
+## ChatGPT koppelen aan een CRM
+
+Er zijn drie manieren, van de eenvoudigste tot de meest directe.
+
+1. **Kopiëren en plakken.** Werkt bij elk abonnement. Langzaam, maar er verandert niets in het CRM tenzij jij het wijzigt.
+2. **Een automatiseringstool.** n8n, Zapier of Make sturen een transcript of een nieuw record naar de API van OpenAI en schrijven het resultaat terug. Je betaalt de automatiseringstool en de API apart en onderhoudt de workflow zelf. De [n8n-gids voor beginners](/blog/n8n-for-beginners-build-your-first-workflow) laat de basis zien.
+3. **Een MCP-app.** ChatGPT roept de tools van het CRM rechtstreeks aan: contactpersonen zoeken, een deal bijwerken, een notitie toevoegen.
+
+Voor de derde route zegt het helpcentrum van OpenAI (gecontroleerd op 8 oktober 2026):
+
+- Volledige MCP-ondersteuning, inclusief schrijfacties, wordt als bèta uitgerold voor ChatGPT Business, Enterprise en Edu.
+- Het draait alleen op ChatGPT web, niet op mobiel.
+- Bij Business kunnen alleen beheerders en eigenaren de ontwikkelaarsmodus inschakelen en een app maken, onder **Workspace settings › Apps › Create**. Enterprise-beheerders kunnen dat aan geselecteerde leden geven.
+- Pro-gebruikers kunnen in de ontwikkelaarsmodus MCP-servers koppelen met lees- en ophaalrechten, zonder schrijfacties.
+- ChatGPT kan om bevestiging vragen vóór schrijfacties, afhankelijk van de rechten van de app en de actie.
+
+Een klein team dat wil dat ChatGPT het CRM bijwerkt, heeft dus ChatGPT Business nodig en een beheerder die de app één keer toevoegt. De regels voor connectors van Claude verschillen; de [gids over Claude CRM](/blog/claude-crm) behandelt ze.
+
+Twee risico's tellen zodra het werkt. Een gekoppelde AI handelt met de rechten van de persoon die hem heeft gekoppeld. En kan je CRM e-mail of chatberichten versturen, dan gaat een bericht dat de AI verstuurt ook echt de deur uit. Vraag om concepten en verstuur ze zelf.
+
+## Waar past Customermates
+
+*Transparantie: Customermates publiceert deze gids.* Customermates is een open-source, AI-native CRM uit Duitsland voor kleine teams met direct klantcontact, zoals consultants en bureaus. Het werkt op twee manieren met ChatGPT.
+
+**Je eigen ChatGPT, via MCP.** Het MCP-endpoint hoort bij elk abonnement en bij de zelf gehoste kern. In ChatGPT voeg je een app toe met de URL van je Customermates-adres gevolgd door `/api/v1/mcp`, kies je OAuth, log je in en klik je op **Goedkeuren** op het toestemmingsscherm. De [connectorgids](/docs/connect-custom-connector) bevat de stappen en een terugvaloptie met een API-sleutel. ChatGPT heeft dan [[derived.mcp.tools.total]] tools, waaronder tools voor contactpersonen, organisaties, deals, diensten, taken en je eigen lijsten, hun notities en velden. Het model draait op je ChatGPT-abonnement, dus dit gebruikt geen Customermates AI-credits. Customermates houdt een toolaanroep niet tegen om om bevestiging te vragen, dus stel de rechten van de app in ChatGPT in en vraag om concepten in plaats van verzonden berichten.
+
+Prompts om de koppeling te testen. Customermates heeft geen vooringestelde fases, dus ze gaan uit van een lijst met deals waarvan het veld Fase een optie Voorstel heeft; vervang de fase en de recordnamen door je eigen:
+
+1. "Som mijn open deals in de fase Voorstel op met organisatie, waarde en toegewezen gebruikers." (lezen)
+2. "Voeg deze gespreksamenvatting toe aan de notities van de deal van Roth Administratiekantoor en zet Fase op Voorstel: [plak]." (bijwerken)
+3. "Maak een taak voor mij om het voorstel te versturen, gekoppeld aan de deal van Roth Administratiekantoor." (aanmaken en koppelen)
+
+**Mate, in Customermates Cloud.** Heeft je team geen ChatGPT Business-abonnement, dan is Mate de assistent die in Customermates Cloud zit. Mate gebruikt de maandelijkse gehoste AI-credits per actieve gebruiker die bij elk betaald abonnement horen (zie [prijzen](/pricing)), bereidt samenvattingen en conceptantwoorden voor en draait Routines: opgeslagen instructies volgens een schema of bij recordgebeurtenissen. Een voorbeeldroutine, met het schema **Elke week**, maandag om 08:00:
+
+```
+Som mijn open deals in de fases Voorstel en Onderhandeling op. Geef bij
+elke deal de organisatie, de waarde, de laatste notitie in één regel en
+de volgende stap. Markeer deals zonder volgende stap. Verstuur geen
+berichten en wijzig geen records.
+```
+
+Een routine draait als haar eigenaar en kan berichten versturen als haar instructies daarom vragen, dus de laatste zin doet ertoe. De runlimieten staan op de [routinepagina](/docs/app-routines). Bij Pro en hoger zet de [gecombineerde inbox](/features/unified-inbox) gesprekken uit e-mail, LinkedIn, WhatsApp, Instagram en Telegram naast de records, waar Mate of je gekoppelde ChatGPT een gesprek kan lezen en een conceptantwoord kan opslaan.
+
+**Wat het kost.** Vijf mensen op Pro betalen [[commercial.price.pro.monthly.seats.5]] per maand, maandelijks gefactureerd, inclusief de inbox en de gehoste credits van Mate. Koppel je in plaats daarvan ChatGPT, tel dan de ChatGPT Business-licenties van de prijzenpagina van OpenAI erbij. Starter voor [[commercial.price.starter.monthly]] per gebruiker dekt records en MCP zonder inbox.
+
+Met de inbox bij Pro kan Mate of je gekoppelde ChatGPT het gesprek van een klant lezen, het conceptantwoord opslaan en de volgende stap dateren; jij bekijkt, bewerkt en verstuurt. Wil je dat met je eigen ChatGPT proberen, [start dan je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): geen creditcard nodig, en de MCP-connector werkt vanaf de eerste dag.
+
+**Niet geschikt** als je e-mailsequenties, een telefoondialer of een native mobiele app nodig hebt. Een salesengagement-tool dekt sequenties; ChatGPT kan daar nog steeds de concepten voor schrijven.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Kan ChatGPT zelfstandig sales doen?">
+Nee. Het kan onderzoeken, concepten schrijven, samenvatten en suggesties doen, maar het houdt je pipeline of een relatie niet vast. In een gewone chat verstuurt het niets. Gekoppeld aan tools kan het wel handelen, en juist daarom moet een persoon goedkeuren wat naar een koper gaat.
+</FaqItem>
+
+<FaqItem question="Kan ChatGPT salesgesprekken samenvatten?">
+Ja, vanuit een transcript of je notities. Geef het een vast format met samenvatting, besluiten, vervolgstappen met eigenaar en datum, en zeg dat het "niet vermeld" moet schrijven bij alles wat ontbreekt. Lees het resultaat voordat het in het CRM komt.
+</FaqItem>
+
+<FaqItem question="Mag je ChatGPT zakelijk gebruiken?">
+Ja. De voorwaarden van OpenAI voor particulieren bevatten een addendum voor commercieel en zakelijk gebruik, en ChatGPT Business, Enterprise en de API vallen onder de zakelijke voorwaarden van OpenAI. Gebruik voor klantgegevens een zakelijk abonnement en teken het Data Processing Addendum van OpenAI.
+</FaqItem>
+
+<FaqItem question="Hoe koppel ik ChatGPT aan mijn CRM?">
+Via een MCP-app, een automatiseringstool zoals n8n of door te kopiëren en te plakken. MCP-apps met schrijfacties vragen op dit moment ChatGPT Business, Enterprise of Edu, op het web, en een beheerder die de app maakt. Je CRM moet een MCP-server aanbieden; het adres van Customermates eindigt op /api/v1/mcp.
+</FaqItem>
+
+<FaqItem question="Moet ik ChatGPT voor outbound gebruiken of een speciale salestool nemen?">
+Gebruik ChatGPT om betere eerste berichten te schrijven op basis van echt onderzoek. Verstuur je meer dan een paar tientallen mails per week met opvolgstappen, dan heb je een tool nodig die voor versturen is gebouwd, met sequenties en controle over bezorging. Veel teams gebruiken beide.
+</FaqItem>
+
+<FaqItem question="Wat is de beste AI-tool voor sales?">
+Dat hangt af van de taak. Een algemene assistent zoals ChatGPT of Claude past bij onderzoek en concepten. Een vergaderrecorder past bij transcripten. Een CRM met een AI-assistent of een MCP-koppeling past bij het actueel houden van records. Begin met de taak die je team de meeste tijd kost.
+</FaqItem>
+</Faq>
+
+Verificatie van de gegevens van OpenAI op 8 oktober 2026 bij [Developer mode and MCP apps in ChatGPT](https://help.openai.com/en/articles/12584461), [Connected apps in ChatGPT](https://help.openai.com/en/articles/11487775-connectors-in-chatgpt), [Data controls FAQ](https://help.openai.com/en/articles/7730893-data-controls-faq), [Enterprise privacy](https://openai.com/enterprise-privacy/), [ChatGPT pricing](https://chatgpt.com/pricing/) en de [EU Terms of Use](https://openai.com/policies/eu-terms-of-use/).

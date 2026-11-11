@@ -1,0 +1,206 @@
+---
+title: "Klantretentie: wat het is, berekening en 6 gewoonten"
+description: "Klantretentie uitgelegd: wat het is, hoe je het percentage berekent, zes gewoonten voor bestaande klanten en een weeklijst voor klanten die stil werden."
+
+relatedHrefs:
+  - /blog/key-account-management
+  - /blog/crm-strategy
+  - /blog/customer-segmentation
+  - /features/follow-up
+
+hero:
+  title: "Klantretentie: wie bestaande klanten zijn, waarom ze ertoe doen en hoe je voor ze zorgt"
+  description: "Wie telt als bestaande klant, hoe bestaande klanten verschillen van nieuwe, wat de vaak aangehaalde kosten- en winstcijfers echt zeggen en een wekelijkse routine voor klanten die stil werden, ingericht in een CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-11-11
+  tags:
+    - Bestaande klanten
+    - Klantbeheer
+    - Follow-up
+---
+
+# Klantretentie: wie bestaande klanten zijn, waarom ze ertoe doen en hoe je voor ze zorgt
+
+Klantretentie (ook klantbehoud of klantenbinding genoemd) is het vermogen van een bedrijf om bestaande klanten te houden en opnieuw te laten kopen. Het begint bij bestaande klanten: de mensen en bedrijven die al bij je hebben gekocht en die je niet als verloren hebt afgesloten. Voor een klein B2B-team zijn zij vaak de goedkopere plek om de volgende verkoop te vinden en de eerste plek waar een stil probleem zichtbaar wordt, dus ze hebben een eigen routine nodig: een opgeschreven regel voor wie meetelt, de datum van het laatste echte gesprek, een volgende stap met datum en een korte weeklijst van klanten die al 60 dagen niets van je hebben gehoord.
+
+Deze gids definieert de term met een tabel met randgevallen, vergelijkt bestaande en nieuwe klanten, zet de vaak aangehaalde kosten- en winstcijfers naast hun bron en datum, somt zes gewoonten op om voor klanten te zorgen en loopt een maandaglijst met fictieve klanten door. Het laatste deel zet de routine op in Customermates, de open-source CRM die deze gids publiceert, en zegt eerlijk wat het aan jou overlaat: het verstuurt geen herinneringen. De diepere cohortberekening en verlengingsplanning staan in de [gids over CRM-strategie](/blog/crm-strategy); deze pagina geeft de basisformule en gaat verder over de dagelijkse zorg voor klanten die je al hebt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Definitie">Een bestaande klant heeft bij je gekocht en is niet als verloren afgesloten. Geen enkele drempel past bij elk bedrijf, dus schrijf je eigen termijn op, bijvoorbeeld een aankoop of een actief contract in de afgelopen 12 maanden.</SummaryItem>
+  <SummaryItem label="Versus nieuwe klanten">Je kent ze al en hebt hun geschiedenis. Het risico is niet twijfel maar stilte die je niet opmerkt.</SummaryItem>
+  <SummaryItem label="Waarom het ertoe doet">Een artikel in de Harvard Business Review (29 oktober 2014) meldt dat het werven van een nieuwe klant vijf tot 25 keer meer kost dan het behouden van een klant, afhankelijk van onderzoek en branche. Lees het als richting, niet als voorspelling voor jouw bedrijf.</SummaryItem>
+  <SummaryItem label="De routine">Een eigenaar per klant, de datum van het laatste echte gesprek, een volgende stap met datum en een weeklijst van klanten zonder contact sinds 60 dagen.</SummaryItem>
+  <SummaryItem label="In Customermates">Organisaties met Klantstatus, Laatste contact en Volgende stap op als velden; notities, bestanden en, in Customermates Cloud vanaf Pro, de gesprekken op het record; een opgeslagen weergave en de widget Aankomend. Er worden geen herinneringen verstuurd en er zijn geen gezondheidsscores.</SummaryItem>
+</ArticleSummary>
+
+## Wat is klantretentie en hoe bereken je het? [#wat-is-klantretentie]
+
+Klantretentie zegt hoeveel van je klanten na een bepaalde periode nog bij je kopen. Het retentiepercentage is de eenvoudigste manier om dat te meten:
+
+**Retentiepercentage = (klanten aan het eind van de periode min nieuwe klanten in die periode) gedeeld door klanten aan het begin van de periode, maal 100.**
+
+Een fictief voorbeeld: een bureau begint het jaar met 30 klanten, wint er 4 nieuwe bij en eindigt met 31. Dan hielden 27 van de oorspronkelijke 30 klanten het vol, dus de retentie is 27 gedeeld door 30, oftewel 90 procent. Het omgekeerde, 10 procent, is het verloop (churn).
+
+Twee kanttekeningen voor een klein team. Bij 30 klanten is elke klant 3,3 procentpunt, dus één vertrekkende grote klant zegt meer dan een gemiddelde. Kijk daarom ook naar de omzet van de vertrokken klanten, niet alleen naar het aantal. En een percentage zegt niet waarom klanten vertrekken: dat vind je in de gesprekken en de stilte die eraan vooraf ging, en daar gaat de rest van deze gids over.
+
+## Wie telt als bestaande klant?
+
+Een bestaande klant, afhankelijk van het bedrijf ook huidige klant of terugkerende klant genoemd, is een persoon of bedrijf dat bij je heeft gekocht en dat je nog steeds als klant behandelt. Er is geen universele drempel: hoe vaak je klanten je normaal nodig hebben, bepaalt het. Een webbureau met jaarlijkse retainers en een winkel met wekelijkse bestellingen hebben andere termijnen nodig. Schrijf je regel één keer op, zodat twee mensen die dezelfde lijst sorteren op hetzelfde antwoord uitkomen, en zet de status op het bedrijf, met de bijbehorende mensen eraan gekoppeld.
+
+| Situatie | Bestaande klant? | Wat je vastlegt |
+| --- | --- | --- |
+| Eenmalig gekocht, geleverd en betaald | Ja | Actief |
+| Actief contract, retainer of abonnement | Ja | Actief |
+| Getekend, maar nog niet geleverd of betaald | Ja, behandel het als onboarding | Actief, met een stap voor de eerste levering |
+| Laatste aankoop ouder dan je termijn, niets gepland | Niet actief, maar geen vreemde | Slapend |
+| Offerte verstuurd, niets getekend | Nee, een prospect | Blijft een deal, zie de [gids over de sales pipeline](/blog/sales-pipeline) |
+| Contract beëindigd, of jij hebt de relatie beëindigd | Voormalige klant | Voormalig, met de reden in de notities |
+| Je contactpersoon heeft het bedrijf van de klant verlaten | Ja, het bedrijf is nog steeds de klant | Actief, zoek de nieuwe contactpersoon |
+
+De rij met slapende klanten is degene die de meeste teams overslaan. Een klant die twee jaar geleden kocht en sindsdien niets van je heeft gehoord, is noch een prospect noch een actieve klant, en een aparte status houdt die groep buiten de weeklijst zonder haar te vergeten.
+
+## Wat is het verschil tussen bestaande en nieuwe klanten?
+
+| Vraag | Nieuwe klanten | Bestaande klanten |
+| --- | --- | --- |
+| Wat weet je? | Weinig: behoeften, budget en beslissers zijn aannames | Geschiedenis, wat ze kochten, wie besliste, wat goed of slecht ging |
+| Vertrouwen | Opgebouwd vanaf nul, elke bewering heeft bewijs nodig | Verdiend, en gemakkelijk te verliezen door stilte of een gemiste belofte |
+| Typisch doel | Een eerste bestelling | Een gezonde relatie, de volgende bestelling, een introductie |
+| Eerste stap | Onderzoek, outreach, een kennismakingsgesprek (zie de [gids over klantacquisitie](/blog/customer-acquisition)) | Een check-in die geen pitch is |
+| Grootste risico | Geen reactie | Stilte die je pas opmerkt als een concurrent of een bezuiniging er een eind aan maakt |
+| Waar de gegevens staan | Leadlijsten en de pipeline | Het record van de klant: mensen, notities, bestanden, deals, gesprekken |
+
+Geen van beide vervangt de ander. Een bedrijf zonder nieuwe klanten krimpt als er klanten vertrekken, en een bedrijf dat alleen nieuwe klanten najaagt, betaalt om klanten te vervangen die het had kunnen behouden. Voor een klein team is de praktische vraag hoeveel van de week elk verdient. Een eenvoudige start is een vast blok, bijvoorbeeld 30 minuten op maandag, voor bestaande klanten, voordat de nieuwe pipeline de rest van de week krijgt.
+
+## Waarom doen bestaande klanten ertoe?
+
+Twee cijfers duiken in bijna elk artikel over klantenbinding op. Beide komen uit een artikel in de Harvard Business Review van Amy Gallo, gepubliceerd op 29 oktober 2014. Daarin staat dat het werven van een nieuwe klant, afhankelijk van welk onderzoek je gelooft en in welke branche je zit, vijf tot 25 keer duurder is dan het behouden van een bestaande klant. Met verwijzing naar onderzoek van Frederick Reichheld van Bain & Company staat er ook dat een stijging van het retentiepercentage met 5 procent de winst met 25 tot 95 procent verhoogt. Gecontroleerd op 11 november 2026; de bron staat aan het eind.
+
+Drie manieren om die cijfers te lezen zonder te overdrijven:
+
+- **De bandbreedtes zijn bewust breed.** Het artikel zelf koppelt het eerste cijfer aan het onderzoek en de branche. Ze zijn een reden om te meten, geen voorspelling voor je bedrijf.
+- **Ze gaan over economie, niet over behoefte.** Een klant die alles van je heeft wat die nodig heeft, is een referentie en een bron van introducties, geen upsell-doelwit.
+- **Je eigen gegevens beantwoorden het beter.** Hoeveel van de bestellingen van vorig jaar kwamen van klanten die al eerder hadden gekocht? Hoeveel klanten hebben al 60 dagen niets van je gehoord? Hoeveel nieuwe klanten zijn geïntroduceerd door een bestaande? Tel deze drie één keer uit je facturen of deals en je weet waar je tijd loont.
+
+## Hoe zorg je voor bestaande klanten?
+
+Zes gewoonten dekken het meeste van klantbehoud. Geen ervan vraagt een tool, maar elk vraagt een datum of een naam die iemand actueel houdt.
+
+1. **Geef elke klant een eigenaar.** Eén benoemde persoon, zodat "iemand belt wel" niet betekent dat niemand belt.
+2. **Leg het laatste echte gesprek vast.** Een datum en één regel over wat er besproken of beloofd is. "Echt" betekent een tweerichtingsgesprek, geen nieuwsbrief of automatische factuurmail.
+3. **Laat altijd een volgende stap met datum achter.** Een telefoontje, een check-inbericht of een verlengingsdatum. Een klant zonder volgende stap wordt aan het toeval overgelaten.
+4. **Check in zonder te verkopen.** Vraag hoe het opgeleverde werk bevalt, deel een resultaat of iets nuttigs en stop dan. Een check-in die eindigt in een pitch leert de klant de volgende te negeren.
+5. **Vraag op de natuurlijke momenten.** Vraag na een levering, na een compliment en bij verlenging wat er daarna komt en of ze iemand kennen met dezelfde behoefte.
+6. **Zie stilte als het signaal.** Een klant die een bepaalde tijd niets van je heeft gehoord, komt op een lijst die je elke week leest. Het uitgewerkte voorbeeld hieronder toont er een.
+
+Hoe vaak je incheckt, hangt af van de klant. De ritmes hieronder zijn startpunten, geen standaarden: stel ze in naar hoe vaak een klant je normaal nodig heeft en pas ze na een kwartaal aan. De groepen kunnen uit de [gids over klantsegmentatie](/blog/customer-segmentation) komen.
+
+| Klantgroep | Check-in-ritme | Opmerkingen |
+| --- | --- | --- |
+| Een handvol belangrijkste klanten | Elke maand een gepland contactmoment, elk kwartaal een evaluatie | Beheer ze als key accounts, zie de [gids over key account management](/blog/key-account-management) |
+| Reguliere klanten | Elke twee à drie maanden een echt gesprek | De weeklijst vangt degenen op die wegglijden |
+| Kleine of eenmalige klanten | Twee keer per jaar, of als een project eindigt | Komt er na een jaar niets van, markeer ze dan als Slapend |
+
+## Signalen dat een klant gaat opzeggen [#signalen-opzeggen]
+
+Klanten kondigen zelden aan dat ze vertrekken, maar er zijn vaak eerder tekenen. Let op deze signalen, en leg ze vast in de notities zodat ook een collega ze ziet:
+
+- **Stilte.** Twee berichten achter elkaar blijven onbeantwoord, of de gebruikelijke bestelling blijft uit.
+- **Een andere contactpersoon.** De vaste contactpersoon vertrekt of er komt een nieuwe beslisser, en niemand bij jou kent die persoon.
+- **Minder gebruik of kleinere bestellingen.** De klant bestelt minder of gebruikt minder dan voorheen.
+- **Een open klacht of vraag.** Er ligt iets onbeantwoord, of de klant moet zich herhalen.
+- **Vragen over opzegtermijn of voorwaarden.** Vaak een teken dat er een vergelijking loopt.
+- **Discussie over de factuur.** Een ongebruikelijke discussie of een late betaling kan wijzen op ontevredenheid.
+
+Als je een van deze signalen ziet, neem dan binnen dezelfde week persoonlijk contact op, liefst met een telefoontje. Vraag open wat er speelt, luister, en spreek een volgende stap met datum af. Zit er een klacht onder, geef die dan een eigenaar via het [klachtenproces](/blog/complaint-management).
+
+## Uitgewerkt voorbeeld: een maandaglijst met klanten die stil zijn geworden
+
+**Illustratief voorbeeld met fictieve klanten, geen klantcase.** Een adviesbureau van vijf mensen heeft 30 klanten. Op maandag 9 november toont de opgeslagen weergave Actieve klanten met een Laatste contact ouder dan 60 dagen, oudste eerst. Er verschijnen er vijf.
+
+| Klant (fictief) | Laatste contact | Volgende stap op | Besluit op maandag |
+| --- | --- | --- | --- |
+| Logistiek bedrijf | 12 augustus | geen | De contactpersoon is vertrokken. Zoek de nieuwe persoon via de andere mensen van de organisatie en stuur dan een kort bericht |
+| Ontwerpstudio | 17 juli | geen | Eén project vorig jaar. Zet de status op Slapend en Volgende stap op op 15 januari |
+| Voedselimporteur | 30 augustus | geen | Bel deze week en vraag naar het vervolgproject uit het gesprek van augustus |
+| Tandartsengroep | 28 augustus | 20 november | Nu niets te doen, de stap staat. Blijft op de lijst tot het gesprek heeft plaatsgevonden en Laatste contact is bijgewerkt |
+| Advocatenkantoor | 3 september | geen | Stuur een kort check-inbericht; komt er binnen twee weken geen reactie, bel dan |
+
+Drie dingen laten zien waarom de lijst werkt. Vijf namen passen in één maandagblok; als de lijst er vijftien toonde, is de drempel korter dan het echte ritme van je klanten of is de opvolging weggegleden, en beide zijn goed om te weten. De tandartsengroep blijft op de lijst staan hoewel er een stap gepland is, met opzet: de datum van het laatste gesprek, niet het plan, meet de stilte. En elke rij eindigt in een van drie besluiten: contact opnemen, een stap met datum zetten, of verplaatsen naar Slapend. Een lijst die nooit korter wordt, betekent dat er iets niet klopt.
+
+## Hoe zet je dit op in Customermates?
+
+Customermates is ons product, een open-source CRM. Het houdt elk klantbedrijf, de mensen, deals, notities, bestanden en geschiedenis bij op gekoppelde records en, in Customermates Cloud vanaf Pro, ook de gesprekken via e-mail, LinkedIn, WhatsApp, Instagram en Telegram. Niemand wordt automatisch herinnerd: je houdt een paar datumvelden, een opgeslagen weergave en een dashboardwidget bij, en die tonen wat aandacht nodig heeft als je ze opent. De [pagina over contact- en klantbeheer](/features/contact-management) toont de onderliggende functies en de [follow-up-pagina](/features/follow-up) het idee erachter.
+
+<Steps>
+  <Step title="Markeer je klanten op de lijst Organisaties">Customermates werkt met instelbare lijsten; een nieuwe werkruimte begint zonder lijsten, en in Customermates Cloud kan de door AI begeleide installatie Contactpersonen, Organisaties en Deals voorstellen. Open in **Datamodel** Organisaties, kies **Toevoegen** en dan **Veld**, en maak een veld **Enkele keuze** "Klantstatus" (Actief, Slapend, Voormalig), een veld **Datum** "Laatste contact", een veld **Datum** "Volgende stap op" en een veld **Lid** "Klanteigenaar". Staan je klanten al in een spreadsheet? De werkbalk van de lijst importeert een Excel- of CSV-bestand via een wizard voor kolomkoppeling, één lijst tegelijk. Koppel elke persoon aan de bijbehorende organisatie.</Step>
+  <Step title="Schrijf op het record wat je weet">Voeg een veld **Opgemaakte tekst** "Notities" toe voor wat is beloofd, waar de klant om geeft en wie beslist, en een veld **Bestand** voor contracten en rapporten. Een bestandsveld bevat tot 20 bestanden, en de tekst van documenten met een tekstlaag of in kantoorformaten is doorzoekbaar; gescande pagina's worden opgeslagen maar niet gelezen. Zet na elk echt gesprek Laatste contact bij en voeg één regel aan de notities toe.</Step>
+  <Step title="Houd de gesprekken bij de klant">In Customermates Cloud vanaf het Pro-abonnement koppelt de [gecombineerde inbox](/features/unified-inbox) gesprekken uit e-mail (Gmail, Outlook of IMAP), LinkedIn, WhatsApp, Instagram en Telegram aan je contactpersonen. Staat bij de relatie tussen Contactpersonen en Organisaties in het zijpaneel **Hun berichten tonen bij Organisaties** aan (de door AI begeleide installatie doet dit), dan toont de organisatie de gesprekken van haar mensen, zodat het bewijs voor Laatste contact op hetzelfde record staat. Free, Starter en zelf gehoste installaties hebben geen inbox: zet Laatste contact met de hand en houd een regel in de notities bij.</Step>
+  <Step title="Sla de weeklijst op">Open **Filters** op Organisaties, kies Klantstatus is Actief, voeg Laatste contact toe met **Ouder dan…** en 60 dagen, sorteer op Laatste contact met de oudste eerst en gebruik **Opslaan als weergave**. Noem hem "Geen contact sinds 60 dagen". Filters worden gecombineerd met EN. Een klant bij wie Laatste contact nog leeg is, heeft niets om mee te vergelijken, dus toon die met een tweede opgeslagen weergave: Laatste contact **is leeg**. Kies **Delen…** in het menu van de weergave om de weergave te tonen aan iedereen in de werkruimte of aan geselecteerde rollen.</Step>
+  <Step title="Zet op het dashboard wat aan de beurt is">Kies **Widget toevoegen** (de [pagina over CRM-rapportage](/features/reporting) noemt de stijlen), kies **Aankomend**, kies Organisaties en het datumveld "Volgende stap op". Standaard toont de widget de records die de komende 14 dagen aan de beurt zijn, tot maximaal 90, en heeft een sectie **Achterstallig** voor eerdere datums. Filter op Klantstatus is Actief, zodat slapende klanten niet als achterstallig tellen. Niemand krijgt een melding; de widget toont wat aan de beurt is als je het dashboard opent.</Step>
+  <Step title="Laat Mate of je eigen AI-client de check-ins opstellen">In Customermates Cloud kan Mate je records lezen en een check-in als concept opslaan als je erom vraagt, of via een [routine](/docs/app-routines) die je instelt, met gehoste AI-credits. Je eigen AI-client leest dezelfde gegevens via de [MCP-server](/blog/what-is-an-mcp-server). Jij beoordeelt, bewerkt en verstuurt.</Step>
+</Steps>
+
+> Toon de organisaties waar Klantstatus Actief is en Laatste contact ouder is dan 60 dagen. Vat voor elke organisatie het laatste gesprek in één zin samen en sla een korte check-in-e-mail aan de hoofdcontactpersoon op als concept. Verstuur niets.
+
+Mate slaat de e-mails op als concepten die jij controleert en verstuurt. Velden, relaties, notities, bestanden, geschiedenis en grafieken zijn onderdeel van elk abonnement, ook van het Free-abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, met betaalde abonnementen vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd, en van de zelf gehoste editie; Mate en de gecombineerde inbox zijn functies van Customermates Cloud en zitten niet in Free, en de inbox begint bij Pro voor [[commercial.price.pro.monthly]] per gebruiker per maand.
+
+<AcquisitionCallout title="Wat Customermates niet doet voor bestaande klanten" variant="boundary">
+  Geen herinneringen: niemand krijgt een melding als een klant stil wordt of een stap aan de beurt is, en er is geen meldingencentrum; de opgeslagen weergave en de widget Aankomend tonen het als je ze opent. Geen ingebouwde vervaldatums of statussen: Klantstatus, Laatste contact en Volgende stap op zijn gewone velden die je zelf toevoegt en actueel houdt. Geen sequenties, drip of bulk-outreach: Mate of je AI-client stelt afzonderlijke berichten op die jij beoordeelt en verstuurt. Geen leadscoring en geen klantgezondheidsscore: je zet de status zelf. Geen offertes of facturatie: omzet komt uit de deals die je vastlegt. Geen gezamenlijk bewerkte teamweergaven: een gedeelde weergave of dashboard is voor collega's alleen-lezen, zij kunnen het als eigen kopie overnemen. Heeft je retentieplan automatische gezondheidsscores uit productgebruik nodig, of campagnes naar grote klantenlijsten, gebruik dan een customer-successtool of een marketingautomatiseringstool. Houd Customermates voor de gesprekken, notities en datums achter elke klant.
+</AcquisitionCallout>
+
+Wil je het met je eigen klanten proberen, [start dan je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): Pro, zonder creditcard. Importeer je klantenlijst, voeg Laatste contact toe en sla de weergave voor 60 dagen op.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is klantretentie?">
+Klantretentie, ook klantbehoud of klantenbinding genoemd, is het vermogen van een bedrijf om klanten te houden en opnieuw te laten kopen. Je meet het met het retentiepercentage: klanten aan het eind van de periode min nieuwe klanten, gedeeld door klanten aan het begin, maal 100.
+</FaqItem>
+
+<FaqItem question="Wat is een klantrelatie?">
+Een klantrelatie is alles wat er tussen jou en een klant gebeurt: gesprekken, aankopen, afspraken en wat je elkaar beloofd hebt. Een CRM bewaart die geschiedenis op het record van de klant, zodat iedereen in het team de relatie kan voortzetten.
+</FaqItem>
+
+<FaqItem question="Wat zijn de 5 fasen van de klantreis?">
+Awareness, consideration, decision, retention en advocacy: bewustwording, overweging, beslissing, behoud en aanbeveling. Klantretentie hoort bij de vierde fase. De [gids over de customer journey](/blog/customer-journey) werkt de fases uit met voorbeelden.
+</FaqItem>
+
+<FaqItem question="Wat is de beste manier om nieuwe klanten te werven?">
+Dat hangt af van je markt, maar begin bij mensen die al weten wie je bent: referenties van bestaande klanten en eerdere gesprekken. Hoe je kanalen vergelijkt en berekent wat een nieuwe klant kost, staat in de [gids over klantacquisitie](/blog/customer-acquisition).
+</FaqItem>
+
+<FaqItem question="Wat zijn bestaande klanten?">
+Bestaande klanten zijn mensen of bedrijven die al bij je hebben gekocht en die je niet als verloren hebt afgesloten. Geen enkele drempel past bij elk bedrijf, dus schrijf je eigen termijn op, bijvoorbeeld een aankoop of een actief contract in de afgelopen 12 maanden, en leg klanten daarbuiten vast als slapend.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een bestaande klant en een nieuwe klant?">
+Een nieuwe klant heeft nog niet bij je gekocht of heeft net een eerste bestelling geplaatst, dus je werkt met aannames. Bij een bestaande klant heb je geschiedenis: wat ze kochten, wie besliste en wat je beloofde. Het doel verschuift van het winnen van een eerste bestelling naar het gezond houden van de relatie en het vinden van de volgende behoefte.
+</FaqItem>
+
+<FaqItem question="Is het echt goedkoper om een bestaande klant te behouden dan een nieuwe te werven?">
+Een artikel in de Harvard Business Review van 29 oktober 2014 meldt een bandbreedte van vijf tot 25 keer, afhankelijk van het onderzoek en de branche. Dat is een brede bandbreedte uit een ouder artikel, dus zie het als een richting. Tel hoeveel van de bestellingen van vorig jaar kwamen van klanten die al eerder hadden gekocht om te zien wat het voor jou betekent.
+</FaqItem>
+
+<FaqItem question="Hoe vaak moet je contact opnemen met bestaande klanten?">
+Er is geen standaard. Een startpunt is elke maand een gepland contactmoment en elk kwartaal een evaluatie voor een handvol topklanten, elke twee à drie maanden een echt gesprek voor reguliere klanten en twee keer per jaar voor kleine of eenmalige klanten. Pas het aan op hoe vaak een klant je normaal nodig heeft.
+</FaqItem>
+
+<FaqItem question="Hoe vind je bestaande klanten die stil zijn geworden?">
+Houd bij elke klant de datum van het laatste echte gesprek bij en toon dan de klanten van wie de datum ouder is dan je drempel, oudste eerst. In Customermates is dit een opgeslagen weergave op Organisaties met Klantstatus Actief en Laatste contact Ouder dan 60 dagen.
+</FaqItem>
+
+<FaqItem question="Kan Customermates me eraan herinneren contact op te nemen met klanten?">
+Nee. Customermates verstuurt geen herinneringen of meldingen. Een opgeslagen weergave en de widget Aankomend op een datum Volgende stap op tonen wat aan de beurt is als je ze opent, en Mate of je eigen AI-client kan het bericht opstellen, dat jij beoordeelt en verstuurt.
+</FaqItem>
+
+<FaqItem question="Waar passen retentiepercentage en verlengingen in?">
+Dat zijn de cijfers bovenop deze routine. Retentiepercentage, cohorten en verlengingsplanning komen aan bod in de gids over CRM-strategie; deze pagina gaat over de wekelijkse gewoonte die de onderliggende gegevens eerlijk houdt.
+</FaqItem>
+</Faq>
+
+Verificatie van feiten van derden op 11 november 2026: [Harvard Business Review, The Value of Keeping the Right Customers](https://hbr.org/2014/10/the-value-of-keeping-the-right-customers), Amy Gallo, 29 oktober 2014.

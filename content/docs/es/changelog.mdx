@@ -1,0 +1,32 @@
+---
+title: "Changelog de Customermates: versiones y funciones lanzadas"
+description: "Lista fechada de lo lanzado en Customermates: compartir vistas, importar CSV y XLS, disponibilidad general y primera versión pública, con enlace a la fuente."
+---
+
+Esta página enumera los cambios lanzados, con su fecha y un enlace a su fuente, del más reciente al más antiguo; el historial completo está en el [repositorio de GitHub](https://github.com/customermates/customermates).
+
+## 8 de noviembre de 2026: compartir vistas guardadas y paneles [#2026-11-08-shared-views]
+
+Las vistas guardadas de las listas y las vistas del panel se pueden compartir. Elige **Compartir…** en el menú de una vista para mostrarla a todo el espacio de trabajo o a roles seleccionados, o elige **Cualquiera con el enlace** para publicar un enlace público de solo lectura que se abre sin iniciar sesión. Cada persona ve una vista compartida con su propio acceso, y un enlace público nunca muestra más de lo que puede ver quien lo creó.
+
+Publicar un enlace público requiere el permiso **Crear** en la fila **Enlaces públicos** de un rol, y **Permitir enlaces públicos** en [General](app:settings/general) desactiva y vuelve a activar todos los enlaces públicos del espacio de trabajo. Consulta las [vistas guardadas](/docs/app-records#how-do-saved-views-work), los [enlaces públicos a listas](/docs/app-records#public-list-links), las [vistas del panel](/docs/app-dashboard#dashboard-views) y los [enlaces públicos al panel](/docs/app-dashboard#public-links).
+
+Lanzado en la [pull request 289](https://github.com/customermates/customermates/pull/289), integrada el 8 de noviembre de 2026.
+
+## 2 de noviembre de 2026: importar archivos CSV y XLS [#2026-11-02-csv-xls-import]
+
+**Añadir desde archivo** en una lista de registros acepta una exportación JSON de la misma lista, un libro de Excel (`.xlsx` o el antiguo `.xls`) o un archivo CSV (`.csv`). Una hoja de cálculo puede pesar hasta 10 MB y cada hoja tener hasta 5000 filas de datos. Una importación de Excel o CSV inicia un asistente en el que eliges la hoja, asignas las columnas, revisas la vista previa y decides entre registros nuevos y existentes. Consulta [cómo importar o exportar registros](/docs/app-records#how-do-i-import-or-export-records).
+
+Lanzado en la [pull request 273](https://github.com/customermates/customermates/pull/273), integrada el 2 de noviembre de 2026.
+
+## 1 de noviembre de 2026: disponibilidad general [#2026-11-01-general-availability]
+
+Customermates está disponible de forma general, tras la fase beta y las pruebas desde marzo de 2026. El núcleo es de código abierto: el código fuera de `ee/` tiene licencia AGPL-3.0-only, y los archivos de `ee/` usan la Customermates Commercial License. El código fuente está en [GitHub](https://github.com/customermates/customermates), y los términos de la licencia se explican en [¿El autoalojamiento es gratuito y necesito una licencia?](/docs/self-hosting#is-self-hosting-free-and-do-i-need-a-license).
+
+Puedes usar Customermates Cloud, que tiene una prueba gratuita, o ejecutar Customermates tú mismo con Docker; consulta [Autoalojamiento](/docs/self-hosting).
+
+## 27 de marzo de 2026: v1.1.0, la primera versión pública [#2026-03-27-v1-1-0]
+
+La primera versión pública, con la etiqueta `v.1.1.0` en [GitHub](https://github.com/customermates/customermates/releases/tag/v.1.1.0). Sus notas de versión destacan los contactos, las organizaciones, las oportunidades, las tareas y los servicios, los permisos del equipo y los registros de auditoría, la API REST y la compatibilidad con n8n.
+
+El servidor MCP en `/api/v1/mcp`, al que se conectan clientes de IA como Claude, indica su versión como 1.1.0 en su tarjeta de servidor, en `<BASE_URL>/.well-known/mcp/server-card.json`. Consulta [MCP](/docs/mcp).

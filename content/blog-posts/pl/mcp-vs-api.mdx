@@ -1,0 +1,276 @@
+---
+title: "MCP vs API: różnice, test w CRM i kiedy wybrać które"
+description: "MCP vs API: różnice, bezpieczeństwo i wybór. Test z 5 listopada 2026: to samo wyszukanie klienta i zadanie przez REST i MCP oraz odrzucony zapis."
+
+hero:
+  title: "MCP vs API: które połączenie pasuje do Twojego zadania w CRM?"
+  description: "Wybierz połączenie według zadania, które masz do zrobienia. Lokalny test na parze interfejsów, odrzucony zapis i jasno opisane ograniczenia."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-11-05
+  tags:
+    - MCP
+    - API
+    - REST
+    - CRM
+
+relatedHrefs:
+  - /features/api
+  - /docs/mcp
+  - /blog/agentic-crm
+  - /blog/n8n-for-beginners-build-your-first-workflow
+---
+
+# MCP vs API: które połączenie pasuje do Twojego zadania w CRM?
+
+MCP vs API to wybór sposobu, w jaki klient znajduje i wywołuje operację: REST daje kodowi aplikacji endpointy, a MCP daje aplikacji AI narzędzia, które można wykryć, razem ze schematami danych wejściowych. Customermates oferuje oba warianty dla tych samych danych klientów, a uprawnienia aplikacji obowiązują połączonego użytkownika na każdej z dróg.
+
+Użyj REST, gdy integracja jest znana, a jej kroki kontrolujesz w kodzie. Rozważ MCP, gdy asystent ma wybierać spośród narzędzi, pomagając komuś w pracy. Przy pytaniu „MCP czy API?” liczy się zadanie. Żaden z protokołów sam z siebie nie gwarantuje szybszego, bezpieczniejszego ani automatycznie zatwierdzonego wyniku.
+
+## Jaka jest różnica między MCP a API REST?
+
+API to interfejs programistyczny aplikacji. REST to styl architektury stosowany w API webowych, a nie synonim każdego API. Endpoint to konkretny adres, który udostępnia aplikacja. Mikroserwis to sposób podziału aplikacji na usługi i może mieć własne API.
+
+MCP, czyli [Model Context Protocol](/blog/what-is-an-mcp-server), standaryzuje wymianę między aplikacją hosta, jej komponentem klienckim i serwerem. Serwer może opakowywać REST API, wywoływać inne API albo uruchamiać logikę aplikacji bezpośrednio. W Customermates trasy REST dla rekordów i narzędzia MCP wywołują te same współdzielone interaktory. Poniższy przykład porównuje więc dwa punkty wejścia do tej samej logiki CRM.
+
+| Decyzja | REST API | MCP |
+| --- | --- | --- |
+| Znalezienie operacji | Programista korzysta z dokumentacji albo kontraktu OpenAPI | Klient wykrywa narzędzia z nazwami i schematami wejścia |
+| Wybór następnego kroku | Przebieg określa kod integracji | Host może zostawić wybór modelowi; skrypt też może wywoływać narzędzia wprost |
+| Opis wywołania | Metoda HTTP, endpoint i treść żądania | Nazwa narzędzia i argumenty w wymianie MCP |
+| Odczyt wyniku | Status HTTP i odpowiedź aplikacji | Odpowiedź protokołu i wynik narzędzia; sprawdzaj też błędy narzędzia |
+| Ponowienie zapisu | Trzymaj się kontraktu idempotentności aplikacji | Trzymaj się kontraktu idempotentności narzędzia |
+| Kontrola dostępu | Aplikacja sprawdza prawa uwierzytelnionego użytkownika | Aplikacja sprawdza prawa połączonego użytkownika |
+| Zatwierdzenie przez człowieka | Integracja musi sama wdrożyć swoją politykę | Host lub aplikacja musi wdrożyć swoją politykę |
+| Najlepszy punkt startu | Stabilna synchronizacja lub stały proces biznesowy | Asystent wybierający spośród dostępnych operacji |
+
+HTTP zapewnia semantykę metod i statusów, opisaną w [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html). Treść JSON wysłana metodą POST sama nie daje bezpiecznych ponowień. MCP również wymaga kontraktu aplikacji, który zapobiega duplikatom. Nie zastępuje HTTP gwarancją bezpieczeństwa ani wydajności.
+
+## Najważniejsze różnice w pięciu punktach [#roznice-w-piecu-punktach]
+
+1. **Kto jest odbiorcą.** REST obsługuje kod aplikacji, który programista napisał pod konkretne zadanie. MCP obsługuje aplikację AI (hosta), która ma wybrać narzędzie w trakcie pracy.
+2. **Jak klient znajduje operacje.** W REST czytasz dokumentację albo kontrakt OpenAPI i wpisujesz endpointy do kodu. W MCP klient pobiera listę narzędzi i ich schematy (`tools/list`) dopiero po połączeniu.
+3. **Kto wybiera następny krok.** W REST robi to kod integracji, w MCP może to zrobić model, choć skrypt też może wywoływać narzędzia wprost, tak jak w naszym teście.
+4. **Jak wygląda połączenie.** Żądanie REST niesie wszystko, czego potrzebuje serwer. Połączenie MCP zaczyna się od uzgodnienia (`initialize`), a dopiero potem klient wywołuje narzędzia.
+5. **Jak działa bezpieczeństwo.** Oba warianty potrzebują uwierzytelnienia, uprawnień i kontroli ponowień. MCP dokłada pytanie o to, co model zrobi z niezaufanym tekstem w wynikach narzędzi i kto zatwierdza wysyłkę lub usunięcie.
+
+Pozostała część artykułu pokazuje, jak wygląda to na jednym zadaniu w CRM.
+
+## Czym różni się wykrywanie narzędzi od wykrywania schematu?
+
+[Specyfikacja narzędzi MCP](https://modelcontextprotocol.io/specification/latest/server/tools) definiuje `tools/list` do wykrywania nazw narzędzi i schematów wejścia oraz `tools/call` do wywołania narzędzia. Dzięki temu klient wie, jak wywołać ogólne zapytanie o rekordy. Nie pokazuje jednak, która zdefiniowana przez klienta lista ani które pole jest właściwe w Twoim obszarze roboczym.
+
+Customermates rozdziela te dwa pytania. `discover_record_types` wskazuje dostępne listy, a `get_record_model` zwraca ich pola, typy, relacje i rewizję konfiguracji. Nie zamieniaj widocznej etykiety, takiej jak „Zadania”, na wymyślony identyfikator. [Przegląd REST API Customermates](/features/api) opisuje kontrakt endpointów, a [dokumentacja MCP](/docs/mcp) opisuje kontrakt narzędzi.
+
+Lokalny test zapisał `initialize`, `tools/list` i jawne wywołania narzędzi. Żaden model językowy nie wybierał narzędzi. Pierwszy blok JSON to zapisane żądanie wykrywania, a drugi pokazuje argumenty SDK do odczytu modelu obszaru roboczego:
+
+```json
+{
+  "method": "tools/list",
+  "jsonrpc": "2.0",
+  "id": 1
+}
+```
+
+```json
+{
+  "name": "get_record_model",
+  "arguments": {}
+}
+```
+
+Odpowiedź modelu wskazała typy Organization i Task w rewizji schematu `1`. Pole główne typu Organization miało identyfikator `88302b3f-1203-8ef1-8eb2-1cdf738145c4`. Wymagane pole Name typu Task miało identyfikator `0de76b04-786e-8931-8b21-64596e06b4c1` i `valueType: text`. Pole Notes było opcjonalne i miało typ `richText`. Relacja zadania z organizacją miała identyfikator `5cde6409-ab72-8707-8039-3c9cdf5868c5`. To identyfikatory danych testowych, a nie identyfikatory do ponownego użycia na Twoim koncie. Obie ścieżki zapisu korzystały ze schematu pobranego przez MCP; osobnego odczytu schematu przez REST nie wykonano.
+
+## Co zwróciło to samo wyszukanie klienta w obu interfejsach?
+
+**Granice lokalnego testu:** wykonany 5 listopada 2026, od `05:32:59.558Z` do `05:33:10.374Z`, na nowej, jednorazowej bazie PostgreSQL 17.8 i własnej aplikacji nasłuchującej na pętli zwrotnej. Para uprawnionych wywołań użyła tego samego tymczasowego klucza API, fikcyjnego administratora i obszaru roboczego. Osobny fikcyjny użytkownik tylko do odczytu sprawdzał odmowę. Nie użyto danych dostępowych produkcji, wysyłek na zewnątrz ani wywołań dostawców modeli; transport testowy blokował połączenia wychodzące, a oba klucze unieważniono po teście.
+
+Przed startem 3797 plików aplikacji, schematu, uprawnień, danych testowych i zależności zgadzało się ze sprawdzonym stanem źródeł `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`; znacznik kompilacji w chmurze miał wartość `2912f7e6882ebccb`. Środowisko: Node `24.18.0`, Next.js `16.3.2`, MCP TypeScript SDK `1.24.0` i `mcp-handler` `1.0.4`. Zapisane żądanie initialize proponowało MCP `2025-06-18`; serwer zaakceptował tę rewizję i przedstawił się jako Customermates `1.1.0`. To zaobserwowane uzgodnienie, a nie deklaracja, że przetestowano najnowszą specyfikację lub każdego klienta.
+
+Żądanie REST miało postać `POST /api/v1/records/query`. Wywołanie MCP to `query_crm_records`. Oba użyły dokładnie tego samego obiektu argumentów:
+
+```json
+{
+  "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+  "fields": [
+    "88302b3f-1203-8ef1-8eb2-1cdf738145c4"
+  ],
+  "search": "Example organization",
+  "page": 1,
+  "pageSize": 25
+}
+```
+
+Obie odpowiedzi zawierały to odwołanie do rekordu, pokazane tylko z polami wersji:
+
+```json
+{
+  "records": [
+    {
+      "ref": {
+        "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+        "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+      },
+      "version": 1,
+      "schemaRevision": 1
+    }
+  ]
+}
+```
+
+Obie ścieżki zwróciły dokładnie jedną pasującą organizację. Skrypt porównał kompletne ustrukturyzowane wyniki zapytania i uznał je za równe dla tego żądania. Nie dowodzi to równoważności dla każdego zapytania, typu pola ani polityki dostępu.
+
+## Jak każdy interfejs utworzył wewnętrzne zadanie?
+
+Skrypt utworzył dwa osobne zadania o równoważnym celu, po jednym na interfejs, powiązane z tą samą fikcyjną organizacją. Nie utworzył dwa razy tego samego zadania w obu protokołach. Nazwy i klucze idempotentności celowo się różnią.
+
+**Zapisana treść REST**, wysłana na `POST /api/v1/records/mutate`:
+
+```json
+{
+  "expectedRevision": 1,
+  "idempotencyKey": "1f4ca96e-7947-40fa-8e41-c28981fccc02",
+  "mutation": {
+    "action": "create",
+    "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+    "fields": [
+      {
+        "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+        "value": {
+          "kind": "text",
+          "value": "Fictional proof: review customer handover via REST"
+        }
+      }
+    ],
+    "links": [
+      {
+        "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+        "direction": "outgoing",
+        "record": {
+          "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+          "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Zapisane wywołanie narzędzia MCP**, pokazane na poziomie argumentów SDK, a nie jako pełny komunikat protokołu:
+
+```json
+{
+  "name": "mutate_crm_record",
+  "arguments": {
+    "expectedRevision": 1,
+    "idempotencyKey": "8d280d0a-f886-4e1c-b286-5ef6e1063fc1",
+    "mutation": {
+      "action": "create",
+      "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+      "fields": [
+        {
+          "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+          "value": {
+            "kind": "text",
+            "value": "Fictional proof: review customer handover via MCP"
+          }
+        }
+      ],
+      "links": [
+        {
+          "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+          "direction": "outgoing",
+          "record": {
+            "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+            "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+Uprawnione żądania REST zwróciły HTTP `200`, a uprawnione wywołania narzędzi MCP zapisały `isError: false`. Wybrane pola odpowiedzi i identyfikatory nowych zadań:
+
+| REST | MCP |
+| --- | --- |
+| `status: completed`, `schemaRevision: 1` | `result.status: completed`, `result.schemaRevision: 1` |
+| `d0f7b186-1cd9-44c9-88e3-b40877115c5f` | `421321b2-202b-4ee2-a6b9-023d4bf5c8d3` |
+
+Każdy pełny wynik zawierał też odwołanie do powiązanej organizacji. Powtórzenie identycznego żądania z pierwotnym kluczem idempotentności zwróciło w każdym interfejsie identyczny wynik. Skrypt odczytał **oba** zadania przez `POST /api/v1/records/read` i `read_crm_record`, prosząc o relację wychodzącą z `limit: 5`. Każda para pełnych odczytów była zgodna: wersja zadania `1` i powiązanie z organizacją. Końcowy zestaw danych zawierał dokładnie dwa zadania, więc żadne powtórzenie nie utworzyło kolejnego.
+
+Granice mają znaczenie: jeden pasujący klient, strona `1` z `pageSize: 25`, dwa utworzone zadania i jedno identyczne powtórzenie na zadanie. Limit pięciu powiązanych rekordów był ustawieniem żądania, a nie zmierzonym maksimum platformy. To nie był test obciążenia, pomiar opóźnień, ocena rozumowania modelu ani test współpracy różnych klientów.
+
+## Gdzie naprawdę działają uprawnienia i zatwierdzenia przez człowieka?
+
+Uwierzytelnienie ustala, kto wywołuje operację; uprawnienia aplikacji określają, co ten użytkownik może odczytać lub zmienić. Oba punkty wejścia Customermates stosują uprawnienia połączonego użytkownika. Drugi użytkownik testowy miał dostęp do API i prawo odczytu typów Organization i Task, ale bez prawa aktualizacji rekordów. Jego żądanie tożsamości przez REST i zapytanie o klienta przez MCP się powiodły, co potwierdza, że test dotarł do uwierzytelnionego, czytelnego obszaru roboczego.
+
+Ten użytkownik próbował następnie zmienić pole Name zadania utworzonego przez REST, raz przez REST i raz przez MCP, z aktualną rewizją schematu i wersją zadania. REST zwrócił HTTP `403`, `error.kind: authorization` i `customCode: permissionDenied`. Wymiana MCP zwróciła HTTP `200`, ale wynik narzędzia zawierał `isError: true`, `_meta.failure.kind: authorization` i ten sam kod. Po **każdej** odmowie administrator ponownie odczytał zadanie obydwoma interfejsami: pełny rekord, pole Name, wersja `1` i powiązanie z organizacją pozostały bez zmian. To dowodzi tych dwóch odrzuconych aktualizacji dla tej roli i tych danych testowych, a nie jest audytem bezpieczeństwa wszystkich uprawnień.
+
+Zatwierdzenie to osobna kwestia. Customermates instruuje zewnętrznych klientów MCP, by uzyskali potwierdzenie przed wysłaniem, usunięciem lub sięgnięciem poza obszar roboczy. Te instrukcje prowadzą klienta. Zewnętrzny serwer MCP nie wstrzymuje uprawnionego wywołania, żeby samemu wymóc zatwierdzenie.
+
+Mate hostowany przez Customermates ma własną politykę zatwierdzeń, egzekwowaną po stronie serwera. Rutyny mają własne mechanizmy wykonania i zatwierdzania; nie wnioskuj o nich na podstawie sesji zewnętrznego MCP. Dostępność Mate w chmurze zarządzanej zależy też od kwalifikujących się planów, dostępnych kredytów i globalnych ustawień. [Przewodnik po agentowym CRM](/blog/agentic-crm) wyjaśnia te granice.
+
+### Lista kontrolna bezpieczeństwa dla MCP i API [#lista-bezpieczenstwa]
+
+Niezależnie od protokołu sprawdź kilka rzeczy, zanim podłączysz agenta do prawdziwych danych klientów:
+
+- **Najmniejsze uprawnienia.** Połącz użytkownika z rolą, która może tylko to, czego zadanie wymaga. Zacznij od roli tylko do odczytu.
+- **Zaufane serwery.** Podłączaj tylko serwery MCP, którym ufasz, bo opisy narzędzi i wyniki są tekstem, który model przeczyta.
+- **Niezaufany tekst.** Treść wiadomości, notatek i stron może zawierać polecenia; traktuj ją jak dane, nie jak instrukcję.
+- **Zatwierdzanie przed wysyłką i usunięciem.** Sprawdź, jak Twój klient wymusza potwierdzenie, bo serwer nie wstrzyma uprawnionego wywołania.
+- **Idempotencja zapisu.** Przy każdym ponowieniu używaj tego samego klucza, żeby nie powstały duplikaty.
+
+## Kiedy zostać przy REST, użyć MCP albo połączyć oba?
+
+Zostań przy REST, gdy zadanie brzmi „wykonuj dokładnie te kroki, kiedy zajdzie znane zdarzenie”. Stała synchronizacja zwykle zyskuje na jawnych mapowaniach, ponowieniach i obsłudze błędów w kodzie. OpenAPI też może dostarczać maszynowo czytelne schematy API; możliwość wykrycia nie jest wyłączną cechą MCP.
+
+Wybierz MCP, gdy kolejna przydatna operacja zależy od pytania człowieka, a host obsługuje potrzebne narzędzia. Nadal potrzebujesz zaufanych serwerów, ograniczonego dostępu, walidacji wyników i polityki zatwierdzeń. MCP to coś więcej niż format JSON, ale nie jest bramą API, która automatycznie zapewnia wszystkie te kontrole. Role hosta, klienta i serwera opisuje [oficjalna architektura MCP](https://modelcontextprotocol.io/docs/learn/architecture).
+
+Oba podejścia można łączyć: webhook zgłasza zdarzenie, deterministyczny przepływ pobiera dane przez REST, a asystent bada wyjątek przez MCP. [Webhooki](/docs/webhooks) to powiadomienia o zdarzeniach, a nie inna nazwa wywołania narzędzia. n8n potrafi orkiestrować integracje (jak to wygląda z MCP, opisuje [poradnik o n8n MCP](/blog/n8n-mcp)), ale opisany wyżej test lokalny uruchomił skrypt, a nie n8n. [Wprowadzenie do workflow w n8n](/blog/n8n-for-beginners-build-your-first-workflow) to osobny punkt startu.
+
+Samodzielnie hostowany Customermates udostępnia rdzeń CRM Starter z REST i MCP dla klientów zewnętrznych. Nie obejmuje Mate hostowanego przez Customermates ani skrzynki odbiorczej w chmurze. Wybierz inne podejście, jeśli potrzebujesz tylko adaptera do swojego obecnego CRM albo gdy stała integracja nic nie zyskuje na hoście AI. Ceny chmury i warunki okresu próbnego nie zależą od wyboru protokołu; porównasz je na [aktualnej stronie cennika](/pricing).
+
+### Przykłady zastosowań: REST czy MCP? [#przyklady-zastosowan]
+
+| Zadanie | Droga | Dlaczego |
+| --- | --- | --- |
+| Nocna synchronizacja klientów z programem księgowym | REST | Stałe kroki, jawne mapowania i obsługa błędów w kodzie |
+| Formularz na stronie tworzy kontakt i szansę sprzedaży | REST, ewentualnie webhook | Znane zdarzenie i przewidywalny przebieg |
+| Asystent streszcza historię klienta przed spotkaniem | MCP | Pytanie człowieka decyduje, które rekordy odczytać |
+| Agent przygotowuje szkic follow-upu i następnego kroku do sprawdzenia | MCP | Model wybiera narzędzia, człowiek zatwierdza wysyłkę |
+| Tygodniowy raport z tych samych liczb | REST | Powtarzalne zapytanie bez udziału modelu |
+
+Zespołowi, który wraca do rozmów z klientami, przyda się wywołanie MCP, które odczytuje wątek na rekordzie klienta i zapisuje szkic odpowiedzi oraz następny krok do przejrzenia. Żeby wypróbować to z własnym Claude lub ChatGPT, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy MCP to to samo co API?">
+Nie. API to ogólne pojęcie interfejsu programistycznego, a REST to jeden ze stylów takich interfejsów. MCP to protokół opisujący, jak aplikacja AI wykrywa i wywołuje narzędzia serwera. Serwer MCP często korzysta z API w tle, ale z punktu widzenia klienta ma inny kontrakt: nazwane narzędzia ze schematami zamiast endpointów.
+</FaqItem>
+<FaqItem question="Czy MCP zastępuje REST API?">
+Nie. Serwer MCP może opakowywać REST API albo współdzielić z nim logikę aplikacji. REST nadal sprawdza się w kontrolowanych integracjach ze z góry określonymi krokami.
+</FaqItem>
+<FaqItem question="Czy MCP to tylko JSON albo REST API?">
+MCP definiuje komunikaty protokołu i konwencje wykrywania, a nie tylko kształt JSON. Może działać przez HTTP, ale wywołanie nazwanego narzędzia MCP to nie ten sam kontrakt co wywołanie endpointu REST.
+</FaqItem>
+<FaqItem question="Czy MCP jest jak brama API (API gateway)?">
+Nie. Brama API stoi przed interfejsami i zajmuje się ruchem: routingiem, limitami, uwierzytelnianiem. MCP definiuje, jak klient AI odkrywa i wywołuje narzędzia. Samo MCP nie zapewnia kontroli, które daje dobrze skonfigurowana brama, więc nadal potrzebujesz uwierzytelniania, uprawnień i zatwierdzeń.
+</FaqItem>
+<FaqItem question="Czy istniejące API można zamienić w serwer MCP?">
+Tak, serwer MCP może opakowywać REST API, ale to nie jest mechaniczna konwersja. Wybierasz operacje, które mają być narzędziami, nadajesz im czytelne nazwy i schematy wejścia, pilnujesz uprawnień oraz kontraktu idempotentności. W Customermates REST i MCP korzystają z tych samych współdzielonych interaktorów, więc oba punkty wejścia stosują te same uprawnienia.
+</FaqItem>
+<FaqItem question="Czy MCP automatycznie zabezpiecza dane klientów?">
+Nie. Kontrola dostępu, obsługa tokenów, niezaufane dane i zatwierdzenia po stronie klienta nadal mają znaczenie. Nasz lokalny zestaw testowy obejmuje uprawnione operacje i dwie odrzucone aktualizacje dla jednej roli tylko do odczytu; nie dowodzi to przewagi w zakresie bezpieczeństwa.
+</FaqItem>
+<FaqItem question="Czy do testu w parze potrzebny był model AI?">
+Nie. Skrypt jawnie wywołał endpointy REST i narzędzia MCP. Zapis testu nie mierzy zdolności modelu do wykrycia, wyboru i bezpiecznego wykonania tych operacji.
+</FaqItem>
+</Faq>
+
+Fakty o protokole od zewnętrznych podmiotów sprawdzono 5 listopada 2026 w oficjalnej architekturze MCP, specyfikacji narzędzi MCP i RFC 9110, do których odsyłają linki powyżej. Lokalne wykonanie produktu i uzgodnienie protokołu opisane wyżej zapisano 5 listopada 2026.

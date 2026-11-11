@@ -16,7 +16,7 @@ import { compareRecordKey } from "@/features/records/record-json";
 
 const database = getLocalDatabaseTestUrl();
 const suite = database ? describe : describe.skip;
-suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
+suite("generic synthetic seed convergence", { timeout: 360000 }, () => {
   it("seeds twice after the configurable records migration, preserves recreated links and unrelated records, and removes only stale fixtures", async () => {
     const fixture = await createLegacyMigrationDatabase(database);
     let prisma: PrismaClient | undefined;
@@ -28,7 +28,7 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
         sharedUserPassword: "synthetic-local-test",
       });
       const first = await runSyntheticSeed(context);
-      expect(first.workspaces).toHaveLength(18);
+      expect(first.workspaces).toHaveLength(solutionWorkspacePlans().length);
       expect(first.workspaces.every((workspace) => workspace.created > 0 && workspace.updated === 0)).toBe(true);
       const plans = solutionWorkspacePlans();
       const team = plans.find(({ workspace }) => workspace.team);

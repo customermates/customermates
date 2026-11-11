@@ -1,0 +1,343 @@
+---
+title: "Agentic AI: betekenis, voorbeelden, soorten en risico's"
+description: "Agentic AI uitgelegd: wat het betekent, het verschil met generatieve AI en chatbots, voorbeelden in sales en CRM, hoe het werkt en welke risico's er zijn."
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /blog/ai-sales-agent
+  - /blog/what-is-an-mcp-server
+  - /docs/app-routines
+
+hero:
+  title: "Agentic AI: definitie, werking, voorbeelden en grenzen"
+  description: "Agentic AI krijgt een doel in plaats van een prompt, plant daarna de stappen, gebruikt tools en controleert zelf wat eruit komt. Wat het betekent, het verschil met generatieve AI en chatbots, voorbeelden in sales en CRM en waar het misgaat."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-04-23
+  updated: 2026-11-11
+  tags:
+    - agentic-ai
+    - agentische-ai
+    - AI agents
+    - CRM
+---
+
+# Agentic AI: definitie, werking, voorbeelden en grenzen
+
+**Agentic AI** (in het Nederlands ook agentische AI) is AI die een doel krijgt in plaats van een vraag: ze plant de stappen, roept tools aan zoals een CRM, een zoekopdracht of een API, controleert wat er terugkomt en handelt, met beperkt toezicht. Het verschilt van generatieve AI, die inhoud maakt die jij daarna gebruikt, en van een chatbot, die een script volgt. Typische voorbeelden van agentic AI zijn een codeeragent die een pull request opent, een supportagent die een ticket beantwoordt of doorzet en een CRM-agent die het antwoord op een deal voorbereidt, telkens met een punt waarop een mens goedkeurt.
+
+"Agentic" komt van "agent": iemand die namens een ander handelt. AWS legt uit dat "agentic" duidt op agency, "het vermogen van deze systemen om zelfstandig te handelen, maar doelgericht" ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). Ook de korte definitie van IBM is een goed ijkpunt: agentic AI is "een systeem voor kunstmatige intelligentie dat met beperkt toezicht een specifiek doel kan bereiken" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). De twee woorden die de betekenis dragen zijn *doel* en *beperkt*. Iemand stelt nog steeds het doel vast en iemand bepaalt nog steeds hoeveel het systeem mag doen zonder te vragen.
+
+Transparantie: Customermates, een open-source CRM, publiceert deze gids. Deze gids beantwoordt de algemene vraag. Hoe je agents veilig op CRM-records laat werken, staat in de [gids over agentic CRM](/blog/agentic-crm), en agents die specifiek voor sales bedoeld zijn staan in de [gids over de AI sales agent](/blog/ai-sales-agent); één korte sectie hieronder beschrijft ons eigen product.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Definitie">
+    AI die een doel nastreeft door te plannen, tools aan te roepen en te
+    handelen, met beperkt toezicht.
+  </SummaryItem>
+  <SummaryItem label="Niet hetzelfde als">
+    Generatieve AI maakt inhoud die jij gebruikt, een chatbot volgt een
+    script, een workflow volgt een pad dat jij hebt geschreven, een agent kiest
+    zelf zijn stappen.
+  </SummaryItem>
+  <SummaryItem label="Voorbeelden">
+    Supporttriage, incidentafhandeling, factuurcontrole en codeeragents, plus
+    conceptantwoorden, accountbriefings en recordonderhoud in sales en CRM,
+    elk met zijn tools, zijn goedkeuringspunt en zijn risico (tabellen
+    hieronder).
+  </SummaryItem>
+  <SummaryItem label="Grenzen">
+    Excessive Agency (te veel tools, te veel rechten, geen goedkeuring vóór
+    ingrijpende acties), fouten die zich opstapelen en kosten die bij elke
+    stap oplopen.
+  </SummaryItem>
+  <SummaryItem label="Goede eerste taak">
+    Een afgebakende taak met een duidelijk einde, waarvan de uitkomst een
+    concept is dat een mens controleert (briefing van één pagina hieronder).
+  </SummaryItem>
+</ArticleSummary>
+
+## Wat betekent agentic AI?
+
+Agentic AI is AI die naar een doel toe handelt in plaats van alleen te antwoorden. Het model is hetzelfde soort taalmodel als achter een chatbot, maar het is gekoppeld aan tools en mag zelf de volgende stap bepalen. Google Cloud omschrijft het als AI die "doelen kan stellen, plannen en taken kan uitvoeren met minimale menselijke tussenkomst", in tegenstelling tot "traditionele AI, die vooral reageert op opdrachten of gegevens analyseert".
+
+De belangrijkste bronnen definiëren agentic AI met net andere woorden, en de verschillen laten zien waar elke bron op let.
+
+| Bron | Definitie | Wat ze benadrukt |
+|---|---|---|
+| [IBM](https://www.ibm.com/think/topics/agentic-ai) | "een systeem voor kunstmatige intelligentie dat met beperkt toezicht een specifiek doel kan bereiken" | Het doel, en hoeveel toezicht er overblijft |
+| [AWS](https://aws.amazon.com/what-is/agentic-ai/) | "een autonoom AI-systeem dat zelfstandig kan handelen om vooraf bepaalde doelen te bereiken" | Onafhankelijkheid van aansturing stap voor stap |
+| [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) | AI die "doelen kan stellen, plannen en taken kan uitvoeren met minimale menselijke tussenkomst" | Plannen en uitvoeren, niet alleen reageren |
+| [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), naar een paper van John Horton en coauteurs | "autonome softwaresystemen die waarnemen, redeneren en handelen in digitale omgevingen om doelen te bereiken namens menselijke opdrachtgevers" | Handelen namens een persoon |
+| [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | "een intelligent systeem dat zelfstandig kan handelen, meerstappenproblemen kan doorredeneren en zijn acties in realtime kan aanpassen om een specifiek bedrijfsdoel te bereiken, met minimaal menselijk toezicht" | Bedrijfsdoelen en bijsturen tijdens het werk |
+| [Anthropic](https://www.anthropic.com/research/building-effective-agents) | Agents zijn "systemen waarin LLM's dynamisch hun eigen proces en toolgebruik aansturen" | Wie het pad bepaalt: het model of de code |
+
+De gemeenschappelijke kern is een doel, tools en wat vrijheid in de weg ernaartoe. Over de hoeveelheid vrijheid verschillen de bronnen van mening. MIT Sloan merkt in het eigen artikel op dat er geen enkele algemeen aanvaarde definitie bestaat.
+
+## Wat is het verschil tussen generatieve AI en agentic AI?
+
+Generatieve AI maakt inhoud: tekst, afbeeldingen, code, een samenvatting. Jij leest die en beslist wat je ermee doet. Agentic AI gebruikt een taalmodel als wat Google Cloud een "brein" noemt dat via tools handelingen uitvoert. Het voorbeeld van Google zelf: generatieve AI kan marketingmateriaal maken, terwijl agentic AI dat daarna kan uitrollen, de prestaties kan volgen en de strategie kan bijsturen op basis van de resultaten.
+
+| | Generatieve AI | Agentic AI |
+|---|---|---|
+| Jij geeft | Een prompt | Een doel |
+| Je krijgt terug | Inhoud | Acties, plus een verslag van wat er veranderd is |
+| Tools | Optioneel | Vereist |
+| Wie de volgende stap zet | Jij | De agent, binnen zijn grenzen |
+| Een typische fout | Een verkeerde zin in een concept | Een verkeerde wijziging of een bericht aan de verkeerde persoon |
+| Waar de controle plaatsvindt | Voordat je de uitkomst gebruikt | Vóór de actie, of achteraf in het uitvoeringslogboek |
+
+De laatste twee rijen vormen het praktische verschil. Een hallucinatie in een concept kost je een correctie. Dezelfde hallucinatie in een agent wordt een gewijzigd record of een verstuurde e-mail. Agents hebben dus rechten en goedkeuringsregels nodig die een tekstgenerator nooit nodig had.
+
+## Wat is het verschil tussen een chatbot, een assistent, een workflow en een agent?
+
+Deze vier woorden worden vaak voor hetzelfde product gebruikt. Ze beschrijven verschillende mate van controle. Google Cloud onderscheidt bots, assistenten en agents: bots zijn het minst autonoom en volgen meestal vooraf geprogrammeerde regels, assistenten reageren op verzoeken en "kunnen acties aanbevelen, maar de beslissing ligt bij de gebruiker", en agents zijn het meest autonoom en kunnen "zelfstandig handelen en beslissingen nemen om een doel te bereiken". Anthropic voegt de vierde toe: een workflow is een systeem waarin LLM's en tools "worden aangestuurd via vooraf gedefinieerde codepaden", terwijl in een agent het model zijn eigen proces bepaalt.
+
+| Type | Wie beslist over de volgende stap | Tools | Voorbeeld | Waar het misgaat |
+|---|---|---|---|---|
+| Chatbot (bot) | Een script of vaste regels | Geen of een eenvoudige opzoeking | Een faq-widget op een website | Alles buiten het script |
+| AI-assistent | Jij: hij antwoordt en adviseert, jij handelt | Optioneel | ChatGPT in een gewone chat | Het antwoord blijft woorden tot jij ernaar handelt |
+| Workflowautomatisering | Het pad dat jij hebt geschreven, met AI-stappen als je die toevoegt | API's, webhooks | "Als een deal naar Gewonnen gaat, maak dan een onboardingtaak aan" | Invoer waar het pad geen rekening mee hield |
+| AI agent | Het model, binnen de tools en grenzen die jij instelt | Vereist | Een codeeragent die een falende test herstelt en een pull request opent | Een verkeerde actie, oplopende kosten, een ingeslopen instructie |
+
+**Is ChatGPT agentic AI?** In een gewone chat gedraagt het zich als assistent: het antwoordt en jij handelt. Het werkt agentisch als het tools mag gebruiken om voor jou te handelen, bijvoorbeeld in de agentmodus van ChatGPT, of als het via MCP aan bedrijfssoftware is gekoppeld en daar gegevens kan lezen en, afhankelijk van het ChatGPT-abonnement, kan wijzigen. Het etiket hoort bij de opzet, niet bij de productnaam.
+
+## Hoe werkt een agentic AI-systeem?
+
+Een agentic AI-systeem is een taalmodel met vier dingen eromheen: een doel, tools die het mag aanroepen, de rechten waaronder die tools draaien en een lus met een stopregel. Elk zo'n systeem doorloopt een versie van dezelfde cyclus:
+
+1. **Doel.** Een persoon, een schema of een gebeurtenis geeft de agent een doel, zoals "bereid een antwoord op deze e-mail voor" of "herstel de falende test".
+2. **Plan.** Een taalmodel splitst het doel op in stappen en kiest de eerste.
+3. **Handelen.** De agent roept een tool aan: een zoekopdracht, een databasequery, een API-aanroep, een bestandswijziging.
+4. **Waarnemen.** Hij leest het resultaat en vergelijkt het met het doel.
+5. **Doorgaan of stoppen.** Hij zet de volgende stap, vraagt het aan een mens of stopt zodra het doel bereikt is of een limiet is bereikt.
+
+IBM werkt dezelfde cyclus uit in zeven fasen: waarneming, redenering, doelstelling, besluitvorming, uitvoering, leren en bijsturen, en orkestratie. Wat het bereik van een agent bepaalt, zijn de tools die hij mag gebruiken: een model zonder toegang tot tools kan een actie beschrijven, maar niet uitvoeren. Daarom staat het [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), in de woorden van de beheerders "een open-sourcestandaard voor het koppelen van AI-toepassingen aan externe systemen", centraal in zoveel agentopstellingen. De [gids over de MCP-server](/blog/what-is-an-mcp-server) legt uit hoe het werkt en wat je moet controleren voordat je er een koppelt.
+
+## Wat zijn voorbeelden en toepassingen van agentic AI?
+
+Je leest voorbeelden het best per taak, niet per merk: wat de agent doet, welke tools hij nodig heeft, waar een mens moet goedkeuren en wat er mis kan gaan. De tabel hieronder behandelt support, operations, financiën en softwareontwikkeling; sales en CRM hebben verderop een eigen sectie. De rijen zijn patronen, geen producten.
+
+### Voorbeelden van agentic AI per bedrijfsfunctie
+
+| Functie | Voorbeeldtaak | Wat de agent doet | Tools die hij nodig heeft | Waar een mens goedkeurt | Belangrijkste risico |
+|---|---|---|---|---|---|
+| Support | Een ticket beantwoorden of doorzetten | Leest het ticket, doorzoekt de kennisbank, antwoordt als het antwoord gedocumenteerd is en draagt anders de zaak met een samenvatting over aan een mens | Zoeken in de kennisbank, ticketsysteem, leestoegang tot accountgegevens | Terugbetalingen, accountwijzigingen en elke zaak die de kennisbank niet dekt | Een stellig fout antwoord, of een belofte die niemand heeft goedgekeurd |
+| Operations | Eerste reactie op een IT-incident | Leest meldingen en logs, stelt een rollback voor of voert die uit, schrijft het incidentverslag en waarschuwt de dienstdoende persoon | Monitoring en logs, deploytools, chat | Wijzigingen in productie en rollbacks | Een moeilijk terug te draaien actie op basis van een verkeerd gelezen melding |
+| Financiën | Controle van facturen en transacties | Vergelijkt binnenkomende facturen met bestellingen en bankregels, stelt koppelingen voor, markeert uitzonderingen | Boekhoudsysteem of export (lezen), bestanden lezen | Elke boeking en elke betaling | Een verkeerde boeking, een dubbele betaling, uitzonderingen die niemand beoordeelt |
+| Software | Een falende test herstellen | Leest de code en de testuitvoer, wijzigt bestanden, draait de tests opnieuw en opent een pull request | Toegang tot de repository, shellcommando's | De diff of de pull request | Een wijziging die door de tests komt maar de eis mist |
+
+Aanbieders beschrijven dezelfde taken. De uitleg van Salesforce loopt door een serviceagent die de garantiestatus controleert, de kennisbank doorzoekt, een retourlabel verstuurt en het CRM bijwerkt, en een accountgezondheidsagent die de juiste gids mailt en een opvolgtaak voor de accountmanager inplant. [AWS](https://aws.amazon.com/what-is/agentic-ai/) noemt onderzoek en ontwikkeling, codetransformatie, automatisering van incidentafhandeling en automatisering van klantenservice. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) voegt financiële dienstverlening (fraudedetectie, risicobeoordeling) en softwareontwikkeling toe. [Anthropic](https://www.anthropic.com/research/building-effective-agents) noemt klantenservice een natuurlijke match omdat die "vanzelf een gespreksverloop volgt en toch toegang tot externe informatie en acties vereist".
+
+Lees de laatste twee kolommen van de tabel vóór de eerste. Hoe beter een actie terug te draaien is, hoe minder goedkeuring ze nodig heeft; betalingen, terugbetalingen, rollbacks en alles wat naar een klant gaat horen altijd langs een mens.
+
+### Producten die aanbieders agents noemen
+
+Elk product hieronder wordt door de eigen aanbieder een agent genoemd, en de middelste kolommen volgen de documentatie van de aanbieder.
+
+| Product | Wat het krijgt | Wat het doet | Natuurlijk controlepunt voor een mens |
+|---|---|---|---|
+| [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | Een codeertaak in een repository | Leest de codebase, wijzigt bestanden, voert commando's uit, zet wijzigingen klaar voor een commit, schrijft commitberichten, maakt branches en opent pull requests | De diff of de pull request |
+| [GitHub Copilot in de cloud](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github) | Een taak in een repository | Onderzoekt de repository, plant wijzigingen en voert ze op de achtergrond uit, wijzigt bestanden en draait tests en linters in een cloudontwikkelomgeving | De voorgestelde wijzigingen bekijken voordat een pull request wordt gemaakt |
+| [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Een supportticket | Controleert de garantiestatus, doorzoekt de kennisbank, verstuurt een retourlabel en werkt het CRM bij | Salesforce noemt duidelijke regels en grenzen, regelmatige monitoring en menselijk toezicht als sleutel |
+| Customermates-routine (Customermates Cloud) | Een nieuwe e-mail op een deal | Vat die samen in de dealnotities en slaat een concept-antwoord op | Het concept, voordat een mens het verstuurt |
+
+De [gids over Salesforce Agentforce](/blog/agentforce) behandelt de functies, prijzen en installatie van dat product uitgebreider.
+
+## Wat zijn de soorten agentic AI?
+
+Zoekers vragen vaak naar "de vier soorten agentic AI". De hier gecontroleerde bronnen definiëren er niet precies vier. De [agentgids](https://cloud.google.com/discover/what-are-ai-agents) van Google Cloud sorteert agents op twee manieren: naar interactie (interactieve partners die een vraag van een gebruiker beantwoorden en achtergrondagents die "over het algemeen door gebeurtenissen worden aangestuurd") en naar aantal (één agent of een multi-agentsysteem). AWS verdeelt multi-agentsystemen verder in horizontale, waarvan de agents naast elkaar werken, en verticale, die in een hiërarchie zijn geordend. Kruis je interactie met aantal, dan krijg je vier combinaties; dat raster is mijn lezing, geen standaard.
+
+Een tweede indeling gaat uit van wie het pad bepaalt. De engineeringgids van Anthropic scheidt **workflows** van **agents** en noemt vijf workflowpatronen. Het advies is rechttoe rechtaan: zoek de eenvoudigste oplossing die werkt, wat "kan betekenen dat je helemaal geen agentic systemen bouwt". Daar ben ik het mee eens. De meeste zakelijke taken die mensen "agents" noemen, bouw je beter als workflow met een of twee AI-stappen.
+
+| Patroon | Wat het doet | Zakelijk voorbeeld |
+|---|---|---|
+| Prompt chaining | Vaste stappen die elk de volgende voeden, met controles ertussen | Een gesprek samenvatten, de vervolgstappen eruit halen, ze bij de deal noteren |
+| Routing | Classificeert de invoer en stuurt die naar een gespecialiseerde stap | Binnenkomende e-mail sorteren in verkoopaanvragen en de rest |
+| Parallelisatie | Draait meerdere modelaanroepen tegelijk en combineert de resultaten | Twee onafhankelijke controles van één contractclausule, naast elkaar gelegd |
+| Orchestrator-workers | Eén model splitst de taak en deelt de onderdelen uit | Een leidende agent geeft accountonderzoek door aan subagents |
+| Evaluator-optimizer | Eén model schrijft een concept, een ander geeft kritiek tot het concept slaagt | Een conceptantwoord dat wordt bijgesteld aan de hand van jouw toonhandleiding |
+
+**Agentic AI of AI agents?** Google Cloud noemt AI agents "de bouwstenen van agentic AI": een agent richt zich op een specifieke taak en agentic AI coördineert meerdere agents in een complexe workflow. In het dagelijks gebruik zijn de termen uitwisselbaar. Vraag je je af **wat een AI agent is**? Dat is een taalmodel met tools, rechten en een stopregel, dat een taak uitvoert in plaats van alleen een antwoord te geven.
+
+## Hoe gebruik je agentic AI in sales en CRM-werk?
+
+CRM-werk past goed bij agents: de context staat op één plek (contacten, deals, notities, de gespreksgeschiedenis), dezelfde taken keren elke dag terug en de meeste wijzigingen zijn te corrigeren. De tabel noemt de taken die als eerste opkomen. Het zijn patronen, geen producten, en elke rij eindigt bij een mens.
+
+| Taak | Wat de agent doet | Tools die hij nodig heeft | Waar een mens goedkeurt | Belangrijkste risico |
+|---|---|---|---|---|
+| Antwoord voorbereiden op een open deal | Leest de nieuwe e-mail, de deal en de notities, voegt de open vraag toe aan de notities en slaat een concept-antwoord op | CRM lezen en schrijven, toegang tot de e-mailthread | Het concept, voordat het wordt verstuurd | Een verkeerd feit in het concept, of een antwoord aan de verkeerde contactpersoon |
+| Accountonderzoek vóór een gesprek | Zoekt op het web en in het CRM, schrijft een briefing van één pagina met bronnen | Webzoekopdracht, CRM lezen | De briefing lezen voor het gesprek | Verouderde of verzonnen feiten die in het CRM worden overgenomen |
+| Recordonderhoud na een gesprek | Zet een gespreksamenvatting of een e-mailthread om in notities, een gewijzigd veld en een volgende stap | CRM lezen en schrijven | Een blik op de gewijzigde velden | Verkeerde veldwaarden, dubbele records |
+| Triage van inkomende berichten | Sorteert nieuwe aanvragen in verkoopaanvragen en de rest, maakt voor de aanvragen de contactpersoon en een deal aan | Toegang tot de inbox, CRM schrijven | De nieuwe deal en het conceptantwoord | Een echte klant als spam aangemerkt, dubbele records |
+| Controle op vastgelopen deals | Zoekt open deals zonder contact gedurende een ingestelde tijd en schrijft per deal één herinnering als concept | CRM lezen, concepten opslaan | Elke herinnering, voordat die wordt verstuurd | Een herinnering aan iemand die elders al heeft gereageerd |
+
+### Waar de smallere vragen worden beantwoord
+
+Deze pagina beantwoordt de algemene vraag. Twee naburige gidsen behandelen de smallere vragen, dus ze worden hier niet herhaald.
+
+| Als je vraag is | Lees |
+|---|---|
+| Hoe laat ik een AI veilig op CRM-records werken: Mate, MCP, goedkeuringen, cloud of zelf gehost? | [Agentic CRM en AI-native CRM](/blog/agentic-crm) |
+| Welke AI sales agents bestaan er, wat kosten ze, wat zegt de Duitse wet over koude e-mail en hoe zet ik er een pilot mee op? | [AI sales agent](/blog/ai-sales-agent) |
+| Wat is een MCP-server en wat controleer ik voordat ik er een koppel? | [Gids over de MCP-server](/blog/what-is-an-mcp-server) |
+| Hoe koppel ik Claude of ChatGPT aan een CRM? | [Claude CRM](/blog/claude-crm) en [ChatGPT voor sales](/blog/chatgpt-for-sales) |
+| Wat doen de agents van Salesforce en wat kosten ze? | [Salesforce Agentforce](/blog/agentforce) |
+
+### Wat Customermates hier doet
+
+Dit is informatie van de aanbieder over ons eigen product. Customermates is een open-source, AI-native CRM. Via de [MCP-server](/docs/mcp) kan een AI-client zoals Claude of ChatGPT CRM-records lezen en schrijven met de rechten van de gekoppelde gebruiker, op elk abonnement en ook zelf gehost; de server vraagt clients om te bevestigen voordat ze iets verwijderen of versturen, maar dat is een richtlijn die een client kan negeren. Customermates Cloud voegt Mate toe, een assistent, en [routines](/docs/app-routines) waarmee Mate volgens een schema draait of wanneer er iets verandert. Mate vraagt toestemming voor verwijderingen, imports, toegangswijzigingen en een paar andere acties, maar niet voordat het een e-mail of chatbericht verstuurt. Vraag dus om een concept als je de formulering eerst wilt nakijken; de [Mate-documentatie](/docs/app-assistant) bevat de volledige lijst. Of Mate beschikbaar is, hangt af van de gehoste omgeving.
+
+Het is de verkeerde keuze als je een agent wilt die zelf prospect en verstuurt: er zijn geen sequenties, geen massaverzending en geen leadscoring, en de [gids over de AI sales agent](/blog/ai-sales-agent) behandelt in plaats daarvan agents voor outreach. Een zelf gehoste installatie heeft MCP, maar geen Mate en geen routines. Om opvolging van je eigen gesprekken te zien, [start je de proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): Pro, zonder creditcard. Kies je een AI-ready CRM, dan staat in de [gids over AI CRM](/blog/ai-crm) wat je kunt vergelijken.
+
+## Hoe ziet één uitvoering van een agent eruit? Een uitgewerkt voorbeeld
+
+Neem een klein adviesbureau waar een klant schrijft: "Kunnen we de kick-off naar donderdag verplaatsen, en zit de training in de prijs?" Een agent die voor het voorbereiden van antwoorden is ingesteld, verwerkt de e-mail in zeven stappen. Het geval is een illustratie, geen klantverhaal.
+
+| Stap | Wat er gebeurt | Toolaanroep | Wat je achteraf kunt controleren |
+|---|---|---|---|
+| 1. Doel | Een nieuwe e-mail start de uitvoering met de instructie hieronder | Geen | De trigger en de instructie in het uitvoeringslogboek |
+| 2. Plan | Het model besluit dat het het record van de afzender, de gekoppelde deal en de eerdere thread nodig heeft | Geen | Het plan, waar het product dat toont |
+| 3. Handelen | Zoekt de afzender op | CRM zoeken (lezen) | De zoekopdracht en het resultaat |
+| 4. Waarnemen | Vindt één open deal in een offertefase; de notities zeggen dat de training apart wordt geoffreerd | CRM lezen | Vergelijk zelf met de deal |
+| 5. Handelen | Voegt drie regels toe aan de dealnotities: kick-off op donderdag gewenst, vraag over de training open | CRM bijwerken (schrijven) | De wijziging in de notities |
+| 6. Handelen | Slaat een concept-antwoord op: donderdag kan zodra het bevestigd is, de training wordt volgens de notities apart geoffreerd; markeert de beschikbaarheid op donderdag als onzeker | Concept opslaan (schrijven, niet versturen) | Het concept in de thread |
+| 7. Stop | Beëindigt de uitvoering met een verslag van wat het heeft gelezen en gewijzigd | Geen | Het verslag; jij bewerkt en verstuurt het concept |
+
+De instructie achter de uitvoering is kort, en elke regel beperkt wat de agent mag doen:
+
+```text
+Doel: bereid een antwoord op de nieuwe e-mail voor. Verstuur het niet.
+Lezen: het contact van de afzender, de open deal die eraan gekoppeld is,
+de thread.
+Schrijven: drie regels in de dealnotities (wat de afzender wil, een
+datum of bedrag, de open vraag) en één concept-antwoord in de thread.
+Nooit: een bericht versturen, de fase of waarde van de deal wijzigen,
+andere deals aanraken.
+Stop: als de afzender geen open deal heeft, doe dan niets en zeg dat.
+Verslag: wat je hebt gelezen, wat je hebt gewijzigd, waar je onzeker over bent.
+```
+
+Drie details doen het werk. Lezen en schrijven zijn gescheiden, zodat de agent alles kan bekijken wat hij nodig heeft en alleen notities en concepten wijzigt. De stopregel dekt het geval waar niemand op rekende. En het goedkeuringspunt is de verzendknop, die bij een mens blijft. In Customermates is deze uitvoering een routine; de [documentatie over routines](/docs/app-routines) laat zien wat een routine zonder goedkeuring mag doen en de [gids over agentic CRM](/blog/agentic-crm) legt uit waar Mate en MCP wel en niet vragen.
+
+## Wat zijn de grenzen en risico's van agentic AI en welke maatregelen werken?
+
+OWASP noemt "Excessive Agency" in de [Top 10 voor LLM-toepassingen](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025) en definieert dat als de kwetsbaarheid die schadelijke acties mogelijk maakt als reactie op "onverwachte, dubbelzinnige of gemanipuleerde uitvoer van een LLM". De aanleiding kan een hallucinatie zijn, een prompt injection verborgen in inhoud die de agent leest, of een gecompromitteerde tool. OWASP noemt drie oorzaken en elk heeft een directe maatregel:
+
+| Oorzaak (OWASP) | Hoe het eruitziet | Maatregel |
+|---|---|---|
+| Te veel functionaliteit | De agent die notities schrijft kan ook records verwijderen | Geef hem alleen de tools die de taak nodig heeft |
+| Te veel rechten | Hij draait met de toegang van een beheerder | Laat hem draaien als gebruiker wiens rol de taak dekt en niets meer |
+| Te veel autonomie | Hij verstuurt, betaalt of verwijdert zonder dat iemand meekijkt | Eis goedkeuring voor ingrijpende acties, of maak alleen concepten |
+
+OWASP's eigen advies voor de derde rij is human-in-the-loop-controle te gebruiken om "te eisen dat een mens ingrijpende acties goedkeurt voordat ze worden uitgevoerd". Anthropic zegt hetzelfde over codeeragents: geautomatiseerde tests controleren de functionaliteit, maar "menselijke beoordeling blijft cruciaal om te zorgen dat oplossingen aansluiten op de bredere systeemeisen".
+
+Drie andere grenzen merk je in de praktijk:
+
+- **Fouten stapelen zich op.** Als de eerste stap een e-mail verkeerd leest, bouwt elke volgende stap voort op die fout.
+- **Kosten lopen bij elke stap op**, en daarom bestaan er limieten per uitvoering.
+- **De uitvoer moet nog steeds worden beoordeeld.** De documentatie van GitHub over de Copilot-cloudagent zegt dat die "onjuiste of suboptimale code kan produceren" en dat de uitvoer moet worden beoordeeld en getest voor gebruik in productie. Hetzelfde geldt voor de concepten en recordwijzigingen van elke agent.
+
+Een snelle test voor elk product dat als agent wordt verkocht: welke tools kan het aanroepen, met wiens rechten, en wat doet het zonder te vragen?
+
+## Hoe geef je een agent zijn eerste taak?
+
+<Steps>
+  <Step title="Kies een taak met een duidelijk einde">
+    Een goede eerste taak is in één uitvoering klaar en heeft een duidelijk
+    "af": een gespreksbriefing, een conceptantwoord, een opgeschoond record.
+    Vermijd open doelen als "de pipeline laten groeien".
+  </Step>
+  <Step title="Begin met concepten en een smalle rol">
+    Laat de agent voorbereiden en een mens beslissen, en laat hem draaien als
+    gebruiker wiens rol de taak dekt. Sta directe acties alleen toe voor
+    stappen die goedkoop terug te draaien zijn.
+  </Step>
+  <Step title="Schrijf de stopregel">
+    Zeg wat er gebeurt als een geval niet past: "Als X, doe dan niets."
+    Gevallen waar de instructie geen rekening mee hield, zijn waar agents
+    gaan improviseren.
+  </Step>
+  <Step title="Lees in het begin elke uitvoering">
+    Bekijk het logboek van elke vroege uitvoering. Verruim wat de agent mag
+    doen één actie tegelijk.
+  </Step>
+</Steps>
+
+Schrijf de antwoorden op als briefing van één pagina. De rechterkolom vult die in voor de agent uit het uitgewerkte voorbeeld hierboven, die antwoorden voorbereidt.
+
+| Veld | De vraag die het beantwoordt | Voorbeeld: antwoord voorbereiden |
+|---|---|---|
+| Doel en eindtoestand | Hoe ziet "af" eruit? | Een conceptantwoord in de thread en bijgewerkte dealnotities |
+| Trigger | Wat start een uitvoering? | Een nieuwe e-mail van een contact met een open deal |
+| Tools, gesplitst in lezen, schrijven en versturen | Waar komt het bij, en hoe? | Het CRM en de thread lezen; notities en concepten schrijven; niet versturen |
+| Draait als | Wiens rechten gelden? | Een gebruiker wiens rol deals en de inbox dekt, verder niets |
+| Stopregel | Wat gebeurt er in een geval dat niet past? | Geen open deal: niets doen en dat zeggen |
+| Goedkeuringspunt | Waar beslist een mens? | Het concept versturen |
+| Limieten | Hoeveel mag één uitvoering, en de uitvoeringen van een dag, kosten? | Een kostenplafond per uitvoering en een plafond op het aantal uitvoeringen per uur |
+| Logboek | Waar lees je wat er is gebeurd? | Het uitvoeringslogboek, na elke vroege uitvoering gelezen |
+
+## Wanneer is agentic AI het verkeerde gereedschap?
+
+Als de stappen nooit veranderen, is een vaste regel goedkoper en voorspelbaarder dan een agent. "Als een deal naar Gewonnen gaat, maak dan een onboardingtaak aan" vraagt om een webhook en een [workflowautomatisering](/features/workflow-automation), niet om een taalmodel. Agents verdienen hun kosten terug waar de invoer varieert: e-mails in vrije tekst, rommelige notities, vragen die meerdere opzoekingen vragen. Ze zijn de verkeerde keuze waar een verkeerde actie niet ongedaan te maken is en niemand het op tijd kan beoordelen, met betalingen als duidelijkste voorbeeld.
+
+## Agentic AI en gegevensbescherming
+
+Agents lezen persoonsgegevens: namen, e-mailadressen, de inhoud van gesprekken. Onder de AVG is een aanbieder die die gegevens namens jou verwerkt een verwerker en heeft die een verwerkersovereenkomst nodig, en de AI-aanbieders waarop die steunt zijn diens subverwerkers. Voor Mate in Customermates Cloud staan de modelaanbieders in de [lijst met subverwerkers](/subprocessors). Wil je de aanbieder zelf kiezen, koppel dan je eigen AI-client via MCP, of host de open-sourcekern zelf zodat de CRM-gegevens op je eigen servers blijven. Daarnaast stelt de Europese AI-verordening (AI Act) eisen aan bepaalde AI-toepassingen; of een agent eronder valt, hangt af van wat hij doet. Een agent die concepten voorbereidt voor een mens kan in een andere categorie vallen dan een systeem dat zelfstandig beslist over mensen. Dit is algemene informatie, geen juridisch advies.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat betekent agentic?">
+Agentic beschrijft een systeem dat met agency handelt: het streeft een doel na en zet de stappen zelf, in plaats van alleen te antwoorden. AWS definieert dit als het vermogen om zelfstandig te handelen, maar doelgericht. Het woord komt van "agent", iemand die namens een ander handelt.
+</FaqItem>
+
+<FaqItem question="Wat is agentic AI in eenvoudige woorden?">
+AI waaraan je een doel geeft in plaats van een vraag. Ze plant de stappen, gebruikt tools zoals zoekopdrachten, API's of bedrijfssoftware om ze uit te voeren, controleert de resultaten en stopt zodra het doel bereikt is of er een mens nodig is.
+</FaqItem>
+
+<FaqItem question="Kun je een voorbeeld geven van agentic AI?">
+Een codeeragent zoals Claude Code leest een repository, wijzigt bestanden, draait de tests en opent een pull request dat een mens beoordeelt. In een CRM kan een agent een nieuwe e-mail lezen, de open vraag aan de deal toevoegen en een concept-antwoord opslaan dat een mens verstuurt.
+</FaqItem>
+
+<FaqItem question="Wat zijn de beste agentic AI-tools?">
+Een eerlijke top 10 bestaat niet, omdat de beste tool afhangt van de taak. Per taak zijn er voorbeelden: voor software een codeeragent zoals Claude Code of de cloudagent van GitHub Copilot, voor een bestaand Salesforce-landschap Salesforce Agentforce, en voor opvolging van klantgesprekken een CRM met routines, zoals Customermates, dat deze gids publiceert. Beoordeel elke tool met dezelfde drie vragen: welke tools mag hij aanroepen, met wiens rechten en wat doet hij zonder te vragen.
+</FaqItem>
+
+<FaqItem question="Is ChatGPT agentic AI?">
+In een gewone chat is ChatGPT generatieve AI die als assistent wordt gebruikt: het antwoordt en jij handelt. Het werkt agentisch als het tools kan gebruiken om voor jou te handelen, bijvoorbeeld in de agentmodus, of als het via MCP aan bedrijfssoftware is gekoppeld en daar gegevens kan lezen en, afhankelijk van het ChatGPT-abonnement, kan wijzigen.
+</FaqItem>
+
+<FaqItem question="Wat is een agentic AI-systeem?">
+Een taalmodel gecombineerd met een doel, tools die het mag aanroepen, rechten voor die tools en een lus met een stopregel. Het model plant, de tools handelen en goedkeuringsregels bepalen wat het systeem zonder te vragen mag doen.
+</FaqItem>
+
+<FaqItem question="Wat zijn de vier soorten agentic AI?">
+Er bestaat geen standaardlijst van vier. Gangbare manieren om agents te sorteren zijn naar interactie (interactief of op de achtergrond), naar aantal (één of meerdere agents) en naar wie het pad bepaalt (workflow of agent). Kruis je interactie met aantal, dan krijg je vier combinaties.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen generatieve AI en agentic AI?">
+Generatieve AI maakt inhoud op basis van een prompt, en jij beslist wat je ermee doet. Agentic AI streeft een doel na en voert de acties zelf uit, meestal met een generatief model dat elke volgende stap kiest.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen agentic AI en AI agents?">
+Google Cloud noemt AI agents de bouwstenen van agentic AI: de agents doen de afzonderlijke taken en agentic AI is het gecoördineerde systeem. In het dagelijks gebruik zijn de termen uitwisselbaar.
+</FaqItem>
+
+<FaqItem question="Wat is een agentic workflow?">
+Een proces waarin taalmodellen en tools een vooraf bepaald pad volgen, in tegenstelling tot een agent die zijn eigen pad kiest. Prompt chaining en routing zijn typische patronen. Voor de meeste zakelijke taken is een workflow goedkoper en makkelijker te beheersen.
+</FaqItem>
+
+<FaqItem question="Hoe gebruik je agentic AI in sales en CRM-werk?">
+Typische taken zijn een antwoord voorbereiden op een open deal, accountonderzoek vóór een gesprek, recordonderhoud na een gesprek, triage van inkomende berichten en een controle op vastgelopen deals. Telkens bereidt de agent voor en keurt een mens goed wat naar een klant gaat. De gids over de AI sales agent behandelt agents voor sales en de gids over agentic CRM behandelt agents op CRM-records.
+</FaqItem>
+
+<FaqItem question="Wat zijn de grenzen van agentic AI?">
+Een agent kan handelen op verkeerd gelezen invoer, fouten stapelen zich op in de latere stappen, de kosten lopen bij elke stap op en de uitvoer moet nog steeds worden beoordeeld. OWASP rekent het belangrijkste risico tot Excessive Agency: te veel tools, te veel rechten of te veel autonomie. Smalle taken, concepten in plaats van directe acties en een stopregel houden die grenzen beheersbaar.
+</FaqItem>
+</Faq>
+
+Definities, productbeschrijvingen en citaten van derden gecontroleerd op 11 november 2026 (verificatie bij [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentic AI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (AI agents)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), de [MCP-documentatie](https://modelcontextprotocol.io/docs/getting-started/intro), de [Claude Code-documentatie](https://code.claude.com/docs/en/overview) en [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github)).

@@ -6,11 +6,15 @@ import { stemmer as germanStemmer } from "@orama/stemmers/german";
 import { stemmer as frenchStemmer } from "@orama/stemmers/french";
 import { stemmer as italianStemmer } from "@orama/stemmers/italian";
 import { stemmer as spanishStemmer } from "@orama/stemmers/spanish";
+import { stemmer as portugueseStemmer } from "@orama/stemmers/portuguese";
+import { stemmer as dutchStemmer } from "@orama/stemmers/dutch";
 import { stopwords as englishStopwords } from "@orama/stopwords/english";
 import { stopwords as germanStopwords } from "@orama/stopwords/german";
 import { stopwords as frenchStopwords } from "@orama/stopwords/french";
 import { stopwords as italianStopwords } from "@orama/stopwords/italian";
 import { stopwords as spanishStopwords } from "@orama/stopwords/spanish";
+import { stopwords as portugueseStopwords } from "@orama/stopwords/portuguese";
+import { stopwords as dutchStopwords } from "@orama/stopwords/dutch";
 
 import { DEFAULT_LOCALE, LOCALE_REGISTRY, REGISTERED_LOCALES } from "@/i18n/locale-registry";
 import { fold } from "@/core/utils/search-text";
@@ -22,6 +26,9 @@ const STEMMERS = {
   french: frenchStemmer,
   italian: italianStemmer,
   spanish: spanishStemmer,
+  portuguese: portugueseStemmer,
+  dutch: dutchStemmer,
+  simple: (word: string) => word,
 } satisfies Record<TextSearchConfig, (word: string) => string>;
 
 const STOPWORDS = {
@@ -30,6 +37,9 @@ const STOPWORDS = {
   french: new Set(frenchStopwords),
   italian: new Set(italianStopwords),
   spanish: new Set(spanishStopwords),
+  portuguese: new Set(portugueseStopwords),
+  dutch: new Set(dutchStopwords),
+  simple: new Set<string>(),
 } satisfies Record<TextSearchConfig, ReadonlySet<string>>;
 
 const WORD = /[\p{L}\p{M}\p{N}_]+/gu;

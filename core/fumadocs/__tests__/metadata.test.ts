@@ -176,17 +176,17 @@ describe("generateMetadataFromMeta", () => {
 
   it("sends a locale that publishes no content to the 404 rather than failing the build", () => {
     expect(
-      () => generateMetadataFromMeta({ locale: "es", route: "/pricing" }),
-      "es is a routing-only locale, so a request for it is a bad URL and not a build bug",
+      () => generateMetadataFromMeta({ locale: "ja", route: "/pricing" }),
+      "ja is not a content locale, so a request for it is a bad URL and not a build bug",
     ).toThrow(/NEXT_HTTP_ERROR_FALLBACK;404/);
   });
 
-  it("uses default-locale metadata for a noindex app route in a routing-only locale", () => {
-    const metadata = generateMetadataFromMeta({ locale: "es", route: "/auth/signup" });
+  it("uses default-locale metadata for a noindex app route in a locale without content", () => {
+    const metadata = generateMetadataFromMeta({ locale: "ja", route: "/auth/signup" });
 
     expect(metadata.title).toBe("Sign up | Customermates");
     expect(metadata.description).toBe("Create an account");
-    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/es/auth/signup` });
+    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/ja/auth/signup` });
     expect(metadata.robots).toEqual({ follow: true, index: false });
   });
 
@@ -203,7 +203,7 @@ describe("generateMetadataFromMeta", () => {
   it("does not fall back to English for noindex content in an application-only locale", () => {
     expect(() =>
       generateMetadataFromMeta({
-        locale: "es",
+        locale: "ja",
         params: { slug: "contacts" },
         route: "/docs/openapi/:slug",
       }),
@@ -226,9 +226,9 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("never lists or serves an app-only locale page, even when a file exists", () => {
-    expect(() => generateMetadataFromMeta({ locale: "es", route: "/pricing" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+    expect(() => generateMetadataFromMeta({ locale: "ja", route: "/pricing" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
     expect(generateMetadataFromMeta({ locale: "en", route: "/pricing" }).alternates?.languages).not.toHaveProperty(
-      "es",
+      "ja",
     );
   });
 });

@@ -1,0 +1,95 @@
+---
+title: "Vários espaços de trabalho: criar, trocar, entrar e sair"
+description: "Um login, vários espaços de trabalho isolados: crie, troque, entre e saia, e veja como chaves de API, conexões MCP, faturamento e teste funcionam em cada um."
+---
+
+Um espaço de trabalho é o CRM de uma empresa no Customermates. Um login, o seu endereço de e-mail, pode pertencer a vários espaços de trabalho, como quem é membro de várias empresas, e você alterna entre eles no aplicativo. Cada espaço de trabalho é totalmente separado dos outros.
+
+## O que é um espaço de trabalho e o que ele mantém separado? [#what-is-a-workspace]
+
+Um espaço de trabalho é um CRM separado, com as próprias listas e o próprio modelo de dados, registros, [Base de conhecimento](app:wiki), membros, funções, plano e faturamento, chaves de API, conexões MCP (Claude, ChatGPT e qualquer outro conector), webhooks, rotinas, chats do Mate e créditos de IA hospedados. Nada é compartilhado nem pesquisável entre espaços de trabalho: a pesquisa, o Mate, o MCP e a API REST sempre atuam dentro de um único espaço de trabalho, e um ID de outro espaço de trabalho é tratado como não encontrado.
+
+### O que é igual em todos os espaços de trabalho? [#what-is-the-same-in-every-workspace]
+
+O seu perfil pessoal: nome e sobrenome, avatar, idioma de exibição, formato regional e tema. Alterá-lo em [Perfil e preferências](app:settings/profile) atualiza o perfil em todos os espaços de trabalho a que você pertence; uma alteração feita com uma chave de API ou uma conexão MCP vale somente no espaço de trabalho dessa chave ou conexão. A sua função, o seu status e a sua licença são definidos por espaço de trabalho, então você pode ter a função **Administrador** em um e uma função restrita em outro. Quando um membro com **Editar** em **Usuários e funções** altera outro membro em [Membros](app:settings/members), a alteração vale somente nesse espaço de trabalho.
+
+## Como crio um espaço de trabalho? [#how-do-i-create-a-workspace]
+
+Abra o menu do espaço de trabalho, no topo da barra lateral, e escolha **Criar espaço de trabalho**. Informe um nome de 1 a 80 caracteres e, no Customermates Cloud, concorde com os Termos. Qualquer pessoa conectada pode criar espaços de trabalho, seja qual for a função no espaço atual; a demonstração pública não oferece essa opção. No Customermates Cloud, um login pode criar até [[commercial.workspaces.creationLimit]] espaços de trabalho; fale com o suporte se precisar de mais.
+
+Você recebe a função integrada **Administrador** no novo espaço de trabalho, e esta sessão do navegador passa para ele. Ele começa com as mesmas listas de todo novo espaço de trabalho ([com quais tipos de registro um espaço de trabalho começa](/docs/concepts#which-five-record-types-exist)) e sem nenhum dos dados dos seus outros espaços de trabalho. O [assistente de onboarding](/docs/app-onboarding) abre para ele sem a etapa de perfil, porque o seu perfil já existe: continuam as etapas da Base de conhecimento, do convite e da IA. No Cloud, somente o primeiro espaço de trabalho que você cria tem teste gratuito; veja [Qual espaço de trabalho recebe o teste gratuito?](#which-workspace-gets-the-free-trial).
+
+## Como troco de espaço de trabalho? [#how-do-i-switch-workspaces]
+
+O menu do espaço de trabalho, no topo da barra lateral, lista todos os espaços de trabalho a que você pertence; escolha um para trocar. A paleta de comandos oferece a mesma lista em **Trocar de espaço de trabalho…**, que o atalho G e depois W abre direto, e, ao digitar o nome de um espaço de trabalho na pesquisa, ela oferece **Trocar para …** para ele. A escolha vale para esta sessão do navegador, então outro navegador ou dispositivo pode estar em um espaço de trabalho diferente ao mesmo tempo. As outras abas do mesmo navegador mostram "Você trocou de espaço de trabalho em outra aba" com **Recarregar**, para que nada seja salvo no espaço de trabalho errado. O espaço de trabalho para o qual você trocou fica guardado como o último usado e abre no seu próximo login. Enquanto um espaço de trabalho aguarda a sua aprovação ou o seu acesso a ele está inativo, a página dele cita o nome do espaço de trabalho, e o menu do espaço de trabalho continua listando os seus outros espaços para você trocar.
+
+[Espaços de trabalho](app:settings/workspaces), em **Conta** nas Configurações, lista os mesmos espaços de trabalho com a sua função, o seu status e o plano de cada um, com **Trocar** para os outros, **Sair** para o atual e **Criar espaço de trabalho**.
+
+## Como renomeio um espaço de trabalho? [#how-do-i-rename-a-workspace]
+
+Abra [Geral](app:settings/general), em **Espaço de trabalho** nas Configurações, e altere o nome do espaço de trabalho, de 1 a 80 caracteres. Renomear exige **Editar** na linha **Empresa** da sua função; a função **Administrador** tem essa permissão. Um espaço de trabalho sem nome, porque foi criado antes de os espaços de trabalho terem nome ou porque o nome ficou vazio no assistente de onboarding, aparece como **Espaço de trabalho** até alguém renomeá-lo.
+
+## Como entro em um espaço de trabalho com minha conta existente? [#how-do-i-join-with-an-existing-account]
+
+Os convites funcionam como para pessoas novas: um membro compartilha o link de convite ou o envia por e-mail; veja [Como convido pessoas?](/docs/app-company#how-do-invitations-work). Abra o link com a sessão do Customermates iniciada: **Entrar em …** mostra quem convidou você, com **Entrar no espaço de trabalho** e **Usar outra conta**. No Customermates Cloud, primeiro marque a caixa para concordar com os Termos e confirmar que você leu o DPA e a Política de Privacidade, e então clique em **Entrar no espaço de trabalho**. Você entra com o perfil que já tem e chega em **Aguardando aprovação**, que cita o espaço de trabalho, até alguém com **Editar** em **Usuários e funções** aprovar você em [Membros](app:settings/members). Enquanto isso, o menu do espaço de trabalho volta para os seus outros espaços, e **Retirar solicitação** cancela o pedido; para entrar mais tarde, peça de novo com um link de convite.
+
+Se você já pertence a esse espaço de trabalho, a página oferece **Abrir espaço de trabalho**, que troca para ele; se você foi definido como **Inativo** nele, aparece **Seu acesso está desativado**. Se você saiu do espaço de trabalho, foi removido dele ou retirou a sua solicitação, abra de novo um link de convite desse espaço de trabalho para pedir a entrada: a página volta a oferecer **Entrar no espaço de trabalho**, e alguém com **Editar** em **Usuários e funções** precisa aprovar o novo pedido.
+
+## Como saio de um espaço de trabalho? [#how-do-i-leave-a-workspace]
+
+Abra [Geral](app:settings/general), em **Espaço de trabalho** nas Configurações, e clique em **Sair do espaço de trabalho**, ou clique em **Sair** no espaço de trabalho atual em [Espaços de trabalho](app:settings/workspaces). Sair:
+
+- define o seu status nesse espaço de trabalho como **Inativo**,
+- revoga as suas chaves de API e conexões MCP desse espaço de trabalho,
+- desconecta os canais que você conectou nele, como caixas de e-mail e contas do LinkedIn,
+- pausa as suas rotinas nele,
+- no Cloud, remove a sua licença do faturamento desse espaço de trabalho.
+
+As páginas desse espaço de trabalho ainda abertas em outra aba ou em outro dispositivo deixam de salvar e pedem que você recarregue, o que abre o último espaço de trabalho que você usou. A sua conta e os seus outros espaços de trabalho não são afetados. O último membro ativo com a função **Administrador** não pode sair: os dois botões ficam desativados, e, ao apontar para um deles, aparece "Você é o único administrador deste espaço de trabalho. Torne outro membro ativo administrador antes de sair." Torne outro membro ativo administrador primeiro. O último operador da plataforma Customermates não pode sair do único espaço de trabalho em que a conta dele está ativa. Para voltar, abra um link de convite do espaço de trabalho e peça para entrar de novo; alguém com **Editar** em **Usuários e funções** precisa aprovar o pedido. Para remover o espaço de trabalho para todos, veja [Como excluo um espaço de trabalho?](/docs/app-workspaces#how-do-i-delete-a-workspace).
+
+## Como excluo um espaço de trabalho? [#how-do-i-delete-a-workspace]
+
+Abra [Geral](app:settings/general), em **Espaço de trabalho** nas Configurações, clique em **Excluir espaço de trabalho** na **Zona de perigo** e digite o nome do espaço de trabalho para confirmar. No Customermates Cloud, um espaço de trabalho sem plano, ou cujo plano terminou, também oferece **Excluir espaço de trabalho** na tela **Escolha um plano para …**. A exclusão é permanente e não pode ser desfeita:
+
+- todos os registros, a Base de conhecimento, as rotinas, os webhooks, os painéis, as funções e a lixeira do espaço de trabalho são excluídos,
+- todos os membros perdem o acesso, e todas as chaves de API e conexões MCP do espaço de trabalho deixam de funcionar,
+- as caixas de e-mail e as contas do LinkedIn conectadas nele são desconectadas,
+- as páginas do espaço de trabalho ainda abertas em uma aba ou em outro dispositivo, seu ou de outro membro, deixam de salvar e pedem que a pessoa recarregue, o que abre outro espaço de trabalho dela.
+
+Você cai em outro dos seus espaços de trabalho, ou na tela para criar um se não sobrar nenhum. No Customermates Cloud, somente o administrador que criou o espaço de trabalho pode excluí-lo, e somente enquanto nenhuma assinatura dele ainda puder ser cobrada ou retomada: cancele um plano pago em [Faturamento](app:settings/billing) e exclua o espaço de trabalho depois que o período pago terminar, ou fale com o suporte no caso de um espaço de trabalho em um plano Enterprise faturado por fatura. Um espaço de trabalho em teste gratuito sem pagamento pode ser excluído a qualquer momento, mas excluí-lo não dá um novo teste. Um espaço de trabalho que guarda a única conta ativa do último operador da plataforma Customermates não pode ser excluído aqui. Quando não for possível excluir um espaço de trabalho, o botão fica desativado, e apontar para ele, ou ler o texto abaixo dele no celular, mostra o motivo. Na hospedagem própria, qualquer membro com a função **Administrador** pode excluir um espaço de trabalho.
+
+## O que acontece quando alguém me remove de um espaço de trabalho? [#what-happens-when-removed]
+
+Um membro com **Editar** em **Usuários e funções** pode remover você em [Membros](app:settings/members); veja [Como aprovo, edito, desativo ou removo um membro?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member). Para você, funciona como sair: as suas chaves de API e conexões MCP desse espaço de trabalho deixam de funcionar, os canais que você conectou nele são desconectados, e o espaço de trabalho some do seu menu de espaços de trabalho. Você recebe um e-mail que cita o espaço de trabalho e traz um link para entrar. As páginas desse espaço de trabalho ainda abertas em uma aba ou em outro dispositivo deixam de salvar e pedem que você recarregue, o que abre o último outro espaço de trabalho que você usou. Se você estava aguardando aprovação, a remoção recusa o seu pedido sem enviar e-mail. Para voltar, abra um link de convite do espaço de trabalho e peça para entrar de novo; alguém com **Editar** em **Usuários e funções** precisa aprovar o pedido.
+
+## Qual espaço de trabalho as chaves de API e as conexões MCP usam? [#which-workspace-do-api-keys-and-connections-use]
+
+Uma chave de API pertence a exatamente um espaço de trabalho: uma chave criada em um espaço de trabalho só atua nesse espaço, com a sua função nele. [Chaves de API e conectores](app:settings/api-keys) lista e exclui apenas as chaves do espaço de trabalho atual, então troque para outro espaço de trabalho para ver ou excluir as chaves dele. As chaves criadas antes de um login poder pertencer a vários espaços de trabalho continuam vinculadas ao espaço de trabalho em que foram criadas.
+
+Uma conexão MCP via OAuth, como o conector do Claude ou do ChatGPT, também recebe exatamente um espaço de trabalho. Cada espaço de trabalho tem a própria URL MCP, exibida com um botão de copiar em [Chaves de API e conectores](app:settings/api-keys), em **Conexões rápidas**, e no onboarding; uma conexão adicionada com ela fica com esse espaço de trabalho, e a tela de consentimento o mostra sem pedir escolha. Uma conexão adicionada com `<BASE_URL>/api/v1/mcp` pede que você **Escolha um espaço de trabalho** na tela de consentimento se você pertencer a vários: o seu espaço de trabalho atual vem pré-selecionado, e você pode escolher outro em que esteja **Ativo**, em que a sua função tenha **Acesso de leitura** **Todos** em **API e webhooks**, em que o espaço de trabalho tenha um plano utilizável e em que não haja termos atualizados aguardando aceitação. Os espaços de trabalho que você não pode escolher aparecem em cinza, com o motivo. A conexão, inclusive os tokens que ela renova depois, continua vinculada a esse espaço de trabalho. Para trabalhar em vários espaços de trabalho a partir de um único cliente de IA, como uma conta do Claude, adicione um conector por espaço de trabalho, com a URL de cada um; veja [Conectar com um conector personalizado](/docs/connect-custom-connector#the-url).
+
+Os canais que você conecta em [Canais e calendários](app:settings/channels), como uma caixa de e-mail ou uma conta do LinkedIn, pertencem ao espaço de trabalho em que você os conectou.
+
+## Como cada espaço de trabalho é cobrado e como as licenças são contadas? [#how-is-each-workspace-billed]
+
+No Customermates Cloud, cada espaço de trabalho tem o próprio plano, assinatura, faturas e pool de créditos de IA hospedados em [Faturamento](app:settings/billing), gerenciados pelos membros com **Editar** em **Empresa**; trocas de plano, faturas e cancelamento ficam disponíveis apenas ao administrador que paga pelo espaço de trabalho; veja [Como cancelo, altero a forma de pagamento ou obtenho faturas?](/docs/app-company#how-do-i-cancel-change-the-payment-method-or-get-invoices). Uma pessoa **Ativa** em vários espaços de trabalho ocupa uma licença cobrada em cada um deles; veja [Como as licenças são contadas e cobradas?](/docs/app-company#how-are-seats-counted-and-billed).
+
+### Qual espaço de trabalho recebe o teste gratuito? [#which-workspace-gets-the-free-trial]
+
+Somente o primeiro espaço de trabalho que um login cria recebe o teste gratuito de [[commercial.trial.days]] dias. Todo espaço de trabalho adicional começa sem teste: o administrador dele escolhe um plano na tela **Escolha um plano para …** antes de o espaço de trabalho poder ser usado (a lista de Espaços de trabalho mostra **Sem plano** até lá), e até então as chaves de API e conexões MCP dele também são recusadas; veja [O que acontece quando o teste termina?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails). Entrar no espaço de trabalho de outra pessoa não consome nem concede teste. Excluir o espaço de trabalho que tinha o teste não concede outro.
+
+## Como os espaços de trabalho funcionam na hospedagem própria? [#how-do-workspaces-work-when-self-hosting]
+
+Quando você executa o Customermates por conta própria, ele comporta qualquer número de espaços de trabalho, sem faturamento e sem teste: todo espaço de trabalho começa ativo. Qualquer usuário cadastrado pode criar espaços de trabalho adicionais, e qualquer membro com a função **Administrador** pode excluir um; veja [Como excluo um espaço de trabalho?](/docs/app-workspaces#how-do-i-delete-a-workspace). Veja também [Quem pode se cadastrar na minha instância?](/docs/self-hosting#who-can-sign-up-on-my-instance).
+
+## Para agentes [#for-agents]
+
+Toda chamada MCP e REST atua em exatamente um espaço de trabalho: aquele em que a chave de API foi criada ou para o qual a conexão OAuth foi aprovada. `get_workspace_context` devolve esse espaço de trabalho como `company` (o ID e o nome dele), e um ID de outro espaço de trabalho responde `not_found`. Nenhuma ferramenta MCP nem endpoint REST lista, cria, troca, renomeia, sai de ou exclui espaços de trabalho; envie o usuário ao menu do espaço de trabalho. Para remover outro membro, use `manage_team` com `remove_member` ou `POST /api/v1/members/remove`. Para atuar em outro espaço de trabalho, o usuário conecta uma chave ou conexão separada nele.
+
+## Relacionado [#related]
+
+- [Guia do aplicativo, Empresa](/docs/app-company): membros, funções e faturamento de um espaço de trabalho.
+- [Guia do aplicativo, Perfil](/docs/app-profile): o perfil que é o mesmo em todos os espaços de trabalho.
+- [Chaves de API](/docs/api-keys): criar, usar e excluir chaves.
+- [Conectar com um conector personalizado](/docs/connect-custom-connector): conectar o Claude e o ChatGPT via OAuth.
+- [Assistente de onboarding](/docs/app-onboarding): as etapas depois de criar um espaço de trabalho.

@@ -12,6 +12,10 @@ import {
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
+import { es } from "./locales/startups.es";
+import { pt } from "./locales/startups.pt";
+import { pl } from "./locales/startups.pl";
+import { nl } from "./locales/startups.nl";
 
 /**
  * Startups: an early-stage B2B software company whose co-founder still sells. It offers quality inspection software
@@ -770,7 +774,7 @@ const en = {
   extraEvents: ["Security call with Ashby Pump Systems", "Usage review with Redwater Springs"],
 };
 
-type Strings = typeof en;
+export type Strings = typeof en;
 
 const de: Strings = {
   company: "Messwerk Software GmbH",
@@ -1922,6 +1926,9 @@ function mailbox(name: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z]/g, "");
 }
 
@@ -2050,10 +2057,14 @@ const AGENT_EDITS: Record<string, AgentKeyName> = {
 
 export default defineSolution<Strings>({
   id: "startups",
-  strings: { en, de },
+  strings: { en, de, es, pt, pl, nl },
   story: {
     en: { currency: "USD", timeZone: "America/Chicago" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
+    es: { currency: "EUR", timeZone: "Europe/Madrid" },
+    pt: { currency: "BRL", timeZone: "America/Sao_Paulo" },
+    pl: { currency: "PLN", timeZone: "Europe/Warsaw" },
+    nl: { currency: "EUR", timeZone: "Europe/Amsterdam" },
   },
   build: (t, locale) => {
     const agentNote = (key?: AgentNoteKey): Record<string, string[]> => (key ? { notes: t.agentNotes[key] } : {});

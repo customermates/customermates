@@ -1,0 +1,102 @@
+---
+title: "Rutyny: uruchomienia Mate według harmonogramu i zdarzeń"
+description: "Rutyny uruchamiają Mate według harmonogramu albo po zmianie rekordu, na koszt limitu właściciela; poznaj limity, statusy uruchomień i zatwierdzenia."
+---
+
+Rutyna to zapisana instrukcja plus wyzwalacz. Gdy wyzwalacz zadziała, Customermates otwiera nową rozmowę z asystentem, wysyła Twoją instrukcję i pozwala Mate pracować samodzielnie. Rutyny istnieją tylko w Customermates Cloud, ponieważ zużywają miesięczny limit Mate właściciela.
+
+To, kto widzi rutyny, wynika z wiersza **Rutyny** w jego roli w sekcji [Role](app:settings/roles): **Dostęp do odczytu** ustawiony na **Wszystkie** pokazuje wszystkie rutyny w przestrzeni roboczej, **Przypisane** tylko własne, a **Brak** ukrywa [Rutyny](app:routines). Tworzenie wymaga uprawnienia **Tworzenie**, edycja własnych rutyn uprawnienia **Edycja**. Każdy, kto widzi rutynę, widzi podsumowania jej uruchomień; pełna transkrypcja pozostaje przy osobie, jako którą uruchomienie zostało wykonane.
+
+## Jak utworzyć rutynę albo automatyzację? [#how-do-i-create-a-routine]
+
+Otwórz [Rutyny](app:routines) i kliknij [Dodaj](app:routines?focus=add). Wpisz **Nazwa** i **Instrukcje**, wybierz wyzwalacz i kliknij **Zapisz**. Rutyna jest zapisywana jako **Aktywna**, chyba że najpierw przełączysz ją na **Wstrzymana**. Możesz też poprosić Mate o jej utworzenie; Mate zapisuje ją jako wstrzymaną, chyba że poprosisz o aktywną. Istniejące rutyny znajdziesz, wyszukując albo filtrując w [Filtry](app:routines?focus=filter), a między tabelą a tablicą przełączasz się w [Wygląd](app:routines?focus=display-options).
+
+## Z czego składa się rutyna? [#what-is-a-routine-made-of]
+
+- **Nazwa**: wymagana, do 120 znaków.
+- **Instrukcje**: to, co Mate dostaje przy każdym uruchomieniu, do 5 000 znaków. Napisz je tak, jak zwykle prosisz o coś na czacie.
+- **Wyzwalacz**: **Według harmonogramu** albo **Gdy coś się zmieni** dla jednego lub wielu zdarzeń, na przykład aktualizacji szansy sprzedaży.
+
+Twórca zostaje właścicielem. Tylko właściciel może zmieniać instrukcje albo wyzwalacz, przełączać rutynę między **Aktywna** a **Wstrzymana** oraz używać **Testuj wyzwalacz**, ponieważ każde uruchomienie korzysta z tożsamości, dostępu i limitu Mate właściciela. Inni widzą rutynę tylko do odczytu.
+
+Członkowie z rolą **Administrator** mogą wstrzymać (**Wstrzymaj rutynę**) albo usunąć rutynę każdej osoby, ale nie mogą edytować, testować ani uruchamiać cudzej. Usunięcie wymaga roli **Administrator** nawet dla Twojej własnej rutyny, przenosi rutynę do [Kosza](/docs/app-trash), gdzie przestaje działać, dopóki nie zostanie przywrócona, i jest odrzucane, gdy trwa uruchomienie (**Zanim usuniesz tę rutynę, poczekaj na zakończenie aktywnego uruchomienia.**). Trwałe usunięcie z Kosza usuwa też jej historię uruchomień. Gdy właściciel zostanie ustawiony jako **Nieaktywny** w sekcji [Członkowie](app:settings/members), jego rutyny natychmiast się wstrzymują, uruchomienia w kolejce lub w toku kończą się jako **Zablokowane**, a rutyny pozostają wstrzymane i tylko do odczytu, dopóki administrator ich nie usunie albo właściciel nie stanie się znów aktywny i ich nie włączy.
+
+## Ile rutyn obejmuje mój plan? [#how-many-routines-does-my-plan-include]
+
+Każdy użytkownik ma własny limit rutyn: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]], a Business, Max i Enterprise [[commercial.entitlement.business.includedRoutinesPerUser]]. Wstrzymanie rutyny nie zwalnia miejsca w limicie; przeniesienie jej do [Kosza](/docs/app-trash) zwalnia je od razu. Po osiągnięciu limitu nowa rutyna jest odrzucana z propozycją ulepszenia planu w sekcji [Rozliczenia](app:settings/billing), a przywrócenie rutyny z Kosza zostawia ją w Koszu z informacją, że jej właściciel ma już wszystkie rutyny, które obejmuje jego plan; najpierw przenieś do Kosza inną rutynę tego właściciela. Przez REST i MCP wynik przywracania wymienia ją w `blocked` z powodem `routineLimitReached` i `limit` planu. Limit jest sprawdzany tylko przy tworzeniu albo przywracaniu rutyny, więc rutyny ponad limit niższego planu zostają po obniżeniu planu. Limit, z którego korzystają uruchomienia, opisano w [Plany i zużycie Mate](/docs/app-assistant#plans-and-credits).
+
+W planie Free rutyny nie są wliczone: istniejące rutyny zostają, pokazują **Wstrzymana, plan Free** i nie działają, a utworzenie albo aktywowanie rutyny jest odrzucane z podaniem ceny planu Starter. Wznawiają się same, gdy przestrzeń robocza wybierze plan płatny.
+
+## Jakie są limity, na przykład uruchomień na godzinę i zużycia na uruchomienie? [#what-are-the-limits]
+
+| Limit | Wartość | Po osiągnięciu limitu |
+| --- | --- | --- |
+| Uruchomienia na rutynę i godzinę | 4 | Pasujące zdarzenie jest odrzucane bez wpisu uruchomienia; należne uruchomienie według harmonogramu albo uruchomienie z **Testuj wyzwalacz** jest zapisywane jako **Pominięte** |
+| Zużycie na uruchomienie | 10% limitu planu Starter, w każdym planie | Uruchomienie zatrzymuje się i jest zapisywane jako **Częściowe** |
+| Kolejne nieudane uruchomienia | 3 | Rutyna sama się wstrzymuje i pokazuje powód; właściciel włącza ją ponownie po usunięciu przyczyny |
+| Najkrótszy odstęp harmonogramu | 15 minut | Częstszy harmonogram jest odrzucany przy zapisie |
+| Historia uruchomień | 90 dni | Starsze uruchomienia są usuwane |
+| Opóźnienie zdarzeń (debounce) | Domyślnie 300 sekund, od 0 do 86 400, ustawiane tylko przez Mate, MCP albo REST API | Kolejne pasujące zdarzenia w oknie po rozpoczęciu uruchomienia są ignorowane |
+
+Pominięte uruchomienia nie wliczają się do limitu godzinowego.
+
+Każde uruchomienie rutyny zaczyna od podstawowych narzędzi CRM i w razie potrzeby ładuje pozostałe zestawy narzędzi. Dzięki temu niepowiązane opisy narzędzi nie trafiają do kontekstu modelu. Jeśli kontekst nadal przekracza budżet dostawcy po kompaktowaniu, uruchomienie zatrzymuje się, a jego historia podaje powód: limit kontekstu.
+
+## Harmonogramy: jak uruchamiać rutynę każdego ranka albo w każdy poniedziałek? [#how-do-schedules-work]
+
+W [Rutyny](app:routines) otwórz rutynę albo kliknij [Dodaj](app:routines?focus=add), a potem w polu **Powtarza się** wybierz **Co 15 minut**, **Co 30 minut**, **Co godzinę**, **Codziennie**, **Co tydzień** albo **Co miesiąc**, a tam, gdzie trzeba, także dzień tygodnia, dzień miesiąca (od 1 do 28) lub godzinę w krokach co pięć minut. Domyślnie jest to codziennie o 09:00. Dla ustawień godzinowych i dłuższych harmonogram jest wypisany poniżej słowami, a następnie pojawia się napis **Godziny są wyświetlane w strefie czasowej** i strefa czasowa, która pochodzi z przeglądarki, w której utworzono rutynę (UTC, jeśli jest nieznana).
+
+Harmonogram, który nie pasuje do żadnego gotowego ustawienia, na przykład tylko dni robocze, oraz inną strefę czasową można ustawić wyłącznie przez Mate, klienta MCP albo REST API; okno pokazuje wtedy **Ta rutyna używa niestandardowego harmonogramu** z przyciskiem **Przełącz na gotowy harmonogram**. Planista sprawdza co pięć minut, więc uruchomienie może ruszyć z kilkuminutowym opóźnieniem, a uruchomienie, które po dwóch minutach nadal czeka w kolejce, jest wysyłane ponownie.
+
+## Jak działają wyzwalacze zdarzeń, na przykład żeby uruchomić rutynę po zmianie szansy sprzedaży? [#how-do-event-triggers-work]
+
+W polu **Zdarzenia** wybierz jedno lub więcej zdarzeń: każde zdarzenie rekordu i wiadomości, które może subskrybować [webhook](/docs/webhooks#which-events-exist), z wyjątkiem zdarzeń Rekord usunięty na stałe, E-mail usunięty i Czat usunięty. Rutyny wyzwalają zmiany wprowadzone w aplikacji, w czacie z Mate, przez API albo przez MCP; zmiany, które wprowadza uruchomienie rutyny, nigdy ich nie wyzwalają, więc rutyny nie mogą się łączyć w łańcuch ani zapętlać.
+
+Dwa opcjonalne ustawienia chronią rutynę przed zużywaniem limitu na przypadki, które Cię nie interesują:
+
+- **Zmienione pola** (tylko zdarzenia aktualizacji): rutyna uruchamia się tylko wtedy, gdy jedno z tych pól faktycznie się zmieniło. Jest ukryte, gdy nie wybrano żadnego zdarzenia aktualizacji.
+- **Filtry rekordów**: liczą się tylko pasujące rekordy. Utworzenia i aktualizacje są dopasowywane do zapisanego wyniku, usunięcia do pełnego rekordu tuż przed usunięciem, razem z jego relacjami.
+
+Zostaw oba puste, aby rutyna uruchamiała się przy każdym pasującym zdarzeniu. Zdarzenie uruchamia rutynę tylko dla rekordu albo rozmowy, które właściciel może zobaczyć, więc przy dostępie do odczytu **Przypisane** cudze rekordy nigdy jej nie wyzwalają. Zdarzenie jest też pomijane, bez wpisu uruchomienia, gdy uruchomienie tej rutyny już czeka w kolejce albo trwa, w oknie opóźnienia lub po przekroczeniu limitu godzinowego. Gdy uruchomienie startuje, dostęp właściciela i filtry są sprawdzane ponownie.
+
+Mate dostaje informację o tym, co się stało, jeszcze przed Twoimi instrukcjami: zdarzenie, rodzaj rekordu i jego ID, zmienione pola przy aktualizacji, a przy zdarzeniu ze skrzynki odbiorczej wątek. Stamtąd może odczytać rekord, ale nie dostaje poprzednich wartości.
+
+## Co oznaczają uruchomienia i ich statusy? [#what-do-the-runs-and-their-statuses-mean]
+
+Otwórz rutynę, aby zobaczyć jej **Uruchomienia**, od najnowszego: obok konfiguracji na szerokim ekranie albo pod przełącznikiem **Szczegóły** i **Uruchomienia** na wąskim. Kliknij uruchomienie, aby zobaczyć **Szczegóły uruchomienia**: **Uruchomiona jako** z nazwą właściciela, jaką część miesięcznego limitu Mate właściciela zużyto (dokładny koszt u dostawcy, pokazany jako procent), wyzwalacz (**Rekord**, **Zmienione pola**, **Rozmowa**) oraz, gdy uruchomienie zatrzymało się wcześniej, powód. Gdy uruchomienie zaproponowało zmiany w Bazie wiedzy, podaje ich liczbę i oferuje **Przejrzyj**. Tylko osoba, jako którą zostało wykonane, może otworzyć pełną transkrypcję, a po zakończeniu uruchomienia może odpowiedzieć pod nią, aby kontynuować rozmowę z Mate, co zużywa jej limit.
+
+| Status | Znaczenie |
+| --- | --- |
+| **W kolejce** | Czeka na planistę |
+| **W trakcie** | Mate pracuje |
+| **Zakończone sukcesem** | Uruchomienie wykonało swoją instrukcję |
+| **Częściowe** | Zatrzymane wcześniej, na przykład przy limicie na uruchomienie albo gdy zasada odrzuciła akcję |
+| **Nieudane** | Zakończone błędem albo bez użytecznego wyniku |
+| **Pominięte** | Było w kolejce, ale nie wystartowało: rutyna została wstrzymana, osiągnięto limit godzinowy, rekord przestał pasować do filtrów albo do dostępu właściciela, wyzwalacz się zmienił, uruchomienie zostało zatrzymane albo asystent był zajęty innym uruchomieniem |
+| **Zablokowane** | Praca Mate nie mogła się rozpocząć, ponieważ Customermates wstrzymało pracę AI, limit właściciela został wyczerpany albo właściciel był nieaktywny, lub nie przeszła inna kontrola dopuszczenia. Uruchomienie zawiera powód `error`, taki jak `platformPaused` albo `agentLimitReached`. Administratorzy przestrzeni roboczej nie mogą wznowić wstrzymania ze strony Customermates. Administrator przestrzeni roboczej może osobno wstrzymać rutynę; ten powód to `adminPaused`. |
+
+Uruchomienie, które zatrzymuje się na swoim limicie na uruchomienie, wynoszącym 10% limitu planu Starter, mówi o tym w swoim podsumowaniu i w **Szczegóły uruchomienia**; ten limit jest odrębny od miesięcznego limitu właściciela. Uruchomienie zatrzymuje się przed rundą modelu, gdy już naliczone zużycie plus maksimum, jakie ta runda może kosztować, zarezerwowane tak, jak opisano w [jak naliczana jest prośba](/docs/app-assistant#credits), przekroczyłyby ten limit.
+
+**Testuj wyzwalacz** natychmiast uruchamia prawdziwe uruchomienie. Jest dostępne dla właściciela aktywnej rutyny według harmonogramu bez niezapisanych zmian, zużywa limit Mate i może zmieniać dane. Ręczne uruchomienia testowe mają `triggerKind: schedule`, czyli rodzaj rutyny, którą testują. Test jest odrzucany, zanim uruchomienie trafi do kolejki, gdy praca AI jest wstrzymana, właściciel jest nieaktywny albo jego limit został wyczerpany. Rutyny zdarzeniowe potrzebują prawdziwego pasującego zdarzenia, więc dla nich ta opcja jest wyłączona.
+
+## Co rutyna może robić bez zatwierdzenia [#what-a-routine-may-do-without-approval]
+
+Uruchomienie bez nadzoru może robić wszystko, co Mate robi w czacie bez zatwierdzenia, z tą różnicą, że zmiany w Bazie wiedzy stają się [propozycjami](#knowledge-base-proposals): czytać przestrzeń roboczą; tworzyć lub aktualizować rekordy i powiązania rekordów; zapisywać i odrzucać szkice; wysyłać e-maile i wiadomości na czacie; porządkować skrzynkę odbiorczą; zmieniać pola, widżety, webhooki i ustawienia przestrzeni roboczej inne niż nazwy list; generować linki do połączenia kanałów; tworzyć, aktualizować, wstrzymywać i uruchamiać rutyny oraz, na połączonym koncie, wysyłać zaproszenia do kontaktów i zmieniać listy Sales Navigator.
+
+Każda akcja, która w czacie wymaga zatwierdzenia, jest odrzucana, ponieważ nie ma nikogo, kto mógłby odpowiedzieć: usuwanie rekordów, pól, widżetów, webhooków albo rutyn, zmiana nazw list, zapraszanie członków, zmiana roli albo statusu członka, ponowne wysyłanie dostaw webhooków i wysyłanie zgłoszeń do pomocy technicznej. Uruchomienie zapisuje odmowę; pełna lista jest na [stronie asystenta](/docs/app-assistant#what-runs-immediately-and-what-asks-first). Akcje interfejsu, takie jak wyróżnianie, są niedostępne, ponieważ nie ma podłączonej przeglądarki.
+
+Gdy właściciel może czytać [Bazę wiedzy](/docs/mcp#shared-workspace-wiki) i ma ona strony, każde uruchomienie zaczyna od krótkiego katalogu jej stron; rutyna wyszukuje i czyta odpowiednie strony oraz stosuje zawarte w nich fakty, ale polecenie wewnątrz strony nie może uruchomić innej pracy ani rozszerzyć uprawnień rutyny. Trzymaj tam wspólne fakty, ton komunikacji i procesy, zamiast powtarzać je w każdej rutynie. Zaproponowanie zmiany strony wymaga uprawnienia właściciela **Tworzenie** lub **Edycja** w Bazie wiedzy.
+
+Uruchomienie może przeszukiwać publiczny internet, najwyżej 2 płatne wyszukiwania na uruchomienie, jak opisano w [Czy Mate może przeszukiwać internet?](/docs/app-assistant#web-search). Uruchomienie może przeglądać internet albo zmieniać dane, nigdy jedno i drugie: gdy wyszukiwanie zwróci wyniki, każdy zapis jest odrzucany, a gdy zapis się powiedzie, wyszukiwanie w internecie zostaje wycofane. Czytanie Bazy wiedzy i danych CRM pozostaje dostępne. Wyszukiwania wliczają się do limitu na uruchomienie.
+
+### Propozycje zmian w Bazie wiedzy [#knowledge-base-proposals]
+
+Gdy uruchomienie tworzy, edytuje albo usuwa stronę Bazy wiedzy, nic się jeszcze nie zmienia: uruchomienie zapisuje propozycję, a Mate zgłasza ją jako oczekującą na przegląd, a nie jako wykonaną. Osoba zarządzająca przegląda ją w sekcji **Propozycje** w Bazie wiedzy, porównuje z bieżącą stroną i zatwierdza albo odrzuca; zobacz [Przeglądanie propozycji Mate](/docs/mcp#review-proposals). Wpis uruchomienia na liście uruchomień i jego **Szczegóły uruchomienia** pokazują, ile zmian zaproponowano, a **Szczegóły uruchomienia** zawierają link do przeglądu.
+
+## Jak Mate zarządza rutynami? [#how-does-mate-manage-routines]
+
+W czacie Mate może wyświetlać rutyny, czytać historię uruchomień, tworzyć, aktualizować i wstrzymywać rutyny oraz od razu je uruchamiać, bez pytania o zgodę. Może też ustawiać to, czego nie da się ustawić w oknie: niestandardowy harmonogram, na przykład dni robocze o 09:00, strefę czasową i opóźnienie zdarzeń. Usunięcie rutyny wymaga Twojego zatwierdzenia i, tak jak w aplikacji, roli **Administrator**.
+
+## Dla agentów [#tips-for-agents]
+
+Użyj `manage_routines`. Niestandardowy harmonogram to pięciopolowe wyrażenie cron, na przykład `0 9 * * 1-5`. Statusy uruchomień wracają jako `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` i `blocked`. Akcja `pause` wymaga roli **Administrator**, nawet dla Twojej własnej rutyny; właściciel bez niej wstrzymuje rutynę, aktualizując ją z `enabled: false`. Nazwy zdarzeń to nazwy zdarzeń webhooków, bez `record.deletedPermanently`, `messaging.email.deleted` i `messaging.chat.deleted`. Filtry rekordów trafiają do `recordTrigger.query.filters`; rutyna śledząca kilka list używa zamiast tego `recordSources`, do 50 źródeł, każde z własnymi `query`, `changedFieldIds` i `events`, i nie może łączyć tego z `recordTrigger`. Dawne ustawienie `triggerFilters` już nie istnieje. Przez REST rutyny znajdują się pod `/api/v1/routines/`: `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` i `delete`. Każda operacja na jednej rutynie przyjmuje jej `id`, a `runs` odpowiada `404` dla rutyny, która nie istnieje albo należy do innej przestrzeni roboczej.

@@ -1,0 +1,302 @@
+---
+title: "Program do zarządzania klientami: od arkusza do CRM"
+description: "Program do zarządzania klientami zamiast arkusza: zaimportuj listę z Excela i miej przy kliencie osoby, rozmowy oraz następny krok. Bez karty kredytowej."
+featureName: Zarządzanie kontaktami
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-records
+  - /features/pipeline
+  - /features/simple-crm
+
+hero:
+  title: "Program do zarządzania klientami i kontaktami: cała historia relacji w jednym miejscu"
+  description: "Trzymaj w jednym miejscu osoby, szanse sprzedaży i zadania każdego klienta, a w planie Pro i wyższych w chmurze także rozmowy, żeby wiedzieć, kto rozmawiał z nim ostatni i co dzieje się dalej. Listy i pola ustawiasz według własnych potrzeb."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=workspace
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/zarzadzanie-klientami/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+landing:
+  hero:
+    eyebrow: Baza klientów dla małych zespołów
+    title: "Program do zarządzania klientami, który zastępuje arkusz i pokazuje, z kim skontaktować się dalej."
+    description: "Zaimportuj listę klientów raz. Potem w Customermates Cloud Mate może zapisać nowe kontakty, notatki i następny krok przy właściwym kliencie na podstawie podłączonych rozmów."
+    primaryCta:
+      label: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Porozmawiaj z Benem, 15 minut
+      href: /contact
+  facts: Bez karty kredytowej · Import z Excela · Pro od [[commercial.price.pro.monthly]] za osobę miesięcznie
+  generator:
+    eyebrow: Zacznij od jednego opisu
+    title: Twoja lista klientów, opisana raz. Zbudowana dla Ciebie.
+    description: Konfiguracja z AI zadaje kilka pytań i buduje klientów, kontakty, umowy oraz pola, które śledzisz. To przykład zarządzania klientami; poklikaj.
+    promptLabel: Twój opis dla Mate
+    arrowLabel: stał się tą przestrzenią roboczą
+    prompt: Zaopatrujemy biura w ekspresy do kawy i artykuły do kuchni socjalnych. Zastąp nasz arkusz klientów klientami, kontaktami i umowami według lokalizacji i pokaż nam, z kim dawno nie rozmawialiśmy.
+  followUp:
+    eyebrow: E-mail od klienta, zapisany
+    title: "Klient podaje nowy kontakt. Rekord jest zaktualizowany, odpowiedź przygotowana."
+    description: E-mail trafia do klienta, którego adres się zgadza. Poproś Mate albo pozwól działać rutynie, a nowy kontakt, lokalizacja i następny krok pojawią się przy kliencie, razem ze szkicem odpowiedzi dla Ciebie.
+    desk:
+      label: Scena aktualizacji rekordu klienta
+      workspace: Ziarno Serwis Biurowy
+      conversation:
+        label: E-mail
+        name: Emma Clarke
+        company: Brightwell Studios
+        time: śr. 10:12
+        message: Krótka aktualizacja. Od przyszłego miesiąca zakupy po mojej stronie przejmuje Sara Lind. Czy możecie też dodać do umowy naszą nową lokalizację w Leeds?
+      agent:
+        name: Mate
+        intent: Aktualizuję rekord klienta na podstawie tego e-maila
+        done: Sara Lind dodana jako kontakt. Szkic i następny krok zapisane.
+      draft:
+        badge: Szkic, czeka na Twoją weryfikację
+        text: Cześć Emmo, dziękuję za informację. Zapisałem Sarę jako waszą osobę do kontaktów w sprawie zakupów i do czwartku wyślę zaktualizowaną umowę z lokalizacją w Leeds. Pozdrawiam, Daniel
+        edit: Edytuj
+        send: Wyślij szkic
+      today:
+        title: Pulpit
+        date: środa
+        addedBy: Dodane przez Mate
+        assign: Przypisz
+        sections:
+          - title: Następne kroki do wykonania
+            items:
+              - title: Wysłać zaktualizowaną umowę z lokalizacją w Leeds
+                meta: Brightwell Studios · termin w czwartek
+                owner: DM
+                state: added
+              - title: Roczny przegląd z Harbor Legal
+                meta: Harbor Legal · 2 dni po terminie
+                owner: DM
+                state: overdue
+  beforeAfter:
+    eyebrow: Co się zmienia
+    title: Przed i po. Ci sami klienci, jeden aktualny rekord.
+    before:
+      label: Przed
+      points:
+        - Arkusz klientów, którego nikt nie aktualizuje
+        - Kontakty i notatki rozproszone po skrzynkach
+        - Nikt nie wie, kto ostatni rozmawiał z klientem
+    after:
+      label: Z Customermates
+      points:
+        - Każdy klient z osobami, umowami i rozmowami
+        - Mate aktualizuje rekordy na Twoją prośbę albo według rutyny, którą ustawisz
+        - Ostatni kontakt i następny krok widoczne przy każdym kliencie
+  steps:
+    eyebrow: Jak zacząć
+    title: Trzy kroki. Od arkusza do aktualnych rekordów.
+    items:
+      - title: Zaimportuj arkusz
+        description: Konfiguracja z AI buduje listy i pola. Zapisz arkusz jako skoroszyt Excela i przypisz każdą kolumnę do pola.
+      - title: Podłącz e-mail lub LinkedIn
+        description: Wątki trafiają do klienta, którego adres e-mail lub profil LinkedIn się zgadza. W planie Pro jedno podłączone konto na osobę.
+      - title: Niech Mate dba o aktualność
+        description: Poproś Mate albo ustaw rutynę, żeby dodawała nowe kontakty, notatki i następne kroki na podstawie najnowszych rozmów.
+  plan:
+    eyebrow: Cennik
+    title: Zacznij od planu Pro. [[commercial.price.pro.monthly]] za osobę miesięcznie.
+    description: Starter za [[commercial.price.starter.monthly]] obejmuje bazę klientów bez podłączonych kont. Podłączony e-mail i LinkedIn zaczynają się od planu Pro w Customermates Cloud.
+    limits: Nie pasuje, jeśli potrzebujesz wzbogacania kontaktów, tagów albo cofania importów. Sprawdź mapowanie kolumn przed importem.
+    primaryCta:
+      label: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Porównaj wszystkie plany
+      href: /pricing
+
+cta:
+  action: Przenieś listę klientów w trakcie okresu próbnego
+  description: "Zapisz arkusz jako skoroszyt Excela, przypisz kolumny do swoich pól, podłącz jedno konto e-mail lub LinkedIn i sprawdź w ciągu [[commercial.trial.days]] dni, czy widzisz ostatni kontakt i następny krok każdego klienta."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=workspace
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/zarzadzanie-klientami/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+**Program do zarządzania klientami** pokazuje, kim jest klient, z kim rozmawiasz po jego stronie, co jest otwarte i co dzieje się dalej. Opiera się na oprogramowaniu do zarządzania kontaktami, które trzyma każdą osobę i firmę, z którą pracujesz, w jednym wspólnym miejscu, razem z tym, co się z nimi dzieje, i dokłada do tego szanse sprzedaży, zadania oraz rozmowy. Customermates obejmuje jedno i drugie dla małych zespołów pracujących z klientami. To CRM open source zbudowany wokół AI, tworzony w Niemczech.
+
+**Gdzie to pomaga w follow upie.** Klient ginie wtedy, gdy nikt nie widzi, kto rozmawiał z nim ostatni ani co obiecano. Rekord klienta zawiera osoby, umowy lub szanse sprzedaży oraz, od planu Pro w chmurze, rozmowy e-mail i LinkedIn z nimi, a do tego pole daty następnej akcji. Zapisany widok posortowany według tej daty albo widżet Nadchodzące na pulpicie pokazuje, z kim skontaktować się dalej.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Każdy plan">Konfigurowalne listy klientów, kontaktów i szans sprzedaży, typowane pola, relacje, filtry, zapisane widoki, które możesz udostępniać, tabela, tablica lub kalendarz, role, import i eksport Excela, REST i MCP, a w planach płatnych także webhooki. Self-hosted też.</SummaryItem>
+  <SummaryItem label="Pro i wyższe, tylko chmura">Rozmowy e-mail, LinkedIn, WhatsApp, Instagram i Telegram obok osób, których dotyczą.</SummaryItem>
+  <SummaryItem label="Czego nie ma">Brak tagów (użyj pola wielokrotnego wyboru), brak cofania importu, brak synchronizacji z książką adresową, brak funkcji scalania, brak przypomnień.</SummaryItem>
+</ArticleSummary>
+
+## Co daje program do zarządzania klientami [#co-daje-program-do-zarzadzania-klientami]
+
+Dobry program do zarządzania klientami przekłada się na cztery codzienne rzeczy:
+
+- **Nic nie ginie między osobami.** Notatki, historia aktywności i, od planu Pro w chmurze, rozmowy leżą przy kliencie. Gdy opiekun jest na urlopie albo odchodzi z firmy, ktoś inny widzi, co ustalono i co obiecano.
+- **Lepsza obsługa klienta.** Otwierasz jednego klienta i od razu widzisz jego osoby, umowy, otwarte szanse sprzedaży i zadania, więc nie musisz pytać klienta o to, co już ustalono.
+- **Pipeline sprzedaży pod ręką.** Szanse sprzedaży są powiązane z klientem i jego osobami, a [pipeline sprzedaży](/features/pipeline) możesz oglądać jako tablicę pogrupowaną według etapu.
+- **Następny krok zawsze widoczny.** Pole daty następnej akcji i zapisany widok pokazują, z kim skontaktować się dalej. Więcej o tym w opisie [follow-upów klientów](/features/follow-up).
+
+## Dla kogo jest program do zarządzania klientami? [#dla-kogo]
+
+Najlepiej sprawdza się w małych zespołach, które pracują z klientami dłużej niż jedną transakcję:
+
+- [konsultanci](/for/consultants), [agencje](/for/agencies) i inne firmy usługowe, w których jeden klient ma kilka osób kontaktowych oraz kilka umów lub projektów;
+- firmy z kilkoma opiekunami klienta, w których trzeba wiedzieć, kto rozmawiał z klientem ostatni;
+- zespoły, które wyrosły z arkusza, bo ten sam klient jest w kilku plikach, a notatki leżą w skrzynkach różnych osób.
+
+To nie jest narzędzie dla jednej osoby, której wystarczą nazwiska i numery w telefonie, ani dla zespołu, który chce w jednym programie wystawiać oferty i faktury oraz wysyłać masowe e-maile. Granice opisują sekcje „Czego nie robi” oraz „Program do obsługi klientów czy książka adresowa w telefonie?” niżej.
+
+## Zobacz to w przykładowej przestrzeni roboczej
+
+[Przestrzeń robocza do zarządzania klientami](https://demo.customermates.com/pl/w/zarzadzanie-klientami/dashboard) to przykład z danymi próbnymi, a nie konto klienta. Interfejs i rekordy przykładowe są po polsku. Ma pięć list: Klienci, Kontakty, Umowy, Szanse sprzedaży i Zadania. Każdy klient ma status relacji (Nowa relacja, W rozmowach, Klient, Uśpiony), opiekuna konta i skonfigurowane pole daty następnej akcji. Każda umowa to jedna usługa w jednej lokalizacji z miesięczną opłatą i datą przeglądu, a pole obliczane sumuje roczną wartość klienta z jego umów. Umowy zawierają adres lokalizacji i podpisane porozumienie jako PDF, pulpit pokazuje lokalizacje na mapie i wypisuje przeglądy przypadające w ciągu najbliższych 30 dni, a widok kalendarza pokazuje daty przeglądów miesiąc po miesiącu.
+
+Otwórz jednego klienta, a zobaczysz jego osoby, umowy, otwarte szanse sprzedaży, zadania i obsługiwane rozmowy powiązanych z nim osób, wszystko na jednym rekordzie. Nic tam nie jest kopiowane do drugiego silosu danych: kontakt w rekordzie klienta to ten sam kontakt, który wyszukujesz, filtrujesz i aktualizujesz.
+
+Twoja własna przestrzeń robocza nie zaczyna się od tych list. Nowa przestrzeń robocza zaczyna się bez list. W Customermates Cloud konfiguracja z AI buduje listy, etapy, pulpit i strony Bazy wiedzy na podstawie Twojego opisu. Uruchamia się raz podczas onboardingu, ma limit kredytów konfiguracji i możesz ją pominąć przyciskiem **Zacznij od pustej przestrzeni roboczej**. W przeciwnym razie osoby z prawami do modelu danych tworzą listy i pola w sekcji **Model danych**. Przy self-hostingu to jedyna droga.
+
+## Uporządkowane dane klienta
+
+Rekord klienta zawiera pola, które wybierzesz. Typy pól to Tekst, Tekst sformatowany, Liczba, Kwota pieniężna, Tak lub nie, Data, Data i godzina, Zakres dat, Zakres daty i godziny, Pojedynczy wybór, Wielokrotny wybór, Adres internetowy, Członek, Adres, Plik oraz Telefon, e-mail i social media. Pola obliczane dodają wartości z innych pól lub z powiązanych rekordów.
+
+Pole **Dane kontaktowe** zawiera numery telefonów, adresy e-mail oraz tożsamości LinkedIn, Instagram i Telegram, które dopasowują wiadomości do osoby. Pod numer z tego pola można zadzwonić, a ponadto dopasowuje on czaty WhatsApp z tego samego numeru. Jeden adres może należeć do kilku rekordów, na przykład do kontaktu i klienta.
+
+Pole **Adres** zawiera jeden adres pocztowy: Customermates sprawdza go z formatem adresów danego kraju, podpowiada miasto i region dla kodu pocztowego, a po kliknięciu otwiera adres w mapach. Pole **Plik** zawiera dokumenty, takie jak umowy czy oferty, do 20 plików na pole, a tekst tych plików wyszukiwarka znajduje.
+
+Notatki są przy każdym rekordzie. Wyszukiwarka globalna (Cmd/Ctrl+K) znajduje rekordy po nazwie i danych kontaktowych; do pozostałych pól docierasz przez filtry.
+
+## Powiązane rekordy zamiast płaskiej listy
+
+Relacje łączą listy. Kontakt może należeć do kilku klientów, szansa sprzedaży wskazuje swojego klienta i jego osoby, a zadanie wskazuje to, czego dotyczy. Jeśli Twój zespół mówi o kontach, a nie o klientach, zmień nazwę listy dla całej przestrzeni roboczej w sekcji **Model danych**.
+
+Arkusz trzyma jeden wiersz na osobę i powtarza nazwę firmy, a Customermates trzyma firmę raz i podpina do niej osoby. Otwórz klienta, a jego osoby są tam wypisane; otwórz osobę, a jej klienci są o jedno kliknięcie dalej.
+
+## Skonfiguruj zarządzanie klientami w pięciu krokach
+
+<Steps>
+  <Step title="Utwórz lub sprawdź listy">Pozwól, żeby konfiguracja z AI zbudowała je w Customermates Cloud, albo utwórz Klientów, Kontakty i Szanse sprzedaży w sekcji **Model danych**, z relacjami między nimi.</Step>
+  <Step title="Dodaj pola, według których sortujesz">Na przykład **Relacja** (pojedynczy wybór), **Rola** przy kontaktach (Decydent, Osoba operacyjna, Księgowość) i **Następna akcja** (data).</Step>
+  <Step title="Zaimportuj swoją listę">Najpierw zaimportuj klientów, potem kontakty, żeby kolumna firmy się powiązała. Szczegóły niżej.</Step>
+  <Step title="Zapisz widoki">„Moi aktywni klienci”, „Następna akcja w tym tygodniu” albo „Jeszcze bez klienta” do porządków po imporcie. Udostępnij te, których potrzebuje cały zespół, na przykład „Następna akcja w tym tygodniu”, wszystkim w przestrzeni roboczej albo wybranym rolom.</Step>
+  <Step title="Zdecyduj, kto co widzi">W edytorze ról ustaw dostęp do odczytu dla każdej listy na **Wszystkie**, **Przypisane** albo **Brak**, a do tego prawa do tworzenia, edycji i usuwania. Uprawnienia dotyczą całych list, a nie pojedynczych pól.</Step>
+</Steps>
+
+## Konfigurowalne następne akcje
+
+Customermates nie ma wbudowanych przypomnień ani logiki terminów. Dodajesz pole daty, na przykład **Następna akcja**, do klientów lub szans sprzedaży i zapisujesz widok przefiltrowany po datach, które już minęły. W Customermates Cloud [rutyna](/docs/app-routines) może co poniedziałek rano wypisać te rekordy. Widoki tablicy pogrupowane według statusu relacji pokazują na pierwszy rzut oka, kto jest nowy, aktywny albo uśpiony.
+
+## Przejście z Excela lub Google Sheets
+
+Wiele zespołów zaczyna od arkusza. Przeniesienie go jest praktyczne, ale nie automatyczne:
+
+- **Format.** Lista importuje się ze skoroszytu Excela (.xlsx lub .xls) albo pliku CSV przez kreator: wybierz arkusz, przypisz kolumny, sprawdź podgląd, zaimportuj. Plików Google Sheets nie importujesz bezpośrednio: pobierz arkusz jako .xlsx lub .csv. Plik pobrany z Outlooka albo z Kontaktów Google można zaimportować w tej postaci. Ponownie można też zaimportować eksport JSON tej samej listy.
+- **Kolejność.** Importuj klientów przed kontaktami, żeby kolumna firmy powiązała się z istniejącymi rekordami. Kolumny z e-mailem, telefonem i komunikatorami przypisz do pola **Dane kontaktowe**.
+- **Bez cofania.** Importu nie można wycofać. Najpierw wyczyść duplikaty, bo potem nie ma funkcji scalania. Przetestuj na małym pliku.
+- **Bez załączników.** Pliki leżące obok arkusza, takie jak umowy czy PDF-y, nie są częścią importu. Potrzebne wgraj potem do pola Plik przy rekordzie.
+- **Poprawki zbiorcze.** Wyeksportuj listę, popraw ją w Excelu i zaimportuj ponownie jako **Istniejące rekordy**.
+- **Bez bieżącej synchronizacji.** Po imporcie arkusz i Customermates to osobne listy.
+
+[Poradnik o rekordach](/docs/app-records#how-do-i-import-or-export-records) opisuje limity i opcje.
+
+## Rozmowy obok relacji
+
+W Customermates Cloud plany Pro i wyższe łączą Gmaila, Outlooka, IMAP, LinkedIn (w tym obsługiwane czaty Sales Navigator i Recruiter), WhatsApp, Instagram i Telegram przez [wspólną skrzynkę odbiorczą](/features/unified-inbox). Uczestnik jest powiązany z kontaktem przez tożsamość w jego polu Dane kontaktowe. Gdy pisze nieznany adres, powiązujesz tego uczestnika z istniejącym albo nowym kontaktem. Rozmowa jest powiązana z szansą sprzedaży lub klientem tylko wtedy, gdy zrobisz to Ty albo agent w sposób jawny; nic nie jest automatycznie przypisywane do szansy sprzedaży.
+
+Obowiązują limity planów. Starter i self-hosted nie mają podłączonych kont komunikatorów. Pro obejmuje Twoje własne konta (liczba podłączonych kont na użytkownika w cenie: [[commercial.entitlement.pro.includedAccountsPerUser]]) oraz wątki udostępniane pojedynczo. Udostępnienie całego konta zespołowi wymaga planu Business, Max lub Enterprise.
+
+## AI na rekordach klientów: Mate i MCP
+
+W Customermates Cloud Mate, hostowany asystent, pracuje na rekordach w zwykłym języku w ramach kredytów AI Twojego planu:
+
+```text
+Utwórz kontakty dla wszystkich osób z tej stopki e-maila i powiąż je z klientem Hartmann Consulting. Najpierw sprawdź, czy któraś z nich już istnieje.
+```
+
+Mate widzi to, co możesz widzieć Ty. Tworzy i aktualizuje rekordy oraz wysyła wiadomości, gdy tylko o to poprosisz; usunięcia, importy i zmiany dostępu za każdym razem czekają na Twoje zatwierdzenie. Przy self-hostingu Mate nie jest dostępny.
+
+W każdym planie, także self-hosted, Twój własny klient AI, taki jak Claude czy ChatGPT, może przez [MCP](/docs/mcp) czytać i aktualizować rekordy, do których masz dostęp, a koszty ponosi Twój dostawca AI.
+
+## Gdzie leżą dane
+
+W Customermates Cloud baza danych działa w regionie AWS Frankfurt. Dostawcy usług, w tym firmy z USA, są na [stronie podmiotów podprzetwarzających](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Hosting w UE nie jest certyfikatem, a Customermates żadnego nie posiada. Żeby trzymać dane na własnych serwerach, uruchom rdzeń AGPL w trybie [self-hosted](/features/self-hosted), bez skrzynki odbiorczej i bez Mate.
+
+## Czego nie robi
+
+<AcquisitionCallout title="Ograniczenia, które wpływają na decyzję" variant="boundary">
+  Brak tagów: użyj pola wielokrotnego wyboru. Załączniki wiadomości zostają w swoim wątku skrzynki odbiorczej; pliki, które chcesz mieć przy rekordzie, trafiają do pola Plik. Import tylko z udokumentowanych formatów, bez cofania. Brak funkcji scalania, brak synchronizacji z książką adresową, brak przypomnień i alertów o terminach, brak newsletterów, masowych e-maili, sekwencji i wzbogacania danych, brak natywnej aplikacji mobilnej.
+</AcquisitionCallout>
+
+## Program do obsługi klientów czy książka adresowa w telefonie?
+
+| Twoja sytuacja | Na co spojrzeć |
+|---|---|
+| Jedna osoba, która potrzebuje nazwisk i numerów w telefonie | Książka adresowa telefonu, Outlooka albo konta Google |
+| Wspólny arkusz, który jeszcze działa dla dwóch osób | Zostaw go, dopóki powiązania, historia albo prawa dostępu nie staną się problemem |
+| Mały zespół, który dzieli klientów, szanse sprzedaży i rozmowy | CRM taki jak Customermates |
+
+Customermates nie synchronizuje się z książkami adresowymi telefonu ani Outlooka. To miejsce, w którym zespół zarządza relacjami z klientami, a nie zamiennik aplikacji Kontakty w telefonie. Więcej opcji obok siebie znajdziesz w [porównaniu programów do baz klientów](/blog/client-database-software).
+
+## Jak wybrać program do zarządzania klientami? [#jak-wybrac-program-do-zarzadzania-klientami]
+
+Nie ma jednego najlepszego programu, jest taki, który pasuje do sposobu pracy Twojego zespołu. Sprawdź:
+
+1. **Powiązania.** Czy firma, jej osoby, umowy i szanse sprzedaży są połączone, czy to płaska lista?
+2. **Import i eksport.** Czy zaimportujesz swój arkusz i wyeksportujesz dane z powrotem? Przetestuj to na około 50 własnych rekordach.
+3. **Rozmowy i następny krok.** Czy przy kliencie widać ostatni kontakt i datę następnej akcji?
+4. **Uprawnienia.** Czy możesz ustawić, kto co widzi, na przykład osobno dla każdej listy?
+5. **Cena.** Czy płacisz za użytkownika, czy koszt rośnie z liczbą kontaktów, i co zmienia się na wyższym planie?
+6. **Dane.** Gdzie leżą i czy dostawca udostępnia umowę powierzenia przetwarzania danych?
+
+Zestawienie narzędzi z datą, licencją, hostingiem, planem darmowym i ceną znajdziesz w [porównaniu programów CRM](/blog/best-crm-software), a jeśli zaczynasz od zera, [prosty CRM](/features/simple-crm) pokazuje najmniejszą sensowną konfigurację.
+
+## Ile to kosztuje
+
+Rozliczenie jest miesięczne za użytkownika, nigdy za kontakt. Starter kosztuje [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], a Business [[commercial.price.business.monthly]] za użytkownika miesięcznie. Skrzynka odbiorcza zaczyna się od planu Pro, udostępnianie całego konta od planu Business. Self-hosting rdzenia AGPL nie wiąże się z opłatą licencyjną. Zobacz [cennik](/pricing).
+
+## Najczęściej zadawane pytania
+
+<Faq>
+<FaqItem question="Czym różni się zarządzanie kontaktami od zarządzania klientami?">
+Zarządzanie kontaktami przechowuje osoby, firmy i ich dane. Zarządzanie klientami dodaje to, co z nimi robisz: szanse sprzedaży, następne akcje, zadania i rozmowy. W Customermates jedno i drugie leży w powiązanych listach jednej przestrzeni roboczej.
+</FaqItem>
+
+<FaqItem question="Czy mogę używać tagów dla kontaktów?">
+Nie. Dodaj zamiast tego pole wielokrotnego wyboru, na przykład **Segment** z wartościami, które miałyby być tagami. Możesz według niego filtrować i grupować. Poradnik o [segmentacji klientów](/blog/customer-segmentation) pokazuje, jak wybrać segmenty oraz ustawić dla nich widoki i wykresy.
+</FaqItem>
+
+<FaqItem question="Czy mogę dołączać pliki do klienta lub kontaktu?">
+Tak. Dodaj do listy pole Plik; mieści do 20 plików, a wyszukiwarka znajduje tekst w ich wnętrzu. Załączniki obsługiwanych wiadomości zostają w swoim wątku skrzynki odbiorczej.
+</FaqItem>
+
+<FaqItem question="Czy mogę importować z Excela, Google Sheets lub Outlooka?">
+Tak, jako skoroszyt Excela (.xlsx) albo plik CSV. Plików Google Sheets nie importujesz bezpośrednio, więc najpierw pobierz arkusz lub kontakty jako .xlsx albo .csv, importuj klientów przed kontaktami i przetestuj na małym pliku: importu nie można cofnąć.
+</FaqItem>
+
+<FaqItem question="Czy nowa przestrzeń robocza ma listy Klientów i Kontaktów?">
+Nie. Nowa przestrzeń robocza zaczyna się bez list. W Customermates Cloud konfiguracja z AI może je zbudować podczas onboardingu, w przeciwnym razie tworzysz je w Modelu danych. Listy w przykładowej przestrzeni roboczej pokazują jedną z możliwych konfiguracji.
+</FaqItem>
+
+<FaqItem question="Ilu kontaktami mogę zarządzać?">
+Plany nie ustalają limitu kontaktów. Jeden eksport obejmuje do 5000 rekordów bieżącego widoku.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje program do zarządzania klientami?">
+W Customermates rozliczenie jest miesięczne za użytkownika, nigdy za kontakt: Starter kosztuje [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], a Business [[commercial.price.business.monthly]] za użytkownika miesięcznie. Starter obejmuje bazę klientów bez podłączonych kont, a skrzynka odbiorcza zaczyna się od planu Pro. W innych programach cena zależy od planu i liczby stanowisk, więc policz koszt dla swojego zespołu; [poradnik o kosztach CRM](/blog/crm-cost) pokazuje, jak.
+</FaqItem>
+
+<FaqItem question="Czy jest darmowy program do zarządzania klientami?">
+Customermates ma plan Free dla jednej osoby z [[commercial.limit.free.maxRecords]] rekordów. Pola dat, zapisane widoki i pulpit działają tam, więc listę następnych kroków możesz prowadzić za darmo, ale bez skrzynki odbiorczej, Mate i rutyn. Self-hosting rdzenia AGPL nie wiąże się z opłatą licencyjną. Inne bezpłatne opcje porównuje [poradnik o darmowym CRM](/blog/free-crm).
+</FaqItem>
+
+<FaqItem question="Jaki jest najprostszy program do zarządzania klientami?">
+Najprostszy jest ten, który zespół faktycznie aktualizuje: kilka powiązanych list (klienci, kontakty, szanse sprzedaży), import z arkusza i jeden zapisany widok z datą następnej akcji. W Customermates możesz zacząć od tych trzech list i dodawać pola dopiero wtedy, gdy są Ci potrzebne. [Prosty CRM](/features/simple-crm) opisuje taką konfigurację.
+</FaqItem>
+
+<FaqItem question="Czy program do zarządzania klientami jest trudny we wdrożeniu?">
+Pierwsza konfiguracja to kilka list, kilka pól i import arkusza przez kreator, który mapuje kolumny. W Customermates Cloud konfiguracja z AI może zbudować listy na podstawie Twojego opisu. Wyczyść duplikaty przed importem, bo importu nie można cofnąć, i przetestuj go najpierw na małym pliku. W okresie próbnym sprawdzisz, czy zespół chce z tego korzystać.
+</FaqItem>
+</Faq>
