@@ -105,6 +105,32 @@ function isLocaleInvariantTemplate(message: string): boolean {
 }
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // Dutch keeps these loanwords, product names and units as English does (record, filter, tone of voice).
+  "nl:AgentChat.activity.countedRecordInResource",
+  "nl:AgplGithubBadge.label",
+  "nl:Common.filters.palette.appliedCount",
+  "nl:ConnectedAccountsCard.channels.linkedinClassic",
+  "nl:ConnectedAccountsCard.channels.linkedinRecruiter",
+  "nl:ConnectedAccountsCard.channels.linkedinSalesNavigator",
+  "nl:ConnectedAccountsCard.emailFontFamilies.monospace",
+  "nl:ConnectedAccountsCard.emailLogoPlaceholder",
+  "nl:ContactPage.form.founderName",
+  "nl:DataView.views.recordCount",
+  "nl:DocsSidebar.openapi",
+  "nl:NavigationBar.public.linkedinCrm",
+  "nl:NavigationBar.public.openSourceCrm",
+  "nl:NavigationBar.public.providerSlack",
+  "nl:NavigationBar.public.whatsappCrm",
+  "nl:OnboardingPlaybooks.pages.toneOfVoice",
+  "nl:OnboardingWizard.ai.choices.claudeDesktop",
+  "nl:OnboardingWizard.ai.choices.openai",
+  "nl:Planner.filterCount",
+  "nl:RecordCalendarWidgets.dayLabelWithSum",
+  "nl:RecordModel.graph.accountUnit",
+  "nl:RecordModel.graph.recordUnit",
+  "nl:RecordWidgets.numberRecords",
+  "nl:Trash.kindInList",
+  "nl:Trash.permanentRecords",
   // Product names, URLs and the founder name stay as they are in Portuguese and Polish.
   "pt:ConnectedAccountsCard.channels.linkedinClassic",
   "pt:ConnectedAccountsCard.emailLogoPlaceholder",
