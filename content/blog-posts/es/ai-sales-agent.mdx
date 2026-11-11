@@ -1,0 +1,171 @@
+---
+title: "AI sales agent: qué hace y cómo probar uno"
+description: "Un AI sales agent cualifica leads entrantes, prospecta, investiga y actualiza el CRM. Qué hace cada tipo, cuánto cuesta, dónde falla y un piloto de 4 semanas."
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /blog/ai-in-sales
+  - /blog/agentforce
+  - /docs/app-routines
+
+hero:
+  title: "AI sales agent: qué hace, dónde falla y cómo probar uno"
+  description: "Un AI sales agent es un modelo de lenguaje que usa tu CRM, tu bandeja de entrada y tu calendario para terminar por su cuenta una tarea de ventas. Qué tipos existen, cuánto cuestan y cómo probar uno antes de que escriba a un cliente real."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-04-30
+  updated: 2026-10-08
+  tags:
+    - ai-sales-agent
+    - Agentes de IA
+    - AI SDR
+    - automatizacion-de-ventas
+    - CRM
+---
+
+# AI sales agent: qué hace, dónde falla y cómo probar uno
+
+Un AI sales agent (en español, agente de ventas con IA o agente de IA para ventas) es un software en el que un modelo de lenguaje llama a herramientas, como tu CRM, tu bandeja de entrada, tu calendario o una base de datos de leads, para terminar una tarea de ventas de varios pasos en lugar de limitarse a sugerir texto. La mayoría de los productos que se venden con ese nombre cubren una parte del trabajo: responder a leads entrantes, la prospección saliente (a menudo llamada AI SDR o AI BDR), la investigación de cuentas o mantener el CRM al día. Hoy asumen con fiabilidad la investigación, los primeros borradores, el enrutamiento y el registro de datos. Elegir a quién dirigirse, valorar una oportunidad y respaldar una oferta siguen en manos de las personas.
+
+Customermates, un CRM nativo de IA, publica esta guía y describe su propia configuración en una sección claramente señalada. Los datos de otros proveedores proceden de sus propias páginas, comprobadas el 8 de octubre de 2026.
+
+<ArticleSummary title="En resumen">
+  <SummaryItem label="Qué es">Un modelo de lenguaje con permiso para usar herramientas de ventas. Lee, decide el siguiente paso y actúa, dentro de las reglas que tú fijas.</SummaryItem>
+  <SummaryItem label="Cuatro tipos">Cualificación de leads entrantes, prospección saliente (AI SDR o BDR), investigación para comerciales y agentes que operan el CRM.</SummaryItem>
+  <SummaryItem label="Funciona bien">Fichas de investigación, borradores de respuesta, enrutamiento de solicitudes entrantes y actualización de registros tras una conversación.</SummaryItem>
+  <SummaryItem label="Sale mal">Detalles inventados, destinatarios equivocados, registros duplicados y mensajes enviados que nadie leyó. El correo en frío también tiene límites legales en Alemania.</SummaryItem>
+  <SummaryItem label="Cómo empezar">Un flujo de trabajo, primero en solo lectura, luego borradores, y envíos solo después de cuatro semanas de ediciones pequeñas.</SummaryItem>
+</ArticleSummary>
+
+## Cuatro tipos de agente de ventas con IA
+
+La etiqueta abarca productos que hacen trabajos muy distintos. Los ejemplos se describen a partir de la página de cada proveedor.
+
+| Tipo | Qué hace | Ejemplo de la página del proveedor | Encaja cuando |
+|---|---|---|---|
+| Cualificación de leads entrantes | Atiende a los visitantes de la web y a los leads nuevos, hace preguntas de cualificación, ofrece horarios para reunirse | El [Agentforce SDR de Salesforce](https://www.salesforce.com/sales/ai-sales-agent/) saluda a los visitantes de la web, crea registros de leads, responde preguntas sobre el producto y ofrece disponibilidad de calendario en tiempo real. [Julian, de 11x](https://www.11x.ai/), es un agente telefónico para prospectos entrantes | Llegan muchas solicitudes entrantes y las respuestas lentas te cuestan oportunidades |
+| Prospección saliente (AI SDR o BDR) | Encuentra leads, escribe y envía mensajes de prospección, gestiona las respuestas, agenda reuniones | [Ava, de Artisan](https://www.artisan.co/ai-sales-agent), cubre el descubrimiento de leads, el enriquecimiento, la creación de campañas, las respuestas autónomas y la programación, con controles de supervisión humana. [Alice, de 11x](https://www.11x.ai/), ejecuta secuencias multicanal por correo, teléfono, chat, redes sociales, SMS y WhatsApp | Vendes a un mercado grande y bien definido mediante prospección en frío |
+| Investigación y asistencia a comerciales | Prepara fichas de cuentas y contactos, resume oportunidades, señala las estancadas | [Salesloft](https://www.salesloft.com/platform/ai-agents) enumera agentes para investigación de cuentas, investigación de personas, resúmenes de oportunidades e información sobre oportunidades estancadas | Los comerciales ya organizan su día en una plataforma de engagement de ventas como Salesloft |
+| Operación del CRM | Lee y modifica registros, redacta y envía mensajes a partir del historial de conversaciones, se ejecuta según una programación o cuando cambian los registros | El Prospecting Agent de [HubSpot](https://www.hubspot.com/products/artificial-intelligence) vigila señales de compra, inicia prospección personalizada y redacta seguimientos y actualizaciones del CRM tras las reuniones. Mate, el asistente de Customermates (sección más abajo) | Quieres que el CRM se mantenga al día a partir de conversaciones reales |
+
+**AI SDR frente a AI BDR.** Los proveedores usan los dos términos con poco rigor. Un AI SDR (representante de desarrollo de ventas) suele cualificar leads y entregar a un comercial una oportunidad lista para reunión, sea entrante o saliente. Un AI BDR (representante de desarrollo de negocio) suele abrir conversaciones salientes nuevas. Compara los pasos que un producto realiza de verdad, no su etiqueta.
+
+## Qué pasos puede asumir un agente
+
+El desarrollo de ventas pasa por siete pasos. La columna central es lo que funciona con fiabilidad hoy en la venta de equipos pequeños; la de la derecha es lo que conviene comprobar en una demo.
+
+| Paso | Qué hace bien hoy un agente | Qué comprobar |
+|---|---|---|
+| 1. Definir objetivos | Convierte un perfil de objetivo escrito en filtros de búsqueda | Quién decide el perfil y la lista de exclusiones. Esa decisión sigue siendo tuya |
+| 2. Encontrar y verificar contactos | Busca en una base de datos de leads con licencia tuya | De dónde sale cada dato de contacto y si puedes usarlo |
+| 3. Investigar la cuenta | Escribe una ficha de una página a partir de webs, noticias y tu historial con el cliente | Cada dato sin fuente. Los modelos inventan detalles verosímiles |
+| 4. Redactar el mensaje | Escribe en el idioma del cliente y hace referencia a contexto real | Si una persona ve el destinatario exacto y el texto antes de que salga |
+| 5. Clasificar las respuestas | Separa interés, objeciones, recomendaciones y bajas | Que una baja detenga todo contacto posterior, en todas partes |
+| 6. Cualificar y traspasar | Aplica tu regla de cualificación y enruta el lead | Enrutamientos erróneos en los casos límite que te importan |
+| 7. Actualizar el CRM | Crea o actualiza contacto, organización, oportunidad y notas | Duplicados, vínculos rotos entre registros y qué pasa cuando dos sistemas no coinciden |
+
+Los pasos 3, 4 y 7 son los que compensan primero en la mayoría de los equipos, porque implican mucho tecleo y poco criterio. El paso 1 es el que hay que conservar: un agente que elige sus propios objetivos produce volumen, no pipeline.
+
+## ¿Puede un agente de ventas con IA sustituir a tu equipo de SDR o BDR?
+
+En el trabajo entrante, en parte. Un agente entrante puede atender a un visitante de noche, hacer las preguntas de cualificación y ofrecer un hueco para una reunión, y ahí es donde la ganancia se ve más. En el trabajo saliente de la venta basada en relaciones, no. Un agente puede investigar y redactar mucho más rápido que una persona, pero no puede juzgar cuál de cincuenta cuentas verosímiles merece el tiempo de un socio, ni notar que la última publicación de un contacto hace que el momento no sea el adecuado.
+
+Agentforce es un buen caso de prueba. Salesforce describe su agente SDR como un agente que trabaja con leads entrantes dentro de límites que tú fijas, responde preguntas a partir de los datos de tu negocio y ofrece huecos de calendario. Eso sustituye una parte del trabajo de primera respuesta. No sustituye a la persona que se ocupa de la selección de objetivos, de las llamadas de descubrimiento y del traspaso.
+
+### ¿Cuánto cuesta un agente de ventas con IA?
+
+Depende del modelo de precios. Precios de Agentforce, comprobados el 8 de octubre de 2026 en la [página de precios de Salesforce](https://www.salesforce.com/agentforce/pricing/):
+
+| Modelo de precios de Agentforce | Precio | Ejemplo práctico |
+|---|---|---|
+| Flex Credits | 500 $ por 100 000 créditos; una acción de Agentforce usa 20 créditos (una acción de voz, 30) | 20 créditos cuestan 0,10 $, así que 10 000 acciones al mes cuestan 1000 $ |
+| Por conversación | 2 $ por conversación, para agentes de cara al cliente | 800 conversaciones entrantes al mes cuestan 1600 $ |
+| Complemento de Sales Cloud | 125 $ por usuario al mes, con uso de Agentforce sin medición para los empleados | Un equipo de cinco personas paga 625 $ al mes además de sus licencias de Sales Cloud |
+
+Los agentes salientes añaden costes que nunca aparecen en la lista de precios del agente: los datos de leads, los dominios de envío y los buzones, y las horas que alguien dedica a revisar borradores y corregir registros. Cuéntalos antes de comparar precios de lista.
+
+## Prospección en frío con agentes en Alemania
+
+Un agente saliente que escribe a desconocidos es una cuestión legal antes que una cuestión de software. Según el [§ 7 (2) n.º 2 UWG](https://dejure.org/gesetze/UWG/7.html), la publicidad por correo electrónico sin el consentimiento expreso previo del destinatario es una molestia inaceptable, y la norma no hace excepción para destinatarios empresariales. La excepción estrecha del § 7 (3) cubre a los clientes existentes cuya dirección recibiste en una venta. Para las llamadas telefónicas, las empresas necesitan al menos un consentimiento presunto y los consumidores un consentimiento expreso.
+
+Así que en Alemania un agente autónomo de correo que escribe en frío a listas compradas no suele ser una opción, por buenos que sean sus textos. Los agentes encajan mejor donde el contacto inició la conversación: solicitudes entrantes, respuestas, clientes existentes y conversaciones de LinkedIn que empezaste tú. El RGPD también se aplica a cada dato de contacto que recoge el agente. Esto es información general, no asesoramiento jurídico.
+
+## Un piloto de cuatro semanas
+
+<Steps>
+  <Step title="Elige un flujo de trabajo">Elige una tarea que repites cada semana, por ejemplo responder a las solicitudes entrantes nuevas o hacer seguimiento de las propuestas enviadas. Anota con qué frecuencia ocurre y cuánto tarda ahora.</Step>
+  <Step title="Escribe las reglas en una página">Tu regla de cualificación, el tono de voz, lo que el agente nunca puede prometer (precios, fechas, descuentos) y cuándo debe detenerse: destinatario poco claro, baja, registros contradictorios.</Step>
+  <Step title="Semana uno: solo lectura">Deja que el agente produzca solo fichas y listas. Compáralas con lo que sabes y anota cada dato inventado.</Step>
+  <Step title="Semana dos: una escritura reversible">Permítele crear una tarea o actualizar un campo. Después, revisa los registros en busca de duplicados y vínculos erróneos.</Step>
+  <Step title="Semanas tres y cuatro: borradores">El agente guarda borradores en los hilos reales, tú los editas y los envías. Cuenta cuántos salen con solo cambios pequeños.</Step>
+  <Step title="Decide sobre el envío">Permite el envío solo para el tipo de mensaje en el que tus ediciones se han vuelto pequeñas, y pruébalo primero con un destinatario que controles.</Step>
+</Steps>
+
+Antes de firmar con un proveedor, hazle cinco preguntas: qué pasos realiza por sí mismo y cuáles necesitan otro producto; de dónde salen sus datos de contacto; si leer, redactar, escribir y enviar son permisos separados; cómo detiene una baja todos los canales; y qué deja en tu CRM una ejecución fallida.
+
+## Ejemplo: un agente de ventas para un equipo pequeño en Customermates
+
+Esta sección describe Customermates, el CRM que publica esta guía. Mate, su asistente, funciona en Customermates Cloud y usa créditos de IA alojada. Las rutinas son instrucciones guardadas que Mate ejecuta según una programación o cuando cambia un registro.
+
+Imagina una consultora de tres personas en el plan Pro. Cada consultor conecta [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta en la [bandeja de entrada unificada](/features/unified-inbox), normalmente el correo de trabajo en Gmail u Outlook; LinkedIn, WhatsApp, Instagram y Telegram son los demás canales. Business incluye [[commercial.entitlement.business.includedAccountsPerUser]] cuentas por usuario, suficiente para el buzón más LinkedIn. Las oportunidades tienen un campo de etapa de Selección única: Primera llamada, Definición del alcance, Propuesta enviada, Ganada, Perdida. Los servicios de la firma y sus reglas de redacción están en una página de la base de conocimientos que Mate puede leer en los chats y en las ejecuciones de rutinas.
+
+**Triaje de solicitudes entrantes, cada mañana.** Una [rutina](/docs/app-routines) configurada en **Según un horario**, **Cada día** a las 08:00:
+
+```text
+Mira los hilos de mi bandeja de entrada que han recibido un mensaje de
+alguien ajeno a nuestra empresa desde ayer a las 08:00. Para cada
+remitente, busca el contacto y la organización o créalos. Si el mensaje
+pregunta por nuestros servicios, crea una oportunidad en la etapa
+"Primera llamada" asignada a mí y guarda un borrador de respuesta en el
+hilo que proponga una llamada breve. Lista lo que hiciste y de qué no
+estabas seguro. No envíes nada.
+```
+
+**Seguimiento de propuestas, ante un cambio de registro.** Una segunda rutina configurada en **Cuando algo cambia**, evento **Registro actualizado** para Oportunidades, campo modificado «Etapa», filtrada por las oportunidades asignadas al propietario: cuando una oportunidad pasa a «Propuesta enviada», Mate crea una tarea vinculada a la oportunidad y a su contacto y guarda un borrador de seguimiento breve en el último hilo.
+
+Las dos instrucciones terminan con «No envíes nada» a propósito. Cuando se le pide enviar un correo o un mensaje de chat, Mate lo envía sin una segunda confirmación. Pide aprobación antes de las eliminaciones y de algunas acciones de administración, y una rutina las rechaza porque no hay nadie para aprobarlas. Una rutina se ejecuta como su propietario, con los canales y los permisos del propietario. Los disparadores por evento ignoran más eventos durante un breve periodo tras iniciar una ejecución, así que un barrido diario es el diseño más seguro para el correo entrante. Además, cada ejecución tiene un tope de créditos, así que en una bandeja de entrada con mucho movimiento una ejecución puede detenerse a medias y se marca entonces como **Parcial**; los límites figuran en la [documentación de rutinas](/docs/app-routines).
+
+Para la prospección saliente, Mate trabaja con un contacto cada vez: con una cuenta de LinkedIn conectada que tenga su propia suscripción a Sales Navigator, puede buscar en Sales Navigator, guardar leads en listas, crear los contactos en el CRM y escribir un primer mensaje para que lo revises en el chat. Solo envía cuando se lo indicas, un mensaje cada vez.
+
+**Lo que cuesta:** Pro para tres personas son [[commercial.price.pro.monthly.seats.3]] al mes, con facturación mensual, con la bandeja de entrada, hasta [[commercial.entitlement.pro.includedRoutinesPerUser]] rutinas por persona y créditos mensuales de IA alojada por usuario activo; consulta los [precios](/pricing). Starter, a [[commercial.price.starter.monthly.seats.3]] al mes para tres personas, incluye Mate y [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por persona, pero no bandeja de entrada, así que el agente solo vería los registros del CRM. Tu primer espacio de trabajo empieza con Pro gratis durante [[commercial.trial.days]] días, sin tarjeta de crédito.
+
+Para la venta basada en relaciones, esta es la parte de un agente que merece la pena: puede redactar una respuesta para todos los que te escribieron y dejar un borrador de seguimiento y una tarea detrás de cada propuesta. Para configurarlo en tu propia bandeja de entrada, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup).
+
+**Con tu propio cliente de IA:** Claude, ChatGPT y otros clientes pueden hacer el mismo trabajo del CRM mediante el [servidor MCP de Customermates](/docs/mcp), en todos los planes y autoalojado, con tu propia suscripción de IA. Las herramientas de mensajería requieren Pro o superior en la nube. El servidor indica a los clientes que confirmen antes de enviar o eliminar, pero que veas esa confirmación depende del cliente.
+
+<AcquisitionCallout title="Lo que Customermates no hace" variant="boundary">
+Customermates no es un agente de prospección saliente autónomo. No tiene una base de datos de leads propia, ni enriquecimiento de datos, ni puntuación de leads. No hay secuencias de correo, ni envíos masivos, ni telefonía ni SMS, ni reserva de citas en el calendario. Autoalojado, tienes el núcleo de código abierto con REST, webhooks y MCP, pero sin bandeja de entrada, Mate ni rutinas. Un equipo que prospecta en volumen mediante prospección en frío está mejor servido por un agente saliente dedicado como Artisan o 11x, un equipo de Salesforce por Agentforce y un equipo de HubSpot por los agentes propios de HubSpot.
+</AcquisitionCallout>
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Qué hace un AI sales agent?">
+Usa un modelo de lenguaje y herramientas para completar tareas de ventas: atender y cualificar leads entrantes, investigar cuentas, redactar y a veces enviar mensajes, clasificar respuestas y actualizar el CRM. La mayoría de los productos cubren bien una o dos de estas tareas. Pregunta qué pasos realiza un producto por sí mismo y cuáles necesitan otra herramienta.
+</FaqItem>
+
+<FaqItem question="¿La IA va a sustituir a los agentes de ventas?">
+No en las ventas basadas en relaciones. La IA se encarga de buena parte del tecleo: investigación, notas, primeros borradores y actualizaciones de registros. Entender la situación de un cliente, valorar el alcance y el precio y ser responsable de la relación siguen en manos de las personas. El trabajo más expuesto es el primer contacto de alto volumen y con guion.
+</FaqItem>
+
+<FaqItem question="¿Puede Agentforce sustituir a mi equipo de BDR?">
+Puede asumir una parte de la primera respuesta a los leads entrantes: Salesforce describe su agente SDR respondiendo preguntas de los leads a partir de los datos de tu negocio y ofreciendo huecos de reunión, dentro de límites que tú fijas. La selección de objetivos, el descubrimiento y el traspaso siguen necesitando a una persona. Ejecútalo primero con una sola fuente de leads y compara sus decisiones de cualificación con las de tu equipo.
+</FaqItem>
+
+<FaqItem question="¿Cuánto cuesta un agente de ventas con IA?">
+Los modelos de precios difieren: por puesto, por conversación, por acción o por crédito. Salesforce indica 2 $ por conversación o Flex Credits a 500 $ por 100 000, con 20 créditos por acción de Agentforce, comprobado el 8 de octubre de 2026. Suma los datos de leads, los buzones y el tiempo de revisión que necesita un agente saliente antes de comparar.
+</FaqItem>
+
+<FaqItem question="¿Qué diferencia hay entre un AI SDR y un AI BDR?">
+Un AI SDR suele cualificar leads y entregar a un comercial una oportunidad lista para reunión, sea entrante o saliente. Un AI BDR suele centrarse en abrir conversaciones salientes nuevas. Los proveedores mezclan los términos, así que compara los pasos que realiza cada producto.
+</FaqItem>
+
+<FaqItem question="¿Puede un agente de IA enviar correos en frío en Alemania?">
+Los correos publicitarios sin consentimiento expreso previo son una molestia inaceptable según el § 7 (2) n.º 2 UWG, y eso se aplica también a los destinatarios empresariales. Por eso un agente suele quedar limitado a clientes existentes, solicitudes entrantes y conversaciones que inició el contacto. Haz que un abogado revise tu configuración concreta.
+</FaqItem>
+</Faq>
+
+Datos de proveedores y datos legales comprobados el 8 de octubre de 2026 en [Salesforce Agentforce SDR](https://www.salesforce.com/sales/ai-sales-agent/), [precios de Agentforce](https://www.salesforce.com/agentforce/pricing/), [HubSpot AI](https://www.hubspot.com/products/artificial-intelligence), [agentes de IA de Salesloft](https://www.salesloft.com/platform/ai-agents), [Ava, de Artisan](https://www.artisan.co/ai-sales-agent), [11x](https://www.11x.ai/) y el [§ 7 UWG](https://dejure.org/gesetze/UWG/7.html).

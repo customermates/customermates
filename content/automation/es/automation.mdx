@@ -1,0 +1,90 @@
+---
+title: "n8n CRM: integración con REST, webhooks y MCP"
+description: "n8n CRM: conecta n8n con Customermates mediante REST, [[derived.webhooks.events.total]] webhooks, MCP o el nodo de la comunidad. Los límites del producto y del flujo quedan claros."
+
+architecture:
+  title: Un camino de automatización bien acotado
+  description: Customermates valida el acceso al CRM y emite los eventos compatibles. Tu instancia de n8n, independiente, se encarga de ejecutar los flujos de trabajo, las credenciales, las programaciones, los reintentos y cada proveedor externo al que llama.
+  crmTitle: Customermates CRM
+  crmDescription: Los registros estructurados, los permisos del espacio de trabajo y las escrituras validadas permanecen dentro del perímetro del CRM.
+  interfaceTitle: Interfaces abiertas
+  workflowDescription: Flujo de trabajo operado por ti
+  boundary: n8n, sus credenciales, sus registros de ejecución y los proveedores conectados siguen separados de Customermates.
+
+hero:
+  title: Conecta n8n con tu CRM.
+  titleAccent: Mantén claros los límites de operación.
+  subtitle: "Para una integración n8n CRM, usa REST, [[derived.webhooks.events.total]] tipos de evento de webhook, MCP o el nodo de la comunidad publicado desde tu propia instancia de n8n, por ejemplo para actuar cuando llega el mensaje de un cliente o cambia una oportunidad. Customermates aporta las interfaces del CRM; n8n y los proveedores siguen siendo independientes."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lee la guía de configuración
+  buttonRightHref: /docs/n8n
+  startFree: "Sin tarjeta de crédito • prueba de [[commercial.trial.days]] días • n8n sigue siendo independiente"
+
+benefits:
+  benefits:
+  - icon: TrendingUp
+    title: Elige la vía de conexión
+    description: Usa el nodo de la comunidad publicado, la API REST, los webhooks o MCP desde una instancia de n8n que operes tú o a la que estés suscrito. Customermates no incluye n8n.
+  - icon: Zap
+    title: Conecta agentes externos
+    description: Conecta un cliente de IA compatible mediante MCP o llama, desde tu propio flujo de trabajo, a un proveedor que elijas. Customermates no incluye un modelo, ni puntuación de leads, ni un servicio de enriquecimiento.
+  - icon: ShieldCheck
+    title: Flujos de trabajo operados por ti
+    description: Conecta proveedores desde una instancia de n8n que operes tú. La disponibilidad de los conectores, los límites, los planes y los costes dependen de n8n y de cada proveedor.
+  - icon: Sparkles
+    title: Diseña el flujo de trabajo en n8n
+    description: Crea el flujo de trabajo dentro de los límites de tu plan de n8n, del entorno de ejecución, de los nodos y de los proveedores conectados.
+  - icon: MousePointerClick
+    title: Elige dónde se ejecuta la automatización
+    description: La base de datos del CRM gestionado se ejecuta en la región AWS de Fráncfort. Tu despliegue de n8n y cada proveedor conectado tratan los datos que envía tu flujo de trabajo, así que revisa cada servicio por separado.
+  - icon: SlidersHorizontal
+    title: Opera la automatización
+    description: Un flujo de trabajo que operas tú puede ejecutar los pasos externos configurados; su entorno de ejecución, su programación, sus reintentos, su fiabilidad y sus resultados siguen siendo responsabilidad tuya.
+
+features:
+  badge: Ejemplos de composición
+  title: Qué puede componer un flujo de trabajo de n8n operado por ti
+  subtitle: Son patrones de flujo de trabajo, no funciones incluidas en Customermates. Cada uno requiere el proveedor correspondiente, las credenciales, la asignación de campos, la supervisión y la gestión de errores en tu entorno de n8n.
+  features:
+  - icon: Users
+    title: Traspaso al correo
+    description: Recibe los eventos del CRM y pasa los datos seleccionados al proveedor de correo o de datos que configures en tu propio flujo de trabajo.
+  - icon: Briefcase
+    title: Enriquecimiento externo
+    description: Llama desde tu propio flujo de trabajo a un proveedor que elijas y vuelve a escribir los campos seleccionados mediante REST. Customermates no incluye enriquecimiento ni puntuación de leads.
+  - icon: Star
+    title: Traspaso a informes
+    description: Envía los datos seleccionados del CRM a una hoja de cálculo, una base de datos o un proveedor de BI que configures tú y que tengas derecho a usar.
+  - icon: Zap
+    title: Traspaso a facturación
+    description: Envía los datos de las oportunidades a herramientas de facturación desde tu propio flujo de trabajo. Customermates no tiene un flujo de presupuestos ni de facturas.
+
+faq:
+  title: Preguntas frecuentes sobre automatizar n8n y CRM con una instancia separada
+  faqs:
+  - id: faq-1
+    title: ¿Necesito saber programar para usar n8n?
+    content: Los flujos sencillos se montan de forma visual, pero un flujo de trabajo de CRM fiable sigue necesitando a alguien que se encargue de la autenticación, la asignación de campos, los permisos, los reintentos, los errores y los límites de los proveedores. Las transformaciones complejas pueden requerir código.
+  - id: faq-2
+    title: ¿Qué herramientas puedo conectar con n8n?
+    content: Usa los nodos del catálogo de integraciones actual de n8n, nodos verificados o de la comunidad que hayas revisado y solicitudes HTTP a las API que tengas autorización para llamar. La disponibilidad y el comportamiento pueden cambiar, así que consulta la documentación actual de n8n y de cada proveedor.
+  - id: faq-3
+    title: ¿Conectar n8n cuesta algo más?
+    content: "La API REST y MCP están disponibles en todos los planes, y los webhooks en todos los planes de pago y en el autoalojamiento. n8n es un producto aparte que autoalojas o al que te suscribes, y los planes externos, los límites, los costes de los proveedores y el uso corren por tu cuenta."
+  - id: faq-4
+    title: ¿Cómo empiezo con los flujos de trabajo de n8n?
+    content: Instala el nodo de la comunidad de Customermates publicado en una instancia de n8n que operes tú, o llama directamente a la API REST y a los webhooks. El flujo de trabajo lo diseñas, lo despliegas y lo mantienes tú.
+  - id: faq-5
+    title: ¿Se comparten mis datos en los flujos de trabajo de n8n?
+    content: Los flujos de trabajo se ejecutan donde despliegas n8n o donde estás suscrito, y las herramientas conectadas reciben los datos que envía tu flujo de trabajo. La base de datos del CRM gestionado se ejecuta en la región AWS de Fráncfort; revisa cada proveedor por separado.
+
+cta:
+  action: Prueba un flujo de trabajo de n8n bien acotado
+  description: Empieza con un evento reversible del CRM, como una oportunidad que pasa a una nueva etapa, y con una escritura validada mediante REST, webhooks, MCP o el nodo de la comunidad publicado. Las credenciales y la ejecución se quedan en tu entorno de n8n.
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lee la guía de configuración
+  buttonRightHref: /docs/n8n
+  hint: "Sin tarjeta de crédito • prueba de [[commercial.trial.days]] días • n8n sigue siendo independiente"
+---

@@ -1,0 +1,246 @@
+---
+title: "Cualificación de leads: criterios, preguntas y campos CRM"
+description: "Cualificación de leads explicada: los criterios de BANT, CHAMP y MEDDIC, qué método encaja con tu venta, qué preguntar y cómo registrar las respuestas."
+
+relatedHrefs:
+  - /features/lead-management
+  - /blog/sales-pipeline
+  - /blog/prospect-vs-lead
+  - /blog/chatgpt-for-sales
+
+hero:
+  title: "Cualificación de leads: cómo decidir a qué leads dedicas tu tiempo"
+  description: "Los cuatro criterios que revisa todo método, cuándo usar BANT, CHAMP, MEDDIC o SPICED, preguntas con señales de alerta, un traspaso escrito de marketing a ventas y un CRM que registra las respuestas siempre igual."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2025-11-13
+  updated: 2026-10-08
+  tags:
+    - Cualificación de leads
+    - Proceso de ventas
+    - Estrategia de CRM
+---
+
+# Cualificación de leads: cómo decidir a qué leads dedicas tu tiempo
+
+La cualificación de leads (en Latinoamérica también se dice calificación de leads) consiste en comprobar cada lead con criterios escritos de antemano y decidir después si merece ahora una conversación comercial, un seguimiento más adelante o un no amable. Casi todos los métodos comprueban las mismas cuatro cosas en distinto orden: un problema que puedes resolver, una persona que puede decidir, dinero que se puede gastar y un motivo para actuar pronto. Qué acrónimo elijas importa menos que anotar las respuestas siempre en los mismos campos, de modo que «cualificado» signifique lo mismo para todo el equipo.
+
+Customermates publica esta guía y es el CRM del ejemplo de configuración que aparece más abajo. No tiene lead scoring, y las secciones siguientes indican dónde eso importa.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="Qué compruebas">El encaje con tu cliente ideal y después necesidad, autoridad, presupuesto y plazo.</SummaryItem>
+  <SummaryItem label="Orden de las etapas">Lead, lead cualificado por marketing (solo donde marketing pasa leads a ventas), lead cualificado por ventas y, por último, oportunidad o negocio.</SummaryItem>
+  <SummaryItem label="Qué método">BANT o ANUM para ventas cortas con un único decisor, CHAMP para la venta de servicios, MEDDIC o SPICED cuando un comité compra a lo largo de meses.</SummaryItem>
+  <SummaryItem label="Dónde van las respuestas">Cuatro campos de Selección única en la oportunidad, un motivo de descarte y una fecha para volver a mirar.</SummaryItem>
+  <SummaryItem label="Papel de la IA">Un modelo de lenguaje puede rellenar esos campos a partir de una consulta. La decisión la toma una persona.</SummaryItem>
+</ArticleSummary>
+
+## Lead, MQL, SQL, oportunidad: el orden de las etapas
+
+Un lead es cualquiera que haya mostrado interés: te envió una consulta, te lo recomendaron o respondió a un mensaje de prospección. Pasa a estar cualificado cuando alguien lo ha comprobado con tus criterios y la respuesta fue sí. Las empresas con equipo de marketing dividen esa comprobación en dos:
+
+| Etapa | Quién decide | Pruebas típicas |
+| --- | --- | --- |
+| Lead | Todavía nadie | Una consulta, una recomendación, una respuesta en LinkedIn |
+| Lead cualificado por marketing (MQL) | Marketing, según reglas acordadas | Encaja con el perfil objetivo y pidió precios o una llamada |
+| Lead cualificado por ventas (SQL) | Ventas, tras una conversación | Necesidad, decisor, rango de presupuesto y plazo confirmados o al alcance |
+| Oportunidad o negocio | Ventas | Un trabajo concreto con un valor y un siguiente paso |
+
+Las etapas predeterminadas del ciclo de vida de HubSpot siguen el mismo orden, desde suscriptor y lead, pasando por MQL, SQL y oportunidad, hasta cliente y evangelista, según su [documentación sobre las etapas del ciclo de vida](https://knowledge.hubspot.com/records/use-lifecycle-stages). En Salesforce, convertir un lead usa el registro del lead para crear una cuenta empresarial, un contacto y una oportunidad, tal como describe su [módulo de Trailhead sobre leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning). El lead va siempre primero. La oportunidad es en lo que se convierte cuando se cualifica. Algunos equipos llaman prospecto a un lead cualificado; [la diferencia entre prospecto y lead](/blog/prospect-vs-lead) muestra cómo definir los dos términos para que todos entiendan lo mismo.
+
+Un equipo de tres personas sin departamento de marketing puede prescindir de la etapa MQL. Toda consulta va a la persona que vende, y la única línea que importa es la que separa al lead del lead cualificado.
+
+## Dos tipos de criterios: encaje y disposición
+
+El **encaje** pregunta si quieres a este cliente. Sale de tu perfil de cliente ideal: sector, tamaño de la empresa, ubicación, tipo de proyecto y si ya has hecho trabajos parecidos. Casi todo se puede comprobar antes de la primera llamada, en la web de la empresa o en un perfil de LinkedIn.
+
+La **disposición** pregunta si pueden y quieren comprar pronto. Eso son necesidad, autoridad, presupuesto y plazo, y solo lo averiguas hablando.
+
+Mantén ambos separados. Un lead puede estar listo para comprar y aun así no encajar: una empresa que quiere el proyecto el mes que viene, a la mitad de tu tarifa diaria, en un campo que no conoces. Anota dos o tres criterios de encaje que cierren una conversación pronto. Una agencia de branding podría quedarse con empresas B2B de 20 a 500 empleados, alguien interno que se ocupe del marketing y presupuestos de proyecto desde 15 000 €.
+
+## Comparativa de métodos de cualificación de leads
+
+Los métodos se diferencian sobre todo por el punto en el que empieza la conversación y por cuántas personas suponen que intervienen en la compra.
+
+| Método | Significado | Empieza por | Encaja mejor en |
+| --- | --- | --- | --- |
+| BANT | Budget, Authority, Need, Timeline (presupuesto, autoridad, necesidad, plazo) | El presupuesto | Ventas cortas a precio conocido con un único decisor |
+| ANUM | Authority, Need, Urgency, Money (autoridad, necesidad, urgencia, dinero) | La autoridad | Venta outbound, donde a menudo llegas a alguien que no puede decidir |
+| CHAMP | Challenges, Authority, Money, Prioritization (retos, autoridad, dinero, prioridad) | El problema del cliente | Consultoría y trabajo de agencia, donde el problema va antes que el dinero |
+| FAINT | Funds, Authority, Interest, Need, Timing (fondos, autoridad, interés, necesidad, momento) | Los fondos | Compradores que aún no tienen partida de presupuesto para tu categoría |
+| MEDDIC | Metrics, Economic buyer, Decision criteria, Decision process, Identify pain, Champion (métricas, comprador económico, criterios de decisión, proceso de decisión, identificar el dolor, impulsor interno) | Resultados medibles | Compras de comité que duran meses |
+| SPICED | Situation, Pain, Impact, Critical event, Decision dynamics (situación, dolor, impacto, evento crítico, dinámica de decisión) | La situación actual | Ventas consultivas de servicios recurrentes |
+| GPCTBA/C&I | Goals, Plans, Challenges, Timeline, Budget, Authority, Negative consequences, Positive implications (objetivos, planes, retos, plazo, presupuesto, autoridad, consecuencias negativas, implicaciones positivas) | Los objetivos | Ventas inbound con tiempo para largas llamadas de descubrimiento |
+
+La [guía de cualificación de ventas](https://blog.hubspot.com/sales/ultimate-guide-to-sales-qualification) de HubSpot atribuye MEDDIC a Jack Napoli, de PTC, y GPCTBA/C&I a la propia HubSpot, y nombra al RAIN Group como defensor de FAINT. SPICED viene de [Winning by Design](https://winningbydesign.com/resources/blueprints/the-spiced-framework/).
+
+Cómo elegir:
+
+- **BANT o ANUM** si vendes un paquete definido a un precio conocido y firma una sola persona. ANUM si tus leads llegan por outbound.
+- **CHAMP** si vendes servicios y la primera llamada trata del problema del cliente de todos modos. Para consultores y agencias coincide con cómo ya transcurre una buena primera llamada, y es por donde yo empezaría. Un [CRM para consultores](/for/consultants) muestra cómo se traducen esas etapas a encargos y propuestas.
+- **MEDDIC o SPICED** si deciden tres o más personas, interviene el departamento de compras y las ventas se alargan meses.
+- **Uno a la vez.** Asigna las letras de un método a campos, úsalo durante un trimestre y cámbialo si los mismos campos siguen quedando vacíos.
+
+Una advertencia sobre BANT: preguntar por el presupuesto en la primera llamada funciona con un producto que tiene lista de precios. Con un servicio muchas veces no, porque el cliente no tiene presupuesto hasta que conoce el alcance. Pregunta por un rango o por lo que le cuesta hoy el problema.
+
+## Preguntas que dan respuestas útiles
+
+| Criterio | Pregunta | Buena señal | Señal de alerta |
+| --- | --- | --- | --- |
+| Necesidad | «¿Qué hizo que buscaran ayuda justo ahora?» | Un detonante concreto: un cliente perdido, una contratación, una fecha límite | «Solo estamos mirando» |
+| Necesidad | «¿Qué han probado hasta ahora?» | Saben explicar por qué no bastó | No han probado nada y esperar no les cuesta nada |
+| Autoridad | «¿Quién más opina antes de que decidan?» | Nombres y cargos, incluido quién firma | «El equipo», todavía sin nombres tras dos llamadas |
+| Autoridad | «¿Cómo compraron algo parecido la última vez?» | Un proceso que saben describir | Nadie es responsable del presupuesto |
+| Presupuesto | «¿Qué rango tenían en mente?» | Un rango, o lo que cuesta hoy el problema | Ningún rango, ni siquiera con el alcance definido |
+| Plazo | «¿Hay una fecha para la que tiene que funcionar?» | Una fecha ligada a un evento: un lanzamiento, una feria, el cierre del año | «En algún momento del año que viene» |
+| Prioridad | «¿Qué lugar ocupa frente a sus otros proyectos de este trimestre?» | Entre los tres primeros | Uno más entre muchos, sin nadie a cargo |
+
+Anota la respuesta con las palabras del cliente. «El consejo aprobó 30 mil para el primer trimestre» en las notas de la oportunidad vale más que una casilla de Presupuesto marcada, porque la siguiente persona puede juzgarlo por sí misma.
+
+## Cuándo decir que no y cuándo dejar un lead en pausa
+
+Descarta el lead cuando se cumpla alguna de estas condiciones:
+
+- El lead no cumple tus criterios de encaje.
+- No hay una necesidad real, solo curiosidad o una búsqueda hecha para otra persona.
+- Nadie a quien puedas llegar puede decidir, y nadie te presentará a quien sí.
+- Quieren algo que no ofreces, y forzarte para dárselo perjudicaría el trabajo.
+
+Deja el lead en pausa, en cambio, cuando la necesidad es real pero el momento no: el proyecto empieza dentro de seis meses, el presupuesto de este trimestre se fue a otra cosa o tu contacto puede presentarte más adelante a quien decide. Un lead en pausa necesita un motivo de una lista fija y una fecha para volver a mirar.
+
+Cuenta esos motivos cada mes. Si la mayoría de los rechazos dice «presupuesto por debajo del rango», el problema está en de dónde vienen tus leads o en cómo presentas tus precios. Mejores llamadas de venta no lo van a arreglar.
+
+## Traspaso de leads de marketing a ventas
+
+Cuando marketing pasa leads y ventas rechaza una parte grande por no cualificados, la causa habitual es que nadie dejó por escrito qué significa cualificado. Un traspaso escrito lleva una tarde:
+
+<Steps>
+  <Step title="Define el MQL en una frase">Por ejemplo: «Un contacto de una empresa de nuestro perfil objetivo que pidió precios o una llamada». Añade lo que no cuenta: suscripciones al boletín, candidatos a un empleo, estudiantes, proveedores.</Step>
+  <Step title="Define qué debe confirmar ventas">Enumera los criterios del SQL y la respuesta mínima para cada uno. Ambos equipos trabajan con los mismos campos.</Step>
+  <Step title="Acuerda un tiempo de respuesta">Harvard Business Review publicó [The Short Life of Online Sales Leads](https://hbr.org/2011/03/the-short-life-of-online-sales-leads) en marzo de 2011. Sus autores, James Oldroyd, Kristina McElheran y David Elkington, concluyeron que la mayoría de las empresas no respondía ni de lejos con la rapidez suficiente. Elige un objetivo que puedas cumplir, por ejemplo el mismo día laborable, y mídelo.</Step>
+  <Step title="Convierte el rechazo en un campo">Ventas solo puede devolver un lead con un motivo de una lista fija: no encaja, sin necesidad, ilocalizable, duplicado, demasiado pronto. Un motivo en un campo se puede contar. Una queja en una reunión no.</Step>
+  <Step title="Recicla en lugar de borrar">Los leads marcados como «demasiado pronto» vuelven a marketing con una fecha para volver a mirar.</Step>
+  <Step title="Revisa una vez al mes">Cuenta los rechazos por motivo y por origen. Si un origen produce la mayoría de los rechazos por «no encaja», cambia el origen en lugar de las reglas.</Step>
+</Steps>
+
+Cualquier CRM en el que ambos equipos vean los mismos campos y la misma lista de motivos puede sostener este acuerdo. Las definiciones escritas hacen la mayor parte del trabajo.
+
+## Lead scoring, IA y quién toma la decisión
+
+El lead scoring es un paso distinto de la cualificación. Suma puntos por atributos como el cargo y por acciones como una visita a tu página de precios, y pasa el lead a ventas cuando supera un umbral. Eso exige seguimiento del sitio web y del correo, además de suficientes leads para ajustar el umbral. La herramienta de lead scoring de HubSpot, por ejemplo, ofrece puntuaciones de encaje, de interacción y combinadas, y requiere Marketing Hub o Sales Hub en el nivel Professional o Enterprise. Las puntuaciones creadas con IA requieren Marketing Hub Enterprise y una muestra de al menos 50 contactos, 25 convertidos y 25 no, según la [documentación de HubSpot](https://knowledge.hubspot.com/scoring/understand-the-lead-scoring-tool).
+
+Con unas pocas decenas de consultas al mes, yo me saltaría los puntos por completo. Puedes leer tú mismo cada consulta, y un umbral ajustado con treinta leads dice muy poco.
+
+Donde la IA ayuda a un equipo pequeño es en la lectura. Un modelo de lenguaje como ChatGPT o Claude puede relacionar una consulta o un hilo de correos con tus criterios, señalar las frases en las que se apoyó y aplicar las mismas reglas a cada lead. Rinde mal con poca información, como un nombre y «cuéntame más», y no sabe valorar la recomendación de un cliente de confianza. El mayor riesgo es que invente: si no le dices lo contrario, un modelo rellena los huecos con respuestas verosímiles. Este prompt funciona en cualquier cliente de IA:
+
+```text
+Cualificas las consultas entrantes de [empresa], que vende [servicio] a [cliente ideal].
+Lee la conversación de abajo. Para cada criterio, elige una opción y añade la frase que la respalda.
+- Encaje: Sí / No / Por aclarar
+- Necesidad: Confirmada / Vaga / Ninguna / Por aclarar
+- Decisor: Hablo con quien decide / Puedo llegar a quien decide / Sin acceso / Por aclarar
+- Presupuesto: Dentro de nuestro rango / Por debajo de nuestro rango / Por aclarar
+- Plazo: Este trimestre / Más adelante / Por aclarar
+Responde Por aclarar siempre que el texto no lo diga. No deduzcas el presupuesto por el tamaño de la empresa.
+Termina con las dos preguntas que aclararían más puntos pendientes.
+```
+
+Deja que el modelo rellene los campos y que una persona decida. Nunca permitas que descarte un lead por su cuenta.
+
+## Configurar la cualificación de leads en Customermates
+
+Customermates no tiene un registro de lead aparte. Una consulta nueva es un contacto, vinculado a una organización, más una oportunidad que lleva los campos de cualificación. Un espacio de trabajo nuevo empieza sin listas: en Customermates Cloud describes tu negocio en una frase y Mate crea las listas de personas, organizaciones y oportunidades y un pipeline, y puedes cambiar todo en **Modelo de datos**. Para tener un estado rápido antes de que exista una oportunidad, añade un campo de selección única a la lista de contactos. Si tu equipo prefiere hablar de «negocios», cambia el nombre de Oportunidades en **Modelo de datos**: abre la lista y modifica **Nombre** y **Nombre en plural** en **General**; los registros y los vínculos se quedan como están. La [página de gestión de leads](/features/lead-management) muestra el mismo modelo desde el lado del contacto.
+
+Crea los campos en **Modelo de datos** para Oportunidades con **Añadir** › **Campo**:
+
+| Campo | Tipo | Opciones |
+| --- | --- | --- |
+| Etapa | Selección única, creada por la configuración con IA o por ti | Prospección 10%, Cualificación 20%, Demo 40%, Propuesta 60%, Negociación 80%, Ganada 100%, Perdida 0%; añade En pausa al 0% |
+| Necesidad | Selección única | Confirmada, Vaga, Ninguna, Por aclarar |
+| Decisor | Selección única | Hablo con quien decide, Puedo llegar a quien decide, Sin acceso, Por aclarar |
+| Presupuesto | Selección única | Dentro de nuestro rango, Por debajo de nuestro rango, Por aclarar |
+| Plazo | Selección única | Este trimestre, Más adelante, Por aclarar |
+| Motivo de descarte | Selección única | No encaja, Sin necesidad, Sin acceso, Presupuesto, Plazo, Duplicado |
+| Volver a mirar el | Fecha | Se fija en las oportunidades en pausa |
+
+Añade un campo Origen (Selección única: Recomendación, Sitio web, LinkedIn, Evento, Outbound) en los contactos, para que la revisión mensual pueda contar por origen. Los porcentajes son las probabilidades de cada etapa, que se fijan como **Probabilidad %** en cada opción del campo **Etapa** en el Modelo de datos de Oportunidades. Determinan el valor ponderado del [pipeline](/features/pipeline), y En pausa al 0% deja las oportunidades en pausa fuera de ese total.
+
+Después guarda tres vistas en la lista de Oportunidades. Compártelas con el equipo o con roles concretos:
+
+- **Por cualificar:** Etapa es Prospección o Cualificación, ordenadas por fecha de creación, de la más antigua a la más reciente.
+- **Respuestas pendientes:** el mismo filtro como tablero agrupado por Decisor, de modo que la columna Por aclarar muestre dónde hacen falta llamadas.
+- **En pausa:** Etapa es En pausa, ordenadas por Volver a mirar el. Customermates no tiene recordatorios, así que revisa esta vista cada semana.
+
+Desde el plan Pro, la [bandeja de entrada unificada](/features/unified-inbox) pone las conversaciones de correo, LinkedIn, WhatsApp, Instagram y Telegram junto al contacto. Pro incluye [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario y Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter no tiene bandeja de entrada.
+
+**En Customermates Cloud**, Mate puede rellenar los campos por ti, con créditos de IA alojados. Abre una oportunidad y pide:
+
+> Lee mis conversaciones con los contactos de esta oportunidad y fija Necesidad, Decisor, Presupuesto y Plazo. Usa Por aclarar donde no lo digan. Añade a las notas de la oportunidad las frases en las que te has basado. No envíes nada.
+
+En Starter, que no tiene bandeja de entrada, Mate solo puede trabajar con lo que ya hay en la oportunidad y en sus contactos, por ejemplo notas que hayas pegado.
+
+Para hacerlo con cada oportunidad nueva, crea una rutina con el disparador **Cuando algo cambia** y el evento **Registro creado** para Oportunidades:
+
+> Se ha creado una oportunidad nueva. Léela, junto con sus contactos y su conversación más reciente de la bandeja de entrada. Fija Necesidad, Decisor, Presupuesto y Plazo, y usa Por aclarar para todo lo que la conversación no diga. Añade a las notas de la oportunidad un resumen de tres líneas y las dos preguntas que hacer a continuación. No cambies la etapa y no envíes ni prepares ningún mensaje.
+
+Una rutina se ejecuta como su propietario, con el acceso y los canales de esa persona, y Mate envía mensajes cuando una instrucción se lo indica, así que la última frase importa. Starter incluye [[commercial.entitlement.starter.includedRoutinesPerUser]] rutina por usuario y Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; cada rutina solo puede ejecutarse un número limitado de veces por hora, así que cuando se crean muchas oportunidades dentro de la misma hora, algunas se quedan sin ejecución. La [documentación de rutinas](/docs/app-routines) enumera los límites actuales. Con tu propio cliente de IA, como Claude o ChatGPT, se llega a los mismos campos a través del [servidor MCP](/docs/mcp), que factura tu proveedor de IA. Una instalación autoalojada conserva campos, etapas, vistas y MCP, pero no tiene bandeja de entrada ni Mate.
+
+<AcquisitionCallout title="Lo que Customermates no hace aquí" variant="boundary">
+  Customermates no tiene lead scoring, enriquecimiento de datos ni formularios web incrustables. No graba llamadas y no tiene recordatorios. Las consultas llegan por la bandeja de entrada, una importación XLSX, la API REST o un workflow en n8n, que ejecutas por separado. Si necesitas puntos por visitas al sitio y aperturas de correos, busca una plataforma de automatización de marketing con herramienta de puntuación, como los niveles de HubSpot citados arriba.
+</AcquisitionCallout>
+
+Lo que cuesta, con facturación mensual:
+
+| Equipo | Plan | Al mes |
+| --- | --- | --- |
+| 2 personas, campos, etapas, vistas y Mate, sin bandeja de entrada | Starter, [[commercial.price.starter.monthly]] por usuario | [[commercial.price.starter.monthly.seats.2]] |
+| 3 personas, con Mate y bandeja de entrada | Pro, [[commercial.price.pro.monthly]] por usuario | [[commercial.price.pro.monthly.seats.3]] |
+
+Cada plan de pago incluye créditos de IA alojados al mes por usuario activo, consulta los [precios](/pricing). Tu primer espacio de trabajo empieza con Pro gratis durante [[commercial.trial.days]] días, sin tarjeta de crédito.
+
+La cualificación termina en un siguiente paso. Con la bandeja de entrada de Pro, los hilos que muestran Necesidad, Decisor, Presupuesto y Plazo están en el contacto de la oportunidad, Mate rellena los campos y prepara la respuesta, y decides tú. Para probarlo con tus próximas consultas, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup).
+
+## Medir si la cualificación funciona
+
+| Métrica | Cómo calcularla | Un mal valor indica |
+| --- | --- | --- |
+| Tasa de lead a SQL | SQL ÷ leads nuevos, por mes | El origen o los criterios de encaje fallan |
+| Tasa de SQL a ganada | Oportunidades ganadas ÷ SQL | La cualificación es demasiado laxa |
+| Rechazos por motivo | Recuento de cada motivo de descarte | La segmentación falla de una forma concreta |
+| Costo por lead cualificado | Gasto en un canal ÷ SQL de ese canal | Ese canal quizá no compense |
+| Tiempo de primera respuesta | Primera respuesta menos hora de la consulta | El acuerdo de traspaso no se cumple |
+
+En Customermates, un gráfico del panel puede contar oportunidades agrupadas por Etapa o por Motivo de descarte y sumar sus valores. Las tasas y los tiempos de respuesta no se calculan en la aplicación: exporta las oportunidades como un libro XLSX y calcúlalos en Excel.
+
+## FAQ
+
+<Faq>
+<FaqItem question="¿Qué va primero, un lead o una oportunidad?">
+El lead. Un lead es un interés que nadie ha comprobado todavía. Una oportunidad, llamada negocio en muchos CRM, existe cuando el lead se ha cualificado y hay un trabajo concreto con un valor. La conversión de leads de Salesforce muestra el orden: crea la oportunidad a partir del registro del lead.
+</FaqItem>
+
+<FaqItem question="¿Qué es un lead cualificado por ventas?">
+Un lead con el que alguien de ventas ha hablado y que ha comprobado con tus criterios: una necesidad que puedes resolver, un decisor conocido, un rango de presupuesto que encaja y un motivo para el plazo. El MQL es el paso anterior, que juzga marketing por perfil y comportamiento, sin conversación comercial.
+</FaqItem>
+
+<FaqItem question="¿Cuánto cuesta un lead cualificado?">
+No vale la pena citar una cifra general, porque depende de tu canal y de tu nivel de precios. Calcula la tuya: el gasto de un mes en un canal, incluidas las horas dedicadas, dividido entre los SQL que produjo. Compárala con el margen de una oportunidad ganada media.
+</FaqItem>
+
+<FaqItem question="¿Hay un equivalente de BANT para el sector inmobiliario?">
+Sí. Los agentes que cualifican compradores suelen usar LPMAMA: Location, Price, Motivation, Agent, Mortgage y Appointment (ubicación, precio, motivación, agente, hipoteca y cita). El proveedor de CRM inmobiliario Sierra Interactive lo describe en su [centro de ayuda](https://help.sierrainteractive.com/helpcenter/qualifying-buyer-leads-with-the-lpmama-conversation-framework) como un método para cualificar leads de compradores en una sola conversación. Motivation y Mortgage cumplen la función de necesidad y presupuesto, y Agent comprueba si el comprador ya tiene quien lo represente. Consulta también la [página de CRM para el sector inmobiliario](/for/real-estate).
+</FaqItem>
+
+<FaqItem question="¿Puede la IA cualificar leads de forma automática, por ejemplo a partir de grabaciones de llamadas?">
+Puede hacer una primera pasada sobre todo lo que esté escrito: consultas, hilos de correo, mensajes de chat, notas de llamadas. Necesita la instrucción de responder «por aclarar» en lugar de adivinar, y no debería tomar la decisión final. Customermates no graba ni transcribe llamadas, así que una llamada solo llega a Mate o a tu propio cliente de IA a través de las notas de la oportunidad. Hay más prompts en [ChatGPT para ventas](/blog/chatgpt-for-sales).
+</FaqItem>
+
+<FaqItem question="¿Deberíamos externalizar la cualificación de leads?">
+Puede funcionar en outbound de gran volumen con un guion fijo, donde un equipo externo hace la primera llamada y entrega reuniones. Para consultores y agencias, la llamada de cualificación suele formar parte de la venta, porque el cliente te está evaluando al mismo tiempo. Si externalizas, entrega los criterios escritos y la lista de motivos, y haz que el equipo externo rellene los mismos campos que usa tu gente.
+</FaqItem>
+</Faq>
+
+Datos de proveedores y métodos comprobados el 8 de octubre de 2026 en la [guía de cualificación de ventas](https://blog.hubspot.com/sales/ultimate-guide-to-sales-qualification), las [etapas del ciclo de vida](https://knowledge.hubspot.com/records/use-lifecycle-stages) y la documentación de la [herramienta de scoring](https://knowledge.hubspot.com/scoring/understand-the-lead-scoring-tool) de HubSpot, el [módulo de Trailhead sobre leads](https://trailhead.salesforce.com/content/learn/modules/leads_opportunities_lightning_experience/create-and-convert-leads-lightning) de Salesforce, el [método SPICED](https://winningbydesign.com/resources/blueprints/the-spiced-framework/) de Winning by Design, la [guía de LPMAMA](https://help.sierrainteractive.com/helpcenter/qualifying-buyer-leads-with-the-lpmama-conversation-framework) de Sierra Interactive y el [artículo de Harvard Business Review sobre leads online](https://hbr.org/2011/03/the-short-life-of-online-sales-leads).

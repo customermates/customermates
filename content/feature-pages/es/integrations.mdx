@@ -1,0 +1,165 @@
+---
+title: "Integración de CRM: API REST, webhooks, MCP y n8n"
+description: "Integración de CRM con Customermates: REST y MCP en todos los planes, webhooks firmados y tu propio n8n en los de pago y autoalojado, con límites claros."
+featureName: Integraciones del CRM
+
+relatedHrefs:
+  - /features/knowledge-base
+  - /features/api
+  - /features/workflow-automation
+  - /blog/crm-erp-integration
+
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Crea el webhook entrante de Slack"
+        description: "En Slack, crea una app, activa los webhooks entrantes, añade un webhook a tu espacio de trabajo y elige el canal. Copia la URL y mantenla en secreto."
+      - title: "Añade el webhook de Customermates"
+        description: "En Ajustes → Webhooks → Añadir, pega la URL de Slack, selecciona Registro creado y elige Oportunidades en Registros de."
+      - title: "Escribe la plantilla del cuerpo"
+        description: "Escribe {\"text\": \"Nueva oportunidad: {{data.record.ref.recordId}}\"}. Cualquier ruta bajo {{data}} sirve como marcador."
+      - title: "Prueba y revisa el registro"
+        description: "Crea una oportunidad de prueba y abre el Registro de webhooks. Un código de estado 2xx significa que Slack la aceptó."
+
+hero:
+  title: "Integración de CRM con interfaces abiertas: tus herramientas y tus agentes trabajan sobre el mismo registro de cliente"
+  description: "Conecta otro software con una API REST documentada, [[derived.webhooks.events.total]] eventos de webhook, MCP para Claude y ChatGPT y un nodo de la comunidad para n8n. REST y MCP están en todos los planes; los webhooks y los disparadores de n8n, en los planes de pago y autoalojado. Desde Pro, las conversaciones de LinkedIn y de correo están en el cliente, y REST y MCP pueden leerlas."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Ver la demostración en vivo
+  buttonRightHref: https://demo.customermates.com/es/w/small-business/dashboard
+  hint: "✓ No hace falta tarjeta de crédito ✓ Primeros [[commercial.trial.days]] días gratis"
+
+cta:
+  action: "Envía tu primer evento de cliente a otra herramienta"
+  description: "Crea una clave de API o un webhook durante la prueba y envía un evento real del CRM, por ejemplo un mensaje nuevo o una oportunidad modificada, al sistema que lo necesita."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Ver la demostración en vivo
+  buttonRightHref: https://demo.customermates.com/es/w/small-business/dashboard
+  hint: "✓ No hace falta tarjeta de crédito ✓ Primeros [[commercial.trial.days]] días gratis"
+---
+
+Una integración de CRM mueve datos o disparadores entre tu CRM y otro sistema, para que nadie copie una oportunidad de una pantalla a otra. Customermates lo hace con cuatro interfaces abiertas en lugar de un mercado de aplicaciones: una API REST, webhooks salientes, un endpoint MCP para clientes de IA y un nodo de la comunidad para n8n. La API REST y MCP están disponibles en todos los planes. Los webhooks, y los disparadores de n8n que dependen de ellos, vienen con todos los planes de pago. Las instalaciones autoalojadas tienen las cuatro.
+
+Esa decisión tiene un coste que conviene conocer desde el principio. No hay un catálogo de aplicaciones de un clic. Si quieres integrar el CRM con Slack, con tu herramienta de contabilidad o con un creador de formularios, o apuntas un webhook a esa herramienta, o llamas a la API desde tu propio código, o montas el flujo en una herramienta de automatización como n8n, Make o Zapier.
+
+**Qué significa esto para el seguimiento.** El seguimiento de una conversación con un cliente suele terminar en otro sistema: un mensaje en el chat de tu equipo cuando llega una respuesta, un registro en tu herramienta de proyectos. Un webhook sobre los eventos de mensajería, un flujo de n8n o tu propio cliente de IA por MCP pueden recogerlo, de modo que el siguiente paso no depende de que alguien lo copie a mano.
+
+## Los cinco tipos de conexión de un vistazo
+
+| Conexión | Dirección | Para qué sirve | Plan |
+|---|---|---|---|
+| Webhooks | Del CRM a tu sistema | Enviar un evento cuando se crea, se actualiza, se mueve a la papelera, se restaura o se elimina definitivamente un registro de cualquier lista, o cuando llega un mensaje de la bandeja de entrada | Todos los planes de pago y autoalojado, no Free |
+| API REST | De tu sistema al CRM | Crear, leer, buscar, actualizar y eliminar registros desde código o desde una herramienta de automatización | Todos los planes, también autoalojado |
+| MCP | Del cliente de IA al CRM | Dejar que Claude, ChatGPT, Cursor, Codex o Gemini CLI lean y escriban registros en una conversación | Todos los planes, también autoalojado |
+| Nodo de la comunidad de n8n | Ambas | Nodos específicos de Customermates en una instancia de n8n que operas por separado | Acciones en todos los planes, disparadores en los planes de pago y autoalojado; n8n lo factura n8n |
+| Bandeja de entrada unificada | De los canales al CRM | Conversaciones de Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram junto al registro, más calendarios de Google y de Microsoft de solo lectura | Customermates Cloud, Pro o superior |
+
+Webhooks, REST y MCP vienen con Starter, a [[commercial.price.starter.monthly]] por usuario al mes. La [bandeja de entrada unificada](/features/unified-inbox) empieza con Pro, a [[commercial.price.pro.monthly]] por usuario al mes, e incluye [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por usuario; Business incluye [[commercial.entitlement.business.includedAccountsPerUser]] por usuario y cuentas compartidas. Las instalaciones autoalojadas tienen REST, webhooks y MCP pero no bandeja de entrada, así que allí nunca se disparan los eventos de mensajería.
+
+## Qué vía encaja con cada tarea
+
+| Si quieres… | Usa | Por qué |
+|---|---|---|
+| Publicar un mensaje en un canal de Slack cuando se crea una oportunidad | Un webhook con plantilla del cuerpo, enviado a un webhook entrante de Slack | No hace falta ninguna herramienta de automatización |
+| Pasar las oportunidades ganadas a tu software de contabilidad | n8n, Make o Zapier sobre un webhook `record.updated` de la lista Oportunidades | Esas herramientas comprueban el valor de la etapa y llaman a la API de la herramienta de contabilidad |
+| Crear contactos desde el formulario de tu sitio web | La herramienta de formularios o n8n llama a `POST /api/v1/records/mutate` | Customermates no tiene un formulario incrustable propio |
+| Replicar registros en un almacén de datos | Webhooks, deduplicados por el `id` del evento | Casi en tiempo real, sin sondeo |
+| Pedirle a una IA que actualice cinco oportunidades después de una llamada | MCP desde Claude, ChatGPT u otro cliente | El cliente descubre las herramientas y hace las llamadas |
+| Pasar una hoja de cálculo de clientes existentes | Importación XLSX, una lista cada vez | Más rápido que un script de API para un traslado puntual |
+
+## Webhooks
+
+Crea un webhook en **Ajustes → Webhooks → Añadir**, pega la URL receptora, elige los eventos y elige la lista en **Registros de**. Puedes elegir entre [[derived.webhooks.events.total]] eventos: [[derived.webhooks.events.records]] eventos de registro (creado, actualizado, movido a la papelera, restaurado y eliminado definitivamente, para cualquier lista que elijas, también las tuyas) y [[derived.webhooks.events.messaging]] eventos de mensajería, como un mensaje o un correo recibido y un evento de calendario modificado.
+
+Los detalles que importan cuando construyes sobre ellos:
+
+- **Firmas.** Define un secreto y cada entrega lleva una firma HMAC-SHA256 sobre el cuerpo de la petición, para que el receptor pueda rechazar llamadas falsificadas.
+- **Reintentos.** Los tiempos de espera agotados, los errores de red, las respuestas 5xx y los códigos 408, 425 y 429 se reintentan automáticamente, hasta 10 intentos en total. Las demás respuestas 4xx no.
+- **Registro de entregas.** **Ajustes → Registro de webhooks** muestra cada entrega con su código de estado y su carga útil, y desde ahí puedes reenviar una.
+- **Cabeceras personalizadas y plantillas del cuerpo.** Las cabeceras te permiten autenticarte ante el receptor. Una plantilla del cuerpo sustituye al sobre JSON estándar por la forma que espera el receptor, con marcadores como `{{event}}` y `{{data.record.ref.recordId}}`.
+- **Solo cambios.** Un evento `record.updated` lista cada campo que cambió con su valor `before` y `after`, y una escritura que no cambia nada no envía ningún evento.
+
+Las entregas no tienen un orden estricto, así que trátalas como mensajes idempotentes con clave en el `id` del evento y ordénalas por el `timestamp` de la carga útil y la versión del registro. El catálogo completo y las formas de las cargas útiles están en la [documentación de webhooks](/docs/webhooks).
+
+## API REST
+
+La API está versionada bajo `/api/v1`, se autentica con una cabecera `x-api-key` y está descrita por un documento OpenAPI. Los mismos puntos de acción sirven a todas las listas que crea tu espacio de trabajo y direccionan un registro por `typeId` y `recordId`: `POST /api/v1/records/query` y `/records/search` leen, `POST /api/v1/records/mutate` crea, actualiza, elimina, vincula y desvincula, y sus acciones `updateMany` y `deleteMany` modifican hasta 100 registros por petición. `POST /api/v1/model/read` devuelve tus campos y los ID de sus opciones, que necesitas porque la **Etapa** de la oportunidad es un campo de selección única configurable, no un valor fijo.
+
+Una clave de API hereda los permisos del usuario que la creó. No hay ámbito por clave, así que crea las claves desde un usuario cuyo rol encaje con la integración. Más detalles en la [página de la función API](/features/api).
+
+## MCP para clientes de IA
+
+MCP (Model Context Protocol) es un [estándar abierto para conectar aplicaciones de IA con sistemas externos](https://modelcontextprotocol.io/docs/getting-started/intro). Customermates ejecuta un único endpoint MCP en `/api/v1/mcp` con [[derived.mcp.tools.total]] herramientas. Claude y ChatGPT se conectan como conector personalizado con inicio de sesión OAuth, como se describe en [conectar Claude y ChatGPT](/docs/connect-custom-connector). Claude Code, Codex, Cursor y Gemini CLI se conectan con una clave de API.
+
+El cliente y su modelo son tuyos. Tu proveedor de IA factura el uso de su propio modelo. Las búsquedas semánticas en la nube mediante MCP aún pueden contar para el uso de Mate; las llamadas ordinarias a registros del CRM no usan el modelo de tu cliente en el servidor de Customermates. Las herramientas de mensajería, calendario y redes sociales requieren un plan de Cloud con bandeja de entrada. La [referencia de MCP](/docs/mcp) lista todas las herramientas.
+
+Dentro de Customermates Cloud también está Mate, el asistente alojado, que usa créditos de IA alojada. Mate puede crear y editar webhooks por ti, y sus [rutinas](/docs/app-routines) pueden ejecutar una instrucción guardada cuando cambia un registro. Eso cubre el trabajo que requiere lectura y criterio; las reglas fijas pertenecen a los webhooks y a n8n.
+
+## n8n, Make o Zapier
+
+Ninguna de ellas viene incluida con Customermates. Las operas o te suscribes por separado, y aportan los grandes catálogos de conectores. Customermates documenta los patrones de n8n y publica un [nodo de la comunidad](https://github.com/customermates/n8n-nodes-crm); Make y Zapier funcionan mediante sus pasos genéricos de webhook y HTTP. Customermates publica esta página; la tabla siguiente describe el modelo de facturación de cada herramienta según su propia página de precios, comprobada el 8 de octubre de 2026.
+
+| Herramienta | Cómo factura | Opción gratuita |
+|---|---|---|
+| [n8n](https://n8n.io/pricing/) | Planes en la nube por ejecuciones de flujos de trabajo; una ejecución completa cuenta como una | Community Edition autoalojada |
+| [Make](https://www.make.com/en/pricing) | Créditos; la mayoría de las acciones de módulo usan un crédito | Plan gratuito con una cuota mensual de créditos |
+| [Zapier](https://zapier.com/pricing) | Tareas; cuenta cada paso de acción completado con éxito, los disparadores no | Plan gratuito, limitado a Zaps de dos pasos |
+
+n8n es fair-code bajo la [Sustainable Use License](https://github.com/n8n-io/n8n): n8n describe su código como disponible y autoalojable. Es una licencia distinta de la AGPL que cubre el núcleo de Customermates.
+
+Si ya pagas una de ellas, úsala. Si empiezas de cero y tienes a alguien que sepa ejecutar un contenedor, n8n autoalojado mantiene tanto el CRM como la automatización en tus propios servidores. La [guía de configuración de n8n](/docs/n8n) muestra el disparador de webhook, las llamadas HTTP Request y la credencial `x-api-key`.
+
+## Slack: dos vías, sin aplicación nativa
+
+Customermates no tiene aplicación de Slack, ni canal de Slack en la bandeja de entrada, ni pantalla de ajustes de Slack. A Slack se llega con webhooks o con n8n.
+
+**Vía 1, solo webhook.** Los [webhooks entrantes](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) de Slack aceptan un POST JSON como `{"text": "Hello"}` y lo publican en un canal. Una plantilla del cuerpo de Customermates produce exactamente eso.
+
+**Vía 2, n8n.** Usa n8n cuando el mensaje necesite lógica: avisar solo cuando la **Etapa** de la oportunidad alcance cierto valor, publicar un resumen semanal del pipeline a partir de un `POST /api/v1/records/query` programado, o convertir un atajo de Slack en un contacto nuevo mediante la API. En ambos casos las conversaciones de Slack nunca aparecen en la bandeja de entrada de Customermates.
+
+## Lo que no está incluido
+
+<AcquisitionCallout title="Límites que conviene conocer antes de planificar una integración" variant="boundary">
+  Sin mercado de aplicaciones y sin conectores de un clic. Sin integración nativa con Slack, Microsoft Teams, contabilidad ni reserva de calendario. Los calendarios son de solo lectura. Sin formularios web incrustables. La transferencia de datos por archivo importa Excel, CSV o JSON y exporta XLSX o JSON, una lista cada vez, sin exportación de toda la cuenta. n8n, Make y Zapier son productos aparte con facturas aparte.
+</AcquisitionCallout>
+
+Si tu equipo necesita cientos de conectores ya hechos y mantenidos por el proveedor, que una persona no técnica active desde una pantalla de ajustes, encaja mejor un CRM con su propio mercado de aplicaciones. Customermates encaja con equipos a los que les parece bien conectar un webhook o dejar que un cliente de IA haga las llamadas, y que quieren las mismas interfaces tanto si usan la nube como si autoalojan. Las conexiones con un ERP siguen el mismo patrón; la [guía de integración entre CRM y ERP](/blog/crm-erp-integration) las recorre paso a paso.
+
+## Preguntas frecuentes
+
+Mantén la guía operativa y los datos de origen junto al registro del cliente en la [base de conocimiento con IA](/features/knowledge-base).
+
+<Faq>
+<FaqItem question="¿Qué son las integraciones de CRM?">
+Conexiones que mueven datos o disparadores entre un CRM y otro software, por ejemplo una oportunidad nueva que crea un proyecto en una herramienta de proyectos o el envío de un formulario que crea un contacto. Funcionan mediante una API, webhooks, una herramienta de automatización o un conector creado por el proveedor. Customermates ofrece las tres primeras más MCP para clientes de IA.
+</FaqItem>
+
+<FaqItem question="¿Tiene Customermates una API abierta y webhooks?">
+Sí: la API en todos los planes y en las instalaciones autoalojadas, y los webhooks en todos los planes de pago y al autoalojar. La API REST está documentada con OpenAPI y usa una cabecera `x-api-key`. Los webhooks cubren [[derived.webhooks.events.total]] eventos, con firmas HMAC, reintentos automáticos y un registro de entregas.
+</FaqItem>
+
+<FaqItem question="¿Hay una integración nativa con Slack?">
+No. Envía los eventos del CRM a Slack con un webhook y una plantilla del cuerpo dirigidos a un webhook entrante de Slack, o monta el flujo en n8n. Crear registros del CRM desde Slack también pasa por n8n y la API REST.
+</FaqItem>
+
+<FaqItem question="¿n8n está incluido en la suscripción?">
+No. n8n es un producto aparte. Autoalojas la Community Edition gratuita o te suscribes a la nube de n8n. Customermates aporta el nodo de la comunidad, los webhooks y la API a los que se conecta.
+</FaqItem>
+
+<FaqItem question="¿Puedo conectar Zapier o Make en lugar de n8n?">
+Sí. Sirve cualquier herramienta que pueda recibir un HTTP POST y enviar peticiones HTTP con una cabecera personalizada. No hay una aplicación específica de Customermates en sus catálogos, así que usas sus pasos genéricos de webhook y HTTP.
+</FaqItem>
+
+<FaqItem question="¿Cuál es la diferencia entre una API y un CRM?">
+El CRM es el sistema que guarda tus contactos, oportunidades y conversaciones. Una API es la puerta que otro software usa para leer y cambiar esos datos. En Customermates la API REST y el endpoint MCP son dos de esas puertas, una para programas y otra para clientes de IA.
+</FaqItem>
+<FaqItem question="¿Hay una integración lista de CommuniGator con el CRM?">
+Customermates no incluye un conector nativo de CommuniGator. Su API REST y sus webhooks salientes son las vías de integración disponibles; un adaptador creado aparte también debe usar la interfaz compatible de la otra herramienta. Confirma esa interfaz y prueba los objetos necesarios antes de comprometerte con la conexión. Esta página no afirma una configuración de CommuniGator probada.
+</FaqItem>
+</Faq>
+
+Datos de terceros comprobados el 8 de octubre de 2026 en los [precios de n8n](https://n8n.io/pricing/), el [repositorio de n8n](https://github.com/n8n-io/n8n), los [precios de Make](https://www.make.com/en/pricing), los [precios de Zapier](https://zapier.com/pricing), los [webhooks entrantes de Slack](https://docs.slack.dev/messaging/sending-messages-using-incoming-webhooks/) y la [introducción a MCP](https://modelcontextprotocol.io/docs/getting-started/intro).

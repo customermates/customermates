@@ -1,0 +1,435 @@
+---
+title: "CRM open source para el seguimiento de cada cliente"
+description: "CRM open source: hilos de LinkedIn y correo en cada cliente, un siguiente paso con fecha y borradores de Mate que revisas y envías. Hecho en Alemania."
+rootMetadata:
+  defaultTitle: "Customermates: CRM open source con IA para cada cliente"
+  defaultDescription: "CRM open source: da seguimiento a cada conversación. LinkedIn y correo en cada ficha, siguiente paso con fecha y borradores de Mate que revisas y envías."
+
+hero:
+  title: Da seguimiento a cada conversación con tus clientes.
+  subtitle: Conecta LinkedIn y el correo a tu CRM open source. Mate o tu propio agente de IA redacta cada respuesta y el siguiente paso, y tú los revisas y los envías en un solo lugar.
+  primaryCta:
+    label: Empieza tu prueba de [[commercial.trial.days]] días
+    href: /auth/signup?job=followup
+  secondaryCta:
+    label: Mira el vídeo (70 s)
+    href: "#film"
+  assurance: Sin tarjeta de crédito · Código abierto (AGPL) · Base de datos en Fráncfort · Funciona con tu Claude o ChatGPT
+
+generator:
+  eyebrow: Empieza con una descripción
+  title: Una descripción. Un espacio de trabajo construido por tu agente.
+  description: Esto es lo que construye la configuración a partir de una sola frase. Datos de ejemplo, el producto real.
+  promptLabel: Tu descripción para Mate
+  arrowLabel: se convirtió en este espacio de trabajo
+  steps:
+    - title: "Describe tu negocio"
+      description: "Una frase sobre tu equipo, tus clientes y cómo vendes."
+    - title: "Mate lo construye"
+      description: "Te hace unas preguntas y después crea las listas, el pipeline, el panel y el playbook."
+    - title: "Trabaja en él"
+      description: "Conecta LinkedIn y el correo. Recorre abajo un ejemplo ya terminado."
+  items:
+    - solution: consultants
+      label: Consultoría
+      prompt: Somos una consultora de estrategia de cuatro personas. Registra clientes, proyectos y propuestas, y ayúdanos a dar seguimiento a los prospectos en LinkedIn.
+      href: /for/consultants
+      linkLabel: Customermates para consultores
+    - solution: agencies
+      label: Agencia
+      prompt: Somos una agencia de diseño. Registra presentaciones comerciales, retainers y proyectos, y pasa cada cliente nuevo de ventas a la entrega.
+      href: /for/agencies
+      linkLabel: Customermates para agencias
+    - solution: smb
+      label: Pequeña empresa
+      prompt: Somos una pequeña empresa de servicios B2B. Reúne clientes, presupuestos y conversaciones en un solo lugar y muéstranos en el panel a quién tenemos que volver a llamar.
+      href: /for/smb
+      linkLabel: Customermates para pequeñas empresas
+    - solution: freelancers
+      label: Freelance
+      prompt: Soy desarrollador freelance. Registra clientes, proyectos y seguimientos para que ningún lead se enfríe mientras estoy ocupado entregando trabajo.
+      href: /for/freelancers
+      linkLabel: Customermates para freelancers
+    - solution: startups
+      label: Ventas lideradas por fundadores
+      prompt: Somos dos fundadores que vendemos nuestro propio software. Registra leads, demos y pruebas, y ayúdanos a dar seguimiento después de cada llamada.
+      href: /for/startups
+      linkLabel: Customermates para startups
+    - solution: linkedin-crm
+      label: Ventas por LinkedIn
+      prompt: Vendo por LinkedIn. Pon cada conversación junto a su oportunidad, redacta mis seguimientos y muéstrame quién espera una respuesta.
+      href: /features/linkedin-integration
+      linkLabel: Integración de LinkedIn con el CRM
+
+followUp:
+  eyebrow: Cada respuesta, atendida
+  title: "Después te sigue el ritmo. Respuestas redactadas, siguientes pasos en tu panel."
+  description: "Cuando un cliente escribe, Mate redacta la respuesta a partir de tu playbook y pone el siguiente paso en tu panel. Tú la revisas, la editas y la envías."
+  desk:
+    label: Escena de seguimiento de ejemplo con datos de demostración
+    workspace: Lindqvist Advisory
+    conversation:
+      label: LinkedIn
+      name: Jonas Weber
+      company: Halden & Co.
+      time: vie 16:42
+      message: Suena bien. ¿Podrías enviarme el alcance revisado la semana que viene? Así puedo llevarlo a nuestro consejo.
+    agent:
+      name: Mate
+      intent: Redactando una respuesta a partir de tu playbook de propuestas
+      done: Borrador guardado. Siguiente paso añadido a tu panel.
+    draft:
+      badge: Borrador, a la espera de tu revisión
+      text: Hola, Jonas, gracias. Te enviaré el alcance revisado el martes, con las dos opciones de taller que comentamos. Un saludo, Anna
+      edit: Editar
+      send: Enviar el borrador
+    today:
+      title: Panel
+      date: martes
+      addedBy: Añadido por Mate
+      assign: Asignar
+      sections:
+        - title: Siguientes pasos que vencen
+          items:
+            - title: Enviar el alcance revisado
+              meta: Halden & Co. · vence hoy
+              owner: AL
+              state: added
+            - title: Reclamar la propuesta firmada
+              meta: Norrland Studio · 2 días de retraso
+              owner: AL
+              state: overdue
+        - title: Propuestas a la espera de respuesta
+          items:
+            - title: Propuesta de Norrland Studio
+              meta: enviada hace 5 días
+              owner: AL
+              state: due
+
+pillars:
+  eyebrow: Cómo funciona
+  title: Todo lo que necesita tu seguimiento, en un solo lugar. Cuatro partes que trabajan juntas.
+  description: Tu conocimiento, los datos de tus clientes y tus conversaciones viven juntos, así que todos los agentes que te ayudan trabajan con los mismos datos.
+  knowledge:
+    title: Conocimiento
+    description: Playbooks, precios y tu forma de trabajar, escritos una sola vez. Mate y los agentes conectados usan las páginas que sus permisos permiten.
+    plan: Todos los planes
+    doc:
+      title: Playbook de propuestas
+      lines:
+        - Envía un alcance revisado en un plazo de dos días hábiles.
+        - Ofrece siempre dos opciones de taller.
+        - Firma con el nombre de pila del consultor.
+      usedBy: Usado para el borrador a Jonas Weber
+  data:
+    title: Datos
+    description: Clientes, oportunidades y cualquier lista que tu negocio necesite, con tus propios campos, etapas y vistas.
+    plan: Todos los planes
+    lists:
+      - Clientes
+      - Proyectos
+      - Propuestas
+    record:
+      name: Halden & Co.
+      fields:
+        - label: Etapa
+          value: Propuesta enviada
+        - label: Valor
+          value: 18.400 €
+        - label: Siguiente paso
+          value: Enviar el alcance revisado · mar
+        - label: Propietario
+          value: Anna Lindqvist
+  inbox:
+    title: Bandeja de entrada
+    description: Correo y LinkedIn, además de WhatsApp, Instagram y Telegram, junto al cliente al que pertenece cada conversación.
+    plan: Cloud, desde Pro
+    thread:
+      name: Jonas Weber
+      preview: Suena bien. ¿Podrías enviarme el alcance revisado la semana que viene?
+      linkedTo: Vinculado a Halden & Co.
+  agents:
+    title: Agentes
+    description: Mate viene integrado. O conecta la IA por la que ya pagas, y trabaja con los mismos registros y las mismas reglas.
+    plan: Todos los planes, Mate en Cloud de pago
+    clients:
+      - name: Mate
+        detail: Integrado, en Customermates Cloud
+      - name: Claude
+        detail: Conector personalizado
+      - name: ChatGPT
+        detail: Conector personalizado
+      - name: Cursor, Codex, Gemini CLI
+        detail: Clave de API
+
+proofAndPartners:
+  proof:
+    eyebrow: Construido sobre nuestro propio trabajo
+    title: Gestionamos nuestras propias ventas con Customermates.
+    description: Nuestros prospectos, socios y conversaciones viven en un espacio de trabajo de Customermates. Agentes de IA conectados mediante MCP preparan las respuestas y los seguimientos. Aprobamos una vez cada tipo nuevo de mensaje, y los parecidos siguen las reglas que aprobamos.
+    steps:
+      - Llega una respuesta por LinkedIn o por correo
+      - Un agente redacta la respuesta y el siguiente paso
+      - Un tipo nuevo de mensaje espera nuestra aprobación
+    note: El mismo producto con el que empiezas hoy.
+  partners:
+    eyebrow: Para asistentes virtuales, agencias y creadores de automatizaciones
+    title: Gestiona el seguimiento para tus clientes.
+    description: Configura un espacio de trabajo por cliente, conecta sus canales y deja que los agentes preparen el trabajo que entregas.
+    points:
+      - Hasta [[commercial.workspaces.creationLimit]] espacios de trabajo por acceso, uno por cliente
+      - Tus propios agentes y recetas mediante MCP
+      - 35 % de comisión sobre los pagos de suscripción que cumplan los requisitos
+    cta:
+      label: Ver el programa de socios
+      href: /affiliate
+
+plansTeaser:
+  eyebrow: Precios
+  title: Precios simples por plaza. Empieza con [[commercial.trial.days]] días de Pro.
+  description: Un precio mensual por persona, en euros. Tu suscripción a Claude o ChatGPT sigue con su proveedor.
+  perSeat: por persona/mes
+  cta: Empieza tu prueba de [[commercial.trial.days]] días
+  ctaHref: /auth/signup?job=followup
+  compareLabel: Compara todos los planes
+  compareHref: /pricing
+  items:
+    - name: Starter
+      price: "[[commercial.price.starter.monthly]]"
+      job: Tu espacio de trabajo y tu propia IA
+      points:
+        - Listas, pipeline, paneles y Base de conocimientos
+        - MCP para Claude, ChatGPT y Cursor
+        - Sin bandeja de entrada ni cuentas conectadas
+    - name: Pro
+      price: "[[commercial.price.pro.monthly]]"
+      job: Da seguimiento desde LinkedIn y el correo
+      badge: Ideal para el seguimiento
+      points:
+        - Bandeja de entrada unificada, [[commercial.entitlement.pro.includedAccountsPerUser]] cuenta conectada por persona
+        - Mate redacta respuestas, 3x el uso de Starter
+        - "[[commercial.entitlement.pro.includedRoutinesPerUser]] rutinas por persona"
+    - name: Business
+      price: "[[commercial.price.business.monthly]]"
+      job: Equipos que comparten bandejas de entrada
+      points:
+        - "[[commercial.entitlement.business.includedAccountsPerUser]] cuentas conectadas por persona"
+        - Comparte una cuenta completa con el equipo
+        - 10x el uso de Starter, soporte prioritario
+
+flow:
+  eyebrow: Cómo funciona
+  title: Menos copiar datos al CRM. Más contexto dentro de él.
+  steps:
+    - title: Da forma a los registros que necesitas
+      description: Un espacio de trabajo nuevo empieza sin listas. En Customermates Cloud, la configuración con IA construye listas, etapas, un panel y páginas de la Base de conocimientos a partir de tu descripción, dentro de su tope de créditos. O crea listas y campos en Modelo de datos e importa un libro de Excel.
+    - title: Las conversaciones junto al contacto
+      description: En Customermates Cloud, desde Pro, los hilos de correo, LinkedIn, WhatsApp, Instagram y Telegram aparecen en el contacto cuyo correo, número de teléfono o perfil de LinkedIn coincide. Un hilo se vincula a una oportunidad o a una organización, por ti o por Mate, cuando le corresponde.
+    - title: La IA prepara el siguiente paso
+      description: Mate, dentro de los créditos de tu plan en Customermates Cloud, o tu propio cliente de IA mediante MCP responde preguntas y redacta respuestas, y Mate también ejecuta rutinas. Los borradores esperan tu revisión en la conversación; cuando le pides a Mate que envíe, envía sin una confirmación aparte.
+
+howItWorks:
+  eyebrow: Tu propia IA
+  title: Usa Claude o ChatGPT con tu CRM.
+  handoff:
+    eyebrow: Control humano
+    title: Respuestas redactadas, listas para tu revisión.
+    description: Un borrador espera en la conversación hasta que lo edites o lo envíes. En Customermates Cloud, una rutina puede preparar borradores cada mañana, así que las respuestas están listas cuando abres la bandeja de entrada.
+    alt: Hilo de correo con James Finch que termina en un borrador de respuesta guardado con un botón Enviar el borrador, con datos de demostración
+  steps:
+    - n: "01"
+      title: Inicia sesión con Google o con el correo
+      description: Un clic. Sin bucle de verificación del correo. Ya estás dentro de Customermates.
+    - n: "02"
+      title: Añade Customermates a Claude o ChatGPT
+      description: Añade un conector personalizado, pega la URL del endpoint MCP de Customermates e inicia sesión. El cliente y el modelo tienen su propia configuración, su propia suscripción y su propio tratamiento de datos.
+    - n: "03"
+      title: O usa una clave de API en clientes de línea de comandos y editores
+      description: Para clientes como Claude Code, Codex o Cursor, crea una clave de API en Customermates, mantenla en secreto y añade un breve bloque JSON a la configuración MCP del cliente.
+    - n: "04"
+      title: Pregunta a tu cliente de IA por los datos de tu CRM
+      description: "El cliente usa las herramientas MCP que expone Customermates, dentro de tus permisos, en todos los planes y en las instancias autoalojadas. Revisa sus cambios en el CRM; si el cliente pregunta antes de actuar depende del cliente."
+
+walkthrough:
+  badge: Bandeja de entrada unificada
+  title: Cada canal,
+  titleAccent: una sola historia del cliente.
+  alt: La bandeja de entrada de Customermates con conversaciones de correo, LinkedIn, WhatsApp, Instagram y Telegram junto a un hilo abierto, con datos de demostración
+  bullets:
+    - title: Canales compatibles, una sola bandeja de entrada
+      description: Correo mediante Gmail, Outlook o IMAP, LinkedIn con los chats compatibles de Sales Navigator y Recruiter, WhatsApp, Instagram y Telegram. En Customermates Cloud, desde Pro; Starter y las instancias autoalojadas no tienen cuentas conectadas.
+    - title: Asignado a la persona correcta
+      description: Un hilo aparece en el contacto cuyo correo, número de teléfono o perfil de LinkedIn coincide. Vincularlo a una oportunidad o a una organización es un paso explícito, tuyo o de Mate.
+    - title: Compartido como trabaja tu equipo
+      description: En Pro, cada persona trabaja en sus propias cuentas y puede compartir hilos sueltos. Desde Business se puede compartir con el equipo una cuenta conectada completa.
+
+pipelineStory:
+  eyebrow: Pipeline e informes
+  title: Mira el valor real detrás de cada movimiento.
+  description: Con oportunidades, notas y conversaciones vinculadas en los mismos registros, el pipeline y el panel reflejan mejor cómo están las cosas de verdad.
+  points:
+    - Vistas de tabla y Kanban
+    - Valor de la oportunidad y valor ponderado según la probabilidad de la etapa
+    - Paneles construidos con tus propios datos
+  capture:
+    title: Pipeline.
+    alt: Tablero de oportunidades con las etapas New, Qualified, Conversation y Proposal sent, con datos de demostración
+
+routines:
+  eyebrow: Rutinas
+  title: El trabajo recurrente, preparado antes de que empieces.
+  description: En Customermates Cloud, las rutinas ejecutan Mate según un horario o cuando algo cambia, como un resumen del pipeline de los lunes, borradores de respuesta a los correos nuevos o una revisión de registros duplicados. Cada ejecución usa créditos de IA alojada de la asignación de tu plan, y las rutinas no están disponibles en las instancias autoalojadas.
+  points:
+    - Según un horario, por ejemplo cada lunes a las 8:00
+    - O cuando cambia un registro o un mensaje
+    - Cada rutina se ejecuta como su propietario, dentro de sus permisos
+  alt: Lista de rutinas con propietarios, horarios, disparadores y últimas ejecuciones, con datos de demostración
+
+benefits:
+  badge: Por qué Customermates
+  title: Qué cubre el espacio de trabajo
+  subtitle: Registros de clientes configurables, conversaciones compatibles e interfaces abiertas. La bandeja de entrada y Mate funcionan en Customermates Cloud; el CRM básico también se puede autoalojar.
+  groups:
+    - title: Contexto del cliente
+      description: Conversaciones compatibles junto a contactos, registros vinculados y notas.
+    - title: Flujos de trabajo flexibles
+      description: Listas, campos y vistas que configuras tú.
+    - title: IA externa
+      description: Los clientes de IA externos trabajan mediante operaciones MCP permitidas.
+    - title: Informes
+      description: Los datos del CRM como paneles, widgets y vistas agrupadas.
+    - title: Interfaces abiertas
+      description: REST, webhooks y tu n8n operado aparte.
+    - title: Control y despliegue
+      description: Roles, nube gestionada o un núcleo autoalojado.
+  metrics:
+    - figure: "5"
+      label: familias de canales en la bandeja de entrada · Cloud, desde Pro
+    - figure: MCP
+      label: los clientes de IA externos ejecutan acciones permitidas del CRM
+    - figure: AGPL-3.0
+      label: núcleo del CRM de código abierto
+    - figure: UE
+      label: región de la base de datos en la nube (AWS Fráncfort)
+    - figure: DE
+      label: Hecho en Alemania
+  benefits:
+    - icon: Sparkles
+      title: Los clientes de IA externos operan el CRM
+      description: Los clientes externos compatibles pueden usar las operaciones permitidas del CRM mediante MCP en todos los planes. Sus modelos, suscripciones, consumo y tratamiento de datos por parte del proveedor son independientes.
+    - icon: Inbox
+      title: Bandeja de entrada unificada
+      description: Mensajes compatibles de correo, LinkedIn, WhatsApp, Instagram y Telegram en una sola bandeja de entrada en Customermates Cloud. Pro cubre tus propias cuentas y los hilos compartidos; desde Business se comparten cuentas completas.
+    - icon: Users
+      title: Contactos y organizaciones
+      description: Gestiona personas, empresas y sus conversaciones y oportunidades en un solo lugar.
+    - icon: Briefcase
+      title: Oportunidades
+      description: Sigue las oportunidades por las etapas que defines tú, del primer contacto al cierre.
+    - icon: LayoutGrid
+      title: Vistas del pipeline
+      description: Trabaja con vistas del pipeline en tabla y en Kanban.
+    - icon: Bell
+      title: Tareas y fechas personalizadas
+      description: Guarda las tareas como registros y añade tus propios campos de fecha o de estado cuando el flujo de trabajo los necesite.
+    - icon: Filter
+      title: Filtros y segmentos
+      description: Guarda filtros y vistas sobre los registros compartidos del CRM y compártelos con todo el equipo o con roles seleccionados.
+    - icon: Table
+      title: Campos personalizados
+      description: Añade campos con tipo, como selección única, importe, fecha, miembro o canales, además de campos calculados, para filtrar, agrupar y elaborar informes.
+    - icon: BarChart3
+      title: Informes y estadísticas
+      description: Convierte los datos del CRM en paneles, widgets y vistas agrupadas.
+    - icon: Play
+      title: Webhooks y eventos
+      description: Activa sistemas posteriores a partir de los eventos del ciclo de vida del CRM.
+    - icon: Code2
+      title: Acceso a la API
+      description: Crea integraciones personalizadas sobre el modelo de datos del CRM.
+    - icon: Zap
+      title: Conecta tu instancia de n8n
+      description: Usa REST, webhooks o el nodo de la comunidad publicado con un n8n que operas o contratas aparte.
+    - icon: ShieldCheck
+      title: Permisos
+      description: Controla el acceso al espacio de trabajo con roles y permisos.
+    - icon: FileText
+      title: Registros del CRM vinculados
+      description: Conecta contactos, organizaciones, oportunidades, servicios, tareas y tus propias listas mediante relaciones.
+    - icon: Server
+      title: Nube gestionada y base de datos en Fráncfort
+      description: Usa la nube gestionada con su base de datos en la región AWS de Fráncfort, o autoaloja el CRM básico AGPL y PostgreSQL con las funciones de Starter.
+    - icon: Terminal
+      title: Núcleo de código abierto y autoalojamiento
+      description: Autoaloja el CRM básico AGPL y PostgreSQL; la bandeja de entrada unificada, la vista de calendario, la configuración con IA, Mate y las rutinas siguen siendo funciones de la nube gestionada. MCP con tu propio cliente de IA funciona en ambos.
+    - icon: Download
+      title: Acceso a la API REST
+      description: Lee y escribe registros del CRM mediante la API para migraciones y flujos de trabajo externos.
+
+automationExplanation: "Customermates ofrece REST, [[derived.webhooks.events.total]] tipos de evento de webhook, MCP y un nodo de la comunidad publicado para la automatización externa que operas tú. n8n, Zapier, Make y otros servicios siguen siendo productos independientes, con sus propios planes, límites, credenciales, tratamiento de datos y costes."
+
+pricingTitle:
+  title: Precios transparentes para equipos modernos
+  subtitle: Todas las funciones básicas del CRM están incluidas desde Starter. La bandeja de entrada empieza en Pro y compartir cuentas completas, en Business. Un precio mensual por plaza en euros; la base de datos gestionada funciona en la región AWS de Fráncfort.
+
+faq:
+  title: Preguntas frecuentes
+  faqs:
+    - id: faq-keep-crm
+      title: ¿Tengo que sustituir mi CRM?
+      content: "No. Puedes empezar conectando LinkedIn o el correo y usar Customermates para conversaciones, borradores y siguientes pasos mientras tu CRM actual conserva el pipeline. Importa contactos desde un libro de Excel cuando quieras y conecta otras herramientas mediante la API REST, los webhooks o n8n. No hay sincronización bidireccional integrada con otros CRM."
+    - id: faq-mate-send
+      title: ¿Mate envía mensajes por su cuenta?
+      content: "Mate guarda borradores de respuesta para tu revisión en la conversación. Envía cuando se lo pides o cuando configuras una rutina que envía. Tu propio cliente de IA sigue los permisos de la cuenta con la que se conecta."
+    - id: faq-free
+      title: ¿Hay un plan gratuito?
+      content: "Sí, para probarlo tú solo: Customermates Cloud es gratis para [[commercial.limit.free.maxMembers]] persona y [[commercial.limit.free.maxRecords]] registros. Tu primer espacio de trabajo empieza con Pro gratis durante [[commercial.trial.days]] días sin tarjeta de crédito y después pasa a Free, a menos que elijas un plan de pago; cada espacio de trabajo adicional empieza eligiendo un plan. Free no tiene bandeja de entrada, Mate ni rutinas. También puedes autoalojar gratis el núcleo de código abierto con las funciones de Starter."
+    - id: faq-who
+      title: ¿Para quién es Customermates?
+      content: "Para equipos pequeños que tratan con clientes: pequeñas empresas, consultores, agencias, freelancers y startups. También encaja por flujo de trabajo: gestión de clientes, un pipeline de ventas, conversaciones de LinkedIn o contacto con clientes por WhatsApp. Cada uno tiene su propia página en Soluciones y un espacio de trabajo de ejemplo con datos de muestra que puedes explorar. Las listas de ejemplo muestran una forma de configurar Customermates; tu propio espacio de trabajo empieza vacío y contiene las listas que creas tú."
+    - id: faq-1
+      title: ¿En qué se diferencia Customermates de otros CRM?
+      content: "No es la opción adecuada para todo el mundo, pero se diferencia en aspectos que importan a los equipos pequeños que tratan con clientes. Los clientes de IA externos, como Claude, ChatGPT o Cursor, operan el CRM directamente mediante MCP con [[derived.mcp.tools.total]] herramientas. En Customermates Cloud, desde Pro, las conversaciones de correo, LinkedIn, WhatsApp, Instagram y Telegram están junto al contacto en una sola bandeja de entrada unificada. El núcleo es de código abierto (AGPL-3.0) y se puede autoalojar, y la base de datos de la nube gestionada funciona en la región AWS de Fráncfort. Si necesitas automatización de marketing, secuencias, presupuestos o facturación, encaja mejor una suite más grande."
+    - id: faq-plans
+      title: ¿Qué funciones requieren qué plan?
+      content: "El CRM básico, MCP y la API REST están en todos los planes, incluidos Free y el autoalojamiento; los webhooks y el nodo de n8n vienen con todos los planes de pago y con el autoalojamiento. La bandeja de entrada está en Customermates Cloud, desde Pro: en Pro conectas tus propias cuentas y compartes hilos sueltos; compartir con el equipo una cuenta conectada completa requiere Business, Max o Enterprise. Mate, las rutinas y la configuración con IA funcionan solo en Customermates Cloud, dentro de los créditos de cada plan de pago. Una instancia autoalojada tiene las funciones de Starter, sin la bandeja de entrada, Mate ni la configuración con IA."
+    - id: faq-4
+      title: ¿Dónde se almacenan mis datos?
+      content: La base de datos gestionada funciona en la región AWS de Fráncfort, mientras que el alojamiento de la aplicación y los demás proveedores, incluidos los de Estados Unidos, figuran en nuestra página de subencargados. Puedes autoalojar la aplicación CRM básica AGPL y PostgreSQL con las funciones de Starter; la bandeja de entrada unificada, la vista de calendario, la configuración con IA, Mate y las rutinas siguen siendo funciones de la nube gestionada, y los proveedores conectados siguen siendo independientes.
+
+closingEyebrow: Customermates
+
+cta:
+  action: ¿Listo para dar seguimiento a cada cliente?
+  description: Empieza con un canal y un cliente. Tu prueba dura [[commercial.trial.days]] días en Pro sin tarjeta de crédito, o explora antes un espacio de trabajo de demostración de una consultoría.
+  buttonLeftText: Empieza tu prueba de [[commercial.trial.days]] días
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Explora la demo
+  buttonRightHref: https://demo.customermates.com/es/w/consultants/dashboard
+  hint: Sin tarjeta de crédito · Cancela cuando quieras · Hecho en Alemania
+
+useCases:
+  eyebrow: "Formas de usarlo"
+  title: "Elige la tarea. El espacio de trabajo te sigue."
+  items:
+    - title: "Da seguimiento a las conversaciones de LinkedIn"
+      description: "Los hilos de LinkedIn y de correo están en el cliente. Mate redacta la respuesta y pone fecha al siguiente paso, y tú la revisas y la envías en la conversación."
+      href: /features/linkedin-integration
+      linkLabel: "Ver LinkedIn en la bandeja de entrada"
+      visual: conversation
+    - title: "Da seguimiento a cada propuesta después de la llamada"
+      description: "Clientes, proyectos y propuestas con las conversaciones que hay detrás, y un siguiente paso con fecha en cada una."
+      href: /for/consultants
+      linkLabel: "CRM para consultores"
+      visual: proposal
+    - title: "Reúne los siguientes pasos de tus clientes en un solo panel"
+      description: "Cada cliente tiene un siguiente paso con fecha, y tu panel muestra lo que vence en todos ellos."
+      href: /features/follow-up
+      linkLabel: "Ver el seguimiento"
+      visual: dashboard
+    - title: "Deja que tu propio Claude o ChatGPT trabaje en tu CRM"
+      description: "Conecta Claude, ChatGPT, Cursor u otro cliente MCP. Lee y actualiza tu espacio de trabajo dentro de tus permisos."
+      href: /features/integrations
+      linkLabel: "Conecta tu agente"
+      visual: agent
+---

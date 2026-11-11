@@ -1,0 +1,340 @@
+---
+title: "IA agéntica (agentic AI): definición, ejemplos y límites"
+description: "IA agéntica explicada: qué es, en qué se diferencia de la IA generativa y de un chatbot, ejemplos en ventas y CRM, cómo funciona y dónde falla, con fuentes."
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /blog/ai-sales-agent
+  - /blog/what-is-an-mcp-server
+  - /docs/app-routines
+
+hero:
+  title: "IA agéntica: definición, cómo funciona, ejemplos y límites"
+  description: "La IA agéntica recibe un objetivo en lugar de un prompt, y después planifica, usa herramientas y revisa sus propios resultados. Qué significa, en qué se diferencia de la IA generativa y de los chatbots, ejemplos en ventas y en el CRM, y dónde falla."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-04-23
+  updated: 2026-11-11
+  tags:
+    - ia-agentica
+    - flujo-de-trabajo-agentico
+    - Agentes de IA
+    - CRM
+---
+
+# IA agéntica: definición, cómo funciona, ejemplos y límites
+
+La **IA agéntica** (en inglés *agentic AI*, también llamada inteligencia artificial agéntica) es una IA a la que le das un objetivo en lugar de una pregunta: planifica los pasos, llama a herramientas como un CRM, un buscador o una API, revisa lo que obtiene y actúa, con una supervisión limitada. Se distingue de la IA generativa, que produce contenido para que lo uses tú, y de un chatbot, que sigue un guion. Ejemplos típicos de agentic AI son un agente de programación que abre una pull request, un agente de soporte que responde un ticket o lo escala y un agente de CRM que prepara la respuesta en una oportunidad, todos con un punto en el que una persona aprueba.
+
+«Agéntico» viene de «agente»: alguien que actúa en nombre de otro. AWS explica que «agentic» indica agencia, «la capacidad de estos sistemas de actuar de forma independiente, pero orientada a un objetivo» ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). La definición breve de IBM también sirve de referencia: la IA agéntica es «un sistema de inteligencia artificial que puede cumplir un objetivo concreto con supervisión limitada» ([IBM](https://www.ibm.com/think/topics/agentic-ai)). Las dos palabras que cargan con el significado son *objetivo* y *limitada*. Alguien sigue fijando el objetivo, y alguien sigue decidiendo cuánto puede hacer el sistema sin preguntar.
+
+Transparencia: esta guía la publica Customermates, un CRM de código abierto. Responde a la pregunta general. Cómo trabajar con agentes sobre los registros de un CRM se explica en la [guía del CRM agéntico](/blog/agentic-crm) y los agentes específicos de ventas, en la [guía del agente de ventas con IA](/blog/ai-sales-agent); más abajo, una sección breve describe nuestro propio producto.
+
+<ArticleSummary title="En resumen">
+  <SummaryItem label="Definición">
+    IA que persigue un objetivo planificando, llamando a herramientas y
+    actuando, con supervisión limitada.
+  </SummaryItem>
+  <SummaryItem label="No es lo mismo que">
+    La IA generativa produce contenido que usas tú, un chatbot sigue un guion,
+    un flujo de trabajo sigue un camino que escribiste tú y un agente elige
+    sus propios pasos.
+  </SummaryItem>
+  <SummaryItem label="Ejemplos">
+    Triaje de soporte, respuesta a incidentes, revisión de facturas y agentes
+    de programación, además de borradores de respuesta, fichas de cuenta y
+    mantenimiento de registros en ventas y CRM, cada uno con sus
+    herramientas, su punto de aprobación y su riesgo (tablas más abajo).
+  </SummaryItem>
+  <SummaryItem label="Límites">
+    Exceso de agencia (demasiadas herramientas, demasiados permisos, ninguna
+    aprobación antes de las acciones de alto impacto), errores que se
+    encadenan y un coste que crece con cada paso.
+  </SummaryItem>
+  <SummaryItem label="Un buen primer trabajo">
+    Una tarea acotada con un final claro, cuyo resultado es un borrador que
+    revisa una persona (ficha de una página más abajo).
+  </SummaryItem>
+</ArticleSummary>
+
+## ¿Qué es la IA agéntica?
+
+La IA agéntica es una IA que actúa hacia un objetivo en lugar de limitarse a responder. El modelo es el mismo tipo de modelo de lenguaje que hay detrás de un chatbot, pero está conectado a herramientas y puede decidir el siguiente paso. Google Cloud la describe como una IA que «puede fijar objetivos, planificar y ejecutar tareas con una intervención humana mínima», a diferencia de la «IA tradicional, que sobre todo responde a comandos o analiza datos».
+
+Las fuentes principales definen la IA agéntica con palabras algo distintas, y las diferencias muestran qué le importa a cada una.
+
+| Fuente | Definición | Qué destaca |
+|---|---|---|
+| [IBM](https://www.ibm.com/think/topics/agentic-ai) | «un sistema de inteligencia artificial que puede cumplir un objetivo concreto con supervisión limitada» | El objetivo y cuánta supervisión queda |
+| [AWS](https://aws.amazon.com/what-is/agentic-ai/) | «un sistema de IA autónomo que puede actuar de forma independiente para lograr objetivos predeterminados» | La independencia respecto a los prompts paso a paso |
+| [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) | IA que «puede fijar objetivos, planificar y ejecutar tareas con una intervención humana mínima» | Planificar y ejecutar, no solo responder |
+| [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), que cita un artículo de John Horton y coautores | «sistemas de software autónomos que perciben, razonan y actúan en entornos digitales para lograr objetivos en nombre de mandantes humanos» | Actuar en nombre de una persona |
+| [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | «un sistema inteligente que puede actuar de forma autónoma, razonar problemas de varios pasos y adaptar sus acciones en tiempo real para lograr un objetivo de negocio concreto con una supervisión humana mínima» | Objetivos de negocio y adaptación mientras se ejecuta |
+| [Anthropic](https://www.anthropic.com/research/building-effective-agents) | Los agentes son «sistemas en los que los LLM dirigen dinámicamente sus propios procesos y el uso de herramientas» | Quién controla el camino: el modelo o el código |
+
+El núcleo común es un objetivo, herramientas y cierta libertad para llegar a él. El desacuerdo está en cuánta libertad. El propio artículo de MIT Sloan señala que no existe una definición única y aceptada por todos.
+
+## ¿Qué diferencia hay entre la IA generativa y la IA agéntica?
+
+La IA generativa produce contenido: texto, imágenes, código, un resumen. Lo lees y decides tú qué hacer con él. La IA agéntica usa un modelo de lenguaje como lo que Google Cloud llama un «cerebro» que realiza acciones a través de herramientas. El ejemplo de Google: la IA generativa podría crear materiales de marketing, mientras que la IA agéntica podría después publicarlos, medir su rendimiento y ajustar la estrategia según los resultados.
+
+| | IA generativa | IA agéntica |
+|---|---|---|
+| Le das | Un prompt | Un objetivo |
+| Devuelve | Contenido | Acciones, más un informe de lo que cambió |
+| Herramientas | Opcionales | Obligatorias |
+| Quién da el siguiente paso | Tú | El agente, dentro de sus límites |
+| Un error típico | Una frase equivocada en un borrador | Una actualización errónea o un mensaje a la persona equivocada |
+| Dónde se revisa | Antes de usar el resultado | Antes de la acción, o en el registro de ejecución después |
+
+Las dos últimas filas son la diferencia práctica. Una alucinación en un borrador te cuesta una edición. La misma alucinación dentro de un agente se convierte en un registro modificado o en un correo enviado. Por eso los agentes necesitan permisos y reglas de aprobación que un generador de texto nunca necesitó.
+
+## ¿Qué diferencia hay entre un chatbot, un asistente, un flujo de trabajo y un agente?
+
+Estas cuatro palabras se usan a menudo para el mismo producto, pero describen distintos grados de control. Google Cloud separa bots, asistentes y agentes: los bots son los menos autónomos y suelen seguir reglas preprogramadas, los asistentes responden a peticiones y «pueden recomendar acciones, pero la decisión la toma el usuario», y los agentes son los más autónomos, capaces de «operar y tomar decisiones de forma independiente para lograr un objetivo». Anthropic añade el cuarto: un flujo de trabajo es un sistema en el que los LLM y las herramientas se «orquestan mediante rutas de código predefinidas», mientras que en un agente el modelo dirige su propio proceso.
+
+| Tipo | Quién decide el siguiente paso | Herramientas | Ejemplo | Dónde falla |
+|---|---|---|---|---|
+| Chatbot (bot) | Un guion o reglas fijas | Ninguna o una consulta sencilla | Un widget de preguntas frecuentes en una web | Todo lo que queda fuera del guion |
+| Asistente de IA | Tú: responde y recomienda, tú actúas | Opcionales | ChatGPT en un chat normal | La respuesta se queda en palabras hasta que actúas |
+| Automatización de flujos de trabajo | El camino que escribiste, con pasos de IA si los añades | APIs, webhooks | «Cuando una oportunidad pasa a Ganada, crear una tarea de incorporación» | Una entrada que el camino no previó |
+| Agente de IA | El modelo, dentro de las herramientas y los límites que fijas | Obligatorias | Un agente de programación que corrige una prueba fallida y abre una pull request | Una acción equivocada, un coste desbocado, una instrucción inyectada |
+
+**¿ChatGPT es una IA agéntica?** En un chat normal se comporta como un asistente: responde y tú actúas. Funciona de forma agéntica cuando puede usar herramientas para actuar por ti, por ejemplo en el modo agente de ChatGPT, o cuando está conectado a un software de empresa mediante MCP y puede leer datos allí y, según el plan de ChatGPT, modificarlos. La etiqueta pertenece a la configuración, no al nombre del producto.
+
+## ¿Cómo funciona un sistema de IA agéntica?
+
+Un sistema de IA agéntica es un modelo de lenguaje con cuatro elementos a su alrededor: un objetivo, las herramientas a las que puede llamar, los permisos con los que se ejecutan esas herramientas y un bucle con una regla de parada. Todo sistema de este tipo ejecuta una versión del mismo ciclo:
+
+1. **Objetivo.** Una persona, una programación o un evento le entrega al agente un objetivo, como «prepara una respuesta a este correo» o «corrige la prueba que falla».
+2. **Plan.** Un modelo de lenguaje divide el objetivo en pasos y elige el primero.
+3. **Acción.** El agente llama a una herramienta: una búsqueda, una consulta a una base de datos, una llamada a una API, la edición de un archivo.
+4. **Observación.** Lee el resultado y lo compara con el objetivo.
+5. **Seguir o parar.** Da el siguiente paso, le pregunta a una persona o termina cuando se cumple el objetivo o se alcanza un límite.
+
+IBM describe el mismo ciclo en siete etapas: percepción, razonamiento, definición de objetivos, toma de decisiones, ejecución, aprendizaje y adaptación, y orquestación. Lo que marca el alcance de un agente son sus herramientas: un modelo sin acceso a herramientas puede describir una acción, pero no puede realizarla. Por eso el [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), en palabras de quienes lo mantienen «un estándar de código abierto para conectar aplicaciones de IA con sistemas externos», está en el centro de tantas configuraciones de agentes. La [guía del servidor MCP](/blog/what-is-an-mcp-server) explica cómo funciona y qué revisar antes de conectar uno.
+
+## ¿Cuáles son los ejemplos y las aplicaciones de la IA agéntica?
+
+La forma útil de leer los ejemplos es por tarea y no por marca: qué hace el agente, qué herramientas necesita, dónde tiene que aprobar una persona y qué puede salir mal. La tabla siguiente cubre soporte, operaciones, finanzas y desarrollo de software; las ventas y el trabajo de CRM tienen su propia sección más abajo. Las filas son patrones, no productos.
+
+### Ejemplos de IA agéntica por función de negocio
+
+| Función | Tarea de ejemplo | Qué hace el agente | Herramientas que necesita | Dónde aprueba una persona | Riesgo principal |
+|---|---|---|---|---|---|
+| Soporte | Responder o escalar un ticket | Lee el ticket, busca en la base de conocimientos, responde cuando la respuesta está documentada y, si no, pasa el caso a una persona con un resumen | Búsqueda en la base de conocimientos, sistema de tickets, acceso de lectura a los datos de la cuenta | Reembolsos, cambios de cuenta y cualquier caso que la base de conocimientos no cubra | Una respuesta equivocada dicha con seguridad, o una promesa que nadie aprobó |
+| Operaciones | Primera respuesta ante un incidente de TI | Lee alertas y registros, propone o ejecuta una reversión, redacta el informe del incidente y avisa a la persona de guardia | Monitorización y registros, herramientas de despliegue, chat | Cambios en producción y reversiones | Una acción difícil de deshacer basada en una alerta mal interpretada |
+| Finanzas | Revisión de facturas y movimientos | Compara las facturas recibidas con los pedidos y las líneas del banco, propone coincidencias y señala excepciones | Sistema contable o exportación (lectura), lectura de archivos | Cada asiento y cada pago | Un apunte erróneo, un pago duplicado, excepciones que nadie revisa |
+| Software | Corregir una prueba fallida | Lee el código y la salida de la prueba, edita archivos, vuelve a ejecutar las pruebas y abre una pull request | Acceso al repositorio, comandos de shell | El diff o la pull request | Un cambio que pasa las pruebas pero no cumple el requisito |
+
+Los proveedores describen las mismas tareas. La explicación de Salesforce recorre un agente de servicio que comprueba el estado de la garantía, busca en la base de conocimientos, envía una etiqueta de devolución y actualiza el CRM, y un agente de salud de cuentas que envía por correo la guía adecuada y programa una tarea de seguimiento para el responsable de la cuenta. [AWS](https://aws.amazon.com/what-is/agentic-ai/) enumera investigación y desarrollo, transformación de código, automatización de la respuesta a incidentes y automatización del servicio al cliente. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) añade servicios financieros (detección de fraude, evaluación de riesgos) y desarrollo de software. [Anthropic](https://www.anthropic.com/research/building-effective-agents) considera que el soporte al cliente encaja de forma natural porque el soporte «sigue naturalmente un flujo de conversación y a la vez requiere acceso a información y acciones externas».
+
+Lee las dos últimas columnas de la tabla antes que las primeras. Cuanto más reversible es la acción, menos aprobación necesita; los pagos, los reembolsos, las reversiones y todo lo que se envía a un cliente deberían pasar siempre por una persona.
+
+### Productos que sus proveedores llaman agentes
+
+Cada producto de abajo lo llama agente su propio proveedor, y las columnas centrales siguen la documentación de ese proveedor.
+
+| Producto | Qué recibe | Qué hace | Punto de control humano natural |
+|---|---|---|---|
+| [Claude Code](https://code.claude.com/docs/en/overview) (Anthropic) | Una tarea de programación en un repositorio | Lee el código, edita archivos, ejecuta comandos, prepara cambios, escribe mensajes de commit, crea ramas y abre pull requests | El diff o la pull request |
+| [GitHub Copilot en la nube](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github) | Una tarea en un repositorio | Investiga el repositorio, planifica cambios y los implementa en segundo plano, edita archivos y ejecuta pruebas y linters en un entorno de desarrollo en la nube | Revisar los cambios propuestos antes de que se cree una pull request |
+| [Salesforce Agentforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/) | Un ticket de soporte | Comprueba el estado de la garantía, busca en la base de conocimientos, envía una etiqueta de devolución y actualiza el CRM | Salesforce señala como claves las reglas y los límites claros, la monitorización periódica y la supervisión humana |
+| Rutina de Customermates (Customermates Cloud) | Un correo nuevo en una oportunidad | Lo resume en las notas de la oportunidad y guarda un borrador de respuesta | El borrador, antes de que una persona lo envíe |
+
+La [guía de Salesforce Agentforce](/blog/agentforce) cubre con más detalle las funciones, los precios y la configuración de ese producto.
+
+## ¿Cuáles son los tipos de IA agéntica?
+
+Mucha gente busca «los cuatro tipos de IA agéntica». Las fuentes revisadas aquí no definen exactamente cuatro. La [guía de agentes](https://cloud.google.com/discover/what-are-ai-agents) de Google Cloud clasifica los agentes de dos maneras: por interacción (compañeros interactivos que responden a la consulta de un usuario y agentes en segundo plano, que «generalmente se activan por eventos») y por número (un solo agente o un sistema multiagente). AWS divide además los sistemas multiagente en horizontales, cuyos agentes trabajan lado a lado, y verticales, organizados en jerarquía. Cruzar la interacción con el número da cuatro combinaciones; esa cuadrícula es una lectura mía, no un estándar.
+
+Una segunda forma de clasificar es según quién controla el camino. La guía de ingeniería de Anthropic separa los **flujos de trabajo** de los **agentes** y nombra cinco patrones de flujo de trabajo. Su consejo es directo: buscar la solución más simple que funcione, lo que «podría significar no construir sistemas agénticos en absoluto». Estoy de acuerdo. La mayoría de las tareas de negocio que se llaman «agentes» se resuelven mejor como flujos de trabajo con uno o dos pasos de IA.
+
+| Patrón | Qué hace | Ejemplo de negocio |
+|---|---|---|
+| Encadenamiento de prompts | Pasos fijos, cada uno alimenta al siguiente, con comprobaciones intermedias | Resumir una llamada, extraer los próximos pasos y anotarlos en la oportunidad |
+| Enrutamiento | Clasifica la entrada y la envía a un paso especializado | Separar el correo entrante entre consultas comerciales y todo lo demás |
+| Paralelización | Ejecuta varias llamadas al modelo a la vez y combina los resultados | Dos revisiones independientes de una cláusula de un contrato, comparadas entre sí |
+| Orquestador y trabajadores | Un modelo divide el trabajo y delega las partes | Un agente principal reparte la investigación de cuentas entre subagentes |
+| Evaluador y optimizador | Un modelo redacta, otro critica hasta que el borrador pasa | Un borrador de respuesta revisado según tu guía de tono |
+
+**IA agéntica frente a agentes de IA.** Google Cloud llama a los agentes de IA «los bloques de construcción de la IA agéntica»: un agente se centra en una tarea concreta y la IA agéntica coordina a varios agentes en un flujo de trabajo complejo. En el uso cotidiano los términos son intercambiables.
+
+## ¿Cómo se usa la IA agéntica en ventas y en el trabajo de CRM?
+
+El trabajo de CRM es adecuado para agentes: el contexto está en un solo lugar (contactos, oportunidades, notas, historial de conversaciones), las mismas tareas se repiten todos los días y la mayoría de los cambios se pueden corregir. La tabla enumera las tareas que aparecen primero. Son patrones, no productos, y todas las filas terminan en una persona.
+
+| Tarea | Qué hace el agente | Herramientas que necesita | Dónde aprueba una persona | Riesgo principal |
+|---|---|---|---|---|
+| Preparar la respuesta en una oportunidad abierta | Lee el correo nuevo, la oportunidad y sus notas, añade la pregunta pendiente a las notas y guarda un borrador de respuesta | Lectura y escritura en el CRM, acceso al hilo de correo | El borrador, antes de enviarlo | Un dato erróneo en el borrador, o una respuesta al contacto equivocado |
+| Investigar una cuenta antes de una llamada | Busca en la web y en el CRM y redacta una ficha de una página con sus fuentes | Búsqueda web, lectura del CRM | Leer la ficha antes de la llamada | Datos desactualizados o inventados que acaban copiados en el CRM |
+| Mantener los registros tras una conversación | Convierte el resumen de una llamada o un hilo de correo en notas, un campo modificado y un próximo paso | Lectura y escritura en el CRM | Revisar los campos modificados | Valores de campo erróneos, registros duplicados |
+| Triaje de solicitudes entrantes | Separa las solicitudes nuevas entre consultas comerciales y el resto, y crea el contacto y una oportunidad para las consultas | Acceso a la bandeja de entrada, escritura en el CRM | La oportunidad nueva y el borrador de respuesta | Un cliente real archivado como spam, duplicados |
+| Revisión de oportunidades estancadas | Encuentra las oportunidades abiertas sin contacto durante un tiempo fijado y redacta un recordatorio por oportunidad | Lectura del CRM, guardado de borradores | Cada recordatorio, antes de enviarlo | Un recordatorio a alguien que ya respondió por otra vía |
+
+### Dónde se responden las preguntas más concretas
+
+Esta página responde a la pregunta general. Dos guías vecinas se ocupan de las más concretas, así que no se repiten aquí.
+
+| Si tu pregunta es | Lee |
+| --- | --- |
+| ¿Cómo dejo que una IA trabaje con registros del CRM de forma segura: Mate, MCP, aprobaciones, nube o autoalojado? | [CRM agéntico y nativo de IA](/blog/agentic-crm) |
+| ¿Qué agentes de ventas con IA existen, cuánto cuestan, qué dice la ley alemana sobre el correo en frío y cómo hago un piloto? | [Agente de ventas con IA](/blog/ai-sales-agent) |
+| ¿Qué es un servidor MCP y qué debo revisar antes de conectar uno? | [Guía del servidor MCP](/blog/what-is-an-mcp-server) |
+| ¿Cómo conecto Claude o ChatGPT a un CRM? | [Claude CRM](/blog/claude-crm) y [ChatGPT para ventas](/blog/chatgpt-for-sales) |
+| ¿Qué hacen y cuánto cuestan los agentes de Salesforce? | [Salesforce Agentforce](/blog/agentforce) |
+
+### Qué hace Customermates aquí
+
+Esto es información del proveedor sobre nuestro propio producto. Customermates es un CRM de código abierto y nativo de IA. Su [servidor MCP](/docs/mcp) permite que un cliente de IA como Claude o ChatGPT lea y escriba registros del CRM con los permisos del usuario conectado, en todos los planes y también autoalojado; el servidor pide a los clientes que confirmen antes de borrar o enviar, pero es una indicación que un cliente puede ignorar. Customermates Cloud añade Mate, un asistente, y las [rutinas](/docs/app-routines), que ejecutan Mate según una programación o cuando algo cambia. Mate pregunta antes de eliminar, importar, cambiar accesos y algunas otras acciones, pero no antes de enviar un correo o un mensaje de chat, así que pide un borrador cuando quieras revisar antes la redacción; la [documentación de Mate](/docs/app-assistant) incluye la lista completa. Que Mate esté activo depende del entorno alojado.
+
+No es la opción adecuada si quieres un agente que prospecte y envíe por su cuenta: no hay secuencias, ni envíos masivos, ni puntuación de leads, y la [guía del agente de ventas con IA](/blog/ai-sales-agent) trata en cambio los agentes de prospección dedicados. Una instalación autoalojada tiene MCP, pero ni Mate ni rutinas. Para ver el seguimiento de tus propias conversaciones, [empieza la prueba de [[commercial.trial.days]] días](/auth/signup?job=followup): Pro, sin tarjeta de crédito. Si estás eligiendo un CRM preparado para la IA, la [guía del CRM con IA](/blog/ai-crm) enumera qué comparar.
+
+## ¿Cómo es una ejecución de un agente? Un ejemplo práctico
+
+Imagina una pequeña consultora en la que un cliente escribe: «¿Podemos pasar la reunión de arranque al jueves? ¿Y la formación está incluida en el precio?». Un agente configurado para preparar respuestas trata el correo en siete pasos. El caso es ilustrativo, no una historia de un cliente real.
+
+| Paso | Qué ocurre | Llamada a herramienta | Qué puedes comprobar después |
+|---|---|---|---|
+| 1. Objetivo | Un correo nuevo inicia la ejecución con la instrucción de abajo | Ninguna | El disparador y la instrucción en el registro de ejecución |
+| 2. Plan | El modelo decide que necesita el registro del remitente, la oportunidad vinculada y el hilo anterior | Ninguna | El plan, donde el producto lo muestre |
+| 3. Acción | Busca al remitente | Búsqueda en el CRM (lectura) | La consulta y su resultado |
+| 4. Observación | Encuentra una oportunidad abierta en una etapa de propuesta; las notas dicen que la formación se presupuesta aparte | Lectura del CRM | Compáralo tú mismo con la oportunidad |
+| 5. Acción | Añade tres líneas a las notas de la oportunidad: reunión de arranque el jueves, pregunta sobre la formación pendiente | Actualización del CRM (escritura) | El cambio en las notas |
+| 6. Acción | Guarda un borrador de respuesta: el jueves es posible una vez confirmado, y según las notas la formación se presupuesta aparte; marca como incierta la disponibilidad del jueves | Guardado de borrador (escritura, no envío) | El borrador en el hilo |
+| 7. Parada | Termina la ejecución con un informe de lo que leyó y cambió | Ninguna | El informe; tú editas y envías el borrador |
+
+La instrucción detrás de la ejecución es corta, y cada línea limita lo que puede hacer el agente:
+
+```text
+Objetivo: preparar una respuesta al correo nuevo. No la envíes.
+Lee: el contacto del remitente, la oportunidad abierta vinculada y el hilo.
+Escribe: tres líneas en las notas de la oportunidad (qué quiere el
+remitente, cualquier fecha o importe, la pregunta pendiente) y un
+borrador de respuesta en el hilo.
+Nunca: enviar un mensaje, cambiar la etapa o el valor de la
+oportunidad, tocar otras oportunidades.
+Parada: si el remitente no tiene una oportunidad abierta, no hagas
+nada y dilo.
+Informe: qué leíste, qué cambiaste y de qué no estás seguro.
+```
+
+Tres detalles hacen el trabajo. Leer y escribir están separados, así que el agente puede mirar todo lo que necesita y cambiar solo notas y borradores. La regla de parada cubre el caso que nadie planificó. Y el punto de aprobación es el botón de enviar, que sigue en manos de una persona. En Customermates esta ejecución es una rutina; la [documentación de rutinas](/docs/app-routines) enumera lo que una rutina puede hacer sin aprobación y la [guía del CRM agéntico](/blog/agentic-crm) explica dónde preguntan Mate y MCP y dónde no.
+
+## ¿Cuáles son los límites y los riesgos de la IA agéntica, y qué controles funcionan?
+
+OWASP incluye el «Excessive Agency» (exceso de agencia) en su [Top 10 para aplicaciones LLM](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025) y lo define como la vulnerabilidad que permite acciones dañinas en respuesta a «salidas inesperadas, ambiguas o manipuladas de un LLM». El detonante puede ser una alucinación, una inyección de prompt escondida en contenido que el agente lee o una herramienta comprometida. OWASP señala tres causas de fondo, y cada una tiene un control directo:
+
+| Causa de fondo (OWASP) | Cómo se ve | Control |
+|---|---|---|
+| Funcionalidad excesiva | El agente que escribe notas también puede borrar registros | Dale solo las herramientas que necesita la tarea |
+| Permisos excesivos | Se ejecuta con el acceso de un administrador | Ejecútalo como un usuario cuyo rol cubra la tarea y nada más |
+| Autonomía excesiva | Envía, paga o borra sin que nadie lo revise | Exige aprobación para las acciones de alto impacto, o genera solo borradores |
+
+El propio consejo de OWASP para la tercera fila es usar el control con una persona en el circuito «para exigir que una persona apruebe las acciones de alto impacto antes de ejecutarlas». Anthropic dice lo mismo sobre los agentes de programación: las pruebas automáticas verifican la funcionalidad, pero «la revisión humana sigue siendo crucial para asegurar que las soluciones se ajustan a los requisitos más amplios del sistema».
+
+Tres límites más aparecen en la práctica:
+
+- **Los errores se encadenan.** Si el primer paso interpreta mal un correo, todos los pasos siguientes se apoyan en ese error.
+- **El coste crece con cada paso**, por eso existen los límites por ejecución.
+- **El resultado sigue necesitando revisión.** La documentación de GitHub sobre su agente de Copilot en la nube dice que «puede producir código incorrecto o subóptimo» y que el resultado debe revisarse y probarse antes de usarlo en producción. Lo mismo vale para los borradores y los cambios de registros de cualquier agente.
+
+Una prueba rápida para cualquier producto que se venda como agente: ¿a qué herramientas puede llamar, con los permisos de quién y qué hace sin preguntar?
+
+## ¿Cómo le doy a un agente su primer trabajo?
+
+<Steps>
+  <Step title="Elige una tarea con un final claro">
+    Una buena primera tarea termina en una sola ejecución y tiene un «listo»
+    evidente: una ficha para una reunión, un borrador de respuesta, un
+    registro puesto al día. Evita objetivos abiertos como «hacer crecer el
+    pipeline».
+  </Step>
+  <Step title="Empieza con borradores y un rol acotado">
+    Deja que el agente prepare y que una persona decida, y ejecútalo como un
+    usuario cuyo rol cubra la tarea. Permite acciones directas solo en los
+    pasos que son baratos de deshacer.
+  </Step>
+  <Step title="Escribe la regla de parada">
+    Di qué pasa cuando un caso no encaja: «Si ocurre X, no hagas nada». Los
+    casos que la instrucción no previó son donde los agentes improvisan.
+  </Step>
+  <Step title="Lee cada ejecución al principio">
+    Revisa el registro de cada una de las primeras ejecuciones. Amplía lo que
+    el agente puede hacer una acción cada vez.
+  </Step>
+</Steps>
+
+Anota las respuestas en una ficha de una página. La columna de la derecha la rellena para el agente de preparación de respuestas del ejemplo anterior.
+
+| Campo | La pregunta que responde | Ejemplo del agente de preparación de respuestas |
+|---|---|---|
+| Objetivo y estado final | ¿Cómo se ve «hecho»? | Un borrador de respuesta en el hilo y las notas de la oportunidad actualizadas |
+| Disparador | ¿Qué inicia una ejecución? | Un correo nuevo de un contacto con una oportunidad abierta |
+| Herramientas, divididas en lectura, escritura y envío | ¿A qué puede acceder y cómo? | Lee el CRM y el hilo; escribe notas y borradores; no envía |
+| Se ejecuta como | ¿Qué permisos se aplican? | Un usuario cuyo rol cubre oportunidades y bandeja de entrada, nada más |
+| Regla de parada | ¿Qué pasa en un caso que no encaja? | Sin oportunidad abierta: no hace nada y lo dice |
+| Punto de aprobación | ¿Dónde decide una persona? | Enviar el borrador |
+| Límites | ¿Cuánto puede costar una ejecución y las ejecuciones de un día? | Un tope de coste por ejecución y un tope de ejecuciones por hora |
+| Registro | ¿Dónde lees lo que pasó? | El registro de ejecución, que se lee después de cada una de las primeras |
+
+## ¿Cuándo es la IA agéntica la herramienta equivocada?
+
+Si los pasos nunca cambian, una regla fija es más barata y más predecible que un agente. «Cuando una oportunidad pasa a Ganada, crear una tarea de incorporación» necesita un webhook y una [automatización de flujos de trabajo](/features/workflow-automation), no un modelo de lenguaje. Los agentes compensan su coste donde la entrada varía: correos de texto libre, notas desordenadas, preguntas que requieren varias consultas. Son la opción equivocada cuando una acción errónea no se puede deshacer y nadie puede revisarla a tiempo, siendo los pagos el caso más claro.
+
+## IA agéntica y protección de datos
+
+Los agentes leen datos personales: nombres, direcciones de correo, el contenido de las conversaciones. Según el RGPD, un proveedor que trata esos datos por cuenta tuya es un encargado del tratamiento y necesita un contrato de encargo del tratamiento, y los proveedores de IA en los que se apoya son sus subencargados. Para Mate en Customermates Cloud, los proveedores de modelos figuran en la [lista de subencargados](/subprocessors). Si quieres elegir tú el proveedor, conecta tu propio cliente de IA mediante MCP o autoaloja el núcleo de código abierto para que los datos del CRM se queden en tus propios servidores.
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Qué significa agéntico?">
+Agéntico describe un sistema que actúa con agencia: persigue un objetivo y da los pasos por sí mismo en lugar de limitarse a responder. AWS lo define como la capacidad de actuar de forma independiente, pero orientada a un objetivo. La palabra viene de «agente», alguien que actúa en nombre de otro.
+</FaqItem>
+
+<FaqItem question="¿Qué es agentic AI, en palabras sencillas?">
+Una IA a la que le das un objetivo en lugar de una pregunta. Planifica los pasos, usa herramientas como buscadores, APIs o software de empresa para llevarlos a cabo, revisa los resultados y se detiene cuando se cumple el objetivo o necesita a una persona.
+</FaqItem>
+
+<FaqItem question="¿Me puedes dar un ejemplo de IA agéntica?">
+Un agente de programación como Claude Code lee un repositorio, edita archivos, ejecuta las pruebas y abre una pull request para que la revise una persona. En un CRM, un agente puede leer un correo nuevo, añadir la pregunta pendiente a la oportunidad y guardar un borrador de respuesta que envía una persona.
+</FaqItem>
+
+<FaqItem question="¿ChatGPT es una IA agéntica?">
+En un chat normal, ChatGPT es IA generativa usada como asistente: responde y tú actúas. Funciona de forma agéntica cuando puede usar herramientas para actuar por ti, por ejemplo en su modo agente, o cuando está conectado a un software de empresa mediante MCP y puede leer datos allí y, según el plan de ChatGPT, modificarlos.
+</FaqItem>
+
+<FaqItem question="¿Qué es un sistema de IA agéntica?">
+Un modelo de lenguaje combinado con un objetivo, herramientas a las que puede llamar, permisos para esas herramientas y un bucle con una regla de parada. El modelo planifica, las herramientas actúan y las reglas de aprobación deciden qué puede hacer el sistema sin preguntar.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los cuatro tipos de IA agéntica?">
+No existe una lista estándar de cuatro. Las formas habituales de clasificar los agentes son por interacción (interactivos o en segundo plano), por número (un agente o varios) y por quién controla el camino (flujo de trabajo o agente). Cruzar la interacción con el número da cuatro combinaciones.
+</FaqItem>
+
+<FaqItem question="¿Qué diferencia hay entre la IA generativa y la IA agéntica?">
+La IA generativa crea contenido a partir de un prompt, y tú decides qué hacer con él. La IA agéntica persigue un objetivo y ejecuta las acciones por sí misma, normalmente con un modelo generativo que elige cada paso siguiente.
+</FaqItem>
+
+<FaqItem question="¿Qué diferencia hay entre la IA agéntica y los agentes de IA?">
+Google Cloud llama a los agentes de IA los bloques de construcción de la IA agéntica: los agentes hacen las tareas individuales y la IA agéntica es el sistema coordinado. En el uso cotidiano los términos son intercambiables.
+</FaqItem>
+
+<FaqItem question="¿Qué es un flujo de trabajo agéntico?">
+Un proceso en el que los modelos de lenguaje y las herramientas siguen un camino definido de antemano, a diferencia de un agente que elige su propio camino. El encadenamiento de prompts y el enrutamiento son patrones típicos. Para la mayoría de las tareas de negocio, un flujo de trabajo es más barato y más fácil de controlar.
+</FaqItem>
+
+<FaqItem question="¿Cómo se usa la IA agéntica en ventas y en el trabajo de CRM?">
+Las tareas típicas son preparar la respuesta en una oportunidad abierta, investigar una cuenta antes de una llamada, mantener los registros tras una conversación, el triaje de solicitudes entrantes y la revisión de oportunidades estancadas. En todas, el agente prepara y una persona aprueba lo que llega a un cliente. La guía del agente de ventas con IA trata los agentes de ventas dedicados, y la guía del CRM agéntico, cómo trabajar con agentes sobre los registros del CRM.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los límites de la IA agéntica?">
+Un agente puede actuar sobre una entrada mal interpretada, los errores se encadenan en los pasos siguientes, el coste crece con cada paso y el resultado sigue necesitando revisión. OWASP agrupa el riesgo principal como exceso de agencia: demasiadas herramientas, demasiados permisos o demasiada autonomía. Las tareas acotadas, los borradores en lugar de acciones directas y una regla de parada mantienen esos límites bajo control.
+</FaqItem>
+</Faq>
+
+Definiciones, descripciones de producto y citas de terceros comprobadas el 11 de noviembre de 2026 en [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (IA agéntica)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (agentes de IA)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), la [documentación de MCP](https://modelcontextprotocol.io/docs/getting-started/intro), la [documentación de Claude Code](https://code.claude.com/docs/en/overview) y [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).

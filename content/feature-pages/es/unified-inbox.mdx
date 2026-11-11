@@ -1,0 +1,242 @@
+---
+title: "CRM email: bandeja de entrada unificada y canales sociales"
+description: "CRM email: Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una bandeja. Cada conversación en su cliente, con borradores. Cloud desde Pro."
+featureName: Bandeja de entrada unificada del CRM
+
+acquisition:
+  locale: es
+  slug: unified-inbox
+  clusterId: unified-inbox
+  role: hub
+  primaryIntent: Una sola bandeja de entrada de CRM para los canales compatibles
+  metadata:
+    title: "CRM email: bandeja de entrada unificada y canales sociales"
+    description: "CRM email: Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram y Telegram en una bandeja. Cada conversación en su cliente, con borradores. Cloud desde Pro."
+  proof:
+    factReferences:
+      - product:cloud-only-unified-inbox
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+      - product:core-crm-records
+      - product:mcp-tools
+      - product:hosted-mate-capability
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-unsupported-channels
+  cta:
+    action: "Haz el seguimiento de tu próxima conversación con un cliente desde una sola bandeja de entrada"
+    description: "Empieza la prueba, conecta una cuenta de email o de LinkedIn y comprueba si tus propias conversaciones encajan con tus clientes. La prueba dura [[commercial.trial.days]] días en Pro, sin tarjeta de crédito."
+    buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Lee la guía de la bandeja de entrada
+    buttonRightHref: /docs/app-inbox
+    hint: "Ni Starter ni las instalaciones autoalojadas incluyen la bandeja de entrada unificada."
+  relatedHrefs:
+    - /docs/app-inbox
+    - /docs/mcp
+    - /blog/agentic-crm
+    - /for/agencies
+  visual:
+    id: acquisition.unified-inbox.es
+    locale: es
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM email: una sola bandeja de entrada para cada conversación con tus clientes. Responde a todas."
+      body: "Las conversaciones de email y LinkedIn, además de WhatsApp, Instagram y Telegram, quedan en la ficha del cliente al que pertenecen. Mira quién espera tu respuesta, revisa el borrador de respuesta y envíalo. Customermates Cloud, desde Pro."
+      checksum: fnv1a-fd7a8c0c
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Los canales de email, redes sociales y mensajería compatibles confluyen en una sola bandeja de entrada del CRM."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Los canales de email, redes sociales y mensajería compatibles confluyen en una sola bandeja de entrada del CRM."
+    factReferences:
+      - product:conversation-record-association
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: es
+      text: Canales
+    semanticLabels:
+      - locale: es
+        text: Una sola bandeja
+      - locale: es
+        text: Contexto CRM
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: record
+        fixtures:
+          conversation: gmail-rollout-next-steps
+          person: nina-castillo
+      - id: contact-context
+        form: context-card
+        fixtures:
+          person: nina-castillo
+    accentTarget: inbox-providers
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    title: "Sigue una conversación hasta el contexto del CRM"
+    items:
+      - title: "Abre la conversación entrante"
+        description: "Empieza desde la lista combinada de conversaciones en lugar de saltar entre las pestañas de cada proveedor."
+      - title: "Comprueba al participante"
+        description: "Asocia a la persona de la conversación con un contacto del CRM para que el contexto de la relación esté disponible."
+      - title: "Revisa y responde"
+        description: "Lee el historial, guarda un borrador persistente en la conversación existente y envía por el canal conectado cuando estés listo."
+      - title: "Clasifica la conversación"
+        description: "Marca la conversación como sin leer, abierta, cerrada o spam para que la bandeja de entrada refleje su estado actual."
+  highlights:
+    title: "De un vistazo"
+    capture: homepage-inbox
+    items:
+      - title: "Resultado"
+        description: "Trabaja las conversaciones de clientes compatibles en una sola lista, con el contexto del contacto del CRM del participante siempre a mano."
+      - title: "Disponible en"
+        description: "Customermates Cloud desde Pro, con límites de cuentas y funciones de uso compartido que varían según el plan."
+      - title: "Acciones principales"
+        description: "Leer y responder, clasificar el estado de las conversaciones, guardar un borrador, trabajar con los archivos adjuntos compatibles y asociar participantes con contactos."
+      - title: "Límite importante"
+        description: "La relación con el contacto une la conversación con el contexto del pipeline. Una sola conversación también puede vincularse a un registro como una oportunidad."
+
+hero:
+  title: "CRM email: una sola bandeja de entrada para cada conversación con tus clientes. Responde a todas."
+  description: "Las conversaciones de email y LinkedIn, además de WhatsApp, Instagram y Telegram, quedan en la ficha del cliente al que pertenecen. Mira quién espera tu respuesta, revisa el borrador de respuesta y envíalo. Customermates Cloud, desde Pro."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Lee la guía de la bandeja de entrada
+  buttonRightHref: /docs/app-inbox
+  hint: "Sin tarjeta de crédito • Solo en la nube, desde Pro"
+  showOpenSourceBadge: false
+
+cta:
+  action: "Haz el seguimiento de tu próxima conversación con un cliente desde una sola bandeja de entrada"
+  description: "Empieza la prueba, conecta una cuenta de email o de LinkedIn y comprueba si tus propias conversaciones encajan con tus clientes. La prueba dura [[commercial.trial.days]] días en Pro, sin tarjeta de crédito."
+  buttonLeftText: "Empieza tu prueba de [[commercial.trial.days]] días"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Lee la guía de la bandeja de entrada
+  buttonRightHref: /docs/app-inbox
+  hint: "Ni Starter ni las instalaciones autoalojadas incluyen la bandeja de entrada unificada."
+---
+
+El **CRM email de Customermates** es una bandeja de entrada unificada: reúne en una sola lista las conversaciones de email y de redes sociales compatibles. Los miembros del equipo pueden leer y responder a las conversaciones, clasificar su estado, guardar un borrador en una conversación existente y asociar a los participantes con contactos del CRM.
+
+Es una función de la nube gestionada a partir de Pro. Starter y Customermates autoalojado no incluyen cuentas de mensajería ni la bandeja de entrada unificada.
+
+**Por qué te ayuda a hacer seguimiento.** La respuesta de un cliente se pierde cuando queda en una pestaña que no abriste. En la bandeja de entrada cada conversación aparece en el cliente cuya dirección de email, número de teléfono o perfil de LinkedIn está en el registro, y un mensaje nuevo devuelve la conversación a Sin leer. Una vista guardada con **Último mensaje** = **Enviado** y una antigüedad de unos días lista las conversaciones en las que aún esperas una respuesta. Mate, o tu propio cliente de IA mediante MCP, puede guardar un borrador de respuesta en la conversación; tú lo revisas y lo envías por el canal por el que llegó la conversación.
+
+<ProofRail label="Funciones verificadas de la bandeja de entrada unificada del CRM">
+  <ProofItem label="Email">Gmail, Outlook e IMAP</ProofItem>
+  <ProofItem label="Profesional">Variantes de LinkedIn</ProofItem>
+  <ProofItem label="Mensajería">WhatsApp y Telegram</ProofItem>
+  <ProofItem label="Social">Instagram</ProofItem>
+  <ProofItem label="Contexto del CRM">Asociación participante-contacto</ProofItem>
+</ProofRail>
+
+## Canales compatibles
+
+| Familia de canales          | Conexiones compatibles                                       |
+| --------------------------- | ------------------------------------------------------------ |
+| Email                       | Gmail/Google, Outlook/Microsoft e IMAP                       |
+| Redes profesionales         | Variantes LinkedIn Classic, Sales Navigator y Recruiter      |
+| Mensajería y redes sociales | WhatsApp, Instagram y Telegram                               |
+
+El conjunto compatible no incluye SMS ni telefonía. El comportamiento de los proveedores y la compatibilidad con archivos adjuntos pueden variar según el tipo de conexión. Para WhatsApp, la página de la [integración de WhatsApp con el CRM](/features/whatsapp-integration) explica qué cubre la conexión y dónde termina.
+
+## Qué puedes hacer en la bandeja de entrada
+
+- ver en una sola lista las conversaciones de las cuentas conectadas;
+- abrir una conversación y responder por su canal;
+- marcar las conversaciones como sin leer, abiertas, cerradas o spam;
+- asociar a los participantes de las conversaciones con contactos del CRM;
+- guardar un borrador persistente en una conversación existente; y
+- trabajar con los archivos adjuntos compatibles donde la conexión del proveedor lo permita.
+
+El contexto de una conversación puede aflorar a través de su relación con el contacto, así que el contacto y sus registros del CRM vinculados son el puente principal hacia el contexto del pipeline. En **Registros de la conversación**, **Vincular registro** también adjunta una sola conversación a un registro como una oportunidad.
+
+## Acceso a cuentas personales y compartidas
+
+| Plan de la nube | Cuentas conectadas incluidas                  | Cuentas compartidas |
+| --------------- | --------------------------------------------- | ------------------- |
+| Starter         | 0                                             | No                  |
+| Pro             | 1 por usuario                                 | No                  |
+| Business        | 3 por usuario                                 | Sí                  |
+| Enterprise      | Ilimitadas bajo condiciones de uso razonable  | Sí                  |
+
+Los usuarios de Pro pueden compartir conversaciones concretas con los compañeros del CRM. Compartir una cuenta conectada entera está disponible en Business y Enterprise. Los permisos siguen determinando a qué recursos y acciones del CRM puede acceder un usuario.
+
+<AcquisitionCallout
+  title="Compartir una conversación y compartir una cuenta son cosas distintas"
+  variant="proof"
+>
+  Un usuario de Pro puede compartir una conversación concreta con los
+  compañeros del CRM. Compartir la cuenta conectada completa es una función de
+  Business o Enterprise. Esta diferencia importa cuando comparas bandejas de
+  entrada personales con direcciones propiedad del equipo.
+</AcquisitionCallout>
+
+## Bandeja de entrada, MCP y límites de aprobación
+
+El [servidor MCP](/docs/mcp) de Customermates incluye herramientas para el trabajo de mensajería compatible, entre ellas leer conversaciones y actividades, gestionar borradores, clasificar conversaciones y enviar respuestas. Sus instrucciones indican a los clientes compatibles que pidan confirmación explícita antes de un envío, pero el endpoint MCP no añade una segunda puerta de aprobación después de que el cliente llame a la herramienta. Verifica el paso de revisión del lado del cliente antes de conceder acceso a la mensajería.
+
+Todos los planes de pago de la nube incluyen acceso a Mate y una asignación mensual de créditos de IA alojados por usuario activo. Cuando Mate está activado en el entorno alojado, puede trabajar con las herramientas de la bandeja de entrada que le correspondan, con los permisos del usuario actual y sus propios controles de confirmación. Los clientes MCP externos, en cambio, usan el proveedor de modelos del cliente y no consumen la asignación alojada.
+
+## Límite del calendario
+
+Las cuentas conectadas compatibles pueden mostrar una vista de calendario de solo lectura en los planes de la nube que la incluyen. Customermates no crea, actualiza ni reserva eventos del calendario del proveedor.
+
+## Ediciones Cloud y autoalojada
+
+La bandeja de entrada unificada solo está disponible en Customermates Cloud a partir de Pro. El [CRM autoalojado](/features/self-hosted) usa el conjunto de funciones de Starter: cero cuentas de mensajería conectadas, sin cuentas compartidas, sin bandeja de entrada unificada y sin Mate ni créditos alojados. Los clientes de IA externos pueden seguir usando MCP con el núcleo del CRM autoalojado.
+
+Para los detalles de Gmail, lee la [guía del CRM con Gmail](/blog/gmail-crm-integration), o sigue el flujo de trabajo exacto del producto en la [guía de la bandeja de entrada](/docs/app-inbox).
+
+## Preguntas frecuentes
+
+<Faq>
+<FaqItem question="¿Qué planes incluyen la bandeja de entrada unificada del CRM?">
+Pro, Business y Enterprise en Customermates Cloud. Pro incluye una cuenta conectada por usuario; Business incluye tres y cuentas compartidas; Enterprise incluye cuentas conectadas ilimitadas bajo condiciones de uso razonable y admite cuentas compartidas.
+</FaqItem>
+
+<FaqItem question="¿La bandeja de entrada funciona con autoalojamiento?">
+  No. Las instalaciones autoalojadas usan el conjunto de funciones de Starter,
+  que incluye cero cuentas de mensajería y ninguna bandeja de entrada unificada.
+  MCP sigue disponible para los clientes de IA externos que trabajan con el
+  núcleo del CRM.
+</FaqItem>
+
+<FaqItem question="¿Customermates admite SMS o llamadas telefónicas en esta bandeja de entrada?">
+  No. El conjunto compatible abarca el email de Gmail/Google, Outlook/Microsoft
+  e IMAP, las variantes de LinkedIn, WhatsApp, Instagram y Telegram, no SMS ni
+  telefonía.
+</FaqItem>
+
+<FaqItem question="¿Los mensajes están vinculados directamente a las oportunidades?">
+  Sí, una conversación cada vez. Los participantes se pueden asociar con
+  contactos del CRM, y las relaciones de los contactos son el puente hacia el
+  contexto relevante del CRM. En **Registros de la conversación**,
+  **Vincular registro** adjunta una sola conversación a un registro como una
+  oportunidad.
+</FaqItem>
+
+<FaqItem question="¿Puede un cliente de IA enviar mensajes por la bandeja de entrada?">
+Sí, en cuentas de la nube que lo incluyen. Las instrucciones de MCP indican a los clientes compatibles que pidan confirmación antes de enviar, pero el servidor ejecuta una herramienta de envío permitida en cuanto el cliente la llama. Verifica cómo gestiona el cliente la confirmación y los permisos del usuario antes de activar las herramientas de mensajería.
+</FaqItem>
+</Faq>

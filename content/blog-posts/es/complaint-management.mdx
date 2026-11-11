@@ -1,0 +1,177 @@
+---
+title: "Manejo de quejas de clientes: proceso, pasos y CRM"
+description: "Manejo de quejas explicado: siete pasos del proceso, una tabla de triaje y escalada, queja frente a reclamación de garantía y un CRM para equipos pequeños."
+
+relatedHrefs:
+  - /blog/customer-interaction-management
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/customer-journey
+
+hero:
+  title: "Manejo de quejas: proceso, tabla de triaje y seguimiento en el CRM"
+  description: "Cómo atender las quejas para que ninguna se pierda: siete pasos desde la recepción hasta el aprendizaje, quién se encarga de qué, cuándo escalar y un ejemplo de un equipo pequeño que las registra en Customermates, con sus límites."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Volver al blog
+  by: por Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Manejo de quejas
+    - Atención al cliente
+    - Experiencia del cliente
+---
+
+# Manejo de quejas: proceso, tabla de triaje y seguimiento en el CRM
+
+El manejo de quejas, también llamado gestión de quejas y reclamos, es el proceso de recibir, registrar, resolver y aprender de las quejas de los clientes: cada queja tiene un responsable, un acuse de recibo, una solución y una comprobación de que el cliente acepta el resultado. Un equipo pequeño puede llevarlo en un CRM como Customermates si guarda las quejas en su propia lista vinculada al cliente, como se muestra más abajo, pero Customermates no es un helpdesk ni un sistema regulado de gestión de reclamaciones.
+
+Esta guía cubre qué es un sistema de gestión de quejas, en qué se diferencia una queja de una reclamación de garantía, una tabla de triaje, responsables y escalada, los siete pasos del proceso, diez reglas para una buena respuesta y un ejemplo práctico de seguimiento de quejas en Customermates, con sus límites indicados al lado.
+
+<ArticleSummary title="De un vistazo">
+  <SummaryItem label="Definición">Una forma definida de recibir, registrar, resolver y aprender de las quejas de los clientes, con un responsable por queja.</SummaryItem>
+  <SummaryItem label="Proceso">Recibir, registrar, acusar recibo, investigar, resolver, hacer seguimiento y aprender. Los modelos de cinco pasos fusionan algunos de ellos.</SummaryItem>
+  <SummaryItem label="Queja o reclamación">Una queja expresa insatisfacción. Una reclamación (en alemán: Reklamation) pide una solución a un defecto, y pueden aplicarse las normas legales de garantía.</SummaryItem>
+  <SummaryItem label="Triaje">Da a cada queja un tipo, una gravedad, un único responsable, un objetivo de respuesta que fijas tú y una vía de escalada.</SummaryItem>
+  <SummaryItem label="En Customermates">Una lista de Quejas vinculada al cliente, un tablero de estados, tareas con fechas objetivo y las conversaciones en la ficha del cliente.</SummaryItem>
+  <SummaryItem label="No incluido">Ni helpdesk, ni motor de SLA para tickets, ni portal de clientes, ni telefonía, ni certificación ISO 10002.</SummaryItem>
+</ArticleSummary>
+
+## ¿Qué es el manejo de quejas y qué es un sistema de gestión de reclamaciones?
+
+El manejo de quejas abarca todo lo que hace una empresa desde que un cliente dice que algo salió mal hasta que se corrige la causa: recibir la queja por cualquier canal, registrarla en un solo lugar, responder, encontrar la causa, ponerle remedio, volver a consultar al cliente y aprovechar lo aprendido para que el siguiente cliente no se encuentre con el mismo problema. Dos tareas avanzan en paralelo. Una es resolver el problema de este cliente. La otra es aprender de todas las quejas en conjunto.
+
+Un sistema de gestión de quejas es lo que mantiene unido ese proceso. Puede ser una hoja de cálculo compartida, una lista en un CRM, un helpdesk con colas de tickets o, en sectores regulados, un software específico con pistas de auditoría. Lo que importa es que cada queja tenga un registro, un responsable, un estado y una decisión de cierre. El manejo de quejas también se distingue de la atención al cliente en general: la atención responde preguntas y solicitudes, mientras que el manejo de quejas es la vía definida para la insatisfacción expresada.
+
+Existe una norma. La [ISO 10002:2018](https://www.iso.org/standard/71580.html) ofrece directrices para el tratamiento de las quejas en organizaciones de cualquier tamaño, para usarse como un proceso dentro de un sistema de gestión de la calidad. Esta guía no se basa en ella y no declara ningún cumplimiento.
+
+## ¿Cuál es la diferencia entre una queja y una reclamación de garantía?
+
+En el lenguaje cotidiano las dos palabras se solapan (en Latinoamérica la segunda suele decirse reclamo). La diferencia importa cuando el cliente quiere una solución a un defecto, porque una reclamación puede traer consecuencias legales y plazos que una queja no tiene.
+
+| | Queja | Reclamación (en alemán: Reklamation) |
+| --- | --- | --- |
+| Qué dice el cliente | «Estoy descontento con esto.» | «Esto tiene un defecto, por favor corríjanlo.» |
+| Qué quiere el cliente | Una respuesta, una explicación, una disculpa, un cambio | Una solución concreta: reparación, sustitución, rebaja del precio, reembolso |
+| Aspecto legal | Normalmente ninguno | Pueden aplicarse las normas de garantía del país |
+| Qué registrar | Fecha, canal, las palabras del cliente, el resultado | Lo mismo, más la fecha de entrega, la fecha del aviso, la referencia del pedido o de la factura y la solución solicitada |
+
+Alemania hace visible la distinción. Una Beschwerde es cualquier expresión de insatisfacción. Una Reklamation es un aviso de defecto, normalmente al amparo de la garantía legal (Gewährleistung). Si un artículo tiene un defecto, el [§ 437 del Código Civil alemán (BGB)](https://www.gesetze-im-internet.de/bgb/__437.html) permite al comprador, en las condiciones de las disposiciones siguientes, exigir el cumplimiento posterior, resolver el contrato o reducir el precio, y reclamar una indemnización. El [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) fija los plazos de prescripción, por lo general de dos años. Entre comerciantes, el [§ 377 del Código de Comercio alemán (HGB)](https://www.gesetze-im-internet.de/hgb/__377.html) añade que las mercancías deben inspeccionarse y los defectos notificarse sin demora. Las reglas varían según el país, entre consumidores y empresas y según el contrato, y esto no es asesoramiento jurídico.
+
+Para tu proceso, la lección es práctica: registra ambas en la misma lista con un campo Tipo, pero trata las reclamaciones como un asunto sensible al tiempo y conserva todas las fechas, porque de ellas pueden correr plazos.
+
+## ¿Cómo se hace el triaje de las quejas y se decide quién se encarga?
+
+El triaje clasifica las quejas por tipo y gravedad para que la persona adecuada responda a la velocidad adecuada. Escribe la tabla una vez, compártela con el equipo y cámbiala cuando los casos reales muestren dónde falla. Cada queja necesita exactamente un responsable, aunque ayuden varias personas.
+
+| Tipo de queja | Gravedad | Responsable | Objetivo de primera respuesta (lo fijas tú) | Vía de escalada | Criterio de cierre |
+| --- | --- | --- | --- | --- | --- |
+| Defecto o reclamación de garantía | Alta | Responsable de la cuenta, con quien entregó el trabajo | Ejemplo: el mismo día hábil | A la dirección si falla una segunda corrección o si el cliente menciona la rescisión o acciones legales | El cliente confirma la corrección, o se entrega la solución acordada |
+| Entrega tardía o no realizada | Normal; Alta si de ello depende un plazo del propio cliente | Responsable del proyecto o de la entrega | Ejemplo: el mismo día hábil | Al responsable de la cuenta cuando se incumple una vez la nueva fecha | Se cumple la nueva fecha y se informa al cliente por escrito |
+| Error de factura o de cobro | Normal | Quien emite las facturas | Ejemplo: un día hábil | A la dirección si el importe sigue en disputa tras una revisión | Se envía y se confirma la factura corregida o la nota de crédito |
+| Comunicación o conducta (respuestas lentas, tono, traspaso) | Normal | Responsable del equipo de la persona implicada | Ejemplo: un día hábil | A la dirección si se repite | Se mantiene la conversación, se responde al cliente y se da feedback interno |
+| Legal, seguridad, protección de datos o escalada pública (abogado, sitio de reseñas, prensa) | Crítica | La dirección, directamente | Ejemplo: de inmediato | La dirección decide si recurre a asesoramiento externo, por ejemplo un abogado o el delegado de protección de datos | La decisión de la dirección queda documentada y se envía al cliente |
+
+Toma esta escala de gravedad como punto de partida: Crítica es un riesgo para la seguridad, un problema legal o de protección de datos, o una cuenta clave en peligro; Alta significa que el cliente no puede trabajar o que se incumple una fecha prometida; Normal es un problema con una solución alternativa; Baja es una sugerencia o una molestia menor.
+
+Los objetivos de respuesta de arriba son ejemplos para un equipo B2B pequeño, no una norma ni un requisito legal. El tiempo de primera respuesta lo fijas tú: elige objetivos que puedas cumplir, anótalos y contrástalos con las fechas reales. Los sectores regulados, como los servicios financieros y la sanidad, pueden tener reglas y plazos propios para el tratamiento de quejas; compruébalos para tu sector.
+
+## ¿Cuáles son los pasos del proceso de manejo de quejas?
+
+Siete pasos cubren todo el recorrido, desde el primer mensaje hasta la lección aprendida. Los modelos más cortos y más largos describen el mismo recorrido con menos o más casillas.
+
+<Steps>
+  <Step title="Recibir">Acepta quejas por todos los canales que uses: correo, LinkedIn, teléfono, un comentario en las instalaciones del cliente. Indica adónde deben enviarlas los clientes. Anota el canal y la fecha y hora reales en que llegaron.</Step>
+  <Step title="Registrar">Crea un registro por queja antes de responder, vinculado al cliente. Recoge las propias palabras del cliente, el tipo, la gravedad, lo que quiere y cualquier referencia de pedido, proyecto o factura.</Step>
+  <Step title="Acusar recibo">Dile al cliente que la queja llegó, quién se encarga y cuándo tendrá noticias. Hazlo dentro del objetivo de primera respuesta de tu tabla de triaje, aunque todavía no tengas respuesta.</Step>
+  <Step title="Investigar">Averigua qué pasó. Pregunta a las personas implicadas, revisa el pedido, la entrega o la factura y anota la causa. No eches culpas en la primera respuesta.</Step>
+  <Step title="Resolver">Ofrece una corrección, una sustitución, una rectificación, un abono o una explicación clara de por qué nada va a cambiar. Decide dentro de tu competencia o escala según la tabla, y comunica al cliente la decisión y el motivo.</Step>
+  <Step title="Hacer seguimiento">Comprueba que la solución funcionó y que el cliente está satisfecho. Cierra la queja solo cuando se cumpla el criterio de cierre y registra la fecha y el resultado del cierre. La [guía de correos de seguimiento](/blog/sales-follow-up-email) tiene una plantilla de revisión para después de una compra y un calendario de plazos; los mismos hábitos sirven para volver a consultar tras una corrección.</Step>
+  <Step title="Aprender">Revisa las quejas con regularidad por tipo y causa. Corrige la causa: una plantilla, una lista de comprobación, un proveedor, un error del producto. Las quejas son también puntos de contacto en la etapa de retención del [recorrido del cliente](/blog/customer-journey), así que muestran dónde se complica.</Step>
+</Steps>
+
+## ¿Qué reglas hacen que funcione la respuesta a una queja?
+
+No existe una lista oficial de reglas de oro para atender una reclamación o una queja. Estas diez son reglas prácticas que funcionan en equipos pequeños:
+
+1. Responde rápido, aunque la respuesta sea «lo estamos revisando».
+2. Lee la queja entera antes de responder.
+3. No discutas y no culpes al cliente ni a un compañero.
+4. Reconoce la experiencia del cliente y pide disculpas cuando el fallo sea tuyo.
+5. Promete solo lo que puedas cumplir y nombra una fecha.
+6. Nombra a un único responsable en la respuesta.
+7. Registra todas las quejas, también las que llegan por teléfono o en persona.
+8. Corrige la causa, no solo el síntoma.
+9. Vuelve a consultar al cliente después de la corrección.
+10. Cuenta y revisa las quejas para que la misma no vuelva a repetirse.
+
+## ¿Cómo puede un equipo pequeño registrar las quejas en Customermates?
+
+Esta sección trata de nuestro propio producto, Customermates, un CRM de código abierto hecho en Alemania. No tiene un módulo de quejas. Lo que tiene son listas configurables, relaciones, una vista de tablero, tareas y una bandeja de entrada unificada, y un equipo pequeño puede combinarlas. La configuración de abajo es un manual ilustrativo para un equipo de pocas personas, no un caso de cliente. Las listas, las relaciones, el tablero y las tareas funcionan en todos los planes, también autoalojado. Las conversaciones de la bandeja de entrada requieren Customermates Cloud con el plan Pro o superior.
+
+La lista usa estos campos. Los nombres y las opciones son tuyos y puedes cambiarlos; reflejan la tabla de triaje.
+
+| Campo | Tipo | Qué contiene |
+| --- | --- | --- |
+| Nombre | Texto (el nombre del registro) | Una línea, por ejemplo «Importe incorrecto en la factura de marzo» |
+| Cliente | Relación con Contactos y, si quieres, con Organizaciones | Quién se quejó; la queja aparece en la ficha del cliente |
+| Estado | Selección única | Nueva, Acuse enviado, En investigación, A la espera del cliente, Resuelta, Cerrada |
+| Tipo | Selección única | Defecto o reclamación, Entrega, Facturación, Comunicación, Legal o seguridad |
+| Gravedad | Selección única | Crítica, Alta, Normal, Baja |
+| Responsable | Miembro | La única persona responsable |
+| Recibida el | Fecha | La fecha real en que llegó la queja |
+| Responder antes del | Fecha | El objetivo de primera respuesta de esta queja, introducido a mano |
+| Detalles | Texto con formato | Las palabras del cliente, la causa y la solución |
+| Cerrada el | Fecha | El día en que se cumplió el criterio de cierre |
+
+<Steps>
+  <Step title="Crea la lista">En **Modelo de datos**, añade una lista llamada «Quejas» y los campos de arriba. Cambiar el modelo de datos es un permiso aparte, así que pídeselo a alguien que lo tenga. Si solo algunos compañeros deben leer las quejas, restringe la lista mediante los [roles](/docs/app-company#roles-tab); los permisos se aplican por lista, no por campo.</Step>
+  <Step title="Vincúlala al cliente">Añade una **Relación** entre Quejas y Contactos (un contacto, varias quejas) y, si trabajas con empresas, Organizaciones. Ambos registros muestran el vínculo, de modo que la ficha del cliente enumera sus quejas. [Cómo las relaciones vinculan registros](/docs/concepts#how-do-relationships-link-records) explica las opciones.</Step>
+  <Step title="Trae las conversaciones">Guarda el correo, el teléfono y los perfiles del cliente en los **Datos de contacto** del contacto, para que sus conversaciones de la [bandeja de entrada unificada](/features/unified-inbox) aparezcan en el contacto. En el panel de la relación, activa los mensajes del lado de Quejas (por ejemplo **Mostrar sus mensajes en Quejas**) para que las **Actividades** de la queja también los muestren. Para adjuntar una conversación concreta, abre **Ajustes de la conversación** y elige la queja en **Registros de la conversación**; las demás conversaciones con esa persona siguen aparte. Las conversaciones del buzón propio de un compañero siguen siendo privadas hasta que ese hilo se comparte con el equipo, y compartir una cuenta conectada entera requiere el plan Business o superior. La [guía de la bandeja de entrada](/docs/app-inbox#how-do-i-link-a-participant) tiene los detalles.</Step>
+  <Step title="Trabaja el tablero de estados">En **Apariencia**, elige **Tablero**. Las tarjetas se agrupan por Estado y arrastras una queja a la columna siguiente a medida que avanza. La [guía de registros](/docs/app-records#how-do-i-switch-between-table-and-board-view) explica el tablero y la ordenación. En la tabla, ordena por Responder antes del para ver primero lo que vence.</Step>
+  <Step title="Añade tareas con fechas objetivo">Cada paso de investigación o de reparación se convierte en una tarea. Las tareas no tienen fecha de vencimiento integrada, así que añade un campo **Fecha** como «Fecha objetivo» a la lista de Tareas, como describe la [guía de gestión de tareas](/features/task-management), y una relación entre Tareas y Quejas. Asigna cada tarea a un compañero.</Step>
+  <Step title="Revisa y aprende">Guarda una vista «Mis quejas abiertas» y compártela con el equipo o con roles concretos, y añade un gráfico del panel que cuente las Quejas por Tipo para tu revisión periódica. En Customermates Cloud, Mate o tu propio cliente de IA mediante MCP pueden resumir una queja con sus conversaciones y redactar una respuesta para que la revises antes de que se envíe nada.</Step>
+</Steps>
+
+<AcquisitionCallout title="Lo que esta configuración no hace" variant="boundary">
+  Customermates no es un helpdesk ni un sistema regulado de gestión de reclamaciones. No tiene motor de SLA para tickets: «Responder antes del» es una fecha que introduces tú, y nada escala, recuerda ni avisa a nadie cuando pasa. No tiene portal de clientes ni formulario web donde los clientes presenten quejas, ni telefonía (registra las llamadas a mano), ni reembolsos o notas de crédito automáticos, ni pruebas inalterables: el registro de actividad anota los cambios en los registros, pero no es una pista de auditoría completa, inalterable ni conservada de forma independiente. No tiene la certificación ISO 10002 ni ninguna otra certificación de cumplimiento. Para sectores regulados, como los servicios financieros y la sanidad, usa un sistema especializado.
+</AcquisitionCallout>
+
+Customermates es la opción equivocada si atiendes muchos tickets al día entre teléfono y chat, necesitas temporizadores de SLA y escalada automática, quieres que los clientes sigan su caso en un portal o trabajas en un sector regulado. Encaja cuando las quejas son pocas y personales, ligadas a clientes con nombre, y las personas que las atienden ya trabajan en el CRM. Para situarlo en un marco más amplio, lee la guía sobre la [gestión de la interacción con el cliente](/blog/customer-interaction-management).
+
+Una queja es la conversación que menos te puedes permitir dejar caer. En Pro, el hilo de correo o de LinkedIn del cliente queda en la queja, Mate redacta la respuesta y el siguiente paso con su fecha de «Responder antes del», y tú los revisas, los editas y los envías. Para configurar la lista de Quejas con tus propios casos, [empieza tu prueba de [[commercial.trial.days]] días](/auth/signup?job=followup). Sin tarjeta de crédito.
+
+## FAQ
+
+<Faq>
+<FaqItem question="¿Qué es un sistema de gestión de quejas?">
+Un sistema de gestión de quejas es la herramienta y la rutina que mantienen unido el proceso: un registro por cada queja, un responsable, un estado, plazos, la conversación con el cliente y una decisión de cierre. Puede ser una hoja de cálculo, una lista en un CRM, un helpdesk o, en sectores regulados, un software especializado con pistas de auditoría.
+</FaqItem>
+
+<FaqItem question="¿Cuáles son los 5 pasos para atender la queja de un cliente?">
+Los modelos de cinco pasos suelen decir: acusar recibo, entender, resolver, hacer seguimiento y aprender. Los siete pasos de esta guía dividen más el mismo recorrido: recibir y registrar van antes del acuse de recibo, e investigar va antes de la solución. No hay un número de pasos obligatorio.
+</FaqItem>
+
+<FaqItem question="¿Cuál es la diferencia entre una queja y una reclamación?">
+Una queja expresa insatisfacción. Una reclamación pide una solución a un defecto, como una reparación, una sustitución o una rebaja del precio, y pueden aplicarse las normas legales de garantía. En alemán es Beschwerde frente a Reklamation. Registra ambas y conserva las fechas de una reclamación.
+</FaqItem>
+
+<FaqItem question="¿Con qué rapidez hay que responder a una queja?">
+El objetivo de primera respuesta lo fijas tú, por tipo de queja: anótalo en tu tabla de triaje y contrástalo con las fechas reales. Los sectores regulados y los contratos concretos pueden añadir plazos propios.
+</FaqItem>
+
+<FaqItem question="¿Existe una norma para la gestión de quejas?">
+La ISO 10002:2018 ofrece directrices para el tratamiento de las quejas en las organizaciones y está pensada como un proceso dentro de un sistema de gestión de la calidad. Customermates no está certificado según esa norma, y esta guía no declara cumplirla.
+</FaqItem>
+
+<FaqItem question="¿Puede Customermates sustituir a un helpdesk para quejas?">
+No para volúmenes altos ni para sectores regulados. Customermates no tiene motor de SLA para tickets, portal de clientes ni telefonía. Para un equipo pequeño con unas pocas quejas personales por semana, puede contener una lista de Quejas vinculada al cliente, un tablero de estados, tareas y las conversaciones.
+</FaqItem>
+
+<FaqItem question="¿Me avisa Customermates cuando una respuesta está vencida?">
+No. Una fecha «Responder antes del» es un campo normal, y Customermates no tiene recordatorios ni notificaciones. Ordena o filtra la lista por esa fecha y ábrela como parte de tu rutina diaria.
+</FaqItem>
+</Faq>
+
+Fuentes de terceros comprobadas el 2 de noviembre de 2026: [ISO 10002:2018](https://www.iso.org/standard/71580.html) (edición 3, confirmada en 2023), [§ 437 BGB](https://www.gesetze-im-internet.de/bgb/__437.html), [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) y [§ 377 HGB](https://www.gesetze-im-internet.de/hgb/__377.html). Las leyes alemanas se citan solo en resumen y no constituyen asesoramiento jurídico.
