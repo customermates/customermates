@@ -56,13 +56,13 @@ Ostatni wiersz ma znaczenie dla kosztów. Strona z cennikiem n8n definiuje wykon
 
 ## Cloud czy self-hosting: gdzie uruchomić n8n
 
-Masz dwie możliwości. n8n Cloud wymaga tylko konta. Community Edition jest darmowa i działa na twoim komputerze albo serwerze, który potem sam utrzymujesz.
+Masz dwie możliwości. n8n Cloud wymaga tylko konta. Community Edition jest darmowa i działa na Twoim komputerze albo serwerze, który potem sam utrzymujesz.
 
 | Opcja | Cena | Co dostajesz |
 |---|---|---|
 | n8n Cloud Starter | 20 € miesięcznie, rozliczane rocznie | 2 500 wykonań miesięcznie, 5 równoczesnych wykonań, nieograniczona liczba użytkowników |
 | n8n Cloud Pro | 50 € miesięcznie, rozliczane rocznie | 10 000 wykonań miesięcznie, więcej równoczesnych wykonań, role administracyjne, dłuższa historia workflow |
-| Community Edition (self-hosting) | Darmowe oprogramowanie, płacisz za serwer | Działa na twojej infrastrukturze, na licencji Sustainable Use License n8n |
+| Community Edition (self-hosting) | Darmowe oprogramowanie, płacisz za serwer | Działa na Twojej infrastrukturze, na licencji Sustainable Use License n8n |
 
 Ceny sprawdzone 8 października 2026 na [stronie z cennikiem n8n](https://n8n.io/pricing/). Dostępne jest też rozliczanie miesięczne, które kosztuje więcej; strona przedstawia opcję roczną jako oszczędność 17%. Okres próbny Cloud daje funkcje Pro z limitem 1000 wykonań i nie wymaga karty kredytowej.
 
@@ -81,7 +81,7 @@ docker run -it --rm --name n8n -p 5678:5678 \
   -v n8n_data:/home/node/.n8n n8nio/n8n
 ```
 
-Potem otwórz `http://localhost:5678`. Przewodnik dodaje ustawienia strefy czasowej, a dla serwera działającego bez przerwy n8n odsyła do konfiguracji z Docker Compose i HTTPS. Lokalna instancja wystarcza do nauki. Nie jest dostępna z internetu, co ma znaczenie, gdy usługa w chmurze musi wywołać twój webhook.
+Potem otwórz `http://localhost:5678`. Przewodnik dodaje ustawienia strefy czasowej, a dla serwera działającego bez przerwy n8n odsyła do konfiguracji z Docker Compose i HTTPS. Lokalna instancja wystarcza do nauki. Nie jest dostępna z internetu, co ma znaczenie, gdy usługa w chmurze musi wywołać Twój webhook.
 
 ## Zbuduj pierwszy workflow: zapytanie, które wysyła ci e-mail
 
@@ -112,7 +112,7 @@ Workflow odbiera ładunek JSON, taki jak wysłałby formularz ze strony, sprawdz
     Kliknij **Execute workflow** i wyślij to samo wywołanie curl jeszcze raz. Każdy węzeł, który się wykonał, pokazuje liczbę elementów, a po kliknięciu węzła widzisz dokładnie, co do niego weszło i co z niego wyszło. Jeśli e-mail dotrze, logika działa.
   </Step>
   <Step title="Opublikuj go i przełącz się na adres produkcyjny">
-    Kliknij **Publish**. Od tej chwili workflow nasłuchuje pod **adresem produkcyjnym** i to ten adres ma wywoływać twój formularz. Uruchomienia produkcyjne nie pojawiają się na kanwie; znajdziesz je na karcie **Executions**.
+    Kliknij **Publish**. Od tej chwili workflow nasłuchuje pod **adresem produkcyjnym** i to ten adres ma wywoływać Twój formularz. Uruchomienia produkcyjne nie pojawiają się na kanwie; znajdziesz je na karcie **Executions**.
   </Step>
 </Steps>
 
@@ -139,7 +139,7 @@ Przy okazji nadawaj rzeczom nazwy. „Zapytanie: formularz ze strony do CRM” w
 
 ## Drugi workflow: zapytanie ze strony do CRM
 
-Użyteczna wersja pierwszego workflow zapisuje zapytanie tam, gdzie pracuje twój zespół. Wzorzec jest taki sam dla każdego CRM z REST API: uwierzytelnij się kluczem API, zmapuj pola formularza na nazwy pól w CRM, wyślij jedno żądanie HTTP. Poniższy przykład używa Customermates, czyli CRM, który publikuje ten poradnik, bo szczegóły jego API są publiczne.
+Użyteczna wersja pierwszego workflow zapisuje zapytanie tam, gdzie pracuje Twój zespół. Wzorzec jest taki sam dla każdego CRM z REST API: uwierzytelnij się kluczem API, zmapuj pola formularza na nazwy pól w CRM, wyślij jedno żądanie HTTP. Poniższy przykład używa Customermates, czyli CRM, który publikuje ten poradnik, bo szczegóły jego API są publiczne.
 
 <Steps>
   <Step title="Utwórz klucz API">
@@ -188,9 +188,9 @@ Istnieje też węzeł społeczności Customermates, `@customermates/n8n-nodes-cr
 
 n8n to osobny produkt. Nie wchodzi w skład żadnego planu Customermates: sam go uruchamiasz albo wykupujesz subskrypcję n8n Cloud. REST i MCP działają w każdym planie Customermates Cloud, webhooki w każdym płatnym planie, który zaczyna się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie (zobacz [cennik](/pricing)), a wszystkie trzy działają w samodzielnie hostowanej edycji open source.
 
-Nie każda automatyzacja CRM potrzebuje n8n. Jeśli zadanie brzmi „w każdy poniedziałek przejrzyj szanse sprzedaży, które się nie ruszyły, i przygotuj notatkę do każdej”, wymaga to raczej osądu niż okablowania. W Customermates Cloud [rutyna](/docs/app-routines) uruchamia Mate, asystenta w aplikacji, według harmonogramu albo przy zdarzeniu na rekordzie, z zapisaną instrukcją, i zużywa kredyty hostowanej AI. Jeśli wolisz, żeby w CRM pracował twój własny klient AI, podłącz go przez [MCP](/docs/mcp). Użyj n8n, gdy zadanie jest deterministyczne i przechodzi przez kilka systemów: formularz, CRM, arkusz, czat zespołu.
+Nie każda automatyzacja CRM potrzebuje n8n. Jeśli zadanie brzmi „w każdy poniedziałek przejrzyj szanse sprzedaży, które się nie ruszyły, i przygotuj notatkę do każdej”, wymaga to raczej osądu niż okablowania. W Customermates Cloud [rutyna](/docs/app-routines) uruchamia Mate, asystenta w aplikacji, według harmonogramu albo przy zdarzeniu na rekordzie, z zapisaną instrukcją, i zużywa kredyty hostowanej AI. Jeśli wolisz, żeby w CRM pracował Twój własny klient AI, podłącz go przez [MCP](/docs/mcp). Użyj n8n, gdy zadanie jest deterministyczne i przechodzi przez kilka systemów: formularz, CRM, arkusz, czat zespołu.
 
-Jednego n8n za ciebie nie zrobi: samego wracania do rozmowy z klientem. Gdy zapytanie stanie się kontaktem, rozmowa z tą osobą może leżeć na tym samym rekordzie: podłącz LinkedIn i e-mail w Customermates Cloud od planu Pro, a Mate albo twój własny agent AI przygotuje odpowiedź i następny krok do przejrzenia i wysłania przez ciebie. Żeby wypróbować to na własnych zapytaniach, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
+Jednego n8n za ciebie nie zrobi: samego wracania do rozmowy z klientem. Gdy zapytanie stanie się kontaktem, rozmowa z tą osobą może leżeć na tym samym rekordzie: podłącz LinkedIn i e-mail w Customermates Cloud od planu Pro, a Mate albo Twój własny agent AI przygotuje odpowiedź i następny krok do przejrzenia i wysłania przez ciebie. Żeby wypróbować to na własnych zapytaniach, [zacznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
 
 Jeśli potrzebujesz tylko kontaktów w arkuszu i jednego e-maila na zapytanie, do tego poradnika w ogóle nie potrzebujesz CRM. Robi to węzeł Google Sheets na gałęzi true.
 

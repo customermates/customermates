@@ -27,7 +27,7 @@ blogPost:
 
 # Agentic AI: definicja, jak działa, przykłady i ograniczenia
 
-**Agentic AI** (po polsku także agentowa sztuczna inteligencja) to AI, której zamiast pytania podajesz cel: sama planuje kroki, wywołuje narzędzia, takie jak CRM, wyszukiwarka czy API, sprawdza, co z nich wróciło, i działa, przy ograniczonym nadzorze. Różni się od generatywnej AI, która tworzy treści do twojego wykorzystania, oraz od chatbota, który idzie za scenariuszem. Typowe przykłady agentic AI to agent programistyczny, który otwiera pull request, agent obsługi klienta, który odpowiada na zgłoszenie albo przekazuje je dalej, oraz agent CRM, który przygotowuje odpowiedź w szansie sprzedaży, a każdy z nich ma punkt, w którym człowiek zatwierdza.
+**Agentic AI** (po polsku także agentowa sztuczna inteligencja) to AI, której zamiast pytania podajesz cel: sama planuje kroki, wywołuje narzędzia, takie jak CRM, wyszukiwarka czy API, sprawdza, co z nich wróciło, i działa, przy ograniczonym nadzorze. Różni się od generatywnej AI, która tworzy treści do Twojego wykorzystania, oraz od chatbota, który idzie za scenariuszem. Typowe przykłady agentic AI to agent programistyczny, który otwiera pull request, agent obsługi klienta, który odpowiada na zgłoszenie albo przekazuje je dalej, oraz agent CRM, który przygotowuje odpowiedź w szansie sprzedaży, a każdy z nich ma punkt, w którym człowiek zatwierdza.
 
 „Agentic” pochodzi od słowa „agent”: ktoś, kto działa w czyimś imieniu. AWS wyjaśnia, że „agentic” wskazuje na sprawczość (agency), czyli „zdolność tych systemów do działania w sposób niezależny, ale nastawiony na cel” ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). Dobrym punktem odniesienia jest też krótka definicja IBM: agentic AI to „system sztucznej inteligencji, który potrafi osiągnąć konkretny cel przy ograniczonym nadzorze” ([IBM](https://www.ibm.com/think/topics/agentic-ai)). Znaczenie niosą dwa słowa: *cel* i *ograniczony*. Cel nadal ktoś wyznacza i nadal ktoś decyduje, ile system może zrobić bez pytania.
 
@@ -159,7 +159,7 @@ Drugi sposób porządkowania dotyczy tego, kto kontroluje ścieżkę. Poradnik i
 | Routing | Klasyfikuje dane wejściowe i kieruje je do wyspecjalizowanego kroku | Posortować przychodzące e-maile na zapytania sprzedażowe i całą resztę |
 | Równoległość (parallelization) | Uruchamia kilka wywołań modelu naraz i łączy wyniki | Dwie niezależne kontrole jednego zapisu w umowie, porównane ze sobą |
 | Orkiestrator i wykonawcy (orchestrator-workers) | Jeden model dzieli zadanie i deleguje części | Agent główny zleca badanie konta podagentom |
-| Oceniający i optymalizujący (evaluator-optimizer) | Jeden model pisze szkic, drugi go krytykuje, aż szkic przejdzie | Szkic odpowiedzi poprawiany według twojego przewodnika po tonie |
+| Oceniający i optymalizujący (evaluator-optimizer) | Jeden model pisze szkic, drugi go krytykuje, aż szkic przejdzie | Szkic odpowiedzi poprawiany według Twojego przewodnika po tonie |
 
 **Agentic AI a agenci AI.** Google Cloud nazywa agentów AI „cegiełkami agentic AI”: agent koncentruje się na konkretnym zadaniu, a agentic AI koordynuje kilku agentów w złożonym workflow. W codziennym użyciu te pojęcia są wymienne.
 
@@ -179,7 +179,7 @@ Praca w CRM pasuje do agentów: kontekst jest w jednym miejscu (kontakty, szanse
 
 Ta strona odpowiada na pytanie ogólne. Dwa sąsiednie poradniki odpowiadają na węższe pytania, więc nie powtarzamy ich tutaj.
 
-| Jeśli twoje pytanie brzmi | Przeczytaj |
+| Jeśli Twoje pytanie brzmi | Przeczytaj |
 |---|---|
 | Jak bezpiecznie pozwolić AI pracować na rekordach CRM: Mate, MCP, zatwierdzanie, chmura czy self-hosting? | [Agentic CRM i CRM AI native](/blog/agentic-crm) |
 | Jacy agenci AI do sprzedaży istnieją, ile kosztują, co mówi niemieckie prawo o zimnych e-mailach, jak przeprowadzić pilotaż? | [AI sales agent](/blog/ai-sales-agent) |
@@ -285,7 +285,7 @@ Jeśli kroki nigdy się nie zmieniają, stała reguła jest tańsza i bardziej p
 
 ## Agentic AI a ochrona danych
 
-Agenci czytają dane osobowe: imiona i nazwiska, adresy e-mail, treść rozmów. Zgodnie z RODO dostawca, który przetwarza te dane w twoim imieniu, jest podmiotem przetwarzającym i potrzebuje umowy powierzenia przetwarzania danych, a dostawcy AI, z których korzysta, są jego podprocesorami. Dostawców modeli dla Mate w Customermates Cloud wymienia [lista podprocesorów](/subprocessors). Jeśli chcesz sam wybrać dostawcę, podłącz własnego klienta AI przez MCP albo hostuj otwartoźródłowy rdzeń u siebie, aby dane CRM zostały na twoich serwerach.
+Agenci czytają dane osobowe: imiona i nazwiska, adresy e-mail, treść rozmów. Zgodnie z RODO dostawca, który przetwarza te dane w Twoim imieniu, jest podmiotem przetwarzającym i potrzebuje umowy powierzenia przetwarzania danych, a dostawcy AI, z których korzysta, są jego podprocesorami. Dostawców modeli dla Mate w Customermates Cloud wymienia [lista podprocesorów](/subprocessors). Jeśli chcesz sam wybrać dostawcę, podłącz własnego klienta AI przez MCP albo hostuj otwartoźródłowy rdzeń u siebie, aby dane CRM zostały na Twoich serwerach.
 
 ## Najczęstsze pytania
 

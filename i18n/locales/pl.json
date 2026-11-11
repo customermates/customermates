@@ -1,6 +1,6 @@
 {
   "AccessDeniedPage": {
-    "body": "Ten rekord istnieje, ale twoja rola nie pozwala go odczytać. Poproś administratora przestrzeni roboczej o dostęp.",
+    "body": "Ten rekord istnieje, ale Twoja rola nie pozwala go odczytać. Poproś administratora przestrzeni roboczej o dostęp.",
     "ctaLabel": "Wróć na stronę główną",
     "documentTitle": "Brak dostępu | Customermates",
     "subtitle": "Twoja rola nie może go otworzyć",
@@ -10,7 +10,7 @@
     "body": "Właśnie nastąpiło logowanie bez hasła, a to potwierdziło, że ten adres e-mail należy do ciebie. Dotąd nigdy nie był potwierdzony, więc nie mogliśmy mieć pewności, kto założył to konto. Dla bezpieczeństwa usunęliśmy stare hasło oraz wszystko inne, co mogłoby otworzyć konto, na przykład połączone aplikacje lub klucze. Twoje dane pozostały nietknięte i możesz logować się dalej dokładnie tak, jak przed chwilą.",
     "cta": "Ustaw nowe hasło",
     "greeting": "Cześć,",
-    "signoff": "Przycisk powyżej jest potrzebny tylko wtedy, gdy wolisz logować się hasłem. Jeśli to logowanie nie było twoje, skontaktuj się z nami od razu.",
+    "signoff": "Przycisk powyżej jest potrzebny tylko wtedy, gdy wolisz logować się hasłem. Jeśli to logowanie nie było Twoje, skontaktuj się z nami od razu.",
     "subject": "Twój e-mail jest potwierdzony, a stare hasło zostało usunięte",
     "title": "Twój adres e-mail jest potwierdzony"
   },
@@ -22,17 +22,17 @@
     "workspaceDeleted": "Przestrzeń robocza usunięta"
   },
   "AccountsRemovedNotice": {
-    "body": "Twój plan zmienił się na {plan}, więc usunąłem poniższe połączone konta, żeby zmieścić się w limicie planu: {accounts}. Wszystkie twoje wiadomości i kontakty nadal tu są. Możesz je ponownie połączyć w dowolnej chwili na stronie połączonych kont.",
+    "body": "Twój plan zmienił się na {plan}, więc usunąłem poniższe połączone konta, żeby zmieścić się w limicie planu: {accounts}. Wszystkie Twoje wiadomości i kontakty nadal tu są. Możesz je ponownie połączyć w dowolnej chwili na stronie połączonych kont.",
     "cta": "Zobacz połączone konta",
     "greeting": "Cześć {firstName},",
     "signoff": "Pozdrawiam,\nBen",
-    "subject": "Niektóre z twoich połączonych kont zostały usunięte",
+    "subject": "Niektóre z Twoich połączonych kont zostały usunięte",
     "title": "Połączone konta usunięte"
   },
   "AcquisitionConsent": {
     "allowAttribution": "Zezwól",
-    "description": "Trafiasz tu z reklamy {provider}. Czy możemy zapamiętać tę wizytę przez okres do {days} dni, powiązać ją z twoim kontem, jeśli się zarejestrujesz, i poinformować {provider}, że jego reklama doprowadziła do rejestracji lub płatnej subskrypcji? {provider} otrzymuje z powrotem wyłącznie identyfikator kliknięcia, który sam umieścił w linku, nigdy twojego imienia, adresu e-mail ani niczego innego, co nam podasz. Każdy wybór zapisuje niewielki plik cookie; zdanie możesz zmienić w dowolnej chwili w sekcji Ustawienia prywatności.",
-    "descriptionGeneric": "Trafiasz tu z reklamy. Czy możemy zapamiętać tę wizytę, powiązać ją z twoim kontem, jeśli się zarejestrujesz, i poinformować platformę reklamową, że jej reklama doprowadziła do rejestracji lub płatnej subskrypcji? Platforma otrzymuje z powrotem wyłącznie identyfikator kliknięcia, który sama umieściła w linku, nigdy twojego imienia, adresu e-mail ani niczego innego, co nam podasz. Każdy wybór zapisuje niewielki plik cookie; zdanie możesz zmienić w dowolnej chwili w sekcji Ustawienia prywatności.",
+    "description": "Trafiasz tu z reklamy {provider}. Czy możemy zapamiętać tę wizytę przez okres do {days} dni, powiązać ją z Twoim kontem, jeśli się zarejestrujesz, i poinformować {provider}, że jego reklama doprowadziła do rejestracji lub płatnej subskrypcji? {provider} otrzymuje z powrotem wyłącznie identyfikator kliknięcia, który sam umieścił w linku, nigdy Twojego imienia, adresu e-mail ani niczego innego, co nam podasz. Każdy wybór zapisuje niewielki plik cookie; zdanie możesz zmienić w dowolnej chwili w sekcji Ustawienia prywatności.",
+    "descriptionGeneric": "Trafiasz tu z reklamy. Czy możemy zapamiętać tę wizytę, powiązać ją z Twoim kontem, jeśli się zarejestrujesz, i poinformować platformę reklamową, że jej reklama doprowadziła do rejestracji lub płatnej subskrypcji? Platforma otrzymuje z powrotem wyłącznie identyfikator kliknięcia, który sama umieściła w linku, nigdy Twojego imienia, adresu e-mail ani niczego innego, co nam podasz. Każdy wybór zapisuje niewielki plik cookie; zdanie możesz zmienić w dowolnej chwili w sekcji Ustawienia prywatności.",
     "necessaryOnly": "Nie, dziękuję",
     "privacyLink": "Szczegóły dotyczące prywatności",
     "title": "Pomóż nam sprawdzić, co działa"
@@ -75,7 +75,7 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "generic": "Gotowe do wprowadzenia zmiany, która wymaga twojej zgody",
+        "generic": "Gotowe do wprowadzenia zmiany, która wymaga Twojej zgody",
         "genericPermanent": "Gotowe do trwałego usunięcia: {target}",
         "messages": {
           "discard": "Gotowe do odrzucenia wersji roboczej",
@@ -95,7 +95,7 @@
           "delete": "Gotowe do przeniesienia rutyny i jej historii do Kosza"
         },
         "support": {
-          "escalate": "Gotowe do wysłania twojej prośby e-mailem do wsparcia"
+          "escalate": "Gotowe do wysłania Twojej prośby e-mailem do wsparcia"
         },
         "team": {
           "manage": "Gotowe do zmiany dostępu zespołu"
@@ -208,7 +208,7 @@
         "generic": {
           "done": "Ukończono ten krok",
           "error": "Ten krok wymaga uwagi",
-          "running": "Pracuję nad twoją prośbą"
+          "running": "Pracuję nad Twoją prośbą"
         },
         "interface": {
           "inspect": {
@@ -261,9 +261,9 @@
         },
         "profile": {
           "configure": {
-            "done": "Zaktualizowano twój profil",
-            "error": "Nie udało się zaktualizować twojego profilu",
-            "running": "Aktualizowanie twojego profilu"
+            "done": "Zaktualizowano Twój profil",
+            "error": "Nie udało się zaktualizować Twojego profilu",
+            "running": "Aktualizowanie Twojego profilu"
           }
         },
         "proposals": {
@@ -435,9 +435,9 @@
         },
         "workspace": {
           "configure": {
-            "done": "Zaktualizowano twoją przestrzeń roboczą",
-            "error": "Nie udało się zaktualizować twojej przestrzeni roboczej",
-            "running": "Aktualizowanie twojej przestrzeni roboczej"
+            "done": "Zaktualizowano Twoją przestrzeń roboczą",
+            "error": "Nie udało się zaktualizować Twojej przestrzeni roboczej",
+            "running": "Aktualizowanie Twojej przestrzeni roboczej"
           },
           "inspect": {
             "done": "Sprawdzono szczegóły przestrzeni roboczej",
@@ -445,13 +445,13 @@
             "running": "Sprawdzanie szczegółów przestrzeni roboczej"
           },
           "read": {
-            "done": "Sprawdzono twoją przestrzeń roboczą",
-            "error": "Nie udało się sprawdzić twojej przestrzeni roboczej",
-            "running": "Sprawdzanie twojej przestrzeni roboczej"
+            "done": "Sprawdzono Twoją przestrzeń roboczą",
+            "error": "Nie udało się sprawdzić Twojej przestrzeni roboczej",
+            "running": "Sprawdzanie Twojej przestrzeni roboczej"
           }
         }
       },
-      "yourRecords": "twoje rekordy"
+      "yourRecords": "Twoje rekordy"
     },
     "approval": {
       "approve": "Zatwierdzono",
@@ -494,7 +494,7 @@
     "credits": {
       "blocked": {
         "configuration_unavailable": "Hostowany Asystent jest tymczasowo niedostępny. Twoja historia pozostaje dostępna.",
-        "credits_exhausted": "Wykorzystano miesięczny limit użycia Mate. Nowe prośby będą ponownie możliwe od {resetAt}; twoja historia pozostaje dostępna.",
+        "credits_exhausted": "Wykorzystano miesięczny limit użycia Mate. Nowe prośby będą ponownie możliwe od {resetAt}; Twoja historia pozostaje dostępna.",
         "self_hosted": "Hostowany Asystent jest dostępny tylko w chmurze. Samodzielnie hostowane przestrzenie robocze mogą nadal korzystać z zewnętrznych klientów MCP z własnym dostawcą AI.",
         "subscription_unavailable": "Do nowych próśb kierowanych do hostowanego Asystenta wymagana jest aktualna subskrypcja chmurowa. Twoja historia pozostaje dostępna."
       },
@@ -509,7 +509,7 @@
     "errors": {
       "approvalFailed": "Nie udało się dostarczyć zatwierdzenia.",
       "limitReached": "Zostało za mało kredytów AI, aby rozpocząć kolejną prośbę.",
-      "sendFailed": "Nie udało się przetworzyć twojej wiadomości.",
+      "sendFailed": "Nie udało się przetworzyć Twojej wiadomości.",
       "stopFailed": "Nie udało się zatrzymać Mate. Trwa ponowne łączenie, aby można było spróbować ponownie.",
       "turnFailed": "W Mate wystąpił błąd."
     },
@@ -522,7 +522,7 @@
     },
     "greeting": {
       "headline": "Cześć, jestem Mate",
-      "subtitle": "Zapytaj mnie o cokolwiek w twojej przestrzeni roboczej albo powiedz, co mam zrobić, a się tym zajmę.",
+      "subtitle": "Zapytaj mnie o cokolwiek w Twojej przestrzeni roboczej albo powiedz, co mam zrobić, a się tym zajmę.",
       "support": "Jeśli coś się nie uda, mogę wysłać naszemu zespołowi e-mailem ostatnią rozmowę, a zespół odpowie ci e-mailem."
     },
     "openSavedView": "Otwórz zapisany widok",
@@ -801,7 +801,7 @@
       "restore": "Przywróć",
       "retryTurn": "Spróbuj ponownie",
       "routeSyncRefreshing": "Odświeżanie strony…",
-      "routeSyncWaiting": "Aktualizacja strony czeka na zakończenie twoich zmian…",
+      "routeSyncWaiting": "Aktualizacja strony czeka na zakończenie Twoich zmian…",
       "startingRequest": "Uruchamianie…",
       "stepsTook": "{steps, plural, one {# krok} few {# kroki} many {# kroków} other {# kroku}} · {seconds}s",
       "stopping": "Zatrzymywanie Mate…",
@@ -812,7 +812,7 @@
       "undo": "Cofnij",
       "untitled": "Nowy czat",
       "waitElapsed": "Upłynęło {seconds}s",
-      "workingOnRequest": "Pracuję nad twoją prośbą…"
+      "workingOnRequest": "Pracuję nad Twoją prośbą…"
     }
   },
   "AgplGithubBadge": {
@@ -1833,8 +1833,8 @@
     "accountLimitReached": "Osiągnięto limit połączonych kont w tym planie. Skontaktuj się z nami w sprawie planu Enterprise, aby mieć nielimitowaną liczbę kont.",
     "agentChatDisabled": "Asystent jest tymczasowo niedostępny.",
     "agentChatRequiresCloud": "Asystent jest dostępny w Customermates Cloud.",
-    "agentChatRequiresPlan": "Asystent nie jest dostępny w twoim obecnym planie.",
-    "alreadyExistsToastDescription": "To konto zostało już połączone przez członka twojej przestrzeni roboczej. Poproś tę osobę o udostępnienie go w przestrzeni roboczej, aby w skrzynce odbiorczej nie pojawiały się zduplikowane wiadomości.",
+    "agentChatRequiresPlan": "Asystent nie jest dostępny w Twoim obecnym planie.",
+    "alreadyExistsToastDescription": "To konto zostało już połączone przez członka Twojej przestrzeni roboczej. Poproś tę osobę o udostępnienie go w przestrzeni roboczej, aby w skrzynce odbiorczej nie pojawiały się zduplikowane wiadomości.",
     "alreadyExistsToastTitle": "Konto jest już połączone",
     "channels": {
       "imap": "IMAP",
@@ -1847,9 +1847,9 @@
     "connectAccount": "Połącz kanał",
     "connectedAt": "Połączono",
     "connectedNote": "Połączone",
-    "connectedToastDescription": "Importujemy twoją historię w tle. Może to potrwać kilka minut, możesz w tym czasie pracować dalej.",
+    "connectedToastDescription": "Importujemy Twoją historię w tle. Może to potrwać kilka minut, możesz w tym czasie pracować dalej.",
     "connectedToastTitle": "Kanał połączony",
-    "description": "Połącz kanały, z których korzysta twoja skrzynka odbiorcza, takie jak e-mail, WhatsApp i LinkedIn. Kanały są domyślnie prywatne i można je udostępnić swojej przestrzeni roboczej. Łącząc kanał, upoważniasz nas do przetwarzania jego wiadomości, kontaktów i kalendarza w twoim imieniu. Zobacz: <dataPrivacyLink>Polityka prywatności</dataPrivacyLink>, <subprocessorsLink>Podprocesorzy</subprocessorsLink> i <termsOfServiceLink>Regulamin</termsOfServiceLink>.",
+    "description": "Połącz kanały, z których korzysta Twoja skrzynka odbiorcza, takie jak e-mail, WhatsApp i LinkedIn. Kanały są domyślnie prywatne i można je udostępnić swojej przestrzeni roboczej. Łącząc kanał, upoważniasz nas do przetwarzania jego wiadomości, kontaktów i kalendarza w Twoim imieniu. Zobacz: <dataPrivacyLink>Polityka prywatności</dataPrivacyLink>, <subprocessorsLink>Podprocesorzy</subprocessorsLink> i <termsOfServiceLink>Regulamin</termsOfServiceLink>.",
     "disconnect": "Rozłącz",
     "disconnectedToastDescription": "To konto nie jest już połączone u dostawcy. Połącz je ponownie, używając aktualnych danych logowania.",
     "disconnectedToastTitle": "Konto rozłączone",
@@ -1888,7 +1888,7 @@
     "emailLogoUrl": "Adres URL logo",
     "emailPreviewDescription": "Wygląd dotyczy całego e-maila; podpis jest dodawany poniżej.",
     "emailPreviewLink": "Przykładowy link",
-    "emailPreviewSample": "Tak będzie wyglądać tekst twojego e-maila.",
+    "emailPreviewSample": "Tak będzie wyglądać tekst Twojego e-maila.",
     "emailPreviewTitle": "Podgląd",
     "emailSaved": "Ustawienia e-maila zapisane",
     "emailSignatureContent": "Treść podpisu",
@@ -1930,7 +1930,7 @@
     "sharedAccountsRequiresBusiness": "Udostępnione konta wymagają planu Business lub wyższego.",
     "sharedAccountsRequiresCloud": "Udostępnione konta są dostępne w Customermates Cloud (plan Business lub wyższy).",
     "sharedOffToast": "Konto jest teraz prywatne",
-    "sharedOnToast": "Konto udostępnione twojej przestrzeni roboczej",
+    "sharedOnToast": "Konto udostępnione Twojej przestrzeni roboczej",
     "signatureTemplate": "Układ",
     "signatureTemplates": {
       "plain": "Tylko tekst",
@@ -2015,7 +2015,7 @@
       },
       "personal": {
         "body": "Wyślij mi konfigurację, z której korzystasz dziś. Powiem ci, co pasuje od razu i w których przypadkach uczciwą odpowiedzią jest osobna integracja.",
-        "title": "Omówmy twój przepływ pracy"
+        "title": "Omówmy Twój przepływ pracy"
       }
     },
     "title": "Porozmawiajmy."
@@ -2136,7 +2136,7 @@
         }
       },
       "steps": {
-        "chooseDescription": "Zacznij od rekomendacji, pustego formatu lub konfiguracji udostępnionej w twojej przestrzeni roboczej.",
+        "chooseDescription": "Zacznij od rekomendacji, pustego formatu lub konfiguracji udostępnionej w Twojej przestrzeni roboczej.",
         "configureDescription": "Wybierz, co pokazuje ten widżet i jak wygląda."
       },
       "tabs": {
@@ -2146,7 +2146,7 @@
       },
       "templates": {
         "by": "Udostępnione przez {name}",
-        "description": "Użyj konfiguracji udostępnionej w twojej przestrzeni roboczej i dostosuj ją do siebie.",
+        "description": "Użyj konfiguracji udostępnionej w Twojej przestrzeni roboczej i dostosuj ją do siebie.",
         "title": "Zacznij od szablonu"
       }
     },
@@ -2321,10 +2321,10 @@
     "selectRow": "Zaznacz wiersz {id}",
     "share": {
       "descriptionDashboard": "Współpracownicy widzą te same widżety i ten sam układ. Każda liczba jest obliczana na podstawie ich własnego dostępu, więc nikt nie widzi rekordów ukrytych przez swoją rolę.",
-      "descriptionList": "Współpracownicy widzą twoje filtry, kolumny i układ. Każda osoba widzi tylko te rekordy i pola, na które pozwala jej rola.",
+      "descriptionList": "Współpracownicy widzą Twoje filtry, kolumny i układ. Każda osoba widzi tylko te rekordy i pola, na które pozwala jej rola.",
       "duplicateToEdit": "Duplikuj, aby edytować",
       "duplicateToEditLabel": "Duplikuj {name}, aby edytować własną kopię",
-      "hidden": "Ukryty na twoich kartach",
+      "hidden": "Ukryty na Twoich kartach",
       "hide": "Ukryj na moich kartach",
       "link": "Link",
       "linkPrivate": "Tylko ty możesz otworzyć ten link, dopóki nie udostępnisz widoku.",
@@ -2341,8 +2341,8 @@
         "expirySet": "Data zakończenia zapisana",
         "linkLabel": "Link publiczny",
         "noExpiry": "Bez daty zakończenia",
-        "onlyCharts": "Pokazuje wykresy i, po kliknięciu, rekordy, na których się opierają, tylko do odczytu i z twoim dostępem",
-        "onlyColumns": "Pokazuje tylko widoczne kolumny, tylko do odczytu i z twoim dostępem",
+        "onlyCharts": "Pokazuje wykresy i, po kliknięciu, rekordy, na których się opierają, tylko do odczytu i z Twoim dostępem",
+        "onlyColumns": "Pokazuje tylko widoczne kolumny, tylko do odczytu i z Twoim dostępem",
         "opened": "{count, plural, =0 {Jeszcze nie otwarty} one {Otwarty raz} few {Otwarty # razy} many {Otwarty # razy} other {Otwarty # razy}}",
         "option": "Każdy, kto ma link",
         "optionDescriptionDashboard": "Publiczny, bez logowania: każdy, kto ma link, widzi wykresy i rekordy, na których się opierają. Widzą go też wszyscy w tej przestrzeni roboczej.",
@@ -2429,7 +2429,7 @@
     "copyMcpConfig": "Kopiuj konfigurację MCP",
     "copyPage": "Kopiuj stronę",
     "englishOnlyAlert": "Techniczna dokumentacja endpointów API jest dostępna tylko po angielsku. Dokumentacja API wymaga precyzyjnej terminologii technicznej i spójności ze standardami branżowymi.",
-    "liveDataAlert": "Operacje wykonywane w API playground wpłyną na twoje rzeczywiste dane.",
+    "liveDataAlert": "Operacje wykonywane w API playground wpłyną na Twoje rzeczywiste dane.",
     "markdownCopied": "Strona skopiowana do schowka.",
     "mcpCommandCopied": "Polecenie MCP skopiowane do schowka.",
     "mcpConfigCopied": "Konfiguracja MCP skopiowana do schowka.",
@@ -2532,7 +2532,7 @@
       "noResults": "Nie znaleziono dopasowań.",
       "searching": "Wyszukiwanie…",
       "searchPlaceholder": "Wyszukaj lub wklej adres e-mail, numer telefonu albo konto społecznościowe…",
-      "sourceConversations": "Z twoich rozmów",
+      "sourceConversations": "Z Twoich rozmów",
       "sourceLookup": "Znalezione przez wyszukiwanie",
       "trigger": "Dodaj telefon, e-mail lub profil"
     },
@@ -2677,7 +2677,7 @@
   "ForgotPasswordForm": {
     "backToSignIn": "Pamiętasz hasło? <backToSignInLink>Zaloguj się</backToSignInLink>",
     "resetLinkInvalid": "Link do resetowania wygasł. Poproś o nowy link.",
-    "resetLinkSent": "Link do resetowania hasła został wysłany na twój adres e-mail.",
+    "resetLinkSent": "Link do resetowania hasła został wysłany na Twój adres e-mail.",
     "sendCta": "Wyślij link do resetowania",
     "title": "Nie pamiętasz hasła?"
   },
@@ -2702,7 +2702,7 @@
   "HomepageIntegrations": {
     "agents": "Twoi agenci AI",
     "channels": "Twoje kanały",
-    "label": "Twoje kanały i twoi agenci AI, połączeni ze sobą"
+    "label": "Twoje kanały i Twoi agenci AI, połączeni ze sobą"
   },
   "HomepagePricing": {
     "cloud": {
@@ -2746,7 +2746,7 @@
     "sendTo": "Wyślij do"
   },
   "InactiveCard": {
-    "body": "Gdy twój dostęp znów będzie aktywny, odśwież tę stronę, aby kontynuować.",
+    "body": "Gdy Twój dostęp znów będzie aktywny, odśwież tę stronę, aby kontynuować.",
     "otherWorkspaces": "Twoje pozostałe przestrzenie robocze pozostają bez zmian. Przełącz się na jedną z nich w menu przestrzeni roboczych.",
     "subtitle": "Administrator tej przestrzeni roboczej może ją ponownie aktywować",
     "title": "Twój dostęp do {workspace} jest nieaktywny"
@@ -5315,14 +5315,14 @@
     },
     "planPrice": "{plan} · {price} za użytkownika / miesiąc",
     "preview": {
-      "draftBadge": "Szkic, czeka na twoje sprawdzenie",
+      "draftBadge": "Szkic, czeka na Twoje sprawdzenie",
       "draftText": "Cześć Jonas, dziękuję. Poprawiony zakres prac wyślę we wtorek. Pozdrawiam, Anna",
       "firstMessage": "Brzmi dobrze. Czy możesz przesłać poprawiony zakres prac w przyszłym tygodniu?",
       "firstName": "Jonas Weber",
       "firstTime": "16:42",
-      "label": "Przykładowa skrzynka odbiorcza z danymi demo: odpowiedź z LinkedIn i szkic Mate czekający na twoje sprawdzenie",
+      "label": "Przykładowa skrzynka odbiorcza z danymi demo: odpowiedź z LinkedIn i szkic Mate czekający na Twoje sprawdzenie",
       "mate": {
-        "answer": "Trzech klientów czeka na odpowiedź. Przygotowałem dla każdego z nich follow-up do twojego sprawdzenia.",
+        "answer": "Trzech klientów czeka na odpowiedź. Przygotowałem dla każdego z nich follow-up do Twojego sprawdzenia.",
         "label": "Przykładowy czat z Mate z danymi demo: pytanie o oczekujące odpowiedzi i odpowiedź od Mate",
         "question": "Kto czeka w tym tygodniu na odpowiedź?"
       },
@@ -5341,12 +5341,12 @@
       }
     },
     "pro": {
-      "drafts": "Mate przygotowuje szkice odpowiedzi do twojego sprawdzenia",
-      "inbox": "Jedna skrzynka odbiorcza dla twoich kont: LinkedIn, e-mail, WhatsApp, Instagram i Telegram",
+      "drafts": "Mate przygotowuje szkice odpowiedzi do Twojego sprawdzenia",
+      "inbox": "Jedna skrzynka odbiorcza dla Twoich kont: LinkedIn, e-mail, WhatsApp, Instagram i Telegram",
       "nextSteps": "Udostępniaj pojedyncze rozmowy swojemu zespołowi"
     },
     "routines": {
-      "reachedTitle": "Wykorzystujesz wszystkie rutyny, które obejmuje twój plan {plan}"
+      "reachedTitle": "Wykorzystujesz wszystkie rutyny, które obejmuje Twój plan {plan}"
     },
     "starter": {
       "noLimits": "Cały zespół, bez limitu rekordów, webhooki i n8n"
@@ -5557,7 +5557,7 @@
       },
       "answersSource": "Odpowiedzi udzielone podczas konfiguracji przestrzeni roboczej ({date})",
       "competitor": {
-        "heading": "Do uzupełnienia przez twój zespół",
+        "heading": "Do uzupełnienia przez Twój zespół",
         "losses": "Gdzie lepiej sprawdza się {competitor}",
         "offer": "Co oferuje {competitor} i w jakiej cenie",
         "response": "Jak odpowiadamy, gdy potencjalny klient wspomina o {competitor}",
@@ -5586,9 +5586,9 @@
       "failedBodySynthesis": "Witryna została odczytana, ale Mate nie mógł napisać stron. Spróbuj ponownie. Strony, które już utworzono, nadal są dostępne.",
       "failedBodyUnavailable": "Mate nie mógł odczytać {domain}. Sprawdź adres albo kontynuuj i dodaj strony później.",
       "failedTitle": "Konfiguracja nie została ukończona",
-      "workingBodyAnswers": "Mate pisze strony Bazy wiedzy na podstawie twoich odpowiedzi z konfiguracji. Każda strona pojawia się tutaj, gdy tylko jest gotowa.",
+      "workingBodyAnswers": "Mate pisze strony Bazy wiedzy na podstawie Twoich odpowiedzi z konfiguracji. Każda strona pojawia się tutaj, gdy tylko jest gotowa.",
       "workingBodyWiki": "Mate czyta {domain} i buduje Bazę wiedzy. Możesz wrócić później, aby zobaczyć gotowe strony.",
-      "workingTitle": "Mate poznaje twoją firmę"
+      "workingTitle": "Mate poznaje Twoją firmę"
     }
   },
   "WithoutErrorReporting": {
@@ -5602,13 +5602,13 @@
   },
   "WorkspaceInvitation": {
     "inactive": {
-      "body": "Administrator dezaktywował twój dostęp do tej przestrzeni roboczej. Poproś go o ponowną aktywację.",
-      "bodyNamed": "Administrator dezaktywował twój dostęp do przestrzeni roboczej {workspace}. Poproś go o ponowną aktywację.",
+      "body": "Administrator dezaktywował Twój dostęp do tej przestrzeni roboczej. Poproś go o ponowną aktywację.",
+      "bodyNamed": "Administrator dezaktywował Twój dostęp do przestrzeni roboczej {workspace}. Poproś go o ponowną aktywację.",
       "title": "Twój dostęp jest dezaktywowany"
     },
     "join": {
       "action": "Dołącz do przestrzeni roboczej",
-      "body": "Administrator zatwierdza twoją prośbę, zanim uzyskasz dostęp. Twoje pozostałe przestrzenie robocze pozostają bez zmian.",
+      "body": "Administrator zatwierdza Twoją prośbę, zanim uzyskasz dostęp. Twoje pozostałe przestrzenie robocze pozostają bez zmian.",
       "title": "Dołącz do tej przestrzeni roboczej",
       "titleNamed": "Dołącz do {workspace}"
     },
@@ -5621,8 +5621,8 @@
     "otherAccount": "Użyj innego konta",
     "pending": {
       "action": "Pokaż status",
-      "body": "Administrator tej przestrzeni roboczej musi jeszcze zatwierdzić twoją prośbę.",
-      "bodyNamed": "Administrator przestrzeni roboczej {workspace} musi jeszcze zatwierdzić twoją prośbę.",
+      "body": "Administrator tej przestrzeni roboczej musi jeszcze zatwierdzić Twoją prośbę.",
+      "bodyNamed": "Administrator przestrzeni roboczej {workspace} musi jeszcze zatwierdzić Twoją prośbę.",
       "title": "Twoja prośba czeka na zatwierdzenie"
     }
   },
@@ -5640,11 +5640,11 @@
     "workspaceNamePlaceholder": "np. Acme Sales"
   },
   "WorkspaceRemovalNotice": {
-    "body": "Usunięto cię z przestrzeni roboczej „{workspace}” w Customermates. Twój dostęp wygasł, a twoje klucze API i połączenia MCP dla tej przestrzeni roboczej przestały działać.",
+    "body": "Usunięto cię z przestrzeni roboczej „{workspace}” w Customermates. Twój dostęp wygasł, a Twoje klucze API i połączenia MCP dla tej przestrzeni roboczej przestały działać.",
     "cta": "Zaloguj się",
     "greeting": "Cześć {firstName},",
     "otherWorkspaces": "Twoje konto i pozostałe przestrzenie robocze pozostają bez zmian, więc możesz logować się jak zwykle.",
-    "rejoin": "Jeśli potrzebujesz ponownie dostępu, możesz poprosić o dołączenie do „{workspace}” za pomocą linku z zaproszeniem. Administrator musi zatwierdzić twoją prośbę.",
+    "rejoin": "Jeśli potrzebujesz ponownie dostępu, możesz poprosić o dołączenie do „{workspace}” za pomocą linku z zaproszeniem. Administrator musi zatwierdzić Twoją prośbę.",
     "subject": "Usunięto cię z „{workspace}”",
     "title": "Dostęp do przestrzeni roboczej wygasł"
   },
@@ -5675,7 +5675,7 @@
       "title": "Wybierz plan dla {name}"
     },
     "leave": "Opuść przestrzeń roboczą",
-    "leaveConfirmDescription": "Tracisz dostęp do jej rekordów, Bazy wiedzy i połączeń, a twoje klucze API i połączenia MCP dla niej przestają działać. Aby wrócić, możesz poprosić o ponowne dołączenie za pomocą linku z zaproszeniem, a administrator musi zatwierdzić twoją prośbę.",
+    "leaveConfirmDescription": "Tracisz dostęp do jej rekordów, Bazy wiedzy i połączeń, a Twoje klucze API i połączenia MCP dla niej przestają działać. Aby wrócić, możesz poprosić o ponowne dołączenie za pomocą linku z zaproszeniem, a administrator musi zatwierdzić Twoją prośbę.",
     "leaveConfirmTitle": "Opuścić {name}?",
     "leaveDescription": "Usuń siebie z tej przestrzeni roboczej. Twoje pozostałe przestrzenie robocze pozostają bez zmian.",
     "leaveShort": "Opuść",
@@ -5699,13 +5699,13 @@
     "switch": "Przełącz",
     "switchTo": "Przełącz na {name}",
     "unavailable": {
-      "description": "Została usunięta, jej adres URL się zmienił lub twój dostęp został cofnięty. Przejdź do pulpitu, aby kontynuować.",
+      "description": "Została usunięta, jej adres URL się zmienił lub Twój dostęp został cofnięty. Przejdź do pulpitu, aby kontynuować.",
       "open": "Przejdź do pulpitu",
       "title": "Ta przestrzeń robocza jest niedostępna"
     },
     "unnamedCreated": "{name} (utworzono {date})",
     "unnamedPrompt": {
-      "description": "Nie ma jeszcze nazwy, więc menu przestrzeni roboczej pokazuje tylko „Przestrzeń robocza”. Nazwa pomaga każdemu członkowi odróżnić twoje przestrzenie robocze.",
+      "description": "Nie ma jeszcze nazwy, więc menu przestrzeni roboczej pokazuje tylko „Przestrzeń robocza”. Nazwa pomaga każdemu członkowi odróżnić Twoje przestrzenie robocze.",
       "title": "Nadaj tej przestrzeni roboczej nazwę"
     }
   },
@@ -5713,7 +5713,7 @@
     "actions": {
       "addOwn": "Coś innego",
       "continueAnyway": "Kontynuuj mimo to",
-      "fromWebsite": "Sugestia na podstawie twojej strony internetowej",
+      "fromWebsite": "Sugestia na podstawie Twojej strony internetowej",
       "upload": "Prześlij arkusz kalkulacyjny"
     },
     "anchors": {
@@ -5722,15 +5722,15 @@
     },
     "build": {
       "actions": {
-        "dashboard": "Tworzenie twojego pulpitu",
-        "dataModel": "Tworzenie twoich list i pól",
+        "dashboard": "Tworzenie Twojego pulpitu",
+        "dataModel": "Tworzenie Twoich list i pól",
         "importing": "Importowanie {fileName}",
-        "knowledgeBase": "Pisanie stron twojej bazy wiedzy ({written} z {planned})",
-        "pipeline": "Tworzenie twojego pipeline'u {list}: {stages}",
+        "knowledgeBase": "Pisanie stron Twojej bazy wiedzy ({written} z {planned})",
+        "pipeline": "Tworzenie Twojego pipeline'u {list}: {stages}",
         "preparing": "Przygotowywanie kolejnej części",
         "readingWebsite": "Odczytywanie {website}",
         "records": "Dodawanie przykładowych rekordów",
-        "views": "Porządkowanie twoich list"
+        "views": "Porządkowanie Twoich list"
       },
       "completedBody": "Wszystko jest gotowe. Teraz zaproś swój zespół.",
       "completedTitle": "Twoja przestrzeń robocza jest gotowa",
@@ -5747,7 +5747,7 @@
         "records": "Rekordy",
         "views": "Widoki list"
       },
-      "previewLabel": "Podgląd twojej przestrzeni roboczej",
+      "previewLabel": "Podgląd Twojej przestrzeni roboczej",
       "records": "Rekordy",
       "retry": "Ponów",
       "sidebarLabel": "Podgląd nawigacji",
@@ -5763,7 +5763,7 @@
         "records": "{count, plural, =0 {Nie dodano rekordów} one {Dodano # rekord} few {Dodano # rekordy} many {Dodano # rekordów} other {Dodano # rekordu}}",
         "views": "{count, plural, =0 {Nie uporządkowano widoków} one {Uporządkowano # widok} few {Uporządkowano # widoki} many {Uporządkowano # widoków} other {Uporządkowano # widoku}}"
       },
-      "title": "Konfigurowanie twojej przestrzeni roboczej"
+      "title": "Konfigurowanie Twojej przestrzeni roboczej"
     },
     "empty": {
       "action": "Zacznij od pustej przestrzeni roboczej",
@@ -5774,11 +5774,11 @@
     "failures": {
       "aiUnavailable": "Usługa AI jest teraz niedostępna. Spróbuj ponownie za kilka minut.",
       "contactSupport": "Skontaktuj się z pomocą techniczną",
-      "crawlFailed": "Nie udało się odczytać twojej strony internetowej.",
+      "crawlFailed": "Nie udało się odczytać Twojej strony internetowej.",
       "dependency": "Ta część czeka na wcześniejszą część, która się nie zakończyła.",
       "error": "W tej części coś poszło nie tak.",
       "generation": "Tym razem AI nie wygenerowała użytecznego wyniku.",
-      "invalidPlan": "Plan nie pasował do twojej przestrzeni roboczej.",
+      "invalidPlan": "Plan nie pasował do Twojej przestrzeni roboczej.",
       "permission": "Twoja rola nie pozwala na tę zmianę.",
       "schemaChanged": "Twoja przestrzeń robocza zmieniła się, gdy ta część była w toku.",
       "spendCap": "Budżet konfiguracji tej przestrzeni roboczej został wykorzystany, dlatego ta część została zatrzymana. Wszystko, co zostało ukończone do tej pory, zostaje zachowane. Napisz do nas, a pomożemy ci dokończyć konfigurację.",
@@ -5791,7 +5791,7 @@
       "answerYourself": {
         "cancel": "Poczekaj na stronę internetową",
         "confirm": "Odpowiem samodzielnie",
-        "description": "Właśnie uzupełniamy te odpowiedzi na podstawie twojej strony internetowej. Wystarczy, że sprawdzisz je, gdy skończymy.",
+        "description": "Właśnie uzupełniamy te odpowiedzi na podstawie Twojej strony internetowej. Wystarczy, że sprawdzisz je, gdy skończymy.",
         "title": "Odpowiedzieć samodzielnie?"
       },
       "customPlaceholder": "Opisz to kilkoma słowami",
@@ -5801,8 +5801,8 @@
       "followUpsTitle": "Jeszcze kilka szczegółów",
       "optionalPlaceholder": "Zostaw puste, jeśli nic nie przychodzi ci do głowy",
       "planHint": "Plan sprawdzasz, zanim cokolwiek zostanie utworzone",
-      "prefillFailed": "Nie udało się odczytać twojej strony internetowej, więc nic nie zostało uzupełnione. Odpowiedzi na pytania zajmą tylko kilka minut.",
-      "prefillPending": "Odpowiedzi poniżej są uzupełniane automatycznie na podstawie twojej strony internetowej. Możesz poczekać i sprawdzić je, gdy skończymy.",
+      "prefillFailed": "Nie udało się odczytać Twojej strony internetowej, więc nic nie zostało uzupełnione. Odpowiedzi na pytania zajmą tylko kilka minut.",
+      "prefillPending": "Odpowiedzi poniżej są uzupełniane automatycznie na podstawie Twojej strony internetowej. Możesz poczekać i sprawdzić je, gdy skończymy.",
       "rangeFrom": "Od",
       "rangeTo": "Do",
       "rankedHint": "Wybrano {count} z {max}, w kolejności ważności",
@@ -5823,7 +5823,7 @@
       },
       "uploadHint": "CSV lub Excel, do {maxMegabytes} MB i {maxRows, number} wierszy.",
       "uploadKept": "Konfiguracja zachowuje plik {fileName}.",
-      "uploadReady": "Gotowe do zaimportowania do twoich nowych list.",
+      "uploadReady": "Gotowe do zaimportowania do Twoich nowych list.",
       "uploadRejected": "Nie można zaimportować pliku {fileName}. {reason}",
       "uploadReplace": "Wybierz inny plik"
     },
@@ -5879,35 +5879,35 @@
       "noPages": "Nie zaplanowano żadnych stron bazy wiedzy.",
       "noPipeline": "Nie zaplanowano pipeline'u.",
       "pipeline": "Pipeline",
-      "planningTitle": "Przygotowywanie twojego planu",
+      "planningTitle": "Przygotowywanie Twojego planu",
       "progress": {
         "done": {
-          "answers": "Odczytano twoje odpowiedzi",
-          "knowledge": "Zarysowano strony twojej bazy wiedzy",
-          "model": "Zaprojektowano twoje listy, pola i pipeline",
+          "answers": "Odczytano Twoje odpowiedzi",
+          "knowledge": "Zarysowano strony Twojej bazy wiedzy",
+          "model": "Zaprojektowano Twoje listy, pola i pipeline",
           "views": "Zaplanowano widoki, pulpit i przykładowe rekordy"
         },
         "minutesLeft": "{minutes, plural, one {Zostało około # minuty} few {Zostało około # minut} many {Zostało około # minut} other {Zostało około # minuty}}",
         "overdue": "To trwa trochę dłużej niż zwykle. Już prawie gotowe.",
         "steps": {
-          "answers": "Odczytywanie twoich odpowiedzi",
-          "knowledge": "Zarysowywanie stron twojej bazy wiedzy",
-          "model": "Projektowanie twoich list, pól i pipeline'u",
+          "answers": "Odczytywanie Twoich odpowiedzi",
+          "knowledge": "Zarysowywanie stron Twojej bazy wiedzy",
+          "model": "Projektowanie Twoich list, pól i pipeline'u",
           "views": "Planowanie widoków, pulpitu i przykładowych rekordów"
         },
-        "typical": "Mate projektuje twoją przestrzeń roboczą na podstawie twoich odpowiedzi. Zwykle trwa to od 1 do 2 minut.",
+        "typical": "Mate projektuje Twoją przestrzeń roboczą na podstawie Twoich odpowiedzi. Zwykle trwa to od 1 do 2 minut.",
         "underMinute": "Zostało mniej niż minuta"
       },
       "reviewHint": "Sprawdź plan, a potem utwórz swoją przestrzeń roboczą.",
       "sampleSummary": "{count, plural, one {Dodaje # przykładowy rekord, aby można było od razu wszystko wypróbować.} few {Dodaje # przykładowe rekordy, aby można było od razu wszystko wypróbować.} many {Dodaje # przykładowych rekordów, aby można było od razu wszystko wypróbować.} other {Dodaje # przykładowego rekordu, aby można było od razu wszystko wypróbować.}}",
       "subtitle": "To zbudujemy, gdy potwierdzisz.",
-      "title": "Plan twojej przestrzeni roboczej",
+      "title": "Plan Twojej przestrzeni roboczej",
       "tryAgain": "Spróbuj ponownie",
       "winChanceValue": "{value}%"
     },
     "questions": {
       "companyName": {
-        "label": "Nazwa twojej firmy lub projektu"
+        "label": "Nazwa Twojej firmy lub projektu"
       },
       "country": {
         "label": "Kraj"
@@ -5943,7 +5943,7 @@
     },
     "start": {
       "emptyPrompt": "Wolisz wszystko skonfigurować samodzielnie?",
-      "optionsLabel": "Sposoby konfiguracji twojej przestrzeni roboczej",
+      "optionsLabel": "Sposoby konfiguracji Twojej przestrzeni roboczej",
       "questions": {
         "description": "Do sześciu krótkich pytań o to, co chcesz śledzić.",
         "note": "Około 1 minuty",
@@ -5951,7 +5951,7 @@
       },
       "website": {
         "action": "Odczytaj moją stronę internetową",
-        "description": "Odczytujemy twoją publiczną stronę internetową i uzupełniamy odpowiedzi za ciebie. Ty tylko je sprawdzasz.",
+        "description": "Odczytujemy Twoją publiczną stronę internetową i uzupełniamy odpowiedzi za ciebie. Ty tylko je sprawdzasz.",
         "note": "Około 2 minut",
         "recommended": "Polecane",
         "title": "Użyj mojej strony internetowej"
@@ -5975,7 +5975,7 @@
       "eta": "Zwykle trwa to od 1 do 2 minut.",
       "finding": "Wyszukiwanie stron w {website}",
       "found": "{count, plural, =0 {Nie znaleziono stron w {website}} one {Znaleziono # stronę w {website}} few {Znaleziono # strony w {website}} many {Znaleziono # stron w {website}} other {Znaleziono # strony w {website}}}",
-      "hint": "Opcjonalne. Odczytujemy twoją publiczną stronę internetową i sugerujemy odpowiedzi, więc najczęściej wystarczy je potwierdzić.",
+      "hint": "Opcjonalne. Odczytujemy Twoją publiczną stronę internetową i sugerujemy odpowiedzi, więc najczęściej wystarczy je potwierdzić.",
       "read": "Odczytaj stronę internetową",
       "reading": "Odczytywanie {website}: {read} z {total} stron",
       "readPages": "{count, plural, =0 {Nie odczytano stron} one {Odczytano # stronę} few {Odczytano # strony} many {Odczytano # stron} other {Odczytano # strony}}",

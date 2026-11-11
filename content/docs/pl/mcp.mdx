@@ -1,7 +1,7 @@
 ---
 title: "Serwer MCP dla CRM: endpoint i narzędzia"
 heading: "Połącz klientów AI z CRM przez MCP"
-description: "Customermates udostępnia natywny endpoint MCP pod /api/v1/mcp, dzięki czemu Claude, ChatGPT, Cursor i inni klienci agentowi mogą czytać i zapisywać twoje CRM."
+description: "Customermates udostępnia natywny endpoint MCP pod /api/v1/mcp, dzięki czemu Claude, ChatGPT, Cursor i inni klienci agentowi mogą czytać i zapisywać Twoje CRM."
 ---
 
 Customermates udostępnia jeden endpoint MCP pod adresem `<BASE_URL>/api/v1/mcp`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, a każda przestrzeń robocza ma też własny adres, `<BASE_URL>/api/v1/mcp/w/<WORKSPACE_ID>`, z tymi samymi narzędziami przypisanymi do tej przestrzeni roboczej. Podłączony klient automatycznie wykrywa narzędzia CRM. Dwa sposoby połączenia:
@@ -34,7 +34,7 @@ Adres URL przestrzeni roboczej przyjmuje wyłącznie poświadczenia tej przestrz
 
 Endpoint i klucze API są dostępne w każdym planie i w instancjach hostowanych samodzielnie. Tylko narzędzia wiadomości, kalendarza i social media wymagają planu z wiadomościami (Pro lub wyższy, tylko Cloud); zobacz [Wiadomości](/docs/mcp#messaging).
 
-Katalogi mogą wykryć serwer bez połączenia z CRM pod adresem `<BASE_URL>/.well-known/mcp/server-card.json`. Ten publiczny, generowany plik zawiera tożsamość serwera, wymagania uwierzytelniania, definicje narzędzi i metadane promptów. Nie zawiera rekordów przestrzeni roboczej, poświadczeń ani wyników narzędzi. Narzędzia nadal wymagają uwierzytelniania i uprawnień opisanych powyżej. Wpis w katalogu nie daje dostępu do twojego CRM. Utrzymujący projekt generują plik ponownie poleceniem `yarn mcp:generate-card` po zmianie definicji narzędzi; tworzenie, buildy i CI generują go automatycznie.
+Katalogi mogą wykryć serwer bez połączenia z CRM pod adresem `<BASE_URL>/.well-known/mcp/server-card.json`. Ten publiczny, generowany plik zawiera tożsamość serwera, wymagania uwierzytelniania, definicje narzędzi i metadane promptów. Nie zawiera rekordów przestrzeni roboczej, poświadczeń ani wyników narzędzi. Narzędzia nadal wymagają uwierzytelniania i uprawnień opisanych powyżej. Wpis w katalogu nie daje dostępu do Twojego CRM. Utrzymujący projekt generują plik ponownie poleceniem `yarn mcp:generate-card` po zmianie definicji narzędzi; tworzenie, buildy i CI generują go automatycznie.
 
 ## Połącz klienta [#connect-a-client]
 
@@ -42,13 +42,13 @@ Aby połączyć klienta kluczem API, zacznij od [Klucze API i konektory](app:set
 
 <Steps>
 <Step title="Utwórz klucz API">
-Otwórz [Klucze API i konektory](app:settings/api-keys) w Ustawieniach i kliknij [Dodaj](app:settings/api-keys?focus=generate). Wybierz **Szybkie połączenia**, aby przejść przez prowadzoną konfigurację Claude, ChatGPT i Codex, Cursor lub Gemini, albo **Standardowy klucz API** (**Nazwa**, opcjonalnie **Wygasa za**) dla własnej integracji. Klucz jest wyświetlany raz, więc skopiuj go przed zamknięciem okna. Utworzenie klucza wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki** twojej roli, a strona wymaga uprawnienia **Dostęp do odczytu** **Wszystkie** w tym wierszu; wbudowana rola **Administrator** ma oba. Zobacz [Klucze API](/docs/api-keys).
+Otwórz [Klucze API i konektory](app:settings/api-keys) w Ustawieniach i kliknij [Dodaj](app:settings/api-keys?focus=generate). Wybierz **Szybkie połączenia**, aby przejść przez prowadzoną konfigurację Claude, ChatGPT i Codex, Cursor lub Gemini, albo **Standardowy klucz API** (**Nazwa**, opcjonalnie **Wygasa za**) dla własnej integracji. Klucz jest wyświetlany raz, więc skopiuj go przed zamknięciem okna. Utworzenie klucza wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki** Twojej roli, a strona wymaga uprawnienia **Dostęp do odczytu** **Wszystkie** w tym wierszu; wbudowana rola **Administrator** ma oba. Zobacz [Klucze API](/docs/api-keys).
 </Step>
 <Step title="Wskaż klientowi endpoint">
 Podaj klientowi `POST <BASE_URL>/api/v1/mcp` z nagłówkiem `x-api-key` albo połącz przez OAuth, jeśli klient to obsługuje. Instrukcje w poniższej tabeli zawierają dokładną konfigurację.
 </Step>
 <Step title="Sprawdź, czy narzędzia dotarły">
-Poproś klienta o wylistowanie narzędzi; wśród nich powinno być `get_workspace_context`. To naturalne pierwsze wywołanie: zwraca twojego użytkownika, firmę, role, połączone konta i Bazę wiedzy za jednym razem; etykiety typów rekordów pochodzą z `discover_record_types`.
+Poproś klienta o wylistowanie narzędzi; wśród nich powinno być `get_workspace_context`. To naturalne pierwsze wywołanie: zwraca Twojego użytkownika, firmę, role, połączone konta i Bazę wiedzy za jednym razem; etykiety typów rekordów pochodzą z `discover_record_types`.
 </Step>
 </Steps>
 
@@ -66,7 +66,7 @@ Poproś klienta o wylistowanie narzędzi; wśród nich powinno być `get_workspa
 
 ## Instrukcje serwera, prompty i toolsety [#server-instructions-prompts-and-toolsets]
 
-Gdy klient się łączy, serwer wysyła wskazówki dotyczące pracy: najpierw przeczytaj schemat, znajdź identyfikatory przed zapisem, zmieniaj rekordy i relacje przez `mutate_crm_record` i uzyskaj potwierdzenie użytkownika z wymienieniem dokładnych rekordów lub odbiorców, zanim coś usuniesz lub wyślesz. Te wskazówki nie są bramką potwierdzenia egzekwowaną przez serwer, a to, czy klient przekaże je modelowi, zależy od klienta. Sprawdź, jak twój klient obsługuje instrukcje i zatwierdzenia, zanim nadasz dostęp do zapisu, usuwania lub wiadomości. Klienci obsługujący prompty MCP mogą uruchomić wbudowany prompt `get-started`, który podsumowuje przestrzeń roboczą na potrzeby spersonalizowanego startu; jest oferowany, gdy aktywne są oba toolsety, `workspace` i `records`, tak jak wtedy, gdy adres URL nie wybiera żadnych `toolsets`.
+Gdy klient się łączy, serwer wysyła wskazówki dotyczące pracy: najpierw przeczytaj schemat, znajdź identyfikatory przed zapisem, zmieniaj rekordy i relacje przez `mutate_crm_record` i uzyskaj potwierdzenie użytkownika z wymienieniem dokładnych rekordów lub odbiorców, zanim coś usuniesz lub wyślesz. Te wskazówki nie są bramką potwierdzenia egzekwowaną przez serwer, a to, czy klient przekaże je modelowi, zależy od klienta. Sprawdź, jak Twój klient obsługuje instrukcje i zatwierdzenia, zanim nadasz dostęp do zapisu, usuwania lub wiadomości. Klienci obsługujący prompty MCP mogą uruchomić wbudowany prompt `get-started`, który podsumowuje przestrzeń roboczą na potrzeby spersonalizowanego startu; jest oferowany, gdy aktywne są oba toolsety, `workspace` i `records`, tak jak wtedy, gdy adres URL nie wybiera żadnych `toolsets`.
 
 Domyślnie dostępna jest pełna powierzchnia narzędzi. Dopisz `?toolsets=` do adresu URL endpointu, aby ją zawęzić, na przykład `/api/v1/mcp?toolsets=records,messaging`; zobacz [Zawężanie przez ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
@@ -80,7 +80,7 @@ Wybierz **Nowa strona**, wpisz tytuł i pisz w edytorze wizualnym, który używa
 
 Aby zalinkować inną stronę, użyj kontrolki linku w edytorze albo **Kopiuj link do strony** w menu **Akcje strony**. To zwykłe linki Markdown, a zmiana nazwy strony zachowuje jej adres; nie potrzeba osobnego indeksu ani metadanych linkowania.
 
-Uprawnienia wynikają z wiersza **Baza wiedzy** twojej roli: dostęp do odczytu pozwala przeglądać strony, **Tworzenie**, **Edycja** i **Usuń** pozwalają tworzyć, edytować i zmieniać kolejność albo usuwać strony, a każde z nich obejmuje dostęp do odczytu. Jeśli ktoś inny zmieni stronę, zanim zapiszesz, twój nieaktualny zapis jest odrzucany, a twoje edycje pozostają widoczne, aby można je było uzgodnić. **Usuń stronę** przenosi stronę do [Kosza](/docs/app-trash), skąd można ją przywrócić przez 30 dni. Zmiany pojawiają się w [Dziennik audytu](app:settings/activity); zobaczenie ich treści z Bazy wiedzy wymaga zarówno dostępu do **Dziennika aktywności**, jak i dostępu do odczytu Bazy wiedzy. Dziennik aktywności nie służy do przywracania.
+Uprawnienia wynikają z wiersza **Baza wiedzy** Twojej roli: dostęp do odczytu pozwala przeglądać strony, **Tworzenie**, **Edycja** i **Usuń** pozwalają tworzyć, edytować i zmieniać kolejność albo usuwać strony, a każde z nich obejmuje dostęp do odczytu. Jeśli ktoś inny zmieni stronę, zanim zapiszesz, Twój nieaktualny zapis jest odrzucany, a Twoje edycje pozostają widoczne, aby można je było uzgodnić. **Usuń stronę** przenosi stronę do [Kosza](/docs/app-trash), skąd można ją przywrócić przez 30 dni. Zmiany pojawiają się w [Dziennik audytu](app:settings/activity); zobaczenie ich treści z Bazy wiedzy wymaga zarówno dostępu do **Dziennika aktywności**, jak i dostępu do odczytu Bazy wiedzy. Dziennik aktywności nie służy do przywracania.
 
 ### Przewodnik operacyjny, procedury i wiedza [#page-types]
 
@@ -96,7 +96,7 @@ Każda zapisana strona, także zaimportowana, jest od razu dostępna dla Mate i 
 
 [Rutyna](/docs/app-routines#knowledge-base-proposals) nigdy nie zmienia Bazy wiedzy sama. Gdy uruchomienie miałoby utworzyć, edytować lub usunąć stronę, zapisuje propozycję, a strona zostaje bez zmian. Osoby z uprawnieniem Zarządzanie do Bazy wiedzy widzą **Propozycje** z liczbą oczekujących na pasku narzędzi Bazy wiedzy. Otwiera się lista pokazująca, co robi każda propozycja, która rutyna ją utworzyła i kiedy. Otwórz jedną, aby porównać bieżącą stronę z proponowanym tytułem, typem i treścią, a potem wybierz **Zatwierdź** lub **Odrzuć**.
 
-Zatwierdzenie stosuje zmianę z twoimi uprawnieniami, dokładnie tak, jak przy edycji wprowadzonej przez ciebie: zatwierdzenie usunięcia wymaga uprawnienia do usuwania stron, a zmiana pojawia się w Dzienniku audytu pod twoim nazwiskiem. Propozycja opiera się na wersji strony, którą przeczytał Mate. Jeśli ktoś zmienił lub usunął stronę od tamtej chwili, propozycja jest oznaczona jako **Strona zmieniona** i nie można jej zatwierdzić; odrzuć ją albo poproś Mate o ponowne zaproponowanie zmiany. Gdy rutyna proponuje kolejną zmianę tej samej strony, nowsza propozycja zastępuje starszą. Edycje, o które prosisz Mate w czacie, są zapisywane od razu, a podłączeni klienci MCP zapisują strony bezpośrednio, tak jak dotąd.
+Zatwierdzenie stosuje zmianę z Twoimi uprawnieniami, dokładnie tak, jak przy edycji wprowadzonej przez ciebie: zatwierdzenie usunięcia wymaga uprawnienia do usuwania stron, a zmiana pojawia się w Dzienniku audytu pod Twoim nazwiskiem. Propozycja opiera się na wersji strony, którą przeczytał Mate. Jeśli ktoś zmienił lub usunął stronę od tamtej chwili, propozycja jest oznaczona jako **Strona zmieniona** i nie można jej zatwierdzić; odrzuć ją albo poproś Mate o ponowne zaproponowanie zmiany. Gdy rutyna proponuje kolejną zmianę tej samej strony, nowsza propozycja zastępuje starszą. Edycje, o które prosisz Mate w czacie, są zapisywane od razu, a podłączeni klienci MCP zapisują strony bezpośrednio, tak jak dotąd.
 
 ### Skonfiguruj na podstawie swojej strony głównej [#set-up-from-your-homepage]
 
@@ -109,7 +109,7 @@ Import strony internetowej działa w tle:
 - Postęp (etap i przeczytane strony) pokazuje się w czacie wdrożenia, a po nim następuje rozmowa pisania Mate tylko do odczytu; przetrwa odświeżenie strony.
 - W Bazie wiedzy istniejące strony pozostają czytelne i edytowalne, a **Nowa strona** pozostaje dostępna, gdy trwa import strony internetowej; baner na górze każdej strony informuje, że Mate nadal tworzy strony w tle, a nowe strony pojawiają się, gdy są gotowe. Pusta Baza wiedzy pokazuje postęp importu, dopóki nie powstanie pierwsza strona.
 
-Każdy import używa jednego języka: dominującego języka istniejących stron albo, dla pustej Bazy wiedzy, języka twojej przeglądarki (możesz wybrać inny obsługiwany język we wdrożeniu). Strony pomocy, FAQ, cennika i zasad w tym języku są importowane słowo w słowo, z zachowaniem nagłówków i par pytanie-odpowiedź, i kończą się adresem źródłowym oraz datą odczytu. Mate czyta w całości każde inne źródło, a potem tłumaczy je lub streszcza w osobnych stronach tematycznych, bez stałej liczby stron i bez zduplikowanych wersji językowych. Wstępna konfiguracja tworzy też Przewodnik operacyjny i procedury dla powtarzających się próśb, które obsługuje strona, takich jak zwroty lub rezygnacje. Każda napisana strona wymienia swoje źródła i otwarte pytania, takie jak to, kto zatwierdza wyjątki. Czytanie strony internetowej i wykrywanie jej języka nie wywołują żadnego dostawcy AI; pisanie przez Mate i indeksowanie Bazy wiedzy zużywają twoje zwykłe hostowane kredyty AI.
+Każdy import używa jednego języka: dominującego języka istniejących stron albo, dla pustej Bazy wiedzy, języka Twojej przeglądarki (możesz wybrać inny obsługiwany język we wdrożeniu). Strony pomocy, FAQ, cennika i zasad w tym języku są importowane słowo w słowo, z zachowaniem nagłówków i par pytanie-odpowiedź, i kończą się adresem źródłowym oraz datą odczytu. Mate czyta w całości każde inne źródło, a potem tłumaczy je lub streszcza w osobnych stronach tematycznych, bez stałej liczby stron i bez zduplikowanych wersji językowych. Wstępna konfiguracja tworzy też Przewodnik operacyjny i procedury dla powtarzających się próśb, które obsługuje strona, takich jak zwroty lub rezygnacje. Każda napisana strona wymienia swoje źródła i otwarte pytania, takie jak to, kto zatwierdza wyjątki. Czytanie strony internetowej i wykrywanie jej języka nie wywołują żadnego dostawcy AI; pisanie przez Mate i indeksowanie Bazy wiedzy zużywają Twoje zwykłe hostowane kredyty AI.
 
 Centra pomocy na innej witrynie, takie jak hostowany help desk, są wymieniane, ale nie czytane. Aby je dodać, podaj Mate jego adres w czacie; Mate importuje je w języku Bazy wiedzy, nie zastępując Przewodnika operacyjnego ani procedur. Nie ma przycisku odświeżania strony internetowej. Adresy źródłowe i daty pobrania pozostają dla pochodzenia i odtwarzania importu; tekst źródłowy jest przechowywany w 24-godzinnym oknie ponowień i podczas trwania tury pisania, a późniejszy import usuwa go, gdy oba się skończą.
 
@@ -124,10 +124,10 @@ Znajduj treści narzędziem `search` tylko do odczytu, a potem pobieraj `fetch` 
 - Markdown przychodzi w ograniczonych fragmentach z kanonicznym adresem URL źródła. Powtarzaj `fetch` z `nextOffset` jako `offset`, aż będzie null. Offset należy do narzędzia, które go zwróciło: kontynuuj odczyt `fetch` przez `fetch`, a odczyt `manage_wiki_pages` przez `manage_wiki_pages`. Jeśli `updatedAt` zmieni się między fragmentami, zacznij od offsetu 0.
 - Każde trafienie Bazy wiedzy z `search` niesie wyróżniony `snippet`, ścieżkę nagłówków dopasowanej sekcji `section` i `offset`; przekaż ten `offset` do `fetch`, aby otworzyć stronę przy odpowiedzi, a offset 0 lub zwrócony `outline` służą do wcześniejszego kontekstu. Linki między stronami są bezwzględne i mogą od razu wracać do `fetch`.
 - Wyszukiwanie dopasowuje słowa zapytania w pełnym tekście, w tym formy odmienione po angielsku, niemiecku, hiszpańsku, francusku i włosku. Z kredytami AI dopasowuje też według znaczenia, więc inaczej sformułowane pytanie albo pytanie w innym języku nadal znajdzie stronę. Osadzenie zapytania jest naliczane tylko wtedy, gdy wyszukiwanie z niego korzysta, osobie, której wyszukiwanie je uruchomiło, nawet jeśli jednoczesne identyczne wyszukiwanie współpracownika je wykorzysta. Indeksowanie Bazy wiedzy jest opłacane ze wspólnego limitu przestrzeni roboczej, z wyjątkiem jednorazowej przebudowy stron zindeksowanych przed obecnym formatem wyszukiwania, którą Customermates opłaca do 100 kredytów na przestrzeń roboczą; indeksowanie publicznej dokumentacji opłaca Customermates, a zewnętrzni klienci płacą osobno swojemu dostawcy modelu. Bez kredytów oraz w instancjach hostowanych samodzielnie wyszukiwanie obejmuje tylko pełny tekst.
-- W obu trybach strona zawierająca szukany kod lub identyfikator, taki jak `E-4012` lub `OPS-1182`, jest na początku niezależnie od separatorów i wielkości liter. Słowo z literówką, które nie pasuje do żadnej strony, jest poprawiane na podstawie własnych słów twojej Bazy wiedzy; wyniki pochodzą z poprawionego zapytania, które `search` zwraca w `didYouMean`.
+- W obu trybach strona zawierająca szukany kod lub identyfikator, taki jak `E-4012` lub `OPS-1182`, jest na początku niezależnie od separatorów i wielkości liter. Słowo z literówką, które nie pasuje do żadnej strony, jest poprawiane na podstawie własnych słów Twojej Bazy wiedzy; wyniki pochodzą z poprawionego zapytania, które `search` zwraca w `didYouMean`.
 - `manage_wiki_pages` z `action: "search"` zwraca te same pola plus `retrieval` (`semantic` lub `keyword`), z offsetami dla własnego `get`; `action: "get"` kontynuuje w ten sam sposób. Jego akcje `create` i `update` wymagają uprawnienia **Tworzenie** lub **Edycja** do Bazy wiedzy. Odczyty wymagają dostępu do odczytu Bazy wiedzy, a każda zmiana trafia do dziennika aktywności. `action: "move"` umieszcza stronę przed inną stroną lub za nią (`targetId`, `placement`), a `delete` przenosi ją do Kosza. REST API oferuje te same operacje pod `/api/v1/wiki/`: `list`, `search`, `read`, `create`, `update`, `move` i `delete`.
 
-Instrukcje serwera każą podłączonym agentom najpierw wywołać `get_workspace_context`, stosować Przewodnik operacyjny, przeczytać procedurę, której `whenToUse` pasuje, zanim zadziałają, wyszukać i przeczytać odpowiednie strony, zanim użyją faktów firmy, procesów, głosu, produktu lub wskazówek dla obsługi, podążać za przydatnymi linkami i cytować dokładne zwrócone adresy URL; `search` i `fetch` oznaczają strony procedur i przewodnika ich `kind`. Klienci sami decydują, czy przekazują zasoby i instrukcje serwera swojemu modelowi, więc żaden serwer nie może wymusić tych odczytów. Jeśli twój klient je ignoruje, dodaj tę samą instrukcję wyszukiwania do jego trwałych instrukcji, a samą treść trzymaj w CRM, żeby każdy klient czytał bieżącą kopię.
+Instrukcje serwera każą podłączonym agentom najpierw wywołać `get_workspace_context`, stosować Przewodnik operacyjny, przeczytać procedurę, której `whenToUse` pasuje, zanim zadziałają, wyszukać i przeczytać odpowiednie strony, zanim użyją faktów firmy, procesów, głosu, produktu lub wskazówek dla obsługi, podążać za przydatnymi linkami i cytować dokładne zwrócone adresy URL; `search` i `fetch` oznaczają strony procedur i przewodnika ich `kind`. Klienci sami decydują, czy przekazują zasoby i instrukcje serwera swojemu modelowi, więc żaden serwer nie może wymusić tych odczytów. Jeśli Twój klient je ignoruje, dodaj tę samą instrukcję wyszukiwania do jego trwałych instrukcji, a samą treść trzymaj w CRM, żeby każdy klient czytał bieżącą kopię.
 
 Gdy lista narzędzi się zmienia, odśwież lub opublikuj ponownie konektor ChatGPT: w przestrzeni roboczej Enterprise lub Edu administrator wybiera **Refresh** na istniejącym konektorze i sprawdza jego akcje; przestrzenie robocze Business tworzą go i publikują ponownie. Do tego czasu ChatGPT zachowuje narzędzia i instrukcje, które wcześniej zatwierdził, takie jak lista bez `manage_wiki_pages`. Wywołania `search` i `fetch` zawsze używają bieżącego zachowania serwera.
 
@@ -139,7 +139,7 @@ Tekst plików dołączonych do rekordów jest indeksowany tak jak strony Bazy wi
 - `search` zwraca pasujące pliki jako wyniki `file:<uuid>` z nazwą pliku jako `title`, rekordem, do którego należą, w `record`, `snippet` między znacznikami niezaufanej treści, nagłówkiem dopasowanego fragmentu w `section` i `offset`. Dopasowuje słowa zapytania w pełnym tekście, w tym formy odmienione po angielsku, niemiecku, hiszpańsku, francusku i włosku, poprawia słowo z literówką na podstawie własnych słów plików, a z kredytami AI dopasowuje też według znaczenia.
 - `fetch` z identyfikatorem `file:<uuid>` zwraca wyodrębniony tekst w ograniczonych fragmentach między znacznikami niezaufanej treści: zacznij od `offset` wyniku wyszukiwania, kontynuuj z `nextOffset`, aż będzie null, a `outline` przy offsecie 0 służy do orientacji. Jego nagłówki i `section` wyniku wyszukiwania plików również pochodzą z pliku i znajdują się między tymi samymi znacznikami. Metadane wskazują rekord, pole, typ MIME i status wyodrębniania. Plik bez tekstu zwraca zamiast tego powód: wyodrębnianie wciąż trwa, brak warstwy tekstowej, nieobsługiwany typ, zbyt duży lub wyodrębnianie się nie powiodło.
 - Wyniki obejmują tylko pliki w rekordach i polach, które wywołujący może czytać, co jest sprawdzane przy każdym wywołaniu. Plik nie jest już znajdowany, gdy zostanie usunięty z rekordu, jego rekord trafi do Kosza, jego pole zostanie usunięte lub wywołujący straci dostęp. Tekst pliku to treść napisana przez inne osoby, nigdy instrukcje.
-- Z kredytami AI wyodrębniony tekst jest też wysyłany do modelu osadzeń uruchamianego przez Google przez Vercel AI Gateway, więc inaczej sformułowane pytanie nadal znajduje plik. Tak jak indeksowanie Bazy wiedzy, jest to opłacane ze wspólnych kredytów AI przestrzeni roboczej; wstrzymuje się, gdy się skończą, i wznawia, gdy znów będą dostępne. Bez kredytów i w instancjach hostowanych samodzielnie pliki są znajdowane tylko po swoich słowach, a tekst plików nie opuszcza twojego serwera.
+- Z kredytami AI wyodrębniony tekst jest też wysyłany do modelu osadzeń uruchamianego przez Google przez Vercel AI Gateway, więc inaczej sformułowane pytanie nadal znajduje plik. Tak jak indeksowanie Bazy wiedzy, jest to opłacane ze wspólnych kredytów AI przestrzeni roboczej; wstrzymuje się, gdy się skończą, i wznawia, gdy znów będą dostępne. Bez kredytów i w instancjach hostowanych samodzielnie pliki są znajdowane tylko po swoich słowach, a tekst plików nie opuszcza Twojego serwera.
 - `query_crm_records` i `search_crm_records` znajdują rekordy także po słowach z ich plików, tak jak [wyszukiwanie w aplikacji](/docs/app-search#does-search-look-inside-files).
 - Plik, który użytkownik przekaże [Mate w czacie](/docs/app-assistant#files), nie należy do żadnego pola, dopóki nie zostanie złożony w rekordzie przez `manage_record_files` z akcją `attach`. Do tego czasu czyta go tylko osoba, która go przesłała, przez `manage_record_files` z akcją `read`, a `search` go nie znajduje.
 
@@ -408,19 +408,19 @@ Członkowie zespołu z id, name, email, roleId i status. Gdy rola wywołującego
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Odkrywa, przegląda, tworzy, aktualizuje, wybiera, resetuje i usuwa twoje zapisane widoki, udostępnia jeden tylko do odczytu przestrzeni roboczej lub wybranym rolom oraz publikuje przez link publiczny pulpit lub widok listy, który należy do ciebie; wymaga to uprawnienia Linki publiczne i zezwolenia na linki publiczne w przestrzeni roboczej. Najpierw odkryj surfaceKey; ogólne powierzchnie rekordów używają stabilnych identyfikatorów typów. Aktualizacje zmieniają tylko podane ustawienia; grupowanie może mieć do 8 podsumowań (suma, średnia, minimum lub maksimum pola liczbowego lub walutowego). Listy rekordów z polem daty oferują też układ kalendarza: viewMode calendar z polami daty, opcjonalnej daty końca i koloru oraz trybem miesiąca, tygodnia lub agendy. Reset usuwa twoje nadpisania, więc lista pokazuje wszystkie pola w skonfigurowanej kolejności jako tabelę bez grupowania, bez zmiany rekordów. Usunięcie widoku wymaga jego dokładnej bieżącej nazwy i identyfikatora; niezgodność zwraca konkretny błąd, a nieznany identyfikator zwraca not found. Usunięcie przenosi go do Kosza (widok pulpitu zabiera ze sobą swoje widżety), nigdy jego rekordy. Listy konfiguracji i widoków są stronicowane i przeszukiwalne.
+Odkrywa, przegląda, tworzy, aktualizuje, wybiera, resetuje i usuwa Twoje zapisane widoki, udostępnia jeden tylko do odczytu przestrzeni roboczej lub wybranym rolom oraz publikuje przez link publiczny pulpit lub widok listy, który należy do ciebie; wymaga to uprawnienia Linki publiczne i zezwolenia na linki publiczne w przestrzeni roboczej. Najpierw odkryj surfaceKey; ogólne powierzchnie rekordów używają stabilnych identyfikatorów typów. Aktualizacje zmieniają tylko podane ustawienia; grupowanie może mieć do 8 podsumowań (suma, średnia, minimum lub maksimum pola liczbowego lub walutowego). Listy rekordów z polem daty oferują też układ kalendarza: viewMode calendar z polami daty, opcjonalnej daty końca i koloru oraz trybem miesiąca, tygodnia lub agendy. Reset usuwa Twoje nadpisania, więc lista pokazuje wszystkie pola w skonfigurowanej kolejności jako tabelę bez grupowania, bez zmiany rekordów. Usunięcie widoku wymaga jego dokładnej bieżącej nazwy i identyfikatora; niezgodność zwraca konkretny błąd, a nieznany identyfikator zwraca not found. Usunięcie przenosi go do Kosza (widok pulpitu zabiera ze sobą swoje widżety), nigdy jego rekordy. Listy konfiguracji i widoków są stronicowane i przeszukiwalne.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `visibility`, `roleIds`, `public`, `expiresAt`, `state`.
 
 #### `manage_record_detail_layout`
 
-Czyta, zapisuje lub resetuje twój osobisty układ szczegółów rekordu ze stabilnymi identyfikatorami typów i pól. Read zwraca dostępne wybory pól, przypięte pola, ukryte pola, kolejność pól i wersję konfiguracji. Save wymaga kompletnego układu, expectedRevision i idempotencyKey. Reset usuwa twój układ: każde pole pokazuje się w skonfigurowanej kolejności i żadne nie jest przypięte. Nie zmienia rekordów ani preferencji innych użytkowników.
+Czyta, zapisuje lub resetuje Twój osobisty układ szczegółów rekordu ze stabilnymi identyfikatorami typów i pól. Read zwraca dostępne wybory pól, przypięte pola, ukryte pola, kolejność pól i wersję konfiguracji. Save wymaga kompletnego układu, expectedRevision i idempotencyKey. Reset usuwa Twój układ: każde pole pokazuje się w skonfigurowanej kolejności i żadne nie jest przypięte. Nie zmienia rekordów ani preferencji innych użytkowników.
 
 Wymagane: `typeId`, `action`. Opcjonalne: `expectedRevision`, `idempotencyKey`, `layout`.
 
 #### `manage_calendar`
 
-Czyta i zmienia twój osobisty kalendarz: options wyświetla listy z polami dat i twoje połączone kalendarze, read zwraca konfigurację i informację, czy nadal obowiązuje domyślna (pierwsze pole pojedynczej daty każdej listy, a w razie braku jej pierwszy zakres dat, do 12 list), update przyjmuje config tylko z kluczami do zmiany i sprawdza każdą listę, pole, filtr i kalendarz, a reset wraca do domyślnej. subscriptions wyświetla adresy URL subskrypcji twojego kalendarza, a revoke wyłącza jeden z nich na stałe według identyfikatora. Rekordy, wydarzenia kalendarza i kalendarze innych użytkowników nigdy się nie zmieniają.
+Czyta i zmienia Twój osobisty kalendarz: options wyświetla listy z polami dat i Twoje połączone kalendarze, read zwraca konfigurację i informację, czy nadal obowiązuje domyślna (pierwsze pole pojedynczej daty każdej listy, a w razie braku jej pierwszy zakres dat, do 12 list), update przyjmuje config tylko z kluczami do zmiany i sprawdza każdą listę, pole, filtr i kalendarz, a reset wraca do domyślnej. subscriptions wyświetla adresy URL subskrypcji Twojego kalendarza, a revoke wyłącza jeden z nich na stałe według identyfikatora. Rekordy, wydarzenia kalendarza i kalendarze innych użytkowników nigdy się nie zmieniają.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `config`, `id`.
 {/* /mcp-catalog */}
@@ -462,7 +462,7 @@ Trzy tryby: list: "calendars" (domyślny) wyświetla kalendarze dostępnych poł
 
 #### `send_chat_message`
 
-Dostarcza natychmiast. Z threadId odpowiada w istniejącym czacie albo wysyła szkic rozmowy, która istnieje tylko jako szkic; z connectedAccountId oraz attendeeIdentifiers rozpoczyna nowy czat (opcjonalne chatName nadaje nazwę grupie). Aby wysłać zapisany szkic, przekaż draftMessageId i draftRevision; każda wersja szkicu jest wysyłana najwyżej raz, a powtórzenie wywołania zwraca pierwszy wynik z `repeated: true`. Nowe czaty LinkedIn domyślnie używają Classic; ustaw linkedinProduct na sales_navigator lub recruiter, aby wysłać InMail (wymaga inmailSubject), albo inmail:true, aby wysłać InMail do kogoś spoza twojej sieci w Classic.
+Dostarcza natychmiast. Z threadId odpowiada w istniejącym czacie albo wysyła szkic rozmowy, która istnieje tylko jako szkic; z connectedAccountId oraz attendeeIdentifiers rozpoczyna nowy czat (opcjonalne chatName nadaje nazwę grupie). Aby wysłać zapisany szkic, przekaż draftMessageId i draftRevision; każda wersja szkicu jest wysyłana najwyżej raz, a powtórzenie wywołania zwraca pierwszy wynik z `repeated: true`. Nowe czaty LinkedIn domyślnie używają Classic; ustaw linkedinProduct na sales_navigator lub recruiter, aby wysłać InMail (wymaga inmailSubject), albo inmail:true, aby wysłać InMail do kogoś spoza Twojej sieci w Classic.
 
 Wymagane: `text`. Opcjonalne: `threadId`, `draftMessageId`, `draftRevision`, `connectedAccountId`, `attendeeIdentifiers`, `chatName`, `linkedinProduct`, `inmail`, `inmailSubject`, `inmailSignature`.
 
@@ -510,7 +510,7 @@ Wymagane: `channel`.
 
 #### `manage_connected_accounts`
 
-Wyświetla twoje połączone konta z folderami i ustawieniami e-mail oraz zmienia konto, które należy do ciebie: wybierz synchronizowane foldery e-mail, ustaw podpis i wygląd e-maili, udostępnij konto przestrzeni roboczej albo uczyń je prywatnym, zsynchronizuj je ponownie lub rozłącz. Rozłączenia nie można cofnąć. Wymaga uprawnienia Edycja w wierszu Wiadomości w skrzynce odbiorczej, a do rozłączenia uprawnienia Usuń.
+Wyświetla Twoje połączone konta z folderami i ustawieniami e-mail oraz zmienia konto, które należy do ciebie: wybierz synchronizowane foldery e-mail, ustaw podpis i wygląd e-maili, udostępnij konto przestrzeni roboczej albo uczyń je prywatnym, zsynchronizuj je ponownie lub rozłącz. Rozłączenia nie można cofnąć. Wymaga uprawnienia Edycja w wierszu Wiadomości w skrzynce odbiorczej, a do rozłączenia uprawnienia Usuń.
 
 **Może usuwać dane.** Wymagane: `action`. Opcjonalne: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
 {/* /mcp-catalog */}
@@ -540,7 +540,7 @@ Profil osoby lub firmy. Dla osoby użyj `profileType=person` z `me`, `get_messag
 
 #### `manage_social_relations`
 
-Zaproszenia do kontaktów: wyświetla zaproszenia (domyślnie otrzymane, albo twoje wysłane przez direction), zaprasza przez `get_social_profile.id` (wysyła prawdziwe zaproszenie), akceptuje lub anuluje według invitationId.
+Zaproszenia do kontaktów: wyświetla zaproszenia (domyślnie otrzymane, albo Twoje wysłane przez direction), zaprasza przez `get_social_profile.id` (wysyła prawdziwe zaproszenie), akceptuje lub anuluje według invitationId.
 
 Wymagane: `action`, `connectedAccountId`. Opcjonalne: `identifier`, `message`, `invitationId`, `direction`, `cursor`, `offset`, `limit`.
 
@@ -570,7 +570,7 @@ Znajduje firmy przez LinkedIn Sales Navigator: z wklejonego adresu URL wyszukiwa
 
 #### `linkedin_get_sales_search_parameters`
 
-Rozwiązuje identyfikatory kryjące się za danymi wejściowymi wyszukiwania LinkedIn Sales Navigator według typu (lokalizacje, branże, stanowiska, funkcje, firmy, szkoły, grupy i inne), a także twoje listy leadów i kont oraz zapisane i ostatnie wyszukiwania; słowo kluczowe jest opcjonalne, więc sam typ wylicza całą rodzinę.
+Rozwiązuje identyfikatory kryjące się za danymi wejściowymi wyszukiwania LinkedIn Sales Navigator według typu (lokalizacje, branże, stanowiska, funkcje, firmy, szkoły, grupy i inne), a także Twoje listy leadów i kont oraz zapisane i ostatnie wyszukiwania; słowo kluczowe jest opcjonalne, więc sam typ wylicza całą rodzinę.
 
 **Tylko odczyt.** Wymagane: `connectedAccountId`, `type`. Opcjonalne: `keywords`, `offset`, `limit`.
 
@@ -699,7 +699,7 @@ Jedno narzędzie z przełącznikiem `action`: list, get, create, update, delete,
 {/* mcp-catalog:admin */}
 #### `update_my_profile`
 
-Zmienia twoje imię i nazwisko, awatar, motyw, język wyświetlania i ustawienia regionalne formatowania.
+Zmienia Twoje imię i nazwisko, awatar, motyw, język wyświetlania i ustawienia regionalne formatowania.
 
 Opcjonalne: `firstName`, `lastName`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 
@@ -788,7 +788,7 @@ Plany odmawiają w ten sam sposób. Narzędzia wiadomości, kalendarza i social 
 
 <Faq>
 <FaqItem question="Jak uwierzytelnić się w endpointcie MCP?">
-Wyślij swój 64-znakowy klucz API w nagłówku `x-api-key` albo połącz przez OAuth, jeśli klient to obsługuje. Klucze tworzysz w sekcji [Klucze API i konektory](app:settings/api-keys) przyciskiem [Dodaj](app:settings/api-keys?focus=generate). Każdy klucz niesie twoje własne uprawnienia, więc klient nigdy nie zrobi więcej niż ty. Klucze i tokeny OAuth wymagają uprawnienia **Dostęp do odczytu** **Wszystkie** w wierszu **API i webhooki**; bez niego MCP i REST API odpowiadają `403`, także dla odświeżonego tokenu.
+Wyślij swój 64-znakowy klucz API w nagłówku `x-api-key` albo połącz przez OAuth, jeśli klient to obsługuje. Klucze tworzysz w sekcji [Klucze API i konektory](app:settings/api-keys) przyciskiem [Dodaj](app:settings/api-keys?focus=generate). Każdy klucz niesie Twoje własne uprawnienia, więc klient nigdy nie zrobi więcej niż ty. Klucze i tokeny OAuth wymagają uprawnienia **Dostęp do odczytu** **Wszystkie** w wierszu **API i webhooki**; bez niego MCP i REST API odpowiadają `403`, także dla odświeżonego tokenu.
 </FaqItem>
 <FaqItem question="Którzy klienci AI mogą się połączyć?">
 Claude w przeglądarce, aplikacji mobilnej i na komputerze, ChatGPT, Claude Code, Codex, Cursor i Gemini CLI mają udokumentowane ścieżki połączenia w sekcji [Połącz klienta](#connect-a-client). Inny klient może działać, jeśli obsługuje MCP przez streamable HTTP i wymagane uwierzytelnianie; sprawdź jego zgodność i obsługę instrukcji przed użyciem.
@@ -808,7 +808,7 @@ Przeczytaj akcję i jej podgląd. Katalog oznacza narzędzia, które mogą usuwa
 Tak. Każde narzędzie deklaruje schemat wyjścia, widoczny na żywo przez `tools/list`, i zwraca pasujące `structuredContent` obok zwartej formy tekstowej, więc klient może łączyć wyniki bez parsowania tekstu. Tekst sformatowany i treść wiadomości przychodzą tam również oznaczone; zobacz [Jak zbudowana jest powierzchnia narzędzi](/docs/mcp#how-the-tool-surface-is-shaped).
 </FaqItem>
 <FaqItem question="Czy używać MCP, czy REST API?">
-Oba istnieją obok siebie: MCP dla klientów AI, którzy sami odkrywają i wywołują narzędzia, a REST API opisane przez OpenAPI dla twojego własnego kodu i integracji. Mają te same uprawnienia i te same dane.
+Oba istnieją obok siebie: MCP dla klientów AI, którzy sami odkrywają i wywołują narzędzia, a REST API opisane przez OpenAPI dla Twojego własnego kodu i integracji. Mają te same uprawnienia i te same dane.
 </FaqItem>
 </Faq>
 

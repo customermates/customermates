@@ -4,7 +4,7 @@ heading: "Odbieraj zdarzenia CRM przez webhooki"
 description: "Subskrybuj zdarzenia CRM, weryfikuj podpisy, sprawdzaj nieudane dostawy i znajdź pełny katalog zdarzeń w jednym miejscu: webhooki Customermates krok po kroku."
 ---
 
-Customermates wysyła żądanie POST z JSON na twój endpoint za każdym razem, gdy zmieniają się subskrybowane dane. Ty wybierasz zdarzenia i adres URL. Jeśli ustawisz tajny klucz, każda dostawa jest podpisywana algorytmem HMAC-SHA256 na surowej treści żądania. Nieudane dostawy są ponawiane automatycznie i możesz je wysłać ponownie ręcznie. Katalog zdarzeń znajdziesz na końcu tej strony.
+Customermates wysyła żądanie POST z JSON na Twój endpoint za każdym razem, gdy zmieniają się subskrybowane dane. Ty wybierasz zdarzenia i adres URL. Jeśli ustawisz tajny klucz, każda dostawa jest podpisywana algorytmem HMAC-SHA256 na surowej treści żądania. Nieudane dostawy są ponawiane automatycznie i możesz je wysłać ponownie ręcznie. Katalog zdarzeń znajdziesz na końcu tej strony.
 
 ## Do czego służą webhooki? [#what-are-webhooks-for]
 
@@ -64,7 +64,7 @@ Dostęp wynika z wiersza **API i webhooki** roli w sekcji [Role](app:settings/ro
 | **Dostęp do odczytu** **Wszystkie** plus **Edycja** | Edytować webhooki i widzieć zapisane wartości w polach **Tajny klucz** i **Niestandardowe nagłówki**. |
 | **Dostęp do odczytu** **Wszystkie** plus **Usuń** | Usuwać webhooki. |
 
-Ten sam wiersz steruje też sekcją [Klucze API i konektory](app:settings/api-keys), więc rola, która może tworzyć lub usuwać własne klucze API, może też tworzyć lub usuwać każdy webhook w przestrzeni roboczej. Rola **Administrator** może wszystko. Webhooki działają w każdym płatnym planie Cloud, w okresie próbnym i przy hostowaniu samodzielnym, ale nie w planie Free ([szczegóły](#webhooks-on-the-free-plan)). Te same uprawnienia obowiązują dla `manage_webhooks` przez MCP i w Mate, gdzie usunięcie webhooka lub ponowne wysłanie dostawy najpierw prosi o twoją zgodę.
+Ten sam wiersz steruje też sekcją [Klucze API i konektory](app:settings/api-keys), więc rola, która może tworzyć lub usuwać własne klucze API, może też tworzyć lub usuwać każdy webhook w przestrzeni roboczej. Rola **Administrator** może wszystko. Webhooki działają w każdym płatnym planie Cloud, w okresie próbnym i przy hostowaniu samodzielnym, ale nie w planie Free ([szczegóły](#webhooks-on-the-free-plan)). Te same uprawnienia obowiązują dla `manage_webhooks` przez MCP i w Mate, gdzie usunięcie webhooka lub ponowne wysłanie dostawy najpierw prosi o Twoją zgodę.
 
 ## Jak wygląda ładunek? [#what-does-the-payload-look-like]
 
@@ -179,7 +179,7 @@ anthropic-version: 2023-06-01
 { "text": "{{event}} for {{data.record.ref.recordId}}" }
 ```
 
-Endpoint czyta tylko `text`, więc szablon jest wymagany; bez niego rutyna startuje bez kontekstu. Każda dostawa i każda ponowna próba uruchamia osobne wykonanie na poczet limitu twojej rutyny, więc subskrybuj tyle zdarzeń, ile potrzeba do zadania.
+Endpoint czyta tylko `text`, więc szablon jest wymagany; bez niego rutyna startuje bez kontekstu. Każda dostawa i każda ponowna próba uruchamia osobne wykonanie na poczet limitu Twojej rutyny, więc subskrybuj tyle zdarzeń, ile potrzeba do zadania.
 
 ### Slack [#slack]
 
@@ -244,7 +244,7 @@ Ponowne próby odbywają się w ramach tej samej dostawy, więc nie dodają reko
 
 Każda dostawa jest zapisywana na stronie [Dziennik webhooków](app:settings/webhook-deliveries), od najnowszej, z kolumnami **URL**, **Zdarzenie**, **Element** (dotknięty rekord), **Status**, **Kod statusu** i **Utworzono**. W sekcji [Filtry](app:settings/webhook-deliveries?focus=filter) wyszukiwanie dopasowuje zdarzenie i adres URL, a filtry obejmują zdarzenie, adres URL i datę utworzenia. Przez MCP użyj `manage_webhooks` z `action: "list_deliveries"`; przez REST `GET /api/v1/webhooks/deliveries` wyświetla dostawy wszystkich webhooków, a `GET /api/v1/webhooks/{id}/deliveries` dostawy jednego webhooka, od najnowszej. Rekordy dostaw są przechowywane tak długo, jak istnieje przestrzeń robocza.
 
-Kliknij wiersz, aby otworzyć **Szczegóły zdarzenia**: status (**Oczekuje**, **Wysyłanie**, **Dostarczono** lub **Niepowodzenie**), **URL**, **Zdarzenie**, **Element**, **Data utworzenia**, **Kod statusu**, **Komunikat odpowiedzi** i **Dane zdarzenia**. Ładunek zdarzenia wiadomości jest pokazany tak, jak został wysłany. Ładunek zdarzenia rekordu jest odczytywany ponownie z twoim bieżącym dostępem: wartości, których nie możesz odczytać, pojawiają się jako ograniczone, a ładunek pozostaje pusty, gdy nie możesz odczytać rekordu.
+Kliknij wiersz, aby otworzyć **Szczegóły zdarzenia**: status (**Oczekuje**, **Wysyłanie**, **Dostarczono** lub **Niepowodzenie**), **URL**, **Zdarzenie**, **Element**, **Data utworzenia**, **Kod statusu**, **Komunikat odpowiedzi** i **Dane zdarzenia**. Ładunek zdarzenia wiadomości jest pokazany tak, jak został wysłany. Ładunek zdarzenia rekordu jest odczytywany ponownie z Twoim bieżącym dostępem: wartości, których nie możesz odczytać, pojawiają się jako ograniczone, a ładunek pozostaje pusty, gdy nie możesz odczytać rekordu.
 
 ## Jak wysłać dostawę ponownie? [#how-do-i-resend-a-delivery]
 
@@ -269,7 +269,7 @@ Wartość pola Tekst sformatowany w ładunkach to wartość `richText`, której 
 - Znajdź dostawę w sekcji [Dziennik webhooków](app:settings/webhook-deliveries) i otwórz ją, aby zobaczyć **Szczegóły zdarzenia**.
 - Podczas testów używaj [webhook.site](https://webhook.site) jako tymczasowego odbiornika.
 - `manage_webhooks` z `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` i `GET /api/v1/webhooks/{id}/deliveries` obsługują `searchTerm` dla adresu URL i nazwy zdarzenia.
-- Customermates zapisuje tylko kod statusu HTTP i tekst statusu, które zwrócił twój odbiornik (na przykład `404` i `Not Found`), pokazane jako **Kod statusu** i **Komunikat odpowiedzi** w **Szczegóły zdarzenia**. Treść odpowiedzi nie jest zapisywana, więc loguj ją po stronie odbiorcy. Bez odpowiedzi **Kod statusu** pokazuje myślnik (kolumna listy pozostaje pusta), a **Komunikat odpowiedzi** podaje przyczynę, na przykład przekroczenie czasu.
+- Customermates zapisuje tylko kod statusu HTTP i tekst statusu, które zwrócił Twój odbiornik (na przykład `404` i `Not Found`), pokazane jako **Kod statusu** i **Komunikat odpowiedzi** w **Szczegóły zdarzenia**. Treść odpowiedzi nie jest zapisywana, więc loguj ją po stronie odbiorcy. Bez odpowiedzi **Kod statusu** pokazuje myślnik (kolumna listy pozostaje pusta), a **Komunikat odpowiedzi** podaje przyczynę, na przykład przekroczenie czasu.
 
 ## Jakie zdarzenia istnieją? [#which-events-exist]
 

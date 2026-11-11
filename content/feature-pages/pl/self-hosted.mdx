@@ -93,7 +93,7 @@ sections:
       - title: "Sprawdź dokładnie, co jest wdrażane"
         description: "Przeczytaj przewodnik po self-hostingu i przejrzyj aktualny plik Compose w repozytorium."
       - title: "Sprawdź granicę edycji"
-        description: "Upewnij się, że zestaw funkcji Starter obejmuje rekordy, widoki i interfejsy, których potrzebuje twój proces."
+        description: "Upewnij się, że zestaw funkcji Starter obejmuje rekordy, widoki i interfejsy, których potrzebuje Twój proces."
       - title: "Rozpisz usługi zewnętrzne"
         description: "Wypisz każdego dostawcę SMTP, OAuth, monitoringu, przepływów pracy lub AI, którego zamierzasz skonfigurować, oraz dane, które każdy z nich otrzymuje."
       - title: "Zaplanuj utrzymanie"
@@ -104,11 +104,11 @@ sections:
     title: "W skrócie"
     capture: homepage-configure
     items:
-      - title: "Działa na twojej infrastrukturze"
+      - title: "Działa na Twojej infrastrukturze"
         description: "Aplikacja Customermates i PostgreSQL 16 działają jako dwie usługi w opisanym w repozytorium wdrożeniu Docker Compose."
       - title: "Zakres produktu w zestawie"
         description: "Podstawowe rekordy CRM, pola własne i widoki, REST, webhooki i MCP w zestawie funkcji Starter."
-      - title: "Po twojej stronie"
+      - title: "Po Twojej stronie"
         description: "Dostęp sieciowy, TLS, aktualizacje, kopie zapasowe, testy odtwarzania, monitoring i każdy skonfigurowany zewnętrzny dostawca."
       - title: "Granica tylko dla chmury"
         description: "Połączone kanały wiadomości, wspólna skrzynka odbiorcza, połączony kalendarz, hostowany Mate i hostowane kredyty AI pozostają poza self-hostingiem."
@@ -136,7 +136,7 @@ Customermates to **CRM self hosted**, który uruchomisz jako dwie usługi Docker
 
 CRM na własnym serwerze działa na maszynach, które kontrolujesz, a nie w chmurze dostawcy: sam decydujesz, gdzie stoją aplikacja i baza danych, i bierzesz na siebie aktualizacje, kopie zapasowe oraz bezpieczeństwo. To, czy kod jest open source, to osobne pytanie o prawa licencyjne, które omawia [przewodnik po CRM open source](/blog/open-source-crm). Ta strona opisuje stronę operacyjną w przypadku Customermates.
 
-**Gdzie mieści się follow-up.** Self-hosting trzyma rekordy klientów, terminy kolejnych kroków, pulpity i MCP na twoich własnych serwerach, więc twój klient AI może je czytać i aktualizować. Nie ma tu skrzynki odbiorczej, która kładzie rozmowy z LinkedIn i e-maila przy kliencie, ani Mate, który pisze szkice odpowiedzi. Jeśli chcesz mieć CRM głównie po to, by follow-up na rozmowach dostawać w postaci szkiców, zacznij od Customermates Cloud; self-hosting pasuje lepiej, gdy ważniejsza jest kontrola nad tym, gdzie działają dane.
+**Gdzie mieści się follow-up.** Self-hosting trzyma rekordy klientów, terminy kolejnych kroków, pulpity i MCP na Twoich własnych serwerach, więc Twój klient AI może je czytać i aktualizować. Nie ma tu skrzynki odbiorczej, która kładzie rozmowy z LinkedIn i e-maila przy kliencie, ani Mate, który pisze szkice odpowiedzi. Jeśli chcesz mieć CRM głównie po to, by follow-up na rozmowach dostawać w postaci szkiców, zacznij od Customermates Cloud; self-hosting pasuje lepiej, gdy ważniejsza jest kontrola nad tym, gdzie działają dane.
 
 <ProofRail label="Zweryfikowane fakty o CRM self hosted">
   <ProofItem label="Wdrożenie">Docker Compose</ProofItem>
@@ -146,7 +146,7 @@ CRM na własnym serwerze działa na maszynach, które kontrolujesz, a nie w chmu
   <ProofItem label="Uprawnienia">Podstawa Starter</ProofItem>
 </ProofRail>
 
-## Co działa w twojej infrastrukturze?
+## Co działa w Twojej infrastrukturze?
 
 Opisane w repozytorium wdrożenie CRM z Dockerem zawiera:
 
@@ -161,7 +161,7 @@ Plik Compose nie zawiera n8n, modelu AI, dostawcy wysyłki e-maili ani osobnego 
   title="Granica wdrożenia jest węższa niż granica całego systemu"
   variant="proof"
 >
-  Aplikacja i baza danych mogą działać na twojej infrastrukturze, podczas gdy
+  Aplikacja i baza danych mogą działać na Twojej infrastrukturze, podczas gdy
   SMTP, OAuth, monitoring, narzędzia do przepływów pracy i zewnętrzne AI
   pozostają osobnymi usługami, gdy tylko je skonfigurujesz. Rozpisz tych
   dostawców, zanim wybierzesz model wdrożenia.
@@ -192,13 +192,13 @@ To rozróżnienie ma znaczenie, gdy porównujesz [CRM open source](/blog/open-so
 
 Sam wybierasz, gdzie działają aplikacja i PostgreSQL, oraz jak konfigurujesz dostęp sieciowy, kopie zapasowe, retencję i aktualizacje. To realna kontrola nad infrastrukturą, ale nie automatyczna gwarancja zgodności, bezpieczeństwa ani pracy bez dostępu do sieci.
 
-Podłączone usługi pozostają osobnymi granicami przetwarzania. Dostawcy OAuth, SMTP, monitoring, narzędzia do przepływów pracy i zewnętrzni dostawcy AI otrzymują to, co wyśle do nich twoja konfiguracja. Diagnostyka błędów zostaje na twoim serwerze; powiadomienia dla operatora korzystają z odbiorcy i dostawcy poczty, których skonfigurujesz. To nie jest ogólna obietnica braku telemetrii.
+Podłączone usługi pozostają osobnymi granicami przetwarzania. Dostawcy OAuth, SMTP, monitoring, narzędzia do przepływów pracy i zewnętrzni dostawcy AI otrzymują to, co wyśle do nich Twoja konfiguracja. Diagnostyka błędów zostaje na Twoim serwerze; powiadomienia dla operatora korzystają z odbiorcy i dostawcy poczty, których skonfigurujesz. To nie jest ogólna obietnica braku telemetrii.
 
 ## Self-hosted czy zarządzana chmura?
 
 | Wybierz self-hosting, gdy…                        | Wybierz zarządzaną chmurę, gdy…                                   |
 | ------------------------------------------------- | ----------------------------------------------------------------- |
-| twój zespół potrafi prowadzić Dockera i PostgreSQL | chcesz, by Customermates prowadziło aplikację i bazę danych      |
+| Twój zespół potrafi prowadzić Dockera i PostgreSQL | chcesz, by Customermates prowadziło aplikację i bazę danych      |
 | granica funkcji Starter ci wystarcza              | potrzebujesz wspólnej skrzynki odbiorczej lub widoku kalendarza   |
 | chcesz, by zewnętrzni klienci AI korzystali z MCP | chcesz uprawnień planów chmurowych i zarządzanych połączonych kont |
 | sam zajmiesz się aktualizacjami, kopiami i odtwarzaniem | wolisz subskrypcję z zarządzanym utrzymaniem                |
@@ -230,7 +230,7 @@ Materiał własny poza katalogiem `ee/` jest objęty licencją AGPL-3.0-only. W 
 
 <FaqItem question="Czy self-hosting sprawia, że CRM jest zgodny z RODO?">
   Żaden model wdrożenia nie tworzy zgodności sam z siebie. Self-hosting pozwala
-  wybrać, gdzie stoją aplikacja i baza danych, ale twoja organizacja nadal
+  wybrać, gdzie stoją aplikacja i baza danych, ale Twoja organizacja nadal
   odpowiada za konfigurację, dostawców, umowy, zabezpieczenia, retencję i ocenę
   prawną.
 </FaqItem>

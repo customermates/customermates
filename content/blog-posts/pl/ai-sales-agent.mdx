@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "AI sales agent: co robi, gdzie zawodzi i jak go przetestować"
-  description: "AI sales agent to model językowy, który korzysta z twojego CRM, skrzynki i kalendarza, by samodzielnie dokończyć zadanie sprzedażowe. Jakie są rodzaje, ile kosztują i jak go przetestować, zanim napisze do prawdziwego klienta."
+  description: "AI sales agent to model językowy, który korzysta z Twojego CRM, skrzynki i kalendarza, by samodzielnie dokończyć zadanie sprzedażowe. Jakie są rodzaje, ile kosztują i jak go przetestować, zanim napisze do prawdziwego klienta."
 
 blogPost:
   author: Benjamin Wagner
@@ -28,7 +28,7 @@ blogPost:
 
 # AI sales agent: co robi, gdzie zawodzi i jak go przetestować
 
-AI sales agent (po polsku agent AI do sprzedaży albo agent sprzedażowy AI) to oprogramowanie, w którym model językowy wywołuje narzędzia, takie jak twój CRM, skrzynka, kalendarz czy baza leadów, aby dokończyć zadanie sprzedażowe złożone z kilku kroków, zamiast tylko podpowiadać tekst. Większość produktów sprzedawanych pod tą nazwą obejmuje jeden kawałek pracy: odpowiadanie na leady przychodzące, prospecting wychodzący (często nazywany AI SDR albo AI BDR), research kont albo utrzymywanie CRM w aktualności. Dziś niezawodnie przejmują research, pierwsze szkice, kierowanie zgłoszeń i prowadzenie rekordów. Wybór, do kogo kierować ofertę, ocena szansy i odpowiedzialność za ofertę zostają przy ludziach.
+AI sales agent (po polsku agent AI do sprzedaży albo agent sprzedażowy AI) to oprogramowanie, w którym model językowy wywołuje narzędzia, takie jak Twój CRM, skrzynka, kalendarz czy baza leadów, aby dokończyć zadanie sprzedażowe złożone z kilku kroków, zamiast tylko podpowiadać tekst. Większość produktów sprzedawanych pod tą nazwą obejmuje jeden kawałek pracy: odpowiadanie na leady przychodzące, prospecting wychodzący (często nazywany AI SDR albo AI BDR), research kont albo utrzymywanie CRM w aktualności. Dziś niezawodnie przejmują research, pierwsze szkice, kierowanie zgłoszeń i prowadzenie rekordów. Wybór, do kogo kierować ofertę, ocena szansy i odpowiedzialność za ofertę zostają przy ludziach.
 
 Ten poradnik publikuje Customermates, CRM typu AI native, i opisuje własną konfigurację w wyraźnie oznaczonej sekcji. Fakty o innych dostawcach pochodzą z ich własnych stron, sprawdzonych 8 października 2026.
 
@@ -59,21 +59,21 @@ Sales development przebiega w siedmiu krokach. Środkowa kolumna to to, co dziś
 
 | Krok | Co agent robi dziś dobrze | Co sprawdzić |
 |---|---|---|
-| 1. Określenie celów | Zamienia spisany profil docelowy w filtry wyszukiwania | Kto decyduje o profilu i liście wykluczeń. Ta decyzja zostaje twoja |
+| 1. Określenie celów | Zamienia spisany profil docelowy w filtry wyszukiwania | Kto decyduje o profilu i liście wykluczeń. Ta decyzja zostaje Twoja |
 | 2. Znalezienie i weryfikacja kontaktów | Przeszukuje licencjonowaną przez ciebie bazę leadów | Skąd pochodzi każdy fakt o kontakcie i czy wolno ci go używać |
-| 3. Research konta | Pisze jednostronicową notę ze stron internetowych, wiadomości i twojej historii z klientem | Każdy fakt bez źródła. Modele wymyślają wiarygodne szczegóły |
+| 3. Research konta | Pisze jednostronicową notę ze stron internetowych, wiadomości i Twojej historii z klientem | Każdy fakt bez źródła. Modele wymyślają wiarygodne szczegóły |
 | 4. Napisanie wiadomości | Pisze szkice w języku klienta, odwołując się do prawdziwego kontekstu | Czy człowiek widzi dokładnego adresata i tekst, zanim wiadomość wyjdzie |
 | 5. Sortowanie odpowiedzi | Odróżnia zainteresowanie, zastrzeżenia, polecenia i rezygnacje | Czy rezygnacja zatrzymuje cały dalszy kontakt, wszędzie |
-| 6. Kwalifikacja i przekazanie | Stosuje twoją regułę kwalifikacji i kieruje leada | Błędne kierowanie w przypadkach granicznych, na których ci zależy |
+| 6. Kwalifikacja i przekazanie | Stosuje Twoją regułę kwalifikacji i kieruje leada | Błędne kierowanie w przypadkach granicznych, na których ci zależy |
 | 7. Aktualizacja CRM | Tworzy lub aktualizuje kontakt, organizację, szansę i notatki | Duplikaty, zerwane powiązania między rekordami i to, co się dzieje, gdy dwa systemy się nie zgadzają |
 
 Kroki 3, 4 i 7 zwracają się najpierw w większości zespołów, bo wymagają dużo pisania i mało osądu. Krok 1 trzeba zachować: agent, który sam wybiera cele, produkuje wolumen, nie lejek.
 
-## Czy AI sales agent może zastąpić twój zespół SDR lub BDR?
+## Czy AI sales agent może zastąpić Twój zespół SDR lub BDR?
 
 W pracy z leadami przychodzącymi częściowo. Agent przychodzący może odpowiedzieć odwiedzającemu w nocy, zadać pytania kwalifikujące i zaproponować termin spotkania, i tu zysk jest najbardziej widoczny. W pracy wychodzącej w sprzedaży opartej na relacjach nie. Agent potrafi badać i pisać szkice znacznie szybciej niż człowiek, ale nie oceni, które z pięćdziesięciu wiarygodnych kont warto poświęcić czas wspólnika, ani nie zauważy, że ostatni wpis kontaktu sprawia, że moment jest zły.
 
-Agentforce to dobry przypadek testowy. Salesforce opisuje swojego agenta SDR jako pracującego na leadach przychodzących w granicach ustawionych przez ciebie, odpowiadającego na pytania na podstawie danych twojej firmy i proponującego terminy z kalendarza. To zastępuje część pracy przy pierwszej odpowiedzi. Nie zastępuje osoby, która odpowiada za targetowanie, rozmowy odkrywcze i przekazanie.
+Agentforce to dobry przypadek testowy. Salesforce opisuje swojego agenta SDR jako pracującego na leadach przychodzących w granicach ustawionych przez ciebie, odpowiadającego na pytania na podstawie danych Twojej firmy i proponującego terminy z kalendarza. To zastępuje część pracy przy pierwszej odpowiedzi. Nie zastępuje osoby, która odpowiada za targetowanie, rozmowy odkrywcze i przekazanie.
 
 ### Ile kosztuje AI sales agent?
 
@@ -101,10 +101,10 @@ Dlatego w Niemczech autonomiczny agent e-mail, który pisze na zimno do kupionyc
   <Step title="Tydzień pierwszy: tylko odczyt">Pozwól agentowi tworzyć tylko noty i listy. Porównaj je z tym, co wiesz, i notuj każdy zmyślony fakt.</Step>
   <Step title="Tydzień drugi: jeden odwracalny zapis">Pozwól mu utworzyć zadanie albo zaktualizować jedno pole. Potem sprawdź rekordy pod kątem duplikatów i błędnych powiązań.</Step>
   <Step title="Tygodnie trzeci i czwarty: szkice">Agent zapisuje szkice w prawdziwych wątkach, ty je poprawiasz i wysyłasz. Policz, ile wychodzi tylko z drobnymi zmianami.</Step>
-  <Step title="Zdecyduj o wysyłce">Zezwól na wysyłkę tylko dla tego typu wiadomości, w którym twoje poprawki stały się małe, i najpierw przetestuj ją na adresacie, nad którym masz kontrolę.</Step>
+  <Step title="Zdecyduj o wysyłce">Zezwól na wysyłkę tylko dla tego typu wiadomości, w którym Twoje poprawki stały się małe, i najpierw przetestuj ją na adresacie, nad którym masz kontrolę.</Step>
 </Steps>
 
-Zanim podpiszesz umowę z dostawcą, zadaj pięć pytań: które kroki wykonuje sam, a które wymagają innego produktu; skąd pochodzą jego dane kontaktowe; czy czytanie, pisanie szkiców, zapis i wysyłka to osobne uprawnienia; jak rezygnacja zatrzymuje każdy kanał; i co nieudane uruchomienie zostawia w twoim CRM.
+Zanim podpiszesz umowę z dostawcą, zadaj pięć pytań: które kroki wykonuje sam, a które wymagają innego produktu; skąd pochodzą jego dane kontaktowe; czy czytanie, pisanie szkiców, zapis i wysyłka to osobne uprawnienia; jak rezygnacja zatrzymuje każdy kanał; i co nieudane uruchomienie zostawia w Twoim CRM.
 
 ## Przykład: agent sprzedażowy dla małego zespołu w Customermates
 
@@ -133,7 +133,7 @@ W pracy wychodzącej Mate pracuje z jednym kontaktem naraz: z podłączonym kont
 
 W sprzedaży opartej na relacjach to ta część agenta, którą warto mieć: potrafi napisać szkic odpowiedzi dla każdego, kto do ciebie napisał, i postawić za każdą ofertą szkic follow-upu i zadanie. Aby skonfigurować to na własnej skrzynce, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup).
 
-**Z własnym klientem AI:** Claude, ChatGPT i inni klienci mogą wykonać tę samą pracę w CRM przez [serwer MCP Customermates](/docs/mcp), w każdym planie i w self-hostingu, z twoją własną subskrypcją AI. Narzędzia do wiadomości wymagają planu Pro lub wyższego w chmurze. Serwer każe klientom prosić o potwierdzenie przed wysłaniem lub usunięciem, ale to, czy zobaczysz to potwierdzenie, zależy od klienta.
+**Z własnym klientem AI:** Claude, ChatGPT i inni klienci mogą wykonać tę samą pracę w CRM przez [serwer MCP Customermates](/docs/mcp), w każdym planie i w self-hostingu, z Twoją własną subskrypcją AI. Narzędzia do wiadomości wymagają planu Pro lub wyższego w chmurze. Serwer każe klientom prosić o potwierdzenie przed wysłaniem lub usunięciem, ale to, czy zobaczysz to potwierdzenie, zależy od klienta.
 
 <AcquisitionCallout title="Czego Customermates nie robi" variant="boundary">
 Customermates nie jest autonomicznym agentem wychodzącym. Nie ma własnej bazy leadów, wzbogacania danych ani scoringu leadów. Nie ma sekwencji e-mail, wysyłki masowej, telefonii ani SMS-ów, ani rezerwacji w kalendarzu. W wersji self-hosted dostajesz otwartoźródłowy rdzeń z REST, webhookami i MCP, ale bez skrzynki odbiorczej, Mate i rutyn. Zespół, który prospectuje w dużej skali przez outreach na zimno, lepiej obsłuży dedykowany agent wychodzący, taki jak Artisan lub 11x, zespół pracujący w Salesforce lepiej obsłuży Agentforce, a zespół pracujący w HubSpot własni agenci HubSpot.
@@ -151,7 +151,7 @@ Nie w sprzedaży opartej na relacjach. AI przejmuje dużą część pisania: res
 </FaqItem>
 
 <FaqItem question="Czy Agentforce może zastąpić mój zespół BDR?">
-Może przejąć część pierwszej odpowiedzi na leady przychodzące: Salesforce opisuje swojego agenta SDR, który odpowiada na pytania leadów na podstawie danych twojej firmy i proponuje terminy spotkań, w granicach ustawionych przez ciebie. Targetowanie, rozmowy odkrywcze i przekazanie nadal wymagają człowieka. Uruchom go najpierw na jednym źródle leadów i porównaj jego decyzje kwalifikacyjne z decyzjami twojego zespołu.
+Może przejąć część pierwszej odpowiedzi na leady przychodzące: Salesforce opisuje swojego agenta SDR, który odpowiada na pytania leadów na podstawie danych Twojej firmy i proponuje terminy spotkań, w granicach ustawionych przez ciebie. Targetowanie, rozmowy odkrywcze i przekazanie nadal wymagają człowieka. Uruchom go najpierw na jednym źródle leadów i porównaj jego decyzje kwalifikacyjne z decyzjami Twojego zespołu.
 </FaqItem>
 
 <FaqItem question="Ile kosztuje AI sales agent?">
@@ -163,7 +163,7 @@ AI SDR zwykle kwalifikuje leady i przekazuje handlowcowi szansę gotową do spot
 </FaqItem>
 
 <FaqItem question="Czy agent AI może wysyłać zimne e-maile w Niemczech?">
-E-maile reklamowe bez uprzedniej wyraźnej zgody są niedopuszczalnym uciążliwym działaniem według § 7 ust. 2 pkt 2 UWG, i dotyczy to także odbiorców biznesowych. Agent jest więc zwykle ograniczony do obecnych klientów, zapytań przychodzących i rozmów, które zaczął kontakt. Poproś prawnika o sprawdzenie twojej konkretnej konfiguracji.
+E-maile reklamowe bez uprzedniej wyraźnej zgody są niedopuszczalnym uciążliwym działaniem według § 7 ust. 2 pkt 2 UWG, i dotyczy to także odbiorców biznesowych. Agent jest więc zwykle ograniczony do obecnych klientów, zapytań przychodzących i rozmów, które zaczął kontakt. Poproś prawnika o sprawdzenie Twojej konkretnej konfiguracji.
 </FaqItem>
 </Faq>
 

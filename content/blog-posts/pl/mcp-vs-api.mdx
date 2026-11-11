@@ -3,7 +3,7 @@ title: "MCP vs API: to samo zadanie CRM obiema drogami"
 description: "MCP vs API na jednym teście z 5 listopada 2026: to samo wyszukanie klienta i zadanie przez REST i MCP. Porównaj uprawnienia, zatwierdzenia i wybór."
 
 hero:
-  title: "MCP vs API: które połączenie pasuje do twojego zadania w CRM?"
+  title: "MCP vs API: które połączenie pasuje do Twojego zadania w CRM?"
   description: "Wybierz połączenie według zadania, które masz do zrobienia. Lokalny test na parze interfejsów, odrzucony zapis i jasno opisane ograniczenia."
 
 blogPost:
@@ -24,7 +24,7 @@ relatedHrefs:
   - /blog/n8n-for-beginners-build-your-first-workflow
 ---
 
-# MCP vs API: które połączenie pasuje do twojego zadania w CRM?
+# MCP vs API: które połączenie pasuje do Twojego zadania w CRM?
 
 MCP vs API to wybór sposobu, w jaki klient znajduje i wywołuje operację: REST daje kodowi aplikacji endpointy, a MCP daje aplikacji AI narzędzia, które można wykryć, razem ze schematami danych wejściowych. Customermates oferuje oba warianty dla tych samych danych klientów, a uprawnienia aplikacji obowiązują połączonego użytkownika na każdej z dróg.
 
@@ -51,7 +51,7 @@ HTTP zapewnia semantykę metod i statusów, opisaną w [RFC 9110](https://www.rf
 
 ## Czym różni się wykrywanie narzędzi od wykrywania schematu?
 
-[Specyfikacja narzędzi MCP](https://modelcontextprotocol.io/specification/latest/server/tools) definiuje `tools/list` do wykrywania nazw narzędzi i schematów wejścia oraz `tools/call` do wywołania narzędzia. Dzięki temu klient wie, jak wywołać ogólne zapytanie o rekordy. Nie pokazuje jednak, która zdefiniowana przez klienta lista ani które pole jest właściwe w twoim obszarze roboczym.
+[Specyfikacja narzędzi MCP](https://modelcontextprotocol.io/specification/latest/server/tools) definiuje `tools/list` do wykrywania nazw narzędzi i schematów wejścia oraz `tools/call` do wywołania narzędzia. Dzięki temu klient wie, jak wywołać ogólne zapytanie o rekordy. Nie pokazuje jednak, która zdefiniowana przez klienta lista ani które pole jest właściwe w Twoim obszarze roboczym.
 
 Customermates rozdziela te dwa pytania. `discover_record_types` wskazuje dostępne listy, a `get_record_model` zwraca ich pola, typy, relacje i rewizję konfiguracji. Nie zamieniaj widocznej etykiety, takiej jak „Zadania”, na wymyślony identyfikator. [Przegląd REST API Customermates](/features/api) opisuje kontrakt endpointów, a [dokumentacja MCP](/docs/mcp) opisuje kontrakt narzędzi.
 
@@ -72,7 +72,7 @@ Lokalny test zapisał `initialize`, `tools/list` i jawne wywołania narzędzi. �
 }
 ```
 
-Odpowiedź modelu wskazała typy Organization i Task w rewizji schematu `1`. Pole główne typu Organization miało identyfikator `88302b3f-1203-8ef1-8eb2-1cdf738145c4`. Wymagane pole Name typu Task miało identyfikator `0de76b04-786e-8931-8b21-64596e06b4c1` i `valueType: text`. Pole Notes było opcjonalne i miało typ `richText`. Relacja zadania z organizacją miała identyfikator `5cde6409-ab72-8707-8039-3c9cdf5868c5`. To identyfikatory danych testowych, a nie identyfikatory do ponownego użycia na twoim koncie. Obie ścieżki zapisu korzystały ze schematu pobranego przez MCP; osobnego odczytu schematu przez REST nie wykonano.
+Odpowiedź modelu wskazała typy Organization i Task w rewizji schematu `1`. Pole główne typu Organization miało identyfikator `88302b3f-1203-8ef1-8eb2-1cdf738145c4`. Wymagane pole Name typu Task miało identyfikator `0de76b04-786e-8931-8b21-64596e06b4c1` i `valueType: text`. Pole Notes było opcjonalne i miało typ `richText`. Relacja zadania z organizacją miała identyfikator `5cde6409-ab72-8707-8039-3c9cdf5868c5`. To identyfikatory danych testowych, a nie identyfikatory do ponownego użycia na Twoim koncie. Obie ścieżki zapisu korzystały ze schematu pobranego przez MCP; osobnego odczytu schematu przez REST nie wykonano.
 
 ## Co zwróciło to samo wyszukanie klienta w obu interfejsach?
 

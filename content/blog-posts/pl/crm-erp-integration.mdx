@@ -10,7 +10,7 @@ relatedHrefs:
 
 hero:
   title: "Integracja CRM z ERP: architektura, metody i pierwszy przepływ, który możesz zbudować"
-  description: "Ustal, który system jest właścicielem każdego pola, wybierz metodę integracji pasującą do interfejsu twojego ERP i uruchom jedno niezawodne zdarzenie, zanim zsynchronizujesz cokolwiek więcej."
+  description: "Ustal, który system jest właścicielem każdego pola, wybierz metodę integracji pasującą do interfejsu Twojego ERP i uruchom jedno niezawodne zdarzenie, zanim zsynchronizujesz cokolwiek więcej."
 
 blogPost:
   author: Benjamin Wagner
@@ -28,7 +28,7 @@ blogPost:
 
 Integracja CRM z ERP przekazuje niewielki zestaw identyfikatorów i statusów między systemem, w którym sprzedajesz, a systemem, w którym dostarczasz i fakturujesz. CRM jest właścicielem osób, relacji, szans sprzedaży i rozmów. ERP jest właścicielem konta klienta używanego do rozliczeń, towarów, zamówień, magazynu i płatności. Integracja uruchamia się na zdefiniowanych zdarzeniach biznesowych, takich jak „wygrana szansa sprzedaży”, i zapisuje numer referencyjny każdego systemu w drugim.
 
-Większość małych zespołów powinna zacząć od jednego przepływu w jedną stronę: wygrana szansa sprzedaży tworzy klienta i zamówienie w ERP, a numer zamówienia z ERP wraca do szansy sprzedaży. Zbuduj to przez natywny konektor, jeśli oba twoje systemy go mają, a w przeciwnym razie przez REST API i webhooki ERP, używając platformy do automatyzacji, takiej jak n8n, albo małej usługi, którą prowadzisz sam.
+Większość małych zespołów powinna zacząć od jednego przepływu w jedną stronę: wygrana szansa sprzedaży tworzy klienta i zamówienie w ERP, a numer zamówienia z ERP wraca do szansy sprzedaży. Zbuduj to przez natywny konektor, jeśli oba Twoje systemy go mają, a w przeciwnym razie przez REST API i webhooki ERP, używając platformy do automatyzacji, takiej jak n8n, albo małej usługi, którą prowadzisz sam.
 
 Customermates, CRM natywny dla AI, publikuje ten poradnik. Customermates to wyłącznie CRM, bez funkcji ERP i bez natywnego konektora do ERP; sekcja o nim poniżej pokazuje, jak łączy się przez REST API i webhooki. Dane dostawców ERP sprawdzono 8 października 2026 na ich własnych stronach, podlinkowanych na końcu.
 
@@ -40,7 +40,7 @@ Dla przepływu w n8n [porównanie dróg MCP w n8n z przykładem przypiętym do w
   <SummaryItem label="Co się przenosi">Identyfikatory i kilka statusów na zdarzenie biznesowe. Nie każde pole i domyślnie nie w obie strony.</SummaryItem>
   <SummaryItem label="Metody">Natywny konektor, platforma do automatyzacji (iPaaS lub n8n), bezpośrednia integracja przez API albo middleware. Albo jeden pakiet, którego ERP zawiera aplikację CRM.</SummaryItem>
   <SummaryItem label="Zdecyduj najpierw">Jeden system będący właścicielem każdego pola, strategię stałych identyfikatorów i to, co dzieje się, gdy zdarzenie przyjdzie dwa razy albo się nie powiedzie.</SummaryItem>
-  <SummaryItem label="Sprawdź swoje ERP">Czy jego API wchodzi w twój plan, czy wysyła webhooki i jakie ma limity zapytań. Między dostawcami bardzo się różnią.</SummaryItem>
+  <SummaryItem label="Sprawdź swoje ERP">Czy jego API wchodzi w Twój plan, czy wysyła webhooki i jakie ma limity zapytań. Między dostawcami bardzo się różnią.</SummaryItem>
   <SummaryItem label="Customermates">REST API w każdym planie Cloud, webhooki w każdym planie płatnym i jedno i drugie w instalacji self-hosted. Odniesienia do ERP trzymasz w niestandardowych polach Tekst.</SummaryItem>
 </ArticleSummary>
 
@@ -64,7 +64,7 @@ Jeśli dwa systemy zapisują to samo pole, masz konflikt czekający na swoją ch
 | Metoda | Pasuje, gdy | Na co uważać |
 | --- | --- | --- |
 | Natywny konektor | Oba systemy pochodzą od dostawców, którzy dostarczają konektor dla siebie nawzajem | Jakie obiekty, pola i kierunki obejmuje, jakich edycji wymaga i kto go wspiera, gdy się zepsuje |
-| Platforma do automatyzacji (iPaaS, n8n, Make, Zapier) | Potrzebujesz kilku przepływów między dwoma systemami z REST API i chcesz wizualnej logiki | Idempotencja, kolejki błędów i sekrety nadal są twoją pracą. Wizualny przepływ to oprogramowanie produkcyjne |
+| Platforma do automatyzacji (iPaaS, n8n, Make, Zapier) | Potrzebujesz kilku przepływów między dwoma systemami z REST API i chcesz wizualnej logiki | Idempotencja, kolejki błędów i sekrety nadal są Twoją pracą. Wizualny przepływ to oprogramowanie produkcyjne |
 | Bezpośrednia integracja przez API | Jeden wąski, wartościowy przepływ między dwoma stabilnymi API, a ktoś w zespole pisze kod | Odpowiadasz za uwierzytelnianie, ponowienia, zmiany wersji API i monitoring |
 | Middleware lub usługa integracyjna | Kilka systemów lub duży wolumen, ze wspólnym modelem danych i kolejkami | Więcej ruchomych części. Zbyt ciężkie do przenoszenia pięciu pól |
 
@@ -81,14 +81,14 @@ Jest też piąta odpowiedź, której szukają osoby wpisujące „kompleksowe ro
 
 „Czas rzeczywisty” rzadko jest wymaganiem tak istotnym, jak brzmi. Opiekun klienta, który zobaczy status płatności minutę później, nic nie traci; zduplikowane zamówienie w ERP kosztuje prawdziwe pieniądze. Projektuj najpierw pod ponowienia i duplikaty, dopiero potem pod szybkość.
 
-## Co faktycznie oferuje interfejs twojego ERP
+## Co faktycznie oferuje interfejs Twojego ERP
 
 To strona ERP zwykle decyduje, jak trudna jest integracja. Cztery przykłady pokazują, jak bardzo różnią się interfejsy:
 
 | ERP | Interfejs według dostawcy | Co to znaczy dla integracji |
 | --- | --- | --- |
 | Microsoft Dynamics 365 Business Central | REST API v2.0 z encjami takimi jak customers, items, salesQuotes, salesOrders i salesInvoices, plus subskrypcje webhooków | Subskrypcje wygasają po trzech dniach, jeśli ich nie odnowisz, a powiadomienia czekają 30 sekund od pierwszej zmiany. Ponad 1000 zmian w tym oknie przychodzi jako jedno powiadomienie „collection”, które musisz rozwiązać zapytaniem |
-| Odoo | Zewnętrzne API XML-RPC w wersji 18; wersja 19 dokumentuje API JSON-2 i ścieżkę migracji z XML-RPC i JSON-RPC | Dostępne tylko w planie Custom. Sprawdź, jakie API działa w twojej wersji Odoo, zanim zaczniesz budować |
+| Odoo | Zewnętrzne API XML-RPC w wersji 18; wersja 19 dokumentuje API JSON-2 i ścieżkę migracji z XML-RPC i JSON-RPC | Dostępne tylko w planie Custom. Sprawdź, jakie API działa w Twojej wersji Odoo, zanim zaczniesz budować |
 | Lexware Office | REST API dla kontaktów, artykułów, ofert, potwierdzeń zamówień, listów przewozowych i innych dokumentów, z subskrypcjami zdarzeń | Do 2 zapytań na sekundę na klienta, więc zadania wsadowe wymagają ograniczania tempa |
 | Xentral | REST API dla klientów, produktów, zamówień sprzedaży, zamówień zakupu, listów przewozowych i faktur, z webhookami i listą typów zdarzeń webhooków | Kilka wersji API istnieje obok siebie, więc przypnij wersję w swoim mapowaniu |
 
@@ -133,7 +133,7 @@ Integracja, która obsługuje tylko ścieżkę bez błędów, utworzy duplikaty 
 
 ## Przykład: wygrana szansa sprzedaży do zamówienia w ERP z Customermates
 
-Tak wygląda konfiguracja w Customermates dla pierwszego przepływu opisanego wyżej. Korzysta z [REST API](/features/api) i [webhooków](/docs/webhooks), które działają w instalacji self-hosted i w Customermates Cloud: REST API w każdym planie, webhooki w każdym planie płatnym. Odbiornik pośrodku jest twój: przepływ n8n albo mała usługa.
+Tak wygląda konfiguracja w Customermates dla pierwszego przepływu opisanego wyżej. Korzysta z [REST API](/features/api) i [webhooków](/docs/webhooks), które działają w instalacji self-hosted i w Customermates Cloud: REST API w każdym planie, webhooki w każdym planie płatnym. Odbiornik pośrodku jest Twój: przepływ n8n albo mała usługa.
 
 **Pola.** W **Model danych** dodaj pola niestandardowe typu Tekst: „Nr klienta w ERP” w organizacjach, „Nr zamówienia w ERP” w szansach sprzedaży i „Nr towaru w ERP” w usługach. Pozycje szansy sprzedaży zawierają każda usługę i ilość, więc pozycje i numery towarów ich usług stają się pozycjami zamówienia. Jeśli opiekunowie klientów potrzebują stanu dostawy lub płatności, dodaj w szansach sprzedaży pole Pojedynczy wybór, na przykład „Status ERP”, i uczyń własność po stronie ERP jawną regułą w swoim adapterze. Customermates ma uprawnienia na listę i rolę, a nie uprawnienia na poziomie pola, które zarezerwowałyby to pole dla integracji.
 
@@ -149,7 +149,7 @@ Tak wygląda konfiguracja w Customermates dla pierwszego przepływu opisanego wy
 
 **Uzgadnianie.** Zapisz widok szans sprzedaży przefiltrowany na Etap „Wygrana” i pusty „Nr zamówienia w ERP”. Udostępnij go osobie zajmującej się błędami integracji albo całemu zespołowi. Wszystko, co się tam pojawi, umknęło przepływowi zdarzeń.
 
-**Kierunek odwrotny.** Jeśli twoje ERP wysyła webhooki, skieruj je do tego samego odbiornika, znajdź szansę sprzedaży po „Nr zamówienia w ERP” i ustaw „Status ERP”. Jeśli nie wysyła, odpytuj ERP według harmonogramu. [Poradnik o n8n](/docs/n8n) wymienia wywołania REST, których potrzebuje przepływ n8n; istnieje też węzeł społeczności.
+**Kierunek odwrotny.** Jeśli Twoje ERP wysyła webhooki, skieruj je do tego samego odbiornika, znajdź szansę sprzedaży po „Nr zamówienia w ERP” i ustaw „Status ERP”. Jeśli nie wysyła, odpytuj ERP według harmonogramu. [Poradnik o n8n](/docs/n8n) wymienia wywołania REST, których potrzebuje przepływ n8n; istnieje też węzeł społeczności.
 
 W Customermates Cloud Mate też może pracować z tymi polami, na przykład „wypisz wygrane w tym miesiącu szanse sprzedaży bez numeru zamówienia z ERP”. Mate korzysta z hostowanych kredytów AI. Własny klient AI może zrobić to samo przez [MCP](/docs/mcp).
 
@@ -176,7 +176,7 @@ To potwierdza mapę ID, regułę ponowień oraz odczyt, zapis i odczyt kontrolny
 
 Żaden uczciwy benchmark nie obejmuje wszystkich integracji CRM z ERP; zdarzenie w jedną stronę między dwoma udokumentowanymi API i dwukierunkowa synchronizacja zamówień i magazynu to różne projekty. Szacuj na podstawie tych czynników:
 
-- czy API ERP jest w twoim obecnym planie, czy wymaga zmiany planu na wyższy;
+- czy API ERP jest w Twoim obecnym planie, czy wymaga zmiany planu na wyższy;
 - czy oba systemy wysyłają webhooki, czy jeden trzeba odpytywać;
 - liczba obiektów, pól, kierunków i transformacji;
 - jak bałaganiarskie są dotychczasowe dane klientów i ile duplikatów trzeba jednorazowo dopasować;
@@ -185,7 +185,7 @@ To potwierdza mapę ID, regułę ponowień oraz odczyt, zapis i odczyt kontrolny
 
 Po stronie CRM REST API nie wymaga żadnego konkretnego planu Customermates, a webhooki są w każdym planie płatnym. Trzyosobowy zespół w planie Starter płaci [[commercial.price.starter.monthly.seats.3]] miesięcznie. Ujednolicona skrzynka odbiorcza, która wprowadza rozmowy e-mail, LinkedIn i WhatsApp do tych samych rekordów, zaczyna się od planu Pro ([[commercial.price.pro.monthly]] za użytkownika miesięcznie).
 
-Zanim wygrana szansa sprzedaży stanie się zamówieniem w ERP, rozmowa, która ją wygrała, leży w rekordzie klienta, z odpowiedzią i kolejnym krokiem przygotowanymi przez Mate lub twojego własnego klienta AI, żebyś je sprawdził i wysłał. Żeby zobaczyć tę część na własnych klientach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+Zanim wygrana szansa sprzedaży stanie się zamówieniem w ERP, rozmowa, która ją wygrała, leży w rekordzie klienta, z odpowiedzią i kolejnym krokiem przygotowanymi przez Mate lub Twojego własnego klienta AI, żebyś je sprawdził i wysłał. Żeby zobaczyć tę część na własnych klientach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
 
 ## Typowe błędy
 
@@ -206,7 +206,7 @@ To zautomatyzowana wymiana wybranych identyfikatorów i statusów między CRM, w
 </FaqItem>
 
 <FaqItem question="Jak zintegrować CRM i ERP?">
-Zdefiniuj własność pól, wybierz jedno zdarzenie biznesowe, takie jak „wygrana szansa sprzedaży”, i wybierz metodę: natywny konektor, jeśli twoje systemy go mają, a w przeciwnym razie API i webhooki ERP przez platformę do automatyzacji lub małą usługę. Przed uruchomieniem dodaj sprawdzanie idempotencji, zapis zwrotny identyfikatora drugiego systemu i cykliczne uzgadnianie.
+Zdefiniuj własność pól, wybierz jedno zdarzenie biznesowe, takie jak „wygrana szansa sprzedaży”, i wybierz metodę: natywny konektor, jeśli Twoje systemy go mają, a w przeciwnym razie API i webhooki ERP przez platformę do automatyzacji lub małą usługę. Przed uruchomieniem dodaj sprawdzanie idempotencji, zapis zwrotny identyfikatora drugiego systemu i cykliczne uzgadnianie.
 </FaqItem>
 
 <FaqItem question="Czy CRM i ERP to to samo i czy CRM może być częścią ERP?">
@@ -218,7 +218,7 @@ Zwykle nie na początku. Zdarzenie w jedną stronę z CRM do ERP, plus zwrócony
 </FaqItem>
 
 <FaqItem question="Czy można zintegrować CRM i ERP bez kodu?">
-Często tak, przez natywny konektor lub platformę do automatyzacji, taką jak n8n, Make czy Zapier. Nadal musisz ustalić własność pól, obsłużyć duplikaty i błędy oraz sprawdzić, czy plan twojego ERP obejmuje dostęp do API.
+Często tak, przez natywny konektor lub platformę do automatyzacji, taką jak n8n, Make czy Zapier. Nadal musisz ustalić własność pól, obsłużyć duplikaty i błędy oraz sprawdzić, czy plan Twojego ERP obejmuje dostęp do API.
 </FaqItem>
 
 <FaqItem question="Czy Customermates integruje się z systemami ERP?">

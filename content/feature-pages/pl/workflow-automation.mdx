@@ -37,7 +37,7 @@ sections:
 
 hero:
   title: Automatyzacja procesów sprzedaży w CRM z rutynami AI i otwartymi webhookami
-  description: "Rutyny w Customermates Cloud uruchamiają Mate według harmonogramu lub gdy przyjdzie e-mail, więc szkice odpowiedzi czekają na twój przegląd. REST i MCP łączą dowolne narzędzie w każdym planie; webhooki i n8n są dostępne w każdym planie płatnym i w self-hostingu."
+  description: "Rutyny w Customermates Cloud uruchamiają Mate według harmonogramu lub gdy przyjdzie e-mail, więc szkice odpowiedzi czekają na Twój przegląd. REST i MCP łączą dowolne narzędzie w każdym planie; webhooki i n8n są dostępne w każdym planie płatnym i w self-hostingu."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Przeczytaj przewodnik po rutynach
@@ -59,7 +59,7 @@ cta:
 Granicę łatwo opisać. Customermates automatyzuje pracę na pojedynczych rekordach. Nie ma sekwencji e-maili, kampanii drip ani wysyłki masowej, punktowania leadów, formularzy webowych ani wizualnego kreatora przepływów z rozgałęzieniami w CRM; ta część mieszka w n8n, osobnym produkcie. Jeśli „CRM automation” oznacza dla ciebie automatyzację marketingu, następna sekcja pokazuje, gdzie biegnie granica.
 
 <ArticleSummary title="W skrócie">
-  <SummaryItem label="Trzy drogi">Rutyny do pracy, która wymaga czytania i oceny. Webhooki plus n8n lub własny kod do stałych reguł. Twój własny klient AI przez MCP do aktualizacji rekordów na twoje polecenie.</SummaryItem>
+  <SummaryItem label="Trzy drogi">Rutyny do pracy, która wymaga czytania i oceny. Webhooki plus n8n lub własny kod do stałych reguł. Twój własny klient AI przez MCP do aktualizacji rekordów na Twoje polecenie.</SummaryItem>
   <SummaryItem label="Plany">Rutyny w każdym płatnym planie chmurowym: [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika na Starterze, [[commercial.entitlement.pro.includedRoutinesPerUser]] na Pro, [[commercial.entitlement.business.includedRoutinesPerUser]] na Business. REST i MCP w każdym planie; webhooki w każdym planie płatnym, także w self-hostingu.</SummaryItem>
   <SummaryItem label="Koszt">Uruchomienie rutyny zużywa miesięczne hostowane kredyty AI jej właściciela i zatrzymuje się przy 10 kredytach. n8n rozlicza własne plany.</SummaryItem>
   <SummaryItem label="Nie wchodzi w zakres">Brak wizualnego kreatora i rozgałęzień w CRM, brak sekwencji e-maili, brak przypomnień o zadaniach, brak punktowania leadów.</SummaryItem>
@@ -72,7 +72,7 @@ Automatyzacja CRM obejmuje dwa różne zadania. **Przepływy rekordów** działa
 | Rodzaj automatyzacji | Typowe przykłady | W Customermates |
 |---|---|---|
 | Przepływy rekordów | Utwórz zadania, gdy szansa sprzedaży zostanie wygrana, wyślij wpis na kanał zespołu, gdy powstanie szansa sprzedaży, wypisz szanse, których nikt nie ruszał | Tak: rutyny, webhooki, REST, n8n i MCP |
-| Praca AI na rekordach | Zaktualizuj szansę sprzedaży na podstawie notatek z rozmowy, napisz odpowiedź dla klienta | Tak: Mate w czacie, rutyny (chmura), twój własny klient AI przez MCP |
+| Praca AI na rekordach | Zaktualizuj szansę sprzedaży na podstawie notatek z rozmowy, napisz odpowiedź dla klienta | Tak: Mate w czacie, rutyny (chmura), Twój własny klient AI przez MCP |
 | Automatyzacja marketingu | Sekwencje e-maili, kampanie drip, wysyłka masowa, punktowanie leadów, formularze webowe | Nie. Użyj osobnego narzędzia i wprowadzaj jego wyniki przez REST lub n8n |
 
 Szkic odpowiedzi to jedna wiadomość w jednej rozmowie, a nie sekwencja. Jeśli potrzebujesz trzeciego wiersza, zostaw do tego dedykowane narzędzie, a w Customermates trzymaj rekordy klientów, które za nim stoją.
@@ -86,7 +86,7 @@ Szkic odpowiedzi to jedna wiadomość w jednej rozmowie, a nie sekwencja. Jeśli
 | Zadania wdrożeniowe po wygraniu szansy sprzedaży | Rutyna na **Rekord zaktualizowany** dla Szans sprzedaży albo webhook do n8n | Rutyna: płatna chmura. Webhook: plany płatne |
 | Wiadomość na czacie zespołu, gdy powstanie szansa sprzedaży | Webhook do n8n albo webhook z szablonem treści | Plany płatne |
 | Przepływ z rozgałęzieniami, oczekiwaniem i innymi aplikacjami | n8n na webhookach i REST | Plany płatne plus n8n |
-| Aktualizacja szansy sprzedaży z wklejonych notatek z rozmowy | Czat Mate albo twój własny klient AI przez MCP | Mate: płatna chmura. MCP: każdy plan |
+| Aktualizacja szansy sprzedaży z wklejonych notatek z rozmowy | Czat Mate albo Twój własny klient AI przez MCP | Mate: płatna chmura. MCP: każdy plan |
 
 Nasza zasada kciuka: jeśli krok ma działać za każdym razem identycznie, na przykład tworzyć te same zadania dla każdej wygranej szansy sprzedaży, użyj webhooka i n8n. Rutyna to uruchomienie AI, które czyta, decyduje i zapisuje, więc jej wynik trochę się różni, a każde uruchomienie kosztuje kredyty. Używaj jej tam, gdzie sednem jest czytanie.
 
@@ -97,7 +97,7 @@ Zmiany etapów pokazują obie drogi. Rutyna na **Rekord zaktualizowany** dla Sza
 Rutyny istnieją tylko w Customermates Cloud. Rutyna to nazwa, instrukcja do 5000 znaków i wyzwalacz. Gdy wyzwalacz się uruchomi, Mate rozpoczyna nową rozmowę z tą instrukcją i pracuje samodzielnie, jako właściciel rutyny: widzi to, co widzi właściciel, i wydaje jego kredyty. Zmiany wprowadzone przez rutynę nigdy nie uruchamiają innych rutyn, więc nie mogą wejść w pętlę. [Przewodnik po rutynach](/docs/app-routines) opisuje każdą opcję.
 
 - **Według harmonogramu:** co 15 lub 30 minut, co godzinę, codziennie, co tydzień lub co miesiąc. Mate może też ustawić własny harmonogram cron, na przykład w dni robocze o 09:00.
-- **Gdy coś się zmieni:** dowolne zdarzenie rekordu na dowolnej liście, od kontaktów, organizacji, szans sprzedaży, usług i zadań po twoje własne listy, a także zdarzenia skrzynki odbiorczej z wyjątkiem usuniętych e-maili i czatów oraz trwałych usunięć. **Zmienione pola** zawężają wyzwalacz aktualizacji do pól takich jak **Etap** szansy sprzedaży, a **Filtry rekordów** do rekordów takich jak szanse sprzedaży przypisane do ciebie.
+- **Gdy coś się zmieni:** dowolne zdarzenie rekordu na dowolnej liście, od kontaktów, organizacji, szans sprzedaży, usług i zadań po Twoje własne listy, a także zdarzenia skrzynki odbiorczej z wyjątkiem usuniętych e-maili i czatów oraz trwałych usunięć. **Zmienione pola** zawężają wyzwalacz aktualizacji do pól takich jak **Etap** szansy sprzedaży, a **Filtry rekordów** do rekordów takich jak szanse sprzedaży przypisane do ciebie.
 
 | Limit | Aktualna wartość |
 |---|---|
@@ -149,7 +149,7 @@ Zużycie kredytów: każde uruchomienie, które się zaczyna, zużywa kredyty, t
 
 ## Jak wysłać nową szansę sprzedaży do n8n, Slacka lub innego narzędzia?
 
-Customermates wysyła JSON POST dla każdego z [[derived.webhooks.events.total]] typów zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów i [[derived.webhooks.events.messaging]] zdarzeń skrzynki odbiorczej. Zdarzenia rekordów obejmują każdą listę, także twoją własną. **Etap** szansy sprzedaży to konfigurowalne pole pojedynczego wyboru, więc zmiana etapu przychodzi jako `record.updated` dla listy Szanse sprzedaży, a nowa szansa jako `record.created`. [Opis webhooków](/docs/webhooks) wymienia każdy ładunek.
+Customermates wysyła JSON POST dla każdego z [[derived.webhooks.events.total]] typów zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów i [[derived.webhooks.events.messaging]] zdarzeń skrzynki odbiorczej. Zdarzenia rekordów obejmują każdą listę, także Twoją własną. **Etap** szansy sprzedaży to konfigurowalne pole pojedynczego wyboru, więc zmiana etapu przychodzi jako `record.updated` dla listy Szanse sprzedaży, a nowa szansa jako `record.created`. [Opis webhooków](/docs/webhooks) wymienia każdy ładunek.
 
 <Steps>
   <Step title="Dodaj wyzwalacz w n8n">Dodaj węzeł Webhook i skopiuj jego adres URL. Z węzłem społeczności w wersji 2 lub nowszej węzeł Customermates Trigger tworzy subskrypcję za ciebie po aktywacji przepływu, więc możesz pominąć następny krok.</Step>
@@ -168,7 +168,7 @@ Dostarczenia są ponawiane automatycznie przy przekroczeniu czasu i błędach se
 
 ## Jak klient AI może aktualizować rekordy CRM przez MCP?
 
-Serwer MCP daje klientom AI, takim jak Claude czy ChatGPT, [[derived.mcp.tools.total]] narzędzi na tych samych danych, w każdym planie i przy self-hostingu. Użycie modelu rozlicza twój własny dostawca AI. To droga do aktualizacji, o które prosisz zwykłym językiem, na przykład do opisania rozmowy.
+Serwer MCP daje klientom AI, takim jak Claude czy ChatGPT, [[derived.mcp.tools.total]] narzędzi na tych samych danych, w każdym planie i przy self-hostingu. Użycie modelu rozlicza Twój własny dostawca AI. To droga do aktualizacji, o które prosisz zwykłym językiem, na przykład do opisania rozmowy.
 
 <Steps>
   <Step title="Podłącz klienta">Claude i ChatGPT łączą się przez własny konektor z OAuth, więc nie ma klucza do zarządzania. Klienci CLI i edytorów używają klucza API z **Ustawienia › Klucze API i konektory**. Konfiguracja dla każdego klienta jest w [opisie MCP](/docs/mcp).</Step>
@@ -181,9 +181,9 @@ Serwer MCP daje klientom AI, takim jak Claude czy ChatGPT, [[derived.mcp.tools.t
 Znajdź szansę sprzedaży „Odnowienie Acme”. Dopisz te notatki z rozmowy do jej notatek: klient chce poprawionej oferty z dwoma stanowiskami mniej. Ustaw Następny kontakt na 14 dni od dziś i utwórz zadanie „Wyślij poprawioną ofertę” powiązane z szansą. Pokaż mi, co zostało zmienione.
 ```
 
-Dopisywanie do pola notatek nigdy nie nadpisuje tego, co tam jest, i nie koliduje z nowszą edycją współpracownika. W Customermates Cloud Mate robi to samo z czatu, a jego polityka prosi o twoje zatwierdzenie przed działaniami objętymi bramką, takimi jak usuwanie rekordów; wysyłanie e-maila lub wiadomości na czacie nie jest objęte bramką, więc poproś o szkic, gdy treść wymaga przeglądu.
+Dopisywanie do pola notatek nigdy nie nadpisuje tego, co tam jest, i nie koliduje z nowszą edycją współpracownika. W Customermates Cloud Mate robi to samo z czatu, a jego polityka prosi o Twoje zatwierdzenie przed działaniami objętymi bramką, takimi jak usuwanie rekordów; wysyłanie e-maila lub wiadomości na czacie nie jest objęte bramką, więc poproś o szkic, gdy treść wymaga przeglądu.
 
-Zewnętrzne wywołania MCP działają inaczej. Serwer sprawdza autoryzację i walidację, ale nie prosi o potwierdzenie; zalecenie, by potwierdzać przed usunięciem lub wysłaniem, trafia do klienta. Klucz API niesie uprawnienia użytkownika, który go utworzył, bez zawężania per klucz. Utwórz go na użytkowniku, którego rola pasuje do zadania, i sprawdź, jak twój klient obsługuje zatwierdzanie, zanim przyznasz dostęp do zapisu.
+Zewnętrzne wywołania MCP działają inaczej. Serwer sprawdza autoryzację i walidację, ale nie prosi o potwierdzenie; zalecenie, by potwierdzać przed usunięciem lub wysłaniem, trafia do klienta. Klucz API niesie uprawnienia użytkownika, który go utworzył, bez zawężania per klucz. Utwórz go na użytkowniku, którego rola pasuje do zadania, i sprawdź, jak Twój klient obsługuje zatwierdzanie, zanim przyznasz dostęp do zapisu.
 
 ## Czy jest CRM open source z kreatorem przepływów?
 
@@ -192,7 +192,7 @@ Customermates jest open source i nie ma kreatora przepływów w CRM. Tę rolę w
 Węzeł społeczności [customermates/n8n-nodes-crm](https://github.com/customermates/n8n-nodes-crm) oferuje dedykowane węzły CRM, jeśli wolisz je od węzłów HTTP Request. Używaj wersji 2 lub nowszej: wersja 1.x celuje w punkty końcowe, których API już nie ma, więc jej przepływy zawodzą, dopóki ich nie zaktualizujesz.
 
 <AcquisitionCallout title="Jeśli chcesz mieć kreator w CRM" variant="fit">
-  Jeśli twój zespół chce budować przepływy z rozgałęzieniami w CRM bez
+  Jeśli Twój zespół chce budować przepływy z rozgałęzieniami w CRM bez
   prowadzenia n8n, zajrzyj do CRM z natywnym edytorem przepływów. HubSpot Sales
   Hub wymienia do 50 przepływów z ograniczonymi wyzwalaczami i akcjami w
   Starter oraz do 300 w pełni konfigurowalnych przepływów w Professional.
@@ -204,7 +204,7 @@ Węzeł społeczności [customermates/n8n-nodes-crm](https://github.com/customer
 
 ## Co aktualizuje się samo, a co nadal wymaga człowieka?
 
-- **Bez AI:** każda zmiana trafia do historii aktywności rekordu i do każdego webhooka zasubskrybowanego na to zdarzenie, a ważone wartości lejka podążają za wagami twoich etapów. W Pro i wyżej, gdy powiążesz adres e-mail lub uchwyt z kontaktem, każda rozmowa z nim pojawia się na osi czasu tego kontaktu.
+- **Bez AI:** każda zmiana trafia do historii aktywności rekordu i do każdego webhooka zasubskrybowanego na to zdarzenie, a ważone wartości lejka podążają za wagami Twoich etapów. W Pro i wyżej, gdy powiążesz adres e-mail lub uchwyt z kontaktem, każda rozmowa z nim pojawia się na osi czasu tego kontaktu.
 - **Z AI, gdy o to poprosisz:** wklej notatki z rozmowy do Mate albo do własnego klienta AI przez MCP i poproś o aktualizację szansy sprzedaży, dopisanie notatek i utworzenie zadań follow-up.
 - **Z AI, bez nadzoru:** rutyny, jak wyżej.
 
@@ -229,7 +229,7 @@ Pięć osób na Pro płaci [[commercial.price.pro.monthly.seats.5]] miesięcznie
 
 <Faq>
 <FaqItem question="Czym jest automatyzacja procesów sprzedaży w CRM?">
-To krok CRM, który uruchamia się sam, gdy coś się wydarzy albo według harmonogramu: tworzenie zadań wdrożeniowych dla wygranej szansy sprzedaży, wpis na kanale zespołu, gdy powstanie szansa sprzedaży, szkic odpowiedzi, gdy klient pisze, albo lista szans, których data follow-upu minęła. W Customermates stałe kroki działają na webhookach i n8n, kroki wymagające czytania działają jako rutyny w Customermates Cloud, a aktualizacje na twoje polecenie przez Mate albo własnego klienta AI przez MCP.
+To krok CRM, który uruchamia się sam, gdy coś się wydarzy albo według harmonogramu: tworzenie zadań wdrożeniowych dla wygranej szansy sprzedaży, wpis na kanale zespołu, gdy powstanie szansa sprzedaży, szkic odpowiedzi, gdy klient pisze, albo lista szans, których data follow-upu minęła. W Customermates stałe kroki działają na webhookach i n8n, kroki wymagające czytania działają jako rutyny w Customermates Cloud, a aktualizacje na Twoje polecenie przez Mate albo własnego klienta AI przez MCP.
 </FaqItem>
 
 <FaqItem question="Jakie są przykłady automatyzacji CRM?">
@@ -241,7 +241,7 @@ Nie. Nie ma kreatora drag-and-drop ani reguł z rozgałęzieniami w Customermate
 </FaqItem>
 
 <FaqItem question="Czy CRM może sam się aktualizować?">
-Częściowo. Historia aktywności, zdarzenia webhooków i ważone wartości lejka aktualizują się same, a w Pro i wyżej powiązany adres e-mail wprowadza późniejsze rozmowy na oś czasu kontaktu. Pisanie notatek lub zmiana szans sprzedaży na podstawie tego, co powiedziano, wymaga AI: Mate na twoje polecenie, rutyny na wyzwalaczu albo własnego klienta AI przez MCP.
+Częściowo. Historia aktywności, zdarzenia webhooków i ważone wartości lejka aktualizują się same, a w Pro i wyżej powiązany adres e-mail wprowadza późniejsze rozmowy na oś czasu kontaktu. Pisanie notatek lub zmiana szans sprzedaży na podstawie tego, co powiedziano, wymaga AI: Mate na Twoje polecenie, rutyny na wyzwalaczu albo własnego klienta AI przez MCP.
 </FaqItem>
 
 <FaqItem question="Czym różni się automatyzacja procesów w CRM od automatyzacji marketingu?">

@@ -142,7 +142,7 @@ function mailPastNextSteps() {
 
 Potem dodaj aktywator (ikona zegara › Dodaj aktywator), źródło zdarzenia „Oparty na czasie”, typ „Licznik dzienny”, między 7 a 8 rano. Kolumna J ma indeks 9, bo tablica zaczyna się od 0. [Limity Apps Script](https://developers.google.com/apps-script/guides/services/quotas) ograniczają bezpłatne konto Gmail do 100 odbiorców e-maili i 90 minut działania aktywatorów dziennie; konta Workspace dostają 1500 odbiorców i 6 godzin. Jeden e-mail dziennie to wartość daleko poniżej obu limitów.
 
-**Widoki filtrów zamiast filtrów.** Zwykły filtr zmienia widok wszystkim, którzy mają dostęp. Dane › Widoki filtrów › Utwórz nowy widok filtra zapisuje filtr, który zmienia tylko twój widok, jak wyjaśnia [pomoc o filtrach](https://support.google.com/docs/answer/3540681). Daj każdej osobie widok filtra „Moje otwarte szanse” według kolumn Opiekun i Etap.
+**Widoki filtrów zamiast filtrów.** Zwykły filtr zmienia widok wszystkim, którzy mają dostęp. Dane › Widoki filtrów › Utwórz nowy widok filtra zapisuje filtr, który zmienia tylko Twój widok, jak wyjaśnia [pomoc o filtrach](https://support.google.com/docs/answer/3540681). Daj każdej osobie widok filtra „Moje otwarte szanse” według kolumn Opiekun i Etap.
 
 ## Gdzie CRM w Arkuszach Google przestaje działać
 
@@ -155,7 +155,7 @@ Rozmiar rzadko bywa problemem. W [limitach plików Dysku](https://support.google
 
 ## Zostać w Arkuszach, dodać narzędzie czy przejść na CRM?
 
-| Jeśli to opisuje twoją sytuację | Zrób to |
+| Jeśli to opisuje Twoją sytuację | Zrób to |
 | --- | --- |
 | Jedna osoba, kilkaset kontaktów, głównie e-mail | Zostań przy szablonie z tej strony i e-mailu z Apps Script |
 | Dwie lub trzy osoby, jedna wspólna lista szans, wszyscy mogą widzieć wszystko | Zostań przy arkuszu, dodaj widoki filtrów dla każdej osoby i reguły powiadomień |
@@ -167,11 +167,11 @@ Prosta zasada kciuka: gdy dwie osoby co tydzień edytują te same szanse i jeden
 
 ## Przenoszenie CRM z Google Sheets do Customermates
 
-Customermates importuje skoroszyty Excela (.xlsx) i pliki CSV, po jednej liście naraz, więc arkusz Google trzeba najpierw pobrać. Nie ma synchronizacji na żywo z Google Sheets. [Dokumentacja importu](/docs/app-records#how-do-i-import-or-export-records) zawiera wszystkie reguły, a [poradnik o szablonie Excela](/blog/excel-crm-template#moving-the-template-into-customermates) przypisuje każdą kolumnę tego układu do pola. Arkusz robi follow-up tylko wtedy, gdy ktoś pamięta, żeby go otworzyć. W Customermates rozmowy z każdym klientem leżą przy rekordzie klienta (w Customermates Cloud od planu Pro), Mate lub twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, a data następnego kroku zasila twój pulpit zamiast filtra, który musisz sprawdzać.
+Customermates importuje skoroszyty Excela (.xlsx) i pliki CSV, po jednej liście naraz, więc arkusz Google trzeba najpierw pobrać. Nie ma synchronizacji na żywo z Google Sheets. [Dokumentacja importu](/docs/app-records#how-do-i-import-or-export-records) zawiera wszystkie reguły, a [poradnik o szablonie Excela](/blog/excel-crm-template#moving-the-template-into-customermates) przypisuje każdą kolumnę tego układu do pola. Arkusz robi follow-up tylko wtedy, gdy ktoś pamięta, żeby go otworzyć. W Customermates rozmowy z każdym klientem leżą przy rekordzie klienta (w Customermates Cloud od planu Pro), Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, a data następnego kroku zasila Twój pulpit zamiast filtra, który musisz sprawdzać.
 
 <Steps>
   <Step title="Uporządkuj karty">Użyj Dane › Czyszczenie danych › Usuń duplikaty w Kontaktach i Szansach i popraw każdą wartość, którą lista rozwijana oznacza jako błędną. Każdy etap i każdy typ musi być dokładnie jedną z wartości z Listy.</Step>
-  <Step title="Utwórz pola niestandardowe">W Customermates otwórz listę w sekcji **Model danych** i wybierz **Dodaj**, potem **Pole**. Dla każdej kolumny z listą rozwijaną (Typ kontaktu, Źródło, Branża) dodaj pole **Pojedynczy wybór** z etykietami opcji identycznymi jak na twojej karcie Listy. Dla Daty następnego kroku i Zamknięto dnia użyj pól typu Data. Pole Etap szans sprzedaży już istnieje, z etapami podanymi wyżej.</Step>
+  <Step title="Utwórz pola niestandardowe">W Customermates otwórz listę w sekcji **Model danych** i wybierz **Dodaj**, potem **Pole**. Dla każdej kolumny z listą rozwijaną (Typ kontaktu, Źródło, Branża) dodaj pole **Pojedynczy wybór** z etykietami opcji identycznymi jak na Twojej karcie Listy. Dla Daty następnego kroku i Zamknięto dnia użyj pól typu Data. Pole Etap szans sprzedaży już istnieje, z etapami podanymi wyżej.</Step>
   <Step title="Pobierz skoroszyt">Wybierz Plik › Pobierz › Microsoft Excel (.xlsx). Kreator zapyta, którą kartę zaimportować, więc ten sam plik służy do każdego importu.</Step>
   <Step title="Importuj w kolejności zależności">Firmy trafiają do listy **Organizacje**, potem Kontakty, potem Szanse sprzedaży. Na każdej liście otwórz **Więcej działań**, wybierz **Dodaj z pliku** i przypisz każdą kolumnę do pola, na przykład adresy e-mail do pola **Dane kontaktowe** kontaktu. Powiązania są dopasowywane po nazwie, bez rozróżniania wielkości liter, więc firma musi istnieć, zanim kontakt będzie mógł na nią wskazywać. Opiekun trafia do pola **Przypisany do**, dopasowany po pełnym imieniu i nazwisku członka zespołu.</Step>
   <Step title="Sprawdź na dziesięciu wierszach">Kontrola wypisuje każdy problematyczny wiersz, zanim cokolwiek zostanie dodane, a takie wiersze możesz pominąć. Importu nie da się cofnąć, więc najpierw spróbuj z małym plikiem. Z Aktywności przenieś tylko otwarte następne kroki, jako zadania; starsza historia może trafić do Notatek szansy sprzedaży albo zostać w zarchiwizowanym arkuszu.</Step>
@@ -203,7 +203,7 @@ Jeśli mimo wszystko chcesz mieć kopię raportową w Google Sheets, webhooki mo
 
 Rozliczenie jest miesięczne, a okres próbny w chmurze trwa [[commercial.trial.days]] dni w planie Pro, bez karty kredytowej: [rozpocznij okres próbny](/auth/signup?job=followup) i zaimportuj jedną kartę, żeby zobaczyć tam własne szanse sprzedaży. Każdy płatny plan w chmurze zawiera miesięczne kredyty AI na aktywnego użytkownika; zobacz [cennik](/pricing).
 
-Customermates to zły krok, jeśli twój proces żyje w formułach: nie ma pól z formułami, więc własne obliczenia zostają w arkuszu kalkulacyjnym po eksporcie. Jest też złym wyborem, jeśli potrzebujesz dialera telefonicznego, kampanii e-mailowych albo natywnej aplikacji na telefon. Customermates nie ma żadnej z tych rzeczy, więc poszukaj CRM, który je oferuje. A jeśli prawdziwy wymóg brzmi „zostać w Google Sheets”, dodatek z Marketplace pasuje lepiej niż jakikolwiek osobny CRM.
+Customermates to zły krok, jeśli Twój proces żyje w formułach: nie ma pól z formułami, więc własne obliczenia zostają w arkuszu kalkulacyjnym po eksporcie. Jest też złym wyborem, jeśli potrzebujesz dialera telefonicznego, kampanii e-mailowych albo natywnej aplikacji na telefon. Customermates nie ma żadnej z tych rzeczy, więc poszukaj CRM, który je oferuje. A jeśli prawdziwy wymóg brzmi „zostać w Google Sheets”, dodatek z Marketplace pasuje lepiej niż jakikolwiek osobny CRM.
 
 ## FAQ
 
@@ -229,7 +229,7 @@ Niektóre CRM mają dodatek do Arkuszy; Workspace Marketplace wymienia na przyk�
 </FaqItem>
 
 <FaqItem question="Czy można zbudować CRM w Excelu?">
-Tak. [Szablon CRM w Excelu](/blog/excel-crm-template) ma tę samą strukturę, z tabelami Excela, XLOOKUP i tygodniowym trackerem dla każdego handlowca. Wybierz narzędzie, w którym twój zespół już współdzieli pliki.
+Tak. [Szablon CRM w Excelu](/blog/excel-crm-template) ma tę samą strukturę, z tabelami Excela, XLOOKUP i tygodniowym trackerem dla każdego handlowca. Wybierz narzędzie, w którym Twój zespół już współdzieli pliki.
 </FaqItem>
 </Faq>
 

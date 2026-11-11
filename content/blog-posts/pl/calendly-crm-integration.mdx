@@ -50,7 +50,7 @@ Customermates, CRM stworzone z myślą o AI, publikuje ten poradnik. Customermat
 
 Przy wyborze liczą się dwa szczegóły. Strona Calendly o HubSpot mówi o kontaktach, leadach, aktywnościach i routingu, a o szansach sprzedaży nic nie wspomina. Jeśli każda rezerwacja ma otwierać szansę sprzedaży w HubSpot, przetestuj to, zanim na tym polegasz. Obie strony opisują też zapisywanie w rekordzie podsumowań spotkań z Calendly Notetaker, co dotyczy tylko spotkań nagrywanych tym narzędziem.
 
-Jeśli twoje CRM jest na tej liście, a twój plan Calendly się kwalifikuje, zacznij od integracji natywnej. Nie ma nic dodatkowego do uruchamiania, a Calendly ją utrzymuje. Integracja Calendly HubSpot od planu Standard jest najprostszym wejściem, jeśli już pracujesz w HubSpot.
+Jeśli Twoje CRM jest na tej liście, a Twój plan Calendly się kwalifikuje, zacznij od integracji natywnej. Nie ma nic dodatkowego do uruchamiania, a Calendly ją utrzymuje. Integracja Calendly HubSpot od planu Standard jest najprostszym wejściem, jeśli już pracujesz w HubSpot.
 
 ## Podłączanie CRM, którego Calendly nie obsługuje natywnie
 
@@ -58,10 +58,10 @@ Wyszukiwania w rodzaju „Calendly integracja CRM”, „Calendly Pipedrive” a
 
 | Droga | Przykład | Wybierz ją, jeśli | Na co uważać |
 |---|---|---|---|
-| Aplikacja w marketplace CRM | Pipedrive Marketplace wymienia Calendly Sync by Outfunnel, który tworzy kontakty, leady, szanse sprzedaży, aktywności lub notatki. Freshworks Marketplace wymienia Calendly Events for CRM. | Dla twojego CRM istnieje aplikacja i obejmuje to, czego potrzebujesz | Aplikacje firm trzecich mają własne warunki. Aplikacja Freshworks działa w drugą stronę: planuje, zmienia i anuluje wydarzenia Calendly z poziomu CRM. |
-| Platforma konektorów | Calendly Zapier: wyzwalacz „Invitee Created or Rescheduled” albo Zoho Flow od „Event scheduled by invitee” do „Create or update contact” w Zoho CRM | Nikt w zespole nie pisze kodu, a twoje CRM ma konektor na tej platformie | Kolejne konto do opłacania i pilnowania. Sprawdź, jak wyzwalacz traktuje zmiany terminu. |
-| Webhooki do n8n lub własnego kodu | Węzeł Calendly Trigger w n8n, ze zdarzeniami „Event created” i „Event canceled” | Potrzebujesz wyszukiwania i rozgałęzień albo twoje CRM nie ma konektora nigdzie | Ktoś musi to uruchamiać i monitorować. n8n można hostować samodzielnie albo używać jako n8n Cloud. |
-| Klient AI z dwoma konektorami MCP | Serwer MCP Calendly w Claude lub ChatGPT, obok konektora twojego CRM | Przeglądasz rezerwacje partiami i chcesz potwierdzać każdy zapis | Działa, gdy ktoś o to poprosi. To nie jest synchronizacja. |
+| Aplikacja w marketplace CRM | Pipedrive Marketplace wymienia Calendly Sync by Outfunnel, który tworzy kontakty, leady, szanse sprzedaży, aktywności lub notatki. Freshworks Marketplace wymienia Calendly Events for CRM. | Dla Twojego CRM istnieje aplikacja i obejmuje to, czego potrzebujesz | Aplikacje firm trzecich mają własne warunki. Aplikacja Freshworks działa w drugą stronę: planuje, zmienia i anuluje wydarzenia Calendly z poziomu CRM. |
+| Platforma konektorów | Calendly Zapier: wyzwalacz „Invitee Created or Rescheduled” albo Zoho Flow od „Event scheduled by invitee” do „Create or update contact” w Zoho CRM | Nikt w zespole nie pisze kodu, a Twoje CRM ma konektor na tej platformie | Kolejne konto do opłacania i pilnowania. Sprawdź, jak wyzwalacz traktuje zmiany terminu. |
+| Webhooki do n8n lub własnego kodu | Węzeł Calendly Trigger w n8n, ze zdarzeniami „Event created” i „Event canceled” | Potrzebujesz wyszukiwania i rozgałęzień albo Twoje CRM nie ma konektora nigdzie | Ktoś musi to uruchamiać i monitorować. n8n można hostować samodzielnie albo używać jako n8n Cloud. |
+| Klient AI z dwoma konektorami MCP | Serwer MCP Calendly w Claude lub ChatGPT, obok konektora Twojego CRM | Przeglądasz rezerwacje partiami i chcesz potwierdzać każdy zapis | Działa, gdy ktoś o to poprosi. To nie jest synchronizacja. |
 
 Długi ogon CRM (Keap, Agile CRM, LeadConnector, Pipeline CRM i wiele innych) zwykle mieści się w dwóch pierwszych wierszach. Najpierw przeszukaj marketplace samego CRM, potem stronę Calendly na Zapierze.
 
@@ -100,7 +100,7 @@ Działa to w każdym planie Customermates i w instalacji z samodzielnym hostingi
 
 <Steps>
 <Step title="Utwórz klucz API">
-W Customermates otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj** i wybierz **Standardowy klucz API**. Klucz działa z twoimi uprawnieniami. W n8n zapisz go jako dane uwierzytelniające Header Auth z nazwą nagłówka `x-api-key`. Zobacz [klucze API](/docs/api-keys).
+W Customermates otwórz **Ustawienia › Klucze API i konektory**, kliknij **Dodaj** i wybierz **Standardowy klucz API**. Klucz działa z Twoimi uprawnieniami. W n8n zapisz go jako dane uwierzytelniające Header Auth z nazwą nagłówka `x-api-key`. Zobacz [klucze API](/docs/api-keys).
 </Step>
 <Step title="Przygotuj pola szansy sprzedaży">
 Otwórz Szanse sprzedaży w **Model danych** i dodaj opcje „Rozmowa umówiona” oraz „Anulowana” do pola **Etap**, które jest polem typu **Pojedynczy wybór**. Dodaj pole **Data i godzina** „Spotkanie”, pole **Pojedynczy wybór** „Źródło leada” z jedną opcją na każdy typ wydarzenia oraz pole **Tekst** „Rezerwacja Calendly”. `POST /api/v1/model/discover` znajduje identyfikatory typów Kontaktów i Szans sprzedaży, a `POST /api/v1/model/read` zwraca wersję schematu oraz identyfikatory pól, opcji i relacji, których oczekuje API. Te identyfikatory pozostają ważne, gdy ktoś zmieni nazwę listy lub pola.
@@ -131,16 +131,16 @@ Jeśli Calendly jest ustawione na wysyłanie **Calendar Invitations**, kalendarz
 
 Dwa ostatnie zdania mają znaczenie. Rutyna działa jako jej właściciel, z jego kanałami, i może wysyłać wiadomości bez pytania, chyba że instrukcje mówią inaczej. Jest też wyzwalacz zdarzeniowy dla zmian w kalendarzu, **Wydarzenie w kalendarzu zmienione**. Uruchamia się przy każdej zmianie w podłączonym kalendarzu, a zdarzenia, które nadejdą krótko po rozpoczęciu uruchomienia, są ignorowane, więc dla rezerwacji bezpieczniejszy jest harmonogram. [Rutyny](/docs/app-routines) wymieniają aktualne limity.
 
-### Droga 3: twój własny klient AI
+### Droga 3: Twój własny klient AI
 
-Calendly prowadzi serwer MCP pod adresem `https://mcp.calendly.com/` z narzędziami, które wymieniają zaplanowane wydarzenia i ich uczestników. Calendly mówi, że do połączenia nie jest potrzebny płatny plan, choć niektóre akcje zależą od planu. Dodaj go do Claude lub ChatGPT obok [konektora Customermates](/docs/connect-custom-connector), a potem zapytaj: „Wypisz spotkania z Calendly umówione od poniedziałku wraz z uczestnikami. Znajdź lub utwórz każdego uczestnika jako kontakt w Customermates i utwórz szansę sprzedaży na etapie Rozmowa umówiona.” Strona Customermates działa w każdym planie i w instalacjach z samodzielnym hostingiem, a korzysta z twojego własnego dostawcy AI, a nie z hostowanych kredytów. Customermates wykonuje to, co wywoła klient, więc ustaw akceptacje dla narzędzi zapisu w swoim kliencie AI.
+Calendly prowadzi serwer MCP pod adresem `https://mcp.calendly.com/` z narzędziami, które wymieniają zaplanowane wydarzenia i ich uczestników. Calendly mówi, że do połączenia nie jest potrzebny płatny plan, choć niektóre akcje zależą od planu. Dodaj go do Claude lub ChatGPT obok [konektora Customermates](/docs/connect-custom-connector), a potem zapytaj: „Wypisz spotkania z Calendly umówione od poniedziałku wraz z uczestnikami. Znajdź lub utwórz każdego uczestnika jako kontakt w Customermates i utwórz szansę sprzedaży na etapie Rozmowa umówiona.” Strona Customermates działa w każdym planie i w instalacjach z samodzielnym hostingiem, a korzysta z Twojego własnego dostawcy AI, a nie z hostowanych kredytów. Customermates wykonuje to, co wywoła klient, więc ustaw akceptacje dla narzędzi zapisu w swoim kliencie AI.
 
 ### Ile to kosztuje dla zespołu trzech osób
 
 - **Droga przez webhooki w Starter:** [[commercial.price.starter.monthly.seats.3]] miesięcznie za Customermates, plus plan Calendly z webhookami i miejsce, gdzie działa n8n.
 - **Droga przez kalendarz w Pro:** [[commercial.price.pro.monthly.seats.3]] miesięcznie. To obejmuje [ujednoliconą skrzynkę odbiorczą](/features/unified-inbox) i [[commercial.entitlement.pro.includedRoutinesPerUser]] rutyn na użytkownika. Uruchomienia rutyn korzystają z miesięcznych hostowanych kredytów AI na aktywnego użytkownika; zobacz [cennik](/pricing).
 
-Rezerwacja to miejsce, w którym zaczyna się follow-up. Przy drodze przez kalendarz w Pro skonfigurowana przez ciebie rutyna może umieścić umówione spotkanie w rekordzie klienta obok jego wątków e-mail i LinkedIn, a Mate może przygotować potwierdzenie lub notatkę przygotowawczą do twojej oceny i wysłania, z datą następnego kroku przy szansie sprzedaży. Żeby wypróbować to na własnych rezerwacjach Calendly, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+Rezerwacja to miejsce, w którym zaczyna się follow-up. Przy drodze przez kalendarz w Pro skonfigurowana przez ciebie rutyna może umieścić umówione spotkanie w rekordzie klienta obok jego wątków e-mail i LinkedIn, a Mate może przygotować potwierdzenie lub notatkę przygotowawczą do Twojej oceny i wysłania, z datą następnego kroku przy szansie sprzedaży. Żeby wypróbować to na własnych rezerwacjach Calendly, [zacznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
 
 <AcquisitionCallout title="Kiedy Customermates nie jest dobrym wyborem" variant="boundary">
 Nie ma konektora z Calendly, więc każda droga wymaga albo przepływu, który sam uruchamiasz, albo kalendarza plus rutyny. W Pro skrzynka Gmail lub Outlook to [[commercial.entitlement.pro.includedAccountsPerUser]] wliczone podłączone konto użytkownika; Business obejmuje [[commercial.entitlement.business.includedAccountsPerUser]]. Zadania nie mają terminów ani przypomnień, więc wpisz datę follow-upu w polu daty przy szansie sprzedaży. Customermates nie ocenia punktowo leadów; zapisuj odpowiedzi z formularzy routingu w polach pojedynczego wyboru i filtruj po nich. Instalacja z samodzielnym hostingiem ma REST, webhooki i MCP, ale nie ma kalendarza, skrzynki odbiorczej, Mate ani rutyn. Jeśli chcesz, żeby Calendly wybierało organizatora na podstawie właściciela w CRM w chwili rezerwacji, to funkcja Calendly dla HubSpot i Salesforce.

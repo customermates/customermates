@@ -26,12 +26,12 @@ blogPost:
 
 # Porównanie systemów CRM: funkcje, ceny i realny koszt obok siebie
 
-Porównanie systemów CRM wyłącznie według listy funkcji wprowadza w błąd, bo prawie każdy CRM ma kontakty, lejek sprzedaży i trochę automatyzacji. Różni je to, od którego planu dana funkcja jest dostępna i ile ten plan kosztuje twój zespół. Poniższe tabele pokazują jedno i drugie dla ośmiu CRM na podstawie własnych cenników dostawców, a po nich znajdziesz dwuletni rachunek kosztów i kartę ocen dla dwóch ostatnich kandydatów.
+Porównanie systemów CRM wyłącznie według listy funkcji wprowadza w błąd, bo prawie każdy CRM ma kontakty, lejek sprzedaży i trochę automatyzacji. Różni je to, od którego planu dana funkcja jest dostępna i ile ten plan kosztuje Twój zespół. Poniższe tabele pokazują jedno i drugie dla ośmiu CRM na podstawie własnych cenników dostawców, a po nich znajdziesz dwuletni rachunek kosztów i kartę ocen dla dwóch ostatnich kandydatów.
 
 Dane dostawców sprawdzono 8 października 2026. Customermates publikuje to porównanie i jest jednym z ośmiu systemów; opisano je we własnej, oznaczonej sekcji. Listę uporządkowaną według zastosowań znajdziesz w tekście o [najlepszym oprogramowaniu CRM](/blog/best-crm-software).
 
 <ArticleSummary title="W skrócie">
-  <SummaryItem label="Porównuj plany, nie produkty">Workflow, sekwencje i limity API zwykle leżą o jeden lub dwa plany wyżej niż cena wejściowa. Wyceń plan, który ma twoje obowiązkowe funkcje.</SummaryItem>
+  <SummaryItem label="Porównuj plany, nie produkty">Workflow, sekwencje i limity API zwykle leżą o jeden lub dwa plany wyżej niż cena wejściowa. Wyceń plan, który ma Twoje obowiązkowe funkcje.</SummaryItem>
   <SummaryItem label="Koszt na dwa lata, pięciu użytkowników">Od około 1080 USD (Freshsales Growth) do około 12 300 USD (HubSpot Sales Hub Professional z wdrożeniem), według cen katalogowych.</SummaryItem>
   <SummaryItem label="Warunki rozliczeń">Salesforce Pro Suite i wyższe oraz każdy wymieniony plan Dynamics 365 Sales są rozliczane rocznie. Pipedrive, monday CRM i Freshsales pokazują najniższe ceny przy rozliczeniu rocznym.</SummaryItem>
   <SummaryItem label="Ujawnienie">Tę stronę publikuje Customermates. Nic tu nie jest rankingiem.</SummaryItem>
@@ -53,7 +53,7 @@ Każda komórka podaje pierwszy plan, w którym cennik dostawcy wymienia daną f
 | Zoho CRM | Darmowa edycja, 3 użytkowników | Darmowa edycja podaje automatyzację workflow | Nie porównano tutaj | Standard (wbudowane połączenia) | Darmowa edycja i wyższe | Darmowa edycja, 5000 wywołań dziennie |
 | Customermates | [[commercial.trial.days]]-dniowy okres próbny; darmowy plan hostowany z limitem użytkowników: [[commercial.limit.free.maxMembers]]; rdzeń AGPL do bezpłatnego self-hostingu | Brak silnika reguł; Rutyny w Customermates Cloud oraz webhooki do własnego n8n | Brak | Brak | Ważony lejek z prawdopodobieństw etapów, bez prognozowania | REST, webhooki i MCP w każdym planie płatnym |
 
-Dwóch rzeczy ta tabela nie pokaże. Funkcja w planie nie znaczy, że dobrze sprawdzi się w twojej pracy, a limity są różne: workflow w HubSpot Starter mają ograniczone wyzwalacze i akcje, a plan Standard w monday ogranicza automatyzacje do 250 miesięcznie. Sprawdź limit, a nie tylko nazwę planu, i otwarte komórki potwierdź w okresie próbnym.
+Dwóch rzeczy ta tabela nie pokaże. Funkcja w planie nie znaczy, że dobrze sprawdzi się w Twojej pracy, a limity są różne: workflow w HubSpot Starter mają ograniczone wyzwalacze i akcje, a plan Standard w monday ogranicza automatyzacje do 250 miesięcznie. Sprawdź limit, a nie tylko nazwę planu, i otwarte komórki potwierdź w okresie próbnym.
 
 ## Porównanie cen CRM obok siebie
 
@@ -153,13 +153,13 @@ A i B to symbole zastępcze. Wpisz własne systemy i oceny. Pełny proces wyboru
 
 Trzy wiersze powyższych tabel warto przeczytać uważnie:
 
-- **AI.** W Customermates Cloud asystent Mate przygotowuje podsumowania i szkice odpowiedzi oraz korzysta z hostowanych kredytów AI; każdy plan płatny zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika, szczegóły w cenniku. Rutyny uruchamiają zapisane instrukcje według harmonogramu lub gdy rekord się zmieni. Jeśli wolisz Claude, ChatGPT lub innego klienta, działa on z CRM przez [MCP](/docs/mcp) w każdym planie, a rozlicza go twój własny dostawca AI.
+- **AI.** W Customermates Cloud asystent Mate przygotowuje podsumowania i szkice odpowiedzi oraz korzysta z hostowanych kredytów AI; każdy plan płatny zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika, szczegóły w cenniku. Rutyny uruchamiają zapisane instrukcje według harmonogramu lub gdy rekord się zmieni. Jeśli wolisz Claude, ChatGPT lub innego klienta, działa on z CRM przez [MCP](/docs/mcp) w każdym planie, a rozlicza go Twój własny dostawca AI.
 - **Automatyzacja.** Nie ma silnika reguł. Webhooki i REST API łączą się z instancją n8n, którą prowadzisz sam.
 - **Hosting.** Rdzeń AGPL można [hostować samodzielnie](/features/self-hosted) w Dockerze, z REST, webhookami i MCP. Self-hosting nie ma skrzynki, Mate ani hostowanych kredytów.
 
 Wartość szansy sprzedaży wynika z jej pozycji, a każda pozycja to usługa razy ilość, zaś każdy etap, konfigurowalne pole typu Pojedynczy wybór, ma prawdopodobieństwo. Ważony lejek to ta arytmetyka, a nie przewidywanie. Rekordy importuje się i eksportuje jako skoroszyty Excel lub JSON, po jednej liście naraz.
 
-Dla małego zespołu pracującego z klientami do przetestowania jest follow-up: rozmowy przy rekordzie klienta, odpowiedź i kolejny krok przygotowane przez Mate lub twojego własnego klienta AI, a ty sprawdzasz, poprawiasz i wysyłasz. Przetestuj to na własnych szansach sprzedaży w [[commercial.trial.days]]-dniowym okresie próbnym: [zacznij tutaj](/auth/signup?job=followup), bez karty kredytowej.
+Dla małego zespołu pracującego z klientami do przetestowania jest follow-up: rozmowy przy rekordzie klienta, odpowiedź i kolejny krok przygotowane przez Mate lub Twojego własnego klienta AI, a ty sprawdzasz, poprawiasz i wysyłasz. Przetestuj to na własnych szansach sprzedaży w [[commercial.trial.days]]-dniowym okresie próbnym: [zacznij tutaj](/auth/signup?job=followup), bez karty kredytowej.
 
 Żeby zobaczyć Customermates na liście obok innych narzędzi w niezależnym katalogu, wyszukaj [Customermates w Toolradar](https://toolradar.com/tools/customermates).
 
@@ -175,7 +175,7 @@ Według udziału w rynku, Salesforce. 4 czerwca 2026 Salesforce poinformował, �
 </FaqItem>
 
 <FaqItem question="Jakie są pięć najlepszych systemów CRM?">
-Nie ma neutralnej piątki. Każda lista odzwierciedla swojego wydawcę, ta również. Jedyny zmierzony ranking, który tu przywołano, to udział w rynku, gdzie IDC stawia Salesforce na pierwszym miejscu. Dla małego zespołu lepsze pytanie brzmi: które dwa systemy mają twoje obowiązkowe funkcje w planie, na który cię stać; znajdź je w tabeli funkcji, a potem rozstrzygnij kartą ocen.
+Nie ma neutralnej piątki. Każda lista odzwierciedla swojego wydawcę, ta również. Jedyny zmierzony ranking, który tu przywołano, to udział w rynku, gdzie IDC stawia Salesforce na pierwszym miejscu. Dla małego zespołu lepsze pytanie brzmi: które dwa systemy mają Twoje obowiązkowe funkcje w planie, na który cię stać; znajdź je w tabeli funkcji, a potem rozstrzygnij kartą ocen.
 </FaqItem>
 
 <FaqItem question="Jak porównać CRM pod kątem łatwości wdrożenia i całkowitego kosztu posiadania?">

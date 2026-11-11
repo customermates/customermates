@@ -140,7 +140,7 @@ La API REST y MCP nunca devuelven los valores de las cabeceras ni el secreto; in
 
 Los marcadores son `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` y cualquier ruta bajo `{{data}}`, como `{{data.record.ref.recordId}}` para un evento de registro o `{{data.entityId}}` para un evento de mensajería. Un marcador debe estar dentro de una cadena JSON; `{"count": {{data.count}}}` se rechaza. Un valor de tipo objeto se inserta como una cadena JSON y una ruta inexistente, como una cadena vacía. Los valores sustituidos se escapan, así que el contenido de un registro no puede alterar la estructura del documento.
 
-La plantilla puede tener hasta 8192 caracteres, debe producir un objeto JSON y se comprueba al guardar. Una entrega cuya plantilla no se puede generar, o cuyo cuerpo generado supera los 131 072 caracteres, se registra como fallida sin enviarse y no se reintenta. La firma se calcula sobre el cuerpo que realmente se envía, así que verifícala contra el cuerpo generado.
+La plantilla puede tener hasta 8192 caracteres, debe producir un objeto JSON y se comprueba al guardar. Una entrega cuya plantilla no se puede generar, o cuyo cuerpo generado supera los 131.072 caracteres, se registra como fallida sin enviarse y no se reintenta. La firma se calcula sobre el cuerpo que realmente se envía, así que verifícala contra el cuerpo generado.
 
 **Quitar un secreto o una plantilla.** El cuadro de diálogo no permite guardar **Secreto** ni **Plantilla del cuerpo** vacíos una vez definidos. Actualiza el webhook con `manage_webhooks` o `PATCH /api/v1/webhooks/{id}` con `secret: null` o `bodyTemplate: null`, o elimínalo y créalo de nuevo.
 

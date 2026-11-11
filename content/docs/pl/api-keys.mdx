@@ -3,7 +3,7 @@ title: "Klucze API dla klientów MCP i REST"
 description: "Jak utworzyć klucz API w Ustawieniach, jakiego uprawnienia roli wymaga, nagłówek x-api-key, kiedy klucze wygasają oraz jak usunąć lub wymienić klucz."
 ---
 
-Klucze API uwierzytelniają klientów Model Context Protocol (MCP) i REST w twoim CRM Customermates. Utwórz jeden klucz dla każdego klienta, przechowuj go w zmiennej środowiskowej i usuń, gdy urządzenie albo osoba z zespołu, która go miała, przestanie z niego korzystać.
+Klucze API uwierzytelniają klientów Model Context Protocol (MCP) i REST w Twoim CRM Customermates. Utwórz jeden klucz dla każdego klienta, przechowuj go w zmiennej środowiskowej i usuń, gdy urządzenie albo osoba z zespołu, która go miała, przestanie z niego korzystać.
 
 ## Jak utworzyć klucz API? [#how-do-i-create-an-api-key]
 
@@ -18,9 +18,9 @@ Klucze należą do użytkownika, który je utworzył, i dziedziczą jego uprawni
 
 ## Kto może tworzyć i widzieć klucze API? [#who-can-create-and-see-api-keys]
 
-Strona Klucze API i konektory zależy od wiersza **API i webhooki** w twojej roli, który członek z uprawnieniem **Edycja** w zasobie **Użytkownicy i role** ustawia w [Role](app:settings/roles):
+Strona Klucze API i konektory zależy od wiersza **API i webhooki** w Twojej roli, który członek z uprawnieniem **Edycja** w zasobie **Użytkownicy i role** ustawia w [Role](app:settings/roles):
 
-- **Dostęp do odczytu** **Wszystkie** pokazuje klucze API w Ustawieniach i wyświetla twoje własne klucze. Przy **Brak** pozycja jest ukryta, a strony nie da się otworzyć.
+- **Dostęp do odczytu** **Wszystkie** pokazuje klucze API w Ustawieniach i wyświetla Twoje własne klucze. Przy **Brak** pozycja jest ukryta, a strony nie da się otworzyć.
 - **Tworzenie** dodaje przycisk **Dodaj**, a **Usuń** pozwala usuwać klucze. Bez nich widzisz klucze, które już masz, ale nie możesz żadnego utworzyć ani usunąć.
 
 Nowa rola zaczyna bez zaznaczonego pola wyboru i z **Dostęp do odczytu** **Brak**, więc domyślnie klucze API mogą tworzyć tylko członkowie z wbudowaną rolą **Administrator**. Ten sam wiersz otwiera też [Webhooki](app:settings/webhooks) i ich dostarczenia, więc nadanie go dla kluczy API pozwala członkowi widzieć również wszystkie webhooki przestrzeni roboczej i, z uprawnieniem **Tworzenie**, **Edycja** lub **Usuń**, je zmieniać.
@@ -31,7 +31,7 @@ Własny konektor dla Claude i ChatGPT loguje się przez OAuth i nie potrzebuje k
 
 ## Jakiego uprawnienia wymaga każda czynność na kluczach API? [#which-permission-does-each-api-key-action-need]
 
-Każdy sposób zarządzania kluczami sprawdza wiersz **API i webhooki** twojej roli: utworzenie klucza wymaga **Tworzenie**, zmiana **Edycja**, usunięcie **Usuń**, a odczyt lub wyświetlenie twoich kluczy **Dostęp do odczytu** **Wszystkie**. Członek ze statusem **Nieaktywny** nie może zarządzać kluczami. Kluczami zarządza się wyłącznie na stronie Klucze API i konektory; wewnętrzne endpointy `/api/auth/api-key/` odpowiadają `404` na bezpośrednie żądania, dzięki czemu każdy klucz należy do przestrzeni roboczej, w której został utworzony. Te kontrole dotyczą tylko zarządzania kluczami; to, co może zrobić wywołanie wykonane kluczem, zależy od roli jego właściciela, zobacz [Jakie uprawnienia ma klucz](#what-permissions-does-a-key-have).
+Każdy sposób zarządzania kluczami sprawdza wiersz **API i webhooki** Twojej roli: utworzenie klucza wymaga **Tworzenie**, zmiana **Edycja**, usunięcie **Usuń**, a odczyt lub wyświetlenie Twoich kluczy **Dostęp do odczytu** **Wszystkie**. Członek ze statusem **Nieaktywny** nie może zarządzać kluczami. Kluczami zarządza się wyłącznie na stronie Klucze API i konektory; wewnętrzne endpointy `/api/auth/api-key/` odpowiadają `404` na bezpośrednie żądania, dzięki czemu każdy klucz należy do przestrzeni roboczej, w której został utworzony. Te kontrole dotyczą tylko zarządzania kluczami; to, co może zrobić wywołanie wykonane kluczem, zależy od roli jego właściciela, zobacz [Jakie uprawnienia ma klucz](#what-permissions-does-a-key-have).
 
 ## Jak używać klucza i w którym nagłówku go przesłać? [#how-do-i-use-a-key]
 

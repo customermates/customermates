@@ -3,7 +3,7 @@ title: "Połącz CLI i edytory z Customermates (klucz API)"
 description: "Połącz Claude Code, Codex, Cursor lub Gemini CLI z Customermates za pomocą klucza API: osobna sekcja dla każdego klienta oraz wariant dla Claude Desktop."
 ---
 
-Customermates to otwartoźródłowy CRM zaprojektowany od początku z myślą o AI. Po połączeniu twój agent programistyczny odczytuje i zapisuje kontakty, szanse sprzedaży i notatki, nie wychodząc z terminala. Wszyscy opisani tu klienci uwierzytelniają się tak samo: kluczem API w nagłówku `x-api-key` na adres `<BASE_URL>/api/v1/mcp`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, w chmurze lub we własnej instancji. Poniższe fragmenty zawierają już adres strony, która pokazuje tę stronę dokumentacji; jeśli otwierasz Customermates pod innym adresem, zmień go oraz `YOUR_KEY`.
+Customermates to otwartoźródłowy CRM zaprojektowany od początku z myślą o AI. Po połączeniu Twój agent programistyczny odczytuje i zapisuje kontakty, szanse sprzedaży i notatki, nie wychodząc z terminala. Wszyscy opisani tu klienci uwierzytelniają się tak samo: kluczem API w nagłówku `x-api-key` na adres `<BASE_URL>/api/v1/mcp`, gdzie `<BASE_URL>` to adres, pod którym otwierasz Customermates, w chmurze lub we własnej instancji. Poniższe fragmenty zawierają już adres strony, która pokazuje tę stronę dokumentacji; jeśli otwierasz Customermates pod innym adresem, zmień go oraz `YOUR_KEY`.
 
 > Korzystasz z **aplikacji** Claude albo ChatGPT? Łączą się one przez [własny konektor](/docs/connect-custom-connector) (OAuth, bez klucza).
 
@@ -11,7 +11,7 @@ Customermates to otwartoźródłowy CRM zaprojektowany od początku z myślą o 
 
 W Customermates otwórz [Klucze API i konektory](app:settings/api-keys), kliknij [Dodaj](app:settings/api-keys?focus=generate) i wybierz **Standardowy klucz API**. Nadaj mu nazwę klienta (na przykład `Claude Code`); bez wartości w polu **Wygasa za** klucz nigdy nie wygasa. 64-znakowy klucz jest pokazywany tylko raz, więc skopiuj go od razu. **Szybkie połączenia** w tym samym oknie robią to za ciebie: nadają kluczowi nazwę klienta, ustawiają jego wygaśnięcie po 365 dniach i pokazują fragment konfiguracji z wpisanym kluczem, a pod nim termin jego ważności.
 
-Utworzenie klucza wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki** twojej roli, a sama strona wymaga w tym wierszu uprawnienia **Dostęp do odczytu** ustawionego na **Wszystkie**; wbudowana rola **Administrator** ma oba. Klucz dziedziczy uprawnienia użytkownika, który go utworzył; nie ma zakresów przypisanych do pojedynczego klucza. Utwórz osobny klucz dla każdego klienta, aby móc unieważnić jeden bez ruszania pozostałych; dziennik aktywności zapisuje użytkownika, do którego należy klucz, a nie sam klucz. Klucze API i MCP działają w każdym planie oraz w instancjach hostowanych samodzielnie. Szczegóły: [Klucze API](/docs/api-keys).
+Utworzenie klucza wymaga uprawnienia **Tworzenie** w wierszu **API i webhooki** Twojej roli, a sama strona wymaga w tym wierszu uprawnienia **Dostęp do odczytu** ustawionego na **Wszystkie**; wbudowana rola **Administrator** ma oba. Klucz dziedziczy uprawnienia użytkownika, który go utworzył; nie ma zakresów przypisanych do pojedynczego klucza. Utwórz osobny klucz dla każdego klienta, aby móc unieważnić jeden bez ruszania pozostałych; dziennik aktywności zapisuje użytkownika, do którego należy klucz, a nie sam klucz. Klucze API i MCP działają w każdym planie oraz w instancjach hostowanych samodzielnie. Szczegóły: [Klucze API](/docs/api-keys).
 
 ## Claude Code [#claude-code]
 
@@ -21,7 +21,7 @@ Claude Code dodaje serwery MCP przez swoje CLI. Całą konfigurację załatwia j
 
 Nie trzeba ponownie uruchamiać programu ani edytować pliku konfiguracji. Claude Code łączy się automatycznie. Uruchom `claude mcp list`, aby sprawdzić, czy `customermates` jest na liście.
 
-**Zakres:** polecenie domyślnie używa zakresu lokalnego. Dodaj `--scope user`, aby Customermates było dostępne wszędzie na twoim komputerze, albo `--scope project`, aby zapisać je w pliku `.mcp.json` repozytorium, tak by pobrali je członkowie zespołu.
+**Zakres:** polecenie domyślnie używa zakresu lokalnego. Dodaj `--scope user`, aby Customermates było dostępne wszędzie na Twoim komputerze, albo `--scope project`, aby zapisać je w pliku `.mcp.json` repozytorium, tak by pobrali je członkowie zespołu.
 
 ## Codex [#codex]
 
@@ -57,7 +57,7 @@ Jeśli w `mcpServers` są już wpisy, dodaj `customermates` obok istniejących, 
 
 ## Claude Desktop (plik konfiguracji) [#claude-desktop-config-file]
 
-Zalecaną drogą dla Claude Desktop jest [ścieżka przez konektor](/docs/connect-custom-connector#claude): OAuth, bez klucza, synchronizowane między twoimi urządzeniami. W planie darmowym albo jeśli wolisz stały klucz, działa też poniższy plik konfiguracji.
+Zalecaną drogą dla Claude Desktop jest [ścieżka przez konektor](/docs/connect-custom-connector#claude): OAuth, bez klucza, synchronizowane między Twoimi urządzeniami. W planie darmowym albo jeśli wolisz stały klucz, działa też poniższy plik konfiguracji.
 
 Otwórz **Claude → Settings → Developer → Edit Config** albo bezpośrednio plik:
 
@@ -74,7 +74,7 @@ Potem uruchom program ponownie: zamknij go całkowicie (⌘Q w macOS, samo zamkn
 
 ## Wypróbuj pierwsze polecenie [#try-your-first-prompt]
 
-Serwer przekazuje instrukcje połączenia, które opisują jego narzędzia, zasady bezpieczeństwa i sposób pobierania odpowiednich stron Bazy wiedzy. Klient sam decyduje, czy przekaże je swojemu agentowi. Jeśli twój tego nie robi, dodaj regułę pobierania Bazy wiedzy do stałych instrukcji tego klienta. W klientach obsługujących prompty MCP (jak Claude Code) możesz uruchomić wbudowany prompt `get-started`, który prowadzi przez start: najpierw odczytuje twoją przestrzeń roboczą i odpowiednie strony Bazy wiedzy, a potem pyta tylko o brakujące informacje.
+Serwer przekazuje instrukcje połączenia, które opisują jego narzędzia, zasady bezpieczeństwa i sposób pobierania odpowiednich stron Bazy wiedzy. Klient sam decyduje, czy przekaże je swojemu agentowi. Jeśli Twój tego nie robi, dodaj regułę pobierania Bazy wiedzy do stałych instrukcji tego klienta. W klientach obsługujących prompty MCP (jak Claude Code) możesz uruchomić wbudowany prompt `get-started`, który prowadzi przez start: najpierw odczytuje Twoją przestrzeń roboczą i odpowiednie strony Bazy wiedzy, a potem pyta tylko o brakujące informacje.
 
 - _„Ustaw w szansie sprzedaży Acme pole Status na «Wygrana» i dodaj notatkę, że umowa została dziś podpisana.”_
 - _„Pokaż ostatnie dziesięć kontaktów, które utworzyłem. Czy któryś nie ma adresu e-mail?”_

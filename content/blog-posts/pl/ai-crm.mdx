@@ -26,14 +26,14 @@ relatedHrefs:
 
 # CRM AI: co robi CRM typu AI native i jak go ocenić
 
-CRM AI (inaczej CRM z AI albo CRM ze sztuczną inteligencją) to CRM, w którym model językowy pracuje na danych o twoich klientach: czyta kontakty, szanse sprzedaży i rozmowy, odpowiada na pytania o nie, zmienia rekordy i przygotowuje następną wiadomość. Produkty różnią się mniej tym, czy mają AI, a bardziej tym, co to AI wolno. W jednych pisze tekst w panelu bocznym, a każdą zmianę nadal robi człowiek. W CRM typu AI native AI korzysta z tych samych akcji i uprawnień co użytkownik, a do tego działa, gdy nikt nie wpisuje polecenia: według harmonogramu albo gdy zmieni się rekord.
+CRM AI (inaczej CRM z AI albo CRM ze sztuczną inteligencją) to CRM, w którym model językowy pracuje na danych o Twoich klientach: czyta kontakty, szanse sprzedaży i rozmowy, odpowiada na pytania o nie, zmienia rekordy i przygotowuje następną wiadomość. Produkty różnią się mniej tym, czy mają AI, a bardziej tym, co to AI wolno. W jednych pisze tekst w panelu bocznym, a każdą zmianę nadal robi człowiek. W CRM typu AI native AI korzysta z tych samych akcji i uprawnień co użytkownik, a do tego działa, gdy nikt nie wpisuje polecenia: według harmonogramu albo gdy zmieni się rekord.
 
 Ten poradnik publikuje Customermates, CRM typu AI native, który pojawia się w osobnej, oznaczonej sekcji poniżej. Fakty o innych dostawcach pochodzą z ich własnych stron, sprawdzonych 8 października 2026.
 
 <ArticleSummary title="W skrócie">
   <SummaryItem label="Definicja">CRM, w którym AI czyta i zmienia rekordy oraz rozmowy, zamiast tylko streszczać to, co jest na ekranie.</SummaryItem>
   <SummaryItem label="AI native">AI działa przez te same operacje i uprawnienia co człowiek i może pracować bez nadzoru, z limitami uruchomień i wydatków.</SummaryItem>
-  <SummaryItem label="Jak ocenić">Zapytaj, co zmienia bez zatwierdzenia, czy widzi twoje wątki e-mail i czatu, kto płaci za model i czy może połączyć się twój własny klient AI.</SummaryItem>
+  <SummaryItem label="Jak ocenić">Zapytaj, co zmienia bez zatwierdzenia, czy widzi Twoje wątki e-mail i czatu, kto płaci za model i czy może połączyć się Twój własny klient AI.</SummaryItem>
   <SummaryItem label="Customermates">Mate działa w Customermates Cloud i zużywa hostowane kredyty AI. Claude, ChatGPT i inni klienci łączą się przez MCP w każdym planie, także self-hosted.</SummaryItem>
   <SummaryItem label="Ograniczenia">Customermates nie ma scoringu leadów, wzbogacania danych ani prognozowania przychodów.</SummaryItem>
 </ArticleSummary>
@@ -52,7 +52,7 @@ Większość tego, co sprzedaje się jako AI w zarządzaniu relacjami z klientam
 | Scoring | Liczba określająca prawdopodobieństwo zamknięcia dla leada lub szansy albo oczekiwany przychód | Z jakiej historii uczy się model i czy jest jej dość? |
 | Uzupełnianie danych | Wielkość firmy lub stanowiska pobrane z zewnętrznych źródeł | Jaki dostawca danych je dostarcza i na jakiej podstawie prawnej? |
 
-Model scoringowy uczy się na twoich wygranych i przegranych szansach. Firma doradcza, która zamyka 30 szans rocznie, daje mu bardzo mało materiału, więc w małych zespołach najwięcej czasu oszczędza pierwsze pięć zadań.
+Model scoringowy uczy się na Twoich wygranych i przegranych szansach. Firma doradcza, która zamyka 30 szans rocznie, daje mu bardzo mało materiału, więc w małych zespołach najwięcej czasu oszczędza pierwsze pięć zadań.
 
 ## AI native, AI jako dodatek i smart CRM: co znaczą te etykiety
 
@@ -77,8 +77,8 @@ Zadaj je na demo albo sprawdź w dokumentacji. Trzecia kolumna pokazuje, jak odp
 | 2. Co robi bez pytania? | Spisana lista akcji wymagających zatwierdzenia | Usuwanie, zmiana nazw list, zaproszenia do zespołu, ponowne wysyłanie webhooków i zgłoszenia do wsparcia za każdym razem wymagają pytania. Wysyłanie wiadomości nie, więc poproś o szkic, gdy chcesz najpierw sprawdzić |
 | 3. Czy widzi rozmowy? | Wątki e-mail i czatu leżą obok szansy, do której należą | W planie Pro i wyższych [skrzynka odbiorcza](/features/unified-inbox) zawiera wątki e-mail, LinkedIn, WhatsApp, Instagram i Telegram. Starter nie ma skrzynki |
 | 4. Czy działa bez ciebie? | Harmonogramy i zdarzenia rekordów, z limitami uruchomień i wydatków | Rutyny uruchamiają zapisane polecenie według harmonogramu albo gdy zmieni się rekord, z limitem na przebieg i na godzinę |
-| 5. Czy może połączyć się twój własny klient AI? | Serwer MCP albo pełne API, z uprawnieniami użytkownika | Serwer MCP z [[derived.mcp.tools.total]] narzędziami, w każdym planie i w self-hostingu |
-| 6. Kto płaci za model? | Jednostka, którą można sprawdzić z góry: kredyty, dodatek albo twój własny dostawca AI | Mate zużywa miesięczne hostowane kredyty AI na aktywnego użytkownika, zobacz [cennik](/pricing). Z klientem MCP model działa u twojego własnego dostawcy AI |
+| 5. Czy może połączyć się Twój własny klient AI? | Serwer MCP albo pełne API, z uprawnieniami użytkownika | Serwer MCP z [[derived.mcp.tools.total]] narzędziami, w każdym planie i w self-hostingu |
+| 6. Kto płaci za model? | Jednostka, którą można sprawdzić z góry: kredyty, dodatek albo Twój własny dostawca AI | Mate zużywa miesięczne hostowane kredyty AI na aktywnego użytkownika, zobacz [cennik](/pricing). Z klientem MCP model działa u Twojego własnego dostawcy AI |
 | 7. Dokąd trafiają dane i czy możesz je wyeksportować? | Nazwani dostawcy modeli i podprocesory, umowa powierzenia przetwarzania danych, udokumentowany eksport | Główna baza danych skonfigurowana w regionie AWS Frankfurt; strona [podprocesorów](/subprocessors) wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla odpowiednich ścieżek modelu, wyszukiwania w sieci i rankingu. Eksport jako XLSX lub JSON, jedna lista naraz |
 | 8. Czy ocenia szanse sprzedaży scoringiem? | Jeśli potrzebujesz scoringu, zapytaj, na jakich danych uczy się model | Nie. Ważone wartości lejka wynikają z prawdopodobieństw etapów, które ustawiasz |
 
@@ -93,18 +93,18 @@ Wykonaj ten sam test w każdej wersji próbnej, na własnych danych zamiast reko
   <Step title="Daj jedno złożone polecenie">Wklej prawdziwy e-mail od klienta i napisz: „Znajdź szansę sprzedaży tego klienta, przesuń ją na następny etap, dopisz do jej notatek trzy główne punkty tego e-maila i zapisz odpowiedź jako szkic. Nie wysyłaj jej.”</Step>
   <Step title="Sprawdź, co faktycznie się zmieniło">Otwórz szansę sprzedaży i obejrzyj etap, notatki, historię aktywności i szkic. Policz, co AI zrobiło, a nie co powiedziało, że zrobiło.</Step>
   <Step title="Zadaj pytanie wymagające rachunków">„Które otwarte szanse sprzedaży mają najwyższą wartość i nie mają od nas wiadomości od 14 dni?” Dobra odpowiedź obejmuje każdą otwartą szansę, a nie pierwszą stronę listy.</Step>
-  <Step title="Spróbuj usunięcia">Poproś o usunięcie testowego kontaktu i zobacz, czy zatrzyma się, czekając na twoje zatwierdzenie.</Step>
+  <Step title="Spróbuj usunięcia">Poproś o usunięcie testowego kontaktu i zobacz, czy zatrzyma się, czekając na Twoje zatwierdzenie.</Step>
 </Steps>
 
 ## Jak więksi dostawcy CRM pakują AI
 
-Jeśli twój zespół już pracuje w którymś z tych CRM-ów, włączenie jego AI jest zwykle tańsze niż migracja. Tabela wymienia AI każdego dostawcy i sposób rozliczania, tak jak opisują je własne strony dostawców.
+Jeśli Twój zespół już pracuje w którymś z tych CRM-ów, włączenie jego AI jest zwykle tańsze niż migracja. Tabela wymienia AI każdego dostawcy i sposób rozliczania, tak jak opisują je własne strony dostawców.
 
 | Dostawca | AI | Co opisuje dostawca | Jak jest rozliczane | Pasuje zespołom, które |
 |---|---|---|---|---|
 | [Salesforce](https://www.salesforce.com/agentforce/pricing/) | Agentforce, Einstein | Agenci Agentforce dla pracowników i do pracy z klientami | Flex Credits za działanie agenta, cena za rozmowę dla agentów obsługujących klientów albo dodatki za użytkownika dla Sales, Service i Field Service z nielimitowanym użyciem przez pracowników | już używają Salesforce i mają administratora |
 | [HubSpot](https://www.hubspot.com/products/crm/ai-crm) | Breeze Assistant i agenci Breeze | Agenci Customer, Prospecting i Data; konektory MCP i konektor dla Claude'a | [HubSpot Credits](https://www.hubspot.com/products/artificial-intelligence/credits): plany z licencjami na użytkowników zawierają co miesiąc kredyty, a niewykorzystane wygasają | chcą marketingu, sprzedaży i obsługi na jednej platformie |
-| [Pipedrive](https://support.pipedrive.com/en/article/pipedrive-ai) | Pipedrive AI | Sales Assistant w wersji beta, który odpowiada na pytania o twoje dane i tworzy notatki; pisanie e-maili z AI, streszczenia i sugerowane odpowiedzi | Zależnie od planu; funkcje e-mail z AI wymagają planu Premium lub wyższego | prowadzą sprzedaż skoncentrowaną na lejku |
+| [Pipedrive](https://support.pipedrive.com/en/article/pipedrive-ai) | Pipedrive AI | Sales Assistant w wersji beta, który odpowiada na pytania o Twoje dane i tworzy notatki; pisanie e-maili z AI, streszczenia i sugerowane odpowiedzi | Zależnie od planu; funkcje e-mail z AI wymagają planu Premium lub wyższego | prowadzą sprzedaż skoncentrowaną na lejku |
 | [Zoho CRM](https://www.zoho.com/crm/zia.html) | Zia | Predykcje, w tym scoring leadów i odejścia klientów, prognozowanie z AI, wykrywanie anomalii, wzbogacanie danych i agenci AI | Zależy od edycji Zoho CRM | już używają innych aplikacji Zoho |
 | [Microsoft Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview) | Copilot oraz agent Sales w Microsoft 365 Copilot | Streszczenia rekordów, przygotowanie do spotkań, pomoc przy e-mailach i wiadomości o kontach | Opisane w przewodniku Microsoftu o licencjonowaniu Dynamics 365 | spędzają dzień w Microsoft 365 |
 | [Attio](https://attio.com/pricing) | Ask Attio, agenci AI | Ask Attio, agenci AI, call intelligence i serwer MCP w każdym planie | Kredyty na użytkownika i na przestrzeń roboczą, które rosną wraz z planem | chcą elastycznego modelu danych, który same kształtują |
@@ -120,9 +120,9 @@ Customermates to otwartoźródłowy CRM zbudowany w Niemczech dla małych zespo�
 | Gdzie działa | Customermates Cloud, każdy płatny plan | Customermates Cloud w każdym planie oraz self-hosted | Twój serwer, z rdzeniem AGPL |
 | Kto płaci za model | Miesięczne hostowane kredyty AI na aktywnego użytkownika | Twoja własna subskrypcja AI albo dostawca; klienci to m.in. Claude, ChatGPT, Cursor, Codex i Gemini CLI | Twój własny dostawca AI, przez MCP |
 | Skrzynka odbiorcza | Pro i wyższe | Narzędzia do wiadomości w planie Pro i wyższych, tylko w chmurze | Bez skrzynki |
-| Praca bez nadzoru | Rutyny | Tylko jeśli twój klient je planuje | Bez Mate i bez rutyn |
+| Praca bez nadzoru | Rutyny | Tylko jeśli Twój klient je planuje | Bez Mate i bez rutyn |
 
-Mate to asystent w Customermates Cloud. Czyta Bazę wiedzy twojej przestrzeni roboczej, w której trzymasz fakty o firmie, procesy i styl wypowiedzi, i cytuje strony, z których skorzystał. Przy pytaniach wymagających rachunków na wielu rekordach, takich jak mediana wartości szansy według źródła leada, uruchamia analizę tylko do odczytu na pasujących rekordach, zamiast czytać jedną stronę wyników.
+Mate to asystent w Customermates Cloud. Czyta Bazę wiedzy Twojej przestrzeni roboczej, w której trzymasz fakty o firmie, procesy i styl wypowiedzi, i cytuje strony, z których skorzystał. Przy pytaniach wymagających rachunków na wielu rekordach, takich jak mediana wartości szansy według źródła leada, uruchamia analizę tylko do odczytu na pasujących rekordach, zamiast czytać jedną stronę wyników.
 
 Twój własny klient AI łączy się z [serwerem MCP](/docs/mcp): Claude i ChatGPT przez niestandardowy konektor z logowaniem OAuth, Claude Code, Codex, Cursor i Gemini CLI z kluczem API. Serwer prosi klientów o potwierdzenie przed usunięciem lub wysłaniem, ale to, czy zobaczysz potwierdzenie, zależy od klienta.
 
@@ -182,7 +182,7 @@ Instrukcję pracy i fakty źródłowe trzymaj obok rekordu klienta w [Bazie wied
 
 <Faq>
 <FaqItem question="Czym jest CRM AI?">
-System zarządzania relacjami z klientami, w którym model AI czyta dane o twoich klientach i na nich działa: streszcza relacje, odpowiada na pytania o rekordy, aktualizuje szanse sprzedaży i pisze wiadomości. W CRM typu AI native AI korzysta też z tych samych akcji i uprawnień co człowiek i może działać według harmonogramu.
+System zarządzania relacjami z klientami, w którym model AI czyta dane o Twoich klientach i na nich działa: streszcza relacje, odpowiada na pytania o rekordy, aktualizuje szanse sprzedaży i pisze wiadomości. W CRM typu AI native AI korzysta też z tych samych akcji i uprawnień co człowiek i może działać według harmonogramu.
 </FaqItem>
 
 <FaqItem question="Czy smart CRM to to samo co CRM AI?">
@@ -190,11 +190,11 @@ W większości to różnica w słownictwie. Smart CRM to starszy termin, a HubSp
 </FaqItem>
 
 <FaqItem question="Jaki CRM AI jest najlepszy?">
-Nie ma jednej odpowiedzi, a Customermates, który publikuje ten poradnik, nie stawia siebie w rankingu. Jeśli już używasz Salesforce, HubSpot, Zoho CRM albo Dynamics 365, zacznij od AI swojego dostawcy. Jeśli twój zespół pracuje przez e-mail, LinkedIn i WhatsApp i chce, żeby AI utrzymywało CRM w aktualności na podstawie tych rozmów, warto wypróbować CRM ze skrzynką odbiorczą i serwerem MCP, taki jak Customermates. Wykonaj dziesięciominutowy test w każdym z nich.
+Nie ma jednej odpowiedzi, a Customermates, który publikuje ten poradnik, nie stawia siebie w rankingu. Jeśli już używasz Salesforce, HubSpot, Zoho CRM albo Dynamics 365, zacznij od AI swojego dostawcy. Jeśli Twój zespół pracuje przez e-mail, LinkedIn i WhatsApp i chce, żeby AI utrzymywało CRM w aktualności na podstawie tych rozmów, warto wypróbować CRM ze skrzynką odbiorczą i serwerem MCP, taki jak Customermates. Wykonaj dziesięciominutowy test w każdym z nich.
 </FaqItem>
 
 <FaqItem question="Czy ChatGPT może stworzyć CRM?">
-ChatGPT albo Claude mogą wygenerować kod prostej bazy kontaktów, ale wtedy odpowiadasz za jej hosting, uprawnienia, kopie zapasowe i każdą poprawkę. Częstsza droga to podłączenie klienta AI do istniejącego CRM przez MCP, aby czytał i aktualizował prawdziwe rekordy z twoimi uprawnieniami. Customermates oferuje to w każdym planie; poradnik o [używaniu Claude'a z CRM](/blog/claude-crm) pokazuje konfigurację.
+ChatGPT albo Claude mogą wygenerować kod prostej bazy kontaktów, ale wtedy odpowiadasz za jej hosting, uprawnienia, kopie zapasowe i każdą poprawkę. Częstsza droga to podłączenie klienta AI do istniejącego CRM przez MCP, aby czytał i aktualizował prawdziwe rekordy z Twoimi uprawnieniami. Customermates oferuje to w każdym planie; poradnik o [używaniu Claude'a z CRM](/blog/claude-crm) pokazuje konfigurację.
 </FaqItem>
 
 <FaqItem question="Czy AI zastąpi CRM?">
@@ -202,7 +202,7 @@ Nie sam rekord. Model AI potrzebuje miejsca, które przechowuje, kim jest klient
 </FaqItem>
 
 <FaqItem question="Czy AI w CRM jest bezpieczne dla danych klientów w świetle RODO?">
-To zależy od tego, gdzie działa model i kto przetwarza dane, więc poproś każdego dostawcę o listę podprocesorów i umowę powierzenia przetwarzania danych. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt. Strona podprocesorów wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla pracy modelu, wyszukiwania w sieci i rankingu. Główna ścieżka czatu Mate jest przypięta do UE, ale embeddingi i inne przetwarzanie mogą angażować Stany Zjednoczone. Microsoft Azure nie obsługuje żadnego żądania Mate. Z własnym klientem AI przez MCP dane, które klient czyta, trafiają do wybranego przez ciebie dostawcy AI. Self-hosting otwartoźródłowego rdzenia zostawia dane CRM na twoich własnych serwerach.
+To zależy od tego, gdzie działa model i kto przetwarza dane, więc poproś każdego dostawcę o listę podprocesorów i umowę powierzenia przetwarzania danych. W Customermates Cloud główna baza danych jest skonfigurowana w regionie AWS Frankfurt. Strona podprocesorów wymienia Google Cloud Vertex AI, Exa i TypeSafe AI dla pracy modelu, wyszukiwania w sieci i rankingu. Główna ścieżka czatu Mate jest przypięta do UE, ale embeddingi i inne przetwarzanie mogą angażować Stany Zjednoczone. Microsoft Azure nie obsługuje żadnego żądania Mate. Z własnym klientem AI przez MCP dane, które klient czyta, trafiają do wybranego przez ciebie dostawcy AI. Self-hosting otwartoźródłowego rdzenia zostawia dane CRM na Twoich własnych serwerach.
 </FaqItem>
 </Faq>
 

@@ -12,11 +12,11 @@ Samodzielny hosting uruchamia Customermates z dwóch plików, `docker-compose.ym
 | Obsługa aplikacji i bazy danych | Obsługuje je Customermates | Ty obsługujesz Dockera, PostgreSQL, dostęp sieciowy, TLS, aktualizacje i kopie zapasowe |
 | Podstawowe rekordy CRM i widoki | W cenie planu | Zestaw funkcji Starter |
 | Zintegrowana skrzynka odbiorcza i połączone kalendarze | Dostępne w uprawnionych planach Cloud | Niedostępne |
-| Dostęp do AI | Zewnętrzny MCP oraz hostowany asystent Mate z hostowanymi kredytami AI twojego planu | Zewnętrzny MCP z własnym klientem i dostawcą |
+| Dostęp do AI | Zewnętrzny MCP oraz hostowany asystent Mate z hostowanymi kredytami AI Twojego planu | Zewnętrzny MCP z własnym klientem i dostawcą |
 | Połączeni dostawcy | Skonfigurowani w zarządzanym produkcie | Każdego zewnętrznego dostawcę konfigurujesz i oceniasz sam |
 | Cennik | Subskrypcja Cloud za użytkownika od [[commercial.price.starter.monthly]] miesięcznie | Twoja infrastruktura, dostawcy i czas operatora |
 
-Samodzielny hosting pozwala wybrać, gdzie działają aplikacja i baza danych. Sam w sobie nie tworzy gwarancji bezpieczeństwa, zgodności, prywatności ani izolacji od sieci; twoja organizacja nadal odpowiada za konfigurację, dostawców, umowy, retencję i mechanizmy operacyjne. Porównuj całkowity koszt utrzymania, zamiast zakładać, że jeden model jest tańszy: infrastruktura, kopie zapasowe, testy przywracania, monitoring, aktualizacje, reagowanie na incydenty i zewnętrzni dostawcy.
+Samodzielny hosting pozwala wybrać, gdzie działają aplikacja i baza danych. Sam w sobie nie tworzy gwarancji bezpieczeństwa, zgodności, prywatności ani izolacji od sieci; Twoja organizacja nadal odpowiada za konfigurację, dostawców, umowy, retencję i mechanizmy operacyjne. Porównuj całkowity koszt utrzymania, zamiast zakładać, że jeden model jest tańszy: infrastruktura, kopie zapasowe, testy przywracania, monitoring, aktualizacje, reagowanie na incydenty i zewnętrzni dostawcy.
 
 Rekordy przenosisz między chmurą a instancją hostowaną samodzielnie jako skoroszyty Excela, jedna lista naraz. Migracja całej platformy to osobno zaprojektowany i zwalidowany projekt.
 
@@ -28,7 +28,7 @@ Customermates to oprogramowanie typu open core. Kod poza `ee/` oraz materiały z
 
 ## Których funkcji brakuje przy samodzielnym hostingu? [#which-features-are-not-available-when-self-hosting]
 
-Każda instalacja hostowana samodzielnie korzysta z zestawu funkcji Starter. Te funkcje dostępne tylko w chmurze pozostają wyłączone, nawet jeśli płacisz też za plan Cloud: połączone konta wiadomości (e-mail, LinkedIn, WhatsApp, Instagram, Telegram), zintegrowana Skrzynka odbiorcza, połączone kalendarze i ich wydarzenia, hostowany asystent Mate z hostowanymi kredytami AI, Rutyny, które uruchamia Mate, oraz konfiguracja przestrzeni roboczej przez AI w kreatorze wdrożenia, więc nowa przestrzeń robocza startuje bez list. Zewnętrzni klienci AI nadal działają przez MCP z twoim własnym dostawcą AI. Enterprise SSO (SAML) i white-labeling nie są zaimplementowane w żadnym z modeli wdrożenia.
+Każda instalacja hostowana samodzielnie korzysta z zestawu funkcji Starter. Te funkcje dostępne tylko w chmurze pozostają wyłączone, nawet jeśli płacisz też za plan Cloud: połączone konta wiadomości (e-mail, LinkedIn, WhatsApp, Instagram, Telegram), zintegrowana Skrzynka odbiorcza, połączone kalendarze i ich wydarzenia, hostowany asystent Mate z hostowanymi kredytami AI, Rutyny, które uruchamia Mate, oraz konfiguracja przestrzeni roboczej przez AI w kreatorze wdrożenia, więc nowa przestrzeń robocza startuje bez list. Zewnętrzni klienci AI nadal działają przez MCP z Twoim własnym dostawcą AI. Enterprise SSO (SAML) i white-labeling nie są zaimplementowane w żadnym z modeli wdrożenia.
 
 Aplikacja ukrywa to, co nie ma zastosowania: pasek boczny nie pokazuje Skrzynki odbiorczej ani Rutyn, w Ustawieniach nie ma strony Rozliczenia ani Kanały i kalendarze, a edytor ról ukrywa wiersze **Wiadomości w skrzynce odbiorczej** i **Rutyny**. Otwarcie jednej z tych stron przez adres URL przenosi cię do Pulpitu.
 
@@ -57,7 +57,7 @@ docker compose logs -f app
 Pierwszy start trwa około minuty, gdy działają migracje. Potem otwórz `<BASE_URL>/auth/signup`, domyślnie `http://localhost:4000/auth/signup`.
 </Step>
 <Step title="Zarejestruj się">
-Zarejestruj się, wybierz **Utwórz nową przestrzeń roboczą** i przejdź przez kreator; twoje konto dostaje rolę **Administrator**. Zobacz [Jak utworzyć pierwsze konto w mojej instancji?](#how-do-i-create-the-first-account-on-my-instance).
+Zarejestruj się, wybierz **Utwórz nową przestrzeń roboczą** i przejdź przez kreator; Twoje konto dostaje rolę **Administrator**. Zobacz [Jak utworzyć pierwsze konto w mojej instancji?](#how-do-i-create-the-first-account-on-my-instance).
 </Step>
 </Steps>
 
@@ -69,7 +69,7 @@ Zarejestruj się, wybierz **Utwórz nową przestrzeń roboczą** i przejdź prze
 - `APP_PORT`: port hosta, na którym publikowana jest aplikacja, domyślnie `4000`.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: wysyłka e-maili; `RESEND_API_KEY` nie może być pusty. Zobacz [Jak skonfigurować e-mail z Resend i czy mogę użyć SMTP?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: zostaw `self-hosted`; plik Compose ustawia tę wartość dla samej aplikacji.
-- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: opcjonalna; ustaw `true`, aby blokować żądania webhooków do adresów prywatnych, pętli zwrotnej i link-local. Adresy prywatne są domyślnie dozwolone, żeby webhooki mogły docierać do usług w twojej sieci. Przyjmuje tylko `true` lub `false`.
+- `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS`: opcjonalna; ustaw `true`, aby blokować żądania webhooków do adresów prywatnych, pętli zwrotnej i link-local. Adresy prywatne są domyślnie dozwolone, żeby webhooki mogły docierać do usług w Twojej sieci. Przyjmuje tylko `true` lub `false`.
 - `CRON_SECRET`: opcjonalna, w szablonie zakomentowana; sekret dla zaplanowanych wywołań konserwacyjnych, zobacz [Jakie zaplanowane zadania muszę uruchomić?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: opcjonalne, w szablonie zakomentowane, zobacz [Czy użytkownicy mogą logować się przez Google lub Microsoft?](#can-users-sign-in-with-google-or-microsoft).
 - `ADDRESS_LOOKUP_URL`: opcjonalna, w szablonie zakomentowana; dodaje wyszukiwanie adresów z usługi Photon, którą uruchamiasz samodzielnie, zobacz [Jak sprawdzane są adresy i jak dodać wyszukiwanie adresów?](#address-lookup).
@@ -98,7 +98,7 @@ Gdy zmieniasz domenę lub `APP_PORT`, zaktualizuj też `BASE_URL` i uruchom `doc
 
 ## Jak umieścić Customermates za reverse proxy z HTTPS? [#how-do-i-put-customermates-behind-a-reverse-proxy-with-https]
 
-Skieruj reverse proxy, takie jak Caddy, nginx lub Traefik, na port aplikacji (`4000` albo twój `APP_PORT`) i ustaw `BASE_URL` na publiczny adres `https://`. Caddy sam uzyskuje certyfikat TLS:
+Skieruj reverse proxy, takie jak Caddy, nginx lub Traefik, na port aplikacji (`4000` albo Twój `APP_PORT`) i ustaw `BASE_URL` na publiczny adres `https://`. Caddy sam uzyskuje certyfikat TLS:
 
 ```text
 crm.example.com {
@@ -132,7 +132,7 @@ Potem otwórz [Członkowie](app:settings/members), zaproś współpracowników p
 
 ## Kto może się zarejestrować w mojej instancji? [#who-can-sign-up-on-my-instance]
 
-Zarejestrować się może każdy, kto ma dostęp do twojego `BASE_URL`; rejestracji nie da się wyłączyć. Nowy użytkownik, który wybierze **Utwórz nową przestrzeń roboczą**, dostaje osobną przestrzeń roboczą z własnym **Administratorem**, odizolowaną od twojej, ale przechowywaną w twojej bazie danych; usunąć ją może tylko **Administrator** tej przestrzeni, zobacz [Jak usunąć przestrzeń roboczą?](/docs/app-workspaces#how-do-i-delete-a-workspace). Każdy zalogowany użytkownik może też w dowolnej chwili dodać przestrzenie robocze przez **Utwórz przestrzeń roboczą** w menu przestrzeni roboczej. E-mail „New User Registration” trafia na `RESEND_OPERATOR_EMAIL`, gdy ktoś zapisze krok profilu w kreatorze, a przy logowaniu przez Google lub Microsoft także wtedy, gdy ktoś zaloguje się, zanim go zapisze. Osoba, która rejestruje się e-mailem i hasłem, ale nigdy nie zapisze tego kroku, nie wysyła żadnego, a powiadomienie dociera tylko wtedy, gdy Resend je przyjmie, więc nie jest to pełny rejestr rejestracji.
+Zarejestrować się może każdy, kto ma dostęp do Twojego `BASE_URL`; rejestracji nie da się wyłączyć. Nowy użytkownik, który wybierze **Utwórz nową przestrzeń roboczą**, dostaje osobną przestrzeń roboczą z własnym **Administratorem**, odizolowaną od Twojej, ale przechowywaną w Twojej bazie danych; usunąć ją może tylko **Administrator** tej przestrzeni, zobacz [Jak usunąć przestrzeń roboczą?](/docs/app-workspaces#how-do-i-delete-a-workspace). Każdy zalogowany użytkownik może też w dowolnej chwili dodać przestrzenie robocze przez **Utwórz przestrzeń roboczą** w menu przestrzeni roboczej. E-mail „New User Registration” trafia na `RESEND_OPERATOR_EMAIL`, gdy ktoś zapisze krok profilu w kreatorze, a przy logowaniu przez Google lub Microsoft także wtedy, gdy ktoś zaloguje się, zanim go zapisze. Osoba, która rejestruje się e-mailem i hasłem, ale nigdy nie zapisze tego kroku, nie wysyła żadnego, a powiadomienie dociera tylko wtedy, gdy Resend je przyjmie, więc nie jest to pełny rejestr rejestracji.
 
 Jeśli instancja ma obsługiwać tylko jeden zespół, ogranicz dostęp do niej, na przykład przez VPN, listę dozwolonych adresów IP albo uwierzytelnianie na reverse proxy; klienci MCP i REST potrzebują wtedy tego samego dostępu.
 
@@ -142,22 +142,22 @@ Współpracownicy dołączają przez zaproszenie: [Dodaj](app:settings/members?f
 
 Tak, po skonfigurowaniu. Zarejestruj klienta OAuth w Google albo rejestrację aplikacji w Microsoft Entra ID z identyfikatorem URI przekierowania `<BASE_URL>/api/auth/callback/google` lub `<BASE_URL>/api/auth/callback/microsoft`. Dostawca Microsoft używa endpointu `common`, więc zarejestruj aplikację dla kont w dowolnym katalogu organizacyjnym.
 
-W `.env` usuń `#` przed wierszami dostawców, z których korzystasz, uzupełnij `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` albo `AZURE_AD_CLIENT_ID` i `AZURE_AD_CLIENT_SECRET`, a potem uruchom `docker compose up -d`. Plik Compose przekazuje aplikacji wszystkie cztery wartości; jeśli twój `docker-compose.yml` jeszcze ich nie wymienia, pobierz go ponownie poleceniem `curl` z kroków instalacji. Dostawca pojawia się tylko wtedy, gdy ustawione są obie jego wartości: strona logowania pokazuje wtedy **Kontynuuj z Google** lub **Kontynuuj z Microsoft**, a strona rejestracji **Zarejestruj się przez Google** lub **Zarejestruj się przez Microsoft**. Enterprise SSO przez SAML nie jest zaimplementowane.
+W `.env` usuń `#` przed wierszami dostawców, z których korzystasz, uzupełnij `GOOGLE_CLIENT_ID` i `GOOGLE_CLIENT_SECRET` albo `AZURE_AD_CLIENT_ID` i `AZURE_AD_CLIENT_SECRET`, a potem uruchom `docker compose up -d`. Plik Compose przekazuje aplikacji wszystkie cztery wartości; jeśli Twój `docker-compose.yml` jeszcze ich nie wymienia, pobierz go ponownie poleceniem `curl` z kroków instalacji. Dostawca pojawia się tylko wtedy, gdy ustawione są obie jego wartości: strona logowania pokazuje wtedy **Kontynuuj z Google** lub **Kontynuuj z Microsoft**, a strona rejestracji **Zarejestruj się przez Google** lub **Zarejestruj się przez Microsoft**. Enterprise SSO przez SAML nie jest zaimplementowane.
 
 ## Jak połączyć klienta AI z moją instancją hostowaną samodzielnie? [#how-do-i-connect-an-ai-client-to-my-self-hosted-instance]
 
 Endpoint MCP to `<BASE_URL>/api/v1/mcp`, na przykład `https://crm.example.com/api/v1/mcp`. Są dwa sposoby uwierzytelniania:
 
-- **Klucz API** w nagłówku `x-api-key`, dla klientów działających na twoim komputerze: Claude Code, Claude Desktop, Codex, Cursor i Gemini CLI. Utwórz klucz przyciskiem [Dodaj](app:settings/api-keys?focus=generate) w sekcji [Klucze API i konektory](app:settings/api-keys); **Szybkie połączenia** pokazują tam fragment konfiguracji z adresem, pod którym otwarta jest aplikacja. Klient musi tylko dotrzeć pod ten adres URL, więc działa adres w sieci lokalnej. Zobacz [Połącz klientów CLI i edytory](/docs/connect-cli).
+- **Klucz API** w nagłówku `x-api-key`, dla klientów działających na Twoim komputerze: Claude Code, Claude Desktop, Codex, Cursor i Gemini CLI. Utwórz klucz przyciskiem [Dodaj](app:settings/api-keys?focus=generate) w sekcji [Klucze API i konektory](app:settings/api-keys); **Szybkie połączenia** pokazują tam fragment konfiguracji z adresem, pod którym otwarta jest aplikacja. Klient musi tylko dotrzeć pod ten adres URL, więc działa adres w sieci lokalnej. Zobacz [Połącz klientów CLI i edytory](/docs/connect-cli).
 - **Logowanie OAuth**, dla klientów łączących się z chmury swojego dostawcy, takich jak konektor niestandardowy Claude. Wymagają `BASE_URL` osiągalnego z internetu przez HTTPS. Zobacz [Połącz Claude i ChatGPT](/docs/connect-custom-connector).
 
-Hostowany asystent w aplikacji jest dostępny tylko w chmurze: Mate nie jest dostępny w instancjach hostowanych samodzielnie. Zewnętrzny MCP korzysta z twojego własnego dostawcy AI. Enterprise SSO i white-labeling nie są zaimplementowane w żadnym z modeli wdrożenia.
+Hostowany asystent w aplikacji jest dostępny tylko w chmurze: Mate nie jest dostępny w instancjach hostowanych samodzielnie. Zewnętrzny MCP korzysta z Twojego własnego dostawcy AI. Enterprise SSO i white-labeling nie są zaimplementowane w żadnym z modeli wdrożenia.
 
 ## Jak sprawdzane są adresy i jak dodać wyszukiwanie adresów? [#address-lookup]
 
-Sprawdzanie adresów nie wymaga konfiguracji. Każdy serwer sprawdza adresy według formatu adresu danego kraju, który jest dołączony do aplikacji, i uzupełnia miejscowość oraz region na podstawie kodu pocztowego, zobacz [Jak wpisać adres?](/docs/app-records#how-do-i-enter-an-address). Nic z rekordu nie opuszcza przy tym twojego serwera.
+Sprawdzanie adresów nie wymaga konfiguracji. Każdy serwer sprawdza adresy według formatu adresu danego kraju, który jest dołączony do aplikacji, i uzupełnia miejscowość oraz region na podstawie kodu pocztowego, zobacz [Jak wpisać adres?](/docs/app-records#how-do-i-enter-an-address). Nic z rekordu nie opuszcza przy tym Twojego serwera.
 
-Kody pocztowe są wczytywane z [GeoNames](https://www.geonames.org). Gdy ktoś po raz pierwszy wpisuje adres w danym kraju, zadanie w tle pobiera publiczny plik tego kraju z `https://download.geonames.org/export/zip`, sprawdza go i zapisuje kody pocztowe w twojej bazie PostgreSQL; po 90 dniach pobiera plik ponownie. Pobierany jest tylko plik publiczny: nie są wysyłane żadne dane rekordów, tekst wyszukiwania ani adresy IP twoich użytkowników. Dopóki kraj nie jest wczytany albo gdy jego pobranie się nie powiedzie, kontrole formatu nadal działają, a brakuje tylko podpowiedzi miejscowości i regionu oraz kontroli miejscowości. `POSTAL_CODE_DATA_URL` ustawia źródło plików:
+Kody pocztowe są wczytywane z [GeoNames](https://www.geonames.org). Gdy ktoś po raz pierwszy wpisuje adres w danym kraju, zadanie w tle pobiera publiczny plik tego kraju z `https://download.geonames.org/export/zip`, sprawdza go i zapisuje kody pocztowe w Twojej bazie PostgreSQL; po 90 dniach pobiera plik ponownie. Pobierany jest tylko plik publiczny: nie są wysyłane żadne dane rekordów, tekst wyszukiwania ani adresy IP Twoich użytkowników. Dopóki kraj nie jest wczytany albo gdy jego pobranie się nie powiedzie, kontrole formatu nadal działają, a brakuje tylko podpowiedzi miejscowości i regionu oraz kontroli miejscowości. `POSTAL_CODE_DATA_URL` ustawia źródło plików:
 
 - Nieustawiona: GeoNames. Serwer potrzebuje wychodzącego dostępu HTTPS do `download.geonames.org`.
 - `off`: brak pobierań. Kontrole formatu nadal działają, ale nic nie podpowiada miejscowości ani regionu, a miejscowość nie jest sprawdzana.
@@ -167,7 +167,7 @@ Tak jak przy `ADDRESS_LOOKUP_URL` poniżej, Customermates nigdy nie podąża za 
 
 Serwer hostowany samodzielnie może też wyszukiwać adresy w trakcie pisania, przez usługę [Photon](https://github.com/komoot/photon), którą uruchamiasz samodzielnie na danych OpenStreetMap. Ustaw na nią `ADDRESS_LOOKUP_URL`, a pola adresu dostaną **Szukaj adresu** i **Sprawdź adres**: adres wybrany lub dopasowany tam jest zapisywany jako zweryfikowany, z położeniem budynku. Twój serwer wysyła do Photon tylko tekst wyszukiwania lub sprawdzany adres, język osoby i wybrany kraj, więc Photon nigdy nie widzi adresów IP ani sesji ludzi. Każdy kontener aplikacji dopuszcza dla każdej osoby 30 wyszukiwań w 10 sekund i odpowiada na identyczne wyszukiwania z własnej pamięci podręcznej przez 10 minut. Bez `ADDRESS_LOOKUP_URL`, czyli domyślnie, ludzie wpisują adres samodzielnie; Customermates Cloud nie ma wyszukiwania adresów.
 
-Aby uruchomić Photon, pobierz plik jar Photon z jego [wydań](https://github.com/komoot/photon/releases/latest), zapisz go jako `photon.jar` i pobierz indeks wyszukiwania dla całej planety albo jednego kraju z [download1.graphhopper.com/public](https://download1.graphhopper.com/public/), zgodny z wersją Photon. Photon wymaga Javy 21 lub nowszej i pamięci odpowiedniej do indeksu: dla indeksu planety, około 95 GB na dysku, Photon zaleca co najmniej 64 GB RAM, a indeks jednego kraju potrzebuje znacznie mniej. Rozpakuj indeks tak, aby `photon_data` leżało obok pliku jar w `/srv/photon`, a potem uruchom Photon w sieci projektu Compose, nazwanej od jego folderu, tu `customermates`, z pamięcią sterty Javy (`-Xmx`) dopasowaną do twojego indeksu:
+Aby uruchomić Photon, pobierz plik jar Photon z jego [wydań](https://github.com/komoot/photon/releases/latest), zapisz go jako `photon.jar` i pobierz indeks wyszukiwania dla całej planety albo jednego kraju z [download1.graphhopper.com/public](https://download1.graphhopper.com/public/), zgodny z wersją Photon. Photon wymaga Javy 21 lub nowszej i pamięci odpowiedniej do indeksu: dla indeksu planety, około 95 GB na dysku, Photon zaleca co najmniej 64 GB RAM, a indeks jednego kraju potrzebuje znacznie mniej. Rozpakuj indeks tak, aby `photon_data` leżało obok pliku jar w `/srv/photon`, a potem uruchom Photon w sieci projektu Compose, nazwanej od jego folderu, tu `customermates`, z pamięcią sterty Javy (`-Xmx`) dopasowaną do Twojego indeksu:
 
 ```bash
 docker run -d --name photon --restart unless-stopped \
@@ -214,7 +214,7 @@ Aplikacja zapisuje logi na wyjściu kontenera. Zadania w tle, takie jak dostawy 
 
 ## Gdzie są przechowywane pliki przy samodzielnym hostingu? [#file-storage]
 
-Pola plikowe domyślnie przechowują pliki w bazie danych PostgreSQL, więc kopia zapasowa `pg_dump` je obejmuje. Plik może mieć co najwyżej `FILE_MAX_UPLOAD_BYTES` bajtów, a gdy zmienna nie jest ustawiona, 1073741824 (1 GB); poza tym przestrzeń robocza hostowana samodzielnie nie ma limitu miejsca innego niż twój dysk. Dla wielu lub dużych plików przechowuj je w buckecie zgodnym z S3, takim jak AWS S3, MinIO, Cloudflare R2 albo magazyn obiektów Hetznera lub OVH:
+Pola plikowe domyślnie przechowują pliki w bazie danych PostgreSQL, więc kopia zapasowa `pg_dump` je obejmuje. Plik może mieć co najwyżej `FILE_MAX_UPLOAD_BYTES` bajtów, a gdy zmienna nie jest ustawiona, 1073741824 (1 GB); poza tym przestrzeń robocza hostowana samodzielnie nie ma limitu miejsca innego niż Twój dysk. Dla wielu lub dużych plików przechowuj je w buckecie zgodnym z S3, takim jak AWS S3, MinIO, Cloudflare R2 albo magazyn obiektów Hetznera lub OVH:
 
 - `FILE_STORAGE_DRIVER=s3` oraz `S3_BUCKET`, `S3_ACCESS_KEY_ID` i `S3_SECRET_ACCESS_KEY` prywatnego bucketa.
 - `S3_ENDPOINT` dla każdego dostawcy innego niż AWS, na przykład `https://fsn1.your-objectstorage.com`, oraz `S3_REGION`, gdy dostawca jej wymaga (`us-east-1`, gdy nie jest ustawiona).
@@ -222,7 +222,7 @@ Pola plikowe domyślnie przechowują pliki w bazie danych PostgreSQL, więc kopi
 
 Klienci API muszą wysyłać pliki S3 większe niż 25 MiB pod adres wysyłania zwrócony przez `/v1/files/uploads`. Trasa treści aplikacji przyjmuje mniejsze pliki S3 i strumieniuje wysłane do bazy pliki do skonfigurowanego limitu.
 
-Przeglądarki wysyłają nowe pliki prosto do bucketa, więc jego reguły CORS muszą dopuszczać `PUT` z nagłówkami `Content-Type` i `If-None-Match` z twojego `BASE_URL`. Link do wysyłania zapisuje plik tylko raz: bucket odrzuca drugie wysłanie pod ten sam link, więc zapisanego pliku nie można zastąpić. AWS S3, MinIO i Cloudflare R2 to obsługują; magazyn, który ignoruje `If-None-Match`, przyjmuje drugie wysłanie, dopóki link nie wygaśnie po 15 minutach. Pobierania zawsze przechodzą przez aplikację, która najpierw sprawdza dostęp. Plik zostaje tam, gdzie został wysłany: po przejściu na `s3` wcześniejsze pliki pozostają w bazie danych i nadal się otwierają, a zmienne S3 muszą pozostać ustawione, dopóki bucket zawiera pliki. Rób kopię zapasową bucketa razem z bazą danych. Codzienne wywołanie `/api/cron/lifecycle` usuwa pliki usunięte z rekordów 30 dni temu oraz wysłane pliki, które nigdy nie zostały zapisane, zobacz [Jakie zaplanowane zadania muszę uruchomić?](#scheduled-jobs).
+Przeglądarki wysyłają nowe pliki prosto do bucketa, więc jego reguły CORS muszą dopuszczać `PUT` z nagłówkami `Content-Type` i `If-None-Match` z Twojego `BASE_URL`. Link do wysyłania zapisuje plik tylko raz: bucket odrzuca drugie wysłanie pod ten sam link, więc zapisanego pliku nie można zastąpić. AWS S3, MinIO i Cloudflare R2 to obsługują; magazyn, który ignoruje `If-None-Match`, przyjmuje drugie wysłanie, dopóki link nie wygaśnie po 15 minutach. Pobierania zawsze przechodzą przez aplikację, która najpierw sprawdza dostęp. Plik zostaje tam, gdzie został wysłany: po przejściu na `s3` wcześniejsze pliki pozostają w bazie danych i nadal się otwierają, a zmienne S3 muszą pozostać ustawione, dopóki bucket zawiera pliki. Rób kopię zapasową bucketa razem z bazą danych. Codzienne wywołanie `/api/cron/lifecycle` usuwa pliki usunięte z rekordów 30 dni temu oraz wysłane pliki, które nigdy nie zostały zapisane, zobacz [Jakie zaplanowane zadania muszę uruchomić?](#scheduled-jobs).
 
 ## Jak tworzyć i przywracać kopie zapasowe bazy danych? [#backups]
 
@@ -258,7 +258,7 @@ Chmura wywołuje według harmonogramu dwa endpointy konserwacyjne; instancja hos
 - `/api/cron/lifecycle`, raz dziennie: usuwa elementy Kosza, którym minęło 30 dni, pliki usunięte z rekordów 30 dni temu i wysłane pliki, które nigdy nie zostały zapisane, oraz wykonuje inne codzienne porządki. W instancji hostowanej samodzielnie pomija zadania chmury dotyczące okresów próbnych, subskrypcji i połączonych kont.
 - `/api/cron/record-deliveries`, co 5 minut (opcjonalnie): uruchamia należne dostawy webhooków, przetwarzanie zdarzeń, wyodrębnianie tekstu z dołączonych plików i inne prace w tle nad rekordami, których nie podjęło żadne działające zadanie, na przykład po restarcie kontenera.
 
-Oba odpowiadają HTTP `401`, chyba że aplikacja ma `CRON_SECRET`, a żądanie wysyła go jako `Authorization: Bearer <secret>`. Szablon ma zakomentowany wiersz `CRON_SECRET` obok `BETTER_AUTH_SECRET`, a plik Compose przekazuje go aplikacji; jeśli twój `docker-compose.yml` jeszcze nie wymienia `CRON_SECRET`, pobierz go ponownie poleceniem `curl` z kroków instalacji. Odkomentuj ten wiersz albo dodaj go do `.env` utworzonego, zanim istniał, ustaw długą losową wartość, na przykład z `openssl rand -hex 32`, uruchom `docker compose up -d` i zaplanuj wywołania na hoście, na przykład przez `crontab -e`:
+Oba odpowiadają HTTP `401`, chyba że aplikacja ma `CRON_SECRET`, a żądanie wysyła go jako `Authorization: Bearer <secret>`. Szablon ma zakomentowany wiersz `CRON_SECRET` obok `BETTER_AUTH_SECRET`, a plik Compose przekazuje go aplikacji; jeśli Twój `docker-compose.yml` jeszcze nie wymienia `CRON_SECRET`, pobierz go ponownie poleceniem `curl` z kroków instalacji. Odkomentuj ten wiersz albo dodaj go do `.env` utworzonego, zanim istniał, ustaw długą losową wartość, na przykład z `openssl rand -hex 32`, uruchom `docker compose up -d` i zaplanuj wywołania na hoście, na przykład przez `crontab -e`:
 
 ```bash
 0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle

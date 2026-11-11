@@ -24,7 +24,7 @@ sections:
         description: "Utwórz testową szansę sprzedaży i otwórz Dziennik webhooków. Kod statusu 2xx oznacza, że Slack ją przyjął."
 
 hero:
-  title: "Integracja CRM przez otwarte interfejsy: twoje narzędzia i agenci pracują na tym samym rekordzie klienta"
+  title: "Integracja CRM przez otwarte interfejsy: Twoje narzędzia i agenci pracują na tym samym rekordzie klienta"
   description: "Połącz inne oprogramowanie przez udokumentowane REST API, [[derived.webhooks.events.total]] zdarzeń webhooków, MCP dla Claude i ChatGPT oraz węzeł społeczności dla n8n. REST i MCP są w każdym planie, webhooki i wyzwalacze n8n w planach płatnych i w self-hostingu. Od planu Pro rozmowy z LinkedIna i e-maile leżą przy kliencie, a REST i MCP mogą je czytać."
   buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
   buttonLeftHref: /auth/signup?job=agent
@@ -42,17 +42,17 @@ cta:
   hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
 ---
 
-Integracja CRM przenosi dane lub wyzwalacze między twoim CRM a innym systemem, żeby nikt nie kopiował szansy sprzedaży z jednego ekranu na drugi. Customermates robi to przez cztery otwarte interfejsy zamiast sklepu z aplikacjami: REST API, wychodzące webhooki, punkt końcowy MCP dla klientów AI i węzeł społeczności dla n8n. REST API i MCP są dostępne w każdym planie. Webhooki, a z nimi wyzwalacze n8n, które od nich zależą, są w każdym planie płatnym. Instalacje self-hosted mają wszystkie cztery.
+Integracja CRM przenosi dane lub wyzwalacze między Twoim CRM a innym systemem, żeby nikt nie kopiował szansy sprzedaży z jednego ekranu na drugi. Customermates robi to przez cztery otwarte interfejsy zamiast sklepu z aplikacjami: REST API, wychodzące webhooki, punkt końcowy MCP dla klientów AI i węzeł społeczności dla n8n. REST API i MCP są dostępne w każdym planie. Webhooki, a z nimi wyzwalacze n8n, które od nich zależą, są w każdym planie płatnym. Instalacje self-hosted mają wszystkie cztery.
 
-Ten wybór ma koszt, który warto znać od początku. Nie ma katalogu aplikacji do włączenia jednym kliknięciem. Jeśli chcesz, żeby Customermates rozmawiał ze Slackiem, twoim narzędziem do księgowości albo kreatorem formularzy, kierujesz webhook na to narzędzie, wywołujesz API z własnego kodu albo budujesz przepływ w narzędziu do automatyzacji, takim jak n8n, Make czy Zapier.
+Ten wybór ma koszt, który warto znać od początku. Nie ma katalogu aplikacji do włączenia jednym kliknięciem. Jeśli chcesz, żeby Customermates rozmawiał ze Slackiem, Twoim narzędziem do księgowości albo kreatorem formularzy, kierujesz webhook na to narzędzie, wywołujesz API z własnego kodu albo budujesz przepływ w narzędziu do automatyzacji, takim jak n8n, Make czy Zapier.
 
-**Co to znaczy dla follow upu.** Follow up po rozmowie z klientem często kończy się w innym systemie: wiadomość na czacie zespołu, gdy przychodzi odpowiedź, rekord w narzędziu do projektów. Webhook na zdarzenia komunikatorów, przepływ n8n albo twój własny klient AI przez MCP może to podjąć, więc następny krok nie zależy od tego, czy ktoś go przekopiuje.
+**Co to znaczy dla follow upu.** Follow up po rozmowie z klientem często kończy się w innym systemie: wiadomość na czacie zespołu, gdy przychodzi odpowiedź, rekord w narzędziu do projektów. Webhook na zdarzenia komunikatorów, przepływ n8n albo Twój własny klient AI przez MCP może to podjąć, więc następny krok nie zależy od tego, czy ktoś go przekopiuje.
 
 ## Pięć typów połączeń w skrócie
 
 | Połączenie | Kierunek | Do czego służy | Plan |
 |---|---|---|---|
-| Webhooki | CRM do twojego systemu | Wysyłają zdarzenie, gdy rekord na dowolnej liście zostanie utworzony, zaktualizowany, przeniesiony do Kosza, przywrócony lub trwale usunięty albo gdy przyjdzie wiadomość ze skrzynki odbiorczej | Każdy plan płatny i self-hosted, bez Free |
+| Webhooki | CRM do Twojego systemu | Wysyłają zdarzenie, gdy rekord na dowolnej liście zostanie utworzony, zaktualizowany, przeniesiony do Kosza, przywrócony lub trwale usunięty albo gdy przyjdzie wiadomość ze skrzynki odbiorczej | Każdy plan płatny i self-hosted, bez Free |
 | REST API | Twój system do CRM | Tworzy, czyta, wyszukuje, aktualizuje i usuwa rekordy z kodu lub z narzędzia do automatyzacji | Każdy plan, także self-hosted |
 | MCP | Klient AI do CRM | Pozwala Claude, ChatGPT, Cursorowi, Codexowi lub Gemini CLI czytać i zapisywać rekordy w rozmowie | Każdy plan, także self-hosted |
 | Węzeł społeczności n8n | Oba | Dedykowane węzły Customermates w osobno prowadzonej instancji n8n | Akcje w każdym planie, wyzwalacze w planach płatnych i self-hosted; n8n rozlicza n8n |
@@ -73,7 +73,7 @@ Webhooki, REST i MCP są w planie Starter za [[commercial.price.starter.monthly]
 
 ## Webhooki
 
-Utwórz webhook w sekcji **Ustawienia → Webhooki → Dodaj**, wklej adres URL odbiorcy, wybierz zdarzenia i wskaż listę w polu **Rekordy z**. Możesz wybierać spośród [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów (utworzony, zaktualizowany, przeniesiony do Kosza, przywrócony i trwale usunięty, dla dowolnej wybranej listy, także twojej własnej) oraz [[derived.webhooks.events.messaging]] zdarzeń komunikatorów, takich jak odebrana wiadomość lub e-mail i zmienione wydarzenie w kalendarzu.
+Utwórz webhook w sekcji **Ustawienia → Webhooki → Dodaj**, wklej adres URL odbiorcy, wybierz zdarzenia i wskaż listę w polu **Rekordy z**. Możesz wybierać spośród [[derived.webhooks.events.total]] zdarzeń: [[derived.webhooks.events.records]] zdarzeń rekordów (utworzony, zaktualizowany, przeniesiony do Kosza, przywrócony i trwale usunięty, dla dowolnej wybranej listy, także Twojej własnej) oraz [[derived.webhooks.events.messaging]] zdarzeń komunikatorów, takich jak odebrana wiadomość lub e-mail i zmienione wydarzenie w kalendarzu.
 
 Szczegóły, które mają znaczenie przy budowaniu na nich:
 
@@ -87,7 +87,7 @@ Dostawy nie są ściśle uporządkowane, więc traktuj je jako idempotentne wiad
 
 ## REST API
 
-API ma wersję w ścieżce `/api/v1`, uwierzytelnia się nagłówkiem `x-api-key` i jest opisane dokumentem OpenAPI. Te same punkty końcowe akcji obsługują każdą listę utworzoną w twojej przestrzeni roboczej i adresują rekord przez `typeId` i `recordId`: `POST /api/v1/records/query` i `/records/search` czytają, `POST /api/v1/records/mutate` tworzy, aktualizuje, usuwa, łączy i rozłącza, a jego akcje `updateMany` i `deleteMany` zmieniają do 100 rekordów na żądanie. `POST /api/v1/model/read` zwraca twoje pola i identyfikatory ich opcji, które są potrzebne, bo **Etap** szansy sprzedaży to konfigurowalne pole pojedynczego wyboru, a nie stała wartość.
+API ma wersję w ścieżce `/api/v1`, uwierzytelnia się nagłówkiem `x-api-key` i jest opisane dokumentem OpenAPI. Te same punkty końcowe akcji obsługują każdą listę utworzoną w Twojej przestrzeni roboczej i adresują rekord przez `typeId` i `recordId`: `POST /api/v1/records/query` i `/records/search` czytają, `POST /api/v1/records/mutate` tworzy, aktualizuje, usuwa, łączy i rozłącza, a jego akcje `updateMany` i `deleteMany` zmieniają do 100 rekordów na żądanie. `POST /api/v1/model/read` zwraca Twoje pola i identyfikatory ich opcji, które są potrzebne, bo **Etap** szansy sprzedaży to konfigurowalne pole pojedynczego wyboru, a nie stała wartość.
 
 Klucz API dziedziczy uprawnienia użytkownika, który go utworzył. Nie ma zakresu na poziomie klucza, więc twórz klucze z konta użytkownika, którego rola pasuje do integracji. Więcej na [stronie o funkcji API](/features/api).
 
@@ -95,7 +95,7 @@ Klucz API dziedziczy uprawnienia użytkownika, który go utworzył. Nie ma zakre
 
 MCP (Model Context Protocol) to [otwarty standard łączenia aplikacji AI z systemami zewnętrznymi](https://modelcontextprotocol.io/docs/getting-started/intro). Customermates prowadzi jeden punkt końcowy MCP pod `/api/v1/mcp` z [[derived.mcp.tools.total]] narzędzi. Claude i ChatGPT łączą się jako własny konektor z logowaniem OAuth, jak opisano w [łączeniu Claude i ChatGPT](/docs/connect-custom-connector). Claude Code, Codex, Cursor i Gemini CLI łączą się kluczem API.
 
-Klient i jego model są twoje. Twój dostawca AI rozlicza własne zużycie modelu. Wyszukiwania semantyczne w chmurze przez MCP mogą nadal wliczać się do zużycia Mate; zwykłe wywołania rekordów CRM nie korzystają z modelu twojego klienta na serwerze Customermates. Narzędzia komunikatorów, kalendarza i social media wymagają planu Cloud ze skrzynką odbiorczą. [Referencja MCP](/docs/mcp) wymienia każde narzędzie.
+Klient i jego model są Twoje. Twój dostawca AI rozlicza własne zużycie modelu. Wyszukiwania semantyczne w chmurze przez MCP mogą nadal wliczać się do zużycia Mate; zwykłe wywołania rekordów CRM nie korzystają z modelu Twojego klienta na serwerze Customermates. Narzędzia komunikatorów, kalendarza i social media wymagają planu Cloud ze skrzynką odbiorczą. [Referencja MCP](/docs/mcp) wymienia każde narzędzie.
 
 Wewnątrz Customermates Cloud jest też Mate, hostowany asystent, który korzysta z hostowanych kredytów AI. Mate może tworzyć i edytować webhooki za ciebie, a jego [rutyny](/docs/app-routines) mogą uruchamiać zapisaną instrukcję, gdy rekord się zmieni. To obejmuje pracę wymagającą czytania i oceny; stałe reguły należą do webhooków i n8n.
 
@@ -111,7 +111,7 @@ Wewnątrz Customermates Cloud jest też Mate, hostowany asystent, który korzyst
 
 n8n jest fair-code na licencji [Sustainable Use License](https://github.com/n8n-io/n8n): n8n opisuje swój kod źródłowy jako dostępny i możliwy do samodzielnego hostowania. To inna licencja niż AGPL, która obejmuje rdzeń Customermates.
 
-Jeśli już płacisz za jedno z nich, używaj go. Jeśli zaczynasz od zera i masz kogoś, kto potrafi uruchomić kontener, self-hosted n8n trzyma i CRM, i automatyzację na twoich własnych serwerach. [Poradnik konfiguracji n8n](/docs/n8n) pokazuje wyzwalacz webhooka, wywołania HTTP Request i poświadczenie `x-api-key`.
+Jeśli już płacisz za jedno z nich, używaj go. Jeśli zaczynasz od zera i masz kogoś, kto potrafi uruchomić kontener, self-hosted n8n trzyma i CRM, i automatyzację na Twoich własnych serwerach. [Poradnik konfiguracji n8n](/docs/n8n) pokazuje wyzwalacz webhooka, wywołania HTTP Request i poświadczenie `x-api-key`.
 
 ## Slack: dwie drogi, bez natywnej aplikacji
 
@@ -127,7 +127,7 @@ Customermates nie ma aplikacji Slack, kanału Slack w skrzynce odbiorczej ani ek
   Brak sklepu z aplikacjami i konektorów na jedno kliknięcie. Brak natywnej integracji ze Slackiem, Microsoft Teams, księgowością czy rezerwacją terminów w kalendarzu. Kalendarze są tylko do odczytu. Brak osadzanych formularzy internetowych. Przesyłanie danych plikami: import Excela, CSV lub JSON i eksport XLSX lub JSON, jedna lista naraz, bez eksportu całego konta. n8n, Make i Zapier to osobne produkty z osobnymi rachunkami.
 </AcquisitionCallout>
 
-Jeśli twój zespół potrzebuje setek gotowych konektorów utrzymywanych przez dostawcę, które osoba nietechniczna włącza na ekranie ustawień, lepiej pasuje CRM z własnym sklepem z aplikacjami. Customermates pasuje do zespołów, które chętnie podepną webhook albo pozwolą klientowi AI wykonywać wywołania i które chcą tych samych interfejsów w chmurze i przy self-hostingu. Połączenia z ERP wyglądają tak samo; [poradnik o integracji CRM i ERP](/blog/crm-erp-integration) przeprowadza przez to krok po kroku.
+Jeśli Twój zespół potrzebuje setek gotowych konektorów utrzymywanych przez dostawcę, które osoba nietechniczna włącza na ekranie ustawień, lepiej pasuje CRM z własnym sklepem z aplikacjami. Customermates pasuje do zespołów, które chętnie podepną webhook albo pozwolą klientowi AI wykonywać wywołania i które chcą tych samych interfejsów w chmurze i przy self-hostingu. Połączenia z ERP wyglądają tak samo; [poradnik o integracji CRM i ERP](/blog/crm-erp-integration) przeprowadza przez to krok po kroku.
 
 ## Najczęściej zadawane pytania
 
@@ -155,7 +155,7 @@ Tak. Działa każde narzędzie, które potrafi odebrać HTTP POST i wysyłać ż
 </FaqItem>
 
 <FaqItem question="Czym różni się API od CRM?">
-CRM to system, który przechowuje twoje kontakty, szanse sprzedaży i rozmowy. API to drzwi, przez które inne oprogramowanie czyta i zmienia te dane. W Customermates REST API i punkt końcowy MCP to dwoje takich drzwi, jedne dla programów, drugie dla klientów AI.
+CRM to system, który przechowuje Twoje kontakty, szanse sprzedaży i rozmowy. API to drzwi, przez które inne oprogramowanie czyta i zmienia te dane. W Customermates REST API i punkt końcowy MCP to dwoje takich drzwi, jedne dla programów, drugie dla klientów AI.
 </FaqItem>
 <FaqItem question="Czy jest gotowa integracja CRM z CommuniGator?">
 Customermates nie ma natywnego konektora CommuniGator. Dostępne drogi integracji to jego REST API i wychodzące webhooki; osobno zbudowany adapter musi też korzystać z obsługiwanego interfejsu drugiego narzędzia. Potwierdź ten interfejs i przetestuj wymagane obiekty, zanim zdecydujesz się na połączenie. Ta strona nie twierdzi, że przetestowano konfigurację z CommuniGator.
