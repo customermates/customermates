@@ -99,7 +99,7 @@ const nextConfig: NextConfig = {
 
   experimental: {
     ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
-    cpus: 2,
+    cpus: process.env.VERCEL === "1" ? 1 : 2,
     webpackBuildWorker: true,
     webpackMemoryOptimizations: true,
     globalNotFound: true,
@@ -127,8 +127,11 @@ const nextConfig: NextConfig = {
 
   // Webpack's persistent cache was measured on 4 cores (2026-11-01): a warm build was 76 s faster, a cold one 33 s slower,
   // and it peaked at 12 GB with a 3.2 GB cache to store. The memory cache keeps the build inside an 8 GB machine.
+  // 2026-11-11, eight content locales: on Vercel's 8 GB machine even the memory cache is too much (the build was killed
+  // in the compile step). Measured with process-group RSS: no cache, one static worker and a 4.5 GiB heap peak at
+  // 6.5 GB (compile 5.9, static pages 6.0) instead of 9.1 GB, for about two minutes more build time.
   webpack(config, { dev }) {
-    if (!dev) config.cache = { type: "memory" };
+    if (!dev) config.cache = process.env.VERCEL === "1" ? false : { type: "memory" };
     return config;
   },
 
