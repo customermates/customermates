@@ -10,8 +10,17 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/errors/report-application-error", () => ({ notifyWorkspaceChanged: harness.notifyWorkspaceChanged }));
 vi.mock("@/core/errors/client-reporter", () => ({ captureError: harness.captureError }));
 vi.mock("@/components/shared/error-page-view", () => ({
-  ErrorPageView: ({ subtitle, body }: { subtitle: string; body: string }) =>
-    createElement("main", null, subtitle, body),
+  ErrorPageView: ({
+    title,
+    subtitle,
+    body,
+    retryLabel,
+  }: {
+    title: string;
+    subtitle: string;
+    body: string;
+    retryLabel?: string;
+  }) => createElement("main", null, title, subtitle, body, retryLabel),
 }));
 
 import { WORKSPACE_CHANGED_DIGEST } from "@/core/errors/workspace-changed";
@@ -49,6 +58,21 @@ describe("ErrorPage", () => {
     expect(harness.notifyWorkspaceChanged).toHaveBeenCalledOnce();
     expect(container.textContent).toBe("");
     expect(harness.captureError).not.toHaveBeenCalled();
+  });
+
+  it("asks to reload after a deploy removed a code chunk instead of reporting an error", () => {
+    const error = Object.assign(
+      new Error("Loading chunk 8065 failed.\n(error: /_next/static/chunks/8065-f4904e725ec685ec.js)"),
+      {
+        name: "ChunkLoadError",
+      },
+    );
+    act(() => root.render(createElement(ErrorPage, { error, reset: vi.fn() })));
+
+    expect(harness.captureError).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("ErrorCard.newVersion");
+    expect(container.textContent).toContain("ErrorCard.reload");
+    expect(container.textContent).not.toContain("ErrorCard.contactSupport");
   });
 
   it("keeps the error page for every other failed render", () => {
