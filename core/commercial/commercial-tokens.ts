@@ -2,6 +2,10 @@ import deMessages from "@/i18n/locales/de.json";
 import enMessages from "@/i18n/locales/en.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import esMessages from "@/i18n/locales/es.json";
+import ptMessages from "@/i18n/locales/pt.json";
+import plMessages from "@/i18n/locales/pl.json";
+import nlMessages from "@/i18n/locales/nl.json";
 import {
   MARKETING_LOCALES,
   isMarketingLocale,
@@ -34,6 +38,10 @@ const MARKETING_MESSAGES: Record<MarketingLocale, unknown> = {
   en: enMessages,
   fr: frMessages,
   it: itMessages,
+  es: esMessages,
+  pt: ptMessages,
+  pl: plMessages,
+  nl: nlMessages,
 };
 
 function catalogText(messages: unknown, key: string): string {

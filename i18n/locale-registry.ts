@@ -12,7 +12,7 @@ type LocaleCapabilities = {
   assetLocale: "en" | "de";
 };
 
-export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish";
+export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish" | "portuguese" | "dutch" | "simple";
 
 export const LOCALE_REGISTRY = {
   en: {
@@ -70,13 +70,52 @@ export const LOCALE_REGISTRY = {
   es: {
     offeredAsDisplayLanguage: true,
     offeredAsFormattingLocale: true,
-    hasPublishedContent: false,
-    marketingPaths: [],
+    hasPublishedContent: true,
+    marketingPaths: "all",
     formattingTag: "es-ES",
     flagCode: "es",
     validationTag: "es",
     textSearchConfig: "spanish",
     iso6393: "spa",
+    defaultCurrency: "EUR",
+    assetLocale: "en",
+  },
+  pt: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "pt-BR",
+    flagCode: "br",
+    validationTag: "pt",
+    textSearchConfig: "portuguese",
+    iso6393: "por",
+    defaultCurrency: "EUR",
+    assetLocale: "en",
+  },
+  pl: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "pl-PL",
+    flagCode: "pl",
+    validationTag: "pl",
+    textSearchConfig: "simple",
+    iso6393: "pol",
+    defaultCurrency: "EUR",
+    assetLocale: "en",
+  },
+  nl: {
+    offeredAsDisplayLanguage: true,
+    offeredAsFormattingLocale: true,
+    hasPublishedContent: true,
+    marketingPaths: "all",
+    formattingTag: "nl-NL",
+    flagCode: "nl",
+    validationTag: "nl",
+    textSearchConfig: "dutch",
+    iso6393: "nld",
     defaultCurrency: "EUR",
     assetLocale: "en",
   },

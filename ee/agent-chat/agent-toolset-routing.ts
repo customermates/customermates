@@ -54,6 +54,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["modelo de datos", "moneda"],
     fr: ["modèle de données", "devise"],
     it: ["modello dati", "valuta"],
+    pt: ["modelo de dados", "tipo de registro", "campo calculado", "moeda"],
+    pl: ["model danych", "typ rekordu", "pole obliczane", "waluta"],
+    nl: ["datamodel", "recordtype", "berekend veld", "valuta"],
   },
   views: {
     any: ["kanban"],
@@ -123,6 +126,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "vista calendario",
       "fonte di date",
     ],
+    pt: ["detalhes do registro", "ocultar campo", "visualização salva", "visualização atual", "nova visualização", "minha visualização", "criar uma visualização", "visualização de calendário", "fonte de datas"],
+    pl: ["szczegóły rekordu", "ukryj pole", "zapisany widok", "bieżący widok", "nowy widok", "mój widok", "utwórz widok", "widok kalendarza", "źródło dat"],
+    nl: ["recorddetails", "veld verbergen", "opgeslagen weergave", "huidige weergave", "nieuwe weergave", "mijn weergave", "weergave maken", "kalenderweergave", "datumbron"],
   },
   "data-transfer": {
     any: ["csv", "json"],
@@ -131,6 +137,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["importa", "exporta", "migra", "copia de seguridad"],
     fr: ["import", "export", "migr", "sauvegarde"],
     it: ["importa", "esporta", "migra", "backup"],
+    pt: ["importa", "exporta", "migra", "backup"],
+    pl: ["import", "eksport", "migrac", "kopia zapasowa"],
+    nl: ["import", "export", "migr", "back-up"],
   },
   messaging: {
     any: ["whatsapp", "telegram"],
@@ -139,6 +148,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["correo", "bandeja de entrada", "mensaje", "calendario", "reunión"],
     fr: ["courriel", "boîte de réception", "messagerie", "calendrier", "réunion", "rendez-vous"],
     it: ["posta elettronica", "casella di posta", "messaggio", "messaggi", "calendario", "riunione", "appuntamento"],
+    pt: ["e-mail", "caixa de entrada", "mensagem", "calendário", "reunião"],
+    pl: ["e-mail", "skrzynka odbiorcza", "wiadomość", "kalendarz", "spotkanie"],
+    nl: ["e-mail", "inbox", "bericht", "agenda", "afspraak", "vergadering"],
   },
   social: {
     any: ["linkedin", "instagram", "sales navigator"],
@@ -147,6 +159,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["publicación", "perfil", "solicitud de conexión", "seguidores", "lista de leads"],
     fr: ["publication", "profil", "demande de connexion", "abonnés", "liste de leads"],
     it: ["pubblicazione", "profilo", "richiesta di collegamento", "lista di lead"],
+    pt: ["publicação", "perfil", "solicitação de conexão", "seguidores", "lista de leads"],
+    pl: ["post", "profil", "zaproszenie do kontaktów", "obserwujący", "lista leadów"],
+    nl: ["bericht op linkedin", "profiel", "connectieverzoek", "volgers", "leadlijst"],
   },
   widgets: {
     any: ["widget", "dashboard", "kpi"],
@@ -155,6 +170,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["gráfico", "tablero", "panel de control"],
     fr: ["graphique", "tableau de bord", "tuile"],
     it: ["grafico", "cruscotto", "riquadro"],
+    pt: ["gráfico", "painel"],
+    pl: ["wykres", "kafelek", "pulpit"],
+    nl: ["grafiek", "tegel"],
   },
   webhooks: {
     any: ["webhook", "endpoint"],
@@ -163,6 +181,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["entrega"],
     fr: ["livraison"],
     it: ["consegna"],
+    pt: ["entrega"],
+    pl: ["dostarczenie"],
+    nl: ["levering"],
   },
   routines: {
     any: ["cron"],
@@ -171,6 +192,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     es: ["rutina", "automatiza", "automátic", "cada mañana", "cada semana", "cada día", "recuérdame"],
     fr: ["automatis", "automatique", "chaque matin", "chaque semaine", "chaque jour", "tous les jours", "rappelle-moi"],
     it: ["automatizza", "automatic", "ogni mattina", "ogni settimana", "ogni giorno", "ricordami"],
+    pt: ["rotina", "automatiza", "automátic", "toda manhã", "toda semana", "todo dia", "me lembre"],
+    pl: ["rutyna", "automaty", "każdego ranka", "co tydzień", "codziennie", "przypomnij mi"],
+    nl: ["routine", "automatis", "elke ochtend", "elke week", "elke dag", "herinner me"],
   },
   admin: {
     any: ["avatar"],
@@ -188,6 +212,9 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
     ],
     fr: ["membre de l'équipe", "inviter", "rôle", "autorisation", "renommer", "paramètres", "mon nom"],
     it: ["membro del team", "invita", "ruolo", "permesso", "rinominare", "impostazioni", "il mio nome"],
+    pt: ["membro da equipe", "convidar", "função", "permissão", "renomear", "configurações", "meu nome"],
+    pl: ["członek zespołu", "zaproś", "rola", "uprawnieni", "zmień nazwę", "ustawienia", "moje imię"],
+    nl: ["teamlid", "uitnodigen", "rol", "rechten", "hernoemen", "instellingen", "mijn naam"],
   },
 };
 

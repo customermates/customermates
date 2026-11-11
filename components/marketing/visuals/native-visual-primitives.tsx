@@ -55,6 +55,30 @@ const STATUS_LABELS: Record<MarketingLocale, Record<VisualStatusFixtureId, strin
     "deal-open": "Aperta",
     "deal-won": "Vinta",
   },
+  es: {
+    "deal-abandoned": "Abandonada",
+    "deal-lost": "Perdida",
+    "deal-open": "Abierta",
+    "deal-won": "Ganada",
+  },
+  pt: {
+    "deal-abandoned": "Abandonado",
+    "deal-lost": "Perdido",
+    "deal-open": "Aberto",
+    "deal-won": "Ganho",
+  },
+  pl: {
+    "deal-abandoned": "Porzucona",
+    "deal-lost": "Przegrana",
+    "deal-open": "Otwarta",
+    "deal-won": "Wygrana",
+  },
+  nl: {
+    "deal-abandoned": "Opgegeven",
+    "deal-lost": "Verloren",
+    "deal-open": "Open",
+    "deal-won": "Gewonnen",
+  },
 };
 
 export function NativeAgentProviderIdentity({

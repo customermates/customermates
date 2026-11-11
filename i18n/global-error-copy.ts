@@ -63,6 +63,33 @@ export const GLOBAL_ERROR_COPY = {
     unreportedBody:
       "Riprova. Se il problema persiste, contatta la persona che gestisce questa istanza di Customermates.",
   },
+  pt: {
+    backLabel: "Voltar ao início",
+    body: "Tente novamente. Se o problema continuar, fale com o suporte.",
+    retryLabel: "Tentar novamente",
+    subtitle: "Ops! Algo deu errado",
+    title: "Que situação chata",
+    unreportedBody:
+      "Tente novamente. Se o problema continuar, fale com a pessoa que administra esta instância do Customermates.",
+  },
+  pl: {
+    backLabel: "Wróć na stronę główną",
+    body: "Spróbuj ponownie. Jeśli problem nie zniknie, skontaktuj się z pomocą techniczną.",
+    retryLabel: "Spróbuj ponownie",
+    subtitle: "Ups! Coś poszło nie tak",
+    title: "No to niezręcznie",
+    unreportedBody:
+      "Spróbuj ponownie. Jeśli problem nie zniknie, skontaktuj się z osobą, która zarządza tą instancją Customermates.",
+  },
+  nl: {
+    backLabel: "Terug naar home",
+    body: "Probeer het opnieuw. Blijft het probleem bestaan, neem dan contact op met support.",
+    retryLabel: "Opnieuw proberen",
+    subtitle: "Oeps! Er ging iets mis",
+    title: "Nou, dat is gênant",
+    unreportedBody:
+      "Probeer het opnieuw. Blijft het probleem bestaan, neem dan contact op met de persoon die deze Customermates-instantie beheert.",
+  },
 } satisfies Record<AppLocale, GlobalErrorCopy>;
 
 export function resolveGlobalErrorLocale(pathname: string, languages: readonly string[]): AppLocale {
