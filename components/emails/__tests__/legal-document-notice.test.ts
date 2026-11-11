@@ -45,6 +45,42 @@ const COPY = {
     signoff: "Cordiali saluti,\nBen",
     title: "Documenti legali aggiornati",
   },
+  es: {
+    body: "Un administrador autorizado debe revisar esta versión.",
+    deadlineLabel: "Fecha límite de objeción y aceptación",
+    documentName: "Términos y condiciones",
+    documentVersion: "7 de agosto de 2026",
+    greeting: "Hola Ben:",
+    signoff: "Un saludo,\nBen",
+    title: "Documentos legales actualizados",
+  },
+  pt: {
+    body: "Um administrador autorizado deve revisar esta versão.",
+    deadlineLabel: "Prazo para objeção e aceitação",
+    documentName: "Termos e Condições",
+    documentVersion: "7 de agosto de 2026",
+    greeting: "Olá, Ben,",
+    signoff: "Atenciosamente,\nBen",
+    title: "Documentos legais atualizados",
+  },
+  pl: {
+    body: "Upoważniony administrator musi zapoznać się z tą wersją.",
+    deadlineLabel: "Termin sprzeciwu i akceptacji",
+    documentName: "Regulamin",
+    documentVersion: "7 sierpnia 2026",
+    greeting: "Cześć Ben,",
+    signoff: "Pozdrawiam,\nBen",
+    title: "Zaktualizowano dokumenty prawne",
+  },
+  nl: {
+    body: "Een bevoegde beheerder moet deze versie beoordelen.",
+    deadlineLabel: "Deadline voor bezwaar en acceptatie",
+    documentName: "Algemene voorwaarden",
+    documentVersion: "7 augustus 2026",
+    greeting: "Hoi Ben,",
+    signoff: "Met vriendelijke groet,\nBen",
+    title: "Juridische documenten bijgewerkt",
+  },
 } satisfies Record<ContentLocale, Record<string, string>>;
 
 describe.each([
