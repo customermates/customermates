@@ -1,0 +1,152 @@
+---
+title: "CRM Outlook koppeling: e-mail, mappen en agenda in je CRM"
+description: "CRM Outlook koppeling: Outlook-mail opvolgen met threads bij de contactpersoon, concepten van Mate en mapverplaatsingen in je mailbox. Geen add-in, vanaf Pro."
+featureName: Outlook-koppeling
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/outlook-crm-integration
+  - /features/contact-management
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Controleer het abonnement"
+        description: "Gebruik Customermates Cloud op Pro of hoger, of een proefperiode. Je rol heeft Aanmaken nodig op Inboxberichten om een kanaal te koppelen."
+      - title: "Koppel Outlook"
+        description: "Open Instellingen › Kanalen & agenda's, klik op Kanaal koppelen en kies Outlook. Het tabblad gaat naar een beveiligde verbindingspagina waar je inlogt. Daarna wordt je geschiedenis op de achtergrond geïmporteerd, meestal binnen enkele minuten en bij een grote mailbox tot een uur. Blokkeert je Microsoft 365-tenant de toestemming van gebruikers voor apps van derden, dan moet eerst een beheerder de verbinding goedkeuren."
+      - title: "Kies mappen"
+        description: "Open het tabblad Mappen van het account en schakel de mappen in die je in het CRM wilt, bijvoorbeeld een archiefmap, of schakel nieuwsbrieven uit."
+      - title: "Stel de handtekening in"
+        description: "Schakel op het tabblad E-mail Handtekening toevoegen in en schrijf hem één keer. Plak hem niet ook nog in berichten."
+      - title: "Koppel de eerste contactpersonen"
+        description: "Filter de inbox op Deelnemers: niet volledig gekoppeld en koppel dan elke afzender aan een contactpersoon of maak er een aan."
+  highlights:
+    title: "In één oogopslag"
+    capture: homepage-inbox
+    items:
+      - title: "Wat er gekoppeld wordt"
+        description: "E-mail van je Outlook-account, in beide richtingen, plus de agenda-afspraken als alleen-lezen items. De kanaalkaart toont of e-mail, agenda of beide zijn gekoppeld."
+      - title: "Abonnement"
+        description: "Customermates Cloud, Pro of hoger. Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter en zelf gehoste installaties hebben geen inbox."
+      - title: "Hoe het werkt"
+        description: "Geen Outlook-add-in of zijbalk. Customermates leest en verstuurt via het gekoppelde account, dus het werkt in welke Outlook-app je ook schrijft."
+      - title: "Niet inbegrepen"
+        description: "Geen synchronisatie van contacten uit het Outlook-adresboek, geen afspraken aanmaken of boeken in de agenda, geen bulkmail."
+
+hero:
+  title: "CRM Outlook: elke Outlook-thread bij de klant, zonder add-in"
+  description: "Koppel Outlook één keer en de e-mailthreads komen bij de juiste contactpersoon terecht. Zie wie op je antwoord wacht, laat Mate het antwoord als concept schrijven en verstuur het vanuit het CRM of vanuit Outlook. De agenda is alleen-lezen. Cloud vanaf Pro, [[commercial.price.pro.monthly]] per gebruiker per maand."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Koppel één Outlook-account en zie wie op een antwoord wacht"
+  description: "Start de proefperiode, koppel Outlook onder Instellingen › Kanalen & agenda's en kijk of je eigen threads, mappen en contactpersonen aansluiten op hoe je team werkt."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+De CRM Outlook koppeling van Customermates werkt aan de serverzijde: je meldt je één keer aan bij je Outlook-account en de e-mailthreads verschijnen in de [gecombineerde inbox](/features/unified-inbox) van het CRM, op e-mailadres gekoppeld aan contactpersonen. Je kunt vanuit het CRM antwoorden of in Outlook blijven schrijven, want mail die je vanuit Outlook verstuurt komt in dezelfde thread terecht. Een e-mail naar een map verplaatsen in Customermates verplaatst hem ook in je echte mailbox. Agenda-afspraken komen alleen-lezen binnen. Er is niets te installeren in Outlook, en de koppeling vraagt Customermates Cloud op Pro of hoger.
+
+**Waar dit je helpt bij het opvolgen.** Een klantmail die je vrijdag las en maandag wilde beantwoorden, is hoe opvolging wegglipt. Met gekoppeld Outlook staat de thread bij de contactpersoon, laat een inboxfilter de threads zien waarin jij het laatst schreef en niets terughoorde, en kan Mate een conceptantwoord in de thread bewaren dat jij controleert. Je verstuurt het vanuit het CRM of vanuit Outlook; in beide gevallen blijft het in één thread.
+
+## Drie soorten CRM met Outlook-koppeling
+
+"CRM voor Outlook" dekt drie verschillende opzetten. Bepaal welke je wilt voordat je leveranciers vergelijkt. Customermates publiceert deze pagina; de voorbeelden van leveranciers hieronder komen uit de eigen documentatie van elke leverancier, gecontroleerd op 8 oktober 2026.
+
+| Opzet | Waar je werkt | Voorbeeld | Kies het als |
+| --- | --- | --- | --- |
+| Add-in in Outlook | In Outlook, met een CRM-paneel naast de e-mail | [HubSpot Sales Office 365-add-in](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) (volgt en logt e-mails in Outlook voor Windows, Mac en het web); [Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview) (koppelt e-mails en afspraken aan records, kan contactpersonen met Exchange synchroniseren) | Je team zit de hele dag in Outlook en wil CRM-gegevens naast elke e-mail |
+| CRM in Outlook | Outlook is de CRM-interface | [eWay-CRM](https://www.eway-crm.com/), dat zichzelf omschrijft als het veranderen van Outlook in een CRM | Je wilt helemaal geen tweede app en je team werkt in Outlook |
+| Mailbox gekoppeld aan het CRM | In het CRM, met Outlook dat ernaast blijft draaien | Customermates | Je praat met klanten ook op LinkedIn of WhatsApp, of je wilt dat een AI-assistent vanuit dezelfde threads leest en concepten schrijft |
+
+Heb je synchronisatie van Outlook-contactpersonen in beide richtingen nodig, of een CRM-paneel in Outlook, dan past Customermates niet. Kijk dan naar een CRM op basis van een add-in. De [vergelijking van Outlook CRM-koppelingen](/blog/outlook-crm-integration) loopt meer opties door.
+
+## Wat de Outlook-koppeling doet
+
+**E-mailthreads in de inbox.** Verzonden en ontvangen mail van het gekoppelde account verschijnt als threads in de inbox, met de nieuwste activiteit bovenaan, naast gesprekken op LinkedIn, WhatsApp, Instagram en Telegram als je die koppelt. Zoeken omvat onderwerp, berichttekst en namen of adressen van deelnemers, en een filter beperkt de lijst tot één e-mailmap.
+
+**Mappen, in beide richtingen.** Het tabblad **Mappen** van het kanaal heeft één schakelaar per Outlook-map. Standaard staat elke map aan, behalve prullenbak, ongewenste e-mail, concepten en de map met alle mail. In een Outlook-thread kun je één e-mail of het hele gesprek naar een andere map verplaatsen, en de verplaatsing gebeurt in je echte mailbox. Gmail-accounts kunnen dat niet; het werkt voor Outlook en IMAP.
+
+**Contactpersonen gekoppeld via adres.** Het e-mailadres van een contactpersoon verbindt hem met elke thread met dat adres. Open voor een afzender die nog niet is gekoppeld **Gespreksinstellingen**, klik op **Koppelen** en kies een contactpersoon of maak er een aan op basis van de naam. Het adres wordt dan aan die contactpersoon toegevoegd, zodat alle eerdere en latere threads ermee bij de contactpersoon staan. Threads bereiken deals en organisaties via de contactpersoon; om één thread bij een deal vast te leggen gebruik je **Record koppelen** onder **Gesprekrecords**.
+
+**Antwoorden en nieuwe e-mails vanuit het CRM.** Antwoord in de editor van de thread, met Aan, Cc en Bcc, Markdown-opmaak en bijgevoegde bestanden. Start een nieuwe e-mail vanuit het blok **Contactgegevens** van een contactpersoon. Elk Outlook-account heeft op zijn tabblad **E-mail** een eigen lettertype, linkkleur en handtekening. Eenmaal ingeschakeld wordt de handtekening toegevoegd aan elke e-mail die vanaf dat account wordt verstuurd, via de inbox, de API of MCP.
+
+**Agenda, alleen-lezen.** Afspraken uit de gekoppelde Outlook-agenda verschijnen in de categorie **Account & agenda** van de widgets voor de activiteitentijdlijn, en AI-clients lezen ze via MCP met `get_calendars`. Ze staan ook op de pagina Agenda naast de datums uit je records. Customermates maakt, wijzigt of boekt nooit afspraken in Outlook.
+
+## Zo stel je het in
+
+Microsoft documenteert de toestemmingsinstellingen in [Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent): standaard kunnen gebruikers toestemming geven aan apps voor rechten waarvoor geen beheerderstoestemming nodig is, en beheerders kunnen dat beperken. Kan je mailbox niet inloggen via de optie Outlook, dan koppelt de IMAP-optie andere e-mailaccounts via IMAP en SMTP.
+
+## Wie welke e-mails ziet
+
+Een nieuw kanaal is privé: alleen jij ziet de threads, en geen enkele rol, beheerder inbegrepen, kan de privéthreads van een teamgenoot lezen. Je kunt één gesprek delen via **Gespreksinstellingen**. In Business en Enterprise kun je het hele account delen, bijvoorbeeld een teamadres dat één persoon heeft gekoppeld, en elk lid wiens rol de inbox mag lezen ziet dan alle threads ervan. Elk Outlook-account kan maar één keer per werkruimte worden gekoppeld, dus deel het in plaats van het twee keer te koppelen.
+
+## AI op je Outlook-threads
+
+**Mate, in Customermates Cloud.** Mate kan een thread samenvatten, een antwoord als concept schrijven, een e-mail in een map plaatsen of hem versturen als jij dat vraagt. Mate gebruikt gehoste AI-credits; elk betaald abonnement bevat maandelijks gehoste AI-credits per actieve gebruiker, zie de [prijzen](/pricing). Mate verstuurt zonder verdere bevestiging als je het vraagt te versturen, dus zeg "concept" als je alleen een concept wilt.
+
+**Routines, in Customermates Cloud.** Een routine kan starten op de gebeurtenis **E-mail ontvangen**. Voorbeeldinstructie: "Als er een e-mail binnenkomt van een contactpersoon die aan een open deal is gekoppeld, maak dan op die deal een taak voor mij aan met een samenvatting van twee regels en bewaar een conceptantwoord in de thread. Verstuur niets." De routine draait als haar eigenaar en ziet alleen de threads die die persoon kan zien. De limieten staan in de [handleiding voor routines](/docs/app-routines).
+
+**Je eigen AI-client, via MCP.** Claude, ChatGPT en andere MCP-clients kunnen threads lezen, concepten bewaren en e-mail versturen via de [MCP-server](/docs/mcp), met je eigen AI-abonnement in plaats van gehoste credits. Of de client het vraagt voordat hij verstuurt, hangt van de client af.
+
+## Wat het kost
+
+De Outlook-koppeling heeft geen aparte prijs. Ze zit in het abonnement:
+
+| Team | Abonnement | Per maand |
+| --- | --- | --- |
+| 3 personen, elk één Outlook-account | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| 3 personen, elk Outlook plus LinkedIn of WhatsApp | Business | [[commercial.price.business.monthly.seats.3]] |
+
+Het beslissende punt is de toegestane hoeveelheid accounts: Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Heeft iemand Outlook en LinkedIn in dezelfde inbox nodig, dan heeft die persoon Business nodig. Facturering is maandelijks.
+
+## Beperkingen om te kennen
+
+- Geen Outlook-add-in, zijbalk of lintknop. CRM-gegevens zoek je op in Customermates.
+- Contactpersonen uit het Outlook-adresboek worden in geen van beide richtingen gesynchroniseerd. Contactpersonen maak je aan in Customermates, door een afzender te koppelen, handmatig of met [XLSX-import](/docs/app-records).
+- Agendagegevens zijn alleen-lezen. Geen vergaderingen boeken, geen afspraken schrijven.
+- Geen massamail of sequenties. Elke e-mail wordt individueel geschreven en verstuurd.
+- Een account ontkoppelen verwijdert de threads, berichten en agenda-afspraken die Customermates ervan heeft geïmporteerd definitief.
+- Providers beperken hoe snel mail kan worden gelezen en verstuurd; de actuele budgetten staan in de [limieten voor berichten](/docs/messaging-rate-limits).
+- Zelf gehoste Customermates heeft geen inbox en dus geen Outlook-koppeling. Alleen Customermates Cloud heeft die.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Moet ik een Outlook-add-in installeren?">
+Nee. De verbinding loopt tussen Customermates en je account, dus er is niets te installeren in Outlook en niets bij te werken op elke computer. De keerzijde: je ziet CRM-gegevens in Customermates, niet in een Outlook-paneel.
+</FaqItem>
+
+<FaqItem question="Kan ik e-mail blijven versturen vanuit Outlook?">
+Ja. Mail die je vanuit Outlook verstuurt komt in dezelfde thread in Customermates terecht, en antwoorden sluiten erbij aan. Gebruik de app die bij de hand is.
+</FaqItem>
+
+<FaqItem question="Synchroniseert Customermates mijn Outlook-contactpersonen of agenda?">
+Contactpersonen: nee, in geen van beide richtingen. Threads worden in plaats daarvan op e-mailadres aan CRM-contactpersonen gekoppeld. Agenda: afspraken worden alleen-lezen in Customermates ingelezen; er wordt niets teruggeschreven naar Outlook.
+</FaqItem>
+
+<FaqItem question="Kan het hele team elkaars Outlook-mail zien?">
+Alleen wat is gedeeld. Privéthreads blijven privé, ook voor beheerders. Afzonderlijke gesprekken kunnen worden gedeeld in elk abonnement met de inbox; hele accounts kunnen worden gedeeld in Business en Enterprise.
+</FaqItem>
+
+<FaqItem question="Is Microsoft Outlook een CRM?">
+Outlook beheert e-mail, agenda en een adresboek, maar heeft geen deals, pipelinefasen of gedeelde klantrecords. Het eigen CRM van Microsoft is Dynamics 365, dat via de Dynamics 365 App for Outlook met Outlook verbindt. Customermates laat Outlook je mailclient blijven en voegt die records naast je threads toe.
+</FaqItem>
+
+<FaqItem question="Waar worden de gegevens verwerkt?">
+In Customermates Cloud is de applicatiedatabase ingesteld in de AWS-regio Frankfurt. Gekoppelde accounts worden doorgegeven door Unipile. Elke subverwerker, ook Amerikaanse providers, staat op de [pagina met subverwerkers](/subprocessors), en er is een [verwerkersovereenkomst](/dpa) beschikbaar.
+</FaqItem>
+</Faq>
+
+Leveranciersgegevens: verificatie op 8 oktober 2026 bij [Microsoft Learn](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), de [kennisbank van HubSpot](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) en [eWay-CRM](https://www.eway-crm.com/).

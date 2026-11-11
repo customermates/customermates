@@ -1,0 +1,90 @@
+---
+title: "n8n CRM integratie met Customermates: REST, webhooks, MCP"
+description: "Koppel n8n aan Customermates via REST, [[derived.webhooks.events.total]] webhooks, MCP of de community-node. Zo houd je de grenzen tussen product en workflow expliciet en helder."
+
+architecture:
+  title: Een duidelijk afgebakend automatiseringspad
+  description: Customermates controleert de toegang tot het CRM en stuurt ondersteunde gebeurtenissen uit. Je aparte n8n-instantie beheert het uitvoeren van workflows, de inloggegevens, schema's, nieuwe pogingen en elke externe aanbieder die ze aanroept.
+  crmTitle: Customermates CRM
+  crmDescription: Gestructureerde records, rechten in de werkruimte en gevalideerde schrijfacties blijven binnen de grens van het CRM.
+  interfaceTitle: Open interfaces
+  workflowDescription: Workflow die de klant zelf beheert
+  boundary: n8n, de bijbehorende inloggegevens, uitvoeringslogs en gekoppelde aanbieders blijven los van Customermates.
+
+hero:
+  title: Koppel n8n aan je Customermates CRM.
+  titleAccent: "Houd de grenzen duidelijk."
+  subtitle: "Gebruik REST, [[derived.webhooks.events.total]] soorten webhookgebeurtenissen, MCP of de gepubliceerde community-node vanuit je eigen n8n-instantie, bijvoorbeeld om te reageren als er een klantbericht binnenkomt of een deal verandert. Customermates levert de CRM-interfaces; n8n en externe aanbieders blijven los daarvan."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lees de installatiehandleiding
+  buttonRightHref: /docs/n8n
+  startFree: "Geen creditcard nodig • [[commercial.trial.days]] dagen proefperiode • n8n blijft los"
+
+benefits:
+  benefits:
+  - icon: TrendingUp
+    title: Kies hoe je verbindt
+    description: Bouw je n8n-koppeling met de gepubliceerde community-node, de REST API, webhooks of MCP, vanuit een n8n-instantie die je zelf beheert of waarop je een abonnement hebt. Customermates levert n8n niet mee.
+  - icon: Zap
+    title: Externe agents koppelen
+    description: Koppel een ondersteunde AI-client via MCP of roep vanuit je eigen workflow een aanbieder naar keuze aan. Customermates bevat geen model, geen leadscoring en geen verrijkingsdienst.
+  - icon: ShieldCheck
+    title: Workflows die de klant zelf beheert
+    description: Koppel aanbieders vanuit een n8n-instantie die je zelf beheert. Beschikbaarheid van connectoren, limieten, abonnementen en kosten horen bij n8n en bij elke aanbieder.
+  - icon: Sparkles
+    title: Ontwerp de workflow in n8n
+    description: Bouw de workflow binnen de grenzen van je n8n-abonnement, de runtime, de nodes en de gekoppelde aanbieders.
+  - icon: MousePointerClick
+    title: Kies waar de automatisering draait
+    description: "De beheerde CRM-database draait in de AWS-regio Frankfurt. Je n8n-omgeving en elke gekoppelde aanbieder verwerken de gegevens die je workflow verstuurt; beoordeel dus elke dienst afzonderlijk."
+  - icon: SlidersHorizontal
+    title: Beheer de automatisering
+    description: Een workflow die je zelf beheert, kan geconfigureerde externe stappen uitvoeren; de runtime, het schema, nieuwe pogingen, de betrouwbaarheid en de resultaten blijven jouw verantwoordelijkheid.
+
+features:
+  badge: Voorbeeldcombinaties
+  title: Wat een n8n-workflow die de klant zelf beheert kan samenstellen
+  subtitle: Dit zijn workflowpatronen, geen meegeleverde functies van Customermates. Elk patroon vraagt in je n8n-omgeving om de juiste aanbieder, inloggegevens, veldkoppeling, monitoring en foutafhandeling.
+  features:
+  - icon: Users
+    title: Overdracht naar e-mail
+    description: Ontvang CRM-gebeurtenissen en geef geselecteerde gegevens door aan de e-mailaanbieder of dataleverancier die je in je eigen workflow configureert.
+  - icon: Briefcase
+    title: Externe verrijking
+    description: Roep vanuit je eigen workflow een aanbieder naar keuze aan en schrijf geselecteerde velden via REST terug. Customermates bevat geen verrijking en geen leadscoring.
+  - icon: Star
+    title: Overdracht voor rapportage
+    description: Stuur geselecteerde CRM-gegevens naar een spreadsheet, database of BI-aanbieder die je zelf configureert en mag gebruiken.
+  - icon: Zap
+    title: Overdracht voor facturatie
+    description: Stuur dealgegevens vanuit je eigen workflow naar facturatietools. Customermates heeft geen workflow voor offertes of facturen.
+
+faq:
+  title: Veelgestelde vragen over automatiseren met een aparte n8n-instantie
+  faqs:
+  - id: faq-1
+    title: Heb ik programmeerkennis nodig voor n8n?
+    content: "Eenvoudige flows zijn visueel samen te stellen, maar een betrouwbare CRM-workflow heeft toch iemand nodig die verantwoordelijk is voor authenticatie, veldkoppeling, rechten, nieuwe pogingen, fouten en limieten van aanbieders. Complexe transformaties kunnen code vragen."
+  - id: faq-2
+    title: Welke tools kan ik met n8n koppelen?
+    content: "Gebruik nodes uit de actuele integratiecatalogus van n8n, geverifieerde of community-nodes die je hebt beoordeeld, en HTTP-verzoeken naar API's die je mag aanroepen. Beschikbaarheid en gedrag kunnen veranderen; controleer dus de actuele documentatie van n8n en van de aanbieder."
+  - id: faq-3
+    title: Kost het koppelen van n8n extra?
+    content: "De REST API en MCP zijn beschikbaar in elk abonnement, en webhooks in elk betaald abonnement en bij self-hosting. n8n is een apart product dat je zelf host of waarop je een abonnement neemt; externe abonnementen, limieten, kosten van aanbieders en gebruik blijven voor jouw rekening."
+  - id: faq-4
+    title: Hoe begin ik met n8n-workflows?
+    content: "Installeer de gepubliceerde Customermates community-node in een n8n-instantie die je zelf beheert, of roep de REST API en webhooks rechtstreeks aan. Jij ontwerpt, implementeert en onderhoudt de workflow."
+  - id: faq-5
+    title: Worden mijn gegevens gedeeld tijdens n8n-workflows?
+    content: "Workflows draaien waar jij n8n implementeert of waar je een abonnement op n8n hebt, en gekoppelde tools ontvangen de gegevens die je workflow verstuurt. De beheerde CRM-database draait in de AWS-regio Frankfurt; beoordeel elke aanbieder afzonderlijk."
+
+cta:
+  action: Test één afgebakende n8n-workflow
+  description: Begin met één omkeerbare CRM-gebeurtenis, bijvoorbeeld een deal die naar een nieuwe fase gaat, en één gevalideerde schrijfactie via REST, webhooks, MCP of de gepubliceerde community-node. Houd inloggegevens en uitvoering in je eigen n8n-omgeving.
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Lees de installatiehandleiding
+  buttonRightHref: /docs/n8n
+  hint: "Geen creditcard nodig • [[commercial.trial.days]] dagen proefperiode • n8n blijft los"
+---

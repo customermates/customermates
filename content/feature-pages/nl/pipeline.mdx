@@ -1,0 +1,169 @@
+---
+title: "Pipeline software: dealbord met waarde per fase"
+description: "Pipeline software voor kleine, relatiegedreven teams: deals per fase met kans, waarde en gewogen waarde, met de context van de klant dicht bij de hand."
+featureName: Verkooppipeline
+
+relatedHrefs:
+  - /features/sales
+  - /features/reporting
+  - /features/workflow-automation
+  - /blog/sales-pipeline
+
+sections:
+  visual:
+    kind: stage
+    solution: agencies
+    prompt: "Wij zijn een designbureau. Houd pitches, retainers en projecten bij en draag elke nieuwe klant van sales over aan delivery."
+  steps:
+    title: "Van bord naar volgende stap"
+    items:
+      - title: "Bekijk deals per fase"
+        description: "Open de bordweergave van je deals en kijk naar de totalen per kolom."
+      - title: "Bekijk één deal"
+        description: "Open een kaart om het account, de contactpersonen, taken en notities te zien die eraan gekoppeld zijn."
+      - title: "Leg de volgende actie vast"
+        description: "Vul een datumveld zoals Volgende stap in en voeg een taak toe. Customermates heeft geen ingebouwde herinneringen; een opgeslagen weergave gefilterd op verstreken datums doet die klus."
+      - title: "Pas velden en fasen aan"
+        description: "Voeg de velden toe waarop je sorteert, zoals Verwachte afsluiting (datum) of Reden van verlies (enkele keuze), en pas de kansen aan als je ervaring verandert."
+      - title: "Laat AI helpen waar het mag"
+        description: "Vraag Mate in de cloud, of je eigen AI-client via MCP, om een fase bij te werken of de deals zonder volgende stap te tonen."
+  highlights:
+    title: "In één oogopslag"
+    capture: homepage-pipeline-board
+    items:
+      - title: "Elk abonnement"
+        description: "Dealbord gegroepeerd per fase, kans per fase, waarde en gewogen waarde per kolom, opgeslagen weergaven die je kunt delen, dashboardwidgets, Excel-import en -export, REST en MCP, plus webhooks in betaalde abonnementen. Ook zelf gehost."
+      - title: "Alleen Cloud"
+        description: "Mate, de gehoste assistent, en routines binnen de AI-credits van je abonnement. De gecombineerde inbox vanaf Pro."
+      - title: "Niet inbegrepen"
+        description: "Geen voorspellende prognoses, geen analyse van pipelinesnelheid of conversie per fase, geen markering van stilstaande deals, geen rechten op veldniveau."
+
+hero:
+  title: "Pipeline software waarin elke open deal een volgende stap heeft"
+  description: "Zie elke deal per fase met waarde en gewogen waarde, open het klantgesprek erachter en leg een volgende stap met datum vast. Jij stelt de fasen in. Gewogen waarde is waarde maal kans, geen prognose."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ontdek de werkruimte
+  buttonRightHref: https://demo.customermates.com/nl/w/sales-pipeline/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Zet je open deals op een bord, elk met een volgende stap"
+  description: "Stel je fasen in, importeer je deals uit een Excel-werkmap en voeg een datumveld Volgende stap toe. Kijk binnen [[commercial.trial.days]] dagen of er minder deals stilvallen. Abonnementen beginnen bij [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ontdek de werkruimte
+  buttonRightHref: https://demo.customermates.com/nl/w/sales-pipeline/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Pipeline software zet je open deals op een bord, één kolom per fase, zodat je ziet wat er speelt, wat het waard is en welke deal de volgende stap nodig heeft. Customermates is CRM-software voor kleine salesteams wier deals afhangen van gesprekken: adviesbureaus, bureaus, dienstverleners en oprichters die zelf verkopen. Het is open source, AI-native en gemaakt in Duitsland.
+
+**Waar deals blijven hangen.** Een deal blijft hangen als niemand heeft vastgelegd wat er daarna gebeurt. Op een kaart zie je het account, de contactpersonen en, vanaf Pro, de gesprekken met hen, en een datumveld zoals Volgende stap legt de opvolging vast. Een opgeslagen weergave of een widget **Aankomend** op het dashboard toont dan de deals die aan de beurt of achterstallig zijn.
+
+## Bekijk het in een voorbeeldwerkruimte
+
+De [werkruimte voor de verkooppipeline](https://demo.customermates.com/nl/w/sales-pipeline/dashboard) is een voorbeeld met voorbeeldgegevens, geen klantaccount. De interface is Nederlands, de voorbeeldrecords zijn in het Engels. Er zijn vijf lijsten: Accounts, Contacts, Opportunities, Products en Tasks. Opportunities lopen door New, Qualified, Discovery, Proposal sent, Negotiation, Won en Lost, en drie verkopers zijn er eigenaar van.
+
+Het bord toont elke fase met zijn kans. Elke kolomkop telt de waarde en de gewogen waarde van de bijbehorende deals op. De waarde van een deal komt uit zijn regelitems: producten uit de lijst Products, aantal maal stuksprijs. Open een kaart en je staat op de deal met zijn account, zijn contactpersonen, zijn regelitems, zijn taken en de volgende stap die erop is vastgelegd. Offertes staan als pdf-bestand in een bestandsveld op de deal.
+
+Het dashboard toont de verwachte afsluitingen van de maand in een widget **Maandoverzicht**, een agenda die de waarde per dag optelt, zodat je ziet welke weken de meeste waarde dragen, en plaatst de accounts op een kaart op basis van hun adres. Een agendaweergave van de deals toont de verwachte afsluitdatums per maand, en de pagina Agenda zet de locatiebezoeken uit de takenlijst daar naast.
+
+Je eigen werkruimte begint niet met deze lijsten of fasen. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt de AI-werkruimte-instelling op basis van jouw beschrijving lijsten, fasen, een dashboard en pagina's voor de kennisbank. Ze draait eenmalig tijdens de onboarding, is begrensd door instellingscredits en je kunt haar overslaan met **Beginnen met een lege werkruimte**. Anders maken mensen met rechten voor het datamodel de lijst met deals en het fasenveld ervan aan in **Datamodel**. Bij zelf hosten is dat de enige manier.
+
+## Zo werkt het bord van je CRM pipeline
+
+**Fasen zijn een veld dat van jou is.** Een fase is een optie van een enkele keuze, en elke optie heeft een winkans van 0 tot 100 procent. Hernoem, herorden, voeg toe of verwijder fasen in **Datamodel**; een voorbeeldweergave toont het effect op berekeningen en widgets voordat je opslaat. Een fase hernoemen houdt haar op elk record.
+
+**Het bord.** Kies in **Weergave** het **Bord**, gegroepeerd op fase, een CRM kanban per fase. Sleep een kaart naar een andere kolom en zijn fase verandert. Kaarten tonen de velden die je kiest, zoals waarde, account, toegewezen gebruikers of een datum voor de volgende stap.
+
+**Kolomkoppen doen de rekensom.** Elke kop toont het aantal en de sommen die je kiest, zoals waarde en gewogen waarde. Gewogen waarde is de waarde van de deal maal de kans van zijn fase. Drie voorbeeld-deals:
+
+| Deal | Fase (kans) | Waarde | Gewogen |
+|---|---|---|---|
+| Website-relaunch | Gekwalificeerd (20%) | 5.000 | 1.000 |
+| Merkworkshop | Voorstel verstuurd (60%) | 8.000 | 4.800 |
+| Jaarlijkse retainer | Onderhandeling (80%) | 12.000 | 9.600 |
+| **Open pipeline** | | **25.000** | **15.400** |
+
+Dat totaal weegt je eigen getallen. Het voorspelt geen omzet of afsluitdatums. De kansen hierboven zijn voorbeelden, geen standaardwaarden.
+
+**Waarde.** Een deal heeft een waarde in een valuta. Als je verkoopt uit een catalogus van diensten of producten, kunnen regelitems samen de waarde vormen: aantal maal stuksprijs per regel.
+
+**Tabelweergave.** Schakel over naar **Tabel** en behoud de groepering: fasen worden rijgroepen met hun eigen aantallen en sommen, en je kunt sorteren op waarde of gewogen waarde.
+
+## Klantcontext naast de deal
+
+Een deal is gekoppeld aan zijn account en contactpersonen, dus de mensen en de geschiedenis zijn één klik weg. In Customermates Cloud voegen Pro en hoger de [gecombineerde inbox](/features/unified-inbox) toe voor Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram en Telegram. Een deelnemer wordt gekoppeld aan een contactpersoon via de identiteit in het veld Contactgegevens. Een gesprek wordt alleen aan een deal of account gekoppeld als jij of een agent dat uitdrukkelijk doet; niets wordt automatisch bij een deal vastgelegd.
+
+Limieten van de inbox per abonnement: Starter en zelf gehost hebben geen gekoppelde berichtenaccounts. Pro dekt je eigen accounts, met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker inbegrepen, plus individueel gedeelde gesprekken. Een heel account met het team delen vraagt Business, Max of Enterprise.
+
+## De pipeline actueel houden
+
+**Een weergave met stilstaande deals.** Filter deals op **Bijgewerkt op** ouder dan 14 dagen en fase niet Gewonnen of Verloren, en sla de weergave op. Elke wijziging telt als update, niet alleen een wijziging van de fase.
+
+**Een wekelijkse routine (alleen cloud).** Een [routine](/docs/app-routines) laat Mate draaien volgens een schema of wanneer een record verandert, met één gebruiker als eigenaar die ziet wat die gebruiker ziet, binnen de AI-credits van de eigenaar:
+
+```text
+Zoek deals in Voorstel verstuurd of Onderhandeling die de afgelopen 14 dagen niet zijn bijgewerkt. Maak voor elke deal een taak "Opvolgen: [naam]", koppel die aan de deal en wijs hem toe aan de eigenaar. Verstuur geen berichten.
+```
+
+Mate maakt records aan, werkt ze bij en verstuurt berichten zodra het erom wordt gevraagd, dus schrijf in de instructie wat het niet mag doen. Verwijderingen, imports en wijzigingen van toegang wachten op goedkeuring, en een routine zonder toezicht weigert ze. Mate is niet beschikbaar bij zelf hosten.
+
+**Je eigen AI-client via MCP.** In elk abonnement, ook zelf gehost, kan Claude, ChatGPT of een andere [MCP](/docs/mcp)-client deals lezen en fasen en velden bijwerken die je rol toestaat, gefactureerd door je AI-provider. Een fasewijziging uit welke bron ook activeert een `record.updated`-webhook die een aparte n8n-workflow kan oppakken.
+
+## Werken als team
+
+Iedereen wiens rol alle deals leest, ziet dezelfde deals; met leesrechten voor **Toegewezen** ziet een persoon alleen de eigen deals. Een bordweergave die je opslaat blijft privé tot je haar deelt met de werkruimte of met geselecteerde rollen; teamgenoten zien haar alleen-lezen. Twee beperkingen tellen voor teams:
+
+- Een bord dat je deelt is voor collega's alleen-lezen. Deel het met het hele team of met geselecteerde rollen en iedereen werkt vanuit hetzelfde bord, maar alleen jij wijzigt het, en elke persoon ziet alleen de records die zijn rol toestaat.
+- Rechten gelden voor hele lijsten. Er zijn geen rechten op veldniveau, dus iemand die deals kan lezen, ziet elk veld erop.
+- Het delen van een heel account in de inbox begint bij Business. In Pro delen collega's afzonderlijke gesprekken.
+
+## Beperkingen
+
+<AcquisitionCallout title="Wat de pipeline niet doet" variant="boundary">
+  Gewogen waarde is jouw waarde maal jouw kansen. Er is geen voorspellende prognose, geen rapport over tijd in fase, conversie per fase of pipelinesnelheid, en geen automatische markering van stilstaande deals. Geen rechten op veldniveau en geen native mobiele app.
+</AcquisitionCallout>
+
+Voor een cijfer zoals de winstkans per persoon kan Mate in de cloud het uit je records berekenen, of je exporteert de lijst als Excel-werkmap. Grafiekopties staan op de pagina over [rapportage](/features/reporting).
+
+## Meer dan één pipeline draaien
+
+Er is geen apart pipelineobject. Een tweede pipeline is een tweede veld met enkele keuze, bijvoorbeeld **Fase verlenging**, met een eigen bordweergave. Gewogen waarde komt uit het fasenveld met kansen, dus een tweede bord toont aantallen en totalen maar geen gewogen cijfers.
+
+## Welk soort tool past bij je?
+
+| Jouw situatie | Kijk naar |
+|---|---|
+| Een outboundteam met veel volume dat prognoses en waarschuwingen voor stilstaande deals nodig heeft | Een op sales gericht CRM dat daarvoor is gebouwd, zoals Pipedrive |
+| Een klein team waarvan de deals lopen via e-mail-, LinkedIn- en WhatsApp-gesprekken | Customermates |
+| Eén persoon met een handvol deals | Een spreadsheet kan nog volstaan |
+
+## Wat het kost
+
+Facturering is maandelijks per gebruiker. Starter kost [[commercial.price.starter.monthly]] en dekt het bord, fasen, gewogen waarde en dashboards. Pro kost [[commercial.price.pro.monthly]] en voegt de inbox toe. Business kost [[commercial.price.business.monthly]] en voegt het delen van hele accounts in de inbox toe. De open source kern zelf hosten kost geen licentie; je betaalt je eigen server. Zie de [prijzen](/pricing).
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Heeft een nieuwe werkruimte pipelinefasen?">
+Nee. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt de AI-werkruimte-instelling tijdens de onboarding op basis van jouw beschrijving een lijst met deals met fasen. Anders maak je de lijst en het fasenveld aan in Datamodel.
+</FaqItem>
+
+<FaqItem question="Voorspelt Customermates omzet?">
+Nee. Gewogen waarde vermenigvuldigt de waarde van elke deal met de kans die jij voor zijn fase instelt. Dat is rekenwerk op je eigen getallen, geen voorspelling, en er is geen analyse van snelheid of conversie.
+</FaqItem>
+
+<FaqItem question="Kan mijn hele team vanuit hetzelfde bord werken?">
+Iedereen met leesrechten voor alle deals ziet dezelfde deals. Deel een opgeslagen bordweergave met het hele team of met geselecteerde rollen en iedereen werkt vanuit hetzelfde bord; elke persoon ziet nog steeds alleen de records die zijn rol toestaat. Er zijn geen rechten op veldniveau.
+</FaqItem>
+
+<FaqItem question="Kan ik meerdere pipelines hebben?">
+Ja, als afzonderlijke velden met enkele keuze, elk met een eigen bordweergave.
+</FaqItem>
+
+<FaqItem question="Worden e-mails automatisch bij de deal vastgelegd?">
+Nee. In Pro en hoger in de cloud worden gesprekken via hun contactgegevens aan contactpersonen gekoppeld. Een gesprek koppelen aan een deal is een uitdrukkelijke stap van jou of een agent.
+</FaqItem>
+</Faq>

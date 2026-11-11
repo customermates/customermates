@@ -1,0 +1,249 @@
+---
+title: "CRM database: wat het is, voorbeelden en hoe je er een bouwt"
+description: "CRM database: gekoppelde records van personen, bedrijven, deals en taken. Zo modelleren HubSpot, Salesforce en Pipedrive ze, en zo bouw en exporteer je hem."
+
+relatedHrefs:
+  - /features/contact-management
+  - /blog/client-database-software
+  - /blog/excel-crm-template
+  - /docs/app-records
+
+hero:
+  title: "CRM database: wat het is en hoe je er een bouwt die schoon blijft"
+  description: "Een CRM database is een set gekoppelde records over personen, bedrijven, deals en taken. Hoe de grote CRM's ze opzetten, hoe je je eigen ontwerpt, importeert, opschoont en exporteert, en welke regels hem nauwkeurig houden."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-01-12
+  updated: 2026-11-11
+  tags:
+    - CRM database
+    - Klantgegevens
+    - Databeheer
+    - AVG
+---
+
+# CRM database: wat het is en hoe je er een bouwt die schoon blijft
+
+Een CRM database, kort voor customer relationship management database (ook wel CRM databank genoemd), is de gestructureerde opslag achter een CRM: één record per persoon, één per bedrijf, één per deal, de koppelingen ertussen en de geschiedenis van wat er gebeurde. Die koppelingen onderscheiden hem van een contactenlijst. Open een bedrijf en je ziet de mensen, de openstaande deals en het laatste gesprek; open een deal en je ziet wie erbij betrokken is en wat is aangeboden.
+
+Je bouwt zo'n database zelden helemaal zelf. Je kiest een CRM, bepaalt welke recordtypen en velden je nodig hebt, schoont je bestaande gegevens op en importeert ze in de juiste volgorde. Deze gids behandelt dat ontwerpwerk, laat zien hoe vier CRM's hun gegevens modelleren, legt uit hoe Customermates dezelfde lijsten modelleert en eindigt met een uitgewerkt voorbeeld en de exportroute. Customermates publiceert deze gids; gegevens van andere aanbieders komen uit hun eigen documentatie, aan het eind gelinkt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Wat het is">Gekoppelde records voor personen, bedrijven, deals en taken, met getypeerde velden en een activiteitengeschiedenis. Een spreadsheet bevat rijen; een CRM database bevat relaties.</SummaryItem>
+  <SummaryItem label="Hoe je er een bouwt">Leg eerst de recordtypen vast, dan de velden waarop je filtert, dan één unieke sleutel per persoon. Schoon op vóór je importeert, en importeer bedrijven vóór personen.</SummaryItem>
+  <SummaryItem label="Wat hem kapotmaakt">Dubbele records, vrije-tekstvelden die keuzelijsten hadden moeten zijn, en niemand die het opschonen op zich neemt.</SummaryItem>
+  <SummaryItem label="Gegevens eruit halen">Plan de export voordat je hem nodig hebt. Customermates exporteert per lijst als Excel of JSON; een export van het hele account is er niet.</SummaryItem>
+  <SummaryItem label="Customermates">Start zonder lijsten: je maakt de lijsten aan die je nodig hebt (contactpersonen, organisaties, deals of je eigen), met getypeerde velden en relaties, vanaf [[commercial.price.starter.monthly]] per gebruiker per maand in de cloud, of zelf gehost onder AGPL.</SummaryItem>
+</ArticleSummary>
+
+De database is maar een deel van de keuze: test hoe mensen deze records vinden en bijwerken met de checklist voor browser en mobiel in de [gids over de CRM app](/blog/crm-app).
+
+## Wat een CRM database bevat
+
+Zie het als een handvol tabellen die naar elkaar verwijzen. De meeste CRM's leveren dezelfde kern en verschillen in wat ze eromheen toevoegen.
+
+| Recordtype | Wat één record is | Meestal gekoppeld aan | Velden die de moeite waard zijn |
+|---|---|---|---|
+| Persoon (contactpersoon) | Eén mens met wie je praat | Het bedrijf, de deals, taken, berichten | Voor- en achternaam, e-mail, telefoon, functie, hoe je elkaar leerde kennen |
+| Bedrijf (organisatie, account) | Eén onderneming of instelling | De mensen en deals | Naam, segment, website, factuuradres |
+| Deal (kans) | Eén stuk potentiële of lopende business | De betrokken mensen en bedrijven, verkochte producten of diensten | Fase, waarde, verwachte start, bron |
+| Product of dienst | Iets wat je tegen een prijs verkoopt | De deals waar het in zit | Naam, prijs |
+| Taak of activiteit | Iets wat iemand moet doen of deed | Elk van de bovenstaande | Toegewezen aan, notities |
+
+Twee ontwerpvragen bepalen of de database het later houdt. Kan één persoon bij meerdere bedrijven horen (een consultant in twee besturen, een freelancer die voor drie bureaus werkt)? En kan één deal meerdere mensen betreffen? Dwingt je CRM één bedrijf per persoon of één contact per deal af, dan ga je noodoplossingen in notities schrijven. Lees de documentatie voordat je kiest: het gegevensartikel van Pipedrive beschrijft het koppelen van een persoon aan één organisatie, terwijl in Customermates een relatie aan elke kant één of meerdere records kan toestaan, zodat een contactpersoon bij meerdere organisaties kan horen.
+
+De andere helft van een CRM database is geschiedenis. Elke wijziging aan een record en elke gekoppelde e-mail of elk bericht vormt een tijdlijn. Daardoor kan een collega een klant overnemen zonder overdrachtsoverleg, en dat is het deel dat een spreadsheet je niet kan geven.
+
+## CRM database voorbeelden: hoe vier CRM's hun gegevens structureren
+
+De recordtypen laten zien waarvoor een CRM is gebouwd. Deze tabel vergelijkt alleen het datamodel, niet prijs of kwaliteit.
+
+| CRM | Standaard recordtypen | Je eigen recordtypen |
+|---|---|---|
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacten en bedrijven als basisobjecten, plus deals, leads, tickets, producten, projecten, taken en nog veel meer | Eigen objecten, waarvoor een Enterprise-abonnement nodig is |
+| [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standaardobjecten zoals Account, Contact, Lead en Opportunity | Eigen objecten om informatie op te slaan die specifiek is voor je bedrijf of branche |
+| [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, deals, personen, organisaties, activiteiten, producten, projecten en mail | Het gelinkte artikel noemt geen eigen objecttype; Projecten is een add-on bij Growth en lagere abonnementen en standaard bij Premium en Ultimate |
+| Customermates | Contactpersonen, organisaties, deals, diensten en taken, allemaal vrij te hernoemen | Je eigen lijsten met getypeerde velden, relaties en berekende velden |
+
+Het patroon: HubSpot en Salesforce laten je eigen objecttypen toevoegen en configureren, bij HubSpot met een Enterprise-abonnement. De gegevensitems van Pipedrive blijven dicht bij het salesproces. Customermates start zonder lijsten: je maakt de lijsten aan die je nodig hebt en geeft elke een naam, zodat een lijst met contactpersonen in de hele werkruimte Klanten kan heten en een lijst met deals Projecten, en je ze later opnieuw kunt hernoemen.
+
+## Hoe Customermates de kernlijsten modelleert
+
+Customermates bewaart CRM-gegevens in instelbare lijsten, en geen enkele lijst is ingebouwd. In Customermates Cloud ontwerpt de AI-werkruimteconfiguratie de lijsten op basis van je antwoorden; een zelf gehoste werkruimte start leeg, en wie het datamodel beheert, maakt de lijsten aan in Datamodel. De configuratie maakt altijd een lijst met personen en Taken aan, meestal Organisaties en Deals, en een catalogus van diensten of producten alleen als je ze verkoopt. Een typisch resultaat ziet er zo uit, zoals beschreven in de [documentatie over het datamodel](/docs/concepts).
+
+| Lijst (standaardnaam) | Eén record is | Meestal gekoppeld aan | Goed om te weten |
+|---|---|---|---|
+| Contactpersonen | Eén persoon | Organisaties, deals, taken | Een veld Contactgegevens bevat de e-mailadressen, telefoonnummers en socialemediaprofielen en koppelt binnenkomende berichten aan het record |
+| Organisaties | Eén bedrijf of account | Contactpersonen, deals | Alle velden die je toevoegt, zoals segment of klant sinds |
+| Deals | Eén kans | Contactpersonen, organisaties, diensten | De fase is een veld met Enkele keuze en een kans per fase; de waarde is de som van de regelitems |
+| Diensten (of Producten) | Iets wat je verkoopt | Deals, via regelitems | Een eenheidsprijs; een regelbedrag is aantal maal eenheidsprijs |
+| Regelitems | Eén regel op één deal | De deal | Een sublijst: hij hoort bij één deal, wordt erin bewerkt en verdwijnt ermee |
+| Taken | Eén stuk werk | De records waaraan je hem koppelt | Een vervaldatum of status is een gewoon veld dat je toevoegt |
+| Je eigen lijsten | Al het andere: Projecten, Sollicitaties, Panden | Wat je koppelt | Dezelfde veldtypen, relaties en opgeslagen weergaven als elke andere lijst |
+
+Een relatie verbindt twee lijsten. Elke kant heeft een eigen label en staat één of meerdere records toe, zodat één contactpersoon bij meerdere organisaties kan horen en een project meerdere contactpersonen en deals kan koppelen. Beide records tonen de koppeling. Bij Pro, waar gekoppelde accounts berichten binnenhalen, kan een relatie ook de berichten van de gekoppelde personen tonen bij de deal of organisatie.
+
+Velden kunnen berekend zijn. De waarde van een deal telt de regelbedragen op, en de gewogen waarde is de dealwaarde maal de kans per fase gedeeld door 100, wat pipelineweging is en geen forecast. Elk record houdt een vaste ID, dus het hernoemen van een lijst of veld breekt geen verwijzingen, en een opgeslagen weergave toont records zonder ze te kopiëren.
+
+## CRM database, spreadsheet of gewone database?
+
+Alle drie kunnen klantgegevens bevatten. De vraag is wie ze onderhoudt en hoeveel van de logica je zelf wilt bouwen.
+
+| Kies | Wanneer | Je geeft op |
+|---|---|---|
+| Een spreadsheet | Eén persoon, een korte lijst, geen gedeelde geschiedenis nodig | Koppelingen tussen personen en bedrijven, een tijdlijn per klant, veilig bewerken door meerdere mensen |
+| Een gewone database of no-codetool (Airtable, Notion, Access, PostgreSQL) | Je records zijn geen personen en deals, of je hebt een model nodig dat geen CRM biedt | Je bouwt de formulieren, relaties, rechten en geschiedenis zelf |
+| Een CRM | Meerdere mensen werken met dezelfde klanten en je volgt deals, opvolging of gesprekken | Wat vrijheid in het datamodel; de meeste cloud-CRM's rekenen per gebruiker |
+
+Dezelfde taken zien er in een spreadsheet anders uit dan in een CRM database:
+
+| De taak | In een Excel-sheet | In een CRM database |
+|---|---|---|
+| Eén persoon aan twee bedrijven koppelen | Een tweede rij of twee namen in één cel, dus je zoekt twee keer | Eén persoonsrecord gekoppeld aan beide bedrijven, waar de CRM er meerdere toestaat; de koppeling staat op beide records |
+| Een segmentwaarde consistent houden | Een vrije-tekstkolom, tenzij je een keuzelijst bouwt en onderhoudt | Een veld met Enkele keuze en vaste opties; hernoem een optie in Customermates en elk record volgt |
+| Zien wat er met één klant gebeurde | Wat iemand in een notitiekolom typte | Een geschiedenis van wijzigingen en gekoppelde berichten op het record |
+| Twee mensen tegelijk laten werken | Eén gedeeld bestand, een versie om samen te voegen of een vergrendeling | Elke persoon bewerkt records ter plekke, met toegang per lijst en actie |
+| Rapporteren over de cijfers | Formules en draaitabellen die je zelf bouwt en bijhoudt | Dashboardwidgets die records optellen of tellen en groeperen op een veld, zoals dealwaarde per fase |
+
+Werk je nu in een spreadsheet, dan laat de [gids over de Excel CRM-template](/blog/excel-crm-template) zien hoe ver je ermee komt en hoe je hem opzet zodat de latere import makkelijk is. Voor de keuze tussen soorten klantendatabasetools zie je [software voor klantendatabases](/blog/client-database-software).
+
+## Een CRM database opbouwen
+
+Deze stappen gelden voor elke CRM. De volgorde telt zwaarder dan de tool.
+
+<Steps>
+  <Step title="Schrijf de recordtypen op die je nodig hebt">Begin met personen, bedrijven en deals. Voeg een apart type pas toe als het een eigen levenscyclus heeft. Een productcatalogus heeft die; een vergaderlocatie niet.</Step>
+  <Step title="Maak een lijst van de velden waarop je filtert of rapporteert">Filtert niemand ooit op een veld, dan hoort het in de notities. Kies voor elk veld een type: datum, bedrag, e-mail, telefoon, link, of één keuze uit een vaste lijst. Een veld "Segment" als vrije tekst eindigt binnen een maand met "Retainer", "retainer" en "Ret.".</Step>
+  <Step title="Bepaal je dealfasen en wat een deal verder brengt">Vijf tot zeven fasen met elk een opgeschreven uitstapregel, bijvoorbeeld "Voorstel: een schriftelijk voorstel is verstuurd". Fasen zonder uitstapregels worden meningen.</Step>
+  <Step title="Kies één unieke sleutel per persoon">Meestal het e-mailadres. Daarmee vind je dubbele records vóór de import en koppelt de CRM binnenkomende e-mail aan de juiste persoon. HubSpot ontdubbelt bijvoorbeeld contacten op e-mailadres en bedrijven op domeinnaam.</Step>
+  <Step title="Schoon de brongegevens op">Eén persoon per rij, één soort waarde per kolom, volledige namen splitsen in voor- en achternaam, dubbele records op e-mail verwijderen en mensen wissen voor wie je geen reden meer hebt ze te bewaren.</Step>
+  <Step title="Importeer eerst bedrijven, dan personen, dan deals">Elke volgende import kan dan koppelen aan records die al bestaan, gevonden op naam. Test met 50 rijen voordat je het volledige bestand importeert.</Step>
+  <Step title="Sla de weergaven op waaruit mensen werken">"Mijn openstaande deals", "Klanten zonder bedrijf", "90 dagen niet aangeraakt". Een database waar niemand naar kijkt, verloedert ongemerkt.</Step>
+  <Step title="Wijs een eigenaar aan voor datakwaliteit">Eén persoon die de maandelijkse controle hieronder uitvoert. Zonder eigenaar is opschonen ieders taak en dus niemands taak.</Step>
+</Steps>
+
+## Wanneer gegevens niet passen in contactpersonen, bedrijven of deals
+
+Dit is het meest voorkomende ontwerpprobleem, en er zijn vier eerlijke antwoorden.
+
+1. **Het beschrijft een bestaand record.** Een einddatum van een contract, een klantsegment, een LinkedIn-URL. Voeg een getypeerd aangepast veld toe aan dat recordtype.
+2. **Het is iets wat je verkoopt.** Zet het in de product- of dienstencatalogus en koppel het aan deals, zodat de dealwaarde volgt uit wat erin zit.
+3. **Het is tekst die je leest maar nooit filtert.** Vergadernotities, achtergrond, voorkeuren. Gebruik het veld voor notities.
+4. **Het heeft een eigen levenscyclus en relaties.** Panden, voertuigen, kandidaten, evenementen. Dat is een eigen object. HubSpot biedt ze bij Enterprise, Salesforce op zijn platform, en no-codedatabases zoals Airtable zijn eromheen gebouwd. In Customermates voeg je het toe als je eigen lijst in Datamodel, met eigen velden en relaties.
+
+## Uitgewerkt voorbeeld: een CRM database voor een adviesbureau van vier personen
+
+Hier staat hetzelfde ontwerp in Customermates, ingericht zoals het product vandaag werkt. Customermates is een open-source, AI-native CRM, gebouwd in Duitsland voor kleine teams met veel klantcontact, zoals consultants, bureaus en oprichters. Een nieuwe werkruimte start zonder lijsten: in Customermates Cloud beschrijf je je bedrijf in één zin en bouwt Mate de lijsten, de pipeline en het dashboard, en de onderstaande stappen kun je ook met de hand doen in het Datamodel.
+
+**Lijsten.** Open in Datamodel de lijst Contactpersonen en verander **Naam** en **Meervoudsnaam** onder **Algemeen** in Klant en Klanten, hernoem daarna Deals op dezelfde manier naar Projecten. Elke naam werkt. Organisaties, Diensten en Taken houden hun namen.
+
+**Velden.** Elk veld heeft een type: Tekst, Opgemaakte tekst, Getal, Geldbedrag, Ja of nee, Datum, Datum en tijd, Datumbereik, Datum- en tijdbereik, Enkele keuze, Meerkeuze, Webadres, Lid, Adres, Bestand of Telefoon, e-mail en social media.
+
+| Lijst | Veld | Type |
+|---|---|---|
+| Organisaties | Segment (Retainer, Project, Voormalig) | Enkele keuze |
+| Organisaties | Klant sinds | Datum |
+| Klanten | Functie | Tekst |
+| Klanten | LinkedIn-profiel | Webadres |
+| Projecten | Looptijd opdracht | Datumbereik |
+| Projecten | Bron (Doorverwijzing, Inbound, Evenement) | Enkele keuze |
+
+**Relaties.** Een klant kan aan meerdere organisaties gekoppeld zijn, en een project aan meerdere klanten, organisaties en toegewezen gebruikers. De waarde van een project is de som van de regelitems, elk een dienstprijs vermenigvuldigd met het aantal, dus "Strategieworkshop" tegen één prijs en "Maandelijkse retainer" maal zes tellen vanzelf op.
+
+**Fasen.** Fasen zijn niet voorgeprogrammeerd: je voegt een veld Fase toe (bijvoorbeeld Prospectie, Kwalificatie, Demo, Voorstel, Onderhandeling, Gewonnen, Verloren) en stelt per fase kansen in via Datamodel. De gewogen pipeline is de gewone rekensom met die percentages, geen voorspelling.
+
+**Unieke sleutel.** E-mailadressen gaan in het veld Contactgegevens van de klant, dat binnenkomende berichten aan het record koppelt. Eén adres kan bij meerdere records horen, dus verwijder dubbele records voordat je importeert. Globaal zoeken (Cmd/Ctrl+K) vindt een klant op naam of op elk e-mailadres of telefoonnummer in de contactgegevens.
+
+**Import.** Gebruik **Meer acties** › **Toevoegen uit bestand** met een .xlsx-werkmap of een .csv-bestand, één lijst per keer, in de volgorde organisaties, klanten, projecten. Koppelkolommen worden gevonden op recordnaam. Een CSV-bestand kun je direct importeren, zonder conversie. De [documentatie over records](/docs/app-records) bevat alle importregels.
+
+**Weergaven.** Sla "90 dagen niet aangeraakt" op door te filteren op Bijgewerkt op met Ouder dan… 90 dagen, en "Klanten zonder organisatie". Deel "90 dagen niet aangeraakt" met het hele team of met geselecteerde rollen, zodat iedereen uit dezelfde lijst werkt.
+
+**Kosten.** Vier mensen op Starter betalen [[commercial.price.starter.monthly.seats.4]] per maand. Op Pro, dat de [gecombineerde inbox](/features/unified-inbox) toevoegt, zodat het gekoppelde e-mail-, LinkedIn- of WhatsApp-account van elke gebruiker zijn gesprekken naast de klant toont, is het [[commercial.price.pro.monthly.seats.4]] per maand. Er wordt maandelijks gefactureerd, en je eerste werkruimte start met Pro gratis voor [[commercial.trial.days]] dagen zonder creditcard. De open-source kern zelf hosten kost geen licentie, maar levert geen inbox en geen Mate.
+
+**Een routine voor datakwaliteit (Customermates Cloud).** Mate, de assistent in Customermates Cloud, gebruikt gehoste AI-tegoeden. Een routine voert opgeslagen instructies uit volgens een schema of bij een recordgebeurtenis, als de persoon die hem bezit; Pro bevat [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker. Een wekelijkse routine kan deze instructie dragen:
+
+> Maak elke maandag een lijst van klanten die in de afgelopen 7 dagen zijn aangemaakt en geen gekoppelde organisatie of geen e-mailadres hebben, en een lijst van organisaties zonder waarde bij Segment. Zet de lijsten in de samenvatting van de run. Wijzig geen enkel record en verstuur geen enkel bericht.
+
+De laatste zin telt. Mate kan berichten versturen als een instructie daarom vraagt, dus een routine die alleen moet rapporteren, moet dat zeggen. Geef je de voorkeur aan je eigen AI-client, dan kunnen Claude, ChatGPT en andere MCP-clients dezelfde records bevragen via [[derived.mcp.tools.total]] [MCP-tools](/docs/mcp), in de cloud en zelf gehost.
+
+Een database verdient zijn plek als elk record een volgende stap heeft. Bij Pro komen de gesprekken bij het klantrecord, stelt Mate of je eigen AI-client het antwoord en de volgende stap op, en jij controleert, past aan en verstuurt. Om dat op je eigen records te proberen, [start je de proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup).
+
+## Een CRM database schoon houden
+
+Contactgegevens veroudern als mensen van baan wisselen en bedrijven fuseren. Een korte routine met een vaste eigenaar wint het van een jaarlijks opschoonproject.
+
+| Hoe vaak | Controle | In Customermates |
+|---|---|---|
+| Wekelijks | Nieuwe personen zonder bedrijf, nieuwe deals zonder fase | Opgeslagen weergaven, of de routine hierboven |
+| Maandelijks | Records die in 90 dagen niet zijn bijgewerkt: nog relevant? | Filter op Bijgewerkt op, Ouder dan… 90 dagen |
+| Maandelijks | Vrije-tekstwaarden die keuzes hadden moeten zijn | Voeg een veld met Enkele keuze toe en zet het daarna in één keer op maximaal 100 geselecteerde records met Bewerken |
+| Elk kwartaal | Mensen voor wie je geen reden meer hebt ze te bewaren | Verwijder ze uit de lijst of van de recordpagina, en daarna uit de Prullenbak |
+| Vóór elke grote wijziging | Een kopie van wat je hebt | Exporteer elke lijst als Excel of JSON; een enkele export van het hele account is er niet |
+
+Een geëxporteerde werkmap kun je bewerken en opnieuw importeren als **Bestaande records**, wat ze bijwerkt in plaats van dubbele records aan te maken. Zo zijn bulkcorrecties haalbaar zonder API.
+
+## Een CRM database exporteren
+
+Plan de uitgang terwijl je de ingang ontwerpt. Je hebt een export nodig voor back-ups, voor bulkcorrecties in een spreadsheet en voor de dag dat je van tool wisselt, en je test hem op een kleine lijst voordat je erop vertrouwt. In Customermates heeft elke lijst dezelfde opties onder **Meer acties**, en een export bevat alleen wat jouw rol mag lezen.
+
+| Je wilt | Doe dit | Goed om te weten |
+|---|---|---|
+| Veel records in een spreadsheet bewerken | **Exporteren als Excel (.xlsx)** op de lijst | Eén blad per lijst en één kolom per veld dat je mag lezen; zoeken, filters en sortering gelden; tot 5.000 records |
+| Een back-up van een lijst bewaren, koppelingen inbegrepen | **Exporteren als JSON** | Het bestand bevat koppelingen voor heropnemen met **Toevoegen uit bestand**, als **Aanmaken met geëxporteerde ID's** of **Overeenkomende ID's bijwerken** |
+| Een grote JSON-export opnieuw importeren | Gebruik de REST API of MCP | De app weigert een JSON-bestand met meer dan 100 records of 500 koppelingen; de API exporteert pagina's tot 500 en importeert 100 records per verzoek |
+| Naar een andere CRM verhuizen | Exporteer elke lijst als Excel en importeer in de volgorde organisaties, personen, deals | Customermates heeft geen export van het hele account; controleer de importregels van de nieuwe tool (Pipedrive documenteert bijvoorbeeld het importeren van personen, organisaties en deals uit CSV- of XLS-bestanden) |
+
+De [documentatie over records](/docs/app-records) noemt elke import- en exportlimiet.
+
+## Persoonsgegevens in een CRM database
+
+In de EU is een CRM database met personen een verzameling persoonsgegevens onder de [AVG](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Drie beginselen uit artikel 5 vertalen zich direct naar het ontwerp van de database: bewaar alleen gegevens die "beperkt zijn tot wat noodzakelijk is" (minder velden), houd ze juist (de opschoonroutine) en beperk hoe lang je ze bewaart (de verwijdering per kwartaal). Artikel 17 geeft mensen het recht op gegevenswissing, dus je moet één persoon volledig kunnen vinden en verwijderen. Artikel 28 vereist een overeenkomst met elke aanbieder die de gegevens voor je opslaat.
+
+Voor Customermates Cloud is de [verwerkersovereenkomst](/dpa) openbaar, is de applicatiedatabase geconfigureerd in de AWS-regio Frankfurt en staan de [subverwerkers](/subprocessors), inclusief Amerikaanse aanbieders, op een rij. Customermates heeft geen compliancecertificering. Heb je de gegevens op je eigen server nodig, [host dan de open-source kern zelf](/features/self-hosted).
+
+## Wanneer Customermates de verkeerde database is
+
+- **Je hebt rechten per veld nodig.** Rechten gelden per lijst en actie, niet per veld.
+- **Je wilt alles met één klik exporteren.** Export loopt per lijst, als Excel of JSON.
+- **Je verstuurt nieuwsbrieven vanuit je klantenlijst.** Er is geen massamail; gebruik een tool voor e-mailmarketing.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is een CRM database?">
+Het is de opslag achter een CRM: records voor personen, bedrijven, deals en taken, aan elkaar gekoppeld, met getypeerde velden en een geschiedenis van wijzigingen en gesprekken. De koppelingen en de geschiedenis maken er meer van dan een contactenlijst.
+</FaqItem>
+
+<FaqItem question="Welke gegevens slaat een CRM database op?">
+Vier soorten. Wie een persoon of bedrijf is: namen, e-mailadressen, telefoonnummers, adressen, functies. Wat je aan wie verkoopt: deals, fasen, waarden, producten of diensten. Wat er gebeurde: e-mails en berichten, notities, taken en wijzigingen aan het record. En wat je zelf toevoegt, zoals een segment, een bron of een einddatum van een contract. Getypeerde velden houden de eerste en de laatste soort doorzoekbaar en telbaar.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een database en een CRM?">
+Een database slaat op welke tabellen je ontwerpt en laat de formulieren, relaties, rechten en geschiedenis aan jou over. Een CRM is een database met die klantlogica al gebouwd: personen gekoppeld aan bedrijven en deals, pipelinefasen, toegewezen gebruikers en een tijdlijn per record. Je ruilt wat vrijheid in het datamodel in tegen het niet zelf hoeven bouwen.
+</FaqItem>
+
+<FaqItem question="Is een klantendatabase hetzelfde als een CRM database?">
+Ze overlappen. Een klantendatabase is de lijst met klanten en wat je van ze weet; een CRM database voegt de koppelingen tussen personen, bedrijven en deals toe, de pipeline en de geschiedenis achter een CRM. Heb je alleen een klantenlijst nodig en kies je een tool daarvoor, zie dan [software voor klantendatabases](/blog/client-database-software).
+</FaqItem>
+
+<FaqItem question="Is Excel een CRM database?">
+Nee. Excel kan een klantenlijst bevatten, en voor één persoon met een korte lijst is dat genoeg. Het heeft geen koppelingen tussen personen en bedrijven, geen geschiedenis per klant en geen veilige manier om met meerdere mensen tegelijk te bewerken. Een schone sheet met één soort waarde per kolom is wel een goed startpunt voor een import.
+</FaqItem>
+
+<FaqItem question="Wat zijn de vier soorten CRM?">
+De gebruikelijke indeling is operationeel (het uitvoeren van sales-, service- en marketingwerk), analytisch (rapporteren over klantgegevens), collaboratief (klantinformatie delen tussen teams) en strategisch (het bedrijf inrichten rond langetermijnklantrelaties). Alle vier gebruiken dezelfde CRM database; ze verschillen in wat je ermee doet.
+</FaqItem>
+
+<FaqItem question="Hoe sla ik gegevens op die niet passen in contactpersonen, bedrijven of deals?">
+Beschrijft het een bestaand record, voeg dan een getypeerd aangepast veld toe. Is het iets wat je verkoopt, gebruik dan de product- of dienstencatalogus. Wordt het alleen gelezen, gebruik dan notities. Heeft het een eigen levenscyclus en relaties, dan heb je eigen objecten nodig, die HubSpot bij Enterprise biedt en Salesforce op zijn platform; in Customermates voeg je er een eigen lijst voor toe.
+</FaqItem>
+
+<FaqItem question="Wat kost een CRM database?">
+Een spreadsheet of een zelf gehoste open-source CRM heeft geen licentiekosten, maar je betaalt in inrichtings- en onderhoudstijd. Cloud-CRM's rekenen meestal per gebruiker en maand. In Customermates Cloud is dat [[commercial.price.starter.monthly]] per gebruiker bij Starter en [[commercial.price.pro.monthly]] bij Pro met de gecombineerde inbox; zie de [prijzen](/pricing).
+</FaqItem>
+</Faq>
+
+Details van aanbieders gecontroleerd op 11 november 2026 bij de [objectdocumentatie van HubSpot](https://knowledge.hubspot.com/records/understand-objects) (laatst bijgewerkt op 2 oktober 2026), [Salesforce Trailhead over standaard- en eigen objecten](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) en het [artikel van Pipedrive over de organisatie van gegevens](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) (laatst bijgewerkt op 23 september 2026).

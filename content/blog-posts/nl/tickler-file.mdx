@@ -1,0 +1,160 @@
+---
+title: "Tickler file: zo werkt het, plus een digitale versie"
+description: "Tickler file uitgelegd: hoe het systeem met 43 mappen van 1 tot 31 werkt en hoe je het digitaal opzet in een CRM met een datumveld, weergave en widget."
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /blog/digital-rolodex
+
+hero:
+  title: "Tickler file: zo werkt het systeem van 1 tot 31, plus een digitale versie"
+  description: "Wat een tickler file is, hoe het systeem met 43 mappen van 1 tot 31 werkt en hoe je een digitale tickler file draait in een CRM met een datumveld, een opgeslagen weergave en een widget."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - Opvolging
+    - Tijdbeheer
+    - Tickler file
+---
+
+# Tickler file: zo werkt het systeem van 1 tot 31, plus een digitale versie
+
+Een tickler file is een opvolgsysteem van mappen met een datum erop, 31 voor de dagen van de maand en 12 voor de maanden, dat een papier, een rekening of een opvolgactie op de dag dat het aan de beurt is voor je neus legt en niet eerder. Een digitale tickler file houdt het idee vast in een lijst: elk item heeft een datum, de lijst is op die datum gesorteerd en één weergave toont wat vandaag aan de beurt is. In Customermates is dat een veld "Datum volgende stap", een opgeslagen weergave die daarop sorteert en de widget Aankomend op het dashboard.
+
+Deze gids legt uit wat een tickler file is, loopt het systeem met 43 mappen door aan de hand van een uitgewerkt voorbeeld, zet papier, een Outlook-opvolgvlag, een spreadsheet en een CRM naast elkaar en richt de digitale versie stap voor stap in Customermates in. Customermates publiceert de gids en komt voor in eigen, als zodanig gemarkeerde stukken, ook waar het de verkeerde keuze is. Feiten van derden zijn gecontroleerd op 11 november 2026; de bronnen staan bij de plek waar ze worden gebruikt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Het idee">Berg een item op onder de datum waarop je het weer wilt zien en open elke ochtend alleen de map van vandaag. Het systeem onthoudt het voor je tot de dag aanbreekt.</SummaryItem>
+  <SummaryItem label="Papier">43 mappen: 31 genummerd voor de dagen van de maand en 12 met de naam van een maand. Items voor latere maanden wachten in een maandmap en verhuizen naar de dagmappen zodra die maand begint.</SummaryItem>
+  <SummaryItem label="Outlook">Een opvolgvlag op één e-mail, met een begin- en einddatum en een optionele herinnering. Hij volgt één bericht, niet de klant erachter.</SummaryItem>
+  <SummaryItem label="Customermates">Een datumveld, een weergave die erop sorteert en de widget Aankomend met een sectie Achterstallig. Werkt op elk pakket, ook zelf gehost. Het stuurt geen herinneringen: de lijst is de herinnering.</SummaryItem>
+  <SummaryItem label="Transparantie">Customermates publiceert deze gids. De andere opties worden beschreven op wat ze passend maakt, niet op rang.</SummaryItem>
+</ArticleSummary>
+
+## Wat is een tickler file?
+
+Een tickler file is een herinneringssysteem van mappen met een datum erop. Je bergt een papier of een notitie op onder de datum waarop je het moet afhandelen, en elke dag open je de map van die dag. Het heet ook het 43 Folders-systeem, en Wikipedia beschrijft de opbouw als 31 dagmappen plus 12 maandmappen ([Wikipedia: Tickler file](https://en.wikipedia.org/wiki/Tickler_file)). De naam verwijst naar het bestand dat je geheugen "kietelt" wanneer het item ertoe doet.
+
+Het idee is ouder dan de productiviteitsboeken. Wikipedia noemt dat advocatenkantoren in het begin van de twintigste eeuw, en mogelijk eerder, tickler-kaarten op datum ordenden, zodat een advocaat de kaart kreeg naarmate een termijn naderde, bijvoorbeeld voor een merkverlenging of het indienen van een verzoek. David Allen, wiens boek Getting Things Done het systeem behandelt, noemt het op zijn site "like having your own post office to mail things back for your attention and awareness", oftewel een eigen postkantoor dat dingen naar je terugstuurt voor je aandacht, en zegt dat het maar één seconde per dag aan nieuw gedrag vraagt ([Getting Things Done: Be your own post office](https://gettingthingsdone.com/2009/11/be-your-own-post-office/)).
+
+Alles wat je op een bepaalde dag weer wilt zien, kan erin: een rekening, een ticket, een formulier, een briefje om iemand te bellen. In zakelijk gebruik zijn de nuttigste items gesprekken die op een datum wachten: een offerte die je hebt verstuurd, een prospect die vroeg om na een beurs terug te bellen, een verlenging die je vroeg wilt aansnijden.
+
+## Hoe werkt de tickler file met 43 mappen?
+
+<Steps>
+  <Step title="Label 43 mappen">Label 12 mappen voor de maanden en 31 voor de mogelijke dagen van de maand, zoals Allen de set beschrijft.</Step>
+  <Step title="Berg elk item op per datum">Iets wat je later deze maand moet zien, gaat in de map van die dag. Iets voor een latere maand gaat in de map van die maand.</Step>
+  <Step title="Open elke ochtend de map van vandaag">Haal alles eruit en handel het af: doe de taak, stuur het bericht, betaal de rekening, of berg het opnieuw op onder een latere datum.</Step>
+  <Step title="Zet de lege map achteraan">Wikipedia beschrijft het dagelijkse ritme zo: de map van de huidige dag wordt leeggemaakt en achteraan de set gezet, zodat de map van morgen vooraan staat.</Step>
+  <Step title="Leeg de nieuwe maand in de dagmappen">Open op de eerste van een maand de map van die maand en verdeel de items over de dagmappen. Niets hoeft vóór zijn dag nog een keer te worden bekeken.</Step>
+</Steps>
+
+Hier is een uitgewerkt voorbeeld. Het is verzonnen en begint op woensdag 11 november 2026.
+
+| Item | Opnieuw zien op | Papieren tickler | Digitale tickler |
+| --- | --- | --- | --- |
+| Een offerte ging vandaag de deur uit; de klant zei dat hij uiterlijk woensdag 18 november beslist | 18 november | Map 18 | Volgende stap "Vragen om de beslissing", Datum volgende stap 18 november |
+| Een prospect zei "bel me na onze beurs op 3 december" | 3 december | Map december, op 1 december verhuisd naar map 3 | Volgende stap "Bellen over de offerte", Datum volgende stap 3 december; het komt in de widget Aankomend zodra de datum binnen het aantal dagen vooruit valt |
+| Je hebt de prijs van een leverancier nodig voordat je een klant kunt antwoorden; die is beloofd voor vrijdag 13 november | 13 november | Map 13 | Volgende stap "Leveranciersprijs najagen", Datum volgende stap 13 november |
+| Een klantcontract loopt in januari af en je wilt het verlengingsgesprek in december openen | 1 december | Map december | Volgende stap "Verlengingsgesprek starten", Datum volgende stap 1 december |
+
+De digitale versie laat het doorschuiven van mappen weg. Niemand zet een map achteraan, want de sorteervolgorde doet dat, en de maandmappen verdwijnen omdat een datum in maart gewoon in de lijst wacht tot hij in beeld komt.
+
+## Welke tickler file past: papier, een Outlook-vlag, een spreadsheet of een CRM?
+
+Vier manieren dekken bijna elk geval. De rij van Customermates is ons eigen product; de andere worden beschreven op wat ze doen.
+
+| Optie | Hoe de datum werkt | Herinnert het je? | Wat er naast het item staat | Past wanneer |
+| --- | --- | --- | --- | --- |
+| Papier, 43 mappen | Een map per dag en per maand | Nee. Je opent elke ochtend de map van vandaag | Het papier zelf | Je werkt met fysieke post, rekeningen, tickets en formulieren |
+| Outlook-opvolgvlag | Een vlag op een bericht met Vandaag, Morgen, Deze week, Volgende week, Geen datum of een eigen begin- en einddatum | Herinnering toevoegen stelt een herinnering in; gevlagde berichten staan in de Takenbalk, in Taken en in de dagelijkse takenlijst van de Agenda | Eén e-mailbericht | De opvolging begint bij een e-mail in Outlook |
+| Spreadsheet | Een datumkolom die je sorteert | Niet tenzij je het zelf bouwt | Een kolom met notities | Eén persoon met een korte lijst |
+| Datumveld in een CRM (Customermates) | Een datumveld bij de klant of deal | Nee. Customermates stuurt er geen; een gesorteerde weergave en de widget Aankomend zijn de herinnering | Het record met notities, gekoppelde contactpersonen en bedrijven en, vanaf Pro, LinkedIn- en e-mailgesprekken | Klanten en deals met een geschiedenis, voor één persoon of een team |
+
+Microsoft documenteert de vlagopties voor Outlook voor Microsoft 365, Outlook 2024 en Outlook 2021 en merkt op dat je met een IMAP-account de vlagtekst niet kunt wijzigen en geen begin- en einddatum kunt instellen. Gecontroleerd op 11 november 2026 aan de hand van [Microsoft Support: Flag email messages for follow up](https://support.microsoft.com/en-us/office/flag-email-messages-for-follow-up-9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).
+
+Zo kies je:
+
+- **Papieren die je fysiek moet bewaren:** de papieren tickler. Niets digitaals bewaart de originele brief.
+- **Een opvolging die bij één e-mail begint en je werkt in Outlook:** de vlag is de kortste weg.
+- **Een korte persoonlijke lijst:** een spreadsheet is genoeg. De [gids over de Excel-CRM-template](/blog/excel-crm-template) laat zien waar een sheet begint te knellen.
+- **Klantopvolging over LinkedIn en e-mail, met een geschiedenis om te lezen voordat je belt:** een CRM, want de datum staat bij het record waar het gesprek ook staat. Vanaf Pro zet de [gecombineerde inbox](/features/unified-inbox) die gesprekken bij de klant.
+
+## Hoe gebruik je een tickler file voor sales follow-up?
+
+Vijf regels maken van de mappen een salesgewoonte:
+
+- **Eén echte datum per open gesprek.** Gebruik de dag die je beloofde, niet "over een week", zodat de opvolging landt wanneer de klant haar verwacht.
+- **Schrijf de actie naast de datum.** "Aangepaste scope sturen" is beter dan "opvolgen".
+- **Verplaats of wis de datum na elk contact.** Een deal zonder datum is degene die uit beeld raakt.
+- **Open de lijst elke dag op hetzelfde moment** en begin met wat achterstallig is.
+- **Zoek een keer per week naar records zonder datum.** Dat is het lek dat een tickler zelf niet laat zien.
+
+Een [digitale rolodex](/blog/digital-rolodex) vertelt je wie iemand is; de tickler zegt wanneer je moet schrijven. Voor de tekst van het bericht lees je [hoe je een sales follow-up mail schrijft](/blog/sales-follow-up-email). De pagina over [software voor klantopvolging](/features/follow-up) toont dezelfde gedateerde volgende stap met LinkedIn- en e-mailgesprekken bij het klantrecord.
+
+## Hoe zet je een digitale tickler file op in Customermates?
+
+Eerst hoe de papieren onderdelen overeenkomen met Customermates:
+
+| In de papieren tickler | In Customermates |
+| --- | --- |
+| 31 dagmappen | Een datumveld "Datum volgende stap". De widget Aankomend toont vandaag en de komende dagen, standaard 14 en maximaal 90 |
+| 12 maandmappen | Niets om te onderhouden. Een record met een datum in maart wacht in je gesorteerde weergave tot de datum binnen het venster van de widget valt |
+| De map van vandaag openen | Open het dashboard: de records van vandaag en de sectie Achterstallig |
+| De map achteraan zetten | Verplaats de datum van elk record nadat je hebt gehandeld, of wis hem |
+| Het papier in de map | Het record: notities, gekoppelde contactpersonen en bedrijven, bestanden en, vanaf Pro, gesprekken |
+| Eraan denken de la te openen | Blijft je eigen gewoonte. Customermates stuurt geen herinneringen |
+
+<Steps>
+  <Step title="Voeg twee velden toe">Voeg in **Datamodel** een veld van het type **Datum** met de naam "Datum volgende stap" en een veld van het type **Tekst** met de naam "Volgende stap" toe aan **Contactpersonen** of **Deals**, of aan allebei als je leads op deals leven. Op een pakket met Mate kun je Mate vragen ze toe te voegen. Taken hebben geen ingebouwde deadline, dus hetzelfde datumveld werkt daar ook; [taakbeheer](/features/task-management) laat zien hoe taken aan klanten worden gekoppeld.</Step>
+  <Step title="Sla de tickler-weergave op">Open **Weergave**, toon **Volgende stap** en **Datum volgende stap**, stel **Sorteren op** in op Datum volgende stap, **Oplopend**, klik dan op **Nieuwe weergave** en noem hem "Tickler". De oudste datums staan bovenaan. Aangepaste datumfilters werken met vaste datums, dus sorteren houdt de lijst actueel zonder dat je elke week een filter aanpast. Kies **Delen…** in het menu van de weergave om hem te tonen aan iedereen in de werkruimte of aan geselecteerde rollen.</Step>
+  <Step title="Voeg de widget Aankomend toe">Klik op het **Dashboard** op **Widget toevoegen** en kies **Aankomend**. Kies de lijst en het veld **Datum volgende stap** en filter afgeronde records weg, bijvoorbeeld gewonnen en verloren deals. De widget toont de records die de komende dagen aan de beurt zijn en heeft een sectie **Achterstallig** voor eerdere datums.</Step>
+  <Step title="Sla een weergave zonder datum op">Filter op dezelfde lijst **Datum volgende stap** met **is leeg** en sluit Gewonnen en Verloren uit in het veld **Fase**. Wat hier verschijnt, is uit je tickler gevallen.</Step>
+  <Step title="Werk de lijst elke ochtend af">Begin met **Achterstallig**, dan vandaag. Zet de stap, schrijf een regel in de notities van het record en verplaats **Datum volgende stap** naar de volgende beloofde dag, of wis hem wanneer er niets openstaat. Zet de weergave op **Agenda** op dezelfde datum als je dagen liever ziet dan rijen, en sleep een record naar een andere dag om zijn datum te verplaatsen.</Step>
+</Steps>
+
+Datumvelden, opgeslagen weergaven en de widget Aankomend hebben geen pakketlimiet: ze werken op Free, op betaalde pakketten en zelf gehost. Wil je dezelfde datums in een andere agenda-app zien, maak dan in de agenda een abonnements-URL: dat is een privé, alleen-lezen feed, en je agenda-app bepaalt hoe vaak hij vernieuwt. De [dashboardgids](/docs/app-dashboard) behandelt de widgetopties en de [agendagids](/docs/app-calendar) de feed.
+
+<AcquisitionCallout title="Waar Customermates de verkeerde tickler file is" variant="boundary">
+  Customermates stuurt geen herinneringen of meldingen, kent geen terugkerende taken en geeft taken geen ingebouwde deadline, dus de lijst herinnert je alleen wanneer je hem opent. Het bewaart geen papier (een scan in een Bestand-veld wordt opgeslagen en getoond, maar de tekst wordt niet gelezen), heeft geen native mobiele app en geen tweerichtingssynchronisatie met Outlook- of Google-agenda's; de agendafeed is eenrichting en alleen-lezen. Het is ook geen juridische termijnenagenda: een datumveld is informatie, geen gerechtelijke termijn. Heb je een melding nodig die jou vindt, gebruik dan een Outlook-vlag met herinnering of je agenda-app, of laat een scheduler zoals n8n de datum via de API lezen.
+</AcquisitionCallout>
+
+Customermates Cloud heeft een Free-pakket voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines. Je eerste werkruimte begint met een proefperiode van [[commercial.trial.days]] dagen op Pro en gaat daarna over naar Free, tenzij je een betaald pakket kiest; betaalde pakketten beginnen bij [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd, zie de [prijzenpagina](/pricing). De open-sourcekern kun je [zelf hosten](/features/self-hosted) zonder licentiekosten, zonder inbox en Mate. Wil je de tickler op je eigen klanten uitproberen, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): Pro, geen creditcard. Voeg de twee velden eerst toe aan Deals.
+
+## Veelgestelde vragen over de tickler file
+
+<Faq>
+<FaqItem question="Wat is een tickler file?">
+Een herinneringssysteem van mappen met een datum erop: 31 voor de dagen van de maand en 12 voor de maanden. Je bergt een item op onder de datum waarop je het nodig hebt en elke ochtend open je de map van die dag. Het heet ook het 43 Folders-systeem.
+</FaqItem>
+<FaqItem question="Waarom heet het een tickler file?">
+Omdat het je geheugen op het juiste moment kietelt. Het bestand houdt het item vast tot zijn dag, dus je hoeft het niet in je hoofd te dragen.
+</FaqItem>
+<FaqItem question="Wat is een andere naam voor een tickler file?">
+Het 43 Folders-systeem. Wikipedia noemt ook tickler-kaarten voor de juridische variant van hetzelfde idee. In een kantoor of een CRM is een gedateerde opvolging of volgende stap hetzelfde in een andere verpakking.
+</FaqItem>
+<FaqItem question="Wat betekent tickler in business?">
+Een gedateerde herinnering die een zaak bij je terugbrengt wanneer die aan de beurt is. In juridisch werk is het een kaart of vermelding die een termijn naar boven haalt; in sales is het de gedateerde volgende stap bij een klant of deal.
+</FaqItem>
+<FaqItem question="Hoe maak ik een tickler file?">
+Label 31 mappen van 1 tot 31 en 12 mappen van januari tot december. Berg elk item op onder de dag of maand waarop je het weer moet zien. Open elke ochtend de map van vandaag en sorteer op de eerste van elke maand de map van die maand in de dagmappen.
+</FaqItem>
+<FaqItem question="Bestaat er een digitale tickler file?">
+Ja. Elke lijst met een datumkolom die je sorteert en dagelijks opent, werkt: een Outlook-opvolgvlag voor e-mails, een spreadsheet voor een korte persoonlijke lijst, of een datumveld in een CRM met een opgeslagen weergave en een dashboardwidget voor klantopvolging.
+</FaqItem>
+<FaqItem question="Is een tickler file hetzelfde als een agenda?">
+Niet helemaal. Een agenda bevat afspraken op een tijdstip. Een tickler bevat items die je op een dag weer wilt zien, met het item of de context erbij. Een gesorteerde lijst met een datum doet beide, en Customermates kan dezelfde datums ook in zijn Agenda tonen.
+</FaqItem>
+<FaqItem question="Stuurt Customermates tickler-herinneringen?">
+Nee. Er zijn geen meldingen en taken hebben geen ingebouwde deadline. Je voegt een datumveld toe, sorteert een opgeslagen weergave erop en toont het in de widget Aankomend; de lijst is de herinnering. Heb je een pushmelding nodig, dan kan een Outlook-vlag met herinnering of een scheduler die de datum via de API leest die sturen.
+</FaqItem>
+</Faq>
+
+Feiten van derden gecontroleerd op 11 november 2026 aan de hand van [Wikipedia over de tickler file](https://en.wikipedia.org/wiki/Tickler_file), [de Getting Things Done-site van David Allen](https://gettingthingsdone.com/2009/11/be-your-own-post-office/) en [Microsoft Support over het markeren van berichten voor opvolging](https://support.microsoft.com/en-us/office/flag-email-messages-for-follow-up-9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).

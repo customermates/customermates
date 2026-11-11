@@ -1,0 +1,133 @@
+---
+title: "AI kennisbank software voor teams met klantcontact"
+description: "Kennisbank software naast je klantrecords: playbook, tone of voice en opvolgregels, zodat mensen en AI-clients hun antwoorden uit dezelfde bronnen opstellen."
+featureName: Kennisbank
+
+relatedHrefs:
+  - /docs/mcp
+  - /features/api
+  - /features/cloud-crm
+  - /features/self-hosted
+
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Lees de bron"
+        description: "Begin bij de bedrijfsgids en de procedure die bij de situatie past. Volg de relevante verwijzingen."
+      - title: "Controleer de huidige klant"
+        description: "Lees het echte klantrecord en de afgesproken scope. Een algemene procedure levert de ontbrekende klantgegevens niet."
+      - title: "Bereid de afgebakende volgende stap voor"
+        description: "Maak een interne checklist of een concept dat op die bronnen steunt. Laat zien waar elke feitelijke bewering vandaan komt."
+      - title: "Lees het opgeslagen resultaat terug"
+        description: "Controleer de taak, de toegewezen eigenaar en de koppeling met de klant. Een geslaagd verzoek bewijst op zichzelf niet dat de bedoelde status is opgeslagen."
+  highlights:
+    title: "Waar je het voor gebruikt"
+    capture: homepage-record
+    items:
+      - title: "Bedrijfsrichtlijnen"
+        description: "Houd de bedrijfsgids, de procedures en de referentiefeiten gescheiden, met een benoemde eigenaar en een controledatum."
+      - title: "Klantcontext"
+        description: "Lees de goedgekeurde bron en het actuele klantrecord voordat je een interne vervolgstap maakt."
+      - title: "Toegang"
+        description: "De toegang tot de Kennisbank volgt de rolrechten van de werkruimte. Er zijn geen toegangsrechten per pagina."
+      - title: "Grenzen"
+        description: "Opgehaalde tekst moet je nog steeds controleren. Een resultaat dat relevant lijkt, bewijst niet dat het de vraag beantwoordt."
+
+hero:
+  title: "Kennisbank software: schrijf je opvolgregels één keer op. Mate en je AI-agent gebruiken ze."
+  description: "Zet je salesplaybook, tone of voice en opvolgregels in de Kennisbank, naast je klantrecords. Mate en gekoppelde MCP-clients lezen dezelfde pagina's voordat ze een antwoord opstellen of de volgende stap voorstellen."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de gids voor de Kennisbank
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Schrijf op hoe je opvolgt"
+  description: "Start de proefperiode en kies het playbook voor consultants, bureaus, freelancers of kleine bedrijven. Dat schrijft de pagina's Salesplaybook, Tone of voice en Opvolgregels, die je zelf kunt bewerken. Mate leest ze voordat het een antwoord opstelt."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Lees de gids voor de Kennisbank
+  buttonRightHref: /docs/mcp#shared-workspace-wiki
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Kennisbank software geeft mensen en agents één onderhouden bron voor bedrijfsfeiten en procedures. In Customermates staan die pagina's in de werkruimte van de klant, zodat een medewerker, Mate of een externe MCP-client de richtlijnen naast het klantrecord kan raadplegen voordat het werk wordt voorbereid.
+
+**Voor opvolging.** De pagina's die het meest tellen, zeggen wanneer een gesprek een antwoord nodig heeft, hoe snel je reageert, hoe je afsluit en wat je nooit per bericht belooft. In de setup "Klantgesprekken opvolgen" schrijft Customermates op basis van een kant-en-klaar playbook de pagina's Salesplaybook, Tone of voice en Opvolgregels. Mate leest ze voordat het een antwoord opstelt of een volgende stap voorstelt, en je bewerkt ze zoals elke andere pagina.
+
+Dit past bij een klein team dat klantgesprekken en vervolgstappen over meerdere tools verdeeld heeft. Het is geen openbaar helpcentrum, geen leerplatform en geen vervanging van een zoeksysteem voor grote organisaties.
+
+## Wat hoort er in een AI-kennisbank voor klantwerk?
+
+Begin met feiten die veranderen wat je team doet: wat je aanbiedt, wie een toezegging mag goedkeuren, hoe je een klant overdraagt en waar je een uitzondering controleert. Geef elke pagina een eigenaar, een bron en een controledatum. Houd de huidige fase van een klant, de eigenaar en de afgesproken volgende stap in het klantrecord, in plaats van ze te kopiëren naar een blijvende beleidspagina.
+
+| Pagina | De vraag die ze beantwoordt | Voorbeeldinhoud |
+|---|---|---|
+| Bedrijfsgids | Wat moet een mens of agent lezen voordat het hier aan het werk gaat? | De volgorde van bronnen, de verantwoordelijkheden en de grenzen van het klantwerk |
+| Procedure | Wat moet er gebeuren als deze situatie zich voordoet? | Een checklist voor de overdracht van een klant en de controle op de opgeslagen status |
+| Referentie | Op welke feiten mag dit antwoord steunen? | De goedgekeurde scope, voorwaarden en definities, met de datum van de bron |
+| Open vragen | Wat is nog onbekend? | Een vraag en de verantwoordelijke persoon, zonder verzonnen antwoord |
+
+De [documentatie van de Kennisbank](/docs/mcp#shared-workspace-wiki) beschrijft de paginatypen en het bewerken. De bredere [gids over agentic CRM](/blog/agentic-crm) legt uit hoe kennis, klantcontext en acties samenkomen.
+
+## Hoe gebruiken mensen, Mate en MCP-clients dezelfde bron?
+
+Een medewerker opent de Kennisbank van de werkruimte. Mate kan bedrijfskennis raadplegen bij het ondersteunde werk in Customermates Cloud. Een externe client verbindt via [MCP en de API](/features/api), leest de context van de werkruimte, zoekt in de Kennisbank en haalt de relevante pagina of sectie op.
+
+De bron moet helpen een concrete taak af te ronden. Lees bij een overdracht het klantrecord en de overdrachtsprocedure, bereid één interne taak voor, wijs de eigenaar toe, koppel de taak aan de klant en lees haar terug. Het aanmaken van een taak verstuurt geen bericht aan de klant en schept geen nieuwe commerciële verplichting.
+
+Het [overzicht van integraties](/features/integrations) maakt onderscheid tussen externe clients, REST, webhooks en andere koppelopties. Dat je bedrijfskennis hier bewaart, betekent niet dat er een lokale Markdown-synchronisatie of een koppeling met een gedeelde schijf is.
+
+## Wat heeft ons voorbeeld met vier pagina's echt aangetoond?
+
+Gecontroleerd op 29 oktober 2026 in een geïsoleerde lokale werkruimte met fictieve gegevens: we maakten vier tweetalige pagina's, haalden hun inhoud op via het echte MCP-eindpunt, zochten in het Engels en het Duits en stelden een met de hand geschreven antwoord op met bronverwijzingen. Daarna maakten we een interne taak, speelden hetzelfde idempotente verzoek opnieuw af en lazen de eigenaar van de taak en de koppeling met de klant terug.
+
+Een aparte lezer met API-toegang maar zonder leesrecht op de Kennisbank kon de gids niet ophalen. Dat toetst de rechtengrens van de werkruimte; het stelt geen rechten per pagina vast en is geen benchmark voor de nauwkeurigheid van het zoeken. Bij het voorbeeld hoorden geen extern bericht, geen betaalde AI-aanroep en geen koppeling met een account van een derde.
+
+Je kunt het [startpakket van de Kennisbank met vier pagina's](/templates/knowledge-base-starter-en.zip) downloaden (in het Engels). Het bevat originele Markdown-voorbeelden en instructies om ze na te lezen en in pagina's te kopiëren. Het voegt geen aparte functie voor het importeren of exporteren van Markdown toe. Vervang de fictieve inhoud en bevestig je eigen regels voordat je het gebruikt.
+
+## Wat gebeurt er als de bron de vraag niet beantwoordt?
+
+Maak van een zoekresultaat geen belofte. In ons voorbeeld leverde een vraag over de bewaartermijn van back-ups na de spellingcorrectie een vage treffer op: de overdrachtsprocedure zei dat je een opgeslagen taak moest teruglezen ("read back"). Dat resultaat bevatte geen bewaarbeleid. Na controle van alle vier de bronpagina's was dit het passende concept: "De bronnen noemen geen bewaartermijn. Vraag het de verantwoordelijke persoon voordat je er een belooft."
+
+Daarom voorkomt een AI-kennisbank geen foute antwoorden. Lees de teruggegeven sectie, controleer het bereik en de datum ervan en onderscheid een onderbouwd feit van een verwant woord. Leg een onbeantwoorde vraag vast in plaats van een reactietijd, een juridische voorwaarde of een productfunctie te verzinnen.
+
+## Welke rechten en hostinggrenzen tellen?
+
+Lees- en beheerrechten voor de Kennisbank horen bij de rollen van de werkruimte. Er is geen aparte toegangslijst per pagina en geen rechtensysteem op veldniveau. Bewaar alleen materiaal dat geschikt is voor de mensen en gekoppelde gebruikers die die Kennisbank mogen lezen.
+
+Externe MCP-clients handelen met de rechten van de gekoppelde gebruiker. De bevestigingsinstructies van de server sturen de client, maar vormen geen door de server afgedwongen goedkeuringsstap voor een verder toegestane toolaanroep. Mate heeft een eigen goedkeuringsbeleid in Customermates Cloud.
+
+Gehoste Mate hangt af van het in aanmerking komende cloudabonnement, het beschikbare gebruik en de algemene instellingen. Externe clients gebruiken hun eigen modelaanbieder, maar semantisch zoeken kan toch meetellen voor het gebruik van Mate. Self-hosting biedt de Starter-kern en MCP voor externe clients, met zoeken op trefwoord en volledige tekst; het omvat geen gehoste Mate en geen semantisch AI-zoeken in self-hosting. Zie [self-hosting](/features/self-hosted) en de [documentatie van Mate](/docs/app-assistant).
+
+Bijgevoegde bestanden met tekst kunnen waar dat wordt ondersteund extra doorzoekbaar materiaal leveren. Gescande documenten en afbeeldingen worden niet met OCR gelezen. Dit is geen belofte dat elke gedeelde schijf, elk bestandstype of elk extern systeem wordt geïndexeerd.
+
+## Wanneer past een andere kennistool beter?
+
+Lokale Markdown kan volstaan voor de programmeerinstructies van één persoon of een kleine repository. Een openbaar helpcentrum past beter bij een documentatieportaal voor klanten. Voor brede synchronisatie van schijven, grootschalige opname van documenten of fijnmaziger toegang tot documenten kan een speciaal kennis- of zoekplatform nodig zijn.
+
+Customermates past wanneer de onderhouden richtlijnen naast klantrecords, gesprekken en het volgende werk moeten staan. Begin met een kleine, nuttige set bronnen en houd de eigenaar en de controleroutine duidelijk.
+
+<Faq>
+<FaqItem question="Kunnen externe agents dezelfde bedrijfskennis lezen als Mate?">
+Ja, ondersteunde MCP-clients kunnen de Kennisbank van de werkruimte doorzoeken en ophalen met de rechten van de gekoppelde gebruiker. Het model en het abonnement van de client staan los van de gehoste Mate.
+</FaqItem>
+<FaqItem question="Voorkomt een AI-kennisbank hallucinaties?">
+Nee. Zoeken kan een verwant of spellingsgecorrigeerd resultaat teruggeven dat de vraag niet beantwoordt. Controleer de echte bron en laat onderbouwde feiten die ontbreken onbeantwoord.
+</FaqItem>
+<FaqItem question="Is semantisch AI-zoeken inbegrepen als ik zelf host?">
+Nee. Self-hosting biedt de Starter-kern met zoeken op trefwoord en volledige tekst en externe MCP-clients, zonder gehoste Mate en zonder semantisch AI-zoeken in self-hosting.
+</FaqItem>
+<FaqItem question="Kan ik één pagina van de Kennisbank beperken tot een kleinere groep?">
+Er zijn geen toegangsrechten per pagina. Gebruik de rolrechten van de werkruimte en zorg dat de hele leesbare Kennisbank geschikt is voor dat publiek.
+</FaqItem>
+<FaqItem question="Kan de Kennisbank gescande pdf's of foto's lezen?">
+Nee, er is geen OCR. Bestanden met tekst kunnen waar dat wordt ondersteund doorzoekbaar zijn; scans en afbeeldingen worden opgeslagen en als voorbeeld getoond, zonder dat de tekst erop wordt gelezen.
+</FaqItem>
+<FaqItem question="Is het startpakket een native Markdown-import?">
+Nee. Het is een download met vier fictieve voorbeelden die je nakijkt en in pagina's van de werkruimte kopieert. Het maakt geen account en geen koppeling aan.
+</FaqItem>
+</Faq>

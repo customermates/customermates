@@ -1,0 +1,198 @@
+---
+title: "CRM en AVG: wat je checkt voordat je klantgegevens opslaat"
+description: "CRM en AVG: wat de AVG van een CRM vraagt (grondslag, verwerkersovereenkomst, subverwerkers, wissing, datalocatie) als checklist, met wat Customermates zegt."
+
+relatedHrefs:
+  - /blog/how-to-choose-crm
+  - /blog/best-crm-software
+  - /features/self-hosted
+  - /docs/architecture-security
+
+hero:
+  title: "CRM en AVG: wat je checkt voordat je klantgegevens opslaat"
+  description: "CRM en AVG: wat de AVG van een CRM vraagt (grondslag, verwerkersovereenkomst, subverwerkers, wissing, datalocatie) als checklist, met wat Customermates zegt."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - AVG
+    - Gegevensbescherming
+    - CRM
+    - Zelf gehost
+---
+
+# CRM en AVG: wat je checkt voordat je klantgegevens opslaat
+
+Een AVG-proof CRM is geen product met een badge. Het is een CRM plus de contracten, instellingen en gewoonten waarmee je je eigen plichten onder de AVG nakomt, en die plichten liggen bij jou als verwerkingsverantwoordelijke: een rechtmatige grondslag voor elk gebruik van persoonsgegevens, een verwerkersovereenkomst met de aanbieder die ze opslaat, antwoorden voor mensen die vragen wat je van hen bewaart, en wissing zodra je de gegevens niet meer nodig hebt. Een CRM-aanbieder kan dat makkelijk of moeilijk maken, maar geen enkele CRM maakt je uit zichzelf compliant.
+
+Deze gids somt de plichten op die voor een CRM tellen, met hun artikelnummers, laat zien wat je in het contract en de subverwerkerslijst van elke aanbieder controleert, loopt een inzage- en een wissingsverzoek door en beschrijft waar Customermates staat, inclusief wat het niet claimt. Customermates publiceert de gids en komt voor in gemarkeerde onderdelen. Het is algemene informatie, geen juridisch advies: vraag een jurist of je functionaris voor gegevensbescherming naar je eigen situatie. De EU-wetsbronnen en de juridische pagina's van Customermates zijn gecontroleerd op 11 november 2026; de juridische pagina's veranderen, dus lees de actuele [verwerkersovereenkomst](/dpa) en [lijst met subverwerkers](/subprocessors) voordat je op deze pagina vertrouwt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="De regel">Jij bent de verwerkingsverantwoordelijke voor de persoonsgegevens in je CRM, en de CRM-aanbieder is je verwerker. De AVG maakt jou verantwoordelijk voor de grondslag, het contract en de verzoeken, niet de software.</SummaryItem>
+  <SummaryItem label="Voordat je tekent">Een verwerkersovereenkomst met de inhoud van art. 28 lid 3, de lijst met subverwerkers van de aanbieder, waar de gegevens worden verwerkt en welk doorgiftemechanisme elke aanbieder buiten de EU dekt.</SummaryItem>
+  <SummaryItem label="In het dagelijks gebruik">Beperkte toegang, weinig velden, een manier om de gegevens van één persoon te vinden, te corrigeren, te exporteren en te verwijderen, en een bewaartermijnreview die je ook echt uitvoert.</SummaryItem>
+  <SummaryItem label="Customermates">Een verwerkersovereenkomst voor de beheerde cloud, een openbare lijst met subverwerkers waar Amerikaanse aanbieders op staan, de primaire database geconfigureerd in AWS Frankfurt (een gekozen instelling, geen garantie), geen nalevingscertificering en een open source kern die je zelf kunt hosten.</SummaryItem>
+  <SummaryItem label="Transparantie">Customermates publiceert deze gids. Wetgeving van derden wordt geciteerd naar EUR-Lex en de Europese Commissie.</SummaryItem>
+</ArticleSummary>
+
+## Wat vraagt de AVG van een CRM?
+
+De AVG (Verordening (EU) 2016/679, in het Engels GDPR, [tekst op EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj)) certificeert geen software. Ze reguleert de organisatie die bepaalt waarom en hoe persoonsgegevens worden gebruikt, de verwerkingsverantwoordelijke, en een aanbieder die de gegevens namens haar verwerkt, de verwerker. Een CRM vol namen, e-mailadressen en gesprekken bevat persoonsgegevens, dus jij bent de verwerkingsverantwoordelijke en de aanbieder die ze voor je opslaat is een verwerker. De tabel koppelt de plichten die voor een CRM het belangrijkst zijn aan de artikelen.
+
+| Plicht | Artikel | Wat het betekent in een CRM |
+| --- | --- | --- |
+| Rechtmatige grondslag | Art. 6 lid 1 | Elk gebruik van persoonsgegevens heeft een van zes grondslagen nodig. In een CRM zijn dat meestal uitvoering van een overeenkomst (b), gerechtvaardigd belang (f) of toestemming (a). Een gerechtvaardigd belang vraagt een afweging tegen de belangen van de persoon, en toestemming moet specifiek zijn en kan worden ingetrokken (art. 7 lid 3). Marketing-e-mail en -telefoontjes volgen aanvullende regels, zoals de [e-Privacyrichtlijn](https://eur-lex.europa.eu/eli/dir/2002/58/oj). |
+| Beginselen | Art. 5 lid 1, onder b tot en met e | Gebruik de gegevens alleen voor het doel dat je hebt genoemd, verzamel alleen de velden die je nodig hebt, houd de gegevens juist en bewaar ze niet langer dan nodig. De AVG kent geen vaste bewaartermijn: je kiest er een per soort gegevens. |
+| Verantwoordingsplicht | Art. 5 lid 2 | Je moet kunnen aantonen dat je je aan de regels houdt, dus leg je beslissingen vast. |
+| Mensen informeren | Art. 13 en 14 | Een privacyverklaring. Waar de gegevens niet van de persoon zelf komen (een geïmporteerde lijst, een LinkedIn-profiel), informeer je de persoon binnen een redelijke termijn en uiterlijk binnen één maand (art. 14 lid 3, onder a). |
+| Verzoeken beantwoorden | Art. 12 en 15 tot en met 21 | Inzage (15), rectificatie (16), wissing (17), beperking (18), overdraagbaarheid (20) en bezwaar (21). Antwoord zonder onredelijke vertraging en in elk geval binnen één maand, zo nodig te verlengen met twee extra maanden (art. 12 lid 3). Een bezwaar tegen direct marketing moet worden gehonoreerd (art. 21 lid 2 en 3). |
+| Verwerkersovereenkomst | Art. 28 lid 3 | Een schriftelijk contract met ten minste de voorwaarden uit de punten a tot en met h. |
+| Subverwerkers | Art. 28 lid 2 en 4 | De verwerker heeft je schriftelijke toestemming nodig, algemeen of specifiek, en moet elke subverwerker die hij inschakelt dezelfde verplichtingen opleggen. |
+| Beveiliging | Art. 32 | Passende technische en organisatorische maatregelen voor het risico, zoals toegangscontrole, versleuteling en het vermogen om de beschikbaarheid na een incident te herstellen. |
+| Datalekken | Art. 33 en 34 | De verwerker meldt het je zonder onredelijke vertraging (art. 33 lid 2). Jij meldt het, waar mogelijk binnen 72 uur, aan de toezichthoudende autoriteit (art. 33 lid 1) en informeert de getroffen mensen als het risico voor hen hoog is (art. 34 lid 1). |
+| Doorgiften buiten de EER | Art. 44 tot en met 46 | Alleen toegestaan op basis van een adequaatheidsbesluit (art. 45) of met passende waarborgen, bijvoorbeeld standaardcontractbepalingen (art. 46 lid 2, onder c). |
+| Register van verwerkingsactiviteiten | Art. 30 | Een schriftelijk register van je verwerkingsactiviteiten. De uitzondering voor organisaties met minder dan 250 personen geldt niet voor verwerkingen die niet incidenteel zijn (art. 30 lid 5), dus een CRM in regulier gebruik valt er meestal onder. |
+
+De pagina van de Europese Commissie over de [beginselen van de AVG](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) geeft de begrijpelijke versie, en de [Richtlijnen 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) van het Europees Comité voor gegevensbescherming leggen de rollen van verwerkingsverantwoordelijke en verwerker in detail uit. Een [CRM-database](/blog/crm-database) die met deze plichten in gedachten is gebouwd, begint met minder velden en duidelijke eigenaren.
+
+## Bestaat er een AVG-proof CRM?
+
+Geen enkele CRM is uit zichzelf AVG-proof. Naleving beschrijft hoe je een tool gebruikt: wat je verzamelt, op welke grondslag, hoe lang je het bewaart en hoe je verzoeken beantwoordt. Wat een aanbieder eerlijk kan bieden, is smaller en controleerbaar:
+
+- een verwerkersovereenkomst die art. 28 lid 3 dekt;
+- een openbare lijst met subverwerkers en een beschreven proces voor wijzigingen;
+- duidelijke informatie over waar gegevens worden verwerkt en welk mechanisme elke doorgifte buiten de EER dekt;
+- beveiligingsmaatregelen die in het contract staan;
+- productfuncties om de gegevens van één persoon te vinden, te corrigeren, te exporteren en te verwijderen; en
+- een uitweg: teruggave of verwijdering van je gegevens aan het eind.
+
+Zie een badge als "AVG-proof" of "made in Europe" als een marketingclaim. De AVG voorziet in goedgekeurde certificering (art. 42), dus vraag welke certificering, van welk orgaan, voor welke dienst. Customermates heeft geen nalevingscertificering; hosting in een EU-regio is een hostingfeit, geen certificering.
+
+## Maakt het uit waar de CRM-aanbieder en zijn servers zitten?
+
+Drie plekken worden door elkaar gehaald: waar de aanbieder is gevestigd, waar zijn database draait en waar elke andere aanbieder in de keten gegevens verwerkt. De AVG eist geen hosting in de EU. Ze beperkt doorgiften buiten de EER (art. 44 tot en met 46) en maakt jou aanspreekbaar voor de hele keten van verwerkers. Een aanbieder in Duitsland kan zijn applicatie bij een Amerikaanse hostingpartij draaien, en een Amerikaanse aanbieder kan een database in Frankfurt draaien. Dat is de echte vraag achter een zoekopdracht naar een Duitse of Europese CRM: lees alle drie de plekken, niet de kop.
+
+Voor Customermates zeggen de juridische pagina's dit (zoals gepubliceerd op 11 november 2026):
+
+| Vraag | Wat de juridische pagina's stellen |
+| --- | --- |
+| Wie is de aanbieder? | Benjamin Wagner, handelend onder de naam Customermates, Mannheim, Duitsland. De verwerkersovereenkomst valt onder Duits recht. |
+| Waar staat de primaire productiedatabase? | Geconfigureerd in de AWS-regio Frankfurt (`eu-central-1`), beheerd via de aanbieder van beheerde databases Neon (Databricks). De pagina's noemen dit een gekozen productinstelling en geen contractuele garantie voor dataresidentie. |
+| Waar draait de applicatie? | Bij Vercel in de VS, dat ook de privébestandsopslag bevat. Doorgiften berusten op de EU-standaardcontractbepalingen in de verwerkersaddendum van Vercel. |
+| Gekoppelde e-mail-, LinkedIn- en andere accounts | Getransporteerd door Unipile (Frankrijk), dat aangeeft dat gegevens van gekoppelde accounts in de EU worden opgeslagen. De eigen verwerkersovereenkomst staat doorgiften buiten de EU toe waar de waarborgen van hoofdstuk V gelden. |
+| De AI-assistent Mate | Verzoeken gaan via Vercel AI Gateway naar Google Cloud Vertex AI (Claude-modellen vastgezet op een EU-inferentiezone, het embeddingmodel in een Amerikaanse regio), naar Exa in de VS voor webzoekopdrachten en naar TypeSafe AI. |
+
+De [lijst met subverwerkers](/subprocessors) bevat elke aanbieder met doel, locatie en doorgiftegrondslag, en de [beveiligingsdocumentatie](/docs/architecture-security) legt de scheiding tussen tenants uit en waar inloggegevens staan. De samenvatting: een exploitant in Duitsland, een database geconfigureerd in een EU-regio en Amerikaanse aanbieders in de keten, en daarom telt de lijst zwaarder dan een landnaam.
+
+## Wat moet een verwerkersovereenkomst voor een CRM bevatten?
+
+Art. 28 lid 3 somt de minimale inhoud van een verwerkerscontract op. Leg de overeenkomst van een aanbieder naast de punten a tot en met h. De rechterkolom toont de verwerkersovereenkomst van Customermates, waarvan de sectienummers verwijzen naar de [gepubliceerde verwerkersovereenkomst](/dpa).
+
+| Art. 28 lid 3 | Waar je op let | Verwerkersovereenkomst van Customermates |
+| --- | --- | --- |
+| (a) Instructies | De verwerker handelt alleen op basis van je gedocumenteerde instructies | Sectie 5: de verwerkersovereenkomst, de Voorwaarden en je gebruik van de dienst zijn de instructies; Customermates meldt het je als het vindt dat een instructie de AVG schendt |
+| (b) Vertrouwelijkheid | Medewerkers zijn gebonden aan geheimhouding | Sectie 7 |
+| (c) Beveiliging | Maatregelen onder art. 32, benoemd | Sectie 8: TLS tijdens transport, versleuteling in rust voor de productiedatabase en de back-ups, toegang op basis van rollen met persoonlijke accounts, scheiding van klantgegevens per bedrijfsaccount, logging, herstel na incidenten, regelmatig testen |
+| (d) Subverwerkers | Toestemming en dezelfde verplichtingen door de hele keten | Sectie 9: algemene schriftelijke toestemming, de lijst op `/subprocessors`, een schriftelijk contract voordat een subverwerker begint, kennisgeving vóór toevoegingen die Customermates zelf beslist, bezwaar op redelijke gronden van gegevensbescherming en een recht om de getroffen dienst te beëindigen als het bezwaar niet kan worden opgelost. Bij wijzigingen door een leverancier geeft Customermates de kennisgeving zonder onredelijke vertraging door en belooft het geen vaste termijn vooraf |
+| (e) Verzoeken van betrokkenen | Hulp bij art. 12 tot en met 23 | Sectie 10: verzoeken die bij Customermates binnenkomen worden zonder onredelijke vertraging aan jou doorgestuurd |
+| (f) Art. 32 tot en met 36 | Hulp bij beveiliging, datalekken, effectbeoordelingen | Sectie 10: je hoort het zonder onredelijke vertraging nadat een datalek is geconstateerd, met de informatie die je voor art. 33 en 34 nodig hebt |
+| (g) Einde van de dienst | Verwijdering of teruggave, naar jouw keuze | Sectie 11: 30 dagen na het einde van de dienst om te kiezen voor verwijdering of teruggave, daarna verwijdering uit de eigen systemen van Customermates en uit back-ups uiterlijk binnen 90 dagen naarmate ze verlopen; subverwerkers verwijderen volgens hun eigen overeenkomsten |
+| (h) Audits | Informatie en audits | Sectie 12: eerst documentatie, inspectie ter plaatse met aankondiging |
+
+Lees ook de beperkingen. De verwerkersovereenkomst stelt wat ze niet kan beloven: voor gekoppelde accounts heeft ze geen contractueel recht op verwijdering per account tegenover Unipile en kan ze alleen om verwijdering verzoeken, en ruwe binnenkomende records die niet aan een klant kunnen worden toegeschreven, worden zonder vaste termijn bewaard voor foutanalyse. Een verwerkersovereenkomst die haar grenzen noemt, is makkelijker te beoordelen dan een die er geen noemt.
+
+Kijk ook hoe ze wordt gesloten. Een document publiceren sluit het niet: de verwerkersovereenkomst van Customermates gaat voor een klant in wanneer een bevoegde beheerder haar tijdens de onboarding samen met de Voorwaarden accepteert, en een kopie in tekstvorm is op verzoek beschikbaar. De Duitse versie is leidend en de Engelse is een gemaksvertaling.
+
+## Hoe behandel je een inzage- of wissingsverzoek in een CRM?
+
+Dit is de test van elke CRM-inrichting: iemand schrijft "wat bewaar je over mij?" of "verwijder mijn gegevens". De stappen hieronder gebruiken Customermates, en de volgorde werkt in elke tool.
+
+<Steps>
+  <Step title="Leg het verzoek vast en bevestig wie vraagt">Noteer de datum waarop je het ontving: de termijn van één maand uit art. 12 lid 3 begint dan. Bevestig de identiteit in verhouding tot de gegevens, zonder meer te verzamelen dan daarvoor nodig is.</Step>
+  <Step title="Vind elk record">Druk op Cmd of Ctrl en K. Globaal zoeken doorzoekt elke lijst die je kunt lezen en vindt een contactpersoon via elk e-mailadres of telefoonnummer in diens Contactgegevens; zoek ook op de naam, en open gekoppelde organisaties en deals. Gesprekken vallen niet onder deze zoekopdracht: de Inbox, beschikbaar vanaf Pro met een gekoppeld account, heeft een eigen zoekfunctie.</Step>
+  <Step title="Verzamel de gegevens">Filter elke lijst op de persoon en kies dan Exporteren als Excel of Exporteren als JSON bij Meer acties. De export bevat wat de lijst met je filters toont, tot 5.000 records, en alleen velden die je rol kan lezen. Customermates heeft geen export van een heel account, dus herhaal dit per lijst waarin de persoon voorkomt, en voeg toe wat in je e-mail, spreadsheets en andere tools staat.</Step>
+  <Step title="Corrigeer wat niet klopt">Bewerk de waarde ter plekke. Dat beantwoordt een verzoek tot rectificatie onder art. 16; het Activiteitenlog registreert de wijziging met de vorige waarde, wie haar maakte en wanneer.</Step>
+  <Step title="Wis en controleer dan de kopieën">Verwijderen verplaatst het record naar de Prullenbak en uit lijsten, zoeken, widgets en exports. Open de Prullenbak en kies Permanent verwijderen om het nu te wissen, waarbij ook de veldwaarden van het record uit de geschiedenis verdwijnen; anders verdwijnt het na 30 dagen vanzelf. Berichten in een gekoppelde inbox zijn kopieën van berichten in je e-mail- of berichtenaccount, dus het origineel vraagt om dezelfde beslissing. Vraag hoe je aanbieder met back-ups omgaat: de verwerkersovereenkomst van Customermates noemt hooguit 90 dagen voor de verwijderingen die ze dekt (sectie 11).</Step>
+  <Step title="Antwoord en leg vast wat je deed">Antwoord binnen de maand en bewaar een notitie van het verzoek, de beslissing en de datum, zodat je het later kunt aantonen (art. 5 lid 2). Voeg bij een bezwaar tegen marketing (art. 21 lid 3) een veld Ja of nee toe, zoals Bezwaar tegen marketing, en laat die records weg uit elke mailinglijst.</Step>
+</Steps>
+
+De [documentatie over de Prullenbak](/docs/app-trash) behandelt herstellen en permanent verwijderen, en de [recordsdocumentatie](/docs/app-records) behandelt filters, export en import.
+
+## Hoe richt je een CRM in voor de AVG?
+
+Een checklist voor de eerste week, voordat er echte klantgegevens in gaan:
+
+<Steps>
+  <Step title="Bepaal wat elke lijst opslaat">Minder velden betekent minder om te beschermen, te beantwoorden en te verwijderen (art. 5 lid 1, onder c). Schrijf het doel en de grondslag van elke lijst in de beschrijving, en laat bijzondere categorieën persoonsgegevens, zoals gezondheidsgegevens (art. 9), weg tenzij je een specifieke grond hebt.</Step>
+  <Step title="Geef mensen alleen de toegang die ze nodig hebben">Rollen geven per lijst toegang om aan te maken, te bewerken, te verwijderen en te lezen (Aanmaken, Bewerken, Verwijderen en Leestoegang met Alle, Toegewezen of Geen). Er zijn geen machtigingen op veldniveau, dus bewaar gevoelige informatie in een aparte lijst met beperktere toegang.</Step>
+  <Step title="Plan hoe mensen vertrekken">Een lid op Inactief zetten blokkeert in één keer diens toegang, API-sleutels en MCP-verbindingen voor de werkruimte.</Step>
+  <Step title="Sluit de verwerkersovereenkomst en lees de lijst met subverwerkers">Bewaar je kopie van de geaccepteerde versie en bekijk de lijst opnieuw als er een wijzigingsbericht komt.</Step>
+  <Step title="Koppel alleen de kanalen die je gebruikt">Elk gekoppeld account voegt een aanbieder aan de keten toe en een opgeslagen kopie van zijn berichten. Een account ontkoppelen verwijdert de opgeslagen gesprekken, berichten, deelnemers en agendagegevens van dat account, zoals de verwerkersovereenkomst beschrijft.</Step>
+  <Step title="Stel per lijst een bewaarregel in en voer die uit">Sla een weergave op van records die niet zijn bijgewerkt in de periode die je koos, bekijk die volgens een schema en verwijder wat je niet meer nodig hebt. De AVG laat de termijn aan jou (art. 5 lid 1, onder e); waar fiscaal of handelsrecht je verplicht een document te bewaren, geldt die plicht daarbovenop.</Step>
+  <Step title="Houd je eigen papieren actueel">Het register van verwerkingsactiviteiten (art. 30) en je privacyverklaring (art. 13 en 14) staan in je eigen compliancemap, niet in de documenten van de CRM-aanbieder.</Step>
+</Steps>
+
+## Wat veranderen AI-functies onder de AVG?
+
+Een AI-assistent voegt aanbieders aan de keten toe en stuurt tekst uit je records naar hen. Vraag bij elke AI-functie welke aanbieder welke gegevens ontvangt, of die op de lijst met subverwerkers staat, waar hij verwerkt, of hij op je gegevens traint en of je de functie kunt uitzetten.
+
+Voor Customermates Cloud beschrijft de lijst met subverwerkers Mate: een verzoek gaat via Vercel AI Gateway naar de aanbieders die in de tabel hierboven staan en bevat alleen wat voor het antwoord nodig is. De lijst meldt een zero-data-retention-instelling op dat gateway-pad, wat een beperkte maatregel is en geen bewaarbelofte voor het CRM zelf. De Claude-modellen zijn vastgezet op een EU-inferentiezone, terwijl webzoekopdrachten en het embeddingmodel in de VS draaien. Jij bepaalt welke gegevens een verzoek bevat en blijft verantwoordelijk voor noodzaak en grondslag. Koppel je je eigen AI-client via MCP, dan verwerkt die aanbieder de gegevens onder jouw contract met hem. Zelf gehoste installaties hebben geen Mate. De [gids over AI CRM](/blog/ai-crm) vergelijkt de benaderingen.
+
+## Customermates en de AVG: wat het biedt en wat niet
+
+Geboden, volgens de productdocumentatie en de juridische pagina's:
+
+- de [verwerkersovereenkomst](/dpa) en de [lijst met subverwerkers](/subprocessors) voor de beheerde cloud, met het hierboven beschreven wijzigingsproces;
+- rollen per lijst, een deactiveringsschakelaar voor leden en scheiding van tenants per bedrijfsaccount;
+- globaal zoeken op e-mailadres of telefoonnummer, correctie ter plekke, export naar Excel en JSON per lijst en een Prullenbak met permanent verwijderen;
+- een Activiteitenlog voor wijzigingen aan CRM-records en werkruimteconfiguratie, leesbaar voor rollen die toegang hebben; en
+- een open source kern onder de AGPL die je kunt [zelf hosten](/features/self-hosted).
+
+Niet geboden, dus vraag er elders naar als je het nodig hebt:
+
+- Customermates heeft geen nalevingscertificering en geen contractuele garantie dat alle gegevens in één regio blijven;
+- het heeft geen machtigingen op veldniveau en geen export van een heel account in één stap;
+- het Activiteitenlog dekt geen aanmeldingen, API-sleutels of inboxinhoud en heeft geen exportknop.
+
+Zelf hosten verandert wie verantwoordelijk is. De AGPL-kern draait met Docker en PostgreSQL op je eigen infrastructuur, en de verwerkersovereenkomst dekt alleen de beheerde dienst: jij kiest de hosting en de aanbieders en je hebt je eigen art. 28-contracten en doorgiftewaarborgen. TLS en versleuteling in rust moet je zelf instellen. Zelf hosten gebruikt de functies van Starter, zonder de inbox en zonder Mate, en het is niet air-gapped: de eerste adresinvoer voor een land downloadt het openbare postcodebestand van dat land van GeoNames, tenzij je `POSTAL_CODE_DATA_URL` op `off` of op een mirror zet. De [gids voor zelf hosten](/docs/self-hosting) bevat de details en de [pagina over open source CRM](/features/open-source-crm) legt de licentiegrens uit.
+
+<AcquisitionCallout title="Waar Customermates niet past" variant="boundary">
+  Vraagt een inkoopchecklist om een erkende certificering, een contractuele garantie voor uitsluitend verwerking in de EU of machtigingen op veldniveau, dan kan Customermates die vakjes vandaag niet aanvinken. Leg ze schriftelijk voor aan elke aanbieder die je vergelijkt en lees de antwoorden naast de lijsten met subverwerkers. De [vergelijking van de beste CRM-software](/blog/best-crm-software) en de [gids over het kiezen van een CRM](/blog/how-to-choose-crm) behandelen de andere criteria.
+</AcquisitionCallout>
+
+Wil je de punten hierboven aan je eigen situatie toetsen, lees dan eerst de verwerkersovereenkomst en de lijst met subverwerkers en [start dan je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup): Pro, zonder creditcard. Importeer een paar testrecords voordat er echte klantgegevens in gaan en doorloop de stappen van het inzageverzoek één keer.
+
+## Veelgestelde vragen over de AVG en een CRM
+
+<Faq>
+<FaqItem question="Eist de AVG dat een CRM in de EU wordt gehost?">
+Nee. De AVG schrijft geen hostinglocatie voor. Ze staat doorgifte naar landen buiten de EER alleen toe op basis van een adequaatheidsbesluit of met passende waarborgen zoals standaardcontractbepalingen (art. 44 tot en met 46). Hosting in een EU-regio maakt de doorgiftevraag kleiner, maar je moet nog steeds elke aanbieder in de keten controleren.
+</FaqItem>
+<FaqItem question="Heb ik een verwerkersovereenkomst nodig met mijn CRM-aanbieder?">
+Ja, als de aanbieder persoonsgegevens voor je verwerkt. Art. 28 lid 3 vereist een schriftelijk contract, dat ook in elektronische vorm kan zijn, met de inhoud uit de punten a tot en met h. Controleer dat het bestaat, welke versie geldt en dat het de subverwerkers noemt.
+</FaqItem>
+<FaqItem question="Is Customermates AVG-proof?">
+Geen enkele CRM is uit zichzelf AVG-proof, en Customermates heeft geen nalevingscertificering. Het biedt een verwerkersovereenkomst voor de beheerde cloud, een openbare lijst met subverwerkers, een primaire database geconfigureerd in AWS Frankfurt en de hierboven beschreven functies. Jij blijft verantwoordelijk voor je grondslag, je bewaartermijnen en je antwoorden op verzoeken.
+</FaqItem>
+<FaqItem question="Wat is het verschil tussen een verwerkingsverantwoordelijke en een verwerker in een CRM?">
+De verwerkingsverantwoordelijke bepaalt waarom en hoe persoonsgegevens worden gebruikt: jij, voor de contacten in je CRM. De verwerker verwerkt de gegevens namens jou en op je gedocumenteerde instructies: de CRM-aanbieder. Voor zijn eigen website-, facturatie- en beveiligingsgegevens is een aanbieder zelf verwerkingsverantwoordelijke.
+</FaqItem>
+<FaqItem question="Hoe lang mag ik klantgegevens in een CRM bewaren?">
+De AVG kent geen vaste termijn. Art. 5 lid 1, onder e, eist dat gegevens niet langer worden bewaard dan nodig is voor het doel, dus je stelt per soort gegevens een termijn vast en schrijft die op. Een wettelijke bewaarplicht voor bepaalde documenten, bijvoorbeeld in het belastingrecht, kan voor die documenten een langere termijn eisen.
+</FaqItem>
+<FaqItem question="Moet ik contacten vertellen dat ik hun gegevens opsla?">
+In het algemeen wel. Art. 13 en 14 eisen een privacyverklaring. Als je de gegevens niet bij de persoon zelf hebt verzameld, bijvoorbeeld uit een geïmporteerde lijst, moet je de persoon binnen een redelijke termijn en uiterlijk binnen één maand informeren.
+</FaqItem>
+<FaqItem question="Kan ik alle CRM-gegevens op mijn eigen server houden?">
+Met de open source kern wel: je draait hem met Docker en PostgreSQL op infrastructuur die je zelf kiest. Hij gebruikt de functies van Starter, zonder de inbox en zonder Mate, en je bent zelf verantwoordelijk voor je hostingcontracten en beveiliging.
+</FaqItem>
+<FaqItem question="Wat gebeurt er met mijn gegevens als ik opzeg?">
+Onder de verwerkersovereenkomst van Customermates heb je na het einde van de dienst 30 dagen om te kiezen voor verwijdering of teruggave. Daarna worden de gegevens verwijderd uit de eigen systemen van Customermates, uit back-ups uiterlijk binnen 90 dagen, en verwijderen subverwerkers volgens hun eigen overeenkomsten.
+</FaqItem>
+</Faq>
+
+Verificatie van wetgeving en bronnen van derden op 11 november 2026: [Verordening (EU) 2016/679 op EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj), de [e-Privacyrichtlijn](https://eur-lex.europa.eu/eli/dir/2002/58/oj), de [beginselen van de AVG](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) van de Europese Commissie en de [Richtlijnen 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) van het EDPB. Uitspraken over Customermates komen uit de [verwerkersovereenkomst](/dpa), de [lijst met subverwerkers](/subprocessors) en de [beveiligingsdocumentatie](/docs/architecture-security) zoals op die datum gepubliceerd.

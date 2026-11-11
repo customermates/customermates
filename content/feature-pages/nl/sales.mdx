@@ -1,0 +1,247 @@
+---
+title: "Sales KPI's in je CRM: velden en wekelijkse review"
+description: "Sales KPI's voor kleine teams: de velden om vast te leggen, zeven cijfers voor de wekelijkse review, vijf voor maandafsluiting en een uitgewerkt voorbeeld."
+featureName: Sales-CRM
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/reporting
+  - /features/unified-inbox
+  - /features/workflow-automation
+
+sections:
+  visual:
+    kind: film
+  steps:
+    items:
+      - title: "Pas de fasen aan"
+        description: "Open in Datamodel Deals en het veld Fase. Hernoem de opties zodat ze passen bij hoe je verkoopt, bijvoorbeeld \"Kennismakingsgesprek\" en \"Voorstel verstuurd\", en controleer de Waarschijnlijkheid % van elke optie."
+      - title: "Voeg de trackingvelden toe"
+        description: "Gebruik in Datamodel op Deals Toevoegen › Veld voor Verwachte afsluiting, Volgende stap en Afgesloten op (Datum), plus Leadbron en Reden van verlies (Enkele keuze). Elk cijfer in de review heeft er een nodig."
+      - title: "Importeer wat je al hebt"
+        description: "Gebruik Toevoegen uit bestand met een Excel-werkmap of een CSV-bestand, één recordtype tegelijk: eerst organisaties, dan contactpersonen, dan deals. Koppelkolommen worden gekoppeld op recordnaam, dus een organisatie moet bestaan voordat een deal ernaar kan verwijzen."
+      - title: "Sla de reviewweergaven op"
+        description: "\"Mijn open deals\" als bord, \"Binnenkort afsluiten\", \"Geen volgende stap\" en \"Stille deals\" (Bijgewerkt op ouder dan 14 dagen). Deel ze met het team zodat iedereen dezelfde deals bekijkt."
+      - title: "Koppel je inbox (Pro en hoger)"
+        description: "Koppel onder Instellingen › Kanalen de mailbox of het LinkedIn-account vanwaar je verkoopt."
+  highlights:
+    title: "In één oogopslag"
+    capture: homepage-pipeline
+    items:
+      - title: "Wat je krijgt"
+        description: "Deals gekoppeld aan contactpersonen, organisaties, diensten en taken, een fasebord, een gewogen pipeline, opgeslagen weergaven die je kunt delen en dashboardwidgets voor de wekelijkse cijfers."
+      - title: "Abonnementen"
+        description: "Pipeline en dashboards vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand. De gecombineerde inbox begint bij Pro voor [[commercial.price.pro.monthly]]."
+      - title: "AI"
+        description: "In Customermates Cloud bereidt Mate samenvattingen, conceptantwoorden en dealupdates voor met gehoste AI-credits. Je eigen AI-client werkt in elk abonnement via MCP."
+      - title: "Niet inbegrepen"
+        description: "Geen quota of targets, geen sequenties of massamail, geen telefonie, geen leadscoring, geen offertes of facturen, geen voorspellende prognoses en geen mobiele app."
+
+hero:
+  title: "Sales KPI's voor kleine teams: elke open deal met zijn volgende stap"
+  description: "Leg waarde, fase, eigenaar en een volgende stap met datum vast bij elke deal en bekijk elke week dezelfde paar cijfers. Vanaf Pro staan LinkedIn- en e-mailthreads bij de contactpersoon en schrijft Mate de opvolging die jij controleert en verstuurt."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: Zet je sales tracking op tijdens de proefperiode
+  description: "Hernoem de fasen, voeg de trackingvelden toe, importeer je open deals en sla de weergaven voor de wekelijkse review op, zodat elke deal zijn volgende stap en zijn gesprek naast zich heeft. Abonnementen beginnen bij [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Sales KPI's bijhouden betekent dat je van elke deal de waarde, fase, eigenaar, verwachte afsluiting en volgende stap op één plek vastlegt en op een vaste dag dezelfde paar cijfers bekijkt. Customermates is een CRM voor kleine teams met klantcontact: adviesbureaus, bureaus, andere dienstverleners en oprichters die nog zelf verkopen. Deals staan op een fasebord met een winkans per fase, en vanaf Pro verschijnen de e-mails van de klant en de berichten op LinkedIn, WhatsApp, Instagram of Telegram bij de contactpersoon. Deze pagina somt op wat je bijhoudt, welke velden en weergaven achter elk cijfer zitten en hoe een wekelijkse review met voorbeeldgegevens eruitziet.
+
+Het is geen outboundmachine. Boekt je team vergaderingen in volume, dan is de tabel met alternatieven verderop het nuttigste deel van deze pagina.
+
+## Welke sales KPI's moet een klein team bijhouden?
+
+Twaalf cijfers dekken de meeste beslissingen van een team met enkele tientallen open deals: zeven voor de wekelijkse review, vijf aan het einde van de maand. Bij elk cijfer staat hieronder hoe het wordt berekend en waar het in Customermates zit.
+
+**Elke week: is de pipeline gezond?**
+
+| Wat je bijhoudt | Hoe het wordt berekend | Waar het in Customermates zit |
+|---|---|---|
+| Waarde van de open pipeline | Som van **Waarde** op deals waarvan de Fase niet Gewonnen of Verloren is | Een widget **Getal** (som van Waarde, gefilterd op Fase), of de kolomtotalen op het fasebord |
+| Gewogen pipeline | Dezelfde deals, som van **Gewogen waarde**: waarde maal de **Waarschijnlijkheid %** van de fase | Dezelfde widget met Gewogen waarde, of een staafdiagram van Gewogen waarde gegroepeerd op Fase |
+| Deals per fase | Aantal open deals in elke fase | Een grafiek **Trechter** of de aantallen per kolom op het bord. De trechter toont de deals van nu, geen conversie in de tijd. |
+| Binnenkort afsluiten | Open deals waarvan de **Verwachte afsluiting** in de komende 30 dagen valt | Een widget **Aankomend** op Verwachte afsluiting, ingesteld op 30 dagen, of een opgeslagen weergave gesorteerd op Verwachte afsluiting |
+| Geen volgende stap | Open deals waarbij **Volgende stap** leeg is | Een opgeslagen weergave: Volgende stap is leeg, Fase is niet Gewonnen of Verloren |
+| Stille deals | Open deals die 14 dagen niemand heeft bewerkt | Een opgeslagen weergave: **Bijgewerkt op** ouder dan 14 dagen, Fase is niet Gewonnen of Verloren. Ze ziet wijzigingen aan de deal, geen berichten. |
+| Deals per persoon | Aantal, waarde en gewogen waarde per eigenaar | Het dealbord gegroepeerd op **Toegewezen**. Het is alleen-lezen, en een deal met twee eigenaren staat onder beide. |
+
+**Elke maand: wat hebben we gewonnen, en waarom?**
+
+| Wat je bijhoudt | Hoe het wordt berekend | Waar het in Customermates zit |
+|---|---|---|
+| Deze maand gewonnen | Aantal en som van Waarde voor deals met Fase Gewonnen en **Afgesloten op** in de maand | Twee widgets **Getal** met een filter op Afgesloten op, of een grafiek **Vlakdiagram in de tijd** van Waarde gegroepeerd op Afgesloten op met het interval op maand |
+| Winstpercentage | Gewonnen gedeeld door (Gewonnen plus Verloren) bij de deals die in de periode zijn afgesloten | Twee widgets **Getal**, het aantal Gewonnen en het aantal Verloren voor dezelfde periode, met de hand gedeeld. In Customermates Cloud kan Mate het berekenen. |
+| Gemiddelde gewonnen deal | Gemiddelde van Waarde waar Fase Gewonnen is | Een widget **Getal** met de aggregatie gemiddelde |
+| Waar winst vandaan komt | Gewonnen waarde per **Leadbron** | Een staafdiagram of **Donut** gegroepeerd op Leadbron, gefilterd op Fase is Gewonnen |
+| Waarom deals verloren gaan | Aantal verloren deals per **Reden van verlies** | Een **Ranglijst** gegroepeerd op Reden van verlies, gefilterd op Fase is Verloren |
+
+Afgesloten op is een datumveld dat je zelf toevoegt. Vul het in als je een deal naar Gewonnen of Verloren zet, of vraag Mate of je eigen AI-client het samen met de fase in te stellen. Het winstpercentage telt hier deals; het weegt ze niet naar waarde.
+
+En de salesactiviteit? De widget **Activiteitentijdlijn** toont recordwijzigingen en, vanaf Pro, de berichten en vergaderingen van gekoppelde accounts, en je kunt hem filteren op gerelateerde records, bijvoorbeeld alles wat er gebeurde bij je vijf grootste deals. Het is een feed die je leest, geen teller van gesprekken of e-mails per persoon, en er is geen telefonie.
+
+## Welke velden heeft een salestracker nodig?
+
+Een tracker is zo goed als zijn kolommen. Dit zijn de elf die een lijst met deals nodig heeft om elk cijfer hierboven te maken.
+
+| Kolom | Veldtype in Customermates | Voedt |
+|---|---|---|
+| Dealnaam | Naam | Elke weergave |
+| Organisatie en contactpersonen | Koppelingen naar je organisaties en contactpersonen | De gesprekken bij de contactpersoon |
+| Fase | Enkele keuze, elke optie met een **Waarschijnlijkheid %** | Pipeline, gewogen pipeline, trechter |
+| Waarde | Valuta, of berekend uit regelitems: elk een dienst maal zijn aantal | Pipelinewaarde, gemiddelde gewonnen deal |
+| Gewogen waarde | Berekend: Waarde maal de Waarschijnlijkheid % van de fase | Gewogen pipeline |
+| Eigenaar | **Toegewezen**, één of meer gebruikers | Deals per persoon |
+| Verwachte afsluiting | Datum | Binnenkort afsluiten |
+| Volgende stap | Datum, met een taak of notitie die zegt wat het is | Geen volgende stap, widget Aankomend |
+| Leadbron | Enkele keuze: Verwijzing, LinkedIn, Website, Evenement | Waar winst vandaan komt |
+| Afgesloten op | Datum | Deze maand gewonnen, winstpercentage |
+| Reden van verlies | Enkele keuze: Prijs, Timing, Koos een concurrent, Geen beslissing | Waarom deals verloren gaan |
+
+Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud kan de AI-instelling op basis van jouw beschrijving een lijst met deals opzetten; anders maak je de velden aan in Datamodel, wat bij zelf hosten ook de enige manier is. Verwachte afsluiting, Volgende stap, Leadbron, Afgesloten op en Reden van verlies zijn gewone eigen velden, en je hernoemt ze of wijzigt hun opties wanneer je proces verandert. De waarde van een deal kan de som van zijn regelitems zijn: twee workshopdagen à 1.500 plus tien coachinguren à 150 geven een dealwaarde van 4.500.
+
+## Hoe zet ik sales tracking op in Customermates?
+
+<Steps>
+  <Step title="Pas de fasen aan">Open in **Datamodel** Deals en het veld **Fase**. Hernoem de opties zodat ze passen bij hoe je verkoopt, bijvoorbeeld "Kennismakingsgesprek" en "Voorstel verstuurd", en stel de **Waarschijnlijkheid %** van elke optie in: bijvoorbeeld Prospectie 10%, Kwalificatie 20%, Demo 40%, Voorstel 60%, Onderhandeling 80%, Gewonnen 100% en Verloren 0%. Een voorbeeldweergave toont het effect op berekeningen en widgets voordat je opslaat.</Step>
+  <Step title="Maak je diensten aan">Voeg onder **Diensten** toe wat je verkoopt, elk met een prijs: een retainer, een workshopdag, een licentie. Regelitems van deals, en dus dealwaarden, worden hieruit opgebouwd.</Step>
+  <Step title="Voeg de vijf trackingvelden toe">Gebruik op Deals **Toevoegen › Veld** voor Verwachte afsluiting, Volgende stap en Afgesloten op (Datum), Leadbron (Enkele keuze met Verwijzing, LinkedIn, Website en Evenement) en Reden van verlies (Enkele keuze met Prijs, Timing, Koos een concurrent en Geen beslissing).</Step>
+  <Step title="Importeer wat je al hebt">Gebruik **Toevoegen uit bestand** met een Excel-werkmap of een CSV-bestand, één recordtype tegelijk: eerst organisaties, dan contactpersonen, dan deals. Koppelkolommen worden gekoppeld op recordnaam, dus een organisatie moet bestaan voordat een deal ernaar kan verwijzen.</Step>
+  <Step title="Sla de reviewweergaven op">"Mijn open deals": Toegewezen is jij, Fase is niet Gewonnen of Verloren, gesorteerd op waarde, getoond als bord. "Binnenkort afsluiten": Fase is niet Gewonnen of Verloren, gesorteerd op Verwachte afsluiting, getoond als tabel. "Geen volgende stap" en "Stille deals" zoals in de tabel hierboven. Filterregels combineren met EN, dus één weergave met beide regels zou alleen deals tonen die stil zijn en geen volgende stap hebben; houd ze als twee weergaven. Deel de weergaven met het hele team of met geselecteerde rollen.</Step>
+  <Step title="Voeg de dashboardwidgets toe">Een widget **Getal** voor de gewogen pipeline, een staafdiagram van Gewogen waarde gegroepeerd op Fase, een widget **Aankomend** op Volgende stap en een grafiek van de gewonnen Waarde gegroepeerd op Leadbron.</Step>
+  <Step title="Koppel je inbox (Pro en hoger)">Koppel onder **Instellingen › Kanalen & agenda's** de mailbox of het LinkedIn-account vanwaar je verkoopt.</Step>
+</Steps>
+
+De [handleiding voor records](/docs/app-records) behandelt import, weergaven en het bord stap voor stap, en de [handleiding voor het dashboard](/docs/app-dashboard) somt elke widget en zijn opties op. De [pagina over de pipeline](/features/pipeline) toont het bord uitgebreider.
+
+## Hoe ziet een wekelijkse sales review eruit?
+
+Neem vijf open deals van een klein adviesbureau. Zo ziet de lijst eruit die je in de sales meeting doorloopt. De getallen zijn verzonnen voor het voorbeeld; het zijn geen gegevens van een klant.
+
+| Deal | Fase (kans) | Waarde | Gewogen waarde | Volgende stap ingesteld | Sluit over | Laatst bewerkt |
+|---|---|---|---|---|---|---|
+| Nord-retainer | Onderhandeling (80%) | 12.000 | 9.600 | Ja | 9 dagen | 1 dag geleden |
+| Bauer websiterelaunch | Voorstel (60%) | 6.000 | 3.600 | Ja | 19 dagen | 2 dagen geleden |
+| Lindner-coaching | Voorstel (60%) | 2.400 | 1.440 | Nee | 24 dagen | 16 dagen geleden |
+| Keller-workshopreeks | Demo (40%) | 4.500 | 1.800 | Nee | 34 dagen | 19 dagen geleden |
+| Meyer-merksprint | Kwalificatie (20%) | 3.000 | 600 | Ja | 80 dagen | 6 dagen geleden |
+| **Totaal** | | **27.900** | **17.040** | | | |
+
+Lees het in deze volgorde:
+
+1. **Pipelinewaarde.** De open pipeline is 27.900 en de gewogen pipeline 17.040. Alleen al de Nord-retainer draagt 9.600 van de gewogen waarde, 56 procent, dus één verloren onderhandeling verandert het beeld. Die krijgt de eerste minuten van de vergadering.
+2. **Binnenkort afsluiten.** Nord, Bauer en Lindner zijn binnen 30 dagen aan de beurt: 20.400 aan waarde en 14.640 gewogen. Keller, op 34 dagen, valt buiten het venster.
+3. **Geen volgende stap.** Lindner en Keller.
+4. **Stille deals.** Lindner (16 dagen) en Keller (19 dagen).
+5. **Beslissen.** Lindner staat op beide lijsten en is over 24 dagen aan de beurt. Stel deze week een volgende stap met datum in, zet Verwachte afsluiting en fase terug naar wat waar is, of sluit hem af als Verloren met een reden. Keller heeft een volgende stap of een latere Verwachte afsluiting nodig. Een deal die stil is, geen volgende stap heeft en snel aan de beurt is, is waar een pipelinetotaal de werkelijkheid het meest overschat.
+
+Stel dat aan het einde van de maand vier deals zijn gewonnen en zes verloren. Het winstpercentage is dan 4 gedeeld door 10, oftewel 40 procent, en de grafiek van Reden van verlies laat zien op welk bezwaar je je moet voorbereiden. Voor de fasedefinities achter het bord zie je de [gids voor de salespipeline](/blog/sales-pipeline), en voor het omzetten van een gewogen pipeline in een kwartaalcijfer [sales forecasting](/blog/sales-forecasting).
+
+## Is een spreadsheet genoeg voor sales tracking?
+
+Voor één persoon met een handvol deals vaak wel. De vraag is wat het blad niet kan zodra er meer mensen en meer gesprekken bij komen.
+
+| Vraag | Spreadsheet | Customermates |
+|---|---|---|
+| Wie houdt het actueel? | De persoon die elke deal invoert | Meerdere mensen, elk met zicht op de records die hun rol toestaat |
+| Waar komen de totalen vandaan? | Formules die je zelf schrijft en intact houdt | Kolomtotalen op het bord, en een Gewogen waarde berekend uit de kansen per fase |
+| Waar is het gesprek? | In de inbox en op LinkedIn, buiten de rij | Bij de contactpersoon vanaf Pro, één klik van de deal |
+| Wat veranderde er aan een deal? | Je onthoudt het, of vergelijkt versies | De wijzigingsgeschiedenis van de deal |
+| Hoe begin ik? | Een leeg blad | Importeer je blad als XLSX of CSV |
+
+Ons [Excel CRM-sjabloon](/blog/excel-crm-template) heeft een gecontroleerde bladindeling, en de checklist zegt wanneer je moet overstappen. Een blad dat je nu bijhoudt, importeer je in Customermates als XLSX of CSV, één recordtype tegelijk.
+
+## Hoe passen gesprekken en Mate in sales tracking?
+
+**Gesprekken bij de contactpersoon (Pro en hoger).** Koppel Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram of Telegram in de [gecombineerde inbox](/features/unified-inbox). Zodra een contactpersoon het e-mailadres of de handle heeft, staat elk gesprek ermee op de tijdlijn van die contactpersoon, dus "wat gebeurde er bij deze deal?" is één klik van de deal. Berichten worden aan contactpersonen gekoppeld, en een afzonderlijk gesprek kun je ook aan een deal koppelen; niets wordt automatisch bij een deal vastgelegd.
+
+**Deals bijwerken met Mate (Customermates Cloud).** Plak na een gesprek je notities in Mate met een instructie zoals deze:
+
+```text
+Hier zijn mijn notities van het gesprek van vandaag met Bauer Consulting. Werk de deal "Bauer websiterelaunch" bij: zet de fase op Voorstel, zet Verwachte afsluiting op 30 november en voeg de notities toe. Maak een taak voor mij om het voorstel te versturen en koppel die aan de deal. Verstuur geen berichten.
+```
+
+Mate voert deze wijzigingen direct uit, en ze komen in de geschiedenis van de deal. Vraag je om een e-mail te versturen, dan verstuurt het zonder opnieuw te vragen, dus schrijf "concept" als je de tekst eerst wilt lezen. Verwijderen vraagt altijd jouw goedkeuring. Mate gebruikt gehoste AI-credits. Je eigen AI-client, zoals Claude of ChatGPT, voert hetzelfde verzoek uit via MCP met [[derived.mcp.tools.total]] tools, in elk abonnement en bij zelf hosten. Voor taken volgens een schema of bij dealwijzigingen zie je [workflowautomatisering](/features/workflow-automation).
+
+## Welk abonnement heb je nodig, en wat kost het?
+
+| Abonnement | Functies voor sales tracking | Prijs |
+|---|---|---|
+| Starter | Deals, fasebord, gewogen pipeline, opgeslagen weergaven, dashboardwidgets, XLSX-import en -export, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker | [[commercial.price.starter.monthly]] per gebruiker per maand |
+| Pro | Starter plus de gecombineerde inbox met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, LinkedIn Sales Navigator, agendatoegang alleen-lezen, [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker | [[commercial.price.pro.monthly]] per gebruiker per maand |
+| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] gekoppelde accounts per gebruiker, gedeelde accounts en één tijdlijn voor het hele team over alle kanalen | [[commercial.price.business.monthly]] per gebruiker per maand |
+| Zelf gehost | De functieset van Starter op je eigen server, zonder inbox, Mate of routines | Geen licentiekosten; je betaalt je eigen infrastructuur |
+
+Facturering is maandelijks. Elk betaald Cloud-abonnement bevat maandelijks gehoste AI-credits per actieve gebruiker voor Mate; de [prijspagina](/pricing) noemt de bedragen. Drie voorbeelden:
+
+| Team | Abonnement | Per maand |
+|---|---|---|
+| 3 personen, alleen pipeline en dashboards | Starter | [[commercial.price.starter.monthly.seats.3]] |
+| 5 personen die via e-mail en LinkedIn verkopen | Pro | [[commercial.price.pro.monthly.seats.5]] |
+| 5 personen die klantmailboxen delen | Business | [[commercial.price.business.monthly.seats.5]] |
+
+Over twaalf maanden betaalt het Pro-team van vijf [[commercial.price.pro.monthly.seats.5.months.12]].
+
+Ter vergelijking, tegen de lijstprijzen gecontroleerd op 11 november 2026: Salesforce Starter Suite kost $25 per gebruiker per maand, maandelijks of jaarlijks gefactureerd, dus vijf gebruikers betalen $125 per maand. Salesforce Pro Suite, dat Sales Quoting en Forecasting noemt, kost $100 per gebruiker per maand en wordt alleen jaarlijks gefactureerd. HubSpot Sales Hub Professional, het laagste HubSpot-niveau met prognoses, kost $100 per seat per maand bij maandelijkse facturering of $90 bij een jaarcontract, dus $500 per maand voor vijf seats bij maandelijkse facturering, plus een verplichte eenmalige onboardingvergoeding voor Professional van $1.500. Dit zijn lijstprijzen voor seats; de prijspagina van elke leverancier toont wat er verder geldt.
+
+## Wat volgt Customermates niet, en wat gebruik je dan?
+
+Customermates publiceert deze pagina. Gegevens van leveranciers: verificatie op 11 november 2026 op de eigen pagina's van de leveranciers, onderaan gelinkt.
+
+| Je hebt nodig | In Customermates | Waar je kijkt |
+|---|---|---|
+| Conversiepercentages in de tijd, salessnelheid, tijd in fase | Niet beschikbaar. De trechter toont de deals van nu per fase; in Customermates Cloud kan Mate een cijfer zoals het winstpercentage per persoon uit je records berekenen. | Exporteer de deals als XLSX of lees ze via de REST API en reken daar |
+| Quota en targets | Niet beschikbaar. Vergelijk de gewogen pipeline met je eigen target met de hand. | Een salestool met doelen ingebouwd |
+| Omzetprognoses voorbij de kansen per fase | Niet beschikbaar. De gewogen pipeline gebruikt de vaste kansen die jij instelt. | HubSpot Sales Hub Professional; Salesforce Pro Suite ("Sales Quoting and Forecasting") |
+| E-mailsequenties | Niet beschikbaar. Mate schrijft één bericht in één gesprek. | HubSpot Sales Hub Professional of Enterprise |
+| Webformulieren, leadscoring, verrijking | Niet beschikbaar. Stuur formulierinzendingen binnen via de REST API. | Een CRM met formulieren en scoring ingebouwd |
+| Bellen vanuit het CRM | Geen telefonie of sms | Een CRM met ingebouwde dialer |
+| Offertes en facturen | Niet beschikbaar | Je facturatietool |
+| Een gratis abonnement | Gratis Cloud-abonnement voor [[commercial.limit.free.maxMembers]] persoon, zonder inbox of Mate; een Pro-proefperiode van [[commercial.trial.days]] dagen, of zelf hosten zonder licentiekosten | HubSpot Sales Hub Free voor maximaal 2 gebruikers; Zoho CRM Free-editie voor maximaal 3 gebruikers |
+| Een app op de telefoon | Geen native mobiele app; Customermates draait in de browser | Een CRM met native iOS- en Android-apps |
+
+Taken hebben ook geen vervaldatums of herinneringen. De datum Volgende stap op de deal en de widget Aankomend doen die klus, zoals beschreven onder [opvolging](/features/follow-up). [Rapportage](/features/reporting) behandelt elke grafiekoptie.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is sales tracking?">
+Sales tracking is het vastleggen van de waarde, fase, eigenaar, verwachte afsluiting, volgende stap en uitkomst van elke deal, en op een vast moment een paar cijfers uit dat bestand bekijken. Het bestand is de tracker en de review maakt er beslissingen van. In Customermates is het bestand een lijst met deals, en de review draait op opgeslagen weergaven en dashboardwidgets.
+</FaqItem>
+
+<FaqItem question="Wat is de beste manier om verkoop bij te houden in een klein bedrijf?">
+Houd één lijst met deals bij met ongeveer een dozijn velden, geef elke open deal een fase en een volgende stap met datum, en houd elke week dezelfde review. Een spreadsheet doet dat voor één persoon met een handvol deals. Zodra meerdere mensen de deals bijwerken, of de deals in e-mail- en LinkedIn-gesprekken leven, horen het bestand en het gesprek in één tool. Customermates is gebouwd voor dat tweede geval.
+</FaqItem>
+
+<FaqItem question="Hoe vaak moet ik sales-cijfers bekijken?">
+Bekijk de gezondheid van de pipeline wekelijks: open en gewogen pipeline, deals die binnenkort afsluiten, deals zonder volgende stap en stille deals. Bekijk resultaten maandelijks: gewonnen waarde, winstpercentage, leadbronnen en redenen van verlies. Een klein team sluit zelden genoeg deals in een week om die resultaten veel te laten zeggen.
+</FaqItem>
+
+<FaqItem question="Is er gratis sales tracking software?">
+Ja, binnen grenzen. Customermates Cloud heeft een gratis abonnement voor [[commercial.limit.free.maxMembers]] persoon en [[commercial.limit.free.maxRecords]] records, zonder inbox, Mate of routines. Je eerste werkruimte begint met Pro voor [[commercial.trial.days]] dagen zonder creditcard; elke volgende werkruimte begint met het kiezen van een abonnement. De open source kern [zelf hosten](/features/self-hosted) kost geen licentie: het draait de functieset van Starter op je eigen server. HubSpot Sales Hub Free dekt maximaal 2 gebruikers en de gratis editie van Zoho CRM maximaal 3.
+</FaqItem>
+
+<FaqItem question="Kan Customermates omzet voorspellen?">
+Nee, niet in voorspellende zin. Het berekent een gewogen pipeline: de waarde van elke deal maal de winkans die jij voor zijn fase instelt. Dat is rekenwerk op je eigen getallen. Er is geen model dat leert van eerdere deals of afsluitdatums voorspelt.
+</FaqItem>
+
+<FaqItem question="Kan ik de pipeline van elke verkoper zien?">
+Ja. Groepeer het dealbord op **Toegewezen** en elke persoon krijgt een kolom met zijn deals, het aantal, de totale waarde en de gewogen waarde.
+</FaqItem>
+
+<FaqItem question="Is een sales-CRM moeilijk in te stellen?">
+Niet als je de eerste versie klein houdt. Een lijst met deals met een veld Fase kost in Datamodel enkele minuten, en in de cloud kan de AI-instelling hem voor je bouwen. Het echte werk is het eens worden over fasenamen en de vijf trackingvelden, en daarna importeren wat nu in je spreadsheet staat.
+</FaqItem>
+</Faq>
+
+Gegevens van concurrenten: verificatie op 11 november 2026 bij de [prijzen van HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), de [documentatie van HubSpot over sequenties](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), de [prijzen van Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) en de [prijzen van Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html).

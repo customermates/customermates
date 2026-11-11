@@ -1,0 +1,254 @@
+---
+title: "Relatiebeheer software: klanten en elk gesprek bijhouden"
+description: "Relatiebeheer software die je spreadsheet vervangt: importeer je klantenlijst en zie per klant alle gesprekken en de volgende stap in één record."
+featureName: Relatiebeheer
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-records
+  - /features/pipeline
+  - /features/simple-crm
+
+hero:
+  title: "Relatiebeheer: contacten en klanten met de hele relatie in context"
+  description: "Houd de mensen, kansen en taken van elke klant op één plek bij en, vanaf Pro in de cloud, ook de gesprekken, zodat je weet wie er het laatst mee sprak en wat er daarna gebeurt. Je bepaalt zelf de lijsten en velden."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=workspace
+  buttonRightText: Verken de werkruimte
+  buttonRightHref: https://demo.customermates.com/nl/w/client-management/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+landing:
+  hero:
+    eyebrow: Klantendatabase voor kleine teams
+    title: "De klantenlijst die je spreadsheet vervangt en laat zien wie je als volgende benadert."
+    description: "Importeer je klantenlijst één keer. Daarna kan Mate in Customermates Cloud nieuwe contactpersonen, notities en de volgende stap bij de juiste klant zetten, op basis van de gesprekken die je koppelt."
+    primaryCta:
+      label: Start je proefperiode van [[commercial.trial.days]] dagen
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Praat met Ben, 15 minuten
+      href: /contact
+  facts: Geen creditcard · Importeren uit Excel · Pro vanaf [[commercial.price.pro.monthly]] per persoon per maand
+  generator:
+    eyebrow: Begin met één beschrijving
+    title: Je klantenlijst, één keer beschreven. Voor jou gebouwd.
+    description: De AI-setup stelt een paar vragen en bouwt klanten, contactpersonen, contracten en de velden die je bijhoudt. Dit is het voorbeeld voor klantenbeheer; klik gerust rond.
+    promptLabel: Je beschrijving aan Mate
+    arrowLabel: werd deze werkruimte
+    prompt: We leveren koffiemachines en kantoorbenodigdheden aan kantoren. Vervang onze klantenspreadsheet door klanten, contactpersonen en contracten per locatie, en laat zien met wie we al een tijd niet hebben gesproken.
+  followUp:
+    eyebrow: Een e-mail van een klant, verwerkt
+    title: "Een klant noemt een nieuwe contactpersoon. Het record is bijgewerkt, het antwoord opgesteld."
+    description: De e-mail komt binnen bij de klant van wie het adres overeenkomt. Vraag het aan Mate, of laat een routine draaien, en de nieuwe contactpersoon, de locatie en de volgende stap staan bij de klant, met een concept van het antwoord voor jou.
+    desk:
+      label: "Scène voor het bijwerken van een klantrecord"
+      workspace: Hollis Office Services
+      conversation:
+        label: E-mail
+        name: Emma Clarke
+        company: Brightwell Studios
+        time: Wo 10:12
+        message: Even een update. Vanaf volgende maand neemt Sara Lind de inkoop van mij over. Kun je ook onze nieuwe locatie in Leeds aan het contract toevoegen?
+      agent:
+        name: Mate
+        intent: Het klantrecord bijwerken op basis van deze e-mail
+        done: Sara Lind toegevoegd als contactpersoon. Concept en volgende stap opgeslagen.
+      draft:
+        badge: Concept, wacht op jouw controle
+        text: Hoi Emma, bedankt voor de update. Ik heb Sara genoteerd als jullie contactpersoon voor de inkoop en stuur je donderdag het bijgewerkte contract met de locatie in Leeds. Groet, Daniel
+        edit: Bewerken
+        send: Concept versturen
+      today:
+        title: Dashboard
+        date: Woensdag
+        addedBy: Toegevoegd door Mate
+        assign: Toewijzen
+        sections:
+          - title: Volgende stappen die nu aan de beurt zijn
+            items:
+              - title: Bijgewerkt contract met locatie Leeds versturen
+                meta: Brightwell Studios · vervalt donderdag
+                owner: DM
+                state: added
+              - title: Jaarlijks evaluatiegesprek met Harbor Legal
+                meta: Harbor Legal · 2 dagen achterstallig
+                owner: DM
+                state: overdue
+  beforeAfter:
+    eyebrow: Wat er verandert
+    title: Voor en na. Dezelfde klanten, één actueel record.
+    before:
+      label: Voor
+      points:
+        - Een klantenspreadsheet die niemand bijhoudt
+        - Contactpersonen en notities verspreid over inboxen
+        - Niemand weet wie er het laatst met de klant sprak
+    after:
+      label: Met Customermates
+      points:
+        - Elke klant met zijn mensen, contracten en gesprekken
+        - Mate werkt records bij als je erom vraagt, of via een routine die je instelt
+        - Laatste contact en volgende stap zichtbaar bij elke klant
+  steps:
+    eyebrow: Zo begin je
+    title: Drie stappen. Van spreadsheet naar actuele records.
+    items:
+      - title: Importeer je spreadsheet
+        description: De AI-setup bouwt de lijsten en velden. Sla je sheet op als Excel-werkmap en wijs elke kolom aan een veld toe.
+      - title: Koppel e-mail of LinkedIn
+        description: Gesprekken komen binnen bij de klant van wie het e-mailadres of LinkedIn-profiel overeenkomt. Op Pro één gekoppeld account per persoon.
+      - title: Laat Mate alles actueel houden
+        description: Vraag het aan Mate, of stel een routine in, om nieuwe contactpersonen, notities en volgende stappen uit de laatste gesprekken toe te voegen.
+  plan:
+    eyebrow: Prijzen
+    title: Begin op Pro. [[commercial.price.pro.monthly]] per persoon per maand.
+    description: Starter voor [[commercial.price.starter.monthly]] dekt de klantendatabase zonder gekoppelde accounts. Gekoppelde e-mail en LinkedIn beginnen bij Pro in Customermates Cloud.
+    limits: Past niet als je contactverrijking, tags of een undo voor imports nodig hebt. Controleer je kolomtoewijzing voordat je importeert.
+    primaryCta:
+      label: Start je proefperiode van [[commercial.trial.days]] dagen
+      href: /auth/signup?job=workspace
+    secondaryCta:
+      label: Alle abonnementen vergelijken
+      href: /pricing
+
+cta:
+  action: Breng je klantenlijst over tijdens de proefperiode
+  description: "Sla je spreadsheet op als Excel-werkmap, wijs de kolommen toe aan je velden, koppel één e-mail- of LinkedIn-account en controleer binnen [[commercial.trial.days]] dagen of je van elke klant het laatste contact en de volgende stap kunt zien."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=workspace
+  buttonRightText: Verken de werkruimte
+  buttonRightHref: https://demo.customermates.com/nl/w/client-management/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Software voor relatiebeheer houdt elke persoon en elk bedrijf waarmee je werkt op één gedeelde plek bij, samen met wat er met hen speelt. Klantenbeheer gaat een stap verder: het beantwoordt wie de klant is, met wie je daar praat, wat openstaat en wat er daarna gebeurt. Customermates dekt beide voor kleine teams met veel klantcontact. Het is een open-source, AI-native CRM, gemaakt in Duitsland.
+
+**Waar dit helpt bij opvolging.** Een klant valt tussen wal en schip als niemand kan zien wie er het laatst mee sprak of wat er is beloofd. Een klantrecord bevat de mensen, de contracten of deals en, vanaf Pro in de cloud, de e-mail- en LinkedIn-gesprekken met hen, plus een datumveld voor de volgende actie. Een opgeslagen weergave gesorteerd op die datum, of een Aankomend-widget op het dashboard, toont wie je als volgende benadert.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Elk abonnement">Instelbare lijsten voor klanten, contactpersonen en kansen, getypeerde velden, relaties, filters, opgeslagen weergaven die je kunt delen, tabel, bord of agenda, rollen, Excel-import en -export, REST en MCP, plus webhooks bij de betaalde abonnementen. Self-hosting inbegrepen.</SummaryItem>
+  <SummaryItem label="Pro en hoger, alleen cloud">Gesprekken via e-mail, LinkedIn, WhatsApp, Instagram en Telegram naast de mensen om wie het gaat.</SummaryItem>
+  <SummaryItem label="Niet inbegrepen">Geen tags (gebruik een veld met meerkeuze), geen undo voor imports, geen synchronisatie met adresboeken, geen samenvoegfunctie, geen herinneringen.</SummaryItem>
+</ArticleSummary>
+
+## Bekijk het in een voorbeeldwerkruimte
+
+De [werkruimte voor klantenbeheer](https://demo.customermates.com/nl/w/client-management/dashboard) is een voorbeeld met voorbeeldgegevens, geen klantaccount. De interface is in het Nederlands, de voorbeeldrecords zijn in het Engels. De werkruimte heeft vijf lijsten: Clients, Contacts, Contracts, Opportunities en Tasks. Elke klant heeft een relatiestatus (New relationship, Active discussion, Customer, Dormant), een accountmanager en een ingesteld datumveld voor de volgende actie. Elk contract is één dienst op één locatie met een maandelijks bedrag en een evaluatiedatum, en een berekend veld telt de jaarwaarde van de klant uit zijn contracten bij elkaar op. Contracten bevatten het adres van de locatie en de getekende overeenkomst als pdf, het dashboard zet de locaties op een kaart en toont de evaluaties van de komende 30 dagen, en een agendaweergave toont de evaluatiedata per maand.
+
+Open één klant en je ziet op één record de mensen, de contracten, de openstaande kansen, de taken en de ondersteunde gesprekken van de gekoppelde personen. Niets daarvan wordt naar een tweede datasilo gekopieerd: de contactpersoon in het klantrecord is dezelfde contactpersoon waarop je zoekt, filtert of die je bijwerkt.
+
+Je eigen werkruimte begint niet met deze lijsten. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt de AI-werkruimtesetup lijsten, fasen, een dashboard en Kennisbankpagina's op basis van je beschrijving. De setup draait één keer tijdens de onboarding, wordt begrensd door setupcredits en je kunt hem overslaan met **Beginnen met een lege werkruimte**. Anders maken mensen met rechten voor het datamodel de lijsten en velden aan in **Datamodel**. Bij zelf hosten is dat de enige manier.
+
+## Gestructureerde klantgegevens
+
+Een klantrecord bevat de velden die jij bepaalt. De veldtypen zijn Tekst, Opgemaakte tekst, Getal, Geldbedrag, Ja of nee, Datum, Datum en tijd, Datumbereik, Datum- en tijdbereik, Enkele keuze, Meerkeuze, Webadres, Lid, Adres, Bestand en Telefoon, e-mail en social media. Berekende velden voegen waarden uit andere velden of gekoppelde records samen.
+
+Het veld **Contactgegevens** bevat de telefoonnummers, e-mailadressen en LinkedIn-, Instagram- en Telegram-identiteiten waarmee berichten aan een persoon worden gekoppeld. Een nummer daar kun je bellen en het koppelt ook WhatsApp-chats van hetzelfde nummer. Eén adres kan bij meerdere records horen, bijvoorbeeld bij een contactpersoon en een klant.
+
+Een veld **Adres** bevat één postadres: Customermates controleert het tegen het adresformaat van het land, stelt plaats en regio voor bij de postcode en opent het adres bij een klik in kaarten. Een veld **Bestand** bevat documenten zoals contracten of voorstellen, tot 20 bestanden per veld, en de tekst van die bestanden wordt door de zoekfunctie gevonden.
+
+Notities horen bij elk record. De globale zoekfunctie (Cmd/Ctrl+K) vindt records op naam en contactgegevens; andere velden bereik je via filters.
+
+## Gekoppelde records in plaats van een platte lijst
+
+Relaties verbinden de lijsten. Een contactpersoon kan bij meerdere klanten horen, een kans verwijst naar zijn klant en zijn mensen, en een taak verwijst naar waar die over gaat. Praat je team liever over accounts dan over klanten, hernoem de lijst dan voor de hele werkruimte in **Datamodel**.
+
+Een spreadsheet heeft één rij per persoon en herhaalt de bedrijfsnaam; Customermates bewaart het bedrijf één keer en koppelt de mensen eraan. Open de klant en zijn mensen staan er in een lijst; open een persoon en zijn klanten zijn één klik weg.
+
+## Klantenbeheer inrichten in vijf stappen
+
+<Steps>
+  <Step title="Maak de lijsten of controleer ze">Laat de AI-werkruimtesetup ze bouwen in Customermates Cloud, of maak Klanten, Contactpersonen en Kansen aan in **Datamodel** met relaties ertussen.</Step>
+  <Step title="Voeg de velden toe waarop je sorteert">Bijvoorbeeld **Relatiestatus** (enkele keuze), **Rol** bij contactpersonen (Beslisser, Dagelijks aanspreekpunt, Boekhouding) en **Volgende actie** (datum).</Step>
+  <Step title="Importeer je lijst">Importeer eerst klanten en daarna contactpersonen, zodat de bedrijfskolom aansluit. Details hieronder.</Step>
+  <Step title="Sla weergaven op">"Mijn actieve klanten", "Volgende actie deze week" of "Nog geen klant" voor het opruimen na de import. Deel de weergaven die het hele team nodig heeft, zoals "Volgende actie deze week", met iedereen in de werkruimte of met geselecteerde rollen.</Step>
+  <Step title="Bepaal wie wat ziet">Stel in de rolbewerker per lijst het leesrecht in op **Alle**, **Toegewezen** of **Geen**, plus rechten om aan te maken, te bewerken en te verwijderen. Rechten gelden voor hele lijsten, niet voor losse velden.</Step>
+</Steps>
+
+## Instelbare volgende acties
+
+Customermates heeft geen ingebouwde herinneringen of einddatumlogica. Je voegt een datumveld zoals **Volgende actie** toe aan klanten of kansen en slaat een weergave op die filtert op datums die voorbij zijn. In Customermates Cloud kan een [routine](/docs/app-routines) die records elke maandagochtend opsommen. Bordweergaven gegroepeerd op relatiestatus laten in één oogopslag zien wie nieuw, actief of slapend is.
+
+## Overstappen van Excel of Google Sheets
+
+Veel teams komen met een spreadsheet. Die verhuizen is praktisch, maar niet automatisch:
+
+- **Formaat.** Een lijst importeer je uit een Excel-werkmap (.xlsx of .xls) of een CSV-bestand via een wizard: kies het blad, wijs de kolommen toe, controleer het voorbeeld, importeer. Bestanden van Google Sheets worden niet rechtstreeks geïmporteerd: download het blad als .xlsx of .csv. Een download uit Outlook of Google Contacts kun je zoals hij is importeren. Een JSON-export van dezelfde lijst kun je ook opnieuw importeren.
+- **Volgorde.** Importeer klanten vóór contactpersonen, zodat de bedrijfskolom aan bestaande records koppelt. Wijs e-mail-, telefoon- en berichtenkolommen toe aan het veld **Contactgegevens**.
+- **Geen undo.** Een import kun je niet terugdraaien. Ruim eerst dubbele records op, want achteraf is er geen samenvoegfunctie. Test met een klein bestand.
+- **Geen bijlagen.** Bestanden die naast je spreadsheet staan, zoals contracten of pdf's, maken geen deel uit van de import. Upload de bestanden die je nodig hebt daarna naar een veld Bestand van het record.
+- **Bulkcorrecties.** Exporteer de lijst, bewerk hem in Excel en importeer hem opnieuw als **Bestaande records**.
+- **Geen doorlopende synchronisatie.** Na de import zijn je spreadsheet en Customermates aparte lijsten.
+
+De [gids over records](/docs/app-records#how-do-i-import-or-export-records) beschrijft de limieten en opties.
+
+## Gesprekken naast de relatie
+
+In Customermates Cloud koppelen Pro en hoger Gmail, Outlook, IMAP, LinkedIn (inclusief ondersteunde chats van Sales Navigator en Recruiter), WhatsApp, Instagram en Telegram via de [gecombineerde inbox](/features/unified-inbox). Een deelnemer wordt aan een contactpersoon gekoppeld via de identiteit in het veld Contactgegevens. Schrijft een onbekend adres, dan koppel je die deelnemer aan een bestaande of nieuwe contactpersoon. Een gesprek wordt alleen aan een kans of klant gekoppeld als jij of een agent dat uitdrukkelijk doet; niets wordt automatisch bij een deal ingedeeld.
+
+De limieten van het abonnement gelden. Starter en self-hosted hebben geen gekoppelde berichtenaccounts. Pro dekt je eigen accounts, met [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker inbegrepen, plus los gedeelde gesprekken. Een heel account met het team delen vraagt Business, Max of Enterprise.
+
+## AI op je klantrecords: Mate en MCP
+
+In Customermates Cloud werkt Mate, de gehoste assistent, in gewone taal aan records, binnen de AI-credits van je abonnement:
+
+```text
+Maak contactpersonen aan voor iedereen in deze e-mailhandtekening en koppel ze aan de klant Hartmann Consulting. Controleer eerst of een van hen al bestaat.
+```
+
+Mate ziet wat jij mag zien. Het maakt records aan, werkt ze bij en verstuurt berichten zodra je erom vraagt; verwijderen, importeren en toegangswijzigingen wachten telkens op je goedkeuring. Mate is niet beschikbaar bij zelf hosten.
+
+Bij elk abonnement, self-hosted inbegrepen, kan je eigen AI-client, zoals Claude of ChatGPT, via [MCP](/docs/mcp) records lezen en bijwerken waartoe je toegang hebt, op rekening van je AI-aanbieder.
+
+## Waar de gegevens staan
+
+In Customermates Cloud draait de database in de AWS-regio Frankfurt. Dienstverleners, ook Amerikaanse bedrijven, staan op de [pagina met subverwerkers](/subprocessors), en een [verwerkersovereenkomst](/dpa) is beschikbaar. Hosting in de EU is geen certificering, en Customermates heeft er geen. Wil je de gegevens op je eigen servers houden, draai dan de AGPL-kern [zelf gehost](/features/self-hosted), zonder inbox en zonder Mate.
+
+## Wat het niet doet
+
+<AcquisitionCallout title="Beperkingen die de keuze beïnvloeden" variant="boundary">
+  Geen tags: gebruik een veld met meerkeuze. Bijlagen van berichten blijven in hun inboxgesprek; bestanden die je bij het record wilt, zet je in een veld Bestand. Importeren kan alleen vanuit de gedocumenteerde formaten, zonder undo. Geen samenvoegfunctie, geen synchronisatie met adresboeken, geen herinneringen of einddatummeldingen, geen nieuwsbrieven, massamail, reeksen of gegevensverrijking, geen native mobiele app.
+</AcquisitionCallout>
+
+## Relatiebeheer software of het adresboek op je telefoon?
+
+| Jouw situatie | Kijk naar |
+|---|---|
+| Eén persoon die namen en nummers op een telefoon nodig heeft | Het adresboek van je telefoon, Outlook of Google-account |
+| Een gedeelde spreadsheet die voor twee mensen nog werkt | Houd die tot koppelingen, geschiedenis of toegangsrechten het probleem worden |
+| Een klein team dat klanten, kansen en gesprekken deelt | Een CRM zoals Customermates |
+
+Customermates synchroniseert niet met adresboeken van je telefoon of Outlook. Het is de plek waar een team klantrelaties beheert, geen vervanging van de contacten-app op je telefoon. Meer opties naast elkaar vind je in de [vergelijking van klantendatabasesoftware](/blog/client-database-software).
+
+## Wat het kost
+
+Er wordt maandelijks per gebruiker gefactureerd, nooit per contactpersoon. Starter kost [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]] en Business [[commercial.price.business.monthly]] per gebruiker per maand. De inbox begint bij Pro, het delen van een heel account bij Business. De AGPL-kern zelf hosten kost geen licentie. Zie [prijzen](/pricing).
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is het verschil tussen contactbeheer en klantenbeheer?">
+Contactbeheer slaat mensen, bedrijven en hun gegevens op. Klantenbeheer voegt toe wat je ermee doet: kansen, volgende acties, taken en gesprekken. In Customermates staan beide in gekoppelde lijsten van één werkruimte.
+</FaqItem>
+
+<FaqItem question="Kan ik tags gebruiken voor contactpersonen?">
+Nee. Voeg in plaats daarvan een veld met meerkeuze toe, bijvoorbeeld **Segment** met de waarden die je als tags zou hebben gebruikt. Je kunt erop filteren en groeperen. De gids over [klantsegmentatie](/blog/customer-segmentation) laat zien hoe je segmenten kiest en er weergaven en grafieken voor opzet.
+</FaqItem>
+
+<FaqItem question="Kan ik bestanden aan een klant of contactpersoon koppelen?">
+Ja. Voeg een veld Bestand aan de lijst toe; het bevat tot 20 bestanden en de zoekfunctie vindt de tekst erin. Bijlagen van ondersteunde berichten blijven in hun inboxgesprek.
+</FaqItem>
+
+<FaqItem question="Kan ik importeren uit Excel, Google Sheets of Outlook?">
+Ja, als Excel-werkmap (.xlsx) of als CSV-bestand. Bestanden van Google Sheets worden niet rechtstreeks geïmporteerd, dus download het blad of je contacten eerst als .xlsx of .csv, importeer klanten vóór contactpersonen en test met een klein bestand: een import kan niet ongedaan worden gemaakt.
+</FaqItem>
+
+<FaqItem question="Heeft een nieuwe werkruimte lijsten voor klanten en contactpersonen?">
+Nee. Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud kan de AI-werkruimtesetup ze tijdens de onboarding bouwen, anders maak je ze aan in Datamodel. De lijsten in de voorbeeldwerkruimte tonen één mogelijke opzet.
+</FaqItem>
+
+<FaqItem question="Hoeveel contactpersonen kan ik beheren?">
+De abonnementen stellen geen limiet voor contactpersonen. Eén export dekt tot 5.000 records van de huidige weergave.
+</FaqItem>
+</Faq>

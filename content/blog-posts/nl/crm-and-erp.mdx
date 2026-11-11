@@ -1,0 +1,190 @@
+---
+title: "CRM vs ERP: verschillen en hoe ze samenwerken"
+description: "CRM vs ERP: de CRM regelt klant en verkoop, de ERP orders, voorraad en geld. Wie welk record beheert, wanneer je beide nodig hebt en waar facturatie past."
+
+relatedHrefs:
+  - /blog/crm-erp-integration
+  - /features/integrations
+  - /compare/odoo
+  - /docs/webhooks
+
+hero:
+  title: "CRM vs ERP: welk systeem beheert welk deel van de klant?"
+  description: "Een CRM bevat alles tot de getekende deal, een ERP of facturatietool alles daarna. Hoe de records zich verdelen, wanneer je welk systeem nodig hebt en hoe je ze koppelt zonder dubbel invoeren."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-01-06
+  updated: 2026-10-08
+  tags:
+    - CRM
+    - ERP
+    - Bedrijfssystemen
+---
+
+# CRM vs ERP: welk systeem beheert welk deel van de klant?
+
+CRM vs ERP in één zin: een CRM beheert de mensen aan wie je verkoopt en de deals waar je nu aan werkt. Een ERP beheert wat er gebeurt zodra iets is verkocht: orders, voorraad, inkoop, facturen, betalingen en de boekhouding. De eenvoudigste scheidslijn is de getekende deal. Alles ervoor hoort in de CRM, alles erna in de ERP.
+
+De meeste kleine dienstverleners hebben helemaal geen volwaardige ERP nodig. Een adviesbureau of bureau met vijf mensen heeft meestal genoeg aan een CRM voor de pipeline en een facturatie- en boekhoudtool zoals Lexware Office of sevDesk voor het geld. Die combinatie is de "kleine ERP" voor een bedrijf zonder voorraad of productie. Hieronder komt ze aan bod, samen met de vraag of een groter totaalpakket beter past.
+
+Customermates publiceert deze gids. Het is een CRM, geen ERP en geen boekhoudsoftware, en het komt hieronder alleen voor waar het past.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="CRM">Contactpersonen, organisaties, deals, pipelinefasen, gesprekken en volgende stappen. Gebruikt door sales, accountmanagement en oprichters.</SummaryItem>
+  <SummaryItem label="ERP">Orders, facturen, betalingen, voorraad, inkoop, productie en boekhouding. Gebruikt door finance en operations.</SummaryItem>
+  <SummaryItem label="Kleine dienstverlener">Een CRM plus een facturatietool dekt meestal beide kanten. Een volledige ERP loont pas bij voorraad, inkoop of productie.</SummaryItem>
+  <SummaryItem label="Koppelen">Kies per veld één eigenaar, geef een vaste ID door en synchroniseer alleen de paar velden die de andere kant nodig heeft: klantgegevens heen, betaalstatus terug.</SummaryItem>
+</ArticleSummary>
+
+## CRM en ERP naast elkaar
+
+| | CRM | ERP |
+| --- | --- | --- |
+| Vraag die het beantwoordt | Met wie praten we, en wat is de volgende stap? | Wat hebben we verkocht, geleverd, gefactureerd en betaald gekregen? |
+| Belangrijkste gebruikers | Sales, accountmanagement, oprichters, service | Finance, operations, inkoop, productie |
+| Kernrecords | Contactpersonen, organisaties, deals, taken, gesprekken | Orders, facturen, betalingen, artikelen, voorraad, leveranciers, grootboek |
+| Hoe het werk loopt | Flexibel: deals schuiven door de fasen, plannen veranderen | Gecontroleerd: documenten worden geboekt, genummerd en gecontroleerd |
+| Wat er zonder misgaat | Opvolging blijft liggen, niemand weet wat het laatste gesprek was | Foute facturen, voorraadfouten, een stroeve maandafsluiting |
+| Typische koppelingen | E-mail, LinkedIn, WhatsApp, agenda, website | Bank, belastingadviseur, webshop, logistiek, salarisadministratie |
+
+De twee overlappen bij de klantstamgegevens. Beide systemen hebben de naam en het adres van de klant nodig, en daar ontstaan dubbele records. Het volgende gedeelte lost dat op.
+
+## Wie beheert welk record
+
+Schrijf op wie welk record en welk veld beheert voordat je iets koppelt. Onduidelijk eigenaarschap veroorzaakt meer gedoe bij het synchroniseren dan de koppeling zelf. Deze verdeling past bij een typisch klein dienstverlenend bedrijf:
+
+| Record of veld | Eigenaar | Kopie aan de andere kant |
+| --- | --- | --- |
+| Persoon, functie, notities over de relatie | CRM | Alleen naam en e-mailadres van de factuurcontact |
+| Organisatie (bedrijf) | CRM tot de eerste factuur, daarna gedeeld | ERP-klantnummer opgeslagen bij de organisatie in de CRM |
+| Juridische naam, btw-id, factuuradres | ERP of facturatietool | Gekopieerd naar de CRM, alleen aangepast in de ERP |
+| Deal, fase, dealwaarde, volgende stap | CRM | Optioneel: deal-ID bij de order |
+| Producten, prijzen, voorraad | ERP | Namen van producten of diensten als regels in de deal |
+| Order, factuur, factuurnummer | ERP of facturatietool | Factuurnummer bij de deal |
+| Betaalstatus | ERP of facturatietool | Veld met enkele keuze bij de deal, ingevuld door de integratie |
+| Gesprekken en notities van gesprekken | CRM | Niets, finance heeft ze zelden nodig |
+
+Twee regels houden dit stabiel. Ten eerste mag maar één kant een veld wijzigen; de andere kant leest het. Ten tweede bewaren beide systemen de ID van het andere (CRM-organisatie-ID in de ERP, ERP-klantnummer in de CRM), zodat je records nooit op bedrijfsnaam koppelt. Namen veranderen, worden afgekort en worden dubbel ingevoerd.
+
+## CRM of ERP: wat heb je nodig, of volstaat een facturatietool?
+
+Begin bij het probleem dat je nu hebt, niet bij de softwarecategorie.
+
+| Jouw situatie | Begin met |
+| --- | --- |
+| Aanvragen raken zoek, niemand weet wie het laatst met een klant sprak | Een CRM |
+| Je verkoopt diensten, stuurt een paar tientallen facturen per maand en werkt met een belastingadviseur | Een facturatie- en boekhoudtool, plus een CRM voor sales |
+| Je houdt voorraad aan, koopt materiaal in, plant productie of verzendt goederen | Een ERP |
+| Sales werkt en finance werkt, maar de overdracht tussen beide hapert | Beide, met een smalle koppeling ertussen |
+| Je wilt één leverancier en één login voor alles, en de modules passen bij je werkwijze | Een totaalpakket |
+
+Een CRM-module in een ERP dekt vaak contacten en eenvoudige kansen. Test die op een echte verkoopweek voordat je erop vertrouwt: hoe komt een nieuw LinkedIn- of WhatsApp-gesprek bij de klant terecht, hoe valt een stilgevallen deal op en hoe neemt een collega een klant over? Omgekeerd begint het klantdossier in een facturatietool pas als er iets te factureren valt. Een pipeline heeft het niet.
+
+## Eén pakket of twee gespecialiseerde systemen?
+
+Een totaalpakket brengt CRM- en ERP-modules onder bij één leverancier. Odoo is een bekend voorbeeld voor kleinere bedrijven: de [prijzenpagina](https://www.odoo.com/pricing) noemt een gratis abonnement met één app en betaalde abonnementen met alle apps, waaronder CRM, Sales en Accounting. In de [Odoo-vergelijking](/compare/odoo) lees je hoe het zich verhoudt tot een gespecialiseerde CRM.
+
+| | Totaalpakket | CRM plus ERP of facturatietool |
+| --- | --- | --- |
+| Gedeeld klantrecord | Meestal ingebouwd | Vraagt om een synchronisatie of een handmatige overdracht |
+| Aansluiting op elk team | Hangt af van de zwakste module die je gebruikt | Elke kant kiest de tool die bij het werk past |
+| Eén onderdeel vervangen | Lastiger, de modules hangen samen | Eén kant wisselen, de andere houden |
+| Doorlopend werk | Eén systeem configureren en bijwerken | Eén integratie draaien en bewaken |
+
+Geen van beide is vanzelf eenvoudiger. Een pakket met een CRM-module die je verkopers mijden levert dezelfde spreadsheets op als waar je vanaf wilde. Twee tools zonder duidelijke eigenaar per veld leveren dubbele records op. Kies de kolom waarvan je het doorlopende werk wilt dragen.
+
+## Facturatietools naast een CRM
+
+Voor kleine bedrijven in Duitsland is de ERP-kant vaak een facturatie- en boekhoudtool die gegevens aan de belastingadviseur doorgeeft. Als je hier kwam op zoek naar een alternatief voor lexoffice, is de eerste vraag of het probleem in de boekhouding zit of in sales. Een andere boekhoudtool redt geen verloren deals, en op geen van de onderstaande prijzenpagina's staat een salespipeline of dealfase.
+
+Lexoffice heet nu Lexware Office, zoals de [productpagina van Lexware](https://www.lexware.de/lexoffice/) aangeeft. Voor een CRM-koppeling telt vooral welk abonnement de API bevat:
+
+| Tool | Abonnementen | API-toegang volgens de prijzenpagina van de aanbieder |
+| --- | --- | --- |
+| [Lexware Office](https://www.lexware.de/preise/) | S, M, L, XL | Public API alleen bij XL |
+| [sevDesk](https://sevdesk.de/preise/) | Gratis, Rechnung, Buchhaltung, Buchhaltung Pro | REST API alleen bij Buchhaltung Pro |
+| [FastBill](https://www.fastbill.com/preise) | Solo, Plus, Pro, Premium | REST API en webhooks bij elk abonnement, met uurlimieten voor aanroepen die per abonnement oplopen |
+| [Billomat](https://www.billomat.com/preise/) | Professional, Business, Enterprise | Business en Enterprise |
+
+Abonnementen en API-niveaus zijn gecontroleerd op 8 oktober 2026. Prijzen veranderen vaak, dus vergelijk ze op de gelinkte pagina's. Twee controles voordat je overstapt: vraag je belastingadviseur welk exportformaat die nodig heeft en controleer welke e-factuurformaten je moet versturen en ontvangen. Lexware Office noemt bijvoorbeeld ZUGFeRD en XRechnung bij alle vier de abonnementen.
+
+Zit het echte gat in sales, houd dan de boekhoudtool en zet er een CRM naast. De [ontwikkelaarsdocumentatie van Lexware](https://developers.lexware.io/docs/) noemt endpoints voor contacten, facturen, offertes en betalingen, plus abonnementen op events. Meer heeft de onderstaande overdracht niet nodig.
+
+## De overdracht stap voor stap
+
+Dit is de kleinste bruikbare koppeling tussen een CRM en een facturatietool of ERP. Ze is geschreven voor Customermates aan de CRM-kant, maar de volgorde van de stappen geldt voor elk paar.
+
+<Steps>
+  <Step title="Voeg de velden voor de overdracht toe">
+    Voeg bij organisaties een aangepast tekstveld "Klantnr. boekhouding" toe. Voeg bij deals een tekstveld "Factuurnr." toe en een veld met enkele keuze "Betaalstatus" met de opties Open, Deels betaald en Betaald. Spreek af dat alleen de integratie deze velden invult.
+  </Step>
+  <Step title="Kies de trigger">
+    Abonneer een [webhook](/docs/webhooks) op `record.updated` voor de lijst Deals. Update-events noemen elk veld dat is gewijzigd met de vorige en de huidige waarde, zodat je integratie alleen reageert wanneer de fase op Gewonnen springt en elke andere wijziging negeert.
+  </Step>
+  <Step title="Maak de klant aan of koppel hem">
+    Heeft de organisatie nog geen klantnummer uit de boekhouding, maak de klant dan aan via de API van de boekhoudtool en schrijf het teruggegeven nummer via de Customermates REST API terug naar de organisatie. Is er al een nummer, gebruik dat dan. Koppel nooit op bedrijfsnaam.
+  </Step>
+  <Step title="Maak daar de factuur of order aan">
+    Maak in de boekhoudtool een concept van een factuur, offerte of order met de diensten en de waarde van de deal. Customermates zelf maakt geen offertes of facturen. Bewaar het documentnummer in "Factuurnr." bij de deal.
+  </Step>
+  <Step title="Stuur de betaalstatus terug">
+    Als de betaling in de boekhoudtool verandert (via het eventabonnement of een nachtelijke controle), werk je "Betaalstatus" bij de deal bij. Een schrijfactie die niets wijzigt levert in Customermates geen nieuw event op, dus de integratie loopt niet vast in een lus op haar eigen updates.
+  </Step>
+  <Step title="Controleer het wekelijks">
+    Filter deals in de fase Gewonnen met een leeg veld "Factuurnr." en sla dat op als weergave. Alles wat daarin staat, is een mislukte overdracht. Mislukte webhook-leveringen staan onder Instellingen › Webhooklog en kun je daar opnieuw versturen.
+  </Step>
+</Steps>
+
+De integratie zelf draait buiten beide systemen: een kleine eigen service of een n8n-workflow die de [Customermates API](/docs/n8n) aanroept. n8n is een apart product dat je zelf host of waarop je een abonnement neemt. Voor veldkoppeling, authenticatie, idempotentie en bewaking uitgebreider lees je de [gids over de CRM ERP koppeling](/blog/crm-erp-integration).
+
+## Waar Customermates past, en waar niet
+
+Customermates is een open-source, AI-native CRM voor kleine teams met veel klantcontact, gebouwd in Duitsland. Aan de CRM-kant van de tabellen hierboven dekt het contactpersonen, organisaties, deals met instelbare fasen op een [pipelinebord](/features/pipeline), diensten als regels in de deal, taken, aangepaste velden en opgeslagen weergaven. Fasen hebben een weging, waaruit een gewogen pipelinewaarde volgt. Vanaf Pro in Customermates Cloud staan e-mail-, LinkedIn- en WhatsApp-gesprekken in de [gecombineerde inbox](/features/unified-inbox) bij de klant.
+
+Voor de koppeling met een ERP of facturatietool biedt het een REST API, [[derived.webhooks.events.total]] webhook-eventtypen en een MCP-server met [[derived.mcp.tools.total]] tools, op een rij op de [integratiepagina](/features/integrations).
+
+Wat het niet doet:
+
+- Het maakt geen offertes of facturen, boekt geen betalingen, houdt geen grootboek bij, beheert geen voorraad en plant geen productie. Dat blijft in je ERP of facturatietool.
+- Er is geen kant-en-klare connector voor Lexware Office, sevDesk, DATEV of een ERP. De overdracht hierboven bouw je met de API, webhooks of n8n.
+- Records worden per lijst geïmporteerd uit Excel-werkmappen, CSV-bestanden of JSON en geëxporteerd als XLSX-werkmap of JSON. Contactpersonen uit een facturatietool overnemen betekent de export als XLSX- of CSV-bestand importeren, eerst de organisaties, dan de contactpersonen.
+- De gecombineerde inbox en Mate, de assistent, bestaan alleen in Customermates Cloud. Een zelf gehoste installatie is de open-source kern met REST, webhooks en MCP.
+
+Wil je CRM en boekhouding onder één login en bij één leverancier, dan past een totaalpakket beter dan Customermates.
+
+Een realistische prijs voor een adviesbureau van drie personen op Pro is [[commercial.price.pro.monthly.seats.3]] per maand voor de CRM met de inbox, plus het abonnement van de boekhoudtool met API-toegang. Er wordt maandelijks gefactureerd. Details staan op de [prijzenpagina](/pricing).
+
+Aan de CRM-kant ontstaat de opvolging, lang voordat een deal bij een factuur aankomt: gesprekken bij het klantrecord, een antwoord en een volgende stap met datum, opgesteld door Mate of je eigen AI-client, en jij controleert en verstuurt. Om dat met je eigen klanten te testen, [start je [[commercial.trial.days]] dagen gratis](/auth/signup?job=followup). Geen creditcard nodig.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Wat is het belangrijkste verschil tussen CRM en ERP?">
+Een CRM beheert klantrelaties en verkoop tot de getekende deal: contactpersonen, gesprekken, pipeline en volgende stappen. Een ERP beheert het operationele en financiële werk daarna: orders, voorraad, inkoop, facturatie, betalingen en boekhouding.
+</FaqItem>
+
+<FaqItem question="Is SAP een ERP of een CRM, en hoe zit het met Salesforce?">
+SAP verkoopt allebei. De [ERP vs CRM-pagina van SAP](https://www.sap.com/resources/erp-vs-crm) noemt ERP-producten zoals SAP S/4HANA Cloud en SAP Business One, dat ook CRM-functies heeft, naast een aparte SAP CRM-applicatie, en antwoordt "Nee" op de vraag of een cloud-ERP een CRM kan vervangen. Salesforce is vooral bekend om zijn CRM. Het eigen [artikel over ERP vs CRM](https://www.salesforce.com/blog/erp-vs-crm/) presenteert Salesforce CRM als de klantgerichte kant en beschrijft de koppeling met ERP-functies zoals verkooporders en voorraadbeheer.
+</FaqItem>
+
+<FaqItem question="Heeft een klein bedrijf een ERP nodig?">
+Meestal niet zolang het diensten verkoopt zonder voorraad of productie. Een CRM voor sales plus een facturatie- en boekhoudtool dekt het meeste van wat een ERP zou doen. Een ERP loont zodra je voorraad, inkoop, productie of meerdere juridische entiteiten beheert.
+</FaqItem>
+
+<FaqItem question="Is CRM onderdeel van ERP?">
+Sommige ERP-pakketten bevatten een CRM-module, en sommige CRM's maken deel uit van een groter pakket. Of die module genoeg is, hangt af van je salesproces. Test hem met een echte week aanvragen, opvolging en overdrachten voordat je beslist.
+</FaqItem>
+
+<FaqItem question="Kun je lexoffice als CRM gebruiken?">
+Alleen voor eenvoudige klantgegevens. Lexware Office, de huidige naam van lexoffice, bewaart klanten met een tijdlijn van hun documenten, plus taken, notities en een klantenportaal. Deals of pipelinefasen noemt de prijzenpagina niet. De meeste teams houden het voor facturatie en voegen een CRM toe, gekoppeld via de Public API bij het XL-abonnement.
+</FaqItem>
+
+<FaqItem question="Vervangt Customermates een ERP of boekhoudsoftware?">
+Nee. Customermates is een CRM. Het draait naast je ERP of facturatietool en beheert de klant- en dealkant, terwijl facturen, betalingen en boekhouding in het andere systeem blijven.
+</FaqItem>
+</Faq>
+
+Details van derden gecontroleerd op 8 oktober 2026 op de officiële pagina's van [Lexware Office](https://www.lexware.de/preise/), [sevDesk](https://sevdesk.de/preise/), [FastBill](https://www.fastbill.com/preise), [Billomat](https://www.billomat.com/preise/), [Odoo](https://www.odoo.com/pricing), [SAP](https://www.sap.com/resources/erp-vs-crm) en [Salesforce](https://www.salesforce.com/blog/erp-vs-crm/).

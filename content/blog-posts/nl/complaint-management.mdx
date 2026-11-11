@@ -1,0 +1,177 @@
+---
+title: "Klachtenprocedure en klachtenafhandeling: stappen en CRM"
+description: "Klachtenprocedure uitgelegd: zeven stappen, een triage- en escalatietabel, klacht versus garantieclaim en een CRM-opzet voor kleine teams, met de grenzen."
+
+relatedHrefs:
+  - /blog/customer-interaction-management
+  - /features/unified-inbox
+  - /features/task-management
+  - /blog/customer-journey
+
+hero:
+  title: "Klachtenprocedure: proces, triagetabel en klachtenregistratie in je CRM"
+  description: "Zo handel je klachten af zodat er geen verloren gaat: zeven stappen van ontvangst tot leren, wie waarvoor verantwoordelijk is, wanneer je escaleert en een voorbeeld van een klein team dat klachten bijhoudt in Customermates, met de grenzen ervan."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-11-02
+  tags:
+    - Klachtenmanagement
+    - Klantenservice
+    - Klantervaring
+---
+
+# Klachtenprocedure: proces, triagetabel en klachtenregistratie in je CRM
+
+Een klachtenprocedure is het proces waarmee je klachten van klanten ontvangt, registreert, oplost en er lessen uit trekt: elke klacht krijgt een eigenaar, een ontvangstbevestiging, een oplossing en een controle dat de klant het resultaat accepteert. Een klein team kan die klachtenafhandeling uitvoeren in een CRM zoals Customermates door klachten in een eigen lijst bij te houden, gekoppeld aan de klant, zoals hieronder te zien is, maar Customermates is geen helpdesk en geen gereguleerd systeem voor klachtenmanagement.
+
+Deze gids behandelt wat een systeem voor klachtenmanagement is, hoe een klacht verschilt van een garantieclaim, een tabel voor triage, eigenaarschap en escalatie, de zeven stappen van het proces, tien regels voor een goed antwoord en een uitgewerkt voorbeeld van klachtenregistratie in Customermates, met de grenzen er direct naast.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Definitie">Een vastgelegde manier om klachten van klanten te ontvangen, te registreren, op te lossen en er lessen uit te trekken, met één eigenaar per klacht.</SummaryItem>
+  <SummaryItem label="Proces">Ontvangen, registreren, bevestigen, onderzoeken, oplossen, opvolgen, leren. Modellen met vijf stappen voegen sommige daarvan samen.</SummaryItem>
+  <SummaryItem label="Klacht of claim">Een klacht uit ontevredenheid. Een claim (Duits: Reklamation) vraagt om een oplossing voor een gebrek, en wettelijke garantieregels kunnen gelden.</SummaryItem>
+  <SummaryItem label="Triage">Geef elke klacht een type, een urgentie, één eigenaar, een reactiedoel dat je zelf bepaalt en een escalatieroute.</SummaryItem>
+  <SummaryItem label="In Customermates">Een lijst Klachten gekoppeld aan de klant, een statusbord, taken met streefdata en de gesprekken op het klantrecord.</SummaryItem>
+  <SummaryItem label="Niet inbegrepen">Geen helpdesk, geen SLA-motor voor tickets, geen klantenportaal, geen telefonie en geen ISO 10002-certificering.</SummaryItem>
+</ArticleSummary>
+
+## Wat is klachtenmanagement en wat is een systeem voor klachtenregistratie?
+
+Klachtenmanagement omvat alles wat een bedrijf doet vanaf het moment dat een klant zegt dat er iets misging tot de oorzaak is verholpen: de klacht ontvangen op elk kanaal, op één plek registreren, beantwoorden, de oorzaak zoeken, het rechtzetten, terugkoppelen en gebruiken wat je hebt geleerd, zodat de volgende klant niet hetzelfde probleem tegenkomt. Twee taken lopen naast elkaar. De ene is het probleem van deze klant oplossen. De andere is leren van alle klachten samen.
+
+Een systeem voor klachtenregistratie is alles wat dat proces bij elkaar houdt. Het kan een gedeelde spreadsheet zijn, een lijst in een CRM, een helpdesk met ticketwachtrijen of, in gereguleerde sectoren, speciale software met audittrails. Waar het om gaat is dat elke klacht een record, een eigenaar, een status en een besluit tot afsluiten heeft. Klachtenmanagement verschilt ook van algemene klantenservice: service beantwoordt vragen en verzoeken, terwijl klachtenmanagement de vastgelegde route is voor uitgesproken ontevredenheid.
+
+Er bestaat een norm. [ISO 10002:2018](https://www.iso.org/standard/71580.html) geeft richtlijnen voor klachtenafhandeling in organisaties van elke omvang, bedoeld als één proces binnen een kwaliteitsmanagementsysteem. Deze gids is er niet op gebaseerd en beweert niet dat hij eraan voldoet.
+
+## Wat is het verschil tussen een klacht en een garantieclaim?
+
+In het dagelijks taalgebruik lopen de twee begrippen door elkaar. Het verschil doet ertoe wanneer de klant een oplossing voor een gebrek wil, omdat een claim juridische gevolgen en termijnen kan hebben die een klacht niet heeft.
+
+| | Klacht | Claim (Duits: Reklamation) |
+| --- | --- | --- |
+| Wat de klant zegt | "Ik ben hier ontevreden over." | "Dit is defect, maak het in orde." |
+| Wat de klant wil | Een reactie, een uitleg, een excuus, een verandering | Een specifieke oplossing: reparatie, vervanging, prijsverlaging, terugbetaling |
+| Juridische kant | Meestal geen | Garantieregels van het land kunnen gelden |
+| Wat je vastlegt | Datum, kanaal, de woorden van de klant, de uitkomst | Hetzelfde, plus leverdatum, datum van de melding, order- of factuurreferentie en de gevraagde oplossing |
+
+Duitsland maakt het onderscheid zichtbaar. Een Beschwerde is elke uiting van ontevredenheid. Een Reklamation is een melding van een gebrek, meestal op grond van de wettelijke garantie (Gewährleistung). Is een zaak defect, dan kan de koper volgens [§ 437 van het Duitse burgerlijk wetboek (BGB)](https://www.gesetze-im-internet.de/bgb/__437.html), onder de voorwaarden van de volgende bepalingen, nakoming eisen, de overeenkomst ontbinden of de prijs verlagen, en schadevergoeding vorderen. [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) stelt verjaringstermijnen vast, in de regel twee jaar. Tussen ondernemers voegt [§ 377 van het Duitse wetboek van koophandel (HGB)](https://www.gesetze-im-internet.de/hgb/__377.html) toe dat goederen onverwijld moeten worden gekeurd en gebreken onverwijld moeten worden gemeld. De regels verschillen per land, tussen consumenten en bedrijven en per overeenkomst, en dit is geen juridisch advies.
+
+Voor je proces is de les praktisch: leg beide vast in dezelfde lijst met een veld Type, maar behandel claims als tijdgevoelig en bewaar elke datum, want termijnen kunnen daarvan afhangen.
+
+## Hoe triëer je klachten en bepaal je wie ze oppakt?
+
+Triage sorteert klachten op type en urgentie, zodat de juiste persoon op de juiste snelheid antwoordt. Schrijf de tabel één keer, deel haar met het team en pas haar aan wanneer echte gevallen laten zien waar ze niet klopt. Elke klacht heeft precies één eigenaar nodig, ook als meerdere mensen helpen.
+
+| Soort klacht | Urgentie | Eigenaar | Doel voor eerste reactie (door jou bepaald) | Escalatieroute | Afsluitcriterium |
+| --- | --- | --- | --- | --- | --- |
+| Gebrek of garantieclaim | Hoog | Accounteigenaar, samen met wie het werk heeft geleverd | Voorbeeld: dezelfde werkdag | Naar de directie als een tweede reparatie mislukt of de klant opzegging of juridische stappen noemt | De klant bevestigt de reparatie, of de afgesproken oplossing is geleverd |
+| Late of gemiste levering | Normaal, Hoog als de eigen deadline van de klant ervan afhangt | Project- of leveringsverantwoordelijke | Voorbeeld: dezelfde werkdag | Naar de accounteigenaar wanneer een nieuwe datum één keer wordt gemist | Nieuwe datum gehaald en klant schriftelijk geïnformeerd |
+| Fout in factuur of facturering | Normaal | Wie de facturen verstuurt | Voorbeeld: één werkdag | Naar de directie als het bedrag na controle nog steeds wordt betwist | Gecorrigeerde factuur of creditnota verstuurd en bevestigd |
+| Communicatie of gedrag (trage antwoorden, toon, overdracht) | Normaal | Teamleider van de betrokken persoon | Voorbeeld: één werkdag | Naar de directie als het zich herhaalt | Gesprek gevoerd, klant geantwoord, interne feedback gegeven |
+| Juridisch, veiligheid, gegevensbescherming of publieke escalatie (advocaat, beoordelingssite, pers) | Kritiek | Rechtstreeks de directie | Voorbeeld: onmiddellijk | De directie beslist over extern advies, bijvoorbeeld van een advocaat of de functionaris voor gegevensbescherming | Het besluit van de directie is vastgelegd en naar de klant gestuurd |
+
+Lees urgentie zo, als startpunt: Kritiek is een risico voor de veiligheid, een juridische kwestie of een kwestie rond gegevensbescherming, of een sleutelklant die op het spel staat; Hoog betekent dat de klant niet kan werken of dat een toegezegde datum wordt gemist; Normaal is een probleem met een tijdelijke oplossing; Laag is een suggestie of een kleine ergernis.
+
+De reactiedoelen hierboven zijn voorbeelden voor een klein B2B-team, geen norm en geen wettelijke eis. De eerste reactietijd bepaal je zelf: kies doelen die je kunt halen, schrijf ze op en toets ze aan de werkelijke data. Gereguleerde sectoren zoals financiële dienstverlening en gezondheidszorg kunnen eigen regels en termijnen voor klachtenafhandeling hebben; controleer die voor jouw sector.
+
+## Wat zijn de stappen van de klachtenprocedure?
+
+Zeven stappen dekken de hele route, van het eerste bericht tot de les. Kortere en langere modellen beschrijven dezelfde route met minder of meer vakjes.
+
+<Steps>
+  <Step title="Ontvangen">Accepteer klachten op elk kanaal dat je gebruikt: e-mail, LinkedIn, telefoon, een opmerking bij de klant ter plaatse. Zeg waar klanten ze naartoe kunnen sturen. Noteer het kanaal en de werkelijke datum en tijd van binnenkomst.</Step>
+  <Step title="Registreren">Maak één record per klacht aan voordat je antwoordt, gekoppeld aan de klant. Leg de eigen woorden van de klant vast, het type, de urgentie, wat de klant wil en een eventuele order-, project- of factuurreferentie.</Step>
+  <Step title="Bevestigen">Laat de klant weten dat de klacht is aangekomen, wie de eigenaar is en wanneer hij of zij een reactie krijgt. Doe dit binnen het doel voor de eerste reactie uit je triagetabel, ook als je nog geen antwoord hebt.</Step>
+  <Step title="Onderzoeken">Zoek uit wat er is gebeurd. Vraag de betrokkenen, controleer de order, levering of factuur en schrijf de oorzaak op. Houd schuldvragen buiten het eerste antwoord.</Step>
+  <Step title="Oplossen">Bied een oplossing, een vervanging, een correctie, een tegoed of een heldere uitleg waarom er niets verandert. Beslis binnen je bevoegdheid of escaleer volgens de tabel, en vertel de klant het besluit en de reden.</Step>
+  <Step title="Opvolgen">Controleer of de oplossing werkte en of de klant tevreden is. Sluit de klacht pas af wanneer het afsluitcriterium is gehaald, en leg de afsluitdatum en de uitkomst vast. De [gids voor follow-upmails](/blog/sales-follow-up-email) bevat een check-in-template voor na een aankoop en een tijdschema; dezelfde gewoonten gelden voor het terugkoppelen na een reparatie.</Step>
+  <Step title="Leren">Beoordeel klachten regelmatig op type en oorzaak. Los de oorzaak op: een sjabloon, een checklist, een leverancier, een productfout. Klachten zijn ook contactmomenten in de retentiefase van de [customer journey](/blog/customer-journey), dus ze laten zien waar het moeilijk wordt.</Step>
+</Steps>
+
+## Welke regels zorgen voor een goed antwoord op een klacht?
+
+Er is geen officiële lijst met gouden regels voor het afhandelen van een claim of klacht. Deze tien zijn praktische regels die standhouden in kleine teams:
+
+1. Antwoord snel, ook als het antwoord is: "we zoeken het uit".
+2. Lees de hele klacht voordat je antwoordt.
+3. Ga niet in discussie en geef de klant of een collega niet de schuld.
+4. Erken de ervaring van de klant en bied excuses aan waar de fout bij jou ligt.
+5. Beloof alleen wat je kunt nakomen en noem een datum.
+6. Noem in het antwoord één eigenaar.
+7. Leg elke klacht vast, ook als die telefonisch of persoonlijk binnenkomt.
+8. Los de oorzaak op, niet alleen het symptoom.
+9. Controleer na de oplossing of alles goed is.
+10. Tel en beoordeel klachten, zodat dezelfde niet terugkomt.
+
+## Hoe kan een klein team klachten bijhouden in Customermates?
+
+Deze paragraaf gaat over ons eigen product, Customermates, een open-source CRM uit Duitsland. Het heeft geen klachtenmodule. Het heeft wel configureerbare lijsten, relaties, een bordweergave, taken en een gecombineerde inbox, en een klein team kan die combineren. De opzet hieronder is een illustratieve handleiding voor een team van een paar mensen, geen klantcase. Lijsten, relaties, het bord en taken werken op elk abonnement, ook zelf gehost. Gesprekken uit de Inbox vragen om Customermates Cloud op het Pro-abonnement of hoger.
+
+De lijst gebruikt deze velden. Namen en opties kun je zelf wijzigen; ze volgen de triagetabel.
+
+| Veld | Type | Wat het bevat |
+| --- | --- | --- |
+| Naam | Tekst (de recordnaam) | Eén regel, bijvoorbeeld "Verkeerd bedrag op factuur van maart" |
+| Klant | Relatie met Contactpersonen, eventueel Organisaties | Wie er klaagde; de klacht verschijnt op het klantrecord |
+| Status | Enkele keuze | Nieuw, Bevestigd, In onderzoek, Wacht op klant, Opgelost, Afgesloten |
+| Type | Enkele keuze | Gebrek of claim, Levering, Facturering, Communicatie, Juridisch of veiligheid |
+| Urgentie | Enkele keuze | Kritiek, Hoog, Normaal, Laag |
+| Eigenaar | Lid | De ene verantwoordelijke persoon |
+| Ontvangen op | Datum | De werkelijke datum waarop de klacht binnenkwam |
+| Reageren vóór | Datum | Het doel voor de eerste reactie op deze klacht, met de hand ingevuld |
+| Details | Opgemaakte tekst | De woorden van de klant, de oorzaak en de oplossing |
+| Afgesloten op | Datum | De dag waarop het afsluitcriterium werd gehaald |
+
+<Steps>
+  <Step title="Maak de lijst aan">Voeg in **Datamodel** een lijst "Klachten" toe met de velden hierboven. Het datamodel wijzigen is een eigen recht, dus vraag het aan iemand die dat heeft. Als alleen bepaalde collega's klachten mogen lezen, beperk de lijst dan via [rollen](/docs/app-company#roles-tab); rechten gelden per lijst, niet per veld.</Step>
+  <Step title="Koppel haar aan de klant">Voeg een **Relatie** toe tussen Klachten en Contactpersonen (één contactpersoon, meerdere klachten) en, als je met bedrijven werkt, Organisaties. Beide records tonen de koppeling, zodat het klantrecord zijn klachten laat zien. [Hoe relaties records koppelen](/docs/concepts#how-do-relationships-link-records) legt de opties uit.</Step>
+  <Step title="Haal de gesprekken erbij">Bewaar het e-mailadres, het telefoonnummer en de profielen van de klant in de **Contactgegevens** van de contactpersoon, zodat zijn of haar gesprekken uit de [gecombineerde inbox](/features/unified-inbox) op de contactpersoon verschijnen. Schakel in het relatievenster de berichten voor de kant van Klachten in (bijvoorbeeld **Hun berichten tonen bij Klachten**), zodat de **Activiteiten** van de klacht ze ook tonen. Om één specifiek gesprek te koppelen, open je **Gespreksinstellingen** en kies je de klacht onder **Gesprekrecords**; andere gesprekken met die persoon blijven los. Gesprekken in de eigen mailbox van een collega blijven privé totdat die thread met het team wordt gedeeld, en een heel gekoppeld account delen vraagt om het Business-abonnement of hoger. De [Inbox-gids](/docs/app-inbox#how-do-i-link-a-participant) heeft de details.</Step>
+  <Step title="Werk met het statusbord">Kies in **Weergave** voor **Bord**. De kaarten worden gegroepeerd op Status en je sleept een klacht naar de volgende kolom wanneer die verder gaat. De [recordgids](/docs/app-records#how-do-i-switch-between-table-and-board-view) behandelt het bord en het sorteren. Sorteer in de tabel op Reageren vóór om te zien wat het eerst aan de beurt is.</Step>
+  <Step title="Voeg taken met streefdata toe">Elke onderzoeks- of herstelstap wordt een taak. Taken hebben geen ingebouwde vervaldatum, dus voeg een veld **Datum** zoals "Streefdatum" toe aan de lijst Taken, zoals de [gids voor taakbeheer](/features/task-management) beschrijft, en een relatie tussen Taken en Klachten. Wijs elke taak aan een teamgenoot toe.</Step>
+  <Step title="Beoordeel en leer">Sla een weergave "Mijn open klachten" op en deel haar met het team of met geselecteerde rollen, en voeg een dashboardgrafiek toe die Klachten telt per Type voor je reguliere evaluatie. In Customermates Cloud kunnen Mate of je eigen AI-client via MCP een klacht samenvatten met de bijbehorende gesprekken en een antwoord opstellen dat je beoordeelt voordat er iets wordt verstuurd.</Step>
+</Steps>
+
+<AcquisitionCallout title="Wat deze opzet niet doet" variant="boundary">
+  Customermates is geen helpdesk en geen gereguleerd systeem voor klachtenmanagement. Het heeft geen SLA-motor voor tickets: "Reageren vóór" is een datum die je zelf invoert, en er wordt niets geëscaleerd, herinnerd of gemeld wanneer die verstrijkt. Het heeft geen klantenportaal of webformulier (klachtenformulier) waarmee klanten klachten indienen, geen telefonie (leg gesprekken met de hand vast), geen automatische terugbetalingen of creditnota's en geen onveranderlijk bewijs: het activiteitenlogboek registreert wijzigingen in records, maar is geen volledig, onveranderlijk of onafhankelijk bewaard auditspoor. Het heeft geen ISO 10002-certificering of enige andere compliancecertificering. Gebruik voor gereguleerde sectoren zoals financiële dienstverlening en gezondheidszorg een gespecialiseerd systeem.
+</AcquisitionCallout>
+
+Customermates is de verkeerde keuze als je veel tickets per dag afhandelt via telefoon en chat, SLA-timers en automatische escalatie nodig hebt, wilt dat klanten hun zaak in een portaal volgen of in een gereguleerde sector werkt. Het past wanneer klachten weinig en persoonlijk zijn, gekoppeld aan klanten met een naam, en de mensen die ze beantwoorden al in het CRM werken. Om dit in een breder geheel te plaatsen, lees je de gids over [customer interaction management](/blog/customer-interaction-management).
+
+Een klacht is het gesprek dat je het minst kunt laten liggen. Op Pro staat de e-mail- of LinkedIn-thread van de klant op de klacht, schrijft Mate het antwoord en de volgende stap met de datum van "Reageren vóór", en beoordeel, bewerk en verstuur jij het. Om de lijst Klachten op je eigen gevallen in te richten, [start je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Zonder creditcard.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Wat is een systeem voor klachtenmanagement?">
+Een systeem voor klachtenmanagement is het hulpmiddel en de routine die het klachtenproces bij elkaar houden: een record per klacht, een eigenaar, een status, deadlines, het gesprek met de klant en een besluit tot afsluiten. Het kan een spreadsheet zijn, een lijst in een CRM, een helpdesk of, in gereguleerde sectoren, gespecialiseerde software met audittrails.
+</FaqItem>
+
+<FaqItem question="Wat zijn de 5 stappen om een klacht van een klant af te handelen?">
+Modellen met vijf stappen zeggen meestal: bevestigen, begrijpen, oplossen, opvolgen en leren. De zeven stappen in deze gids splitsen dezelfde route verder op: ontvangen en registreren komen vóór de bevestiging, en onderzoeken komt vóór de oplossing. Er is geen bindend aantal stappen.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een klacht en een claim?">
+Een klacht drukt ontevredenheid uit. Een claim vraagt om een oplossing voor een gebrek, zoals reparatie, vervanging of prijsverlaging, en wettelijke garantieregels kunnen gelden. In het Duits is dat Beschwerde tegenover Reklamation. Leg beide vast en bewaar de data van een claim.
+</FaqItem>
+
+<FaqItem question="Hoe snel moet je op een klacht reageren?">
+Je bepaalt het doel voor de eerste reactie zelf, per soort klacht: schrijf het op in je triagetabel en toets het aan werkelijke data. Gereguleerde sectoren en individuele overeenkomsten kunnen eigen termijnen toevoegen.
+</FaqItem>
+
+<FaqItem question="Is er een norm voor klachtenmanagement?">
+ISO 10002:2018 geeft richtlijnen voor klachtenafhandeling in organisaties en is bedoeld als één proces binnen een kwaliteitsmanagementsysteem. Customermates is er niet voor gecertificeerd, en deze gids beweert niet dat hij eraan voldoet.
+</FaqItem>
+
+<FaqItem question="Kan Customermates een helpdesk voor klachten vervangen?">
+Niet bij grote volumes of in gereguleerde sectoren. Customermates heeft geen SLA-motor voor tickets, klantenportaal of telefonie. Voor een klein team met een paar persoonlijke klachten per week kan het een lijst Klachten bevatten, gekoppeld aan de klant, met een statusbord, taken en de gesprekken.
+</FaqItem>
+
+<FaqItem question="Herinnert Customermates me eraan wanneer een reactie te laat is?">
+Nee. Een datum "Reageren vóór" is een gewoon veld, en Customermates heeft geen herinneringen of meldingen. Sorteer of bekijk de lijst op die datum en open haar als onderdeel van je dagelijkse routine.
+</FaqItem>
+</Faq>
+
+Verificatie van bronnen van derden op 2 november 2026: [ISO 10002:2018](https://www.iso.org/standard/71580.html) (editie 3, bevestigd in 2023), [§ 437 BGB](https://www.gesetze-im-internet.de/bgb/__437.html), [§ 438 BGB](https://www.gesetze-im-internet.de/bgb/__438.html) en [§ 377 HGB](https://www.gesetze-im-internet.de/hgb/__377.html). De Duitse wetten worden alleen samengevat weergegeven en zijn geen juridisch advies.

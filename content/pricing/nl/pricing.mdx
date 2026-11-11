@@ -1,0 +1,334 @@
+---
+title: "Customermates prijzen: eenvoudige tarieven per persoon"
+heading: "Eén prijs per persoon."
+titleAccent: "Begin met [[commercial.trial.days]] dagen Pro."
+description: "Customermates prijzen: gratis plan voor één persoon, betaalde plannen vanaf [[commercial.price.starter.monthly]] per gebruiker per maand. Pro [[commercial.trial.days]] dagen gratis proberen, zonder kaart."
+
+pricing:
+  ariaLabelSlider: Aantal gebruikers
+  customPrice: Op maat
+  users: Gebruikers
+  footnote: "Een gekoppeld account is één gekoppelde mailbox of één LinkedIn-, WhatsApp-, Instagram- of Telegram-profiel dat bij één gebruiker hoort. Starter heeft geen gekoppelde accounts. Op Pro deel je losse threads; een heel account met het team delen begint bij Business. Prijzen gelden per plek, maandelijks gefactureerd in euro."
+  totalSuffixSingular: "/maand in totaal voor {count} gebruiker"
+  totalSuffixPlural: "/maand in totaal voor {count} gebruikers"
+  moreTitle: "Meer gebruik of een setup op maat"
+  selfHost:
+    text: "Liever zelf draaien? De open source editie kun je gratis zelf hosten."
+    linkLabel: "Gids voor zelf hosten"
+    href: /docs/self-hosting
+  pricingCards:
+  - plan: free
+    title: Free
+    description: "Probeer het alleen uit, gratis: [[commercial.limit.free.maxMembers]] persoon, [[commercial.limit.free.maxRecords]] records."
+    buttonText: "Zo werkt Free"
+    buttonHref: "#faq"
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - "[[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte"
+      - "API en MCP met [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag"
+      - "Geen inbox, Mate, routines, webhooks of n8n-triggers"
+  - plan: starter
+    title: Starter
+    description: "Je CRM en je eigen AI"
+    buttonText: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Contactpersonen, bedrijven, deals en taken
+      - "Koppel je eigen AI via MCP: Claude, ChatGPT of Gemini"
+      - REST API, webhooks en je eigen n8n
+      - "[[commercial.entitlement.starter.includedRoutinesPerUser]] routine per gebruiker: Mate werkt op een schema of wanneer een record verandert"
+      - "Mate-gebruik: 1x per actieve gebruiker, het basistegoed"
+    missingFeatures:
+      - Gecombineerde inbox voor LinkedIn en e-mail
+      - Mate die antwoorden op je gesprekken schrijft
+  - plan: pro
+    title: Pro
+    badge: "Beste voor opvolging"
+    featured: true
+    description: "Volg op vanuit LinkedIn en e-mail"
+    buttonText: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+    buttonHref: /auth/signup
+    buttonColor: primary
+    buttonVariant: shadow
+    features:
+      - "Je LinkedIn, e-mail, WhatsApp, Instagram en Telegram in één inbox"
+      - Mate schrijft antwoorden op basis van je playbook, die jij nakijkt en verstuurt
+      - "[[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker inbegrepen"
+      - Deel losse threads met teamgenoten
+      - "[[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker: Mate werkt op een schema of wanneer een record verandert"
+      - Alleen-lezen agendatoegang en LinkedIn Sales Navigator
+      - "Mate-gebruik: 3x Starter per actieve gebruiker"
+      - Alles uit Starter
+  - plan: business
+    title: Business
+    badge: "Voor teams"
+    description: "Teams die inboxen delen"
+    buttonText: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Alles uit Pro
+      - "[[commercial.entitlement.business.includedAccountsPerUser]] gekoppelde accounts per gebruiker inbegrepen"
+      - "Delen van hele accounts: deel een gekoppeld account met het team"
+      - "Routines per gebruiker: [[commercial.entitlement.business.includedRoutinesPerUser]] (redelijk gebruik)"
+      - Prioritaire support
+      - "Mate-gebruik: 10x Starter per actieve gebruiker, het meeste gebruik per euro"
+  - plan: max
+    title: Max
+    description: "Voor intensief gebruik van Mate"
+    buttonText: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+    buttonHref: /auth/signup
+    buttonColor: default
+    buttonVariant: bordered
+    features:
+      - Alles uit Business
+      - "Mate-gebruik: 20x Starter per actieve gebruiker"
+      - "[[commercial.entitlement.max.includedAccountsPerUser]] gekoppelde accounts per gebruiker inbegrepen"
+      - Prioritaire support en vroege toegang tot bètafuncties
+  - plan: enterprise
+    title: Enterprise
+    description: Scope en support op maat
+    buttonText: Neem contact op met sales
+    buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
+    buttonColor: primary
+    buttonVariant: solid
+    features:
+      - Alles uit Business
+      - Setup die wij voor je verzorgen
+      - Contractueel afgesproken workflows voor eigen agents of leaddata (niet ingebouwd)
+      - Dedicated support en voorwaarden op maat
+      - "Gekoppelde accounts per gebruiker: [[commercial.entitlement.enterprise.includedAccountsPerUser]] (redelijk gebruik); SSO en white-label zijn niet geïmplementeerd en vragen contractueel maatwerk"
+      - "Mate-gebruik: op maat, per contract ingesteld per actieve gebruiker per maand"
+
+comparison:
+  apiLimitValue: "{perMinute}/min, {perDay}/dag"
+  customValue: Op maat
+  header: "Vergelijk elke functie"
+  unlimitedValue: Onbeperkt (redelijk gebruik)
+  workspaceStorageValue: "{size} per werkruimte"
+  plans:
+    free:
+      name: Free
+      button: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+      buttonHref: /auth/signup
+    starter:
+      name: Starter
+      button: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+      buttonHref: /auth/signup
+    pro:
+      name: Pro
+      button: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+      buttonHref: /auth/signup
+      featured: true
+    business:
+      name: Business
+      button: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+      buttonHref: /auth/signup
+    max:
+      name: Max
+      button: "Start Pro-proefperiode van [[commercial.trial.days]] dagen"
+      buttonHref: /auth/signup
+    enterprise:
+      name: Enterprise
+      button: Neem contact op
+      buttonHref: mailto:sales@customermates.com?subject=Enterprise%20Plan%20Inquiry
+  sections:
+  - title: Prijs en gebruikers
+    rows:
+      - label: Prijs per gebruiker/maand
+        catalogFact: monthlyPrice
+      - label: Mate-gebruik per actieve gebruiker (veelvoud van Starter)
+        catalogFact: hostedAiUsage
+      - label: "Personen per werkruimte"
+        catalogFact: maxMembers
+      - label: "Records"
+        catalogFact: maxRecords
+  - title: Berichten
+    rows:
+      - label: Gecombineerde inbox
+        catalogFact: messaging
+      - label: Gekoppelde accounts per gebruiker
+        catalogFact: includedAccountsPerUser
+      - label: Delen van hele accounts
+        catalogFact: sharedAccounts
+      - label: Losse threads delen
+        free: false
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: Alleen-lezen agendatoegang
+        free: false
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: Social posts bijhouden
+        free: false
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: LinkedIn Sales Navigator
+        free: false
+        starter: false
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+  - title: CRM-kern
+    rows:
+      - label: Routines per gebruiker
+        catalogFact: includedRoutinesPerUser
+      - label: Bestandsopslag per gebruiker, gedeeld in de werkruimte
+        catalogFact: fileStoragePerActiveUser
+      - label: "API- en MCP-verzoeken per werkruimte"
+        catalogFact: apiRequestLimit
+      - label: Contactpersonen, organisaties, deals, diensten en taken
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: Aangepaste velden, rollen en rechten
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: Gekoppelde records en notities
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: "REST API"
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: "Webhooks en de n8n-trigger"
+        catalogFact: webhooks
+      - label: MCP-toegang voor een externe AI-client
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+      - label: n8n-acties die records lezen en schrijven
+        free: true
+        starter: true
+        pro: true
+        business: true
+        max: true
+        enterprise: true
+  - title: Enterprise
+    rows:
+      - label: Single Sign-On (nog niet gebouwd, op afspraak)
+        free: false
+        starter: false
+        pro: false
+        business: false
+        max: false
+        enterprise: "Op aanvraag"
+      - label: White-label (nog niet gebouwd, op afspraak)
+        free: false
+        starter: false
+        pro: false
+        business: false
+        max: false
+        enterprise: "Op aanvraag"
+      - label: Contractueel afgesproken workflow voor eigen agents (niet ingebouwd)
+        free: false
+        starter: false
+        pro: false
+        business: false
+        max: false
+        enterprise: "Op aanvraag"
+      - label: Contractueel afgesproken workflow voor leaddata (niet ingebouwd)
+        free: false
+        starter: false
+        pro: false
+        business: false
+        max: false
+        enterprise: "Op aanvraag"
+      - label: Support
+        free: "Community en e-mail"
+        starter: "Community en e-mail"
+        pro: "Community en e-mail"
+        business: "Prioritair"
+        max: "Prioritair"
+        enterprise: "Dedicated"
+      - label: Vroege toegang tot bètafuncties
+        free: false
+        starter: false
+        pro: false
+        business: false
+        max: true
+        enterprise: "Op aanvraag"
+
+faq:
+  title: Veelgestelde vragen
+  faqs:
+  - id: pricing-faq-1
+    title: Waarom is jullie CRM zo betaalbaar?
+    content: Wij werken zonder investeerders en houden onze kosten bewust laag. Zo kunnen we de prijzen voor onze klanten laag houden.
+  - id: pricing-faq-2
+    title: Hoe blijft jullie CRM op de lange termijn betrouwbaar?
+    content: We groeien organisch en investeren rechtstreeks in het product en de support. Zo blijft het product op de lange termijn onderhouden.
+  - id: pricing-faq-3
+    title: Waarom een gespecialiseerd CRM?
+    content: Grote CRM-suites bundelen marketing, service en sales en rekenen voor modules die veel kleine teams nooit gebruiken. Customermates richt zich op klantrecords die je zelf inricht, de gecombineerde inbox en AI-toegang via MCP. Daarvoor betaal je, en de rest breid je indien nodig uit via de REST API, webhooks of je eigen n8n-instantie.
+  - id: pricing-faq-4
+    title: Hoe stel ik een nieuwe werkruimte in?
+    content: "Een nieuwe werkruimte begint zonder lijsten. In Customermates Cloud bouwt AI-setup bij de onboarding eenmalig lijsten, fases, een dashboard en Kennisbank-pagina's uit je beschrijving, binnen een creditlimiet, en je kunt die overslaan om met een lege werkruimte te beginnen. Anders maken mensen met rechten voor het Datamodel lijsten en velden in het Datamodel en importeren ze records uit een Excel-werkmap."
+  - id: pricing-faq-5
+    title: Wat zit er in geen enkel abonnement?
+    content: "Customermates bevat geen sequenties of massamailing, offertes of facturatie, telefonie of sms, webformulieren of native mobiele apps. De inbox werkt via ondersteunde integraties met aanbieders, niet via de officiële WhatsApp Business API of LinkedIn CRM Sync. SSO en white-label zijn niet gebouwd en alleen beschikbaar als contractueel Enterprise-werk."
+  - id: pricing-faq-6
+    title: Wat telt als gekoppeld account?
+    content: "Een gekoppeld account is één gekoppelde mailbox of één LinkedIn-, WhatsApp-, Instagram- of Telegram-profiel dat bij één gebruiker hoort. Pro bevat [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account per gebruiker, Business bevat er [[commercial.entitlement.business.includedAccountsPerUser]] per gebruiker, Max bevat er [[commercial.entitlement.max.includedAccountsPerUser]] per gebruiker, en Enterprise is [[commercial.entitlement.enterprise.includedAccountsPerUser]] met redelijk gebruik. Heb je meer dan [[commercial.entitlement.max.includedAccountsPerUser]] accounts per gebruiker nodig, dan is Enterprise het juiste abonnement. Starter en zelf gehoste instanties hebben geen gekoppelde accounts. Op Pro werkt iedereen in de eigen accounts en kan losse threads delen; een heel gekoppeld account met het team delen vraagt Business, Max of Enterprise."
+  - id: pricing-faq-7
+    title: Hoe werkt maandelijkse facturatie?
+    content: "Je betaalt per actieve gebruiker. Als je gebruikers toevoegt of verwijdert, wordt de wijziging naar rato verrekend op je volgende factuur. Upgrades gelden direct, met een bedrag naar rato voor de rest van de factuurperiode, en downgrades gelden direct, waarbij het ongebruikte deel wordt gecrediteerd."
+  - id: pricing-faq-8
+    title: Hoe werkt het gebruik van Mate?
+    content: "Elk betaald cloudabonnement bevat een Mate-recht en een maandelijks Mate-gebruikstegoed per actieve gebruiker, uitgedrukt als veelvoud van het Starter-tegoed: Starter 1x, Pro 3x, Business 10x, Max 20x en Enterprise zoals contractueel afgesproken. Business geeft het meeste gebruik per euro. Gebruik telt alleen mee wanneer Mate is ingeschakeld in de gehoste omgeving: gehoste AI-verwerking in Customermates telt dan mee. Het gebruik volgt de werkelijke kosten bij de aanbieder, inclusief modelaanroepen en semantisch ophalen aan serverzijde, dus een eenvoudige vraag gebruikt een klein deel en een verzoek met meerdere stappen meer. In de app laat de Mate-meter als percentage zien hoeveel van het maandtegoed is gebruikt. Betaalde tegoeden worden elke maand teruggezet; ongebruikt tegoed schuift niet door. Elke actieve proefgebruiker heeft het Pro-tegoed van 3x. De tegoeden van actieve leden vormen de gedeelde pool van de werkruimte; elk lid heeft daarnaast een eigen toewijzing. Nieuwe betaalde plekken krijgen een exact naar rato berekend tegoed voor de rest van de factuurperiode. Upgrades verhogen het huidige tegoed direct; downgrades verlagen het direct. Externe MCP-clients gebruiken je eigen AI-aanbieder voor modelaanroepen. Semantisch ophalen aan serverzijde kan meetellen voor het Mate-gebruik, ook via MCP. Mate is alleen beschikbaar in de cloud. Er zijn geen bijkoopopties of automatische kosten voor overschrijding."
+  - id: pricing-faq-9
+    title: Kan één login meerdere werkruimtes gebruiken?
+    content: "Ja. Eén login kan bij meerdere volledig gescheiden werkruimtes horen, bijvoorbeeld een voor sales en een voor de boekhouding, en daartussen wisselen. Elke werkruimte heeft een eigen abonnement en eigen facturen, en plekken tellen per werkruimte: iemand die in twee werkruimtes actief is, is in beide een betaalde plek. De eerste werkruimte die je aanmaakt bevat de gratis proefperiode van [[commercial.trial.days]] dagen; elke extra werkruimte begint met het kiezen van een abonnement. Een zelf gehoste instantie draait een willekeurig aantal werkruimtes zonder facturatie."
+  - id: pricing-faq-10
+    title: Wat krijg ik als ik zelf host?
+    content: "Een zelf gehoste instantie heeft altijd de functies van Starter: CRM-kern, MCP, REST API, webhooks en de n8n-interfaces, zonder facturatie. De gecombineerde inbox, Mate, routines en AI-setup draaien alleen op Customermates Cloud. MCP met je eigen AI-client werkt op een zelf gehoste instantie, en die client gebruikt je eigen AI-aanbieder."
+  - id: pricing-faq-11
+    title: Waar staan mijn gegevens en de inloggegevens van gekoppelde accounts?
+    content: "De clouddatabase draait in AWS Frankfurt, en gekoppelde accounts loggen in via de gehoste flow van Unipile, dus Customermates ontvangt nooit wachtwoorden of OAuth-tokens van aanbieders. Het volledige antwoord staat in de documentatie: https://customermates.com/docs/architecture-security#where-are-customer-data-and-credentials-stored"
+  - id: pricing-faq-12
+    title: "Wat is het Free-abonnement?"
+    content: "Je eerste Cloud-werkruimte begint met de Pro-proefperiode van [[commercial.trial.days]] dagen, zonder creditcard; elke volgende werkruimte begint met het kiezen van een abonnement. Als de proefperiode eindigt zonder betaald abonnement, gaat de werkruimte over naar Free in plaats van te worden vergrendeld, en er wordt niets verwijderd. Free is om Customermates alleen uit te proberen: [[commercial.limit.free.maxMembers]] persoon, maximaal [[commercial.limit.free.maxRecords]] records en [[commercial.limit.free.fileStorageBytes]] bestandsopslag per werkruimte. Het heeft geen inbox of gekoppelde accounts, geen Mate, geen routines, geen webhooks en geen n8n-trigger. De REST API en MCP zijn inbegrepen met maximaal [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte, zodat je je eigen Claude of ChatGPT kunt meenemen. Records en bestanden boven een limiet blijven staan; alleen meer toevoegen wordt geweigerd. Je kunt op elk moment overstappen op een betaald abonnement. Een zelf gehoste instantie blijft gratis zonder deze limieten."
+  - id: pricing-faq-13
+    title: "Wat gebeurt er met mijn team als een werkruimte overgaat naar Free?"
+    content: "Free houdt [[commercial.limit.free.maxMembers]] actieve persoon per werkruimte: degene die de werkruimte heeft aangemaakt, of anders de eerste beheerder. Alle anderen worden gepauzeerd, niet verwijderd. Gepauzeerde mensen kunnen de werkruimte niet openen, en hun records, notities en geschiedenis blijven bestaan. Openstaande uitnodigingen en verzoeken om lid te worden worden geannuleerd, routines worden gepauzeerd en bestaande webhooks stoppen met verzenden. Een beheerder kan de actieve plek aan een andere beheerder overdragen. Zodra de werkruimte een betaald abonnement kiest, komt iedere gepauzeerde persoon automatisch terug en telt weer als betaalde plek, en routines en webhooks hervatten."
+
+cta:
+  action: "Klaar om elke klant op te volgen?"
+  description: "Begin met één kanaal en één klant: [[commercial.trial.days]] dagen Pro, zonder creditcard. Of spreek eerst 15 minuten met Ben."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Spreek Ben, 15 minuten"
+  buttonRightHref: /contact
+  hint: "Geen creditcard · Altijd opzegbaar · Gemaakt in Duitsland"
+---

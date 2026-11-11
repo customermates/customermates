@@ -1,0 +1,226 @@
+---
+title: "Omzetprognose maken: methoden, formules en een voorbeeld"
+description: "Een omzetprognose schat de omzet die een team in een periode wint. Gewogen pipeline, winstpercentage en run rate in één voorbeeld, plus de CRM-velden."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Omzetprognose maken: zo voorspel je omzet vanuit je pipeline"
+  description: "Een uitgewerkt voorbeeld met acht deals, drie prognosemethoden naast elkaar, de formules om het in een spreadsheet na te bouwen en de dealvelden die een CRM nodig heeft om de prognose te kunnen vertrouwen."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Omzetprognose
+    - Sales pipeline
+    - Verkoopproces
+---
+
+# Omzetprognose maken: zo voorspel je omzet vanuit je pipeline
+
+Een omzetprognose is een schatting van hoeveel omzet je team in een toekomstige periode wint, meestal de komende maand of het komende kwartaal, op basis van de deals in je pipeline en je eigen resultaten tot nu toe. Voor een klein B2B-team is de praktische methode een gewogen pipeline: vermenigvuldig het bedrag van elke open deal met de winkans van zijn fase, tel de deals op die in de periode naar verwachting sluiten, en tel daar op wat je al hebt gewonnen.
+
+Deze gids rekent dat uit op acht voorbeelddeals, vergelijkt het resultaat naast een methode op basis van winstpercentage en een methode op basis van run rate, en noemt de velden die een dealrecord nodig heeft, zodat je de prognose in elke spreadsheet kunt nabouwen. Customermates publiceert deze gids; het deel over prognoses in Customermates is als het onze gemarkeerd en zegt eerlijk wat het product niet doet.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Definitie">Een sales forecast is je beste schatting van de omzet die je in een periode wint. Een target is wat je wilt winnen. Het zijn verschillende getallen.</SummaryItem>
+  <SummaryItem label="Kernformule">Gewogen waarde = dealbedrag × faseskans. Prognose = tot nu toe gewonnen + gewogen waarde van de open deals waarvan de verwachte sluitingsdatum in de periode valt.</SummaryItem>
+  <SummaryItem label="Vertrouw nooit op één methode">Bereken de gewogen pipeline, een cijfer op basis van winstpercentage en een cijfer op basis van run rate, publiceer dan een bandbreedte en leg elk verschil ertussen uit.</SummaryItem>
+  <SummaryItem label="Velden die elke deal nodig heeft">Bedrag, fase, verwachte sluitingsdatum, eigenaar en, zodra een deal is gesloten, de datum waarop hij is gewonnen of verloren.</SummaryItem>
+</ArticleSummary>
+
+Een prognose is zo goed als de pipeline erachter. Hebben je fases nog geen instapvoorwaarden, begin dan met de gids over het [bouwen en beoordelen van een sales pipeline](/blog/sales-pipeline) en kom daarna hier terug. Voor de kant van het doel zet de [salesplan-template voor 90 dagen](/blog/sales-plan-template) een omzetdoel om in accounts, eigenaren en reviewdata.
+
+## Wat is sales forecasting, en hoe verschilt het van een target of een plan?
+
+Een prognose zegt wat er waarschijnlijk gebeurt. Een target zegt wat je wilt dat er gebeurt. Een plan zegt wat je doet aan het verschil. Die door elkaar halen is een veelvoorkomende manier waarop een prognose misgaat: een getal dat naar het target is bijgestuurd, is geen prognose meer.
+
+Het leerboek over prognoses van Rob J Hyndman en George Athanasopoulos zegt het op dezelfde manier: voorspellen is de toekomst zo nauwkeurig mogelijk voorspellen met de beschikbare informatie, doelen zijn wat je graag zou willen zien gebeuren, en plannen is de reactie op prognoses en doelen ([paragraaf 1.2](https://otexts.com/fpp3/planning.html)). In een salesteam levert dat drie afzonderlijke getallen op.
+
+| Term | Vraag die het beantwoordt | Voorbeeld uit het uitgewerkte voorbeeld hieronder |
+|---|---|---|
+| Prognose | Wat winnen we dit kwartaal waarschijnlijk? | 94.400 (methode gewogen pipeline) |
+| Target | Wat willen we dit kwartaal winnen? | 110.000 |
+| Plan | Wat doen we aan het verschil? | Nieuwe outreach en een poging om een grote deal naar voren te halen |
+
+**Wat de prognose telt.** Deze gids voorspelt gewonnen dealwaarde: het bedrag van de deals die je in de periode wint, ingevoerd exclusief btw en in één valuta. Het is geen erkende of gefactureerde omzet. Die volgen boekhoudregels en factuurdata, en een CRM-dealrecord vervangt ze niet.
+
+## Wat zijn de 7 stappen van forecasting?
+
+Er bestaat geen standaardlijst van zeven. Het hierboven genoemde leerboek noemt vijf basisstappen voor elke prognosetaak: het probleem definiëren, informatie verzamelen, een eerste analyse, modellen kiezen en aanpassen, en het model gebruiken en evalueren ([paragraaf 1.6](https://otexts.com/fpp3/basic-steps.html)). Salesgidsen tellen anders. Voor een pipelineprognose gebruiken wij deze zeven:
+
+<Steps>
+  <Step title="Bepaal de periode en wat meetelt">Noem de periode (bijvoorbeeld 1 oktober tot 31 december) en besluit dat je gewonnen dealwaarde telt, exclusief btw, in één valuta.</Step>
+  <Step title="Maak de pipeline schoon">Zet elke deal in de fase die hij echt heeft bereikt en sluit deals af die al weken niemand heeft aangeraakt. Vastgelopen deals blazen een prognose ongemerkt op.</Step>
+  <Step title="Controleer vier gegevens bij elke open deal">Bedrag, fase, verwachte sluitingsdatum en eigenaar. Een deal waarbij er een ontbreekt, blijft buiten de prognose en komt op een lijst om te herstellen, in plaats van te worden geraden.</Step>
+  <Step title="Stel faseskansen vast op basis van je historie">Gebruik je eigen gewonnen en verloren deals. Heb je er nog niet genoeg, begin dan met plaatsvervangers en benoem ze als aannames.</Step>
+  <Step title="Bereken op twee manieren">De gewogen pipeline voor de deals die in de periode vervallen, en een controle op basis van winstpercentage of run rate.</Step>
+  <Step title="Publiceer een bandbreedte, geen punt">Geef een ondergrens, een verwachte waarde en een best case, en noem de twee of drie grootste deals die de uitkomst bepalen.</Step>
+  <Step title="Vergelijk met het werkelijke resultaat">Leg aan het einde van de periode vast hoe ver de prognose ernaast zat en pas de kansen aan.</Step>
+</Steps>
+
+## Wat is een voorbeeld van een sales forecast?
+
+Hier is er een die je in tien minuten in een spreadsheet kunt nabouwen. Elk getal is verzonnen. De aannames:
+
+- De prognose wordt gemaakt op 9 november 2026 voor het kwartaal dat eindigt op 31 december 2026.
+- Het bedrag is de totale contractwaarde, exclusief btw, in dollars.
+- De faseskansen zijn Kwalificatie 20%, Demo 40%, Offerte 60% en Onderhandeling 80%: de startwaarden uit onze [gids over de sales pipeline](/blog/sales-pipeline). Vervang ze door je eigen zodra je kunt.
+- Er is dit kwartaal al 38.000 gewonnen. Het target is 110.000.
+- Alleen deals waarvan de verwachte sluitingsdatum in het kwartaal valt, tellen mee.
+
+| Deal | Fase | Bedrag | Verwacht gesloten | Kans | Gewogen waarde | Telt dit kwartaal mee? |
+|---|---|---|---|---|---|---|
+| A: Logistiek bedrijf, servicecontract van 12 maanden | Onderhandeling | 24.000 | 27 nov | 80% | 19.200 | Ja |
+| B: Tandartsgroep, uitrol | Offerte | 12.000 | 4 dec | 60% | 7.200 | Ja |
+| C: Designstudio, retainer | Onderhandeling | 6.000 | 10 dec | 80% | 4.800 | Ja |
+| D: Ingenieursbureau, platformproject | Offerte | 30.000 | 15 dec | 60% | 18.000 | Ja |
+| E: Advocatenkantoor, pilot | Demo | 9.000 | 18 dec | 40% | 3.600 | Ja |
+| F: Voedingsproducent, workshopreeks | Kwalificatie | 18.000 | 22 dec | 20% | 3.600 | Ja |
+| G: Machineleverancier, servicepakket | Kwalificatie | 15.000 | 20 jan 2027 | 20% | 3.000 | Nee |
+| H: Kliniekennetwerk, meerdere locaties | Demo | 45.000 | 15 feb 2027 | 40% | 18.000 | Nee |
+| **Vervalt dit kwartaal (A tot en met F)** | | **99.000** | | | **56.400** | |
+
+De gewogen pipeline voor het kwartaal is 56.400. Tel daar de al gewonnen 38.000 bij op en de prognose is **94.400**, dus 15.600 onder het target van 110.000.
+
+De deals G en H zijn echte pipeline, 60.000 aan bedrag en 21.000 gewogen, maar ze sluiten naar verwachting na 31 december. Had je de datumregel weggelaten, dan was er 21.000 bijgekomen en had de prognose 115.400 bedragen, boven target om de verkeerde reden.
+
+Merk op hoeveel één deal het getal verschuift. Deal D is 18.000 van de 94.400, ongeveer een vijfde. Schuift die door naar januari, dan zakt de prognose met één wijziging naar 76.400. Een gewogen waarde is een gemiddelde over veel deals; geen enkele deal sluit ooit op 60%. Hij sluit of hij sluit niet.
+
+**De spreadsheet.** Zet de acht deals in rij 2 tot en met 9, met Bedrag in kolom C, Verwacht gesloten in kolom D, Kans in kolom E en Gewogen waarde in kolom F.
+
+```text
+Gewogen waarde (F2, naar beneden kopiëren)   =C2*E2
+Gewogen pipeline van het kwartaal            =SOMMEN.ALS(F2:F9;D2:D9;">="&DATUM(2026;10;1);D2:D9;"<="&DATUM(2026;12;31))
+Open bedrag van het kwartaal                 =SOMMEN.ALS(C2:C9;D2:D9;">="&DATUM(2026;10;1);D2:D9;"<="&DATUM(2026;12;31))
+Prognose                                     =38000+(gewogen pipeline van het kwartaal)
+```
+
+De formules werken in Excel en Google Sheets met een Nederlandstalige taalinstelling. In een Engelstalige versie heet SOMMEN.ALS SUMIFS en DATUM DATE, en het scheidingsteken is een komma. Bewaar het tot nu toe gewonnen bedrag in een eigen cel en werk het vóór elke review bij vanuit het CRM.
+
+## Wat is het beste model voor sales forecasting?
+
+Er is geen beste model, alleen het model dat past bij de gegevens die je hebt. Dit zijn de methoden die een klein team echt kan gebruiken, met de zwakke plek van elk.
+
+| Methode | Zo bereken je het | Heeft nodig | Zwakke plek |
+|---|---|---|---|
+| Commit (ondergrens) | Tot nu toe gewonnen + deals in de laatste open fase tegen het volle bedrag. Dit is onze eigen definitie, geen standaard | Een fase die betekent dat de koper aan het beslissen is | Negeert alles wat eerder in de pipeline zit |
+| Gewogen pipeline | Tot nu toe gewonnen + bedrag × faseskans, voor deals die in de periode vervallen | Faseskansen en verwachte sluitingsdata | Kansen zijn gissingen tot ze zijn gekalibreerd; een paar grote deals domineren |
+| Winstpercentage × pipeline | Tot nu toe gewonnen + open bedrag dat in de periode vervalt × winstpercentage naar waarde | Ongeveer een jaar aan gewonnen en verloren deals | Behandelt een deal na het eerste gesprek en een deal in onderhandeling gelijk |
+| Historische run rate | Gemiddelde gewonnen waarde van de laatste vier perioden | Vier of meer vergelijkbare perioden | Blind voor de huidige pipeline en voor groei |
+| Statistische modellen (tijdreeksen, regressie) | Door software aangepast aan eerdere resultaten | Veel perioden met een stabiele historie | De meeste kleine teams sluiten te weinig deals om er een aan te passen |
+
+Om de eerste vier op het voorbeeld te vergelijken, voeg je nog twee verzonnen feiten toe. In de afgelopen twaalf maanden won het team 360.000 en verloor het 540.000 naar waarde, een winstpercentage van 360.000 ÷ (360.000 + 540.000) = 40%. In de laatste vier kwartalen won het 78.000, 88.000, 99.000 en 95.000.
+
+| Methode | Berekening | Prognose Q4 | Ten opzichte van het target van 110.000 |
+|---|---|---|---|
+| Commit (ondergrens) | 38.000 + 24.000 + 6.000 | 68.000 | 42.000 te weinig |
+| Winstpercentage × pipeline | 38.000 + 40% × 99.000 | 77.600 | 32.400 te weinig |
+| Historische run rate | (78.000 + 88.000 + 99.000 + 95.000) ÷ 4 | 90.000 | 20.000 te weinig |
+| Gewogen pipeline | 38.000 + 56.400 | 94.400 | 15.600 te weinig |
+| Best case | 38.000 + 99.000 | 137.000 | 27.000 erboven |
+
+Drie dingen om eruit af te lezen:
+
+1. **Het gat is echt.** Elk verwacht cijfer ligt onder het target. Als één methode 115.000 zei en de andere 80.000 tot 94.000, zou je die ene methode wantrouwen en niet vieren.
+2. **De methoden verschillen met een reden.** Het vlakke winstpercentage van 40% is een mix over alle deals vanaf het eerste contact, terwijl de open deals hier vooral in een late fase zitten. Het gewogen cijfer impliceert dat 57% van het open bedrag wordt gewonnen (56.400 ÷ 99.000). Of de deals zijn ongewoon ver gevorderd, of de faseskansen zijn te gul. Alleen de vergelijking met echte resultaten, hieronder, vertelt je welke.
+3. **De run rate negeert de pipeline volledig.** Het is een rationaliteitscontrole, geen prognose. Hier ligt hij tussen de andere cijfers, wat geruststellend is maar niets bewijst.
+
+Met welke je opent, hangt af van je historie. Een team met maar een handvol gesloten deals laat de commit- en gewogen cijfers zien en zegt dat de kansen aannames zijn. Een team met een jaar of meer aan deals opent met een gekalibreerde gewogen pipeline en houdt winstpercentage en run rate als controle. Lopen twee methoden sterk uiteen, zoek dan uit waarom voordat je een getal presenteert.
+
+## Wat zijn de vier soorten forecasting?
+
+Bronnen groeperen prognosemethoden verschillend, dus er is geen officiële lijst van vier. Deze indeling vinden wij bruikbaar voor een salesteam:
+
+1. **Oordeel:** de beslissing van de verkoper of manager over elke deal. Het is de enige optie als je geen historie hebt.
+2. **Op basis van de pipeline:** faseweging en commit, zoals hierboven.
+3. **Historisch:** run rate, winstpercentage en seizoenspatronen uit eerdere perioden.
+4. **Statistische modellen:** tijdreeks- en regressiemodellen die software aanpast.
+
+Het hoofdstuk van het leerboek over [oordeelsprognoses](https://otexts.com/fpp3/judgmental.html) beschrijft dezelfde indeling in algemene termen: oordeel alleen wanneer er geen gegevens zijn, statistische prognoses bijgesteld door oordeel wanneer die er wel zijn, of beide afzonderlijk gemaakt en gecombineerd. In de praktijk is de bruikbare combinatie voor een klein team een berekend getal plus een toelichting van een manager bij de deals die niet in het rekenwerk passen.
+
+## Hoe houd je een omzetprognose nauwkeurig?
+
+- **Bewaar een momentopname en toets achteraf.** Bewaar op dezelfde dag elke maand de prognose en de dealslijst erachter. Vergelijk aan het einde van de periode: fout = (werkelijk − prognose) ÷ prognose. Een prognose van 92.000 tegenover een werkelijke 95.000 is bijvoorbeeld +3,3%. Wijkt de fout drie perioden achter elkaar dezelfde kant op af, pas dan de kansen aan in plaats van pech de schuld te geven.
+- **Kalibreer elke fase.** De kans van een fase is de gewonnen waarde van de deals die ooit die fase bereikten, gedeeld door de waarde van alle deals die haar bereikten. Als 220.000 van 400.000 vanuit Offerte is gewonnen, is de kans voor Offerte 55%. In het voorbeeld zou dat de deals B en D verlagen en 2.100 van de gewogen waarde van het kwartaal afhalen.
+- **Houd sluitingsdata eerlijk.** Een deal waarvan de verwachte sluitingsdatum in het verleden ligt, zit niet in de prognose van deze periode totdat iemand er een nieuwe datum aan geeft. Verschuif data wanneer kopers uitstellen en tel hoe vaak dat gebeurt.
+- **Let op concentratie.** Zet de drie grootste deals naast het totaal. Is één deal een vijfde van het getal, zeg dat dan.
+- **Bekijk het wekelijks.** De review van 30 minuten in de [gids over de sales pipeline](/blog/sales-pipeline) is ook waar sluitingsdata en volgende stappen worden gecorrigeerd.
+
+## Welke CRM-velden heeft een deal nodig voor een omzetprognose?
+
+Elk getal hierboven komt uit een handvol velden. Slaat je CRM ze op als gestructureerde velden in plaats van als notities, dan is een prognose een filter en een som.
+
+| Veld | Type | Wat het doet voor de prognose | Regel |
+|---|---|---|---|
+| Bedrag | Geld | De basis van elke berekening | Exclusief btw, één valuta en op elke deal dezelfde betekenis (bijvoorbeeld contractwaarde van het eerste jaar) |
+| Fase | Enkele keuze | Bepaalt de kans | Eén controleerbare instapvoorwaarde per fase |
+| Faseskans | Percentage per fase | Maakt van bedrag een gewogen waarde | Elk kwartaal getoetst aan echte resultaten |
+| Gewogen waarde | Berekend | Bedrag × kans ÷ 100 | Nooit met de hand getypt |
+| Verwachte sluitingsdatum | Datum | Plaatst de deal in een periode | Verplicht vanaf de offertefase; verschoven wanneer hij uitloopt |
+| Eigenaar | Persoon | Wie voor de deal verantwoordelijk is; prognose per persoon | Precies één |
+| Gesloten op | Datum | Wanneer een deal is gewonnen of verloren; voedt tot nu toe gewonnen, winstpercentage en run rate | Ingesteld wanneer de fase Gewonnen of Verloren wordt |
+| Verliesreden | Enkele keuze | Laat zien waarom het winstpercentage beweegt | Verplicht bij elke verloren deal |
+| Leadbron | Enkele keuze | Winstpercentage per bron | Optioneel, maar goedkoop vast te leggen bij het aanmaken |
+| Volgende stap en datum | Tekst en datum | Vindt vastgelopen deals voordat ze het getal opblazen | Een deal zonder volgende stap blijft buiten Commit |
+| Organisatie en contactpersoon | Koppelingen naar andere records | Context, en de gespreksgeschiedenis achter de deal | Koppel elke deal aan beide |
+
+Een optioneel twaalfde veld is een prognosecategorie (Commit, Best case, Pipeline) die het eigen oordeel van de eigenaar vastlegt, los van de faseskans. Voeg het alleen toe als je team het echt gebruikt om de faselogica te overrulen.
+
+## Omzetprognose maken in Customermates
+
+Dit deel beschrijft ons eigen product. Customermates is een open-source [CRM voor salesteams](/blog/crm-for-sales), gemaakt in Duitsland. Het berekent een gewogen pipeline en toont die in grafieken; het voorspelt niet. Zo richt je het in voor het uitgewerkte voorbeeld.
+
+<Steps>
+  <Step title="Stel de faseskansen in">Open in **Datamodel** de lijst Deals en het veld **Fase**, en stel **Waarschijnlijkheid %** in op elke optie. Een voorbeeldweergave toont het effect op bestaande deals en widgets voordat je opslaat. Gewogen waarde is een berekend veld op deals: **Waarde** × kans ÷ 100. Is je lijst met de hand ingericht, controleer dan of het bestaat en voeg het toe als dat niet zo is. De [kernconcepten](/docs/concepts#how-does-a-weighted-pipeline-work) leggen de berekening uit.</Step>
+  <Step title="Voeg de datumvelden toe">Gebruik **Toevoegen › Veld** om een veld van het type Datum "Verwachte sluiting" en een veld van het type Datum "Gesloten op" toe te voegen. Voeg ook een veld van het type Enkele keuze "Verliesreden" toe. Een grafiek kan alleen groeperen en filteren op wat je vastlegt.</Step>
+  <Step title="Bouw de widgets van het kwartaal">Kies op het **Dashboard** **Widget toevoegen**: een **Staafdiagram** dat **Gewogen waarde** optelt, gegroepeerd op Fase, gefilterd op Fase is niet Gewonnen of Verloren en Verwachte sluiting tussen de eerste en de laatste dag van het kwartaal; een **Getal**-widget die **Waarde** optelt voor Fase is Gewonnen en Gesloten op in het kwartaal (tot nu toe gewonnen); een **Getal**-widget die **Waarde** van dezelfde open deals optelt (het open bedrag). Een **Vlakdiagram in de tijd** met een maandelijks **Tijdsinterval**, gegroepeerd op Verwachte sluiting, laat zien wanneer de gewogen waarde vervalt.</Step>
+  <Step title="Bewaar een momentopname wanneer je publiceert">Open in de lijst Deals **Meer acties** en kies **Exporteren als Excel (.xlsx)**. De export behoudt je filters en sortering, bevat maximaal 5.000 records en heeft één kolom per veld dat je kunt lezen. Bewaar hem met de datum in de bestandsnaam. Dit is je momentopname voor de toets achteraf en je invoer voor winstpercentage en run rate in een spreadsheet.</Step>
+</Steps>
+
+Het winstpercentage naar waarde heeft twee totalen uit je gesloten deals nodig: de som van **Waarde** voor Gewonnen en voor Verloren, elk gefilterd op Gesloten op. Je kunt beide aflezen uit **Getal**-widgets. In Customermates Cloud kun je Mate ze ook laten berekenen, wat gehoste AI-tegoeden gebruikt; met je eigen AI-client via de [MCP-server](/docs/mcp) komen de totalen uit de tool `query_crm_measure`. In beide gevallen is het rekenwerk op je gesloten deals, geen voorspelling.
+
+Een grafiek telt alleen de deals die je rol kan lezen, dus wie de prognose publiceert, heeft leestoegang tot alle deals nodig. De [gids over het dashboard](/docs/app-dashboard) beschrijft elke widgetoptie en de [pagina over CRM-rapportage](/features/reporting) somt de andere rapporten op die een klein team bouwt. De deals zelf staan op het [pipelinebord](/features/pipeline).
+
+**Wat het kost.** Grafiekwidgets, de gewogen pipeline en Excel-export zitten in elk abonnement, vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, maandelijks gefactureerd. De zelfgehoste editie bevat ze ook. De [prijspagina](/pricing) geeft de details.
+
+<AcquisitionCallout title="Waar Customermates de verkeerde keuze is voor prognoses" variant="boundary">
+Customermates vermenigvuldigt de dealwaarden met de faseskansen die jij instelt en telt het resultaat op. Het voorspelt niet welke deals sluiten, stelt geen winkansen voor en past geen statistisch model aan op je historie. Het toont deals zoals ze nu zijn en heeft geen rapport van eerdere pipelinetotalen, dus bewaar een export op de dag dat je een prognose publiceert. Het kent geen quota en geen managersoverzicht van prognoses; een categorieveld dat je toevoegt kan in een grafiek worden getoond, maar niets controleert of verzamelt het. Het heeft geen offertes of facturatie, dus gewonnen betekent de dealwaarde die je invoert, niet gefactureerde of erkende omzet. Heb je voorspellende prognoses, prognose-indieningen per verkoper of scenariomodellen nodig, gebruik dan een gespecialiseerde prognosetool.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Wat is sales forecasting?">
+Sales forecasting is het schatten van de omzet die een team in een toekomstige periode wint, zoals een maand of kwartaal, op basis van de open deals en de eerdere resultaten. Het verschilt van een target, dat is wat je wilt winnen.
+</FaqItem>
+
+<FaqItem question="Hoe bereken je een sales forecast?">
+Vermenigvuldig het bedrag van elke open deal met de kans van zijn fase, tel de gewogen waarden op van de deals die in de periode naar verwachting sluiten en tel de omzet op die je in die periode al hebt gewonnen. Controleer het resultaat met een cijfer op basis van winstpercentage (open bedrag × je winstpercentage naar waarde) en een cijfer op basis van run rate (het gemiddelde van je laatste vier perioden).
+</FaqItem>
+
+<FaqItem question="Wat is het beste model voor sales forecasting?">
+Er is er geen die voor elk team past. Een gewogen pipeline werkt voor kleine teams met faseregels en sluitingsdata. Winstpercentage en run rate hebben een historie van gesloten deals nodig. Statistische modellen hebben veel perioden met stabiele resultaten nodig. Bereken er minstens twee en publiceer een bandbreedte.
+</FaqItem>
+
+<FaqItem question="Wat is het verschil tussen een sales forecast en een sales target?">
+Een prognose is de schatting van wat je waarschijnlijk wint, berekend uit de pipeline. Een target is het getal dat je wilt halen. Het plan is wat je doet aan het gat ertussen.
+</FaqItem>
+
+<FaqItem question="Hoe nauwkeurig is een sales forecast?">
+Er is geen eerlijk universeel cijfer, want het hangt af van je dealgroottes, cyclusduur en discipline. Meet je eigen cijfer: vergelijk elke prognose met het werkelijke resultaat en volg de fout over meerdere perioden. Een vaste fout in één richting is te corrigeren; een willekeurige betekent dat de invoer onbetrouwbaar is.
+</FaqItem>
+
+<FaqItem question="Kan Customermates sales voorspellen?">
+Het berekent een gewogen pipeline: dealwaarde maal de kans die je voor de fase instelt, getoond in dashboardgrafieken en te exporteren naar Excel. Het voorspelt geen sluitingen, stelt geen kansen voor en modelleert je historie niet. Gebruik daarvoor een gespecialiseerde prognosetool.
+</FaqItem>
+</Faq>
+
+Bronnen van derden gecontroleerd op 9 november 2026: Hyndman en Athanasopoulos, *Forecasting: Principles and Practice*, 3e editie, [paragraaf 1.2](https://otexts.com/fpp3/planning.html), [paragraaf 1.6](https://otexts.com/fpp3/basic-steps.html) en [hoofdstuk 6](https://otexts.com/fpp3/judgmental.html). Alle dealbedragen, winstpercentages en kwartaalresultaten in het uitgewerkte voorbeeld zijn verzonnen ter illustratie.

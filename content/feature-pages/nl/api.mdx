@@ -1,0 +1,176 @@
+---
+title: "CRM API: REST, webhooks, MCP en OpenAPI-specificatie"
+description: "CRM API van Customermates: REST met OpenAPI 3.1-specificatie en MCP in elk abonnement, plus ondertekende webhooks in betaalde abonnementen en bij zelf hosten."
+featureName: CRM API
+
+relatedHrefs:
+  - /docs/api-keys
+  - /docs/webhooks
+  - /features/integrations
+  - /blog/what-is-an-mcp-server
+
+sections:
+  visual:
+    kind: os
+  steps:
+    items:
+      - title: "Maak een sleutel aan"
+        description: "Open Instellingen → API-sleutels & connectoren, kies Toevoegen, kies Standaard API-sleutel, geef de sleutel een naam zoals ERP-sync, productie en kopieer hem. Hij wordt maar één keer getoond."
+      - title: "Lees het schema"
+        description: "Haal /api/v1/openapi op via het adres van je werkruimte en importeer het in Postman, Insomnia of een clientgenerator."
+      - title: "Vraag op"
+        description: "Stuur POST /api/v1/records/query met de header x-api-key om de deals op te vragen die de afgelopen week zijn gewijzigd."
+      - title: "Schrijf"
+        description: "Verplaats een deal naar een andere fase met POST /api/v1/records/mutate. Wat je gebruiker in de app kan, kan de sleutel via de API."
+      - title: "Abonneer"
+        description: "Voeg een webhook toe voor Record bijgewerkt op de lijst Deals met een geheim, richt hem op je endpoint en controleer de eerste bezorging in het Webhooklog."
+  highlights:
+    title: "In het kort"
+    capture: homepage-configure
+    items:
+      - title: "Toegangswegen"
+        description: "REST onder /api/v1, een OpenAPI 3.1-specificatie, [[derived.webhooks.events.total]] webhook-events en [[derived.mcp.tools.total]] MCP-tools."
+      - title: "Abonnementen"
+        description: "REST en MCP in elk Cloud-abonnement, webhooks in elk betaald abonnement, en alle drie wanneer je zelf host. Inbox-endpoints vragen om een verbonden account, en dat begint in Customermates Cloud bij Pro."
+      - title: "Authenticatie"
+        description: "Eén API-sleutel per client, verstuurd als x-api-key. Een sleutel heeft precies de rechten van de rol van zijn eigenaar."
+      - title: "Limieten"
+        description: "Bulkschrijfacties nemen maximaal 100 records per verzoek. Geen OR tussen filterregels, geen scopes per sleutel."
+
+hero:
+  title: "CRM API: laat je AI-agent en je tools opvolgen vanuit dezelfde klantrecords"
+  description: "Je AI-client leest het record van een klant en werkt de volgende stap bij via MCP. Je andere systemen lezen en schrijven dezelfde records via REST en ondertekende webhooks. Dezelfde rechten; REST en MCP in elk abonnement, webhooks in betaalde abonnementen en bij zelf hosten."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+
+cta:
+  action: "Koppel je eigen agent aan je klantrecords"
+  description: "Maak tijdens de proefperiode een API-sleutel aan of voeg de connector van Claude of ChatGPT toe, en vraag je agent dan naar het record van één klant en wat er daarna gebeurt. Of lees de OpenAPI-specificatie en stuur één zoekverzoek."
+  buttonLeftText: "Start je proefperiode van [[commercial.trial.days]] dagen"
+  buttonLeftHref: /auth/signup?job=agent
+  buttonRightText: Bekijk de livedemo
+  buttonRightHref: https://demo.customermates.com/nl/w/small-business/dashboard
+  hint: "✓ Geen creditcard nodig ✓ De eerste [[commercial.trial.days]] dagen gratis"
+---
+
+Customermates is een CRM met een open REST API in elk abonnement, vanaf Starter voor [[commercial.price.starter.monthly]] per gebruiker per maand, en in de gratis zelf gehoste editie. Je authenticeert met een API-sleutel in de header `x-api-key`, het volledige schema is een OpenAPI 3.1-document op `/api/v1/openapi` en, in betaalde abonnementen en bij zelf hosten, melden [[derived.webhooks.events.total]] webhook-events je systemen wanneer er iets verandert. Er is geen apart developerabonnement en geen betaalde API-add-on.
+
+Customermates is een open-source, AI-native CRM voor kleine teams met veel klantcontact, gebouwd in Duitsland. De API is van belang voor twee soorten lezers: een developer die de CRM met een ander systeem wil synchroniseren, en een team dat wil dat een AI-client zoals Claude of ChatGPT records bijwerkt. De eerste gebruikt REST en webhooks. De tweede gebruikt het MCP-endpoint, dat op dezelfde rechten draait.
+
+**Waarom dit telt voor opvolging.** Een antwoord aan een klant blijft liggen wanneer de feiten die je ervoor nodig hebt in een ander systeem staan. Via MCP leest je eigen AI-client, zoals Claude of ChatGPT, het record van een klant en, in Customermates Cloud vanaf Pro, de gesprekken met die klant, en kan hij een conceptantwoord opslaan dat jij nakijkt en verstuurt. Via REST en webhooks krijgen je andere tools dezelfde records en horen ze het wanneer er een verandert.
+
+## Wat de REST API dekt
+
+De REST API werkt op elke lijst van de CRM. Een nieuwe werkruimte begint zonder lijsten: je maakt de lijsten die je nodig hebt (contactpersonen, organisaties, deals of je eigen lijsten) aan in Datamodel, via de API of MCP, of laat de AI-setup ze in de cloud opbouwen. Elke recordroute is een `POST` naar een benoemde actie met een JSON-body, dus dezelfde code werkt voor deals, contactpersonen of een lijst die je vorige week hebt toegevoegd.
+
+| Doel | Methode en pad |
+|---|---|
+| Je lijsten en hun `typeId` vinden | `POST /api/v1/model/discover` |
+| Velden, relaties, optie-ID's en de schemarevisie lezen | `POST /api/v1/model/read` |
+| Eén lijst filteren, sorteren en pagineren | `POST /api/v1/records/query` |
+| Over lijsten heen op tekst zoeken | `POST /api/v1/records/search` |
+| Eén record lezen | `POST /api/v1/records/read` |
+| Aanmaken, bijwerken, verwijderen, koppelen of ontkoppelen | `POST /api/v1/records/mutate` |
+| Maximaal 100 records bijwerken of verwijderen | `POST /api/v1/records/mutate` met `updateMany` of `deleteMany` |
+| Een lijst exporteren, of maximaal 100 records importeren | `POST /api/v1/records/export` of `POST /api/v1/records/import` |
+| Een bestand uploaden naar een veld van het type Bestand | `POST /api/v1/files/uploads`, daarna `POST /api/v1/records/mutate` |
+| Een veld optellen of tellen, zoals de pipelinewaarde | `POST /api/v1/reports/query` |
+
+Een record wordt aangesproken via een verwijzing, `{ "typeId": "...", "recordId": "..." }`, niet via zijn URL. De basis-URL is het adres waarop je Customermates opent, in de cloud en op je eigen server. Verdere routes dekken gebruikers (`/api/v1/users/me`, `/api/v1/users/search`), webhooks en de inbox: gesprekken, concepten, het versturen van e-mail en chatberichten, activiteiten en agenda's met alleen leestoegang.
+
+Een paar details besparen je op de eerste dag tijd:
+
+- **Velden hebben vaste ID's.** `/model/read` geeft het `fieldId` van elk veld terug, de optie-ID's van een veld met enkele keuze zoals de deal-**Fase**, en de schema-`revision`. ID's blijven gelijk wanneer iemand een lijst of veld hernoemt. Waarden zijn getypeerd, bijvoorbeeld `{ "kind": "text", "value": "Acme" }`.
+- **Query's gebruiken een JSON-body.** `/records/query` neemt `typeId`, `filters`, `sort`, `page` en `pageSize` (maximaal 500). Filters gebruiken de [filtersyntaxis](/docs/filter-syntax) die ook in de app en bij MCP geldt.
+- **Schrijfacties zijn beveiligd.** Een mutatie bevat `expectedRevision` (de schemarevisie), een `idempotencyKey` en de `mutation` zelf; bijwerken en verwijderen bevatten ook de `expectedVersion` van het record. Hetzelfde verzoek met dezelfde sleutel opnieuw sturen wordt niet twee keer toegepast.
+- **Koppelingen zijn een eigen actie.** `link` en `unlink` nemen een `relationId`, een `source` en een `target`-recordverwijzing. Een update verwijdert nooit koppelingen die je niet noemt.
+- **Bulkschrijfacties nemen maximaal 100 records.** `updateMany` past één wijziging atomair toe op maximaal 100 records en `deleteMany` verplaatst er maximaal 100 naar de prullenbak, dus een opschoning van 2.000 contactpersonen splits je in 20 verzoeken.
+
+## Webhooks: laat de CRM jou bellen
+
+Een webhook stuurt een JSON-`POST` naar je URL wanneer een geabonneerd event plaatsvindt. Beheerders, en leden van wie de rol **Leestoegang** **Alle** en **Aanmaken** heeft bij **API en webhooks**, voegen er een toe onder **Instellingen → Webhooks**: URL, events, de lijst onder **Records uit** met optionele filters, een optioneel geheim, optionele eigen headers en een optioneel bodysjabloon. De [webhookreferentie](/docs/webhooks) noemt elk event en elke payload.
+
+- **Events:** [[derived.webhooks.events.records]] recordevents (`record.created`, `record.updated`, `record.deleted` wanneer een record naar de prullenbak gaat, `record.restored` en `record.deletedPermanently`) voor elke lijst die je kiest, ook je eigen lijsten, plus [[derived.webhooks.events.messaging]] inbox- en agenda-events.
+- **Wijzigingen inbegrepen:** een `record.updated`-payload bevat de recordverwijzing en noemt elk gewijzigd veld met de waarde `before` en `after`. Een schrijfactie die niets wijzigt, stuurt geen event.
+- **Handtekeningen:** met een geheim ingesteld wordt elke bezorging ondertekend met HMAC-SHA256 over de ruwe body.
+- **Nieuwe pogingen:** een time-out, netwerkfout, 5xx, 408, 425 of 429 wordt automatisch opnieuw geprobeerd, tot in totaal 10 pogingen. Andere 4xx-antwoorden worden niet opnieuw geprobeerd, omdat een herhaling op dezelfde manier zou mislukken. Elke bezorging heeft een time-out van 5 seconden.
+- **Bezorglog:** **Instellingen → Webhooklog** toont statuscode en antwoordbericht van elke bezorging, met een knop om opnieuw te versturen.
+- **Bodysjablonen:** een sjabloon vervangt de standaardenvelop, zodat een chattool of automatiseringsendpoint dat een eigen JSON-vorm verwacht bezorgingen kan ontvangen zonder tussenlaag.
+
+Bezorgingen komen niet strikt in volgorde aan. Twee updates van dezelfde contactpersoon met enkele milliseconden ertussen kunnen in omgekeerde volgorde binnenkomen, dus ontdubbel op het event-`id`, laat je handler werken op `typeId` en `recordId`, en gebruik de `timestamp` van de payload en de recordversie.
+
+## Zo doe je je eerste API-aanroep
+
+<Steps>
+  <Step title="Maak een sleutel aan">Open **Instellingen → API-sleutels & connectoren**, kies **Toevoegen**, kies **Standaard API-sleutel**, geef de sleutel een naam zoals `ERP-sync, productie` en kopieer hem. Hij wordt maar één keer getoond. De [gids over API-sleutels](/docs/api-keys) behandelt verloop en rotatie.</Step>
+  <Step title="Lees het schema">Haal `/api/v1/openapi` op via het adres van je werkruimte en importeer het in Postman, Insomnia of een clientgenerator. Stuur daarna `POST /api/v1/model/discover` met `{"search":"deal"}` om het `typeId` van je deals te krijgen, en `POST /api/v1/model/read` met `{"typeIds":["<deal-type-id>"]}` om de velden, de faseopties en de schema-`revision` te zien.</Step>
+  <Step title="Vraag op">Stuur `POST /api/v1/records/query` met de header `x-api-key` en een body zoals `{"typeId":"<deal-type-id>","filters":[{"fieldId":"system:updatedAt","operator":"inLastDays","value":{"kind":"decimal","value":"7","currency":null}}],"page":1,"pageSize":25}` om de deals op te vragen die de afgelopen week zijn gewijzigd.</Step>
+  <Step title="Schrijf">Verplaats een deal naar een andere fase met `POST /api/v1/records/mutate` en `{"expectedRevision":<revision>,"idempotencyKey":"move-acme-to-demo","mutation":{"action":"update","ref":{"typeId":"<deal-type-id>","recordId":"<deal-id>"},"expectedVersion":<version>,"fields":[{"fieldId":"<stage-field-id>","value":{"kind":"select","value":"<option-id>"}}]}}`. Wat je gebruiker in de app kan, kan de sleutel via de API.</Step>
+  <Step title="Abonneer">Voeg een webhook toe voor **Record bijgewerkt** op de lijst Deals met een geheim, richt hem op je endpoint en controleer de eerste bezorging onder **Webhooklog**.</Step>
+</Steps>
+
+Een onjuiste, verlopen of verwijderde sleutel krijgt HTTP `401`. Een sleutel waarvan de eigenaar op **Inactief** is gezet, krijgt `403`.
+
+## API-sleutels en rechten
+
+Sleutels horen bij de gebruiker die ze heeft aangemaakt en handelen met de huidige rol van die gebruiker. Er zijn geen aparte API-gebruikers en geen scopes per sleutel, dus een sleutel kan niet tot alleen lezen worden beperkt. Moet een integratie alleen deals lezen, maak de sleutel dan aan onder een lid van wie de rol alleen dat toestaat. In Customermates Cloud is dat lid een betaalde seat zoals elke andere.
+
+Sleutels aanmaken vraagt om **Leestoegang** **Alle** en **Aanmaken** op de rij **API en webhooks** van een rol. Een nieuwe aangepaste rol begint zonder die rechten, dus standaard maken alleen beheerders sleutels aan. Dezelfde machtiging opent ook elke webhook in de werkruimte, wat goed is om te weten voordat je het recht uitdeelt. Om alle sleutels van iemand die vertrekt te stoppen, zet je het lid op **Inactief**. Ook als je **Leestoegang** **Alle** op **API en webhooks** uit hun rol haalt, stoppen hun sleutels.
+
+## MCP: de API voor AI-clients
+
+Het MCP-endpoint op `/api/v1/mcp` geeft een externe AI-client [[derived.mcp.tools.total]] tools over dezelfde records, inbox en webhooks. Claude en ChatGPT verbinden via OAuth als eigen connector; Claude Code, Codex, Cursor en Gemini gebruiken een API-sleutel. De client, zijn model en zijn abonnement blijven van jou. Semantisch zoeken kan in Customermates Cloud nog wel meetellen voor het Mate-gebruik. De [MCP-gids](/docs/mcp) noemt elke tool.
+
+Mate, de assistent in Customermates Cloud, is een aparte functie. Mate draait op gehoste AI-credits en heeft geen API-sleutel nodig. Zelf gehoste installaties hebben MCP maar geen Mate.
+
+## Wat de API niet doet
+
+- **Geen PUT of PATCH op records.** Elke recordwijziging is een `POST` naar `/api/v1/records/mutate`.
+- **Geen OR tussen filterregels.** Filterregels worden met AND gecombineerd. Voor OR draai je twee query's of gebruik je de operator `in` op één veld.
+- **Geen gepubliceerd verzoekquotum.** Een drukke werkruimte antwoordt met `429` en een `Retry-After`-header. Splits bulktaken in batches van 100.
+- **Geen CSV-exportendpoint en geen export van het hele account.** De app importeert Excel-, CSV- en JSON-bestanden en exporteert XLSX en JSON, steeds één lijst. Alles wat groter is, loopt via je eigen API-script.
+- **Geen inbox en geen Mate bij zelf hosten.** De REST-recordroutes, webhooks en MCP werken daar; de berichtenroutes vragen om Customermates Cloud op Pro of hoger.
+
+Buiten het pad `/api/v1` wordt geen overgangsperiode voor achterwaartse compatibiliteit beloofd, dus behandel het huidige OpenAPI-document als het contract en test ertegen.
+
+## Hoe andere CRM's API-gebruik meten
+
+Customermates publiceert deze pagina. Verificatiedatum: 8 oktober 2026. De cijfers hieronder komen uit de eigen documentatie van elke leverancier; ze veranderen, dus volg de links voordat je erop plant.
+
+| CRM | API in het gratis of instapabonnement | Hoe het gebruik wordt begrensd |
+|---|---|---|
+| [HubSpot](https://developers.hubspot.com/docs/developer-tooling/platform/usage-guidelines) | Ja | Private apps op Free en Starter: 100 verzoeken per 10 seconden en 250.000 per dag per account; hoger op Professional en Enterprise |
+| [Pipedrive](https://www.pipedrive.com/en/features/crm-api) | Elk abonnement bevat een API-token | [Dagelijks tokenbudget](https://pipedrive.readme.io/docs/core-api-concepts-rate-limiting): 30.000 basistokens maal een abonnementsfactor maal seats |
+| [Zoho CRM](https://www.zoho.com/crm/developer/docs/api/v8/api-limits.html) | Ja, ook in de Free-editie | Credits per 24 uur: 5.000 op Free, meer per gebruiker op betaalde edities |
+| [EspoCRM](https://docs.espocrm.com/development/api/) | Ja, ook in de [gratis zelf gehoste editie](https://www.espocrm.com/) | API-sleutel, HMAC of basisauthenticatie via eigen API-gebruikers, van wie de rollen bepalen wat ze mogen doen |
+| Customermates | Elk abonnement en zelf gehost | Geen gepubliceerd quotum; bulkroutes nemen 100 records per verzoek |
+
+Kies HubSpot of Zoho CRM als je een gratis gehost abonnement met API-toegang wilt en je integratie binnen hun gepubliceerde aanroeplimieten past. Kies Pipedrive als een dagbudget dat meegroeit met abonnement en seats bij je volume past. Kies EspoCRM als je een zelf gehoste open-source CRM wilt met aparte API-gebruikers en hun eigen rollen. Customermates past bij een klein team dat de record-API, webhooks en een MCP-endpoint voor AI-clients wil tegen de prijs van de CRM zelf, met een AGPL-kern die het zelf kan hosten. Het past niet als je scopes per sleutel nodig hebt of, in Customermates Cloud, een API-gebruiker die geen betaalde seat inneemt.
+
+## Wat het kost
+
+Voor API-toegang geldt geen toeslag. Een team van drie op Starter betaalt [[commercial.price.starter.monthly.seats.3]] per maand en krijgt REST, webhooks en MCP. Hetzelfde team op Pro betaalt [[commercial.price.pro.monthly.seats.3]] en krijgt de [gecombineerde inbox](/features/unified-inbox) en de bijbehorende berichtenroutes erbij. De open-sourceeditie zelf hosten kost niets aan licentiekosten; je draait de server zelf. Er wordt maandelijks gefactureerd, zie de [prijzen](/pricing). Bouw je flows in n8n, dan is n8n een apart product met eigen abonnementen; de [n8n-gids](/docs/n8n) laat de HTTP Request-instelling zien.
+
+<Faq>
+<FaqItem question="Wat is een API in een CRM?">
+Het is de programmatische toegang tot de gegevens van de CRM. Een ander programma stuurt HTTP-verzoeken om contactpersonen, deals en andere records te lezen, aan te maken, bij te werken of te verwijderen, in plaats van dat iemand door de schermen klikt. Webhooks zijn de andere richting: de CRM roept je programma aan wanneer gegevens veranderen.
+</FaqItem>
+<FaqItem question="Welke CRM heeft de beste API?">
+Er is geen eenduidig antwoord. Toets vier dingen aan je project: of de API in het abonnement zit dat je daadwerkelijk koopt, hoe aanroepen worden gemeten, of webhooks bevatten wat er is gewijzigd en of er een machineleesbare specificatie is. Voor een klein team telt een API in het instapabonnement met een OpenAPI-document en ondertekende webhooks meestal zwaarder dan de omvang van de endpointcatalogus.
+</FaqItem>
+<FaqItem question="Wat is de beste gratis CRM met API-integratie?">
+HubSpot en Zoho CRM hebben allebei gratis gehoste abonnementen met gemeten API-toegang, en EspoCRM biedt een gratis zelf gehoste editie met een REST API. De zelf gehoste editie van Customermates is gratis open source en bevat de REST API, webhooks en MCP, maar geen inbox en geen Mate, en je draait de server zelf. Zie [zelf hosten](/features/self-hosted).
+</FaqItem>
+<FaqItem question="Kan ik een API-sleutel tot alleen lezen beperken?">
+Nee. Een sleutel heeft precies de rechten van de gebruiker die hem bezit. Maak de sleutel aan onder een lid met een beperkte rol als een integratie alleen mag lezen.
+</FaqItem>
+<FaqItem question="Bevat de API de inbox?">
+Ja, in Customermates Cloud op Pro of hoger, waar gebruikers e-mail, LinkedIn, WhatsApp, Instagram of Telegram koppelen. De routes dekken gesprekken, concepten, het versturen van e-mail en chatberichten, en activiteiten. Elk verzoek verstuurt één bericht; bulkverzending bestaat niet.
+</FaqItem>
+<FaqItem question="Heb ik n8n of Zapier nodig om de API te gebruiken?">
+Nee. Elke taal die HTTPS-verzoeken kan versturen, werkt. n8n is optioneel en draait apart; het [overzicht van integraties](/features/integrations) vergelijkt REST, webhooks, MCP en n8n.
+</FaqItem>
+</Faq>

@@ -1,0 +1,229 @@
+---
+title: "CRM ERP koppeling: architectuur en je eerste dataflow"
+description: "CRM ERP koppeling maken: wie welk veld beheert, vier integratiemethoden, idempotente events, reconciliatie en een eerste dataflow die je zelf kunt bouwen."
+
+relatedHrefs:
+  - /blog/crm-and-erp
+  - /features/api
+  - /docs/webhooks
+  - /features/integrations
+
+hero:
+  title: "CRM ERP koppeling: verbind de systemen zonder dubbele records"
+  description: "Bepaal welk systeem elk veld beheert, kies de integratiemethode die past bij de interface van je ERP en lever één betrouwbaar event op voordat je iets anders synchroniseert."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-01-03
+  updated: 2026-10-29
+  tags:
+    - CRM
+    - ERP
+    - Integratie
+---
+
+# CRM ERP koppeling: verbind de systemen zonder dubbele records
+
+Een CRM ERP koppeling geeft een kleine set identifiers en statussen door tussen het systeem waarin je verkoopt en het systeem waarin je levert en factureert. De CRM beheert personen, relaties, deals en gesprekken. De ERP beheert het klantaccount voor facturatie, artikelen, orders, voorraad en betalingen. De integratie draait op vastgelegde bedrijfsgebeurtenissen, zoals "deal gewonnen", en schrijft het referentienummer van elk systeem terug in het andere.
+
+De meeste kleine teams starten het best met één eenrichtingsflow: een gewonnen deal maakt de klant en een order aan in de ERP, en het ordernummer uit de ERP komt terug bij de deal. Bouw dat via een native connector als je twee systemen er een hebben, en anders via de REST API en webhooks van de ERP, met een automatiseringsplatform zoals n8n of een kleine service die je zelf draait.
+
+Customermates, een AI-native CRM, publiceert deze gids. Customermates is alleen een CRM, zonder ERP-functies en zonder native ERP-connector; het onderdeel hieronder laat zien hoe het koppelt via zijn REST API en webhooks. Gegevens van ERP-aanbieders zijn gecontroleerd op 8 oktober 2026 op de eigen pagina's van de aanbieders, aan het eind gelinkt.
+
+Voor een vaste integratie en een AI-client vergelijk je [MCP en API bij dezelfde taak met een klantrecord](/blog/mcp-vs-api). Tool discovery verandert hoe de client een operatie vindt; authenticatie en rechten blijven gelden.
+
+Voor een n8n-workflow maakt de [vergelijking van n8n MCP-routes met een voorbeeld op een vaste versie](/blog/n8n-mcp) onderscheid tussen n8n koppelen aan een server met klantgegevens en n8n zelf beschikbaar stellen aan een AI-client. Kies de richting voordat je inloggegevens instelt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Wat er beweegt">Identifiers en een paar statussen per bedrijfsgebeurtenis. Niet elk veld, en standaard niet in beide richtingen.</SummaryItem>
+  <SummaryItem label="Methoden">Native connector, automatiseringsplatform (iPaaS of n8n), directe API-integratie of middleware. Of één suite waarvan de ERP een CRM-app bevat.</SummaryItem>
+  <SummaryItem label="Eerst beslissen">Eén beherend systeem per veld, een stabiele ID-strategie en wat er gebeurt als een event twee keer aankomt of mislukt.</SummaryItem>
+  <SummaryItem label="Check je ERP">Of de API in je abonnement zit, of hij webhooks verstuurt en wat de limieten zijn. Die verschillen sterk per aanbieder.</SummaryItem>
+  <SummaryItem label="Customermates">REST API bij elk Cloud-abonnement, webhooks bij elk betaald abonnement, en beide bij zelf hosten. ERP-referenties staan in aangepaste tekstvelden.</SummaryItem>
+</ArticleSummary>
+
+## Welk systeem beheert elk veld in de koppelingsarchitectuur?
+
+Schrijf deze tabel voor je eigen systemen op voordat je tools vergelijkt. Eigenaarschap wordt per veld bepaald, niet per object: de organisatie kan in beide systemen staan terwijl het factuuradres bij de ERP hoort en de accountnotities bij de CRM.
+
+| Gegevens | Meestal beheerd door | Wat de andere kant bewaart |
+| --- | --- | --- |
+| Contactpersonen, relatiegeschiedenis, gesprekken | CRM | De ERP bewaart een contactpersoon alleen als de documenten er een nodig hebben |
+| Deal, fase, volgende stap | CRM | Niets, of een verwijzing op de order |
+| Klantaccount voor facturatie (juridische naam, btw-id, factuuradres, betaalvoorwaarden) | ERP | ERP-klantnummer; de integratie behandelt het als eigendom van de ERP |
+| Artikelen en prijzen | ERP | Artikelnummer op het product- of dienstrecord van de CRM |
+| Orders, levering, voorraad | ERP | Ordernummer en één status voor de klant |
+| Factuurdocumenten en betalingen | ERP | Documentnummer en een grove betaalstatus, als accountmanagers die nodig hebben |
+
+Schrijven twee systemen hetzelfde veld, dan heb je een conflict dat op zijn moment wacht. Kies één eigenaar en stuur correcties daarheen. Dwing die regel af in je integratie; een CRM biedt misschien geen rechten per veld waarmee precies dit veld alleen-lezen wordt.
+
+## Vier manieren om een CRM en een ERP te koppelen
+
+| Methode | Past als | Let op |
+| --- | --- | --- |
+| Native connector | Beide systemen komen van aanbieders die een connector voor elkaar leveren | Welke objecten, velden en richtingen hij dekt, welke edities hij nodig heeft en wie ondersteuning geeft als hij stukgaat |
+| Automatiseringsplatform (iPaaS, n8n, Make, Zapier) | Je hebt een paar flows nodig tussen twee systemen met REST API's en wilt visuele logica | Idempotentie, foutwachtrijen en geheimen blijven jouw taak. Een visuele flow is productiesoftware |
+| Directe API-integratie | Eén smalle, waardevolle flow tussen twee stabiele API's, en iemand in het team schrijft code | Authenticatie, nieuwe pogingen, wijzigingen in API-versies en monitoring zijn van jou |
+| Middleware of integratieservice | Meerdere systemen of groot volume, met een gedeeld datamodel en wachtrijen | Meer bewegende delen. Te zwaar om vijf velden te verplaatsen |
+
+Er is een vijfde antwoord waar sommige lezers naar zoeken die zoeken op "crm erp totaaloplossing" of "kan CRM onderdeel zijn van ERP": één suite. Odoo levert bijvoorbeeld een CRM-app naast zijn ERP-apps, dus het klantrecord wordt gedeeld en er valt niets te synchroniseren. De keerzijde is dat je de CRM van de suite gebruikt. Let op: Odoo stelt zijn externe API alleen beschikbaar bij het Custom-abonnement, dus een extern systeem aan Odoo koppelen vraagt om dat abonnement.
+
+## Synchronisatiepatronen en wanneer je ze gebruikt
+
+| Patroon | Hoe het werkt | Gebruik het voor |
+| --- | --- | --- |
+| Gebeurtenisgestuurd, eenrichting | Een wijziging in het beherende systeem activeert een schrijfactie in het andere | De eerste flow. Richting en eigenaarschap blijven duidelijk |
+| Geplande reconciliatie | Een job vergelijkt kruisverwijzingen en toont of herstelt gaten | Een vangnet onder elke eventflow |
+| Opzoeken op leesmoment | Het ene systeem vraagt het andere om actuele gegevens zonder een kopie op te slaan | Voorraad of betaalstatus op verzoek tonen |
+| Tweerichtingsverkeer | Beide systemen werken gerelateerde gegevens bij | Alleen als het bedrijf de gegevens echt op beide plekken wijzigt, met eigenaarschap per veld en conflictregels |
+
+"Realtime" is zelden de eis die het lijkt. Een accountmanager die een betaalstatus een minuut te laat ziet, verliest niets; een dubbele order in de ERP kost echt geld. Ontwerp eerst voor nieuwe pogingen en dubbele events, snelheid komt daarna.
+
+## Wat de interface van je ERP werkelijk biedt
+
+De ERP-kant bepaalt meestal hoe moeilijk de koppeling is. Vier voorbeelden laten zien hoe sterk de interfaces verschillen:
+
+| ERP | Interface, volgens de aanbieder | Wat het betekent voor de integratie |
+| --- | --- | --- |
+| Microsoft Dynamics 365 Business Central | REST API v2.0 met entiteiten zoals customers, items, salesQuotes, salesOrders en salesInvoices, plus webhookabonnementen | Abonnementen verlopen na drie dagen tenzij ze worden verlengd, en meldingen wachten 30 seconden na de eerste wijziging. Meer dan 1.000 wijzigingen in dat venster komen aan als één "collection"-melding die je met een query moet uitwerken |
+| Odoo | XML-RPC externe API in versie 18; versie 19 documenteert de JSON-2 API en een migratiepad vanaf XML-RPC en JSON-RPC | Alleen beschikbaar bij het Custom-abonnement. Controleer welke API je Odoo-versie draait voordat je bouwt |
+| Lexware Office | REST API voor contacten, artikelen, offertes, orderbevestigingen, pakbonnen en andere vouchers, met eventabonnementen | Maximaal 2 verzoeken per seconde per client, dus batchjobs moeten worden afgeremd |
+| Xentral | REST API voor klanten, producten, verkooporders, inkooporders, pakbonnen en facturen, met webhooks en een lijst met webhookeventtypen | Meerdere API-versies bestaan naast elkaar, dus leg de versie vast in je veldkoppeling |
+
+Twee vragen besparen de meeste tijd: zit de API in het abonnement dat je betaalt, en pusht de ERP wijzigingen via een webhook of moet je hem pollen?
+
+## Events, idempotentie en reconciliatie
+
+Een integratie die alleen de happy flow afhandelt, maakt binnen weken dubbele records aan. Webhooks worden opnieuw verzonden, mensen klikken twee keer en een timeout kan een schrijfactie verbergen die wél is gelukt.
+
+- **Idempotentie.** Controleer voordat je iets in het doel aanmaakt of het al bestaat. De eenvoudigste controle is de kruisverwijzing zelf: bevat de deal al een ERP-ordernummer, maak dan geen tweede order aan.
+- **Stabiele ID's.** Bewaar de ID van het andere systeem na de eerste match. Koppel bedrijven nooit bij elke run op naam; namen veranderen en dochterbedrijven delen ze.
+- **Nieuwe pogingen.** Probeer timeouts, limieten en serverfouten opnieuw met toenemende wachttijd. Stop bij validatiefouten en zet het event met de reden in een herstelwachtrij.
+- **Conflicten.** Beslis ze als bedrijfsregels: de eigenaar wint, of een persoon beslist. Pas nooit overal "laatste schrijfactie wint" toe.
+- **Reconciliatie.** Draai een geplande controle die records zonder kruisverwijzing toont of records met verschillende statussen aan beide kanten. Die vangt wat de eventflow miste.
+- **Logging.** Leg event, bronrecord, doelreferentie, aantal pogingen en resultaat vast, zonder meer klantgegevens in logs te kopiëren dan voor diagnose nodig is.
+
+## De eerste flow bouwen
+
+<Steps>
+  <Step title="Kies één bedrijfsgebeurtenis">
+    "Deal gewonnen maakt de ERP-klant en order aan" is een goed eerste event. "CRM en ERP synchroniseren" is geen event.
+  </Step>
+  <Step title="Bepaal de voorwaarden">
+    Maak een lijst van de velden die gevuld moeten zijn voordat het event mag afgaan: factuuradres, btw-id, artikelen, aantallen. Bepaal wat het event blokkeert en wie het oplost.
+  </Step>
+  <Step title="Schrijf de veldkoppeling uit">
+    Per veld: bron, doel, type, eigenaar, transformatie en wat er gebeurt als het ontbreekt of ongeldig is. Houd de veldkoppeling onder versiebeheer naast de integratie.
+  </Step>
+  <Step title="Kies de methode">
+    Een native connector als er een de flow dekt; anders een automatiseringsplatform of een kleine service tegen beide REST API's.
+  </Step>
+  <Step title="Bouw idempotentie en het terugschrijven">
+    Controleer de kruisverwijzing voordat je aanmaakt en schrijf het ERP-nummer daarna in dezelfde run terug naar het CRM-record.
+  </Step>
+  <Step title="Test de lastige gevallen">
+    Bestaande klant, twee bedrijven met dezelfde naam, ontbrekend adres, onbekend artikel, ERP-timeout, hetzelfde event twee keer bezorgd, deal heropend na "gewonnen".
+  </Step>
+  <Step title="Rol uit met reconciliatie">
+    Begin met één team of één dealtype, vergelijk de eerste weken beide systemen met de hand, zet dan de geplande reconciliatie aan en benoem de persoon die storingen afhandelt.
+  </Step>
+</Steps>
+
+## Voorbeeld: gewonnen deal naar ERP-order met Customermates
+
+Dit is de inrichting in Customermates voor de eerste flow hierboven. Ze gebruikt de [REST API](/features/api) en [webhooks](/docs/webhooks), die werken in een zelf gehoste installatie en in Customermates Cloud: de REST API bij elk abonnement, webhooks bij elk betaald abonnement. De ontvanger in het midden is van jou: een n8n-workflow of een kleine service.
+
+**Velden.** Voeg in **Datamodel** aangepaste velden van het type Tekst toe: "ERP-klantnr." bij organisaties, "ERP-ordernr." bij deals en "ERP-artikelnr." bij diensten. De regelitems van een deal bevatten elk een dienst en een aantal, dus de regelitems en de artikelnummers van hun diensten worden de orderregels. Hebben accountmanagers de levering of betaalstatus nodig, voeg dan een veld met Enkele keuze toe, zoals "ERP-status", bij deals en maak eigenaarschap van de ERP een expliciete regel in je adapter. Customermates kent rechten per lijst en rol, geen rechten per veld die dit veld voor de integratie reserveren.
+
+**Trigger.** Dit gaat ervan uit dat je lijst met deals een veld Fase met Enkele keuze heeft met een optie "Gewonnen" (fasen zijn niet voorgeprogrammeerd). Abonneer onder **Instellingen → Webhooks** een URL op `record.updated` voor de lijst Deals, eventueel met Fase onder **Gewijzigde velden**, en stel een secret in. Elke levering is ondertekend met HMAC-SHA256 in de header `X-Webhook-Signature`, en bij update-events toont `data.record.fields` elk gewijzigd veld met zijn waarde `before` en `after`. Je ontvanger handelt alleen als de fase is gewijzigd naar "Gewonnen".
+
+**Idempotentie.** Elk event heeft een `id` die gelijk blijft bij nieuwe pogingen en opnieuw verzenden, dus ontdubbel erop. Gebruik als tweede controle de kruisverwijzing: is "ERP-ordernr." van de deal al gevuld, stop dan.
+
+**Klant zoeken.** Zoek "ERP-klantnr." van de organisatie op. Is het leeg, zoek de klant dan in de ERP op btw-id of maak hem aan en schrijf het nummer terug. Om later een CRM-organisatie op ERP-nummer te vinden, roep je `POST /api/v1/records/query` aan voor Organisaties met een `eq`-filter op de ID van dat veld ([filtersyntaxis](/docs/filter-syntax)).
+
+**Terugschrijven.** Nadat de ERP de order heeft geaccepteerd, stuur je een `update`-mutatie voor de deal naar `POST /api/v1/records/mutate` met het nieuwe "ERP-ordernr." en de huidige versie van de deal. Velden die je weglaat, blijven ongewijzigd.
+
+**Mislukkingen.** Customermates probeert een mislukte levering automatisch opnieuw bij timeouts, netwerkfouten, 5xx-antwoorden en 408, 425 en 429. Andere 4xx-antwoorden worden niet opnieuw geprobeerd, omdat ze op dezelfde manier zouden mislukken. Elke levering staat onder **Instellingen → Webhooklog**, waar je hem opnieuw kunt versturen nadat je de oorzaak hebt verholpen.
+
+**Reconciliatie.** Sla een dealweergave op gefilterd op Fase "Gewonnen" en een leeg "ERP-ordernr.". Deel hem met de persoon die integratiestoringen afhandelt, of met het hele team. Alles wat daar verschijnt, is gemist door de eventflow.
+
+**De omgekeerde richting.** Verstuurt je ERP webhooks, wijs ze dan naar dezelfde ontvanger, zoek de deal op via "ERP-ordernr." en zet "ERP-status". Doet hij dat niet, poll de ERP dan volgens een schema. De [n8n-gids](/docs/n8n) noemt de REST-aanroepen die een n8n-workflow nodig heeft; er bestaat ook een community-node.
+
+In Customermates Cloud kan Mate ook met deze velden werken, bijvoorbeeld "toon gewonnen deals van deze maand zonder ERP-ordernummer". Mate gebruikt gehoste AI-tegoeden. Een eigen AI-client kan hetzelfde via [MCP](/docs/mcp).
+
+<AcquisitionCallout title="Wat Customermates hier niet doet" variant="boundary">
+  Customermates heeft geen ERP-functies: geen offertes, facturen, orders, betalingen, voorraad of inkoop. Er is geen native ERP-connector en geen ingebouwde n8n; n8n draait apart. Records worden uit Excel-, CSV- of JSON-bestanden geïmporteerd en als XLSX- of JSON-bestanden geëxporteerd, per lijst, zonder geplande synchronisatie. Wil je CRM en ERP in één database, kijk dan naar een suite die beide bevat.
+</AcquisitionCallout>
+
+## Wat bewees het kleine integratievoorbeeld eigenlijk?
+
+Download de [veldeigenaarschapskaart voor CRM en ERP](/templates/crm-erp-field-ownership.csv) en het [afgebakende voorbeeldresultaat](/templates/crm-erp-example-result.json). Het voorbeeld gebruikt de fictieve klant `C-001` en ERP-referentie `ERP-C-001`. Houd je eigen koppeling naast de adapter:
+
+| Waarde | Gezaghebbende bron | Controle na het schrijven |
+| --- | --- | --- |
+| Weergavenaam van de klant | CRM | Lees het actuele CRM-record voordat je verzendt |
+| CRM-record-ID | CRM | Bewaar de ongewijzigde ID in de koppeling |
+| ERP-klant-ID | ERP | Schrijf hem pas terug nadat de ontvanger de opgeslagen klant bevestigt |
+| Factuur- en belastingbeleid | ERP | Overschrijf het niet vanuit een CRM-notitie |
+
+Gecontroleerd op 29 oktober 2026 tegen een wegwerpbare lokale Customermates-werkruimte en een loopback-mock-ERP. Een kleine, handmatig gestarte adapter las het echte REST-endpoint van de CRM, stuurde één klant naar de mock en schreef de teruggegeven ERP-ID met de huidige recordversie in een aangepast tekstveld. We hebben bewust het eerste antwoord laten vallen nadat de mock de klant had opgeslagen. Hetzelfde event opnieuw proberen leverde **twee pogingen, één ERP-schrijfactie** op. Een leesactie aan elke kant kwam daarna overeen op CRM-record-ID, klantnaam en ERP-ID.
+
+Dit bewijst de ID-koppeling, de regel voor nieuwe pogingen en lezen, schrijven en teruglezen in de CRM in dat voorbeeld. Het bewijst geen productie-ERP-connector, geen automatische webhooklevering, geen aanmaak van facturen en geen uitgerolde reconciliatiejob. Herhaal die controles voordat je je eigen ERP gebruikt tegen de sandbox ervan, controleer authenticatie en handtekeningen en test de echte validatie en limieten. De [integratieopties](/features/integrations) leggen uit waar een adapter of een apart draaiende n8n past.
+
+## Wat kosten en inspanning bepaalt
+
+Geen eerlijke benchmark dekt alle CRM ERP integraties; een eenrichtingsevent tussen twee gedocumenteerde API's en een tweerichtingssynchronisatie van orders en voorraad zijn verschillende projecten. Schat in op basis van deze drijfveren:
+
+- of de API van de ERP in je huidige abonnement zit of een upgrade nodig heeft;
+- of beide systemen webhooks versturen, of dat er een gepold moet worden;
+- het aantal objecten, velden, richtingen en transformaties;
+- hoe rommelig bestaande klantgegevens zijn en hoeveel dubbele records je eenmalig moet koppelen;
+- limieten en volume;
+- wie het automatiseringsplatform of de service draait en wie de waarschuwingen beantwoordt.
+
+Aan de CRM-kant vraagt de REST API geen bepaald Customermates-abonnement en zijn webhooks bij elk betaald abonnement inbegrepen. Een team van drie op Starter betaalt [[commercial.price.starter.monthly.seats.3]] per maand. De gecombineerde inbox, die e-mail-, LinkedIn- en WhatsApp-gesprekken bij dezelfde records brengt, begint bij Pro ([[commercial.price.pro.monthly]] per gebruiker per maand).
+
+Voordat een gewonnen deal een ERP-order wordt, staat het gesprek dat hem won bij het klantrecord, met een antwoord en een volgende stap opgesteld door Mate of je eigen AI-client, die jij controleert en verstuurt. Om dat deel op je eigen klanten te zien, [start je de proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Geen creditcard nodig.
+
+## Veelgemaakte fouten
+
+- elk veld synchroniseren voordat één event van begin tot eind werkt;
+- beide systemen hetzelfde veld laten beheren;
+- bedrijven koppelen op naam in plaats van op bewaarde ID's;
+- geen herstelwachtrij, zodat mislukte events in logs verdwijnen;
+- annuleringen, heropende deals en correcties negeren;
+- live gaan zonder reconciliatiecontrole of een benoemde persoon voor waarschuwingen.
+
+Voor het verschil tussen de twee soorten systemen, en wanneer een klein team überhaupt een ERP nodig heeft, lees je [CRM en ERP vergeleken](/blog/crm-and-erp).
+
+## FAQ
+
+<Faq>
+<FaqItem question="Wat is een CRM ERP integratie?">
+Het is de geautomatiseerde uitwisseling van geselecteerde identifiers en statussen tussen de CRM, waarin je relaties en deals beheert, en de ERP, waarin je orders, artikelen, voorraad en facturatie beheert. Goed gedaan verplaatst ze alleen wat een vastgelegde bedrijfsgebeurtenis nodig heeft en houdt ze voor elk veld één eigenaar.
+</FaqItem>
+
+<FaqItem question="Hoe koppel je een CRM en een ERP?">
+Leg het eigenaarschap per veld vast, kies één bedrijfsgebeurtenis zoals "deal gewonnen" en kies een methode: een native connector als je systemen er een hebben, anders de API en webhooks van de ERP via een automatiseringsplatform of een kleine service. Voeg idempotentiecontroles toe, het terugschrijven van de ID van het andere systeem en een geplande reconciliatie voordat je live gaat.
+</FaqItem>
+
+<FaqItem question="Zijn CRM en ERP hetzelfde, en kan een CRM onderdeel zijn van een ERP?">
+Het zijn verschillende systemen: CRM dekt verkoop en klantrelaties, ERP dekt levering, inkoop, voorraad en financiën. Sommige suites bevatten beide. Odoo biedt bijvoorbeeld een CRM-app naast zijn ERP-apps, waardoor een integratie tussen beide niet nodig is.
+</FaqItem>
+
+<FaqItem question="Moeten CRM en ERP in beide richtingen synchroniseren?">
+Meestal niet in het begin. Een eenrichtingsevent van CRM naar ERP, plus een teruggegeven ordernummer en één statusveld, dekt de meeste behoeften van een klein team. Voeg een tweede richting alleen toe voor velden die echt op beide plekken veranderen, met eigenaarschap per veld.
+</FaqItem>
+
+<FaqItem question="Kun je CRM en ERP koppelen zonder code?">
+Vaak wel, met een native connector of een automatiseringsplatform zoals n8n, Make of Zapier. Je moet nog steeds het eigenaarschap per veld bepalen, dubbele records en fouten afhandelen en controleren of je ERP-abonnement API-toegang bevat.
+</FaqItem>
+
+<FaqItem question="Koppelt Customermates met ERP-systemen?">
+Via de REST API en webhooks wel, met een automatiseringsplatform of service die je zelf draait. Er is geen native ERP-connector, en Customermates zelf bewaart geen ERP-gegevens zoals orders of betalingen. ERP-referenties komen in aangepaste velden bij organisaties, deals en diensten.
+</FaqItem>
+</Faq>
+
+Details van ERP-aanbieders gecontroleerd op 8 oktober 2026 bij de [Business Central API v2.0](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/) en de [Business Central-webhooks](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/dynamics-subscriptions) van Microsoft, bij de [externe API voor versie 18](https://www.odoo.com/documentation/18.0/developer/reference/external_api.html), de [externe API voor versie 19](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) en de [prijzen](https://www.odoo.com/pricing-plan) van Odoo, de [Lexware API-documentatie](https://developers.lexware.io/docs/) en de [ontwikkelaarsdocumentatie van Xentral](https://developer.xentral.com/).

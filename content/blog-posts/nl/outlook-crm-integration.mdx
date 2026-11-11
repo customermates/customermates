@@ -1,0 +1,169 @@
+---
+title: "Outlook CRM integratie: add-in, synchronisatie of CRM-inbox"
+description: "Outlook CRM integratie: een add-in in Outlook, server-side e-mailsynchronisatie of Outlook-mail in het CRM. Wat HubSpot, Dynamics 365 en Pipedrive bieden."
+
+relatedHrefs:
+  - /features/outlook-integration
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/gmail-crm-integration
+
+hero:
+  title: "Outlook CRM integratie: drie manieren om te koppelen en welke past"
+  description: "Wat een Outlook-add-in doet en wat server-side synchronisatie doet, wat HubSpot, Dynamics 365, Salesforce en Pipedrive voor Outlook bieden, waarom de nieuwe Outlook voor Windows ertoe doet en hoe je het test."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2025-12-18
+  updated: 2026-10-08
+  tags:
+    - Outlook CRM Integration
+    - Microsoft 365 CRM
+    - CRM Comparison
+---
+
+# Outlook CRM integratie: add-in, server-side synchronisatie of de eigen inbox van het CRM
+
+Een Outlook CRM integratie doet een van twee taken, en goede integraties doen allebei. Ze tonen CRM-records naast de e-mail die je in Outlook leest, en ze kopiëren e-mails en afspraken uit je Microsoft 365-mailbox naar de juiste contactpersoon en deal. De eerste taak doet een Outlook-add-in (ook wel plugin genoemd). De tweede draait op de servers van het CRM, of Outlook nu openstaat of niet.
+
+De echte vraag is dus waar je team wil werken. Leeft iedereen de hele dag in Outlook, kies dan een CRM met een degelijke add-in plus server-side synchronisatie. Beantwoorden mensen liever e-mail vanuit het CRM, naast de deal en de andere kanalen, kies dan een CRM dat de mailbox binnenhaalt. Eén technische controle geldt voor iedereen: de nieuwe Outlook voor Windows draait alleen webadd-ins, dus oudere COM- of VSTO-plug-ins werken daar niet meer.
+
+Customermates publiceert deze gids. Customermates, een AI-native CRM, kiest de derde aanpak: er is geen Outlook-add-in en Outlook-mail komt in plaats daarvan in de eigen inbox. De leveranciersgegevens hieronder zijn op 8 oktober 2026 gecontroleerd op de eigen pagina's van de leveranciers, die aan het einde zijn gelinkt.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Add-in">Een paneel in Outlook om records op te zoeken, een e-mail vast te leggen of een contactpersoon aan te maken. Handig als het team Outlook nooit verlaat.</SummaryItem>
+  <SummaryItem label="Server-side synchronisatie">E-mails en afspraken komen op de achtergrond in het CRM. Zo blijven records compleet als niemand op "vastleggen" klikt.</SummaryItem>
+  <SummaryItem label="Mailbox in het CRM">Je leest en beantwoordt Outlook-mail in het CRM. Geen add-in om te installeren of te onderhouden, maar je verandert wel waar je werkt.</SummaryItem>
+  <SummaryItem label="Nieuwe Outlook">Microsoft ondersteunt geen COM- of VSTO-add-ins in de nieuwe Outlook voor Windows. Vraag elke leverancier of zijn add-in een webadd-in is.</SummaryItem>
+  <SummaryItem label="Contactpersonen en agenda">Tweerichtingssynchronisatie van contactpersonen en agenda verschilt meer tussen CRM's dan het vastleggen van e-mail. Controleer ze een voor een.</SummaryItem>
+</ArticleSummary>
+
+## De drie typen Outlook CRM koppeling
+
+| Type | Wat het doet | Waar je werkt | Controleer vóór je koopt |
+|---|---|---|---|
+| Add-in in Outlook | Toont de bijpassende contactpersoon, deals en geschiedenis naast een e-mail; legt die e-mail of afspraak vast op een record als je klikt | Outlook | Draait in je Outlook-clients (klassiek en nieuw Windows, Mac, web, mobiel); werkt met gedeelde mailboxen als je die gebruikt |
+| Server-side synchronisatie | Verbindt de mailbox via Exchange of Microsoft 365 met het CRM en kopieert verzonden en ontvangen mail, en vaak afspraken, naar bijpassende records | Outlook, terwijl het CRM zichzelf vult | Welke mappen synchroniseren, hoe snel, wat er met privémail gebeurt en of contactpersonen en agenda in beide richtingen synchroniseren |
+| Mailbox in het CRM | Importeert de mailbox in de inbox van het CRM, waar je mail leest, beantwoordt en archiveert naast het record | Het CRM | Of je Outlook parallel kunt blijven gebruiken, of antwoorden vanaf je echte adres vertrekken en wat er met de agenda gebeurt |
+
+De meeste CRM's in de volgende tabel combineren de eerste twee: een add-in om dingen op te zoeken en server-side synchronisatie voor volledigheid. Het derde type past bij teams waarvan de klantgesprekken over e-mail en chatkanalen verspreid zijn, omdat het CRM ze dan allemaal in één lijst toont.
+
+## Wat de gangbare CRM's voor Outlook bieden
+
+| CRM | In Outlook | Synchronisatie naar het CRM | Goed om te weten |
+|---|---|---|---|
+| HubSpot | HubSpot Sales Office 365-add-in om e-mails te volgen en vast te leggen en de verkooptools van HubSpot in de inbox te gebruiken | Je inbox moet met HubSpot zijn verbonden om de add-in te gebruiken | HubSpot vermeldt de add-in voor alle producten en abonnementen. Het helpartikel noemt klassiek en nieuw Outlook voor Windows, klassiek en nieuw Outlook voor Mac en Outlook op het web |
+| Microsoft Dynamics 365 Sales | Dynamics 365 App for Outlook op desktop, web en mobiel: koppel e-mails, vergaderingen en afspraken aan een account, opportunity of case | Server-side synchronisatie draait op de achtergrond ongeveer elke 15 minuten; contactpersonen kunnen tussen Exchange en Dynamics 365 synchroniseren | Niet ondersteund op gedeelde mailboxen van Microsoft 365. Sales Professional staat vermeld voor $65 per gebruiker per maand, jaarlijks betaald |
+| Salesforce | De Outlook-integratie, een zijpaneel in Outlook | Einstein Activity Capture voor synchronisatie van e-mail en afspraken | Salesforce for Outlook, het oudere desktopproduct, wordt uitgefaseerd; Salesforce raadt in plaats daarvan de Outlook-integratie en Einstein Activity Capture aan |
+| Pipedrive | Pipedrive for Outlook, een Marketplace-app van Baymats AB, voor desktop en web; 7 dagen gratis proefperiode, daarna een betaald abonnement | E-mailsynchronisatie vanaf Growth, met Office 365 / Outlook, Exchange (EWS) en IMAP; koppelt gesprekken aan deals, leads of projecten | E-mailsynchronisatie biedt ook tracking van geopende mails. De add-in is een product van een derde partij met een eigen abonnement |
+| Customermates | Geen add-in | Outlook-mailbox in de CRM-inbox vanaf Pro in Customermates Cloud; agenda alleen-lezen | Geen synchronisatie van Outlook-contactpersonen en geen schrijfacties in de agenda. Details in de volgende paragrafen |
+
+Prijzen veranderen; de prijs van Dynamics 365 is op 8 oktober 2026 gecontroleerd op [de prijspagina van Microsoft](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing).
+
+## De controle voor de nieuwe Outlook voor Windows
+
+De ontwikkelaarsdocumentatie van Microsoft is duidelijk: VSTO- en COM-add-ins worden niet ondersteund in de nieuwe Outlook op Windows, en leveranciers moeten migreren naar een Outlook-webadd-in. Klassiek Outlook op Windows draait ze nog wel. Als een gebruiker overstapt naar de nieuwe client, installeert Outlook webvarianten van bestaande COM-add-ins waar die bestaan.
+
+Twee details van dezelfde pagina zijn belangrijk voor CRM-kopers. Microsoft noemt "CRM and tracking services" als ondersteund scenario voor webadd-ins. "Data sync service", de tweerichtingssynchronisatie van mailitems, noemt Microsoft slechts gedeeltelijk ondersteund. En de nieuwe client vraagt op dit moment een werk- of schoolaccount van Microsoft 365 op Exchange Online; on-premises-, hybride en soevereine Exchange-accounts worden nog niet ondersteund.
+
+In de praktijk: stapt je team over op de nieuwe Outlook, vraag dan aan elke leverancier of zijn add-in een webadd-in is en test hem in de nieuwe client voordat je migreert. Server-side synchronisatie en een mailbox in het CRM zijn helemaal niet afhankelijk van de Outlook-client.
+
+## Welke aanpak past
+
+| Jouw situatie | Waar je naar zoekt |
+|---|---|
+| Het team werkt de hele dag in Outlook en wil geen tweede venster | Een add-in die in al je Outlook-clients draait, plus server-side synchronisatie |
+| Je zit op Microsoft 365 met een IT-beheerder, Teams en Dataverse | Dynamics 365 Sales; het is het eigen CRM van Microsoft en de App for Outlook draait op server-side synchronisatie |
+| Je wilt dat Outlook-contactpersonen en de contactpersonen van het CRM identiek blijven | Een CRM met tweerichtingssynchronisatie van contactpersonen, eerst getest met je eigen adresboek |
+| De meeste klantgesprekken lopen via e-mail plus LinkedIn of WhatsApp | Een CRM dat de mailbox importeert in een gedeelde inbox met die kanalen |
+| Een teammailbox zoals sales@ moet zichtbaar zijn voor meerdere mensen | Controleer ondersteuning voor gedeelde mailboxen expliciet; de Dynamics 365 App for Outlook ondersteunt bijvoorbeeld geen gedeelde mailboxen van Microsoft 365 |
+| Je stapt over naar de nieuwe Outlook voor Windows | Alleen webadd-ins, of een aanpak waarvoor geen add-in nodig is |
+
+## Hoe Outlook werkt in Customermates
+
+Customermates kiest de derde route. Vanaf Pro in Customermates Cloud voedt een gekoppeld Outlook-account de [gecombineerde inbox](/features/unified-inbox), naast LinkedIn, WhatsApp, Instagram en Telegram. Je blijft Outlook gebruiken wanneer je wilt; mail die je daar verstuurt, komt nog steeds in de CRM-thread terecht. De [pagina over de Outlook-integratie](/features/outlook-integration) laat precies zien wat er synchroniseert.
+
+<Steps>
+  <Step title="Koppel het account">Open **Instellingen › Kanalen & agenda's**, klik op **Kanaal koppelen** en kies **Outlook**. Je meldt je aan op een beveiligde verbindingspagina en de geschiedenis van de mailbox wordt op de achtergrond geïmporteerd. De kaart toont of e-mail, agenda of beide zijn gekoppeld.</Step>
+  <Step title="Kies de mappen">Het tabblad **Mappen** van het account heeft één schakelaar per map. Standaard staat elke map aan, behalve prullenbak, ongewenste e-mail of spam, concepten en de map met alle e-mail. Zet mappen met privémail uit.</Step>
+  <Step title="Koppel mensen aan contactpersonen">Open in een gesprek **Gespreksinstellingen** en klik op **Koppelen** naast een deelnemer, of maak daar de contactpersoon aan. Het adres wordt aan de contactpersoon toegevoegd, zodat [elk gesprek ermee op de tijdlijn van die contactpersoon verschijnt](/blog/customer-interaction-management).</Step>
+  <Step title="Stel de handtekening in">Zet op het tabblad **E-mail** van het account **Handtekening toevoegen** aan. Die wordt toegevoegd aan elke e-mail die vanaf dat account wordt verstuurd, vanuit de inbox, de REST API of MCP.</Step>
+  <Step title="Bepaal wat het team ziet">Een nieuw account is privé. Op Pro deel je afzonderlijke gesprekken; op Business kun je het hele account delen, bijvoorbeeld een sales@-mailbox, met iedereen wiens rol de inbox mag lezen.</Step>
+</Steps>
+
+Wat er daarna synchroniseert, en wat niet:
+
+| Outlook-object | In Customermates |
+|---|---|
+| Verzonden en ontvangen e-mail | Ja, uit de mappen die je hebt aangezet. Antwoorden vertrekken vanaf het Outlook-account zelf |
+| Een e-mail naar een map verplaatsen | Ja, voor Outlook- en IMAP-accounts gebeurt de verplaatsing ook in de echte mailbox |
+| Agenda-afspraken | Alleen-lezen. Vergaderingen verschijnen in de activiteitentijdlijn; Customermates maakt, bewerkt of boekt geen afspraken |
+| Outlook-contactpersonen (adresboek) | In geen van beide richtingen gesynchroniseerd. Contactpersonen ontstaan door een deelnemer te koppelen of in het CRM |
+| Outlook-taken | Niet gesynchroniseerd |
+
+De [gids over de inbox](/docs/app-inbox) behandelt rechten, concepten en filters in detail.
+
+### Laat Mate of je eigen AI-client de opvolging doen
+
+De reden om Outlook in Customermates te halen is opvolging: elke klantmail staat op het klantrecord, Mate of je eigen AI-agent schrijft het antwoord en de volgende stap, jij beoordeelt en verstuurt, en de volgende stappen verschijnen op je dashboard.
+
+In Customermates Cloud kan Mate een gesprek samenvatten of een antwoord opstellen, en daarvoor gebruikt hij gehoste AI-credits. Een routine voert een opgeslagen instructie uit als er iets gebeurt. Maak voor Outlook-mail een routine met de trigger **Wanneer er iets verandert**, kies de gebeurtenis **E-mail ontvangen** en schrijf een instructie als deze:
+
+> Als er een e-mail binnenkomt van een contactpersoon met een open deal die aan mij is toegewezen, lees dan de thread en de deal. Sla een conceptantwoord op in de thread dat de openstaande vraag beantwoordt. Verstuur niets. Als de e-mail om een afspraak vraagt, zeg dat dan in het concept in plaats van tijden voor te stellen.
+
+De zin "verstuur niets" is belangrijk. Een routine draait als zijn eigenaar met de kanalen van de eigenaar, en Mate verstuurt e-mail zonder opnieuw te vragen als een instructie zegt dat hij moet versturen. [Routines](/docs/app-routines) noemt de actuele limieten. Gebruik je liever je eigen AI-client, zoals Claude of ChatGPT, dan kan die threads lezen en concepten opslaan via MCP en gebruikt die je eigen AI-provider in plaats van gehoste credits.
+
+### Wat het kost
+
+Een team van vijf personen op Pro betaalt [[commercial.price.pro.monthly.seats.5]] per maand. Elke gebruiker krijgt [[commercial.entitlement.pro.includedAccountsPerUser]] gekoppeld account, genoeg voor één Outlook-mailbox per persoon. Een hele teammailbox delen vraagt Business, dat voor dezelfde vijf mensen [[commercial.price.business.monthly.seats.5]] per maand kost en [[commercial.entitlement.business.includedAccountsPerUser]] accounts per gebruiker bevat. Starter voor [[commercial.price.starter.monthly]] per gebruiker heeft geen inbox en geen Outlook-koppeling. Zie [prijzen](/pricing) voor de maandelijkse gehoste AI-credits per actieve gebruiker.
+
+Wil je het met je eigen Outlook proberen, [start dan je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
+
+<AcquisitionCallout title="Waar Customermates niet de juiste keuze is" variant="boundary">
+Er is geen Outlook-add-in, dus CRM-details zoek je op in Customermates en niet in een zijpaneel van Outlook. Outlook-contactpersonen en -taken synchroniseren niet en agenda-afspraken zijn alleen-lezen. Customermates heeft geen e-mailsequenties of massamail. Een zelf gehoste installatie heeft helemaal geen inbox en geen Outlook-koppeling; die biedt REST, webhooks en MCP. Moet je team binnen Outlook blijven, of heeft het tweerichtingssynchronisatie van contactpersonen met het Exchange-adresboek nodig, kies dan een CRM met een webadd-in en server-side synchronisatie uit de tabel hierboven.
+</AcquisitionCallout>
+
+## Test elke Outlook-integratie voordat je haar uitrolt
+
+1. Stuur een e-mail vanuit Outlook naar een bekende contactpersoon. Die moet binnen de door de leverancier genoemde synchronisatietijd op die contactpersoon verschijnen.
+2. Antwoord vanaf een telefoon. Het antwoord moet in dezelfde thread komen en geen nieuwe contactpersoon aanmaken.
+3. Mail iemand die niet in het CRM staat. Controleer of het CRM zelf een contactpersoon aanmaakt, het je vraagt of het bericht negeert, en welke van die drie je wilt.
+4. Zet een privémail in een map die je hebt uitgesloten. Die mag niet in het CRM verschijnen.
+5. Maak in Outlook een afspraak met een klant. Controleer waar die verschijnt en of bewerken in het CRM Outlook verandert.
+6. Open de add-in, als die er is, in elke Outlook-client die je team gebruikt, inclusief de nieuwe Outlook voor Windows.
+
+## Kun je Outlook als CRM gebruiken?
+
+Voor een handvol klanten gedeeltelijk. Outlook heeft contactpersonen, categorieën, taken en een agenda, en een map per klant brengt je verrassend ver. Wat ontbreekt, is een deal met een fase en een waarde, een lijst met open deals per persoon en een geschiedenis die een collega kan lezen als jij er niet bent. Het CRM van Microsoft is Dynamics 365 Sales, dat apart van Microsoft 365 wordt gelicentieerd. Zodra je meer dan een paar deals tegelijk bijhoudt, kost een CRM dat met Outlook is verbonden minder werk dan mappen en categorieën.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Hoe integreer ik een CRM met Outlook?">
+De meeste CRM's bieden twee onderdelen. Koppel eerst je mailbox in de instellingen van het CRM, zodat e-mails op de server synchroniseren. Installeer daarna de add-in van het CRM vanuit de add-inwinkel van Outlook, of laat je Microsoft 365-beheerder hem voor iedereen uitrollen. In Customermates is er geen add-in: je koppelt het Outlook-account onder **Instellingen › Kanalen & agenda's** op Pro of hoger, en de mail verschijnt in de CRM-inbox.
+</FaqItem>
+
+<FaqItem question="Is Microsoft Outlook een CRM, en zit er een in Microsoft 365?">
+Nee. Outlook is een e-mail- en agendaclient met contactpersonen en taken, maar zonder deals, fases of pipeline. Het CRM van Microsoft is Dynamics 365 Sales, een apart abonnement; Microsoft vermeldt Sales Professional voor $65 per gebruiker per maand, jaarlijks betaald.
+</FaqItem>
+
+<FaqItem question="Werken CRM-add-ins in de nieuwe Outlook voor Windows?">
+Alleen webadd-ins werken. Microsoft stelt dat COM- en VSTO-add-ins niet worden ondersteund in de nieuwe Outlook op Windows, terwijl klassiek Outlook ze nog draait. De nieuwe client vraagt voorlopig ook een werk- of schoolaccount van Microsoft 365 op Exchange Online.
+</FaqItem>
+
+<FaqItem question="Wordt Salesforce for Outlook stopgezet?">
+Ja. Salesforce faseert Salesforce for Outlook, het oudere desktopproduct, uit en raadt de Outlook-integratie (een zijpaneel in Outlook) en Einstein Activity Capture aan voor synchronisatie van e-mail en afspraken. Controleer de releasenotes van Salesforce voor de datum die voor jouw org geldt.
+</FaqItem>
+
+<FaqItem question="Integreert HubSpot met Outlook, en is dat gratis?">
+Ja. De HubSpot Sales Office 365-add-in volgt en legt e-mails vast en brengt de verkooptools van HubSpot naar Outlook. HubSpot vermeldt hem als beschikbaar bij alle producten en abonnementen, en het helpartikel noemt geen aparte kosten voor de add-in. Je inbox moet eerst met HubSpot zijn verbonden.
+</FaqItem>
+
+<FaqItem question="Kunnen CRM-contactpersonen met Outlook-contactpersonen synchroniseren?">
+Sommige CRM's doen dit. Dynamics 365 synchroniseert bijvoorbeeld contactpersonen tussen Exchange en de app. Customermates doet dat niet: het koppelt gesprekken aan contactpersonen op e-mailadres, en je koppelt of maakt contactpersonen aan in het CRM.
+</FaqItem>
+</Faq>
+
+Leveranciersgegevens: verificatie op 8 oktober 2026 aan de hand van [de gids van HubSpot voor de Office 365-add-in](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in), het [overzicht van de Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), de [vereisten van de App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/support-info-deployment), de [prijzen van Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) en [add-ins in de nieuwe Outlook op Windows](https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/one-outlook), de [gids van Salesforce over de uitfasering](https://help.salesforce.com/s/articleView?id=sales.outlookcrm_sfo_move_retire_prepare.htm&language=en_US&type=5) en het [artikel over e-mailsynchronisatie](https://support.pipedrive.com/en/article/email-sync) en de [vermelding van Pipedrive for Outlook](https://www.pipedrive.com/en/marketplace/app/pipedrive-for-outlook/594c78d1bdbacfbc) van Pipedrive.

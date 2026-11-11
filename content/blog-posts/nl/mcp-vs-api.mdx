@@ -1,0 +1,237 @@
+---
+title: "MCP vs API: dezelfde CRM-taak via beide routes vergeleken"
+description: "MCP vs API uitgelegd met een gedateerd voorbeeld: klant opzoeken en taak aanmaken via REST en MCP. Vergelijk ontdekking, rechten en goedkeuring."
+
+hero:
+  title: "MCP vs API: welke verbinding past bij jouw CRM-taak?"
+  description: "Kies een verbinding op basis van het werk dat je wilt afronden, met een lokale gekoppelde test, een geweigerde schrijfactie en duidelijke grenzen."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar de blog
+  by: door Benjamin Wagner
+  date: 2026-11-05
+  tags:
+    - MCP
+    - API
+    - REST
+    - CRM
+
+relatedHrefs:
+  - /features/api
+  - /docs/mcp
+  - /blog/agentic-crm
+  - /blog/n8n-for-beginners-build-your-first-workflow
+---
+
+# MCP vs API: welke verbinding past bij jouw CRM-taak?
+
+MCP vs API is een keuze over hoe een client een bewerking vindt en aanroept: REST geeft applicatiecode endpoints, MCP geeft een AI-applicatie vindbare tools met invoerschema's. Customermates biedt beide voor dezelfde klantgegevens, en de rechten van de applicatie gelden op beide routes voor de gekoppelde gebruiker.
+
+MCP of API? Gebruik REST voor een bekende integratie waarvan je de stappen zelf in code bepaalt. Overweeg MCP als een assistent tussen tools moet kiezen terwijl die iemand helpt. Geen van beide protocollen garandeert vanzelf een sneller, veiliger of automatisch goedgekeurd resultaat.
+
+## Wat is het verschil tussen MCP en een REST API?
+
+API staat voor application programming interface. REST is een architectuurstijl voor web-API's en geen synoniem voor elke API. Een endpoint is een specifiek adres dat een applicatie beschikbaar stelt. Een microservice is een manier om een applicatie in diensten op te delen en kan zelf ook API's aanbieden.
+
+MCP, het Model Context Protocol, standaardiseert de communicatie tussen een hostapplicatie, de clientcomponent daarvan en een server. Een server kan een REST API omhullen, andere API's aanroepen of rechtstreeks applicatielogica uitvoeren. In Customermates roepen de REST-routes voor records en de MCP-tools dezelfde gedeelde interactors aan. Het voorbeeld hieronder vergelijkt dus twee ingangen naar dezelfde CRM-logica.
+
+| Beslissing | REST API | MCP |
+| --- | --- | --- |
+| Een bewerking vinden | De ontwikkelaar gebruikt documentatie of een OpenAPI-contract | De client ontdekt tools met naam en hun invoerschema's |
+| De volgende stap kiezen | De code van de integratie bepaalt de werkstroom | De host kan een model laten kiezen; een script kan tools ook expliciet aanroepen |
+| Een aanroep beschrijven | HTTP-methode, endpoint en request body | Toolnaam en argumenten binnen de MCP-uitwisseling |
+| Het resultaat lezen | HTTP-status en antwoord van de applicatie | Protocolantwoord plus toolresultaat; controleer ook toolfouten |
+| Een schrijfactie herhalen | Volg het idempotentiecontract van de applicatie | Volg het idempotentiecontract van de tool in de applicatie |
+| Toegang afdwingen | De applicatie controleert de rechten van de ingelogde gebruiker | De applicatie controleert de rechten van de gekoppelde gebruiker |
+| Menselijke goedkeuring vragen | De integratie moet haar eigen beleid inbouwen | De host of de applicatie moet het eigen beleid inbouwen |
+| Beste startpunt | Stabiele synchronisatie of een vaste bedrijfsworkflow | Een assistent die kiest uit de beschikbare bewerkingen |
+
+HTTP levert de semantiek voor methode en status, zoals vastgelegd in [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html). Een JSON-body bij een POST zorgt op zichzelf niet voor veilig herhalen. Ook MCP heeft een contract in de applicatie nodig om dubbele schrijfacties te voorkomen. MCP vervangt HTTP niet door een garantie voor beveiliging of prestaties.
+
+## Waarin verschilt tool discovery van schema discovery?
+
+De [MCP-specificatie voor tools](https://modelcontextprotocol.io/specification/latest/server/tools) definieert `tools/list` om toolnamen en invoerschema's op te halen en `tools/call` om een tool aan te roepen. Daarmee weet een client hoe hij een algemene recordquery aanroept. Welke door de klant gedefinieerde lijst of welk veld de juiste is voor jouw werkruimte, vertelt het niet.
+
+Customermates scheidt die twee vragen. `discover_record_types` geeft de toegankelijke lijsten; `get_record_model` levert hun velden, types, relaties en de configuratierevisie. Maak van een zichtbaar label als “Taken” geen verzonnen identifier. Het [overzicht van de Customermates REST API](/features/api) legt het endpointcontract uit; de [MCP-referentie](/docs/mcp) beschrijft het toolcontract.
+
+De lokale test legde `initialize`, `tools/list` en expliciete toolaanroepen vast. Geen enkel taalmodel koos de tools. Het eerste JSON-blok is het vastgelegde discoveryverzoek; het tweede toont de SDK-argumenten om het model van de werkruimte te lezen:
+
+```json
+{
+  "method": "tools/list",
+  "jsonrpc": "2.0",
+  "id": 1
+}
+```
+
+```json
+{
+  "name": "get_record_model",
+  "arguments": {}
+}
+```
+
+Het modelantwoord noemde Organization en Task, met schemarevisie `1`. Het primaire veld van Organization was `88302b3f-1203-8ef1-8eb2-1cdf738145c4`. Het verplichte veld Name van Task was `0de76b04-786e-8931-8b21-64596e06b4c1`, met `valueType: text`. Het veld Notes was optioneel en van het type `richText`. De relatie van taak naar organisatie was `5cde6409-ab72-8707-8039-3c9cdf5868c5`. Dit zijn fixture-ID's en geen ID's die je in je eigen account kunt hergebruiken. Beide schrijfroutes gebruikten schemagegevens die via MCP waren opgehaald; een aparte schema discovery via REST is niet uitgevoerd.
+
+## Wat gaf dezelfde klantzoekopdracht terug via beide interfaces?
+
+**Grenzen van de lokale test:** uitgevoerd op 5 november 2026, van `05:32:59.558Z` tot `05:33:10.374Z`, op een nieuwe wegwerpdatabase met PostgreSQL 17.8 en een eigen loopback-applicatie. Het geautoriseerde paar gebruikte dezelfde tijdelijke API-sleutel, dezelfde synthetische beheerder en dezelfde werkruimte. Een aparte synthetische gebruiker met alleen leesrechten testte de weigering. Er zijn geen productiegegevens, externe verzendingen of aanroepen naar modelaanbieders gebruikt; de testtransport blokkeerde uitgaande verbindingen en beide sleutels zijn daarna ingetrokken.
+
+Vóór de start kwamen 3.797 bestanden voor applicatie, schema, rechten, fixtures en afhankelijkheidscontracten overeen met de beoordeelde bronversie `111f8a2e33f39975955e8f49d3f7c898fbbd3d05`; de cloud-buildstempel was `2912f7e6882ebccb`. Runtime: Node `24.18.0`, Next.js `16.3.2`, MCP TypeScript SDK `1.24.0` en `mcp-handler` `1.0.4`. Het vastgelegde initialize-verzoek stelde MCP `2025-06-18` voor; de server accepteerde die revisie en meldde zich als Customermates `1.1.0`. Dat is de waargenomen onderhandeling, geen claim dat de nieuwste specificatie of elke client is getest.
+
+Het REST-verzoek was `POST /api/v1/records/query`. De MCP-aanroep was `query_crm_records`. Beide gebruikten exact dit argumentobject:
+
+```json
+{
+  "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+  "fields": [
+    "88302b3f-1203-8ef1-8eb2-1cdf738145c4"
+  ],
+  "search": "Example organization",
+  "page": 1,
+  "pageSize": 25
+}
+```
+
+Beide antwoorden bevatten deze recordverwijzing, hier alleen met de versievelden getoond:
+
+```json
+{
+  "records": [
+    {
+      "ref": {
+        "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+        "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+      },
+      "version": 1,
+      "schemaRevision": 1
+    }
+  ]
+}
+```
+
+Beide routes gaven precies één passende organisatie terug. Het script vergeleek de volledige gestructureerde queryresultaten en vond ze voor dit verzoek gelijk. Dat bewijst geen gelijkwaardigheid voor elke query, elk veldtype of elk toegangsbeleid.
+
+## Hoe maakte elke interface een interne taak aan?
+
+Het script maakte twee afzonderlijke taken met een gelijkwaardig doel, één per interface, gekoppeld aan dezelfde fictieve organisatie. Het maakte niet dezelfde taak twee keer aan via beide protocollen. De namen en idempotentiesleutels verschillen bewust.
+
+**Vastgelegde REST-body**, verstuurd naar `POST /api/v1/records/mutate`:
+
+```json
+{
+  "expectedRevision": 1,
+  "idempotencyKey": "1f4ca96e-7947-40fa-8e41-c28981fccc02",
+  "mutation": {
+    "action": "create",
+    "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+    "fields": [
+      {
+        "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+        "value": {
+          "kind": "text",
+          "value": "Fictional proof: review customer handover via REST"
+        }
+      }
+    ],
+    "links": [
+      {
+        "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+        "direction": "outgoing",
+        "record": {
+          "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+          "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Vastgelegde MCP-toolaanroep**, getoond op het niveau van SDK-argumenten en niet als volledig wirebericht:
+
+```json
+{
+  "name": "mutate_crm_record",
+  "arguments": {
+    "expectedRevision": 1,
+    "idempotencyKey": "8d280d0a-f886-4e1c-b286-5ef6e1063fc1",
+    "mutation": {
+      "action": "create",
+      "typeId": "56a12ddb-e6bf-872a-8458-220a4fbf6cec",
+      "fields": [
+        {
+          "fieldId": "0de76b04-786e-8931-8b21-64596e06b4c1",
+          "value": {
+            "kind": "text",
+            "value": "Fictional proof: review customer handover via MCP"
+          }
+        }
+      ],
+      "links": [
+        {
+          "relationId": "5cde6409-ab72-8707-8039-3c9cdf5868c5",
+          "direction": "outgoing",
+          "record": {
+            "typeId": "29b339de-920a-86c8-8193-8ed07ec40834",
+            "recordId": "33805a25-1557-4e52-8c49-6e639e71833a"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+De geautoriseerde REST-verzoeken gaven HTTP `200` terug; de geautoriseerde MCP-toolaanroepen legden `isError: false` vast. Geselecteerde antwoordvelden en de nieuwe taak-ID's:
+
+| REST | MCP |
+| --- | --- |
+| `status: completed`, `schemaRevision: 1` | `result.status: completed`, `result.schemaRevision: 1` |
+| `d0f7b186-1cd9-44c9-88e3-b40877115c5f` | `421321b2-202b-4ee2-a6b9-023d4bf5c8d3` |
+
+Elk volledig resultaat verwees ook naar de gekoppelde organisatie. Als je het identieke verzoek van elke interface met de oorspronkelijke idempotentiesleutel herhaalde, kwam hetzelfde resultaat terug. Het script las **beide** taken terug via `POST /api/v1/records/read` en `read_crm_record`, waarbij de uitgaande relatie met `limit: 5` werd opgevraagd. Elk paar volledige uitleesresultaten kwam overeen, met taakversie `1` en de link naar de organisatie. De uiteindelijke fixture bevatte precies twee taken, dus geen van beide herhalingen maakte een extra taak aan.
+
+De grenzen tellen: één passende klant, pagina `1` met `pageSize: 25`, twee aangemaakte taken en één identieke herhaling per taak. De limiet van vijf gerelateerde records was een instelling van het verzoek, geen gemeten maximum van het platform. Dit was geen belastingtest, geen latentiebenchmark, geen beoordeling van de redenering van een model en geen interoperabiliteitstest tussen clients.
+
+## Waar gelden rechten en menselijke goedkeuring echt?
+
+Authenticatie stelt vast wie er aanroept; de rechten van de applicatie bepalen wat die gebruiker mag lezen of wijzigen. Beide ingangen van Customermates passen de rechten van de gekoppelde gebruiker toe. De tweede fixturegebruiker had API-toegang en leesrechten voor Organization en Task, zonder recht om records bij te werken. Het REST-identiteitsverzoek en de MCP-klantquery van die gebruiker slaagden, waarmee vaststond dat de test een geauthenticeerde, leesbare werkruimte bereikte.
+
+Vervolgens probeerde die gebruiker de Name van de via REST aangemaakte taak te wijzigen, één keer via REST en één keer via MCP, met de actuele schemarevisie en taakversie. REST gaf HTTP `403` terug, `error.kind: authorization`, `customCode: permissionDenied`. De MCP-uitwisseling gaf HTTP `200` terug, maar het toolresultaat bevatte `isError: true` met `_meta.failure.kind: authorization` en dezelfde customcode. Na **elke** weigering las de beheerder de taak via beide interfaces opnieuw: het volledige record, de Name, versie `1` en de link naar de organisatie waren ongewijzigd. Dit bewijst alleen die twee geweigerde wijzigingen voor deze rol en fixture; het is geen beveiligingsaudit van alle rechten.
+
+Goedkeuring is een andere vraag. Customermates geeft externe MCP-clients de instructie om bevestiging te vragen vóór verzenden, verwijderen of handelen buiten de werkruimte. Die instructies sturen de client aan. De externe MCP-server pauzeert een geautoriseerde aanroep niet zelf om goedkeuring te vragen.
+
+Gehoste Mate heeft een eigen goedkeuringsbeleid dat de server afdwingt. Routines hebben eigen uitvoerings- en goedkeuringsinstellingen; leid die niet af uit een externe MCP-sessie. De beschikbaarheid van Mate in de beheerde cloud hangt bovendien af van geschikte abonnementen, beschikbare credits en globale instellingen. De [gids over agentic CRM](/blog/agentic-crm) legt deze grenzen uit.
+
+## Wanneer houd je REST, gebruik je MCP of combineer je ze?
+
+Houd REST als je opdracht luidt: “voer deze exacte stappen uit zodra een bekende gebeurtenis zich voordoet.” Een vaste synchronisatie profiteert meestal van expliciete koppelingen, nieuwe pogingen en foutafhandeling in code. OpenAPI kan ook machineleesbare API-schema's bieden; vindbaarheid is niet voorbehouden aan MCP.
+
+Kies MCP als de nuttige volgende bewerking afhangt van de vraag van een persoon en de host de tools ondersteunt die je nodig hebt. Je hebt nog steeds vertrouwde servers, beperkte toegang, validatie van resultaten en een goedkeuringsbeleid nodig. MCP is meer dan JSON-opmaak, maar het is geen API-gateway die al die controles automatisch levert. Zie de [officiële MCP-architectuur](https://modelcontextprotocol.io/docs/learn/architecture) voor de rollen van host, client en server.
+
+Je kunt de twee combineren: een webhook meldt een gebeurtenis, een deterministische workflow haalt gegevens op via REST en een assistent gebruikt MCP om een uitzondering te onderzoeken. Webhooks zijn gebeurtenismeldingen en geen andere naam voor een toolaanroep. n8n kan integraties orkestreren, maar de lokale test hierboven draaide een script en geen n8n. De [introductie tot n8n-workflows](/blog/n8n-for-beginners-build-your-first-workflow) is een apart startpunt.
+
+Zelf gehost Customermates levert de Starter CRM-kern met REST en MCP voor externe clients. Het bevat geen gehoste Mate en geen cloudinbox. Kies een andere aanpak als je alleen een adapter voor je bestaande CRM nodig hebt of als je vaste integratie niets wint bij een AI-host. De prijzen en proefvoorwaarden van de cloud staan los van de protocolkeuze; vergelijk ze op de [actuele prijzenpagina](/pricing).
+
+Voor een team dat elk klantgesprek opvolgt, is de nuttige MCP-aanroep die waarmee je een gesprek op het klantrecord leest en een conceptantwoord en een volgende stap ter beoordeling opslaat. Wil je dat met je eigen Claude of ChatGPT proberen, [start dan je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Vervangt MCP REST API's?">
+Nee. Een MCP-server kan een REST API omhullen of applicatielogica ermee delen. REST blijft nuttig voor beheerde integraties met vooraf bepaalde stappen.
+</FaqItem>
+<FaqItem question="Is MCP gewoon JSON of een REST API?">
+MCP definieert protocolberichten en conventies voor discovery, en is dus meer dan een JSON-vorm. Het kan over HTTP lopen, maar een benoemde MCP-toolaanroep is niet hetzelfde contract als een REST-endpoint aanroepen.
+</FaqItem>
+<FaqItem question="Maakt MCP klantgegevens automatisch veilig?">
+Nee. Toegangscontroles, tokenbeheer, onbetrouwbare gegevens en goedkeuringen door de client blijven belangrijk. Onze lokale fixture bevat geautoriseerde bewerkingen en twee geweigerde wijzigingen voor één rol met alleen leesrechten; dat bewijst geen superieure beveiliging.
+</FaqItem>
+<FaqItem question="Was er een AI-model nodig voor de gekoppelde test?">
+Nee. Een script riep de REST-endpoints en MCP-tools expliciet aan. Het testverslag meet niet of een model deze bewerkingen kan vinden, kiezen of veilig uitvoeren.
+</FaqItem>
+</Faq>
+
+Feiten van derden over protocollen zijn op 5 november 2026 gecontroleerd; de verificatie liep via de hierboven gelinkte officiële MCP-architectuur, de MCP-specificatie voor tools en RFC 9110. De lokale productuitvoering en protocolonderhandeling hierboven zijn op 5 november 2026 vastgelegd.

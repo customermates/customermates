@@ -1,0 +1,229 @@
+---
+title: "Klantsegmentatie: soorten, voorbeelden en opzet"
+description: "Klantsegmentatie uitgelegd: de vier soorten met B2B-voorbeelden, ABC-analyse op omzet, RFM-analyse en een opzet met velden, weergaven en grafieken in een CRM."
+
+relatedHrefs:
+  - /features/reporting
+  - /blog/key-account-management
+  - /blog/customer-acquisition
+  - /blog/customer-journey
+
+hero:
+  title: "Klantsegmentatie: soorten, voorbeelden en zo zet je het op in een CRM"
+  description: "Wat klantsegmentatie is, de vier soorten met B2B-voorbeelden, hoe je klanten groepeert op omzet (ABC) of koopgedrag (RFM) en een opzet met velden, opgeslagen weergaven en een bord voor een klein team."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2026-11-03
+  tags:
+    - Klantsegmentatie
+    - B2B-verkoop
+    - Salesproces
+---
+
+# Klantsegmentatie: soorten, voorbeelden en zo zet je het op in een CRM
+
+Klantsegmentatie betekent dat je je klanten in een paar groepen indeelt die een kenmerk delen dat verandert hoe je ze bedient, helpt of prijst: branche, bedrijfsgrootte, regio, koopgedrag of de omzet die ze opleveren. De vier soorten die de meeste gidsen noemen zijn demografisch, geografisch, psychografisch en gedragsmatig; in B2B doen bedrijfskenmerken en klantwaarde het meeste werk, en een klein team kan het geheel draaien met een paar velden, opgeslagen weergaven en een bord in een CRM.
+
+Deze gids definieert een klantsegment, toont de vier soorten als B2B-tabel met per soort de gegevensbron en de actie, loopt de twee methoden door die kleine teams het meest gebruiken (ABC-analyse op omzet en RFM-analyse voor klanten die vaak opnieuw bestellen) en eindigt met een opzet in Customermates, het open source CRM dat deze gids publiceert. Customermates heeft geen automatische segmentatie, geen leadscoring en geen e-mailcampagnes, dus het laatste gedeelte zegt wat je met de hand doet en wanneer een tool voor marketingautomatisering beter past.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Definitie">Klantsegmentatie is klanten verdelen in groepen met gedeelde kenmerken, zodat elke groep de behandeling krijgt die bij haar past. Een klantsegment is één zo'n groep.</SummaryItem>
+  <SummaryItem label="Vier soorten">Demografisch (in B2B: firmografisch), geografisch, gedragsmatig, en behoeften of waarde. Studieboeken voor consumentenmarkten noemen psychografisch waar deze gids behoeften noemt.</SummaryItem>
+  <SummaryItem label="Twee methoden voor kleine teams">ABC-analyse rangschikt klanten op omzet. RFM scoort recency, frequency en bestedingen voor klanten die steeds opnieuw bestellen.</SummaryItem>
+  <SummaryItem label="Hoeveel segmenten">Drie tot vijf, elk met een actie die je kunt benoemen. Een segment zonder actie is alleen een etiket.</SummaryItem>
+  <SummaryItem label="In Customermates">Velden van het type Enkele keuze, filters en opgeslagen weergaven, een bord en dashboardgrafieken per segment, met waarden die je zelf instelt. Geen automatische segmenten, geen scoring, geen campagnes.</SummaryItem>
+</ArticleSummary>
+
+Voor het werk voordat een prospect in je pipeline komt, gebruik je de [gids over B2B-leadgeneratie](/blog/lead-generation) om een kanaal te kiezen en te bepalen wat als lead telt.
+
+## Wat is klantsegmentatie en wat is een klantsegment?
+
+Bain & Company definieert klantsegmentatie als "de onderverdeling van een markt in afzonderlijke klantgroepen met vergelijkbare kenmerken". Een **klantsegment** is een van die groepen, bijvoorbeeld "producenten met 50 tot 250 medewerkers" of "klanten die de afgelopen 90 dagen bestelden". Een **klantsegmentatiemodel** is de verzameling criteria plus de regel die elke klant in precies één segment zet.
+
+Twee buurtermen zijn het waard om te scheiden. Marktsegmentatie verdeelt de hele markt, inclusief mensen die nooit van je hoorden; klantsegmentatie werkt op de klanten en contactpersonen die je kent, die in je CRM. En een model kan een handvol schriftelijke regels zijn, wat deze gids laat zien, of statistische clustering die klanten op veel variabelen tegelijk groepeert. Clustering vraagt analysetools en veel gegevens, wat meestal meer is dan een team met een paar honderd klanten nodig heeft.
+
+Een segment is het houden waard als het vier toetsen doorstaat (een checklist van mij, geen standaard):
+
+- **Herkenbaar:** een veld in je CRM vertelt je bij welk segment een klant hoort.
+- **Verschillend:** je zou er iets anders voor doen, zoals een ander aanbod, een ander contactritme of een andere prijs.
+- **Groot genoeg:** genoeg klanten of omzet om de afwijkende behandeling terug te verdienen.
+- **Stabiel:** klanten wisselen niet elke week van segment, dus een evaluatie per kwartaal is genoeg.
+
+Kun je de actie voor een segment niet benoemen, schrap het dan of voeg het samen met een buursegment.
+
+## Wat zijn de vier soorten klantsegmentatie?
+
+Het gebruikelijke antwoord noemt vier grondslagen voor consumentenmarkten: geografisch, demografisch, psychografisch en gedragsmatig. Voor B2B merkt [het Wikipedia-artikel over marktsegmentatie](https://en.wikipedia.org/wiki/Market_segmentation) op dat de meest gebruikte grondslagen geografie en firmografie zijn, dus kenmerken als bedrijfsgrootte, branche of locatie. Levensstijl en persoonlijkheid (psychografie) zijn bij een bedrijf zelden zichtbaar, dus de tabel gebruikt behoeften en waarde als vierde grondslag. Studieboeken rekenen dat tot gedrag, als segmentatie op voordeel of behoefte.
+
+| Grondslag | Voorbeeldwaarden in B2B | Waar de gegevens vandaan komen | Wat je per segment anders doet |
+| --- | --- | --- | --- |
+| Firmografisch (de B2B-versie van demografisch) | Branche, bedrijfsgrootte, rechtsvorm, jaren actief | Eigen onderzoek, de website van het bedrijf, het eerste gesprek | Andere referenties en bewoordingen per branche; een zelfbedieningsaanbod voor kleine bedrijven en een gesprek voor grote |
+| Geografisch | Land, regio, stad, tijdzone | Het factuur- of afleveradres | Taal en valuta van je aanbod, welke events je bezoekt, wie op bezoek gaat en wie belt |
+| Gedragsmatig | Datum van de laatste bestelling, bestellingen per jaar, gekochte producten, hoe de klant je vond | Je facturen en bestellingen, de deals en gesprekken in het CRM | Een check-in na de eerste bestelling, een terugwinactie per telefoon als de bestellingen stoppen, een upsell voor frequente kopers |
+| Behoeften en waarde | Het probleem waarvoor ze je inhuren, omzet per jaar, marge, groeipotentieel | Kennismakingsgesprekken, je notities, omzet per klant | Met welk aanbod je opent en hoeveel accounttijd de klant krijgt |
+
+Begin met een of twee grondslagen. Een tabel met vijf grondslagen en twaalf segmenten ziet er grondig uit en wordt genegeerd. De meeste kleine teams doen het goed met een firmografische verdeling voor wie de klant is, plus waarde of gedrag voor hoe de klant zich gedraagt en wat die oplevert.
+
+Feiten van derden in dit gedeelte gecontroleerd op 3 november 2026 (zie de bronnen onderaan).
+
+Voor de handvol klanten die het grootste deel van je omzet dragen, behandelt onze gids over [key account management](/blog/key-account-management) selectiecriteria, accountplannen en evaluatieritmes.
+
+## Wat is een voorbeeld van een klantsegment?
+
+Drie verzonnen bedrijven laten zien hoe de grondslagen samengaan. Het zijn illustraties, geen richtwaarden.
+
+| Bedrijf | Grondslag | Voorbeeldsegmenten | Wat verandert |
+| --- | --- | --- | --- |
+| IT-dienstverlener met 60 klanten | Firmografisch, daarna waarde | Producenten met meer dan 100 medewerkers, medische praktijken, alle anderen; binnen elk de vijf grootste klanten | Casestudy en contactrol in outreach verschillen per branche; de grootste klanten krijgen een vaste contactpersoon en een jaarlijkse evaluatie |
+| Groothandel in schoonmaakartikelen | Gedragsmatig (RFM) | Vaste klanten, eenmalige kopers, risico, afgehaakt | Vaste klanten krijgen eens per kwartaal een telefoontje, eenmalige kopers een check-in over een tweede bestelling, klanten met risico een persoonlijk telefoontje |
+| Designbureau met projectklanten | Waarde (ABC) | Key accounts, kern, klein | Key accounts krijgen eerder toegang tot capaciteit, kleine klanten een standaardpakket |
+
+Consumentenbedrijven zoals webshops segmenteren op leeftijd, locatie of aankoopgeschiedenis. Een B2B-team segmenteert bedrijven, en de mensen die er werken erven het segment van hun bedrijf.
+
+## Wat zijn de vijf klantsegmenten?
+
+Er is geen standaardlijst van vijf. Het aantal en de namen volgen uit de criteria die je kiest, dus een gids die vijf segmenten noemt, toont één model en geen regel. Voor een klein B2B-team met terugkerende zaken combineert een werkbare set van vijf waarde en gedrag (mijn voorstel, geen branchestandaard):
+
+1. **Slapend:** geen bestelling in de afgelopen 12 maanden.
+2. **Nieuw:** eerste bestelling minder dan 12 maanden geleden. Ze scoren alleen laag op omzet omdat ze nieuw zijn.
+3. **Key accounts:** ABC-klasse A, de klanten die het grootste deel van je omzet brengen.
+4. **Kern:** ABC-klasse B.
+5. **Klein:** ABC-klasse C.
+
+Elke klant zit in precies één segment, dus schrijf de regels in volgorde: eerst Slapend, dan Nieuw, dan A, B en C op omzet. Zonder voorrangsvolgorde komt een nieuwe key account in twee segmenten terecht.
+
+## Hoe werkt een ABC-analyse van klanten op omzet?
+
+ABC-analyse is een gangbare manier om een klantenbestand op waarde te segmenteren, en ze is gemakkelijk uit te voeren zonder analyseteam. Je rangschikt klanten op omzet en knipt de lijst in drie klassen: A voor de weinige klanten die het grootste deel van de omzet brengen, B voor het midden, C voor de lange staart. De leerboekformulering is het principe van Pareto, grofweg 80 procent van het resultaat uit 20 procent van de oorzaken, wat in sales betekent dat een vijfde van de klanten vier vijfde van de omzet brengt. Zie dat als vuistregel. [Het Wikipedia-artikel over het principe van Pareto](https://en.wikipedia.org/wiki/Pareto_principle) noemt de 80:20-verdeling een handige vuistregel en geen onveranderlijke wet, en [het artikel over ABC-analyse](https://en.wikipedia.org/wiki/ABC_analysis) merkt op dat er geen vaste drempels voor de klassen zijn. Jij stelt de grenzen vast.
+
+1. **Som elke klant op met zijn omzet** over een vaste periode, meestal de laatste 12 maanden.
+2. **Sorteer van hoog naar laag** en voeg het aandeel van elke klant in de totale omzet toe.
+3. **Tel de aandelen op** van boven af, zodat elke rij het cumulatieve aandeel toont.
+4. **Trek twee lijnen** waar het cumulatieve aandeel je grenzen passeert, bijvoorbeeld 70 en 90 procent. Klanten boven de eerste lijn zijn A, tussen de lijnen B, onder de tweede C.
+
+Hier is het resultaat voor tien verzonnen klanten (omzet in duizenden over 12 maanden, 500 in totaal):
+
+| Klant | Omzet | Aandeel van het totaal | Cumulatief aandeel | Klasse |
+| --- | --- | --- | --- | --- |
+| 1 | 180 | 36 procent | 36 procent | A |
+| 2 | 110 | 22 procent | 58 procent | A |
+| 3 | 60 | 12 procent | 70 procent | A |
+| 4 | 40 | 8 procent | 78 procent | B |
+| 5 | 30 | 6 procent | 84 procent | B |
+| 6 | 25 | 5 procent | 89 procent | B |
+| 7 | 20 | 4 procent | 93 procent | C |
+| 8 | 15 | 3 procent | 96 procent | C |
+| 9 | 12 | 2,4 procent | 98,4 procent | C |
+| 10 | 8 | 1,6 procent | 100 procent | C |
+
+| Klasse | Klanten | Aandeel van de klanten | Aandeel van de omzet | Wat je anders doet |
+| --- | --- | --- | --- | --- |
+| A | 3 | 30 procent | 70 procent | Een eigenaar met naam, elk kwartaal een gesprek, vroege waarschuwing als er iets verandert |
+| B | 3 | 30 procent | 19 procent | Regelmatig contact, eens per jaar een vraag over wat je nog meer voor ze kunt doen |
+| C | 4 | 40 procent | 11 procent | Een standaardaanbod, weinig handwerk, een notitie als er een begint te groeien |
+
+Echte lijsten zien er zelden uit als 20 en 80. In dit voorbeeld brengen de top drie klanten, 30 procent van de lijst, 70 procent van de omzet, en dat is normaal. De tabel toont ook een risico dat het benoemen waard is: klant 1 alleen is 36 procent van de omzet.
+
+ABC op omzet heeft grenzen. Omzet is geen winst: een grote klant die tien keer zoveel support vraagt, kan je minder opleveren dan een kleinere, dus gebruik de dekkingsbijdrage waar je die kent. Nieuwe klanten scoren laag omdat ze net zijn begonnen, en daarom haalt de set van vijf segmenten hierboven ze eerst uit de lijst. En de methode rangschikt het verleden, niet het potentieel, dus voeg een korte notitie over groeipotentieel toe voor de klanten die je wilt laten groeien.
+
+Zodra je weet welke segmenten de omzet brengen, laat de [gids over klantacquisitie](/blog/customer-acquisition) zien hoe je berekent wat elk kanaal per nieuwe klant kost, zodat je kunt zoeken naar meer klanten als je A-klasse.
+
+## Hoe werkt RFM-analyse en wanneer past het?
+
+RFM scoort elke klant op drie vragen: **recency** (hoe lang geleden was de laatste bestelling), **frequency** (hoe vaak bestellen ze) en **monetary value** (hoeveel besteden ze). [Het Wikipedia-artikel over RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29) beschrijft het als een methode om klantwaarde te analyseren en klanten te segmenteren, veel gebruikt in catalogus- en direct marketing, en merkt op dat ze geen gespecialiseerde statistische software nodig heeft.
+
+Voor een klein team zijn drie banden per vraag genoeg. De grenzen hieronder zijn voorbeelden; stel de jouwe vast naar hoe vaak je klanten echt bestellen.
+
+| Score | Recency (dagen sinds laatste bestelling) | Frequency (bestellingen in 12 maanden) | Monetary (omzet in 12 maanden) |
+| --- | --- | --- | --- |
+| 3 | Tot 90 dagen | 6 of meer | Bovenste derde van je klanten |
+| 2 | 91 tot 365 dagen | 2 tot 5 | Middelste derde |
+| 1 | Meer dan 365 dagen | 0 of 1 | Onderste derde |
+
+Maak van de scores vier segmenten met eenvoudige regels, in deze volgorde gecontroleerd:
+
+- **Afgehaakt:** recency 1. Een jaar niets; beslis eenmalig of je ze terugwint of laat gaan.
+- **Risico:** recency 2 en frequency 2 of 3. Ze bestelden vroeger regelmatig en zijn stil geworden; bel ze eerst.
+- **Eenmalige kopers:** frequency 1 en recency 2 of 3. Ze bestelden eenmaal in het afgelopen jaar; zorg dat de tweede bestelling komt.
+- **Vaste klanten:** recency 3 en frequency 2 of 3. Houd ze tevreden en vraag om verwijzingen.
+
+Elke combinatie van scores komt in precies één van de vier terecht.
+
+Sorteer binnen elk segment op de monetary-score, zodat je de waardevolste klanten eerst belt.
+
+RFM past bij bedrijven waar klanten opnieuw bestellen: groothandel, verbruiksartikelen, verlengingen, retainers. Het past niet bij een bedrijf dat om de paar jaar één groot project verkoopt, omdat frequency daar voor bijna iedereen 1 is. Gebruik daar ABC op omzet en een notitie over behoeften en potentieel.
+
+## Hoe segmenteer je klanten in vijf stappen?
+
+1. **Schrijf het doel in één zin.** Bijvoorbeeld: "bepalen wie elk kwartaal een telefoontje krijgt". Een doel vertelt je welke grondslag je gebruikt.
+2. **Kies een of twee grondslagen** uit de tabel hierboven en som drie tot vijf segmenten op met per segment een schriftelijke regel.
+3. **Zet de gegevens in velden.** Een segment dat je niet uit een veld kunt lezen, kan een collega niet filteren, in een grafiek zetten of controleren.
+4. **Wijs elke klant toe en controleer er tien met de hand.** Ben je het bij drie van de tien oneens met het resultaat, dan moet de regel beter.
+5. **Koppel één actie en één eigenaar aan elk segment en zet een evaluatiedatum.** Een evaluatie per kwartaal is voor de meeste kleine teams genoeg.
+
+Segmenten scherpen ook de rest van je verkoopwerk aan. Het doelprofiel dat je gebruikt om een lead te kwalificeren (zie [prospect versus lead](/blog/prospect-vs-lead)) is een opgeschreven segment: de klanten waarvan je er meer wilt. En een [customer journey](/blog/customer-journey)-map werkt het best voor één segment tegelijk, omdat de touchpoints van een bureau met tien mensen en van een producent met 300 mensen verschillen.
+
+## Hoe zet je klantsegmentatie op in Customermates?
+
+Customermates is ons eigen product, een open source CRM. Het bewaart je klanten, de mensen die er werken en hun deals op dezelfde records (en, bij abonnementen met de gezamenlijke inbox, hun berichten), en de velden, filters, opgeslagen weergaven, het bord en de dashboardgrafieken zijn genoeg om de segmenten hierboven te draaien. Het wijst zelf geen segmenten toe: jij stelt de waarde in, met de regel die je hebt opgeschreven.
+
+Een segment loont als iemand erop handelt: de key account krijgt het telefoontje, de slapende klant de check-in. Omdat het segment op het record naast de gesprekken staat, heeft de opvolging van elk segment een plek om te gebeuren. In Customermates Cloud vanaf Pro koppel je LinkedIn en e-mail, en Mate of je eigen AI-agent schrijft de check-in als concept voor elke klant van wie de volgende stap aan de beurt is, zodat jij die kunt nalezen en versturen.
+
+<Steps>
+  <Step title="Voeg de segmentvelden toe aan Organisaties">Open in **Datamodel** de lijst met je klantbedrijven, meestal Organisaties, kies **Toevoegen** en daarna **Veld**, en maak een veld **Enkele keuze** "Segment" met je opties (bijvoorbeeld Key account, Kern, Klein, Nieuw, Slapend). Voeg "Branche" en "Grootte" (1 tot 10, 11 tot 50, 51 tot 250, meer dan 250 medewerkers) ook toe als velden **Enkele keuze**, zodat grafieken erop kunnen groeperen. Voor RFM of ABC voeg je een veld **Geldbedrag** "Omzet 12 maanden" en een veld **Datum** "Laatste bestelling" toe. Er zijn geen recordtags; een veld **Meerkeuze** is het equivalent als een bedrijf bij meerdere groepen hoort. Een nieuwe werkruimte begint zonder lijsten; in Customermates Cloud kan de AI-inrichting ze voor je aanmaken.</Step>
+  <Step title="Vul de velden">Klik in de tabel op een waarde om die ter plekke te wijzigen. Staan je klanten in een spreadsheet, voeg dan een kolom Segment toe en haal het bestand binnen met **Toevoegen uit bestand** (Excel of csv): de wizard koppelt kolommen en laat je nieuwe of bestaande records kiezen. Een berekend veld kan de dealwaarde optellen die aan een organisatie is gekoppeld als je omzet wilt laten berekenen; controleer of het voorbeeld laat zien wat jij als omzet telt. De [gids over records](/docs/app-records) beschrijft velden, import en weergaven.</Step>
+  <Step title="Sla een weergave per segment op">Open **Filters**, kies Segment is Key account, sorteer op Omzet 12 maanden of Laatste bestelling en gebruik **Opslaan als weergave**. Filters worden gecombineerd met EN, dus "Key account en Branche Productie" werkt; voor "Key account of Kern" selecteer je beide waarden in hetzelfde Segment-filter. Bij Contactpersonen toont het filtermenu ook de velden van gekoppelde lijsten, zodat je mensen kunt filteren op het Segment van hun organisatie. Deel de weergave met het hele team of met geselecteerde rollen, zodat iedereen vanuit hetzelfde segment werkt; de link van een privéweergave opent als niet-opgeslagen wijzigingen die een collega als eigen weergave kan opslaan.</Step>
+  <Step title="Open het bord per segment">Kies onder **Weergave** de optie **Bord** en groepeer op Segment. Elk segment wordt een kolom, en een kaart slepen verplaatst het bedrijf naar een ander segment. Een bord groepeert op een keuzeveld van de eigen lijst, dus houd Segment op Organisaties en open het bord daar.</Step>
+  <Step title="Zet de segmenten in grafieken op het dashboard">Voeg grafiekwidgets toe: een **Donut** die Organisaties telt per Segment, een **Staafdiagram** van Organisaties per Branche, en een grafiek met Deals als bron die de dealwaarde optelt, gegroepeerd op het Segment van de organisatie. Een deal die aan twee organisaties is gekoppeld, telt volledig mee in beide groepen. Zet ze op een benoemde dashboardweergave en deel die met het team, of gebruik **Delen als sjabloon** zodat collega's met een eigen kopie beginnen. De [functiepagina over rapportage](/features/reporting) noemt de grafiekstijlen en de [dashboardgids](/docs/app-dashboard) de widgeteditor.</Step>
+</Steps>
+
+Grafieken tonen waar elk segment vandaag staat. Ze volgen niet hoe klanten in de loop van de tijd tussen segmenten bewegen. Mensen en hun deals blijven op dezelfde [records van contactpersonen en organisaties](/features/contact-management), zodat het segment zichtbaar is waar je ook werkt.
+
+In Customermates Cloud kan de assistent Mate je datakwaliteit controleren met gehoste AI-tegoeden:
+
+> Toon me elke organisatie zonder Segment, met haar Omzet 12 maanden, hoogste eerst. Wijzig niets.
+
+Heb je liever Claude, ChatGPT of een andere AI-client, dan geeft de [MCP-server](/blog/what-is-an-mcp-server) die toegang tot dezelfde records met je eigen AI-aanbieder.
+
+Wil je het proberen op je eigen klantenlijst, [start je proefperiode](/auth/signup?job=followup): [[commercial.trial.days]] dagen Pro zonder creditcard. Importeer de spreadsheet, voeg het veld Segment toe en stel de eerste volgende stap in.
+
+<AcquisitionCallout title="Wat Customermates niet doet voor klantsegmentatie" variant="boundary">
+  Geen automatische segmentatie of clustering: segmenten zijn waarden die je met de hand, via import of via de API instelt. Geen leadscoring en geen gegevensverrijking, dus het beoordeelt klanten niet en vult branche en grootte niet voor je in. Geen e-mailcampagnes, sequenties of massamailing: outreach is één geschreven bericht tegelijk. Een gedeelde weergave is voor collega's alleen-lezen en filters worden alleen met EN gecombineerd. Heb je segmenten nodig die zichzelf bijwerken op basis van website- of productgedrag, gesegmenteerde e-mailcampagnes of statistische clustering over duizenden consumentenklanten, gebruik dan een platform voor marketingautomatisering of een analysetool. Customermates past bij een klein B2B-team met een paar honderd klanten, een handvol segmenten en notities, deals en contactpersonen op hetzelfde record.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Wat is klantsegmentatie in eenvoudige woorden?">
+Je klanten indelen in groepen die iets nuttigs delen, zoals branche, grootte, regio, koopgedrag of omzet, zodat elke groep het aanbod, het contactritme en de aandacht krijgt die bij haar past. Een klantsegment is een van die groepen.
+</FaqItem>
+
+<FaqItem question="Wat zijn de vier soorten klantsegmentatie?">
+Demografisch, geografisch, psychografisch en gedragsmatig is de gebruikelijke lijst voor consumenten. In B2B wordt demografisch firmografisch (branche, bedrijfsgrootte, locatie), en psychografisch wordt vaak vervangen door behoeften en waarde, omdat de levensstijl van een bedrijf zelden zichtbaar is. Kies er om te beginnen een of twee.
+</FaqItem>
+
+<FaqItem question="Wat is een voorbeeld van een klantsegment?">
+"Producenten met 50 tot 250 medewerkers", "klanten die de afgelopen 90 dagen bestelden" en "de drie klanten die 70 procent van de omzet brengen" zijn allemaal segmenten. Elk wordt bepaald door een regel die je in een veld kunt controleren, en elk krijgt een andere actie.
+</FaqItem>
+
+<FaqItem question="Wat zijn de vijf klantsegmenten?">
+Er is geen standaard van vijf. Een werkbare set voor een klein B2B-team is Slapend, Nieuw, Key accounts, Kern en Klein, met schriftelijke regels die in die volgorde worden gecontroleerd. Het aantal segmenten moet volgen uit je criteria en de acties die je kunt ondernemen, niet uit een sjabloon.
+</FaqItem>
+
+<FaqItem question="Wat is een klantsegmentatiemodel?">
+De criteria waarop je segmenteert plus de regel die elke klant aan één segment toewijst, bijvoorbeeld "ABC-klasse op omzet in de laatste 12 maanden" of RFM-banden. Modellen variëren van een paar schriftelijke regels tot statistische clustering; kleine teams hebben meestal alleen de regels nodig.
+</FaqItem>
+
+<FaqItem question="Hoeveel klantsegmenten moet een klein bedrijf hebben?">
+Drie tot vijf. Elk segment heeft een actie en een eigenaar nodig, en een team van een paar mensen kan geen twaalf verschillende behandelingen uitvoeren. Voeg segmenten samen die je op dezelfde manier zou behandelen.
+</FaqItem>
+
+<FaqItem question="Kan Customermates klanten automatisch segmenteren?">
+Nee. Customermates heeft geen automatische segmentatie, geen leadscoring of gegevensverrijking en geen e-mailcampagnes. Je stelt een veld Segment met de hand, via import of via de API in, en de filters, opgeslagen weergaven, het bord en de dashboardgrafieken werken daarvandaan.
+</FaqItem>
+</Faq>
+
+Feiten van derden gecontroleerd op 3 november 2026 bij de [pagina van Bain & Company over managementtools voor klantsegmentatie](https://www.bain.com/insights/management-tools-customer-segmentation/), de Wikipedia-artikelen over [marktsegmentatie](https://en.wikipedia.org/wiki/Market_segmentation), het [principe van Pareto](https://en.wikipedia.org/wiki/Pareto_principle), [ABC-analyse](https://en.wikipedia.org/wiki/ABC_analysis) en [RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29). Het beschreven gedrag van Customermates komt uit de productdocumentatie over [records en weergaven](/docs/app-records), [filters](/docs/filter-syntax) en [dashboards](/docs/app-dashboard).

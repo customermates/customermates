@@ -1,0 +1,188 @@
+---
+title: "Calendly CRM koppeling: native, Zapier of webhooks"
+description: "Calendly CRM koppeling: native met HubSpot, Salesforce en Dynamics 365; andere CRM's via marktplaats-app, Zapier of webhooks. Abonnementen en veldmapping."
+
+relatedHrefs:
+  - /features/integrations
+  - /docs/n8n
+  - /docs/app-routines
+  - /blog/gmail-crm-integration
+
+hero:
+  title: "Calendly CRM koppeling: native CRM's en hoe je de rest aansluit"
+  description: "Wat de koppelingen van Calendly met HubSpot, Salesforce en Dynamics 365 doen en welk Calendly-abonnement elk vraagt, hoe je elk ander CRM koppelt en hoe je verplaatsingen, terugkerende boekers en no-shows afhandelt."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Terug naar blog
+  by: door Benjamin Wagner
+  date: 2025-12-10
+  updated: 2026-10-08
+  tags:
+    - CRM-automatisering
+    - Calendly-koppeling
+    - Salesefficiëntie
+---
+
+# Calendly CRM koppeling: native CRM's en hoe je de rest aansluit
+
+Een Calendly CRM koppeling is native beschikbaar voor drie CRM's: HubSpot vanaf het abonnement Standard, Salesforce op Teams of Enterprise en Microsoft Dynamics 365 met Power Automate op Enterprise. Elk ander CRM koppel je via een app in de marktplaats van dat CRM, via een connectorplatform zoals Zapier of Zoho Flow, of via de webhooks van Calendly. Webhooks vragen een betaald Calendly-abonnement en je maakt ze aan via de API van Calendly, niet in de instellingen.
+
+Welke route je ook neemt, bepaal voordat je bouwt wat één boeking in het CRM moet aanmaken en wat een verplaatsing moet wijzigen. De verplaatsing gaat het makkelijkst mis, omdat Calendly die meldt als een annulering plus een nieuwe boeking.
+
+Customermates, een AI-native CRM, publiceert deze gids. Customermates heeft geen eigen Calendly-connector; de sectie hieronder laat de drie routes zien die in plaats daarvan werken. De gegevens van de aanbieders zijn op 8 oktober 2026 gecontroleerd op hun eigen pagina's, die aan het eind staan.
+
+<ArticleSummary title="In het kort">
+  <SummaryItem label="Native">HubSpot, Salesforce en Microsoft Dynamics 365, elk gekoppeld aan een specifiek Calendly-abonnement.</SummaryItem>
+  <SummaryItem label="Elk ander CRM">Een app in de marktplaats, een connectorplatform zoals Zapier, Zoho Flow of n8n, of je eigen webhookontvanger.</SummaryItem>
+  <SummaryItem label="Webhooks">Niet op het Free-abonnement van Calendly, en aangemaakt via de API. De kerngebeurtenissen zijn invitee.created, invitee.canceled en routing_form_submission.created.</SummaryItem>
+  <SummaryItem label="Grootste valkuil">Een verplaatsing activeert een annulering en een nieuwe boeking. Controleer de vlag voor verplaatsing voordat je een deal als geannuleerd sluit.</SummaryItem>
+  <SummaryItem label="Customermates">REST-API in elk abonnement, webhooks in elk betaald abonnement. Bij Pro en hoger in Customermates Cloud komt de geboekte afspraak ook binnen via de gekoppelde Google- of Outlook-agenda van de host.</SummaryItem>
+</ArticleSummary>
+
+## Wat de native CRM-koppelingen van Calendly doen
+
+| CRM | Calendly-abonnement | Wat het doet, volgens Calendly |
+|---|---|---|
+| HubSpot | Standard, Teams of Enterprise | Maakt contactpersonen en leads aan of werkt ze bij wanneer een afspraak wordt geboekt, registreert activiteiten, ook verplaatsingen en annuleringen, en voegt antwoorden op boekingsvragen toe aan het HubSpot-record. Teams voegt routering op basis van HubSpot-toewijzing toe. |
+| Salesforce | Teams of Enterprise | Maakt een lead, contactpersoon of opportunity aan voor een nieuwe prospect, maakt afspraken of taken aan op elk Salesforce-object, koppelt boekingsgegevens aan een eigen object en routeert bekende leads naar hun Salesforce-eigenaar. Enterprise kan de synchronisatie beperken tot bepaalde groepen, zoals het salesteam. |
+| Microsoft Dynamics 365 | Enterprise | Vermeld op de prijzenpagina als "Microsoft Dynamics 365 and Power Automate for CRM workflows". Calendly geeft daar geen verdere details. |
+
+Twee details tellen bij je keuze. De HubSpot-pagina van Calendly spreekt over contactpersonen, leads, activiteiten en routering en zegt niets over deals. Moet elke boeking een deal in HubSpot openen, test dat dan voordat je erop vertrouwt. Beide pagina's beschrijven ook dat samenvattingen van afspraken uit Calendly Notetaker in het record worden gelogd, wat alleen geldt voor afspraken die daarmee zijn opgenomen.
+
+Staat je CRM op deze lijst en komt je Calendly-abonnement in aanmerking, begin dan met de native koppeling. Er hoeft niets extra te draaien en Calendly onderhoudt hem.
+
+## Calendly koppelen met een CRM dat Calendly niet native ondersteunt
+
+Een Calendly integratie met een CRM dat niet native wordt ondersteund, zoals Pipedrive of Freshworks, eindigt bij een van vier routes:
+
+| Route | Voorbeeld | Kies hem als | Let op |
+|---|---|---|---|
+| App in de marktplaats van het CRM | De Pipedrive Marketplace noemt Calendly Sync van Outfunnel, die contactpersonen, leads, deals, activiteiten of notities aanmaakt. De Freshworks Marketplace noemt Calendly Events for CRM. | Er bestaat een app voor je CRM en die dekt wat je nodig hebt | Apps van derden hebben eigen voorwaarden. De Freshworks-app werkt andersom: hij plant, verplaatst en annuleert Calendly-afspraken vanuit het CRM. |
+| Connectorplatform | De Zapier-trigger "Invitee Created or Rescheduled", of Zoho Flow van "Event scheduled by invitee" naar "Create or update contact" in Zoho CRM | Niemand in het team schrijft code en je CRM heeft een connector op het platform | Nog een account om te betalen en te bewaken. Controleer hoe de trigger met verplaatsingen omgaat. |
+| Webhooks naar n8n of je eigen code | De Calendly Trigger-node van n8n, met de gebeurtenissen "Event created" en "Event canceled" | Je hebt opzoekacties en vertakkingen nodig, of je CRM heeft nergens een connector | Iemand moet het laten draaien en bewaken. n8n kun je zelf hosten of gebruiken als n8n Cloud. |
+| AI-client met twee MCP-connectors | De MCP-server van Calendly in Claude of ChatGPT, naast de connector van je CRM | Je beoordeelt boekingen in batches en wilt elke schrijfactie bevestigen | Het draait wanneer iemand het vraagt. Het is geen synchronisatie. |
+
+De lange staart van CRM's (Keap, Agile CRM, LeadConnector, Pipeline CRM en vele andere) valt meestal onder de eerste twee rijen. Zoek eerst in de eigen marktplaats van het CRM, en daarna op de Calendly-pagina van Zapier.
+
+## Wat één boeking moet aanmaken
+
+De API van Calendly geeft je de naam, het e-mailadres en de antwoorden op eigen vragen van de genodigde, plus het afspraaktype, de host en de starttijd. Leg ze vast voordat je iets bouwt:
+
+| Calendly-gegevens | Waar het in het CRM komt | Waarom |
+|---|---|---|
+| E-mailadres van de genodigde | E-mailadres van de contactpersoon, als zoeksleutel | Terugkerende boekers moeten hun bestaande contactpersoon vinden |
+| Naam van de genodigde | Voor- en achternaam van de contactpersoon | De meeste CRM's bewaren die als twee velden |
+| Vraag "Bedrijf" | Organisatie, gevonden of aangemaakt | De contactpersoon en de deal staan dan onder het account |
+| Andere vragen met vaste keuzes | Een keuzeveld op de deal | Je kunt er later op filteren en groeperen |
+| Antwoorden in vrije tekst | De notities van de deal | Vrije tekst in een keuzeveld breekt het filteren |
+| Afspraaktype | Dealnaam en een veld voor de leadbron | Laat zien welke boekingspagina deals oplevert |
+| Host | Eigenaar van de deal of toegewezen gebruiker | Round-robinboekingen komen bij de juiste persoon terecht |
+| Starttijd | Een datumveld op de deal | Laat je aankomende gesprekken sorteren in een lijstweergave |
+| Link naar de genodigde of afspraak in Calendly | Een tekstveld op de deal | Laat een latere annulering de juiste deal vinden |
+
+De laatste rij is de rij die mensen overslaan, en het is de rij die de annuleringsstap nodig heeft.
+
+## Verplaatsingen, terugkerende boekers en no-shows
+
+- **Verplaatsingen.** Wanneer een genodigde een afspraak verplaatst, activeert Calendly invitee.canceled voor de oude tijd en invitee.created voor de nieuwe. De annulering draagt `rescheduled: true`, en de nieuwe boeking verwijst terug naar de oude via `old_invitee`. Een workflow die de vlag negeert, markeert de deal als geannuleerd en opent dan een tweede.
+- **Terugkerende boekers.** Zoek in het CRM op het e-mailadres voordat je een contactpersoon aanmaakt, en zet het eerst om naar kleine letters. Mensen typen hun adres van boeking tot boeking anders.
+- **No-shows.** Zapier biedt de Calendly-trigger "Invitee No Show Created". Het webhookoverzicht van Calendly noemt alleen boekingen, annuleringen en inzendingen van routeringsformulieren, dus als je op webhooks bouwt, plan dan in dat je no-shows met de hand markeert. De deal naar een no-showfase verplaatsen is beter dan gokken op basis van een timer.
+- **Routeringsformulieren.** routing_form_submission.created gaat af wanneer iemand een routeringsformulier verstuurt, ook als er geen afspraak wordt geboekt. Gebruik het om mensen vast te leggen die zich kwalificeerden maar nooit een tijd kozen. Het abonnement moet het bereik van de organisatie gebruiken.
+
+## Waar past Customermates
+
+Customermates is een open-source, AI-native CRM voor kleine teams met direct klantcontact, zoals adviesbureaus en bureaus. Het heeft geen Calendly-connector, dus boekingen komen binnen via een van drie routes.
+
+### Route 1: Calendly-webhooks naar de REST-API
+
+Dit werkt in elk Customermates-abonnement en op een zelf gehoste installatie. Je hebt een Calendly-abonnement met webhooks nodig en een plek om de workflow te draaien. Het voorbeeld gebruikt n8n, dat apart draait en geen onderdeel is van Customermates.
+
+<Steps>
+<Step title="Maak een API-sleutel aan">
+Open in Customermates **Instellingen › API-sleutels & connectoren**, klik op **Toevoegen** en kies **Standaard API-sleutel**. De sleutel werkt met jouw rechten. Bewaar hem in n8n als Header Auth-credential met de headernaam `x-api-key`. Zie [API-sleutels](/docs/api-keys).
+</Step>
+<Step title="Bereid de dealvelden voor">
+Open Deals in het **Datamodel** en voeg een optie "Gesprek ingepland" en een optie "Geannuleerd" toe aan het veld **Fase**, dat een veld van het type **Enkele keuze** is. Voeg een veld **Datum en tijd** "Afspraak" toe, een veld **Enkele keuze** "Leadbron" met één optie per afspraaktype en een veld **Tekst** "Calendly-boeking". `POST /api/v1/model/discover` vindt de type-ID's van Contactpersonen en Deals, en `POST /api/v1/model/read` geeft de schemarevisie en de ID's van velden, opties en relaties die de API verwacht. Die ID's blijven geldig wanneer iemand een lijst of veld hernoemt.
+</Step>
+<Step title="Ontvang de boeking">
+Voeg de Calendly Trigger van n8n toe met "Event created" en "Event canceled". Of gebruik een Webhook-node en meld de URL daarvan aan via de API van Calendly.
+</Step>
+<Step title="Zoek of maak de contactpersoon aan">
+Stuur `POST /api/v1/records/identities/resolve` met het e-mailadres van de genodigde als `mail`-identifier; dat geeft alleen exacte treffers terug. Is er geen, stuur dan `POST /api/v1/records/mutate` met een `create`-mutatie voor Contactpersonen: voor- en achternaam als getypeerde veldwaarden en `identities: [{ "provider": "mail", "value": "<email>" }]`.
+</Step>
+<Step title="Maak de deal aan">
+Stuur een `create`-mutatie voor Deals naar `POST /api/v1/records/mutate`, met een naam zoals "Anna Weber, kennismakingsgesprek", de Customermates-gebruikers-ID van de host in `assignedUserIds` en getypeerde waarden voor fase, afspraaktijd, leadbron en de Calendly-link. Koppel de contactpersoon via de relatie-ID uit `model/read`. Antwoorden in vrije tekst gaan naar de notities van de deal, een veld met opgemaakte tekst: voeg ze toe met een `update`-mutatie waarvan het veldelement `{ fieldId, append }` Markdown accepteert. Gebruik de Calendly-afspraak-ID in de `idempotencyKey` en koppel e-mailadressen van hosts één keer aan gebruikers-ID's, in de workflow.
+</Step>
+<Step title="Verwerk de annulering">
+Zoek bij invitee.canceled de deal op via zijn waarde "Calendly-boeking" met `POST /api/v1/records/query` en een `eq`-filter (zie [filtersyntaxis](/docs/filter-syntax)). Als `rescheduled` true is, werk dan "Afspraak" bij vanuit de nieuwe boeking. Als het false is, stuur dan een `update`-mutatie met de recordverwijzing en de huidige versie van de deal die de fase op "Geannuleerd" zet.
+</Step>
+</Steps>
+
+Customermates blokkeert geen tweede contactpersoon met hetzelfde adres, omdat één e-mailadres bij meerdere records kan horen. Zoek het e-mailadres op voor elke aanmaak en bewaar de Calendly-afspraak-ID als idempotentiesleutel, zodat een herhaalde levering het eerste resultaat teruggeeft in plaats van een tweede record aan te maken. De [n8n-gids](/docs/n8n) noemt elk endpoint en de regels voor koppelingen en herhalingen.
+
+### Route 2: de agenda, bij Pro en hoger in Customermates Cloud
+
+Staat Calendly ingesteld om **Calendar Invitations** te versturen, dan maakt de Google- of Outlook-agenda van de host de afspraak aan en voegt hij de genodigde toe als gast. Koppel diezelfde account in Customermates onder **Instellingen › Kanalen & agenda's** met **Kanaal koppelen**, en de afspraak komt binnen zonder workflowtool. Agenda-afspraken verschijnen in een [activiteitentijdlijn](/docs/app-dashboard), en op het record van een contactpersoon van wie het e-mailadres overeenkomt met een gast. Customermates leest de agenda alleen. Het boekt of wijzigt nooit afspraken.
+
+Om boekingen om te zetten in records kan een routine de agenda doorzoeken. Routines draaien alleen in Customermates Cloud en gebruiken gehoste AI-credits uit het maandtegoed van de eigenaar. Kies **Volgens schema**, stel **Herhaalt** in op **Elk uur** en geef haar instructies zoals deze:
+
+> Bekijk mijn agenda-afspraken die in de komende 14 dagen beginnen. Zoek bij elke afspraak met een gast van wie het e-mailadres niet eindigt op @ourfirm.com de contactpersoon op dat e-mailadres, of maak er een aan met de naam en het e-mailadres van de gast. Heeft die contactpersoon geen deal in de fase "Gesprek ingepland", maak er dan een aan met de naam "[naam gast], kennismakingsgesprek", zet "Afspraak" op het begin van de afspraak en wijs hem aan mij toe. Kopieer de beschrijving van de afspraak naar de notities van de deal. Verstuur geen e-mail of bericht. Som op wat je hebt aangemaakt.
+
+De laatste twee zinnen doen ertoe. Een routine draait als haar eigenaar, met de kanalen van de eigenaar, en mag berichten versturen zonder te vragen, tenzij haar instructies anders zeggen. Er is ook een gebeurtenistrigger voor agendawijzigingen, **Agenda-afspraak gewijzigd**. Die gaat af bij elke wijziging in de gekoppelde agenda, en afspraken die kort na de start van een run binnenkomen, worden genegeerd, dus een schema is de veiligere keuze voor boekingen. [Routines](/docs/app-routines) noemt de huidige limieten.
+
+### Route 3: je eigen AI-client
+
+Calendly draait een MCP-server op `https://mcp.calendly.com/` met tools die geplande afspraken en hun genodigden opsommen. Calendly zegt dat er geen betaald abonnement nodig is om hem te koppelen, hoewel sommige acties van je abonnement afhangen. Voeg hem toe aan Claude of ChatGPT naast de [Customermates-connector](/docs/connect-custom-connector) en vraag dan: "Som de Calendly-afspraken op die sinds maandag zijn geboekt, met hun genodigden. Zoek of maak elke genodigde aan als contactpersoon in Customermates en maak een deal aan in de fase Gesprek ingepland." De Customermates-kant werkt in elk abonnement en op zelf gehoste installaties, en gebruikt je eigen AI-aanbieder in plaats van gehoste credits. Customermates voert uit wat de client aanroept, dus stel goedkeuringen voor schrijftools in je AI-client in.
+
+### Wat het kost voor een team van drie
+
+- **Webhookroute op Starter:** [[commercial.price.starter.monthly.seats.3]] per maand voor Customermates, plus een Calendly-abonnement met webhooks en de plek waar n8n draait.
+- **Agendaroute op Pro:** [[commercial.price.pro.monthly.seats.3]] per maand. Daarin zitten de [gecombineerde inbox](/features/unified-inbox) en [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per gebruiker. Routineruns putten uit de maandelijkse gehoste AI-credits per actieve gebruiker; zie [prijzen](/pricing).
+
+Een boeking is waar opvolging begint. Met de agendaroute op Pro kan een routine die je zelf instelt de geboekte afspraak bij het klantrecord zetten, naast de e-mail- en LinkedIn-gesprekken, en kan Mate de bevestiging of de voorbereidingsnotitie opstellen die jij bekijkt en verstuurt, met de volgende stap gedateerd op de deal. Wil je het met je eigen Calendly-boekingen proberen, [start dan je proefperiode van [[commercial.trial.days]] dagen](/auth/signup?job=followup). Geen creditcard nodig.
+
+<AcquisitionCallout title="Waar Customermates niet de juiste keuze is" variant="boundary">
+Er is geen Calendly-connector, dus elke route vraagt een workflow die je zelf draait of de agenda plus een routine. Bij Pro is de Gmail- of Outlook-mailbox het [[commercial.entitlement.pro.includedAccountsPerUser]] inbegrepen gekoppelde account van de gebruiker; Business bevat er [[commercial.entitlement.business.includedAccountsPerUser]]. Taken hebben geen einddatum of herinnering, dus zet de opvolgdatum in een datumveld op de deal. Customermates doet geen leadscoring; bewaar antwoorden uit routeringsformulieren in keuzevelden en filter erop. Een zelf gehoste installatie heeft REST, webhooks en MCP, maar geen agenda, inbox, Mate of routines. Wil je dat Calendly op het moment van boeken de host kiest op basis van de CRM-eigenaar, dan is dat een Calendly-functie voor HubSpot en Salesforce.
+</AcquisitionCallout>
+
+## Test voordat je het vertrouwt
+
+Draai deze zes boekingen tegen een test-afspraaktype voordat je de koppeling echt inschakelt:
+
+1. Een nieuwe genodigde. De contactpersoon, de deal en elk gekoppeld veld komen binnen.
+2. Dezelfde genodigde nog een keer, met het e-mailadres in hoofdletters getypt. Er verschijnt geen tweede contactpersoon.
+3. Een verplaatsing. De afspraaktijd van de deal verschuift en de fase verandert niet naar geannuleerd.
+4. Een echte annulering. De fase verandert en er wordt niets anders aangemaakt.
+5. Een boeking met een optionele vraag die leeg blijft. De workflow voltooit nog steeds.
+6. Een no-show, als je no-shows via Zapier bijhoudt.
+
+## Veelgestelde vragen
+
+<Faq>
+<FaqItem question="Heeft Calendly een CRM?">
+Nee. Calendly is een planningsplatform. Het bewaart contactpersonen van de mensen die je ontmoet (Zapier noemt contacttriggers die een betaald Calendly-abonnement vragen), maar het heeft geen pipeline. De CRM-koppelingen sturen boekingen naar HubSpot, Salesforce en Dynamics 365, waar fases en dealrapportage zitten.
+</FaqItem>
+
+<FaqItem question="Werkt Calendly met Salesforce en HubSpot?">
+Ja, native. De HubSpot-koppeling is beschikbaar in de abonnementen Standard, Teams en Enterprise van Calendly en maakt contactpersonen of leads aan en registreert activiteiten. De Salesforce-koppeling vraagt Teams of Enterprise en kan een lead, contactpersoon of opportunity aanmaken, plus afspraken of taken op elk Salesforce-object.
+</FaqItem>
+
+<FaqItem question="Welk Calendly-abonnement heb ik nodig voor een CRM-koppeling?">
+Niet Free. HubSpot en webhooks beginnen bij Standard, Salesforce vraagt Teams of Enterprise en Microsoft Dynamics 365 staat vermeld voor Enterprise. De MCP-server van Calendly voor AI-clients is de uitzondering: volgens Calendly is daarvoor geen betaald abonnement nodig, hoewel sommige acties van het abonnement afhangen.
+</FaqItem>
+
+<FaqItem question="Hoe koppel ik Calendly aan Pipedrive, Freshworks of een ander CRM?">
+Zoek eerst in de eigen marktplaats van het CRM. Pipedrive noemt Calendly Sync van Outfunnel en de Freshworks Marketplace noemt Calendly Events for CRM. Past niets, gebruik dan een connectorplatform zoals Zapier of Zoho Flow, of richt de webhooks van Calendly op n8n of je eigen code en roep de API van het CRM aan.
+</FaqItem>
+
+<FaqItem question="Hoe moet een verplaatste Calendly-afspraak het CRM bijwerken?">
+Calendly stuurt een annulering voor de oude tijd en een nieuwe boeking voor de nieuwe. De annulering draagt rescheduled met de waarde true. Werk in dat geval de afspraaktijd op de bestaande deal bij, en wijzig de fase alleen wanneer de vlag false is.
+</FaqItem>
+
+<FaqItem question="Heeft Customermates een koppeling met Calendly?">
+Niet met een native connector. Boekingen bereiken Customermates via Calendly-webhooks en de REST-API in elk abonnement, via de gekoppelde Google- of Outlook-agenda van de host bij Pro en hoger in Customermates Cloud, of via een AI-client met zowel de MCP-connector van Calendly als die van Customermates. Customermates boekt geen afspraken en schrijft geen agenda-afspraken.
+</FaqItem>
+</Faq>
+
+Verificatie van de gegevens van de aanbieders op 8 oktober 2026 bij de [prijzen](https://calendly.com/pricing), de [HubSpot-koppeling](https://calendly.com/integration/hubspot), de [Salesforce-koppeling](https://calendly.com/integration/salesforce), het [webhookoverzicht](https://calendly.com/help/webhooks-overview), de [payloads bij verplaatsing](https://developer.calendly.com/see-how-webhook-payloads-change-when-invitees-reschedule-events), de [webhookabonnementen](https://developer.calendly.com/receive-data-from-scheduled-events-in-real-time-with-webhook-subscriptions), de [planningsmeldingen](https://calendly.com/help/calendly-scheduling-notifications), de [gids voor AI-tools](https://calendly.com/help/connect-calendly-to-your-ai-tools) en de [MCP-tools](https://developer.calendly.com/docs/mcp/supported-tools) van Calendly, plus de [Pipedrive Marketplace](https://www.pipedrive.com/en/marketplace/app/calendly-sync/0356741bcb89ba03), [Freshworks](https://www.freshworks.com/apps/calendly_events_for_crm/), [Zoho Flow](https://www.zohoflow.com/apps/calendly/integrations/zoho-crm/), [Zapier](https://zapier.com/apps/calendly/integrations), de [Calendly Trigger van n8n](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.calendlytrigger/) en [n8n-hosting](https://docs.n8n.io/hosting/).
