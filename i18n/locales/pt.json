@@ -3593,12 +3593,12 @@
       "channel": "Canal",
       "connected": "Conectado",
       "currentChannels": "Canais conectados agora",
-      "currentSeats": "Assentos ativos agora",
+      "currentSeats": "Licenças ativas agora",
       "deactivated": "Desativado",
       "disconnected": "Desconectado",
       "peakAt": "Pico atingido",
       "peakChannels": "Pico de canais",
-      "seats": "Assentos"
+      "seats": "Licenças"
     },
     "coverage": {
       "channelsInexactTimes": "Alguns horários de conexão ou desconexão são estimados, então este pico pode diferir do número real.",
@@ -3606,11 +3606,11 @@
       "footnote": "* Histórico incompleto neste mês. Abra o espaço de trabalho em Espaços de trabalho para ver o motivo.",
       "incomplete": "Histórico incompleto",
       "seatsInexactTimes": "Alguns horários de ativação ou desativação são estimados, então esta contagem pode diferir do número real.",
-      "seatsRecordedFrom": "As alterações de assentos são registradas a partir de {date}. Ativações e desativações anteriores são reconstruídas ou estão ausentes, então esta contagem pode diferir do número real."
+      "seatsRecordedFrom": "As alterações de licenças são registradas a partir de {date}. Ativações e desativações anteriores são reconstruídas ou estão ausentes, então esta contagem pode diferir do número real."
     },
     "deleted": "Excluído em {date}",
     "deletedBeforeRecording": "Espaços de trabalho excluídos antes de {date} não estão incluídos; o histórico deles não foi registrado.",
-    "description": "Por mês-calendário em UTC. Cada usuário que esteve ativo em algum momento do mês conta como um assento durante o mês inteiro. Os canais são contados pelo maior número conectado ao mesmo tempo.",
+    "description": "Por mês-calendário em UTC. Cada usuário que esteve ativo em algum momento do mês conta como uma licença durante o mês inteiro. Os canais são contados pelo maior número conectado ao mesmo tempo.",
     "empty": "Nenhum espaço de trabalho existia neste mês.",
     "estimated": "Estimado",
     "export": "Arquivo CSV",
@@ -3619,7 +3619,7 @@
     "navigation": "Uso",
     "seats": {
       "none": "Nenhum usuário esteve ativo neste mês.",
-      "title": "Assentos"
+      "title": "Licenças"
     },
     "stillActive": "Ainda ativo",
     "stillConnected": "Ainda conectado",
@@ -3813,11 +3813,11 @@
   "PlanPause": {
     "banner": "{count, plural, one {# pessoa está pausada} other {# pessoas estão pausadas}}. Escolha {plan} para reativá-las.",
     "memberStatus": "Pausado (plano Free)",
-    "swapAction": "Transferir o assento ativo",
-    "swapConfirm": "Transferir assento",
-    "swapDescription": "O Free tem um assento ativo. {name} passa a ser a pessoa ativa e você fica em pausa até este espaço de trabalho escolher um plano. Nada é excluído.",
-    "swapNeedsAdmin": "No Free, só um administrador pode ficar com o assento ativo, para que alguém ainda possa escolher um plano. Dê primeiro a {name} a função de administrador e depois transfira o assento.",
-    "swapTitle": "Dar o assento ativo a {name}?"
+    "swapAction": "Transferir a licença ativa",
+    "swapConfirm": "Transferir licença",
+    "swapDescription": "O Free tem uma licença ativa. {name} passa a ser a pessoa ativa e você fica em pausa até este espaço de trabalho escolher um plano. Nada é excluído.",
+    "swapNeedsAdmin": "No Free, só um administrador pode ficar com a licença ativa, para que alguém ainda possa escolher um plano. Dê primeiro a {name} a função de administrador e depois transfira a licença.",
+    "swapTitle": "Dar a licença ativa a {name}?"
   },
   "PlanPausedCard": {
     "askAdmin": "Peça a um administrador deste espaço de trabalho que escolha {plan} para você voltar.",
@@ -3847,7 +3847,7 @@
     "membersReached": "O plano Free inclui {limit, plural, one {uma pessoa} other {# pessoas}}. Equipes começam no Starter.",
     "of": "{used} de {limit}",
     "paused": "{count, plural, one {# pessoa está pausada} other {# pessoas estão pausadas}}",
-    "pausedHelp": "Os dados e o histórico delas são mantidos. Escolha {plan} para reativá-las. A partir daí, elas voltam a contar como assentos.",
+    "pausedHelp": "Os dados e o histórico delas são mantidos. Escolha {plan} para reativá-las. A partir daí, elas voltam a contar como licenças.",
     "records": "Registros",
     "recordsApproaching": "{used} de {limit} registros usados. O plano Free bloqueia novos registros em {limit}.",
     "recordsReached": "Este espaço de trabalho atingiu o limite de {limit} registros do plano Free. Faça upgrade para adicionar mais ou mova para a lixeira os registros de que você não precisa mais.",
