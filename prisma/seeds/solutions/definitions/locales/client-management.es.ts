@@ -388,7 +388,7 @@ export const es: Strings = {
       ],
     },
     followUp: {
-      name: "Cada mañana, redactar seguimientos de las oportunidades con fecha de hoy",
+      name: "Borradores diarios para oportunidades con fecha de hoy",
       task: "Cada mañana de lunes a viernes, busca las oportunidades cuya Etapa sea Identificada, Oferta enviada o Cata / prueba y cuya Fecha del próximo paso sea hoy o anterior. Para cada una, lee su cliente, los contactos vinculados y la última conversación vinculada a la oportunidad. Si esa conversación ya termina en un borrador, déjala como está. Si no, guarda con save_message_draft un borrador de seguimiento breve en esa conversación: da las gracias por el último mensaje, nombra el Próximo paso en una frase y propón una hora concreta. Si no hay ninguna conversación vinculada, crea en su lugar una tarea normal «Hacer seguimiento a <nombre del contacto>» con vencimiento hoy para el Responsable de cuenta del cliente. No envíes nunca ningún mensaje, no modifiques la oportunidad e informa de las oportunidades y los borradores.",
       runs: [
         "He encontrado 3 oportunidades con el próximo paso para hoy y he guardado 3 borradores de seguimiento en la Bandeja de entrada, para Salvatierra, Meridiano y el Centro Médico Rey Jaime.",
@@ -618,7 +618,7 @@ export const es: Strings = {
     codex:
       "Limpia exportaciones e importaciones con un script, por ejemplo fusionando contactos duplicados como Tomás Beltrán, y escribe una nota con lo que ha cambiado.",
     followUp:
-      "De lunes a viernes a las 8:00, la rutina «Cada mañana, redactar seguimientos de las oportunidades con fecha de hoy» mira las oportunidades cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve por oportunidad en la Bandeja de entrada. Max lee cada borrador, lo edita y lo envía él mismo. La rutina nunca envía un mensaje ni borra nada.",
+      "De lunes a viernes a las 8:00, la rutina «Borradores diarios para oportunidades con fecha de hoy» mira las oportunidades cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve por oportunidad en la Bandeja de entrada. Max lee cada borrador, lo edita y lo envía él mismo. La rutina nunca envía un mensaje ni borra nada.",
   },
   notes: {
     halversonRenewal:

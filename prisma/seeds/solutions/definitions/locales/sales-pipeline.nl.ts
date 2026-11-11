@@ -513,7 +513,7 @@ export const nl: Strings = {
       ],
     },
     followUp: {
-      name: "Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor verkoopkansen van vandaag",
       task: "Zoek elke werkdagochtend open verkoopkansen (fase Nieuw, Gekwalificeerd, Behoefteanalyse, Offerte verstuurd of Onderhandeling) waarvan de Datum volgende stap vandaag of eerder is en die een gekoppeld e-mailgesprek hebben. Lees per verkoopkans de verkoopkans, de contactpersonen, de notities en de laatste berichten van het gekoppelde gesprek. Als het laatste bericht nog geen concept is, sla dan met save_message_draft één kort opvolgconcept op in dat gesprek, in de stijl van Max, dat verwijst naar het laatste onderwerp en één concrete volgende stap voorstelt. Sla verkoopkansen zonder gekoppeld e-mailgesprek over, evenals die waar al een concept ligt. Voeg een regel met datum “Opvolging voorbereid” toe aan de notities van de verkoopkans. Wijzig de fase, de producten, de waarde of de Datum volgende stap niet en verstuur nooit een bericht. Rapporteer de verkoopkansen en de concepten.",
       runs: [
         "3 opvolgconcepten gemaakt voor verkoopkansen die vandaag aan de beurt zijn: de adsorptiedroger bij Beekveld, de warmteterugwinning bij Roodenburg en de compressor bij Van Gestel. De concepten wachten in de Inbox op controle; er is niets verstuurd.",
@@ -730,7 +730,7 @@ export const nl: Strings = {
     codex:
       "Joost laat er scripts mee draaien, bijvoorbeeld om de bezoekerslijst van de beurs op te schonen voordat die wordt geïmporteerd.",
     followUp:
-      "De routine “Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn” draait op werkdagen om 8 uur. Ze zoekt open verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is, leest het gekoppelde gesprek en slaat per verkoopkans één kort opvolgconcept op. De concepten wachten in de Inbox: Max of de eigenaar van de verkoopkans leest ze, past ze aan en verstuurt ze. De routine verstuurt nooit iets en wijzigt nooit de fase, de waarde of een datum.",
+      "De routine “Dagelijkse opvolgconcepten voor verkoopkansen van vandaag” draait op werkdagen om 8 uur. Ze zoekt open verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is, leest het gekoppelde gesprek en slaat per verkoopkans één kort opvolgconcept op. De concepten wachten in de Inbox: Max of de eigenaar van de verkoopkans leest ze, past ze aan en verstuurt ze. De routine verstuurt nooit iets en wijzigt nooit de fase, de waarde of een datum.",
   },
   mateChatLog: {
     title: "Gesprek met Noordpoort vastleggen en de verkoopkans bijwerken",

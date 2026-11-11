@@ -310,7 +310,7 @@ export const es: Strings = {
       ],
     },
     dailyFollowUp: {
-      name: "Cada mañana, borradores de seguimiento de los pitches que vencen hoy",
+      name: "Borradores diarios para pitches que vencen hoy",
       task: "Cada mañana laborable, lee la lista Pitches con sus campos configurados Etapa, Siguiente paso, Fecha del siguiente paso, cliente y contactos. Toma los pitches cuya Etapa es Consulta, Briefing, Preparación del pitch, Propuesta enviada o Negociación y cuya Fecha del siguiente paso es hoy o anterior. Para cada uno, busca con las herramientas de mensajería el último hilo de correo con los contactos del pitch. Si el hilo todavía no tiene borrador de respuesta, guarda con save_message_draft un borrador corto que responda a la última pregunta del contacto o nombre el siguiente paso, escrito como lo escribiría Max. Si un pitch no tiene hilo de correo, crea una tarea normal «Hacer seguimiento: <nombre del pitch>» con vencimiento hoy para el responsable del pitch. Omite los hilos que ya tengan borrador y los pitches que ya tengan esa tarea. No envíes nunca un mensaje y no cambies nunca un pitch. Informa de los borradores y las tareas que hayas creado.",
       runs: [
         "Vencían dos pitches: he guardado un borrador de respuesta para la Fundación Escuelas del Pinar (calendario de la memoria anual) y un borrador de seguimiento para Montaraz Outdoor (presentación de la colección de primavera). Los dos esperan revisión en la Bandeja de entrada.",
@@ -684,7 +684,7 @@ export const es: Strings = {
     codex:
       "Ejecuta scripts contra el CRM: limpia contactos importados, fusiona duplicados y exporta las cifras para el informe mensual.",
     followUp:
-      "La rutina «Cada mañana, borradores de seguimiento de los pitches que vencen hoy» se ejecuta cada mañana laborable. Lee los pitches cuya fecha del siguiente paso es hoy o anterior, busca el último hilo de correo con sus contactos y guarda un borrador de respuesta corto si todavía no hay ninguno. Los borradores esperan en la Bandeja de entrada a que Max o Lucía los revisen y envíen; la rutina nunca envía nada y nunca cambia un pitch.",
+      "La rutina «Borradores diarios para pitches que vencen hoy» se ejecuta cada mañana laborable. Lee los pitches cuya fecha del siguiente paso es hoy o anterior, busca el último hilo de correo con sus contactos y guarda un borrador de respuesta corto si todavía no hay ninguno. Los borradores esperan en la Bandeja de entrada a que Max o Lucía los revisen y envíen; la rutina nunca envía nada y nunca cambia un pitch.",
   },
   mateOrchard: {
     title: "Tarea de llamada de presentación para Clínica Dental Los Frutales",

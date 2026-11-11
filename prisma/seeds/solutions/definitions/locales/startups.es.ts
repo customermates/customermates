@@ -337,7 +337,7 @@ export const es: Strings = {
       ],
     },
     dueFollowUps: {
-      name: "Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy",
+      name: "Borradores diarios para oportunidades que vencen hoy",
       task: "Cada día laborable por la mañana, busca las oportunidades abiertas cuya Fecha del próximo paso sea hoy o anterior y cuya Etapa sea Identificada, En conversación, Demo, Piloto o Decisión. Para cada una, lee la oportunidad con su empresa, contactos, notas y la última conversación vinculada. Si hay una conversación vinculada, guarda con save_message_draft un borrador de seguimiento breve que retome el hilo donde se quedó el último mensaje y proponga el próximo paso con una fecha; conserva un borrador existente en lugar de escribir un segundo. Si no hay conversación vinculada, crea una tarea «Seguimiento con <nombre del contacto>» con fecha límite hoy, vinculada a la oportunidad y al contacto, salvo que ya exista una tarea abierta para ello. No envíes nunca un mensaje ni cambies nunca la Etapa o la Fecha del próximo paso.",
       runs: [
         "Redacté dos seguimientos, para Envases del Duero y Muelles Rovira; los dos esperan revisión en sus conversaciones vinculadas. No vencía nada más.",
@@ -672,7 +672,7 @@ export const es: Strings = {
     codex:
       "Codex se encarga de los trabajos con scripts: importar listas de leads de ferias, fusionar duplicados y exportar las cifras mensuales de uso para los clientes.",
     followUp:
-      "De lunes a viernes a las 08:00, la rutina «Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy» lee las oportunidades cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve por oportunidad en su conversación vinculada; donde no hay conversación vinculada, crea una tarea. Los borradores esperan en la Bandeja de entrada, Max los lee, los edita y los envía él mismo, y la rutina nunca envía nada.",
+      "De lunes a viernes a las 08:00, la rutina «Borradores diarios para oportunidades que vencen hoy» lee las oportunidades cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve por oportunidad en su conversación vinculada; donde no hay conversación vinculada, crea una tarea. Los borradores esperan en la Bandeja de entrada, Max los lee, los edita y los envía él mismo, y la rutina nunca envía nada.",
   },
   mateChatPlant: {
     title: "Crear la segunda planta de Cabarga",

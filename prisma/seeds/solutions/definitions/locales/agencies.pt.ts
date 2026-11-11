@@ -292,7 +292,7 @@ export const pt: Strings = {
       ],
     },
     dailyFollowUp: {
-      name: "Toda manhã, rascunhos de follow-up dos pitches que vencem hoje",
+      name: "Rascunhos diários para pitches que vencem hoje",
       task: "Todo dia útil pela manhã, leia a lista Pitches com os campos configurados Etapa, Próximo passo, Data do próximo passo, cliente e contatos. Considere os pitches cuja Etapa seja Solicitação, Briefing, Preparação do pitch, Proposta enviada ou Negociação e cuja Data do próximo passo seja hoje ou anterior. Para cada um, encontre a conversa de e-mail mais recente com os contatos do pitch usando as ferramentas de mensagens. Se a conversa ainda não tiver rascunho de resposta, salve com save_message_draft um rascunho curto que responda à última pergunta do contato ou indique o próximo passo, escrito como o Max escreveria. Se um pitch não tiver conversa de e-mail, crie uma tarefa comum “Fazer follow-up: <nome do pitch>” com vencimento hoje para o responsável pelo pitch. Ignore conversas que já tenham rascunho e pitches que já tenham essa tarefa. Nunca envie mensagens e nunca altere um pitch. Informe os rascunhos e as tarefas que você criou.",
       runs: [
         "Dois pitches venciam: salvei um rascunho de resposta para a Fundação Pinhal (cronograma do relatório anual) e um rascunho de follow-up para a Serra Alta Outdoor (apresentação da coleção outono-inverno). Os dois aguardam revisão na Caixa de entrada.",
@@ -663,7 +663,7 @@ export const pt: Strings = {
     codex:
       "O Codex roda scripts no CRM: limpa contatos importados, mescla duplicados e exporta os números do relatório mensal.",
     followUp:
-      "A rotina “Toda manhã, rascunhos de follow-up dos pitches que vencem hoje” roda todo dia útil pela manhã. Ela lê os pitches cuja data do próximo passo é hoje ou anterior, encontra a conversa de e-mail mais recente com os contatos e salva um rascunho curto de resposta se ainda não houver um. Os rascunhos aguardam na Caixa de entrada para que o Max ou a Helena os revisem e enviem; a rotina nunca envia e nunca altera um pitch.",
+      "A rotina “Rascunhos diários para pitches que vencem hoje” roda todo dia útil pela manhã. Ela lê os pitches cuja data do próximo passo é hoje ou anterior, encontra a conversa de e-mail mais recente com os contatos e salva um rascunho curto de resposta se ainda não houver um. Os rascunhos aguardam na Caixa de entrada para que o Max ou a Helena os revisem e enviem; a rotina nunca envia e nunca altera um pitch.",
   },
   mateOrchard: {
     title: "Tarefa da conversa inicial com a Clínica Pomar",

@@ -291,7 +291,7 @@ export const es: Strings = {
       note: "No pude conectar con el proveedor del modelo en este intento, así que me detuve antes de leer nada. No se modificó nada; la próxima ejecución, el primer día del mes, lo intentará de nuevo.",
     },
     dailyFollowUps: {
-      name: "Cada mañana, borradores de seguimiento de las consultas que vencen hoy",
+      name: "Borradores diarios para consultas que vencen hoy",
       task: 'Cada mañana de lunes a viernes, busca las consultas cuya Etapa es Consulta, Primera llamada o Propuesta enviada y cuya Fecha del próximo paso es hoy o anterior. Para cada una, lee el cliente, sus contactos, el texto del briefing o de la propuesta y la última conversación vinculada. Cuando el contacto tenga una identidad de correo y el último mensaje vinculado sea mío o tenga más de tres días, guarda con save_message_draft un borrador de seguimiento breve: con mi voz, una frase sobre el último intercambio y un próximo paso concreto. Cuando el contacto no tenga identidad de correo, crea una tarea "Hacer seguimiento con <nombre del contacto>" con vencimiento hoy y vinculada a la consulta. Conserva los borradores existentes y evita una segunda tarea o borrador para la misma consulta el mismo día. No cambies ninguna etapa ni fecha y no envíes nunca un mensaje.',
       runs: [
         "Guardados 2 borradores de seguimiento: Raquel García (Alondra, propuesta del formulario de siniestros) y Carmen Fernández (Marea, fase 2). Los borradores esperan en la bandeja de entrada.",
@@ -535,7 +535,7 @@ export const es: Strings = {
     codex:
       "Ejecuta scripts sobre mis datos: importar mi antigua hoja de clientes, unir contactos duplicados y exportar los honorarios de los proyectos para mi contabilidad.",
     followUp:
-      "La rutina «Cada mañana, borradores de seguimiento de las consultas que vencen hoy» se ejecuta por las mañanas de lunes a viernes a las 8:00. Lee las consultas cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve cuando el contacto tiene dirección de correo. Los borradores esperan en la bandeja de entrada a que yo los revise; la rutina nunca envía nada y no cambia ninguna etapa ni fecha.",
+      "La rutina «Borradores diarios para consultas que vencen hoy» se ejecuta por las mañanas de lunes a viernes a las 8:00. Lee las consultas cuya fecha del próximo paso es hoy o anterior y guarda un borrador de seguimiento breve cuando el contacto tiene dirección de correo. Los borradores esperan en la bandeja de entrada a que yo los revise; la rutina nunca envía nada y no cambia ninguna etapa ni fecha.",
   },
   mateRecords: {
     title: "Proyecto tras el sí de Senda",

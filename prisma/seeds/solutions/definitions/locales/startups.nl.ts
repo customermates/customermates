@@ -319,7 +319,7 @@ export const nl: Strings = {
       ],
     },
     dueFollowUps: {
-      name: "Elke ochtend follow-ups opstellen voor verkoopkansen die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor verkoopkansen van vandaag",
       task: "Zoek elke werkdagochtend de openstaande verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is en waarvan de fase Geïdentificeerd, Gesprek, Demo, Pilot of Beslissing is. Lees bij elke verkoopkans het bedrijf, de contactpersonen, de notities en het laatste gekoppelde gesprek. Als er een gesprek is gekoppeld, sla dan met save_message_draft één kort follow-upconcept op dat aansluit waar het laatste bericht ophield en de volgende stap met een datum voorstelt; laat een bestaand concept staan in plaats van een tweede te schrijven. Als er geen gesprek is gekoppeld, maak dan één taak “Follow-up met <naam van de contactpersoon>” met deadline vandaag, gekoppeld aan de verkoopkans en de contactpersoon, tenzij daarvoor al een openstaande taak bestaat. Verstuur nooit een bericht en wijzig nooit de fase of de datum van de volgende stap.",
       runs: [
         "Twee follow-upconcepten opgesteld, voor Veluwe Verpakkingen en Kuipers Veren & Draad; beide staan ter controle klaar in hun gekoppelde gesprekken. Verder was er niets aan de beurt.",
@@ -647,7 +647,7 @@ export const nl: Strings = {
     codex:
       "Codex doet het scriptwerk: leadlijsten van beurzen importeren, dubbele records samenvoegen en de maandelijkse gebruikscijfers voor klanten exporteren.",
     followUp:
-      "Elke werkdag om 08.00 uur leest de routine “Elke ochtend follow-ups opstellen voor verkoopkansen die vandaag aan de beurt zijn” de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is en slaat per verkoopkans één kort follow-upconcept op in het gekoppelde gesprek; waar geen gesprek is gekoppeld, maakt ze een taak aan. De concepten wachten in de Inbox, Max leest, bewerkt en verstuurt ze zelf, en de routine verstuurt nooit iets.",
+      "Elke werkdag om 08.00 uur leest de routine “Dagelijkse opvolgconcepten voor verkoopkansen van vandaag” de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is en slaat per verkoopkans één kort follow-upconcept op in het gekoppelde gesprek; waar geen gesprek is gekoppeld, maakt ze een taak aan. De concepten wachten in de Inbox, Max leest, bewerkt en verstuurt ze zelf, en de routine verstuurt nooit iets.",
   },
   mateChatPlant: {
     title: "Tweede vestiging van Brinkman aanmaken",

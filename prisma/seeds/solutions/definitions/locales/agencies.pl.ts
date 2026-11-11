@@ -301,7 +301,7 @@ export const pl: Strings = {
       ],
     },
     dailyFollowUp: {
-      name: "Każdego ranka szkice follow-upów do pitchów z dzisiejszym terminem",
+      name: "Codzienne szkice do pitchów z terminem na dziś",
       task: "W każdy dzień roboczy rano przeczytaj listę Pitche ze skonfigurowanymi polami Etap, Następny krok, Data następnego kroku, klient i kontakty. Weź pitche, których Etap to Zapytanie, Briefing, Przygotowanie pitchu, Oferta wysłana lub Negocjacje i których Data następnego kroku przypada na dziś albo wcześniej. Dla każdego znajdź za pomocą narzędzi do wiadomości najnowszy wątek e-mail z kontaktami pitchu. Jeśli wątek nie ma jeszcze szkicu odpowiedzi, zapisz za pomocą save_message_draft jeden krótki szkic, który odpowiada na ostatnie pytanie kontaktu albo nazywa następny krok, napisany tak, jak napisałby go Max. Jeśli pitch nie ma wątku e-mail, utwórz jedno zwykłe zadanie „Follow-up: <nazwa pitchu>” z terminem na dziś dla osoby odpowiedzialnej za pitch. Pomiń wątki, które mają już szkic, oraz pitche, które mają już takie zadanie. Nigdy nie wysyłaj wiadomości i nigdy nie zmieniaj pitchu. Podaj w raporcie utworzone szkice i zadania.",
       runs: [
         "Termin miały dwa pitche: zapisano szkic odpowiedzi dla Fundacji Sosnowy Bór (harmonogram raportu rocznego) i szkic follow-upu dla Szlak Outdoor (prezentacja kolekcji wiosennej). Oba czekają w skrzynce odbiorczej na przegląd.",
@@ -670,7 +670,7 @@ export const pl: Strings = {
     codex:
       "Uruchamia skrypty na CRM: porządkuje zaimportowane kontakty, scala duplikaty i eksportuje liczby do miesięcznego raportu.",
     followUp:
-      "Rutyna „Każdego ranka szkice follow-upów do pitchów z dzisiejszym terminem” działa w każdy dzień roboczy rano. Czyta pitche, których data następnego kroku przypada na dziś albo wcześniej, znajduje najnowszy wątek e-mail z ich kontaktami i zapisuje jeden krótki szkic odpowiedzi, jeśli jeszcze go nie ma. Szkice czekają w skrzynce odbiorczej, aż Max lub Julia je przejrzy i wyśle; rutyna nigdy nie wysyła i nie zmienia pitchu.",
+      "Rutyna „Codzienne szkice do pitchów z terminem na dziś” działa w każdy dzień roboczy rano. Czyta pitche, których data następnego kroku przypada na dziś albo wcześniej, znajduje najnowszy wątek e-mail z ich kontaktami i zapisuje jeden krótki szkic odpowiedzi, jeśli jeszcze go nie ma. Szkice czekają w skrzynce odbiorczej, aż Max lub Julia je przejrzy i wyśle; rutyna nigdy nie wysyła i nie zmienia pitchu.",
   },
   mateOrchard: {
     title: "Zadanie na rozmowę wstępną z Centrum Stomatologii Sadowa",

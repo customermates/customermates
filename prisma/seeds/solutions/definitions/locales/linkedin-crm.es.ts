@@ -268,7 +268,7 @@ export const es: Strings = {
       ],
     },
     followUp: {
-      name: "Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy",
+      name: "Borradores diarios para oportunidades que vencen hoy",
       task: "Cada mañana de lunes a viernes, lee las oportunidades cuya Etapa es Identificado, Conversación, Reunión programada o Propuesta enviada y cuya Fecha del siguiente paso es hoy o anterior. Para cada una, lee con get_messaging_threads las conversaciones vinculadas a la oportunidad. Si el último mensaje es del prospecto y la conversación no tiene borrador, guarda con save_message_draft un borrador de respuesta breve en esa conversación: responde a la pregunta en dos o tres frases, con la voz de Max, y propón el siguiente paso. Conserva cualquier borrador existente. Si el último mensaje es nuestro, no hagas nada y nombra la conversación en el resumen. Si no hay ninguna conversación vinculada, crea una tarea ordinaria «Hacer seguimiento con <nombre del prospecto>» con vencimiento hoy, vinculada a la oportunidad y al prospecto, solo si no existe ya una tarea abierta para ese prospecto o esa oportunidad. No envíes nunca un mensaje, no vincules nunca una conversación y no modifiques la oportunidad.",
       runs: [
         "Vencían tres oportunidades. Transportes Hontanar ya tenía un borrador de respuesta para Raquel Domínguez, así que lo he dejado como estaba. En Industrias Bermúdez el último mensaje es nuestro y está a la espera de Tomás Quintana. Logística Larralde no tiene ninguna conversación vinculada y la tarea abierta para vincular la conversación de Carmen Moreno ya lo cubre, así que no he creado nada. No se ha enviado nada.",
@@ -529,7 +529,7 @@ export const es: Strings = {
     codex:
       "Ejecuta scripts sobre exportaciones, por ejemplo para comprobar el archivo de resultados de un ejercicio de phishing con los totales por departamento del registro de la empresa.",
     followUp:
-      "La rutina «Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy» se ejecuta por las mañanas de lunes a viernes. Lee las oportunidades cuya fecha del siguiente paso es hoy o anterior, mira la conversación vinculada a cada una y guarda un borrador de respuesta breve cuando el último mensaje es del prospecto. Los borradores esperan en la Bandeja de entrada hasta que Max los haya leído y enviado. La rutina nunca envía un mensaje y nunca vincula una conversación.",
+      "La rutina «Borradores diarios para oportunidades que vencen hoy» se ejecuta por las mañanas de lunes a viernes. Lee las oportunidades cuya fecha del siguiente paso es hoy o anterior, mira la conversación vinculada a cada una y guarda un borrador de respuesta breve cuando el último mensaje es del prospecto. Los borradores esperan en la Bandeja de entrada hasta que Max los haya leído y enviado. La rutina nunca envía un mensaje y nunca vincula una conversación.",
   },
   events: [
     "Llamada con Clara Fernández y José Herrera (Montalbán Correduría)",

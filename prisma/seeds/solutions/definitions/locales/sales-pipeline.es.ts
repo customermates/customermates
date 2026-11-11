@@ -534,7 +534,7 @@ export const es: Strings = {
       ],
     },
     followUp: {
-      name: "Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy",
+      name: "Borradores diarios para oportunidades que vencen hoy",
       task: "Cada mañana de lunes a viernes, busca las oportunidades abiertas (etapa Nueva, Cualificada, Análisis de necesidades, Propuesta enviada o Negociación) cuya fecha del siguiente paso sea hoy o anterior y que tengan una conversación de correo vinculada. De cada una, lee la oportunidad, sus contactos, sus notas y los últimos mensajes de la conversación vinculada. Si el último mensaje no es ya un borrador, guarda con save_message_draft un borrador breve de seguimiento en esa conversación, con el estilo de Max, que retome el último tema y proponga un siguiente paso concreto. Salta las oportunidades sin conversación de correo vinculada y las que ya tengan un borrador. Añade a las notas de la oportunidad una línea fechada «Seguimiento preparado». No cambies la etapa, los productos, el valor ni la fecha del siguiente paso, y no envíes nunca un mensaje. Informa de las oportunidades y de los borradores.",
       runs: [
         "Se prepararon 3 seguimientos para oportunidades que vencen hoy: secador de adsorción de Recubrimientos Segre, recuperación de calor de Muebles de la Ribera y compresor de Tejidos del Moncayo. Los borradores esperan revisión en la bandeja de entrada; no se envió nada.",
@@ -751,7 +751,7 @@ export const es: Strings = {
     codex:
       "Marcos ejecuta scripts con él, por ejemplo para depurar la lista de visitantes de la feria antes de importarla.",
     followUp:
-      "La rutina «Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy» se ejecuta de lunes a viernes por la mañana, a las 8. Busca las oportunidades abiertas cuya fecha del siguiente paso es hoy o anterior, lee la conversación vinculada y guarda un borrador breve de seguimiento por oportunidad. Los borradores esperan en la bandeja de entrada: Max o el responsable de la cuenta los lee, los modifica y los envía. La rutina nunca envía nada y nunca cambia la etapa, el valor ni una fecha.",
+      "La rutina «Borradores diarios para oportunidades que vencen hoy» se ejecuta de lunes a viernes por la mañana, a las 8. Busca las oportunidades abiertas cuya fecha del siguiente paso es hoy o anterior, lee la conversación vinculada y guarda un borrador breve de seguimiento por oportunidad. Los borradores esperan en la bandeja de entrada: Max o el responsable de la cuenta los lee, los modifica y los envía. La rutina nunca envía nada y nunca cambia la etapa, el valor ni una fecha.",
   },
   mateChatLog: {
     title: "Registrar la llamada con Embotelladora del Jalón y actualizar la oportunidad",

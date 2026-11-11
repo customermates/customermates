@@ -334,7 +334,7 @@ export const pl: Strings = {
       ],
     },
     dueFollowUps: {
-      name: "Każdego ranka szkice follow-upów dla szans sprzedaży z terminem na dziś",
+      name: "Codzienne szkice dla szans sprzedaży z terminem na dziś",
       task: "Każdego ranka w dzień roboczy znajdź otwarte szanse sprzedaży, których Termin następnego kroku to dziś lub wcześniej i których Etap to Zidentyfikowana, Rozmowa, Demo, Pilotaż lub Decyzja. Dla każdej odczytaj szansę sprzedaży wraz z firmą, kontaktami, notatkami i ostatnią powiązaną rozmową. Jeśli rozmowa jest powiązana, zapisz przez save_message_draft jeden krótki szkic follow-upu, który nawiązuje do miejsca, w którym skończyła się ostatnia wiadomość, i proponuje następny krok z datą; zostaw istniejący szkic zamiast pisać drugi. Jeśli żadna rozmowa nie jest powiązana, utwórz jedno zadanie „Odezwać się do <imię i nazwisko kontaktu>” z terminem na dziś, powiązane z szansą sprzedaży i kontaktem, chyba że istnieje już otwarte zadanie. Nigdy nie wysyłaj wiadomości i nigdy nie zmieniaj Etapu ani Terminu następnego kroku.",
       runs: [
         "Przygotowano dwa szkice follow-upów, dla Pakmar Opakowania i Fabryki Sprężyn Rutkowski; oba czekają w powiązanych rozmowach na sprawdzenie. Nic więcej nie miało terminu.",
@@ -665,7 +665,7 @@ export const pl: Strings = {
     codex:
       "Codex zajmuje się zadaniami skryptowymi: importuje listy leadów z targów, scala duplikaty i eksportuje miesięczne dane o użyciu dla klientów.",
     followUp:
-      "Każdego dnia roboczego o 08:00 rutyna „Każdego ranka szkice follow-upów dla szans sprzedaży z terminem na dziś” odczytuje szanse sprzedaży, których termin następnego kroku to dziś lub wcześniej, i zapisuje po jednym krótkim szkicu follow-upu na szansę w powiązanej rozmowie; tam, gdzie żadna nie jest powiązana, tworzy zadanie. Szkice czekają w Skrzynce odbiorczej, Max czyta je, poprawia i wysyła sam, a rutyna nigdy niczego nie wysyła.",
+      "Każdego dnia roboczego o 08:00 rutyna „Codzienne szkice dla szans sprzedaży z terminem na dziś” odczytuje szanse sprzedaży, których termin następnego kroku to dziś lub wcześniej, i zapisuje po jednym krótkim szkicu follow-upu na szansę w powiązanej rozmowie; tam, gdzie żadna nie jest powiązana, tworzy zadanie. Szkice czekają w Skrzynce odbiorczej, Max czyta je, poprawia i wysyła sam, a rutyna nigdy niczego nie wysyła.",
   },
   mateChatPlant: {
     title: "Utwórz drugi zakład Odlewni Bielecki",

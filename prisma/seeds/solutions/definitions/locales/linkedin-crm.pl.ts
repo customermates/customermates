@@ -268,7 +268,7 @@ export const pl: Strings = {
       ],
     },
     followUp: {
-      name: "Co rano szkice follow-upów dla szans sprzedaży z terminem na dziś",
+      name: "Codzienne szkice dla szans sprzedaży z terminem na dziś",
       task: "W każdy dzień roboczy rano odczytaj szanse sprzedaży, których etap to Zidentyfikowana, Rozmowa, Spotkanie umówione lub Oferta wysłana i których data następnego kroku to dziś lub wcześniej. Dla każdej z nich odczytaj rozmowy powiązane z szansą za pomocą get_messaging_threads. Jeśli ostatnia wiadomość jest od potencjalnego klienta, a rozmowa nie ma szkicu, zapisz w tej rozmowie jeden krótki szkic odpowiedzi za pomocą save_message_draft: odpowiedz na pytanie w dwóch lub trzech zdaniach, głosem Maxa, i zaproponuj następny krok. Istniejący szkic zostaw bez zmian. Jeśli ostatnia wiadomość jest nasza, nie rób nic i wymień tę rozmowę w podsumowaniu. Jeśli żadna rozmowa nie jest powiązana, utwórz jedno zwykłe zadanie „Follow-up: <imię i nazwisko potencjalnego klienta>” z terminem na dziś, powiązane z szansą sprzedaży i potencjalnym klientem, ale tylko wtedy, gdy nie ma jeszcze otwartego zadania dla tego potencjalnego klienta ani tej szansy. Nigdy nie wysyłaj wiadomości, nigdy nie wiąż rozmowy i nie zmieniaj szansy sprzedaży.",
       runs: [
         "Do wykonania były trzy szanse sprzedaży. Wolniak Transport miał już szkic odpowiedzi dla Renaty Wiśniewskiej, więc zostawiono go bez zmian. W Brzeziński Mechanika ostatnia wiadomość jest nasza i czeka na odpowiedź Łukasza Wójcika. Modrzew Logistyka nie ma powiązanej rozmowy, a otwarte zadanie powiązania rozmowy z Małgorzatą Kozłowską to pokrywa, więc niczego nie utworzono. Nic nie zostało wysłane.",
@@ -529,7 +529,7 @@ export const pl: Strings = {
     codex:
       "Uruchamia skrypty na eksportach, na przykład sprawdza plik z wynikami ćwiczenia phishingowego z sumami działów w rekordzie firmy.",
     followUp:
-      "Rutyna „Co rano szkice follow-upów dla szans sprzedaży z terminem na dziś” działa w dni robocze rano. Czyta szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, sprawdza powiązaną z każdą z nich rozmowę i zapisuje krótki szkic odpowiedzi, gdy ostatni napisał potencjalny klient. Szkice czekają w skrzynce odbiorczej, aż Max je przeczyta i wyśle. Rutyna nigdy nie wysyła wiadomości i nigdy nie wiąże rozmowy.",
+      "Rutyna „Codzienne szkice dla szans sprzedaży z terminem na dziś” działa w dni robocze rano. Czyta szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, sprawdza powiązaną z każdą z nich rozmowę i zapisuje krótki szkic odpowiedzi, gdy ostatni napisał potencjalny klient. Szkice czekają w skrzynce odbiorczej, aż Max je przeczyta i wyśle. Rutyna nigdy nie wysyła wiadomości i nigdy nie wiąże rozmowy.",
   },
   events: [
     "Rozmowa z Klaudią Wasilewską i Jakubem Michalskim (Malinowski Broker)",

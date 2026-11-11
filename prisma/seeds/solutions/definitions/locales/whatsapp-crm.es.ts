@@ -353,7 +353,7 @@ export const es: Strings = {
         "En este intento no pude conectar con el proveedor del modelo, así que me detuve antes de leer nada. No se guardó ningún borrador.",
     },
     followUps: {
-      name: "Cada mañana, redactar seguimientos de los proyectos que vencen hoy",
+      name: "Borradores diarios para proyectos que vencen hoy",
       task: "Cada mañana de lunes a viernes, lee los proyectos cuya Etapa sea Nueva consulta, Visita técnica, Planos enviados u Oferta enviada y cuya Fecha del siguiente paso sea hoy o anterior. De cada proyecto, lee el contacto vinculado, la última conversación vinculada al proyecto y las notas del proyecto. Guarda con save_message_draft un borrador de seguimiento breve en el canal que prefiera ese contacto, menciona lo último que se acordó y haz una sola pregunta clara. Conserva todos los borradores existentes y omite un proyecto que ya tenga un borrador abierto o al que hayamos escrito en los últimos dos días. No envíes nunca un mensaje, no cambies nunca un campo del proyecto y no borres nada. Informa de los proyectos para los que redactaste un borrador y de los que omitiste, con el motivo.",
       runs: [
         "Se prepararon 2 borradores de seguimiento, para Línea Gris (código del acabado laminado, con 4 días de retraso) y Sal y Pino (hueco para la visita). Se omitió La Tetera de Cobre, que ya tenía un borrador.",
@@ -494,7 +494,7 @@ export const es: Strings = {
     codex:
       "Codex limpia listas de clientes con scripts, por ejemplo fusionando contactos duplicados, y escribe una nota con lo que ha cambiado.",
     followUp:
-      "Cada mañana de lunes a viernes a las 8:00, la rutina “Cada mañana, redactar seguimientos de los proyectos que vencen hoy” lee los proyectos cuyo siguiente paso vence, mira el último chat o correo y guarda un borrador de seguimiento breve por proyecto. Los borradores esperan en la bandeja de entrada hasta que Max los ha leído, modificado y enviado él mismo; la rutina nunca envía un mensaje ni cambia un proyecto.",
+      "Cada mañana de lunes a viernes a las 8:00, la rutina “Borradores diarios para proyectos que vencen hoy” lee los proyectos cuyo siguiente paso vence, mira el último chat o correo y guarda un borrador de seguimiento breve por proyecto. Los borradores esperan en la bandeja de entrada hasta que Max los ha leído, modificado y enviado él mismo; la rutina nunca envía un mensaje ni cambia un proyecto.",
   },
   countryCode: "es",
   addresses: {

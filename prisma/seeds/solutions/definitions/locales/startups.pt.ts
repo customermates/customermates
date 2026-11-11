@@ -327,7 +327,7 @@ export const pt: Strings = {
       ],
     },
     dueFollowUps: {
-      name: "Toda manhã, rascunhos de follow-up para oportunidades com prazo hoje",
+      name: "Rascunhos diários para oportunidades com prazo hoje",
       task: "Toda manhã de dia útil, encontre as oportunidades abertas cuja Data do próximo passo seja hoje ou anterior e cuja Etapa seja Identificado, Em conversa, Demo, Piloto ou Decisão. Para cada uma, leia a oportunidade com a empresa, os contatos, as notas e a última conversa vinculada. Se houver uma conversa vinculada, salve um rascunho curto de follow-up com save_message_draft que retome de onde a última mensagem parou e proponha o próximo passo com data; mantenha um rascunho existente em vez de escrever um segundo. Se não houver conversa vinculada, crie uma tarefa “Fazer follow-up com <nome do contato>” com prazo hoje, vinculada à oportunidade e ao contato, a menos que já exista uma tarefa aberta para isso. Nunca envie uma mensagem e nunca altere a Etapa nem a Data do próximo passo.",
       runs: [
         "Dois follow-ups redigidos, para a Embalagens Araucária e a Molas Ferraz; ambos aguardam revisão nas conversas vinculadas. Nada mais estava com prazo.",
@@ -655,7 +655,7 @@ export const pt: Strings = {
     codex:
       "O Codex cuida dos trabalhos com scripts: importar listas de leads de feiras, unificar duplicatas e exportar os números mensais de uso para os clientes.",
     followUp:
-      "Todo dia útil às 8h, a rotina “Toda manhã, rascunhos de follow-up para oportunidades com prazo hoje” lê as oportunidades cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up por oportunidade na conversa vinculada; onde não há conversa vinculada, ela cria uma tarefa. Os rascunhos aguardam na Caixa de entrada, o Max os lê, edita e envia ele mesmo, e a rotina nunca envia nada.",
+      "Todo dia útil às 8h, a rotina “Rascunhos diários para oportunidades com prazo hoje” lê as oportunidades cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up por oportunidade na conversa vinculada; onde não há conversa vinculada, ela cria uma tarefa. Os rascunhos aguardam na Caixa de entrada, o Max os lê, edita e envia ele mesmo, e a rotina nunca envia nada.",
   },
   mateChatPlant: {
     title: "Criar a segunda fábrica da Brandão",

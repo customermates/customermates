@@ -268,7 +268,7 @@ export const nl: Strings = {
       ],
     },
     followUp: {
-      name: "Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor verkoopkansen van vandaag",
       task: "Lees elke werkdagochtend de verkoopkansen waarvan de fase Geïdentificeerd, Gesprek, Afspraak gepland of Offerte verstuurd is en waarvan de datum van de volgende stap vandaag of eerder is. Lees voor elke verkoopkans de gekoppelde gesprekken met get_messaging_threads. Als het laatste bericht van de prospect is en het gesprek geen concept heeft, sla dan met save_message_draft één kort antwoordconcept op in dat gesprek: beantwoord de vraag in twee of drie zinnen, in de stem van Max, en stel een volgende stap voor. Laat een bestaand concept ongemoeid. Als het laatste bericht van ons is, doe je niets en noem je het gesprek in de samenvatting. Als er geen gesprek is gekoppeld, maak dan één gewone taak “Opvolgen bij <naam prospect>” aan met vervaldatum vandaag, gekoppeld aan de verkoopkans en de prospect, en alleen als er voor die prospect of verkoopkans nog geen open taak bestaat. Verstuur nooit een bericht, koppel nooit een gesprek en wijzig de verkoopkans niet.",
       runs: [
         "Drie verkoopkansen waren aan de beurt. Bij Holtman Transport lag voor Roos van den Berg al een antwoordconcept, dat heb ik ongemoeid gelaten. Bij Brinkman Machinebouw is het laatste bericht van ons en wachten we op Tim Kramer. Lariksveld Logistiek heeft geen gekoppeld gesprek; de openstaande taak om het gesprek met Karin Mulder te koppelen dekt dat al, dus ik heb niets aangemaakt. Er is niets verstuurd.",
@@ -529,7 +529,7 @@ export const nl: Strings = {
     codex:
       "Het draait scripts op exports, bijvoorbeeld om het resultatenbestand van een phishingoefening te vergelijken met de afdelingstotalen op het bedrijfsrecord.",
     followUp:
-      "De routine “Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn” draait op werkdagochtenden. Ze leest de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is, bekijkt het gesprek dat aan elke verkoopkans is gekoppeld en slaat een kort antwoordconcept op als de prospect als laatste schreef. De concepten wachten in de Inbox tot Max ze heeft gelezen en verstuurd. De routine verstuurt nooit een bericht en koppelt nooit een gesprek.",
+      "De routine “Dagelijkse opvolgconcepten voor verkoopkansen van vandaag” draait op werkdagochtenden. Ze leest de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is, bekijkt het gesprek dat aan elke verkoopkans is gekoppeld en slaat een kort antwoordconcept op als de prospect als laatste schreef. De concepten wachten in de Inbox tot Max ze heeft gelezen en verstuurd. De routine verstuurt nooit een bericht en koppelt nooit een gesprek.",
   },
   events: [
     "Gesprek met Claudia van Vliet en Joost Hoekstra (Meerhoff Assurantiën)",

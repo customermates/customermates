@@ -305,7 +305,7 @@ export const nl: Strings = {
       note: "Ik kon de modelaanbieder bij deze poging niet bereiken en ben gestopt voordat ik iets las. Er is niets gewijzigd; de volgende run op de eerste van de maand probeert het opnieuw.",
     },
     dailyFollowUps: {
-      name: "Elke ochtend opvolgconcepten voor aanvragen die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor aanvragen van vandaag",
       task: 'Zoek elke werkdagochtend aanvragen waarvan de Fase Aanvraag, Eerste gesprek of Offerte verstuurd is en waarvan de Datum volgende stap vandaag of eerder is. Lees voor elke aanvraag de klant, de contactpersonen, de tekst van de briefing of offerte en het laatst gekoppelde gesprek. Heeft de contactpersoon een e-mailidentiteit en is het laatst gekoppelde bericht van mij of ouder dan drie dagen, sla dan met save_message_draft één kort opvolgconcept op: in mijn stem, één zin over de laatste uitwisseling, één concrete volgende stap. Heeft de contactpersoon geen e-mailidentiteit, maak dan één taak "Opvolgen bij <naam contactpersoon>" aan met vervaldatum vandaag en gekoppeld aan de aanvraag. Behoud bestaande concepten en maak per aanvraag per dag geen tweede taak of concept aan. Wijzig geen fase en geen datum en verstuur nooit een bericht.',
       runs: [
         "2 opvolgconcepten opgeslagen: Lotte van Leeuwen (Weidevogel, offerte schadeformulier) en Marloes de Wit (Getijde, fase 2). De concepten wachten in de Inbox.",
@@ -549,7 +549,7 @@ export const nl: Strings = {
     codex:
       "Codex voert scripts uit op mijn gegevens: het importeert mijn oude klantenlijst, voegt dubbele contactpersonen samen en exporteert de projecthonoraria voor mijn boekhouding.",
     followUp:
-      "De routine “Elke ochtend opvolgconcepten voor aanvragen die vandaag aan de beurt zijn” draait op werkdagochtenden om 8:00 uur. Ze leest de aanvragen waarvan de datum van de volgende stap vandaag of eerder is en bewaart een kort opvolgconcept wanneer de contactpersoon een e-mailadres heeft. De concepten wachten in de Inbox op mijn beoordeling; de routine verstuurt nooit iets en wijzigt geen fase of datum.",
+      "De routine “Dagelijkse opvolgconcepten voor aanvragen van vandaag” draait op werkdagochtenden om 8:00 uur. Ze leest de aanvragen waarvan de datum van de volgende stap vandaag of eerder is en bewaart een kort opvolgconcept wanneer de contactpersoon een e-mailadres heeft. De concepten wachten in de Inbox op mijn beoordeling; de routine verstuurt nooit iets en wijzigt geen fase of datum.",
   },
   mateRecords: {
     title: "Project voor het ja van Leerpad",

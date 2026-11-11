@@ -312,7 +312,7 @@ export const pt: Strings = {
       note: "Não consegui acessar o provedor do modelo nesta tentativa e parei antes de ler qualquer coisa. Nada foi alterado; a próxima execução, no primeiro dia do mês, tentará de novo.",
     },
     dailyFollowUps: {
-      name: "Toda manhã, rascunhos de follow-up das solicitações com próximo passo para hoje",
+      name: "Rascunhos diários para solicitações com prazo hoje",
       task: 'Toda manhã de dia útil, encontre as solicitações cuja Etapa é Solicitação, Primeira ligação ou Proposta enviada e cuja Data do próximo passo é hoje ou anterior. Para cada uma, leia o cliente, os contatos, o texto do Briefing ou da proposta e a última conversa vinculada. Quando o contato tiver uma identidade de e-mail e a última mensagem vinculada for minha ou tiver mais de três dias, salve com save_message_draft um rascunho curto de follow-up: no meu tom, uma frase sobre a última troca e um próximo passo concreto. Quando o contato não tiver identidade de e-mail, crie uma tarefa "Fazer follow-up com <nome do contato>" com prazo hoje, vinculada à solicitação. Preserve rascunhos existentes e evite uma segunda tarefa ou um segundo rascunho para a mesma solicitação no mesmo dia. Não altere nenhuma etapa nem data e nunca envie uma mensagem.',
       runs: [
         "Salvei 2 rascunhos de follow-up: Luciana Conceição (Campo Verde, proposta do formulário de sinistro) e Camila Gonçalves (Maré Alta, fase 2). Os rascunhos aguardam na Caixa de entrada.",
@@ -556,7 +556,7 @@ export const pt: Strings = {
     codex:
       "O Codex roda scripts nos meus dados: importa minha planilha antiga de clientes, une contatos duplicados e exporta os honorários dos projetos para a minha contabilidade.",
     followUp:
-      'A rotina "Toda manhã, rascunhos de follow-up das solicitações com próximo passo para hoje" roda nas manhãs de dias úteis, às 8h. Ela lê as solicitações cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up quando o contato tem e-mail. Os rascunhos aguardam na Caixa de entrada para a minha revisão; a rotina nunca envia nada e não altera etapa nem data.',
+      'A rotina "Rascunhos diários para solicitações com prazo hoje" roda nas manhãs de dias úteis, às 8h. Ela lê as solicitações cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up quando o contato tem e-mail. Os rascunhos aguardam na Caixa de entrada para a minha revisão; a rotina nunca envia nada e não altera etapa nem data.',
   },
   mateRecords: {
     title: "Projeto para o sim da Trilha Certa",

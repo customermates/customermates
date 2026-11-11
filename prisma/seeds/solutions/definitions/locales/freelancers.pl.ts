@@ -290,7 +290,7 @@ export const pl: Strings = {
       note: "Przy tej próbie nie udało się połączyć z dostawcą modelu, więc proces zatrzymano, zanim cokolwiek odczytano. Nic nie zostało zmienione; następne uruchomienie pierwszego dnia miesiąca spróbuje ponownie.",
     },
     dailyFollowUps: {
-      name: "Co rano szkice wiadomości do zapytań, które mają termin na dziś",
+      name: "Codzienne szkice do zapytań z terminem na dziś",
       task: "W każdy dzień roboczy rano znajdź zapytania, których Etap to Zapytanie, Pierwsza rozmowa lub Oferta wysłana i których Data następnego kroku to dziś lub wcześniej. Dla każdego odczytaj klienta, jego kontakty, tekst Briefu lub oferty i ostatnią powiązaną rozmowę. Jeśli kontakt ma tożsamość e-mail, a ostatnia powiązana wiadomość pochodzi ode mnie lub jest starsza niż trzy dni, zapisz przez save_message_draft jeden krótki szkic wiadomości: moim tonem, jedno zdanie o ostatniej wymianie, jeden konkretny następny krok. Jeśli kontakt nie ma tożsamości e-mail, utwórz jedno zadanie „Odezwać się do <imię i nazwisko kontaktu>” z terminem na dziś, powiązane z zapytaniem. Istniejące szkice zachowaj i nie twórz drugiego zadania ani szkicu dla tego samego zapytania w ten sam dzień. Nie zmieniaj żadnego etapu ani żadnej daty i nigdy nie wysyłaj wiadomości.",
       runs: [
         "Zapisano 2 szkice wiadomości: Karolina Kozłowska (Skowronek, oferta na formularz zgłoszenia szkody) i Agnieszka Malinowska (Przypływ, etap 2). Szkice czekają w Skrzynce odbiorczej.",
@@ -533,7 +533,7 @@ export const pl: Strings = {
     codex:
       "Uruchamia skrypty na moich danych: importuje moją starą tabelę klientów, scala zduplikowane kontakty i eksportuje honoraria projektów do mojej księgowości.",
     followUp:
-      "Rutyna „Co rano szkice wiadomości do zapytań, które mają termin na dziś” działa w dni robocze o 8:00. Czyta zapytania, których data następnego kroku to dziś lub wcześniej, i zapisuje krótki szkic wiadomości, jeśli kontakt ma adres e-mail. Szkice czekają w Skrzynce odbiorczej na mój przegląd; rutyna niczego nie wysyła i nie zmienia ani etapu, ani daty.",
+      "Rutyna „Codzienne szkice do zapytań z terminem na dziś” działa w dni robocze o 8:00. Czyta zapytania, których data następnego kroku to dziś lub wcześniej, i zapisuje krótki szkic wiadomości, jeśli kontakt ma adres e-mail. Szkice czekają w Skrzynce odbiorczej na mój przegląd; rutyna niczego nie wysyła i nie zmienia ani etapu, ani daty.",
   },
   mateRecords: {
     title: "Projekt po zgodzie Ścieżki Nauki",

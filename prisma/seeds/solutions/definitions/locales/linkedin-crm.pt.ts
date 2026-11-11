@@ -268,7 +268,7 @@ export const pt: Strings = {
       ],
     },
     followUp: {
-      name: "Toda manhã, rascunhos de follow-up para oportunidades que vencem hoje",
+      name: "Rascunhos diários para oportunidades que vencem hoje",
       task: "Todo dia útil de manhã, leia as oportunidades cuja Etapa seja Identificado, Em conversa, Reunião agendada ou Proposta enviada e cuja Data do próximo passo seja hoje ou anterior. Para cada uma, leia as conversas vinculadas à oportunidade com get_messaging_threads. Se a última mensagem for do prospect e a conversa não tiver rascunho, salve com save_message_draft um rascunho curto de resposta nessa conversa: responda à pergunta em duas ou três frases, com a voz do Max, e sugira o próximo passo. Preserve um rascunho já existente. Se a última mensagem for nossa, não faça nada e cite a conversa no resumo. Se nenhuma conversa estiver vinculada, crie uma tarefa comum “Fazer follow-up com <nome do prospect>” com vencimento hoje, vinculada à oportunidade e ao prospect, somente se não existir tarefa em aberto para esse prospect ou essa oportunidade. Nunca envie mensagem, nunca vincule uma conversa e não altere a oportunidade.",
       runs: [
         "Três oportunidades venciam. A Transportadora Holanda já tinha um rascunho de resposta para a Rafaela Gonçalves, então deixei como está. Na Brandão Metalúrgica a última mensagem é nossa e aguarda o André Moreira. A Lacerda Logística não tem conversa vinculada, e a tarefa em aberto para vincular a conversa da Karina Mendes já cobre isso, então não criei nada. Nada foi enviado.",
@@ -529,7 +529,7 @@ export const pt: Strings = {
     codex:
       "Ele executa scripts em exportações, por exemplo para conferir o arquivo de resultados de uma simulação de phishing com os totais por departamento no registro da empresa.",
     followUp:
-      "A rotina “Toda manhã, rascunhos de follow-up para oportunidades que vencem hoje” roda nas manhãs de dias úteis. Ela lê as oportunidades cuja data do próximo passo é hoje ou anterior, olha a conversa vinculada a cada uma e salva um rascunho curto de resposta quando o prospect foi o último a escrever. Os rascunhos ficam na Caixa de entrada até que o Max os leia e envie. A rotina nunca envia mensagem e nunca vincula uma conversa.",
+      "A rotina “Rascunhos diários para oportunidades que vencem hoje” roda nas manhãs de dias úteis. Ela lê as oportunidades cuja data do próximo passo é hoje ou anterior, olha a conversa vinculada a cada uma e salva um rascunho curto de resposta quando o prospect foi o último a escrever. Os rascunhos ficam na Caixa de entrada até que o Max os leia e envie. A rotina nunca envia mensagem e nunca vincula uma conversa.",
   },
   events: [
     "Ligação com Camila Araújo e José Henriques (Marques Corretora)",

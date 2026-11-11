@@ -335,7 +335,7 @@ export const pl: Strings = {
         "Tym razem nie udało się połączyć z dostawcą modelu, więc zatrzymano pracę przed odczytem czegokolwiek. Nie zapisano żadnego szkicu.",
     },
     followUps: {
-      name: "Każdego ranka przygotuj szkice wiadomości przypominających do zleceń z terminem na dziś",
+      name: "Codzienne szkice do zleceń z terminem na dziś",
       task: "W każdy dzień roboczy rano przeczytaj zlecenia, których Etap to Nowe zapytanie, Wizja lokalna, Projekt wysłany lub Oferta wysłana, a Data następnego kroku jest dzisiejsza lub wcześniejsza. Dla każdego zlecenia przeczytaj powiązany kontakt, ostatnią rozmowę powiązaną ze zleceniem i notatki zlecenia. Zapisz jeden krótki szkic wiadomości przypominającej przez save_message_draft w kanale, który preferuje kontakt, nawiąż do ostatniego ustalenia i zadaj jedno jasne pytanie. Zachowaj wszystkie istniejące szkice i pomiń zlecenie, które ma już otwarty szkic albo do którego napisaliśmy w ciągu ostatnich dwóch dni. Nigdy nie wysyłaj wiadomości, nie zmieniaj żadnego pola zlecenia i niczego nie usuwaj. Podaj w raporcie, dla których zleceń przygotowano szkice i które pominięto, z powodem.",
       runs: [
         "Przygotowano 2 szkice przypominające: dla Szarej Linii (kod wykończenia laminatu, 4 dni po terminie) i dla Sól i Sosna (termin wizji lokalnej). Pominięto Miedziany Czajnik, który miał już szkic.",
@@ -476,7 +476,7 @@ export const pl: Strings = {
     codex:
       "Codex porządkuje listy klientów skryptami, na przykład łącząc zduplikowane kontakty, i zapisuje notatkę o tym, co zmienił.",
     followUp:
-      "W każdy dzień roboczy o 8:00 rutyna „Każdego ranka przygotuj szkice wiadomości przypominających do zleceń z terminem na dziś” czyta zlecenia, których następny krok jest na dziś, sprawdza ostatni czat lub e-mail i zapisuje jeden krótki szkic wiadomości przypominającej na zlecenie. Szkice czekają w Skrzynce odbiorczej, aż Max przeczyta je, poprawi i wyśle sam; rutyna nigdy nie wysyła wiadomości i nie zmienia zlecenia.",
+      "W każdy dzień roboczy o 8:00 rutyna „Codzienne szkice do zleceń z terminem na dziś” czyta zlecenia, których następny krok jest na dziś, sprawdza ostatni czat lub e-mail i zapisuje jeden krótki szkic wiadomości przypominającej na zlecenie. Szkice czekają w Skrzynce odbiorczej, aż Max przeczyta je, poprawi i wyśle sam; rutyna nigdy nie wysyła wiadomości i nie zmienia zlecenia.",
   },
   countryCode: "pl",
   addresses: {

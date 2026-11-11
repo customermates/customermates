@@ -382,7 +382,7 @@ export const pt: Strings = {
       ],
     },
     followUp: {
-      name: "Toda manhã, rascunhar follow-ups das oportunidades com prazo hoje",
+      name: "Rascunhos diários para oportunidades com prazo hoje",
       task: "Todo dia útil de manhã, encontre as oportunidades cuja Etapa é Identificada, Proposta enviada ou Degustação / teste e cuja Data do próximo passo é hoje ou anterior. Para cada uma, leia o cliente, os contatos vinculados e a última conversa vinculada à oportunidade. Se essa conversa já terminar em um rascunho, deixe-o como está. Caso contrário, salve com save_message_draft um rascunho curto de follow-up nessa conversa: agradeça pela última mensagem, cite o Próximo passo em uma frase e sugira um horário concreto. Quando não houver conversa vinculada, crie uma tarefa comum “Fazer follow-up com <nome do contato>” com prazo hoje para o Gerente de contas do cliente. Nunca envie uma mensagem, não altere a oportunidade e informe as oportunidades e os rascunhos.",
       runs: [
         "Encontrei 3 oportunidades com próximo passo para hoje e salvei 3 rascunhos de follow-up na Caixa de entrada, para Haddad, Meridional e Centro Médico Real.",
@@ -613,7 +613,7 @@ export const pt: Strings = {
     codex:
       "Ele limpa exportações e importações por script, por exemplo unindo contatos duplicados como Tomás Nogueira, e escreve uma nota sobre o que mudou.",
     followUp:
-      "Todo dia útil às 8h, a rotina “Toda manhã, rascunhar follow-ups das oportunidades com prazo hoje” olha as oportunidades cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up por oportunidade na Caixa de entrada. O Max lê cada rascunho, edita e envia ele mesmo. A rotina nunca envia uma mensagem e nunca apaga nada.",
+      "Todo dia útil às 8h, a rotina “Rascunhos diários para oportunidades com prazo hoje” olha as oportunidades cuja data do próximo passo é hoje ou anterior e salva um rascunho curto de follow-up por oportunidade na Caixa de entrada. O Max lê cada rascunho, edita e envia ele mesmo. A rotina nunca envia uma mensagem e nunca apaga nada.",
   },
   notes: {
     halversonRenewal:

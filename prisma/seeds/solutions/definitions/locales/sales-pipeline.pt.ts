@@ -533,7 +533,7 @@ export const pt: Strings = {
       ],
     },
     followUp: {
-      name: "Toda manhã, rascunhar follow-ups das oportunidades com prazo hoje",
+      name: "Rascunhos diários para oportunidades com prazo hoje",
       task: 'Toda manhã de dia útil, encontre as oportunidades em aberto (etapa Nova, Qualificada, Diagnóstico, Proposta enviada ou Negociação) cuja Data do próximo passo seja hoje ou anterior e que tenham uma conversa de e-mail vinculada. Para cada uma, leia a oportunidade, os contatos, as notas e as últimas mensagens da conversa vinculada. Se a última mensagem ainda não for um rascunho, salve com save_message_draft um rascunho curto de follow-up nessa conversa, no estilo do Max, que retome o último assunto e proponha um próximo passo concreto. Ignore as oportunidades sem conversa de e-mail vinculada e as que já têm um rascunho. Acrescente às notas da oportunidade uma linha datada "Follow-up rascunhado". Não altere a etapa, os produtos, o valor nem a Data do próximo passo, e nunca envie uma mensagem. Informe as oportunidades e os rascunhos.',
       runs: [
         "Rascunhei 3 follow-ups para oportunidades com prazo hoje: secador por adsorção da Revestimentos Fontenova, recuperação de calor da Móveis Rosal e compressor da Tecelagem Bom Porto. Os rascunhos aguardam revisão na Caixa de entrada; nada foi enviado.",
@@ -750,7 +750,7 @@ export const pt: Strings = {
     codex:
       "Com ele, o Rodrigo roda scripts, por exemplo para limpar a lista de visitantes da feira antes de ela ser importada.",
     followUp:
-      'A rotina "Toda manhã, rascunhar follow-ups das oportunidades com prazo hoje" roda nas manhãs de dias úteis, às 8h. Ela encontra as oportunidades em aberto cuja data do próximo passo é hoje ou anterior, lê a conversa vinculada e salva um rascunho curto de follow-up por oportunidade. Os rascunhos aguardam na Caixa de entrada: o Max ou o proprietário da oportunidade lê, ajusta e envia. A rotina nunca envia nada e nunca altera a etapa, o valor nem uma data.',
+      'A rotina "Rascunhos diários para oportunidades com prazo hoje" roda nas manhãs de dias úteis, às 8h. Ela encontra as oportunidades em aberto cuja data do próximo passo é hoje ou anterior, lê a conversa vinculada e salva um rascunho curto de follow-up por oportunidade. Os rascunhos aguardam na Caixa de entrada: o Max ou o proprietário da oportunidade lê, ajusta e envia. A rotina nunca envia nada e nunca altera a etapa, o valor nem uma data.',
   },
   mateChatLog: {
     title: "Registrar a ligação com a Portal Norte e atualizar a oportunidade",

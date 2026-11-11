@@ -373,7 +373,7 @@ export const nl: Strings = {
       ],
     },
     followUp: {
-      name: "Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor verkoopkansen van vandaag",
       task: 'Zoek elke werkdagochtend de verkoopkansen met de fase Geïdentificeerd, Offerte verstuurd of Proefperiode waarvan de datum van de volgende stap vandaag of eerder is. Lees voor elke verkoopkans de klant, de gekoppelde contactpersonen en de laatste conversatie die aan de verkoopkans is gekoppeld. Als die conversatie al eindigt met een concept, laat het dan ongemoeid. Sla anders met save_message_draft in die conversatie één kort opvolgconcept op: bedank de persoon voor het laatste bericht, noem de volgende stap in één zin en stel één concreet tijdstip voor. Is er geen conversatie gekoppeld, maak dan in plaats daarvan één gewone taak "Opvolgen bij <contactnaam>" aan voor de accountmanager van de klant, met deadline vandaag. Verstuur nooit een bericht, wijzig de verkoopkans niet en rapporteer welke verkoopkansen en concepten het betreft.',
       runs: [
         "Drie verkoopkansen gevonden met een volgende stap die vandaag aan de beurt is en drie opvolgconcepten in de Inbox opgeslagen, voor Hoogland, Merwede en Klaverdal Medisch Centrum.",
@@ -604,7 +604,7 @@ export const nl: Strings = {
     codex:
       "Het ruimt exports en imports op met een script, bijvoorbeeld door dubbele contactpersonen zoals Thijs Oosterhuis samen te voegen, en schrijft een notitie over wat er is aangepast.",
     followUp:
-      'Elke werkdag om 8 uur kijkt de routine "Elke ochtend opvolgconcepten maken voor verkoopkansen die vandaag aan de beurt zijn" naar de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is en slaat per verkoopkans één kort opvolgconcept op in de Inbox. Max leest elk concept, past het aan en verstuurt het zelf. De routine verstuurt nooit een bericht en verwijdert niets.',
+      'Elke werkdag om 8 uur kijkt de routine "Dagelijkse opvolgconcepten voor verkoopkansen van vandaag" naar de verkoopkansen waarvan de datum van de volgende stap vandaag of eerder is en slaat per verkoopkans één kort opvolgconcept op in de Inbox. Max leest elk concept, past het aan en verstuurt het zelf. De routine verstuurt nooit een bericht en verwijdert niets.',
   },
   notes: {
     halversonRenewal:

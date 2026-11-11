@@ -373,7 +373,7 @@ export const pl: Strings = {
       ],
     },
     followUp: {
-      name: "Każdego ranka szkice wiadomości przypominających dla szans sprzedaży z terminem na dziś",
+      name: "Codzienne szkice dla szans sprzedaży z terminem na dziś",
       task: "W każdy dzień roboczy rano znajdź szanse sprzedaży na etapie Zidentyfikowana, Oferta wysłana lub Degustacja / okres próbny, których Data następnego kroku to dziś lub wcześniej. Dla każdej z nich przeczytaj klienta, powiązane kontakty i ostatnią rozmowę powiązaną z szansą sprzedaży. Jeśli ta rozmowa kończy się już szkicem, zostaw go bez zmian. W przeciwnym razie zapisz w tej rozmowie za pomocą save_message_draft jeden krótki szkic wiadomości przypominającej: podziękuj za ostatnią wiadomość, nazwij Następny krok jednym zdaniem i zaproponuj jeden konkretny termin. Gdy żadna rozmowa nie jest powiązana, utwórz zamiast tego jedno zwykłe zadanie „Wrócić do rozmowy: <imię i nazwisko kontaktu>” z terminem na dziś dla Opiekuna klienta. Nigdy nie wysyłaj wiadomości, nie zmieniaj szansy sprzedaży i podaj w raporcie szanse sprzedaży i szkice.",
       runs: [
         "Znaleziono 3 szanse sprzedaży z dzisiejszym terminem następnego kroku i zapisano 3 szkice wiadomości przypominających w skrzynce odbiorczej, dla firmy Halicki, firmy Merkury i Centrum Medycznego Kalina.",
@@ -603,7 +603,7 @@ export const pl: Strings = {
     codex:
       "Porządkuje eksporty i importy skryptem, na przykład łącząc zduplikowane kontakty, takie jak Łukasz Ostrowski, i zapisuje notatkę o tym, co zmienił.",
     followUp:
-      "W każdy dzień roboczy o 8:00 rutyna „Każdego ranka szkice wiadomości przypominających dla szans sprzedaży z terminem na dziś” sprawdza szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, i zapisuje w skrzynce odbiorczej po jednym krótkim szkicu wiadomości przypominającej na szansę sprzedaży. Max czyta każdy szkic, poprawia go i sam wysyła. Rutyna nigdy nie wysyła wiadomości i niczego nie usuwa.",
+      "W każdy dzień roboczy o 8:00 rutyna „Codzienne szkice dla szans sprzedaży z terminem na dziś” sprawdza szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, i zapisuje w skrzynce odbiorczej po jednym krótkim szkicu wiadomości przypominającej na szansę sprzedaży. Max czyta każdy szkic, poprawia go i sam wysyła. Rutyna nigdy nie wysyła wiadomości i niczego nie usuwa.",
   },
   notes: {
     halversonRenewal:

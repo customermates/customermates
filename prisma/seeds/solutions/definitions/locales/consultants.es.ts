@@ -522,7 +522,7 @@ export const es: Strings = {
       ],
     },
     followUps: {
-      name: "Cada mañana, borradores de seguimiento de los encargos que vencen hoy",
+      name: "Borradores diarios para encargos que vencen hoy",
       task: "Cada día laborable por la mañana, busca los encargos en Primer contacto, Diagnóstico, Alcance, Propuesta enviada o Decisión cuya Fecha del próximo paso sea hoy o anterior, y las conversaciones de correo vinculadas a un encargo o a un cliente en las que el cliente escribió el último mensaje y nadie ha respondido. Para como máximo tres de ellas, lee las notas del encargo y la última conversación vinculada y guarda con save_message_draft, en esa conversación, un borrador de respuesta breve que conteste la pregunta abierta y proponga el siguiente paso. Conserva cualquier borrador existente y omite las conversaciones en las que la persona propietaria del espacio de trabajo escribió el último mensaje. Los borradores son para que los revise la persona propietaria; no los envíes nunca y no cambies ningún registro.",
       runs: [
         "Preparado 1 borrador de respuesta para el encargo que vence hoy: Aguaclara Software, las dos opciones de alcance para Sara Navarro. Omitidos Componentes Altuna, cuya respuesta ya termina en un borrador, y Logística Ebro, donde las preguntas de Hugo ya tienen una tarea de llamada.",
@@ -585,7 +585,7 @@ export const es: Strings = {
     codex:
       "Limpia exportaciones e importaciones desde el terminal, por ejemplo una hoja de márgenes que ha enviado un cliente, y escribe el resultado como nota.",
     followUp:
-      "La rutina “Cada mañana, borradores de seguimiento de los encargos que vencen hoy” se ejecuta cada día laborable por la mañana. Busca los encargos cuya fecha del próximo paso es hoy o anterior y las conversaciones de correo en las que el cliente escribió el último mensaje, y guarda como máximo tres borradores de respuesta en esas conversaciones. Los borradores esperan en la Bandeja de entrada hasta que Max los lee, los edita y los envía; la rutina nunca envía nada y omite las conversaciones que ya terminan en un borrador.",
+      "La rutina “Borradores diarios para encargos que vencen hoy” se ejecuta cada día laborable por la mañana. Busca los encargos cuya fecha del próximo paso es hoy o anterior y las conversaciones de correo en las que el cliente escribió el último mensaje, y guarda como máximo tres borradores de respuesta en esas conversaciones. Los borradores esperan en la Bandeja de entrada hasta que Max los lee, los edita y los envía; la rutina nunca envía nada y omite las conversaciones que ya terminan en un borrador.",
   },
   mateReferences: {
     title: "Referencias de fusiones para Marín",

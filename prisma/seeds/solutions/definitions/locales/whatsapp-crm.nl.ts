@@ -339,7 +339,7 @@ export const nl: Strings = {
         "Ik kon de modelaanbieder bij deze poging niet bereiken en ben gestopt voordat ik iets las. Er is geen concept opgeslagen.",
     },
     followUps: {
-      name: "Elke ochtend opvolgconcepten voor projecten die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor projecten van vandaag",
       task: "Lees elke werkdagochtend de projecten waarvan de fase Nieuwe aanvraag, Opmeting op locatie, Tekening verstuurd of Offerte verstuurd is en waarvan de datum van de volgende stap vandaag of eerder is. Lees voor elk project de gekoppelde contactpersoon, het laatste gesprek dat aan het project is gekoppeld en de projectnotities. Sla met save_message_draft één kort opvolgconcept op in het kanaal dat die contactpersoon verkiest, verwijs naar het laatst afgesprokene en stel één duidelijke vraag. Laat alle bestaande concepten staan en sla een project over dat al een open concept heeft of waarnaar wij de afgelopen twee dagen een bericht hebben gestuurd. Verstuur nooit een bericht, wijzig nooit een projectveld en verwijder nooit iets. Meld voor welke projecten je concepten hebt opgesteld en welke je hebt overgeslagen, met de reden.",
       runs: [
         "2 opvolgconcepten opgesteld, voor Grijslijn (decorcode van het laminaat, 4 dagen te laat) en Zout & Den (tijdstip voor de opmeting). Koperen Ketel overgeslagen, daar lag al een concept.",
@@ -480,7 +480,7 @@ export const nl: Strings = {
     codex:
       "Codex schoont klantenlijsten op met scripts, bijvoorbeeld door dubbele contactpersonen samen te voegen, en schrijft een notitie over wat het heeft gewijzigd.",
     followUp:
-      "Elke werkdagochtend om 8 uur leest de routine “Elke ochtend opvolgconcepten voor projecten die vandaag aan de beurt zijn” de projecten waarvan de volgende stap aan de beurt is, kijkt naar de laatste chat of e-mail en slaat per project één kort opvolgconcept op. De concepten wachten in de Inbox tot Max ze heeft gelezen, aangepast en zelf verstuurd; de routine verstuurt nooit een bericht en wijzigt nooit een project.",
+      "Elke werkdagochtend om 8 uur leest de routine “Dagelijkse opvolgconcepten voor projecten van vandaag” de projecten waarvan de volgende stap aan de beurt is, kijkt naar de laatste chat of e-mail en slaat per project één kort opvolgconcept op. De concepten wachten in de Inbox tot Max ze heeft gelezen, aangepast en zelf verstuurd; de routine verstuurt nooit een bericht en wijzigt nooit een project.",
   },
   countryCode: "nl",
   addresses: {

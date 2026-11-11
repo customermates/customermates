@@ -299,7 +299,7 @@ export const nl: Strings = {
       ],
     },
     dailyFollowUp: {
-      name: "Elke ochtend opvolgconcepten voor pitches die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor pitches van vandaag",
       task: "Lees elke werkdagochtend de lijst Pitches met de ingestelde velden Fase, Volgende stap, Datum volgende stap, klant en contactpersonen. Neem de pitches waarvan de Fase Aanvraag, Briefing, Pitchvoorbereiding, Voorstel verzonden of Onderhandeling is en waarvan de Datum volgende stap vandaag of eerder is. Zoek voor elk daarvan met de berichtentools de nieuwste e-mailthread met de contactpersonen van de pitch. Heeft de thread nog geen antwoordconcept, sla dan met save_message_draft één kort concept op dat de laatste vraag van de contactpersoon beantwoordt of de volgende stap noemt, geschreven zoals Max het zou schrijven. Heeft een pitch geen e-mailthread, maak dan één gewone taak “Opvolgen: <naam van de pitch>” aan met vandaag als vervaldatum, voor de eigenaar van de pitch. Sla threads over die al een concept hebben en pitches die al zo'n taak hebben. Verstuur nooit een bericht en wijzig nooit een pitch. Rapporteer welke concepten en taken je hebt aangemaakt.",
       runs: [
         "Twee pitches waren aan de beurt: een antwoordconcept opgeslagen voor Stichting Dennenbos (planning jaarverslag) en een opvolgconcept voor Heidepad Outdoor (presentatie voorjaarscollectie). Beide wachten in de Inbox op beoordeling.",
@@ -673,7 +673,7 @@ export const nl: Strings = {
     codex:
       "Het draait scripts tegen het CRM: geïmporteerde contactpersonen opschonen, dubbele records samenvoegen en de cijfers voor het maandrapport exporteren.",
     followUp:
-      "De routine “Elke ochtend opvolgconcepten voor pitches die vandaag aan de beurt zijn” draait elke werkdagochtend. Ze leest de pitches waarvan de datum voor de volgende stap vandaag of eerder is, zoekt de nieuwste e-mailthread met hun contactpersonen en slaat één kort antwoordconcept op als er nog geen is. De concepten wachten in de Inbox tot Max of Iris ze beoordeelt en verstuurt; de routine verstuurt nooit iets en wijzigt nooit een pitch.",
+      "De routine “Dagelijkse opvolgconcepten voor pitches van vandaag” draait elke werkdagochtend. Ze leest de pitches waarvan de datum voor de volgende stap vandaag of eerder is, zoekt de nieuwste e-mailthread met hun contactpersonen en slaat één kort antwoordconcept op als er nog geen is. De concepten wachten in de Inbox tot Max of Iris ze beoordeelt en verstuurt; de routine verstuurt nooit iets en wijzigt nooit een pitch.",
   },
   mateOrchard: {
     title: "Taak voor het kennismakingsgesprek met De Boomgaard",

@@ -504,7 +504,7 @@ export const pl: Strings = {
       ],
     },
     followUp: {
-      name: "Każdego ranka szkice follow-upów do szans sprzedaży z terminem na dziś",
+      name: "Codzienne szkice do szans sprzedaży z terminem na dziś",
       task: "W każdy dzień roboczy rano znajdź otwarte szanse sprzedaży (etap Nowa, Zakwalifikowana, Analiza potrzeb, Oferta wysłana lub Negocjacje), których Data następnego kroku to dziś lub wcześniej i które mają powiązaną rozmowę e-mail. Dla każdej z nich przeczytaj szansę sprzedaży, jej kontakty, notatki i ostatnie wiadomości powiązanej rozmowy. Jeśli ostatnia wiadomość nie jest jeszcze szkicem, zapisz w tej rozmowie jeden krótki szkic follow-upu przez save_message_draft, w stylu Maxa, który nawiązuje do ostatniego tematu i proponuje jeden konkretny następny krok. Pomiń szanse sprzedaży bez powiązanej rozmowy e-mail oraz te, które już mają szkic. Dopisz do notatek szansy sprzedaży jedną datowaną linijkę „Przygotowano follow-up”. Nie zmieniaj etapu, produktów, wartości ani Daty następnego kroku i nigdy nie wysyłaj wiadomości. Podaj w raporcie szanse sprzedaży i szkice.",
       runs: [
         "Przygotowano 3 follow-upy do szans sprzedaży z terminem na dziś: osuszacz adsorpcyjny w Lakpolu, odzysk ciepła w Meblokrafcie i sprężarka w Tkaninach Fala. Szkice czekają w Skrzynce odbiorczej na przegląd; nic nie wysłano.",
@@ -721,7 +721,7 @@ export const pl: Strings = {
     codex:
       "Mateusz uruchamia przez Codex skrypty, na przykład do oczyszczania listy odwiedzających z targów przed importem.",
     followUp:
-      "Rutyna „Każdego ranka szkice follow-upów do szans sprzedaży z terminem na dziś” działa w dni robocze o 8:00. Znajduje otwarte szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, czyta powiązaną rozmowę i zapisuje jeden krótki szkic follow-upu na szansę sprzedaży. Szkice czekają w Skrzynce odbiorczej: Max lub właściciel szansy sprzedaży czyta je, zmienia i wysyła. Rutyna nigdy niczego nie wysyła i nie zmienia etapu, wartości ani dat.",
+      "Rutyna „Codzienne szkice do szans sprzedaży z terminem na dziś” działa w dni robocze o 8:00. Znajduje otwarte szanse sprzedaży, których data następnego kroku to dziś lub wcześniej, czyta powiązaną rozmowę i zapisuje jeden krótki szkic follow-upu na szansę sprzedaży. Szkice czekają w Skrzynce odbiorczej: Max lub właściciel szansy sprzedaży czyta je, zmienia i wysyła. Rutyna nigdy niczego nie wysyła i nie zmienia etapu, wartości ani dat.",
   },
   mateChatLog: {
     title: "Zapisz rozmowę z Rozlewnią Północną i zaktualizuj szansę sprzedaży",

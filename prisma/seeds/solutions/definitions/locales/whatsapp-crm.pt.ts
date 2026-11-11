@@ -342,7 +342,7 @@ export const pt: Strings = {
         "Não consegui acessar o provedor do modelo nesta tentativa, então parei antes de ler qualquer coisa. Nenhum rascunho foi salvo.",
     },
     followUps: {
-      name: "Toda manhã, rascunhos de acompanhamento dos projetos com prazo para hoje",
+      name: "Rascunhos diários para projetos com prazo hoje",
       task: "Em toda manhã de dia útil, leia os projetos cuja Etapa é Nova solicitação, Visita técnica, Desenho enviado ou Orçamento enviado e cuja Data do próximo passo é hoje ou anterior. Para cada projeto, leia o contato vinculado, a última conversa vinculada ao projeto e as notas do projeto. Salve um rascunho curto de acompanhamento com save_message_draft no canal que esse contato prefere, mencione a última coisa combinada e faça uma única pergunta clara. Mantenha todos os rascunhos existentes e pule um projeto que já tenha um rascunho aberto ou uma mensagem nossa nos últimos dois dias. Nunca envie uma mensagem, nunca altere um campo do projeto e nunca apague nada. Relate os projetos para os quais você criou rascunhos e os que pulou, com o motivo.",
       runs: [
         "Preparei 2 rascunhos de acompanhamento, para a Linha Cinza (código do acabamento laminado, 4 dias de atraso) e o Sal & Pinho (horário da visita técnica). Pulei a Chaleira de Cobre, que já tinha um rascunho.",
@@ -483,7 +483,7 @@ export const pt: Strings = {
     codex:
       "O Codex limpa listas de clientes com scripts, por exemplo mesclando contatos duplicados, e escreve uma nota sobre o que alterou.",
     followUp:
-      "Toda manhã de dia útil, às 8h, a rotina “Toda manhã, rascunhos de acompanhamento dos projetos com prazo para hoje” lê os projetos cujo próximo passo vence, olha o último chat ou e-mail e salva um rascunho curto de acompanhamento por projeto. Os rascunhos ficam na Caixa de entrada até que o Max os leia, altere e envie pessoalmente; a rotina nunca envia uma mensagem e nunca altera um projeto.",
+      "Toda manhã de dia útil, às 8h, a rotina “Rascunhos diários para projetos com prazo hoje” lê os projetos cujo próximo passo vence, olha o último chat ou e-mail e salva um rascunho curto de acompanhamento por projeto. Os rascunhos ficam na Caixa de entrada até que o Max os leia, altere e envie pessoalmente; a rotina nunca envia uma mensagem e nunca altera um projeto.",
   },
   countryCode: "br",
   addresses: {

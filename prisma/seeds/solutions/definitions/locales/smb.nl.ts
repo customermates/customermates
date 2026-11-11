@@ -385,7 +385,7 @@ export const nl: Strings = {
         "Ik kon de modelaanbieder bij deze poging niet bereiken, dus ik ben gestopt voordat ik iets las of wijzigde. Er is niets aangepast. De volgende e-mail start een nieuwe run.",
     },
     followUpDue: {
-      name: "Elke ochtend opvolgconcepten voor deals die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor deals van vandaag",
       task: 'Lees elke werkdagochtend de open deals (elke fase behalve Gewonnen en Verloren) waarvan de datum van de volgende stap vandaag of eerder is. Lees bij elke deal het bedrijf, de gekoppelde contactpersonen, de diensten op de deal en het laatste gekoppelde e-mailgesprek. Als de klant het laatst schreef in een e-mailgesprek en er nog geen conceptantwoord bestaat, sla dan met save_message_draft één kort conceptantwoord op dat de vraag beantwoordt, prijzen uit de lijst Diensten gebruikt en nooit een korting toezegt. Bewaar een bestaand concept. Als de deal geen e-mailgesprek heeft, maak dan één gewone taak met de naam "Opvolgen: <dealnaam>" aan met deadline vandaag, tenzij er al een taak met die naam is gekoppeld. Verstuur nooit een bericht en wijzig geen ander veld. Rapporteer de deals en wat je voor elk ervan hebt voorbereid.',
       runs: [
         "3 deals waren aan de beurt: een conceptantwoord voor Tandartspraktijk Van Kessel opgeslagen en opvolgtaken aangemaakt voor Fysiotherapie Rivierzicht en Bakkerij De Wilg, waarvan de gesprekken via WhatsApp en Instagram lopen.",
@@ -668,7 +668,7 @@ export const nl: Strings = {
     codex:
       "Codex draait scripts op exports uit onze oude systemen, bijvoorbeeld om dubbele contactpersonen samen te voegen, en schrijft in de notities wat het heeft gewijzigd.",
     followUp:
-      'De routine "Elke ochtend opvolgconcepten voor deals die vandaag aan de beurt zijn" draait elke werkdag om 8.00 uur en is van Max. Voor elke open deal waarvan de datum van de volgende stap vandaag of eerder is, slaat ze een conceptantwoord op voor de laatste klantmail of, als het gesprek via WhatsApp, Instagram of Telegram loopt, een opvolgtaak. De concepten wachten in de Inbox tot een persoon ze heeft gelezen; de routine verstuurt nooit iets.',
+      'De routine "Dagelijkse opvolgconcepten voor deals van vandaag" draait elke werkdag om 8.00 uur en is van Max. Voor elke open deal waarvan de datum van de volgende stap vandaag of eerder is, slaat ze een conceptantwoord op voor de laatste klantmail of, als het gesprek via WhatsApp, Instagram of Telegram loopt, een opvolgtaak. De concepten wachten in de Inbox tot een persoon ze heeft gelezen; de routine verstuurt nooit iets.',
   },
   mateChatWalkthrough: {
     title: "Rondgang bij Hotel Havenzicht",

@@ -388,7 +388,7 @@ export const pt: Strings = {
         "Não consegui acessar o provedor do modelo nesta tentativa, então parei antes de ler ou alterar qualquer coisa. Nada foi modificado. O próximo e-mail iniciará uma nova execução.",
     },
     followUpDue: {
-      name: "Toda manhã, rascunhos de follow-up para negócios com prazo hoje",
+      name: "Rascunhos diários para negócios com prazo hoje",
       task: "Toda manhã de dia útil, leia os negócios em aberto (todas as etapas, exceto Ganho e Perdido) cuja Data do próximo passo é hoje ou anterior. Para cada negócio, leia a empresa, os contatos vinculados, os serviços do negócio e a última conversa de e-mail vinculada. Quando o cliente tiver escrito por último em uma conversa de e-mail e ainda não houver rascunho de resposta, salve com save_message_draft um rascunho de resposta curto que responda à pergunta, use os preços da lista de Serviços e nunca prometa desconto. Preserve um rascunho existente. Quando o negócio não tiver conversa de e-mail, crie uma tarefa comum chamada “Follow-up: <nome do negócio>” com prazo para hoje, a menos que já haja uma tarefa com esse nome vinculada. Nunca envie uma mensagem e não altere nenhum outro campo. Relate os negócios e o que você preparou para cada um.",
       runs: [
         "3 negócios com prazo: salvei um rascunho de resposta para a Clínica Duarte e criei tarefas de follow-up para a Beira Rio e a Padaria Salgueiro, cujas conversas acontecem no WhatsApp e no Instagram.",
@@ -671,7 +671,7 @@ export const pt: Strings = {
     codex:
       "O Codex executa scripts em exportações dos nossos sistemas antigos, por exemplo para mesclar contatos duplicados, e registra nas notas o que alterou.",
     followUp:
-      "A rotina “Toda manhã, rascunhos de follow-up para negócios com prazo hoje” roda todos os dias úteis às 8h e pertence ao Max. Para cada negócio em aberto cuja data do próximo passo é hoje ou anterior, ela salva um rascunho de resposta ao último e-mail do cliente ou, quando a conversa acontece no WhatsApp, no Instagram ou no Telegram, uma tarefa de follow-up. Os rascunhos ficam na Caixa de entrada até uma pessoa lê-los; a rotina nunca envia nada.",
+      "A rotina “Rascunhos diários para negócios com prazo hoje” roda todos os dias úteis às 8h e pertence ao Max. Para cada negócio em aberto cuja data do próximo passo é hoje ou anterior, ela salva um rascunho de resposta ao último e-mail do cliente ou, quando a conversa acontece no WhatsApp, no Instagram ou no Telegram, uma tarefa de follow-up. Os rascunhos ficam na Caixa de entrada até uma pessoa lê-los; a rotina nunca envia nada.",
   },
   mateChatWalkthrough: {
     title: "Visita ao Hotel Vista do Porto",

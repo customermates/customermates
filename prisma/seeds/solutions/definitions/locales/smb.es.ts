@@ -398,7 +398,7 @@ export const es: Strings = {
         "No pude conectar con el proveedor del modelo en este intento, así que me detuve antes de leer o cambiar nada. No se modificó nada. El próximo correo iniciará una ejecución nueva.",
     },
     followUpDue: {
-      name: "Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy",
+      name: "Borradores diarios para oportunidades que vencen hoy",
       task: "Cada mañana de lunes a viernes, lee las oportunidades abiertas (todas las etapas excepto Ganada y Perdida) cuya fecha del próximo paso sea hoy o anterior. De cada oportunidad lee la empresa, los contactos vinculados, los servicios y la última conversación de correo vinculada. Cuando el cliente haya escrito el último mensaje de una conversación de correo y todavía no exista un borrador de respuesta, guarda con save_message_draft un borrador de respuesta breve que conteste a la pregunta, use los precios de la lista de Servicios y nunca prometa un descuento. Conserva un borrador existente. Si la oportunidad no tiene conversación de correo, crea una tarea normal llamada «Seguimiento: <nombre de la oportunidad>» con vencimiento hoy, salvo que ya haya vinculada una tarea con ese nombre. No envíes nunca un mensaje y no cambies ningún otro campo. Informa de las oportunidades y de lo que preparaste para cada una.",
       runs: [
         "Vencían 3 oportunidades: guardé un borrador de respuesta para la Clínica Dental Calleja y creé tareas de seguimiento para Fisioterapia Ribera y Panadería El Sauce, cuyas conversaciones transcurren por WhatsApp e Instagram.",
@@ -681,7 +681,7 @@ export const es: Strings = {
     codex:
       "Ejecuta scripts sobre exportaciones de nuestros sistemas antiguos, por ejemplo para fusionar contactos duplicados, y anota en las notas lo que cambió.",
     followUp:
-      "La rutina «Cada mañana, borradores de seguimiento para las oportunidades que vencen hoy» se ejecuta de lunes a viernes a las 8:00 y pertenece a Max. Para cada oportunidad abierta cuya fecha del próximo paso es hoy o anterior, guarda un borrador de respuesta al último correo del cliente o, cuando la conversación transcurre por WhatsApp, Instagram o Telegram, una tarea de seguimiento. Los borradores esperan en la Bandeja de entrada hasta que una persona los lee; la rutina nunca envía nada.",
+      "La rutina «Borradores diarios para oportunidades que vencen hoy» se ejecuta de lunes a viernes a las 8:00 y pertenece a Max. Para cada oportunidad abierta cuya fecha del próximo paso es hoy o anterior, guarda un borrador de respuesta al último correo del cliente o, cuando la conversación transcurre por WhatsApp, Instagram o Telegram, una tarea de seguimiento. Los borradores esperan en la Bandeja de entrada hasta que una persona los lee; la rutina nunca envía nada.",
   },
   mateChatWalkthrough: {
     title: "Visita al Hotel Mirador Sierra",

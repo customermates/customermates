@@ -367,7 +367,7 @@ export const pl: Strings = {
         "Przy tej próbie nie udało się połączyć z dostawcą modelu, więc zatrzymano pracę, zanim cokolwiek odczytano lub zmieniono. Nic nie zostało zmodyfikowane. Kolejny e-mail uruchomi nowy przebieg.",
     },
     followUpDue: {
-      name: "Każdego ranka szkice follow-upów dla szans z dzisiejszym terminem",
+      name: "Codzienne szkice dla szans z terminem na dziś",
       task: "Każdego ranka w dni robocze czytaj otwarte szanse sprzedaży (każdy etap poza „Wygrana” i „Przegrana”), których data następnego kroku to dziś lub wcześniej. Dla każdej szansy przeczytaj firmę, powiązane kontakty, usługi w szansie i ostatnią powiązaną rozmowę e-mailową. Gdy w rozmowie e-mailowej ostatni pisał klient i nie ma jeszcze szkicu odpowiedzi, zapisz za pomocą save_message_draft jeden krótki szkic odpowiedzi, który odpowiada na pytanie, używa cen z listy Usługi i nigdy nie obiecuje rabatu. Nie nadpisuj istniejącego szkicu. Gdy szansa nie ma rozmowy e-mailowej, utwórz jedno zwykłe zadanie o nazwie „Follow-up: <nazwa szansy>” z terminem na dziś, chyba że zadanie o tej nazwie jest już powiązane. Nigdy nie wysyłaj wiadomości i nie zmieniaj żadnego innego pola. Zgłoś szanse i to, co przygotowano dla każdej z nich.",
       runs: [
         "3 szanse miały termin: zapisano szkic odpowiedzi dla Stomatologii Kowalska i utworzono zadania follow-up dla Fizjoterapii Nad Motławą i Piekarni Wierzbowej, których rozmowy toczą się przez WhatsApp i Instagram.",
@@ -650,7 +650,7 @@ export const pl: Strings = {
     codex:
       "Uruchamia skrypty na eksportach z naszych starych systemów, na przykład żeby scalić zduplikowane kontakty, i zapisuje w notatkach, co zmienił.",
     followUp:
-      "Rutyna „Każdego ranka szkice follow-upów dla szans z dzisiejszym terminem” działa w dni robocze o 8:00 i należy do Maxa. Dla każdej otwartej szansy sprzedaży, której data następnego kroku to dziś lub wcześniej, zapisuje szkic odpowiedzi na ostatniego e-maila klienta albo, gdy rozmowa toczy się przez WhatsApp, Instagram lub Telegram, zadanie follow-up. Szkice czekają w skrzynce odbiorczej, aż przeczyta je człowiek; rutyna niczego nie wysyła.",
+      "Rutyna „Codzienne szkice dla szans z terminem na dziś” działa w dni robocze o 8:00 i należy do Maxa. Dla każdej otwartej szansy sprzedaży, której data następnego kroku to dziś lub wcześniej, zapisuje szkic odpowiedzi na ostatniego e-maila klienta albo, gdy rozmowa toczy się przez WhatsApp, Instagram lub Telegram, zadanie follow-up. Szkice czekają w skrzynce odbiorczej, aż przeczyta je człowiek; rutyna niczego nie wysyła.",
   },
   mateChatWalkthrough: {
     title: "Wizyta w Hotelu Przystań",

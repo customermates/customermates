@@ -516,7 +516,7 @@ export const nl: Strings = {
       ],
     },
     followUps: {
-      name: "Elke ochtend vervolgconcepten opstellen voor opdrachten die vandaag aan de beurt zijn",
+      name: "Dagelijkse opvolgconcepten voor opdrachten van vandaag",
       task: "Zoek elke werkdagochtend de opdrachten in Kennismaking, Verkenning, Afbakening, Offerte verstuurd of Besluit waarvan de datum van de volgende stap vandaag of eerder is, en de e-mailgesprekken die aan een opdracht of klant zijn gekoppeld waarin de klant als laatste schreef en niemand heeft geantwoord. Lees voor maximaal drie daarvan de notities van de opdracht en het laatste gekoppelde gesprek en bewaar met save_message_draft in dat gesprek één kort conceptantwoord dat de openstaande vraag beantwoordt en de volgende stap voorstelt. Behoud een bestaand concept en sla gesprekken over waarin de eigenaar van de werkruimte als laatste schreef. De concepten zijn bedoeld voor de beoordeling door de eigenaar; verstuur ze nooit en wijzig geen records.",
       runs: [
         "1 conceptantwoord voorbereid voor de opdracht die vandaag aan de beurt was: Helderwater Software, de twee scopeopties voor Saskia Kuipers. Overgeslagen: Valkenhof Componenten, waarvan het antwoord al met een concept eindigt, en Noordwold Logistiek, waar de vragen van Tom al een belafspraak als taak hebben.",
@@ -579,7 +579,7 @@ export const nl: Strings = {
     codex:
       "Het ruimt exports en imports op vanuit de terminal, bijvoorbeeld een margespreadsheet die een klant stuurde, en schrijft het resultaat als notitie.",
     followUp:
-      "De routine “Elke ochtend vervolgconcepten opstellen voor opdrachten die vandaag aan de beurt zijn” draait elke werkdagochtend. Ze zoekt opdrachten waarvan de datum van de volgende stap vandaag of eerder is en e-mailgesprekken waarin de klant als laatste schreef, en bewaart maximaal drie conceptantwoorden in die gesprekken. De concepten wachten in de Inbox tot Max ze heeft gelezen, aangepast en verstuurd; de routine verstuurt nooit iets en slaat een gesprek over dat al met een concept eindigt.",
+      "De routine “Dagelijkse opvolgconcepten voor opdrachten van vandaag” draait elke werkdagochtend. Ze zoekt opdrachten waarvan de datum van de volgende stap vandaag of eerder is en e-mailgesprekken waarin de klant als laatste schreef, en bewaart maximaal drie conceptantwoorden in die gesprekken. De concepten wachten in de Inbox tot Max ze heeft gelezen, aangepast en verstuurd; de routine verstuurt nooit iets en slaat een gesprek over dat al met een concept eindigt.",
   },
   mateReferences: {
     title: "Fusiereferenties voor Marwijk",
