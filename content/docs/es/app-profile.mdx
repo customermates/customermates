@@ -1,0 +1,125 @@
+---
+title: "Ajustes del perfil de usuario en el CRM Customermates"
+description: "Tus ajustes personales de Customermates: nombre, idioma, formatos, tema y atajos, los canales que alimentan la bandeja de entrada y tus claves de API."
+---
+
+## ¿Qué es tuyo y qué es del espacio de trabajo? [#what-lives-on-the-profile-screen]
+
+La parte Cuenta de Ajustes tiene cuatro páginas: [Perfil y preferencias](app:settings/profile) (nombre, avatar, idioma, formatos, tema), [Espacios de trabajo](app:settings/workspaces) (los espacios de trabajo a los que perteneces), [Canales y calendarios](app:settings/channels) (las cuentas que alimentan la [bandeja de entrada](/docs/app-inbox)) y [Claves de API y conectores](app:settings/api-keys) (claves para clientes MCP y REST). Haz clic en tu avatar, abajo en la barra lateral, y elige **Perfil y preferencias**, o elige **Ajustes** en el menú del espacio de trabajo (el nombre del espacio de trabajo, arriba en la barra lateral) o pulsa G y luego S; cada opción abre Perfil y preferencias, y la navegación de ajustes lista las demás páginas. **Atrás**, arriba en esa navegación, te devuelve a donde estabas. Los cambios que haces aquí solo te afectan a ti, salvo en un canal que compartes con el espacio de trabajo. Tu perfil es el mismo en todos los espacios de trabajo a los que perteneces, mientras que los canales y las claves de API pertenecen al espacio de trabajo en el que los conectaste o los creaste; consulta [Espacios de trabajo](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+
+Todos los miembros ven Perfil y preferencias. Canales y calendarios requiere **Acceso de lectura** **Todos** en la fila **Mensajes de la bandeja de entrada** de tu rol y solo existe en Customermates Cloud. Claves de API y conectores requiere **Acceso de lectura** **Todos** en **API y webhooks**. Un rol personalizado nuevo empieza con **Ninguno** en ambas filas; los roles se editan en [Roles](app:settings/roles), consulta [Guía de la aplicación, Empresa](/docs/app-company).
+
+## Perfil y preferencias [#settings-tab]
+
+Cambia cualquier campo de [Perfil y preferencias](app:settings/profile) y haz clic en **Guardar**, que guarda todo el formulario. En cuanto algo cambia, aparece una barra flotante **Cambios sin guardar** con **Cancelar**, que descarta tus cambios, y **Guardar**.
+
+### ¿Cómo cambio mi nombre, mi avatar, mi idioma o mi tema? [#how-do-i-change-my-name-avatar-language-or-theme]
+
+| Campo | Reglas y efecto |
+|---|---|
+| **Nombre**, **Apellidos** | Obligatorios, hasta 255 caracteres; tu nombre en todos los espacios de trabajo a los que perteneces |
+| **URL del avatar** | Enlace opcional a una imagen pública (no hay subida de archivos; se añade `https://`); si está vacío, se muestran tus iniciales |
+| [Idioma de la interfaz](app:settings/profile?focus=display-language) | **Inglés**, **Alemán**, **Francés**, **Italiano**, **Español** o **Sistema** (el idioma del navegador y, si no, inglés). Lo usan la interfaz y Mate, y también los correos de notificación (en inglés con **Sistema**). Al guardar se recarga la aplicación |
+| [Formato regional](app:settings/profile?focus=formatting-locale) | Las mismas opciones; cómo se escriben los números, las fechas y los importes, con independencia del idioma de la interfaz. **Sistema** sigue el idioma de la interfaz |
+| [Tema](app:settings/profile?focus=theme) | **Sistema**, **Oscuro** o **Claro** |
+
+El **Tema** y el **Idioma** también se pueden cambiar en el menú personal. El encabezado sobre el formulario muestra tu correo electrónico, el estado de verificación, tu estado de miembro y tu rol; aquí son de solo lectura. El rol y el estado, y también tu nombre y tu avatar, los puede cambiar además un miembro con **Editar** en **Usuarios y roles** en [Miembros](app:settings/members); ese cambio solo se aplica en ese espacio de trabajo.
+
+### ¿Cómo desactivo los atajos de una tecla? [#keyboard-shortcut-preferences]
+
+Desactiva **Atajos de una tecla** en el cuadro de diálogo **Atajos de teclado** (pulsa ? o elige **Atajos de teclado** en el menú personal). Así se desactivan C, /, V, ? y las secuencias con G, lo que ayuda con la entrada de voz o con pulsaciones accidentales. Los atajos con Cmd/Ctrl y Esc siguen funcionando. La lista completa está en [Atajos de teclado](/docs/app-dashboard#keyboard-shortcuts).
+
+### ¿Cómo verifico mi dirección de correo o reenvío el correo de verificación? [#how-do-i-verify-my-email-address]
+
+Mientras tu dirección no esté verificada, tu avatar en la barra lateral y la entrada **Perfil y preferencias** del menú personal muestran **Correo no verificado**; Perfil y preferencias ofrece entonces [Reenviar el correo de verificación](app:settings/profile?focus=verify-email). Una cuenta nueva funciona 24 horas sin verificación; después, cada página te lleva a la pantalla de verificación hasta que confirmes el enlace del correo.
+
+### ¿Qué no puedo cambiar aquí, como mi contraseña? [#what-can-i-not-change-here]
+
+No hay ningún ajuste para la contraseña, la dirección de correo, la zona horaria, las notificaciones ni para eliminar tu cuenta. Para una contraseña nueva, cierra sesión y usa **¿Has olvidado tu contraseña?** en la página de inicio de sesión. Las firmas de correo pertenecen a cada canal de correo, consulta [apariencia y firma del correo](#email-appearance-and-signature).
+
+## Claves de API y conectores [#api--connectors-tab]
+
+[Claves de API y conectores](app:settings/api-keys) lista solo tus propias claves del espacio de trabajo actual, y cada clave actúa únicamente en el espacio de trabajo en el que se creó. Haz clic en [Añadir](app:settings/api-keys?focus=generate) (requiere **Crear** en **API y webhooks**) para abrir **Añadir una clave de API**:
+
+- **Clave de API estándar**: un **Nombre** y, si quieres, una fecha **Caduca en** de 1 a 365 días (por defecto, **Nunca caduca**). La clave se muestra una sola vez, así que cópiala de inmediato.
+- **Conexiones rápidas**: botones para **Claude**, **ChatGPT & Codex**, **Cursor** y **Gemini**. Las configuraciones locales (Claude Code o Desktop, Codex, Cursor, Gemini) crean una clave con el nombre del cliente que caduca a los 365 días y muestran el fragmento de configuración con la clave ya rellenada. Los métodos de cuenta de Claude y de aplicación de ChatGPT usan el conector alojado y no crean ninguna clave.
+
+La tarjeta de una clave muestra **Creado el**, **Caduca el** y **Último uso**; ábrela para **Eliminar** la clave (requiere **Eliminar**), lo que la detiene al instante. Para rotarla, crea una clave nueva, actualiza el cliente y elimina después la anterior. Si quitas **Acceso de lectura** **Todos** en **API y webhooks** a un rol, las claves de sus miembros dejan de funcionar tanto para MCP como para REST; poner a un miembro como **Inactivo** en [Miembros](app:settings/members) también detiene todas sus claves. Reglas completas: [Claves de API](/docs/api-keys).
+
+## Canales y calendarios [#channels-tab]
+
+[Canales y calendarios](app:settings/channels) lista primero tus cuentas de correo, LinkedIn, WhatsApp, Instagram y Telegram, y después cada canal que un compañero haya compartido. Cuando hay canales con **Se requiere reconexión**, **Problema de permisos** o **Error**, la entrada Canales y calendarios muestra cuántos son. Al hacer clic en una tarjeta se abre el cuadro del canal, con las pestañas **Detalles** (proveedor, estado, **Visibilidad**, propietario, carpetas, conexión y última sincronización), **Correo** y **Carpetas**. Sea cual sea tu rol, solo puedes cambiar los canales que son tuyos. Cada canal pertenece al espacio de trabajo en el que lo conectaste.
+
+### ¿Quién puede usar Canales y calendarios? [#who-can-use-channels]
+
+Para ver la página hace falta **Acceso de lectura** **Todos** en **Mensajes de la bandeja de entrada**; para conectar, **Crear**; para cambiar, reactivar o resincronizar, **Editar**; para desconectar, **Eliminar**. El plan debe incluir mensajería (Pro, Business, Max, Enterprise o una prueba); en Starter la página muestra **Mejora tu plan**, que abre [Facturación](app:settings/billing). Todas las acciones, salvo desconectar, requieren además una suscripción activa o una prueba en curso. Las instalaciones autoalojadas no tienen la página Canales y calendarios.
+
+### ¿Cómo conecto un canal? [#how-do-i-connect-a-channel]
+
+Haz clic en [Conectar un canal](app:settings/channels?focus=connect) y elige una entrada:
+
+| Entrada | Conecta |
+|---|---|
+| **Gmail**, **Outlook** | Correo, calendario o ambos; el **Proveedor** de la tarjeta indica cuál |
+| **IMAP** | Cualquier otra cuenta de correo mediante IMAP y SMTP |
+| **WhatsApp** | Tu cuenta de WhatsApp, con un código QR |
+| **LinkedIn (Classic)**, **LinkedIn (Classic y Sales Navigator)**, **LinkedIn (Classic y Recruiter)** | Tu cuenta de LinkedIn, con Sales Navigator o Recruiter si quieres |
+| **Instagram**, **Telegram** | Tu cuenta de Instagram o de Telegram |
+
+La pestaña actual pasa a una página de conexión segura (tienes 30 minutos para terminar) y después vuelve a Canales y calendarios con el resultado. **Canal conectado** inicia en segundo plano la importación del historial (**Sincronizando en segundo plano**, normalmente unos minutos y hasta una hora en cuentas grandes). **Cuenta ya conectada** significa que un miembro del espacio de trabajo ya la conectó; pídele que la comparta. Ante cualquier otro error, empieza de nuevo desde **Conectar un canal**.
+
+### ¿Cuántos canales puedo conectar? [#how-many-channels-can-i-connect]
+
+Por miembro: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; una prueba cuenta como Pro. Cada canal que es tuyo cuenta hasta que lo desconectes, salvo los que están en **Eliminada**; los canales compartidos de tus compañeros nunca cuentan. Al llegar al límite en Pro, **Conectar un canal** ofrece **Ver planes**, que abre [Facturación](app:settings/billing). Tras una bajada de plan, los canales más recientes de cada miembro que superen lo incluido pasan a **Eliminada** y los miembros con el rol **Administrador** reciben un correo.
+
+### ¿Qué significa cada estado de un canal? [#what-does-each-status-mean]
+
+| Estado | Significado y acción |
+|---|---|
+| **Conectada** | Funciona; **Resincronizar** vuelve a importar el historial |
+| **Conectando** | Todavía se está configurando; **Resincronizar** está disponible |
+| **Se requiere reconexión**, **Problema de permisos**, **Error**, **Detenida** | El proveedor indica un problema de inicio de sesión, de permisos o de otro tipo, o pausó la cuenta; el propietario hace clic en **Reactivar** |
+| **Eliminada** | Quitada en el proveedor o de forma automática (tras una bajada de plan, un día después de terminar una prueba, tres días después de que una suscripción de pago pasara a **Sin pagar** o **Caducada**, o cuando el propietario pasó a **Inactivo**); solo queda **Desconectar** |
+
+### ¿Cómo comparto un canal con mis compañeros o lo mantengo privado? [#private-or-shared]
+
+Un canal nuevo, como una cuenta de correo, es **Privada**. El propietario cambia **Visibilidad** a **Compartida** en la pestaña **Detalles**; entonces se muestra, con todas sus conversaciones, a todos los miembros con acceso de lectura en **Mensajes de la bandeja de entrada**, y los miembros con **Crear** pueden responder desde él. Compartir requiere el plan Business, Max o Enterprise, **Editar** en **Mensajes de la bandeja de entrada** y una suscripción activa. Tus compañeros pueden abrir los detalles y las carpetas de un canal compartido, pero no cambiarlo. Si el espacio de trabajo pasa a un plan inferior a Business, todos los canales compartidos vuelven a ser **Privada**, y su propietario tendrá que volver a poner **Visibilidad** en **Compartida** después de una mejora de plan. Puedes compartir conversaciones sueltas desde la [bandeja de entrada](/docs/app-inbox).
+
+### ¿Qué controla la pestaña Carpetas? [#what-does-the-folders-tab-control]
+
+En las cuentas de correo que informan de sus carpetas, la pestaña **Carpetas** tiene un interruptor por carpeta: desactivado, oculta los mensajes de esa carpeta en la bandeja de entrada para todos los que ven el canal, sin eliminarlos. Por defecto, todas las carpetas están activadas salvo la papelera, el correo no deseado o spam, los borradores y todo el correo. Al activar una de ellas se importa su historial. Solo puede cambiar los interruptores el propietario con **Editar**; los demás ven **Sincronizada** u **Oculta**.
+
+### ¿Cómo cambio el tipo de letra, el color de los enlaces y la firma de los correos salientes? [#email-appearance-and-signature]
+
+La pestaña **Correo** aparece en las cuentas de Gmail, Outlook e IMAP que son tuyas (para editar hace falta **Editar**) y se guarda con **Guardar ajustes de correo**.
+
+| Campo | Opciones (por defecto) |
+|---|---|
+| **Tipo de letra** | **Sin serifas (Arial)**, **Con serifas (Georgia)**, **Monoespaciada (Courier New)** (Sin serifas) |
+| **Tamaño de fuente** | De 10 a 20 (13) |
+| **Color de enlace** | Valor hexadecimal con selector de color (`#7161e8`); por debajo de un contraste de 3:1 se muestra un aviso |
+| **Estilo de enlace** | **Subrayado**, **Sin subrayado** (Subrayado) |
+
+La apariencia se aplica a los correos de texto plano y de Markdown, lo que incluye todo lo que se escribe en la bandeja de entrada; un cuerpo HTML explícito conserva su propio estilo. Activa **Añadir una firma** para editarla: **Diseño** **Solo texto**, **Logo arriba** (por defecto) o **Logo al lado**; los diseños con logo necesitan una **URL del logo** HTTPS pública (sustituye al icono de Customermates) y ofrecen **Tamaño del logotipo**, **Separador** y **Espaciado**. **Contenido de la firma** es Markdown de hasta 2.000 caracteres, con una **Vista previa**. Mientras está activada, la firma se añade debajo de todos los correos de esa cuenta, ya sea desde la bandeja de entrada, REST o MCP, también en los que son HTML.
+
+### ¿Cómo reactivo, resincronizo o desconecto un canal? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
+
+Abre un canal que sea tuyo:
+
+- **Reactivar** (para **Se requiere reconexión**, **Problema de permisos**, **Error**, **Detenida**): va a la página de conexión de la misma cuenta y vuelve.
+- **Resincronizar** (para **Conectada**, **Conectando**): vuelve a importar el historial, normalmente en 1 a 3 minutos.
+- **Desconectar**: tras una confirmación, quita la cuenta y elimina de forma permanente las conversaciones, los mensajes, los calendarios y los eventos importados desde ella, también para tus compañeros si estaba compartida.
+
+**Reactivar** y **Resincronizar** requieren **Editar** en **Mensajes de la bandeja de entrada**; **Desconectar** requiere **Eliminar**.
+
+## Para agentes [#tips-for-agents]
+
+Por MCP y en Mate, `update_my_profile` cambia solo tu propio nombre, apellidos, URL del avatar, tema, idioma de la interfaz y formato regional; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) crea un enlace de conexión con las mismas reglas de plan, permisos y límites. `manage_connected_accounts` lista tus canales y, para un canal que es tuyo, define las carpetas, la firma y la apariencia, la visibilidad (con aprobación), y lo resincroniza o desconecta (con aprobación); REST usa `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) y sus operaciones `folders`, `signature`, `sharing` y `resync`. Un ID que no es de un canal tuyo responde `not_found` (REST `404`) antes de cualquier comprobación de plan. Los atajos, la reactivación y las claves de API se configuran solo en la app. No repitas la firma de un canal en el cuerpo del mensaje. Una clave de API nueva se muestra una sola vez. Por REST, `GET /api/v1/users/me` lee tu perfil y `PATCH /api/v1/users/me` cambia los mismos campos que `update_my_profile`; los campos omitidos conservan su valor.
+
+## Relacionado [#related]
+
+- [Claves de API](/docs/api-keys): crear, usar, caducar y eliminar claves.
+- [Guía de la aplicación, Bandeja de entrada](/docs/app-inbox): la pantalla que alimentan tus canales.
+- [Guía de la aplicación, Empresa](/docs/app-company): miembros, roles y facturación.
+- [Espacios de trabajo](/docs/app-workspaces): qué es igual en todos los espacios de trabajo y qué es independiente.
+- [CLI y editores](/docs/connect-cli): dónde va una clave generada para Claude Code, Codex y Cursor.

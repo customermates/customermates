@@ -1,0 +1,62 @@
+---
+title: "Documentación del CRM Customermates"
+description: "CRM de código abierto para dar seguimiento a clientes: conversaciones en su registro y respuestas de Mate o tu agente de IA por MCP, que tú revisas y envías."
+demo:
+  src: https://demo.customermates.com/es/w/small-business/dashboard?agentChat=closed
+  title: Demo de Customermates
+---
+
+Customermates es un CRM de código abierto para equipos pequeños que trabajan de cara al cliente. En Customermates Cloud, desde el plan Pro, conectas el correo y LinkedIn, además de WhatsApp, Instagram y Telegram, y las conversaciones aparecen en el registro del cliente cuando los datos de contacto coinciden o cuando las vinculas tú. Mate, el asistente integrado en Customermates Cloud, o tu propio agente de IA prepara la respuesta y el siguiente paso; tú los revisas, los editas y los envías. Claude, ChatGPT, Cursor y cualquier otro cliente que hable el Model Context Protocol leen y escriben directamente en tu CRM a través de un endpoint MCP nativo, sin copiar y pegar, en todos los planes y en las instancias autoalojadas.
+
+## Elige tu cliente y empieza [#pick-your-client-and-start]
+
+| Tu IA | Configuración completa en una página |
+| --- | --- |
+| Claude y ChatGPT (conector personalizado) | [Conectar con un conector personalizado](/docs/connect-custom-connector) |
+| Claude Code | [Conectar Claude Code](/docs/connect-cli#claude-code) |
+| Cursor | [Conectar Cursor](/docs/connect-cli#cursor) |
+| Cualquier cliente MCP | [Resumen de MCP](/docs/mcp) |
+
+Cada página incluye los pasos para conectar y tus primeros comandos, y el servidor presenta el CRM a tu cliente en cuanto se conecta. Si prefieres un recorrido con un webhook y una primera interacción con la IA, consulta el [Inicio rápido](/docs/quickstart).
+
+## Qué es Customermates [#what-customermates-is]
+
+Un CRM con listas, campos, relaciones y cálculos configurables, vistas de tabla y de tablero, y paneles. En Customermates Cloud describes tu negocio, respondes unas pocas preguntas y Mate diseña tus listas, tu pipeline, tu panel y las páginas de la Base de conocimientos, que revisas antes de que se cree nada; puedes cambiarlo todo y añadir tus propias listas. Además:
+
+- **Endpoint MCP nativo** en `/api/v1/mcp`: un cliente MCP descubre y llama a las operaciones del CRM sin ningún plugin.
+- **Código abierto** con licencia AGPLv3; los componentes enterprise se rigen por una licencia comercial aparte. Autoalójalo o usa la nube gestionada.
+- **Nube gestionada** con su base de datos en la región de AWS de Fráncfort, un [DPA](/dpa) y todos los subencargados, incluidos los proveedores de EE. UU., en la [página de subencargados](/subprocessors).
+- **Webhooks** con cargas firmadas de forma opcional, reintentos y un registro de entregas.
+- **Especificación OpenAPI 3.1** de toda la superficie REST en `/api/v1/openapi`.
+- **Mate**, el asistente de IA integrado en la aplicación de Customermates Cloud: no necesitas ningún cliente de IA externo ni configuración, y usa los créditos incluidos en tu plan. Pídele una respuesta y guarda un borrador en la conversación para que lo revises y lo envíes. Consulta [Asistente](/docs/app-assistant).
+- **Rutinas** que ejecutan Mate de forma programada o cuando cambia un registro, en Customermates Cloud. Consulta [Rutinas](/docs/app-routines).
+- **Bandeja de entrada** para el correo y para las cuentas conectadas de LinkedIn, WhatsApp, Instagram y Telegram, en Customermates Cloud desde el plan Pro. Consulta [Bandeja de entrada](/docs/app-inbox).
+- **Roles** que deciden, lista por lista, quién puede leer todos los registros, solo los asignados o ninguno, y quién puede crearlos, editarlos o eliminarlos. Consulta [Empresa](/docs/app-company).
+
+## Cuatro formas de conectar Customermates con tu stack [#four-ways-customermates-connects-to-your-stack]
+
+| Quiero | Uso |
+| --- | --- |
+| Que un cliente MCP actualice el CRM durante una conversación | [MCP](/docs/mcp) |
+| Crear una integración propia en código | [OpenAPI](/docs/openapi) |
+| Reaccionar a los cambios del CRM en Slack, en una herramienta de secuencias, en BI o en tu almacén de datos | [Webhooks](/docs/webhooks) |
+| Componer flujos de trabajo de forma visual, sin código | [n8n](/docs/n8n) |
+
+MCP, OpenAPI y n8n se autentican con una clave de API; los clientes MCP como Claude y ChatGPT también pueden conectarse por OAuth, sin clave. Consulta [Claves de API](/docs/api-keys). Los webhooks funcionan en sentido contrario: Customermates envía cada entrega a tu URL y, si el webhook tiene un secreto, la firma, de modo que tu receptor comprueba esa firma o una cabecera personalizada que hayas definido en el webhook.
+
+## Enfoque de diseño [#design-approach]
+
+Customermates trata al cliente de IA como un usuario de primera clase. Las herramientas tienen nombres en imperativo, los errores indican qué hacer, las relaciones cambian de forma incremental y la superficie MCP se mantiene pequeña (un único endpoint, todas las herramientas activadas por defecto), de modo que incluso los modelos más pequeños se mueven por ella con fiabilidad.
+
+## Cómo está organizada la documentación [#how-the-docs-are-organized]
+
+- **Primeros pasos**: [Inicio rápido](/docs/quickstart), [Conceptos clave](/docs/concepts).
+- **Conecta tu IA**: [Conector personalizado](/docs/connect-custom-connector), [CLI y editores](/docs/connect-cli), [Límites de frecuencia](/docs/messaging-rate-limits).
+- **Guía de la aplicación**: [Asistente](/docs/app-assistant), [Panel](/docs/app-dashboard), [Bandeja de entrada](/docs/app-inbox), [Registros](/docs/app-records), [Rutinas](/docs/app-routines), [Perfil](/docs/app-profile), [Búsqueda global](/docs/app-search), el [Asistente de configuración](/docs/app-onboarding), [Empresa](/docs/app-company), [Claves de API](/docs/api-keys) y [Sintaxis de filtros](/docs/filter-syntax). Los lugares de la aplicación son enlaces: dentro de la aplicación abren la página y resaltan el control que nombran.
+- **Integraciones**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
+- **Autoalojamiento**: [Primeros pasos y gestión](/docs/self-hosting), [Arquitectura y seguridad](/docs/architecture-security).
+- **Referencia**: [Catálogo de herramientas MCP](/docs/mcp#tool-catalog), [Sintaxis de filtros](/docs/filter-syntax), [Claves de API](/docs/api-keys).
+
+## Pruébalo [#try-it]
+
+La demo incrustada en esta página es una instancia en vivo de solo lectura con datos de ejemplo. Puedes explorarla y buscar en ella; si intentas crear, cambiar o eliminar registros, o preguntarle a Mate, verás un aviso de que la acción no está disponible en el modo demo. [Empieza una prueba gratuita](/auth/signup) ([[commercial.trial.days]] días, sin tarjeta de crédito) para trabajar con tus propios datos.

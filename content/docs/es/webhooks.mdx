@@ -1,0 +1,334 @@
+---
+title: "Webhooks: firmas, reintentos y catálogo de eventos"
+heading: "Recibe los eventos del CRM mediante webhooks"
+description: "Suscríbete a los eventos del CRM, verifica las firmas, revisa las entregas fallidas y consulta el catálogo completo de eventos en un solo lugar."
+---
+
+Customermates envía un POST con JSON a tu endpoint cada vez que cambian los datos a los que te suscribiste. Tú eliges los eventos y la URL. Con un secreto, cada entrega se firma con HMAC-SHA256 sobre el cuerpo sin procesar de la solicitud. Las entregas fallidas se reintentan automáticamente y puedes reenviarlas a mano. El catálogo de eventos está al final de esta página.
+
+## ¿Para qué sirven los webhooks? [#what-are-webhooks-for]
+
+Los webhooks permiten que otros sistemas reaccionen a los cambios del CRM sin hacer polling, por ejemplo para enviar contactos nuevos a un secuenciador de correo, abrir un ticket de soporte cuando una oportunidad cambia de estado, iniciar un flujo de trabajo de finanzas cuando se cierra una oportunidad o sincronizar registros con un data warehouse casi en tiempo real.
+
+## ¿Cómo creo un webhook? [#how-do-i-create-a-webhook]
+
+Abre [Webhooks](app:settings/webhooks), haz clic en [Añadir](app:settings/webhooks?focus=add), completa el cuadro de diálogo **Webhook**, escribe la **URL** y haz clic en **Guardar**.
+
+| Campo | Qué hace |
+| --- | --- |
+| **URL** | Obligatoria. Un endpoint HTTP o HTTPS con un host válido y sin nombre de usuario ni contraseña recibe un `POST` por cada evento suscrito. Una URL sin esquema se guarda con `https://` delante. Los nombres de host y las rutas internacionales se guardan en su forma de URL ASCII. Otros esquemas de URL, como `mailto:` y `tel:`, se rechazan. |
+| **Descripción** | Opcional, hasta 500 caracteres. Se muestra en la lista. |
+| **Eventos** | Obligatorios. Uno o más eventos del [catálogo](#which-events-exist). |
+| **Secreto** | Opcional, de 1 a 256 caracteres. Firma cada entrega (consulta [¿Cómo verifico la firma?](#how-do-i-verify-the-signature)). |
+| **Cabeceras personalizadas** | Opcionales. Una línea `Nombre: valor` por cabecera (consulta [Cabeceras personalizadas y plantillas del cuerpo](#custom-headers-and-body-templates)). |
+| **Plantilla del cuerpo** | Documento JSON opcional que sustituye al envelope estándar. |
+| **Activado** | Activado de forma predeterminada. Un webhook desactivado no recibe nada y conserva su configuración, así que puedes pausarlo sin eliminarlo. |
+
+Para cambiar un webhook, haz clic en su fila, edítalo y haz clic en **Guardar**. Para quitarlo, haz clic en **Eliminar** en la parte superior del cuadro de diálogo y confirma; sus entregas anteriores se quedan en la página [Registro de webhooks](app:settings/webhook-deliveries). Para ver las entregas de un solo webhook, elige **Ver entregas** en el menú **Más acciones** de la fila: [Registro de webhooks](app:settings/webhook-deliveries) se abre filtrado por la URL de ese webhook, y puedes quitar el filtro como cualquier otro. La lista muestra **URL**, **Descripción**, **Eventos**, **Estado** (**Activado** o **Desactivado**), **Creado el** y **Actualizado el**. En [Filtros](app:settings/webhooks?focus=filter), la búsqueda coincide con la URL y los filtros cubren las fechas de creación y de actualización.
+
+Usa un endpoint HTTPS. Las cabeceras personalizadas exigen HTTPS, salvo HTTP en `localhost`, `127.0.0.1` o `::1` cuando se permiten los destinos privados. Esto se comprueba al guardar y otra vez antes de cada entrega.
+
+Customermates Cloud y la demo exigen destinos públicos. Las direcciones privadas, de loopback y link-local literales y los nombres de host locales se rechazan al guardar. Antes de cada entrega, todas las respuestas DNS deben ser públicas, y la conexión usa solo esas direcciones validadas. Un destino bloqueado falla con el estado 422 y `Destination not allowed`, sin conectarse. Las instalaciones autoalojadas permiten los destinos privados de forma predeterminada; configura `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true` para aplicar la regla de Cloud. Para un receptor de desarrollo local, `WEBHOOK_ALLOW_PRIVATE_DESTINATIONS=true` levanta el bloqueo; un bloqueo explícito tiene prioridad. Ambos ajustes aceptan solo `true` o `false`.
+
+Por MCP, usa `manage_webhooks` con `action: "create"`, además de `url`, `events[]` y, opcionalmente, `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Por REST, `POST /api/v1/webhooks` crea uno con los mismos campos y `GET /api/v1/webhooks` los lista; `GET`, `PATCH` y `DELETE /api/v1/webhooks/{id}` leen, actualizan y eliminan uno, y una actualización cambia solo los campos que envías. Un ID que no existe o que pertenece a otro espacio de trabajo responde 404 con el error estructurado `not_found`.
+
+## ¿Qué registros activan un webhook y qué acceso usa una entrega? [#record-event-sources]
+
+Cuando eliges un evento de registros, el cuadro de diálogo muestra el origen de los registros: elige la lista en **Registros de** (o **Todos los tipos accesibles**) y, si quieres, **Campos modificados**, **Buscar registros** y **Filtros de registro** sobre campos y relaciones. Las entregas usan el acceso a registros del **Miembro cuyos permisos se usan**, que por defecto es el miembro que crea el webhook; solo un administrador puede elegir a otro. Los webhooks migrados más antiguos pueden conservar varios orígenes, que se muestran como chips.
+
+Por MCP, las suscripciones a registros en `manage_webhooks` también necesitan `expectedSchemaRevision`, que se obtiene de `get_record_model`. `recordTrigger` contiene una consulta con ID estables de tipo y de campo y `changedFieldIds` opcionales; `null` selecciona todos los tipos accesibles. `recordOwnerUserId` define, opcionalmente, el propietario de la entrega. En una actualización, omítelos para conservarlos; cambiar el trigger o el propietario exige la revisión actual del esquema. Un webhook que sigue varias listas usa `recordSources` en lugar de `recordTrigger`: hasta 50 orígenes, cada uno con sus propios `query`, `changedFieldIds` y `events`; no se pueden combinar, y `null` borra los orígenes. La API REST acepta los mismos ajustes.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
+  "secret": "use-a-random-string-from-a-password-manager",
+  "enabled": true
+}
+```
+
+## ¿Quién puede ver y cambiar los webhooks? [#who-can-see-and-change-webhooks]
+
+El acceso depende de la fila **API y webhooks** de un rol en [Roles](app:settings/roles).
+
+| Ajuste del rol en **API y webhooks** | Qué pueden hacer los miembros con ese rol |
+| --- | --- |
+| **Acceso de lectura** **Ninguno** (el valor predeterminado de un rol nuevo) | Los webhooks están ocultos; si abres la página directamente, vas al Panel. |
+| **Acceso de lectura** **Todos**, sin ninguna casilla marcada | Abrir Webhooks y sus entregas, abrir cada webhook en modo de solo lectura y abrir **Detalles del evento** de cada entrega. Un **Secreto** guardado y cada valor de **Cabeceras personalizadas** aparecen como `********`; los nombres de las cabeceras siguen visibles. |
+| **Acceso de lectura** **Todos** más **Crear** | Añadir webhooks y reenviar entregas. |
+| **Acceso de lectura** **Todos** más **Editar** | Editar webhooks y ver los valores guardados de **Secreto** y **Cabeceras personalizadas**. |
+| **Acceso de lectura** **Todos** más **Eliminar** | Eliminar webhooks. |
+
+La misma fila controla también las [Claves de API y conectores](app:settings/api-keys), así que un rol que puede crear o eliminar sus propias claves de API también puede crear o eliminar cualquier webhook del espacio de trabajo. El rol **Administrador** puede hacerlo todo. Los webhooks funcionan en todos los planes de pago de Cloud, durante la prueba y en instalaciones autoalojadas, pero no en el plan Free ([detalles](#webhooks-on-the-free-plan)). Los mismos permisos se aplican a `manage_webhooks` por MCP y en Mate, donde eliminar un webhook o reenviar una entrega te pide aprobación antes.
+
+## ¿Cómo es la carga útil? [#what-does-the-payload-look-like]
+
+Cada entrega es un `POST` con `Content-Type: application/json` y el mismo envelope:
+
+```json
+{
+  "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<who-triggered-it>",
+  "data": {
+    /* event-specific */
+  }
+}
+```
+
+`id` identifica el evento: un reenvío y cada reintento llevan el mismo `id`, así que úsalo para eliminar duplicados. `actorId` es el usuario que provocó la escritura, incluido un usuario que actúa mediante una clave de API o una rutina ejecutada por su propietario. Los eventos de mensajería provienen de la actividad entrante del proveedor, así que su `actorId` es `null`.
+
+En los eventos de registro, `data.record` contiene la referencia del registro (`typeId` y `recordId`, inequívocos incluso después de un cambio de nombre) y los cambios, `data.cause` lo que causó la escritura, y `data.causeId` es compartido por todos los eventos de la misma escritura.
+
+Ejemplo, `record.updated` de un contacto, sin los campos que no vienen al caso:
+
+```json
+{
+  "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<actor-user-id>",
+  "data": {
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<first-name-field-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
+    }
+  }
+}
+```
+
+Un cambio real de un registro incluye además asignaciones, identidades, cambios de vínculos y registros relacionados. Las entradas de campo incluyen metadatos de visualización y pueden mostrar `missing`, `restricted` o `error` en lugar de un valor. Encuentra la lista con `POST /api/v1/model/discover` y resuelve sus ID de campo estables con `POST /api/v1/model/read`, o usa la herramienta MCP `get_record_model`.
+
+## Campos modificados en `data.record.fields` [#the-changes-object]
+
+`data.record.fields` lista los campos modificados con sus valores `before` y `after`; `data.record.links`, `data.record.assignments` y `data.record.identities` describen otras conexiones modificadas. `data.record.beforeVersion` y `data.record.afterVersion` identifican las versiones del registro. Un campo ausente o restringido no es lo mismo que cero.
+
+Las actualizaciones que no cambian nada no producen ningún evento `record.updated`. Los cambios del modelo de datos pueden recalcular valores almacenados en muchos registros; esos rellenados de configuración quedan en el historial del registro, pero no generan entregas de webhook por registro ni activan rutinas de evento. Una edición posterior de un usuario o de la API en un registro produce su evento habitual. La carga útil se redacta según el acceso actual del propietario del webhook a los registros y a los campos calculados en el momento de la entrega.
+
+## Cabeceras personalizadas y plantillas del cuerpo [#custom-headers-and-body-templates]
+
+Dos ajustes opcionales sirven para los receptores que no aceptan la entrega estándar. Un webhook que no define ninguno envía el [envelope estándar](#what-does-the-payload-look-like).
+
+Las **cabeceras personalizadas** se envían con cada entrega, para endpoints con su propia autenticación. Escríbelas una por línea como `Nombre: valor` (una línea sin dos puntos se ignora y un campo vacío elimina todas las cabeceras), o pasa un objeto `headers` por MCP y por la API. Siete nombres están reservados y se rechazan: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding`, `X-Webhook-Signature` y `X-Customermates-Delivery-Id`. Los nombres deben ser tokens HTTP válidos y los valores, texto Latin-1 sin saltos de línea. Un webhook puede llevar hasta 20 cabeceras, con nombres de hasta 128 caracteres, valores de hasta 2048 caracteres y 8192 caracteres en total. Un webhook con cabeceras debe usar HTTPS; el HTTP simple solo se acepta para `localhost`, `127.0.0.1` y `::1` cuando se permiten los destinos privados.
+
+La API REST y MCP nunca devuelven los valores de las cabeceras ni el secreto; informan `headerNames` y `hasSecret`. El cuadro de diálogo muestra los valores solo al rol **Administrador** y a los roles con **Editar** en **API y webhooks**, con el secreto oculto hasta que haces clic en el icono del ojo. Una actualización por API o MCP que omite `headers` conserva los valores guardados; `null` los borra.
+
+**Una plantilla del cuerpo** sustituye al envelope estándar para los endpoints que esperan una forma fija. Escribe un documento JSON con marcadores:
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Los marcadores son `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` y cualquier ruta bajo `{{data}}`, como `{{data.record.ref.recordId}}` para un evento de registro o `{{data.entityId}}` para un evento de mensajería. Un marcador debe estar dentro de una cadena JSON; `{"count": {{data.count}}}` se rechaza. Un valor de tipo objeto se inserta como una cadena JSON y una ruta inexistente, como una cadena vacía. Los valores sustituidos se escapan, así que el contenido de un registro no puede alterar la estructura del documento.
+
+La plantilla puede tener hasta 8192 caracteres, debe producir un objeto JSON y se comprueba al guardar. Una entrega cuya plantilla no se puede generar, o cuyo cuerpo generado supera los 131 072 caracteres, se registra como fallida sin enviarse y no se reintenta. La firma se calcula sobre el cuerpo que realmente se envía, así que verifícala contra el cuerpo generado.
+
+**Quitar un secreto o una plantilla.** El cuadro de diálogo no permite guardar **Secreto** ni **Plantilla del cuerpo** vacíos una vez definidos. Actualiza el webhook con `manage_webhooks` o `PATCH /api/v1/webhooks/{id}` con `secret: null` o `bodyTemplate: null`, o elimínalo y créalo de nuevo.
+
+Las entregas se registran con la carga útil del evento, no con el cuerpo generado, así que **Detalles del evento** muestra el evento que se disparó y no los bytes exactos enviados.
+
+## ¿Cómo envío a Slack, Discord o n8n? [#how-do-i-send-to-slack-discord-or-n8n]
+
+Cada receta indica la URL, las cabeceras personalizadas y la plantilla del cuerpo que debes escribir después de [Añadir](app:settings/webhooks?focus=add) en Webhooks. Define un secreto en todos los casos; un receptor que no pueda verificarlo ignora la cabecera.
+
+### Rutinas de Claude Code [#claude-code-routines]
+
+Inicia una rutina de Claude Code cuando cambie un registro. Primero crea la rutina en [claude.ai/code/routines](https://claude.ai/code/routines).
+
+<Steps>
+  <Step title="Añade un trigger de API">
+    Abre la rutina, haz clic en **Add another trigger**, elige **API** y luego **Generate token**. Copia la URL y el
+    token; el token se muestra una sola vez y no se puede recuperar después.
+  </Step>
+  <Step title="Crea el webhook">Pega la URL, selecciona tus eventos y añade las cabeceras y la plantilla de abajo.</Step>
+  <Step title="Haz referencia a la carga útil en el prompt de la rutina">
+    El texto llega envuelto en un bloque `routine-fire-payload` que la rutina trata como datos no confiables. El
+    propio prompt de la rutina tiene que referirse a él, por ejemplo «actúa según el evento descrito en el bloque
+    routine-fire-payload»; de lo contrario, el texto se ignora.
+  </Step>
+</Steps>
+
+La URL es `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, y el ID de la rutina lleva el prefijo `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+El endpoint lee solo `text`, así que la plantilla es obligatoria; sin ella, la rutina se inicia sin contexto. Cada entrega, y cada reintento, inicia una ejecución aparte contra la cuota de tu rutina, así que suscríbete a tan pocos eventos como necesite la tarea.
+
+### Slack [#slack]
+
+Publica en un canal con un incoming webhook desde **Slack → Apps → Incoming Webhooks**. La URL lleva la autenticación, así que no hacen falta cabeceras personalizadas.
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### Discord [#discord]
+
+Usa la URL del webhook de **Channel → Edit Channel → Integrations → Webhooks**. Misma forma, otra clave:
+
+```json
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### n8n [#n8n]
+
+Un nodo Webhook de n8n acepta el envelope estándar, así que deja ambos ajustes vacíos salvo que el nodo use autenticación por cabecera. Si la usa, añade la cabecera que espera y deja la plantilla vacía:
+
+```
+X-N8N-Header-Auth: <value>
+```
+
+Consulta [n8n](/docs/n8n) para ver el patrón completo.
+
+### Cualquier otro destino [#anything-else]
+
+Un receptor que no necesita ni autenticación propia ni un cuerpo fijo no necesita ninguno de los dos ajustes. Déjalos vacíos y [verifica la firma](#how-do-i-verify-the-signature).
+
+## ¿Cómo verifico la firma? [#how-do-i-verify-the-signature]
+
+Si el webhook tiene un **Secreto**, cada solicitud incluye:
+
+```
+X-Webhook-Signature: <hex>
+```
+
+`<hex>` es `HMAC-SHA256(secret, rawRequestBody)`, en hexadecimal minúscula y sin prefijo. Vuelve a calcularlo de tu lado y compáralo en tiempo constante.
+
+Ejemplo en Node.js:
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## ¿Cómo funcionan los reintentos y las entregas fallidas? [#how-do-retries-and-failed-deliveries-work]
+
+Una entrega falla cuando el estado HTTP queda fuera de 2xx, la solicitud agota el tiempo (a los 5 segundos) o no llega ninguna respuesta. Customermates reintenta automáticamente los tiempos agotados, los errores de red, las respuestas 5xx y las 408, 425 y 429, hasta 10 intentos en total. El primer reintento llega 10 segundos después del intento fallido y cada pausa se duplica (20 segundos, 40 segundos y así sucesivamente, con un tope de una hora), de modo que el último intento se ejecuta aproximadamente 1,5 horas después del primero; después, la entrega queda en **Fallido** y puedes [reenviarla](#how-do-i-resend-a-delivery) a mano. Otras respuestas 4xx, como 400, 401, 403, 404 y 422, no se reintentan, porque una repetición fallaría igual. Una entrega también falla antes de enviar ninguna solicitud, con el código de estado 422, cuando las cabeceras irían a una dirección que no las permite o cuando no se puede generar la plantilla del cuerpo.
+
+Las redirecciones no se siguen: una respuesta 3xx se registra como `Redirect not followed` y no se reintenta. Usa la URL final del endpoint. Los destinos bloqueados también fallan antes de conectarse, con el estado 422.
+
+Los reintentos se ejecutan dentro de la misma entrega, así que no añaden registros: cada registro muestra el último resultado y puede mostrar **Fallido** mientras hay reintentos pendientes, y pasar a **Entregado** cuando uno tiene éxito.
+
+## ¿Dónde veo las entregas anteriores? [#where-do-i-see-past-deliveries]
+
+Cada entrega se registra en la página [Registro de webhooks](app:settings/webhook-deliveries), de la más reciente a la más antigua, con **URL**, **Evento**, **Elemento** (el registro afectado), **Estado**, **Código de estado** y **Creado el**. En [Filtros](app:settings/webhook-deliveries?focus=filter), la búsqueda coincide con el evento y la URL, y los filtros cubren el evento, la URL y la fecha de creación. Por MCP, usa `manage_webhooks` con `action: "list_deliveries"`; por REST, `GET /api/v1/webhooks/deliveries` lista las entregas de todos los webhooks y `GET /api/v1/webhooks/{id}/deliveries` las de un solo webhook, de la más reciente a la más antigua. Los registros de entregas se conservan mientras exista el espacio de trabajo.
+
+Haz clic en una fila para abrir **Detalles del evento**: el estado (**Pendiente**, **Enviando**, **Entregado** o **Fallido**), **URL**, **Evento**, **Elemento**, **Creado el**, **Código de estado**, **Mensaje de respuesta** y la **Carga útil del evento**. La carga útil de un evento de mensajería se muestra tal como se envió. La carga útil de un evento de registro se vuelve a leer con tu acceso actual: los valores que no puedes leer aparecen como restringidos, y la carga útil queda vacía cuando no puedes leer el registro.
+
+## ¿Cómo reenvío una entrega? [#how-do-i-resend-a-delivery]
+
+Para reenviar, haz clic en **Reenviar** en la parte superior de **Detalles del evento**. Aparece cuando la entrega está en **Entregado** o **Fallido**, para los roles con **Crear** en **API y webhooks**; por MCP, usa `manage_webhooks` con `action: "resend_delivery"` y el ID de la entrega, y por REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. Un reenvío crea un nuevo registro de entrega con la URL, el secreto, las cabeceras y la plantilla actuales del webhook; el original no cambia. Un evento de mensajería se reenvía desde su evento almacenado. Un evento de registro se vuelve a leer con el acceso actual del propietario del webhook, solo ese propietario o un administrador puede reenviarlo, y el reenvío se rechaza cuando los orígenes de registros del webhook cambiaron desde la entrega original. El webhook debe seguir existiendo, estar activado y estar suscrito al evento; las entregas de eventos específicos de un tipo ya retirados no se pueden reenviar. Las páginas Webhooks y Registro de webhooks muestran un evento así con **(heredado)**, por ejemplo **Contacto creado (heredado)**.
+
+## ¿Las entregas siguen un orden, y llegan en el orden correcto? [#are-deliveries-ordered]
+
+No. Dos eventos `record.updated` separados por milisegundos pueden llegar desordenados. Usa `timestamp` y la versión del registro para resolver el orden, o trata las entregas como mensajes idempotentes identificados por `typeId`, `recordId` y el ID del evento.
+
+## ¿Por qué el texto con formato es JSON de Tiptap en las cargas útiles? [#formatted-text-is-json-not-markdown]
+
+El valor de un campo de Texto con formato en las cargas útiles es un valor `richText` cuyo `documentJson` es JSON de Tiptap, la estructura que guarda el editor. Pásalo por un serializador compatible con Tiptap para obtener markdown. Las rutas de registros de la API REST devuelven el mismo `documentJson`. Las herramientas de registros de MCP devuelven el Texto con formato como Markdown, marcado como contenido no confiable; consulta [MCP](/docs/mcp#how-the-tool-surface-is-shaped).
+
+## ¿Qué contienen las cargas útiles de eliminación? [#what-do-delete-payloads-contain]
+
+`record.deleted` se dispara cuando un registro pasa a la papelera. `data.record` incluye el `ref` calificado, los valores anteriores autorizados y las relaciones que deja; `afterVersion` es null. Los filtros de origen se evalúan justo antes del traslado, y el acceso actual del propietario se vuelve a comprobar antes de la entrega. `record.restored` se dispara cuando vuelve de la papelera e incluye los valores posteriores, igual que `record.created`.
+
+`record.deletedPermanently` se dispara cuando un registro se elimina definitivamente, a mano o 30 días después de pasar a la papelera. Su `data.record` incluye solo el `ref`: los valores se borran, y los eventos anteriores del registro también pierden sus valores de campo, pero conservan quién lo cambió y cuándo. Llega a todos los webhooks de la lista del registro que lo seleccionaron y cuyo propietario puede leer esa lista, sin filtros de origen.
+
+## ¿Cómo depuro una entrega? [#how-do-i-debug-a-delivery]
+
+- Encuentra la entrega en el [Registro de webhooks](app:settings/webhook-deliveries) y ábrela para ver **Detalles del evento**.
+- Usa [webhook.site](https://webhook.site) como receptor desechable mientras pruebas.
+- `manage_webhooks` con `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` y `GET /api/v1/webhooks/{id}/deliveries` admiten `searchTerm` sobre la URL y el nombre del evento.
+- Customermates guarda solo el código de estado HTTP y el texto de estado que devolvió tu receptor (por ejemplo `404` y `Not Found`), que se muestran como **Código de estado** y **Mensaje de respuesta** en **Detalles del evento**. El cuerpo de la respuesta no se guarda, así que regístralo en el lado receptor. Sin respuesta, **Código de estado** muestra un guion (la columna de la lista queda vacía) y **Mensaje de respuesta** nombra la causa, como el tiempo agotado.
+
+## ¿Qué eventos existen? [#which-events-exist]
+
+Un webhook puede suscribirse a [[derived.webhooks.events.total]] eventos: [[derived.webhooks.events.records]] eventos de registros y [[derived.webhooks.events.messaging]] eventos de mensajería. Para un webhook del CRM, selecciona **Registro creado**, **Registro actualizado**, **Registro movido a la papelera**, **Registro restaurado** o **Registro eliminado definitivamente** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) y define su [origen de registros](#record-event-sources); esto abarca también las listas que creaste tú. Todos usan el [envelope estándar](#what-does-the-payload-look-like). Las rutinas pueden activarse con los mismos eventos, excepto **Registro eliminado definitivamente** (`record.deletedPermanently`), **Correo eliminado** (`messaging.email.deleted`) y **Chat eliminado** (`messaging.chat.deleted`); **Mensaje eliminado** (`messaging.message.deleted`) sí activa rutinas. Consulta [Rutinas](/docs/app-routines#how-do-event-triggers-work).
+
+### Eventos de registros [#record-events]
+
+| Evento | Cuándo se dispara | `data` |
+| --- | --- | --- |
+| `record.created` | Se crea un registro de un tipo de origen configurado | el cambio del registro con sus valores posteriores |
+| `record.updated` | Cambia un campo, una asignación, una identidad o un vínculo en un tipo de origen configurado | el cambio del registro con los valores anteriores y posteriores |
+| `record.deleted` | Un registro de un tipo de origen configurado pasa a la papelera | el cambio del registro con sus valores anteriores |
+| `record.restored` | Un registro de un tipo de origen configurado se restaura desde la papelera | el cambio del registro con sus valores posteriores |
+| `record.deletedPermanently` | Un registro de la lista se elimina definitivamente | solo el `ref`; los valores se borran |
+
+Quince identificadores específicos de cada tipo están retirados. Se conservan solo para que los webhooks y los registros de entregas más antiguos sigan siendo legibles: no se pueden seleccionar para un webhook ni para una rutina, y nada los emite. Sustitúyelos por un evento genérico y un origen de registros.
+
+| Evento heredado | Significado histórico | `payload` heredado |
+| --- | --- | --- |
+| `contact.created` | Se crea un contacto desde la interfaz, la API, MCP o una importación | el contacto completo |
+| `contact.updated` | Cambia cualquier campo de un contacto | `contact`, `changes` |
+| `contact.deleted` | Se elimina un contacto | el contacto completo |
+| `organization.created` | Se crea una organización | la organización completa |
+| `organization.updated` | Cambia cualquier campo de una organización | `organization`, `changes` |
+| `organization.deleted` | Se elimina una organización | la organización completa |
+| `deal.created` | Se crea una oportunidad | la oportunidad completa |
+| `deal.updated` | Cambia cualquier campo de una oportunidad | `deal`, `changes` |
+| `deal.deleted` | Se elimina una oportunidad | la oportunidad completa |
+| `service.created` | Se crea un servicio | el servicio completo |
+| `service.updated` | Cambia cualquier campo de un servicio | `service`, `changes` |
+| `service.deleted` | Se elimina un servicio | el servicio completo |
+| `task.created` | Se crea una tarea | la tarea completa |
+| `task.updated` | Cambia cualquier campo de una tarea | `task`, `changes` |
+| `task.deleted` | Se elimina una tarea | la tarea completa |
+
+### Eventos de mensajería [#messaging-events]
+
+Los eventos de mensajería se disparan con la actividad entrante del proveedor en las cuentas conectadas. **Eventos** los ofrece en todos los espacios de trabajo, pero solo se disparan donde hay [Canales y calendarios](app:settings/channels) conectados, lo cual exige Cloud y un plan que incluya mensajería. `actorId` es `null`. `data` hace referencia a los registros del proveedor por ID (`entityId` para el mensaje, el hilo, el calendario, el evento de calendario o la relación afectados, además de `connectedAccountId`, `provider`, `providerMessageId`, `threadId` y similares) en lugar de incrustar registros del CRM. Un evento de mensajería se conserva solo mientras un webhook o una rutina de evento esté suscrito a él.
+
+| Evento | Cuándo se dispara |
+| --- | --- |
+| `messaging.message.received` | Se ingiere un mensaje de chat o un correo |
+| `messaging.message.updated` | Se actualiza un mensaje ingerido |
+| `messaging.message.deleted` | Se elimina un mensaje ingerido |
+| `messaging.message.reaction` | Se añade una reacción a un mensaje |
+| `messaging.email.received` | Se ingiere un correo |
+| `messaging.email.deleted` | Se elimina un correo ingerido |
+| `messaging.chat.updated` | Se actualiza un hilo de chat |
+| `messaging.chat.deleted` | Se elimina un hilo de chat |
+| `messaging.calendar.changed` | Cambia un calendario conectado |
+| `messaging.calendar_event.changed` | Cambia un evento de calendario |
+| `messaging.relation.created` | Se crea una nueva relación del proveedor |
+
+## ¿Los webhooks funcionan en el plan Free? [#webhooks-on-the-free-plan]
+
+No. En Customermates Cloud, los webhooks y el trigger de n8n empiezan en Starter. Mientras un espacio de trabajo está en Free, crear un webhook se rechaza en Ajustes, por REST (`409` con `customCode` `planWebhooksNotIncluded`) y por MCP, con el precio de Starter en el mensaje. Los webhooks creados antes permanecen en la lista, pero no envían nada mientras el espacio de trabajo esté en Free; los eventos de ese periodo no se entregan después. En cuanto el espacio de trabajo elige un plan de pago, vuelven a entregar. Las instalaciones autoalojadas no tienen ese límite.
+
+## Siguientes pasos [#next]
+
+- [Catálogo de herramientas MCP](/docs/mcp#tool-catalog): gestión programática de webhooks.
+- [Referencia de la API](/docs/openapi): los endpoints REST de webhooks y todas las cargas útiles de eventos.
+- [Integración con n8n](/docs/n8n): lleva los webhooks a flujos visuales.
