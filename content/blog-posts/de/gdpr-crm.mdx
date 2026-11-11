@@ -1,0 +1,198 @@
+---
+title: "CRM DSGVO: Worauf es bei Auswahl und Einrichtung ankommt"
+description: "Was die DSGVO von einem CRM verlangt: Rechtsgrundlage, AVV, Unterauftragsverarbeiter, Löschung und Datenort, als Checkliste mit Angaben von Customermates."
+
+relatedHrefs:
+  - /blog/how-to-choose-crm
+  - /blog/best-crm-software
+  - /features/self-hosted
+  - /docs/architecture-security
+
+hero:
+  title: "CRM DSGVO: Worauf Sie achten, bevor Kundendaten hineinkommen"
+  description: "Was die DSGVO von einem CRM verlangt: Rechtsgrundlage, AVV, Unterauftragsverarbeiter, Löschung und Datenort, als Checkliste mit Angaben von Customermates."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Zurück zum Blog
+  by: von Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - DSGVO
+    - Datenschutz
+    - CRM
+    - Selbst gehostet
+---
+
+# CRM DSGVO: Worauf Sie achten, bevor Kundendaten hineinkommen
+
+Ein „DSGVO-CRM“ ist kein Produkt mit Gütesiegel. Es ist ein CRM plus die Verträge, Einstellungen und Gewohnheiten, mit denen Sie Ihre eigenen Pflichten nach der DSGVO erfüllen, und diese Pflichten liegen bei Ihnen als Verantwortlichem: eine Rechtsgrundlage für jede Nutzung personenbezogener Daten, ein Auftragsverarbeitungsvertrag (AVV) mit dem Anbieter, der die Daten speichert, Antworten für Menschen, die wissen wollen, was Sie über sie gespeichert haben, und Löschung, sobald Sie die Daten nicht mehr brauchen. Ein CRM-Anbieter kann Ihnen das leicht oder schwer machen, aber kein CRM macht Sie von selbst konform.
+
+Der Beitrag nennt die Pflichten, die für ein CRM zählen, mit ihren Artikeln, zeigt, was Sie im Vertrag und in der Unterauftragsverarbeiter-Liste jedes Anbieters prüfen, geht eine Auskunfts- und eine Löschanfrage durch und sagt, wo Customermates steht, auch mit dem, was es nicht behauptet. Customermates veröffentlicht ihn und erscheint in gekennzeichneten Abschnitten. Er ist allgemeine Information und keine Rechtsberatung: Fragen Sie für Ihren Fall eine Anwältin, einen Anwalt oder Ihre Datenschutzbeauftragte. Die EU-Rechtsquellen und die Rechtstexte von Customermates haben wir am 11. November 2026 geprüft; die Rechtstexte ändern sich, lesen Sie deshalb vor jeder Entscheidung den aktuellen [Auftragsverarbeitungsvertrag](/dpa) und die [Liste der Unterauftragsverarbeiter](/subprocessors).
+
+<ArticleSummary title="Auf einen Blick">
+  <SummaryItem label="Die Regel">Für die personenbezogenen Daten in Ihrem CRM sind Sie der Verantwortliche und der CRM-Anbieter Ihr Auftragsverarbeiter. Die DSGVO macht Sie für Rechtsgrundlage, Vertrag und Betroffenenanfragen verantwortlich, nicht die Software.</SummaryItem>
+  <SummaryItem label="Vor Vertragsschluss">Ein AVV mit dem Inhalt von Art. 28 Abs. 3 DSGVO, die Liste der Unterauftragsverarbeiter, der Ort der Verarbeitung und die Grundlage für jede Übermittlung an einen Anbieter außerhalb der EU.</SummaryItem>
+  <SummaryItem label="Im Alltag">Knappe Zugriffsrechte, wenige Felder, ein Weg, die Daten einer Person zu finden, zu berichtigen, zu exportieren und zu löschen, und eine Aufbewahrungsprüfung, die Sie wirklich durchführen.</SummaryItem>
+  <SummaryItem label="Customermates">Ein AVV für die verwaltete Cloud, eine öffentliche Liste der Unterauftragsverarbeiter mit Anbietern aus den USA, die primäre Datenbank in der AWS-Region Frankfurt konfiguriert (eine gewählte Einstellung, keine Garantie), keine Compliance-Zertifizierung und ein Open-Source-Kern, den Sie selbst hosten können.</SummaryItem>
+  <SummaryItem label="Offenlegung">Customermates veröffentlicht diesen Beitrag. Rechtsquellen sind mit EUR-Lex und der Europäischen Kommission belegt.</SummaryItem>
+</ArticleSummary>
+
+## Was verlangt die DSGVO von einem CRM?
+
+Die DSGVO (Verordnung (EU) 2016/679, [Text auf EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu)) zertifiziert keine Software. Sie regelt die Stelle, die über Zwecke und Mittel der Verarbeitung entscheidet, den Verantwortlichen, und einen Dienstleister, der Daten in ihrem Auftrag verarbeitet, den Auftragsverarbeiter. Ein CRM voller Namen, E-Mail-Adressen und Gespräche enthält personenbezogene Daten: Sie sind der Verantwortliche, und der Anbieter, der die Daten für Sie speichert, ist Auftragsverarbeiter. Die Tabelle ordnet die für ein CRM wichtigsten Pflichten den Artikeln zu.
+
+| Pflicht | Artikel | Was das im CRM bedeutet |
+| --- | --- | --- |
+| Rechtsgrundlage | Art. 6 Abs. 1 | Jede Verarbeitung braucht eine von sechs Grundlagen. Im CRM sind das meist Vertrag (lit. b), berechtigte Interessen (lit. f) oder Einwilligung (lit. a). Berechtigte Interessen verlangen eine Abwägung mit den Interessen der Person, und eine Einwilligung muss bestimmt sein und lässt sich widerrufen (Art. 7 Abs. 3). Für Werbe-E-Mails und Werbeanrufe gelten weitere Regeln, etwa die [ePrivacy-Richtlinie](https://eur-lex.europa.eu/eli/dir/2002/58/oj/deu) und das nationale Wettbewerbsrecht. |
+| Grundsätze | Art. 5 Abs. 1 lit. b bis e | Daten nur für den genannten Zweck nutzen, nur die nötigen Felder erheben, Einträge richtig halten und nicht länger als nötig speichern. Eine feste Aufbewahrungsfrist nennt die DSGVO nicht: Sie legen sie je Datenart fest. |
+| Rechenschaft | Art. 5 Abs. 2 | Sie müssen die Einhaltung nachweisen können, halten Sie Ihre Entscheidungen also schriftlich fest. |
+| Informieren | Art. 13 und 14 | Eine Datenschutzerklärung. Stammen die Daten nicht von der Person selbst (importierte Liste, LinkedIn-Profil), informieren Sie innerhalb einer angemessenen Frist, spätestens nach einem Monat (Art. 14 Abs. 3 lit. a). |
+| Anfragen beantworten | Art. 12 und 15 bis 21 | Auskunft (15), Berichtigung (16), Löschung (17), Einschränkung (18), Datenübertragbarkeit (20) und Widerspruch (21). Antworten Sie unverzüglich, in jedem Fall innerhalb eines Monats; die Frist lässt sich bei Bedarf um zwei weitere Monate verlängern (Art. 12 Abs. 3). Ein Widerspruch gegen Direktwerbung ist zu beachten (Art. 21 Abs. 2 und 3). |
+| Auftragsverarbeitung | Art. 28 Abs. 3 | Ein schriftlicher Vertrag, der mindestens die Punkte lit. a bis h enthält. |
+| Unterauftragsverarbeiter | Art. 28 Abs. 2 und 4 | Der Auftragsverarbeiter braucht Ihre schriftliche Genehmigung, allgemein oder im Einzelfall, und muss jedem Unterauftragsverarbeiter dieselben Pflichten auferlegen. |
+| Sicherheit | Art. 32 | Dem Risiko angemessene technische und organisatorische Maßnahmen, etwa Zugriffskontrolle, Verschlüsselung und die Fähigkeit, die Verfügbarkeit nach einem Vorfall wiederherzustellen. |
+| Datenpannen | Art. 33 und 34 | Der Auftragsverarbeiter meldet Ihnen unverzüglich (Art. 33 Abs. 2). Sie melden an die Aufsichtsbehörde möglichst binnen 72 Stunden (Art. 33 Abs. 1) und benachrichtigen die Betroffenen bei hohem Risiko (Art. 34 Abs. 1). |
+| Übermittlung außerhalb des EWR | Art. 44 bis 46 | Nur mit Angemessenheitsbeschluss (Art. 45) oder geeigneten Garantien, zum Beispiel Standardvertragsklauseln (Art. 46 Abs. 2 lit. c). |
+| Verzeichnis der Verarbeitungstätigkeiten | Art. 30 | Ein schriftliches Verzeichnis Ihrer Verarbeitungen. Die Ausnahme für Organisationen mit weniger als 250 Beschäftigten gilt nicht für Verarbeitungen, die nicht nur gelegentlich erfolgen (Art. 30 Abs. 5); ein CRM im Regelbetrieb ist daher in der Regel erfasst. |
+
+Die [Grundsätze der DSGVO](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) erklärt die Europäische Kommission auf Englisch in einfacher Sprache, und die [Leitlinien 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) des Europäischen Datenschutzausschusses (englisch) erläutern die Rollen von Verantwortlichem und Auftragsverarbeiter im Detail. Eine [CRM-Datenbank](/blog/crm-database), die mit diesen Pflichten im Kopf entsteht, beginnt mit weniger Feldern und klaren Zuständigkeiten.
+
+## Gibt es ein DSGVO-konformes CRM?
+
+Kein CRM ist von sich aus DSGVO-konform. Konformität beschreibt, wie Sie ein Werkzeug einsetzen: was Sie erheben, auf welcher Grundlage, wie lange Sie es behalten und wie Sie Anfragen beantworten. Was ein Anbieter ehrlich bieten kann, ist enger und prüfbar:
+
+- einen Auftragsverarbeitungsvertrag, der Art. 28 Abs. 3 abdeckt;
+- eine öffentliche Liste der Unterauftragsverarbeiter und ein beschriebenes Verfahren für Änderungen;
+- klare Angaben, wo Daten verarbeitet werden und welcher Mechanismus eine Übermittlung außerhalb des EWR trägt;
+- Sicherheitsmaßnahmen, die im Vertrag stehen;
+- Funktionen, um die Daten einer Person zu finden, zu berichtigen, zu exportieren und zu löschen; und
+- einen Ausweg: Rückgabe oder Löschung Ihrer Daten am Ende.
+
+Betrachten Sie ein Siegel wie „DSGVO-konform“ oder „Made in Europe“ als Werbeaussage. Die DSGVO sieht anerkannte Zertifizierungen vor (Art. 42); fragen Sie also, welche Zertifizierung, von welcher Stelle, für welchen Dienst. Customermates hat keine Compliance-Zertifizierung; Hosting in einer EU-Region ist eine Hosting-Tatsache und keine Zertifizierung.
+
+## CRM aus Deutschland: Sitz des Anbieters oder Standort der Daten?
+
+Drei Orte werden gern vermischt: wo der Anbieter seinen Sitz hat, wo seine Datenbank läuft und wo alle anderen Dienstleister in der Kette Daten verarbeiten. Die DSGVO verlangt kein Hosting in der EU. Sie beschränkt Übermittlungen außerhalb des EWR (Art. 44 bis 46) und macht Sie für die ganze Kette verantwortlich. Ein Anbieter in Deutschland kann seine Anwendung bei einem US-Hoster betreiben, und ein US-Anbieter kann eine Datenbank in Frankfurt führen. Das ist die eigentliche Frage hinter der Suche nach einem „CRM aus Deutschland“ oder einem CRM Deutschland: Prüfen Sie alle drei Orte, nicht die Überschrift.
+
+Für Customermates sagen die Rechtstexte (Stand 11. November 2026):
+
+| Frage | Was die Rechtstexte angeben |
+| --- | --- |
+| Wer ist der Anbieter? | Benjamin Wagner, handelnd unter Customermates, Mannheim, Deutschland. Der AVV unterliegt deutschem Recht. |
+| Wo liegt die primäre Produktionsdatenbank? | Konfiguriert in der AWS-Region Frankfurt (`eu-central-1`), betrieben über den verwalteten Datenbankanbieter Neon (Databricks). Die Texte nennen das eine gewählte Produkteinstellung und keine vertragliche Zusage zum Datenstandort. |
+| Wo läuft die Anwendung? | Bei Vercel in den USA, wo auch der private Dateispeicher liegt. Die Übermittlung stützt sich auf die EU-Standardvertragsklauseln im Data Processing Addendum von Vercel. |
+| Verbundene E-Mail-, LinkedIn- und andere Konten | Werden von Unipile (Frankreich) transportiert, das angibt, die Daten verbundener Konten in der EU zu speichern. Der eigene AVV von Unipile erlaubt Übermittlungen außerhalb der EU, wenn Garantien nach Kapitel V gelten. |
+| Der KI-Assistent Mate | Anfragen laufen über Vercel AI Gateway zu Google Cloud Vertex AI (Claude-Modelle auf eine EU-Inferenzzone festgelegt, das Embedding-Modell in einer US-Region), zu Exa in den USA für die Websuche und zu TypeSafe AI. |
+
+Die [Liste der Unterauftragsverarbeiter](/subprocessors) nennt jeden Anbieter mit Zweck, Standort und Übermittlungsgrundlage, und die [Sicherheitsdokumentation](/docs/architecture-security) erklärt die Mandantentrennung und wo Zugangsdaten liegen. Zusammengefasst: ein Betreiber in Deutschland, eine Datenbank in einer EU-Region und Anbieter aus den USA in der Kette, deshalb zählt die Liste mehr als ein Ländername.
+
+## Was gehört in einen Auftragsverarbeitungsvertrag für ein CRM?
+
+Art. 28 Abs. 3 nennt den Mindestinhalt eines Auftragsverarbeitungsvertrags. Halten Sie den Vertrag eines Anbieters gegen die Punkte lit. a bis h. Die rechte Spalte zeigt den AVV von Customermates; die Ziffern beziehen sich auf den [veröffentlichten AVV](/dpa).
+
+| Art. 28 Abs. 3 | Worauf Sie achten | AVV von Customermates |
+| --- | --- | --- |
+| lit. a Weisungen | Der Auftragsverarbeiter handelt nur auf Ihre dokumentierte Weisung | Ziffer 5: AVV, Allgemeine Geschäftsbedingungen und Ihre Nutzung des Dienstes sind die Weisungen; Customermates weist Sie darauf hin, wenn es eine Weisung für DSGVO-widrig hält |
+| lit. b Vertraulichkeit | Beschäftigte sind zur Vertraulichkeit verpflichtet | Ziffer 7 |
+| lit. c Sicherheit | Maßnahmen nach Art. 32, benannt | Ziffer 8: TLS bei der Übertragung, Verschlüsselung der Produktionsdatenbank und ihrer Sicherungen im Ruhezustand, rollenbasierter Zugriff mit namentlichen Konten, Trennung der Kundendaten nach Unternehmenskonto, Protokollierung, Wiederherstellung nach Vorfällen, regelmäßige Prüfung |
+| lit. d Unterauftragsverarbeiter | Genehmigung und gleiche Pflichten entlang der Kette | Ziffer 9: allgemeine schriftliche Genehmigung, die Liste unter `/subprocessors`, ein schriftlicher Vertrag vor Beginn der Verarbeitung, Information vor Ergänzungen, die Customermates selbst entscheidet, Widerspruch aus berechtigten Datenschutzgründen und ein Recht, den betroffenen Dienst zu beenden, wenn sich der Widerspruch nicht lösen lässt. Bei Änderungen eines Lieferanten gibt Customermates dessen Mitteilung unverzüglich weiter und sagt keine feste Vorlaufzeit zu |
+| lit. e Betroffenenanfragen | Unterstützung bei Art. 12 bis 23 | Ziffer 10: Anfragen, die bei Customermates eingehen, werden unverzüglich an Sie weitergeleitet |
+| lit. f Art. 32 bis 36 | Unterstützung bei Sicherheit, Datenpannen, Folgenabschätzung | Ziffer 10: Sie erfahren unverzüglich von einer bekannt gewordenen Datenpanne, mit den Angaben, die Sie für Art. 33 und 34 brauchen |
+| lit. g Ende der Leistung | Löschung oder Rückgabe nach Ihrer Wahl | Ziffer 11: 30 Tage nach Ende des Dienstes für die Wahl von Löschung oder Rückgabe, dann Löschung aus den eigenen Systemen von Customermates und aus Sicherungen spätestens binnen 90 Tagen mit deren Ablauf; Unterauftragsverarbeiter löschen nach ihren eigenen Verträgen |
+| lit. h Kontrollen | Informationen und Überprüfungen | Ziffer 12: zuerst Dokumentation, Vor-Ort-Prüfung nach Vorankündigung |
+
+Lesen Sie auch die Grenzen. Der AVV benennt, was er nicht zusagen kann: Für verbundene Konten hat Customermates kein vertragliches Löschungsrecht je Konto gegenüber Unipile und kann die Entfernung nur anfordern, und rohe eingehende Datensätze, die sich keinem Kunden zuordnen lassen, bleiben ohne feste Frist zur Fehleranalyse gespeichert. Ein AVV, der seine Grenzen nennt, lässt sich leichter beurteilen als einer, der keine nennt.
+
+Prüfen Sie außerdem, wie er zustande kommt. Veröffentlichung allein schließt keinen Vertrag: Der AVV von Customermates wird für einen Kunden wirksam, wenn ein berechtigter Administrator ihn zusammen mit den Allgemeinen Geschäftsbedingungen beim Onboarding annimmt, und eine Kopie in Textform gibt es auf Anfrage. Maßgeblich ist die deutsche Fassung; die englische ist eine unverbindliche Übersetzung.
+
+## Wie bearbeiten Sie eine Auskunfts- oder Löschanfrage im CRM?
+
+Das ist der Praxistest für jedes CRM-Setup: Jemand schreibt „Was haben Sie über mich gespeichert?“ oder „Löschen Sie meine Daten“. Die Schritte unten nutzen Customermates; die Reihenfolge funktioniert in jedem Werkzeug.
+
+<Steps>
+  <Step title="Anfrage notieren und Identität klären">Halten Sie das Eingangsdatum fest: Ab dann läuft die Monatsfrist nach Art. 12 Abs. 3. Klären Sie die Identität im Verhältnis zu den Daten, ohne dafür mehr Daten zu erheben, als nötig.</Step>
+  <Step title="Alle Datensätze finden">Drücken Sie Cmd oder Strg und K. Die globale Suche durchsucht alle Listen, die Sie lesen dürfen, und findet einen Kontakt über jede E-Mail-Adresse oder Telefonnummer in seinen Kontaktdaten; suchen Sie auch nach dem Namen und öffnen Sie verknüpfte Organisationen und Deals. Gespräche gehören nicht zu dieser Suche: Der Posteingang, ab Pro mit verbundenem Konto, hat eine eigene Suche.</Step>
+  <Step title="Daten zusammenstellen">Filtern Sie jede Liste auf die Person und wählen Sie unter Weitere Aktionen Als Excel exportieren oder Als JSON exportieren. Der Export enthält, was die Liste mit Ihren Filtern zeigt, bis zu 5.000 Datensätze, und nur Felder, die Ihre Rolle lesen darf. Customermates hat keinen Gesamtexport des Kontos; wiederholen Sie den Schritt deshalb für jede Liste, die die Person enthält, und ergänzen Sie, was in Ihren E-Mails, Tabellen und anderen Werkzeugen liegt.</Step>
+  <Step title="Falsches berichtigen">Ändern Sie den Wert direkt im Feld. Das beantwortet einen Berichtigungsantrag nach Art. 16; das Aktivitätsprotokoll hält die Änderung mit dem früheren Wert, der Person, die sie vorgenommen hat, und dem Zeitpunkt fest.</Step>
+  <Step title="Löschen und Kopien prüfen">Löschen verschiebt den Datensatz in den Papierkorb und aus Listen, Suche, Widgets und Exporten. Öffnen Sie den Papierkorb und wählen Sie Endgültig löschen, um sofort zu löschen; das entfernt auch die Feldwerte des Datensatzes aus seinem Verlauf. Sonst verschwindet er nach 30 Tagen von selbst. Nachrichten in einem verbundenen Posteingang sind Kopien von Nachrichten in Ihrem E-Mail- oder Messaging-Konto, das Original braucht also dieselbe Entscheidung. Fragen Sie, wie Ihr Anbieter Sicherungen behandelt: Der AVV von Customermates nennt höchstens 90 Tage für die Löschungen, die er abdeckt (Ziffer 11).</Step>
+  <Step title="Antworten und festhalten, was Sie getan haben">Antworten Sie innerhalb des Monats und notieren Sie Anfrage, Entscheidung und Datum, damit Sie es später belegen können (Art. 5 Abs. 2). Bei einem Widerspruch gegen Werbung (Art. 21 Abs. 3) legen Sie ein Ja/Nein-Feld wie „Werbewiderspruch“ an und lassen diese Datensätze in jeder Versandliste weg.</Step>
+</Steps>
+
+Die [Papierkorb-Dokumentation](/docs/app-trash) beschreibt Wiederherstellen und endgültiges Löschen, die [Dokumentation der Datensätze](/docs/app-records) Filter, Export und Import.
+
+## Wie richten Sie ein CRM DSGVO-gerecht ein?
+
+Eine Checkliste für die erste Woche, bevor echte Kundendaten hineinkommen:
+
+<Steps>
+  <Step title="Festlegen, was jede Liste speichert">Weniger Felder bedeuten weniger zu schützen, zu beauskunften und zu löschen (Art. 5 Abs. 1 lit. c). Halten Sie Zweck und Rechtsgrundlage jeder Liste in ihrer Beschreibung fest und lassen Sie besondere Kategorien von Daten wie Gesundheitsdaten (Art. 9) weg, solange Sie keine besondere Grundlage haben.</Step>
+  <Step title="Nur nötige Zugriffe vergeben">Rollen vergeben Erstellen, Bearbeiten, Löschen und Lesen (Alle, Zugewiesen oder Keine) je Liste. Es gibt keine Berechtigungen auf Feldebene; legen Sie Sensibles deshalb in eine eigene Liste mit engerem Zugriff.</Step>
+  <Step title="Das Ausscheiden planen">Setzen Sie ein Mitglied auf Inaktiv, sperrt das sofort seinen Zugang, seine API-Schlüssel und MCP-Verbindungen für den Workspace.</Step>
+  <Step title="AVV abschließen und Unterauftragsverarbeiter lesen">Bewahren Sie Ihre Kopie der angenommenen Fassung auf und schauen Sie in die Liste, wenn eine Änderungsmitteilung eintrifft.</Step>
+  <Step title="Nur genutzte Kanäle verbinden">Jedes verbundene Konto fügt der Kette einen Anbieter und eine gespeicherte Kopie seiner Nachrichten hinzu. Trennen Sie ein Konto, löscht Customermates dessen gespeicherte Threads, Nachrichten, Teilnehmer und Kalenderdaten, wie der AVV beschreibt.</Step>
+  <Step title="Je Liste eine Aufbewahrungsregel festlegen und anwenden">Speichern Sie eine Ansicht mit Datensätzen, die über den von Ihnen gewählten Zeitraum nicht aktualisiert wurden, prüfen Sie sie nach Plan und löschen Sie, was Sie nicht mehr brauchen. Den Zeitraum überlässt die DSGVO Ihnen (Art. 5 Abs. 1 lit. e); müssen Sie nach Steuer- oder Handelsrecht ein Dokument aufbewahren, gilt diese Pflicht zusätzlich.</Step>
+  <Step title="Die eigenen Unterlagen aktuell halten">Das Verzeichnis der Verarbeitungstätigkeiten (Art. 30) und Ihre Datenschutzerklärung (Art. 13 und 14) gehören in Ihre Compliance-Ablage, nicht in die Unterlagen des CRM-Anbieters.</Step>
+</Steps>
+
+## Was ändern KI-Funktionen unter der DSGVO?
+
+Ein KI-Assistent fügt der Kette Anbieter hinzu und schickt Text aus Ihren Datensätzen an sie. Fragen Sie bei jeder KI-Funktion, welcher Anbieter welche Daten erhält, ob er in der Liste der Unterauftragsverarbeiter steht, wo er verarbeitet, ob er mit Ihren Daten trainiert und ob Sie die Funktion ausgeschaltet lassen können.
+
+Für Customermates Cloud beschreibt die Liste der Unterauftragsverarbeiter Mate: Eine Anfrage läuft über Vercel AI Gateway zu den Anbietern aus der Tabelle oben und enthält nur, was für die Antwort nötig ist. Die Liste nennt für diesen Gateway-Weg eine Einstellung ohne Datenspeicherung (Zero Data Retention); das ist eine enge Kontrolle und kein Aufbewahrungsversprechen für das CRM selbst. Die Claude-Modelle sind auf eine EU-Inferenzzone festgelegt, die Websuche und das Embedding-Modell laufen dagegen in den USA. Welche Daten eine Anfrage enthält, entscheiden Sie, und Sie bleiben für Erforderlichkeit und Rechtsgrundlage verantwortlich. Verbinden Sie Ihren eigenen KI-Client über MCP, verarbeitet dieser Anbieter die Daten nach Ihrem Vertrag mit ihm. Selbst gehostete Instanzen haben kein Mate. Der [Leitfaden zum KI-CRM](/blog/ai-crm) vergleicht die Ansätze.
+
+## Customermates und die DSGVO: was es bietet und was nicht
+
+Geboten, nach Produktdokumentation und Rechtstexten:
+
+- der [AVV](/dpa) und die [Liste der Unterauftragsverarbeiter](/subprocessors) für die verwaltete Cloud, mit dem oben beschriebenen Änderungsverfahren;
+- Rollen je Liste, ein Schalter zum Deaktivieren von Mitgliedern und Mandantentrennung nach Unternehmenskonto;
+- globale Suche nach E-Mail-Adresse oder Telefonnummer, Berichtigung im Feld, Excel- und JSON-Export je Liste und ein Papierkorb mit endgültigem Löschen;
+- ein Aktivitätsprotokoll für Änderungen an CRM-Datensätzen und an der Workspace-Konfiguration, lesbar für Rollen mit Zugriff; und
+- ein Open-Source-Kern unter der AGPL, den Sie [selbst hosten](/features/self-hosted) können.
+
+Nicht geboten, fragen Sie danach also woanders, wenn Sie es brauchen:
+
+- Customermates hat keine Compliance-Zertifizierung und keine vertragliche Zusage, dass alle Daten in einer Region bleiben;
+- es hat keine Berechtigungen auf Feldebene und keinen Export eines ganzen Kontos in einem Schritt;
+- sein Aktivitätsprotokoll erfasst keine Anmeldungen, API-Schlüssel oder Posteingangsinhalte und hat keine Export-Schaltfläche.
+
+Selbst hosten verschiebt die Verantwortung. Der AGPL-Kern läuft mit Docker und PostgreSQL auf Ihrer Infrastruktur, und der AVV deckt nur den verwalteten Dienst ab: Sie wählen Hosting und Dienstleister und halten Ihre eigenen Verträge nach Art. 28 und Garantien für Übermittlungen. TLS und Verschlüsselung im Ruhezustand richten Sie selbst ein. Selbst hosten nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und ist nicht von der Außenwelt abgeschnitten: Bei der ersten Adresseingabe für ein Land lädt die Instanz die öffentliche Postleitzahlen-Datei dieses Landes von GeoNames, es sei denn, Sie setzen `POSTAL_CODE_DATA_URL` auf `off` oder auf einen Mirror. Die [Anleitung zum Selbst-Hosting](/docs/self-hosting) nennt die Einzelheiten, die [Seite zum Open-Source-CRM](/features/open-source-crm) erklärt die Lizenzgrenze.
+
+<AcquisitionCallout title="Wo Customermates nicht passt" variant="boundary">
+  Verlangt eine Beschaffungs-Checkliste eine anerkannte Zertifizierung, eine vertragliche Zusage zur Verarbeitung nur in der EU oder Berechtigungen auf Feldebene, kann Customermates diese Punkte heute nicht abhaken. Fordern Sie sie von jedem Anbieter schriftlich, den Sie vergleichen, und lesen Sie die Antworten neben den Listen der Unterauftragsverarbeiter. Der [Vergleich der besten CRM-Software](/blog/best-crm-software) und der [Leitfaden zur CRM-Auswahl](/blog/how-to-choose-crm) behandeln die übrigen Kriterien.
+</AcquisitionCallout>
+
+Um die Punkte an Ihrem Fall zu prüfen, lesen Sie zuerst AVV und Liste der Unterauftragsverarbeiter und [starten Sie dann Ihre [[commercial.trial.days]]-Tage-Testphase](/auth/signup?job=followup): Pro, ohne Kreditkarte. Importieren Sie vor echten Kundendaten ein paar Testdatensätze und gehen Sie die Schritte der Auskunftsanfrage einmal durch.
+
+## Häufige Fragen zu DSGVO und CRM
+
+<Faq>
+<FaqItem question="Verlangt die DSGVO, dass ein CRM in der EU gehostet wird?">
+Nein. Die DSGVO schreibt keinen Hosting-Standort vor. Sie erlaubt Übermittlungen in Länder außerhalb des EWR nur mit Angemessenheitsbeschluss oder mit geeigneten Garantien wie Standardvertragsklauseln (Art. 44 bis 46). Hosting in einer EU-Region macht die Frage der Übermittlung kleiner, doch Sie müssen weiterhin jeden Anbieter in der Kette prüfen.
+</FaqItem>
+<FaqItem question="Brauche ich einen AVV mit meinem CRM-Anbieter?">
+Ja, wenn der Anbieter personenbezogene Daten für Sie verarbeitet. Art. 28 Abs. 3 verlangt einen schriftlichen Vertrag, der auch elektronisch geschlossen werden kann, mit dem Inhalt der Punkte lit. a bis h. Prüfen Sie, dass er besteht, welche Fassung gilt und dass er die Unterauftragsverarbeiter nennt.
+</FaqItem>
+<FaqItem question="Ist Customermates DSGVO-konform?">
+Kein CRM ist von sich aus DSGVO-konform, und Customermates hat keine Compliance-Zertifizierung. Es bietet einen AVV für die verwaltete Cloud, eine öffentliche Liste der Unterauftragsverarbeiter, eine in AWS Frankfurt konfigurierte primäre Datenbank und die oben beschriebenen Funktionen. Für Ihre Rechtsgrundlage, Ihre Aufbewahrungsfristen und Ihre Antworten auf Anfragen bleiben Sie verantwortlich.
+</FaqItem>
+<FaqItem question="Was ist der Unterschied zwischen Verantwortlichem und Auftragsverarbeiter im CRM?">
+Der Verantwortliche entscheidet, warum und wie personenbezogene Daten verarbeitet werden: Sie, für die Kontakte in Ihrem CRM. Der Auftragsverarbeiter verarbeitet die Daten in Ihrem Auftrag und auf Ihre dokumentierte Weisung: der CRM-Anbieter. Für seine eigenen Website-, Abrechnungs- und Sicherheitsdaten ist ein Anbieter selbst Verantwortlicher.
+</FaqItem>
+<FaqItem question="Wie lange darf ich Kundendaten im CRM speichern?">
+Die DSGVO nennt keine feste Frist. Art. 5 Abs. 1 lit. e verlangt, dass Daten nicht länger als für den Zweck nötig gespeichert werden; Sie legen also je Datenart einen Zeitraum fest und halten ihn schriftlich fest. Eine gesetzliche Pflicht, bestimmte Dokumente aufzubewahren, etwa im Steuerrecht, kann für diese Dokumente längere Fristen verlangen.
+</FaqItem>
+<FaqItem question="Muss ich Kontakten sagen, dass ich ihre Daten speichere?">
+In der Regel ja. Art. 13 und 14 verlangen eine Datenschutzerklärung. Haben Sie die Daten nicht bei der Person erhoben, etwa aus einer importierten Liste, informieren Sie sie innerhalb einer angemessenen Frist, spätestens nach einem Monat.
+</FaqItem>
+<FaqItem question="Kann ich alle CRM-Daten auf meinem eigenen Server halten?">
+Mit dem Open-Source-Kern ja: Sie betreiben ihn mit Docker und PostgreSQL auf einer Infrastruktur Ihrer Wahl. Er nutzt den Starter-Funktionsumfang, ohne Posteingang und ohne Mate, und Sie sind für Ihre eigenen Hosting-Verträge und die Sicherheit verantwortlich.
+</FaqItem>
+<FaqItem question="Was geschieht mit meinen Daten, wenn ich kündige?">
+Nach dem AVV von Customermates haben Sie 30 Tage nach Ende des Dienstes Zeit, Löschung oder Rückgabe zu wählen. Danach werden die Daten aus den eigenen Systemen von Customermates gelöscht, aus Sicherungen spätestens binnen 90 Tagen, und Unterauftragsverarbeiter löschen nach ihren eigenen Verträgen.
+</FaqItem>
+</Faq>
+
+Recht und Angaben Dritter geprüft am 11. November 2026: [Verordnung (EU) 2016/679 auf EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/deu), die [ePrivacy-Richtlinie](https://eur-lex.europa.eu/eli/dir/2002/58/oj/deu), die [Grundsätze der DSGVO](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) der Europäischen Kommission und die [Leitlinien 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) des EDSA. Aussagen über Customermates stammen aus dem [AVV](/dpa), der [Liste der Unterauftragsverarbeiter](/subprocessors) und der [Sicherheitsdokumentation](/docs/architecture-security) in der Fassung dieses Datums.

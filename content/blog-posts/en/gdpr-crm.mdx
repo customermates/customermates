@@ -1,0 +1,198 @@
+---
+title: "GDPR CRM: What to Check Before You Store Customer Data"
+description: "What the GDPR asks of a CRM: legal basis, data processing agreement, subprocessors, deletion and data location, as a checklist with what Customermates says."
+
+relatedHrefs:
+  - /blog/how-to-choose-crm
+  - /blog/best-crm-software
+  - /features/self-hosted
+  - /docs/architecture-security
+
+hero:
+  title: "GDPR CRM: what to check before you store customer data"
+  description: "What the GDPR asks of a CRM: legal basis, data processing agreement, subprocessors, deletion and data location, as a checklist with what Customermates says."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Back to blog
+  by: by Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - GDPR
+    - Data protection
+    - CRM
+    - Self-hosted
+---
+
+# GDPR CRM: what to check before you store customer data
+
+A GDPR CRM is not a product with a badge. It is a CRM plus the contracts, settings and habits that let you meet your own duties under the GDPR, and those duties sit with you as the controller: a lawful basis for each use of personal data, a data processing agreement with the provider that stores it, answers for people who ask what you hold, and deletion once you no longer need the data. A CRM vendor can make that easy or hard, but no CRM makes you compliant on its own.
+
+This guide lists the duties that matter for a CRM with their article numbers, shows what to check in any vendor's contract and subprocessor list, walks through an access and an erasure request, and states where Customermates stands, including what it does not claim. Customermates publishes it and appears in labelled sections. It is general information, not legal advice: ask a lawyer or your data protection officer about your own case. The EU law sources and the Customermates legal pages were checked on 11 November 2026; the legal pages change, so read the current [data processing agreement](/dpa) and [subprocessor list](/subprocessors) before you rely on this page.
+
+<ArticleSummary title="At a glance">
+  <SummaryItem label="The rule">You are the controller of the personal data in your CRM, and the CRM vendor is your processor. The GDPR makes you responsible for the lawful basis, the contract and the requests, not the software.</SummaryItem>
+  <SummaryItem label="Before you sign">A data processing agreement with the content of Article 28(3), the vendor's subprocessor list, where the data is processed and which transfer mechanism covers any provider outside the EU.</SummaryItem>
+  <SummaryItem label="In daily use">Narrow access, few fields, a way to find, correct, export and delete one person's data, and a retention review you actually run.</SummaryItem>
+  <SummaryItem label="Customermates">A DPA for the managed cloud, a public subprocessor list that includes US providers, the primary database configured in AWS Frankfurt (a chosen setting, not a guarantee), no compliance certification, and an open-source core you can self-host.</SummaryItem>
+  <SummaryItem label="Disclosure">Customermates publishes this guide. Third-party law is cited to EUR-Lex and the European Commission.</SummaryItem>
+</ArticleSummary>
+
+## What does the GDPR require from a CRM?
+
+The GDPR (Regulation (EU) 2016/679, [text on EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj)) does not certify software. It regulates the organisation that decides why and how personal data is used, the controller, and a provider that handles the data on its behalf, the processor. A CRM full of names, email addresses and conversations holds personal data, so you are the controller and the vendor that stores it for you is a processor. The table maps the duties that matter most for a CRM to the articles.
+
+| Duty | Article | What it means in a CRM |
+| --- | --- | --- |
+| Lawful basis | Art. 6(1) | Every use of personal data needs one of six bases. In a CRM these are usually contract (b), legitimate interests (f) or consent (a). Legitimate interests need a balancing against the person's interests, and consent must be specific and can be withdrawn (Art. 7(3)). Marketing email and calls follow further rules, such as the [ePrivacy Directive](https://eur-lex.europa.eu/eli/dir/2002/58/oj). |
+| Principles | Art. 5(1)(b) to (e) | Use the data only for the purpose you named, collect only the fields you need, keep entries accurate and keep them no longer than necessary. The GDPR sets no fixed retention period: you choose one per kind of data. |
+| Accountability | Art. 5(2) | You must be able to show that you comply, so write down your decisions. |
+| Tell people | Arts. 13 and 14 | A privacy notice. Where the data did not come from the person (an imported list, a LinkedIn profile), tell them within a reasonable period and at the latest within one month (Art. 14(3)(a)). |
+| Answer requests | Arts. 12 and 15 to 21 | Access (15), rectification (16), erasure (17), restriction (18), portability (20) and objection (21). Answer without undue delay and in any event within one month, extendable by two further months where necessary (Art. 12(3)). An objection to direct marketing must be honoured (Art. 21(2) and (3)). |
+| Processor contract | Art. 28(3) | A written contract that contains at least the terms listed in points (a) to (h). |
+| Subprocessors | Art. 28(2) and (4) | The processor needs your written authorisation, general or specific, and must impose the same obligations on every subprocessor it engages. |
+| Security | Art. 32 | Appropriate technical and organisational measures for the risk, such as access control, encryption and the ability to restore availability after an incident. |
+| Breaches | Arts. 33 and 34 | The processor tells you without undue delay (Art. 33(2)). You report to the supervisory authority within 72 hours where feasible (Art. 33(1)) and tell the people affected when the risk to them is high (Art. 34(1)). |
+| Transfers outside the EEA | Arts. 44 to 46 | Allowed only on an adequacy decision (Art. 45) or with appropriate safeguards, for example standard contractual clauses (Art. 46(2)(c)). |
+| Record of processing | Art. 30 | A written record of your processing activities. The exemption for organisations with fewer than 250 persons does not apply to processing that is not occasional (Art. 30(5)), so a CRM in regular use is usually covered. |
+
+The European Commission's page on the [principles of the GDPR](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) gives the plain-language version, and the European Data Protection Board's [Guidelines 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) explain the controller and processor roles in detail. A [CRM database](/blog/crm-database) built with these duties in mind starts with fewer fields and clear owners.
+
+## Is there such a thing as a GDPR-compliant CRM?
+
+No CRM is GDPR compliant on its own. Compliance describes how you use a tool: what you collect, on which basis, how long you keep it and how you answer requests. What a vendor can honestly offer is narrower and checkable:
+
+- a processor contract that covers Art. 28(3);
+- a public subprocessor list and a stated process for changes;
+- clear information on where data is processed and which mechanism covers any transfer outside the EEA;
+- security measures written into the contract;
+- product functions to find, correct, export and delete one person's data; and
+- a way to leave: return or deletion of your data at the end.
+
+Treat a badge such as "GDPR compliant" or "made in Europe" as a marketing claim. The GDPR provides for approved certification (Art. 42), so ask which certification, from which body, for which service. Customermates holds no compliance certification; hosting in an EU region is a hosting fact, not a certification.
+
+## Does it matter where the CRM vendor and its servers are?
+
+Three places get mixed up: where the vendor is established, where its database runs, and where every other provider in the chain processes data. The GDPR does not require EU hosting. It restricts transfers outside the EEA (Arts. 44 to 46) and makes you answerable for the whole processor chain. A vendor in Germany can run its application at a US hosting provider, and a US vendor can run a database in Frankfurt. This is the real question behind a search for a German or an EU CRM: read all three places, not the headline.
+
+For Customermates, the legal pages say this (as published on 11 November 2026):
+
+| Question | What the legal pages state |
+| --- | --- |
+| Who is the provider? | Benjamin Wagner, operating as Customermates, Mannheim, Germany. The DPA is governed by German law. |
+| Where is the primary production database? | Configured in the AWS Frankfurt region (`eu-central-1`), operated through the managed database provider Neon (Databricks). The pages call this a selected product setting and not a contractual data-residency guarantee. |
+| Where does the application run? | At Vercel in the USA, which also holds the private file storage. Transfers rest on the EU standard contractual clauses in Vercel's data processing addendum. |
+| Connected email, LinkedIn and other accounts | Transported by Unipile (France), which states that connected-account data is stored in the EU. Its own DPA permits transfers outside the EU where Chapter V safeguards apply. |
+| The AI assistant Mate | Requests go through Vercel AI Gateway to Google Cloud Vertex AI (Claude models pinned to an EU inference zone, the embedding model in a US region), to Exa in the USA for web search and to TypeSafe AI. |
+
+The [subprocessor list](/subprocessors) holds each provider with its purpose, location and transfer basis, and the [security documentation](/docs/architecture-security) explains tenant isolation and where credentials live. The summary: an operator in Germany, a database configured in an EU region, and US providers in the chain, which is why the list matters more than a country name.
+
+## What should a CRM data processing agreement contain?
+
+Art. 28(3) lists the minimum content of a processor contract. Hold a vendor's agreement against points (a) to (h). The right column shows the Customermates DPA, whose section numbers refer to the [published DPA](/dpa).
+
+| Art. 28(3) | What to look for | Customermates DPA |
+| --- | --- | --- |
+| (a) Instructions | The processor acts only on your documented instructions | Section 5: the DPA, the Terms and your use of the service are the instructions; Customermates tells you if it thinks an instruction infringes the GDPR |
+| (b) Confidentiality | Staff are bound to confidentiality | Section 7 |
+| (c) Security | Measures under Art. 32, named | Section 8: TLS in transit, encryption at rest for the production database and its backups, role-based access with named accounts, separation of customer data by company account, logging, restore after incidents, regular testing |
+| (d) Subprocessors | Authorisation and the same obligations down the chain | Section 9: general written authorisation, the list at `/subprocessors`, a written contract before a subprocessor starts, notice before additions Customermates decides, objection on reasonable data-protection grounds, and a right to end the affected service if the objection cannot be resolved. For changes by a supplier, Customermates passes the notice on without undue delay and promises no fixed advance period |
+| (e) Data subject requests | Help with Arts. 12 to 23 | Section 10: requests sent to Customermates are forwarded to you without undue delay |
+| (f) Arts. 32 to 36 | Help with security, breaches, impact assessments | Section 10: you are told without undue delay after a breach is noticed, with the information you need for Arts. 33 and 34 |
+| (g) End of service | Deletion or return, at your choice | Section 11: 30 days after the end of the service to choose deletion or return, then deletion from Customermates' own systems and from backups at the latest within 90 days as they expire; subprocessors delete under their own agreements |
+| (h) Audits | Information and audits | Section 12: documentation first, on-site inspection with notice |
+
+Read the limits as well. The DPA states what it cannot promise: for connected accounts it has no contractual per-account deletion right against Unipile and can only request removal, and raw inbound records that cannot be attributed to a customer are kept for error analysis without a fixed period. A DPA that states its limits is easier to assess than one that states none.
+
+Also check how it is concluded. Publishing a document does not conclude it: the Customermates DPA takes effect for a customer when an authorised administrator accepts it, together with the Terms, during onboarding, and a copy in text form is available on request. The German version is authoritative and the English one is a convenience translation.
+
+## How do you handle an access or erasure request in a CRM?
+
+This is the test of any CRM setup: someone writes "what do you hold about me?" or "delete my data". The steps below use Customermates, and the order works in any tool.
+
+<Steps>
+  <Step title="Log the request and confirm who is asking">Note the date you received it: the one-month period of Art. 12(3) starts then. Confirm identity in proportion to the data, without collecting more than you need to do so.</Step>
+  <Step title="Find every record">Press Cmd or Ctrl and K. Global search looks through every list you can read and finds a contact by any email address or phone number in their Contact details; search the name as well, and open linked organizations and deals. Conversations are not part of this search: the Inbox, available from Pro with a connected account, has its own search.</Step>
+  <Step title="Collect the data">Filter each list to the person, then choose Export as Excel or Export as JSON from More actions. The export contains what the list shows with your filters, up to 5,000 records, and only fields your role can read. Customermates has no whole-account export, so repeat this per list that holds the person, and add what sits in your email, spreadsheets and other tools.</Step>
+  <Step title="Correct what is wrong">Edit the value in place. That answers a rectification request under Art. 16; the Activity log records the change with the previous value, who made it and when.</Step>
+  <Step title="Erase, then check the copies">Delete moves the record to Trash and out of lists, search, widgets and exports. Open Trash and choose Delete permanently to erase it now, which also removes the record's field values from its history; otherwise it goes by itself after 30 days. Messages in a connected inbox are copies of messages in your email or messaging account, so the original needs the same decision. Ask how your vendor treats backups: the Customermates DPA names at most 90 days for the deletions it covers (Section 11).</Step>
+  <Step title="Answer and record what you did">Reply within the month and keep a note of the request, the decision and the date, so you can show it later (Art. 5(2)). For an objection to marketing (Art. 21(3)), add a Yes/No field such as Objected to marketing and leave those records out of every mailing list.</Step>
+</Steps>
+
+The [Trash documentation](/docs/app-trash) covers restore and permanent deletion, and the [records documentation](/docs/app-records) covers filters, export and import.
+
+## How do you set up a CRM for the GDPR?
+
+A checklist for the first week, before real customer data goes in:
+
+<Steps>
+  <Step title="Decide what each list stores">Fewer fields mean less to protect, answer and delete (Art. 5(1)(c)). Write the purpose and the legal basis for each list in its description, and leave out special categories of data such as health data (Art. 9) unless you have a specific ground.</Step>
+  <Step title="Give people only the access they need">Roles grant Create, Edit, Delete and Read access (All, Assigned or None) per list. There are no field-level permissions, so keep sensitive information in a separate list with narrower access.</Step>
+  <Step title="Plan how people leave">Setting a member to Inactive blocks their access, API keys and MCP connections for the workspace at once.</Step>
+  <Step title="Conclude the DPA and read the subprocessor list">Keep your copy of the accepted version and look at the list again when a change notice arrives.</Step>
+  <Step title="Connect only the channels you use">Each connected account adds a provider to the chain and a stored copy of its messages. Disconnecting an account deletes that account's stored threads, messages, participants and calendar data, as the DPA describes.</Step>
+  <Step title="Set a retention rule per list and run it">Save a view of records not updated for the period you chose, review it on a schedule and delete what you no longer need. The GDPR leaves the period to you (Art. 5(1)(e)); where tax or commercial law requires you to keep a document, that duty applies on top.</Step>
+  <Step title="Keep your own papers current">The record of processing (Art. 30) and your privacy notice (Arts. 13 and 14) live in your compliance folder, not in the CRM vendor's documents.</Step>
+</Steps>
+
+## What do AI features change under the GDPR?
+
+An AI assistant adds providers to the chain and sends text from your records to them. For every AI feature, ask which provider receives which data, whether it is on the subprocessor list, where it processes, whether it trains on your data, and whether you can leave the feature off.
+
+For Customermates Cloud, the subprocessor list describes Mate: a request goes through Vercel AI Gateway to the providers named in the table above and carries only what is needed for the reply. The list reports a zero-data-retention setting on that gateway path, which is a narrow control and not a retention promise for the CRM itself. The Claude models are pinned to an EU inference zone, while web search and the embedding model run in the USA. You decide which data a request contains and remain responsible for necessity and legal basis. If you connect your own AI client over MCP, that provider processes the data under your contract with it. Self-hosted instances have no Mate. The [AI CRM guide](/blog/ai-crm) compares the approaches.
+
+## Customermates and the GDPR: what it provides and what it does not
+
+Provided, from the product documentation and the legal pages:
+
+- the [DPA](/dpa) and the [subprocessor list](/subprocessors) for the managed cloud, with the change process described above;
+- roles per list, a deactivation switch for members and tenant separation by company account;
+- global search by email address or phone number, in-place correction, Excel and JSON export per list, and Trash with permanent deletion;
+- an Activity log for changes to CRM records and workspace configuration, readable by roles that have access; and
+- an open-source core under the AGPL that you can [self-host](/features/self-hosted).
+
+Not provided, so ask for it elsewhere if you need it:
+
+- Customermates has no compliance certification and no contractual guarantee that all data stays in one region;
+- it has no field-level permissions and no export of a whole account in one step;
+- its Activity log does not cover sign-ins, API keys or inbox content, and it has no export button.
+
+Self-hosting changes who is responsible. The AGPL core runs with Docker and PostgreSQL on your infrastructure, and the DPA covers only the managed service: you pick the hosting and the providers and you hold your own Art. 28 contracts and transfer safeguards. TLS and encryption at rest are yours to set up. Self-hosting uses the Starter feature set, without the inbox and without Mate, and it is not air-gapped: the first address entry for a country downloads that country's public postal-code file from GeoNames unless you set `POSTAL_CODE_DATA_URL` to `off` or to a mirror. The [self-hosting guide](/docs/self-hosting) has the details, and the [open-source CRM page](/features/open-source-crm) explains the licence boundary.
+
+<AcquisitionCallout title="Where Customermates is the wrong fit" variant="boundary">
+  If a procurement checklist asks for a recognised certification, a contractual guarantee of EU-only processing or field-level permissions, Customermates cannot tick those boxes today. Put them in writing to every vendor you compare, and read the answers against the subprocessor lists. The [best CRM software comparison](/blog/best-crm-software) and the [guide to choosing a CRM](/blog/how-to-choose-crm) cover the other criteria.
+</AcquisitionCallout>
+
+To check the points above against your own case, read the DPA and the subprocessor list first, then [start your [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card. Import a few test records before real customer data, and run the access request steps once.
+
+## Common questions about the GDPR and a CRM
+
+<Faq>
+<FaqItem question="Does the GDPR require a CRM to be hosted in the EU?">
+No. The GDPR does not prescribe a hosting location. It allows transfers to countries outside the EEA only on an adequacy decision or with appropriate safeguards such as standard contractual clauses (Arts. 44 to 46). Hosting in an EU region makes the transfer question smaller, but you still need to check every provider in the chain.
+</FaqItem>
+<FaqItem question="Do I need a data processing agreement with my CRM provider?">
+Yes, when the provider processes personal data for you. Art. 28(3) requires a written contract, which may be in electronic form, with the content listed in points (a) to (h). Check that it exists, which version applies and that it names the subprocessors.
+</FaqItem>
+<FaqItem question="Is Customermates GDPR compliant?">
+No CRM is GDPR compliant on its own, and Customermates holds no compliance certification. It provides a DPA for the managed cloud, a public subprocessor list, a primary database configured in AWS Frankfurt and the functions described above. You remain responsible for your lawful basis, your retention periods and your answers to requests.
+</FaqItem>
+<FaqItem question="What is the difference between a controller and a processor in a CRM?">
+The controller decides why and how personal data is used: you, for the contacts in your CRM. The processor handles the data on your behalf and on your documented instructions: the CRM vendor. For its own website, billing and security data, a vendor is a controller itself.
+</FaqItem>
+<FaqItem question="How long may I keep customer data in a CRM?">
+The GDPR sets no fixed period. Art. 5(1)(e) requires that data is kept no longer than necessary for the purpose, so you set a period per kind of data and write it down. A legal duty to keep certain documents, for example in tax law, can require longer for those documents.
+</FaqItem>
+<FaqItem question="Do I have to tell contacts that I store their data?">
+In general, yes. Arts. 13 and 14 require a privacy notice. When you did not collect the data from the person, for example from an imported list, you must inform them within a reasonable period and at the latest within one month.
+</FaqItem>
+<FaqItem question="Can I keep all CRM data on my own server?">
+With the open-source core, yes: you run it with Docker and PostgreSQL on infrastructure you choose. It uses the Starter feature set, without the inbox and without Mate, and you are responsible for your own hosting contracts and security.
+</FaqItem>
+<FaqItem question="What happens to my data when I cancel?">
+Under the Customermates DPA you have 30 days after the end of the service to choose deletion or return. Then the data is deleted from Customermates' own systems, from backups at the latest within 90 days, and subprocessors delete under their own agreements.
+</FaqItem>
+</Faq>
+
+Law and third-party sources checked on 11 November 2026: [Regulation (EU) 2016/679 on EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj), the [ePrivacy Directive](https://eur-lex.europa.eu/eli/dir/2002/58/oj), the European Commission's [principles of the GDPR](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) and the EDPB's [Guidelines 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en). Statements about Customermates come from its [DPA](/dpa), [subprocessor list](/subprocessors) and [security documentation](/docs/architecture-security) as published on that date.
