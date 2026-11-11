@@ -1,0 +1,241 @@
+---
+title: "CRM email: caixa de entrada unificada para email e redes"
+description: "CRM email: caixa de entrada para Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversas no cliente, respostas em rascunho. Nuvem, do Pro."
+featureName: Caixa de entrada unificada do CRM
+
+acquisition:
+  locale: pt
+  slug: unified-inbox
+  clusterId: unified-inbox
+  role: hub
+  primaryIntent: Uma única caixa de entrada de CRM para os canais compatíveis
+  metadata:
+    title: "CRM email: caixa de entrada unificada para email e redes"
+    description: "CRM email: caixa de entrada para Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram e Telegram. Conversas no cliente, respostas em rascunho. Nuvem, do Pro."
+  proof:
+    factReferences:
+      - product:cloud-only-unified-inbox
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+      - product:core-crm-records
+      - product:mcp-tools
+      - product:hosted-mate-capability
+    excludedClaims:
+      - claim:no-self-hosted-inbox
+      - claim:no-unsupported-channels
+  cta:
+    action: "Acompanhe a próxima conversa com um cliente em uma só caixa de entrada"
+    description: "Comece o teste, conecte uma conta de e-mail ou de LinkedIn e veja se as suas próprias conversas se alinham aos seus clientes. O teste dura [[commercial.trial.days]] dias no Pro, sem cartão de crédito."
+    buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Leia o guia da Caixa de entrada
+    buttonRightHref: /docs/app-inbox
+    hint: "Nenhuma caixa de entrada unificada está incluída no Starter nem nas instalações self hosted."
+  relatedHrefs:
+    - /docs/app-inbox
+    - /docs/mcp
+    - /blog/agentic-crm
+    - /for/agencies
+  visual:
+    id: acquisition.unified-inbox.pt
+    locale: pt
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM email: uma caixa de entrada para cada conversa com clientes. Responda a todas."
+      body: "Conversas de e-mail e LinkedIn, além de WhatsApp, Instagram e Telegram, ficam no cliente a que pertencem. Veja quem está esperando por você, revise a resposta em rascunho e envie. Customermates Cloud, a partir do Pro."
+      checksum: fnv1a-8f841bbe
+    kind: brand-illustration
+    pathway: converge
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Os canais compatíveis de e-mail, redes sociais e mensagens convergem em uma só caixa de entrada do CRM."
+    depiction:
+      kind: relationship
+      productBehavior: true
+      statement: "Os canais compatíveis de e-mail, redes sociais e mensagens convergem em uma só caixa de entrada do CRM."
+    factReferences:
+      - product:conversation-record-association
+      - product:unified-inbox-channel-set
+    focalLabel:
+      locale: pt
+      text: Canais
+    semanticLabels:
+      - locale: pt
+        text: Uma só caixa
+      - locale: pt
+        text: Contexto do CRM
+    focalSubject:
+      id: inbox-providers
+      form: provider-set
+      fixtures:
+        providerSet: unified-inbox
+    supportingSubjects:
+      - id: conversation-list
+        form: record
+        fixtures:
+          conversation: gmail-rollout-next-steps
+          person: nina-castillo
+      - id: contact-context
+        form: context-card
+        fixtures:
+          person: nina-castillo
+    accentTarget: inbox-providers
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    title: "Siga uma conversa até o contexto do CRM"
+    items:
+      - title: "Abra a conversa recebida"
+        description: "Comece pela lista combinada de conversas, em vez de alternar entre as abas de cada provedor."
+      - title: "Confira o participante"
+        description: "Associe a pessoa da conversa a um contato do CRM, para que o contexto do relacionamento fique à mão."
+      - title: "Revise e responda"
+        description: "Leia o histórico, mantenha um rascunho persistente na conversa existente e envie pelo canal conectado quando estiver pronto."
+      - title: "Faça a triagem da conversa"
+        description: "Marque a conversa como não lida, aberta, fechada ou spam, para que a caixa de entrada reflita o estado atual dela."
+  highlights:
+    title: "Em resumo"
+    capture: homepage-inbox
+    items:
+      - title: "Resultado"
+        description: "Trabalhe as conversas compatíveis com clientes em uma só lista, mantendo por perto o contexto do contato do CRM do participante."
+      - title: "Disponível em"
+        description: "Customermates Cloud a partir do Pro, com limites de contas e recursos de compartilhamento que variam conforme o plano."
+      - title: "Ações principais"
+        description: "Ler e responder, fazer a triagem do estado das conversas, manter um rascunho, trabalhar com os anexos compatíveis e associar os participantes a contatos."
+      - title: "Limite importante"
+        description: "O vínculo com o contato liga a conversa ao contexto do pipeline. Uma única conversa também pode ser vinculada a um registro, como um negócio."
+
+hero:
+  title: "CRM email: uma caixa de entrada para cada conversa com clientes. Responda a todas."
+  description: "Conversas de e-mail e LinkedIn, além de WhatsApp, Instagram e Telegram, ficam no cliente a que pertencem. Veja quem está esperando por você, revise a resposta em rascunho e envie. Customermates Cloud, a partir do Pro."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Leia o guia da Caixa de entrada
+  buttonRightHref: /docs/app-inbox
+  hint: "Sem cartão de crédito • Só na nuvem, a partir do Pro"
+  showOpenSourceBadge: false
+
+cta:
+  action: "Acompanhe a próxima conversa com um cliente em uma só caixa de entrada"
+  description: "Comece o teste, conecte uma conta de e-mail ou de LinkedIn e veja se as suas próprias conversas se alinham aos seus clientes. O teste dura [[commercial.trial.days]] dias no Pro, sem cartão de crédito."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Leia o guia da Caixa de entrada
+  buttonRightHref: /docs/app-inbox
+  hint: "Nenhuma caixa de entrada unificada está incluída no Starter nem nas instalações self hosted."
+---
+
+O **CRM email do Customermates** é uma caixa de entrada unificada: reúne em uma só lista as conversas de e-mail e de redes sociais compatíveis. Os membros da equipe podem ler e responder às conversas, fazer a triagem do estado delas, manter um rascunho em uma conversa existente e associar os participantes a contatos do CRM.
+
+É um recurso da nuvem gerenciada a partir do Pro. O Customermates Starter e o self hosted não incluem contas de mensagens nem a caixa de entrada unificada.
+
+**Por que isso ajuda no follow-up.** A resposta de um cliente passa batido quando fica em uma aba que você não abriu. Na caixa de entrada, cada conversa aparece no cliente cujo endereço de e-mail, número de telefone ou perfil do LinkedIn está no registro, e uma nova mensagem volta a conversa para Não lida. Uma visualização salva com **Última mensagem** = **Enviado** e uma idade de alguns dias lista as conversas em que você ainda aguarda uma resposta. O Mate, ou o seu próprio cliente de IA por MCP, pode salvar um rascunho de resposta na conversa; você revisa e envia pelo canal em que a conversa chegou.
+
+<ProofRail label="Recursos verificados da caixa de entrada unificada do CRM">
+  <ProofItem label="E-mail">Gmail, Outlook e IMAP</ProofItem>
+  <ProofItem label="Profissional">Variantes do LinkedIn</ProofItem>
+  <ProofItem label="Mensagens">WhatsApp e Telegram</ProofItem>
+  <ProofItem label="Redes sociais">Instagram</ProofItem>
+  <ProofItem label="Contexto do CRM">Associação de participante a contato</ProofItem>
+</ProofRail>
+
+## Canais compatíveis
+
+| Família de canais      | Conexões compatíveis                                      |
+| ---------------------- | --------------------------------------------------------- |
+| E-mail                 | Gmail/Google, Outlook/Microsoft e IMAP                    |
+| Redes profissionais    | Variantes LinkedIn Classic, Sales Navigator e Recruiter   |
+| Mensagens e redes sociais | WhatsApp, Instagram e Telegram                         |
+
+O conjunto compatível não inclui SMS nem telefonia. O comportamento dos provedores e o suporte a anexos podem variar conforme o tipo de conexão. Para o WhatsApp, a página da [integração do CRM com WhatsApp](/features/whatsapp-integration) explica o que a conexão cobre e onde ela termina.
+
+## O que você pode fazer na caixa de entrada
+
+- ver em uma só lista as conversas das contas conectadas;
+- abrir uma conversa e responder pelo canal dela;
+- marcar conversas como não lidas, abertas, fechadas ou spam;
+- associar os participantes das conversas a contatos do CRM;
+- manter um rascunho persistente em uma conversa existente; e
+- trabalhar com os anexos compatíveis, quando a conexão do provedor permitir.
+
+O contexto de uma conversa pode aparecer por meio do vínculo com o contato, então o contato e os registros do CRM ligados a ele são a principal ponte para o contexto do pipeline. Em **Registros da conversa**, **Vincular registro** também liga uma única conversa a um registro, como um negócio.
+
+## Acesso a contas pessoais e compartilhadas
+
+| Plano da nuvem | Contas conectadas incluídas           | Contas compartilhadas |
+| -------------- | ------------------------------------- | --------------------- |
+| Starter        | 0                                     | Não                   |
+| Pro            | 1 por usuário                         | Não                   |
+| Business       | 3 por usuário                         | Sim                   |
+| Enterprise     | Ilimitadas, dentro das condições de uso justo | Sim            |
+
+Os usuários do Pro podem compartilhar conversas individuais com colegas do CRM. Compartilhar uma conta conectada inteira está disponível no Business e no Enterprise. As permissões continuam definindo a quais recursos e ações do CRM um usuário tem acesso.
+
+<AcquisitionCallout
+  title="Compartilhar uma conversa e compartilhar uma conta são coisas diferentes"
+  variant="proof"
+>
+  Um usuário do Pro pode compartilhar uma conversa individual com colegas do
+  CRM. Compartilhar a conta conectada completa é um recurso do Business ou do
+  Enterprise. Essa diferença importa na hora de comparar caixas de entrada
+  pessoais com endereços que pertencem à equipe.
+</AcquisitionCallout>
+
+## Caixa de entrada, MCP e limites de aprovação
+
+O [servidor MCP](/docs/mcp) do Customermates inclui ferramentas para o trabalho de mensagens compatível, como ler conversas e atividades, gerenciar rascunhos, fazer a triagem de conversas e enviar respostas. As instruções dele orientam os clientes compatíveis a pedir confirmação explícita antes de um envio, mas o endpoint do MCP não acrescenta uma segunda etapa de aprovação depois que o cliente chama a ferramenta. Verifique a etapa de revisão no lado do cliente antes de conceder acesso às mensagens.
+
+Todo plano pago da nuvem inclui o direito de uso do Mate e uma cota mensal de créditos de IA hospedados por usuário ativo. Quando o Mate está ativado no ambiente hospedado, ele pode trabalhar com as ferramentas elegíveis da caixa de entrada, com as permissões do usuário atual e com os próprios controles de confirmação. Já os clientes MCP externos usam o provedor de modelos do cliente e não consomem a cota hospedada.
+
+## Limite do calendário
+
+As contas conectadas compatíveis podem expor uma visualização de calendário somente leitura nos planos da nuvem que a incluem. O Customermates não cria, não atualiza nem agenda eventos de calendário do provedor.
+
+## Edições Cloud e self hosted
+
+A caixa de entrada unificada está disponível apenas no Customermates Cloud, a partir do Pro. O [CRM self hosted](/features/self-hosted) usa o conjunto de recursos do Starter: zero contas de mensagens conectadas, nenhuma conta compartilhada, nenhuma caixa de entrada unificada e nenhum Mate nem créditos hospedados. Clientes de IA externos ainda podem usar o MCP com o núcleo do CRM self hosted.
+
+Para os detalhes do Gmail, leia o [guia de CRM com Gmail](/blog/gmail-crm-integration) ou siga o fluxo exato do produto no [guia da Caixa de entrada](/docs/app-inbox).
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Quais planos incluem a caixa de entrada unificada do CRM?">
+Pro, Business e Enterprise no Customermates Cloud. O Pro inclui uma conta conectada por usuário; o Business inclui três e contas compartilhadas; o Enterprise inclui contas conectadas ilimitadas dentro das condições de uso justo e aceita contas compartilhadas.
+</FaqItem>
+
+<FaqItem question="A caixa de entrada funciona no self hosting?">
+  Não. As instalações self hosted usam o conjunto de recursos do Starter, que
+  inclui zero contas de mensagens e nenhuma caixa de entrada unificada. O MCP
+  continua disponível para clientes de IA externos que trabalham com o CRM
+  básico.
+</FaqItem>
+
+<FaqItem question="O Customermates oferece SMS ou chamadas telefônicas nesta caixa de entrada?">
+  Não. O conjunto compatível cobre e-mail Gmail/Google, Outlook/Microsoft e
+  IMAP, as variantes do LinkedIn, WhatsApp, Instagram e Telegram, mas não SMS
+  nem telefonia.
+</FaqItem>
+
+<FaqItem question="As mensagens ficam vinculadas diretamente aos negócios?">
+  Sim, uma conversa de cada vez. Os participantes podem ser associados a
+  contatos do CRM, e os vínculos dos contatos fazem a ponte para o contexto
+  relevante do CRM. Em **Registros da conversa**, **Vincular registro** liga
+  uma única conversa a um registro, como um negócio.
+</FaqItem>
+
+<FaqItem question="Um cliente de IA pode enviar mensagens pela caixa de entrada?">
+Sim, nas contas da nuvem que incluem esse recurso. As instruções do MCP orientam os clientes compatíveis a pedir confirmação antes de enviar, mas o servidor executa uma ferramenta de envio permitida assim que o cliente a chama. Verifique o comportamento de confirmação do cliente e as permissões do usuário antes de ativar as ferramentas de mensagens.
+</FaqItem>
+</Faq>

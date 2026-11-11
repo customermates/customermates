@@ -1,0 +1,167 @@
+---
+title: "Dashboard CRM: relatórios, gráficos e pipeline ponderado"
+description: "Dashboard CRM: gráficos sobre negócios, contatos e tarefas, pipeline ponderado e análise de registros pelo Mate. Como montar, planos e limites."
+featureName: Relatórios do CRM
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/sales
+  - /features/workflow-automation
+  - /docs/app-dashboard
+
+sections:
+  visual:
+    kind: stage
+    solution: consultants
+    prompt: "Somos uma consultoria de estratégia com quatro pessoas. Acompanhe clientes, projetos e propostas e ajude-nos a fazer o follow-up de prospects no LinkedIn."
+  steps:
+    title: "Monte um dashboard semanal do pipeline"
+    items:
+      - title: "Confira as probabilidades das etapas"
+        description: "Em Modelo de dados, abra Negócios e o campo Etapa, e ajuste a Probabilidade % de cada opção. Uma pré-visualização mostra o efeito nos negócios e nos widgets."
+      - title: "Adicione os campos de que as suas perguntas precisam"
+        description: "Em Modelo de dados, abra Negócios e use Adicionar › Campo para criar um campo de Escolha única \"Origem do lead\" (Indicação, LinkedIn, Site, Evento), um de Escolha única \"Motivo da perda\" e um campo Data \"Fechado em\". Um gráfico só consegue agrupar pelo que você registra."
+      - title: "Crie o primeiro gráfico"
+        description: "No Painel, clique em Adicionar widget e escolha Gráfico de barras. Em Dados, escolha Negócios como fonte, some o Valor ponderado e agrupe por Etapa. Exclua Ganho e Perdido nos filtros e clique em Salvar."
+      - title: "Adicione mais três"
+        description: "O valor dos negócios ganhos por Origem do lead, o valor dos negócios ganhos por organização e a contagem de negócios perdidos por Motivo da perda. Arraste e redimensione os widgets; o layout é salvo para você."
+      - title: "Compartilhe o dashboard com a equipe"
+        description: "Coloque os gráficos em uma visualização de painel com nome, como \"Pipeline semanal\" (Nova visualização, acima dos widgets), depois escolha Compartilhar… no menu dela. Todos no espaço de trabalho, ou os papéis que você escolher, veem os mesmos gráficos, somente para leitura, e cada número é calculado com o acesso de cada pessoa."
+  highlights:
+    title: "Resumo"
+    capture: homepage-dashboard
+    items:
+      - title: "O que você recebe"
+        description: "Widgets de gráfico que contam registros ou somam campos como valor do negócio e valor ponderado, agrupados por um campo, por registro ou ao longo do tempo, mais um widget de linha do tempo de atividades."
+      - title: "Planos"
+        description: "Os painéis e o pipeline ponderado fazem parte de todos os planos, a partir do Starter, por [[commercial.price.starter.monthly]] por usuário por mês, e da edição auto-hospedada."
+      - title: "IA"
+        description: "No Customermates Cloud, o Mate responde a perguntas que exigem cálculo em muitos registros, usando créditos de IA hospedada. O seu próprio cliente de IA lê os mesmos dados pelo MCP."
+      - title: "Não incluído"
+        description: "Sem acompanhamento de conversão ao longo do tempo, tempo em etapa, metas, previsão preditiva nem e-mails de relatório agendados, e sem um painel que a equipe toda edite em conjunto (um painel compartilhado é somente leitura para os colegas)."
+
+hero:
+  title: "Dashboard CRM: veja quais follow-ups vencem e quanto vale o seu pipeline"
+  description: "Monte um dashboard com negócios por etapa, pipeline ponderado e uma lista Próximos do que vence e do que está atrasado, e compartilhe com a equipe. No Customermates Cloud, peça ao Mate os números que um gráfico não mostra."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ver a demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/small-business/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+
+cta:
+  action: "Reúna follow-ups e pipeline em um só dashboard"
+  description: "Adicione um campo de data para o próximo passo, um widget Próximos e um gráfico de pipeline ponderado durante o teste. Os painéis estão incluídos a partir de [[commercial.price.starter.monthly]] por usuário por mês, cobrado mensalmente."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ver a demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/small-business/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+Um dashboard CRM é o dashboard de vendas feito com o que já está no CRM: contar e somar para que perguntas como "o que há no pipeline?" ou "quais clientes trouxeram mais receita?" tenham resposta sem uma planilha. No Customermates, os relatórios acontecem em três lugares: gráficos no painel, listas agrupadas por um campo e o valor ponderado em cada negócio. O que exige aritmética de verdade sobre muitos registros, como o valor mediano de um negócio ou um ranking, vai para o Mate no Customermates Cloud, para o seu cliente de IA pelo MCP ou para o Excel após uma exportação.
+
+Ele é pequeno de propósito. Se precisa de acompanhamento de conversão ao longo do tempo, tempo em etapa, cotas ou previsões de receita, a seção sobre limites cita ferramentas que fazem isso.
+
+## O que um widget de gráfico pode calcular
+
+Todo gráfico tem uma lista como fonte, uma agregação e um agrupamento. A agregação é uma contagem de registros, ou a soma, a média, o mínimo ou o máximo de um campo numérico ou de moeda, como **Valor** ou **Valor ponderado** nos negócios.
+
+O **agrupamento** é **Sem agrupamento** (um total), um campo como Etapa ou Origem do lead, cada registro, **Atribuído a**, ou um campo alcançado por um relacionamento. Isso dá "valor dos negócios por etapa", "valor dos negócios por organização" ou "valores dos itens de linha por serviço". Agrupe por um campo de data, **Criado em** ou **Atualizado em** e escolha um **Intervalo de tempo** para obter um valor por dia, semana, mês, trimestre ou ano.
+
+O **Valor ponderado** é um campo calculado nos negócios: o valor do negócio vezes a **Probabilidade %** da etapa dele, que você define em cada opção do campo Etapa em **Modelo de dados**. Com as probabilidades definidas, ele funciona desde o primeiro negócio.
+
+Os **Filtros** restringem o que um gráfico conta, usando qualquer campo, inclusive datas; os campos vinculados aparecem como **Lista › Campo**. É assim que você monta o gráfico de "valor dos negócios ganhos por organização": negócios como fonte, um filtro em que Etapa é Ganho, agrupado por organização.
+
+Os **estilos de gráfico** são Número, Gráfico de barras, Barras horizontais, Área ao longo do tempo, Tabela de ranking, Rosca, Funil e Radar. Uma pré-visualização ao vivo mostra o resultado antes de salvar.
+
+O segundo tipo de widget, a **Linha do tempo de atividades**, é um feed com o mais recente primeiro das mudanças nos registros e, no Pro e acima, também de mensagens e eventos de calendário das contas conectadas. Você o filtra por categoria, conta ou registros relacionados, por exemplo "tudo o que aconteceu nos negócios dos meus três maiores clientes".
+
+## Relatórios de CRM que uma equipe pequena usa, e como montar cada um
+
+Estas receitas partem de uma lista de negócios com o campo de escolha única Etapa e mais dois que você adiciona: "Origem do lead" e "Motivo da perda".
+
+| Pergunta | Fonte | Medida | Agrupamento | Filtros |
+|---|---|---|---|---|
+| O que há no pipeline, por etapa? | Negócios | Soma de Valor | Etapa | Etapa não é Ganho nem Perdido |
+| Quanto vale se as probabilidades das etapas se confirmarem? | Negócios | Soma de Valor ponderado | Etapa | Etapa não é Ganho nem Perdido |
+| De onde vêm os negócios ganhos? | Negócios | Soma de Valor | Origem do lead | Etapa é Ganho, data personalizada "Fechado em" entre o primeiro e o último dia do trimestre |
+| Quais clientes trazem mais receita? | Negócios | Soma de Valor | Organização | Etapa é Ganho |
+| Quais serviços vendem? | Itens de linha | Soma de Valor | Serviço | Negócios › Etapa é Ganho |
+| Por que perdemos? | Negócios | Contagem | Motivo da perda | Etapa é Perdido |
+| Quanto trabalho em aberto existe? | Tarefas | Contagem | Status | Status não é Concluída nem Arquivada |
+
+As tarefas não têm data de vencimento embutida. O campo Status da última linha é um campo de escolha única que você adiciona à sua lista de tarefas, e você pode renomeá-lo, alterá-lo ou excluí-lo como os demais.
+
+Duas perguntas pedem uma lista, não um gráfico. **Quem está trabalhando em quais negócios?** Mude a lista de negócios para o quadro e agrupe por **Atribuído a**: cada pessoa ganha uma coluna com a contagem e os totais dos seus negócios. **Quantos negócios abrimos por mês?** Agrupe a tabela de negócios pela data de criação, por mês. Salvas como visualizações, as duas ficam a um clique e podem ser compartilhadas com a equipe.
+
+Uma terceira é sobre follow-up: **O que vence a seguir?** Adicione um widget **Próximos** sobre um campo de data como Próximo passo. Ele lista os registros com vencimento nos próximos 14 dias, com uma seção **Atrasados** para datas anteriores, assim os próximos passos aparecem no painel ao entrar. Filtre os registros concluídos para que só os em aberto contem como atrasados.
+
+## Qual plano você precisa
+
+| Plano | Recursos de relatórios | Preço |
+|---|---|---|
+| Starter | Widgets de gráfico, linha do tempo de atividades das mudanças nos registros, pipeline ponderado, listas agrupadas, exportação XLSX, REST, MCP | [[commercial.price.starter.monthly]] por usuário por mês |
+| Pro | Starter mais mensagens e eventos de calendário na linha do tempo de atividades, pela caixa de entrada unificada | [[commercial.price.pro.monthly]] por usuário por mês |
+| Business | Pro mais uma linha do tempo de toda a equipe em todos os canais | [[commercial.price.business.monthly]] por usuário por mês |
+| Auto-hospedado | Gráficos, pipeline ponderado, exportação, REST e MCP no seu próprio servidor; sem caixa de entrada, Mate nem rotinas | Sem taxa de licença |
+
+O Mate usa créditos de IA hospedada, incluídos por usuário ativo e por mês em todos os planos pagos do Cloud; a [página de preços](/pricing) lista os valores. Uma equipe de três pessoas no Starter paga [[commercial.price.starter.monthly.seats.3]] por mês, e uma equipe de cinco pessoas no Pro paga [[commercial.price.pro.monthly.seats.5]]. Não há complemento de relatórios nem cobrança por relatório.
+
+## O que os relatórios do Customermates não fazem, e o que usar no lugar
+
+O Customermates publica esta página. Os detalhes dos fornecedores foram verificados em 8 de outubro de 2026 nas páginas deles.
+
+| Você precisa de | No Customermates | Onde procurar |
+|---|---|---|
+| Previsão de receita além dos pesos das etapas | Não disponível. O pipeline ponderado multiplica o valor de cada negócio pela probabilidade que você definiu para a etapa dele, nada mais. | O [HubSpot Sales Hub](https://www.hubspot.com/pricing/sales) Professional e Enterprise incluem previsão; o [Pipedrive](https://www.pipedrive.com/en/features/insights-and-reports) oferece uma visualização de previsão |
+| Um construtor de relatórios personalizados com taxas de conversão, metas e muitos tipos de relatório | Não disponível. Os gráficos contam e agregam; um gráfico de Funil mostra a conversão etapa a etapa dos registros atuais, mas não há metas nem conversão ao longo do tempo. | HubSpot Sales Hub Professional (relatórios personalizados); Pipedrive Insights (relatórios personalizados, painéis e metas) |
+| O seu próprio BI sobre os dados brutos | Sem conector embutido para uma ferramenta de BI | Auto-hospedado: os seus dados ficam no seu próprio PostgreSQL, que o [Metabase](https://www.metabase.com/docs/latest/databases/connecting) suporta; a edição Open Source dele é gratuita e auto-hospedada. Use um usuário de banco de dados somente leitura e espere ajustar as consultas depois de uma atualização, porque as tabelas são o esquema interno do produto. |
+| Um painel que a equipe toda edita | Não disponível. Um painel compartilhado é somente leitura para os colegas: só o dono altera os widgets, e **Duplicar como nova visualização** dá a cada pessoa uma cópia editável. | |
+| E-mails de relatório agendados | Não embutido | Uma rotina no Customermates Cloud, ou o n8n, ambos descritos abaixo |
+
+Numa análise pontual, exporte a lista como uma pasta de trabalho do Excel pelo menu **Mais ações** da lista de negócios. A exportação leva as colunas visíveis, os filtros e a ordenação, e uma [tabela dinâmica](https://support.microsoft.com/en-us/excel/get-started/create-a-pivottable-to-analyze-worksheet-data) faz o resto. A exportação roda um tipo de registro por vez; o [guia de registros](/docs/app-records) lista os limites.
+
+## Como os relatórios se conectam ao Mate, ao MCP e à API
+
+**Mate (Customermates Cloud).** O Mate tem uma ferramenta de análise somente leitura para perguntas que exigem aritmética em muitos registros: uma mediana, um ranking, uma taxa de ganho ou um cruzamento entre negócios e organizações. Ele lê os registros que o seu papel pode ver, calcula em uma sandbox isolada e não altera nada. Cada pergunta usa créditos de IA hospedada. Um exemplo:
+
+```text
+Para os negócios que chegaram a Ganho ou Perdido desde 1º de julho: qual é a taxa de ganho por origem do lead, qual é o valor mediano dos negócios ganhos e quais três organizações trouxeram mais valor ganho?
+```
+
+A resposta é uma mensagem de chat, não um gráfico salvo. O Mate também pode criar ou alterar widgets de painel para você a partir de uma descrição.
+
+**Rotinas (Customermates Cloud).** Uma rotina executa uma instrução salva em um horário, como "Toda segunda-feira às 8h, resuma o pipeline em aberto por etapa e liste os negócios não atualizados há 30 dias." Ela roda como você, o dono, com o seu acesso e os seus créditos, e o resumo da execução fica nela. No Pro e acima, ela também pode enviar esse resumo por e-mail a partir da sua caixa de correio conectada; o Mate envia sem perguntar de novo, então diga "rascunho" na instrução se quiser lê-lo antes. Veja a [automação de fluxos de trabalho](/features/workflow-automation) para gatilhos e limites.
+
+**O seu próprio cliente de IA pelo MCP.** O Claude, o ChatGPT e outros clientes MCP usam [[derived.mcp.tools.total]] ferramentas em todos os planos e na auto-hospedagem. Com `query_crm_measure`, um cliente calcula totais em todos os registros correspondentes, então "qual é o nosso pipeline ponderado das organizações na Baviera?" tem uma resposta exata. A [documentação do MCP](/docs/mcp) traz a configuração.
+
+**REST e webhooks.** Se os relatórios pertencem a outro sistema, leia os registros pela [API REST](/features/api) ou receba um webhook a cada mudança e mantenha a sua própria tabela de relatórios atualizada. O [n8n](/docs/n8n) pode fazer as duas coisas em um horário; ele roda separadamente e não faz parte do Customermates.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Quais são os relatórios típicos de um CRM?">
+Para uma equipe pequena, cinco cobrem a maioria das decisões: valor do pipeline por etapa, pipeline ponderado, receita ganha por origem do lead, receita por cliente e negócios perdidos por motivo. Os cinco são widgets de gráfico no Customermates. Relatórios de atividade, funis de conversão e previsões de vendas são comuns em CRMs maiores; o Customermates tem uma linha do tempo de atividades e um gráfico de funil das etapas atuais, mas não tem previsão.
+</FaqItem>
+
+<FaqItem question="O Customermates consegue prever a receita?">
+Não no sentido preditivo. Ele calcula um pipeline ponderado: o valor de cada negócio vezes a probabilidade de ganho que você definiu para a etapa dele. Nada aprende com negócios passados nem prevê datas de fechamento. Se precisa disso, veja o HubSpot Sales Hub Professional ou a visualização de previsão do Pipedrive.
+</FaqItem>
+
+<FaqItem question="Minha equipe pode compartilhar um mesmo painel?">
+Sim. Em uma visualização de painel com nome que você possui, escolha **Compartilhar…** e selecione todos do espaço de trabalho ou papéis específicos. Os colegas veem os mesmos widgets e o mesmo layout, somente para leitura, e cada número é calculado com o acesso de cada pessoa, então duas pessoas podem ver números diferentes no mesmo gráfico. Só você altera os widgets; **Duplicar como nova visualização** dá a um colega uma cópia editável. O painel principal não pode ser compartilhado, então coloque os gráficos em uma visualização com nome. Um único gráfico também pode ser enviado com **Compartilhar como modelo**. Para pessoas de fora do espaço de trabalho, uma visualização de painel pode ser publicada por link público, somente leitura e sem login, se o seu papel puder publicar e o espaço de trabalho permitir.
+</FaqItem>
+
+<FaqItem question="Posso exportar os relatórios do CRM para o Excel?">
+Você exporta registros, não gráficos. Qualquer lista é exportada para uma pasta de trabalho do Excel com os filtros, a ordenação e as colunas visíveis atuais, um tipo de registro por vez. O CSV não é oferecido, então monte o relatório com uma tabela dinâmica no Excel.
+</FaqItem>
+
+<FaqItem question="Quais relatórios estão incluídos no plano Starter?">
+Todos os widgets de gráfico, o pipeline ponderado, as listas agrupadas, a linha do tempo de atividades das mudanças nos registros e a exportação XLSX estão no Starter. O Pro acrescenta mensagens e eventos de calendário à linha do tempo. A análise do Mate exige o Customermates Cloud e créditos de IA hospedada, que todo plano pago do Cloud inclui.
+</FaqItem>
+
+<FaqItem question="Posso montar relatórios com o ChatGPT ou o Claude no lugar?">
+Sim. Conecte o cliente pelo MCP, e ele pode listar e filtrar registros, calcular totais nos negócios correspondentes e criar widgets de painel. O modelo, a assinatura dele e o que ele faz com os seus dados são regidos pelo seu provedor de IA, não pelo Customermates.
+</FaqItem>
+</Faq>

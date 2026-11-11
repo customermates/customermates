@@ -1,0 +1,90 @@
+---
+title: "n8n CRM: integração com REST, webhooks e MCP"
+description: "n8n CRM: conecte o n8n ao Customermates por REST, [[derived.webhooks.events.total]] webhooks, MCP ou pelo node da comunidade publicado, com os limites do produto e dos fluxos bem claros."
+
+architecture:
+  title: Um caminho de automação com limites claros
+  description: O Customermates valida o acesso ao CRM e emite os eventos compatíveis. A sua instância separada do n8n cuida da execução dos fluxos, das credenciais, dos agendamentos, das novas tentativas e de cada provedor externo que ela chama.
+  crmTitle: Customermates CRM
+  crmDescription: Registros estruturados, permissões do espaço de trabalho e gravações validadas ficam dentro do limite do CRM.
+  interfaceTitle: Interfaces abertas
+  workflowDescription: Fluxo operado por você
+  boundary: O n8n, as credenciais dele, os logs de execução e os provedores conectados ficam separados do Customermates.
+
+hero:
+  title: Conecte o n8n ao seu CRM.
+  titleAccent: Mantenha claro o limite da operação.
+  subtitle: "Para uma integração n8n CRM, use REST, [[derived.webhooks.events.total]] tipos de evento de webhook, MCP ou o node da comunidade publicado a partir da sua própria instância do n8n, por exemplo para agir quando chega a mensagem de um cliente ou um negócio muda. O Customermates oferece as interfaces do CRM; o n8n e os provedores ficam separados."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Leia o guia de configuração
+  buttonRightHref: /docs/n8n
+  startFree: "Sem cartão de crédito • teste de [[commercial.trial.days]] dias • o n8n continua separado"
+
+benefits:
+  benefits:
+  - icon: TrendingUp
+    title: Escolha a forma de conexão
+    description: Use o node da comunidade publicado, a API REST, os webhooks ou o MCP a partir de uma instância do n8n que você opera ou assina. O Customermates não inclui o n8n.
+  - icon: Zap
+    title: Conecte agentes externos
+    description: Conecte um cliente de IA compatível por MCP ou chame, a partir do seu fluxo, um provedor de sua escolha. O Customermates não inclui modelo, pontuação de leads nem serviço de enriquecimento.
+  - icon: ShieldCheck
+    title: Fluxos operados por você
+    description: Conecte provedores a partir de uma instância do n8n que você opera. Disponibilidade de conectores, limites, planos e custos dependem do n8n e de cada provedor.
+  - icon: Sparkles
+    title: Desenhe o fluxo no n8n
+    description: Monte o fluxo dentro dos limites do seu plano do n8n, do ambiente de execução, dos nodes e dos provedores conectados.
+  - icon: MousePointerClick
+    title: Escolha onde a automação roda
+    description: O banco de dados gerenciado do CRM roda na região AWS de Frankfurt. A sua implantação do n8n e cada provedor conectado processam os dados que o seu fluxo envia, então avalie cada serviço separadamente.
+  - icon: SlidersHorizontal
+    title: Opere a automação
+    description: Um fluxo que você opera pode executar as etapas externas configuradas; o ambiente de execução, o agendamento, as novas tentativas, a confiabilidade e os resultados continuam sendo responsabilidade sua.
+
+features:
+  badge: Exemplos de composição
+  title: O que um fluxo n8n operado por você pode compor
+  subtitle: São padrões de fluxo, não recursos incluídos no Customermates. Cada um exige o provedor, as credenciais, o mapeamento, o monitoramento e o tratamento de erros adequados no seu ambiente n8n.
+  features:
+  - icon: Users
+    title: Repasse por e-mail
+    description: Receba eventos do CRM e repasse dados selecionados ao provedor de e-mail ou de dados que você configurar no seu próprio fluxo.
+  - icon: Briefcase
+    title: Enriquecimento externo
+    description: Chame, a partir do seu fluxo, um provedor de sua escolha e grave campos selecionados de volta por REST. O Customermates não inclui enriquecimento nem pontuação de leads.
+  - icon: Star
+    title: Repasse para relatórios
+    description: Envie dados selecionados do CRM para uma planilha, um banco de dados ou um provedor de BI que você configure e tenha o direito de usar.
+  - icon: Zap
+    title: Repasse para faturamento
+    description: Envie dados de negócios para ferramentas de faturamento a partir do seu próprio fluxo. O Customermates não tem fluxo de orçamentos nem de faturas.
+
+faq:
+  title: Perguntas frequentes sobre automação com uma instância n8n separada
+  faqs:
+  - id: faq-1
+    title: Preciso saber programar para usar o n8n?
+    content: Fluxos básicos podem ser montados de forma visual, mas um fluxo de CRM confiável ainda precisa de alguém responsável por autenticação, mapeamento de campos, permissões, novas tentativas, erros e limites dos provedores. Transformações complexas podem exigir código.
+  - id: faq-2
+    title: Quais ferramentas posso conectar com o n8n?
+    content: Use os nodes do catálogo de integrações atual do n8n, nodes verificados ou da comunidade que você tenha avaliado e requisições HTTP a APIs que você tem autorização para chamar. Disponibilidade e comportamento podem mudar, então confira a documentação atual do n8n e do provedor.
+  - id: faq-3
+    title: Conectar o n8n custa a mais?
+    content: "A API REST e o MCP estão disponíveis em todos os planos, e os webhooks em todos os planos pagos e no self-hosting. O n8n é um produto separado que você hospeda ou assina, e os planos externos, os limites, os custos dos provedores e o uso continuam por sua conta."
+  - id: faq-4
+    title: Como começo com os fluxos do n8n?
+    content: Instale o node da comunidade do Customermates publicado em uma instância do n8n que você opera, ou chame diretamente a API REST e os webhooks. Você projeta, implanta e mantém o fluxo.
+  - id: faq-5
+    title: Meus dados são compartilhados nos fluxos do n8n?
+    content: Os fluxos rodam onde você implanta ou assina o n8n, e as ferramentas conectadas recebem os dados que o seu fluxo enviar. O banco de dados gerenciado do CRM roda na região AWS de Frankfurt; avalie cada provedor separadamente.
+
+cta:
+  action: Teste um fluxo n8n com limites claros
+  description: Comece com um evento reversível do CRM, como um negócio que muda de etapa, e uma gravação validada por REST, webhooks, MCP ou pelo node da comunidade publicado. Mantenha as credenciais e a execução no seu ambiente n8n.
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup
+  buttonRightText: Leia o guia de configuração
+  buttonRightHref: /docs/n8n
+  hint: "Sem cartão de crédito • teste de [[commercial.trial.days]] dias • o n8n continua separado"
+---

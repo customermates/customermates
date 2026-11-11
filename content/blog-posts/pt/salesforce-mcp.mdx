@@ -1,0 +1,202 @@
+---
+title: "Salesforce MCP: servidores hospedados, DX, custo e setup"
+description: "Salesforce MCP explicado: os 4 servidores, como o admin ativa, o que muda com a cobrança em Flex Credits e quando um CRM com MCP embutido é mais simples."
+
+hero:
+  title: "Salesforce MCP explicado: qual servidor faz o quê e quanto custa"
+  description: "A Salesforce mantém vários servidores MCP: servidores hospedados para dados do CRM, o servidor DX para desenvolvedores, MuleSoft e Heroku. Passo a passo, o novo modelo de cobrança e quando um MCP embutido é mais simples."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-09-27
+  updated: 2026-10-08
+  tags:
+    - Salesforce MCP
+    - MCP
+    - Agentes de IA
+    - CRM
+
+relatedHrefs:
+  - /blog/hubspot-mcp
+  - /blog/what-is-an-mcp-server
+  - /docs/mcp
+  - /compare/salesforce-alternative
+---
+
+# Salesforce MCP explicado: qual servidor faz o quê e quanto custa
+
+Sim, a Salesforce tem servidores MCP próprios, e quando alguém fala em "Salesforce MCP" quase sempre se refere aos **Salesforce Hosted MCP Servers**: endpoints operados pela própria Salesforce que permitem que o Claude, o ChatGPT, o Cursor ou outro cliente MCP leia e altere registros da sua org com as permissões de cada usuário. Eles estão em disponibilidade geral desde 29 de abril de 2026 para orgs Enterprise Edition ou superiores. Um administrador precisa ativá-los, e a Salesforce diz que são voltados a clientes com Flex Credits.
+
+Desenvolvedores costumam falar de outra coisa: o servidor MCP open source Salesforce DX, que roda na própria máquina como um [servidor MCP local](/blog/what-is-an-mcp-server). MuleSoft e Heroku também têm ofertas de MCP. Este guia separa as quatro, mostra a configuração e as regras de cobrança como a Salesforce as documenta em 8 de outubro de 2026 e compara a abordagem com um CRM cujo servidor MCP já vem com o produto. Transparência: a Customermates, o segundo CRM citado aqui, publica este guia.
+
+<ArticleSummary title="Resumo">
+  <SummaryItem label="Para dados do CRM">
+    Hosted MCP Servers: operados pela Salesforce, em disponibilidade geral
+    desde abril de 2026, Enterprise Edition ou superior, OAuth por usuário.
+  </SummaryItem>
+  <SummaryItem label="Para desenvolvedores">
+    O servidor MCP Salesforce DX roda localmente via npx, usa o seu login da
+    Salesforce CLI e trabalha com metadados, testes e código.
+  </SummaryItem>
+  <SummaryItem label="Configuração">
+    Um System Administrator habilita um servidor no Setup e cria um External
+    Client App com os escopos mcp_api e refresh_token.
+  </SummaryItem>
+  <SummaryItem label="Custo">
+    Voltado a clientes com Flex Credits. A Salesforce anunciou medição por
+    chamada para agentes registrados, com a tarifa ainda indicada como TBA.
+  </SummaryItem>
+  <SummaryItem label="Alternativa embutida">
+    Um CRM com endpoint MCP próprio, como a Customermates, dispensa um projeto
+    de servidor. A contrapartida é uma plataforma bem menor.
+  </SummaryItem>
+</ArticleSummary>
+
+## As quatro ofertas de MCP da Salesforce
+
+| Oferta | Para quem | Onde roda | O que faz |
+| --- | --- | --- | --- |
+| Hosted MCP Servers | Times de vendas, atendimento e IA, configurados por admins | Hospedado pela Salesforce | Ler, criar, atualizar e excluir registros; consultar e buscar; ferramentas personalizadas a partir de Apex, Flows e consultas nomeadas |
+| Servidor MCP Salesforce DX | Desenvolvedores Salesforce | Localmente, via `npx` | Gestão de orgs, metadados, dados, testes Apex, análise de código, Lightning Web Components |
+| MuleSoft MCP Connector | Times de integração | Dentro de apps Mule | Transforma apps Mule em servidores ou clientes MCP, para que as APIs existentes cheguem aos agentes de IA |
+| Servidor MCP do Heroku | Desenvolvedores Heroku | Localmente ou publicado no Heroku | Gerencia apps, dynos, add-ons, bancos de dados e pipelines do Heroku |
+
+Se você trabalha em vendas ou atendimento e quer que o seu assistente de IA enxergue contas e oportunidades, só a primeira linha importa.
+
+## Salesforce Hosted MCP Servers
+
+Um servidor MCP hospedado é um endpoint que a Salesforce opera na frente da sua org. Você não instala nada. Cada pessoa conecta o próprio cliente de IA, faz login com OAuth e cada chamada de ferramenta roda como essa pessoa: valem as permissões de objeto, a segurança em nível de campo e as regras de compartilhamento, e um registro alterado pelo agente mostra o nome desse usuário na trilha de auditoria. É o caminho para usar o Salesforce com o Claude ou com o ChatGPT sem montar nada por conta própria.
+
+**Servidores padrão.** A Salesforce entrega servidores pré-configurados, com conjuntos de ferramentas fixos. Eles vêm desativados por padrão, e um admin pode habilitá-los, mas não mudar as ferramentas. A [referência dos servidores padrão](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html) lista estes:
+
+| Servidor | Escopo |
+| --- | --- |
+| SObject All | Criar, ler, atualizar, excluir, consultar e buscar em todos os objetos |
+| SObject Reads | Somente leitura e consulta |
+| SObject Mutations | Criar e atualizar, sem excluir |
+| SObject Deletes | Somente exclusão |
+| Data 360 | Consultas SQL sobre dados unificados de clientes |
+| Tableau Next | Modelos semânticos, KPIs e perguntas de análise |
+| Backup and Recover | Backups, política de backup e restauração guiada |
+| Content Read-Only, Content Write | Workspaces, canais e conteúdo do Salesforce CMS |
+| Headless 360 (Beta) | Setup e recursos da plataforma, incluindo as ferramentas do Archive Connect |
+| CRM Analytics (Beta) | Metadados de análise somente leitura e SAQL; apenas sandboxes e scratch orgs |
+
+A divisão dos servidores SObject é o controle prático aqui. Um grupo-piloto pode receber primeiro o SObject Reads e, depois, acesso de escrita ou exclusão, por servidor e não por prompt.
+
+**Servidores personalizados.** Além do conjunto padrão, os admins podem [criar servidores personalizados](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/products-supporting-mcp.html) cujas ferramentas são ações invocáveis do Apex, métodos `@AuraEnabled`, métodos Apex REST, Flows, consultas nomeadas e endpoints do API Catalog. Templates do Prompt Builder podem aparecer como prompts MCP, embora nem todo cliente seja compatível com prompts MCP. É aqui que uma org Salesforce com anos de lógica personalizada tira mais proveito do MCP: um Flow validado de "criar oportunidade de renovação" vira uma única ferramenta, em vez de cinco gravações avulsas de registros.
+
+**Mudanças ao longo do tempo.** A Salesforce afirma em seu [aviso de fim de vida](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/end-of-life.html) que ferramentas, prompts e recursos podem mudar de uma release para outra e que servidores podem ser desativados com aviso prévio. Baseie suas expectativas na referência dos servidores, não em um post de blog do trimestre passado.
+
+## O Salesforce MCP é gratuito?
+
+Não de um jeito com o qual você possa contar. A [visão geral dos servidores MCP hospedados](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html) diz que os servidores são "destinados apenas a clientes com Flex Credits" e que "o uso do servidor pode ser cobrado".
+
+Um artigo da Salesforce Help de 17 de setembro de 2026, [Understand AIforce Impact](https://help.salesforce.com/s/articleView?language=en_US&id=005360285&type=1), descreve para onde isso caminha:
+
+- A Salesforce tem novembro como meta para o registro de agentes e um novo modelo de cobrança. Cada agente externo recebe a própria identidade e pode ter um conjunto de permissões mais restrito do que o da pessoa para quem trabalha.
+- Cada chamada bem-sucedida de um agente registrado, via MCP ou pela API direta, é medida como Headless Platform Interaction (HPI) contra os Flex Credits.
+- O multiplicador de HPI está listado como "TBA", e o uso por agentes ainda não é medido. A Salesforce promete 30 dias de aviso antes de a medição começar.
+- O uso de qualquer servidor MCP da Salesforce vai exigir o registro do agente em até três meses após o aviso da Salesforce, para todos os clientes. Clientes atuais que usam agentes com as APIs da Salesforce migram essas conexões para o novo modelo de cobrança na renovação.
+- Sandboxes, scratch orgs e orgs Developer Edition não geram medição de HPI.
+- A org precisa ter a cobrança por Flex Credit habilitada, por exemplo por meio do Salesforce Foundations, que o artigo lista como disponível atualmente por US$ 0 (verificado em 8 de outubro de 2026).
+
+Então a resposta honesta sobre custo é: a medição de HPI ainda não está ativa, a Salesforce já se reserva o direito de cobrar pelo uso dos servidores e o tamanho da cobrança por chamada anunciada é desconhecido. Se você planeja uma implantação para um time de vendas inteiro, peça a tarifa de HPI ao seu executivo de contas antes de montar o orçamento e faça o piloto em uma sandbox, onde as chamadas não são medidas.
+
+## Como ativar o Salesforce MCP
+
+O anúncio de disponibilidade geral da Salesforce coloca o caminho mais curto em menos de 30 minutos. Os passos abaixo seguem a [visão geral da configuração](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/setup-overview.html) e o [anúncio de disponibilidade geral](https://developer.salesforce.com/blogs/2026/04/salesforce-hosted-mcp-servers-are-now-generally-available).
+
+<Steps>
+  <Step title="Confira edição e permissões">
+    Você precisa de uma org Enterprise Edition ou superior e de direitos de System Administrator (ou equivalentes) para criar um External Client App.
+  </Step>
+  <Step title="Habilite um servidor">
+    No Setup, vá em API Catalog, depois em MCP Servers, e habilite um servidor. Comece pelo SObject Reads em uma sandbox.
+  </Step>
+  <Step title="Crie um External Client App">
+    Registre o cliente MCP com os escopos OAuth mcp_api e refresh_token, ative PKCE e tokens baseados em JWT e informe a URL de callback que o seu cliente documenta. O escopo mcp_api concede acesso apenas ao MCP, não às APIs REST existentes.
+  </Step>
+  <Step title="Conecte o cliente">
+    Adicione a URL do servidor no Claude, ChatGPT, Cursor ou Postman, faça login e faça uma pergunta de leitura sobre uma conta que você conhece bem, para poder conferir a resposta.
+  </Step>
+  <Step title="Amplie o acesso com critério">
+    Adicione o SObject Mutations ou servidores personalizados para um grupo-piloto definido quando as leituras se comportarem como esperado. Mantenha o SObject Deletes desligado, a menos que alguém precise dele.
+  </Step>
+</Steps>
+
+## O servidor MCP do Salesforce DX
+
+O [servidor MCP Salesforce DX](https://github.com/salesforcecli/mcp) é open source sob a licença Apache 2.0 e roda localmente com `npx @salesforce/mcp`. Ele só alcança orgs que você já autorizou no seu computador pela Salesforce CLI ou pelo VS Code, e o argumento `--orgs` limita quais. Seus conjuntos de ferramentas cobrem orgs, metadados, dados, usuários, testes, análise de código, DevOps, Lightning Web Components, Aura e mobile, com mais de 60 ferramentas no total. Ferramentas que ainda não estão em disponibilidade geral exigem o flag `--allow-non-ga-tools`.
+
+Use-o quando um assistente de código como o Claude Code ou o Cursor precisar publicar metadados, rodar testes Apex ou consultar uma scratch org. Não é o caminho para um vendedor acessar dados do CRM.
+
+## MuleSoft e Heroku MCP
+
+O [MuleSoft MCP Connector](https://docs.mulesoft.com/mcp-connector/latest/) permite que apps Mule atuem como servidores MCP ou clientes MCP. Isso importa quando um agente de IA precisa chegar a um ERP ou a um sistema legado que não tem servidor MCP próprio, com a MuleSoft no meio. A Heroku publica um [servidor MCP Apache 2.0](https://github.com/heroku/heroku-mcp-server) que roda pela Heroku CLI ou pelo `npx`, ou pode ser publicado no Heroku, e gerencia apps, dynos, add-ons e pipelines. Nenhum dos dois é uma ferramenta de vendas.
+
+## Qual você precisa
+
+| Sua situação | Use |
+| --- | --- |
+| Os vendedores devem perguntar a um cliente de IA sobre contas, contatos e oportunidades | Hosted MCP Servers, começando pelo SObject Reads |
+| Um cliente de IA deve executar a lógica de negócio que você já tem | Um servidor hospedado personalizado, construído sobre seus Flows ou ações Apex |
+| Um assistente de código deve trabalhar com metadados, testes e deploys | Servidor MCP Salesforce DX |
+| Agentes devem chegar a sistemas fora da Salesforce por meio de integrações existentes | MuleSoft MCP Connector |
+| Você gerencia apps no Heroku | Servidor MCP do Heroku |
+| Você quer o agente da própria Salesforce dentro da plataforma, e não um cliente externo | Agentforce, tratado no [guia do Agentforce](/blog/agentforce) |
+
+## Um CRM com servidor MCP embutido
+
+Se você ainda não se comprometeu com a Salesforce, existe outro modelo: um CRM cujo servidor MCP faz parte do produto. A Customermates é um deles. É um CRM open source e nativo de IA para pequenos times que atendem clientes, e expõe um endpoint MCP em `/api/v1/mcp` em todos os planos cloud e nas instalações self-hosted. Um cliente conectado descobre [[derived.mcp.tools.total]] ferramentas para contatos, organizações, negócios, serviços, tarefas e suas próprias listas, o modelo de dados, visualizações salvas, painéis, rotinas e webhooks. No Pro e acima, na Customermates Cloud, entram as ferramentas da caixa de entrada unificada para e-mail, LinkedIn, WhatsApp, Instagram e Telegram.
+
+A conexão funciona de duas formas, como descreve a [documentação do MCP](/docs/mcp). Claude e ChatGPT se conectam como conector personalizado: cole a URL, faça login, aprove. Claude Code, Codex, Cursor e Gemini CLI usam uma [chave de API](/docs/api-keys) que herda as permissões de quem a criou. Para expor só parte das ferramentas, acrescente `?toolsets=` à URL do endpoint, por exemplo `?toolsets=records`.
+
+| Pergunta | Salesforce Hosted MCP Servers | MCP da Customermates |
+| --- | --- | --- |
+| Quem configura | System Administrator: ativação do servidor e External Client App | Cada usuário conecta o próprio cliente; criar chaves de API exige a permissão correspondente na função |
+| Edições ou planos | Enterprise Edition e superiores | Todos os planos cloud e self-hosted |
+| Custo de uso | Flex Credits; medição de HPI por chamada anunciada, tarifa TBA | Sem cobrança por chamada; o seu cliente de IA usa o seu próprio provedor de IA |
+| Controle de escopo | Servidores separados para leitura, escrita e exclusão; segurança em nível de campo | Permissões de função por recurso e ação; restrição de toolsets pela URL; sem permissões em nível de campo |
+| Ferramentas personalizadas | Apex, Flows, consultas nomeadas, API Catalog, templates de prompt | Catálogo fixo de ferramentas; extensão via REST e webhooks |
+| Licença | Serviço proprietário; o servidor DX é Apache 2.0 | Núcleo AGPL, pode ser hospedado por você |
+
+A conta de custo é simples. Um time de cinco pessoas no Starter paga [[commercial.price.starter.monthly.seats.5]] por mês e recebe o conjunto completo de ferramentas do CRM via MCP. As ferramentas da caixa de entrada exigem o Pro, [[commercial.price.pro.monthly.seats.5]] por mês para o mesmo time. A assinatura do seu cliente de IA vem por cima, na Anthropic, na OpenAI ou no provedor que você usar. Os preços atuais estão na [página de preços](/pricing).
+
+Uma diferença de controle importa. O servidor MCP da Customermates orienta os clientes a pedir a confirmação do usuário antes de excluir ou enviar, mas essa confirmação acontece no cliente. Quando um cliente autorizado chama uma ferramenta, o servidor a executa. Veja como o seu cliente trata aprovações e comece por leituras e rascunhos.
+
+Para um time que atende clientes, o sentido do MCP é o follow up: com LinkedIn e e-mail conectados na Customermates Cloud a partir do Pro, o seu próprio Claude ou ChatGPT lê a conversa no registro do cliente e prepara o rascunho da resposta e o próximo passo para você revisar e enviar. Para experimentar, [inicie o seu teste](/auth/signup?job=followup): [[commercial.trial.days]] dias de Pro sem cartão de crédito.
+
+**Onde a Customermates é a escolha errada.** Se você já usa o Salesforce com objetos personalizados, lógica Apex, modelos de território ou de compartilhamento e segurança em nível de campo, fique no Salesforce e use os servidores hospedados: migrar faz perder mais do que ganhar. A Customermates também não tem definição de ferramentas personalizadas nem permissões em nível de campo. Ela serve para uma consultoria, uma agência ou um time liderado pelo fundador que está escolhendo o primeiro CRM de verdade, ou saindo de um grande. A [comparação com alternativas ao Salesforce](/compare/salesforce-alternative) trata dessa decisão, e o [guia do HubSpot MCP](/blog/hubspot-mcp) trata do servidor remoto do HubSpot.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é Salesforce MCP?">
+É o suporte da Salesforce ao Model Context Protocol, o padrão aberto que permite que clientes de IA chamem ferramentas em outros sistemas. Na prática, isso significa os Salesforce Hosted MCP Servers para dados do CRM, o servidor MCP local Salesforce DX para desenvolvedores e as ofertas de MCP da MuleSoft e do Heroku.
+</FaqItem>
+
+<FaqItem question="A Salesforce tem servidor MCP próprio?">
+Sim. A Salesforce opera os Hosted MCP Servers por conta própria, em disponibilidade geral desde 29 de abril de 2026, e publica o servidor MCP open source DX no GitHub. Também existem servidores MCP de terceiros para o Salesforce, mas você não precisa de um deles para conectar o Claude ou o ChatGPT ao Salesforce.
+</FaqItem>
+
+<FaqItem question="O Salesforce MCP é gratuito?">
+O servidor MCP DX é software open source gratuito. Os servidores hospedados são voltados a clientes com Flex Credits, e a Salesforce anunciou medição por chamada para agentes registrados. Em 8 de outubro de 2026, a tarifa está listada como TBA e ainda não é medida, e sandboxes, scratch orgs e orgs Developer Edition ficam isentas dessa medição.
+</FaqItem>
+
+<FaqItem question="Como ativar o Salesforce MCP?">
+Um System Administrator habilita um servidor no Setup, em API Catalog e depois em MCP Servers, cria um External Client App com os escopos mcp_api e refresh_token e PKCE e adiciona a URL de callback do cliente. Em seguida, os usuários conectam o próprio cliente de IA e fazem login com OAuth.
+</FaqItem>
+
+<FaqItem question="Quais edições do Salesforce são compatíveis com servidores MCP hospedados?">
+A Salesforce os descreve como disponíveis para toda org Enterprise Edition ou superior. Alguns servidores específicos, como Headless 360 e CRM Analytics, ainda são marcados como beta.
+</FaqItem>
+
+<FaqItem question="O Salesforce MCP respeita as permissões dos usuários?">
+Sim. Cada chamada roda como o usuário conectado, então valem as permissões de objeto, a segurança em nível de campo e as regras de compartilhamento. Se um usuário não pode fazer algo no Salesforce, o agente também não pode fazer por ele.
+</FaqItem>
+</Faq>
+
+Detalhes de Salesforce, MuleSoft e Heroku verificados em 8 de outubro de 2026 na [visão geral dos servidores MCP hospedados](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/hosted-mcp-servers-overview.html), na [referência dos servidores padrão](https://developer.salesforce.com/docs/platform/hosted-mcp-servers/guide/servers-reference.html), em [Understand AIforce Impact](https://help.salesforce.com/s/articleView?language=en_US&id=005360285&type=1), no [repositório do Salesforce DX MCP](https://github.com/salesforcecli/mcp), na [documentação do MuleSoft MCP Connector](https://docs.mulesoft.com/mcp-connector/latest/) e no [repositório do Heroku MCP](https://github.com/heroku/heroku-mcp-server).

@@ -1,0 +1,159 @@
+---
+title: "Copilot for Sales: agente de vendas, licenças e custo"
+description: "Copilot for Sales agora é o Sales agent do Microsoft 365 Copilot. O que ele exige, quanto paga um time de 5 pessoas e o que usar sem Dynamics ou Salesforce."
+
+relatedHrefs:
+  - /blog/outlook-crm-integration
+  - /compare/microsoft-dynamics-alternative
+  - /blog/agentforce
+  - /blog/ai-sales-agent
+
+hero:
+  title: "Copilot for Sales: o que o Sales agent faz, o que exige e quanto custa"
+  description: "O assistente de vendas da Microsoft para Outlook e Teams, rebatizado de Sales agent: a licença e o CRM de que ele depende, os passos de configuração, um exemplo de custo para um time pequeno e opções sem Dynamics 365 ou Salesforce."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-04-30
+  updated: 2026-10-08
+  tags:
+    - copilot-for-sales
+    - microsoft-copilot
+    - IA para vendas
+    - CRM
+    - Código aberto
+---
+
+# Copilot for Sales: o que o Sales agent faz, o que exige e quanto custa
+
+O Microsoft Copilot for Sales agora se chama **Sales agent**. É um suplemento do Outlook e um app do Teams que levam dados do Dynamics 365 Sales ou do Salesforce Sales Cloud para dentro do Microsoft 365, onde resumem conversas de e-mail, sugerem rascunhos de resposta e escrevem resumos de reuniões. As perguntas frequentes da Microsoft dizem que ele está disponível como parte de uma licença do Microsoft 365 Copilot e que sempre precisa de um desses dois CRMs por baixo. Ele não é um CRM.
+
+Então o preço real é uma licença de Copilot, mais uma licença de CRM, mais um plano qualificado do Microsoft 365. Abaixo você encontra o que cada produto Copilot realmente é, os passos de configuração, um exemplo de custo para cinco vendedores e uma tabela de decisão. O Customermates publica este guia e aparece nele uma única vez, em uma seção identificada, para times que não usam Dynamics 365 nem Salesforce.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="Resposta curta">Copilot for Sales é o nome antigo do Sales agent: IA no Outlook e no Teams que lê e atualiza os seus registros do Dynamics 365 Sales ou do Salesforce.</SummaryItem>
+  <SummaryItem label="O que você precisa">Uma licença do Microsoft 365 Copilot, um plano qualificado do Microsoft 365 e o Dynamics 365 Sales ou o Salesforce Sales Cloud Professional ou superior.</SummaryItem>
+  <SummaryItem label="Preços de tabela">O Microsoft 365 Copilot custa US$ 30 por usuário por mês e o Dynamics 365 Sales Professional US$ 65, ambos com pagamento anual. Cinco vendedores: US$ 475 por mês, antes do plano do Microsoft 365.</SummaryItem>
+  <SummaryItem label="Não coberto">Caixas de e-mail fora do Outlook, como Gmail, caixas compartilhadas, Dynamics ou Exchange locais (on-premises) e nuvens do governo dos EUA.</SummaryItem>
+  <SummaryItem label="Transparência">O Customermates publica este guia. Os detalhes da Microsoft e do Salesforce foram verificados em 8 de outubro de 2026 nas páginas deles.</SummaryItem>
+</ArticleSummary>
+
+## Cinco coisas chamadas “Copilot” em vendas
+
+A maior parte da confusão em torno dessa busca (“copilot para vendas”, “copilot crm”) vem dos nomes. Estes são os produtos a que as pessoas se referem:
+
+| Nome que você vê | O que é | Onde roda | O que exige |
+| --- | --- | --- | --- |
+| Copilot for Sales, agora Sales agent | IA que leva dados do CRM para o Microsoft 365 | Suplemento do Outlook, app do Teams, chat do Microsoft 365 Copilot | Licença do Microsoft 365 Copilot e Dynamics 365 Sales ou Salesforce |
+| Copilot in Dynamics 365 Sales | Chat de IA e resumos dentro do CRM Dynamics | App Dynamics 365 Sales | Uma licença do Dynamics 365 Sales; os recursos mudam conforme o plano, veja a tabela comparativa na página de preços |
+| Microsoft 365 Copilot | IA geral no Word, no Excel, no Outlook e no Teams | Apps do Microsoft 365 | Um plano qualificado do Microsoft 365 |
+| Copilot Studio | Ferramenta da Microsoft para criar os seus próprios agentes, que podem chamar ferramentas de um servidor MCP | Copilot Studio | Licenciamento próprio; confirme com a Microsoft |
+| Copilot CRM, agora Homeworks | Um CRM de serviços em campo sem relação com a Microsoft, para empresas de serviços domésticos | App próprio | Assinatura própria |
+
+A última linha importa se você pesquisou “Copilot CRM”: a [Homeworks](https://www.home.works) é o antigo Copilot CRM, uma plataforma para jardinagem, paisagismo, limpeza de janelas e negócios parecidos, com agendamento, rotas e faturamento. Ela não tem nada a ver com a Microsoft.
+
+A própria documentação da Microsoft chama o Sales agent de “a evolução da experiência Copilot para equipes de vendas” e diz que ele também será o caminho preferido para chegar à assistência do Copilot dentro do Dynamics 365 Sales.
+
+## O que o Sales agent faz
+
+O Sales agent funciona em três lugares, segundo o [Microsoft Learn](https://learn.microsoft.com/en-us/microsoft-sales-copilot/sales-m365-copilot-faq):
+
+- **Outlook.** Um painel Sales ao lado do e-mail mostra o registro correspondente do CRM. Ele resume conversas, sugere rascunhos de resposta e deixa o vendedor ver e editar campos do CRM. Os resumos só aparecem para conversas com mais de 1.000 caracteres, cerca de 180 palavras.
+- **Teams.** Reuniões gravadas ganham resumos com itens de ação, tarefas e palavras-chave de vendas. A Microsoft informa horas ilimitadas de gravação e processamento de chamadas. Os insights da reunião exigem pelo menos um participante externo que seja contato no CRM.
+- **Chat do Microsoft 365 Copilot.** Os vendedores fazem perguntas como “Resuma a conta Fabrikam” depois que um administrador configura quais tabelas do CRM o Sales agent pode ler.
+
+Ele respeita as regras de acesso do CRM conectado. Os administradores podem expor até 40 campos por registro no painel Sales.
+
+Os limites documentados são tão úteis para a decisão quanto os recursos. O Sales agent não oferece suporte a caixas de e-mail compartilhadas, ao Dynamics 365 ou ao Exchange locais (on-premises), nem ao US GCC, GCC High e DoD. O resumo e a preparação de reuniões exigem o Exchange Online. O Salesforce precisa ser o Sales Cloud na edição Professional ou superior. Os idiomas e as regiões com suporte estão listados no [relatório de disponibilidade internacional do Copilot](https://releaseplans.microsoft.com/availability-reports/?report=copilotproductreport) da Microsoft.
+
+## Como configurar o Sales agent
+
+A configuração é trabalho de administrador, em dois centros de administração e no CRM. Ela segue as páginas de instalação e de perguntas frequentes da Microsoft:
+
+<Steps>
+  <Step title="Confira as licenças">Cada vendedor precisa de uma licença do Microsoft 365 Copilot e de uma licença de CRM. As perguntas frequentes da Microsoft dizem que um usuário sem a licença do Copilot vê uma mensagem informando que não tem a licença certa.</Step>
+  <Step title="Atribua as funções no CRM">No Dynamics 365, os administradores precisam de System Administrator ou System Customizer, e os vendedores precisam de Salesperson ou Sales Manager. O Salesforce tem a própria lista de permissões.</Step>
+  <Step title="Implante o app">Implante no centro de administração do Microsoft 365 para o Outlook e no centro de administração do Teams para o Teams. Pode levar até 48 horas para aparecer no Outlook.</Step>
+  <Step title="Conecte o CRM">Cada usuário consente em conectar a conta de trabalho à conta do CRM. O compartilhamento de dados não começa antes desse consentimento.</Step>
+  <Step title="Configure o chat de vendas">Escolha as tabelas e os campos do CRM que o Sales agent pode usar e configure os resumos de conta, oportunidade e lead.</Step>
+  <Step title="Teste com um negócio">Abra um e-mail de um cliente real, confira se o registro certo aparece e edite um campo. Depois, grave uma chamada no Teams com esse contato.</Step>
+</Steps>
+
+## Quanto custa o Copilot for Sales
+
+Não existe mais um preço separado do Copilot for Sales nas páginas da Microsoft. Você paga pelas peças que ficam por baixo. Preços verificados em 8 de outubro de 2026 nas páginas de preços dos EUA da Microsoft e do Salesforce:
+
+| Componente | Preço por usuário por mês | Fonte |
+| --- | --- | --- |
+| Microsoft 365 Copilot | US$ 30,00, pago anualmente (US$ 31,50 pago mensalmente em contrato anual) | [Microsoft 365 Copilot](https://www.microsoft.com/en-us/copilot/solutions/enterprise) |
+| Microsoft 365 Copilot Business, até 300 usuários | A partir de US$ 18,00 pago anualmente, preço promocional até 31 de dezembro de 2026 (antes, a partir de US$ 21,00) | [Preços do Copilot](https://www.microsoft.com/en-us/copilot/pricing/business) |
+| Dynamics 365 Sales Professional | US$ 65,00, pago anualmente | [Preços do Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) |
+| Dynamics 365 Sales Enterprise | US$ 105,00, pago anualmente, inclui o Copilot in Dynamics 365 | mesma página |
+| Dynamics 365 Sales Premium | US$ 150,00, pago anualmente | mesma página |
+| Salesforce Sales Cloud Pro Suite | US$ 100,00, cobrado anualmente | [Preços do Sales Cloud](https://www.salesforce.com/sales/pricing/) |
+
+O Microsoft 365 Copilot é vendido como complemento de um plano qualificado do Microsoft 365. A [página do Copilot Business](https://www.microsoft.com/en-us/copilot/solutions/business) lista Researcher, Analyst e Facilitator como agentes incluídos e não cita o Sales agent. Se você pretende usar o plano Business, mais barato, pergunte à Microsoft se o Sales agent está coberto antes de comprar.
+
+**Exemplo para cinco vendedores no Dynamics 365 Sales Professional:** 5 × (US$ 30 + US$ 65) = **US$ 475 por mês**, ou US$ 5.700 por ano em compromisso anual. Some o plano do Microsoft 365 que a sua empresa já paga. No Salesforce Pro Suite, a parte do CRM custa US$ 100 em vez de US$ 65, então o mesmo time paga US$ 650 por mês antes do Microsoft 365.
+
+## Qual opção combina com o seu time
+
+| Sua situação | Olhe para | Por quê |
+| --- | --- | --- |
+| Os vendedores vivem no Outlook e no Teams, e o CRM é o Dynamics 365 ou o Salesforce | Sales agent | Ele coloca o CRM atual ao lado da caixa de entrada e da reunião |
+| Os vendedores trabalham principalmente dentro do app Dynamics 365 | Copilot in Dynamics 365 Sales | Ele já vem embutido no app Dynamics 365 Sales; sem implantação de um suplemento separado |
+| O CRM é o Salesforce e você quer a IA dentro do Salesforce | [Agentforce](/blog/agentforce) | Os agentes do próprio Salesforce; a página de preços dele diz que a IA pode ser adicionada ao Core e acima |
+| Você já paga o Microsoft 365 Copilot, mas não tem CRM | Decida primeiro o CRM | O Sales agent não tem o que ler sem o Dynamics 365 ou o Salesforce |
+| Time pequeno no Gmail, ou no WhatsApp e no LinkedIn tanto quanto no e-mail | Um CRM com IA e caixa de entrada próprias | O Sales agent cobre apenas Outlook e Teams |
+
+Sobre “vale a pena”: o Sales agent compensa quando os vendedores já passam o dia no Outlook e no Teams e o CRM já é o sistema de registro. Se você tivesse que comprar o CRM, as licenças do Copilot e o tempo de um administrador só para ter resumos de e-mail, compare antes o custo total com um CRM menor. A [comparação de alternativas ao Microsoft Dynamics](/compare/microsoft-dynamics-alternative) trata dessa troca.
+
+## Onde o Customermates se encaixa
+
+O Customermates é um CRM de código aberto, nativo de IA, para pequenos times que atendem clientes, como consultorias e agências, feito na Alemanha. É uma opção para a última linha da tabela, e não substitui o Sales agent para uma empresa que usa o Dynamics 365 e grava as chamadas com clientes no Teams.
+
+Uma configuração típica para um time de cinco pessoas:
+
+- **Registros.** Contatos, organizações e negócios, com as etapas do negócio como um campo de Escolha única e pesos por etapa para um valor ponderado do pipeline. Os negócios têm usuários atribuídos, e cada pessoa mantém as próprias visualizações salvas e compartilha as que o time precisa, por exemplo “Meus negócios em Proposta”.
+- **Caixa de entrada.** No Pro ou superior, a [caixa de entrada unificada](/features/unified-inbox) vincula aos mesmos registros os e-mails do Outlook, do Gmail ou de IMAP, além de conversas do LinkedIn, WhatsApp, Instagram e Telegram. O Pro inclui [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário, o Business [[commercial.entitlement.business.includedAccountsPerUser]]. A [integração com o Outlook](/features/outlook-integration) conecta a caixa de e-mail pelo servidor; não há nada para instalar no Outlook.
+- **Mate, no Customermates Cloud.** O assistente do app usa créditos de IA hospedados. Peça a ele “Resuma a última conversa com a Acme e salve um rascunho de resposta que proponha dois horários de reunião”. O Mate envia o e-mail na hora quando você manda enviar, então peça um rascunho quando quiser revisar antes. Os detalhes estão na [documentação do Mate](/docs/app-assistant).
+- **Uma rotina, no Customermates Cloud.** Gatilho “Quando algo muda”, evento “Registro atualizado” para Negócios, em “Campos alterados” o campo Etapa. Instruções: “Quando um negócio passar para Proposta, leia a última conversa com o contato e salve um rascunho de resposta. Não envie nada.” A rotina é executada como o proprietário dela, com os canais dele. Veja [rotinas](/docs/app-routines).
+- **O seu próprio cliente de IA.** Se o seu time já usa o Claude ou o ChatGPT, conecte-o por MCP com o [conector personalizado](/docs/connect-custom-connector). A Microsoft documenta que agentes do Copilot Studio podem se conectar a um servidor MCP existente; o Customermates ainda não tem um guia publicado para esse cliente, então teste uma leitura antes de depender dele.
+
+**Custo.** Cinco usuários no Pro custam [[commercial.price.pro.monthly.seats.5]] por mês, com cobrança mensal, incluindo a caixa de entrada e créditos de IA hospedados por mês para cada usuário ativo ([veja os preços](/pricing)). O Starter, a [[commercial.price.starter.monthly]] por usuário, não tem caixa de entrada. Hospedar por conta própria o núcleo AGPL não tem custo de licença e mantém REST, webhooks e MCP, mas não tem caixa de entrada nem Mate.
+
+O que um time pequeno ganha por essa licença é acompanhamento sem uma pilha da Microsoft: conversas no registro do cliente, um rascunho de resposta e um próximo passo preparados pelo Mate ou pelo seu próprio cliente de IA, e você revisa e envia. Para testar com a sua própria caixa de e-mail ou o seu LinkedIn, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
+
+**O que ele não faz.** O Customermates não grava nem transcreve reuniões, não tem suplemento para Outlook, Teams ou Word (os detalhes do CRM são consultados no próprio Customermates), não escreve eventos de calendário e não tem app para celular. Se os resumos de reunião do Teams são o motivo pelo qual você está olhando o Copilot for Sales, fique com a Microsoft.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é o Copilot for Sales?">
+O antigo nome do Sales agent da Microsoft: um suplemento do Outlook e um app do Teams que conectam o Microsoft 365 ao Dynamics 365 Sales ou ao Salesforce Sales Cloud. Ele resume conversas de e-mail, sugere rascunhos de resposta, escreve resumos de reuniões e deixa os vendedores ver e atualizar registros do CRM sem sair do Outlook.
+</FaqItem>
+
+<FaqItem question="Quanto custa o Microsoft Sales Copilot?">
+A Microsoft não lista mais um preço separado. As perguntas frequentes dela dizem que o Sales agent está disponível como parte da licença do Microsoft 365 Copilot, que custa US$ 30 por usuário por mês pago anualmente nos EUA. Você também precisa de um plano qualificado do Microsoft 365 e de um CRM: o Dynamics 365 Sales Professional custa US$ 65 por usuário por mês, o Enterprise US$ 105 e o Salesforce Sales Cloud Pro Suite US$ 100, todos cobrados anualmente. O Microsoft 365 Copilot Business começa em US$ 18 pago anualmente, mas a página dele não cita o Sales agent. Preços verificados em 8 de outubro de 2026 nas páginas de preços do [Microsoft 365 Copilot](https://www.microsoft.com/en-us/copilot/solutions/enterprise), do [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing) e do [Sales Cloud](https://www.salesforce.com/sales/pricing/).
+</FaqItem>
+
+<FaqItem question="O Copilot for Sales funciona com o Salesforce?">
+Sim. O Sales agent funciona com o Dynamics 365 Sales e com o Salesforce Sales Cloud, edição Professional e superiores. A IA do próprio Salesforce para vendas é o Agentforce, que roda dentro do Salesforce e não no Outlook.
+</FaqItem>
+
+<FaqItem question="O Copilot for Sales funciona no Outlook?">
+Sim, o Outlook é a superfície principal dele: no Windows a partir da versão 2206, no Mac a partir da 16.78 e na web. Ele não oferece suporte a caixas de e-mail compartilhadas, e os resumos de reuniões exigem o Exchange Online.
+</FaqItem>
+
+<FaqItem question="O Microsoft Copilot é um CRM?">
+Não. Copilot é a marca de assistente de IA da Microsoft. O CRM da Microsoft é o Dynamics 365 Sales, licenciado à parte. O Sales agent precisa do Dynamics 365 Sales ou do Salesforce para ter dados de clientes com que trabalhar.
+</FaqItem>
+
+<FaqItem question="O que é o Copilot CRM?">
+Em geral, uma de duas coisas: o Microsoft Copilot usado com um CRM, como descrito nesta página, ou o software de serviços em campo antes chamado Copilot CRM, agora Homeworks, que atende empresas de jardinagem, paisagismo e outros serviços domésticos.
+</FaqItem>
+</Faq>
+
+Detalhes de concorrentes verificados em 8 de outubro de 2026 no [Microsoft Learn: Sales agent](https://learn.microsoft.com/en-us/microsoft-sales-copilot/introduction), nas [perguntas frequentes do Sales agent](https://learn.microsoft.com/en-us/microsoft-sales-copilot/sales-m365-copilot-faq), no [Copilot in Dynamics 365 Sales](https://learn.microsoft.com/en-us/dynamics365/sales/copilot-overview), no [Copilot Studio e MCP](https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp), no [Microsoft 365 Copilot](https://www.microsoft.com/en-us/copilot/solutions/enterprise), nos [preços do Microsoft 365 Copilot](https://www.microsoft.com/en-us/copilot/pricing/business), no [Microsoft 365 Copilot Business](https://www.microsoft.com/en-us/copilot/solutions/business), nos [preços do Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales/pricing), nos [preços do Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) e na [Homeworks](https://www.home.works).

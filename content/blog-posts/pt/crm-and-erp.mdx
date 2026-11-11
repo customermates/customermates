@@ -1,0 +1,190 @@
+---
+title: "CRM e ERP: diferenças e como usar os dois juntos"
+description: "CRM e ERP: o CRM cuida de clientes e vendas, o ERP de pedidos e finanças. Veja quem é dono de cada registro e quais ferramentas de faturamento têm API."
+
+relatedHrefs:
+  - /blog/crm-erp-integration
+  - /features/integrations
+  - /compare/odoo
+  - /docs/webhooks
+
+hero:
+  title: "CRM e ERP: qual sistema cuida de qual parte do cliente?"
+  description: "O CRM guarda tudo até o negócio fechado; o ERP ou a ferramenta de faturamento guarda tudo o que vem depois. Como os registros se dividem, quando cada um faz sentido e como conectá-los sem digitar duas vezes."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Voltar ao blog
+  by: por Benjamin Wagner
+  date: 2026-01-06
+  updated: 2026-10-08
+  tags:
+    - CRM
+    - ERP
+    - Sistemas de gestão
+---
+
+# CRM e ERP: qual sistema cuida de qual parte do cliente?
+
+Na comparação entre CRM e ERP, o CRM cuida das pessoas para quem você vende e dos negócios em andamento. O ERP cuida do que acontece depois da venda: pedidos, estoque, compras, faturas, pagamentos e contabilidade. O jeito mais simples de separar os dois é o negócio fechado. Tudo o que vem antes pertence ao CRM, tudo o que vem depois ao ERP.
+
+A maioria das pequenas empresas de serviços nem precisa de um ERP completo. Uma consultoria ou agência com cinco pessoas costuma precisar de um CRM para o pipeline e de uma ferramenta de faturamento e contabilidade, como Lexware Office ou sevDesk, para o dinheiro. Essa dupla é o "pequeno ERP" de uma empresa sem estoque nem produção, e ela aparece mais abaixo, junto com a questão das suítes maiores.
+
+O Customermates publica este guia. Ele é um CRM, não um ERP nem um software de contabilidade, e só aparece abaixo onde faz sentido.
+
+<ArticleSummary title="Em resumo">
+  <SummaryItem label="CRM">Contatos, organizações, negócios, etapas do pipeline, conversas e próximos passos. Usado por vendas, gestão de contas e fundadores.</SummaryItem>
+  <SummaryItem label="ERP">Pedidos, faturas, pagamentos, estoque, compras, produção e contabilidade. Usado por financeiro e operações.</SummaryItem>
+  <SummaryItem label="Pequena empresa de serviços">Um CRM mais uma ferramenta de faturamento costuma cobrir os dois lados. Um ERP completo começa a compensar com estoque, compras ou produção.</SummaryItem>
+  <SummaryItem label="Conectar os dois">Defina um dono para cada campo, passe um ID estável de um lado para o outro e sincronize só os poucos campos de que o outro lado precisa: dados do cliente de ida, status do pagamento de volta.</SummaryItem>
+</ArticleSummary>
+
+## CRM e ERP lado a lado
+
+| | CRM | ERP |
+| --- | --- | --- |
+| Pergunta que responde | Com quem estamos falando e o que acontece agora? | O que vendemos, entregamos, faturamos e recebemos? |
+| Principais usuários | Vendas, gestão de contas, fundadores, atendimento | Financeiro, operações, compras, produção |
+| Registros centrais | Contatos, organizações, negócios, tarefas, conversas | Pedidos, faturas, pagamentos, itens, estoque, fornecedores, razão contábil |
+| Como o trabalho flui | Flexível: os negócios mudam de etapa e os planos mudam | Controlado: os documentos são lançados, numerados e auditados |
+| O que dá errado sem ele | Os follow-ups escapam e ninguém sabe qual foi a última conversa | Faturas erradas, erros de estoque, um fechamento mensal lento |
+| Conexões típicas | E-mail, LinkedIn, WhatsApp, agenda, site | Banco, contador, loja virtual, logística, folha de pagamento |
+
+Os dois se sobrepõem nos dados cadastrais do cliente. Os dois sistemas precisam do nome e do endereço do cliente, e é nessa sobreposição que nascem os duplicados. A próxima seção resolve isso.
+
+## Quem é dono de cada registro
+
+Antes de conectar qualquer coisa, anote um dono para cada registro e campo. Responsabilidade mal definida causa mais problema de sincronização do que o próprio conector. Esta divisão serve para uma pequena empresa de serviços típica:
+
+| Registro ou campo | Dono | Cópia do outro lado |
+| --- | --- | --- |
+| Pessoa, cargo, anotações sobre o relacionamento | CRM | Só nome e e-mail do contato de cobrança |
+| Organização (empresa) | CRM até a primeira fatura, depois compartilhada | Número de cliente do ERP guardado na organização do CRM |
+| Razão social, número de IVA (VAT ID), endereço de cobrança | ERP ou ferramenta de faturamento | Copiados para o CRM e editados só no ERP |
+| Negócio, etapa, valor do negócio, próximo passo | CRM | Opcional: ID do negócio no pedido |
+| Produtos, preços, estoque | ERP | Nomes de produtos ou serviços para os itens de linha do negócio |
+| Pedido, fatura, número da fatura | ERP ou ferramenta de faturamento | Número da fatura no negócio |
+| Status do pagamento | ERP ou ferramenta de faturamento | Campo de escolha única no negócio, escrito pela integração |
+| Conversas e anotações de reuniões | CRM | Nada; o financeiro raramente precisa delas |
+
+Duas regras mantêm isso estável. Primeiro, só um lado pode alterar um campo; o outro apenas lê. Segundo, os dois sistemas guardam o ID um do outro (o ID da organização do CRM no ERP, o número de cliente do ERP no CRM), e assim você nunca cruza registros pelo nome da empresa. Nomes mudam, são abreviados e são digitados duas vezes.
+
+## CRM ou ERP: você precisa de um, do outro ou de uma ferramenta de faturamento?
+
+Parta do problema que você tem hoje, não da categoria de software.
+
+| Sua situação | Comece por |
+| --- | --- |
+| Solicitações e follow-ups se perdem e ninguém sabe quem falou por último com um cliente | Um CRM |
+| Você vende serviços, emite algumas dezenas de faturas por mês e tem um contador | Uma ferramenta de faturamento e contabilidade, mais um CRM para vendas |
+| Você mantém estoque, compra material, planeja produção ou envia mercadorias | Um ERP |
+| Vendas funciona e o financeiro funciona, mas a passagem de um para o outro falha | Os dois, com uma conexão enxuta entre eles |
+| Você quer um só fornecedor e um só login para tudo, e os módulos se encaixam no seu processo | Uma suíte completa (all-in-one) |
+
+Um módulo de CRM dentro de um ERP costuma cobrir contatos e oportunidades simples. Teste-o na sua semana real de vendas antes de depender dele: como uma nova conversa de LinkedIn ou WhatsApp chega ao cliente, como se encontra um negócio parado e como um colega assume uma conta. Da mesma forma, o cadastro de clientes de uma ferramenta de faturamento só começa quando há algo a faturar. Ele não tem pipeline.
+
+## Uma suíte ou dois sistemas especializados?
+
+Uma suíte completa reúne os módulos de CRM e ERP sob um único fornecedor. O Odoo é um exemplo comum para empresas menores: a [página de preços](https://www.odoo.com/pricing) dele oferece um plano gratuito com um aplicativo e planos pagos que incluem todos os aplicativos, entre eles CRM, Vendas e Contabilidade. A [comparação com o Odoo](/compare/odoo) mostra como ele se sai diante de um CRM dedicado.
+
+| | Suíte completa | CRM mais ERP ou ferramenta de faturamento |
+| --- | --- | --- |
+| Registro de cliente compartilhado | Em geral já vem pronto | Exige uma sincronização ou uma passagem manual |
+| Adequação a cada equipe | Depende do módulo mais fraco que você usa | Cada lado escolhe a ferramenta que combina com o seu trabalho |
+| Trocar uma parte | Mais difícil, os módulos são acoplados | Troca-se um lado e mantém-se o outro |
+| Trabalho contínuo | Configurar e atualizar um único sistema | Operar e monitorar uma integração |
+
+Nenhuma das duas opções é mais simples por definição. Uma suíte com um módulo de CRM que seus vendedores evitam gera as mesmas planilhas das quais você queria se livrar. Duas ferramentas sem um dono claro para cada campo geram duplicados. Escolha o lado da tabela cujo trabalho contínuo você está disposto a assumir.
+
+## Ferramentas de faturamento ao lado de um CRM
+
+Para as pequenas empresas alemãs, o lado do "ERP" costuma ser uma ferramenta de faturamento e contabilidade que repassa os dados ao contador. Se você chegou aqui procurando uma alternativa ao lexoffice, a primeira pergunta é se o problema é de contabilidade ou de vendas. Trocar de ferramenta de contabilidade não resolve negócios perdidos, e nenhuma das páginas de preços abaixo lista um pipeline de vendas ou etapas de negócio.
+
+O lexoffice agora se chama Lexware Office, como diz a [página do produto Lexware](https://www.lexware.de/lexoffice/). Para conectar a um CRM, o que importa é qual plano inclui a API:
+
+| Ferramenta | Planos | Acesso à API, segundo a página de preços do fornecedor |
+| --- | --- | --- |
+| [Lexware Office](https://www.lexware.de/preise/) | S, M, L, XL | API pública só no XL |
+| [sevDesk](https://sevdesk.de/preise/) | Free, Rechnung, Buchhaltung, Buchhaltung Pro | API REST só no Buchhaltung Pro |
+| [FastBill](https://www.fastbill.com/preise) | Solo, Plus, Pro, Premium | API REST e webhooks em todos os planos, com limites de chamadas por hora que aumentam conforme o plano |
+| [Billomat](https://www.billomat.com/preise/) | Professional, Business, Enterprise | Business e Enterprise |
+
+Planos e níveis de API verificados em 8 de outubro de 2026. Os preços mudam com frequência, então compare-os nas páginas indicadas. Mais duas verificações antes de trocar: pergunte ao seu contador qual formato de exportação ele precisa e confirme os formatos de fatura eletrônica que você deve enviar e receber. O Lexware Office, por exemplo, lista ZUGFeRD e XRechnung nos quatro planos.
+
+Se a lacuna real está em vendas, mantenha a ferramenta de contabilidade e coloque um CRM ao lado dela. A [documentação para desenvolvedores do Lexware](https://developers.lexware.io/docs/) lista endpoints para contatos, faturas, orçamentos e pagamentos, além de assinaturas de eventos, que é tudo de que a passagem abaixo precisa.
+
+## A passagem de dados, passo a passo
+
+Esta é a menor conexão útil entre um CRM e uma ferramenta de faturamento ou ERP. Ela foi escrita para o Customermates no lado do CRM, mas a ordem dos passos vale para qualquer par.
+
+<Steps>
+  <Step title="Adicione os campos de que a passagem precisa">
+    Nas organizações, adicione um campo personalizado do tipo Texto "Nº do cliente na contabilidade". Nos negócios, adicione um campo Texto "Nº da fatura" e um campo de escolha única "Status do pagamento" com as opções Em aberto, Pago em parte e Pago. Combine que só a integração escreve nesses campos.
+  </Step>
+  <Step title="Escolha o gatilho">
+    Assine um [webhook](/docs/webhooks) para `record.updated` na lista Negócios. Os eventos de atualização listam cada campo alterado com o valor anterior e o atual, então sua integração pode agir só quando a etapa mudar para Ganho e ignorar qualquer outra edição.
+  </Step>
+  <Step title="Crie ou identifique o cliente">
+    Se a organização ainda não tem número de cliente na contabilidade, crie o cliente pela API da ferramenta de contabilidade e grave o número devolvido na organização pela API REST do Customermates. Se ela já tem, reaproveite. Nunca cruze pelo nome da empresa.
+  </Step>
+  <Step title="Crie lá a fatura ou o pedido">
+    Crie na ferramenta de contabilidade um rascunho de fatura, um orçamento ou um pedido com os serviços e o valor do negócio. O Customermates não cria orçamentos nem faturas. Guarde o número do documento em "Nº da fatura" no negócio.
+  </Step>
+  <Step title="Devolva o status do pagamento">
+    Quando o pagamento mudar na ferramenta de contabilidade (pela assinatura de eventos dela ou por uma consulta noturna), atualize "Status do pagamento" no negócio. Uma gravação que não altera nada não gera um novo evento no Customermates, então a integração não entra em loop com as próprias atualizações.
+  </Step>
+  <Step title="Confira toda semana">
+    Filtre os negócios na etapa Ganho com "Nº da fatura" vazio e salve o filtro como visualização. Tudo o que aparecer ali é uma passagem que falhou. As entregas de webhook que falharam aparecem em Configurações › Registro de webhooks e podem ser reenviadas de lá.
+  </Step>
+</Steps>
+
+A integração em si roda fora dos dois sistemas: um pequeno serviço seu ou um fluxo do n8n que chama a [API do Customermates](/docs/n8n). O n8n é um produto separado, que você hospeda ou assina. Para aprofundar mapeamento, autenticação, idempotência e monitoramento, leia o [guia de integração entre CRM e ERP](/blog/crm-erp-integration).
+
+## Onde o Customermates se encaixa e onde não
+
+O Customermates é um CRM de código aberto e nativo de IA para pequenas equipes que lidam diretamente com clientes, desenvolvido na Alemanha. No lado do CRM da tabela acima, ele cobre contatos, organizações, negócios com etapas configuráveis em um [quadro de pipeline](/features/pipeline), serviços como itens de linha do negócio, tarefas, campos personalizados e visualizações salvas. As etapas dos negócios têm pesos, que dão um valor ponderado do pipeline. Com o plano Pro ou superior no Customermates Cloud, as conversas de e-mail, LinkedIn e WhatsApp ficam no cliente, na [caixa de entrada unificada](/features/unified-inbox).
+
+Para a conexão com um ERP ou uma ferramenta de faturamento, ele oferece uma API REST, [[derived.webhooks.events.total]] tipos de evento de webhook e um servidor MCP com [[derived.mcp.tools.total]] ferramentas, listados na [página de integrações](/features/integrations).
+
+O que ele não faz:
+
+- Não cria orçamentos nem faturas, não registra pagamentos, não mantém um razão contábil, não gerencia estoque e não planeja produção. Isso continua no seu ERP ou ferramenta de faturamento.
+- Não tem conector pronto para Lexware Office, sevDesk, DATEV nem para nenhum ERP. Você monta a passagem acima com a API, webhooks ou n8n.
+- Os registros são importados de planilhas Excel, arquivos CSV ou JSON e exportados como planilhas XLSX ou JSON, uma lista por vez. Tirar contatos de uma ferramenta de faturamento significa importar o arquivo XLSX ou CSV dela, primeiro as organizações, depois os contatos.
+- A caixa de entrada unificada e o Mate, o assistente, existem só no Customermates Cloud. Uma instalação própria (self-hosted) é o núcleo de código aberto com REST, webhooks e MCP.
+
+Se você quer CRM e contabilidade sob um só login e um só fornecedor, uma suíte completa se encaixa melhor do que o Customermates.
+
+Um custo realista para uma consultoria de três pessoas no Pro é [[commercial.price.pro.monthly.seats.3]] por mês pelo CRM com a caixa de entrada, mais o plano da ferramenta de contabilidade com acesso à API. A cobrança é mensal. Os detalhes estão na [página de preços](/pricing).
+
+O lado do CRM é onde mora o follow-up, antes de um negócio chegar a uma fatura: as conversas no cadastro do cliente, uma resposta e um próximo passo com data preparados pelo Mate ou pelo seu próprio cliente de IA, e você revisa e envia. Para testar isso com os seus clientes, [comece o seu teste de [[commercial.trial.days]] dias](/auth/signup?job=followup). Sem cartão de crédito.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="Qual é a principal diferença entre CRM e ERP?">
+Um CRM gerencia o relacionamento com clientes e as vendas até o negócio fechado: contatos, conversas, pipeline e próximos passos. Um ERP gerencia o trabalho operacional e financeiro que vem depois: pedidos, estoque, compras, faturamento, pagamentos e contabilidade.
+</FaqItem>
+
+<FaqItem question="SAP é um ERP ou um CRM, e o Salesforce?">
+A SAP vende os dois. A [página ERP vs CRM](https://www.sap.com/resources/erp-vs-crm) dela lista produtos de ERP como SAP S/4HANA Cloud e SAP Business One, que também tem funções de CRM, ao lado de um aplicativo separado, o SAP CRM, e responde "Não" à pergunta se um ERP em nuvem pode substituir um CRM. O Salesforce é mais conhecido pelo CRM. O [artigo sobre ERP e CRM](https://www.salesforce.com/blog/erp-vs-crm/) da própria empresa apresenta o Salesforce CRM como o lado voltado ao cliente e descreve a integração com funções de ERP, como pedidos de venda e controle de estoque.
+</FaqItem>
+
+<FaqItem question="Uma pequena empresa precisa de um ERP?">
+Em geral não, enquanto vende serviços sem estoque nem produção. Um CRM para vendas mais uma ferramenta de faturamento e contabilidade cobre a maior parte do que um ERP faria. Um ERP começa a compensar quando você gerencia inventário, compras, produção ou várias entidades jurídicas.
+</FaqItem>
+
+<FaqItem question="O CRM faz parte do ERP?">
+Algumas suítes de ERP incluem um módulo de CRM, e alguns CRMs ficam dentro de uma suíte maior. Se esse módulo basta depende do seu trabalho de vendas. Teste-o com uma semana real de solicitações, follow-ups e passagens de bastão antes de decidir.
+</FaqItem>
+
+<FaqItem question="O lexoffice pode ser usado como CRM?">
+Só para cadastros básicos de clientes. O Lexware Office, nome atual do lexoffice, guarda os clientes com uma linha do tempo dos documentos deles, além de tarefas, anotações e um portal do cliente. A página de preços não lista negócios nem etapas de pipeline. A maioria das equipes o mantém para o faturamento e acrescenta um CRM, conectado pela API pública do plano XL.
+</FaqItem>
+
+<FaqItem question="O Customermates substitui um ERP ou um software de contabilidade?">
+Não. O Customermates é um CRM. Ele funciona ao lado do seu ERP ou ferramenta de faturamento e guarda o lado dos clientes e dos negócios, enquanto faturas, pagamentos e contabilidade continuam no outro sistema.
+</FaqItem>
+</Faq>
+
+Detalhes de terceiros verificados em 8 de outubro de 2026 nas páginas oficiais de [Lexware Office](https://www.lexware.de/preise/), [sevDesk](https://sevdesk.de/preise/), [FastBill](https://www.fastbill.com/preise), [Billomat](https://www.billomat.com/preise/), [Odoo](https://www.odoo.com/pricing), [SAP](https://www.sap.com/resources/erp-vs-crm) e [Salesforce](https://www.salesforce.com/blog/erp-vs-crm/).

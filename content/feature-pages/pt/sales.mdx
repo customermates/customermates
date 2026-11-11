@@ -1,0 +1,247 @@
+---
+title: "Gestão de vendas no CRM: o que acompanhar e como revisar"
+description: "Gestão de vendas para pequenas equipes: os campos a registrar, sete números para a revisão semanal, cinco para o fim do mês e um exemplo, no Customermates."
+featureName: CRM de vendas
+
+relatedHrefs:
+  - /features/pipeline
+  - /features/reporting
+  - /features/unified-inbox
+  - /features/workflow-automation
+
+sections:
+  visual:
+    kind: film
+  steps:
+    items:
+      - title: "Ajuste as etapas"
+        description: "Em Modelo de dados, abra Negócios e o campo Etapa. Renomeie as opções para refletir como você vende, por exemplo \"Reunião de descoberta\" e \"Proposta enviada\", e confira a Probabilidade % de cada opção."
+      - title: "Adicione os campos de acompanhamento"
+        description: "Em Modelo de dados, abra Negócios e use Adicionar › Campo para criar Fechamento previsto, Próximo passo e Fechado em (Data), além de Origem do lead e Motivo da perda (Escolha única). Cada número da revisão precisa de um deles."
+      - title: "Importe o que você já tem"
+        description: "Use Adicionar de um arquivo com uma pasta de trabalho do Excel ou um arquivo CSV, um tipo de registro por vez: primeiro as organizações, depois os contatos, depois os negócios. As colunas de vínculo são associadas pelo nome do registro, então uma organização precisa existir antes que um negócio possa apontar para ela."
+      - title: "Salve as visualizações de revisão"
+        description: "\"Meus negócios em aberto\" como quadro, \"Fechando em breve\", \"Sem próximo passo\" e \"Negócios parados\" (Atualizado em anterior a 14 dias). Compartilhe-as com a equipe para que todos revisem os mesmos negócios."
+      - title: "Conecte a sua caixa de entrada (Pro e acima)"
+        description: "Em Configurações › Canais, conecte a caixa de correio ou a conta do LinkedIn pela qual você vende."
+  highlights:
+    title: "Resumo"
+    capture: homepage-pipeline
+    items:
+      - title: "O que você recebe"
+        description: "Negócios vinculados a contatos, organizações, serviços e tarefas, um quadro de etapas, um pipeline ponderado, visualizações salvas que você pode compartilhar e widgets de painel para os números da semana."
+      - title: "Planos"
+        description: "Pipeline e painéis a partir do Starter, por [[commercial.price.starter.monthly]] por usuário por mês. A caixa de entrada unificada começa no Pro, por [[commercial.price.pro.monthly]]."
+      - title: "IA"
+        description: "No Customermates Cloud, o Mate prepara resumos, rascunhos de resposta e atualizações de negócios usando créditos de IA hospedada. O seu próprio cliente de IA funciona em todos os planos pelo MCP."
+      - title: "Não incluído"
+        description: "Sem cotas nem metas, sem sequências nem e-mail em massa, sem telefonia, sem pontuação de leads, sem orçamentos nem faturas, sem previsão preditiva e sem aplicativo móvel."
+
+hero:
+  title: "Gestão de vendas para pequenas equipes: cada negócio em aberto com o seu próximo passo"
+  description: "Registre valor, etapa, responsável e um próximo passo com data em cada negócio e revise os mesmos poucos números toda semana. A partir do Pro, as conversas do LinkedIn e do e-mail ficam no contato, e o Mate prepara o follow-up para você revisar e enviar."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ver a demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/small-business/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+
+cta:
+  action: Monte a sua gestão de vendas durante o teste
+  description: "Renomeie as etapas, adicione os campos de acompanhamento, importe os seus negócios em aberto e salve as visualizações da revisão semanal, para que cada negócio tenha o seu próximo passo e a sua conversa ao lado. Os planos começam em [[commercial.price.starter.monthly]] por usuário por mês, cobrado mensalmente."
+  buttonLeftText: "Comece seu teste de [[commercial.trial.days]] dias"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Ver a demo ao vivo
+  buttonRightHref: https://demo.customermates.com/pt/w/small-business/dashboard
+  hint: "✓ Sem cartão de crédito ✓ Primeiros [[commercial.trial.days]] dias grátis"
+---
+
+A gestão de vendas, ou o controle de vendas, consiste em registrar em um só lugar o valor, a etapa, o responsável, o fechamento previsto e o próximo passo de cada negócio, e depois revisar os mesmos poucos números em um dia fixo. O Customermates é um CRM para pequenas equipes que atendem clientes: consultorias, agências, outras empresas de serviços e fundadores que ainda fazem a venda. Os negócios ficam em um quadro de etapas, com uma probabilidade de ganho por etapa, e, no Pro e acima, os e-mails do cliente e as mensagens do LinkedIn, do WhatsApp, do Instagram ou do Telegram aparecem no contato dele. Esta página lista o que acompanhar, os campos e as visualizações por trás de cada número e uma revisão semanal com dados de exemplo.
+
+Não é uma máquina de prospecção ativa. Se a sua gestão comercial gira em torno de agendar reuniões por volume, a tabela de alternativas mais abaixo é a parte mais útil desta página.
+
+## O que uma pequena equipe deve acompanhar na gestão de vendas?
+
+Doze números cobrem a maioria das decisões de uma equipe com algumas dezenas de negócios em aberto: sete para a revisão semanal, cinco no fim do mês. Cada um abaixo diz como é calculado e onde fica no Customermates.
+
+**Toda semana: o pipeline está saudável?**
+
+| O que acompanhar | Como é calculado | Onde fica no Customermates |
+|---|---|---|
+| Valor do pipeline em aberto | Soma do **Valor** dos negócios cuja Etapa não é Ganho nem Perdido | Um widget **Número** (soma de Valor, filtrada por Etapa), ou os totais das colunas no quadro de etapas |
+| Pipeline ponderado | Os mesmos negócios, soma do **Valor ponderado**: valor vezes a **Probabilidade %** da etapa | O mesmo widget com Valor ponderado, ou um gráfico de barras de Valor ponderado agrupado por Etapa |
+| Negócios por etapa | Contagem dos negócios em aberto em cada etapa | Um gráfico de **Funil** ou as contagens das colunas do quadro. O funil mostra os negócios de hoje, não a conversão ao longo do tempo. |
+| Fechando em breve | Negócios em aberto cujo **Fechamento previsto** cai nos próximos 30 dias | Um widget **Próximos** sobre Fechamento previsto, configurado para 30 dias, ou uma visualização salva ordenada por Fechamento previsto |
+| Sem próximo passo | Negócios em aberto em que **Próximo passo** está vazio | Uma visualização salva: Próximo passo está vazio, Etapa não é Ganho nem Perdido |
+| Negócios parados | Negócios em aberto que ninguém editou há 14 dias | Uma visualização salva: **Atualizado em** anterior a 14 dias, Etapa não é Ganho nem Perdido. Ela enxerga edições no negócio, não mensagens. |
+| Negócios por pessoa | Contagem, valor e valor ponderado por responsável | O quadro de negócios agrupado por **Atribuído a**. Ele é somente leitura, e um negócio com dois responsáveis aparece nos dois. |
+
+**Todo mês: o que ganhamos, e por quê?**
+
+| O que acompanhar | Como é calculado | Onde fica no Customermates |
+|---|---|---|
+| Ganhos do mês | Contagem e soma do Valor dos negócios com Etapa Ganho e **Fechado em** dentro do mês | Dois widgets **Número** com um filtro em Fechado em, ou um gráfico de **Área ao longo do tempo** de Valor agrupado por Fechado em, com o intervalo em mês |
+| Taxa de ganho | Ganhos divididos por (Ganhos mais Perdidos) entre os negócios fechados no período | Dois widgets **Número**, contagem de Ganho e contagem de Perdido do mesmo período, divididos à mão. No Customermates Cloud, o Mate pode calculá-la. |
+| Negócio ganho médio | Média do Valor em que a Etapa é Ganho | Um widget **Número** com a agregação de média |
+| De onde vêm os ganhos | Valor ganho por **Origem do lead** | Um gráfico de barras ou de **Rosca** agrupado por Origem do lead, filtrado por Etapa é Ganho |
+| Por que os negócios são perdidos | Contagem de negócios perdidos por **Motivo da perda** | Uma **Tabela de ranking** agrupada por Motivo da perda, filtrada por Etapa é Perdido |
+
+Fechado em é um campo de data que você mesmo adiciona. Preencha-o quando mover um negócio para Ganho ou Perdido, ou peça ao Mate ou ao seu próprio cliente de IA que o defina junto com a etapa. A taxa de ganho aqui conta negócios; ela não os pondera pelo valor.
+
+E a atividade de vendas? O widget **Linha do tempo de atividades** lista as mudanças nos registros e, no Pro e acima, as mensagens e reuniões das contas conectadas, e você pode filtrá-lo por registros relacionados, por exemplo tudo o que aconteceu nos seus cinco maiores negócios. É um feed que você lê, não um contador de ligações ou e-mails por pessoa, e não há telefonia.
+
+## De quais campos um controle de vendas precisa?
+
+Um controle de vendas só é tão bom quanto as suas colunas. Estas são as onze de que uma lista de negócios precisa para produzir todos os números acima.
+
+| Coluna | Tipo de campo no Customermates | Alimenta |
+|---|---|---|
+| Nome do negócio | Nome | Todas as visualizações |
+| Organização e contatos | Vínculos com as suas organizações e contatos | As conversas no contato |
+| Etapa | Escolha única, cada opção com uma **Probabilidade %** | Pipeline, pipeline ponderado, funil |
+| Valor | Moeda, ou calculado a partir dos itens de linha: cada um é um serviço vezes a sua quantidade | Valor do pipeline, negócio ganho médio |
+| Valor ponderado | Calculado: Valor vezes a Probabilidade % da etapa | Pipeline ponderado |
+| Responsável | **Atribuído a**, um ou vários usuários | Negócios por pessoa |
+| Fechamento previsto | Data | Fechando em breve |
+| Próximo passo | Data, com uma tarefa ou anotação que diz o que é | Sem próximo passo, widget Próximos |
+| Origem do lead | Escolha única: Indicação, LinkedIn, Site, Evento | De onde vêm os ganhos |
+| Fechado em | Data | Ganhos do mês, taxa de ganho |
+| Motivo da perda | Escolha única: Preço, Momento, Escolheu um concorrente, Sem decisão | Por que os negócios são perdidos |
+
+Um novo espaço de trabalho começa sem listas. No Customermates Cloud, a configuração com IA pode montar uma lista de negócios a partir da sua descrição; caso contrário, você cria os campos em Modelo de dados, que também é o único caminho na auto-hospedagem. Fechamento previsto, Próximo passo, Origem do lead, Fechado em e Motivo da perda são campos personalizados comuns, e você renomeia ou muda as opções deles sempre que o seu processo mudar. O valor de um negócio pode ser a soma dos seus itens de linha: dois dias de workshop a 1.500 mais dez horas de coaching a 150 dão um valor de negócio de 4.500.
+
+## Como configuro a gestão de vendas no Customermates?
+
+<Steps>
+  <Step title="Ajuste as etapas">Em **Modelo de dados**, abra Negócios e o campo **Etapa**. Renomeie as opções para refletir como você vende, por exemplo "Reunião de descoberta" e "Proposta enviada", e defina a **Probabilidade %** de cada opção: por exemplo Prospecção 10%, Qualificação 20%, Demo 40%, Proposta 60%, Negociação 80%, Ganho 100% e Perdido 0%. Uma pré-visualização mostra o efeito nos cálculos e nos widgets antes de você salvar.</Step>
+  <Step title="Crie os seus serviços">Adicione o que você vende em **Serviços**, cada um com um preço: um retainer, um dia de workshop, uma licença. Os itens de linha dos negócios, e portanto os valores dos negócios, são construídos a partir deles.</Step>
+  <Step title="Adicione os cinco campos de acompanhamento">Em Negócios, use **Adicionar › Campo** para criar Fechamento previsto, Próximo passo e Fechado em (Data), Origem do lead (Escolha única com Indicação, LinkedIn, Site e Evento) e Motivo da perda (Escolha única com Preço, Momento, Escolheu um concorrente e Sem decisão).</Step>
+  <Step title="Importe o que você já tem">Use **Adicionar de um arquivo** com uma pasta de trabalho do Excel ou um arquivo CSV, um tipo de registro por vez: primeiro as organizações, depois os contatos, depois os negócios. As colunas de vínculo são associadas pelo nome do registro, então uma organização precisa existir antes que um negócio possa apontar para ela.</Step>
+  <Step title="Salve as visualizações de revisão">"Meus negócios em aberto": Atribuído a é você, Etapa não é Ganho nem Perdido, ordenado por valor, exibido como quadro. "Fechando em breve": Etapa não é Ganho nem Perdido, ordenado por Fechamento previsto, exibido como tabela. "Sem próximo passo" e "Negócios parados" como na tabela acima. As regras de filtro se combinam com E, então uma visualização com as duas regras listaria apenas os negócios que estão parados e sem próximo passo; mantenha-as como duas visualizações. Compartilhe as visualizações com a equipe toda ou com papéis selecionados.</Step>
+  <Step title="Adicione os widgets do painel">Um widget **Número** para o pipeline ponderado, um gráfico de barras de Valor ponderado agrupado por Etapa, um widget **Próximos** sobre Próximo passo e um gráfico do Valor ganho agrupado por Origem do lead.</Step>
+  <Step title="Conecte a sua caixa de entrada (Pro e acima)">Em **Configurações › Canais e calendários**, conecte a caixa de correio ou a conta do LinkedIn pela qual você vende.</Step>
+</Steps>
+
+O [guia de registros](/docs/app-records) cobre a importação, as visualizações e o quadro passo a passo, e o [guia do painel](/docs/app-dashboard) lista cada widget e as suas opções. A [página do pipeline](/features/pipeline) mostra o quadro em mais detalhes.
+
+## Como é uma revisão semanal de vendas?
+
+Pegue cinco negócios em aberto de uma pequena consultoria. Os números são inventados para o exemplo; não são dados de um cliente.
+
+| Negócio | Etapa (probabilidade) | Valor | Valor ponderado | Próximo passo definido | Fecha em | Última edição |
+|---|---|---|---|---|---|---|
+| Retainer Nord | Negociação (80%) | 12.000 | 9.600 | Sim | 9 dias | há 1 dia |
+| Relançamento do site Bauer | Proposta (60%) | 6.000 | 3.600 | Sim | 19 dias | há 2 dias |
+| Coaching Lindner | Proposta (60%) | 2.400 | 1.440 | Não | 24 dias | há 16 dias |
+| Série de workshops Keller | Demo (40%) | 4.500 | 1.800 | Não | 34 dias | há 19 dias |
+| Sprint de marca Meyer | Qualificação (20%) | 3.000 | 600 | Sim | 80 dias | há 6 dias |
+| **Total** | | **27.900** | **17.040** | | | |
+
+Leia nesta ordem:
+
+1. **Valor do pipeline.** O pipeline em aberto é 27.900 e o pipeline ponderado é 17.040. Só o retainer Nord carrega 9.600 do valor ponderado, 56%, então uma negociação perdida muda o quadro. Ele ganha os primeiros minutos da reunião.
+2. **Fechando em breve.** Nord, Bauer e Lindner vencem em até 30 dias: 20.400 em valor e 14.640 ponderados. Keller, com 34 dias, está fora da janela.
+3. **Sem próximo passo.** Lindner e Keller.
+4. **Negócios parados.** Lindner (16 dias) e Keller (19 dias).
+5. **Decida.** Lindner está nas duas listas e vence em 24 dias. Defina um próximo passo com data nesta semana, volte o Fechamento previsto e a etapa para o que é verdade, ou feche-o como Perdido com um motivo. Keller precisa de um próximo passo ou de um Fechamento previsto mais tarde. Um negócio parado, sem próximo passo e com vencimento próximo é onde o total de um pipeline mais exagera a realidade.
+
+No fim do mês, suponha que quatro negócios foram ganhos e seis perdidos. A taxa de ganho é 4 dividido por 10, ou 40%, e o gráfico de Motivo da perda mostra qual objeção preparar. Para as definições de etapa por trás do quadro, veja o [guia do pipeline de vendas](/blog/sales-pipeline), e para transformar um pipeline ponderado em um número trimestral, veja a [previsão de vendas](/blog/sales-forecasting).
+
+## Uma planilha basta para o acompanhamento de vendas?
+
+Para uma pessoa com um punhado de negócios, muitas vezes sim. A questão é o que a planilha não consegue fazer quando mais pessoas e mais conversas entram em jogo.
+
+| Pergunta | Planilha | Customermates |
+|---|---|---|
+| Quem a mantém atualizada? | A pessoa que digita cada negócio | Várias pessoas, cada uma vendo os registros que o seu papel permite |
+| De onde vêm os totais? | Fórmulas que você escreve e mantém intactas | Totais das colunas no quadro e um Valor ponderado calculado a partir das probabilidades das etapas |
+| Onde está a conversa? | Na caixa de entrada e no LinkedIn, longe da linha | No contato, a partir do Pro, a um clique do negócio |
+| O que mudou em um negócio? | Você lembra, ou compara versões | O histórico de mudanças do negócio |
+| Como começo? | Uma planilha em branco | Importe a sua planilha como XLSX ou CSV |
+
+O nosso [modelo de CRM em Excel](/blog/excel-crm-template) traz um layout de planilha conferido, e a lista de verificação dele diz quando migrar. Uma planilha que você mantém hoje é importada no Customermates como XLSX ou CSV, um tipo de registro por vez.
+
+## Como as conversas e o Mate entram na gestão de vendas?
+
+**Conversas no contato (Pro e acima).** Conecte Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram na [caixa de entrada unificada](/features/unified-inbox). Quando um contato tem o endereço de e-mail ou o identificador, toda conversa com ele aparece na linha do tempo desse contato, então "o que aconteceu neste negócio?" fica a um clique do negócio. As mensagens se vinculam a contatos, e uma única conversa também pode ser vinculada a um negócio; nada é arquivado em um negócio automaticamente.
+
+**Atualizando negócios com o Mate (Customermates Cloud).** Depois de uma ligação, cole as suas anotações no Mate com uma instrução como esta:
+
+```text
+Estas são as minhas anotações da ligação de hoje com a Bauer Consulting. Atualize o negócio "Relançamento do site Bauer": defina a etapa como Proposta, defina o Fechamento previsto como 30 de novembro e acrescente as anotações. Crie uma tarefa para eu enviar a proposta e vincule-a ao negócio. Não envie nenhuma mensagem.
+```
+
+O Mate faz essas mudanças diretamente, e elas ficam no histórico do negócio. Se for pedido a ele que envie um e-mail, ele envia sem perguntar de novo, então escreva "rascunho" quando quiser ler o texto antes. Exclusões sempre precisam da sua aprovação. O Mate usa créditos de IA hospedada. O seu próprio cliente de IA, como o Claude ou o ChatGPT, executa o mesmo pedido pelo MCP com [[derived.mcp.tools.total]] ferramentas, em todos os planos e na auto-hospedagem. Para tarefas em um horário ou em mudanças de negócios, veja a [automação de fluxos de trabalho](/features/workflow-automation).
+
+## De qual plano você precisa, e quanto custa?
+
+| Plano | Recursos de gestão de vendas | Preço |
+|---|---|---|
+| Starter | Negócios, quadro de etapas, pipeline ponderado, visualizações salvas, widgets de painel, importação e exportação XLSX, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] rotina por usuário | [[commercial.price.starter.monthly]] por usuário por mês |
+| Pro | Starter mais a caixa de entrada unificada com [[commercial.entitlement.pro.includedAccountsPerUser]] conta conectada por usuário, LinkedIn Sales Navigator, acesso somente leitura ao calendário, [[commercial.entitlement.pro.includedRoutinesPerUser]] rotinas por usuário | [[commercial.price.pro.monthly]] por usuário por mês |
+| Business | Pro mais [[commercial.entitlement.business.includedAccountsPerUser]] contas conectadas por usuário, contas compartilhadas e uma linha do tempo de toda a equipe em todos os canais | [[commercial.price.business.monthly]] por usuário por mês |
+| Auto-hospedado | O conjunto de recursos do Starter no seu próprio servidor, sem caixa de entrada, Mate nem rotinas | Sem taxa de licença; você paga pela sua própria infraestrutura |
+
+A cobrança é mensal. Cada plano pago do Cloud inclui créditos mensais de IA hospedada por usuário ativo para o Mate; a [página de preços](/pricing) lista os valores. Três exemplos:
+
+| Equipe | Plano | Por mês |
+|---|---|---|
+| 3 pessoas, só pipeline e painéis | Starter | [[commercial.price.starter.monthly.seats.3]] |
+| 5 pessoas que vendem por e-mail e LinkedIn | Pro | [[commercial.price.pro.monthly.seats.5]] |
+| 5 pessoas que compartilham caixas de correio de clientes | Business | [[commercial.price.business.monthly.seats.5]] |
+
+Em doze meses, a equipe de cinco pessoas no Pro paga [[commercial.price.pro.monthly.seats.5.months.12]].
+
+Para comparar, com preços de tabela verificados em 11 de novembro de 2026: o Salesforce Starter Suite custa US$ 25 por usuário por mês, cobrado mensal ou anualmente, então cinco usuários pagam US$ 125 por mês. O Salesforce Pro Suite, que lista Sales Quoting and Forecasting, custa US$ 100 por usuário por mês, cobrado somente anualmente. O HubSpot Sales Hub Professional, o menor nível do HubSpot com previsão, custa US$ 100 por assento por mês, cobrado mensalmente, ou US$ 90 com compromisso anual, ou seja, US$ 500 por mês para cinco assentos na cobrança mensal, mais uma taxa única obrigatória de onboarding do Professional de US$ 1.500. São preços de tabela por assento; a página de preços de cada fornecedor mostra o que mais se aplica.
+
+## O que o Customermates não acompanha, e o que usar no lugar?
+
+O Customermates publica esta página. Os detalhes dos fornecedores foram verificados em 11 de novembro de 2026 nas páginas dos próprios fornecedores, com links no final.
+
+| Você precisa de | No Customermates | Onde procurar |
+|---|---|---|
+| Taxas de conversão ao longo do tempo, velocidade de vendas, tempo em etapa | Não disponível. O funil mostra os negócios de hoje por etapa; no Customermates Cloud, o Mate pode calcular um número como a taxa de ganho de cada pessoa a partir dos seus registros. | Exporte os negócios como XLSX ou leia-os pela API REST e calcule lá |
+| Cotas e metas | Não disponível. Compare o pipeline ponderado com a sua própria meta à mão. | Uma ferramenta de vendas com metas embutidas |
+| Previsão de receita além dos pesos das etapas | Não disponível. O pipeline ponderado usa as probabilidades fixas que você definiu. | HubSpot Sales Hub Professional; Salesforce Pro Suite ("Sales Quoting and Forecasting") |
+| Sequências de e-mail | Não disponível. O Mate prepara uma mensagem em uma conversa. | HubSpot Sales Hub Professional ou Enterprise |
+| Formulários web, pontuação de leads, enriquecimento | Não disponível. Envie as entradas de formulário pela API REST. | Um CRM com formulários e pontuação embutidos |
+| Ligações a partir do CRM | Sem telefonia nem SMS | Um CRM com discador embutido |
+| Orçamentos e faturas | Não disponível | A sua ferramenta de faturamento |
+| Um plano gratuito | Plano Free do Cloud para [[commercial.limit.free.maxMembers]] pessoa, sem a caixa de entrada nem o Mate; um teste do Pro de [[commercial.trial.days]] dias, ou auto-hospedagem sem taxa de licença | HubSpot Sales Hub Free para até 2 usuários; edição gratuita do Zoho CRM para até 3 usuários |
+| Um aplicativo no celular | Sem aplicativo móvel nativo; o Customermates roda no navegador | Um CRM com aplicativos nativos para iOS e Android |
+
+As tarefas também não têm datas de vencimento nem lembretes. A data de Próximo passo no negócio e o widget Próximos fazem esse papel, como descrito em [follow-ups](/features/follow-up). Os [relatórios](/features/reporting) cobrem todas as opções de gráfico.
+
+## Perguntas frequentes
+
+<Faq>
+<FaqItem question="O que é gestão de vendas?">
+Gestão de vendas é registrar o valor, a etapa, o responsável, o fechamento previsto, o próximo passo e o resultado de cada negócio, e depois revisar alguns números desse registro em um ritmo fixo. O registro é o controle, e a revisão é o que o transforma em decisões. No Customermates, o registro é uma lista de negócios, e a revisão roda em visualizações salvas e widgets de painel.
+</FaqItem>
+
+<FaqItem question="Qual é a melhor forma de controlar as vendas de uma pequena empresa?">
+Mantenha uma lista de negócios com cerca de uma dúzia de campos, dê a cada negócio em aberto uma etapa e um próximo passo com data, e faça a mesma revisão toda semana. Uma planilha resolve para uma pessoa com um punhado de negócios. Quando várias pessoas atualizam os negócios, ou os negócios vivem em conversas de e-mail e LinkedIn, o registro e a conversa pertencem a uma só ferramenta. O Customermates foi feito para esse segundo caso.
+</FaqItem>
+
+<FaqItem question="Com que frequência devo revisar os números de vendas?">
+Revise a saúde do pipeline toda semana: pipeline em aberto e ponderado, negócios fechando em breve, negócios sem próximo passo e negócios parados. Revise os resultados todo mês: valor ganho, taxa de ganho, origens dos leads e motivos de perda. Uma equipe pequena raramente fecha negócios suficientes em uma semana para que esses resultados signifiquem muito.
+</FaqItem>
+
+<FaqItem question="Existe um software gratuito de controle de vendas?">
+Sim, com limites. O Customermates Cloud tem um plano gratuito para [[commercial.limit.free.maxMembers]] pessoa e [[commercial.limit.free.maxRecords]] registros, sem a caixa de entrada, o Mate nem as rotinas. O seu primeiro espaço de trabalho começa com o Pro por [[commercial.trial.days]] dias sem cartão de crédito; todo espaço de trabalho adicional começa com a escolha de um plano. A [auto-hospedagem](/features/self-hosted) do núcleo open source não tem taxa de licença: ela roda o conjunto de recursos do Starter no seu próprio servidor. O HubSpot Sales Hub Free cobre até 2 usuários e a edição gratuita do Zoho CRM, até 3.
+</FaqItem>
+
+<FaqItem question="O Customermates consegue prever a receita?">
+Não, não no sentido preditivo. Ele calcula um pipeline ponderado: o valor de cada negócio vezes a probabilidade de ganho que você definiu para a etapa dele. Isso é aritmética sobre os seus próprios números. Não há um modelo que aprenda com negócios passados nem preveja datas de fechamento.
+</FaqItem>
+
+<FaqItem question="Consigo ver o pipeline de cada vendedor?">
+Sim. Agrupe o quadro de negócios por **Atribuído a** e cada pessoa ganha uma coluna com os seus negócios, a contagem, o valor total e o valor ponderado.
+</FaqItem>
+
+<FaqItem question="Um CRM de vendas é difícil de configurar?">
+Não, se você mantiver a primeira versão pequena. Uma lista de negócios com um campo Etapa leva minutos em Modelo de dados, e na nuvem a configuração com IA pode montá-la para você. O trabalho de verdade é combinar os nomes das etapas e os cinco campos de acompanhamento e depois importar o que está hoje na sua planilha.
+</FaqItem>
+</Faq>
+
+Detalhes dos concorrentes verificados em 11 de novembro de 2026 em [preços do HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), [documentação de sequências do HubSpot](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), [preços do Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) e [preços do Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html).
