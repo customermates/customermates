@@ -1,0 +1,103 @@
+---
+title: "Conectar CLI e editores ao Customermates (chave de API)"
+description: "Conecte Claude Code, Codex, Cursor ou Gemini CLI ao Customermates com uma chave de API: uma seção por cliente, mais a alternativa para o Claude Desktop."
+---
+
+O Customermates é o CRM de código aberto pensado para a IA. Depois de conectado, o seu agente de programação lê e grava contatos, negócios e notas sem sair do terminal. Todos os clientes descritos aqui se autenticam do mesmo jeito: uma chave de API no cabeçalho `x-api-key` para `<BASE_URL>/api/v1/mcp`, em que `<BASE_URL>` é o endereço pelo qual você abre o Customermates, na nuvem ou na sua própria instância. Os trechos abaixo já trazem o endereço do site que exibe esta página; se você abre o Customermates em outro endereço, troque-o além de `YOUR_KEY`.
+
+> Vai usar o **app** do Claude ou do ChatGPT? Eles se conectam pelo [conector personalizado](/docs/connect-custom-connector) (OAuth, sem chave).
+
+## Crie uma chave de API [#create-an-api-key]
+
+No Customermates, abra [Chaves de API e conectores](app:settings/api-keys), clique em [Adicionar](app:settings/api-keys?focus=generate) e escolha **Chave de API padrão**. Dê a ela o nome do cliente (por exemplo `Claude Code`); sem uma data em **Expira em**, ela nunca expira. A chave de 64 caracteres aparece uma única vez, então copie-a na hora. **Conexões rápidas**, na mesma janela, faz isso por você: dá à chave o nome do cliente, define que ela expira em 365 dias e mostra o trecho de configuração com a chave já preenchida e a data de expiração logo abaixo.
+
+Criar uma chave exige **Criar** na linha **API e webhooks** da sua função, e a própria página exige **Acesso de leitura** **Todos** nessa linha; a função integrada **Administrador** tem as duas coisas. Uma chave herda as permissões do usuário que a criou; não há escopo por chave. Crie uma chave por cliente para poder revogar uma sem mexer nas outras; o registro de atividades anota o usuário a quem a chave pertence, não a chave em si. Chaves de API e MCP funcionam em todos os planos e em instâncias auto-hospedadas. Detalhes: [Chaves de API](/docs/api-keys).
+
+## Claude Code [#claude-code]
+
+O Claude Code adiciona servidores MCP pela própria CLI. Um único comando faz a configuração. Execute-o em qualquer terminal, trocando `YOUR_KEY`:
+
+<McpInstallSnippet tool="claudeCode" />
+
+Não é preciso reiniciar nem editar nenhum arquivo de configuração. O Claude Code se conecta automaticamente. Execute `claude mcp list` para confirmar que `customermates` aparece.
+
+**Escopo:** por padrão, o comando usa o escopo local. Adicione `--scope user` para deixar o Customermates disponível em todo o seu computador, ou `--scope project` para gravá-lo no `.mcp.json` de um repositório e a sua equipe receber a configuração.
+
+## Codex [#codex]
+
+O Codex se conecta diretamente ao Customermates por Streamable HTTP. `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` adiciona a URL do servidor, mas o comando da CLI não tem opção para um cabeçalho `x-api-key` personalizado. Para acessar com chave de API, abra `~/.codex/config.toml` (crie o arquivo se ele não existir) e adicione o bloco completo abaixo, trocando `YOUR_KEY`:
+
+<McpInstallSnippet tool="codex" />
+
+Para pegar a chave do seu ambiente em vez de guardá-la no arquivo, troque a linha `http_headers` do bloco acima por:
+
+```toml
+env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
+```
+
+Depois, exporte `CUSTOMERMATES_API_KEY` no perfil do seu shell. As novas sessões reconhecem o servidor, então encerre a atual e comece uma nova.
+
+O mesmo endpoint HTTP também aceita OAuth. Se você prefere entrar com login, adicione a URL com `codex mcp add customermates --url <BASE_URL>/api/v1/mcp` e depois execute `codex mcp login customermates`. A ponte stdio descrita mais abaixo é para clientes do Claude Desktop que precisam dela.
+
+## Cursor [#cursor]
+
+Para configurar o Cursor, abra **Settings → Tools & MCP → Add new MCP server** e cole isto, trocando `YOUR_KEY`:
+
+<McpInstallSnippet tool="cursor" />
+
+O Cursor recarrega a configuração automaticamente, então não é preciso reiniciar. As ferramentas aparecem no Composer na hora. Para editar o arquivo diretamente, o mesmo bloco vai em `~/.cursor/mcp.json` (global) ou em `<project>/.cursor/mcp.json` (por projeto), dentro de `mcpServers`.
+
+## Gemini CLI [#gemini-cli]
+
+O Gemini CLI carrega os servidores MCP de `~/.gemini/settings.json`. Mescle isto ao seu arquivo, trocando `YOUR_KEY`:
+
+<McpInstallSnippet tool="gemini" />
+
+Se `mcpServers` já tiver entradas, adicione `customermates` ao lado das existentes em vez de sobrescrever o objeto.
+
+## Claude Desktop (arquivo de configuração) [#claude-desktop-config-file]
+
+O caminho recomendado para o Claude Desktop é o [caminho do conector](/docs/connect-custom-connector#claude): OAuth, sem chave, sincronizado entre os seus dispositivos. Em um plano gratuito, ou se você prefere uma chave estática, o arquivo de configuração abaixo também funciona.
+
+Abra **Claude → Settings → Developer → Edit Config**, ou o arquivo diretamente:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Mescle isto ao seu arquivo, trocando `YOUR_KEY`:
+
+<McpInstallSnippet tool="claudeDesktop" />
+
+O `mcp-remote` é um adaptador que permite ao Claude Desktop conversar com um servidor MCP HTTP remoto por stdio. Ele é baixado na primeira execução pelo `npx`, então você precisa do Node 18+ no `PATH`.
+
+Depois, reinicie: feche por completo (⌘Q no macOS, fechar a janela não basta) e abra de novo. O Customermates aparece no painel de ferramentas com as ferramentas do CRM listadas.
+
+## Teste o seu primeiro prompt [#try-your-first-prompt]
+
+O servidor fornece instruções de conexão que descrevem o conjunto de ferramentas, as regras de segurança e como buscar as páginas relevantes da Base de conhecimento. Cada cliente decide se repassa essas instruções ao agente. Se o seu não repassa, adicione a regra de busca da Base de conhecimento às instruções permanentes desse cliente. Nos clientes que aceitam prompts de MCP (como o Claude Code), você pode executar o prompt integrado `get-started` para um começo guiado: ele lê primeiro o seu espaço de trabalho e as páginas relevantes da Base de conhecimento e só então pergunta o que ainda falta.
+
+- _"Defina o campo Status do negócio da Acme como 'Ganho' e adicione uma nota dizendo que o contrato foi assinado hoje."_
+- _"Mostre os últimos dez contatos que eu criei. Algum está sem endereço de e-mail?"_
+- _"Crie um contato para Jane Doe na Initech, vincule-o à organização Initech e abra um negócio para 12 horas de consultoria."_
+- _"Quais conversas com clientes estão esperando a minha resposta? Redija uma resposta para a mais antiga e salve como rascunho."_
+
+O prompt de resposta precisa de um canal conectado no Customermates Cloud a partir do Pro; o rascunho fica na conversa até você revisar e enviar.
+
+Cada espaço de trabalho define os próprios tipos de registro, como contatos, negócios ou tarefas, e atributos como a etapa de um negócio ou a prioridade de uma tarefa também dependem da configuração do espaço de trabalho. Chame `discover_record_types` e depois `get_record_model` para obter os IDs de tipo relevantes antes de gravar.
+
+## Solução de problemas [#troubleshooting]
+
+| Cliente | Sintoma | Causa | Solução |
+| --- | --- | --- | --- |
+| Claude Desktop | `npx: command not found` | Não há Node no `PATH` | Instale o Node 18+ em [nodejs.org](https://nodejs.org/en) |
+| Claude Desktop | O painel de ferramentas fica vazio depois de editar a configuração | O Claude Desktop não recarrega automaticamente as configurações de MCP | Feche por completo (⌘Q) e abra de novo |
+| Codex | Erro de análise de TOML | Os valores de tabelas inline usam `=`, não `:` | Confira a linha `env_http_headers = { ... }` |
+| Todos | O cliente não consegue se conectar ou não lista nenhuma ferramenta; o servidor responde HTTP `401` | A chave está errada ou truncada, ou uma chave que funcionava expirou (as chaves de **Conexões rápidas** expiram em 365 dias) ou foi excluída. O servidor confere o cabeçalho `x-api-key` em cada requisição e responde `401` com um cabeçalho `WWW-Authenticate` antes de listar qualquer ferramenta, inclusive as consultas à documentação | Crie uma chave nova em [Chaves de API e conectores](app:settings/api-keys), cole os 64 caracteres completos e atualize o cliente |
+| Todos | Uma conexão que funcionava agora falha com "Sua conta de usuário está inativa. Entre em contato com um administrador do espaço de trabalho." | O dono da chave foi definido como **Inativo** | Um membro com **Editar** em **Usuários e funções** volta o usuário para **Ativo** em [Membros](app:settings/members), e a chave existente volta a funcionar |
+| Todos | A atualização de uma relação é rejeitada | Falta um ID de relação ou de extremidade, ou ele está inacessível | Peça ao agente para ler `get_record_model` e depois usar `mutate_crm_record` com `link` ou `unlink` e referências de registro estáveis |
+
+## Próximos passos [#next]
+
+- [Conector personalizado](/docs/connect-custom-connector): o caminho OAuth para os apps do Claude e do ChatGPT.
+- [Catálogo de ferramentas MCP](/docs/mcp#tool-catalog): todas as ferramentas que o agente pode chamar.
+- [Webhooks](/docs/webhooks): inscreva outros sistemas nas mudanças do CRM.

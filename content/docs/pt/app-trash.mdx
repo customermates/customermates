@@ -1,0 +1,47 @@
+---
+title: "Lixeira: desfazer exclusões e restaurar itens excluídos"
+description: "Registros, listas, campos, visualizações, widgets, rotinas e páginas excluídos ficam 30 dias na Lixeira, onde você os restaura ou os exclui permanentemente."
+---
+
+No Customermates, excluir move o item para a [Lixeira](app:trash) em vez de removê-lo na hora. Logo depois de uma exclusão, aparece por alguns segundos uma mensagem com **Desfazer**; **Desfazer** traz o item de volta imediatamente. Uma exclusão grande roda em segundo plano: a mensagem mostra **Movendo para a lixeira…** e oferece **Desfazer** quando termina. Depois disso, o item fica 30 dias na Lixeira e então é excluído permanentemente por conta própria.
+
+## O que vai para a Lixeira? [#what-goes-to-trash]
+
+- Registros de qualquer lista, por exemplo um contato ou um negócio. As linhas de uma sublista e os vínculos do registro vão junto com ele e voltam com ele.
+- Listas, campos, relacionamentos e campos de Dados de contato excluídos em [Modelo de dados](app:configure).
+- Visualizações salvas, visualizações do painel e widgets do painel.
+- Rotinas e páginas da [Base de conhecimento](app:wiki).
+
+Membros, convites, funções, chaves de API, webhooks e contas conectadas não vão para a Lixeira: excluí-los muda o acesso, então a exclusão vale na hora.
+
+Enquanto um item está na Lixeira, ele some de todo o resto: listas, pesquisa, totais e cálculos, widgets, filtros, exportações, Mate, a API e o MCP deixam de enxergá-lo, e rotinas e webhooks não disparam para ele.
+
+## Quem vê o quê na Lixeira? [#who-sees-what]
+
+Todos encontram **Lixeira** na barra lateral. Você vê os itens que poderia ver e excluir: registros e configurações que você pode excluir, páginas da Base de conhecimento se a sua função puder excluí-las, rotinas se você tiver a função **Administrador**, e as suas próprias visualizações salvas e widgets, que continuam pessoais também na Lixeira. Cada linha mostra o item, o tipo, quem o excluiu, quando e quantos dias faltam para a exclusão permanente. Em [Filtros](app:trash?focus=filter), você pesquisa itens e os restringe por tipo ou lista.
+
+## Como restauro um item excluído? [#how-do-i-restore]
+
+Abra a [Lixeira](app:trash), passe o cursor sobre a linha e clique em **Restaurar**, ou selecione várias linhas e clique em **Restaurar** na barra de seleção. Restaurar exige o mesmo acesso que excluir exigiu. Um registro restaurado volta com seus valores, vínculos e linhas de sublistas. Um vínculo com um registro que, nesse meio-tempo, foi excluído permanentemente não pode voltar; a mensagem exibida depois da restauração informa quantos vínculos foram descartados. Uma restauração grande roda em segundo plano: o registro mostra **Restaurando…** até terminar. Um registro cuja lista também está na Lixeira só pode ser restaurado depois da lista, e uma rotina continua na Lixeira enquanto o proprietário dela já tiver todas as rotinas que o plano inclui.
+
+Se outra alteração no espaço de trabalho estiver segurando o bloqueio de gravação, a restauração devolve uma resposta de ocupado depois de cerca de cinco segundos, sem alterar o item da Lixeira. Tente de novo quando essa alteração terminar.
+
+Excluir um campo em [Modelo de dados](app:configure) remove os filtros, as colunas, as ordenações e os agrupamentos das visualizações salvas que o usam. A prévia da exclusão e o resultado citam as visualizações e os widgets afetados. Restaurar o campo não recria essas configurações. Se você restaurar uma visualização salva depois que o campo dela foi excluído, `droppedViewReferences` informa o que foi removido; a mensagem da Lixeira mostra as contagens. Recrie as configurações depois de restaurar o campo.
+
+Um campo calculado restaurado volta a receber seus valores a partir dos valores e dos vínculos atuais de cada registro, inclusive as mudanças feitas enquanto ele estava na Lixeira; um campo que salva o valor em um momento específico, como quando o registro é criado, mantém os valores que tinha salvo antes. Um campo calculado continua na Lixeira enquanto um campo, relacionamento ou lista que ele lê ainda estiver na Lixeira, e o mesmo vale para um item que não se encaixa mais na configuração ou nos dados atuais, por exemplo um campo obrigatório que os registros criados nesse meio-tempo deixam vazio. Selecione um campo calculado junto com o que ele lê e restaure tudo em uma só etapa, em qualquer ordem. Quando a restauração recalcula muitos registros, ela roda em segundo plano, e registros, visualizações ou outros itens selecionados junto com ela continuam na Lixeira até ela terminar; restaure-os de novo depois.
+
+Ao abrir um registro excluído pela Lixeira, ele aparece somente para leitura, com o aviso **Na lixeira** e um botão **Restaurar**; as **Atividades** dele também podem ser lidas ali, mas não alteradas. Por REST, `POST /api/v1/trash/query` lista os itens da Lixeira e `POST /api/v1/trash/read` devolve a mesma visão somente leitura de um registro excluído; por MCP, `read_trash` os lista e, com `action: "read"` e o `typeId` e o `recordId` do registro, abre um deles do mesmo jeito.
+
+## O que acontece quando abro um link para uma lista ou visualização excluída? [#links-to-deleted-items]
+
+Um link para uma lista que está na Lixeira, por exemplo um favorito de uma lista de Projetos excluída, mostra o nome da lista com **Na lixeira**, a data da exclusão e quantos dias faltam. Se você puder ver a lista na [Lixeira](app:trash), **Restaurar** aparece ali e traz a lista de volta, e a página passa a exibi-la. Sem esse acesso, e para uma lista que não existe ou que foi excluída permanentemente, o link mostra a tela de página não encontrada. Um link para uma visualização salva que não existe mais ou que não é sua abre a visualização padrão da lista e tira a visualização do endereço.
+
+## Como excluo algo permanentemente? [#how-do-i-delete-permanently]
+
+Na [Lixeira](app:trash), passe o cursor sobre a linha e clique em **Excluir permanentemente**, ou selecione várias linhas e clique em **Excluir permanentemente** na barra de seleção. A confirmação lista exatamente o que desaparece, como o número de registros por lista e os vínculos. A exclusão permanente não pode ser desfeita. Ela também apaga do histórico os valores dos campos do registro; o histórico guarda apenas quem o alterou e quando.
+
+Membros com a função **Administrador** podem remover de uma vez tudo o que veem na Lixeira com **Esvaziar lixeira**, no menu **Mais ações** da [Lixeira](app:trash), exibido somente enquanto a Lixeira tiver itens. Para confirmar, digite **esvaziar lixeira**.
+
+## Quanto tempo os itens ficam na Lixeira? [#how-long]
+
+30 dias a partir da exclusão. Cada linha mostra quantos dias faltam; no último dia o item é excluído permanentemente, sem novo aviso, com o mesmo efeito no histórico que teria uma exclusão permanente feita por você. Uma instância auto-hospedada só faz isso quando a [tarefa agendada](/docs/self-hosting#scheduled-jobs) diária dela é executada.

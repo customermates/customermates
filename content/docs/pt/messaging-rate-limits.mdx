@@ -1,0 +1,68 @@
+---
+title: Limites de taxa de mensagens e canais conectados
+description: "Por que os canais conectados têm limites de taxa, quais são os limites de leitura e de envio de cada provedor e o que acontece quando você atinge um deles."
+---
+
+Os canais conectados (LinkedIn, WhatsApp, e-mail e outros) conversam com o provedor por meio do Unipile. Cada provedor aplica os próprios limites de requisições, e ultrapassá-los pode fazer a conta ser limitada ou suspensa. Por isso o Customermates aplica a cada canal um orçamento de requisições conservador e pausa antes que o provedor reaja. Uma sincronização em pausa é esperada: ela mantém a conta dentro dos limites do provedor e retoma sozinha.
+
+## Como os limites funcionam? [#how-do-the-limits-work]
+
+Os limites são configurados no painel do Unipile e aplicados pelo Unipile. Eles valem **por conta conectada** e em três níveis ao mesmo tempo:
+
+- **Por endpoint:** um teto para cada operação individual (listar chats, ler mensagens) em um minuto e em um dia corridos. São os limites de leitura abaixo.
+- **Por método sensível:** um teto mais rígido para as operações de maior risco (consultar perfis, enviar uma mensagem ou um pedido de conexão). São os limites sensíveis abaixo.
+- **Por conta:** um teto geral para todas as chamadas da conta.
+
+Quando uma janela enche, as chamadas seguintes são rejeitadas até que ela seja renovada.
+
+## Quais são os limites de leitura de cada provedor? [#what-are-the-read-limits-per-provider]
+
+As leituras sincronizam o histórico. Elas são definidas acima das gravações porque ler raramente provoca um bloqueio do provedor.
+
+| Provedor | Leituras / minuto | Leituras / dia |
+| --- | --- | --- |
+| LinkedIn | 20 | 300 |
+| WhatsApp | 30 | 510 |
+| Instagram | 50 | 510 |
+| Telegram | 50 | nenhum |
+| Gmail / Google | 100 | nenhum |
+| Outlook | 100 | nenhum |
+| IMAP | 100 | nenhum |
+
+O LinkedIn continua sendo o mais conservador porque a detecção de atividade automatizada dele é a mais rígida. Alguns valores seguem os tetos do próprio provedor: os canais sociais limitam a leitura por minuto a 50, os canais de e-mail a 100, e o limite diário sobe em degraus de 30 (por isso uma meta de 500 é aplicada como 510). O Telegram e os provedores de e-mail não têm um limite diário de leitura separado.
+
+## Quais são os limites de envio e de consulta de perfis? [#what-are-the-limits-for-sending-and-profile-lookups]
+
+A consulta de perfis (que os provedores tratam como sensível a scraping) e toda ação de envio continuam conservadoras, independentemente do orçamento de leitura.
+
+| Provedor | Ação | Limite |
+| --- | --- | --- |
+| LinkedIn | Obter o perfil de uma empresa | 1 / segundo |
+| LinkedIn | Obter o perfil de um usuário | 1 / segundo |
+| LinkedIn | Enviar um pedido de conexão | 50 / dia, 1 / 10 segundos |
+| WhatsApp | Iniciar um chat | 3 / minuto, 30 / dia |
+| Telegram | Iniciar um chat | 3 / minuto, 30 / dia |
+| Instagram | Iniciar um chat | 3 / minuto, 30 / dia |
+| Gmail / Google | Enviar um e-mail | 300 / dia |
+| Outlook | Enviar um e-mail | 300 / dia |
+| IMAP | Enviar um e-mail | 300 / dia |
+
+As operações que não têm linha aqui, como enviar uma mensagem do LinkedIn ou um InMail e as buscas no LinkedIn Sales Navigator, continuam sujeitas aos tetos por endpoint e por conta e retornam a mesma mensagem de limite de taxa quando uma janela enche.
+
+## O que acontece quando um limite é atingido? [#what-happens-when-a-limit-is-reached]
+
+As chamadas seguintes dessa conta são rejeitadas até que a janela seja renovada, e a ação informa quanto tempo esperar. Ao enviar uma mensagem ou iniciar uma conversa, aparece:
+
+> Este canal atingiu o limite por enquanto. Você pode tentar novamente em 2 minutos. Saiba mais em `https://customermates.com/docs/messaging-rate-limits`.
+
+Outras ações usam outro texto:
+
+- **Ressincronizar conversa**, o carregamento de mensagens mais antigas no alto de uma conversa e as mídias de uma mensagem: "Este canal atingiu o limite de requisições. Você pode tentar novamente em 2 minutos." com **Saiba mais**.
+- **Atualizar** na [Caixa de entrada](app:inbox): "Alguns canais atingiram o limite de requisições. Tente novamente em alguns minutos."
+- Mover um e-mail para outra pasta: "O arquivamento em `{folder}` foi interrompido porque o provedor está limitando as requisições." com o tempo de espera para o restante.
+
+O tempo de espera vem do valor `Retry-After` da resposta de limite de taxa que o Unipile devolve; sem ele, a mensagem diz "mais tarde" em vez de um tempo de espera. O Customermates não repete a ação por você: tente de novo depois que a janela passar. Nada se perde nesse meio-tempo. Pela API REST e pelo MCP, a chamada falha com a mesma mensagem: a API REST responde com o status HTTP 429 e um cabeçalho `Retry-After` de 30 segundos, e o MCP devolve uma falha do tipo `rate_limit` cujo problema em `_meta.failure` tem `customCode: "unipileRateLimit"`.
+
+## A importação do histórico é retomada sozinha? [#does-the-history-import-resume-by-itself]
+
+Sim. Importar o histórico completo de mensagens pode exigir aproximadamente uma requisição por conversa. Se um limite for atingido no meio da importação, o importador em segundo plano **pausa e retoma automaticamente** quando a janela se libera; uma espera maior que dez minutos adia a importação para uma varredura posterior. Com **Editar** em **Mensagens da caixa de entrada**, rolar até o início de uma conversa ou clicar em **Ressincronizar conversa** busca no provedor as mensagens mais antigas, e as duas ações contam para os mesmos limites. A atividade nova chega em tempo real por webhooks.
