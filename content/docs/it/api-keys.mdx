@@ -105,7 +105,7 @@ Su Customermates Cloud, uno spazio di lavoro che attende ancora il primo piano, 
 
 ### Sul piano Free c’è un limite di richieste? [#is-there-a-request-limit-on-the-free-plan]
 
-Sì. Sul piano Free le richieste REST e MCP insieme sono limitate a [[commercial.limit.free.apiRequestsPerMinute]] al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno per spazio di lavoro. Oltre il limite una richiesta riceve HTTP `429` con un’intestazione `Retry-After`: REST risponde con `kind` `rate_limit` e `customCode` `apiRateLimitReached`, MCP con `error: rate_limited`. Il messaggio di errore nomina Starter, il piano che elimina il limite. I piani a pagamento e le installazioni self-hosted non hanno limiti di richieste.
+Sì. Sul piano Free le richieste REST e MCP insieme sono limitate a [[commercial.limit.free.apiRequestsPerMinute]] al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno per spazio di lavoro. Oltre il limite una richiesta riceve HTTP `429` con un’intestazione `Retry-After`: REST risponde con `kind` `rate_limit` e `customCode` `apiRateLimitReached`, le chiamate di strumenti MCP con un errore dello strumento che contiene `error: rate_limited` (le altre richieste MCP con `429`). Contano solo le chiamate di strumenti MCP, non la connessione né l’elenco degli strumenti. Il messaggio indica che lo spazio di lavoro è sul piano Free e nomina Starter, il suo prezzo e il link alla fatturazione, così un agente può riferirlo all’utente. I piani a pagamento e le installazioni self-hosted non hanno limiti di richieste.
 
 ## Passi successivi [#next]
 
