@@ -1,0 +1,107 @@
+---
+title: "Baza klientów w Excelu: darmowy szablon CSV do pobrania"
+description: "Baza klientów w Excelu: pobierz pusty szablon CSV i wypełniony przykład. Ustaw import do Excela, zachowaj potrzebne pola i przypisz follow-up do osoby."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/google-sheets-crm
+  - /features/contact-management
+  - /blog/digital-rolodex
+
+hero:
+  title: "Baza klientów w Excelu: pusty szablon CSV i wypełniony przykład"
+  description: "Baza klientów w Excelu: pobierz pusty szablon CSV i wypełniony przykład. Ustaw import do Excela, zachowaj potrzebne pola i przypisz follow-up do osoby."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-11-06
+  updated: 2026-11-06
+  tags:
+    - Zarządzanie kontaktami
+    - Szablony
+---
+
+# Baza klientów w Excelu: pusty szablon CSV i wypełniony przykład
+
+Baza klientów w Excelu daje małemu zespołowi jedno miejsce na nazwiska, firmowe dane kontaktowe i następny uzgodniony krok. Pobierz pusty plik CSV albo fikcyjny przykład poniżej, zaimportuj go do arkusza i przejdź na Customermates, gdy utrzymywanie relacji i follow-upów wymaga czegoś więcej niż wspólnego pliku.
+
+## Który szablon listy kontaktów pobrać?
+
+- [Pusta lista kontaktów w CSV](/downloads/contact-list-template-pl-blank.csv): same nagłówki, gotowe na twoje własne rekordy.
+- [Wypełniona lista kontaktów w CSV](/downloads/contact-list-template-pl-example.csv): dwa fikcyjne kontakty biznesowe pokazujące właściciela i następne kroki.
+
+To oryginalne, darmowe pliki do pobrania, bez rejestracji. Oba używają UTF-8 ze znacznikiem kolejności bajtów i przecinków jako separatorów. To zwykłe dane, a nie sformatowane skoroszyty Excela: bez formuł, list rozwijanych, przypomnień ani automatycznej synchronizacji. To firmowa lista kontaktów, a nie książka alarmowa ani książka adresowa do wydruku. Szerszą strukturę skoroszytu z szansami sprzedaży opisuje [poradnik o szablonie CRM w Excelu](/blog/excel-crm-template).
+
+Jeśli lista wyrośnie z arkusza, nasz poradnik o wyborze [cyfrowego wizytownika](/blog/digital-rolodex) porównuje kontakty w telefonie, szablony i CRM-y.
+
+## Jakie pola należą do bazy danych klientów w Excelu?
+
+Trzymaj jedną osobę w wierszu. Dwie osoby z tej samej firmy potrzebują osobnych ID kontaktu; nie wpisuj obu adresów e-mail do jednej komórki.
+
+| Pole | Jak z niego korzystać |
+| --- | --- |
+| ID kontaktu | Stały identyfikator, na przykład C001; zostaw go, gdy zmienia się nazwisko. |
+| Imię i nazwisko, Firma | Identyfikują osobę i jej kontekst biznesowy. |
+| E-mail, Telefon | Zachowaj tylko potrzebne kanały; puste pola są dozwolone. |
+| Właściciel | Jedna osoba z zespołu odpowiedzialna za następny krok. |
+| Relacja | Mały wspólny słownik, na przykład Potencjalny klient albo Klient. |
+| Ostatni kontakt | Rzeczywista data ostatniej rozmowy, a nie data edycji pliku. |
+| Następny krok, Data następnego kroku | Uzgodnione działanie i prawdziwy termin; puste, jeśli żadnego nie ma. |
+| Źródło | Skąd pochodzą dane; to nie jest dowód zgody marketingowej. |
+| Data przeglądu | Data wybrana przez ciebie, by sprawdzić poprawność i dalszą potrzebę, a nie automatyczny termin usunięcia. |
+
+Przykład celowo zostawia numery telefonów puste. Dodawaj adres, urodziny lub wrażliwe notatki tylko wtedy, gdy praca naprawdę ich wymaga. Nie zamieniaj przydatnego katalogu w zbiór wszystkiego, co uda ci się znaleźć.
+
+## Jak zaimportować CSV do Excela lub Arkuszy Google?
+
+W Excelu użyj Dane > Z tekstu/CSV zamiast polegać na dwukrotnym kliknięciu. Wybierz UTF-8 i przecinek jako ogranicznik, a potem sprawdź podgląd. Przed wczytaniem ustaw ID kontaktu, E-mail i Telefon jako tekst; automatyczna konwersja może uszkodzić początkowe zera i numery międzynarodowe. Daty mają format RRRR-MM-DD: sprawdź, jak są interpretowane, zanim użyjesz filtrów dat. Microsoft opisuje dostępne sposoby w swoim [przewodniku po imporcie plików tekstowych i CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files).
+
+W Arkuszach Google zaimportuj plik do nowego arkusza i sprawdź opcje separatora oraz konwersji. Upewnij się, że nagłówki zajmują osobne kolumny, a nazwiska ze znakami diakrytycznymi zostały zachowane. Jeśli wszystko ląduje w jednej kolumnie, wybierz przecinek jawnie. Po dodaniu filtrów lub formatowania zapisz skoroszyt Excela albo zachowaj natywny arkusz Google; CSV nie zachowuje prezentacji skoroszytu. Każdy późniejszy eksport CSV sprawdź ponownie, bo ustawienia regionalne mogą zmienić separatory.
+
+Usuń fikcyjne wiersze przykładu, zanim dodasz prawdziwe osoby. Najpierw przetestuj na dwóch rekordach i porównaj każdą kolumnę z oryginalnym plikiem. Nigdy nie włączaj formuł z nieznanych zaimportowanych wartości.
+
+## Jak dwie osoby mogą zamienić listę w follow-upy?
+
+Oto fikcyjny zespół usługowy w dniu 6 listopada 2026. Sam odpowiada za prośbę o brief od kontaktu Alex; Jo odpowiada za pytanie o dostawę od kontaktu Robin. Przykład zapisuje te rzeczywiste daty scenariusza, zamiast rozkładać zadania równomiernie na cały tydzień.
+
+1. Na początku dnia przefiltruj Data następnego kroku na dziś i wcześniej. Sam znajduje C001, sprawdza prośbę i wysyła brief po jego przejrzeniu.
+2. Sam ustawia Ostatni kontakt na 2026-11-06. Jeśli Alex nie uzgodnił kolejnego kroku, Sam czyści stare działanie i datę zamiast wymyślać termin. Osobno wybrany follow-up musi mieć wyraźny powód.
+3. Jo zostawia C002 z terminem 2026-11-09, bo to uzgodniona kontrola dostawy w tym przykładzie. Przyszła data nie jest dowodem, że praca jest ukończona.
+4. Przed przekazaniem każda osoba sprawdza otwarte działania bez Właściciela lub daty. Zduplikowane adresy e-mail przejrzyj ręcznie przed scaleniem; wspólna skrzynka może reprezentować różne osoby.
+
+Trzymaj jeden plik główny z dostępem ograniczonym do zespołu, który go potrzebuje. Wiele kopii rozesłanych e-mailem utrudnia ustalenie, który następny krok jest aktualny. Kolumna z datą nikogo nie powiadamia: zespół musi wykonać tę kontrolę. [Przegląd funkcji zarządzania kontaktami](/features/contact-management) opisuje alternatywę w postaci CRM, gdy katalog zamienia się w pracę nad relacjami.
+
+## Jak utrzymać listę proporcjonalną i prywatną?
+
+Dla przetwarzania objętego RODO Komisja Europejska opisuje ograniczenie celu, minimalizację danych, prawidłowość i ograniczenie przechowywania w swoich [zasadach ochrony danych](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Wybierz cel i odpowiednią podstawę prawną, zanim użyjesz prawdziwych danych osobowych. Pobrany szablon nie daje ani zgody, ani pozwolenia na wysyłanie marketingu.
+
+Używaj danych biznesowych potrzebnych do tego celu, ograniczaj udostępnianie, przeglądaj nieaktualne wpisy i usuwaj zbędne dane z uwzględnieniem obowiązujących obowiązków przechowywania. Unikaj prywatnych komentarzy i wrażliwych danych osobowych w komórkach z wolnym tekstem. Data przeglądu to bodziec do własnej decyzji, a nie uniwersalny prawny okres przechowywania. Nie publikuj wypełnionego pliku przez link udostępniania bez ograniczeń.
+
+## Kiedy przenieść listę do Customermates?
+
+Zostaw arkusz, jeśli osoba może go rzetelnie utrzymywać, a codzienny przegląd działa. Rozważ CRM, gdy zmienia się odpowiedzialność, a historie kontaktów albo powiązane firmy trudno utrzymać. Customermates przyjmuje importy CSV, XLSX, XLS i JSON przez przepływ importu listy rekordów. Użyj [dokumentacji importu rekordów](/docs/app-records), żeby sprawdzić mapowanie i podgląd, zanim zaimportujesz cały plik.
+
+Utwórz lub wybierz listę docelową i mapuj kolumny świadomie. Nazwiska właścicieli i nazwy firm w tym CSV to tekst, a nie automatycznie powiązani współpracownicy ani organizacje. Pola daty następnego kroku i wyboru relacji skonfiguruj samodzielnie; to zwykłe pola, a nie wbudowane terminy zadań ani statusy. Przetestuj dwa wiersze i sprawdź zapisane rekordy, zanim pójdziesz dalej. Import pliku to nie jest żywa synchronizacja z arkuszem.
+
+Przeprowadzka dodaje rozmowę. Data następnego kroku leży na rekordzie klienta obok wątku (w planie Pro: LinkedIn i e-mail), twój pulpit pokazuje, co jest do zrobienia, a Mate może przygotować odpowiedź do sprawdzenia i wysłania. Nic cię nie powiadamia; to ty otwierasz pulpit. Żeby wypróbować to na własnych kontaktach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+
+## Częste pytania
+
+<Faq>
+<FaqItem question="Czy mogę za darmo pobrać ten szablon listy kontaktów do Excela?">
+Tak. Oba pliki CSV są bezpłatne i nie wymagają rejestracji. Zaimportuj je do Excela i dodaj własne formatowanie; nie ma w nich skoroszytu XLSX ani formuł.
+</FaqItem>
+<FaqItem question="Czy mogę to wydrukować albo użyć w Wordzie?">
+Do druku najpierw zaimportuj plik do arkusza, wybierz tylko potrzebne kolumny i ustaw obszar wydruku. Pobrany plik nie jest dokumentem Word, plikiem PDF ani gotowym do druku arkuszem.
+</FaqItem>
+<FaqItem question="Czy data następnego kroku wysyła przypomnienia?">
+Nie. To wartość do filtrowania podczas codziennego przeglądu. Żaden z plików CSV nie wysyła wiadomości ani nie tworzy przypomnień.
+</FaqItem>
+<FaqItem question="Czy przechowywanie adresu e-mail pozwala na marketing?">
+Nie. Źródło zapisuje, skąd pochodzi dana, a nie zgodę na marketing. Obowiązujące przepisy i podstawę kontaktu z osobą sprawdź osobno.
+</FaqItem>
+</Faq>
+
+Zewnętrzne wskazówki sprawdzono 6 listopada 2026. Przykład jest fikcyjny; nie zawiera danych klientów.

@@ -1,0 +1,251 @@
+---
+title: "Alternatywa dla Notion CRM: open source z jedną skrzynką"
+description: "Alternatywa dla Notion CRM: kiedy wystarczy baza Notion, co daje dedykowany CRM, ile płaci pięć osób i jak przenieść dane. Sprawdzone 8 października 2026."
+competitorName: Notion
+
+relatedHrefs:
+  - /compare/attio-alternative
+  - /blog/customizable-crm
+  - /features/pipeline
+  - /features/unified-inbox
+
+sections:
+  reasons:
+    - title: "Pipeline to pole, a nie projekt z formułami"
+      description: "Etapy nie są gotowe: do listy szans sprzedaży dodajesz pole pojedynczego wyboru „Etap” i ustawiasz prawdopodobieństwo dla każdej opcji w sekcji „Model danych”."
+    - title: "Rozmowy trafiają na rekord"
+      description: "Zamiast wklejać wiadomości do bazy danych, od planu Pro podłączasz skrzynkę e-mail, LinkedIn lub WhatsApp, a każdy wątek pojawia się przy kliencie. Odpowiadasz na oryginalnym kanale."
+    - title: "Szkice odpowiedzi, aktualne rekordy"
+      description: "W Customermates Cloud Mate podsumowuje wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje widoki, korzystając z hostowanych kredytów AI z miesięcznym limitem na aktywnego użytkownika (zobacz cennik)."
+  switchSteps: true
+
+hero:
+  title: "Alternatywa dla Notion CRM: przenieś pipeline z Notion"
+  description: "CRM zbudowany w Notion zostaje w tyle, gdy rozmowy z klientami toczą się poza nim. Customermates od planu Pro pokazuje wątki e-mail, LinkedIn i WhatsApp przy rekordzie klienta, a Mate przygotowuje szkic odpowiedzi. Dane o Notion sprawdzone 8 października 2026."
+  buttonLeftText: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+  buttonLeftHref: /auth/signup
+  buttonRightText: Zobacz demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+comparison:
+  competitorName: Notion
+  title: "Customermates vs. Notion jako CRM"
+  sections:
+  - title: Ceny i plany
+    features:
+      - name: Cena za użytkownika / miesiąc, rozliczenie miesięczne
+        source: "Starter [[commercial.price.starter.monthly]], Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]]"
+        competitor: "Free 0 USD, Plus 12 USD (11,50 €), Business 24 USD (23,50 €), Enterprise wg wyceny"
+      - name: Rozliczenie roczne
+        source: Tylko rozliczenie miesięczne
+        competitor: "Plus 10 USD (9,50 €), Business 20 USD (19,50 €)"
+      - name: Plan darmowy
+        source: "[[commercial.limit.free.maxMembers]] osoba, [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej i Mate"
+        competitor: Tak; limit bloków, gdy przestrzeń robocza ma co najmniej 2 członków
+  - title: Model danych CRM
+    features:
+      - name: Gotowe rekordy CRM
+        source: Kontakty, organizacje, szanse sprzedaży, usługi, zadania
+        competitor: Bazy danych, które projektujesz sam; szablony CRM w galerii
+      - name: Etapy szans sprzedaży z prawdopodobieństwem
+        source: Pole Etap z prawdopodobieństwami od momentu rejestracji, wartość ważona dla każdej szansy sprzedaży
+        competitor: Budujesz z właściwością Status lub Wybór i formułą
+      - name: Typy pól
+        source: 16 typów pól oraz pola obliczane
+        competitor: Ponad 20 typów właściwości, w tym formuła, rollup i wielokrotny wybór
+      - name: Własne typy rekordów
+        source: Własne listy z polami i relacjami
+        competitor: Dowolna baza danych, którą utworzysz
+      - name: Pliki przy rekordach
+        source: Pola Plik, domyślnie do 20 plików na pole i 1 GB na plik (do skonfigurowania)
+        competitor: Właściwość Pliki; 5 MB na plik w planie Free
+  - title: Rozmowy
+    features:
+      - name: E-mail w CRM
+        source: Gmail, Outlook i IMAP w ujednoliconej skrzynce odbiorczej (Pro+)
+        competitor: Custom Agents z połączeniem Mail z Gmailem lub Outlookiem; automatyzacje mogą wysyłać z Gmaila
+      - name: LinkedIn, WhatsApp, Instagram, Telegram
+        source: W ujednoliconej skrzynce odbiorczej, powiązane z kontaktami (Pro+)
+        competitor: Nie wchodzą w skład połączenia Mail
+  - title: AI i automatyzacja
+    features:
+      - name: Asystent AI w aplikacji
+        source: Mate (Customermates Cloud, hostowane kredyty AI)
+        competitor: Notion Agent w planie Business; ograniczona wersja próbna w Free i Plus
+      - name: AI według harmonogramu lub zdarzeń
+        source: Rutyny według harmonogramu lub zdarzenia rekordu (Customermates Cloud)
+        competitor: "Custom Agents: bezpłatne wypróbowanie, potem 10 USD za 1 000 kredytów Notion"
+      - name: Automatyzacja oparta na regułach
+        source: Webhooki do n8n lub własnego kodu; brak kreatora reguł
+        competitor: Automatyzacje baz danych w planach płatnych; Free ma tylko podstawowe przyciski i automatyzacje powiadomień w Slacku
+      - name: Serwer MCP
+        source: "Każdy plan i self-hosting, [[derived.mcp.tools.total]] narzędzi"
+        competitor: Notion MCP, hostowany przez Notion
+      - name: REST API i webhooki
+        source: true
+        competitor: true
+  - title: Licencja, hosting i dostęp
+    features:
+      - name: Licencja open source
+        source: Rdzeń AGPL-3.0
+        competitor: false
+      - name: Self-hosting
+        source: Docker Compose (podstawowy CRM bez skrzynki odbiorczej i Mate)
+        competitor: false
+      - name: Gdzie przechowywane są dane
+        source: Baza danych w chmurze skonfigurowana w regionie AWS Frankfurt w każdym planie
+        competitor: Domyślnie USA; rezydencja danych w UE w planie Enterprise
+      - name: SAML SSO
+        source: false
+        competitor: Business i Enterprise
+      - name: Natywne aplikacje mobilne
+        source: Responsywna aplikacja webowa
+        competitor: Aplikacje desktopowe i mobilne
+
+cta:
+  action: Czy Twoje CRM w Notion zaczyna być trudne w utrzymaniu?
+  description: "Zacznij okres próbny, zaimportuj jedną bazę Notion zapisaną jako skoroszyt Excel i podłącz skrzynkę lub konto WhatsApp, na które piszą Twoi klienci. Szybko zobaczysz, czy Twój pipeline pasuje do modelu Customermates."
+  buttonLeftText: Zacznij [[commercial.trial.days]]-dniowy okres próbny
+  buttonLeftHref: /auth/signup
+  buttonRightText: Zobacz demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+> Alternatywa dla Notion CRM nie zawsze jest potrzebna: zostaw CRM w Notion, dopóki kilka osób prowadzi krótką listę klientów, a strony szans sprzedaży służą też jako notatki projektowe. Przenieś go do dedykowanego CRM, gdy rozmowy z klientami toczą się poza Notion, gdy chcesz mieć ważony pipeline bez utrzymywania formuł albo gdy aktualizacjami ma zajmować się asystent AI. Notion daje bazy danych, relacje, formuły i automatyzacje, a CRM projektujesz sam. Customermates daje konfigurowalne listy kontaktów, organizacji, szans sprzedaży z ważonym polem etapu lub czegokolwiek innego (nowa przestrzeń robocza startuje bez list), a od planu Pro pokazuje obok tych rekordów rozmowy z e-maila, LinkedIn, WhatsApp, Instagrama i Telegrama. Możesz dodawać też własne listy, ale elastycznością bliżej Notion są Attio i Twenty. Customermates publikuje to porównanie; każdy szczegół o Notion pochodzi z notion.com i został sprawdzony 8 października 2026.
+
+## Które narzędzie pasuje do którego zespołu
+
+| Twoja sytuacja | Lepszy wybór | Dlaczego |
+|---|---|---|
+| Krótka lista klientów, a szanse sprzedaży i notatki ze spotkań leżą na tych samych stronach co Twoje dokumenty | Notion Free lub Plus | Wystarczy baza danych z właściwością Status, a Notion już masz |
+| Potrzebujesz własnych typów rekordów, takich jak inwestorzy, nieruchomości czy kandydaci, z formułami i rollupami | Attio, Twenty, Airtable lub Customermates | Customermates startuje bez list; tworzysz własne (kontakty, szanse sprzedaży lub cokolwiek innego) z polami obliczanymi |
+| Klienci piszą e-mailem, na LinkedIn i WhatsApp, a Ty chcesz mieć te wątki przy kontakcie | Customermates Pro lub Business | Wszystkie te kanały trafiają do jednej skrzynki odbiorczej, powiązane z kontaktami |
+| Chcesz wartość szansy sprzedaży razy prawdopodobieństwo etapu bez budowania tego samodzielnie | Customermates, dowolny plan | Pole etapu z prawdopodobieństwami istnieje od momentu rejestracji |
+| Potrzebujesz hostingu w UE bez umowy Enterprise albo chcesz sam hostować CRM | Customermates | Baza danych w chmurze skonfigurowana w regionie AWS Frankfurt w każdym planie; rdzeń AGPL do self-hostingu, bez skrzynki odbiorczej i Mate |
+| Potrzebujesz SAML SSO lub natywnych aplikacji mobilnych | Notion Business | Notion ma jedno i drugie; Customermates nie ma SSO ani natywnej aplikacji |
+
+## Dla kogo Notion jako CRM jest dobrym wyborem
+
+Centrum pomocy Notion wymienia ponad 20 typów właściwości, między innymi Status, Relację, Rollup, Formułę, Wielokrotny wybór, Osobę i Pliki. Dzięki nim zamodelujesz kontakty, firmy i szanse sprzedaży, połączysz je i policzysz wartość ważoną formułą. Galeria szablonów ma kategorię CRM z szablonami bezpłatnymi i płatnymi, wiele z nich pochodzi od niezależnych twórców.
+
+W planach płatnych automatyzacje baz danych uruchamiają się po dodaniu strony lub zmianie właściwości albo według harmonogramu dziennego, tygodniowego lub miesięcznego. Mogą edytować właściwości, dodawać strony do innej bazy, powiadamiać członków, wysyłać e-mail z Twojego konta Gmail albo wywoływać webhook. Notion Agent, asystent w aplikacji, jest w cenie planu Business, a Notion MCP pozwala klientom takim jak Claude Code, Cursor czy Codex czytać i aktualizować Twoje strony. Jeśli CRM to niewielka część przestrzeni roboczej, w której Twój zespół i tak pisze, baza danych obok dokumentów jest rozsądnym wyborem.
+
+## Dlaczego zespoły szukają alternatywy dla Notion CRM
+
+**CRM utrzymujesz samodzielnie.** Każda właściwość, relacja, formuła i automatyzacja to coś, co zaprojektowała osoba z Twojego zespołu i co ktoś musi utrzymywać w działaniu. Gdy zmienia się proces sprzedaży, ktoś edytuje schemat i wszystko, co od niego zależy.
+
+**Rozmowy idą przez agentów i tylko dla poczty.** Do czytania i odpowiadania na e-maile Notion używa Custom Agents z połączeniem Mail, które działa z Gmailem lub Outlookiem i potrafi czytać, przygotowywać szkice i wysyłać. LinkedIn, WhatsApp, Instagram i Telegram do niego nie należą. Custom Agents można wypróbować bezpłatnie, potem kosztują 10 USD za 1 000 kredytów Notion.
+
+**Pełny asystent wymaga planu Business.** W planach Free i Plus Notion Agent jest ograniczoną wersją próbną.
+
+**Dane są w USA, chyba że masz Enterprise.** Notion domyślnie przechowuje dane w Stanach Zjednoczonych. Klienci Enterprise mogą poprosić o rezydencję danych w UE we Frankfurcie, z Irlandią jako kopią zapasową; Notion Calendar, Notion Mail i usługi w wersji beta nie są nią objęte. Notion sprzedaje wyłącznie plany hostowane.
+
+## Ile płaci miesięcznie pięć osób
+
+Ceny sprawdzone 8 października 2026 na [stronie z cennikiem Notion](https://www.notion.com/pricing), według jej cen w euro. W dolarach amerykańskich Plus kosztuje 12 USD, a Business 24 USD za członka przy rozliczeniu miesięcznym. Customermates rozlicza się miesięcznie, w euro.
+
+| Plan dla pięciu osób | Rozliczenie miesięczne | Rozliczenie roczne, miesięcznie |
+|---|---|---|
+| Notion Plus | 57,50 € | 47,50 € |
+| Notion Business | 117,50 € | 97,50 € |
+| Customermates Starter | [[commercial.price.starter.monthly.seats.5]] | Niedostępne |
+| Customermates Pro | [[commercial.price.pro.monthly.seats.5]] | Niedostępne |
+| Customermates Business | [[commercial.price.business.monthly.seats.5]] | Niedostępne |
+
+Wiersze nie kupują tych samych rzeczy:
+
+- **Notion Plus i Customermates Starter kosztują mniej więcej tyle samo.** Plus to przestrzeń robocza na dokumenty, bazy danych i automatyzacje z wersją próbną Notion Agent. Starter to gotowy CRM z ważonym pipeline'em, serwerem MCP i Mate na hostowanych kredytach AI, ale bez skrzynki odbiorczej i bez dokumentów.
+- **Notion Business i Customermates Pro to para do porównania, gdy potrzebujesz czegoś więcej niż rekordów.** Business dodaje Notion Agent i SAML SSO, których Customermates nie oferuje. Pro dodaje ujednoliconą skrzynkę odbiorczą z limitem [[commercial.entitlement.pro.includedAccountsPerUser]] podłączonego konta na użytkownika; w Customermates Business limit wynosi [[commercial.entitlement.business.includedAccountsPerUser]] na użytkownika, plus konta współdzielone.
+- **Jeśli zostawiasz Notion na dokumenty,** realny koszt to suma obu planów.
+
+## Gdzie pasuje Customermates
+
+W Notion CRM budujesz sam i wklejasz do niego rozmowy. W Customermates od planu Pro trafiają one na rekord klienta, a Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i kolejnego kroku, który sprawdzasz, poprawiasz i wysyłasz.
+
+**Pipeline to pole, a nie projekt z formułami.** Etapy nie są gotowe: do listy szans sprzedaży dodajesz pole pojedynczego wyboru „Etap” i ustawiasz prawdopodobieństwo dla każdej opcji w sekcji „Model danych” (w chmurze może je utworzyć konfiguracja z AI), na przykład Poszukiwanie 10%, Kwalifikacja 20%, Demo 40%, Oferta 60%, Negocjacje 80%, Wygrana 100%, Przegrana 0%. Wartość szansy sprzedaży to suma jej pozycji, z których każda to cena usługi razy ilość, a Customermates mnoży ją przez prawdopodobieństwo etapu, dając wartość ważoną dla każdej szansy, którą wykres na pulpicie może zsumować w [sumę pipeline'u](/features/pipeline). To arytmetyka na Twoich liczbach, a nie prognoza.
+
+**Rozmowy leżą obok szansy sprzedaży.** Od planu Pro [ujednolicona skrzynka odbiorcza](/features/unified-inbox) zbiera skrzynki Gmail, Outlook i IMAP, LinkedIn, WhatsApp, Instagram i Telegram w jednej liście, a odpowiadasz na oryginalnym kanale. Powiąż uczestnika z kontaktem raz, a każda rozmowa z tym adresem lub profilem pojawi się na osi czasu kontaktu.
+
+**AI dba o aktualność rekordów.** W Customermates Cloud Mate podsumowuje wątki, przygotowuje szkice odpowiedzi, aktualizuje rekordy i buduje widoki, korzystając z hostowanych kredytów AI z miesięcznym limitem na aktywnego użytkownika (zobacz [cennik](/pricing)). Przed każdym usunięciem prosi o nowe zatwierdzenie, ale wiadomości wysyła bez niego, więc powiedz mu, żeby zapisywał szkice, gdy chcesz najpierw sprawdzić. Rutyny uruchamiają zapisaną instrukcję według harmonogramu lub gdy rekord się zmienia: w planie Starter [[commercial.entitlement.starter.includedRoutinesPerUser]] na użytkownika, w planie Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Wolisz Claude'a lub ChatGPT? Podłącz go do [serwera MCP](/docs/mcp), który oferuje [[derived.mcp.tools.total]] narzędzi w każdym planie; wywołania modelu działają wtedy u Twojego dostawcy AI.
+
+**Wybierasz hosting.** Baza danych w chmurze jest skonfigurowana w regionie AWS Frankfurt; dostępna jest umowa powierzenia (DPA), a podprocesorzy, w tym dostawcy z USA, są wymienieni. Rdzeń AGPL-3.0 działa na Twoim serwerze z Docker Compose, razem z REST, webhookami i MCP, ale [instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej ani Mate. Customermates nie posiada żadnej certyfikacji zgodności.
+
+## Gdzie Customermates jest złym wyborem
+
+- **Brak dokumentów i wiki.** Każdy rekord ma jedno pole notatek w tekście sformatowanym, które może zawierać obrazy i tabele. Oferty i podręczniki zostają w Notion.
+- **Brak przypomnień i terminów zadań.** Dodaj pole Data i posortuj według niego zapisany widok albo pozwól, by sprawdzała je rutyna.
+- **Brak natywnych aplikacji mobilnych i SSO.** Customermates działa w przeglądarce telefonu. Plan Free obejmuje [[commercial.limit.free.maxMembers]] osobę i [[commercial.limit.free.maxRecords]] rekordów, bez skrzynki odbiorczej, Mate i rutyn; więcej wymaga planu płatnego po [[commercial.trial.days]]-dniowym okresie próbnym.
+
+## Przykładowa konfiguracja: czteroosobowa firma doradcza odchodzi z Notion
+
+CRM w Notion tej firmy ma trzy bazy danych: Klienci, Kontakty i Szanse sprzedaży, a notatki ze spotkań są wewnątrz każdej strony szansy.
+
+| W Notion | W Customermates |
+|---|---|
+| Baza Klienci | Organizacje, przemianowane na „Firmy” |
+| Kontakty, powiązane z Klientami | Kontakty, podczas importu powiązane ze swoją organizacją po nazwie |
+| Właściwość Status (Lead, Oferta, Wygrana, Przegrana) | Pole Etap z Twoimi opcjami i prawdopodobieństwami |
+| Kwota (Liczba) | Pozycje w każdej szansie sprzedaży, każda to usługa z ceną; działa też pole Kwota pieniężna, ale nie zasila wartości ważonej |
+| Linia usług (Wielokrotny wybór) | Pole Wielokrotny wybór |
+| Opiekun (Osoba) | Przypisani użytkownicy |
+| Następny krok (Data) | Pole Data oraz zapisany widok posortowany według niego |
+| Wartość ważona (Formuła) | Wbudowana wartość ważona |
+| Pipeline na klienta (Rollup) | Wykres na pulpicie sumujący wartość szans sprzedaży, pogrupowany według organizacji |
+| PDF z ofertą (Pliki) | Pole Plik; pliki PDF wgrywasz po imporcie |
+| Treść strony z notatkami ze spotkań | Notatki rekordu |
+
+Każdy konsultant zapisuje tablicę własnych szans sprzedaży pogrupowanych według etapu, a założyciel prowadzi tabelę pogrupowaną według przypisanego użytkownika. W planie Pro każda osoba podłącza skrzynkę lub konto WhatsApp, z którego korzystają klienci, za [[commercial.price.pro.monthly.seats.4]] miesięcznie dla całego zespołu. Jedna rutyna na osobę zastępuje poniedziałkowy filtr, którego używali w Notion. Działa jako jej właściciel w Customermates Cloud i zużywa hostowane kredyty AI:
+
+> Co poniedziałek o 8:00 znajdź moje szanse sprzedaży na etapie „Oferta”, w których data „Następny krok” już minęła albo których kontakt nie pisał od dziesięciu dni. Dla każdej zapisz krótki szkic follow-upu w mojej ostatniej rozmowie z tym kontaktem i go nie wysyłaj. Wypisz te szanse sprzedaży w podsumowaniu uruchomienia.
+
+## Przeprowadzka z Notion w pięciu krokach
+
+<Steps>
+  <Step title="Wyeksportuj każdą bazę danych">W Notion otwórz menu ••• bazy danych, wybierz Eksportuj i wskaż Markdown i CSV. Baza na całą stronę wychodzi jako jeden plik tabeli plus plik Markdown dla każdej strony.</Step>
+  <Step title="Przygotuj plik">Customermates czyta pliki CSV, więc nie ma nic do konwertowania. Rozdziel imiona i nazwiska na dwie kolumny, ponieważ nowe kontakty wymagają obu.</Step>
+  <Step title="Przygotuj przestrzeń roboczą">Zmień nazwy list w sekcji „Model danych”, dostosuj opcje i prawdopodobieństwa etapu oraz dodaj pola z tabeli powyżej.</Step>
+  <Step title="Importuj po jednej liście">W menu „Więcej działań” wybierz „Dodaj z pliku”: najpierw organizacje, potem kontakty, usługi i szanse sprzedaży. Kolumny powiązań dopasowują rekordy po nazwie, bez rozróżniania wielkości liter. Adresy e-mail i numery telefonów przypisz do pola „Dane kontaktowe” kontaktu. [Przewodnik po rekordach](/docs/app-records) podaje limity plików.</Step>
+  <Step title="Przenieś notatki i widoki">Notatki ze spotkań są w plikach Markdown, a nie w tabeli. Wklej te, których potrzebujesz, do notatek każdego rekordu albo poproś klienta AI, żeby zapisał je przez MCP. Potem odbuduj swoje widoki i udostępnij te, których potrzebuje cały zespół.</Step>
+</Steps>
+
+## Inne alternatywy dla Notion CRM, które warto sprawdzić
+
+Customermates publikuje tę listę. Szczegóły pochodzą ze stron z cennikami poszczególnych dostawców, sprawdzonych 8 października 2026.
+
+- **Attio** to CRM najbliższy sposobowi modelowania danych w Notion, z obiektami, atrybutami relacji i formuł, synchronizacją poczty i kalendarza oraz automatycznym wzbogacaniem danych, czego Customermates nie oferuje. Według [strony z cennikiem Attio](https://attio.com/pricing) plan Free obejmuje do 3 miejsc i 50 000 rekordów; Plus kosztuje 39 € za użytkownika miesięcznie (31 € przy rozliczeniu rocznym), a Pro 93 € (74 €), z 14-dniowym okresem próbnym planu Pro. Zobacz [porównanie z Attio](/compare/attio-alternative).
+- **Twenty** to CRM open source z nieograniczoną liczbą własnych obiektów, więc schemat z Notion można odtworzyć wiernie i hostować samodzielnie. Każda przestrzeń robocza w chmurze ma serwer MCP. Na [stronie z cennikiem Twenty](https://twenty.com/pricing) Cloud Pro kosztuje 9 USD za użytkownika miesięcznie przy rozliczeniu rocznym, a Organization 39 USD, po 30-dniowym okresie próbnym (sprawdzone 9 listopada 2026).
+- **Airtable** pasuje zespołom, które chcą dalej budować własny system, z relacyjnymi bazami danych, interfejsami i automatyzacjami. Według [strony z cennikiem Airtable](https://airtable.com/pricing) Team kosztuje 20 USD, a Business 45 USD za użytkownika miesięcznie, przy rozliczeniu rocznym; Free nic nie kosztuje.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy Notion może działać jako CRM?">
+Tak, jeśli go zbudujesz. Tworzysz bazy danych kontaktów, firm i szans sprzedaży, łączysz je właściwościami Relacja, śledzisz etapy właściwością Status i dodajesz formuły, widoki i automatyzacje albo zaczynasz od szablonu z galerii. Ten model projektujesz i utrzymujesz samodzielnie, a połączenie Mail w Notion dla agentów obejmuje Gmaila i Outlooka, a nie kanały czatu takie jak WhatsApp czy LinkedIn.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje Notion jako CRM dla małego zespołu?">
+Free jest przeznaczony dla pojedynczych osób; przy 2 lub więcej członkach przestrzeń robocza ma ograniczoną liczbę bloków. Plus kosztuje 11,50 € (12 USD) za członka miesięcznie przy rozliczeniu miesięcznym, a Business 23,50 € (24 USD), mniej przy rozliczeniu rocznym. Custom Agents zużywają dodatkowo kredyty Notion. Customermates Starter kosztuje [[commercial.price.starter.monthly]] za użytkownika miesięcznie, a Pro [[commercial.price.pro.monthly]], z rozliczeniem miesięcznym.
+</FaqItem>
+
+<FaqItem question="Dlaczego ludzie przenoszą CRM z Notion?">
+W przypadku CRM powody, które da się sprawdzić, to cztery wymienione wyżej: utrzymanie we własnym zakresie, połączenia agentów tylko dla poczty, Notion Agent wyłącznie w planie Business i rezydencja danych w UE wyłącznie w Enterprise. Przeniesienie CRM nie oznacza odejścia z Notion; dokumenty i wiki mogą w nim zostać.
+</FaqItem>
+
+<FaqItem question="Czy mogę zostawić Notion i używać Customermates jako CRM?">
+Tak. Oba mają REST API i webhooki, a n8n ma węzły dla obu, więc przepływ może utworzyć stronę projektu w Notion, gdy szansa sprzedaży osiągnie etap Wygrana. n8n działa osobno; nie jest częścią Customermates.
+</FaqItem>
+
+<FaqItem question="Czy istnieje alternatywa open source dla Notion jako CRM?">
+Tak. Twenty to open source z własnymi obiektami, najbliższy odpowiednik elastycznego schematu Notion. Customermates ma rdzeń AGPL-3.0, który możesz hostować z Docker Compose; skrzynka odbiorcza i Mate istnieją tylko w Customermates Cloud.
+</FaqItem>
+
+<FaqItem question="Gdzie Notion przechowuje dane mojego CRM?">
+Domyślnie w Stanach Zjednoczonych, według centrum pomocy Notion; przestrzenie robocze Enterprise mogą poprosić o rezydencję danych w UE we Frankfurcie. Customermates Cloud ma bazę danych skonfigurowaną w regionie AWS Frankfurt w każdym planie, oferuje umowę powierzenia (DPA) i wymienia swoich podprocesorów, w tym dostawców z USA.
+</FaqItem>
+</Faq>
+
+Dane konkurencji sprawdzone 8 października 2026 w Notion: [cennik](https://www.notion.com/pricing), [właściwości baz danych](https://www.notion.com/help/database-properties), [automatyzacje baz danych](https://www.notion.com/help/database-automations), [przewodnik po eksporcie](https://www.notion.com/help/export-your-content), [rezydencja danych](https://www.notion.com/help/data-residency), [połączenie Mail dla Custom Agents](https://www.notion.com/help/connect-mail-to-custom-agents), [dokumentacja Notion MCP](https://developers.notion.com/guides/mcp/overview) i [galeria szablonów CRM](https://www.notion.com/templates/category/crm), a także [integracja n8n z Notion](https://n8n.io/integrations/notion/) oraz strony z cennikami [Attio](https://attio.com/pricing), [Twenty](https://twenty.com/pricing) i [Airtable](https://airtable.com/pricing).
+
+Aby sprawdzić dopasowanie na własnych danych, [zacznij bezpłatny okres próbny](/auth/signup), zaimportuj swoją bazę szans sprzedaży z Notion i podłącz kanał, z którego klienci korzystają najczęściej.

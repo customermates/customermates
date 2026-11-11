@@ -1,0 +1,190 @@
+---
+title: "CRM a ERP: różnice i jak działają razem"
+description: "CRM a ERP: CRM prowadzi klientów i sprzedaż, ERP zamówienia, magazyn i finanse. Sprawdź, kto ma który rekord, kiedy potrzebujesz obu i gdzie pasują faktury."
+
+relatedHrefs:
+  - /blog/crm-erp-integration
+  - /features/integrations
+  - /compare/odoo
+  - /docs/webhooks
+
+hero:
+  title: "CRM a ERP: który system odpowiada za którą część klienta?"
+  description: "CRM zawiera wszystko aż do podpisanej umowy, ERP lub program do fakturowania wszystko, co dzieje się potem. Jak dzielą się rekordy, kiedy firma potrzebuje którego systemu i jak je połączyć bez podwójnego wpisywania danych."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-01-06
+  updated: 2026-10-08
+  tags:
+    - CRM
+    - ERP
+    - Systemy biznesowe
+---
+
+# CRM a ERP: który system odpowiada za którą część klienta?
+
+W zestawieniu CRM a ERP chodzi o prosty podział. CRM zarządza ludźmi, którym sprzedajesz, i szansami sprzedaży, nad którymi pracujesz. ERP zarządza tym, co dzieje się po sprzedaży: zamówieniami, magazynem, zakupami, fakturami, płatnościami i księgowością. Najłatwiej rozdzielić je podpisaną umową: wszystko, co jest przed nią, należy do CRM, wszystko, co po niej, do ERP.
+
+Większość małych firm usługowych w ogóle nie potrzebuje pełnego ERP. Pięcioosobowa firma doradcza lub agencja zwykle potrzebuje CRM do lejka sprzedaży oraz programu do fakturowania i księgowości, takiego jak Lexware Office czy sevDesk, do pieniędzy. Taka para to „małe ERP” dla firmy bez magazynu i produkcji. Omawiam ją niżej, razem z pytaniem o większe pakiety.
+
+Ten poradnik publikuje Customermates. To CRM, a nie ERP ani program księgowy, więc pojawia się niżej tylko tam, gdzie pasuje.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="CRM">Kontakty, organizacje, szanse sprzedaży, etapy lejka, rozmowy i kolejne kroki. Używają go sprzedaż, opiekunowie klientów i założyciele.</SummaryItem>
+  <SummaryItem label="ERP">Zamówienia, faktury, płatności, magazyn, zakupy, produkcja i księgowość. Używają go finanse i operacje.</SummaryItem>
+  <SummaryItem label="Mała firma usługowa">CRM plus program do fakturowania zwykle pokrywają obie strony. Pełne ERP zaczyna się opłacać przy magazynie, zakupach lub produkcji.</SummaryItem>
+  <SummaryItem label="Łączenie systemów">Wybierz jednego właściciela każdego pola, przekazuj stabilny identyfikator i synchronizuj tylko kilka pól, których potrzebuje druga strona: dane klienta w jedną stronę, status płatności z powrotem.</SummaryItem>
+</ArticleSummary>
+
+## CRM vs ERP obok siebie
+
+| | CRM | ERP |
+| --- | --- | --- |
+| Na jakie pytanie odpowiada | Z kim rozmawiamy i co dzieje się dalej? | Co sprzedaliśmy, dostarczyliśmy, zafakturowaliśmy i za co dostaliśmy zapłatę? |
+| Główni użytkownicy | Sprzedaż, opiekunowie klientów, założyciele, obsługa | Finanse, operacje, zakupy, produkcja |
+| Podstawowe rekordy | Kontakty, organizacje, szanse sprzedaży, zadania, rozmowy | Zamówienia, faktury, płatności, towary, magazyn, dostawcy, księga główna |
+| Jak przebiega praca | Elastycznie: szanse sprzedaży przechodzą między etapami, plany się zmieniają | Pod kontrolą: dokumenty są księgowane, numerowane i audytowane |
+| Co idzie źle bez systemu | Follow-upy giną, nikt nie wie, jaka była ostatnia rozmowa | Błędne faktury, błędy w magazynie, wolne zamknięcie miesiąca |
+| Typowe połączenia | E-mail, LinkedIn, WhatsApp, kalendarz, strona internetowa | Bank, biuro rachunkowe, sklep, logistyka, płace |
+
+Oba systemy nakładają się na dane główne klienta. Obu potrzebna jest nazwa i adres klienta, a właśnie w tym miejscu zaczynają się duplikaty. Następna sekcja to rozwiązuje.
+
+## Kto jest właścicielem którego rekordu
+
+Zanim cokolwiek połączysz, zapisz jednego właściciela każdego rekordu i pola. Niejasna odpowiedzialność powoduje więcej kłopotów z synchronizacją niż sam konektor. Taki podział pasuje do typowej małej firmy usługowej:
+
+| Rekord lub pole | Właściciel | Kopia po drugiej stronie |
+| --- | --- | --- |
+| Osoba, stanowisko, notatki o relacji | CRM | Tylko imię, nazwisko i e-mail osoby do spraw rozliczeń |
+| Organizacja (firma) | CRM do pierwszej faktury, potem wspólna | Numer klienta z ERP zapisany przy organizacji w CRM |
+| Nazwa prawna, NIP lub VAT ID, adres rozliczeniowy | ERP lub program do fakturowania | Kopiowane do CRM, edytowane tylko w ERP |
+| Szansa sprzedaży, etap, wartość, następny krok | CRM | Opcjonalnie: ID szansy sprzedaży przy zamówieniu |
+| Produkty, ceny, magazyn | ERP | Nazwy produktów lub usług do pozycji szansy sprzedaży |
+| Zamówienie, faktura, numer faktury | ERP lub program do fakturowania | Numer faktury przy szansie sprzedaży |
+| Status płatności | ERP lub program do fakturowania | Pole pojedynczego wyboru przy szansie sprzedaży, wypełniane przez integrację |
+| Rozmowy i notatki ze spotkań | CRM | Nic; finanse rzadko ich potrzebują |
+
+Dwie zasady utrzymują porządek. Po pierwsze, pole może zmieniać tylko jedna strona, druga je odczytuje. Po drugie, oba systemy zapisują nawzajem swoje identyfikatory (ID organizacji z CRM w ERP, numer klienta z ERP w CRM), więc nigdy nie dopasowujesz rekordów po nazwie firmy. Nazwy się zmieniają, bywają skracane i bywają wpisane dwa razy.
+
+## Czy potrzebujesz CRM, ERP czy programu do fakturowania?
+
+Zacznij od problemu, który masz dziś, a nie od kategorii oprogramowania.
+
+| Twoja sytuacja | Zacznij od |
+| --- | --- |
+| Zapytania i follow-upy giną, nikt nie wie, kto ostatnio rozmawiał z klientem | CRM |
+| Sprzedajesz usługi, wystawiasz kilkadziesiąt faktur miesięcznie, masz biuro rachunkowe | Programu do fakturowania i księgowości oraz CRM do sprzedaży |
+| Masz zapasy, kupujesz materiały, planujesz produkcję lub wysyłasz towary | ERP |
+| Sprzedaż działa i finanse działają, ale przekazanie między nimi zawodzi | Obu systemów, z wąskim połączeniem między nimi |
+| Chcesz jednego dostawcy i jednego logowania do wszystkiego, a moduły pasują do twojego procesu | Pakietu all-in-one |
+
+Moduł CRM w ERP często obejmuje kontakty i proste szanse sprzedaży. Sprawdź go na swoim prawdziwym tygodniu sprzedaży, zanim na nim oprzesz pracę: jak nowa rozmowa na LinkedIn lub WhatsApp trafia do klienta, jak znaleźć utknięte szanse sprzedaży i jak współpracownik przejmuje konto klienta. Podobnie kartoteka klientów w programie do fakturowania powstaje dopiero wtedy, gdy jest coś do zafakturowania. Nie ma w niej lejka sprzedaży.
+
+## Jeden pakiet czy dwa wyspecjalizowane systemy?
+
+Pakiet all-in-one łączy moduły CRM i ERP u jednego dostawcy. Częstym przykładem dla mniejszych firm jest Odoo: jego [strona z cennikiem](https://www.odoo.com/pricing) oferuje darmowy plan z jedną aplikacją i płatne plany obejmujące wszystkie aplikacje, w tym CRM, Sprzedaż i Księgowość. [Porównanie z Odoo](/compare/odoo) pokazuje, jak wypada na tle dedykowanego CRM.
+
+| | Pakiet all-in-one | CRM plus ERP lub program do fakturowania |
+| --- | --- | --- |
+| Wspólny rekord klienta | Zwykle wbudowany | Wymaga synchronizacji lub ręcznego przekazania |
+| Dopasowanie do każdego zespołu | Zależy od najsłabszego modułu, którego używasz | Każda strona wybiera narzędzie pasujące do jej pracy |
+| Wymiana jednej części | Trudniejsza, moduły są ze sobą powiązane | Wymieniasz jedną stronę, drugą zostawiasz |
+| Bieżąca praca | Konfiguracja i aktualizacja jednego systemu | Utrzymanie i monitorowanie jednej integracji |
+
+Żadne z tych rozwiązań nie jest domyślnie prostsze. Pakiet z modułem CRM, którego unikają handlowcy, daje te same arkusze, od których chciałeś uciec. Dwa narzędzia bez jasnego właściciela każdego pola dają duplikaty. Wybierz tę stronę tabeli, której bieżącą pracę jesteś gotów przejąć.
+
+## Programy do fakturowania obok CRM
+
+W niemieckich małych firmach stroną „ERP” jest często program do fakturowania i księgowości, który przekazuje dane biuru rachunkowemu. Jeśli trafiasz tu, szukając alternatywy dla lexoffice, pierwsze pytanie brzmi: czy problem leży w księgowości, czy w sprzedaży? Zmiana programu księgowego nie naprawi straconych szans sprzedaży, a żaden z poniższych cenników nie wymienia lejka sprzedaży ani etapów szans.
+
+Lexoffice nazywa się teraz Lexware Office, jak podaje [strona produktu Lexware](https://www.lexware.de/lexoffice/). Dla połączenia z CRM liczy się to, który plan zawiera API:
+
+| Narzędzie | Plany | Dostęp do API według cennika dostawcy |
+| --- | --- | --- |
+| [Lexware Office](https://www.lexware.de/preise/) | S, M, L, XL | Publiczne API tylko w XL |
+| [sevDesk](https://sevdesk.de/preise/) | Free, Rechnung, Buchhaltung, Buchhaltung Pro | REST API tylko w Buchhaltung Pro |
+| [FastBill](https://www.fastbill.com/preise) | Solo, Plus, Pro, Premium | REST API i webhooki w każdym planie, z godzinowymi limitami wywołań rosnącymi wraz z planem |
+| [Billomat](https://www.billomat.com/preise/) | Professional, Business, Enterprise | Business i Enterprise |
+
+Plany i poziomy API sprawdzono 8 października 2026. Ceny zmieniają się często, więc porównuj je na podlinkowanych stronach. Przed zmianą warto zrobić jeszcze dwie rzeczy: zapytaj biuro rachunkowe, jakiego formatu eksportu potrzebuje, i potwierdź, jakie formaty e-faktur musisz wysyłać i odbierać. Lexware Office podaje na przykład ZUGFeRD i XRechnung we wszystkich czterech planach.
+
+Jeśli prawdziwa luka dotyczy sprzedaży, zostaw program księgowy i dodaj obok CRM. [Dokumentacja dla deweloperów Lexware](https://developers.lexware.io/docs/) wymienia endpointy dla kontaktów, faktur, ofert i płatności oraz subskrypcje zdarzeń, czyli wszystko, czego potrzebuje poniższe przekazanie danych.
+
+## Przekazanie danych krok po kroku
+
+To najmniejsze użyteczne połączenie CRM z programem do fakturowania lub ERP. Opisano je dla Customermates po stronie CRM, ale kolejność kroków pasuje do każdej pary systemów.
+
+<Steps>
+  <Step title="Dodaj pola potrzebne do przekazania danych">
+    W organizacjach dodaj pole niestandardowe typu Tekst „Nr klienta w księgowości”. W szansach sprzedaży dodaj pole Tekst „Nr faktury” oraz pole typu Pojedynczy wybór „Status płatności” z opcjami Otwarte, Częściowo opłacone i Opłacone. Ustal, że te pola wypełnia wyłącznie integracja.
+  </Step>
+  <Step title="Wybierz wyzwalacz">
+    Zasubskrybuj [webhook](/docs/webhooks) na `record.updated` dla listy Szanse sprzedaży. Zdarzenia aktualizacji wymieniają każde zmienione pole z poprzednią i bieżącą wartością, więc integracja może zareagować tylko wtedy, gdy etap zmieni się na Wygrana, i zignorować każdą inną edycję.
+  </Step>
+  <Step title="Utwórz lub dopasuj klienta">
+    Jeśli organizacja nie ma jeszcze numeru klienta w księgowości, utwórz klienta przez API programu księgowego i zapisz zwrócony numer przy organizacji przez REST API Customermates. Jeśli numer już jest, użyj go ponownie. Nigdy nie dopasowuj po nazwie firmy.
+  </Step>
+  <Step title="Utwórz tam fakturę lub zamówienie">
+    Utwórz w programie księgowym wersję roboczą faktury, ofertę lub zamówienie z usługami i wartością szansy sprzedaży. Customermates sam nie tworzy ofert ani faktur. Zapisz numer dokumentu w polu „Nr faktury” przy szansie sprzedaży.
+  </Step>
+  <Step title="Odeślij status płatności">
+    Gdy płatność zmieni się w programie księgowym (przez jego subskrypcję zdarzeń lub nocne odpytywanie), zaktualizuj „Status płatności” przy szansie sprzedaży. Zapis, który niczego nie zmienia, nie tworzy nowego zdarzenia w Customermates, więc integracja nie wpada w pętlę własnych aktualizacji.
+  </Step>
+  <Step title="Sprawdzaj to co tydzień">
+    Przefiltruj szanse sprzedaży na etapie Wygrana z pustym polem „Nr faktury” i zapisz to jako widok. Wszystko, co się w nim znajdzie, to nieudane przekazanie. Nieudane dostarczenia webhooków są na liście w Ustawienia › Dziennik webhooków i stamtąd można je wysłać ponownie.
+  </Step>
+</Steps>
+
+Sama integracja działa poza obydwoma systemami: to mała usługa własna albo przepływ n8n, który wywołuje [API Customermates](/docs/n8n). n8n to osobny produkt, który hostujesz sam albo w subskrypcji. Mapowanie, uwierzytelnianie, idempotencję i monitoring omawia dokładniej [poradnik o integracji CRM z ERP](/blog/crm-erp-integration).
+
+## Gdzie pasuje Customermates, a gdzie nie
+
+Customermates to CRM open source, natywny dla AI, stworzony w Niemczech dla małych zespołów pracujących z klientami. Po stronie CRM z powyższej tabeli obejmuje kontakty, organizacje, szanse sprzedaży z konfigurowalnymi etapami na [tablicy lejka sprzedaży](/features/pipeline), usługi jako pozycje szansy sprzedaży, zadania, pola niestandardowe i zapisane widoki. Etapy szans sprzedaży mają wagi, z których wynika ważona wartość lejka. W planie Pro lub wyższym w Customermates Cloud rozmowy e-mail, LinkedIn i WhatsApp trafiają do klienta w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox).
+
+Do połączenia z ERP lub programem do fakturowania oferuje REST API, [[derived.webhooks.events.total]] typów zdarzeń webhooków oraz serwer MCP z [[derived.mcp.tools.total]] narzędziami, wymienionymi na [stronie integracji](/features/integrations).
+
+Czego nie robi:
+
+- Nie tworzy ofert ani faktur, nie rejestruje płatności, nie prowadzi księgi głównej, nie zarządza magazynem i nie planuje produkcji. To zostaje w twoim ERP lub programie do fakturowania.
+- Nie ma gotowego konektora do Lexware Office, sevDesk, DATEV ani żadnego ERP. Powyższe przekazanie danych budujesz przez API, webhooki lub n8n.
+- Rekordy importuje się ze skoroszytów Excel oraz z plików CSV lub JSON, a eksportuje jako skoroszyty XLSX lub pliki JSON, po jednej liście naraz. Przeniesienie kontaktów z programu do fakturowania oznacza import jego pliku XLSX lub CSV, najpierw organizacje, potem kontakty.
+- Ujednolicona skrzynka odbiorcza i Mate, asystent, działają tylko w Customermates Cloud. Instalacja self-hosted to rdzeń open source z REST, webhookami i MCP.
+
+Jeśli chcesz mieć CRM i księgowość pod jednym loginem i u jednego dostawcy, lepiej pasuje pakiet all-in-one niż Customermates.
+
+Realistyczny koszt dla trzyosobowej firmy doradczej w planie Pro to [[commercial.price.pro.monthly.seats.3]] miesięcznie za CRM ze skrzynką, plus własny plan programu księgowego z dostępem do API. Rozliczenie jest miesięczne. Szczegóły są na [stronie z cennikiem](/pricing).
+
+Po stronie CRM mieszka follow-up, zanim szansa sprzedaży w ogóle dotrze do faktury: wątki przy kliencie, odpowiedź i kolejny krok z terminem przygotowane przez Mate lub twojego własnego klienta AI, a ty sprawdzasz i wysyłasz. Żeby przetestować to na własnych klientach, [rozpocznij [[commercial.trial.days]]-dniowy okres próbny](/auth/signup?job=followup). Bez karty kredytowej.
+
+## Najczęściej zadawane pytania
+
+<Faq>
+<FaqItem question="Jaka jest główna różnica między CRM a ERP?">
+CRM zarządza relacjami z klientami i sprzedażą aż do podpisanej umowy: kontaktami, rozmowami, lejkiem sprzedaży i kolejnymi krokami. ERP zarządza pracą operacyjną i finansową, która następuje potem: zamówieniami, magazynem, zakupami, fakturowaniem, płatnościami i księgowością.
+</FaqItem>
+
+<FaqItem question="Czy SAP to ERP czy CRM, a co z Salesforce?">
+SAP sprzedaje oba. Jego [strona ERP vs CRM](https://www.sap.com/resources/erp-vs-crm) wymienia produkty ERP, takie jak SAP S/4HANA Cloud i SAP Business One, który ma też funkcje CRM, obok osobnej aplikacji SAP CRM, i odpowiada „Nie” na pytanie, czy chmurowe ERP może zastąpić CRM. Salesforce jest najbardziej znany ze swojego CRM. Jego własny [artykuł o ERP i CRM](https://www.salesforce.com/blog/erp-vs-crm/) przedstawia Salesforce CRM jako stronę zwróconą do klienta i opisuje integrację z funkcjami ERP, takimi jak zamówienia sprzedaży i śledzenie zapasów.
+</FaqItem>
+
+<FaqItem question="Czy mała firma potrzebuje ERP?">
+Zwykle nie, dopóki sprzedaje usługi bez magazynu i produkcji. CRM do sprzedaży plus program do fakturowania i księgowości pokrywają większość tego, co zrobiłoby ERP. ERP zaczyna się opłacać, gdy zarządzasz zapasami, zakupami, produkcją lub kilkoma podmiotami prawnymi.
+</FaqItem>
+
+<FaqItem question="Czy CRM jest częścią ERP?">
+Niektóre pakiety ERP zawierają moduł CRM, a niektóre CRM-y są częścią większego pakietu. To, czy taki moduł wystarczy, zależy od twojej pracy sprzedażowej. Przetestuj go na prawdziwym tygodniu zapytań, follow-upów i przekazań, zanim zdecydujesz.
+</FaqItem>
+
+<FaqItem question="Czy lexoffice może służyć jako CRM?">
+Tylko do podstawowej kartoteki klientów. Lexware Office, obecna nazwa lexoffice, przechowuje klientów z osią czasu ich dokumentów, a do tego zadania, notatki i portal klienta. Jego cennik nie wymienia szans sprzedaży ani etapów lejka. Większość zespołów zostawia go do fakturowania i dodaje CRM, połączony przez publiczne API w planie XL.
+</FaqItem>
+
+<FaqItem question="Czy Customermates zastępuje ERP lub program księgowy?">
+Nie. Customermates to CRM. Działa obok twojego ERP lub programu do fakturowania i prowadzi stronę klientów i szans sprzedaży, a faktury, płatności i księgowość zostają w drugim systemie.
+</FaqItem>
+</Faq>
+
+Dane stron trzecich sprawdzono 8 października 2026 na oficjalnych stronach: [Lexware Office](https://www.lexware.de/preise/), [sevDesk](https://sevdesk.de/preise/), [FastBill](https://www.fastbill.com/preise), [Billomat](https://www.billomat.com/preise/), [Odoo](https://www.odoo.com/pricing), [SAP](https://www.sap.com/resources/erp-vs-crm) i [Salesforce](https://www.salesforce.com/blog/erp-vs-crm/).

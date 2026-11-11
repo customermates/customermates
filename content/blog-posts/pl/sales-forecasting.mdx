@@ -1,0 +1,226 @@
+---
+title: "Prognozowanie sprzedaży: metody, wzory i przykład"
+description: "Prognozowanie sprzedaży szacuje przychód do wygrania w okresie. Lejek ważony, wskaźnik wygranych i run-rate na jednym przykładzie oraz pola CRM do prognozy."
+
+relatedHrefs:
+  - /blog/sales-pipeline
+  - /features/reporting
+  - /blog/sales-plan-template
+  - /blog/crm-for-sales
+
+hero:
+  title: "Prognozowanie sprzedaży: jak prognozować przychód z lejka"
+  description: "Przykład z ośmioma transakcjami, trzy metody prognozowania porównane obok siebie, wzory do odtworzenia w arkuszu i pola transakcji, których CRM potrzebuje, żeby prognozie dało się ufać."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-11-09
+  tags:
+    - Prognozowanie sprzedaży
+    - Lejek sprzedaży
+    - Proces sprzedaży
+---
+
+# Prognozowanie sprzedaży: jak prognozować przychód z lejka
+
+Prognozowanie sprzedaży to szacowanie, ile przychodu twój zespół wygra w przyszłym okresie, zwykle w następnym miesiącu lub kwartale, na podstawie transakcji w lejku i dotychczasowych wyników. Dla małego zespołu B2B praktyczną metodą jest ważony lejek: pomnóż kwotę każdej otwartej transakcji przez prawdopodobieństwo wygranej jej etapu, zsumuj transakcje, które mają się zamknąć w okresie, i dodaj to, co już wygrano.
+
+Ten poradnik liczy to na ośmiu przykładowych transakcjach, porównuje wynik z metodą opartą na wskaźniku wygranych i metodą run-rate obok siebie oraz wylicza pola, których potrzebuje rekord transakcji, żeby można było odtworzyć prognozę sprzedaży w dowolnym arkuszu. Customermates publikuje ten poradnik; sekcja o prognozowaniu w Customermates jest oznaczona jako nasza i wprost mówi, czego produkt nie robi.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Definicja">Prognoza sprzedaży to twoje najlepsze oszacowanie przychodu, który wygrasz w okresie. Cel to to, co chcesz wygrać. To dwie różne liczby.</SummaryItem>
+  <SummaryItem label="Główny wzór">Wartość ważona = kwota transakcji × prawdopodobieństwo etapu. Prognoza = wygrane dotąd + wartość ważona otwartych transakcji, których planowana data zamknięcia mieści się w okresie.</SummaryItem>
+  <SummaryItem label="Nigdy jedna metoda">Policz ważony lejek, wynik ze wskaźnika wygranych i wynik z run-rate, potem opublikuj przedział i wyjaśnij każdą różnicę między nimi.</SummaryItem>
+  <SummaryItem label="Pola, których potrzebuje każda transakcja">Kwota, etap, planowana data zamknięcia, właściciel, a po zamknięciu transakcji data jej wygranej lub przegranej.</SummaryItem>
+</ArticleSummary>
+
+Prognoza jest tak dobra, jak lejek, na którym stoi. Jeśli twoje etapy nie mają jeszcze warunków wejścia, zacznij od poradnika o [budowie i przeglądzie lejka sprzedaży](/blog/sales-pipeline), a potem wróć tutaj. Po stronie celu do porównania [90-dniowy szablon planu sprzedaży](/blog/sales-plan-template) zamienia cel przychodowy w konta, właścicieli i daty przeglądów.
+
+## Czym jest prognozowanie sprzedaży i czym różni się od celu lub planu?
+
+Prognoza mówi, co prawdopodobnie się stanie. Cel mówi, co chcesz, żeby się stało. Plan mówi, co zrobisz z różnicą. Mieszanie ich to częsty sposób na zepsucie prognozy: liczba podciągnięta do celu przestaje być prognozą.
+
+Podręcznik prognozowania Roba J. Hyndmana i George’a Athanasopoulosa ujmuje to tak samo: prognozowanie polega na jak najdokładniejszym przewidywaniu przyszłości przy dostępnych informacjach, cele to to, co chcemy, żeby się wydarzyło, a planowanie to reakcja na prognozy i cele ([podrozdział 1.2](https://otexts.com/fpp3/planning.html)). W zespole sprzedaży daje to trzy osobne liczby.
+
+| Termin | Na jakie pytanie odpowiada | Przykład z przykładu liczbowego poniżej |
+|---|---|---|
+| Prognoza | Ile prawdopodobnie wygramy w tym kwartale? | 94 400 (metoda ważonego lejka) |
+| Cel | Ile chcemy wygrać w tym kwartale? | 110 000 |
+| Plan | Co robimy z różnicą? | Nowe działania wychodzące i próba przyspieszenia dużej transakcji |
+
+**Co liczy prognoza.** Ten poradnik prognozuje wartość wygranych transakcji: kwotę transakcji, które wygrywasz w okresie, wpisaną netto i w jednej walucie. To nie jest przychód ujęty księgowo ani zafakturowany. Te podlegają zasadom rachunkowości i datom faktur, a rekord transakcji w CRM ich nie zastępuje.
+
+## Jakie są 7 kroków prognozowania?
+
+Nie ma standardowej listy siedmiu kroków. Wspomniany podręcznik wymienia pięć podstawowych kroków dla każdego zadania prognostycznego: zdefiniowanie problemu, zebranie informacji, wstępną analizę, wybór i dopasowanie modeli oraz użycie i ocenę modelu ([podrozdział 1.6](https://otexts.com/fpp3/basic-steps.html)). Poradniki sprzedażowe liczą inaczej. Dla prognozy opartej na lejku używamy tych siedmiu:
+
+<Steps>
+  <Step title="Zdefiniuj okres i to, co się liczy">Nazwij okres (na przykład od 1 października do 31 grudnia) i ustal, że liczysz wartość wygranych transakcji netto, w jednej walucie.</Step>
+  <Step title="Oczyść lejek">Przenieś każdą transakcję na etap, który naprawdę osiągnęła, i zamknij transakcje, których nikt nie ruszał od tygodni. Przeterminowane transakcje po cichu zawyżają prognozę.</Step>
+  <Step title="Sprawdź cztery dane w każdej otwartej transakcji">Kwota, etap, planowana data zamknięcia i właściciel. Transakcja, w której brakuje któregoś z nich, zostaje poza prognozą i trafia na listę do poprawy, zamiast być zgadywana.</Step>
+  <Step title="Ustaw prawdopodobieństwa etapów na podstawie historii">Użyj własnych wygranych i przegranych transakcji. Dopóki nie masz ich dość, zacznij od wartości zastępczych i oznacz je jako założenia.</Step>
+  <Step title="Policz na dwa sposoby">Ważony lejek dla transakcji przypadających w okresie oraz kontrola krzyżowa ze wskaźnika wygranych lub run-rate.</Step>
+  <Step title="Opublikuj przedział, a nie punkt">Podaj dolną granicę, wartość oczekiwaną i najlepszy scenariusz oraz wskaż dwie lub trzy największe transakcje, które przesądzają o wyniku.</Step>
+  <Step title="Porównaj z rzeczywistym wynikiem">Na koniec okresu zapisz, jak bardzo prognoza się pomyliła, i skoryguj prawdopodobieństwa.</Step>
+</Steps>
+
+## Jaki jest przykład prognozy sprzedaży?
+
+Oto taki, który odtworzysz w arkuszu w dziesięć minut. Wszystkie liczby są zmyślone. Założenia:
+
+- Prognozę sporządzono 9 listopada 2026 r. na kwartał kończący się 31 grudnia 2026 r.
+- Kwota to łączna wartość kontraktu netto, w dolarach.
+- Prawdopodobieństwa etapów to Kwalifikacja 20%, Demo 40%, Oferta 60% i Negocjacje 80%: wartości wyjściowe z naszego [poradnika o lejku sprzedaży](/blog/sales-pipeline). Zastąp je własnymi, gdy tylko się da.
+- W tym kwartale wygrano już 38 000. Cel to 110 000.
+- Liczą się tylko transakcje, których planowana data zamknięcia mieści się w kwartale.
+
+| Transakcja | Etap | Kwota | Planowane zamknięcie | Prawdopodobieństwo | Wartość ważona | Liczy się w tym kwartale? |
+|---|---|---|---|---|---|---|
+| A: Firma logistyczna, 12-miesięczna umowa serwisowa | Negocjacje | 24 000 | 27 lis | 80% | 19 200 | Tak |
+| B: Grupa stomatologiczna, wdrożenie | Oferta | 12 000 | 4 gru | 60% | 7 200 | Tak |
+| C: Studio projektowe, abonament | Negocjacje | 6 000 | 10 gru | 80% | 4 800 | Tak |
+| D: Firma inżynieryjna, projekt platformy | Oferta | 30 000 | 15 gru | 60% | 18 000 | Tak |
+| E: Kancelaria prawna, pilotaż | Demo | 9 000 | 18 gru | 40% | 3 600 | Tak |
+| F: Producent żywności, cykl warsztatów | Kwalifikacja | 18 000 | 22 gru | 20% | 3 600 | Tak |
+| G: Dostawca maszyn, pakiet serwisowy | Kwalifikacja | 15 000 | 20 sty 2027 | 20% | 3 000 | Nie |
+| H: Sieć klinik, wiele lokalizacji | Demo | 45 000 | 15 lut 2027 | 40% | 18 000 | Nie |
+| **Do zamknięcia w tym kwartale (A do F)** | | **99 000** | | | **56 400** | |
+
+Ważony lejek na kwartał wynosi 56 400. Dodaj 38 000 już wygranych, a prognoza to **94 400**, czyli 15 600 poniżej celu 110 000.
+
+Transakcje G i H to prawdziwy lejek, wart 60 000 w kwocie i 21 000 po zważeniu, ale mają się zamknąć po 31 grudnia. Pominięcie reguły dat dodałoby 21 000 i dało prognozę 115 400, powyżej celu z niewłaściwego powodu.
+
+Zwróć uwagę, jak bardzo jedna transakcja rusza liczbą. Transakcja D to 18 000 z 94 400, około jednej piątej. Jeśli przesunie się na styczeń, prognoza spada do 76 400 jedną edycją. Wartość ważona to średnia z wielu transakcji; żadna pojedyncza transakcja nigdy nie zamyka się na 60%. Albo się zamyka, albo nie.
+
+**Arkusz.** Wpisz osiem transakcji w wierszach od 2 do 9, z Kwotą w kolumnie C, Planowanym zamknięciem w kolumnie D, Prawdopodobieństwem w kolumnie E i Wartością ważoną w kolumnie F.
+
+```text
+Wartość ważona (F2, skopiowana w dół)   =C2*E2
+Ważony lejek na kwartał                 =SUMIFS(F2:F9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Otwarta kwota na kwartał                =SUMIFS(C2:C9,D2:D9,">="&DATE(2026,10,1),D2:D9,"<="&DATE(2026,12,31))
+Prognoza                                =38000+(ważony lejek na kwartał)
+```
+
+Formuły działają w Excelu i Arkuszach Google; podano je w wersji angielskiej, a w polskiej wersji Excela nazwy funkcji są przetłumaczone, a argumenty rozdziela się średnikami. Trzymaj kwotę wygranych dotąd w osobnej komórce i aktualizuj ją z CRM przed każdym przeglądem. Tak powstaje prognoza sprzedaży w Excelu, którą da się powtórzyć co miesiąc.
+
+## Jaka jest najlepsza metoda prognozowania sprzedaży?
+
+Nie ma najlepszej metody, jest tylko ta, która pasuje do danych, które masz. Oto metody prognozowania sprzedaży, których naprawdę może użyć mały zespół, ze słabym punktem każdej.
+
+| Metoda | Jak ją policzyć | Czego potrzebuje | Słaby punkt |
+|---|---|---|---|
+| Commit (dolna granica) | Wygrane dotąd + transakcje w ostatnim otwartym etapie w pełnej wartości. To nasza własna definicja, a nie standard | Etapu, który oznacza, że kupujący podejmuje decyzję | Ignoruje wszystko, co jest wcześniej w lejku |
+| Ważony lejek | Wygrane dotąd + kwota × prawdopodobieństwo etapu, dla transakcji przypadających w okresie | Prawdopodobieństw etapów i planowanych dat zamknięcia | Prawdopodobieństwa to domysły, dopóki nie zostaną skalibrowane; kilka dużych transakcji dominuje |
+| Wskaźnik wygranych × lejek | Wygrane dotąd + otwarta kwota przypadająca w okresie × wskaźnik wygranych według wartości | Mniej więcej roku wygranych i przegranych transakcji | Traktuje transakcję po pierwszej rozmowie tak samo jak transakcję w negocjacjach |
+| Historyczny run-rate | Średnia wygrana wartość z ostatnich czterech okresów | Czterech lub więcej porównywalnych okresów | Nie widzi bieżącego lejka ani wzrostu |
+| Modele statystyczne (szeregi czasowe, regresja) | Dopasowane do wyników z przeszłości przez oprogramowanie | Wielu okresów stabilnej historii | Większość małych zespołów zamyka za mało transakcji, żeby dopasować taki model |
+
+Żeby porównać pierwsze cztery na przykładzie, dodaj jeszcze dwa zmyślone fakty. W ostatnich dwunastu miesiącach zespół wygrał 360 000 i przegrał 540 000 według wartości, czyli wskaźnik wygranych to 360 000 ÷ (360 000 + 540 000) = 40%. W ostatnich czterech kwartałach wygrał 78 000, 88 000, 99 000 i 95 000.
+
+| Metoda | Obliczenie | Prognoza na IV kwartał | W porównaniu z celem 110 000 |
+|---|---|---|---|
+| Commit (dolna granica) | 38 000 + 24 000 + 6 000 | 68 000 | brakuje 42 000 |
+| Wskaźnik wygranych × lejek | 38 000 + 40% × 99 000 | 77 600 | brakuje 32 400 |
+| Historyczny run-rate | (78 000 + 88 000 + 99 000 + 95 000) ÷ 4 | 90 000 | brakuje 20 000 |
+| Ważony lejek | 38 000 + 56 400 | 94 400 | brakuje 15 600 |
+| Najlepszy scenariusz | 38 000 + 99 000 | 137 000 | 27 000 powyżej |
+
+Trzy rzeczy do odczytania:
+
+1. **Luka jest prawdziwa.** Każda oczekiwana liczba jest poniżej celu. Gdyby jedna metoda dała 115 000, a pozostałe od 80 000 do 94 000, należałoby podejrzewać tę jedną metodę, a nie świętować.
+2. **Metody różnią się z powodu.** Płaskie 40% wskaźnika wygranych to mieszanka wszystkich transakcji od pierwszego kontaktu, a otwarte transakcje tutaj są głównie w późnych etapach. Wartość ważona zakłada, że wygrane zostanie 57% otwartej kwoty (56 400 ÷ 99 000). Albo transakcje są wyjątkowo zaawansowane, albo prawdopodobieństwa etapów są zbyt hojne. Powie ci to dopiero porównanie z rzeczywistymi wynikami, poniżej.
+3. **Run-rate całkowicie ignoruje lejek.** To test zdrowego rozsądku, a nie prognoza. Mieści się tu między pozostałymi liczbami, co uspokaja, ale niczego nie dowodzi.
+
+To, od której zacząć, zależy od twojej historii. Zespół z zaledwie garstką zamkniętych transakcji powinien pokazać liczby commit i ważoną oraz powiedzieć, że prawdopodobieństwa to założenia. Zespół z rokiem lub więcej transakcji powinien zacząć od skalibrowanego ważonego lejka, a wskaźnik wygranych i run-rate zostawić jako kontrole krzyżowe. Gdy dwie metody rozchodzą się mocno, ustal dlaczego, zanim zaprezentujesz liczbę.
+
+## Jakie są cztery rodzaje prognozowania?
+
+Źródła grupują metody prognozowania różnie, więc nie ma oficjalnej listy czterech. Ten podział uważamy za przydatny dla zespołu sprzedaży:
+
+1. **Oparte na ocenie:** decyzja handlowca lub menedżera w sprawie każdej transakcji. To jedyna opcja, gdy nie ma historii.
+2. **Oparte na lejku:** ważenie etapów i commit, jak wyżej.
+3. **Historyczne:** run-rate, wskaźnik wygranych i wzorce sezonowe z minionych okresów.
+4. **Modele statystyczne:** modele szeregów czasowych i regresji dopasowane przez oprogramowanie.
+
+Rozdział podręcznika o [prognozach opartych na ocenie](https://otexts.com/fpp3/judgmental.html) opisuje ten sam podział ogólnie: sama ocena, gdy nie ma danych, prognozy statystyczne korygowane oceną, gdy dane są, albo oba rodzaje przygotowane osobno i połączone. W praktyce użyteczna dla małego zespołu kombinacja to policzona liczba plus notatka menedżera o transakcjach, które nie pasują do arytmetyki.
+
+## Jak utrzymać dokładność prognozy sprzedaży?
+
+- **Zapisuj migawkę i testuj wstecz.** Tego samego dnia każdego miesiąca zapisz prognozę i stojącą za nią listę transakcji. Na koniec okresu porównaj: błąd = (rzeczywistość − prognoza) ÷ prognoza. Na przykład prognoza 92 000 przy rzeczywistych 95 000 to +3,3%. Jeśli błąd przechyla się w tę samą stronę przez trzy okresy z rzędu, zmień prawdopodobieństwa, zamiast winić pecha.
+- **Kalibruj każdy etap.** Prawdopodobieństwo etapu to wygrana wartość transakcji, które kiedykolwiek go osiągnęły, podzielona przez wartość wszystkich transakcji, które go osiągnęły. Jeśli z etapu Oferta wygrano 220 000 z 400 000, prawdopodobieństwo etapu Oferta to 55%. W przykładzie obniżyłoby to transakcje B i D i zdjęło 2 100 z ważonej liczby kwartału.
+- **Trzymaj daty zamknięcia w ryzach.** Transakcja, której planowana data zamknięcia jest w przeszłości, nie wchodzi do prognozy tego okresu, dopóki ktoś nie da jej nowej daty. Przesuwaj daty, gdy kupujący się spóźniają, i licz, jak często to się dzieje.
+- **Pilnuj koncentracji.** Wypisz trzy największe transakcje obok sumy. Jeśli jedna transakcja to piąta część liczby, powiedz to.
+- **Przeglądaj co tydzień.** 30-minutowy przegląd z [poradnika o lejku sprzedaży](/blog/sales-pipeline) to też miejsce, w którym poprawia się daty zamknięcia i następne kroki.
+
+## Jakich pól CRM potrzebuje transakcja do prognozy sprzedaży?
+
+Każda liczba powyżej bierze się z garstki pól. Jeśli twój CRM przechowuje je jako pola strukturalne, a nie notatki, prognoza to filtr i suma.
+
+| Pole | Typ | Co robi dla prognozy | Reguła |
+|---|---|---|---|
+| Kwota | Pieniądze | Podstawa każdego obliczenia | Netto, jedna waluta i to samo znaczenie w każdej transakcji (na przykład wartość kontraktu w pierwszym roku) |
+| Etap | Pojedynczy wybór | Decyduje o prawdopodobieństwie | Jedno sprawdzalne kryterium wejścia na etap |
+| Prawdopodobieństwo etapu | Procent na każdym etapie | Zamienia kwotę w wartość ważoną | Przeglądane co kwartał na tle rzeczywistych wyników |
+| Wartość ważona | Obliczane | Kwota × prawdopodobieństwo ÷ 100 | Nigdy wpisywane ręcznie |
+| Planowana data zamknięcia | Data | Przypisuje transakcję do okresu | Wymagana od etapu oferty; przesuwana, gdy się opóźnia |
+| Właściciel | Osoba | Kto odpowiada za transakcję; prognoza na osobę | Dokładnie jeden |
+| Data zamknięcia | Data | Kiedy transakcję wygrano lub przegrano; zasila wygrane dotąd, wskaźnik wygranych i run-rate | Ustawiana, gdy etap zmienia się na Wygrana lub Przegrana |
+| Powód przegranej | Pojedynczy wybór | Pokazuje, dlaczego zmienia się wskaźnik wygranych | Wymagany przy każdej przegranej transakcji |
+| Źródło leada | Pojedynczy wybór | Wskaźnik wygranych według źródła | Opcjonalne, ale tanie do zapisania przy tworzeniu |
+| Następny krok i jego data | Tekst i data | Wychwytuje przeterminowane transakcje, zanim zawyżą liczbę | Transakcja bez następnego kroku zostaje poza Commit |
+| Organizacja i kontakt | Powiązania z innymi rekordami | Kontekst i historia rozmów stojąca za transakcją | Powiąż każdą transakcję z obiema |
+
+Opcjonalne dwunaste pole to kategoria prognozy (Commit, Best case, Pipeline), która zapisuje własną ocenę właściciela, osobno od prawdopodobieństwa etapu. Dodaj ją tylko wtedy, gdy twój zespół naprawdę użyje jej do nadpisywania logiki etapów.
+
+## Jak prognozować sprzedaż w Customermates
+
+Ta sekcja opisuje nasz własny produkt. Customermates to otwartoźródłowy [CRM dla zespołów sprzedaży](/blog/crm-for-sales), stworzony w Niemczech. Liczy ważony lejek i pokazuje go na wykresach; nie przewiduje. Oto konfiguracja dla przykładu liczbowego.
+
+<Steps>
+  <Step title="Ustaw prawdopodobieństwa etapów">W **Model danych** otwórz Szanse sprzedaży i pole **Etap**, a potem ustaw **Prawdopodobieństwo %** przy każdej opcji. Podgląd pokazuje wpływ na istniejące transakcje i widżety, zanim zapiszesz. Wartość ważona to pole obliczane w transakcjach: **Wartość** × prawdopodobieństwo ÷ 100. Jeśli twoja lista była skonfigurowana ręcznie, sprawdź, czy istnieje, a jeśli nie, dodaj ją. [Podstawowe pojęcia](/docs/concepts#how-does-a-weighted-pipeline-work) wyjaśniają obliczenie.</Step>
+  <Step title="Dodaj pola dat">Użyj **Dodaj › Pole**, żeby dodać pole Data „Planowane zamknięcie” i pole Data „Data zamknięcia”. Dodaj też pole Pojedynczy wybór „Powód przegranej”. Wykres może grupować i filtrować tylko według tego, co zapiszesz.</Step>
+  <Step title="Zbuduj widżety na kwartał">Otwórz **Pulpit** i wybierz **Dodaj widżet**: wykres słupkowy, który sumuje pole **Wartość ważona** pogrupowane według etapu, z filtrem Etap nie jest Wygrana ani Przegrana i Planowane zamknięcie między pierwszym a ostatnim dniem kwartału; widżet Liczba, który sumuje **Wartość** dla Etap to Wygrana i Data zamknięcia w kwartale (wygrane dotąd); widżet Liczba, który sumuje **Wartość** tych samych otwartych transakcji (otwarta kwota). Wykres Obszar w czasie z miesięczną wartością w polu **Przedział czasu**, pogrupowany według Planowanego zamknięcia, pokazuje, kiedy przypada wartość ważona.</Step>
+  <Step title="Zapisz migawkę przy publikacji">Z listy transakcji otwórz **Więcej działań** i wybierz **Eksportuj jako Excel (.xlsx)**. Eksport zachowuje twoje filtry i sortowanie, mieści do 5 000 rekordów i ma jedną kolumnę na każde pole, które możesz odczytać. Zapisz go z datą w nazwie pliku. To twoja migawka do testu wstecznego i dane wejściowe dla wskaźnika wygranych i run-rate w arkuszu.</Step>
+</Steps>
+
+Wskaźnik wygranych według wartości wymaga dwóch sum z zamkniętych transakcji: sumy pola **Wartość** dla Wygranych i dla Przegranych, każdej przefiltrowanej według Daty zamknięcia. Obie odczytasz z widżetów Liczba. W Customermates Cloud możesz też poprosić Mate o ich policzenie, co zużywa hostowane kredyty AI; z własnym klientem AI przez [serwer MCP](/docs/mcp) sumy pochodzą z narzędzia `query_crm_measure`. Tak czy inaczej to arytmetyka na twoich zamkniętych transakcjach, a nie przewidywanie.
+
+Wykres liczy tylko te transakcje, które twoja rola może odczytać, więc osoba publikująca prognozę potrzebuje dostępu do odczytu wszystkich. [Poradnik o pulpicie](/docs/app-dashboard) dokumentuje każdą opcję widżetu, a [strona o raportowaniu w CRM](/features/reporting) wylicza inne raporty, które buduje mały zespół. Same transakcje żyją na [tablicy lejka](/features/pipeline).
+
+**Ile to kosztuje.** Widżety z wykresami, ważony lejek i eksport do Excela są w każdym planie, od planu Starter za [[commercial.price.starter.monthly]] za użytkownika miesięcznie, rozliczane miesięcznie. Wersja hostowana samodzielnie też je obejmuje. [Strona z cennikiem](/pricing) podaje szczegóły.
+
+<AcquisitionCallout title="Gdzie Customermates to zły wybór do prognozowania" variant="boundary">
+Customermates mnoży wartości transakcji przez ustawione przez ciebie prawdopodobieństwa etapów i sumuje wynik. Nie przewiduje, które transakcje się zamkną, nie podpowiada prawdopodobieństw wygranej ani nie dopasowuje modelu statystycznego do twojej historii. Pokazuje transakcje takie, jakie są teraz, i nie ma raportu z minionych sum lejka, więc zapisz eksport w dniu publikacji prognozy. Nie ma kwot sprzedażowych (quota) ani zbiorczego zestawienia prognoz menedżera; dodaną przez ciebie kategorię można zwizualizować na wykresie, ale nic jej nie sprawdza ani nie sumuje. Nie ma ofert ani fakturowania, więc wygrana oznacza wartość transakcji, którą wpisujesz, a nie przychód zafakturowany lub ujęty księgowo. Jeśli potrzebujesz prognozowania predykcyjnego, zgłaszania prognoz przez poszczególnych handlowców albo modelowania scenariuszy, użyj dedykowanego narzędzia do prognozowania.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Czym jest prognozowanie sprzedaży?">
+Prognozowanie sprzedaży to szacowanie przychodu, który zespół wygra w przyszłym okresie, takim jak miesiąc lub kwartał, na podstawie otwartych transakcji i wyników z przeszłości. Różni się od celu, czyli tego, co chcesz wygrać.
+</FaqItem>
+
+<FaqItem question="Jak obliczyć prognozę sprzedaży?">
+Pomnóż kwotę każdej otwartej transakcji przez prawdopodobieństwo jej etapu, zsumuj wartości ważone transakcji, które mają się zamknąć w okresie, i dodaj przychód już wygrany w tym okresie. Sprawdź wynik krzyżowo ze wskaźnikiem wygranych (otwarta kwota × twój wskaźnik wygranych według wartości) i z run-rate (średnia z ostatnich czterech okresów).
+</FaqItem>
+
+<FaqItem question="Jaka jest najlepsza metoda prognozowania sprzedaży?">
+Nie ma takiej, która pasuje każdemu zespołowi. Ważony lejek sprawdza się w małych zespołach z regułami etapów i datami zamknięcia. Wskaźnik wygranych i run-rate potrzebują historii zamkniętych transakcji. Modele statystyczne potrzebują wielu okresów stabilnych wyników. Policz co najmniej dwie i opublikuj przedział.
+</FaqItem>
+
+<FaqItem question="Czym różni się prognoza sprzedaży od celu sprzedaży?">
+Prognoza to oszacowanie tego, co prawdopodobnie wygrasz, policzone z lejka. Cel to liczba, którą chcesz osiągnąć. Plan to to, co robisz z różnicą między nimi.
+</FaqItem>
+
+<FaqItem question="Jak dokładna jest prognoza sprzedaży?">
+Nie ma uczciwej uniwersalnej liczby, bo zależy to od wielkości transakcji, długości cyklu i dyscypliny. Zmierz własną: porównuj każdą prognozę z rzeczywistym wynikiem i śledź błąd przez kilka okresów. Stały błąd w jedną stronę da się skorygować; losowy oznacza, że dane wejściowe są niewiarygodne.
+</FaqItem>
+
+<FaqItem question="Czy Customermates może prognozować sprzedaż?">
+Liczy ważony lejek: wartość transakcji razy prawdopodobieństwo ustawione dla etapu, pokazywany na wykresach pulpitu i możliwy do wyeksportowania do Excela. Nie przewiduje zamknięć, nie podpowiada prawdopodobieństw ani nie modeluje twojej historii. Do tego użyj dedykowanego narzędzia do prognozowania.
+</FaqItem>
+</Faq>
+
+Źródła podmiotów trzecich sprawdzone 9 listopada 2026 r.: Hyndman i Athanasopoulos, *Forecasting: Principles and Practice*, wydanie 3, [podrozdział 1.2](https://otexts.com/fpp3/planning.html), [podrozdział 1.6](https://otexts.com/fpp3/basic-steps.html) i [rozdział 6](https://otexts.com/fpp3/judgmental.html). Wszystkie kwoty transakcji, wskaźniki wygranych i wyniki kwartalne w przykładzie liczbowym są zmyślone na potrzeby ilustracji.

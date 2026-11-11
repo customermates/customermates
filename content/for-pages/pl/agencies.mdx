@@ -1,0 +1,406 @@
+---
+title: "CRM dla agencji marketingowej: od oferty do realizacji"
+description: "CRM dla agencji marketingowej na 2 do 10 osób: pitche, retainery i rozmowy z klientami w jednym miejscu, wspólna skrzynka w Business, przestrzeń na klienta."
+industryName: Agencje
+
+acquisition:
+  locale: pl
+  slug: agencies
+  clusterId: professional-services
+  role: support
+  primaryIntent: CRM dla agencji marketingowej
+  metadata:
+    title: "CRM dla agencji marketingowej: od oferty do realizacji"
+    description: "CRM dla agencji marketingowej na 2 do 10 osób: pitche, retainery i rozmowy z klientami w jednym miejscu, wspólna skrzynka w Business, przestrzeń na klienta."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:unified-inbox-channels
+      - product:unified-inbox-entitlements
+    excludedClaims:
+      - claim:no-proposal-automation
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Zobacz, jak podpisany klient trafia do realizacji
+    description: Poznaj przykładową przestrzeń roboczą agencji z danymi przykładowymi, a potem rozpocznij okres próbny i podłącz jedną rozmowę z klientem.
+    buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Poznaj przestrzeń roboczą
+    buttonRightHref: https://demo.customermates.com/pl/w/agencies/dashboard
+    hint: "Realizacja projektów, oferty, ewidencja czasu pracy i rozliczenia zostają w narzędziach Twojej agencji."
+  relatedHrefs:
+    - /for/professional-services
+    - /features/unified-inbox
+    - /features/pipeline
+    - /for/consultants
+  visual:
+    id: acquisition.agencies.pl
+    locale: pl
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM dla agencji marketingowej: wracaj do każdego pitchu, przekaż każdego klienta do realizacji"
+      body: "Pitche stoją w miejscu, gdy realizujesz zlecenia innych klientów. Od planu Pro wątki e-mail i LinkedIn leżą przy kliencie, Mate przygotowuje odpowiedź i kolejny krok, a zespół realizacji widzi, co ustaliła sprzedaż. Planowanie realizacji i rozliczenia zostają w narzędziach Twojej agencji."
+      checksum: fnv1a-6b371da3
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Etapy pitchów, wartości ważone i kontekst klienta ułatwiają czytanie tablicy nowych zleceń agencji."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Etapy pitchów i wartości ważone utrzymują czytelność tablicy nowych zleceń agencji."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: pl
+      text: Pipeline agencji
+    semanticLabels:
+      - locale: pl
+        text: Kontekst leada
+      - locale: pl
+        text: Wartość ważona
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: agency-new-business-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "CRM dla agencji marketingowej: wracaj do każdego pitchu, przekaż każdego klienta do realizacji"
+  description: "Pitche stoją w miejscu, gdy realizujesz zlecenia innych klientów. Od planu Pro wątki e-mail i LinkedIn leżą przy kliencie, Mate przygotowuje odpowiedź i kolejny krok, a zespół realizacji widzi, co ustaliła sprzedaż. Planowanie realizacji i rozliczenia zostają w narzędziach Twojej agencji."
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/agencies/dashboard
+  hint: "Bez karty kredytowej • [[commercial.trial.days]]-dniowy okres próbny planu Pro"
+  showOpenSourceBadge: false
+
+landing:
+  hero:
+    eyebrow: Dla agencji na 2 do 10 osób i zespołów wirtualnych asystentów
+    title: CRM dla agencji marketingowej, który przekazuje każdego klienta do realizacji.
+    description: Pitche, retainery i rozmowy z klientami w jednej przestrzeni roboczej. Gdy klient podpisze, zespół realizacji widzi, co obiecała sprzedaż, odpowiada z tej samej wspólnej skrzynki i przejmuje kolejny krok.
+    primaryCta:
+      label: Rozpocznij [[commercial.trial.days]]-dniowy okres próbny
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Porozmawiaj z Benem, 15 minut
+      href: /contact
+  facts: Bez karty kredytowej · Zostajesz przy swoich narzędziach do realizacji · Business od [[commercial.price.business.monthly]] za osobę miesięcznie
+  generator:
+    eyebrow: Zacznij od jednego opisu
+    title: Twoja agencja, opisana raz. Zbudowana dla Ciebie.
+    description: Konfiguracja z pomocą AI zadaje kilka pytań i buduje klientów, pitche, retainery, projekty oraz Twój playbook przekazania. To przykład agencji; klikaj do woli.
+    promptLabel: Twój opis dla Mate
+    arrowLabel: stał się tą przestrzenią roboczą
+    prompt: Jesteśmy agencją projektową. Śledź pitche, retainery i projekty oraz przekazuj każdego nowego klienta ze sprzedaży do realizacji.
+  followUp:
+    eyebrow: Podpisany klient, przekazany dalej
+    title: Sprzedaż obiecała termin. Realizacja zna go od pierwszego dnia.
+    description: Wątek e-mail leży przy kliencie. Mate przygotowuje szkic powitalnej odpowiedzi z Twojego playbooka przekazania i dodaje kickoff do listy kierownika projektu.
+    desk:
+      label: Scena follow-upu dla przekazania klienta w agencji
+      workspace: Fjordline Studio
+      conversation:
+        label: E-mail
+        name: Maren Koch
+        company: Bergkaffee
+        time: czw. 17:05
+        message: Podpisane i odesłane. Zgodnie z ustaleniami z Tomem potrzebujemy pierwszych projektów przed naszymi targami 14 marca. Kto jest teraz naszą osobą kontaktową?
+      agent:
+        name: Mate
+        intent: Przygotowuje powitalną odpowiedź z Twojego playbooka przekazania
+        done: Szkic zapisany. Kickoff dodany do kolejnych kroków Lei.
+      draft:
+        badge: Szkic, czeka na Twoją weryfikację
+        text: Cześć Maren, dziękuję, cieszymy się, że jesteście z nami. Od teraz projekt prowadzi Lea i zna już termin 14 marca. Jutro prześle terminy kickoffu. Pozdrawiam, Tom
+        edit: Edytuj
+        send: Wyślij szkic
+      today:
+        title: Pulpit
+        date: piątek
+        addedBy: Dodane przez Mate
+        assign: Przypisz
+        sections:
+          - title: Kolejne kroki do wykonania
+            items:
+              - title: Rozmowa startowa z Bergkaffee
+                meta: Bergkaffee · termin dziś
+                owner: LS
+                state: added
+              - title: Wyślij raport z retaineru
+                meta: Nordwerk · 1 dzień po terminie
+                owner: TB
+                state: overdue
+  beforeAfter:
+    eyebrow: Co się zmienia
+    title: Przed i po. Ci sami klienci, czystsze przekazania.
+    before:
+      label: Przed
+      points:
+        - Obietnice z pitchu żyją w skrzynce jednej osoby
+        - Realizacja pyta klienta o to, co już ustalono
+        - Rekordy każdego klienta wymieszane w jednej liście
+    after:
+      label: Z Customermates
+      points:
+        - Rozmowa i obietnica leżą przy kliencie
+        - Realizacja odpowiada z tej samej wspólnej skrzynki w Business
+        - Jedna przestrzeń robocza na klienta, gdy pracujesz dla kilku
+  steps:
+    eyebrow: Jak zacząć
+    title: Trzy kroki. Do pierwszego czystego przekazania.
+    items:
+      - title: Opisz swoją agencję
+        description: Konfiguracja z pomocą AI buduje klientów, pitche, retainery, projekty i Twój playbook przekazania z jednego opisu i kilku odpowiedzi.
+      - title: Podłącz i udostępnij skrzynkę
+        description: Wątki trafiają do klienta, którego adres e-mail lub profil LinkedIn pasuje. W Business możesz udostępnić zespołowi całe połączone konto.
+      - title: Przekaż dalej z kolejnym krokiem
+        description: Mate przygotowuje odpowiedź i wyznacza datę kolejnego kroku dla osoby, która realizuje. Ty edytujesz, wysyłasz albo pomijasz.
+  plan:
+    eyebrow: Cennik
+    title: Business obejmuje cały zespół. [[commercial.price.business.monthly]] za osobę miesięcznie.
+    description: Pro za [[commercial.price.pro.monthly]] obejmuje jedno połączone konto na osobę. Business dodaje udostępnianie całego konta, więc sprzedaż i realizacja odpowiadają z tej samej skrzynki. Limit przestrzeni roboczych na login to [[commercial.workspaces.creationLimit]], po jednej na klienta.
+    limits: To nie dla Ciebie, jeśli potrzebujesz planowania projektów, ewidencji czasu pracy, fakturowania, dokumentów ofertowych albo sekwencji e-mail. Te rzeczy zostają w narzędziach Twojej agencji.
+    primaryCta:
+      label: Rozpocznij [[commercial.trial.days]]-dniowy okres próbny
+      href: /auth/signup?job=followup
+    secondaryCta:
+      label: Porównaj wszystkie plany
+      href: /pricing
+
+cta:
+  action: Zobacz, jak podpisany klient trafia do realizacji
+  description: Poznaj przykładową przestrzeń roboczą agencji z danymi przykładowymi, a potem rozpocznij okres próbny i podłącz jedną rozmowę z klientem.
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/agencies/dashboard
+  hint: "Realizacja projektów, oferty, ewidencja czasu pracy i rozliczenia zostają w narzędziach Twojej agencji."
+
+useCases:
+  eyebrow: "Jak możesz z tego korzystać"
+  title: "Dla agencji. Trzy zadania, jedna przestrzeń robocza."
+  items:
+    - title: "Prowadź każdy pitch na jednej tablicy"
+      description: "Zapytania, briefingi i pitche przesuwają się po jednej tablicy, a kontekst klienta jest obok."
+      href: /features/pipeline
+      linkLabel: "Zobacz pipeline"
+      visual: pipeline
+    - title: "Przekaż każdego klienta do realizacji"
+      description: "Udostępnij zespołowi połączoną skrzynkę, żeby realizacja widziała, co ustaliła sprzedaż, i odpowiadała z tego samego konta."
+      href: /features/unified-inbox
+      linkLabel: "Zobacz ujednoliconą skrzynkę odbiorczą"
+      visual: team
+    - title: "Przynieś własną AI"
+      description: "Mate przygotowuje odpowiedzi na podstawie playbooka Twojej agencji, a Twój własny klient AI łączy się przez MCP."
+      href: /features/integrations
+      linkLabel: "Podłącz swojego agenta"
+      visual: agent
+---
+
+Pitch wychodzi, notatki z briefingu leżą w skrzynce jednej osoby, a klient, który podpisał w zeszłym tygodniu, pyta, kto jest jego osobą kontaktową. Customermates to **CRM dla agencji marketingowej** i studiów kreatywnych, które zdobywają klientów przez zapytania, pitche i relacje. Klienci i potencjalni klienci, ich kontakty, każdy pitch, podpisane retainery (umowy abonamentowe) i kolejna akcja zostają przy jednym rekordzie, aż wygrana praca przejdzie do narzędzi, które prowadzą realizację, dzięki czemu realizacja widzi, co ustaliła sprzedaż. W Customermates Cloud od planu Pro wątki e-mail i LinkedIn leżą przy kliencie, a Mate lub Twój własny agent AI przez MCP przygotowuje odpowiedź i kolejny krok, które sprawdzasz, poprawiasz i wysyłasz. To open source CRM oparty natywnie na AI, stworzony w Niemczech; obejmuje pozyskiwanie nowych zleceń i relacje z klientami, a nie planowanie realizacji, kampanie czy fakturowanie.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Dla kogo">
+    Agencje marketingowe, kreatywne i cyfrowe, które zdobywają pracę przez
+    briefingi, pitche i kilku interesariuszy po stronie klienta.
+  </SummaryItem>
+  <SummaryItem label="Główne zadanie">
+    Wracać do każdego pitchu i przekazywać każdego podpisanego klienta do
+    realizacji, z rozmową i kolejnym krokiem przy rekordzie klienta.
+  </SummaryItem>
+  <SummaryItem label="Limity dla zespołu">
+    Udostępniony widok jest dla współpracowników tylko do odczytu, nie ma
+    uprawnień na poziomie pól, a udostępnianie całego konta skrzynki
+    odbiorczej zaczyna się od planu Business.
+  </SummaryItem>
+  <SummaryItem label="Granica systemu">
+    Realizacja projektów, oferty, ewidencja czasu pracy, fakturowanie i
+    narzędzia do kampanii zostają w stosie narzędzi Twojej agencji.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Funkcje CRM dla agencji">
+  <ProofItem label="Relacje">Klienci, potencjalni klienci i kontakty</ProofItem>
+  <ProofItem label="Nowe zlecenia">Tablica pitchów z Twoimi etapami</ProofItem>
+  <ProofItem label="Praca cykliczna">Retainery jako rekordy</ProofItem>
+  <ProofItem label="Follow-up">Zadania powiązane z rekordami</ProofItem>
+  <ProofItem label="Rozmowy">Skrzynka odbiorcza w chmurze od planu Pro</ProofItem>
+</ProofRail>
+
+## Najlepszy CRM dla małych agencji marketingowych: sześć opcji w porównaniu
+
+Ranking opiera się na jednym zadaniu: wracaniu do każdego pitchu i każdej rozmowy z klientem w agencji na 2 do 10 osób. Tę stronę publikuje Customermates, więc sprawdź każdy wiersz na stronie dostawcy. Ceny sprawdzono 9 listopada 2026 r. na stronie z cennikiem każdego dostawcy, a cenę promocyjną opisujemy jako promocyjną.
+
+| # | CRM | Dla kogo | Cena |
+|---|---|---|---|
+| 1 | Customermates | Małe agencje, które robią pitche i zdobywają retainery oraz chcą mieć wątki e-mail, LinkedIn i WhatsApp obok klienta, ze wspólną skrzynką w Business. Plany realizacji, ewidencja czasu pracy i faktury zostają w Twoim stosie narzędzi. | Pro [[commercial.price.pro.monthly]], Business [[commercial.price.business.monthly]] za użytkownika miesięcznie, rozliczane co miesiąc |
+| 2 | [Breakcold](https://www.breakcold.com/pricing) | Agencje, które sprzedają przez LinkedIn. Jego własne strony opisują osobną przestrzeń roboczą na klienta i jedną skrzynkę na e-mail, LinkedIn, WhatsApp i Telegram. | Od 49 $ za miejsce miesięcznie przy rozliczeniu miesięcznym; jedna przestrzeń robocza w cenie, kolejne po 10 $ miesięcznie |
+| 3 | [HubSpot](https://www.hubspot.com/pricing/crm) | Darmowy start dla założyciela i jednego partnera, z celowanymi kampaniami e-mail w płatnym planie Starter. | Za darmo do 2 użytkowników; Starter 7 € za miejsce miesięcznie przy rozliczeniu rocznym, cena ograniczona czasowo |
+| 4 | [Pipedrive](https://www.pipedrive.com/en/pricing) | Zespół od nowych zleceń, który myśli kategoriami pipeline'u szans sprzedaży i pracuje z telefonu: natywne aplikacje na iOS i Androida w każdym planie. | Lite 14 € za miejsce miesięcznie przy rozliczeniu rocznym; dwukierunkowa synchronizacja poczty zaczyna się od planu Growth |
+| 5 | [Attio](https://attio.com/pricing) | Agencja, która chce odwzorować klientów, projekty i retainery we własnym modelu danych, z synchronizacją poczty dla Gmaila i Microsoft 365. | Za darmo do 3 miejsc; Plus 31 € za użytkownika miesięcznie przy rozliczeniu rocznym |
+| 6 | [Twenty](https://twenty.com/pricing) | Techniczna agencja, która chce open source CRM z własnymi obiektami i porządkuje model danych samodzielnie. | Pro 9 $ za użytkownika miesięcznie przy rozliczeniu rocznym; samodzielny hosting rdzenia jest darmowy |
+
+## Tablica pitchów w przykładowej przestrzeni roboczej
+
+[Przestrzeń robocza agencji](https://demo.customermates.com/pl/w/agencies/dashboard) to przykład z danymi przykładowymi, a nie konto klienta. Interfejs jest po polsku, rekordy przykładowe są po angielsku. Ma sześć list: **Clients**, **Contacts**, **Pitches**, **Projects**, **Retainers** i **Tasks**. Pitche przechodzą przez **Inquiry**, **Briefing**, **Pitch preparation**, **Proposal sent**, **Negotiation**, **Won** i **Lost**.
+
+Tablica pitchów pokazuje każdy otwarty pitch jako kartę na jego etapie, z właścicielem i szacowaną wartością. Każdy etap ma prawdopodobieństwo wygranej, więc tablica pokazuje też wartość ważoną każdego pitchu. To ważenie pipeline'u na Twoich własnych prawdopodobieństwach, a nie prognoza.
+
+Otwórz klienta z karty, a cała relacja jest w jednym miejscu:
+
+- **Osoby:** szefowa marketingu, która przekazała Ci briefing, dyrektor zarządzający, który podpisuje, osoba z zakupów.
+- **Pitche:** bieżący na etapie Pitch preparation i wcześniejsze, które zostały wygrane. Pitch trzyma brief klienta i ofertę jako pliki PDF w polu Plik oraz datę i godzinę prezentacji.
+- **Projekty:** wygrana praca jako rekordy ze statusem, budżetem, budżetem godzin i wykorzystanymi godzinami; pozostałe godziny wylicza się z tych dwóch. Widok kalendarza pokazuje miesiąc po miesiącu okno produkcji każdego projektu.
+- **Retainer:** rekord z polami takimi jak opłata miesięczna, okres, data rozpoczęcia i data odnowienia. Wartość umowy to opłata miesięczna razy okres, a klient pokazuje swój MRR z retainerów. Opisuje ustalenie i trzyma podpisaną umowę jako PDF; nie tworzy faktur ani rozliczeń cyklicznych.
+- **Rozmowa:** wątek e-mail z szefową marketingu, powiązany z pitchem. Kontakt dopasowano po adresie e-mail w polu Dane kontaktowe; powiązanie z pitchem ustawiła wprost osoba, nigdy automat.
+
+## Od zapytania do projektu i retainera
+
+<Steps>
+  <Step title="Zapisz zapytanie">
+    Dodaj osobę oraz klienta lub potencjalnego klienta i otwórz pitch na
+    etapie Inquiry. Zanotuj źródło, na przykład polecenie albo obecnego
+    klienta, w polu.
+  </Step>
+  <Step title="Przyjmij briefing">
+    Przesuń pitch do Briefing, zapisz budżet i zakres we własnych polach i
+    przypisz właściciela.
+  </Step>
+  <Step title="Przygotuj i wyślij pitch">
+    Przejdź przez Pitch preparation i Proposal sent. Powiązane zadania i
+    pole daty kolejnego kroku pokazują, co jest do zrobienia i kto za to
+    odpowiada.
+  </Step>
+  <Step title="Wracaj do klienta i negocjuj">
+    Odpowiadaj w oryginalnym wątku ze skrzynki odbiorczej albo poproś Mate o
+    szkic na podstawie rekordu klienta i rozmowy, a potem go przeczytaj i wyślij.
+  </Step>
+  <Step title="Zapisz wynik">
+    Przesuń pitch do Won lub Lost. Dla wygranej pracy utwórz rekord projektu
+    lub retainera, a plany realizacji, ewidencję czasu pracy i rozliczenia
+    zostaw w narzędziach do projektów i finansów.
+  </Step>
+</Steps>
+
+## Co należy do CRM, a co zostaje w stosie narzędzi agencji
+
+| Moment w agencji | Customermates trzyma | Gdzie indziej leży |
+| --- | --- | --- |
+| Zapytanie i briefing | Klienci, kontakty, etapy pitchów, właściciele i Twoje własne pola | Wzbogacanie danych, scoring leadów i sekwencje wychodzące |
+| Pitch i negocjacje | Szacowana wartość, wartość ważona, kontekst follow-upu | Prezentacje pitchowe, oferty, zakresy prac i umowy |
+| Przegląd nowych zleceń | Tablica pitchów, prawdopodobieństwa etapów i sumy ważone | Prognozowanie predykcyjne i planowanie finansowe |
+| Podpisana praca | Rekordy projektów i retainerów ze statusem, budżetem, godzinami wpisywanymi ręcznie i datą odnowienia | Plany realizacji, moce przerobowe, ewidencja czasu pracy, fakturowanie i księgowość |
+| Kampanie | Nic | Platformy reklamowe, e-mail marketing i raportowanie dla klientów |
+
+<AcquisitionCallout
+  title="Etap o nazwie Proposal sent to wciąż tylko etap"
+  variant="boundary"
+>
+  Tablica pokazuje, na którym etapie jest pitch. Nie generuje oferty, umowy
+  ani faktury, a rekord retainera nikogo nie rozlicza. Podpisany zakres
+  trzymaj w dokumentach i narzędziach finansowych, do których należy.
+</AcquisitionCallout>
+
+## Rozmowy z klientami obok relacji
+
+W Customermates Cloud [ujednolicona skrzynka odbiorcza](/features/unified-inbox) łączy pocztę z Gmaila, Outlooka lub IMAP z LinkedInem, WhatsAppem, Instagramem i Telegramem. Odpowiadasz w oryginalnym kanale. Uczestnicy są dopasowywani do kontaktów po adresie e-mail, numerze telefonu lub tożsamości w LinkedIn; powiązanie rozmowy z pitchem lub klientem to celowy krok osoby lub agenta.
+
+Plan decyduje, jak daleko sięga skrzynka odbiorcza:
+
+- **Starter i self-hosted:** brak połączonych kont komunikatorów.
+- **Pro:** własne połączone konta każdej osoby (w cenie: [[commercial.entitlement.pro.includedAccountsPerUser]] na użytkownika) i wątki udostępniane pojedynczo.
+- **Business, Max i Enterprise:** udostępnianie całego konta, więc wspólną skrzynkę z nowymi zleceniami można otworzyć zespołowi obsługującemu klienta. W Business liczba połączonych kont na użytkownika w cenie wynosi [[commercial.entitlement.business.includedAccountsPerUser]].
+
+## Pomoc AI i połączenia
+
+Mate, asystent w Customermates Cloud, potrafi podsumować klienta przed spotkaniem pitchowym, przesunąć pitch na kolejny etap i zapisać szkic follow-upu w rozmowie. Działa na kredytach hostowanej AI wliczonych na aktywnego użytkownika w każdym płatnym planie chmurowym i nie jest dostępny w wersji self-hosted. Mate wysyła, gdy mu to polecisz, więc poproś o szkic, gdy chcesz najpierw sprawdzić. [Rutyna](/docs/app-routines) może uruchamiać Mate według harmonogramu albo przy zmianie rekordu. Przykładowa przestrzeń robocza ma dwie: w każdy poniedziałek kontrola odnowień oznacza retainery odnawiane w ciągu 60 dni jako Renewal due i tworzy zadanie, a gdy pitch przechodzi na Proposal sent, Mate zapisuje szkic follow-upu do sprawdzenia.
+
+Każdy plan, także self-hosted, ma [REST API](/features/api) i [MCP](/docs/mcp) dla zewnętrznych klientów AI, takich jak Claude czy ChatGPT, które mogą czytać lub aktualizować rekordy dozwolone dla Twojej roli; webhooki są w każdym płatnym planie i w samodzielnym hostingu. Osobno prowadzony [przepływ n8n](/features/workflow-automation) może przekazać wygrany pitch do Twojego narzędzia do projektów.
+
+## Praca w zespole agencji
+
+Zanim zaprosisz całą agencję, poznaj ograniczenia:
+
+- **Udostępnione widoki są tylko do odczytu.** Udostępnij widok tablicy pitchów całej agencji albo wybranym rolom, a wszyscy pracują na tych samych filtrach; zmienia go tylko jego właściciel.
+- **Brak uprawnień na poziomie pól.** Role kontrolują dostęp do list i rekordów, więc rola z dostępem do odczytu Przypisane może ograniczyć freelancera do jego własnych pitchów, ale nie ukryjesz jednego pola, takiego jak stawka, przed kimś, kto może odczytać rekord.
+- **Udostępnianie całego konta skrzynki odbiorczej zaczyna się od planu Business.** W Pro wątki udostępnia się pojedynczo.
+- **Brak subkont klientów ani przestrzeni white-label.** Customermates to własny CRM Twojej agencji, a nie portal, który odsprzedajesz klientom.
+
+## Konfiguracja własnej przestrzeni roboczej
+
+Nowa przestrzeń robocza zaczyna bez list. Pitches, Projects i Retainers to przykładowe listy z dema, a nie to, co zawiera każde konto. W Customermates Cloud konfiguracja przestrzeni z pomocą AI pyta, do czego ma służyć przestrzeń, i z Twoich odpowiedzi buduje listy, etapy, pulpit i strony Bazy wiedzy. Uruchamia się raz przy wdrożeniu, w ramach ograniczonej puli kredytów AI, a możesz ją pominąć przez **Zacznij od pustej przestrzeni roboczej** (zobacz [wdrożenie](/docs/app-onboarding)).
+
+W przeciwnym razie osoby z uprawnieniami do Model danych tworzą listy, pola i etapy w Model danych oraz importują istniejących klientów i kontakty ze skoroszytu Excela. Import jest nieodwracalny, więc najpierw wypróbuj go na kilku wierszach.
+
+## Chmura czy self-hosted
+
+Listy, pola, tablica pitchów, zadania, REST, webhooki i MCP działają w Customermates Cloud i w [wersji self-hosted](/features/self-hosted). Samodzielny hosting ma zestaw funkcji Starter: bez ujednoliconej skrzynki odbiorczej, bez Mate i bez konfiguracji z pomocą AI. Ceny za użytkownika miesięcznie, rozliczane co miesiąc, są na [stronie z cennikiem](/pricing).
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy Customermates zarządza projektami lub kampaniami agencji?">
+Nie jako narzędzie do projektów. Przykładowa przestrzeń robocza ma prostą listę Projects ze statusem, budżetem i wykorzystanymi godzinami, wpisywanymi ręcznie, żeby wygrana praca leżała obok klienta. Plany realizacji, moce przerobowe, ewidencja czasu pracy i kampanie należą do narzędzi do zarządzania projektami, PSA i marketingu.
+</FaqItem>
+
+<FaqItem question="Czy może tworzyć oferty, umowy lub faktury?">
+Nie. Pitch może mieć etap, wartość i link do dokumentu oferty, ale Customermates nie ma obiegu ofert, umów ani faktur. Retainery to rekordy, a nie faktury cykliczne.
+</FaqItem>
+
+<FaqItem question="Czy nowa przestrzeń robocza ma listy Pitches, Projects i Retainers?">
+Nie. Nowa przestrzeń robocza zaczyna bez list. W Customermates Cloud konfiguracja z pomocą AI może raz przy wdrożeniu zbudować listy i etapy na podstawie Twojego opisu. W przeciwnym razie osoby z uprawnieniami do Model danych tworzą je i importują rekordy z Excela.
+</FaqItem>
+
+<FaqItem question="Czy zespół może współdzielić widok tablicy pitchów?">
+Tak. Udostępnij zapisany widok całej agencji albo wybranym rolom, a wszyscy pracują na tych samych filtrach tablicy pitchów. Współpracownicy widzą go tylko do odczytu i zmienia go tylko jego właściciel. Każdy widzi tylko rekordy, na które pozwala jego rola.
+</FaqItem>
+
+<FaqItem question="Czy możemy udostępnić zespołowi skrzynkę z nowymi zleceniami?">
+W Business, Max i Enterprise możesz udostępnić całe połączone konto. W Pro każda osoba podłącza własne konta i udostępnia pojedyncze wątki. Starter i wersja self-hosted nie mają połączonych kont komunikatorów.
+</FaqItem>
+
+<FaqItem question="Czy agencja może śledzić follow-upy?">
+Zadania można powiązać z klientami, kontaktami i pitchami. Nie mają wbudowanych terminów ani przypomnień, więc dodaj pole daty i posortuj według niego zapisany widok. Nie ma sekwencji e-mail ani wysyłek masowych.
+</FaqItem>
+
+<FaqItem question="Czy możemy dać klientom ich własne przestrzenie white-label?">
+Nie. Nie ma subkont klientów, portali klienta ani przestrzeni white-label.
+</FaqItem>
+<FaqItem question="Jaki jest najlepszy CRM dla agencji marketingowych?">
+To zależy od zadania. Do wracania do pitchów i rozmów z klientami w małej agencji marketingowej tabela powyżej stawia na pierwszym miejscu Customermates, bo wątki e-mail, LinkedIn i WhatsApp leżą obok klienta, a przygotowana odpowiedź czeka na Twoją weryfikację. Dalej są Breakcold, HubSpot, Pipedrive, Attio i Twenty. Plany projektów, ewidencja czasu pracy i fakturowanie zostają w narzędziach do tego stworzonych. Tę stronę publikuje Customermates, więc sprawdź każdy wiersz na stronie dostawcy.
+</FaqItem>
+
+<FaqItem question="Co powinien robić system CRM dla agencji marketingowej?">
+Trzyma każdego klienta, osoby za nim stojące i każdy pitch lub retainer przy jednym rekordzie, pokazuje, kto odpowiada za kolejny krok, i kładzie obok rozmowy klienta, żeby osoba, która sprzedała pracę, i osoba, która ją realizuje, widziały tę samą historię.
+</FaqItem>
+
+<FaqItem question="Czy darmowy CRM wystarczy dla dwuosobowej agencji marketingowej?">
+Na początek często tak: HubSpot jest darmowy do 2 użytkowników, a Attio do 3 miejsc (sprawdzone 9 listopada 2026 r.). Customermates Cloud ma darmowy plan (limit osób: [[commercial.limit.free.maxMembers]], limit rekordów: [[commercial.limit.free.maxRecords]]), bez skrzynki odbiorczej, Mate i rutyn. Jeśli chcesz mieć rozmowy z klientami obok pitchu, potrzebujesz planu Pro.
+</FaqItem>
+
+</Faq>

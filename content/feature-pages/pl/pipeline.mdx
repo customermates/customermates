@@ -1,0 +1,169 @@
+---
+title: "Pipeline CRM: tablica szans sprzedaży z wartością etapów"
+description: "Pipeline CRM dla małych zespołów: szanse sprzedaży według etapu z prawdopodobieństwem, wartością i wartością ważoną oraz kontekstem klienta pod ręką."
+featureName: Lejek sprzedaży
+
+relatedHrefs:
+  - /features/sales
+  - /features/reporting
+  - /features/workflow-automation
+  - /blog/sales-pipeline
+
+sections:
+  visual:
+    kind: stage
+    solution: agencies
+    prompt: "Jesteśmy agencją projektową. Śledź oferty, retainery i projekty oraz przekazuj każdego nowego klienta ze sprzedaży do realizacji."
+  steps:
+    title: "Od tablicy do następnego kroku"
+    items:
+      - title: "Zobacz szanse sprzedaży według etapu"
+        description: "Otwórz widok tablicy swoich szans sprzedaży i przejrzyj sumy w kolumnach."
+      - title: "Sprawdź jedną transakcję"
+        description: "Otwórz kartę, aby zobaczyć powiązaną firmę, kontakty, zadania i notatki."
+      - title: "Zapisz kolejne działanie"
+        description: "Wypełnij pole daty, na przykład Następny krok, i dodaj zadanie. Customermates nie ma wbudowanych przypomnień, dlatego tę rolę pełni zapisany widok przefiltrowany po minionych datach."
+      - title: "Dopasuj pola i etapy"
+        description: "Dodaj pola, według których sortujesz, takie jak Przewidywane zamknięcie (data) albo Powód przegranej (pojedynczy wybór), i zmieniaj prawdopodobieństwa, gdy zmieni się twoje doświadczenie."
+      - title: "Pozwól, by AI pomagała tam, gdzie jest to dozwolone"
+        description: "Poproś Mate w chmurze albo swojego klienta AI przez MCP o zmianę etapu lub o listę transakcji bez następnego kroku."
+  highlights:
+    title: "W skrócie"
+    capture: homepage-pipeline-board
+    items:
+      - title: "Każdy plan"
+        description: "Tablica szans sprzedaży pogrupowana według etapów, prawdopodobieństwa etapów, wartość i wartość ważona w każdej kolumnie, zapisane widoki do udostępniania, widżety pulpitu, import i eksport Excel, REST i MCP oraz webhooki w planach płatnych. Self-hosting też."
+      - title: "Tylko chmura"
+        description: "Mate, hostowany asystent, i rutyny w ramach kredytów AI twojego planu. Wspólna skrzynka odbiorcza od planu Pro."
+      - title: "Nie wchodzi w skład"
+        description: "Bez prognoz predykcyjnych, bez analizy szybkości pipeline'u i konwersji między etapami, bez wyróżniania zastygłych transakcji, bez uprawnień na poziomie pola."
+
+hero:
+  title: "Pipeline CRM, w którym każda otwarta szansa ma następny krok"
+  description: "Zobacz każdą szansę sprzedaży według etapu z wartością i wartością ważoną, otwórz stojącą za nią rozmowę z klientem i zapisz następny krok z datą. Etapy konfigurujesz według własnych potrzeb. Wartość ważona to wartość razy prawdopodobieństwo, a nie prognoza."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/sales-pipeline/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+cta:
+  action: "Umieść otwarte szanse sprzedaży na tablicy, każdą z następnym krokiem"
+  description: "Skonfiguruj etapy, zaimportuj szanse sprzedaży z arkusza Excel i dodaj pole daty Następny krok. Sprawdź w ciągu [[commercial.trial.days]] dni, czy mniej transakcji cichnie. Plany zaczynają się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie, z rozliczeniem miesięcznym."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/sales-pipeline/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+Pipeline CRM, czyli lejek sprzedaży w jednym widoku, układa twoje otwarte szanse sprzedaży na tablicy, po jednej kolumnie na etap. Widzisz, co jest w grze, ile to jest warte i która transakcja potrzebuje następnego kroku. Customermates to oprogramowanie CRM dla małych zespołów sprzedażowych, których transakcje zależą od rozmów: firm doradczych, agencji, firm usługowych i founderów, którzy sprzedają osobiście. Jest open source, natywnie oparte na AI i stworzone w Niemczech.
+
+**Gdzie transakcje utykają.** Transakcja utyka, gdy nikt nie zapisał, co dzieje się dalej. Na karcie widzisz firmę, kontakty, a od planu Pro także rozmowy z nimi, a pole daty, takie jak Następny krok, wpisuje follow-up do zapisu. Zapisany widok albo widżet Nadchodzące na pulpicie pokazuje potem transakcje, którym termin właśnie nadchodzi lub już minął.
+
+## Zobacz to w przykładowej przestrzeni roboczej
+
+[Przestrzeń robocza lejka sprzedaży](https://demo.customermates.com/pl/w/sales-pipeline/dashboard) to przykład z danymi demonstracyjnymi, a nie konto klienta. Interfejs jest po polsku, a przykładowe rekordy po angielsku. Ma pięć list: Accounts, Contacts, Opportunities, Products i Tasks. Szanse sprzedaży przechodzą przez etapy New, Qualified, Discovery, Proposal sent, Negotiation, Won i Lost, a należą do trzech handlowców.
+
+Tablica pokazuje każdy etap z jego prawdopodobieństwem. Nagłówek każdej kolumny sumuje wartość i wartość ważoną jej szans sprzedaży. Wartość szansy bierze się z jej pozycji: produktów z listy Products, ilość razy cena jednostkowa. Otwórz kartę, a trafisz na szansę sprzedaży z jej firmą, kontaktami, pozycjami, zadaniami i zapisanym następnym krokiem. Oferty leżą przy szansie jako pliki PDF w polu Plik.
+
+Pulpit pokazuje spodziewane zamknięcia miesiąca w widżecie **Przegląd miesiąca**, czyli kalendarzu, który sumuje wartość dzień po dniu, więc widzisz, które tygodnie niosą najwięcej wartości, oraz nanosi firmy na mapę według ich adresu. Widok kalendarza szans sprzedaży pokazuje przewidywane daty zamknięcia według miesięcy, a strona Kalendarz zestawia z nimi wizyty na miejscu z listy zadań.
+
+Twoja przestrzeń robocza nie startuje z tymi listami ani etapami. Nowa przestrzeń robocza zaczyna bez list. W Customermates Cloud konfiguracja przestrzeni roboczej z pomocą AI buduje na podstawie twojego opisu listy, etapy, pulpit i strony Bazy wiedzy. Uruchamia się raz podczas onboardingu, ogranicza ją pula kredytów konfiguracji i możesz ją pominąć przyciskiem **Zacznij od pustej przestrzeni roboczej**. W innym przypadku osoby z uprawnieniami do modelu danych tworzą listę szans sprzedaży i jej pole etapu w **Model danych**. Przy self-hostingu to jedyna droga.
+
+## Jak działa tablica
+
+**Etapy to pole, które należy do ciebie.** Etap to opcja pojedynczego wyboru, a każda opcja niesie prawdopodobieństwo wygranej od 0 do 100 procent. Zmieniaj nazwy etapów, ustawiaj ich kolejność, dodawaj je lub usuwaj w **Model danych**; podgląd pokazuje wpływ na obliczenia i widżety, zanim zapiszesz. Zmiana nazwy etapu zachowuje go na każdym rekordzie.
+
+**Tablica.** W **Wygląd** wybierz **Tablica** pogrupowaną według etapu. Przeciągnij kartę do innej kolumny, a jej etap się zmieni. Karty pokazują pola, które wybierzesz, takie jak wartość, firma, przypisani użytkownicy czy data następnego kroku. Taki układ w stylu kanban dobrze zna każdy, kto pracował z tablicami zadań.
+
+**Nagłówki kolumn liczą za ciebie.** Każdy nagłówek pokazuje liczbę rekordów i sumy, które wybierzesz, takie jak wartość i wartość ważona. Wartość ważona to wartość szansy sprzedaży razy prawdopodobieństwo jej etapu. Trzy przykładowe szanse:
+
+| Szansa sprzedaży | Etap (prawdopodobieństwo) | Wartość | Wartość ważona |
+|---|---|---|---|
+| Odświeżenie strony internetowej | Zakwalifikowana (20%) | 5 000 | 1 000 |
+| Warsztat brandingowy | Oferta wysłana (60%) | 8 000 | 4 800 |
+| Roczny retainer | Negocjacje (80%) | 12 000 | 9 600 |
+| **Otwarty pipeline** | | **25 000** | **15 400** |
+
+Ta suma waży twoje własne liczby. Nie przewiduje przychodów ani dat zamknięcia. Prawdopodobieństwa powyżej to przykłady, a nie wartości domyślne.
+
+**Wartość.** Szansa sprzedaży ma wartość w walucie. Gdy sprzedajesz z katalogu usług lub produktów, wartość mogą zamiast tego tworzyć pozycje: ilość razy cena jednostkowa w każdym wierszu.
+
+**Widok tabeli.** Przełącz się na **Tabela** i zachowaj grupowanie: etapy stają się grupami wierszy z własnymi liczbami i sumami, a sortować możesz według wartości albo wartości ważonej.
+
+## Kontekst klienta obok transakcji
+
+Szansa sprzedaży łączy się z firmą i jej kontaktami, więc ludzie i historia są o jedno kliknięcie dalej. W Customermates Cloud plan Pro i wyższe dodają [wspólną skrzynkę odbiorczą](/features/unified-inbox) dla Gmaila, Outlooka, IMAP, LinkedIn, WhatsApp, Instagrama i Telegramu. Uczestnik rozmowy jest dopasowywany do kontaktu według tożsamości z jego pola Dane kontaktowe. Rozmowa jest łączona z szansą sprzedaży lub firmą tylko wtedy, gdy zrobisz to ty albo agent, wprost; nic nie trafia do transakcji automatycznie.
+
+Limity skrzynki odbiorczej według planu: Starter i self-hosted nie mają połączonych kont komunikacyjnych. Pro obejmuje twoje własne konta, z [[commercial.entitlement.pro.includedAccountsPerUser]] połączonym kontem na użytkownika w cenie, a do tego wątki udostępniane pojedynczo. Udostępnienie całego konta zespołowi wymaga planu Business, Max lub Enterprise.
+
+## Jak utrzymać lejek sprzedaży w aktualnym stanie
+
+**Widok zastygłych transakcji.** Przefiltruj szanse sprzedaży po **Zaktualizowano** starszym niż 14 dni, z etapem innym niż Wygrana lub Przegrana, i zapisz widok. Każda edycja liczy się jako aktualizacja, nie tylko zmiana etapu.
+
+**Cotygodniowa rutyna (tylko chmura).** [Rutyna](/docs/app-routines) uruchamia Mate według harmonogramu albo gdy zmieni się rekord, należy do jednego użytkownika i widzi to, co widzi on, w ramach kredytów AI właściciela:
+
+```text
+Znajdź szanse sprzedaży na etapie Oferta wysłana lub Negocjacje, które nie były aktualizowane przez ostatnie 14 dni. Dla każdej utwórz zadanie „Sprawdź: [nazwa]”, powiąż je z szansą sprzedaży i przypisz do jej właściciela. Nie wysyłaj żadnych wiadomości.
+```
+
+Mate tworzy i aktualizuje rekordy oraz wysyła wiadomości, gdy tylko o to poprosisz, więc napisz w instrukcji, czego nie wolno mu robić. Usuwanie, importy i zmiany dostępu czekają na zatwierdzenie, a rutyna działająca bez nadzoru je odrzuca. Mate nie jest dostępny przy self-hostingu.
+
+**Twój własny klient AI przez MCP.** W każdym planie, także self-hosted, Claude, ChatGPT lub inny klient [MCP](/docs/mcp) może czytać szanse sprzedaży i aktualizować etapy oraz pola, na które pozwala twoja rola, a koszty ponosi twój dostawca AI. Zmiana etapu z dowolnego źródła uruchamia webhook `record.updated`, który może odebrać osobny workflow w n8n.
+
+## Praca w zespole
+
+Wszyscy, których rola czyta wszystkie szanse sprzedaży, widzą te same transakcje; przy dostępie do odczytu **Przypisane** osoba widzi tylko własne. Zapisany widok tablicy pozostaje prywatny, dopóki nie udostępnisz go przestrzeni roboczej lub wybranym rolom; współpracownicy widzą go tylko do odczytu. Dla zespołów liczą się dwa ograniczenia:
+
+- Udostępniona przez ciebie tablica jest dla współpracowników tylko do odczytu. Udostępnij ją całemu zespołowi albo wybranym rolom, a wszyscy pracują na tej samej, ale zmieniasz ją tylko ty, a każdy widzi tylko rekordy, na które pozwala jego rola.
+- Uprawnienia obejmują całe listy. Nie ma uprawnień na poziomie pola, więc osoba, która może czytać szanse sprzedaży, widzi każde ich pole.
+- Udostępnianie całego konta skrzynki odbiorczej zaczyna się od planu Business. W planie Pro współpracownicy udostępniają pojedyncze wątki.
+
+## Ograniczenia
+
+<AcquisitionCallout title="Czego pipeline nie robi" variant="boundary">
+  Wartość ważona to twoja wartość razy twoje prawdopodobieństwa. Nie ma prognozy predykcyjnej, raportu o czasie w etapie, konwersji między etapami ani szybkości pipeline'u, nie ma też automatycznego wyróżniania zastygłych transakcji. Brak uprawnień na poziomie pola i brak natywnej aplikacji mobilnej.
+</AcquisitionCallout>
+
+Metrykę taką jak współczynnik wygranych na osobę Mate w chmurze może policzyć z twoich rekordów albo eksportujesz listę jako arkusz Excel. Opcje wykresów znajdziesz na stronie o [raportach](/features/reporting).
+
+## Więcej niż jeden pipeline
+
+Nie ma osobnego obiektu pipeline. Drugi pipeline to drugie pole pojedynczego wyboru, na przykład **Etap odnowienia**, z własnym widokiem tablicy. Wartość ważona pochodzi z pola etapu z prawdopodobieństwami, więc druga tablica pokazuje liczby i sumy, ale bez kwot ważonych.
+
+## Jaki rodzaj narzędzia pasuje
+
+| Twoja sytuacja | Na co spojrzeć |
+|---|---|
+| Zespół outbound o dużym wolumenie, który potrzebuje prognoz i alertów o zastygłych transakcjach | CRM nastawiony na sprzedaż, zbudowany pod to, na przykład Pipedrive |
+| Mały zespół, którego transakcje toczą się w rozmowach przez e-mail, LinkedIn i WhatsApp | Customermates |
+| Jedna osoba z garstką transakcji | Arkusz kalkulacyjny może nadal wystarczyć |
+
+## Ile to kosztuje
+
+Rozliczenie jest miesięczne, za użytkownika. Starter kosztuje [[commercial.price.starter.monthly]] i obejmuje tablicę, etapy, wartość ważoną oraz pulpity. Pro kosztuje [[commercial.price.pro.monthly]] i dodaje skrzynkę odbiorczą. Business kosztuje [[commercial.price.business.monthly]] i dodaje udostępnianie całego konta skrzynki odbiorczej. Self-hosting rdzenia open source nie ma opłaty licencyjnej; płacisz za własny serwer. Zobacz [cennik](/pricing).
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy nowa przestrzeń robocza ma etapy pipeline'u?">
+Nie. Nowa przestrzeń robocza zaczyna bez list. W Customermates Cloud konfiguracja przestrzeni roboczej z pomocą AI buduje podczas onboardingu listę szans sprzedaży z etapami na podstawie twojego opisu. W innym przypadku tworzysz listę i jej pole etapu w Model danych.
+</FaqItem>
+
+<FaqItem question="Czy Customermates prognozuje przychody?">
+Nie. Wartość ważona mnoży wartość każdej szansy sprzedaży przez prawdopodobieństwo, które ustawisz dla jej etapu. To arytmetyka na twoich własnych liczbach, a nie prognoza, i nie ma analiz szybkości ani konwersji.
+</FaqItem>
+
+<FaqItem question="Czy cały mój zespół może pracować na tej samej tablicy?">
+Wszyscy z dostępem do odczytu wszystkich szans sprzedaży widzą te same transakcje. Udostępnij zapisany widok tablicy całemu zespołowi albo wybranym rolom, a wszyscy pracują na tej samej tablicy; każdy nadal widzi tylko rekordy, na które pozwala jego rola. Nie ma uprawnień na poziomie pola.
+</FaqItem>
+
+<FaqItem question="Czy mogę mieć kilka pipeline'ów?">
+Tak, jako osobne pola pojedynczego wyboru, każde z własnym widokiem tablicy.
+</FaqItem>
+
+<FaqItem question="Czy e-maile trafiają do transakcji automatycznie?">
+Nie. W planie Pro i wyższych w chmurze rozmowy są dopasowywane do kontaktów według ich danych kontaktowych. Powiązanie rozmowy z szansą sprzedaży to jawny krok po twojej stronie albo agenta.
+</FaqItem>
+</Faq>

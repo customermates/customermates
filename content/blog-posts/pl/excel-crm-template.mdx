@@ -1,0 +1,281 @@
+---
+title: "CRM Excel: darmowy szablon arkusza i formuły"
+description: "CRM Excel za darmo: szablon z sześcioma arkuszami, kolumnami, listami rozwijanymi i formułami do pipeline'u i pracy handlowców, gotowy do importu do CRM."
+
+relatedHrefs:
+  - /blog/google-sheets-crm
+  - /features/simple-crm
+  - /blog/digital-rolodex
+  - /blog/contact-list-template
+
+hero:
+  title: "CRM Excel: darmowy szablon z sześcioma arkuszami, który zaimportujesz później"
+  description: "Każda kolumna, lista rozwijana i formuła arkuszowego CRM, który obsłuży od jednej do trzech osób, z tygodniowym zestawieniem na handlowca i zasadami układu, dzięki którym każdy arkusz przejdzie do CRM bez ponownego przepisywania."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: "autor: Benjamin Wagner"
+  date: 2025-12-25
+  updated: 2026-11-06
+  tags:
+    - Excel
+    - Szablon CRM
+    - CRM w arkuszu
+    - Śledzenie sprzedaży
+---
+
+# CRM Excel: darmowy szablon z sześcioma arkuszami, który zaimportujesz później
+
+CRM Excel, czyli szablon do prowadzenia relacji z klientami w arkuszu, składa się z jednego arkusza na każdy rodzaj rekordu (firmy, kontakty, szanse sprzedaży, aktywności) i jednego arkusza, który je liczy i sumuje. Poniższy układ możesz skopiować za darmo: wpisz nagłówki do pustego skoroszytu, dodaj listy rozwijane i wklej formuły. Wystarcza dla od jednej do trzech osób, które trzymają jedną kopię pliku, a każdy arkusz jest ułożony tak, żeby później mógł trafić do CRM jako import, bez przepisywania ani jednego wiersza.
+
+Customermates publikuje ten poradnik i jest CRM-em w przykładzie importu. Sam skoroszyt nie wymaga niczego poza aktualną wersją Excela.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Co budujesz">Sześć arkuszy: Lists, Companies, Contacts, Deals, Activities oraz Dashboard z tygodniowym zestawieniem na handlowca.</SummaryItem>
+  <SummaryItem label="Format pliku">Zapisz jako .xlsx. Stary format .xls kończy się na 65 536 wierszach, a współtworzenie w Excelu wymaga .xlsx, .xlsm lub .xlsb zapisanych w OneDrive albo SharePoint.</SummaryItem>
+  <SummaryItem label="Dla kogo">Od jednej do trzech osób, jeden proces sprzedaży, kilkaset aktywnych kontaktów.</SummaryItem>
+  <SummaryItem label="Kiedy przejść dalej">Dwie osoby pracują na tych samych szansach sprzedaży, follow-up przepadł, bo nikt nie przefiltrował kolumny z datami, albo szanse sprzedaży przesuwają się w wątkach na LinkedInie i WhatsAppie, które nigdy nie trafiają do arkusza.</SummaryItem>
+  <SummaryItem label="Jak przejść">Jeden arkusz na import: najpierw usługi i firmy, potem kontakty, potem szanse sprzedaży.</SummaryItem>
+</ArticleSummary>
+
+Skorzystaj z [szablonu listy kontaktów](/blog/contact-list-template) dla małego, wspólnego katalogu z wyznaczonym właścicielem i następnym krokiem, zanim zdecydujesz, czy przenieść go do CRM.
+
+System CRM oparty na Excelu potrzebuje tych samych zasad działania co dedykowane narzędzie: jednego właściciela na wiersz, stałych identyfikatorów i jasnego następnego kroku. Sam układ arkuszy tych zasad nie egzekwuje.
+
+## Gdzie pobrać sprawdzony skoroszyt CRM?
+
+Pobierz [darmowy skoroszyt CRM Excel po angielsku](/templates/crm-template-en.xlsx) albo [skoroszyt CRM po niemiecku](/templates/crm-template-de.xlsx). To oryginalny, zwarty przykład z sześcioma arkuszami roboczymi plus arkuszem Readme: Companies, Contacts, Deals, Activities, Dashboard i Lists. Jest oddzielony od pełniejszego układu kolumna po kolumnie poniżej; nie wklejaj poniższych formuł do pobranego pliku bez sprawdzenia odwołań do kolumn.
+
+Przykład łączy **jednego klienta i dwa zlecenia** za pomocą stałych identyfikatorów źródłowych. Zarówno `JOB-001`, jak i `JOB-002` wskazują na `C-001`, nawet jeśli zmienisz nazwę klienta. Daty to komórki z datą, stany używają list rozwijanych, a wyszukiwanie klienta korzysta z identyfikatora źródłowego. Dashboard zawiera 9000 EUR przykładowych szans sprzedaży i 4050 EUR wartości ważonej: 7200 × 50% plus 1800 × 25%. Dwa otwarte następne kroki pozostają osobnymi aktywnościami.
+
+Sprawdzono 29 października 2026: oba pliki XLSX zapisaliśmy i otworzyliśmy ponownie za pomocą ExcelJS, sprawdziliśmy nazwy arkuszy, komórki z datami, odwołania wyszukiwania i zapisane wyniki formuł oraz upewniliśmy się, że nie zawierają makr ani połączeń z zewnętrznymi skoroszytami. Nie przeprowadziliśmy wizualnej sesji w Microsoft Excel ani LibreOffice. Otwórz swoją kopię w arkuszu kalkulacyjnym, przelicz ją i potwierdź dwie przykładowe sumy, zanim zastąpisz fikcyjne wiersze. Nie dodawaj kilku walut do jednej sumy bez wyraźnej zasady przeliczania.
+
+### Co przetrwało lokalny test importu do CRM?
+
+Przeanalizowaliśmy angielski przykład do JSON-a uwzględniającego schemat i zaimportowaliśmy go przez prawdziwy endpoint MCP Customermates w syntetycznej, lokalnej przestrzeni roboczej. Był to test JSON/API, **nie test natywnego kreatora XLSX w przeglądarce**. Osobna lista przykładowa zachowała ręcznie wpisaną kwotę i prawdopodobieństwo; nie zastąpiła po cichu domyślnego obliczania wartości szansy sprzedaży.
+
+| Wartość źródłowa | Sprawdzenie zapisanego stanu |
+| --- | --- |
+| `C-001`, `JOB-001`, `JOB-002` | Zachowane w polach Tekst z identyfikatorem źródłowym i w mapie identyfikatorów źródłowych na identyfikatory rekordów |
+| Jeden klient, dwa zlecenia | Obie zapisane relacje wskazywały ten sam rekord klienta |
+| `Example owner` | Rozwiązane do rzeczywistego identyfikatora syntetycznego członka; zrób to samo dla własnych członków |
+| Proposal / Qualified | Zmapowane na rzeczywiste identyfikatory opcji wyboru |
+| 7200 / 1800 EUR oraz 20 listopada / 4 grudnia 2026 | Kwota, waluta i data zgadzały się po odczycie i eksporcie |
+| 50% / 25% | Prawdopodobieństwa dziesiętne zgadzały się po eksporcie |
+
+Ponowne uruchomienie identycznego importu z tym samym kluczem idempotentności zwróciło ten sam wynik bez dodawania dwóch kolejnych zleceń. Przy prawdziwym przenoszeniu najpierw odczytaj aktualne identyfikatory list, pól i opcji, a potem postępuj zgodnie z [kontraktem importu JSON](/docs/app-records#bulk-import-over-the-api). Zachowaj mapę identyfikatorów źródłowych skoroszytu na identyfikatory rekordów w CRM, odczytaj zapisane rekordy i zarchiwizuj oryginalny skoroszyt. To nie jest migracja załączników, funkcja cofania ani ciągła synchronizacja.
+
+## Cztery zasady układu przed pierwszym wierszem
+
+1. **Jeden wiersz nagłówka, jeden wiersz na rekord.** Bez scalonych komórek, bez pustych wierszy, bez podsumowań wewnątrz danych.
+2. **Zrób z każdego arkusza tabelę Excela.** Zaznacz zakres, naciśnij Ctrl+T i nazwij ją w Projekt tabeli › Nazwa tabeli: `Companies`, `Contacts`, `Deals`, `Activities`. Poniższe formuły używają tych nazw, a tabele rosną razem z nowymi wierszami.
+3. **Daj każdej stałej liście listę rozwijaną.** Użyj Dane › Poprawność danych, Dozwolone: Lista, z tabelą w arkuszu Lists jako źródłem. [Poradnik o listach rozwijanych](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list) Microsoftu zauważa, że listy oparte na tabeli aktualizują się same, gdy dodasz lub usuniesz pozycje.
+4. **Poza czytelnymi nazwami trzymaj stały identyfikator źródłowy.** Poniższy układ używa dokładnych nazw na potrzeby natywnego mapowania powiązań XLSX. Zwarty plik do pobrania zachowuje też identyfikatory źródłowe do wyszukiwań i późniejszego mapowania JSON/API. Nazwy pomagają ludziom wybrać rekord; gdy nazwy się zmieniają, zachowaj mapę identyfikatorów źródłowych na identyfikatory rekordów.
+
+## Szablon arkusz po arkuszu
+
+Nazwy arkuszy, tabel i kolumn oraz nazwy etapów i typów aktywności zostają tu po angielsku, bo korzystają z nich formuły i skoroszyt do pobrania; jeśli je przetłumaczysz, dostosuj formuły. Formuły są zapisane z angielskimi nazwami funkcji i przecinkami jako separatorami. Polska wersja Excela wyświetla i wymaga przetłumaczonych nazw funkcji oraz średników (na przykład SUMA.WARUNKÓW dla SUMIFS, LICZ.WARUNKI dla COUNTIFS, X.WYSZUKAJ dla XLOOKUP, DZIŚ dla TODAY).
+
+### Lists
+
+Małe tabele zasilające listy rozwijane. Tabela etapów niesie też prawdopodobieństwo wygranej, które arkusz Deals wyszukuje.
+
+| Tabela | Kolumny | Wartości początkowe |
+| --- | --- | --- |
+| `Stages` | Stage, Probability | Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100%, Lost 0% |
+| `ContactTypes` | Contact type | Lead, Klient, Partner, Były klient |
+| `Sources` | Source | Polecenie, Strona internetowa, LinkedIn, Wydarzenie, Outbound |
+| `ActivityTypes` | Type | Call, Email, Meeting, LinkedIn, WhatsApp |
+| `Team` | Name | Pełne imię i nazwisko każdej osoby, która jest właścicielem rekordów |
+
+Te etapy i prawdopodobieństwa to przykład. Customermates nie ma gotowych etapów: utwórz te same opcje w polu Etap swojej listy szans sprzedaży w sekcji Model danych (albo pozwól, by konfiguracja z AI zbudowała je w chmurze), a kolumna Stage zaimportuje się później bez zmiany nazw. Potraktuj procenty jako pierwsze przybliżenie i zamień je, gdy będziesz mieć kilka miesięcy wygranych i przegranych szans sprzedaży do policzenia.
+
+### Companies
+
+Kolumny: Company (unikalna nazwa), Industry (lista rozwijana), Website, City, Country, Owner (lista rozwijana z `Team`), Notes. Zdecyduj raz, czy piszesz „sp. z o.o.”, czy „spółka z o.o.”, i trzymaj się tego. Dwa zapisy to dwie firmy dla każdego wyszukiwania i każdego narzędzia importu.
+
+### Contacts
+
+| Kolumna | Zawartość | Przykład |
+| --- | --- | --- |
+| A First name | Tekst | Sarah |
+| B Last name | Tekst | Okafor |
+| C Company | Lista rozwijana z kolumny Company w `Companies` | Brookfield Architects |
+| D Email | Tekst | sarah@brookfield-architects.example |
+| E Phone | Zapisany jako tekst, żeby znak plus został | +44 113 496 0000 |
+| F LinkedIn | Adres URL profilu | linkedin.com/in/sarahokafor |
+| G Contact type | Lista rozwijana z `ContactTypes` | Klient |
+| H Source | Lista rozwijana z `Sources` | Polecenie |
+| I Owner | Lista rozwijana z `Team` | Anna Berg |
+| J Last contact | Data | 2025-11-28 |
+| K Notes | Krótki tekst | Woli telefony przed 10:00 |
+
+Trzymaj imię i nazwisko w osobnych kolumnach: większość CRM wymaga obu, żeby utworzyć osobę.
+
+### Deals
+
+| Kolumna | Zawartość | Przykład |
+| --- | --- | --- |
+| A Deal | Tekst | Przegląd bezpieczeństwa Brookfield Architects |
+| B Company | Lista rozwijana z `Companies` | Brookfield Architects |
+| C Contact | Pełne imię i nazwisko kontaktu | Sarah Okafor |
+| D Value | Liczba | 18000 |
+| E Stage | Lista rozwijana z `Stages` | Proposal |
+| F Probability | Formuła | 60% |
+| G Weighted | Formuła | 10800 |
+| H Expected close | Data | 2026-01-31 |
+| I Owner | Lista rozwijana z `Team` | Anna Berg |
+| J Next step | Jedno zdanie | Wysłać poprawiony zakres |
+| K Next step date | Data | 2025-12-04 |
+| L Closed on | Data, wypełniana przy Won lub Lost | |
+| M Loss reason | Lista rozwijana: Cena, Termin, Konkurencja, Brak decyzji | |
+
+Wpisz dwie formuły raz w pierwszym wierszu danych; tabela wypełni je w dół:
+
+```
+F  Probability   =XLOOKUP([@Stage],Stages[Stage],Stages[Probability],0)
+G  Weighted      =[@Value]*[@Probability]
+```
+
+XLOOKUP wymaga Excela dla Microsoft 365, 2021 lub 2024. [Opis XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) Microsoftu mówi, że funkcja nie jest dostępna w Excelu 2016 i 2019, gdzie `=INDEX(Stages[Probability],MATCH([@Stage],Stages[Stage],0))` robi to samo.
+
+Aby pokolorować na czerwono minione daty następnego kroku, zaznacz wiersze danych kolumny K i dodaj regułę w Narzędzia główne › Formatowanie warunkowe › Nowa reguła › „Użyj formuły do określenia komórek, które chcesz sformatować”: `=AND($K2<>"",TODAY()>$K2)`. Kolor widzi tylko ten, kto otworzy plik. Sam skoroszyt nikogo nie powiadamia.
+
+### Activities
+
+Jeden wiersz na każdy istotny kontakt: Date, Contact (pełne imię i nazwisko), Deal (nazwa albo puste), Type (lista rozwijana z `ActivityTypes`), Owner, Summary (jedno lub dwa zdania o tym, co powiedziano i uzgodniono) oraz Next step. To jedyny arkusz, który odpowiada na pytanie „co ostatnio im powiedzieliśmy?”, więc wypełniaj go zaraz po rozmowie.
+
+### Dashboard
+
+Pięć liczb pipeline'u:
+
+```
+Open pipeline      =SUMIFS(Deals[Value],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Weighted pipeline  =SUMIFS(Deals[Weighted],Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Win rate           =COUNTIFS(Deals[Stage],"Won")/MAX(1,COUNTIFS(Deals[Stage],"Won")+COUNTIFS(Deals[Stage],"Lost"))
+Won this month     =SUMIFS(Deals[Value],Deals[Stage],"Won",Deals[Closed on],">="&EOMONTH(TODAY(),-1)+1)
+Past next steps    =COUNTIFS(Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Dla pipeline'u według etapów wstaw tabelę przestawną z `Deals`, z Stage w wierszach i Value w wartościach, i dodaj do niej wykres słupkowy. Odśwież ją po edycjach.
+
+Gdy sprzedaje dwie lub więcej osób, dodaj zestawienie na handlowca. Wpisz poniedziałek danego tygodnia w B1 i po jednym nazwisku na wiersz od A4 w dół, a potem skopiuj w dół poniższe formuły z wiersza 4:
+
+```
+Calls            =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Call",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Meetings         =COUNTIFS(Activities[Owner],$A4,Activities[Type],"Meeting",Activities[Date],">="&$B$1,Activities[Date],"<"&$B$1+7)
+Open pipeline    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+Won this week    =SUMIFS(Deals[Value],Deals[Owner],$A4,Deals[Stage],"Won",Deals[Closed on],">="&$B$1,Deals[Closed on],"<"&$B$1+7)
+Past next steps  =COUNTIFS(Deals[Owner],$A4,Deals[Next step date],"<"&TODAY(),Deals[Stage],"<>Won",Deals[Stage],"<>Lost")
+```
+
+Dużo rozmów przy płaskim pipeline'ie wskazuje na problem z kwalifikacją. Rosnąca liczba minionych następnych kroków wskazuje na problem z follow-upem. Używaj zestawienia do coachingu, a nie jako publicznego rankingu, bo liczby aktywności zaczną się zawyżać.
+
+## Excel, Arkusze Google czy CRM?
+
+| Jeśli to opisuje ciebie | Użyj | Uważaj na |
+| --- | --- | --- |
+| Jedna osoba, kilkaset kontaktów, większość rozmów przez e-mail | Ten szablon Excela na własnym komputerze | Trzymaj jedną kopię i rób kopię zapasową co tydzień |
+| Dwie lub trzy osoby w Microsoft 365, które edytują ten sam plik | Skoroszyt w OneDrive lub SharePoint ze [współtworzeniem](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring) | Wymaga subskrypcji Microsoft 365 oraz .xlsx, .xlsm lub .xlsb |
+| Zespół, który żyje w Google Workspace | Ten sam układ w Arkuszach Google, zobacz [poradnik o CRM w Arkuszach Google](/blog/google-sheets-crm) | Po odtworzeniu sprawdź każdą formułę jeszcze raz |
+| Kilka osób dzieli szanse sprzedaży, follow-upy przepadają, szanse przesuwają się w czatach na LinkedInie lub WhatsAppie | CRM | Zaplanuj import opisany niżej, zanim wybierzesz narzędzie |
+
+## Gdzie arkuszowy CRM przestaje działać
+
+Rozmiar rzadko jest powodem; te ograniczenia pojawiają się pierwsze.
+
+- **Powiązania to tekst.** Zmień nazwę firmy, a każdy kontakt, szansa sprzedaży i wyszukiwanie, które używały starej nazwy, wskazuje w próżnię, dopóki nie uruchomisz Znajdź i zamień na całym skoroszycie.
+- **Plik czeka na ciebie.** Czerwona data pomaga tylko osobie, która otworzy arkusz, a wiadomości z e-maila, LinkedIna lub WhatsAppa trafiają tam dopiero, gdy ktoś wpisze podsumowanie.
+- **Dostęp jest na zasadzie wszystko albo nic.** Każdy, kto może otworzyć skoroszyt, może przeczytać każdy arkusz.
+- **Dane osobowe rozchodzą się po kopiach.** Zgodnie z [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj/pol) osoba może zapytać, co o niej przechowujesz (art. 15), i zażądać usunięcia danych (art. 17). W przypadku skoroszytu oznacza to każdą kopię na każdym laptopie i w każdym folderze wysłanych.
+
+## Kiedy przejść na CRM: lista kontrolna
+
+- Dwie lub więcej osób aktualizuje te same szanse sprzedaży w zwykłym tygodniu.
+- [Follow-up](/features/follow-up) przepadł, bo jego data była w kolumnie, której nikt nie filtrował.
+- Kopiujesz wiadomości z LinkedIna lub WhatsAppa do arkusza albo już po cichu odpuszczasz ten krok.
+- Naprawianie Dashboardu trwa dłużej niż jego czytanie.
+- Ktoś pyta, kto może zobaczyć listę klientów, a uczciwa odpowiedź brzmi „każdy, kto ma plik”.
+
+Jeśli prawdziwe są dwa z tych punktów, ja bym przeszedł na CRM. Jeden zwykle da się naprawić w samym skoroszycie.
+
+## Przenoszenie szablonu do Customermates
+
+Customermates importuje skoroszyty Excela (.xlsx lub .xls) i pliki CSV, jedna lista naraz. [Dokumentacja importu](/docs/app-records#how-do-i-import-or-export-records) zawiera pełne zasady. Arkusz kalkulacyjny prowadzi follow-up tylko wtedy, gdy ktoś pamięta, żeby go otworzyć. Gdy arkusz jest już w Customermates, rozmowy każdego klienta leżą w rekordzie klienta (w Customermates Cloud od Pro), Mate albo twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, a data następnego kroku zasila twój pulpit zamiast czerwonej komórki. Oto, gdzie trafiają kolumny szablonu:
+
+| Kolumna szablonu | Pole w Customermates |
+| --- | --- |
+| Company | Nazwa organizacji |
+| First name, Last name | Imię i Nazwisko |
+| Company kontaktu lub szansy sprzedaży | Organizacje, dopasowane po nazwie |
+| Contact szansy sprzedaży | Kontakty, dopasowane po imieniu i nazwisku |
+| Email, Phone, LinkedIn | Dane kontaktowe kontaktu |
+| Industry, Contact type, Source, Loss reason | Pola niestandardowe Pojedynczy wybór |
+| Website; City, Country, Next step | Pole niestandardowe Adres internetowy; pola niestandardowe Tekst |
+| Last contact, Expected close, Next step date, Closed on | Pola niestandardowe Data |
+| Stage | Pole Etap szansy sprzedaży |
+| Value | Pozycje, patrz krok 2 |
+| Probability, Weighted | Pominięte: prawdopodobieństwo etapu ustala wartość ważoną |
+| Owner | Przypisany do, dopasowane po imieniu i nazwisku członka zespołu |
+| Notes | Notatki |
+| Otwarte następne kroki z Activities | Zadania |
+
+<Steps>
+  <Step title="Najpierw utwórz pola niestandardowe">W sekcji **Model danych** otwórz listę i wybierz **Dodaj**, a potem **Pole**. Dla każdej kolumny z listą rozwijaną utwórz pole Pojedynczy wybór, którego etykiety opcji dokładnie odpowiadają arkuszowi Lists; import oznacza każdą komórkę, która nie jest opcją. Sprawdź pole etapu i prawdopodobieństwa w swojej przestrzeni roboczej; konfiguracja z AI i istniejące przestrzenie robocze mogą używać innych list i opcji. Potrzebne opcje utwórz lub dostosuj w sekcji Model danych, zamiast zakładać, że pasują do tego przykładu.</Step>
+  <Step title="Zdecyduj, jak wchodzi wartość szans sprzedaży">Wartość szansy sprzedaży w Customermates to suma jej pozycji, a każda to cena usługi razy ilość. Najpierw zaimportuj swój cennik do **Usługi** (Nazwa i Cena są wymagane), a potem dodaj do każdej szansy sprzedaży pozycje z ich ilościami. Jeśli każda szansa ma własną cenę, liczbę może przechowywać pole wprowadzania Kwota pieniężna. Nie zastępuje ono automatycznie istniejącego obliczania na podstawie pozycji; osoba zarządzająca schematem danych musi zobaczyć podgląd i świadomie zmienić konfigurację wartości i ważenia, jeśli taki jest zamierzony model.</Step>
+  <Step title="Importuj w kolejności zależności">Usługi, potem firmy do Organizacji, potem kontakty, potem szanse sprzedaży. Powiązania są dopasowywane po nazwie, bez rozróżniania wielkości liter, więc firma musi istnieć, zanim kontakt będzie mógł na nią wskazywać, a nazwa, która nie pasuje do żadnego rekordu albo pasuje do kilku, jest oznaczana. Przecinek oddziela nazwy w obrębie komórki, więc firma o nazwie „Hale, Brook and Partners” wymaga zmiany nazwy przed importem albo ręcznego ustawienia powiązania po nim.</Step>
+  <Step title="Uruchom kreator">Na każdej liście otwórz **Więcej działań**, wybierz **Dodaj z pliku** i wskaż plik. Kreator pyta, który arkusz zaimportować, więc skoroszyt może zachować pozostałe arkusze; zapisz go jako .xlsx. Plik może obecnie mieć do 10 MB i 5000 wierszy. Dopasuj każdą kolumnę do pola; adresy e-mail, numery telefonów i profile LinkedIn trafiają do pola Dane kontaktowe kontaktu.</Step>
+  <Step title="Popraw lub pomiń problematyczne wiersze">Kontrola wypisuje każdy problem według wiersza, zanim cokolwiek zostanie dodane. Popraw komórki w Excelu i sprawdź ponownie albo zaimportuj resztę i pomiń te wiersze. Importu nie da się cofnąć, więc najpierw uruchom dziesięć wierszy.</Step>
+  <Step title="Zamień otwarte następne kroki w zadania">Z Activities przenieś tylko otwarte następne kroki, jako zadania powiązane z szansą sprzedaży i kontaktem oraz przypisane do właściciela. Zadania nie mają pola terminu, więc dodaj pole niestandardowe Data na datę. Starsza historia może trafić do Notatek szansy sprzedaży albo zostać w zarchiwizowanym skoroszycie.</Step>
+</Steps>
+
+### Co zastępuje dashboard i czerwone komórki
+
+- **Pipeline** staje się listą Szanse sprzedaży jako tablica pogrupowana według Etapu, z wartością łączną i ważoną w każdej kolumnie; pokazuje to [widok pipeline'u](/features/pipeline).
+- **Minione następne kroki** stają się zapisanym widokiem szans sprzedaży z datą następnego kroku, posortowanym od najstarszej. Dla szans sprzedaży, których nikt nie ruszał, przefiltruj **Zaktualizowano** za pomocą **Starsze niż…** i 14 dni.
+- **Poranna kontrola** może działać w Customermates Cloud. Customermates nie ma przypomnień ani powiadomień, ale rutyna ustawiona na codzienne uruchamianie o 08:00 może wykonać taką instrukcję, korzystając z hostowanych kredytów AI:
+
+> Wypisz moje otwarte szanse sprzedaży, których data następnego kroku to dziś lub wcześniej. Dla każdej utwórz zadanie powiązane z szansą sprzedaży, przypisane do mnie, o nazwie „Follow-up” plus nazwa szansy sprzedaży. Nie wysyłaj ani nie przygotowuj żadnych wiadomości.
+
+Rutyna działa z dostępem swojego właściciela, a Mate wysyła wiadomości, gdy mu się to każe, więc instrukcja musi mówić, czego nie wolno robić. Liczba rutyn wliczonych na użytkownika to [[commercial.entitlement.starter.includedRoutinesPerUser]] w planie Starter i [[commercial.entitlement.pro.includedRoutinesPerUser]] w planie Pro; [dokumentacja rutyn](/docs/app-routines) wymienia limity uruchomień.
+
+- **Arkusz Activities** ustępuje, w Pro i wyżej, [ujednoliconej skrzynce odbiorczej](/features/unified-inbox), która trzyma wątki e-mail, LinkedIn, WhatsApp, Instagram i Telegram razem z kontaktem. Liczba połączonych kont na użytkownika: [[commercial.entitlement.pro.includedAccountsPerUser]] w Pro, [[commercial.entitlement.business.includedAccountsPerUser]] w Business. Starter nie ma skrzynki odbiorczej.
+
+## Ile to kosztuje i kiedy Customermates to zły krok
+
+| Zespół | Plan | Miesięcznie |
+| --- | --- | --- |
+| 3 osoby, CRM bez skrzynki odbiorczej | Starter, [[commercial.price.starter.monthly]] za użytkownika | [[commercial.price.starter.monthly.seats.3]] |
+| 3 osoby, z ujednoliconą skrzynką odbiorczą | Pro, [[commercial.price.pro.monthly]] za użytkownika | [[commercial.price.pro.monthly.seats.3]] |
+| Własny serwer | Rdzeń AGPL self-hosted | Bez opłaty licencyjnej, plus twój hosting; REST, webhooki i MCP, ale bez skrzynki odbiorczej i bez Mate |
+
+Rozliczenie jest miesięczne, a okres próbny w chmurze trwa [[commercial.trial.days]] dni w Pro, bez karty kredytowej: [rozpocznij okres próbny](/auth/signup?job=followup) i zaimportuj jeden arkusz, żeby zobaczyć tam własne szanse sprzedaży. Każdy płatny plan w chmurze zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika; zobacz [cennik](/pricing).
+
+Customermates ma [pola obliczane](/docs/concepts#how-do-i-build-a-calculated-field), w tym wartości z tego samego rekordu i sumy z powiązanych rekordów. To zły krok, jeśli potrzebujesz ogólnego arkusza kalkulacyjnego z dowolnymi formułami w komórkach i układami skoroszytów; tę analizę zostaw w Excelu przez eksport. Zły również wtedy, gdy twój zespół potrzebuje dialera telefonicznego, kampanii e-mail albo natywnej aplikacji na telefon: Customermates nie ma aplikacji mobilnej, telefonii ani narzędzia do kampanii. Poszukaj CRM, który je ma.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Czy można zbudować CRM w Excelu?">
+Tak, dla małego zespołu. Układ z sześcioma arkuszami powyżej obejmuje firmy, kontakty, szanse sprzedaży, aktywności i dashboard. Czego Excel sam nie potrafi, to powiadamiać kogokolwiek, zachować powiązania po zmianie nazwy ani wciągać rozmów. Excel to arkusz kalkulacyjny, nie CRM; Microsoft sprzedaje swój CRM osobno jako [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales).
+</FaqItem>
+
+<FaqItem question="Czy istnieje darmowy szablon CRM w Excelu?">
+Układ z tego artykułu i pobierany przykład XLSX powyżej są darmowe i nie wymagają niczego poza zgodnym arkuszem kalkulacyjnym. Jeśli pobierasz szablon gdzie indziej, sprawdź trzy rzeczy, zanim wpiszesz dane: jeden rekord na wiersz, kontakty oddzielone od firm i brak scalonych komórek. Szablon, który ich nie spełnia, trudno później zaimportować do CRM.
+</FaqItem>
+
+<FaqItem question="Ile kontaktów obsłuży CRM w Excelu?">
+Arkusz roboczy mieści 1 048 576 wierszy według [specyfikacji Excela](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits) Microsoftu, a plik Arkuszy Google do 20 milionów komórek według [limitów plików Google](https://support.google.com/drive/answer/37603). Praktycznym limitem są ludzie, nie wiersze: lista kontrolna powyżej obowiązuje na długo przed zapełnieniem pliku. Customermates odczytuje obecnie do 5000 wierszy na plik importu, więc większe arkusze podziel.
+</FaqItem>
+
+<FaqItem question="Czy CRM może być zsynchronizowany z moim plikiem Excela?">
+Customermates nie. Import i eksport to transfery plików, jedna lista naraz, bez synchronizacji na żywo i bez eksportu CSV. Obieg w obie strony działa: wyeksportuj listę do .xlsx (do 5000 rekordów), edytuj ją w Excelu i zaimportuj ponownie jako **Istniejące rekordy**, a jej kolumna ID rekordu zaktualizuje te rekordy zamiast tworzyć duplikaty.
+</FaqItem>
+
+<FaqItem question="Co powinien zawierać arkusz do śledzenia pracy handlowców?">
+Jeden wiersz na handlowca na tydzień: rozmowy, spotkania, otwarty pipeline, wygrany przychód i liczbę szans sprzedaży z minionym następnym krokiem. Każdą komórkę oblicz z arkuszy Deals i Activities za pomocą COUNTIFS i SUMIFS, jak w zestawieniu powyżej, żeby nikt nie wpisywał liczb, które rozjeżdżają się z danymi.
+</FaqItem>
+</Faq>
+
+Szczegóły o Excelu i Arkuszach Google sprawdzono 8 października 2026 na stronach Microsoftu: [specyfikacje i limity Excela](https://support.microsoft.com/en-us/excel/excel-specifications-and-limits), [Excel ze starszymi wersjami](https://support.microsoft.com/en-us/excel/use-excel-with-earlier-versions-of-excel), [współtworzenie](https://support.microsoft.com/en-us/excel/get-started/collaborate-on-excel-workbooks-at-the-same-time-with-co-authoring), [listy rozwijane](https://support.microsoft.com/en-us/excel/get-started/create-a-drop-down-list), [XLOOKUP](https://support.microsoft.com/en-us/excel/functions/xlookup-function) i [Dynamics 365 Sales](https://www.microsoft.com/en-us/dynamics-365/products/sales), oraz na stronie Google o [limitach plików na Dysku](https://support.google.com/drive/answer/37603).

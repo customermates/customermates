@@ -1,0 +1,152 @@
+---
+title: "CRM Outlook: e-mail, foldery i kalendarz bez dodatku"
+description: "CRM Outlook: follow-up na e-mailach z Outlooka, z wątkami przy właściwym kontakcie, szkicami od Mate i folderami zgodnymi ze skrzynką. Bez dodatku, od Pro."
+featureName: Integracja z Outlookiem
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /docs/app-inbox
+  - /blog/outlook-crm-integration
+  - /features/contact-management
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Sprawdź plan"
+        description: "Użyj Customermates Cloud w planie Pro lub wyższym albo okresu próbnego. Twoja rola potrzebuje uprawnienia Tworzenie dla Wiadomości w skrzynce odbiorczej, aby połączyć kanał."
+      - title: "Połącz Outlooka"
+        description: "Otwórz Ustawienia › Kanały i kalendarze, kliknij „Połącz kanał” i wybierz Outlook. Karta przechodzi na bezpieczną stronę połączenia, na której się logujesz. Twoja historia importuje się potem w tle, zwykle w kilka minut, a przy dużej skrzynce nawet godzinę. Jeśli twój tenant Microsoft 365 blokuje zgodę użytkowników na aplikacje zewnętrzne, najpierw musi zatwierdzić połączenie administrator."
+      - title: "Wybierz foldery"
+        description: "Otwórz kartę „Foldery” konta i włącz foldery, które mają być w CRM, na przykład folder archiwum, albo wyłącz newslettery."
+      - title: "Ustaw podpis"
+        description: "Na karcie „E-mail” włącz „Dodaj podpis” i napisz go raz. Nie wklejaj go dodatkowo do wiadomości."
+      - title: "Powiąż pierwsze kontakty"
+        description: "Przefiltruj skrzynkę odbiorczą po „Uczestnicy: nie w pełni powiązane”, a potem powiąż każdego nadawcę z kontaktem albo utwórz nowy kontakt."
+  highlights:
+    title: "W skrócie"
+    capture: homepage-inbox
+    items:
+      - title: "Co się łączy"
+        description: "E-mail z twojego konta Outlook w obu kierunkach oraz jego wydarzenia kalendarza jako wpisy tylko do odczytu. Karta kanału pokazuje, czy połączono e-mail, kalendarz, czy oba."
+      - title: "Plan"
+        description: "Customermates Cloud, Pro lub wyższy. Pro obejmuje [[commercial.entitlement.pro.includedAccountsPerUser]] połączone konto na użytkownika, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Starter i instalacje self-hosted nie mają skrzynki odbiorczej."
+      - title: "Jak to działa"
+        description: "Bez dodatku do Outlooka i bez panelu bocznego. Customermates czyta i wysyła przez połączone konto, więc działa niezależnie od tego, w której aplikacji Outlook piszesz."
+      - title: "Nie wchodzi w skład"
+        description: "Bez synchronizacji kontaktów z książki adresowej Outlooka, bez tworzenia i rezerwowania wydarzeń kalendarza, bez masowej wysyłki e-maili."
+
+hero:
+  title: "CRM Outlook: każdy wątek z Outlooka przy swoim kliencie, bez dodatku"
+  description: "Połącz Outlooka raz, a jego wątki e-mail trafią do właściwego kontaktu. Zobacz, kto czeka na twoją odpowiedź, pozwól Mate napisać szkic i wyślij go z CRM albo z Outlooka. Kalendarz tylko do odczytu. Cloud od Pro, [[commercial.price.pro.monthly]] za użytkownika miesięcznie."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Obejrzyj demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+
+cta:
+  action: "Połącz jedno konto Outlook i zobacz, kto czeka na odpowiedź"
+  description: "Zacznij okres próbny, połącz Outlooka w Ustawienia › Kanały i kalendarze i sprawdź, czy twoje własne wątki, foldery i kontakty układają się tak, jak pracuje twój zespół."
+  buttonLeftText: "Zacznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Obejrzyj demo na żywo
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ Pierwsze [[commercial.trial.days]] dni za darmo"
+---
+
+CRM Outlook w Customermates działa po stronie serwera: logujesz się raz na swoje konto Outlook, a jego wątki e-mail pojawiają się we [wspólnej skrzynce odbiorczej](/features/unified-inbox) CRM, dopasowane do kontaktów według adresu e-mail. Możesz odpowiadać z CRM albo dalej pisać w Outlooku, bo poczta wysłana z Outlooka trafia do tego samego wątku. Przeniesienie e-maila do folderu w Customermates przenosi go też w twojej prawdziwej skrzynce. Wydarzenia kalendarza przychodzą tylko do odczytu. W Outlooku nie trzeba niczego instalować, a integracja wymaga Customermates Cloud w planie Pro lub wyższym.
+
+**Gdzie to pomaga w follow-upie.** E-mail od klienta, który przeczytasz w piątek i zamierzasz odpisać w poniedziałek, to właśnie tak umykają follow-upy. Gdy Outlook jest połączony, wątek leży przy kontakcie, filtr skrzynki odbiorczej wypisuje wątki, w których ostatnia wiadomość jest twoja i nie przyszła odpowiedź, a Mate może zapisać w wątku szkic odpowiedzi do sprawdzenia. Wysyłasz go z CRM albo z Outlooka; tak czy inaczej zostaje w jednym wątku.
+
+## Trzy rodzaje integracji CRM z Outlookiem
+
+„CRM dla Outlooka” obejmuje trzy różne konstrukcje. Zdecyduj, której chcesz, zanim zaczniesz porównywać dostawców. Tę stronę publikuje Customermates; przykłady dostawców poniżej pochodzą z dokumentacji każdego z nich, sprawdzonej 8 października 2026.
+
+| Konstrukcja | Gdzie pracujesz | Przykład | Wybierz ją, jeśli |
+| --- | --- | --- | --- |
+| Dodatek w Outlooku | W Outlooku, z panelem CRM obok e-maila | [Dodatek HubSpot Sales Office 365](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) (śledzi i rejestruje e-maile w Outlooku dla Windows, Mac i w sieci); [Dynamics 365 App for Outlook](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview) (łączy e-maile i spotkania z rekordami, może synchronizować kontakty z Exchange) | Twój zespół cały dzień siedzi w Outlooku i chce mieć dane CRM obok każdego e-maila |
+| CRM wewnątrz Outlooka | Outlook jest interfejsem CRM | [eWay-CRM](https://www.eway-crm.com/), który opisuje się jako zamieniający Outlooka w CRM | Nie chcesz drugiej aplikacji i twój zespół pracuje w Outlooku |
+| Skrzynka połączona z CRM | W CRM, a Outlook działa obok | Customermates | Rozmawiasz z klientami także na LinkedIn lub WhatsApp albo chcesz, by asystent AI czytał i pisał szkice z tych samych wątków |
+
+Jeśli potrzebujesz kontaktów z Outlooka synchronizowanych w obie strony albo panelu CRM wewnątrz Outlooka, Customermates to zły wybór. Zajrzyj wtedy do CRM opartego na dodatku. [Porównanie CRM z Outlookiem](/blog/outlook-crm-integration) omawia więcej opcji.
+
+## Co robi połączenie z Outlookiem
+
+**Wątki e-mail w skrzynce odbiorczej.** Wysłana i odebrana poczta połączonego konta pojawia się jako wątki w skrzynce odbiorczej, od najnowszej aktywności, obok rozmów z LinkedIn, WhatsApp, Instagrama i Telegramu, jeśli je połączysz. Wyszukiwanie obejmuje temat, treść wiadomości oraz nazwy lub adresy uczestników, a filtr zawęża listę do jednego folderu e-mail.
+
+**Foldery w obie strony.** Karta **Foldery** kanału ma jeden przełącznik na każdy folder Outlooka. Domyślnie włączone są wszystkie foldery poza koszem, spamem, wersjami roboczymi i folderem z całą pocztą. W wątku Outlooka możesz przenieść jeden e-mail albo całą rozmowę do innego folderu, a przeniesienie dzieje się w twojej prawdziwej skrzynce. Konta Gmail tego nie potrafią; działa to dla Outlooka i IMAP.
+
+**Kontakty powiązane po adresie.** Adres e-mail kontaktu łączy go z każdym wątkiem z tym adresem. Dla nadawcy, który nie jest jeszcze powiązany, otwórz **Ustawienia wątku**, kliknij **Powiąż** i wybierz kontakt albo utwórz go z nazwy. Adres jest wtedy dodawany do tego kontaktu, więc wszystkie wcześniejsze i późniejsze wątki z nim widać przy kontakcie. Wątki docierają do szans sprzedaży i organizacji przez kontakt; aby przypisać jeden wątek do szansy sprzedaży, użyj **Powiąż rekord** w **Rekordy rozmowy**.
+
+**Odpowiedzi i nowe e-maile z CRM.** Odpowiadaj w edytorze wątku, z polami Do, DW i UDW, formatowaniem Markdown i załączonymi plikami. Nowy e-mail zaczniesz z bloku **Dane kontaktowe** kontaktu. Każde konto Outlook ma własną czcionkę, kolor linków i podpis na swojej karcie **E-mail**. Po włączeniu podpis jest dodawany do każdego e-maila wysłanego z tego konta, niezależnie od tego, czy ze skrzynki odbiorczej, przez API czy przez MCP.
+
+**Kalendarz, tylko do odczytu.** Wydarzenia z połączonego kalendarza Outlooka pojawiają się w kategorii **Konto i kalendarz** widżetów osi czasu aktywności, a klienci AI czytają je przez MCP za pomocą `get_calendars`. Widać je także na stronie Kalendarz obok dat z twoich rekordów. Customermates nigdy nie tworzy, nie zmienia ani nie rezerwuje wydarzeń w Outlooku.
+
+## Konfiguracja
+
+Microsoft opisuje ustawienia zgody w artykule [Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent): domyślnie użytkownicy mogą wyrażać zgodę na aplikacje w zakresie uprawnień, które nie wymagają zgody administratora, a administratorzy mogą to ograniczyć. Jeśli twoja skrzynka nie może zalogować się przez opcję Outlook, opcja IMAP łączy inne konta e-mail przez IMAP i SMTP.
+
+## Kto widzi które e-maile
+
+Nowy kanał jest prywatny: tylko ty widzisz jego wątki i żadna rola, także Admin, nie może czytać prywatnych wątków współpracownika. Jedną rozmowę możesz udostępnić w jej **Ustawienia wątku**. W planach Business i Enterprise możesz udostępnić całe konto, na przykład adres zespołowy, który połączyła jedna osoba, a każdy członek, którego rola może czytać skrzynkę odbiorczą, widzi wtedy wszystkie jego wątki. Każde konto Outlook można połączyć w przestrzeni roboczej tylko raz, więc udostępnij je zamiast łączyć dwa razy.
+
+## AI w twoich wątkach z Outlooka
+
+**Mate w Customermates Cloud.** Mate może podsumować wątek, napisać szkic odpowiedzi, przypisać e-mail do folderu albo go wysłać, gdy go o to poprosisz. Mate korzysta z hostowanych kredytów AI; każdy płatny plan zawiera miesięczne hostowane kredyty AI na aktywnego użytkownika, zobacz [cennik](/pricing). Mate wysyła bez dodatkowego potwierdzenia, gdy każesz mu wysłać, więc napisz „szkic”, gdy chcesz tylko szkic.
+
+**Rutyny w Customermates Cloud.** Rutyna może startować od zdarzenia **E-mail odebrany**. Przykładowa instrukcja: „Gdy przyjdzie e-mail od kontaktu powiązanego z otwartą szansą sprzedaży, utwórz przy tej szansie zadanie przypisane do mnie z dwuzdaniowym podsumowaniem i zapisz w wątku szkic odpowiedzi. Niczego nie wysyłaj.” Rutyna działa jako jej właściciel i widzi tylko wątki, które widzi ta osoba. Limity opisuje [przewodnik po rutynach](/docs/app-routines).
+
+**Twój własny klient AI przez MCP.** Claude, ChatGPT i inni klienci MCP mogą czytać wątki, zapisywać szkice i wysyłać e-maile przez [serwer MCP](/docs/mcp), korzystając z twojej własnej subskrypcji AI zamiast hostowanych kredytów. Czy klient pyta przed wysłaniem, zależy od klienta.
+
+## Ile to kosztuje
+
+Integracja z Outlookiem nie ma osobnej ceny. Wchodzi w skład planu:
+
+| Zespół | Plan | Miesięcznie |
+| --- | --- | --- |
+| 3 osoby, każda z jednym kontem Outlook | Pro | [[commercial.price.pro.monthly.seats.3]] |
+| 3 osoby, każda z Outlookiem plus LinkedIn lub WhatsApp | Business | [[commercial.price.business.monthly.seats.3]] |
+
+O wszystkim decyduje limit kont: Pro obejmuje [[commercial.entitlement.pro.includedAccountsPerUser]] połączone konto na użytkownika, Business [[commercial.entitlement.business.includedAccountsPerUser]]. Jeśli ktoś potrzebuje Outlooka i LinkedIn w jednej skrzynce odbiorczej, ta osoba potrzebuje planu Business. Rozliczenie jest miesięczne.
+
+## Ograniczenia, o których warto wiedzieć
+
+- Brak dodatku do Outlooka, panelu bocznego i przycisku na wstążce. Dane CRM sprawdzasz w Customermates.
+- Kontakty z książki adresowej Outlooka nie są synchronizowane w żadną stronę. Kontakty powstają w Customermates: przez powiązanie nadawcy, ręcznie albo przez [import XLSX](/docs/app-records).
+- Dane kalendarza są tylko do odczytu. Bez rezerwowania spotkań i bez zapisu wydarzeń.
+- Bez masowej wysyłki i sekwencji. Każdy e-mail jest pisany i wysyłany osobno.
+- Odłączenie konta trwale usuwa wątki, wiadomości i wydarzenia kalendarza, które Customermates z niego zaimportował.
+- Dostawcy ograniczają, jak szybko można czytać i wysyłać pocztę; aktualne limity są w [limitach komunikacji](/docs/messaging-rate-limits).
+- Self-hosted Customermates nie ma skrzynki odbiorczej, więc nie ma też połączenia z Outlookiem. Ma je tylko Customermates Cloud.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy muszę instalować dodatek do Outlooka?">
+Nie. Połączenie działa między Customermates a twoim kontem, więc w Outlooku nie ma nic do zainstalowania ani do aktualizowania na każdym komputerze. Kompromis: dane CRM widzisz w Customermates, a nie w panelu w Outlooku.
+</FaqItem>
+
+<FaqItem question="Czy mogę dalej wysyłać e-maile z Outlooka?">
+Tak. Poczta wysłana z Outlooka trafia do tego samego wątku w Customermates, a odpowiedzi do niego dołączają. Używaj tej aplikacji, która jest pod ręką.
+</FaqItem>
+
+<FaqItem question="Czy Customermates synchronizuje moje kontakty albo kalendarz z Outlooka?">
+Kontakty: nie, w żadną stronę. Wątki są zamiast tego dopasowywane do kontaktów CRM według adresu e-mail. Kalendarz: wydarzenia są wczytywane do Customermates tylko do odczytu; nic nie jest zapisywane z powrotem do Outlooka.
+</FaqItem>
+
+<FaqItem question="Czy cały zespół widzi nawzajem swoją pocztę z Outlooka?">
+Tylko to, co zostało udostępnione. Prywatne wątki pozostają prywatne, także dla Adminów. Pojedyncze rozmowy można udostępniać w każdym planie ze skrzynką odbiorczą; całe konta można udostępniać w planach Business i Enterprise.
+</FaqItem>
+
+<FaqItem question="Czy Microsoft Outlook jest CRM?">
+Outlook obsługuje e-mail, kalendarz i książkę adresową, ale nie ma szans sprzedaży, etapów pipeline'u ani wspólnych rekordów klientów. Własna linia CRM Microsoftu to Dynamics 365, który łączy się z Outlookiem przez Dynamics 365 App for Outlook. Customermates zostawia Outlooka jako twojego klienta poczty i dodaje te rekordy obok twoich wątków.
+</FaqItem>
+
+<FaqItem question="Gdzie przetwarzane są dane?">
+W Customermates Cloud baza danych aplikacji jest skonfigurowana w regionie AWS Frankfurt. Połączone konta przesyła Unipile. Każdy podprocesor, w tym dostawcy z USA, jest na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania (DPA)](/dpa).
+</FaqItem>
+</Faq>
+
+Dane dostawców sprawdzono 8 października 2026 w [Microsoft Learn](https://learn.microsoft.com/en-us/dynamics365/outlook-app/overview), [bazie wiedzy HubSpot](https://knowledge.hubspot.com/connected-email/get-started-with-the-hubspot-sales-office-365-add-in) i na stronie [eWay-CRM](https://www.eway-crm.com/).

@@ -1,0 +1,264 @@
+---
+title: "CRM dla firmy usługowej: follow-up z każdym klientem"
+description: "CRM dla firmy usługowej: rozmowy z klientami na karcie, kolejny krok z datą przy każdej szansie sprzedaży i szkice odpowiedzi od Mate lub twojego klienta AI."
+industryName: Usługi profesjonalne
+
+acquisition:
+  locale: pl
+  slug: professional-services
+  clusterId: professional-services
+  role: hub
+  primaryIntent: CRM relacji i pipeline dla firm usług profesjonalnych
+  metadata:
+    title: "CRM dla firmy usługowej: follow-up z każdym klientem"
+    description: "CRM dla firmy usługowej: rozmowy z klientami na karcie, kolejny krok z datą przy każdej szansie sprzedaży i szkice odpowiedzi od Mate lub twojego klienta AI."
+  proof:
+    factReferences:
+      - product:core-crm-records
+      - product:deal-pipelines
+      - product:services-and-tasks
+      - product:weighted-deal-values
+      - product:mcp-tools
+    excludedClaims:
+      - claim:no-psa
+      - claim:no-delivery-management
+      - claim:no-invoicing
+      - claim:no-predictive-sales-analytics
+      - claim:no-time-tracking
+  cta:
+    action: Trzymaj każdą rozmowę z klientem i jej kolejny krok w jednym miejscu
+    description: Zacznij od jednego klienta i jednej otwartej rozmowy, a potem dopasuj etapy i pola do swojego procesu pozyskiwania klientów.
+    buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Poznaj przestrzeń roboczą
+    buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+    hint: "Realizację projektów, oferty, czas pracy i fakturowanie zostaw w wyspecjalizowanych systemach, z których już korzystasz."
+  relatedHrefs:
+    - /for/agencies
+    - /features/unified-inbox
+    - /features/self-hosted
+    - /blog/agentic-crm
+  visual:
+    id: acquisition.professional-services.pl
+    locale: pl
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM dla firmy usługowej: follow-up po każdej rozmowie z klientem"
+      body: "Trzymaj osoby decyzyjne u klienta, szanse sprzedaży i kolejny krok na jednej karcie, a od planu Pro obok nich wątki z e-maila i LinkedIna. Mate lub twój agent AI przygotowuje szkic odpowiedzi i kolejnego kroku, a ty go sprawdzasz i wysyłasz. Realizacja projektów, oferty, fakturowanie i rejestrowanie czasu zostają w wyspecjalizowanych systemach."
+      checksum: fnv1a-fe0c8d5a
+    kind: brand-illustration
+    pathway: focus
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "Kontekst klienta i ważone wartości szans sprzedaży ułatwiają czytanie pipeline pozyskiwania klientów."
+    depiction:
+      kind: result
+      productBehavior: true
+      statement: "Etapy szans sprzedaży i wartości ważone utrzymują czytelność pipeline pozyskiwania klientów."
+    factReferences:
+      - product:deal-status-field
+      - product:deal-weighted-values
+      - product:record-activity-context
+    focalLabel:
+      locale: pl
+      text: Pipeline szans sprzedaży
+    semanticLabels:
+      - locale: pl
+        text: Kontekst klienta
+      - locale: pl
+        text: Wartość ważona
+    focalSubject:
+      id: deal-pipeline
+      form: kanban-board
+      fixtures:
+        dealBoard: professional-services-board
+    supportingSubjects:
+      - id: client-context
+        form: context-card
+      - id: service-value
+        form: context-card
+    accentTarget: deal-pipeline
+  structuredData:
+    types:
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "CRM dla firmy usługowej: follow-up po każdej rozmowie z klientem"
+  description: "Trzymaj osoby decyzyjne u klienta, szanse sprzedaży i kolejny krok na jednej karcie, a od planu Pro obok nich wątki z e-maila i LinkedIna. Mate lub twój agent AI przygotowuje szkic odpowiedzi i kolejnego kroku, a ty go sprawdzasz i wysyłasz. Realizacja projektów, oferty, fakturowanie i rejestrowanie czasu zostają w wyspecjalizowanych systemach."
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "Bez karty kredytowej • [[commercial.trial.days]]-dniowy okres próbny planu Pro"
+  showOpenSourceBadge: false
+
+cta:
+  action: Trzymaj każdą rozmowę z klientem i jej kolejny krok w jednym miejscu
+  description: Zacznij od jednego klienta i jednej otwartej rozmowy, a potem dopasuj etapy i pola do swojego procesu pozyskiwania klientów.
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Poznaj przestrzeń roboczą
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "Realizację projektów, oferty, czas pracy i fakturowanie zostaw w wyspecjalizowanych systemach, z których już korzystasz."
+
+useCases:
+  eyebrow: "Jak możesz z niego korzystać"
+  title: "Dla firm usługowych. Trzy zadania, jedna przestrzeń robocza."
+  items:
+    - title: "Prowadź szansę sprzedaży do kolejnego działania"
+      description: "Kontekst klienta, szansa sprzedaży, usługi i zadanie follow-up pozostają połączone na jednej karcie."
+      href: /features/pipeline
+      linkLabel: "Zobacz pipeline"
+      visual: proposal
+    - title: "Odpowiadaj tam, gdzie napisał klient"
+      description: "Od planu Pro wątki z e-maila i LinkedIna są przy kliencie, a Mate lub twój klient AI przygotowuje szkic odpowiedzi do sprawdzenia."
+      href: /features/unified-inbox
+      linkLabel: "Zobacz ujednoliconą skrzynkę odbiorczą"
+      visual: conversation
+    - title: "Twoje AI na danych twoich klientów"
+      description: "Podłącz Claude, ChatGPT lub innego klienta MCP, w chmurze albo w self-hostingu."
+      href: /features/integrations
+      linkLabel: "Podłącz swojego agenta"
+      visual: agent
+---
+
+W firmie usługowej, która sprzedaje wiedzę i doświadczenie, zlecenia wygrywa się w rozmowach ciągnących się tygodniami: od znajomości z LinkedIna, przez ustalanie zakresu e-mailem, po ciszę po wysłaniu oferty. Customermates to **CRM dla firmy usługowej**, która sprzedaje ekspertyzę przez relacje i szanse sprzedaży prowadzone etapami. Łączy w jednej przestrzeni roboczej organizację klienta, jej osoby decyzyjne, szansę sprzedaży, omawiane usługi, wartość ważoną i kolejne zadanie. Od planu Pro w Customermates Cloud wątki z e-maila i LinkedIna są przy kliencie, a Mate lub twój agent AI przez MCP przygotowuje szkic odpowiedzi i kolejnego kroku, który sprawdzasz, poprawiasz i wysyłasz.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Dla kogo">
+    Firmy doradcze i inne firmy, które żyją z relacji i potrzebują czytelnego
+    pipeline klientów i szans sprzedaży.
+  </SummaryItem>
+  <SummaryItem label="Główne zadanie">
+    Trzymać razem osoby decyzyjne, szanse sprzedaży, usługi, rozmowy i kolejne
+    działania, żeby po każdej rozmowie z klientem był follow-up, a nie notatki
+    rozsiane po prywatnych plikach i arkuszach.
+  </SummaryItem>
+  <SummaryItem label="Najważniejsze funkcje">
+    Konfigurowalne etapy szans sprzedaży, deterministyczne wartości ważone,
+    pozycje i zadania powiązane z rekordami.
+  </SummaryItem>
+  <SummaryItem label="Granica systemu">
+    Customermates odpowiada za relacje i kontekst sprzedaży. Realizacja
+    projektów, oferty, czas pracy i fakturowanie zostają w wyspecjalizowanych
+    systemach.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Funkcje CRM dla firmy usług profesjonalnych">
+  <ProofItem label="Relacje">Kontakty i organizacje</ProofItem>
+  <ProofItem label="Pipeline">Konfigurowalne etapy i tablica Kanban</ProofItem>
+  <ProofItem label="Wartość">Sumy ważone według etapu</ProofItem>
+  <ProofItem label="Zakres">Usługi i powiązane zadania</ProofItem>
+  <ProofItem label="Rozszerzenia">REST, webhooki i MCP</ProofItem>
+</ProofRail>
+
+## Prowadź szansę sprzedaży od relacji do kolejnego działania
+
+Wyobraź sobie firmę doradczą, która rozmawia z organizacją klienta o zleceniu składającym się z kilku części. Po stronie klienta w decyzji uczestniczą sponsor z zarządu, osoba na co dzień prowadząca temat i przedstawiciel działu zakupów. W Customermates te osoby pozostają powiązane z tą samą organizacją, a szansa sprzedaży przechodzi przez etapy, które odpowiadają procesowi sprzedaży twojej firmy.
+
+Zespół może dodać omawiane usługi, ilości i kwoty, a kolejny follow-up zapisać jako zadanie na właściwym rekordzie. Po otwarciu szansy sprzedaży widać kontekst handlowy, bez udawania, że CRM jest jednocześnie miejscem realizacji projektu.
+
+<Steps>
+  <Step title="Zbuduj kontekst klienta">
+    Utwórz organizację, dodaj zaangażowane osoby i zachowaj powiązania, które
+    mają znaczenie dla szansy sprzedaży.
+  </Step>
+  <Step title="Nadaj kształt szansie sprzedaży">
+    Otwórz szansę sprzedaży, przypisz właściciela i prowadź ją przez etapy,
+    które określi twój zespół.
+  </Step>
+  <Step title="Odwzoruj zakres handlowy">
+    Dodaj do szansy sprzedaży pozycje z odpowiednimi usługami, ilościami i
+    kwotami.
+  </Step>
+  <Step title="Zadbaj, żeby kolejne działanie było widoczne">
+    Przypisz zadanie do kontaktu, organizacji, szansy sprzedaży lub usługi, żeby
+    follow-up pozostał razem ze swoim kontekstem.
+  </Step>
+  <Step title="Przekaż pracę świadomie">
+    Gdy zlecenie jest wygrane, przekaż podpisany zakres do systemów projektów,
+    czasu pracy i finansów, które odpowiadają za realizację.
+  </Step>
+</Steps>
+
+## Co obejmuje ten CRM
+
+| Potrzeba w pozyskiwaniu klientów | Za co odpowiada Customermates                                       | Za co odpowiada wyspecjalizowany system                |
+| -------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| Kontekst klienta i osób decyzyjnych | Kontakty, organizacje, powiązania, notatki i aktywność            | Dokumenty i akta spraw                                 |
+| Pipeline szans sprzedaży         | Szanse sprzedaży, konfigurowalne etapy i widoki Kanban              | Oferty, opisy zakresu prac i umowy                     |
+| Wartość handlowa                 | Kwoty usług, prawdopodobieństwa etapów i sumy ważone                | Prognozy predykcyjne i planowanie finansowe            |
+| Follow-up                        | Zadania powiązane z rekordami CRM i użytkownikami                   | Harmonogramy, plany projektów, czas pracy i wykorzystanie zasobów |
+
+<AcquisitionCallout
+  title="Granica CRM, która chroni przed dublowaniem danych o realizacji"
+  variant="boundary"
+>
+  W Customermates trzymaj relację, szansę sprzedaży i kolejne działanie.
+  Realizację projektów, moce przerobowe, wpisy czasu pracy i faktury zostaw w
+  narzędziach, które już odpowiadają za te rekordy. Połącz je przez [REST API i
+  webhooki](/features/api) albo osobno prowadzony [przepływ
+  n8n](/features/workflow-automation), gdy przydaje się kontrolowane
+  przekazanie danych.
+</AcquisitionCallout>
+
+## Jak działają ważone wartości pipeline
+
+Etapy szans sprzedaży mogą mieć prawdopodobieństwa. Customermates mnoży wartość szansy sprzedaży przez skonfigurowane prawdopodobieństwo etapu i sumuje te deterministyczne wartości w ważonych sumach pipeline. Obliczenie pozostaje przejrzyste. To nie jest predykcyjna prognoza przychodów, wzbogacanie danych ani automatyczna ocena szansy na zamknięcie.
+
+Traktuj wartość ważoną jako pomoc w przeglądzie: sprawdź szansę sprzedaży, z której wynika, upewnij się, że etap nadal odpowiada rzeczywistości, i zaktualizuj rekord, gdy sytuacja handlowa się zmieni.
+
+## Gdzie pasuje ten CRM dla firm usługowych
+
+Wspólny model sprawdza się w firmach doradczych, [agencjach](/for/agencies), biurach rachunkowych i kancelariach prawnych, a każda firma może wybrać własne etapy, pola i język. To dobry punkt wyjścia także jako CRM dla małej firmy usługowej, która dopiero porządkuje sprzedaż.
+
+<AcquisitionCallout title="Wybierz Customermates, gdy" variant="fit">
+  Twoja firma potrzebuje systemu odniesienia dla relacji i pipeline, sprzedaje
+  w wieloetapowym procesie i ma już wyspecjalizowane narzędzia do realizacji i
+  finansów. Wybierz zamiast niego system PSA lub platformę projektową, gdy
+  planowanie zasobów, wykorzystanie, czas rozliczalny i fakturowanie muszą
+  mieścić się w jednym produkcie.
+</AcquisitionCallout>
+
+## Chmura, self-hosting i dostęp dla AI
+
+Podstawowe rekordy relacji i pipeline są dostępne w zarządzanej chmurze i w [samodzielnie hostowanym Customermates](/features/self-hosted). Self-hosting obejmuje zestaw funkcji planu Starter i może udostępniać obsługiwane rekordy zewnętrznemu klientowi AI przez [MCP](/docs/mcp).
+
+[Ujednolicona skrzynka odbiorcza](/features/unified-inbox) to funkcja zarządzanej chmury od planu Pro wzwyż. Zbiera rozmowy z obsługiwanych kanałów na jednej liście i dopasowuje uczestników do kontaktów po adresie e-mail, numerze telefonu lub profilu. Rozmowa jest powiązana z szansą sprzedaży lub organizacją tylko wtedy, gdy powiąże ją osoba albo Mate. Plan Pro obejmuje własne konta każdej osoby i pojedynczo udostępniane wątki; udostępnienie całego konta wymaga planu Business, Max lub Enterprise. Mate, hostowany asystent AI, jest również dostępny tylko w chmurze. Zewnętrznego klienta MCP i dostawcę modelu AI wybierasz samodzielnie; to ich własne warunki regulują, jak przetwarzają dane.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Czy Customermates to platforma PSA?">
+Nie. To CRM relacji i pipeline. Nie oferuje natywnej realizacji projektów, planowania mocy przerobowych, zarządzania wykorzystaniem zasobów, rejestrowania czasu pracy ani fakturowania.
+</FaqItem>
+
+<FaqItem question="Czy można w nim tworzyć oferty lub faktury?">
+  Nie. Customermates nie ma przepływu dla ofert, opisów zakresu prac (SOW),
+  wycen ani faktur. Możesz trzymać w CRM kontekst szansy sprzedaży, osób
+  decyzyjnych, usług i follow-upu, a wyspecjalizowany system połączyć przez
+  REST, webhooki lub zewnętrzny przepływ.
+</FaqItem>
+
+<FaqItem question="Jak są odwzorowane wartości usług?">
+  Usługi dodaje się do szansy sprzedaży jako pozycje z ilościami i kwotami.
+  Etapy szans sprzedaży mogą mieć prawdopodobieństwa, na podstawie których
+  Customermates deterministycznie oblicza ważone wartości szans sprzedaży i
+  sumy pipeline.
+</FaqItem>
+
+<FaqItem question="Czy zadania mogą zastąpić zarządzanie projektami lub rejestrowanie czasu pracy?">
+  Nie. Zadania można powiązać z rekordami CRM i użytkownikami, ale nie są
+  systemem realizacji projektów, planowania ani wpisów czasu pracy.
+</FaqItem>
+
+<FaqItem question="Czy ujednolicona skrzynka odbiorcza jest dostępna przy self-hostingu?">
+Nie. Ujednolicona skrzynka odbiorcza i widok połączonego kalendarza to funkcje zarządzanej chmury od planu Pro wzwyż. Self-hosting obejmuje zestaw funkcji planu Starter i może łączyć zewnętrznych klientów AI przez MCP.
+</FaqItem>
+</Faq>

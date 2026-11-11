@@ -1,0 +1,236 @@
+---
+title: "CRM Google Sheets: darmowy szablon i instrukcja"
+description: "CRM Google Sheets: darmowy szablon z pięcioma kartami, formułami QUERY i porannym e-mailem z Apps Script oraz moment, w którym arkusz przestaje wystarczać."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/free-crm
+  - /features/simple-crm
+  - /docs/app-records
+
+hero:
+  title: "CRM Google Sheets: darmowy szablon, formuły i moment, w którym przestaje wystarczać"
+  description: "Karty, kolumny, listy rozwijane i formuły do arkusza CRM, który jedna do trzech osób poprowadzi w Google Sheets, krótki Apps Script wysyłający ci e-mail co rano i spokojna droga do prawdziwego CRM."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2025-12-22
+  updated: 2026-10-08
+  tags:
+    - Google Sheets
+    - Szablon CRM
+    - CRM w arkuszu
+    - Darmowy CRM
+---
+
+# CRM Google Sheets: darmowy szablon, formuły i moment, w którym przestaje wystarczać
+
+Tak, CRM Google Sheets (po polsku CRM w Arkuszach Google) sprawdza się w zespole od jednej do trzech osób. Daj każdemu rodzajowi rekordów osobną kartę (kontakty, szanse sprzedaży, aktywności), zamień każdą stałą wartość w listę rozwijaną, a karta Pulpit niech zlicza i sumuje resztę za pomocą QUERY i COUNTIFS. Google nie sprzedaje własnego CRM: w jego [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) znajdziesz rozwiązania firm trzecich, takie jak Copper, Pipedrive, Streak i Zoho CRM, a Gmail, Formularze i Apps Script to klocki, które łączysz samodzielnie.
+
+Ten poradnik publikuje Customermates i to właśnie Customermates jest CRM-em w przykładzie migracji na końcu. Wszystko przed tą częścią wymaga wyłącznie konta Google.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Co zbudujesz">Pięć kart: Listy, Kontakty, Szanse, Aktywności i Pulpit z tabelami follow-upów i pipeline'u, które aktualizują się na bieżąco.</SummaryItem>
+  <SummaryItem label="Co dodaje Google">Odpowiedzi z formularza, które same trafiają do arkusza, powiadomienia e-mail o zmianach i Apps Script, który co rano wysyła e-mail z przeterminowanymi następnymi krokami.</SummaryItem>
+  <SummaryItem label="Dla kogo">Dla jednej do trzech osób, z jednym procesem sprzedaży i rozmowami głównie przez e-mail.</SummaryItem>
+  <SummaryItem label="Gdzie się psuje">Dostęp ustawia się dla pliku, nie dla wiersza. Powiązania między kartami to zwykły tekst, a wątki z LinkedIna czy WhatsAppa nigdy nie trafią do arkusza, jeśli ktoś ich tam nie wpisze.</SummaryItem>
+  <SummaryItem label="Jak przejść do CRM">Pobierz plik jako .xlsx i importuj po jednej karcie: firmy, potem kontakty, potem szanse sprzedaży.</SummaryItem>
+</ArticleSummary>
+
+Zanim zdecydujesz, czy przenosić listę do CRM, skorzystaj z [szablonu listy kontaktów](/blog/contact-list-template): to mały, wspólny katalog z wyznaczoną osobą odpowiedzialną i następnym krokiem.
+
+## Cztery zasady konfiguracji arkusza
+
+1. **Jeden wiersz nagłówka, jeden wiersz na rekord.** Bez scalonych komórek, bez pustych wierszy, bez sum pośrednich między rekordami.
+2. **Zamień każdą kartę z danymi w tabelę.** Zaznacz zakres i wybierz Format › Konwertuj na tabelę. W [przewodniku po tabelach](https://support.google.com/docs/answer/14239833) Google pokazuje, że dla każdej kolumny można ustawić typ: Lista rozwijana, Data, Waluta, Chip osoby i inne. Kolumna typu Data oznacza wtedy wpis „następny wtorek” ostrzeżeniem, co ma znaczenie, gdy formuły porównują daty.
+3. **Każdą stałą wartość zamień w listę rozwijaną.** Wstaw › Lista rozwijana albo Dane › Weryfikacja poprawności danych z opcją „Lista rozwijana (z zakresu)” wskazującą na kartę Listy. Według [pomocy Google o listach rozwijanych](https://support.google.com/docs/answer/186103) niepoprawne wpisy są domyślnie odrzucane. Zostaw to tak: „Oferta” i „oferta wysłana” to dla każdej formuły dwa różne etapy.
+4. **Łącz po nazwie.** Firma kontaktu to dokładna nazwa firmy, kontakt szansy sprzedaży to pełne imię i nazwisko osoby. Nazwy da się czytać, a importy do CRM, także do Customermates, dopasowują powiązania właśnie po nazwie.
+
+## Szablon, karta po karcie
+
+### Listy
+
+| Zakres | Wartości |
+| --- | --- |
+| A: Etap, B: Prawdopodobieństwo | Pozyskiwanie 10%, Kwalifikacja 20%, Demo 40%, Oferta 60%, Negocjacje 80%, Wygrana 100%, Przegrana 0% |
+| D: Typ kontaktu | Lead, Klient, Partner, Były klient |
+| E: Źródło | Polecenie, Strona internetowa, LinkedIn, Wydarzenie, Formularz internetowy |
+| F: Typ aktywności | Rozmowa telefoniczna, E-mail, Spotkanie, LinkedIn, WhatsApp |
+| G: Zespół | Imię i nazwisko każdej osoby, która prowadzi rekordy |
+
+Te etapy i prawdopodobieństwa to tylko przykład. Customermates nie ma gotowych etapów: te same opcje utworzysz w polu Etap listy szans sprzedaży w sekcji Model danych (albo pozwolisz, by skonfigurowała je w chmurze konfiguracja z AI), a kolumna Etap przeniesie się później bez zmiany nazw. Procenty wymień na własne, gdy uzbierasz kilka miesięcy wygranych i przegranych szans do policzenia.
+
+### Kontakty
+
+Kolumny od A do J: Imię, Nazwisko, Firma, E-mail, Telefon, URL LinkedIn, Typ kontaktu, Źródło, Opiekun, Notatki. Trzymaj imię i nazwisko osobno; większość CRM potrzebuje obu, żeby utworzyć osobę. Jeśli sprzedajesz firmom, dodaj kartę Firmy z kolumnami Firma, Strona internetowa, Branża i Miasto i skieruj do niej listę rozwijaną w kolumnie Firma.
+
+### Szanse
+
+| Kolumna | Zawartość | Przykład |
+| --- | --- | --- |
+| A Szansa | Tekst | Przegląd bezpieczeństwa Brookfield Architects |
+| B Firma | Lista rozwijana | Brookfield Architects |
+| C Kontakt | Imię i nazwisko | Sarah Okafor |
+| D Wartość | Liczba | 18000 |
+| E Etap | Lista rozwijana z Listy!A | Oferta |
+| F Prawdopodobieństwo | Formuła | 60% |
+| G Ważona | Formuła | 10800 |
+| H Opiekun | Lista rozwijana z Listy!G | Anna Berg |
+| I Następny krok | Jedno zdanie | Wysłać poprawiony zakres |
+| J Data następnego kroku | Data | 2025-12-04 |
+| K Zamknięto dnia | Data, wypełniana przy Wygranej lub Przegranej | |
+
+Wpisz je w wierszu 2 i przeciągnij w dół. Wszystkie formuły na tej stronie używają angielskich nazw funkcji i średnika jako separatora, tak jak wymaga tego arkusz z polskimi ustawieniami regionalnymi (Plik › Ustawienia):
+
+```
+F2  =IFERROR(VLOOKUP(E2;Listy!A:B;2;FALSE);0)
+G2  =D2*F2
+```
+
+### Aktywności
+
+Jeden wiersz na każdą rozmowę, która coś znaczyła: Data, Kontakt, Szansa, Typ, Opiekun, Podsumowanie i Następny krok. To jedyna karta, która odpowiada na pytanie „co im ostatnio powiedzieliśmy?”, więc uzupełniaj ją zaraz po rozmowie, bo inaczej nikt tego nie zrobi.
+
+### Pulpit
+
+Cztery liczby:
+
+```
+Otwarty pipeline          =SUMIFS(Szanse!D2:D;Szanse!E2:E;"<>Wygrana";Szanse!E2:E;"<>Przegrana";Szanse!A2:A;"<>")
+Pipeline ważony           =SUMIFS(Szanse!G2:G;Szanse!E2:E;"<>Wygrana";Szanse!E2:E;"<>Przegrana";Szanse!A2:A;"<>")
+Wskaźnik wygranych        =COUNTIF(Szanse!E2:E;"Wygrana")/MAX(1;COUNTIF(Szanse!E2:E;"Wygrana")+COUNTIF(Szanse!E2:E;"Przegrana"))
+Przeterminowane kroki     =COUNTIFS(Szanse!J2:J;"<"&TODAY();Szanse!E2:E;"<>Wygrana";Szanse!E2:E;"<>Przegrana")
+```
+
+Dwie funkcje sprawiają, że wersja Google jest lepsza od tej z Excela. [QUERY](https://support.google.com/docs/answer/3093343) buduje pipeline według etapów jako tabelę, która aktualizuje się sama. Zapytanie w cudzysłowie zostaje po angielsku:
+
+```
+=QUERY(Szanse!A1:K;"select E, count(A), sum(D) where E is not null and E <> 'Wygrana' and E <> 'Przegrana' group by E label count(A) 'Szanse', sum(D) 'Wartość'";1)
+```
+
+A FILTER daje ci żywą listę follow-upów: każdą otwartą szansę, której data następnego kroku już minęła:
+
+```
+=FILTER(Szanse!A2:J;Szanse!J2:J<>"";TODAY()>Szanse!J2:J;Szanse!E2:E<>"Wygrana";Szanse!E2:E<>"Przegrana")
+```
+
+Każdą z nich wstaw w osobny blok na Pulpicie i zostaw pod nią miejsce, bo obie rozlewają się w dół.
+
+## Co Google dodaje wokół arkusza
+
+**Zbieranie leadów z Formularzy Google.** Połącz formularz z arkuszem przez Odpowiedzi › Wybierz miejsce docelowe odpowiedzi, a według [pomocy Formularzy](https://support.google.com/docs/answer/2917686) każda nowa odpowiedź jest dodawana automatycznie. Kartę z odpowiedziami zostaw w spokoju i przepisuj [wykwalifikowane leady](/features/lead-management) ręcznie do Kontaktów. Edytowanie lub przestawianie jej kolumn to najszybszy sposób na zerwanie połączenia z formularzem.
+
+**Powiadomienia o zmianach.** Narzędzia › Ustawienia powiadomień › Edytuj powiadomienia wysyła e-mail, gdy ktokolwiek zmieni plik, od razu albo jako dzienne podsumowanie. Według [pomocy o powiadomieniach](https://support.google.com/docs/answer/91588) obejmuje to tylko zmiany wprowadzone przez inne osoby. Dowiesz się z niego, że Anna edytowała Szanse. Nie dowiesz się, że minęła data następnego kroku.
+
+**Poranny e-mail z Apps Script.** Do tego otwórz Rozszerzenia › Apps Script i wklej:
+
+```js
+function mailPastNextSteps() {
+  const rows = SpreadsheetApp.getActive().getSheetByName('Szanse').getDataRange().getValues();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const due = rows.slice(1).filter(r =>
+    r[9] instanceof Date && r[9] < today && r[4] !== 'Wygrana' && r[4] !== 'Przegrana');
+  if (due.length) {
+    MailApp.sendEmail(Session.getEffectiveUser().getEmail(),
+      'Przeterminowane następne kroki: ' + due.length,
+      due.map(r => r[0] + ': ' + r[8]).join('\n'));
+  }
+}
+```
+
+Potem dodaj aktywator (ikona zegara › Dodaj aktywator), źródło zdarzenia „Oparty na czasie”, typ „Licznik dzienny”, między 7 a 8 rano. Kolumna J ma indeks 9, bo tablica zaczyna się od 0. [Limity Apps Script](https://developers.google.com/apps-script/guides/services/quotas) ograniczają bezpłatne konto Gmail do 100 odbiorców e-maili i 90 minut działania aktywatorów dziennie; konta Workspace dostają 1500 odbiorców i 6 godzin. Jeden e-mail dziennie to wartość daleko poniżej obu limitów.
+
+**Widoki filtrów zamiast filtrów.** Zwykły filtr zmienia widok wszystkim, którzy mają dostęp. Dane › Widoki filtrów › Utwórz nowy widok filtra zapisuje filtr, który zmienia tylko twój widok, jak wyjaśnia [pomoc o filtrach](https://support.google.com/docs/answer/3540681). Daj każdej osobie widok filtra „Moje otwarte szanse” według kolumn Opiekun i Etap.
+
+## Gdzie CRM w Arkuszach Google przestaje działać
+
+Rozmiar rzadko bywa problemem. W [limitach plików Dysku](https://support.google.com/drive/answer/37603) Google dopuszcza do 20 milionów komórek w jednym arkuszu kalkulacyjnym, czyli znacznie więcej, niż zapełni mały zespół. Pierwsze dają o sobie znać inne ograniczenia:
+
+- **Wszyscy widzą wszystko.** Udostępnianie działa dla pliku. Chronione zakresy blokują edycję, ale [pomoc Google o ochronie](https://support.google.com/docs/answer/1218656) wprost mówi, że osoby z dostępem nadal mogą skopiować i wyeksportować chroniony arkusz oraz że ochrona „nie powinna być używana jako środek bezpieczeństwa”. Freelancer, którego dodasz, żeby zaktualizował dwie szanse, może przeczytać całą listę klientów.
+- **Powiązania to tekst.** Zmień nazwę firmy, a każdy kontakt i każda szansa ze starą nazwą wskazuje w próżnię, dopóki nie użyjesz Znajdź i zamień.
+- **Rozmowy zostają gdzie indziej.** Wątki z Gmaila, wiadomości z LinkedIna i czaty z WhatsAppa trafiają do arkusza tylko wtedy, gdy ktoś streści je w Aktywnościach.
+- **Dane osobowe się mnożą.** Każde pobranie, kopia i „utwórz kopię dla mnie” to kolejne miejsce, w którym żyją czyjeś dane. Gdy ktoś skorzysta z praw wynikających z [RODO](https://eur-lex.europa.eu/eli/reg/2016/679/oj), by zobaczyć swoje dane (art. 15) lub je usunąć (art. 17), musisz znaleźć je wszystkie.
+
+## Zostać w Arkuszach, dodać narzędzie czy przejść na CRM?
+
+| Jeśli to opisuje twoją sytuację | Zrób to |
+| --- | --- |
+| Jedna osoba, kilkaset kontaktów, głównie e-mail | Zostań przy szablonie z tej strony i e-mailu z Apps Script |
+| Dwie lub trzy osoby, jedna wspólna lista szans, wszyscy mogą widzieć wszystko | Zostań przy arkuszu, dodaj widoki filtrów dla każdej osoby i reguły powiadomień |
+| Chcesz funkcji CRM, ale zespół nie chce opuszczać Arkuszy | Zajrzyj do dodatków CRM w Google Workspace Marketplace, które działają w Arkuszach lub Gmailu |
+| Kilka osób współdzieli szanse, follow-upy się opóźniają albo szanse przesuwają się w wątkach na LinkedInie i WhatsAppie | Przejdź na CRM, zaczynając od importu opisanego niżej |
+| Pracujesz w Excelu lub Microsoft 365, a nie w Google | Skorzystaj z [szablonu CRM w Excelu](/blog/excel-crm-template), który ma taki sam układ plus tygodniowy tracker dla każdego handlowca |
+
+Prosta zasada kciuka: gdy dwie osoby co tydzień edytują te same szanse i jeden follow-up już się opóźnił, czas przejść. Wcześniej arkusz w zupełności wystarcza.
+
+## Przenoszenie CRM z Google Sheets do Customermates
+
+Customermates importuje skoroszyty Excela (.xlsx) i pliki CSV, po jednej liście naraz, więc arkusz Google trzeba najpierw pobrać. Nie ma synchronizacji na żywo z Google Sheets. [Dokumentacja importu](/docs/app-records#how-do-i-import-or-export-records) zawiera wszystkie reguły, a [poradnik o szablonie Excela](/blog/excel-crm-template#moving-the-template-into-customermates) przypisuje każdą kolumnę tego układu do pola. Arkusz robi follow-up tylko wtedy, gdy ktoś pamięta, żeby go otworzyć. W Customermates rozmowy z każdym klientem leżą przy rekordzie klienta (w Customermates Cloud od planu Pro), Mate lub twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, a data następnego kroku zasila twój pulpit zamiast filtra, który musisz sprawdzać.
+
+<Steps>
+  <Step title="Uporządkuj karty">Użyj Dane › Czyszczenie danych › Usuń duplikaty w Kontaktach i Szansach i popraw każdą wartość, którą lista rozwijana oznacza jako błędną. Każdy etap i każdy typ musi być dokładnie jedną z wartości z Listy.</Step>
+  <Step title="Utwórz pola niestandardowe">W Customermates otwórz listę w sekcji **Model danych** i wybierz **Dodaj**, potem **Pole**. Dla każdej kolumny z listą rozwijaną (Typ kontaktu, Źródło, Branża) dodaj pole **Pojedynczy wybór** z etykietami opcji identycznymi jak na twojej karcie Listy. Dla Daty następnego kroku i Zamknięto dnia użyj pól typu Data. Pole Etap szans sprzedaży już istnieje, z etapami podanymi wyżej.</Step>
+  <Step title="Pobierz skoroszyt">Wybierz Plik › Pobierz › Microsoft Excel (.xlsx). Kreator zapyta, którą kartę zaimportować, więc ten sam plik służy do każdego importu.</Step>
+  <Step title="Importuj w kolejności zależności">Firmy trafiają do listy **Organizacje**, potem Kontakty, potem Szanse sprzedaży. Na każdej liście otwórz **Więcej działań**, wybierz **Dodaj z pliku** i przypisz każdą kolumnę do pola, na przykład adresy e-mail do pola **Dane kontaktowe** kontaktu. Powiązania są dopasowywane po nazwie, bez rozróżniania wielkości liter, więc firma musi istnieć, zanim kontakt będzie mógł na nią wskazywać. Opiekun trafia do pola **Przypisany do**, dopasowany po pełnym imieniu i nazwisku członka zespołu.</Step>
+  <Step title="Sprawdź na dziesięciu wierszach">Kontrola wypisuje każdy problematyczny wiersz, zanim cokolwiek zostanie dodane, a takie wiersze możesz pominąć. Importu nie da się cofnąć, więc najpierw spróbuj z małym plikiem. Z Aktywności przenieś tylko otwarte następne kroki, jako zadania; starsza historia może trafić do Notatek szansy sprzedaży albo zostać w zarchiwizowanym arkuszu.</Step>
+</Steps>
+
+Wartości szans działają inaczej: w Customermates wartość szansy sprzedaży to suma jej pozycji, a każda pozycja to usługa razy ilość. [Kroki importu](/blog/excel-crm-template#moving-the-template-into-customermates) z poradnika o Excelu pokazują, jak najpierw wprowadzić cennik.
+
+### Co zastępuje Pulpit i Apps Script
+
+- **QUERY według etapów** zamienia się w listę Szanse sprzedaży jako tablicę pogrupowaną według Etapu, z wartością łączną i ważoną dla każdej kolumny, pokazaną w [widoku pipeline](/features/pipeline).
+- **Lista follow-upów z FILTER** zamienia się w zapisany widok szans przefiltrowany po dacie następnego kroku, posortowany od najstarszej. Możesz go udostępnić zespołowi.
+- **Poranny e-mail** może zamienić się w rutynę w Customermates Cloud. Customermates nie ma przypomnień ani powiadomień, ale rutyna ustawiona na codzienne uruchamianie o 08:00 może wykonać polecenie takie jak to, korzystając z kredytów AI w chmurze:
+
+> Wypisz moje otwarte szanse sprzedaży, których Data następnego kroku to dziś lub wcześniej. Dla każdej utwórz zadanie powiązane z szansą, przypisane do mnie, o nazwie „Follow-up” plus nazwa szansy. Nie wysyłaj ani nie przygotowuj szkiców żadnych wiadomości.
+
+Rutyna działa jako jej właściciel, a Mate wysyła wiadomości, gdy mu to polecisz, więc ostatnie zdanie ma znaczenie. Liczba rutyn wliczonych w plan na użytkownika: Starter [[commercial.entitlement.starter.includedRoutinesPerUser]], Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]; limity uruchomień znajdziesz w [dokumentacji rutyn](/docs/app-routines).
+
+- **Karta Aktywności** ustępuje, od planu Pro w górę, [ujednoliconej skrzynce odbiorczej](/features/unified-inbox), w której wątki z Gmaila, Outlooka, IMAP, LinkedIna, WhatsAppa, Instagrama i Telegrama leżą przy kontakcie. Starter nie ma skrzynki odbiorczej.
+
+Jeśli mimo wszystko chcesz mieć kopię raportową w Google Sheets, webhooki mogą wysyłać zmiany rekordów do osobno utrzymywanej instancji [n8n](/docs/n8n), która zapisze je w arkuszu.
+
+## Ile to kosztuje i kiedy Customermates to zły krok
+
+| Zespół | Plan | Miesięcznie |
+| --- | --- | --- |
+| 3 osoby, CRM bez skrzynki odbiorczej | Starter, [[commercial.price.starter.monthly]] za użytkownika | [[commercial.price.starter.monthly.seats.3]] |
+| 3 osoby, z ujednoliconą skrzynką odbiorczą | Pro, [[commercial.price.pro.monthly]] za użytkownika | [[commercial.price.pro.monthly.seats.3]] |
+| Własny serwer | Rdzeń AGPL w modelu self-hosted | Bez opłaty licencyjnej, za to z kosztem hostingu; REST, webhooki i MCP, ale bez skrzynki odbiorczej i bez Mate |
+
+Rozliczenie jest miesięczne, a okres próbny w chmurze trwa [[commercial.trial.days]] dni w planie Pro, bez karty kredytowej: [rozpocznij okres próbny](/auth/signup?job=followup) i zaimportuj jedną kartę, żeby zobaczyć tam własne szanse sprzedaży. Każdy płatny plan w chmurze zawiera miesięczne kredyty AI na aktywnego użytkownika; zobacz [cennik](/pricing).
+
+Customermates to zły krok, jeśli twój proces żyje w formułach: nie ma pól z formułami, więc własne obliczenia zostają w arkuszu kalkulacyjnym po eksporcie. Jest też złym wyborem, jeśli potrzebujesz dialera telefonicznego, kampanii e-mailowych albo natywnej aplikacji na telefon. Customermates nie ma żadnej z tych rzeczy, więc poszukaj CRM, który je oferuje. A jeśli prawdziwy wymóg brzmi „zostać w Google Sheets”, dodatek z Marketplace pasuje lepiej niż jakikolwiek osobny CRM.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Czy można używać Google Sheets jako CRM?">
+Tak, dla jednej do trzech osób z jednym procesem sprzedaży. Układ z pięciu kart opisany wyżej obejmuje kontakty, szanse sprzedaży, aktywności i pulpit, a Apps Script może co rano wysyłać ci e-mail z przeterminowanymi następnymi krokami. Nie ograniczy za to, kto widzi które wiersze, nie utrzyma powiązań, gdy zmieni się nazwa, i nie wciągnie rozmów z Gmaila, LinkedIna ani WhatsAppa.
+</FaqItem>
+
+<FaqItem question="Czy Google ma narzędzie CRM?">
+Nie. Google Workspace ma Arkusze, Gmaila, Kontakty i Formularze, ale nie ma własnego CRM. [Kategoria Sales & CRM](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm) w Workspace Marketplace wymienia CRM firm trzecich, które łączą się z Google, między innymi Copper, Pipedrive, Streak i Zoho CRM.
+</FaqItem>
+
+<FaqItem question="Czy jest darmowy szablon CRM do Google Sheets?">
+Układ z tej strony jest darmowy: skopiuj nagłówki do pustego arkusza, dodaj listy rozwijane i wklej formuły. Jeśli pobierasz szablon gdzie indziej, sprawdź, czy ma jeden rekord na wiersz, kontakty oddzielone od firm i żadnych scalonych komórek. Szablon, który nie spełnia tych warunków, trudno później zaimportować do CRM.
+</FaqItem>
+
+<FaqItem question="Ile kontaktów obsłuży CRM w Google Sheets?">
+Arkusz kalkulacyjny pomieści do 20 milionów komórek, według [limitów plików](https://support.google.com/drive/answer/37603) Google. Praktycznym ograniczeniem są ludzie, nie wiersze: wspólny dostęp i opóźnione follow-upy stają się problemem na długo przed zapełnieniem pliku. Customermates czyta obecnie do 5000 wierszy z jednego pliku importu, więc większe karty podziel.
+</FaqItem>
+
+<FaqItem question="Czy mogę połączyć listę z Google Sheets z CRM?">
+Niektóre CRM mają dodatek do Arkuszy; Workspace Marketplace wymienia na przykład Copper CRM for Google Sheets. Customermates go nie ma: importuje pliki Excela i CSV oraz eksportuje pliki .xlsx, po jednej liście naraz, bez synchronizacji na żywo. Możesz wyeksportować listę, edytować ją w Arkuszach, pobrać jako .xlsx i zaimportować ponownie jako **Istniejące rekordy**; kolumna ID rekordu aktualizuje wtedy istniejące rekordy zamiast tworzyć duplikaty.
+</FaqItem>
+
+<FaqItem question="Czy można zbudować CRM w Excelu?">
+Tak. [Szablon CRM w Excelu](/blog/excel-crm-template) ma tę samą strukturę, z tabelami Excela, XLOOKUP i tygodniowym trackerem dla każdego handlowca. Wybierz narzędzie, w którym twój zespół już współdzieli pliki.
+</FaqItem>
+</Faq>
+
+Dane o Google sprawdzone 8 października 2026 w stronach pomocy Google o [tabelach](https://support.google.com/docs/answer/14239833), [listach rozwijanych](https://support.google.com/docs/answer/186103), [QUERY](https://support.google.com/docs/answer/3093343), [odpowiedziach w Formularzach](https://support.google.com/docs/answer/2917686), [powiadomieniach](https://support.google.com/docs/answer/91588), [widokach filtrów](https://support.google.com/docs/answer/3540681), [chronionych zakresach](https://support.google.com/docs/answer/1218656), [limitach plików Dysku](https://support.google.com/drive/answer/37603), w [limitach Apps Script](https://developers.google.com/apps-script/guides/services/quotas) i w [Workspace Marketplace](https://workspace.google.com/marketplace/category/business-tools/sales-and-crm).

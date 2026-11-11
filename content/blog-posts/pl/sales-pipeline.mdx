@@ -1,0 +1,191 @@
+---
+title: "Lejek sprzedaży i pipeline: etapy, ustawienia, przegląd"
+description: "Lejek sprzedaży pokazuje każdą otwartą transakcję według etapu, wartości i kolejnego kroku. Kryteria wyjścia, lista budowy, pokrycie i konfiguracja CRM."
+
+relatedHrefs:
+  - /blog/sales-plan-template
+  - /features/pipeline
+  - /blog/crm-for-sales
+  - /blog/client-qualification
+
+hero:
+  title: "Lejek sprzedaży: zdefiniuj etapy, zbuduj go i trzymaj w prawdzie"
+  description: "Etapy z kryteriami wyjścia, budowa krok po kroku, arytmetyka wartości ważonej i pokrycia oraz cotygodniowy przegląd, który nie pozwala przeterminowanym transakcjom zawyżać liczb."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-01-24
+  updated: 2026-11-04
+  tags:
+    - Lejek sprzedaży
+    - Zarządzanie lejkiem
+    - Proces sprzedaży
+---
+
+Lejek sprzedaży (nazywany też pipeline’em sprzedażowym; po angielsku sales pipeline) to lista wszystkich transakcji, nad którymi obecnie pracujesz, uporządkowana według osiągniętego etapu, z wartością i kolejnym krokiem przy każdej. Budujesz go, zapisując etapy, przez które twoje transakcje naprawdę przechodzą, nadając każdemu etapowi warunek, który transakcja musi spełnić, żeby do niego wejść, i umieszczając każdą otwartą transakcję na etapie, który faktycznie osiągnęła. Większość małych zespołów potrzebuje od pięciu do siedmiu etapów.
+
+Trudne jest utrzymanie go w prawdzie. Lejek pełen transakcji, których nikt nie ruszał od dwóch miesięcy, mówi mniej niż brak lejka, bo wygląda jak pieniądze. Ten poradnik obejmuje definicje etapów z kryteriami wyjścia, listę budowy, arytmetykę wartości ważonej, pokrycia i szybkości oraz cotygodniową rutynę przeglądu. Customermates publikuje ten poradnik; sekcja o konfiguracji lejka w Customermates jest tak oznaczona.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Definicja">Każda otwarta transakcja, pogrupowana według etapu, każda z wartością, właścicielem i kolejnym krokiem.</SummaryItem>
+  <SummaryItem label="Etapy">Od pięciu do siedmiu. Każdy potrzebuje warunku wejścia, który kolega może sprawdzić, nie pytając ciebie.</SummaryItem>
+  <SummaryItem label="Liczba, która się liczy">Pokrycie: wartość otwartego lejka podzielona przez przychód, którego jeszcze potrzebujesz. Docelowy współczynnik to mniej więcej 1 podzielone przez twój wskaźnik wygranych.</SummaryItem>
+  <SummaryItem label="Utrzymanie">30-minutowy cotygodniowy przegląd transakcji w późnych etapach i wszystkiego, co nie ruszyło się od dwóch tygodni.</SummaryItem>
+</ArticleSummary>
+
+
+Zamień swój cel w działania na kontach, właścicieli i daty przeglądów za pomocą [wypełnionego 90-dniowego szablonu planu sprzedaży](/blog/sales-plan-template). Jego arkusz mocy przerobowych sprawdza, czy zaplanowana praca mieści się w zespole.
+
+## Pipeline, lejek i proces sprzedaży
+
+Ludzie używają tych trzech słów swobodnie. Różnica ma znaczenie dopiero wtedy, gdy decydujesz, co mierzyć.
+
+| Termin | Co opisuje | Na jakie pytanie odpowiada |
+|---|---|---|
+| Proces sprzedaży | Kroki, które podejmuje twój zespół, żeby wygrać transakcję | Co powinniśmy zrobić dalej z takim kupującym? |
+| Pipeline sprzedaży | Transakcje, które właśnie przechodzą przez ten proces | Gdzie jest każda transakcja i ile jest warta? |
+| Lejek sprzedaży (funnel) | Konwersja między etapami dla wielu leadów w czasie | Ilu leadów potrzebujemy, żeby wygrać jednego klienta? |
+
+Pipeline dotyczy transakcji z nazwy. Jeśli nie możesz wskazać karty i powiedzieć, kim jest kupujący i co dzieje się w czwartek, to jest raport lejka konwersji, a nie pipeline.
+
+## Etapy i ich kryteria wyjścia
+
+Nazwy etapów mają mniejsze znaczenie niż reguła, która przenosi transakcję z jednego etapu do następnego. Bez tej reguły „Oferta” jednego handlowca to „miła rozmowa” drugiego. To samo dotyczy najwcześniejszych etapów, na których zespoły wyznaczają [różnicę między prospektem a leadem](/blog/prospect-vs-lead) w różnych miejscach. Poniższa tabela używa siedmiu etapów, które wymienia większość poradników, ze sprawdzalnym warunkiem wejścia i wyjściowym prawdopodobieństwem do ważenia.
+
+| Etap | Transakcja wchodzi, gdy… | Prawdopodobieństwo wyjściowe |
+|---|---|---|
+| Poszukiwanie | Zidentyfikowano kupującego i nawiązano pierwszy kontakt | 10% |
+| Kwalifikacja | Kupujący odpowiedział i zgodził się na rozmowę | 20% |
+| Demo lub rozpoznanie potrzeb | Budżet, osoba decyzyjna i termin są potwierdzone, a spotkanie umówione | 40% |
+| Oferta | Kupujący poprosił o pisemną ofertę, a oferta została wysłana | 60% |
+| Negocjacje | Osoba decyzyjna przeczytała ofertę i omawia warunki | 80% |
+| Wygrana | Podpisana umowa lub zamówienie | 100% |
+| Przegrana | Kupujący powiedział nie, wybrał kogoś innego albo zamilkł poza twój próg | 0% |
+
+Prawdopodobieństwa to wartości zastępcze. Po kwartale zastąp każde własnym wskaźnikiem: jaki udział wartości transakcji, które dotarły do tego etapu, został wygrany?
+
+**Firmy usługowe** często łączą Poszukiwanie i Kwalifikację w „Zapytanie”, bo kupujący przychodzą z poleceń i pojawiają się już zainteresowani. Pipeline firmy doradczej może wyglądać tak: Zapytanie, Rozmowa rozpoznawcza, Oferta wysłana, Negocjacje, Wygrana, Przegrana. Sześć etapów, a każdy odpowiada czemuś, co zrobił klient, a nie czemuś, na co się liczyło.
+
+**Cztery, pięć czy siedem etapów?** Znajdziesz wszystkie trzy modele i żaden nie jest standardem. Użyj tylu etapów, ile jest punktów, w których transakcje faktycznie utykają lub odpadają. Jeśli dwa etapy zawsze mijają w tym samym tygodniu, połącz je.
+
+## Jak zbudować lejek sprzedaży od zera
+
+<Steps>
+  <Step title="Wypisz swoje ostatnie dziesięć wygranych i przegranych transakcji">Zapisz, co się stało w każdej, po kolei: pierwszy kontakt, pierwsza rozmowa, oferta i tak dalej. Etapy to kroki, które pojawiają się w niemal wszystkich. Nie projektuj z podręcznika; projektuj z własnych transakcji.</Step>
+  <Step title="Zapisz jeden warunek wejścia na etap">Niech będzie obserwowalny. „Kupujący poprosił o ofertę” działa. „Kupujący wydaje się zainteresowany” nie.</Step>
+  <Step title="Zdecyduj, co ląduje w Przegranych">Wybierz próg ciszy, na przykład 45 dni bez odpowiedzi, i krótką listę powodów przegranej: cena, termin, konkurent, brak decyzji. Za pół roku te liczby będą ci potrzebne.</Step>
+  <Step title="Wybierz miejsce dla lejka">Arkusz sprawdza się dla jednej osoby i tuzina transakcji. Gdy dwie osoby dzielą transakcje albo rozmowy toczą się w e-mailu i na LinkedIn, CRM oszczędza kopiowania. Nasz [szablon CRM w arkuszu](/blog/excel-crm-template) omawia drogę przez arkusz.</Step>
+  <Step title="Wpisz każdą otwartą transakcję na jej prawdziwym etapie">Bądź surowy. Transakcja, w której ofertę wysłano trzy miesiące temu i nic nie słychać, nie jest w Negocjacjach. Spodziewaj się, że suma skurczy się pierwszego dnia; o to chodzi.</Step>
+  <Step title="Daj każdej transakcji kolejny krok i właściciela">Transakcja bez kolejnego kroku czeka, żeby stać się Przegraną. Transakcja bez właściciela już nią jest.</Step>
+  <Step title="Zarezerwuj cotygodniowy przegląd">Ten sam dzień, ta sama godzina, 30 minut. Lista kontrolna jest niżej.</Step>
+</Steps>
+
+## Przykład liczbowy: trzyosobowa firma doradcza
+
+Weź małą firmę doradczą z trzema otwartymi transakcjami. Wartości i prawdopodobieństwa są ilustracyjne.
+
+| Transakcja | Wartość | Etap | Prawdopodobieństwo | Wartość ważona |
+|---|---|---|---|---|
+| Relaunch strony internetowej | 18 000 € | Oferta | 60% | 10 800 € |
+| Abonament marketingowy, 6 miesięcy po 4 000 € | 24 000 € | Kwalifikacja | 20% | 4 800 € |
+| Dzień szkolenia ze sprzedaży | 3 000 € | Negocjacje | 80% | 2 400 € |
+| **Razem** | **45 000 €** | | | **18 000 €** |
+
+Surowy pipeline mówi 45 000 €. Ważony pipeline mówi 18 000 € i to bliżej tego, wokół czego powinni planować wspólnicy. Zauważ, że największa transakcja pod względem wartości wnosi najmniej wartości ważonej, bo jest jeszcze wcześnie. O tym trzeba porozmawiać na poniedziałkowym przeglądzie: co musi się stać, żeby abonament dotarł do Dema, i do kiedy?
+
+Żeby zamienić ważony pipeline w liczbę kwartalną, z planowanymi datami zamknięcia, dolną granicą commit i porównaniem obok siebie ze wskaźnikiem wygranych i run-rate, zobacz nasz poradnik o [prognozowaniu sprzedaży](/blog/sales-forecasting).
+
+## Liczby, które warto śledzić
+
+Nie potrzebujesz pulpitu z dwudziestoma wskaźnikami. Pięć obejmuje niemal każdą decyzję, którą mały zespół podejmuje o swoim pipeline.
+
+| Wskaźnik | Jak go policzyć | Co mówi |
+|---|---|---|
+| Wartość pipeline | Suma wartości wszystkich otwartych transakcji | Sufit tego, co można wygrać |
+| Wartość ważona | Wartość każdej transakcji × prawdopodobieństwo jej etapu, zsumowane | Deterministyczne oszacowanie; tak dobre, jak twoje prawdopodobieństwa |
+| Pokrycie | Wartość otwartego pipeline ÷ przychód, którego jeszcze potrzeba w tym okresie | Czy masz dość transakcji w grze |
+| Konwersja etapu | Transakcje, które dotarły do następnego etapu ÷ transakcje, które weszły do tego | Gdzie transakcje utykają |
+| Szybkość (velocity) | (Otwarte transakcje × średnia wartość × wskaźnik wygranych) ÷ średni cykl w dniach | Przychód, który pipeline wytwarza dziennie |
+
+**Pokrycie, policzone porządnie.** „Celuj w 3x” to konwencja, a nie prawo. Potrzebny współczynnik to 1 podzielone przez twój wskaźnik wygranych według wartości. Jeśli wygrywasz 25% wartości, którą oferujesz, potrzebujesz pokrycia 4x: kwartalny cel 60 000 € wymaga 240 000 € w otwartych transakcjach, które mogą zamknąć się w tym kwartale. Jeśli wygrywasz 40%, wystarczy 2,5x. Transakcje, które nie mogą zamknąć się przed końcem okresu, się nie liczą, choćby były największe.
+
+**Szybkość, z liczbami.** Dwadzieścia otwartych transakcji, średnia wartość 8 000 €, wskaźnik wygranych 25% i cykl 60 dni dają (20 × 8 000 × 0,25) ÷ 60 = 667 € dziennie. Podniesienie wskaźnika wygranych do 30% daje 800 €. Skrócenie cyklu do 45 dni daje 889 €. Ta druga dźwignia jest często łatwiejsza do pociągnięcia dla małego zespołu, bo zwykle oznacza szybsze wysyłanie ofert.
+
+**Konwersja etapu** to miejsce, w którym problemy wychodzą na jaw najwcześniej. Jeśli większość dem prowadzi do ofert, ale mało ofert dociera do negocjacji, problemem jest oferta, a nie źródło leadów.
+
+## Zarządzanie lejkiem sprzedaży: cotygodniowy przegląd
+
+Trzydzieści minut, ze wszystkimi, którzy mają transakcje. Przejdź przez to w tej kolejności:
+
+1. **Najpierw późne etapy.** Każda transakcja w Ofercie i Negocjacjach: co zrobił kupujący od zeszłego tygodnia i jaki jest następny datowany krok?
+2. **Stojące transakcje.** Wszystko, czego rekord nie zmienił się od 14 dni. Cofnij o etap, spróbuj jeszcze raz z innej strony albo zamknij jako Przegraną z powodem.
+3. **Nowe transakcje.** Sprawdź, czy każda spełnia warunek wejścia etapu, na który ją wstawiono.
+4. **Kontrola pokrycia.** Porównaj otwartą wartość, która może zamknąć się w tym okresie, z tym, czego jeszcze potrzebujesz. Jeśli brakuje, reszta tygodnia idzie na poszukiwanie klientów.
+5. **Powody przegranych.** Raz w miesiącu policz je. Trzy przegrane z rzędu na cenie to rozmowa o cenniku, a nie pech.
+
+## Konfiguracja lejka w Customermates
+
+Ta sekcja opisuje nasz własny produkt. Customermates to otwartoźródłowy [CRM sprzedażowy dla małych zespołów pracujących z klientami](/features/sales), zbudowany w Niemczech. Oto jak powyższy pipeline odwzorowuje się w nim.
+
+**Etapy.** Etapy nie są z góry ustawione: dodajesz pole **Etap** do listy szans sprzedaży, na przykład z siedmioma etapami z tabeli wyżej: Poszukiwanie, Kwalifikacja, Demo, Oferta, Negocjacje, Wygrana i Przegrana, z wagami 10, 20, 40, 60, 80, 100 i 0 procent. W chmurze konfiguracja z AI może utworzyć je z twojego opisu. Etap to pole z pojedynczym wyborem, więc sam zmieniasz nazwy, dodajesz lub usuwasz etapy. Prawdopodobieństwa ustawia się jako **Prawdopodobieństwo %** przy każdej opcji po otwarciu pola **Etap** w Model danych dla Szans sprzedaży, a podgląd pokazuje skutek, zanim zapiszesz. Dla sum całkowitych i ważonych pipeline dodaj na Pulpicie widżet z wykresem, który sumuje pole **Wartość** albo **Wartość ważona**, pogrupowane według etapu. Jak działa obliczenie, opisują [podstawowe pojęcia](/docs/concepts).
+
+**Wartość transakcji.** Wybierz model, którego potrzebuje twoja firma. Wartość transakcji może być wpisanym polem pieniężnym albo obliczoną sumą powiązanych pozycji. W konfiguracji z pozycjami każda kwota to ilość razy obowiązująca cena jednostkowa; suma transakcji sumuje te kwoty. Ceny na żywo podążają za późniejszymi zmianami cen, a ceny zapisane zachowują zarejestrowaną kwotę. Abonament z przykładu mógłby być jedną pozycją z ilością 6. Wartość ważona to opcjonalne obliczenie: wartość transakcji razy prawdopodobieństwo etapu podzielone przez 100. [Przewodnik po polach obliczanych i cenach](/docs/concepts#how-does-a-weighted-pipeline-work) omawia brakujące dane, waluty i dostęp.
+
+**Tablica.** Przełącz listę szans sprzedaży na **Tablica** w **Wygląd** i pogrupuj ją według etapu. Dodaj do grupowania podsumowania, takie jak suma pól **Wartość** i **Wartość ważona**, żeby zobaczyć sumy każdej kolumny. Przeciągnięcie karty do innej kolumny zmienia jej etap. [Strona o funkcji lejka](/features/pipeline) pokazuje tablicę, a [poradnik o rekordach](/docs/app-records) wylicza każdy układ i opcję grupowania.
+
+**Widoki do cotygodniowego przeglądu.** Zapisane widoki pamiętają filtry, grupowanie i układ. Dwa, które odpowiadają liście kontrolnej przeglądu:
+
+- **Późny etap:** przefiltruj Etap do Oferty i Negocjacji, posortuj według wartości.
+- **Stojące:** przefiltruj **Zaktualizowano** do „Starsze niż…” 14 dni. To wychwytuje każdą transakcję, której rekordu nikt nie edytował. Patrzy tylko na zmiany samej transakcji, nie na e-maile ani wiadomości, więc sprawdź ostatnią rozmowę, zanim przeniesiesz transakcję do Przegranych.
+
+Utwórz każdy przez **Nowy widok**, a potem udostępnij go całemu zespołowi albo wybranym rolom, żeby wszyscy pracowali na tym samym pipeline podczas cotygodniowego przeglądu.
+
+**Rozmowy obok transakcji.** W planie Pro i wyższych [zunifikowana skrzynka odbiorcza](/features/unified-inbox) łączy e-mail, LinkedIn, WhatsApp, Instagram i Telegram, więc wątek, który ruszył transakcję, leży przy kontakcie z nią powiązanym. Starter nie ma skrzynki. Pipeline się starzeje, gdy rozmowa nie dostaje odpowiedzi ani kolejnego kroku. To właśnie ma wychwycić Customermates: Mate albo twój własny agent AI przygotowuje szkic odpowiedzi i kolejny krok, ty sprawdzasz i wysyłasz, a kolejne kroki pojawiają się na twoim pulpicie.
+
+**Rutyna na poniedziałkowy poranek (Customermates Cloud).** Rutyny uruchamiają zapisaną instrukcję dla Mate, asystenta w Customermates Cloud, według harmonogramu i korzystają z hostowanych kredytów AI. Cotygodniowa rutyna do przeglądu, z harmonogramem ustawionym na **Co tydzień**, poniedziałek, 8:00, może mieć taką instrukcję:
+
+> Wylistuj moje szanse sprzedaży w etapie Oferta lub Negocjacje, które nie były aktualizowane od 14 dni. Dla każdej podsumuj notatki i, jeśli jest, ostatnią rozmowę z powiązanym kontaktem, i zaproponuj jeden następny krok. Nie wysyłaj żadnej wiadomości i niczego nie zmieniaj w szansach sprzedaży.
+
+Utrzymaj rutynę skupioną na przygotowaniu: prośba o szkic to coś innego niż prośba o wysłanie. Działa jako jej właściciel i podlega dostępom tego użytkownika oraz dostępnym kontrolom zatwierdzania. Sprawdź proponowany następny krok na tle rzeczywistej rozmowy, zanim zadziałasz. [Poradnik o rutynach](/docs/app-routines) omawia harmonogramy, uprawnienia i limity.
+
+**Zamiast tego własny klient AI.** Jeśli pracujesz w Claude, ChatGPT lub innym kliencie MCP, może on czytać i aktualizować szanse sprzedaży przez [serwer MCP](/docs/mcp) z twoim własnym dostawcą i bez hostowanych kredytów. Działa to także w instalacji hostowanej samodzielnie, która nie ma skrzynki odbiorczej ani Mate.
+
+**Ile to kosztuje.** Pipeline, tablica, wartości ważone i zapisane widoki są w każdym planie. Dla trzech osób Starter kosztuje [[commercial.price.starter.monthly.seats.3]] miesięcznie, a Pro, który dodaje skrzynkę odbiorczą, [[commercial.price.pro.monthly.seats.3]] miesięcznie. Rozliczenie jest miesięczne, a każdy płatny plan obejmuje miesięczne hostowane kredyty AI na aktywnego użytkownika; [strona z cennikiem](/pricing) podaje szczegóły. Żeby zbudować ten pipeline na własnych transakcjach, [rozpocznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
+
+**Przenosiny z arkusza.** Najpierw utwórz listy i pola. Importuj powiązane rekordy przed rekordami, które do nich prowadzą, na przykład organizacje i kontakty przed szansami sprzedaży. Kreator plików przyjmuje XLSX, XLS i CSV, z podglądem i mapowaniem przed importem. Sprawdź niewielką próbkę powiązań po imporcie; [poradnik o imporcie rekordów](/docs/app-records) wyjaśnia obsługiwany przebieg.
+
+<AcquisitionCallout title="Gdzie Customermates to zły wybór dla twojego lejka" variant="boundary">
+Pole etapu, jego prawdopodobieństwa i obliczenie wartości ważonej należą do listy i pól, które konfigurujesz. Możesz modelować osobne procesy przez osobne listy lub pola; sprawdź, które obliczenie i widżet zasila każdy z nich. Customermates nie przewiduje, które transakcje się zamkną. Ważenie etapów to arytmetyka, a nie prognoza. Dodaj własne pola daty następnego kroku i statusu do zadań, a potem pokaż te daty w kalendarzu; nie ma wbudowanego powiadomienia przypominającego ani natywnej aplikacji mobilnej. Sekwencje sprzedażowe, telefonia i prognozowanie predykcyjne wymagają innych narzędzi. [Poradnik konfiguracji zadań](/features/task-management) wyjaśnia konfigurowalny model zadań.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Jakie są etapy lejka sprzedaży?">
+Typowe siedem to Poszukiwanie, Kwalifikacja, Demo lub rozpoznanie potrzeb, Oferta, Negocjacje, Wygrana i Przegrana. Krótsze wersje łączą dwa pierwsze w jeden etap albo pomijają Demo w usługach sprzedawanych przez rozmowę rozpoznawczą. Ważniejsze niż liczba jest to, żeby każdy etap miał warunek wejścia, który ktoś inny może sprawdzić.
+</FaqItem>
+
+<FaqItem question="Jak zbudować lejek sprzedaży od zera?">
+Zapisz, co się stało w twoich ostatnich dziesięciu wygranych i przegranych transakcjach, zamień powtarzające się kroki w etapy i daj każdemu etapowi jeden obserwowalny warunek wejścia. Potem wpisz każdą otwartą transakcję na etapie, który naprawdę osiągnęła, daj każdej kolejny krok i właściciela i przeglądaj to co tydzień. CRM pomaga, gdy transakcje dzieli więcej niż jedna osoba.
+</FaqItem>
+
+<FaqItem question="Co oznacza pokrycie pipeline w sprzedaży?">
+Pokrycie to wartość otwartych transakcji, które jeszcze mogą się zamknąć w tym okresie, podzielona przez przychód, którego jeszcze potrzebujesz. Pokrycie 3x oznacza 300 000 € otwartych transakcji na lukę 100 000 €. Cel zależy od twojego wskaźnika wygranych według wartości: przy 25% potrzebujesz około 4x, przy 40% około 2,5x.
+</FaqItem>
+
+<FaqItem question="Jaki jest cel lejka sprzedaży?">
+Mówi, które transakcje wymagają uwagi w tym tygodniu i czy masz dość transakcji, żeby osiągnąć cel. Bez niego follow-upy zależą od pamięci, a perspektywa przychodu od optymizmu. Co napisać, gdy transakcja utknie, jest w [szablonach follow-up maili sprzedażowych](/blog/sales-follow-up-email).
+</FaqItem>
+
+<FaqItem question="Który CRM jest najlepszy do zarządzania lejkiem sprzedaży?">
+To zależy od tego, jak sprzedajesz. Zespoły z kilkoma różnymi procesami sprzedaży potrzebują wielu pipeline; zespoły, których transakcje rozstrzygają się w wątkach e-mail i LinkedIn, potrzebują tych rozmów przy transakcji; zespoły pracujące głównie telefonicznie potrzebują dialera. Nasz [przewodnik po CRM sprzedażowych](/blog/crm-for-sales) porównuje opcje według modelu sprzedaży. Customermates publikuje oba poradniki.
+</FaqItem>
+
+<FaqItem question="Czym różni się pipeline sprzedaży od lejka sprzedaży?">
+Pipeline wylicza transakcje z nazwy i to, gdzie każda stoi dzisiaj. Lejek mierzy, ilu leadów przechodzi z etapu na etap w czasie. Pipeline obsługujesz codziennie, a lejek czytasz raz w miesiącu, żeby zobaczyć, gdzie transakcje odpadają.
+</FaqItem>
+</Faq>
+
+Szczegóły konkurentów sprawdzone 8 października 2026 r. w [przewodniku konfiguracji pipeline HubSpot](https://knowledge.hubspot.com/object-settings/set-up-and-customize-pipelines) i [artykule Pipedrive o wielu pipeline](https://support.pipedrive.com/en/article/how-can-i-have-multiple-pipelines).

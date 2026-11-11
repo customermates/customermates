@@ -1,0 +1,179 @@
+---
+title: "Dedykowany system CRM: dopasować gotowy czy zbudować?"
+description: "Dedykowany system CRM: co zmienisz w konfigurowalnym CRM, gdzie dostawcy trzymają obiekty własne i kiedy opłaca się zbudować własny. Z przykładem i listą."
+
+relatedHrefs:
+  - /blog/open-source-crm
+  - /docs/concepts
+  - /features/self-hosted
+  - /blog/how-to-choose-crm
+
+hero:
+  title: "Dedykowany system CRM: co możesz zmienić i kiedy zbudować własny"
+  description: "Większość małych zespołów potrzebuje CRM, którego pola, etapy i widoki da się przekształcić, a nie napisanego od zera. Jak odróżnić jedno od drugiego, gdzie dostawcy stawiają granicę i jak wygląda przykładowa konfiguracja."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Wróć do bloga
+  by: autor Benjamin Wagner
+  date: 2026-04-27
+  updated: 2026-10-28
+  tags:
+    - Konfigurowalny CRM
+    - CRM na zamówienie
+    - Pola własne
+    - Otwartoźródłowy CRM
+---
+
+# Dedykowany system CRM: co możesz zmienić i kiedy zbudować własny
+
+Dedykowany system CRM nie musi oznaczać oprogramowania pisanego od zera. Konfigurowalny CRM to gotowy CRM, w którym samodzielnie zmieniasz model danych, pipeline i widoki, bez pisania kodu. Dla większości małych zespołów to wystarcza: pola własne, własne etapy szans sprzedaży i zapisane widoki pokrywają to, jak naprawdę pracuje firma doradcza, agencja czy firma usługowa. Budowa własnego CRM opłaca się dopiero wtedy, gdy potrzebujesz typów rekordów, jakich nie oferuje żaden produkt, a wtedy realistyczne opcje to CRM z obiektami własnymi albo baza no-code, a nie kod pisany od zera.
+
+Pytanie rozstrzygające jest wąskie. Potrzebujesz nowych rodzajów rekordów czy nowych pól w zwykłych? Reszta tej strony pomaga na nie odpowiedzieć, zanim zapłacisz za plan.
+
+Ten artykuł publikuje Customermates i jest jednym z opisywanych w nim produktów.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Konfigurowalny a własny">Konfigurowalny znaczy, że konfigurujesz gotowy produkt. Własny (na zamówienie) znaczy, że sam budujesz i utrzymujesz system, kodem lub na platformie no-code.</SummaryItem>
+  <SummaryItem label="Gdzie biegnie granica">Pola własne to standard. Obiekty własne (nowe typy rekordów) to miejsce, w którym dostawcy rozdzielają plany: HubSpot wymaga subskrypcji Enterprise, Zoho CRM zawiera moduły własne w każdej płatnej edycji, z limitem na edycję.</SummaryItem>
+  <SummaryItem label="Customermates">Zaczyna bez list: tworzysz własne, ze swobodną zmianą nazw, 16 typami pól, relacjami, polami obliczanymi, własnymi etapami z wagami, zapisanymi widokami, które możesz udostępniać, oraz REST, webhookami i MCP.</SummaryItem>
+  <SummaryItem label="Zbuduj własny">Warto, gdy Twoje rekordy nie mieszczą się w kontaktach, firmach i szansach sprzedaży. W przeciwnym razie bierzesz na siebie uwierzytelnianie, uprawnienia, synchronizację poczty i import za niewielki zysk.</SummaryItem>
+</ArticleSummary>
+
+Zacznij od procesu pracy z klientami: [CRM dla małej firmy](/for/smb) i [CRM dla agencji](/for/agencies) pokazują dwa różne sposoby organizacji pracy. Jeśli z tych rekordów będzie korzystał asystent, sprawdź uprawnienia w [przewodniku po CRM z AI](/blog/ai-crm); skorzystaj z [porównania CRM](/compare), gdy potrzebna zmiana wykracza poza możliwości produktu.
+
+## Co obejmuje „konfigurowalny”, warstwa po warstwie
+
+Dostawcy używają tego słowa (albo hasła „elastyczny CRM”) dla bardzo różnych głębokości. Podziel je na warstwy i przetestuj każdą w okresie próbnym:
+
+| Warstwa | Co oznacza | Jak ją przetestować w okresie próbnym |
+|---|---|---|
+| Pola własne | Nowe pola w istniejących rekordach: data, kwota, lista rozwijana | Dodaj pięć pól, które naprawdę wypełniasz. Sprawdź, czy działają na nich filtry i sortowanie. |
+| Pipeline i etapy | Własne nazwy etapów, więcej niż jeden pipeline, prawdopodobieństwa etapów | Odtwórz swoje obecne kroki sprzedaży. Zobacz, czy etap jest stałym polem systemowym, czy czymś, co sam definiujesz. |
+| Nazewnictwo | Nazywanie szans sprzedaży „Projektami”, a kontaktów „Klientami” | Zmień nazwy i sprawdź, czy nowa etykieta pojawia się na listach, w formularzach i w eksportach. |
+| Widoki | Zapisane filtry, sortowanie, grupowanie, tablica lub tabela | Zapisz trzy widoki. Dowiedz się, czy koledzy je widzą, czy tylko Ty. |
+| Obiekty własne | Nowe typy rekordów z własnymi polami i relacjami, takie jak „Nieruchomość” czy „Umowa” | Zapytaj, który plan je obejmuje i ile. To najczęstszy sposób na wymuszenie droższego planu. |
+| Automatyzacja i dostęp | Wyzwalacze na zmiany pól, API, webhooki, role | Wyślij webhook po zmianie pola. Przeczytaj i zapisz jeden rekord przez API. |
+
+Dwie warstwy rozstrzygają większość zakupów: pola własne i obiekty własne. Typy pól mają większe znaczenie niż liczba pól. Lista rozwijana utrzymuje spójność danych; wolny tekst rozjeżdża się, gdy tylko wpisuje do niego kilka osób.
+
+## Gdzie dostawcy umieszczają obiekty własne
+
+Obiekty własne to najwyraźniejsza linia podziału między planami. Oto własne oświadczenia dostawców:
+
+| Produkt | Obiekty własne | Źródło |
+|---|---|---|
+| HubSpot | Dostępne w subskrypcjach Enterprise (Sales Hub, Marketing Hub, Service Hub i inne huby Enterprise) | [Baza wiedzy HubSpot](https://knowledge.hubspot.com/object-settings/create-custom-objects) |
+| Zoho CRM | Moduły własne w każdej płatnej edycji: 10 w Standard, 25 w Professional, 200 w Enterprise, 500 w Ultimate; brak w Free | [Porównanie edycji Zoho CRM](https://www.zoho.com/crm/complete-feature-list.html) |
+| Attio | Free do 3, Plus do 5, Pro do 12, Enterprise bez limitu | [Cennik Attio](https://attio.com/pricing) |
+| Twenty | Bez limitu w Pro, Organization i Enterprise; otwartoźródłowy rdzeń można hostować samodzielnie | [Cennik Twenty](https://twenty.com/pricing) |
+| EspoCRM | Entity Manager tworzy encje własne, pola i relacje; otwarty kod | [Funkcje EspoCRM](https://www.espocrm.com/features/) |
+| Pipedrive | Przywołana strona pomocy dotyczy pól własnych w leadach, szansach sprzedaży, osobach, organizacjach, produktach i projektach; liczba pól zależy od planu | [Wsparcie Pipedrive](https://support.pipedrive.com/en/article/custom-fields) |
+| Customermates | Własne listy z polami, relacjami i polami obliczanymi; nowa przestrzeń robocza zaczyna bez list | [Model danych Customermates](/docs/concepts) |
+
+Dane dostawców sprawdzono 8 października 2026 w podlinkowanych oficjalnych stronach, Zoho CRM ponownie 28 października 2026. Plany się zmieniają, więc przed zakupem potwierdź potrzebny poziom na stronie dostawcy.
+
+Jeśli potrzebujesz rekordu „Nieruchomość”, który łączy się z kilkoma właścicielami i najemcami, albo rekordu „Umowa” z własnym cyklem życia, wybierz produkt, który obejmuje obiekty własne w planie, na jaki Cię stać. Jeśli Twoja firma to ludzie, firmy, okazje sprzedaży i usługi, które sprzedajesz, obiekty własne to zwykle podwyżka planu, której nie potrzebujesz.
+
+## Dopasować gotowy produkt, użyć buildera no-code czy zbudować własny CRM
+
+| Wybierz | Gdy | Co bierzesz na siebie |
+|---|---|---|
+| Konfigurowalny CRM | Twoja praca to ludzie, firmy, szanse sprzedaży i follow-up, plus pola specyficzne dla Twojej branży | Życie z modelem rekordów dostawcy i granicami jego planów |
+| CRM z obiektami własnymi | Potrzebujesz jednego lub dwóch dodatkowych typów rekordów z relacjami, takich jak nieruchomości czy umowy | Wyższy plan u większości dostawców; więcej konfiguracji i więcej do utrzymania w porządku |
+| Baza no-code (Airtable, Knack, Caspio i podobne) | Twój model danych jest naprawdę nietypowy i często się zmienia | Sam projektujesz i utrzymujesz wszystko: uprawnienia, zbieranie poczty, import, widoki, z których korzysta zespół |
+| Kod od zera | CRM jest Twoim produktem albo musi siedzieć głęboko we własnym oprogramowaniu | Uwierzytelnianie, role, synchronizację poczty i kalendarza, wyszukiwanie, historię audytu, import i eksport, kopie zapasowe, aktualizacje bezpieczeństwa, tak długo, jak to działa |
+
+Nikt nie poda Ci uczciwej stałej ceny CRM na zamówienie bez specyfikacji. Koszt, który ludzie niedoceniają, to nie pierwsza wersja, tylko lata utrzymania, bo każda funkcja, którą wynajmowany CRM dostarcza, staje się Twoim backlogiem. Zanim zlecisz budowę, wypisz typy rekordów, których Twoje obecne narzędzie nie potrafi odwzorować. Jeśli lista jest pusta, potrzebujesz lepiej skonfigurowanego CRM, a nie nowego.
+
+Otworzyła się środkowa droga: zacznij od CRM z pełnym API i pozwól klientowi AI wykonać pracę na zamówienie na jego podstawie. W otwartoźródłowym CRM, który udostępnia REST, webhooki i serwer MCP, mały skrypt albo klient AI może obsłużyć jeden proces specyficzny dla Ciebie, a dostawca utrzymuje całą resztę.
+
+## Przykładowa konfiguracja w Customermates
+
+Oto jak pięcioosobowa firma doradcza dopasowałaby Customermates do swojego procesu. Każdy krok to konfiguracja, bez kodu.
+
+<Steps>
+  <Step title="Zmień nazwy list">
+    W **Model danych** otwórz listę i zmień **Nazwa** oraz **Nazwa w liczbie mnogiej** w sekcji **Ogólne**: Kontakty stają się **Klientami**, Szanse sprzedaży **Projektami**, Usługi **Pakietami**. Działa każda nazwa, a rekordy, powiązania, widoki i odwołania w API pozostają połączone; zobacz [dokumentację ustawień przestrzeni roboczej](/docs/app-company#how-do-i-rename-record-types-in-the-data-model).
+  </Step>
+  <Step title="Zdefiniuj pole etapu">
+    Etapy nie są ustawione z góry. W Model danych dla Szans sprzedaży dodaj pole typu **Pojedynczy wybór** **Etap** (w chmurze może je utworzyć konfiguracja AI) z opcjami zgodnymi z Twoimi krokami sprzedaży, na przykład Zapytanie, Rozmowa rozpoznawcza, Oferta wysłana, Podpisane, Utracone. Ustaw **Prawdopodobieństwo %** przy każdej opcji, a każda szansa dostanie wartość ważoną z tych stałych procentów; widżet wykresu na Pulpicie, który sumuje **Wartość ważoną** według etapu, pokazuje ważoną sumę pipeline'u.
+  </Step>
+  <Step title="Dodaj pola własne tam, gdzie wpływają na decyzję">
+    W Projektach: **Rodzaj współpracy** (Pojedynczy wybór: abonament, stały zakres, warsztat), **Stawka dzienna** (Kwota pieniężna), **Odnowienie umowy** (Data). W Klientach: **Źródło** (Pojedynczy wybór) i **Adres biura** (Adres); numery telefonów i adresy e-mail trafiają do pola Dane kontaktowe. Dostępnych jest szesnaście typów pól i pola obliczane, wymienione w [dokumentacji modelu danych](/docs/concepts#what-are-custom-columns).
+  </Step>
+  <Step title="Zapisz widoki, z których pracuje każda osoba">
+    Tablica Projektów pogrupowana według Etapu, tabela abonamentów posortowana po polu **Odnowienie umowy** i lista Klientów pogrupowana według pola **Źródło**. Udostępnij tablicę Projektów całemu zespołowi albo wybranym rolom, żeby wszyscy pracowali z tego samego pipeline'u.
+  </Step>
+  <Step title="Wczytaj istniejące dane">
+    Wyeksportuj każdy arkusz ze starego narzędzia jako skoroszyt Excela i importuj po jednej liście naraz, najpierw Klientów, potem Projekty, mapując kolumny na nowe pola własne. [Dokumentacja rekordów](/docs/app-records#how-do-i-import-or-export-records) podaje limity plików.
+  </Step>
+  <Step title="Zautomatyzuj jeden krok (Customermates Cloud)">
+    Rutyna na zdarzeniu **Rekord zaktualizowany** dla Projektów, obserwująca tylko pole **Etap** i przefiltrowana do Oferta wysłana: „Przygotuj krótki follow-up do głównego kontaktu klienta, odwołujący się do oferty. Zapisz go jako szkic, nie wysyłaj.” Rutyny uruchamiają Mate, zużywają hostowane kredyty AI i działają jako ich właściciel. Bez wiersza „nie wysyłaj” rutyna może sama wysłać wiadomość. Zobacz [Rutyny](/docs/app-routines).
+  </Step>
+</Steps>
+
+Połączone rozmowy e-mail, LinkedIn i WhatsApp pojawiają się obok tych rekordów w [ujednoliconej skrzynce odbiorczej](/features/unified-inbox) w planie Pro i wyższych. Plan Starter nie ma skrzynki. Jeśli pracujesz z Claude, ChatGPT lub innym klientem AI, czyta i zapisuje te same rekordy, w tym Twoje pola własne, przez [MCP](/docs/mcp) (liczba narzędzi: [[derived.mcp.tools.total]]).
+
+Sens kształtowania modelu to follow-up w każdej rozmowie z klientem. Gdy skrzynka jest połączona, wątki każdego klienta leżą przy rekordzie klienta, Mate lub Twój własny agent AI przygotowuje szkic odpowiedzi i następnego kroku, Ty sprawdzasz i wysyłasz, a dodane przez Ciebie pola dat, takie jak Odnowienie umowy czy data następnego kroku, wprowadzają na Twój pulpit to, co jest należne.
+
+## Czego w Customermates nie da się dostosować
+
+Te ograniczenia mają znaczenie, jeśli porównujesz konfigurowalne CRM:
+
+- **Uprawnienia kończą się na liście.** Role kontrolują tworzenie, odczyt, edycję i usuwanie dla każdej listy, w tym „tylko rekordy przypisane do mnie”. Nie ma uprawnień na poziomie pól.
+- **Widoki udostępnione są tylko do odczytu.** Koledzy mogą filtrować widok udostępniony albo zachować własną kopię, ale zmienić go może tylko właściciel.
+- **Brak tagowania.** Użyj zamiast tego pola Pojedynczy wybór, które też utrzymuje spójność wartości.
+- **Zadania nie mają wbudowanego terminu.** Dodaj pole Data i posortuj po nim; nic nie powiadamia Cię, gdy ta data minie.
+- **Import i eksport działają dla każdej listy osobno**, jako skoroszyty Excela lub JSON, do 5 000 rekordów na eksport. Nie ma eksportu całego konta.
+
+W self-hostingu otwartoźródłowy rdzeń obejmuje rekordy, pola własne, widoki, role, REST, [webhooki](/docs/webhooks) i MCP. Skrzynka, Mate i Rutyny są tylko w chmurze. Szczegóły są na [stronie o self-hostingu](/features/self-hosted).
+
+## Ile kosztuje utrzymanie
+
+Customermates jest rozliczany za użytkownika i miesiąc, tylko miesięcznie. Dla pięcioosobowej firmy doradczej z powyższego przykładu:
+
+| Plan | Pięciu użytkowników miesięcznie | Z czego korzysta powyższa konfiguracja |
+|---|---|---|
+| Starter | [[commercial.price.starter.monthly.seats.5]] | Pola własne, etapy, widoki, import, API, webhooki, MCP, rutyny (limit na użytkownika: [[commercial.entitlement.starter.includedRoutinesPerUser]]) |
+| Pro | [[commercial.price.pro.monthly.seats.5]] | Wszystko powyżej, plus ujednolicona skrzynka odbiorcza (limit połączonych kont na użytkownika: [[commercial.entitlement.pro.includedAccountsPerUser]]) i rutyny (limit na użytkownika: [[commercial.entitlement.pro.includedRoutinesPerUser]]) |
+
+Rok w planie Pro dla pięciu osób to [[commercial.price.pro.monthly.seats.5.months.12]]. Każdy płatny plan obejmuje miesięczne hostowane kredyty AI na każdego aktywnego użytkownika dla Mate; zobacz [cennik](/pricing). Self-hosting nie ma opłaty licencyjnej za otwartoźródłowy rdzeń; płacisz za własny serwer i czas na jego prowadzenie.
+
+Żeby ukształtować własną przestrzeń roboczą, [rozpocznij okres próbny](/auth/signup?job=followup): [[commercial.trial.days]] dni planu Pro bez karty kredytowej.
+
+## Jak utrzymać dopasowany CRM w użyciu
+
+Dopasowywanie zawodzi częściej przez zbyt wiele pól niż zbyt mało. Pomagają trzy zasady:
+
+1. Dodawaj pole tylko wtedy, gdy ktoś według niego filtruje, sortuje albo podejmuje decyzję. Pola „może się przydać” zostają puste.
+2. Dla wszystkiego, według czego będziesz później grupować, wybieraj Pojedynczy wybór zamiast wolnego tekstu.
+3. Co kwartał usuwaj pola, których nikt nie wypełnił. W Customermates usunięte pole zostaje w Koszu przez 30 dni, a potem bezpowrotnie traci swoje wartości, więc w razie wątpliwości najpierw wyeksportuj dane.
+
+## Najczęściej zadawane pytania
+
+<Faq>
+<FaqItem question="Czym różni się konfigurowalny CRM od CRM na zamówienie?">
+Konfigurowalny CRM to gotowy produkt, który dopasowujesz polami, etapami, widokami i automatyzacją, a utrzymuje go dostawca. CRM na zamówienie to oprogramowanie zbudowane dla Ciebie, kodem lub na platformie no-code, a utrzymujesz je Ty. Konfigurowalny jest szybszy i tańszy dla większości małych zespołów; własny opłaca się tylko wtedy, gdy żaden produkt nie potrafi odwzorować Twoich rekordów.
+</FaqItem>
+
+<FaqItem question="Czy mogę zbudować własny CRM?">
+Tak. Baza no-code, taka jak Airtable, Knack czy Caspio, może szybko dać działającą pierwszą wersję, jeśli Twój proces jest jasny. Kodowanie od zera to długi projekt, bo budujesz też logowanie, role, synchronizację poczty, wyszukiwanie, import i kopie zapasowe. Jeśli Twoje rekordy to ludzie, firmy i szanse sprzedaży, skonfigurowanie istniejącego CRM zaprowadzi Cię dalej za mniej.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje CRM na zamówienie?">
+To zależy od specyfikacji, więc uważaj na każdą stałą kwotę. Licz utrzymanie, a nie tylko pierwszą budowę: aktualizacje bezpieczeństwa, hosting, kopie zapasowe i każdą funkcję, którą inaczej dostarczałby dostawca. Dla porównania pięciu użytkowników w Customermates Pro kosztuje [[commercial.price.pro.monthly.seats.5]] miesięcznie, czyli [[commercial.price.pro.monthly.seats.5.months.12]] w ciągu dwunastu miesięcy, a inni dostawcy publikują swoje ceny na stronach z cennikami.
+</FaqItem>
+
+<FaqItem question="Czy mogę zbudować CRM w Excelu?">
+Dla jednej osoby i kilkuset kontaktów tak. Rozpada się, gdy edytuje kilka osób naraz, gdy potrzebujesz powiązań między klientami i projektami albo gdy rozmowy powinny leżeć przy rekordzie. Nasz [przewodnik po szablonie CRM w Excelu](/blog/excel-crm-template) pokazuje działający układ i moment, w którym warto przejść dalej. Customermates importuje skoroszyty Excela, po jednej liście naraz.
+</FaqItem>
+
+<FaqItem question="Który CRM oferuje najbardziej elastyczny model danych dla obiektów własnych?">
+Wśród sprawdzonych tu produktów Twenty zawiera nieograniczone obiekty własne w planach Pro, Organization i Enterprise, Attio dopuszcza do 12 w Pro i bez limitu w Enterprise, EspoCRM tworzy encje własne w Entity Managerze, HubSpot zarezerwował obiekty własne dla poziomów Enterprise, a Zoho CRM pozwala na od 10 do 500 modułów własnych w zależności od płatnej edycji. W Customermates dodajesz własne listy z polami i relacjami w Model danych.
+</FaqItem>
+
+<FaqItem question="Czy mogę trzymać dane CRM na własnym serwerze?">
+Tak, z CRM, który można hostować samodzielnie. Customermates, Twenty i EspoCRM mogą działać na Twojej własnej infrastrukturze. W przypadku Customermates wersja self-hosted działa z Docker Compose i obejmuje pola własne, widoki, REST, webhooki i MCP, ale nie skrzynkę, Mate ani Rutyny. Kompromisy opisuje [przewodnik po otwartoźródłowym CRM](/blog/open-source-crm).
+</FaqItem>
+</Faq>

@@ -1,0 +1,272 @@
+---
+title: "CRM dla biura nieruchomości: kupujący i sprzedający"
+description: "CRM dla biura nieruchomości: e-mail i WhatsApp na karcie klienta, a Mate przygotowuje szkic odpowiedzi i kolejnego kontaktu z kupującym lub sprzedającym."
+industryName: "Nieruchomości"
+
+relatedHrefs:
+  - /features/unified-inbox
+  - /features/pipeline
+  - /features/lead-management
+  - /docs/app-routines
+
+hero:
+  title: "CRM dla biura nieruchomości: wracaj do osób, które mówiły „za pół roku”, i do klientów, z którymi nie rozmawiasz od roku."
+  description: "Rozmowy e-mailowe i na WhatsAppie są na karcie kupującego, sprzedającego lub polecającego, a Mate lub twój agent AI przygotowuje szkic odpowiedzi i kolejnego kontaktu, który sprawdzasz i wysyłasz. Skrzynka odbiorcza od planu Pro w Customermates Cloud; portale zostają w swoich narzędziach."
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Poznaj przestrzeń roboczą"
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ [[commercial.trial.days]]-dniowy okres próbny za darmo"
+
+cta:
+  action: "Wracaj do każdego kupującego, sprzedającego i polecającego"
+  description: "Podłącz skrzynkę pocztową lub WhatsAppa w trakcie [[commercial.trial.days]]-dniowego okresu próbnego planu Pro, potem zaimportuj kontakty z Excela i dodaj datę Kolejnego kontaktu. Plany zaczynają się od [[commercial.price.starter.monthly]] za użytkownika miesięcznie, płatne miesięcznie."
+  buttonLeftText: "Rozpocznij [[commercial.trial.days]]-dniowy okres próbny"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: "Poznaj przestrzeń roboczą"
+  buttonRightHref: https://demo.customermates.com/pl/w/small-business/dashboard
+  hint: "✓ Bez karty kredytowej ✓ [[commercial.trial.days]]-dniowy okres próbny za darmo"
+
+useCases:
+  eyebrow: "Jak możesz z niego korzystać"
+  title: "Dla pośredników i agentów nieruchomości. Trzy zadania, jedna przestrzeń robocza."
+  items:
+    - title: "Dawni klienci i kupujący, którzy ucichli"
+      description: "Kupujący, sprzedający, dawni klienci i partnerzy polecający mają datę kolejnego kontaktu, więc zapisany widok pokazuje, do kogo zadzwonić."
+      href: /features/follow-up
+      linkLabel: "Zobacz follow-up"
+      visual: calendar
+    - title: "E-mail i WhatsApp na karcie"
+      description: "Od planu Pro zapytania i odpowiedzi są na karcie klienta. Mate lub twój agent AI przygotowuje odpowiedź i kolejny krok, ty sprawdzasz i wysyłasz, a portale zostają w swoich narzędziach."
+      href: /features/whatsapp-integration
+      linkLabel: "Zobacz WhatsAppa w skrzynce odbiorczej"
+      visual: conversation
+    - title: "Kupujący i sprzedający w jednej przestrzeni roboczej"
+      description: "Kupujący z profilami poszukiwań i sprzedający z ofertami są w kontaktach i szansach sprzedaży, z polami do filtrowania, gdy pojawi się nowa oferta."
+      href: /features/contact-management
+      linkLabel: "Zobacz zarządzanie kontaktami"
+      visual: contacts
+---
+
+Dochód pośrednika zależy od rozmów, które cichną: kupujący, który powiedział „za pół roku”, sprzedający, który chciał to jeszcze przemyśleć, klient, który kupił mieszkanie pięć lat temu. Jako CRM dla biura nieruchomości Customermates układa rozmowy na karcie klienta, gdy dane kontaktowe się zgadzają albo gdy sam je powiążesz. W Customermates Cloud od planu Pro Mate przygotowuje szkic odpowiedzi i kolejnego kontaktu na twoją prośbę lub w rutynie, a twój własny agent AI (Claude, ChatGPT lub dowolny klient obsługujący MCP) robi to przez MCP. Sprawdzasz, poprawiasz i wysyłasz, a kolejne kroki z datami widzisz na pulpicie. To CRM open source, stworzony z myślą o AI, powstały w Niemczech, ale nie oprogramowanie dla nieruchomości w pełnym sensie: bez bazy ofert, bez zasilania z MLS lub portali, bez dokumentacji transakcji. Sekcja o ograniczeniach poniżej wskazuje narzędzia, które to mają.
+
+<ArticleSummary title="W skrócie">
+  <SummaryItem label="Dla kogo">
+    Pośrednicy i agenci, których dochód zależy od follow-upu: kupujący i
+    sprzedający, osoby z dni otwartych, dawni klienci i partnerzy polecający.
+  </SummaryItem>
+  <SummaryItem label="Konfiguracja">
+    Osoby jako kontakty z polami profilu poszukiwań, każda oferta lub zlecenie
+    kupującego jako szansa sprzedaży, oglądania jako zadania i zapisany widok
+    na każdą rutynową kontrolę.
+  </SummaryItem>
+  <SummaryItem label="AI">
+    W Customermates Cloud Mate przygotowuje szkic odpowiedzi na rozmowę ze
+    skrzynki odbiorczej (od planu Pro) i kolejnego kontaktu na twoją prośbę lub
+    w rutynie, a rutyna może dopasować kupujących do nowej oferty, korzystając
+    z hostowanych kredytów AI. Ty sprawdzasz i wysyłasz. Twój własny agent
+    (Claude, ChatGPT lub dowolny klient obsługujący MCP) pracuje na tych samych
+    rekordach przez MCP.
+  </SummaryItem>
+  <SummaryItem label="Czego nie ma">
+    Bazy ofert, synchronizacji z MLS, IDX lub portalami, formularzy www,
+    SMS-ów i rozmów telefonicznych, podpisu elektronicznego oraz księgowania
+    czynszów i nieruchomości.
+  </SummaryItem>
+</ArticleSummary>
+
+## Czego pośrednicy i agenci potrzebują od CRM nieruchomości
+
+O tym, czy CRM pomaga pośrednikowi, decyduje pięć konkretnych zadań:
+
+- **Profile poszukiwań, które da się przeszukać.** Gdy pojawia się mieszkanie z trzema pokojami w konkretnej dzielnicy, potrzebujesz pięciu pasujących kupujących, a nie listy 900 nazwisk.
+- **Dwa rodzaje klientów jednocześnie.** Sprzedający z ofertą i kupujący z budżetem przechodzą przez różne kroki, a wiele osób jest jednym i drugim.
+- **Zapytania z kilku kanałów.** Leady z portali przychodzą e-mailem, kupujący odpowiadają na WhatsAppie, a partner polecający dzwoni. Jeśli te wiadomości zostają w telefonie, karta zawsze jest spóźniona.
+- **Długie przerwy.** Kupujący, który jest „za pół roku”, albo klient, który kupił pięć lat temu, łatwo wypada z pola widzenia. Kolejna transakcja często pochodzi właśnie od takich osób.
+- **Jasna odpowiedzialność w zespole.** W biurze nieruchomości każde zapytanie potrzebuje jednego odpowiedzialnego pośrednika, a rozmowy pośrednika mają pozostać prywatne, dopóki ich nie udostępni.
+
+## Konfiguracja CRM dla agencji nieruchomości w Customermates
+
+Nowa przestrzeń robocza zaczyna bez list: potrzebne listy (kontakty, organizacje, szanse sprzedaży lub własne) tworzysz w **Model danych** albo pozwalasz, żeby w chmurze zbudowała je konfiguracja z AI. Oto jeden ze sposobów przypisania pięciu list do pracy pośrednika; każda nazwa pola poniżej to przykład, który tworzysz samodzielnie. Listę kontaktów możesz nazwać Klienci, a każdą listę zmienisz później w **Model danych** w sekcji **Ogólne**.
+
+| Typ rekordu | Do czego służy | Przykładowe pola niestandardowe |
+|---|---|---|
+| Kontakty | Kupujący, sprzedający, wynajmujący, najemcy, partnerzy polecający | Rola (pojedynczy wybór: Kupujący, Sprzedający, Wynajmujący, Najemca, Partner, Dawny klient), Okolica poszukiwań (pojedynczy wybór), Typ nieruchomości (pojedynczy wybór), Liczba pokoi (pojedynczy wybór: 1, 2, 3, 4, 5+), Budżet maksymalny (kwota pieniężna), Finansowanie (pojedynczy wybór: Do ustalenia, Wstępna decyzja kredytowa, Gotówka), Źródło leada (pojedynczy wybór), Kolejny kontakt (data) |
+| Organizacje | Banki, kancelarie prawne i notarialne, deweloperzy, inne biura nieruchomości | Typ partnera (pojedynczy wybór), Wysłane polecenia (tekst) |
+| Szanse sprzedaży | Każda oferta i każde zlecenie kupna lub najmu | Etap, Strona (pojedynczy wybór: Sprzedaż, Zakup, Najem), Adres nieruchomości (adres), Cena ofertowa (kwota pieniężna), Przewidywana prowizja (kwota pieniężna), Link do ogłoszenia (adres internetowy), Koniec umowy (data) |
+| Zadania | Oglądania i kolejne kroki, przypisane do pośrednika | Termin oglądania (data i godzina), Opinia (pojedynczy wybór: Spodobało się, Drugie oglądanie, Nietrafiona) |
+| Usługi | Pośrednicy rzadko ich potrzebują | Zostaw pustą albo użyj do usług za stałą opłatę, na przykład wyceny |
+
+Osoby łączą się z szansami sprzedaży, więc zainteresowani kupujący mogą być przy ofercie, o którą pytali, a oferta sprzedającego i jego późniejsze poszukiwanie domu mogą być na tym samym kontakcie. Zadania nie mają wbudowanego terminu, dlatego oglądanie dostaje własne pole z datą.
+
+### Etapy dla ofert i kupujących
+
+Etap szansy sprzedaży to pole pojedynczego wyboru, a każda opcja może mieć prawdopodobieństwo wygranej. Jedna lista etapów może obsługiwać obie strony, jeśli filtrujesz po polu Strona:
+
+| Etap | Strona sprzedaży | Strona kupna | Prawdopodobieństwo |
+|---|---|---|---|
+| Lead | Prośba o wycenę | Pierwsze zapytanie | 10% |
+| Spotkanie | Prezentacja dla sprzedającego | Konsultacja z kupującym | 20% |
+| Umowa podpisana | Umowa pośrednictwa | Umowa z kupującym | 40% |
+| Aktywna | W sprzedaży | Oglądanie nieruchomości | 50% |
+| Oferta kupna | Otrzymano ofertę kupna | Złożono ofertę kupna | 70% |
+| Umowa przedwstępna | Umowa przedwstępna | Umowa przedwstępna | 90% |
+| Sfinalizowana | Sfinalizowana | Sfinalizowana | 100% |
+| Przegrana | Przegrana | Przegrana | 0% |
+
+Na [tablicy pipeline](/features/pipeline) każda szansa sprzedaży to karta, którą przeciągasz między etapami. Wartość szansy sprzedaży skonfigurujesz jako wpisaną kwotę, na przykład przewidywaną prowizję, albo jako obliczoną sumę powiązanych pozycji. Opcjonalne pole wartości ważonej mnoży tę wartość przez prawdopodobieństwo etapu podzielone przez 100. Szacunek prowizji nie jest wyceną nieruchomości ani prognozą, że sprzedaż dojdzie do skutku. [Przewodnik po obliczeniach na rekordach](/docs/concepts#how-does-a-weighted-pipeline-work) wyjaśnia konfigurację.
+
+### Zapisane widoki na poranną kontrolę
+
+1. **Aktywne oferty:** szanse sprzedaży ze Stroną Sprzedaż na etapie Aktywna lub Oferta kupna, posortowane po Koniec umowy.
+2. **Kupujący gotowi do ruchu:** kontakty z Rolą Kupujący i Finansowaniem Wstępna decyzja kredytowa, posortowane po Kolejny kontakt.
+3. **Kto czeka na kontakt:** kontakty z datą Kolejny kontakt, posortowane po niej od najwcześniejszej, więc osoby do telefonu są na górze. Sortowanie utrzymuje ten widok aktualnym; filtr po niestandardowej dacie przyjmuje stałą datę.
+4. **Zastałe leady:** szanse sprzedaży na etapie Lead lub Spotkanie z datą aktualizacji **Starsze niż…** 14 dni.
+5. **Krąg kontaktów:** kontakty z Rolą Dawny klient lub Partner, posortowane po Kolejny kontakt.
+
+Udostępnij **Zastałe leady** całemu zespołowi albo wybranym rolom, żeby każdy pośrednik pracował na tej samej liście.
+
+Na pulpicie widżet **Nadchodzące** oparty na polu Kolejny kontakt pokazuje, kto czeka na kontakt w najbliższych dniach, z sekcją **Po terminie**. Customermates nie wysyła przypomnień; tę listę otwierasz każdego ranka.
+
+### Dopasowanie kupujących do nowej oferty
+
+Customermates nie dopasowuje kupujących do nieruchomości automatycznie i nie ma bazy nieruchomości, z którą można by porównywać. Działa filtr. Gdy pojawia się mieszkanie z trzema pokojami w Łodzi za 480 000 zł, filtrujesz kontakty po Roli Kupujący, Okolicy poszukiwań Łódź, Liczbie pokoi 3 lub 4 i Budżecie maksymalnym co najmniej 480 000. Pola typu Kwota pieniężna obsługują filtry „większe niż” i „mniejsze niż”, a pola pojedynczego wyboru obsługują „jest jednym z” ([opis filtrów](/docs/filter-syntax)). Kupujących, do których dzwonisz, powiąż z szansą sprzedaży tej oferty, żeby później widzieć, kto o niej usłyszał.
+
+W Customermates Cloud [rutyna](/docs/app-routines) może wykonać to wyszukiwanie za ciebie. Wybierz **Gdy coś się zmieni**, zdarzenie **Szansa sprzedaży zaktualizowana**, zmienione pole Etap oraz filtry rekordów Strona = Sprzedaż i Etap = Aktywna. Instrukcje w tym stylu:
+
+```text
+Ta oferta właśnie stała się aktywna. Znajdź kontakty z Rolą Kupujący,
+których Okolica poszukiwań i Typ nieruchomości pasują do oferty, a Budżet
+maksymalny wynosi co najmniej tyle, ile Cena ofertowa. Powiąż je z tą szansą
+sprzedaży. Utwórz jedno zadanie „Zadzwonić do pasujących kupujących”
+powiązane z szansą sprzedaży i tymi kontaktami, przypisane do mnie. Nie
+wysyłaj żadnych wiadomości.
+```
+
+### Zapytania i rozmowy w jednej skrzynce odbiorczej (od planu Pro)
+
+W Customermates Cloud od planu Pro wzwyż [ujednolicona skrzynka odbiorcza](/features/unified-inbox) łączy pocztę z Gmaila, Outlooka lub IMAP z WhatsAppem, LinkedInem, Instagramem i Telegramem. Odpowiadasz w kanale, w którym przyszła wiadomość. Jeśli portal przekazuje zapytania na twoją skrzynkę, trafiają tu razem z resztą poczty. Powiąż nadawcę z kontaktem raz, a każda późniejsza rozmowa z tym adresem pojawi się na jego osi czasu.
+
+O planie decydują dwie sprawy. W planie Pro limit podłączonych kont na użytkownika to [[commercial.entitlement.pro.includedAccountsPerUser]], więc pośrednik, który chce mieć w skrzynce odbiorczej i pocztę, i WhatsAppa, potrzebuje planu Business, gdzie ten limit to [[commercial.entitlement.business.includedAccountsPerUser]]. A twoje rozmowy pozostają prywatne: koledzy, także administratorzy, widzą wątek dopiero po tym, jak go udostępnisz. Udostępnienie całego konta, na przykład wspólnej skrzynki na zapytania biura, wymaga planu Business. SMS-y i rozmowy telefoniczne nie są kanałami.
+
+### Codzienna rutyna follow-upu z Mate (Customermates Cloud)
+
+Mate to asystent w Customermates Cloud. Korzysta z hostowanych kredytów AI wliczonych w cenę na aktywnego użytkownika w każdym płatnym planie chmurowym; czytanie rozmów ze skrzynki odbiorczej wymaga planu Pro lub wyższego. Skonfiguruj drugą rutynę z opcjami **Według harmonogramu**, **Codziennie** o 08:00:
+
+```text
+Znajdź rozmowy w skrzynce odbiorczej, w których ostatnia wiadomość jest od
+drugiej osoby, przyszła ponad dzień temu, na które nie ma jeszcze mojej odpowiedzi. Dla każdej
+powiązanej z kupującym lub sprzedającym zapisz w tej rozmowie krótki szkic
+odpowiedzi, który odpowiada na jej pytanie albo proponuje kolejny krok. Nie
+wysyłaj niczego. Zakończ listą: imię i nazwisko, kanał, o co pytała osoba,
+szkic zapisany tak lub nie.
+```
+
+<AcquisitionCallout title="Powiedz Mate, żeby przygotowywał szkice, a nie wysyłał" variant="boundary">
+  Poproś Mate, żeby zapisywał szkice i wymieniał użyte źródła. Każdy szkic sprawdź w jego rozmowie, zanim wyślesz. Rutyna działa jako jej właściciel, z dostępem i podłączonymi kontami tego użytkownika, więc ogranicz jej instrukcje i uprawnienia do tego zadania przygotowawczego. [Przewodnik po uprawnieniach i zatwierdzaniu rutyn](/docs/app-routines) opisuje mechanizmy kontroli.
+</AcquisitionCallout>
+
+W planie Starter limit rutyn na użytkownika to [[commercial.entitlement.starter.includedRoutinesPerUser]], a w planie Pro [[commercial.entitlement.pro.includedRoutinesPerUser]]. Jeśli wolisz własnego agenta, podłącz Claude, ChatGPT lub dowolnego klienta obsługującego [MCP](/docs/mcp); działa w każdym planie i w instalacjach self-hosted, bez skrzynki odbiorczej, a za użycie modelu rozlicza cię twój dostawca AI. Twój klient stosuje uprawnienia konta, z którym się łączy; to, czy pyta o zgodę przed działaniem, zależy od klienta.
+
+### Zespoły i biura
+
+Szanse sprzedaży i kontakty mają przypisanych użytkowników („Przypisane”), więc każde zapytanie ma odpowiedzialnego pośrednika. Rola niestandardowa z dostępem do odczytu Przypisane ogranicza pośrednika do przypisanych mu rekordów, a dziennik audytu zapisuje, kto zmienił który rekord. Customermates nie ma automatycznego kierowania leadów: każde zapytanie przypisujesz samodzielnie albo robi to osobno prowadzony przepływ n8n przez [REST API](/features/api).
+
+## Zarządcy nieruchomości
+
+Customermates nie jest oprogramowaniem do zarządzania nieruchomościami. Nie ma poboru czynszów, rejestru najemców, zgłoszeń konserwacyjnych, zestawień dla właścicieli ani portalu dla najemców. Pasuje do firmy zarządzającej po stronie relacji: pozyskiwania nowych właścicieli jako klientów, śledzenia zapytań o najem wolnych lokali i trzymania rozmów z właścicielami i dostawcami w jednej skrzynce odbiorczej. Budynki lub wspólnoty zamodeluj jako organizacje, właścicieli i najemców jako kontakty, a każde nowe zlecenie zarządzania jako szansę sprzedaży. Operacje prowadź w dedykowanym oprogramowaniu i, jeśli trzeba, połącz oba systemy przez REST API lub webhooki.
+
+## Czego Customermates nie robi dla nieruchomości
+
+- Brak bazy ofert ze zdjęciami nieruchomości, ulotkami lub broszurami oraz brak publikacji w MLS, IDX lub portalach.
+- Brak formularzy www i stron docelowych do zbierania leadów oraz brak automatycznego kierowania leadów.
+- Brak kampanii drip, sekwencji e-maili i masowej wysyłki e-maili. Aktualności rynkowe wysyłasz ze swojego narzędzia do newsletterów.
+- Brak SMS-ów, dzwonienia i dialera oraz brak aplikacji mobilnej.
+- Brak rezerwacji oglądań i zapisu do kalendarza. W planie Pro widzisz swój kalendarz tylko do odczytu obok CRM.
+- Brak wbudowanego pola terminu zadania i powiadomień z przypomnieniami. Dodaj pole z datą i pokaż je w kalendarzu, zapisanym widoku lub rutynie.
+
+Jeśli któryś z tych punktów jest powodem, dla którego szukasz narzędzia, sięgnij po narzędzie zbudowane właśnie do tego. Tę stronę publikuje Customermates; dane dostawców sprawdzono 8 października 2026 na stronie każdego dostawcy.
+
+| Jeśli potrzebujesz | Zobacz | Co wymienia strona dostawcy |
+|---|---|---|
+| Amerykańskiego CRM dla agentów z kierowaniem leadów, dzwonieniem i SMS-ami | [Follow Up Boss](https://www.followupboss.com/pricing) | Dystrybucja leadów, automatyczne Action Plans, dzwonienie i SMS-y (dzwonienie to dodatek w planie Grow), Zillow Pro, aplikacje mobilne |
+| Jednej stałej ceny dla małego amerykańskiego zespołu z kampaniami drip | [Wise Agent](https://wiseagent.com/pricing.asp) | Plan CRM dla maksymalnie 5 członków zespołu na wspólnym loginie, zarządzanie transakcjami, automatyzacja i kierowanie leadów, kampanie drip |
+| Niemieckiego oprogramowania dla pośredników z transferem do portali i ekspozé | [Propstack](https://www.propstack.de/) lub [FLOWFACT](https://flowfact.de/) | Propstack: interfejsy do ImmoScout24, Immowelt i Kleinanzeigen, kartoteki nieruchomości, aplikacja na iOS i Androida. FLOWFACT: transfer do ponad 150 portali, dopasowywanie profili poszukiwań |
+| Czynszów, księgowości i konserwacji dla nieruchomości na wynajem | [Buildium](https://www.buildium.com/pricing/) | Płatności czynszu online, księgowość, zgłoszenia konserwacyjne, portale dla mieszkańców i właścicieli, wynajem |
+
+Częsty podział to dwa systemy: oprogramowanie do ofert lub narzędzie MLS dla nieruchomości oraz Customermates dla ludzi i rozmów wokół nich.
+
+## Ile to kosztuje
+
+Ceny są za aktywnego użytkownika miesięcznie, płatne miesięcznie. Każdy płatny plan obejmuje REST, webhooki i MCP. Nie ma opłat za lead ani za kontakt.
+
+| Zespół | Plan | Miesięcznie |
+|---|---|---|
+| Jeden pośrednik, tylko pipeline, bez skrzynki odbiorczej | Starter | [[commercial.price.starter.monthly]] |
+| Jeden pośrednik, jedna skrzynka pocztowa lub WhatsApp w skrzynce odbiorczej | Pro | [[commercial.price.pro.monthly]] |
+| Jeden pośrednik, skrzynka pocztowa i WhatsApp | Business | [[commercial.price.business.monthly]] |
+| Trzech pośredników, każdy ze skrzynką pocztową i WhatsAppem | Business | [[commercial.price.business.monthly.seats.3]] |
+| Pięciu pośredników, tylko pipeline | Starter | [[commercial.price.starter.monthly.seats.5]] |
+
+Każdy płatny plan chmurowy dodaje co miesiąc hostowane kredyty AI na aktywnego użytkownika dla Mate; ich wysokość podaje [strona z cennikiem](/pricing). Uruchomienie rdzenia open source na własnym serwerze nie kosztuje opłaty licencyjnej, ale [instalacja self-hosted](/features/self-hosted) nie ma skrzynki odbiorczej, Mate ani rutyn.
+
+## Przejście z arkusza lub innego CRM
+
+<Steps>
+  <Step title="Wyeksportuj do Excela">
+    Wyeksportuj kontakty z obecnego CRM lub z telefonu jako skoroszyt Excela
+    (.xlsx) albo plik CSV. Import czyta oba formaty, po jednym typie rekordu na
+    raz.
+  </Step>
+  <Step title="Najpierw utwórz swoje pola">
+    Dodaj Rolę, Okolicę poszukiwań, Budżet maksymalny i pozostałe pola z
+    powyższej listy, żeby import mógł przypisać do nich twoje kolumny.
+  </Step>
+  <Step title="Zaimportuj kontakty, potem szanse sprzedaży">
+    Na każdej liście otwórz Więcej działań i wybierz Dodaj z pliku.
+    Zaimportuj najpierw osoby, potem aktywne oferty i zlecenia kupujących.
+  </Step>
+  <Step title="Podłącz swoje kanały">
+    W planie Pro lub wyższym podłącz skrzynkę pocztową lub WhatsAppa w
+    Ustawienia › Kanały i kalendarze i powiąż osoby, z którymi piszesz, z ich
+    kontaktami.
+  </Step>
+  <Step title="Zapisz widoki i rutyny">
+    Zapisz pięć widoków z powyższej listy, a potem dodaj w Customermates Cloud
+    rutyny dopasowania i follow-upu.
+  </Step>
+</Steps>
+
+## Dane klientów
+
+W Customermates Cloud główna produkcyjna baza danych jest skonfigurowana w regionie AWS Frankfurt. Hosting i pozostali podprocesorzy, w tym dostawcy z USA, są na [stronie podprocesorów](/subprocessors), a dostępna jest [umowa powierzenia przetwarzania danych](/dpa). Customermates nie posiada certyfikatów, takich jak ISO 27001 czy SOC 2.
+
+## Najczęstsze pytania
+
+<Faq>
+<FaqItem question="Jakiego CRM używają pośrednicy w obrocie nieruchomościami?">
+W USA agenci mogą wybierać CRM zbudowane dla rynku nieruchomości, takie jak Follow Up Boss czy Wise Agent, a wiele biur dostarcza własne narzędzia. W Niemczech oprogramowanie dla pośredników, takie jak Propstack, FLOWFACT czy onOffice, zarządza także samymi nieruchomościami; Propstack i FLOWFACT podają interfejsy do portali takich jak ImmoScout24. Pośrednicy, którzy potrzebują głównie follow-upu, profili poszukiwań i swoich rozmów w jednym miejscu, mogą też użyć ogólnego CRM skonfigurowanego tak, jak opisano wyżej. Customermates to nasz własny produkt, więc weź to pod uwagę.
+</FaqItem>
+
+<FaqItem question="Ile kosztuje CRM dla biura nieruchomości?">
+Cenniki dostawców pokazują szeroki rozstrzał. 8 października 2026 Follow Up Boss podawał plan Grow po 69 USD za użytkownika miesięcznie przy płatności miesięcznej, a Wise Agent plan CRM po 49 USD miesięcznie dla maksymalnie pięciu członków zespołu na wspólnym loginie ([cennik Follow Up Boss](https://www.followupboss.com/pricing), [cennik Wise Agent](https://wiseagent.com/pricing.asp)). Customermates kosztuje [[commercial.price.starter.monthly]] za użytkownika miesięcznie w planie Starter i [[commercial.price.pro.monthly]] w planie Pro ze skrzynką odbiorczą.
+</FaqItem>
+
+<FaqItem question="Czy Customermates może automatycznie dopasowywać kupujących do nieruchomości?">
+Nie. Nie ma bazy nieruchomości ani automatycznego dopasowywania. Gdy pojawia się oferta, filtrujesz kupujących po okolicy poszukiwań, typie nieruchomości, liczbie pokoi i budżecie, albo w Customermates Cloud rutyna wykonuje to wyszukiwanie, gdy oferta staje się aktywna, i powiązuje z nią pasujących kupujących.
+</FaqItem>
+
+<FaqItem question="Czy łączy się z MLS, Zillow lub ImmoScout24?">
+Nie natywnie. Zapytania, które portale wysyłają na twoją skrzynkę, trafiają do ujednoliconej skrzynki odbiorczej od planu Pro wzwyż. W pozostałych przypadkach własna integracja albo osobno prowadzony przepływ n8n może tworzyć kontakty przez [REST API](/features/api).
+</FaqItem>
+
+<FaqItem question="Czy Customermates nadaje się do zarządzania nieruchomościami?">
+Tylko po stronie relacji: pozyskiwania właścicieli, zapytań o najem oraz rozmów z właścicielami i dostawcami. Pobór czynszów, księgowość, konserwacja i portale dla najemców wymagają oprogramowania do zarządzania nieruchomościami, takiego jak Buildium.
+</FaqItem>
+
+<FaqItem question="Czy jest darmowy CRM dla pośredników?">
+Customermates Cloud ma plan darmowy (limit osób: [[commercial.limit.free.maxMembers]], limit rekordów: [[commercial.limit.free.maxRecords]]), bez skrzynki odbiorczej, Mate i rutyn, [[commercial.trial.days]]-dniowy okres próbny planu Pro oraz rdzeń open source, który możesz hostować samodzielnie bez opłaty licencyjnej, bez skrzynki odbiorczej i Mate. W Niemczech FLOWFACT podaje FLOWFACT Mini jako darmowe oprogramowanie dla pośredników działających solo i założycieli, z minimalnym okresem umowy wskazanym na [jego stronie](https://flowfact.de/).
+</FaqItem>
+</Faq>
+
+Dane konkurentów sprawdzono 8 października 2026 w: [cenniku Follow Up Boss](https://www.followupboss.com/pricing), [cenniku Wise Agent](https://wiseagent.com/pricing.asp), [cenniku Buildium](https://www.buildium.com/pricing/), [Propstack](https://www.propstack.de/), [FLOWFACT](https://flowfact.de/) i [onOffice](https://onoffice.com/).
