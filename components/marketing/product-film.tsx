@@ -6,6 +6,7 @@ import { filmPosterImageProps } from "./product-film-poster-blur";
 
 export const PRODUCT_FILM_SRC = "/customermates-film.mp4";
 export const PRODUCT_FILM_POSTER = "/customermates-film-poster-inbox.jpg";
+export const PRODUCT_FILM_SECONDS = 70;
 export const PRODUCT_FILM_POSTER_DARK = "/customermates-film-poster-inbox-dark.jpg";
 
 export async function ProductFilm() {
@@ -41,6 +42,7 @@ export async function ProductFilm() {
             <HomepageViewportVideo
               ariaLabel={t("title")}
               className="absolute inset-0 size-full object-cover"
+              durationLabel={`${PRODUCT_FILM_SECONDS} s`}
               playLabel={t("play")}
               src={PRODUCT_FILM_SRC}
             />
