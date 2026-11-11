@@ -1,0 +1,11 @@
+﻿Sección,Elemento,Responsable,Valor planificado,Unidad,Supuesto o cálculo,Fecha de revisión,Valor real,Siguiente acción
+Periodo,Datos de planificación ficticios; no son resultados reales; recalcula tras cada modificación; sin fórmulas activas,,,,,,,
+Acciones,Paquete de investigación y contacto de cuentas,Sam,60,horas,120 × 0.5,2027-04-03,,
+Acciones,Reunión cualificada con preparación y notas,Alex,45,horas,30 × 1.5,2027-04-03,,
+Acciones,Preparación de propuestas,Alex,48,horas,12 × 4,2027-04-03,,
+Acciones,Paquete de seguimiento de propuestas,Jo,24,horas,12 × 2,2027-04-03,,
+Acciones,Revisión semanal del equipo,Alex / Sam / Jo,18,horas,12 × 1.5,2027-04-03,,
+Venta,Carga de venta planificada,Alex,195,horas,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Venta,Alex,Alex,99,horas,99 / 120,2027-04-03,,
+Venta,Sam,Sam,66,horas,66 / 96,2027-04-03,,
+Venta,Jo,Jo,30,horas,30 / 48,2027-04-03,,
