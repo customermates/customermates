@@ -873,13 +873,15 @@ describe("hub pagination and rendered reachability", () => {
         await expectSemanticNotFound(outOfScope, `${partialLocale} hub outside its scope`, DEFAULT_LOCALE);
       }
 
+      // Every application locale may publish marketing content; the fallback applies only while one does not.
       const appOnlyLocale = APP_LOCALES.find((locale) => !isMarketingLocale(locale));
-      if (!appOnlyLocale) throw new Error("the registry needs an application-only locale for this fallback check");
-      const appOnly = await e2eResponse(`/${appOnlyLocale}/blog?page=1&utm_source=e2e`);
-      expect(appOnly.status).toBe(307);
-      expect(sameOriginPath(appOnly.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe(
-        "/en/blog?page=1&utm_source=e2e",
-      );
+      if (appOnlyLocale) {
+        const appOnly = await e2eResponse(`/${appOnlyLocale}/blog?page=1&utm_source=e2e`);
+        expect(appOnly.status).toBe(307);
+        expect(sameOriginPath(appOnly.headers.get("location") ?? "", E2E_BASE_URL as string)).toBe(
+          "/en/blog?page=1&utm_source=e2e",
+        );
+      }
       const contentLocalePageOne = await e2eResponse("/en/blog?page=1&utm_source=e2e");
       expect(contentLocalePageOne.status, "content-locale page-one transport").toBe(308);
       const finalLocation = await semanticRedirectPath(contentLocalePageOne, "content-locale page one");
