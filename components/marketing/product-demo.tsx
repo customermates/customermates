@@ -365,7 +365,8 @@ const COPY = {
       [DEMO_RECORD_LIST_PATHS.contacts]: "Lista de contactos de Customermates con datos de ejemplo sintéticos",
       [DEMO_RECORD_LIST_PATHS.deals]: "Pipeline de oportunidades de Customermates con datos de ejemplo sintéticos",
       "/inbox": "Bandeja de entrada unificada de Customermates con datos de ejemplo sintéticos",
-      [DEMO_RECORD_LIST_PATHS.organizations]: "Lista de organizaciones de Customermates con datos de ejemplo sintéticos",
+      [DEMO_RECORD_LIST_PATHS.organizations]:
+        "Lista de organizaciones de Customermates con datos de ejemplo sintéticos",
       [DEMO_RECORD_LIST_PATHS.tasks]: "Área de tareas de Customermates con datos de ejemplo sintéticos",
       "/settings/api-keys": "Ajustes de claves API de Customermates con datos de ejemplo sintéticos",
       "/settings/channels": "Ajustes de cuentas conectadas de Customermates con datos de ejemplo",
@@ -459,11 +460,7 @@ const COPY = {
         "Otwórz przykładową szansę sprzedaży",
         "Porównaj wartość całkowitą i ważoną",
       ],
-      "/inbox": [
-        "Otwórz przykładową rozmowę",
-        "Sprawdź kontekst uczestników",
-        "Porównaj połączone kanały",
-      ],
+      "/inbox": ["Otwórz przykładową rozmowę", "Sprawdź kontekst uczestników", "Porównaj połączone kanały"],
       [DEMO_RECORD_LIST_PATHS.organizations]: [
         "Przejrzyj listę organizacji",
         "Otwórz przykładową organizację",
@@ -511,11 +508,7 @@ const COPY = {
     fallback: "De ingesloten demo laadt langzamer dan verwacht. Open hem in een nieuw tabblad om verder te kijken.",
     guideLabel: "Probeer deze drie dingen",
     guidedTasks: {
-      "/dashboard": [
-        "Bekijk het ingevulde overzicht",
-        "Open een CRM-record",
-        "Bekijk hoe de werkruimte is ingedeeld",
-      ],
+      "/dashboard": ["Bekijk het ingevulde overzicht", "Open een CRM-record", "Bekijk hoe de werkruimte is ingedeeld"],
       [DEMO_RECORD_LIST_PATHS.contacts]: [
         "Blader door de lijst met contactpersonen",
         "Open een voorbeeldcontact",
@@ -526,11 +519,7 @@ const COPY = {
         "Open een voorbeelddeal",
         "Vergelijk de totale en de gewogen waarde",
       ],
-      "/inbox": [
-        "Open een voorbeeldgesprek",
-        "Bekijk de context van de deelnemers",
-        "Vergelijk de gekoppelde kanalen",
-      ],
+      "/inbox": ["Open een voorbeeldgesprek", "Bekijk de context van de deelnemers", "Vergelijk de gekoppelde kanalen"],
       [DEMO_RECORD_LIST_PATHS.organizations]: [
         "Blader door de lijst met organisaties",
         "Open een voorbeeldorganisatie",

@@ -19,7 +19,9 @@ function mateSentence(locale: string) {
     .find(
       (sentence) =>
         /^(?:O )?Mate /.test(sentence) &&
-        /Inbox|Posteingang|boîte de réception|Posta in arrivo|bandeja de entrada|Caixa de entrada|Skrzynk/.test(sentence),
+        /Inbox|Posteingang|boîte de réception|Posta in arrivo|bandeja de entrada|Caixa de entrada|Skrzynk/.test(
+          sentence,
+        ),
     );
 }
 

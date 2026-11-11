@@ -4,11 +4,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { INDUSTRY_PRODUCT_DEMOS } from "@/components/marketing/product-demo-config";
-import {
-  DEMO_RECORD_LIST_PATHS,
-  PRODUCT_DEMO_PATHS,
-  buildProductDemoUrl,
-} from "@/components/marketing/product-demo";
+import { DEMO_RECORD_LIST_PATHS, PRODUCT_DEMO_PATHS, buildProductDemoUrl } from "@/components/marketing/product-demo";
 import {
   DEMO_DEFAULT_RECORD_TYPE_IDS,
   DEMO_RECORD_TYPE_IDS,
@@ -154,33 +150,16 @@ describe("seeded public product demo", () => {
     expect(buildProductDemoUrl("de", DEMO_RECORD_LIST_PATHS.deals)).toBe(
       `https://demo.customermates.com/de/w/kleine-unternehmen/records/${presetId(findSolution("smb").companyIds.de, "deal")}?agentChat=closed`,
     );
-    expect(
-      buildProductDemoUrl(
-        "fr",
-        "/dashboard",
-        "agencies",
-      ),
-    ).toBe(
+    expect(buildProductDemoUrl("fr", "/dashboard", "agencies")).toBe(
       "https://demo.customermates.com/fr/w/agencies/dashboard?agentChat=closed",
     );
-    expect(
-      buildProductDemoUrl(
-        "de",
-        "/dashboard",
-        "agencies",
-      ),
-    ).toBe(
+    expect(buildProductDemoUrl("de", "/dashboard", "agencies")).toBe(
       "https://demo.customermates.com/de/w/agenturen/dashboard?agentChat=closed",
     );
-    expect(() => buildProductDemoUrl("en", "/deals")).toThrow(
-      "Unsupported product demo path: /deals",
+    expect(() => buildProductDemoUrl("en", "/deals")).toThrow("Unsupported product demo path: /deals");
+    expect(() => buildProductDemoUrl("en", `/records/${presetId(SEED_IDS.company, "service")}`)).toThrow(
+      "Unsupported product demo path",
     );
-    expect(() =>
-      buildProductDemoUrl(
-        "en",
-        `/records/${presetId(SEED_IDS.company, "service")}`,
-      ),
-    ).toThrow("Unsupported product demo path");
   });
 
   it("opens every default demo list in the workspace of the page's data locale", () => {
@@ -216,9 +195,9 @@ describe("seeded public product demo", () => {
     expect(Object.keys(INDUSTRY_PRODUCT_DEMOS).sort()).toStrictEqual(
       [
         "professional-services",
-        ...SOLUTION_CATALOG.filter((solution) =>
-          solution.landingPath.startsWith("/for/"),
-        ).map((solution) => solution.landingPath.slice("/for/".length)),
+        ...SOLUTION_CATALOG.filter((solution) => solution.landingPath.startsWith("/for/")).map((solution) =>
+          solution.landingPath.slice("/for/".length),
+        ),
       ].sort(),
     );
 
@@ -238,9 +217,7 @@ describe("seeded public product demo", () => {
 
       expect(source.match(/<ProductDemo\b/gu)).toHaveLength(1);
       expect(source).toContain(expectedTag);
-      expect(source.indexOf(expectedTag)).toBeGreaterThan(
-        source.indexOf(page.precedingCopy),
-      );
+      expect(source.indexOf(expectedTag)).toBeGreaterThan(source.indexOf(page.precedingCopy));
     }
 
     const discovered = [join(REPO_ROOT, "content"), join(REPO_ROOT, "app")]
@@ -252,14 +229,10 @@ describe("seeded public product demo", () => {
       )
       .map((path) => relative(REPO_ROOT, path))
       .sort();
-    expect(discovered).toStrictEqual(
-      INLINE_PAGE_DEMOS.map((page) => page.file).sort(),
-    );
+    expect(discovered).toStrictEqual(INLINE_PAGE_DEMOS.map((page) => page.file).sort());
 
     const componentRegistry = read("core/fumadocs/mdx-components.tsx");
-    expect(componentRegistry).toContain(
-      'import { ProductDemo } from "@/components/marketing/product-demo";',
-    );
+    expect(componentRegistry).toContain('import { ProductDemo } from "@/components/marketing/product-demo";');
     expect(componentRegistry).toMatch(/\n\s*ProductDemo,\n/u);
   });
 
@@ -267,29 +240,21 @@ describe("seeded public product demo", () => {
     const demo = read("components/marketing/product-demo.tsx");
     const frame = read("components/marketing/browser-frame.tsx");
     const proxy = read("proxy.ts");
-    const navigationSwitch = read(
-      "app/components/navigation/navigation-switch.tsx",
-    );
+    const navigationSwitch = read("app/components/navigation/navigation-switch.tsx");
 
     expect(demo).toContain("Public, seeded product demo");
     expect(demo).toContain("synthetic sample data");
     expect(demo).toContain("Öffentliche, vorbefüllte Produktdemo");
     expect(demo).toContain("not a self-hosted deployment");
     expect(demo).toContain("keine selbst gehostete Installation");
-    expect(demo).toContain(
-      "When Mate is enabled for this demo environment, it starts closed",
-    );
-    expect(demo).toContain(
-      "Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen",
-    );
+    expect(demo).toContain("When Mate is enabled for this demo environment, it starts closed");
+    expect(demo).toContain("Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen");
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate starts closed/);
     expect(demo).not.toMatch(/(?:^|[.!?]\s+)Mate startet geschlossen/);
     expect(demo).toContain("copy.guidedTasks[path].map");
     expect(demo).toContain('presentation = "article"');
     expect(demo).toContain("data-product-demo-presentation={presentation}");
-    expect(demo).toContain(
-      'presentation === "article" && "border-y border-border py-5"',
-    );
+    expect(demo).toContain('presentation === "article" && "border-y border-border py-5"');
     expect(demo).toContain("fallbackMessage={copy.fallback}");
     expect(demo).toContain("title={copy.titles[path]}");
     expect(demo).not.toContain("size={");
@@ -301,15 +266,11 @@ describe("seeded public product demo", () => {
     expect(frame).toContain("IntersectionObserver");
     expect(frame).toContain("loadAhead?: boolean");
     expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');
-    expect(frame).toContain(
-      "loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined",
-    );
+    expect(frame).toContain("loadAhead ? { rootMargin: LOAD_AHEAD_MARGIN } : undefined");
     expect(frame).toContain("prefetchDNS(origin)");
     expect(frame).toContain("preconnect(origin)");
     expect(frame).toContain('loading={loadAhead ? "eager" : "lazy"}');
-    expect(frame).toContain(
-      'sandbox="allow-scripts allow-same-origin allow-popups allow-forms"',
-    );
+    expect(frame).toContain('sandbox="allow-scripts allow-same-origin allow-popups allow-forms"');
     expect(frame).toContain('referrerPolicy="strict-origin-when-cross-origin"');
     expect(frame).toContain("12_000");
     expect(frame).toContain("motion-reduce:animate-none");

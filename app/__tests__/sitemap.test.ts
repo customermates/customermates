@@ -55,7 +55,8 @@ describe("sitemap.xml", () => {
     for (const locale of locales) {
       const prefix = `https://crm.example.com/${locale}`;
       expect(entries.filter((entry) => entry.url === prefix || entry.url.startsWith(`${prefix}/`))).toEqual([]);
-      for (const entry of entries) expect(Object.keys(entry.alternates?.languages ?? {}), entry.url).not.toContain(locale);
+      for (const entry of entries)
+        expect(Object.keys(entry.alternates?.languages ?? {}), entry.url).not.toContain(locale);
     }
   });
 });

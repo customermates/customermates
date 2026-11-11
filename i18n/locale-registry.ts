@@ -12,7 +12,15 @@ type LocaleCapabilities = {
   assetLocale: "en" | "de";
 };
 
-export type TextSearchConfig = "english" | "german" | "french" | "italian" | "spanish" | "portuguese" | "dutch" | "simple";
+export type TextSearchConfig =
+  | "english"
+  | "german"
+  | "french"
+  | "italian"
+  | "spanish"
+  | "portuguese"
+  | "dutch"
+  | "simple";
 
 export const LOCALE_REGISTRY = {
   en: {

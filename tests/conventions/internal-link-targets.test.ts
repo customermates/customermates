@@ -12,12 +12,7 @@ import {
   selectFooterSlugs,
 } from "@/app/components/footer-selection";
 import { ROUTE_SOURCE_MAP } from "@/core/fumadocs/route-source-map";
-import {
-  HUB_PAGE_PARAM,
-  HUB_PAGE_SEGMENT,
-  hubPageCount,
-  resolveHubPageSegment,
-} from "@/core/seo/hub-pagination";
+import { HUB_PAGE_PARAM, HUB_PAGE_SEGMENT, hubPageCount, resolveHubPageSegment } from "@/core/seo/hub-pagination";
 import { LANDING_HUBS } from "@/core/seo/landing-hubs";
 import {
   CONTENT_LOCALES,
@@ -39,10 +34,7 @@ vi.mock("@/core/fumadocs/source", async () => {
   const source = (collection: string, basePath: string) => ({
     getPage(path: string[], locale: string) {
       const slug = path.at(-1);
-      return slug &&
-        existsSync(
-          join(process.cwd(), "content", collection, locale, `${slug}.mdx`),
-        )
+      return slug && existsSync(join(process.cwd(), "content", collection, locale, `${slug}.mdx`))
         ? { url: `${basePath}/${slug}`.replace(/^\/{2,}/u, "/") }
         : undefined;
     },
@@ -52,10 +44,7 @@ vi.mock("@/core/fumadocs/source", async () => {
       return readdirSync(directory, { withFileTypes: true })
         .filter((entry) => entry.isFile() && extname(entry.name) === ".mdx")
         .map((entry) => ({
-          url: `${basePath}/${entry.name.slice(0, -".mdx".length)}`.replace(
-            /^\/{2,}/u,
-            "/",
-          ),
+          url: `${basePath}/${entry.name.slice(0, -".mdx".length)}`.replace(/^\/{2,}/u, "/"),
         }));
     },
   });
@@ -88,8 +77,7 @@ vi.mock("@/core/fumadocs/source", async () => {
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 const CODE_BACKED_ROUTE_FILES = {
   "/styleguide": "app/[locale]/(static)/styleguide/page.tsx",
-  "/styleguide/foundations":
-    "app/[locale]/(static)/styleguide/foundations/page.tsx",
+  "/styleguide/foundations": "app/[locale]/(static)/styleguide/foundations/page.tsx",
   "/styleguide/patterns": "app/[locale]/(static)/styleguide/patterns/page.tsx",
   "/styleguide/building-blocks": "app/[locale]/(static)/styleguide/building-blocks/page.tsx",
   "/styleguide/visuals": "app/[locale]/(static)/styleguide/visuals/page.tsx",
@@ -102,14 +90,12 @@ const CODE_BACKED_ROUTE_FILES = {
   "/p/:token": "app/[locale]/(public)/p/[token]/page.tsx",
   "/blog/page/:page": "app/[locale]/(static)/blog/page/[page]/page.tsx",
   "/compare/page/:page": "app/[locale]/(static)/compare/page/[page]/page.tsx",
-  "/features/all/page/:page":
-    "app/[locale]/(static)/features/all/page/[page]/page.tsx",
+  "/features/all/page/:page": "app/[locale]/(static)/features/all/page/[page]/page.tsx",
   "/for/page/:page": "app/[locale]/(static)/for/page/[page]/page.tsx",
 } as const;
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u;
 const FRONTMATTER_HREF = /^\s*(?:-\s*)?([a-z0-9_-]*href)\s*:\s*(.*?)\s*$/iu;
-const JSX_HREF =
-  /\bhref\s*=\s*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|\{\s*"([^"\r\n]*)"\s*\}|\{\s*'([^'\r\n]*)'\s*\})/gu;
+const JSX_HREF = /\bhref\s*=\s*(?:"([^"\r\n]*)"|'([^'\r\n]*)'|\{\s*"([^"\r\n]*)"\s*\}|\{\s*'([^'\r\n]*)'\s*\})/gu;
 const MARKDOWN_LINK =
   /(?<!!)\[[^\]\r\n]*\]\(\s*(?:<([^>\r\n]+)>|((?:\\.|[^)\\\s])+))(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/gu;
 const MARKDOWN_DEFINITION = /^\s*\[[^\]\r\n]+\]:\s*(?:<([^>\r\n]+)>|(\S+))/gmu;
@@ -133,17 +119,12 @@ type ContentSource = {
 };
 
 function rootRelative(target: string | null | undefined): target is string {
-  return (
-    typeof target === "string" &&
-    target.startsWith("/") &&
-    !target.startsWith("//")
-  );
+  return typeof target === "string" && target.startsWith("/") && !target.startsWith("//");
 }
 
 function lineAt(source: string, offset: number): number {
   let line = 1;
-  for (let index = 0; index < offset; index++)
-    if (source.charCodeAt(index) === 10) line++;
+  for (let index = 0; index < offset; index++) if (source.charCodeAt(index) === 10) line++;
   return line;
 }
 
@@ -171,10 +152,7 @@ function yamlString(raw: string): string | null {
 
 function frontmatterHref(raw: string, file: string, line: number): string {
   const value = raw.trim();
-  const unsupported =
-    !value ||
-    /^[>|*&!\[{]/u.test(value) ||
-    /^(?:null|~)(?:\s+#.*)?$/iu.test(value);
+  const unsupported = !value || /^[>|*&!\[{]/u.test(value) || /^(?:null|~)(?:\s+#.*)?$/iu.test(value);
   const parsed = unsupported ? null : yamlString(raw);
 
   if (parsed === null) {
@@ -184,11 +162,7 @@ function frontmatterHref(raw: string, file: string, line: number): string {
   return parsed;
 }
 
-function linksInDocument(
-  source: string,
-  file: string,
-  sourceLocale: MarketingLocale,
-): ContentLink[] {
+function linksInDocument(source: string, file: string, sourceLocale: MarketingLocale): ContentLink[] {
   const links: ContentLink[] = [];
   const seen = new Set<string>();
   const record = (target: string | null | undefined, line: number) => {
@@ -213,19 +187,12 @@ function linksInDocument(
 
   // Mask frontmatter without changing offsets so prose and JSX line numbers
   // still point at the original source file.
-  const body = frontmatter
-    ? source.replace(FRONTMATTER, (value) => value.replace(/[^\r\n]/gu, " "))
-    : source;
+  const body = frontmatter ? source.replace(FRONTMATTER, (value) => value.replace(/[^\r\n]/gu, " ")) : source;
 
-  for (const match of body.matchAll(MARKDOWN_LINK))
-    record(match[1] ?? match[2], lineAt(body, match.index ?? 0));
-  for (const match of body.matchAll(MARKDOWN_DEFINITION))
-    record(match[1] ?? match[2], lineAt(body, match.index ?? 0));
+  for (const match of body.matchAll(MARKDOWN_LINK)) record(match[1] ?? match[2], lineAt(body, match.index ?? 0));
+  for (const match of body.matchAll(MARKDOWN_DEFINITION)) record(match[1] ?? match[2], lineAt(body, match.index ?? 0));
   for (const match of body.matchAll(JSX_HREF))
-    record(
-      match[1] ?? match[2] ?? match[3] ?? match[4],
-      lineAt(body, match.index ?? 0),
-    );
+    record(match[1] ?? match[2] ?? match[3] ?? match[4], lineAt(body, match.index ?? 0));
 
   return links;
 }
@@ -236,9 +203,7 @@ export function normalizeTarget(target: string): NormalizedTarget | null {
   if (url.origin !== base) return null;
 
   const segments = url.pathname.split("/").filter(Boolean);
-  const prefixedLocale = segments[0]
-    ? routingLocaleFromUrlSegment(segments[0])
-    : null;
+  const prefixedLocale = segments[0] ? routingLocaleFromUrlSegment(segments[0]) : null;
   if (prefixedLocale) segments.shift();
 
   const path = segments.length === 0 ? "/" : `/${segments.join("/")}`;
@@ -252,9 +217,7 @@ export function normalizeTarget(target: string): NormalizedTarget | null {
 function contentBackedTargets(locale: MarketingLocale): Set<string> {
   const targets = new Set<string>(
     Object.keys(CODE_BACKED_ROUTE_FILES).filter(
-      (route) =>
-        !route.includes(":") &&
-        (isContentLocale(locale) || !isMarketingPathname(route)),
+      (route) => !route.includes(":") && (isContentLocale(locale) || !isMarketingPathname(route)),
     ),
   );
 
@@ -275,11 +238,7 @@ function contentBackedTargets(locale: MarketingLocale): Set<string> {
   }
 
   return new Set(
-    [...targets].filter(
-      (target) =>
-        !isMarketingPathname(target) ||
-        isMarketingPathPublished(locale, target),
-    ),
+    [...targets].filter((target) => !isMarketingPathname(target) || isMarketingPathPublished(locale, target)),
   );
 }
 
@@ -287,38 +246,24 @@ function hasValidHubTarget(target: NormalizedTarget): boolean {
   const hubRoot = LANDING_HUBS.find(({ hubPath }) => hubPath === target.path);
   if (hubRoot) return !new URLSearchParams(target.query).has(HUB_PAGE_PARAM);
 
-  const hub = LANDING_HUBS.find(({ hubPath }) =>
-    target.path.startsWith(`${hubPath}/${HUB_PAGE_SEGMENT}/`),
-  );
+  const hub = LANDING_HUBS.find(({ hubPath }) => target.path.startsWith(`${hubPath}/${HUB_PAGE_SEGMENT}/`));
   if (!hub) return true;
 
   const raw = target.path.slice(`${hub.hubPath}/${HUB_PAGE_SEGMENT}/`.length);
-  const pageCount = hubPageCount(
-    collectionSlugs(hub.collection, DEFAULT_LOCALE).length,
-  );
+  const pageCount = hubPageCount(collectionSlugs(hub.collection, DEFAULT_LOCALE).length);
   return resolveHubPageSegment(raw, pageCount).kind === "page";
 }
 
 function matchesCodeBackedRoute(path: string): boolean {
   return Object.keys(CODE_BACKED_ROUTE_FILES).some((route) => {
-    const pattern = route
-      .replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")
-      .replace(/:[a-z0-9_]+/giu, "[^/]+");
+    const pattern = route.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&").replace(/:[a-z0-9_]+/giu, "[^/]+");
     return new RegExp(`^${pattern}$`, "u").test(path);
   });
 }
 
-function linkTargetLocale(
-  normalized: NormalizedTarget,
-  sourceLocale: MarketingLocale,
-): MarketingLocale | null {
-  if (normalized.locale)
-    return isMarketingPathPublished(normalized.locale, normalized.path)
-      ? normalized.locale
-      : null;
-  return isMarketingPathPublished(sourceLocale, normalized.path)
-    ? sourceLocale
-    : DEFAULT_LOCALE;
+function linkTargetLocale(normalized: NormalizedTarget, sourceLocale: MarketingLocale): MarketingLocale | null {
+  if (normalized.locale) return isMarketingPathPublished(normalized.locale, normalized.path) ? normalized.locale : null;
+  return isMarketingPathPublished(sourceLocale, normalized.path) ? sourceLocale : DEFAULT_LOCALE;
 }
 
 function targetResolves(
@@ -326,11 +271,7 @@ function targetResolves(
   sourceLocale: MarketingLocale,
   targetsByLocale: Map<MarketingLocale, Set<string>>,
 ) {
-  const publicPath = join(
-    REPO_ROOT,
-    "public",
-    new URL(target, "https://internal.invalid").pathname,
-  );
+  const publicPath = join(REPO_ROOT, "public", new URL(target, "https://internal.invalid").pathname);
   if (existsSync(publicPath) && statSync(publicPath).isFile()) return true;
 
   const normalized = normalizeTarget(target);
@@ -338,34 +279,25 @@ function targetResolves(
   if (normalized.locale && !isMarketingLocale(normalized.locale)) return false;
   const targetLocale = linkTargetLocale(normalized, sourceLocale);
   if (!targetLocale) return false;
-  const published =
-    targetsByLocale.get(targetLocale)?.has(normalized.path) ||
-    matchesCodeBackedRoute(normalized.path);
+  const published = targetsByLocale.get(targetLocale)?.has(normalized.path) || matchesCodeBackedRoute(normalized.path);
   return Boolean(published && hasValidHubTarget(normalized));
 }
 
 function contentLinks(): ContentLink[] {
   const found: ContentLink[] = [];
 
-  for (const path of walkFiles(
-    CONTENT_ROOT,
-    (candidate) => extname(candidate) === ".mdx",
-  )) {
+  for (const path of walkFiles(CONTENT_ROOT, (candidate) => extname(candidate) === ".mdx")) {
     const source = readFileSync(path, "utf8");
     const file = relative(REPO_ROOT, path).split(sep).join("/");
     const localeSegment = relative(CONTENT_ROOT, path).split(sep)[1];
-    if (!isMarketingLocale(localeSegment))
-      throw new Error(`${file} is outside a registered content locale`);
+    if (!isMarketingLocale(localeSegment)) throw new Error(`${file} is outside a registered content locale`);
     found.push(...linksInDocument(source, file, localeSegment));
   }
 
   return found;
 }
 
-function collectionSlugs(
-  collection: string,
-  locale: MarketingLocale,
-): string[] {
+function collectionSlugs(collection: string, locale: MarketingLocale): string[] {
   const directory = join(CONTENT_ROOT, collection, locale);
   if (!existsSync(directory)) return [];
 
@@ -380,126 +312,69 @@ describe("internal link targets", () => {
     const mapped = Object.keys(ROUTE_SOURCE_MAP);
     const codeBacked = Object.keys(CODE_BACKED_ROUTE_FILES);
 
-    expect([...mapped, ...codeBacked].sort()).toEqual(
-      [...PUBLIC_ROUTES].sort(),
-    );
+    expect([...mapped, ...codeBacked].sort()).toEqual([...PUBLIC_ROUTES].sort());
     for (const file of Object.values(CODE_BACKED_ROUTE_FILES)) {
-      expect(
-        existsSync(join(REPO_ROOT, file)),
-        `${file} does not back its declared public route`,
-      ).toBe(true);
+      expect(existsSync(join(REPO_ROOT, file)), `${file} does not back its declared public route`).toBe(true);
     }
   });
 
   it("resolves public download files without accepting missing files, directories or localized copies", () => {
     const targets = new Map<MarketingLocale, Set<string>>();
-    expect(
-      targetResolves("/templates/crm-template-en.xlsx", "en", targets),
-    ).toBe(true);
-    expect(
-      targetResolves(
-        "/templates/crm-template-de.xlsx?download=1",
-        "de",
-        targets,
-      ),
-    ).toBe(true);
-    expect(targetResolves("/templates/missing.xlsx", "en", targets)).toBe(
-      false,
-    );
+    expect(targetResolves("/templates/crm-template-en.xlsx", "en", targets)).toBe(true);
+    expect(targetResolves("/templates/crm-template-de.xlsx?download=1", "de", targets)).toBe(true);
+    expect(targetResolves("/templates/missing.xlsx", "en", targets)).toBe(false);
     expect(targetResolves("/templates", "en", targets)).toBe(false);
-    expect(
-      targetResolves("/en/templates/crm-template-en.xlsx", "en", targets),
-    ).toBe(false);
+    expect(targetResolves("/en/templates/crm-template-en.xlsx", "en", targets)).toBe(false);
   });
 
   it("resolves every literal internal link in MDX, including frontmatter CTAs", () => {
     const links = contentLinks();
-    const targetsByLocale = new Map(
-      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
-    );
+    const targetsByLocale = new Map(MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]));
     const problems = links
-      .filter(
-        (link) =>
-          !targetResolves(link.target, link.sourceLocale, targetsByLocale),
-      )
+      .filter((link) => !targetResolves(link.target, link.sourceLocale, targetsByLocale))
       .map((link) => `${link.file}:${link.line} -> ${link.target}`);
 
-    expect(
-      links.length,
-      "expected root-relative links under content/",
-    ).toBeGreaterThan(0);
-    expect(
-      problems,
-      `content links with no published route:\n${problems.join("\n")}`,
-    ).toEqual([]);
+    expect(links.length, "expected root-relative links under content/").toBeGreaterThan(0);
+    expect(problems, `content links with no published route:\n${problems.join("\n")}`).toEqual([]);
   }, 30_000);
 
   it("derives six live footer links per collection and locale", () => {
     const selections = new Map<string, string[]>();
     const problems: string[] = [];
 
-    for (const collection of Object.keys(
-      FOOTER_PREFERRED_SLUGS,
-    ) as FooterCollection[]) {
+    for (const collection of Object.keys(FOOTER_PREFERRED_SLUGS) as FooterCollection[]) {
       for (const locale of CONTENT_LOCALES) {
         const published = collectionSlugs(collection, locale);
         const selected = selectFooterSlugs(collection, published);
         selections.set(`${collection}/${locale}`, selected);
 
         if (selected.length !== FOOTER_COLUMN_SIZE) {
-          problems.push(
-            `${collection}/${locale} yields ${selected.length}, expected ${FOOTER_COLUMN_SIZE}`,
-          );
+          problems.push(`${collection}/${locale} yields ${selected.length}, expected ${FOOTER_COLUMN_SIZE}`);
         }
         for (const slug of selected) {
-          if (!published.includes(slug))
-            problems.push(
-              `${collection}/${locale} selected absent slug ${slug}`,
-            );
+          if (!published.includes(slug)) problems.push(`${collection}/${locale} selected absent slug ${slug}`);
         }
       }
 
       const reference = selections.get(`${collection}/${DEFAULT_LOCALE}`);
-      for (const locale of CONTENT_LOCALES)
-        expect(selections.get(`${collection}/${locale}`)).toEqual(reference);
+      for (const locale of CONTENT_LOCALES) expect(selections.get(`${collection}/${locale}`)).toEqual(reference);
     }
 
-    expect(
-      problems,
-      `footer columns with invalid derived links:\n${problems.join("\n")}`,
-    ).toEqual([]);
+    expect(problems, `footer columns with invalid derived links:\n${problems.join("\n")}`).toEqual([]);
   });
 
   it("prioritizes the approved acquisition pages in their footer columns", () => {
-    expect(FOOTER_PREFERRED_SLUGS["blog-posts"].slice(0, 2)).toEqual([
-      "agentic-crm",
-      "open-source-crm",
-    ]);
-    expect(FOOTER_PREFERRED_SLUGS["feature-pages"].slice(0, 2)).toEqual([
-      "self-hosted",
-      "unified-inbox",
-    ]);
-    expect(FOOTER_PREFERRED_SLUGS["for-pages"].slice(0, 2)).toEqual([
-      "professional-services",
-      "agencies",
-    ]);
+    expect(FOOTER_PREFERRED_SLUGS["blog-posts"].slice(0, 2)).toEqual(["agentic-crm", "open-source-crm"]);
+    expect(FOOTER_PREFERRED_SLUGS["feature-pages"].slice(0, 2)).toEqual(["self-hosted", "unified-inbox"]);
+    expect(FOOTER_PREFERRED_SLUGS["for-pages"].slice(0, 2)).toEqual(["professional-services", "agencies"]);
   });
 
   it("tops up a footer column deterministically when a preferred page disappears", () => {
     const preferred = FOOTER_PREFERRED_SLUGS["for-pages"];
-    const available = [
-      ...preferred.slice(1),
-      "zzz-replacement",
-      "aaa-replacement",
-    ];
+    const available = [...preferred.slice(1), "zzz-replacement", "aaa-replacement"];
 
-    expect(selectFooterSlugs("for-pages", available)).toEqual([
-      ...preferred.slice(1),
-      "aaa-replacement",
-    ]);
-    expect(selectFooterSlugs("for-pages", preferred.slice(0, 2))).toEqual([
-      ...preferred.slice(0, 2),
-    ]);
+    expect(selectFooterSlugs("for-pages", available)).toEqual([...preferred.slice(1), "aaa-replacement"]);
+    expect(selectFooterSlugs("for-pages", preferred.slice(0, 2))).toEqual([...preferred.slice(0, 2)]);
   });
 
   it("extracts literal Markdown, JSX, and frontmatter hrefs without a parser dependency", () => {
@@ -519,65 +394,35 @@ describe("internal link targets", () => {
   });
 
   it("fails closed on frontmatter href syntax the bounded scanner cannot interpret", () => {
-    expect(() =>
-      linksInDocument(
-        `---\nbuttonHref: >-\n  /missing\n---`,
-        "folded.mdx",
-        DEFAULT_LOCALE,
-      ),
-    ).toThrow("folded.mdx:2 uses unsupported frontmatter href syntax");
-    expect(() =>
-      linksInDocument(
-        `---\nbuttonHref: *shared-target\n---`,
-        "alias.mdx",
-        DEFAULT_LOCALE,
-      ),
-    ).toThrow("alias.mdx:2 uses unsupported frontmatter href syntax");
+    expect(() => linksInDocument(`---\nbuttonHref: >-\n  /missing\n---`, "folded.mdx", DEFAULT_LOCALE)).toThrow(
+      "folded.mdx:2 uses unsupported frontmatter href syntax",
+    );
+    expect(() => linksInDocument(`---\nbuttonHref: *shared-target\n---`, "alias.mdx", DEFAULT_LOCALE)).toThrow(
+      "alias.mdx:2 uses unsupported frontmatter href syntax",
+    );
   });
 
   it("does not backtrack through a long malformed Markdown escape sequence", () => {
     const malformed = `[broken](/${"\\".repeat(4_096)}`;
-    expect(linksInDocument(malformed, "malformed.mdx", DEFAULT_LOCALE)).toEqual(
-      [],
-    );
+    expect(linksInDocument(malformed, "malformed.mdx", DEFAULT_LOCALE)).toEqual([]);
   });
 
   it("accepts only published paginated hub paths and rejects the legacy page query", () => {
-    const targetsByLocale = new Map(
-      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
-    );
+    const targetsByLocale = new Map(MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]));
 
-    expect(
-      targetResolves("/blog/page/2", DEFAULT_LOCALE, targetsByLocale),
-    ).toBe(true);
-    expect(
-      targetResolves("/blog/page/1", DEFAULT_LOCALE, targetsByLocale),
-    ).toBe(false);
-    expect(
-      targetResolves("/blog/page/99", DEFAULT_LOCALE, targetsByLocale),
-    ).toBe(false);
-    expect(
-      targetResolves("/blog?page=2", DEFAULT_LOCALE, targetsByLocale),
-    ).toBe(false);
-    expect(targetResolves("/contact", DEFAULT_LOCALE, targetsByLocale)).toBe(
-      true,
-    );
-    expect(targetResolves("/ja/pricing", DEFAULT_LOCALE, targetsByLocale)).toBe(
-      false,
-    );
+    expect(targetResolves("/blog/page/2", DEFAULT_LOCALE, targetsByLocale)).toBe(true);
+    expect(targetResolves("/blog/page/1", DEFAULT_LOCALE, targetsByLocale)).toBe(false);
+    expect(targetResolves("/blog/page/99", DEFAULT_LOCALE, targetsByLocale)).toBe(false);
+    expect(targetResolves("/blog?page=2", DEFAULT_LOCALE, targetsByLocale)).toBe(false);
+    expect(targetResolves("/contact", DEFAULT_LOCALE, targetsByLocale)).toBe(true);
+    expect(targetResolves("/ja/pricing", DEFAULT_LOCALE, targetsByLocale)).toBe(false);
     for (const locale of CONTENT_LOCALES)
-      expect(
-        targetResolves(`/${locale}/pricing`, DEFAULT_LOCALE, targetsByLocale),
-        locale,
-      ).toBe(true);
+      expect(targetResolves(`/${locale}/pricing`, DEFAULT_LOCALE, targetsByLocale), locale).toBe(true);
   });
 
   it("resolves French links as a full content locale and refuses app-only locale prefixes", () => {
-    const targetsByLocale = new Map(
-      MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]),
-    );
-    const resolves = (target: string, source: MarketingLocale) =>
-      targetResolves(target, source, targetsByLocale);
+    const targetsByLocale = new Map(MARKETING_LOCALES.map((locale) => [locale, contentBackedTargets(locale)]));
+    const resolves = (target: string, source: MarketingLocale) => targetResolves(target, source, targetsByLocale);
 
     expect(resolves("/fr/pricing", DEFAULT_LOCALE)).toBe(true);
     expect(resolves("/fr/features/pipeline", DEFAULT_LOCALE)).toBe(true);

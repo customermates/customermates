@@ -64,14 +64,15 @@ describe("hosted AI pricing contract", () => {
         HOSTED_AI_BASE_CREDITS_PER_ACTIVE_USER * PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier,
       );
     }
-    expect(CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER).toBe(PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier);
+    expect(CLOUD_TRIAL_HOSTED_AI_USAGE_MULTIPLIER).toBe(
+      PLAN_CATALOG[CLOUD_TRIAL.plan].entitlements.hostedAiUsageMultiplier,
+    );
   });
 
   it("keeps Business the best usage per euro, labels it for teams in the app and features Pro for follow-up everywhere", () => {
     const usagePerEuro = PURCHASABLE_PLAN_IDS.map((plan) => ({
       plan,
-      value:
-        PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier / PLAN_CATALOG[plan].offers.monthly.unitPriceMinor,
+      value: PLAN_CATALOG[plan].entitlements.hostedAiUsageMultiplier / PLAN_CATALOG[plan].offers.monthly.unitPriceMinor,
     })).sort((left, right) => right.value - left.value);
 
     expect(usagePerEuro.map(({ plan }) => plan)).toEqual(["business", "max", "pro", "starter"]);
@@ -142,7 +143,11 @@ describe("hosted AI pricing contract", () => {
     for (const source of Object.values(localeFiles)) {
       const features = (JSON.parse(source) as { Subscription: { picker: { features: Record<string, string[]> } } })
         .Subscription.picker.features;
-      expect(Object.values(features).flat().filter((feature) => perRunLimit.test(feature))).toEqual([]);
+      expect(
+        Object.values(features)
+          .flat()
+          .filter((feature) => perRunLimit.test(feature)),
+      ).toEqual([]);
     }
   });
 
@@ -197,7 +202,9 @@ describe("hosted AI pricing contract", () => {
     expect(pricingEn).toContain(`Every active trial user has the Pro allowance of ${trialMultiplier}x.`);
     expect(pricingDe).toContain(`Jeder aktive Nutzer in der Testphase hat das Pro-Kontingent von ${trialMultiplier}x.`);
     expect(assistantEn).toContain(`with Pro features and the Pro allowance of ${trialMultiplier}x per active user`);
-    expect(assistantDe).toContain(`mit Pro-Funktionen und dem Pro-Kontingent von ${trialMultiplier}x pro aktivem Nutzer`);
+    expect(assistantDe).toContain(
+      `mit Pro-Funktionen und dem Pro-Kontingent von ${trialMultiplier}x pro aktivem Nutzer`,
+    );
     expect(pricingEn).toContain("Paid allowances reset monthly; unused usage does not roll over.");
     expect(pricingDe).toContain(
       "Bezahlte Kontingente werden monatlich zurückgesetzt; nicht genutzte Nutzung wird nicht übertragen.",
