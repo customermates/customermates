@@ -83,7 +83,7 @@ export const pl: Strings = {
     willow: ["Piekarnia Wierzbowa", "Gdańsk"],
     cobalt: ["Studio Marketingu Kobalt", "Gdańsk"],
     pinecrest: ["Lecznica Weterynaryjna Pod Sosnami", "Reda"],
-    oakridge: ["Zarząd Nieruchomości Dębowe Wzgórze sp. z o.o.", "Sopot"],
+    oakridge: ["Dębowe Wzgórze Nieruchomości", "Sopot"],
   },
   addresses: {
     kessler: address({
@@ -567,7 +567,7 @@ export const pl: Strings = {
     oakridgeInquiry: {
       subject: "Opieka IT dla naszych trzech biur",
       messages: [
-        "Cześć Max,\n\nznalazłam cię przez waszą stronę. Zarząd Nieruchomości Dębowe Wzgórze ma trzy małe biura z łącznie 16 stanowiskami, a nasz informatyk odchodzi w marcu. Ile mniej więcej kosztowałaby opieka IT rocznie? W przyszłą środę mamy spotkanie budżetowe.\n\nPozdrawiam\nAmelia",
+        "Cześć Max,\n\nznalazłam cię przez waszą stronę. Dębowe Wzgórze Nieruchomości ma trzy małe biura z łącznie 16 stanowiskami, a nasz informatyk odchodzi w marcu. Ile mniej więcej kosztowałaby opieka IT rocznie? W przyszłą środę mamy spotkanie budżetowe.\n\nPozdrawiam\nAmelia",
         "Cześć Amelio,\n\ndzięki za wiadomość. Opieka IT kosztuje 480 zł netto za stanowisko rocznie, czyli 7680 zł netto rocznie za 16 stanowisk. Chciałbym zobaczyć wasze trzy biura, zanim cokolwiek ustalimy, przede wszystkim sieć i kopie zapasowe. Tę wizytę wycenię osobno.\n\nPozdrawiam\nMax",
         "To pomaga, dzięki. Czy opieka obejmuje też drukarki i wspólne skrzynki pocztowe, czy tylko stanowiska?",
         "Cześć Amelio,\n\nobejmuje stanowiska, sieć biurową, drukarki i pocztę e-mail, także wspólne skrzynki. Telefony nie wchodzą w zakres. Czy najpierw obejrzymy razem trzy biura?\n\nPozdrawiam\nMax",

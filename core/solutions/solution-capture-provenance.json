@@ -1,5 +1,5 @@
 {
-  "capturedOn": "2026-11-10",
+  "capturedOn": "2026-11-11",
   "entries": [
     {
       "key": "smb:en:light",
@@ -30,6 +30,62 @@
       "route": "/de/w/kleine-unternehmen/dashboard"
     },
     {
+      "key": "smb:es:light",
+      "mainSha256": "fd31ef3e9aff3cd98d966e0cf20fe6f4221b180f204711c09c49954d0e153a67",
+      "navRoute": "/es/w/pymes/dashboard",
+      "navSha256": "31820ac9cb0ff692b39d453d3c289b41b33f96c9c5d876dd1e82b8a0efa94621",
+      "route": "/es/w/pymes/dashboard"
+    },
+    {
+      "key": "smb:es:dark",
+      "mainSha256": "4353d40f47ceeb43359d24edd1d0e26589538e3cab2c137195a7c53095a41ae0",
+      "navRoute": "/es/w/pymes/dashboard",
+      "navSha256": "050736e3ecba700b4346620cdfb7b6db2638fd660ce38a105d3d3fe81d99ffcf",
+      "route": "/es/w/pymes/dashboard"
+    },
+    {
+      "key": "smb:pt:light",
+      "mainSha256": "9e4dd2967d40946298236c764b782813c16a9077e12467c574aee7fd957f5f83",
+      "navRoute": "/pt/w/pequenas-empresas/dashboard",
+      "navSha256": "26cd7e0c5eab1703a6e2372124a2536bce9ed7a4d1c8db42bdad2ff2c8d1f493",
+      "route": "/pt/w/pequenas-empresas/dashboard"
+    },
+    {
+      "key": "smb:pt:dark",
+      "mainSha256": "52d80c57604f3f01cc4b82ab333c204c5cb231ee3a3a909939842a60dcafbe90",
+      "navRoute": "/pt/w/pequenas-empresas/dashboard",
+      "navSha256": "c3413ae25d7346c4f92e42257856b376c061a12bc664102fe1685b785f5adff4",
+      "route": "/pt/w/pequenas-empresas/dashboard"
+    },
+    {
+      "key": "smb:pl:light",
+      "mainSha256": "8dbb8fb31b89ed55d54b3bc6889f18ced32b5cca3df5e19981ffbfe5e85bd65d",
+      "navRoute": "/pl/w/male-firmy/dashboard",
+      "navSha256": "5c79f4de4d957fdd151bc09f0eb5559af7ff3bc7cb0dc47584aea7a0f21dc6cd",
+      "route": "/pl/w/male-firmy/dashboard"
+    },
+    {
+      "key": "smb:pl:dark",
+      "mainSha256": "8ed26ac88dbf8cc9c3a8b71f217797eba2c7d8abff90dbd5cabe39e2812c5bd9",
+      "navRoute": "/pl/w/male-firmy/dashboard",
+      "navSha256": "d9e4bda414854e06438bdec097554d36f7f88e2a7b0de090cf6add2e179d070b",
+      "route": "/pl/w/male-firmy/dashboard"
+    },
+    {
+      "key": "smb:nl:light",
+      "mainSha256": "1d490a64f092749f7e9a731edd6ba0e8a0217ca45e779579f8f87240b57d9c26",
+      "navRoute": "/nl/w/kleine-bedrijven/dashboard",
+      "navSha256": "def594c0b515c87a84eea373d8a8342534f50136f4485ebf1c3124276fea468b",
+      "route": "/nl/w/kleine-bedrijven/dashboard"
+    },
+    {
+      "key": "smb:nl:dark",
+      "mainSha256": "cc32201722f1f202a4d7b0f84ea5eb503304193ac9e33ab450e5a608564a5aa6",
+      "navRoute": "/nl/w/kleine-bedrijven/dashboard",
+      "navSha256": "4a43c18173d227cd19828d9debeae17f7c67ca433af7f0a7bfec5e8cc7aa6596",
+      "route": "/nl/w/kleine-bedrijven/dashboard"
+    },
+    {
       "key": "consultants:en:light",
       "mainSha256": "4b28ef98e3edc92c1646958ce1dfaf87fc1db63bc0a247d5de1301df5462d714",
       "navRoute": "/en/w/consultants/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
@@ -56,6 +112,62 @@
       "navRoute": "/de/w/beratung/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
       "navSha256": "8d0c90f40fefcd83d58473edaf23af6ae3be68d8c9ec0d9b0706cbad87c4c37d",
       "route": "/de/w/beratung/dashboard"
+    },
+    {
+      "key": "consultants:es:light",
+      "mainSha256": "f5c84a04c036b56dc1425f9c7e77a827de76961a1e15b4b02c4ce15cc5ca7843",
+      "navRoute": "/es/w/consultoria/records/2360d744-715d-88bc-871d-a53030024d87?view=1f100000-5120-4000-8000-000000000002",
+      "navSha256": "92b2c1e5ea8e606fd06fa2f484ceac689d1b87eaa1cf3069d59da822ff85a5a5",
+      "route": "/es/w/consultoria/dashboard"
+    },
+    {
+      "key": "consultants:es:dark",
+      "mainSha256": "cd3d556baf3b5cbc21d144a3ccbe3f89bc6e7e2a8aaafc8d2c06acae7420f385",
+      "navRoute": "/es/w/consultoria/records/2360d744-715d-88bc-871d-a53030024d87?view=1f100000-5120-4000-8000-000000000002",
+      "navSha256": "55caa44779a4f88bec91b6a130de7abb8772d58337c9ab3bacfc26721927a86c",
+      "route": "/es/w/consultoria/dashboard"
+    },
+    {
+      "key": "consultants:pt:light",
+      "mainSha256": "af59e1ca4f478ae5dafbfcf265cd052f0124f9982d334af62e1be747ec45a0dd",
+      "navRoute": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
+      "navSha256": "50d34354a628a9f6429823945e0bd57f7193c706f30076b90b776b73605979bf",
+      "route": "/pt/w/consultores/dashboard"
+    },
+    {
+      "key": "consultants:pt:dark",
+      "mainSha256": "62cdc366a0b0a956c2351f5f12c50ac6a9a473eadf422e710cbdd87ad7d9db3c",
+      "navRoute": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
+      "navSha256": "e907a3fc9fc10d8a0471a61a879a6227b33a62aaf319506ceead42931985beca",
+      "route": "/pt/w/consultores/dashboard"
+    },
+    {
+      "key": "consultants:pl:light",
+      "mainSha256": "31024bf7d82b1ccd3296d20afb2590ce617c5e5900f9bf2dd3849d6a4d27251a",
+      "navRoute": "/pl/w/doradztwo/records/d863b995-f33a-808d-8d9a-475212be2c86?view=1f100000-5140-4000-8000-000000000002",
+      "navSha256": "46d1b19c422d92c07b41d47f09c382894521f48f76bb4c6c3d34a3748c11fbc4",
+      "route": "/pl/w/doradztwo/dashboard"
+    },
+    {
+      "key": "consultants:pl:dark",
+      "mainSha256": "9b2c0c917d36275114e2db0517cac6d2b0e01b8b870929ecfd80762f1c83aba2",
+      "navRoute": "/pl/w/doradztwo/records/d863b995-f33a-808d-8d9a-475212be2c86?view=1f100000-5140-4000-8000-000000000002",
+      "navSha256": "dc386bc43ee4fe3bd1948f4441c4a2354614383cb285b72bf48e74766506d9a4",
+      "route": "/pl/w/doradztwo/dashboard"
+    },
+    {
+      "key": "consultants:nl:light",
+      "mainSha256": "d3975e5f027b5fca5308f338b9e065335206f0909d1b9f9b7a3a62a395813525",
+      "navRoute": "/nl/w/advies/records/5faf2d3c-1fd7-82d7-8efc-1e4a8ae30adb?view=1f100000-5150-4000-8000-000000000002",
+      "navSha256": "aa17642ac76f5cc2635c7ef6657aa86d56243357c84a1718c87770113532b3ed",
+      "route": "/nl/w/advies/dashboard"
+    },
+    {
+      "key": "consultants:nl:dark",
+      "mainSha256": "e80f7aed97053913a4be54f7218c11bca03e925dc6489f19ead1dcfcd52df6ce",
+      "navRoute": "/nl/w/advies/records/5faf2d3c-1fd7-82d7-8efc-1e4a8ae30adb?view=1f100000-5150-4000-8000-000000000002",
+      "navSha256": "15dd51e89fb9be670abbd787d1ceb8af00095386054075eccffd17ec7a816fa5",
+      "route": "/nl/w/advies/dashboard"
     },
     {
       "key": "agencies:en:light",
@@ -86,6 +198,62 @@
       "route": "/de/w/agenturen/dashboard"
     },
     {
+      "key": "agencies:es:light",
+      "mainSha256": "5b1f1015bbde5f9ec03bae9292c4464c8cbb6726b6f7ff8fd58976652ebaeae1",
+      "navRoute": "/es/w/agencias/records/4d814cbf-642a-8670-8966-0b537c91ee92?view=1f100000-5220-4000-8000-000000000001",
+      "navSha256": "4092bda987fff559bb2f5c54e14772b6ae03aed5aca030bfc2b8d2b9ab9a8f2e",
+      "route": "/es/w/agencias/dashboard"
+    },
+    {
+      "key": "agencies:es:dark",
+      "mainSha256": "1d24f92b5b6b73ea3e3c2227c555b74bd687589f0d44ab724439472cfa72b72b",
+      "navRoute": "/es/w/agencias/records/4d814cbf-642a-8670-8966-0b537c91ee92?view=1f100000-5220-4000-8000-000000000001",
+      "navSha256": "adb7b7292b6a662645df1dc8e0565180296050373f0b1e0b60215d905a6bcc78",
+      "route": "/es/w/agencias/dashboard"
+    },
+    {
+      "key": "agencies:pt:light",
+      "mainSha256": "26fbaffb9461cf9f9794681e0969e7f5c8648b43fcb256bfd8a4ee7011c59308",
+      "navRoute": "/pt/w/agencias-criativas/records/1bd2fa18-c126-8474-8bef-ed06e8b2f4fb?view=1f100000-5230-4000-8000-000000000001",
+      "navSha256": "5aa89fa007496ca7f6eb4c0c9ce71284618917ae433cc5285e8a1ff1e934a18a",
+      "route": "/pt/w/agencias-criativas/dashboard"
+    },
+    {
+      "key": "agencies:pt:dark",
+      "mainSha256": "f9eb4a54e6f7e0bcf2626167234b9dc1886773b9999f6b4f16e1265c7becec67",
+      "navRoute": "/pt/w/agencias-criativas/records/1bd2fa18-c126-8474-8bef-ed06e8b2f4fb?view=1f100000-5230-4000-8000-000000000001",
+      "navSha256": "dc88ece5efcef2fb5315813e745f815ed0319c81dc9348fc3ffb932d4848a702",
+      "route": "/pt/w/agencias-criativas/dashboard"
+    },
+    {
+      "key": "agencies:pl:light",
+      "mainSha256": "fc511facd0e232c460b7c8ff4b4cb943cd8b6f986c6c07dcf714fc3ce2fcbb44",
+      "navRoute": "/pl/w/agencje/records/3c97af9f-5f4e-8846-8112-83c8a3ccfdcb?view=1f100000-5240-4000-8000-000000000001",
+      "navSha256": "38ac2cb3bd628c3d82f0e0e55d3ca2ad27f0c2bf60a133a4b3de4456a9921df0",
+      "route": "/pl/w/agencje/dashboard"
+    },
+    {
+      "key": "agencies:pl:dark",
+      "mainSha256": "acaa3747e9d2b0929b477c4d9eeddd470236535336eda89c9c39ac9d083a8e54",
+      "navRoute": "/pl/w/agencje/records/3c97af9f-5f4e-8846-8112-83c8a3ccfdcb?view=1f100000-5240-4000-8000-000000000001",
+      "navSha256": "c1b0892f327264ce49457e8f70b3184f99b14e1f34a497aa58377b54592782a4",
+      "route": "/pl/w/agencje/dashboard"
+    },
+    {
+      "key": "agencies:nl:light",
+      "mainSha256": "027c598c2cdfca2d9be8cab686971134d0b96408829bfd37014d125385a34a14",
+      "navRoute": "/nl/w/bureaus/records/bfc1eb87-1099-8b54-8d16-94e7e90ef8c7?view=1f100000-5250-4000-8000-000000000001",
+      "navSha256": "2d4f91dc3c4aebe1b3c110f4091ef15206cc27edb800bcc11252d3a85c2e4d57",
+      "route": "/nl/w/bureaus/dashboard"
+    },
+    {
+      "key": "agencies:nl:dark",
+      "mainSha256": "0031bda1ebb4221c7967155a5eed538b4be617a3676be693b5490eae1d8d249c",
+      "navRoute": "/nl/w/bureaus/records/bfc1eb87-1099-8b54-8d16-94e7e90ef8c7?view=1f100000-5250-4000-8000-000000000001",
+      "navSha256": "32a9af66a2ee3d5e8623ec0149ed6a527172cd3a5982cab524ea4137c1c081c1",
+      "route": "/nl/w/bureaus/dashboard"
+    },
+    {
       "key": "freelancers:en:light",
       "mainSha256": "0c64035ee13958559543ff918d7da358f6f031145358bbd9a85eae710c91f2c5",
       "navRoute": "/en/w/freelancers/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
@@ -112,6 +280,62 @@
       "navRoute": "/de/w/selbststaendige/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
       "navSha256": "7b8dc110006e63e9abcf7a24bf2b78e3343ef56457ef79dac2baabddb65894fc",
       "route": "/de/w/selbststaendige/dashboard"
+    },
+    {
+      "key": "freelancers:es:light",
+      "mainSha256": "163b43d28785a9b730947b6339707dbe3444924b57b39489b9f93f38db2e397a",
+      "navRoute": "/es/w/autonomos/records/3c214c47-996b-84df-8e80-2dc7954465e6?view=1f100000-5320-4000-8000-000000000001",
+      "navSha256": "a94824b4ff8c33cc80b8df092ff1113c2f72433e467609be9bbba02f295fd328",
+      "route": "/es/w/autonomos/dashboard"
+    },
+    {
+      "key": "freelancers:es:dark",
+      "mainSha256": "68e9f2403745723d80b54a2f2c463dc01755d8d8886713f100f6e24688ac161f",
+      "navRoute": "/es/w/autonomos/records/3c214c47-996b-84df-8e80-2dc7954465e6?view=1f100000-5320-4000-8000-000000000001",
+      "navSha256": "1c4556873794c3ea53d3ae679215a68434a34ea38063721b77ded34203873ce8",
+      "route": "/es/w/autonomos/dashboard"
+    },
+    {
+      "key": "freelancers:pt:light",
+      "mainSha256": "0399c1876abdf0a40730d2781807da0c3b54c4ab8995232022c49e6b2ba11b3e",
+      "navRoute": "/pt/w/profissionais-autonomos/records/1f5a8d7e-9f42-8ec3-8ec2-6d4ebd47eb4d?view=1f100000-5330-4000-8000-000000000001",
+      "navSha256": "585601548a4c9763f9168a56cd6361015edeb6b2ac8277320d670c1028b869d4",
+      "route": "/pt/w/profissionais-autonomos/dashboard"
+    },
+    {
+      "key": "freelancers:pt:dark",
+      "mainSha256": "84da5d731e5f8f4044b180ec0ef67bd83a416810712b59d33d516179c710cdc6",
+      "navRoute": "/pt/w/profissionais-autonomos/records/1f5a8d7e-9f42-8ec3-8ec2-6d4ebd47eb4d?view=1f100000-5330-4000-8000-000000000001",
+      "navSha256": "dbf278c0d040e41a0f87b6f6330e4095afcc1daf19ea685b2a23004c88a8d0fa",
+      "route": "/pt/w/profissionais-autonomos/dashboard"
+    },
+    {
+      "key": "freelancers:pl:light",
+      "mainSha256": "b3434c308c2db35b29762ccc08178023fedfebfb13e994ec1fd687243cc61da1",
+      "navRoute": "/pl/w/freelancerzy/records/cd32fb34-aaa4-8772-8405-af28c2e6bfe1?view=1f100000-5340-4000-8000-000000000001",
+      "navSha256": "ece76e60b3639e7f54eab870f76963b2b291b9ea99a0badc94453eadec7382a3",
+      "route": "/pl/w/freelancerzy/dashboard"
+    },
+    {
+      "key": "freelancers:pl:dark",
+      "mainSha256": "0cf0a8a088fc6b699dbf1345678422a2c793aa0596642313019ee2ca070d25e4",
+      "navRoute": "/pl/w/freelancerzy/records/cd32fb34-aaa4-8772-8405-af28c2e6bfe1?view=1f100000-5340-4000-8000-000000000001",
+      "navSha256": "8898b5d2f3ef242ca5b942dd001cdd788047c8fdbee4554cec83e5706f789a71",
+      "route": "/pl/w/freelancerzy/dashboard"
+    },
+    {
+      "key": "freelancers:nl:light",
+      "mainSha256": "8319e9839d0b8fe97ee41bc8f5f73eb571116b160ee6cf62732a3b607c7d410b",
+      "navRoute": "/nl/w/zelfstandigen/records/6e9f2a95-d652-8e42-805d-2463e044c223?view=1f100000-5350-4000-8000-000000000001",
+      "navSha256": "81925aec553e33585eb9c37fba45e0cfe00473f62d6a62f645f0675ee6f56a32",
+      "route": "/nl/w/zelfstandigen/dashboard"
+    },
+    {
+      "key": "freelancers:nl:dark",
+      "mainSha256": "91207d3c7a5aadd9648fed1284ddbe33510b7e18698c5fbf7aa7c320e48aa4a3",
+      "navRoute": "/nl/w/zelfstandigen/records/6e9f2a95-d652-8e42-805d-2463e044c223?view=1f100000-5350-4000-8000-000000000001",
+      "navSha256": "55d8b234ae12bf36c3c7438d2c09f3162cc18410c9b81cd6ccc054261a4779d0",
+      "route": "/nl/w/zelfstandigen/dashboard"
     },
     {
       "key": "startups:en:light",
@@ -142,6 +366,62 @@
       "route": "/de/w/gruender-vertrieb/dashboard"
     },
     {
+      "key": "startups:es:light",
+      "mainSha256": "42a60ef8f02b2e8e5bdabb9ec5af627b0556facc8f5bc738a9d9db64904e91e4",
+      "navRoute": "/es/w/ventas-fundadores/dashboard",
+      "navSha256": "f2a90472cd79fa419bd9062d167bf24a5d1ff371f0ab5becd5b1df1f67430e06",
+      "route": "/es/w/ventas-fundadores/dashboard"
+    },
+    {
+      "key": "startups:es:dark",
+      "mainSha256": "2dc3161947604bc754bf09142414527094ec86c7604b39df5ed408109429c0a0",
+      "navRoute": "/es/w/ventas-fundadores/dashboard",
+      "navSha256": "bff71f0ba3797243e1ac32e81a1b005eb8db1ce3a0aa43bea5e5644341647fd4",
+      "route": "/es/w/ventas-fundadores/dashboard"
+    },
+    {
+      "key": "startups:pt:light",
+      "mainSha256": "800b7b0f079d7e40fef7aaba95990a01cdd9c4f93b6cad65f4782de95c9d6273",
+      "navRoute": "/pt/w/vendas-fundadores/dashboard",
+      "navSha256": "705479eed0671d2fd86b861c14848188fc0bf44eef8aef08a77c630d2b543e79",
+      "route": "/pt/w/vendas-fundadores/dashboard"
+    },
+    {
+      "key": "startups:pt:dark",
+      "mainSha256": "d023b0180f0f1c8070743ea598ce98980d765cdbf57b5a371124b4ba7b32fa8c",
+      "navRoute": "/pt/w/vendas-fundadores/dashboard",
+      "navSha256": "2b25eaa063a3208d3a9004a348cd4eccfef3a069ab4753ea8c321c550051c6b3",
+      "route": "/pt/w/vendas-fundadores/dashboard"
+    },
+    {
+      "key": "startups:pl:light",
+      "mainSha256": "78ba53cbf677bb84d19e7b1a2c946906e2df412a1582a3bd08442609f56b303d",
+      "navRoute": "/pl/w/sprzedaz-zalozyciela/dashboard",
+      "navSha256": "e41e6e8f4b1e6770fb9f31112d43f659b655768425158c4f1b47db656ca803e0",
+      "route": "/pl/w/sprzedaz-zalozyciela/dashboard"
+    },
+    {
+      "key": "startups:pl:dark",
+      "mainSha256": "62f04c0f7ab39944e7ded2246bf2155c9e45a65ccc9323f87e7c0fb67b377443",
+      "navRoute": "/pl/w/sprzedaz-zalozyciela/dashboard",
+      "navSha256": "822c1ed1dd7c9d916a07743651d16fc0629e6f69fa46d0d164ef9ee989e4e28c",
+      "route": "/pl/w/sprzedaz-zalozyciela/dashboard"
+    },
+    {
+      "key": "startups:nl:light",
+      "mainSha256": "00cd6c492c80e77ecb71ff1d3fac96c5920ebf0012e882df4f1da79ed16392ff",
+      "navRoute": "/nl/w/oprichters-verkoop/dashboard",
+      "navSha256": "cfbe9936a4f13bb87aa4d4933ebfe872ec3c985c105e6ba16e02ec019ef76a97",
+      "route": "/nl/w/oprichters-verkoop/dashboard"
+    },
+    {
+      "key": "startups:nl:dark",
+      "mainSha256": "2f34e9449a5b226724a2385766021694c1d472767b47e68f1ff77e231775d528",
+      "navRoute": "/nl/w/oprichters-verkoop/dashboard",
+      "navSha256": "fd6392ecec554e5586a79985241e91b9553f07156bf59467974be21eb6aa2dae",
+      "route": "/nl/w/oprichters-verkoop/dashboard"
+    },
+    {
       "key": "client-management:en:light",
       "mainSha256": "4e495dc5e1326b46101c67b63e7ce6a6a781e358bfaccf9b9151c1bfd9023ec1",
       "navRoute": "/en/w/client-management/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
@@ -168,6 +448,62 @@
       "navRoute": "/de/w/kundenverwaltung/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
       "navSha256": "b48c8d8a7aa858831bcd33f12f10a0aa7be37dedaf0f56651df8f22d75bd1510",
       "route": "/de/w/kundenverwaltung/dashboard"
+    },
+    {
+      "key": "client-management:es:light",
+      "mainSha256": "34da611434a934eadb5df83030d23e2a014bd4ee0772aaddc2cb15d38b618aac",
+      "navRoute": "/es/w/gestion-de-clientes/records/700ebf60-ce94-8f0f-838c-6bd1ce31430c?view=1f100000-5520-4000-8000-000000000002",
+      "navSha256": "e4d52c40f481f55300bbe3230047131a0773fee69a20aec7cbddd9005630dc0e",
+      "route": "/es/w/gestion-de-clientes/dashboard"
+    },
+    {
+      "key": "client-management:es:dark",
+      "mainSha256": "6445cfe51f0f90cf72e3314119970033bab36e4673d34e2cb8c5ad7d9da19579",
+      "navRoute": "/es/w/gestion-de-clientes/records/700ebf60-ce94-8f0f-838c-6bd1ce31430c?view=1f100000-5520-4000-8000-000000000002",
+      "navSha256": "6b84c8eb68d80eb485c1c2227c60d94e28c1547af3fd4d0c4c6163f019a2f003",
+      "route": "/es/w/gestion-de-clientes/dashboard"
+    },
+    {
+      "key": "client-management:pt:light",
+      "mainSha256": "09ee6b95221140fdbb5902d7e545c72d62fcb98e247604e5582b1c4ecb50186f",
+      "navRoute": "/pt/w/gestao-de-clientes/records/e34d07bc-278e-86b2-830c-1de08890076e?view=1f100000-5530-4000-8000-000000000002",
+      "navSha256": "029272971758354896abfda0dd5fa1f775489538d86566d682935980d7b12b8e",
+      "route": "/pt/w/gestao-de-clientes/dashboard"
+    },
+    {
+      "key": "client-management:pt:dark",
+      "mainSha256": "3a232c089fc6a41eb56c4554aeecf1465c8bceea5ac51976a1ccd2684c9bdb78",
+      "navRoute": "/pt/w/gestao-de-clientes/records/e34d07bc-278e-86b2-830c-1de08890076e?view=1f100000-5530-4000-8000-000000000002",
+      "navSha256": "a3e7bc69abfcf7fc069630f7dcfe1e59bf583892cce32674980de5a26b34bb22",
+      "route": "/pt/w/gestao-de-clientes/dashboard"
+    },
+    {
+      "key": "client-management:pl:light",
+      "mainSha256": "af5db155902eae081394945a23ca50a5f1fce717bab024d73c8b4c3aa8d75a3a",
+      "navRoute": "/pl/w/zarzadzanie-klientami/records/aae2bdc7-09d7-894d-8555-6f193f90af39?view=1f100000-5540-4000-8000-000000000002",
+      "navSha256": "770b2d1d95efbe8d11d47eca896c41c87083f8bea844b79a19b9adee910cdbf4",
+      "route": "/pl/w/zarzadzanie-klientami/dashboard"
+    },
+    {
+      "key": "client-management:pl:dark",
+      "mainSha256": "4fd35f5f89105ad9a0853d8d187952355a9038dddd69239ba061c94806fa4660",
+      "navRoute": "/pl/w/zarzadzanie-klientami/records/aae2bdc7-09d7-894d-8555-6f193f90af39?view=1f100000-5540-4000-8000-000000000002",
+      "navSha256": "f78a968603023c143a4096c2370becd789537235ca8f9d0c5e31d7baa215046e",
+      "route": "/pl/w/zarzadzanie-klientami/dashboard"
+    },
+    {
+      "key": "client-management:nl:light",
+      "mainSha256": "2ecd5dbc821796901ca429b8e5eb7710360ca78e07a980f81874ea8bd398105e",
+      "navRoute": "/nl/w/klantbeheer/records/fee58587-5a81-80bd-8515-7e280e211da9?view=1f100000-5550-4000-8000-000000000002",
+      "navSha256": "9db508e7f94619074ef8fe07fed268c62b0006819b970310dc95a60f62c4014e",
+      "route": "/nl/w/klantbeheer/dashboard"
+    },
+    {
+      "key": "client-management:nl:dark",
+      "mainSha256": "2091b036526c7a45f39bac3e566dc139d0f91ee5fd8a4bdad8a40a38e4c88ba4",
+      "navRoute": "/nl/w/klantbeheer/records/fee58587-5a81-80bd-8515-7e280e211da9?view=1f100000-5550-4000-8000-000000000002",
+      "navSha256": "f552584b35765ea3d5e849a643f5b5dcb6135f9f6dab9979419ae59d1fab2339",
+      "route": "/nl/w/klantbeheer/dashboard"
     },
     {
       "key": "sales-pipeline:en:light",
@@ -198,6 +534,62 @@
       "route": "/de/w/vertriebspipeline/dashboard"
     },
     {
+      "key": "sales-pipeline:es:light",
+      "mainSha256": "43e6f4eab86505ececd3cb905009e9ab11b36e2262fd2b77093bbed0f9dfcff0",
+      "navRoute": "/es/w/pipeline-de-ventas/records/f29885e7-41b5-8c97-889f-177d5951339a?view=1f100000-5620-4000-8000-000000000001",
+      "navSha256": "d1b37a92fc5ef2450257dcc74ba436942053a78806921fa2f844699de3c1992c",
+      "route": "/es/w/pipeline-de-ventas/dashboard"
+    },
+    {
+      "key": "sales-pipeline:es:dark",
+      "mainSha256": "2b6029980dbfd6e0abc293c3484b5f81fbff77a124d29ea854f9394148aa7ed3",
+      "navRoute": "/es/w/pipeline-de-ventas/records/f29885e7-41b5-8c97-889f-177d5951339a?view=1f100000-5620-4000-8000-000000000001",
+      "navSha256": "9279bcd0b4a14fc2c59025274b6d5c1df1d225fb1ae45fb40694082aee6ca612",
+      "route": "/es/w/pipeline-de-ventas/dashboard"
+    },
+    {
+      "key": "sales-pipeline:pt:light",
+      "mainSha256": "d54378d753a31ca1806b9f7fd4c429aa54ddc5ef9d4b7b2fb5377e857548e0d7",
+      "navRoute": "/pt/w/pipeline-de-vendas/records/2347231c-dfd1-815a-821c-64b6641f1638?view=1f100000-5630-4000-8000-000000000001",
+      "navSha256": "576c765754d21436a12f67dcb4cc25d86ed6e24f24006729d619a1be1ffa2099",
+      "route": "/pt/w/pipeline-de-vendas/dashboard"
+    },
+    {
+      "key": "sales-pipeline:pt:dark",
+      "mainSha256": "616905e3a3ef247cad72033672d6a18e711d3a4b13adc3b64addf9b177e751dd",
+      "navRoute": "/pt/w/pipeline-de-vendas/records/2347231c-dfd1-815a-821c-64b6641f1638?view=1f100000-5630-4000-8000-000000000001",
+      "navSha256": "900390649183b1d7dfdae34c3597ce250edc349e7ee31bab2a427e1b362cd981",
+      "route": "/pt/w/pipeline-de-vendas/dashboard"
+    },
+    {
+      "key": "sales-pipeline:pl:light",
+      "mainSha256": "be321fd7b830796e3bb5277380439a7260ac5ccdcfa288dfaa8f712c87159c7c",
+      "navRoute": "/pl/w/pipeline-sprzedazy/records/5b6fb8c8-4813-8abb-8acf-aa523f2a07ec?view=1f100000-5640-4000-8000-000000000001",
+      "navSha256": "7d603d576c87cd54248dbcdad782fd51deb486f61e5c05070bd596eebc0a0bd3",
+      "route": "/pl/w/pipeline-sprzedazy/dashboard"
+    },
+    {
+      "key": "sales-pipeline:pl:dark",
+      "mainSha256": "cc74288b7a255d8954aedeefad728fd3ae86eeea3a08c858b398841d97553f05",
+      "navRoute": "/pl/w/pipeline-sprzedazy/records/5b6fb8c8-4813-8abb-8acf-aa523f2a07ec?view=1f100000-5640-4000-8000-000000000001",
+      "navSha256": "d2a8e48f8958c0112f45e7cd1c19c57567d88ac7f4c8531c46af89f33e3d4118",
+      "route": "/pl/w/pipeline-sprzedazy/dashboard"
+    },
+    {
+      "key": "sales-pipeline:nl:light",
+      "mainSha256": "96cb4e6f0411eb07e59eb1a15681e1ff7ec7c7067f9ce446433a9bbed0923586",
+      "navRoute": "/nl/w/verkooppipeline/records/5354c0d2-ff82-84de-8b6f-0ee1723f248f?view=1f100000-5650-4000-8000-000000000001",
+      "navSha256": "e594ffa31a8c7486de5cbf6a4f72c22a49f291fbf03b9a6b4c7b18acd9c34999",
+      "route": "/nl/w/verkooppipeline/dashboard"
+    },
+    {
+      "key": "sales-pipeline:nl:dark",
+      "mainSha256": "4465467b12e7ab2f95dcd7cc8079e533982d413717a5012a6f8cf3f95f18a63e",
+      "navRoute": "/nl/w/verkooppipeline/records/5354c0d2-ff82-84de-8b6f-0ee1723f248f?view=1f100000-5650-4000-8000-000000000001",
+      "navSha256": "8f0d6c58afdd5a7e4c3eb4574769f2953f223dd0a8a06c7c73511c2e309fdde1",
+      "route": "/nl/w/verkooppipeline/dashboard"
+    },
+    {
       "key": "linkedin-crm:en:light",
       "mainSha256": "9f533c937af7d0126d957e395b4a2cf3788080273999708940bdb2e10d7b106a",
       "navRoute": "/en/w/linkedin-sales/inbox?threadId=17000000-5700-4000-8000-000000000001",
@@ -226,6 +618,62 @@
       "route": "/de/w/linkedin-vertrieb/dashboard"
     },
     {
+      "key": "linkedin-crm:es:light",
+      "mainSha256": "58f4c6884f7e8fdd090d49f5ee0eb9fc580e971c0a0d7e4e704d0fcd2751462c",
+      "navRoute": "/es/w/linkedin-ventas/inbox?threadId=17000000-5720-4000-8000-000000000001",
+      "navSha256": "75d1bb7c9aebd1c2b5eedbbfa102ace7b7eead57199fe45ee43184d48259fa01",
+      "route": "/es/w/linkedin-ventas/dashboard"
+    },
+    {
+      "key": "linkedin-crm:es:dark",
+      "mainSha256": "478e59ecaae30cffd33279fd594d0b9c13e59b1e252f406dc61cd1118844735a",
+      "navRoute": "/es/w/linkedin-ventas/inbox?threadId=17000000-5720-4000-8000-000000000001",
+      "navSha256": "db4d16d8377c50110460bff57de142c8072cd133a7a04fa580b8e5324bfb4d91",
+      "route": "/es/w/linkedin-ventas/dashboard"
+    },
+    {
+      "key": "linkedin-crm:pt:light",
+      "mainSha256": "28fefd030c3f1b461ca12df2510878495cd533e5b4a16cf3634902084499bad7",
+      "navRoute": "/pt/w/linkedin-vendas/inbox?threadId=17000000-5730-4000-8000-000000000001",
+      "navSha256": "54264267155e00ca5be376d5b000e8a250ddab9bb839c0a264b85e51a5894dc0",
+      "route": "/pt/w/linkedin-vendas/dashboard"
+    },
+    {
+      "key": "linkedin-crm:pt:dark",
+      "mainSha256": "2863d2ef457878e21e7e61dc8af686de0779925c550272f5ffa4a11bcc9c8691",
+      "navRoute": "/pt/w/linkedin-vendas/inbox?threadId=17000000-5730-4000-8000-000000000001",
+      "navSha256": "6652a363c716d983b23efbd3c811358d821e5a991e0276752aae112701b54af5",
+      "route": "/pt/w/linkedin-vendas/dashboard"
+    },
+    {
+      "key": "linkedin-crm:pl:light",
+      "mainSha256": "d289b382664c4c3d26fef49483ff08a866de04f22c4415656de0ce1e3cccbb63",
+      "navRoute": "/pl/w/linkedin-sprzedaz/inbox?threadId=17000000-5740-4000-8000-000000000001",
+      "navSha256": "2fb709e0fd00c464b9e7430f88cd8a88f0573552e9277d306fb39df51ed210c6",
+      "route": "/pl/w/linkedin-sprzedaz/dashboard"
+    },
+    {
+      "key": "linkedin-crm:pl:dark",
+      "mainSha256": "2833d2df0fd5756a21f373557f4776af6069aea02e15e64ce80a48e11dea0e30",
+      "navRoute": "/pl/w/linkedin-sprzedaz/inbox?threadId=17000000-5740-4000-8000-000000000001",
+      "navSha256": "fec5873b4011440531232651401aafd0b2ef2e26bb92b4f674313b6a76bdf316",
+      "route": "/pl/w/linkedin-sprzedaz/dashboard"
+    },
+    {
+      "key": "linkedin-crm:nl:light",
+      "mainSha256": "07eef22be6d9c322af84fe2da2534ef923ab48895c222b9ffa6f72d9e3ff6178",
+      "navRoute": "/nl/w/linkedin-verkoop/inbox?threadId=17000000-5750-4000-8000-000000000001",
+      "navSha256": "7990db0a91c3ea36d656d912a44a3b337f972fe221bb14c07564362fec5c77a9",
+      "route": "/nl/w/linkedin-verkoop/dashboard"
+    },
+    {
+      "key": "linkedin-crm:nl:dark",
+      "mainSha256": "68b3bd5eac5e244543260f10c3c0b173818dc5e241af28edb89f62168747293a",
+      "navRoute": "/nl/w/linkedin-verkoop/inbox?threadId=17000000-5750-4000-8000-000000000001",
+      "navSha256": "52ac98cce91bf05fe27269fb516a9b9f988a6a518496b70c15541608908250a1",
+      "route": "/nl/w/linkedin-verkoop/dashboard"
+    },
+    {
       "key": "whatsapp-crm:en:light",
       "mainSha256": "33ac447bb3a898ebf2f5c24d4feb253efad7432f13698ad118e7648f6f3a3bfe",
       "navRoute": "/en/w/whatsapp/inbox?threadId=17000000-5800-4000-8000-000000000001",
@@ -252,11 +700,67 @@
       "navRoute": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
       "navSha256": "99751372837e4e3dee22ed8fb8c72f2f1bf60bb266151c26bd1202697bba00bd",
       "route": "/de/w/whatsapp-kundenkontakt/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:es:light",
+      "mainSha256": "1edde65cf7b9f8c38530c396b691ab002b54f628ca7a65cf3d25b000ee3f5c76",
+      "navRoute": "/es/w/whatsapp-clientes/inbox?threadId=17000000-5820-4000-8000-000000000001",
+      "navSha256": "70246303872d9d031663589afba9a28cb7d98a1dbce0bcab79bee3418550e27e",
+      "route": "/es/w/whatsapp-clientes/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:es:dark",
+      "mainSha256": "c79890060f8c7cfee179b87ff85abf76d19abf57787fd61b2d48d638e0bc8420",
+      "navRoute": "/es/w/whatsapp-clientes/inbox?threadId=17000000-5820-4000-8000-000000000001",
+      "navSha256": "48125846b38d73f9d7caca723c4695863fc3f1ca89a14d93b49f79bfc58167d1",
+      "route": "/es/w/whatsapp-clientes/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:pt:light",
+      "mainSha256": "8f178f823aeaf7a7ae50d1d8ce6248299e1b6d9cd07b0aad133cdcfa36837345",
+      "navRoute": "/pt/w/whatsapp-atendimento/inbox?threadId=17000000-5830-4000-8000-000000000001",
+      "navSha256": "a8c7adf1d46656d1ef679502b63d15a65c7213881a48e87083d8790c756c41d9",
+      "route": "/pt/w/whatsapp-atendimento/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:pt:dark",
+      "mainSha256": "3be37bc5194e5c9250101168a9c15fe9dc72ba47b57cfda11bfed933b2e3b26f",
+      "navRoute": "/pt/w/whatsapp-atendimento/inbox?threadId=17000000-5830-4000-8000-000000000001",
+      "navSha256": "9429998b528b3a4f5683a0d89f89f6bc1560ab4862e1b06c4669aa2a89b0c307",
+      "route": "/pt/w/whatsapp-atendimento/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:pl:light",
+      "mainSha256": "875ba0151ed0b595aff8caa9a5369617c6a9edd52875ed01a381b40b6c2f5ff1",
+      "navRoute": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
+      "navSha256": "57375b8aaa551157a17a279e01b673cf16f4bdb679ffdd228d8097f03dc900c1",
+      "route": "/pl/w/whatsapp-klienci/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:pl:dark",
+      "mainSha256": "98574d6e28a043125e2d7cbb3a3f471e6a0c1cabe3f6602afc26a01a5ad829a9",
+      "navRoute": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
+      "navSha256": "2d6e11012f712f4351899e4af2b4bed46973c7082b2b2ea36238e8c109ef8b36",
+      "route": "/pl/w/whatsapp-klienci/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:nl:light",
+      "mainSha256": "06b2fb62935dde1f1bb120d9fcc7095b113238e30b753ca47f3e0e63ea321d3e",
+      "navRoute": "/nl/w/whatsapp-klantcontact/inbox?threadId=17000000-5850-4000-8000-000000000001",
+      "navSha256": "e1e2e53eced0bc1b6ccb9c3ed5583ad987552fbbff656e45969a2e2c3ffca236",
+      "route": "/nl/w/whatsapp-klantcontact/dashboard"
+    },
+    {
+      "key": "whatsapp-crm:nl:dark",
+      "mainSha256": "07bc915be1e440e7651187365486a8efc64182afd113db2838ea610beb3140ea",
+      "navRoute": "/nl/w/whatsapp-klantcontact/inbox?threadId=17000000-5850-4000-8000-000000000001",
+      "navSha256": "7a35ac563236ed258f52bfcbcf71d6b1651cc86cd05d356fb69786783c57522a",
+      "route": "/nl/w/whatsapp-klantcontact/dashboard"
     }
   ],
   "environment": "Local APP_MODE=demo instance on a freshly reset and seeded PostgreSQL database; Chromium via Playwright",
   "nav": {
-    "capturedOn": "2026-11-10",
+    "capturedOn": "2026-11-11",
     "clip": {
       "height": 720,
       "width": 1152
@@ -267,14 +771,14 @@
       "width": 960
     },
     "sidebarWidth": 208,
-    "sourceRevision": "9a65f3f93",
+    "sourceRevision": "edf88e66d-dirty",
     "viewport": {
       "deviceScaleFactor": 2,
       "height": 900,
       "width": 1440
     }
   },
-  "sourceRevision": "9a65f3f93",
+  "sourceRevision": "edf88e66d-dirty",
   "viewport": {
     "deviceScaleFactor": 2,
     "height": 900,

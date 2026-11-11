@@ -1,5 +1,5 @@
 {
-  "capturedOn": "2026-11-10",
+  "capturedOn": "2026-11-11",
   "entries": [
     {
       "bytes": 54594,
@@ -35,6 +35,78 @@
       "route": "/de/w/kleine-unternehmen/records/fe81a7a6-6bd5-8c33-8378-e97817774ef7?view=1f100000-5010-4000-8000-000000000001",
       "sha256": "46fd2e9bd63444ebcb2f0b51786911c7463d603798469d1e1e779c7875457b8f",
       "src": "/captures/solutions/stage/dark/smb-pipeline-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 64940,
+      "height": 1000,
+      "key": "smb:pipeline:es:light",
+      "route": "/es/w/pymes/records/1a581e09-7d88-8f2f-800c-468fafd0adc7?view=1f100000-5020-4000-8000-000000000001",
+      "sha256": "34e97aeeedbd76e49018ccd8750b975678843372f680a023db082478b6e5c2ee",
+      "src": "/captures/solutions/stage/light/smb-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63864,
+      "height": 1000,
+      "key": "smb:pipeline:es:dark",
+      "route": "/es/w/pymes/records/1a581e09-7d88-8f2f-800c-468fafd0adc7?view=1f100000-5020-4000-8000-000000000001",
+      "sha256": "8d0f79b1cebe61ac100e5a728ed4b36a051c16befe5aa65dc56ff8e5be2426b1",
+      "src": "/captures/solutions/stage/dark/smb-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67208,
+      "height": 1000,
+      "key": "smb:pipeline:pt:light",
+      "route": "/pt/w/pequenas-empresas/records/7b504572-0806-82d2-828b-115f9daaa95f?view=1f100000-5030-4000-8000-000000000001",
+      "sha256": "c04c1d7842ade9b810624dba396f9ed2c602f20d5c479e00fafd3521e986cad1",
+      "src": "/captures/solutions/stage/light/smb-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 66002,
+      "height": 1000,
+      "key": "smb:pipeline:pt:dark",
+      "route": "/pt/w/pequenas-empresas/records/7b504572-0806-82d2-828b-115f9daaa95f?view=1f100000-5030-4000-8000-000000000001",
+      "sha256": "f4ebd0fe2a09812905bacf171cb21e0b63b705198f8f988eb24fa3def92a11cf",
+      "src": "/captures/solutions/stage/dark/smb-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 64164,
+      "height": 1000,
+      "key": "smb:pipeline:pl:light",
+      "route": "/pl/w/male-firmy/records/ae56c040-1977-8d36-8996-3f17d0c1f082?view=1f100000-5040-4000-8000-000000000001",
+      "sha256": "340ae77a7d599b23c8d7bb52dcb9709cca9266094512b85990ac997fa94e623a",
+      "src": "/captures/solutions/stage/light/smb-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63056,
+      "height": 1000,
+      "key": "smb:pipeline:pl:dark",
+      "route": "/pl/w/male-firmy/records/ae56c040-1977-8d36-8996-3f17d0c1f082?view=1f100000-5040-4000-8000-000000000001",
+      "sha256": "2317578620f052a75c1dde9dba3adac1cd48bab88781d75c4c817469f0d7f285",
+      "src": "/captures/solutions/stage/dark/smb-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 62170,
+      "height": 1000,
+      "key": "smb:pipeline:nl:light",
+      "route": "/nl/w/kleine-bedrijven/records/08f55aeb-288d-8059-8d11-fb4acfc7a305?view=1f100000-5050-4000-8000-000000000001",
+      "sha256": "c094ebb838abe0518e7d7dd7a78d7fddfed452aab93778ad523090be5e83af75",
+      "src": "/captures/solutions/stage/light/smb-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 61944,
+      "height": 1000,
+      "key": "smb:pipeline:nl:dark",
+      "route": "/nl/w/kleine-bedrijven/records/08f55aeb-288d-8059-8d11-fb4acfc7a305?view=1f100000-5050-4000-8000-000000000001",
+      "sha256": "8de2635f3ea2ac2c4aee3280dd100d88f68f8a4cf8d8a1a1f6a11d3022a27fc9",
+      "src": "/captures/solutions/stage/dark/smb-pipeline-nl.webp",
       "width": 1600
     },
     {
@@ -74,6 +146,78 @@
       "width": 1600
     },
     {
+      "bytes": 87090,
+      "height": 1000,
+      "key": "smb:inbox:es:light",
+      "route": "/es/w/pymes/inbox?threadId=latest",
+      "sha256": "9fe2e313dc034e1b2a9ca504b875314e52a54a6a121b4c1476500f0903426525",
+      "src": "/captures/solutions/stage/light/smb-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85118,
+      "height": 1000,
+      "key": "smb:inbox:es:dark",
+      "route": "/es/w/pymes/inbox?threadId=latest",
+      "sha256": "9e61c4cbadba17ad9bc4ccfcc41d74a6baa5bb87ac07da12e5d70ca9badc03da",
+      "src": "/captures/solutions/stage/dark/smb-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85752,
+      "height": 1000,
+      "key": "smb:inbox:pt:light",
+      "route": "/pt/w/pequenas-empresas/inbox?threadId=latest",
+      "sha256": "8bc254d905ada6085d5ec5c4ab373057a6f9213b60c3e75cb69062829f008353",
+      "src": "/captures/solutions/stage/light/smb-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85446,
+      "height": 1000,
+      "key": "smb:inbox:pt:dark",
+      "route": "/pt/w/pequenas-empresas/inbox?threadId=latest",
+      "sha256": "4ce84338f1600e0d28adb6381aaccf0d04d369cc986dc75e11013a1703f581e1",
+      "src": "/captures/solutions/stage/dark/smb-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86244,
+      "height": 1000,
+      "key": "smb:inbox:pl:light",
+      "route": "/pl/w/male-firmy/inbox?threadId=latest",
+      "sha256": "5fc3d8be5e5ab5c7a0352d58fa7dfca65a21af4af92942e583f3b04a35577aa2",
+      "src": "/captures/solutions/stage/light/smb-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86088,
+      "height": 1000,
+      "key": "smb:inbox:pl:dark",
+      "route": "/pl/w/male-firmy/inbox?threadId=latest",
+      "sha256": "3abe816a304887d23a6ddcc53d28b04bf5d52b78a4e39ce6d32bb4ef93b3d1dc",
+      "src": "/captures/solutions/stage/dark/smb-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86268,
+      "height": 1000,
+      "key": "smb:inbox:nl:light",
+      "route": "/nl/w/kleine-bedrijven/inbox?threadId=latest",
+      "sha256": "e63fa2d66847f6ef656d90b92ae020d0b048923d9bf0e82a56d865b34f0a539b",
+      "src": "/captures/solutions/stage/light/smb-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86204,
+      "height": 1000,
+      "key": "smb:inbox:nl:dark",
+      "route": "/nl/w/kleine-bedrijven/inbox?threadId=latest",
+      "sha256": "db286aff5c0850dad9795cdd903584b66b4b73605a2ce16e47cf7bb9bc8cf497",
+      "src": "/captures/solutions/stage/dark/smb-inbox-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 29910,
       "height": 1000,
       "key": "smb:calendar:en:light",
@@ -107,6 +251,78 @@
       "route": "/de/w/kleine-unternehmen/calendar",
       "sha256": "76a611b2f1399bad7fe4ed5b7b3489f29586c6540706b858d8269e92ed3bafad",
       "src": "/captures/solutions/stage/dark/smb-calendar-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 28980,
+      "height": 1000,
+      "key": "smb:calendar:es:light",
+      "route": "/es/w/pymes/calendar",
+      "sha256": "b5d2607181e808ce3da98c4498714a4e49ccd97c85c69937152bdc69e13271d6",
+      "src": "/captures/solutions/stage/light/smb-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 28408,
+      "height": 1000,
+      "key": "smb:calendar:es:dark",
+      "route": "/es/w/pymes/calendar",
+      "sha256": "cb69d910fad1986344a93620d5ae227d36b7beddfeb3ac0ff57371f1a86a7647",
+      "src": "/captures/solutions/stage/dark/smb-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 31826,
+      "height": 1000,
+      "key": "smb:calendar:pt:light",
+      "route": "/pt/w/pequenas-empresas/calendar",
+      "sha256": "c65381efc1a2a3313d7225c4a1348244c6d55cac1af78994052d15f6a21a3d23",
+      "src": "/captures/solutions/stage/light/smb-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 31256,
+      "height": 1000,
+      "key": "smb:calendar:pt:dark",
+      "route": "/pt/w/pequenas-empresas/calendar",
+      "sha256": "ff099a4a540a58a6dc4ddf734034fab1ddd59b4233d86df70e2f91d247e9aa22",
+      "src": "/captures/solutions/stage/dark/smb-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 27814,
+      "height": 1000,
+      "key": "smb:calendar:pl:light",
+      "route": "/pl/w/male-firmy/calendar",
+      "sha256": "6b8af98de91e51d43af3654eb461a6674044283e1422b35020c75a301923e995",
+      "src": "/captures/solutions/stage/light/smb-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 27366,
+      "height": 1000,
+      "key": "smb:calendar:pl:dark",
+      "route": "/pl/w/male-firmy/calendar",
+      "sha256": "e817c82ac3aff2a48e9d934fdea517160b3fb5bb0bb136112e5d50be1730b836",
+      "src": "/captures/solutions/stage/dark/smb-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 27702,
+      "height": 1000,
+      "key": "smb:calendar:nl:light",
+      "route": "/nl/w/kleine-bedrijven/calendar",
+      "sha256": "fbec5168d188bcf5c24311d8b53d1d5b999ea3d29b49e50aafbf562ae92889e3",
+      "src": "/captures/solutions/stage/light/smb-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 27328,
+      "height": 1000,
+      "key": "smb:calendar:nl:dark",
+      "route": "/nl/w/kleine-bedrijven/calendar",
+      "sha256": "625c37d71e99010184b24304c3285fbe6b1d08af47f816512ab09e772180ef91",
+      "src": "/captures/solutions/stage/dark/smb-calendar-nl.webp",
       "width": 1600
     },
     {
@@ -146,6 +362,78 @@
       "width": 1600
     },
     {
+      "bytes": 55340,
+      "height": 1000,
+      "key": "consultants:engagements:es:light",
+      "route": "/es/w/consultoria/records/2360d744-715d-88bc-871d-a53030024d87?view=1f100000-5120-4000-8000-000000000002",
+      "sha256": "df17a275afd3643e612a7730baba2eb25cdf5588aa763ba339e34b9dc8b6403f",
+      "src": "/captures/solutions/stage/light/consultants-engagements-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 54408,
+      "height": 1000,
+      "key": "consultants:engagements:es:dark",
+      "route": "/es/w/consultoria/records/2360d744-715d-88bc-871d-a53030024d87?view=1f100000-5120-4000-8000-000000000002",
+      "sha256": "5071ddde114923b77c49d093ffe07f2fffe2e2e6bc30ef2bafa84cbb45d3d580",
+      "src": "/captures/solutions/stage/dark/consultants-engagements-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58968,
+      "height": 1000,
+      "key": "consultants:engagements:pt:light",
+      "route": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
+      "sha256": "e159bceaf7a25ddbb811562316c63e1ce676ade68f171a0ea3579f822ea175d4",
+      "src": "/captures/solutions/stage/light/consultants-engagements-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58324,
+      "height": 1000,
+      "key": "consultants:engagements:pt:dark",
+      "route": "/pt/w/consultores/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002",
+      "sha256": "1c0ef52e3d427ad6853edfe85d5898821db61f1a537c743d270624d3ab4a5e5f",
+      "src": "/captures/solutions/stage/dark/consultants-engagements-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55118,
+      "height": 1000,
+      "key": "consultants:engagements:pl:light",
+      "route": "/pl/w/doradztwo/records/d863b995-f33a-808d-8d9a-475212be2c86?view=1f100000-5140-4000-8000-000000000002",
+      "sha256": "04cc033992f000a42d41f721b7a9aa74147c05ee9ab3ef2482963022c938ba30",
+      "src": "/captures/solutions/stage/light/consultants-engagements-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 54400,
+      "height": 1000,
+      "key": "consultants:engagements:pl:dark",
+      "route": "/pl/w/doradztwo/records/d863b995-f33a-808d-8d9a-475212be2c86?view=1f100000-5140-4000-8000-000000000002",
+      "sha256": "58bf804d226a4613e7bc8162515cf541ed64bf23e45fe30abf9857babdd2ece2",
+      "src": "/captures/solutions/stage/dark/consultants-engagements-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55234,
+      "height": 1000,
+      "key": "consultants:engagements:nl:light",
+      "route": "/nl/w/advies/records/5faf2d3c-1fd7-82d7-8efc-1e4a8ae30adb?view=1f100000-5150-4000-8000-000000000002",
+      "sha256": "a6985c1e55d45d9f42a0990e3e47f87417b8e0394f8428322d2ce919047819de",
+      "src": "/captures/solutions/stage/light/consultants-engagements-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 54464,
+      "height": 1000,
+      "key": "consultants:engagements:nl:dark",
+      "route": "/nl/w/advies/records/5faf2d3c-1fd7-82d7-8efc-1e4a8ae30adb?view=1f100000-5150-4000-8000-000000000002",
+      "sha256": "b3ea23c722d2fd3751004f340553ad0d012e755ed66ffa1fed9b3c6c212a9491",
+      "src": "/captures/solutions/stage/dark/consultants-engagements-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 78746,
       "height": 1000,
       "key": "consultants:inbox:en:light",
@@ -179,6 +467,78 @@
       "route": "/de/w/beratung/inbox?threadId=latest",
       "sha256": "9b1ab5c09c9354009ba73435651091c701eccdb9515e29e4b0da2d4aa1b8f5f5",
       "src": "/captures/solutions/stage/dark/consultants-inbox-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85096,
+      "height": 1000,
+      "key": "consultants:inbox:es:light",
+      "route": "/es/w/consultoria/inbox?threadId=latest",
+      "sha256": "ae3470e83f14f3a2c6a2205c77e7f59cbb7c65aaff2971d94fb3b2dd5941ae7b",
+      "src": "/captures/solutions/stage/light/consultants-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84774,
+      "height": 1000,
+      "key": "consultants:inbox:es:dark",
+      "route": "/es/w/consultoria/inbox?threadId=latest",
+      "sha256": "5f4b86e49ab25be6a7c4a0b156dafd09b0236a2cd60159b6ba793a6022101cfa",
+      "src": "/captures/solutions/stage/dark/consultants-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84196,
+      "height": 1000,
+      "key": "consultants:inbox:pt:light",
+      "route": "/pt/w/consultores/inbox?threadId=latest",
+      "sha256": "1f57bad8bdebb081282ada80acd461c554425543108459cb83a52c8d22c27a4c",
+      "src": "/captures/solutions/stage/light/consultants-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85970,
+      "height": 1000,
+      "key": "consultants:inbox:pt:dark",
+      "route": "/pt/w/consultores/inbox?threadId=latest",
+      "sha256": "ad5879de299c000d710a723858aa477d4c59b498da72a3077b9e1dc45cd8ebc3",
+      "src": "/captures/solutions/stage/dark/consultants-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86844,
+      "height": 1000,
+      "key": "consultants:inbox:pl:light",
+      "route": "/pl/w/doradztwo/inbox?threadId=latest",
+      "sha256": "3a6469e1791a8291cb1fcd2a3bf0db45e7b2b95cae9f4ddf4a780e1156ebad09",
+      "src": "/captures/solutions/stage/light/consultants-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85468,
+      "height": 1000,
+      "key": "consultants:inbox:pl:dark",
+      "route": "/pl/w/doradztwo/inbox?threadId=latest",
+      "sha256": "a5a84a44c36f3bc04c484aa9f0d1e534811cbd81f01e01d6df59db14caa11d4f",
+      "src": "/captures/solutions/stage/dark/consultants-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84652,
+      "height": 1000,
+      "key": "consultants:inbox:nl:light",
+      "route": "/nl/w/advies/inbox?threadId=latest",
+      "sha256": "8b97b164e5e01bca7ebcaf0c4233bb40228d0a02c206e79f717e6a8214ffa231",
+      "src": "/captures/solutions/stage/light/consultants-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84256,
+      "height": 1000,
+      "key": "consultants:inbox:nl:dark",
+      "route": "/nl/w/advies/inbox?threadId=latest",
+      "sha256": "80914ee646eca4d7259bcc584073024592653199faa230cbc2559eda76803f3b",
+      "src": "/captures/solutions/stage/dark/consultants-inbox-nl.webp",
       "width": 1600
     },
     {
@@ -218,6 +578,78 @@
       "width": 1600
     },
     {
+      "bytes": 59930,
+      "height": 1000,
+      "key": "consultants:calendar:es:light",
+      "route": "/es/w/consultoria/calendar",
+      "sha256": "025129eff395b70c256499179d82f2f4087333b10dd52f0b0623acec107efd55",
+      "src": "/captures/solutions/stage/light/consultants-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58536,
+      "height": 1000,
+      "key": "consultants:calendar:es:dark",
+      "route": "/es/w/consultoria/calendar",
+      "sha256": "35f1432ef57d3c8650559ada48d27671128978245b7b8f019ea7720a8d1509a2",
+      "src": "/captures/solutions/stage/dark/consultants-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 59636,
+      "height": 1000,
+      "key": "consultants:calendar:pt:light",
+      "route": "/pt/w/consultores/calendar",
+      "sha256": "c947052934f67be8be7120ee10bfbc46226080d354bff7afaf17868261fc4bdf",
+      "src": "/captures/solutions/stage/light/consultants-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58122,
+      "height": 1000,
+      "key": "consultants:calendar:pt:dark",
+      "route": "/pt/w/consultores/calendar",
+      "sha256": "d8e58842dfab78c71b1c17ec937eb9747f9ae87a2b0d5bddbe5219d8f80042e3",
+      "src": "/captures/solutions/stage/dark/consultants-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 57546,
+      "height": 1000,
+      "key": "consultants:calendar:pl:light",
+      "route": "/pl/w/doradztwo/calendar",
+      "sha256": "330e8520da72f379ff3e1022a5bb96f1fabbe908f7c02f7dbd2a135c436f52bb",
+      "src": "/captures/solutions/stage/light/consultants-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55642,
+      "height": 1000,
+      "key": "consultants:calendar:pl:dark",
+      "route": "/pl/w/doradztwo/calendar",
+      "sha256": "0d40bb5883428c85801152b6a5d77cb15f91e768e49d69185f5098d2425a9602",
+      "src": "/captures/solutions/stage/dark/consultants-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 57582,
+      "height": 1000,
+      "key": "consultants:calendar:nl:light",
+      "route": "/nl/w/advies/calendar",
+      "sha256": "9d75ef0031ea79f7ff7f6110ad9950acae34ea132ccd5c75aec4cbe093740f2d",
+      "src": "/captures/solutions/stage/light/consultants-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 56120,
+      "height": 1000,
+      "key": "consultants:calendar:nl:dark",
+      "route": "/nl/w/advies/calendar",
+      "sha256": "6055f49db022ead331598c9b92e204b6ad31273d762bda6a0b7b1a8cbc827888",
+      "src": "/captures/solutions/stage/dark/consultants-calendar-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 56964,
       "height": 1000,
       "key": "agencies:pitchBoard:en:light",
@@ -251,6 +683,78 @@
       "route": "/de/w/agenturen/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
       "sha256": "5f5fc579c9bdbb61e6ef178e1782721eabc617045272db7f08cfc27798fffbd3",
       "src": "/captures/solutions/stage/dark/agencies-pitchBoard-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67346,
+      "height": 1000,
+      "key": "agencies:pitchBoard:es:light",
+      "route": "/es/w/agencias/records/4d814cbf-642a-8670-8966-0b537c91ee92?view=1f100000-5220-4000-8000-000000000001",
+      "sha256": "b210224615ec066185bd9ebd528b337195fd5b826d11ab28c900ccf99f4209d8",
+      "src": "/captures/solutions/stage/light/agencies-pitchBoard-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 66582,
+      "height": 1000,
+      "key": "agencies:pitchBoard:es:dark",
+      "route": "/es/w/agencias/records/4d814cbf-642a-8670-8966-0b537c91ee92?view=1f100000-5220-4000-8000-000000000001",
+      "sha256": "efe877c80795837238d0f9d8345e9fe14226ffc9ef334ff311daf9f4385585e5",
+      "src": "/captures/solutions/stage/dark/agencies-pitchBoard-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 69140,
+      "height": 1000,
+      "key": "agencies:pitchBoard:pt:light",
+      "route": "/pt/w/agencias-criativas/records/1bd2fa18-c126-8474-8bef-ed06e8b2f4fb?view=1f100000-5230-4000-8000-000000000001",
+      "sha256": "69ddaa722779e81f066b54f9bf9b0611c5bd82714483ab52921ca40a370e2d5c",
+      "src": "/captures/solutions/stage/light/agencies-pitchBoard-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68210,
+      "height": 1000,
+      "key": "agencies:pitchBoard:pt:dark",
+      "route": "/pt/w/agencias-criativas/records/1bd2fa18-c126-8474-8bef-ed06e8b2f4fb?view=1f100000-5230-4000-8000-000000000001",
+      "sha256": "a57f563e6e60e19ac72f25d8944facb41a973642a70d3d120d26a03668d50365",
+      "src": "/captures/solutions/stage/dark/agencies-pitchBoard-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67374,
+      "height": 1000,
+      "key": "agencies:pitchBoard:pl:light",
+      "route": "/pl/w/agencje/records/3c97af9f-5f4e-8846-8112-83c8a3ccfdcb?view=1f100000-5240-4000-8000-000000000001",
+      "sha256": "195d820b198b91f71bc898bece4d16bf8ab730e81bd574c2662f68a6e0419da6",
+      "src": "/captures/solutions/stage/light/agencies-pitchBoard-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 66702,
+      "height": 1000,
+      "key": "agencies:pitchBoard:pl:dark",
+      "route": "/pl/w/agencje/records/3c97af9f-5f4e-8846-8112-83c8a3ccfdcb?view=1f100000-5240-4000-8000-000000000001",
+      "sha256": "1159c3346b0e2f5b09acbc2fa554ba33d7e76a9b44bf87f50665f16979071b46",
+      "src": "/captures/solutions/stage/dark/agencies-pitchBoard-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 65052,
+      "height": 1000,
+      "key": "agencies:pitchBoard:nl:light",
+      "route": "/nl/w/bureaus/records/bfc1eb87-1099-8b54-8d16-94e7e90ef8c7?view=1f100000-5250-4000-8000-000000000001",
+      "sha256": "00c9d00e020e4933331d451ac016d22f5bb9168dc6a30bb75e3ff60040435405",
+      "src": "/captures/solutions/stage/light/agencies-pitchBoard-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 64092,
+      "height": 1000,
+      "key": "agencies:pitchBoard:nl:dark",
+      "route": "/nl/w/bureaus/records/bfc1eb87-1099-8b54-8d16-94e7e90ef8c7?view=1f100000-5250-4000-8000-000000000001",
+      "sha256": "c3fd925c793da3a072caf1cec007f9855a865f447b802d51747800120585e482",
+      "src": "/captures/solutions/stage/dark/agencies-pitchBoard-nl.webp",
       "width": 1600
     },
     {
@@ -290,6 +794,78 @@
       "width": 1600
     },
     {
+      "bytes": 84862,
+      "height": 1000,
+      "key": "agencies:inbox:es:light",
+      "route": "/es/w/agencias/inbox?threadId=latest",
+      "sha256": "faf55b5906759b07d4fb00e7a5d594acc84d4c8bd9a589af913b2f0761655f51",
+      "src": "/captures/solutions/stage/light/agencies-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84662,
+      "height": 1000,
+      "key": "agencies:inbox:es:dark",
+      "route": "/es/w/agencias/inbox?threadId=latest",
+      "sha256": "ffb75579c4d3ea58227d42a7928522ce788cb7d9ada8e76d526415481470e3ba",
+      "src": "/captures/solutions/stage/dark/agencies-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86466,
+      "height": 1000,
+      "key": "agencies:inbox:pt:light",
+      "route": "/pt/w/agencias-criativas/inbox?threadId=latest",
+      "sha256": "feada532db28dfbff56f60ad5db93ebc7480e00898507d7e8dfc569de976bad8",
+      "src": "/captures/solutions/stage/light/agencies-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86286,
+      "height": 1000,
+      "key": "agencies:inbox:pt:dark",
+      "route": "/pt/w/agencias-criativas/inbox?threadId=latest",
+      "sha256": "68fe6f7f684f8e8ee2fb4d58ddb52941ed1dc2ce55d6e03ef265b7febc56808d",
+      "src": "/captures/solutions/stage/dark/agencies-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85568,
+      "height": 1000,
+      "key": "agencies:inbox:pl:light",
+      "route": "/pl/w/agencje/inbox?threadId=latest",
+      "sha256": "79bec4457941193bb74d67c0c2c01cb588188640ee5c7321f43df00ee975ee16",
+      "src": "/captures/solutions/stage/light/agencies-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86026,
+      "height": 1000,
+      "key": "agencies:inbox:pl:dark",
+      "route": "/pl/w/agencje/inbox?threadId=latest",
+      "sha256": "c56b57a107f0e08652fab8734634f1c4d00dcc73a764fc7c6f16af788fc06691",
+      "src": "/captures/solutions/stage/dark/agencies-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86062,
+      "height": 1000,
+      "key": "agencies:inbox:nl:light",
+      "route": "/nl/w/bureaus/inbox?threadId=latest",
+      "sha256": "1ba5787d9182666361e8024cc519237345c8891fe28d09f8b13371cf093f05cf",
+      "src": "/captures/solutions/stage/light/agencies-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86136,
+      "height": 1000,
+      "key": "agencies:inbox:nl:dark",
+      "route": "/nl/w/bureaus/inbox?threadId=latest",
+      "sha256": "9242762be7165acf2446879c43bbd06580c8f30ffdcf79e8162f3f916010f580",
+      "src": "/captures/solutions/stage/dark/agencies-inbox-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 56536,
       "height": 1000,
       "key": "agencies:calendar:en:light",
@@ -323,6 +899,78 @@
       "route": "/de/w/agenturen/calendar",
       "sha256": "467d9c1f2812a807395ebacf361655662ba438c6067ac4d9c9216ca75dba7f6f",
       "src": "/captures/solutions/stage/dark/agencies-calendar-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 65370,
+      "height": 1000,
+      "key": "agencies:calendar:es:light",
+      "route": "/es/w/agencias/calendar",
+      "sha256": "d4c6a70aafea622f9e0fe344cc64d4292fff45a33b85b80185750aa31c1129bd",
+      "src": "/captures/solutions/stage/light/agencies-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 61354,
+      "height": 1000,
+      "key": "agencies:calendar:es:dark",
+      "route": "/es/w/agencias/calendar",
+      "sha256": "9a69de3850cd41a97410bfd191442e45f729242467a26684ee6033a26b5c1542",
+      "src": "/captures/solutions/stage/dark/agencies-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 62288,
+      "height": 1000,
+      "key": "agencies:calendar:pt:light",
+      "route": "/pt/w/agencias-criativas/calendar",
+      "sha256": "58ba62aecda047cb81843a1391d98c78c1d3f019cbe434e4ff5bdbc77e11a410",
+      "src": "/captures/solutions/stage/light/agencies-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 59134,
+      "height": 1000,
+      "key": "agencies:calendar:pt:dark",
+      "route": "/pt/w/agencias-criativas/calendar",
+      "sha256": "263ed877e198c8c2c3b6dc9904a0be5e87e5d98a8408bf090b9fcddde1ce00a8",
+      "src": "/captures/solutions/stage/dark/agencies-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 61164,
+      "height": 1000,
+      "key": "agencies:calendar:pl:light",
+      "route": "/pl/w/agencje/calendar",
+      "sha256": "02f80541972faac2e23524da2e96aa80362dc77dfc1a172eb40cb4838aecbadc",
+      "src": "/captures/solutions/stage/light/agencies-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58424,
+      "height": 1000,
+      "key": "agencies:calendar:pl:dark",
+      "route": "/pl/w/agencje/calendar",
+      "sha256": "93b094938f19e81f4b70a6bdcd7e8aeaaf2244ad3531332e7e66b667022c33e5",
+      "src": "/captures/solutions/stage/dark/agencies-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58914,
+      "height": 1000,
+      "key": "agencies:calendar:nl:light",
+      "route": "/nl/w/bureaus/calendar",
+      "sha256": "65c4ce87face42c40aec29113cf15e0fd2bdc7693dc43af2ba95c4b2d3982237",
+      "src": "/captures/solutions/stage/light/agencies-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55478,
+      "height": 1000,
+      "key": "agencies:calendar:nl:dark",
+      "route": "/nl/w/bureaus/calendar",
+      "sha256": "2c40592f42133ff6ea8d2b3961f17abd03c33977f52ccade97634aed99ab614e",
+      "src": "/captures/solutions/stage/dark/agencies-calendar-nl.webp",
       "width": 1600
     },
     {
@@ -362,6 +1010,78 @@
       "width": 1600
     },
     {
+      "bytes": 43234,
+      "height": 1000,
+      "key": "freelancers:clients:es:light",
+      "route": "/es/w/autonomos/records/3c214c47-996b-84df-8e80-2dc7954465e6?view=1f100000-5320-4000-8000-000000000001",
+      "sha256": "61e64c4acf2f67d331f90cab67db0f0df7ce5a34778f057d7a0531ad1ab68b0e",
+      "src": "/captures/solutions/stage/light/freelancers-clients-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 43300,
+      "height": 1000,
+      "key": "freelancers:clients:es:dark",
+      "route": "/es/w/autonomos/records/3c214c47-996b-84df-8e80-2dc7954465e6?view=1f100000-5320-4000-8000-000000000001",
+      "sha256": "1e30aed7e7ad8283c187de51fe2ac25d6153f997b9970ef6ed9f47a3f25d7487",
+      "src": "/captures/solutions/stage/dark/freelancers-clients-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 48110,
+      "height": 1000,
+      "key": "freelancers:clients:pt:light",
+      "route": "/pt/w/profissionais-autonomos/records/1f5a8d7e-9f42-8ec3-8ec2-6d4ebd47eb4d?view=1f100000-5330-4000-8000-000000000001",
+      "sha256": "93e5ba55d9e15d68b13126277d7350b903326e86688584bf2e42e448d4834930",
+      "src": "/captures/solutions/stage/light/freelancers-clients-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 48230,
+      "height": 1000,
+      "key": "freelancers:clients:pt:dark",
+      "route": "/pt/w/profissionais-autonomos/records/1f5a8d7e-9f42-8ec3-8ec2-6d4ebd47eb4d?view=1f100000-5330-4000-8000-000000000001",
+      "sha256": "f1d6087fd075076056224e5cbb3884e2b948c335a76de93f061110ea5f659ddb",
+      "src": "/captures/solutions/stage/dark/freelancers-clients-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 44146,
+      "height": 1000,
+      "key": "freelancers:clients:pl:light",
+      "route": "/pl/w/freelancerzy/records/cd32fb34-aaa4-8772-8405-af28c2e6bfe1?view=1f100000-5340-4000-8000-000000000001",
+      "sha256": "96976e2e254d5f528cf9fe6af80432bd8c65787929624ebaee3a98d65c034f0c",
+      "src": "/captures/solutions/stage/light/freelancers-clients-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 44078,
+      "height": 1000,
+      "key": "freelancers:clients:pl:dark",
+      "route": "/pl/w/freelancerzy/records/cd32fb34-aaa4-8772-8405-af28c2e6bfe1?view=1f100000-5340-4000-8000-000000000001",
+      "sha256": "ef2d9fb2d42abcd2e8548c0466e6b25676ef0d8a6c462285bdf27e583093520b",
+      "src": "/captures/solutions/stage/dark/freelancers-clients-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 45924,
+      "height": 1000,
+      "key": "freelancers:clients:nl:light",
+      "route": "/nl/w/zelfstandigen/records/6e9f2a95-d652-8e42-805d-2463e044c223?view=1f100000-5350-4000-8000-000000000001",
+      "sha256": "04295557c59536867db1353265558c683d48f23a20e0cbd480f747de5f68ad7e",
+      "src": "/captures/solutions/stage/light/freelancers-clients-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 46048,
+      "height": 1000,
+      "key": "freelancers:clients:nl:dark",
+      "route": "/nl/w/zelfstandigen/records/6e9f2a95-d652-8e42-805d-2463e044c223?view=1f100000-5350-4000-8000-000000000001",
+      "sha256": "55e24d36e3951ccfe5087e2b62caa22ac0e81f60d9afcca10766e3e2b8dd7e25",
+      "src": "/captures/solutions/stage/dark/freelancers-clients-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 68090,
       "height": 1000,
       "key": "freelancers:inbox:en:light",
@@ -395,6 +1115,78 @@
       "route": "/de/w/selbststaendige/inbox?threadId=latest",
       "sha256": "cb588f3500e2f11b49499f2e75efb8550ea01837faa85bf3359e233bbcfb0d9e",
       "src": "/captures/solutions/stage/dark/freelancers-inbox-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 83318,
+      "height": 1000,
+      "key": "freelancers:inbox:es:light",
+      "route": "/es/w/autonomos/inbox?threadId=latest",
+      "sha256": "b13043aaf0b0db00e528db62c8aea680a406e993d99937fe398b1f7a1bbeba61",
+      "src": "/captures/solutions/stage/light/freelancers-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87020,
+      "height": 1000,
+      "key": "freelancers:inbox:es:dark",
+      "route": "/es/w/autonomos/inbox?threadId=latest",
+      "sha256": "3e6f639cc6a567bd1fd362f45e5c711f3e92a99e2e673e4eb4b9520795852fc6",
+      "src": "/captures/solutions/stage/dark/freelancers-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85558,
+      "height": 1000,
+      "key": "freelancers:inbox:pt:light",
+      "route": "/pt/w/profissionais-autonomos/inbox?threadId=latest",
+      "sha256": "4ce0c2142ec8edb37ccb5d37c2fa2345f75c8997e60a12c189ef2a33a19613d9",
+      "src": "/captures/solutions/stage/light/freelancers-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85466,
+      "height": 1000,
+      "key": "freelancers:inbox:pt:dark",
+      "route": "/pt/w/profissionais-autonomos/inbox?threadId=latest",
+      "sha256": "bee78bdc5bf192ff5e31d7ac003ff23d50e367f076d7b3fa0e152d7749d88f68",
+      "src": "/captures/solutions/stage/dark/freelancers-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87198,
+      "height": 1000,
+      "key": "freelancers:inbox:pl:light",
+      "route": "/pl/w/freelancerzy/inbox?threadId=latest",
+      "sha256": "22079bbf8c30310a6ac866252f05efe2a64cc167b4a96eb7dd61138e4a86b147",
+      "src": "/captures/solutions/stage/light/freelancers-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86778,
+      "height": 1000,
+      "key": "freelancers:inbox:pl:dark",
+      "route": "/pl/w/freelancerzy/inbox?threadId=latest",
+      "sha256": "9134b9243b8247967651e49567713e4b19739fa6964f9a321a6546563de2edf3",
+      "src": "/captures/solutions/stage/dark/freelancers-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86736,
+      "height": 1000,
+      "key": "freelancers:inbox:nl:light",
+      "route": "/nl/w/zelfstandigen/inbox?threadId=latest",
+      "sha256": "b0300bc027581c719da0607480b456caf6abde517e68edc1f446208604a85138",
+      "src": "/captures/solutions/stage/light/freelancers-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86080,
+      "height": 1000,
+      "key": "freelancers:inbox:nl:dark",
+      "route": "/nl/w/zelfstandigen/inbox?threadId=latest",
+      "sha256": "20127631fa434215a2901d12496c8509da33d6dafb0ee94efc3b4c6b1320abc9",
+      "src": "/captures/solutions/stage/dark/freelancers-inbox-nl.webp",
       "width": 1600
     },
     {
@@ -434,6 +1226,78 @@
       "width": 1600
     },
     {
+      "bytes": 55090,
+      "height": 1000,
+      "key": "freelancers:calendar:es:light",
+      "route": "/es/w/autonomos/calendar",
+      "sha256": "986adfc6aa991be66b64135bd3df8732d8d6b6fa7d6049f194f9b64ebc723acf",
+      "src": "/captures/solutions/stage/light/freelancers-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 51968,
+      "height": 1000,
+      "key": "freelancers:calendar:es:dark",
+      "route": "/es/w/autonomos/calendar",
+      "sha256": "7100d73932ee201fe3f1531cf9dfa3db0505d60cd8e0f07b5cc8329e0f6c005d",
+      "src": "/captures/solutions/stage/dark/freelancers-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 57534,
+      "height": 1000,
+      "key": "freelancers:calendar:pt:light",
+      "route": "/pt/w/profissionais-autonomos/calendar",
+      "sha256": "18c1d10906da79b8ccac3766d94b8af7b4f4ef6144a968eb3a71fd20a2c5f64f",
+      "src": "/captures/solutions/stage/light/freelancers-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 53934,
+      "height": 1000,
+      "key": "freelancers:calendar:pt:dark",
+      "route": "/pt/w/profissionais-autonomos/calendar",
+      "sha256": "115eb24bf089bde7a82013e4a7f4dcfaee63848e1a74fbcb4732d0401c8b8fde",
+      "src": "/captures/solutions/stage/dark/freelancers-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 56400,
+      "height": 1000,
+      "key": "freelancers:calendar:pl:light",
+      "route": "/pl/w/freelancerzy/calendar",
+      "sha256": "8c3074b28f441339529b084163f64d19eff8d1fc41501580d1d8c0aa16d1370d",
+      "src": "/captures/solutions/stage/light/freelancers-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 53218,
+      "height": 1000,
+      "key": "freelancers:calendar:pl:dark",
+      "route": "/pl/w/freelancerzy/calendar",
+      "sha256": "2ae8c3b9f64f41f0c6e517a46fed9a0c9408e01d92f7ecef236344888faf97e5",
+      "src": "/captures/solutions/stage/dark/freelancers-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 52660,
+      "height": 1000,
+      "key": "freelancers:calendar:nl:light",
+      "route": "/nl/w/zelfstandigen/calendar",
+      "sha256": "125c53ef62478141966fe16346eab008661bda4c29be6dfe0f4474e54eca91c3",
+      "src": "/captures/solutions/stage/light/freelancers-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 49498,
+      "height": 1000,
+      "key": "freelancers:calendar:nl:dark",
+      "route": "/nl/w/zelfstandigen/calendar",
+      "sha256": "b0c28a90b160e75c449767c3c770b11e3f9f1744cb9040c840dbab3116d5e81f",
+      "src": "/captures/solutions/stage/dark/freelancers-calendar-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 56420,
       "height": 1000,
       "key": "startups:pipeline:en:light",
@@ -467,6 +1331,78 @@
       "route": "/de/w/gruender-vertrieb/records/bf9f2192-7836-8952-86a1-8d2a0e89903b?view=1f100000-5410-4000-8000-000000000001",
       "sha256": "c1ce48d24a7a281575557cdb29bc40100409940b566b99758859e2a166cb79c3",
       "src": "/captures/solutions/stage/dark/startups-pipeline-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63666,
+      "height": 1000,
+      "key": "startups:pipeline:es:light",
+      "route": "/es/w/ventas-fundadores/records/059ed8fc-824d-81c1-8bff-75e275880da5?view=1f100000-5420-4000-8000-000000000001",
+      "sha256": "81b044a126edacef08a3ba7ebd9ca2132ed51f5d3294caf7475e15e9fbeca2bc",
+      "src": "/captures/solutions/stage/light/startups-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63184,
+      "height": 1000,
+      "key": "startups:pipeline:es:dark",
+      "route": "/es/w/ventas-fundadores/records/059ed8fc-824d-81c1-8bff-75e275880da5?view=1f100000-5420-4000-8000-000000000001",
+      "sha256": "9eb89c6ca5660527fb6b6366180d2b8e11b6dc6540ec27dbf9825d3af05e520f",
+      "src": "/captures/solutions/stage/dark/startups-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 66736,
+      "height": 1000,
+      "key": "startups:pipeline:pt:light",
+      "route": "/pt/w/vendas-fundadores/records/98dd7656-ef7f-8217-86ba-3474dfd3303d?view=1f100000-5430-4000-8000-000000000001",
+      "sha256": "3c692973087deefc4d00dbe2454630751e8cdcbea2a201ddf9a486d02cf739bf",
+      "src": "/captures/solutions/stage/light/startups-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 65038,
+      "height": 1000,
+      "key": "startups:pipeline:pt:dark",
+      "route": "/pt/w/vendas-fundadores/records/98dd7656-ef7f-8217-86ba-3474dfd3303d?view=1f100000-5430-4000-8000-000000000001",
+      "sha256": "07517cbee17d6a05170d81a5937dbe9d2bc613ab58bd6bd0ff241f580c718d87",
+      "src": "/captures/solutions/stage/dark/startups-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68102,
+      "height": 1000,
+      "key": "startups:pipeline:pl:light",
+      "route": "/pl/w/sprzedaz-zalozyciela/records/a112807f-03fb-84ce-8e71-91283ea585bf?view=1f100000-5440-4000-8000-000000000001",
+      "sha256": "f71ca2d717420ff8c5325737434e4d997562124419620aecdacf434cdb91385a",
+      "src": "/captures/solutions/stage/light/startups-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67036,
+      "height": 1000,
+      "key": "startups:pipeline:pl:dark",
+      "route": "/pl/w/sprzedaz-zalozyciela/records/a112807f-03fb-84ce-8e71-91283ea585bf?view=1f100000-5440-4000-8000-000000000001",
+      "sha256": "6d4ca360912ca3702e6a7c7f569dac8317f192936966335e974776c844723de7",
+      "src": "/captures/solutions/stage/dark/startups-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 62090,
+      "height": 1000,
+      "key": "startups:pipeline:nl:light",
+      "route": "/nl/w/oprichters-verkoop/records/8879b5ea-66fa-8407-8c05-d532365dd9d7?view=1f100000-5450-4000-8000-000000000001",
+      "sha256": "0436acdc6c6d23a4849efd0dc73f7f92be7e5bd1a55d4ae3d7a322fd56622923",
+      "src": "/captures/solutions/stage/light/startups-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 61138,
+      "height": 1000,
+      "key": "startups:pipeline:nl:dark",
+      "route": "/nl/w/oprichters-verkoop/records/8879b5ea-66fa-8407-8c05-d532365dd9d7?view=1f100000-5450-4000-8000-000000000001",
+      "sha256": "138733337e9cbef1863cd4651992b30cdba0e2ee0a7151f533d12ae58e4410b5",
+      "src": "/captures/solutions/stage/dark/startups-pipeline-nl.webp",
       "width": 1600
     },
     {
@@ -506,6 +1442,78 @@
       "width": 1600
     },
     {
+      "bytes": 84520,
+      "height": 1000,
+      "key": "startups:inbox:es:light",
+      "route": "/es/w/ventas-fundadores/inbox?threadId=latest",
+      "sha256": "23f22691ed7fde8532062467256dfe1b89bd50861c37b7b989931ef1e9ebd6a9",
+      "src": "/captures/solutions/stage/light/startups-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84248,
+      "height": 1000,
+      "key": "startups:inbox:es:dark",
+      "route": "/es/w/ventas-fundadores/inbox?threadId=latest",
+      "sha256": "eb111db21d6fe65b666154d649a70008ef73a45bde105d25383d9483e80bacd1",
+      "src": "/captures/solutions/stage/dark/startups-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85334,
+      "height": 1000,
+      "key": "startups:inbox:pt:light",
+      "route": "/pt/w/vendas-fundadores/inbox?threadId=latest",
+      "sha256": "c3158040b17641ff8c0be4188a32533dee4686c2cfc1b12ff6a8f0fb7e592102",
+      "src": "/captures/solutions/stage/light/startups-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85214,
+      "height": 1000,
+      "key": "startups:inbox:pt:dark",
+      "route": "/pt/w/vendas-fundadores/inbox?threadId=latest",
+      "sha256": "b3787913f0775b1492b04446f249b08ee675412168dd4e8801068c6d1a184a3b",
+      "src": "/captures/solutions/stage/dark/startups-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86072,
+      "height": 1000,
+      "key": "startups:inbox:pl:light",
+      "route": "/pl/w/sprzedaz-zalozyciela/inbox?threadId=latest",
+      "sha256": "07a9cf8a084a43f7c646713b21fb7b2c76f95b3ea23c8fc40555c7342d847901",
+      "src": "/captures/solutions/stage/light/startups-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86558,
+      "height": 1000,
+      "key": "startups:inbox:pl:dark",
+      "route": "/pl/w/sprzedaz-zalozyciela/inbox?threadId=latest",
+      "sha256": "9ad1bfe91fe63834866cbc7ca8e2b0c46b61365195fcd12c6c5aedecda46e8ab",
+      "src": "/captures/solutions/stage/dark/startups-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87048,
+      "height": 1000,
+      "key": "startups:inbox:nl:light",
+      "route": "/nl/w/oprichters-verkoop/inbox?threadId=latest",
+      "sha256": "235f8e241c6b44454a29a8c9c8bb0c51de6b876423a2fb65d8c0a34c6086d228",
+      "src": "/captures/solutions/stage/light/startups-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86966,
+      "height": 1000,
+      "key": "startups:inbox:nl:dark",
+      "route": "/nl/w/oprichters-verkoop/inbox?threadId=latest",
+      "sha256": "480859d4a7fc10983c27e36a314e5b468f296db3131297b5416f70635286f086",
+      "src": "/captures/solutions/stage/dark/startups-inbox-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 51514,
       "height": 1000,
       "key": "startups:calendar:en:light",
@@ -539,6 +1547,78 @@
       "route": "/de/w/gruender-vertrieb/calendar",
       "sha256": "9ae6a6a605c66dd3dace99a616e97d842ecc3eb9eae846457b5400d25440a61c",
       "src": "/captures/solutions/stage/dark/startups-calendar-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55442,
+      "height": 1000,
+      "key": "startups:calendar:es:light",
+      "route": "/es/w/ventas-fundadores/calendar",
+      "sha256": "47a1d6771608005b9d8cea3c809fd757175cb43a9fd4f1c8e9201485539ef932",
+      "src": "/captures/solutions/stage/light/startups-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 59026,
+      "height": 1000,
+      "key": "startups:calendar:es:dark",
+      "route": "/es/w/ventas-fundadores/calendar",
+      "sha256": "81baaa6d7e965586d7967dc6ddf471b72e6081df3c1edbc94f0b989dc96f4631",
+      "src": "/captures/solutions/stage/dark/startups-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 54882,
+      "height": 1000,
+      "key": "startups:calendar:pt:light",
+      "route": "/pt/w/vendas-fundadores/calendar",
+      "sha256": "9504c7c7e52f62b5b5ae1b92c5e1b835fb70a83206e91d3e2b25497d1e80213f",
+      "src": "/captures/solutions/stage/light/startups-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 58158,
+      "height": 1000,
+      "key": "startups:calendar:pt:dark",
+      "route": "/pt/w/vendas-fundadores/calendar",
+      "sha256": "eaf1c551c4f2db5eee1c82816c162ad62de1e802611a5bfcf382d215f968d9e3",
+      "src": "/captures/solutions/stage/dark/startups-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55244,
+      "height": 1000,
+      "key": "startups:calendar:pl:light",
+      "route": "/pl/w/sprzedaz-zalozyciela/calendar",
+      "sha256": "adc15dabae2a9848976dcc877b4920ff009b518d359ecfee7477170895cd2517",
+      "src": "/captures/solutions/stage/light/startups-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 59918,
+      "height": 1000,
+      "key": "startups:calendar:pl:dark",
+      "route": "/pl/w/sprzedaz-zalozyciela/calendar",
+      "sha256": "b8e99a0997cab6810ebbc9bd19118b3c438a18b544e7990fb15757aaae3bf675",
+      "src": "/captures/solutions/stage/dark/startups-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 53186,
+      "height": 1000,
+      "key": "startups:calendar:nl:light",
+      "route": "/nl/w/oprichters-verkoop/calendar",
+      "sha256": "eeec9b9be879c36b4da407658efd05d40cbb1e0d1ad36a90f316a6ca37eaa33a",
+      "src": "/captures/solutions/stage/light/startups-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 55568,
+      "height": 1000,
+      "key": "startups:calendar:nl:dark",
+      "route": "/nl/w/oprichters-verkoop/calendar",
+      "sha256": "f2f85442e85cb5ce3ff79e22d7ca04e01d177efd2f8ca317993eeeb2280ddbf9",
+      "src": "/captures/solutions/stage/dark/startups-calendar-nl.webp",
       "width": 1600
     },
     {
@@ -578,6 +1658,78 @@
       "width": 1600
     },
     {
+      "bytes": 70506,
+      "height": 1000,
+      "key": "client-management:clientOverview:es:light",
+      "route": "/es/w/gestion-de-clientes/records/700ebf60-ce94-8f0f-838c-6bd1ce31430c?view=1f100000-5520-4000-8000-000000000002",
+      "sha256": "2151d708000b2520803aeeb21a3010f517630365acb2139607bda770642c3c34",
+      "src": "/captures/solutions/stage/light/client-management-clientOverview-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 70026,
+      "height": 1000,
+      "key": "client-management:clientOverview:es:dark",
+      "route": "/es/w/gestion-de-clientes/records/700ebf60-ce94-8f0f-838c-6bd1ce31430c?view=1f100000-5520-4000-8000-000000000002",
+      "sha256": "5e1a242fd5b8d9ed86e79ffc57662b78c2adea1fe968f0d86fffcf142ff2cbfa",
+      "src": "/captures/solutions/stage/dark/client-management-clientOverview-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 70482,
+      "height": 1000,
+      "key": "client-management:clientOverview:pt:light",
+      "route": "/pt/w/gestao-de-clientes/records/e34d07bc-278e-86b2-830c-1de08890076e?view=1f100000-5530-4000-8000-000000000002",
+      "sha256": "218013cbc34ca96f2467a972c84329ab6990e7c320bcff79683869f007b98c63",
+      "src": "/captures/solutions/stage/light/client-management-clientOverview-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 69944,
+      "height": 1000,
+      "key": "client-management:clientOverview:pt:dark",
+      "route": "/pt/w/gestao-de-clientes/records/e34d07bc-278e-86b2-830c-1de08890076e?view=1f100000-5530-4000-8000-000000000002",
+      "sha256": "81a62432a1817214db30be31db03a3b4b70d5388e9ce350e8f011c5ba0354438",
+      "src": "/captures/solutions/stage/dark/client-management-clientOverview-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68168,
+      "height": 1000,
+      "key": "client-management:clientOverview:pl:light",
+      "route": "/pl/w/zarzadzanie-klientami/records/aae2bdc7-09d7-894d-8555-6f193f90af39?view=1f100000-5540-4000-8000-000000000002",
+      "sha256": "5ec058aa518bb26b2a890d7d428622040e532a5c2c791d3094823577131f3fe8",
+      "src": "/captures/solutions/stage/light/client-management-clientOverview-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67958,
+      "height": 1000,
+      "key": "client-management:clientOverview:pl:dark",
+      "route": "/pl/w/zarzadzanie-klientami/records/aae2bdc7-09d7-894d-8555-6f193f90af39?view=1f100000-5540-4000-8000-000000000002",
+      "sha256": "d72e3bf9cf05d1a961f89b02b029c7fadc00c323a79d2bdd753250f169021c5e",
+      "src": "/captures/solutions/stage/dark/client-management-clientOverview-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68606,
+      "height": 1000,
+      "key": "client-management:clientOverview:nl:light",
+      "route": "/nl/w/klantbeheer/records/fee58587-5a81-80bd-8515-7e280e211da9?view=1f100000-5550-4000-8000-000000000002",
+      "sha256": "7d5a2f1c6c8af1bdc6ae8501e1ca34cc9e5d386e0303a23bc79d9d17212af096",
+      "src": "/captures/solutions/stage/light/client-management-clientOverview-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68112,
+      "height": 1000,
+      "key": "client-management:clientOverview:nl:dark",
+      "route": "/nl/w/klantbeheer/records/fee58587-5a81-80bd-8515-7e280e211da9?view=1f100000-5550-4000-8000-000000000002",
+      "sha256": "9fa0400c96d17b0bbc4a684cd06b22a9c0c779e08eb53623c0b9da5dc3054115",
+      "src": "/captures/solutions/stage/dark/client-management-clientOverview-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 66838,
       "height": 1000,
       "key": "client-management:inbox:en:light",
@@ -611,6 +1763,78 @@
       "route": "/de/w/kundenverwaltung/inbox?threadId=latest",
       "sha256": "af1da49aae19cb1a681ebb591749689684f97213ecb705504a619794957aeb09",
       "src": "/captures/solutions/stage/dark/client-management-inbox-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84100,
+      "height": 1000,
+      "key": "client-management:inbox:es:light",
+      "route": "/es/w/gestion-de-clientes/inbox?threadId=latest",
+      "sha256": "11c94bb30d843255160c2a1b80061aa147f562be7c9dd68185bacc4342cb212e",
+      "src": "/captures/solutions/stage/light/client-management-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84024,
+      "height": 1000,
+      "key": "client-management:inbox:es:dark",
+      "route": "/es/w/gestion-de-clientes/inbox?threadId=latest",
+      "sha256": "01084884044082a01f76213dfd8a698723070ade293657568eea368775209770",
+      "src": "/captures/solutions/stage/dark/client-management-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86076,
+      "height": 1000,
+      "key": "client-management:inbox:pt:light",
+      "route": "/pt/w/gestao-de-clientes/inbox?threadId=latest",
+      "sha256": "c61cd2597c64bc39f6cd880d07dc77b930c49213635ccc0d2e4fd55f35736970",
+      "src": "/captures/solutions/stage/light/client-management-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86326,
+      "height": 1000,
+      "key": "client-management:inbox:pt:dark",
+      "route": "/pt/w/gestao-de-clientes/inbox?threadId=latest",
+      "sha256": "6c5318dabf6611eda9652792095d8af5f3e310ffcb2ed19849edbec730e06176",
+      "src": "/captures/solutions/stage/dark/client-management-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87290,
+      "height": 1000,
+      "key": "client-management:inbox:pl:light",
+      "route": "/pl/w/zarzadzanie-klientami/inbox?threadId=latest",
+      "sha256": "34c3e25979ad08998dd6f4b4dacc91f6c33bf50e2415dd74c8f19cb3d4034528",
+      "src": "/captures/solutions/stage/light/client-management-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87346,
+      "height": 1000,
+      "key": "client-management:inbox:pl:dark",
+      "route": "/pl/w/zarzadzanie-klientami/inbox?threadId=latest",
+      "sha256": "27012b30843c65227f14e161eea711bf4338c48c128dabdce7735bf51e3db17c",
+      "src": "/captures/solutions/stage/dark/client-management-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 82840,
+      "height": 1000,
+      "key": "client-management:inbox:nl:light",
+      "route": "/nl/w/klantbeheer/inbox?threadId=latest",
+      "sha256": "4fa371626d75d9f360cb28aecc7b25ab98772b1f23cf3752f0cb1c429cdd29cc",
+      "src": "/captures/solutions/stage/light/client-management-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 82758,
+      "height": 1000,
+      "key": "client-management:inbox:nl:dark",
+      "route": "/nl/w/klantbeheer/inbox?threadId=latest",
+      "sha256": "16d890f8502d50febfff5f27f4994f43e5fa77c4efa63ac24745ecf6c6c0249e",
+      "src": "/captures/solutions/stage/dark/client-management-inbox-nl.webp",
       "width": 1600
     },
     {
@@ -650,6 +1874,78 @@
       "width": 1600
     },
     {
+      "bytes": 38136,
+      "height": 1000,
+      "key": "client-management:calendar:es:light",
+      "route": "/es/w/gestion-de-clientes/calendar",
+      "sha256": "e8794682a45fe59ef5f38ac8565487243d8978b364ff22802c49c32c9ff33252",
+      "src": "/captures/solutions/stage/light/client-management-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38624,
+      "height": 1000,
+      "key": "client-management:calendar:es:dark",
+      "route": "/es/w/gestion-de-clientes/calendar",
+      "sha256": "1cf2da2ac708bc931d519a97618b1070b65164267aaedd628c09bda9574b72d1",
+      "src": "/captures/solutions/stage/dark/client-management-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38556,
+      "height": 1000,
+      "key": "client-management:calendar:pt:light",
+      "route": "/pt/w/gestao-de-clientes/calendar",
+      "sha256": "cc23dc16e4595c3c1f1875eaa7744dcebf5b15c41c9981e99126b71db07f9531",
+      "src": "/captures/solutions/stage/light/client-management-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38824,
+      "height": 1000,
+      "key": "client-management:calendar:pt:dark",
+      "route": "/pt/w/gestao-de-clientes/calendar",
+      "sha256": "41591a43c2f3a1daf5b24507f3964a8048c5d2cec0a655243aa966157696ffb4",
+      "src": "/captures/solutions/stage/dark/client-management-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 37348,
+      "height": 1000,
+      "key": "client-management:calendar:pl:light",
+      "route": "/pl/w/zarzadzanie-klientami/calendar",
+      "sha256": "0be25219acdf4ef6a3f804bd286fbb2dd71a56580b594239b7cfc60d4fee8e38",
+      "src": "/captures/solutions/stage/light/client-management-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 37792,
+      "height": 1000,
+      "key": "client-management:calendar:pl:dark",
+      "route": "/pl/w/zarzadzanie-klientami/calendar",
+      "sha256": "6e504e85d1a9072b9676bb9b4c89b993e40adcc1423f2f0a94210c78115039f5",
+      "src": "/captures/solutions/stage/dark/client-management-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 37422,
+      "height": 1000,
+      "key": "client-management:calendar:nl:light",
+      "route": "/nl/w/klantbeheer/calendar",
+      "sha256": "69503bdfba2f5c64d12d25b8b75ebd57c85097f246bdeeb1d60ced228fee9054",
+      "src": "/captures/solutions/stage/light/client-management-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 37688,
+      "height": 1000,
+      "key": "client-management:calendar:nl:dark",
+      "route": "/nl/w/klantbeheer/calendar",
+      "sha256": "cca018c81b1c3d0b8759e330d02c9686027930046499ab32e18287aba5238f8e",
+      "src": "/captures/solutions/stage/dark/client-management-calendar-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 85654,
       "height": 1000,
       "key": "sales-pipeline:pipeline:en:light",
@@ -683,6 +1979,78 @@
       "route": "/de/w/vertriebspipeline/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
       "sha256": "279c9049aa4213185af58b1b824353942e2c2bb74b8f204b68619390bb32725b",
       "src": "/captures/solutions/stage/dark/sales-pipeline-pipeline-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 95858,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:es:light",
+      "route": "/es/w/pipeline-de-ventas/records/f29885e7-41b5-8c97-889f-177d5951339a?view=1f100000-5620-4000-8000-000000000001",
+      "sha256": "6799ce0fef65c9a3bd00f8f554dc364dbf71a91097ab725810d19cc9a70462cc",
+      "src": "/captures/solutions/stage/light/sales-pipeline-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 93754,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:es:dark",
+      "route": "/es/w/pipeline-de-ventas/records/f29885e7-41b5-8c97-889f-177d5951339a?view=1f100000-5620-4000-8000-000000000001",
+      "sha256": "c71a97b74032519491d3b9ccfb103ad25823dfb22c7b938e7d9389e09f528914",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 97192,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:pt:light",
+      "route": "/pt/w/pipeline-de-vendas/records/2347231c-dfd1-815a-821c-64b6641f1638?view=1f100000-5630-4000-8000-000000000001",
+      "sha256": "fcabb42e56fddcd31dc2f8670006616aee2f36c10efceabaf881a989cba93ef9",
+      "src": "/captures/solutions/stage/light/sales-pipeline-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 94956,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:pt:dark",
+      "route": "/pt/w/pipeline-de-vendas/records/2347231c-dfd1-815a-821c-64b6641f1638?view=1f100000-5630-4000-8000-000000000001",
+      "sha256": "7dd1c88e6855c9b798068bd5aa283a836a02b6a43b7ec5be51a0446fd9e18c77",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 95668,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:pl:light",
+      "route": "/pl/w/pipeline-sprzedazy/records/5b6fb8c8-4813-8abb-8acf-aa523f2a07ec?view=1f100000-5640-4000-8000-000000000001",
+      "sha256": "13f23a61ee206982660b7d4d7603809ba1fa7b668a0974a35b404ae64b411fbf",
+      "src": "/captures/solutions/stage/light/sales-pipeline-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 93284,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:pl:dark",
+      "route": "/pl/w/pipeline-sprzedazy/records/5b6fb8c8-4813-8abb-8acf-aa523f2a07ec?view=1f100000-5640-4000-8000-000000000001",
+      "sha256": "3051a05d5683ccc005f7bb49538fa12bc1a5a8aecb0b03fb474b270cc01b06a2",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 91406,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:nl:light",
+      "route": "/nl/w/verkooppipeline/records/5354c0d2-ff82-84de-8b6f-0ee1723f248f?view=1f100000-5650-4000-8000-000000000001",
+      "sha256": "6b1dcf6c24e7287da9687a6821277a8fb5f1cfff8904b61cbe52273cf06781c3",
+      "src": "/captures/solutions/stage/light/sales-pipeline-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 89458,
+      "height": 1000,
+      "key": "sales-pipeline:pipeline:nl:dark",
+      "route": "/nl/w/verkooppipeline/records/5354c0d2-ff82-84de-8b6f-0ee1723f248f?view=1f100000-5650-4000-8000-000000000001",
+      "sha256": "10b6f14435caf48c646085866935cb875310c7307d40bb6528b26f728234934e",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-pipeline-nl.webp",
       "width": 1600
     },
     {
@@ -722,6 +2090,78 @@
       "width": 1600
     },
     {
+      "bytes": 85014,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:es:light",
+      "route": "/es/w/pipeline-de-ventas/inbox?threadId=latest",
+      "sha256": "c0aa598cfc95e1fbe14d5eca9cba0decd91e72ab1599dc1c4f3e3e0520690d4e",
+      "src": "/captures/solutions/stage/light/sales-pipeline-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85086,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:es:dark",
+      "route": "/es/w/pipeline-de-ventas/inbox?threadId=latest",
+      "sha256": "1f3f0d228e63c4a5edecf940b87374c460f981b526fdb189e77cc3937b899969",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87226,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:pt:light",
+      "route": "/pt/w/pipeline-de-vendas/inbox?threadId=latest",
+      "sha256": "95e7deffbdd850a83cb1b40b89a4dc3a46e50d03eb8de2b0fc00ed4a931eab55",
+      "src": "/captures/solutions/stage/light/sales-pipeline-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87156,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:pt:dark",
+      "route": "/pt/w/pipeline-de-vendas/inbox?threadId=latest",
+      "sha256": "905bf1f6eb8ddbdb9b772a99a9c7457888a9c178ec68b9383409b1d360e15d27",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86670,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:pl:light",
+      "route": "/pl/w/pipeline-sprzedazy/inbox?threadId=latest",
+      "sha256": "3fb59d9a2249add650db892706e4b97b17bd23f405f1e795066070932c8b410f",
+      "src": "/captures/solutions/stage/light/sales-pipeline-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87378,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:pl:dark",
+      "route": "/pl/w/pipeline-sprzedazy/inbox?threadId=latest",
+      "sha256": "77976ece86c0504ca3c5b4c1d7664ba49836007cc13bc96d58d472d858dddb0e",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 82006,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:nl:light",
+      "route": "/nl/w/verkooppipeline/inbox?threadId=latest",
+      "sha256": "e8102a67ec22c76e55df46e46c288a57e04be33961840e1af935e12e9b41ea01",
+      "src": "/captures/solutions/stage/light/sales-pipeline-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 82292,
+      "height": 1000,
+      "key": "sales-pipeline:inbox:nl:dark",
+      "route": "/nl/w/verkooppipeline/inbox?threadId=latest",
+      "sha256": "8a942f2e32c9859f27ad43b1d8a9dc2460e575632b1f49329aa3d909176e7266",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-inbox-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 32156,
       "height": 1000,
       "key": "sales-pipeline:calendar:en:light",
@@ -755,6 +2195,78 @@
       "route": "/de/w/vertriebspipeline/calendar",
       "sha256": "7e1c80409759d673dc967f0b492df9bda30b8d28af26057e18cbdd6478895ace",
       "src": "/captures/solutions/stage/dark/sales-pipeline-calendar-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 31548,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:es:light",
+      "route": "/es/w/pipeline-de-ventas/calendar",
+      "sha256": "828df9c35ae2454a6d782f0b3601a805fa81971780e546d5f0d0c5024e253e7a",
+      "src": "/captures/solutions/stage/light/sales-pipeline-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 30982,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:es:dark",
+      "route": "/es/w/pipeline-de-ventas/calendar",
+      "sha256": "ec60cea9e1b022b70ef0221d8eba1c768f38bc62dd7bcd9cb00c0eff9fc8405e",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 32948,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:pt:light",
+      "route": "/pt/w/pipeline-de-vendas/calendar",
+      "sha256": "5fa0138eaa982d913399b565de98b7dfc90c89938e702c36f0fcd5518e263380",
+      "src": "/captures/solutions/stage/light/sales-pipeline-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 32258,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:pt:dark",
+      "route": "/pt/w/pipeline-de-vendas/calendar",
+      "sha256": "46e5ba19e36e367704b5d1d73402c07b27e457a7933d8aa401a0f2fabcfaf530",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 30634,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:pl:light",
+      "route": "/pl/w/pipeline-sprzedazy/calendar",
+      "sha256": "5e8873eaa6f164ee298943c2eb1a9ed36e385cf0aabb1263926df4ddf776ca13",
+      "src": "/captures/solutions/stage/light/sales-pipeline-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 30164,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:pl:dark",
+      "route": "/pl/w/pipeline-sprzedazy/calendar",
+      "sha256": "87e3f34c83a4924f394f4985e0969f439b0e5889892b14773da338a27b5fd227",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 31160,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:nl:light",
+      "route": "/nl/w/verkooppipeline/calendar",
+      "sha256": "1c50117f0f58e0b363850ab11472228173f766fc72130f7c803300d879457c6a",
+      "src": "/captures/solutions/stage/light/sales-pipeline-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 30542,
+      "height": 1000,
+      "key": "sales-pipeline:calendar:nl:dark",
+      "route": "/nl/w/verkooppipeline/calendar",
+      "sha256": "f02102779efc13180246fc633c868684a1f1835cb9bc2cc66d30362ea769cca1",
+      "src": "/captures/solutions/stage/dark/sales-pipeline-calendar-nl.webp",
       "width": 1600
     },
     {
@@ -794,6 +2306,78 @@
       "width": 1600
     },
     {
+      "bytes": 84788,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:es:light",
+      "route": "/es/w/linkedin-ventas/inbox?threadId=17000000-5720-4000-8000-000000000001",
+      "sha256": "3ccd963d0b18e582a6ff6aff5764ea784e2c8b02c54e83d3fb2c340bfade7677",
+      "src": "/captures/solutions/stage/light/linkedin-crm-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84796,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:es:dark",
+      "route": "/es/w/linkedin-ventas/inbox?threadId=17000000-5720-4000-8000-000000000001",
+      "sha256": "3779594fd613e02c52366d3defc9935f7f076c9eeffa704d02ee1b1cd5643f1c",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 88138,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:pt:light",
+      "route": "/pt/w/linkedin-vendas/inbox?threadId=17000000-5730-4000-8000-000000000001",
+      "sha256": "eb9cd4ef51392d7029eaf11bc07b74a5085b1ad85de09bcb89bb3184f4110b1e",
+      "src": "/captures/solutions/stage/light/linkedin-crm-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87698,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:pt:dark",
+      "route": "/pt/w/linkedin-vendas/inbox?threadId=17000000-5730-4000-8000-000000000001",
+      "sha256": "d11168bde799dad02a49727444718ec1d9fa2a09c0ea3ea09b67b75ac3d59833",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87310,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:pl:light",
+      "route": "/pl/w/linkedin-sprzedaz/inbox?threadId=17000000-5740-4000-8000-000000000001",
+      "sha256": "6ceb2d5f4b26af9f52a029049f64a52919ebffc365391da7bd91f58cdc7b792e",
+      "src": "/captures/solutions/stage/light/linkedin-crm-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87272,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:pl:dark",
+      "route": "/pl/w/linkedin-sprzedaz/inbox?threadId=17000000-5740-4000-8000-000000000001",
+      "sha256": "8fd9fd06c9c8bf7e57dc20a91241a3dddf83ff3a98e1163e7c094d7896019b77",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85390,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:nl:light",
+      "route": "/nl/w/linkedin-verkoop/inbox?threadId=17000000-5750-4000-8000-000000000001",
+      "sha256": "3618787e9912a82f0bfb7433cad3a2c355b2eedc048059a619bc903da41bc708",
+      "src": "/captures/solutions/stage/light/linkedin-crm-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85376,
+      "height": 1000,
+      "key": "linkedin-crm:inbox:nl:dark",
+      "route": "/nl/w/linkedin-verkoop/inbox?threadId=17000000-5750-4000-8000-000000000001",
+      "sha256": "0d69b76a206be05619d3d3d09084e8304412dcdedf4984565f08f36a15c7e403",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-inbox-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 55792,
       "height": 1000,
       "key": "linkedin-crm:pipeline:en:light",
@@ -827,6 +2411,78 @@
       "route": "/de/w/linkedin-vertrieb/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
       "sha256": "753a774e5cc652095170d5f1d560475b7b4986413e53c8c272df3adbed0976c4",
       "src": "/captures/solutions/stage/dark/linkedin-crm-pipeline-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67238,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:es:light",
+      "route": "/es/w/linkedin-ventas/records/1876bbf8-068e-8b85-8f8f-e00743a49517?view=1f100000-5720-4000-8000-000000000003",
+      "sha256": "45530553832286d629d104aecb1c196abd96b18d54c421f1749e8713e6b188d6",
+      "src": "/captures/solutions/stage/light/linkedin-crm-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 66426,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:es:dark",
+      "route": "/es/w/linkedin-ventas/records/1876bbf8-068e-8b85-8f8f-e00743a49517?view=1f100000-5720-4000-8000-000000000003",
+      "sha256": "164ed13f8f143f9cc2c2986f3d249ac7831bac5961cf7aba5954b6fcbdc842f3",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 72434,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:pt:light",
+      "route": "/pt/w/linkedin-vendas/records/da70bc12-b1d2-826c-828f-26161566958f?view=1f100000-5730-4000-8000-000000000003",
+      "sha256": "6b681dce9be16d37b8f483da2861b4f33f1ed66a7393245d0a05586917a41749",
+      "src": "/captures/solutions/stage/light/linkedin-crm-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 71200,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:pt:dark",
+      "route": "/pt/w/linkedin-vendas/records/da70bc12-b1d2-826c-828f-26161566958f?view=1f100000-5730-4000-8000-000000000003",
+      "sha256": "e746c8a879b5bccefdc387d4aafda3ab3ddd0f67e6c245bf44008abb967b6f03",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 70034,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:pl:light",
+      "route": "/pl/w/linkedin-sprzedaz/records/856e564d-4b73-839a-8858-b49735db3fd6?view=1f100000-5740-4000-8000-000000000003",
+      "sha256": "425a1f2e16687040c835c80e47aec2d8e2b17717cc05dbca774fec11df51a3df",
+      "src": "/captures/solutions/stage/light/linkedin-crm-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 69114,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:pl:dark",
+      "route": "/pl/w/linkedin-sprzedaz/records/856e564d-4b73-839a-8858-b49735db3fd6?view=1f100000-5740-4000-8000-000000000003",
+      "sha256": "3b21c2f67f1f17a37ab425565d6a9864bfead8d82cea24e3a46a6fc47cbcc24f",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63964,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:nl:light",
+      "route": "/nl/w/linkedin-verkoop/records/6241d9a1-65e9-8aff-8cfd-fe3bfb44f1d2?view=1f100000-5750-4000-8000-000000000003",
+      "sha256": "d097101dd83acf5bfca18c85d74d336cae8ae271716aa7685858686ef52fd5ef",
+      "src": "/captures/solutions/stage/light/linkedin-crm-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 63040,
+      "height": 1000,
+      "key": "linkedin-crm:pipeline:nl:dark",
+      "route": "/nl/w/linkedin-verkoop/records/6241d9a1-65e9-8aff-8cfd-fe3bfb44f1d2?view=1f100000-5750-4000-8000-000000000003",
+      "sha256": "e210f8c670c2cd0924fc05c43a96183591fd1bed8592d7911bce263797a3caf1",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-pipeline-nl.webp",
       "width": 1600
     },
     {
@@ -866,6 +2522,78 @@
       "width": 1600
     },
     {
+      "bytes": 39574,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:es:light",
+      "route": "/es/w/linkedin-ventas/calendar",
+      "sha256": "b292d16824ef9570855b27d9114c94fe480f40d84181e6763f01943e2a5975b5",
+      "src": "/captures/solutions/stage/light/linkedin-crm-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38522,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:es:dark",
+      "route": "/es/w/linkedin-ventas/calendar",
+      "sha256": "8af41242b08233dfa8a388b941bd278bc219bc0ff977500a962361f436f20466",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 40598,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:pt:light",
+      "route": "/pt/w/linkedin-vendas/calendar",
+      "sha256": "96e2410fd794edca372c29b4a66d1ccc0bfe5302726a6b8a6b60a2b424c5a7e3",
+      "src": "/captures/solutions/stage/light/linkedin-crm-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 39316,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:pt:dark",
+      "route": "/pt/w/linkedin-vendas/calendar",
+      "sha256": "90d02d56ffb0f79d71e2df88f2200f8d81d8f868ed3216448dc1c465027e0b0d",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 39660,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:pl:light",
+      "route": "/pl/w/linkedin-sprzedaz/calendar",
+      "sha256": "de0d00cebee133f8033fc62da8800fc496c72cd47456af25150cc5326e6e3bdc",
+      "src": "/captures/solutions/stage/light/linkedin-crm-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38376,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:pl:dark",
+      "route": "/pl/w/linkedin-sprzedaz/calendar",
+      "sha256": "cd4c14f06609486569a0a6705cd564ae6d9c579cec8249849a5e284017ea39ea",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 38866,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:nl:light",
+      "route": "/nl/w/linkedin-verkoop/calendar",
+      "sha256": "43d05992ed04f72e2f03c8c4bf22fb55a3b5d539ac82b3f3dc76c1580297987a",
+      "src": "/captures/solutions/stage/light/linkedin-crm-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 37594,
+      "height": 1000,
+      "key": "linkedin-crm:calendar:nl:dark",
+      "route": "/nl/w/linkedin-verkoop/calendar",
+      "sha256": "1233b1d8baf5f76fabe2301bac3a81c135eca654119e7363bfc251005b9e4811",
+      "src": "/captures/solutions/stage/dark/linkedin-crm-calendar-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 69494,
       "height": 1000,
       "key": "whatsapp-crm:inbox:en:light",
@@ -899,6 +2627,78 @@
       "route": "/de/w/whatsapp-kundenkontakt/inbox?threadId=17000000-5810-4000-8000-000000000001",
       "sha256": "90e1f76fc219ad9e2b904aac845e9bcc2f2eb759bba4c74cb821c040d6daca0f",
       "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-de.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 87160,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:es:light",
+      "route": "/es/w/whatsapp-clientes/inbox?threadId=17000000-5820-4000-8000-000000000001",
+      "sha256": "85c06a38dd22ff08531df60b715753825d00b873ff66314bc900be26a2963e71",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 86696,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:es:dark",
+      "route": "/es/w/whatsapp-clientes/inbox?threadId=17000000-5820-4000-8000-000000000001",
+      "sha256": "57658ac9a2c99d044c7bb4ee7f9fa607c37ec5de63357ebfe97e47b6f227381d",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85402,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:pt:light",
+      "route": "/pt/w/whatsapp-atendimento/inbox?threadId=17000000-5830-4000-8000-000000000001",
+      "sha256": "86ba8cb21c34c261a229839e05a0c9e2d04df3f3d21ecdb3955b9593259a1549",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84628,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:pt:dark",
+      "route": "/pt/w/whatsapp-atendimento/inbox?threadId=17000000-5830-4000-8000-000000000001",
+      "sha256": "c98baa964d1d302df23522b71c7cd2ee4c2bf66ad6a92e52a5a3230fc877cda8",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85134,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:pl:light",
+      "route": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
+      "sha256": "6c501be852518bfaadb6a71e189529b3f0453f37c3d883f3e98845e3e863ce15",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84982,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:pl:dark",
+      "route": "/pl/w/whatsapp-klienci/inbox?threadId=17000000-5840-4000-8000-000000000001",
+      "sha256": "40345ece7d697bd18c911c8565bffff136291097223f46a6b4ea082077aa1906",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 85506,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:nl:light",
+      "route": "/nl/w/whatsapp-klantcontact/inbox?threadId=17000000-5850-4000-8000-000000000001",
+      "sha256": "e8332b764e68c2b1065086f26f519e8d02a64d6d57a582e5067255d775fbc673",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-inbox-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 84954,
+      "height": 1000,
+      "key": "whatsapp-crm:inbox:nl:dark",
+      "route": "/nl/w/whatsapp-klantcontact/inbox?threadId=17000000-5850-4000-8000-000000000001",
+      "sha256": "478b22e01d6391706a3f3ba74ad2c7ebe0facd4940918ae82e0713a1b87e828c",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-inbox-nl.webp",
       "width": 1600
     },
     {
@@ -938,6 +2738,78 @@
       "width": 1600
     },
     {
+      "bytes": 71318,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:es:light",
+      "route": "/es/w/whatsapp-clientes/records/15ff5b93-d01a-81cf-82ad-eaedc4f23a2e?view=1f100000-5820-4000-8000-000000000001",
+      "sha256": "b2cad29f3a4df9922ca8e5c13f1528e8da9b4fc944feae780f2fd57c04d335a1",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 70314,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:es:dark",
+      "route": "/es/w/whatsapp-clientes/records/15ff5b93-d01a-81cf-82ad-eaedc4f23a2e?view=1f100000-5820-4000-8000-000000000001",
+      "sha256": "31c09948957131656b2e5468aef190e82177da2e9ab364850702e800c35a69fe",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-pipeline-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 74928,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:pt:light",
+      "route": "/pt/w/whatsapp-atendimento/records/2e33979a-3c5d-82ab-8929-80ffa626a050?view=1f100000-5830-4000-8000-000000000001",
+      "sha256": "5a7ee77a0b1e9486e738d41975c4f8763d02608ba4b1663dc859e50310578ab3",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 73722,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:pt:dark",
+      "route": "/pt/w/whatsapp-atendimento/records/2e33979a-3c5d-82ab-8929-80ffa626a050?view=1f100000-5830-4000-8000-000000000001",
+      "sha256": "5a1cab40677667173839d507fb27f0bac48c49c46df4fcf52122810e8d3975c7",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-pipeline-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68282,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:pl:light",
+      "route": "/pl/w/whatsapp-klienci/records/f1f9ad99-588e-8e19-86f4-aadd2d69843b?view=1f100000-5840-4000-8000-000000000001",
+      "sha256": "de6757a8d152d2607b83616b991f172166ff68c5fe54e3953e2331c7fc8bc44c",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67368,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:pl:dark",
+      "route": "/pl/w/whatsapp-klienci/records/f1f9ad99-588e-8e19-86f4-aadd2d69843b?view=1f100000-5840-4000-8000-000000000001",
+      "sha256": "dfb9f8164de2570404980b2ad7b3b513ad5a6e80cf663473ebea1061e6945b9f",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-pipeline-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 68866,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:nl:light",
+      "route": "/nl/w/whatsapp-klantcontact/records/cd27bf86-706d-8d4e-81ef-26d23b21e55d?view=1f100000-5850-4000-8000-000000000001",
+      "sha256": "3ca3e7013ece680149bf434b8bd55c2f4943247138380c52f44578d87141aa4b",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 67910,
+      "height": 1000,
+      "key": "whatsapp-crm:pipeline:nl:dark",
+      "route": "/nl/w/whatsapp-klantcontact/records/cd27bf86-706d-8d4e-81ef-26d23b21e55d?view=1f100000-5850-4000-8000-000000000001",
+      "sha256": "989753308d0aac8b1ac45e8b954b4b60dabcec501a9d832895ce6a3b5fdbe018",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-pipeline-nl.webp",
+      "width": 1600
+    },
+    {
       "bytes": 29982,
       "height": 1000,
       "key": "whatsapp-crm:calendar:en:light",
@@ -972,6 +2844,78 @@
       "sha256": "4431e13855901dfa9359aa17509b3c3a8b790560ef385ca1fd743364b604a1c8",
       "src": "/captures/solutions/stage/dark/whatsapp-crm-calendar-de.webp",
       "width": 1600
+    },
+    {
+      "bytes": 30314,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:es:light",
+      "route": "/es/w/whatsapp-clientes/calendar",
+      "sha256": "4584daefefab47b9b14468d46fabc9e9923824060c27dcfde2bee9434cab3d2a",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 29104,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:es:dark",
+      "route": "/es/w/whatsapp-clientes/calendar",
+      "sha256": "2d9dbe57747fcdafca7fd863c891029d09b2b006cb8f5226ebefa050e830c803",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-calendar-es.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 31518,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:pt:light",
+      "route": "/pt/w/whatsapp-atendimento/calendar",
+      "sha256": "cd24f815dde46f73e0e6d336c754b1258e8b2a378506088365523921f2f11f6a",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 30270,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:pt:dark",
+      "route": "/pt/w/whatsapp-atendimento/calendar",
+      "sha256": "4c6a619636dfe4b1348550ad24ffb6ac4301aae3d4069d6df299fda92dbe0f9b",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-calendar-pt.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 29452,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:pl:light",
+      "route": "/pl/w/whatsapp-klienci/calendar",
+      "sha256": "9394601c7b70469b19f93c9c32f23f395fcc729cf67e588f8ac0f427373ab789",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 28224,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:pl:dark",
+      "route": "/pl/w/whatsapp-klienci/calendar",
+      "sha256": "29f5a8100d10a9c66eba3300823bb2f6607458d7dba9ebd4595b145684a63536",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-calendar-pl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 29718,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:nl:light",
+      "route": "/nl/w/whatsapp-klantcontact/calendar",
+      "sha256": "b30da960cfdae9a90366e90b297df71d46efab6b463a52ac079215caba4c2e4f",
+      "src": "/captures/solutions/stage/light/whatsapp-crm-calendar-nl.webp",
+      "width": 1600
+    },
+    {
+      "bytes": 28298,
+      "height": 1000,
+      "key": "whatsapp-crm:calendar:nl:dark",
+      "route": "/nl/w/whatsapp-klantcontact/calendar",
+      "sha256": "512c95a5aba8ad85b14359cc9789c71eac6490db6de2fef33c86345282ac4208",
+      "src": "/captures/solutions/stage/dark/whatsapp-crm-calendar-nl.webp",
+      "width": 1600
     }
   ],
   "environment": "Local APP_MODE=demo instance on its current seeded database; Chromium via Playwright",
@@ -979,165 +2923,309 @@
     "agencies": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       },
       "pitchBoard": {
         "de": "/records/9d4fde54-a01d-8ab5-8004-6d8f8b1eaf2b?view=1f100000-5210-4000-8000-000000000001",
-        "en": "/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001"
+        "en": "/records/7c9cb8af-257b-87ea-8a8e-6c5dec71d826?view=1f100000-5200-4000-8000-000000000001",
+        "es": "/records/4d814cbf-642a-8670-8966-0b537c91ee92?view=1f100000-5220-4000-8000-000000000001",
+        "nl": "/records/bfc1eb87-1099-8b54-8d16-94e7e90ef8c7?view=1f100000-5250-4000-8000-000000000001",
+        "pl": "/records/3c97af9f-5f4e-8846-8112-83c8a3ccfdcb?view=1f100000-5240-4000-8000-000000000001",
+        "pt": "/records/1bd2fa18-c126-8474-8bef-ed06e8b2f4fb?view=1f100000-5230-4000-8000-000000000001"
       }
     },
     "client-management": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "clientOverview": {
         "de": "/records/b745dd1d-13fb-8956-8daa-58f35c7e5cfd?view=1f100000-5510-4000-8000-000000000002",
-        "en": "/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002"
+        "en": "/records/26318eee-a3d2-82bf-842f-f21a9897ed56?view=1f100000-5500-4000-8000-000000000002",
+        "es": "/records/700ebf60-ce94-8f0f-838c-6bd1ce31430c?view=1f100000-5520-4000-8000-000000000002",
+        "nl": "/records/fee58587-5a81-80bd-8515-7e280e211da9?view=1f100000-5550-4000-8000-000000000002",
+        "pl": "/records/aae2bdc7-09d7-894d-8555-6f193f90af39?view=1f100000-5540-4000-8000-000000000002",
+        "pt": "/records/e34d07bc-278e-86b2-830c-1de08890076e?view=1f100000-5530-4000-8000-000000000002"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       }
     },
     "consultants": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "engagements": {
         "de": "/records/08eef326-1d0b-8a53-8ec9-288aacd109e4?view=1f100000-5110-4000-8000-000000000002",
-        "en": "/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002"
+        "en": "/records/7c0f67eb-0740-8230-8c6d-c63d21920ddd?view=1f100000-5100-4000-8000-000000000002",
+        "es": "/records/2360d744-715d-88bc-871d-a53030024d87?view=1f100000-5120-4000-8000-000000000002",
+        "nl": "/records/5faf2d3c-1fd7-82d7-8efc-1e4a8ae30adb?view=1f100000-5150-4000-8000-000000000002",
+        "pl": "/records/d863b995-f33a-808d-8d9a-475212be2c86?view=1f100000-5140-4000-8000-000000000002",
+        "pt": "/records/c1bea1d0-ea2a-8507-8a6d-c919cca68305?view=1f100000-5130-4000-8000-000000000002"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       }
     },
     "freelancers": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "clients": {
         "de": "/records/851871ee-f28b-8d31-8ae0-ba32234af792?view=1f100000-5310-4000-8000-000000000001",
-        "en": "/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001"
+        "en": "/records/04b6c610-0f56-8e55-80e6-786ba78856e2?view=1f100000-5300-4000-8000-000000000001",
+        "es": "/records/3c214c47-996b-84df-8e80-2dc7954465e6?view=1f100000-5320-4000-8000-000000000001",
+        "nl": "/records/6e9f2a95-d652-8e42-805d-2463e044c223?view=1f100000-5350-4000-8000-000000000001",
+        "pl": "/records/cd32fb34-aaa4-8772-8405-af28c2e6bfe1?view=1f100000-5340-4000-8000-000000000001",
+        "pt": "/records/1f5a8d7e-9f42-8ec3-8ec2-6d4ebd47eb4d?view=1f100000-5330-4000-8000-000000000001"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       }
     },
     "linkedin-crm": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=17000000-5710-4000-8000-000000000001",
-        "en": "/inbox?threadId=17000000-5700-4000-8000-000000000001"
+        "en": "/inbox?threadId=17000000-5700-4000-8000-000000000001",
+        "es": "/inbox?threadId=17000000-5720-4000-8000-000000000001",
+        "nl": "/inbox?threadId=17000000-5750-4000-8000-000000000001",
+        "pl": "/inbox?threadId=17000000-5740-4000-8000-000000000001",
+        "pt": "/inbox?threadId=17000000-5730-4000-8000-000000000001"
       },
       "pipeline": {
         "de": "/records/db81fdaa-c3a7-861d-8f1d-413ff8739424?view=1f100000-5710-4000-8000-000000000003",
-        "en": "/records/f53ac0d4-2cf6-8225-8956-f7e508385f9e?view=1f100000-5700-4000-8000-000000000003"
+        "en": "/records/f53ac0d4-2cf6-8225-8956-f7e508385f9e?view=1f100000-5700-4000-8000-000000000003",
+        "es": "/records/1876bbf8-068e-8b85-8f8f-e00743a49517?view=1f100000-5720-4000-8000-000000000003",
+        "nl": "/records/6241d9a1-65e9-8aff-8cfd-fe3bfb44f1d2?view=1f100000-5750-4000-8000-000000000003",
+        "pl": "/records/856e564d-4b73-839a-8858-b49735db3fd6?view=1f100000-5740-4000-8000-000000000003",
+        "pt": "/records/da70bc12-b1d2-826c-828f-26161566958f?view=1f100000-5730-4000-8000-000000000003"
       }
     },
     "sales-pipeline": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       },
       "pipeline": {
         "de": "/records/f2cddf3a-2b98-8e74-89fb-3e9425f8c342?view=1f100000-5610-4000-8000-000000000001",
-        "en": "/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001"
+        "en": "/records/9b774d19-a0a5-8e18-8549-908fabb6754b?view=1f100000-5600-4000-8000-000000000001",
+        "es": "/records/f29885e7-41b5-8c97-889f-177d5951339a?view=1f100000-5620-4000-8000-000000000001",
+        "nl": "/records/5354c0d2-ff82-84de-8b6f-0ee1723f248f?view=1f100000-5650-4000-8000-000000000001",
+        "pl": "/records/5b6fb8c8-4813-8abb-8acf-aa523f2a07ec?view=1f100000-5640-4000-8000-000000000001",
+        "pt": "/records/2347231c-dfd1-815a-821c-64b6641f1638?view=1f100000-5630-4000-8000-000000000001"
       }
     },
     "smb": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       },
       "pipeline": {
         "de": "/records/fe81a7a6-6bd5-8c33-8378-e97817774ef7?view=1f100000-5010-4000-8000-000000000001",
-        "en": "/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001"
+        "en": "/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d?view=1f100000-0000-4000-8000-000000000001",
+        "es": "/records/1a581e09-7d88-8f2f-800c-468fafd0adc7?view=1f100000-5020-4000-8000-000000000001",
+        "nl": "/records/08f55aeb-288d-8059-8d11-fb4acfc7a305?view=1f100000-5050-4000-8000-000000000001",
+        "pl": "/records/ae56c040-1977-8d36-8996-3f17d0c1f082?view=1f100000-5040-4000-8000-000000000001",
+        "pt": "/records/7b504572-0806-82d2-828b-115f9daaa95f?view=1f100000-5030-4000-8000-000000000001"
       }
     },
     "startups": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=latest",
-        "en": "/inbox?threadId=latest"
+        "en": "/inbox?threadId=latest",
+        "es": "/inbox?threadId=latest",
+        "nl": "/inbox?threadId=latest",
+        "pl": "/inbox?threadId=latest",
+        "pt": "/inbox?threadId=latest"
       },
       "pipeline": {
         "de": "/records/bf9f2192-7836-8952-86a1-8d2a0e89903b?view=1f100000-5410-4000-8000-000000000001",
-        "en": "/records/bfc1fea3-39ec-89d2-8ce4-fe23c28267bf?view=1f100000-5400-4000-8000-000000000001"
+        "en": "/records/bfc1fea3-39ec-89d2-8ce4-fe23c28267bf?view=1f100000-5400-4000-8000-000000000001",
+        "es": "/records/059ed8fc-824d-81c1-8bff-75e275880da5?view=1f100000-5420-4000-8000-000000000001",
+        "nl": "/records/8879b5ea-66fa-8407-8c05-d532365dd9d7?view=1f100000-5450-4000-8000-000000000001",
+        "pl": "/records/a112807f-03fb-84ce-8e71-91283ea585bf?view=1f100000-5440-4000-8000-000000000001",
+        "pt": "/records/98dd7656-ef7f-8217-86ba-3474dfd3303d?view=1f100000-5430-4000-8000-000000000001"
       }
     },
     "whatsapp-crm": {
       "calendar": {
         "de": "/calendar",
-        "en": "/calendar"
+        "en": "/calendar",
+        "es": "/calendar",
+        "nl": "/calendar",
+        "pl": "/calendar",
+        "pt": "/calendar"
       },
       "dashboard": {
         "de": "/dashboard",
-        "en": "/dashboard"
+        "en": "/dashboard",
+        "es": "/dashboard",
+        "nl": "/dashboard",
+        "pl": "/dashboard",
+        "pt": "/dashboard"
       },
       "inbox": {
         "de": "/inbox?threadId=17000000-5810-4000-8000-000000000001",
-        "en": "/inbox?threadId=17000000-5800-4000-8000-000000000001"
+        "en": "/inbox?threadId=17000000-5800-4000-8000-000000000001",
+        "es": "/inbox?threadId=17000000-5820-4000-8000-000000000001",
+        "nl": "/inbox?threadId=17000000-5850-4000-8000-000000000001",
+        "pl": "/inbox?threadId=17000000-5840-4000-8000-000000000001",
+        "pt": "/inbox?threadId=17000000-5830-4000-8000-000000000001"
       },
       "pipeline": {
         "de": "/records/fb449340-6498-83f4-8c17-8cafcaba0c38?view=1f100000-5810-4000-8000-000000000001",
-        "en": "/records/71ccb9f3-256a-82b0-88b8-699c1c5aa3b2?view=1f100000-5800-4000-8000-000000000001"
+        "en": "/records/71ccb9f3-256a-82b0-88b8-699c1c5aa3b2?view=1f100000-5800-4000-8000-000000000001",
+        "es": "/records/15ff5b93-d01a-81cf-82ad-eaedc4f23a2e?view=1f100000-5820-4000-8000-000000000001",
+        "nl": "/records/cd27bf86-706d-8d4e-81ef-26d23b21e55d?view=1f100000-5850-4000-8000-000000000001",
+        "pl": "/records/f1f9ad99-588e-8e19-86f4-aadd2d69843b?view=1f100000-5840-4000-8000-000000000001",
+        "pt": "/records/2e33979a-3c5d-82ab-8929-80ffa626a050?view=1f100000-5830-4000-8000-000000000001"
       }
     }
   },
-  "sourceRevision": "9a65f3f93"
+  "sourceRevision": "edf88e66d-dirty"
 }

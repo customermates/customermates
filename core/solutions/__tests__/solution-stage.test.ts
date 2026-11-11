@@ -19,10 +19,31 @@ const catalog = [consultants];
 
 const routes: SolutionStageRoutes = {
   consultants: {
-    calendar: { de: "/calendar", en: "/calendar" },
-    dashboard: { de: "/dashboard", en: "/dashboard" },
-    engagements: { de: "/records/b?view=2", en: "/records/a?view=1" },
-    inbox: { de: "/inbox?threadId=latest", en: "/inbox?threadId=latest" },
+    calendar: { de: "/calendar", en: "/calendar", es: "/calendar", nl: "/calendar", pl: "/calendar", pt: "/calendar" },
+    dashboard: {
+      de: "/dashboard",
+      en: "/dashboard",
+      es: "/dashboard",
+      nl: "/dashboard",
+      pl: "/dashboard",
+      pt: "/dashboard",
+    },
+    engagements: {
+      de: "/records/b?view=2",
+      en: "/records/a?view=1",
+      es: "/records/c?view=3",
+      nl: "/records/f?view=6",
+      pl: "/records/e?view=5",
+      pt: "/records/d?view=4",
+    },
+    inbox: {
+      de: "/inbox?threadId=latest",
+      en: "/inbox?threadId=latest",
+      es: "/inbox?threadId=latest",
+      nl: "/inbox?threadId=latest",
+      pl: "/inbox?threadId=latest",
+      pt: "/inbox?threadId=latest",
+    },
   },
 };
 

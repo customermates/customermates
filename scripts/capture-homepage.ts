@@ -5,7 +5,14 @@ import { dirname, join } from "node:path";
 import { chromium, type Locator, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
 
-import { newCaptureContext, openReadyPage, sha256, withRetries, workspaceTimeZone, type CaptureViewport } from "./lib/capture-page";
+import {
+  newCaptureContext,
+  openReadyPage,
+  sha256,
+  withRetries,
+  workspaceTimeZone,
+  type CaptureViewport,
+} from "./lib/capture-page";
 import { isLoopbackBaseUrl } from "./lib/capture-solutions-options";
 
 import { DEMO_DEFAULT_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
@@ -18,7 +25,7 @@ import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
 // every content locale. Section stills are clipped to the bounding box of real UI elements (a panel, whole message
 // rows, whole board columns, table columns) plus an even gutter, so no crop runs through text, a card or a column.
 // Scenarios pick seeded items by position, which is the same in every locale of the small-business story.
-// Usage: tsx scripts/capture-homepage.ts [--base-url http://127.0.0.1:3000] [--only name,name]
+// Usage: tsx scripts/capture-homepage.ts [--base-url http://127.0.0.1:3000] [--only name,name] [--locales es,pt]
 // Writes public/captures/<theme>/<name>-<locale>.png and prints the size and sha256 of every file as JSON.
 
 type Theme = "dark" | "light";
@@ -43,6 +50,70 @@ const IMPORT_EMAIL_HEADER = "E-Mail";
 // contact list position of the partner at the law firm (James Finch, Jakob Fink in German)
 const PARTNER_ROW = 6;
 const GUTTER = 12;
+
+// The words the scenarios look for in the interface, as the message catalogs and the seeded stories spell them in
+// every asset locale; a locale missing here fails to type-check instead of failing halfway through a capture run.
+const LABELS = {
+  add: { de: "hinzufügen", en: "add", es: "añadir", nl: "toevoegen", pl: "dodaj", pt: "adicionar" },
+  addFromFile: {
+    de: "aus datei hinzufügen",
+    en: "add from file",
+    es: "añadir desde archivo",
+    nl: "toevoegen uit bestand",
+    pl: "dodaj z pliku",
+    pt: "adicionar de um arquivo",
+  },
+  contactDetails: {
+    de: "kontaktdaten",
+    en: "contact details",
+    es: "datos de contacto",
+    nl: "contactgegevens",
+    pl: "dane kontaktowe",
+    pt: "dados de contato",
+  },
+  dayRates: {
+    de: "tagessätze",
+    en: "day rates",
+    es: "tarifas diarias",
+    nl: "dagtarieven",
+    pl: "stawki dzienne",
+    pt: "diárias",
+  },
+  decisionRole: {
+    de: "rolle in der entscheidung",
+    en: "decision role",
+    es: "papel en la decisión",
+    nl: "rol in de beslissing",
+    pl: "rola w decyzji",
+    pt: "papel na decisão",
+  },
+  firstName: { de: "vorname", en: "first name", es: "nombre", nl: "voornaam", pl: "imię", pt: "nome" },
+  jobTitle: { de: "position", en: "job title", es: "cargo", nl: "functie", pl: "stanowisko", pt: "cargo" },
+  lastName: { de: "nachname", en: "last name", es: "apellidos", nl: "achternaam", pl: "nazwisko", pt: "sobrenome" },
+  lastRun: {
+    de: "letzter lauf",
+    en: "last run",
+    es: "última ejecución",
+    nl: "laatste uitvoering",
+    pl: "ostatnie uruchomienie",
+    pt: "última execução",
+  },
+  next: { de: "weiter", en: "next", es: "siguiente", nl: "volgende", pl: "dalej", pt: "próximo" },
+  sendDraft: {
+    de: "entwurf senden",
+    en: "send draft",
+    es: "enviar el borrador",
+    nl: "concept versturen",
+    pl: "wyślij szkic",
+    pt: "enviar rascunho",
+  },
+} satisfies Record<string, Record<AssetLocale, string>>;
+
+// any locale's spelling of one label; the scenarios run in a known locale, but the route alone keeps them locale-free
+const label = (name: keyof typeof LABELS, { exact = false }: { exact?: boolean } = {}): RegExp => {
+  const alternatives = Object.values(LABELS[name]).join("|");
+  return new RegExp(exact ? `^\\s*(${alternatives})\\s*$` : alternatives, "iu");
+};
 
 const DESKTOP: CaptureViewport = { deviceScaleFactor: 2, height: 900, width: 1440 };
 const DESKTOP_WIDE: CaptureViewport = { deviceScaleFactor: 2, height: 900, width: 1600 };
@@ -70,11 +141,12 @@ type Shot = {
   // the solution whose workspace the route opens, for its time zone; the small-business story when absent
   solution?: typeof SOLUTION;
   // the clip keeps only this many CSS px from its left edge, for a still that a card shows running off to the right
-  clipWidth?: number;
+  clipWidth?: number | ((page: Page) => Promise<number>);
 };
 
 const route = (path: string) => (locale: AssetLocale) => `/${locale}/w/${SOLUTION.workspaceSlugs[locale]}/${path}`;
-const linkedinRoute = (path: string) => (locale: AssetLocale) => `/${locale}/w/${LINKEDIN.workspaceSlugs[locale]}/${path}`;
+const linkedinRoute = (path: string) => (locale: AssetLocale) =>
+  `/${locale}/w/${LINKEDIN.workspaceSlugs[locale]}/${path}`;
 const inSolution = (solution: typeof SOLUTION) => (path: string) => (locale: AssetLocale) =>
   `/${locale}/w/${solution.workspaceSlugs[locale]}/${path}`;
 const records = (list: "contacts" | "deals") => (locale: AssetLocale) =>
@@ -114,12 +186,15 @@ async function ownerColumnEdge(page: Page): Promise<number> {
 
 // the one accent of the still: the saved reply draft is the agent's work, so it carries a ring in the agent token
 async function markDraft(page: Page): Promise<void> {
-  await page.locator("main [data-email-header]").last().evaluate((header) => {
-    let card: HTMLElement | null = header as HTMLElement;
-    while (card && getComputedStyle(card).borderTopLeftRadius === "0px") card = card.parentElement;
-    if (!card) throw new Error("the reply draft has no card");
-    card.style.boxShadow = "0 0 0 2px var(--agent)";
-  });
+  await page
+    .locator("main [data-email-header]")
+    .last()
+    .evaluate((header) => {
+      let card: HTMLElement | null = header as HTMLElement;
+      while (card && getComputedStyle(card).borderTopLeftRadius === "0px") card = card.parentElement;
+      if (!card) throw new Error("the reply draft has no card");
+      card.style.boxShadow = "0 0 0 2px var(--agent)";
+    });
 }
 
 // the title the inbox list shows for an authored conversation: its subject, its name, or the contact it is with
@@ -140,7 +215,7 @@ async function openThread(page: Page, solution: typeof SOLUTION, locale: AssetLo
 // the first thread of the list that ends in a saved reply draft; the LinkedIn sales story has one, in a LinkedIn conversation
 async function openThreadWithDraft(page: Page): Promise<void> {
   const threads = page.locator("#inbox-thread-list button[data-thread-id]");
-  const draft = page.locator("main button").filter({ hasText: /send draft|entwurf senden/iu });
+  const draft = page.locator("main button").filter({ hasText: label("sendDraft") });
   for (let position = 0; position < (await threads.count()); position++) {
     await threads.nth(position).click();
     await page.waitForURL(/threadId=/u, { timeout: 20_000 });
@@ -155,7 +230,8 @@ async function isolateDialog(page: Page, width = NARROW_DIALOG_WIDTH): Promise<v
   await page.setViewportSize({ height: page.viewportSize()!.height, width });
   await page.waitForTimeout(800);
   await page.addStyleTag({
-    content: '[data-slot="dialog-overlay"] { background: transparent !important; backdrop-filter: none !important; } body > :not([data-slot="dialog-content"]) { visibility: hidden !important; }',
+    content:
+      '[data-slot="dialog-overlay"] { background: transparent !important; backdrop-filter: none !important; } body > :not([data-slot="dialog-content"]) { visibility: hidden !important; }',
   });
   await page.evaluate(() => document.querySelector("main")?.replaceChildren());
   await page.waitForTimeout(300);
@@ -163,7 +239,11 @@ async function isolateDialog(page: Page, width = NARROW_DIALOG_WIDTH): Promise<v
 
 // the key creation dialog on its own: the scrim, the page behind it and the loading placeholders of an empty list stay out of the still
 async function openKeyDialogAlone(page: Page): Promise<void> {
-  await page.locator("#settings-api-keys-generate, main button").filter({ hasText: /^\s*(add|hinzufügen)\s*$/iu }).first().click();
+  await page
+    .locator("#settings-api-keys-generate, main button")
+    .filter({ hasText: label("add", { exact: true }) })
+    .first()
+    .click();
   await isolateDialog(page);
 }
 
@@ -179,12 +259,26 @@ async function openSearchAlone(page: Page): Promise<void> {
 
 async function writeImportWorkbook(page: Page): Promise<string> {
   const labels = (await page.locator("main table thead th").allTextContents()).map((text) => text.trim());
-  const jobTitles = await page.locator(`main table tbody tr td:nth-child(${CONTACT_COLUMN.jobTitle + 1})`).allInnerTexts();
+  const jobTitles = await page
+    .locator(`main table tbody tr td:nth-child(${CONTACT_COLUMN.jobTitle + 1})`)
+    .allInnerTexts();
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Sheet1");
-  sheet.addRow([labels[CONTACT_COLUMN.firstName], labels[CONTACT_COLUMN.lastName], labels[CONTACT_COLUMN.company], IMPORT_EMAIL_HEADER, labels[CONTACT_COLUMN.jobTitle]]);
+  sheet.addRow([
+    labels[CONTACT_COLUMN.firstName],
+    labels[CONTACT_COLUMN.lastName],
+    labels[CONTACT_COLUMN.company],
+    IMPORT_EMAIL_HEADER,
+    labels[CONTACT_COLUMN.jobTitle],
+  ]);
   IMPORT_CONTACTS.forEach(({ company, first, last }, index) =>
-    sheet.addRow([first, last, company, `${first}.${last}@${company.toLowerCase().replace(/[^a-z]+/gu, "")}.example`.toLowerCase(), jobTitles[index].trim()]),
+    sheet.addRow([
+      first,
+      last,
+      company,
+      `${first}.${last}@${company.toLowerCase().replace(/[^a-z]+/gu, "")}.example`.toLowerCase(),
+      jobTitles[index].trim(),
+    ]),
   );
   const file = join(mkdtempSync(join(tmpdir(), "capture-import-")), "contacts-2026.xlsx");
   await workbook.xlsx.writeFile(file);
@@ -194,16 +288,24 @@ async function writeImportWorkbook(page: Page): Promise<string> {
 async function openImportMappingAlone(page: Page): Promise<void> {
   const file = await writeImportWorkbook(page);
   await page.locator("#records-more").click();
-  await page.getByText(/add from file|aus datei/iu).first().click();
+  await page.getByText(label("addFromFile")).first().click();
   await page.locator('[data-slot="dialog-content"] input[type="file"]').setInputFiles(file);
-  const next = page.locator('[data-slot="dialog-content"] button').filter({ hasText: /^(next|weiter)$/iu });
+  const next = page.locator('[data-slot="dialog-content"] button').filter({ hasText: label("next", { exact: true }) });
   await next.click();
-  await page.locator('[data-slot="dialog-content"] [role="combobox"]').first().waitFor({ state: "visible", timeout: 20_000 });
+  await page
+    .locator('[data-slot="dialog-content"] [role="combobox"]')
+    .first()
+    .waitFor({ state: "visible", timeout: 20_000 });
   await isolateDialog(page, DESKTOP_DIALOG_WIDTH);
 }
 
 async function openAgenda(page: Page): Promise<void> {
-  await page.getByText(/^agenda$/iu).first().click();
+  // the view switch, not the first "Agenda": in Dutch the calendar page itself is titled "Agenda" too
+  await page
+    .locator('[data-slot="segmented-control-item"]')
+    .filter({ hasText: /^\s*agenda\s*$/iu })
+    .first()
+    .click();
   await page.locator("main ol > li").first().waitFor({ state: "visible", timeout: 20_000 });
   await page.locator("main .animate-spin").waitFor({ state: "detached", timeout: 20_000 });
   await page.waitForTimeout(800);
@@ -211,19 +313,35 @@ async function openAgenda(page: Page): Promise<void> {
 
 async function showContactColumns(page: Page): Promise<void> {
   await page.locator("#records-display-options").click();
-  for (const label of [/^(first name|vorname)$/iu, /^(last name|nachname)$/iu, /^(contact details|kontaktdaten)$/iu, /^(job title|position)$/iu, /^(decision role|rolle in der entscheidung)$/iu])
-    await page.getByRole("checkbox", { name: label }).setChecked(false);
+  for (const name of ["firstName", "lastName", "contactDetails", "jobTitle", "decisionRole"] as const)
+    await page.getByRole("checkbox", { name: label(name, { exact: true }) }).setChecked(false);
   await page.keyboard.press("Escape");
   await page.mouse.click(1000, 880);
   await page.waitForTimeout(800);
 }
 
 async function openKnowledgePage(page: Page): Promise<void> {
-  await page.locator("#wiki-pages-panel").getByText(/day rates|tagessätze/iu).first().click();
-  await page.waitForFunction(() => /day rates|tagessätze/iu.test(document.querySelector<HTMLTextAreaElement>("textarea#title")?.value ?? ""), null, {
-    timeout: 20_000,
-  });
+  const dayRates = label("dayRates");
+  await page.locator("#wiki-pages-panel").getByText(dayRates).first().click();
+  await page.waitForFunction(
+    (source) =>
+      new RegExp(source, "iu").test(document.querySelector<HTMLTextAreaElement>("textarea#title")?.value ?? ""),
+    dayRates.source,
+    { timeout: 20_000 },
+  );
   await page.waitForTimeout(800);
+}
+
+// the width a clip needs to keep the whole wiki page title (a Spanish title is wider than the usual 560 px) with the gutter
+// of that clip on both sides
+async function wikiTitleClipWidth(page: Page, gutter: number): Promise<number> {
+  const textWidth = await page.locator("textarea#title").evaluate((node) => {
+    const style = getComputedStyle(node);
+    const context = document.createElement("canvas").getContext("2d")!;
+    context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    return context.measureText((node as HTMLTextAreaElement).value).width + Number.parseFloat(style.paddingLeft);
+  });
+  return Math.ceil(textWidth) + 2 * gutter;
 }
 
 async function openRow(page: Page, position: number): Promise<void> {
@@ -241,7 +359,11 @@ async function openRow(page: Page, position: number): Promise<void> {
 }
 
 async function openPipelineView(page: Page): Promise<void> {
-  await page.locator("main").getByText(/^pipeline$/iu).first().click();
+  await page
+    .locator("main")
+    .getByText(/^pipeline$/iu)
+    .first()
+    .click();
   await page.waitForURL(/viewMode=card/u, { timeout: 20_000 });
   await settle(page);
 }
@@ -254,8 +376,13 @@ const zoomToDealGraph = (locale: AssetLocale) => async (page: Page) => {
   if (!pane) throw new Error(`${page.url()}: the graph is not visible`);
   // the graph controls sit bottom left, zoom in on top; their labels are translated, so the button is found by position
   await page.evaluate(() => {
-    const controls = Array.from(document.querySelectorAll<HTMLElement>('main button[data-size="icon-sm"][data-variant="secondary"]'))
-      .filter((button) => button.getBoundingClientRect().left < 480 && button.getBoundingClientRect().top > window.innerHeight / 2)
+    const controls = Array.from(
+      document.querySelectorAll<HTMLElement>('main button[data-size="icon-sm"][data-variant="secondary"]'),
+    )
+      .filter(
+        (button) =>
+          button.getBoundingClientRect().left < 480 && button.getBoundingClientRect().top > window.innerHeight / 2,
+      )
       .sort((left, right) => left.getBoundingClientRect().top - right.getBoundingClientRect().top);
     controls[0]?.setAttribute("data-capture-zoom-in", "");
   });
@@ -285,10 +412,13 @@ const zoomToDealGraph = (locale: AssetLocale) => async (page: Page) => {
 async function scrollThreadTo(page: Page, end: "bottom" | "top"): Promise<void> {
   await page.evaluate((end) => {
     for (const node of Array.from(document.querySelectorAll("main *")))
-      if (node.scrollHeight > node.clientHeight + 40 && getComputedStyle(node).overflowY !== "visible") node.scrollTop = end === "top" ? 0 : node.scrollHeight;
+      if (node.scrollHeight > node.clientHeight + 40 && getComputedStyle(node).overflowY !== "visible")
+        node.scrollTop = end === "top" ? 0 : node.scrollHeight;
   }, end);
   await page.waitForTimeout(600);
-  await page.locator("main button[aria-label*='atest'], main button[aria-label*='ottom']").evaluateAll((nodes) => nodes.forEach((node) => node.remove()));
+  await page
+    .locator("main button[aria-label*='atest'], main button[aria-label*='ottom']")
+    .evaluateAll((nodes) => nodes.forEach((node) => node.remove()));
 }
 
 const SHOTS: Shot[] = [
@@ -336,8 +466,18 @@ const SHOTS: Shot[] = [
   },
   { name: "homepage-routines", route: route("routines"), viewport: DESKTOP },
   { fitWidth: ownerColumnEdge, name: "homepage-routines-mobile", route: route("routines"), viewport: PHONE },
-  { name: "homepage-configure", prepare: (page, locale) => zoomToDealGraph(locale)(page), route: route("configure"), viewport: DESKTOP },
-  { name: "homepage-configure-mobile", prepare: (page, locale) => zoomToDealGraph(locale)(page), route: route("configure"), viewport: PHONE },
+  {
+    name: "homepage-configure",
+    prepare: (page, locale) => zoomToDealGraph(locale)(page),
+    route: route("configure"),
+    viewport: DESKTOP,
+  },
+  {
+    name: "homepage-configure-mobile",
+    prepare: (page, locale) => zoomToDealGraph(locale)(page),
+    route: route("configure"),
+    viewport: PHONE,
+  },
   {
     // the unified inbox section: the whole inbox panel (list and thread), sidebar collapsed
     clip: async (page) => [page.locator("[data-slot='sidebar-inset']").first()],
@@ -358,7 +498,9 @@ const SHOTS: Shot[] = [
       // and the date separator right above them, whole, when it directly precedes them; an earlier message of the same
       // day sits between them otherwise, and the still keeps to the two rows
       const before = rows.nth(count - 2).locator("xpath=preceding-sibling::*[1]");
-      const separator = (await before.count()) > 0 && (await before.evaluate((node) => node.querySelector("[data-email-header]") === null));
+      const separator =
+        (await before.count()) > 0 &&
+        (await before.evaluate((node) => node.querySelector("[data-email-header]") === null));
       return [...(separator ? [before] : []), rows.nth(count - 2), rows.nth(count - 1)];
     },
     name: "homepage-draft",
@@ -385,8 +527,16 @@ const SHOTS: Shot[] = [
     // the use-case card on LinkedIn follow-up: the contact's last message, the saved reply draft with its buttons and the
     // composer under it, whole rows only, the left part of the thread column
     clip: async (page) => {
-      const draft = page.locator("main button").filter({ hasText: /send draft|entwurf senden/iu }).last().locator("xpath=ancestor::div[contains(@class,'flex-row-reverse')][1]");
-      return [draft.locator("xpath=preceding-sibling::*[1]"), draft, page.locator("main [class*='bg-input-background'][class*='rounded-xl']").last()];
+      const draft = page
+        .locator("main button")
+        .filter({ hasText: label("sendDraft") })
+        .last()
+        .locator("xpath=ancestor::div[contains(@class,'flex-row-reverse')][1]");
+      return [
+        draft.locator("xpath=preceding-sibling::*[1]"),
+        draft,
+        page.locator("main [class*='bg-input-background'][class*='rounded-xl']").last(),
+      ];
     },
     clipWidth: 500,
     gutter: 0,
@@ -411,8 +561,12 @@ const SHOTS: Shot[] = [
   {
     clip: async (page) => {
       const days = page.locator("main ol > li");
-      const first = await days.evaluateAll((nodes) => nodes.findIndex((node) => node.querySelector("div.text-primary") !== null));
-      return Array.from({ length: Math.min((await days.count()) - first, AGENDA_DAYS) }, (_, index) => days.nth(first + index));
+      const first = await days.evaluateAll((nodes) =>
+        nodes.findIndex((node) => node.querySelector("div.text-primary") !== null),
+      );
+      return Array.from({ length: Math.min((await days.count()) - first, AGENDA_DAYS) }, (_, index) =>
+        days.nth(first + index),
+      );
     },
     clipWidth: 500,
     gutter: 0,
@@ -462,7 +616,11 @@ const SHOTS: Shot[] = [
     route: inSolution(AGENCIES)("inbox"),
     solution: AGENCIES,
     viewport: THREAD_PANEL,
-    within: (page) => page.locator("main [data-email-header]").first().locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
+    within: (page) =>
+      page
+        .locator("main [data-email-header]")
+        .first()
+        .locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
   },
   {
     clip: async (page) => [page.locator("main section.flex.flex-col.gap-1").first().locator("xpath=..")],
@@ -472,11 +630,18 @@ const SHOTS: Shot[] = [
     prepare: (page, locale) => openThread(page, SOLUTION, locale, THREAD.whatsapp),
     route: route("inbox"),
     viewport: THREAD_PANEL,
-    within: (page) => page.locator("main section.flex.flex-col.gap-1").first().locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
+    within: (page) =>
+      page
+        .locator("main section.flex.flex-col.gap-1")
+        .first()
+        .locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),
   },
   {
-    clip: async (page) => [page.locator("textarea#title"), page.locator("#wiki-document-panel .ProseMirror ul.tight").first()],
-    clipWidth: 560,
+    clip: async (page) => [
+      page.locator("textarea#title"),
+      page.locator("#wiki-document-panel .ProseMirror ul.tight").first(),
+    ],
+    clipWidth: async (page) => Math.max(560, await wikiTitleClipWidth(page, 24)),
     gutter: 24,
     name: "homepage-usecase-playbook",
     prepare: openKnowledgePage,
@@ -491,9 +656,12 @@ const SHOTS: Shot[] = [
     clip: async (page) => {
       const headers = page.locator("main table thead th");
       const labels = await headers.allInnerTexts();
-      const end = labels.findIndex((label) => /last run|letzter lauf/iu.test(label));
+      const lastRun = label("lastRun");
+      const end = labels.findIndex((text) => lastRun.test(text));
       const keep = end > 0 ? end : labels.length;
-      return Array.from({ length: keep }, (_, index) => page.locator(`main table tr > :nth-child(${index + 1})`)).flatMap((cells) => [cells.first(), cells.last()]);
+      return Array.from({ length: keep }, (_, index) =>
+        page.locator(`main table tr > :nth-child(${index + 1})`),
+      ).flatMap((cells) => [cells.first(), cells.last()]);
     },
     gutter: 0,
     name: "homepage-routines-table",
@@ -505,7 +673,8 @@ const SHOTS: Shot[] = [
 // a still never shows a loading skeleton or a toast; toasts dismiss themselves (switching a view in demo mode raises one)
 async function assertSettled(page: Page): Promise<void> {
   await page.waitForFunction(
-    () => document.querySelectorAll('main [data-slot="skeleton"], main .animate-pulse, [data-sonner-toast]').length === 0,
+    () =>
+      document.querySelectorAll('main [data-slot="skeleton"], main .animate-pulse, [data-sonner-toast]').length === 0,
     null,
     { timeout: 45_000 },
   );
@@ -522,7 +691,12 @@ async function unionBox(page: Page, nodes: Locator[], gutter = GUTTER, within?: 
   const viewport = page.viewportSize()!;
   const x = Math.max(0, Math.round(left));
   const y = Math.max(0, Math.round(top));
-  return { height: Math.min(viewport.height, Math.round(bottom)) - y, width: Math.min(viewport.width, Math.round(right)) - x, x, y };
+  return {
+    height: Math.min(viewport.height, Math.round(bottom)) - y,
+    width: Math.min(viewport.width, Math.round(right)) - x,
+    x,
+    y,
+  };
 }
 
 function argValue(flag: string): string | undefined {
@@ -534,16 +708,25 @@ async function main(): Promise<void> {
   const baseUrl = (argValue("--base-url") ?? "http://127.0.0.1:3000").replace(/\/+$/u, "");
   if (!isLoopbackBaseUrl(baseUrl)) throw new Error(`--base-url must point at a local demo instance, got ${baseUrl}`);
   const only = argValue("--only")?.split(",") ?? [];
+  const locales = (argValue("--locales")?.split(",") ?? ASSET_LOCALES).map((code) => {
+    const known = ASSET_LOCALES.find((locale) => locale === code);
+    if (!known) throw new Error(`--locales: ${code} is not an asset locale (${ASSET_LOCALES.join(", ")})`);
+    return known;
+  });
   const browser = await chromium.launch();
   const results: Record<string, { height: number; sha256: string; width: number }> = {};
 
   try {
     for (const shot of SHOTS.filter((item) => only.length === 0 || only.includes(item.name)))
-      for (const locale of ASSET_LOCALES)
+      for (const locale of locales)
         for (const theme of ["light", "dark"] as const) {
           const key = `${theme}/${shot.name}-${locale}`;
           await withRetries(key, async () => {
-            const context = await newCaptureContext(browser, { locale, theme, timeZone: workspaceTimeZone((shot.solution ?? SOLUTION).id, locale) }, shot.viewport);
+            const context = await newCaptureContext(
+              browser,
+              { locale, theme, timeZone: workspaceTimeZone((shot.solution ?? SOLUTION).id, locale) },
+              shot.viewport,
+            );
             try {
               const page = await openReadyPage(context, baseUrl, key, shot.route(locale));
               await closeAgentPanel(page);
@@ -556,8 +739,14 @@ async function main(): Promise<void> {
                 await page.waitForTimeout(600);
                 await assertSettled(page);
               }
-              const clip = shot.clip ? await unionBox(page, await shot.clip(page), shot.gutter, shot.within?.(page)) : undefined;
-              if (clip && shot.clipWidth) clip.width = Math.min(clip.width, shot.clipWidth);
+              const clip = shot.clip
+                ? await unionBox(page, await shot.clip(page), shot.gutter, shot.within?.(page))
+                : undefined;
+              if (clip && shot.clipWidth)
+                clip.width = Math.min(
+                  clip.width,
+                  typeof shot.clipWidth === "number" ? shot.clipWidth : await shot.clipWidth(page),
+                );
               const png = await page.screenshot({ animations: "disabled", caret: "hide", clip, type: "png" });
               const file = join(process.cwd(), "public", "captures", theme, `${shot.name}-${locale}.png`);
               mkdirSync(dirname(file), { recursive: true });
