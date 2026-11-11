@@ -133,36 +133,35 @@ test.describe("homepage film", () => {
 });
 
 test.describe("public navbar", () => {
-  test("shows its desktop divider only when a button follows it", async ({ browser }, testInfo) => {
+  test("shows its desktop actions only on pages that offer them", async ({ browser }, testInfo) => {
     const visitor = await anonymous(browser, testInfo);
     try {
       const { page } = visitor;
       await page.setViewportSize({ width: 1440, height: 900 });
       const header = page.locator("[data-public-scrollport] > header");
-      const divider = header.locator("[data-public-nav-divider]");
-      const actions = header.locator("[data-public-nav-divider] + div");
+      const actions = header.locator("[data-public-nav-actions]");
       const login = actions.getByRole("link", { name: "Login", exact: true });
       const trial = header.locator("[data-public-nav-trial]");
 
       await page.goto("/en/auth/signin");
       await expect(header.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
-      await expect(divider).toHaveCount(0);
+      await expect(actions).toHaveCount(0);
       await expect(header.getByRole("link", { name: "Login", exact: true })).toHaveCount(0);
       await expect(trial).toHaveCount(0);
 
       await page.goto("/en");
-      await expect(divider).toBeVisible();
+      await expect(actions).toBeVisible();
       await expect(login).toBeVisible();
       await expect(trial).toBeVisible();
       await expect(trial).toHaveText("Start free trial");
 
       await page.goto("/en/auth/signup");
-      await expect(divider).toBeVisible();
+      await expect(actions).toBeVisible();
       await expect(login).toBeVisible();
       await expect(trial).toHaveCount(0);
 
       await page.goto("/en/auth/signin");
-      await expect(divider).toHaveCount(0);
+      await expect(actions).toHaveCount(0);
       expect(visitor.errors).toEqual([]);
     } finally {
       await visitor.close();

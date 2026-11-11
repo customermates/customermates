@@ -241,21 +241,13 @@ export function PublicNavbar({
               />
 
               {hasDesktopActions ? (
-                <>
-                  <span
-                    aria-hidden
-                    className="mx-1 h-4 w-px bg-border [[data-session-hint]_&]:hidden"
-                    data-public-nav-divider=""
-                  />
+                <div className="ml-1 flex items-center gap-1 [[data-session-hint]_&]:hidden" data-public-nav-actions="">
+                  {desktopCta}
 
-                  <div className="flex items-center gap-1 [[data-session-hint]_&]:hidden">
-                    {desktopCta}
+                  {desktopTrial}
 
-                    {desktopTrial}
-
-                    {desktopSignOut}
-                  </div>
-                </>
+                  {desktopSignOut}
+                </div>
               ) : null}
             </>
           )}
