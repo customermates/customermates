@@ -1,0 +1,3 @@
+﻿Contact-ID,Naam,Bedrijf,E-mail,Telefoon,Eigenaar,Relatie,Laatste contact,Volgende stap,Datum volgende stap,Bron,Controledatum
+C001,Alex Voorbeeld,Studio Voorbeeld,alex@example.com,,Sam,Prospect,2026-11-05,Gevraagd overzicht sturen,2026-11-06,Aanvraag 2026-11-05,2026-12-04
+C002,Robin Proef,Werkplaats Proef,robin@example.org,,Jo,Klant,2026-11-04,Leveringsgegevens bevestigen,2026-11-09,Klantverzoek 2026-11-04,2026-12-04
