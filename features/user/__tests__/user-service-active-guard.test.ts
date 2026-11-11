@@ -20,6 +20,7 @@ const OVERDUE = { emailVerified: false, createdAt: new Date(Date.now() - 25 * 60
 const plans = { canUseIntegrations: vi.fn() };
 const workspaces = { requireMembership: vi.fn() };
 const touchLastActiveUnscoped = vi.fn();
+const getCredentialVia = vi.fn();
 
 function serviceFor(
   status: Status,
@@ -30,6 +31,7 @@ function serviceFor(
     verification?: { emailVerified: boolean; createdAt: Date };
     storedVerified?: boolean;
     lastActiveAt?: Date | null;
+    via?: { kind: "apiKey" | "oauthApplication"; name: string } | null;
   } = {},
 ) {
   const user = {
@@ -45,6 +47,7 @@ function serviceFor(
   const authService = {
     getSession: () => Promise.resolve({ user: { id: "auth-user-1", email: user.email, ...verification } }),
     isIntegrationCredentialRequest: () => Promise.resolve(options.apiKey ?? false),
+    getCredentialVia,
   } as unknown as AuthService;
   const repo = {
     findAuthUserAccountStateUnscoped: (id: string) =>
@@ -59,6 +62,7 @@ function serviceFor(
   } as unknown as FindUserRepo;
 
   plans.canUseIntegrations.mockResolvedValue(options.planUsable ?? true);
+  getCredentialVia.mockResolvedValue(options.via ?? null);
 
   workspaces.requireMembership.mockResolvedValue(user);
 
@@ -113,6 +117,29 @@ describe("UserService.getActiveUserOrThrow", () => {
     await expect(
       serviceFor(Status.active, { apiKey: true, role: API_READER }).getActiveUserOrThrow(),
     ).resolves.toMatchObject({ id: "user-1" });
+  });
+
+  it("names the API key or application an integration request came through on the user", async () => {
+    const via = { kind: "oauthApplication", name: "Claude Desktop" } as const;
+
+    await expect(
+      serviceFor(Status.active, { apiKey: true, role: API_READER, via }).getActiveUserOrThrow(),
+    ).resolves.toMatchObject({ id: "user-1", via });
+  });
+
+  it("leaves the user unattributed when the credential has no usable name", async () => {
+    const user = await serviceFor(Status.active, { apiKey: true, role: API_READER }).getActiveUserOrThrow();
+
+    expect(user.via).toBeUndefined();
+  });
+
+  it("never looks up a credential for a browser session", async () => {
+    const user = await serviceFor(Status.active, {
+      via: { kind: "apiKey", name: "Unrelated key" },
+    }).getActiveUserOrThrow();
+
+    expect(getCredentialVia).not.toHaveBeenCalled();
+    expect(user.via).toBeUndefined();
   });
 
   it("keeps session requests working without the API permission", async () => {

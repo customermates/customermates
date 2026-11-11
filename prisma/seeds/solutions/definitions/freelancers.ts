@@ -1,6 +1,8 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { address, day, defineSolution, photo, type FileSpec, type RecordSpec, phoneNumber } from "../define-solution";
+import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { address, day, defineSolution, type FileSpec, type RecordSpec, phoneNumber } from "../define-solution";
+import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 
 /**
  * Freelancers: Max works alone as a UX and product designer for a handful of B2B clients, most of them over several
@@ -60,6 +62,18 @@ const TASKS = [
   "corvidCheckIn",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+type InboxKey =
+  | "jennaReturn"
+  | "kevinAccessibility"
+  | "ninaCall"
+  | "tomScope"
+  | "alexNumbers"
+  | "danJobList"
+  | "lauraReferral"
+  | "chrisShiftView"
+  | "marcusDatePickers"
+  | "rachelKickoff"
+  | "priyaTestimonial";
 
 const en = {
   countryCode: "us",
@@ -337,6 +351,24 @@ const en = {
       ],
       note: "I could not reach the model provider on this attempt, so I stopped before reading anything. Nothing was changed; the next run on the first of the month will try again.",
     },
+    dailyFollowUps: {
+      name: "Every morning, draft follow-ups for inquiries due today",
+      task: 'Every weekday morning, find the inquiries whose Stage is Inquiry, First call or Proposal sent and whose Next action date is today or earlier. For each one, read the client, its contacts, the Brief or proposal text and the latest linked conversation. When the contact has an email identity and the last linked message is from me or older than three days, save one short follow-up draft with save_message_draft: my voice, one sentence on the last exchange, one concrete next step. When the contact has no email identity, create one task "Follow up with <contact name>" due today and linked to the inquiry. Preserve existing drafts and avoid a second task or draft for the same inquiry on the same day. Change no stage and no date, and never send a message.',
+      runs: [
+        "Saved 2 follow-up drafts: Laura Bishop (Meadowlark, claims form proposal) and Priya Raman (Tidewater, phase 2). The drafts wait in the Inbox.",
+        "One inquiry was due: saved a follow-up draft for Nina Castillo (Quill & Ledger). The existing draft for Sam Whitaker was kept.",
+        "No inquiry was due today, so nothing was drafted.",
+      ],
+    },
+    requestsToTasks: {
+      name: "Turn WhatsApp and LinkedIn requests into tasks",
+      task: 'A new WhatsApp or LinkedIn message is in routine_trigger. Continue only when the sender matches a contact through identity channels and the message asks me to do something or names a date. Read the contact\'s client, open inquiries and projects, and the conversation. Create one task named for the request, for example "Send Tom the interview guide", with the Due date from the message (three days from now when it names none), linked to the contact, the client and the matching inquiry or project. Avoid a second task for the same request. Do not draft or send a reply and change no other record.',
+      runs: [
+        'Created the task "Send Tom the scope options with prices" due Thursday, linked to Tom Gallagher, Brightpath Learning and the mobile usability review.',
+        'Created the task "Show the driver\'s next stop in the job list" due Thursday, linked to Dan Okafor, Corvid Fleet Software and the dispatcher dashboard design.',
+        "The message from Rachel Moreno only confirmed the kick-off time, so no task was needed.",
+      ],
+    },
   },
   wiki: {
     guide: {
@@ -350,7 +382,7 @@ const en = {
         "- **Inquiries** are possible projects, from the first message to the client's decision. The value is my estimate of the project; the weighted value is that estimate times the stage probability.",
         "- **Projects** are work I agreed to do. The fee is calculated from the day rate and the number of days. The status Billed is only a label: billing stays in my invoicing tool.",
         "- **Tasks** are things I promised to do, with a due date. Tasks, next actions and their dates are ordinary fields: nobody is reminded automatically, so I check the Next actions view every morning, and Mate writes a Monday plan.",
-        "- An email or WhatsApp conversation belongs to a client or an inquiry only when I link it there.",
+        "- An email, WhatsApp or LinkedIn conversation belongs to a client or an inquiry only when I link it there.",
         "",
         "## What stays elsewhere",
         "- Billing and bookkeeping stay in the tools I already use. This workspace keeps the client relationships, the open inquiries and the running work.",
@@ -380,7 +412,7 @@ const en = {
         "1. Write goals, timing and open questions into the inquiry notes.",
         "2. Move the inquiry to First call and update the estimated value.",
         "3. Set the next action and its date on the inquiry and on the client.",
-        "4. Link the email or WhatsApp chat with the client to the inquiry.",
+        "4. Link the email, WhatsApp or LinkedIn conversation with the client to the inquiry.",
       ],
     },
     rates: {
@@ -419,7 +451,7 @@ const en = {
     fernhillInquiry: {
       subject: "Inquiry: UX for our tariff comparison page",
       messages: [
-        "Hello Mr. Bergmann,\n\nWe found your portfolio through a colleague at Meadowlark Insurance. Many visitors leave our tariff comparison page on the second step, and we would like an outside view and a redesign.\n\nWould you have capacity in the next two months?\n\nKind regards,\nSam Whitaker\nFernhill Energy",
+        "Hi Max,\n\nWe found your portfolio through a colleague at Meadowlark Insurance. Many visitors leave our tariff comparison page on the second step, and we would like an outside view and a redesign.\n\nWould you have capacity in the next two months?\n\nKind regards,\nSam Whitaker\nFernhill Energy",
         "Hello Sam,\n\nThank you for reaching out. Yes, I can start in the second half of next month. Before I suggest a scope, could you share the current page and the drop-off numbers per step?\n\nBest regards,\nMax Bergmann",
       ],
     },
@@ -444,6 +476,134 @@ const en = {
         "Hi Nina,\n\nI would take on sign-up and the first bank connection together, since most people drop off between the two. Shall we settle it in a short call on Monday?\n\nBest,\nMax",
       ],
     },
+  },
+  inbox: {
+    jennaReturn: {
+      messages: [
+        "Hi Jenna, hope the budget round went well. If the rider app comes back, I'm happy to help, also with a smaller scope.",
+        "Hi Max, funny timing. It did, but at about half of what we discussed last month. Would a smaller scope work for you?",
+        "Yes. I'd start with the booking flow and leave the rest for a second round. What range are you at?",
+        "Around $9,000. Could we talk Thursday? I'd bring our product designer so you two meet.",
+      ],
+    },
+    kevinAccessibility: {
+      messages: [
+        "Hi Max, Laura mentioned your accessibility review of our customer area. Could you send me the short summary?",
+        "Hi Kevin, sure. I'll send the one-page summary tomorrow: five fixes we shipped, two still open.",
+        "Great, thanks. I'd like to show it to legal before the claims form review. Could you join that round in week two?",
+      ],
+    },
+    ninaCall: {
+      messages: [
+        "Hi Max, thanks for the clear email. Monday works for the call. Could our CTO join for the second half?",
+        "Of course, Nina. The second half is about the bank connection, so his input will help. I'll send an invite for 11:00.",
+        "Great. Fair warning: he's sceptical about prototypes.",
+        "Good, sceptics test best. I'll bring a clickable version of the sign-up part.",
+      ],
+    },
+    tomScope: {
+      messages: [
+        "Hi Max, how is the mobile app review coming along? Rachel is asking about timing.",
+        "Hi Tom, I'm writing two options this week: 3 days on the core flows, or 5 days with user tests.",
+        "Nice! Which one would you pick?",
+        "Honestly the 5-day one. Tests with real teachers will show more than a review alone.",
+        "Makes sense. Roughly what does each cost? Rachel wants a number before Thursday.",
+      ],
+    },
+    alexNumbers: {
+      messages: [
+        "Hi Alex, for the planner refresh I'd like to see current usage first. Could you send me the drop-off numbers per step?",
+        "Sure, pulling them out now.",
+        "62% start a plan on mobile, only 21% finish. The biggest drop is the date picker on step 2.",
+        "Thanks Alex, that helps a lot. A date picker that loses people is usually easy to fix. I'll send a short plan with fixes and a price by Friday.",
+      ],
+    },
+    danJobList: {
+      messages: [
+        "Max, Chris is back on Wednesday. Does Thursday at 11 work for the feedback call?",
+        "Thursday at 11 works. I'll show the map view and the new job list.",
+        "Great. One request: could the job list show the driver's next stop?",
+        "Yes, that's already on my list. See you Thursday.",
+      ],
+    },
+    lauraReferral: {
+      messages: [
+        "Hi Max, I gave your details to Sam Whitaker at Fernhill Energy. He needs UX help with their tariff comparison. Hope that's OK!",
+        "Hi Laura, more than OK, thank you! I'll watch for his email.",
+        "He's nice but in a hurry :)",
+        "Noted :) And I'll send you the claims form update this week.",
+      ],
+    },
+    chrisShiftView: {
+      subject: "Shift view: feedback",
+      messages: [
+        "Hi Chris,\n\nI added the shift view to the dispatcher screens. When you're back, could you tell me whether the weekly overview works for your dispatchers?\n\nBest,\nMax",
+        "Hi Max,\n\nI'm back earlier than planned, so here is my feedback ahead of Thursday. The weekly overview is clear. Two things: double bookings should show in red, and the filters should stay when we switch days. That annoys the dispatchers most.\n\nCan you tell me by Friday what fits into the current scope?\n\nChris",
+        "Hi Chris,\n\nThanks, this is very helpful. Both fit into the current scope: double bookings in red are quick, and I'll keep the filters when switching days. I'll send updated screens on Monday.\n\nBest,\nMax",
+      ],
+    },
+    marcusDatePickers: {
+      subject: "Design system audit: date pickers",
+      messages: [
+        "Hi Max,\n\nI read your findings. Which of the three date pickers would you keep? We'd rather merge them in one sprint than spread it over three.\n\nMarcus",
+        "Hi Marcus,\n\nI'd keep the one from the report filters. It has the best keyboard support and the clearest range selection. I'll add a short recommendation with screenshots to the findings by Friday.\n\nBest,\nMax",
+        "Hi Max,\n\nSounds good. Could you also list which screens use which picker? Then I can size the work.\n\nMarcus",
+        "Hi Marcus,\n\nWill do. The table with the screen names goes into the report.\n\nBest,\nMax",
+      ],
+    },
+    rachelKickoff: {
+      subject: "Kick-off workshop: agenda and interview slots",
+      messages: [
+        "Hi Rachel,\n\nhere is the agenda for Tuesday's kick-off: 9:30 goals and success measures, 10:30 the old onboarding survey, 11:30 plan for the four teacher interviews. Tell me if anyone else should join.\n\nBest,\nMax",
+        "Hi Max,\n\nlooks good. Could we start with the survey results? Tom found more data. And can the interviews stay after 3 pm? That's when the teachers are free.\n\nRachel",
+        "Hi Rachel,\n\nSure, survey first. The interviews are all between 3:00 and 4:30 pm, Monday to Thursday, as in the plan.\n\nBest,\nMax",
+        "Perfect. Tom will bring the survey export on Tuesday. Could you send us the interview guide beforehand so we can look at it?\n\nRachel",
+      ],
+    },
+    priyaTestimonial: {
+      subject: "A short quote for my site",
+      messages: [
+        "Hi Priya,\n\nwould you be okay with a short testimonial for my site? Two or three sentences are plenty.\n\nBest,\nMax",
+        'Hi Max,\n\nOf course. How about: "Max made our dashboard understandable for people who never liked analytics. He ran the research himself, and the redesign cut our support questions in half." Feel free to shorten it.\n\nPriya',
+        "Hi Priya,\n\nThank you, that's lovely. I'll use it as it is and send you the page before it goes live.\n\nBest,\nMax",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  notes: {
+    deals: {
+      tidewaterDashboard:
+        "Summary by Claude after the call on Tuesday:\n- Priya and Marcus read the proposal and are fine with the price.\n- They would like three interviews instead of five: research drops to 3 days ($2,700) and the total to 13 days ($12,200).\n- Marcus needs an engineering estimate from his team before he signs off.\n- Next step: go through research and design together on Thursday at 10.",
+      fernhillTariff:
+        "Draft by ChatGPT from the client brief:\n- Problem: only 38% continue on step 2 (annual usage), and 7,400 visitors reach it.\n- Rough plan: 2 days of research with four interviews ($1,800) and 4 days of design ($3,800), $5,600 in total, inside Sam's budget of about $6,000.\n- Open questions: access to the current page and its analytics, and who builds the result.",
+    } as Partial<Record<DealKey, string>>,
+    organizations: {
+      atlas:
+        "Cleaned up by Codex (script run on the CSV export of my old client sheet):\n- Added the website and the Denver address from row 14.\n- Linked Jenna Park and removed a duplicate contact row.\n- No other record was changed.",
+    } as Partial<Record<OrganizationKey, string>>,
+    tasks: {
+      replySam:
+        "Task created by Claude from Sam's email:\n- Sam Whitaker asks for capacity in the next two months for the tariff comparison page.\n- Possible starts: the Monday after the Corvid deadline (two days a week) or the Monday after the Tidewater audit is delivered (three days a week).\n- The reply in the thread is a draft; nothing was sent.",
+    } as Partial<Record<TaskKey, string>>,
+  },
+  agents: {
+    company: "Linwood Product Design",
+    records: "clients, inquiries and projects",
+    mate: "It answers questions about my week, turns a brief into an inquiry, creates tasks from emails and saves reply drafts when I ask.",
+    claude:
+      "It writes the summary of a call into the inquiry notes and outlines a first proposal from my rates and terms.",
+    chatgpt:
+      "It reads a client brief and sketches the scope with days and fee, which I check before anything goes out.",
+    codex:
+      "It runs scripts on my data: importing my old client sheet, merging duplicate contacts and exporting project fees for my bookkeeping.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for inquiries due today" runs on weekday mornings at 8:00. It reads the inquiries whose next action date is today or earlier and saves a short follow-up draft where the contact has an email address. The drafts wait in the Inbox for my review; the routine never sends anything and changes no stage or date.',
+  } satisfies AgentsPageText,
+  mateRecords: {
+    title: "Project for the Brightpath yes",
+    question:
+      "Rachel confirmed the onboarding flow. Move the inquiry to Won and create the project: 11 days at $900, start in two days, deadline in about seven weeks.",
+    answer:
+      'Done.\n\n- **Inquiry:** the teacher onboarding flow for Brightpath moved from Proposal sent to **Won**.\n- **Project:** created the teacher onboarding flow for Brightpath Learning, linked to the inquiry. 11 days at $900 give a fee of **$9,900**; it starts in two days and the deadline is in seven weeks.\n- **Client:** Brightpath Learning stays *Ongoing*, and I set the next action to "Kick-off workshop for the onboarding flow".\n\nThe fee is calculated from day rate and days, so I only entered those two. I did not write to Rachel; if you want a thank-you note, tell me and I will save it as a draft.',
   },
 };
 
@@ -736,6 +896,24 @@ const de: Strings = {
       ],
       note: "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe aufgehört, bevor ich etwas gelesen habe. Nichts wurde geändert; der nächste Lauf am Monatsersten versucht es erneut.",
     },
+    dailyFollowUps: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Anfragen",
+      task: 'Suche jeden Werktagmorgen Anfragen, deren Phase Anfrage, Erstgespräch oder Angebot gesendet ist und deren Datum nächster Schritt heute oder früher liegt. Lies für jede den Kunden, seine Kontakte, den Text von Briefing oder Angebot und das zuletzt verknüpfte Gespräch. Hat der Kontakt eine E-Mail-Identität und die letzte verknüpfte Nachricht stammt von mir oder ist älter als drei Tage, speichere mit save_message_draft einen kurzen Nachfass-Entwurf: in meinem Ton, ein Satz zum letzten Austausch, ein konkreter nächster Schritt. Hat der Kontakt keine E-Mail-Identität, lege eine Aufgabe "Bei <Kontaktname> nachfassen" mit Fälligkeit heute an und verknüpfe sie mit der Anfrage. Vorhandene Entwürfe bleiben erhalten; pro Anfrage und Tag gibt es höchstens eine Aufgabe oder einen Entwurf. Ändere keine Phase und kein Datum und sende nie eine Nachricht.',
+      runs: [
+        "2 Nachfass-Entwürfe gespeichert: Julia Kramer (Wiesental, Angebot Schadenmeldung) und Katrin Vogt (Hafenblick, Phase 2). Die Entwürfe warten im Posteingang.",
+        "Eine Anfrage war fällig: Nachfass-Entwurf für Nina Hartmann (Feder & Konto) gespeichert. Der vorhandene Entwurf für Sebastian Ott blieb erhalten.",
+        "Heute war keine Anfrage fällig, daher wurde nichts entworfen.",
+      ],
+    },
+    requestsToTasks: {
+      name: "WhatsApp- und LinkedIn-Wünsche in Aufgaben verwandeln",
+      task: 'Eine neue WhatsApp- oder LinkedIn-Nachricht steht in routine_trigger. Fahre nur fort, wenn der Absender über seine Identitätskanäle einem Kontakt entspricht und die Nachricht mich um etwas bittet oder ein Datum nennt. Lies Kunde, offene Anfragen und Projekte des Kontakts sowie das Gespräch. Lege eine Aufgabe an, die nach der Bitte benannt ist, zum Beispiel "Tobias den Interviewleitfaden schicken", mit der Fälligkeit aus der Nachricht (in drei Tagen, wenn keine genannt wird), verknüpft mit Kontakt, Kunde und passender Anfrage oder passendem Projekt. Keine zweite Aufgabe für dieselbe Bitte. Entwirf und sende keine Antwort und ändere keinen anderen Datensatz.',
+      runs: [
+        'Aufgabe "Tobias die Optionen mit Preisen schicken" mit Fälligkeit Donnerstag angelegt, verknüpft mit Tobias Wendt, Lernpfad Bildung und dem Review der Mobile-App.',
+        'Aufgabe "Nächsten Halt in der Auftragsliste zeigen" mit Fälligkeit Donnerstag angelegt, verknüpft mit Stefan Brandt, Rabe Flottensoftware und dem Dashboard für die Disposition.',
+        "Die Nachricht von Miriam Albrecht bestätigte nur den Termin des Kick-offs, daher war keine Aufgabe nötig.",
+      ],
+    },
   },
   wiki: {
     guide: {
@@ -749,7 +927,7 @@ const de: Strings = {
         "- **Anfragen** sind mögliche Projekte, von der ersten Nachricht bis zur Entscheidung des Kunden. Der Wert ist meine Schätzung für das Projekt; der gewichtete Wert ist diese Schätzung mal der Wahrscheinlichkeit der Phase.",
         "- **Projekte** sind zugesagte Arbeit. Das Honorar ergibt sich aus Tagessatz mal Tagen. Der Status Abgerechnet ist nur eine Markierung: Die Abrechnung bleibt in meinem Rechnungsprogramm.",
         "- **Aufgaben** sind Dinge, die ich zugesagt habe, mit Fälligkeitsdatum. Aufgaben, nächste Schritte und ihre Daten sind normale Felder: Niemand wird automatisch daran erinnert, deshalb schaue ich jeden Morgen in die Ansicht Nächste Schritte, und Mate schreibt montags einen Wochenplan.",
-        "- Eine E-Mail oder ein WhatsApp-Chat gehört nur dann zu einem Kunden oder einer Anfrage, wenn ich ihn dort verknüpfe.",
+        "- Eine E-Mail, ein WhatsApp-Chat oder eine LinkedIn-Unterhaltung gehört nur dann zu einem Kunden oder einer Anfrage, wenn ich sie dort verknüpfe.",
         "",
         "## Was woanders bleibt",
         "- Abrechnung und Buchhaltung bleiben in den Programmen, die ich schon nutze. Hier stehen die Kundenbeziehungen, die offenen Anfragen und die laufende Arbeit.",
@@ -779,7 +957,7 @@ const de: Strings = {
         "1. Ziele, Zeitrahmen und offene Fragen in die Notizen der Anfrage schreiben.",
         "2. Die Anfrage auf Erstgespräch setzen und den geschätzten Wert anpassen.",
         "3. Nächsten Schritt und Datum bei der Anfrage und beim Kunden eintragen.",
-        "4. Die E-Mail oder den WhatsApp-Chat mit dem Kunden mit der Anfrage verknüpfen.",
+        "4. Die E-Mail, den WhatsApp-Chat oder die LinkedIn-Unterhaltung mit dem Kunden mit der Anfrage verknüpfen.",
       ],
     },
     rates: {
@@ -844,6 +1022,134 @@ const de: Strings = {
       ],
     },
   },
+  inbox: {
+    jennaReturn: {
+      messages: [
+        "Hallo Frau Lorenz, ich hoffe, die Budgetrunde ist gut gelaufen. Falls die Fahrgast-App wieder auf den Tisch kommt, helfe ich gern, auch mit kleinerem Umfang.",
+        "Hallo Herr Bergmann, lustiger Zufall. Das Budget steht, aber nur bei etwa der Hälfte dessen, was wir letzten Monat besprochen haben. Würde ein kleinerer Umfang für Sie gehen?",
+        "Ja. Ich würde mit dem Buchungsablauf anfangen und den Rest in eine zweite Runde legen. In welcher Größenordnung liegen Sie?",
+        "Bei etwa 9.000 €. Können wir Donnerstag sprechen? Ich bringe unsere Produktdesignerin mit, dann lernen Sie sich kennen.",
+      ],
+    },
+    kevinAccessibility: {
+      messages: [
+        "Guten Tag Herr Bergmann, Julia Kramer hat Ihr Barrierefreiheits-Review des Kundenbereichs erwähnt. Könnten Sie mir die kurze Zusammenfassung schicken?",
+        "Guten Tag Herr Seidel, gern. Ich schicke Ihnen morgen die Zusammenfassung auf einer Seite: fünf umgesetzte Korrekturen, zwei noch offen.",
+        "Prima, danke. Ich möchte sie der Rechtsabteilung vor der Abstimmungsrunde zum Formular zeigen. Könnten Sie in Woche zwei bei der Runde dabei sein?",
+      ],
+    },
+    ninaCall: {
+      messages: [
+        "Guten Tag Herr Bergmann, danke für die klare Mail. Montag passt für das Telefonat. Könnte unser CTO in der zweiten Hälfte dazukommen?",
+        "Natürlich, Frau Hartmann. In der zweiten Hälfte geht es um die Kontoverbindung, da hilft sein Blick. Ich schicke eine Einladung für 11 Uhr.",
+        "Super. Vorwarnung: Er ist skeptisch bei Prototypen.",
+        "Gut, Skeptiker testen am besten. Ich bringe eine anklickbare Version der Registrierung mit.",
+      ],
+    },
+    tomScope: {
+      messages: [
+        "Hallo Max, wie weit bist du mit dem Review der Mobile-App? Miriam fragt nach dem Zeitplan.",
+        "Hallo Tobias, ich schreibe diese Woche zwei Varianten: 3 Tage für die Kernabläufe oder 5 Tage mit Nutzertests.",
+        "Schön! Welche würdest du nehmen?",
+        "Ehrlich gesagt die mit 5 Tagen. Tests mit echten Lehrkräften zeigen mehr als ein Review allein.",
+        "Leuchtet ein. Was kosten die beiden ungefähr? Miriam möchte vor Donnerstag eine Zahl.",
+      ],
+    },
+    alexNumbers: {
+      messages: [
+        "Hallo Andreas, für die Auffrischung des Planers würde ich gern erst die aktuelle Nutzung sehen. Kannst du mir die Abbruchzahlen pro Schritt schicken?",
+        "Klar, ich suche sie gerade raus.",
+        "62 % starten auf dem Smartphone eine Planung, nur 21 % schließen sie ab. Der größte Abbruch ist die Datumsauswahl in Schritt 2.",
+        "Danke Andreas, das hilft sehr. Eine Datumsauswahl, die Leute verliert, lässt sich meist gut beheben. Ich schicke dir bis Freitag einen kurzen Plan mit Verbesserungen und einem Preis.",
+      ],
+    },
+    danJobList: {
+      messages: [
+        "Herr Bergmann, Herr Weiß ist ab Mittwoch zurück. Passt Donnerstag um 11 Uhr für das Feedbackgespräch?",
+        "Donnerstag um 11 Uhr passt. Ich zeige die Kartenansicht und die neue Auftragsliste.",
+        "Prima. Eine Bitte: Könnte die Auftragsliste den nächsten Halt des Fahrers zeigen?",
+        "Ja, das steht schon auf meiner Liste. Bis Donnerstag.",
+      ],
+    },
+    lauraReferral: {
+      messages: [
+        "Hallo Herr Bergmann, ich habe Ihre Daten an Sebastian Ott von Sonnenhang Energie weitergegeben. Er braucht UX-Hilfe für den Tarifvergleich. Hoffentlich ist das in Ordnung!",
+        "Hallo Frau Kramer, mehr als in Ordnung, vielen Dank! Ich halte nach seiner Mail Ausschau.",
+        "Er ist nett, hat es aber eilig :)",
+        "Notiert :) Und die Aktualisierung zum Angebot Schadenmeldung schicke ich Ihnen diese Woche.",
+      ],
+    },
+    chrisShiftView: {
+      subject: "Schichtansicht: Feedback",
+      messages: [
+        "Hallo Herr Weiß,\n\nich habe die Schichtansicht zu den Screens der Disposition hinzugefügt. Könnten Sie mir nach Ihrer Rückkehr sagen, ob die Wochenübersicht für Ihre Disponenten funktioniert?\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nich bin früher zurück als geplant, hier deshalb schon vor Donnerstag mein Feedback. Die Wochenübersicht ist klar. Zwei Dinge: Doppelbuchungen sollten rot erscheinen, und die Filter sollten beim Tageswechsel erhalten bleiben. Das stört die Disponenten am meisten.\n\nKönnen Sie mir bis Freitag sagen, was im aktuellen Umfang möglich ist?\n\nViele Grüße\nChristian Weiß",
+        "Hallo Herr Weiß,\n\nvielen Dank, das hilft sehr. Beides passt in den aktuellen Umfang: Doppelbuchungen in Rot sind schnell gemacht, und die Filter bleiben beim Tageswechsel erhalten. Aktualisierte Screens schicke ich Ihnen am Montag.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    marcusDatePickers: {
+      subject: "Audit des Designsystems: Datumsauswahlen",
+      messages: [
+        "Hallo Herr Bergmann,\n\nich habe Ihre Ergebnisse gelesen. Welche der drei Datumsauswahlen würden Sie behalten? Wir führen sie lieber in einem Sprint zusammen, als es auf drei zu verteilen.\n\nViele Grüße\nJan Petersen",
+        "Hallo Herr Petersen,\n\nich würde die aus den Berichtsfiltern behalten. Sie hat die beste Tastaturbedienung und die klarste Bereichsauswahl. Eine kurze Empfehlung mit Screenshots ergänze ich bis Freitag in den Ergebnissen.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nklingt gut. Könnten Sie außerdem auflisten, welche Screens welche Auswahl nutzen? Dann kann ich den Aufwand schätzen.\n\nViele Grüße\nJan Petersen",
+        "Hallo Herr Petersen,\n\ngern. Die Tabelle mit den Namen der Screens kommt in den Bericht.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    rachelKickoff: {
+      subject: "Kick-off-Workshop: Agenda und Interviewtermine",
+      messages: [
+        "Hallo Miriam,\n\nhier die Agenda für den Kick-off am Dienstag: 9:30 Uhr Ziele und Erfolgsmaße, 10:30 Uhr die alte Onboarding-Umfrage, 11:30 Uhr Plan für die vier Interviews mit Lehrkräften. Sag mir, wenn noch jemand dazukommen soll.\n\nViele Grüße\nMax",
+        "Hallo Max,\n\nsieht gut aus. Können wir mit den Umfrageergebnissen anfangen? Tobias hat weitere Daten gefunden. Und können die Interviews nach 15 Uhr bleiben? Dann haben die Lehrkräfte Zeit.\n\nMiriam",
+        "Hallo Miriam,\n\nklar, erst die Umfrage. Die Interviews liegen alle zwischen 15 und 16:30 Uhr, Montag bis Donnerstag, wie im Plan.\n\nViele Grüße\nMax",
+        "Perfekt. Tobias bringt den Export der Umfrage am Dienstag mit. Kannst du uns vorher den Interviewleitfaden schicken, damit wir ihn ansehen können?\n\nMiriam",
+      ],
+    },
+    priyaTestimonial: {
+      subject: "Kurzes Zitat für meine Website",
+      messages: [
+        "Hallo Frau Vogt,\n\nwären Sie damit einverstanden, dass ich ein kurzes Zitat von Ihnen auf meiner Website verwende? Zwei, drei Sätze reichen völlig.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\ngern. Wie wäre es hiermit: „Max hat unser Dashboard auch für Leute verständlich gemacht, die Analysen nie mochten. Er hat die Forschung selbst gemacht, und das Redesign hat unsere Supportanfragen halbiert.“ Kürzen Sie es gern.\n\nViele Grüße\nKatrin Vogt",
+        "Hallo Frau Vogt,\n\nvielen Dank, das freut mich sehr. Ich übernehme es unverändert und schicke Ihnen die Seite, bevor sie online geht.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+  },
+  notes: {
+    deals: {
+      tidewaterDashboard:
+        "Zusammenfassung von Claude nach dem Gespräch am Dienstag:\n- Katrin Vogt und Jan Petersen haben das Angebot gelesen und sind mit dem Preis einverstanden.\n- Sie möchten drei statt fünf Interviews: Die Forschung sinkt auf 3 Tage (2.700 €) und die Summe auf 13 Tage (12.200 €).\n- Jan Petersen braucht vor der Zusage eine Aufwandsschätzung seines Teams.\n- Nächster Schritt: Forschung und Gestaltung am Donnerstag um 10 Uhr gemeinsam durchgehen.",
+      fernhillTariff:
+        "Entwurf von ChatGPT aus dem Briefing:\n- Problem: Nur 38 % machen in Schritt 2 (Jahresverbrauch) weiter, und 7.400 Besucher kommen dorthin.\n- Grober Plan: 2 Tage Forschung mit vier Interviews (1.800 €) und 4 Tage Gestaltung (3.800 €), zusammen 5.600 € und damit im Budget von etwa 6.000 €.\n- Offene Fragen: Zugang zur aktuellen Seite und ihren Zugriffszahlen und wer das Ergebnis umsetzt.",
+    } as Partial<Record<DealKey, string>>,
+    organizations: {
+      atlas:
+        "Bereinigt von Codex (Skriptlauf auf dem CSV-Export meiner alten Kundentabelle):\n- Website und Adresse in Kiel aus Zeile 14 ergänzt.\n- Carina Lorenz verknüpft und eine doppelte Kontaktzeile entfernt.\n- Kein anderer Datensatz wurde geändert.",
+    } as Partial<Record<OrganizationKey, string>>,
+    tasks: {
+      replySam:
+        "Aufgabe von Claude aus der E-Mail von Sebastian Ott angelegt:\n- Sebastian Ott fragt nach Kapazität in den nächsten zwei Monaten für den Tarifvergleich.\n- Mögliche Starts: der Montag nach der Abgabe bei Rabe (zwei Tage pro Woche) oder der Montag nach der Abgabe des Hafenblick-Audits (drei Tage pro Woche).\n- Die Antwort im Verlauf ist ein Entwurf; es wurde nichts gesendet.",
+    } as Partial<Record<TaskKey, string>>,
+  },
+  agents: {
+    company: "Feldmark Produktdesign",
+    records: "Kunden, Anfragen und Projekte",
+    mate: "Mate beantwortet Fragen zu meiner Woche, macht aus einem Briefing eine Anfrage, legt Aufgaben aus E-Mails an und speichert auf Wunsch Antwortentwürfe.",
+    claude:
+      "Claude schreibt die Zusammenfassung eines Gesprächs in die Notizen der Anfrage und skizziert aus meinen Tagessätzen und Konditionen ein erstes Angebot.",
+    chatgpt:
+      "ChatGPT liest ein Briefing und skizziert den Umfang mit Tagen und Honorar, das ich prüfe, bevor etwas rausgeht.",
+    codex:
+      "Codex führt Skripte auf meinen Daten aus: Er importiert meine alte Kundentabelle, führt doppelte Kontakte zusammen und exportiert die Projekthonorare für meine Buchhaltung.",
+    followUp:
+      "„Jeden Morgen Nachfass-Entwürfe für fällige Anfragen“ läuft werktags um 8:00 Uhr. Sie liest die Anfragen, deren Datum nächster Schritt heute oder früher liegt, und speichert einen kurzen Nachfass-Entwurf, wenn der Kontakt eine E-Mail-Adresse hat. Die Entwürfe warten im Posteingang auf meine Prüfung; die Routine sendet nie etwas und ändert weder Phase noch Datum.",
+  },
+  mateRecords: {
+    title: "Projekt nach der Zusage von Lernpfad",
+    question:
+      "Miriam hat das Onboarding zugesagt. Setze die Anfrage auf Zugesagt und lege das Projekt an: 11 Tage zu 900 €, Start in zwei Tagen, Abgabe in etwa sieben Wochen.",
+    answer:
+      "Erledigt.\n\n- **Anfrage:** Das Onboarding für Lehrkräfte bei Lernpfad ist von Angebot gesendet auf **Zugesagt** gesetzt.\n- **Projekt:** Ich habe das Onboarding für Lehrkräfte für Lernpfad Bildung angelegt und mit der Anfrage verknüpft. 11 Tage zu 900 € ergeben ein Honorar von **9.900 €**; es startet in zwei Tagen, die Abgabe ist in sieben Wochen.\n- **Kunde:** Lernpfad Bildung bleibt *Laufend*, und den nächsten Schritt habe ich auf „Kick-off-Workshop zum Onboarding“ gesetzt.\n\nDas Honorar wird aus Tagessatz und Tagen berechnet, deshalb habe ich nur diese beiden eingetragen. An Miriam habe ich nichts geschrieben; wenn du eine Dankesnachricht möchtest, sag Bescheid, dann speichere ich sie als Entwurf.",
+  },
 };
 
 const ORGANIZATION_FACTS: Record<
@@ -874,19 +1180,19 @@ const ORGANIZATION_FACTS: Record<
 
 const CONTACT_FACTS: Record<
   ContactKey,
-  { organization: OrganizationKey; createdDaysAgo: number; whatsapp?: boolean; avatar?: Parameters<typeof photo>[0] }
+  { organization: OrganizationKey; createdDaysAgo: number; whatsapp?: boolean; linkedin?: boolean }
 > = {
-  priya: { organization: "tidewater", createdDaysAgo: 540, avatar: "leila-chen" },
+  priya: { organization: "tidewater", createdDaysAgo: 540 },
   marcus: { organization: "tidewater", createdDaysAgo: 200 },
-  rachel: { organization: "brightpath", createdDaysAgo: 420, whatsapp: true, avatar: "mia-schneider" },
-  tom: { organization: "brightpath", createdDaysAgo: 30, avatar: "tim-weber" },
-  dan: { organization: "corvid", createdDaysAgo: 112, avatar: "paul-koch" },
+  rachel: { organization: "brightpath", createdDaysAgo: 420, whatsapp: true },
+  tom: { organization: "brightpath", createdDaysAgo: 30 },
+  dan: { organization: "corvid", createdDaysAgo: 112 },
   chris: { organization: "corvid", createdDaysAgo: 100 },
-  laura: { organization: "meadow", createdDaysAgo: 302, avatar: "lea-bauer" },
-  kevin: { organization: "meadow", createdDaysAgo: 24 },
-  nina: { organization: "quill", createdDaysAgo: 19, avatar: "sophie-wagner" },
-  sam: { organization: "fernhill", createdDaysAgo: 2, avatar: "jonas-weber" },
-  jenna: { organization: "atlas", createdDaysAgo: 90 },
+  laura: { organization: "meadow", createdDaysAgo: 302 },
+  kevin: { organization: "meadow", createdDaysAgo: 24, linkedin: true },
+  nina: { organization: "quill", createdDaysAgo: 19, linkedin: true },
+  sam: { organization: "fernhill", createdDaysAgo: 2 },
+  jenna: { organization: "atlas", createdDaysAgo: 90, linkedin: true },
   alex: { organization: "juniper", createdDaysAgo: 400 },
 };
 
@@ -1028,7 +1334,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     source: "referral",
     createdDaysAgo: 2,
     decision: 30,
-    next: 7,
+    next: 0,
   },
   atlasRider: {
     organization: "atlas",
@@ -1167,11 +1473,115 @@ const TASK_FACTS: Record<
   scopeOptions: { status: "inProgress", due: 2, deal: "brightpathMobile", contact: "tom", createdDaysAgo: 4 },
   kickoffAgenda: { status: "open", due: 4, deal: "brightpathOnboarding", contact: "rachel", createdDaysAgo: 6 },
   followUpLaura: { status: "open", due: -3, deal: "meadowClaims", contact: "laura", createdDaysAgo: 3 },
-  replySam: { status: "inProgress", due: 1, deal: "fernhillTariff", contact: "sam", createdDaysAgo: 1 },
+  replySam: { status: "inProgress", due: 0, deal: "fernhillTariff", contact: "sam", createdDaysAgo: 1 },
   reviewQuillScreens: { status: "open", due: 3, deal: "quillOnboarding", contact: "nina", createdDaysAgo: 2 },
   testimonial: { status: "done", due: -10, organization: "tidewater", contact: "priya", createdDaysAgo: 30, done: 9 },
   corvidCheckIn: { status: "open", due: -5, organization: "corvid", contact: "dan", createdDaysAgo: 20 },
 };
+
+const INBOX_PLANS: ReadonlyArray<InboxThreadPlan & { key: InboxKey }> = [
+  {
+    key: "jennaReturn",
+    account: "linkedin",
+    with: ["jenna"],
+    state: "unread",
+    latestMinutesAgo: 25,
+    speakers: ["self", "jenna", "self", "jenna"],
+    links: ["deal:atlasRider", "organization:atlas"],
+  },
+  {
+    key: "kevinAccessibility",
+    account: "linkedin",
+    with: ["kevin"],
+    state: "open",
+    latestMinutesAgo: 300,
+    speakers: ["kevin", "self", "kevin"],
+    links: ["deal:meadowClaims", "organization:meadow"],
+  },
+  {
+    key: "ninaCall",
+    account: "linkedin",
+    with: ["nina"],
+    state: "open",
+    latestMinutesAgo: 1300,
+    speakers: ["nina", "self", "nina", "self"],
+    links: ["deal:quillOnboarding", "organization:quill"],
+  },
+  {
+    key: "tomScope",
+    account: "whatsapp",
+    with: ["tom"],
+    state: "open",
+    latestMinutesAgo: 130,
+    speakers: ["tom", "self", "tom", "self", "tom"],
+    links: ["deal:brightpathMobile", "organization:brightpath"],
+  },
+  {
+    key: "alexNumbers",
+    account: "whatsapp",
+    with: ["alex"],
+    state: "unread",
+    latestMinutesAgo: 70,
+    speakers: ["self", "alex", "alex", "self"],
+    draft: true,
+    links: ["deal:juniperRefresh", "organization:juniper"],
+  },
+  {
+    key: "danJobList",
+    account: "whatsapp",
+    with: ["dan"],
+    state: "open",
+    latestMinutesAgo: 2000,
+    speakers: ["dan", "self", "dan", "self"],
+    links: ["deal:corvidDispatch", "project:corvidDispatchDesign"],
+  },
+  {
+    key: "lauraReferral",
+    account: "whatsapp",
+    with: ["laura"],
+    state: "open",
+    latestMinutesAgo: 5000,
+    speakers: ["laura", "self", "laura", "self"],
+    links: ["organization:meadow", "deal:fernhillTariff"],
+  },
+  {
+    key: "chrisShiftView",
+    account: "google",
+    with: ["chris"],
+    state: "open",
+    latestMinutesAgo: 230,
+    speakers: ["self", "chris", "self"],
+    draft: true,
+    links: ["project:corvidDispatchDesign", "organization:corvid"],
+  },
+  {
+    key: "marcusDatePickers",
+    account: "google",
+    with: ["marcus"],
+    state: "open",
+    latestMinutesAgo: 3600,
+    speakers: ["marcus", "self", "marcus", "self"],
+    links: ["project:tidewaterAudit", "organization:tidewater"],
+  },
+  {
+    key: "rachelKickoff",
+    account: "google",
+    with: ["rachel"],
+    state: "open",
+    latestMinutesAgo: 2200,
+    speakers: ["self", "rachel", "self", "rachel"],
+    links: ["deal:brightpathOnboarding", "project:brightpathOnboardingFlow"],
+  },
+  {
+    key: "priyaTestimonial",
+    account: "google",
+    with: ["priya"],
+    state: "open",
+    latestMinutesAgo: 12960,
+    speakers: ["self", "priya", "self"],
+    links: ["organization:tidewater"],
+  },
+];
 
 function mailbox(name: string): string {
   return name
@@ -1187,6 +1597,13 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:tidewaterDashboard": "Claude Desktop",
+  "task:replySam": "Claude Desktop",
+  "deal:fernhillTariff": "ChatGPT",
+  "organization:atlas": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "freelancers",
   strings: { en, de },
@@ -1194,7 +1611,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["inquiry", "firstCall", "proposal"];
     const label = <K extends string>(
@@ -1206,11 +1623,13 @@ export default defineSolution<Strings>({
       const facts = ORGANIZATION_FACTS[key];
       const [name, city, domain, nextAction] = t.organizations[key];
       const [street, postalCode, region, lat, lon] = t.addresses[key];
+      const notes = t.notes.organizations[key];
       return {
         key,
         values: {
           name,
           relationship: facts.relationship,
+          ...(notes ? { notes } : {}),
           address: address({
             street,
             postalCode,
@@ -1242,6 +1661,7 @@ export default defineSolution<Strings>({
       const [firstName, lastName, jobTitle] = t.contacts[key];
       const domain = t.organizations[facts.organization][2];
       const mobile = phone(index);
+      const handle = `${mailbox(firstName)}-${mailbox(lastName)}`;
       return {
         key,
         values: { firstName, lastName, jobTitle },
@@ -1250,18 +1670,22 @@ export default defineSolution<Strings>({
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
           phone: mobile,
+          ...(facts.linkedin
+            ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
+            : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
     const deal: RecordSpec[] = DEALS.map((key) => {
       const facts = DEAL_FACTS[key];
       const [name, nextAction] = t.deals[key];
+      const notes = t.notes.deals[key];
       return {
         key,
         values: {
           name,
+          ...(notes ? { notes } : {}),
           stage: facts.stage,
           totalValue: facts.value,
           workType: facts.workType,
@@ -1301,9 +1725,10 @@ export default defineSolution<Strings>({
     const task: RecordSpec[] = TASKS.map((key) => {
       const facts = TASK_FACTS[key];
       const organizationKey = organizationOf(facts);
+      const notes = t.notes.tasks[key];
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, dueDate: day(facts.due) },
+        values: { name: t.tasks[key], status: facts.status, dueDate: day(facts.due), ...(notes ? { notes } : {}) },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
@@ -1437,7 +1862,7 @@ export default defineSolution<Strings>({
           targetCardinality: "many",
         },
       ],
-      records: { organization, contact, deal, project, task },
+      records: agentEdited({ organization, contact, deal, project, task }, AGENT_EDITS),
       views: [
         {
           key: "clients",
@@ -1602,7 +2027,9 @@ export default defineSolution<Strings>({
           markdown: t.wiki.afterCall.markdown,
         },
         { key: "rates", kind: "knowledge", title: t.wiki.rates.title, markdown: t.wiki.rates.markdown },
+        agentsPage(locale, t.agents),
       ],
+      apiKeys: agentApiKeys([62, 35, 11]),
       routines: [
         {
           key: "mondayPlan",
@@ -1686,9 +2113,72 @@ export default defineSolution<Strings>({
             },
           ],
         },
+        {
+          key: "dailyFollowUps",
+          name: routine.dailyFollowUps.name,
+          task: routine.dailyFollowUps.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 6,
+              durationSeconds: 66,
+              credits: 9,
+              summary: routine.dailyFollowUps.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 30,
+              durationSeconds: 41,
+              credits: 6,
+              summary: routine.dailyFollowUps.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 78,
+              durationSeconds: 18,
+              credits: 2,
+              summary: routine.dailyFollowUps.runs[2],
+            },
+          ],
+        },
+        {
+          key: "requestsToTasks",
+          name: routine.requestsToTasks.name,
+          task: routine.requestsToTasks.task,
+          trigger: {
+            kind: "event",
+            events: ["messaging.message.received"],
+            debounceSeconds: 300,
+            sample: { thread: 9 },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 2,
+              durationSeconds: 47,
+              credits: 7,
+              summary: routine.requestsToTasks.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 31,
+              durationSeconds: 44,
+              credits: 6,
+              summary: routine.requestsToTasks.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 76,
+              durationSeconds: 21,
+              credits: 3,
+              summary: routine.requestsToTasks.runs[2],
+            },
+          ],
+        },
       ],
       messaging: {
-        accounts: ["google", "whatsapp"],
+        accounts: ["google", "linkedin", "whatsapp"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads: [
@@ -1765,6 +2255,7 @@ export default defineSolution<Strings>({
             ],
             links: ["deal:corvidDispatch", "organization:corvid"],
           },
+          ...inboxThreads(INBOX_PLANS, t.inbox),
         ],
         calendar: {
           name: t.calendar.name,
@@ -1827,6 +2318,14 @@ export default defineSolution<Strings>({
           messages: [
             { role: "user", text: t.mate.question },
             { role: "assistant", text: t.mate.answer },
+          ],
+        },
+        {
+          title: t.mateRecords.title,
+          endedHoursAgo: 190,
+          messages: [
+            { role: "user", text: t.mateRecords.question },
+            { role: "assistant", text: t.mateRecords.answer },
           ],
         },
       ],

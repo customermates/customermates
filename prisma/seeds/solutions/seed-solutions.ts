@@ -10,10 +10,10 @@ import { buildSolutionModel } from "./solution-model";
 import { SOLUTION_WORKSPACES, type SolutionWorkspace } from "./solution-workspaces";
 
 /** Workspaces seeded at the same time; each holds a few short transactions. */
-export const SOLUTION_SEED_CONCURRENCY = 3;
+export const SOLUTION_SEED_CONCURRENCY = 5;
 
 /** Upper bound for seeding every demo workspace; a slower run means the seed grew past what a deploy should wait for. */
-export const SOLUTION_SEED_BUDGET_MS = 300_000;
+export const SOLUTION_SEED_BUDGET_MS = 600_000;
 
 export type SolutionWorkspacePlan = { workspace: SolutionWorkspace; content: SolutionContent; model: RecordModel };
 

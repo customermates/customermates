@@ -9,7 +9,7 @@ import http from "node:http";
 import https from "node:https";
 import net from "node:net";
 
-import { responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
+import { readRemovedAccounts, responseLostAfterAcceptance, sentCopyUnavailable } from "./local-email-provider.mjs";
 
 Object.assign(process.env, {
   CRM_LOCAL_TEST_TRANSPORT: "true",
@@ -320,5 +320,34 @@ test("issues local OAuth tokens only to the local clients and only for the PKCE 
   } finally {
     delete process.env.GOOGLE_CLIENT_ID;
     delete process.env.GOOGLE_CLIENT_SECRET;
+  }
+});
+
+test("removes only synthetic provider accounts and records each removal in the run's provider directory", async () => {
+  process.env.UNIPILE_API_KEY = "e2e-local-provider-no-network";
+  const providerDirectory = mkdtempSync(join(tmpdir(), "crm-e2e-provider-"));
+  process.env.CRM_E2E_PROVIDER_DIRECTORY = providerDirectory;
+  const account = "e2e_local_00000000-0000-4000-8000-000000000003";
+  const headers = { "X-API-KEY": process.env.UNIPILE_API_KEY };
+  const remove = (id, init = {}) =>
+    fetch(`https://api.unipile.com/v2/accounts/${id}`, { method: "DELETE", headers, ...init });
+  try {
+    assert.deepEqual(readRemovedAccounts(providerDirectory), []);
+    const removed = await remove(account);
+    assert.equal(removed.status, 200);
+    assert.deepEqual(await removed.json(), { object: "AccountDeleted" });
+    await remove(account);
+    assert.deepEqual(readRemovedAccounts(providerDirectory), [account, account]);
+    for (const request of [
+      () => remove("real-account"),
+      () => remove(account, { method: "GET" }),
+      () => remove(account, { headers: {} }),
+      () => fetch(`https://api.unipile.com/v2/accounts/${account}?external=true`, { method: "DELETE", headers }),
+    ])
+      assert.throws(request, /blocked a non-loopback connection/);
+    assert.deepEqual(readRemovedAccounts(providerDirectory), [account, account]);
+  } finally {
+    delete process.env.UNIPILE_API_KEY;
+    delete process.env.CRM_E2E_PROVIDER_DIRECTORY;
   }
 });

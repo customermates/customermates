@@ -39,4 +39,85 @@ describe("SetConnectedAccountVisibilityInteractor", () => {
     expect(entitlements.require).not.toHaveBeenCalled();
     expect(repo.setAccountSharedOrThrow).not.toHaveBeenCalled();
   });
+
+  function interactorFor(shared: boolean, denied: unknown) {
+    const account = {
+      id: ID,
+      shared,
+      provider: "google",
+      status: "ok",
+      hasMessaging: true,
+      hasCalendar: false,
+      displayName: "Sales",
+      emailAddress: "sales@example.test",
+      syncing: false,
+      lastSyncedAt: null,
+      createdAt: new Date("2026-11-01T08:00:00.000Z"),
+      owner: { userId: "20000000-0000-4000-8000-000000000002", firstName: "Mara", lastName: "Lind", avatarUrl: null },
+      isOwner: true,
+      folders: [],
+      selectedFolderIds: [],
+      foldersSyncedAt: null,
+      linkedinProducts: [],
+      signature: null,
+      signatureFields: null,
+    };
+    const repo = {
+      getAccountByIdOrThrow: vi.fn().mockResolvedValue(account),
+      setAccountSharedOrThrow: vi
+        .fn()
+        .mockImplementation(({ shared: next }: { shared: boolean }) => Promise.resolve({ ...account, shared: next })),
+    };
+    const entitlements = { require: vi.fn().mockResolvedValue(denied) };
+    const events = { publish: vi.fn().mockResolvedValue(undefined) };
+    return {
+      repo,
+      entitlements,
+      events,
+      interactor: new SetConnectedAccountVisibilityInteractor(repo as never, events as never, entitlements as never),
+    };
+  }
+
+  const DENIED = { ok: false, code: "sharedAccountsRequiresBusiness" };
+
+  it("lets the owner stop sharing an account on a plan without shared accounts", async () => {
+    const { interactor, repo, entitlements, events } = interactorFor(true, DENIED);
+
+    const result = await runWithTenant(mockUser, () => interactor.invoke({ id: ID, shared: false }));
+
+    expect(result).toMatchObject({ ok: true });
+    expect(entitlements.require).not.toHaveBeenCalled();
+    expect(repo.setAccountSharedOrThrow).toHaveBeenCalledWith({ id: ID, shared: false });
+    expect(events.publish).toHaveBeenCalledOnce();
+  });
+
+  it("refuses to start sharing an account on a plan without shared accounts", async () => {
+    const { interactor, repo, entitlements, events } = interactorFor(false, DENIED);
+
+    const result = await runWithTenant(mockUser, () => interactor.invoke({ id: ID, shared: true }));
+
+    expect(result).toBe(DENIED);
+    expect(entitlements.require).toHaveBeenCalledWith("sharedAccounts");
+    expect(repo.setAccountSharedOrThrow).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
+  });
+
+  it("shares an account when the plan includes shared accounts", async () => {
+    const { interactor, repo } = interactorFor(false, null);
+
+    const result = await runWithTenant(mockUser, () => interactor.invoke({ id: ID, shared: true }));
+
+    expect(result).toMatchObject({ ok: true });
+    expect(repo.setAccountSharedOrThrow).toHaveBeenCalledWith({ id: ID, shared: true });
+  });
+
+  it("answers an unchanged visibility without a write on any plan", async () => {
+    const { interactor, repo, events } = interactorFor(true, DENIED);
+
+    const result = await runWithTenant(mockUser, () => interactor.invoke({ id: ID, shared: true }));
+
+    expect(result).toMatchObject({ ok: true });
+    expect(repo.setAccountSharedOrThrow).not.toHaveBeenCalled();
+    expect(events.publish).not.toHaveBeenCalled();
+  });
 });

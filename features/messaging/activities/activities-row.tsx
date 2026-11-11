@@ -100,9 +100,15 @@ export function ProviderAvatar({
   );
 }
 
+function TitleSuffix({ children }: { children?: string }) {
+  if (!children) return null;
+  return <span className="text-muted-foreground font-normal"> {children}</span>;
+}
+
 export function DetailHeader({
   avatar,
   title,
+  titleSuffix,
   provider,
   providerLabel,
   subtitle,
@@ -111,6 +117,7 @@ export function DetailHeader({
 }: {
   avatar: ReactNode;
   title: string;
+  titleSuffix?: string;
   provider?: MessagingProvider;
   providerLabel?: string;
   subtitle: string;
@@ -125,7 +132,11 @@ export function DetailHeader({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="min-w-0 truncate text-sm font-semibold">{title}</p>
+          <p className="min-w-0 truncate text-sm font-semibold">
+            {title}
+
+            <TitleSuffix>{titleSuffix}</TitleSuffix>
+          </p>
 
           {ProviderIcon && (
             <ProviderIcon aria-label={providerLabel} className="text-muted-foreground size-3 shrink-0" />
@@ -156,6 +167,7 @@ export function auditCategory(event: string): { icon: LucideIcon; tone: BadgeTon
 type TimelineRowProps = {
   avatar: ReactNode;
   title: string;
+  titleSuffix?: string;
   titleIcon?: ReactNode;
   subject?: string | null;
   subtitle: ReactNode;
@@ -168,6 +180,7 @@ type TimelineRowProps = {
 export function TimelineRow({
   avatar,
   title,
+  titleSuffix,
   titleIcon,
   subject,
   subtitle,
@@ -195,7 +208,11 @@ export function TimelineRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
             <div className="flex min-w-0 flex-1 items-center gap-1.5">
-              <h3 className="min-w-0 truncate text-sm font-medium">{title}</h3>
+              <h3 className="min-w-0 truncate text-sm font-medium">
+                {title}
+
+                <TitleSuffix>{titleSuffix}</TitleSuffix>
+              </h3>
 
               {titleIcon}
             </div>
@@ -220,6 +237,11 @@ export function TimelineRow({
       </button>
     </li>
   );
+}
+
+export function useActorViaLabel(): (actor: { via?: { name: string } }) => string | undefined {
+  const t = useTranslations();
+  return (actor) => (actor.via ? t("EntityTimeline.viaCredential", { name: actor.via.name }) : undefined);
 }
 
 export function useSystemActorLabel(): (process: SystemActorProcess) => string {

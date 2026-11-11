@@ -103,7 +103,12 @@ export const WidgetPreviewFrame = observer(({ children, error, geometry: layout,
           data-slot="widget-preview"
           style={{ ...stage, visibility: columnWidth ? "visible" : "hidden" }}
         >
-          <div inert className={cn("absolute inset-0", STAGE_RESET_CLASS)}>
+          <div
+            inert
+            className={cn("absolute left-0 top-0 origin-top-left", STAGE_RESET_CLASS)}
+            data-slot="widget-preview-scaled"
+            style={{ width: size.width, height: size.height, transform: `scale(${fit})` }}
+          >
             {children}
           </div>
 

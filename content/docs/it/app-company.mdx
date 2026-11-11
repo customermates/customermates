@@ -163,7 +163,7 @@ Uno spazio di lavoro senza prova il cui piano a pagamento è scaduto, uno spazio
 
 ### Che cosa succede agli account collegati quando il piano cambia? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Quando Lemon Squeezy segnala un piano diverso, Customermates rimuove gli account collegati più recenti di ogni utente oltre la nuova quota. Starter ne include [[commercial.entitlement.starter.includedAccountsPerUser]] per utente, quindi ogni account viene rimosso; il primo checkout dalla prova conta come un cambio da Pro. I membri con il ruolo **Amministratore** ricevono un’e-mail con l’elenco degli account rimossi; gli altri restano in [Canali e calendari](app:settings/channels). Le routine oltre la quota vengono mantenute, perché la quota si applica solo alla creazione di una routine.
+Quando Lemon Squeezy segnala un piano diverso, Customermates rimuove gli account collegati più recenti di ogni utente oltre la nuova quota. Starter ne include [[commercial.entitlement.starter.includedAccountsPerUser]] per utente, quindi ogni account viene rimosso; il primo checkout dalla prova conta come un cambio da Pro. I membri con il ruolo **Amministratore** ricevono un’e-mail con l’elenco degli account rimossi; gli altri restano in [Canali e calendari](app:settings/channels). Le routine oltre la quota vengono mantenute, perché la quota si applica solo alla creazione di una routine. Se il nuovo piano non include account condivisi (qualsiasi piano sotto Business), ogni canale condiviso con lo spazio di lavoro torna **Privato** per il suo proprietario, e un upgrade successivo non lo condivide di nuovo.
 
 ### In che cosa si distingue uno spazio di lavoro Enterprise? [#how-does-an-enterprise-workspace-differ]
 
@@ -181,7 +181,7 @@ Su Starter, la [Posta in arrivo](app:inbox) e [Canali e calendari](app:settings/
 - **Amministrazione e sistema**: membri, ruoli, webhook, routine, account collegati, pagine della Base di conoscenza, avvisi legali ed esportazioni. I segreti dei webhook e i valori delle intestazioni sono oscurati.
 - **Configurazione**: liste, campi, relazioni e accesso ai record per ruolo. Queste voci le vedono solo i ruoli con **Modifica** su **Modello dati** o su **Utenti e ruoli**.
 
-Per leggerlo serve accesso in lettura **Tutti** su **Registro attività**. Le modifiche ai record seguono l’accesso ai record, e le voci della Base di conoscenza richiedono l’accesso in lettura alla Base di conoscenza. Un clic su una voce ne mostra i dettagli; le viste si salvano come nelle liste. Le voci vengono conservate a tempo indeterminato, i messaggi non vi compaiono mai e la cronologia parte dall’aggiornamento ai record configurabili. Disponibile su ogni piano e in self-hosting.
+Per leggerlo serve accesso in lettura **Tutti** su **Registro attività**. Le modifiche ai record seguono l’accesso ai record, e le voci della Base di conoscenza richiedono l’accesso in lettura alla Base di conoscenza. Un clic su una voce ne mostra i dettagli; le viste si salvano come nelle liste. Una modifica fatta tramite una chiave API o un agente IA collegato via MCP indica la chiave o l’applicazione dopo la persona, per esempio «Max Bergmann via Claude Desktop». Le voci vengono conservate a tempo indeterminato, i messaggi non vi compaiono mai e la cronologia parte dall’aggiornamento ai record configurabili. Disponibile su ogni piano e in self-hosting.
 
 ## Webhook [#webhooks-tab]
 

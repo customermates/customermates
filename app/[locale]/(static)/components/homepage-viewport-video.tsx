@@ -1,19 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { runUserAction } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 
 import { HOMEPAGE_MOTION_VISIBILITY_AMOUNT } from "./homepage-motion";
 
 type Props = {
   ariaLabel: string;
   className?: string;
+  playLabel: string;
   poster?: string;
   src: string;
 };
 
 const AUTOPLAY_VISIBILITY_THRESHOLD = HOMEPAGE_MOTION_VISIBILITY_AMOUNT;
 
-export function HomepageViewportVideo({ ariaLabel, className, poster, src }: Props) {
+export function HomepageViewportVideo({ ariaLabel, className, playLabel, poster, src }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isMeaningfullyVisibleRef = useRef(false);
   const automaticPlaybackRef = useRef(false);
@@ -21,6 +25,7 @@ export function HomepageViewportVideo({ ariaLabel, className, poster, src }: Pro
   const userPausedRef = useRef(false);
   const userUnmutedRef = useRef(false);
   const programmaticActionRef = useRef<"pause" | "play" | null>(null);
+  const [hasFrame, setHasFrame] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -116,50 +121,77 @@ export function HomepageViewportVideo({ ariaLabel, className, poster, src }: Pro
   }, []);
 
   return (
-    <video
-      ref={videoRef}
-      controls
-      muted
-      playsInline
-      aria-label={ariaLabel}
-      className={className}
-      data-autoplay-when-visible="35-percent"
-      poster={poster}
-      preload="none"
-      src={src}
-      onEnded={() => {
-        automaticPlaybackRef.current = false;
-        resumeWhenVisibleRef.current = false;
-      }}
-      onPause={() => {
-        if (programmaticActionRef.current === "pause") {
-          programmaticActionRef.current = null;
-          return;
-        }
-
-        userPausedRef.current = true;
-        automaticPlaybackRef.current = false;
-        resumeWhenVisibleRef.current = false;
-      }}
-      onPlay={() => {
-        if (programmaticActionRef.current === "play") {
-          programmaticActionRef.current = null;
-          automaticPlaybackRef.current = true;
-          userPausedRef.current = false;
-          return;
-        }
-
-        automaticPlaybackRef.current = false;
-        userPausedRef.current = false;
-        resumeWhenVisibleRef.current = false;
-      }}
-      onVolumeChange={(event) => {
-        if (!event.currentTarget.muted) {
-          userUnmutedRef.current = true;
+    <>
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        aria-hidden={!hasFrame}
+        aria-label={ariaLabel}
+        className={cn(className, "transition-opacity duration-500", hasFrame ? "opacity-100" : "opacity-0")}
+        controls={hasFrame}
+        data-autoplay-when-visible="35-percent"
+        data-film-ready={hasFrame ? "" : undefined}
+        poster={poster}
+        preload="none"
+        src={src}
+        onEnded={() => {
           automaticPlaybackRef.current = false;
           resumeWhenVisibleRef.current = false;
-        }
-      }}
-    />
+        }}
+        onLoadedData={() => setHasFrame(true)}
+        onPause={() => {
+          if (programmaticActionRef.current === "pause") {
+            programmaticActionRef.current = null;
+            return;
+          }
+
+          userPausedRef.current = true;
+          automaticPlaybackRef.current = false;
+          resumeWhenVisibleRef.current = false;
+        }}
+        onPlay={() => {
+          if (programmaticActionRef.current === "play") {
+            programmaticActionRef.current = null;
+            automaticPlaybackRef.current = true;
+            userPausedRef.current = false;
+            return;
+          }
+
+          automaticPlaybackRef.current = false;
+          userPausedRef.current = false;
+          resumeWhenVisibleRef.current = false;
+        }}
+        onPlaying={() => setHasFrame(true)}
+        onVolumeChange={(event) => {
+          if (!event.currentTarget.muted) {
+            userUnmutedRef.current = true;
+            automaticPlaybackRef.current = false;
+            resumeWhenVisibleRef.current = false;
+          }
+        }}
+      />
+
+      {hasFrame ? null : (
+        <button
+          aria-label={playLabel}
+          className="group absolute inset-0 flex items-end justify-start p-4 sm:p-6"
+          data-film-play=""
+          type="button"
+          onClick={() => {
+            const video = videoRef.current;
+            if (!video) return;
+            video.muted = false;
+            runUserAction(() => video.play());
+          }}
+        >
+          <span className="flex size-11 items-center justify-center rounded-full bg-background/85 text-foreground shadow-md ring-1 ring-foreground/10 backdrop-blur transition-transform group-hover:scale-105 sm:size-12">
+            <svg aria-hidden className="ml-0.5 size-4" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M4 2.5v11a.5.5 0 0 0 .76.43l9-5.5a.5.5 0 0 0 0-.86l-9-5.5A.5.5 0 0 0 4 2.5Z" />
+            </svg>
+          </span>
+        </button>
+      )}
+    </>
   );
 }

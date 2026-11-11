@@ -1,11 +1,12 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
+import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 import {
   address,
   at,
   day,
   defineSolution,
-  photo,
   range,
   type FileSpec,
   type RecordSpec,
@@ -99,6 +100,25 @@ const TASKS = [
   "springsOnboarding",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+type InboxKey =
+  | "plasticsDemo"
+  | "springsLines"
+  | "valvesPlan"
+  | "seedMetrics"
+  | "angelUpdate"
+  | "coatingsUsage"
+  | "castingsPlant"
+  | "plasticsCeo"
+  | "syndicatePitch"
+  | "corporateCoffee"
+  | "ventureCatchUp";
+type AgentNoteKey =
+  | "packagingDemo"
+  | "precisionBrief"
+  | "valvesImport"
+  | "coatingsUsage"
+  | "investorUpdateTask"
+  | "seedFundPrep";
 
 const en = {
   company: "Gaugewise",
@@ -413,6 +433,24 @@ const en = {
         "I could not reach the model provider, so I stopped before reading anything. Nothing was drafted or changed.",
       ],
     },
+    dueFollowUps: {
+      name: "Every morning, draft follow-ups for opportunities due today",
+      task: 'Every weekday morning, find the open opportunities whose Next step date is today or earlier and whose Stage is Identified, Conversation, Demo, Pilot or Decision. For each one, read the opportunity with its company, contacts, notes and the last linked conversation. If a conversation is linked, save one short follow-up draft with save_message_draft that picks up where the last message stopped and proposes the next step with a date; keep an existing draft instead of writing a second one. If no conversation is linked, create one task "Follow up with <contact name>" due today, linked to the opportunity and the contact, unless an open task for it exists. Never send a message and never change the Stage or the Next step date.',
+      runs: [
+        "Drafted two follow-ups, for Kiln Creek Packaging and Redwater Springs; both wait in their linked conversations for review. Nothing else was due.",
+        "Drafted one follow-up for Copperline Plastics and skipped Harlow Precision, whose reply is already a draft.",
+        "Nothing was due, so there were no drafts and no tasks.",
+      ],
+    },
+    newMailTask: {
+      name: "Turn customer emails into tasks",
+      task: "A new email arrived. Read the message identified by routine_trigger and match the sender to a contact through the contact's identity channels; stop when there is no match. Read the contact's opportunities and the open tasks linked to them. When the email asks a question, sets a deadline or promises something, create one task with mutate_crm_record, named after the request, due on the date the email names or in two days, linked to the opportunity, the company and the contact. Create no task when an open task for the same request exists. Do not draft or send a reply and do not change any other record.",
+      runs: [
+        'Created the task "Answer Ashby\'s IT security questions" due in two days, linked to Ashby Pump Systems and Greg Holloway.',
+        "The email from Kiln Creek Packaging only confirmed a meeting time, so I created no task.",
+        "The sender is not a contact in this workspace, so I stopped and created nothing.",
+      ],
+    },
     investorUpdate: {
       name: "Monthly investor update",
       task: 'On the first of each month, prepare the draft of the monthly investor update as a new Knowledge Base page titled "Investor update <month> <year>". Use query_crm_measure for the won ARR (the Value of Won opportunities), the open and weighted pipeline by stage and the opportunities created last month, and read the investors by Round status with their ticket sizes. Name at most three customer wins and three risks, each backed by a returned record. The page is a draft for the founders to edit and send themselves: do not message investors, send anything or change any record.',
@@ -575,6 +613,158 @@ const en = {
     messages: [
       "Draft this month's investor update and save it as a wiki page.",
       'I saved the draft as the wiki page "Investor update (draft)". The numbers come from the records:\n\n- **Won ARR:** $29,200 from three customers: Lakeview Gear Works ($16,000), Redwater Springs ($7,200) and Tolland Coatings ($6,000).\n- **Open pipeline:** $165,600 ARR in ten opportunities; the largest are Copperline Plastics and Redwater Springs (all four lines) at $24,000 each.\n- **Pilots:** Brennan Castings is in week three on the finishing line; Ashby Pump Systems starts once the IT security questionnaire is signed off (SSO is answered); Kiln Creek Packaging plans a two-line pilot.\n- **Seed round:** $125,000 committed by Robert Kincaid and Thomas Reyes. Northbeam Ventures ($750,000, lead) is in follow-up; your next meeting with them is in the Investor meetings widget.\n\nRisk to mention: Harlow Precision ($18,000) decides after the pricing for three lines. The page is a draft; nothing was sent.',
+    ],
+  },
+  inbox: {
+    plasticsDemo: {
+      subject: "Second demo with both plant leads",
+      messages: [
+        "Hi Rachel,\n\nthanks again for the first demo. For the second one I would like both plant leads in the room, and I will run it with your own inspection steps. Would Thursday at 2 pm work?\n\nBest,\nMax",
+        "Hi Max,\n\nThursday at 2 works for me, and both of Tom's plant leads can make it. One question: plant 2 numbers its parts differently from plant 1. Can the demo handle two numbering schemes?\n\nRachel",
+        "Hi Rachel,\n\nyes, each line has its own part list, so both schemes can live side by side. I am setting up demo data for both plants today, so you can see it with your own part numbers.\n\nBest,\nMax",
+        "Great. I will send you ten part numbers from each plant this afternoon.\n\nRachel",
+      ],
+    },
+    springsLines: {
+      subject: "All four lines at Redwater",
+      messages: [
+        "Hi Susan,\n\nthe two lines have been running for a few weeks now. Should we talk about putting Gaugewise on all four? I can bring the usage numbers from your first two lines.\n\nBest,\nMax",
+        "Hi Max,\n\nyes, my foreman likes it. Before I decide I would like to know what four lines cost. Is it still $3,600 per line?\n\nSusan",
+        "Hi Susan,\n\nthe starter plan was $3,600 per line. For all four lines the annual plan is $6,000 per line, which is $24,000 a year. As an existing customer you should get a better price per line, so let me work out a few options and send them tomorrow.\n\nBest,\nMax",
+        "Thanks. Please keep it simple, one number for four lines. My foreman says three lines would be enough to start and the fourth after the summer. Is that possible?\n\nSusan",
+      ],
+    },
+    valvesPlan: {
+      subject: "Sample inspection plan for incoming goods",
+      messages: [
+        "Hi Max,\n\nthanks for the talk at the trade fair. We check every delivery of valve bodies by hand today. Could you show me what an inspection plan would look like for our three most common parts?\n\nLaura",
+        "Hi Laura,\n\nhappy to. I will build a sample plan with the checks you described: dimensions, surface and the pressure test sign-off. Which three parts should I use?\n\nBest,\nMax",
+        "The DN25 body, the DN40 flange and the seat ring. I have shared the drawings with you in a folder, you should have the invite.\n\nLaura",
+        "Hi Laura,\n\nthanks, I have the folder. I am finishing the sample plan for the DN25 body, the DN40 flange and the seat ring: every part has its checks, tolerances and a photo step. One question before I send it: is the pressure test signed off per batch or per part?\n\nBest,\nMax",
+      ],
+    },
+    seedMetrics: {
+      subject: "Numbers before the coffee",
+      messages: [
+        "Hi Max,\n\nElena would like to look at a few numbers before your coffee: revenue by month, pilot to paid conversion and how many inspections each paying customer logs per week. Could you send them a day before?\n\nBest,\nJosh",
+        "Hi Josh,\n\nyes. Revenue and the pilot conversion are quick. I pull the weekly inspections from the usage log and will send everything by Thursday.\n\nBest,\nMax",
+        "Thursday is fine. Elena also asked how Brennan is doing against the 95% success criterion in the pilot agreement.\n\nJosh",
+      ],
+    },
+    angelUpdate: {
+      subject: "Monthly update",
+      messages: [
+        "Max,\n\nI have not seen the monthly update yet. No pressure, but I like to read it before I speak to the Great Lakes people.\n\nRobert",
+        "Hi Robert,\n\nsorry, it is running late. It goes out by the end of the week with the pilot numbers from Brennan.\n\nBest,\nMax",
+        "Fine. Their partner is back on the 18th. I will make the introduction as soon as I have your update.\n\nRobert",
+        "Hi Robert,\n\nthe update is on its way: Brennan is in week three, Harlow decides on Thursday and Ashby's IT review is nearly done. I will send it tomorrow morning, so you have it before the 18th.\n\nThanks for the introduction.\n\nBest,\nMax",
+      ],
+    },
+    coatingsUsage: {
+      subject: "Usage numbers for the audit",
+      messages: [
+        "Hi Max,\n\nour customer audit is coming up and the auditor will ask how we record inspections on line 1. Could you send me a monthly export of what the tablets logged?\n\nJanet",
+        "Hi Janet,\n\nof course. I will set up a monthly export of the inspection log, one CSV file per month, and send you the first one this week.\n\nBest,\nMax",
+        "Perfect. How many inspections did we log last month?\n\nJanet",
+        "Hi Janet,\n\n2,380 inspections on line 1, almost all of them on the tablet. The export lists every inspection with the inspector and the time and follows in a separate mail. I will walk you through it at the usage review.\n\nBest,\nMax",
+      ],
+    },
+    castingsPlant: {
+      subject: "Third shift training",
+      messages: [
+        "Hi Max,\n\nthe finishing line runs a third shift from next week. Could you give them the same 30-minute training as the others?\n\nKevin",
+        "Hi Kevin,\n\nyes, happy to. I can do it Monday at 10 pm if you want it right at the start of their shift, or in the afternoon with the shift lead only.\n\nBest,\nMax",
+        "Start of the shift is better. There are eleven inspectors on that shift, so bring the quick-start sheet.\n\nKevin",
+        "Hi Kevin,\n\nMonday at 10 pm it is. I will bring the quick-start sheet and a few spare tablets.\n\nBest,\nMax",
+      ],
+    },
+    plasticsCeo: {
+      messages: [
+        "Max, Rachel says yours was the first demo where her team understood the tablet in five minutes. What would a pilot at one plant look like for us?",
+        "Thanks, Tom. Four weeks on one line, with training for every shift and no cost, and we agree on the success criteria upfront. If they are met, the annual plan is $6,000 per line.",
+        "That works for us. We will pick the line after Thursday's demo. Can you send me the pilot agreement you used for Brennan?",
+      ],
+    },
+    syndicatePitch: {
+      messages: [
+        "Hi Max, our next pitch evening is on the 28th in Chicago. We would love to have you: seven minutes plus questions. Interested?",
+        "Hi Caroline, thanks, I would like that. Which evening exactly, and who is in the room?",
+        "The 28th, six angels and two follow-on funds. Doors at 6 pm, you are second. Can you confirm by Friday?",
+        "Yes, please count me in for the 28th. I will bring the one-pager and a live demo on a tablet. Thanks for the invitation, Caroline!",
+      ],
+    },
+    corporateCoffee: {
+      messages: [
+        "Hi Max, looking forward to the coffee. Is the 8:30 slot still good for you?",
+        "Hi Hannah, yes, 8:30 works. I will bring a tablet and show you how a pilot runs at a small plant.",
+        "Perfect. I will bring our manufacturing lead, he wants to see the tablet too.",
+        "Great, see you there.",
+      ],
+    },
+    ventureCatchUp: {
+      messages: [
+        "Max, saw your post about the Brennan pilot. Nice work. Still too early for us, but keep me posted.",
+        "Thanks, Daniel. The next milestone is the Harlow Precision rollout on three lines, which should be decided within two weeks. I will send you a line when it is signed.",
+        "Please do. If the numbers hold, let's talk again in the spring.",
+        "Will do. Thanks, Daniel.",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  agentNotes: {
+    packagingDemo: [
+      "Summary by Claude after the demo call:",
+      "- Brian's team liked the photo checks and wants to start with two lines.",
+      "- Open: how the tablets reach the plant Wi-Fi and who maintains the inspection plans.",
+      "- Next: agree the pilot scope on Monday; the recap and the proposed scope are in the mail thread.",
+    ],
+    precisionBrief: [
+      "Draft by ChatGPT from the pricing PDF and the pilot notes, for the decision call:",
+      "- Three lines at $6,000 each: $18,000 ARR, training for the second shift and SSO included.",
+      "- Aaron is convinced after the pilot; Diane decides in the meeting on Thursday.",
+      "- Questions to expect: the start date (line one two weeks after signing) and who trains the second shift.",
+    ],
+    valvesImport: [
+      "Imported by Codex (script run on the trade fair CSV):",
+      "- 41 rows read, 3 duplicates merged, 6 rows without an email address skipped.",
+      "- Westfield Valve Works was the only match with 150 to 250 employees in the region.",
+      "- Source set to Trade fair; Laura Jensen is the contact from the badge scan.",
+    ],
+    coatingsUsage: [
+      "Usage export by Codex (script run on the inspection log):",
+      "- Line 1 at Tolland logged 2,380 inspections last month, almost all on the tablet.",
+      "- Janet needs a monthly CSV for her customer audit; the script writes one file per month.",
+      "- Next: walk through the export at the usage review and ask about lines 2 and 3.",
+    ],
+    investorUpdateTask: [
+      "Created by Claude from Robert Kincaid's email:",
+      "- He wants the monthly update before he talks to the Great Lakes partner, who is back on the 18th.",
+      "- Include Brennan in week three, the Harlow decision and the IT review at Ashby.",
+    ],
+    seedFundPrep: [
+      "Prep by ChatGPT for the coffee with Northbeam:",
+      "- Elena asked for revenue by month, pilot to paid conversion and weekly inspections per customer.",
+      "- Talking points: three paying customers, Brennan in week three, Harlow deciding on three lines.",
+      "- Open point from the term sheet draft: Northbeam wants next quarter's revenue before signing.",
+    ],
+  } satisfies Record<AgentNoteKey, string[]>,
+  agents: {
+    company: "Gaugewise",
+    records: "companies, opportunities and investors",
+    mate: "Max asks it in the app to look up an opportunity, set the next step or write the recap after a demo; it saves the recap as a draft in the linked conversation.",
+    claude:
+      "Max uses Claude Desktop before and after calls: who the champion is and what the last email said, then the stage, the next step and a note after the call.",
+    chatgpt:
+      "ChatGPT prepares the investor conversations: before a meeting it turns an investor's record, notes and term sheet into talking points.",
+    codex:
+      "Codex handles the scripted jobs: importing trade fair lead lists, merging duplicates and exporting the monthly usage numbers for customers.",
+    followUp:
+      'Every weekday at 08:00 the routine "Every morning, draft follow-ups for opportunities due today" reads the opportunities whose next step date is today or earlier and saves one short follow-up draft per opportunity in its linked conversation; where no conversation is linked, it creates a task. The drafts wait in the Inbox, Max reads, edits and sends them himself, and the routine never sends anything.',
+  } satisfies AgentsPageText,
+  mateChatPlant: {
+    title: "Create the second Brennan plant",
+    messages: [
+      "Kevin Shaw says Brennan's second plant wants to try Gaugewise too. Create an opportunity for it, linked to Brennan Castings and Kevin, and set the next step to ask him who runs that plant.",
+      'Done. I created the opportunity **Brennan Castings – second plant** in the stage Identified:\n\n- **ARR:** $10,000 (2 production lines at $5,000 per line and year). This is an estimate; adjust it when Kevin gives the real number of lines.\n- **Linked to:** Brennan Castings and Kevin Shaw (Plant manager).\n- **Source:** Founder network. **Expected close:** in about four months.\n- **Next step:** "Ask Kevin who runs the second plant", in two weeks.\n\nI did not create a separate task, because the next step and its date already cover it. Nothing was sent to Kevin.',
     ],
   },
   extraEvents: ["Security call with Ashby Pump Systems", "Usage review with Redwater Springs"],
@@ -902,6 +1092,24 @@ const de: Strings = {
         "Ich konnte den Modellanbieter nicht erreichen und habe aufgehört, bevor ich etwas gelesen habe. Nichts wurde entworfen oder geändert.",
       ],
     },
+    dueFollowUps: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen",
+      task: "Finde jeden Werktagmorgen die offenen Verkaufschancen, deren Datum nächster Schritt heute oder früher liegt und deren Phase Identifiziert, Im Gespräch, Demo, Pilotphase oder Entscheidung ist. Lies zu jeder die Verkaufschance mit Firma, Kontakten, Notizen und dem letzten verknüpften Gespräch. Ist ein Gespräch verknüpft, speichere mit save_message_draft einen kurzen Nachfass-Entwurf, der dort anknüpft, wo die letzte Nachricht aufgehört hat, und den nächsten Schritt mit Datum vorschlägt; lass einen vorhandenen Entwurf stehen, statt einen zweiten zu schreiben. Ist kein Gespräch verknüpft, lege eine Aufgabe „Nachfassen bei <Name des Kontakts>“ mit Fälligkeit heute an, verknüpft mit der Verkaufschance und dem Kontakt, es sei denn, es gibt dafür schon eine offene Aufgabe. Sende nie eine Nachricht und ändere nie die Phase oder das Datum nächster Schritt.",
+      runs: [
+        "Zwei Nachfass-Entwürfe geschrieben, für Verpackungen Lindau und die Federnfabrik Rauscher; beide liegen in den verknüpften Gesprächen zur Prüfung bereit. Sonst war nichts fällig.",
+        "Einen Nachfass-Entwurf für Kunststofftechnik Wiesental geschrieben und Hartmann Präzisionstechnik übersprungen: Die Antwort dort ist schon ein Entwurf.",
+        "Es war nichts fällig, deshalb gab es keine Entwürfe und keine Aufgaben.",
+      ],
+    },
+    newMailTask: {
+      name: "Kundenmails in Aufgaben verwandeln",
+      task: "Eine neue E-Mail ist eingegangen. Lies die Nachricht aus routine_trigger und ordne den Absender über die Identitätskanäle einem Kontakt zu; brich ab, wenn es keinen Treffer gibt. Lies die Verkaufschancen des Kontakts und die offenen Aufgaben dazu. Stellt die E-Mail eine Frage, nennt eine Frist oder macht ein Versprechen, lege mit mutate_crm_record eine Aufgabe an, benannt nach der Bitte, fällig an dem Datum aus der E-Mail oder in zwei Tagen, verknüpft mit Verkaufschance, Firma und Kontakt. Lege keine Aufgabe an, wenn es für dieselbe Bitte schon eine offene gibt. Entwirf und sende keine Antwort und ändere keinen anderen Datensatz.",
+      runs: [
+        "Aufgabe „IT-Sicherheitsfragen von Hollerbach beantworten“ in zwei Tagen fällig angelegt, verknüpft mit Pumpenbau Hollerbach und Georg Huber.",
+        "Die E-Mail von Verpackungen Lindau bestätigte nur einen Termin, deshalb habe ich keine Aufgabe angelegt.",
+        "Der Absender ist kein Kontakt in diesem Arbeitsbereich, deshalb habe ich abgebrochen und nichts angelegt.",
+      ],
+    },
     investorUpdate: {
       name: "Monatliches Investoren-Update",
       task: "Bereite am Ersten jedes Monats den Entwurf des monatlichen Investoren-Updates als neue Seite der Wissensdatenbank mit dem Titel „Investoren-Update <Monat> <Jahr>“ vor. Nutze query_crm_measure für den gewonnenen ARR (den Wert gewonnener Verkaufschancen), die offene und gewichtete Pipeline nach Phase und die im letzten Monat angelegten Verkaufschancen, und lies die Investoren nach Rundenstatus mit ihren Ticketgrößen. Nenne höchstens drei Kundengewinne und drei Risiken, jeweils belegt durch einen gelesenen Datensatz. Die Seite ist ein Entwurf, den die Gründer selbst überarbeiten und versenden: schreib keinen Investoren an, sende nichts und ändere keinen Datensatz.",
@@ -1074,6 +1282,158 @@ const de: Strings = {
       "Ich habe den Entwurf als Wiki-Seite „Investoren-Update (Entwurf)“ gespeichert. Die Zahlen stammen aus den Datensätzen:\n\n- **Gewonnener ARR:** 29.200 € von drei Kunden: Getriebebau Seewald (16.000 €), Federnfabrik Rauscher (7.200 €) und Oberflächentechnik Neuhaus (6.000 €).\n- **Offene Pipeline:** 165.600 € ARR in zehn Verkaufschancen; am größten sind Kunststofftechnik Wiesental und Federnfabrik Rauscher (alle vier Linien) mit je 24.000 €.\n- **Piloten:** Die Gießerei Brenner ist in Woche drei in der Putzerei; Pumpenbau Hollerbach startet, sobald der IT-Sicherheitsfragebogen freigegeben ist (SSO ist beantwortet); Verpackungen Lindau plant einen Pilot auf zwei Linien.\n- **Seed-Runde:** 125.000 € zugesagt von zwei Business Angels. Nordlicht Seed (750.000 €, Lead) ist im Follow-up; der nächste Termin steht im Widget „Investorentermine“.\n\nRisiko für das Update: Hartmann Präzisionstechnik (18.000 €) entscheidet nach den Preisen für drei Linien. Die Seite ist ein Entwurf; es wurde nichts versendet.",
     ],
   },
+  inbox: {
+    plasticsDemo: {
+      subject: "Zweite Demo mit beiden Werksleitern",
+      messages: [
+        "Guten Tag Frau Kaiser,\n\nnoch einmal vielen Dank für die erste Demo. Für die zweite würde ich gern beide Werksleiter dabeihaben und sie mit Ihren eigenen Prüfschritten durchführen. Würde Donnerstag um 14 Uhr passen?\n\nViele Grüße\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\nDonnerstag um 14 Uhr passt, und beide Werksleiter von Herrn Wiesner können kommen. Eine Frage: Werk 2 nummeriert seine Teile anders als Werk 1. Kommt die Demo mit zwei Nummernschemata zurecht?\n\nRenate Kaiser",
+        "Guten Tag Frau Kaiser,\n\nja, jede Linie hat ihre eigene Teileliste, beide Schemata laufen also nebeneinander. Ich richte heute Demodaten für beide Werke ein, damit Sie es mit Ihren eigenen Teilenummern sehen.\n\nViele Grüße\nMax Bergmann",
+        "Prima. Ich schicke Ihnen heute Nachmittag je zehn Teilenummern aus beiden Werken.\n\nRenate Kaiser",
+      ],
+    },
+    springsLines: {
+      subject: "Alle vier Linien bei Rauscher",
+      messages: [
+        "Sehr geehrte Frau Rauscher,\n\ndie zwei Linien laufen jetzt seit einigen Wochen. Sollen wir darüber sprechen, Messwerk auf alle vier auszuweiten? Ich bringe die Nutzungszahlen Ihrer ersten beiden Linien mit.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\nja, mein Vorarbeiter ist angetan. Bevor ich entscheide, möchte ich wissen, was vier Linien kosten. Sind es weiterhin 3.600 € pro Linie?\n\nSusanne Rauscher",
+        "Sehr geehrte Frau Rauscher,\n\ndas Einstiegspaket lag bei 3.600 € pro Linie. Für alle vier Linien kostet der Jahresplan 6.000 € pro Linie, also 24.000 € im Jahr. Als Bestandskundin sollten Sie einen besseren Preis pro Linie bekommen, ich rechne deshalb ein paar Varianten durch und schicke sie Ihnen morgen.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Danke. Bitte machen Sie es einfach, eine Zahl für vier Linien. Mein Vorarbeiter meint, drei Linien würden zum Start reichen und die vierte nach dem Sommer. Ist das möglich?\n\nSusanne Rauscher",
+      ],
+    },
+    valvesPlan: {
+      subject: "Beispiel-Prüfplan für den Wareneingang",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\ndanke für das Gespräch auf der Messe. Wir prüfen jede Lieferung von Ventilgehäusen heute von Hand. Könnten Sie mir zeigen, wie ein Prüfplan für unsere drei häufigsten Teile aussehen würde?\n\nLaura Jansen",
+        "Guten Tag Frau Jansen,\n\ngern. Ich baue einen Beispielplan mit den Prüfungen, die Sie beschrieben haben: Maße, Oberfläche und die Freigabe der Druckprüfung. Welche drei Teile soll ich nehmen?\n\nViele Grüße\nMax Bergmann",
+        "Den Gehäusekörper DN25, den Flansch DN40 und den Dichtsitzring. Die Zeichnungen habe ich Ihnen in einem Ordner freigegeben, Sie müssten die Einladung haben.\n\nLaura Jansen",
+        "Guten Tag Frau Jansen,\n\ndanke, ich habe den Ordner. Ich stelle den Beispielplan für den Gehäusekörper DN25, den Flansch DN40 und den Dichtsitzring gerade fertig: Jedes Teil hat seine Prüfungen, Toleranzen und einen Fotoschritt. Eine Frage, bevor ich ihn schicke: Wird die Druckprüfung pro Charge oder pro Teil freigegeben?\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    seedMetrics: {
+      subject: "Zahlen vor dem Kaffee",
+      messages: [
+        "Hallo Herr Bergmann,\n\nFrau Marquardt möchte sich vor Ihrem Kaffee ein paar Zahlen ansehen: den Umsatz pro Monat, die Konversion vom Pilot zum zahlenden Kunden und wie viele Prüfungen jeder zahlende Kunde pro Woche erfasst. Könnten Sie sie einen Tag vorher schicken?\n\nViele Grüße\nJonas Petersen",
+        "Hallo Herr Petersen,\n\nja. Umsatz und Pilotkonversion habe ich schnell zusammen. Die wöchentlichen Prüfungen ziehe ich aus dem Nutzungsprotokoll und schicke Ihnen alles bis Donnerstag.\n\nViele Grüße\nMax Bergmann",
+        "Donnerstag passt. Frau Marquardt fragt außerdem, wie die Gießerei Brenner gegenüber dem Erfolgskriterium von 95 Prozent aus der Pilotvereinbarung liegt.\n\nJonas Petersen",
+      ],
+    },
+    angelUpdate: {
+      subject: "Monatliches Update",
+      messages: [
+        "Herr Bergmann,\n\nich habe das monatliche Update noch nicht gesehen. Kein Druck, aber ich lese es gern, bevor ich mit den Leuten vom Mittelstandsfonds spreche.\n\nRolf Kindermann",
+        "Guten Tag Herr Kindermann,\n\nentschuldigen Sie, es verzögert sich. Es geht bis Ende der Woche raus, mit den Pilotzahlen aus der Gießerei Brenner.\n\nViele Grüße\nMax Bergmann",
+        "Gut. Deren Partner ist am 18. zurück. Ich stelle Sie vor, sobald ich Ihr Update habe.\n\nRolf Kindermann",
+        "Guten Tag Herr Kindermann,\n\ndas Update ist unterwegs: Brenner ist in Woche drei, Hartmann entscheidet am Donnerstag, und die IT-Prüfung bei Hollerbach ist fast abgeschlossen. Ich schicke es morgen früh, damit Sie es vor dem 18. haben.\n\nDanke für die Vorstellung.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    coatingsUsage: {
+      subject: "Nutzungszahlen für das Audit",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\nunser Kundenaudit steht an, und der Auditor wird fragen, wie wir die Prüfungen an Linie 1 erfassen. Könnten Sie mir monatlich einen Export dessen schicken, was die Tablets erfasst haben?\n\nViele Grüße\nJana Kolb",
+        "Guten Tag Frau Kolb,\n\nselbstverständlich. Ich richte einen monatlichen Export des Prüfprotokolls ein, eine CSV-Datei pro Monat, und schicke Ihnen die erste noch diese Woche.\n\nViele Grüße\nMax Bergmann",
+        "Sehr gut. Wie viele Prüfungen haben wir im letzten Monat erfasst?\n\nJana Kolb",
+        "Guten Tag Frau Kolb,\n\n2.380 Prüfungen an Linie 1, fast alle auf dem Tablet. Der Export listet jede Prüfung mit Prüfer und Uhrzeit auf und folgt in einer separaten Mail. Ich gehe ihn beim Nutzungsgespräch mit Ihnen durch.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    castingsPlant: {
+      subject: "Schulung der dritten Schicht",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\nab nächster Woche läuft in der Putzerei eine dritte Schicht. Könnten Sie ihr dieselbe Schulung von 30 Minuten geben wie den anderen?\n\nKlaus Steiner",
+        "Guten Tag Herr Steiner,\n\ngern. Ich kann sie Montag um 22 Uhr zu Schichtbeginn halten oder am Nachmittag nur mit dem Schichtführer.\n\nViele Grüße\nMax Bergmann",
+        "Zu Schichtbeginn ist besser. In der Schicht sind elf Prüfer, bringen Sie das Kurzanleitungsblatt mit.\n\nKlaus Steiner",
+        "Guten Tag Herr Steiner,\n\nMontag um 22 Uhr, abgemacht. Ich bringe das Kurzanleitungsblatt und ein paar Ersatztablets mit.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    plasticsCeo: {
+      messages: [
+        "Herr Bergmann, Frau Kaiser sagt, es war die erste Demo, bei der ihr Team das Tablet in fünf Minuten verstanden hat. Wie würde ein Pilot in einem Werk bei uns aussehen?",
+        "Danke, Herr Wiesner. Vier Wochen auf einer Linie, mit Schulung für jede Schicht und ohne Kosten, und wir legen die Erfolgskriterien vorher fest. Wenn sie erreicht werden, kostet der Jahresplan 6.000 € pro Linie.",
+        "Das passt für uns. Die Linie suchen wir nach der Demo am Donnerstag aus. Können Sie mir die Pilotvereinbarung schicken, die Sie bei Brenner genutzt haben?",
+      ],
+    },
+    syndicatePitch: {
+      messages: [
+        "Hallo Herr Bergmann, unser nächster Pitch-Abend ist am 28. in Stuttgart. Wir hätten Sie gern dabei: sieben Minuten plus Fragen. Haben Sie Interesse?",
+        "Hallo Frau Weber, danke, sehr gern. Welcher Abend genau, und wer sitzt im Raum?",
+        "Der 28., sechs Business Angels und zwei Folgeinvestoren. Einlass um 18 Uhr, Sie sind als Zweiter dran. Können Sie bis Freitag zusagen?",
+        "Ja, bitte planen Sie mich für den 28. ein. Ich bringe den One-Pager und eine Live-Demo auf dem Tablet mit. Danke für die Einladung, Frau Weber!",
+      ],
+    },
+    corporateCoffee: {
+      messages: [
+        "Hallo Herr Bergmann, ich freue mich auf den Kaffee. Passt der Termin um 8:30 Uhr weiterhin?",
+        "Hallo Frau Lorenz, ja, 8:30 Uhr passt. Ich bringe ein Tablet mit und zeige Ihnen, wie ein Pilot in einem kleinen Werk abläuft.",
+        "Sehr gut. Ich bringe unseren Leiter Fertigung mit, er möchte das Tablet auch sehen.",
+        "Prima, bis dahin.",
+      ],
+    },
+    ventureCatchUp: {
+      messages: [
+        "Herr Bergmann, ich habe Ihren Beitrag zum Pilot bei Brenner gesehen. Gute Arbeit. Für uns noch zu früh, aber halten Sie mich auf dem Laufenden.",
+        "Danke, Herr Ohlsen. Der nächste Meilenstein ist die Einführung bei Hartmann Präzisionstechnik auf drei Linien, die innerhalb von zwei Wochen entschieden werden sollte. Ich melde mich mit einer Zeile, sobald unterschrieben ist.",
+        "Bitte tun Sie das. Wenn die Zahlen halten, sprechen wir im Frühjahr noch einmal.",
+        "Mache ich. Danke, Herr Ohlsen.",
+      ],
+    },
+  },
+  agentNotes: {
+    packagingDemo: [
+      "Zusammenfassung von Claude nach dem Demo-Gespräch:",
+      "- Das Team von Herrn Fuchs fand die Fotoprüfung gut und möchte mit zwei Linien starten.",
+      "- Offen: wie die Tablets ins Werks-WLAN kommen und wer die Prüfpläne pflegt.",
+      "- Nächstes: Pilotumfang am Montag abstimmen; Zusammenfassung und Vorschlag stehen im E-Mail-Verlauf.",
+    ],
+    precisionBrief: [
+      "Entwurf von ChatGPT aus dem Preisangebot und den Pilotnotizen für den Entscheidungstermin:",
+      "- Drei Linien zu je 6.000 €: 18.000 € ARR, Schulung der Spätschicht und SSO inklusive.",
+      "- Herr Vogt ist nach dem Pilot überzeugt; Frau Hartmann entscheidet im Termin am Donnerstag.",
+      "- Zu erwartende Fragen: der Starttermin (Linie eins zwei Wochen nach Unterschrift) und wer die Spätschicht schult.",
+    ],
+    valvesImport: [
+      "Importiert von Codex (Skriptlauf auf der Messe-CSV):",
+      "- 41 Zeilen gelesen, 3 Dubletten zusammengeführt, 6 Zeilen ohne E-Mail-Adresse übersprungen.",
+      "- Das Armaturenwerk Falkenberg war der einzige Treffer mit 150 bis 250 Mitarbeitenden in der Region.",
+      "- Quelle auf Messe gesetzt; Frau Jansen ist der Kontakt vom Badge-Scan.",
+    ],
+    coatingsUsage: [
+      "Nutzungsexport von Codex (Skriptlauf auf dem Prüfprotokoll):",
+      "- Linie 1 bei Neuhaus hat im letzten Monat 2.380 Prüfungen erfasst, fast alle auf dem Tablet.",
+      "- Frau Kolb braucht für ihr Kundenaudit eine monatliche CSV-Datei; das Skript schreibt eine Datei pro Monat.",
+      "- Nächstes: den Export im Nutzungsgespräch durchgehen und nach den Linien 2 und 3 fragen.",
+    ],
+    investorUpdateTask: [
+      "Angelegt von Claude aus der E-Mail von Rolf Kindermann:",
+      "- Er möchte das monatliche Update, bevor er mit dem Partner des Mittelstandsfonds spricht, der am 18. zurück ist.",
+      "- Aufnehmen: Brenner in Woche drei, die Entscheidung bei Hartmann und die IT-Prüfung bei Hollerbach.",
+    ],
+    seedFundPrep: [
+      "Vorbereitung von ChatGPT für den Kaffee mit Nordlicht Seed:",
+      "- Frau Marquardt hat nach Umsatz pro Monat, Konversion vom Pilot zum zahlenden Kunden und wöchentlichen Prüfungen pro Kunde gefragt.",
+      "- Gesprächspunkte: drei zahlende Kunden, Brenner in Woche drei, Hartmann entscheidet über drei Linien.",
+      "- Offener Punkt aus dem Term-Sheet-Entwurf: Nordlicht Seed möchte den Umsatz des nächsten Quartals sehen, bevor es unterschreibt.",
+    ],
+  },
+  agents: {
+    company: "Messwerk",
+    records: "Firmen, Verkaufschancen und Investoren",
+    mate: "Max bittet es in der App, eine Verkaufschance nachzuschlagen, den nächsten Schritt zu setzen oder nach einer Demo die Zusammenfassung zu schreiben; es speichert sie als Entwurf im verknüpften Gespräch.",
+    claude:
+      "Max nutzt Claude Desktop vor und nach Terminen: wer der Fürsprecher ist und was in der letzten E-Mail stand, danach Phase, nächster Schritt und eine Notiz nach dem Gespräch.",
+    chatgpt:
+      "ChatGPT bereitet die Investorengespräche vor: Vor einem Termin macht es aus dem Datensatz, den Notizen und dem Term Sheet eines Investors Gesprächspunkte.",
+    codex:
+      "Codex übernimmt die Skriptarbeit: Messe-Leadlisten importieren, Dubletten zusammenführen und die monatlichen Nutzungszahlen für Kunden exportieren.",
+    followUp:
+      "Jeden Werktag um 8 Uhr liest die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen“ die Verkaufschancen, deren Datum für den nächsten Schritt heute oder früher liegt, und speichert pro Verkaufschance einen kurzen Nachfass-Entwurf im verknüpften Gespräch; wo keines verknüpft ist, legt sie eine Aufgabe an. Die Entwürfe warten im Posteingang, Max liest, ändert und sendet sie selbst, und die Routine sendet nie etwas.",
+  },
+  mateChatPlant: {
+    title: "Zweites Werk bei Brenner anlegen",
+    messages: [
+      "Herr Steiner sagt, dass das zweite Werk der Gießerei Brenner Messwerk auch ausprobieren möchte. Leg dafür eine Verkaufschance an, verknüpft mit der Gießerei Brenner und Herrn Steiner, und setz als nächsten Schritt, ihn zu fragen, wer das Werk leitet.",
+      "Erledigt. Ich habe die Verkaufschance **Gießerei Brenner – zweites Werk** in der Phase Identifiziert angelegt:\n\n- **ARR:** 10.000 € (2 Produktionslinien zu 5.000 € pro Linie und Jahr). Das ist eine Schätzung; passe sie an, sobald Herr Steiner die tatsächliche Zahl der Linien nennt.\n- **Verknüpft mit:** Gießerei Brenner und Klaus Steiner (Werksleiter).\n- **Quelle:** Gründernetzwerk. **Erwarteter Abschluss:** in etwa vier Monaten.\n- **Nächster Schritt:** „Herrn Steiner nach der Leitung des zweiten Werks fragen“, in zwei Wochen.\n\nEine eigene Aufgabe habe ich nicht angelegt, weil der nächste Schritt mit seinem Datum das schon abdeckt. Es wurde nichts an Herrn Steiner gesendet.",
+    ],
+  },
   extraEvents: ["Sicherheitstermin mit Pumpenbau Hollerbach", "Nutzungsbesprechung mit der Federnfabrik Rauscher"],
 };
 
@@ -1103,35 +1463,33 @@ const CONTACT_FACTS: Record<
     role?: string;
     createdDaysAgo: number;
     linkedin?: boolean;
-    avatar?: Parameters<typeof photo>[0];
   }
 > = {
-  precisionQm: { organization: "precision", role: "champion", createdDaysAgo: 94, avatar: "leon-becker" },
-  precisionCeo: { organization: "precision", role: "decisionMaker", createdDaysAgo: 60, avatar: "anna-mueller" },
+  precisionQm: { organization: "precision", role: "champion", createdDaysAgo: 94 },
+  precisionCeo: { organization: "precision", role: "decisionMaker", createdDaysAgo: 60 },
   castingsQm: { organization: "castings", role: "champion", createdDaysAgo: 69, linkedin: true },
   castingsPlant: { organization: "castings", role: "decisionMaker", createdDaysAgo: 40 },
-  plasticsOps: { organization: "plastics", role: "champion", createdDaysAgo: 29, avatar: "mia-schneider" },
-  plasticsCeo: { organization: "plastics", role: "decisionMaker", createdDaysAgo: 12 },
+  plasticsOps: { organization: "plastics", role: "champion", createdDaysAgo: 29 },
+  plasticsCeo: { organization: "plastics", role: "decisionMaker", createdDaysAgo: 12, linkedin: true },
   valvesQm: { organization: "valves", role: "evaluator", createdDaysAgo: 21 },
   packagingOps: {
     organization: "packaging",
     role: "decisionMaker",
     createdDaysAgo: 25,
     linkedin: true,
-    avatar: "felix-koch",
   },
   springsCeo: { organization: "springs", role: "decisionMaker", createdDaysAgo: 148 },
   pumpsQm: { organization: "pumps", role: "champion", createdDaysAgo: 54 },
-  pumpsIt: { organization: "pumps", role: "evaluator", createdDaysAgo: 18, avatar: "tim-wagner" },
-  opticsQm: { organization: "optics", role: "champion", createdDaysAgo: 5, linkedin: true, avatar: "leila-chen" },
+  pumpsIt: { organization: "pumps", role: "evaluator", createdDaysAgo: 18 },
+  opticsQm: { organization: "optics", role: "champion", createdDaysAgo: 5, linkedin: true },
   furnitureOps: { organization: "furniture", role: "decisionMaker", createdDaysAgo: 118 },
   coatingsCeo: { organization: "coatings", role: "decisionMaker", createdDaysAgo: 178 },
-  seedPartner: { investor: "seedFund", createdDaysAgo: 200, avatar: "lina-alvarez" },
+  seedPartner: { investor: "seedFund", createdDaysAgo: 200 },
   seedAssociate: { investor: "seedFund", createdDaysAgo: 120 },
-  angel: { investor: "angel", createdDaysAgo: 340, avatar: "reinhold-mertens" },
-  syndicateLead: { investor: "syndicate", createdDaysAgo: 15 },
-  ventureVp: { investor: "ventureFund", createdDaysAgo: 90 },
-  corporatePrincipal: { investor: "corporate", createdDaysAgo: 35 },
+  angel: { investor: "angel", createdDaysAgo: 340 },
+  syndicateLead: { investor: "syndicate", createdDaysAgo: 15, linkedin: true },
+  ventureVp: { investor: "ventureFund", createdDaysAgo: 90, linkedin: true },
+  corporatePrincipal: { investor: "corporate", createdDaysAgo: 35, linkedin: true },
 };
 
 type DealFacts = {
@@ -1221,7 +1579,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     price: 7500,
     createdDaysAgo: 24,
     close: 50,
-    next: 1,
+    next: 0,
     pilot: [10, 37],
     history: [
       { daysAgo: 15, stage: "conversation" },
@@ -1366,7 +1724,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     price: 6000,
     createdDaysAgo: 16,
     close: 35,
-    next: 2,
+    next: -1,
     history: [{ daysAgo: 12, stage: "conversation" }],
   },
 };
@@ -1514,7 +1872,7 @@ const TASK_FACTS: Record<
   plasticsDemo: {
     status: "inProgress",
     priority: "high",
-    due: 1,
+    due: 0,
     deal: "plasticsPlatform",
     contact: "plasticsOps",
     createdDaysAgo: 6,
@@ -1567,6 +1925,129 @@ function mailbox(name: string): string {
     .replace(/[^a-z]/g, "");
 }
 
+const INBOX_PLANS: ReadonlyArray<InboxThreadPlan & { key: InboxKey }> = [
+  {
+    key: "plasticsDemo",
+    account: "google",
+    with: ["plasticsOps"],
+    state: "unread",
+    latestMinutesAgo: 25,
+    speakers: ["self", "plasticsOps", "self", "plasticsOps"],
+    links: ["deal:plasticsPlatform", "organization:plastics"],
+  },
+  {
+    key: "syndicatePitch",
+    account: "linkedin",
+    with: ["syndicateLead"],
+    state: "unread",
+    latestMinutesAgo: 75,
+    speakers: ["syndicateLead", "self", "syndicateLead", "self"],
+    draft: true,
+    links: ["investor:syndicate"],
+  },
+  {
+    key: "springsLines",
+    account: "google",
+    with: ["springsCeo"],
+    state: "open",
+    latestMinutesAgo: 6 * 60,
+    speakers: ["self", "springsCeo", "self", "springsCeo"],
+    links: ["deal:springsExpansion", "organization:springs"],
+  },
+  {
+    key: "angelUpdate",
+    account: "google",
+    with: ["angel"],
+    state: "open",
+    latestMinutesAgo: 9 * 60,
+    speakers: ["angel", "self", "angel", "self"],
+    draft: true,
+    links: ["investor:angel"],
+  },
+  {
+    key: "valvesPlan",
+    account: "google",
+    with: ["valvesQm"],
+    state: "open",
+    latestMinutesAgo: 20 * 60,
+    speakers: ["valvesQm", "self", "valvesQm", "self"],
+    draft: true,
+    links: ["deal:valvesInspection", "organization:valves"],
+  },
+  {
+    key: "seedMetrics",
+    account: "google",
+    with: ["seedAssociate"],
+    state: "open",
+    latestMinutesAgo: 30 * 60,
+    speakers: ["seedAssociate", "self", "seedAssociate"],
+    links: ["investor:seedFund"],
+  },
+  {
+    key: "plasticsCeo",
+    account: "linkedin",
+    with: ["plasticsCeo"],
+    state: "open",
+    latestMinutesAgo: 50 * 60,
+    speakers: ["plasticsCeo", "self", "plasticsCeo"],
+    links: ["deal:plasticsPlatform"],
+  },
+  {
+    key: "castingsPlant",
+    account: "google",
+    with: ["castingsPlant"],
+    state: "open",
+    latestMinutesAgo: 4 * 24 * 60,
+    speakers: ["castingsPlant", "self", "castingsPlant", "self"],
+    links: ["deal:castingsPilot", "organization:castings"],
+  },
+  {
+    key: "coatingsUsage",
+    account: "google",
+    with: ["coatingsCeo"],
+    state: "open",
+    latestMinutesAgo: 5 * 24 * 60,
+    speakers: ["coatingsCeo", "self", "coatingsCeo", "self"],
+    links: ["deal:coatingsExpansion", "organization:coatings"],
+  },
+  {
+    key: "corporateCoffee",
+    account: "linkedin",
+    with: ["corporatePrincipal"],
+    state: "open",
+    latestMinutesAgo: 6 * 24 * 60 + 12 * 60,
+    speakers: ["corporatePrincipal", "self", "corporatePrincipal", "self"],
+    links: ["investor:corporate"],
+  },
+  {
+    key: "ventureCatchUp",
+    account: "linkedin",
+    with: ["ventureVp"],
+    state: "open",
+    latestMinutesAgo: 11 * 24 * 60,
+    speakers: ["ventureVp", "self", "ventureVp", "self"],
+    links: ["investor:ventureFund"],
+  },
+];
+
+const DEAL_AGENT_NOTES: Partial<Record<DealKey, AgentNoteKey>> = {
+  packagingLines: "packagingDemo",
+  precisionRollout: "precisionBrief",
+  valvesInspection: "valvesImport",
+  coatingsExpansion: "coatingsUsage",
+};
+const TASK_AGENT_NOTES: Partial<Record<TaskKey, AgentNoteKey>> = { investorUpdate: "investorUpdateTask" };
+const INVESTOR_AGENT_NOTES: Partial<Record<InvestorKey, AgentNoteKey>> = { seedFund: "seedFundPrep" };
+
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:packagingLines": "Claude Desktop",
+  "task:investorUpdate": "Claude Desktop",
+  "deal:precisionRollout": "ChatGPT",
+  "investor:seedFund": "ChatGPT",
+  "deal:valvesInspection": "Codex CLI",
+  "deal:coatingsExpansion": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "startups",
   strings: { en, de },
@@ -1574,7 +2055,8 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/Chicago" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
+    const agentNote = (key?: AgentNoteKey): Record<string, string[]> => (key ? { notes: t.agentNotes[key] } : {});
     const phone = (index: number) => phoneNumber(t.phones.mobile, index);
     const open = ["identified", "conversation", "demo", "pilot", "decision"];
     const label = <K extends string>(
@@ -1625,7 +2107,6 @@ export default defineSolution<Strings>({
             ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
             : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -1647,6 +2128,7 @@ export default defineSolution<Strings>({
           ...(facts.next === undefined ? {} : { nextStepDate: day(facts.next) }),
           ...(facts.pilot ? { pilotPeriod: range(facts.pilot[0], facts.pilot[1]) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
+          ...agentNote(DEAL_AGENT_NOTES[key]),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
         owner: "maxBergmann",
@@ -1680,7 +2162,7 @@ export default defineSolution<Strings>({
           leadInvestor: facts.lead === true,
           ...(introBy ? { introBy } : {}),
           focus,
-          notes,
+          notes: INVESTOR_AGENT_NOTES[key] ? [notes, "", ...t.agentNotes[INVESTOR_AGENT_NOTES[key]]] : notes,
           ...(facts.last === undefined ? {} : { lastConversation: day(facts.last) }),
           ...(facts.meeting ? { nextMeeting: at(facts.meeting[0], facts.meeting[1]) } : {}),
         },
@@ -1698,7 +2180,13 @@ export default defineSolution<Strings>({
       const organizationKey = facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        values: {
+          name: t.tasks[key],
+          status: facts.status,
+          priority: facts.priority,
+          dueDate: day(facts.due),
+          ...agentNote(TASK_AGENT_NOTES[key]),
+        },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
@@ -1872,7 +2360,7 @@ export default defineSolution<Strings>({
           targetCardinality: "one",
         },
       ],
-      records: { organization, contact, deal, investor, task },
+      records: agentEdited({ organization, contact, deal, investor, task }, AGENT_EDITS),
       views: [
         {
           key: "pipeline",
@@ -2035,6 +2523,7 @@ export default defineSolution<Strings>({
           markdown: t.wiki.afterDemo.markdown,
         },
         { key: "mcp", kind: "knowledge", title: t.mcp.title, markdown: t.mcp.markdown },
+        agentsPage(locale, t.agents),
       ],
       dealValue: { kind: "product", left: "deal.productionLines", right: "deal.pricePerLine" },
       files,
@@ -2065,6 +2554,14 @@ export default defineSolution<Strings>({
             { role: "assistant", text: t.mateChat.messages[1] },
           ],
         },
+        {
+          title: t.mateChatPlant.title,
+          endedHoursAgo: 192,
+          messages: [
+            { role: "user", text: t.mateChatPlant.messages[0] },
+            { role: "assistant", text: t.mateChatPlant.messages[1] },
+          ],
+        },
       ],
       webhooks: [
         {
@@ -2077,7 +2574,7 @@ export default defineSolution<Strings>({
           deliveries: 3,
         },
       ],
-      apiKeys: [{ name: "Claude Desktop", createdDaysAgo: 40 }],
+      apiKeys: agentApiKeys([40, 26, 11]),
       routines: [
         {
           key: "demoRecap",
@@ -2134,6 +2631,64 @@ export default defineSolution<Strings>({
               durationSeconds: 128,
               credits: 19,
               summary: t.routines.investorUpdate.runs[1],
+            },
+          ],
+        },
+        {
+          key: "dueFollowUps",
+          name: t.routines.dueFollowUps.name,
+          task: t.routines.dueFollowUps.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 30,
+              durationSeconds: 96,
+              credits: 14,
+              summary: t.routines.dueFollowUps.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 54,
+              durationSeconds: 71,
+              credits: 10,
+              summary: t.routines.dueFollowUps.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 78,
+              durationSeconds: 18,
+              credits: 3,
+              summary: t.routines.dueFollowUps.runs[2],
+            },
+          ],
+        },
+        {
+          key: "newMailTask",
+          name: t.routines.newMailTask.name,
+          task: t.routines.newMailTask.task,
+          trigger: { kind: "event", events: ["messaging.email.received"], debounceSeconds: 300, sample: { thread: 1 } },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 71,
+              durationSeconds: 43,
+              credits: 6,
+              summary: t.routines.newMailTask.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 150,
+              durationSeconds: 22,
+              credits: 3,
+              summary: t.routines.newMailTask.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 220,
+              durationSeconds: 14,
+              credits: 2,
+              summary: t.routines.newMailTask.runs[2],
             },
           ],
         },
@@ -2223,6 +2778,7 @@ export default defineSolution<Strings>({
             ],
             links: ["deal:packagingLines"],
           },
+          ...inboxThreads(INBOX_PLANS, t.inbox),
         ],
         calendar: {
           name: t.calendar.name,

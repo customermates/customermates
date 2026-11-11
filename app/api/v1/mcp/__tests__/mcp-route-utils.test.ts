@@ -11,6 +11,7 @@ import {
   EmailVerificationRequiredError,
 } from "@/core/auth/email-verification-required-error";
 import { WorkspacePlanRequiredError } from "@/core/auth/workspace-plan-required-error";
+import { ApiRateLimitExceededError } from "@/core/auth/api-rate-limit-exceeded-error";
 import { MCP_SERVER_INFO } from "@/features/mcp-tools/server-metadata";
 import { buildMcpServerCard } from "@/features/mcp-tools/server-card";
 
@@ -27,7 +28,10 @@ const apiKeys = vi.hoisted(() => ({
   authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
 }));
 
+const requestLimit = vi.hoisted(() => ({ exemptCurrentRequestFromIntegrationLimit: vi.fn(() => Promise.resolve()) }));
+
 vi.mock("@/core/observability/server", () => sentry);
+vi.mock("@/ee/subscription/integration-request-limiter", () => requestLimit);
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
 vi.mock("@/core/di", () => ({
   getUpsertCustomColumnInteractor: vi.fn(),
@@ -38,7 +42,7 @@ vi.mock("@/core/di", () => ({
   getAuthorizeMcpConnectionInteractor: () => ({ invoke: apiKeys.authorize }),
 }));
 
-import { createMcpRoute } from "../mcp-route-utils";
+import { createMcpRoute, readMcpToolCall } from "../mcp-route-utils";
 
 const expectedFailureTool: McpTool = {
   name: "expected_failure",
@@ -286,6 +290,101 @@ describe("public MCP execution boundary", () => {
 
     expect(refused.response.status).toBe(403);
     expect(refused.data).toMatchObject({ error: "plan_required", message: expect.stringContaining("no plan yet") });
+  });
+
+  it("counts only tool calls toward the Free plan request limit", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    requestLimit.exemptCurrentRequestFromIntegrationLimit.mockClear();
+
+    await rpc(handler, requestBody("initialize", 1));
+    expect(requestLimit.exemptCurrentRequestFromIntegrationLimit).toHaveBeenCalledOnce();
+
+    requestLimit.exemptCurrentRequestFromIntegrationLimit.mockClear();
+    await rpc(handler, {
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: { name: "expected_failure", arguments: {} },
+    });
+    expect(requestLimit.exemptCurrentRequestFromIntegrationLimit).not.toHaveBeenCalled();
+  });
+
+  it("detects tool calls in single and batched JSON-RPC bodies", async () => {
+    const post = (body: unknown) =>
+      new Request("http://localhost:4105/api/v1/mcp", { method: "POST", body: JSON.stringify(body) });
+
+    expect(await readMcpToolCall(post(requestBody("initialize", 1)))).toEqual({
+      toolCall: false,
+      singleToolCallId: null,
+    });
+    expect(await readMcpToolCall(post(requestBody("tools/list", 2)))).toEqual({
+      toolCall: false,
+      singleToolCallId: null,
+    });
+    expect(await readMcpToolCall(post(requestBody("tools/call", 3)))).toEqual({ toolCall: true, singleToolCallId: 3 });
+    expect(await readMcpToolCall(post([requestBody("tools/call", 4), requestBody("tools/list", 5)]))).toEqual({
+      toolCall: true,
+      singleToolCallId: null,
+    });
+    expect(await readMcpToolCall(new Request("http://localhost:4105/api/v1/mcp"))).toEqual({
+      toolCall: false,
+      singleToolCallId: null,
+    });
+    expect(
+      await readMcpToolCall(new Request("http://localhost:4105/api/v1/mcp", { method: "POST", body: "not json" })),
+    ).toEqual({ toolCall: false, singleToolCallId: null });
+  });
+
+  it("answers a rate-limited tool call with a tool error the agent can relay, naming the plan and the upgrade", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    const upgrade = {
+      plan: "Starter",
+      price: "€12",
+      url: "http://localhost:4105/dashboard?open=%2Fsettings%2Fbilling",
+    };
+    apiKeys.authorize.mockRejectedValueOnce(new ApiRateLimitExceededError("minute", 30, 20, upgrade));
+
+    const refused = await rpc(handler, {
+      jsonrpc: "2.0",
+      id: 7,
+      method: "tools/call",
+      params: { name: "expected_failure", arguments: {} },
+    });
+
+    expect(refused.response.status).toBe(200);
+    expect(refused.response.headers.get("retry-after")).toBe("20");
+    expect(refused.data).toMatchObject({
+      jsonrpc: "2.0",
+      id: 7,
+      result: {
+        isError: true,
+        content: [{ type: "text", text: expect.stringContaining("Tell the user that the Free plan") }],
+        structuredContent: {
+          error: "rate_limited",
+          plan: "free",
+          window: "minute",
+          limit: 30,
+          retryAfterSeconds: 20,
+          upgrade: { plan: "starter", price: "€12", url: upgrade.url },
+        },
+      },
+    });
+  });
+
+  it("answers a rate-limited request that is not a single tool call with 429 and the upgrade", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    const upgrade = { plan: "Starter", price: "€12", url: "http://localhost:4105/dashboard" };
+    apiKeys.authorize.mockRejectedValueOnce(new ApiRateLimitExceededError("day", 200, 7200, upgrade));
+
+    const refused = await rpc(handler, requestBody("initialize", 1));
+
+    expect(refused.response.status).toBe(429);
+    expect(refused.data).toMatchObject({
+      error: "rate_limited",
+      plan: "free",
+      message: expect.stringContaining("The daily limit resets in about 2 hours."),
+      upgrade: { plan: "starter", url: upgrade.url },
+    });
   });
 
   it("serves the same MCP server at a workspace's URL to a credential of that workspace", async () => {

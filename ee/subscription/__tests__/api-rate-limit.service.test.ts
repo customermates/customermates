@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl/server", () => ({ getLocale: () => Promise.resolve("en") }));
@@ -29,13 +30,13 @@ function memoryRepo() {
 }
 
 describe("API and MCP rate limit", () => {
-  it("allows 10 requests per minute and answers the 11th with the seconds until the next minute", async () => {
+  it("allows 30 requests per minute and answers the 31st with the seconds until the next minute", async () => {
     const { repo, prune } = memoryRepo();
     const service = new ApiRateLimitService(repo, () => Promise.resolve(FREE_PLAN_USAGE_LIMITS));
     const now = new Date("2026-11-07T10:00:45.000Z");
 
-    for (let index = 0; index < 10; index++) expect(await service.admit("company", now)).toBeNull();
-    expect(await service.admit("company", now)).toEqual({ window: "minute", limit: 10, retryAfterSeconds: 15 });
+    for (let index = 0; index < 30; index++) expect(await service.admit("company", now)).toBeNull();
+    expect(await service.admit("company", now)).toEqual({ window: "minute", limit: 30, retryAfterSeconds: 15 });
     expect(await service.admit("company", new Date("2026-11-07T10:01:00.000Z"))).toBeNull();
     expect(prune).toHaveBeenCalledTimes(2);
   });
@@ -80,8 +81,16 @@ describe("API and MCP rate limit", () => {
     const error = await limiter.admit("company").catch((caught: unknown) => caught);
     expect(error).toBeInstanceOf(ApiRateLimitExceededError);
     expect((error as ApiRateLimitExceededError).retryAfterSeconds).toBe(12);
-    expect((error as ApiRateLimitExceededError).message).toBe(
-      "This workspace is on the Free plan, which allows 10 API and MCP requests per minute. Wait and retry, or upgrade to Starter (€12 per user per month) to remove the request limit.",
+    const refused = error as ApiRateLimitExceededError;
+    expect(refused.upgrade).toEqual({
+      plan: "Starter",
+      price: "€12",
+      url: `${env.BASE_URL}/dashboard?open=${encodeURIComponent("/settings/billing?plan=starter")}`,
+    });
+    expect(refused.message).toBe(
+      "This Customermates workspace is on the Free plan, which allows 10 API and MCP requests per minute, and that limit is reached. Retry in 12 seconds. " +
+        "Tell the user that the Free plan is for trying Customermates and limits how much an AI agent or integration can do. Starter (€12 per user per month) removes the request limit for the API and MCP and adds teams, Mate, routines and webhooks. " +
+        `A workspace admin can upgrade here: ${refused.upgrade.url}`,
     );
   });
 });

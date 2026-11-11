@@ -198,7 +198,7 @@ describe("plan usage card", () => {
     expect(meter("api")?.textContent).toContain("PlanUsage.of(42|200)");
     expect(meter("api")?.getAttribute("data-usage-level")).toBe("ok");
     expect(container.querySelector("#settings-billing-plan-usage")?.textContent).toContain(
-      "PlanUsage.apiPerMinute(10)",
+      "PlanUsage.apiPerMinute(30)",
     );
     expect(meter("paused")?.textContent).toContain("PlanUsage.paused(2)");
   });

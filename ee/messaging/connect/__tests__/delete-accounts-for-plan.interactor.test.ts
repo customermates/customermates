@@ -23,6 +23,8 @@ function account(overrides: Partial<Record<string, unknown>> = {}) {
 function makeConnectedAccountRepo(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     listActiveAccountsForCompanyUnscoped: vi.fn().mockResolvedValue([]),
+    listSharedAccountsForCompanyUnscoped: vi.fn().mockResolvedValue([]),
+    makeAccountPrivateUnscoped: vi.fn().mockResolvedValue(true),
     ...overrides,
   };
 }
@@ -40,6 +42,10 @@ function makeDeleteService() {
 
 function makeEmailService() {
   return { send: vi.fn().mockResolvedValue(undefined) };
+}
+
+function makeEventService() {
+  return { publish: vi.fn().mockResolvedValue(undefined) };
 }
 
 function makeSlugResolver() {
@@ -60,6 +66,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       deleteService as never,
       emailService as never,
       makeSlugResolver(),
+      makeEventService() as never,
     );
 
     await service.invoke({ companyId: "company-1", plan: "enterprise" });
@@ -84,6 +91,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       deleteService as never,
       emailService as never,
       makeSlugResolver(),
+      makeEventService() as never,
     );
 
     await service.invoke({ companyId: "company-1", plan: "pro" });
@@ -107,6 +115,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       deleteService as never,
       emailService as never,
       makeSlugResolver(),
+      makeEventService() as never,
     );
 
     await service.invoke({ companyId: "company-1", plan: "pro" });
@@ -141,6 +150,7 @@ describe("DeleteAccountsForPlanInteractor", () => {
       deleteService as never,
       emailService as never,
       makeSlugResolver(),
+      makeEventService() as never,
     );
 
     await service.invoke({ companyId: "company-1", plan: "starter" });
@@ -156,5 +166,77 @@ describe("DeleteAccountsForPlanInteractor", () => {
     expect(germanHtml).toContain("Dein Plan wurde auf Starter umgestellt");
     expect(germanHtml).not.toContain("mail (Inbox)");
     expect(englishHtml).toContain(`${MOCK_ENV_MODULE.env.BASE_URL}/w/acme/settings/channels`);
+  });
+  describe("shared accounts", () => {
+    function setup(shared: unknown[], overrides: Partial<Record<string, unknown>> = {}) {
+      const connectedAccountRepo = makeConnectedAccountRepo({
+        listSharedAccountsForCompanyUnscoped: vi.fn().mockResolvedValue(shared),
+        ...overrides,
+      });
+      const eventService = makeEventService();
+      const service = new DeleteAccountsForPlanInteractor(
+        connectedAccountRepo as never,
+        makeUserRepo() as never,
+        makeDeleteService() as never,
+        makeEmailService() as never,
+        makeSlugResolver(),
+        eventService as never,
+      );
+      return { service, connectedAccountRepo, eventService };
+    }
+
+    it.each(["starter", "pro"] as const)("sets every shared account private on %s", async (plan) => {
+      const first = account({ id: "acc-1", userId: "user-1" });
+      const second = account({ id: "acc-2", userId: "user-2", provider: "google", emailAddress: "two@example.com" });
+      const { service, connectedAccountRepo, eventService } = setup([first, second]);
+
+      await service.invoke({ companyId: "company-1", plan });
+
+      expect(connectedAccountRepo.makeAccountPrivateUnscoped).toHaveBeenCalledTimes(2);
+      expect(connectedAccountRepo.makeAccountPrivateUnscoped).toHaveBeenCalledWith("company-1", "acc-1");
+      expect(connectedAccountRepo.makeAccountPrivateUnscoped).toHaveBeenCalledWith("company-1", "acc-2");
+      expect(eventService.publish).toHaveBeenCalledTimes(2);
+      expect(eventService.publish).toHaveBeenCalledWith(
+        "connected_account.updated",
+        {
+          entityId: "acc-2",
+          payload: {
+            connectedAccount: { provider: "google", displayName: "Jane Doe", emailAddress: "two@example.com" },
+            changes: { visibility: { previous: "shared", current: "private" } },
+          },
+        },
+        { systemCompanyId: "company-1", systemUserId: "user-2" },
+      );
+    });
+
+    it.each(["business", "max"] as const)("leaves shared accounts alone on %s", async (plan) => {
+      const { service, connectedAccountRepo, eventService } = setup([account()]);
+
+      await service.invoke({ companyId: "company-1", plan });
+
+      expect(connectedAccountRepo.listSharedAccountsForCompanyUnscoped).not.toHaveBeenCalled();
+      expect(connectedAccountRepo.makeAccountPrivateUnscoped).not.toHaveBeenCalled();
+      expect(eventService.publish).not.toHaveBeenCalled();
+    });
+
+    it("audits only the accounts it changed itself when another run already made one private", async () => {
+      const { service, eventService } = setup([account({ id: "acc-1" }), account({ id: "acc-2" })], {
+        makeAccountPrivateUnscoped: vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true),
+      });
+
+      await service.invoke({ companyId: "company-1", plan: "pro" });
+
+      expect(eventService.publish).toHaveBeenCalledTimes(1);
+      expect(eventService.publish.mock.calls[0][1].entityId).toBe("acc-2");
+    });
+
+    it("writes nothing when no account is shared", async () => {
+      const { service, connectedAccountRepo, eventService } = setup([]);
+
+      await service.invoke({ companyId: "company-1", plan: "pro" });
+
+      expect(connectedAccountRepo.makeAccountPrivateUnscoped).not.toHaveBeenCalled();
+      expect(eventService.publish).not.toHaveBeenCalled();
+    });
   });
 });

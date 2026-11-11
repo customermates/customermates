@@ -105,7 +105,7 @@ On Customermates Cloud, a workspace that is still waiting for its first plan, su
 
 ### Is there a request limit on the Free plan? [#is-there-a-request-limit-on-the-free-plan]
 
-Yes. On the Free plan, REST and MCP requests together are limited to [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace. Beyond that, a request gets HTTP `429` with a `Retry-After` header: REST answers with `kind` `rate_limit` and `customCode` `apiRateLimitReached`, MCP with `error: rate_limited`. The error message names Starter, the plan that removes the limit. Paid plans and self-hosted installs have no request limit.
+Yes. On the Free plan, REST and MCP requests together are limited to [[commercial.limit.free.apiRequestsPerMinute]] per minute and [[commercial.limit.free.apiRequestsPerDay]] per day per workspace. Beyond that, a request gets HTTP `429` with a `Retry-After` header: REST answers with `kind` `rate_limit` and `customCode` `apiRateLimitReached`, MCP tool calls with a tool error that carries `error: rate_limited` (other MCP requests with `429`). Only MCP tool calls count, not connecting or listing tools. The message says the workspace is on Free and names Starter, its price and the billing link, so an agent can pass it on to the user. Paid plans and self-hosted installs have no request limit.
 
 ## Next [#next]
 

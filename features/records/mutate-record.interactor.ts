@@ -16,6 +16,7 @@ import { MutateRecordSchema, RecordOperationResultSchema } from "./record-query.
 import type { RecordWriteService } from "./record-write.service";
 import type { RecordTrashService } from "./record-trash.service";
 import { RecordJournal } from "./record-journal";
+import { recordCauseBy } from "./record-event-cause";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { recordRequestHash } from "./record-request-hash";
 import type { RecordIdentityInput } from "./record-identity.schema";
@@ -55,10 +56,10 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         const model = await this.records.getModel();
         if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
         const journal = new RecordJournal(this.records, model);
-        const cause = {
-          kind: "mutation" as const,
+        const cause = recordCauseBy(this.user, {
+          kind: "mutation",
           routineDepth: currentRoutineContext()?.causationDepth,
-        };
+        });
         const changed = await this.writer
           .withRepository(journal.repository)
           .apply(input.mutation, model, policy, undefined, {
@@ -133,11 +134,16 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         expectedRevision: input.expectedRevision,
         request: input,
       });
-      await this.records.stageRow(operationId, "context", "cause", {
-        kind: "mutation",
+      await this.records.stageRow(
         operationId,
-        routineDepth: currentRoutineContext()?.causationDepth,
-      });
+        "context",
+        "cause",
+        recordCauseBy(this.user, {
+          kind: "mutation",
+          operationId,
+          routineDepth: currentRoutineContext()?.causationDepth,
+        }),
+      );
       const data: RecordOperationResult = {
         status: "pending",
         operationId,

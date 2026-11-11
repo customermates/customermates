@@ -21,6 +21,7 @@ import { canConfigureRecords, type RecordConfigurationService } from "./configur
 import { RecordOperationResultSchema } from "./record-query.schema";
 import { recordRequestHash } from "./record-request-hash";
 import { RecordJournal } from "./record-journal";
+import { recordCauseBy } from "./record-event-cause";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import { invalidConfigurationFailure } from "./configuration-issue-failure";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
@@ -77,11 +78,16 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
             request: input,
             stagedSchema: prepared.model,
           });
-          await this.records.stageRow(operationId, "context", "cause", {
-            kind: "configuration",
+          await this.records.stageRow(
             operationId,
-            routineDepth: currentRoutineContext()?.causationDepth,
-          });
+            "context",
+            "cause",
+            recordCauseBy(this.user, {
+              kind: "configuration",
+              operationId,
+              routineDepth: currentRoutineContext()?.causationDepth,
+            }),
+          );
           await this.background.dispatch("record-operation", {
             operationId,
             ownerUserId: this.userId,
@@ -97,10 +103,12 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
         } else {
           const journal = new RecordJournal(this.records, current);
           await this.writer.withRepository(journal.repository).apply(prepared, current, this.userId);
-          await journal.flush(prepared.model, this.userId, input.idempotencyKey, {
-            kind: "configuration",
-            routineDepth: currentRoutineContext()?.causationDepth,
-          });
+          await journal.flush(
+            prepared.model,
+            this.userId,
+            input.idempotencyKey,
+            recordCauseBy(this.user, { kind: "configuration", routineDepth: currentRoutineContext()?.causationDepth }),
+          );
           data = {
             status: "completed",
             refs: [],

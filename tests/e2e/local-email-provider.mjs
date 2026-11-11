@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { appendFileSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 export const localProviderKey = "e2e-local-provider-no-network";
 export const localWebhookSecret = "e2e-local-unipile-webhook-secret";
@@ -16,9 +16,40 @@ function recordAcceptedEmail(entry) {
   appendFileSync(file, `${JSON.stringify(entry)}\n`);
 }
 
+function removedAccountsFile(providerDirectory) {
+  if (!providerDirectory) throw new Error("The local account removal requires the run's provider directory");
+  const directory = join(providerDirectory, "unipile");
+  mkdirSync(directory, { recursive: true });
+  return join(directory, "removed-accounts.jsonl");
+}
+
+export function readRemovedAccounts(providerDirectory) {
+  const file = removedAccountsFile(providerDirectory);
+  if (!existsSync(file)) return [];
+  return readFileSync(file, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line).accountId);
+}
+
+function removeAccount(accountId) {
+  appendFileSync(
+    removedAccountsFile(process.env.CRM_E2E_PROVIDER_DIRECTORY),
+    `${JSON.stringify({ accountId, removedAt: new Date().toISOString() })}\n`,
+  );
+  return Promise.resolve(Response.json({ object: "AccountDeleted" }));
+}
+
 export function localEmailRequest(input, init) {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
   if (url.origin !== "https://api.unipile.com" || process.env.UNIPILE_API_KEY !== localProviderKey) return null;
+  const removal = url.pathname.match(/^\/v2\/accounts\/(e2e_local_[a-f0-9-]{36})$/);
+  if (removal && !url.search && !url.username && !url.password) {
+    const request = new Request(input, init);
+    if (request.method === "DELETE" && request.headers.get("X-API-KEY") === localProviderKey)
+      return removeAccount(removal[1]);
+    return null;
+  }
   const path = url.pathname.match(/^\/v2\/(e2e_local_[a-f0-9-]{36})\/emails\/(send|e2e_email_[a-f0-9-]{36})$/);
   if (!path || url.username || url.password) return null;
   const request = new Request(input, init);

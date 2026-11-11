@@ -7,10 +7,12 @@ import type { DeleteAccountsForPlanUserRepo } from "./delete-accounts-for-plan-u
 import type { EmailService } from "@/features/email/email.service";
 import type { SubscriptionPlan } from "@/generated/prisma";
 import type { WorkspaceSlugResolver } from "@/features/workspace/workspace-slug-resolver";
+import type { EventService } from "@/features/event/event.service";
 
 import AccountsRemovedNotice from "@/components/emails/accounts-removed-notice";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { DomainEvent } from "@/features/event/domain-events";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { getTranslator } from "@/i18n/get-translator";
 import { resolveUserLocale } from "@/i18n/user-locale";
@@ -28,9 +30,40 @@ export class DeleteAccountsForPlanInteractor {
     private deleteService: DeleteAccountForBillingService,
     private emailService: EmailService,
     private slugs: WorkspaceSlugResolver,
+    private eventService: Pick<EventService, "publish">,
   ) {}
 
   async invoke(payload: DeleteAccountsForPlanPayload): Promise<void> {
+    await this.removeOverage(payload);
+    await this.makeSharedAccountsPrivate(payload);
+  }
+
+  private async makeSharedAccountsPrivate(payload: DeleteAccountsForPlanPayload): Promise<void> {
+    if (getEntitlements(payload.plan).sharedAccounts) return;
+
+    const shared = await this.connectedAccountRepo.listSharedAccountsForCompanyUnscoped(payload.companyId);
+    for (const account of shared) {
+      if (!(await this.connectedAccountRepo.makeAccountPrivateUnscoped(payload.companyId, account.id))) continue;
+
+      await this.eventService.publish(
+        DomainEvent.CONNECTED_ACCOUNT_UPDATED,
+        {
+          entityId: account.id,
+          payload: {
+            connectedAccount: {
+              provider: account.provider,
+              displayName: account.displayName,
+              emailAddress: account.emailAddress,
+            },
+            changes: { visibility: { previous: "shared", current: "private" } },
+          },
+        },
+        { systemCompanyId: payload.companyId, systemUserId: account.userId },
+      );
+    }
+  }
+
+  private async removeOverage(payload: DeleteAccountsForPlanPayload): Promise<void> {
     const included = getEntitlements(payload.plan).includedAccountsPerUser;
     if (included === "unlimited") return;
 

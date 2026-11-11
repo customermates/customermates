@@ -2578,6 +2578,7 @@ model EventLog {
   subjectId         String
   actorId           String?
   causeId           String?
+  via               Json?
   kind              String
   payload           Json
   createdAt         DateTime           @default(now())

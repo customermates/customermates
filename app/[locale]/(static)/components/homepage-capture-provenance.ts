@@ -4,11 +4,11 @@ import type { HomepageCaptureName } from "./homepage-captures";
 
 export const HOMEPAGE_CAPTURE_PROVENANCE = {
   authenticity: "real",
-  capturedOn: "2026-11-08",
+  capturedOn: "2026-11-10",
   claim: "Real Customermates interface with synthetic demo data. Not a customer workspace and not a measured result.",
   environment:
     "Isolated local instance, APP_MODE=demo, fresh PostgreSQL migrated and seeded with prisma db seed, small-business demo workspace (kleine-unternehmen for German)",
-  productRef: "c477d535e",
+  productRef: "9a65f3f93",
   renderer:
     "Chromium via Playwright (scripts/capture-homepage.ts) in the page locale and the workspace time zone, device scale factor 2 or 2.5, theme set through next-themes",
 } as const;
@@ -30,12 +30,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) selected in the unified inbox",
     sha256: {
       de: {
-        dark: "11b3c1eda8c08cfda375e9ad73da227089a633f0e2d677893aeb0c7fce4b7fd0",
-        light: "0b9d924cfe43d30aece1d0aeae1b0eb80ee313037609d4c6ff669d81565187f0",
+        dark: "226dba84acb5cada5e7c9eab967043de43f6d2cc2a7bdd19d37084b7d73d05b0",
+        light: "c3f16ab2f1846fbca55e4c95cd8bfb334e968caa435580b071f9646552ce90a8",
       },
       en: {
-        dark: "f485891e08d8d82d4de4474f1e07dfcb659fa0bb21f6a153d7390dfc66905a49",
-        light: "a375f9147942ee6cbd00753ad45db3261116a054b65e9ce4911f7a7ea94bb5f2",
+        dark: "dd971fc190ae48e24db5a3e9a449acba26f8252baf20882e49a9ebe3a93eb06b",
+        light: "ca9faefe2587b91604a9028bac8cc8f346eb5a3b32b51a2a0c3565339704fb42",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -46,12 +46,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of James Finch (Jakob Fink in German) with fields, channels and cross-channel history",
     sha256: {
       de: {
-        dark: "49c074c0951c3c7a6026088344783f5b4555a936e6e08b20a243fb09c2f95e22",
-        light: "3d1ce25bc298959b89355acce82ba09cfc7a2916da30e45af997dadd187f4575",
+        dark: "655b76f765a8f4304ce5205711def50a587c1ec7d16121c3fa0804d7005125c0",
+        light: "54ffa4c2c4c24ab53e6a076d74332dbcc2e29e46d5ac185f6bcf6a5391cd59c8",
       },
       en: {
-        dark: "5cefb8f7d9698a435232e89cc9650919b592174468c71439b2219b7547330636",
-        light: "ed65caa4edfb28c8d79744d9c0e62113a148ecddaeec67b04ad2e03de5f0556b",
+        dark: "5d1ac277dd5c17779121616fe8c69b9105cc7ca0d0e993b1f79d11448663f1e7",
+        light: "5cd10e6bb7923f462a219987e4a48c8a6bc1e8ef62d4603935cfa2be7f590542",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -62,12 +62,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Deals list in the Pipeline board view grouped by stage",
     sha256: {
       de: {
-        dark: "95b5797b0a1de4e7157308b183085bd4694f4e010ee7f0907142d43e136d4322",
-        light: "9a8aa3e68ba3f96b2678478527cc5a41ec1691825e77db943ff916ce31eeb51d",
+        dark: "5f44614e8e0e59cbd617cb1f8644e1c7bf3fcc96386a37867282f86a13feec8a",
+        light: "eafac4f3bb97c6727aacc3ab3e3b61243fd8a50b8a2a8d71b47ba0f05d2dd94f",
       },
       en: {
-        dark: "132809aa8d3cb755d59530a53493f3c1412571157983e6113b24fdbb029cadcc",
-        light: "9f7d222c5a8ea1227ebf52c10a6571f8f6071148e7d3840eace8cb7643603901",
+        dark: "e00dc2eebf7e48d8e062b4b2dbe480880f6a86d38d3e1a1a9dbbf9a80ffb058c",
+        light: "cf2dc0e876f6be072b15a78694d563f498d8d9245ba51032f190fcaf31858a4a",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -79,12 +79,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "Main dashboard with open pipeline, value won in 12 months, average won deal, overdue tasks, pipeline by stage, upcoming next steps without an overdue section and won value by month",
     sha256: {
       de: {
-        dark: "75644da5d63cbe9c9a6d7710dc8e1ec1c3e46034794a7354a6480ecda6be4732",
-        light: "894e3cf75dc415a66d987ff2fecfc0828df27a67d06c74496f478bb4977eebbc",
+        dark: "a35b0ebba0219cfd7461e3109bce862047e8c0cd45b667bd5a837f06fbd5247d",
+        light: "5ead269c0f851034829a7f98eae01e693a6bf130466e260cce1250171676ed2c",
       },
       en: {
-        dark: "8e6cf462ca377de91b21ca95867bdfd5a7ab373050716b5f43ed58e8ea47bd9b",
-        light: "df73e1fbc801221ac0a0c1254a9622fcf00c766d336c57f362e62ff5c6859c4b",
+        dark: "3b2994c67e5a2997411804fd68fc334e54d81b5fa838a27e80877797727f4dc6",
+        light: "a34beb674f5bb88d5a3f187c17c4921dbb39b52c04ca1698f539d6e150cb1be2",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -96,12 +96,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "Routines list with owners, schedules, triggers and last runs of the small-business workspace (kleine-unternehmen in German)",
     sha256: {
       de: {
-        dark: "f37f45ebf2a83cb67bbc6320674683b33be4cf5905877ac6799931e38154c3af",
-        light: "d9165433ec6c99797f173b95c91a92d85fe60a9390d495f0843dfe10e9b09e39",
+        dark: "4c278790ddc5531bd286d9c3297197bdd20307a2ade44855ab2fb86074246291",
+        light: "f4b33c0df205dcb2c8a56acc28872dea81ddcac14af00b26871507b43b6f69f9",
       },
       en: {
-        dark: "e27b55b55b3aca86268e82d25368ebe9d8953dda686eb46cd842cf3cd137e351",
-        light: "99ffe4a90f49488e302d246bcc077368320215c417878bc011d2a5d45b806944",
+        dark: "223d545db89cbaa0c20add7b347b29101a7e1867c63dc831445c99e945a8f41c",
+        light: "6553f6f3edf4adffb7e92c6c566ba9c80238f321cf74357867edd6fcb2d105a5",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -112,12 +112,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Data model graph zoomed to the Deals list and its line items with calculated fields",
     sha256: {
       de: {
-        dark: "61626a5816f5b7221d5d98de0976af1f51f35bdc56ab79f74aeaf41e30356623",
-        light: "9e1ec56fcc4ba480d3589b444d5e950f827ffecb43d41978406821b218eceacb",
+        dark: "a62d06b3f2f411077409c9b801d062e3af74a867afafb66226c2ebd997c47c20",
+        light: "ea5a4d1370384f2ab7461e81070c2a9e04121993cfa6ac6effc3dd7cbe41972a",
       },
       en: {
-        dark: "113cf98c2b8a69c55fc9fab1941c1b022c266124f43c8884a6f3ef465ca91b77",
-        light: "66203bd3b55773e8ff4898ee049a20f518e879791abf76f90d353997c26adfa2",
+        dark: "eef9e1faeef70f90cfbdef5fb40b435a2eca33d5cba1b30f574d153840f3c396",
+        light: "52497b634984c2c09a0511cd936028fb9e2679836a70b80c58815d2bf80b4ba2",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -129,12 +129,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "The whole inbox panel, thread list beside the LinkedIn conversation with Ethan Clarke (Erik Claasen in German) from its first message, sidebar collapsed, at a 1024 px window",
     sha256: {
       de: {
-        dark: "45fbcb0f4c581266dee11d2facb9f5ba1c77ebd3d8a719a35ed6ff285ea97d4f",
-        light: "e156ce4f072a8b7fe010a90f9cc57bbe6e0d935825be6430613a91dd7f583ffa",
+        dark: "b13b5a8d7b4d1c4c67d3c4cb16859e310096a3789dc6e8d4d156f56e8851cc72",
+        light: "2a13d71cb7400b422fae83d518e885b4a499f8fd9b835c6fe68fe9bb6e6baed8",
       },
       en: {
-        dark: "07aae08b4221f9acbd078dfa7a7d5de00073cc5fdc257a9014987e8c3e167e8e",
-        light: "87d928d6611d0e5705c25c27ec734f78ba4fde060e5b73e3620ead7cde19a7b0",
+        dark: "6e823aa8c4c5cacf4b53fbe74a40cd31111dec0228cbb7224e1128242f131696",
+        light: "a1fbf7144b1fd2af4f25df297fd9f3b6ffebb3d2f665b09b477b7ae2b5c6c204",
       },
     },
     viewport: { height: 1000, width: 1024 },
@@ -146,39 +146,39 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "The last two whole message rows of the email thread with James Finch (Jakob Fink in German): his reply and the saved reply draft with Send draft, ringed in the app's primary (the date separator above them when no earlier message of that day sits between)",
     sha256: {
       de: {
-        dark: "f9b06074721d134b050057d68788447d1bf7998d665138402bf3455bab624d0f",
-        light: "61be47b3e4c2806fdec14932af9c95a619c29c8e2c063cb6938da1624da3933e",
+        dark: "665255fa53f083e9cb6594a489e56599d3a4d2bb46022581d6f192b8406b6ea1",
+        light: "73b068ac1d99a679827cddc8af924f397f9347923e9ba2db4257bc4d0089885e",
       },
       en: {
-        dark: "b7f6f45ec62c8afd67b35c81a8f5744b7997868771b9dde8be7e2f45376ee081",
-        light: "d462c756aeb5ab78ba26453e8d50fd1e04c626366bc36b3743baa1196cd12d0e",
+        dark: "97be3437448544beb0d494559b45dd3d96441eabfe6f4d37e8f9bb3aecc9bfaf",
+        light: "39ad5e47afe7e3950a399314d73ac73ab82557875442c05ef8d4015ec5aef421",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-usecase-draft": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "dae379b5e",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/inbox",
     scenario:
       "LinkedIn sales story: the last two whole message rows of the LinkedIn thread with Rachel Dawson (Rebecca Dreyer in German), her message and the saved reply draft with its edit, delete and Send draft buttons, and the composer under them, cut to the left 500 px of the thread column in a 760 px tall window",
     sha256: {
       de: {
-        dark: "fe2b30097fbdb33be5ae80ca0556db48733e72e6983e670cd28ace0eaadacb85",
-        light: "6a17aea39eea4e4e873337cd0c1d7781fa90937b681f854b2029bc77bb8e878f",
+        dark: "87c2c3fad881430b505e8ee84d95fed13b0652852e02999f9c9d5b3c0d5e57eb",
+        light: "d96e7f63555abd265ef73e39aecf3963277d8ee83390453c6b3c7353fa2e22e0",
       },
       en: {
-        dark: "083d90422b2491453debee5089328b2a46663077c5197a20c30fe8a4ccbd43e3",
-        light: "85222a767e554485d93b8a7356e808d5caacc7b0ea2c66895c24476d0ab9382a",
+        dark: "5c0f7ec8934812bad712229a45a51d476fa4689e92bcc3d3a8f45024302ae57b",
+        light: "603255ab080dde46e1df7ec0c1f633fd57f85606c4be31b47a0ced0af06c2b7c",
       },
     },
     viewport: { height: 760, width: 1440 },
   },
   "homepage-usecase-connect": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "6d6ef79e1",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/settings/api-keys",
     scenario:
       "The Add an API key dialog of the small-business workspace on its own, without the scrim and the page behind it: the standard key and the quick connections for Claude, ChatGPT and Codex, Cursor and Gemini, opened at 1440 px and narrowed to 520 px so the choices stack as in a use-case card",
@@ -195,47 +195,47 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     viewport: { height: 900, width: 520 },
   },
   "homepage-usecase-calendar": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/calendar",
     scenario:
       "The Calendar page of the small-business workspace in the Agenda view, whole day rows from today on: the second warehouse walk and the intro call with Harbourview Hotel (Erik and Hotel Seeblick in German), the Northgate Logistics site visit, the Pinecrest mailbox check, the access point install at Maple & Finch and the deal next step of the Maple & Finch network setup, cut to the left 500 px of the list",
     sha256: {
       de: {
-        dark: "e0318fc81c7e510e0730bdff1c147fde7790bec26bc3edaa2b40c4d91985993b",
-        light: "89a207223b783649cf0b2004dee91a4bf73a1876171eecc3a70fdadaba763f25",
+        dark: "14a42ea7a4e5ef4cf3f0b1dd60ee1928c04ca997b7828485e1a3eff9ae1bf1db",
+        light: "5b6b290546447a7eb0f2874b058f6a5ba3326656ec4aaf5867ffef2aef12f6c6",
       },
       en: {
-        dark: "e357ef2564c5ad1f17eedd2a045702e8c02e11e215dc1a315e6dfe08b1280f04",
-        light: "fb44bb9416f5d9549b5acc6499db775b7690b3ac72866fb305164664c892a344",
+        dark: "c9073c370828c9d7fd172ed6a2ffe72d8ae8aec1ef32dff05a2d6d00a39424df",
+        light: "90b94f9a46ca3355edbd242143451cebd4ed70364f21c54c9e0b274007010a9b",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-usecase-contacts": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/records/[contacts]",
     scenario:
       "The Contacts list of the small-business workspace with the First Name, Last Name, Contact details, Job title and Decision role columns switched off in the Appearance menu, so Name and Companies lead: the table header and the first eight whole rows, cut to the left 460 px",
     sha256: {
       de: {
-        dark: "53ab437b63650fd4918f29ee92ff62626c4b3c88df0eb1193f7ccbca00b693a4",
-        light: "7a1245082a800b4a0ca936ada36e2a2bb34fece1132a4a99d12cc77426a9cc1d",
+        dark: "d2ceee1bcb3c9954c7fbcaab4380032e7d134e7ad3904ebd3d26df971b6894e4",
+        light: "0eec9e9db3a12e9d291159114c38885fe42824b9b45a491a6981f98e348f5336",
       },
       en: {
-        dark: "62b0edf64e0a11d2f5f40fd228e97a0d86d98d02218315c4c279fb62626fffb3",
-        light: "b72616954b4cd664e68fde398c0656ef3bce80ba28521fd5ed714a94288d74ba",
+        dark: "046565bea5204c8fa3973e34050f7941092a1aa54a9ca32bd1a8e72138ddb64b",
+        light: "61a82cff7448ac1f457a4ba47e06cc9d8bf8ecde5e4d6994ffdde8b7e196d0a5",
       },
     },
     viewport: { height: 900, width: 1440 },
   },
   "homepage-usecase-import": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/records/[contacts]",
     scenario:
       "The Import records dialog of the Contacts list on its own, without the scrim and the page behind it: a four-row Excel workbook of new contacts (Brightwater, Harborline, Kestrel Studio, Webb & Co), its columns headed with the Contacts list labels of the page locale, on step 2 of 5, Map the columns, with every spreadsheet column matched to its Contacts field; opened at 1440 px and narrowed to 800 px",
@@ -252,47 +252,47 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     viewport: { height: 900, width: 800 },
   },
   "homepage-usecase-search": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/records/[contacts]",
     scenario:
       "The command palette on its own, without the scrim and the page behind it, after typing the last name of the partner at the law firm (Finch, Fink in German): the tasks, the deal, the contact and the company of the Maple & Finch Law account (Kanzlei Mahler & Fink in German) and the Ask Mate row; opened at 1440 px and narrowed to 800 px",
     sha256: {
       de: {
-        dark: "38d8673129a779f68f9445edf9127719a0e72ddcf006018a01bc8122438caac6",
-        light: "6cebffa3175c942e392d5fa8fdc39484e149515fd68c1542bc4cc13e1318484b",
+        dark: "64ca03a55bbf77733d1d4f5ea3aa4a503231d6ddf0fb619e73d99c960f90c1d2",
+        light: "a99fa0c8b84da0c5f10ea9e9086beab3f8ca781e1c87cb571dca88927132b1ad",
       },
       en: {
-        dark: "067c68df6c105c54b5609926c0977172d272b9eba56b9866ae3e530a85c3b3c1",
-        light: "e836d9b8f9871575f2f4cd5d770fa2577e27958a56d241c3a3986ba55c529682",
+        dark: "d985283edf8f15a2a93e5b0040d06d9f51d011d37d1d4661c34e937dffd0bde5",
+        light: "97336e8f87e94bac546a8c404b9a8bb68f2b5fd8c64740bf034c85bf26b64866",
       },
     },
     viewport: { height: 900, width: 800 },
   },
   "homepage-usecase-team": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/inbox",
     scenario:
       "Agencies story: the thread column of the Kick-off and first month email thread with Ben Carlisle (Benedikt Kaiser in German), whole message rows from the first date separator to the end of the reply that hands the client to Alex (Frau Ritter), in a 1100 px wide window and cut to 440 px",
     sha256: {
       de: {
-        dark: "8ca38805832ac0eef7287f0aeebbcfed4f81985cdce4f46eb3230d877a2383dd",
-        light: "bf7901e3e48b8a1ad843189fb239c99240889703d47be146380cacc67d031532",
+        dark: "b084a44c9e47e31ec44c5c4050fca260b739d180d64de4f670f2cd3dd82a86a4",
+        light: "74378dc0037ccba7dba2c6e2d1b2ddb040a60bc4019a5ad3e1b888c16420345d",
       },
       en: {
-        dark: "9da138dd56918e2bb91453b3b013e60f11218841887570e7ebb044f1f6d78aa5",
-        light: "cf4cdd010dab9017f584e0ff005c0035253a50931b072771868b3b523a73c428",
+        dark: "6bdb6f62d12d340d9955d200cdcc3998c3bbea235c2da883dc763310745ceed3",
+        light: "9c34b2d6423866a9d568e32776694c4b1b2e2628f486608c5c8d863573a697f6",
       },
     },
     viewport: { height: 900, width: 1100 },
   },
   "homepage-usecase-playbook": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/wiki",
     scenario:
       "Consultants story: the Knowledge Base page Day rates and fee options (Tagessätze und Honorarvarianten in German) with the page type, the introduction and the day rate list, cut to the left 560 px of the page column",
@@ -309,20 +309,20 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     viewport: { height: 900, width: 1440 },
   },
   "homepage-usecase-whatsapp": {
-    capturedOn: "2026-11-09",
+    capturedOn: "2026-11-10",
     clipped: true,
-    productRef: "588c78467",
+    productRef: "9a65f3f93",
     route: "/[locale]/w/[workspace]/inbox",
     scenario:
       "Small-business story: the thread column of the WhatsApp conversation with Sophie Turner (Sophie Thiele in German), whole day separators and message rows, in a 1100 px wide window and cut to 440 px",
     sha256: {
       de: {
-        dark: "2ade6058e2fe87a55f1310a6d5d599a290bbee466e66470b0332ff266571902d",
-        light: "f0f22d884673f9e76cc1598b65e6eb10b95b322d11bd79ebe99f8ced0a544e9c",
+        dark: "63109ea47ce3369a63e33599e4d00afdbb5294dd195ea41c7912542b5b26e14d",
+        light: "4f13b4b867b73bb99b522fe2ee32e59d8cd7714b38c29598aa1ddab544f3914a",
       },
       en: {
-        dark: "5aa8eb9d9e6bd226a33ad0a2a74adc77937040a1660c958ffa482bb972419c1a",
-        light: "b3a7742b1c5b620bb6b86f45b7e6dd249f293172fb2cc9f2ecdfa244db748e52",
+        dark: "97f6983d037cdc268339e89b80bcb2aeaeb7430bc617c9ace2205cd8107ec06b",
+        light: "0ed98728365ba6bf2258cb57c111115df79edc5e331604c60408902cfd3eb0e2",
       },
     },
     viewport: { height: 900, width: 1100 },
@@ -333,12 +333,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "The first four whole columns of the deals Pipeline board, from the column headers to the last card",
     sha256: {
       de: {
-        dark: "987814bb02c03bc0e422e16f9c7281a5a643a5a3d8028601e96d81b4a5cc3375",
-        light: "f12ccd66b8733e3c9588836cd4094b515f21aa6bbf9e0bfa08c47cc2120d8f6e",
+        dark: "26e7b3fd92676a6aaa832171a291819fa48d4c7c289d30d081f088a2c016fdfa",
+        light: "bf87e13ba8a07ecab282fde8ea5e185858094cce15dc766295270dc70799cd68",
       },
       en: {
-        dark: "84a35bc1552cbfb12df7ed0de5474806e8d54ceeb7afd4b94a54194377280312",
-        light: "010e5fa67c3e53074a03819f91083b6715a8a0a762eff35980adcff038408579",
+        dark: "77cdb790844ca53c3e77c64fa93a9742b509a9a27442105ebb5ae1b92751fb1f",
+        light: "1b77a236a3de5bc87a6a3456b080f4e34ac3a9a0cafd08dda593fdc8e0a405ba",
       },
     },
     viewport: { height: 900, width: 1600 },
@@ -350,12 +350,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "The routines table of the small-business workspace (kleine-unternehmen in German) up to the Status column",
     sha256: {
       de: {
-        dark: "5de022d67009aa27222937a0216d835cc59d430729df500001fae62e9862aa11",
-        light: "858c8a81893d730007ada049ab79b9639bf24cea4ff517102204ee3db05dd178",
+        dark: "afbdaec26563a152c28fd2065b7848a8a4c14250104eab8b499fc5ace822ac5f",
+        light: "bd5901a6685b24cec82c07028f7bc4768be9bca5f30d9dc474fb3395afabb0d4",
       },
       en: {
-        dark: "af77a74b4ae97c6a4cd58a481ec79277839a9aaeddb50811c588ab74a21485f2",
-        light: "86a32d45f880fb59bd1e776d621f0e36794da4c53b8ab32950c462f0c4addc0b",
+        dark: "becbfcb9620d88763f05de77789487e90f5fea4c7dd81b71e29b10225768dfbb",
+        light: "138dacf1eee45d6e08ea0bb1e7acaf66cb3f27936a47b52af1818414a4ab4123",
       },
     },
     viewport: { height: 900, width: 1440 },
@@ -366,12 +366,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "WhatsApp thread with Sophie Turner (Sophie Thiele in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "5d4ca327fe14f3c4ee3b5cfc1cf983e1d7ac950499623dfe024b77283013c7a0",
-        light: "0bbd6d7f327a905f1377ad9d9a24e8ca211c3ec171ead1f182afb16501f73f29",
+        dark: "bda5223a3fb1e0936bb2d3ad78727e819cfb45a3e2397fa71ba3cd4ee3fe9401",
+        light: "f1eeeafa6819a30a290e8ed833cc5cba47feb001113ed4022d6e8c3a2d8244f2",
       },
       en: {
-        dark: "273af6edd63cace7e6486d4767571c3f7b7e84e0124c43914c202c16844bc8a7",
-        light: "d6104ebf8d40e264f51f9e62162a2bbdc941602bd56eae90c39de1f089265b17",
+        dark: "024dc11efdd87ae4645355777419810845d6d737fe2375dd5be1f43c16b4789d",
+        light: "9feda9001e6fff477e66067693f9beff9efb69333b4839d6f63193d0e389cdc2",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -382,12 +382,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Contact record of James Finch (Jakob Fink in German) on a phone-width viewport",
     sha256: {
       de: {
-        dark: "ea5189471f61014a8570122b166ba5d5f863a88399a7e0953b4b17a22b50589b",
-        light: "d0976194cc5cdaf5f052b321093a866531059a368b77700a532693605a3b3efc",
+        dark: "4d9c8bb78b8991aa7618289bc7391587f0d469168962f4a7b02fae52b726a972",
+        light: "c7573ca0230e5abfbc78380fc3ab5d88a9953d9391736d55c98108930b1f8ce5",
       },
       en: {
-        dark: "97bc6b3794d73f66facd409ab65e57f95e67686dad44432d967abe129c0b9738",
-        light: "c8a3405b7a9bff6481bdaedf16118316a125123440906218fc9034b9177bcadd",
+        dark: "13e49e5bb80e8faa6ef47a0a6016a407e940c6669bb97351b417f1504ee69166",
+        light: "34150440d3c03f85690a63f74702ac117d000dc76f0fcb06d35c2b84a5e2f54a",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -399,12 +399,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "The first whole column of the deals Pipeline board on a phone-width viewport, from its header to its last card",
     sha256: {
       de: {
-        dark: "89a03a8a5746463d46fb20f02ba9198dd4bdafbf82349fe128283c781385fdc6",
-        light: "91f9ca40e7f2941cb3174a4bc646df80d21e6f43ebbafb90cce8f836c7c40f00",
+        dark: "17928893fb82c9f497588cf02550bd7d62ea46f5ff2b9ac1797441fc0dfa768b",
+        light: "8fc20b0968d73c7b99d15cb5fef8d7d1f8a3471a9845be968d916342a9cbcc43",
       },
       en: {
-        dark: "ea37490728a470a44512474f1f3eae4cd5aa04688b5050e2e58a0e77668afaa7",
-        light: "49aa2c1a23629d6efdc318ec770d4d40259d3174a555dd6e182f83726c69419a",
+        dark: "54ccc21fbc21c5c916d0af70a03b0fa4e20492fc838705dfb0ca941b78ccac7b",
+        light: "327800ec833ae7fce531202a870a7e3990b3f707dd8a50d58c962ba0439b1415",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -415,12 +415,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
     scenario: "Dashboard widgets on a phone-width viewport",
     sha256: {
       de: {
-        dark: "ae5bcf1c46a8032090213f7bd6bb7246e696e8963e266930684bd2f819b935c2",
-        light: "792750ea903b3796958d3bcd9cc05f11dbfc5c6bcf0396b9b3d5d951add39c02",
+        dark: "612f7328d69287f1f8c9df3fccb21aa5d6fe7513f230c1e6f314bb679f1e0102",
+        light: "f538abc7f9bd700dfc960d70337b1b8cb6d5781669978dc4ac7cbff5d6207a3c",
       },
       en: {
-        dark: "1d6c4a91d4ef19404be4bee0a7f7e1cc458763951bbd567e91409a4fc325bdae",
-        light: "62d2903a25e5045712eac6a73bcf46fece8ed70688e40e3b2b8dd7c6c046ebc6",
+        dark: "727b76c64dc8e7af3a9ce1b06da9a0aa3c16aa6d8edfaeb13f1fc7f7a4298175",
+        light: "c42751547952d761103432fcb6422868a79db3a299bd1cfe391d54abe43cc9dc",
       },
     },
     viewport: { height: 844, width: 390 },
@@ -432,12 +432,12 @@ export const HOMEPAGE_CAPTURE_EVIDENCE: Record<HomepageCaptureName, CaptureEvide
       "Routines list of the small-business workspace on a phone, the viewport narrowed to the right edge of the Owner column",
     sha256: {
       de: {
-        dark: "071eca3dc0d43547cead420f3397dc03179bc7a1ed4e1c9f8f7b9cf9b6e82f86",
-        light: "1cb5f85c5513d3837be345f550ec75b61df7d58a18fcd140bdc65cc594165aaa",
+        dark: "7eca79920535b74004bd9b20d547e94c790145b1af797ab451e6ffef2271eff1",
+        light: "b1ad0bbdd2910a3b25c25318de5e00d0f9b5e4f9b7d5c901eca77a9967ea7e28",
       },
       en: {
-        dark: "dc8c583d9ebb9af5572926ca6939503132e251a74a04d2f99dcf5b730f886d09",
-        light: "bd195cc4af0ffd2b8d45e633ce564da2f48e499408b5a41292282b29214318a5",
+        dark: "780f201374e6898f933e492fdb856ac7a9362285f72eac2657beca6da9f12c76",
+        light: "0dc32ef2ab8e0d6f3e3520fdf9a96a96bb36efcbbc8fddd8ab446c334bd500dd",
       },
     },
     viewport: { height: 844, width: 390 },

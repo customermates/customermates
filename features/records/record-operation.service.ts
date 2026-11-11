@@ -23,7 +23,8 @@ import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
 import { deterministicId } from "./deterministic-id";
 import { RecordJournal } from "./record-journal";
-import { RecordEventPayloadSchema } from "./record-event.schema";
+import { RecordOperationCauseSchema } from "./record-event.schema";
+import { EventViaSchema } from "@/features/event/event-via";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import type { RecordTrashService } from "./record-trash.service";
 import { droppedLinksOf } from "./record-trash.service";
@@ -48,7 +49,11 @@ const SourcesSchema = z.object({
   captures: z.array(z.object({ ref: RecordRefSchema, fieldIds: z.array(z.uuid()) })),
   affectedTypeIds: z.array(z.uuid()),
 });
-const RestoreRequestSchema = z.object({ itemIds: z.array(z.uuid()), idempotencyKey: z.string() });
+const RestoreRequestSchema = z.object({
+  itemIds: z.array(z.uuid()),
+  idempotencyKey: z.string(),
+  via: EventViaSchema.optional(),
+});
 const RestoreCursorSchema = z.object({
   phase: z.literal("restore"),
   index: z.number().int().nonnegative(),
@@ -318,7 +323,7 @@ export class RecordOperationService extends UserAccessor {
           }
 
           if (cursor.phase === "events") {
-            const cause = RecordEventPayloadSchema.shape.cause.parse(
+            const cause = RecordOperationCauseSchema.parse(
               (await this.records.getStageRow(operationId, "context", "cause")) ?? {
                 kind: operation.kind,
                 operationId,
@@ -344,7 +349,13 @@ export class RecordOperationService extends UserAccessor {
           }
 
           if (prepared) {
-            await this.records.saveModel(prepared.model, operator.userId, prepared.change);
+            const { via } = RecordOperationCauseSchema.parse(
+              (await this.records.getStageRow(operationId, "context", "cause")) ?? { kind: operation.kind },
+            );
+            await this.records.saveModel(prepared.model, operator.userId, {
+              ...prepared.change,
+              ...(via ? { via } : {}),
+            });
             if (prepared.deletion) {
               await purgeTrashOfDeletedLists(this.records, prepared, operator.eventActorId);
               await this.records.deleteDefinitions(prepared.deletion);
@@ -544,7 +555,11 @@ export class RecordOperationService extends UserAccessor {
     const refs = await this.records.getTrashedRecordRefsCompanyWide([item.id], RESTORE_PAGE_SIZE);
     const journal = new RecordJournal(this.records, model, BACKGROUND_FANOUT_LIMIT);
     const droppedLinks = await service.restoreRecords(refs, model, journal, BACKGROUND_FANOUT_LIMIT);
-    await journal.flush(model, this.userId, request.idempotencyKey, { kind: "mutation", operationId: operation.id });
+    await journal.flush(model, this.userId, request.idempotencyKey, {
+      kind: "mutation",
+      operationId: operation.id,
+      ...(request.via ? { via: request.via } : {}),
+    });
     const finished = refs.length < RESTORE_PAGE_SIZE;
     if (finished) await this.records.removeTrashItems([item.id]);
     await this.records.stageRow(operation.id, "restore", "summary", {

@@ -3,6 +3,7 @@ import type { SolutionDataLocale, SolutionId } from "@/core/solutions/solution-c
 import type { DisplayType } from "@/features/widget/widget-display.schema";
 import type { RoutineTriggerEvent } from "@/ee/routines/routine-trigger-events";
 
+import { colleagueAvatarUrl, contactAvatarUrl } from "../avatars";
 import type { TEAM_MEMBER_IDS } from "../team";
 
 /** Starter lists a solution can keep (relabelled); every other list of a solution is a custom list. */
@@ -137,10 +138,15 @@ export type RecordSpec = {
   lines?: ReadonlyArray<readonly [service: string, quantity: number]>;
   owner?: MemberKey;
   channels?: ChannelSpec;
+  /** The contact's photo, derived from the solution id and the record key; definitions never set it. */
   avatar?: string;
   createdDaysAgo: number;
-  /** Earlier values of fields that changed later, oldest first: each entry is one update. */
-  history?: ReadonlyArray<{ daysAgo: number; by?: MemberKey; previous: Record<string, FieldInput> }>;
+  /**
+   * Earlier values of fields that changed later, oldest first: each entry is one update. `via` names the API key of
+   * the member's profile the change came through, for example "Claude Desktop"; the history then reads "<member> via
+   * <via>".
+   */
+  history?: ReadonlyArray<{ daysAgo: number; by?: MemberKey; via?: string; previous: Record<string, FieldInput> }>;
 };
 
 export type ViewFilterSpec = { field: string; in?: readonly string[]; notIn?: readonly string[] };
@@ -419,11 +425,17 @@ export type SolutionContent = {
 /** Where a story is set: the currency of its amounts and its time zone, per data locale. */
 export type SolutionStory = Pick<SolutionContent, "currency" | "timeZone">;
 
+/** What a definition authors: the photos of its contacts and colleagues come from `solutionContent`. */
+export type AuthoredContent = Omit<SolutionContent, keyof SolutionStory | "members" | "records"> & {
+  members?: ReadonlyArray<Omit<ColleagueSpec, "avatar">>;
+  records: Record<string, ReadonlyArray<Omit<RecordSpec, "avatar">>>;
+};
+
 export type SolutionDefinition<Strings> = {
   id: SolutionId;
   strings: Record<SolutionDataLocale, Strings>;
   story: Record<SolutionDataLocale, SolutionStory>;
-  build: (strings: Strings, locale: SolutionDataLocale) => Omit<SolutionContent, keyof SolutionStory>;
+  build: (strings: Strings, locale: SolutionDataLocale) => AuthoredContent;
 };
 
 /**
@@ -439,18 +451,34 @@ export type AnySolutionDefinition = {
   id: SolutionId;
   strings: Record<SolutionDataLocale, unknown>;
   story: Record<SolutionDataLocale, SolutionStory>;
-  build: (strings: never, locale: SolutionDataLocale) => Omit<SolutionContent, keyof SolutionStory>;
+  build: (strings: never, locale: SolutionDataLocale) => AuthoredContent;
 };
 
+/**
+ * The content of a solution in one data locale. Every contact carries its own photo, `<solution id>--<record key>`,
+ * and every colleague theirs, so a person keeps the same photo in every locale.
+ */
 export function solutionContent(definition: AnySolutionDefinition, locale: SolutionDataLocale): SolutionContent {
-  const build = definition.build as (
-    strings: unknown,
-    locale: SolutionDataLocale,
-  ) => Omit<SolutionContent, keyof SolutionStory>;
-  return { ...build(definition.strings[locale], locale), ...definition.story[locale] };
+  const build = definition.build as (strings: unknown, locale: SolutionDataLocale) => AuthoredContent;
+  const { members, records, ...authored } = build(definition.strings[locale], locale);
+  return {
+    ...authored,
+    records: Object.fromEntries(
+      Object.entries(records).map(([list, entries]) => [
+        list,
+        list === "contact"
+          ? entries.map((record) => ({ ...record, avatar: contactAvatarUrl(definition.id, record.key) }))
+          : entries,
+      ]),
+    ),
+    ...(members
+      ? {
+          members: members.map((member) => ({ ...member, avatar: colleagueAvatarUrl(definition.id, member.key) })),
+        }
+      : {}),
+    ...definition.story[locale],
+  };
 }
-
-export { demoContactPhoto as photo, type DemoContactPhoto } from "../avatars";
 
 /** Fictional phone numbers: templates whose trailing `#` run takes a zero-padded running number. */
 export type PhonePlan = { templates: readonly string[]; start: number };

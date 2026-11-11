@@ -39,6 +39,7 @@ export const domTestFiles = [
   "app/[locale]/(public)/auth/invitation/__tests__/workspace-invitation-card.dom.test.ts",
   "app/[locale]/(public)/auth/mcp-consent/__tests__/mcp-consent-card.dom.test.ts",
   "app/[locale]/(static)/contact/__tests__/contact-form.test.ts",
+  "app/[locale]/(static)/components/__tests__/homepage-viewport-video.dom.test.tsx",
   "app/**/wiki/components/__tests__/wiki-page-view.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-outline.test.ts",
   "app/**/wiki/components/__tests__/wiki-page-editor.test.ts",

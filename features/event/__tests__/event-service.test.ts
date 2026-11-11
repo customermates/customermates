@@ -51,9 +51,23 @@ describe("EventService", () => {
       kind: DomainEvent.ROLE_DELETED,
       subjectId: ENTITY_ID,
       actorId: mockUser.id,
+      via: null,
       payload: { id: ENTITY_ID },
       delivered: true,
     });
+  });
+
+  it("records the API key or application a request came through next to the actor", async () => {
+    const viaUser = { ...mockUser, via: { kind: "oauthApplication" as const, name: "Claude Desktop" } };
+
+    await runWithTenant(viaUser, () =>
+      service.publish(DomainEvent.ROLE_DELETED, { entityId: ENTITY_ID, payload: { id: ENTITY_ID } as never }),
+    );
+
+    expect(eventLog.appendUnscoped).toHaveBeenCalledExactlyOnceWith(
+      mockUser.companyId,
+      expect.objectContaining({ actorId: mockUser.id, via: { kind: "oauthApplication", name: "Claude Desktop" } }),
+    );
   });
 
   it("skips an update whose changes are empty", async () => {
@@ -89,6 +103,7 @@ describe("EventService", () => {
       kind: DomainEvent.MESSAGING_MESSAGE_RECEIVED,
       subjectId: ENTITY_ID,
       actorId: null,
+      via: null,
       payload: MESSAGE,
       delivered: false,
     });
@@ -103,8 +118,22 @@ describe("EventService", () => {
 
     expect(eventLog.appendUnscoped).toHaveBeenCalledWith(
       SYSTEM_COMPANY_ID,
-      expect.objectContaining({ actorId: mockUser.id, delivered: true }),
+      expect.objectContaining({ actorId: mockUser.id, via: null, delivered: true }),
     );
+  });
+
+  it("never attributes a system event to the credential of the request that happens to run it", async () => {
+    const viaUser = { ...mockUser, via: { kind: "apiKey" as const, name: "Zapier" } };
+
+    await runWithTenant(viaUser, () =>
+      service.publish(
+        DomainEvent.CONNECTED_ACCOUNT_DELETED,
+        { entityId: ENTITY_ID, payload: { provider: "whatsapp", displayName: null, emailAddress: null } },
+        { systemCompanyId: SYSTEM_COMPANY_ID, systemUserId: mockUser.id },
+      ),
+    );
+
+    expect(eventLog.appendUnscoped).toHaveBeenCalledWith(SYSTEM_COMPANY_ID, expect.objectContaining({ via: null }));
   });
 
   it("runs matching in-process listeners for tenant events but not for system events", async () => {

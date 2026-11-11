@@ -5,7 +5,6 @@ import {
   address,
   day,
   defineSolution,
-  photo,
   rangeAt,
   type AddressInput,
   type FieldInput,
@@ -13,6 +12,8 @@ import {
   type RecordSpec,
   phoneNumber,
 } from "../define-solution";
+import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 
 /**
  * Client management: an office coffee, breakroom and catering service that looks after many ongoing client
@@ -111,8 +112,20 @@ const TASKS = [
   "larkspurCall",
   "brightsideReview",
   "tallisOnboarding",
+  "oakfieldDispensers",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+type InboxKey =
+  | "lisaLinkedin"
+  | "anitaLinkedin"
+  | "bethLinkedin"
+  | "gregUsage"
+  | "samMenus"
+  | "ellenDispenser"
+  | "zoeCheckIn"
+  | "priyaTasting"
+  | "carlWalkthrough"
+  | "owenMove";
 type ServiceKey = "coffeeMachines" | "breakroomSupplies" | "catering" | "waterDispensers";
 /** Contracts whose signed service agreement is attached. */
 const SIGNED_CONTRACTS = [
@@ -460,6 +473,7 @@ const en = {
     larkspurCall: "Call Helen about the Larkspur kitchen",
     brightsideReview: "Prepare the Brightside contract review",
     tallisOnboarding: "First delivery and machine setup at Tallis",
+    oakfieldDispensers: "Check both water dispensers at Oakfield Dental (south practice drips)",
   } satisfies Record<TaskKey, string>,
   views: {
     clientsByStatus: "Clients by status",
@@ -499,6 +513,23 @@ const en = {
       runs: [
         "Found 3 contracts with a review in the next 60 days, added a usage summary to each and created 3 preparation tasks.",
         "Found 1 contract with a review in the next 60 days and created 1 preparation task.",
+      ],
+    },
+    followUp: {
+      name: "Every morning, draft follow-ups for opportunities due today",
+      task: 'Every weekday morning, find opportunities whose Stage is Identified, Offer sent or Tasting / trial and whose Next step date is today or earlier. For each one, read its client, the linked contacts and the last conversation linked to the opportunity. If that conversation already ends in a draft, leave it alone. Otherwise save one short follow-up draft in that conversation with save_message_draft: thank the person for the last message, name the Next step in one sentence and suggest one concrete time. When no conversation is linked, create one ordinary task "Follow up with <contact name>" due today for the client\'s Account manager instead. Never send a message, do not change the opportunity and report the opportunities and drafts.',
+      runs: [
+        "Found 3 opportunities with a next step due today and saved 3 follow-up drafts in the Inbox, for Halverson, Meridian and Kingsley Medical.",
+        "Found 2 opportunities due: saved a follow-up draft for Riverbend and created a task for Larkspur Law, which has no conversation linked yet.",
+        "Found 1 opportunity due, Westmoor Logistics Park, and saved one draft for Carl and Anita.",
+      ],
+    },
+    replyTasks: {
+      name: "Reply tasks for client emails",
+      task: "Review the new email identified by routine_trigger. Continue only when the sender matches a Contact through the identity channels and the contact's client has the Relationship status Customer or Active discussion. Read the client's open opportunities and its contracts with the Status Review due. Create one ordinary task \"Reply to <contact name>\" linked to the contact, the client and, when exactly one is open, its opportunity, due the next working day, Priority High when a contract of the client is on Review due and Medium otherwise, for the client's Account manager. Do not create a second task when an open one with that name exists. Do not draft or send a reply and do not change any other record.",
+      runs: [
+        'Matched the new email from Ellen Park at Oakfield Dental and created the task "Reply to Ellen Park" with High priority, because the north practice contract is up for review.',
+        'Matched the email from Sam Whitaker at Meridian Insurance Partners and created the task "Reply to Sam Whitaker" due tomorrow with Medium priority.',
       ],
     },
   },
@@ -609,8 +640,8 @@ const en = {
     kingsleyIntro: {
       subject: "Introduction – catering for staff meetings",
       messages: [
-        "Dear Max,\n\nThe team at Oakfield Dental recommended you. We are looking for a caterer for our weekly staff meetings, around 30 people.\n\nWould you have time for a call next week?\n\nKind regards,\nFrank Morales",
-        "Dear Frank,\n\nThank you for reaching out. I would be glad to. How about Tuesday at 2 pm?\n\nBest regards,\nMax",
+        "Hi Max,\n\nThe team at Oakfield Dental recommended you. We are looking for a caterer for our weekly staff meetings, around 30 people.\n\nWould you have time for a call next week?\n\nKind regards,\nFrank Morales",
+        "Hi Frank,\n\nThank you for reaching out. I would be glad to. How about Tuesday at 2 pm?\n\nBest regards,\nMax",
       ],
     },
     tallisBreakfast: {
@@ -619,6 +650,119 @@ const en = {
         "Of course, Josh. I will add two extra fruit boxes on Friday.",
       ],
     },
+  },
+  inbox: {
+    lisaLinkedin: {
+      messages: [
+        "Hi Lisa, Frank Morales mentioned you handle purchasing at Kingsley. Happy to answer anything on the catering side before we speak.",
+        "Hi Max, thanks for reaching out. Could you send a short reference list and the price per person for our weekly staff meetings?",
+        "Of course. I'll send three references from medical offices and the per-person price this afternoon.",
+        "Great. Please also tell me how you handle dietary needs, we have a lot of them.",
+      ],
+    },
+    anitaLinkedin: {
+      messages: [
+        "Hi Max, Carl shared your walkthrough notes, thanks for coming out. One thing is missing: we run a night shift from 10 pm to 6 am with about 40 people.",
+        "Hi Anita, good catch. Night crews need a different setup: a machine and a stocked fridge instead of a daily delivery. I'll add it as a third option.",
+        "That would help a lot. Would it cost much more than the day options?",
+        "A bit more for restocking the fridge, but fewer visits than you would think. I'll show all three side by side.",
+        "Perfect. Our works council meets on Monday, could you send them before the weekend?",
+      ],
+    },
+    bethLinkedin: {
+      messages: [
+        "Hi Beth, Max from Hollis Office Services here. We look after coffee and breakroom supplies for offices around Columbus. Glad to connect.",
+        "Hi Max, thanks for the note. We are a property management office, two floors, about 35 people. Is a starter set possible? Coffee, milk, tea and some fruit.",
+        "Yes, that is a normal start for a team your size. Do you already have a machine, or should we bring one?",
+        "We have an old filter machine nobody likes. A new one would be welcome.",
+        "Hi Beth, then I suggest one machine plus a weekly delivery of beans, milk, tea and a fruit box. I'll send a one-page offer with prices by Thursday. Would Monday mornings suit for the delivery?",
+      ],
+    },
+    gregUsage: {
+      subject: "Usage overview per site",
+      messages: [
+        "Hi Greg,\n\nDiane asked me to send you the usage overview per site for the last twelve months. Coffee at the head office is steady at about 3,100 cups a month, and Cincinnati only started this month.\n\nBest,\nMax",
+        "Hi Max,\n\nThanks. Two questions before Thursday: catering shows 9 events a month at the head office, but we booked 8. And what would a coffee machine plus supplies cost for Cincinnati?\n\nGreg",
+        "Hi Greg,\n\nThe ninth event is the all-hands lunch you booked on short notice, I'll show it as a separate line. For Cincinnati, a machine with weekly supplies is about $800 a month, exact numbers on Thursday.\n\nBest,\nMax",
+        "Thanks, that clears it up. Our controller would like the catering split by department. Can you do that for Thursday?\n\nGreg",
+      ],
+    },
+    samMenus: {
+      subject: "Lunch menus for finance",
+      messages: [
+        "Hi Sam,\n\nKaren asked me to send you the two lunch menus for finance. The light menu is $14 per person, the warm menu $19, and delivery to the head office is $25 per order.\n\nBest,\nMax",
+        "Hi Max,\n\nThanks. Finance would like one monthly estimate for about two lunches a week, ideally with delivery included. Can you send that?\n\nSam",
+        "Hi Sam,\n\nSure. I'll send a one-page offer with the monthly estimate and delivery included by tomorrow.\n\nBest,\nMax",
+        "Thanks. Please also tell us who should get the monthly bill, Karen or accounts payable.\n\nSam",
+      ],
+    },
+    ellenDispenser: {
+      subject: "Dispenser at the south practice",
+      messages: [
+        "Hi Max,\n\nThe water dispenser in the south practice has been dripping at the tap since Monday. Could someone have a look before Friday? Our first patients arrive at 8.\n\nThanks,\nEllen",
+        "Hi Ellen,\n\nSorry about that. Rachel will come by on Thursday around 2 pm and replace the tap seal. She can check the north practice dispenser on the same trip, and she will text you when she is on the way.\n\nBest,\nMax",
+      ],
+    },
+    zoeCheckIn: {
+      subject: "Checking in on the espresso machine",
+      messages: [
+        "Hi Zoe,\n\nIt has been a while since we last spoke. How is the machine doing, and has the team change settled down?\n\nBest,\nMax",
+        "Hi Max,\n\nThe machine is fine. A new studio lead starts next month and wants a say in the coffee, so the espresso upgrade will have to wait for him. Can we talk then?\n\nZoe",
+        "Hi Zoe,\n\nOf course. I'll note the second week of next month and bring a short comparison of the espresso option. If you tell me his start date, I'll suggest two dates for a quick tasting.\n\nBest,\nMax",
+      ],
+    },
+    priyaTasting: {
+      messages: [
+        "Hi Max, could we move the taste test in Cincinnati to 11? Our all-hands runs until 10:30.",
+        "Sure Priya, 11 works. I'll bring both machines and set up before you finish.",
+        "Thanks! Could you also bring decaf beans? Half the team skips coffee after lunch.",
+      ],
+    },
+    carlWalkthrough: {
+      messages: [
+        "Max, thanks for the walkthrough. Heads up: forklift crews eat at 5:30, not 6, and the south break area opens at 5.",
+        "Thanks Carl, noted. I'll plan the first refill for 4:30 so everything is ready by 5.",
+        "Also, the south area has no water connection near the door. Is that a problem for a dispenser?",
+        "No, we use bottle dispensers there. I'll mark the spot on the plan.",
+      ],
+    },
+    owenMove: {
+      messages: [
+        "Hi Max, the studio move is confirmed for the first week of next month.",
+        "Great news Owen. Want me to restart the fruit and coffee delivery once you are in?",
+        "Yes please, from the second week. I'll send you the new address and the door code.",
+        "Perfect. I'll set it up and ask Daniel to bring a machine for the first morning.",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  agents: {
+    company: "Hollis Office Services",
+    records: "clients, contracts and opportunities",
+    mate: "At Max's request it reads clients and contracts, creates tasks for the account managers and saves reply drafts, for example after a customer reports a dripping dispenser.",
+    claude:
+      "Max has it summarise a call into the notes of the opportunity, for example the Halverson yearly review, and prepare the usage per site from the contracts.",
+    chatgpt:
+      "It drafts offer text from walkthrough notes, such as the Westmoor options, which Max then edits and sends himself.",
+    codex:
+      "It cleans up exports and imports by script, for example merging duplicate contacts such as Tom Okafor, and writes a note about what it changed.",
+    followUp:
+      'Every weekday at 8 am the routine "Every morning, draft follow-ups for opportunities due today" looks at the opportunities whose next step date is today or earlier and saves one short follow-up draft per opportunity in the Inbox. Max reads each draft, edits it and sends it himself. The routine never sends a message and never deletes anything.',
+  } satisfies AgentsPageText,
+  notes: {
+    halversonRenewal:
+      "Summary by Claude after the call on Monday:\nDiane wants the yearly review to cover all three sites in one go, Greg wants the numbers per site.\nPromised: the usage overview before Thursday and a suggestion for Cincinnati.\nFee range for Cincinnati: one machine with weekly supplies is about $800 a month.\nNext step: send the overview, then walk Diane and Greg through it on Thursday at 10.",
+    westmoorCanteen:
+      "Draft by ChatGPT from the walkthrough notes:\nTwo day options are on the table: a cold breakfast with a lunch bar, or a hot lunch from the van.\nCrews eat at 5:30, the south break area opens at 5 and has no water connection near the door, so bottle dispensers go there.\nAnita added a night shift of about 40 people from 10 pm to 6 am: third option with a machine and a stocked fridge.\nNext step: send all three options side by side before the works council meets on Monday.",
+    greystoneStart:
+      "Summary by Claude after the LinkedIn chat with Beth:\nTwo floors, about 35 people, an old filter machine nobody likes.\nStarter set wanted: one machine, weekly beans, milk, tea and a fruit box.\nNext step: one-page offer by Thursday, delivery on Monday mornings.",
+    tom: 'Cleaned up by Codex (script run on the CSV export):\nThe duplicate "Tom Okafor (duplicate)" was merged into this contact.\nThe mobile number used for WhatsApp was kept, email and job title are unchanged.\nNo other contact at Halverson was touched.',
+  },
+  mateChatDispenser: {
+    title: "Dripping dispenser at Oakfield",
+    messages: [
+      "Ellen Park from Oakfield Dental wrote that the south practice dispenser drips. Create a task for Rachel to check both dispensers on Thursday at 2 pm and draft a reply.",
+      "Done. This is what I created and checked:\n\n- **Task created:** Check both water dispensers at Oakfield Dental (south practice drips), assigned to Rachel Kim, Priority High, due Thursday, scheduled 2:00 to 3:00 pm, linked to Oakfield Dental Group and Ellen Park.\n- **Contracts checked, not changed:** the south practice dispenser ($140 a month, started 70 days ago) is Active. The north practice contract is still on Review due, and I left it as it is. Oakfield's last contact is 41 days back; update it after the visit.\n- **Reply drafted:** in the email thread with Ellen, saying that Rachel comes on Thursday around 2 pm, replaces the tap seal and looks at the north practice dispenser on the same trip.\n\nNothing was sent. The draft waits in your Inbox for your review.",
+    ],
   },
   files: {
     agreement: {
@@ -1002,6 +1146,7 @@ const de: Strings = {
     larkspurCall: "Frau Wagner wegen der Küche der Kanzlei anrufen",
     brightsideReview: "Vertragsprüfung für Sonnenseite Coworking vorbereiten",
     tallisOnboarding: "Erste Lieferung und Aufbau der Maschine bei Talwerk",
+    oakfieldDispensers: "Beide Wasserspender im Zahnzentrum am Eichenhof prüfen (Praxis Süd tropft)",
   },
   views: {
     clientsByStatus: "Kunden nach Status",
@@ -1041,6 +1186,23 @@ const de: Strings = {
       runs: [
         "Drei Verträge mit Prüftermin in den nächsten 60 Tagen gefunden, je eine Verbrauchsübersicht ergänzt und drei Aufgaben zur Vorbereitung angelegt.",
         "Einen Vertrag mit Prüftermin in den nächsten 60 Tagen gefunden und eine Aufgabe zur Vorbereitung angelegt.",
+      ],
+    },
+    followUp: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen",
+      task: "Suche jeden Werktagmorgen die Verkaufschancen in den Phasen Erkannt, Angebot gesendet oder Probephase, deren Datum des nächsten Schritts heute oder früher ist. Lies für jede Verkaufschance den Kunden, die verknüpften Kontakte und die letzte mit ihr verknüpfte Unterhaltung. Endet die Unterhaltung schon in einem Entwurf, lass ihn unverändert. Speichere sonst mit save_message_draft in dieser Unterhaltung einen kurzen Nachfass-Entwurf: Bedanke dich für die letzte Nachricht, nenne den nächsten Schritt in einem Satz und schlage einen konkreten Termin vor. Ist keine Unterhaltung verknüpft, lege stattdessen genau eine normale Aufgabe „Nachfassen bei <Kontaktname>“ für die Kundenbetreuung des Kunden an, fällig heute. Sende nie eine Nachricht, ändere die Verkaufschance nicht und berichte, welche Verkaufschancen und Entwürfe es betrifft.",
+      runs: [
+        "Drei Verkaufschancen mit fälligem nächsten Schritt gefunden und drei Nachfass-Entwürfe im Posteingang gespeichert, für Hollmann, Merkur und das Klinikum Königsau.",
+        "Zwei fällige Verkaufschancen gefunden: Für die Elsteraue einen Nachfass-Entwurf gespeichert und für die Kanzlei Lerchenfeld, die noch keine verknüpfte Unterhaltung hat, eine Aufgabe angelegt.",
+        "Eine fällige Verkaufschance gefunden, den Logistikpark Schkeuditz Nord, und einen Entwurf für Herrn Jahn und Frau Schulze gespeichert.",
+      ],
+    },
+    replyTasks: {
+      name: "Antwort-Aufgaben für Kunden-E-Mails",
+      task: "Lies die neue E-Mail, die routine_trigger nennt. Mache nur weiter, wenn der Absender über die Identitätskanäle zu einem Kontakt passt und der Kunde den Beziehungsstatus Kunde oder Im Gespräch hat. Lies die offenen Verkaufschancen des Kunden und seine Verträge mit dem Status Prüfung fällig. Lege genau eine normale Aufgabe „Antworten an <Kontaktname>“ an, verknüpft mit dem Kontakt, dem Kunden und, wenn genau eine offen ist, ihrer Verkaufschance, fällig am nächsten Werktag, Priorität Hoch, wenn ein Vertrag des Kunden auf Prüfung fällig steht, sonst Mittel, für die Kundenbetreuung des Kunden. Lege keine zweite Aufgabe an, wenn eine offene mit diesem Namen existiert. Entwirf und sende keine Antwort und ändere keinen anderen Datensatz.",
+      runs: [
+        "Die neue E-Mail von Elke Pohl vom Zahnzentrum am Eichenhof zugeordnet und die Aufgabe „Antworten an Elke Pohl“ mit Priorität Hoch angelegt, weil der Vertrag der Praxis Nord zur Prüfung ansteht.",
+        "Die E-Mail von Simon Weidner von Merkur Versicherungsmakler zugeordnet und die Aufgabe „Antworten an Simon Weidner“ mit Priorität Mittel für morgen angelegt.",
       ],
     },
   },
@@ -1161,6 +1323,119 @@ const de: Strings = {
         "Na klar, Jonas. Ich packe am Freitag zwei zusätzliche Obstkisten dazu.",
       ],
     },
+  },
+  inbox: {
+    lisaLinkedin: {
+      messages: [
+        "Guten Tag Frau Graf, Herr Moritz hat erwähnt, dass Sie im Klinikum Königsau den Einkauf verantworten. Gern beantworte ich Ihnen vor unserem Gespräch alle Fragen zum Catering.",
+        "Guten Tag Herr Bergmann, danke für Ihre Nachricht. Könnten Sie uns eine kurze Referenzliste und den Preis pro Person für unsere wöchentlichen Teambesprechungen schicken?",
+        "Selbstverständlich. Ich schicke Ihnen heute Nachmittag drei Referenzen aus medizinischen Einrichtungen und den Preis pro Person.",
+        "Sehr gut. Bitte schreiben Sie auch, wie Sie mit Unverträglichkeiten umgehen, davon haben wir viele.",
+      ],
+    },
+    anitaLinkedin: {
+      messages: [
+        "Hallo Herr Bergmann, Herr Jahn hat mir Ihre Notizen zur Begehung weitergeleitet, danke fürs Vorbeikommen. Eines fehlt noch: Wir fahren eine Nachtschicht von 22 bis 6 Uhr mit etwa 40 Leuten.",
+        "Guten Tag Frau Schulze, guter Hinweis. Für die Nachtschicht braucht es ein anderes Konzept: eine Maschine und einen bestückten Kühlschrank statt einer täglichen Lieferung. Ich nehme das als dritte Variante auf.",
+        "Das würde uns sehr helfen. Kostet das deutlich mehr als die Tagesvarianten?",
+        "Etwas mehr für das Auffüllen des Kühlschranks, aber mit weniger Besuchen, als man denkt. Ich zeige Ihnen alle drei Varianten nebeneinander.",
+        "Sehr gut. Unser Betriebsrat tagt am Montag, können Sie die Unterlagen vor dem Wochenende schicken?",
+      ],
+    },
+    bethLinkedin: {
+      messages: [
+        "Guten Tag Frau Holz, Max Bergmann vom Bohnenhaus Büroservice. Wir betreuen Büros in und um Leipzig mit Kaffee und Teeküchenbedarf. Schön, dass wir jetzt vernetzt sind.",
+        "Guten Tag Herr Bergmann, danke für Ihre Nachricht. Wir sind eine Hausverwaltung mit zwei Etagen und etwa 35 Leuten. Wäre ein Starterpaket möglich? Kaffee, Milch, Tee und etwas Obst.",
+        "Ja, das ist für ein Team Ihrer Größe ein normaler Start. Haben Sie schon eine Maschine, oder sollen wir eine mitbringen?",
+        "Wir haben eine alte Filtermaschine, die keiner mag. Eine neue wäre willkommen.",
+        "Guten Tag Frau Holz, dann schlage ich eine Maschine und eine wöchentliche Lieferung mit Bohnen, Milch, Tee und einer Obstkiste vor. Ein Angebot auf einer Seite mit Preisen schicke ich Ihnen bis Donnerstag. Passt Ihnen für die Lieferung der Montagvormittag?",
+      ],
+    },
+    gregUsage: {
+      subject: "Verbrauchsübersicht je Standort",
+      messages: [
+        "Sehr geehrter Herr Lorenz,\n\nwie Frau Meißner gebeten hat, schicke ich Ihnen die Verbrauchsübersicht je Standort für die letzten zwölf Monate. Der Kaffee am Hauptsitz liegt stabil bei etwa 3.100 Tassen im Monat, Dresden ist erst diesen Monat gestartet.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nvielen Dank. Zwei Fragen vor Donnerstag: Beim Catering stehen am Hauptsitz 9 Termine im Monat, gebucht hatten wir 8. Und was würden Kaffeemaschine und Teeküchenbedarf für Dresden kosten?\n\nViele Grüße\nGerd Lorenz",
+        "Sehr geehrter Herr Lorenz,\n\nder neunte Termin ist das kurzfristig gebuchte Mittagessen zur Betriebsversammlung, ich zeige es als eigene Zeile. Für Dresden liegt eine Maschine mit wöchentlichem Teeküchenbedarf bei etwa 800 € im Monat, die genauen Zahlen bringe ich am Donnerstag mit.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Danke, das klärt es. Unser Controlling möchte das Catering nach Abteilungen aufgeteilt sehen. Schaffen Sie das bis Donnerstag?\n\nViele Grüße\nGerd Lorenz",
+      ],
+    },
+    samMenus: {
+      subject: "Menüpreise für die Buchhaltung",
+      messages: [
+        "Hallo Herr Weidner,\n\nFrau Dorn hat mich gebeten, Ihnen die beiden Mittagsmenüs für die Buchhaltung zu schicken. Das leichte Menü kostet 14 € pro Person, das warme 19 €, die Lieferung zum Hauptsitz 25 € pro Bestellung.\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\nvielen Dank. Die Buchhaltung möchte eine monatliche Schätzung für etwa zwei Mittagessen pro Woche, möglichst mit Lieferung. Können Sie die schicken?\n\nViele Grüße\nSimon Weidner",
+        "Hallo Herr Weidner,\n\ngern. Ich schicke Ihnen morgen ein Angebot auf einer Seite mit monatlicher Schätzung und Lieferung.\n\nViele Grüße\nMax Bergmann",
+        "Danke. Bitte sagen Sie uns noch, an wen wir die monatliche Abrechnung richten sollen, an Frau Dorn oder an die Buchhaltung.\n\nViele Grüße\nSimon Weidner",
+      ],
+    },
+    ellenDispenser: {
+      subject: "Wasserspender in der Praxis Süd",
+      messages: [
+        "Hallo Herr Bergmann,\n\nder Wasserspender in der Praxis Süd tropft seit Montag am Hahn. Könnte sich vor Freitag jemand das ansehen? Unsere ersten Patienten kommen um 8 Uhr.\n\nDanke und viele Grüße\nElke Pohl",
+        "Hallo Frau Pohl,\n\ndas tut mir leid. Frau Hartmann kommt am Donnerstag gegen 14 Uhr vorbei und tauscht die Hahndichtung aus. Dabei schaut sie sich auch den Spender in der Praxis Nord an und schreibt Ihnen kurz, wenn sie unterwegs ist.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    zoeCheckIn: {
+      subject: "Kurze Nachfrage zur Siebträgermaschine",
+      messages: [
+        "Hallo Frau Brückner,\n\nwir haben lange nicht gesprochen. Wie läuft die Maschine, und hat sich der Teamwechsel eingespielt?\n\nViele Grüße\nMax Bergmann",
+        "Hallo Herr Bergmann,\n\ndie Maschine läuft gut. Nächsten Monat beginnt ein neuer Studioleiter, der beim Kaffee mitreden möchte, deshalb muss die Umstellung auf einen Siebträger auf ihn warten. Können wir dann sprechen?\n\nZoe Brückner",
+        "Hallo Frau Brückner,\n\nselbstverständlich. Ich merke mir die zweite Woche des nächsten Monats vor und bringe einen kurzen Vergleich der Siebträger-Variante mit. Nennen Sie mir seinen Starttermin, dann schlage ich zwei Termine für eine kleine Verkostung vor.\n\nViele Grüße\nMax Bergmann",
+      ],
+    },
+    priyaTasting: {
+      messages: [
+        "Guten Tag Herr Bergmann, können wir die Verkostung in Dresden auf 11 Uhr verschieben? Unsere Betriebsversammlung dauert bis 10:30 Uhr.",
+        "Gern, Frau Naumann, 11 Uhr passt. Ich bringe beide Maschinen mit und baue auf, bevor Sie fertig sind.",
+        "Danke! Könnten Sie auch entkoffeinierte Bohnen mitbringen? Die Hälfte des Teams verzichtet nach dem Mittag auf Kaffee.",
+      ],
+    },
+    carlWalkthrough: {
+      messages: [
+        "Herr Bergmann, danke für die Begehung. Kurzer Hinweis: Die Staplerfahrer essen um 5:30 Uhr, nicht um 6, und der Pausenbereich Süd öffnet um 5.",
+        "Danke, Herr Jahn, das nehme ich auf. Ich plane die erste Auffüllung für 4:30 Uhr, damit um 5 alles bereitsteht.",
+        "Außerdem gibt es im Bereich Süd keinen Wasseranschluss in der Nähe der Tür. Ist das für einen Spender ein Problem?",
+        "Nein, dort nehmen wir Flaschenspender. Ich zeichne die Stelle im Plan ein.",
+      ],
+    },
+    owenMove: {
+      messages: [
+        "Hi Max, der Umzug ins neue Büro steht: erste Woche nächsten Monat.",
+        "Das sind gute Nachrichten, Ole. Soll ich die Obst- und Kaffeelieferung starten, sobald ihr drin seid?",
+        "Ja bitte, ab der zweiten Woche. Neue Adresse und Türcode schicke ich dir noch.",
+        "Prima. Ich richte es ein und bitte Tobias, am ersten Morgen eine Maschine mitzubringen.",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  agents: {
+    company: "Bohnenhaus Büroservice",
+    records: "Kunden, Verträge und Verkaufschancen",
+    mate: "Auf Bitte von Max liest Mate Kunden und Verträge, legt Aufgaben für die Kundenbetreuung an und speichert Antwortentwürfe, zum Beispiel wenn ein Kunde einen tropfenden Wasserspender meldet.",
+    claude:
+      "Max lässt sich damit Gespräche in die Notizen der Verkaufschance zusammenfassen, zum Beispiel für das Jahresgespräch bei Hollmann, und den Verbrauch je Standort aus den Verträgen aufbereiten.",
+    chatgpt:
+      "Es entwirft Angebotstexte aus Begehungsnotizen, etwa die Varianten für den Logistikpark, die Max danach selbst überarbeitet und verschickt.",
+    codex:
+      "Es bereinigt Exporte und Importe per Skript, zum Beispiel doppelte Kontakte wie Thomas Ostermann, und schreibt eine Notiz dazu, was geändert wurde.",
+    followUp:
+      "Jeden Werktag um 8 Uhr schaut die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen“ auf die Verkaufschancen, deren Datum des nächsten Schritts heute oder früher ist, und speichert pro Verkaufschance einen kurzen Nachfass-Entwurf im Posteingang. Max liest jeden Entwurf, überarbeitet ihn und schickt ihn selbst ab. Die Routine sendet nie eine Nachricht und löscht nichts.",
+  } satisfies AgentsPageText,
+  notes: {
+    halversonRenewal:
+      "Zusammenfassung von Claude nach dem Gespräch am Montag:\nFrau Meißner möchte, dass das Jahresgespräch alle drei Standorte auf einmal abdeckt, Herr Lorenz möchte die Zahlen je Standort sehen.\nZugesagt: die Verbrauchsübersicht vor Donnerstag und ein Vorschlag für Dresden.\nPreisrahmen Dresden: eine Maschine mit wöchentlichem Teeküchenbedarf liegt bei etwa 800 € im Monat.\nNächster Schritt: Übersicht schicken, dann am Donnerstag um 10 Uhr mit Frau Meißner und Herrn Lorenz durchgehen.",
+    westmoorCanteen:
+      "Entwurf von ChatGPT aus den Begehungsnotizen:\nZwei Tagesvarianten stehen im Raum: ein kaltes Frühstück mit Mittagsbuffet oder ein warmes Mittagessen aus dem Transporter.\nDie Fahrer essen um 5:30 Uhr, der Pausenbereich Süd öffnet um 5 Uhr und hat keinen Wasseranschluss an der Tür, dort kommen Flaschenspender hin.\nFrau Schulze hat eine Nachtschicht mit etwa 40 Personen von 22 bis 6 Uhr ergänzt: dritte Variante mit Maschine und bestücktem Kühlschrank.\nNächster Schritt: alle drei Varianten nebeneinander schicken, bevor der Betriebsrat am Montag tagt.",
+    greystoneStart:
+      "Zusammenfassung von Claude nach dem LinkedIn-Chat mit Frau Holz:\nZwei Etagen, etwa 35 Personen, eine alte Filtermaschine, die keiner mag.\nGewünscht ist ein Starterpaket: eine Maschine, wöchentlich Bohnen, Milch, Tee und eine Obstkiste.\nNächster Schritt: Angebot auf einer Seite bis Donnerstag, Lieferung montagvormittags.",
+    tom: "Bereinigt von Codex (Skriptlauf auf dem CSV-Export):\nDer Dublettendatensatz „Thomas Ostermann (Duplikat)“ wurde in diesen Kontakt zusammengeführt.\nDie Mobilnummer für WhatsApp blieb erhalten, E-Mail-Adresse und Position sind unverändert.\nKein anderer Kontakt bei Hollmann wurde angefasst.",
+  },
+  mateChatDispenser: {
+    title: "Tropfender Wasserspender bei Eichenhof",
+    messages: [
+      "Elke Pohl vom Zahnzentrum am Eichenhof schreibt, dass der Wasserspender in der Praxis Süd tropft. Lege eine Aufgabe für Lena an, beide Spender am Donnerstag um 14 Uhr zu prüfen, und entwirf eine Antwort.",
+      "Erledigt. Das habe ich angelegt und geprüft:\n\n- **Aufgabe angelegt:** Beide Wasserspender im Zahnzentrum am Eichenhof prüfen (Praxis Süd tropft), zugewiesen an Lena Hartmann, Priorität Hoch, fällig am Donnerstag, Termin 14:00 bis 15:00 Uhr, verknüpft mit dem Zahnzentrum am Eichenhof und Elke Pohl.\n- **Verträge geprüft, nicht geändert:** Der Wasserspender in der Praxis Süd (140 € im Monat, vor 70 Tagen gestartet) ist Aktiv. Der Vertrag für die Praxis Nord steht weiter auf Prüfung fällig, den habe ich so gelassen. Der letzte Kontakt beim Kunden liegt 41 Tage zurück; trag ihn nach dem Besuch nach.\n- **Antwort entworfen:** In der E-Mail-Unterhaltung mit Frau Pohl steht ein Entwurf, dass Frau Hartmann am Donnerstag gegen 14 Uhr kommt, die Hahndichtung tauscht und sich auf derselben Fahrt den Spender in der Praxis Nord ansieht.\n\nEs wurde nichts gesendet. Der Entwurf wartet in deinem Posteingang auf deine Prüfung.",
+    ],
   },
   files: {
     agreement: {
@@ -1384,21 +1659,20 @@ const CONTACT_FACTS: Record<
     createdDaysAgo: number;
     mobile?: string;
     whatsapp?: boolean;
-    avatar?: Parameters<typeof photo>[0];
+    linkedin?: boolean;
   }
 > = {
-  diane: { organization: "halverson", role: "management", createdDaysAgo: 1140, avatar: "anna-mueller" },
+  diane: { organization: "halverson", role: "management", createdDaysAgo: 1140 },
   tom: {
     organization: "halverson",
     role: "officeManager",
     createdDaysAgo: 1140,
     mobile: "11",
     whatsapp: true,
-    avatar: "tim-wagner",
   },
-  priya: { organization: "halverson", role: "officeManager", createdDaysAgo: 30, avatar: "leila-chen" },
-  greg: { organization: "halverson", role: "management", createdDaysAgo: 900, avatar: "paul-koch" },
-  karen: { organization: "meridian", role: "officeManager", createdDaysAgo: 630, avatar: "mia-schneider" },
+  priya: { organization: "halverson", role: "officeManager", createdDaysAgo: 30, mobile: "14", whatsapp: true },
+  greg: { organization: "halverson", role: "management", createdDaysAgo: 900 },
+  karen: { organization: "meridian", role: "officeManager", createdDaysAgo: 630 },
   sam: { organization: "meridian", role: "purchasing", createdDaysAgo: 400 },
   laura: { organization: "oakfield", role: "officeManager", createdDaysAgo: 228 },
   ellen: { organization: "oakfield", role: "officeManager", createdDaysAgo: 90 },
@@ -1408,10 +1682,9 @@ const CONTACT_FACTS: Record<
     createdDaysAgo: 515,
     mobile: "12",
     whatsapp: true,
-    avatar: "lukas-fischer",
   },
   helen: { organization: "larkspur", role: "officeManager", createdDaysAgo: 15 },
-  patrick: { organization: "riverbend", role: "purchasing", createdDaysAgo: 445, avatar: "felix-koch" },
+  patrick: { organization: "riverbend", role: "purchasing", createdDaysAgo: 445 },
   nina: { organization: "riverbend", role: "officeManager", createdDaysAgo: 300 },
   josh: {
     organization: "tallis",
@@ -1419,15 +1692,14 @@ const CONTACT_FACTS: Record<
     createdDaysAgo: 108,
     mobile: "13",
     whatsapp: true,
-    avatar: "leon-becker",
   },
-  beth: { organization: "greystone", role: "management", createdDaysAgo: 21 },
-  owen: { organization: "juniper", role: "officeManager", createdDaysAgo: 378 },
-  carl: { organization: "westmoor", role: "officeManager", createdDaysAgo: 44 },
-  anita: { organization: "westmoor", role: "management", createdDaysAgo: 40 },
+  beth: { organization: "greystone", role: "management", createdDaysAgo: 21, linkedin: true },
+  owen: { organization: "juniper", role: "officeManager", createdDaysAgo: 378, mobile: "16", whatsapp: true },
+  carl: { organization: "westmoor", role: "officeManager", createdDaysAgo: 44, mobile: "15", whatsapp: true },
+  anita: { organization: "westmoor", role: "management", createdDaysAgo: 40, linkedin: true },
   zoe: { organization: "ashcombe", role: "officeManager", createdDaysAgo: 120 },
   frank: { organization: "kingsley", role: "purchasing", createdDaysAgo: 5 },
-  lisa: { organization: "kingsley", role: "purchasing", createdDaysAgo: 4 },
+  lisa: { organization: "kingsley", role: "purchasing", createdDaysAgo: 4, linkedin: true },
 };
 
 type SiteKey = keyof Strings["sites"];
@@ -1663,7 +1935,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 6200,
     createdDaysAgo: 18,
     decision: 20,
-    next: 4,
+    next: 0,
     history: [[7, "identified"]],
   },
   oakfieldWater: {
@@ -1687,7 +1959,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 4800,
     createdDaysAgo: 15,
     decision: 40,
-    next: 5,
+    next: -1,
   },
   riverbendBranches: {
     organization: "riverbend",
@@ -1785,7 +2057,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 15000,
     createdDaysAgo: 4,
     decision: 60,
-    next: 1,
+    next: 0,
   },
 };
 
@@ -1868,7 +2140,7 @@ const TASK_FACTS: Record<
   kingsleyCall: {
     status: "open",
     priority: "medium",
-    due: 1,
+    due: 0,
     deal: "kingsleyPilot",
     contact: "frank",
     createdDaysAgo: 2,
@@ -1906,7 +2178,113 @@ const TASK_FACTS: Record<
     createdDaysAgo: 76,
     done: 70,
   },
+  oakfieldDispensers: {
+    status: "open",
+    priority: "high",
+    due: 2,
+    organization: "oakfield",
+    contact: "ellen",
+    createdDaysAgo: 0,
+    visit: [2, "14:00", 60],
+  },
 };
+
+const INBOX: ReadonlyArray<InboxThreadPlan & { key: InboxKey }> = [
+  {
+    key: "lisaLinkedin",
+    account: "linkedin",
+    with: ["lisa"],
+    state: "unread",
+    latestMinutesAgo: 25,
+    speakers: ["self", "lisa", "self", "lisa"],
+    links: ["organization:kingsley", "deal:kingsleyPilot"],
+  },
+  {
+    key: "anitaLinkedin",
+    account: "linkedin",
+    with: ["anita"],
+    state: "open",
+    latestMinutesAgo: 130,
+    speakers: ["anita", "self", "anita", "self", "anita"],
+    links: ["organization:westmoor", "deal:westmoorCanteen"],
+  },
+  {
+    key: "bethLinkedin",
+    account: "linkedin",
+    with: ["beth"],
+    state: "open",
+    latestMinutesAgo: 2760,
+    speakers: ["self", "beth", "self", "beth", "self"],
+    draft: true,
+    links: ["organization:greystone", "deal:greystoneStart"],
+  },
+  {
+    key: "gregUsage",
+    account: "google",
+    with: ["greg"],
+    state: "open",
+    latestMinutesAgo: 1200,
+    speakers: ["self", "greg", "self", "greg"],
+    links: ["organization:halverson", "deal:halversonRenewal"],
+  },
+  {
+    key: "samMenus",
+    account: "google",
+    with: ["sam"],
+    state: "unread",
+    latestMinutesAgo: 200,
+    speakers: ["self", "sam", "self", "sam"],
+    links: ["organization:meridian", "deal:meridianCatering"],
+  },
+  {
+    key: "ellenDispenser",
+    account: "google",
+    with: ["ellen"],
+    state: "open",
+    latestMinutesAgo: 420,
+    speakers: ["ellen", "self"],
+    draft: true,
+    links: ["organization:oakfield", "contract:oakfieldWaterSouth"],
+  },
+  {
+    key: "zoeCheckIn",
+    account: "google",
+    with: ["zoe"],
+    state: "open",
+    latestMinutesAgo: 3000,
+    speakers: ["self", "zoe", "self"],
+    draft: true,
+    links: ["organization:ashcombe", "deal:ashcombeRenewal"],
+  },
+  {
+    key: "priyaTasting",
+    account: "whatsapp",
+    with: ["priya"],
+    state: "open",
+    latestMinutesAgo: 55,
+    speakers: ["priya", "self", "priya"],
+    links: ["organization:halverson", "deal:halversonSecondSite"],
+  },
+  {
+    key: "carlWalkthrough",
+    account: "whatsapp",
+    with: ["carl"],
+    state: "open",
+    latestMinutesAgo: 4620,
+    speakers: ["carl", "self", "carl", "self"],
+    reactions: [[3, "carl", "👍"]],
+    links: ["organization:westmoor", "deal:westmoorCanteen"],
+  },
+  {
+    key: "owenMove",
+    account: "whatsapp",
+    with: ["owen"],
+    state: "open",
+    latestMinutesAgo: 8640,
+    speakers: ["owen", "self", "owen", "self"],
+    links: ["organization:juniper", "deal:juniperFruit"],
+  },
+];
 
 function mailbox(name: string): string {
   return name
@@ -1924,6 +2302,13 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return key;
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:halversonRenewal": "Claude Desktop",
+  "deal:greystoneStart": "Claude Desktop",
+  "deal:westmoorCanteen": "ChatGPT",
+  "contact:tom": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "client-management",
   strings: { en, de },
@@ -1931,7 +2316,7 @@ export default defineSolution<Strings>({
     en: { currency: "USD", timeZone: "America/New_York" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const mobile = (suffix: string) => phoneNumber(t.phones.mobile, Number(suffix));
     const office = (index: number) => phoneNumber(t.phones.office, index);
     const open = ["identified", "offerSent", "trial"];
@@ -1986,8 +2371,13 @@ export default defineSolution<Strings>({
         channels: {
           email: `${mailbox(firstName)}.${mailbox(lastName)}@${domain}`,
           phone,
+          ...(facts.linkedin
+            ? {
+                linkedin: `${mailbox(firstName)}-${mailbox(lastName)}.linkedin.example`,
+                linkedinUrl: `https://linkedin.example/in/${mailbox(firstName)}-${mailbox(lastName)}`,
+              }
+            : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -2068,6 +2458,11 @@ export default defineSolution<Strings>({
         text,
         ...(draftLast && index === all.length - 1 ? { draft: true } : {}),
       }));
+
+    const withNotes = (records: RecordSpec[], notes: Record<string, string>): RecordSpec[] =>
+      records.map((record) =>
+        notes[record.key] ? { ...record, values: { ...record.values, notes: notes[record.key] } } : record,
+      );
 
     const routine = (key: keyof Strings["routines"]) => t.routines[key];
     const failureNote = t.routines.noContact.note;
@@ -2196,11 +2591,24 @@ export default defineSolution<Strings>({
           targetCardinality: "many",
         },
       ],
-      members: (["colleagueA", "colleagueB"] as const).map((key, index) => {
+      members: (["colleagueA", "colleagueB"] as const).map((key) => {
         const [firstName, lastName, email] = t.members[key];
-        return { key, firstName, lastName, email, avatar: photo(index === 0 ? "mara-bauer" : "jonas-weber") };
+        return { key, firstName, lastName, email };
       }),
-      records: { organization, contact, contract, deal, task },
+      records: agentEdited(
+        {
+          organization,
+          contact: withNotes(contact, { tom: t.notes.tom }),
+          contract,
+          deal: withNotes(deal, {
+            halversonRenewal: t.notes.halversonRenewal,
+            westmoorCanteen: t.notes.westmoorCanteen,
+            greystoneStart: t.notes.greystoneStart,
+          }),
+          task,
+        },
+        AGENT_EDITS,
+      ),
       views: [
         {
           key: "clientsByStatus",
@@ -2377,6 +2785,7 @@ export default defineSolution<Strings>({
           whenToUse: t.wiki.yearlyReview.whenToUse,
           markdown: t.wiki.yearlyReview.markdown,
         },
+        agentsPage(locale, t.agents),
       ],
       routines: [
         {
@@ -2432,7 +2841,64 @@ export default defineSolution<Strings>({
             },
           ],
         },
+        {
+          key: "followUp",
+          name: routine("followUp").name,
+          task: routine("followUp").task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 6,
+              durationSeconds: 71,
+              credits: 11,
+              summary: routine("followUp").runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 30,
+              durationSeconds: 66,
+              credits: 10,
+              summary: routine("followUp").runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 102,
+              durationSeconds: 48,
+              credits: 6,
+              summary: routine("followUp").runs[2],
+            },
+          ],
+        },
+        {
+          key: "replyTasks",
+          name: routine("replyTasks").name,
+          task: routine("replyTasks").task,
+          trigger: {
+            kind: "event",
+            events: ["messaging.email.received"],
+            debounceSeconds: 300,
+            sample: { thread: 12 },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 7,
+              durationSeconds: 28,
+              credits: 4,
+              summary: routine("replyTasks").runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 79,
+              durationSeconds: 19,
+              credits: 3,
+              summary: routine("replyTasks").runs[1],
+            },
+          ],
+        },
       ],
+      apiKeys: agentApiKeys([74, 41, 9]),
       files: [
         ...SIGNED_CONTRACTS.map((key): FileSpec => {
           const facts = CONTRACT_FACTS[key];
@@ -2500,9 +2966,17 @@ export default defineSolution<Strings>({
             text,
           })),
         },
+        {
+          title: t.mateChatDispenser.title,
+          endedHoursAgo: 6,
+          messages: t.mateChatDispenser.messages.map((text, index) => ({
+            role: index % 2 === 0 ? ("user" as const) : ("assistant" as const),
+            text,
+          })),
+        },
       ],
       messaging: {
-        accounts: ["google", "whatsapp"],
+        accounts: ["google", "linkedin", "whatsapp"],
         selfTitle: t.selfTitle,
         website: t.website,
         threads: [
@@ -2565,6 +3039,7 @@ export default defineSolution<Strings>({
             latestMinutesAgo: 5 * 60,
             messages: messages("tallisBreakfast", ["josh", "self"]),
           },
+          ...inboxThreads(INBOX, t.inbox),
         ],
       },
     };

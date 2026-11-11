@@ -28,6 +28,7 @@ vi.mock("@/components/data-view/use-column-label", () => ({
   useCanonicalColumnLabel: () => (field: string) => field,
 }));
 vi.mock("../activities-row", () => ({
+  useActorViaLabel: () => (actor: { via?: { name: string } }) => (actor.via ? `via ${actor.via.name}` : undefined),
   useSystemActorLabel: () => () => "System",
   auditCategory: () => ({ icon: () => null, tone: "neutral" }),
   DetailHeader: () => null,

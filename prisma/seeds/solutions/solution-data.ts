@@ -3,6 +3,7 @@ import { presetId } from "@/features/records/crm-preset";
 import { identityKeys, normalizedIdentity } from "@/features/records/record-identity";
 import type { RecordAddress, RecordModel, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordIdentityProvider } from "@/generated/prisma";
+import { eventVia, type EventVia } from "@/features/event/event-via";
 
 import { fixtureId, workspaceFixtureId } from "../helpers";
 import { TEAM_MEMBER_IDS } from "../team";
@@ -62,6 +63,7 @@ export type SolutionHistoryEntry = {
   kind: "record.created" | "record.updated";
   at: Date;
   actorId: string;
+  via: EventVia | null;
   /** Created: the values at creation that differ from today. Updated: the values before the change. */
   values: Map<string, RecordScalar>;
 };
@@ -415,6 +417,7 @@ export function buildSolutionRecordData(
       kind: "record.created",
       at: row.createdAt,
       actorId: solutionMemberId(workspace, spec.owner),
+      via: null,
       values: firstValues,
     });
     for (const change of changes) {
@@ -425,6 +428,7 @@ export function buildSolutionRecordData(
         kind: "record.updated",
         at: storyMoment(change.daysAgo, offset),
         actorId: solutionMemberId(workspace, change.by ?? spec.owner),
+        via: eventVia("apiKey", change.via),
         values: new Map(
           Object.entries(change.previous).map(([fieldName, input]) => [
             id(`${list}.${fieldName}`),

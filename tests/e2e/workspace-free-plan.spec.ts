@@ -72,7 +72,7 @@ test("a workspace whose trial ended continues on Free with usage, upgrade prompt
   await expect(page.locator("[data-plan-usage='storage']")).toContainText("100 MB");
   await expect(page.locator("[data-plan-usage='api']")).toContainText("API calls today");
   await expect(page.locator("[data-plan-usage='api']")).toContainText("0 of 200");
-  await expect(page.locator("#settings-billing-plan-usage")).toContainText("Up to 10 per minute");
+  await expect(page.locator("#settings-billing-plan-usage")).toContainText("Up to 30 per minute");
   await expect(page.locator("[data-plan-usage='customLists']")).toHaveCount(0);
   await expect(page.locator("#settings-billing-plan-picker [data-plan='free']")).toContainText("Free · current plan");
 
@@ -97,7 +97,12 @@ test("a workspace whose trial ended continues on Free with usage, upgrade prompt
   const body = (await refused.json()) as { error: { kind: string; issues: Array<{ customCode: string; message: string }> } };
   expect(body.error.kind).toBe("rate_limit");
   expect(body.error.issues[0]?.customCode).toBe("apiRateLimitReached");
-  expect(body.error.issues[0]?.message).toContain("upgrade to Starter (€12 per user per month)");
+  const message = body.error.issues[0]?.message ?? "";
+  expect(message).toContain("This Customermates workspace is on the Free plan");
+  expect(message).toContain("200 API and MCP requests per day");
+  expect(message).toMatch(/The daily limit resets in about \d+ hours?\./);
+  expect(message).toContain("Starter (€12 per user per month) removes the request limit");
+  expect(message).toContain("/dashboard?open=%2Fsettings%2Fbilling%3Fplan%3Dstarter");
   expect(errors).toEqual([]);
 });
 

@@ -41,6 +41,7 @@ vi.mock("@/constants/chart-colors", async (importOriginal) => {
     [ChartColor.primary1]: `${prefix}-primary1`,
     [ChartColor.primary2]: `${prefix}-primary2`,
     [ChartColor.secondary1]: `${prefix}-secondary1`,
+    [ChartColor.info1]: `${prefix}-info1`,
     [ChartColor.danger2]: `${prefix}-danger2`,
     [ChartColor.success1]: `${prefix}-success1`,
   });
@@ -275,7 +276,7 @@ describe("WidgetChart", () => {
     });
 
     expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
-      "fill-secondary1",
+      "fill-info1",
       "fill-secondary1",
     ]);
   });

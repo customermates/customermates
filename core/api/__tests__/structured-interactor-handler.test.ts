@@ -38,7 +38,11 @@ function structured(result: unknown) {
 
 describe("handleError", () => {
   it("answers the Free plan request limit with 429, Retry-After and the Starter upgrade", () => {
-    const error = new ApiRateLimitExceededError("day", 2_000, 3_600, { plan: "Starter", price: "€12" });
+    const error = new ApiRateLimitExceededError("day", 2_000, 3_600, {
+      plan: "Starter",
+      price: "€12",
+      url: "https://customermates.com/dashboard?open=%2Fsettings%2Fbilling%3Fplan%3Dstarter",
+    });
     const result = handleError(error) as unknown as Result;
 
     expect(result.status).toBe(429);
@@ -49,12 +53,13 @@ describe("handleError", () => {
         {
           code: "custom",
           path: [],
-          message:
-            "This workspace is on the Free plan, which allows 2,000 API and MCP requests per day. Wait and retry, or upgrade to Starter (€12 per user per month) to remove the request limit.",
+          message: error.message,
           customCode: CustomErrorCode.apiRateLimitReached,
         },
       ],
     });
+    expect(error.message).toContain("The daily limit resets in about 1 hour.");
+    expect(error.message).toContain(`A workspace admin can upgrade here: ${error.upgrade.url}`);
   });
 
   it.each([

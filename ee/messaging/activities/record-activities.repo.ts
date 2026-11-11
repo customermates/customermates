@@ -4,6 +4,7 @@ import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import type { EventLog } from "@/generated/prisma";
 import type { RecordRevisionChange } from "@/features/records/record-revision.schema";
 import type { MessagingMessage } from "../messaging.schema";
+import type { EventVia } from "@/features/event/event-via";
 import type { RecordActivitiesInput } from "./record-activities.schema";
 import type { ActivityKind, ActivityMemberDto, ActivityThreadRef, ActivityCalendarEvent } from "./activities.schema";
 import type { RecordActivityIndexRow } from "./record-activity-query";
@@ -14,6 +15,7 @@ export type RecordActivityActor = {
   email: string;
   avatarUrl: string | null;
   system?: SystemActorProcess;
+  via?: EventVia;
 };
 type RecordActivityMessage = { message: MessagingMessage; thread: ActivityThreadRef; senderIsMine: boolean };
 export interface RecordActivitiesRepo {

@@ -163,7 +163,7 @@ Ein Workspace ohne Testphase, dessen bezahlter Tarif abgelaufen ist, ein Workspa
 
 ### Was passiert mit verbundenen Konten bei einem Tarifwechsel? [#what-happens-to-connected-accounts-when-the-plan-changes]
 
-Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle & Kalender](app:settings/channels). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt.
+Meldet Lemon Squeezy einen anderen Tarif, entfernt Customermates bei jedem Nutzer die neuesten verbundenen Konten über dem neuen Kontingent. Starter enthält [[commercial.entitlement.starter.includedAccountsPerUser]] pro Nutzer, also wird jedes Konto entfernt; der erste Checkout aus der Testphase gilt als Wechsel von Pro. Mitglieder mit der Rolle **Admin** erhalten eine E-Mail mit den entfernten Konten; die übrigen bleiben unter [Kanäle & Kalender](app:settings/channels). Routinen über dem Kontingent bleiben erhalten, weil das Kontingent nur beim Anlegen einer Routine gilt. Hat der neue Tarif keine geteilten Konten (alles unterhalb von Business), wird jeder mit dem Workspace geteilte Kanal für seinen Besitzer wieder **Privat**, und ein späteres Upgrade teilt ihn nicht erneut.
 
 ### Was ist bei Enterprise anders? [#how-does-an-enterprise-workspace-differ]
 
@@ -181,7 +181,7 @@ Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle & Kalender](app:set
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
 - **Konfiguration**: Listen, Felder, Verknüpfungen und Datensatzzugriff je Rolle. Nur Rollen mit **Datenmodell** **Bearbeiten** oder **Benutzer & Rollen** **Bearbeiten** sehen diese Einträge.
 
-Lesen erfordert **Aktivitätsprotokoll** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; Ansichten speichern Sie wie bei Listen. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
+Lesen erfordert **Aktivitätsprotokoll** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; Ansichten speichern Sie wie bei Listen. Eine Änderung über einen API-Key oder einen per MCP verbundenen KI-Agenten nennt den Key oder die Anwendung hinter der Person, etwa „Max Bergmann über Claude Desktop“. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
 
 ## Webhooks [#webhooks-tab]
 

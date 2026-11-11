@@ -105,7 +105,7 @@ In Customermates Cloud lehnt ein Workspace, der noch auf seinen ersten Tarif war
 
 ### Gibt es im Free-Tarif ein Anfragelimit? [#is-there-a-request-limit-on-the-free-plan]
 
-Ja. Im Free-Tarif sind REST- und MCP-Anfragen zusammen auf [[commercial.limit.free.apiRequestsPerMinute]] pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag pro Workspace begrenzt. Darüber erhält eine Anfrage HTTP `429` mit einem `Retry-After`-Header: REST antwortet mit `kind` `rate_limit` und `customCode` `apiRateLimitReached`, MCP mit `error: rate_limited`. Die Fehlermeldung nennt Starter, den Tarif ohne dieses Limit. Bezahlte Tarife und selbst gehostete Installationen haben kein Anfragelimit.
+Ja. Im Free-Tarif sind REST- und MCP-Anfragen zusammen auf [[commercial.limit.free.apiRequestsPerMinute]] pro Minute und [[commercial.limit.free.apiRequestsPerDay]] pro Tag pro Workspace begrenzt. Darüber erhält eine Anfrage HTTP `429` mit einem `Retry-After`-Header: REST antwortet mit `kind` `rate_limit` und `customCode` `apiRateLimitReached`, MCP-Tool-Aufrufe mit einem Tool-Fehler mit `error: rate_limited` (andere MCP-Anfragen mit `429`). Es zählen nur MCP-Tool-Aufrufe, nicht das Verbinden oder Tool-Listen. Die Meldung sagt, dass der Workspace im Free-Tarif ist, und nennt Starter, den Preis und den Abrechnungslink, damit ein Agent sie an den Nutzer weitergeben kann. Bezahlte Tarife und selbst gehostete Installationen haben kein Anfragelimit.
 
 ## Weiter [#next]
 

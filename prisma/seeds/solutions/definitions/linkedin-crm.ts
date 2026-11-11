@@ -1,6 +1,8 @@
 import { DisplayType } from "@/features/widget/widget-display.schema";
 
-import { address, day, defineSolution, photo, rangeAt, type FileSpec, type RecordSpec } from "../define-solution";
+import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
+import { address, day, defineSolution, rangeAt, type FileSpec, type RecordSpec } from "../define-solution";
+import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
 
 /**
  * LinkedIn conversations in your CRM relationship context: a small company that sells security awareness training to
@@ -93,6 +95,94 @@ const TASKS = [
   "meetupNotes",
 ] as const;
 type TaskKey = (typeof TASKS)[number];
+
+const INBOX_PLAN = [
+  {
+    key: "paul",
+    account: "google",
+    with: ["paul"],
+    state: "unread",
+    latestMinutesAgo: 15,
+    speakers: ["paul", "self", "paul"],
+    links: ["deal:larchmontProgram", "organization:larchmont"],
+  },
+  {
+    key: "priya",
+    account: "google",
+    with: ["priya"],
+    state: "open",
+    latestMinutesAgo: 7 * 60,
+    speakers: ["self", "priya", "self"],
+    draft: true,
+    links: ["deal:cedarlineProgram", "organization:cedarline"],
+  },
+  {
+    key: "andrew",
+    account: "google",
+    with: ["andrew"],
+    state: "open",
+    latestMinutesAgo: 12 * 60,
+    speakers: ["andrew", "self", "andrew"],
+    links: ["deal:fenwickBaseline", "organization:fenwick"],
+  },
+  {
+    key: "lucy",
+    account: "google",
+    with: ["lucy"],
+    state: "open",
+    latestMinutesAgo: 30 * 60,
+    speakers: ["lucy", "self", "lucy", "self"],
+    draft: true,
+    links: ["deal:northmereRefresh", "organization:northmere"],
+  },
+  {
+    key: "zoe",
+    account: "linkedin",
+    with: ["zoe"],
+    state: "open",
+    latestMinutesAgo: 2 * 24 * 60 + 90,
+    speakers: ["zoe", "self", "zoe", "self", "zoe"],
+    links: ["organization:larchmont"],
+  },
+  {
+    key: "ivy",
+    account: "linkedin",
+    with: ["ivy"],
+    state: "open",
+    latestMinutesAgo: 4 * 24 * 60 + 30,
+    speakers: ["ivy", "self", "ivy", "self"],
+    draft: true,
+    links: ["organization:quayside"],
+  },
+  {
+    key: "sarah",
+    account: "linkedin",
+    with: ["sarah"],
+    state: "open",
+    latestMinutesAgo: 6 * 24 * 60 + 60,
+    speakers: ["sarah", "self", "sarah", "self", "sarah"],
+    links: ["deal:hollisPhishing", "organization:hollis"],
+  },
+  {
+    key: "oliver",
+    account: "linkedin",
+    with: ["oliver"],
+    state: "open",
+    latestMinutesAgo: 9 * 24 * 60,
+    speakers: ["oliver", "self", "oliver", "self"],
+    links: ["deal:tidewellBaseline", "organization:tidewell"],
+  },
+  {
+    key: "tom",
+    account: "linkedin",
+    with: ["tom"],
+    state: "open",
+    latestMinutesAgo: 18 * 24 * 60,
+    speakers: ["tom", "self", "tom", "self"],
+    links: ["deal:brightfordPilot", "organization:brightford"],
+  },
+] as const satisfies readonly InboxThreadPlan[];
+type InboxKey = (typeof INBOX_PLAN)[number]["key"];
 
 const en = {
   company: "Clearwatch Awareness",
@@ -287,7 +377,7 @@ const en = {
         "## Routines",
         "- **Research new LinkedIn connections:** when a connection request is accepted, Mate looks up the person, fills empty fields it can verify and creates a follow-up task if one is needed.",
         "- **Find similar prospects on LinkedIn:** every Monday, Mate searches Sales Navigator for companies like the ones we won and lists them in a review task.",
-        "- Both routines only write notes and tasks. Neither sends a message or a connection request; that stays with Max.",
+        "- Routines only write notes, tasks and drafts and never send; that stays with Max. More on the page How our agents work with this CRM.",
       ],
     },
     stages: {
@@ -356,6 +446,24 @@ const en = {
         "Proposed 3 healthcare companies with 5 possible buyers; 2 matches were already in the CRM and were left out.",
       ],
     },
+    followUp: {
+      name: "Every morning, draft follow-ups for opportunities due today",
+      task: "Every weekday morning, read the opportunities whose Stage is Identified, Conversation, Meeting booked or Proposal sent and whose Next step date is today or earlier. For each one, read the conversations linked to the opportunity with get_messaging_threads. If the last message is from the prospect and the conversation has no draft, save one short reply draft in that conversation with save_message_draft: answer the question in two or three sentences, in Max's voice, and suggest the next step. Preserve an existing draft. If the last message is ours, do nothing and name the conversation in the summary. If no conversation is linked, create one ordinary task 'Follow up with <prospect name>' due today, linked to the opportunity and the prospect, only when no open task for that prospect or opportunity exists. Never send a message, never link a conversation and do not change the opportunity.",
+      runs: [
+        "Three opportunities were due. Hollis Freight already had a reply draft for Rachel Dawson, so I left it as it is. At Brightford Manufacturing the last message is ours and waits for Tom Kendrick. Larchmont Logistics has no linked conversation, and the open task to link Kate Morrison's conversation already covers it, so I created nothing. Nothing was sent.",
+        "Saved a reply draft for Martin Ashby at Cedarline Health about a call in two weeks and about bringing Priya Nair in. Nothing was sent.",
+        "Saved a draft for Fiona Blake at Kingsgate Housing that offers a half-day leadership workshop at their office. Nothing was sent.",
+      ],
+    },
+    questions: {
+      name: "Turn LinkedIn questions into tasks",
+      task: "Read the new LinkedIn message identified by routine_trigger. Resolve the sender through identity channels and continue only for an existing prospect. If the message asks Max for a document, a price, a date or a decision, create one ordinary task named 'Answer <prospect name>: <topic>' due in two days, linked to the prospect, the company and, when the sender has exactly one open opportunity, that opportunity, and put the question in the notes. Create no task for thanks, greetings or confirmations, and only one task for the same question. Never send a message, save no draft and change no other record.",
+      runs: [
+        "George Lamb asked whether reports can be split by site and whether the program exists in Polish. The open task Answer George's questions about site reports and languages already covers both, so I created nothing.",
+        "Claire Whitaker confirmed Wednesday afternoon for the call. The message holds no question for Max, so no task was created.",
+        "I could not reach the model provider on this attempt, so I stopped before reading anything. Nothing was changed.",
+      ],
+    },
   },
   threads: {
     rachel: [
@@ -394,15 +502,15 @@ const en = {
     simon: {
       subject: "Training dates for the warehouse teams",
       messages: [
-        "Dear Max,\n\nRachel forwarded your proposal. From the HR side, the training would need to fit into our monthly team briefings, which take place in the first week of each month.\n\nCould the modules be completed within those sessions?\n\nKind regards,\nSimon Pryce",
-        "Dear Simon,\n\nThank you. Yes, each module takes about ten minutes, so two of them fit into one briefing. I will add the briefing dates to the plan for Rachel.\n\nBest regards,\nMax",
+        "Hi Max,\n\nRachel forwarded your proposal. From the HR side, the training would need to fit into our monthly team briefings, which take place in the first week of each month.\n\nCould the modules be completed within those sessions?\n\nKind regards,\nSimon Pryce",
+        "Hi Simon,\n\nThank you. Yes, each module takes about ten minutes, so two of them fit into one briefing. I will add the briefing dates to the plan for Rachel.\n\nBest regards,\nMax",
       ],
     },
     helen: {
       subject: "Thank you for the workshop",
       messages: [
-        "Dear Max,\n\nThank you for last week's workshop. The partners found the examples very practical. Could you send us the slides for the two colleagues who missed it?\n\nBest wishes,\nHelen Garner",
-        "Dear Helen,\n\nThank you for the kind feedback. I will send the slides separately today. If your two colleagues have questions, they are welcome to get in touch.\n\nBest regards,\nMax",
+        "Hi Max,\n\nThank you for last week's workshop. The partners found the examples very practical. Could you send us the slides for the two colleagues who missed it?\n\nBest wishes,\nHelen Garner",
+        "Hi Helen,\n\nThank you for the kind feedback. I will send the slides separately today. If your two colleagues have questions, they are welcome to get in touch.\n\nBest regards,\nMax",
       ],
     },
   },
@@ -489,6 +597,119 @@ const en = {
       "Nine prospects had a LinkedIn conversation in the last 7 days. Seven of them are already on an opportunity. Two are not:\n\n- **Zoe Hartley**, People partner at Larchmont Logistics: last LinkedIn conversation 2 days ago, connection status Messaged. Larchmont already has the opportunity \"Larchmont Logistics – training for new starters\" (£15,800) with Kate Morrison and Paul Heston, so Zoe could be added there.\n- **Ivy Chandler**, Office manager at Quayside Legal: last LinkedIn conversation 4 days ago, connection status Messaged. Quayside's only opportunity, the partner workshop (£4,800), is won; a baseline training for the office could be a next opportunity.\n\nAlso note: Kate Morrison's LinkedIn conversation is still not linked to the Larchmont opportunity. Shall I create a task for each?",
     ],
   },
+  mateChatUpdate: {
+    title: "Meeting with Claire Whitaker",
+    messages: [
+      "Claire and I agreed on Wednesday on LinkedIn. Move the Marlow opportunity to Meeting booked, set the next step and add a task for the agenda.",
+      "Done. I updated **Marlow Insurance – baseline training for all staff** (£7,200):\n\n- Stage: Conversation to **Meeting booked**\n- Next step: Meeting with Claire and Joe on Wednesday\n- New task **Send Claire a short agenda for Wednesday**, due Wednesday, linked to the opportunity and to Claire Whitaker\n\nClaire's connection status was already Meeting booked, and the call with Claire Whitaker and Joe Harper is in your calendar. I did not send anything: the agenda is yours to write and send.",
+    ],
+  },
+  inbox: {
+    paul: {
+      subject: "Onboarding modules and our warehouse handhelds",
+      messages: [
+        "Hi Max,\n\nKate asked me to check the technical side of the onboarding training. Our warehouse staff only have shared handheld scanners with a small browser. Can the modules run on those, or do they need a laptop?\n\nBest,\nPaul Heston",
+        "Hi Paul,\n\nGood question. The modules run in any current browser, so a handheld works if its browser is current and the screen is at least 4 inches. I can test one with your device model if you send me the name.\n\nBest,\nMax",
+        "Hi Max,\n\nThanks. They run Android 11 with a current browser and have 4.7-inch screens. How does sign-in work? We do not want 40 new accounts a month created by hand.\n\nPaul",
+      ],
+    },
+    priya: {
+      subject: "Call with Martin: two time options",
+      messages: [
+        "Hi Priya,\n\nas promised on LinkedIn, here are two options for our call with Martin: Thursday at 10:00 or Friday at 16:00 in two weeks. About 45 minutes should do.\n\nBest,\nMax",
+        "Hi Max,\n\nFriday at 16:00 works for Martin and me. Could our lead nurse join as well? She plans the shifts and will have the clearest requirements.\n\nBest,\nPriya",
+        "Hi Priya,\n\nFriday at 16:00 is set, and the lead nurse is very welcome. Once you send me her email address I will send a calendar invite to you, Martin and her. To prepare, it would help to know how many shifts a day she has to plan around.\n\nBest,\nMax",
+      ],
+    },
+    andrew: {
+      subject: "Training again this spring?",
+      messages: [
+        "Hi Max,\n\nA while ago we paused the baseline training because of the year-end accounts. Our cyber insurer now asks for proof of staff training with the renewal, so we are looking at it again. Are you still taking on firms our size?\n\nBest,\nAndrew Cole",
+        "Hi Andrew,\n\nGood to hear from you, and yes. Your 38 people are a good size for the baseline training. Would you like the same scope as before, or something lighter?\n\nBest,\nMax",
+        "Hi Max,\n\nLighter, please: two modules and one phishing test, done before the renewal in March. Could you send a quote?\n\nAndrew",
+      ],
+    },
+    lucy: {
+      subject: "Q3 phishing results for the risk committee",
+      messages: [
+        "Hi Max,\n\nour risk committee meets on Friday. Could you send me a one-page summary of the Q3 phishing exercise? The auditors will ask about it.\n\nBest,\nLucy Barnard",
+        "Hi Lucy,\n\nYes, of course. I will attach the results by department and add a short note on what the click rate means for a team of your size.\n\nBest,\nMax",
+        "Hi Max,\n\nThanks. One question for the committee: which department clicked most? And is the refresher session on Thursday still at 13:00?\n\nLucy",
+        "Hi Lucy,\n\nClaims clicked most at 11.0 percent (9 of 82), Finance least at 4.8 percent (1 of 21). Overall 19 of 225 people clicked (8.4 percent) and 106 reported the email. The refresher session on Thursday is still at 13:00 and takes 90 minutes. The one-page summary follows this afternoon.\n\nBest,\nMax",
+      ],
+    },
+    zoe: {
+      messages: [
+        "Hi Max, Kate said you are talking to us about onboarding training. I look after our agency staff. About 25 temps join each month through a staffing agency. Can they be part of it too?",
+        "Hi Zoe, yes, temps get the same short modules for the length of their contract. How long do they usually stay?",
+        "Most stay four to eight weeks. Mornings are busy, so ten minutes during a break is about all we can ask.",
+        "Then ten-minute modules in the break fit well. I would put the three that matter on day one: fake delivery notices, shared logins and how to report something odd.",
+        "Sounds good. Could you tell me what that would cost for 25 temps a month? I need a number for our meeting on Friday.",
+      ],
+    },
+    ivy: {
+      messages: [
+        "Hi Max, the partners are still talking about your workshop. The rest of the office asked whether they can get something similar, just shorter. Is that possible?",
+        "Hi Ivy, great to hear. A 45-minute session for the whole office works well. How many people would that be?",
+        "About 30, spread over two floors. Lunchtime would be best, and no slides full of jargon please.",
+        "Hi Ivy, that is easy to do. I would run one lunchtime session of 45 minutes in plain language, with two live examples of fake payment requests. I can send you a one-page outline today. Would a Tuesday or Wednesday next week suit you?",
+      ],
+    },
+    sarah: {
+      messages: [
+        "Hi Max, Rachel mentioned the annual program. We have an ISO 27001 audit in January and the auditor will ask for proof of staff training. Does the program give us something to show?",
+        "Hi Sarah, yes. You get a completion report per person and, after each phishing exercise, the click rate and the reporting rate per team.",
+        "Good. Does it show who has not completed a module? That is the first thing they will ask.",
+        "Yes, there is a list of open modules per person and team that you can export to a spreadsheet.",
+        "Perfect. Please put that in writing for me, a short paragraph is enough, so I can add it to the audit folder.",
+      ],
+    },
+    oliver: {
+      messages: [
+        "Hi Max, before we decide on the baseline training, could we see what a module looks like? I mainly want to know whether store managers would finish it.",
+        "Hi Oliver, good idea. I will send you a ten-minute sample module for store managers this week, with the quiz at the end.",
+        "Thanks. Amy Lowe runs our training and would like to try it too, could you include her?",
+        "Of course, I will send it to both of you. Then we can talk about the rollout once you have had a look.",
+      ],
+    },
+    tom: {
+      messages: [
+        "Hi Max, saw your post on phishing exercises. We would like to try one at the plant, 350 people. The problem: most of the shop floor never uses email.",
+        "Hi Tom, thanks for writing. Good that you mention it, because it changes how the pilot should work. Let me think about a way to reach the shop floor too.",
+        "OK, thank you. Some of them have a shared kiosk PC.",
+        "That helps. Once I know roughly how many people at the plant use email, I can size the pilot. Can you find that out?",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  agentNotes: {
+    deal: {
+      hollisProgram:
+        "Summary by Claude after the call with Rachel Dawson and Simon Pryce:\nStart with drivers and warehouse on shared tablets, office teams in the second quarter.\nThe modules must fit the monthly team briefings in the first week of the month.\nOpen: the three-month rollout outline for the board meeting on the 14th.",
+      ashcombeProgram:
+        "Draft by ChatGPT for the reply to George Lamb:\nReports can be split by site. The Polish version needs a check with our content partner by Friday.\nSuggested wording: confirm both points in one message and propose signing before the end of the month.",
+    },
+    organization: {
+      northmere:
+        "Checked by Codex (script run on the Q3 results file):\nDepartment totals match the company record: 225 emails, 19 clicks (8.4%), 106 reports.\nHighest click rate: Claims at 11.0%. Lowest: Finance at 4.8%.\nUsed for the refresher session on Thursday.",
+    },
+    task: {
+      linkKateConversation:
+        "Task created by Claude from Kate Morrison's LinkedIn message:\nAround 40 warehouse starters a month. Onboarding today is a printed handbook and a day of shadowing.\nLink the conversation once the scope is clear. It is not linked yet on purpose.",
+    },
+  },
+  agents: {
+    company: "Clearwatch Awareness",
+    records: "prospects, companies, opportunities and tasks",
+    mate: "It researches new LinkedIn connections, finds companies like the ones we won and turns a sentence in chat into a record update or a task.",
+    claude:
+      "Max has it summarize a call into the opportunity notes, find prospects who replied but have no opportunity yet and prepare the outline for a workshop.",
+    chatgpt:
+      "It drafts replies to prospects' questions from the proposal and the notes; Max reads and edits every draft in the Inbox.",
+    codex:
+      "It runs scripts on exports, for example checking the results file of a phishing exercise against the department totals on the company record.",
+    followUp:
+      'The routine "Every morning, draft follow-ups for opportunities due today" runs on weekday mornings. It reads the opportunities whose next step date is today or earlier, looks at the conversation linked to each and saves a short reply draft when the prospect wrote last. The drafts wait in the Inbox until Max has read and sent them. The routine never sends a message and never links a conversation.',
+  } satisfies AgentsPageText,
   events: [
     "Call with Claire Whitaker and Joe Harper (Marlow Insurance)",
     "Call with Fiona Blake about the leadership workshop",
@@ -700,7 +921,7 @@ const de: Strings = {
         "## Routinen",
         "- **Neue LinkedIn-Kontakte recherchieren:** Wenn eine Kontaktanfrage angenommen wird, schlägt Mate die Person nach, füllt leere Felder, die sich belegen lassen, und legt bei Bedarf eine Aufgabe an.",
         "- **Ähnliche Interessenten auf LinkedIn finden:** Jeden Montag sucht Mate im Sales Navigator nach Firmen wie denen, die wir gewonnen haben, und listet sie in einer Aufgabe zur Prüfung.",
-        "- Beide Routinen schreiben nur Notizen und Aufgaben. Keine schickt eine Nachricht oder Kontaktanfrage; das bleibt bei Max.",
+        "- Routinen schreiben nur Notizen, Aufgaben und Entwürfe und senden nie; das bleibt bei Max. Mehr auf der Seite „So arbeiten unsere Agenten mit diesem CRM“.",
       ],
     },
     stages: {
@@ -768,6 +989,24 @@ const de: Strings = {
         "4 Firmen aus Logistik und Versicherung mit 7 möglichen Entscheidern in einer Aufgabe zur Prüfung vorgeschlagen.",
         "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe aufgehört, bevor ich etwas gelesen oder geändert habe. Nichts wurde verändert. Der nächste geplante Lauf holt das nach.",
         "3 Firmen aus dem Gesundheitswesen mit 5 möglichen Entscheidern vorgeschlagen; 2 Treffer standen schon im CRM und wurden weggelassen.",
+      ],
+    },
+    followUp: {
+      name: "Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen",
+      task: "Lies an jedem Werktagmorgen die Verkaufschancen, deren Phase Identifiziert, Im Gespräch, Termin vereinbart oder Angebot gesendet ist und deren Datum nächster Schritt heute oder früher liegt. Lies für jede die mit ihr verknüpften Gespräche mit get_messaging_threads. Wenn die letzte Nachricht vom Interessenten stammt und das Gespräch keinen Entwurf hat, speichere mit save_message_draft einen kurzen Antwortentwurf in diesem Gespräch: die Frage in zwei oder drei Sätzen beantworten, in Max' Stimme, mit einem Vorschlag für den nächsten Schritt. Einen vorhandenen Entwurf lässt du unverändert. Stammt die letzte Nachricht von uns, tust du nichts und nennst das Gespräch in der Zusammenfassung. Ist kein Gespräch verknüpft, lege nur dann eine normale Aufgabe „Nachfassen bei <Name des Interessenten>“ mit Fälligkeit heute an, wenn es für diesen Interessenten oder diese Verkaufschance noch keine offene Aufgabe gibt. Sende nie eine Nachricht, verknüpfe nie ein Gespräch und ändere die Verkaufschance nicht.",
+      runs: [
+        "Drei Verkaufschancen waren fällig. Bei der Hollmann Spedition gab es für Frau Dreyer schon einen Antwortentwurf, ich habe ihn unverändert gelassen. Bei Brückner Maschinenbau stammt die letzte Nachricht von uns und wartet auf Herrn Kemper. Lärchenfeld Logistik hat kein verknüpftes Gespräch; die offene Aufgabe, das Gespräch mit Frau Morawe zu verknüpfen, deckt das ab, deshalb habe ich nichts angelegt. Es wurde nichts gesendet.",
+        "Antwortentwurf für Herrn Albers vom Klinikverbund Zedernhof gespeichert, zu einem Telefonat in zwei Wochen und mit der Bitte, Frau Nolte einzubinden. Es wurde nichts gesendet.",
+        "Entwurf für Frau Blank von Wohnungsbau Königstor gespeichert, der einen halbtägigen Workshop für Führungskräfte in ihren Räumen anbietet. Es wurde nichts gesendet.",
+      ],
+    },
+    questions: {
+      name: "LinkedIn-Fragen in Aufgaben verwandeln",
+      task: "Lies die neue LinkedIn-Nachricht aus routine_trigger. Ermittle den Absender über seine Identitätskanäle und mache nur für einen vorhandenen Interessenten weiter. Wenn die Nachricht Max um ein Dokument, einen Preis, einen Termin oder eine Entscheidung bittet, lege eine normale Aufgabe „<Name des Interessenten> antworten: <Thema>“ mit Fälligkeit in zwei Tagen an, verknüpft mit dem Interessenten, der Firma und, wenn der Absender genau eine offene Verkaufschance hat, mit dieser; schreibe die Frage in die Notizen. Für Dank, Grüße und Bestätigungen legst du keine Aufgabe an, für dieselbe Frage nur eine. Sende nie eine Nachricht, speichere keinen Entwurf und ändere keinen anderen Datensatz.",
+      runs: [
+        "Georg Lammers hat gefragt, ob sich die Berichte nach Standort aufteilen lassen und ob es das Programm auf Polnisch gibt. Die offene Aufgabe, seine Fragen zu Standortberichten und Sprachen zu beantworten, deckt beides ab, deshalb habe ich nichts angelegt.",
+        "Claudia Wittmann hat den Mittwochnachmittag für das Telefonat bestätigt. Die Nachricht enthält keine Frage an Max, deshalb wurde keine Aufgabe angelegt.",
+        "Ich konnte den Modellanbieter bei diesem Versuch nicht erreichen und habe aufgehört, bevor ich etwas gelesen habe. Nichts wurde verändert.",
       ],
     },
   },
@@ -903,6 +1142,119 @@ const de: Strings = {
       "Neun Interessenten hatten in den letzten 7 Tagen ein LinkedIn-Gespräch. Sieben davon hängen schon an einer Verkaufschance. Zwei nicht:\n\n- **Zoe Hartung**, Personalreferentin bei Lärchenfeld Logistik: letztes LinkedIn-Gespräch vor 2 Tagen, Verbindungsstatus Angeschrieben. Lärchenfeld hat bereits die Verkaufschance „Lärchenfeld Logistik – Schulung für neue Mitarbeitende“ (15.800 €) mit Katrin Morawe und Paul Hesse; Frau Hartung ließe sich dort ergänzen.\n- **Iris Claßen**, Büroleiterin bei der Kanzlei am Kai: letztes LinkedIn-Gespräch vor 4 Tagen, Verbindungsstatus Angeschrieben. Die einzige Verkaufschance der Kanzlei, der Partner-Workshop (4.800 €), ist gewonnen; eine Grundschulung für das Büro wäre eine mögliche nächste.\n\nAußerdem: Das LinkedIn-Gespräch mit Katrin Morawe ist noch nicht mit der Verkaufschance von Lärchenfeld verknüpft. Soll ich für jeden Punkt eine Aufgabe anlegen?",
     ],
   },
+  mateChatUpdate: {
+    title: "Termin mit Claudia Wittmann",
+    messages: [
+      "Frau Wittmann und ich haben uns auf LinkedIn auf Mittwoch geeinigt. Setze die Verkaufschance Mahrenholz auf Termin vereinbart, trage den nächsten Schritt ein und lege eine Aufgabe für die Agenda an.",
+      "Erledigt. Ich habe **Mahrenholz – Grundschulung für alle Mitarbeitenden** (7.200 €) aktualisiert:\n\n- Phase: Im Gespräch auf **Termin vereinbart**\n- Nächster Schritt: Termin mit Frau Wittmann und Herrn Harms am Mittwoch\n- Neue Aufgabe **Frau Wittmann eine kurze Agenda für Mittwoch schicken**, fällig am Mittwoch, verknüpft mit der Verkaufschance und mit Claudia Wittmann\n\nDer Verbindungsstatus von Frau Wittmann war schon Termin vereinbart, und das Telefonat mit Claudia Wittmann und Jonas Harms steht in deinem Kalender. Ich habe nichts gesendet: Die Agenda schreibst und schickst du selbst.",
+    ],
+  },
+  inbox: {
+    paul: {
+      subject: "Einarbeitungsmodule und unsere Lager-Handscanner",
+      messages: [
+        "Guten Tag Herr Bergmann,\n\nFrau Morawe hat mich gebeten, die technische Seite der Einarbeitungsschulung zu prüfen. Unser Lagerteam hat nur gemeinsam genutzte Handscanner mit einem kleinen Browser. Laufen die Module darauf, oder braucht man einen Laptop?\n\nViele Grüße\nPaul Hesse",
+        "Guten Tag Herr Hesse,\n\ngute Frage. Die Module laufen in jedem aktuellen Browser, ein Handscanner genügt also, wenn sein Browser aktuell und der Bildschirm mindestens 4 Zoll groß ist. Ich kann es gern mit Ihrem Gerätemodell testen, wenn Sie mir den Namen schicken.\n\nViele Grüße\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\ndanke. Die Geräte laufen mit Android 11 und einem aktuellen Browser, der Bildschirm hat 4,7 Zoll. Wie funktioniert die Anmeldung? Wir wollen nicht jeden Monat 40 neue Konten von Hand anlegen.\n\nPaul Hesse",
+      ],
+    },
+    priya: {
+      subject: "Telefonat mit Herrn Albers: zwei Terminvorschläge",
+      messages: [
+        "Guten Tag Frau Nolte,\n\nwie auf LinkedIn angekündigt zwei Vorschläge für unser Telefonat mit Herrn Albers: Donnerstag um 10:00 Uhr oder Freitag um 16:00 Uhr in zwei Wochen. 45 Minuten sollten genügen.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Guten Tag Herr Bergmann,\n\nFreitag um 16:00 Uhr passt Herrn Albers und mir. Könnte auch unsere Pflegedienstleiterin dazukommen? Sie plant die Schichten und wird die klarsten Anforderungen haben.\n\nViele Grüße\nPetra Nolte",
+        "Guten Tag Frau Nolte,\n\nFreitag um 16:00 Uhr steht, und die Pflegedienstleiterin ist herzlich willkommen. Sobald Sie mir ihre E-Mail-Adresse nennen, schicke ich eine Kalendereinladung an Sie, Herrn Albers und sie. Zur Vorbereitung wäre hilfreich zu wissen, mit wie vielen Schichten pro Tag sie planen muss.\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+    andrew: {
+      subject: "Schulung im Frühjahr doch wieder?",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nvor einiger Zeit haben wir die Grundschulung wegen der Jahresabschlüsse pausiert. Unser Cyberversicherer verlangt zur Verlängerung jetzt einen Nachweis über die Schulung der Mitarbeitenden, deshalb schauen wir wieder darauf. Betreuen Sie noch Kanzleien unserer Größe?\n\nViele Grüße\nAndreas Kolbe",
+        "Sehr geehrter Herr Kolbe,\n\nschön, von Ihnen zu hören, und ja. Ihre 38 Mitarbeitenden sind eine gute Größe für die Grundschulung. Möchten Sie denselben Umfang wie damals oder etwas Schlankeres?\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Sehr geehrter Herr Bergmann,\n\nbitte etwas Schlankeres: zwei Module und ein Phishing-Test, fertig vor der Verlängerung im März. Können Sie uns ein Angebot schicken?\n\nViele Grüße\nAndreas Kolbe",
+      ],
+    },
+    lucy: {
+      subject: "Ergebnisse der Phishing-Übung Q3 für den Risikoausschuss",
+      messages: [
+        "Sehr geehrter Herr Bergmann,\n\nunser Risikoausschuss tagt am Freitag. Könnten Sie mir eine einseitige Zusammenfassung der Phishing-Übung aus dem dritten Quartal schicken? Die Prüfer werden danach fragen.\n\nViele Grüße\nLena Bernhardt",
+        "Sehr geehrte Frau Bernhardt,\n\nselbstverständlich. Ich hänge die Ergebnisse nach Abteilung an und ergänze einen kurzen Hinweis, was die Klickrate für ein Team Ihrer Größe bedeutet.\n\nMit freundlichen Grüßen\nMax Bergmann",
+        "Sehr geehrter Herr Bergmann,\n\ndanke. Eine Frage für den Ausschuss: Welche Abteilung hat am häufigsten geklickt? Und beginnt die Auffrischung am Donnerstag weiterhin um 13:00 Uhr?\n\nViele Grüße\nLena Bernhardt",
+        "Sehr geehrte Frau Bernhardt,\n\nam häufigsten hat die Abteilung Schaden geklickt, mit 11,0 Prozent (9 von 82), am seltensten das Finanzwesen mit 4,8 Prozent (1 von 21). Insgesamt haben 19 von 225 Personen geklickt (8,4 Prozent), und 106 haben die E-Mail gemeldet. Die Auffrischung am Donnerstag beginnt weiterhin um 13:00 Uhr und dauert 90 Minuten. Die einseitige Zusammenfassung folgt heute Nachmittag.\n\nMit freundlichen Grüßen\nMax Bergmann",
+      ],
+    },
+    zoe: {
+      messages: [
+        "Hallo Herr Bergmann, Frau Morawe hat mir erzählt, dass Sie mit uns über Schulungen zur Einarbeitung sprechen. Ich betreue bei uns die Zeitarbeitskräfte, im Monat kommen etwa 25 über eine Agentur dazu. Können die auch teilnehmen?",
+        "Hallo Frau Hartung, ja, Zeitarbeitskräfte bekommen für die Dauer ihres Einsatzes dieselben kurzen Module. Wie lange bleiben sie meist?",
+        "Die meisten vier bis acht Wochen. Morgens ist viel los, mehr als zehn Minuten in einer Pause können wir kaum verlangen.",
+        "Dann passen Module von zehn Minuten in der Pause gut. Ich würde die drei wichtigsten gleich am ersten Tag einplanen: gefälschte Lieferbenachrichtigungen, geteilte Zugänge und wie man etwas Verdächtiges meldet.",
+        "Klingt gut. Können Sie mir sagen, was das für 25 Leute im Monat kosten würde? Ich brauche eine Zahl für unsere Besprechung am Freitag.",
+      ],
+    },
+    ivy: {
+      messages: [
+        "Hallo Herr Bergmann, die Partner sprechen immer noch über Ihren Workshop. Die übrigen Kolleginnen und Kollegen im Büro fragen, ob sie etwas Ähnliches bekommen können, nur kürzer. Ist das möglich?",
+        "Hallo Frau Claßen, das freut mich. Ein Termin von 45 Minuten für das ganze Büro passt gut. Wie viele Personen wären das?",
+        "Etwa 30, verteilt auf zwei Etagen. Am besten in der Mittagspause und bitte ohne Folien voller Fachbegriffe.",
+        "Hallo Frau Claßen, das lässt sich gut machen. Ich würde eine Sitzung von 45 Minuten in der Mittagspause halten, in einfacher Sprache und mit zwei Live-Beispielen für gefälschte Zahlungsaufforderungen. Eine Seite mit dem Ablauf schicke ich Ihnen heute. Passt Ihnen ein Dienstag oder Mittwoch nächste Woche?",
+      ],
+    },
+    sarah: {
+      messages: [
+        "Hallo Herr Bergmann, Frau Dreyer hat das Jahresprogramm erwähnt. Wir haben im Januar ein Audit nach ISO 27001, und der Auditor wird einen Nachweis über die Schulung der Mitarbeitenden verlangen. Bekommen wir mit dem Programm etwas, das wir vorzeigen können?",
+        "Hallo Frau Quast, ja. Sie bekommen einen Abschlussbericht pro Person und nach jeder Phishing-Übung die Klickrate und die Melderate pro Team.",
+        "Gut. Sieht man auch, wer ein Modul noch nicht abgeschlossen hat? Danach fragt man als Erstes.",
+        "Ja, es gibt eine Liste offener Module pro Person und Team, die sich als Tabelle exportieren lässt.",
+        "Sehr gut. Bitte halten Sie das schriftlich für mich fest, ein kurzer Absatz genügt, dann lege ich ihn in den Auditordner.",
+      ],
+    },
+    oliver: {
+      messages: [
+        "Hallo Herr Bergmann, bevor wir uns zur Grundschulung entscheiden: Könnten wir einmal sehen, wie ein Modul aussieht? Mir geht es vor allem darum, ob die Filialleitungen es bis zum Ende durchhalten.",
+        "Hallo Herr Schütte, gute Idee. Ich schicke Ihnen diese Woche ein Beispielmodul von zehn Minuten für Filialleitungen, mit dem Quiz am Ende.",
+        "Danke. Anja Lohmann leitet bei uns die Schulungen und würde es auch gern ausprobieren. Können Sie sie mit aufnehmen?",
+        "Selbstverständlich, ich schicke es Ihnen beiden. Dann sprechen wir über den Ablauf, sobald Sie es sich angesehen haben.",
+      ],
+    },
+    tom: {
+      messages: [
+        "Hallo Herr Bergmann, ich habe Ihren Beitrag zu Phishing-Übungen gesehen. Wir würden gern eine im Werk ausprobieren, 350 Leute. Das Problem: Die meisten in der Fertigung nutzen nie E-Mail.",
+        "Hallo Herr Kemper, danke für Ihre Nachricht. Gut, dass Sie das erwähnen, denn das verändert, wie der Pilot laufen sollte. Ich überlege mir einen Weg, auch die Fertigung zu erreichen.",
+        "Alles klar, danke. Einige haben einen gemeinsamen Kiosk-PC.",
+        "Das hilft. Sobald ich ungefähr weiß, wie viele im Werk E-Mail nutzen, kann ich den Pilot dimensionieren. Können Sie das herausfinden?",
+      ],
+    },
+  } satisfies Record<InboxKey, InboxThreadText>,
+  agentNotes: {
+    deal: {
+      hollisProgram:
+        "Zusammenfassung von Claude nach dem Gespräch mit Rebecca Dreyer und Simon Pfeiffer:\nStart mit Fahrern und Lager auf gemeinsam genutzten Tablets, die Büroteams im zweiten Quartal.\nDie Module müssen in die monatlichen Teambesprechungen der ersten Woche passen.\nOffen: der Ablaufplan für drei Monate für die Vorstandssitzung am 14.",
+      ashcombeProgram:
+        "Entwurf von ChatGPT für die Antwort an Georg Lammers:\nDie Berichte lassen sich nach Standort aufteilen. Die polnische Fassung muss bis Freitag mit unserem Inhaltspartner geklärt werden.\nVorschlag: beide Punkte in einer Nachricht bestätigen und eine Unterschrift vor Monatsende vorschlagen.",
+    },
+    organization: {
+      northmere:
+        "Geprüft von Codex (Skriptlauf auf der Ergebnisdatei Q3):\nDie Abteilungssummen stimmen mit dem Firmendatensatz überein: 225 E-Mails, 19 Klicks (8,4 %), 106 Meldungen.\nHöchste Klickrate: Schaden mit 11,0 %. Niedrigste: Finanzen mit 4,8 %.\nVerwendet für die Auffrischung am Donnerstag.",
+    },
+    task: {
+      linkKateConversation:
+        "Aufgabe angelegt von Claude aus der LinkedIn-Nachricht von Katrin Morawe:\nRund 40 neue Mitarbeitende im Lager pro Monat. Die Einarbeitung ist heute ein gedrucktes Handbuch und ein Tag Mitlaufen.\nDas Gespräch verknüpfen, sobald der Umfang klar ist. Es ist absichtlich noch nicht verknüpft.",
+    },
+  },
+  agents: {
+    company: "Wachblick Schulungen GmbH",
+    records: "Interessenten, Firmen, Verkaufschancen und Aufgaben",
+    mate: "Dazu gehört, neue LinkedIn-Kontakte zu recherchieren, Firmen wie die gewonnenen zu finden und aus einem Satz im Chat eine Änderung an einem Datensatz oder eine Aufgabe zu machen.",
+    claude:
+      "Max lässt dort ein Telefonat in die Notizen der Verkaufschance zusammenfassen, Interessenten finden, die geantwortet haben, aber noch keine Verkaufschance haben, und die Gliederung für einen Workshop vorbereiten.",
+    chatgpt:
+      "Es entwirft Antworten auf Fragen von Interessenten aus Angebot und Notizen; Max liest und bearbeitet jeden Entwurf im Posteingang.",
+    codex:
+      "Es lässt Skripte auf Exporten laufen, zum Beispiel um die Ergebnisdatei einer Phishing-Übung mit den Abteilungssummen am Firmendatensatz abzugleichen.",
+    followUp:
+      "Die Routine „Jeden Morgen Nachfass-Entwürfe für fällige Verkaufschancen“ läuft an Werktagen am Morgen. Sie liest die Verkaufschancen, deren Datum nächster Schritt heute oder früher liegt, schaut sich das jeweils verknüpfte Gespräch an und speichert einen kurzen Antwortentwurf, wenn zuletzt der Interessent geschrieben hat. Die Entwürfe warten im Posteingang, bis Max sie gelesen und gesendet hat. Die Routine sendet nie eine Nachricht und verknüpft nie ein Gespräch.",
+  },
   events: [
     "Telefonat mit Claudia Wittmann und Jonas Harms (Mahrenholz)",
     "Telefonat mit Friederike Blank zum Führungskräfte-Workshop",
@@ -935,7 +1287,6 @@ const CONTACT_FACTS: Record<
     linkedin: boolean;
     lastChat?: number;
     createdDaysAgo: number;
-    avatar?: Parameters<typeof photo>[0];
   }
 > = {
   rachel: {
@@ -945,7 +1296,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: 0,
     createdDaysAgo: 295,
-    avatar: "mia-schneider",
   },
   simon: { organization: "hollis", howWeMet: "introduction", status: "replied", linkedin: false, createdDaysAgo: 292 },
   claire: {
@@ -955,7 +1305,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: -1,
     createdDaysAgo: 40,
-    avatar: "lea-bauer",
   },
   joe: { organization: "marlow", howWeMet: "introduction", status: "connected", linkedin: false, createdDaysAgo: 35 },
   martin: {
@@ -965,7 +1314,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: -2,
     createdDaysAgo: 145,
-    avatar: "tim-wagner",
   },
   priya: {
     organization: "cedarline",
@@ -988,7 +1336,6 @@ const CONTACT_FACTS: Record<
     status: "client",
     linkedin: true,
     createdDaysAgo: 160,
-    avatar: "sophie-hoffmann",
   },
   george: {
     organization: "ashcombe",
@@ -997,7 +1344,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: 0,
     createdDaysAgo: 90,
-    avatar: "reinhold-mertens",
   },
   nina: { organization: "ashcombe", howWeMet: "introduction", status: "connected", linkedin: true, createdDaysAgo: 80 },
   oliver: {
@@ -1016,7 +1362,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: -3,
     createdDaysAgo: 30,
-    avatar: "anna-mueller",
   },
   andrew: { organization: "fenwick", howWeMet: "inbound", status: "messaged", linkedin: false, createdDaysAgo: 200 },
   kate: {
@@ -1026,7 +1371,6 @@ const CONTACT_FACTS: Record<
     linkedin: true,
     lastChat: -1,
     createdDaysAgo: 6,
-    avatar: "nia-johnson",
   },
   paul: {
     organization: "larchmont",
@@ -1034,7 +1378,6 @@ const CONTACT_FACTS: Record<
     status: "messaged",
     linkedin: true,
     createdDaysAgo: 5,
-    avatar: "paul-koch",
   },
   lucy: {
     organization: "northmere",
@@ -1119,7 +1462,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 18400,
     createdDaysAgo: 70,
     close: 20,
-    next: 1,
+    next: 0,
     moves: [
       [52, "identified"],
       [30, "conversation"],
@@ -1145,7 +1488,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     contacts: ["martin", "priya"],
     stage: "conversation",
     offering: "annualProgram",
-    value: 32000,
+    value: 26000,
     createdDaysAgo: 110,
     close: 90,
     next: 12,
@@ -1159,7 +1502,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 6500,
     createdDaysAgo: 20,
     close: 120,
-    next: 6,
+    next: -3,
   },
   quaysideWorkshop: {
     organization: "quayside",
@@ -1240,7 +1583,7 @@ const DEAL_FACTS: Record<DealKey, DealFacts> = {
     value: 15800,
     createdDaysAgo: 5,
     close: 150,
-    next: 3,
+    next: 0,
   },
   cedarlineWorkshop: {
     organization: "cedarline",
@@ -1411,6 +1754,11 @@ const TASK_FACTS: Record<
   meetupNotes: { status: "blocked", priority: "low", due: -4, createdDaysAgo: 8 },
 };
 
+function noteOf(notes: Readonly<Record<string, string>>, key: string): Record<string, string> {
+  const text = notes[key];
+  return text === undefined ? {} : { notes: text };
+}
+
 function slug(name: string): string {
   return name
     .toLowerCase()
@@ -1425,6 +1773,13 @@ function organizationOf(facts: { organization?: OrganizationKey; deal?: DealKey 
   return facts.organization ?? (facts.deal ? DEAL_FACTS[facts.deal].organization : undefined);
 }
 
+const AGENT_EDITS: Record<string, AgentKeyName> = {
+  "deal:hollisProgram": "Claude Desktop",
+  "task:linkKateConversation": "Claude Desktop",
+  "deal:ashcombeProgram": "ChatGPT",
+  "organization:northmere": "Codex CLI",
+};
+
 export default defineSolution<Strings>({
   id: "linkedin-crm",
   strings: { en, de },
@@ -1432,7 +1787,7 @@ export default defineSolution<Strings>({
     en: { currency: "GBP", timeZone: "Europe/London" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
   },
-  build: (t) => {
+  build: (t, locale) => {
     const open = ["identified", "conversation", "meetingBooked", "proposal"];
     const wonLastYear = [
       { field: "stage", in: ["won"] },
@@ -1455,6 +1810,7 @@ export default defineSolution<Strings>({
           address: address({ street, postalCode, city, region, countryCode: t.countryCode, lat, lon }),
           website: `https://${domain}`,
           employees: facts.employees,
+          ...noteOf(t.agentNotes.organization, key),
         },
         owner: "maxBergmann",
         channels: { email: `info@${domain}` },
@@ -1484,7 +1840,6 @@ export default defineSolution<Strings>({
             ? { linkedin: `${handle}.linkedin.example`, linkedinUrl: `https://linkedin.example/in/${handle}` }
             : {}),
         },
-        ...(facts.avatar ? { avatar: photo(facts.avatar) } : {}),
         createdDaysAgo: facts.createdDaysAgo,
       };
     });
@@ -1504,6 +1859,7 @@ export default defineSolution<Strings>({
             : { nextStep: t.nextSteps[key as OpenDealKey], nextStepDate: day(facts.next) }),
           ...(facts.session ? { trainingSessions: rangeAt(...facts.session) } : {}),
           ...(facts.lost ? { lostReason: facts.lost } : {}),
+          ...noteOf(t.agentNotes.deal, key),
         },
         links: { "deal.organizations": facts.organization, "deal.contacts": facts.contacts },
         owner: "maxBergmann",
@@ -1516,7 +1872,13 @@ export default defineSolution<Strings>({
       const organizationKey = organizationOf(facts);
       return {
         key,
-        values: { name: t.tasks[key], status: facts.status, priority: facts.priority, dueDate: day(facts.due) },
+        values: {
+          name: t.tasks[key],
+          status: facts.status,
+          priority: facts.priority,
+          dueDate: day(facts.due),
+          ...noteOf(t.agentNotes.task, key),
+        },
         links: {
           ...(facts.deal ? { "task.deals": facts.deal } : {}),
           ...(organizationKey ? { "task.organizations": organizationKey } : {}),
@@ -1652,7 +2014,7 @@ export default defineSolution<Strings>({
         { key: "won", label: t.stages.won, color: "success", probability: 100 },
         { key: "lost", label: t.stages.lost, color: "destructive", probability: 0 },
       ],
-      records: { contact, organization, deal, task },
+      records: agentEdited({ contact, organization, deal, task }, AGENT_EDITS),
       views: [
         {
           key: "byConnection",
@@ -1810,7 +2172,9 @@ export default defineSolution<Strings>({
           title: t.wiki.firstMessages.title,
           markdown: t.wiki.firstMessages.markdown,
         },
+        agentsPage(locale, t.agents),
       ],
+      apiKeys: agentApiKeys([58, 33, 9]),
       files: [
         file("hollisProposal", "hollisProgram", "pdf", 10),
         file("ashcombeProposal", "ashcombeProgram", "pdf", 16),
@@ -1836,6 +2200,14 @@ export default defineSolution<Strings>({
           messages: [
             { role: "user", text: t.mateChat.messages[0] },
             { role: "assistant", text: t.mateChat.messages[1] },
+          ],
+        },
+        {
+          title: t.mateChatUpdate.title,
+          endedHoursAgo: 24,
+          messages: [
+            { role: "user", text: t.mateChatUpdate.messages[0] },
+            { role: "assistant", text: t.mateChatUpdate.messages[1] },
           ],
         },
       ],
@@ -1902,6 +2274,70 @@ export default defineSolution<Strings>({
               durationSeconds: 77,
               credits: 15,
               summary: t.routines.similar.runs[2],
+            },
+          ],
+        },
+        {
+          key: "followUp",
+          name: t.routines.followUp.name,
+          task: t.routines.followUp.task,
+          trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 6,
+              durationSeconds: 63,
+              credits: 10,
+              summary: t.routines.followUp.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 54,
+              durationSeconds: 48,
+              credits: 7,
+              summary: t.routines.followUp.runs[1],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 102,
+              durationSeconds: 44,
+              credits: 7,
+              summary: t.routines.followUp.runs[2],
+            },
+          ],
+        },
+        {
+          key: "questions",
+          name: t.routines.questions.name,
+          task: t.routines.questions.task,
+          trigger: {
+            kind: "event",
+            events: ["messaging.message.received"],
+            debounceSeconds: 300,
+            sample: { thread: 1 },
+          },
+          runs: [
+            {
+              status: "succeeded",
+              startedHoursAgo: 2,
+              durationSeconds: 29,
+              credits: 4,
+              summary: t.routines.questions.runs[0],
+            },
+            {
+              status: "succeeded",
+              startedHoursAgo: 32,
+              durationSeconds: 24,
+              credits: 3,
+              summary: t.routines.questions.runs[1],
+            },
+            {
+              status: "failed",
+              startedHoursAgo: 74,
+              durationSeconds: 9,
+              credits: 1,
+              error: "providerUnavailable",
+              note: t.routines.questions.runs[2],
             },
           ],
         },
@@ -1976,6 +2412,7 @@ export default defineSolution<Strings>({
             messages: chat("helen", t.threads.helen.messages),
             links: ["deal:quaysideWorkshop", "organization:quayside"],
           },
+          ...inboxThreads(INBOX_PLAN, t.inbox),
         ],
         calendar: {
           name: t.calendarName,

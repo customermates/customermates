@@ -4,6 +4,7 @@ import { recordEventChanges, historyPublications } from "@/features/records/reco
 import { compareRecordKey } from "@/features/records/record-json";
 import { type RecordModel, type RecordRef, type RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordHistorySnapshot } from "@/features/records/record-event.schema";
+import type { EventVia } from "@/features/event/event-via";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import type { Prisma, PrismaClient } from "@/generated/prisma";
 
@@ -98,6 +99,7 @@ export async function writeRecordChange(
     id: string;
     ref: RecordRef;
     actorId: string;
+    via?: EventVia | null;
     at: Date;
     before: ReadonlyMap<string, RecordScalar> | null;
     after: ReadonlyMap<string, RecordScalar>;
@@ -114,6 +116,7 @@ export async function writeRecordChange(
     subjectId: entry.ref.recordId,
     actorId: entry.actorId,
     causeId: entry.id,
+    via: entry.via ?? undefined,
     kind: change.kind,
     payload: change.payload as Prisma.InputJsonValue,
     createdAt: entry.at,
@@ -196,6 +199,7 @@ export type SyntheticHistoryEntry = {
   kind: "record.created" | "record.updated";
   at: Date;
   actorId: string;
+  via?: EventVia | null;
   /** Created: the values at creation that differ from today. Updated: the values before the change. */
   values: ReadonlyMap<string, RecordScalar>;
 };
@@ -226,6 +230,7 @@ export async function writeSyntheticRecordHistory(
           id: entry.id,
           ref: { typeId: entry.typeId, recordId: entry.recordId },
           actorId: entry.actorId,
+          via: entry.via,
           at: entry.at,
           before: created ? null : entry.values,
           after: created ? entry.values : new Map(),

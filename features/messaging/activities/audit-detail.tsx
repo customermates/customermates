@@ -12,7 +12,14 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge, useSystemActorLabel } from "./activities-row";
+import {
+  auditCategory,
+  DetailHeader,
+  IdentityAvatar,
+  TypeBadge,
+  useActorViaLabel,
+  useSystemActorLabel,
+} from "./activities-row";
 import { actorDisplayName } from "./activity-row-labels";
 import { auditValueDescriptor, subjectDescriptor } from "./change-value-descriptor";
 import {
@@ -32,6 +39,7 @@ type Props = {
 export const AuditDetail = observer(({ entry }: Props) => {
   const t = useTranslations();
   const systemActorLabel = useSystemActorLabel();
+  const actorViaLabel = useActorViaLabel();
   const columnLabel = useCanonicalColumnLabel();
   const intlStore = useHydratedIntlStore();
   const labels = useChangeValueLabels();
@@ -120,6 +128,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
         }
         subtitle={`${eventLabel(t, entry.event)} · ${intlStore.formatNumericalShortDateTime(entry.at)}`}
         title={authorName}
+        titleSuffix={actorViaLabel(entry.actor)}
       />
 
       <AppCardBody>

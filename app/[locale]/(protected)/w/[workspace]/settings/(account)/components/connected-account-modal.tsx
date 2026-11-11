@@ -176,18 +176,14 @@ export const ConnectedAccountModal = observer(() => {
                           : t("ConnectedAccountsCard.visibilityPrivate")}
                       </Label>
 
-                      {canShareAccounts ? (
-                        <Switch
-                          checked={account.shared}
-                          disabled={!canUpdate}
-                          id="connected-account-visibility"
-                          onCheckedChange={(next) =>
-                            runUserAction(() => connectedAccountModalStore.toggleVisibility(next))
-                          }
-                        />
-                      ) : (
-                        <Switch disabled checked={false} id="connected-account-visibility" />
-                      )}
+                      <Switch
+                        checked={account.shared}
+                        disabled={!canUpdate || (!canShareAccounts && !account.shared)}
+                        id="connected-account-visibility"
+                        onCheckedChange={(next) =>
+                          runUserAction(() => connectedAccountModalStore.toggleVisibility(next))
+                        }
+                      />
                     </div>
                   ) : (
                     <AppChip variant={account.shared ? "info" : "secondary"}>

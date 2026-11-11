@@ -1667,6 +1667,7 @@ export const getDeleteAccountsForPlanInteractor = () =>
     getDeleteAccountForBillingService(),
     getEmailService(),
     getWorkspaceSlugResolver(),
+    getEventService(),
   );
 
 export const getResyncThreadInteractor = () =>

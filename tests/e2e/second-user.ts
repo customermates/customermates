@@ -66,6 +66,9 @@ export async function secondUser(
   const page = await context.newPage();
   return {
     page,
+    userId,
+    authUserId,
+    email,
     errors: collectPageErrors(page),
     close: async () => {
       await context.close();

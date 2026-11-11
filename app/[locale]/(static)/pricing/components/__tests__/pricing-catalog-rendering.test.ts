@@ -171,7 +171,7 @@ describe("catalog-backed pricing rendering", () => {
       { label: "Storage", values: ["100 MB per workspace", "1 GB", "5 GB", "20 GB", "50 GB", "Custom"] },
       { label: "People", values: ["1", "Unlimited", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
       { label: "Records", values: ["250", "Unlimited", "Unlimited", "Unlimited", "Unlimited", "Unlimited"] },
-      { label: "API", values: ["10/min, 200/day", true, true, true, true, true] },
+      { label: "API", values: ["30/min, 200/day", true, true, true, true, true] },
       { label: "Webhooks", values: [false, true, true, true, true, true] },
     ]);
   });

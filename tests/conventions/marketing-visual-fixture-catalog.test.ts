@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { join } from "node:path";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -33,16 +33,22 @@ import {
 } from "@/components/marketing/visuals/native-visual-primitives";
 import { ASSET_LOCALES } from "@/i18n/locale-registry";
 import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
-import { DEMO_PHOTO_PEOPLE, SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
+import { solutionContent } from "@/prisma/seeds/solutions/define-solution";
+import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
 
 function localAsset(url: string) {
   return new URL(url).pathname;
 }
 
-function idFromAsset(asset: string) {
-  return basename(asset, ".png");
-}
+const SEEDED_CONTACTS = Object.entries(SOLUTION_DEFINITIONS).flatMap(([solution, definition]) =>
+  (solutionContent(definition, "en").records.contact ?? []).map((record) => ({
+    asset: localAsset(record.avatar ?? ""),
+    key: record.key,
+    name: `${record.values.firstName} ${record.values.lastName}`,
+    solution,
+  })),
+);
 
 function sorted<T>(values: readonly T[]) {
   return [...values].sort((left, right) => JSON.stringify(left).localeCompare(JSON.stringify(right)));
@@ -105,10 +111,7 @@ describe("marketing visual fixture catalog", () => {
     const messagingParticipants = Object.values(DEMO_VISUAL_PEOPLE).filter(({ roles }) =>
       (roles as readonly string[]).includes("messaging-participant"),
     );
-    const sourceContacts = DEMO_PHOTO_PEOPLE.map(([firstName, lastName], index) => ({
-      asset: localAsset(SYNTHETIC_CONTACT_AVATAR_URLS[index]),
-      name: `${firstName} ${lastName}`,
-    }));
+    const sourceContacts = SEEDED_CONTACTS.map(({ asset, name }) => ({ asset, name }));
     const sourceMembers = SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map(({ avatarPath, firstName, lastName }) => ({
       asset: localAsset(avatarPath),
       name: `${firstName} ${lastName}`,
@@ -118,7 +121,9 @@ describe("marketing visual fixture catalog", () => {
     expect(Object.keys(DEMO_VISUAL_PEOPLE)).toHaveLength(35);
     expect(contacts).toHaveLength(28);
     expect(members).toHaveLength(7);
-    expect(sorted(contacts.map(({ asset, name }) => ({ asset, name })))).toEqual(sorted(sourceContacts));
+    const catalogContacts = contacts.map(({ asset, name }) => ({ asset, name }));
+    for (const contact of catalogContacts) expect(sourceContacts, contact.name).toContainEqual(contact);
+    expect(new Set(catalogContacts.map(({ asset }) => asset)).size).toBe(catalogContacts.length);
     expect(sorted(members.map(({ asset, name }) => ({ asset, name })))).toEqual(sorted(sourceMembers));
     expect(messagingParticipants.length).toBeGreaterThan(0);
     for (const { asset, name } of messagingParticipants) expect(photoPeople.has(`${asset}:${name}`), name).toBe(true);
@@ -148,19 +153,38 @@ describe("marketing visual fixture catalog", () => {
 
     for (const pairing of projectedPairings) expect(participants.has(pairing.split(":")[1]), pairing).toBe(true);
     expect(listVisualPeople({ provider: "gmail" }).map(({ id }) => id)).toEqual([
-      "amin-hassan",
-      "anna-mueller",
       "clara-neumann",
-      "yasmin-farouk",
+      "diane-harlow",
+      "james-finch",
+      "nina-castillo",
     ]);
     expect(listVisualPeople({ provider: "gmail", role: "contact" }).map(({ id }) => id)).toEqual([
-      "amin-hassan",
-      "anna-mueller",
-      "yasmin-farouk",
+      "diane-harlow",
+      "james-finch",
+      "nina-castillo",
     ]);
-    expect(listVisualPeople({ provider: "instagram" }).map(({ id }) => id)).toEqual(["yasmin-farouk"]);
-    expect(listVisualPeople({ provider: "outlook" }).map(({ id }) => id)).toEqual(["amin-hassan"]);
-    expect(listVisualPeople({ provider: "telegram" }).map(({ id }) => id)).toEqual(["jonas-weber"]);
+    expect(listVisualPeople({ provider: "instagram" }).map(({ id }) => id)).toEqual(["megan-hughes"]);
+    expect(listVisualPeople({ provider: "outlook" }).map(({ id }) => id)).toEqual(["chloe-bennett"]);
+    expect(listVisualPeople({ provider: "telegram" }).map(({ id }) => id)).toEqual(["lucas-grant"]);
+  });
+
+  it("pairs every contact with a channel they have a seeded conversation on", () => {
+    const accounts: Record<string, string> = { gmail: "google" };
+    for (const [provider, personIds] of Object.entries(DEMO_VISUAL_PROVIDER_PERSON_PAIRINGS)) {
+      for (const personId of personIds) {
+        const person = DEMO_VISUAL_PEOPLE[personId];
+        const contact = SEEDED_CONTACTS.find(({ asset }) => asset === person.asset);
+        if (!contact) continue;
+        const threads =
+          solutionContent(SOLUTION_DEFINITIONS[contact.solution as keyof typeof SOLUTION_DEFINITIONS], "en").messaging
+            ?.threads ?? [];
+        const account = accounts[provider] ?? provider;
+        expect(
+          threads.some((thread) => thread.account === account && thread.with.includes(contact.key)),
+          `${person.name} on ${provider}`,
+        ).toBe(true);
+      }
+    }
   });
 
   it("keeps the unified-inbox provider set and highlighted conversation tied to product authorities", () => {
@@ -172,7 +196,7 @@ describe("marketing visual fixture catalog", () => {
 
     expect(sorted(VISUAL_PROVIDER_SET_FIXTURES["unified-inbox"].providers)).toEqual(sorted([...supportedProviders]));
     expect(VISUAL_CONVERSATION_FIXTURES["gmail-rollout-next-steps"]).toMatchObject({
-      person: "anna-mueller",
+      person: "nina-castillo",
       provider: "gmail",
       state: "open",
       subject: "Next steps for the rollout",
@@ -222,9 +246,9 @@ describe("marketing visual fixture catalog", () => {
     const german = renderToStaticMarkup(
       createElement(NativeRecordIdentity, { locale: "de", record: "deal-sonnenhof-fire-safety" }),
     );
-    expect(german).toContain("Sonnenhof Fire and Safety - Enterprise 377 - Neu");
+    expect(german).toContain("Sonnenhof Fire and Safety - Jahresinspektion");
     expect(german).toContain("Offen");
-    expect(german).not.toContain("Sonnenhof Fire and Safety - Enterprise 377 - New");
+    expect(german).not.toContain("Sonnenhof Fire and Safety - annual inspections");
   });
 
   it("keeps the authoring catalog deterministic, local, complete and executable", () => {

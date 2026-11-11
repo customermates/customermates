@@ -150,7 +150,7 @@ export type SolutionWidgetRow = {
   mapQuery?: Prisma.InputJsonValue;
 };
 
-/** One accent hue per solution: every widget of its dashboards uses that hue, multi-value charts its shades. */
+/** The hue each solution's dashboard starts with; its widgets then step through CHART_HUE_CYCLE so every dashboard is colourful. */
 const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> = {
   smb: ChartColor.primary1,
   consultants: ChartColor.info1,
@@ -162,6 +162,20 @@ const SOLUTION_ACCENTS: Record<SolutionWorkspace["solution"]["id"], ChartColor> 
   "linkedin-crm": ChartColor.info1,
   "whatsapp-crm": ChartColor.success1,
 };
+
+const CHART_HUE_CYCLE = [
+  ChartColor.primary1,
+  ChartColor.violet1,
+  ChartColor.warning1,
+  ChartColor.secondary1,
+  ChartColor.success1,
+  ChartColor.info1,
+] as const;
+
+function widgetHue(accent: ChartColor, index: number): ChartColor {
+  const start = Math.max(0, CHART_HUE_CYCLE.indexOf(accent as (typeof CHART_HUE_CYCLE)[number]));
+  return CHART_HUE_CYCLE[(start + index) % CHART_HUE_CYCLE.length];
+}
 
 const DASHBOARD_SHAPE = { kpi: 4, chart: 6 } as const;
 
@@ -302,7 +316,7 @@ export function buildSolutionWidgets(workspace: SolutionWorkspace, content: Solu
               widget.kind === "kpi" ? null : widgetGroupBy(companyId, widget.list, widget.groupBy, content.timeZone),
             groupLimit: 1000,
           },
-          barColors: [accent],
+          barColors: [widgetHue(accent, index)],
           useGroupColors: false,
           lg,
         };

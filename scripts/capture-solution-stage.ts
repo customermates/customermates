@@ -38,6 +38,7 @@ const STAGE_PATH = join(ROOT, "core", "solutions", "solution-stage-captures.json
 const MANIFEST_PATH = join(ROOT, "core", "solutions", "solution-capture-manifest.json");
 const PROVENANCE_PATH = join(ROOT, "core", "solutions", "solution-capture-provenance.json");
 const PHONE_PATH = join(ROOT, "core", "solutions", "solution-stage-phone-captures.json");
+const PHONE_STAGE_RESERVE_BYTES = 2_800_000;
 const PHONE_WEBP_QUALITY = 60;
 const PHONE_MIN_WEBP_QUALITY = 30;
 const WEBP_QUALITY = 72;
@@ -280,7 +281,9 @@ async function capture(options: CaptureSolutionStageOptions): Promise<void> {
   const stage = refreshRoutes();
   const plan = selectedPlan(stage.routes, options.only);
   const fullPlan = solutionStagePlan(stage.routes);
-  const cap = Math.floor((SOLUTION_CAPTURE_BUDGET_BYTES - mainCaptureBytes()) / fullPlan.length);
+  const cap = Math.floor(
+    (SOLUTION_CAPTURE_BUDGET_BYTES - mainCaptureBytes() - PHONE_STAGE_RESERVE_BYTES) / fullPlan.length,
+  );
   const entries = new Map(stage.entries.map((entry) => [entry.key, entry]));
   const order = fullPlan.map((item) => item.key);
   const revision = `${git(["rev-parse", "--short=9", "HEAD"])}${dirty ? "-dirty" : ""}`;

@@ -200,6 +200,10 @@ export function PublicNavbar({
   }
 
   const showAccountMenu = hasValidSession && Boolean(profile);
+  const desktopCta = renderCtaButton(undefined, true);
+  const desktopTrial = renderTrialButton();
+  const desktopSignOut = renderSignOutButton();
+  const hasDesktopActions = Boolean(desktopCta || desktopTrial || desktopSignOut);
 
   function renderPreferenceButtons() {
     return (
@@ -236,15 +240,23 @@ export function PublicNavbar({
                 className="hidden size-8 animate-pulse rounded-lg bg-muted [[data-session-hint]_&]:block"
               />
 
-              <span aria-hidden className="mx-1 h-4 w-px bg-border [[data-session-hint]_&]:hidden" />
+              {hasDesktopActions ? (
+                <>
+                  <span
+                    aria-hidden
+                    className="mx-1 h-4 w-px bg-border [[data-session-hint]_&]:hidden"
+                    data-public-nav-divider=""
+                  />
 
-              <div className="flex items-center gap-1 [[data-session-hint]_&]:hidden">
-                {renderCtaButton(undefined, true)}
+                  <div className="flex items-center gap-1 [[data-session-hint]_&]:hidden">
+                    {desktopCta}
 
-                {renderTrialButton()}
+                    {desktopTrial}
 
-                {renderSignOutButton()}
-              </div>
+                    {desktopSignOut}
+                  </div>
+                </>
+              ) : null}
             </>
           )}
         </div>

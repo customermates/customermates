@@ -100,6 +100,9 @@ test("resetting the password signs every browser out", async ({ page, browser, d
     await expect.poll(async () => (await database.query('SELECT 1 FROM "AuthVerification" WHERE identifier=$1', [`reset-password:${token}`])).rowCount).toBe(0);
     await expect.poll(async () => (await database.query('SELECT id FROM "AuthSession" WHERE "userId"=$1', [workspace.authUserId])).rowCount).toBe(0);
 
+    await expect
+      .poll(async () => (await database.query('SELECT id FROM "AuthSession" WHERE "userId"=$1', [workspace.authUserId])).rowCount)
+      .toBe(0);
     await expectSignedOut(page, workspace.companyId);
     await expectSignedOut(other, workspace.companyId);
   } finally {

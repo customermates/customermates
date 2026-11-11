@@ -111,13 +111,15 @@ export function changeProviderSubscription(
   subscriptionId: string,
   change: Partial<Pick<LemonSqueezySubscriptionAttributes, "status" | "renews_at" | "ends_at" | "trial_ends_at">> & {
     plan?: ProviderPlan;
+    quantity?: number;
   },
 ) {
   const current = providerSubscription(subscriptionId);
-  const { plan, ...attributes } = change;
+  const { plan, quantity, ...attributes } = change;
   const status = attributes.status ?? current.attributes.status;
   const next: ProviderSubscription = {
     ...current,
+    ...(quantity === undefined ? {} : { quantity }),
     attributes: {
       ...current.attributes,
       ...attributes,

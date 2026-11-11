@@ -9,8 +9,10 @@ import { newCaptureContext, openReadyPage, sha256, withRetries, workspaceTimeZon
 import { isLoopbackBaseUrl } from "./lib/capture-solutions-options";
 
 import { DEMO_DEFAULT_RECORD_TYPE_IDS } from "@/components/marketing/product-demo-src";
-import { findSolution } from "@/core/solutions/solution-catalog";
+import { findSolution, solutionDataLocaleForUiLocale } from "@/core/solutions/solution-catalog";
 import { ASSET_LOCALES, type AssetLocale } from "@/i18n/locale-registry";
+import { solutionContent } from "@/prisma/seeds/solutions/define-solution";
+import { SOLUTION_DEFINITIONS } from "@/prisma/seeds/solutions/definitions";
 
 // Homepage product stills from the seeded local demo instance (APP_MODE=demo, prisma db seed), in both themes and
 // every content locale. Section stills are clipped to the bounding box of real UI elements (a panel, whole message
@@ -25,8 +27,8 @@ const SOLUTION = findSolution("smb");
 const LINKEDIN = findSolution("linkedin-crm");
 const AGENCIES = findSolution("agencies");
 const CONSULTANTS = findSolution("consultants");
-// inbox thread list positions in the small-business story
-const THREAD = { draft: 3, linkedin: 4, whatsapp: 1 } as const;
+// the authored conversations of the small-business and agencies stories; the inbox list orders them by the hour the seed ran
+const THREAD = { draft: 0, linkedin: 2, whatsapp: 3 } as const;
 const AGENCY_HANDOVER_THREAD = 5;
 const AGENDA_DAYS = 5;
 const CONTACT_ROWS = 8;
@@ -120,8 +122,17 @@ async function markDraft(page: Page): Promise<void> {
   });
 }
 
-async function openThread(page: Page, position: number): Promise<void> {
-  await page.locator("#inbox-thread-list button[data-thread-id]").nth(position).click();
+// the title the inbox list shows for an authored conversation: its subject, its name, or the contact it is with
+function threadLabel(solution: typeof SOLUTION, locale: AssetLocale, index: number): string {
+  const content = solutionContent(SOLUTION_DEFINITIONS[solution.id], solutionDataLocaleForUiLocale(locale));
+  const thread = content.messaging!.threads[index];
+  const contact = content.records.contact.find((record) => record.key === thread.with[0])!;
+  return thread.subject ?? thread.name ?? `${contact.values.firstName} ${contact.values.lastName}`;
+}
+
+async function openThread(page: Page, solution: typeof SOLUTION, locale: AssetLocale, index: number): Promise<void> {
+  const label = threadLabel(solution, locale, index);
+  await page.locator("#inbox-thread-list button[data-thread-id]").filter({ hasText: label }).first().click();
   await page.waitForURL(/threadId=/u, { timeout: 20_000 });
   await settle(page);
 }
@@ -131,7 +142,9 @@ async function openThreadWithDraft(page: Page): Promise<void> {
   const threads = page.locator("#inbox-thread-list button[data-thread-id]");
   const draft = page.locator("main button").filter({ hasText: /send draft|entwurf senden/iu });
   for (let position = 0; position < (await threads.count()); position++) {
-    await openThread(page, position);
+    await threads.nth(position).click();
+    await page.waitForURL(/threadId=/u, { timeout: 20_000 });
+    await settle(page);
     if ((await draft.count()) > 0) return;
   }
   throw new Error(`${page.url()}: no thread ends in a reply draft`);
@@ -283,13 +296,13 @@ const SHOTS: Shot[] = [
   { name: "homepage-dashboard-mobile", route: route("dashboard"), viewport: PHONE },
   {
     name: "homepage-inbox",
-    prepare: (page) => openThread(page, THREAD.whatsapp),
+    prepare: (page, locale) => openThread(page, SOLUTION, locale, THREAD.whatsapp),
     route: route("inbox"),
     viewport: DESKTOP,
   },
   {
     name: "homepage-inbox-mobile",
-    prepare: (page) => openThread(page, THREAD.whatsapp),
+    prepare: (page, locale) => openThread(page, SOLUTION, locale, THREAD.whatsapp),
     route: route("inbox"),
     viewport: PHONE,
   },
@@ -329,8 +342,8 @@ const SHOTS: Shot[] = [
     // the unified inbox section: the whole inbox panel (list and thread), sidebar collapsed
     clip: async (page) => [page.locator("[data-slot='sidebar-inset']").first()],
     name: "homepage-thread-linkedin",
-    prepare: async (page) => {
-      await openThread(page, THREAD.linkedin);
+    prepare: async (page, locale) => {
+      await openThread(page, SOLUTION, locale, THREAD.linkedin);
       await scrollThreadTo(page, "top");
     },
     route: route("inbox"),
@@ -350,8 +363,8 @@ const SHOTS: Shot[] = [
     },
     name: "homepage-draft",
     gutter: 0,
-    prepare: async (page) => {
-      await openThread(page, THREAD.draft);
+    prepare: async (page, locale) => {
+      await openThread(page, SOLUTION, locale, THREAD.draft);
       await scrollThreadTo(page, "bottom");
       await markDraft(page);
     },
@@ -445,7 +458,7 @@ const SHOTS: Shot[] = [
     clipWidth: 440,
     gutter: 12,
     name: "homepage-usecase-team",
-    prepare: (page) => openThread(page, AGENCY_HANDOVER_THREAD),
+    prepare: (page, locale) => openThread(page, AGENCIES, locale, AGENCY_HANDOVER_THREAD),
     route: inSolution(AGENCIES)("inbox"),
     solution: AGENCIES,
     viewport: THREAD_PANEL,
@@ -456,7 +469,7 @@ const SHOTS: Shot[] = [
     clipWidth: 440,
     gutter: 12,
     name: "homepage-usecase-whatsapp",
-    prepare: (page) => openThread(page, THREAD.whatsapp),
+    prepare: (page, locale) => openThread(page, SOLUTION, locale, THREAD.whatsapp),
     route: route("inbox"),
     viewport: THREAD_PANEL,
     within: (page) => page.locator("main section.flex.flex-col.gap-1").first().locator("xpath=ancestor::div[contains(@class,'animate-page-result-in')][1]"),

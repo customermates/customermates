@@ -5,7 +5,8 @@ import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, RecordTrashItem } from "./record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordJournal } from "./record-journal";
-import type { RecordEventPayload } from "./record-event.schema";
+import { splitRecordCause } from "./record-event-cause";
+import type { RecordEventPayload, RecordOperationCause } from "./record-event.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordCalculationService } from "./record-calculation.service";
@@ -274,7 +275,7 @@ export class RecordTrashService {
     model: RecordModel,
     actorId: string | null,
     causeId: string,
-    cause: RecordEventPayload["cause"],
+    cause: RecordOperationCause,
   ): Promise<RecordRef[]> {
     return purgeRecordTrashItems(this.records, itemIds, model, actorId, causeId, cause);
   }
@@ -286,8 +287,9 @@ export async function purgeRecordTrashItems(
   model: RecordModel,
   actorId: string | null,
   causeId: string,
-  cause: RecordEventPayload["cause"],
+  operationCause: RecordOperationCause,
 ): Promise<RecordRef[]> {
+  const { cause, via } = splitRecordCause(operationCause);
   const along = await records.getTrashPurgedAlongCompanyWide(itemIds, parentRelationIds(model));
   if (along.refs.length) await records.reassignTrashedRecordsCompanyWide(along.refs, recordInvariant(itemIds[0]));
   const refs = await records.purgeTrashItems([...itemIds, ...along.itemIds]);
@@ -298,6 +300,9 @@ export async function purgeRecordTrashItems(
       causeId,
       "record.deletedPermanently",
       deletedPermanentlyPayload(ref, model, cause),
+      false,
+      true,
+      via,
     );
   }
   return refs;

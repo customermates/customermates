@@ -233,9 +233,9 @@ describeDatabase("Free plan gates", () => {
     );
     const now = new Date("2026-11-07T10:00:30.000Z");
 
-    const results = await Promise.all(Array.from({ length: 10 }, () => limiter.admit(f.seed.company.id, now)));
+    const results = await Promise.all(Array.from({ length: 30 }, () => limiter.admit(f.seed.company.id, now)));
     expect(results.every((result) => result === null)).toBe(true);
-    expect(await limiter.admit(f.seed.company.id, now)).toEqual({ window: "minute", limit: 10, retryAfterSeconds: 30 });
+    expect(await limiter.admit(f.seed.company.id, now)).toEqual({ window: "minute", limit: 30, retryAfterSeconds: 30 });
     expect(await limiter.admit(f.seed.company.id, new Date("2026-11-07T10:01:00.000Z"))).toBeNull();
   }, 120_000);
 

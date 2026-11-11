@@ -68,12 +68,12 @@ describe("brand colour extraction", () => {
   });
 
   it.each([
-    ["#ff3b30", "destructive", ChartColor.violet1],
+    ["#ff3b30", "destructive", ChartColor.secondary1],
     ["#34c759", "success", ChartColor.success1],
-    ["#ff9500", "warning", ChartColor.violet1],
+    ["#ff9500", "warning", ChartColor.secondary1],
     ["#5e4ae3", "default", ChartColor.primary1],
-    ["#0a84ff", "info", ChartColor.info1],
-    ["#14b8a6", "success", ChartColor.secondary1],
+    ["#0a84ff", "info", ChartColor.primary1],
+    ["#14b8a6", "success", ChartColor.violet1],
   ])("maps %s to the nearest chip and chart colour", (hex, chip, chart) => {
     expect(nearestChipColor(hex)).toBe(chip);
     expect(nearestChartColor(hex)).toBe(chart);
@@ -83,14 +83,14 @@ describe("brand colour extraction", () => {
     "never maps the warm brand colour %s to the amber accent",
     (hex) => {
       expect(nearestChartColor(hex)).not.toBe(ChartColor.warning1);
-      expect(nearestChartColor(hex)).toBe(ChartColor.violet1);
+      expect(nearestChartColor(hex)).toBe(ChartColor.secondary1);
     },
   );
 
-  it("keeps every other accent and turns a stored amber accent violet", () => {
+  it("keeps every other accent and turns a stored amber accent coral", () => {
     for (const color of Object.values(ChartColor).filter((value) => value !== ChartColor.warning1))
       expect(brandAccent(color)).toBe(color);
-    expect(brandAccent(ChartColor.warning1)).toBe(ChartColor.violet1);
+    expect(brandAccent(ChartColor.warning1)).toBe(ChartColor.secondary1);
   });
 
   it("maps the strongest candidate", () => {

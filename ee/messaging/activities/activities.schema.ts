@@ -13,6 +13,7 @@ import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
 import { CHIP_COLORS } from "@/constants/chip-colors";
+import { EventViaSchema } from "@/features/event/event-via";
 
 const CalendarEventDtoSchema = CalendarEventSchema.pick({
   id: true,
@@ -51,6 +52,9 @@ const ActorSchema = z.object({
     .describe(
       "Set when an automatic process made the change instead of a person: messaging sync, Trash cleanup or another process",
     ),
+  via: EventViaSchema.optional().describe(
+    "Set when the person made the change through an API key or a connected application such as an AI agent over MCP; names that key or application",
+  ),
 });
 
 const ActivityMemberSchema = z.object({

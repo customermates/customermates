@@ -36,6 +36,10 @@ export class UserService {
   ) {}
 
   async getUserOrThrow() {
+    return (await this.resolveSessionUser()).user;
+  }
+
+  private async resolveSessionUser() {
     const session = await this.authService.getSession();
 
     if (!session?.user?.email) throw new AuthError();
@@ -50,11 +54,11 @@ export class UserService {
     const user = await this.workspaces.requireMembership(session);
     if (!user) throw new AuthError();
 
-    return user;
+    return { session, user };
   }
 
   async getActiveUserOrThrow() {
-    const user = await this.getUserOrThrow();
+    const { session, user } = await this.resolveSessionUser();
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
@@ -67,7 +71,8 @@ export class UserService {
     if (!(await this.plans.canUseIntegrations(user.companyId))) throw new WorkspacePlanRequiredError();
     await this.requestLimits.admit(user.companyId);
 
-    return user;
+    const via = await this.authService.getCredentialVia(session);
+    return via ? { ...user, via } : user;
   }
 
   private async recordActivity(user: TenantUser) {
