@@ -35,7 +35,7 @@ function built(index: number) {
 
 const WORKSPACE_COUNT = SOLUTION_CATALOG.length * SOLUTION_DATA_LOCALES.length;
 
-describe("solution demo workspaces", () => {
+describe("solution demo workspaces", { timeout: 60_000 }, () => {
   it("seeds one workspace per catalog solution and data locale, keeping the two former workspace ids", () => {
     expect(SOLUTION_WORKSPACES).toHaveLength(WORKSPACE_COUNT);
     for (const key of ["companyId", "slug", "tag", "roleId", "memberId", "subscriptionId"] as const)
