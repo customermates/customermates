@@ -1,0 +1,334 @@
+---
+title: "Webhooks: handtekeningen, retries en gebeurtenissen"
+heading: "Ontvang CRM-gebeurtenissen via webhooks"
+description: Abonneer je op CRM-gebeurtenissen, controleer handtekeningen, bekijk mislukte bezorgingen en lees de volledige gebeurtenissencatalogus op één plek.
+---
+
+Customermates stuurt een JSON-POST naar je endpoint zodra gegevens veranderen waarop je bent geabonneerd. Jij kiest de gebeurtenissen en de URL. Met een secret wordt elke bezorging ondertekend met HMAC-SHA256 over de ruwe body van het verzoek. Mislukte bezorgingen worden automatisch opnieuw geprobeerd en kunnen met de hand opnieuw worden verstuurd. De gebeurtenissencatalogus staat aan het eind van deze pagina.
+
+## Waar dienen webhooks voor? [#what-are-webhooks-for]
+
+Met webhooks kunnen andere systemen op CRM-wijzigingen reageren zonder te pollen, bijvoorbeeld om nieuwe contactpersonen in een e-mailsequencer te zetten, een supportticket te openen als een deal van status verandert, een financiële workflow te starten als een deal wordt gesloten, of records vrijwel realtime naar een datawarehouse te synchroniseren.
+
+## Hoe maak ik een webhook aan? [#how-do-i-create-a-webhook]
+
+Open [Webhooks](app:settings/webhooks), klik op [Toevoegen](app:settings/webhooks?focus=add), vul het dialoogvenster **Webhook** in, voer de **URL** in en klik op **Opslaan**.
+
+| Veld | Wat het doet |
+| --- | --- |
+| **URL** | Verplicht. Een HTTP- of HTTPS-endpoint met een geldige host en zonder gebruikersnaam of wachtwoord ontvangt een `POST` voor elke gebeurtenis waarop je bent geabonneerd. Een URL zonder schema wordt opgeslagen met `https://` ervoor. Internationale hostnamen en paden worden opgeslagen in hun ASCII-URL-vorm. Andere URL-schema's, zoals `mailto:` en `tel:`, worden geweigerd. |
+| **Beschrijving** | Optioneel, tot 500 tekens. Wordt in de lijst getoond. |
+| **Gebeurtenissen** | Verplicht. Eén of meer gebeurtenissen uit de [catalogus](#which-events-exist). |
+| **Secret** | Optioneel, 1 tot 256 tekens. Ondertekent elke bezorging (zie [Hoe controleer ik de handtekening?](#how-do-i-verify-the-signature)). |
+| **Aangepaste headers** | Optioneel. Eén `Naam: waarde` per regel (zie [Aangepaste headers en bodysjablonen](#custom-headers-and-body-templates)). |
+| **Bodysjabloon** | Optioneel JSON-document dat de standaardenvelop vervangt. |
+| **Ingeschakeld** | Standaard aan. Een uitgeschakelde webhook ontvangt niets en behoudt zijn configuratie, zodat je hem kunt pauzeren zonder hem te verwijderen. |
+
+Om een webhook te wijzigen, klik je op zijn rij, bewerk je hem en klik je op **Opslaan**. Om hem te verwijderen, klik je bovenaan het dialoogvenster op **Verwijderen** en bevestig je; zijn eerdere bezorgingen blijven op de pagina [Webhooklog](app:settings/webhook-deliveries) staan. Om de bezorgingen van één webhook te zien, kies je **Bezorgingen tonen** in het menu **Meer acties** van de rij: [Webhooklog](app:settings/webhook-deliveries) opent gefilterd op de URL van die webhook, en je kunt het filter verwijderen zoals elk ander. De lijst toont **URL**, **Beschrijving**, **Gebeurtenissen**, **Status** (**Ingeschakeld** of **Uitgeschakeld**), **Aangemaakt op** en **Bijgewerkt op**. In [Filters](app:settings/webhooks?focus=filter) zoekt de zoekopdracht in de URL en dekken de filters de aanmaak- en wijzigingsdatum.
+
+Gebruik een HTTPS-endpoint. Aangepaste headers vragen HTTPS, behalve HTTP op `localhost`, `127.0.0.1` of `::1` wanneer privébestemmingen zijn toegestaan. Dit wordt gecontroleerd bij het opslaan en opnieuw vóór elke bezorging.
+
+Customermates Cloud en demo vragen openbare bestemmingen. Letterlijke privé-, loopback- en link-local-adressen en lokale hostnamen worden bij het opslaan geweigerd. Vóór elke bezorging moet elk DNS-antwoord openbaar zijn, en de verbinding gebruikt alleen die gevalideerde adressen. Een geblokkeerde bestemming mislukt met status 422 en `Destination not allowed`, zonder te verbinden. Zelf gehoste installaties staan privébestemmingen standaard toe; stel `WEBHOOK_BLOCK_PRIVATE_DESTINATIONS=true` in om de Cloud-regel toe te passen. Voor een lokale ontvanger tijdens de ontwikkeling heft `WEBHOOK_ALLOW_PRIVATE_DESTINATIONS=true` de blokkade op; een expliciete blokkade gaat voor. Beide instellingen accepteren alleen `true` of `false`.
+
+Gebruik via MCP `manage_webhooks` met `action: "create"`, plus `url`, `events[]` en optioneel `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Via REST maakt `POST /api/v1/webhooks` er een aan met dezelfde velden en toont `GET /api/v1/webhooks` ze; `GET`, `PATCH` en `DELETE /api/v1/webhooks/{id}` lezen, wijzigen en verwijderen er één, en een update wijzigt alleen de velden die je meestuurt. Een id dat niet bestaat of bij een andere werkruimte hoort, antwoordt met 404 en de gestructureerde fout `not_found`.
+
+## Welke records activeren een webhook, en wiens toegang gebruikt een bezorging? [#record-event-sources]
+
+Als je een recordgebeurtenis kiest, toont het dialoogvenster de recordbron: kies de lijst onder **Records uit** (of **Alle toegankelijke typen**), en daarna optioneel **Gewijzigde velden**, **Records zoeken** en **Recordfilters** op velden en relaties. Bezorgingen gebruiken de recordtoegang van de **Eigenaar van recordtoegang**, standaard het lid dat de webhook aanmaakt; alleen een beheerder kan een andere eigenaar kiezen. Oudere gemigreerde webhooks kunnen meerdere bronnen behouden, getoond als chips.
+
+Via MCP hebben recordabonnementen in `manage_webhooks` ook `expectedSchemaRevision` uit `get_record_model` nodig. `recordTrigger` bevat een query met stabiele type- en veld-ID's en optionele `changedFieldIds`; `null` kiest alle toegankelijke typen. `recordOwnerUserId` stelt optioneel de bezorgeigenaar in. Laat deze instellingen bij een update weg om ze te behouden; het wijzigen van de trigger of eigenaar vraagt de actuele schemarevisie. Een webhook die meerdere lijsten volgt, gebruikt `recordSources` in plaats van `recordTrigger`: tot 50 bronnen, elk met een eigen `query`, `changedFieldIds` en `events`; de twee kunnen niet worden gecombineerd, en `null` wist de bronnen. De REST API accepteert dezelfde instellingen.
+
+```json
+{
+  "url": "https://hooks.example.com/customermates",
+  "events": ["record.created", "record.updated"],
+  "expectedSchemaRevision": 3,
+  "recordTrigger": {
+    "query": { "typeId": "<project-type-id>" },
+    "changedFieldIds": []
+  },
+  "secret": "use-a-random-string-from-a-password-manager",
+  "enabled": true
+}
+```
+
+## Wie kan webhooks zien en wijzigen? [#who-can-see-and-change-webhooks]
+
+Toegang komt van de rij **API en webhooks** van een rol in [Rollen](app:settings/roles).
+
+| Rolinstelling op **API en webhooks** | Wat leden met die rol kunnen doen |
+| --- | --- |
+| **Leestoegang** **Geen** (de standaard voor een nieuwe rol) | Webhooks zijn verborgen; de pagina rechtstreeks openen leidt naar het Dashboard. |
+| **Leestoegang** **Alle**, geen selectievakje aangevinkt | Webhooks en de bezorgingen openen, elke webhook alleen-lezen openen en **Details van gebeurtenis** openen voor elke bezorging. Een opgeslagen **Secret** en elke waarde van **Aangepaste headers** verschijnen als `********`; headernamen blijven zichtbaar. |
+| **Leestoegang** **Alle** plus **Aanmaken** | Webhooks toevoegen en bezorgingen opnieuw versturen. |
+| **Leestoegang** **Alle** plus **Bewerken** | Webhooks bewerken en opgeslagen waarden van **Secret** en **Aangepaste headers** zien. |
+| **Leestoegang** **Alle** plus **Verwijderen** | Webhooks verwijderen. |
+
+Dezelfde rij bepaalt ook [API-sleutels & connectoren](app:settings/api-keys), dus een rol die zijn eigen API-sleutels mag aanmaken of verwijderen, mag ook elke webhook in de werkruimte aanmaken of verwijderen. De rol **Beheerder** kan alles. Webhooks werken in elk betaald Cloud-abonnement, tijdens de proefperiode en bij zelf hosten, maar niet in het Free-abonnement ([details](#webhooks-on-the-free-plan)). Dezelfde rechten gelden voor `manage_webhooks` via MCP en in Mate, waar het verwijderen van een webhook of het opnieuw versturen van een bezorging eerst om je goedkeuring vraagt.
+
+## Hoe ziet de payload eruit? [#what-does-the-payload-look-like]
+
+Elke bezorging is een `POST` met `Content-Type: application/json` en dezelfde envelop:
+
+```json
+{
+  "event": "<event-name>",
+  "id": "<event-id>",
+  "timestamp": "<iso-8601>",
+  "companyId": "<workspace>",
+  "actorId": "<who-triggered-it>",
+  "data": {
+    /* event-specific */
+  }
+}
+```
+
+`id` identificeert de gebeurtenis: een nieuwe verzending en elke nieuwe poging dragen hetzelfde `id`, dus gebruik het om te ontdubbelen. `actorId` is de gebruiker die de schrijfactie veroorzaakte, ook een gebruiker die via een API-sleutel handelt of een routine die door zijn eigenaar wordt uitgevoerd. Berichtgebeurtenissen komen van inkomende provideractiviteit, dus hun `actorId` is `null`.
+
+Bij recordgebeurtenissen bevat `data.record` de recordverwijzing (`typeId` en `recordId`, ondubbelzinnig ook na een hernoeming) en de wijzigingen, `data.cause` wat de schrijfactie veroorzaakte, en `data.causeId` wordt gedeeld door alle gebeurtenissen van dezelfde schrijfactie.
+
+Voorbeeld, `record.updated` voor een contactpersoon, met niet-gerelateerde velden weggelaten:
+
+```json
+{
+  "event": "record.updated",
+  "id": "<event-id>",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "companyId": "<workspace-id>",
+  "actorId": "<actor-user-id>",
+  "data": {
+    "causeId": "<cause-id>",
+    "cause": { "kind": "mutation" },
+    "record": {
+      "ref": { "typeId": "<contact-type-id>", "recordId": "<record-id>" },
+      "schemaRevision": 3,
+      "beforeVersion": 1,
+      "afterVersion": 2,
+      "fields": [
+        {
+          "fieldId": "<first-name-field-id>",
+          "before": { "value": { "state": "value", "value": { "kind": "text", "value": "Max" } } },
+          "after": { "value": { "state": "value", "value": { "kind": "text", "value": "Maximilian" } } }
+        }
+      ]
+    }
+  }
+}
+```
+
+Een echte recordwijziging bevat ook toewijzingen, identiteiten, koppelingswijzigingen en gerelateerde records. Veldvermeldingen bevatten weergavemetadata en kunnen `missing`, `restricted` of `error` tonen in plaats van een waarde. Vind de lijst met `POST /api/v1/model/discover` en los haar stabiele veld-ID's op met `POST /api/v1/model/read`, of gebruik de MCP-tool `get_record_model`.
+
+## Gewijzigde velden in `data.record.fields` [#the-changes-object]
+
+`data.record.fields` toont gewijzigde velden met `before`- en `after`-waarden; `data.record.links`, `data.record.assignments` en `data.record.identities` beschrijven andere gewijzigde verbindingen. `data.record.beforeVersion` en `data.record.afterVersion` identificeren de recordversies. Een ontbrekend of beperkt veld is niet hetzelfde als nul.
+
+Updates die niets wijzigen, leveren geen `record.updated`-gebeurtenis op. Wijzigingen in het datamodel kunnen opgeslagen waarden op veel records herberekenen; die configuratie-backfills blijven in de recordgeschiedenis staan maar leveren geen bezorgingen per record op en activeren geen routines voor gebeurtenissen. Een latere bewerking van een gebruiker of via de API op een record levert de gebruikelijke gebeurtenis op. De payload wordt op het moment van bezorgen gemaskeerd met de actuele record- en berekende-veldtoegang van de webhookeigenaar.
+
+## Aangepaste headers en bodysjablonen [#custom-headers-and-body-templates]
+
+Twee optionele instellingen dekken ontvangers die de standaardbezorging niet accepteren. Een webhook die geen van beide instelt, stuurt de [standaardenvelop](#what-does-the-payload-look-like).
+
+**Aangepaste headers** worden bij elke bezorging meegestuurd, voor endpoints met hun eigen authenticatie. Voer ze in per regel als `Naam: waarde` (een regel zonder dubbele punt wordt genegeerd, een leeg veld verwijdert alle headers), of geef een `headers`-object mee via MCP en de API. Zeven namen zijn gereserveerd en worden geweigerd: `Connection`, `Content-Length`, `Content-Type`, `Host`, `Transfer-Encoding`, `X-Webhook-Signature` en `X-Customermates-Delivery-Id`. Namen moeten geldige HTTP-tokens zijn, waarden Latin-1-tekst zonder regeleinden. Een webhook mag maximaal 20 headers hebben, namen tot 128 tekens, waarden tot 2.048 tekens, in totaal 8.192 tekens. Een webhook met headers moet HTTPS gebruiken; gewone HTTP wordt alleen geaccepteerd voor `localhost`, `127.0.0.1` en `::1` wanneer privébestemmingen zijn toegestaan.
+
+De REST API en MCP geven nooit headerwaarden of de secret terug; ze melden `headerNames` en `hasSecret`. Het dialoogvenster toont de waarden alleen aan de rol **Beheerder** en rollen met **Bewerken** op **API en webhooks**, met de secret gemaskeerd tot je op het oogpictogram klikt. Een API- of MCP-update die `headers` weglaat, behoudt de opgeslagen waarden; `null` wist ze.
+
+**Een bodysjabloon** vervangt de standaardenvelop voor endpoints die een vaste structuur verwachten. Schrijf een JSON-document met plaatshouders:
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Plaatshouders zijn `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{actorId}}` en elk pad onder `{{data}}`, zoals `{{data.record.ref.recordId}}` voor een recordgebeurtenis of `{{data.entityId}}` voor een berichtgebeurtenis. Een plaatshouder moet binnen een JSON-string staan; `{"count": {{data.count}}}` wordt geweigerd. Een objectwaarde wordt als JSON-string ingevoegd, een ontbrekend pad als lege string. Ingevoegde waarden worden geëscaped, zodat recordinhoud de structuur van het document niet kan wijzigen.
+
+Het sjabloon mag maximaal 8.192 tekens lang zijn, moet een JSON-object opleveren en wordt bij het opslaan gecontroleerd. Een bezorging waarvan het sjabloon niet kan worden gerenderd, of waarvan de gerenderde body meer dan 131.072 tekens bevat, wordt als mislukt vastgelegd zonder te worden verstuurd en wordt niet opnieuw geprobeerd. De handtekening wordt berekend over de body die daadwerkelijk is verstuurd, dus controleer hem tegen de gerenderde body.
+
+**Een secret of een sjabloon verwijderen.** Het dialoogvenster weigert het opslaan van een leeg veld **Secret** of **Bodysjabloon** zodra dat is ingesteld. Werk de webhook bij via `manage_webhooks` of `PATCH /api/v1/webhooks/{id}` met `secret: null` of `bodyTemplate: null`, of verwijder hem en maak hem opnieuw aan.
+
+Bezorgingen worden vastgelegd met de gebeurtenispayload, niet met de gerenderde body, dus **Details van gebeurtenis** toont de gebeurtenis die afging in plaats van de exacte verstuurde bytes.
+
+## Hoe stuur ik naar Slack, Discord of n8n? [#how-do-i-send-to-slack-discord-or-n8n]
+
+Elk recept geeft de URL, aangepaste headers en het bodysjabloon om in te vullen na [Toevoegen](app:settings/webhooks?focus=add) in Webhooks. Stel in elk geval een secret in; een ontvanger die hem niet kan controleren, negeert de header.
+
+### Claude Code-routines [#claude-code-routines]
+
+Start een Claude Code-routine als een record verandert. Maak de routine eerst aan op [claude.ai/code/routines](https://claude.ai/code/routines).
+
+<Steps>
+  <Step title="Voeg een API-trigger toe">
+    Open de routine, klik op **Add another trigger**, kies **API** en daarna **Generate token**. Kopieer de URL en het
+    token; het token wordt één keer getoond en kan later niet meer worden opgehaald.
+  </Step>
+  <Step title="Maak de webhook aan">Plak de URL, selecteer je gebeurtenissen en voeg de onderstaande headers en het sjabloon toe.</Step>
+  <Step title="Verwijs naar de payload in de prompt van de routine">
+    De tekst komt binnen verpakt in een blok `routine-fire-payload` dat de routine als niet-vertrouwde gegevens
+    behandelt. De eigen prompt van de routine moet ernaar verwijzen, bijvoorbeeld "act on the event described in the
+    routine-fire-payload block", anders wordt de tekst genegeerd.
+  </Step>
+</Steps>
+
+De URL is `https://api.anthropic.com/v1/claude_code/routines/<routine-id>/fire`, en het routine-id heeft het voorvoegsel `trig_`.
+
+```
+Authorization: Bearer <routine-token>
+anthropic-beta: experimental-cc-routine-2026-04-01
+anthropic-version: 2023-06-01
+```
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+Het endpoint leest alleen `text`, dus het sjabloon is verplicht; zonder sjabloon start de routine zonder context. Elke bezorging, en elke nieuwe poging, start een afzonderlijke run op het routinetegoed, dus abonneer je op zo weinig gebeurtenissen als de taak nodig heeft.
+
+### Slack [#slack]
+
+Plaats in een kanaal met een inkomende webhook via **Slack → Apps → Incoming Webhooks**. De URL bevat de authenticatie, dus aangepaste headers zijn niet nodig.
+
+```json
+{ "text": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### Discord [#discord]
+
+Gebruik de webhook-URL van **Channel → Edit Channel → Integrations → Webhooks**. Dezelfde structuur, andere sleutel:
+
+```json
+{ "content": "{{event}} for {{data.record.ref.recordId}}" }
+```
+
+### n8n [#n8n]
+
+Een n8n Webhook-node accepteert de standaardenvelop, dus laat beide instellingen leeg tenzij de node headerauthenticatie gebruikt. Als dat zo is, voeg dan de header toe die hij verwacht en laat het sjabloon leeg:
+
+```
+X-N8N-Header-Auth: <value>
+```
+
+Zie [n8n](/docs/n8n) voor het volledige patroon.
+
+### Al het andere [#anything-else]
+
+Een ontvanger die geen eigen authenticatie en geen vaste body nodig heeft, heeft geen van beide instellingen nodig. Laat beide leeg en [controleer de handtekening](#how-do-i-verify-the-signature).
+
+## Hoe controleer ik de handtekening? [#how-do-i-verify-the-signature]
+
+Als de webhook een **Secret** heeft, bevat elk verzoek:
+
+```
+X-Webhook-Signature: <hex>
+```
+
+`<hex>` is `HMAC-SHA256(secret, rawRequestBody)`, hex in kleine letters, zonder voorvoegsel. Bereken hem aan jouw kant opnieuw en vergelijk in constante tijd.
+
+Voorbeeld in Node.js:
+
+```ts
+import crypto from "crypto";
+
+function verify(rawBody: string, received: string, secret: string) {
+  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+```
+
+## Hoe werken nieuwe pogingen en mislukte bezorgingen? [#how-do-retries-and-failed-deliveries-work]
+
+Een bezorging mislukt als de HTTP-status buiten 2xx valt, het verzoek een time-out krijgt (na 5 seconden) of er geen antwoord komt. Customermates probeert time-outs, netwerkfouten, 5xx-antwoorden en 408, 425 en 429 automatisch opnieuw, in totaal tot 10 pogingen. De eerste nieuwe poging volgt 10 seconden na de mislukte poging en elke pauze verdubbelt (20 seconden, 40 seconden enzovoort, met een maximum van een uur), dus de laatste poging loopt ongeveer 1,5 uur na de eerste; daarna blijft de bezorging **Mislukt**, en je kunt hem met de hand [opnieuw versturen](#how-do-i-resend-a-delivery). Andere 4xx-antwoorden, zoals 400, 401, 403, 404 en 422, worden niet opnieuw geprobeerd, omdat een herhaling op dezelfde manier zou mislukken. Een bezorging mislukt ook voordat er een verzoek wordt verstuurd, met statuscode 422, wanneer headers naar een adres zouden gaan dat ze niet toestaat of het bodysjabloon niet kan worden gerenderd.
+
+Redirects worden niet gevolgd: een 3xx-antwoord wordt vastgelegd als `Redirect not followed` en niet opnieuw geprobeerd. Gebruik de uiteindelijke endpoint-URL. Geblokkeerde bestemmingen mislukken ook voordat er wordt verbonden, met status 422.
+
+Nieuwe pogingen lopen binnen dezelfde bezorging, dus ze voegen geen records toe: elk record toont de laatste uitkomst en kan **Mislukt** tonen terwijl nieuwe pogingen lopen, en daarna **Bezorgd** als er een slaagt.
+
+## Waar zie ik eerdere bezorgingen? [#where-do-i-see-past-deliveries]
+
+Elke bezorging wordt vastgelegd op de pagina [Webhooklog](app:settings/webhook-deliveries), nieuwste eerst, met **URL**, **Gebeurtenis**, **Element** (het betrokken record), **Status**, **Statuscode** en **Aangemaakt op**. In [Filters](app:settings/webhook-deliveries?focus=filter) zoekt de zoekopdracht in de gebeurtenis en de URL, en dekken de filters de gebeurtenis, de URL en de aanmaakdatum. Gebruik via MCP `manage_webhooks` met `action: "list_deliveries"`; via REST toont `GET /api/v1/webhooks/deliveries` de bezorgingen van elke webhook en `GET /api/v1/webhooks/{id}/deliveries` die van één webhook, nieuwste eerst. Bezorgingsrecords blijven bewaard zolang de werkruimte bestaat.
+
+Klik op een rij om **Details van gebeurtenis** te openen: de status (**In afwachting**, **Wordt verzonden**, **Bezorgd** of **Mislukt**), **URL**, **Gebeurtenis**, **Element**, **Aangemaakt op**, **Statuscode**, **Antwoordbericht** en de **Payload van gebeurtenis**. De payload van een berichtgebeurtenis wordt getoond zoals hij is verstuurd. De payload van een recordgebeurtenis wordt opnieuw gelezen met je huidige toegang: waarden die je niet kunt lezen, verschijnen als beperkt, en de payload blijft leeg als je het record niet kunt lezen.
+
+## Hoe verstuur ik een bezorging opnieuw? [#how-do-i-resend-a-delivery]
+
+Om opnieuw te versturen, klik je bovenaan **Details van gebeurtenis** op **Opnieuw versturen**. De knop verschijnt zodra de bezorging **Bezorgd** of **Mislukt** is, voor rollen met **Aanmaken** op **API en webhooks**; gebruik via MCP `manage_webhooks` met `action: "resend_delivery"` en het bezorg-id, en via REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. Opnieuw versturen maakt een nieuw bezorgingsrecord met de huidige URL, secret, headers en het sjabloon van de webhook; het origineel blijft ongewijzigd. Een berichtgebeurtenis wordt opnieuw verstuurd vanuit zijn opgeslagen gebeurtenis. Een recordgebeurtenis wordt opnieuw gelezen met de huidige toegang van de webhookeigenaar, alleen die eigenaar of een beheerder kan hem opnieuw versturen, en het opnieuw versturen wordt geweigerd als de recordbronnen van de webhook zijn gewijzigd sinds de oorspronkelijke bezorging. De webhook moet nog bestaan, ingeschakeld zijn en op de gebeurtenis geabonneerd zijn; bezorgingen van uitgefaseerde typespecifieke gebeurtenissen kunnen niet opnieuw worden verstuurd. De pagina's Webhooks en Webhooklog tonen zo'n gebeurtenis met **(verouderd)**, bijvoorbeeld **Contactpersoon aangemaakt (verouderd)**.
+
+## Zijn bezorgingen geordend, en komen ze in de juiste volgorde aan? [#are-deliveries-ordered]
+
+Nee. Twee `record.updated`-gebeurtenissen met enkele milliseconden ertussen kunnen in verkeerde volgorde aankomen. Gebruik de `timestamp` en de recordversie om de volgorde te bepalen, of behandel bezorgingen als idempotente berichten met `typeId`, `recordId` en gebeurtenis-id als sleutel.
+
+## Waarom is opgemaakte tekst Tiptap-JSON in payloads? [#formatted-text-is-json-not-markdown]
+
+De waarde van een veld van het type Opgemaakte tekst is in payloads een `richText`-waarde waarvan `documentJson` Tiptap-JSON is, de structuur die de editor opslaat. Haal er markdown uit met een Tiptap-compatibele serializer. De REST-recordroutes geven hetzelfde `documentJson` terug. MCP-recordtools geven Opgemaakte tekst in plaats daarvan als Markdown terug, gemarkeerd als niet-vertrouwde inhoud; zie [MCP](/docs/mcp#how-the-tool-surface-is-shaped).
+
+## Wat bevatten payloads van verwijderingen? [#what-do-delete-payloads-contain]
+
+`record.deleted` gaat af wanneer een record naar de Prullenbak gaat. `data.record` bevat de gekwalificeerde `ref`, de geautoriseerde waarden van vóór de verwijdering en de relaties die het achterlaat; `afterVersion` is null. Bronfilters gelden direct vóór het verplaatsen, en de actuele toegang van de eigenaar wordt vóór de bezorging opnieuw gecontroleerd. `record.restored` gaat af wanneer het uit de Prullenbak terugkomt en bevat de waarden van daarna, zoals `record.created`.
+
+`record.deletedPermanently` gaat af wanneer een record definitief wordt verwijderd, met de hand of 30 dagen nadat het naar de Prullenbak ging. Zijn `data.record` bevat alleen de `ref`: de waarden zijn gewist, en ook de eerdere gebeurtenissen van het record verliezen hun veldwaarden, waarbij bewaard blijft wie het wijzigde en wanneer. Het bereikt elke webhook van de lijst van het record die het selecteerde en waarvan de eigenaar die lijst kan lezen, zonder bronfilters.
+
+## Hoe debug ik een bezorging? [#how-do-i-debug-a-delivery]
+
+- Zoek de bezorging onder [Webhooklog](app:settings/webhook-deliveries) en open haar om **Details van gebeurtenis** te zien.
+- Gebruik [webhook.site](https://webhook.site) als wegwerpontvanger tijdens het testen.
+- `manage_webhooks` met `action: "list_deliveries"`, `GET /api/v1/webhooks/deliveries` en `GET /api/v1/webhooks/{id}/deliveries` ondersteunen `searchTerm` op URL en gebeurtenisnaam.
+- Customermates slaat alleen de HTTP-statuscode en statustekst op die je ontvanger teruggaf (bijvoorbeeld `404` en `Not Found`), getoond als **Statuscode** en **Antwoordbericht** in **Details van gebeurtenis**. De antwoordbody wordt niet opgeslagen, dus log hem aan de ontvangende kant. Zonder antwoord toont **Statuscode** een streepje (de lijstkolom blijft leeg) en noemt **Antwoordbericht** de oorzaak, zoals de time-out.
+
+## Welke gebeurtenissen bestaan er? [#which-events-exist]
+
+Een webhook kan zich abonneren op [[derived.webhooks.events.total]] gebeurtenissen: [[derived.webhooks.events.records]] recordgebeurtenissen en [[derived.webhooks.events.messaging]] berichtgebeurtenissen. Selecteer voor een CRM-webhook **Record aangemaakt**, **Record bijgewerkt**, **Record naar prullenbak verplaatst**, **Record hersteld** of **Record definitief verwijderd** (`record.created`, `record.updated`, `record.deleted`, `record.restored`, `record.deletedPermanently`) en stel zijn [recordbron](#record-event-sources) in; dit geldt ook voor lijsten die je zelf hebt gemaakt. Alle gebruiken de [standaardenvelop](#what-does-the-payload-look-like). Routines kunnen door dezelfde gebeurtenissen worden geactiveerd, behalve **Record definitief verwijderd** (`record.deletedPermanently`), **E-mail verwijderd** (`messaging.email.deleted`) en **Chat verwijderd** (`messaging.chat.deleted`); **Bericht verwijderd** (`messaging.message.deleted`) activeert wel routines. Zie [Routines](/docs/app-routines#how-do-event-triggers-work).
+
+### Recordgebeurtenissen [#record-events]
+
+| Gebeurtenis | Wanneer hij afgaat | `data` |
+| --- | --- | --- |
+| `record.created` | Een record van een geconfigureerd brontype wordt aangemaakt | de recordwijziging met de waarden van daarna |
+| `record.updated` | Een veld, toewijzing, identiteit of koppeling verandert op een geconfigureerd brontype | de recordwijziging met waarden van vóór en na |
+| `record.deleted` | Een record van een geconfigureerd brontype gaat naar de Prullenbak | de recordwijziging met de waarden van daarvoor |
+| `record.restored` | Een record van een geconfigureerd brontype wordt uit de Prullenbak hersteld | de recordwijziging met de waarden van daarna |
+| `record.deletedPermanently` | Een record van de lijst wordt definitief verwijderd | alleen de `ref`; waarden zijn gewist |
+
+Vijftien typespecifieke identifiers zijn uitgefaseerd. Ze blijven alleen bestaan zodat oudere webhooks en bezorgingsrecords leesbaar blijven: ze kunnen niet voor een webhook of routine worden geselecteerd en niets verstuurt ze. Vervang ze door een generieke gebeurtenis en een recordbron.
+
+| Verouderde gebeurtenis | Historische betekenis | Verouderde `payload` |
+| --- | --- | --- |
+| `contact.created` | Een contactpersoon wordt aangemaakt via de UI, API, MCP of import | volledige contactpersoon |
+| `contact.updated` | Een veld van een contactpersoon verandert | `contact`, `changes` |
+| `contact.deleted` | Een contactpersoon wordt verwijderd | volledige contactpersoon |
+| `organization.created` | Een organisatie wordt aangemaakt | volledige organisatie |
+| `organization.updated` | Een veld van een organisatie verandert | `organization`, `changes` |
+| `organization.deleted` | Een organisatie wordt verwijderd | volledige organisatie |
+| `deal.created` | Een deal wordt aangemaakt | volledige deal |
+| `deal.updated` | Een veld van een deal verandert | `deal`, `changes` |
+| `deal.deleted` | Een deal wordt verwijderd | volledige deal |
+| `service.created` | Een dienst wordt aangemaakt | volledige dienst |
+| `service.updated` | Een veld van een dienst verandert | `service`, `changes` |
+| `service.deleted` | Een dienst wordt verwijderd | volledige dienst |
+| `task.created` | Een taak wordt aangemaakt | volledige taak |
+| `task.updated` | Een veld van een taak verandert | `task`, `changes` |
+| `task.deleted` | Een taak wordt verwijderd | volledige taak |
+
+### Berichtgebeurtenissen [#messaging-events]
+
+Berichtgebeurtenissen gaan af bij inkomende provideractiviteit op gekoppelde accounts. **Gebeurtenissen** biedt ze in elke werkruimte aan, maar ze gaan alleen af waar [Kanalen & agenda's](app:settings/channels) zijn gekoppeld, wat Cloud en een abonnement met messaging vraagt. `actorId` is `null`. `data` verwijst naar providerrecords met id (`entityId` voor het betrokken bericht, gesprek, de agenda, het agenda-item of de relatie, plus `connectedAccountId`, `provider`, `providerMessageId`, `threadId` en dergelijke) in plaats van CRM-records in te sluiten. Een berichtgebeurtenis wordt alleen bewaard zolang een webhook of een routine voor gebeurtenissen erop is geabonneerd.
+
+| Gebeurtenis | Wanneer hij afgaat |
+| --- | --- |
+| `messaging.message.received` | Een chatbericht of e-mail wordt ingelezen |
+| `messaging.message.updated` | Een ingelezen bericht wordt bijgewerkt |
+| `messaging.message.deleted` | Een ingelezen bericht wordt verwijderd |
+| `messaging.message.reaction` | Een reactie wordt aan een bericht toegevoegd |
+| `messaging.email.received` | Een e-mail wordt ingelezen |
+| `messaging.email.deleted` | Een ingelezen e-mail wordt verwijderd |
+| `messaging.chat.updated` | Een chatgesprek wordt bijgewerkt |
+| `messaging.chat.deleted` | Een chatgesprek wordt verwijderd |
+| `messaging.calendar.changed` | Een gekoppelde agenda verandert |
+| `messaging.calendar_event.changed` | Een agenda-afspraak verandert |
+| `messaging.relation.created` | Een nieuwe providerrelatie wordt aangemaakt |
+
+## Werken webhooks in het Free-abonnement? [#webhooks-on-the-free-plan]
+
+Nee. In Customermates Cloud beginnen webhooks en de n8n-trigger bij Starter. Zolang een werkruimte op Free staat, wordt het aanmaken van een webhook geweigerd in Instellingen, via REST (`409` met `customCode` `planWebhooksNotIncluded`) en via MCP, met de prijs van Starter in de melding. Webhooks die eerder zijn aangemaakt, blijven in de lijst staan maar versturen niets zolang de werkruimte op Free staat; gebeurtenissen uit die periode worden later niet bezorgd. Zodra de werkruimte een betaald abonnement kiest, bezorgen ze weer. Zelf gehoste installaties kennen zo'n limiet niet.
+
+## Volgende stappen [#next]
+
+- [MCP-toolcatalogus](/docs/mcp#tool-catalog): webhooks programmatisch beheren.
+- [API-referentie](/docs/openapi): de REST-webhookendpoints en elke gebeurtenispayload.
+- [n8n-integratie](/docs/n8n): webhooks in visuele workflows gebruiken.

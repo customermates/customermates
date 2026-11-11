@@ -1,0 +1,125 @@
+---
+title: "Gebruikersprofiel en instellingen in het Customermates CRM"
+description: "Je persoonlijke Customermates-instellingen: naam, taal, notatie, thema en sneltoetsen, de kanalen die de Inbox voeden en je API-sleutels voor MCP en REST."
+---
+
+## Wat hoort bij jou en niet bij de werkruimte? [#what-lives-on-the-profile-screen]
+
+Het onderdeel Account van Instellingen bevat vier pagina's: [Profiel & voorkeuren](app:settings/profile) (naam, avatar, taal, notatie, thema), [Werkruimtes](app:settings/workspaces) (de werkruimtes waartoe je behoort), [Kanalen & agenda's](app:settings/channels) (de accounts die de [Inbox](/docs/app-inbox) voeden) en [API-sleutels & connectoren](app:settings/api-keys) (sleutels voor MCP- en REST-clients). Klik onderaan de zijbalk op je avatar en kies **Profiel & voorkeuren**, of kies **Instellingen** in het werkruimtemenu (de naam van de werkruimte bovenaan de zijbalk) of druk op G en daarna S; elk van die opent Profiel & voorkeuren, en de instellingennavigatie toont de andere pagina's. **Terug** bovenaan die navigatie brengt je terug naar waar je was. Wijzigingen hier gelden alleen voor jou, behalve een kanaal dat je met de werkruimte deelt. Je profiel is hetzelfde in elke werkruimte waartoe je behoort, terwijl kanalen en API-sleutels horen bij de werkruimte waarin je ze hebt gekoppeld of aangemaakt; zie [Werkruimtes](/docs/app-workspaces#what-is-the-same-in-every-workspace).
+
+Elk lid ziet Profiel & voorkeuren. Kanalen & agenda's vraagt **Leestoegang** **Alle** op de rij **Inboxberichten** van je rol en bestaat alleen in Customermates Cloud. API-sleutels & connectoren vraagt **Leestoegang** **Alle** op **API en webhooks**. Een nieuwe aangepaste rol begint met **Geen** op beide rijen; rollen bewerk je bij [Rollen](app:settings/roles), zie [Appgids, Bedrijf](/docs/app-company).
+
+## Profiel & voorkeuren [#settings-tab]
+
+Wijzig een veld in [Profiel & voorkeuren](app:settings/profile) en klik op **Opslaan**, dat het hele formulier opslaat. Zodra er iets is gewijzigd, biedt een zwevende balk **Niet-opgeslagen wijzigingen** de knoppen **Annuleren**, die je wijzigingen weggooit, en **Opslaan**.
+
+### Hoe wijzig ik mijn naam, avatar, taal of thema? [#how-do-i-change-my-name-avatar-language-or-theme]
+
+| Veld | Regels en effect |
+|---|---|
+| **Voornaam**, **Achternaam** | Verplicht, maximaal 255 tekens; je naam in elke werkruimte waartoe je behoort |
+| **Avatar-URL** | Optionele link naar een openbare afbeelding (geen upload; `https://` wordt toegevoegd); leeg toont je initialen |
+| [Weergavetaal](app:settings/profile?focus=display-language) | **Engels**, **Duits**, **Frans**, **Italiaans**, **Spaans** of **Systeem** (taal van de browser, anders Engels). De interface en Mate gebruiken die taal, en de notificatiemails ook (Engels bij **Systeem**). Bij het opslaan wordt de app opnieuw geladen |
+| [Regionale opmaak](app:settings/profile?focus=formatting-locale) | Dezelfde keuzes; bepaalt hoe getallen, datums en bedragen worden geschreven, los van de weergavetaal. **Systeem** volgt de weergavetaal |
+| [Thema](app:settings/profile?focus=theme) | **Systeem**, **Donker** of **Licht** |
+
+**Thema** en **Taal** kun je ook in het persoonlijke menu wijzigen. De kop boven het formulier toont je e-mailadres, verificatiestatus, lidstatus en rol; die zijn hier alleen-lezen. Rol en status, en je naam en avatar, kan ook een lid met **Bewerken** op **Gebruikers & rollen** instellen bij [Leden](app:settings/members); zo'n wijziging geldt alleen in die werkruimte.
+
+### Hoe schakel ik sneltoetsen met één toets uit? [#keyboard-shortcut-preferences]
+
+Zet **Sneltoetsen met één toets** uit in het dialoogvenster **Sneltoetsen** (druk op ? of kies **Sneltoetsen** in het persoonlijke menu). Dat schakelt C, /, V, ? en de G-reeksen uit, wat helpt bij spraakinvoer of per ongeluk ingedrukte toetsen. Sneltoetsen met Cmd/Ctrl en Esc blijven werken. De volledige lijst staat in [Sneltoetsen](/docs/app-dashboard#keyboard-shortcuts).
+
+### Hoe verifieer ik mijn e-mailadres of verstuur ik de verificatiemail opnieuw? [#how-do-i-verify-my-email-address]
+
+Zolang je adres niet is geverifieerd, tonen je avatar in de zijbalk en het item **Profiel & voorkeuren** in het persoonlijke menu **E-mailadres niet geverifieerd**; Profiel & voorkeuren biedt dan [Verificatie-e-mail opnieuw verzenden](app:settings/profile?focus=verify-email) aan. Een nieuw account werkt 24 uur zonder verificatie; daarna leidt elke pagina naar het verificatiescherm, totdat je de link in de e-mail bevestigt.
+
+### Wat kan ik hier niet wijzigen, zoals mijn wachtwoord? [#what-can-i-not-change-here]
+
+Er is geen instelling voor wachtwoord, e-mailadres, tijdzone, notificaties of het verwijderen van je account. Voor een nieuw wachtwoord meld je je af en gebruik je **Wachtwoord vergeten?** op de inlogpagina. E-mailhandtekeningen horen bij elk e-mailkanaal, zie [uiterlijk en handtekening van e-mail](#email-appearance-and-signature).
+
+## API-sleutels & connectoren [#api--connectors-tab]
+
+[API-sleutels & connectoren](app:settings/api-keys) toont alleen je eigen sleutels van de huidige werkruimte, en elke sleutel werkt alleen in de werkruimte waarin hij is aangemaakt. Klik op [Toevoegen](app:settings/api-keys?focus=generate) (vraagt **Aanmaken** op **API en webhooks**) om **Een API-sleutel toevoegen** te openen:
+
+- **Standaard API-sleutel**: een **Naam** en een optionele vervaldatum bij **Verloopt over**, 1 tot 365 dagen vooruit (standaard **Verloopt nooit**). De sleutel wordt één keer getoond, dus kopieer hem meteen.
+- **Snelle koppelingen**: tegels voor **Claude**, **ChatGPT & Codex**, **Cursor** en **Gemini**. Lokale opstellingen (Claude Code of Desktop, Codex, Cursor, Gemini) maken een sleutel aan die naar de client is genoemd en na 365 dagen verloopt, en tonen het configuratiefragment met de sleutel al ingevuld. De methoden met een Claude-account en de ChatGPT-app gebruiken de gehoste connector en maken geen sleutel aan.
+
+Een sleutelkaart toont **Aangemaakt op**, **Verloopt op** en **Laatst gebruikt**; open de kaart om de sleutel te **Verwijderen** (vraagt **Verwijderen**), waarmee hij meteen stopt. Om te roteren maak je een nieuwe sleutel aan, werk je de client bij en verwijder je daarna de oude. Als je bij een rol **Leestoegang** **Alle** op **API en webhooks** weghaalt, stoppen de sleutels van de leden met die rol, zowel voor MCP als voor REST; een lid op **Inactief** zetten bij [Leden](app:settings/members) stopt ook al zijn sleutels. Alle regels: [API-sleutels](/docs/api-keys).
+
+## Kanalen & agenda's [#channels-tab]
+
+[Kanalen & agenda's](app:settings/channels) toont eerst je e-mail-, LinkedIn-, WhatsApp-, Instagram- en Telegram-accounts, daarna elk kanaal dat een teamgenoot heeft gedeeld. Als kanalen **Opnieuw koppelen nodig**, **Probleem met machtigingen** of **Fout** tonen, laat het item Kanalen & agenda's hun aantal zien. Een klik op een kaart opent het kanaaldialoogvenster met de tabbladen **Details** (provider, status, **Zichtbaarheid**, eigenaar, mappen, gekoppeld en laatst gesynchroniseerd), **E-mail** en **Mappen**. Welke rol je ook hebt, je kunt alleen kanalen wijzigen die van jou zijn. Elk kanaal hoort bij de werkruimte waarin je het hebt gekoppeld.
+
+### Wie kan Kanalen & agenda's gebruiken? [#who-can-use-channels]
+
+De pagina zien vraagt **Leestoegang** **Alle** op **Inboxberichten**; koppelen vraagt **Aanmaken**, wijzigen, opnieuw activeren of opnieuw synchroniseren **Bewerken**, ontkoppelen **Verwijderen**. Het abonnement moet berichten bevatten (Pro, Business, Max, Enterprise of een proefperiode); bij Starter toont de pagina **Upgrade je abonnement**, dat [Facturering](app:settings/billing) opent. Elke actie behalve ontkoppelen vraagt ook een actief abonnement of een lopende proefperiode. Zelf gehoste installaties hebben geen pagina Kanalen & agenda's.
+
+### Hoe koppel ik een kanaal? [#how-do-i-connect-a-channel]
+
+Klik op [Kanaal koppelen](app:settings/channels?focus=connect) en kies een item:
+
+| Item | Koppelt |
+|---|---|
+| **Gmail**, **Outlook** | E-mail, agenda of beide; de **Provider** op de kaart laat zien welke |
+| **IMAP** | Elk ander e-mailaccount via IMAP en SMTP |
+| **WhatsApp** | Je WhatsApp-account, met een QR-code |
+| **LinkedIn (Classic)**, **LinkedIn (Classic & Sales Navigator)**, **LinkedIn (Classic & Recruiter)** | Je LinkedIn-account, optioneel met Sales Navigator of Recruiter |
+| **Instagram**, **Telegram** | Je Instagram- of Telegram-account |
+
+Het huidige tabblad gaat naar een beveiligde koppelpagina (30 minuten om af te ronden) en komt daarna met het resultaat terug bij Kanalen & agenda's. **Kanaal gekoppeld** start de import van de geschiedenis op de achtergrond (**Synchroniseert op de achtergrond**, meestal enkele minuten, bij grote accounts tot een uur). **Account al gekoppeld** betekent dat een lid van de werkruimte het al heeft gekoppeld; vraag diegene om het te delen. Begin bij elke andere fout opnieuw met **Kanaal koppelen**.
+
+### Hoeveel kanalen kan ik koppelen? [#how-many-channels-can-i-connect]
+
+Per lid: Starter [[commercial.entitlement.starter.includedAccountsPerUser]], Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Max [[commercial.entitlement.max.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; een proefperiode telt als Pro. Elk kanaal dat van jou is, telt mee totdat je het ontkoppelt, behalve kanalen met de status **Verwijderd**; gedeelde kanalen van teamgenoten tellen nooit mee. Bij de limiet op Pro biedt **Kanaal koppelen** de knop **Abonnementen bekijken** aan, die [Facturering](app:settings/billing) opent. Na een downgrade worden de nieuwste kanalen van elk lid boven het toegestane aantal **Verwijderd** en krijgen leden met de rol **Beheerder** een e-mail.
+
+### Wat betekent elke kanaalstatus? [#what-does-each-status-mean]
+
+| Status | Betekenis en actie |
+|---|---|
+| **Gekoppeld** | Werkt; **Opnieuw synchroniseren** importeert de geschiedenis opnieuw |
+| **Koppelen** | Wordt nog ingesteld; **Opnieuw synchroniseren** is beschikbaar |
+| **Opnieuw koppelen nodig**, **Probleem met machtigingen**, **Fout**, **Gestopt** | De provider meldt een probleem met inloggen, machtigingen of iets anders, of heeft het account gepauzeerd; de eigenaar klikt op **Opnieuw activeren** |
+| **Verwijderd** | Verwijderd bij de provider of automatisch (na een downgrade, een dag nadat een proefperiode eindigde, drie dagen nadat een betaald abonnement **Onbetaald** of **Verlopen** werd, of toen de eigenaar op **Inactief** werd gezet); alleen **Ontkoppelen** blijft over |
+
+### Hoe deel ik een kanaal met teamgenoten of houd ik het privé? [#private-or-shared]
+
+Een nieuw kanaal, zoals een e-mailinbox, is **Privé**. De eigenaar zet **Zichtbaarheid** op het tabblad **Details** op **Gedeeld**; het verschijnt dan, met alle gesprekken, bij elk lid met leestoegang op **Inboxberichten**, en leden met **Aanmaken** kunnen er antwoorden mee versturen. Delen vraagt het abonnement Business, Max of Enterprise, **Bewerken** op **Inboxberichten** en een actief abonnement. Teamgenoten kunnen de details en mappen van een gedeeld kanaal openen, maar het niet wijzigen. Gaat de werkruimte over naar een abonnement onder Business, dan wordt elk gedeeld kanaal weer **Privé**, en moet de eigenaar na een upgrade **Zichtbaarheid** weer op **Gedeeld** zetten. Losse gesprekken kun je delen vanuit de [Inbox](/docs/app-inbox).
+
+### Wat regelt het tabblad Mappen? [#what-does-the-folders-tab-control]
+
+Bij e-mailaccounts die mappen melden, heeft het tabblad **Mappen** een schakelaar per map: uit verbergt de berichten van die map in de Inbox voor iedereen die het kanaal ziet, zonder ze te verwijderen. Standaard staan alle mappen aan, behalve prullenbak, ongewenste e-mail of spam, concepten en alle e-mail. Zet je er een van aan, dan wordt de geschiedenis ervan geïmporteerd. Alleen de eigenaar met **Bewerken** kan schakelen; anderen zien **Gesynchroniseerd** of **Verborgen**.
+
+### Hoe wijzig ik het lettertype, de linkkleur en de handtekening van uitgaande e-mails? [#email-appearance-and-signature]
+
+Het tabblad **E-mail** verschijnt bij Gmail-, Outlook- en IMAP-accounts die van jou zijn (bewerken vraagt **Bewerken**) en wordt opgeslagen met **E-mailinstellingen opslaan**.
+
+| Veld | Opties (standaard) |
+|---|---|
+| **Lettertype** | **Schreefloos (Arial)**, **Met schreef (Georgia)**, **Monospace (Courier New)** (Schreefloos) |
+| **Lettergrootte** | 10 tot 20 (13) |
+| **Linkkleur** | Hexwaarde met kleurkiezer (`#7161e8`); onder een contrast van 3:1 verschijnt een waarschuwing |
+| **Linkstijl** | **Onderstreept**, **Niet onderstreept** (Onderstreept) |
+
+Het uiterlijk geldt voor platte-tekst- en Markdown-e-mails, wat alles omvat wat in de Inbox is geschreven; een expliciete HTML-body behoudt zijn eigen opmaak. Zet **Handtekening toevoegen** aan om hem te bewerken: **Opmaak** **Alleen tekst**, **Logo erboven** (standaard) of **Logo ernaast**; logo-opmaken vragen een openbare HTTPS-**Logo-URL** (vervangt het Customermates-pictogram) en bieden **Logogrootte**, **Scheidingslijn** en **Afstand**. **Inhoud van handtekening** is Markdown tot 2.000 tekens, met een **Voorbeeld**. Zolang hij aanstaat, wordt de handtekening onder elke e-mail van dat account gezet, vanuit de Inbox, REST of MCP, ook bij HTML.
+
+### Hoe activeer ik een kanaal opnieuw, synchroniseer ik het opnieuw of ontkoppel ik het? [#how-do-i-reactivate-resync-or-disconnect-a-channel]
+
+Open een kanaal dat van jou is:
+
+- **Opnieuw activeren** (voor **Opnieuw koppelen nodig**, **Probleem met machtigingen**, **Fout**, **Gestopt**): gaat naar de koppelpagina voor hetzelfde account en weer terug.
+- **Opnieuw synchroniseren** (voor **Gekoppeld**, **Koppelen**): importeert de geschiedenis opnieuw, meestal in 1 tot 3 minuten.
+- **Ontkoppelen**: verwijdert na een bevestiging het account en wist definitief de gesprekken, berichten, agenda's en afspraken die ervandaan zijn geïmporteerd, ook voor teamgenoten als het gedeeld was.
+
+**Opnieuw activeren** en **Opnieuw synchroniseren** vragen **Bewerken** op **Inboxberichten**, **Ontkoppelen** vraagt **Verwijderen**.
+
+## Voor agents [#tips-for-agents]
+
+Via MCP en in Mate wijzigt `update_my_profile` alleen je eigen voornaam, achternaam, avatar-URL, thema, weergavetaal en regionale opmaak; `connect_messaging_account` (REST `POST /api/v1/messaging/connected-accounts/connect-link`) maakt een koppellink aan onder dezelfde regels voor abonnement, rechten en contingent. `manage_connected_accounts` toont je kanalen en stelt voor een kanaal dat van jou is mappen, handtekening en uiterlijk, zichtbaarheid (met goedkeuring) in, synchroniseert het opnieuw of ontkoppelt het (met goedkeuring); REST gebruikt `/api/v1/messaging/connected-accounts/{id}` (`DELETE`) en de bewerkingen `folders`, `signature`, `sharing` en `resync`. Een id die geen kanaal van jou is, geeft `not_found` terug (REST `404`) vóór een controle van het abonnement. Sneltoetsen, opnieuw activeren en API-sleutels stel je alleen in de app in. Herhaal de handtekening van een kanaal niet in de tekst van een bericht. Een nieuwe API-sleutel wordt één keer getoond. Via REST leest `GET /api/v1/users/me` je profiel en wijzigt `PATCH /api/v1/users/me` dezelfde velden als `update_my_profile`; weggelaten velden behouden hun waarde.
+
+## Gerelateerd [#related]
+
+- [API-sleutels](/docs/api-keys): sleutels aanmaken, gebruiken, laten verlopen en verwijderen.
+- [Appgids, Inbox](/docs/app-inbox): het scherm dat je kanalen voeden.
+- [Appgids, Bedrijf](/docs/app-company): leden, rollen en facturering.
+- [Werkruimtes](/docs/app-workspaces): wat in elke werkruimte hetzelfde is en wat gescheiden is.
+- [CLI en editors](/docs/connect-cli): waar een gegenereerde sleutel naartoe gaat voor Claude Code, Codex en Cursor.

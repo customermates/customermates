@@ -1,0 +1,143 @@
+---
+title: "Customermates CRM Inbox: gesprekken en antwoorden"
+description: "De Inbox zet e-mail-, LinkedIn-, WhatsApp-, Instagram- en Telegram-gesprekken in één lijst: lezen, beantwoorden, ordenen, delen en aan records koppelen."
+---
+
+## Wat is de Inbox? [#what-is-the-inbox]
+
+De [Inbox](app:inbox) is de gecombineerde berichtenomgeving van Customermates Cloud: gesprekken per e-mail, LinkedIn, WhatsApp, Instagram en Telegram in één lijst, met de meest recente activiteit bovenaan. Klik op een gesprek om het naast de lijst te lezen; op smalle schermen wisselen de lijst en het gesprek elkaar af. Vanuit een gesprek antwoord je op het oorspronkelijke kanaal, stel je de toestand in, verplaats je een e-mail naar een andere map, deel je het met je team en koppel je de deelnemers aan records. Mate, of je eigen AI-agent via [MCP](/docs/mcp), kan een antwoord als concept in het gesprek achterlaten; jij bekijkt, bewerkt en verstuurt het (zie [concepten](#how-do-drafts-and-attachments-work)). De accounts zelf koppel je bij [Kanalen & agenda's](app:settings/channels), zie [Appgids, Profiel](/docs/app-profile).
+
+## Wie kan de Inbox gebruiken en waarom is hij vergrendeld op Starter of ontbreekt hij in de zelf gehoste versie? [#who-can-use-the-inbox]
+
+Aan alle vier de voorwaarden moet zijn voldaan:
+
+- **Customermates Cloud.** Zelf gehoste installaties hebben geen Inbox: het onderdeel in de zijbalk is verborgen en openen leidt naar het Dashboard.
+- **Een abonnement met berichten:** Pro, Business, Max, Enterprise of een proefperiode. Op Starter blijft de Inbox in de zijbalk staan, maar toont hij **Upgrade om berichten te ontgrendelen**, en **Upgrade je abonnement** opent [Facturering](app:settings/billing).
+- **Een bruikbaar abonnement:** status **Actief** of een proefperiode die nog niet is afgelopen. Zolang de status **Achterstallig** of **Geannuleerd** is, is de Inbox op dezelfde manier vergrendeld.
+- **Je rol:** **Inboxberichten** met **Leestoegang** op **Alle**. Bij **Geen** is het onderdeel in de zijbalk verborgen en leidt het openen van de Inbox naar het Dashboard. De rol **Beheerder** heeft altijd toegang.
+
+Zolang het abonnement de Inbox vergrendelt, blijft de upgrademelding zichtbaar en stoppen de verversingen van gesprekken en het aantal ongelezen berichten op de achtergrond. Zodra de toegang terugkomt, laadt de Inbox de gesprekken weer als je hem opnieuw opent. Privégesprekken behouden al die tijd hun zichtbaarheidsinstellingen.
+
+## Heb ik een gekoppeld kanaal nodig? [#do-i-need-a-connected-channel]
+
+Niet om de Inbox te openen: zonder eigen kanaal zie je nog steeds wat teamgenoten delen. Om op je eigen accounts te versturen en te ontvangen heb je er een nodig. Een lege Inbox toont **Hier is nog niets**; leden met **Aanmaken** op **Inboxberichten** krijgen eronder een knop **Kanalen** (als Mate beschikbaar is, verschijnen daar in plaats daarvan startsuggesties). Voeg een e-mail-, LinkedIn-, WhatsApp-, Instagram- of Telegram-account toe met [Kanaal koppelen](app:settings/channels?focus=connect), zie [Hoe koppel ik een kanaal?](/docs/app-profile#how-do-i-connect-a-channel). Kanalen per lid: Pro [[commercial.entitlement.pro.includedAccountsPerUser]], Business [[commercial.entitlement.business.includedAccountsPerUser]], Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]]; een proefperiode telt als Pro.
+
+## Welke gesprekken zie ik en kan een beheerder mijn privégesprekken lezen? [#which-conversations-do-i-see]
+
+De lijst combineert de kanalen die je hebt gekoppeld, kanalen die een teamgenoot met de hele werkruimte heeft gedeeld en afzonderlijke gesprekken die een teamgenoot vanuit een privékanaal heeft gedeeld. De privégesprekken van een teamgenoot verschijnen nooit, wat je rol ook is, **Beheerder** inbegrepen.
+
+Bij e-mailaccounts verschijnen alleen mappen die zijn ingeschakeld op de tab **Mappen** van het account bij [Kanalen & agenda's](app:settings/channels). Standaard staat elke map aan, behalve prullenbak, ongewenste e-mail of spam, concepten en de map met alle e-mail; als er post uit een archief ontbreekt, controleer dan de schakelaar ervan. Een gesprek zonder berichten verschijnt alleen zolang het een opgeslagen concept bevat.
+
+## Welke rechten heeft de Inbox nodig? [#which-permissions-does-the-inbox-need]
+
+Rollen bewerk je bij [Rollen](app:settings/roles). De Inbox gebruikt de rij **Inboxberichten**: **Aanmaken**, **Bewerken**, **Verwijderen** en **Leestoegang** **Geen** of **Alle**.
+
+| Om dit te doen | Heeft de rol nodig |
+| --- | --- |
+| De Inbox zien en gesprekken lezen | **Inboxberichten**: **Leestoegang** **Alle** |
+| Antwoorden, concepten opslaan of versturen, een gesprek starten vanuit een contact | **Inboxberichten**: **Aanmaken** |
+| Een concept weggooien | **Inboxberichten**: **Verwijderen** |
+| De toestand wijzigen, een e-mail verplaatsen, **Vernieuwen**, **Gesprek opnieuw synchroniseren**, oudere berichten laden, een gesprek delen | **Inboxberichten**: **Bewerken** |
+| Het adres van een deelnemer koppelen aan een record, of er een record van maken | Lees- en bewerktoegang tot dat record; aanmaaktoegang voor een nieuw record |
+| Een record koppelen aan dit ene gesprek | **Inboxberichten**: **Bewerken**, plus lees- en bewerktoegang tot het record |
+| Een veld Contactgegevens aan een lijst toevoegen | **Gegevensmodel** |
+
+Zonder **Aanmaken** is het antwoordvak verborgen. Zonder **Bewerken** is de verplaatsactie verborgen, is de toestand een alleen-lezen chip en blijft een ongelezen gesprek **Ongelezen** als je het opent. Een afzonderlijk gesprek delen vraagt bovendien dat je eigenaar bent van het kanaal.
+
+## Hoe zoek, filter of ververs ik de Inbox? [#how-do-i-search-filter-or-refresh-the-inbox]
+
+De bovenbalk van de [Inbox](app:inbox) bevat:
+
+- **Filter** zoekt en filtert: typ tekst en kies de optie **bevat** om gesprekken te vinden op onderwerp, berichttekst, gespreksnaam en namen of adressen van deelnemers (F opent het). Het biedt ook **Toestand**, **Gekoppelde records**, **Deelnemers** (**niet volledig gekoppeld** vindt gesprekken met iemand zonder passend record dat je mag lezen), **Aanbieder**, **Kanaal**, **E-mailmap**, **Concept** (**heeft er enkele** vindt gesprekken met een opgeslagen concept), **Laatste bericht** (**Verzonden** of **Ontvangen**), **Datum laatste bericht** en **Laatste activiteit**.
+- **Vernieuwen** haalt direct nieuwe berichten op (**Inbox vernieuwd.**) en meldt kanalen die een limiet bereikten, opnieuw gekoppeld moeten worden of niet konden worden ververst. Vraagt **Bewerken**.
+- **Kanalen** opent [Kanalen & agenda's](app:settings/channels), met een getal als er kanalen aandacht nodig hebben. Vraagt **Aanmaken**.
+
+**E-mailmap** groepeert mappen onder hun account, zodat mappen met dezelfde naam gescheiden blijven; **is een van** vindt gesprekken met een zichtbaar bericht in een van de geselecteerde mappen, **is niet een van** sluit ze uit. **Laatste bericht** en **Datum laatste bericht** gebruiken het laatste echt verzonden of ontvangen bericht; concepten, verwijderde berichten en systeemgebeurtenissen tellen niet mee. Voor post van drie tot zeven dagen geleden voeg je twee voorwaarden **Datum laatste bericht** toe: **Ouder dan…** 3 dagen en **7 dagen**. **Laatste activiteit** omvat opgeslagen concepten. Alle filters respecteren het delen van accounts en de ingeschakelde mappen.
+
+De weergaverij begint met **Alle gesprekken**, gevolgd door je opgeslagen weergaven en de weergaven die teamgenoten met je hebben gedeeld; klik op **Alle gesprekken** om een weergave te verlaten. De lijst toont 25 gesprekken per pagina (5, 10, 25 of 100). Het onderdeel in de zijbalk toont hoeveel gesprekken die je kunt zien **Ongelezen** zijn.
+
+## Hoe open ik een specifiek gesprek? [#how-do-i-open-a-specific-conversation]
+
+Klik op de rij ervan. Het browseradres verwijst dan naar dat gesprek, zodat je het kunt bookmarken of naar een teamgenoot kunt sturen die het kan zien; een adres dat je niet kunt openen, brengt je terug naar de Inbox. Om de gesprekken van één record te vinden, kies je het in het filter **Gekoppelde records**: het zoeken gebruikt de contactgegevens van het record en controleert nog steeds je toegang tot elk gesprek. Mate opent geen afzonderlijk gesprek voor je: het opent de Inbox en noemt het gesprek.
+
+Met **Bewerken** op **Inboxberichten** haalt scrollen naar de bovenkant van een gesprek oudere berichten bij de provider op, één keer per gesprek totdat je opnieuw laadt. **Gesprek opnieuw synchroniseren** in de kop haalt het hele gesprek opnieuw op.
+
+## Wat staat er in de gesprekskop? [#what-is-in-the-conversation-header]
+
+Naast de naam van het gesprek, van links naar rechts:
+
+| Bediening | Wat het doet |
+| --- | --- |
+| **Gesprek naar map verplaatsen…** (IMAP en Outlook) | Zet het gesprek in een andere map; vraagt **Bewerken** |
+| **Gesprek opnieuw synchroniseren** | Haalt het gesprek opnieuw op; vraagt **Bewerken** |
+| Chip **Privégesprek** of **Gedeeld gesprek** | Opent **Gespreksinstellingen** |
+| **Sommige deelnemers hebben geen gekoppeld record dat je kunt lezen** | Opent **Gespreksinstellingen**; getoond als je records kunt aanmaken of bewerken in een lijst met een veld Contactgegevens |
+| Toestandschip | **Ongelezen**, **Open**, **Gesloten** of **Spam** |
+
+Op smalle schermen tonen de chips alleen pictogrammen.
+
+Binnenkomende berichten staan links, uitgaande rechts. De compacte kop van een e-mail toont afzender, tijd en eerste ontvanger; **Details** (ook onder **E-mailacties**) toont **Van**, **Aan**, **Cc** en **Bcc**. Bcc is alleen zichtbaar bij uitgaande e-mail, voor de accounteigenaar en teamgenoten met toegang tot het hele account; een afzonderlijk gesprek delen onthult het nooit. Klik op een adres om het te kopiëren. Een mapknop onder de ontvangers toont waar die e-mail is opgeslagen. E-mails die in Customermates zijn geschreven en e-mails met platte tekst gebruiken de kleuren en het lettertype van de app en volgen je lichte of donkere thema. Ontvangen HTML met een eigen donkere modus wordt getoond in jouw thema; andere ontvangen HTML behoudt de opmaak en kleuren van de afzender op een lichte achtergrond. Externe afbeeldingen laden pas na **Externe afbeeldingen laden**.
+
+## Wat betekenen de gesprekstoestanden? [#what-do-the-thread-states-mean]
+
+| Toestand | Betekenis |
+| --- | --- |
+| **Ongelezen** | Nieuw, of er kwam een nieuw bericht binnen |
+| **Open** | Gelezen, heeft nog aandacht nodig |
+| **Gesloten** | Afgehandeld |
+| **Spam** | Als spam gemarkeerd |
+
+Een ongelezen gesprek openen zet het op **Open** (alleen met **Bewerken**). De toestand wordt gedeeld door iedereen die het gesprek ziet. Een nieuw binnenkomend bericht zet hem terug op **Ongelezen**, ook vanuit **Gesloten** of **Spam**. **Spam** is alleen een label: het verbergt het gesprek niet, blokkeert de afzender niet en meldt niets aan de provider; gebruik het filter **Toestand** om het buiten beeld te houden. Een toestand instellen verstuurt nooit iets.
+
+## Hoe verplaats ik een e-mail naar een andere map? [#how-do-i-move-an-email-to-another-folder]
+
+Klik in IMAP- en Outlook-gesprekken op de mapknop van een e-mail en kies een bestemming onder **Deze e-mail verplaatsen naar…** om alleen die e-mail te verplaatsen, of gebruik **Gesprek naar map verplaatsen…** in de kop om het hele gesprek op te bergen. Berichten verhuizen ook in de echte mailbox. Verzonden en Concepten zijn nooit bestemmingen en berichten daarin blijven staan. Gmail-gesprekken, leden zonder **Bewerken** en teamgenoten die een gesprek zien dat vanuit een privékanaal is gedeeld, kunnen de mapnamen lezen maar krijgen geen verplaatsopties; alleen de eigenaar van het kanaal bergt die op.
+
+Je kunt doorwerken terwijl het verplaatsen loopt. Berichten die zijn verplaatst naar een map die op de tab **Mappen** van het account is uitgeschakeld, verdwijnen uit het gesprek; als er niets zichtbaars overblijft, zegt de bevestiging dat het niet meer in je Inbox staat. Als de provider halverwege een limiet oplegt, meldt een bericht dat en kun je de rest later verplaatsen.
+
+## Hoe deel ik één gesprek? [#how-do-i-share-a-single-conversation]
+
+Klik in de kop op **Privégesprek** of **Gedeeld gesprek** om **Gespreksinstellingen** te openen. De schakelaar **Delen met team** deelt alleen dit gesprek met iedereen wiens rol de Inbox kan lezen (**Gedeeld met CRM**); uitzetten toont **Gesprek is nu privé**. Alleen de eigenaar van het kanaal kan hem gebruiken, in een abonnement met berichten en met **Bewerken**. Teamgenoten kunnen het gesprek dan lezen, de toestand wijzigen en het opnieuw synchroniseren, maar niet verplaatsen, en alleen jij kunt antwoorden zolang het kanaal zelf privé is.
+
+Om elk gesprek van een kanaal te delen, zet je **Zichtbaarheid** aan op de tab **Details** van het kanaal bij [Kanalen & agenda's](app:settings/channels) (Business, Max of Enterprise). De schakelaar per gesprek blijft dan aan en vergrendeld.
+
+## Hoe koppel ik deelnemers en records? [#how-do-i-link-a-participant]
+
+Berichten worden via hun contactgegevens aan records gekoppeld: een record waarvan het veld Contactgegevens een e-mailadres, telefoonnummer of profiel bevat, toont elk gesprek met dat adres. Een telefoonnummer komt ook overeen met WhatsApp-chats van hetzelfde nummer. Open **Gespreksinstellingen**. Onder **Personen** toont elke deelnemer de records die je kunt zien en die bij zijn adres passen als chips. **Koppelen** opent een zoekopdracht die het adres toevoegt aan de contactgegevens van een record in een willekeurige lijst met een veld Contactgegevens; de **✕** op een chip verwijdert alleen die overeenkomst. Eén adres kan bij meerdere records horen, bijvoorbeeld een contactpersoon en een organisatie, en elk ander gesprek met hetzelfde adres volgt mee. Gewone tekstvelden worden nooit gebruikt om te koppelen.
+
+Onder **Gesprekrecords** koppelt de kiezer van het veld (**Record koppelen**) alleen dit gesprek aan een record, bijvoorbeeld een deal in een lijst zonder veld Contactgegevens; andere gesprekken met de deelnemer blijven gescheiden. Koppelen verleent nooit toegang tot privéberichten of beperkte records.
+
+## Hoe antwoord ik op een gesprek? [#how-do-i-reply-to-a-conversation]
+
+Klik op **Schrijf een antwoord...** (e-mail) of **Typ een bericht...** (chat) onder het gesprek. E-mailantwoorden tonen **Onderwerp** en **Aan**, ingevuld vanuit het gesprek; **Cc/Bcc** voegt die velden toe en elke combinatie werkt zolang er één geldige ontvanger is. E-mail schrijf je in een Markdown-editor en je handtekening wordt, als die aanstaat, bij het versturen toegevoegd. Bcc-ontvangers worden nooit in een antwoord overgenomen. Chatantwoorden zijn platte tekst. Gebruik **Bestanden bijvoegen** en **Emoji invoegen** naar behoefte en kies dan **Versturen** of Cmd/Ctrl+Enter; **Meer verzendopties** bevat **Opslaan als concept**.
+
+Als het versturen mislukt, verschijnt **Opnieuw proberen** alleen als opnieuw proberen kan helpen (limiet, tijdelijke storing). Als de provider een bericht afwijst, pas het dan eerst aan; controleer na een time-out het gesprek, want het bericht kan al verstuurd zijn. Een kanaal dat opnieuw gekoppeld moet worden, wordt gemeld voordat er iets wordt verstuurd en alleen de eigenaar kan het opnieuw koppelen. Antwoorden gaan uit via het eigen kanaal van het gesprek, dus je kunt alleen antwoorden op kanalen die van jou zijn of met de werkruimte zijn gedeeld.
+
+## Hoe start ik een nieuw gesprek of schrijf ik een nieuwe e-mail naar een contact? [#how-do-i-start-a-new-conversation]
+
+De Inbox heeft geen knop voor een nieuw gesprek. Open het record van de persoon, bijvoorbeeld in je contactenlijst, en klik op het pictogram **Nieuw bericht** naast een e-mailadres of handle in de contactgegevens. Als meerdere van je kanalen kunnen versturen, kies je er een onder **Van**; bij LinkedIn met Sales Navigator of Recruiter kiest **Versturen als** tussen **Classic**, **Sales Navigator-InMail** of **Recruiter-InMail**. Na **Versturen** gaat het bericht op de achtergrond uit (**Bericht wordt verzonden**, dan **Bericht verzonden.**). Dit vraagt Customermates Cloud en **Aanmaken** op **Inboxberichten**.
+
+## Hoe werken concepten en bijlagen? [#how-do-drafts-and-attachments-work]
+
+**Opslaan als concept** bewaart een bericht zonder het te versturen; terwijl je een opgeslagen concept bewerkt, staat er **Concept bijwerken**. Een antwoordconcept staat in zijn gesprek met **Concept versturen**, **Bewerken** en **Weggooien**. Een concept voor een nieuw gesprek verschijnt in de lijst als eigen gesprek ("Concept opgeslagen. Je vindt het in de inbox."), ook als je al een concept aan dezelfde mensen hebt; het filter **Concept** met **heeft er enkele** toont ze allemaal. Een gesprek bevat één concept. Een nieuwe LinkedIn-InMail kan niet als concept worden opgeslagen. Weggooien kan niet ongedaan worden gemaakt. De app, de REST-API en MCP delen dezelfde concepten.
+
+Elke opgeslagen conceptversie wordt hooguit één keer verstuurd. Als het concept is gewijzigd nadat je het opende, bijvoorbeeld in een ander tabblad, door Mate of door een agent, behoudt **Versturen** je tekst en biedt het **Nieuwste versie laden** of **Mijn versie versturen**. Als het versturen niet kon worden bevestigd, wordt het concept niet opnieuw verstuurd: controleer eerst het gesprek, bij e-mail ook je map Verzonden, en bewerk en werk het concept dan bij om het toch te versturen. Bij e-mail geldt het concept, zodra de verzonden kopie van die eerdere verzending uit je mailbox binnenkomt, als verstuurd en verlaat het de inbox; het wordt dan niet opnieuw verstuurd, ook niet na een bewerking.
+
+Daarvoor laat elk verstuurd concept een verzendrecord achter: zijn ID's, zijn toestand en hashes van de verstuurde inhoud, nooit de inhoud zelf. Bij e-mail dekken de hashes Aan, Cc, onderwerp, tekst en bijlagenamen, en voor de exacte verzending ook Bcc en de inhoud van de bijlagen; bij chat dekken ze de tekst en bijlagen. Het record wordt 30 dagen na zijn laatste wijziging verwijderd zodra het concept weg is. Zolang het concept nog bestaat, bijvoorbeeld na een verzending die niet kon worden bevestigd, blijft het record staan, zodat het concept niet twee keer kan uitgaan. Het kanaal loskoppelen verwijdert zijn records.
+
+**Bestanden bijvoegen** voegt maximaal 20 bestanden per bericht toe, samen 15 MB. Concepten kunnen geen bijlagen bewaren ("Verwijder de bijlagen voordat je dit concept opslaat."). In ontvangen berichten opent ondersteunde media inline, worden andere bestanden gedownload en tonen niet-ondersteunde items **Niet ondersteund**.
+
+## Hoe stel ik een e-mailhandtekening in? [#how-do-i-set-an-email-signature]
+
+De handtekening hoort bij elk e-mailaccount dat van jou is: open bij [Kanalen & agenda's](app:settings/channels) het Gmail-, Outlook- of IMAP-account en gebruik de tab **E-mail**. Stel lettertype, grootte en linkstijl in, zet **Handtekening toevoegen** aan, kies een indeling met of zonder logo en schrijf de tekst in Markdown. Zolang hij aanstaat, wordt hij onder elke e-mail van dat account toegevoegd, vanuit de Inbox, de REST-API of MCP, dus plak hem niet in het bericht; de editor toont een voorbeeld. Alle velden: [E-mailopmaak en handtekening](/docs/app-profile#email-appearance-and-signature).
+
+## Voor agents [#tips-for-agents]
+
+Geef de voorkeur aan [MCP](/docs/mcp)-tools boven klikken: `get_messaging_threads` leest gesprekken, `update_messaging_thread` stelt de toestand in (REST `POST /api/v1/messaging/threads/{id}/state`), `move_email_thread` bergt een e-mail op (REST `POST /api/v1/messaging/threads/{id}/move`; het mislukt bij een gesprek dat is gedeeld vanuit het privékanaal van iemand anders), `send_email` en `send_chat_message` starten gesprekken en `save_message_draft` (REST `POST /api/v1/messaging/drafts`) bereidt er een voor ter beoordeling; verstuur of gooi een concept weg met zijn bericht-ID en de huidige `draftRevision`. `resolve_record_identifiers` vindt de records die bij een adres passen, `manage_conversation_records` leest en wijzigt de records die aan één gesprek zijn gekoppeld en `mutate_crm_record` wijzigt de contactgegevens van een record.
+
+**Brekende wijziging:** het versturen van opgeslagen concepten via de REST-API is veranderd. `POST /api/v1/messaging/send-email` antwoordt `200`, en `POST /api/v1/messaging/threads/{id}/messages` en `POST /api/v1/messaging/start-chat` antwoorden `201`, zodra het verstuurde bericht is vastgelegd, ook als de aanroep een eerdere verzending van dezelfde conceptrevisie herhaalt; zo'n herhaling bevat `repeated: true` en verstuurt niets. Ze antwoorden alleen `202` met een ontvangstbewijs zolang het verstuurde bericht nog niet is vastgelegd. Een verouderde `draftRevision` of gewijzigde ontvangers antwoorden `409` met customCode `draftChanged` of `draftRecipientsChanged` in plaats van `404`, en `DELETE /api/v1/messaging/drafts/{id}` met een verouderde `draftRevision` antwoordt `409` met customCode `draftChanged` in plaats van `404`. `POST /api/v1/messaging/drafts` maakt, net als `save_message_draft` met `connectedAccountId`, bij elke aanroep een nieuw gesprek aan; werk een opgeslagen concept bij via zijn gesprek met `POST /api/v1/messaging/threads/{id}/drafts` of `threadId`.
+
+## Gerelateerd [#related]
+
+- [Appgids, Profiel](/docs/app-profile): koppel de accounts die de Inbox voeden.
+- [Ratelimieten](/docs/messaging-rate-limits): de budgetten per provider voor lezen en versturen.

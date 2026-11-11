@@ -1,0 +1,62 @@
+---
+title: "Documentatie van het Customermates CRM"
+description: "Open-source CRM voor klantopvolging: gesprekken op het klantrecord, antwoorden die Mate of je AI-agent via MCP opstelt en jij controleert en verstuurt."
+demo:
+  src: https://demo.customermates.com/nl/w/small-business/dashboard?agentChat=closed
+  title: Customermates-demo
+---
+
+Customermates is een open-source CRM voor kleine teams die met klanten werken. Op Customermates Cloud koppel je vanaf Pro e-mail en LinkedIn, plus WhatsApp, Instagram en Telegram, en gesprekken komen op het record van de klant te staan wanneer de contactgegevens overeenkomen of je ze zelf koppelt. Mate, de assistent die in Customermates Cloud is ingebouwd, of je eigen AI-agent stelt het antwoord en de volgende stap op; jij controleert, bewerkt en verstuurt. Claude, ChatGPT, Cursor en elke andere client die het Model Context Protocol spreekt, lezen en schrijven rechtstreeks in je CRM via een native MCP-endpoint, zonder kopiëren en plakken, op elk abonnement en op zelf gehoste instanties.
+
+## Kies je client en begin [#pick-your-client-and-start]
+
+| Jouw AI | Volledige installatie op één pagina |
+| --- | --- |
+| Claude & ChatGPT (eigen connector) | [Koppelen met een eigen connector](/docs/connect-custom-connector) |
+| Claude Code | [Claude Code koppelen](/docs/connect-cli#claude-code) |
+| Cursor | [Cursor koppelen](/docs/connect-cli#cursor) |
+| Elke MCP-client | [MCP-overzicht](/docs/mcp) |
+
+Elke pagina behandelt de koppelstappen en je eerste opdrachten, en de server informeert je client bij het koppelen. Voor een rondleiding met een webhook en een eerste AI-interactie zie je de [Quickstart](/docs/quickstart).
+
+## Wat Customermates is [#what-customermates-is]
+
+Een CRM met configureerbare lijsten, velden, relaties en berekeningen, tabel- en bordweergaven en dashboards. Op Customermates Cloud beschrijf je je bedrijf en beantwoord je een paar vragen; daarna ontwerpt Mate je lijsten, pipeline, dashboard en Kennisbankpagina's, die je kunt nakijken voordat er iets wordt gebouwd. Je kunt alles aanpassen en eigen lijsten toevoegen. Daarnaast:
+
+- **Native MCP-endpoint** op `/api/v1/mcp`: een MCP-client ontdekt en roept CRM-bewerkingen aan zonder plug-in.
+- **Open source** onder AGPLv3; enterprise-onderdelen vallen onder een aparte commerciële licentie. Host het zelf of gebruik de beheerde cloud.
+- **Beheerde cloud** met de database in de AWS-regio Frankfurt, een [verwerkersovereenkomst](/dpa) en alle subverwerkers, ook die in de VS, vermeld op de [pagina met subverwerkers](/subprocessors).
+- **Webhooks** met optioneel ondertekende payloads, nieuwe pogingen en een bezorglogboek.
+- **OpenAPI 3.1**-specificatie voor het volledige REST-oppervlak op `/api/v1/openapi`.
+- **Mate**, de AI-assistent in de app op Customermates Cloud: geen externe AI-client of installatie nodig, hij gebruikt de credits die in je abonnement zitten. Vraag om een antwoord en hij slaat een concept op in het gesprek, zodat jij het kunt controleren en versturen. Zie [Assistent](/docs/app-assistant).
+- **Routines** die Mate volgens een schema of bij een wijziging van een record laten draaien, op Customermates Cloud. Zie [Routines](/docs/app-routines).
+- **Inbox** voor e-mail en gekoppelde LinkedIn-, WhatsApp-, Instagram- en Telegram-accounts, op Customermates Cloud vanaf Pro. Zie [Inbox](/docs/app-inbox).
+- **Rollen** die per lijst bepalen wie alle records mag lezen, alleen toegewezen records of geen, en wie ze mag aanmaken, bewerken of verwijderen. Zie [Bedrijf](/docs/app-company).
+
+## Vier manieren om Customermates met je stack te verbinden [#four-ways-customermates-connects-to-your-stack]
+
+| Ik wil | Gebruik |
+| --- | --- |
+| Een MCP-client het CRM laten bijwerken in een gesprek | [MCP](/docs/mcp) |
+| Een eigen integratie in code bouwen | [OpenAPI](/docs/openapi) |
+| Reageren op CRM-wijzigingen in Slack, een sequencer, BI of je datawarehouse | [Webhooks](/docs/webhooks) |
+| Workflows visueel samenstellen zonder code | [n8n](/docs/n8n) |
+
+MCP, OpenAPI en n8n authenticeren met een API-sleutel; MCP-clients zoals Claude en ChatGPT kunnen ook via OAuth verbinden, zonder sleutel. Zie [API-sleutels](/docs/api-keys). Webhooks werken andersom: Customermates stuurt elke bezorging naar jouw URL en ondertekent die, als de webhook een secret heeft, zodat je ontvanger die handtekening of een eigen header controleert die je op de webhook hebt ingesteld.
+
+## Ontwerpaanpak [#design-approach]
+
+Customermates behandelt de AI-client als volwaardige gebruiker. Tools hebben opdrachtgerichte namen, fouten zeggen wat je moet doen, relaties veranderen stapsgewijs en het MCP-oppervlak blijft klein (één endpoint, elke tool standaard aan), zodat ook kleinere modellen er betrouwbaar mee overweg kunnen.
+
+## Hoe de documentatie is opgebouwd [#how-the-docs-are-organized]
+
+- **Aan de slag**: [Quickstart](/docs/quickstart), [Kernconcepten](/docs/concepts).
+- **Verbind je AI**: [Eigen connector](/docs/connect-custom-connector), [CLI en editors](/docs/connect-cli), [Limieten](/docs/messaging-rate-limits).
+- **App-gids**: [Assistent](/docs/app-assistant), [Dashboard](/docs/app-dashboard), [Inbox](/docs/app-inbox), [Records](/docs/app-records), [Routines](/docs/app-routines), [Profiel](/docs/app-profile), [Globaal zoeken](/docs/app-search), de [Onboardingwizard](/docs/app-onboarding), [Bedrijf](/docs/app-company), [API-sleutels](/docs/api-keys) en [Filtersyntaxis](/docs/filter-syntax). Plekken in de app zijn links: in de app openen ze de pagina en markeren ze het besturingselement dat ze noemen.
+- **Integraties**: [MCP](/docs/mcp), [Webhooks](/docs/webhooks), [OpenAPI](/docs/openapi), [n8n](/docs/n8n).
+- **Zelf hosten**: [Aan de slag en beheer](/docs/self-hosting), [Architectuur en beveiliging](/docs/architecture-security).
+- **Naslag**: [MCP-toolcatalogus](/docs/mcp#tool-catalog), [Filtersyntaxis](/docs/filter-syntax), [API-sleutels](/docs/api-keys).
+
+## Probeer het [#try-it]
+
+De ingesloten demo op deze pagina is een live instantie met voorbeelddata, alleen om te bekijken. Je kunt erin bladeren en zoeken; records aanmaken, wijzigen of verwijderen en Mate iets vragen toont een melding dat de actie in de demomodus niet beschikbaar is. [Begin een gratis proefperiode](/auth/signup) ([[commercial.trial.days]] dagen, zonder creditcard) om met je eigen data te werken.

@@ -1,0 +1,32 @@
+---
+title: "Changelog: releases en nieuwe functies van Customermates"
+description: "Gedateerde lijst van wat Customermates heeft opgeleverd: weergaven delen, CSV- en XLS-import, algemene beschikbaarheid en de eerste release, met bronlinks."
+---
+
+Deze pagina toont gedateerde, opgeleverde wijzigingen met links naar hun bron, de nieuwste eerst; de volledige geschiedenis staat in de [GitHub-repository](https://github.com/customermates/customermates).
+
+## 8 november 2026: opgeslagen weergaven en dashboards delen [#2026-11-08-shared-views]
+
+Opgeslagen lijstweergaven en dashboardweergaven kun je delen. Kies **Delen…** in het menu van een weergave om hem te tonen aan iedereen in de werkruimte of aan geselecteerde rollen, of kies **Iedereen met de link** om een openbare link met alleen-lezentoegang te publiceren die zonder inloggen opent. Iedereen ziet een gedeelde weergave met zijn eigen toegang, en een openbare link toont nooit meer dan de maker ervan zelf mag zien.
+
+Voor het publiceren van een openbare link is het recht **Aanmaken** nodig op de rij **Openbare links** van een rol, en met **Openbare links toestaan** in [Algemeen](app:settings/general) zet je alle openbare links van de werkruimte uit en weer aan. Zie [opgeslagen weergaven](/docs/app-records#how-do-saved-views-work), [openbare lijstlinks](/docs/app-records#public-list-links), [dashboardweergaven](/docs/app-dashboard#dashboard-views) en [openbare dashboardlinks](/docs/app-dashboard#public-links).
+
+Opgeleverd in [pull request 289](https://github.com/customermates/customermates/pull/289), samengevoegd op 8 november 2026.
+
+## 2 november 2026: CSV- en XLS-bestanden importeren [#2026-11-02-csv-xls-import]
+
+**Toevoegen uit bestand** op een recordlijst accepteert een JSON-export van dezelfde lijst, een Excel-werkmap (`.xlsx` of het oudere `.xls`) of een CSV-bestand (`.csv`). Een spreadsheet mag maximaal 10 MB groot zijn en elk blad maximaal 5.000 gegevensrijen hebben. Een Excel- of CSV-import start een wizard waarin je het blad kiest, de kolommen koppelt, de voorvertoning controleert en kiest tussen nieuwe en bestaande records. Zie [records importeren of exporteren](/docs/app-records#how-do-i-import-or-export-records).
+
+Opgeleverd in [pull request 273](https://github.com/customermates/customermates/pull/273), samengevoegd op 2 november 2026.
+
+## 1 november 2026: algemene beschikbaarheid [#2026-11-01-general-availability]
+
+Customermates is algemeen beschikbaar, na bèta en testen sinds maart 2026. De kern is open source: code buiten `ee/` valt onder de AGPL-3.0-only-licentie, en bestanden onder `ee/` gebruiken de Customermates Commercial License. De broncode staat op [GitHub](https://github.com/customermates/customermates), en de licentievoorwaarden worden uitgelegd in [Is zelf hosten gratis, en heb ik een licentie nodig?](/docs/self-hosting#is-self-hosting-free-and-do-i-need-a-license).
+
+Je kunt Customermates Cloud gebruiken, met een gratis proefperiode, of Customermates zelf draaien met Docker; zie [Zelf hosten](/docs/self-hosting).
+
+## 27 maart 2026: v1.1.0, eerste publieke release [#2026-03-27-v1-1-0]
+
+De eerste publieke release, getagd als `v.1.1.0` op [GitHub](https://github.com/customermates/customermates/releases/tag/v.1.1.0). De releasenotes noemen contactpersonen, organisaties, deals, taken en diensten, teamrechten en auditlogs, de REST API en n8n-ondersteuning.
+
+De MCP-server op `/api/v1/mcp`, waarmee AI-clients zoals Claude verbinding maken, meldt zijn versie als 1.1.0 in zijn servercard op `<BASE_URL>/.well-known/mcp/server-card.json`. Zie [MCP](/docs/mcp).

@@ -1,0 +1,47 @@
+---
+title: "Prullenbak: verwijderen ongedaan maken en herstellen"
+description: "Verwijderde records, lijsten, velden, weergaven, widgets, routines en pagina's blijven 30 dagen in de prullenbak, waar je ze herstelt of permanent verwijdert."
+---
+
+Als je in Customermates iets verwijdert, gaat het item naar de [prullenbak](app:trash) in plaats van meteen te verdwijnen. Direct na het verwijderen verschijnt een paar seconden een melding met **Ongedaan maken**; met **Ongedaan maken** haal je het item meteen terug. Een grote verwijdering draait op de achtergrond: de melding toont dan bijvoorbeeld **12 items naar de prullenbak verplaatsen…** en biedt **Ongedaan maken** aan zodra het klaar is. Daarna blijft het item 30 dagen in de prullenbak staan en wordt het vanzelf permanent verwijderd.
+
+## Wat gaat er naar de prullenbak? [#what-goes-to-trash]
+
+- Records van elke lijst, bijvoorbeeld een contactpersoon of een deal. Rijen van een sublijst en de koppelingen van het record gaan met het record mee en komen er ook mee terug.
+- Lijsten, velden, relaties en velden voor Contactgegevens die je verwijdert in [Datamodel](app:configure).
+- Opgeslagen weergaven, dashboardweergaven en dashboardwidgets.
+- Routines en pagina's van de [Kennisbank](app:wiki).
+
+Leden, uitnodigingen, rollen, API-sleutels, webhooks en gekoppelde accounts gaan niet naar de prullenbak: als je ze verwijdert, verandert de toegang, dus dat werkt direct.
+
+Zolang een item in de prullenbak staat, is het nergens anders meer te zien: lijsten, zoeken, totalen en berekeningen, widgets, filters, exports, Mate, de API en MCP zien het niet meer, en routines en webhooks worden er niet voor geactiveerd.
+
+## Wie ziet wat in de prullenbak? [#who-sees-what]
+
+Iedereen vindt **Prullenbak** in de zijbalk. Je ziet de items die je kon zien en verwijderen: records en configuratie die je mag verwijderen, Kennisbankpagina's als je rol die mag verwijderen, routines als je de rol **Beheerder** hebt, en je eigen opgeslagen weergaven en widgets, die ook in de prullenbak persoonlijk blijven. Elke rij toont het item, de soort, wie het heeft verwijderd, wanneer en hoeveel dagen er nog resteren voordat het permanent wordt verwijderd. Met [Filters](app:trash?focus=filter) zoek je items en beperk je ze op soort of lijst.
+
+## Hoe herstel ik een verwijderd item? [#how-do-i-restore]
+
+Open de [Prullenbak](app:trash), beweeg de muis over de rij en klik op **Herstellen**, of selecteer meerdere rijen en klik op **Herstellen** in de selectiebalk. Voor herstellen heb je dezelfde toegang nodig als voor verwijderen. Een hersteld record komt terug met zijn waarden, koppelingen en sublijstrijen. Een koppeling naar een record dat intussen permanent is verwijderd, kan niet terugkomen; de melding na het herstellen zegt hoeveel koppelingen zijn weggevallen. Een groot herstel draait op de achtergrond: het record toont **Herstellen…** totdat het klaar is. Een record waarvan de lijst zelf in de prullenbak staat, kun je pas herstellen nadat de lijst is hersteld, en een routine blijft in de prullenbak zolang de eigenaar al alle routines heeft die zijn abonnement bevat.
+
+Als een andere wijziging in de werkruimte de schrijfvergrendeling vasthoudt, geeft herstellen na ongeveer vijf seconden een melding dat het systeem bezet is, zonder het item in de prullenbak te wijzigen. Probeer het opnieuw zodra die wijziging klaar is.
+
+Als je een veld verwijdert in [Datamodel](app:configure), verdwijnen de filters, kolommen, sorteringen en groeperingen van opgeslagen weergaven die het veld gebruiken. De voorvertoning van het verwijderen en het resultaat noemen de betrokken weergaven en widgets. Als je het veld herstelt, worden die instellingen niet opnieuw aangemaakt. Als je een opgeslagen weergave herstelt nadat het bijbehorende veld is verwijderd, meldt `droppedViewReferences` wat er is weggehaald; de melding in de prullenbak toont de aantallen. Maak de instellingen opnieuw aan nadat je het veld hebt hersteld.
+
+Een hersteld berekend veld krijgt zijn waarden weer uit de huidige waarden en koppelingen van elk record, inclusief wijzigingen die zijn gemaakt terwijl het in de prullenbak stond; een veld dat zijn waarde op een bepaald moment opslaat, bijvoorbeeld wanneer het record wordt aangemaakt, behoudt de waarden die het eerder had opgeslagen. Een berekend veld blijft in de prullenbak zolang een veld, relatie of lijst die het gebruikt nog in de prullenbak staat, en hetzelfde geldt voor een item dat niet meer past bij de huidige instellingen of gegevens, bijvoorbeeld een verplicht veld dat records die intussen zijn aangemaakt leeg laten. Selecteer een berekend veld samen met wat het gebruikt en herstel ze in één stap, in willekeurige volgorde. Als het herstel veel records opnieuw berekent, draait het op de achtergrond, en records, weergaven of andere items die je samen met het veld hebt geselecteerd, blijven in de prullenbak totdat het klaar is; herstel ze daarna opnieuw.
+
+Als je een verwijderd record vanuit de prullenbak opent, zie je het alleen-lezen met de banner **In de prullenbak** en een knop **Herstellen**; ook de **Activiteiten** ervan zijn daar te lezen, maar niet te wijzigen. Via REST toont `POST /api/v1/trash/query` de items in de prullenbak en geeft `POST /api/v1/trash/read` dezelfde alleen-lezen weergave van een verwijderd record; via MCP toont `read_trash` ze en opent het, met `action: "read"` en de `typeId` en `recordId` van het record, er op dezelfde manier een.
+
+## Wat gebeurt er als ik een link naar een verwijderde lijst of weergave open? [#links-to-deleted-items]
+
+Een link naar een lijst die in de prullenbak staat, bijvoorbeeld een bladwijzer van een verwijderde lijst Projecten, toont de naam van de lijst met **In de prullenbak**, wanneer hij is verwijderd en hoeveel dagen er nog resteren. Als je de lijst in de [Prullenbak](app:trash) kunt zien, staat daar **Herstellen**, waarmee je de lijst terughaalt, en de pagina toont de lijst dan weer. Zonder die toegang, en voor een lijst die niet bestaat of permanent is verwijderd, toont de link het scherm voor een pagina die niet is gevonden. Een link naar een opgeslagen weergave die niet meer bestaat of niet van jou is, opent in plaats daarvan de standaardweergave van de lijst en haalt de weergave uit het adres.
+
+## Hoe verwijder ik iets permanent? [#how-do-i-delete-permanently]
+
+Beweeg in de [Prullenbak](app:trash) de muis over de rij en klik op **Permanent verwijderen**, of selecteer meerdere rijen en klik op **Permanent verwijderen** in de selectiebalk. De bevestiging noemt precies wat er verdwijnt, zoals het aantal records per lijst en de koppelingen. Permanent verwijderen kun je niet ongedaan maken. Het wist ook de veldwaarden van het record uit de geschiedenis; de geschiedenis bewaart alleen wie het heeft gewijzigd en wanneer.
+
+Leden met de rol **Beheerder** kunnen alles wat ze in de prullenbak zien in één keer verwijderen met **Prullenbak legen** in het menu **Meer acties** van de [Prullenbak](app:trash); dat staat er alleen zolang de prullenbak items bevat. Typ ter bevestiging **prullenbak legen**.
+
+## Hoe lang blijven items in de prullenbak staan? [#how-long]
+
+30 dagen vanaf het verwijderen. Elke rij toont hoeveel dagen er nog resteren; op de laatste dag wordt het item zonder verdere waarschuwing permanent verwijderd, met hetzelfde effect op de geschiedenis als wanneer je het zelf permanent verwijdert. Een zelf gehoste instantie doet dit alleen wanneer de dagelijkse [geplande taak](/docs/self-hosting#scheduled-jobs) draait.

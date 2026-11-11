@@ -1,0 +1,113 @@
+---
+title: "API-sleutels voor MCP- en REST-clients"
+description: "Zo maak je een API-sleutel aan in Instellingen, welk rolrecht nodig is, de x-api-key-header, wanneer sleutels verlopen en hoe je ze verwijdert of roteert."
+---
+
+API-sleutels verifiëren Model Context Protocol-clients (MCP) en REST-clients bij je Customermates CRM. Maak per client één sleutel aan, bewaar hem in een omgevingsvariabele en verwijder hem zodra het apparaat of de teamgenoot die hem had er niet meer is.
+
+## Hoe maak ik een API-sleutel aan? [#how-do-i-create-an-api-key]
+
+Open [API-sleutels & connectoren](app:settings/api-keys) in Instellingen en klik op [Toevoegen](app:settings/api-keys?focus=generate). Het venster **Een API-sleutel toevoegen** biedt twee routes:
+
+- **Standaard API-sleutel**: vul een **Naam** in die zegt waar de sleutel wordt gebruikt, bijvoorbeeld `Claude Desktop, personal laptop` (maximaal 255 tekens), kies eventueel een datum bij **Verloopt over** en klik op **Opslaan**. De sleutel verschijnt één keer onder **API-sleutel succesvol aangemaakt**; kopieer hem voordat je het venster sluit.
+- **Snelle koppelingen**: kies **Claude**, **ChatGPT & Codex**, **Cursor** of **Gemini** en daarna de configuratie die past bij waar je de sleutel gebruikt. Voor een lokale configuratie (**Claude Code of Desktop** en dan **Claude Code** of **Claude Desktop**; **Codex CLI of IDE**; Cursor of Gemini) klik je op **API-sleutel aanmaken**: het venster maakt de sleutel aan en toont het configuratiefragment van die client met de sleutel al ingevuld. **Claude-account** en **ChatGPT-app** koppelen via OAuth en maken geen sleutel aan. Klik op **Klaar** als je klaar bent.
+
+Een sleutel die je met **Snelle koppelingen** aanmaakt, heet naar zijn client (`Claude Code`, `Claude Desktop`, `Codex`, `Cursor` of `Gemini`) en verloopt 365 dagen na het aanmaken; een andere naam of datum kun je daar niet kiezen. Het venster toont de vervaldatum onder het configuratiefragment. De AI-stap van de onboardingwizard maakt zijn sleutels op dezelfde manier aan. De naam en de vervaldatum van een sleutel kun je na het aanmaken niet meer wijzigen.
+
+Sleutels horen bij de gebruiker die ze heeft aangemaakt en erven diens rechten. Elke sleutel hoort ook bij de werkruimte waarin hij is aangemaakt en werkt alleen daar, ook sleutels uit de tijd dat één login nog niet bij meerdere werkruimtes kon horen; zie [Werkruimtes](/docs/app-workspaces#which-workspace-do-api-keys-and-connections-use).
+
+## Wie kan API-sleutels aanmaken en zien? [#who-can-create-and-see-api-keys]
+
+De pagina API-sleutels & connectoren volgt de rij **API en webhooks** van je rol. Een lid met **Bewerken** op **Gebruikers & rollen** stelt die in onder [Rollen](app:settings/roles):
+
+- **Leestoegang** **Alle** toont API-sleutels in Instellingen en laat je eigen sleutels zien. Bij **Geen** is het menu-item verborgen en kun je de pagina niet openen.
+- **Aanmaken** voegt de knop **Toevoegen** toe en met **Verwijderen** kun je sleutels verwijderen. Zonder deze rechten zie je de sleutels die je al hebt, maar kun je er geen aanmaken of verwijderen.
+
+Een nieuwe rol begint zonder aangevinkt selectievakje en met **Leestoegang** **Geen**. Standaard kunnen dus alleen leden met de ingebouwde rol **Beheerder** API-sleutels aanmaken. Dezelfde rij opent ook de [Webhooks](app:settings/webhooks) en hun leveringen. Als je die rij voor API-sleutels toekent, kan het lid dus ook alle webhooks van de werkruimte zien en, met **Aanmaken**, **Bewerken** of **Verwijderen**, wijzigen.
+
+Iedereen ziet alleen zijn eigen sleutels, en alleen die van de huidige werkruimte; wissel van werkruimte om een sleutel van een andere te zien of te verwijderen. Niemand, ook de rol **Beheerder** niet, kan de sleutels van een ander lid weergeven of verwijderen. Geen enkele assistent- of MCP-tool maakt API-sleutels aan, geeft ze weer of verwijdert ze; je beheert ze alleen op de pagina API-sleutels & connectoren en de gehoste assistent kan die hooguit voor je openen.
+
+De aangepaste connector voor Claude en ChatGPT meldt zich aan via OAuth en heeft geen API-sleutel nodig. Zoals elke MCP-verbinding vraagt hij **Leestoegang** **Alle** op **API en webhooks** ([MCP-endpoint](/docs/mcp#the-endpoint)). Zie [Koppelen met een aangepaste connector](/docs/connect-custom-connector).
+
+## Welk recht heeft elke actie met API-sleutels nodig? [#which-permission-does-each-api-key-action-need]
+
+Elke manier om sleutels te beheren controleert de rij **API en webhooks** van je rol: een sleutel aanmaken vraagt **Aanmaken**, een sleutel wijzigen **Bewerken**, een sleutel verwijderen **Verwijderen**, en je sleutels lezen of weergeven **Leestoegang** **Alle**. Een lid met de **Status** **Inactief** kan geen sleutels beheren. Sleutels beheer je alleen op de pagina API-sleutels & connectoren; de onderliggende endpoints `/api/auth/api-key/` antwoorden `404` op directe verzoeken, zodat elke sleutel bij de werkruimte hoort waarin hij is aangemaakt. Deze controles gelden alleen voor het beheren van sleutels; wat een aanroep met een sleutel mag doen, volgt de rol van de eigenaar, zie [Welke rechten heeft een sleutel](#what-permissions-does-a-key-have).
+
+## Hoe gebruik ik een sleutel en in welke header hoort hij? [#how-do-i-use-a-key]
+
+Stuur hem bij elk verzoek mee in de header `x-api-key`, hier naar het MCP-endpoint `<BASE_URL>/api/v1/mcp`, waarbij `<BASE_URL>` het adres is waarop je Customermates opent:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json, text/event-stream" \
+     <BASE_URL>/api/v1/mcp \
+     -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+De header `Accept: application/json, text/event-stream` is verplicht voor het streamable-HTTP-transport van MCP; zonder deze header geeft het endpoint `406 Not Acceptable` terug. Bij MCP-clients komt de sleutel in de configuratie van de client, zie [CLI- en editorclients](/docs/connect-cli) en [ChatGPT met een API-sleutel](/docs/connect-custom-connector#chatgpt).
+
+De REST-API accepteert dezelfde header. Deze aanroep toont de recordtypes waartoe je toegang hebt:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Elke REST-bewerking, met verzoek en antwoord, staat in de [API-referentie](/docs/openapi).
+
+## Wat geeft een mislukte REST-aanroep terug? [#what-does-a-failed-rest-call-return]
+
+Elk REST-endpoint beantwoordt een geweigerde aanroep met dezelfde JSON-body: een `error`-object met de `kind` en de `issues` die MCP teruggeeft in `_meta.failure` (zie [wanneer een aanroep wordt geweigerd](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+De HTTP-status volgt `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 en `rate_limit` 429. Elke issue noemt het veldpad (`path`) waar hij bij hoort en, waar van toepassing, een stabiele `customCode`. `error.retryable` is `true` als een berichtenprovider een aanroep weigerde die later ongewijzigd kan slagen; een `429` zonder dit veld kun je ook opnieuw proberen, zie [de volgende sectie](#what-should-a-client-do-on-429). Baseer je logica op `kind` en `customCode` en niet op `message`, want dat is tekst voor mensen. Een onverwachte serverfout antwoordt 500 zonder deze body.
+
+## Wat moet een client doen als een aanroep 429 teruggeeft? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) betekent dat de aanroep nu niet kon draaien en later ongewijzigd kan slagen. Een berichtenkanaal dat de limiet van zijn provider heeft bereikt, antwoordt met de `customCode` `unipileRateLimit` en zegt wanneer je het opnieuw kunt proberen ([limieten voor berichten](/docs/messaging-rate-limits)). Als Customermates zelf overbelast is, bijvoorbeeld wanneer een databasetransactie of de verbindingspool een time-out krijgt, of een schrijfactie langer dan een paar seconden wacht achter een andere wijziging in de werkruimte, zoals een grote import, antwoordt de aanroep `429` zonder `customCode` en met de melding `The service is busy. Retry the request shortly.`. MCP-tools geven hetzelfde `rate_limit`-type terug in `_meta.failure` en de app laat zien dat de werkruimte bezig is, zodat je het opnieuw kunt proberen.
+
+Een REST-`429` bevat een `Retry-After`-header met het aantal seconden dat je moet wachten: houd je daar eerst aan en probeer het niet eerder opnieuw. Zonder die header probeer je het opnieuw na een pauze die bij elke poging langer wordt, bijvoorbeeld 1, 2, 4 en 8 seconden plus een beetje willekeurige jitter, en geef je na een paar pogingen op. Probeer niet in een strakke lus opnieuw en stuur geen extra aanroepen parallel, want dat houdt de service bezig. Verstuur een schrijfactie opnieuw met dezelfde `idempotencyKey`, zodat een wijziging die wel doorging niet twee keer wordt toegepast.
+
+## Hoe lang gaat een sleutel mee en verlopen sleutels? [#do-keys-expire]
+
+Een **Standaard API-sleutel** verloopt alleen als je een datum kiest bij **Verloopt over**; de standaardinstelling, **Verloopt nooit**, houdt hem geldig tot je hem verwijdert. De datum moet tussen 1 en 365 dagen vooruit liggen. Een sleutel van **Snelle koppelingen** (een snelle-koppelingssleutel), ook die van de onboardingwizard, is 365 dagen geldig: hij verloopt altijd 365 dagen na het aanmaken. De vervaldatum kun je niet verlengen: maak voordat hij verstrijkt een nieuwe sleutel aan en werk de client bij. Elke sleutelkaart toont **Aangemaakt op**, **Verloopt op** (**Nooit** als er geen is ingesteld) en **Laatst gebruikt**.
+
+## Hoe trek ik een sleutel in, verwijder ik hem of roteer ik hem? [#how-do-i-revoke-delete-or-rotate-a-key]
+
+Klik op [API-sleutels & connectoren](app:settings/api-keys) op de kaart van de sleutel en kies **Verwijderen**; nadat je hebt bevestigd, werkt de sleutel direct niet meer. Verwijderen vraagt **Verwijderen** op **API en webhooks**. Er is geen aparte actie om te roteren of in te trekken: om te roteren maak je een nieuwe sleutel aan, werk je elke client bij die de oude gebruikte en verwijder je daarna de oude sleutel.
+
+Roteer als een apparaat met de sleutel kwijt of gecompromitteerd is, als een teamgenoot met toegang vertrekt of als je vermoedt dat de sleutel is uitgelekt. Met één sleutel per client verwijder je één client zonder de andere te breken; het activiteitenlogboek noemt nog steeds de gebruiker en niet de sleutel. Bewaar sleutels in een omgevingsvariabele of een wachtwoordmanager, nooit in een configuratiebestand dat je commit.
+
+Alleen de eigenaar kan een sleutel verwijderen. Om de sleutels van een vertrekkend lid te stoppen, open je [Leden](app:settings/members), open je het lid, zet je **Status** op **Inactief** en klik je op **Opslaan**. Daarvoor heb je **Bewerken** en leestoegang **Alle** nodig op **Gebruikers & rollen**; je kunt jezelf en de laatste actieve **Beheerder** niet deactiveren. Elke aanroep met de sleutels van dat lid die werkruimtegegevens leest of wijzigt, wordt dan geweigerd. Ook als je **Leestoegang** **Alle** op **API en webhooks** bij hun rol weghaalt, stoppen hun sleutels, zowel voor MCP als voor REST; zie [Welke rechten heeft een sleutel](#what-permissions-does-a-key-have). **Uit werkruimte verwijderen** bij [Leden](app:settings/members) trekt ook direct de sleutels en MCP-verbindingen van het lid voor deze werkruimte in ([Hoe keur ik een lid goed, bewerk, deactiveer of verwijder ik het?](/docs/app-company#how-do-i-approve-deactivate-or-edit-a-member)), en een lid dat zelf een werkruimte verlaat, verliest direct zijn sleutels daarvoor ([een werkruimte verlaten](/docs/app-workspaces#how-do-i-leave-a-workspace)).
+
+## Welk formaat heeft een sleutel en hoe lang mag een sleutelnaam zijn? [#what-is-the-key-format]
+
+De **Naam** van een sleutel is 1 tot 255 tekens lang. Sleutels bestaan uit 64 ASCII-letters (`a-z A-Z`), worden gegenereerd door de API-sleutelplugin van better-auth en worden gehasht opgeslagen. De volledige sleutel wordt alleen bij het aanmaken getoond en kan daarna niet meer worden weergegeven.
+
+## Welke rechten heeft een sleutel en kan ik hem beperken tot alleen lezen? [#what-permissions-does-a-key-have]
+
+Alles wat zijn eigenaar in de werkruimte van de sleutel mag, en niets meer. Er is geen rechtenbereik per sleutel, dus een sleutel kan niet worden beperkt tot alleen lezen. Elke aanroep wordt getoetst aan de huidige rol van de eigenaar, dus een wijziging van die rol, bijvoorbeeld het lid van de rol **Beheerder** naar een aangepaste rol met minder rechten zetten, geldt bij de volgende aanroep voor zijn sleutels. Als de **Status** van de eigenaar **Inactief** is, wordt elke aanroep met zijn sleutels die werkruimtegegevens leest of wijzigt geweigerd.
+
+Een sleutel werkt, net als een MCP-OAuth-token, ook alleen zolang de rol van zijn eigenaar **Leestoegang** **Alle** heeft op **API en webhooks**. Dat wordt bij elke aanroep gecontroleerd, ook voor tokens die later worden vernieuwd. Zonder dat recht antwoordt MCP `403` met `error: insufficient_permissions` en REST `403` met `kind` `authorization` en `customCode` `insufficientPermissions`. Aangemeld gebruik van de webapp blijft ongemoeid.
+
+In Customermates Cloud weigert een werkruimte die nog op zijn eerste abonnement wacht, zoals een extra werkruimte die zonder proefperiode is aangemaakt, zijn sleutels en OAuth-tokens: MCP antwoordt `403` met `error: plan_required` en REST `403` met `kind` `authorization` en `customCode` `workspacePlanRequired`. Ook voor het aanmaken van een sleutel is een bruikbaar abonnement nodig. Zodra een beheerder een abonnement kiest, werken de bestaande sleutels weer. Een werkruimte die de proefperiode had, gaat naar het Free-abonnement als de proefperiode of een later betaald abonnement eindigt en houdt zijn sleutels werkend; elke andere werkruimte waarvan het betaalde abonnement is verlopen, houdt zijn bestaande sleutels en verbindingen werkend totdat zijn leden op **Inactief** worden gezet, zie [Wat gebeurt er als de proefperiode eindigt?](/docs/app-company#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+### Is er een verzoeklimiet op het Free-abonnement? [#is-there-a-request-limit-on-the-free-plan]
+
+Ja. Op het Free-abonnement zijn REST- en MCP-verzoeken samen beperkt tot [[commercial.limit.free.apiRequestsPerMinute]] per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag per werkruimte. Daarboven krijgt een verzoek HTTP `429` met een `Retry-After`-header: REST antwoordt met `kind` `rate_limit` en `customCode` `apiRateLimitReached`, MCP-toolaanroepen met een toolfout met `error: rate_limited` (andere MCP-verzoeken met `429`). Alleen MCP-toolaanroepen tellen mee, niet het verbinden of het weergeven van tools. De melding zegt dat de werkruimte op Free zit en noemt Starter, de prijs en de factureringslink, zodat een agent dit aan de gebruiker kan doorgeven. Betaalde abonnementen en zelf gehoste installaties hebben geen verzoeklimiet.
+
+## Volgende stappen [#next]
+
+- [Snelstart](/docs/quickstart): de eerste run van begin tot eind.
+- [MCP-overzicht](/docs/mcp): wat een sleutel ontgrendelt.

@@ -1,0 +1,217 @@
+---
+title: "Werkruimte-instellingen: leden, rollen en facturering"
+description: "Werkruimtebeheer in Customermates: leden uitnodigen en beheren, rollen bepalen, abonnement en facturering regelen, het auditlog lezen en webhooks instellen."
+---
+
+Werkruimte-instellingen bevatten alles wat de hele werkruimte raakt en niet één enkel record: het team en zijn rechten, het abonnement, het activiteitenlog en uitgaande webhooks.
+
+## Waar vind ik de werkruimte-instellingen? [#what-lives-on-the-company-screen]
+
+Klik bovenaan in de zijbalk op de naam van de werkruimte om het werkruimtemenu te openen en kies **Instellingen**, of druk op G en dan op S. Instellingen opent op [Profiel & voorkeuren](app:settings/profile) en de zijbalk schakelt over naar de instellingennavigatie: je eigen pagina's onder **Account**, de werkruimtepagina's onder **Werkruimte**: [Algemeen](app:settings/general), [Leden](app:settings/members), [Rollen](app:settings/roles), [Facturering](app:settings/billing) (alleen Cloud), [Auditlog](app:settings/activity) en [Webhooks](app:settings/webhooks). Met **Terug** bovenaan de navigatie ga je terug naar de pagina waar je vandaan kwam.
+
+Het werkruimtemenu toont de werkruimtes waartoe je behoort, zodat je ertussen kunt wisselen, en biedt **Werkruimte aanmaken** ([Werkruimtes](/docs/app-workspaces)). Het bevat ook **Leden uitnodigen** (vraagt **Gebruikers & rollen** **Aanmaken**), **Leden**, **Instellingen**, **Facturering** met de abonnementschip (alleen Cloud) en, alleen voor Customermates-operators, **Operatorconsole**.
+
+Je rol bepaalt wat je ziet. Een pagina die je rol niet mag lezen, ontbreekt in de navigatie en wie hem rechtstreeks opent, belandt op het [Dashboard](app:dashboard). Op een pagina die je wel mag lezen maar niet mag wijzigen, ontbreken **Toevoegen**, **Opslaan** en **Verwijderen** en openen dialogen alleen-lezen. Rolwijzigingen gelden bij het volgende laden van een pagina of de volgende API-aanroep van het lid. De ingebouwde rol **Beheerder** ziet en wijzigt alles.
+
+| Pagina | Nodig om te openen |
+|---|---|
+| Leden, Rollen | **Gebruikers & rollen** leestoegang **Alle** (**Toegewezen** toont Leden met alleen je eigen rij) |
+| Facturering | Elk lid; factureringsbesturing vraagt **Bedrijf** **Bewerken** |
+| Auditlog | **Activiteitenlog** leestoegang **Alle** |
+| Webhooks | **API en webhooks** leestoegang **Alle** |
+
+Als in Cloud de Voorwaarden of de DPA veranderen, zien leden **Juridische documenten bijgewerkt** met **Voorwaarden en DPA bekijken** en de datum waarop ze moeten accepteren. Alleen een lid met de rol **Beheerder** kan accepteren, door het selectievakje aan te vinken en op **Accepteren en doorgaan** te klikken; iedereen anders ziet "Een bedrijfsbeheerder moet uiterlijk" die datum "accepteren". Als niemand op tijd accepteert, opent elke pagina dit scherm totdat een beheerder accepteert.
+
+## Leden [#members-tab]
+
+[Leden](app:settings/members) toont iedereen in de werkruimte met **Naam**, **E-mail**, **Rol**, **Status**, **Bijgewerkt op** en **Aangemaakt op**. Zoek en filter op status en datums in [Filter](app:settings/members?focus=filter). Uitnodigen vraagt **Gebruikers & rollen** **Aanmaken**; anderen goedkeuren en bewerken vraagt **Gebruikers & rollen** **Bewerken** met leestoegang **Alle**.
+
+### Hoe nodig ik mensen uit en wanneer verloopt de uitnodigingslink? [#how-do-invitations-work]
+
+Klik op [Toevoegen](app:settings/members?focus=add) bij Leden (of op **Leden uitnodigen** in het werkruimtemenu). Het dialoogvenster **Gebruiker uitnodigen** heeft twee tabs:
+
+- **Link delen** toont één **Uitnodigingslink** voor de hele werkruimte met een kopieerknop. Hij is 7 dagen geldig ("Verloopt op" met de datum) en wordt tot die tijd hergebruikt; de eerste keer dat het venster opent nadat hij is verlopen, wordt een nieuwe link gemaakt. Iedereen met de link kan zich registreren en hij kan niet eerder worden ingetrokken.
+- **E-mails versturen** neemt 1 tot 20 adressen, gescheiden door een komma of Enter. **Uitnodigingen versturen** mailt elk adres één keer de werkruimtelink en bevestigt met "3 uitnodigingen verzonden." (met het werkelijke aantal). Op het Free-abonnement toont het venster in plaats daarvan **Teams beginnen bij Starter** met de prijs, omdat Free ruimte heeft voor één actieve persoon.
+
+Mensen die zich registreren, komen binnen met de status **Wacht op goedkeuring** en zonder rol, en zien **Wachten op goedkeuring** totdat iemand ze goedkeurt. Je keurt ze goed bij [Leden](app:settings/members); voor iedereen met **Gebruikers & rollen** **Bewerken** tonen het werkruimtemenu, het onderdeel **Leden** en **Leden** in Instellingen hoeveel mensen er wachten. Registreren maakt geen record aan in een lijst. Een verlopen of aangepaste link toont een foutmelding met het verzoek een nieuwe aan te vragen. Wie al een Customermates-account heeft, sluit zich via dezelfde link aan terwijl hij is aangemeld en wacht op dezelfde manier op goedkeuring; zie [meedoen met een bestaand account](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
+
+### Hoe keur ik een lid goed, bewerk, deactiveer of verwijder ik het? [#how-do-i-approve-deactivate-or-edit-a-member]
+
+Klik bij [Leden](app:settings/members) op de rij van het lid om het dialoogvenster **Gebruiker** te openen: **E-mail** (alleen-lezen), **Voornaam**, **Achternaam** en **Rol** (verplicht), **Avatar-URL** (optioneel, een openbaar toegankelijke afbeelding) en **Status**.
+
+- **Goedkeuren:** kies een **Rol**, zet **Status** op **Actief** en klik op **Opslaan**. Het lid kan direct inloggen en telt als gefactureerde seat.
+- **Deactiveren:** zet **Status** op **Inactief**. Dat blokkeert hun toegang tot deze werkruimte (ze zien **Je toegang tot … is niet actief** met de naam van de werkruimte, terwijl hun andere werkruimtes bereikbaar blijven via het werkruimtemenu) en hun API-sleutels en MCP-verbindingen ervoor, haalt hun seat uit de facturering, pauzeert hun routines en de dagelijkse taak verwijdert hun gekoppelde berichtenaccounts. Weer op **Actief** zetten activeert ze opnieuw. **Wacht op goedkeuring** kun je niet kiezen; alleen een uitnodiging zet die status.
+- **Gepauzeerd (Free-abonnement):** een lid dat door het Free-abonnement is gepauzeerd. Je kunt deze status niet zelf instellen; het lid komt terug zodra de werkruimte een betaald abonnement kiest, zie [wat er gebeurt als de proefperiode eindigt](#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+- **Uit werkruimte verwijderen:** klik bovenaan het dialoogvenster op **Uit werkruimte verwijderen**, of in het menu **Meer acties** van de rij, en bevestig. Het werkt voor leden met **Actief**, **Inactief** en **Wacht op goedkeuring**; bij een lid dat op goedkeuring wacht, wijst het het verzoek af en verdwijnt het verzoek uit de lijst. Elk ander verwijderd lid wordt getoond als **Vertrokken** en verliest op elk apparaat de toegang: hun API-sleutels en MCP-verbindingen voor deze werkruimte worden ingetrokken, de mailboxen en LinkedIn-accounts die ze hier hebben gekoppeld worden losgekoppeld, hun routines pauzeren en de seat van een actief lid komt vrij. Ze krijgen een e-mail dat ze zijn verwijderd; bij een afgewezen verzoek wordt er geen verstuurd. Records die ze bezitten en hun geschiedenis blijven staan. Een lid dat is vertrokken, kan niet opnieuw worden geactiveerd; om terug te komen opent het een uitnodigingslink en vraagt het opnieuw om toegang, waarna iemand met **Gebruikers & rollen** **Bewerken** het nieuwe verzoek goedkeurt. Je kunt jezelf niet verwijderen (verlaat in plaats daarvan de werkruimte), ook niet het enige actieve account van de laatste Customermates-platformoperator of het laatste actieve lid met de rol **Beheerder**: de actie ontbreekt of is dan uitgeschakeld, met de reden erbij.
+- Je eigen rij opent alleen-lezen: wijzig je naam in [Profiel & voorkeuren](app:settings/profile) en vraag een ander lid met **Gebruikers & rollen** **Bewerken** om je rol of status te wijzigen.
+- Wijzigingen die je hier maakt, gelden alleen voor het lid in deze werkruimte; wat leden in hun eigen Profiel & voorkeuren wijzigen, geldt in elke werkruimte waartoe ze behoren. Leden kunnen ook zelf een werkruimte verlaten, zie [Hoe verlaat ik een werkruimte?](/docs/app-workspaces#how-do-i-leave-a-workspace).
+- De werkruimte houdt altijd minstens één **Actief** lid met de rol **Beheerder**; een opslagactie die het laatste zou weghalen, mislukt met "Minstens één gebruiker moet systeembeheerder zijn."
+
+Elke opslagactie wordt vastgelegd in het [Auditlog](app:settings/activity).
+
+## Rollen [#roles-tab]
+
+Een rol is een set rechten die elk lid met die rol krijgt. [Rollen](app:settings/roles) toont ze met **Naam**, **Type** (**Systeem** voor de ingebouwde **Beheerder**, **Aangepast** voor alle andere) en **Beschrijving**. Aanmaken vraagt **Gebruikers & rollen** **Aanmaken**, bewerken **Bewerken**, verwijderen **Verwijderen**. Zonder **Gebruikers & rollen** **Bewerken** toont de pagina alleen je eigen rol en laat zijn recordtoegang alleen de lijsten zien die je mag lezen. Elke rol kan de werkruimte, het abonnement en het datamodel lezen, hoe de rol ook is opgeslagen.
+
+### Hoe maak ik een aangepaste rol aan, bijvoorbeeld om een lid te beperken tot toegewezen records? [#how-does-the-role-editor-work]
+
+Klik op [Toevoegen](app:settings/roles?focus=add), of klik op een rij om te bewerken. De **Rol**-editor heeft drie tabs; een tab met een ongeldig veld toont een rode stip:
+
+- **Algemeen**: **Naam** (verplicht, maximaal 255 tekens) en **Beschrijving** (verplicht, maximaal 500 tekens).
+- **Werkruimte**: één rij per werkruimterecht in de kolom **Bron**.
+- **Recordtypes**: één rij per lijst, onder zijn huidige naam. Lijsten in de **Prullenbak** verschijnen niet. Nieuwe rollen beginnen zonder recordtoegang; geef alleen de lijsten die ze nodig hebben. Sublijsten zoals Regelitems delen de toegang van hun bovenliggende record en hebben geen eigen rij.
+
+Elke rij heeft de selectievakjes **Aanmaken**, **Bewerken** en **Verwijderen** (onder **Beheren** op smalle schermen) en **Leestoegang**: **Alle** (alles wat de rij dekt), **Toegewezen** (records die aan het lid zijn toegewezen, of de eigen ledenrij of routines van het lid) of **Geen**. Een cel die niet van toepassing is, toont een streepje. Een record bewerken of verwijderen vraagt ook toegang tot dat record.
+
+| Werkruimterij | Wat het bepaalt |
+|---|---|
+| **API en webhooks** | **Aanmaken** maakt API-sleutels en webhooks aan en verstuurt leveringen opnieuw; **Bewerken** bewerkt webhooks en toont hun secret; **Verwijderen** verwijdert sleutels en webhooks; **Alle** toont sleutels, webhooks en leveringen. |
+| **Gebruikers & rollen** | **Aanmaken** nodigt leden uit en maakt rollen aan (met hun beginrecordtoegang); **Bewerken** bewerkt en keurt leden goed en bewerkt rollen, inclusief recordtoegang en toegangspresets; **Verwijderen** verwijdert rollen. **Alle** toont elk lid en de rollen, **Toegewezen** alleen je eigen ledenrij, **Geen** verbergt beide pagina's. |
+| **Bedrijf** | Alleen **Bewerken**: gebruikt facturering bij [Facturering](app:settings/billing). |
+| **Gegevensmodel** | Alleen **Bewerken**: configureert lijsten, velden, relaties en berekeningen, zonder recordtoegang of rollenbeheer. |
+| **Kennisbank** | Pagina's **Aanmaken**, **Bewerken** (en verplaatsen), **Verwijderen**; als je een van deze aanvinkt, wordt **Alle** afgedwongen. |
+| **Activiteitenlog** | Alleen lezen: het [Auditlog](app:settings/activity) en de wijzigingsgeschiedenis van records. |
+| **Inboxberichten** (Cloud) | **Aanmaken** koppelt accounts en verstuurt berichten, maakt concepten en start gesprekken; **Bewerken** wijzigt accounts, threads, gespreksstatus en recordkoppelingen; **Verwijderen** koppelt accounts los en verwijdert concepten. Ook beperkt door het abonnement. |
+| **Routines** (Cloud) | **Aanmaken**, **Bewerken** (en nu uitvoeren of testen), **Verwijderen**; een routine verwijderen of die van een ander pauzeren vraagt ook de rol **Beheerder**. **Alle** of **Toegewezen** (eigen routines). |
+| **Openbare links** | **Aanmaken**: publiceer je eigen dashboard en lijstweergaven via een openbare link ([Dashboard](/docs/app-dashboard#public-links)). |
+
+Een nieuwe rol, webhook of routine opslaan vraagt **Aanmaken**, een bestaande **Bewerken**. Toegangspresets worden gedefinieerd door leden met **Gebruikers & rollen** **Bewerken**; een beheerder van het datamodel kan er alleen een toepassen bij het aanmaken van een lijst, en het uitbreiden van rechten op bestaande lijsten vraagt **Gebruikers & rollen** **Bewerken**. Inboxberichten en Routines zijn verborgen bij zelf gehoste installaties.
+
+### Wat is de rol Beheerder? [#what-is-the-admin-role]
+
+Elke werkruimte begint met één ingebouwde rol, **Beheerder**, die wordt gegeven aan degene die haar heeft aangemaakt. Hij doorstaat elke rechtencontrole en zijn editor opent alleen-lezen met "Dit is een systeemrol en kan niet worden bewerkt of verwijderd." De werkruimte moet minstens één **Actief** lid met deze rol houden en alleen de leden ervan kunnen routines verwijderen of die van een ander pauzeren.
+
+### Wat zijn de regels voor het bewerken van rollen? [#what-are-the-rules-for-editing-roles]
+
+- Je kunt je eigen rol niet bewerken: de editor toont "Deze rol is aan jou toegewezen en kan niet worden bewerkt. Vraag een andere beheerder om de rol te wijzigen."
+- **Verwijderen** verschijnt alleen bij een aangepaste rol die geen enkel lid heeft, inactieve leden inbegrepen. Zet eerst iedereen op een andere rol en haal de rol uit de toegangspresets.
+- Wijzigingen gelden voor elk lid met de rol bij het volgende laden van een pagina of de volgende API-aanroep en worden vastgelegd in het [Auditlog](app:settings/activity).
+
+## Facturering [#subscription-tab]
+
+[Facturering](app:settings/billing) toont het abonnement, de status, de seats en de facturering van een Cloud-werkruimte; zelf gehoste installaties hebben geen abonnement en de pagina stuurt door naar het Dashboard. Customermates factureert via Lemon Squeezy, dat de checkout en het klantenportaal verzorgt. Elke werkruimte heeft zijn eigen abonnement, inschrijving, facturen en pool met gehoste AI-tegoeden; zie [hoe elke werkruimte wordt gefactureerd](/docs/app-workspaces#how-is-each-workspace-billed).
+
+| Veld | Wat het toont |
+|---|---|
+| **Abonnement** | **Starter**, **Pro**, **Business**, **Max** of **Enterprise** met een statuschip, gesynchroniseerd vanuit facturering |
+| **Proefperiode eindigt** | Het einde van de gratis proefperiode, alleen zolang de status **Proefperiode** is |
+| **Huidige periode eindigt** | De verlengingsdatum, of na een opzegging de datum waarop het abonnement eindigt |
+| **Actieve seats** | Gefactureerde seats; vóór de eerste checkout het aantal **Actieve** leden |
+| **Bestandsopslag** | De opslag die bestanden in bestandsvelden gebruiken, tegenover de limiet van de werkruimte, bijvoorbeeld **1,2 GB van 20 GB** |
+
+Het onderdeel **Facturering** in het werkruimtemenu toont het abonnement met zijn status, bijvoorbeeld **Pro · Proefperiode · 3 dagen resterend** (alleen de abonnementsnaam zolang de status **Actief** is), en opent Facturering.
+
+### Wie kan de facturering beheren? [#who-can-manage-billing]
+
+Bij [Facturering](app:settings/billing) zien rollen met **Bedrijf** **Bewerken** en de rol **Beheerder** de abonnementskiezer, **Beheren met Lemon Squeezy** en **Vernieuwen**. Iedereen anders ziet de waarden alleen-lezen met een hint om een werkruimtebeheerder te vragen. Stel de rij **Bedrijf** in bij [Rollen](app:settings/roles). Alleen de beheerder die voor de werkruimte betaalt, krijgt het volledige klantenportaal van Lemon Squeezy; zie [Hoe zeg ik op, wijzig ik de betaalmethode of haal ik facturen op?](#how-do-i-cancel-change-the-payment-method-or-get-invoices).
+
+### Wat betekent elke abonnementsstatus? [#what-does-each-subscription-status-mean]
+
+De app zet **Proefperiode** zodra een login zijn eerste Cloud-werkruimte aanmaakt. Elke extra werkruimte die die login aanmaakt, begint zonder proefperiode en toont **Kies een abonnement voor …** totdat een abonnement is gekozen ([welke werkruimte de gratis proefperiode krijgt](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Elke andere status komt van Lemon Squeezy of van de support van Customermates.
+
+| Status | Effect |
+|---|---|
+| **Proefperiode** | [[commercial.trial.days]] dagen met Pro-functies; alles werkt tot **Proefperiode eindigt** |
+| **Actief** | Betaald; alles wat het abonnement bevat werkt |
+| **Achterstallig**, **Geannuleerd** | Pagina's blijven open, maar de Inbox en berichten, het koppelen van kanalen, gedeelde accounts en de gehoste assistent worden geweigerd en het Mate-tegoed zakt naar 0 |
+| **Onbetaald**, **Verlopen** | Elke pagina toont **Abonnement vereist** |
+
+Een proefperiode die zonder checkout voorbij de einddatum is, telt als verlopen. Geweigerde kanaalacties tonen "Voor het koppelen van kanalen is een actief abonnement nodig of een proefperiode die nog niet is verlopen."
+
+### Welke abonnementen zijn er en wat kosten ze? [#which-plans-are-there]
+
+| Abonnement | Prijs per seat per maand | Gekoppelde accounts per gebruiker | Routines per gebruiker | Inbox en berichten | Gedeelde accounts |
+|---|---|---|---|---|---|
+| Free | Gratis | [[commercial.entitlement.free.includedAccountsPerUser]] | [[commercial.entitlement.free.includedRoutinesPerUser]] | Nee | Nee |
+| Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | Nee | Nee |
+| Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Ja | Nee |
+| Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Ja | Ja |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Ja | Ja |
+| Enterprise | Op aanvraag | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Ja | Ja |
+
+Elk betaald abonnement bevat het volledige CRM, het activiteitenlog, de API, de MCP-server en de gehoste assistent. Free geldt per werkruimte en is bedoeld om Customermates alleen uit te proberen: [[commercial.limit.free.maxMembers]] actieve persoon, maximaal [[commercial.limit.free.maxRecords]] records en [[commercial.limit.free.fileStorageBytes]] bestandsopslag, met API en MCP beperkt tot [[commercial.limit.free.apiRequestsPerMinute]] verzoeken per minuut en [[commercial.limit.free.apiRequestsPerDay]] per dag, en zonder de inbox, de gehoste assistent, routines, webhooks of de n8n-trigger. Starter, Pro, Business en Max worden maandelijks per seat in euro's gefactureerd; een ander interval is er niet. Gehoste AI-tegoeden per actieve gebruiker per maand, getoond als Mate-gebruik en als veelvoud van het Starter-tegoed: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise zoals overeengekomen, 3x tijdens de proefperiode. Business geeft het meeste gebruik per euro. De app toont het gebruik als percentage van je maandtegoed; zie [Abonnementen en Mate-gebruik](/docs/app-assistant#plans-and-credits). Bestandsopslag per actieve gebruiker, gedeeld in de werkruimte: Starter [[commercial.storage.starter]], Pro [[commercial.storage.pro]], Business [[commercial.storage.business]], Max [[commercial.storage.max]], Enterprise zoals overeengekomen, [[commercial.storage.pro]] tijdens de proefperiode. Boven de limiet, bijvoorbeeld na een downgrade, worden nieuwe uploads geweigerd en wordt geen bestand verwijderd; zie [Hoe voeg ik bestanden toe aan een record?](/docs/app-records#how-do-i-attach-files-to-a-record).
+
+### Hoe kies of wijzig ik een abonnement? [#how-do-i-choose-or-change-a-plan]
+
+Vóór de eerste checkout (in de praktijk tijdens de proefperiode) toont de [abonnementskiezer](app:settings/billing?focus=plan-picker) kaarten voor **Starter**, **Pro** (**Het beste voor opvolging**), **Business** (**Voor teams**) en **Max** met prijs, functies, gekoppelde accounts, routines en Mate-gebruik per gebruiker als veelvoud van Starter. Elke kaart heeft zijn eigen knop, zoals **Pro kiezen**, die de checkout van Lemon Squeezy opent voor evenveel seats als er **Actieve** leden zijn; de checkoutlink verloopt na 15 minuten. De facturering begint bij de checkout, ook als er nog proefdagen over zijn. Na betaling kom je terug bij Facturering: totdat Lemon Squeezy bevestigt, tot maximaal 15 minuten, ziet elke beheerder van de werkruimte "Betaling wordt verwerkt" in plaats van de kaarten, ververst de pagina vanzelf en wordt een tweede checkout geweigerd. De link **Ik heb de betaling niet afgerond** brengt de kaarten direct terug; na 15 minuten, als de checkoutlink is verlopen, komen ze terug met "Betaling nog niet ontvangen? Contact opnemen met support" gedurende een dag.
+
+Na de eerste checkout komt de kiezer niet meer terug: de beheerder die voor de werkruimte betaalt, wijzigt het abonnement met [Beheren met Lemon Squeezy](app:settings/billing?focus=manage). Enterprise-werkruimtes zien de kiezer nooit.
+
+### Hoe zeg ik op, wijzig ik de betaalmethode of haal ik facturen op? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
+
+Klik op [Beheren met Lemon Squeezy](app:settings/billing?focus=manage). Het verschijnt zodra de werkruimte een zelfbedienings-abonnement heeft (niet tijdens een proefperiode vóór de checkout, nooit bij Enterprise) en opent Lemon Squeezy in hetzelfde tabblad. Wat opent, hangt af van wie voor de werkruimte betaalt:
+
+- De beheerder die betaalt, van wie het Customermates-e-mailadres het klant-e-mailadres is van het Lemon Squeezy-abonnement van de werkruimte, krijgt het volledige klantenportaal: het abonnement wijzigen, de betaalmethode bijwerken, facturen downloaden en opzeggen.
+- Elk ander lid dat de facturering kan beheren, krijgt alleen de pagina met betaalgegevens van het abonnement van deze werkruimte, om de kaart en de factureringsgegevens bij te werken.
+
+Om op te zeggen, het abonnement te wijzigen of facturen op te halen, vraag je de beheerder die betaalt om het te openen. Als Lemon Squeezy voor het abonnement geen zo'n pagina heeft, toont Facturering "Het factureringsportaal is niet beschikbaar voor deze werkruimte. Neem contact op met support om wijzigingen aan te brengen."
+
+Wijzigingen in het portaal bereiken Customermates automatisch. Als Facturering nog oude waarden toont, leest [Vernieuwen](app:settings/billing?focus=refresh) status, abonnement, seats en datums opnieuw in ("Abonnement succesvol vernieuwd"). Een opzegging verschijnt als **Geannuleerd**, met dezelfde beperkingen als **Achterstallig**.
+
+### Hoe worden seats geteld en gefactureerd? [#how-are-seats-counted-and-billed]
+
+Een seat is een lid met de status **Actief**; leden met **Wacht op goedkeuring** en **Inactief** worden niet gefactureerd. Seats tellen per werkruimte: een persoon die in meerdere werkruimtes **Actief** is, is in elk ervan een gefactureerde seat en een werkruimte verlaten haalt daar de seat weg. De checkout neemt het aantal van dat moment en elke latere statuswijziging bij [Leden](app:settings/members) stuurt het nieuwe aantal direct naar Lemon Squeezy: "Je betaalt per actieve gebruiker. Wijzigingen in het aantal seats worden pro rata verrekend op je volgende factuur." Om de rekening te verlagen, zet je leden die geen toegang meer nodig hebben op **Inactief**. Enterprise-seats worden niet gesynchroniseerd. Leden die door het Free-abonnement zijn gepauzeerd, worden niet gefactureerd; als een betaald abonnement ze terugbrengt, tellen ze weer als seats en gaat het nieuwe aantal naar Lemon Squeezy.
+
+### Wat gebeurt er als de proefperiode eindigt of een betaling mislukt? [#what-happens-when-the-trial-ends-or-a-payment-fails]
+
+Zolang de status **Onbetaald** of **Verlopen** is, toont elke pagina **Abonnement vereist** ("Toegang tot de werkruimte is gepauzeerd"). Rollen met **Bedrijf** **Bewerken** krijgen de abonnementskiezer om een nieuwe checkout te starten (Enterprise: een melding over handmatige facturering), die na een checkout "Betaling wordt verwerkt" toont, net als Facturering; iedereen anders ziet "Een bedrijfsbeheerder moet het abonnement herstellen". **Contact opnemen met support** mailt de support, **Opnieuw proberen** laadt opnieuw. Zodra het abonnement weer bruikbaar is, kom je op Facturering uit.
+
+Als de proefperiode eindigt zonder checkout, of een betaald abonnement dat na de proefperiode is gekocht verloopt, gaat de werkruimte die de proefperiode had over naar het Free-abonnement in plaats van te worden gepauzeerd, en wordt niets verwijderd. Free houdt [[commercial.limit.free.maxMembers]] actieve persoon: het lid dat de werkruimte heeft aangemaakt, anders het lid van wie het e-mailadres ervoor betaalt, anders de oudste beheerder. Elk ander actief lid toont **Gepauzeerd (Free-abonnement)** bij [Leden](app:settings/members) en krijgt één e-mail. Een gepauzeerd lid kan de werkruimte niet openen en ziet "Deze werkruimte zit op Free" met de naam van de persoon die het kan vragen, terwijl hun records en geschiedenis blijven staan en hun andere werkruimtes bereikbaar blijven. Openstaande uitnodigingslinks en verzoeken om lid te worden worden geannuleerd, routines tonen **Gepauzeerd, Free-abonnement**, bestaande webhooks stoppen met versturen en gekoppelde accounts worden verwijderd, omdat Free geen inbox heeft. Bestaande gegevens boven een Free-limiet blijven staan; alleen meer toevoegen wordt geweigerd. Op Free toont Facturering het gebruik ten opzichte van de limieten (personen, records, bestandsopslag en de API-limieten) en hoeveel mensen zijn gepauzeerd, en beheerders zien een banner zoals "2 personen zijn gepauzeerd. Kies Starter om ze terug te halen." Een beheerder kan de actieve plek aan een gepauzeerde beheerder geven met **De actieve plek overdragen** in het menu **Meer acties** van dat lid, waardoor de beheerder die dit doet wordt gepauzeerd; om haar aan iemand zonder de rol **Beheerder** te geven, geef je die persoon eerst de rol. Zodra de werkruimte een betaald abonnement kiest, is elk gepauzeerd lid weer actief, hervatten routines en leveren webhooks weer. Leden die een beheerder op **Inactief** heeft gezet, blijven inactief.
+
+Een werkruimte zonder proefperiode waarvan het betaalde abonnement is verlopen, een werkruimte die **Onbetaald** blijft, of een verlopen Enterprise-werkruimte zet na 3 dagen alle leden op **Inactief** en hun gekoppelde accounts worden verwijderd. Tot dan is alleen de webapp gepauzeerd: API-sleutels en MCP-verbindingen blijven werken en webhooks blijven versturen, terwijl berichten, kanalen en de gehoste assistent direct stoppen.
+
+### Wat gebeurt er met gekoppelde accounts als het abonnement verandert? [#what-happens-to-connected-accounts-when-the-plan-changes]
+
+Als Lemon Squeezy een ander abonnement meldt, verwijdert Customermates de nieuwste gekoppelde accounts van elke gebruiker boven het nieuwe contingent. Starter bevat [[commercial.entitlement.starter.includedAccountsPerUser]] per gebruiker, dus elk account wordt verwijderd; de eerste checkout na de proefperiode telt als een wijziging vanaf Pro. Leden met de rol **Beheerder** krijgen een e-mail met de verwijderde accounts; de rest blijft in [Kanalen & agenda's](app:settings/channels). Routines boven het contingent blijven behouden, omdat het contingent alleen geldt wanneer een routine wordt aangemaakt. Als het nieuwe abonnement geen gedeelde accounts heeft (alles onder Business), wordt elk met de werkruimte gedeeld kanaal weer **Privé** voor zijn eigenaar, en een latere upgrade deelt het niet opnieuw.
+
+### Hoe verschilt een Enterprise-werkruimte? [#how-does-an-enterprise-workspace-differ]
+
+Enterprise wordt samen met Customermates ingericht en per factuur betaald. Facturering toont alleen **Abonnement** en "Deze werkruimte heeft een Enterprise-abonnement dat per factuur wordt betaald. Neem contact op met je accountmanager om wijzigingen door te voeren." Zelfbediening bij de checkout wordt geweigerd en statuswijzigingen van leden gaan niet naar de facturering.
+
+### Waar leiden de upgradeknoppen naartoe? [#where-do-upgrade-buttons-lead]
+
+Op Starter tonen de [Inbox](app:inbox) en [Kanalen & agenda's](app:settings/channels) **Upgrade om berichten te ontgrendelen** met **Upgrade je abonnement**. Bij de limiet van gekoppelde accounts zien Pro-gebruikers **Upgrade om meer accounts te koppelen** met **Abonnementen bekijken**, net als de gebruiksmelding van de gehoste assistent. Alle openen [Facturering](app:settings/billing), waar alleen rollen met **Bedrijf** **Bewerken** kunnen handelen.
+
+## Auditlog: waar vind ik de wijzigingsgeschiedenis? [#activity-tab]
+
+Het [Auditlog](app:settings/activity) is het gebeurtenissenlog van de werkruimte: wie welk record, welke instelling of configuratie heeft gewijzigd, en wanneer, nieuwste eerst. Elke vermelding toont de vorige en de huidige waarde inline; dezelfde vermeldingen staan in de weergave **Activiteiten** van een record, zoals die van een contact, in de activiteitenwidget van het dashboard en in Mate. Filter op soort:
+
+- **Recordwijzigingen**: aanmaken, bijwerken en verwijderen van records met veldwaarden.
+- **Beheer en systeem**: leden, rollen, webhooks, routines, gekoppelde accounts, pagina's van de Kennisbank, juridische mededelingen en exports. Webhook-secrets en headerwaarden worden afgeschermd.
+- **Configuratie**: lijsten, velden, relaties en recordtoegang per rol. Alleen rollen met **Gegevensmodel** **Bewerken** of **Gebruikers & rollen** **Bewerken** zien deze vermeldingen.
+
+Het lezen vraagt **Activiteitenlog** leestoegang **Alle**. Recordwijzigingen volgen je recordtoegang en vermeldingen van de Kennisbank vragen leestoegang tot de Kennisbank. Klik op een vermelding voor details; sla weergaven op zoals bij lijsten. Een wijziging via een API-sleutel of een AI-agent die via MCP is gekoppeld, noemt de sleutel of de applicatie na de persoon, bijvoorbeeld "Max Bergmann via Claude Desktop". Vermeldingen worden onbeperkt bewaard, berichten verschijnen hier nooit en de geschiedenis begint bij de upgrade naar configureerbare records. Beschikbaar in elk abonnement en bij zelf hosten.
+
+## Webhooks [#webhooks-tab]
+
+[Webhooks](app:settings/webhooks) stuurt werkruimtegebeurtenissen naar je systemen; payloads, handtekeningen en nieuwe pogingen staan bij [Webhooks](/docs/webhooks). Openen vraagt **API en webhooks** leestoegang **Alle**; toevoegen vraagt **Aanmaken**, bewerken **Bewerken**, verwijderen **Verwijderen**. Beschikbaar in elk betaald abonnement en bij zelf hosten, niet op Free.
+
+Klik op [Toevoegen](app:settings/webhooks?focus=add), of op een rij om te bewerken. Het dialoogvenster **Webhook** heeft **URL**, **Beschrijving**, **Gebeurtenissen**, **Secret**, **Aangepaste headers**, **Bodysjabloon** en **Ingeschakeld**. Bij recordgebeurtenissen kies je ook de lijsten en filters, en de **Eigenaar van recordtoegang**: leveringen gebruiken de actuele rechten van dat lid en alleen een beheerder kan iemand anders kiezen. Als je **Ingeschakeld** uitvinkt, pauzeren de leveringen zonder de webhook te verwijderen. Zonder **Bewerken** worden het secret en de headerwaarden getoond als `********`. **Verwijderen** vraagt om bevestiging; eerdere leveringen blijven staan. Zoeken in [Filter](app:settings/webhooks?focus=filter) vergelijkt met de URL.
+
+### Waar zie ik webhookleveringen? [#deliveries-tab]
+
+Het [Webhooklog](app:settings/webhook-deliveries), direct onder **Webhooks** in de instellingennavigatie, toont één rij per levering, nieuwste eerst, met **URL**, **Gebeurtenis**, **Element**, **Status**, **Statuscode** en **Aangemaakt op**. Klik op een rij voor **Details van gebeurtenis**: status (**In afwachting**, **Wordt verzonden**, **Bezorgd** of **Mislukt**), statuscode, antwoordbericht en payload. De payload van een recordgebeurtenis wordt opnieuw gelezen met je huidige toegang: waarden die je niet mag lezen, verschijnen als afgeschermd en de payload blijft leeg als je het record niet mag lezen. **Opnieuw versturen** (bezorgde of mislukte leveringen, **API en webhooks** **Aanmaken**) maakt een nieuwe levering met de huidige URL, het secret, de headers en het bodysjabloon van de webhook. Een recordgebeurtenis wordt opnieuw gelezen met de actuele toegang van de webhookeigenaar en alleen die eigenaar of een beheerder kan hem opnieuw versturen; details staan bij [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
+
+## Waar stel ik de valuta in? [#where-is-the-currency-set]
+
+Er is geen werkruimtevaluta: elk geldveld heeft zijn eigen valuta. Open het [Datamodel](app:configure), open de lijst en het geldveld en kies **Valuta**. De AI-werkruimte-inrichting maakt geldvelden aan in de valuta die je in de vragen kiest; een geldveld dat je zelf toevoegt, begint in EUR. Als je de valuta van een veld wijzigt, worden opgeslagen bedragen niet omgerekend en totalen die valuta's mengen, tonen een valutaverschil in plaats van een som. Velden configureren vraagt **Gegevensmodel** **Bewerken**.
+
+### Hoe werken fasekansen en totalen? [#how-do-stage-probabilities-and-totals-work]
+
+Open in het [Datamodel](app:configure) je dealslijst, open het faseveld en stel **Waarschijnlijkheid %** in bij elke optie; de AI-werkruimte-inrichting vult dit in op basis van de winkans van elke fase. Een gewogen waardeveld vermenigvuldigt de dealwaarde met de fasekans gedeeld door 100; nul geeft nul, geen kans laat het leeg. Wijzigingen tonen een voorbeeld van de afhankelijkheden en berekenen de betrokken records opnieuw. Voor pipelinetotalen voeg je een grafiekwidget toe op het [Dashboard](app:dashboard) die de dealwaarde of de gewogen waarde optelt, desgewenst gegroepeerd per fase. Zie [gewogen pipeline](/docs/concepts#how-does-a-weighted-pipeline-work).
+
+### Hoe hernoem ik een lijst zoals Deals? [#how-do-i-rename-record-types-in-the-data-model]
+
+Open de lijst in het [Datamodel](app:configure), wijzig **Naam** en **Meervoudsnaam** onder **Algemeen** en klik op **Opslaan**. Elke lijst kan worden hernoemd; records, koppelingen, weergaven, widgets en API-verwijzingen blijven verbonden. Lijstnamen moeten uniek zijn, zonder onderscheid tussen hoofdletters en accenten. Een lijst verwijderen verplaatst hem naar de **Prullenbak**, waar je hem 30 dagen kunt **Herstellen** of **Definitief verwijderen**.
+
+## Voor agents [#tips-for-agents]
+
+Geef de voorkeur aan [MCP](/docs/mcp)-tools: `manage_team` nodigt uit per e-mail of geeft de uitnodigingslink terug (`invite_link`), beide met goedkeuring, werkt leden bij (`update_member`, identificeer op `userId` of `email` (beide moeten overeenkomen als ze zijn opgegeven); met goedkeuring als het de rol of status wijzigt; geef voor **Wacht op goedkeuring** een `roleId` en de status `active` mee) en verwijdert ze uit de werkruimte (`remove_member`, op `userId` of `email`, met goedkeuring), `list_users` leest leden, `manage_roles` leest en bewaart rollen met de huidige revisie (resources `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; acties `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` beheert webhooks en leveringen, `get_activities` met een lege scope leest het activiteitenlog, en `get_record_model` en `configure_record_model` wijzigen lijsten, valuta's en berekeningen. Via REST verstuurt `POST /api/v1/members/invite` uitnodigingen (1 tot 20 adressen), geeft `POST /api/v1/members/invite-link` de uitnodigingslink en de vervaldatum terug en wijzigt `POST /api/v1/members/update` de rol en status van een ander lid; noem het lid op `userId` of `email` en stuur de velden mee die je wilt wijzigen; weggelaten velden behouden hun waarde. `POST /api/v1/members/remove` verwijdert een ander lid uit de werkruimte, op dezelfde manier benoemd. `POST /api/v1/roles/list` toont de rollen met hun rechten; zonder **Gebruikers & rollen** **Bewerken** geeft het alleen je eigen rol terug. Facturering en API-sleutels blijven bewust in de app: geen enkele tool leest of wijzigt het abonnement; stuur de gebruiker naar [Facturering](app:settings/billing).
+
+## Gerelateerd [#related]
+
+- [Webhooks](/docs/webhooks)
+- [Appgids, Profiel](/docs/app-profile)
+- [Werkruimtes](/docs/app-workspaces)
+- [Abonnementen en Mate-gebruik](/docs/app-assistant#plans-and-credits)
