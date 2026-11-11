@@ -3,6 +3,10 @@ import { DisplayType } from "@/features/widget/widget-display.schema";
 import { agentApiKeys, agentEdited, agentsPage, type AgentsPageText, type AgentKeyName } from "../agent-native";
 import { address, day, defineSolution, rangeAt, type FileSpec, type RecordSpec } from "../define-solution";
 import { inboxThreads, type InboxThreadPlan, type InboxThreadText } from "../inbox-threads";
+import { es } from "./locales/linkedin-crm.es";
+import { pt } from "./locales/linkedin-crm.pt";
+import { pl } from "./locales/linkedin-crm.pl";
+import { nl } from "./locales/linkedin-crm.nl";
 
 /**
  * LinkedIn conversations in your CRM relationship context: a small company that sells security awareness training to
@@ -718,7 +722,7 @@ const en = {
   calendarName: "Calls",
 };
 
-type Strings = typeof en;
+export type Strings = typeof en;
 
 const de: Strings = {
   company: "Wachblick Schulungen GmbH",
@@ -1766,6 +1770,9 @@ function slug(name: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z]/g, "");
 }
 
@@ -1782,10 +1789,14 @@ const AGENT_EDITS: Record<string, AgentKeyName> = {
 
 export default defineSolution<Strings>({
   id: "linkedin-crm",
-  strings: { en, de },
+  strings: { en, de, es, pt, pl, nl },
   story: {
     en: { currency: "GBP", timeZone: "Europe/London" },
     de: { currency: "EUR", timeZone: "Europe/Berlin" },
+    es: { currency: "EUR", timeZone: "Europe/Madrid" },
+    pt: { currency: "BRL", timeZone: "America/Sao_Paulo" },
+    pl: { currency: "PLN", timeZone: "Europe/Warsaw" },
+    nl: { currency: "EUR", timeZone: "Europe/Amsterdam" },
   },
   build: (t, locale) => {
     const open = ["identified", "conversation", "meetingBooked", "proposal"];

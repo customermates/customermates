@@ -9,7 +9,7 @@ type LocaleCapabilities = {
   textSearchConfig: TextSearchConfig;
   iso6393: string;
   defaultCurrency: string;
-  assetLocale: "en" | "de";
+  assetLocale: "en" | "de" | "es" | "pt" | "pl" | "nl";
 };
 
 export type TextSearchConfig =
@@ -86,7 +86,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "spanish",
     iso6393: "spa",
     defaultCurrency: "EUR",
-    assetLocale: "en",
+    assetLocale: "es",
   },
   pt: {
     offeredAsDisplayLanguage: true,
@@ -99,7 +99,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "portuguese",
     iso6393: "por",
     defaultCurrency: "EUR",
-    assetLocale: "en",
+    assetLocale: "pt",
   },
   pl: {
     offeredAsDisplayLanguage: true,
@@ -112,7 +112,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "simple",
     iso6393: "pol",
     defaultCurrency: "EUR",
-    assetLocale: "en",
+    assetLocale: "pl",
   },
   nl: {
     offeredAsDisplayLanguage: true,
@@ -125,7 +125,7 @@ export const LOCALE_REGISTRY = {
     textSearchConfig: "dutch",
     iso6393: "nld",
     defaultCurrency: "EUR",
-    assetLocale: "en",
+    assetLocale: "nl",
   },
 } as const satisfies Record<string, LocaleCapabilities>;
 

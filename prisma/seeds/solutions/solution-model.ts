@@ -13,10 +13,14 @@ import { validateRecordModel } from "@/features/records/record-model-validation"
 import { createWorkspaceRecordPreset } from "@/features/records/workspace-record-preset";
 import de from "@/i18n/locales/de.json";
 import en from "@/i18n/locales/en.json";
+import es from "@/i18n/locales/es.json";
+import nl from "@/i18n/locales/nl.json";
+import pl from "@/i18n/locales/pl.json";
+import pt from "@/i18n/locales/pt.json";
 
 import { PRESET_LIST_KEYS, type FieldSpec, type FormulaSpec, type SolutionContent } from "./define-solution";
 
-const MESSAGES = { en, de } as const;
+const MESSAGES = { en, de, es, pt, pl, nl } as const;
 
 export function solutionTranslator(locale: SolutionDataLocale): (key: string) => string {
   return createTranslator({ locale, messages: MESSAGES[locale] }) as unknown as (key: string) => string;

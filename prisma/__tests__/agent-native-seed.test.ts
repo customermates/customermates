@@ -21,7 +21,7 @@ const ACCOUNTS: Record<SolutionId, readonly MessagingProvider[]> = {
   "whatsapp-crm": ["whatsapp", "google", "instagram", "linkedin"],
 };
 
-const AGENT_NOTE = /\b(?:by|von) (Claude|ChatGPT|Codex)\b/;
+const AGENT_NOTE = /\b(?:by|von|de|por|pelo|do|od|przez|van|door) (Claude|ChatGPT|Codex)\b/;
 
 const plans = solutionWorkspacePlans();
 

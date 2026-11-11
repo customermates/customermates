@@ -410,8 +410,8 @@ export type SolutionContent = {
   routines?: readonly RoutineSpec[];
   webhooks?: readonly WebhookSpec[];
   apiKeys?: readonly ApiKeySpec[];
-  /** The currency of every amount: USD for US stories, GBP for UK stories, EUR for German ones. */
-  currency: "USD" | "GBP" | "EUR";
+  /** The currency of every amount: USD for US stories, GBP for UK stories, EUR for German, Spanish and Dutch ones, BRL for Brazilian and PLN for Polish ones. */
+  currency: "USD" | "GBP" | "EUR" | "BRL" | "PLN";
   /** The time zone of the story: dashboards, calendars and local times of date-time values. */
   timeZone: string;
   files?: readonly FileSpec[];

@@ -33,12 +33,13 @@ function built(index: number) {
   };
 }
 
+const WORKSPACE_COUNT = SOLUTION_CATALOG.length * SOLUTION_DATA_LOCALES.length;
+
 describe("solution demo workspaces", () => {
   it("seeds one workspace per catalog solution and data locale, keeping the two former workspace ids", () => {
-    expect(SOLUTION_WORKSPACES).toHaveLength(SOLUTION_CATALOG.length * SOLUTION_DATA_LOCALES.length);
-    expect(SOLUTION_WORKSPACES).toHaveLength(18);
+    expect(SOLUTION_WORKSPACES).toHaveLength(WORKSPACE_COUNT);
     for (const key of ["companyId", "slug", "tag", "roleId", "memberId", "subscriptionId"] as const)
-      expect(new Set(SOLUTION_WORKSPACES.map((workspace) => workspace[key])).size, key).toBe(18);
+      expect(new Set(SOLUTION_WORKSPACES.map((workspace) => workspace[key])).size, key).toBe(WORKSPACE_COUNT);
     for (const workspace of SOLUTION_WORKSPACES) {
       expect(workspace.companyId).toBe(workspace.solution.companyIds[workspace.locale]);
       expect(workspace.slug).toBe(workspace.solution.workspaceSlugs[workspace.locale]);
@@ -75,11 +76,16 @@ describe("solution demo workspaces", () => {
       expect(text, workspace.slug).not.toMatch(/Northwind|Bergmann Steuern/);
       expect(content.companyName, workspace.slug).not.toMatch(/Bergmann/);
     }
-    expect(new Set(plans.map(({ content }) => content.companyName)).size).toBe(18);
+    expect(new Set(plans.map(({ content }) => content.companyName)).size).toBe(WORKSPACE_COUNT);
   });
 
   it("names every workspace after its solution and keeps the story company in the guide", () => {
-    expect(new Set(plans.map(({ content }) => content.workspaceName)).size).toBe(18);
+    for (const locale of SOLUTION_DATA_LOCALES) {
+      const names = plans
+        .filter(({ workspace }) => workspace.locale === locale)
+        .map(({ content }) => content.workspaceName);
+      expect(new Set(names).size, locale).toBe(SOLUTION_CATALOG.length);
+    }
     for (const { workspace, content } of plans) {
       expect(content.workspaceName, workspace.slug).not.toBe(content.companyName);
       const guide = content.wiki.find((page) => page.kind === "guide");
