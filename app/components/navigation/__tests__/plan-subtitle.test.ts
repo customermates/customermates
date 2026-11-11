@@ -9,6 +9,9 @@ import deMessages from "@/i18n/locales/de.json";
 import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nlMessages from "@/i18n/locales/nl.json";
+import plMessages from "@/i18n/locales/pl.json";
+import ptMessages from "@/i18n/locales/pt.json";
 
 import { resolvePlanChip } from "../plan-subtitle";
 
@@ -20,6 +23,9 @@ const MESSAGES = {
   es: esMessages,
   fr: frMessages,
   it: itMessages,
+  nl: nlMessages,
+  pl: plMessages,
+  pt: ptMessages,
 } satisfies Record<AppLocale, typeof enMessages>;
 
 function makeTranslate(locale: AppLocale): Translate {

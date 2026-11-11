@@ -5,6 +5,9 @@ import enMessages from "@/i18n/locales/en.json";
 import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nlMessages from "@/i18n/locales/nl.json";
+import plMessages from "@/i18n/locales/pl.json";
+import ptMessages from "@/i18n/locales/pt.json";
 import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 
 import { widgetDataPointLabel } from "../widget-label";
@@ -15,6 +18,9 @@ const DIAGRAMS = {
   es: esMessages.Diagrams,
   fr: frMessages.Diagrams,
   it: itMessages.Diagrams,
+  nl: nlMessages.Diagrams,
+  pl: plMessages.Diagrams,
+  pt: ptMessages.Diagrams,
 } satisfies Record<AppLocale, typeof enMessages.Diagrams>;
 
 describe("widgetDataPointLabel", () => {

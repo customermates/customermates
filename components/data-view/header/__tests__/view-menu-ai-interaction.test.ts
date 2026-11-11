@@ -21,8 +21,11 @@ import en from "@/i18n/locales/en.json";
 import es from "@/i18n/locales/es.json";
 import fr from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nl from "@/i18n/locales/nl.json";
+import pl from "@/i18n/locales/pl.json";
+import pt from "@/i18n/locales/pt.json";
 
-const catalogs = { de, en, es, fr, it: itMessages };
+const catalogs = { de, en, es, fr, it: itMessages, nl, pl, pt };
 
 type ContextDraftInput = {
   context: AgentContextAttachment;

@@ -21,6 +21,9 @@ import enMessages from "@/i18n/locales/en.json";
 import esMessages from "@/i18n/locales/es.json";
 import frMessages from "@/i18n/locales/fr.json";
 import itMessages from "@/i18n/locales/it.json";
+import nlMessages from "@/i18n/locales/nl.json";
+import plMessages from "@/i18n/locales/pl.json";
+import ptMessages from "@/i18n/locales/pt.json";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { DeactivateUsersAfterSubscriptionGracePeriodInteractor } from "../deactivate-users-after-subscription-grace-period.interactor";
@@ -32,6 +35,9 @@ const CATALOGS: Record<AppLocale, typeof enMessages> = {
   es: esMessages,
   fr: frMessages,
   it: itMessages,
+  nl: nlMessages,
+  pl: plMessages,
+  pt: ptMessages,
 };
 const WORKSPACE = "Bergmann Steuern";
 

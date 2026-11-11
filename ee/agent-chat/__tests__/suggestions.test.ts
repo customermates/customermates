@@ -13,8 +13,11 @@ import en from "@/i18n/locales/en.json";
 import es from "@/i18n/locales/es.json";
 import fr from "@/i18n/locales/fr.json";
 import itIT from "@/i18n/locales/it.json";
+import nl from "@/i18n/locales/nl.json";
+import pl from "@/i18n/locales/pl.json";
+import pt from "@/i18n/locales/pt.json";
 
-const CATALOGS = { de, en, es, fr, it: itIT } as const;
+const CATALOGS = { de, en, es, fr, it: itIT, nl, pl, pt } as const;
 const translatorFor = (locale: keyof typeof CATALOGS) => {
   const translate = createTranslator({ locale, messages: CATALOGS[locale] });
   return (key: string, values?: Record<string, string | number>) =>
