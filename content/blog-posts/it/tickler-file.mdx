@@ -1,0 +1,159 @@
+---
+title: "Scadenzario clienti: come funziona e come tenerlo in un CRM"
+description: "Scadenzario clienti: il tickler file con 43 cartelle spiegato, confrontato con il flag di Outlook e con Excel, e come impostarlo in un CRM in cinque passi."
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /blog/digital-rolodex
+
+hero:
+  title: "Scadenzario clienti: come funziona il sistema da 1 a 31 e la versione digitale"
+  description: "Scadenzario clienti: il tickler file con 43 cartelle spiegato, confrontato con il flag di Outlook e con Excel, e come impostarlo in un CRM in cinque passi."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - Follow up
+    - Gestione del tempo
+    - Tickler file
+---
+
+# Scadenzario clienti: come funziona il sistema da 1 a 31 e la versione digitale
+
+Uno scadenzario clienti è una lista di appuntamenti con te stesso: a ogni risposta attesa, preventivo inviato o documento ricevuto assegni la data in cui devi rivederlo, e fino ad allora non ci pensi. È la versione digitale del «tickler file», uno schedario di 43 cartelle (31 per i giorni del mese, 12 per i mesi). Attenzione: «scadenzario» indica di solito anche lo scadenzario dei pagamenti e delle fatture, che qui non trattiamo. In Customermates lo scadenzario clienti è fatto da un campo «Data del prossimo passo», da una vista salvata ordinata per quella data e dal widget «In arrivo».
+
+Questa guida spiega come funziona il tickler file, passa in rassegna il sistema da 43 cartelle con un esempio, confronta carta, flag di Outlook, foglio di calcolo (Excel) e CRM, e imposta la versione digitale in Customermates passo dopo passo. Customermates pubblica la guida e compare in sezioni contrassegnate, compreso dove è la scelta sbagliata. I dettagli di terze parti sono stati verificati l’11 novembre 2026; le fonti sono linkate dove servono.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="L’idea">Archivi ogni elemento nella data in cui devi rivederlo e ogni mattina apri solo la cartella di oggi. Fino al giorno stabilito, ricorda l’archivio al posto tuo.</SummaryItem>
+  <SummaryItem label="Carta">43 cartelle: 31 numerate per i giorni del mese e 12 con il nome dei mesi. Quello che riguarda un mese successivo aspetta nella cartella del mese e passa nelle cartelle dei giorni quando il mese comincia.</SummaryItem>
+  <SummaryItem label="Outlook">Un flag di completamento su una singola e-mail, con data di inizio e di scadenza e un promemoria facoltativo. Segue un messaggio, non il cliente che c’è dietro.</SummaryItem>
+  <SummaryItem label="Customermates">Un campo Data, una vista ordinata per quel campo e il widget «In arrivo» con una sezione «Scaduti». Funziona su ogni piano, anche in self-hosting. Non invia promemoria: la lista è il promemoria.</SummaryItem>
+  <SummaryItem label="Trasparenza">Customermates pubblica questa guida. Le altre opzioni sono descritte per adattamento, non messe in classifica.</SummaryItem>
+</ArticleSummary>
+
+## Che cos’è uno scadenzario clienti, e in che cosa differisce da uno scadenzario dei pagamenti?
+
+Uno scadenzario dei pagamenti elenca somme e date di scadenza: serve a tenere sotto controllo incassi e pagamenti di fatture. Uno scadenzario clienti elenca cose da rivedere: un richiamo da fare, una risposta da ottenere, un documento da controllare. Customermates non gestisce fatture né pagamenti, quindi qui conta solo il secondo.
+
+In inglese lo scadenzario clienti si chiama «tickler file», o sistema delle 43 cartelle. Wikipedia in inglese descrive la sua struttura come 31 cartelle giornaliere più 12 cartelle mensili: archivi un foglio o un appunto nella data in cui devi occupartene, e ogni giorno apri la cartella di quella data ([Wikipedia: Tickler file, in inglese](https://en.wikipedia.org/wiki/Tickler_file)). Il nome rimanda all’archivio che «stuzzica» la memoria al momento giusto.
+
+L’idea è più vecchia dei libri sulla produttività. Wikipedia ricorda che già all’inizio del Novecento, forse prima, gli studi legali archiviavano schede per data, così che l’avvocato ricevesse la scheda all’avvicinarsi di una scadenza, per esempio il rinnovo di un marchio. David Allen, il cui libro Getting Things Done tratta il sistema, lo paragona sul suo sito a un ufficio postale personale che ti rispedisce le cose al momento giusto, e dice che richiede solo un secondo al giorno di comportamento nuovo ([Getting Things Done: Be your own post office, in inglese](https://gettingthingsdone.com/2009/11/be-your-own-post-office/)).
+
+Ci può finire tutto ciò che vuoi rivedere in un giorno preciso: una bolletta, un biglietto, un modulo, un appunto per richiamare qualcuno. Negli affari gli elementi più utili sono le conversazioni che aspettano una data: un preventivo inviato, un potenziale cliente che ti chiede di richiamare dopo una fiera, un rinnovo che vuoi aprire per tempo.
+
+## Come funziona lo schedario da 43 cartelle?
+
+<Steps>
+  <Step title="Etichetta 43 cartelle">Dodici cartelle portano il nome dei mesi, trentuno i numeri da 1 a 31. È così che Allen descrive il set.</Step>
+  <Step title="Archivia ogni elemento per data">Quello che vuoi rivedere più avanti in questo mese va nella cartella del giorno. Quello che riguarda un mese successivo va nella cartella di quel mese.</Step>
+  <Step title="Apri la cartella di oggi ogni mattina">Tira fuori tutto e occupatene: fare il lavoro, inviare il messaggio, pagare la bolletta o archiviarlo di nuovo a una data successiva.</Step>
+  <Step title="Sposta la cartella vuota in fondo">Secondo Wikipedia, la cartella del giorno viene svuotata e messa in fondo al set, così la cartella del giorno dopo è davanti.</Step>
+  <Step title="Distribuisci il nuovo mese nei giorni">Il primo del mese apri la cartella di quel mese e smista il contenuto nelle cartelle dei giorni. Fino al suo giorno non serve più guardare niente.</Step>
+</Steps>
+
+Ecco un esempio, inventato, che parte da mercoledì 11 novembre 2026.
+
+| Elemento | Da rivedere il | Tickler su carta | Versione digitale |
+| --- | --- | --- | --- |
+| Oggi è partito un preventivo; il cliente ha detto che deciderà entro mercoledì 18 novembre | 18 novembre | Cartella 18 | Prossimo passo «Chiedere la decisione», Data del prossimo passo 18 novembre |
+| Un potenziale cliente dice: «Mi richiami dopo la nostra fiera del 3 dicembre» | 3 dicembre | Cartella dicembre, spostata nella cartella 3 il 1° dicembre | Prossimo passo «Chiamare per il preventivo», data 3 dicembre; entra nel widget «In arrivo» quando la data rientra nella sua finestra di giorni |
+| Ti manca il prezzo di un fornitore per rispondere a un cliente; è promesso per venerdì 13 novembre | 13 novembre | Cartella 13 | Prossimo passo «Sollecitare il prezzo al fornitore», data 13 novembre |
+| Il contratto di un cliente scade a gennaio e vuoi aprire la conversazione sul rinnovo a dicembre | 1° dicembre | Cartella dicembre | Prossimo passo «Aprire la conversazione sul rinnovo», data 1° dicembre |
+
+La versione digitale elimina la rotazione delle cartelle. Nessuno sposta una cartella in fondo, perché ci pensa l’ordinamento, e le cartelle dei mesi spariscono: una data di marzo aspetta semplicemente nella lista finché non arriva in vista.
+
+## Carta, flag di Outlook, Excel o CRM: quale scadenzario clienti scegliere?
+
+Quattro strade coprono quasi ogni caso. La riga Customermates è il nostro prodotto; le altre sono descritte per quello che fanno.
+
+| Opzione | Come funziona la data | Ti ricorda qualcosa? | Cosa sta accanto all’elemento | Va bene quando |
+| --- | --- | --- | --- | --- |
+| Carta, 43 cartelle | Una cartella per giorno e per mese | No. Apri la cartella di oggi ogni mattina | Il foglio stesso | Gestisci posta, bollette, biglietti e moduli fisici |
+| Flag di Outlook | Un flag su un messaggio con Oggi, Domani, Questa settimana, Prossima settimana, Nessuna data o date di inizio e scadenza personalizzate | «Aggiungi promemoria» imposta un promemoria; i messaggi contrassegnati compaiono nella barra To-Do, in Attività e nell’elenco attività del giorno del calendario | Una sola e-mail | Il follow up parte da un’e-mail in Outlook |
+| Foglio di calcolo (Excel) | Una colonna di date che ordini | Solo se lo costruisci tu | Una colonna di note | Una persona con una lista breve |
+| Campo Data in un CRM (Customermates) | Un campo Data sul cliente o sulla trattativa | No. Customermates non ne invia; una vista ordinata e il widget «In arrivo» fanno da promemoria | La scheda con note, contatti e aziende collegati e, da Pro, le conversazioni LinkedIn ed e-mail | Clienti e trattative con una storia, per una persona o un team |
+
+Microsoft documenta le opzioni del flag per Outlook per Microsoft 365, Outlook 2024 e Outlook 2021 e precisa che con un account IMAP non puoi modificare il testo del contrassegno né impostare le date di inizio e di scadenza. Verificato l’11 novembre 2026 su [Supporto Microsoft: Contrassegnare i messaggi di posta elettronica per il completamento](https://support.microsoft.com/it-it/office/9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).
+
+Come scegliere:
+
+- **Documenti che devi conservare in originale:** il tickler su carta. Nessuno strumento digitale tiene la lettera originale.
+- **Un follow up che parte da una singola e-mail, e lavori in Outlook:** il flag è la strada più breve.
+- **Una breve lista personale:** un foglio Excel basta. La guida al [modello Excel come CRM](/blog/excel-crm-template) mostra dove un foglio comincia a essere stretto. Per uno scadenzario clienti ti bastano poche colonne: cliente, cosa fare, data, esito e note; poi ordini per data.
+- **Follow up ai clienti su LinkedIn e per e-mail, con una storia da rileggere prima di chiamare:** un CRM, perché la data sta sulla scheda dove sta anche la conversazione. Da Pro, la [posta in arrivo unificata](/features/unified-inbox) porta queste conversazioni sul cliente.
+
+## Come usare uno scadenzario clienti per il follow up commerciale?
+
+Cinque regole trasformano le cartelle in un’abitudine commerciale:
+
+- **Una data vera per ogni conversazione aperta.** Usa il giorno che hai promesso, non «tra una settimana», così il follow up arriva quando il cliente se lo aspetta.
+- **Scrivi l’azione accanto alla data.** «Inviare il perimetro rivisto» vale più di «ricontattare».
+- **Dopo ogni contatto, sposta la data o cancellala.** Una trattativa senza data è quella che sparisce dalla vista.
+- **Apri la lista alla stessa ora ogni giorno** e parti da ciò che è scaduto.
+- **Una volta a settimana cerca le schede senza data.** È la perdita che uno scadenzario da solo non ti mostra.
+
+Una [rubrica digitale](/blog/digital-rolodex) ti dice chi è una persona; lo scadenzario ti dice quando scriverle. Per le parole del messaggio leggi [come scrivere un’e-mail di follow up commerciale](/blog/sales-follow-up-email). La pagina sul [software di follow up per i clienti](/features/follow-up) mostra lo stesso prossimo passo con data, con le conversazioni LinkedIn ed e-mail sulla scheda del cliente.
+
+## Come si imposta uno scadenzario clienti in Customermates?
+
+Prima, la corrispondenza tra carta e Customermates:
+
+| Nel tickler su carta | In Customermates |
+| --- | --- |
+| 31 cartelle dei giorni | Un campo Data «Data del prossimo passo». Il widget «In arrivo» elenca oggi e i giorni successivi, 14 per impostazione predefinita e fino a 90 |
+| 12 cartelle dei mesi | Niente da mantenere. Una scheda con data a marzo aspetta nella tua vista ordinata finché la sua data non entra nella finestra del widget |
+| Aprire la cartella di oggi | Aprire la dashboard: le schede di oggi e la sezione «Scaduti» |
+| Spostare la cartella in fondo | Spostare la data di ogni scheda dopo averla gestita, oppure cancellarla |
+| Il foglio nella cartella | La scheda: note, contatti e aziende collegati, file e, da Pro, conversazioni |
+| Ricordarsi di aprire il cassetto | Resta una tua abitudine. Customermates non invia promemoria |
+
+<Steps>
+  <Step title="Aggiungi due campi">In **Modello dati**, aggiungi un campo di tipo **Data** chiamato «Data del prossimo passo» e un campo di tipo **Testo** chiamato «Prossimo passo» a **Contatti** o **Trattative**, o a entrambi se i tuoi lead vivono sulle trattative. Con un piano che include Mate puoi chiedere a lui di aggiungerli. Le attività non hanno una scadenza integrata, quindi lo stesso campo Data funziona anche lì; la [gestione delle attività nel CRM](/features/task-management) mostra come collegarle ai clienti.</Step>
+  <Step title="Salva la vista Scadenzario">Apri **Aspetto**, mostra **Prossimo passo** e **Data del prossimo passo**, imposta **Ordina per** su Data del prossimo passo, **Crescente**, poi clicca su **Nuova vista** e chiamala «Scadenzario». Le date più vecchie stanno in cima. I filtri sulle date personalizzate accettano date fisse (**Prima del…**, **Entro il…**), quindi è l’ordinamento a tenere aggiornata la lista senza modificare il filtro ogni settimana. Scegli **Condividi…** nel menu della vista per mostrarla a tutti nello spazio di lavoro o a ruoli selezionati.</Step>
+  <Step title="Aggiungi il widget In arrivo">Nella **Dashboard**, premi **Aggiungi widget** e scegli **In arrivo**. Scegli la lista e il campo **Data del prossimo passo**, ed escludi i record conclusi, per esempio le trattative Vinte e Perse. Il widget elenca ciò che scade nei prossimi giorni e mette le date precedenti in una sezione **Scaduti**.</Step>
+  <Step title="Salva una vista senza data">Nella stessa lista, filtra **Data del prossimo passo** con **è vuoto** ed escludi Vinta e Persa nel campo **Fase**. Quello che compare qui è uscito dal tuo scadenzario.</Step>
+  <Step title="Scorri la lista ogni mattina">Parti da **Scaduti**, poi da oggi. Fai il passo, scrivi una riga nelle note della scheda e sposta la **Data del prossimo passo** al prossimo giorno promesso, oppure cancellala quando non c’è più nulla in sospeso. Cambia il layout della vista in **Calendario** sulla stessa data se preferisci i giorni alle righe, e trascina un record su un altro giorno per spostarne la data.</Step>
+</Steps>
+
+I campi Data, le viste salvate e il widget «In arrivo» non hanno limiti di piano: funzionano in Free, nei piani a pagamento e in self-hosting. Per vedere le stesse date in un’altra app di calendario, crea un URL di sottoscrizione nel calendario: è un feed privato di sola lettura, e la tua app di calendario decide ogni quanto aggiornarlo. La [guida alla dashboard](/docs/app-dashboard) spiega le opzioni del widget e la [guida al calendario](/docs/app-calendar) il feed.
+
+<AcquisitionCallout title="Dove Customermates è lo scadenzario clienti sbagliato" variant="boundary">
+  Customermates non invia promemoria né notifiche, non ha attività ricorrenti e non dà alle attività una scadenza integrata: la lista ti ricorda qualcosa solo quando la apri. Non tiene carta (una scansione in un campo File viene salvata e mostrata, ma il suo testo non viene letto), non ha un’app mobile nativa e non ha una sincronizzazione nei due sensi con i calendari di Outlook o Google; il feed del calendario va in una sola direzione ed è di sola lettura. Non è nemmeno un calendario di termini legali: un campo Data è un’informazione, non un termine processuale. Non gestisce neppure lo scadenzario dei pagamenti, perché non ha fatture. Se ti serve un avviso che ti raggiunga, usa un flag di Outlook con promemoria o la tua app di calendario, oppure fai leggere la data a uno scheduler come n8n tramite l’API.
+</AcquisitionCallout>
+
+Customermates Cloud ha un piano Free per [[commercial.limit.free.maxMembers]] persona e [[commercial.limit.free.maxRecords]] record, senza posta in arrivo, Mate né routine. Il tuo primo spazio di lavoro parte con una prova di [[commercial.trial.days]] giorni di Pro e poi passa a Free se non scegli un piano a pagamento; i piani a pagamento partono da [[commercial.price.starter.monthly]] per utente al mese, fatturati mensilmente, vedi la [pagina dei prezzi](/pricing). Il nucleo open source si può [installare in self-hosting](/features/self-hosted) senza costi di licenza, senza posta in arrivo e senza Mate. Per provare lo scadenzario sui tuoi clienti, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup): Pro, senza carta di credito. Aggiungi prima i due campi alle trattative.
+
+## Domande frequenti sullo scadenzario clienti
+
+<Faq>
+<FaqItem question="Che cos’è uno scadenzario clienti?">
+Una lista di date che ti riporta un elemento il giorno in cui devi rivederlo: un richiamo, una risposta attesa, un documento. Su carta è il «tickler file» da 43 cartelle (31 giorni, 12 mesi); in digitale è un campo Data, una vista ordinata e un widget.
+</FaqItem>
+<FaqItem question="Che differenza c’è con lo scadenzario dei pagamenti?">
+Lo scadenzario dei pagamenti elenca somme da incassare o pagare con le loro date di scadenza. Lo scadenzario clienti non gestisce denaro: ti ricorda che cosa fare e quando. Customermates non gestisce né fatture né pagamenti.
+</FaqItem>
+<FaqItem question="Che cosa significa tickler file?">
+È il nome inglese dello schedario a cartelle per data, detto anche sistema delle 43 cartelle. Il nome rimanda all’archivio che stuzzica la memoria al momento giusto.
+</FaqItem>
+<FaqItem question="Come si fa uno scadenzario su carta?">
+Etichetta 31 cartelle da 1 a 31 e 12 cartelle da gennaio a dicembre. Archivia ogni elemento nel giorno, o nel mese, in cui devi rivederlo. Apri la cartella di oggi ogni mattina e, il primo del mese, smista la cartella di quel mese nelle cartelle dei giorni.
+</FaqItem>
+<FaqItem question="Esiste uno scadenzario clienti in Excel?">
+Sì. Bastano poche colonne: cliente, cosa fare, data, esito e note. Ordina per data e aprilo ogni giorno. Funziona finché lo tiene una persona; quando le conversazioni e più persone entrano nel gioco, la data conviene averla sulla scheda del cliente in un CRM.
+</FaqItem>
+<FaqItem question="Come contrassegno un’e-mail per il completamento in Outlook?">
+Nella scheda Messaggio apri il menu Completa e scegli una data: Oggi, Domani, Questa settimana, Prossima settimana, Nessuna data o Personalizzata. «Aggiungi promemoria» aggiunge un promemoria. Con un account IMAP le date di inizio e di scadenza non sono disponibili.
+</FaqItem>
+<FaqItem question="Customermates invia promemoria dello scadenzario?">
+No. Non ci sono notifiche e le attività non hanno una scadenza integrata. Aggiungi un campo Data, ordina una vista salvata per quel campo e mostralo nel widget «In arrivo»; la lista è il promemoria. Per un avviso, un flag di Outlook con promemoria o uno scheduler che legge la data tramite l’API può inviarlo.
+</FaqItem>
+</Faq>
+
+Dettagli di terze parti verificati l’11 novembre 2026 su [Wikipedia, Tickler file (in inglese)](https://en.wikipedia.org/wiki/Tickler_file), [il sito Getting Things Done di David Allen (in inglese)](https://gettingthingsdone.com/2009/11/be-your-own-post-office/) e [il supporto Microsoft sul contrassegno dei messaggi](https://support.microsoft.com/it-it/office/9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).
