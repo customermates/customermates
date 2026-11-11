@@ -88,6 +88,8 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
+    // 90 is the film poster's quality (components/marketing/product-film-poster-blur.ts); 75 is the default.
+    qualities: [75, 90],
   },
 
   // CI's static job type-checks every pull request and push to main, so the production builds on Vercel and in CI's
@@ -157,12 +159,16 @@ const nextConfig: NextConfig = {
         source: "/maps/v1/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
-      ...["/customermates-film.mp4", "/customermates-film-poster.jpg", "/images/:path*", "/icons/:path*"].map(
-        (source) => ({
-          source,
-          headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
-        }),
-      ),
+      ...[
+        "/customermates-film.mp4",
+        "/customermates-film-poster-inbox.jpg",
+        "/customermates-film-poster-inbox-dark.jpg",
+        "/images/:path*",
+        "/icons/:path*",
+      ].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      })),
     ]);
   },
 };
