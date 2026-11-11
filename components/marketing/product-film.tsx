@@ -5,8 +5,8 @@ import { HomepageViewportVideo } from "@/app/[locale]/(static)/components/homepa
 import { filmPosterImageProps } from "./product-film-poster-blur";
 
 export const PRODUCT_FILM_SRC = "/customermates-film.mp4";
-export const PRODUCT_FILM_POSTER = "/customermates-film-poster.jpg";
-export const PRODUCT_FILM_POSTER_DARK = "/customermates-film-poster-dark.jpg";
+export const PRODUCT_FILM_POSTER = "/customermates-film-poster-inbox.jpg";
+export const PRODUCT_FILM_POSTER_DARK = "/customermates-film-poster-inbox-dark.jpg";
 
 export async function ProductFilm() {
   const t = await getTranslations("ProductFilm");
