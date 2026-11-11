@@ -176,7 +176,7 @@ export function HomepageViewportVideo({ ariaLabel, className, durationLabel, pla
       {hasFrame ? null : (
         <button
           aria-label={playLabel}
-          className="group absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.28),rgba(0,0,0,0.08)_45%,transparent_70%)] p-4"
+          className="group absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.10),transparent_60%)] p-4 dark:bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.35),transparent_60%)]"
           data-film-play=""
           type="button"
           onClick={() => {
@@ -186,8 +186,8 @@ export function HomepageViewportVideo({ ariaLabel, className, durationLabel, pla
             runUserAction(() => video.play());
           }}
         >
-          <span className="flex items-center gap-3 rounded-full bg-gradient-to-r from-[#2563eb] via-[#0891c9] to-[#0f9488] py-2 pr-6 pl-2 text-base font-semibold text-white shadow-[0_12px_40px_rgba(37,99,235,0.45)] ring-1 ring-white/30 transition-transform group-hover:scale-105 sm:py-2.5 sm:pr-7 sm:text-lg">
-            <span className="flex size-10 items-center justify-center rounded-full bg-white text-[#2563eb] sm:size-12">
+          <span className="flex items-center gap-3 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,255,255,0.78))] py-2 pr-5 pl-2 text-base font-semibold tracking-[-0.01em] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.06),0_2px_4px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.16),0_32px_64px_rgba(0,0,0,0.10)] backdrop-blur-xl backdrop-saturate-150 transition-transform group-hover:scale-[1.03] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0.06))] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_0_1px_rgba(255,255,255,0.12),0_2px_4px_rgba(0,0,0,0.06),0_12px_32px_rgba(0,0,0,0.5),0_32px_64px_rgba(0,0,0,0.35)] sm:py-2 sm:pr-6 sm:text-lg">
+            <span className="flex size-10 items-center justify-center rounded-full bg-foreground text-background sm:size-11">
               <svg aria-hidden className="ml-0.5 size-4 sm:size-5" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M4 2.5v11a.5.5 0 0 0 .76.43l9-5.5a.5.5 0 0 0 0-.86l-9-5.5A.5.5 0 0 0 4 2.5Z" />
               </svg>
@@ -196,7 +196,7 @@ export function HomepageViewportVideo({ ariaLabel, className, durationLabel, pla
             <span>
               {playLabel}
 
-              {durationLabel ? <span className="font-normal text-white/80"> · {durationLabel}</span> : null}
+              {durationLabel ? <span className="font-normal text-foreground/55"> · {durationLabel}</span> : null}
             </span>
           </span>
         </button>
