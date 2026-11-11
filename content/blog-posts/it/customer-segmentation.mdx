@@ -1,0 +1,229 @@
+---
+title: "Segmentazione della clientela: tipi, esempi e impostazione"
+description: "Segmentazione della clientela: i quattro tipi con esempi B2B, analisi ABC per fatturato, RFM e un’impostazione svolta con campi, viste e grafici in un CRM."
+
+relatedHrefs:
+  - /features/reporting
+  - /blog/key-account-management
+  - /blog/customer-acquisition
+  - /blog/customer-journey
+
+hero:
+  title: "Segmentazione della clientela: tipi, esempi e come impostarla in un CRM"
+  description: "Cos’è la segmentazione della clientela, i quattro tipi con esempi B2B, come raggruppare i clienti per fatturato (ABC) o per comportamento d’acquisto (RFM) e un’impostazione con campi, viste salvate e una board per un piccolo team."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-11-03
+  tags:
+    - Segmentazione della clientela
+    - Vendite B2B
+    - Processo di vendita
+---
+
+# Segmentazione della clientela: tipi, esempi e come impostarla in un CRM
+
+La segmentazione della clientela consiste nel dividere i clienti in pochi gruppi che condividono un tratto capace di cambiare come vendi loro, come li servi o come fissi i prezzi: settore, dimensione dell’azienda, regione, comportamento d’acquisto o fatturato che portano. I quattro tipi che la maggior parte delle guide cita sono demografico, geografico, psicografico e comportamentale; nel B2B il lavoro lo fanno soprattutto le caratteristiche dell’azienda e il valore del cliente, e un piccolo team può gestire tutto con qualche campo, viste salvate e una board in un CRM.
+
+Questa guida definisce che cos’è un segmento di clientela, mostra i quattro tipi come tabella B2B con la fonte dei dati e l’azione per ciascuno, passa in rassegna i due metodi che i piccoli team usano di più (l’analisi ABC per fatturato e l’RFM per gli ordini ripetuti) e si chiude con un’impostazione in Customermates, il CRM open source che la pubblica. Customermates non ha segmentazione automatica, lead scoring né campagne e-mail, quindi l’ultima sezione dice cosa fai a mano e quando conviene uno strumento di marketing automation.
+
+<ArticleSummary title="In sintesi">
+  <SummaryItem label="Definizione">La segmentazione della clientela è dividere i clienti in gruppi che condividono caratteristiche, così che ogni gruppo riceva il trattamento che gli si addice. Un segmento di clientela è uno di questi gruppi.</SummaryItem>
+  <SummaryItem label="Quattro tipi">Demografico (nel B2B: firmografico), geografico, comportamentale, e per esigenze o valore. I manuali per il consumatore elencano lo psicografico dove questa guida elenca le esigenze.</SummaryItem>
+  <SummaryItem label="Due metodi per i piccoli team">L’analisi ABC ordina i clienti per fatturato. L’RFM assegna un punteggio a recency, frequenza e spesa per i clienti che ordinano di continuo.</SummaryItem>
+  <SummaryItem label="Quanti segmenti">Da tre a cinque, ciascuno con un’azione che sai nominare. Un segmento senza un’azione è solo un’etichetta.</SummaryItem>
+  <SummaryItem label="In Customermates">Campi a scelta singola, filtri e viste salvate, una board e grafici della dashboard per segmento, con valori che imposti tu. Nessun segmento automatico, nessun punteggio, nessuna campagna.</SummaryItem>
+</ArticleSummary>
+
+Per il lavoro che precede l’ingresso di un potenziale cliente nella tua pipeline, usa la [guida alla lead generation B2B](/blog/lead-generation) per scegliere un canale e definire cosa si qualifica come lead.
+
+## Che cos’è la segmentazione della clientela e che cos’è un segmento?
+
+Bain & Company definisce la segmentazione della clientela come «la suddivisione di un mercato in gruppi di clienti distinti che condividono caratteristiche simili» (nostra traduzione). Un **segmento di clientela** è uno di quei gruppi, per esempio «aziende manifatturiere con 50-250 dipendenti» o «clienti che hanno ordinato negli ultimi 90 giorni». Un **modello di segmentazione della clientela** è l’insieme dei criteri più la regola che assegna ogni cliente a un solo segmento.
+
+Vale la pena distinguere due concetti vicini. La segmentazione del mercato divide l’intero mercato, comprese le persone che non hanno mai sentito parlare di te; la segmentazione della clientela lavora sui clienti e sui contatti che conosci, quelli presenti nel tuo CRM. E un modello può essere una manciata di regole scritte, che è ciò che mostra questa guida, oppure un clustering statistico che raggruppa i clienti in base a molte variabili insieme. Il clustering richiede strumenti di analisi e molti dati, di solito più di quanto serva a un team con qualche centinaio di clienti.
+
+Un segmento vale la pena di essere tenuto quando supera quattro prove (una lista di controllo mia, non uno standard):
+
+- **Identificabile:** un campo del tuo CRM ti dice a quale segmento appartiene un cliente.
+- **Diverso:** faresti qualcosa di diverso per lui, come un’altra offerta, un altro ritmo di contatto o un altro prezzo.
+- **Abbastanza grande:** clienti o fatturato sufficienti perché il trattamento diverso si ripaghi.
+- **Stabile:** i clienti non cambiano segmento ogni settimana, quindi basta una revisione una volta a trimestre.
+
+Se non riesci a nominare l’azione per un segmento, eliminalo o uniscilo a uno vicino.
+
+## Quali sono i quattro tipi di segmentazione della clientela?
+
+La risposta consueta elenca quattro basi per i mercati di consumo: geografica, demografica, psicografica e comportamentale. Per il B2B, l’[articolo di Wikipedia sulla segmentazione del mercato](https://en.wikipedia.org/wiki/Market_segmentation) osserva che le basi più usate sono la geografica e la firmografica, cioè caratteristiche come dimensione dell’azienda, settore o sede. Stile di vita e personalità (psicografia) si vedono di rado in un’azienda, quindi la tabella usa esigenze e valore come quarta base. I manuali la classificano sotto il comportamentale, come segmentazione per benefici o per esigenze.
+
+| Base | Valori d’esempio nel B2B | Da dove vengono i dati | Cosa fai di diverso per segmento |
+| --- | --- | --- | --- |
+| Firmografica (la versione B2B della demografica) | Settore, dimensione dell’azienda, forma giuridica, anni di attività | Le tue ricerche, il sito dell’azienda, la prima conversazione | Referenze e formulazioni diverse per settore; un’offerta self-service per le piccole aziende e una chiamata per le grandi |
+| Geografica | Paese, regione, città, fuso orario | L’indirizzo di fatturazione o di consegna | Lingua e valuta dell’offerta, a quali eventi partecipi, chi visita e chi telefona |
+| Comportamentale | Data dell’ultimo ordine, ordini all’anno, prodotti acquistati, come il cliente ti ha trovato | Le tue fatture e i tuoi ordini, le trattative e le conversazioni nel CRM | Un controllo dopo il primo ordine, una telefonata per riconquistare il cliente quando gli ordini si fermano, un upsell per chi compra spesso |
+| Esigenze e valore | Il problema per cui ti assumono, fatturato annuo, margine, potenziale di crescita | Chiamate di scoperta, le tue note, fatturato per cliente | Con quale offerta parti e quanto tempo di gestione riceve il cliente |
+
+Parti da una o due basi. Una tabella con cinque basi e dodici segmenti sembra accurata e viene ignorata. La maggior parte dei piccoli team funziona bene con una divisione firmografica per chi è il cliente, più il valore o il comportamento per come agisce e cosa porta.
+
+I fatti di terzi in questa sezione sono stati verificati il 3 novembre 2026 (vedi le fonti in fondo).
+
+Per i pochi clienti che portano la maggior parte del fatturato, la nostra guida al [key account management](/blog/key-account-management) tratta criteri di selezione, piani d’account e ritmi di revisione.
+
+## Un esempio di segmento di clientela
+
+Tre aziende inventate mostrano come si combinano le basi. Sono illustrazioni, non riferimenti.
+
+| Azienda | Base | Segmenti d’esempio | Cosa cambia |
+| --- | --- | --- | --- |
+| Società di servizi IT con 60 clienti | Firmografica, poi valore | Aziende manifatturiere con più di 100 addetti, studi medici, tutti gli altri; dentro ciascuno, i cinque clienti più grandi | Caso studio e ruolo del contatto nell’outreach cambiano per settore; i clienti più grandi ricevono un referente con nome e una revisione annuale |
+| Grossista di prodotti per la pulizia | Comportamentale (RFM) | Abituali, acquirenti occasionali, a rischio, persi | Gli abituali ricevono una telefonata una volta a trimestre, gli acquirenti occasionali un controllo su un secondo ordine, i clienti a rischio una telefonata personale |
+| Agenzia di design con clienti a progetto | Valore (ABC) | Key account, core, piccoli | I key account ottengono un accesso anticipato alla capacità, i piccoli clienti un pacchetto standard |
+
+Le aziende che vendono ai consumatori, come i negozi online, segmentano per età, luogo o storico degli acquisti. Un team B2B segmenta le aziende, e le persone che ci lavorano ereditano il segmento della loro azienda.
+
+## Quali sono i cinque segmenti di clientela?
+
+Non esiste un elenco standard di cinque. Il numero e i nomi derivano dai criteri che scegli, quindi una guida che elenca cinque segmenti mostra un modello, non una regola. Per un piccolo team B2B con affari ricorrenti, una serie praticabile di cinque mescola valore e comportamento (un mio suggerimento, non uno standard del settore):
+
+1. **Dormienti:** nessun ordine negli ultimi 12 mesi.
+2. **Nuovi:** primo ordine meno di 12 mesi fa. Hanno un fatturato basso solo perché sono nuovi.
+3. **Key account:** classe ABC A, i clienti che portano la maggior parte del fatturato.
+4. **Core:** classe ABC B.
+5. **Piccoli:** classe ABC C.
+
+Ogni cliente sta in un solo segmento, quindi scrivi le regole in ordine: prima Dormienti, poi Nuovi, poi A, B e C per fatturato. Senza un ordine di precedenza, un nuovo key account finisce in due segmenti.
+
+## Come funziona l’analisi ABC per fatturato?
+
+L’analisi ABC è un modo diffuso di segmentare una base clienti per valore, ed è facile da eseguire senza un team di analisti. Ordini i clienti per fatturato e dividi l’elenco in tre classi: A per i pochi clienti che portano la maggior parte del fatturato, B per quelli di mezzo, C per la lunga coda. L’inquadramento da manuale è il principio di Pareto, grosso modo l’80% del risultato dal 20% delle cause, che nelle vendite significa un quinto dei clienti che porta quattro quinti del fatturato. Consideralo una regola empirica. L’[articolo di Wikipedia sul principio di Pareto](https://en.wikipedia.org/wiki/Pareto_principle) definisce la ripartizione 80:20 una comoda regola empirica e non una legge immutabile, e [quello sull’analisi ABC](https://en.wikipedia.org/wiki/ABC_analysis) osserva che non esistono soglie fisse per le classi. Le soglie le decidi tu.
+
+1. **Elenca ogni cliente con il suo fatturato** per un periodo fisso, di solito gli ultimi 12 mesi.
+2. **Ordina dal più alto al più basso** e aggiungi la quota di ciascun cliente sul fatturato totale.
+3. **Somma le quote** dall’alto, così che ogni riga mostri la quota cumulata.
+4. **Traccia due linee** dove la quota cumulata supera le tue soglie, per esempio 70% e 90%. I clienti sopra la prima linea sono A, tra le due linee B, sotto la seconda C.
+
+Ecco il risultato per dieci clienti inventati (fatturato in migliaia su 12 mesi, 500 in totale):
+
+| Cliente | Fatturato | Quota sul totale | Quota cumulata | Classe |
+| --- | --- | --- | --- | --- |
+| 1 | 180 | 36% | 36% | A |
+| 2 | 110 | 22% | 58% | A |
+| 3 | 60 | 12% | 70% | A |
+| 4 | 40 | 8% | 78% | B |
+| 5 | 30 | 6% | 84% | B |
+| 6 | 25 | 5% | 89% | B |
+| 7 | 20 | 4% | 93% | C |
+| 8 | 15 | 3% | 96% | C |
+| 9 | 12 | 2,4% | 98,4% | C |
+| 10 | 8 | 1,6% | 100% | C |
+
+| Classe | Clienti | Quota dei clienti | Quota del fatturato | Cosa fai di diverso |
+| --- | --- | --- | --- | --- |
+| A | 3 | 30% | 70% | Un responsabile con nome, una chiamata a trimestre, un segnale d’allarme quando qualcosa cambia |
+| B | 3 | 30% | 19% | Contatto regolare, una domanda all’anno su cos’altro potresti fare per loro |
+| C | 4 | 40% | 11% | Un’offerta standard, poco lavoro manuale, una nota quando uno comincia a crescere |
+
+Gli elenchi reali raramente assomigliano a 20 e 80. In questo esempio i primi tre clienti, il 30% dell’elenco, portano il 70% del fatturato, ed è normale. La tabella mostra anche un rischio da nominare: il solo cliente 1 vale il 36% del fatturato.
+
+L’ABC per fatturato ha dei limiti. Il fatturato non è profitto: un grande cliente che richiede dieci volte l’assistenza può farti guadagnare meno di uno più piccolo, quindi usa il margine di contribuzione dove lo conosci. I clienti nuovi si collocano in basso perché hanno appena cominciato, ed è per questo che la serie di cinque segmenti qui sopra li toglie per primi. E il metodo classifica il passato, non il potenziale, quindi aggiungi una breve nota sul potenziale di crescita per i clienti che vuoi far crescere.
+
+Una volta che sai quali segmenti portano il fatturato, la [guida all’acquisizione clienti](/blog/customer-acquisition) mostra come calcolare quanto costa ogni canale per nuovo cliente, così puoi cercare più clienti come quelli della tua classe A.
+
+## Come funziona la segmentazione RFM e quando conviene?
+
+L’RFM assegna a ogni cliente un punteggio su tre domande: **recency** (quanto tempo fa è stato l’ultimo ordine), **frequenza** (con che frequenza ordina) e **valore monetario** (quanto spende). L’[articolo di Wikipedia sull’RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29) lo descrive come un metodo per analizzare il valore dei clienti e segmentarli, molto usato nel marketing per catalogo e diretto, e osserva che non richiede software statistici specializzati.
+
+Per un piccolo team bastano tre fasce per domanda. Le soglie qui sotto sono esempi; fissa le tue in base a quanto spesso i tuoi clienti ordinano davvero.
+
+| Punteggio | Recency (giorni dall’ultimo ordine) | Frequenza (ordini in 12 mesi) | Monetario (fatturato in 12 mesi) |
+| --- | --- | --- | --- |
+| 3 | Fino a 90 giorni | 6 o più | Il terzo superiore dei tuoi clienti |
+| 2 | Da 91 a 365 giorni | Da 2 a 5 | Il terzo centrale |
+| 1 | Oltre 365 giorni | 0 o 1 | Il terzo inferiore |
+
+Trasforma i punteggi in quattro segmenti con regole semplici, controllate in quest’ordine:
+
+- **Persi:** recency 1. Niente da un anno; decidi una volta per tutte se riconquistarli o lasciarli andare.
+- **A rischio:** recency 2 e frequenza 2 o 3. Ordinavano con regolarità e sono diventati silenziosi; chiamali per primi.
+- **Acquirenti occasionali:** frequenza 1 e recency 2 o 3. Hanno ordinato una volta nell’ultimo anno; fai in modo che il secondo ordine arrivi.
+- **Abituali:** recency 3 e frequenza 2 o 3. Tienili contenti e chiedi segnalazioni.
+
+Ogni combinazione di punteggi finisce in uno solo dei quattro.
+
+All’interno di ogni segmento, ordina per punteggio monetario, così chiami per primi i clienti di maggior valore.
+
+L’RFM si adatta alle aziende i cui clienti ordinano di nuovo: commercio all’ingrosso, materiali di consumo, rinnovi, retainer. Non si adatta a un’attività che vende un grande progetto ogni qualche anno, perché la frequenza è 1 per quasi tutti. In quel caso usa invece l’ABC per fatturato e una nota su esigenze e potenziale.
+
+## Come si fa la segmentazione clienti B2B in cinque passaggi?
+
+1. **Scrivi l’obiettivo in una frase.** Per esempio: «decidere chi riceve una telefonata a trimestre». Un obiettivo ti dice quale base usare.
+2. **Scegli una o due basi** dalla tabella qui sopra ed elenca da tre a cinque segmenti con una regola scritta per ciascuno.
+3. **Metti i dati nei campi.** Un segmento che non puoi leggere da un campo non si può filtrare, rappresentare in un grafico né far controllare a un collega.
+4. **Assegna ogni cliente e controlla a mano dieci di loro.** Se non sei d’accordo con il risultato per tre su dieci, la regola va rivista.
+5. **Collega un’azione e un responsabile a ogni segmento e fissa una data di revisione.** Per la maggior parte dei piccoli team basta una revisione trimestrale.
+
+I segmenti affinano anche il resto del lavoro di vendita. Il profilo target che usi per qualificare un lead (vedi [prospect e lead](/blog/prospect-vs-lead)) è un segmento messo per iscritto: i clienti di cui vuoi di più. E una mappa della [customer journey](/blog/customer-journey) funziona meglio per un segmento alla volta, perché i touchpoint di un’agenzia di dieci persone e di un’azienda manifatturiera di 300 sono diversi.
+
+## Come si imposta la segmentazione della clientela in Customermates?
+
+Customermates è il nostro prodotto, un CRM open source. Tiene i tuoi clienti, le persone che ci lavorano e le loro trattative sugli stessi record (e, nei piani con la Posta in arrivo unificata, i loro messaggi), e i suoi campi, filtri, viste salvate, board e grafici della dashboard bastano per gestire i segmenti qui sopra. Non assegna i segmenti da solo: il valore lo imposti tu, con la regola che hai scritto.
+
+Un segmento rende quando qualcuno agisce: il key account riceve la chiamata, il cliente dormiente riceve il controllo. Poiché il segmento sta sul record accanto alle conversazioni, il follow up di ogni segmento ha un posto in cui avvenire. Su Customermates Cloud da Pro colleghi LinkedIn ed e-mail, e Mate o il tuo agente IA prepara il controllo per ogni cliente il cui passo successivo è in scadenza, da rivedere e inviare.
+
+<Steps>
+  <Step title="Aggiungi i campi del segmento alle Organizzazioni">In **Modello dati** apri la lista che contiene le aziende clienti, di solito Organizzazioni, scegli **Aggiungi**, poi **Campo**, e crea un campo a **Scelta singola** «Segmento» con le tue opzioni (per esempio Key account, Core, Piccoli, Nuovi, Dormienti). Aggiungi anche «Settore» e «Dimensione» (da 1 a 10, da 11 a 50, da 51 a 250, oltre 250 dipendenti) come campi a **Scelta singola**, così i grafici possono raggrupparli. Per RFM o ABC aggiungi un campo **Importo** «Fatturato 12 mesi» e un campo **Data** «Ultimo ordine». Non ci sono tag dei record; un campo a **Scelta multipla** è l’equivalente quando un’azienda appartiene a più gruppi. Un nuovo spazio di lavoro parte senza liste; su Customermates Cloud la configurazione con l’IA può crearle per te.</Step>
+  <Step title="Compila i campi">Clicca un valore nella tabella per modificarlo sul posto. Se i tuoi clienti vivono in un foglio di calcolo, aggiungi una colonna Segmento e porta dentro il file con **Aggiungi da file** (Excel o CSV): la procedura guidata abbina le colonne e ti lascia scegliere record nuovi o esistenti. Un campo calcolato può sommare il valore delle trattative collegate a un’organizzazione se vuoi il fatturato calcolato; controlla che la sua anteprima mostri ciò che consideri fatturato. La [guida ai record](/docs/app-records) documenta campi, importazione e viste.</Step>
+  <Step title="Salva una vista per segmento">Apri **Filtri**, scegli Segmento è Key account, ordina per Fatturato 12 mesi o per Ultimo ordine e usa **Salva come vista**. I filtri si combinano con AND, quindi «Key account e Settore Produzione» funziona; per «Key account o Core» seleziona entrambi i valori nello stesso filtro Segmento. Sui Contatti il menu dei filtri elenca anche i campi delle liste collegate, così puoi filtrare le persone per il Segmento della loro organizzazione. Condividi la vista con tutto il team o con ruoli selezionati, così tutti lavorano dallo stesso segmento; il link di una vista privata si apre come modifiche non salvate che un collega può salvare come propria.</Step>
+  <Step title="Apri la board per segmento">In **Aspetto** scegli **Board** e raggruppa per Segmento. Ogni segmento diventa una colonna, e trascinare una scheda sposta l’azienda in un altro segmento. Una board raggruppa per un campo a scelta della propria lista, quindi tieni Segmento sulle Organizzazioni e apri la board lì.</Step>
+  <Step title="Rappresenta i segmenti in un grafico sulla dashboard">Aggiungi widget a grafico: un anello che conta le Organizzazioni per Segmento, un grafico a barre delle Organizzazioni per Settore e un grafico con le Trattative come origine che somma il valore delle trattative raggruppato per il Segmento dell’organizzazione. Una trattativa collegata a due organizzazioni conta per intero in entrambi i gruppi. Mettili in una vista della dashboard con nome e condividila con il team, oppure usa **Condividi come modello** così i colleghi partono con una propria copia. La [pagina della funzione Reportistica](/features/reporting) elenca gli stili di grafico, e la [guida alla dashboard](/docs/app-dashboard) l’editor dei widget.</Step>
+</Steps>
+
+I grafici mostrano a che punto è oggi ogni segmento. Non tracciano come i clienti si spostano tra i segmenti nel tempo. Le persone e le loro trattative restano sugli stessi [record di contatti e organizzazioni](/features/contact-management), quindi il segmento è visibile ovunque tu lavori.
+
+Su Customermates Cloud l’assistente Mate può controllare la qualità dei tuoi dati con crediti IA ospitati:
+
+> Mostrami ogni organizzazione senza Segmento, con il suo Fatturato 12 mesi, dal più alto. Non modificare nulla.
+
+Se preferisci Claude, ChatGPT o un altro client IA, il [server MCP](/blog/what-is-an-mcp-server) gli dà accesso agli stessi record con il tuo fornitore di IA.
+
+Per provarlo sul tuo elenco clienti, [avvia la prova](/auth/signup?job=followup): [[commercial.trial.days]] giorni di Pro senza carta di credito. Importa il foglio di calcolo, aggiungi il campo Segmento e imposta il primo passo successivo.
+
+<AcquisitionCallout title="Cosa Customermates non fa per la segmentazione della clientela" variant="boundary">
+  Nessuna segmentazione o clustering automatico: i segmenti sono valori che imposti a mano, tramite importazione o tramite l’API. Nessun lead scoring e nessun arricchimento dei dati, quindi non valuta i clienti né compila settore e dimensione al posto tuo. Nessuna campagna e-mail, sequenza o invio di massa: l’outreach è un messaggio preparato alla volta. Una vista condivisa è di sola lettura per i colleghi, e i filtri si combinano solo con AND. Se ti servono segmenti che si aggiornano da soli in base al comportamento sul sito o nel prodotto, campagne e-mail segmentate o un clustering statistico su migliaia di clienti consumatori, usa una piattaforma di marketing automation o uno strumento di analisi. Customermates si adatta a un piccolo team B2B con qualche centinaio di clienti, una manciata di segmenti e note, trattative e contatti sullo stesso record.
+</AcquisitionCallout>
+
+## FAQ
+
+<Faq>
+<FaqItem question="Che cos’è la segmentazione della clientela in parole semplici?">
+Dividere i clienti in gruppi che condividono qualcosa di utile, come settore, dimensione, regione, comportamento d’acquisto o fatturato, così che ogni gruppo riceva l’offerta, il ritmo di contatto e l’attenzione che gli si addicono. Un segmento di clientela è uno di quei gruppi.
+</FaqItem>
+
+<FaqItem question="Quali sono i quattro tipi di segmentazione della clientela?">
+Demografico, geografico, psicografico e comportamentale è l’elenco consueto per i consumatori. Nel B2B il demografico diventa firmografico (settore, dimensione dell’azienda, sede), e lo psicografico viene spesso sostituito da esigenze e valore, perché lo stile di vita di un’azienda si vede di rado. Parti da uno o due.
+</FaqItem>
+
+<FaqItem question="Un esempio di segmento di clientela?">
+«Aziende manifatturiere con 50-250 dipendenti», «clienti che hanno ordinato negli ultimi 90 giorni» e «i tre clienti che portano il 70% del fatturato» sono tutti segmenti. Ciascuno è definito da una regola che puoi controllare in un campo, e ciascuno riceve un’azione diversa.
+</FaqItem>
+
+<FaqItem question="Quali sono i cinque segmenti di clientela?">
+Non esiste un cinque standard. Una serie praticabile per un piccolo team B2B è Dormienti, Nuovi, Key account, Core e Piccoli, con regole scritte controllate in quest’ordine. Il numero di segmenti deve seguire i tuoi criteri e le azioni che puoi compiere, non un modello preconfezionato.
+</FaqItem>
+
+<FaqItem question="Che cos’è un modello di segmentazione della clientela?">
+I criteri con cui segmenti più la regola che assegna ogni cliente a un segmento, per esempio «classe ABC per fatturato negli ultimi 12 mesi» o le fasce RFM. I modelli vanno da poche regole scritte al clustering statistico; i piccoli team di solito hanno bisogno solo delle regole.
+</FaqItem>
+
+<FaqItem question="Quanti segmenti di clientela dovrebbe avere una piccola impresa?">
+Da tre a cinque. Ogni segmento ha bisogno di un’azione e di un responsabile, e un team di poche persone non può gestire dodici trattamenti diversi. Unisci i segmenti che tratteresti allo stesso modo.
+</FaqItem>
+
+<FaqItem question="Customermates può segmentare i clienti in automatico?">
+No. Customermates non ha segmentazione automatica, lead scoring o arricchimento dei dati né campagne e-mail. Imposti tu un campo Segmento a mano, tramite importazione o tramite l’API, e filtri, viste salvate, board e grafici della dashboard lavorano a partire da quello.
+</FaqItem>
+</Faq>
+
+Fatti di terzi verificati il 3 novembre 2026 su [la pagina di Bain & Company sugli strumenti di gestione per la segmentazione della clientela](https://www.bain.com/insights/management-tools-customer-segmentation/), gli articoli di Wikipedia su [segmentazione del mercato](https://en.wikipedia.org/wiki/Market_segmentation), [principio di Pareto](https://en.wikipedia.org/wiki/Pareto_principle), [analisi ABC](https://en.wikipedia.org/wiki/ABC_analysis) e [RFM](https://en.wikipedia.org/wiki/RFM_%28market_research%29). Il comportamento di Customermates descritto proviene dalla documentazione del prodotto su [record e viste](/docs/app-records), [filtri](/docs/filter-syntax) e [dashboard](/docs/app-dashboard).

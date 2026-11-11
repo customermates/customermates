@@ -49,6 +49,12 @@ const STATUS_LABELS: Record<MarketingLocale, Record<VisualStatusFixtureId, strin
     "deal-open": "Ouverte",
     "deal-won": "Gagnée",
   },
+  it: {
+    "deal-abandoned": "Abbandonata",
+    "deal-lost": "Persa",
+    "deal-open": "Aperta",
+    "deal-won": "Vinta",
+  },
 };
 
 export function NativeAgentProviderIdentity({

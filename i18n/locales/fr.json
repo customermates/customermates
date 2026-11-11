@@ -2457,6 +2457,7 @@
     "appTrash": "Corbeille",
     "appWorkspaces": "Espaces de travail",
     "architectureSecurity": "Architecture et sécurité",
+    "changelog": "Journal des modifications",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
     "connectConnector": "Connecteur personnalisé",
@@ -2472,6 +2473,7 @@
     "n8n": "N8N",
     "openapi": "OpenAPI 3.1.0",
     "quickstart": "Démarrage rapide",
+    "releases": "Versions",
     "selfHosting": "Auto-hébergement",
     "webhooks": "Webhooks"
   },

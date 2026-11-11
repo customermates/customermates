@@ -1,0 +1,159 @@
+---
+title: "Échéancier de suivi client : définition et version CRM"
+description: "Échéancier de suivi client : le tickler file à 43 dossiers expliqué, comparé à l’indicateur Outlook et au tableur, puis installé dans un CRM en cinq étapes."
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/task-management
+  - /blog/sales-follow-up-email
+  - /blog/digital-rolodex
+
+hero:
+  title: "Échéancier de suivi client : le système 1 à 31 et sa version numérique"
+  description: "Échéancier de suivi client : le tickler file à 43 dossiers expliqué, comparé à l’indicateur Outlook et au tableur, puis installé dans un CRM en cinq étapes."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - Relance
+    - Gestion du temps
+    - Tickler file
+---
+
+# Échéancier de suivi client : le système 1 à 31 et sa version numérique
+
+Un échéancier de suivi client est une liste de rendez-vous avec vous-même : chaque réponse attendue, chaque proposition envoyée et chaque document reçoit une date, et vous ne le revoyez que ce jour-là. C’est la version numérique du « tickler file », un classeur de 43 dossiers (31 pour les jours du mois, 12 pour les mois). Attention : « échéancier » désigne le plus souvent un échéancier de paiement, par exemple pour étaler une dette ou une facture ; ce guide parle de l’échéancier de suivi. Dans Customermates, il se compose d’un champ « Date de la prochaine étape », d’une vue enregistrée triée sur cette date et du widget « À venir ».
+
+Ce guide explique le principe du « tickler file », déroule le système à 43 dossiers avec un exemple chiffré, compare le papier, l’indicateur de suivi d’Outlook, le tableur et un CRM, puis installe la version numérique dans Customermates pas à pas. Customermates publie ce guide et apparaît dans ses propres sections signalées, y compris les cas où il n’est pas le bon choix. Les informations de tiers ont été vérifiées le 11 novembre 2026 ; les sources sont liées là où elles servent.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="Le principe">Vous classez chaque élément à la date où vous devez le revoir, et vous n’ouvrez que le dossier du jour, chaque matin. Le classement se souvient à votre place jusqu’au jour dit.</SummaryItem>
+  <SummaryItem label="Papier">43 dossiers : 31 numérotés pour les jours du mois et 12 nommés d’après les mois. Ce qui concerne un mois suivant attend dans le dossier du mois et passe dans les dossiers des jours quand ce mois commence.</SummaryItem>
+  <SummaryItem label="Outlook">Un indicateur de suivi sur un seul e-mail, avec une date de début et d’échéance et un rappel facultatif. Il suit un message, pas le client qui se trouve derrière.</SummaryItem>
+  <SummaryItem label="Customermates">Un champ Date, une vue triée dessus et le widget « À venir » avec une section « En retard ». Disponible sur toutes les formules, auto-hébergement compris. Aucun rappel n’est envoyé : la liste est le rappel.</SummaryItem>
+  <SummaryItem label="Transparence">Customermates publie ce guide. Les autres options sont décrites selon leur adéquation, sans classement.</SummaryItem>
+</ArticleSummary>
+
+## Qu’est-ce qu’un échéancier de suivi, et en quoi diffère-t-il d’un échéancier de paiement ?
+
+Un échéancier de paiement liste des sommes et leurs dates d’échéance : il sert à régler une dette ou une facture par versements. Un échéancier de suivi liste des choses à revoir : une relance à faire, une réponse à obtenir, un document à vérifier. Customermates ne gère ni les factures ni les paiements, donc seul le second vous concerne ici.
+
+En anglais, l’échéancier de suivi s’appelle « tickler file », ou système des 43 dossiers. Wikipédia en anglais décrit sa structure comme 31 dossiers quotidiens et 12 dossiers mensuels : on classe un papier ou une note à la date où l’on doit s’en occuper, et chaque jour on ouvre le dossier de cette date ([Wikipedia : Tickler file, en anglais](https://en.wikipedia.org/wiki/Tickler_file)). Le nom renvoie au classement qui « chatouille » la mémoire au bon moment.
+
+L’idée est plus ancienne que les livres de productivité. Wikipédia rappelle que des cabinets d’avocats classaient déjà des fiches par date au début du XXe siècle, peut-être plus tôt, pour que l’avocat reçoive la fiche à l’approche d’une échéance, par exemple pour le renouvellement d’une marque. David Allen, dont le livre Getting Things Done traite du système, le compare sur son site à un bureau de poste personnel qui vous renvoie les choses au bon moment, et affirme qu’il n’exige qu’une seconde par jour d’un comportement nouveau ([Getting Things Done : Be your own post office, en anglais](https://gettingthingsdone.com/2009/11/be-your-own-post-office/)).
+
+Tout ce que vous voulez revoir un jour précis peut y entrer : une facture à payer, un billet, un formulaire, une note pour rappeler quelqu’un. En affaires, les éléments les plus utiles sont les conversations qui attendent une date : une proposition envoyée, un prospect qui demande qu’on le rappelle après un salon, un renouvellement que vous voulez ouvrir tôt.
+
+## Comment fonctionne le classeur à 43 dossiers ?
+
+<Steps>
+  <Step title="Étiquetez 43 dossiers">Douze dossiers portent le nom des mois, trente et un les chiffres de 1 à 31. C’est ainsi qu’Allen décrit le jeu de dossiers.</Step>
+  <Step title="Classez chaque élément par date">Ce que vous voulez revoir plus tard ce mois-ci va dans le dossier du jour. Ce qui concerne un mois suivant va dans le dossier de ce mois.</Step>
+  <Step title="Ouvrez le dossier du jour chaque matin">Sortez tout et traitez-le : faire la tâche, envoyer le message, payer la facture ou le reclasser à une date ultérieure.</Step>
+  <Step title="Passez le dossier vide à l’arrière">Selon Wikipédia, le dossier du jour est vidé puis placé à la fin du jeu, de sorte que le dossier du lendemain se trouve devant.</Step>
+  <Step title="Répartissez le nouveau mois dans les jours">Le premier du mois, ouvrez le dossier de ce mois et répartissez son contenu dans les dossiers des jours. Plus rien n’a besoin d’être regardé avant son jour.</Step>
+</Steps>
+
+Voici un exemple. Il est inventé et commence le mercredi 11 novembre 2026.
+
+| Élément | À revoir le | Tickler papier | Version numérique |
+| --- | --- | --- | --- |
+| Une proposition est partie aujourd’hui ; le client a dit qu’il déciderait d’ici le mercredi 18 novembre | 18 novembre | Dossier 18 | Prochaine étape « Demander la décision », Date de la prochaine étape 18 novembre |
+| Un prospect a dit : « rappelez-moi après notre salon du 3 décembre » | 3 décembre | Dossier décembre, passé dans le dossier 3 le 1er décembre | Prochaine étape « Appeler au sujet de la proposition », date 3 décembre ; il entre dans le widget « À venir » dès que la date tombe dans sa fenêtre de jours |
+| Il vous manque le prix d’un fournisseur pour répondre à un client ; il est promis pour le vendredi 13 novembre | 13 novembre | Dossier 13 | Prochaine étape « Relancer le fournisseur pour le prix », date 13 novembre |
+| Le contrat d’un client se termine en janvier et vous voulez ouvrir la discussion de renouvellement en décembre | 1er décembre | Dossier décembre | Prochaine étape « Ouvrir la discussion de renouvellement », date 1er décembre |
+
+La version numérique supprime la rotation des dossiers. Personne ne passe un dossier à l’arrière, car le tri s’en charge, et les dossiers de mois disparaissent : une date en mars attend simplement dans la liste jusqu’à ce qu’elle apparaisse.
+
+## Papier, indicateur Outlook, tableur ou CRM : quel échéancier de suivi choisir ?
+
+Quatre voies couvrent presque tous les cas. La ligne Customermates est notre propre produit ; les autres sont décrites selon ce qu’elles font.
+
+| Option | Fonctionnement de la date | Vous rappelle-t-elle ? | Ce qui accompagne l’élément | Convient quand |
+| --- | --- | --- | --- | --- |
+| Papier, 43 dossiers | Un dossier par jour et par mois | Non. Vous ouvrez le dossier du jour chaque matin | Le papier lui-même | Vous gérez du courrier, des factures, des billets et des formulaires physiques |
+| Indicateur de suivi Outlook | Un indicateur sur un message avec Aujourd’hui, Demain, Cette semaine, Semaine prochaine, Aucune date ou des dates de début et d’échéance personnalisées | « Ajouter un rappel » programme un rappel ; les messages marqués apparaissent dans la barre To-Do, dans les tâches et dans la liste des tâches quotidiennes du calendrier | Un seul e-mail | Le suivi part d’un e-mail dans Outlook |
+| Tableur | Une colonne de dates que vous triez | Pas, sauf si vous le construisez vous-même | Une colonne de notes | Une seule personne, une liste courte |
+| Champ Date dans un CRM (Customermates) | Un champ Date sur le client ou l’affaire | Non. Customermates n’en envoie pas ; une vue triée et le widget « À venir » font office de rappel | La fiche avec notes, contacts et entreprises liés et, à partir de Pro, les conversations LinkedIn et e-mail | Des clients et des affaires avec un historique, pour une personne ou une équipe |
+
+Microsoft documente ces options d’indicateur pour Outlook pour Microsoft 365, Outlook 2024 et Outlook 2021, et précise qu’avec un compte IMAP, vous ne pouvez ni modifier le texte de l’indicateur ni définir les dates de début et d’échéance. Vérifié le 11 novembre 2026 sur [l’aide Microsoft : Marquer les messages électroniques pour le suivi](https://support.microsoft.com/fr-fr/office/9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).
+
+Comment choisir :
+
+- **Des papiers que vous devez garder en original :** le tickler papier. Aucun outil numérique ne conserve la lettre d’origine.
+- **Un suivi qui part d’un seul e-mail, et vous travaillez dans Outlook :** l’indicateur est le chemin le plus court.
+- **Une courte liste personnelle :** un tableur suffit. Le guide du [modèle Excel comme CRM](/blog/excel-crm-template) montre où un tableur atteint ses limites.
+- **Un suivi client sur LinkedIn et par e-mail, avec un historique à relire avant d’appeler :** un CRM, car la date se trouve sur la fiche où se trouve la conversation. À partir de Pro, la [boîte de réception unifiée](/features/unified-inbox) place ces conversations sur le client.
+
+## Comment utiliser un échéancier de suivi pour relancer vos clients ?
+
+Cinq règles transforment les dossiers en habitude commerciale :
+
+- **Une vraie date par conversation ouverte.** Prenez le jour que vous avez promis, pas « dans une semaine », pour que la relance arrive quand le client l’attend.
+- **Écrivez l’action à côté de la date.** « Envoyer le périmètre révisé » vaut mieux que « relancer ».
+- **Après chaque contact, déplacez la date ou effacez-la.** Une affaire sans date est celle qui disparaît de votre vue.
+- **Ouvrez la liste à la même heure chaque jour** et commencez par ce qui est en retard.
+- **Une fois par semaine, cherchez les fiches sans date.** C’est la fuite qu’un échéancier ne montre pas tout seul.
+
+Un [carnet d’adresses numérique](/blog/digital-rolodex) vous dit qui est quelqu’un ; l’échéancier vous dit quand le contacter. Pour la rédaction du message, lisez [comment écrire un mail de relance commerciale](/blog/sales-follow-up-email). La page [logiciel de relance client](/features/follow-up) montre la même prochaine étape datée, avec les conversations LinkedIn et e-mail sur la fiche du client.
+
+## Comment créer un échéancier de suivi dans Customermates ?
+
+D’abord, la correspondance entre le papier et Customermates :
+
+| Dans le tickler papier | Dans Customermates |
+| --- | --- |
+| 31 dossiers de jours | Un champ Date « Date de la prochaine étape ». Le widget « À venir » liste aujourd’hui et les jours suivants, 14 par défaut et jusqu’à 90 |
+| 12 dossiers de mois | Rien à entretenir. Une fiche datée de mars attend dans votre vue triée jusqu’à ce que sa date entre dans la fenêtre du widget |
+| Ouvrir le dossier du jour | Ouvrir le tableau de bord : les fiches du jour et la section « En retard » |
+| Passer le dossier à l’arrière | Déplacer la date de chaque fiche après l’avoir traitée, ou l’effacer |
+| Le papier dans le dossier | La fiche : notes, contacts et entreprises liés, fichiers et, à partir de Pro, conversations |
+| Penser à ouvrir le tiroir | Reste votre habitude. Customermates n’envoie aucun rappel |
+
+<Steps>
+  <Step title="Ajoutez deux champs">Dans **Modèle de données**, ajoutez un champ de type **Date** appelé « Date de la prochaine étape » et un champ de type **Texte** appelé « Prochaine étape » à **Contacts** ou à **Affaires**, ou aux deux si vos prospects vivent dans les affaires. Avec une formule qui inclut Mate, vous pouvez lui demander de les ajouter. Les tâches n’ont pas d’échéance intégrée, le même champ Date y fonctionne donc aussi ; la [gestion des tâches dans le CRM](/features/task-management) montre comment relier les tâches aux clients.</Step>
+  <Step title="Enregistrez la vue Échéancier">Ouvrez **Apparence**, affichez **Prochaine étape** et **Date de la prochaine étape**, réglez **Trier par** sur Date de la prochaine étape, **Croissant**, puis cliquez sur **Nouvelle vue** et nommez-la « Échéancier ». Les dates les plus anciennes sont en haut. Les filtres de date personnalisés prennent des dates fixes (**Avant…**, **Jusqu’au…**) : c’est donc le tri qui garde la liste à jour sans modifier le filtre chaque semaine. Choisissez **Partager…** dans le menu de la vue pour la montrer à tout l’espace de travail ou à des rôles choisis.</Step>
+  <Step title="Ajoutez le widget À venir">Sur le **Tableau de bord**, cliquez sur **Ajouter un widget** et choisissez **À venir**. Choisissez la liste et le champ **Date de la prochaine étape** et excluez les enregistrements terminés, par exemple les affaires gagnées et perdues. Le widget liste ce qui échoit dans les jours à venir et place les dates passées dans une section **En retard**.</Step>
+  <Step title="Enregistrez une vue sans date">Dans la même liste, filtrez **Date de la prochaine étape** avec **est vide** et excluez Gagnée et Perdue dans le champ **Étape**. Tout ce qui apparaît ici est sorti de votre échéancier.</Step>
+  <Step title="Parcourez la liste chaque matin">Commencez par **En retard**, puis le jour même. Faites l’étape, écrivez une ligne dans les notes de la fiche et déplacez la **Date de la prochaine étape** au prochain jour promis, ou effacez-la quand plus rien n’est en attente. Passez la vue en **Calendrier** sur la même date si vous préférez des jours à des lignes, et faites glisser un enregistrement vers un autre jour pour déplacer sa date.</Step>
+</Steps>
+
+Les champs Date, les vues enregistrées et le widget « À venir » n’ont aucune limite de formule : ils fonctionnent en Free, en formule payante et en auto-hébergement. Pour voir les mêmes dates dans une autre application de calendrier, créez une URL d’abonnement dans le calendrier : c’est un flux privé en lecture seule, et votre application de calendrier décide à quelle fréquence il se rafraîchit. Le [guide du tableau de bord](/docs/app-dashboard) détaille les options du widget et le [guide du calendrier](/docs/app-calendar) le flux.
+
+<AcquisitionCallout title="Quand Customermates n’est pas le bon échéancier de suivi" variant="boundary">
+  Customermates n’envoie ni rappel ni notification, n’a pas de tâches récurrentes et ne donne aux tâches aucune échéance intégrée : la liste ne vous rappelle donc rien tant que vous ne l’ouvrez pas. Il ne tient aucun papier (un scan dans un champ Fichier est stocké et affiché, mais son texte n’est pas lu), n’a pas d’application mobile native et aucune synchronisation dans les deux sens avec les calendriers Outlook ou Google ; le flux de calendrier va dans un seul sens et reste en lecture seule. Ce n’est pas non plus un calendrier de délais légaux : un champ Date est une information, pas un délai de procédure. Pour une alerte qui vous trouve, utilisez un indicateur Outlook avec rappel ou votre application de calendrier, ou laissez un planificateur comme n8n lire la date par l’API.
+</AcquisitionCallout>
+
+Customermates Cloud propose une formule Free pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Votre premier espace de travail démarre avec un essai de [[commercial.trial.days]] jours de Pro, puis passe en Free sauf si vous choisissez une formule payante ; les formules payantes commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturé au mois, voir la [page des tarifs](/pricing). Le noyau open source peut être [auto-hébergé](/features/self-hosted) sans frais de licence, sans boîte de réception ni Mate. Pour essayer l’échéancier sur vos propres clients, [lancez votre essai de [[commercial.trial.days]] jours](/auth/signup?job=followup) : Pro, sans carte bancaire. Ajoutez d’abord les deux champs aux affaires.
+
+## Questions fréquentes sur l’échéancier de suivi
+
+<Faq>
+<FaqItem question="Qu’est-ce qu’un échéancier de suivi ?">
+Une liste de dates qui vous ramène un élément le jour où vous devez le revoir : une relance, une réponse attendue, un document. Sur papier, c’est le « tickler file » de 43 dossiers (31 jours, 12 mois) ; en numérique, c’est un champ Date, une vue triée et un widget.
+</FaqItem>
+<FaqItem question="Quelle différence avec un échéancier de paiement ?">
+Un échéancier de paiement répartit une somme à régler en versements datés. Un échéancier de suivi ne gère pas d’argent : il vous rappelle quoi faire et quand. Customermates ne gère ni les factures ni les paiements.
+</FaqItem>
+<FaqItem question="Que signifie « tickler file » ?">
+C’est le nom anglais du classeur à dossiers par date, aussi appelé système des 43 dossiers. Le nom renvoie au classement qui chatouille la mémoire au bon moment.
+</FaqItem>
+<FaqItem question="Comment faire un échéancier de suivi sur papier ?">
+Étiquetez 31 dossiers de 1 à 31 et 12 dossiers de janvier à décembre. Classez chaque élément au jour, ou au mois, où vous devez le revoir. Ouvrez le dossier du jour chaque matin et, le premier du mois, répartissez le dossier de ce mois dans les dossiers des jours.
+</FaqItem>
+<FaqItem question="Existe-t-il un échéancier de suivi numérique ?">
+Oui. Toute liste avec une colonne de dates que vous triez et ouvrez chaque jour convient : un indicateur de suivi Outlook pour les e-mails, un tableur pour une courte liste personnelle, ou un champ Date dans un CRM avec une vue enregistrée et un widget pour le suivi des clients.
+</FaqItem>
+<FaqItem question="Comment marquer un e-mail pour suivi dans Outlook ?">
+Sur l’onglet Message, dans le groupe Étiquettes, choisissez Suivi, puis une date : Aujourd’hui, Demain, Cette semaine, Semaine prochaine, Aucune date ou Personnalisé. « Ajouter un rappel » ajoute un rappel. Avec un compte IMAP, les dates de début et d’échéance ne sont pas disponibles.
+</FaqItem>
+<FaqItem question="Customermates envoie-t-il des rappels d’échéancier ?">
+Non. Il n’y a pas de notifications et les tâches n’ont pas d’échéance intégrée. Vous ajoutez un champ Date, triez une vue enregistrée dessus et l’affichez dans le widget « À venir » ; la liste est le rappel. Pour une alerte, un indicateur Outlook avec rappel ou un planificateur qui lit la date par l’API peut s’en charger.
+</FaqItem>
+</Faq>
+
+Informations de tiers vérifiées le 11 novembre 2026 sur [Wikipedia, Tickler file (en anglais)](https://en.wikipedia.org/wiki/Tickler_file), [le site Getting Things Done de David Allen (en anglais)](https://gettingthingsdone.com/2009/11/be-your-own-post-office/) et [l’aide Microsoft sur le marquage des messages pour le suivi](https://support.microsoft.com/fr-fr/office/9d0f175f-f3e9-406d-bbf7-9c57e1f781cc).

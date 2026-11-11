@@ -48,6 +48,12 @@ const ONBOARDING_COPY = {
     invited:
       "J’accepte de respecter les <termsOfServiceLink>conditions générales</termsOfServiceLink> et j’ai lu le <dpaLink>DPA</dpaLink> ainsi que la <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>.",
   },
+  it: {
+    onboarding:
+      "Dichiaro di avere l’autorizzazione ad agire per il cliente aziendale e accetto i <termsOfServiceLink>Termini</termsOfServiceLink> e il <dpaLink>DPA</dpaLink>. Ho letto l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+    invited:
+      "Accetto di rispettare i <termsOfServiceLink>Termini</termsOfServiceLink> e ho letto il <dpaLink>DPA</dpaLink> e l’<dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>.",
+  },
 } satisfies Record<ContentLocale, { onboarding: string; invited: string }>;
 
 const AUTH_CONTINUATION_COPY = {
@@ -97,7 +103,7 @@ describe("legal Unipile disclosure parity", () => {
   });
 
   it.each(CONTENT_LOCALES)("dpa (%s) references Art. 28 processing on behalf", (name) => {
-    expect(legal(name, "dpa")).toMatch(/Art\.?\s?28|art\.\s28 du RGPD|Article\s?28|Auftragsverarbeitung/);
+    expect(legal(name, "dpa")).toMatch(/Art\.?\s?28|art\.\s28 du RGPD|art\. 28 GDPR|Article\s?28|Auftragsverarbeitung/);
   });
 });
 describe("legal documents describe only what the product does", () => {
@@ -118,33 +124,33 @@ describe("legal documents describe only what the product does", () => {
       expect(privacy, `${name}/privacy does not name ${recipient}`).toContain(recipient);
 
     expect(privacy).toMatch(
-      { en: /consent.*Privacy choices.*withdraw/is, de: /Einwilligung.*Datenschutzauswahl.*widerruf/is, fr: /consentement.*Choix de confidentialité.*retir/is }[name],
+      { en: /consent.*Privacy choices.*withdraw/is, de: /Einwilligung.*Datenschutzauswahl.*widerruf/is, fr: /consentement.*Choix de confidentialité.*retir/is, it: /consens.*Scelte sulla privacy.*revoc/is }[name],
     );
-    expect(privacy).toMatch({ en: /89 days.*30 days/is, de: /89 Tage.*30 Tage/is, fr: /89 jours.*30 jours/is }[name]);
+    expect(privacy).toMatch({ en: /89 days.*30 days/is, de: /89 Tage.*30 Tage/is, fr: /89 jours.*30 jours/is, it: /89 giorni.*30 giorni/is }[name]);
     expect(privacy).toMatch(
-      { en: /no directly identifying data is transmitted.*no hashed email address.*no IP address/is, de: /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is, fr: /aucune donnée directement identifiante n’est transmise.*ni adresse e-mail hachée.*ni adresse IP/is }[name],
+      { en: /no directly identifying data is transmitted.*no hashed email address.*no IP address/is, de: /keine unmittelbar identifizierenden Daten übermittelt.*keine gehashte E-Mail-Adresse.*keine IP-Adresse/is, fr: /aucune donnée directement identifiante n’est transmise.*ni adresse e-mail hachée.*ni adresse IP/is, it: /non vengono trasmessi dati direttamente identificativi.*nessun indirizzo e-mail sottoposto a hash.*nessun indirizzo IP/is }[name],
     );
-    expect(privacy).toMatch({ en: /Reporting is not automatic/i, de: /Rückmeldung erfolgt nicht automatisch/i, fr: /Le retour d’information n’est pas automatique/i }[name]);
+    expect(privacy).toMatch({ en: /Reporting is not automatic/i, de: /Rückmeldung erfolgt nicht automatisch/i, fr: /Le retour d’information n’est pas automatique/i, it: /Il ritorno di informazioni non avviene automaticamente/i }[name]);
     expect(privacy).toMatch(/cm_ad_attribution/);
     for (const company of ["Google LLC", "Reddit, Inc.", "LinkedIn Corporation"])
       expect(privacy, `${name}/privacy does not name the receiving company ${company}`).toContain(company);
     expect(privacy, `${name}/privacy does not state the recipients' role`).toMatch(
-      { en: /independent controller/i, de: /eigenst\u00e4ndig Verantwortlich/i, fr: /responsable du traitement à part entière/i }[name],
+      { en: /independent controller/i, de: /eigenst\u00e4ndig Verantwortlich/i, fr: /responsable du traitement à part entière/i, it: /titolare autonomo del trattamento/i }[name],
     );
     expect(privacy, `${name}/privacy does not state the transfer basis`).toMatch(
-      { en: /Data Privacy Framework/i, de: /Data Privacy Framework/i, fr: /Data Privacy Framework/i }[name],
+      { en: /Data Privacy Framework/i, de: /Data Privacy Framework/i, fr: /Data Privacy Framework/i, it: /Data Privacy Framework/i }[name],
     );
     expect(privacy, `${name}/privacy does not describe the recipients as conditional`).toMatch(
-      { en: /Potential recipients of such a report/i, de: /Mögliche Empfänger einer solchen Meldung/i, fr: /destinataires possibles d’un tel signalement/i }[name],
+      { en: /Potential recipients of such a report/i, de: /Mögliche Empfänger einer solchen Meldung/i, fr: /destinataires possibles d’un tel signalement/i, it: /Possibili destinatari di una tale segnalazione/i }[name],
     );
     expect(privacy, `${name}/privacy still claims a live Google reporting route`).not.toMatch(
-      /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto/i,
+      /spreadsheet in a Customermates Google account|Tabelle in einem Google-Konto|foglio di calcolo in un account Google di Customermates/i,
     );
     expect(privacy).toMatch(
-      { en: /standard contractual clauses/i, de: /Standardvertragsklauseln/i, fr: /clauses contractuelles types/i }[name],
+      { en: /standard contractual clauses/i, de: /Standardvertragsklauseln/i, fr: /clauses contractuelles types/i, it: /clausole contrattuali tipo/i }[name],
     );
     expect(privacy).toMatch(
-      { en: /No advertising pixel, tag, measurement SDK/is, de: /weder Werbepixel noch Tags oder Mess-SDKs/is, fr: /n’employons ni pixels publicitaires, ni balises, ni SDK de mesure/is }[name],
+      { en: /No advertising pixel, tag, measurement SDK/is, de: /weder Werbepixel noch Tags oder Mess-SDKs/is, fr: /n’employons ni pixels publicitaires, ni balises, ni SDK de mesure/is, it: /Non utilizziamo né pixel pubblicitari né tag né SDK di misurazione/is }[name],
     );
   });
 
@@ -157,15 +163,15 @@ describe("legal documents describe only what the product does", () => {
       expect(subprocessors, `${name}/subprocessors is missing ${host}`).toContain(host);
     }
 
-    expect(privacy).toMatch({ en: /IP address.*image URL.*browser.*referr/i, de: /IP-Adresse.*Bild-URL.*Browser.*verweis/i, fr: /adresse IP.*URL de l’image.*navigateur.*référent/i }[name]);
+    expect(privacy).toMatch({ en: /IP address.*image URL.*browser.*referr/i, de: /IP-Adresse.*Bild-URL.*Browser.*verweis/i, fr: /adresse IP.*URL de l’image.*navigateur.*référent/i, it: /indirizzo IP.*URL dell’immagine.*browser.*referrer/i }[name]);
   });
 
   it.each(CONTENT_LOCALES)("legal documents (%s) cover the implemented Unipile social and sales scope", (name) => {
     const text = `${legal(name, "privacy")}\n${legal(name, "dpa")}\n${legal(name, "subprocessors")}`;
 
-    expect(text).toMatch({ en: /social posts.*comments.*reactions/i, de: /Beiträge.*Kommentare.*Reaktionen/i, fr: /publications sur les réseaux sociaux.*commentaires.*réactions/i }[name]);
-    expect(text).toMatch({ en: /relationship requests/i, de: /Kontaktanfragen/i, fr: /demandes de connexion/i }[name]);
-    expect(text).toMatch({ en: /Sales Navigator.*search.*list/is, de: /Sales.Navigator.*Such.*Listen/is, fr: /Sales Navigator.*recherche.*listes/is }[name]);
+    expect(text).toMatch({ en: /social posts.*comments.*reactions/i, de: /Beiträge.*Kommentare.*Reaktionen/i, fr: /publications sur les réseaux sociaux.*commentaires.*réactions/i, it: /post sui social network.*commenti.*reazioni/i }[name]);
+    expect(text).toMatch({ en: /relationship requests/i, de: /Kontaktanfragen/i, fr: /demandes de connexion/i, it: /richieste di contatto/i }[name]);
+    expect(text).toMatch({ en: /Sales Navigator.*search.*list/is, de: /Sales.Navigator.*Such.*Listen/is, fr: /Sales Navigator.*recherche.*listes/is, it: /Sales Navigator.*ricerc.*elenc/is }[name]);
   });
 
   it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) track the current Neon contract chain", (name) => {
@@ -174,7 +180,7 @@ describe("legal documents describe only what the product does", () => {
     expect(text).toContain("https://neon.com/platform-terms");
     expect(text).toContain("https://www.databricks.com/legal/databricks-subprocessors");
     expect(text).toMatch(/Grafana Labs/);
-    expect(text).not.toMatch(/16 (?:April|\. April) 2026/);
+    expect(text).not.toMatch(/16 (?:April|\. April|aprile) 2026/);
   });
 
   it.each(CONTENT_LOCALES)("privacy and subprocessors (%s) disclose active Mate processing", (name) => {
@@ -192,73 +198,73 @@ describe("legal documents describe only what the product does", () => {
     expect(`${privacy}\n${dpa}\n${terms}`).not.toMatch(/Azure/);
     expect(subprocessors).not.toMatch(/^\| \*\*Microsoft Azure\*\*/m);
     expect(privacy).toMatch(
-      { en: /active in the managed service since 29 August 2026/, de: /seit dem 29\. August 2026 aktiv/, fr: /actif dans ce service depuis le 29 août 2026/ }[name],
+      { en: /active in the managed service since 29 August 2026/, de: /seit dem 29\. August 2026 aktiv/, fr: /actif dans ce service depuis le 29 août 2026/, it: /attivo in questo servizio dal 29 agosto 2026/ }[name],
     );
     expect(dpa).toMatch(
-      { en: /when a user invokes Mate.*Vercel AI Gateway.*selected model.*downstream provider.*Subprocessors/is, de: /wenn ein Nutzer Mate (?:interaktiv )?aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is, fr: /lorsqu’un utilisateur appelle Mate.*Vercel AI Gateway.*modèle sélectionné.*fournisseur de modèle en aval.*sous-traitants ultérieurs/is }[name],
+      { en: /when a user invokes Mate.*Vercel AI Gateway.*selected model.*downstream provider.*Subprocessors/is, de: /wenn ein Nutzer Mate (?:interaktiv )?aufruft.*Vercel AI Gateway.*ausgewählte Modell.*nachgelagerten Anbieter.*Unterauftragsverarbeiter/is, fr: /lorsqu’un utilisateur appelle Mate.*Vercel AI Gateway.*modèle sélectionné.*fournisseur de modèle en aval.*sous-traitants ultérieurs/is, it: /quando un utente richiama Mate(?: in modo interattivo)?.*Vercel AI Gateway.*modello selezionato.*fornitori a valle.*Sub-responsabili del trattamento/is }[name],
     );
     expect(dpa).toMatch(
-      { en: /independent controller are outside this DPA.*do not themselves store prompt.*tool-result content/is, de: /eigenständiger Verantwortlicher.*außerhalb dieses AVV.*speichern selbst aber keine Eingaben.*Werkzeugergebnisse/is, fr: /responsable du traitement à part entière.*en dehors du présent DPA.*ne stockent eux-mêmes aucune saisie.*résultat d’outil/is }[name],
+      { en: /independent controller are outside this DPA.*do not themselves store prompt.*tool-result content/is, de: /eigenständiger Verantwortlicher.*außerhalb dieses AVV.*speichern selbst aber keine Eingaben.*Werkzeugergebnisse/is, fr: /responsable du traitement à part entière.*en dehors du présent DPA.*ne stockent eux-mêmes aucune saisie.*résultat d’outil/is, it: /titolare autonomo del trattamento.*non rientrano nel presente DPA.*non memorizzano di per sé alcun input.*risultato degli strumenti/is }[name],
     );
     expect(terms).toMatch(
-      { en: /Mate generates output automatically.*may be inaccurate/is, de: /Mate erzeugt Ausgaben automatisiert.*können unrichtig/is, fr: /Mate produit ses résultats de manière automatisée.*peuvent être inexacts/is }[name],
+      { en: /Mate generates output automatically.*may be inaccurate/is, de: /Mate erzeugt Ausgaben automatisiert.*können unrichtig/is, fr: /Mate produit ses résultats de manière automatisée.*peuvent être inexacts/is, it: /Mate genera i risultati in modo automatizzato.*possono essere inesatti/is }[name],
     );
     expect(terms).toMatch(
-      { en: /at least 16 years old.*under 18.*Art\. 9 GDPR.*Art\. 10 GDPR.*legal or material impact.*every person.*complies/is, de: /mindestens 16 Jahre alt.*unter 18 Jahren.*Art\. 9 DSGVO.*Art\. 10 DSGVO.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is, fr: /au moins 16 ans.*moins de 18 ans.*art\. 9 du RGPD.*art\. 10 du RGPD.*effets juridiques ou significatifs.*toute personne.*respecte/is }[name],
+      { en: /at least 16 years old.*under 18.*Art\. 9 GDPR.*Art\. 10 GDPR.*legal or material impact.*every person.*complies/is, de: /mindestens 16 Jahre alt.*unter 18 Jahren.*Art\. 9 DSGVO.*Art\. 10 DSGVO.*rechtliche oder wesentliche Auswirkungen.*jede Person.*einhält/is, fr: /au moins 16 ans.*moins de 18 ans.*art\. 9 du RGPD.*art\. 10 du RGPD.*effets juridiques ou significatifs.*toute personne.*respecte/is, it: /almeno 16 anni.*di età inferiore a 18 anni.*art\. 9 GDPR.*art\. 10 GDPR.*effetti giuridici o comunque significativi.*ogni persona.*rispetti/is }[name],
     );
     expect(terms).toMatch(
-      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is }[name],
+      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is, it: /base giuridica applicabile.*minimizzazione dei dati.*misure di salvaguardia commisurate al rischio.*art\. 9 GDPR.*art\. 10 GDPR/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is }[name],
+      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is, it: /base giuridica applicabile.*minimizzazione dei dati.*misure di salvaguardia commisurate al rischio.*art\. 9 GDPR.*art\. 10 GDPR/is }[name],
     );
     expect(dpa).toMatch(
-      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is }[name],
+      { en: /applicable legal basis.*data minimisation.*safeguards appropriate to the risk.*Art\. 9 GDPR.*Art\. 10 GDPR/is, de: /anwendbare Rechtsgrundlage.*Datenminimierung.*dem Risiko angemessene Schutzvorkehrungen.*Art\. 9 DSGVO.*Art\. 10 DSGVO/is, fr: /base juridique applicable.*minimisation des données.*mesures de protection adaptées au risque.*art\. 9 du RGPD.*art\. 10 du RGPD/is, it: /base giuridica applicabile.*minimizzazione dei dati.*misure di salvaguardia commisurate al rischio.*art\. 9 GDPR.*art\. 10 GDPR/is }[name],
     );
     expect(subprocessors).toMatch(
-      { en: /customer determines.*necessity.*applicable legal basis.*safeguards appropriate to the risk/is, de: /Kunde bestimmt.*Erforderlichkeit.*anwendbare Rechtsgrundlage.*dem Risiko angemessene Schutzvorkehrungen/is, fr: /client détermine.*nécessité.*base juridique applicable.*mesures de protection adaptées au risque/is }[name],
+      { en: /customer determines.*necessity.*applicable legal basis.*safeguards appropriate to the risk/is, de: /Kunde bestimmt.*Erforderlichkeit.*anwendbare Rechtsgrundlage.*dem Risiko angemessene Schutzvorkehrungen/is, fr: /client détermine.*nécessité.*base juridique applicable.*mesures de protection adaptées au risque/is, it: /Il cliente stabilisce.*necessità.*base giuridica applicabile.*misure di salvaguardia commisurate al rischio/is }[name],
     );
     expect(terms).toMatch(
-      { en: /Where the managed service offers.*Routines.*saved or automated Mate runs.*manual execution.*schedule.*configured in-product event.*standing documented instruction.*without separate case-by-case confirmation/is, de: /Soweit der verwaltete Dienst.*Routines.*gespeicherte oder automatisierte Mate-Durchläufe.*anbietet.*manuellen Ausführung.*Zeitplan.*konfigurierten produktinternen Ereignis.*dokumentierte Dauerweisung.*ohne gesonderte Bestätigung im Einzelfall/is, fr: /Lorsque le service géré propose.*routines.*exécutions de Mate enregistrées ou automatisées.*exécution manuelle.*calendrier.*évènement interne au produit configuré.*instruction permanente documentée.*sans confirmation distincte dans le cas particulier/is }[name],
+      { en: /Where the managed service offers.*Routines.*saved or automated Mate runs.*manual execution.*schedule.*configured in-product event.*standing documented instruction.*without separate case-by-case confirmation/is, de: /Soweit der verwaltete Dienst.*Routines.*gespeicherte oder automatisierte Mate-Durchläufe.*anbietet.*manuellen Ausführung.*Zeitplan.*konfigurierten produktinternen Ereignis.*dokumentierte Dauerweisung.*ohne gesonderte Bestätigung im Einzelfall/is, fr: /Lorsque le service géré propose.*routines.*exécutions de Mate enregistrées ou automatisées.*exécution manuelle.*calendrier.*évènement interne au produit configuré.*instruction permanente documentée.*sans confirmation distincte dans le cas particulier/is, it: /Nella misura in cui il servizio gestito offre.*Routine.*esecuzioni di Mate salvate o automatizzate.*esecuzione manuale.*pianificazione.*evento configurato interno al prodotto.*istruzione permanente documentata.*senza una conferma separata nel singolo caso/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /During interactive use.*must be checked before it is relied on.*Where a Routine is offered and enabled.*before activation or material change.*monitor operation and results.*without separate case-by-case confirmation/is, de: /Bei interaktiver Nutzung.*müssen geprüft werden.*Soweit eine Routine angeboten und aktiviert ist.*vor der Aktivierung oder einer wesentlichen Änderung.*Betrieb und Ergebnisse überwachen.*ohne gesonderte Bestätigung im Einzelfall/is, fr: /En cas d’utilisation interactive.*doivent être vérifiés avant de vous y fier.*Lorsqu’une routine est proposée et activée.*avant l’activation ou une modification substantielle.*surveiller le fonctionnement et les résultats.*sans confirmation distincte dans le cas particulier/is }[name],
+      { en: /During interactive use.*must be checked before it is relied on.*Where a Routine is offered and enabled.*before activation or material change.*monitor operation and results.*without separate case-by-case confirmation/is, de: /Bei interaktiver Nutzung.*müssen geprüft werden.*Soweit eine Routine angeboten und aktiviert ist.*vor der Aktivierung oder einer wesentlichen Änderung.*Betrieb und Ergebnisse überwachen.*ohne gesonderte Bestätigung im Einzelfall/is, fr: /En cas d’utilisation interactive.*doivent être vérifiés avant de vous y fier.*Lorsqu’une routine est proposée et activée.*avant l’activation ou une modification substantielle.*surveiller le fonctionnement et les résultats.*sans confirmation distincte dans le cas particulier/is, it: /Nell’utilizzo interattivo.*devono essere verificati prima di fare affidamento su di essi.*Nella misura in cui una routine è offerta e attivata.*prima dell’attivazione o di una modifica sostanziale.*monitorare il funzionamento e i risultati.*senza una conferma separata nel singolo caso/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /full saved instruction.*recurring safety checks.*possible trigger loops.*before a Routine run starts/is, de: /vollständige gespeicherte Weisung.*wiederkehrender Sicherheitsprüfungen.*mögliche Auslöserschleifen.*bevor ein Routine-Durchlauf beginnt/is, fr: /instruction enregistrée complète.*contrôles de sécurité récurrents.*boucles de déclenchement.*avant qu’une exécution de routine ne démarre/is }[name],
+      { en: /full saved instruction.*recurring safety checks.*possible trigger loops.*before a Routine run starts/is, de: /vollständige gespeicherte Weisung.*wiederkehrender Sicherheitsprüfungen.*mögliche Auslöserschleifen.*bevor ein Routine-Durchlauf beginnt/is, fr: /instruction enregistrée complète.*contrôles de sécurité récurrents.*boucles de déclenchement.*avant qu’une exécution de routine ne démarre/is, it: /istruzione salvata completa.*verifiche di sicurezza ricorrenti.*possibili loop di trigger.*prima che inizi un’esecuzione della routine/is }[name],
     );
     expect(dpa).toMatch(
-      { en: /deleting a saved Routine does not itself delete Mate conversations.*separately deleted/is, de: /Löschen einer gespeicherten Routine.*nicht automatisch.*Mate-Konversationen.*gesondert/is, fr: /suppression d’une routine enregistrée ne supprime pas automatiquement les conversations Mate.*supprimées séparément/is }[name],
+      { en: /deleting a saved Routine does not itself delete Mate conversations.*separately deleted/is, de: /Löschen einer gespeicherten Routine.*nicht automatisch.*Mate-Konversationen.*gesondert/is, fr: /suppression d’une routine enregistrée ne supprime pas automatiquement les conversations Mate.*supprimées séparément/is, it: /cancellazione di una routine salvata non cancella automaticamente le conversazioni con Mate.*cancellate separatamente/is }[name],
     );
     expect(text).not.toMatch(
-      { en: /(?:must not (?:submit or make available|send|instruct Mate to process)|Users must not include) sensitive personal information/i, de: /(?:darf keine sensiblen personenbezogenen Informationen|dürfen (?:über Mate )?keine sensiblen personenbezogenen Informationen|darf den Anbieter nicht anweisen, mit Mate sensible personenbezogene Informationen)/i, fr: /(?:ne (?:doit|doivent) pas (?:soumettre|transmettre|envoyer|inclure|mettre à disposition).*(?:informations|données) (?:personnelles |à caractère personnel )?sensibles|ne doit pas (?:donner au Prestataire l’instruction|charger le Prestataire) de traiter.*(?:informations|données) (?:personnelles |à caractère personnel )?sensibles)/i }[name],
+      { en: /(?:must not (?:submit or make available|send|instruct Mate to process)|Users must not include) sensitive personal information/i, de: /(?:darf keine sensiblen personenbezogenen Informationen|dürfen (?:über Mate )?keine sensiblen personenbezogenen Informationen|darf den Anbieter nicht anweisen, mit Mate sensible personenbezogene Informationen)/i, fr: /(?:ne (?:doit|doivent) pas (?:soumettre|transmettre|envoyer|inclure|mettre à disposition).*(?:informations|données) (?:personnelles |à caractère personnel )?sensibles|ne doit pas (?:donner au Prestataire l’instruction|charger le Prestataire) de traiter.*(?:informations|données) (?:personnelles |à caractère personnel )?sensibles)/i, it: /(?:non (?:deve|devono|possono) (?:inviare|trasmettere|inserire|fornire|includere|mettere a disposizione)[^.]*(?:informazioni|dati) personali sensibili|non deve (?:dare|impartire) al Fornitore (?:l’)?istruzione di trattare[^.]*(?:informazioni|dati) personali sensibili)/i }[name],
     );
     expect(privacy).toMatch(
-      { en: /output about a person.*legal or material impact/is, de: /Ausgaben über eine Person.*rechtliche oder wesentliche Auswirkungen/is, fr: /résultats concernant une personne.*effets juridiques ou significatifs/is }[name],
+      { en: /output about a person.*legal or material impact/is, de: /Ausgaben über eine Person.*rechtliche oder wesentliche Auswirkungen/is, fr: /résultats concernant une personne.*effets juridiques ou significatifs/is, it: /risultati relativi a una persona.*effetti giuridici o comunque significativi/is }[name],
     );
     expect(subprocessors).toMatch(
-      { en: /Google Cloud \(Vertex AI\).*Active downstream inference provider.*Anthropic-created Claude models.*text-embedding model.*United States region/is, de: /Google Cloud \(Vertex AI\).*Aktiver nachgelagerter Inferenzanbieter.*von Anthropic entwickelten Claude-Modelle.*Text-Embedding-Modell.*Region in den Vereinigten Staaten/is, fr: /Google Cloud \(Vertex AI\).*Fournisseur d’inférence en aval actif.*modèles Claude développés par Anthropic.*modèle d’embedding de texte.*région des États-Unis/is }[name],
+      { en: /Google Cloud \(Vertex AI\).*Active downstream inference provider.*Anthropic-created Claude models.*text-embedding model.*United States region/is, de: /Google Cloud \(Vertex AI\).*Aktiver nachgelagerter Inferenzanbieter.*von Anthropic entwickelten Claude-Modelle.*Text-Embedding-Modell.*Region in den Vereinigten Staaten/is, fr: /Google Cloud \(Vertex AI\).*Fournisseur d’inférence en aval actif.*modèles Claude développés par Anthropic.*modèle d’embedding de texte.*région des États-Unis/is, it: /Google Cloud \(Vertex AI\).*Fornitore di inferenza a valle attivo.*modelli Claude sviluppati da Anthropic.*modello di text embedding.*regione negli Stati Uniti/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /team-wide.*Zero Data Retention.*every AI Gateway request.*ZDR agreement.*prompt-training opt-out/is, de: /teamweite.*Zero-Data-Retention.*jede AI-Gateway-Anfrage.*ZDR-Vereinbarung.*Training/is, fr: /Zero Data Retention.*à l’échelle de l’équipe.*chaque requête AI Gateway.*accord ZDR.*entraînement/is }[name],
+      { en: /team-wide.*Zero Data Retention.*every AI Gateway request.*ZDR agreement.*prompt-training opt-out/is, de: /teamweite.*Zero-Data-Retention.*jede AI-Gateway-Anfrage.*ZDR-Vereinbarung.*Training/is, fr: /Zero Data Retention.*à l’échelle de l’équipe.*chaque requête AI Gateway.*accord ZDR.*entraînement/is, it: /Zero Data Retention.*a livello di team.*ogni richiesta all’AI Gateway.*accordo ZDR.*addestramento/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /do not delete, shorten, or otherwise change.*Customermates application-level storage/is, de: /löschen, verkürzen oder ändern nicht.*Speicherung auf Anwendungsebene bei Customermates/is, fr: /ne suppriment, ne raccourcissent ni ne modifient le stockage au niveau de l’application chez Customermates/is }[name],
+      { en: /do not delete, shorten, or otherwise change.*Customermates application-level storage/is, de: /löschen, verkürzen oder ändern nicht.*Speicherung auf Anwendungsebene bei Customermates/is, fr: /ne suppriment, ne raccourcissent ni ne modifient le stockage au niveau de l’application chez Customermates/is, it: /non cancellano, non abbreviano né modificano la memorizzazione a livello applicativo presso Customermates/is }[name],
     );
     expect(subprocessors).toMatch(
-      { en: /Zero Data Retention provider list does not include Exa.*does not identify the exact legal entity or the inference location/is, de: /Zero-Data-Retention-Anbieterliste von Vercel enthält Exa nicht.*weder die genaue Rechtseinheit noch den Inferenzstandort/is, fr: /liste de fournisseurs Zero Data Retention de Vercel ne contient pas Exa.*ni l’entité juridique exacte ni le lieu d’inférence/is }[name],
+      { en: /Zero Data Retention provider list does not include Exa.*does not identify the exact legal entity or the inference location/is, de: /Zero-Data-Retention-Anbieterliste von Vercel enthält Exa nicht.*weder die genaue Rechtseinheit noch den Inferenzstandort/is, fr: /liste de fournisseurs Zero Data Retention de Vercel ne contient pas Exa.*ni l’entité juridique exacte ni le lieu d’inférence/is, it: /elenco dei fornitori Zero Data Retention di Vercel non comprende Exa.*né l’esatta entità giuridica né il luogo di inferenza/is }[name],
     );
     expect(text).not.toMatch(
-      { en: /(?:routes?|sends?|transfers?) (?:model )?(?:requests?|request context|prompts?|outputs?).*to OpenAI|(?:requests?|request context|prompts?|outputs?) (?:are |is )?(?:routed|sent|transferred)(?: through [^.]+)? to OpenAI|OpenAI (?:receives|processes) (?:Mate )?(?:requests?|prompts?|outputs?)|absence of a public Zero Data Retention promise for Customermates/i, de: /leitet.*(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI weiter|(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI (?:weitergeleitet|gesendet|übermittelt)|OpenAI (?:erhält|verarbeitet).*(?:Anfragen?|Eingaben?|Ausgaben?)|fehlenden öffentlichen Versprechens von Zero Data Retention für Customermates/i, fr: /(?:transmet|achemine|envoie|transfère).*(?:requêtes?|contexte de (?:la )?requête|saisies?|sorties?|résultats?).*à OpenAI|(?:requêtes?|contexte de (?:la )?requête|saisies?|sorties?|résultats?).*(?:sont |est )?(?:transmis|acheminés?|envoyés?|transférés?).*à OpenAI|OpenAI (?:reçoit|traite).*(?:requêtes?|saisies?|sorties?)|absence d’engagement public de Zero Data Retention pour Customermates/i }[name],
+      { en: /(?:routes?|sends?|transfers?) (?:model )?(?:requests?|request context|prompts?|outputs?).*to OpenAI|(?:requests?|request context|prompts?|outputs?) (?:are |is )?(?:routed|sent|transferred)(?: through [^.]+)? to OpenAI|OpenAI (?:receives|processes) (?:Mate )?(?:requests?|prompts?|outputs?)|absence of a public Zero Data Retention promise for Customermates/i, de: /leitet.*(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI weiter|(?:Anfragen?|Anfragekontext|Eingaben?|Ausgaben?).*an OpenAI (?:weitergeleitet|gesendet|übermittelt)|OpenAI (?:erhält|verarbeitet).*(?:Anfragen?|Eingaben?|Ausgaben?)|fehlenden öffentlichen Versprechens von Zero Data Retention für Customermates/i, fr: /(?:transmet|achemine|envoie|transfère).*(?:requêtes?|contexte de (?:la )?requête|saisies?|sorties?|résultats?).*à OpenAI|(?:requêtes?|contexte de (?:la )?requête|saisies?|sorties?|résultats?).*(?:sont |est )?(?:transmis|acheminés?|envoyés?|transférés?).*à OpenAI|OpenAI (?:reçoit|traite).*(?:requêtes?|saisies?|sorties?)|absence d’engagement public de Zero Data Retention pour Customermates/i, it: /(?:trasmette|inoltra|invia|trasferisce)[^.]*(?:richieste|contesto della richiesta|input|prompt|output|risultati)[^.]*a OpenAI|(?:richieste|contesto della richiesta|input|prompt|output|risultati)[^.]*(?:vengono |viene )?(?:trasmess[oi]|inoltrat[oi]|inviat[oi]|trasferit[oi])[^.]*a OpenAI|OpenAI (?:riceve|tratta)[^.]*(?:richieste|input|prompt|output)|assenza di un impegno pubblico di Zero Data Retention per Customermates/i }[name],
     );
     expect(privacy).toMatch(
-      { en: /stores Mate conversations and messages.*tool receipts and results/is, de: /speichert Mate-Konversationen und -Nachrichten.*Werkzeugbelege und -ergebnisse/is, fr: /stocke les conversations et messages Mate.*justificatifs et résultats d’outils/is }[name],
+      { en: /stores Mate conversations and messages.*tool receipts and results/is, de: /speichert Mate-Konversationen und -Nachrichten.*Werkzeugbelege und -ergebnisse/is, fr: /stocke les conversations et messages Mate.*justificatifs et résultats d’outils/is, it: /memorizza conversazioni e messaggi di Mate.*giustificativi e risultati degli strumenti/is }[name],
     );
     expect(privacy).toMatch(
-      { en: /Archiving a conversation hides it but does not delete it/, de: /Archivieren einer Konversation blendet sie aus, löscht sie aber nicht/, fr: /L’archivage d’une conversation la masque, mais ne la supprime pas/ }[name],
+      { en: /Archiving a conversation hides it but does not delete it/, de: /Archivieren einer Konversation blendet sie aus, löscht sie aber nicht/, fr: /L’archivage d’une conversation la masque, mais ne la supprime pas/, it: /L’archiviazione di una conversazione la nasconde, ma non la cancella/ }[name],
     );
     expect(text).not.toMatch(
-      { en: /Planned AI Assistant|feature is not yet available|no data is currently transferred to OpenAI/i, de: /Geplanter KI-Assistent|Funktion ist noch nicht verfügbar|keine Daten an OpenAI übermittelt/i, fr: /Assistant IA prévu|fonction n’est pas encore disponible|aucune donnée n’est (?:actuellement )?transmise à OpenAI/i }[name],
+      { en: /Planned AI Assistant|feature is not yet available|no data is currently transferred to OpenAI/i, de: /Geplanter KI-Assistent|Funktion ist noch nicht verfügbar|keine Daten an OpenAI übermittelt/i, fr: /Assistant IA prévu|fonction n’est pas encore disponible|aucune donnée n’est (?:actuellement )?transmise à OpenAI/i, it: /Assistente IA (?:pianificato|previsto)|funzione non è ancora disponibile|nessun dato viene (?:attualmente )?trasmesso a OpenAI/i }[name],
     );
   });
 });
@@ -284,6 +290,12 @@ describe("managed service and independent self-hosting stay separated", () => {
         dpa: /ne fait pas, en soi, du Prestataire un sous-traitant/,
         subprocessors: /sont mandatés directement par cet exploitant et ne sont pas des sous-traitants ultérieurs/,
       },
+      it: {
+        privacy: /non descrive alcun trattamento effettuato da un gestore self-hosted indipendente/i,
+        terms: /non si applicano a un’installazione self-hosted gestita in autonomia/,
+        dpa: /non nomina di per sé il Fornitore responsabile del trattamento/,
+        subprocessors: /sono incaricati direttamente da tale gestore e non sono sub-responsabili del trattamento di Customermates/,
+      },
     }[name];
 
     for (const [document, exclusion] of Object.entries(exclusions))
@@ -292,7 +304,7 @@ describe("managed service and independent self-hosting stay separated", () => {
 
   it.each(CONTENT_LOCALES)("terms (%s) preserve the previously agreed version for existing customers", (name) => {
     expect(legal(name, "terms")).toMatch(
-      { en: /does not by itself amend an existing contract/, de: /ändert einen bestehenden Vertrag nicht/, fr: /ne modifie pas un contrat existant/ }[name],
+      { en: /does not by itself amend an existing contract/, de: /ändert einen bestehenden Vertrag nicht/, fr: /ne modifie pas un contrat existant/, it: /non modifica un contratto esistente/ }[name],
     );
   });
 
@@ -304,42 +316,42 @@ describe("managed service and independent self-hosting stay separated", () => {
     const subprocessors = legal(name, "subprocessors");
     const combined = `${privacy}\n${dpa}\n${subprocessors}`;
 
-    expect(privacy).toMatch({ en: /final hosted operator mailbox/, de: /endgültiges gehostetes Betreiberpostfach/, fr: /boîte aux lettres d’exploitation hébergée finale/ }[name]);
+    expect(privacy).toMatch({ en: /final hosted operator mailbox/, de: /endgültiges gehostetes Betreiberpostfach/, fr: /boîte aux lettres d’exploitation hébergée finale/, it: /casella di posta di esercizio ospitata finale/ }[name]);
     expect(privacy).toMatch(
-      { en: /content, attachments, headers, delivery and security metadata/, de: /Nachrichteninhalte, Anhänge, Kopfzeilen, Zustellungs- und Sicherheitsmetadaten/, fr: /le contenu des messages, les pièces jointes, les en-têtes, les métadonnées de remise et de sécurité/ }[name],
+      { en: /content, attachments, headers, delivery and security metadata/, de: /Nachrichteninhalte, Anhänge, Kopfzeilen, Zustellungs- und Sicherheitsmetadaten/, fr: /le contenu des messages, les pièces jointes, les en-têtes, les métadonnées de remise et de sécurité/, it: /contenuti dei messaggi, allegati, intestazioni, metadati di recapito e di sicurezza/ }[name],
     );
     expect(privacy).toMatch(
-      { en: /standard data processing agreement is accepted electronically through its service Terms/, de: /Standard-Auftragsverarbeitungsvertrag.*elektronisch über dessen Nutzungsbedingungen angenommen/, fr: /accord de traitement des données standard de Forward Email est accepté par voie électronique par l’intermédiaire de ses conditions d’utilisation/ }[name],
+      { en: /standard data processing agreement is accepted electronically through its service Terms/, de: /Standard-Auftragsverarbeitungsvertrag.*elektronisch über dessen Nutzungsbedingungen angenommen/, fr: /accord de traitement des données standard de Forward Email est accepté par voie électronique par l’intermédiaire de ses conditions d’utilisation/, it: /DPA standard di Forward Email viene accettato elettronicamente tramite le sue condizioni d’uso/ }[name],
     );
     expect(privacy).toMatch(
-      { en: /Standard Contractual Clauses for applicable transfers/, de: /einschlägige Übermittlungen.*EU-Standardvertragsklauseln/, fr: /pour les transferts concernés, les clauses contractuelles types de l’UE/ }[name],
+      { en: /Standard Contractual Clauses for applicable transfers/, de: /einschlägige Übermittlungen.*EU-Standardvertragsklauseln/, fr: /pour les transferts concernés, les clauses contractuelles types de l’UE/, it: /per i trasferimenti pertinenti, le clausole contrattuali tipo dell’UE/ }[name],
     );
     expect(privacy).toMatch(
-      { en: /customer determines the legal basis.*documented instructions/, de: /Kunde die Rechtsgrundlage.*dokumentierten Weisungen/, fr: /le client détermine la base juridique.*instructions documentées/ }[name],
+      { en: /customer determines the legal basis.*documented instructions/, de: /Kunde die Rechtsgrundlage.*dokumentierten Weisungen/, fr: /le client détermine la base juridique.*instructions documentées/, it: /la base giuridica è determinata dal cliente.*istruzioni documentate/ }[name],
     );
     expect(privacy).toMatch(
-      { en: /No separate downstream mailbox provider is used/, de: /Ein gesonderter nachgelagerter Postfachanbieter wird nicht eingesetzt/, fr: /Aucun fournisseur de boîte aux lettres en aval distinct n’est employé/ }[name],
+      { en: /No separate downstream mailbox provider is used/, de: /Ein gesonderter nachgelagerter Postfachanbieter wird nicht eingesetzt/, fr: /Aucun fournisseur de boîte aux lettres en aval distinct n’est employé/, it: /non viene impiegato alcun fornitore di caselle di posta separato a valle/ }[name],
     );
 
     expect(dpa).toMatch(/Forward Email/);
     expect(dpa).toMatch(
-      { en: /hosts and stores the Provider's final operator mailbox/, de: /hostet und speichert das endgültige Betreiberpostfach/, fr: /héberge et stocke la boîte aux lettres d’exploitation finale/ }[name],
+      { en: /hosts and stores the Provider's final operator mailbox/, de: /hostet und speichert das endgültige Betreiberpostfach/, fr: /héberge et stocke la boîte aux lettres d’exploitation finale/, it: /ospita e memorizza la casella di posta di esercizio finale/ }[name],
     );
     expect(dpa).toMatch(
-      { en: /not used for the connected-account feature or ordinary CRM processing/, de: /weder für die Funktion verbundener Konten noch für die gewöhnliche CRM-Verarbeitung/, fr: /n’est employé ni pour la fonction de comptes connectés ni pour le traitement CRM ordinaire/ }[name],
+      { en: /not used for the connected-account feature or ordinary CRM processing/, de: /weder für die Funktion verbundener Konten noch für die gewöhnliche CRM-Verarbeitung/, fr: /n’est employé ni pour la fonction de comptes connectés ni pour le traitement CRM ordinaire/, it: /non viene impiegata né per la funzione per gli account collegati né per il normale trattamento del CRM/ }[name],
     );
-    expect(dpa).toMatch({ en: /support or feedback request/, de: /Support- oder Feedbackanfrage/, fr: /demande de support ou de retour d’information/ }[name]);
+    expect(dpa).toMatch({ en: /support or feedback request/, de: /Support- oder Feedbackanfrage/, fr: /demande de support ou de retour d’information/, it: /richiesta di supporto o di feedback/ }[name]);
 
     expect(subprocessors).toMatch(/Forward Email/);
     expect(subprocessors).toMatch(
-      { en: /not used for connected customer mailboxes or ordinary CRM data/, de: /weder für verbundene Kundenpostfächer noch für gewöhnliche CRM-Daten/, fr: /ni pour les boîtes aux lettres connectées des clients ni pour les données CRM ordinaires/ }[name],
+      { en: /not used for connected customer mailboxes or ordinary CRM data/, de: /weder für verbundene Kundenpostfächer noch für gewöhnliche CRM-Daten/, fr: /ni pour les boîtes aux lettres connectées des clients ni pour les données CRM ordinaires/, it: /Non viene utilizzato né per le caselle di posta collegate dei clienti né per i comuni dati del CRM/ }[name],
     );
-    expect(subprocessors).toMatch({ en: /support or feedback correspondence/, de: /Support- oder Feedbackkorrespondenz/, fr: /correspondance de support ou de retour d’information/ }[name]);
+    expect(subprocessors).toMatch({ en: /support or feedback correspondence/, de: /Support- oder Feedbackkorrespondenz/, fr: /correspondance de support ou de retour d’information/, it: /corrispondenza di supporto o di feedback/ }[name]);
     expect(subprocessors).toMatch(
-      { en: /standard DPA is accepted electronically through its service Terms/, de: /Standard-AVV.*elektronisch über dessen Nutzungsbedingungen angenommen/, fr: /DPA standard de Forward Email est accepté par voie électronique par l’intermédiaire de ses conditions d’utilisation/ }[name],
+      { en: /standard DPA is accepted electronically through its service Terms/, de: /Standard-AVV.*elektronisch über dessen Nutzungsbedingungen angenommen/, fr: /DPA standard de Forward Email est accepté par voie électronique par l’intermédiaire de ses conditions d’utilisation/, it: /DPA standard di Forward Email viene accettato elettronicamente tramite le sue condizioni d’uso/ }[name],
     );
     expect(combined).not.toMatch(
-      { en: /forwarded in memory|mailbox provider selected for that account/, de: /im Arbeitsspeicher weitergeleitet|ausgewählten Postfachanbieter/, fr: /transférés? en mémoire|fournisseur de boîte aux lettres sélectionné pour ce compte/ }[name],
+      { en: /forwarded in memory|mailbox provider selected for that account/, de: /im Arbeitsspeicher weitergeleitet|ausgewählten Postfachanbieter/, fr: /transférés? en mémoire|fournisseur de boîte aux lettres sélectionné pour ce compte/, it: /inoltrat[oi] in memoria|fornitore di caselle di posta selezionato per (?:tale|quell[’']?|questo) account/ }[name],
     );
   });
 
@@ -347,32 +359,32 @@ describe("managed service and independent self-hosting stay separated", () => {
     const text = `${legal(name, "privacy")}\n${legal(name, "subprocessors")}\n${affiliate(name)}`;
 
     expect(text).toMatch(
-      { en: /standard affiliate (?:tracking )?script.*managed-cloud public content pages/i, de: /verwalteten öffentlichen Cloud-Inhaltsseiten.*standardmäßige Affiliate-Tracking-Skript/i, fr: /script (?:de suivi )?d’affiliation standard.*pages de contenu (?:cloud publiques gérées|public du cloud géré)/i }[name],
+      { en: /standard affiliate (?:tracking )?script.*managed-cloud public content pages/i, de: /verwalteten öffentlichen Cloud-Inhaltsseiten.*standardmäßige Affiliate-Tracking-Skript/i, fr: /script (?:de suivi )?d’affiliation standard.*pages de contenu (?:cloud publiques gérées|public du cloud géré)/i, it: /script di affiliazione standard.*pagine di contenuto pubbliche del cloud gestito/i }[name],
     );
     expect(text).toContain("ls_aff_ref");
     expect(text).toContain("lmsqueezy.com");
-    expect(text).toMatch({ en: /browser-derived visitor identifier/i, de: /Browsermerkmalen abgeleitete Besucherkennung/i, fr: /identifiant de visiteur dérivé (?:de caractéristiques )?du navigateur/i }[name]);
+    expect(text).toMatch({ en: /browser-derived visitor identifier/i, de: /Browsermerkmalen abgeleitete Besucherkennung/i, fr: /identifiant de visiteur dérivé (?:de caractéristiques )?du navigateur/i, it: /identificativo del visitatore derivato da caratteristiche del browser/i }[name]);
     expect(text).toMatch(
-      { en: /attribute referred visits and purchases.*allocate commission/is, de: /vermittelte Besuche und Käufe zuzuordnen.*Provisionen zuzuweisen/is, fr: /attribuer les visites et (?:les )?achats recommandés.*(?:affecter les commissions|répartir la commission)/is }[name],
+      { en: /attribute referred visits and purchases.*allocate commission/is, de: /vermittelte Besuche und Käufe zuzuordnen.*Provisionen zuzuweisen/is, fr: /attribuer les visites et (?:les )?achats recommandés.*(?:affecter les commissions|répartir la commission)/is, it: /attribuire le visite e gli acquisti segnalati.*assegnare le commissioni/is }[name],
     );
     expect(text).toMatch(
-      { en: /ordinary network-request data.*without an affiliate code/is, de: /Netzwerk-Anfragedaten.*ohne Affiliate-Code/is, fr: /données de requête réseau ordinaires.*sans code d’affiliation/is }[name],
+      { en: /ordinary network-request data.*without an affiliate code/is, de: /Netzwerk-Anfragedaten.*ohne Affiliate-Code/is, fr: /données de requête réseau ordinaires.*sans code d’affiliation/is, it: /comuni dati di richiesta di rete anche in assenza di un codice affiliato/is }[name],
     );
-    expect(legal(name, "privacy")).toMatch(/§ 25(?:\(1\)| Abs\. 1| al\. 1) TDDDG/);
+    expect(legal(name, "privacy")).toMatch(/§ 25(?:\(1\)| Abs\. 1| al\. 1|, comma 1,) TDDDG/);
     expect(text).toMatch(
-      { en: /not gated by a separate Customermates consent mechanism/i, de: /nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert/i, fr: /n’est pas (?:piloté par|soumis à) un mécanisme de consentement distinct de Customermates/i }[name],
+      { en: /not gated by a separate Customermates consent mechanism/i, de: /nicht durch einen gesonderten Einwilligungsmechanismus von Customermates gesteuert/i, fr: /n’est pas (?:piloté par|soumis à) un mécanisme de consentement distinct de Customermates/i, it: /non è controllato da un meccanismo di consenso separato di Customermates/i }[name],
     );
-    expect(text).toMatch({ en: /upstream self-hosted routes do not load/i, de: /vorgelagerte Self-Hosted-Routen laden.*nicht/i, fr: /routes auto-hébergées en amont ne (?:le )?chargent pas/i }[name]);
+    expect(text).toMatch({ en: /upstream self-hosted routes do not load/i, de: /vorgelagerte Self-Hosted-Routen laden.*nicht/i, fr: /routes auto-hébergées en amont ne (?:le )?chargent pas/i, it: /percorsi self-hosted a monte non (?:lo )?caricano/i }[name]);
     expect(affiliate(name)).toMatch(
-      { en: /name: Tracking on customermates\.com\s+source: Enabled/i, de: /name: Tracking auf customermates\.com\s+source: Aktiv/i, fr: /name: Suivi sur customermates\.com\s+source: Activé/i }[name],
+      { en: /name: Tracking on customermates\.com\s+source: Enabled/i, de: /name: Tracking auf customermates\.com\s+source: Aktiv/i, fr: /name: Suivi sur customermates\.com\s+source: Activé/i, it: /name: (?:Tracking|Traccia(?:mento|ggio)) su customermates\.com\s+source: Attiv[oa]/i }[name],
     );
-    expect(affiliate(name)).not.toMatch({ en: /source: Disabled/i, de: /source: Deaktiviert/i, fr: /source: Désactivé/i }[name]);
+    expect(affiliate(name)).not.toMatch({ en: /source: Disabled/i, de: /source: Deaktiviert/i, fr: /source: Désactivé/i, it: /source: Disattivat[oa]|source: Disabilitat[oa]/i }[name]);
     expect(affiliate(name)).toMatch(
-      { en: /registration link opens Lemon Squeezy's hosted website/i, de: /Partnerregistrierung öffnet.*Lemon Squeezy/i, fr: /lien d’inscription au programme d’affiliation ouvre le site hébergé de Lemon Squeezy/i }[name],
+      { en: /registration link opens Lemon Squeezy's hosted website/i, de: /Partnerregistrierung öffnet.*Lemon Squeezy/i, fr: /lien d’inscription au programme d’affiliation ouvre le site hébergé de Lemon Squeezy/i, it: /link (?:per|di|alla) (?:la )?registrazione[^.]*apr(?:e|ono)[^.]*Lemon Squeezy/i }[name],
     );
-    expect(affiliate(name)).not.toMatch({ en: /30 days/i, de: /30 Tage/i, fr: /30 jours/i }[name]);
+    expect(affiliate(name)).not.toMatch({ en: /30 days/i, de: /30 Tage/i, fr: /30 jours/i, it: /30 giorni/i }[name]);
     expect(affiliate(name)).not.toMatch(
-      { en: /monthly payouts from €9|source: Monthly|Every month automatically/i, de: /monatliche Auszahlung|source: Monatlich|Jeden Monat automatisch/i, fr: /versements mensuels|paiements? mensuels?|source: Mensuel|Chaque mois automatiquement/i }[name],
+      { en: /monthly payouts from €9|source: Monthly|Every month automatically/i, de: /monatliche Auszahlung|source: Monatlich|Jeden Monat automatisch/i, fr: /versements mensuels|paiements? mensuels?|source: Mensuel|Chaque mois automatiquement/i, it: /pagament[oi] mensil[ei]|versament[oi] mensil[ei]|source: Mensile|Ogni mese automaticamente/i }[name],
     );
   });
 

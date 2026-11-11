@@ -16,7 +16,7 @@ function mateSentence(locale: string) {
     .find((block) => block.includes(`[#${SECTION_ANCHOR}]`));
   return section
     ?.split(/(?<=[.!?])\s+/)
-    .find((sentence) => sentence.startsWith("Mate ") && /Inbox|Posteingang|boîte de réception/.test(sentence));
+    .find((sentence) => sentence.startsWith("Mate ") && /Inbox|Posteingang|boîte de réception|Posta in arrivo/.test(sentence));
 }
 
 describe("how the inbox guide says Mate points at one conversation", () => {

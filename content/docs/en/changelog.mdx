@@ -1,0 +1,32 @@
+---
+title: "Changelog: Customermates Releases and Shipped Features"
+description: "Dated list of what Customermates has shipped: view sharing, CSV and XLS import, general availability and the first public release, with links to the source."
+---
+
+This page lists dated, shipped changes with links to their source, newest first, and the full history is in the [GitHub repository](https://github.com/customermates/customermates).
+
+## 8 November 2026: Share saved views and dashboards [#2026-11-08-shared-views]
+
+Saved list views and dashboard views can be shared. Choose **Share…** in a view's menu to show it to everyone in the workspace or to selected roles, or choose **Anyone with the link** to publish a read-only public link that opens without signing in. Everyone sees a shared view with their own access, and a public link never shows more than its creator can see.
+
+Publishing a public link needs the **Create** permission on the **Public links** row of a role, and **Allow public links** in [General](app:settings/general) turns every public link of the workspace off and on again. See [saved views](/docs/app-records#how-do-saved-views-work), [public list links](/docs/app-records#public-list-links), [dashboard views](/docs/app-dashboard#dashboard-views) and [public dashboard links](/docs/app-dashboard#public-links).
+
+Shipped in [pull request 289](https://github.com/customermates/customermates/pull/289), merged on 8 November 2026.
+
+## 2 November 2026: Import CSV and XLS files [#2026-11-02-csv-xls-import]
+
+**Add from file** on a record list accepts a JSON export of the same list, an Excel workbook (`.xlsx` or the legacy `.xls`) or a CSV file (`.csv`). A spreadsheet can be up to 10 MB and each sheet up to 5,000 data rows. An Excel or CSV import starts a wizard in which you pick the sheet, map the columns, check the preview and choose between new and existing records. See [how to import or export records](/docs/app-records#how-do-i-import-or-export-records).
+
+Shipped in [pull request 273](https://github.com/customermates/customermates/pull/273), merged on 2 November 2026.
+
+## 1 November 2026: General availability [#2026-11-01-general-availability]
+
+Customermates is generally available, after beta and testing since March 2026. The core is open source: code outside `ee/` is licensed under AGPL-3.0-only, and files under `ee/` use the Customermates Commercial License. The source is on [GitHub](https://github.com/customermates/customermates), and the licensing terms are explained in [Is self-hosting free, and do I need a license?](/docs/self-hosting#is-self-hosting-free-and-do-i-need-a-license).
+
+You can use Customermates Cloud, which has a free trial, or run Customermates yourself with Docker; see [Self-hosting](/docs/self-hosting).
+
+## 27 March 2026: v1.1.0, first public release [#2026-03-27-v1-1-0]
+
+The first public release, tagged `v.1.1.0` on [GitHub](https://github.com/customermates/customermates/releases/tag/v.1.1.0). Its release notes highlight contacts, organizations, deals, tasks and services, team permissions and audit logs, the REST API and n8n support.
+
+The MCP server at `/api/v1/mcp`, which AI clients such as Claude connect to, reports its version as 1.1.0 in its server card at `<BASE_URL>/.well-known/mcp/server-card.json`. See [MCP](/docs/mcp).

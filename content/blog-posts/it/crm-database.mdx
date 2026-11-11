@@ -1,0 +1,249 @@
+---
+title: "CRM database: cos’è, esempi e come costruirne uno"
+description: "Un CRM database collega persone, aziende e trattative. Le sue tabelle, come lo modellano HubSpot, Salesforce e Pipedrive e come costruirlo ed esportarlo."
+
+relatedHrefs:
+  - /features/contact-management
+  - /blog/client-database-software
+  - /blog/excel-crm-template
+  - /docs/app-records
+
+hero:
+  title: "CRM database: cos’è e come costruirne uno che resti pulito"
+  description: "Un CRM database è un insieme di record collegati su persone, aziende, trattative e attività. Come lo strutturano i principali CRM, come progettare, importare, ripulire ed esportare il tuo e quali regole lo mantengono accurato."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-01-12
+  updated: 2026-11-11
+  tags:
+    - CRM database
+    - Dati dei clienti
+    - Gestione dei dati
+    - GDPR
+---
+
+# CRM database: cos’è e come costruirne uno che resti pulito
+
+Un CRM database (CRM sta per customer relationship management, la gestione delle relazioni con i clienti) è l’archivio strutturato che sta dietro a un CRM: un record per persona, uno per azienda, uno per trattativa, i collegamenti tra loro e lo storico di ciò che è successo. Sono i collegamenti a distinguerlo da un elenco di contatti. Apri un’azienda e vedi le sue persone, le sue trattative aperte e l’ultima conversazione; apri una trattativa e vedi chi è coinvolto e cosa è stato offerto.
+
+Raramente costruisci quel database da zero. Scegli un CRM, decidi di quali tipi di record e campi hai bisogno, ripulisci i dati che hai e li importi nell’ordine giusto. Questa guida tratta quel lavoro di progettazione, mostra come quattro CRM modellano i propri dati, spiega come Customermates modella le stesse liste e si chiude con un esempio concreto e con la strada per riavere i tuoi dati. La pubblica Customermates; i dettagli degli altri fornitori vengono dalla loro documentazione, linkata in fondo.
+
+<ArticleSummary title="In sintesi">
+  <SummaryItem label="Cos’è">Record collegati per persone, aziende, trattative e attività, con campi tipizzati e uno storico delle attività. Un foglio di calcolo contiene righe; un database CRM contiene relazioni.</SummaryItem>
+  <SummaryItem label="Come costruirlo">Fissa prima i tipi di record, poi i campi su cui filtri, poi una chiave univoca per persona. Pulisci prima di importare e importa le aziende prima delle persone.</SummaryItem>
+  <SummaryItem label="Cosa lo rovina">Duplicati, campi di testo libero che dovrebbero essere scelte e nessuno che si occupi della pulizia.</SummaryItem>
+  <SummaryItem label="Riavere i dati">Pianifica l’esportazione prima di averne bisogno. Customermates esporta una lista alla volta, in Excel o JSON; non esiste un’esportazione dell’intero account.</SummaryItem>
+  <SummaryItem label="Customermates">Parte senza liste: crei quelle che ti servono (contatti, organizzazioni, trattative o le tue), con campi tipizzati e relazioni, da [[commercial.price.starter.monthly]] per utente al mese nel cloud, oppure in self-hosting con licenza AGPL.</SummaryItem>
+</ArticleSummary>
+
+Il database è solo una parte della scelta: prova come le persone trovano e aggiornano questi record con la checklist per browser e mobile nella [guida alle app CRM](/blog/crm-app).
+
+## Cosa contiene un CRM database
+
+Pensalo come una manciata di tabelle che si puntano a vicenda. La maggior parte dei CRM offre lo stesso nucleo di base e si distingue per ciò che aggiunge intorno.
+
+| Tipo di record | Cosa è un record | Di solito collegato a | Campi utili |
+|---|---|---|---|
+| Persona (contatto) | Un essere umano con cui parli | La sua azienda, le sue trattative, attività, messaggi | Nome e cognome, e-mail, telefono, ruolo, come vi siete conosciuti |
+| Azienda (organizzazione, account) | Un’impresa o un’istituzione | Le sue persone e trattative | Nome, segmento, sito web, indirizzo di fatturazione |
+| Trattativa (opportunità) | Un’occasione di affari potenziale o in corso | Le persone e le aziende coinvolte, i prodotti o servizi venduti | Fase, valore, inizio previsto, origine |
+| Prodotto o servizio | Qualcosa che vendi a un prezzo | Le trattative che lo includono | Nome, prezzo |
+| Attività | Qualcosa che qualcuno deve fare o ha fatto | Tutti i precedenti | Assegnatario, note |
+
+Due domande di progettazione decidono se il database reggerà nel tempo. Una persona può appartenere a più aziende (un consulente che siede in due consigli di amministrazione, un freelance che lavora per tre agenzie)? E una trattativa può coinvolgere più persone? Se il tuo CRM impone un’azienda per persona o un contatto per trattativa, comincerai a scrivere soluzioni di ripiego nelle note. Leggi la documentazione prima di deciderti: l’articolo di Pipedrive sull’organizzazione dei dati descrive il collegamento di una persona a una sola organizzazione, mentre in Customermates una relazione può ammettere uno o più record su ciascun lato, quindi un contatto può appartenere a più organizzazioni.
+
+L’altra metà di un database CRM è lo storico. Ogni modifica a un record e ogni e-mail o messaggio collegato formano una cronologia. È quella cronologia che permette a un collega di prendere in carico un cliente senza una riunione di passaggio di consegne, ed è la parte che un foglio di calcolo non può darti.
+
+## Esempi di database CRM: come quattro CRM strutturano i dati
+
+I tipi di record dicono per cosa è stato costruito un CRM. Questa tabella confronta solo il modello dei dati, non il prezzo né la qualità.
+
+| CRM | Tipi di record standard | I tuoi tipi di record |
+|---|---|---|
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contatti e aziende come oggetti fondamentali, più trattative, lead, ticket, prodotti, progetti, attività e molto altro | Oggetti personalizzati, che richiedono un abbonamento Enterprise |
+| [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Oggetti standard come Account, Contact, Lead e Opportunity | Oggetti personalizzati «per archiviare informazioni specifiche della tua azienda o del tuo settore» |
+| [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Lead, trattative, persone, organizzazioni, attività, prodotti, progetti e posta | L’articolo collegato non nomina alcun tipo di oggetto personalizzato; Progetti è un componente aggiuntivo nei piani Growth e inferiori e standard in Premium e Ultimate |
+| Customermates | Contatti, organizzazioni, trattative, servizi e attività, tutti liberamente rinominabili | Le tue liste con campi tipizzati, relazioni e campi calcolati |
+
+Lo schema: HubSpot e Salesforce permettono di aggiungere e configurare tipi di oggetto propri, su HubSpot con un abbonamento Enterprise. Gli elementi di dati di Pipedrive restano vicini al processo di vendita. Customermates parte senza liste: crei quelle che ti servono e dai un nome a ciascuna, così una lista di contatti può chiamarsi Clienti e una di trattative Progetti in tutto lo spazio di lavoro, e puoi rinominarle in seguito.
+
+## Come Customermates modella le liste di base
+
+Customermates conserva i dati CRM in liste configurabili, e nessuna lista è già inclusa. Su Customermates Cloud la configurazione dello spazio di lavoro con IA progetta le liste a partire dalle tue risposte; uno spazio di lavoro in self-hosting parte vuoto, e chi gestisce il modello dei dati crea le liste in Modello dati. La configurazione crea sempre una lista di persone e Attività, di solito Organizzazioni e Trattative, e un catalogo di servizi o prodotti solo se li vendi. Un risultato tipico è questo, descritto nella [documentazione sul modello dei dati](/docs/concepts).
+
+| Lista (nome predefinito) | Un record è | Di solito collegato a | Da sapere |
+|---|---|---|---|
+| Contatti | Una persona | Organizzazioni, trattative, attività | Un campo Recapiti contiene i suoi indirizzi e-mail, numeri di telefono e profili social e abbina i messaggi in arrivo al record |
+| Organizzazioni | Un’azienda o un account | Contatti, trattative | I campi che aggiungi, come segmento o cliente dal |
+| Trattative | Un’opportunità | Contatti, organizzazioni, servizi | La fase è un campo Scelta singola con una probabilità di successo per fase; il valore è la somma delle sue voci |
+| Servizi (o prodotti) | Qualcosa che vendi | Trattative, tramite le voci | Un prezzo unitario; l’importo di una voce è la quantità per il prezzo unitario |
+| Voci | Una riga in una sola trattativa | La sua trattativa | Un sottoelenco: appartiene a una trattativa, si modifica al suo interno e viene eliminato con essa |
+| Attività | Un lavoro da fare | I record a cui lo colleghi | Una scadenza o uno stato sono campi ordinari che aggiungi tu |
+| Le tue liste | Tutto il resto: progetti, candidature, immobili | Ciò che colleghi | Gli stessi tipi di campo, relazioni e viste salvate di ogni altra lista |
+
+Una relazione collega due liste. Ogni lato ha la propria etichetta e ammette uno o più record, quindi un contatto può appartenere a più organizzazioni e un progetto può collegare più contatti e trattative. Entrambi i record mostrano il collegamento. Su Pro, dove gli account collegati portano dentro i messaggi, una relazione può mostrare anche i messaggi delle persone collegate sulla trattativa o sull’organizzazione.
+
+I campi possono essere calcolati. Il valore di una trattativa somma gli importi delle sue voci, e il valore ponderato è il valore della trattativa per la probabilità della fase diviso 100: è una ponderazione della pipeline, non una previsione. Ogni record mantiene un ID stabile, quindi rinominare una lista o un campo non rompe alcun riferimento, e una vista salvata mostra i record senza copiarli.
+
+## CRM database, foglio di calcolo o database semplice?
+
+Tutti e tre possono contenere dati dei clienti. La domanda è chi lo mantiene e quanta parte della logica vuoi costruire da solo.
+
+| Scegli | Quando | Rinunci a |
+|---|---|---|
+| Un foglio di calcolo | Una persona, un elenco breve, nessuno storico condiviso | Collegamenti tra persone e aziende, una cronologia per cliente, modifica sicura da parte di più persone |
+| Un database semplice o uno strumento no-code (Airtable, Notion, Access, PostgreSQL) | I tuoi record non sono persone e trattative, o ti serve un modello che nessun CRM offre | Moduli, relazioni, permessi e storico li costruisci tu |
+| Un CRM | Più persone lavorano con gli stessi clienti e tieni traccia di trattative, follow up o conversazioni | Un po’ di libertà nel modello dei dati; la maggior parte dei CRM cloud si paga per utente |
+
+Gli stessi compiti si presentano in modo diverso in un foglio e in un CRM database:
+
+| Il compito | In un foglio Excel | In un CRM database |
+|---|---|---|
+| Collegare una persona a due aziende | Una seconda riga o due nomi in una cella, quindi due ricerche | Un record di persona collegato a entrambe le aziende, se il CRM ne ammette più di una; il collegamento compare su entrambi i record |
+| Mantenere coerente il valore di un segmento | Una colonna di testo libero, a meno che tu non costruisca e mantenga un menu a tendina | Un campo Scelta singola con opzioni fisse; rinomina un’opzione in Customermates e tutti i record la seguono |
+| Vedere cosa è successo con un cliente | Quello che qualcuno ha scritto in una colonna di note | Uno storico di modifiche e messaggi collegati sul record |
+| Far lavorare due persone insieme | Un file condiviso, una versione da unire o un blocco | Ognuno modifica i record direttamente, con l’accesso impostato per lista e azione |
+| Fare report sui numeri | Formule e tabelle pivot che costruisci e mantieni | Widget della dashboard che sommano o contano i record e li raggruppano per campo, come il valore delle trattative per fase |
+
+Se oggi sei a un foglio, la [guida al modello CRM per Excel](/blog/excel-crm-template) mostra fin dove si può arrivare e come impostarlo perché l’importazione successiva sia semplice. Per scegliere tra i tipi di strumenti per l’anagrafica clienti, vedi il [software per database clienti](/blog/client-database-software).
+
+## Come creare un CRM database, passo dopo passo
+
+Questi passaggi valgono per qualsiasi CRM. L’ordine conta più dello strumento.
+
+<Steps>
+  <Step title="Scrivi i tipi di record che ti servono">Parti da persone, aziende e trattative. Aggiungi un tipo separato solo quando ha un proprio ciclo di vita. Un catalogo prodotti ce l’ha; il luogo di una riunione no.</Step>
+  <Step title="Elenca i campi su cui filtrerai o farai report">Se nessuno filtrerà mai un campo, il suo posto è nelle note. Per ogni campo scegli un tipo: data, importo, e-mail, telefono, link o una scelta singola da un elenco fisso. Un campo «Segmento» come testo libero in un mese finisce con «Retainer», «retainer» e «Ret.».</Step>
+  <Step title="Definisci le fasi delle trattative e cosa fa avanzare una trattativa">Da cinque a sette fasi, ciascuna con una regola di uscita scritta, per esempio «Proposta: è stata inviata una proposta scritta». Le fasi senza regole di uscita diventano opinioni.</Step>
+  <Step title="Scegli una chiave univoca per persona">Di solito l’indirizzo e-mail. È così che trovi i duplicati prima dell’importazione e che il CRM abbina le e-mail in arrivo alla persona giusta. HubSpot, per esempio, deduplica i contatti per indirizzo e-mail e le aziende per nome di dominio.</Step>
+  <Step title="Ripulisci i dati di partenza">Una persona per riga, un solo tipo di valore per colonna, nomi completi divisi in nome e cognome, duplicati rimossi per e-mail ed eliminate le persone che non hai più motivo di tenere.</Step>
+  <Step title="Importa prima le aziende, poi le persone, poi le trattative">Ogni importazione successiva può così collegarsi a record già esistenti, abbinati per nome. Prova con 50 righe prima del file completo.</Step>
+  <Step title="Salva le viste da cui lavorano le persone">«Le mie trattative aperte», «Clienti senza azienda», «Non toccati da 90 giorni». Un database che nessuno guarda decade in silenzio.</Step>
+  <Step title="Nomina un responsabile della qualità dei dati">Una persona che esegue il controllo mensile qui sotto. Senza un responsabile, la pulizia è compito di tutti e quindi di nessuno.</Step>
+</Steps>
+
+## Quando i dati non rientrano in contatti, aziende o trattative
+
+È il problema di progettazione più comune, e ci sono quattro risposte oneste.
+
+1. **Descrive un record esistente.** La data di fine di un contratto, un segmento di clientela, un URL di LinkedIn. Aggiungi un campo personalizzato tipizzato a quel tipo di record.
+2. **È qualcosa che vendi.** Mettilo nel catalogo di prodotti o servizi e collegalo alle trattative, così il valore della trattativa deriva da ciò che contiene.
+3. **È testo che leggi ma non filtri mai.** Note di riunione, contesto, preferenze. Usa il campo note.
+4. **Ha un proprio ciclo di vita e proprie relazioni.** Immobili, veicoli, candidati, eventi. È un oggetto personalizzato. HubSpot li offre con Enterprise, Salesforce sulla sua piattaforma, e i database no-code come Airtable sono costruiti attorno a essi. In Customermates lo aggiungi come lista tua in Modello dati, con campi e relazioni propri.
+
+## Esempio pratico: un CRM database per una società di consulenza di quattro persone
+
+Ecco lo stesso progetto in Customermates, impostato come funziona oggi il prodotto. Customermates è un CRM open source nativo per l’IA, costruito in Germania per piccoli team a contatto con i clienti come consulenti, agenzie e fondatori. Un nuovo spazio di lavoro parte senza liste: su Customermates Cloud descrivi la tua attività in una frase e Mate costruisce liste, pipeline e dashboard; i passaggi qui sotto funzionano anche a mano in Modello dati.
+
+**Liste.** In Modello dati apri Contatti e cambia **Nome** e **Nome plurale** sotto **Generale** in Cliente e Clienti, poi rinomina allo stesso modo Trattative in Progetti. Va bene qualsiasi nome. Organizzazioni, Servizi e Attività mantengono il loro nome.
+
+**Campi.** Ogni campo ha un tipo: Testo, Testo formattato, Numero, Importo, Sì o no, Data, Data e ora, Intervallo di date, Intervallo di date e ore, Scelta singola, Scelta multipla, Indirizzo web, Membro, Indirizzo, File o Telefono, e-mail e social.
+
+| Lista | Campo | Tipo |
+|---|---|---|
+| Organizzazioni | Segmento (Retainer, Progetto, Ex cliente) | Scelta singola |
+| Organizzazioni | Cliente dal | Data |
+| Clienti | Ruolo | Testo |
+| Clienti | Profilo LinkedIn | Indirizzo web |
+| Progetti | Periodo dell’incarico | Intervallo di date |
+| Progetti | Origine (Passaparola, Inbound, Evento) | Scelta singola |
+
+**Relazioni.** Un cliente può collegarsi a più organizzazioni, e un progetto a più clienti, organizzazioni e utenti assegnati. Il valore di un progetto è la somma delle sue voci, ciascuna il prezzo di un servizio moltiplicato per la sua quantità, quindi «Workshop di strategia» a un prezzo e «Retainer mensile» per sei si sommano da soli.
+
+**Fasi.** Le fasi non sono predefinite: aggiungi un campo Fase (per esempio Prospezione, Qualificazione, Demo, Proposta, Negoziazione, Vinta, Persa) e imposti le probabilità di successo per fase in Modello dati. La pipeline ponderata è la semplice aritmetica di quelle percentuali, non una previsione.
+
+**Chiave univoca.** Gli indirizzi e-mail vanno nel campo Recapiti del cliente, che abbina i messaggi in arrivo al record. Un indirizzo può appartenere a più record, quindi rimuovi i duplicati prima di importare. La ricerca globale (Cmd/Ctrl+K) trova un cliente per nome o per qualsiasi indirizzo e-mail o numero di telefono nei suoi recapiti.
+
+**Importazione.** Usa **Altre azioni › Aggiungi da file** con una cartella di lavoro .xlsx o un file .csv, una lista alla volta, nell’ordine organizzazioni, clienti, progetti. Le colonne di collegamento vengono abbinate per nome del record. Un file CSV si può importare direttamente, senza conversione. La [documentazione sui record](/docs/app-records) riporta tutte le regole di importazione.
+
+**Viste.** Salva «Non toccati da 90 giorni» filtrando **Aggiornato il** con **Più vecchio di…** 90 giorni, e «Clienti senza organizzazione». Condividi «Non toccati da 90 giorni» con tutto il team o con ruoli selezionati, così tutti lavorano dalla stessa lista.
+
+**Costo.** Quattro persone su Starter pagano [[commercial.price.starter.monthly.seats.4]] al mese. Su Pro, che aggiunge la [posta in arrivo unificata](/features/unified-inbox) così l’account e-mail, LinkedIn o WhatsApp collegato di ogni utente mostra le sue conversazioni accanto al cliente, il costo è [[commercial.price.pro.monthly.seats.4]] al mese. La fatturazione è mensile e il tuo primo spazio di lavoro parte con Pro gratis per [[commercial.trial.days]] giorni senza carta di credito. Il self-hosting del nucleo open source non ha costi di licenza, ma non ha posta in arrivo né Mate.
+
+**Una routine per la qualità dei dati (Customermates Cloud).** Mate, l’assistente di Customermates Cloud, usa crediti IA ospitati. Una routine esegue istruzioni salvate a intervalli regolari o su un evento di un record, come la persona che ne è proprietaria; Pro include [[commercial.entitlement.pro.includedRoutinesPerUser]] routine per utente. Una routine settimanale potrebbe contenere questa istruzione:
+
+> Ogni lunedì, elenca i clienti creati negli ultimi 7 giorni che non hanno un’organizzazione collegata o un indirizzo e-mail, ed elenca le organizzazioni senza un valore in Segmento. Riporta gli elenchi nel riepilogo dell’esecuzione. Non modificare alcun record e non inviare alcun messaggio.
+
+L’ultima frase conta. Mate può inviare messaggi quando un’istruzione lo chiede, quindi una routine pensata solo per riferire deve dirlo. Se preferisci il tuo client IA, Claude, ChatGPT e altri client MCP possono interrogare gli stessi record tramite [[derived.mcp.tools.total]] [strumenti MCP](/docs/mcp), su Cloud e in self-hosting.
+
+Un database vale quando ogni record ha un prossimo passo. Su Pro le conversazioni si uniscono alla scheda del cliente, Mate o il tuo client IA prepara la risposta e il prossimo passo, e tu rivedi, modifichi e invii. Per provarlo sui tuoi record, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup).
+
+## Come tenere pulito un database CRM
+
+I dati di contatto invecchiano quando le persone cambiano lavoro e le aziende si fondono. Una breve routine con un responsabile designato batte un progetto di pulizia annuale.
+
+| Frequenza | Controllo | In Customermates |
+|---|---|---|
+| Ogni settimana | Nuove persone senza azienda, nuove trattative senza fase | Viste salvate, o la routine qui sopra |
+| Ogni mese | Record non aggiornati da 90 giorni: sono ancora rilevanti? | Filtra Aggiornato il, Più vecchio di… 90 giorni |
+| Ogni mese | Valori di testo libero che dovrebbero essere scelte | Aggiungi un campo Scelta singola, poi impostalo fino a 100 record selezionati alla volta con Modifica |
+| Ogni trimestre | Persone che non hai più motivo di tenere | Eliminale dalla lista o dalla pagina del record, poi dal Cestino |
+| Prima di qualsiasi grande modifica | Una copia di ciò che hai | Esporta ogni lista in Excel o JSON; non esiste un’unica esportazione dell’intero account |
+
+Una cartella di lavoro esportata si può modificare e reimportare come **Record esistenti**, il che li aggiorna invece di creare duplicati. Così le correzioni in blocco diventano praticabili senza un’API.
+
+## Come esportare un CRM database
+
+Pianifica la strada d’uscita mentre pianifichi quella d’ingresso. Ti serve un’esportazione per i backup, per le correzioni in blocco in un foglio di calcolo e per il giorno in cui cambi strumento, e conviene provarla su una lista piccola prima di fidartene. In Customermates ogni lista ha le stesse opzioni sotto **Altre azioni**, e un’esportazione contiene solo ciò che il tuo ruolo può leggere.
+
+| Vuoi | Fai così | Da sapere |
+|---|---|---|
+| Modificare molti record in un foglio di calcolo | **Esporta come Excel (.xlsx)** nella lista | Un foglio per lista e una colonna per campo leggibile; ricerca, filtri e ordinamento si applicano; fino a 5.000 record |
+| Fare il backup di una lista, collegamenti compresi | **Esporta come JSON** | Il file contiene i collegamenti per la reimportazione con **Aggiungi da file**, come **Crea con gli ID esportati** o **Aggiorna gli ID corrispondenti** |
+| Reimportare una grande esportazione JSON | Usa l’API REST o MCP | L’app rifiuta un file JSON con più di 100 record o 500 collegamenti; l’API esporta pagine fino a 500 record e importa 100 record per richiesta |
+| Passare a un altro CRM | Esporta ogni lista in Excel e importa nell’ordine organizzazioni, persone, trattative | Customermates non ha un’esportazione dell’intero account; controlla le regole di importazione del nuovo strumento (Pipedrive, per esempio, documenta l’importazione di persone, organizzazioni e trattative da file CSV o XLS) |
+
+La [documentazione sui record](/docs/app-records) elenca tutti i limiti di importazione ed esportazione.
+
+## Dati personali in un database CRM
+
+Nell’UE un database CRM di persone contiene dati personali ai sensi del [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Tre principi dell’articolo 5 si traducono direttamente in scelte di progettazione: conserva solo dati «limitati a quanto necessario» (meno campi), tienili accurati (la routine di pulizia) e limita per quanto tempo li conservi (l’eliminazione trimestrale). L’articolo 17 dà alle persone il diritto alla cancellazione dei propri dati, quindi devi poter trovare ed eliminare completamente una persona. L’articolo 28 richiede un contratto con qualsiasi fornitore che conservi i dati per te.
+
+Per Customermates Cloud, l’[accordo sul trattamento dei dati](/dpa) è pubblico, il database dell’applicazione è configurato nella regione AWS di Francoforte e i [sub-responsabili](/subprocessors), compresi i fornitori statunitensi, sono elencati. Customermates non ha alcuna certificazione di conformità. Se ti servono i dati su un tuo server, [installa il nucleo open source sul tuo server](/features/self-hosted).
+
+## Quando Customermates è il database sbagliato
+
+- **Ti servono permessi a livello di campo.** I permessi si applicano per lista e azione, non per campo.
+- **Ti serve l’esportazione di tutto con un clic.** L’esportazione funziona una lista alla volta, in Excel o JSON.
+- **Invii newsletter dalla tua lista clienti.** Non c’è l’invio massivo di e-mail; usa uno strumento di e-mail marketing.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Che cos’è un CRM database?">
+È l’archivio dietro un CRM: record per persone, aziende, trattative e attività, collegati tra loro, con campi tipizzati e uno storico di modifiche e conversazioni. Sono i collegamenti e lo storico a renderlo più di un elenco di contatti.
+</FaqItem>
+
+<FaqItem question="Quali dati contiene un CRM database?">
+Quattro tipi. Chi è una persona o un’azienda: nomi, indirizzi e-mail, numeri di telefono, indirizzi, ruoli. Cosa vendi e a chi: trattative, fasi, valori, prodotti o servizi. Cosa è successo: e-mail e messaggi, note, attività e modifiche al record. E ciò che aggiungi tu, come un segmento, un’origine o la fine di un contratto. I campi tipizzati mantengono il primo e l’ultimo tipo ricercabili e contabili.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra un database e un CRM?">
+Un database conserva le tabelle che progetti e lascia a te moduli, relazioni, permessi e storico. Un CRM è un database con quella logica sui clienti già costruita: persone collegate ad aziende e trattative, fasi della pipeline, assegnatari e una cronologia per ogni record. Scambi un po’ di libertà nel modello dei dati con il non doverlo costruire.
+</FaqItem>
+
+<FaqItem question="Un database clienti è la stessa cosa di un CRM database?">
+I due concetti si sovrappongono. Un database clienti è l’elenco dei clienti con ciò che sai di loro; un CRM database aggiunge i collegamenti tra persone, aziende e trattative, la pipeline e lo storico che stanno dietro a un CRM. Se ti serve solo un elenco clienti e stai scegliendo lo strumento per tenerlo, vedi il [software per database clienti](/blog/client-database-software).
+</FaqItem>
+
+<FaqItem question="Excel è un CRM database?">
+No. Excel può contenere un elenco clienti, e per una persona con un elenco breve basta. Non ha collegamenti tra persone e aziende, né uno storico per cliente, né un modo sicuro perché più persone modifichino insieme. Un foglio pulito, con un solo tipo di valore per colonna, resta comunque un buon punto di partenza per un’importazione.
+</FaqItem>
+
+<FaqItem question="Quali sono i quattro tipi di CRM?">
+La suddivisione abituale è operativo (gestire il lavoro di vendita, assistenza e marketing), analitico (fare report sui dati dei clienti), collaborativo (condividere le informazioni sui clienti tra i team) e strategico (organizzare l’azienda attorno a relazioni di lungo periodo con i clienti). Tutti e quattro usano lo stesso database CRM; cambia ciò che ci fai.
+</FaqItem>
+
+<FaqItem question="Come conservo dati che non rientrano in contatti, aziende o trattative?">
+Se descrivono un record esistente, aggiungi un campo personalizzato tipizzato. Se sono qualcosa che vendi, usa il catalogo di prodotti o servizi. Se vanno solo letti, usa le note. Se hanno un proprio ciclo di vita e proprie relazioni, ti servono oggetti personalizzati, che HubSpot offre con Enterprise e Salesforce sulla sua piattaforma; in Customermates aggiungi una lista tua per questi dati.
+</FaqItem>
+
+<FaqItem question="Quanto costa un CRM database?">
+Un foglio di calcolo o un CRM open source in self-hosting non hanno costi di licenza, ma paghi in tempo di configurazione e manutenzione. I CRM cloud si pagano per lo più per utente e per mese. In Customermates Cloud sono [[commercial.price.starter.monthly]] per utente su Starter e [[commercial.price.pro.monthly]] su Pro con la posta in arrivo unificata; vedi i [prezzi](/pricing).
+</FaqItem>
+</Faq>
+
+Dati dei fornitori verificati l’11 novembre 2026 su [documentazione sugli oggetti di HubSpot](https://knowledge.hubspot.com/records/understand-objects) (ultimo aggiornamento 2 ottobre 2026), [Salesforce Trailhead su oggetti standard e personalizzati](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) e [articolo di Pipedrive sull’organizzazione dei dati](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) (ultimo aggiornamento 23 settembre 2026).

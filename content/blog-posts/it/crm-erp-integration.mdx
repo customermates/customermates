@@ -1,0 +1,229 @@
+---
+title: "Integrazione ERP CRM: architettura e primo flusso"
+description: "Integrazione ERP CRM: chi possiede quale campo, quattro metodi di collegamento, eventi idempotenti, riconciliazione e un primo flusso da costruire."
+
+relatedHrefs:
+  - /blog/crm-and-erp
+  - /features/api
+  - /docs/webhooks
+  - /features/integrations
+
+hero:
+  title: "Integrazione ERP CRM: architettura, metodi e un primo flusso che puoi costruire"
+  description: "Decidi quale sistema possiede ogni campo, scegli il metodo di integrazione adatto all’interfaccia del tuo ERP e metti in produzione un evento affidabile prima di sincronizzare altro."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-01-03
+  updated: 2026-10-29
+  tags:
+    - CRM
+    - ERP
+    - Integrazione
+---
+
+# Integrazione ERP CRM: collega i sistemi senza record duplicati
+
+Un’integrazione ERP CRM passa un piccolo insieme di identificativi e stati tra il sistema in cui vendi e quello in cui consegni e fatturi. Il CRM possiede persone, relazioni, trattative e conversazioni. L’ERP possiede l’anagrafica cliente usata per la fatturazione, gli articoli, gli ordini, le giacenze e i pagamenti. L’integrazione scatta su eventi di business definiti, come «trattativa vinta», e scrive il numero di riferimento di ciascun sistema nell’altro.
+
+La maggior parte dei piccoli team dovrebbe partire da un solo flusso a senso unico: una trattativa vinta crea il cliente e un ordine nell’ERP, e il numero d’ordine dell’ERP torna sulla trattativa. Costruiscilo con un connettore nativo, se i tuoi due sistemi ne hanno uno, altrimenti con l’API REST e i webhook dell’ERP, usando una piattaforma di automazione come n8n o un piccolo servizio che gestisci tu.
+
+Questa guida la pubblica Customermates, un CRM nativo per l’IA. Customermates è solo un CRM, senza funzioni ERP e senza un connettore ERP nativo; la sezione che lo riguarda più avanti mostra come si collega tramite la sua API REST e i webhook. I dettagli dei fornitori di ERP sono stati verificati l’8 ottobre 2026 sulle pagine dei fornitori stessi, linkate in fondo.
+
+Per un’integrazione fissa e un client IA, confronta [MCP e API sullo stesso compito su un record cliente](/blog/mcp-vs-api). La scoperta degli strumenti cambia il modo in cui il client trova un’operazione; autenticazione e permessi valgono comunque.
+
+Per un workflow n8n, il [confronto tra le vie MCP di n8n con un esempio a versione fissata](/blog/n8n-mcp) distingue il collegare n8n a un server di dati dei clienti dall’esporre n8n stesso a un client IA. Scegli la direzione prima di configurare le credenziali.
+
+<ArticleSummary title="In sintesi">
+  <SummaryItem label="Cosa si sposta">Identificativi e pochi stati per ogni evento di business. Non ogni campo, e non in entrambe le direzioni per impostazione predefinita.</SummaryItem>
+  <SummaryItem label="Metodi">Connettore nativo, piattaforma di automazione (iPaaS o n8n), integrazione diretta via API o middleware. Oppure un’unica suite il cui ERP include un’app CRM.</SummaryItem>
+  <SummaryItem label="Da decidere prima">Un solo sistema proprietario per campo, una strategia di ID stabili e cosa succede quando un evento arriva due volte o fallisce.</SummaryItem>
+  <SummaryItem label="Controlla il tuo ERP">Se la sua API è inclusa nel tuo piano, se invia webhook e quali sono i suoi limiti di frequenza. Cambiano molto da fornitore a fornitore.</SummaryItem>
+  <SummaryItem label="Customermates">API REST su ogni piano Cloud, webhook su ogni piano a pagamento, ed entrambi in self-hosting. I riferimenti ERP stanno in campi Testo personalizzati.</SummaryItem>
+</ArticleSummary>
+
+## A quale sistema appartiene ogni campo nell’architettura dell’integrazione?
+
+Scrivi questa tabella per i tuoi sistemi prima di confrontare gli strumenti. La proprietà si decide per campo, non per oggetto: l’organizzazione può vivere in entrambi i sistemi mentre il suo indirizzo di fatturazione appartiene all’ERP e le note sull’account appartengono al CRM.
+
+| Dato | Di solito di proprietà di | Cosa tiene l’altro lato |
+| --- | --- | --- |
+| Contatti, storico delle relazioni, conversazioni | CRM | L’ERP tiene una persona di contatto solo se i suoi documenti ne richiedono una |
+| Trattativa, fase, prossimo passo | CRM | Niente, oppure un riferimento sull’ordine |
+| Anagrafica cliente per la fatturazione (ragione sociale, partita IVA, indirizzo di fatturazione, condizioni di pagamento) | ERP | Numero cliente dell’ERP; l’integrazione lo tratta come di proprietà dell’ERP |
+| Articoli e prezzi | ERP | Numero articolo sul record di prodotto o servizio del CRM |
+| Ordini, consegne, giacenze | ERP | Numero d’ordine e uno stato visibile al cliente |
+| Documenti di fatturazione e pagamenti | ERP | Numero del documento e uno stato di pagamento sintetico, se gli account manager ne hanno bisogno |
+
+Se due sistemi scrivono lo stesso campo, hai un conflitto in attesa di accadere. Scegli un proprietario e indirizza lì le correzioni. Fai rispettare questa regola nella tua integrazione; un CRM potrebbe non offrire un permesso a livello di campo che renda di sola lettura proprio questo campo.
+
+## Quattro modi per realizzare l’integrazione tra CRM e ERP
+
+| Metodo | Va bene quando | A cosa fare attenzione |
+| --- | --- | --- |
+| Connettore nativo | Entrambi i sistemi vengono da fornitori che offrono un connettore l’uno per l’altro | Quali oggetti, campi e direzioni copre, quali edizioni richiede e chi lo supporta quando si rompe |
+| Piattaforma di automazione (iPaaS, n8n, Make, Zapier) | Ti servono pochi flussi tra due sistemi con API REST e vuoi una logica visuale | Idempotenza, code di errori e segreti restano compito tuo. Un flusso visuale è software di produzione |
+| Integrazione diretta via API | Un solo flusso stretto e prezioso tra due API stabili, e qualcuno nel team scrive codice | Autenticazione, nuovi tentativi, cambi di versione dell’API e monitoraggio sono tuoi |
+| Middleware o servizio di integrazione | Più sistemi o volumi elevati, con un modello di dati condiviso e code | Più parti in movimento. Troppo pesante per spostare cinque campi |
+
+C’è una quinta risposta che interessa a chi cerca una «soluzione CRM ERP completa» o si chiede se un CRM possa far parte di un ERP: un’unica suite. Odoo, per esempio, offre un’app CRM accanto alle sue app ERP, quindi l’anagrafica cliente è condivisa e non c’è nulla da sincronizzare. Il compromesso è che usi il CRM della suite. Tieni presente che Odoo rende disponibile la sua API esterna solo nel piano Custom, quindi collegare a Odoo qualsiasi sistema esterno richiede quel piano.
+
+## Schemi di sincronizzazione e quando usarli
+
+| Schema | Come funziona | Quando usarlo |
+| --- | --- | --- |
+| Guidato da eventi, a senso unico | Una modifica nel sistema proprietario provoca una scrittura nell’altro | Il primo flusso. Direzione e proprietà restano evidenti |
+| Riconciliazione pianificata | Un job confronta i riferimenti incrociati ed elenca o ripara le lacune | Una rete di sicurezza sotto ogni flusso a eventi |
+| Consultazione al momento della lettura | Un sistema chiede all’altro i dati attuali senza conservarne una copia | Stato di giacenza o di pagamento mostrato a richiesta |
+| Bidirezionale | Entrambi i sistemi aggiornano dati correlati | Solo quando l’azienda cambia davvero i dati in entrambi i posti, con proprietà per campo e regole sui conflitti |
+
+Il «tempo reale» raramente è il requisito che sembra. Un account manager che vede uno stato di pagamento con un minuto di ritardo non perde nulla; un ordine duplicato nell’ERP costa denaro vero. Progetta prima per nuovi tentativi e duplicati, poi per la velocità.
+
+## Cosa offre davvero l’interfaccia del tuo ERP
+
+Il lato ERP di solito decide quanto è difficile l’integrazione. Quattro esempi mostrano quanto le interfacce possano differire:
+
+| ERP | Interfaccia, secondo il fornitore | Cosa significa per l’integrazione |
+| --- | --- | --- |
+| Microsoft Dynamics 365 Business Central | API REST v2.0 con entità come customers, items, salesQuotes, salesOrders e salesInvoices, più sottoscrizioni webhook | Le sottoscrizioni scadono dopo tre giorni se non rinnovate, e le notifiche aspettano 30 secondi dopo la prima modifica. Più di 1.000 modifiche in quella finestra arrivano come un’unica notifica «collection» che devi risolvere con una query |
+| Odoo | API esterna XML-RPC nella versione 18; la versione 19 documenta l’API JSON-2 e un percorso di migrazione da XML-RPC e JSON-RPC | Disponibile solo nel piano Custom. Verifica quale API usa la tua versione di Odoo prima di costruire |
+| Lexware Office | API REST per contatti, articoli, offerte, conferme d’ordine, documenti di trasporto e altri documenti, con sottoscrizioni agli eventi | Fino a 2 richieste al secondo per client, quindi i job in blocco richiedono un rallentamento |
+| Xentral | API REST per clienti, prodotti, ordini di vendita, ordini di acquisto, documenti di trasporto e fatture, con webhook e un elenco dei tipi di evento webhook | Esistono più versioni dell’API affiancate, quindi fissa la versione nella tua mappatura |
+
+Due domande fanno risparmiare più tempo: l’API è inclusa nel piano che paghi, e l’ERP invia le modifiche tramite webhook o devi interrogarlo tu a intervalli?
+
+## Eventi, idempotenza e riconciliazione
+
+Un’integrazione che gestisce solo il percorso felice creerà duplicati nel giro di poche settimane. I webhook vengono ritentati, le persone cliccano due volte e un timeout può nascondere una scrittura che in realtà è riuscita.
+
+- **Idempotenza.** Prima di creare qualcosa nella destinazione, controlla se esiste già. Il controllo più semplice è il riferimento incrociato stesso: se la trattativa contiene già un numero d’ordine dell’ERP, non creare un altro ordine.
+- **ID stabili.** Conserva l’ID dell’altro sistema dopo la prima corrispondenza. Non abbinare mai le aziende per nome a ogni esecuzione; i nomi cambiano e le filiali li condividono.
+- **Nuovi tentativi.** Ritenta timeout, limiti di frequenza ed errori del server con attesa progressiva. Fermati sugli errori di validazione e metti l’evento in una coda di riparazione con il motivo.
+- **Conflitti.** Decidili come regole di business: vince il proprietario, o decide una persona. Non applicare mai «vince l’ultima scrittura» in modo generalizzato.
+- **Riconciliazione.** Esegui un controllo pianificato che elenca i record senza riferimento incrociato o con stati diversi nei due lati. Intercetta ciò che il flusso a eventi ha perso.
+- **Registrazione.** Annota evento, record di origine, riferimento di destinazione, numero di tentativi ed esito, senza copiare nei log più dati dei clienti di quanti ne servano alla diagnosi.
+
+## Costruire il primo flusso
+
+<Steps>
+  <Step title="Scegli un evento di business">
+    «Una trattativa vinta crea il cliente e l’ordine nell’ERP» è un buon primo evento. «Sincronizzare CRM ed ERP» non è un evento.
+  </Step>
+  <Step title="Definisci le precondizioni">
+    Elenca i campi che devono essere compilati prima che l’evento possa scattare: indirizzo di fatturazione, partita IVA, articoli, quantità. Decidi cosa blocca l’evento e chi lo risolve.
+  </Step>
+  <Step title="Scrivi la mappa dei campi">
+    Per ogni campo: origine, destinazione, tipo, proprietario, trasformazione e cosa succede quando manca o non è valido. Tieni la mappa versionata accanto all’integrazione.
+  </Step>
+  <Step title="Scegli il metodo">
+    Un connettore nativo se ne esiste uno che copre il flusso; altrimenti una piattaforma di automazione o un piccolo servizio verso entrambe le API REST.
+  </Step>
+  <Step title="Costruisci l’idempotenza e la scrittura di ritorno">
+    Controlla il riferimento incrociato prima di creare, poi scrivi il numero dell’ERP sul record del CRM nella stessa esecuzione.
+  </Step>
+  <Step title="Prova i casi scomodi">
+    Cliente già esistente, due aziende con lo stesso nome, indirizzo mancante, articolo sconosciuto, timeout dell’ERP, lo stesso evento consegnato due volte, trattativa riaperta dopo «vinta».
+  </Step>
+  <Step title="Metti in produzione con la riconciliazione">
+    Parti con un team o un tipo di trattativa, confronta a mano i due sistemi per le prime settimane, poi attiva la riconciliazione pianificata e indica la persona che gestisce i fallimenti.
+  </Step>
+</Steps>
+
+## Esempio: dalla trattativa vinta all’ordine ERP con Customermates
+
+Ecco la configurazione in Customermates per il primo flusso descritto sopra. Usa l’[API REST](/features/api) e i [webhook](/docs/webhooks), che funzionano in un’installazione self-hosted e su Customermates Cloud: l’API REST su ogni piano, i webhook su ogni piano a pagamento. Il ricevitore nel mezzo è tuo: un workflow n8n o un piccolo servizio.
+
+**Campi.** In **Modello dati** aggiungi campi personalizzati di tipo Testo: «N. cliente ERP» sulle organizzazioni, «N. ordine ERP» sulle trattative e «N. articolo ERP» sui servizi. Le voci di una trattativa contengono ciascuna un servizio e una quantità, quindi le voci e i numeri articolo dei loro servizi diventano le righe dell’ordine. Se gli account manager hanno bisogno dello stato di consegna o di pagamento, aggiungi un campo Scelta singola come «Stato ERP» sulle trattative e rendi esplicita nel tuo adattatore la proprietà dell’ERP. Customermates ha permessi per lista e per ruolo, non permessi a livello di campo che riservino questo campo all’integrazione.
+
+**Attivazione.** Si presuppone che la tua lista di trattative abbia un campo Fase di tipo Scelta singola con un’opzione «Vinta» (le fasi non sono predefinite). In **Impostazioni → Webhook** sottoscrivi un URL a `record.updated` per la lista Trattative, se vuoi con Fase sotto **Campi modificati**, e imposta un segreto. Ogni consegna è firmata con HMAC-SHA256 nell’intestazione `X-Webhook-Signature` e, per gli eventi di aggiornamento, `data.record.fields` elenca ogni campo modificato con il suo valore `before` e `after`. Il tuo ricevitore agisce solo quando la fase è passata a «Vinta».
+
+**Idempotenza.** Ogni evento porta un `id` che resta lo stesso nei nuovi tentativi e nei reinvii, quindi deduplica con quello. Come secondo controllo, usa il riferimento incrociato: se il «N. ordine ERP» della trattativa è già compilato, fermati.
+
+**Abbinamento del cliente.** Cerca il «N. cliente ERP» dell’organizzazione. Se è vuoto, cerca nell’ERP per partita IVA oppure crea il cliente, poi riscrivi il numero. Per trovare in seguito un’organizzazione del CRM dal numero ERP, chiama `POST /api/v1/records/query` per le Organizzazioni con un filtro `eq` sull’ID di quel campo ([sintassi dei filtri](/docs/filter-syntax)).
+
+**Scrittura di ritorno.** Dopo che l’ERP ha accettato l’ordine, invia una mutazione `update` per la trattativa a `POST /api/v1/records/mutate` con il nuovo «N. ordine ERP» e la versione attuale della trattativa. I campi che ometti restano invariati.
+
+**Fallimenti.** Customermates ritenta automaticamente una consegna non riuscita per timeout, errori di rete, risposte 5xx e 408, 425 e 429. Le altre risposte 4xx non vengono ritentate, perché fallirebbero allo stesso modo. Ogni consegna compare in **Impostazioni → Log dei webhook**, dove puoi reinviarla dopo aver rimosso la causa.
+
+**Riconciliazione.** Salva una vista delle trattative filtrata su Fase «Vinta» e «N. ordine ERP» vuoto. Condividila con la persona che gestisce i fallimenti dell’integrazione, o con tutto il team. Tutto ciò che compare lì è sfuggito al flusso a eventi.
+
+**La direzione inversa.** Se il tuo ERP invia webhook, puntali allo stesso ricevitore, cerca la trattativa dal «N. ordine ERP» e imposta «Stato ERP». Se non li invia, interroga l’ERP a intervalli. La [guida a n8n](/docs/n8n) elenca le chiamate REST che servono a un workflow n8n; esiste anche un nodo della community.
+
+In Customermates Cloud anche Mate può lavorare con questi campi, per esempio «elenca le trattative vinte questo mese senza un numero d’ordine ERP». Mate usa crediti IA ospitati. Un tuo client IA può fare lo stesso tramite [MCP](/docs/mcp).
+
+<AcquisitionCallout title="Cosa Customermates non fa qui" variant="boundary">
+  Customermates non ha funzioni ERP: niente preventivi, fatture, ordini, pagamenti, giacenze o acquisti. Non ha un connettore ERP nativo né n8n integrato; n8n gira a parte. I record si importano da file Excel, CSV o JSON e si esportano come file XLSX o JSON, una lista alla volta, senza sincronizzazione pianificata. Se vuoi CRM ed ERP in un solo database, guarda piuttosto una suite che includa entrambi.
+</AcquisitionCallout>
+
+## Cosa ha dimostrato davvero il piccolo esempio di integrazione?
+
+Scarica la [mappa della proprietà dei campi CRM ed ERP](/templates/crm-erp-field-ownership.csv) e il [risultato dell’esempio circoscritto](/templates/crm-erp-example-result.json). L’esempio usa il cliente fittizio `C-001` e il riferimento ERP `ERP-C-001`. Tieni la tua mappatura accanto all’adattatore:
+
+| Valore | Autorità | Controllo dopo la scrittura |
+| --- | --- | --- |
+| Nome visualizzato del cliente | CRM | Leggi il record attuale del CRM prima dell’invio |
+| ID del record CRM | CRM | Conserva l’ID invariato nella mappatura |
+| ID cliente dell’ERP | ERP | Riscrivilo solo dopo che il ricevitore conferma il cliente salvato |
+| Politica di fatturazione e fiscale | ERP | Non sovrascriverla da una nota del CRM |
+
+Verificato il 29 ottobre 2026 su uno spazio di lavoro Customermates locale usa e getta e un ERP simulato in loopback. Un piccolo adattatore invocato a mano ha letto il vero endpoint REST del CRM, ha inviato un cliente al simulatore e ha scritto l’ID ERP restituito in un campo Testo personalizzato usando la versione attuale del record. Abbiamo scartato di proposito la prima risposta dopo che il simulatore aveva salvato il cliente. Ritentare lo stesso evento ha prodotto **due tentativi, una scrittura ERP**. Una lettura da ciascun lato ha poi trovato corrispondenza tra ID del record CRM, nome del cliente e ID ERP.
+
+Questo dimostra la mappa degli ID, la regola dei nuovi tentativi e lettura, scrittura e rilettura del CRM in quell’esempio. Non dimostra un connettore ERP di produzione, la consegna automatica dei webhook, la creazione di fatture o un job di riconciliazione distribuito. Prima di usare il tuo ERP, ripeti questi controlli sulla sua sandbox, verifica autenticazione e firme e prova le sue reali validazioni e i suoi limiti di frequenza. Le [opzioni di integrazione](/features/integrations) spiegano dove si colloca un adattatore o un n8n gestito a parte.
+
+## Cosa determina costi e impegno
+
+Nessun benchmark onesto copre tutte le integrazioni ERP CRM; un evento a senso unico tra due API documentate e una sincronizzazione bidirezionale di ordini e giacenze sono progetti diversi. Stima partendo da questi fattori:
+
+- se l’API dell’ERP è nel tuo piano attuale o richiede un upgrade;
+- se entrambi i sistemi inviano webhook o uno va interrogato a intervalli;
+- il numero di oggetti, campi, direzioni e trasformazioni;
+- quanto sono disordinati i dati attuali dei clienti e quanti duplicati vanno abbinati una volta sola;
+- limiti di frequenza e volume;
+- chi gestisce la piattaforma di automazione o il servizio e chi risponde ai suoi avvisi.
+
+Sul lato CRM, l’API REST non richiede un piano Customermates particolare e i webhook sono inclusi in ogni piano a pagamento. Un team di tre persone su Starter paga [[commercial.price.starter.monthly.seats.3]] al mese. La posta in arrivo unificata, che porta le conversazioni di e-mail, LinkedIn e WhatsApp sugli stessi record, parte da Pro ([[commercial.price.pro.monthly]] per utente al mese).
+
+Prima che una trattativa vinta diventi un ordine ERP, la conversazione che l’ha vinta sta sulla scheda del cliente, con una risposta e un prossimo passo preparati da Mate o dal tuo client IA perché tu li riveda e li invii. Per vedere questa parte sui tuoi clienti, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup). Senza carta di credito.
+
+## Errori comuni
+
+- sincronizzare ogni campo prima che un evento funzioni da un capo all’altro;
+- lasciare che entrambi i sistemi possiedano lo stesso campo;
+- abbinare le aziende per nome invece che con ID conservati;
+- nessuna coda di riparazione, quindi gli eventi falliti spariscono nei log;
+- ignorare annullamenti, trattative riaperte e correzioni;
+- partire senza un controllo di riconciliazione o una persona designata per gli avvisi.
+
+Per la differenza tra i due tipi di sistema, e per capire quando un piccolo team ha davvero bisogno di un ERP, leggi [CRM ed ERP a confronto](/blog/crm-and-erp).
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Che cos’è l’integrazione ERP CRM?">
+È lo scambio automatico di identificativi e stati selezionati tra il CRM, dove gestisci relazioni e trattative, e l’ERP, dove gestisci ordini, articoli, giacenze e fatturazione. Fatta bene, sposta solo ciò che serve a un evento di business definito e mantiene un unico proprietario per ogni campo.
+</FaqItem>
+
+<FaqItem question="Come si integrano un CRM e un ERP?">
+Definisci la proprietà dei campi, scegli un evento di business come «trattativa vinta» e scegli un metodo: un connettore nativo se i tuoi sistemi ne hanno uno, altrimenti l’API e i webhook dell’ERP tramite una piattaforma di automazione o un piccolo servizio. Aggiungi controlli di idempotenza, la scrittura di ritorno dell’ID dell’altro sistema e una riconciliazione pianificata prima di andare in produzione.
+</FaqItem>
+
+<FaqItem question="CRM ed ERP sono la stessa cosa, e un CRM può far parte di un ERP?">
+Sono sistemi diversi: il CRM copre la vendita e le relazioni con i clienti, l’ERP copre consegna, acquisti, giacenze e finanza. Alcune suite includono entrambi. Odoo, per esempio, offre un’app CRM accanto alle sue app ERP, il che elimina la necessità di un’integrazione tra i due.
+</FaqItem>
+
+<FaqItem question="CRM ed ERP devono sincronizzarsi in entrambe le direzioni?">
+Di solito all’inizio no. Un evento a senso unico dal CRM all’ERP, più un numero d’ordine di ritorno e un campo di stato, copre la maggior parte delle esigenze di un piccolo team. Aggiungi una seconda direzione solo per i campi che cambiano davvero in entrambi i posti, con proprietà per campo.
+</FaqItem>
+
+<FaqItem question="Si possono integrare CRM ed ERP senza codice?">
+Spesso sì, con un connettore nativo o una piattaforma di automazione come n8n, Make o Zapier. Devi comunque decidere la proprietà dei campi, gestire duplicati e fallimenti e controllare se il piano del tuo ERP include l’accesso all’API.
+</FaqItem>
+
+<FaqItem question="Customermates si integra con i sistemi ERP?">
+Tramite la sua API REST e i webhook, sì, usando una piattaforma di automazione o un servizio che gestisci tu. Non c’è un connettore ERP nativo, e Customermates stesso non contiene dati ERP come ordini o pagamenti. I riferimenti ERP vanno in campi personalizzati su organizzazioni, trattative e servizi.
+</FaqItem>
+</Faq>
+
+Dati dei fornitori di ERP verificati l’8 ottobre 2026 su [API v2.0 di Business Central](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/) e [webhook di Business Central](https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/api-reference/v2.0/dynamics-subscriptions) di Microsoft, [API esterna di Odoo per la versione 18](https://www.odoo.com/documentation/18.0/developer/reference/external_api.html), [API esterna per la versione 19](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) e [prezzi](https://www.odoo.com/pricing-plan) di Odoo, [documentazione dell’API di Lexware](https://developers.lexware.io/docs/) e [documentazione per sviluppatori di Xentral](https://developer.xentral.com/).

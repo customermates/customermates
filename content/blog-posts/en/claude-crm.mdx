@@ -1,6 +1,6 @@
 ---
 title: "Claude CRM: How to Connect Claude to Your CRM"
-description: "Claude reads and updates CRM records through MCP connectors. Which CRMs offer one, the setup steps, tool permissions and what Claude plus a CRM costs."
+description: "Claude CRM guide: seven CRMs compared by what Claude can read and write over MCP, with plan, setup steps and vendor sources, checked 10 November 2026."
 
 relatedHrefs:
   - /docs/connect-custom-connector
@@ -10,14 +10,14 @@ relatedHrefs:
 
 hero:
   title: "Claude CRM: Connect Claude to Your CRM and Keep Control"
-  description: "How Claude reads and writes CRM records through MCP, which CRMs offer a connector and on which plans, how to set permissions per tool, and when a chat window is not enough as a CRM."
+  description: "How Claude reads and writes CRM records through MCP, which seven CRMs offer or announce a connector and on which plans, how to set permissions per tool, and when a chat window is not enough as a CRM."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-05-08
-  updated: 2026-10-08
+  updated: 2026-11-10
   tags:
     - claude-crm
     - claude-code
@@ -26,21 +26,21 @@ blogPost:
     - Open Source
 ---
 
-# Claude CRM: Connectors, Setup and Approvals
+# Claude CRM: Connect Claude to Your CRM and Keep Control
 
-Claude has no CRM of its own, but it can work inside yours. Through a connector based on the [Model Context Protocol (MCP)](/blog/what-is-an-mcp-server), Claude finds, creates and updates records in the CRM and acts with the permissions of the person who connected it. HubSpot, Pipedrive, Zoho CRM, Capsule and Customermates offer such a connection today; Salesforce is piloting its own Claude plugin. What separates them is the plan you need on each side, whether Claude can delete, and where you decide which actions Claude may take without asking.
+Claude has no CRM of its own, but it can work inside yours. Through a connector based on the [Model Context Protocol (MCP)](/blog/what-is-an-mcp-server), Claude finds, creates and updates records in the CRM and acts with the permissions of the person who connected it. Close, HubSpot, Attio, folk, Breakcold, Pipedrive, Zoho CRM, Capsule and Customermates offer such a connection today; Copper has announced a read-only beta for November 2026, and Salesforce is piloting its own Claude plugin. What separates them is the plan you need on each side, what Claude can reach (records only, or the email and chat history too), whether it can delete, and where you decide which actions it may take without asking.
 
-Below you will find a vendor table with sources, the setup in Claude and Claude Code, the permission settings that matter and the cost for a small team. Customermates publishes this guide and appears in it as one option, in its own labelled section.
+Below you will find a ranked table of seven CRMs with sources checked on 10 November 2026, the setup in Claude and Claude Code, the permission settings that matter and the cost for a small team. Customermates publishes this guide and appears in it as one option, in its own labelled section.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Short answer">Claude works with a CRM through an MCP connector. Claude becomes the interface; the CRM still holds the records, permissions and history.</SummaryItem>
   <SummaryItem label="Claude plan">Custom connectors work on every Claude plan, and Free is limited to one. Some vendor connectors, HubSpot's for example, need a paid Claude plan.</SummaryItem>
   <SummaryItem label="Control">Claude lets you set each tool to Always allow, Needs approval or Blocked. Keep anything that writes, sends or deletes on approval.</SummaryItem>
   <SummaryItem label="Proof">Before you rely on it, run one read and one update and check the change in the CRM itself.</SummaryItem>
-  <SummaryItem label="Disclosure">Customermates publishes this guide. Vendor facts were checked against the vendors' own pages on 8 October 2026; the ranked table on 9 November 2026.</SummaryItem>
+  <SummaryItem label="Disclosure">Customermates publishes this guide. Vendor facts were checked against the vendors' own pages on 10 November 2026. We read each page; we did not run every connector.</SummaryItem>
 </ArticleSummary>
 
-## Four things people mean by "Claude CRM"
+## What do people mean by a Claude CRM?
 
 | What you mean | How it works | Fits | Watch for |
 | --- | --- | --- | --- |
@@ -51,7 +51,7 @@ Below you will find a vendor table with sources, the setup in Claude and Claude 
 
 Most search results for "Claude CRM" are about the first row, so the rest of this guide is about connectors.
 
-## What Claude does once it is connected
+## What can Claude do once it is connected to a CRM?
 
 The tools come from the CRM, not from Claude, so the exact list depends on the vendor. Across the connectors below, the everyday work looks like this:
 
@@ -62,59 +62,65 @@ The tools come from the CRM, not from Claude, so the exact list depends on the v
 
 Claude picks the tools and the order on its own. That works well for a handful of records per request. For hundreds of rows, vendor limits apply (HubSpot's connector creates or updates 10 records at a time in bulk), and an import is the better tool.
 
-## CRMs with a Claude connector, ranked
+## Which CRMs have a Claude connector, ranked?
 
-The ranking follows how much of the client conversation the vendor's own documentation says Claude can reach, then what Claude can change. It was checked on 9 November 2026 against each vendor's documentation, linked in the second column. Customermates publishes this guide and ranks first on that measure, so read the vendor pages before you decide.
+This ranking is published by Customermates and uses three things the vendors' own documentation states: how much of the client conversation Claude can reach (email, LinkedIn and chat, not only records), how much Claude can write, and who controls the permissions. The fit test is a small client-facing team: a few seats, long email and chat histories, nobody to administer a platform. Checked on 10 November 2026 against each vendor's own MCP or connector page, linked in the second column. We read those pages and did not run every connector, so a row shows what the vendor documents, not a measurement. Customermates ranks first on its own criteria, so read the vendor pages before you decide.
 
-| # | CRM | What the vendor documents | Claude side |
-| --- | --- | --- | --- |
-| 1 | Customermates (publisher) | [[derived.mcp.tools.total]] tools for contacts, organizations, deals, services, tasks, your own lists, notes and the Knowledge Base; on Pro and higher also the unified inbox with email, LinkedIn, WhatsApp, Instagram and Telegram. Works on every plan, self-hosted included. | Custom connector, a shortcut under Settings › API keys, or an API key in Claude Code |
-| 2 | [Breakcold](https://www.breakcold.com/crm/claude) | A first-party MCP server with tools across records, tasks, notes, the inbox (email, LinkedIn, WhatsApp, Telegram) and meetings, with full MCP on every plan. | Add the Breakcold MCP server to Claude, or use its Cowork Skill |
-| 3 | [Attio](https://docs.attio.com/mcp/overview) | Search, read, create and update records, notes, tasks and lists, plus search and retrieval of emails, meetings and call recordings. Writes ask for confirmation. The page names no plan requirement. | Claude Desktop or Claude.ai: Settings › Connectors › Browse connectors |
-| 4 | [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) | View, create and update most objects, engagement history included. Delete is not supported. All HubSpot products and plans. | Paid Claude plan: Pro, Max, Team or Enterprise |
-| 5 | [Close](https://help.close.com/docs/mcp-server) | Three scopes: read only, read and write, or read, write and delete. | The Claude connectors library needs a paid Claude plan; on Claude Desktop with a free plan, add Close through the + menu in a chat |
-| 6 | [folk](https://help.folk.app/en/articles/15503108-mcp-how-to-connect-folk-to-claude) | Search people, companies and groups, create and update contacts, notes and custom fields, and move deals through pipelines. The article names no plan requirement. | Connector URL `https://mcp.folk.app/mcp`, then OAuth sign-in |
+| # | CRM | How it connects to Claude | What Claude can do | Plan needed | Setup in one line |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Customermates (publisher), [connector guide](/docs/connect-custom-connector) and [MCP reference](/docs/mcp) | MCP server built into the product. Custom connector with OAuth in Claude, API key in Claude Code | [[derived.mcp.tools.total]] tools: read, create, update and delete records in every list you set up (for example contacts, organizations, deals and tasks), their notes and files, and the Knowledge Base. On Pro and higher also the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram threads, drafts and sends | Every plan and self-hosted. Free shares 10 requests per minute and 200 per day per workspace; the inbox needs Pro or higher | Customize › Connectors › Add custom connector, paste your workspace URL, sign in, Approve |
+| 2 | [Breakcold](https://docs.breakcold.com/api/mcp-applications/claude) | Official ("first party") MCP server at `https://mcp.breakcold.com/mcp/v1`, added in Claude as a custom connector with OAuth | Records including custom objects (create, update, archive), tasks, notes, meetings with transcripts, and the inbox: read conversations, set drafts, send messages. Its product page names email, LinkedIn, WhatsApp and Telegram. Records are archived, not deleted | Full MCP on every plan; its [product page](https://www.breakcold.com/crm/claude) lists from $49 per seat per month | Customize › Connectors › Add custom connector, paste the endpoint, sign in, enable it in the chat |
+| 3 | [Close](https://help.close.com/integrations/close-mcp-server) | Close describes its MCP server as officially supported across the Claude ecosystem: `https://mcp.close.com/mcp` with OAuth | Three scopes you choose when you connect: read only, read and write, or read, write and delete. The [tool list](https://developer.close.com/mcp/tools) covers leads, contacts, opportunities, tasks, notes, custom objects and email drafts (no send tool); calls, meeting transcripts and SMS are read only | The page names no Close plan. Claude: the organization connector library needs a paid plan, and on Free you add Close from the + menu in Claude Desktop | Settings › Connectors › Organization connectors, select Close, Connect, pick a scope |
+| 4 | [Attio](https://docs.attio.com/mcp/overview) | Official hosted MCP server at `https://mcp.attio.com/mcp`, found under Browse connectors in Claude, OAuth | Search, read, create and update records (people, companies, deals, custom objects), lists, notes, tasks and comments; merge records; delete only tasks and comments. Reads emails, meetings and call recordings, and lists no send tool. Writes ask for confirmation | The page names no plan for the connector; its SQL reporting tool is not on every plan | Settings › Connectors › Browse connectors, search Attio, Install, sign in |
+| 5 | [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) | HubSpot's own connector for Claude, found under Connectors in Claude | View, create and update contacts, leads, companies, deals, tickets, custom objects and engagements (calls, meetings, notes, tasks, emails); invoices and conversations are read only; no delete; bulk changes 10 records at a time | All HubSpot products and plans. Claude: Pro, Max, Team or Enterprise | Settings › Connectors, choose HubSpot, Connect, log in, pick the permissions. Without Super Admin or App Marketplace access, a Super Admin must approve it first |
+| 6 | [folk](https://help.folk.app/en/articles/15503108-mcp-how-to-connect-folk-to-claude) | folk's hosted MCP server at `https://mcp.folk.app/mcp`, OAuth, found under Connectors in Claude Desktop | Search and edit people, companies, groups, deals (custom objects), notes, tasks and custom fields; read a contact's imported email, calendar, WhatsApp and call history; create and launch email campaigns. The [tools page](https://developer.folk.app/mcp/tools) lists no delete for people or companies | The articles name no folk or Claude plan | Customize › Connectors, search folk (or add the URL), complete the OAuth sign-in |
+| 7 | [Copper](https://www.copper.com/mcp) | Copper announces an official MCP server, built and hosted by Copper, for Claude only. Its page says the beta launches in November 2026 and still reads "coming soon" with a waitlist on 10 November 2026 | Read only at first: Claude can look but not change, with your own Copper login. Copper plans write access for a release after the beta | Not announced: Copper will share availability and price at public release | Nothing to connect yet; join the waitlist on Copper's page |
 
-The next table adds the plan details and the connectors of Pipedrive, Zoho CRM, Capsule and Salesforce.
+Copper ranks last because there is nothing to connect yet. Third-party Copper connectors exist, but Copper's own page says most of them run on an admin API key, which ignores each user's permissions.
 
-## Which CRMs connect to Claude
+### When is another row the better pick?
 
-Checked on 8 October 2026 against each vendor's own page, linked in the first column.
+- **Close** if your team sells by phone, or if you want the CRM itself to offer a read-only scope. Customermates has no telephony, and its connection carries your role's permissions with no per-key scope.
+- **Breakcold** is the closest alternative for the same job, with the inbox in MCP. It publishes a packaged Cowork Skill for Claude on its product page, which is a reason to pick it.
+- **Attio** if you want a custom data model with lists and reports that Claude can query.
+- **HubSpot** if your team already runs it, or needs marketing and service objects such as tickets, marketing emails and landing pages next to sales records.
+- **folk** if you manage relationships in groups and want Claude to create and launch email campaigns; folk's tool descriptions tell Claude to ask for your approval before a launch.
+- **Copper** if your team already runs it: watch for the beta, which is read only at first.
+
+## Which other CRMs connect to Claude?
+
+Checked on 10 November 2026 against each vendor's own page, linked in the first column. HubSpot and Customermates are in the ranked table above.
 
 | CRM | Connection | CRM plan | Claude side | What Claude can change |
 | --- | --- | --- | --- | --- |
-| [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude) | HubSpot connector for Claude | All products and plans | Paid plan: Pro, Max, Team or Enterprise | View, create and update records; no delete. Bulk changes 10 records at a time |
-| [Pipedrive](https://www.pipedrive.com/en/features/mcp-server) | Pipedrive MCP, a remote server with OAuth sign-in, named "Pipedrive MCP BETA" in the [Claude setup guide](https://support.pipedrive.com/en/article/mcp-claude) | Every plan, with usage token limits by plan | Custom connector | Create and update deals, contacts and activities |
-| [Zoho CRM](https://www.zoho.com/crm/developer/docs/mcp/overview.html) | Zoho CRM MCP servers with OAuth | Not stated on the overview page | Claude Desktop and other MCP clients | Create, read, update and delete, also in bulk; a separate insights server is read-only |
-| [Capsule](https://capsulecrm.com/integrations/claude/) | Claude connector | Growth, Advanced or Ultimate | Any Claude plan | Create contacts, opportunities, projects and tasks, log activity and update custom field values; the page lists no delete action |
-| [Salesforce](https://www.salesforce.com/claudeforce/) | "Salesforce in Claude", a plugin with 37 pre-built skills, part of the Claudeforce partnership | Not stated | Not stated | Available to select pilot customers; on 8 October 2026 the page still named September 2026 for an open beta |
-| Customermates (publisher) | MCP endpoint built into the product | Every plan, also self-hosted | Custom connector, or API key in Claude Code | Create, update, link and delete records; inbox tools on Pro and higher |
+| [Pipedrive](https://www.pipedrive.com/en/features/mcp-server) | Pipedrive MCP, an official remote server with OAuth sign-in; the [Claude guide](https://support.pipedrive.com/en/article/mcp-claude) calls it a connector in Claude's list | Every plan, with usage token limits by plan | Customize › Connectors, search Pipedrive, Connect; the guide names no Claude plan | Create and update deals, contacts and activities |
+| [Zoho CRM](https://www.zoho.com/crm/developer/docs/mcp/overview.html) | Four Zoho CRM MCP servers with OAuth | Not stated on the overview page; calls use API credits | Claude Desktop and other MCP clients | The Data Operations server creates, reads, updates and deletes, also in bulk; the Data Insights server is read-only |
+| [Capsule](https://capsulecrm.com/integrations/claude/) | Claude connector | Growth, Advanced or Ultimate | Any Claude plan, with usage limits that may vary | Create contacts, opportunities, projects and tasks, log activity and update custom field values; the page lists no delete action |
+| [Salesforce](https://www.salesforce.com/claudeforce/) | "Salesforce in Claude", a plugin with 37 pre-built skills, part of the Claudeforce partnership | Not stated | Not stated | Available to select pilot customers; on 10 November 2026 the page still named September 2026 for an open beta and gave no general availability date |
 
 Salesforce also runs hosted MCP servers that are separate from the Claude plugin; the [Salesforce MCP guide](/blog/salesforce-mcp) covers them. HubSpot has a remote MCP server next to its Claude connector, explained in the [HubSpot MCP guide](/blog/hubspot-mcp).
 
-## How to connect Claude to a CRM
+## How do I connect Claude to a CRM?
 
-The steps are the same for any CRM with a remote MCP server. Where Customermates differs, it says so.
+The steps are the same for any CRM with a remote MCP server; the ranked table gives each vendor's own wording.
 
 <Steps>
   <Step title="Check who can add the connector">
     On Free, Pro and Max you add it yourself; Free allows one custom connector. On Team and Enterprise, an Owner adds it under **Organization settings › Connectors**, and then each member connects individually.
   </Step>
-  <Step title="Add the server address">
-    In Claude, open **Customize › Connectors**, click **+**, choose **Add custom connector** and paste the vendor's MCP URL. Pipedrive's is `https://mcp.pipedrive.ai/mcp`. For Customermates, it is the address you open Customermates at, followed by `/api/v1/mcp`.
+  <Step title="Find the connector or add the server address">
+    In Claude, open **Customize › Connectors**. A connector that Claude lists, such as HubSpot's, Attio's or Pipedrive's, you find by search and click **Connect**. For a server that is not listed, such as Breakcold's `https://mcp.breakcold.com/mcp/v1`, click **+**, choose **Add custom connector** and paste the vendor's MCP URL.
   </Step>
   <Step title="Sign in and approve">
-    The CRM opens a sign-in window. In Customermates, the consent screen names the connecting app and the host it sends access to; click **Approve**. From then on, Claude acts as you, with your role's permissions.
+    The CRM opens a sign-in window. Read the access it asks for, then approve. From then on, Claude acts as you, with your role's permissions.
   </Step>
   <Step title="Set tool permissions">
     Select the connector under **Customize › Connectors** to see **Tool permissions**. Set read tools to **Always allow**, and leave anything that writes, sends or deletes on **Needs approval**. On Team and Enterprise, Owners can restrict a connector's actions for the whole organization, and members cannot override that.
   </Step>
   <Step title="Prove it with one read and one update">
-    Ask a read-only question first, such as your open deals in one stage. Then change one field on a test record and add a note. Open the record in the CRM and check that the change is there. In Customermates, the record's **History** panel lists it, provided your role can read the audit log.
+    Ask a read-only question first, such as your open deals in one stage. Then change one field on a test record and add a note. Open the record in the CRM itself and check that the change is there.
   </Step>
 </Steps>
-
-Customermates also has a shortcut: under **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. **Add to Claude** then opens Claude's dialog with the address filled in (Claude web and Team only). The [connector guide](/docs/connect-custom-connector) has the details and a troubleshooting table.
 
 ### Claude Code, including Pipedrive
 
@@ -125,13 +131,34 @@ claude mcp add --transport http customermates https://<your-customermates-addres
   --header "x-api-key: YOUR_KEY"
 ```
 
-A server that signs in with OAuth instead of a key, such as Pipedrive's, is added without the header. You then complete the sign-in with `/mcp` inside Claude Code, as [Anthropic's Claude Code documentation](https://code.claude.com/docs/en/mcp) describes:
+A server that signs in with OAuth instead of a key, such as Pipedrive's or folk's, is added without the header. You then complete the sign-in with `/mcp` inside Claude Code, as [Anthropic's Claude Code documentation](https://code.claude.com/docs/en/mcp) describes:
 
 ```bash
 claude mcp add --transport http pipedrive https://mcp.pipedrive.ai/mcp
 ```
 
-Pipedrive's guide covers the Claude app only, so try a read before you rely on Claude Code with it. The default scope is the current project. `--scope user` makes a server available in all your projects, and `--scope project` writes it to a `.mcp.json` file meant to be shared with your team, so keep API keys out of a file you commit. Codex, Cursor and the Gemini CLI are covered in the [CLI guide](/docs/connect-cli).
+Pipedrive's server URL comes from its [ChatGPT guide](https://support.pipedrive.com/en/article/mcp-chatgpt), and its Claude guide covers the Claude app only, so try a read before you rely on Claude Code with it. folk documents the Claude Code command itself, `claude mcp add --transport http folk https://mcp.folk.app/mcp`. The default scope is the current project. `--scope user` makes a server available in all your projects, and `--scope project` writes it to a `.mcp.json` file meant to be shared with your team, so keep API keys out of a file you commit. Codex, Cursor and the Gemini CLI are covered in the [CLI guide](/docs/connect-cli).
+
+## How do I connect Claude to Customermates?
+
+Customermates connects as a custom connector, which works on every Claude plan (Free allows one; Anthropic's help article, re-checked on 10 November 2026). Every workspace has its own URL, `<your address>/api/v1/mcp/w/<workspace id>`, with the same tools locked to that workspace. The address you open Customermates at is your own on a self-hosted install.
+
+<Steps>
+  <Step title="Copy the workspace URL">
+    In Customermates, open **Settings › API keys & connectors**, click **Add**, choose **Claude** under **Quick connections**, then **Claude account**. The dialog shows the URL of your current workspace with a copy button. Connecting needs **Read access All** on the **API & Webhooks** row of your role, as the [API keys](/docs/api-keys) page does; the built-in Admin role has it.
+  </Step>
+  <Step title="Add the connector in Claude">
+    Open **Customize › Connectors**, click **+**, choose **Add custom connector**, name it and paste the URL. Leave authentication on OAuth: there is no key to copy. The **Add to Claude** button in the same dialog opens Claude's form with the URL filled in (Claude web and Team only).
+  </Step>
+  <Step title="Sign in and approve">
+    A Customermates window opens. Sign in, check that the consent screen names the connecting app and the host it sends access to, then click **Approve**.
+  </Step>
+  <Step title="Confirm the tools and test one change">
+    Back in Claude, Customermates appears with its tools. Ask a read question first; `get_workspace_context` is the natural first call, because it returns your user, company, roles, connected accounts and the Knowledge Base. Then change one field on a test record. The record's **History** panel lists it, provided your role can read the audit log.
+  </Step>
+</Steps>
+
+To give Claude fewer tools, append `?toolsets=records,messaging` to the endpoint URL; the [MCP reference](/docs/mcp) lists the toolsets, and the [connector guide](/docs/connect-custom-connector) has a troubleshooting table. On the Free plan, REST and MCP requests together are limited to 10 per minute and 200 per day per workspace, and a request over the limit gets HTTP 429; paid plans and self-hosted instances have no request limit.
 
 ## Who controls what Claude writes
 
@@ -140,12 +167,12 @@ This is where setups differ most, and a wrong assumption here costs data.
 - **The client is usually the gate.** The Customermates MCP server tells connected clients to confirm with you before they delete or send, but it does not enforce that: once Claude calls an allowed tool, the action runs. What protects you is **Tool permissions** in Claude. Capsule describes the same choice: you decide whether Claude checks with you before it makes changes.
 - **Claude gets your permissions, not fewer.** A Customermates connector or API key inherits the permissions of the user behind it; there is no per-key scope. If Claude should do less than you can, connect it as a separate user with a narrower role (which takes a seat), or expose fewer tools with the toolsets parameter in the [MCP reference](/docs/mcp).
 - **Sending is immediate.** If your CRM can send email or chat messages, a send call sends. Ask Claude to save a draft and send it yourself from the inbox.
-- **Vendor guardrails vary.** HubSpot's connector cannot delete and applies conditional property and pipeline stage validation rules, but not association label validations. Capsule lists only create and update actions. Zoho's Data Operations server can delete, also in bulk.
+- **Vendor guardrails vary.** Close asks which of three scopes to grant (read only, read and write, or read, write and delete) when you connect. Attio asks for confirmation before writes, and lets Claude delete only tasks and comments. HubSpot's connector cannot delete and applies conditional property and pipeline stage validation rules, but not association label validations. Capsule lists only create and update actions. Zoho's Data Operations server can delete, also in bulk. Breakcold's OAuth calls run as the signed-in user, and a bearer token carries the scopes and workspaces you set.
 - **What Claude reads goes to Anthropic.** Tool results become part of the conversation. Anthropic publishes separate [consumer and commercial terms](https://www.anthropic.com/legal/consumer-terms); check which ones cover your Claude plan, and whether you need a data processing agreement, before you connect customer data.
 
 ## What Claude plus a CRM costs
 
-Claude prices from [claude.com/pricing](https://claude.com/pricing), checked on 8 October 2026, in USD with monthly payment: Pro is $20 per month, Team Standard seats are $25 per seat per month, for [teams of two or more](https://claude.com/pricing), and Team Premium seats are $125. On a yearly subscription, Anthropic charges $17 for Pro and $20 per Standard seat. Pro includes Claude Code.
+Claude prices from [claude.com/pricing](https://claude.com/pricing), checked on 10 November 2026, in USD with monthly payment: Pro is $20 per month, Team Standard seats are $25 per seat per month, for [teams of two or more](https://claude.com/pricing), and Team Premium seats are $125. On a yearly subscription, Anthropic charges $17 for Pro and $20 per Standard seat. Pro includes Claude Code.
 
 | Team | Claude | CRM, with Customermates as the example |
 | --- | --- | --- |
@@ -157,7 +184,7 @@ Customermates bills monthly per user, with no yearly contract. When Claude works
 
 ## Where Customermates fits
 
-*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Its MCP endpoint is part of the AGPL core, so it works on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. Through it, Claude works with contacts, organizations, deals, services, tasks and any lists you add, their notes and fields, and the workspace Knowledge Base. On Pro and higher in Customermates Cloud, the same connection reaches the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram conversations.
+*Disclosure: Customermates publishes this guide.* Customermates is an open-source, AI-native CRM built in Germany for small client-facing teams: consultants, agencies, other service businesses and founders. Its MCP endpoint is part of the AGPL core, so it works on every cloud plan and on self-hosted installations, with [[derived.mcp.tools.total]] tools. Through it, Claude works with the lists you set up (for example contacts, organizations, deals, services and tasks), their notes and fields, and the workspace Knowledge Base. On Pro and higher in Customermates Cloud, the same connection reaches the [unified inbox](/features/unified-inbox) with email, LinkedIn, WhatsApp, Instagram and Telegram conversations.
 
 Four prompts that test the setup. Customermates has no preset stages, so replace the stage, organization and deal names in brackets with ones from your workspace:
 
@@ -170,7 +197,7 @@ The fourth prompt is follow-up in one line: Claude reads the thread on the clien
 
 If you would rather not run your own AI client, Mate is the assistant inside Customermates Cloud. It uses the monthly hosted AI credits per active user that come with each paid plan, prepares summaries and reply drafts, and runs Routines: saved instructions on a schedule or on record events. In Customermates Cloud, the primary production database is configured in the AWS Frankfurt region. That is a selected setting rather than a residency guarantee, and the subprocessors are listed publicly.
 
-Customermates is not the right pick if you need a phone dialer, email sequences or a native mobile app, or if your team runs HubSpot or Salesforce and is happy with it. In that case, use the vendor's own connector from the table above.
+Customermates is not the right pick if you need a phone dialer, email sequences or a native mobile app, or if your team runs HubSpot or Salesforce and is happy with it. In that case, use the vendor's own connector from the ranked table above.
 
 ## Frequently asked questions
 
@@ -184,20 +211,28 @@ Yes, if your CRM offers an MCP server or a vendor connector. Claude adds it as a
 </FaqItem>
 
 <FaqItem question="How do I connect Pipedrive to Claude Code?">
-Run `claude mcp add --transport http pipedrive https://mcp.pipedrive.ai/mcp`, then open `/mcp` in Claude Code and complete Pipedrive's sign-in. Pipedrive documents the Claude app only and names the connector "Pipedrive MCP BETA", so start with a read-only request.
+Run `claude mcp add --transport http pipedrive https://mcp.pipedrive.ai/mcp`, then open `/mcp` in Claude Code and complete Pipedrive's sign-in. Pipedrive's Claude guide covers the Claude app only, and the server URL comes from its ChatGPT guide, so start with a read-only request.
 </FaqItem>
 
 <FaqItem question="Can Claude connect to Salesforce?">
-Yes, through "Salesforce in Claude", the plugin from the Claudeforce partnership between Salesforce and Anthropic. Salesforce's page says it is available to select pilot customers; on 8 October 2026 it still named September 2026 for an open beta, so check the page for the current status. Claude in Chrome can also work in the Salesforce web interface through your browser session.
+Yes, through "Salesforce in Claude", the plugin from the Claudeforce partnership between Salesforce and Anthropic. Salesforce's page says it is available to select pilot customers; on 10 November 2026 it still named September 2026 for an open beta and gave no general availability date, so check the page for the current status. Claude in Chrome can also work in the Salesforce web interface through your browser session.
+</FaqItem>
+
+<FaqItem question="Does Copper work with Claude?">
+Not yet as a product you can switch on. Copper's page announces an official MCP server for Claude, built and hosted by Copper, as a read-only beta for November 2026, and on 10 November 2026 it still read "coming soon" with a waitlist. Write access is planned for a later release, and Copper has not announced a price. Third-party Copper connectors exist; Copper says most of them run on an admin API key that ignores each user's permissions.
+</FaqItem>
+
+<FaqItem question="Which CRM has the best Claude integration?">
+It depends on what Claude must reach. For the client conversation itself, Customermates (the publisher of this guide) and Breakcold document email, LinkedIn and chat access through MCP. Close documents the clearest permission choice, with read only, read and write, or read, write and delete scopes. HubSpot is the pick if your team already runs it. The ranked table above lists what each vendor documents.
 </FaqItem>
 
 <FaqItem question="Is AI replacing the CRM?">
-The interface is moving into AI clients, the record is not. Every connector in this guide reads and writes the CRM's own database with the user's permissions. Salesforce describes Claudeforce as putting your data to work inside Claude, governed by the permissions and business rules your company already runs on.
+The interface is moving into AI clients, the record is not (see the [AI CRM guide](/blog/ai-crm)). Every connector in this guide reads and writes the CRM's own database with the user's permissions. Salesforce describes Claudeforce as putting your data to work inside Claude, governed by the permissions and business rules your company already runs on.
 </FaqItem>
 
 <FaqItem question="Do I need a paid Claude plan?">
-Not for one custom connector, because Free allows one. HubSpot's connector requires Pro, Max, Team or Enterprise. On Team and Enterprise, an Owner adds connectors for the organization and can restrict their actions for everyone.
+Not for one custom connector, because Free allows one. HubSpot's connector requires Pro, Max, Team or Enterprise, and Close's organization connector library needs a paid plan too. On Team and Enterprise, an Owner adds connectors for the organization and can restrict their actions for everyone.
 </FaqItem>
 </Faq>
 
-Vendor details checked on 8 October 2026 against [Anthropic's custom connector guide](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [Anthropic's connector permissions guide](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), [Claude pricing](https://claude.com/pricing), [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [Pipedrive](https://www.pipedrive.com/en/features/mcp-server), [Zoho CRM](https://www.zoho.com/crm/developer/docs/mcp/overview.html), [Capsule](https://capsulecrm.com/integrations/claude/) and [Salesforce](https://www.salesforce.com/claudeforce/).
+Vendor details checked on 10 November 2026 against [Anthropic's custom connector guide](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp), [Anthropic's connector permissions guide](https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities), [Claude pricing](https://claude.com/pricing), [Breakcold's Claude guide](https://docs.breakcold.com/api/mcp-applications/claude), [Breakcold's MCP tools](https://docs.breakcold.com/api/mcp-tools), [Close](https://help.close.com/integrations/close-mcp-server), [Close's MCP tool scopes](https://developer.close.com/mcp/tools), [Attio](https://docs.attio.com/mcp/overview), [HubSpot](https://knowledge.hubspot.com/integrations/set-up-and-use-the-hubspot-connector-for-claude), [folk](https://help.folk.app/en/articles/15503108-mcp-how-to-connect-folk-to-claude), [folk's MCP tools](https://developer.folk.app/mcp/tools), [Copper](https://www.copper.com/mcp), [Pipedrive](https://www.pipedrive.com/en/features/mcp-server), [Pipedrive's Claude guide](https://support.pipedrive.com/en/article/mcp-claude), [Zoho CRM](https://www.zoho.com/crm/developer/docs/mcp/overview.html), [Capsule](https://capsulecrm.com/integrations/claude/) and [Salesforce](https://www.salesforce.com/claudeforce/).

@@ -1,0 +1,198 @@
+---
+title: "CRM RGPD : que vérifier avant de stocker des données"
+description: "Ce que le RGPD demande à un CRM : base légale, DPA, sous-traitants, suppression et lieu des données, en checklist avec les indications de Customermates."
+
+relatedHrefs:
+  - /blog/how-to-choose-crm
+  - /blog/best-crm-software
+  - /features/self-hosted
+  - /docs/architecture-security
+
+hero:
+  title: "CRM RGPD : que vérifier avant d’y mettre des données clients"
+  description: "Ce que le RGPD demande à un CRM : base légale, DPA, sous-traitants, suppression et lieu des données, en checklist avec les indications de Customermates."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Retour au blog
+  by: par Benjamin Wagner
+  date: 2026-11-11
+  updated: 2026-11-11
+  tags:
+    - RGPD
+    - Protection des données
+    - CRM
+    - Auto-hébergement
+---
+
+# CRM RGPD : que vérifier avant d’y mettre des données clients
+
+Un « CRM RGPD » n’est pas un produit avec un label. C’est un CRM plus les contrats, les réglages et les habitudes qui vous permettent de remplir vos propres obligations au titre du RGPD, et ces obligations pèsent sur vous en tant que responsable du traitement : une base légale pour chaque usage de données personnelles, un accord de traitement des données (DPA) avec le prestataire qui les stocke, une réponse aux personnes qui demandent ce que vous détenez sur elles, et la suppression des données dont vous n’avez plus besoin. Un éditeur de CRM peut vous faciliter ou vous compliquer la tâche, mais aucun CRM ne vous rend conforme à lui seul.
+
+Ce guide présente les obligations qui comptent pour un CRM avec leurs articles, montre ce qu’il faut vérifier dans le contrat et la liste des sous-traitants de n’importe quel éditeur, déroule une demande d’accès et une demande d’effacement, et indique où se situe Customermates, y compris ce qu’il ne prétend pas. Customermates le publie et apparaît dans des sections signalées. Il s’agit d’une information générale, pas d’un conseil juridique : pour votre cas, interrogez un avocat ou votre délégué à la protection des données. Nous avons vérifié les sources du droit de l’UE et les textes juridiques de Customermates le 11 novembre 2026 ; ces textes évoluent, lisez donc le [DPA](/dpa) et la [liste des sous-traitants](/subprocessors) en vigueur avant de vous appuyer sur cette page.
+
+<ArticleSummary title="En bref">
+  <SummaryItem label="La règle">Pour les données personnelles de votre CRM, vous êtes le responsable du traitement et l’éditeur du CRM est votre sous-traitant. Le RGPD vous rend responsable de la base légale, du contrat et des demandes, pas le logiciel.</SummaryItem>
+  <SummaryItem label="Avant de signer">Un DPA qui reprend le contenu de l’art. 28, par. 3, la liste des sous-traitants de l’éditeur, le lieu du traitement et le mécanisme de transfert qui couvre tout prestataire hors de l’UE.</SummaryItem>
+  <SummaryItem label="Au quotidien">Des accès restreints, peu de champs, un moyen de retrouver, corriger, exporter et supprimer les données d’une personne, et une revue de conservation que vous faites vraiment.</SummaryItem>
+  <SummaryItem label="Customermates">Un DPA pour le cloud géré, une liste publique de sous-traitants qui comprend des prestataires américains, la base de production principale configurée dans la région AWS de Francfort (un paramètre choisi, pas une garantie), aucune certification de conformité et un cœur open source que vous pouvez auto-héberger.</SummaryItem>
+  <SummaryItem label="Transparence">Customermates publie ce guide. Le droit est cité d’après EUR-Lex et la Commission européenne.</SummaryItem>
+</ArticleSummary>
+
+## Que demande le RGPD à un CRM ?
+
+Le RGPD (règlement (UE) 2016/679, [texte sur EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/fra)) ne certifie aucun logiciel. Il encadre l’organisation qui décide des finalités et des moyens du traitement, le responsable du traitement, et le prestataire qui traite les données pour son compte, le sous-traitant. Un CRM rempli de noms, d’adresses e-mail et de conversations contient des données personnelles : vous êtes le responsable du traitement, et l’éditeur qui les stocke pour vous est un sous-traitant. Le tableau associe aux articles les obligations les plus importantes pour un CRM.
+
+| Obligation | Article | Ce que cela signifie dans un CRM |
+| --- | --- | --- |
+| Base légale | Art. 6, par. 1 | Chaque usage de données personnelles exige l’une des six bases. Dans un CRM, ce sont le plus souvent le contrat (point b), l’intérêt légitime (point f) ou le consentement (point a). L’intérêt légitime demande une mise en balance avec les intérêts de la personne, et le consentement doit être spécifique et peut être retiré (art. 7, par. 3). La prospection par e-mail ou par téléphone suit d’autres règles, comme la [directive vie privée et communications électroniques](https://eur-lex.europa.eu/eli/dir/2002/58/oj/fra) et le droit national de la concurrence. |
+| Principes | Art. 5, par. 1, points b à e | N’utiliser les données que pour la finalité annoncée, ne collecter que les champs nécessaires, tenir les fiches exactes et ne pas les garder plus longtemps que nécessaire. Le RGPD ne fixe pas de durée de conservation : vous en choisissez une par type de données. |
+| Responsabilité | Art. 5, par. 2 | Vous devez pouvoir démontrer votre conformité, donc consigner vos décisions par écrit. |
+| Informer | Art. 13 et 14 | Une politique de confidentialité. Quand les données ne viennent pas de la personne elle-même (liste importée, profil LinkedIn), informez-la dans un délai raisonnable et au plus tard dans un délai d’un mois (art. 14, par. 3, point a). |
+| Répondre aux demandes | Art. 12 et 15 à 21 | Accès (15), rectification (16), effacement (17), limitation (18), portabilité (20) et opposition (21). Répondez dans les meilleurs délais et en tout état de cause dans un délai d’un mois, prolongeable de deux mois supplémentaires si nécessaire (art. 12, par. 3). Une opposition à la prospection doit être respectée (art. 21, par. 2 et 3). |
+| Contrat de sous-traitance | Art. 28, par. 3 | Un contrat écrit qui contient au moins les clauses des points a à h. |
+| Sous-traitants ultérieurs | Art. 28, par. 2 et 4 | Le sous-traitant a besoin de votre autorisation écrite, spécifique ou générale, et doit imposer les mêmes obligations à chaque sous-traitant ultérieur qu’il engage. |
+| Sécurité | Art. 32 | Des mesures techniques et organisationnelles adaptées au risque, par exemple le contrôle d’accès, le chiffrement et la capacité de rétablir la disponibilité après un incident. |
+| Violations de données | Art. 33 et 34 | Le sous-traitant vous avertit dans les meilleurs délais (art. 33, par. 2). Vous notifiez l’autorité de contrôle si possible dans les 72 heures (art. 33, par. 1) et informez les personnes concernées quand le risque est élevé (art. 34, par. 1). |
+| Transferts hors de l’EEE | Art. 44 à 46 | Possibles uniquement sur la base d’une décision d’adéquation (art. 45) ou moyennant des garanties appropriées, par exemple des clauses contractuelles types (art. 46, par. 2, point c). |
+| Registre des traitements | Art. 30 | Un registre écrit de vos activités de traitement. La dérogation pour les organisations de moins de 250 personnes ne s’applique pas aux traitements qui ne sont pas occasionnels (art. 30, par. 5) ; un CRM utilisé régulièrement est donc en général concerné. |
+
+La Commission européenne présente les [principes du RGPD](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) en langage simple (en anglais), et les [lignes directrices 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) du Comité européen de la protection des données (en anglais) détaillent les rôles de responsable du traitement et de sous-traitant. Une [base de données CRM](/blog/crm-database) pensée avec ces obligations commence par moins de champs et des responsables clairement désignés.
+
+## Existe-t-il un CRM conforme au RGPD ?
+
+Aucun CRM n’est conforme au RGPD à lui seul. La conformité décrit la façon dont vous utilisez un outil : ce que vous collectez, sur quelle base, combien de temps vous le gardez et comment vous répondez aux demandes. Ce qu’un éditeur peut offrir honnêtement est plus étroit et vérifiable :
+
+- un contrat de sous-traitance qui couvre l’art. 28, par. 3 ;
+- une liste publique de sous-traitants et une procédure décrite pour les changements ;
+- des informations claires sur le lieu du traitement et le mécanisme qui couvre un transfert hors de l’EEE ;
+- des mesures de sécurité inscrites au contrat ;
+- des fonctions pour retrouver, corriger, exporter et supprimer les données d’une personne ; et
+- une porte de sortie : la restitution ou la suppression de vos données à la fin.
+
+Considérez un label comme « conforme au RGPD » ou « fait en Europe » comme une affirmation commerciale. Le RGPD prévoit des certifications agréées (art. 42) : demandez donc quelle certification, délivrée par quel organisme, pour quel service. Customermates n’a aucune certification de conformité ; l’hébergement dans une région de l’UE est un fait d’hébergement, pas une certification.
+
+## Le siège de l’éditeur et l’emplacement des serveurs comptent-ils ?
+
+Trois lieux se confondent facilement : où l’éditeur est établi, où tourne sa base de données et où tous les autres prestataires de la chaîne traitent les données. Le RGPD n’exige pas un hébergement dans l’UE. Il restreint les transferts hors de l’EEE (art. 44 à 46) et vous rend responsable de toute la chaîne. Un éditeur établi en Allemagne peut faire tourner son application chez un hébergeur américain, et un éditeur américain peut avoir une base de données à Francfort. C’est la vraie question derrière la recherche d’un CRM allemand ou européen : regardez les trois lieux, pas le titre.
+
+Pour Customermates, les textes juridiques indiquent ceci (état au 11 novembre 2026) :
+
+| Question | Ce qu’indiquent les textes juridiques |
+| --- | --- |
+| Qui est le prestataire ? | Benjamin Wagner, agissant sous le nom de Customermates, Mannheim, Allemagne. Le DPA est régi par le droit allemand. |
+| Où se trouve la base de production principale ? | Configurée dans la région AWS de Francfort (`eu-central-1`), exploitée par le fournisseur de base de données gérée Neon (Databricks). Les textes parlent d’un paramètre de produit choisi et non d’un engagement contractuel de résidence des données. |
+| Où tourne l’application ? | Chez Vercel, aux États-Unis, qui héberge aussi le stockage privé des fichiers. Le transfert repose sur les clauses contractuelles types de l’UE de l’addendum de traitement des données de Vercel. |
+| Comptes connectés (e-mail, LinkedIn, etc.) | Acheminés par Unipile (France), qui indique stocker les données des comptes connectés dans l’UE. Son propre DPA autorise des transferts hors de l’UE lorsque des garanties du chapitre V s’appliquent. |
+| L’assistant IA Mate | Les requêtes passent par Vercel AI Gateway vers Google Cloud Vertex AI (modèles Claude fixés sur une zone d’inférence de l’UE, modèle d’embeddings dans une région américaine), vers Exa aux États-Unis pour la recherche web et vers TypeSafe AI. |
+
+La [liste des sous-traitants](/subprocessors) nomme chaque prestataire avec sa finalité, son lieu et sa base de transfert, et la [documentation de sécurité](/docs/architecture-security) explique l’isolation des tenants et l’endroit où se trouvent les identifiants. En résumé : un exploitant en Allemagne, une base de données dans une région de l’UE et des prestataires américains dans la chaîne, d’où l’importance de la liste plutôt que d’un nom de pays.
+
+## Que doit contenir un accord de traitement des données pour un CRM ?
+
+L’art. 28, par. 3, énumère le contenu minimal d’un contrat de sous-traitance. Confrontez le contrat d’un éditeur aux points a à h. La colonne de droite montre le DPA de Customermates ; les numéros d’article renvoient au [DPA publié](/dpa).
+
+| Art. 28, par. 3 | Ce qu’il faut chercher | DPA de Customermates |
+| --- | --- | --- |
+| a) Instructions | Le sous-traitant n’agit que sur vos instructions documentées | Article 5 : le DPA, les conditions générales et votre usage du service constituent les instructions ; Customermates vous avertit s’il estime qu’une instruction viole le RGPD |
+| b) Confidentialité | Le personnel est tenu à la confidentialité | Article 7 |
+| c) Sécurité | Mesures de l’art. 32, nommées | Article 8 : TLS en transit, chiffrement au repos de la base de production et de ses sauvegardes, accès par rôles avec comptes nominatifs, séparation des données clients par compte d’entreprise, journalisation, rétablissement après incident, tests réguliers |
+| d) Sous-traitants ultérieurs | Autorisation et mêmes obligations tout au long de la chaîne | Article 9 : autorisation écrite générale, la liste sur `/subprocessors`, un contrat écrit avant le début du traitement, information avant les ajouts que Customermates décide lui-même, opposition pour des motifs raisonnables de protection des données et droit de mettre fin au service concerné si l’opposition ne peut être résolue. Pour les changements chez un fournisseur, Customermates transmet son avis dans les meilleurs délais et ne promet aucun préavis fixe |
+| e) Demandes des personnes | Aide pour les art. 12 à 23 | Article 10 : les demandes reçues par Customermates vous sont transmises dans les meilleurs délais |
+| f) Art. 32 à 36 | Aide pour la sécurité, les violations, les analyses d’impact | Article 10 : vous êtes informé dans les meilleurs délais d’une violation dont Customermates a connaissance, avec les informations utiles pour les art. 33 et 34 |
+| g) Fin du service | Suppression ou restitution, à votre choix | Article 11 : 30 jours après la fin du service pour choisir la suppression ou la restitution, puis suppression dans les systèmes propres de Customermates et dans les sauvegardes au plus tard sous 90 jours, à mesure qu’elles expirent ; les sous-traitants ultérieurs suppriment selon leurs propres contrats |
+| h) Audits | Informations et audits | Article 12 : d’abord la documentation, puis inspection sur place avec préavis |
+
+Lisez aussi les limites. Le DPA dit ce qu’il ne peut pas promettre : pour les comptes connectés, Customermates n’a pas de droit contractuel de suppression par compte envers Unipile et ne peut que demander le retrait, et les enregistrements entrants bruts qui ne peuvent pas être attribués à un client sont conservés sans durée fixe pour l’analyse d’erreurs. Un DPA qui énonce ses limites est plus facile à évaluer qu’un DPA qui n’en énonce aucune.
+
+Vérifiez aussi comment il est conclu. Publier un document ne le conclut pas : le DPA de Customermates prend effet pour un client lorsqu’un administrateur autorisé l’accepte, avec les conditions générales, lors de l’intégration, et une copie en forme écrite est disponible sur demande. Seule la version allemande fait foi ; les versions anglaise et française sont des traductions fournies à titre d’information.
+
+## Comment traiter une demande d’accès ou d’effacement dans un CRM ?
+
+C’est l’épreuve de tout réglage de CRM : quelqu’un écrit « Que détenez-vous sur moi ? » ou « Supprimez mes données ». Les étapes ci-dessous utilisent Customermates ; l’ordre vaut pour n’importe quel outil.
+
+<Steps>
+  <Step title="Consigner la demande et vérifier l’identité">Notez la date de réception : le délai d’un mois de l’art. 12, par. 3, court à partir de là. Vérifiez l’identité de façon proportionnée aux données, sans collecter plus de données que nécessaire pour cela.</Step>
+  <Step title="Retrouver toutes les fiches">Appuyez sur Cmd ou Ctrl et K. La recherche globale parcourt toutes les listes que vous pouvez lire et trouve un contact par n’importe quelle adresse e-mail ou numéro de téléphone de ses Coordonnées ; cherchez aussi le nom et ouvrez les organisations et les deals liés. Les conversations ne font pas partie de cette recherche : la boîte de réception, à partir de Pro avec un compte connecté, a sa propre recherche.</Step>
+  <Step title="Rassembler les données">Filtrez chaque liste sur la personne, puis choisissez Exporter en Excel ou Exporter en JSON dans Plus d’actions. L’export contient ce que la liste affiche avec vos filtres, jusqu’à 5 000 enregistrements, et seulement les champs que votre rôle peut lire. Customermates n’a pas d’export de tout le compte en une fois ; répétez donc l’opération pour chaque liste qui contient la personne, et ajoutez ce qui se trouve dans vos e-mails, vos tableurs et vos autres outils.</Step>
+  <Step title="Corriger ce qui est faux">Modifiez la valeur directement dans le champ. Cela répond à une demande de rectification au titre de l’art. 16 ; le journal d’activité consigne la modification avec l’ancienne valeur, son auteur et le moment.</Step>
+  <Step title="Supprimer, puis vérifier les copies">Supprimer déplace la fiche dans la corbeille et la retire des listes, de la recherche, des widgets et des exports. Ouvrez la corbeille et choisissez Supprimer définitivement pour supprimer tout de suite, ce qui efface aussi les valeurs des champs de la fiche de son historique ; sinon elle disparaît d’elle-même après 30 jours. Les messages d’une boîte de réception connectée sont des copies de messages de votre compte e-mail ou de messagerie : l’original appelle donc la même décision. Demandez comment votre éditeur traite les sauvegardes : le DPA de Customermates indique au plus 90 jours pour les suppressions qu’il couvre (article 11).</Step>
+  <Step title="Répondre et consigner ce que vous avez fait">Répondez dans le mois et conservez une note de la demande, de la décision et de la date, pour pouvoir le démontrer plus tard (art. 5, par. 2). Pour une opposition à la prospection (art. 21, par. 3), ajoutez un champ Oui/Non comme « Opposition à la prospection » et laissez ces fiches hors de toute liste d’envoi.</Step>
+</Steps>
+
+La [documentation de la corbeille](/docs/app-trash) décrit la restauration et la suppression définitive, et la [documentation des enregistrements](/docs/app-records) les filtres, l’export et l’import.
+
+## Comment configurer un CRM en tenant compte du RGPD ?
+
+Une checklist pour la première semaine, avant que de vraies données clients n’entrent :
+
+<Steps>
+  <Step title="Décider ce que chaque liste stocke">Moins de champs, c’est moins à protéger, à communiquer et à supprimer (art. 5, par. 1, point c). Notez la finalité et la base légale de chaque liste dans sa description, et laissez de côté les catégories particulières de données, comme les données de santé (art. 9), tant que vous n’avez pas de fondement précis.</Step>
+  <Step title="N’accorder que les accès nécessaires">Les rôles accordent Créer, Modifier, Supprimer et Accès en lecture (Tous, Assignés ou Aucun) séparément pour chaque liste. Il n’existe pas de permissions au niveau du champ ; placez donc les informations sensibles dans une liste distincte à l’accès plus étroit.</Step>
+  <Step title="Prévoir le départ des personnes">Passer un membre sur Inactif bloque aussitôt son accès, ses clés API et ses connexions MCP pour l’espace de travail.</Step>
+  <Step title="Conclure le DPA et lire la liste des sous-traitants">Gardez votre copie de la version acceptée et relisez la liste quand un avis de changement arrive.</Step>
+  <Step title="Ne connecter que les canaux utilisés">Chaque compte connecté ajoute un prestataire à la chaîne et une copie stockée de ses messages. Déconnecter un compte supprime les fils, messages, participants et données d’agenda stockés pour ce compte, comme le décrit le DPA.</Step>
+  <Step title="Fixer une règle de conservation par liste et l’appliquer">Enregistrez une vue des fiches non mises à jour depuis la durée que vous avez choisie, passez-la en revue à intervalle régulier et supprimez ce dont vous n’avez plus besoin. Le RGPD vous laisse choisir la durée (art. 5, par. 1, point e) ; si le droit fiscal ou commercial vous oblige à conserver un document, cette obligation s’y ajoute.</Step>
+  <Step title="Tenir vos propres documents à jour">Le registre des traitements (art. 30) et votre politique de confidentialité (art. 13 et 14) se trouvent dans votre dossier de conformité, pas dans les documents de l’éditeur du CRM.</Step>
+</Steps>
+
+## Que changent les fonctions d’IA au regard du RGPD ?
+
+Un assistant IA ajoute des prestataires à la chaîne et leur envoie du texte tiré de vos fiches. Pour chaque fonction d’IA, demandez quel prestataire reçoit quelles données, s’il figure dans la liste des sous-traitants, où il traite les données, s’il s’entraîne sur vos données et si vous pouvez laisser la fonction désactivée.
+
+Pour Customermates Cloud, la liste des sous-traitants décrit Mate : une requête passe par Vercel AI Gateway vers les prestataires du tableau ci-dessus et ne contient que ce qui est nécessaire à la réponse. La liste indique, sur ce chemin de passerelle, un réglage sans conservation des données (Zero Data Retention) ; c’est un contrôle étroit et non une promesse de conservation pour le CRM lui-même. Les modèles Claude sont fixés sur une zone d’inférence de l’UE, alors que la recherche web et le modèle d’embeddings tournent aux États-Unis. Vous décidez quelles données une requête contient et restez responsable de la nécessité et de la base légale. Si vous connectez votre propre client IA par MCP, ce prestataire traite les données selon votre contrat avec lui. Les instances auto-hébergées n’ont pas Mate. Le [guide du CRM avec IA](/blog/ai-crm) compare les approches.
+
+## Customermates et le RGPD : ce qu’il offre et ce qu’il n’offre pas
+
+Offert, d’après la documentation produit et les textes juridiques :
+
+- le [DPA](/dpa) et la [liste des sous-traitants](/subprocessors) pour le cloud géré, avec la procédure de changement décrite plus haut ;
+- des rôles par liste, un interrupteur pour désactiver les membres et une séparation des tenants par compte d’entreprise ;
+- la recherche globale par adresse e-mail ou numéro de téléphone, la correction sur place, l’export Excel et JSON par liste et une corbeille avec suppression définitive ;
+- un journal d’activité des modifications des fiches CRM et de la configuration de l’espace de travail, lisible par les rôles qui y ont accès ; et
+- un cœur open source sous AGPL que vous pouvez [auto-héberger](/features/self-hosted).
+
+Non offert, demandez-le donc ailleurs si vous en avez besoin :
+
+- Customermates n’a aucune certification de conformité et aucune garantie contractuelle que toutes les données restent dans une seule région ;
+- il n’a pas de permissions au niveau du champ ni d’export d’un compte entier en une seule étape ;
+- son journal d’activité ne couvre ni les connexions, ni les clés API, ni le contenu de la boîte de réception, et il n’a pas de bouton d’export.
+
+L’auto-hébergement déplace la responsabilité. Le cœur AGPL tourne avec Docker et PostgreSQL sur votre infrastructure, et le DPA ne couvre que le service géré : vous choisissez l’hébergement et les prestataires et vous détenez vos propres contrats au titre de l’art. 28 et vos garanties de transfert. TLS et chiffrement au repos sont à votre charge. L’auto-hébergement utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et il n’est pas isolé du réseau : à la première saisie d’adresse pour un pays, l’instance télécharge le fichier public des codes postaux de ce pays depuis GeoNames, sauf si vous réglez `POSTAL_CODE_DATA_URL` sur `off` ou sur un miroir. Le [guide d’auto-hébergement](/docs/self-hosting) donne les détails, et la [page sur le CRM open source](/features/open-source-crm) explique la limite de licence.
+
+<AcquisitionCallout title="Là où Customermates ne convient pas" variant="boundary">
+  Si une liste d’achat exige une certification reconnue, une garantie contractuelle de traitement dans la seule UE ou des permissions au niveau du champ, Customermates ne peut pas cocher ces cases aujourd’hui. Demandez-les par écrit à chaque éditeur que vous comparez et lisez les réponses à côté de leurs listes de sous-traitants. La [comparaison des meilleurs logiciels CRM](/blog/best-crm-software) et le [guide pour choisir un CRM](/blog/how-to-choose-crm) traitent les autres critères.
+</AcquisitionCallout>
+
+Pour vérifier ces points sur votre cas, lisez d’abord le DPA et la liste des sous-traitants, puis [démarrez votre essai de [[commercial.trial.days]] jours](/auth/signup?job=followup) : Pro, sans carte bancaire. Importez quelques fiches de test avant de vraies données clients et parcourez une fois les étapes de la demande d’accès.
+
+## Questions fréquentes sur le RGPD et le CRM
+
+<Faq>
+<FaqItem question="Le RGPD impose-t-il d’héberger un CRM dans l’UE ?">
+Non. Le RGPD ne prescrit aucun lieu d’hébergement. Il n’autorise les transferts vers des pays hors de l’EEE que sur la base d’une décision d’adéquation ou moyennant des garanties appropriées, comme des clauses contractuelles types (art. 44 à 46). Un hébergement dans une région de l’UE réduit la question des transferts, mais vous devez toujours vérifier chaque prestataire de la chaîne.
+</FaqItem>
+<FaqItem question="Ai-je besoin d’un accord de traitement des données avec mon éditeur de CRM ?">
+Oui, lorsque l’éditeur traite des données personnelles pour vous. L’art. 28, par. 3, exige un contrat écrit, qui peut être sous forme électronique, avec le contenu des points a à h. Vérifiez qu’il existe, quelle version s’applique et qu’il nomme les sous-traitants.
+</FaqItem>
+<FaqItem question="Customermates est-il conforme au RGPD ?">
+Aucun CRM n’est conforme au RGPD à lui seul, et Customermates n’a aucune certification de conformité. Il offre un DPA pour le cloud géré, une liste publique de sous-traitants, une base de production principale configurée à Francfort chez AWS et les fonctions décrites plus haut. Vous restez responsable de votre base légale, de vos durées de conservation et de vos réponses aux demandes.
+</FaqItem>
+<FaqItem question="Quelle différence entre responsable du traitement et sous-traitant dans un CRM ?">
+Le responsable du traitement décide pourquoi et comment les données personnelles sont traitées : vous, pour les contacts de votre CRM. Le sous-traitant traite les données pour votre compte et sur vos instructions documentées : l’éditeur du CRM. Pour ses propres données de site web, de facturation et de sécurité, un éditeur est lui-même responsable du traitement.
+</FaqItem>
+<FaqItem question="Combien de temps puis-je garder des données clients dans un CRM ?">
+Le RGPD ne fixe pas de durée. L’art. 5, par. 1, point e, exige que les données ne soient pas conservées plus longtemps que nécessaire pour la finalité ; vous fixez donc une durée par type de données et vous la consignez par écrit. Une obligation légale de conserver certains documents, par exemple en droit fiscal, peut imposer une durée plus longue pour ces documents.
+</FaqItem>
+<FaqItem question="Dois-je dire aux contacts que je stocke leurs données ?">
+En principe, oui. Les art. 13 et 14 exigent une politique de confidentialité. Si vous n’avez pas collecté les données auprès de la personne, par exemple à partir d’une liste importée, vous devez l’informer dans un délai raisonnable et au plus tard dans un délai d’un mois.
+</FaqItem>
+<FaqItem question="Puis-je garder toutes les données du CRM sur mon propre serveur ?">
+Avec le cœur open source, oui : vous l’exploitez avec Docker et PostgreSQL sur l’infrastructure de votre choix. Il utilise l’ensemble de fonctions Starter, sans boîte de réception et sans Mate, et vous êtes responsable de vos propres contrats d’hébergement et de la sécurité.
+</FaqItem>
+<FaqItem question="Que deviennent mes données si je résilie ?">
+Selon le DPA de Customermates, vous disposez de 30 jours après la fin du service pour choisir la suppression ou la restitution. Les données sont ensuite supprimées des systèmes propres de Customermates, des sauvegardes au plus tard sous 90 jours, et les sous-traitants ultérieurs suppriment selon leurs propres contrats.
+</FaqItem>
+</Faq>
+
+Droit et indications de tiers vérifiés le 11 novembre 2026 : [règlement (UE) 2016/679 sur EUR-Lex](https://eur-lex.europa.eu/eli/reg/2016/679/oj/fra), la [directive vie privée et communications électroniques](https://eur-lex.europa.eu/eli/dir/2002/58/oj/fra), les [principes du RGPD](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en) de la Commission européenne et les [lignes directrices 07/2020](https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-072020-concepts-controller-and-processor-gdpr_en) du CEPD. Les indications sur Customermates proviennent de son [DPA](/dpa), de sa [liste des sous-traitants](/subprocessors) et de sa [documentation de sécurité](/docs/architecture-security) dans leur état à cette date.

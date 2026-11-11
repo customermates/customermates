@@ -1,6 +1,6 @@
 ---
-title: "CRM Database: What It Is and How to Build One"
-description: "A CRM database links people, companies, deals and tasks. See how the major CRMs model it, how to build your own, and how to keep it clean."
+title: "CRM Database: What It Is, Examples and How to Build One"
+description: "A CRM database links people, companies, deals and tasks. See its tables, how HubSpot, Salesforce and Pipedrive model them, and how to build and export one."
 
 relatedHrefs:
   - /features/contact-management
@@ -10,14 +10,14 @@ relatedHrefs:
 
 hero:
   title: "CRM database: what it is and how to build one that stays clean"
-  description: "A CRM database is a set of linked records about people, companies, deals and tasks. How the major CRMs structure it, how to design and import your own, and which rules keep it accurate."
+  description: "A CRM database is a set of linked records about people, companies, deals and tasks. How the major CRMs structure it, how to design, import, clean and export your own, and which rules keep it accurate."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-01-12
-  updated: 2026-10-08
+  updated: 2026-11-11
   tags:
     - CRM Database
     - Customer Data
@@ -27,14 +27,15 @@ blogPost:
 
 # CRM database: what it is and how to build one that stays clean
 
-A CRM database is the structured store behind a CRM: one record per person, one per company, one per deal, and the links between them, plus the history of what happened. The links are what separate it from a contact list. Open a company and you see its people, its open deals and the last conversation; open a deal and you see who is involved and what was offered.
+A CRM database, short for customer relationship management database, is the structured store behind a CRM: one record per person, one per company, one per deal, the links between them, and the history of what happened. The links are what separate it from a contact list. Open a company and you see its people, its open deals and the last conversation; open a deal and you see who is involved and what was offered.
 
-You rarely build that database from scratch. You pick a CRM, decide which record types and fields you need, clean your existing data and import it in the right order. This guide covers that design work, shows how four CRMs model their data, and ends with a worked example. Customermates publishes this guide; other vendors' details come from their own documentation, linked at the end.
+You rarely build that database from scratch. You pick a CRM, decide which record types and fields you need, clean your existing data and import it in the right order. This guide covers that design work, shows how four CRMs model their data, spells out how Customermates models the same lists, and ends with a worked example and the export path. Customermates publishes this guide; other vendors' details come from their own documentation, linked at the end.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="What it is">Linked records for people, companies, deals and tasks, with typed fields and an activity history. A spreadsheet holds rows; a CRM database holds relationships.</SummaryItem>
   <SummaryItem label="How to build one">Fix the record types first, then the fields you filter on, then one unique key per person. Clean before you import, and import companies before people.</SummaryItem>
   <SummaryItem label="What breaks it">Duplicates, free-text fields that should be choices, and nobody owning the cleanup.</SummaryItem>
+  <SummaryItem label="Getting data out">Plan the export before you need it. Customermates exports one list at a time as Excel or JSON; there is no whole-account export.</SummaryItem>
   <SummaryItem label="Customermates">Starts without lists: you create the ones you need (contacts, organizations, deals or your own), with typed fields and relationships, from [[commercial.price.starter.monthly]] per user per month in the cloud, or self-hosted under AGPL.</SummaryItem>
 </ArticleSummary>
 
@@ -52,7 +53,7 @@ Think of it as a handful of tables that point at each other. Most CRMs ship the 
 | Product or service | Something you sell at a price | The deals that include it | Name, price |
 | Task or activity | Something someone has to do or did | Any of the above | Assignee, notes |
 
-Two design questions decide whether the database holds up later. Can one person belong to several companies (a consultant who sits on two boards, a freelancer working for three agencies)? And can one deal involve several people? If your CRM forces one company per person or one contact per deal, you will start writing workarounds into notes.
+Two design questions decide whether the database holds up later. Can one person belong to several companies (a consultant who sits on two boards, a freelancer working for three agencies)? And can one deal involve several people? If your CRM forces one company per person or one contact per deal, you will start writing workarounds into notes. Read the documentation before you commit: Pipedrive's data article describes linking a person to one organization, while in Customermates a relationship can allow one or several records on each side, so a contact can belong to several organizations.
 
 The other half of a CRM database is history. Every change to a record and every linked email or message forms a timeline. That timeline is what lets a colleague take over a client without a handover meeting, and it is the part a spreadsheet cannot give you.
 
@@ -62,12 +63,30 @@ The record types tell you what a CRM was built for. This table compares the data
 
 | CRM | Standard record types | Your own record types |
 |---|---|---|
-| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacts and companies as the foundation, plus deals, leads, tickets, products, projects, tasks and more | Custom objects, which need an Enterprise subscription |
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Contacts and companies as the foundational objects, plus deals, leads, tickets, products, projects, tasks and many more | Custom objects, which need an Enterprise subscription |
 | [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standard objects such as Account, Contact, Lead and Opportunity | Custom objects "to store information that's specific to your company or industry" |
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, deals, people, organizations, activities, products, projects and mail | The linked article names no custom object type; Projects is an add-on on Growth and lower plans and standard on Premium and Ultimate |
 | Customermates | Contacts, organizations, deals, services and tasks, each freely renamable | Your own lists with typed fields, relationships and calculated fields |
 
 The pattern: HubSpot and Salesforce let you add your own object types and configure them, on HubSpot with an Enterprise subscription. Pipedrive's data items stay close to the sales process. Customermates starts without lists: you create the ones you need and name each one, so a contacts list can read Clients and a deals list Projects across the whole workspace, and you can rename them later.
+
+## How Customermates models the core lists
+
+Customermates keeps CRM data in configurable lists, and no list is built in. On Customermates Cloud the AI workspace setup designs the lists from your answers; a self-hosted workspace starts empty, and people who manage the data model create the lists in Data model. The setup always creates a people list and Tasks, usually Organizations and Deals, and a catalogue of services or products only when you sell them. A typical result looks like this, as described in the [data model documentation](/docs/concepts).
+
+| List (default name) | One record is | Typically linked to | What to know |
+|---|---|---|---|
+| Contacts | One person | Organizations, deals, tasks | A Contact details field holds their email addresses, phone numbers and social profiles and matches incoming messages to the record |
+| Organizations | One company or account | Contacts, deals | Any fields you add, such as segment or client since |
+| Deals | One opportunity | Contacts, organizations, services | The stage is a Single choice field with a win probability per stage; the value is the sum of its line items |
+| Services (or Products) | Something you sell | Deals, through line items | A unit price; a line amount is quantity times unit price |
+| Line items | One line on one deal | Its deal | A sub-list: it belongs to one deal, is edited inside it and is removed with it |
+| Tasks | One piece of work | The records you link it to | A due date or status is an ordinary field you add |
+| Your own lists | Anything else: Projects, Applications, Properties | Whatever you link | The same field types, relationships and saved views as every other list |
+
+A relationship connects two lists. Each side has its own label and allows one or several records, so one contact can belong to several organizations and a project can link several contacts and deals. Both records show the link. On Pro, where connected accounts bring in messages, a relationship can also show the messages of the people it links on the deal or organization.
+
+Fields can be calculated. A deal's value adds up its line amounts, and the weighted value is the deal value times the stage probability divided by 100, which is pipeline weighting, not a forecast. Every record keeps a stable ID, so renaming a list or a field breaks no references, and a saved view shows records without copying them.
 
 ## CRM database, spreadsheet or plain database?
 
@@ -79,6 +98,16 @@ All three can hold customer data. The question is who maintains it and how much 
 | A plain database or no-code tool (Airtable, Notion, Access, PostgreSQL) | Your records are not people and deals, or you need a model no CRM offers | You build the forms, relations, permissions and history yourself |
 | A CRM | Several people work with the same clients and you track deals, follow-ups or conversations | Some freedom in the data model; most cloud CRMs charge per user |
 
+The same jobs look different in a sheet and in a CRM database:
+
+| The job | In an Excel sheet | In a CRM database |
+|---|---|---|
+| Link one person to two companies | A second row or two names in one cell, so you search twice | One person record linked to both companies, where the CRM allows several; the link shows on both records |
+| Keep a segment value consistent | A free-text column, unless you build and maintain a dropdown | A Single choice field with fixed options; rename an option in Customermates and every record follows |
+| See what happened with one client | Whatever someone typed into a notes column | A history of changes and linked messages on the record |
+| Let two people work at once | One shared file, a version to merge or a lock | Each person edits records in place, with access set per list and action |
+| Report on the numbers | Formulas and pivot tables you build and keep up | Dashboard widgets that sum or count records and group them by a field, such as deal value by stage |
+
 If a sheet is where you are now, the [Excel CRM template guide](/blog/excel-crm-template) shows how far one goes and how to lay it out so the later import is easy. For choosing between the kinds of client database tools, see [client database software](/blog/client-database-software).
 
 ## How to build a CRM database
@@ -89,7 +118,7 @@ These steps apply to any CRM. The order matters more than the tool.
   <Step title="Write down the record types you need">Start with people, companies and deals. Add a separate type only when it has its own lifecycle. A product catalogue does; a meeting location does not.</Step>
   <Step title="List the fields you will filter or report on">If nobody will ever filter on a field, it belongs in the notes. For each field pick a type: date, currency, email, phone, link, or a single choice from a fixed list. A "Segment" field as free text ends up with "Retainer", "retainer" and "Ret." within a month.</Step>
   <Step title="Define your deal stages and what moves a deal">Five to seven stages with a written exit rule each, for example "Proposal: a written proposal has been sent". Stages without exit rules turn into opinions.</Step>
-  <Step title="Pick one unique key per person">Usually the email address. It is how you find duplicates before import and how the CRM matches incoming email to the right person.</Step>
+  <Step title="Pick one unique key per person">Usually the email address. It is how you find duplicates before import and how the CRM matches incoming email to the right person. HubSpot, for example, deduplicates contacts by email address and companies by domain name.</Step>
   <Step title="Clean the source data">One person per row, one kind of value per column, split full names into first and last name, remove duplicates by email, and delete people you no longer have a reason to keep.</Step>
   <Step title="Import companies first, then people, then deals">Each later import can then link to records that already exist, matched by name. Test with 50 rows before the full file.</Step>
   <Step title="Save the views people work from">"My open deals", "Clients without a company", "Not touched in 90 days". A database nobody looks at decays quietly.</Step>
@@ -156,6 +185,19 @@ Contact data goes stale as people change jobs and companies merge. A short routi
 
 An exported workbook can be edited and imported again as **Existing records**, which updates them instead of creating duplicates. That makes bulk corrections practical without an API.
 
+## How to export a CRM database
+
+Plan the way out while you design the way in. You need an export for backups, for bulk corrections in a spreadsheet and for the day you change tools, and you should test it on a small list before you rely on it. In Customermates, every list has the same options under **More actions**, and an export only contains what your role can read.
+
+| You want to | Do this | Good to know |
+|---|---|---|
+| Edit many records in a spreadsheet | **Export as Excel (.xlsx)** on the list | One sheet per list and one column per field you can read; search, filters and sorting apply; up to 5,000 records |
+| Keep a backup of a list, links included | **Export as JSON** | The file includes links for re-import with **Add from file**, as **Create with exported IDs** or **Update matching IDs** |
+| Re-import a large JSON export | Use the REST API or MCP | The app rejects a JSON file with more than 100 records or 500 links; the API exports pages of up to 500 and imports 100 records per request |
+| Move to another CRM | Export each list as Excel and import in the order organizations, people, deals | Customermates has no whole-account export; check the new tool's import rules (Pipedrive, for example, documents importing people, organizations and deals from CSV or XLS files) |
+
+The [records documentation](/docs/app-records) lists every import and export limit.
+
 ## Personal data in a CRM database
 
 In the EU, a CRM database of people is personal data under the [GDPR](https://eur-lex.europa.eu/eli/reg/2016/679/oj). Three principles from Article 5 translate directly into database design: keep only data that is "limited to what is necessary" (fewer fields), keep it accurate (the cleanup routine), and limit how long you store it (the quarterly deletion). Article 17 gives people the right to have their data erased, so you need to be able to find and delete one person completely. Article 28 requires a contract with any provider that stores the data for you.
@@ -175,8 +217,16 @@ For Customermates Cloud, the [data processing agreement](/dpa) is public, the ap
 It is the store behind a CRM: records for people, companies, deals and tasks, linked to each other, with typed fields and a history of changes and conversations. The links and the history are what make it more than a contact list.
 </FaqItem>
 
+<FaqItem question="What data does a CRM database store?">
+Four kinds. Who a person or company is: names, email addresses, phone numbers, addresses, roles. What you sell and to whom: deals, stages, values, products or services. What happened: emails and messages, notes, tasks and changes to the record. And what you add yourself, such as a segment, a source or a contract end date. Typed fields keep the first and last kinds searchable and countable.
+</FaqItem>
+
 <FaqItem question="What is the difference between a database and a CRM?">
 A database stores whatever tables you design and leaves the forms, relations, permissions and history to you. A CRM is a database with that customer logic already built: people linked to companies and deals, pipeline stages, assignees and a timeline per record. You trade some freedom in the data model for not having to build it.
+</FaqItem>
+
+<FaqItem question="Is a customer database the same as a CRM database?">
+They overlap. A customer database is the list of customers and what you know about them; a CRM database adds the links between people, companies and deals, the pipeline and the history behind a CRM. If you only need a client list and are choosing a tool for it, see [client database software](/blog/client-database-software).
 </FaqItem>
 
 <FaqItem question="Is Excel a CRM database?">
@@ -196,4 +246,4 @@ A spreadsheet or a self-hosted open-source CRM has no licence fee, but you pay i
 </FaqItem>
 </Faq>
 
-Vendor details checked on 8 October 2026 against [HubSpot's object documentation](https://knowledge.hubspot.com/records/understand-objects), [Salesforce Trailhead on standard and custom objects](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) and [Pipedrive's data organization article](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized).
+Vendor details checked on 11 November 2026 against [HubSpot's object documentation](https://knowledge.hubspot.com/records/understand-objects) (last updated 2 October 2026), [Salesforce Trailhead on standard and custom objects](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) and [Pipedrive's data organization article](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) (last updated 23 September 2026).

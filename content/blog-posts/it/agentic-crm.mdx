@@ -1,0 +1,308 @@
+---
+title: "CRM agentico e AI native: strumenti e azioni sicure"
+description: "CRM agentico e AI-native spiegato: Mate ospitato con disponibilità legata all’ambiente, MCP per client IA esterni e controlli espliciti sulle azioni."
+
+acquisition:
+  locale: it
+  slug: agentic-crm
+  clusterId: ai-agentic-mcp
+  role: hub
+  primaryIntent: CRM agentico e AI-native tramite Mate e MCP
+  metadata:
+    title: "CRM agentico e AI native: strumenti e azioni sicure"
+    description: "CRM agentico e AI-native spiegato: Mate ospitato con disponibilità legata all’ambiente, MCP per client IA esterni e controlli espliciti sulle azioni."
+  proof:
+    factReferences:
+      - product:mcp-tools
+      - product:hosted-mate-capability
+      - product:core-crm-records
+      - product:unified-inbox-channels
+      - product:weighted-deal-values
+    excludedClaims:
+      - claim:no-hosted-ai-self-hosted
+      - claim:no-predictive-sales-analytics
+      - claim:no-unsupported-channels
+  cta:
+    action: Valuta un CRM agentico con un flusso delimitato
+    description: Confronta la capacità di Mate ospitato con i client MCP esterni, esamina i loro confini di controllo e prova un solo flusso delimitato nel CRM.
+    buttonLeftText: Inizia la prova di [[commercial.trial.days]] giorni
+    buttonLeftHref: /auth/signup?job=followup
+    buttonRightText: Leggi la guida a MCP
+    buttonRightHref: /docs/mcp
+    hint: "Quando è attivo, Mate usa i crediti del piano ospitato; i client MCP esterni usano il provider di modelli del cliente."
+  relatedHrefs:
+    - /docs/mcp
+    - /features/unified-inbox
+    - /blog/ai-sales-agent
+    - /blog/ai-in-sales
+  visual:
+    id: acquisition.agentic-crm.it
+    locale: it
+    referenceSystemVersion: customermates-marketing-visuals@8
+    source:
+      headline: "CRM agentico e AI native: MCP, Mate e azioni sicure"
+      body: "Un esempio delimitato: un client MCP esterno salva una bozza in un thread esistente della Posta in arrivo, che una persona rivede e invia; gli strumenti di invio autorizzati non ricevono una seconda approvazione dal server."
+      checksum: fnv1a-c1bba402
+    kind: brand-illustration
+    pathway: handoff
+    placements:
+      - wide
+      - split
+      - narrow
+    selection: automatic
+    takeaway: "In un thread esistente della Posta in arrivo, un client IA esterno salva una bozza che una persona rivede e invia."
+    depiction:
+      kind: change
+      productBehavior: true
+      statement: "In un thread esistente della Posta in arrivo, un client IA esterno salva una bozza che una persona rivede e invia."
+    factReferences:
+      - product:human-send-boundary
+    focalLabel:
+      locale: it
+      text: Bozza
+    semanticLabels:
+      - locale: it
+        text: Rivedi e invia
+    focalSubject:
+      id: reviewable-draft
+      form: draft
+      fixtures:
+        person: leon-becker
+        provider: linkedin
+    supportingSubjects:
+      - id: external-ai-client
+        form: agent-cue
+        agentProvider: claude
+      - id: human-action
+        form: human-action
+        fixtures:
+          person: max-bergmann
+    accentTarget: human-action
+  structuredData:
+    types:
+      - Article
+      - BreadcrumbList
+      - FAQPage
+    faqFromRenderedContent: true
+
+hero:
+  title: "CRM agentico e AI native: MCP, Mate e azioni sicure"
+  description: "Un esempio delimitato: un client MCP esterno salva una bozza in un thread esistente della Posta in arrivo, che una persona rivede e invia; gli strumenti di invio autorizzati non ricevono una seconda approvazione dal server."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-05-01
+  tags:
+    - CRM agentico
+    - MCP
+    - Agenti AI
+    - CRM
+---
+
+# CRM agentico e AI native: MCP, Mate e azioni sicure
+
+Un **CRM AI-native** espone dati clienti strutturati e azioni tipizzate che l’IA può usare. Un **CRM agentico** permette a un client IA o a un assistente di svolgere il lavoro supportato con quelle interfacce: leggere il contesto, creare o aggiornare record, preparare una bozza o portare a termine un flusso. I due termini si sovrappongono, ma uno descrive l’architettura e l’altro il comportamento.
+
+Customermates supporta entrambi i modelli operativi. Ogni piano a pagamento include un diritto d’uso di Mate e una quota mensile di crediti IA ospitati per ogni utente attivo; se Mate sia attivo in un ambiente ospitato dipende dalla configurazione attuale di quell’ambiente. Le installazioni cloud e self-hosted possono inoltre collegare client IA esterni tramite MCP, con il cliente che sceglie e finanzia quel client e quel provider di modelli, separati dal prodotto. Per un piccolo team che lavora con i clienti, lo scopo di entrambi è il follow-up: un cliente scrive, l’IA redige la risposta e il passo successivo sulla scheda del cliente, e una persona la rivede, la modifica e la invia.
+
+Per un’integrazione fissa e un client IA, confronta [MCP e API sullo stesso compito sui record dei clienti](/blog/mcp-vs-api). La scoperta degli strumenti cambia il modo in cui il client trova un’operazione; autenticazione e permessi restano validi.
+
+<ArticleSummary title="In breve">
+  <SummaryItem label="Architettura AI-native">
+    Record del CRM strutturati e azioni tipizzate danno a un client IA
+    autorizzato una base affidabile su cui lavorare.
+  </SummaryItem>
+  <SummaryItem label="Comportamento agentico">
+    Il client può combinare letture e azioni supportate in un flusso, invece di
+    limitarsi a generare testo.
+  </SummaryItem>
+  <SummaryItem label="Due percorsi operativi">
+    I piani cloud prevedono un diritto d’uso di Mate ospitato. La disponibilità
+    effettiva dipende dall’ambiente ospitato; i client IA esterni si collegano
+    tramite MCP nelle installazioni cloud e self-hosted, con il proprio
+    provider di modelli.
+  </SummaryItem>
+  <SummaryItem label="Confine di controllo">
+    I permessi del server autorizzano l’azione. Il comportamento di conferma
+    per MCP esterno dipende dal client scelto; Mate applica approvazioni
+    separate a ogni chiamata.
+  </SummaryItem>
+</ArticleSummary>
+
+<ProofRail label="Elementi verificati di un CRM agentico">
+  <ProofItem label="Contesto">Record e relazioni del CRM</ProofItem>
+  <ProofItem label="Azioni">Strumenti MCP tipizzati</ProofItem>
+  <ProofItem label="Autorizzazione">Permessi dell’utente sul server</ProofItem>
+  <ProofItem label="Conferma">Dipende dal client per MCP esterno</ProofItem>
+  <ProofItem label="Installazione">MCP in cloud e self-hosted</ProofItem>
+</ProofRail>
+
+## Che cos’è un CRM AI-native?
+
+Un **CRM AI-native** è progettato perché l’IA possa lavorarci come utente di prima classe, non come un componente aggiunto a schermate pensate per le persone. In pratica significa tre proprietà:
+
+- **Interfacce tipizzate per ogni azione principale.** Leggere, creare, aggiornare e collegare record sono esposti come strumenti con schema, non solo come pulsanti.
+- **Gli stessi permessi per persone e IA.** Un client IA agisce come un utente specifico e vede esattamente ciò che quell’utente può vedere.
+- **L’IA dove avviene il lavoro.** Un assistente dentro il prodotto, un’interfaccia aperta per client IA esterni, oppure entrambi.
+
+Molti CRM affermati stanno aggiungendo l’IA a posteriori: un livello IA a parte, un assistente limitato ai riassunti o un server MCP che affianca il prodotto e richiede una propria configurazione. Le guide a [Salesforce MCP](/blog/salesforce-mcp) e [HubSpot MCP](/blog/hubspot-mcp) mostrano come lo fanno due grandi fornitori. Un CRM AI-native distribuisce l’interfaccia come parte del prodotto su ogni piano.
+
+| Domanda                             | IA aggiunta a un CRM esistente               | CRM AI-native                                  |
+| ----------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Dove l’IA può agire                 | Funzioni selezionate o un server separato    | Ogni record e azione principale tramite strumenti tipizzati |
+| Configurazione per un client IA esterno | Spesso un progetto per l’amministratore  | Collega l’endpoint e accedi                    |
+| Prezzo                              | Spesso un livello IA o un componente aggiuntivo a parte | Incluso nel piano                   |
+| Permessi                            | Dipendono dal componente aggiuntivo          | Il ruolo dell’utente collegato, applicato sul server |
+
+## Cosa rende agentico un CRM?
+
+Un CRM agentico utile ha bisogno di quattro cose:
+
+1. **Contesto strutturato:** contatti, organizzazioni, trattative, servizi e attività che il client può indirizzare in modo affidabile.
+2. **Azioni tipizzate:** strumenti che creano, leggono, aggiornano o in altro modo gestiscono i record supportati.
+3. **Permessi:** ogni azione resta vincolata all’accesso dell’utente che la richiede.
+4. **Confini di controllo:** il client scelto, i permessi del server e le eventuali approvazioni specifiche dell’assistente vanno compresi separatamente.
+
+È diverso da un chatbot che si limita a scrivere testo. Ed è diverso anche dal promettere punteggi dei lead, arricchimento, previsioni o outreach autonomi che il prodotto non offre.
+
+## Un flusso agentico concreto e delimitato
+
+Un client esterno può leggere il contesto di un contatto, esaminare i record collegati e preparare una bozza o un aggiornamento di un record con strumenti tipizzati. Il server convalida comunque la richiesta e applica i permessi dell’utente che la fa. Prima di abilitare un’azione distruttiva o un invio in uscita, chi gestisce il sistema deve verificare come il client in uso presenta e conferma quell’effetto.
+
+<AcquisitionCallout
+  title="Autorizzazione non significa conferma"
+  variant="boundary"
+>
+  I permessi del CRM decidono se l’utente può eseguire un’azione. Le istruzioni
+  di MCP chiedono ai client compatibili di richiedere conferma per invii ed
+  eliminazioni, ma il server non aggiunge una seconda approvazione dopo che un
+  client autorizzato ha chiamato lo strumento. Durante la valutazione, tratta
+  questi due elementi come controlli distinti.
+</AcquisitionCallout>
+
+## Due percorsi IA in Customermates
+
+| Percorso                       | Dove gira                | Modello e crediti                                    | Confine di disponibilità       |
+| ------------------------------ | ------------------------ | ---------------------------------------------------- | ------------------------------ |
+| Client IA esterno tramite MCP  | Cloud o self-hosted      | Il cliente sceglie e finanzia il provider esterno    | Superficie di integrazione aperta |
+| Assistente nell’app Mate       | Solo Customermates Cloud | Quota mensile ospitata del piano per ogni utente attivo | Previsto dal piano; configurato per ambiente |
+
+La [documentazione di MCP](/docs/mcp) è la fonte per la configurazione e per il catalogo degli strumenti, che cambia nel tempo. Customermates registra oggi [[derived.mcp.tools.total]] strumenti MCP; questa pagina non ne ripete i nomi perché il catalogo evolve.
+
+## Con cosa può lavorare un client IA
+
+La superficie MCP copre il lavoro supportato su contatti, organizzazioni, trattative, servizi, attività, campi personalizzati, dashboard, webhook e altre risorse del CRM. Un client esterno può combinare questi strumenti tipizzati in un flusso, mentre il CRM mantiene sul server la convalida dei record e i permessi.
+
+Sugli account cloud che ne hanno diritto, MCP espone anche il lavoro di messaggistica supportato per la [Posta in arrivo unificata](/features/unified-inbox), come leggere i thread, salvare bozze, smistare le conversazioni e inviare risposte. La Posta in arrivo supporta collegamenti con e-mail, LinkedIn, WhatsApp, Instagram e Telegram, non SMS né telefonia.
+
+## I confini di approvazione differiscono tra MCP e Mate
+
+Agentico non significa senza permessi. Le istruzioni del server MCP chiedono ai client di richiedere una conferma esplicita prima di ogni eliminazione o azione `send_*` in uscita. È un’indicazione per il client, non una seconda approvazione lato server: quando un client autorizzato chiama lo strumento MCP, il server esegue l’azione consentita. Verifica che il client scelto mostri l’effetto esatto e attenda l’approvazione.
+
+Quando è attivo, Mate ha approvazioni distinte e vincolanti a ogni chiamata per le azioni distruttive, il nuovo invio delle consegne dei webhook, gli inviti ai membri, l’escalation al supporto e le modifiche ad account esterni o social. Ogni piano a pagamento include il diritto d’uso e la quota mensile di crediti, mentre la disponibilità effettiva dipende dalla configurazione attuale dell’ambiente ospitato.
+
+## Confini tra cloud e self-hosted
+
+| Funzionalità                | Customermates Cloud               | Customermates self-hosted |
+| --------------------------- | --------------------------------- | ------------------------- |
+| CRM di base                 | Sì                                | Sì                        |
+| MCP per client IA esterni   | Sì                                | Sì                        |
+| Posta in arrivo unificata   | Pro e superiori                   | No                        |
+| Assistente Mate ospitato    | Diritto del piano; configurato per ambiente | No              |
+| Crediti IA ospitati         | Quota del piano; utilizzabili quando Mate è attivo | No       |
+
+Il self-hosting usa l’insieme di funzioni di Starter. Resta una buona scelta per i team che vogliono un [CRM self-hosted con un nucleo open source](/features/self-hosted) e preferiscono collegare il proprio client IA e il proprio provider tramite MCP.
+
+## CRM agentico e CRM AI-native
+
+«CRM AI-native» di solito descrive l’architettura: il CRM espone dati strutturati e azioni che l’IA può usare. «CRM agentico» descrive il comportamento: un sistema IA può svolgere il lavoro supportato. Un prodotto può essere utilizzabile dall’IA senza fingere che ogni processo sia autonomo. Per questo un CRM con agenti AI va giudicato dalle azioni che espone, non dall’etichetta.
+
+Se vuoi collegare proprio Claude, la [guida al CRM per Claude](/blog/claude-crm) passa in rassegna le opzioni: costruire, collegare e usare quella nativa. Se vuoi far girare il CRM e il suo endpoint MCP sui tuoi server, consulta il confronto tra i [CRM open source](/blog/open-source-crm) e il confine del [CRM self-hosted](/features/self-hosted). Per l’IA al lavoro sulle conversazioni con i clienti, vedi la [gestione delle interazioni con i clienti](/blog/customer-interaction-management).
+
+Per chi acquista, contano più le domande pratiche dell’etichetta:
+
+- Quali record e quali azioni sono esposti?
+- Quali permessi vengono controllati sul server?
+- Quali azioni richiedono una conferma?
+- Chi sceglie il provider di modelli e paga l’uso?
+- Quali funzioni differiscono tra l’edizione cloud e quella self-hosted?
+- Puoi consultare la documentazione esatta degli strumenti prima di concedere l’accesso?
+
+## Come iniziare con MCP
+
+<Steps>
+  <Step title="Controlla gli strumenti attuali">
+    Consulta la [guida alla connessione MCP e agli strumenti](/docs/mcp) invece
+    di affidarti a un elenco di strumenti copiato.
+  </Step>
+  <Step title="Scegli i provider esterni">
+    Seleziona un client IA e un provider di modelli adatti alla tua politica
+    sui dati e ai tuoi requisiti operativi.
+  </Step>
+  <Step title="Limita i permessi">
+    Concedi solo i permessi del CRM richiesti dal primo flusso.
+  </Step>
+  <Step title="Parti da lavoro reversibile">
+    Comincia con letture, riassunti e bozze prima di abilitare scritture,
+    eliminazioni o invii in uscita.
+  </Step>
+  <Step title="Verifica i controlli del client">
+    Conferma come il client in uso mostra gli effetti e attende l’approvazione
+    prima di ampliare l’accesso.
+  </Step>
+</Steps>
+
+<AcquisitionCallout title="Valuta l’integrazione attuale" variant="fit">
+  [Leggi la guida a MCP](/docs/mcp) per il percorso di connessione attuale. Per
+  vedere il follow-up dall’inizio alla fine, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup):
+  collega LinkedIn o l’e-mail e, quando Mate è attivo in quell’ambiente, lascia
+  che Mate o il tuo client IA redigano la risposta e il passo successivo sulla
+  scheda del cliente. La rivedi, la modifichi e la invii tu, e un solo flusso
+  delimitato basta prima di concedere permessi più ampi.
+</AcquisitionCallout>
+
+## Domande frequenti
+
+Tieni la guida operativa e i fatti di riferimento accanto alla scheda del cliente nella [Base di conoscenza IA](/features/knowledge-base).
+
+<Faq>
+<FaqItem question="Che cos’è un CRM agentico?">
+È un CRM, detto anche CRM con agenti AI, i cui record e le cui azioni strutturati possono essere gestiti da un client IA o da un assistente autorizzato. Un’implementazione responsabile mantiene i permessi lato server e confini di approvazione espliciti per le azioni distruttive o esterne.
+</FaqItem>
+
+<FaqItem question="Che cos’è un CRM AI-native?">
+Un CRM AI-native espone fin dall’inizio i propri record e le proprie azioni all’IA tramite interfacce tipizzate, applica ai client IA gli stessi permessi delle persone e include l’accesso IA nel prodotto invece che come componente aggiuntivo a parte. Customermates lo fa con il suo server MCP, con [[derived.mcp.tools.total]] strumenti su ogni piano e in ogni installazione.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra un CRM AI-native e un CRM agentico?">
+AI-native descrive l’architettura: dati strutturati e azioni tipizzate che l’IA può usare. Agentico descrive il comportamento: un client IA o un assistente svolge lavoro in più passaggi con quelle azioni. Un CRM agentico ha bisogno di una base AI-native.
+</FaqItem>
+
+<FaqItem question="Mate è disponibile in ogni ambiente di Customermates Cloud?">
+  Ogni piano a pagamento include un diritto d’uso di Mate e una quota mensile
+  di IA ospitata per ogni utente attivo. La disponibilità effettiva dipende
+  dalla configurazione attuale dell’ambiente ospitato, quindi non è una promessa
+  di disponibilità universale. Le installazioni self-hosted usano client IA
+  esterni tramite MCP.
+</FaqItem>
+
+<FaqItem question="Posso usare un client IA esterno con Customermates self-hosted?">
+  Sì. MCP è disponibile nelle installazioni self-hosted. Scegli e finanzi tu il
+  client esterno e il provider di modelli; Mate ospitato e i crediti IA ospitati
+  non sono inclusi.
+</FaqItem>
+
+<FaqItem question="Dove viene applicata la conferma?">
+  Le istruzioni di MCP chiedono ai client compatibili di richiedere conferma
+  prima di invii ed eliminazioni, ma il server MCP non aggiunge una seconda
+  approvazione dopo che il client ha chiamato uno strumento consentito. Mate usa
+  approvazioni distinte e vincolanti a ogni chiamata. Verifica il comportamento
+  del client e del percorso che abiliti.
+</FaqItem>
+
+<FaqItem question="Un CRM agentico include il lead scoring predittivo o le previsioni?">
+Non in Customermates. Il CRM può calcolare valori ponderati delle trattative in modo deterministico dalle probabilità di fase configurate, ma non offre punteggi predittivi di chiusura, arricchimento né previsioni autonome dei ricavi.
+</FaqItem>
+</Faq>

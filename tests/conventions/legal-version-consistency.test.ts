@@ -12,6 +12,7 @@ const SUBPROCESSOR_VERSION_HEADER = {
   de: /^_Stand: (\d{4}-\d{2}-\d{2})_$/m,
   en: /^_Last updated: (\d{4}-\d{2}-\d{2})_$/m,
   fr: /^_Dernière mise à jour\u00a0: (\d{4}-\d{2}-\d{2})_$/m,
+  it: /^_Ultimo aggiornamento: (\d{4}-\d{2}-\d{2})_$/m,
 } satisfies Record<ContentLocale, RegExp>;
 
 function legal(locale: ContentLocale, slug: string): string {
@@ -23,7 +24,7 @@ function versionHeader(locale: ContentLocale, slug: string): string {
   const header =
     slug === "subprocessors"
       ? content.match(SUBPROCESSOR_VERSION_HEADER[locale])
-      : content.match(/^_Version (\d{4}-\d{2}-\d{2})(?:[^\n]*)_$/m);
+      : content.match(/^_Versione? (\d{4}-\d{2}-\d{2})(?:[^\n]*)_$/m);
   expect(header, `${locale}/${slug} has no ISO version header`).not.toBeNull();
   return header![1];
 }
@@ -55,6 +56,7 @@ describe("legal document versions", () => {
         en: /If we change what your Allow covers, your earlier decision is treated as if it had not been given/i,
         de: /Ändern wir den Umfang Ihrer Einwilligung, gilt Ihre frühere Entscheidung als nicht erteilt/i,
         fr: /Si nous modifions l’étendue de votre consentement, votre décision antérieure est réputée non donnée/i,
+        it: /Se modifichiamo l’ambito del consenso dell’utente, la decisione precedente vale come non prestata/i,
       }[locale],
     );
     expect(
@@ -65,6 +67,7 @@ describe("legal document versions", () => {
         en: /leaves your decision in place/i,
         de: /lässt Ihre Entscheidung bestehen/i,
         fr: /laisse votre décision en vigueur/i,
+        it: /lascia in vigore la decisione dell’utente/i,
       }[locale],
     );
   });

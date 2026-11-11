@@ -60,5 +60,7 @@ fi
 # next.config.ts skips the type check on Vercel (CI's typecheck job gates every merge). Without it the build is as fast
 # with a 4 GiB heap as with 6 GiB and peaks about 1.2 GiB lower (measured on 4 cores and 8 GB), which leaves headroom
 # on an 8 GB build machine. CI's browser build skips the type check too but keeps the 6 GiB default on its 16 GB runner.
-export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-4096}"
+# 2026-11-11: with four content locales the webpack compile hit the 4 GiB ceiling (heap out of memory at about 3.6 GiB
+# live), so the Vercel heap is 6 GiB again; that still leaves about 2 GB of the 8 GB machine for the OS and workers.
+export NEXT_BUILD_HEAP_MB="${NEXT_BUILD_HEAP_MB:-6144}"
 yarn build

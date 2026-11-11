@@ -1,0 +1,11 @@
+﻿Sezione,Voce,Responsabile,Valore pianificato,Unità,Ipotesi o calcolo,Data di revisione,Valore effettivo,Azione successiva
+Periodo,Dati di pianificazione fittizi; non sono risultati effettivi; ricalcola dopo ogni modifica; nessuna formula attiva,,,,,,,
+Azioni,Pacchetto di ricerca account e contatto,Sam,60,ore,120 × 0.5,2027-04-03,,
+Azioni,Riunione qualificata con preparazione e note,Alex,45,ore,30 × 1.5,2027-04-03,,
+Azioni,Preparazione della proposta,Alex,48,ore,12 × 4,2027-04-03,,
+Azioni,Pacchetto di follow up sulle proposte,Jo,24,ore,12 × 2,2027-04-03,,
+Azioni,Revisione settimanale del team,Alex / Sam / Jo,18,ore,12 × 1.5,2027-04-03,,
+Vendita,Carico di vendita pianificato,Alex,195,ore,60 + 45 + 48 + 24 + 18,2027-04-03,,
+Vendita,Alex,Alex,99,ore,99 / 120,2027-04-03,,
+Vendita,Sam,Sam,66,ore,66 / 96,2027-04-03,,
+Vendita,Jo,Jo,30,ore,30 / 48,2027-04-03,,

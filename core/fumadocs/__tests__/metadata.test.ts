@@ -53,6 +53,7 @@ describe("generateMetadataFromMeta", () => {
           de: `${BASE_URL}/de/pricing`,
           en: `${BASE_URL}/en/pricing`,
           fr: `${BASE_URL}/fr/pricing`,
+          it: `${BASE_URL}/it/pricing`,
           "x-default": `${BASE_URL}/en/pricing`,
         },
       },
@@ -123,6 +124,7 @@ describe("generateMetadataFromMeta", () => {
         de: `${BASE_URL}/de/pricing?page=2`,
         en: `${BASE_URL}/en/pricing?page=2`,
         fr: `${BASE_URL}/fr/pricing?page=2`,
+        it: `${BASE_URL}/it/pricing?page=2`,
         "x-default": `${BASE_URL}/en/pricing?page=2`,
       },
     });
@@ -180,11 +182,11 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("uses default-locale metadata for a noindex app route in a routing-only locale", () => {
-    const metadata = generateMetadataFromMeta({ locale: "it", route: "/auth/signup" });
+    const metadata = generateMetadataFromMeta({ locale: "es", route: "/auth/signup" });
 
     expect(metadata.title).toBe("Sign up | Customermates");
     expect(metadata.description).toBe("Create an account");
-    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/it/auth/signup` });
+    expect(metadata.alternates).toEqual({ canonical: `${BASE_URL}/es/auth/signup` });
     expect(metadata.robots).toEqual({ follow: true, index: false });
   });
 
@@ -201,7 +203,7 @@ describe("generateMetadataFromMeta", () => {
   it("does not fall back to English for noindex content in an application-only locale", () => {
     expect(() =>
       generateMetadataFromMeta({
-        locale: "it",
+        locale: "es",
         params: { slug: "contacts" },
         route: "/docs/openapi/:slug",
       }),
@@ -215,6 +217,7 @@ describe("generateMetadataFromMeta", () => {
       de: `${BASE_URL}/de/pricing`,
       en: `${BASE_URL}/en/pricing`,
       fr: `${BASE_URL}/fr/pricing`,
+      it: `${BASE_URL}/it/pricing`,
       "x-default": `${BASE_URL}/en/pricing`,
     });
     expect(generateMetadataFromMeta({ locale: "fr", route: "/imprint" }).alternates?.canonical).toBe(
@@ -223,9 +226,9 @@ describe("generateMetadataFromMeta", () => {
   });
 
   it("never lists or serves an app-only locale page, even when a file exists", () => {
-    expect(() => generateMetadataFromMeta({ locale: "it", route: "/pricing" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
+    expect(() => generateMetadataFromMeta({ locale: "es", route: "/pricing" })).toThrow("NEXT_HTTP_ERROR_FALLBACK;404");
     expect(generateMetadataFromMeta({ locale: "en", route: "/pricing" }).alternates?.languages).not.toHaveProperty(
-      "it",
+      "es",
     );
   });
 });

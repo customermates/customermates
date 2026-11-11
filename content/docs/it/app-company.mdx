@@ -1,0 +1,217 @@
+---
+title: "Impostazioni spazio di lavoro: membri, ruoli, fatturazione"
+description: "Amministrare lo spazio di lavoro: invitare membri, definire ruoli, gestire piano e fatturazione, leggere il registro attività e configurare i webhook."
+---
+
+Le impostazioni dello spazio di lavoro riguardano tutto ciò che interessa l’intero spazio di lavoro e non un singolo record: il team e i suoi permessi, il piano, il registro attività e i webhook in uscita.
+
+## Dove si trovano le impostazioni dello spazio di lavoro? [#what-lives-on-the-company-screen]
+
+Clicca sul nome dello spazio di lavoro in alto nella barra laterale per aprire il menu dello spazio di lavoro e scegli **Impostazioni**, oppure premi G poi S. Le Impostazioni si aprono su [Profilo e preferenze](app:settings/profile) e la barra laterale passa alla navigazione delle impostazioni: le pagine personali sotto **Account**, quelle dello spazio di lavoro sotto **Spazio di lavoro**: [Generale](app:settings/general), [Membri](app:settings/members), [Ruoli](app:settings/roles), [Fatturazione](app:settings/billing) (solo Cloud), [Registro attività](app:settings/activity) e [Webhook](app:settings/webhooks). **Indietro** in alto nella navigazione riporta alla pagina da cui si proviene.
+
+Il menu dello spazio di lavoro elenca gli spazi di lavoro a cui si appartiene, per passare dall’uno all’altro, e offre **Crea spazio di lavoro** ([Spazi di lavoro](/docs/app-workspaces)). Contiene inoltre **Invita membri** (serve **Crea** su **Utenti e ruoli**), **Membri**, **Impostazioni**, **Fatturazione** con il chip del piano (solo Cloud) e, solo per gli operatori di Customermates, **Console operatore**.
+
+Il ruolo decide che cosa vedi. Una pagina che il ruolo non può leggere manca dalla navigazione, e aprirla direttamente porta alla [Dashboard](app:dashboard). In una pagina che si può leggere ma non modificare mancano **Aggiungi**, **Salva** ed **Elimina** e le finestre si aprono in sola lettura. Le modifiche di ruolo si applicano al successivo caricamento di pagina o alla successiva chiamata API del membro. Il ruolo integrato **Amministratore** vede e modifica tutto.
+
+| Pagina | Necessario per aprirla |
+|---|---|
+| Membri, Ruoli | Accesso in lettura **Tutti** su **Utenti e ruoli** (**Assegnati** mostra Membri con la sola riga personale) |
+| Fatturazione | Ogni membro; i controlli di fatturazione richiedono **Modifica** su **Azienda** |
+| Registro attività | Accesso in lettura **Tutti** su **Registro attività** |
+| Webhook | Accesso in lettura **Tutti** su **API e webhook** |
+
+Su Cloud, quando cambiano i Termini o il DPA, i membri vedono **Documenti legali aggiornati** con **Esamina Termini e DPA** e la data entro cui accettare. Solo un membro con il ruolo **Amministratore** può accettare, selezionando la casella e facendo clic su **Accetta e continua**; tutti gli altri vedono «Un amministratore dell’azienda deve accettare entro il» quella data. Se nessuno accetta in tempo, ogni pagina apre questa schermata finché un amministratore non accetta.
+
+## Membri [#members-tab]
+
+[Membri](app:settings/members) elenca tutte le persone dello spazio di lavoro con **Nome**, **E-mail**, **Ruolo**, **Stato**, **Aggiornato il** e **Creato il**. Si può cercare e filtrare per stato e date in [Filtri](app:settings/members?focus=filter). Per invitare serve **Crea** su **Utenti e ruoli**; per approvare e modificare altri serve **Modifica** su **Utenti e ruoli** con accesso in lettura **Tutti**.
+
+### Come si invitano le persone e quando scade il link di invito? [#how-do-invitations-work]
+
+Clicca su [Aggiungi](app:settings/members?focus=add) in Membri (oppure su **Invita membri** nel menu dello spazio di lavoro). La finestra **Invita un utente** ha due schede:
+
+- **Condividi il link** mostra un solo **Link di invito** per l’intero spazio di lavoro con un pulsante di copia. È valido 7 giorni («Scade il» con la data) e viene riutilizzato fino ad allora; la prima volta che la finestra si apre dopo la scadenza viene creato un nuovo link. Chiunque abbia il link può registrarsi, e non si può revocare in anticipo.
+- **Invia e-mail** accetta da 1 a 20 indirizzi, separati da una virgola o da Invio. **Invia gli inviti** invia a ogni indirizzo una sola volta il link dello spazio di lavoro e conferma con «3 inviti inviati.» (con il numero effettivo). Sul piano Free la finestra mostra **I team iniziano con Starter** con il prezzo, perché Free ha spazio per una sola persona attiva.
+
+Le persone che si registrano entrano con stato **In attesa di approvazione** e senza ruolo, e vedono **In attesa di approvazione** finché qualcuno non le approva. Le approva in [Membri](app:settings/members); per chiunque abbia **Modifica** su **Utenti e ruoli**, il menu dello spazio di lavoro, la sua voce **Membri** e **Membri** nelle Impostazioni mostrano quante persone sono in attesa. La registrazione non crea alcun record in nessuna lista. Un link scaduto o alterato mostra un errore che chiede di richiederne uno nuovo. Chi ha già un account Customermates entra tramite lo stesso link mentre ha effettuato l’accesso e attende l’approvazione allo stesso modo; vedere [entrare con un account esistente](/docs/app-workspaces#how-do-i-join-with-an-existing-account).
+
+### Come si approva, si modifica, si disattiva o si rimuove un membro? [#how-do-i-approve-deactivate-or-edit-a-member]
+
+In [Membri](app:settings/members) clicca sulla riga del membro per aprire la finestra **Utente**: **E-mail** (sola lettura), **Nome**, **Cognome** e **Ruolo** (obbligatorio), **URL dell'avatar** (facoltativo, un’immagine accessibile pubblicamente) e **Stato**.
+
+- **Approvare:** scegli un **Ruolo**, imposta **Stato** su **Attivo** e clicca su **Salva**. Il membro può accedere subito e conta come postazione fatturata.
+- **Disattivare:** imposta **Stato** su **Inattivo**. Questo blocca il suo accesso a questo spazio di lavoro (vede **Il tuo accesso a … è inattivo** con il nome dello spazio di lavoro, mentre gli altri suoi spazi di lavoro restano raggiungibili dal menu dello spazio di lavoro), le sue chiavi API e connessioni MCP per esso, toglie la sua postazione dalla fatturazione, sospende le sue routine, e il processo giornaliero elimina i suoi account di messaggistica collegati. Impostando di nuovo **Attivo** lo si riattiva. **In attesa di approvazione** non si può scegliere; lo imposta solo un invito.
+- **In pausa (piano Free):** un membro messo in pausa dal piano Free. Non è possibile impostare da sé questo stato; il membro torna quando lo spazio di lavoro sceglie un piano a pagamento, vedere [che cosa succede quando la prova termina](#what-happens-when-the-trial-ends-or-a-payment-fails).
+
+- **Rimuovi dallo spazio di lavoro:** clicca su **Rimuovi dallo spazio di lavoro** in alto nella finestra, oppure nel menu **Altre azioni** della riga, e conferma. Funziona per i membri **Attivo**, **Inattivo** e **In attesa di approvazione**; per un membro in attesa di approvazione rifiuta la richiesta, e la richiesta scompare dall’elenco. Qualsiasi altro membro rimosso risulta **Non più membro** e perde l’accesso su ogni dispositivo: le sue chiavi API e connessioni MCP per questo spazio di lavoro vengono revocate, le caselle di posta e gli account LinkedIn che ha collegato qui vengono scollegati, le sue routine vengono sospese e la postazione di un membro attivo viene liberata. Riceve un’e-mail che informa della rimozione; una richiesta rifiutata non ne invia alcuna. I record di sua proprietà e la sua cronologia restano. Un membro che se n’è andato non può essere riattivato; per tornare, apre un link di invito e chiede di entrare di nuovo, e chi ha **Modifica** su **Utenti e ruoli** approva la nuova richiesta. Non è possibile rimuovere se stessi (si esce invece dallo spazio di lavoro), l’unico account attivo dell’ultimo operatore della piattaforma Customermates né l’ultimo membro attivo con il ruolo **Amministratore**: l’azione risulta allora assente o disabilitata, con il motivo.
+- La propria riga si apre in sola lettura: si cambia il proprio nome in [Profilo e preferenze](app:settings/profile) e si chiede a un altro membro con **Modifica** su **Utenti e ruoli** di cambiare il proprio ruolo o stato.
+- Le modifiche fatte qui valgono per il membro solo in questo spazio di lavoro; ciò che i membri cambiano nel proprio Profilo e preferenze vale in ogni spazio di lavoro a cui appartengono. I membri possono anche lasciare da sé uno spazio di lavoro, vedere [Come si lascia uno spazio di lavoro?](/docs/app-workspaces#how-do-i-leave-a-workspace).
+- Lo spazio di lavoro mantiene sempre almeno un membro **Attivo** con il ruolo **Amministratore**; un salvataggio che rimuoverebbe l’ultimo fallisce con «Almeno un utente deve essere amministratore di sistema.»
+
+Ogni salvataggio viene registrato nel [Registro attività](app:settings/activity).
+
+## Ruoli [#roles-tab]
+
+Un ruolo è un insieme di permessi che ottiene ogni membro con quel ruolo. [Ruoli](app:settings/roles) li elenca con **Nome**, **Tipo** (**Sistema** per l’**Amministratore** integrato, **Personalizzato** per tutti gli altri) e **Descrizione**. Per creare serve **Crea** su **Utenti e ruoli**, per modificare **Modifica**, per eliminare **Elimina**. Senza **Modifica** su **Utenti e ruoli** la pagina elenca solo il proprio ruolo, e il suo accesso ai record mostra solo le liste che si possono leggere. Ogni ruolo può leggere lo spazio di lavoro, il suo piano e il suo modello dati, comunque sia stato salvato il ruolo.
+
+### Come creo un ruolo personalizzato, per esempio per limitare un membro ai record assegnati? [#how-does-the-role-editor-work]
+
+Clicca su [Aggiungi](app:settings/roles?focus=add), oppure su una riga per modificare. L’editor **Ruolo** ha tre schede; una scheda con un campo non valido mostra un punto rosso:
+
+- **Generale**: **Nome** (obbligatorio, fino a 255 caratteri) e **Descrizione** (obbligatoria, fino a 500 caratteri).
+- **Spazio di lavoro**: una riga per ogni permesso dello spazio di lavoro nella colonna **Risorsa**.
+- **Tipi di record**: una riga per ogni lista, con il suo nome attuale. Le liste nel **Cestino** non compaiono. I nuovi ruoli partono senza accesso ai record; concedi solo le liste necessarie. Le sottoliste come Voci condividono l’accesso del record padre e non hanno una riga propria.
+
+Ogni riga ha le caselle **Crea**, **Modifica** ed **Elimina** (sotto **Gestione** sugli schermi stretti) e **Accesso in lettura**: **Tutti** (tutto ciò che la riga copre), **Assegnati** (i record assegnati al membro, oppure la sua riga di membro o le sue routine) oppure **Nessuno**. Una cella che non si applica mostra un trattino. Per modificare o eliminare un record serve anche l’accesso a quel record.
+
+| Riga dello spazio di lavoro | Che cosa controlla |
+|---|---|
+| **API e webhook** | **Crea** crea chiavi API e webhook e invia di nuovo le consegne; **Modifica** modifica i webhook e mostra il loro segreto; **Elimina** elimina chiavi e webhook; **Tutti** mostra chiavi, webhook e consegne. |
+| **Utenti e ruoli** | **Crea** invita membri e crea ruoli (con il loro accesso iniziale ai record); **Modifica** modifica e approva membri e modifica ruoli, compresi l’accesso ai record e i modelli di accesso; **Elimina** elimina ruoli. **Tutti** mostra tutti i membri e i ruoli, **Assegnati** solo la propria riga di membro, **Nessuno** nasconde entrambe le pagine. |
+| **Azienda** | Solo **Modifica**: usa la fatturazione in [Fatturazione](app:settings/billing). |
+| **Modello dati** | Solo **Modifica**: configura liste, campi, relazioni e calcoli, senza accesso ai record né amministrazione dei ruoli. |
+| **Base di conoscenza dello spazio di lavoro** | **Crea**, **Modifica** (e sposta), **Elimina** pagine; selezionarne una qualsiasi impone **Tutti**. |
+| **Registro attività** | Solo lettura: [Registro attività](app:settings/activity) e cronologia delle modifiche sui record. |
+| **Messaggi della posta in arrivo** (Cloud) | **Crea** collega account e invia, salva bozze e avvia conversazioni; **Modifica** cambia account, conversazioni, stato delle conversazioni e collegamenti ai record; **Elimina** scollega account e scarta bozze. Limitato anche dal piano. |
+| **Routine** (Cloud) | **Crea**, **Modifica** (ed esegui o testa subito), **Elimina**; eliminare una routine o sospendere quella di un altro richiede anche il ruolo **Amministratore**. **Tutti** o **Assegnati** (routine proprie). |
+| **Link pubblici** | **Crea**: pubblica le proprie viste della dashboard e delle liste con un link pubblico ([Dashboard](/docs/app-dashboard#public-links)). |
+
+Salvare un nuovo ruolo, webhook o routine richiede **Crea**, uno esistente **Modifica**. I modelli di accesso vengono definiti dai membri con **Modifica** su **Utenti e ruoli**; chi gestisce il modello dati può applicarne uno solo alla creazione di una lista, e ampliare i permessi sulle liste esistenti richiede **Modifica** su **Utenti e ruoli**. Messaggi della posta in arrivo e Routine sono nascosti nelle installazioni self-hosted.
+
+### Che cos’è il ruolo Amministratore? [#what-is-the-admin-role]
+
+Ogni spazio di lavoro parte con un ruolo integrato, **Amministratore**, assegnato alla persona che lo ha creato. Supera ogni controllo dei permessi e il suo editor si apre in sola lettura con «Questo è un ruolo di sistema e non può essere modificato né eliminato.» Lo spazio di lavoro deve mantenere almeno un membro **Attivo** con questo ruolo, e solo i suoi membri possono eliminare routine o sospendere quelle di un altro.
+
+### Quali sono le regole per modificare i ruoli? [#what-are-the-rules-for-editing-roles]
+
+- Non è possibile modificare il proprio ruolo: il suo editor mostra «Questo ruolo è assegnato a te e non può essere modificato. Chiedi a un altro amministratore di modificarlo.»
+- **Elimina** compare solo per un ruolo personalizzato che nessun membro ha, compresi i membri inattivi. Prima si spostano tutti su un altro ruolo e si toglie il ruolo dai modelli di accesso.
+- Le modifiche si applicano a ogni membro con quel ruolo al successivo caricamento di pagina o alla successiva chiamata API e vengono registrate nel [Registro attività](app:settings/activity).
+
+## Fatturazione [#subscription-tab]
+
+[Fatturazione](app:settings/billing) mostra piano, stato, postazioni e fatturazione di uno spazio di lavoro Cloud; le installazioni self-hosted non hanno un piano e la pagina reindirizza alla Dashboard. Customermates fattura tramite Lemon Squeezy, che gestisce il checkout e il portale clienti. Ogni spazio di lavoro ha il proprio piano, abbonamento, fatture e pool di crediti IA ospitati; vedere [come viene fatturato ogni spazio di lavoro](/docs/app-workspaces#how-is-each-workspace-billed).
+
+| Campo | Che cosa mostra |
+|---|---|
+| **Piano** | **Starter**, **Pro**, **Business**, **Max** o **Enterprise** con un chip di stato, sincronizzato dalla fatturazione |
+| **La prova termina il** | La fine della prova gratuita, solo mentre lo stato è **Prova** |
+| **Il periodo attuale termina il** | La data di rinnovo oppure, dopo una disdetta, la data in cui termina l’abbonamento |
+| **Postazioni attive** | Postazioni fatturate; prima del primo checkout il numero di membri **Attivo** |
+| **Spazio per i file** | Lo spazio usato dai file nei campi file, rispetto al limite dello spazio di lavoro, per esempio **1,2 GB di 20 GB** |
+
+La voce **Fatturazione** nel menu dello spazio di lavoro mostra il piano con il suo stato, per esempio **Pro · Prova · 3 giorni rimasti** (solo il nome del piano mentre lo stato è **Attivo**), e apre Fatturazione.
+
+### Chi può gestire la fatturazione? [#who-can-manage-billing]
+
+In [Fatturazione](app:settings/billing), i ruoli con **Modifica** su **Azienda** e il ruolo **Amministratore** vedono la selezione del piano, **Gestisci con Lemon Squeezy** e **Aggiorna**. Tutti gli altri vedono i valori in sola lettura con un suggerimento di rivolgersi a un amministratore dello spazio di lavoro. La riga **Azienda** si imposta in [Ruoli](app:settings/roles). Solo l’amministratore che paga lo spazio di lavoro ottiene il portale clienti completo di Lemon Squeezy; vedere [Come si disdice, si cambia il metodo di pagamento o si ottengono le fatture?](#how-do-i-cancel-change-the-payment-method-or-get-invoices).
+
+### Che cosa significa ogni stato dell’abbonamento? [#what-does-each-subscription-status-mean]
+
+L’app imposta **Prova** quando un accesso crea il suo primo spazio di lavoro Cloud. Ogni spazio di lavoro aggiuntivo creato da quell’accesso parte senza prova e mostra **Scegli un piano per …** finché non viene scelto un piano ([quale spazio di lavoro ottiene la prova gratuita](/docs/app-workspaces#which-workspace-gets-the-free-trial)). Ogni altro stato proviene da Lemon Squeezy o dall’assistenza Customermates.
+
+| Stato | Effetto |
+|---|---|
+| **Prova** | [[commercial.trial.days]] giorni con le funzioni Pro; tutto funziona fino a **La prova termina il** |
+| **Attivo** | A pagamento; funziona tutto ciò che il piano include |
+| **Pagamento in ritardo**, **Annullato** | Le pagine restano aperte, ma la Posta in arrivo e la messaggistica, il collegamento dei canali, gli account condivisi e l’assistente ospitato vengono rifiutati, e la quota di Mate scende a 0 |
+| **Non pagato**, **Scaduto** | Ogni pagina mostra **Abbonamento necessario** |
+
+Una prova oltre la data di fine senza checkout conta come scaduta. Le azioni sui canali rifiutate mostrano «Il collegamento dei canali richiede un abbonamento attivo o una prova non scaduta.»
+
+### Quali piani ci sono e quanto costano? [#which-plans-are-there]
+
+| Piano | Prezzo per postazione al mese | Account collegati per utente | Routine per utente | Posta in arrivo e messaggistica | Account condivisi |
+|---|---|---|---|---|---|
+| Free | Gratuito | [[commercial.entitlement.free.includedAccountsPerUser]] | [[commercial.entitlement.free.includedRoutinesPerUser]] | No | No |
+| Starter | [[commercial.price.starter.monthly]] | [[commercial.entitlement.starter.includedAccountsPerUser]] | [[commercial.entitlement.starter.includedRoutinesPerUser]] | No | No |
+| Pro | [[commercial.price.pro.monthly]] | [[commercial.entitlement.pro.includedAccountsPerUser]] | [[commercial.entitlement.pro.includedRoutinesPerUser]] | Sì | No |
+| Business | [[commercial.price.business.monthly]] | [[commercial.entitlement.business.includedAccountsPerUser]] | [[commercial.entitlement.business.includedRoutinesPerUser]] | Sì | Sì |
+| Max | [[commercial.price.max.monthly]] | [[commercial.entitlement.max.includedAccountsPerUser]] | [[commercial.entitlement.max.includedRoutinesPerUser]] | Sì | Sì |
+| Enterprise | Su richiesta | [[commercial.entitlement.enterprise.includedAccountsPerUser]] | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] | Sì | Sì |
+
+Ogni piano a pagamento include il CRM completo, il registro attività, l’API, il server MCP e l’assistente ospitato. Free è per spazio di lavoro e pensato per provare Customermates da soli: [[commercial.limit.free.maxMembers]] persona attiva, fino a [[commercial.limit.free.maxRecords]] record e [[commercial.limit.free.fileStorageBytes]] di spazio per i file, con API e MCP limitati a [[commercial.limit.free.apiRequestsPerMinute]] richieste al minuto e [[commercial.limit.free.apiRequestsPerDay]] al giorno, e senza posta in arrivo, assistente ospitato, routine, webhook né trigger n8n. Starter, Pro, Business e Max vengono fatturati ogni mese per postazione in euro; non esiste un altro intervallo. Crediti IA ospitati per utente attivo al mese, mostrati come utilizzo di Mate e come multiplo della quota Starter: Starter 1x, Pro 3x, Business 10x, Max 20x, Enterprise come da contratto, 3x durante la prova. Business offre il maggiore utilizzo per euro. L’app mostra l’utilizzo come percentuale della quota mensile; vedere [Piani e utilizzo di Mate](/docs/app-assistant#plans-and-credits). Spazio per i file per utente attivo, condiviso nello spazio di lavoro: Starter [[commercial.storage.starter]], Pro [[commercial.storage.pro]], Business [[commercial.storage.business]], Max [[commercial.storage.max]], Enterprise come da contratto, [[commercial.storage.pro]] durante la prova. Oltre il limite, per esempio dopo un downgrade, i nuovi caricamenti vengono rifiutati e nessun file viene eliminato; vedere [Come si allegano file a un record?](/docs/app-records#how-do-i-attach-files-to-a-record).
+
+### Come si sceglie o si cambia un piano? [#how-do-i-choose-or-change-a-plan]
+
+Prima del primo checkout (in pratica durante la prova), la [selezione del piano](app:settings/billing?focus=plan-picker) mostra schede per **Starter**, **Pro** (**Ideale per il follow-up**), **Business** (**Per i team**) e **Max** con prezzo, funzioni, account collegati, routine e utilizzo di Mate per utente come multiplo di Starter. Ogni scheda ha il proprio pulsante, come **Scegli Pro**, che apre il checkout di Lemon Squeezy per tante postazioni quanti sono i membri **Attivo**; il link del checkout scade dopo 15 minuti. La fatturazione parte al checkout, anche con giorni di prova residui. Dopo il pagamento si torna a Fatturazione: finché Lemon Squeezy non conferma, per al massimo 15 minuti, ogni amministratore dello spazio di lavoro vede «Pagamento in elaborazione» al posto delle schede, la pagina si aggiorna da sola e un secondo checkout viene rifiutato. Il link **Non ho finito di pagare** riporta subito le schede; dopo 15 minuti, una volta scaduto il link del checkout, tornano con «Pagamento non ancora ricevuto? Contatta l'assistenza» per un giorno.
+
+Dopo il primo checkout la selezione non torna più: l’amministratore che paga lo spazio di lavoro cambia il piano con [Gestisci con Lemon Squeezy](app:settings/billing?focus=manage). Gli spazi di lavoro Enterprise non vedono mai la selezione.
+
+### Come si disdice, si cambia il metodo di pagamento o si ottengono le fatture? [#how-do-i-cancel-change-the-payment-method-or-get-invoices]
+
+Clicca su [Gestisci con Lemon Squeezy](app:settings/billing?focus=manage). Compare quando lo spazio di lavoro ha un abbonamento self-service (non durante una prova prima del checkout, mai su Enterprise) e apre Lemon Squeezy nella stessa scheda. Che cosa si apre dipende da chi paga lo spazio di lavoro:
+
+- L’amministratore che paga, la cui e-mail Customermates è l’e-mail cliente dell’abbonamento Lemon Squeezy dello spazio di lavoro, ottiene il portale clienti completo: cambiare il piano, aggiornare il metodo di pagamento, scaricare le fatture e disdire.
+- Ogni altro membro che può gestire la fatturazione ottiene solo la pagina dei dati di pagamento dell’abbonamento di questo spazio di lavoro, per aggiornare la carta e i dati di fatturazione.
+
+Per disdire, cambiare il piano o ottenere le fatture, si chiede all’amministratore che paga di aprirlo. Se Lemon Squeezy non ha una pagina simile per l’abbonamento, Fatturazione mostra «Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.»
+
+Le modifiche del portale raggiungono Customermates automaticamente. Se Fatturazione mostra ancora valori vecchi, [Aggiorna](app:settings/billing?focus=refresh) rilegge stato, piano, postazioni e date («Abbonamento aggiornato correttamente»). Una disdetta compare come **Annullato**, con gli stessi limiti di **Pagamento in ritardo**.
+
+### Come vengono contate e fatturate le postazioni? [#how-are-seats-counted-and-billed]
+
+Una postazione è un membro con stato **Attivo**; i membri **In attesa di approvazione** e **Inattivo** non vengono fatturati. Le postazioni si contano per spazio di lavoro: una persona **Attiva** in più spazi di lavoro è una postazione fatturata in ciascuno di essi, e lasciare uno spazio di lavoro vi toglie la postazione. Il checkout prende il conteggio in quel momento, e ogni successiva modifica di stato in [Membri](app:settings/members) invia subito il nuovo conteggio a Lemon Squeezy: «Paghi per utente attivo. Le modifiche alle postazioni vengono conteggiate proporzionalmente sulla prossima fattura.» Per abbassare la fattura, si impostano su **Inattivo** i membri che non hanno più bisogno di accesso. Le postazioni Enterprise non vengono sincronizzate. I membri messi in pausa dal piano Free non vengono fatturati; quando un piano a pagamento li riporta, tornano a contare come postazioni e il nuovo conteggio va a Lemon Squeezy.
+
+### Che cosa succede quando la prova termina o un pagamento fallisce? [#what-happens-when-the-trial-ends-or-a-payment-fails]
+
+Finché lo stato è **Non pagato** o **Scaduto**, ogni pagina mostra **Abbonamento necessario** («L’accesso allo spazio di lavoro è sospeso»). I ruoli con **Modifica** su **Azienda** ottengono la selezione del piano per avviare un nuovo checkout (Enterprise: una nota di fatturazione manuale), che mostra «Pagamento in elaborazione» dopo un checkout proprio come Fatturazione; tutti gli altri vedono «Un amministratore dell’azienda deve ripristinare l’abbonamento». **Contatta l'assistenza** invia un’e-mail all’assistenza, **Riprova** ricarica. Quando l’abbonamento è di nuovo utilizzabile, si arriva a Fatturazione.
+
+Quando la prova termina senza checkout, oppure scade un piano a pagamento acquistato dopo la prova, lo spazio di lavoro che aveva la prova passa al piano Free invece di essere messo in pausa, e nulla viene eliminato. Free mantiene [[commercial.limit.free.maxMembers]] persona attiva: il membro che ha creato lo spazio di lavoro, altrimenti il membro la cui e-mail lo paga, altrimenti l’amministratore più anziano. Ogni altro membro attivo risulta **In pausa (piano Free)** in [Membri](app:settings/members) e riceve un’e-mail. Un membro in pausa non può aprire lo spazio di lavoro e vede «Questo spazio di lavoro è sul piano Free» con il nome della persona a cui rivolgersi, mentre i suoi record e la sua cronologia restano e i suoi altri spazi di lavoro rimangono raggiungibili. I link di invito aperti e le richieste di accesso vengono annullati, le routine mostrano **In pausa, piano Free**, i webhook esistenti smettono di inviare e gli account collegati vengono rimossi, perché Free non ha la posta in arrivo. I dati esistenti oltre un limite di Free restano; viene rifiutata solo l’aggiunta di altri. Su Free, Fatturazione mostra l’utilizzo rispetto ai limiti (persone, record, spazio per i file e limiti API) e quante persone sono in pausa, e gli amministratori vedono un banner come «2 persone sono in pausa. Scegli Starter per farle tornare.» Un amministratore può cedere il posto attivo a un amministratore in pausa con **Cedi il posto attivo** nel menu **Altre azioni** di quel membro, il che mette in pausa l’amministratore che lo fa; per cederlo a chi non ha il ruolo **Amministratore**, prima gli si dà il ruolo. Appena lo spazio di lavoro sceglie un qualsiasi piano a pagamento, ogni membro in pausa torna attivo, le routine riprendono e i webhook consegnano di nuovo. I membri che un amministratore ha impostato su **Inattivo** restano inattivi.
+
+Uno spazio di lavoro senza prova il cui piano a pagamento è scaduto, uno spazio di lavoro che resta **Non pagato** o uno spazio di lavoro Enterprise scaduto ha tutti i membri impostati su **Inattivo** dopo 3 giorni, e i loro account collegati vengono eliminati. Fino ad allora è in pausa solo l’app web: chiavi API e connessioni MCP continuano a funzionare e i webhook continuano a partire, mentre messaggistica, canali e assistente ospitato si fermano subito.
+
+### Che cosa succede agli account collegati quando il piano cambia? [#what-happens-to-connected-accounts-when-the-plan-changes]
+
+Quando Lemon Squeezy segnala un piano diverso, Customermates rimuove gli account collegati più recenti di ogni utente oltre la nuova quota. Starter ne include [[commercial.entitlement.starter.includedAccountsPerUser]] per utente, quindi ogni account viene rimosso; il primo checkout dalla prova conta come un cambio da Pro. I membri con il ruolo **Amministratore** ricevono un’e-mail con l’elenco degli account rimossi; gli altri restano in [Canali e calendari](app:settings/channels). Le routine oltre la quota vengono mantenute, perché la quota si applica solo alla creazione di una routine.
+
+### In che cosa si distingue uno spazio di lavoro Enterprise? [#how-does-an-enterprise-workspace-differ]
+
+Enterprise viene configurato con Customermates e fatturato tramite fattura. Fatturazione mostra solo **Piano** e «Questa area di lavoro usa un piano Enterprise con pagamento tramite fattura. Contatta il tuo account manager per apportare modifiche.» Il checkout self-service viene rifiutato e le modifiche di stato dei membri non vengono inviate alla fatturazione.
+
+### Dove portano i pulsanti di upgrade? [#where-do-upgrade-buttons-lead]
+
+Su Starter, la [Posta in arrivo](app:inbox) e [Canali e calendari](app:settings/channels) mostrano **Passa a un piano superiore per sbloccare la messaggistica** con **Passa a un piano superiore**. Al limite degli account collegati, gli utenti Pro vedono **Passa a un piano superiore per collegare più account** con **Vedi i piani**, come anche l’avviso di utilizzo dell’assistente ospitato. Tutti aprono [Fatturazione](app:settings/billing), dove possono agire solo i ruoli con **Modifica** su **Azienda**.
+
+## Registro attività: dove trovo la cronologia delle modifiche? [#activity-tab]
+
+[Registro attività](app:settings/activity) è il registro eventi dello spazio di lavoro: chi ha modificato quale record, impostazione o configurazione e quando, dal più recente. Ogni voce mostra il valore precedente e quello attuale in linea; le stesse voci compaiono nella vista **Attività** di un record, per esempio di un contatto, nel widget attività della dashboard e in Mate. Si filtra per tipo:
+
+- **Modifiche ai record**: creazioni, aggiornamenti ed eliminazioni di record con i valori dei campi.
+- **Amministrazione e sistema**: membri, ruoli, webhook, routine, account collegati, pagine della Base di conoscenza, avvisi legali ed esportazioni. I segreti dei webhook e i valori delle intestazioni sono oscurati.
+- **Configurazione**: liste, campi, relazioni e accesso ai record per ruolo. Queste voci le vedono solo i ruoli con **Modifica** su **Modello dati** o su **Utenti e ruoli**.
+
+Per leggerlo serve accesso in lettura **Tutti** su **Registro attività**. Le modifiche ai record seguono l’accesso ai record, e le voci della Base di conoscenza richiedono l’accesso in lettura alla Base di conoscenza. Un clic su una voce ne mostra i dettagli; le viste si salvano come nelle liste. Le voci vengono conservate a tempo indeterminato, i messaggi non vi compaiono mai e la cronologia parte dall’aggiornamento ai record configurabili. Disponibile su ogni piano e in self-hosting.
+
+## Webhook [#webhooks-tab]
+
+[Webhook](app:settings/webhooks) invia gli eventi dello spazio di lavoro ai propri sistemi; payload, firme e nuovi tentativi sono in [Webhook](/docs/webhooks). Per aprirlo serve accesso in lettura **Tutti** su **API e webhook**; per aggiungere serve **Crea**, per modificare **Modifica**, per eliminare **Elimina**. Disponibile su ogni piano a pagamento e in self-hosting, non su Free.
+
+Clicca su [Aggiungi](app:settings/webhooks?focus=add), oppure su una riga per modificare. La finestra **Webhook** ha **URL**, **Descrizione**, **Eventi**, **Segreto**, **Intestazioni personalizzate**, **Modello del corpo** e **Attivato**. Per gli eventi sui record si scelgono anche le liste e i filtri, e **Membro di cui usare i permessi**: le consegne usano i permessi attuali di quel membro, e solo un amministratore può scegliere un altro. Deselezionare **Attivato** mette in pausa le consegne senza eliminare il webhook. Senza **Modifica**, il segreto e i valori delle intestazioni compaiono come `********`. **Elimina** chiede conferma; le consegne passate restano. La ricerca in [Filtri](app:settings/webhooks?focus=filter) trova l’URL.
+
+### Dove vedo le consegne dei webhook? [#deliveries-tab]
+
+[Log dei webhook](app:settings/webhook-deliveries), subito sotto **Webhook** nella navigazione delle impostazioni, elenca una riga per consegna, dalla più recente, con **URL**, **Evento**, **Elemento**, **Stato**, **Codice di stato** e **Creato il**. Un clic su una riga mostra **Dettagli dell'evento**: stato (**In attesa**, **Invio in corso**, **Consegnato** o **Non riuscito**), codice di stato, messaggio di risposta e payload. Il payload di un evento su un record viene riletto con l’accesso attuale: i valori che non si possono leggere compaiono come riservati, e il payload resta vuoto quando non si può leggere il record. **Invia di nuovo** (consegne consegnate o non riuscite, **Crea** su **API e webhook**) crea una nuova consegna con l’URL, il segreto, le intestazioni e il modello del corpo attuali del webhook. Un evento su un record viene riletto con l’accesso attuale del proprietario del webhook, e solo quel proprietario o un amministratore può inviarlo di nuovo; i dettagli sono in [Webhook](/docs/webhooks#how-do-i-resend-a-delivery).
+
+## Dove si imposta la valuta? [#where-is-the-currency-set]
+
+Non esiste una valuta dello spazio di lavoro: ogni campo denaro ha la propria. Apri [Modello dati](app:configure), apri la lista e il campo denaro e scegli **Valuta**. La configurazione IA dello spazio di lavoro crea i campi denaro nella valuta scelta nelle sue domande; un campo denaro aggiunto da te parte in EUR. Cambiare la valuta di un campo non converte gli importi salvati, e i totali che mescolano valute mostrano una discordanza di valuta invece di una somma. Configurare i campi richiede **Modifica** su **Modello dati**.
+
+### Come funzionano le probabilità delle fasi e i totali? [#how-do-stage-probabilities-and-totals-work]
+
+In [Modello dati](app:configure) apri la lista delle trattative, apri il suo campo fase e imposta **Probabilità %** su ogni opzione; la configurazione IA dello spazio di lavoro le compila in base alla probabilità di successo di ogni fase. Un campo valore ponderato moltiplica il valore della trattativa per la probabilità della fase divisa per 100; zero dà zero, nessuna probabilità lo lascia vuoto. Le modifiche mostrano un’anteprima delle dipendenze e ricalcolano i record interessati. Per i totali della pipeline, aggiungi un widget grafico nella [Dashboard](app:dashboard) che somma il valore della trattativa o il valore ponderato, raggruppato per fase se vuoi. Vedere [pipeline ponderata](/docs/concepts#how-does-a-weighted-pipeline-work).
+
+### Come rinomino una lista come Trattative? [#how-do-i-rename-record-types-in-the-data-model]
+
+Apri la lista in [Modello dati](app:configure), cambia **Nome** e **Nome plurale** in **Generale** e clicca su **Salva**. Ogni lista può essere rinominata; record, collegamenti, viste, widget e riferimenti API restano collegati. I nomi delle liste devono essere univoci, senza distinguere maiuscole e accenti. Eliminare una lista la sposta nel **Cestino**, dove per 30 giorni si può usare **Ripristina** oppure **Elimina definitivamente**.
+
+## Per gli agenti [#tips-for-agents]
+
+Preferisci gli strumenti [MCP](/docs/mcp): `manage_team` invita via e-mail o restituisce il link di invito (`invite_link`), entrambi con approvazione, aggiorna i membri (`update_member`, si identifica con `userId` o `email` (devono coincidere entrambi se indicati); con approvazione quando cambia il ruolo o lo stato; per **In attesa di approvazione** si passano un `roleId` e lo stato `active`) e li rimuove dallo spazio di lavoro (`remove_member`, tramite `userId` o `email`, con approvazione), `list_users` legge i membri, `manage_roles` legge e salva i ruoli con la revisione attuale (risorse `api`, `users`, `company`, `dataModel`, `wiki`, `activityLog`, `inboxMessages`, `routines`; azioni `create`, `update`, `delete`, `readAll`, `readOwn`), `manage_webhooks` gestisce webhook e consegne, `get_activities` con un ambito vuoto legge il registro attività, e `get_record_model` e `configure_record_model` modificano liste, valute e calcoli. Tramite REST, `POST /api/v1/members/invite` invia inviti (da 1 a 20 indirizzi), `POST /api/v1/members/invite-link` restituisce il link di invito e la sua scadenza, `POST /api/v1/members/update` cambia ruolo e stato di un altro membro; si indica il membro con `userId` o `email` e si inviano i campi da cambiare; i campi omessi mantengono i loro valori. `POST /api/v1/members/remove` rimuove un altro membro dallo spazio di lavoro, indicato allo stesso modo. `POST /api/v1/roles/list` elenca i ruoli con i loro permessi; senza **Modifica** su **Utenti e ruoli** restituisce solo il proprio ruolo. Fatturazione e chiavi API restano per scelta nell’app: nessuno strumento legge o modifica il piano; indirizza l’utente a [Fatturazione](app:settings/billing).
+
+## Argomenti correlati [#related]
+
+- [Webhook](/docs/webhooks)
+- [Guida all’app, Profilo](/docs/app-profile)
+- [Spazi di lavoro](/docs/app-workspaces)
+- [Piani e utilizzo di Mate](/docs/app-assistant#plans-and-credits)

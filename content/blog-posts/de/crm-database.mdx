@@ -1,6 +1,6 @@
 ---
 title: "CRM-Datenbank: Aufbau, Datenmodell und Pflege"
-description: "Was eine CRM-Datenbank enthält, wie HubSpot, Salesforce und Pipedrive ihre Daten ordnen und wie Sie Ihre eigene aufbauen und sauber halten."
+description: "Was eine CRM-Datenbank ist, wie HubSpot, Salesforce und Pipedrive ihr Datenmodell ordnen und wie Sie Ihre eigene aufbauen, sauber halten und exportieren."
 
 relatedHrefs:
   - /features/contact-management
@@ -10,14 +10,14 @@ relatedHrefs:
 
 hero:
   title: "CRM-Datenbank: Was sie ist und wie Sie eine aufbauen, die sauber bleibt"
-  description: "Eine CRM-Datenbank verknüpft Personen, Unternehmen, Deals und Aufgaben. Wie große CRMs ihr Datenmodell ordnen, wie Sie Ihre eigene planen und importieren und welche Regeln sie aktuell halten."
+  description: "Eine CRM-Datenbank verknüpft Personen, Unternehmen, Deals und Aufgaben. Wie große CRMs ihr Datenmodell ordnen, wie Sie Ihre eigene planen, importieren, pflegen und exportieren und welche Regeln sie aktuell halten."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-01-12
-  updated: 2026-10-08
+  updated: 2026-11-11
   tags:
     - CRM-Datenbank
     - Kundendaten
@@ -27,20 +27,21 @@ blogPost:
 
 # CRM-Datenbank: Was sie ist und wie Sie eine aufbauen, die sauber bleibt
 
-Eine CRM-Datenbank ist der strukturierte Datenbestand hinter einem CRM: ein Datensatz pro Person, einer pro Unternehmen, einer pro Deal, dazu die Verknüpfungen dazwischen und die Historie. Gerade die Verknüpfungen unterscheiden sie von einer Adressliste. Sie öffnen ein Unternehmen und sehen seine Ansprechpartner, die offenen Deals und das letzte Gespräch. Sie öffnen einen Deal und sehen, wer beteiligt ist und was angeboten wurde.
+Eine CRM-Datenbank ist der strukturierte Datenbestand hinter einem CRM (Customer Relationship Management, auf Deutsch Kundenbeziehungsmanagement): ein Datensatz pro Person, einer pro Unternehmen, einer pro Deal, dazu die Verknüpfungen dazwischen und die Historie. Gerade die Verknüpfungen unterscheiden sie von einer Adressliste. Sie öffnen ein Unternehmen und sehen seine Ansprechpartner, die offenen Deals und das letzte Gespräch. Sie öffnen einen Deal und sehen, wer beteiligt ist und was angeboten wurde.
 
-Von Grund auf programmieren müssen Sie so eine Datenbank fast nie. Sie wählen ein CRM, legen fest, welche Datensatztypen und Felder Sie brauchen, bereinigen Ihre vorhandenen Daten und importieren sie in der richtigen Reihenfolge. Dieser Leitfaden behandelt genau diese Planung, zeigt das Datenmodell von vier CRM-Systemen und endet mit einem durchgespielten Beispiel. Customermates veröffentlicht diesen Leitfaden; die Angaben zu anderen Anbietern stammen aus deren eigener Dokumentation, verlinkt am Ende.
+Von Grund auf programmieren müssen Sie so eine Datenbank fast nie. Sie wählen ein CRM, legen fest, welche Datensatztypen und Felder Sie brauchen, bereinigen Ihre vorhandenen Daten und importieren sie in der richtigen Reihenfolge. Dieser Leitfaden behandelt genau diese Planung, zeigt das Datenmodell von vier CRM-Systemen, erklärt, wie Customermates dieselben Listen anlegt, und endet mit einem durchgespielten Beispiel und dem Weg, die Daten wieder herauszubekommen. Customermates veröffentlicht diesen Leitfaden; die Angaben zu anderen Anbietern stammen aus deren eigener Dokumentation, verlinkt am Ende.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Was sie ist">Verknüpfte Datensätze zu Personen, Unternehmen, Deals und Aufgaben, mit typisierten Feldern und einer Aktivitätshistorie. Eine Tabelle enthält Zeilen, eine CRM-Datenbank enthält Beziehungen.</SummaryItem>
   <SummaryItem label="Aufbau">Erst die Datensatztypen festlegen, dann die Felder, nach denen Sie filtern, dann ein eindeutiges Merkmal pro Person. Vor dem Import bereinigen, Unternehmen vor Personen importieren.</SummaryItem>
   <SummaryItem label="Woran sie scheitert">Dubletten, Freitextfelder, die eigentlich Auswahllisten sein sollten, und niemand, der für die Datenpflege zuständig ist.</SummaryItem>
+  <SummaryItem label="Daten mitnehmen">Planen Sie den Export, bevor Sie ihn brauchen. Customermates exportiert je Liste als Excel oder JSON; einen Export des gesamten Kontos gibt es nicht.</SummaryItem>
   <SummaryItem label="Customermates">Startet ohne Listen: Sie legen die benötigten an (Kontakte, Organisationen, Deals oder eigene), mit typisierten Feldern und Beziehungen, in der Cloud ab [[commercial.price.starter.monthly]] pro Nutzer und Monat oder selbst gehostet unter AGPL.</SummaryItem>
 </ArticleSummary>
 
 Zur Auswahl gehört auch der Zugriff im Alltag: Prüfen Sie mit der Checkliste im [CRM-App-Leitfaden](/blog/crm-app), wie Ihre Mitarbeiter die Daten im Browser und unterwegs finden und ändern.
 
-## Was in einer CRM-Datenbank steht
+## Was in einer CRM-Datenbank steht: das Datenmodell im Überblick
 
 Stellen Sie sich eine Handvoll Tabellen vor, die aufeinander verweisen. Die meisten CRM-Systeme bringen denselben Kern mit und unterscheiden sich darin, was sie darum herum anbieten.
 
@@ -52,7 +53,7 @@ Stellen Sie sich eine Handvoll Tabellen vor, die aufeinander verweisen. Die meis
 | Produkt oder Leistung | etwas, das Sie zu einem Preis verkaufen | die Deals, in denen es vorkommt | Name, Preis |
 | Aufgabe oder Aktivität | etwas, das jemand erledigen muss oder erledigt hat | jeder der obigen Typen | Zuständige Person, Notizen |
 
-Zwei Fragen zum Datenmodell entscheiden, ob die Datenbank später trägt. Kann eine Person zu mehreren Unternehmen gehören, etwa eine Beraterin mit zwei Mandaten oder ein Freelancer, der für drei Agenturen arbeitet? Und kann ein Deal mehrere Personen betreffen? Erzwingt Ihr CRM ein Unternehmen pro Person oder einen Kontakt pro Deal, landen die Ausnahmen bald in den Notizen.
+Zwei Fragen zum Datenmodell entscheiden, ob die Datenbank später trägt. Kann eine Person zu mehreren Unternehmen gehören, etwa eine Beraterin mit zwei Mandaten oder ein Freelancer, der für drei Agenturen arbeitet? Und kann ein Deal mehrere Personen betreffen? Erzwingt Ihr CRM ein Unternehmen pro Person oder einen Kontakt pro Deal, landen die Ausnahmen bald in den Notizen. Lesen Sie die Dokumentation, bevor Sie sich festlegen: Der Datenartikel von Pipedrive beschreibt, eine Person mit einer Organisation zu verknüpfen, in Customermates dagegen kann eine Beziehung auf jeder Seite einen oder mehrere Datensätze erlauben, ein Kontakt also zu mehreren Organisationen gehören.
 
 Die andere Hälfte einer CRM-Datenbank ist die Historie. Jede Änderung an einem Datensatz und jede verknüpfte E-Mail oder Nachricht ergibt eine Zeitleiste. Mit ihr kann eine Kollegin einen Kunden übernehmen, ohne dass es ein Übergabegespräch braucht. Genau das kann eine Excel-Liste nicht.
 
@@ -62,12 +63,30 @@ An den Datensatztypen sieht man, wofür ein CRM gebaut wurde. Die Tabelle vergle
 
 | CRM | Standard-Datensatztypen | Eigene Datensatztypen |
 |---|---|---|
-| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Kontakte und Unternehmen als Grundlage, dazu Deals, Leads, Tickets, Produkte, Projekte, Aufgaben und weitere | Benutzerdefinierte Objekte, die ein Enterprise-Abo voraussetzen |
+| [HubSpot](https://knowledge.hubspot.com/records/understand-objects) | Kontakte und Unternehmen als grundlegende Objekte, dazu Deals, Leads, Tickets, Produkte, Projekte, Aufgaben und viele weitere | Benutzerdefinierte Objekte, die ein Enterprise-Abo voraussetzen |
 | [Salesforce](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) | Standardobjekte wie Account, Contact, Lead und Opportunity | Benutzerdefinierte Objekte für Informationen, die für Ihr Unternehmen oder Ihre Branche spezifisch sind |
 | [Pipedrive](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) | Leads, Deals, Personen, Organisationen, Aktivitäten, Produkte, Projekte und E-Mails | Der verlinkte Artikel nennt keinen eigenen Objekttyp; Projekte sind bis einschließlich Growth als Add-on erhältlich und in Premium und Ultimate enthalten |
 | Customermates | Kontakte, Organisationen, Deals, Services und Aufgaben, jeweils frei umbenennbar | Eigene Listen mit typisierten Feldern, Beziehungen und berechneten Feldern |
 
-Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates startet ohne Listen: Sie legen die benötigten an und benennen jede selbst, sodass im ganzen Workspace etwa „Kunden" statt „Kontakte" und „Projekte" statt „Deals" steht, und können sie später umbenennen.
+Kurz gesagt: HubSpot und Salesforce erlauben eigene Objekttypen, die Sie selbst konfigurieren, bei HubSpot mit einem Enterprise-Abo. Die Datenelemente von Pipedrive bleiben nah am Vertriebsprozess. Customermates startet ohne Listen: Sie legen die benötigten an und benennen jede selbst, sodass im ganzen Workspace etwa „Kunden“ statt „Kontakte“ und „Projekte“ statt „Deals“ steht, und können sie später umbenennen.
+
+## So legt Customermates die Kernlisten an
+
+Customermates hält CRM-Daten in konfigurierbaren Listen, und keine Liste ist fest eingebaut. In Customermates Cloud entwirft die KI-Einrichtung die Listen aus Ihren Antworten; ein selbst gehosteter Workspace startet leer, und wer das Datenmodell verwaltet, legt die Listen im Datenmodell an. Die Einrichtung erstellt immer eine Personenliste und Aufgaben, meist Organisationen und Deals und einen Katalog aus Services oder Produkten nur dann, wenn Sie etwas verkaufen. So sieht ein typisches Ergebnis aus, beschrieben in der [Dokumentation zum Datenmodell](/docs/concepts).
+
+| Liste (Standardname) | Ein Datensatz ist | Typischerweise verknüpft mit | Gut zu wissen |
+|---|---|---|---|
+| Kontakte | eine Person | Organisationen, Deals, Aufgaben | Ein Feld Kontaktdaten enthält E-Mail-Adressen, Telefonnummern und Social-Media-Profile und ordnet eingehende Nachrichten dem Datensatz zu |
+| Organisationen | eine Firma oder ein Account | Kontakte, Deals | Beliebige eigene Felder, etwa Segment oder Kunde seit |
+| Deals | eine Verkaufschance | Kontakte, Organisationen, Services | Die Phase ist ein Feld vom Typ Einzelauswahl mit einer Abschlusswahrscheinlichkeit je Phase; der Wert ist die Summe der Positionen |
+| Services (oder Produkte) | etwas, das Sie verkaufen | Deals, über Positionen | Ein Einzelpreis; der Positionswert ist Menge mal Einzelpreis |
+| Positionen | eine Zeile in genau einem Deal | ihr Deal | Eine Unterliste: Sie gehört zu einem Deal, wird darin bearbeitet und mit ihm entfernt |
+| Aufgaben | eine Arbeit, die zu erledigen ist | die Datensätze, mit denen Sie sie verknüpfen | Fälligkeit oder Status sind gewöhnliche Felder, die Sie ergänzen |
+| Eigene Listen | alles andere: Projekte, Bewerbungen, Immobilien | was Sie verknüpfen | Dieselben Feldtypen, Beziehungen und gespeicherten Ansichten wie jede andere Liste |
+
+Eine Beziehung verbindet zwei Listen. Jede Seite hat ihre eigene Bezeichnung und erlaubt einen oder mehrere Datensätze, sodass ein Kontakt zu mehreren Organisationen gehören kann und ein Projekt mehrere Kontakte und Deals verknüpfen darf. Beide Datensätze zeigen die Verknüpfung. In Pro, wo verbundene Konten Nachrichten hereinholen, kann eine Beziehung außerdem die Nachrichten der verknüpften Personen am Deal oder an der Organisation zeigen.
+
+Felder lassen sich berechnen. Der Wert eines Deals addiert seine Positionswerte, und der gewichtete Wert ist der Deal-Wert mal Phasenwahrscheinlichkeit geteilt durch 100; das ist eine Gewichtung der Pipeline, keine Prognose. Jeder Datensatz behält eine feste ID, daher bricht das Umbenennen einer Liste oder eines Felds keine Verweise, und eine gespeicherte Ansicht zeigt Datensätze, ohne sie zu kopieren.
 
 ## CRM-Datenbank, Excel oder eigene Datenbank?
 
@@ -79,6 +98,16 @@ Alle drei können Kundendaten speichern. Entscheidend ist, wer sie pflegt und wi
 | eine eigene Datenbank oder ein No-Code-Tool (Airtable, Notion, Access, PostgreSQL) | Ihre Daten keine Personen und Deals sind oder Sie ein Modell brauchen, das kein CRM bietet | Formulare, Beziehungen, Berechtigungen und Historie, die Sie selbst bauen |
 | ein CRM | mehrere Personen mit denselben Kunden arbeiten und Sie Deals, offene Rückmeldungen oder Gespräche nachhalten | etwas Freiheit im Datenmodell; die meisten Cloud-CRMs kosten pro Nutzer |
 
+Dieselben Aufgaben sehen in einer Tabelle und in einer CRM-Datenbank unterschiedlich aus:
+
+| Die Aufgabe | In einer Excel-Tabelle | In einer CRM-Datenbank |
+|---|---|---|
+| Eine Person mit zwei Firmen verknüpfen | Eine zweite Zeile oder zwei Namen in einer Zelle, sodass Sie doppelt suchen | Ein Personen-Datensatz, mit beiden Firmen verknüpft, sofern das CRM mehrere erlaubt; die Verknüpfung zeigt sich an beiden Datensätzen |
+| Einen Segmentwert einheitlich halten | Eine Freitextspalte, außer Sie bauen und pflegen eine Auswahlliste | Ein Feld vom Typ Einzelauswahl mit festen Optionen; benennen Sie in Customermates eine Option um, folgen alle Datensätze |
+| Sehen, was bei einem Kunden passiert ist | Was jemand in eine Notizspalte getippt hat | Eine Historie aus Änderungen und verknüpften Nachrichten am Datensatz |
+| Zwei Personen gleichzeitig arbeiten lassen | Eine gemeinsame Datei, eine Fassung zum Zusammenführen oder eine Sperre | Jede Person bearbeitet Datensätze direkt, der Zugriff ist je Liste und Aktion festgelegt |
+| Zahlen auswerten | Formeln und Pivot-Tabellen, die Sie bauen und pflegen | Dashboard-Widgets, die Datensätze summieren oder zählen und nach einem Feld gruppieren, etwa der Deal-Wert nach Phase |
+
 Wenn Sie heute mit einer Tabelle arbeiten, zeigt die [Excel-CRM-Vorlage](/blog/excel-crm-template), wie weit sie trägt und wie Sie sie so anlegen, dass der spätere Import leichtfällt. Welche Art von Software für eine Kundendatenbank passt, behandelt der Beitrag zu [Kundendatenbank-Software](/blog/client-database-software).
 
 ## CRM-Datenbank erstellen: Schritt für Schritt
@@ -87,12 +116,12 @@ Diese Schritte gelten für jedes CRM. Die Reihenfolge ist wichtiger als das Werk
 
 <Steps>
   <Step title="Datensatztypen festlegen">Beginnen Sie mit Personen, Unternehmen und Deals. Ein eigener Typ lohnt sich nur, wenn er einen eigenen Lebenszyklus hat. Ein Produktkatalog hat einen, ein Besprechungsort nicht.</Step>
-  <Step title="Felder auflisten, nach denen Sie filtern oder auswerten">Wonach nie jemand filtert, gehört in die Notizen. Wählen Sie für jedes Feld einen Typ: Datum, Währung, E-Mail, Telefon, Link oder eine Einzelauswahl aus einer festen Liste. Ein Feld „Segment" als Freitext enthält nach einem Monat „Retainer", „retainer" und „Ret.".</Step>
-  <Step title="Deal-Phasen und Übergänge definieren">Fünf bis sieben Phasen, jede mit einer schriftlichen Regel, wann ein Deal sie verlässt, zum Beispiel „Angebot: Ein schriftliches Angebot ist verschickt". Phasen ohne solche Regeln werden zur Ansichtssache.</Step>
-  <Step title="Ein eindeutiges Merkmal pro Person wählen">Meist die E-Mail-Adresse. Über sie finden Sie Dubletten vor dem Import, und das CRM ordnet eingehende E-Mails darüber der richtigen Person zu.</Step>
+  <Step title="Felder auflisten, nach denen Sie filtern oder auswerten">Wonach nie jemand filtert, gehört in die Notizen. Wählen Sie für jedes Feld einen Typ: Datum, Währung, E-Mail, Telefon, Link oder eine Einzelauswahl aus einer festen Liste. Ein Feld „Segment“ als Freitext enthält nach einem Monat „Retainer“, „retainer“ und „Ret.“.</Step>
+  <Step title="Deal-Phasen und Übergänge definieren">Fünf bis sieben Phasen, jede mit einer schriftlichen Regel, wann ein Deal sie verlässt, zum Beispiel „Angebot: Ein schriftliches Angebot ist verschickt“. Phasen ohne solche Regeln werden zur Ansichtssache.</Step>
+  <Step title="Ein eindeutiges Merkmal pro Person wählen">Meist die E-Mail-Adresse. Über sie finden Sie Dubletten vor dem Import, und das CRM ordnet eingehende E-Mails darüber der richtigen Person zu. HubSpot zum Beispiel gleicht Kontakte über die E-Mail-Adresse und Unternehmen über den Domainnamen ab.</Step>
   <Step title="Quelldaten bereinigen">Eine Person pro Zeile, eine Art von Wert pro Spalte, Namen in Vor- und Nachname trennen, Dubletten über die E-Mail entfernen und Personen löschen, für die Sie keinen Grund zur Speicherung mehr haben.</Step>
   <Step title="Erst Unternehmen, dann Personen, dann Deals importieren">So kann jeder spätere Import auf bereits vorhandene Datensätze verweisen, zugeordnet über den Namen. Testen Sie mit 50 Zeilen, bevor Sie die ganze Datei einlesen.</Step>
-  <Step title="Die Ansichten speichern, mit denen gearbeitet wird">„Meine offenen Deals", „Kunden ohne Unternehmen", „Seit 90 Tagen unverändert". Eine Datenbank, auf die niemand schaut, veraltet unbemerkt.</Step>
+  <Step title="Die Ansichten speichern, mit denen gearbeitet wird">„Meine offenen Deals“, „Kunden ohne Unternehmen“, „Seit 90 Tagen unverändert“. Eine Datenbank, auf die niemand schaut, veraltet unbemerkt.</Step>
   <Step title="Eine verantwortliche Person für die Datenpflege benennen">Jemand, der den monatlichen Check weiter unten durchführt. Ist die Pflege Aufgabe aller, erledigt sie niemand.</Step>
 </Steps>
 
@@ -122,7 +151,7 @@ So sieht dieselbe Planung in Customermates aus, eingerichtet nach dem heutigen S
 | Projekte | Laufzeit | Datumsbereich |
 | Projekte | Quelle (Empfehlung, Anfrage, Veranstaltung) | Einzelauswahl |
 
-**Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner Positionen, jeweils Service-Preis mal Menge. „Strategie-Workshop" einmal und „Monatlicher Retainer" sechsmal ergeben den Projektwert also von selbst.
+**Verknüpfungen.** Ein Kunde kann mit mehreren Organisationen verknüpft sein, ein Projekt mit mehreren Kunden, Organisationen und zugewiesenen Nutzern. Der Wert eines Projekts ist die Summe seiner Positionen, jeweils Service-Preis mal Menge. „Strategie-Workshop“ einmal und „Monatlicher Retainer“ sechsmal ergeben den Projektwert also von selbst.
 
 **Phasen.** Phasen sind nicht voreingestellt: Sie legen ein Feld Phase an (etwa Akquise, Qualifizierung, Demo, Angebot, Verhandlung, Gewonnen, Verloren) und im Datenmodell je Phase eine Abschlusswahrscheinlichkeit fest. Die gewichtete Pipeline ergibt sich rein rechnerisch aus diesen Prozentsätzen und ist keine Vorhersage.
 
@@ -142,9 +171,9 @@ Auf den letzten Satz kommt es an. Mate kann Nachrichten senden, wenn eine Anweis
 
 Eine Datenbank zahlt sich aus, wenn jeder Datensatz einen nächsten Schritt hat. In Pro liegen die Verläufe am Kundendatensatz, Mate oder Ihr eigener KI-Client entwirft die Antwort und den nächsten Schritt, und Sie prüfen, bearbeiten und senden. Um das an Ihren eigenen Datensätzen auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup).
 
-## CRM-Datenpflege: So bleibt die Datenbank sauber
+## CRM-Daten bereinigen und pflegen: So bleibt die Datenbank sauber
 
-Kontaktdaten veralten, weil Menschen die Stelle wechseln und Firmen fusionieren. Eine kurze, feste Routine mit klarer Zuständigkeit bringt mehr als ein jährliches Aufräumprojekt.
+Kontaktdaten veralten, weil Menschen die Stelle wechseln und Firmen fusionieren. Eine kurze, feste Routine zur CRM-Datenpflege mit klarer Zuständigkeit bringt mehr als ein jährliches Aufräumprojekt.
 
 | Wie oft | Prüfung | In Customermates |
 |---|---|---|
@@ -155,6 +184,19 @@ Kontaktdaten veralten, weil Menschen die Stelle wechseln und Firmen fusionieren.
 | Vor jeder größeren Änderung | eine Kopie des Bestands | jede Liste als Excel oder JSON exportieren; einen Export des gesamten Kontos gibt es nicht |
 
 Eine exportierte Arbeitsmappe können Sie bearbeiten und als **Vorhandene Datensätze** wieder einlesen: Dann werden die vorhandenen Datensätze aktualisiert, statt Dubletten anzulegen. So lassen sich Korrekturen in großer Zahl ohne API erledigen.
+
+## CRM-Datenbank exportieren
+
+Planen Sie den Weg hinaus gleich mit, wenn Sie den Weg hinein planen. Einen Export brauchen Sie für Sicherungen, für Korrekturen in großer Zahl in einer Tabelle und für den Tag, an dem Sie das Werkzeug wechseln, und Sie sollten ihn an einer kleinen Liste testen, bevor Sie sich darauf verlassen. In Customermates hat jede Liste unter **Weitere Aktionen** dieselben Möglichkeiten, und ein Export enthält nur, was Ihre Rolle lesen darf.
+
+| Sie wollen | So geht es | Gut zu wissen |
+|---|---|---|
+| Viele Datensätze in einer Tabelle bearbeiten | **Als Excel exportieren (.xlsx)** in der Liste | Ein Blatt pro Liste und eine Spalte pro Feld, das Sie lesen dürfen; Suche, Filter und Sortierung gelten; bis zu 5.000 Datensätze |
+| Eine Liste samt Verknüpfungen sichern | **Als JSON exportieren** | Die Datei enthält die Verknüpfungen für den Reimport mit **Aus Datei hinzufügen**, als **Mit exportierten IDs erstellen** oder **Übereinstimmende IDs aktualisieren** |
+| Einen großen JSON-Export wieder einlesen | REST-API oder MCP nutzen | Die App lehnt eine JSON-Datei mit mehr als 100 Datensätzen oder 500 Verknüpfungen ab; die API exportiert Seiten mit bis zu 500 Datensätzen und importiert 100 Datensätze pro Anfrage |
+| In ein anderes CRM umziehen | Jede Liste als Excel exportieren und in der Reihenfolge Organisationen, Personen, Deals importieren | Customermates hat keinen Export des gesamten Kontos; prüfen Sie die Importregeln des neuen Werkzeugs (Pipedrive zum Beispiel dokumentiert den Import von Personen, Organisationen und Deals aus CSV- oder XLS-Dateien) |
+
+Alle Import- und Exportgrenzen stehen in der [Dokumentation zu Datensätzen](/docs/app-records).
 
 ## CRM-Datenbank und DSGVO
 
@@ -175,8 +217,16 @@ Für Customermates Cloud ist der [Auftragsverarbeitungsvertrag](/dpa) öffentlic
 Der Datenbestand hinter einem CRM: Datensätze zu Personen, Unternehmen, Deals und Aufgaben, miteinander verknüpft, mit typisierten Feldern und einer Historie aus Änderungen und Gesprächen. Erst Verknüpfungen und Historie machen daraus mehr als eine Adressliste.
 </FaqItem>
 
-<FaqItem question="Was ist der Unterschied zwischen einer Kundendatenbank und einem CRM?">
+<FaqItem question="Welche Daten speichert eine CRM-Datenbank?">
+Vier Arten. Wer eine Person oder Firma ist: Namen, E-Mail-Adressen, Telefonnummern, Anschriften, Funktionen. Was Sie wem verkaufen: Deals, Phasen, Werte, Produkte oder Leistungen. Was passiert ist: E-Mails und Nachrichten, Notizen, Aufgaben und Änderungen am Datensatz. Und was Sie selbst ergänzen, etwa ein Segment, eine Quelle oder ein Vertragsende. Typisierte Felder halten die erste und die letzte Art durchsuchbar und zählbar.
+</FaqItem>
+
+<FaqItem question="Was ist der Unterschied zwischen einer normalen Datenbank und einem CRM?">
 Eine Datenbank speichert die Tabellen, die Sie entwerfen, und überlässt Ihnen Formulare, Beziehungen, Berechtigungen und Historie. Ein CRM ist eine Datenbank, in der diese Kundenlogik schon gebaut ist: Personen verknüpft mit Unternehmen und Deals, Pipeline-Phasen, Zuständigkeiten und eine Zeitleiste pro Datensatz. Sie tauschen etwas Freiheit im Datenmodell gegen die Arbeit, die Sie nicht selbst machen müssen.
+</FaqItem>
+
+<FaqItem question="Ist eine Kundendatenbank dasselbe wie eine CRM-Datenbank?">
+Beide überschneiden sich. Eine Kundendatenbank ist die Liste der Kunden mit allem, was Sie über sie wissen; eine CRM-Datenbank ergänzt die Verknüpfungen zwischen Personen, Unternehmen und Deals, die Pipeline und die Historie hinter einem CRM. Brauchen Sie nur eine Kundenliste und wählen ein Werkzeug dafür, hilft der Beitrag zu [Kundendatenbank-Software](/blog/client-database-software).
 </FaqItem>
 
 <FaqItem question="Ist Excel eine CRM-Datenbank?">
@@ -196,4 +246,4 @@ Eine Tabelle oder ein selbst gehostetes Open-Source-CRM kostet keine Lizenzgebü
 </FaqItem>
 </Faq>
 
-Angaben zu anderen Anbietern geprüft am 8. Oktober 2026 anhand der [HubSpot-Dokumentation zu Objekten](https://knowledge.hubspot.com/records/understand-objects), [Salesforce Trailhead zu Standard- und benutzerdefinierten Objekten](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) und des [Pipedrive-Artikels zur Datenorganisation](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized).
+Angaben zu anderen Anbietern geprüft am 11. November 2026 anhand der [HubSpot-Dokumentation zu Objekten](https://knowledge.hubspot.com/records/understand-objects) (zuletzt aktualisiert am 2. Oktober 2026), [Salesforce Trailhead zu Standard- und benutzerdefinierten Objekten](https://trailhead.salesforce.com/content/learn/modules/data_modeling/objects_intro) und des [Pipedrive-Artikels zur Datenorganisation](https://support.pipedrive.com/en/article/how-is-pipedrive-data-organized) (zuletzt aktualisiert am 23. September 2026).

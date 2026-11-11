@@ -1,0 +1,171 @@
+---
+title: "AI sales agent: cosa fa e come testarlo in azienda"
+description: "AI sales agent: qualifica i lead in arrivo, fa prospezione, ricerca e aggiorna il CRM. Tipi, costi, limiti e un pilota di quattro settimane da replicare."
+
+relatedHrefs:
+  - /blog/agentic-crm
+  - /blog/ai-in-sales
+  - /blog/agentforce
+  - /docs/app-routines
+
+hero:
+  title: "AI sales agent: cosa fa, dove sbaglia e come testarlo"
+  description: "Un AI sales agent è un modello linguistico che usa il tuo CRM, la tua posta e il tuo calendario per portare a termine da solo un compito di vendita. Quali tipi esistono, quanto costano e come provarne uno prima che scriva a un cliente vero."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-04-30
+  updated: 2026-10-08
+  tags:
+    - ai-sales-agent
+    - Agenti AI
+    - AI SDR
+    - automazione-delle-vendite
+    - CRM
+---
+
+# AI sales agent: cosa fa, dove sbaglia e come testarlo
+
+Un AI sales agent (in italiano, un agente AI per le vendite) è un software in cui un modello linguistico richiama strumenti, come il tuo CRM, la posta, il calendario o un database di lead, per portare a termine un compito di vendita in più passaggi invece di limitarsi a suggerire un testo. La maggior parte dei prodotti venduti con questo nome copre una fetta del lavoro: rispondere ai lead in arrivo, la prospezione in uscita (spesso chiamata AI SDR o AI BDR), la ricerca sugli account, oppure tenere aggiornato il CRM. Oggi si occupano in modo affidabile di ricerca, prime bozze, smistamento e tenuta dei record. Scegliere a chi rivolgersi, valutare una trattativa e garantire per un’offerta restano compiti delle persone.
+
+Customermates, un CRM nativo per l’IA, pubblica questa guida e descrive la propria configurazione in una sezione chiaramente indicata. I fatti sugli altri fornitori vengono dalle loro pagine, verificate l’8 ottobre 2026.
+
+<ArticleSummary title="In sintesi">
+  <SummaryItem label="Che cos’è">Un modello linguistico autorizzato a usare strumenti di vendita. Legge, decide il passo successivo e agisce, entro le regole che stabilisci tu.</SummaryItem>
+  <SummaryItem label="Quattro tipi">Qualifica dei lead in arrivo, prospezione in uscita (AI SDR o BDR), ricerca per i commerciali e agenti che gestiscono il CRM.</SummaryItem>
+  <SummaryItem label="Funziona bene">Schede di ricerca, bozze di risposta, smistamento delle richieste in arrivo e aggiornamento dei record dopo una conversazione.</SummaryItem>
+  <SummaryItem label="Dove sbaglia">Dettagli inventati, destinatari sbagliati, record duplicati e messaggi inviati senza che nessuno li abbia letti. In Germania anche l’e-mail a freddo ha limiti legali.</SummaryItem>
+  <SummaryItem label="Come iniziare">Un solo flusso di lavoro, prima in sola lettura, poi bozze, e l’invio solo dopo quattro settimane di piccole correzioni.</SummaryItem>
+</ArticleSummary>
+
+## Quattro tipi di AI sales agent
+
+L’etichetta copre prodotti che fanno lavori molto diversi. Gli esempi sono descritti secondo la pagina di ciascun fornitore.
+
+| Tipo | Che cosa fa | Esempio dalla pagina del fornitore | Fa per te quando |
+|---|---|---|---|
+| Qualifica dei lead in arrivo | Risponde ai visitatori del sito e ai nuovi lead, pone domande di qualifica, propone orari per un incontro | [Agentforce SDR di Salesforce](https://www.salesforce.com/sales/ai-sales-agent/) accoglie i visitatori del sito, crea record di lead, risponde alle domande sui prodotti e propone la disponibilità del calendario in tempo reale. [Julian di 11x](https://www.11x.ai/) è un agente telefonico per i potenziali clienti in arrivo | Arrivano molte richieste e le risposte lente ti fanno perdere trattative |
+| Prospezione in uscita (AI SDR o BDR) | Trova lead, scrive e invia i messaggi di contatto, gestisce le risposte, fissa incontri | [Ava di Artisan](https://www.artisan.co/ai-sales-agent) copre ricerca dei lead, arricchimento dei dati, creazione di campagne, risposte autonome e pianificazione, con controlli umani nel processo. [Alice di 11x](https://www.11x.ai/) gestisce sequenze multicanale su e-mail, telefono, chat, social network, SMS e WhatsApp | Vendi a un mercato ampio e ben definito con il contatto a freddo |
+| Ricerca e supporto ai commerciali | Prepara schede su account e contatti, riassume le trattative, segnala quelle ferme | [Salesloft](https://www.salesloft.com/platform/ai-agents) elenca agenti per la ricerca sugli account, la ricerca sulle persone, i riepiloghi delle trattative e le segnalazioni su quelle ferme | I commerciali organizzano già la giornata in una piattaforma di sales engagement come Salesloft |
+| Gestione del CRM | Legge e modifica i record, scrive e invia messaggi a partire dalla cronologia delle conversazioni, parte a orari fissi o quando un record cambia | [Prospecting Agent di HubSpot](https://www.hubspot.com/products/artificial-intelligence) monitora i segnali d’acquisto, avvia un contatto personalizzato e prepara follow up e aggiornamenti del CRM dopo gli incontri. Mate, l’assistente di Customermates (sezione più sotto) | Vuoi un CRM aggiornato a partire da conversazioni vere |
+
+**AI SDR o AI BDR.** I fornitori usano i due termini con leggerezza. Un AI SDR (sales development representative) di solito qualifica i lead e passa a un commerciale un’opportunità pronta per un incontro, sia in entrata sia in uscita. Un AI BDR (business development representative) di solito apre nuove conversazioni in uscita. Confronta i passaggi che un prodotto esegue davvero, non la sua etichetta.
+
+## Quali passaggi può prendere in carico un agente
+
+Lo sviluppo commerciale si compone di sette passaggi. La colonna centrale indica ciò che oggi funziona in modo affidabile nella vendita dei piccoli team; quella di destra, che cosa controllare in una demo.
+
+| Passaggio | Che cosa fa bene oggi un agente | Che cosa controllare |
+|---|---|---|
+| 1. Definire i target | Trasforma un profilo di target scritto in filtri di ricerca | Chi decide il profilo e la lista di esclusione. Questa decisione resta tua |
+| 2. Trovare e verificare i contatti | Cerca in un database di lead di cui hai la licenza | Da dove viene ogni dato di contatto e se puoi usarlo |
+| 3. Studiare l’account | Scrive una scheda di una pagina da siti web, notizie e dal tuo storico con il cliente | Ogni fatto senza fonte. I modelli inventano dettagli plausibili |
+| 4. Scrivere il messaggio | Prepara la bozza nella lingua del cliente e si riferisce a un contesto reale | Se una persona vede il destinatario esatto e il testo prima dell’invio |
+| 5. Smistare le risposte | Distingue interesse, obiezioni, segnalazioni e richieste di non essere più contattati | Che una richiesta di non essere contattati fermi ogni contatto successivo, ovunque |
+| 6. Qualificare e passare la mano | Applica la tua regola di qualifica e smista il lead | Smistamenti sbagliati nei casi limite che contano per te |
+| 7. Aggiornare il CRM | Crea o aggiorna contatto, organizzazione, trattativa e note | Duplicati, collegamenti rotti tra i record e che cosa succede quando due sistemi non concordano |
+
+I passaggi 3, 4 e 7 rendono per primi nella maggior parte dei team, perché richiedono molta scrittura e poco giudizio. Il passaggio 1 è quello da tenere: un agente che sceglie da solo i propri target produce volume, non pipeline.
+
+## Un AI sales agent può sostituire il tuo team di SDR o BDR?
+
+Per il lavoro in entrata, in parte. Un agente per i lead in arrivo può rispondere a un visitatore di notte, fare le domande di qualifica e proporre una fascia oraria per un incontro, ed è lì che il vantaggio si vede di più. Per il lavoro in uscita nella vendita basata sulle relazioni, no. Un agente può fare ricerca e bozze molto più in fretta di una persona, ma non sa giudicare quale tra cinquanta account plausibili meriti il tempo di un socio, né accorgersi che l’ultimo post di un contatto rende il momento sbagliato.
+
+Agentforce è un buon caso di prova. Salesforce descrive il suo agente SDR come uno che lavora i lead in arrivo entro i limiti che fissi, risponde alle domande a partire dai dati della tua azienda e propone fasce orarie del calendario. Questo sostituisce una parte del lavoro di prima risposta. Non sostituisce chi si occupa di targeting, chiamate di scoperta e passaggio di consegne.
+
+### Quanto costa un AI sales agent?
+
+Dipende dal modello di prezzo. I prezzi di Agentforce, verificati l’8 ottobre 2026 dalla [pagina dei prezzi di Salesforce](https://www.salesforce.com/agentforce/pricing/):
+
+| Modello di prezzo di Agentforce | Prezzo | Esempio di calcolo |
+|---|---|---|
+| Flex Credits | $500 ogni 100.000 crediti; un’azione di Agentforce usa 20 crediti (un’azione vocale 30) | 20 crediti costano $0,10, quindi 10.000 azioni al mese costano $1.000 |
+| Per conversazione | $2 per conversazione, per gli agenti rivolti ai clienti | 800 conversazioni in arrivo al mese costano $1.600 |
+| Componente aggiuntivo di Sales Cloud | $125 per utente al mese, con uso illimitato di Agentforce per i dipendenti | Un team di cinque persone paga $625 al mese in più rispetto alle licenze di Sales Cloud |
+
+Gli agenti in uscita aggiungono costi che non compaiono mai nel listino dell’agente: i dati dei lead, i domini e le caselle di invio, e le ore che qualcuno passa a rivedere le bozze e a correggere i record. Contali prima di confrontare i prezzi di listino.
+
+## Contatto a freddo con agenti in Germania
+
+Un agente in uscita che scrive a sconosciuti è una questione legale prima che una questione di software. Secondo il [§ 7, comma 2, n. 2 UWG](https://dejure.org/gesetze/UWG/7.html), la pubblicità via e-mail senza il previo consenso espresso del destinatario è una molestia inaccettabile, e la norma non prevede eccezioni per i destinatari aziendali. La stretta eccezione del § 7, comma 3, riguarda i clienti esistenti il cui indirizzo hai ricevuto nel corso di una vendita. Per le telefonate, le aziende richiedono almeno un consenso presunto e i consumatori un consenso espresso.
+
+Quindi in Germania un agente e-mail autonomo che scrive a freddo a liste acquistate di solito non è un’opzione, per quanto buoni siano i suoi testi. Gli agenti funzionano meglio dove è il contatto ad aver avviato la conversazione: richieste in arrivo, risposte, clienti esistenti e conversazioni LinkedIn che hai iniziato tu. Anche il GDPR si applica a ogni dato di contatto che l’agente raccoglie. Queste sono informazioni generali, non una consulenza legale.
+
+## Un pilota di quattro settimane
+
+<Steps>
+  <Step title="Scegli un flusso di lavoro">Scegli un compito che ripeti ogni settimana, per esempio rispondere alle nuove richieste in arrivo o fare follow up sulle proposte inviate. Annota quanto spesso capita e quanto tempo richiede oggi.</Step>
+  <Step title="Scrivi le regole su una pagina">La tua regola di qualifica, il tono di voce, ciò che l’agente non deve mai promettere (prezzi, date, sconti) e quando deve fermarsi: destinatario incerto, richiesta di non essere contattati, record in conflitto.</Step>
+  <Step title="Prima settimana: sola lettura">Lascia che l’agente produca solo schede ed elenchi. Confrontali con ciò che sai e annota ogni fatto inventato.</Step>
+  <Step title="Seconda settimana: una scrittura reversibile">Permettigli di creare un’attività o di aggiornare un campo. Controlla poi che nei record non ci siano duplicati né collegamenti sbagliati.</Step>
+  <Step title="Terza e quarta settimana: bozze">L’agente salva le bozze nelle conversazioni vere, tu le modifichi e le invii. Conta quante partono con solo piccole correzioni.</Step>
+  <Step title="Decidi sull’invio">Consenti l’invio solo per il tipo di messaggio in cui le tue correzioni sono diventate minime, e provalo prima con un destinatario che controlli tu.</Step>
+</Steps>
+
+Prima di firmare con un fornitore, fai cinque domande: quali passaggi esegue da solo e quali richiedono un altro prodotto; da dove vengono i suoi dati di contatto; se lettura, bozze, scrittura e invio sono permessi separati; come una richiesta di non essere contattati ferma ogni canale; e che cosa lascia nel tuo CRM un’esecuzione fallita.
+
+## Esempio: un agente di vendita per piccoli team in Customermates
+
+Questa sezione descrive Customermates, il CRM che pubblica questa guida. Mate, il suo assistente, funziona in Customermates Cloud e usa crediti IA ospitati. Le routine sono istruzioni salvate che Mate esegue a orari fissi o quando cambia un record.
+
+Prendi una società di consulenza di tre persone con il piano Pro. Ogni consulente collega [[commercial.entitlement.pro.includedAccountsPerUser]] account nella [posta in arrivo unificata](/features/unified-inbox), di solito la casella di lavoro in Gmail o Outlook; LinkedIn, WhatsApp, Instagram e Telegram sono gli altri canali. Business include [[commercial.entitlement.business.includedAccountsPerUser]] account per utente, abbastanza per casella di posta e LinkedIn. Le trattative hanno un campo fase di tipo Scelta singola: Prima call, Definizione dell’ambito, Proposta inviata, Vinta, Persa. I servizi dello studio e le sue regole di scrittura stanno in un’unica pagina della base di conoscenza che Mate può leggere nelle chat e nelle esecuzioni delle routine.
+
+**Smistamento della posta in arrivo, ogni mattina.** Una [routine](/docs/app-routines) impostata su **Secondo una pianificazione**, **Ogni giorno** alle 08:00:
+
+```text
+Guarda le conversazioni nella mia posta in arrivo che hanno ricevuto
+un messaggio dall'esterno della nostra azienda da ieri alle 08:00.
+Per ogni mittente, trova il contatto e l'organizzazione oppure creali.
+Se il messaggio riguarda i nostri servizi, crea una trattativa nella
+fase "Prima call" assegnata a me e salva nella conversazione una bozza
+di risposta che proponga una breve chiamata. Elenca che cosa hai fatto
+e di che cosa non eri sicuro. Non inviare nulla.
+```
+
+**Follow up sulle proposte, a ogni modifica di un record.** Una seconda routine impostata su **Quando qualcosa cambia**, evento **Record aggiornato** per le Trattative, campo modificato «Fase», filtrata sulle trattative assegnate al proprietario: quando una trattativa passa a «Proposta inviata», Mate crea un’attività collegata alla trattativa e al suo contatto e salva una breve bozza di follow up nell’ultima conversazione.
+
+Entrambe le istruzioni finiscono con «Non inviare nulla» di proposito. Quando gli chiedi di inviare un’e-mail o un messaggio in chat, Mate lo invia senza una seconda conferma. Chiede l’approvazione prima delle eliminazioni e di alcune azioni di amministrazione, e una routine le rifiuta perché nessuno è presente ad approvarle. Una routine viene eseguita come il suo proprietario, con i canali e i permessi del proprietario. I trigger a evento ignorano gli eventi successivi per una breve finestra dopo l’avvio di un’esecuzione, quindi per la posta in arrivo una scansione giornaliera è la soluzione più sicura. Ogni esecuzione ha inoltre un tetto di crediti: con una posta molto trafficata un’esecuzione può fermarsi a metà e viene allora segnata come Parziale; i limiti sono elencati nella [documentazione delle routine](/docs/app-routines).
+
+Per la prospezione in uscita, Mate lavora un contatto alla volta: con un account LinkedIn collegato che ha un proprio abbonamento a Sales Navigator, può cercare in Sales Navigator, salvare i lead in elenchi, creare i contatti nel CRM e scrivere un primo messaggio che rivedi tu in chat. Invia solo quando glielo dici tu, un messaggio alla volta.
+
+**Quanto costa:** Pro per tre persone costa [[commercial.price.pro.monthly.seats.3]] al mese, con fatturazione mensile, con la posta in arrivo, fino a [[commercial.entitlement.pro.includedRoutinesPerUser]] routine a persona e crediti IA ospitati mensili per ogni utente attivo; vedi i [prezzi](/pricing). Starter, a [[commercial.price.starter.monthly.seats.3]] al mese per tre persone, include Mate e [[commercial.entitlement.starter.includedRoutinesPerUser]] routine a persona ma non la posta in arrivo, quindi l’agente vedrebbe solo i record del CRM. Il tuo primo spazio di lavoro parte con Pro gratis per [[commercial.trial.days]] giorni, senza carta di credito.
+
+Per la vendita basata sulle relazioni, questa è la parte di un agente che vale la pena avere: può preparare una bozza di risposta per chiunque ti abbia scritto e mettere dietro a ogni proposta una bozza di follow up e un’attività. Per configurarlo sulla tua posta, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup).
+
+**Con il tuo client IA:** Claude, ChatGPT e altri client possono fare lo stesso lavoro sul CRM tramite il [server MCP di Customermates](/docs/mcp), su ogni piano e in self-hosting, usando il tuo abbonamento IA. Gli strumenti di messaggistica richiedono Pro o superiore nel cloud. Il server dice ai client di chiedere conferma prima di inviare o eliminare, ma se vedrai quella conferma dipende dal client.
+
+<AcquisitionCallout title="Che cosa Customermates non fa" variant="boundary">
+Customermates non è un agente autonomo di prospezione in uscita. Non ha un proprio database di lead, né arricchimento dei dati, né lead scoring. Non ci sono sequenze di e-mail, invii di massa, telefonia o SMS, né prenotazione di appuntamenti sul calendario. In self-hosting ottieni il nucleo open source con REST, webhook e MCP, ma senza posta in arrivo, Mate né routine. Un team che fa prospezione in volume con il contatto a freddo è servito meglio da un agente in uscita dedicato come Artisan o 11x, un team Salesforce da Agentforce e un team HubSpot dagli agenti di HubSpot.
+</AcquisitionCallout>
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Che cosa fa un AI sales agent?">
+Usa un modello linguistico e degli strumenti per portare a termine compiti di vendita: rispondere ai lead in arrivo e qualificarli, studiare gli account, scrivere e a volte inviare messaggi, smistare le risposte e aggiornare il CRM. La maggior parte dei prodotti ne copre bene uno o due. Chiedi quali passaggi un prodotto esegue da solo e quali richiedono un altro strumento.
+</FaqItem>
+
+<FaqItem question="L’IA sostituirà i commerciali?">
+Non nella vendita basata sulle relazioni. L’IA si prende buona parte della scrittura: ricerca, note, prime bozze e aggiornamento dei record. Capire la situazione di un cliente, valutare ambito e prezzo e gestire la relazione restano compiti delle persone. Il lavoro più esposto è il primo contatto scriptato e ad alto volume.
+</FaqItem>
+
+<FaqItem question="Agentforce può sostituire il mio team di BDR?">
+Può prendersi una parte della prima risposta ai lead in arrivo: Salesforce descrive il suo agente SDR come uno che risponde alle domande dei lead a partire dai dati della tua azienda e propone fasce orarie per un incontro, entro i limiti che fissi. Targeting, scoperta e passaggio di consegne richiedono ancora una persona. Provalo prima su una sola fonte di lead e confronta le sue decisioni di qualifica con quelle del tuo team.
+</FaqItem>
+
+<FaqItem question="Quanto costa un AI sales agent?">
+I modelli di prezzo cambiano: per posto, per conversazione, per azione o per credito. Salesforce indica $2 per conversazione o Flex Credits a $500 ogni 100.000, con 20 crediti per azione di Agentforce, verificato l’8 ottobre 2026. Aggiungi i dati dei lead, le caselle di invio e il tempo di revisione che richiede un agente in uscita prima di confrontare.
+</FaqItem>
+
+<FaqItem question="Qual è la differenza tra un AI SDR e un AI BDR?">
+Un AI SDR di solito qualifica i lead e passa a un commerciale un’opportunità pronta per un incontro, in entrata o in uscita. Un AI BDR di solito si concentra sull’apertura di nuove conversazioni in uscita. I fornitori mescolano i termini, quindi confronta i passaggi che ogni prodotto esegue.
+</FaqItem>
+
+<FaqItem question="Un agente AI può inviare e-mail a freddo in Germania?">
+Le e-mail pubblicitarie senza previo consenso espresso sono una molestia inaccettabile secondo il § 7, comma 2, n. 2 UWG, anche per i destinatari aziendali. Un agente è quindi di solito limitato a clienti esistenti, richieste in arrivo e conversazioni avviate dal contatto. Fai verificare da un avvocato la tua configurazione reale.
+</FaqItem>
+</Faq>
+
+Dettagli sui fornitori e sulla normativa verificati l’8 ottobre 2026 su [Salesforce Agentforce SDR](https://www.salesforce.com/sales/ai-sales-agent/), [prezzi di Agentforce](https://www.salesforce.com/agentforce/pricing/), [HubSpot AI](https://www.hubspot.com/products/artificial-intelligence), [agenti AI di Salesloft](https://www.salesloft.com/platform/ai-agents), [Artisan Ava](https://www.artisan.co/ai-sales-agent), [11x](https://www.11x.ai/) e [§ 7 UWG](https://dejure.org/gesetze/UWG/7.html).

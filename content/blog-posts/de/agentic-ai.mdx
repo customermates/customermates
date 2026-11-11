@@ -1,6 +1,6 @@
 ---
-title: "KI-Agenten und Agentic AI: Definition und Beispiele"
-description: "KI-Agenten und agentische KI (Agentic AI) erklärt: Definition, Beispiele nach Unternehmensbereich, Unterschied zu Chatbot und Workflow, Risiken, CRM-Praxis."
+title: "Agentic AI (agentische KI): Definition und Beispiele"
+description: "Agentic AI (agentische KI) erklärt: Definition, Unterschied zu generativer KI und Chatbots, Beispiele in Vertrieb und CRM, Funktionsweise und Grenzen."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -9,15 +9,15 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: "KI-Agenten und Agentic AI: Definition, Beispiele und wie sie funktionieren"
-  description: "KI-Agenten bekommen ein Ziel statt eines Prompts, planen, nutzen Werkzeuge und prüfen ihre Ergebnisse. Beispiele nach Bereich, Unterschied zum Chatbot und wie Sie die Kontrolle behalten."
+  title: "Agentic AI und KI-Agenten: Definition, Funktionsweise, Beispiele und Grenzen"
+  description: "Agentic AI bekommt ein Ziel statt eines Prompts, plant, nutzt Werkzeuge und prüft ihre Ergebnisse. Was der Begriff bedeutet, wie er sich von generativer KI und Chatbots unterscheidet, Beispiele in Vertrieb und CRM und wo die Grenzen liegen."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Zurück zum Blog
   by: von Benjamin Wagner
   date: 2026-04-23
-  updated: 2026-11-02
+  updated: 2026-11-11
   tags:
     - agentische-ki
     - ki-agenten
@@ -25,40 +25,41 @@ blogPost:
     - CRM
 ---
 
-# KI-Agenten und Agentic AI: Definition, Beispiele und wie sie funktionieren
+# Agentic AI und KI-Agenten: Definition, Funktionsweise, Beispiele und Grenzen
 
-**KI-Agenten**, im Zusammenhang auch **Agentic AI** oder agentische KI genannt, sind KI-Systeme, denen man ein Ziel gibt statt einer einzelnen Frage: Sie planen die Schritte, rufen Werkzeuge wie ein CRM, eine Suche oder eine API auf, prüfen das Ergebnis und handeln, mit begrenzter Aufsicht. Typische Beispiele für KI-Agenten sind ein Coding-Agent, der einen Pull Request anlegt, ein Support-Agent, der ein Ticket beantwortet oder weiterreicht, und ein CRM-Agent, der die Antwort auf einen Deal vorbereitet, jeweils mit einem Punkt, an dem ein Mensch freigibt.
+**Agentic AI**, auf Deutsch agentische KI, ist KI, der man ein Ziel gibt statt einer einzelnen Frage: Sie plant die Schritte, ruft Werkzeuge wie ein CRM, eine Suche oder eine API auf, prüft das Ergebnis und handelt, mit begrenzter Aufsicht. Anders als generative KI, die Inhalte für Sie erzeugt, und anders als ein Chatbot, der einem Skript folgt, führt sie die Schritte selbst aus. Wer von **KI-Agenten** spricht, meint im Alltag meist dasselbe. Typische Beispiele sind ein Coding-Agent, der einen Pull Request anlegt, ein Support-Agent, der ein Ticket beantwortet oder weiterreicht, und ein CRM-Agent, der die Antwort auf einen Deal vorbereitet, jeweils mit einem Punkt, an dem ein Mensch freigibt.
 
-Der Begriff kommt von „Agent“, also jemandem, der im Auftrag eines anderen handelt. IBM definiert agentische KI als KI-System, das ein bestimmtes Ziel mit begrenzter Aufsicht erreichen kann ([IBM](https://www.ibm.com/think/topics/agentic-ai)). Entscheidend sind die Wörter *Ziel* und *begrenzt*: Ein Mensch gibt das Ziel vor, und ein Mensch legt fest, wie viel das System ohne Rückfrage tun darf.
+Der Begriff kommt von „Agent“, also jemandem, der im Auftrag eines anderen handelt. AWS erklärt, „agentic“ stehe für Handlungsfähigkeit (agency), also die Fähigkeit dieser Systeme, unabhängig, aber zielgerichtet zu handeln ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). IBM definiert agentische KI als KI-System, das ein bestimmtes Ziel mit begrenzter Aufsicht erreichen kann ([IBM](https://www.ibm.com/think/topics/agentic-ai)). Entscheidend sind die Wörter *Ziel* und *begrenzt*: Ein Mensch gibt das Ziel vor, und ein Mensch legt fest, wie viel das System ohne Rückfrage tun darf.
 
-Offenlegung: Diesen Ratgeber veröffentlicht Customermates, ein Open-Source-CRM. Ein Abschnitt beschreibt, was unser Produkt kann und was nicht; Definitionen, Beispiele und Risiken gelten für jeden KI-Agenten.
+Offenlegung: Diesen Ratgeber veröffentlicht Customermates, ein Open-Source-CRM. Er beantwortet die allgemeine Frage. Wie Sie KI an CRM-Datensätzen arbeiten lassen, steht im Ratgeber zum [agentischen CRM](/blog/agentic-crm), Agenten speziell für den Vertrieb behandelt der Ratgeber zum [KI Sales Agent](/blog/ai-sales-agent); ein kurzer Abschnitt unten beschreibt unser eigenes Produkt.
 
 <ArticleSummary title="Auf einen Blick">
   <SummaryItem label="Definition">
     KI, die ein Ziel verfolgt, indem sie plant, Werkzeuge aufruft und handelt,
     mit begrenzter menschlicher Aufsicht.
   </SummaryItem>
-  <SummaryItem label="Chatbot, Assistent, Workflow, Agent">
-    Ein Chatbot folgt einem Skript, ein Assistent antwortet und Sie
-    entscheiden, ein Workflow folgt einem Ablauf, den Sie festgelegt haben, ein
-    Agent wählt seine Schritte selbst.
+  <SummaryItem label="Abgrenzung">
+    Generative KI erzeugt Inhalte, die Sie verwenden, ein Chatbot folgt einem
+    Skript, ein Workflow einem Ablauf, den Sie festgelegt haben, ein Agent
+    wählt seine Schritte selbst.
   </SummaryItem>
   <SummaryItem label="Beispiele">
-    Antwortentwürfe im Vertrieb, Support-Triage, Störungsmanagement und
-    Rechnungsprüfung, jeweils mit Werkzeugen, Freigabepunkt und Risiko (Tabelle
-    unten).
+    Support-Triage, Störungsmanagement, Rechnungsprüfung und Coding-Agenten,
+    dazu im Vertrieb und CRM Antwortentwürfe, Firmenbriefings und Datenpflege,
+    jeweils mit Werkzeugen, Freigabepunkt und Risiko (Tabellen unten).
   </SummaryItem>
-  <SummaryItem label="Hauptrisiko">
-    Zu viel Handlungsspielraum: zu viele Werkzeuge, zu weite Berechtigungen
-    oder keine Freigabe vor folgenreichen Aktionen.
+  <SummaryItem label="Grenzen">
+    Zu viel Handlungsspielraum (zu viele Werkzeuge, zu weite Berechtigungen,
+    keine Freigabe vor folgenreichen Aktionen), Fehler, die sich fortpflanzen,
+    und Kosten, die mit jedem Schritt wachsen.
   </SummaryItem>
   <SummaryItem label="Guter erster Einsatz">
     Eine eng umrissene Aufgabe mit klarem Ende, deren Ergebnis ein Entwurf ist,
-    den ein Mensch prüft.
+    den ein Mensch prüft (einseitiger Steckbrief unten).
   </SummaryItem>
 </ArticleSummary>
 
-## Was sind KI-Agenten? Die Definition von Agentic AI
+## Was ist Agentic AI? Definition von agentischer KI und KI-Agenten
 
 Agentische KI heißt: KI, die auf ein Ziel hin handelt, statt nur zu antworten. Das Modell ist dieselbe Art Sprachmodell wie hinter einem Chatbot, aber es ist mit Werkzeugen verbunden und darf den nächsten Schritt selbst wählen. Google Cloud beschreibt den Unterschied so: Herkömmliche KI reagiert vor allem auf Befehle oder analysiert Daten, agentische KI kann sich Ziele setzen, planen und Aufgaben mit minimalem menschlichem Eingreifen ausführen.
 
@@ -74,6 +75,21 @@ Die maßgeblichen Quellen definieren agentische KI mit leicht unterschiedlichen 
 | [Anthropic](https://www.anthropic.com/research/building-effective-agents) | Agenten sind Systeme, in denen Sprachmodelle ihr Vorgehen und ihre Werkzeugnutzung selbst steuern | Wer den Weg bestimmt: das Modell oder der Code |
 
 Gemeinsam ist allen ein Ziel, Werkzeuge und ein gewisser Spielraum beim Weg dorthin. Uneinig sind sie sich darüber, wie groß dieser Spielraum sein soll; der Artikel von MIT Sloan weist selbst darauf hin, dass es keine allgemein vereinbarte Definition gibt.
+
+## Agentische KI und generative KI: der Unterschied
+
+Generative KI erzeugt Inhalte: Text, Bilder, Code, eine Zusammenfassung. Sie lesen das Ergebnis und entscheiden, was damit geschieht. Agentische KI nutzt ein Sprachmodell als eine Art „Gehirn“, wie Google Cloud es nennt, das über Werkzeuge Aktionen ausführt. Googles eigenes Beispiel: Generative KI kann Marketingmaterial erstellen, agentische KI kann es anschließend ausspielen, die Wirkung verfolgen und die Strategie anhand der Ergebnisse anpassen.
+
+| | Generative KI | Agentische KI |
+|---|---|---|
+| Sie geben ihr | einen Prompt | ein Ziel |
+| Sie liefert | Inhalte | Aktionen und einen Bericht, was sich geändert hat |
+| Werkzeuge | optional | notwendig |
+| Den nächsten Schritt macht | der Mensch | der Agent, innerhalb seiner Grenzen |
+| Typischer Fehler | ein falscher Satz im Entwurf | eine falsche Änderung oder eine Nachricht an die falsche Person |
+| Geprüft wird | bevor Sie das Ergebnis verwenden | vor der Aktion oder danach im Protokoll |
+
+Die letzten beiden Zeilen machen den praktischen Unterschied aus. Eine Halluzination im Entwurf kostet Sie eine Korrektur. Dieselbe Halluzination in einem Agenten wird zum geänderten Datensatz oder zur versendeten E-Mail. Agenten brauchen deshalb Berechtigungen und Freigaberegeln, die ein Textgenerator nie gebraucht hat.
 
 ## Was ist der Unterschied zwischen einem KI-Modell und einem KI-Agenten?
 
@@ -100,36 +116,20 @@ Ein agentisches KI-System besteht aus einem Sprachmodell und vier Dingen drumher
 
 IBM beschreibt denselben Zyklus in sieben Stufen: Wahrnehmung, Schlussfolgern, Zielsetzung, Entscheidungsfindung, Ausführung, Lernen und Anpassung sowie Orchestrierung. Wie weit ein Agent reicht, bestimmen seine Werkzeuge: Ein Modell ohne Zugriff auf Werkzeuge kann eine Aktion beschreiben, aber nicht ausführen. Deshalb steht das [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro), laut seinen Betreibern ein offener Standard zur Verbindung von KI-Anwendungen mit externen Systemen, im Zentrum vieler Agentensysteme. Wie ein MCP-Server funktioniert und was Sie vor der Anbindung prüfen sollten, erklärt der Ratgeber zum [MCP-Server](/blog/what-is-an-mcp-server).
 
-### Agentische KI und generative KI: der Unterschied
-
-Generative KI erzeugt Inhalte: Text, Bilder, Code, eine Zusammenfassung. Sie lesen das Ergebnis und entscheiden, was damit geschieht. Agentische KI nutzt ein Sprachmodell als eine Art „Gehirn“, wie Google Cloud es nennt, das über Werkzeuge Aktionen ausführt. Googles eigenes Beispiel: Generative KI kann Marketingmaterial erstellen, agentische KI kann es anschließend ausspielen, die Wirkung verfolgen und die Strategie anhand der Ergebnisse anpassen.
-
-| | Generative KI | Agentische KI |
-|---|---|---|
-| Sie geben ihr | einen Prompt | ein Ziel |
-| Sie liefert | Inhalte | Aktionen und einen Bericht, was sich geändert hat |
-| Werkzeuge | optional | notwendig |
-| Den nächsten Schritt macht | der Mensch | der Agent, innerhalb seiner Grenzen |
-| Typischer Fehler | ein falscher Satz im Entwurf | eine falsche Änderung oder eine Nachricht an die falsche Person |
-| Geprüft wird | bevor Sie das Ergebnis verwenden | vor der Aktion oder danach im Protokoll |
-
-Die letzten beiden Zeilen machen den praktischen Unterschied aus. Eine Halluzination im Entwurf kostet Sie eine Korrektur. Dieselbe Halluzination in einem Agenten wird zum geänderten Datensatz oder zur versendeten E-Mail. Agenten brauchen deshalb Berechtigungen und Freigaberegeln, die ein Textgenerator nie gebraucht hat.
-
 ## Was sind Beispiele für KI-Agenten (AI-Agenten) im Unternehmen?
 
-Beispiele lesen Sie am besten nach der Aufgabe, nicht nach der Marke: Was tut der Agent, welche Werkzeuge braucht er, wo muss ein Mensch freigeben, und was kann schiefgehen? Die Tabelle deckt vier Unternehmensbereiche ab. Die Zeilen sind Muster, keine Produkte.
+Beispiele lesen Sie am besten nach der Aufgabe, nicht nach der Marke: Was tut der Agent, welche Werkzeuge braucht er, wo muss ein Mensch freigeben, und was kann schiefgehen? Die Tabelle deckt Support, Betrieb, Finanzen und Softwareentwicklung ab; Vertrieb und CRM haben weiter unten einen eigenen Abschnitt. Die Zeilen sind Muster, keine Produkte.
 
 ### Beispiele für agentische KI nach Unternehmensbereich
 
 | Bereich | Beispielaufgabe | Was der Agent tut | Welche Werkzeuge er braucht | Wo ein Mensch freigibt | Hauptrisiko |
 |---|---|---|---|---|---|
-| Vertrieb | Antwortvorbereitung zu einem offenen Deal | Liest die neue E-Mail, den Deal und seine Notizen, ergänzt die offene Frage in den Notizen, speichert einen Antwortentwurf | CRM lesen und schreiben, Zugriff auf den E-Mail-Verlauf | Der Entwurf, bevor er gesendet wird | Ein falscher Fakt im Entwurf oder eine Antwort an die falsche Person |
-| Vertrieb | Firmenrecherche vor einem Gespräch | Durchsucht Web und CRM, schreibt ein einseitiges Briefing mit Quellen | Websuche, CRM lesen | Das Briefing wird vor dem Gespräch gelesen | Veraltete oder erfundene Angaben, die ins CRM wandern |
 | Support | Ticket beantworten oder eskalieren | Liest das Ticket, durchsucht die Wissensdatenbank, antwortet, wenn die Antwort dokumentiert ist, und reicht andernfalls den Fall mit Zusammenfassung an einen Menschen weiter | Suche in der Wissensdatenbank, Ticketsystem, Lesezugriff auf Kundendaten | Erstattungen, Kontoänderungen und jeder Fall, den die Wissensdatenbank nicht abdeckt | Eine selbstsicher falsche Antwort oder ein Versprechen, das niemand freigegeben hat |
 | Betrieb | Erste Reaktion auf eine IT-Störung | Liest Alarme und Logs, schlägt einen Rollback vor oder führt ihn aus, schreibt den Störungsbericht, benachrichtigt die Bereitschaft | Monitoring und Logs, Deployment-Werkzeuge, Chat | Änderungen am Produktivsystem und Rollbacks | Eine schwer umkehrbare Aktion aufgrund eines falsch gelesenen Alarms |
 | Finanzen | Prüfung von Rechnungen und Buchungen | Gleicht eingehende Rechnungen mit Bestellungen und Kontoumsätzen ab, schlägt Zuordnungen vor, markiert Ausnahmen | Buchhaltungssystem oder Export (lesen), Dateien lesen | Jede Buchung und jede Zahlung | Eine falsche Buchung, eine doppelte Zahlung, Ausnahmen, die niemand prüft |
+| Softwareentwicklung | Einen fehlschlagenden Test beheben | Liest den Code und die Testausgabe, bearbeitet Dateien, führt die Tests erneut aus, legt einen Pull Request an | Zugriff auf das Repository, Shell-Befehle | Der Diff oder Pull Request | Eine Änderung, die die Tests besteht, aber die Anforderung verfehlt |
 
-Hersteller beschreiben dieselben Aufgaben. Die Erläuterung von Salesforce führt einen Service-Agenten vor, der den Garantiestatus prüft, die Wissensdatenbank durchsucht, ein Rücksendeetikett verschickt und das CRM aktualisiert, sowie einen Agenten für die Kundengesundheit, der eine Schulungs-E-Mail sendet und dem Kundenbetreuer einen Folgetermin anlegt. [AWS](https://aws.amazon.com/what-is/agentic-ai/) nennt Kundenservice-Automatisierung, automatisierte Reaktion auf Störungen, Schichtplanung und Lieferkettenüberwachung. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) ergänzt Finanzdienstleistungen (Betrugserkennung, Risikobewertung) und Softwareentwicklung. [Anthropic](https://www.anthropic.com/research/building-effective-agents) bezeichnet den Kundensupport als natürlichen Anwendungsfall, weil Support-Gespräche einem Gesprächsfluss folgen und zugleich Zugriff auf externe Informationen und Aktionen erfordern.
+Hersteller beschreiben dieselben Aufgaben. Die Erläuterung von Salesforce führt einen Service-Agenten vor, der den Garantiestatus prüft, die Wissensdatenbank durchsucht, ein Rücksendeetikett verschickt und das CRM aktualisiert, sowie einen Agenten für die Kundengesundheit, der die passende Anleitung per E-Mail schickt und dem Kundenbetreuer eine Folgeaufgabe anlegt. [AWS](https://aws.amazon.com/what-is/agentic-ai/) nennt Forschung und Entwicklung, Code-Transformation, automatisierte Reaktion auf Störungen und Kundenservice-Automatisierung. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) ergänzt Finanzdienstleistungen (Betrugserkennung, Risikobewertung) und Softwareentwicklung. [Anthropic](https://www.anthropic.com/research/building-effective-agents) bezeichnet den Kundensupport als natürlichen Anwendungsfall, weil Support-Gespräche einem Gesprächsfluss folgen und zugleich Zugriff auf externe Informationen und Aktionen erfordern.
 
 Lesen Sie die letzten beiden Spalten der Tabelle zuerst. Je leichter sich eine Aktion rückgängig machen lässt, desto weniger Freigabe braucht sie; Zahlungen, Erstattungen, Rollbacks und alles, was an einen Kunden geht, sollten immer ein Mensch prüfen.
 
@@ -172,81 +172,67 @@ Drei Gruppen, und oft arbeiten sie zusammen:
 
 Bevor Sie selbst bauen, gilt der Rat aus dem vorigen Abschnitt: Prüfen Sie, ob ein Workflow mit ein oder zwei KI-Schritten reicht.
 
-## Wie arbeiten KI-Agenten im CRM? Das kann Customermates heute
+## Wie wird agentische KI im Vertrieb und im CRM eingesetzt?
 
-Dieser Abschnitt beschreibt unser eigenes Produkt, lesen Sie ihn also als Herstellerinformation. Customermates bietet drei Wege, auf denen eine KI mit CRM-Datensätzen arbeitet. Sie unterscheiden sich darin, wer die Arbeit startet und wer freigibt.
+Die Arbeit im CRM eignet sich gut für Agenten: Der Kontext liegt an einem Ort (Kontakte, Deals, Notizen, Gesprächsverlauf), dieselben Aufgaben wiederholen sich täglich, und die meisten Änderungen lassen sich korrigieren. Die Tabelle zeigt die Aufgaben, die zuerst infrage kommen. Es sind Muster, keine Produkte, und jede Zeile endet bei einem Menschen.
 
-| Weg | Wer startet ihn | Was er kann | Freigabe | Wer das Modell bezahlt |
+| Aufgabe | Was der Agent tut | Welche Werkzeuge er braucht | Wo ein Mensch freigibt | Hauptrisiko |
 |---|---|---|---|---|
-| **Mate**, der Assistent in Customermates Cloud | Sie, im Chat-Panel | Legt Datensätze an und ändert sie, speichert Entwürfe, sendet E-Mails und Chat-Nachrichten, wenn Sie darum bitten, sortiert den Posteingang | Löschungen, Importe, Rechteänderungen, das Teilen eines Kontos und weitere aufgelistete Aktionen fragen jedes Mal nach | Gehostete KI-Credits Ihres Tarifs |
-| **Routine** (Cloud) | Ein Zeitplan oder ein Ereignis wie „E-Mail empfangen“ | Lässt Mate unbeaufsichtigt nach einer gespeicherten Anweisung arbeiten, als ihr Eigentümer | Aktionen, die im Chat eine Freigabe brauchen, werden abgelehnt | Die Credits des Eigentümers |
-| **Externer KI-Client über [MCP](/docs/mcp)** | Sie, in Claude, ChatGPT, Claude Code, Codex, Cursor oder Gemini CLI | Liest und schreibt Datensätze mit den Rechten des verbundenen Nutzers | Der Server bittet Clients nur, vor dem Löschen oder Senden nachzufragen; ob das passiert, entscheidet der Client | Ihr eigener KI-Anbieter |
+| Antwortvorbereitung zu einem offenen Deal | Liest die neue E-Mail, den Deal und seine Notizen, ergänzt die offene Frage in den Notizen, speichert einen Antwortentwurf | CRM lesen und schreiben, Zugriff auf den E-Mail-Verlauf | Der Entwurf, bevor er gesendet wird | Ein falscher Fakt im Entwurf oder eine Antwort an die falsche Person |
+| Firmenrecherche vor einem Gespräch | Durchsucht Web und CRM, schreibt ein einseitiges Briefing mit Quellen | Websuche, CRM lesen | Das Briefing wird vor dem Gespräch gelesen | Veraltete oder erfundene Angaben, die ins CRM wandern |
+| Datenpflege nach einem Gespräch | Macht aus einer Gesprächsnotiz oder einem E-Mail-Verlauf Notizen, ein geändertes Feld und einen nächsten Schritt | CRM lesen und schreiben | Ein Blick auf die geänderten Felder | Falsche Feldwerte, doppelte Datensätze |
+| Posteingang sortieren | Ordnet neue Anfragen in Vertriebsanfragen und alles andere, legt für die Anfragen Kontakt und Deal an | Postfachzugriff, CRM schreiben | Der neue Deal und der Antwortentwurf | Ein echter Kunde als Spam einsortiert, Dubletten |
+| Prüfung festgefahrener Deals | Findet offene Deals, zu denen seit einer festgelegten Zeit kein Kontakt stattfand, und entwirft je Deal einen Anstoß | CRM lesen, Entwürfe speichern | Jeder Anstoß, bevor er gesendet wird | Ein Anstoß an jemanden, der schon anderswo geantwortet hat |
 
-Jeder kostenpflichtige Tarif enthält die Mate-Berechtigung, ob der Assistent tatsächlich verfügbar ist, hängt aber von der gehosteten Umgebung ab. Die vollständige Liste der freigabepflichtigen Aktionen steht in der [Dokumentation zu Mate](/docs/app-assistant). Das Senden steht bewusst nicht darauf: Eine E-Mail oder Chat-Nachricht geht in dem Moment raus, in dem Mate sie sendet. Bitten Sie deshalb um einen Entwurf, wenn Sie den Wortlaut zuerst prüfen möchten. Die Anleitungen für [Claude](/blog/claude-crm) und [ChatGPT](/blog/chatgpt-for-sales) behandeln den MCP-Weg, und der Ratgeber zum [agentischen CRM](/blog/agentic-crm) stellt Mate und MCP nebeneinander.
+### Wo die engeren Fragen beantwortet werden
 
-### Praxisbeispiel: ein eng begrenzter Agent im CRM
+Dieser Ratgeber beantwortet die allgemeine Frage. Zwei Nachbar-Ratgeber behandeln die engeren, deshalb wiederholen wir sie hier nicht.
 
-Die Arbeit im CRM eignet sich gut für einen ersten Agenten. Sie wiederholt sich täglich, der Kontext liegt an einem Ort, und die meisten Änderungen lassen sich korrigieren. So sieht eine konkrete Einrichtung aus, gebaut als Routine: eine gespeicherte Anweisung plus Auslöser, ausgeführt von Mate mit gehosteten KI-Credits.
+| Ihre Frage | Hier weiterlesen |
+|---|---|
+| Wie lasse ich KI sicher an CRM-Datensätzen arbeiten: Mate, MCP, Freigaben, Cloud oder selbst gehostet? | [Agentisches und KI-natives CRM](/blog/agentic-crm) |
+| Welche KI-Vertriebsagenten gibt es, was kosten sie, was gilt in Deutschland für Kaltakquise per E-Mail, und wie teste ich einen? | [KI Sales Agent](/blog/ai-sales-agent) |
+| Was ist ein MCP-Server, und was prüfe ich vor der Anbindung? | [MCP-Server-Ratgeber](/blog/what-is-an-mcp-server) |
+| Wie verbinde ich Claude oder ChatGPT mit einem CRM? | [Claude CRM](/blog/claude-crm) und [ChatGPT für den Vertrieb](/blog/chatgpt-for-sales) |
+| Was können die Agenten von Salesforce, und was kosten sie? | [Salesforce Agentforce](/blog/agentforce) |
 
-**Voraussetzungen.** Customermates Cloud ab Pro, denn der Auslöser ist ein Ereignis im Posteingang, und den [einheitlichen Posteingang](/features/unified-inbox) gibt es ab Pro. Dazu ein verbundenes E-Mail-Konto (Gmail, Outlook oder IMAP).
+### Was Customermates hier kann
 
-<Steps>
-  <Step title="Routine anlegen">
-    Öffnen Sie **Routinen**, klicken Sie auf **Hinzufügen** und vergeben Sie
-    einen Namen, etwa „Antwortvorbereitung für offene Deals“.
-  </Step>
-  <Step title="Auslöser wählen">
-    Wählen Sie **Wenn sich etwas ändert** und das Ereignis **E-Mail
-    empfangen**.
-  </Step>
-  <Step title="Anweisungen schreiben">
-    Fügen Sie die Anweisung unten in **Anweisungen** ein. Die Abbruchregel und
-    die Regel „nur Entwurf“ gehören hinein.
-  </Step>
-  <Step title="Die ersten Läufe lesen">
-    Öffnen Sie bei jedem Lauf die **Details zum Lauf**: was ihn ausgelöst hat,
-    was Mate gelesen und geändert hat und wie viele Credits er verbraucht hat.
-    Schärfen Sie die Formulierung nach, bis die Entwürfe so sind, dass Sie sie
-    senden würden.
-  </Step>
-</Steps>
+Das ist Herstellerinformation über unser eigenes Produkt. Customermates ist ein Open-Source-CRM, das KI von Anfang an mitdenkt. Über den [MCP-Server](/docs/mcp) kann ein KI-Client wie Claude oder ChatGPT mit den Rechten des verbundenen Nutzers Datensätze lesen und schreiben, in jedem Tarif und selbst gehostet; der Server bittet Clients, vor dem Löschen oder Senden nachzufragen, aber das ist eine Empfehlung, die ein Client ignorieren kann. Customermates Cloud bringt zusätzlich Mate, einen Assistenten, und [Routinen](/docs/app-routines), die Mate nach Zeitplan oder bei einer Änderung laufen lassen. Mate fragt vor Löschungen, Importen, Rechteänderungen und einigen weiteren Aktionen nach, nicht aber vor dem Senden einer E-Mail oder Chat-Nachricht. Bitten Sie deshalb um einen Entwurf, wenn Sie den Wortlaut zuerst prüfen möchten; die vollständige Liste steht in der [Dokumentation zu Mate](/docs/app-assistant). Ob Mate tatsächlich verfügbar ist, hängt von der gehosteten Umgebung ab.
 
+Falsch ist Customermates, wenn Sie einen Agenten wollen, der selbstständig akquiriert und versendet: Es gibt keine Sequenzen, keinen Massenversand und kein Lead-Scoring, und dedizierte Outreach-Agenten behandelt stattdessen der Ratgeber zum [KI Sales Agent](/blog/ai-sales-agent). Eine selbst gehostete Installation hat MCP, aber weder Mate noch Routinen. Um das Nachfassen an Ihren eigenen Gesprächen zu sehen, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup): mit Pro, ohne Kreditkarte. Wenn Sie ein KI-fähiges CRM auswählen, listet der Ratgeber zum [KI-CRM](/blog/ai-crm), was Sie vergleichen sollten.
+
+## Wie sieht ein Agentenlauf aus? Ein durchgerechnetes Beispiel
+
+Nehmen wir eine kleine Beratung, in der ein Kunde schreibt: „Können wir den Kickoff auf Donnerstag verschieben, und ist die Schulung im Preis enthalten?“ Ein Agent, der für die Antwortvorbereitung eingerichtet ist, bearbeitet die E-Mail in sieben Schritten. Der Fall ist ein Beispiel, kein Kundenbericht.
+
+| Schritt | Was passiert | Werkzeugaufruf | Was Sie danach prüfen können |
+|---|---|---|---|
+| 1. Ziel | Eine neue E-Mail startet den Lauf mit der Anweisung unten | Keiner | Auslöser und Anweisung im Laufprotokoll |
+| 2. Planen | Das Modell entscheidet, dass es den Datensatz des Absenders, den verknüpften Deal und den bisherigen Verlauf braucht | Keiner | Der Plan, wo das Produkt ihn zeigt |
+| 3. Handeln | Sucht den Absender | CRM-Suche (lesen) | Die Abfrage und ihr Ergebnis |
+| 4. Beobachten | Findet einen offenen Deal in der Angebotsphase; laut Notizen wird die Schulung gesondert angeboten | CRM lesen | Vergleichen Sie es selbst mit dem Deal |
+| 5. Handeln | Ergänzt die Deal-Notizen um drei Zeilen: Kickoff am Donnerstag gewünscht, Frage zur Schulung offen | CRM aktualisieren (schreiben) | Die Änderung in den Notizen |
+| 6. Handeln | Speichert einen Antwortentwurf: Donnerstag ist nach Bestätigung möglich, die Schulung wird laut Notizen gesondert angeboten; markiert die Verfügbarkeit am Donnerstag als unsicher | Entwurf speichern (schreiben, nicht senden) | Der Entwurf im Verlauf |
+| 7. Stopp | Beendet den Lauf mit einem Bericht, was er gelesen und geändert hat | Keiner | Der Bericht; Sie bearbeiten den Entwurf und senden ihn |
+
+Die Anweisung hinter dem Lauf ist kurz, und jede Zeile begrenzt, was der Agent darf:
+
+```text
+Ziel: eine Antwort auf die neue E-Mail vorbereiten. Nicht senden.
+Lesen: den Kontakt des Absenders, den verknüpften offenen Deal, den Verlauf.
+Schreiben: drei Zeilen in die Deal-Notizen (was der Absender möchte,
+genannte Termine oder Beträge, die offene Frage) und einen
+Antwortentwurf im Verlauf.
+Nie: eine Nachricht senden, Phase oder Wert des Deals ändern,
+andere Deals anfassen.
+Stopp: Hat der Absender keinen offenen Deal, nichts tun und das melden.
+Bericht: was gelesen und geändert wurde und wobei Unsicherheit besteht.
 ```
-Neue E-Mail eingegangen. Absender unter meinen Kontakten suchen.
-Nur wenn der Kontakt mit einem Deal verknüpft ist, der weder gewonnen
-noch verloren ist:
-1. Verlauf und Deal lesen.
-2. Die Notizen des Deals um drei Zeilen ergänzen: was der Absender möchte,
-   genannte Termine oder Beträge, die offene Frage.
-3. Im Verlauf einen Antwortentwurf speichern, der beantwortet, was sich
-   aus Deal und Notizen beantworten lässt. Unsichere Stellen markieren.
-Keine Nachricht senden. Phase und Wert des Deals nicht ändern.
-Ist der Absender mit keinem offenen Deal verknüpft: nichts tun.
-```
 
-Warum die Anweisung so formuliert ist:
+Drei Details tragen den Ablauf. Lesen und Schreiben sind getrennt, der Agent kann also alles ansehen, was er braucht, und ändert nur Notizen und Entwürfe. Die Abbruchregel deckt den Fall ab, an den niemand gedacht hat. Und der Freigabepunkt ist die Senden-Taste, die bei einem Menschen bleibt. In Customermates ist dieser Lauf eine Routine; die [Dokumentation zu Routinen](/docs/app-routines) listet, was eine Routine ohne Freigabe tun darf, und der Ratgeber zum [agentischen CRM](/blog/agentic-crm) erklärt, wo Mate und MCP nachfragen und wo nicht.
 
-- **„Nur Entwurf“ muss drinstehen.** Mate versendet E-Mails und Chat-Nachrichten ohne erneute Freigabe, wenn eine Anweisung das verlangt. Eine Routine, die nur Entwürfe anlegen soll, muss das ausdrücklich sagen.
-- **Unbeaufsichtigte Läufe können nicht fragen.** Im Chat warten Löschungen und einige Verwaltungsaktionen auf Ihre Freigabe. In einer Routine ist niemand da, der antwortet, also werden diese Aktionen abgelehnt, und der Lauf hält die Ablehnung fest.
-- **Sie handelt mit Ihren Rechten.** Eine Routine läuft als ihr Eigentümer, mit dessen Zugriffsrechten, verbundenen Kanälen und Credits. Eine E-Mail, die der Eigentümer nicht sehen darf, startet keinen Lauf.
-- **Keine Endlosschleifen.** Änderungen aus einem Routinen-Lauf lösen nie Routinen aus.
-- **Recherche und Schreiben sind getrennt.** Ein Lauf kann im Web suchen oder Daten ändern, nicht beides: Sobald eine Websuche Ergebnisse geliefert hat, wird jede Änderung in diesem Lauf abgelehnt. Text von einer Website kann so im selben Lauf keinen Datensatz verändern.
-- **Die Kosten sind gedeckelt.** Jeder Lauf hat eine Credit-Obergrenze, jede Routine ein stündliches Limit. Die aktuellen Werte stehen in der [Dokumentation zu Routinen](/docs/app-routines).
-
-**Was das kostet.** Ein Team mit drei Personen zahlt im Pro-Tarif [[commercial.price.pro.monthly.seats.3]] pro Monat, also [[commercial.price.pro.monthly]] pro Nutzer. Jeder Pro-Nutzer kann [[commercial.entitlement.pro.includedRoutinesPerUser]] Routinen anlegen, und jeder aktive Nutzer erhält monatlich gehostete KI-Credits; Details unter [Preise](/pricing). Eine Routine verbraucht die Credits ihres Eigentümers.
-
-Das ist das Nachfassen als Routine: Schreibt ein Kunde, bekommen die Deal-Notizen die offene Frage, im Verlauf wartet ein Antwortentwurf, und Sie prüfen, bearbeiten und senden ihn. Um sie an Ihren eigenen Gesprächen auszuprobieren, [testen Sie [[commercial.trial.days]] Tage kostenlos](/auth/signup?job=followup): mit Pro, ohne Kreditkarte.
-
-### Wann Customermates die falsche Wahl ist
-
-- **Sie wollen einen Agenten, der selbstständig akquiriert und versendet.** Customermates hat keine Sequenzen, Drip-Kampagnen oder Massenansprache. Routinen haben keine Empfängerlisten oder Versandschritte, und die Ansprache läuft zuerst als Entwurf und pro Nachricht. Was spezialisierte Outreach-Agenten leisten und wie Sie einen testen, steht im Ratgeber zum [KI Sales Agent](/blog/ai-sales-agent).
-- **Sie hosten selbst.** Eine selbst gehostete Installation hat weder Mate noch Routinen. MCP funktioniert dort, mit Ihrem eigenen KI-Client und Anbieter.
-- **Sie brauchen eingeschränkte Schlüssel.** Ein API-Schlüssel hat dieselben Rechte wie der Nutzer, der ihn erstellt hat, ohne Einschränkung pro Schlüssel. Geben Sie diesem Nutzer deshalb eine Rolle, die genau die Aufgabe abdeckt.
-- **Sie brauchen bei MCP eine vom Server erzwungene Bestätigung.** Der Server bittet Clients, vor dem Löschen oder Senden nachzufragen, aber das ist eine Empfehlung, die der Client ignorieren kann. Die Freigaben von Mate dagegen erzwingt der Server.
-
-Wenn Sie ein KI-fähiges CRM auswählen, listet der Ratgeber zum [KI-CRM](/blog/ai-crm), was Sie vergleichen sollten.
-
-## Welche Risiken haben KI-Agenten, und welche Kontrollen wirken?
+## Welche Grenzen und Risiken haben KI-Agenten, und welche Kontrollen wirken?
 
 OWASP führt „Excessive Agency“, also übermäßigen Handlungsspielraum, in seinen [Top 10 für LLM-Anwendungen](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025). Gemeint ist die Schwachstelle, durch die schädliche Aktionen aus unerwarteten, mehrdeutigen oder manipulierten Modellausgaben entstehen. Auslöser kann eine Halluzination sein, eine Prompt Injection in Inhalten, die der Agent liest, oder ein kompromittiertes Werkzeug. OWASP nennt drei Ursachen, und für jede gibt es eine direkte Gegenmaßnahme:
 
@@ -258,7 +244,13 @@ OWASP führt „Excessive Agency“, also übermäßigen Handlungsspielraum, in 
 
 OWASP empfiehlt für die dritte Zeile eine Kontrolle durch den Menschen, der folgenreiche Aktionen freigibt, bevor sie ausgeführt werden. Anthropic sagt dasselbe für Coding-Agenten: Automatisierte Tests prüfen die Funktion, aber die menschliche Prüfung bleibt entscheidend, damit Lösungen zu den übergeordneten Anforderungen des Systems passen.
 
-Zwei weitere Probleme zeigen sich in der Praxis. Fehler pflanzen sich fort: Liest der erste Schritt eine E-Mail falsch, baut jeder spätere Schritt darauf auf. Und die Kosten wachsen mit jedem Schritt, deshalb gibt es Limits pro Lauf. Ein schneller Test für jedes Produkt, das als Agent verkauft wird: Welche Werkzeuge darf es aufrufen, mit wessen Rechten, und was tut es ohne Rückfrage?
+Drei weitere Grenzen zeigen sich in der Praxis:
+
+- **Fehler pflanzen sich fort.** Liest der erste Schritt eine E-Mail falsch, baut jeder spätere Schritt darauf auf.
+- **Die Kosten wachsen mit jedem Schritt**, deshalb gibt es Limits pro Lauf.
+- **Das Ergebnis braucht weiter eine Prüfung.** Die GitHub-Dokumentation zum Copilot-Cloud-Agenten warnt, er könne fehlerhaften oder suboptimalen Code erzeugen, und rät, die Ergebnisse vor dem Produktiveinsatz zu prüfen und zu testen. Für Entwürfe und Datensatzänderungen jedes Agenten gilt dasselbe.
+
+Ein schneller Test für jedes Produkt, das als Agent verkauft wird: Welche Werkzeuge darf es aufrufen, mit wessen Rechten, und was tut es ohne Rückfrage?
 
 ## Wie geben Sie einem KI-Agenten seine erste Aufgabe?
 
@@ -284,6 +276,19 @@ Zwei weitere Probleme zeigen sich in der Praxis. Fehler pflanzen sich fort: Lies
   </Step>
 </Steps>
 
+Schreiben Sie die Antworten als einseitigen Steckbrief auf. Die rechte Spalte füllt ihn für den Agenten zur Antwortvorbereitung aus dem Beispiel oben aus.
+
+| Feld | Die Frage dazu | Beispiel Antwortvorbereitung |
+|---|---|---|
+| Ziel und Endzustand | Woran erkennt man „fertig“? | Ein Antwortentwurf im Verlauf und aktualisierte Deal-Notizen |
+| Auslöser | Was startet einen Lauf? | Eine neue E-Mail eines Kontakts mit einem offenen Deal |
+| Werkzeuge, getrennt nach Lesen, Schreiben und Senden | Was darf er erreichen, und wie? | CRM und Verlauf lesen; Notizen und Entwürfe schreiben; kein Senden |
+| Läuft als | Welche Berechtigungen gelten? | Ein Nutzer, dessen Rolle Deals und Posteingang abdeckt, sonst nichts |
+| Abbruchregel | Was passiert bei einem Fall, der nicht passt? | Kein offener Deal: nichts tun und das melden |
+| Freigabepunkt | Wo entscheidet ein Mensch? | Das Senden des Entwurfs |
+| Limits | Was darf ein Lauf kosten, und wie viele Läufe sind pro Stunde erlaubt? | Eine Kostengrenze pro Lauf und eine Obergrenze für Läufe pro Stunde |
+| Protokoll | Wo lesen Sie, was passiert ist? | Das Laufprotokoll, nach jedem frühen Lauf gelesen |
+
 ## Wann sind KI-Agenten das falsche Werkzeug?
 
 Wenn sich die Schritte nie ändern, ist eine feste Regel günstiger und berechenbarer als ein Agent. Eine Regel wie „Wechselt ein Deal auf Gewonnen, wird eine Onboarding-Aufgabe angelegt“ braucht einen Webhook und eine [Workflow-Automatisierung](/features/workflow-automation), kein Sprachmodell. Agenten lohnen sich dort, wo die Eingabe variiert: frei formulierte E-Mails, unstrukturierte Notizen, Fragen, die mehrere Abfragen brauchen. Fehl am Platz sind sie, wo sich eine falsche Aktion nicht rückgängig machen lässt und niemand sie rechtzeitig prüfen kann, etwa bei Zahlungen.
@@ -295,6 +300,10 @@ Agenten lesen personenbezogene Daten: Namen, E-Mail-Adressen, Gesprächsinhalte.
 ## Häufige Fragen
 
 <Faq>
+<FaqItem question="Was bedeutet agentisch?">
+Agentisch beschreibt ein System, das mit Handlungsfähigkeit (agency) arbeitet: Es verfolgt ein Ziel und führt die Schritte selbst aus, statt nur zu antworten. AWS beschreibt das als die Fähigkeit, unabhängig, aber zielgerichtet zu handeln. Das Wort kommt von „Agent“, jemandem, der im Auftrag eines anderen handelt.
+</FaqItem>
+
 <FaqItem question="Was ist agentische KI, einfach erklärt?">
 KI, der Sie ein Ziel geben statt einer Frage. Sie plant die Schritte, nutzt Werkzeuge wie Suche, APIs oder Unternehmenssoftware, um sie auszuführen, prüft die Ergebnisse und hört auf, wenn das Ziel erreicht ist oder sie einen Menschen braucht.
 </FaqItem>
@@ -326,6 +335,14 @@ Eine Standardliste mit vier Arten gibt es nicht. Üblich ist die Einteilung nach
 <FaqItem question="Ist agentische KI nur ein Schlagwort?">
 Der Begriff wird nicht einheitlich verwendet; MIT Sloan weist darauf hin, dass es keine allgemein vereinbarte Definition gibt. Echte Agenten gibt es trotzdem, vor allem in der Softwareentwicklung und bei klar umrissenen Büroaufgaben. Fragen Sie bei jedem Produkt, welche Werkzeuge es aufrufen darf, mit wessen Rechten und was es ohne Rückfrage tut.
 </FaqItem>
+
+<FaqItem question="Wie wird agentische KI im Vertrieb und im CRM eingesetzt?">
+Typische Aufgaben sind die Antwortvorbereitung zu einem offenen Deal, die Firmenrecherche vor einem Gespräch, die Datenpflege nach einem Gespräch, das Sortieren des Posteingangs und die Prüfung festgefahrener Deals. Jeweils bereitet der Agent vor, und ein Mensch gibt frei, was an einen Kunden geht. Spezielle Vertriebsagenten behandelt der Ratgeber zum KI Sales Agent, den Betrieb von Agenten an CRM-Datensätzen der Ratgeber zum agentischen CRM.
+</FaqItem>
+
+<FaqItem question="Welche Grenzen hat agentische KI?">
+Ein Agent kann auf einer falsch gelesenen Eingabe handeln, Fehler pflanzen sich durch die späteren Schritte fort, die Kosten wachsen mit jedem Schritt, und das Ergebnis braucht weiter eine Prüfung. OWASP fasst das Hauptrisiko als übermäßigen Handlungsspielraum zusammen: zu viele Werkzeuge, zu weite Berechtigungen oder zu viel Autonomie. Enge Aufgaben, Entwürfe statt direkter Aktionen und eine Abbruchregel halten diese Grenzen beherrschbar.
+</FaqItem>
 </Faq>
 
-Definitionen, Produktbeschreibungen und Zitate Dritter geprüft am 2. November 2026 anhand von [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentische KI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (KI-Agenten)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), der [MCP-Dokumentation](https://modelcontextprotocol.io/docs/getting-started/intro), der [Claude-Code-Dokumentation](https://code.claude.com/docs/en/overview) und [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).
+Definitionen, Produktbeschreibungen und Zitate Dritter geprüft am 11. November 2026 anhand von [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentische KI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (KI-Agenten)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), der [MCP-Dokumentation](https://modelcontextprotocol.io/docs/getting-started/intro), der [Claude-Code-Dokumentation](https://code.claude.com/docs/en/overview) und [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).

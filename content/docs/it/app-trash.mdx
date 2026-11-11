@@ -1,0 +1,47 @@
+---
+title: "Cestino: annullare eliminazioni e ripristinare elementi"
+description: "Record, liste, campi, viste, widget, routine e pagine eliminati restano 30 giorni nel Cestino, dove si ripristinano o si eliminano definitivamente."
+---
+
+In Customermates eliminare sposta l’elemento nel [Cestino](app:trash) invece di rimuoverlo subito. Subito dopo un’eliminazione compare per qualche secondo un messaggio con **Annulla**; **Annulla** riporta subito indietro l’elemento. Un’eliminazione grande viene eseguita in background: il messaggio mostra **Spostamento nel cestino…** e offre **Annulla** una volta terminata. Dopo, l’elemento attende nel Cestino per 30 giorni e poi viene eliminato definitivamente da solo.
+
+## Che cosa finisce nel Cestino? [#what-goes-to-trash]
+
+- I record di ogni lista, per esempio un contatto o una trattativa. Le righe di una sottolista e i collegamenti del record vanno con il loro record e tornano con esso.
+- Liste, campi, relazioni e campi Recapiti eliminati in [Modello dati](app:configure).
+- Viste salvate, viste della dashboard e widget della dashboard.
+- Routine e pagine della [Base di conoscenza](app:wiki).
+
+Membri, inviti, ruoli, chiavi API, webhook e account collegati non vengono spostati nel Cestino: eliminarli cambia l’accesso, quindi ha effetto subito.
+
+Finché un elemento è nel Cestino non c’è più da nessun’altra parte: liste, ricerca, totali e calcoli, widget, filtri, esportazioni, Mate, l’API e MCP non lo vedono più, e routine e webhook non scattano per esso.
+
+## Chi vede che cosa nel Cestino? [#who-sees-what]
+
+Tutti trovano **Cestino** nella barra laterale. Si vedono gli elementi che si potevano vedere ed eliminare: record e configurazione che si può eliminare, pagine della Base di conoscenza se il ruolo può eliminarle, routine se si ha il ruolo **Amministratore**, e le proprie viste salvate e i propri widget, che restano personali anche nel Cestino. Ogni riga mostra l’elemento, il suo tipo, chi lo ha eliminato, quando e quanti giorni restano prima dell’eliminazione definitiva. In [Filtri](app:trash?focus=filter) si cercano gli elementi e li si restringe per tipo o lista.
+
+## Come ripristino un elemento eliminato? [#how-do-i-restore]
+
+Si apre il [Cestino](app:trash), si passa sulla riga e si fa clic su **Ripristina**, oppure si selezionano più righe e si fa clic su **Ripristina** nella barra di selezione. Ripristinare richiede lo stesso accesso richiesto per eliminare. Un record ripristinato torna con i suoi valori, i collegamenti e le righe delle sottoliste. Un collegamento a un record che nel frattempo è stato eliminato definitivamente non può tornare; il messaggio dopo il ripristino dice quanti collegamenti sono stati scartati. Un ripristino grande viene eseguito in background: il record mostra **Ripristino…** finché non è terminato. Un record la cui lista è a sua volta nel Cestino si può ripristinare solo dopo la sua lista, e una routine resta nel Cestino finché il suo proprietario ha già tutte le routine incluse nel suo piano.
+
+Se un’altra modifica dello spazio di lavoro mantiene il blocco di scrittura, il ripristino restituisce una risposta di occupato dopo circa cinque secondi senza modificare l’elemento nel Cestino. Si riprova al termine di quella modifica.
+
+Eliminare un campo in [Modello dati](app:configure) rimuove i filtri, le colonne, gli ordinamenti e i raggruppamenti delle viste salvate che lo usano. L’anteprima dell’eliminazione e il risultato nominano le viste e i widget interessati. Ripristinare il campo non ricrea quelle impostazioni. Se si ripristina una vista salvata dopo l’eliminazione del suo campo, `droppedViewReferences` riporta ciò che è stato rimosso; il messaggio del Cestino mostra i conteggi. Si ricreano le impostazioni dopo aver ripristinato il campo.
+
+Un campo calcolato ripristinato riottiene i suoi valori dai valori e dai collegamenti attuali di ogni record, comprese le modifiche fatte mentre era nel Cestino; un campo che salva il suo valore in un dato momento, come quando il record viene creato, mantiene i valori che aveva salvato prima. Un campo calcolato resta nel Cestino finché un campo, una relazione o una lista che legge è ancora presente, e lo stesso vale per un elemento che non si adatta più alla configurazione o ai dati attuali, per esempio un campo obbligatorio che i record creati nel frattempo lasciano vuoto. Si seleziona un campo calcolato insieme a ciò che legge e li si ripristina in un solo passaggio, in qualsiasi ordine. Quando il ripristino ricalcola molti record viene eseguito in background, e record, viste o altri elementi selezionati con esso restano nel Cestino finché non è terminato; li si ripristina di nuovo dopo.
+
+Aprire un record eliminato dal Cestino lo mostra in sola lettura con il banner **Nel cestino** e un pulsante **Ripristina**; anche le sue **Attività** si possono leggere lì, ma non modificare. Tramite REST, `POST /api/v1/trash/query` elenca gli elementi del Cestino e `POST /api/v1/trash/read` restituisce la stessa vista di sola lettura di un record eliminato; tramite MCP, `read_trash` li elenca e, con `action: "read"` e `typeId` e `recordId` del record, ne apre uno allo stesso modo.
+
+## Che cosa succede quando apro il link di una lista o di una vista eliminata? [#links-to-deleted-items]
+
+Il link a una lista che è nel Cestino, per esempio un segnalibro di una lista Progetti eliminata, mostra il nome della lista con **Nel cestino**, quando è stata eliminata e quanti giorni restano. Se si può vedere la lista nel [Cestino](app:trash), lì compare **Ripristina** e riporta indietro la lista, e la pagina la mostra poi. Senza quell’accesso, e per una lista che non esiste o è stata eliminata definitivamente, il link mostra la schermata di pagina non trovata. Il link a una vista salvata che non esiste più o non è propria apre invece la vista predefinita della lista e toglie la vista dall’indirizzo.
+
+## Come elimino qualcosa definitivamente? [#how-do-i-delete-permanently]
+
+Nel [Cestino](app:trash) si passa sulla riga e si fa clic su **Elimina definitivamente**, oppure si selezionano più righe e si fa clic su **Elimina definitivamente** nella barra di selezione. La conferma elenca esattamente che cosa scompare, come il numero di record per lista e i collegamenti. L’eliminazione definitiva non si può annullare. Cancella anche i valori dei campi del record dalla sua cronologia; la cronologia conserva solo chi lo ha modificato e quando.
+
+I membri con il ruolo **Amministratore** possono rimuovere in una volta tutto ciò che vedono nel Cestino con **Svuota cestino** nel menu **Altre azioni** del [Cestino](app:trash), mostrato solo finché il Cestino contiene elementi. Per confermare si digita **svuota cestino**.
+
+## Per quanto tempo gli elementi restano nel Cestino? [#how-long]
+
+30 giorni dall’eliminazione. Ogni riga mostra quanti giorni restano; l’ultimo giorno l’elemento viene eliminato definitivamente senza ulteriore avviso, con lo stesso effetto sulla sua cronologia dell’eliminazione definitiva fatta di persona. Un’istanza self-hosted lo fa solo quando viene eseguito il suo [job pianificato](/docs/self-hosting#scheduled-jobs) giornaliero.

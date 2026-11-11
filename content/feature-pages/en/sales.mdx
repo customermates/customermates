@@ -1,6 +1,6 @@
 ---
-title: "Sales CRM Software for Small Teams: Deals and Pipeline"
-description: "Sales CRM software for small teams: deals on a stage board, a weighted pipeline and client conversations on each contact. Plans, setup, limits, costs."
+title: "Sales Tracking in a CRM: What to Track and How to Review"
+description: "Sales tracking for small teams: the fields to record, seven numbers for the weekly review, five for month end and a worked example, set up in Customermates."
 featureName: Sales CRM
 
 relatedHrefs:
@@ -15,11 +15,13 @@ sections:
   steps:
     items:
       - title: "Adjust the stages"
-        description: "In Configure, open Deals and the Stage field. Rename the options to match how you sell, for example \"Discovery call\" and \"Proposal sent\", and check each option's Probability %."
+        description: "In Data model, open Deals and the Stage field. Rename the options to match how you sell, for example \"Discovery call\" and \"Proposal sent\", and check each option's Probability %."
+      - title: "Add the tracking fields"
+        description: "In Data model, open Deals and use Add › Field for Expected close, Next step and Closed on (Date), plus Lead source and Lost reason (Single choice). Each number in the review needs one of them."
       - title: "Import what you already have"
         description: "Use Add from file with an Excel workbook or a CSV file, one record type at a time: organizations first, then contacts, then deals. Link columns are matched by record name, so an organization must exist before a deal can point to it."
-      - title: "Save two views"
-        description: "\"My open deals\": Assigned is you, Stage is not Won or Lost, sorted by value, shown as a board. \"Closing soon\": a filter on Expected close, shown as a table."
+      - title: "Save the review views"
+        description: "\"My open deals\" as a board, \"Closing soon\", \"No next step\" and \"Quiet deals\" (Updated at older than 14 days). Share them with the team so everyone reviews the same deals."
       - title: "Connect your inbox (Pro and higher)"
         description: "Under Settings › Channels, connect the mailbox or LinkedIn account you sell from."
   highlights:
@@ -27,17 +29,17 @@ sections:
     capture: homepage-pipeline
     items:
       - title: "What you get"
-        description: "Deals linked to contacts, organizations, services and tasks, a stage board, a weighted pipeline, saved views you can share and dashboard charts."
+        description: "Deals linked to contacts, organizations, services and tasks, a stage board, a weighted pipeline, saved views you can share and dashboard widgets for the weekly numbers."
       - title: "Plans"
         description: "Pipeline and dashboards from Starter at [[commercial.price.starter.monthly]] per user per month. The unified inbox starts on Pro at [[commercial.price.pro.monthly]]."
       - title: "AI"
         description: "In Customermates Cloud, Mate prepares summaries, reply drafts and deal updates using hosted AI credits. Your own AI client works on every plan through MCP."
       - title: "Not included"
-        description: "No sequences or mass email, no telephony, no lead scoring, no quotes or invoices, no predictive forecasting and no mobile app."
+        description: "No quotas or targets, no sequences or mass email, no telephony, no lead scoring, no quotes or invoices, no predictive forecasting and no mobile app."
 
 hero:
-  title: "Sales CRM for small teams: every open deal with its next step"
-  description: "Every open deal, the people involved and the latest conversation in one place. From Pro, LinkedIn and email threads sit on the contact, and Mate drafts the follow-up for you to review and send."
+  title: "Sales tracking for small teams: every open deal with its next step"
+  description: "Track value, stage, owner and a dated next step on every deal and review the same few numbers each week. From Pro, LinkedIn and email threads sit on the contact, and Mate drafts the follow-up for you to review and send."
   buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
@@ -45,8 +47,8 @@ hero:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 
 cta:
-  action: Set up your pipeline during the trial
-  description: "Rename the stages, import your open deals and connect LinkedIn or email, so every deal has its conversation next to it. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
+  action: Set up your sales tracking during the trial
+  description: "Rename the stages, add the tracking fields, import your open deals and save the weekly review views, so every deal has its next step and its conversation next to it. Plans start at [[commercial.price.starter.monthly]] per user per month, billed monthly."
   buttonLeftText: "Start your [[commercial.trial.days]]-day trial"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Watch live demo
@@ -54,93 +56,133 @@ cta:
   hint: "✓ No credit card required ✓ First [[commercial.trial.days]] days free"
 ---
 
-Sales CRM software is where a team records every open deal with its value, its stage and the people involved, so the next step on each one is visible to everybody and not only to whoever made the last call. Customermates is a sales CRM for small client-facing teams: consultancies, agencies, other service businesses and founders who still do the selling. Deals sit on a board by stage with a win probability per stage, and on Pro and higher the client's emails and LinkedIn, WhatsApp, Instagram or Telegram messages appear on their contact record.
+Sales tracking means recording every deal's value, stage, owner, expected close and next step in one place, then reviewing the same few numbers on a fixed day. Customermates is a CRM for small client-facing teams: consultancies, agencies, other service businesses and founders who still do the selling. Deals sit on a stage board with a win probability per stage, and on Pro and higher the client's emails and LinkedIn, WhatsApp, Instagram or Telegram messages appear on their contact. This page lists what to track, the fields and views behind each number, and a weekly review on example data.
 
 It is not an outbound machine. If your team books meetings by volume, the table of alternatives further down is the more useful part of this page.
 
-## What the sales side of Customermates does
+## What should a small team track in its sales?
 
-**Deals and their value.** A deal links to contacts, organizations, assigned users, tasks and, through its line items, the services you sell. Its value is calculated rather than typed: the sum of its line items, each a service times its quantity. Two workshop days at 1,500 plus ten coaching hours at 150 give a deal value of 4,500.
+Twelve numbers cover most decisions of a team with a few dozen open deals: seven for the weekly review, five at month end. Each one below names how it is calculated and where it lives in Customermates.
 
-**Stages with win probabilities.** The stage is a single choice field, typically called Stage. Stages are not preset: you add the field to your deals list in Data model (in the cloud, AI setup can create it), for example with Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. You can rename, add and reorder stages, and set the probabilities as **Probability %** on each option of the Stage field in **Data model**. Each deal's weighted value is its value times the probability of its current stage.
+**Every week: is the pipeline healthy?**
 
-**The board.** Switch the deals list to the board, grouped by Stage, and drag a card to move a deal. Each column header shows the number of deals and the sums you choose for the grouping, such as **Value** and **Weighted value**. Group the same board by **Assigned** and every person gets a column with their own count and totals; that board is read-only. The [pipeline page](/features/pipeline) shows the board in more detail.
-
-**Saved views.** Filters, sort, grouping and layout save together as a named view, such as "My open deals by value". Share a view with the whole team or with selected roles and everyone works from the same filters; each person still sees only the records their role allows.
-
-**Dashboard charts.** A chart counts deals or sums **Value** or **Weighted value**, grouped by a field such as Stage or Lead source. Charts belong to the person who made them. Share a named dashboard view with the team to show everyone the same charts, or use **Share as a template** so teammates start their own copy.
-
-**Conversations on the contact (Pro and higher).** Connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram in the [unified inbox](/features/unified-inbox). Once a contact carries the email address or handle, every conversation with it shows on that contact's timeline. Messages link to contacts, and a single conversation can also be linked to a deal; from a deal the latest conversation is one click away, on the linked contact.
-
-**AI help.** In Customermates Cloud, Mate reads a deal, its notes and the conversations with its contacts, then writes a summary, a reply draft or the update you ask for, using hosted AI credits. Your own AI client, such as Claude or ChatGPT, does the same through MCP with [[derived.mcp.tools.total]] tools, on every plan and when self-hosting.
-
-## Which plan you need
-
-| Plan | Sales features | Price |
+| What to track | How it is calculated | Where it lives in Customermates |
 |---|---|---|
-| Starter | Deals, stage board, weighted pipeline, saved views, dashboard charts, XLSX import and export, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user | [[commercial.price.starter.monthly]] per user per month |
-| Pro | Starter plus the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, LinkedIn Sales Navigator, read-only calendar access, [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user | [[commercial.price.pro.monthly]] per user per month |
-| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts and one team-wide timeline across every channel | [[commercial.price.business.monthly]] per user per month |
-| Self-hosted | The Starter feature set on your own server, without inbox, Mate or routines | No licence fee; you pay for your own infrastructure |
+| Open pipeline value | Sum of **Value** on deals whose Stage is not Won or Lost | A **Number** widget (sum of Value, filtered on Stage), or the column totals on the stage board |
+| Weighted pipeline | The same deals, sum of **Weighted value**: value times the stage's **Probability %** | The same widget with Weighted value, or a bar chart of Weighted value grouped by Stage |
+| Deals per stage | Count of open deals in each stage | A **Funnel** chart or the board's column counts. The funnel shows today's deals, not conversion over time. |
+| Closing soon | Open deals whose **Expected close** falls in the next 30 days | An **Upcoming** widget on Expected close, set to 30 days, or a saved view sorted by Expected close |
+| No next step | Open deals where **Next step** is empty | A saved view: Next step is empty, Stage is not Won or Lost |
+| Quiet deals | Open deals nobody has edited for 14 days | A saved view: **Updated at** older than 14 days, Stage is not Won or Lost. It sees edits to the deal, not messages. |
+| Deals per person | Count, value and weighted value per owner | The deals board grouped by **Assigned**. It is read-only, and a deal with two owners appears under both. |
 
-Billing is monthly. Each paid Cloud plan includes monthly hosted AI credits per active user for Mate; the [pricing page](/pricing) lists the amounts.
+**Every month: what did we win, and why?**
 
-## Set up a sales pipeline in Customermates
+| What to track | How it is calculated | Where it lives in Customermates |
+|---|---|---|
+| Won this month | Count and sum of Value for deals with Stage Won and **Closed on** in the month | Two **Number** widgets with a filter on Closed on, or an **Area over time** chart of Value grouped by Closed on with the interval set to month |
+| Win rate | Won divided by (Won plus Lost) among the deals closed in the period | Two **Number** widgets, count of Won and count of Lost for the same period, divided by hand. In Customermates Cloud, Mate can calculate it. |
+| Average won deal | Average of Value where Stage is Won | A **Number** widget with the average aggregation |
+| Where wins come from | Won value by **Lead source** | A bar chart or **Doughnut** grouped by Lead source, filtered on Stage is Won |
+| Why deals are lost | Count of lost deals by **Lost reason** | A **Ranked table** grouped by Lost reason, filtered on Stage is Lost |
+
+Closed on is a date field you add yourself. Fill it when you move a deal to Won or Lost, or ask Mate or your own AI client to set it together with the stage. Win rate here counts deals; it does not weigh them by value.
+
+What about sales activity? The **Activity timeline** widget lists record changes and, on Pro and higher, the messages and meetings of connected accounts, and you can filter it by related records, for example everything that happened on your five largest deals. It is a feed you read, not a counter of calls or emails per person, and there is no telephony.
+
+## Which fields does a sales tracker need?
+
+A tracker is only as good as its columns. These are the eleven a deals list needs to produce every number above.
+
+| Column | Field type in Customermates | Feeds |
+|---|---|---|
+| Deal name | Name | Every view |
+| Organization and contacts | Links to your organizations and contacts | The conversations on the contact |
+| Stage | Single choice, each option with a **Probability %** | Pipeline, weighted pipeline, funnel |
+| Value | Currency, or calculated from line items: each a service times its quantity | Pipeline value, average won deal |
+| Weighted value | Calculated: Value times the stage's Probability % | Weighted pipeline |
+| Owner | **Assigned**, one or several users | Deals per person |
+| Expected close | Date | Closing soon |
+| Next step | Date, with a task or note that says what it is | No next step, Upcoming widget |
+| Lead source | Single choice: Referral, LinkedIn, Website, Event | Where wins come from |
+| Closed on | Date | Won this month, win rate |
+| Lost reason | Single choice: Price, Timing, Chose a competitor, No decision | Why deals are lost |
+
+A new workspace starts without lists. In Customermates Cloud, AI setup can build a deals list from your description; otherwise you create the fields in Data model, which is also the only way when self-hosting. Expected close, Next step, Lead source, Closed on and Lost reason are ordinary custom fields, and you rename or change their options whenever your process changes. A deal's value can be the sum of its line items: two workshop days at 1,500 plus ten coaching hours at 150 give a deal value of 4,500.
+
+## How do I set up sales tracking in Customermates?
 
 <Steps>
-  <Step title="Adjust the stages">In **Data model**, open Deals and the **Stage** field. Rename the options to match how you sell, for example "Discovery call" and "Proposal sent", and check each option's **Probability %**.</Step>
+  <Step title="Adjust the stages">In **Data model**, open Deals and the **Stage** field. Rename the options to match how you sell, for example "Discovery call" and "Proposal sent", and set each option's **Probability %**: for example Prospecting 10%, Qualification 20%, Demo 40%, Proposal 60%, Negotiation 80%, Won 100% and Lost 0%. A preview shows the effect on calculations and widgets before you save.</Step>
   <Step title="Create your services">Add what you sell under **Services**, each with a price: a retainer, a workshop day, a licence. Deal line items, and so deal values, are built from these.</Step>
-  <Step title="Add three custom fields to deals">A Date field "Expected close", a Single choice "Lead source" with Referral, LinkedIn, Website and Event, and a Single choice "Lost reason" with Price, Timing, Chose a competitor and No decision.</Step>
+  <Step title="Add the five tracking fields">On Deals, use **Add › Field** for Expected close, Next step and Closed on (Date), Lead source (Single choice with Referral, LinkedIn, Website and Event) and Lost reason (Single choice with Price, Timing, Chose a competitor and No decision).</Step>
   <Step title="Import what you already have">Use **Add from file** with an Excel workbook or a CSV file, one record type at a time: organizations first, then contacts, then deals. Link columns are matched by record name, so an organization must exist before a deal can point to it.</Step>
-  <Step title="Save two views">"My open deals": Assigned is you, Stage is not Won or Lost, sorted by value, shown as a board. "Closing soon": a filter on Expected close, shown as a table.</Step>
-  <Step title="Add two dashboard charts">The sum of Weighted value grouped by Stage, and the sum of Value grouped by Lead source with a filter on Stage set to Won.</Step>
+  <Step title="Save the review views">"My open deals": Assigned is you, Stage is not Won or Lost, sorted by value, shown as a board. "Closing soon": Stage is not Won or Lost, sorted by Expected close, shown as a table. "No next step" and "Quiet deals" as in the table above. Filter rules combine with AND, so one view with both rules would list only deals that are quiet and have no next step; keep them as two views. Share the views with the whole team or with selected roles.</Step>
+  <Step title="Add the dashboard widgets">A **Number** widget for the weighted pipeline, a bar chart of Weighted value grouped by Stage, an **Upcoming** widget on Next step, and a chart of won Value grouped by Lead source.</Step>
   <Step title="Connect your inbox (Pro and higher)">Under **Settings › Channels & calendars**, connect the mailbox or LinkedIn account you sell from.</Step>
 </Steps>
 
-The [records guide](/docs/app-records) covers import, views and the board step by step.
+The [records guide](/docs/app-records) covers import, views and the board step by step, and the [dashboard guide](/docs/app-dashboard) lists every widget and its options. The [pipeline page](/features/pipeline) shows the board in more detail.
 
-## Tracking sales without a spreadsheet
+## What does a weekly sales review look like?
 
-The questions a weekly sales meeting asks, and where the answers sit after the setup above:
+Take five open deals of a small consultancy. The numbers are invented for the example; they are not a customer's data.
 
-| Question | Where you find the answer |
-|---|---|
-| What is in the pipeline, and what is it worth weighted? | The column totals on the stage board, or a dashboard chart that sums **Value** or **Weighted value** by stage |
-| Who is working on which deals? | The deals board grouped by **Assigned**. A deal with two assigned users appears under both. |
-| Which deals should close soon? | The "Closing soon" view |
-| Where do won deals come from? | The chart of won deal value by Lead source |
-| Why do we lose? | A chart counting lost deals by Lost reason |
-| What happened on this deal? | Its notes, its change history and, on Pro and higher, the conversations on its contacts |
+| Deal | Stage (probability) | Value | Weighted value | Next step set | Closes in | Last edited |
+|---|---|---|---|---|---|---|
+| Nord retainer | Negotiation (80%) | 12,000 | 9,600 | Yes | 9 days | 1 day ago |
+| Bauer website relaunch | Proposal (60%) | 6,000 | 3,600 | Yes | 19 days | 2 days ago |
+| Lindner coaching | Proposal (60%) | 2,400 | 1,440 | No | 24 days | 16 days ago |
+| Keller workshop series | Demo (40%) | 4,500 | 1,800 | No | 34 days | 19 days ago |
+| Meyer brand sprint | Qualification (20%) | 3,000 | 600 | Yes | 80 days | 6 days ago |
+| **Total** | | **27,900** | **17,040** | | | |
 
-Customermates does not track conversion rates over time, sales velocity or time in stage. In Customermates Cloud, Mate can work out a figure such as each person's win rate from your records with a read-only analysis tool, using hosted AI credits. Otherwise, export the deals as XLSX or read them through the REST API. [Reporting](/features/reporting) covers the chart options.
+Read it in this order:
 
-## Updating deals with Mate (Customermates Cloud)
+1. **Pipeline value.** Open pipeline is 27,900 and the weighted pipeline is 17,040. The Nord retainer alone carries 9,600 of the weighted value, 56 percent, so one lost negotiation changes the picture. It gets the first minutes of the meeting.
+2. **Closing soon.** Nord, Bauer and Lindner are due within 30 days: 20,400 in value and 14,640 weighted. Keller, at 34 days, is outside the window.
+3. **No next step.** Lindner and Keller.
+4. **Quiet deals.** Lindner (16 days) and Keller (19 days).
+5. **Decide.** Lindner is on both lists and due in 24 days. Set a dated next step this week, move Expected close and the stage back to what is true, or close it as Lost with a reason. Keller needs a next step or a later Expected close. A deal that is quiet, has no next step and is due soon is where a pipeline total most overstates reality.
 
-After a call, paste your notes into Mate with an instruction like this one:
+At month end, suppose four deals were won and six lost. The win rate is 4 divided by 10, or 40 percent, and the Lost reason chart shows which objection to prepare for. For the stage definitions behind the board see the [sales pipeline guide](/blog/sales-pipeline), and for turning a weighted pipeline into a quarterly number see [sales forecasting](/blog/sales-forecasting).
+
+## Is a spreadsheet enough for sales tracking?
+
+For one person with a handful of deals, often yes. The question is what the sheet cannot do once more people and more conversations are involved.
+
+| Question | Spreadsheet | Customermates |
+|---|---|---|
+| Who keeps it current? | The person who enters every deal | Several people, each seeing the records their role allows |
+| Where do the totals come from? | Formulas you write and keep intact | Column totals on the board, and a Weighted value calculated from the stage probabilities |
+| Where is the conversation? | In the inbox and in LinkedIn, away from the row | On the contact from Pro, one click from the deal |
+| What changed on a deal? | You remember, or compare versions | The deal's change history |
+| How do I start? | A blank sheet | Import your sheet as XLSX or CSV |
+
+Our [Excel CRM template](/blog/excel-crm-template) has a checked sheet layout, and its checklist says when to move. A sheet you keep today imports into Customermates as XLSX or CSV, one record type at a time.
+
+## How do conversations and Mate fit into sales tracking?
+
+**Conversations on the contact (Pro and higher).** Connect Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram or Telegram in the [unified inbox](/features/unified-inbox). Once a contact carries the email address or handle, every conversation with it shows on that contact's timeline, so "what happened on this deal?" is one click from the deal. Messages link to contacts, and a single conversation can also be linked to a deal; nothing is filed to a deal automatically.
+
+**Updating deals with Mate (Customermates Cloud).** After a call, paste your notes into Mate with an instruction like this one:
 
 ```text
 Here are my notes from today's call with Bauer Consulting. Update the deal "Bauer website relaunch": set the stage to Proposal, set Expected close to 30 November and append the notes. Create a task for me to send the proposal and link it to the deal. Do not send any messages.
 ```
 
-Mate makes these changes directly, and they land in the deal's history. Asked to send an email, it sends without asking again, so write "draft" when you want to read the text first. Deletions always need your approval. Your own AI client can run the same request through MCP; for jobs on a schedule or on deal changes, see [workflow automation](/features/workflow-automation).
+Mate makes these changes directly, and they land in the deal's history. Asked to send an email, it sends without asking again, so write "draft" when you want to read the text first. Deletions always need your approval. Mate uses hosted AI credits. Your own AI client, such as Claude or ChatGPT, runs the same request through MCP with [[derived.mcp.tools.total]] tools, on every plan and when self-hosting. For jobs on a schedule or on deal changes, see [workflow automation](/features/workflow-automation).
 
-## What Customermates does not do, and what to use instead
+## Which plan do you need, and what does it cost?
 
-Customermates publishes this page. Vendor details were checked on 8 October 2026 on the vendors' own pages, linked at the end.
-
-| You need | In Customermates | Where to look |
+| Plan | Sales tracking features | Price |
 |---|---|---|
-| Email sequences | Not available. Mate drafts one message in one conversation. | HubSpot Sales Hub Professional or Enterprise; Pipedrive Growth and higher plans |
-| Revenue forecasting beyond stage weights | Not available. The weighted pipeline uses the fixed probabilities you set. | HubSpot Sales Hub Professional; Pipedrive Growth ("Forecast view and reports"); Salesforce Pro Suite ("Sales Quoting and Forecasting") |
-| Web forms, lead scoring, enrichment | Not available. Send form entries in through the REST API. | Pipedrive Premium, which includes LeadBooster with web forms, and custom scoring and enrichment |
-| Calls from the CRM | No telephony or SMS | A CRM with a built-in dialer |
-| Quotes and invoices | Not available | Your invoicing tool |
-| A free plan | Free Cloud plan for [[commercial.limit.free.maxMembers]] person, without the inbox or Mate; a [[commercial.trial.days]]-day Pro trial, or self-hosting without a licence fee | HubSpot Sales Hub Free for up to 2 users; Zoho CRM Free edition for up to 3 users |
-| An app on the phone | No native mobile app; Customermates runs in the browser | A CRM with native iOS and Android apps |
+| Starter | Deals, stage board, weighted pipeline, saved views, dashboard widgets, XLSX import and export, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per user | [[commercial.price.starter.monthly]] per user per month |
+| Pro | Starter plus the unified inbox with [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, LinkedIn Sales Navigator, read-only calendar access, [[commercial.entitlement.pro.includedRoutinesPerUser]] routines per user | [[commercial.price.pro.monthly]] per user per month |
+| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] connected accounts per user, shared accounts and one team-wide timeline across every channel | [[commercial.price.business.monthly]] per user per month |
+| Self-hosted | The Starter feature set on your own server, without inbox, Mate or routines | No licence fee; you pay for your own infrastructure |
 
-Tasks have no due dates or reminders either. Put a date field on the deal and keep a saved view of what is due, as described under [follow-ups](/features/follow-up).
-
-## What it costs
+Billing is monthly. Each paid Cloud plan includes monthly hosted AI credits per active user for Mate; the [pricing page](/pricing) lists the amounts. Three examples:
 
 | Team | Plan | Per month |
 |---|---|---|
@@ -150,30 +192,56 @@ Tasks have no due dates or reminders either. Put a date field on the deal and ke
 
 Over twelve months, the five-person Pro team pays [[commercial.price.pro.monthly.seats.5.months.12]].
 
-For comparison, at list prices checked on 8 October 2026: Salesforce Starter Suite is $25 per user per month, billed monthly or annually, so five users pay $125 a month. HubSpot Sales Hub Professional, the lowest HubSpot tier with forecasting, is $100 per seat per month billed monthly or $90 with an annual commitment, so $500 a month for five seats on monthly billing, plus a required one-time Professional Onboarding fee of $1,500. These are list prices for seats; each vendor's pricing page shows what else applies.
+For comparison, at list prices checked on 11 November 2026: Salesforce Starter Suite is $25 per user per month, billed monthly or annually, so five users pay $125 a month. Salesforce Pro Suite, which lists Sales Quoting and Forecasting, is $100 per user per month billed annually only. HubSpot Sales Hub Professional, the lowest HubSpot tier with forecasting, is $100 per seat per month billed monthly or $90 with an annual commitment, so $500 a month for five seats on monthly billing, plus a required one-time Professional onboarding fee of $1,500. These are list prices for seats; each vendor's pricing page shows what else applies.
+
+## What does Customermates not track, and what to use instead?
+
+Customermates publishes this page. Vendor details were checked on 11 November 2026 on the vendors' own pages, linked at the end.
+
+| You need | In Customermates | Where to look |
+|---|---|---|
+| Conversion rates over time, sales velocity, time in stage | Not available. The funnel shows today's deals per stage; in Customermates Cloud, Mate can work out a figure such as each person's win rate from your records. | Export the deals as XLSX or read them through the REST API and calculate there |
+| Quotas and targets | Not available. Compare the weighted pipeline with your own target by hand. | A sales tool with goals built in |
+| Revenue forecasting beyond stage weights | Not available. The weighted pipeline uses the fixed probabilities you set. | HubSpot Sales Hub Professional; Salesforce Pro Suite ("Sales Quoting and Forecasting") |
+| Email sequences | Not available. Mate drafts one message in one conversation. | HubSpot Sales Hub Professional or Enterprise |
+| Web forms, lead scoring, enrichment | Not available. Send form entries in through the REST API. | A CRM with forms and scoring built in |
+| Calls from the CRM | No telephony or SMS | A CRM with a built-in dialer |
+| Quotes and invoices | Not available | Your invoicing tool |
+| A free plan | Free Cloud plan for [[commercial.limit.free.maxMembers]] person, without the inbox or Mate; a [[commercial.trial.days]]-day Pro trial, or self-hosting without a licence fee | HubSpot Sales Hub Free for up to 2 users; Zoho CRM Free edition for up to 3 users |
+| An app on the phone | No native mobile app; Customermates runs in the browser | A CRM with native iOS and Android apps |
+
+Tasks have no due dates or reminders either. The Next step date on the deal and the Upcoming widget do that job, as described under [follow-ups](/features/follow-up). [Reporting](/features/reporting) covers every chart option.
 
 ## Frequently asked questions
 
 <Faq>
-<FaqItem question="What is the best sales CRM software for a small team?">
-It depends on how you sell. Outbound teams that win on volume need sequences and forecasting, which HubSpot Sales Hub Professional and Pipedrive Growth include. Teams that sell through relationships, with a few dozen open deals and most of the work in email and LinkedIn conversations, need the deal and the conversation in one place. Customermates is built for that second case.
+<FaqItem question="What is sales tracking?">
+Sales tracking is recording each deal's value, stage, owner, expected close, next step and outcome, then reviewing a few numbers from that record on a schedule. The record is the tracker and the review is what turns it into decisions. In Customermates the record is a deals list, and the review runs on saved views and dashboard widgets.
 </FaqItem>
 
-<FaqItem question="Is a sales CRM hard to learn?">
-Not if you keep the first version small. A new workspace starts without lists, but a deals list with a Stage field takes minutes in Data model, and in the cloud AI setup can build it for you. The real work is agreeing on stage names and three or four custom fields, then importing what sits in your spreadsheet today.
+<FaqItem question="What is the best way to track sales in a small business?">
+Keep one deals list with about a dozen fields, give every open deal a stage and a dated next step, and hold the same review every week. A spreadsheet does that for one person with a handful of deals. Once several people update the deals, or the deals live in email and LinkedIn conversations, the record and the conversation belong in one tool. Customermates is built for that second case.
+</FaqItem>
+
+<FaqItem question="How often should I review sales numbers?">
+Review pipeline health weekly: open and weighted pipeline, deals closing soon, deals without a next step and quiet deals. Review results monthly: won value, win rate, lead sources and lost reasons. A small team rarely closes enough deals in a week for those results to mean much.
+</FaqItem>
+
+<FaqItem question="Is there free sales tracking software?">
+Yes, within limits. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Your first workspace starts with Pro for [[commercial.trial.days]] days without a credit card; every further workspace starts by choosing a plan. [Self-hosting](/features/self-hosted) the open-source core has no licence fee: it runs the Starter feature set on your own server. HubSpot Sales Hub Free covers up to 2 users and Zoho CRM's free edition up to 3.
 </FaqItem>
 
 <FaqItem question="Can Customermates forecast revenue?">
 No, not in the predictive sense. It calculates a weighted pipeline: each deal's value times the win probability you set for its stage. That is arithmetic on your own numbers. There is no model that learns from past deals or predicts close dates.
 </FaqItem>
 
-<FaqItem question="Is there a free version?">
-Yes. Customermates Cloud has a free plan for [[commercial.limit.free.maxMembers]] person and [[commercial.limit.free.maxRecords]] records, without the inbox, Mate or routines. Your first workspace starts with Pro for [[commercial.trial.days]] days without a credit card; every further workspace starts by choosing a plan. [Self-hosting](/features/self-hosted) the open-source core has no licence fee: it runs the Starter feature set on your own server, without the inbox, Mate or routines.
-</FaqItem>
-
 <FaqItem question="Can I see each salesperson's pipeline?">
 Yes. Group the deals board by **Assigned** and each person gets a column with their deals, their count, total value and weighted value.
 </FaqItem>
+
+<FaqItem question="Is a sales CRM hard to set up?">
+Not if you keep the first version small. A deals list with a Stage field takes minutes in Data model, and in the cloud AI setup can build it for you. The real work is agreeing on stage names and the five tracking fields, then importing what sits in your spreadsheet today.
+</FaqItem>
 </Faq>
 
-Competitor details checked on 8 October 2026 against [HubSpot Sales Hub pricing](https://www.hubspot.com/pricing/sales), [HubSpot's sequences documentation](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), [Pipedrive's plan overview](https://support.pipedrive.com/en/article/new-pipedrive-plans), [Salesforce Sales Cloud pricing](https://www.salesforce.com/sales/pricing/) and [Zoho CRM pricing](https://www.zoho.com/crm/zohocrm-pricing.html).
+Competitor details checked on 11 November 2026 against [HubSpot Sales Hub pricing](https://www.hubspot.com/pricing/sales), [HubSpot's sequences documentation](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), [Salesforce Sales Cloud pricing](https://www.salesforce.com/sales/pricing/) and [Zoho CRM pricing](https://www.zoho.com/crm/zohocrm-pricing.html).

@@ -1,0 +1,135 @@
+---
+title: "Gestione attività CRM: task collegati a ogni trattativa"
+description: "Gestione attività CRM: task collegati a contatti, organizzazioni, trattative e servizi, con assegnatari, note e campi propri. Senza scadenze né promemoria."
+featureName: Gestione delle attività
+
+relatedHrefs:
+  - /features/follow-up
+  - /features/pipeline
+  - /features/workflow-automation
+  - /blog/tickler-file
+
+sections:
+  visual:
+    kind: followUp
+  steps:
+    items:
+      - title: "Decidi cosa significa una data"
+        description: "Le attività non hanno un campo di scadenza. In Modello dati, aggiungi alle Attività un campo di tipo Data e dagli il nome di ciò che intendi, per esempio «Data obiettivo». Lascialo da parte se il tuo team lavora da un elenco in ordine di priorità."
+      - title: "Adatta il campo Stato"
+        description: "In Modello dati, apri il campo Stato dell’elenco Attività e modifica le opzioni. Un team piccolo spesso ha bisogno solo di Aperta, In attesa del cliente e Completata. Aggiungi un campo Scelta singola Priorità se ordini per importanza invece che per data."
+      - title: "Crea le attività dove nasce il lavoro"
+        description: "Clicca su Aggiungi in Attività, oppure collega un’attività dalla pagina della trattativa, del contatto o dell’organizzazione. Assegnala e collega ogni record che la riguarda, così compare su ciascuno."
+      - title: "Salva le tue attività aperte"
+        description: "Filtra Assegnato a su te stesso e Stato su tutto tranne Completata e Archiviata, ordina per Data obiettivo in ordine crescente e salva il risultato come vista chiamata «Le mie attività aperte». Resta tua; per un elenco su cui lavora tutto il team, come «Attività della settimana», condividi una vista con tutto lo spazio di lavoro o con ruoli selezionati."
+      - title: "Individua le trattative senza prossimo passo"
+        description: "In Trattative, filtra Attività su «non ne ha nessuno» ed escludi le fasi vinte e perse. Salva la vista come «Trattative senza prossimo passo». Questo elenco è il motivo per tenere le attività nel CRM invece che in un’app di to-do separata."
+  highlights:
+    title: "In breve"
+    capture: homepage-record
+    items:
+      - title: "Cosa ha un’attività"
+        description: "Nome, note, uno o più utenti assegnati, collegamenti a contatti, organizzazioni, trattative e servizi, più i tuoi campi personalizzati."
+      - title: "Piani"
+        description: "Le attività fanno parte di ogni piano, da Starter al self-hosting. Mate e le routine richiedono Customermates Cloud e usano crediti IA ospitati."
+      - title: "Viste"
+        description: "Tabella o board, raggruppate per un campo a scelta come Stato, con viste salvate che puoi condividere."
+      - title: "Non incluso"
+        description: "Nessuna scadenza, promemoria, notifica, attività ricorrente, dipendenza, rilevazione del tempo o diagramma di Gantt."
+
+hero:
+  title: "Gestione attività CRM: ogni promessa a un cliente diventa un’attività sul suo record"
+  description: "Crea un’attività per ogni follow-up promesso, collegala al contatto e alla trattativa a cui si riferisce e assegnala. Poi elenca le trattative senza attività. Aggiungi un tuo campo data e lascia che Mate o il tuo client IA creino attività a partire da una conversazione."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo live
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito ✓ Primi [[commercial.trial.days]] giorni gratis"
+
+cta:
+  action: "Individua ogni trattativa senza prossimo passo"
+  description: "Aggiungi un campo Data obiettivo, salva una vista «Le mie attività aperte» e una «Trattative senza prossimo passo», poi decidi se una routine debba preparare i follow-up."
+  buttonLeftText: "Inizia la prova di [[commercial.trial.days]] giorni"
+  buttonLeftHref: /auth/signup?job=followup
+  buttonRightText: Guarda la demo live
+  buttonRightHref: https://demo.customermates.com/en/w/small-business/dashboard
+  hint: "✓ Nessuna carta di credito ✓ Primi [[commercial.trial.days]] giorni gratis"
+---
+
+La gestione attività CRM significa che il to-do vive sul record del cliente: «invia la proposta rivista» è collegata alla trattativa e al contatto a cui si riferisce, così chi apre l’uno o l’altro vede cosa è in sospeso e chi se ne occupa. In Customermates un’attività è un record del suo elenco, Attività. Ha un nome, note, utenti assegnati, collegamenti a contatti, organizzazioni, trattative e servizi, e gli eventuali campi personalizzati che aggiungi. Tutto qui.
+
+**Dove ti aiuta a seguire i clienti.** Ciò che hai promesso in una chiamata resta nella testa di qualcuno finché non diventa un’attività. Come attività sulla trattativa e sul contatto compare su entrambi i record, e una vista salvata delle trattative senza alcuna attività elenca ogni cliente di cui nessuno ha registrato il prossimo passo.
+
+Non ci sono scadenze integrate, promemoria, avvisi di ritardo né attività ricorrenti. Un campo **Stato** sulle attività è un normale campo Scelta singola che puoi creare, rinominare o sostituire. Customermates non è adatto a un team che organizza la settimana attorno a notifiche di promemoria e scadenze delle attività. Per questo caso va meglio un CRM con attività pianificate, e la tabella qui sotto ne cita due. Se vuoi task che portino con sé il contesto del cliente e che un’IA possa creare e aggiornare, continua a leggere.
+
+## Cos’è un’attività in Customermates
+
+| Parte di un’attività | Come funziona |
+|---|---|
+| Nome e note | Le note sono un campo Testo formattato. Possono contenere checklist, immagini e tabelle, ma non sono un registro di lavoro con versioni. |
+| Assegnazione | Un numero qualsiasi di colleghi. Filtra per **Assegnato a** per vedere il carico di una persona, oppure usa «non ne ha nessuno» per trovare le attività senza responsabile. |
+| Collegamenti | Contatti, organizzazioni, trattative e servizi. Ogni record collegato mostra le sue attività, quindi la pagina di una trattativa elenca ciò che resta da fare. |
+| Campi personalizzati | Qualsiasi tipo di campo, come Data, Scelta singola, Numero, Importo, Testo, Indirizzo web, Indirizzo o File. Aggiungi un campo **Data obiettivo** o **Priorità** se il tuo processo lo richiede. |
+| Stato | Non è un campo fisso. I nuovi spazi di lavoro ricevono un campo Scelta singola **Stato** (Aperta, In corso, Bloccata, In attesa, Completata, Archiviata) che puoi modificare. |
+| Board | Raggruppa per un campo a scelta e trascina le schede tra le colonne per cambiare il valore. |
+
+Attività è un normale elenco: rinominalo, cambia i suoi campi oppure eliminalo e ripristinalo dal Cestino come qualsiasi altro. Le persone che entrano con il link di invito del tuo spazio di lavoro restano in attesa di approvazione in **Impostazioni > Membri**, e il menu dello spazio di lavoro le conta per chiunque possa approvare i membri. La [guida ai record](/docs/app-records) descrive ogni elenco, filtro e comando del board.
+
+## Imposta la gestione dei task nel CRM
+
+Vieni da un foglio di calcolo o da un altro strumento? Le attività si importano da una cartella di lavoro XLSX o da un file CSV, con colonne per nome, note, utenti assegnati e record collegati. Importa prima contatti, organizzazioni e trattative, così i collegamenti possono essere risolti.
+
+## Lascia che l’IA crei e controlli le attività
+
+**In Customermates Cloud**, Mate può creare, assegnare e aggiornare attività a partire da una richiesta in chat, usando crediti IA ospitati. Basta scrivere: «Crea un’attività per Anna: inviare la proposta rivista a Müller GmbH, e collegala alla trattativa del retainer Q4». Una [routine](/docs/app-routines) esegue un’istruzione salvata a intervalli stabiliti o a un evento su un record, per esempio:
+
+> Ogni lunedì alle 8:00: elenca le mie attività con Data obiettivo precedente a oggi e Stato diverso da Completata e Archiviata. Raggruppale per organizzazione collegata e suggerisci la prossima azione per ciascuna. Non modificare né inviare nulla.
+
+Le routine vengono eseguite come il loro proprietario, con il suo accesso e i suoi crediti, e il risultato lo leggi nei dettagli dell’esecuzione. Customermates non invia alcuna notifica al termine di un’esecuzione, quindi una routine non sostituisce un promemoria finché qualcuno non la apre. Un’altra routine utile reagisce quando una trattativa viene aggiornata e, se la sua fase è ora Vinta, crea le attività di onboarding e le collega alla trattativa.
+
+**Con il tuo client IA**, Claude, ChatGPT o un altro client collegato tramite [MCP](/docs/mcp) può usare `mutate_crm_record` sugli stessi record. Funziona anche sulle installazioni self-hosted, con i costi del tuo provider IA al posto dei crediti ospitati.
+
+**Con il codice**, l’API REST espone le attività, e i [webhook](/docs/webhooks) scattano su `record.created`, `record.updated` e `record.deleted` per l’elenco Attività. Uno scheduler che gestisci tu, come n8n, può leggere una Data obiettivo tramite l’API e inviare un messaggio dove preferisci. n8n non è incluso; per le opzioni vedi l’[automazione dei workflow](/features/workflow-automation).
+
+## Customermates è uno strumento di project management?
+
+No. Le attività danno contesto al passaggio di consegne dalle vendite alla realizzazione: i passaggi di onboarding per una trattativa vinta, i documenti che un cliente deve ancora consegnare, la revisione interna prima che parta una proposta. Non pianificano un progetto. Puoi aggiungere un elenco Progetti, ma non ci sono dipendenze tra attività, timeline, grafici del carico di lavoro né rilevazione del tempo.
+
+Questa pagina è pubblicata da Customermates. Il confronto qui sotto elenca le funzioni dei fornitori così come indicate sulle loro pagine l’8 ottobre 2026.
+
+| Se ti serve | Scelta più adatta | Perché |
+|---|---|---|
+| To-do con data e promemoria dentro il CRM | HubSpot o Pipedrive | I to-do di HubSpot hanno data e ora di scadenza, promemoria via email al responsabile, priorità e un’impostazione di ripetizione. Le attività di Pipedrive hanno data, ora e durata e si segnano come completate, e Pipedrive indica notifiche e promemoria via email come parte del suo CRM. |
+| Piani di progetto con dipendenze e timeline | Asana, oppure Projects di Pipedrive | Asana offre dipendenze tra attività e viste Timeline e Gantt dal piano Starter. Projects di Pipedrive ha fasi di progetto personalizzate; è incluso nei piani Premium e superiori ed è un componente aggiuntivo a pagamento in quelli inferiori. |
+| Attività dei clienti accanto a conversazioni email, LinkedIn e WhatsApp, con un’IA che può agire su entrambe | Customermates | Le attività si collegano agli stessi record della [inbox unificata](/features/unified-inbox) (Pro e superiori), e Mate o un client MCP possono lavorare su entrambe. |
+
+Se realizzi progetti, tieni Customermates per la relazione con il cliente e uno strumento di progetto per il lavoro di realizzazione. Un webhook sulle modifiche a trattative o attività può passare le consegne da uno all’altro.
+
+## Quanto costa
+
+Le attività sono incluse in ogni piano. Un team di cinque persone su Starter paga [[commercial.price.starter.monthly.seats.5]] al mese, e con questo ottiene attività, campi personalizzati, board e viste salvate. Starter include [[commercial.entitlement.starter.includedRoutinesPerUser]] routine per utente e non ha la posta in arrivo. Pro, a [[commercial.price.pro.monthly.seats.5]] al mese per cinque persone, aggiunge l’inbox unificata e [[commercial.entitlement.pro.includedRoutinesPerUser]] routine per utente. Mate usa crediti IA ospitati mensili per ogni utente attivo; gli importi sono nella [pagina dei prezzi](/pricing). La fatturazione è mensile. Il self-hosting del nucleo open source non ha costi di licenza, e il server lo gestisci tu.
+
+## FAQ
+
+<Faq>
+<FaqItem question="Customermates ha scadenze delle attività e promemoria?">
+No. Le attività non hanno un campo di scadenza, né promemoria né notifiche. Aggiungi un campo Data personalizzato, ordina per quello una vista salvata e, in Customermates Cloud, lascia che una routine elenchi le attività la cui data è passata. Customermates non invia email di promemoria; per quelle ti serve un CRM con attività pianificate oppure un tuo scheduler che legga l’API.
+</FaqItem>
+<FaqItem question="Posso seguire lo stato delle attività su una board Kanban?">
+Sì, tramite un campo Scelta singola. Aggiungi un campo **Stato** al tuo elenco di attività. Raggruppa il board per quel campo e trascina le schede tra le colonne; puoi rinominare le opzioni o raggruppare per un altro campo, come Priorità.
+</FaqItem>
+<FaqItem question="Posso usare un CRM per il project management?">
+Per una checklist di passaggio di consegne legata a una trattativa vinta, sì. Per piani di progetto con dipendenze, timeline o rilevazione del tempo, usa uno strumento di progetto accanto al CRM. Puoi aggiungere un elenco Progetti, ma Customermates non pianifica progetti.
+</FaqItem>
+<FaqItem question="Esiste un’API per la gestione delle attività?">
+Sì. Le attività sono disponibili tramite l’API REST, lo strumento MCP `mutate_crm_record` e gli eventi webhook dei record per l’elenco Attività. La [pagina API](/features/api) ha i dettagli.
+</FaqItem>
+<FaqItem question="Le attività possono essere create automaticamente?">
+Non da una regola integrata. In Customermates Cloud una routine può creare attività quando un record cambia, usando crediti IA ospitati. In qualsiasi altro caso, un workflow che gestisci tu può reagire a un webhook e creare attività tramite l’API o MCP.
+</FaqItem>
+<FaqItem question="Posso vedere tutte le attività di un cliente?">
+Sì. Apri il contatto, l’organizzazione o la trattativa: le sue attività collegate sono elencate lì. In **Attività**, filtra per organizzazione collegata o raggruppa la tabella per quel campo.
+</FaqItem>
+</Faq>
+
+Dettagli sui concorrenti verificati l’8 ottobre 2026 su [documentazione delle attività di HubSpot](https://knowledge.hubspot.com/tasks/create-tasks), [articolo di Pipedrive sulle attività](https://support.pipedrive.com/en/article/activities), [pagina di Pipedrive sulla gestione delle attività](https://www.pipedrive.com/de/products/project-management-software/crm-task-management), [articolo di Pipedrive su Projects](https://support.pipedrive.com/en/article/projects-by-pipedrive) e [pagina dei prezzi di Asana](https://asana.com/pricing).

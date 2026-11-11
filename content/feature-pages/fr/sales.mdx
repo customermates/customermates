@@ -1,6 +1,6 @@
 ---
-title: "CRM commercial pour petites équipes : affaires et pipeline"
-description: "CRM de vente pour petites équipes : affaires sur un board par étape, pipeline pondéré, conversations sur chaque contact. Offres, mise en place, limites."
+title: "Suivi commercial en CRM : quoi suivre et comment le revoir"
+description: "Suivi commercial pour petites équipes : les champs à renseigner, les chiffres à relire chaque semaine et un exemple chiffré, mis en place dans Customermates."
 featureName: CRM commercial
 
 relatedHrefs:
@@ -15,11 +15,13 @@ sections:
   steps:
     items:
       - title: "Ajuster les étapes"
-        description: "Dans Configurer, ouvrez Affaires et le champ Étape. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la Probabilité % de chaque option."
+        description: "Dans Modèle de données, ouvrez Affaires et le champ Étape. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la Probabilité % de chaque option."
+      - title: "Ajouter les champs de suivi"
+        description: "Dans Modèle de données, ouvrez Affaires et utilisez Ajouter › Champ pour Clôture prévue, Prochaine étape et Clôturée le (Date), ainsi que Source du prospect et Motif de perte (Choix unique). Chaque chiffre de la revue en demande un."
       - title: "Importer ce que vous avez déjà"
         description: "Utilisez Ajouter depuis un fichier avec un classeur Excel ou un fichier CSV, un type d’enregistrement à la fois : d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de liens sont associées par le nom de l’enregistrement : une organisation doit donc exister avant qu’une affaire puisse la désigner."
-      - title: "Enregistrer deux vues"
-        description: "« Mes affaires ouvertes » : Attribué à est vous, Étape n’est pas Gagnée ni Perdue, trié par valeur, affiché en board. « À clôturer bientôt » : un filtre sur Clôture prévue, affiché en tableau."
+      - title: "Enregistrer les vues de la revue"
+        description: "« Mes affaires ouvertes » en board, « À clôturer bientôt », « Sans prochaine étape » et « En sommeil » (Mis à jour le plus ancien que 14 jours). Partagez-les avec l’équipe pour que chacun passe en revue les mêmes affaires."
       - title: "Connecter votre boîte de réception (Pro et supérieures)"
         description: "Sous Paramètres › Canaux, connectez la boîte aux lettres ou le compte LinkedIn depuis lequel vous vendez."
   highlights:
@@ -27,17 +29,17 @@ sections:
     capture: homepage-pipeline
     items:
       - title: "Ce que vous obtenez"
-        description: "Des affaires liées aux contacts, aux organisations, aux services et aux tâches, un board par étape, un pipeline pondéré, des vues enregistrées partageables et des graphiques de tableau de bord."
+        description: "Des affaires liées aux contacts, aux organisations, aux services et aux tâches, un board par étape, un pipeline pondéré, des vues enregistrées partageables et des widgets de tableau de bord pour les chiffres de la semaine."
       - title: "Offres"
         description: "Pipeline et tableaux de bord dès Starter à [[commercial.price.starter.monthly]] par utilisateur et par mois. La boîte de réception unifiée commence avec Pro à [[commercial.price.pro.monthly]]."
       - title: "IA"
         description: "Dans Customermates Cloud, Mate prépare des résumés, des brouillons de réponse et des mises à jour d’affaires avec des crédits d’IA hébergée. Votre propre client IA fonctionne sur chaque offre via MCP."
       - title: "Non inclus"
-        description: "Ni séquences ni e-mailing en masse, ni téléphonie, ni scoring de prospects, ni devis ni factures, ni prévisions prédictives, ni application mobile."
+        description: "Ni quotas ni objectifs, ni séquences ni e-mailing en masse, ni téléphonie, ni scoring de prospects, ni devis ni factures, ni prévisions prédictives, ni application mobile."
 
 hero:
-  title: "CRM de vente pour petites équipes : chaque affaire ouverte avec sa prochaine étape"
-  description: "Chaque affaire, les personnes concernées et la dernière conversation au même endroit. Dès Pro, les fils LinkedIn et e-mail sont sur le contact et Mate rédige la relance que vous relisez et envoyez."
+  title: "Suivi commercial pour petites équipes : chaque affaire ouverte avec sa prochaine étape"
+  description: "Suivez la valeur, l’étape, le responsable et une prochaine étape datée sur chaque affaire, et relisez chaque semaine les mêmes quelques chiffres. Dès Pro, les fils LinkedIn et e-mail sont sur le contact et Mate rédige la relance que vous relisez et envoyez."
   buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
@@ -45,8 +47,8 @@ hero:
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 
 cta:
-  action: Configurez votre pipeline pendant l’essai
-  description: "Renommez les étapes, importez vos affaires ouvertes et connectez LinkedIn ou l’e-mail, pour que chaque affaire ait sa conversation à côté. Les offres commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
+  action: Mettez en place votre suivi commercial pendant l’essai
+  description: "Renommez les étapes, ajoutez les champs de suivi, importez vos affaires ouvertes et enregistrez les vues de la revue hebdomadaire, pour que chaque affaire ait sa prochaine étape et sa conversation à côté. Les offres commencent à [[commercial.price.starter.monthly]] par utilisateur et par mois, facturés au mois."
   buttonLeftText: "Essai gratuit de [[commercial.trial.days]] jours"
   buttonLeftHref: /auth/signup?job=followup
   buttonRightText: Voir la démo en direct
@@ -54,93 +56,133 @@ cta:
   hint: "✓ Sans carte bancaire ✓ [[commercial.trial.days]] premiers jours gratuits"
 ---
 
-Un logiciel CRM de vente est l’endroit où une équipe enregistre chaque affaire ouverte avec sa valeur, son étape et les personnes concernées, pour que la prochaine étape de chacune soit visible de tous et pas seulement de celui qui a passé le dernier appel. Customermates est un CRM commercial pour les petites équipes en contact direct avec leurs clients : cabinets de conseil, agences, autres prestataires de services et fondateurs qui vendent encore eux-mêmes. Les affaires se placent sur un board par étape avec une probabilité de gain par étape, et dès Pro, les e-mails et les messages LinkedIn, WhatsApp, Instagram ou Telegram du client apparaissent sur sa fiche de contact.
+Le suivi commercial consiste à enregistrer, au même endroit, la valeur, l’étape, le responsable, la clôture prévue et la prochaine étape de chaque affaire, puis à relire les mêmes quelques chiffres à jour fixe. Customermates est un CRM commercial pour les petites équipes en contact direct avec leurs clients : cabinets de conseil, agences, autres prestataires de services et fondateurs qui vendent encore eux-mêmes. Les affaires se placent sur un board par étape avec une probabilité de gain par étape, et dès Pro, les e-mails et les messages LinkedIn, WhatsApp, Instagram ou Telegram du client apparaissent sur sa fiche de contact. Cette page dit quoi suivre, montre les champs et les vues derrière chaque chiffre et déroule une revue hebdomadaire sur des données d’exemple.
 
 Ce n’est pas une machine de prospection sortante. Si votre équipe décroche des rendez-vous au volume, le tableau des alternatives plus bas est la partie la plus utile de cette page.
 
-## Ce que fait le côté vente de Customermates
+## Que suivre dans le suivi commercial d’une petite équipe ?
 
-**Les affaires et leur valeur.** Une affaire est liée à des contacts, à des organisations, à des utilisateurs attribués, à des tâches et, par ses lignes, aux services que vous vendez. Sa valeur est calculée plutôt que saisie : la somme de ses lignes, chacune étant un service multiplié par sa quantité. Deux journées d’atelier à 1 500 plus dix heures de coaching à 150 donnent une valeur d’affaire de 4 500.
+Douze chiffres couvrent la plupart des décisions d’une équipe qui a quelques dizaines d’affaires ouvertes : sept pour la revue hebdomadaire, cinq pour la fin du mois. Pour chacun, vous voyez comment il se calcule et où il se trouve dans Customermates.
 
-**Des étapes avec des probabilités de gain.** L’étape est un champ à choix unique, généralement appelé Étape. Les étapes ne sont pas préconfigurées : vous ajoutez le champ à votre liste d’affaires dans Modèle de données (dans le cloud, la configuration IA peut le créer), par exemple avec Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 % et Perdue 0 %. Vous pouvez renommer, ajouter et réordonner les étapes, et définir les probabilités sous **Probabilité %** sur chaque option du champ Étape dans **Modèle de données**. La valeur pondérée de chaque affaire est sa valeur multipliée par la probabilité de son étape actuelle.
+**Chaque semaine : le pipeline est-il en bonne santé ?**
 
-**Le board.** Passez la liste des affaires en board, groupée par Étape, et faites glisser une carte pour déplacer une affaire. L’en-tête de chaque colonne affiche le nombre d’affaires et les sommes que vous choisissez pour le groupement, comme **Valeur** et **Valeur pondérée**. Groupez le même board par **Attribué à** et chaque personne obtient une colonne avec son propre décompte et ses propres totaux ; ce board est en lecture seule. La [page du pipeline](/features/pipeline) présente le board plus en détail.
-
-**Les vues enregistrées.** Les filtres, le tri, le groupement et la disposition s’enregistrent ensemble sous forme de vue nommée, comme « Mes affaires ouvertes par valeur ». Partagez une vue avec toute l’équipe ou avec des rôles choisis et chacun travaille avec les mêmes filtres ; chaque personne ne voit toujours que les enregistrements que son rôle autorise.
-
-**Les graphiques du tableau de bord.** Un graphique compte les affaires ou additionne la **Valeur** ou la **Valeur pondérée**, groupées par un champ comme l’Étape ou la Source du prospect. Les graphiques appartiennent à la personne qui les a créés. Partagez une vue de tableau de bord nommée avec l’équipe pour que chacun voie les mêmes graphiques, ou utilisez **Partager comme modèle** pour que vos collègues démarrent leur propre copie.
-
-**Les conversations sur le contact (Pro et supérieures).** Connectez Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram dans la [boîte de réception unifiée](/features/unified-inbox). Dès qu’un contact porte l’adresse e-mail ou l’identifiant, chaque conversation avec lui apparaît dans la chronologie de ce contact. Les messages se lient aux contacts, et une conversation peut aussi être liée à une affaire ; depuis une affaire, la dernière conversation est à un clic, sur le contact lié.
-
-**L’aide de l’IA.** Dans Customermates Cloud, Mate lit une affaire, ses notes et les conversations avec ses contacts, puis rédige un résumé, un brouillon de réponse ou la mise à jour que vous demandez, avec des crédits d’IA hébergée. Votre propre client IA, comme Claude ou ChatGPT, fait la même chose via MCP avec [[derived.mcp.tools.total]] outils, sur chaque offre et en auto-hébergement.
-
-## Quelle offre vous faut-il
-
-| Offre | Fonctions de vente | Prix |
+| Ce qu’il faut suivre | Comment on le calcule | Où le trouver dans Customermates |
 |---|---|---|
-| Starter | Affaires, board par étape, pipeline pondéré, vues enregistrées, graphiques de tableau de bord, import et export XLSX, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur | [[commercial.price.starter.monthly]] par utilisateur et par mois |
-| Pro | Starter plus la boîte de réception unifiée avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, LinkedIn Sales Navigator, accès au calendrier en lecture seule, [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur | [[commercial.price.pro.monthly]] par utilisateur et par mois |
-| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur, comptes partagés et une chronologie commune à toute l’équipe sur tous les canaux | [[commercial.price.business.monthly]] par utilisateur et par mois |
-| Auto-hébergé | L’ensemble de fonctionnalités Starter sur votre propre serveur, sans boîte de réception, Mate ni routines | Aucun frais de licence ; vous payez votre propre infrastructure |
+| Valeur du pipeline ouvert | Somme de la **Valeur** des affaires dont l’Étape n’est ni Gagnée ni Perdue | Un widget **Nombre** (somme de la Valeur, filtrée sur l’Étape) ou les totaux de colonnes du board par étape |
+| Pipeline pondéré | Les mêmes affaires, somme de la **Valeur pondérée** : la valeur multipliée par la **Probabilité %** de l’étape | Le même widget avec la Valeur pondérée, ou un diagramme en barres de la Valeur pondérée par Étape |
+| Affaires par étape | Nombre d’affaires ouvertes dans chaque étape | Un diagramme **Entonnoir** ou le décompte de chaque colonne du board. L’entonnoir montre les affaires actuelles, pas la conversion dans le temps. |
+| À clôturer bientôt | Affaires ouvertes dont la **Clôture prévue** tombe dans les 30 prochains jours | Un widget **À venir** sur Clôture prévue, réglé sur 30 jours, ou une vue enregistrée triée par Clôture prévue |
+| Sans prochaine étape | Affaires ouvertes dont la **Prochaine étape** est vide | Une vue enregistrée : Prochaine étape est vide, Étape n’est ni Gagnée ni Perdue |
+| Affaires en sommeil | Affaires ouvertes que personne n’a modifiées depuis 14 jours | Une vue enregistrée : **Mis à jour le** plus ancien que 14 jours, Étape n’est ni Gagnée ni Perdue. Elle voit les modifications de l’affaire, pas les messages. |
+| Affaires par personne | Nombre, valeur et valeur pondérée par responsable | Le board des affaires groupé par **Attribué à**. Il est en lecture seule, et une affaire avec deux personnes attribuées apparaît sous les deux. |
 
-La facturation est mensuelle. Chaque offre Cloud payante inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate ; la [page des tarifs](/pricing) indique les montants.
+**Chaque mois : qu’avons-nous gagné, et pourquoi ?**
 
-## Mettre en place un pipeline de vente dans Customermates
+| Ce qu’il faut suivre | Comment on le calcule | Où le trouver dans Customermates |
+|---|---|---|
+| Gagné ce mois-ci | Nombre et somme de la Valeur des affaires à l’Étape Gagnée et **Clôturée le** dans le mois | Deux widgets **Nombre** avec un filtre sur Clôturée le, ou un graphique **Aire dans le temps** de la Valeur groupée par Clôturée le, intervalle de temps réglé sur le mois |
+| Taux de gain | Gagnées divisées par (Gagnées plus Perdues) parmi les affaires clôturées sur la période | Deux widgets **Nombre**, le nombre de Gagnées et le nombre de Perdues sur la même période, divisés à la main. Dans Customermates Cloud, Mate peut le calculer. |
+| Affaire gagnée moyenne | Moyenne de la Valeur lorsque l’Étape est Gagnée | Un widget **Nombre** avec l’agrégation moyenne |
+| D’où viennent les gains | Valeur des affaires gagnées par **Source du prospect** | Un diagramme en barres ou **Anneau**, groupé par Source du prospect et filtré sur l’Étape Gagnée |
+| Pourquoi on perd | Nombre d’affaires perdues par **Motif de perte** | Un **Tableau classé**, groupé par Motif de perte et filtré sur l’Étape Perdue |
+
+Clôturée le est un champ date que vous ajoutez vous-même. Renseignez-le quand vous passez une affaire en Gagnée ou en Perdue, ou demandez à Mate ou à votre propre client IA de le définir en même temps que l’étape. Le taux de gain compte ici des affaires ; il ne les pondère pas par leur valeur.
+
+Et l’activité commerciale ? Le widget **Chronologie des activités** liste les modifications d’enregistrements et, dès Pro, les messages et les rendez-vous des comptes connectés ; vous pouvez le filtrer par enregistrements liés, par exemple tout ce qui s’est passé sur vos cinq plus grosses affaires. C’est un fil à lire, pas un compteur d’appels ou d’e-mails par personne, et il n’y a pas de téléphonie.
+
+## Quels champs faut-il pour un suivi commercial ?
+
+Une liste ne vaut que par ses colonnes. Voici les onze dont une liste d’affaires a besoin pour produire chaque chiffre ci-dessus.
+
+| Colonne | Type de champ dans Customermates | Alimente |
+|---|---|---|
+| Nom de l’affaire | Nom | Chaque vue |
+| Organisation et contacts | Liens vers vos organisations et vos contacts | Les conversations sur le contact |
+| Étape | Choix unique, chaque option avec une **Probabilité %** | Pipeline, pipeline pondéré, entonnoir |
+| Valeur | Devise, ou calculée à partir des lignes : chacune un service multiplié par sa quantité | Valeur du pipeline, affaire gagnée moyenne |
+| Valeur pondérée | Calculée : Valeur multipliée par la Probabilité % de l’étape | Pipeline pondéré |
+| Responsable | **Attribué à**, un utilisateur ou plusieurs | Affaires par personne |
+| Clôture prévue | Date | À clôturer bientôt |
+| Prochaine étape | Date, avec une tâche ou une note qui dit de quoi il s’agit | Sans prochaine étape, widget À venir |
+| Source du prospect | Choix unique : Recommandation, LinkedIn, Site web, Évènement | D’où viennent les gains |
+| Clôturée le | Date | Gagné ce mois-ci, taux de gain |
+| Motif de perte | Choix unique : Prix, Calendrier, A choisi un concurrent, Pas de décision | Pourquoi on perd |
+
+Un nouvel espace de travail démarre sans listes. Dans Customermates Cloud, la configuration IA peut construire une liste d’affaires à partir de votre description ; sinon, vous créez les champs dans Modèle de données, ce qui est aussi la seule voie en auto-hébergement. Clôture prévue, Prochaine étape, Source du prospect, Clôturée le et Motif de perte sont des champs personnalisés ordinaires ; vous changez leurs noms et leurs options dès que votre processus change. La valeur d’une affaire peut être la somme de ses lignes : deux journées d’atelier à 1 500 plus dix heures de coaching à 150 donnent une valeur d’affaire de 4 500.
+
+## Comment mettre en place le suivi commercial dans Customermates ?
 
 <Steps>
-  <Step title="Ajuster les étapes">Dans **Modèle de données**, ouvrez Affaires et le champ **Étape**. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et vérifiez la **Probabilité %** de chaque option.</Step>
+  <Step title="Ajuster les étapes">Dans **Modèle de données**, ouvrez Affaires et le champ **Étape**. Renommez les options pour qu’elles correspondent à votre façon de vendre, par exemple « Appel de découverte » et « Proposition envoyée », et définissez la **Probabilité %** de chaque option : par exemple Prospection 10 %, Qualification 20 %, Démo 40 %, Proposition 60 %, Négociation 80 %, Gagnée 100 % et Perdue 0 %. Un aperçu montre l’effet sur les calculs et les widgets avant l’enregistrement.</Step>
   <Step title="Créer vos services">Ajoutez ce que vous vendez sous **Services**, chacun avec un prix : un contrat récurrent, une journée d’atelier, une licence. Les lignes des affaires, et donc leurs valeurs, sont construites à partir de ceux-ci.</Step>
-  <Step title="Ajouter trois champs personnalisés aux affaires">Un champ Date « Clôture prévue », un Choix unique « Source du prospect » avec Recommandation, LinkedIn, Site web et Évènement, et un Choix unique « Motif de perte » avec Prix, Calendrier, A choisi un concurrent et Pas de décision.</Step>
+  <Step title="Ajouter les cinq champs de suivi">Sur Affaires, utilisez **Ajouter › Champ** pour Clôture prévue, Prochaine étape et Clôturée le (Date), Source du prospect (Choix unique avec Recommandation, LinkedIn, Site web et Évènement) et Motif de perte (Choix unique avec Prix, Calendrier, A choisi un concurrent et Pas de décision).</Step>
   <Step title="Importer ce que vous avez déjà">Utilisez **Ajouter depuis un fichier** avec un classeur Excel ou un fichier CSV, un type d’enregistrement à la fois : d’abord les organisations, puis les contacts, puis les affaires. Les colonnes de liens sont associées par le nom de l’enregistrement : une organisation doit donc exister avant qu’une affaire puisse la désigner.</Step>
-  <Step title="Enregistrer deux vues">« Mes affaires ouvertes » : Attribué à est vous, Étape n’est pas Gagnée ni Perdue, trié par valeur, affiché en board. « À clôturer bientôt » : un filtre sur Clôture prévue, affiché en tableau.</Step>
-  <Step title="Ajouter deux graphiques de tableau de bord">La somme de la Valeur pondérée groupée par Étape, et la somme de la Valeur groupée par Source du prospect avec un filtre sur Étape défini sur Gagnée.</Step>
+  <Step title="Enregistrer les vues de la revue">« Mes affaires ouvertes » : Attribué à est vous, Étape n’est ni Gagnée ni Perdue, trié par valeur, affiché en board. « À clôturer bientôt » : Étape n’est ni Gagnée ni Perdue, trié par Clôture prévue, affiché en tableau. « Sans prochaine étape » et « En sommeil » comme dans le tableau ci-dessus. Les règles d’un filtre se combinent avec ET : une vue qui porte les deux règles n’affiche que les affaires en sommeil qui n’ont en plus aucune prochaine étape. Créez donc deux vues. Partagez les vues avec toute l’équipe ou avec des rôles choisis.</Step>
+  <Step title="Ajouter les widgets du tableau de bord">Un widget **Nombre** pour le pipeline pondéré, un diagramme en barres de la Valeur pondérée par Étape, un widget **À venir** sur Prochaine étape et un graphique de la Valeur des affaires gagnées par Source du prospect.</Step>
   <Step title="Connecter votre boîte de réception (Pro et supérieures)">Sous **Paramètres › Canaux et agendas**, connectez la boîte aux lettres ou le compte LinkedIn depuis lequel vous vendez.</Step>
 </Steps>
 
-Le [guide des enregistrements](/docs/app-records) couvre pas à pas l’import, les vues et le board.
+Le [guide des enregistrements](/docs/app-records) couvre pas à pas l’import, les vues et le board, et le [guide du tableau de bord](/docs/app-dashboard) liste chaque widget avec ses options. La [page du pipeline](/features/pipeline) présente le board plus en détail.
 
-## Suivre les ventes sans tableur
+## À quoi ressemble une revue commerciale hebdomadaire ?
 
-Les questions d’une réunion commerciale hebdomadaire, et où se trouvent les réponses après la configuration ci-dessus :
+Prenons cinq affaires ouvertes d’un petit cabinet de conseil. Les chiffres sont inventés pour l’exemple ; ce ne sont pas les données d’un client.
 
-| Question | Où trouver la réponse |
-|---|---|
-| Que contient le pipeline, et que vaut-il en pondéré ? | Les totaux de colonnes sur le board par étape, ou un graphique de tableau de bord qui additionne la **Valeur** ou la **Valeur pondérée** par étape |
-| Qui travaille sur quelles affaires ? | Le board des affaires groupé par **Attribué à**. Une affaire avec deux utilisateurs attribués apparaît sous les deux. |
-| Quelles affaires doivent se conclure bientôt ? | La vue « À clôturer bientôt » |
-| D’où viennent les affaires gagnées ? | Le graphique de la valeur des affaires gagnées par Source du prospect |
-| Pourquoi perdons-nous ? | Un graphique qui compte les affaires perdues par Motif de perte |
-| Que s’est-il passé sur cette affaire ? | Ses notes, son historique des modifications et, dès Pro, les conversations sur ses contacts |
+| Affaire | Étape (probabilité) | Valeur | Valeur pondérée | Prochaine étape renseignée | Clôture dans | Dernière modification |
+|---|---|---|---|---|---|---|
+| Contrat récurrent Nord | Négociation (80 %) | 12 000 | 9 600 | Oui | 9 jours | il y a 1 jour |
+| Refonte du site Bauer | Proposition (60 %) | 6 000 | 3 600 | Oui | 19 jours | il y a 2 jours |
+| Coaching Lindner | Proposition (60 %) | 2 400 | 1 440 | Non | 24 jours | il y a 16 jours |
+| Série d’ateliers Keller | Démo (40 %) | 4 500 | 1 800 | Non | 34 jours | il y a 19 jours |
+| Sprint de marque Meyer | Qualification (20 %) | 3 000 | 600 | Oui | 80 jours | il y a 6 jours |
+| **Total** | | **27 900** | **17 040** | | | |
 
-Customermates ne suit ni les taux de conversion dans le temps, ni la vélocité des ventes, ni le temps passé dans chaque étape. Dans Customermates Cloud, Mate peut calculer un chiffre comme le taux de gain de chaque personne à partir de vos enregistrements avec un outil d’analyse en lecture seule, avec des crédits d’IA hébergée. Sinon, exportez les affaires en XLSX ou lisez-les via l’API REST. [Rapports](/features/reporting) couvre les options de graphiques.
+Parcourez-le dans cet ordre :
 
-## Mettre à jour les affaires avec Mate (Customermates Cloud)
+1. **Valeur du pipeline.** Le pipeline ouvert vaut 27 900 et le pipeline pondéré 17 040. Le contrat Nord porte à lui seul 9 600 de la valeur pondérée, soit 56 pour cent : une négociation perdue change le tableau. Il a droit aux premières minutes de la réunion.
+2. **À clôturer bientôt.** Nord, Bauer et Lindner arrivent à échéance sous 30 jours : 20 400 de valeur, 14 640 en pondéré. Keller, à 34 jours, est hors de la fenêtre.
+3. **Sans prochaine étape.** Lindner et Keller.
+4. **Affaires en sommeil.** Lindner (16 jours) et Keller (19 jours).
+5. **Décider.** Lindner figure sur les deux listes et doit se conclure dans 24 jours. Fixez cette semaine une prochaine étape datée, ramenez la Clôture prévue et l’étape à ce qui est vrai, ou clôturez l’affaire en Perdue avec un motif. Keller demande une prochaine étape ou une Clôture prévue plus tardive. Une affaire en sommeil, sans prochaine étape et bientôt due est l’endroit où le total d’un pipeline surestime le plus la réalité.
 
-Après un appel, collez vos notes dans Mate avec une instruction comme celle-ci :
+À la fin du mois, supposons quatre affaires gagnées et six perdues : le taux de gain est de 4 divisé par 10, soit 40 pour cent, et le graphique par Motif de perte montre quelle objection préparer. Les définitions des étapes derrière le board sont dans le [guide du pipeline de vente](/blog/sales-pipeline), et la façon de passer d’un pipeline pondéré à un chiffre trimestriel dans l’article sur les [prévisions de vente](/blog/sales-forecasting).
+
+## Un tableur suffit-il pour le suivi des ventes ?
+
+Pour une personne avec une poignée d’affaires, souvent oui. La question est ce que le tableur ne fait plus dès que davantage de personnes et de conversations s’en mêlent.
+
+| Question | Tableur | Customermates |
+|---|---|---|
+| Qui le tient à jour ? | La personne qui saisit chaque affaire | Plusieurs personnes, chacune avec les enregistrements que son rôle autorise |
+| D’où viennent les totaux ? | Des formules que vous écrivez et gardez intactes | Les totaux de colonnes du board et une Valeur pondérée calculée à partir des probabilités d’étape |
+| Où est la conversation ? | Dans la boîte mail et dans LinkedIn, loin de la ligne | Dès Pro sur le contact, à un clic de l’affaire |
+| Qu’est-ce qui a changé sur l’affaire ? | Vous vous en souvenez, ou vous comparez des versions | L’historique des modifications de l’affaire |
+| Comment commencer ? | Avec un tableur vide | Vous importez votre tableur en XLSX ou CSV |
+
+Notre [modèle de CRM Excel](/blog/excel-crm-template) propose une mise en page de feuille vérifiée, et sa liste de contrôle dit quand passer à un CRM. Un tableur que vous tenez aujourd’hui s’importe dans Customermates en XLSX ou CSV, un type d’enregistrement à la fois.
+
+## Comment les conversations et Mate s’intègrent-ils au suivi commercial ?
+
+**Les conversations sur le contact (Pro et supérieures).** Connectez Gmail, Outlook, IMAP, LinkedIn, WhatsApp, Instagram ou Telegram dans la [boîte de réception unifiée](/features/unified-inbox). Dès qu’un contact porte l’adresse e-mail ou l’identifiant, chaque conversation avec lui apparaît dans la chronologie de ce contact, et « que s’est-il passé sur cette affaire ? » est à un clic de l’affaire. Les messages se lient aux contacts, et une conversation peut aussi être liée à une affaire ; rien n’est rattaché automatiquement à une affaire.
+
+**Mettre à jour les affaires avec Mate (Customermates Cloud).** Après un appel, collez vos notes dans Mate avec une instruction comme celle-ci :
 
 ```text
 Voici mes notes de l'appel d'aujourd'hui avec Bauer Consulting. Mettez à jour l'affaire « Refonte du site web Bauer » : passez l'étape à Proposition, définissez Clôture prévue au 30 novembre et ajoutez les notes. Créez pour moi une tâche d'envoi de la proposition et liez-la à l'affaire. N'envoyez aucun message.
 ```
 
-Mate fait ces modifications directement, et elles arrivent dans l’historique de l’affaire. Si on lui demande d’envoyer un e-mail, il l’envoie sans redemander : écrivez donc « brouillon » quand vous voulez relire le texte d’abord. Les suppressions demandent toujours votre validation. Votre propre client IA peut exécuter la même demande via MCP ; pour des tâches planifiées ou déclenchées par des changements d’affaires, voir l’[automatisation des workflows](/features/workflow-automation).
+Mate fait ces modifications directement, et elles arrivent dans l’historique de l’affaire. Si on lui demande d’envoyer un e-mail, il l’envoie sans redemander : écrivez donc « brouillon » quand vous voulez relire le texte d’abord. Les suppressions demandent toujours votre validation. Mate utilise des crédits d’IA hébergée. Votre propre client IA, comme Claude ou ChatGPT, exécute la même demande via MCP avec [[derived.mcp.tools.total]] outils, sur chaque offre et en auto-hébergement. Pour des tâches planifiées ou déclenchées par des changements d’affaires, voir l’[automatisation des workflows](/features/workflow-automation).
 
-## Ce que Customermates ne fait pas, et quoi utiliser à la place
+## Quelle offre vous faut-il, et que coûte-t-elle ?
 
-Customermates publie cette page. Les informations sur les éditeurs ont été vérifiées le 8 octobre 2026 sur leurs pages, liées à la fin.
-
-| Vous avez besoin de | Dans Customermates | Où chercher |
+| Offre | Fonctions pour le suivi commercial | Prix |
 |---|---|---|
-| Séquences d’e-mails | Non disponible. Mate rédige un message dans une conversation. | HubSpot Sales Hub Professional ou Enterprise ; offres Pipedrive Growth et supérieures |
-| Prévisions de chiffre d’affaires au-delà des pondérations d’étape | Non disponible. Le pipeline pondéré utilise les probabilités fixes que vous définissez. | HubSpot Sales Hub Professional ; Pipedrive Growth (« Forecast view and reports ») ; Salesforce Pro Suite (« Sales Quoting and Forecasting ») |
-| Formulaires web, scoring de prospects, enrichissement | Non disponible. Envoyez les saisies de formulaires via l’API REST. | Pipedrive Premium, qui inclut LeadBooster avec formulaires web, ainsi que le scoring personnalisé et l’enrichissement |
-| Appels depuis le CRM | Ni téléphonie ni SMS | Un CRM avec numéroteur intégré |
-| Devis et factures | Non disponible | Votre outil de facturation |
-| Une offre gratuite | Formule Cloud gratuite pour [[commercial.limit.free.maxMembers]] personne, sans boîte de réception ni Mate ; un essai Pro de [[commercial.trial.days]] jours, ou l’auto-hébergement sans frais de licence | HubSpot Sales Hub Free jusqu’à 2 utilisateurs ; édition gratuite de Zoho CRM jusqu’à 3 utilisateurs |
-| Une application sur le téléphone | Pas d’application mobile native ; Customermates fonctionne dans le navigateur | Un CRM avec des applications natives iOS et Android |
+| Starter | Affaires, board par étape, pipeline pondéré, vues enregistrées, widgets de tableau de bord, import et export XLSX, REST, webhooks, MCP, [[commercial.entitlement.starter.includedRoutinesPerUser]] routine par utilisateur | [[commercial.price.starter.monthly]] par utilisateur et par mois |
+| Pro | Starter plus la boîte de réception unifiée avec [[commercial.entitlement.pro.includedAccountsPerUser]] compte connecté par utilisateur, LinkedIn Sales Navigator, accès au calendrier en lecture seule, [[commercial.entitlement.pro.includedRoutinesPerUser]] routines par utilisateur | [[commercial.price.pro.monthly]] par utilisateur et par mois |
+| Business | Pro plus [[commercial.entitlement.business.includedAccountsPerUser]] comptes connectés par utilisateur, comptes partagés et une chronologie commune à toute l’équipe sur tous les canaux | [[commercial.price.business.monthly]] par utilisateur et par mois |
+| Auto-hébergé | L’ensemble de fonctionnalités Starter sur votre propre serveur, sans boîte de réception, Mate ni routines | Aucun frais de licence ; vous payez votre propre infrastructure |
 
-Les tâches n’ont pas non plus d’échéances ni de rappels. Placez un champ date sur l’affaire et gardez une vue enregistrée de ce qui arrive à échéance, comme décrit sous les [relances](/features/follow-up).
-
-## Ce que cela coûte
+La facturation est mensuelle. Chaque offre Cloud payante inclut des crédits d’IA hébergée mensuels par utilisateur actif pour Mate ; la [page des tarifs](/pricing) indique les montants. Trois exemples :
 
 | Équipe | Offre | Par mois |
 |---|---|---|
@@ -150,25 +192,51 @@ Les tâches n’ont pas non plus d’échéances ni de rappels. Placez un champ 
 
 Sur douze mois, l’équipe de cinq personnes sur Pro paie [[commercial.price.pro.monthly.seats.5.months.12]].
 
-À titre de comparaison, aux prix publics vérifiés le 8 octobre 2026 : Salesforce Starter Suite coûte 25 $ par utilisateur et par mois, facturé au mois ou à l’année, donc cinq utilisateurs paient 125 $ par mois. HubSpot Sales Hub Professional, l’offre HubSpot la moins chère avec prévisions, coûte 100 $ par poste et par mois en facturation mensuelle ou 90 $ avec un engagement annuel, soit 500 $ par mois pour cinq postes en facturation mensuelle, plus des frais uniques obligatoires d’intégration Professional de 1 500 $. Ce sont des prix publics par poste ; la page de tarifs de chaque éditeur indique ce qui s’applique en plus.
+À titre de comparaison, aux prix publics vérifiés le 11 novembre 2026 : Salesforce Starter Suite coûte 25 $ par utilisateur et par mois, facturé au mois ou à l’année, donc cinq utilisateurs paient 125 $ par mois. Salesforce Pro Suite, qui mentionne « Sales Quoting and Forecasting », coûte 100 $ par utilisateur et par mois, facturé uniquement à l’année. HubSpot Sales Hub Professional, l’offre HubSpot la moins chère avec prévisions, coûte 100 $ par poste et par mois en facturation mensuelle ou 90 $ avec un engagement annuel, soit 500 $ par mois pour cinq postes en facturation mensuelle, plus des frais uniques obligatoires d’intégration Professional de 1 500 $. Ce sont des prix publics par poste ; la page de tarifs de chaque éditeur indique ce qui s’applique en plus.
+
+## Que ne suit pas Customermates, et quoi utiliser à la place ?
+
+Customermates publie cette page. Les informations sur les éditeurs ont été vérifiées le 11 novembre 2026 sur leurs pages, liées à la fin.
+
+| Vous avez besoin de | Dans Customermates | Où chercher |
+|---|---|---|
+| Taux de conversion dans le temps, vélocité des ventes, temps passé dans chaque étape | Non disponible. L’entonnoir montre les affaires actuelles par étape ; dans Customermates Cloud, Mate peut calculer à partir de vos enregistrements un chiffre comme le taux de gain de chaque personne. | Exporter les affaires en XLSX ou les lire via l’API REST et calculer là-bas |
+| Quotas et objectifs | Non disponible. Comparez à la main le pipeline pondéré à votre propre objectif. | Un outil de vente avec objectifs intégrés |
+| Prévisions de chiffre d’affaires au-delà des pondérations d’étape | Non disponible. Le pipeline pondéré utilise les probabilités fixes que vous définissez. | HubSpot Sales Hub Professional ; Salesforce Pro Suite (« Sales Quoting and Forecasting ») |
+| Séquences d’e-mails | Non disponible. Mate rédige un message dans une conversation. | HubSpot Sales Hub Professional ou Enterprise |
+| Formulaires web, scoring de prospects, enrichissement | Non disponible. Envoyez les saisies de formulaires via l’API REST. | Un CRM avec formulaires et scoring intégrés |
+| Appels depuis le CRM | Ni téléphonie ni SMS | Un CRM avec numéroteur intégré |
+| Devis et factures | Non disponible | Votre outil de facturation |
+| Une offre gratuite | Formule Cloud gratuite pour [[commercial.limit.free.maxMembers]] personne, sans boîte de réception ni Mate ; un essai Pro de [[commercial.trial.days]] jours, ou l’auto-hébergement sans frais de licence | HubSpot Sales Hub Free jusqu’à 2 utilisateurs ; édition gratuite de Zoho CRM jusqu’à 3 utilisateurs |
+| Une application sur le téléphone | Pas d’application mobile native ; Customermates fonctionne dans le navigateur | Un CRM avec des applications natives iOS et Android |
+
+Les tâches n’ont pas non plus d’échéances ni de rappels. La date Prochaine étape sur l’affaire et le widget À venir remplissent ce rôle, comme décrit sous les [relances](/features/follow-up). Les [rapports](/features/reporting) couvrent toutes les options de graphiques.
 
 ## Questions fréquentes
 
 <Faq>
-<FaqItem question="Quel est le meilleur logiciel CRM de vente pour une petite équipe ?">
-Cela dépend de votre façon de vendre. Les équipes de prospection sortante qui gagnent au volume ont besoin de séquences et de prévisions, qu’incluent HubSpot Sales Hub Professional et Pipedrive Growth. Les équipes qui vendent par la relation, avec quelques dizaines d’affaires ouvertes et l’essentiel du travail dans des conversations par e-mail et LinkedIn, ont besoin de l’affaire et de la conversation au même endroit. Customermates est conçu pour ce second cas.
+<FaqItem question="Qu’est-ce que le suivi commercial ?">
+Le suivi commercial consiste à enregistrer pour chaque affaire sa valeur, son étape, son responsable, sa clôture prévue, sa prochaine étape et son issue, puis à relire à intervalle fixe quelques chiffres tirés de cet enregistrement. L’enregistrement est l’outil de suivi, et la revue le transforme en décisions. Dans Customermates, l’enregistrement est une liste d’affaires, et la revue s’appuie sur des vues enregistrées et des widgets de tableau de bord.
 </FaqItem>
 
-<FaqItem question="Un CRM de vente est-il difficile à prendre en main ?">
-Pas si vous gardez la première version petite. Un nouvel espace de travail démarre sans listes, mais une liste d’affaires avec un champ Étape se crée en quelques minutes dans Modèle de données, et dans le cloud la configuration IA peut la construire pour vous. Le vrai travail consiste à s’accorder sur les noms d’étapes et sur trois ou quatre champs personnalisés, puis à importer ce qui se trouve aujourd’hui dans votre tableur.
+<FaqItem question="Quelle est la meilleure façon de suivre les ventes dans une petite entreprise ?">
+Gardez une seule liste d’affaires avec une douzaine de champs, donnez à chaque affaire ouverte une étape et une prochaine étape datée, et tenez chaque semaine la même revue. Un tableur le permet pour une personne avec une poignée d’affaires. Dès que plusieurs personnes mettent les affaires à jour, ou que les affaires vivent dans des conversations par e-mail et LinkedIn, l’enregistrement et la conversation ont leur place dans un même outil. Customermates est conçu pour ce second cas.
+</FaqItem>
+
+<FaqItem question="À quelle fréquence relire les chiffres de vente ?">
+Relisez la santé du pipeline chaque semaine : pipeline ouvert et pondéré, affaires à clôturer bientôt, affaires sans prochaine étape et affaires en sommeil. Relisez les résultats chaque mois : valeur gagnée, taux de gain, sources des prospects et motifs de perte. Une petite équipe conclut rarement assez d’affaires en une semaine pour que ces résultats veuillent dire grand-chose.
+</FaqItem>
+
+<FaqItem question="Existe-t-il un logiciel de suivi commercial gratuit ?">
+Oui, avec des limites. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Votre premier espace de travail commence par [[commercial.trial.days]] jours de Pro sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. L’[auto-hébergement](/features/self-hosted) du noyau open source n’a aucun frais de licence : il fournit l’ensemble de fonctionnalités Starter sur votre propre serveur. HubSpot Sales Hub Free couvre jusqu’à 2 utilisateurs et l’édition gratuite de Zoho CRM jusqu’à 3.
+</FaqItem>
+
+<FaqItem question="Quel est le meilleur logiciel CRM de vente pour une petite équipe ?">
+Cela dépend de votre façon de vendre. Les équipes de prospection sortante qui gagnent au volume ont besoin de séquences et de prévisions, qu’inclut HubSpot Sales Hub Professional. Les équipes qui vendent par la relation, avec quelques dizaines d’affaires ouvertes et l’essentiel du travail dans des conversations par e-mail et LinkedIn, ont besoin de l’affaire et de la conversation au même endroit. Customermates est conçu pour ce second cas.
 </FaqItem>
 
 <FaqItem question="Customermates peut-il prévoir le chiffre d’affaires ?">
 Non, pas au sens prédictif. Il calcule un pipeline pondéré : la valeur de chaque affaire multipliée par la probabilité de gain que vous avez définie pour son étape. C’est de l’arithmétique sur vos propres chiffres. Il n’y a aucun modèle qui apprend des affaires passées ou prédit des dates de clôture.
-</FaqItem>
-
-<FaqItem question="Existe-t-il une version gratuite ?">
-Oui. Customermates Cloud a une formule gratuite pour [[commercial.limit.free.maxMembers]] personne et [[commercial.limit.free.maxRecords]] enregistrements, sans boîte de réception, Mate ni routines. Votre premier espace de travail commence par [[commercial.trial.days]] jours de Pro sans carte bancaire ; chaque espace de travail suivant commence par le choix d’une formule. L’[auto-hébergement](/features/self-hosted) du noyau open source n’a aucun frais de licence : il fournit l’ensemble de fonctionnalités Starter sur votre propre serveur, sans la boîte de réception, Mate ni les routines.
 </FaqItem>
 
 <FaqItem question="Puis-je voir le pipeline de chaque commercial ?">
@@ -176,4 +244,4 @@ Oui. Groupez le board des affaires par **Attribué à** et chaque personne obtie
 </FaqItem>
 </Faq>
 
-Informations sur les concurrents vérifiées le 8 octobre 2026 auprès des [tarifs de HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), de la [documentation de HubSpot sur les séquences](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), de l’[aperçu des offres de Pipedrive](https://support.pipedrive.com/en/article/new-pipedrive-plans), des [tarifs de Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) et des [tarifs de Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html).
+Informations sur les concurrents vérifiées le 11 novembre 2026 auprès des [tarifs de HubSpot Sales Hub](https://www.hubspot.com/pricing/sales), de la [documentation de HubSpot sur les séquences](https://knowledge.hubspot.com/sequences/create-and-edit-sequences), des [tarifs de Salesforce Sales Cloud](https://www.salesforce.com/sales/pricing/) et des [tarifs de Zoho CRM](https://www.zoho.com/crm/zohocrm-pricing.html).

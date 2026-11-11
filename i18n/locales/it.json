@@ -2457,6 +2457,7 @@
     "appTrash": "Cestino",
     "appWorkspaces": "Spazi di lavoro",
     "architectureSecurity": "Architettura e sicurezza",
+    "changelog": "Registro delle modifiche",
     "concepts": "Concetti chiave",
     "connectCli": "CLI ed editor",
     "connectConnector": "Connettore personalizzato",
@@ -2472,6 +2473,7 @@
     "n8n": "N8N",
     "openapi": "OpenAPI 3.1.0",
     "quickstart": "Avvio rapido",
+    "releases": "Versioni",
     "selfHosting": "Self-hosting",
     "webhooks": "Webhook"
   },

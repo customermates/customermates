@@ -1,0 +1,107 @@
+---
+title: "Anagrafica clienti Excel: modello CSV gratuito"
+description: "Anagrafica clienti Excel: scarica un modello CSV vuoto e uno d’esempio, importali in Excel, tieni i campi utili e assegna un responsabile a ogni follow up."
+
+relatedHrefs:
+  - /blog/excel-crm-template
+  - /blog/google-sheets-crm
+  - /features/contact-management
+  - /blog/digital-rolodex
+
+hero:
+  title: "Anagrafica clienti Excel: modello CSV vuoto e un esempio compilato"
+  description: "Anagrafica clienti Excel: scarica un modello CSV vuoto e uno d’esempio, importali in Excel, tieni i campi utili e assegna un responsabile a ogni follow up."
+
+blogPost:
+  author: Benjamin Wagner
+  backToBlog: Torna al blog
+  by: di Benjamin Wagner
+  date: 2026-11-06
+  updated: 2026-11-06
+  tags:
+    - Gestione dei contatti
+    - Modelli
+---
+
+# Anagrafica clienti Excel: modello CSV vuoto e un esempio compilato
+
+Questa anagrafica clienti Excel dà a un piccolo team un unico posto per nomi, recapiti aziendali e prossimo passo concordato. Scarica il CSV vuoto o l’esempio fittizio qui sotto, importalo nel tuo foglio di calcolo e passa a Customermates quando curare relazioni e follow up richiede più di un file condiviso.
+
+## Quale elenco clienti conviene scaricare?
+
+- [CSV vuoto dell’anagrafica clienti](/downloads/contact-list-template-it-blank.csv): solo le intestazioni, pronto per i tuoi dati.
+- [CSV d’esempio dell’anagrafica clienti](/downloads/contact-list-template-it-example.csv): due contatti aziendali fittizi che mostrano responsabile e prossimi passi.
+
+Sono file originali e gratuiti, senza registrazione. Entrambi usano UTF-8 con indicatore dell’ordine dei byte e la virgola come separatore. Sono dati semplici, non cartelle di lavoro Excel formattate: niente formule, menu a tendina, promemoria o sincronizzazione automatica. Si tratta di un elenco di contatti aziendali, non di una rubrica di emergenza né di una rubrica da stampare. Per una struttura più ampia, con trattative incluse, leggi la [guida al modello CRM per Excel](/blog/excel-crm-template).
+
+Se l’elenco clienti supera il foglio di calcolo, la nostra guida su come scegliere una [rubrica digitale](/blog/digital-rolodex) mette a confronto contatti del telefono, modelli e CRM.
+
+## Quali campi servono in una scheda cliente Excel?
+
+Tieni una persona per riga. Due persone della stessa azienda hanno ID contatto separati; non mettere due indirizzi e-mail nella stessa cella.
+
+| Campo | Come usarlo |
+| --- | --- |
+| ID contatto | Riferimento stabile come C001; resta invariato anche se cambia il nome. |
+| Nome, Azienda | Identificano la persona e il suo contesto aziendale. |
+| E-mail, Telefono | Tieni solo i canali che servono; le celle vuote vanno bene. |
+| Responsabile | Un collega che si occupa del prossimo passo. |
+| Relazione | Un piccolo vocabolario condiviso, ad esempio Potenziale cliente o Cliente. |
+| Ultimo contatto | Data effettiva dell’ultima conversazione, non la data di modifica del file. |
+| Prossimo passo, Data prossimo passo | Un’azione concordata e una scadenza reale; vuoto se non ce n’è una. |
+| Fonte | Da dove arrivano i dati; non è una prova di consenso al marketing. |
+| Data di verifica | La data che scegli tu per controllare esattezza e necessità del dato, non una scadenza di cancellazione automatica. |
+
+L’esempio lascia volutamente vuoti i numeri di telefono. Aggiungi un indirizzo, un compleanno o note sensibili solo se il lavoro lo richiede davvero. Non trasformare un elenco utile in una raccolta di tutto ciò che riesci a trovare.
+
+## Come importi il CSV in Excel o Google Fogli?
+
+In Excel usa Dati > Da testo/CSV invece di affidarti al doppio clic. Seleziona UTF-8 e la virgola come delimitatore, poi controlla l’anteprima. Prima di caricare, imposta ID contatto, E-mail e Telefono come testo: la conversione automatica può rovinare gli zeri iniziali e i numeri internazionali. Le date usano il formato AAAA-MM-GG: verifica come vengono interpretate prima di usare i filtri per data. Microsoft descrive le opzioni disponibili nella sua [guida all’importazione di testo e CSV](https://support.microsoft.com/en-us/excel/get-started/import-or-export-text-txt-or-csv-files).
+
+In Google Fogli importa il file in un nuovo foglio e controlla separatore e opzioni di conversione. Verifica che le intestazioni occupino colonne diverse e che i nomi con accenti si leggano bene. Se tutto finisce in una sola colonna, scegli esplicitamente la virgola. Dopo aver aggiunto filtri o formattazione, salva una cartella di lavoro Excel o tieni il foglio Google nativo: un CSV non conserva l’aspetto di una cartella di lavoro. Controlla di nuovo ogni esportazione CSV successiva, perché le impostazioni regionali possono cambiare i separatori.
+
+Elimina le righe d’esempio fittizie prima di inserire persone vere. Prova prima con due record e confronta ogni colonna con il file originale. Non abilitare mai formule provenienti da valori importati che non conosci.
+
+## Come trasformate l’elenco in follow up in due?
+
+Ecco un piccolo team di assistenza fittizio al 6 novembre 2026. Sam segue la richiesta di un brief di Alex; Jo segue la domanda di Robin sulla consegna. L’esempio registra le date reali di questo scenario, senza distribuire i compiti in modo uniforme nella settimana.
+
+1. All’inizio della giornata filtra Data prossimo passo per oggi e per le date precedenti. Sam trova C001, controlla la richiesta e invia il brief dopo averlo rivisto.
+2. Sam imposta Ultimo contatto su 2026-11-06. Se Alex non ha concordato un altro passo, Sam cancella la vecchia azione e la data invece di inventare una scadenza. Un follow up scelto a parte deve avere un motivo chiaro.
+3. Jo lascia C002 in scadenza il 2026-11-09, perché in questo esempio è la verifica di consegna concordata. Una data futura non dimostra che il lavoro sia concluso.
+4. Prima di passare la mano, ognuno cerca le azioni aperte senza Responsabile o senza data. Controlla a mano gli indirizzi e-mail duplicati prima di unire i record: una casella condivisa può rappresentare persone diverse.
+
+Tieni un solo file principale, accessibile solo a chi ne ha bisogno. Più copie inviate per e-mail rendono difficile capire quale prossimo passo sia quello aggiornato. La colonna delle date non avvisa nessuno: il controllo deve farlo il team. La [panoramica sulla gestione dei contatti](/features/contact-management) spiega l’alternativa CRM quando l’elenco diventa un lavoro di relazione.
+
+## Come mantieni l’elenco proporzionato e riservato?
+
+Per i trattamenti coperti dal GDPR, la Commissione europea descrive limitazione della finalità, minimizzazione dei dati, esattezza e limitazione della conservazione nei suoi [principi di protezione dei dati](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en). Scegli la finalità e la base giuridica adatta prima di usare dati personali reali. Un modello scaricato non offre né consenso né il permesso di inviare marketing.
+
+Usa i dati aziendali necessari a quella finalità, limita la condivisione, rivedi le voci obsolete ed elimina i dati superflui, salvi gli obblighi di conservazione applicabili. Evita commenti privati o dati personali sensibili nelle celle di testo libero. La Data di verifica è uno spunto per una tua decisione, non un periodo di conservazione legale valido per tutti. Non pubblicare il file compilato con un link di condivisione senza restrizioni.
+
+## Quando conviene spostare l’elenco in Customermates?
+
+Tieni il foglio di calcolo se una persona riesce a mantenerlo in modo affidabile e il controllo quotidiano funziona. Valuta un CRM quando cambiano i responsabili, oppure quando lo storico dei contatti o le aziende collegate diventano difficili da seguire. Customermates accetta importazioni in CSV, XLSX, XLS e JSON tramite il flusso di importazione degli elenchi di record. Usa la [documentazione sull’importazione dei record](/docs/app-records) per controllare la mappatura e l’anteprima prima di importare il file completo.
+
+Crea o scegli l’elenco di destinazione e mappa le colonne con attenzione. In questo CSV i nomi dei responsabili e delle aziende sono testo, non colleghi o organizzazioni collegati in automatico. Configura tu i campi per la data del prossimo passo e per la relazione: sono campi ordinari, non scadenze o stati di attività integrati. Prova con due righe e controlla i record salvati prima di continuare. Importare un file non significa avere un foglio sincronizzato in tempo reale.
+
+Quello che aggiunge il passaggio è la conversazione. La data del prossimo passo sta sulla scheda del cliente, accanto al thread (con Pro, su LinkedIn e e-mail), la tua dashboard mostra cosa è in scadenza e Mate può preparare la risposta, che rivedi e invii tu. Nessuna notifica: apri la dashboard. Per provarlo con i tuoi contatti, [inizia la prova di [[commercial.trial.days]] giorni](/auth/signup?job=followup). Senza carta di credito.
+
+## Domande frequenti
+
+<Faq>
+<FaqItem question="Posso scaricare gratis questo modello di anagrafica clienti per Excel?">
+Sì. I due download CSV sono gratuiti e non richiedono registrazione. Importali in Excel e aggiungi la tua formattazione; non sono inclusi né una cartella di lavoro XLSX né formule.
+</FaqItem>
+<FaqItem question="Posso stamparlo o usarlo in Word?">
+Per stampare, importalo prima in un foglio di calcolo, seleziona solo le colonne che ti servono e imposta l’area di stampa. Il download non è un documento Word, né un PDF, né un foglio già formattato per la stampa.
+</FaqItem>
+<FaqItem question="La data del prossimo passo invia dei promemoria?">
+No. È un valore da filtrare durante il controllo quotidiano. Nessuno dei due CSV invia messaggi o crea promemoria.
+</FaqItem>
+<FaqItem question="Conservare un indirizzo e-mail dà il permesso di fare marketing?">
+No. La fonte registra da dove arriva un dato, non un permesso di marketing. Verifica a parte le regole applicabili e la tua base per contattare la persona.
+</FaqItem>
+</Faq>
+
+Fonti esterne verificate il 6 novembre 2026. L’esempio è fittizio; non include alcun dato di clienti.

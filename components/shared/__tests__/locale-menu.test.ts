@@ -35,7 +35,7 @@ describe("LocaleMenu", () => {
     const blog = markup("cloud");
     expect(blog).toContain('hrefLang="fr"');
     expect(blog).toContain('hrefLang="de"');
-    expect(blog).not.toContain('hrefLang="it"');
+    expect(blog).toContain('hrefLang="it"');
     expect(blog).not.toContain('hrefLang="es"');
     route.pathname = "/pricing";
   });

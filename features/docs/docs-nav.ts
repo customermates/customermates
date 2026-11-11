@@ -8,6 +8,7 @@ import {
   Database,
   FileJson,
   Gauge,
+  History,
   Inbox,
   Key,
   Layers,
@@ -108,6 +109,12 @@ export const DOC_NAV_GROUPS: DocNavGroup[] = [
       { slug: "api-keys", i18nKey: "DocsSidebar.apiKeys", icon: Key },
       { slug: "filter-syntax", i18nKey: "DocsSidebar.filterSyntax", icon: ListFilter },
     ],
+  },
+  {
+    key: "releases",
+    labelEn: "Releases",
+    i18nKey: "DocsSidebar.releases",
+    items: [{ slug: "changelog", i18nKey: "DocsSidebar.changelog", icon: History }],
   },
 ];
 

@@ -1,6 +1,6 @@
 ---
-title: "Agentic AI Examples: Definition and Business Use Cases"
-description: "Agentic AI examples for sales, support, ops and finance: what each agent does, its tools, where a person approves and the risk. Plus a clear definition."
+title: "What Is Agentic AI? Definition, Examples and Limits"
+description: "Agentic AI explained: what it means, how it differs from generative AI and chatbots, examples in sales and CRM work, how it works and where it fails."
 
 relatedHrefs:
   - /blog/agentic-crm
@@ -9,15 +9,15 @@ relatedHrefs:
   - /docs/app-routines
 
 hero:
-  title: "Agentic AI Examples: Definition, How It Works and Real Use Cases"
-  description: "Agentic AI receives a goal instead of a prompt, then plans, uses tools and checks its own results. Examples by business function, how an agent differs from a chatbot, and how to keep it under control."
+  title: "Agentic AI: Definition, How It Works, Examples and Limits"
+  description: "Agentic AI receives a goal instead of a prompt, then plans, uses tools and checks its own results. What it means, how it differs from generative AI and chatbots, examples in sales and CRM work, and where it fails."
 
 blogPost:
   author: Benjamin Wagner
   backToBlog: Back to Blog
   by: by Benjamin Wagner
   date: 2026-04-23
-  updated: 2026-11-02
+  updated: 2026-11-11
   tags:
     - agentic-ai
     - agentic-ai-workflow
@@ -25,33 +25,36 @@ blogPost:
     - CRM
 ---
 
-# Agentic AI Examples: Definition, How It Works and Real Use Cases
+# Agentic AI: Definition, How It Works, Examples and Limits
 
-**Agentic AI** is AI that is given a goal instead of a question: it plans the steps, calls tools such as a CRM, a search or an API, checks what came back and acts, with limited supervision. Typical agentic AI examples are a coding agent that opens a pull request, a support agent that answers or escalates a ticket and a CRM agent that drafts the reply on a deal, each with a point where a person approves.
+**Agentic AI** is AI that is given a goal instead of a question: it plans the steps, calls tools such as a CRM, a search or an API, checks what came back and acts, with limited supervision. It differs from generative AI, which produces content for you to use, and from a chatbot, which follows a script. Typical agentic AI examples are a coding agent that opens a pull request, a support agent that answers or escalates a ticket and a CRM agent that drafts the reply on a deal, each with a point where a person approves.
 
-"Agentic" is the adjective of "agent": something that acts on someone's behalf. IBM's short definition is a good anchor. Agentic AI is "an artificial intelligence system that can accomplish a specific goal with limited supervision" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). The two words that carry the meaning are *goal* and *limited*. Someone still sets the goal, and someone still decides how much the system may do without asking.
+"Agentic" comes from "agent": someone who acts on another's behalf. AWS explains that "agentic" indicates agency, "the ability of these systems to act independently, but in a goal-driven manner" ([AWS](https://aws.amazon.com/what-is/agentic-ai/)). IBM's short definition is a good anchor too: agentic AI is "an artificial intelligence system that can accomplish a specific goal with limited supervision" ([IBM](https://www.ibm.com/think/topics/agentic-ai)). The two words that carry the meaning are *goal* and *limited*. Someone still sets the goal, and someone still decides how much the system may do without asking.
 
-Disclosure: Customermates, an open-source CRM, publishes this guide. One section describes what our product does and does not do; the definitions, examples and risks apply to any agent.
+Disclosure: Customermates, an open-source CRM, publishes this guide. It answers the general question. Running agents on CRM records is covered in the [agentic CRM guide](/blog/agentic-crm) and sales-specific agents in the [AI sales agent guide](/blog/ai-sales-agent); one short section below describes our own product.
 
 <ArticleSummary title="At a glance">
   <SummaryItem label="Definition">
     AI that pursues a goal by planning, calling tools and acting, with limited
     supervision.
   </SummaryItem>
-  <SummaryItem label="Chatbot, assistant, workflow, agent">
-    A chatbot follows a script, an assistant answers and you decide, a workflow
-    follows a path you wrote, an agent chooses its own steps.
+  <SummaryItem label="Not the same as">
+    Generative AI produces content you use, a chatbot follows a script, a
+    workflow follows a path you wrote, an agent chooses its own steps.
   </SummaryItem>
   <SummaryItem label="Examples">
-    Sales reply drafts, support triage, incident response and invoice review,
-    each with its tools, its approval point and its risk (table below).
+    Support triage, incident response, invoice review and coding agents, plus
+    reply drafts, account briefs and record upkeep in sales and CRM work, each
+    with its tools, its approval point and its risk (tables below).
   </SummaryItem>
-  <SummaryItem label="Main risk">
-    Excessive agency: too many tools, too many permissions, or no approval
-    before high-impact actions.
+  <SummaryItem label="Limits">
+    Excessive agency (too many tools, too many permissions, no approval before
+    high-impact actions), errors that cascade and cost that grows with every
+    step.
   </SummaryItem>
   <SummaryItem label="Good first job">
-    A narrow task with a clear end, whose output is a draft a person checks.
+    A narrow task with a clear end, whose output is a draft a person checks
+    (one-page brief below).
   </SummaryItem>
 </ArticleSummary>
 
@@ -71,6 +74,21 @@ The main sources define agentic AI in slightly different words, and the differen
 | [Anthropic](https://www.anthropic.com/research/building-effective-agents) | Agents are "systems where LLMs dynamically direct their own processes and tool usage" | Who controls the path: the model or the code |
 
 The shared core is a goal, tools, and some freedom in how to get there. The disagreement is about how much freedom. MIT Sloan's article itself notes that there is no single agreed definition.
+
+## What is the difference between generative AI and agentic AI?
+
+Generative AI produces content: text, images, code, a summary. You read it and decide what to do with it. Agentic AI uses a language model as what Google Cloud calls a "brain" that performs actions through tools. Google's own example: generative AI could create marketing materials, while agentic AI could then deploy them, track their performance and adjust the strategy based on the results.
+
+| | Generative AI | Agentic AI |
+|---|---|---|
+| You give it | A prompt | A goal |
+| It returns | Content | Actions, plus a report of what changed |
+| Tools | Optional | Required |
+| Who takes the next step | You | The agent, within its limits |
+| A typical mistake | A wrong sentence in a draft | A wrong update, or a message to the wrong person |
+| Where review happens | Before you use the output | Before the action, or in the run log afterwards |
+
+The last two rows are the practical difference. A hallucination in a draft costs you an edit. The same hallucination inside an agent becomes a changed record or a sent email. So agents need permissions and approval rules that a text generator never needed.
 
 ## What is the difference between a chatbot, an assistant, a workflow and an agent?
 
@@ -97,36 +115,20 @@ An agentic AI system is a language model plus four things around it: a goal, too
 
 IBM spells the same cycle out in seven stages: perception, reasoning, goal setting, decision-making, execution, learning and adaptation, and orchestration. What sets an agent's reach is its tools: a model without tool access can describe an action but cannot take it. That is why the [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro), in its maintainers' words "an open-source standard for connecting AI applications to external systems", sits at the centre of so many agent setups. The [MCP server guide](/blog/what-is-an-mcp-server) explains how it works and what to check before connecting one.
 
-### What is the difference between generative AI and agentic AI?
-
-Generative AI produces content: text, images, code, a summary. You read it and decide what to do with it. Agentic AI uses a language model as what Google Cloud calls a "brain" that performs actions through tools. Google's own example: generative AI could create marketing materials, while agentic AI could then deploy them, track their performance and adjust the strategy based on the results.
-
-| | Generative AI | Agentic AI |
-|---|---|---|
-| You give it | A prompt | A goal |
-| It returns | Content | Actions, plus a report of what changed |
-| Tools | Optional | Required |
-| Who takes the next step | You | The agent, within its limits |
-| A typical mistake | A wrong sentence in a draft | A wrong update, or a message to the wrong person |
-| Where review happens | Before you use the output | Before the action, or in the run log afterwards |
-
-The last two rows are the practical difference. A hallucination in a draft costs you an edit. The same hallucination inside an agent becomes a changed record or a sent email. So agents need permissions and approval rules that a text generator never needed.
-
 ## What are examples and applications of agentic AI?
 
-The useful way to read examples is by the job, not the brand: what the agent does, which tools it needs, where a person must approve, and what can go wrong. The table below covers four business functions. The rows are patterns, not products.
+The useful way to read examples is by the job, not the brand: what the agent does, which tools it needs, where a person must approve, and what can go wrong. The table below covers support, operations, finance and software development; sales and CRM work has its own section further down. The rows are patterns, not products.
 
 ### Agentic AI examples by business function
 
 | Function | Example job | What the agent does | Tools it needs | Where a person approves | Main risk |
 |---|---|---|---|---|---|
-| Sales | Reply prep on an open deal | Reads the new email, the deal and its notes, adds the open question to the notes, saves a reply draft | CRM read and write, email thread access | The draft, before it is sent | A wrong fact in the draft, or a reply to the wrong contact |
-| Sales | Account research before a call | Searches the web and the CRM, writes a one-page brief with its sources | Web search, CRM read | Reading the brief before the call | Outdated or invented facts that get copied into the CRM |
 | Support | Answer or escalate a ticket | Reads the ticket, searches the knowledge base, answers when the answer is documented, otherwise hands the case to a person with a summary | Knowledge base search, ticket system, read access to account data | Refunds, account changes and any case the knowledge base does not cover | A confident wrong answer, or a promise nobody approved |
 | Operations | First response to an IT incident | Reads alerts and logs, proposes or performs a rollback, writes the incident report, notifies the person on call | Monitoring and logs, deployment tooling, chat | Production changes and rollbacks | A hard-to-undo action taken on a misread alert |
 | Finance | Invoice and transaction review | Compares incoming invoices with orders and bank lines, proposes matches, flags exceptions | Accounting system or export (read), file reading | Every posting and every payment | A wrong booking, a duplicate payment, exceptions nobody reviews |
+| Software | Fix a failing test | Reads the code and the test output, edits files, reruns the tests, opens a pull request | Repository access, shell commands | The diff or pull request | A change that passes the tests but misses the requirement |
 
-Vendors describe the same jobs. Salesforce's explainer walks through a service agent that checks warranty status, searches the knowledge base, sends a return label and updates the CRM, and an account-health agent that sends a training email and schedules a follow-up for the account manager. [AWS](https://aws.amazon.com/what-is/agentic-ai/) lists customer service automation, incident response automation, shift scheduling and supply chain monitoring. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) adds financial services (fraud detection, risk assessment) and software development. [Anthropic](https://www.anthropic.com/research/building-effective-agents) calls customer support a natural fit because support "naturally follow[s] a conversation flow while requiring access to external information and actions".
+Vendors describe the same jobs. Salesforce's explainer walks through a service agent that checks warranty status, searches the knowledge base, sends a return label and updates the CRM, and an account-health agent that emails the right guide and schedules a follow-up task for the account manager. [AWS](https://aws.amazon.com/what-is/agentic-ai/) lists research and development, code transformation, incident response automation and customer service automation. [Google Cloud](https://cloud.google.com/discover/what-is-agentic-ai) adds financial services (fraud detection, risk assessment) and software development. [Anthropic](https://www.anthropic.com/research/building-effective-agents) calls customer support a natural fit because support "naturally follow[s] a conversation flow while requiring access to external information and actions".
 
 Read the last two columns of the table before the first ones. The more reversible the action, the less approval it needs; payments, refunds, rollbacks and anything sent to a customer should always pass a person.
 
@@ -159,78 +161,65 @@ A second way to sort is by who controls the path. Anthropic's engineering guide 
 
 **Agentic AI vs. AI agents.** Google Cloud calls AI agents "the building blocks of agentic AI": an agent focuses on a specific task, and agentic AI coordinates several agents on a complex workflow. In everyday use the terms are interchangeable.
 
-## How do AI agents work in a CRM? What Customermates does today
+## How is agentic AI used in sales and CRM work?
 
-This section describes our own product, so read it as vendor information. Customermates has three ways for an AI to work on CRM records, and they differ in who starts the work and who approves it.
+CRM work suits agents: the context sits in one place (contacts, deals, notes, the conversation history), the same tasks repeat every day and most changes can be corrected. The table lists the jobs that come up first. They are patterns, not products, and every row ends with a person.
 
-| Route | Who starts it | What it can do | Approval | Who pays for the model |
+| Job | What the agent does | Tools it needs | Where a person approves | Main risk |
 |---|---|---|---|---|
-| **Mate**, the assistant in Customermates Cloud | You, in the chat panel | Creates and updates records, saves drafts, sends emails and chat messages when you ask, sorts the inbox | Deletions, imports, access changes, sharing an account and other listed actions ask every single time | Hosted AI credits of your plan |
-| **Routine** (Cloud) | A schedule or an event such as Email Received | Runs Mate unattended on a saved instruction, as its owner | Actions that need approval in a chat are declined | The owner's credits |
-| **External AI client through [MCP](/docs/mcp)** | You, in Claude, ChatGPT, Claude Code, Codex, Cursor or Gemini CLI | Reads and writes records under the permissions of the connected user | The server only asks clients to confirm before deleting or sending; whether they do is up to the client | Your own AI provider |
+| Reply prep on an open deal | Reads the new email, the deal and its notes, adds the open question to the notes, saves a reply draft | CRM read and write, email thread access | The draft, before it is sent | A wrong fact in the draft, or a reply to the wrong contact |
+| Account research before a call | Searches the web and the CRM, writes a one-page brief with its sources | Web search, CRM read | Reading the brief before the call | Outdated or invented facts that get copied into the CRM |
+| Record upkeep after a conversation | Turns a call summary or an email thread into notes, a changed field and a next step | CRM read and write | A look at the changed fields | Wrong field values, duplicate records |
+| Inbound triage | Sorts new requests into sales enquiries and everything else, creates the contact and a deal for the enquiries | Inbox access, CRM write | The new deal and the draft reply | A real client filed as spam, duplicates |
+| Stalled-deal check | Finds open deals with no contact for a set time and drafts one nudge per deal | CRM read, draft save | Each nudge, before it is sent | A nudge to someone who already replied elsewhere |
 
-Every paid plan includes the Mate entitlement, though whether the assistant is live depends on the hosted environment. The [Mate documentation](/docs/app-assistant) holds the full approval list. Sending is deliberately not on it: an email or chat message goes out the moment Mate sends it, so ask for a draft when you want to review the wording first. The setup guides for [Claude](/blog/claude-crm) and [ChatGPT](/blog/chatgpt-for-sales) cover the MCP route, and the [agentic CRM guide](/blog/agentic-crm) compares Mate and MCP side by side.
+### Where the narrower questions are answered
 
-### A worked example: one narrow agent in a CRM
+This page answers the general question. Two neighbouring guides own the narrower ones, so they are not repeated here.
 
-CRM work suits a first agent well. It repeats every day, the context sits in one place, and most changes can be corrected. Here is a concrete setup, built as a routine: a saved instruction plus a trigger, run by Mate using hosted AI credits.
+| If your question is | Read |
+|---|---|
+| How do I let an AI work on CRM records safely: Mate, MCP, approvals, cloud or self-hosted? | [Agentic and AI-native CRM](/blog/agentic-crm) |
+| Which AI sales agents exist, what do they cost, what does German law say about cold email, how do I pilot one? | [AI sales agent](/blog/ai-sales-agent) |
+| What is an MCP server and what should I check before connecting one? | [MCP server guide](/blog/what-is-an-mcp-server) |
+| How do I connect Claude or ChatGPT to a CRM? | [Claude CRM](/blog/claude-crm) and [ChatGPT for sales](/blog/chatgpt-for-sales) |
+| What do Salesforce's agents do and cost? | [Salesforce Agentforce](/blog/agentforce) |
 
-**What you need.** Customermates Cloud on Pro or higher, because the trigger is an inbox event and the [unified inbox](/features/unified-inbox) starts at Pro. One connected email account (Gmail, Outlook or IMAP).
+### What Customermates does here
 
-<Steps>
-  <Step title="Create the routine">
-    Open **Routines**, click **Add** and give it a name, for example "Reply prep
-    for active deals".
-  </Step>
-  <Step title="Choose the trigger">
-    Select **When something changes** and the event **Email Received**.
-  </Step>
-  <Step title="Write the instructions">
-    Paste the instruction below into **Instructions**. Keep the stop rule and
-    the draft-only rule in it.
-  </Step>
-  <Step title="Read the first runs">
-    Open each run's details to see what triggered it, what Mate read and
-    changed, and the credits it used. Adjust the wording until the drafts are
-    ones you would send.
-  </Step>
-</Steps>
+This is vendor information about our own product. Customermates is an open-source, AI-native CRM. Its [MCP server](/docs/mcp) lets an AI client such as Claude or ChatGPT read and write CRM records with the permissions of the connected user, on every plan and self-hosted; the server asks clients to confirm before deleting or sending, but that is guidance a client may ignore. Customermates Cloud adds Mate, an assistant, and [routines](/docs/app-routines) that run Mate on a schedule or when something changes. Mate asks before deletions, imports, access changes and a few other actions, but not before it sends an email or chat message, so ask for a draft when you want to review the wording first; the [Mate documentation](/docs/app-assistant) has the full list. Whether Mate is live depends on the hosted environment.
 
+It is the wrong choice if you want an agent that prospects and sends on its own: there are no sequences, no mass sending and no lead scoring, and the [AI sales agent guide](/blog/ai-sales-agent) covers dedicated outreach agents instead. A self-hosted installation has MCP but neither Mate nor routines. To see follow-up on your own conversations, [start the [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card. If you are choosing an AI-ready CRM, the [AI CRM guide](/blog/ai-crm) lists what to compare.
+
+## What does one agent run look like? A worked example
+
+Take a small consultancy where a client writes: "Can we move the kickoff to Thursday, and is the training included in the price?" An agent set up for reply prep handles the email in seven steps. The case is illustrative, not a customer story.
+
+| Step | What happens | Tool call | What you can check afterwards |
+|---|---|---|---|
+| 1. Goal | A new email starts the run with the instruction below | None | The trigger and the instruction in the run log |
+| 2. Plan | The model decides it needs the sender's record, the linked deal and the earlier thread | None | The plan, where the product shows it |
+| 3. Act | Looks up the sender | CRM search (read) | The query and its result |
+| 4. Observe | Finds one open deal in a proposal stage; the notes say training is quoted separately | CRM read | Compare with the deal yourself |
+| 5. Act | Adds three lines to the deal notes: Thursday kickoff wanted, training question open | CRM update (write) | The change in the notes |
+| 6. Act | Saves a reply draft: Thursday is possible once confirmed, training is quoted separately according to the notes; marks the Thursday availability as unsure | Draft save (write, not send) | The draft in the thread |
+| 7. Stop | Ends the run with a report of what it read and changed | None | The report; you edit and send the draft |
+
+The instruction behind the run is short, and each line limits what the agent may do:
+
+```text
+Goal: prepare a reply to the new email. Do not send it.
+Read: the sender's contact, the open deal linked to it, the thread.
+Write: three lines in the deal notes (what the sender wants, any date
+or amount, the open question) and one reply draft in the thread.
+Never: send a message, change the deal stage or value, touch other deals.
+Stop: if the sender has no open deal, do nothing and say so.
+Report: what you read, what you changed, what you are unsure about.
 ```
-A new email arrived. Find the sender among my contacts.
-If the contact is linked to a deal that is not in a won or lost stage:
-1. Read the thread and the deal.
-2. Append three lines to the deal's notes: what the sender wants,
-   any date or amount they mention, and the open question.
-3. Save a reply draft in the thread that answers what you can from
-   the deal and its notes. Mark anything you are unsure about.
-Do not send any message. Do not change the deal stage or value.
-If the sender is not linked to an open deal, do nothing.
-```
 
-Why it is written this way:
+Three details do the work. Reading and writing are separate, so the agent can look at everything it needs and change only notes and drafts. The stop rule covers the case nobody planned for. And the approval point is the send button, which stays with a person. In Customermates this run is a routine; the [routines documentation](/docs/app-routines) lists what a routine may do without approval and the [agentic CRM guide](/blog/agentic-crm) explains where Mate and MCP ask and where they do not.
 
-- **Draft-only has to be said.** Mate sends emails and chat messages without a fresh approval when an instruction asks it to. A routine that should only draft must say so.
-- **Unattended runs cannot ask.** In a chat, deletions and a few admin actions wait for your approval. In a routine nobody is there to answer, so those actions are declined and the run records the refusal.
-- **It runs as you.** A routine runs as its owner, with that owner's access, connected channels and credits. An email the owner cannot see never starts a run.
-- **It cannot loop.** Changes made by a routine run never trigger routines.
-- **Browsing and writing are kept apart.** A run can search the web or change data, not both: once a web search has returned results, every write in that run is refused. Text from a web page cannot turn into a changed record in the same run.
-- **Spending is capped.** Each run has a credit cap and each routine an hourly run limit. The current numbers are in the [routines documentation](/docs/app-routines).
-
-**What it costs.** A three-person team on Pro pays [[commercial.price.pro.monthly.seats.3]] per month, at [[commercial.price.pro.monthly]] per user. Each Pro user can keep [[commercial.entitlement.pro.includedRoutinesPerUser]] routines, and every active user gets monthly hosted AI credits; see [pricing](/pricing). A routine spends its owner's credits.
-
-This is the follow-up promise as a routine: when a client writes, the deal notes get the open question, a reply draft waits in the thread, and you review, edit and send it. To run it on your own conversations, [start the [[commercial.trial.days]]-day trial](/auth/signup?job=followup): Pro, no credit card.
-
-### Where Customermates is the wrong choice
-
-- **You want an agent that prospects and sends on its own.** Customermates has no sequences, drip campaigns or mass outreach. Routines have no recipient lists or outreach steps, and outreach is draft-first and per message. The [AI sales agent guide](/blog/ai-sales-agent) covers what dedicated outreach agents do and how to test one.
-- **You self-host.** A self-hosted installation has neither Mate nor routines. MCP works there, with your own AI client and provider.
-- **You need scoped keys.** An API key carries the full permissions of the user who created it, with no per-key scoping, so give that user a role that covers only the task.
-- **You need a server-enforced confirmation on MCP.** The server asks clients to confirm before deleting or sending, but that is guidance the client may ignore. Mate's approvals, by contrast, are enforced by the server.
-
-If an AI-ready CRM is what you are choosing, the [AI CRM guide](/blog/ai-crm) lists what to compare.
-
-## What are the risks of agentic AI, and which controls work?
+## What are the limits and risks of agentic AI, and which controls work?
 
 OWASP lists "Excessive Agency" in its [Top 10 for LLM applications](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) (LLM06:2025) and defines it as the vulnerability that enables damaging actions in response to "unexpected, ambiguous or manipulated outputs from an LLM". The trigger can be a hallucination, a prompt injection hidden in content the agent reads, or a compromised tool. OWASP names three root causes, and each has a direct control:
 
@@ -242,7 +231,13 @@ OWASP lists "Excessive Agency" in its [Top 10 for LLM applications](https://gena
 
 OWASP's own advice for the third row is to use human-in-the-loop control "to require a human to approve high-impact actions before they are taken". Anthropic makes the same point for coding agents: automated tests verify functionality, but "human review remains crucial for ensuring solutions align with broader system requirements".
 
-Two more problems show up in practice. Errors cascade: if the first step misreads an email, every later step builds on the mistake. And cost grows with every step, which is why per-run limits exist. A quick test for any product sold as an agent: which tools can it call, with whose permissions, and what does it do without asking?
+Three more limits show up in practice:
+
+- **Errors cascade.** If the first step misreads an email, every later step builds on the mistake.
+- **Cost grows with every step**, which is why per-run limits exist.
+- **Output still needs review.** GitHub's documentation for its Copilot cloud agent says it "can produce incorrect or suboptimal code" and that the output should be reviewed and tested before production use. The same holds for any agent's drafts and record changes.
+
+A quick test for any product sold as an agent: which tools can it call, with whose permissions, and what does it do without asking?
 
 ## How do I give an agent its first job?
 
@@ -267,6 +262,19 @@ Two more problems show up in practice. Errors cascade: if the first step misread
   </Step>
 </Steps>
 
+Write the answers down as a one-page brief. The right column fills it in for the reply-prep agent from the worked example above.
+
+| Field | The question it answers | Reply-prep example |
+|---|---|---|
+| Goal and end state | What does "done" look like? | A reply draft in the thread and updated deal notes |
+| Trigger | What starts a run? | A new email from a contact with an open deal |
+| Tools, split into read, write and send | What may it reach, and how? | Read the CRM and the thread; write notes and drafts; no sending |
+| Runs as | Whose permissions apply? | A user whose role covers deals and the inbox, nothing else |
+| Stop rule | What happens in a case that does not fit? | No open deal: do nothing and say so |
+| Approval point | Where does a person decide? | Sending the draft |
+| Limits | How much may one run, and the runs of a day, cost? | A cost cap per run and a cap on runs per hour |
+| Log | Where do you read what happened? | The run log, read after every early run |
+
 ## When is agentic AI the wrong tool?
 
 If the steps never change, a fixed rule is cheaper and more predictable than an agent. "When a deal moves to Won, create an onboarding task" needs a webhook and a [workflow automation](/features/workflow-automation), not a language model. Agents earn their cost where the input varies: free-text emails, messy notes, questions that need several lookups. They are the wrong choice where a wrong action cannot be undone and nobody can review it in time, payments being the obvious case.
@@ -278,6 +286,10 @@ Agents read personal data: names, email addresses, the content of conversations.
 ## Frequently asked questions
 
 <Faq>
+<FaqItem question="What does agentic mean?">
+Agentic describes a system that acts with agency: it pursues a goal and takes the steps itself instead of only answering. AWS defines this as the ability to act independently, but in a goal-driven manner. The word comes from "agent", someone who acts on another's behalf.
+</FaqItem>
+
 <FaqItem question="What is agentic AI in simple terms?">
 AI that you give a goal rather than a question. It plans the steps, uses tools such as search, APIs or business software to carry them out, checks the results, and stops when the goal is met or it needs a person.
 </FaqItem>
@@ -309,6 +321,14 @@ Google Cloud calls AI agents the building blocks of agentic AI: the agents do th
 <FaqItem question="What is an agentic workflow?">
 A process in which language models and tools follow a path defined in advance, as opposed to an agent that chooses its own path. Prompt chaining and routing are typical patterns. For most business tasks a workflow is cheaper and easier to control.
 </FaqItem>
+
+<FaqItem question="How is agentic AI used in sales and CRM work?">
+Typical jobs are reply prep on an open deal, account research before a call, record upkeep after a conversation, inbound triage and a check for stalled deals. In each one the agent prepares and a person approves what goes to a client. The AI sales agent guide covers dedicated sales agents, and the agentic CRM guide covers running agents on CRM records.
+</FaqItem>
+
+<FaqItem question="What are the limits of agentic AI?">
+An agent can act on a misread input, errors cascade through the later steps, cost grows with every step and the output still needs review. OWASP groups the main risk as excessive agency: too many tools, too many permissions or too much autonomy. Narrow tasks, drafts instead of direct actions and a stop rule keep those limits manageable.
+</FaqItem>
 </Faq>
 
-Third-party definitions, product descriptions and quotes checked on 2 November 2026 against [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentic AI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (AI agents)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), the [MCP documentation](https://modelcontextprotocol.io/docs/getting-started/intro), the [Claude Code documentation](https://code.claude.com/docs/en/overview) and [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).
+Third-party definitions, product descriptions and quotes checked on 11 November 2026 against [IBM](https://www.ibm.com/think/topics/agentic-ai), [AWS](https://aws.amazon.com/what-is/agentic-ai/), [Google Cloud (agentic AI)](https://cloud.google.com/discover/what-is-agentic-ai), [Google Cloud (AI agents)](https://cloud.google.com/discover/what-are-ai-agents), [MIT Sloan](https://mitsloan.mit.edu/ideas-made-to-matter/agentic-ai-explained), [Salesforce](https://www.salesforce.com/agentforce/what-is-agentic-ai/), [Anthropic](https://www.anthropic.com/research/building-effective-agents), [OWASP](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/), the [MCP documentation](https://modelcontextprotocol.io/docs/getting-started/intro), the [Claude Code documentation](https://code.claude.com/docs/en/overview) and [GitHub Docs](https://docs.github.com/en/copilot/concepts/copilot-surfaces/copilot-on-github).
