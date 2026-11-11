@@ -1,34 +1,34 @@
 ﻿Sectie,Onderdeel,Eigenaar,Geplande waarde,Eenheid,Aanname of berekening,Reviewdatum,Werkelijke waarde,Volgende actie
 Periode,Fictieve planningsinvoer; geen werkelijke resultaten; bereken opnieuw na elke wijziging; geen live formules,,,,,,,
-Periode,2027-01-04 / 2027-04-03,Alex,90,kalenderdagen,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
-Aannames,Doelklant en aanbod,Alex,Project voor het verbeteren van de bedrijfsvoering van kleine dienstverleners,tekst,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Contractdoel,Alex,36000,EUR,6 × 6000,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Contractwaarde per project,Alex,6000,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Benodigde gewonnen deals,Alex,6,contracten,36000 ÷ 6000,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Winstpercentage offertes,Alex,50,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Percentage gesprek-naar-offerte,Alex,40,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Percentage account-naar-gesprek,Alex,25,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Benodigde offertes,Alex,12,offertes,"6 ÷ 0,50",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Benodigde gesprekken,Alex,30,gesprekken,"12 ÷ 0,40",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Benodigde accounts,Alex,120,bedrijven,"30 ÷ 0,25",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Beslistermijn na offerte,Alex,30,kalenderdagen,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Aannames,Extra kasbudget,Alex,0,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,bedrijven,Sam,60,bedrijven,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,gekwalificeerde gesprekken,Alex,20,gekwalificeerde gesprekken,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,offertes,Alex,8,offertes,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,contracten,Alex,0,contracten,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Alex,0,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,bedrijven,Sam,100,bedrijven,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,gekwalificeerde gesprekken,Alex,27,gekwalificeerde gesprekken,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,offertes,Alex,12,offertes,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,contracten,Alex,4,contracten,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Alex,24000,EUR,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,bedrijven,Sam,120,bedrijven,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,gekwalificeerde gesprekken,Alex,30,gekwalificeerde gesprekken,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,offertes,Alex,12,offertes,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,contracten,Alex,6,contracten,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
-Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Alex,36000,EUR,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
-Acties,bedrijven,Sam,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-01-08,,
-Acties,gekwalificeerde gesprekken,Alex,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-01-15,,
-Acties,offertes,Alex,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-03-04,,
-Acties,Levering,Jo,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-04-03,,
+Periode,2027-01-04 / 2027-04-03,Daan,90,kalenderdagen,2027-04-03 - 2027-01-04 + 1,2027-04-03,,
+Aannames,Doelklant en aanbod,Daan,Project voor het verbeteren van de bedrijfsvoering van kleine dienstverleners,tekst,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Contractdoel,Daan,36000,EUR,6 × 6000,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Contractwaarde per project,Daan,6000,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Benodigde gewonnen deals,Daan,6,contracten,36000 ÷ 6000,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Winstpercentage offertes,Daan,50,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Percentage gesprek-naar-offerte,Daan,40,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Percentage account-naar-gesprek,Daan,25,procent,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Benodigde offertes,Daan,12,offertes,"6 ÷ 0,50",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Benodigde gesprekken,Daan,30,gesprekken,"12 ÷ 0,40",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Benodigde accounts,Daan,120,bedrijven,"30 ÷ 0,25",2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Beslistermijn na offerte,Daan,30,kalenderdagen,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Aannames,Extra kasbudget,Daan,0,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,bedrijven,Sanne,60,bedrijven,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,gekwalificeerde gesprekken,Daan,20,gekwalificeerde gesprekken,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,offertes,Daan,8,offertes,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,contracten,Daan,0,contracten,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Daan,0,EUR,,2027-02-02,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,bedrijven,Sanne,100,bedrijven,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,gekwalificeerde gesprekken,Daan,27,gekwalificeerde gesprekken,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,offertes,Daan,12,offertes,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,contracten,Daan,4,contracten,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Daan,24000,EUR,,2027-03-04,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,bedrijven,Sanne,120,bedrijven,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,gekwalificeerde gesprekken,Daan,30,gekwalificeerde gesprekken,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,offertes,Daan,12,offertes,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,contracten,Daan,6,contracten,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
+Cumulatieve mijlpalen,Nieuwe getekende contracten exclusief btw,Daan,36000,EUR,,2027-04-03,,Noteer de werkelijke waarde; bevestig de volgende actie
+Acties,bedrijven,Sanne,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-01-08,,
+Acties,gekwalificeerde gesprekken,Daan,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-01-15,,
+Acties,offertes,Daan,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-03-04,,
+Acties,Levering,Joost,,,Noteer de werkelijke waarde; bevestig de volgende actie,2027-04-03,,
